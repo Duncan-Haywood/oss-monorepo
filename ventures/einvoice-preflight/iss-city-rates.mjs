@@ -35,7 +35,7 @@
 // for competence years 2024 to 2028: Lei 18.066/2023 moved 1.09 from 2.9% to 2%, and from 2029
 // LC 116 art. 8-B cuts every municipal rate. An offline observation, not tax advice.
 
-/** São Paulo's subitem numbers to LC 116's (the four shifted runs above). */
+/** São Paulo's (and Rio de Janeiro's) subitem numbers to LC 116's (the four shifted runs above). */
 export function spToLc(code) {
   const [a, b] = code.split(".").map(Number);
   const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b <= 20 ? 2 : 0;
@@ -85,6 +85,52 @@ function buildSaoPaulo() {
 
 const SP = buildSaoPaulo();
 
+// Rio de Janeiro (IBGE 3304557), Lei 691/1984 (Código Tributário Municipal) art. 33, caput as
+// worded by Lei 8.467/2024 (the consolidated text on legisweb.com.br, read 2026-11-15, checked
+// against the city's own table, carioca.rio "Aliquotas-de-ISS-atualizado2025.pdf"):
+//   I   5%   every service not named in II;
+//   II  item by item, each tied to a kind of service or provider rather than a whole subitem:
+//       3%   1 dredging, construction, hydraulic works, consulting engineering, repair and
+//              renovation of buildings, roads and bridges; 3 advertising carried only on the
+//              internet; 21 logistics for oil and gas exploration (4, cinema exhibition, ended
+//              31 Dec 2022);
+//       0.5% 7 subitems 7.02 and 7.05 in licensed hotel works;
+//       2%   the other 25 items: some name subitems (1.09, 4.03 hospitals, 15.01 funds, and,
+//              in the port area or the UFRJ technology park, 6.04, 8.01, 8.02, 9.01, 12.01-12.11,
+//              item 1, item 2, 30.01), others a kind of provider for any service: item 5 (an
+//              established self-employed professional or professional partnership under Lei
+//              3.720/2004) and item 8 (research institutions, junior companies, technology
+//              companies in incubators). So 2% is a rate Rio's law sets for every subitem.
+//   § 3 (LC 235/2021): item 10's hospitals pay 0.6 points more (2.6%) unless they prove
+//       investment in the city of 2% of revenue.
+// Rio's list (art. 8) closed LC 116's vetoed gaps exactly as São Paulo's did (all 200 subitem
+// texts matched, eval/iss-city-rates-rio-2026-11-15.md), so its own 7.16 (dredging) is LC 7.18
+// and its 17.24 (advertising insertion) LC 17.25; art. 33 items 32 and 33 cite Rio's 17.11
+// (administração em geral, LC 17.12) and 17.19 (economic consulting, LC 17.20).
+// Item 21 names no subitem; 3% is accepted where a logistics service is filed (11.01, 11.04,
+// 16.02, 20.01-20.03), which is this tool's reading.
+
+const RJ_ART33 = [
+  // [rate, item, subitems in Rio's numbering, what]
+  [3, "II, 1", ["7.01", "7.02", "7.03", "7.04", "7.05", "7.15", "7.16", "7.17", "7.18"], "dredging, construction, hydraulic works, consulting engineering, repair and renovation of buildings, roads and bridges"],
+  [3, "II, 3", ["17.24"], "advertising carried only on the internet"],
+  [3, "II, 21", ["11.01", "11.04", "16.02", "20.01", "20.02", "20.03"], "logistics for oil and gas exploration (the item names no subitem)"],
+  [0.5, "II, 7", ["7.02", "7.05"], "works on a licensed hotel project"],
+  [2.6, "art. 33 § 3", ["4.03"], "hospitals and clinics able to admit patients that do not prove the investment § 3 asks"],
+];
+
+function buildRio() {
+  const parts = new Map();
+  for (const [rate, clause, subs, what] of RJ_ART33) for (const s of subs) {
+    const k = spToLc(s);
+    if (!parts.has(k)) parts.set(k, []);
+    parts.get(k).push({ rate, clause, what });
+  }
+  return parts;
+}
+
+const RJ = buildRio();
+
 export const CITIES = {
   "3550308": {
     name: "São Paulo",
@@ -95,6 +141,18 @@ export const CITIES = {
       const item = lcItem.split(".")[0];
       const general = SP.whole.get(lcItem) || SP.items.get(item) || { rate: 5, clause: "IV" };
       return [general, ...(SP.parts.get(lcItem) || [])];
+    },
+  },
+  "3304557": {
+    name: "Rio de Janeiro",
+    law: "Lei 691/1984 art. 33",
+    years: [2024, 2028],
+    rates(lcItem) {
+      return [
+        { rate: 5, clause: "I" },
+        { rate: 2, clause: "II, 5 and 8", what: "a qualifying provider of any service (an established self-employed professional or professional partnership under Lei 3.720/2004, a research institution, junior company or incubated technology company) or a service II names" },
+        ...(RJ.get(lcItem) || []),
+      ];
     },
   },
 };
@@ -122,17 +180,17 @@ export function cityRateProblem({ city, rate, item, year, fraction = "maybe" }) 
   const [general, ...parts] = allowed;
   const shown = readings.length > 1 ? `${rate} (read as ${pct(readings[0])} or ${pct(readings[1])})` : `${rate} (${pct(readings[0])})`;
   const partText = parts.length ? `, or ${parts.map((p) => `${pct(p.rate)} for ${p.what} (${p.clause})`).join("; ")}` : "";
-  const spNote = c.name === "São Paulo" ? spToLcNote(item) : "";
+  const spNote = spToLcNote(item, c.name);
   return {
     message: `The ISS rate is ${shown}, but ${c.name}'s ${c.law} sets ${pct(general.rate)} for LC 116 subitem ${item} (${general.clause})${partText}.${spNote}`,
     fix: `Check the service item and the rate against ${c.name}'s law. A rate the city does not set for this service is usually a wrong ItemListaServico/cTribNac or a rate copied from another city; where the city is not the one where the ISS is due, check MunicipioIncidencia/cLocIncid instead. A Simples Nacional provider, a fixed-amount professional partnership and ISS not due here are not judged.`,
   };
 }
 
-// Where São Paulo's own number differs from LC 116's, say so: a provider copying the city's
-// list writes 17.24 for advertising insertion, which LC 116 numbers 17.25.
-function spToLcNote(lcItem) {
+// Where the city's own number differs from LC 116's, say so: a provider copying São Paulo's or
+// Rio's list writes 17.24 for advertising insertion, which LC 116 numbers 17.25.
+function spToLcNote(lcItem, city) {
   const [a, b] = lcItem.split(".").map(Number);
   const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b >= 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;
-  return back ? ` (São Paulo's own list numbers it ${a}.${String(b - back).padStart(2, "0")}; LC 116 numbers it ${lcItem}.)` : "";
+  return back ? ` (${city}'s own list numbers it ${a}.${String(b - back).padStart(2, "0")}; LC 116 numbers it ${lcItem}.)` : "";
 }

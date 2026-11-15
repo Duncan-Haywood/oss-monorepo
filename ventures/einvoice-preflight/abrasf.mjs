@@ -17,7 +17,7 @@
 //      - ISS retained (IssRetido 1) - DescontoIncondicionado - DescontoCondicionado;
 //      deductions plus the unconditional discount no more than ValorServicos;
 //   4. the rate (ABR-024): Aliquota within LC 116's national 2% to 5% band (iss-rate.mjs);
-//      ABR-025: where the ISS is due in a city whose own rate table is read (São Paulo),
+//      ABR-025: where the ISS is due in a city whose own rate table is read (São Paulo, Rio de Janeiro),
 //      Aliquota against that city's rate for the service (iss-city-rates.mjs).
 //      The ABRASF manual itself was not reachable from the build host; the formulas are as
 //      quoted from integration manuals that reproduce it (see README) and were then measured
