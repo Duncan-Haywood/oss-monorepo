@@ -66,8 +66,8 @@
       "hash": "sha256-c61cd5870065d10c716935d450e5fd15b82883032bb3c6b356e2511e075aefb2"
     },
     "devsec-toolkit": {
-      "version": "0.1.4",
-      "hash": "sha256-e3052f3afe648f3d24c4fa991cc9b555d889de9f47b40cee49f35482e3db513d"
+      "version": "0.1.5",
+      "hash": "sha256-4ae8cd089453d67cdc70c63e661b50ec99ab32081f0600531c114d69e4ac0d82"
     },
     "docker-base-image-eol-check": {
       "version": "0.1.0",
@@ -94,8 +94,8 @@
       "hash": "sha256-55942517e59397172b6030eeabe547e394857d170bcaedf0eecae264ef880e03"
     },
     "jwt-verification-misuse-check": {
-      "version": "0.1.0",
-      "hash": "sha256-e50109328b3a5d46ece44d89697721d558f8927998ddabc49178876f11e0f597"
+      "version": "0.1.1",
+      "hash": "sha256-9b02914813a67e34bffe8f792fc081c4506aebb800372075227132e280b6d1ec"
     },
     "k8s-pod-security-check": {
       "version": "0.1.0",

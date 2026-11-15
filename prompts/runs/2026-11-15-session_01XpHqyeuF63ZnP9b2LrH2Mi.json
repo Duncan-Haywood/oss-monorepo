@@ -32,13 +32,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
   "errors": [
     "Generic --probe in regex-redos-check could not confirm the real exponential patterns (single-character pumps miss structured prefixes like 'Defaults:'); used recheck's attack strings and hand-built inputs instead.",
-    "A background V8 timing pass over all 1,105 recheck-polynomial patterns was still running at merge time; the post makes no claim from it."
+    "A background V8 timing pass over all 1,105 recheck-polynomial patterns hit the 30-minute background limit and was stopped without output; the post makes no claim from it.",
+    "First CI push failed two checks of my own making: checklist-coverage (a *.test.mjs in platform/ci/ needs a line in the CODEOWNERS-gated verify-and-merge.md; moved the test into ventures/regex-redos-check/repo-sweep.test.mjs) and distribution versions.json stale (jwt-verification-misuse-check, devsec-toolkit shipped files changed; ran versions.mjs --write)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -49,6 +50,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "The shift-roster-builder suite takes ~280 s, well past the 120 s tool limit; the note names ai-bookkeeper as the long one, but this suite needs run_in_background too."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "A new *.test.mjs anywhere under platform/ fails checklist-coverage unless this owner-gated file is edited, so a non-control-plane PR can't add a node test there; the workaround is to keep tests inside a venture."
     }
   ],
   "deviations": [

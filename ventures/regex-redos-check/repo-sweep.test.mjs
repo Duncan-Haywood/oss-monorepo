@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { sweep, sourceFiles } from "./check_redos.mjs";
+import { sweep, sourceFiles } from "../../platform/ci/check_redos.mjs";
 
 test("check_redos: flags a new exponential regex, honours the allowlist, skips tests and vendored files", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "redos-"));
@@ -19,4 +19,11 @@ test("check_redos: flags a new exponential regex, honours the allowlist, skips t
   const rel = path.relative(path.resolve(import.meta.dirname, "../.."), path.join(root, "a.mjs")).split(path.sep).join("/");
   assert.equal(sweep(root, new Map([[`${rel}\t^(a+)+$`, "test"]])).fresh.length, 0);
   fs.rmSync(root, { recursive: true });
+});
+
+test("check_redos: this repository's product code has no un-allowlisted exponential suspect", async () => {
+  const { loadAllow } = await import("../../platform/ci/check_redos.mjs");
+  const r = sweep(path.resolve(import.meta.dirname, ".."), loadAllow());
+  assert.deepEqual(r.fresh.map((f) => `${f.file}:${f.line} /${f.pattern}/`), []);
+  assert.deepEqual(r.stale, []);
 });

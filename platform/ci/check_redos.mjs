@@ -6,6 +6,7 @@
 // exponential patterns in shipped products, reachable from a pasted sudoers file, a scanned source line, an
 // uploaded GPX file and a typed wage rule. Nothing in CI would have caught the next one.
 //
+// Tests: ventures/regex-redos-check/repo-sweep.test.mjs (kept there so the venture suite runs it).
 // Usage: node platform/ci/check_redos.mjs [--root DIR] [--json]
 // Exit 1 when an error-level finding is not in the allowlist, or an allowlist entry no longer matches anything.
 import fs from "node:fs";
