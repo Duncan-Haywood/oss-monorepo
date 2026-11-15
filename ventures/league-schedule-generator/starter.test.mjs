@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, STARTERS_WEIGHTED, STARTERS_SHIFT, circleOpp, assignVenues, venueCost, TIMETABLES, storedTimetable, starterPartner, shiftOrientation, shiftVenues, starterShiftVenues, pairHostsOf, venuesFromHosts } from "./carryover.mjs";
 
 // pinned values of the stored timetables (carryover.mjs TIMETABLES)
-const STORED_VALUES = { "12/even": 132, "12/evenAlt": 136, "14/even": 210, "10/odd": 69 };
+const STORED_VALUES = { "12/even": 132, "12/evenAlt": 136, "14/even": 210, "10/odd": 69, "26/even": 670, "28/even": 778, "28/odd": 773, "30/even": 894, "30/odd": 889 };
 
 const seqs = (opp, n) => Array.from({ length: n }, (_, t) => opp.map((o) => o[t]).filter((u) => u < n));
 const decode = ([step, ...flat]) => ({ step, pairs: Array.from({ length: flat.length / 2 }, (_, i) => [flat[2 * i], flat[2 * i + 1]]) });
@@ -386,4 +386,57 @@ test("home-and-away season at a field size with a bye (15 teams): the 16-team sh
   const on = lowCarryOverDoubleRounds(15, { effort: 0.2, breakWeight: 10, fieldShift: true });
   assert.ok(SCORE(on) <= SCORE(off));
   if (on.start !== "field") assert.ok(SCORE(on) < SCORE(off));
+});
+
+// eval/starter-exhaust.c (2026-11-15) enumerates every starter at step 1 only, on the argument that a
+// start renames teams and starter S at step s is the starter s^-1 S at step 1 renamed. Checked here
+// by brute force where it is cheap: every starter, every step coprime to p and every start, against
+// the C program's least values at step 1.
+function allStarters(p) {
+  const out = [], used = new Uint8Array(p), diff = new Uint8Array(p), pairs = [];
+  const rec = () => {
+    let x = 1;
+    while (x < p && used[x]) x++;
+    if (x >= p) { out.push(pairs.map((q) => q.slice())); return; }
+    used[x] = 1;
+    for (let y = x + 1; y < p; y++) {
+      if (used[y]) continue;
+      const d = y - x, e = Math.min(d, p - d);
+      if (diff[e]) continue;
+      used[y] = diff[e] = 1; pairs.push([x, y]);
+      rec();
+      pairs.pop(); used[y] = diff[e] = 0;
+    }
+    used[x] = 0;
+  };
+  rec();
+  return out;
+}
+
+test("starter-exhaust's step-1 reduction: every step and start gives no lower carry-over (6 to 14 teams)", () => {
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  // N -> [starters in Z_(N-1), least value at step 1 from eval/starter-exhaust.c]
+  for (const [N, count, least] of [[6, 1, 42], [8, 3, 48], [10, 9, 94], [12, 25, 156], [14, 133, 212]]) {
+    const p = N - 1, starters = allStarters(p);
+    assert.equal(starters.length, count, `${N} teams: starters`);
+    let atOne = Infinity, any = Infinity;
+    for (const pairs of starters) for (let step = 1; step < p; step++) {
+      if (gcd(step, p) !== 1) continue;
+      for (let start = 0; start < (step === 1 ? p : 2); start++) {
+        const v = carryOverFromOpponents(seqs(starterOpp(N, pairs, { step, start }), N)).value;
+        any = Math.min(any, v);
+        if (step === 1) atOne = Math.min(atOne, v);
+      }
+    }
+    assert.equal(atOne, least, `${N} teams at step 1`);
+    assert.equal(any, least, `${N} teams over every step`);
+  }
+});
+
+test("26 teams: the stored timetable is a starter timetable at step 1 (each round the last shifted by one)", () => {
+  const opp = storedTimetable(26, 26), p = 25;
+  for (let r = 1; r < p; r++) for (let t = 0; t < p; t++) {
+    const prev = opp[r - 1][t], want = prev === p ? p : (prev + 1) % p;
+    assert.equal(opp[r][(t + 1) % p], want, `round ${r}, team ${t}`);
+  }
 });

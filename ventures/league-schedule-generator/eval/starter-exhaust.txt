@@ -1,0 +1,141 @@
+# eval/starter-exhaust.c, 2026-11-15. Build: cc -O3 -march=native -o starter-exhaust eval/starter-exhaust.c
+# Every starter at step 1 (a start renames teams; starter S at step s is s^-1 S at step 1 renamed;
+# brute-force checked over every step and start at 6 to 14 teams in starter.test.mjs). Non-cyclic
+# carry-over, all N teams playing; value = N(N - 2) + 2E. One core of four shared.
+## Starter counts (NOPRUNE=1, every starter visited): the program's own counts
+N 6: starters in Z_p 1, least value 42 (floor 24), 0.0 s
+N 8: starters in Z_p 3, least value 48 (floor 48), 0.0 s
+N 10: starters in Z_p 9, least value 94 (floor 80), 0.0 s
+N 12: starters in Z_p 25, least value 156 (floor 120), 0.0 s
+N 14: starters in Z_p 133, least value 212 (floor 168), 0.0 s
+N 16: starters in Z_p 631, least value 224 (floor 224), 0.0 s
+N 18: starters in Z_p 3857, least value 318 (floor 288), 0.0 s
+N 20: starters in Z_p 25905, least value 360 (floor 360), 0.4 s
+N 22: starters in Z_p 188181, least value 440 (floor 440), 4.1 s
+## Least over every starter (pruned on partial E, exact), against the stored starter (eval/starter-search.mjs, starter-climb.mjs)
+N 24: least E 21 (value 570, floor 528); starters completed under the bound 10; nodes 3051848; 4.0 s
+N 26: least E 23 (value 670, floor 624); starters completed under the bound 10; nodes 16823844; 25.6 s
+N 28: least E 25 (value 778, floor 728); starters completed under the bound 1; nodes 159556086; 265.0 s
+N 30: least E 27 (value 894, floor 840); starters completed under the bound 1; nodes 733641569; 1448.1 s  (cap 53, the old 948)
+18 teams: least 318 (eval: ./starter-exhaust 18, 0.0 s) = stored starter 318: no starter does better
+24 teams: least 570 = stored starter 570 (climbed): no starter does better
+26 teams: least 670 < stored starter 716 -> TIMETABLES[26].even
+28 teams: least 778 < stored starter 828 -> TIMETABLES[28].even; the same timetable with team 27 as the bye gives 773 for 27 teams (odd starter 823) -> TIMETABLES[28].odd
+30 teams: least 894 < stored starter 948 -> TIMETABLES[30].even; with team 29 as the bye 889 for 29 teams (odd starter 891) -> TIMETABLES[30].odd
+25 teams (26's timetable with a bye): 665, the same as the odd starter, not stored
+## Hot windows in eval/window-refill.c (HOT=p), 600 s CPU each, from the built-in starter
+r18a: END best value 318 (E 15), largest cell 2, round robin yes; 681270 moves (339975 hot), 600.0 s
+r18b: END best value 318 (E 15), largest cell 2, round robin yes; 678222 moves (610409 hot), 600.0 s
+r18c: END best value 318 (E 15), largest cell 2, round robin yes; 47419 moves (23621 hot), 600.0 s
+r24a: END best value 570 (E 21), largest cell 2, round robin yes; 332968 moves (166254 hot), 600.0 s
+  r18a HOT=0.5 small windows (NODELIM=50000 WMIN=2 WMAX=4 STALL=5000) seed 31; r18b HOT=0.9 small windows seed 32;
+  r18c HOT=0.5 default windows (NODELIM=200000 WMIN=3 WMAX=6) seed 33; r24a HOT=0.5 small windows seed 34
+  Nothing below the starter at 18 or 24: both starters are the least of their family (above), and the
+  window refill, hot or not, does not leave them in 10 minutes. 10 teams with HOT=0.8: 94 in 2 s (the proved least).
+## Through the search (node: lowCarryOverRounds / lowCarryOverDoubleRounds, effort 1; carry-over / breaks)
+### before
+26 single w0: 716 / 102 start starter (2.0 s)
+26 single w10: 716 / 72 start weighted starter, shift venues (4.0 s)
+26 season w0: 2618 / 230 start starter (3.6 s)
+26 season w10: 2714 / 164 start weighted starter (8.8 s)
+26 single w0: 716 / 102 start starter (1.5 s)
+26 single w10: 716 / 72 start weighted starter, shift venues (4.3 s)
+26 season w0: 2618 / 226 start starter (3.8 s)
+26 season w10: 2714 / 164 start weighted starter, shift venues (9.2 s)
+26 single w0: 716 / 102 start starter (1.4 s)
+26 single w10: 716 / 72 start weighted starter, shift venues (3.9 s)
+26 season w0: 2618 / 226 start starter (3.6 s)
+26 season w10: 2724 / 160 start weighted starter (9.0 s)
+28 single w0: 828 / 114 start starter (1.5 s)
+28 single w10: 978 / 76 start weighted starter (4.3 s)
+28 season w0: 3146 / 270 start starter (3.7 s)
+28 season w10: 3564 / 176 start weighted starter, shift venues (10.1 s)
+28 single w0: 828 / 114 start starter (1.5 s)
+28 single w10: 978 / 74 start weighted starter (4.2 s)
+28 season w0: 3146 / 270 start starter (3.8 s)
+28 season w10: 3564 / 176 start weighted starter, shift venues (9.8 s)
+28 single w0: 828 / 116 start starter (1.5 s)
+28 single w10: 978 / 76 start weighted starter (4.6 s)
+28 season w0: 3148 / 252 start starter (3.6 s)
+28 season w10: 3564 / 178 start weighted starter, shift venues (9.7 s)
+27 s1 single w0: 823 / 174 start starter
+27 s1 single w10: 923 / 52 start shift starter, shift venues
+27 s1 season w0: 3015 / 380 start starter
+27 s1 season w10: 3359 / 148 start shift starter, shift venues
+27 s2 single w0: 823 / 188 start starter
+27 s2 single w10: 923 / 52 start shift starter, shift venues
+27 s2 season w0: 3029 / 383 start starter
+27 s2 season w10: 3449 / 127 start shift starter, shift venues
+27 s3 single w0: 823 / 175 start starter
+27 s3 single w10: 923 / 52 start shift starter, shift venues
+27 s3 season w0: 3079 / 368 start starter
+27 s3 season w10: 3375 / 131 start shift starter, shift venues
+30 single w0: 948 / 136 start starter (1.7 s)
+30 single w10: 1110 / 84 start shift starter, shift venues (4.9 s)
+30 season w0: 3614 / 288 start starter (4.0 s)
+30 season w10: 3950 / 194 start weighted starter (12.2 s)
+30 single w0: 948 / 136 start starter (1.7 s)
+30 single w10: 1110 / 84 start shift starter, shift venues (5.3 s)
+30 season w0: 3614 / 302 start starter (4.7 s)
+30 season w10: 3950 / 194 start weighted starter (12.3 s)
+30 single w0: 948 / 134 start starter (1.6 s)
+30 single w10: 1110 / 84 start shift starter, shift venues (4.8 s)
+30 season w0: 3614 / 300 start starter (4.5 s)
+30 season w10: 3950 / 194 start shift starter, shift venues (12.5 s)
+29 s1 single w0: 891 / 206 start starter
+29 s1 single w10: 1105 / 56 start shift starter, shift venues
+29 s1 season w0: 3393 / 598 start circle
+29 s1 season w10: 3951 / 165 start shift starter, shift venues
+### after
+26 single w0: 670 / 106 start timetable (2.3 s)
+26 single w10: 716 / 72 start weighted starter, shift venues (6.0 s)
+26 season w0: 2618 / 230 start starter (5.6 s)
+26 season w10: 2714 / 164 start weighted starter (11.7 s)
+26 single w0: 670 / 110 start timetable (2.1 s)
+26 single w10: 716 / 72 start weighted starter, shift venues (5.1 s)
+26 season w0: 2610 / 308 start timetable (5.6 s)
+26 season w10: 2714 / 164 start weighted starter, shift venues (10.8 s)
+26 single w0: 670 / 112 start timetable (2.1 s)
+26 single w10: 716 / 72 start weighted starter, shift venues (5.1 s)
+26 season w0: 2618 / 226 start starter (5.1 s)
+26 season w10: 2724 / 160 start weighted starter (12.1 s)
+28 single w0: 778 / 108 start timetable (2.3 s)
+28 single w10: 978 / 76 start weighted starter (5.8 s)
+28 season w0: 3044 / 240 start timetable (5.6 s)
+28 season w10: 3564 / 176 start weighted starter, shift venues (12.6 s)
+28 single w0: 778 / 110 start timetable (2.1 s)
+28 single w10: 978 / 74 start weighted starter (5.7 s)
+28 season w0: 3042 / 368 start timetable (6.0 s)
+28 season w10: 3564 / 176 start weighted starter, shift venues (12.3 s)
+28 single w0: 778 / 110 start timetable (2.2 s)
+28 single w10: 978 / 76 start weighted starter (6.0 s)
+28 season w0: 3038 / 286 start timetable (5.6 s)
+28 season w10: 3564 / 178 start weighted starter, shift venues (11.7 s)
+27 s1 single w0: 773 / 187 start timetable
+27 s1 single w10: 923 / 52 start shift starter, shift venues
+27 s1 season w0: 3015 / 380 start starter
+27 s1 season w10: 3359 / 148 start shift starter, shift venues
+27 s2 single w0: 771 / 184 start timetable
+27 s2 single w10: 923 / 52 start shift starter, shift venues
+27 s2 season w0: 2953 / 431 start timetable
+27 s2 season w10: 3449 / 127 start shift starter, shift venues
+27 s3 single w0: 773 / 186 start timetable
+27 s3 single w10: 923 / 52 start shift starter, shift venues
+27 s3 season w0: 3009 / 438 start timetable
+27 s3 season w10: 3375 / 131 start shift starter, shift venues
+30 single w0: 894 / 156 start timetable (2.5 s)
+30 single w10: 1110 / 84 start shift starter, shift venues (7.0 s)
+30 season w0: 3502 / 328 start timetable (6.4 s)
+30 season w10: 3950 / 194 start weighted starter (14.5 s)
+30 single w0: 894 / 152 start timetable (2.2 s)
+30 single w10: 1110 / 84 start shift starter, shift venues (5.7 s)
+30 season w0: 3502 / 336 start timetable (6.6 s)
+30 season w10: 3950 / 194 start weighted starter (14.6 s)
+30 single w0: 894 / 154 start timetable (2.1 s)
+30 single w10: 1110 / 84 start shift starter, shift venues (5.7 s)
+30 season w0: 3502 / 332 start timetable (6.0 s)
+30 season w10: 3950 / 194 start shift starter, shift venues (14.5 s)
+29 s1 single w0: 879 / 224 start timetable
+29 s1 single w10: 1105 / 56 start shift starter, shift venues
+29 s1 season w0: 3393 / 598 start circle
+29 s1 season w10: 3951 / 165 start shift starter, shift venues
