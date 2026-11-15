@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKo9jLqaMwsg3wAwxNh",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T23:18:31Z",
+  "ended": "2026-11-15T23:34:25Z",
+  "wall_minutes": 16.46,
+  "tokens_in": 4822522,
+  "tokens_out": 31974,
+  "cost_usd": 2.4062,
+  "tool_calls": 50,
+  "task": "perf: open-tennis-robots contactor_bounce_train settle phase early stop (bit-identical)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16378",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Wrote the history doc and code comments dated 2026-11-16 (assumed the day had rolled); corrected to 2026-11-15 before commit.",
+    "First post description was 175 chars; check_post_frontmatter.py caught it, shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are still owner-gated; step 1 is a no-op again, as three earlier runs reported."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/tests/test_cad.py",
+      "issue": "LiftCadTest (PR #16362) lacked skipUnless(HAVE_CAD), so cad/tests errored on main without build123d; fixed in this PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-stop-simulating-once-the-peak-is-proven.md",
+    "docs/history/ci-perf-2026-11-15-open-tennis-settle-early-stop.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `python3 -m unittest discover -s tests` in ventures/open-tennis-robots/cad (130 tests, no build123d, 4 cores, Python 3.11), before (main's params.py) and after run back to back: 75.5 s -> 63.4 s (-16%). contactor_bounce_train over 2,185 recorded+random cases: 64.4 s -> 46.2 s. Pool reading: ci_profile.py --runs 600 --top 25 --steps 30, open-tennis-robots cad step 29.1 job-min, 282 s median. Profile: cProfile on the suite, contactor_bounce_train 91 s cumulative of 149 s. Verification: 2,185 cases repr-equal vs main (0 mismatches); new reference test; red check (stop rule True) fails the test; a naive |ei| bound is not caught (documented). run_venture_tests.py open-tennis-robots: ok, 282 tests, 114.8 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "836ba414-9ce9-51a8-8385-ff66792cfc48",
+    "transcripts": 1,
+    "first": "2026-11-15T23:18:31Z",
+    "last": "2026-11-15T23:34:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 96,
+        "output": 31974,
+        "thinking": 10398,
+        "cache_read": 4719619,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102807,
+        "api_equivalent_usd": 2.4062,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 96,
+      "output": 31974,
+      "thinking": 10398,
+      "cache_read": 4719619,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102807,
+      "api_equivalent_usd": 2.4062,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.46,
+      "active_minutes": 16.46,
+      "model_minutes": 5.87,
+      "tool_minutes": 10.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile, bound derivation, equivalence harness and write-up for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 166.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
