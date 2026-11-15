@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKnUHmv6r65vZP6v9br",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T17:28:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "chant-forge flagship (allocate.py row 8): final-consonant round 4, the l-coda item of next:",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16286",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/README.md",
+      "issue": "README says openings read 742 of 934 and part A 184 of 210, while the committed eval/consonant-check-report.md (reproduced here) says 743 and 183; the f1-tune change moved them and the earlier prose was not updated."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-a-final-l-is-not-a-hum.md",
+    "ventures/chant-forge/README.md (Final consonants, fourth round)"
+  ],
+  "goal": "Deepen a flagship: chant-forge --sing final consonants",
+  "notes": "Measured the sung coda's own spectral tilt (energy >1 kHz vs <500 Hz) on held syllables E2-E4: /l/ 12-25 dB, m/n 38-54 dB. Pre-registered (committed e828ce401 before the first run) a 28 dB murmur-tilt rule in readCoda with four predictions; all held: A 137->157 of 180, al/el 2->12 of 12, B 142 and D 66 unchanged, E 75->76 of 86, new set F (51 scan-check files) /l/ as nasal 1->0 of 4, nasals 96 of 137 either way. Same rule pre-registered for readOnset failed (B nasals 96->64 of 149) and stays off as registered. Found: sung /l/ up to 8 dB louder than its vowel (PHONES.l av 1.4), recorded as next. Checks: node --test sing.test.mjs 15/15; run_venture_tests.py chant-forge 250 tests ok; check_post_frontmatter, check_post_links, post_similarity clean; validate.py ok; venture-preflight see below.",
+  "corrections": [],
+  "redteam": null
+}
