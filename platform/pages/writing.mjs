@@ -67,6 +67,8 @@ export const TOPICS = Object.freeze([
   { id: 'research', label: 'Research findings', blurb: 'What the open research tracks found, with the numbers and caveats.' },
   { id: 'tools', label: 'Tools and projects', blurb: 'What a tool or project does, who it is for and why it exists.' },
   { id: 'stories', label: 'Stories', blurb: 'Fiction from the story shelves: Hearth & Horizon science fiction, For Other Minds, Little Lamps and Saints by Candlelight.' },
+  { id: 'site', label: 'Site design and SEO', blurb: 'How the pages look, read and get found: design passes, accessibility, SEO, answer-engine optimisation and llms.txt.' },
+  { id: 'testing', label: 'Testing and red team', blurb: 'Do the tests catch real faults? Red-team campaigns that seed bugs, mutation testing, and the checks that came out of them.' },
   { id: 'infrastructure', label: 'Hosting and infrastructure', blurb: 'Hosting, CI, performance and the plumbing under the site.' },
 ]);
 const TOPIC_IDS = new Set(TOPICS.map((t) => t.id));
@@ -79,6 +81,17 @@ const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', '
 // to-do list, its audio cap, its story queue) carries a process or hosting tag and stays
 // where it was. `ai-agents` is not one of those: For Other Minds stories are about agents.
 const FICTION_TAGS = ['fiction', 'science-fiction', 'short-story', 'bedtime-story', 'hearth-and-horizon', 'for-other-minds', 'little-lamps', 'saints-by-candlelight'];
+// Site craft and test campaigns: about how the pages and test suites are made, even when a
+// post names the tool it worked on, so they are checked before the venture rule. Until
+// 2026-11-15 they filed under "Tools and projects" (about 300 of its 2,846 posts).
+const SITE_TAGS = ['polish', 'seo', 'aeo', 'llms-txt'];
+const TESTING_TAGS = ['redteam', 'red-team', 'mutation-testing', 'fault-injection'];
+// Weaker signals, used only for a post that names no project: a design or accessibility
+// change to one tool is about that tool, a generic one is about the site; likewise testing,
+// CI. Not `performance`: a post making one tool faster carries it too.
+const SITE_LOOSE_TAGS = ['accessibility', 'design', 'css', 'site', 'web-design', 'structured-data'];
+const TESTING_LOOSE_TAGS = ['testing', 'test-coverage', 'property-testing'];
+const PLUMBING_LOOSE_TAGS = ['ci', 'build', 'caching'];
 const BACKSTAGE_TAGS = ['process', 'prompting', 'prompt-engineering', 'engineering-management', ...INFRA_TAGS];
 
 /**
@@ -86,8 +99,9 @@ const BACKSTAGE_TAGS = ['process', 'prompting', 'prompt-engineering', 'engineeri
  * are the newcomer's way in, so they group together whatever else they name; quality audits
  * (`quality-audit`, portfolio/quality/) grade work from every track, so they group apart; opinion pieces are about
  * steering the fleet; then fiction (`FICTION_TAGS`, unless it is about running a shelf); then research (the `research` tag, or a tag naming a project in
- * `research/`); then a named venture, tool or channel; then
- * hosting and CI plumbing; then anything about agents; everything else is a tool or project.
+ * `research/`); then red-team and mutation-testing campaigns; then polish, SEO and AEO work; then a named venture, tool or channel; then
+ * hosting and CI plumbing; then anything about agents; then, for a post that matched none of those,
+ * generic testing, site design, or CI and performance; everything else is a tool or project.
  * A post the rules file wrongly says so with `topic:` in its front matter.
  *
  * `projects` holds the slugs of `research/` and `ventures/` (`projectSlugs()`). Research posts
@@ -102,9 +116,14 @@ export function topicOf(tags = [], explicit = '', projects = NO_PROJECTS) {
   if (tags.includes('opinion')) return 'agents';
   if (has(FICTION_TAGS) && !has(BACKSTAGE_TAGS)) return 'stories';
   if (tags.includes('research') || tags.some((t) => projects.research.has(t))) return 'research';
+  if (has(TESTING_TAGS)) return 'testing';
+  if (has(SITE_TAGS)) return 'site';
   if (has(TOOL_TAGS) || tags.some((t) => projects.ventures.has(t))) return 'tools';
   if (has(INFRA_TAGS)) return 'infrastructure';
   if (has(AGENT_TAGS)) return 'agents';
+  if (has(TESTING_LOOSE_TAGS)) return 'testing';
+  if (has(SITE_LOOSE_TAGS)) return 'site';
+  if (has(PLUMBING_LOOSE_TAGS)) return 'infrastructure';
   return 'tools';
 }
 const NO_PROJECTS = Object.freeze({ research: new Set(), ventures: new Set() });
