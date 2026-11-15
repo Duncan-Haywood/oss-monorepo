@@ -1,5 +1,10 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 22 planned: the paper's capacity sections (milestones 14–21)
+
+- **Why.** `paper/draft.md` stops at milestone 13. Milestones 14–21 answer the paper's structural question (what an escaped missed nail costs a shear wall) and check the capacity model against Weiss's (2017) decayed-wall tests through eight models. None of it is in the paper, so a reviewer would see the robot results with no capacity check behind them.
+- **Plan.** Add methods 4.9–4.10 and results 5.13–5.14 to the draft, carry the finding into the abstract, discussion, limitations and conclusion, and tie every quoted number to its results file in `paper/check_numbers.py`. No new computation; every number is read from `experiments/m14`–`m21` results files.
+
 ## 2026-11-15 · Milestone 21 result: nails that lose strength with dissipated energy lower every wall alike, and lift the decayed shares; the 3 in wall stays above 70% at code strength
 
 `experiments/m21_degrading/` (run.py, results.txt, results.json, check_diag.py, check_diag.txt, figure.py, figure.png); `wall_cyclic.Saws(gamma=...)` and `Saws.degrading`; `tests/test_wall_degrading.py` (5 tests). About 35 min on four CPUs (72 CUREE runs of 3,000–9,300 steps, 8 monotonic pushes).
