@@ -1,7 +1,8 @@
 // On 350-400 copy weeks, is the open-hours clique LP worth the seconds it takes from the cover passes? Builds the end-to-end
 // generator's weeks (eval/end-to-end.mjs, same seed rule as eval/cg-overrun.mjs) at the default 20 s budget, once per
 // (configuration, search seed), and prints one JSON line per build: open hours, proof gap, which LPs ran, and stage times.
-//   node eval/clique-vs-cover.mjs P S week config seed      config: default | noclique | JSON options
+//   node eval/clique-vs-cover.mjs P S week config seed      config: default | noclique | unguided | guide90 | JSON options
+// Results: eval/clique-vs-cover.out.txt (summary of the three .jsonl runs), README "The clique LP steers the cover passes".
 import { parseStaff, parseShifts, buildRoster } from "../calc.mjs";
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const [P, S, week] = [2, 3, 4].map((i) => Number(process.argv[i]));
