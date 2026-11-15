@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 130 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 131 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -134,6 +134,15 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   (SWHM(32, 3)) halves the false-alarm cost (0.53 points) but starves the fall-back where the ladder fails (14.94% against
   11.83%), 4.69% overall. All six predictions held; the false alarms are the test's, not the fall-back's:
   [`experiments/hedge_probe/`](experiments/hedge_probe/results.txt).
+- **Confirming the pilot-probe guard's alarm with a second random probe trades true alarms for false ones (milestone 131,
+  replay of the same 90 cells, no flow run).** SWQ(32, 1) falls back only when one more of the subset's mapped points (one the
+  fall-back routes first anyway) also beats the subset's best. False alarms on the 40 cells where the ladder is perfect drop from
+  12% to 4% of draws (cost 1.15 to 0.39 points), but true alarms on the 17 failing cells drop from 34% to 14% (11.83% to 14.40%),
+  so mean regret rises to 4.53% against SWP(32)'s 4.39%, though SWQ is better on 47 cells and worse on 20 (interval -0.24 to
+  +0.57 points). Given an alarm, the second probe confirms 42% of the time on failing cells and 30% on perfect ones: one more
+  random point carries little evidence. A relative margin of 0.5% to 5% on y[u] - y[t] is flat (4.38% to 4.42%). Two of six
+  predictions refuted; the subset test with random probes looks exhausted, and SWG(32) (3.91%) stays ahead:
+  [`experiments/confirm_probe/`](experiments/confirm_probe/results.txt).
 - **A probe the ladder pays for anyway makes the first measured guard that beats the unguarded ladder on mean (milestone 129,
   replay of the same 90 cells, no flow run).** Routing a mapped 32-point subset's clipped-ladder best against the timing pilot SWC
   already routes, and routing randomly with the unspent budget when the pilot wins (SWP(32)), has 4.39% mean regret against 4.77%

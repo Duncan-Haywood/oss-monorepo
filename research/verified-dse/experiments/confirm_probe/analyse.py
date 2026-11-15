@@ -186,7 +186,9 @@ def main(dst):
             f"cells where SWC loses to random by > 1 point ({len(bad)}): {means(bad)}",
             f"cells where SWC <= 0.5% ({len(good)}): {means(good)}",
             f"distrust share, SWP(32): {fs(bad, 'P'):.2f} where SWC loses, {fs(good, 'P'):.2f} where SWC <= 0.5%",
-            f"distrust share, SWQ(32,1): {fs(bad, 'Q1'):.2f} where SWC loses, {fs(good, 'Q1'):.2f} where SWC <= 0.5%", ""]
+            f"distrust share, SWQ(32,1): {fs(bad, 'Q1'):.2f} where SWC loses, {fs(good, 'Q1'):.2f} where SWC <= 0.5%",
+            f"confirmation rate given an alarm (descriptive, added after the table): {fs(bad, 'Q1') / fs(bad, 'P'):.2f} where SWC "
+            f"loses, {fs(good, 'Q1') / fs(good, 'P'):.2f} where SWC <= 0.5%", ""]
     out += sp.compare_lines(rows, ((swq, swp, "SWQ(32,1)", "SWP(32)"), (swq, swc, "SWQ(32,1)", "SWC"),
                                    (swq, rand, "SWQ(32,1)", "random"), (swq, swg, "SWQ(32,1)", "SWG(32)")), SEED)
     out += ["", "## Grid (descriptive; SWQ(32, 1) was fixed before the table)", "",
