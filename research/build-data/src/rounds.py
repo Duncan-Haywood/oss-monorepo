@@ -21,6 +21,12 @@ candidate) under the variants that early-stop, and records the round each quanti
                (session 89: the deployable version)
   cens_*_cap   as cens_*, the upper pseudo-row at the stratum's longest completed build instead of +infinity
                (session 89, post hoc: censored_pseudo(cap=True))
+  cpin_cut     cut_only's rows plus the sources' permits of years <= Y-2 still open at D, each kept as "at least its
+               window" in a censored pinball loss (src/cpin.py: custom gradient, leaves renewed to the censored
+               loss's minimiser); early-stopped on the whole Y-1, complete labels (session 90)
+  cpin_es3     es3's years with the open permits kept the same way, in training and in the Y-3 early-stopping
+               set, which is scored by the censored loss (session 90: the deployable version)
+  cpin_es3_done  es3's rows (completed by D only) through the same custom loop: checks the loop against es3
 
 --score also scores cascade2's transfer predictions on the held-out city's test year (all rows; mean
 pinball loss over the 3 seeds, as select_deploy's test_loss) and writes results/rounds_score_i2c.json.
@@ -37,7 +43,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import boosted, transfer  # noqa: E402
 
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
-            "cens_cut_cap", "cens_es3_cap")
+            "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done")
 
 
 def splits(frames, held, Y, variant, floor=0.05):
@@ -78,7 +84,46 @@ def splits(frames, held, Y, variant, floor=0.05):
     return tr, (transfer.completed_by(ca, D) if variant == "es_truncate" else ca), None, None
 
 
+def cpin_rounds(frames, held, Y, variant, seeds, score=False):
+    """Session 90: the cpin_* variants (censored pinball loss, src/cpin.py)."""
+    import cpin
+    D = datetime.date(Y, 1, 1)
+    src = [c for c in transfer.CITIES if c != held and c in frames]
+    cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
+    if variant == "cpin_cut":
+        tr, ca = cat(lambda d: d.year <= Y - 2), cat(lambda d: d.year == Y - 1)
+        ytr, otr = cpin.censor(tr, D)
+        yca, oca = ca.y.to_numpy(float), np.zeros(len(ca), bool)
+    else:
+        tr, ca = cat(lambda d: (d.year <= Y - 4) | (d.year == Y - 2)), cat(lambda d: d.year == Y - 3)
+        if variant == "cpin_es3_done":
+            tr, ca = transfer.completed_by(tr, D), transfer.completed_by(ca, D)
+        ytr, otr = cpin.censor(tr, D)
+        yca, oca = cpin.censor(ca, D)
+    te = frames[held][frames[held].year == Y]
+    Xtr, Xca = transfer.feats(tr), transfer.feats(ca)
+    Xte = transfer.feats(te) if score else Xca.iloc[:1]
+    out, loss, preds = {}, {t: [] for t in transfer.TAUS}, {}
+    for s in range(seeds):
+        r = {}
+        for t in transfer.TAUS:
+            pr, r[t] = cpin.fit_one(Xtr, ytr, otr, Xca, yca, oca, Xte, t, seed=s)
+            if score:
+                loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr, t).mean()))
+                if t == 0.9:
+                    preds[str(s)] = dict(max=float(pr.max()), share_above_3650=float((pr > 3650).mean()))
+        out[str(s)] = {str(t): int(v) for t, v in r.items()}
+    res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
+    if score:
+        res["n_test"] = len(te)
+        res["test_loss"] = {str(t): sum(v) / len(v) for t, v in loss.items()}
+        res["test_pred_q90"] = preds
+    return res
+
+
 def rounds(frames, held, Y, variant, seeds, score=False, floor=0.05):
+    if variant.startswith("cpin_"):
+        return cpin_rounds(frames, held, Y, variant, seeds, score)
     tr, ca, w, wca = splits(frames, held, Y, variant, floor)
     te = frames[held][frames[held].year == Y]
     xt = transfer.feats(te) if score else transfer.feats(ca.iloc[:1])

@@ -1,5 +1,21 @@
 # build-data log
 
+## Session 90, 2026-11-15: a censored pinball objective for LightGBM (open permits charged only while the prediction is below their window; leaves renewed to the censored loss's own minimiser) (in progress)
+
+Why: session 89 found Portnoy pseudo-rows wreck LightGBM's quantile tail because leaf renewal snaps leaves onto the pseudo-rows' far-right labels. Its "Next" asked for a loss that charges an open permit only while the prediction is below its window and never sets a leaf from a stand-in label.
+- Method (`src/cpin.py`): an open source permit (issued before D = 1 January Y, not completed by D) enters with its window c = D - issue day and loss tau * max(c - q, 0); completed rows keep the pinball loss. Each round grows a LightGBM tree on this loss's gradient (custom objective, unit hessian) and then sets every leaf to the shrunken minimiser of the censored loss over its rows: a weighted percentile of the residuals (weight 1 per completed row, tau per open one, level tau * n). This is the same leaf renewal LightGBM's quantile objective does, with the censored loss in place of the pinball loss; with no open rows it reduces to it (`tests/test_cpin.py`). Departure from session 89's "Next": leaves are renewed from the censored loss rather than given a fixed hessian scale, because the scale had no source and renewal matches the built-in objective the baselines use.
+- Variants (`src/rounds.py`): `cpin_cut` (cut_only's years with the open permits of years <= Y-2 kept as lower bounds; early-stopped on the whole Y-1 with complete labels), `cpin_es3` (es3's years with open permits in training and in the Y-3 early-stopping set, scored by the censored loss: deployable), `cpin_es3_done` (es3's completed rows through the custom loop: checks the loop against es3). full, cut_only, es3, ipcw_es3 come from session 88's `rounds_score_ipcw_i2c.json`.
+Design (fixed before any run): cascade2 class; H = sf, seattle (Austin held out if time allows, reported, not tested); Y = 2021, 2022; 3 seeds; fresh pull; `rounds.py DIR --score --variants cpin_es3 cpin_cut --out-name rounds_score_cpin_i2c.json`, then `cpin_es3_done` on SF 2021.
+Predictions (written before any run; q0.9 = cascade2's mean pinball loss on all test-year rows, 3 seeds, change against session 88's full):
+- (P1) cpin_es3's SF and Seattle q0.9 mean change is below ipcw_es3's +2.53 days.
+- (P2) cpin_es3's q0.9 loss is below ipcw_es3's in at least 3 of the 4 SF and Seattle city-years.
+- (P3) No cpin_es3 or cpin_cut q0.9 test prediction exceeds 3,650 days in any cell and seed.
+- (P4) cpin_cut's q0.9 loss is within 1 day of full's in at least 3 of the 4 (G1 and C1 again).
+- (P5) cpin_cut recovers at least half of cut_only's q0.9 cost in at least 3 of the 4.
+- (P6) cpin_es3's SF and Seattle q0.5 mean change is at most ipcw_es3's +0.34 days.
+- (P7, check) cpin_es3_done's SF 2021 q0.9 test loss is within 0.5 days of es3's.
+Refuted if any part fails.
+
 ## Session 89, 2026-11-14: keeping the open permits as lower bounds (Portnoy-style censored pseudo-rows, Kaplan-Meier levels) makes the borrowed tail model far worse, not better: +36.4 days at q0.9 in SF and Seattle (cut variant) and +84.9 (deployable), against ipcw_es3's +2.53, because LightGBM's quantile leaf renewal snaps leaves onto the pseudo-rows' far-right labels; capping them at the longest completed build halves the damage (+21.8, +14.5) but q0.9 predictions still reach 25,600 days (C1 to C5 and K1 to K6 refuted)
 
 Why: session 88 found 55 to 65% of the source permits the training cut drops (still open on D = 1 January Y) outlast every window their city-year has, so no reweighting of completed rows can stand for them. Its "Next" asked to keep each open permit as a lower bound on its build time.
