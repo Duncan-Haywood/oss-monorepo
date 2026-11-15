@@ -9,7 +9,7 @@ import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mj
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 import { checkFacturae, looksLikeFacturae } from "./facturae.mjs";
-import { checkNavInvoice, looksLikeNavInvoice } from "./hungary-nav.mjs";
+import { budapestToday, checkNavInvoice, looksLikeNavInvoice } from "./hungary-nav.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -132,7 +132,8 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       if (!looksLikePdf(name, source) && looksLikeNavInvoice(peek)) {
         // Hungary's NAV Online Számla 3.0 data report (InvoiceData, or a manageInvoice request carrying
         // it in Base64) is its own schema, not EN 16931: NAV's blocking codes and WARN arithmetic.
-        const hungarian = checkNavInvoice(peek);
+        // A preflight runs before the report is sent, so today (in Budapest) stands in for the day NAV receives it.
+        const hungarian = checkNavInvoice(peek, { reportDate: budapestToday() });
         const m = hungarian.meta;
         reports.push({ file: name, errors: hungarian.findings, envelope: `Read as a Hungarian NAV Online Számla 3.0 ${m.request ? `manageInvoice request (${m.operations} operation${m.operations === 1 ? "" : "s"})` : "invoice data report"}${m.category ? `, ${m.category}` : ""}${m.modification ? " modifying document" : ""}, not EN 16931`, ...(hungarian.skipped.length ? { skipped: hungarian.skipped } : {}) });
         continue;

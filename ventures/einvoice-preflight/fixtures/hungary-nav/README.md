@@ -14,3 +14,4 @@ password hash, request signature and exchange token were replaced, since the che
 | `several-vat-types.xml` | `Belfoldi ertekesites tobb AFA tipus.xml` (exempt, reverse charge, margin scheme; it carries two summary typos the checker reports) |
 | `manageInvoice.xml` | `API sample/manageInvoice.xml` (three Base64 invoiceData operations with electronicInvoiceHash; the embedded invoices carry the 2.0 `privatePersonIndicator`, which the 3.0 XSD refuses) |
 | `product-fee.xml` | `Termekdijas szamla.xml` (two lines with KT product fee content, a DEPOSIT productFeeSummary of three codes) |
+| `aggregate.xml` | `Gyujtoszamla 2.xml` (an AGGREGATE invoice; its four lineDeliveryDate values are in 2019 while the header delivery date is 2021-05-13, which Annex I warning 321 reports; `Gyujtoszamla 1.xml`, the same invoice, has 2021 line dates) |

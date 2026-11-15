@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNMectUDXFFgKrEzmY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "58b5cec786884831b6143a6022f8fc3e1c0cbaf7a02482c3dab18d5ce8f79fa6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T11:56:07Z",
+  "ended": "2026-11-15T12:08:41Z",
+  "wall_minutes": 12.72,
+  "tokens_in": 12121180,
+  "tokens_out": 65121,
+  "cost_usd": 5.4112,
+  "tool_calls": 77,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16207",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first coverage count matched NAV codes by a 30-character prefix and reported I.1 date codes 312/313 and I.2 595/631/5810/5820 as covered; they were not. Caught by reading the module and fixed before the PR.",
+    "check_calendar_dates.py (run by run_workflow_locally --for-changes) caught that the new isDate accepted 2026-02-30 via Date.parse rollover; fixed with a UTC round-trip and a test."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/hungary-nav-mutations.mjs",
+      "issue": "first() placed seeded values with indexOf, so a VAT-code mutation on taxpayerId 98765432 changed the tax number instead; added tail() (lastIndexOf)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-nav-header-warnings-a-2019-that-never-moved.md",
+    "ventures/einvoice-preflight/eval/nav-annex1-head-lines-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Flagship row 3 einvoice-preflight, item Annex I I.1/I.2. HU-034 (23 header warnings) and HU-035 (19 line-data warnings) added. NAV samples: one new real finding (Gyujtoszamla 2.xml 2019 line dates), 805 mutants with 796 caught (172/172 new). run_venture_tests.py einvoice-preflight: 2494 tests, 0 failed. Local verification only, no CI wait. Local ventures-tests.yml run found the calendar-date lint failure; fixed and rerun: run_venture_tests.py --since origin/main 6 suites, 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "86bf717d-6e24-5f97-9e4c-1190a0c65440",
+    "transcripts": 1,
+    "first": "2026-11-15T11:56:07Z",
+    "last": "2026-11-15T12:08:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 142,
+        "output": 65121,
+        "thinking": 14544,
+        "cache_read": 11905141,
+        "cache_write_5m": 0,
+        "cache_write_1h": 215897,
+        "api_equivalent_usd": 5.4112,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 142,
+      "output": 65121,
+      "thinking": 14544,
+      "cache_read": 11905141,
+      "cache_write_5m": 0,
+      "cache_write_1h": 215897,
+      "api_equivalent_usd": 5.4112,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.72,
+      "active_minutes": 12.72,
+      "model_minutes": 10.93,
+      "tool_minutes": 1.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "reading ~60 pages of NAV spec, implementing and testing 42 warnings, eval and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 184.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
