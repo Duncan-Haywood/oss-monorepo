@@ -103,7 +103,7 @@
     {
      "slug": "decision-regret-transfer",
      "title": "What does a verifier's score gap cost in decisions?",
-     "summary": "Exact calibration functions turning a proper-score gap into a certified cap on accept/audit/slash regret: Brier transfers as &epsilon;&sup2;, log as a KL, polyhedral hinge linearly but without proper elicitation, and an audit action tightens the guarantee; the certificate is never violated in simulation and is attained by a two-point verifier. Stylised."
+     "summary": "Exact calibration functions turning a proper-score gap into a certified cap on accept/audit/slash regret: Brier transfers as &epsilon;&sup2;, log as a KL, polyhedral hinge linearly but without proper elicitation, and an audit action tightens the guarantee. The average-case certificate is sound by construction, never violated by 12,252 worst-case point-mass verifiers and within one grid step of tight. The binary case is Reid &amp; Williamson (2009); the three-action certificate is the addition. Stylised."
     },
     {
      "slug": "reject-surrogates",

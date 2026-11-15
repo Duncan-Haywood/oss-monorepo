@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNHrf6Qa8JPvQjMcdd",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products); merge when done",
+  "input_sha256": "c80ba5e82dd7c0d78cd065fda4c44b439a58dd31b05efd640ad8e8859ab0292e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T12:04:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality fix mode: decision-regret-transfer unsound average-case certificate (high defect)",
+  "projects": [
+    "research/decision-regret-transfer"
+  ],
+  "pr": 16204,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-quality-fix-a-hull-of-samples-is-not-a-lower-bound.md"
+  ],
+  "goal": "fix the open high-severity defect with a regression test, per quality mode fix",
+  "notes": "Mode fix (quality_audit.py mode; sample would have drawn seed 2026-11-15-c-b168, not run). Subject: research/decision-regret-transfer (census audit 2026-11-15). Queue had 3 high rows; codesign-aero already had open PR #16198. Fixed all 7 defects of the audit: envelope() now hulls the step's lower corners (x_k, delta(x_{k-1})) on uniform+geometric grid. Point-mass soundness sweep: 10,115/12,396 tight pairs violated before, 0/12,252 after (eps >= 1e-6 x max regret), slack <= 1.111. Seeded mutants: 6/6 caught now (audit: 1/6), incl. revert to old hull. Tests: 12 OK in ~12 s (PYTHONPATH=src python3 -m unittest discover -s tests). run.py re-run (E2/E5 certificates +1-2.5%, new E7 sweep), figure redrawn. Claims restated, prior work cited (Reid & Williamson, Steinwart, Chow, Bartlett & Wegkamp, Ramaswamy et al.). Share meeting bar: not applicable (fix round, no new scores). Fix PRs: #16204. Audit file fixed_by set on all 7 defects.",
+  "corrections": [],
+  "redteam": null
+}

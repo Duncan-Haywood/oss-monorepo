@@ -10,9 +10,13 @@ divergence D(eta, q) (Brier: (eta-q)^2, log: KL), its excess score is D(eta, q).
     delta(eps) = min { D(eta, q) : decision regret of acting on q at eta >= eps }
 is the exact worst-case decision regret for a given excess score; acting on q is optimal only when q is in the region, so the
 minimum over q is D(eta, clip(eta, region)) and delta is computed by bisection on the (piecewise-linear, convex) regret.
-Averages transfer through the lower convex envelope psi of delta (Jensen): E[regret] <= psi^{-1}(E[D]).
+Averages transfer through a convex nondecreasing psi <= delta (Jensen): E[regret] <= psi^{-1}(E[D]); envelope() builds psi
+from the lower corners of a step function below delta, so it is sound by construction (one grid step of slack).
 """
 import math
+
+__all__ = ["EPS", "brier_D", "log_D", "RULES", "Costs", "delta", "delta_bruteforce", "envelope", "regret_bound",
+           "hinge_regret", "expit", "logit", "simulate"]
 
 EPS = 1e-12
 
@@ -58,7 +62,8 @@ class Costs:
         return self.cost(a, eta) - self.best(eta)
 
     def action(self, q):
-        """Bayes-optimal action if q were the truth (ties go to the first region containing q)."""
+        """Bayes-optimal action if q were the truth (ties go to the first region containing q; q is clipped to [0, 1])."""
+        q = min(max(q, 0.0), 1.0)
         for a, (lo, hi) in self.regions.items():
             if lo <= q <= hi:
                 return a
@@ -109,10 +114,28 @@ def delta_bruteforce(costs, rule, eps, n=1500):
     return best
 
 
+def _grid(top, m):
+    """Increasing grid on [0, top]: m uniform steps plus a geometric ladder (ratio 0.9) down to 1e-9 * top, so small gaps stay tight."""
+    pts = {top * k / m for k in range(m + 1)}
+    x = top
+    while x > 1e-9 * top:
+        pts.add(x)
+        x *= 0.9
+    return sorted(pts)
+
+
 def envelope(costs, rule, m=400):
-    """Lower convex envelope psi of delta on [0, max regret], as a list of (eps, psi) vertices."""
+    """A convex, nondecreasing psi <= delta on [0, max regret], as a list of (eps, psi) vertices.
+
+    delta is nondecreasing, so on a grid 0 = x_0 < x_1 < ... the step s(eps) = delta(x_{k-1}) for eps in (x_{k-1}, x_k]
+    lies below delta. psi is the lower convex hull of the step's lower corners (x_k, delta(x_{k-1})). Hulling the samples
+    (x_k, delta(x_k)) themselves is NOT sound: between nodes that hull can lie above delta and Jensen then fails
+    (quality census 2026-11-15). The price is one grid step of slack: psi^{-1}(delta(eps)) <= the next grid point above eps.
+    """
     top = costs.max_regret()
-    pts = [(top * k / m, 0.0 if k == 0 else delta(costs, rule, top * k / m)) for k in range(m + 1)]
+    xs = _grid(top, m)
+    ds = [0.0] + [delta(costs, rule, x) for x in xs[1:]]
+    pts = [(0.0, 0.0)] + [(xs[k], ds[k - 1]) for k in range(1, len(xs))]
     pts = [p for p in pts if p[1] < math.inf]
     hull = []
     for p in pts:
