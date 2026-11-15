@@ -66,7 +66,7 @@
     "ventures/changepoint-detector/eval/nb-size-local-preregistration.md"
   ],
   "goal": "Deepen a flagship: fix a real estimation bug behind an open item",
-  "notes": "negbinSize read clumping against the global mean, so on growing counts it returned Infinity and --overdispersion nb fell back to Poisson. The new local-level capped-mean estimator: steep bends located 280/500 (was 81/500), range covers 278/280 (was 72%), false bends on straight growth 0/100 (was 11/100), Poisson still Poisson 99/100. 8 pinned real-series tests moved to fewer changes; no documented date lost (Ansett stop/restart, seat-belt law still found).",
+  "notes": "negbinSize read clumping against the global mean, so on growing counts it returned Infinity and --overdispersion nb fell back to Poisson. The new local-level capped-mean estimator: steep bends located 280/500 (was 81/500), range covers 278/280 (was 72%), false bends on straight growth 0/100 (was 11/100), Poisson still Poisson 99/100. 8 pinned real-series tests moved to fewer changes; no documented date lost (Ansett stop/restart, seat-belt law still found). Verification: run_venture_tests.py changepoint-detector ok (749 tests, 222.8 s); venture-preflight clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
