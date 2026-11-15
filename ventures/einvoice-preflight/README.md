@@ -1585,6 +1585,32 @@ Croatia's Fiskalizacija 2.0 made structured e-invoices compulsory for domestic B
 - **Refused before writing.** An unknown label, a label with a category other than E or a rate above 0, a label on an allowance (HR-BR-30 names lines and charges only), a label outside the hr profile, an allowance or charge with no reason (BR-33, BR-38) or no positive amount, and allowances larger than their VAT row.
 - **Not done.** No real Croatian invoice with a deposit or PP, and no receiver's verdict. An HR:E line and an out-of-scope amount share the one EN E row (BR-E-01) with joined reasons, which both engines accept but no sample shows. Percent allowances, reason codes, line-level allowances and charges, cash accounting (`HRObracunPDVPoNaplati`) and the EUR VAT total of a non-EUR invoice are not written.
 
+## SdI receipts: every rejection code explained and checked against the file (2026-11-15)
+
+Drop the receipt SdI sent back (`*_NS_001.xml` and the others) into the checker,
+the server API or the batch report, ideally with the invoice. `sdi-receipt.mjs`
+reads the rejection receipt (NS), delivery receipt (RC), could-not-deliver
+receipt (MC), metadata (MT) and, for public bodies, the outcome (NE, EC01/EC02),
+deadline (DT), attestation (AT) and refused-outcome (SE) notices, in both the B2B
+and the PA namespace.
+
+| Finding | What it says |
+|---|---|
+| `SDI-<code>` | One per error in the receipt: what SdI refused and how to fix it, from specification 1.9's control list (all 64 codes, `SDI_CODES`), SdI's own text and suggestion (long digit runs withheld), and the rule here that checks it offline, or why no file-only check can (register, archive, signature). With the invoice in the batch: `reproduced` true or false, and why. |
+| `SDI-HASH` | The receipt's Hash (SHA-256 of what SdI received) against the file dropped beside it: information when it matches, a warning when it differs. |
+| `SDI-EC01` / `SDI-EC02` | A public body's acceptance, or refusal with its reason. |
+| `SDI-PASSED` | SdI delivered a file this checker still flags (SdI does not check foreign tax ids or bank details). |
+
+Pairing is by file name (a `.p7m` suffix ignored) or by hash, and covers
+FatturaPA and the EN 16931 UBL and CII files SdI carries for public bodies.
+New FatturaPA rule `IT-034`: the transmitter's Italian tax id must pass its
+check digit (SdI 00300), and `IT-003`, `IT-004` and `IT-005` now name 00301,
+00305, 00306 and 00417. Every code is on a generated page,
+`sdi-error-codes.html` (`node build-sdi-codes-page.mjs`; its test fails if the
+page and the table drift). Measured on 33 public receipts, including a real
+00305 rejection that INV-023 reproduces on the rejected file:
+`eval/sdi-receipts-2026-11-15.md`.
+
 ## ZATCA stamp: hash, signature and QR against the file (2026-11-14)
 
 ZATCA's published BR-KSA rules check that a Saudi invoice *has* a QR code and a
