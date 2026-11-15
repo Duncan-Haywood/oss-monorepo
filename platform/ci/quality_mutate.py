@@ -118,6 +118,26 @@ def starts_with_cd(cmd: list[str]) -> bool:
     return " ".join(cmd).lstrip().startswith("cd ")
 
 
+def repo_relative_args(cmd: list[str], cwd: Path) -> list[tuple[str, str]]:
+    """[(arg, the same path written from `cwd`)] for test-command words that name a
+    path under `cwd` from the repository root (`ventures/x/tests` run inside
+    `ventures/x`). Such a path does not exist where the command runs, so the
+    baseline fails with only "the suite is red" (three run records, 2026-11-13
+    and 11-14, each lost a round of mutants to it)."""
+    prefix = cwd.as_posix().rstrip("/") + "/"
+    out = []
+    for word in " ".join(cmd).split():
+        bare = word.strip("'\"")
+        for opt in ("", "--rootdir=", "--start-directory="):
+            if opt and bare.startswith(opt):
+                bare = bare[len(opt):]
+        if bare.removeprefix("./").rstrip("/") + "/" == prefix:
+            out.append((bare, "."))
+        elif bare.startswith(prefix) or bare.startswith("./" + prefix):
+            out.append((bare, bare.split(prefix, 1)[1] or "."))
+    return out
+
+
 def run(cmd: list[str], cwd: Path, timeout: int) -> tuple[str, float, str]:
     """Run `cmd`; return ('pass'|'fail'|'timeout', seconds, output tail)."""
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
@@ -151,7 +171,9 @@ def digest(path: Path) -> str:
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
     if "--" not in argv:
-        print("usage: quality_mutate.py FILE --old TEXT --new TEXT [options] -- TEST COMMAND...", file=sys.stderr)
+        print("usage: quality_mutate.py FILE --old TEXT --new TEXT [options] -- TEST COMMAND...\n"
+              "TEST COMMAND runs in the subject root (ventures/<slug>), so its paths are relative "
+              "to it; or start it with `cd <path> &&` to run from the repository root.", file=sys.stderr)
         return 2
     split = argv.index("--")
     cmd = argv[split + 1:]
@@ -213,6 +235,11 @@ def main(argv: list[str] | None = None) -> int:
                 return 2
             if state != "pass":
                 print(tail, file=sys.stderr)
+                hints = [] if from_top else repo_relative_args(cmd, cwd)
+                for arg, local in hints:
+                    print(f"hint: the command runs in {cwd.as_posix()}/, so `{arg}` is written from the "
+                          f"repository root; write `{local}` (or prefix the command with "
+                          f"`cd {cwd.as_posix()} &&`).", file=sys.stderr)
                 print("baseline failed: the suite is red without the mutant, so it cannot "
                       "grade one. Fix or narrow the test command first.", file=sys.stderr)
                 return 2
