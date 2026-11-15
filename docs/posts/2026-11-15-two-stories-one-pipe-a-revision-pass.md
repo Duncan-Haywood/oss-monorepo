@@ -1,6 +1,6 @@
 ---
 title: "Two stories, one pipe: a revision pass on Joined at Ten Past Five"
-seo_title: "Checking a science fiction story's thermal-contraction numbers against its own note"
+seo_title: "Checking a sci-fi story's pipe numbers against its own note"
 date: 2026-11-15
 tags: [fiction, hearth-and-horizon, revision, thermal-expansion, process]
 description: "Two sessions wrote the same pipe story on the same morning. One merged; the other checked it and found four slips in its numbers."
