@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLsd7FhGQBuFPC2G9L",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: ventures brief (develop, deploy, market, sell revenue-generating software; merge when done)",
+  "input_sha256": "212817b26db0098ff8af878137e3a3b79b9267340046136305039ffd83abf429",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T09:18:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight flagship: Hungary NAV 3.0 XSD pass (NTCA common 1.0) and product fee totals",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 16157,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/hungary-nav-samples-2026-11-15.md",
+      "issue": "Said NTCA common 1.0 was not in NAV's repositories and Annex I was not in the repository; both were (Common tag common-1.0.0; Annex I in the 2026.02.12 English PDF from about page 300). Corrected in the new eval doc and README."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Picked ai-bookkeeper (78 commits in 7 days, every next: item needs a real outside input or is far into diminishing returns); took einvoice-preflight (row 3, no PR in 24 h) instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The session-id pick (ai-bookkeeper) had no buildable item with real marginal value; einvoice-preflight's next: named two items buildable from public NAV repositories.",
+      "did": "Took flagship row 3, einvoice-preflight",
+      "result": "Both items landed and measured"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-nav-hungary-schema-was-in-a-tag.md",
+    "ventures/einvoice-preflight/eval/nav-xsd-and-product-fee-2026-11-15.md"
+  ],
+  "goal": "Close the two open Hungary items in einvoice-preflight's next: the XSD pass and product-fee totals, measured against xmllint and NAV's samples.",
+  "notes": "Built build-nav-schema.mjs / nav-xsd-data.mjs / nav-xsd.mjs (HU-027..032, namespace-aware) and HU-033 product fee warnings (Annex I ids 270-810). Differential vs xmllint on NAV's 30 samples: seeds 1/2/3 gave 1162/2867/2880 mutants, 100% verdict agreement (6,909). Real finding: the three invoices inside NAV's manageInvoice.xml API sample use the 2.0 privatePersonIndicator; xmllint refuses them too. Local checks: run_venture_tests einvoice-preflight ok; run_workflow_locally --for-changes: only failure was the new post's front matter (description/seo_title length), fixed in a second commit; check_post_frontmatter and shorts.test.mjs then pass; inherited_keys lint fixed. venture-preflight rerun after the fix.",
+  "corrections": [],
+  "redteam": null
+}
