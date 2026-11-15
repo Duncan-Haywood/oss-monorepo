@@ -46,6 +46,10 @@
 //    three frames off each end: 173), with no A syllable read as a nasal that is not one. Same predictions
 //    (1)-(5); (6) and (7) carry over unchanged, as readCoda and the synthesis are untouched by it. G is
 //    printed for the third time, its misses still hidden.
+//    Result, second registration (one run): (1) G 1869 of 2349 (79.6%): holds; (2) G's nasals 278 of 404:
+//    holds (no gain); (3) G's control false nasals 135: holds; (4) B 753 of 934: holds, but its nasals 95 of
+//    149 (one short) and its control false nasals 73 (not 62 or fewer): fail; (5) A 188 of 210, control 210:
+//    holds; (6), (7): hold. Kept, with (4)'s two lines failed: README "Openings on the coda murmur".
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
