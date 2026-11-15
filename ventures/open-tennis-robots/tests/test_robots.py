@@ -529,7 +529,26 @@ class FirmwareTest(unittest.TestCase):
         self.assertEqual(config.LIFT_JAM_REST_MS, p.lift_jam_rest_ms)
         self.assertEqual(config.LIFT_JAM_RETRIES, p.lift_jam_retries)
         self.assertEqual(config.LIFT_DUTY, p.lift_duty)
+        self.assertEqual(config.LIFT_RAMP_MS, p.lift_ramp_ms)
         self.assertEqual(p.check_lift_jam(), [])
+        bad = Feeder(lift_ramp_ms=250.0)
+        self.assertTrue(any("soft start" in m for m in bad.check_lift_jam()))
+
+    def test_lift_soft_start_ramps_every_start(self):
+        # 2026-11-15, cad/README.md "Lift coupling dynamics": the first start and the retry after a trip both ramp
+        lift = controller.LiftRun(16000, 1.0, blank_ms=400, trip_ms=10, rest_ms=2000, retries=1, ramp_ms=100)
+        lift.kick(0)
+        duties = [lift.update(t, False) for t in range(0, 120, 10)]
+        self.assertAlmostEqual(duties[0], 0.1)
+        self.assertEqual(duties, sorted(duties))
+        self.assertEqual(duties[9:], [1.0, 1.0, 1.0])
+        for t in range(400, 430, 10):
+            lift.update(t, True)                                 # stalled past the blanking: cut
+        self.assertEqual(lift.update(500, False), 0.0)
+        self.assertAlmostEqual(lift.update(2420, False), 0.1)    # the retry ramps again
+        plain = controller.LiftRun(16000)                        # ramp_ms 0: straight to full duty
+        plain.kick(0)
+        self.assertEqual(plain.update(0, False), 1.0)
 
     def test_lift_run_on_covers_the_cad_return_time(self):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))

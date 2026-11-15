@@ -580,11 +580,18 @@ class LiftRun:
     off and `jammed` is set (telemetry FLAG_LIFT_JAM) until `clear()`, which the board calls when the switched bus
     drops: someone pressed the e-stop, which is how a person reaches into the lift. A stop (watchdog, ESTOP frame) does
     not clear it: the Pi reconnecting must not drive the belt into the same jam. A run-on that ends untripped resets
-    the retry count."""
+    the retry count.
 
-    def __init__(self, run_on_ms, duty=1.0, blank_ms=400, trip_ms=10, rest_ms=2000, retries=1):
+    Soft start (2026-11-15, cad/README.md "Lift coupling dynamics"): every start, the first and each retry, ramps the
+    duty up over `ramp_ms` instead of switching straight to `duty`. The jaw coupling between the gearmotor and the
+    drive shaft is a spring with free play: a switched start lets the rotor cross the play at speed and ring the
+    coupling's mode, putting up to 2.3 times the soft start's torque on the slip hub, and with a hard, worn spider an
+    empty belt's start slips the hub. The ramp sits inside the jam blanking, so the cutoff is unchanged. 0 switches straight to `duty`."""
+
+    def __init__(self, run_on_ms, duty=1.0, blank_ms=400, trip_ms=10, rest_ms=2000, retries=1, ramp_ms=0):
         self.run_on_ms = run_on_ms
         self.duty = duty
+        self.ramp_ms = ramp_ms
         self.blank_ms, self.trip_ms, self.rest_ms, self.retries = blank_ms, trip_ms, rest_ms, retries
         self.until = None
         self.on_since = None          # when the motor was last switched on
@@ -638,6 +645,8 @@ class LiftRun:
                 return 0.0
         else:
             self.over_since = None
+        if self.ramp_ms > 0:
+            return self.duty * min(1.0, (now_ms - self.on_since + 10) / self.ramp_ms)
         return self.duty
 
 
