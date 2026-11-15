@@ -50,7 +50,9 @@ const num = (v) => {
 };
 
 // Date.UTC rolls a day the month does not have into the next month (30 February -> 2 March): refuse it.
+// Minutes past 59 roll into the next hour the same way (14:75 -> 15:15): refuse them too.
 const realUtc = (y, mo, d, h = 0, mi = 0) => {
+  if (h > 23 || mi > 59) return NaN;
   const t = Date.UTC(y, mo - 1, d, h, mi);
   const back = new Date(t);
   return back.getUTCMonth() === mo - 1 && back.getUTCDate() === d ? t : NaN;
