@@ -185,12 +185,12 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: NAV Online Számla 3.0 reader HU-001..026,
-      NAV's 30 samples: 27 clean, 5 real faults,
-      eval/hungary-nav-samples-2026-11-15.md). Open: a real HU report with NAV's
-      businessValidationMessages, the XSD pass (NTCA common 1.0), product-fee
-      totals; a real signed Facturae file or FACe rejection; ZATCA stamp check
-      landed (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
+      History: README and git (latest: NAV 3.0 schema gate HU-027..032 with NTCA
+      common 1.0, 5,776 of 5,776 mutants agree with xmllint,
+      eval/hungary-nav-xsd-2026-11-15.md). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text, product-fee totals; a
+      real signed Facturae file or FACe rejection; ZATCA stamp check landed
+      (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
       explained and paired with the file; a real 00305 reproduced,
       eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection with its
       file; HR: a real HR invoice, cash accounting; CIUS-PT: which validator does AT

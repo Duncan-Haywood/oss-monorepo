@@ -104,7 +104,13 @@ test("NAV's manageInvoice sample: three Base64 operations, electronicInvoiceHash
   assert.equal(r.meta.operations, 3);
   assert.ok(!r.findings.some((f) => f.rule === "HU-016"));
   // The sample's placeholder data uses 0.25 on a 2020 delivery: NAV's current list refuses it.
-  assert.ok(r.findings.every((f) => f.rule === "HU-005"));
+  // And each operation still carries 2.0's privatePersonIndicator where 3.0 wants customerVatStatus
+  // (xmllint on NAV's XSD agrees: "privatePersonIndicator: This element is not expected").
+  assert.ok(r.findings.every((f) => ["HU-005", "HU-027", "HU-029"].includes(f.rule)));
+  const schemaFaults = r.findings.filter((f) => f.rule !== "HU-005");
+  assert.equal(schemaFaults.length, 6);
+  assert.ok(schemaFaults.filter((f) => f.rule === "HU-027").every((f) => /privatePersonIndicator/.test(f.message) && /customerVatStatus/.test(f.fix)));
+  assert.ok(schemaFaults.filter((f) => f.rule === "HU-029").every((f) => /customerVatStatus is required in customerInfo/.test(f.message)));
   const tampered = request.replace(/(<electronicInvoiceHash cryptoType="SHA3-512">)0/, "$11");
   assert.ok(checkNavInvoice(tampered).findings.some((f) => f.rule === "HU-016" && /does not match/.test(f.message)));
   const lower = request.replace(/(<electronicInvoiceHash cryptoType="SHA3-512">)([0-9A-F]+)/, (m, a, h) => a + h.toLowerCase());
