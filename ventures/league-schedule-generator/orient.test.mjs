@@ -150,7 +150,7 @@ test("minPlusStep equals the double loop: byes, repeated pairs, any table to com
   }
 });
 
-test("minPlusStep in WebAssembly equals the JS loop, whole and priced tables, 2 to 16 matches", async () => {
+test("minPlusStep in WebAssembly equals the JS loop, whole (int16 and int32) and priced tables, 2 to 16 matches", async () => {
   const { MINPLUS_WASM_ON } = await import("./orient.mjs");
   process.env.MINPLUS_JS = "1";
   const js = await import("./orient.mjs?js-only");
@@ -171,10 +171,17 @@ test("minPlusStep in WebAssembly equals the JS loop, whole and priced tables, 2 
     const fi = Int32Array.from({ length: 1 << A.length }, () => Math.floor(rand() * 40));
     const ff = Float64Array.from({ length: 1 << A.length }, () => rand() * 40);
     const msg = `n ${n} A ${JSON.stringify(A)} B ${JSON.stringify(B)}`;
-    const wi = minPlusStep(fi, A, B), wf = minPlusStep(ff, A, B);
-    assert.ok(wi instanceof Int32Array && wf instanceof Float64Array, msg);
+    // whole-break tables under 30,000 run as int16 in the module (README "Whole-break tables in
+    // int16"); a wide one, negatives included, keeps the int32 loop: both must equal the JS loop
+    const fw = Int32Array.from({ length: 1 << A.length }, () => Math.floor(rand() * 2000000) - 1000000);
+    const wi = minPlusStep(fi, A, B), wf = minPlusStep(ff, A, B), ww = minPlusStep(fw, A, B);
+    assert.ok(wi instanceof Int32Array && wf instanceof Float64Array && ww instanceof Int32Array, msg);
     assert.deepEqual(wi, js.minPlusStep(fi, A, B), msg);
     assert.deepEqual(wf, js.minPlusStep(ff, A, B), msg);
+    assert.deepEqual(ww, js.minPlusStep(fw, A, B), msg);
+    // at the int16 edge: entries up to 29,999 plus up to 2 a step still fit
+    const fe = Int32Array.from({ length: 1 << A.length }, () => 29999 - Math.floor(rand() * 3));
+    assert.deepEqual(minPlusStep(fe, A, B), js.minPlusStep(fe, A, B), msg);
   }
 });
 
