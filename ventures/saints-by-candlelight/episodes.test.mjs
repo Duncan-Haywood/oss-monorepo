@@ -117,3 +117,21 @@ test('list_done moves a Done entry with its continuation lines and keeps quoted 
   assert.ok(once.startsWith(DONE_HEAD) && once.endsWith('\n\n- *(Done: episode 9, A.)* x\n  more\n'));
   assert.ok(appendDone(once, [['- *(Done: episode 10, B.)*']]).endsWith('  more\n- *(Done: episode 10, B.)*\n'));
 });
+
+// PRODUCTION.md's "Audio status" names which episodes have audio. It used to
+// name the text-only range as well ("episodes 20 to 123"), which every new
+// episode made stale, so each episode run edited it by hand (doc_friction,
+// 2026-11-15). The line now names only the rendered range, and this keeps it
+// true: rendering an episode, or dropping an MP3, fails here until it says so.
+test('PRODUCTION.md audio status matches audio/manifest.json', () => {
+  const text = readFileSync(path.join(ROOT, 'PRODUCTION.md'), 'utf8');
+  const status = text.split('## Audio status')[1]?.split('\n## ')[0] ?? '';
+  const m = status.match(/Episodes 1 to (\d+) have audio; every later episode is text only/);
+  assert.ok(m, 'Audio status should open "Episodes 1 to N have audio; every later episode is text only"');
+  const voiced = episodes.filter((ep) => audio[ep.slug]).map((ep) => ep.number);
+  const n = Number(m[1]);
+  assert.deepEqual(voiced, Array.from({ length: n }, (_, i) => i + 1),
+    `audio/manifest.json voices episodes ${voiced.join(', ')}; update the Audio status range`);
+  assert.doesNotMatch(status, /episodes? \d+ to \d+ (?:are|is) text only/i,
+    'name only the rendered range; a text-only range goes stale with every episode');
+});
