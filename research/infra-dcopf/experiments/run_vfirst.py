@@ -281,7 +281,9 @@ def main():
     if "--summary" in sys.argv:
         rows = json.loads(jpath.read_text())
     elif "--merge" in sys.argv:  # combine the per-case files written by --part runs
-        rows = [json.loads((parts / f"{c}_{k}.json").read_text()) for c, k in CASES]
+        rows = [json.loads((parts / f"{c}_{k}.json").read_text()) if (parts / f"{c}_{k}.json").exists()
+                else {"case": c, "kind": k, "error": "not finished (still running when the results were merged)"}
+                for c, k in CASES]
         jpath.write_text(json.dumps(rows, indent=1, default=float))
     elif "--part" in sys.argv:  # one case per process, written as soon as it finishes (a run can outlive a job limit)
         parts.mkdir(exist_ok=True)
