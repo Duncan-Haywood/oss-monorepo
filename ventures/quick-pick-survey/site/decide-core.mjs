@@ -410,9 +410,30 @@ export const DECIDE_MARGIN = 0.25;
  * simulated runs: a weighted average pulls options together, so neighbours
  * further down rarely separate, and the person came to choose one.
  */
-export function decisionDone(table, answers, { rule = "winner" } = {}) {
+export function decisionDone(table, answers, { rule = "winner", level = STOP_CONFIDENCE } = {}) {
   if (!(answers.crit.length > 0 && answers.opt.length > 0)) return false;
-  return table.confidence >= STOP_CONFIDENCE || (rule === "winner" && table.safe >= STOP_CONFIDENCE);
+  return table.confidence >= level || (rule === "winner" && table.safe >= level);
+}
+
+/**
+ * The stop's level after the checkpoint. Every answer is another look at the
+ * results, and a stop that is checked after every answer for up to 3 x
+ * decisionMax answers gets more chances to end on a lucky run of picks. So
+ * past the checkpoint the allowed miss shrinks with the answer count:
+ * level = 1 - (1 - STOP_CONFIDENCE) x (decisionMax / answers)^LONG_RUN_POWER,
+ * 0.9 up to the checkpoint, then 0.929 at twice it and 0.942 at three times
+ * (power 0.5). On simulated people who say "much" for 63% of picks (tau 1)
+ * the runs that stopped on their own kept the 0.25 promise in 214 of 235
+ * (0.91) against 233 of 263 (0.89) before, for 10% more picks; power 1
+ * reached 0.92 for 16% more, and shrinking the guard's tau instead reached
+ * 0.89 (docs/DECIDE-PAGE.md "The guard over long runs"). `longRun: "none"`
+ * is the page before it.
+ */
+export const LONG_RUN_POWER = 0.5;
+export function longRunLevel(nOptions, nCriteria, answerCount, { longRun = "level", power = LONG_RUN_POWER } = {}) {
+  const base = decisionMax(nOptions, nCriteria);
+  if (longRun === "none" || longRun === "tau" || answerCount <= base) return STOP_CONFIDENCE;
+  return 1 - (1 - STOP_CONFIDENCE) * Math.pow(base / answerCount, power);
 }
 
 /**
@@ -429,17 +450,22 @@ export function decisionDone(table, answers, { rule = "winner" } = {}) {
  * table the decision rests on (the guard's, when it ran).
  */
 export const GUARD_TAU = 1;
-export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule = "winner", guardTau = "auto", draws = 400 } = {}) {
-  if (!decisionDone(table, answers, { rule })) return { done: false, table };
+export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule = "winner", guardTau = "auto", draws = 400, longRun = "level", power = LONG_RUN_POWER } = {}) {
+  const t = answers.crit.length + answers.opt.length;
+  const level = longRunLevel(nOptions, nCriteria, t, { longRun, power });
+  if (!decisionDone(table, answers, { rule, level })) return { done: false, table };
   const graded = [...answers.crit, ...answers.opt.map(([, x, y, t, g]) => [x, y, t, g])];
   if (!hasGrades(graded)) return { done: true, table };
   // A person who says "much" for most picks can sit below GUARD_TAU too, so the guard
   // reads at their own estimated tau when that is lower (estimateTau tracked tau 1,
   // 2 and 3 at 1.2, 2.3 and 3.4 on simulated people).
   const lists = [[nCriteria, answers.crit], ...Array.from({ length: nCriteria }, (_, c) => [nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t, g]) => [x, y, t, g])])];
-  const tau = guardTau === "auto" ? Math.min(GUARD_TAU, estimateTau(lists)) : guardTau;
+  let tau = guardTau === "auto" ? Math.min(GUARD_TAU, estimateTau(lists)) : guardTau;
+  // longRun "tau" (measured, not shipped): past the checkpoint the guard's tau shrinks with the answer count instead.
+  const base = decisionMax(nOptions, nCriteria);
+  if (longRun === "tau" && t > base) tau *= base / t;
   const guard = decisionTable(decisionFit(nOptions, nCriteria, answers, { tau }), { draws });
-  return { done: decisionDone(guard, answers, { rule }), table: guard };
+  return { done: decisionDone(guard, answers, { rule, level }), table: guard };
 }
 
 /**

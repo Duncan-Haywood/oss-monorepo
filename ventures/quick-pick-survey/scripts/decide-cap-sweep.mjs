@@ -1,4 +1,4 @@
-// node scripts/decide-cap-sweep.mjs [--tau-true 2|1|spread] [--runs 60] [--case 0..4] [--scales 1,1.5,2,3] [--focus winner|order] > rows.jsonl
+// node scripts/decide-cap-sweep.mjs [--tau-true 2|1|spread] [--long-run none|level|tau] [--power 1] [--runs 60] [--case 0..4] [--scales 1,1.5,2,3] [--focus winner|order] > rows.jsonl
 //
 // How large should site/decide.html's question cap be? (docs/DECIDE-PAGE.md,
 // "A larger cap".) The page as shipped (graded answers read at GRADED_TAU,
@@ -21,6 +21,9 @@ const SCALES = (args.scales || "1,1.5,2,3").split(",").map(Number);
 const FOCUS = args.focus || "winner";
 // "Rank them all" (--focus order) pairs the order picker with the order stop, as the page does.
 const RULE = FOCUS === "order" ? "order" : "winner";
+// --long-run none|level|tau [--power p]: the stop past the checkpoint (site/decide-core.mjs longRunLevel; none = the page on 2026-11-15).
+const LONG_RUN = args["long-run"] || "none";
+const POWER = Number(args.power || 1);
 
 function mulberry32(seed) {
   let a = seed >>> 0;
@@ -79,7 +82,7 @@ for (const { n, C, spread } of pick) {
     };
     for (let t = 0; t <= max; t++) {
       const table = decisionTable(df, { draws: 400 });
-      const done = decisionDoneGraded(n, C, answers, table, { rule: RULE }).done;
+      const done = decisionDoneGraded(n, C, answers, table, { rule: RULE, longRun: LONG_RUN, power: POWER }).done;
       if (done) { selfStop = snap(t, true, table); break; }
       caps.forEach((cap, k) => { if (t === cap) stops[SCALES[k]] = snap(t, false, table); });
       if (t === max) break;
@@ -88,6 +91,6 @@ for (const { n, C, spread } of pick) {
     }
     // A run that stopped on its own before a cap has that stop under the cap.
     SCALES.forEach((s) => { if (!stops[s]) stops[s] = selfStop; });
-    console.log(JSON.stringify({ n, C, spread, run, seed: 1000 + run, tauTrue: TAU_TRUE, focus: FOCUS, rule: RULE, base, caps, stops }));
+    console.log(JSON.stringify({ n, C, spread, run, seed: 1000 + run, tauTrue: TAU_TRUE, focus: FOCUS, rule: RULE, longRun: LONG_RUN, power: POWER, base, caps, stops }));
   }
 }

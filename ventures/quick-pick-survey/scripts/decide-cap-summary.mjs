@@ -1,4 +1,4 @@
-// node scripts/decide-cap-summary.mjs [docs/decide-cap-2026-11-15.jsonl.gz]
+// node scripts/decide-cap-summary.mjs [file.jsonl[.gz] ...] (default docs/decide-cap-2026-11-15.jsonl.gz)
 //
 // Sums scripts/decide-cap-sweep.mjs rows into docs/DECIDE-PAGE.md "A larger
 // cap": per person tau and cap scale, over every case and run, the picks
@@ -8,15 +8,20 @@
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 
-const file = process.argv.slice(2).find((a) => !a.startsWith("--")) || "docs/decide-cap-2026-11-15.jsonl.gz";
+const files = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+if (!files.length) files.push("docs/decide-cap-2026-11-15.jsonl.gz");
 const byCase = process.argv.includes("--by-case");
-const raw = readFileSync(file);
-const rows = (file.endsWith(".gz") ? gunzipSync(raw) : raw).toString("utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+const rows = files.flatMap((file) => {
+  const raw = readFileSync(file);
+  return (file.endsWith(".gz") ? gunzipSync(raw) : raw).toString("utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+});
 const groups = new Map();
 for (const r of rows) {
   for (const [scale, s] of Object.entries(r.stops)) {
-    const keys = [`tau=${r.tauTrue} focus=${r.focus} cap x${scale}`];
-    if (byCase) keys.push(`tau=${r.tauTrue} focus=${r.focus} cap x${scale} | ${r.n}x${r.C} spread ${r.spread}`);
+    // Rows from --long-run (2026-11-15 later) name the stop past the checkpoint; older rows are "none".
+    const lr = r.longRun && r.longRun !== "none" ? ` long-run=${r.longRun}${r.longRun === "level" ? ` p${r.power}` : ""}` : "";
+    const keys = [`tau=${r.tauTrue} focus=${r.focus}${lr} cap x${scale}`];
+    if (byCase) keys.push(`tau=${r.tauTrue} focus=${r.focus}${lr} cap x${scale} | ${r.n}x${r.C} spread ${r.spread}`);
     for (const key of keys) { if (!groups.has(key)) groups.set(key, []); groups.get(key).push(s); }
   }
 }
