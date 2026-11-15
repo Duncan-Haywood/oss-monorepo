@@ -141,8 +141,9 @@ export const MID_CRUMB_CHARS = 12;
  *   1080px only, or nothing. Default: the form; on the hub, 'narrow', because
  *   the hub's own search box is in view on a wide screen but sits about 700px
  *   down on a phone, below the fold.
- * @param {Array<{href?: string, label: string, mid?: boolean}>} [o.crumbs] breadcrumb trail after "Home"; `mid`
- *   says whether a linked middle crumb may shrink on a phone (default: its label is over MID_CRUMB_CHARS)
+ * @param {Array<{href?: string, label: string, mid?: boolean, echo?: boolean}>} [o.crumbs] breadcrumb trail after "Home"; `mid`
+ *   says whether a linked middle crumb may shrink on a phone (default: its label is over MID_CRUMB_CHARS); `echo` on the
+ *   last crumb says the page's `h1` repeats it word for word, so a phone hides it and gives the trail's width to the parents
  * @param {string} [o.extraClass] extra classes (the venture chrome adds its marker)
  */
 export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [], extraClass = '' } = {}) {
@@ -170,7 +171,9 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
             ? `<span class="pfs-sep" aria-hidden="true">›</span><a href="${esc(c.href)}"${
                 (c.mid ?? [...c.label].length > MID_CRUMB_CHARS) ? ' class="pfs-mid"' : ''
               }>${esc(c.label)}</a>`
-            : `<span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">${esc(c.label)}</span>`,
+            : c.echo
+              ? `<span class="pfs-sep pfs-echo" aria-hidden="true">›</span><span aria-current="page" class="pfs-echo">${esc(c.label)}</span>`
+              : `<span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">${esc(c.label)}</span>`,
         )
         .join('')}</span>`
     : '';
@@ -278,6 +281,10 @@ export const SITE_HEADER_CSS = `
   .pfs-crumbs>.pfs-mid{flex:0 100000 auto;min-width:4.5em;overflow:hidden;text-overflow:ellipsis}
   /* With a middle crumb there, "Home" goes: the brand beside it already links home, and the trail starts at the section. */
   .pfs-crumbs:has(>a:not([data-pf-to]))>a[data-pf-to=hub],.pfs-crumbs:has(>a:not([data-pf-to]))>a[data-pf-to=hub]+.pfs-sep{display:none}
+  /* A last crumb marked .pfs-echo is the page's h1 word for word (a research project's title, a sentence). Cut to about
+     30 characters it said nothing the heading below did not, and it took the room the topic needed; on a phone the trail
+     ends at the parent instead ("Research › Proper scoring & elicitation"), and the h1 names the page. */
+  .pfs-crumbs>.pfs-echo{display:none}
 }
 @media (max-width:1080px){
   .pfs-search{display:none}
@@ -658,7 +665,8 @@ export function researchChromeTemplate() {
     style_file: SITE_STYLE_FILE,
     header: renderSiteHeader({ toRoot: root, current: 'research' }),
     topic_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, { label: '{{TOPIC}}' }] }),
-    project_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, topic, { label: '{{TITLE}}' }] }),
+    // `echo`: build.py's project page opens with <h1>{{TITLE}}</h1>, so a phone drops the title from the trail.
+    project_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, topic, { label: '{{TITLE}}', echo: true }] }),
     footer: renderSiteFooterNav({ toRoot: root }),
   };
 }
