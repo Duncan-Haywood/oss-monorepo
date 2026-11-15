@@ -55,7 +55,7 @@
     "ventures/shift-roster-builder/README.md (The order-free pass played)"
   ],
   "goal": null,
-  "notes": "New eval eval/pair-order-free-played.mjs (+ .out.txt): 15 seeded weeks built, the order-free pass gave its own roster on 3; played (5 comparisons, 84-200 disrupted weeks each) it opened no fewer hours than the default pair check (no sign test below p 0.33), moved more people in all five, owed more premium in four, cost more score and took up to 4.4x as long (1,295 s vs 298 s on 30x84 week 0). Default stays; opt-in kept. Cover and default-pair cells reproduce eval/pair-played-big.out.txt exactly except 30x84 week 0's changes/premiums (time-gated reissues). No agent doc in docs/reports: README section carries what the next run needs.",
+  "notes": "New eval eval/pair-order-free-played.mjs (+ .out.txt): 15 seeded weeks built, the order-free pass gave its own roster on 3; played (5 comparisons, 84-200 disrupted weeks each) it opened no fewer hours than the default pair check (no sign test below p 0.33), moved more people in all five, owed more premium in four, cost more score and took up to 4.4x as long (1,295 s vs 298 s on 30x84 week 0). Default stays; opt-in kept. Cover and default-pair cells reproduce eval/pair-played-big.out.txt exactly except 30x84 week 0's changes/premiums (time-gated reissues). No agent doc in docs/reports: README section carries what the next run needs. Local: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (232.1s, 630 tests), 0 failed.",
   "corrections": [],
   "redteam": null
 }
