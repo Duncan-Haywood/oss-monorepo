@@ -1486,16 +1486,43 @@ In the learning loop (books filed a day at a time, first-seen merchants right / 
 | Mint, six held-out files | 403 | 69.2% / 15.4% | 69.7% / 15.4% | | |
 | YNAB, three households (`eval/ynab-registers.mjs`) | 219 | 74.9% / 11.9% | 74.4% / 12.3% | | |
 
-The YNAB loss is two lines read after the run: "The Hampton Social" (a restaurant) matched Hampton, the hotel chain, and a payee called "Albert" matched Albert, a Czech supermarket. A first name or a surname that is also a chain is the layer's known weakness.
+The YNAB loss is two lines read after the run: "The Hampton Social" (a restaurant) matched Hampton, the hotel chain, and a payee called "Albert" matched Albert, a Czech supermarket. A first name or a surname that is also a chain was the layer's known weakness (fixed below, "Chain names that are people's names").
 
 What it says, with care:
 
 - **It is a first-import layer.** Once a book has filed a merchant its own memory takes over, and on card files with a merchant category code that layer places nearly every new merchant first, so the learning-loop figures barely move.
 - **Where it speaks it is mostly right on the UK council and the US exports** (91.5% on Durham, 48 of 48 by eye), but the average gain is small: most lines are big names the keywords already know, or local firms no chain list has.
-- **The Scottish Government's file got worse** (61 right, 73 wrong where it spoke). That file lists only lines over £500, and at that size a Malmaison, Crowne Plaza or Novotel line is a venue the government hired, filed as rent or hire, not travel. Baxter Storey, a caterer, matched Baxter, a car-service chain (26 lines). A name that is also a surname is the layer's known weakness.
+- **The Scottish Government's file got worse** (61 right, 73 wrong where it spoke). That file lists only lines over £500, and at that size a Malmaison, Crowne Plaza or Novotel line is a venue the government hired, filed as rent or hire, not travel. Baxter Storey, a caterer, matched Baxter, a car-service chain (26 lines). A name that is also a surname was the layer's known weakness (fixed below).
 - Labels are three councils', one government's and some households'; the map from their categories to a small business's chart is a judgment.
 
-Pinned in `brands.test.mjs` (7 tests: descriptions in the shapes real exports print, amounts made up, and the builder on a made-up index). To rebuild: the commands at the top of `brands-build.mjs`.
+Pinned in `brands.test.mjs` (7 tests at the time, 9 now: descriptions in the shapes real exports print, amounts made up, and the builder on a made-up index). To rebuild: the commands at the top of `brands-build.mjs`.
+
+### Chain names that are people's names (2026-11-15, later)
+
+The chain-name layer's two known misses were people and firms that share a chain's one-word name: "Baxter Storey", a caterer, filed as Baxter, a car-service chain (26 Scottish Government lines); "The Hampton Social", a restaurant, as Hampton, the hotel; a YNAB payee called "Albert" as the Czech grocer. Reading every line the layer spoke on turned up more of the same: "Michael's Phone" (a household's phone bill to a person) as Michaels, the craft store; "Granger Medical" as a hardware chain; "Alex Forbes & Son" as a restaurant.
+
+The rule, set before any set was rescored: a one-word chain name that is also a person's first name, or one of the 5,000 commonest surnames, in the 1990 US Census lists (public domain; packaged by the `names` project, MIT, read at build time only) counts only when a store number follows it on the line. A chain's card line carries its store number ("KRYSTAL #0412", "O'REILLY 1938", "MICHAELS #1234"); a person or an independent firm carries another word or nothing. 72 of the 6,555 mapped names are affected (`BRAND_PERSON_NAMES` in `brands.mjs`, written by `brands-build.mjs --names`); their longer names ("Albert Heijn", "Costa Coffee", "Hyatt Place") are untouched, and Hilton, Hyatt, Costa, Ferguson and Hampton Inn are also in the built-in keywords, which run first. `skip: brand-names` turns the check off for comparison.
+
+Every line it changed, read from empty books on the sets reachable from here (Durham's and South Lakeland's council hosts did not answer this session, so those two are not rescored):
+
+| set | money-out lines | changed | wrong suggestion removed | right suggestion lost |
+|---|---|---|---|---|
+| 63 real US exports | 4,927 | 0 | | |
+| Mint exports (nine files) | 4,565 | 3 | Hampton Chutney (hotel), "SANTA BARBARA" (a place, not the Santa grocer) | a bare "Michaels" (the craft store) |
+| YNAB, three households | 2,234 | 8 | Michael's x3, Michael's Phone x2, Granger Medical, Albert, The Hampton Social | |
+| Scottish Government, lines over £500 | 11,087 | 29 | Baxter Storey x26, Alex Forbes & Son, Alex Kirkwood & Son, O'Reilly UK Ltd (not the US auto-parts chain) | |
+
+38 of 39 changed lines were wrong suggestions turned into no suggestion; one right one was lost. Scored against the owners' labels:
+
+| set | before (check off) | after |
+|---|---|---|
+| YNAB, learning loop, first-seen payees (219) | 74.4% right / 12.3% wrong | 74.9% / 11.9% |
+| YNAB, learning loop, every line (633) | 86.3% / 6.5% | 86.4% / 6.3% |
+| Scottish Government, empty books (11,087 lines) | 12.3% / 7.1% | 12.3% / 6.9% |
+| Mint tuning half, keywords alone, first-seen (835) | 50.5% / 2.5% | 50.4% / 2.4% |
+| Mint held-out half | unchanged | unchanged |
+
+What it says, with care: a small fix on a small layer. It takes back the whole YNAB loss the chain layer brought in (first-seen 74.9% / 11.9% is where that set stood before the layer) and most of its Scottish Government damage, at the cost of one bare chain name a budgeting app had already stripped of its store number. The name lists are American; a British or Dutch given name that is also a chain and is not on them still matches. Pinned in `brands.test.mjs` (two tests: the cases above in the shapes the files print, and the builder on a made-up index).
 
 ### PNC CSV (2026-10-22)
 
