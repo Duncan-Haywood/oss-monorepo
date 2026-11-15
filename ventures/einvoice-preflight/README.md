@@ -350,6 +350,41 @@ Read and left alone, because they are faults in the examples, not in the checks:
 
 **Portugal national rules, CIUS-PT (shipped 2026-10-25).** A UBL file whose BT-24 names `CIUS-PT` (`...urn:feap.gov.pt:CIUS-PT:2.1.1`) now also gets the Portuguese profile's checks that the EU base lacks (368 of the 1,154 in AMA's v2.1.1 stylesheet, from `phive-rules-cius-pt` 4.6.3 on Maven Central): VAT identifier and tax scheme for seller and buyer (`BR-CIUS-PT-01..04`), a Deliver to group (`-66`), a credit or debit note's preceding-invoice reference (`-25`, `-65`), "lower rate" `AA` rules, and about 290 field-format rules (`DT-CIUS-PT-*`: VAT rate as `23.00`, quantities with three decimals, a remittance reference framed as `#REFERENCE@ATMPAYMENT#...#`). It is an add-on (`ADDONS["cius-pt"]`), plain route only (no Saxon form). `build-pt-rules.mjs` rebuilds `plain/cius-pt-ubl.json` (set `EINVOICE_PT_JAR` for a jar on disk); to read it, `plain-from-xslt.mjs` now also turns an `xsl:if` around a `successful-report` (a Schematron `<report>`) into an assert. Verification (`cius-pt.test.mjs`, 5 tests; made-up invoice `examples/pt-invoice.xml`, NIFs with valid check digits): it passes the EU base and the PT set with no skipped rule; a bare `23` rate, an unframed payment reference, a removed Deliver to group, a removed seller VAT block and a type-383 note without a reference each raise exactly the expected PT rule. Not done: no real invoice from a Portuguese ERP and no AT/eFatura verdict has been tried, so false positives are unmeasured; the stylesheet's own EU-base copy is dropped, and Portuguese `AA`, `RED`, `INT`, `NOR`, `ISE`, `OUT` and `NA` VAT codes fail the EU base's BR-CL-17/18 (measured 2026-10-25 on `examples/pt-invoice.xml`), although AMA's stylesheet has no BR-CL rule at all and its own DT-CIUS-PT-091/-105/-131 and BR-AA-* rules admit them; the finding now says so (`PT_CODE_NOTE`, 1 test) and is not suppressed, since which validator the receiver runs is unknown; the Portuguese page still says nothing is mandated for B2B.
 
+## Spain's VERI*FACTU records: fingerprint, chain and record (2026-11-15)
+
+Drop the RegistroAlta and RegistroAnulacion XML a billing system (SIF) keeps under
+Real Decreto 1007/2023, alone, batched (RegFactuSistemaFacturacion) or in the SOAP
+envelope sent to the AEAT, one file or many (`verifactu.mjs`, rules VF-001 to VF-028):
+
+- **Fingerprint (VF-001 to VF-003).** The SHA-256 Huella is recomputed over the
+  AEAT's field string with the values exactly as written. On a mismatch the checker
+  tries the usual slips (amount hashed as 15.00 while the XML says 15 or the reverse,
+  Z for +00:00, no offset, milliseconds, the previous fingerprint left out or in lower
+  case, yyyy-mm-dd dates, URL-encoded or untrimmed values; singly and in pairs) and
+  names the one that reproduces the stored value, with the string that was hashed.
+- **Chain (VF-004 to VF-008).** Across every file in the batch: each
+  RegistroAnterior must carry the exact fingerprint of the record it names (VF-005),
+  name the record whose fingerprint it carries (VF-006); two records on one
+  predecessor are a fork (VF-007); a record generated before its predecessor is a
+  warning (VF-008).
+- **Record (VF-009 to VF-028).** Dates, invoice type against recipients (F2 and R5
+  carry none, the rest need one), TipoRectificativa and ImporteRectificacion,
+  RechazoPrevio with Subsanacion, each breakdown line's rate and tax against its
+  operation type (S1/S2, N1/N2, E1-E6), the equivalence surcharge with ClaveRegimen 18,
+  CuotaTotal and ImporteTotal against the lines (warnings: AEAT's tolerance is not
+  modelled), NIF check letters, foreign VAT prefixes.
+- **QR URL.** The JSON report gives each invoice's ValidarQR URL (`verifactuQrUrl`
+  also builds the test host and ValidarQRNoVerifactu forms).
+
+Measured (eval/verifactu-records-2026-11-15.md): the AEAT's two worked examples
+reproduce; an AEAT test-environment record and two library fixtures match; the test
+record shows the amount is hashed as written ("15", not "15.00"); 4,590 of 4,590 seeded
+slips are flagged and named, and a changed value is never explained away. Sources:
+the AEAT specification itself refuses this session's proxy, so its examples are
+taken as quoted by two MIT libraries, and the record rules follow
+josemmo/Verifactu-PHP's validations. Open: a production system's records; the AEAT's
+error-code list mapped to VF rules. It does not certify a billing system.
+
 ## Mandate calendar (shipped 2026-11-02)
 
 `node mandate-calendar.mjs` turns the "Key dates" column of the mandates hub
