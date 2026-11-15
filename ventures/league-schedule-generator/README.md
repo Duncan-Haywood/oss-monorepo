@@ -2062,6 +2062,71 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
+## Starting under the gap: 27 and 28 teams join the page (2026-11-15, latest)
+
+The section below left 28 teams (14 matches a round) off the page: 94 s of floor-priced search that
+added nothing. Profiled first (`node --cpu-prof`, 28 teams, seed 1; `eval/under-start.txt`): of 78 s in
+the step, 64 s were the floor trials and 10.5 s the closing `leastBreaks` walks. Every search
+came back empty for two reasons, and fixing both lets the page's floor-priced step take up to
+**28 teams** (`maxTeams` 26 -> 28, `FLOOR_PRICED_MAX_MATCHES` 13 -> 14).
+
+- **The walk's heavy tail.** `balancedWalk` (the depth-first search for the least balanced host
+  choice) tried a round's equally cheap host choices in a seeded random order. On the 28-team
+  starter timetable (978 / 74, balanced least 74) it needed 0.9 to 6.8 million steps depending on the
+  seed, and the closing check gets 2 million, so the search returned null even for the season it
+  started from. Now the walk first tries the choices in order of how even they leave the teams'
+  home and away counts (least sum of squares first, the shuffle still breaking ties), on a tenth of
+  the budget (`GUIDE_SHARE`), then the old seeded order on the rest, from the first level the guided
+  pass did not finish (a finished level is proved whatever the order). Most seasons then take one
+  step a round (27 steps at 28 teams). The guide alone was worse on a few seasons (a 24-team one
+  went from 9 of 20 seeds found to 0 of 20), hence the fallback. Over the page's lists at 22, 24, 26
+  and 28 teams, 20 walk seeds each (`eval/walk-guide.mjs`, `eval/walk-guide.txt`): **33 of 960 walks
+  out of budget, against 40 in the old order; 146 million steps against 191 million** (28 teams: 1
+  against 9, 8.4 against 36.0 million).
+- **The start above the gap is rigid.** At 28 teams the season above the widest gap is a starter
+  timetable, and no move of the search gets its floor under the first cap. From the season *under*
+  the gap the same search lands inside it (28 teams, seed 1: 1,252 / 70 and 1,346 / 66 where nothing
+  was between 978 / 74 and 1,466 / 64). So `carryOverFloorPriced` now switches to the season under
+  the gap once the search from above lands nothing within a cap, for that cap and every lower one
+  (`underStart`, on by default; one search with re-deals there). Where the search from above
+  already lands, nothing changes.
+
+**The page's floor-priced step, old code against new** (`eval/under-start.txt`, same cached lists,
+old and new side by side on one shared 4-CPU machine; the old code with its size guards lifted
+locally to run 27 and 28 teams):
+
+| Teams, seed | gap | old: seasons added (cut inside the gap) | new | old time | new time |
+|---|---|---|---|---|---|
+| 28, 1 | 978/74 .. 1466/64 | none | 1252/72, 1250/70 (5.9%) | 80.2 s | 48.1 s |
+| 28, 2 | 978/74 .. 1400/62 | none | 1260/72, 1248/70 (3.6%) | 80.9 s | 46.9 s |
+| 28, 3 | 1300/70 .. 1418/62 | 1220/68, 1194/70 (3.5%) | 1220/68, 1318/66 (5.3%) | 43.7 s | 54.8 s |
+| 27, 1 | 923/52 .. 1311/48 | none | none | 9.0 s | 19.2 s |
+| 26, 1 | 1104/60 .. 1238/50 | 1014/58 (3.6%) | 1014/58, 1068/56 (6.4%) | 33.0 s | 22.5 s |
+| 26, 2 / 26, 3 | | 738/68, 776/66 / 1104/56, 1140/54 | the same | 17.6 / 22.6 s | 16.1 / 22.0 s |
+| 25, 1 | 1163/41 .. 1171/37 | 1119/39 (2.2%) | the same | 11.2 s | 11.4 s |
+| 25, 2 | 713/48 .. 1083/37 | 715/47 (3.1%; over its 46 cap) | 991/44, 983/42 (5.0%) | 28.5 s | 31.5 s |
+| 25, 3 | 713/48 .. 1127/42 | none | none | 19.4 s | 24.4 s |
+| 24, 1 | 570/64 .. 862/58 | 614/62, 640/60 (18.2%) | the same | 9.3 s | 9.5 s |
+| 24, 2 | 570/64 .. 862/54 | 620/62, 610/62 (5.9%) | 620/62, 822/60 (6.5%) | 10.1 s | 12.4 s |
+| 22, 1 / 20, 1 | | 440/58 / 382/48, 444/46 | the same | 14.0 / 2.2 s | 14.8 / 2.1 s |
+
+**No run's cut inside the gap went down; five went up** (28 teams on all three seeds, 26/1, 25/2,
+24/2), and the fourteen runs took **335.7 s against 381.7 s**. 28 teams take 47-55 s on the worker
+and add two seasons on every seed, at the top of what 24 to 26 teams already cost (10-50 s), so
+they join the page. 27 teams (28's timetable with a bye, 13 matches) add nothing on seed 1 in either
+version but cost 19 s, so they are not special-cased.
+
+- An earlier cut of the guide (half the budget guided) cost 22 teams' 440 / 58 on seed 1: the old
+  order needs 1.02 million steps there and the half left it 1 million. At a tenth it is back.
+- Tests: `orient.test.mjs`: on 48 shuffled timetables of 7 to 16 teams the guided walk gives the old
+  order's least whenever both prove it, its hosts are balanced with exactly that many breaks, and it
+  takes fewer steps on at least half; on budgets the guided pass cannot finish in, the fallback stays
+  within the budget and a proof is still the least. `floor-priced.test.mjs`: 22 to 28 teams pass the
+  size gate, 29 do not, `maxTeams: 26` keeps the old gate, and `floorPricedSingleRounds` refuses 29.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser; no real
+  28-team league has been tried; the lists here were built once by the new code, so they are not the
+  lists of the sections below (24/1 is the same; 26/1's list differs).
+
 ## Every starter, not a sample: 26 teams 716 to 670, 28 teams 828 to 778, 30 teams 948 to 894 (2026-11-15)
 
 The built-in starters (`STARTERS`) came from sampling: `eval/starter-search.mjs` drew random starters

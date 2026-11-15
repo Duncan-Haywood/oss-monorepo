@@ -14,7 +14,8 @@
 // `--deals p`: re-deal three rounds at once (threeRoundDeals) on a share p of the moves (default 0.15,
 // CARRY_OVER_DEALS, what the page runs; --deals 0 is the swap-only search of the section before).
 //
-// `--max-teams m`: the largest league the page step takes (carryOverFloorPriced maxTeams, default 26, the
+// `--max-teams m`: the largest league the page step takes (carryOverFloorPriced maxTeams, default 28, the
+// page's since 2026-11-15 later, README "Starting under the gap"; 26 the
 // page's since 2026-11-15, README "Whole-break tables in int16"; 25 from 2026-11-14, 22 from 2026-11-13, 21 before).
 //
 // `--page` runs what the page runs instead of the sweep: carryOverFloorPriced (CARRY_OVER_FLOOR_PRICED
@@ -27,7 +28,7 @@ import { frontierOf } from "./frontier-gap.mjs";
 
 const n = +process.argv[2], seed = +process.argv[3];
 const opt = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
-const maxTeams = +opt("--max-teams", 26), balanced = !process.argv.includes("--floor-only"), deals = +opt("--deals", 0.15), iterations = +opt("--iterations", 3000), stepB = +opt("--step", 2), cache = opt("--cache", null);
+const maxTeams = +opt("--max-teams", 28), balanced = !process.argv.includes("--floor-only"), deals = +opt("--deals", 0.15), iterations = +opt("--iterations", 3000), stepB = +opt("--step", 2), cache = opt("--cache", null);
 const t0 = Date.now();
 const file = cache ? `${cache}/list-${n}-${seed}.json` : null;
 let all = file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
