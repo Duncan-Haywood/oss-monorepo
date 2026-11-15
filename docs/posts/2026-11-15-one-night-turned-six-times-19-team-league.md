@@ -1,5 +1,5 @@
 ---
-title: "One night, turned six times: wait-free 19- and 25-team leagues on fully booked courts"
+title: "One night, turned six times: wait-free 19-, 25- and 31-team leagues on fully booked courts"
 seo_title: "Wait-free odd round robins on fully booked courts"
 date: 2026-11-15
 tags: [ventures, league-schedule-generator, algorithms]
@@ -57,7 +57,8 @@ night that takes **exactly one pair from each of the 30 cycles**. Turning it
 then uses every pair exactly once. That is a one-night SAT model of about
 20,000 variables, and it answered in **23 seconds**. 25 teams work the same
 way with three rings of eight: 39 cycles, a 39-pair night, solved in
-**141 seconds**.
+**141 seconds**. 31 teams on 5 courts x 9, which had no design at all,
+took three rings of ten and **626 seconds**.
 
 Through the page's own builder, over seeds 1 to 3:
 
@@ -65,6 +66,7 @@ Through the page's own builder, over seeds 1 to 3:
 |---|---|---|---|
 | 19 teams, 3 courts x 9 slots | 171 | 0 | 0.4 s |
 | 25 teams, 4 courts x 9 slots | 281 | 0 | 0.8 s |
+| 31 teams, 5 courts x 9 slots | 499 | 0 | 1.0 s |
 
 The same trick finds 13 teams on 3 courts x 6 (also fully booked) at
 once, but it says no to 13 teams on 2 courts x 9, which the whole-season model
@@ -74,5 +76,5 @@ multiple of six (7, 13, 19, 25, 31, 37...). Odd sizes like 29 need a
 different group.
 
 The script is `eval/odd-orbit.py` in the venture's folder, and the
-measurements are in `eval/odd-orbit.txt`. Both new seasons are stored in
+measurements are in `eval/odd-orbit.txt`. All three new seasons are stored in
 `odd-designs.mjs`, so a league of that size gets them with no search.

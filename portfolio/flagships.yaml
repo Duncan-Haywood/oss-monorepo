@@ -341,14 +341,14 @@ flagships:
       slots 11, 13 teams on 2 courts, 17 on 3; proved impossible: 7, 9 on 2x6; 5, 7
       on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py, rotational round
       robins): 21, 23 on 4x9, 27 on 5x9 and 7x6 0 waits; fails when fully booked
-      (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9 0 waits
+      (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9 0 waits
       (eval/odd-orbit.py, 3 k-cycles). Next, most valuable first: 29 on 5x9 (3k+2);
-      31 on 5x9, 37 on 6x9; 3-session designs at 14, 38, 40, 46 (SAT timed out at
-      300 s); the rest of the 20-team gap (40 to 44 still ~444-550: four-round
-      re-deals or a longer run, now ~4x cheaper; or a starter family climbed with
-      the floor as its score); 29-30 teams in the page (15 matches: profile 30
-      first; 27 teams add nothing on seed 1, README "Starting under the gap"); the
-      walk's last heavy tail (22 teams: 20 of 280 walks out of budget either way,
+      37 on 6x9; 3-session designs at 14, 38, 40, 46 (SAT timed out at 300 s); the
+      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
+      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
+      score); 29-30 teams in the page (15 matches: profile 30 first; 27 teams add
+      nothing on seed 1, README "Starting under the gap"); the walk's last heavy
+      tail (22 teams: 20 of 280 walks out of budget either way,
       eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
       (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
       search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12

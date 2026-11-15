@@ -365,7 +365,7 @@ Two bugs found on the way, both fixed with a test:
 Open (updated below): three-session designs for 14, 38, 40 and 46 (longer solver runs, or a
 symmetry such as a cyclic group acting on the teams).
 
-### Fully booked odd nights: one night turned by three k-cycles, 19 and 25 teams (2026-11-15, latest)
+### Fully booked odd nights: one night turned by three k-cycles, 19, 25 and 31 teams (2026-11-15, latest)
 
 19 teams on 3 courts x 9 slots and 25 on 4 x 9 use every slot of a three-round night (27 matches
 in 27 slots, 36 in 36). The three earlier methods all failed there: the whole-season model ran past
@@ -387,18 +387,19 @@ is one night (`odd-night-sat.py`'s match rows and window shapes plus "exactly on
 |---|---|---|---|---|---|
 | 19 | 3 | 6 | 23 | 171 | 0 |
 | 25 | 4 | 8 | 141 | 281 | 0 |
+| 31 | 5 | 10 | 626 | 499 | 0 |
 
 It also finds the stored 13 on 3 x 6 (fully booked) in 0.0 s and 19 on 5 x 6 in 0.2 s (the
 whole-season model: 3.4 s and 66 s), and it is UNSAT for 13 on 2 x 9, which the whole-season model
 solved, so a "no" rules out this group only. Sizes 3k + 2 (29 teams) are not covered: with odd k the
 short orbits are a triangle, not two rounds. Measurements: `eval/odd-orbit.txt`;
-`node eval/odd-cyclic-check.mjs 19:3:9 25:4:9` reruns the tool's before and after.
-`doubleheader.test.mjs` builds both wait-free (and with waits when the search is off), and the
-stored-designs test re-checks the solver's rows for all 23 designs. (`odd-night-sat.build` gained a
+`node eval/odd-cyclic-check.mjs 19:3:9 25:4:9 31:5:9` reruns the tool's before and after.
+`doubleheader.test.mjs` builds all three wait-free (and with waits when the search is off), and the
+stored-designs test re-checks the solver's rows for all 24 designs. (`odd-night-sat.build` gained a
 `fix_round0` flag, on by default, so a caller with its own structure can drop the round-0 fix.)
 
 Open: 29 on 5 x 9 (3k + 2: a group with two fixed teams, or the night-pair packing); larger
-fully booked sizes (31 on 5 x 9, 37 on 6 x 9) are within reach of the same script.
+fully booked 37 on 6 x 9 by the same script (31 took 626 s; 37 is about twice the model).
 
 ### Odd leagues one night at a time: 21 and 23 teams on 4 x 9, 27 on 5 x 9 and 7 x 6 (2026-11-15, latest)
 
