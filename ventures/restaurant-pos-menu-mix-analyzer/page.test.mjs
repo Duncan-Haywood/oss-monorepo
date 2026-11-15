@@ -83,3 +83,10 @@ test("the sample-data button and the CSV download are wired", () => {
   assert.match(html, /id="download"/);
   assert.match(html, /reportCsv\(last\)/);
 });
+
+test("the page passes the sales file's decimal comma to the cost list (quality audit 2026-11-15)", async () => {
+  const { parseCostList } = await import("./calc.mjs");
+  assert.match(page("index.html"), /parseCostList\(costText, detectDecimalComma\(/);
+  assert.equal(parseCostList("Burger\t4,10", true).map.get("burger"), 4.1);
+  assert.match(page("index.html"), /Pooled classes/);
+});

@@ -1,0 +1,261 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/restaurant-pos-menu-mix-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a restaurant consultant or multi-unit controller who runs menu engineering for owners every quarter. They would check first that the Kasavana & Smith thresholds are computed the textbook way (70% of an even share; the weighted average contribution margin, not the mean), that items are classified against the items they compete with (one menu category at a time, entrees against entrees), and that the file their POS actually produces (Toast, Square, Clover) is read without hand-editing, before they look at the price-rise figure",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The arithmetic is right everywhere I recomputed it. I typed the sample cafe in by hand and ran an independent Python Kasavana & Smith implementation (python3 /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/ks.py), then compared it with the shipped engine (node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/tool.mjs). N = 2,303 plates (Chicken Sandwich 388+20-3 = 405 after the refund, the voided and '+ Extra Cheese' rows dropped). There are 14 items, so the popularity bar is 0.7 x 100/14 = 5.00%. The weighted average CM is $16,703.31 / 2,303 = $7.252848. All 14 classes are identical in both. The Plowhorse price rise matches to four decimals: House Fries (5.25-1.05) x 504.4 - 3.95 x 520 = $64.48, total +$106.422. So do the break-even losses: 1 - 3.95/(3.95+0.25) = 5.9524%. Net sales add to $23,625.50 by hand, and the served page shows the same. Against the menu-engineering standard the outputs are wrong in one important way, scored under domain: the classes are pooled across categories.",
+  "completeness": "Checked each claimed feature. Item, category, quantity and net-sales columns are read by alias. Refunds net against the item. Void and modifier rows are skipped and counted (lines 18 and 19 in the sample). Duplicate rows merge. Cost precedence runs export column, then pasted list, then placeholder, and placeholder and zero-cost items are flagged. The price rise with its break-even loss, the cut and re-promote lists, the category rollup, the copyable summary and the CSV download all work. In headless Chromium against the served page (node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/pw.cjs), 'Load sample data' renders 14 item rows, 5 category rows, findings and the price-rise line, with no page errors and scrollWidth 375 at 375 px. On real export layouts (node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/probes.mjs), Toast AllItemsReport.csv (Menu Item / Menu Group / Item Qty / Net Amount, per doc.toasttab.com's data export field reference), Square Item Sales (Item Name / Category / Items Sold / Net Sales) and the Square detail CSV (Item / Qty / Net Sales) are read. Toast's ItemSelectionDetails.csv (Menu Item, Gross Price, Discnt, Net Price, Qty, Void?) is refused with 'No header row found', because no sales alias matches 'Net Price'. I found no published Clover header list, so Clover is unverified, as the page itself says. No stubs or TODOs.",
+  "verification": "`cd ventures/restaurant-pos-menu-mix-analyzer && node --test '*.test.mjs'`: 45 tests, 45 pass, about 0.13 s. The README's bare `node --test` also passes. Nine mutants via platform/ci/quality_mutate.py: 7 caught (popularity boundary :221, break-even scale :238, parenthesis negatives :31, cost % times sales instead of price :136, cost averaged per row instead of per plate :199, 'total' row detection :102, '+' modifier detection :127). 2 survived. One is the decimal-comma vote widened to three digits (:363), which turns a US file's whole-number '1,200' into 1.2 and is not tested. The other is excluded zero-net items added to the popularity denominator (:217), a judgement call. The tests use hand-typed 'Toast style' headers (calc.test.mjs:27), not a real export's header row, which is how the Toast ItemSelectionDetails gap got through.",
+  "craft": "Read calc.mjs (368 lines), index.html (214), calc.test.mjs, page.test.mjs and usage.mjs. It is a pure engine with no dependencies. Output is escaped, CSV cells are formula-neutralised, invalid inputs are refused rather than computed, and the usage counter is local-only with an opt-out that persists. Defects: the pasted cost list is parsed without the sales file's decimal-comma flag (index.html:162), so a tab-separated 'Burger\\t4,10' becomes $410 (node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/costlist.mjs). A 'cost above price' finding then fires, but the number is wrong. The inline script lines in index.html run to over 400 characters. The price-rise total silently includes Plowhorses on the placeholder cost and the zero cost (Cold Brew +$32.88 and Sparkling Water +$9.07 of the +$106.42).",
+  "claims": "Checked against files and runs. These are backed: 'nothing uploaded' (no fetch/XHR in calc.mjs or index.html, and calc.test.mjs:238 and page.test.mjs:24 assert it), the no-warranty and not-affiliated footer, 'Column names are matched by alias and unverified' (an honest limit), the FAQ's '20 items, bar 3.5%', 'Reconciles' (calc.test.mjs:201 and by hand), and the usage events named. The served llms.txt, sitemap and canonical carry https://marisstella.app/restaurant-pos-menu-mix-analyzer/, so the source's github.io and './index.html' are source-only. These are not backed: the FAQ (index.html:122) calls the output 'the Kasavana and Smith menu-engineering matrix', and the model list and 'Not modelled' list (index.html:105-112) never say that every item is classed against the whole file, mixing sides, drinks and desserts with mains. That departs from the method, and the page names it nowhere. index.html:109 says 'the table gives the loss at which the rise stops paying', but it is a rounded sentence, not a table column.",
+  "fitness": "Walked the consultant's job: export last quarter from Toast or Square, add plate costs, find the Plowhorses to reprice and the Dogs to cut. With Toast's Product Mix / AllItemsReport or Square's Item Sales it reads cleanly. Toast's item-level ItemSelectionDetails export, the one a controller pulls for a date range, is refused. The cut list is the problem. In the sample it tells the owner to review Cheesecake for cutting, yet against the other desserts Cheesecake is a Star (72 of 97 dessert plates, CM $5.70 vs $5.55 weighted dessert average). Classic Burger and Chicken Sandwich, Stars on the pooled menu, are Plowhorses among mains, which is where a price rise belongs. A practitioner can work around this by pasting one category at a time, but nothing on the page tells them to. Usable as a first look, and a professional would redo the classes per category in the first hour.",
+  "domain": "Compared with Kasavana & Smith (1982) as taught in hospitality programmes: MM% against 70% of 1/n, and CM against the weighted average CM (total CM / total items sold), applied to items that compete with each other, one menu category at a time. The two thresholds are exactly the textbook ones, and it rightly avoids the simple mean of item margins. The departure is that thresholds are computed once over every row in the file (calc.mjs:216-217), so fries, sparkling water and ribeye set each other's bars. Re-running the shipped analyze() per category on the sample (node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/percat.mjs) changes 6 of 14 classes: Classic Burger Star->Plowhorse, Chicken Sandwich Star->Plowhorse, Veggie Wrap Puzzle->Dog, Side Salad Dog->Puzzle, Cheesecake Dog->Star, Sparkling Water Plowhorse->Star. The category rollup counts classes but never reclassifies within a category. A senior consultant would not sign off on the matrix as shipped."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Popularity bar, weighted average CM and all 14 classes on the sample cafe",
+   "method": "independent Python Kasavana & Smith implementation from the textbook definitions, inputs typed by hand from sampleCsv (MM bar = 0.7 x 100/n; CM bar = sum(CM x n)/N)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/ks.py ; node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/tool.mjs",
+   "expected": "N 2303, bar 5.0000%, avg CM 7.252848, total CM 16703.31; 3 Star, 3 Plowhorse, 4 Puzzle, 4 Dog with identical item labels",
+   "observed": "identical: N=2303 bar=5.0000% avgCM=7.252848 totalCM=16703.3100, all 14 labels match",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Plowhorse price rise (+5%, -3% plates) and break-even volume loss",
+   "method": "hand calculation: House Fries (5.25-1.05) x 504.4 - 3.95 x 520 = 64.48; break-even L = 1 - cm/(cm + 0.05p) = 1 - 3.95/4.20",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/tool.mjs",
+   "expected": "House Fries +64.48, break-even 5.9524%; total over 3 Plowhorses +106.422",
+   "observed": "House Fries 64.4800, breakeven 5.9524; Cold Brew 32.8770; Sparkling Water 9.0650; total 106.4220",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Net sales total and refund netting on the served page",
+   "method": "hand sum of the sample's Net Sales column with the Chicken Sandwich refund (-$36) netted and the voided and modifier rows excluded",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/pw.cjs",
+   "expected": "$23,625.50 net sales, 2,303 plates, 14 items",
+   "observed": "'14 item(s), 2303 plates, $23,625.50 net sales'",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Classes computed within each menu category, as Kasavana & Smith practice compares competing items",
+   "method": "Kasavana & Smith (1982) menu engineering applied per category; the shipped analyze() re-run on each category's rows",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/percat.mjs",
+   "expected": "the classes the tool shows agree with the within-category classes",
+   "observed": "6 of 14 differ (Cheesecake Dog->Star, Classic Burger and Chicken Sandwich Star->Plowhorse, Sparkling Water Plowhorse->Star, Veggie Wrap Puzzle->Dog, Side Salad Dog->Puzzle)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Toast ItemSelectionDetails.csv header row is read",
+   "method": "Toast data export field reference (doc.toasttab.com/doc/platformguide/adminDataExportFieldReference.html): Menu Item, Menu Group, Gross Price, Discnt, Net Price, Qty, Void?",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/probes.mjs ; node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/pw.cjs",
+   "expected": "items read with sales from Net Price, Void? rows skipped",
+   "observed": "'No header row found' (no sales alias matches 'Net Price'), in the engine and on the served page",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Toast AllItemsReport.csv and Square Item Sales / detail CSV headers are read",
+   "method": "Toast field reference (AllItemsReport: Menu Item, Menu Group, Item Qty, Net Amount); Square Item Sales headers as reported by a Square seller-community export (Item Name, Item Variation, Category, Items Sold, Net Sales)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/probes.mjs",
+   "expected": "columns mapped to Menu Item / Menu Group / Item Qty / Net Amount and Item Name / Category / Items Sold / Net Sales",
+   "observed": "both mapped as expected; Square variations (Latte Small/Large) merge into one item at $4.71 average, which the page names under 'price tiers' not modelled",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Clover item-sales export",
+   "method": "searched Clover docs and community for the CSV header list",
+   "command": "web search (Clover Item Sales export CSV column headers)",
+   "expected": "a published header row to test against",
+   "observed": "none found; the page already says the Clover aliases are unverified",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "45/45 pass in about 0.13 s; bare `node --test` also passes",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Sample renders on the served page in a phone-width browser",
+   "method": "headless Chromium via Playwright at 375 px, click 'Load sample data'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/pw.cjs",
+   "expected": "stats, findings, price rise, 14 item rows, 5 category rows, no errors, no horizontal scroll",
+   "observed": "all rendered; errors []; scrollWidth 375",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Pasted cost list with a decimal comma",
+   "method": "hand: 'Burger<TAB>4,10' is a $4.10 plate in a decimal-comma locale",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/menu-mix/costlist.mjs",
+   "expected": "4.10",
+   "observed": "410 (tab list ignores the decimal comma; ';' list gives 4.1)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt, sitemap and canonical use the live host",
+   "method": "curl the served files",
+   "command": "curl -sS https://marisstella.app/restaurant-pos-menu-mix-analyzer/llms.txt ; .../sitemap.xml",
+   "expected": "200 and marisstella.app URLs",
+   "observed": "200; llms 'The tool' and sitemap loc are https://marisstella.app/restaurant-pos-menu-mix-analyzer/, canonical likewise (source github.io and './index.html' are rewritten at deploy, source-only)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Nothing uploaded' and no network calls",
+   "method": "grep for fetch/XMLHttpRequest/sendBeacon and the tests that assert it",
+   "command": "grep -n 'fetch(\\|XMLHttpRequest\\|sendBeacon' index.html calc.mjs",
+   "expected": "none",
+   "observed": "none; imports ./calc.mjs and ./usage.mjs only",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page discloses how items are grouped for classification",
+   "method": "read the model list, 'Not modelled' list and FAQ against what calc.mjs:216-217 does",
+   "command": "sed -n '104,114p;122p' index.html",
+   "expected": "a statement that classes are computed across the whole file (or per category)",
+   "observed": "not stated; the FAQ calls it 'the Kasavana and Smith menu-engineering matrix'",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:221",
+   "change": "x.mixPct >= popThreshold - EPS -> x.mixPct > popThreshold + EPS",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:238",
+   "change": "(1 - x.cm / denom) * 100 -> * 99",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:363",
+   "change": "/,\\d{1,2}$/ -> /,\\d{1,3}$/ (decimal-comma vote)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:31",
+   "change": "drop the (parentheses) negative rule",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:136",
+   "change": "cost % x price -> cost % x sales",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:199",
+   "change": "m.costSum / m.costQty -> m.costSum / m.rows",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:102",
+   "change": "isTotal no longer matches 'total'",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:127",
+   "change": "'+' modifier prefix no longer skipped",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:217",
+   "change": "100 / rows.length -> 100 / (rows.length + excluded.length) (judgement call)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Popularity and margin thresholds are computed once over every row in the file, so sides, drinks and desserts are classed against mains. Kasavana & Smith classify competing items within a category. On the sample, 6 of 14 classes change when run per category. The 'Review for cutting' list names Cheesecake, which is a Star among desserts, and the price-rise list misses Classic Burger and Chicken Sandwich, Plowhorses among mains.",
+   "where": "ventures/restaurant-pos-menu-mix-analyzer/calc.mjs:217",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The page calls the output 'the Kasavana and Smith menu-engineering matrix' but neither the model list nor the 'Not modelled' list says the classes pool every category. A reader cannot tell that the cut list compares cheesecake with burgers.",
+   "where": "ventures/restaurant-pos-menu-mix-analyzer/index.html:122",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "medium",
+   "what": "Toast's item-level export ItemSelectionDetails.csv (Menu Item, Gross Price, Discnt, Net Price, Qty, Void?) is refused with 'No header row found', because the sales aliases have no 'net price'. Toast AllItemsReport and Square Item Sales are read.",
+   "where": "ventures/restaurant-pos-menu-mix-analyzer/calc.mjs:20",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Header-alias tests use hand-typed 'Toast style' header rows, not a vendor export's real header. The decimal-comma vote regex survives mutation (a three-digit group would turn '1,200' into 1.2 untested).",
+   "where": "ventures/restaurant-pos-menu-mix-analyzer/calc.mjs:363",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "The pasted cost list is parsed without the sales file's decimal-comma flag, so a tab-separated 'Burger\\t4,10' becomes a $410 plate (only the cost-above-price finding hints at it).",
+   "where": "ventures/restaurant-pos-menu-mix-analyzer/index.html:162",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "The headline price-rise total includes Plowhorses on the placeholder cost and the zero cost (Cold Brew +$32.88 and Sparkling Water +$9.07 of +$106.42 in the sample) without saying so next to the figure.",
+   "where": "ventures/restaurant-pos-menu-mix-analyzer/calc.mjs:241",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'the table gives the loss at which the rise stops paying': no table carries it. It is one sentence with the loss rounded to a whole percent (5.95% shows as 6%).",
+   "where": "ventures/restaurant-pos-menu-mix-analyzer/index.html:109",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+ ],
+ "verdict": "A careful, private and well-disclaimed menu-mix tool whose arithmetic is right. An independent Kasavana & Smith recomputation of the sample reproduces the 5.00% popularity bar, the $7.2528 weighted average CM, all 14 classes, the +$106.42 Plowhorse price rise and its break-even losses exactly. 45 tests pass, 7 of 9 seeded mutants are caught, and it renders cleanly at phone width on the served page. It reads Toast's AllItemsReport and Square's Item Sales headers, but refuses Toast's item-level ItemSelectionDetails.csv ('Net Price'), and Clover is unverified, as it says. It does not meet the bar because it classes every item against the whole file, not within its category. That departs from the method it names, changes 6 of 14 sample classes and puts a dessert Star on the cut list, and the page never discloses it. Scores: correctness 3, completeness 3, verification 3, craft 3, claims 2, fitness 2, domain 2. Finished (completeness 3), not at the bar (claims 2)."
+}
