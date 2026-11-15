@@ -1,0 +1,4 @@
+R1 one-tick 80 called stale: pipeline stretch 11 | true slow half 1 | stretch trimmed 15 at the cut 1 | stretch runs past 150 11
+R2 one-tick 80 called stale: pipeline stretch 3 | true slow half 0 | stretch trimmed 15 at the cut 0 | stretch runs past 150 13
+R3 one-tick 80 called stale: pipeline stretch 11 | true slow half 1 | stretch trimmed 15 at the cut 0 | stretch runs past 150 9
+X1 one-tick 80 called stale: pipeline stretch 51 | true slow half 49 | stretch trimmed 15 at the cut 47 | stretch runs past 150 4
