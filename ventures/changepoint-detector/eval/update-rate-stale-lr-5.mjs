@@ -34,6 +34,7 @@
 //        node eval/update-rate-stale-lr-5.mjs smoke <seed> <reps>
 import { Worker, isMainThread } from 'node:worker_threads';
 import { cpus } from 'node:os';
+import { writeFileSync } from 'node:fs';
 import { makeRng } from './update-rate-sim.mjs';
 import { CELLS } from './update-rate-stale-lr-4.mjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -72,6 +73,8 @@ export function tally(byCell, tau) {
     const rounding = oneTick - caught;
     out[name] = { found, oneTick, caught, caughtIid, rounding, caughtShare: oneTick ? caught / oneTick : NaN, iidShare: oneTick ? caughtIid / oneTick : NaN, roundingShare: found ? rounding / found : NaN };
   }
+  const none = { found: 0, oneTick: 0, caught: 0, caughtIid: 0, rounding: 0, caughtShare: NaN, iidShare: NaN, roundingShare: NaN };
+  for (const k of ['R1', 'R2', 'R3', 'T1', 'T2', 'T3', 'F1', 'F2', 'F3', 'X1', 'X2']) out[k] ??= none; // calibration runs only the null cells
   const R = ['R1', 'R2', 'R3'], T = ['T1', 'T2', 'T3'], F = ['F1', 'F2', 'F3'], X = ['X1', 'X2'];
   const k1 = R.every((k) => out[k].caughtShare <= 0.05 && out[k].roundingShare >= 0.9);
   const judged = T.filter((k) => out[k].oneTick >= 50);
@@ -104,7 +107,7 @@ function print(byCell, tau, label) {
   const r = tally(byCell, tau);
   console.log(`${label}; Markov carry-forward LR >= ${tau}; round four's LR >= 5.41 on the same series for comparison`);
   console.log('cell  with a change  one tick  catchUp  share of one tick  round four  share  rounding  share of found');
-  for (const [k, v] of Object.entries(r.cells)) {
+  for (const [k, v] of Object.entries(r.cells).filter(([k]) => k in byCell)) {
     const f = (x) => (Number.isNaN(x) ? '-' : x.toFixed(3));
     console.log(`${k.padEnd(4)}  ${String(v.found).padStart(13)}  ${String(v.oneTick).padStart(8)}  ${String(v.caught).padStart(7)}  ${f(v.caughtShare).padStart(17)}  ${String(v.caughtIid).padStart(10)}  ${f(v.iidShare).padStart(5)}  ${String(v.rounding).padStart(8)}  ${f(v.roundingShare).padStart(14)}`);
   }
@@ -116,6 +119,7 @@ if (invoked) {
   const mode = process.argv[2] ?? 'confirm', t0 = Date.now();
   if (mode === 'calibrate') {
     const byCell = await run(CALIBRATION_SEED, REPS, NULL_CELLS);
+    writeFileSync(new URL('./update-rate-stale-lr-5-calibration.json', import.meta.url), JSON.stringify(byCell));
     const th = threshold(byCell);
     print(byCell, th.tau, `calibration seed ${CALIBRATION_SEED}, ${REPS} series a null cell`);
     for (const [k, v] of Object.entries(th.perCell)) console.log(`${k}: ${v.oneTick} one tick, ${v.allowed} may clear tau, needs tau >= ${v.need} (largest LRs ${v.top.join(', ')})`);
@@ -128,6 +132,7 @@ if (invoked) {
     const tau = Number(process.argv[3]);
     if (!Number.isFinite(tau)) throw new Error('confirm needs tau from the calibration file');
     const byCell = await run(CONFIRMATION_SEED, REPS, Object.keys(CELLS));
+    writeFileSync(new URL('./update-rate-stale-lr-5.json', import.meta.url), JSON.stringify(byCell));
     const r = print(byCell, tau, `confirmation seed ${CONFIRMATION_SEED}, ${REPS} series a cell`);
     console.log(`judged T cells: ${r.judged.join(', ') || 'none'}; judged X cells: ${r.judgedX.join(', ') || 'none'} (X3 reported, not judged)`);
     console.log(`K1 (R: catchUp <= 0.05 of one tick, rounding >= 0.90): ${r.k1 ? 'pass' : 'FAIL'}`);
