@@ -144,6 +144,8 @@ Milestone 6w (`../experiments/results_waveglider_era5.txt`, pre-registered) asks
 
 ## 2.4 Still to write
 
+0. **Learned seasonal correction (milestones 6zzb to 6zzl), caution for the section.** The high-latitude 168-cell dominance count is not an accuracy measure: the in-sample five-year correction wins 103, a single learning year with no smaller month error (lag 2) wins 153, and the lag-3 year's 1 of 168 is 167 losses on distance alone, 87% repaired by the scored years' own local-summer ratios (6zzl, `../experiments/results_lag3_diagnosis.txt`). Report km and dark hours separately at high latitude before stating which rule "keeps the real seasonal error".
+
 4. Sensitivity: input ranking hotel > eta_pv > derate > c_s > k_form > wave scale
    (`results_solar_sensitivity.txt`); best speed moves 0.0 to 0.2 m/s per input while km/day moves
    up to 50%.
