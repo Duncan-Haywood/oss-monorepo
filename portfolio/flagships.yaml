@@ -293,7 +293,7 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
+      History, measurements: README, docs/INFORMATION-GAIN-SELECTOR.md,
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Closed items (insights, staged
       default, pooled prior, f, g, b, d, d3-d7, d9, panel and later-pass curves) are
       written up there. site/decide.html (2026-11-14, docs/DECIDE-PAGE.md) weighs
@@ -316,8 +316,8 @@ flagships:
       blocks, slot runs or spread-out carelessness, and how noisy real pairwise
       answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bounded
       turn measured, not shipped (selector doc 2026-11-15); on real times, count
-      back moves it backs; (d8 closed 2026-11-15: lapse-weighted pick test ships,
-      check pairs cost rank; selector doc "Check pairs"); (h) share-drop beat both
+      back moves it backs; (bw) best-worst screens of four shipped (RANK-PAGE.md
+      "Best and worst of four"): time a screen vs a pair; (h) share-drop beat both
       pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a real panel's
       times.
 

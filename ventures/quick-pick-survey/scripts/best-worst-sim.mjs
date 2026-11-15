@@ -1,4 +1,4 @@
-// node scripts/best-worst-sim.mjs [--runs 24] [--sizes 8,15,30] [--spreads 6,3] [--answerer gumbel|probit] [--out docs/best-worst-2026-11-15.jsonl.gz]
+// node scripts/best-worst-sim.mjs [--runs 24] [--run0 0] [--sizes 8,15,30] [--spreads 6,3] [--answerer gumbel|probit] [--out docs/best-worst-2026-11-15.jsonl.gz]
 // node scripts/best-worst-sim.mjs --from a.jsonl.gz,b.jsonl.gz   summarise saved rows
 //
 // Best-worst screens of four against pairs, on the rank page's own loop and
@@ -32,6 +32,7 @@ import { spearmanWithTruth } from "./picks-needed.mjs";
 const args = process.argv.slice(2);
 const opt = (k, d) => (args.includes(k) ? args[args.indexOf(k) + 1] : d);
 const RUNS = Number(opt("--runs", 24));
+const RUN0 = Number(opt("--run0", 0)); // first run index, so a cell can be split into shards that run in parallel
 const SIZES = opt("--sizes", "8,15,30").split(",").map(Number);
 const SPREADS = opt("--spreads", "6,3").split(",").map(Number);
 const ANSWERER = opt("--answerer", "gumbel");
@@ -91,7 +92,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const FROM = opt("--from", null);
   const load = (f) => (f.endsWith(".gz") ? gunzipSync(readFileSync(f)).toString("utf8") : readFileSync(f, "utf8")).trim().split("\n").map((l) => JSON.parse(l));
   const rows = FROM ? FROM.split(",").flatMap(load) : [];
-  if (!FROM) for (const spread of SPREADS) for (const n of SIZES) for (let r = 0; r < RUNS; r++) {
+  if (!FROM) for (const spread of SPREADS) for (const n of SIZES) for (let r = RUN0; r < RUN0 + RUNS; r++) {
     const seed = SEED0 + 7919 * r + 104729 * n + 13 * spread;
     const rand = mulberry32(seed);
     const truth = Array.from({ length: n }, (_, i) => -spread / 2 + (spread * i) / (n - 1));

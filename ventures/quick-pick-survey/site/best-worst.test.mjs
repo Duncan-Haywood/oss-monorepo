@@ -129,3 +129,21 @@ test("team reads take codes made of screens", () => {
   const lin = linearize(n, people[0].answers, new Array(n).fill(0));
   for (let i = 0; i < n; i++) assert.ok(Math.abs(lin.J.slice(i * n, i * n + n).reduce((a, b) => a + b, 0)) < 1e-9);
 });
+
+test("the page offers the mode, links carry it, and the MaxDiff page is wired with its disclaimer", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { encodeList, decodeList } = await import("./rank-core.mjs");
+  const read = (f) => readFileSync(new URL(f, import.meta.url), "utf8");
+  const rank = read("rank.html");
+  assert.match(rank, /name="mode" value="screens"/);
+  assert.match(rank, /nextScreen\(f, state\.answers/);
+  assert.ok(!rank.includes("__SCREENS__"), "measured screens table filled in");
+  const d = decodeList(encodeList({ items: ["a", "b", "c"], mode: "screens" }));
+  assert.equal(d.mode, "screens");
+  const page = read("maxdiff-best-worst.html");
+  assert.match(page, /rel="canonical" href="https:\/\/marisstella.app\/quick-pick-survey\/maxdiff-best-worst.html"/);
+  assert.match(page, /<strong>Disclaimer\.<\/strong>/);
+  assert.match(page, /href="rank.html\?mode=screens"/);
+  assert.ok(!page.includes("<!--N30-->"), "30-option rows filled in");
+  for (const f of ["rank.html", "index.html"]) assert.ok(read(f).includes('href="maxdiff-best-worst.html"'), f);
+});
