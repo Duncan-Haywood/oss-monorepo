@@ -1472,6 +1472,10 @@ const COVER_PAIR_MS = 10000;
 // Checks per pair for the confirming pair walk in the priced pass (2026-11-15, eval/cover-pair-capped.mjs): at 200,000 no pair
 // of the 22 bench rosters (five templates and six seeded 20-40 person weeks, default and priced) was given up on.
 const PAIR_CONFIRM_BUDGET = 200000;
+// The same for the order-free check (coverPairOrderFree, README "An order-free pair check"): at 200,000 it gave up on 9 pairs of
+// the seeded 40-person week 0 and 1 of the 60-person week; at 2,000,000 on none, with the same count and the same walk time
+// (0.4 s and 0.7 s), since only those few pairs use the extra checks.
+const PAIR_CONFIRM_BUDGET_FREE = 2000000;
 // Call-out risk, the cheap stand-in for calloutExposure (2026-11-13). `calloutExposure` rebuilds the week once per
 // person-day, which is far too slow to sit inside a search. This counts the same cases and asks only the quickest of its
 // questions: if this person called out for this day, could someone else take each of their shifts that day with every hard
@@ -1600,7 +1604,10 @@ function coverDayJoint(ctx, lists, p, day, mine, chain, budget = Infinity, calle
 // would retrace itself step for step and end the same way. A remembered verdict is used only then, so a walk with a memo
 // returns exactly what it would without one. Only the dear verdicts are kept (given up on, or no cover found); `memo.hits` and
 // `memo.misses` count lookups.
-export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, callerTakes = true, single = null, maxPairs = Infinity, keep = false, stopAt = Infinity, first = null, deadline = Infinity, memo = null, handOut = null } = {}) {
+export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, callerTakes = true, single = null, maxPairs = Infinity, keep = false, stopAt = Infinity, first = null, deadline = Infinity, memo = null, handOut = null, orderFree = false, passes = null, look = true } = {}) {
+  // orderFree: the pair question coverGroupsFree answers; `passes` is its pass budget for the pair (default `chain` per shift
+  // the callers lose); `look: false` turns off its look-ahead and fewest-options order (measurement).
+  const joint = orderFree ? (c, l, g, ch, b, ct, sn, ho) => coverGroupsFree(c, l, g, ch, b, ct, sn, ho, passes, look) : coverGroupsJoint;
   const lists = Array.from({ length: ctx.P }, () => []);
   owner.forEach((p, i) => { if (p >= 0) lists[p].push(i); });
   lists.forEach((l) => l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b));
@@ -1636,8 +1643,9 @@ export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, bu
   // Memo: each person's list as an interned number, so a remembered verdict is checked by comparing a few integers.
   let sig = null, seen = null, dayKey = null, store = null;
   if (memo) {
-    store = memo.byKey.get(chain + "|" + budget + "|" + (callerTakes ? 1 : 0) + "|" + fromDay);
-    if (!store) memo.byKey.set(chain + "|" + budget + "|" + (callerTakes ? 1 : 0) + "|" + fromDay, (store = new Map()));
+    const mk = chain + "|" + budget + "|" + (callerTakes ? 1 : 0) + "|" + fromDay + "|" + (orderFree ? 1 : 0);
+    store = memo.byKey.get(mk);
+    if (!store) memo.byKey.set(mk, (store = new Map()));
     sig = new Int32Array(ctx.P);
     for (let p = 0; p < ctx.P; p++) {
       const k = lists[p].join(",");
@@ -1667,14 +1675,14 @@ export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, bu
         else {
           memo.misses++;
           seen.fill(0);
-          how = coverGroupsJoint(ctx, lists, [A, B], chain, budget, callerTakes, seen, handOut);
+          how = joint(ctx, lists, [A, B], chain, budget, callerTakes, seen, handOut);
           if (!how) {
             const who = [];
             for (let q = 0; q < ctx.P; q++) if (seen[q]) who.push(q);
             store.set(key, { how, who: Int32Array.from(who), sig: Int32Array.from(who, (q) => sig[q]) });
           } else if (got) store.delete(key);
         }
-      } else how = coverGroupsJoint(ctx, lists, [A, B], chain, budget, callerTakes, null, handOut);
+      } else how = joint(ctx, lists, [A, B], chain, budget, callerTakes, null, handOut);
       if (how === null) capped++;
       if (checked) checked.push({ a: { person: A.person, day: A.day, hours: A.hours }, b: { person: B.person, day: B.day, hours: B.hours }, how });
       if (!how) {
@@ -1764,13 +1772,161 @@ function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTa
   } catch (e) { if (e !== COVER_STOP) throw e; return restore(null); }
 }
 
+// The pair check as a question about the covered roster, not about the search (2026-11-15, README "An order-free pair check").
+// coverGroupsJoint's verdict can depend on the order it hands the shifts out (eval/pair-order.mjs: 179 or 187 confirmed pair
+// hours on one roster), for two reasons: a chain may pass on a shift handed to that person earlier in the same search, so
+// "passes per shift" depends on which shift came first; and each hand-over is checked on the lists as they stand, so a stand-in
+// who could take shift X only once they have passed shift Y is refused X when X comes first. This search answers one fixed
+// question: is there a covered roster where
+//   - every shift the callers lose, and every shift given up, goes to someone eligible;
+//   - a person gives up at most two of their own shifts (on the roster before the call-outs, not one taken in this cover),
+//     each on or after the earlier call-out day, and only if they take at least one shift; `passes` given up in all
+//     (default `chain` per shift the callers lose, the total coverGroupsJoint allowed);
+//   - callers are off on their own call-out days and, with `callerTakes`, may take a shift on a later day;
+//   - every person's final list keeps every hard rule?
+// The answer depends only on the final roster, so it is the same in every hand-out order (pair-order-free.test.mjs checks it
+// against an oracle that picks the given-up shifts first). The search hands shifts out depth-first, a person giving up their
+// shifts with the first shift they take, and checks each hand-over on the lists as they stand. That is exact: the hard rules
+// are downward closed (dropping a shift never breaks rest, overlap, weekly or daily hours or days in a row), and on that path
+// every list checked is part of its owner's final list. (Travel times between sites can break downward closure when the trip
+// table breaks the triangle inequality; then the search can miss a cover, never invent one.) One pass per person was tried
+// first and dropped: on the priced retail template it flagged 82 pairs where the old check flagged 55, none of the 27 extra
+// opening when played (eval/pair-order-free-exposure.mjs). Same returns and budget as coverGroupsJoint; `handOut` orders the
+// shifts and `look: false` turns off the look-ahead below (tests and measurement); `each` caps shifts given up per person.
+function coverGroupsFree(ctx, lists, groups, chain, budget = Infinity, callerTakes = false, seen = null, handOut = null, passes = null, look = true, each = 2) {
+  let left = budget;
+  const saved = lists.slice();
+  if (seen) for (const g of groups) seen[g.person] = 1;
+  for (const g of groups) lists[g.person] = lists[g.person].filter((x) => !g.mine.includes(x));
+  const offDays = new Map();
+  for (const g of groups) { if (!offDays.has(g.person)) offDays.set(g.person, []); offDays.get(g.person).push(g.day); }
+  const callerOk = (q, i) => {
+    const off = offDays.get(q);
+    if (!off) return true;
+    if (!callerTakes) return false;
+    const d = ctx.slots[i].day;
+    return d > Math.min(...off) && !off.includes(d);
+  };
+  const by = ctx.eligBy || (ctx.eligBy = Array.from({ length: ctx.S }, (_, i) => { const out = []; for (let q = 0; q < ctx.P; q++) if (ctx.elig[q][i]) out.push(q); return out; }));
+  const dy = slotTable(ctx).dy;
+  // Who held each shift before the call-outs (the callers' call-out shifts held by nobody): only those may be passed on.
+  const orig = new Int32Array(ctx.S).fill(-1);
+  for (let q = 0; q < ctx.P; q++) for (const j of lists[q]) orig[j] = q;
+  const swapped = new Uint8Array(ctx.P);
+  const minDay = Math.min(...groups.map((g) => g.day));
+  let work = [];
+  for (const g of groups) for (const i of g.mine) work.push(i);
+  if (handOut === "fewest") work.sort((x, y) => by[x].length - by[y].length);
+  else if (handOut === "reverse") work.reverse();
+  else if (typeof handOut === "function") work = handOut(work);
+  let passLeft = 0;
+  // Can q give up the shifts in X (their own, from the earlier call-out day on) and take i? X is one or two shifts.
+  const fitsWithout = (q, Lq, i, X) => (X.length === 1 ? validWith(ctx, q, Lq, i, X[0]) : validWith(ctx, q, Lq.filter((x) => !X.includes(x)), i));
+  // The sets of own shifts q could give up with this take: singles, then (when `each` allows two and two passes are left) pairs.
+  const giveUps = function* (q, Lq) {
+    const mine = Lq.filter((j) => orig[j] === q && dy[j] >= minDay);
+    for (const j of mine) yield [j];
+    if (eachCap < 2 || passLeft < 2) return;
+    for (let x = 0; x < mine.length; x++) for (let y = x + 1; y < mine.length; y++) yield [mine[x], mine[y]];
+  };
+  // `depth`: passes left to this chain. Only the capped round below limits it; the last round allows the pair's whole budget.
+  const placeAll = (X, depth, rest, k = 0) => (k === X.length ? rest() : place(X[k], depth, () => placeAll(X, depth, rest, k + 1)));
+  const place = (i, depth, rest) => {
+    const who = by[i];
+    for (let k = 0; k < who.length; k++) {
+      const q = who[k];
+      if (!callerOk(q, i)) continue;
+      if (seen) seen[q] = 1;
+      if (--left < 0) throw COVER_STOP;
+      const Lq = lists[q];
+      if (!validWith(ctx, q, Lq, i)) continue;
+      lists[q] = insertSorted(ctx, Lq, i);
+      const ok = rest();
+      lists[q] = Lq;
+      if (ok) return true;
+    }
+    if (passLeft <= 0 || depth <= 0) return false;
+    for (let k = 0; k < who.length; k++) {
+      const q = who[k];
+      if (swapped[q] || !callerOk(q, i)) continue;
+      if (seen) seen[q] = 1;
+      const Lq = lists[q];
+      for (const X of giveUps(q, Lq)) {
+        if (--left < 0) throw COVER_STOP;
+        // q passes nothing after this, so this list is part of q's final list: the check is exact.
+        if (!fitsWithout(q, Lq, i, X)) continue;
+        lists[q] = insertSorted(ctx, Lq.filter((x) => !X.includes(x)), i);
+        swapped[q] = 1; passLeft -= X.length;
+        const ok = placeAll(X, depth - 1, rest);
+        swapped[q] = 0; passLeft += X.length;
+        lists[q] = Lq;
+        if (ok) return true;
+      }
+    }
+    return false;
+  };
+  // Could anyone still take shift i? Now outright, or (passes left, and not yet passing) after giving up some of their own
+  // shifts, the only way a list can shrink before the end. No one means no cover down this branch: an exact cut. Returns the
+  // number of people who could, capped at `cap` (the order below only needs to know which shift has fewest).
+  const options = (i, cap) => {
+    let n = 0;
+    for (const q of by[i]) {
+      if (!callerOk(q, i)) continue;
+      if (--left < 0) throw COVER_STOP;
+      const Lq = lists[q];
+      let ok = validWith(ctx, q, Lq, i);
+      if (!ok && passLeft > 0 && !swapped[q]) for (const X of giveUps(q, Lq)) {
+        if (--left < 0) throw COVER_STOP;
+        if (fitsWithout(q, Lq, i, X)) { ok = true; break; }
+      }
+      if (ok && ++n >= cap) return n;
+    }
+    return n;
+  };
+  // `look` (default on): before each hand-out, every shift still to place is checked to have someone who could take it, and the
+  // one with fewest goes next. Because the answer does not depend on the order, choosing it as the search goes is allowed.
+  const todo = new Uint8Array(work.length);
+  const all = look ? (k) => {
+    if (k === work.length) return true;
+    let best = -1, bestN = Infinity;
+    for (let t = 0; t < work.length; t++) {
+      if (todo[t]) continue;
+      const n = options(work[t], bestN);
+      if (n === 0) return false;
+      if (n < bestN) { bestN = n; best = t; }
+    }
+    todo[best] = 1;
+    const ok = place(work[best], chainCap, () => all(k + 1));
+    todo[best] = 0;
+    return ok;
+  } : (k) => (k === work.length ? true : place(work[k], chainCap, () => all(k + 1)));
+  const restore = (v) => { for (let q = 0; q < lists.length; q++) lists[q] = saved[q]; return v; };
+  if (passes == null) passes = chain * work.length;
+  // Three rounds: a cover with no passes; then a narrower question than the real one, at most `chain` passes on any one chain
+  // (coverGroupsJoint's limit) and one shift given up per person, so a cover it finds is a cover; only if it finds none, the
+  // whole question. The capped round keeps the search from going four passes deep under a first stand-in who cannot be helped
+  // before it tries the next (README "An order-free pair check": on the seeded 60-person week one round at four passes gave up
+  // on 1,592 of 8,646 pairs at 2,000 checks). The verdict is the last round's when it runs, so it stays order-free.
+  let chainCap = 0, eachCap = 0;
+  try {
+    if (all(0)) return restore("direct");
+    if (passes <= 0) return restore(false);
+    passLeft = passes;
+    chainCap = Math.min(chain, passes); eachCap = 1;
+    if (chainCap > 0 && all(0)) return restore("chain");
+    if (chainCap >= passes && eachCap >= each) return restore(false);
+    chainCap = passes; eachCap = Math.min(each, 2);
+    return restore(all(0) ? "chain" : false);
+  } catch (e) { if (e !== COVER_STOP) throw e; return restore(null); }
+}
+
 // Exposure priced inside the roster (2026-11-13). `--steady` chooses among rosters that already tie at the best score, so it
 // never gives anything up; the open question it left was what a manager could buy by giving something up. `coverPrice` is
 // dollars per hour at risk (coverRisk above): the pass hill-climbs on score + coverPrice x risk hours, so it will hand a
 // shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
 // Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
 // one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
-export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET, pairStop = true, pairMs = Infinity, pairRank = false, pairMemo: memoOn = false, onMove = null }) {
+export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET, pairStop = true, pairMs = Infinity, pairRank = false, pairMemo: memoOn = false, pairOrderFree = false, onMove = null }) {
   // A time cap on the pair-priced pass (2026-11-15, README "A time cap on the pair price"). Every move the pass takes is a
   // confirmed gain on its own, so stopping between moves posts a roster no worse than the one it started from and keeps
   // every move made so far. Once `pairMs` has passed since the pass began, the pass takes no new move and ends; a walk under way is
@@ -1802,7 +1958,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   const pairWalk = (own, single, b, limit) => {
     pairWalks++;
     const stopAt = pairStop && Number.isFinite(limit) ? Math.max(0, limit) : Infinity;
-    const r = coverPairRisk(ctx, own, { fromDay, chain, budget: b, callerTakes, single, stopAt, first: pairStop ? casesOf.get(b) : null, deadline: pairDeadline, memo });
+    const r = coverPairRisk(ctx, own, { fromDay, chain, budget: b, callerTakes, single, stopAt, first: pairStop ? casesOf.get(b) : null, deadline: pairDeadline, memo, orderFree: pairOrderFree });
     pairsSearched += r.pairs;
     if (r.timedOut) { pairTimedOut = true; return Infinity; } // its cases are partial: keep the last full walk's
     lastCases.set(b, r.cases);
@@ -1833,7 +1989,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   keepCases();
   const pairBefore = pairF ?? pairBefore0;
   if (pairTimedOut) { // the starting walks did not finish: nothing to price against
-    return { owner, score, risk: strict || risk, before, moves: 0, tried: 0, pairMoves: 0, relieves: 0, trades: 0, pairTried: 0, pairHours: null, pairHoursBefore: null, pairHoursScreen: null, pairConfirmed: false, pairWalks, pairStops, pairSkips, pairsSearched, pairMemoHits: memo ? memo.hits : 0, pairMemoMisses: memo ? memo.misses : 0, pairTimedOut, pairStartTimedOut: true };
+    return { owner, score, risk: strict || risk, before, moves: 0, tried: 0, pairMoves: 0, relieves: 0, trades: 0, pairTried: 0, pairHours: null, pairHoursBefore: null, pairHoursScreen: null, pairConfirmed: false, pairWalks, pairStops, pairSkips, pairsSearched, pairMemoHits: memo ? memo.hits : 0, pairMemoMisses: memo ? memo.misses : 0, pairTimedOut, pairStartTimedOut: true, pairOrderFree: pairPrice > 0 && pairOrderFree };
   }
   let moves = 0, tried = 0, pairMoves = 0, relieves = 0, trades = 0, pairTried = 0;
   const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
@@ -1993,7 +2149,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     pending = null;
     if (!improved) break;
   } } catch (e) { if (e !== COVER_STOP || !pairTimedOut) throw e; }
-  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched, pairMemoHits: memo ? memo.hits : 0, pairMemoMisses: memo ? memo.misses : 0, pairTimedOut, pairStartTimedOut: false };
+  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched, pairMemoHits: memo ? memo.hits : 0, pairMemoMisses: memo ? memo.misses : 0, pairTimedOut, pairStartTimedOut: false, pairOrderFree: pairPrice > 0 && pairOrderFree };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -3675,7 +3831,7 @@ function buildRosterOnce(staff, slots, options = {}) {
   if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
     const chain = o.coverChain ?? COVER_CHAIN, budget = o.coverBudget ?? COVER_BUDGET;
     const pairOn = o.coverPairPrice > 0 && ctx.S <= (o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS);
-    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? PAIR_CONFIRM_BUDGET), pairStop: o.coverPairStop !== false, pairMs: o.coverPairMs ?? COVER_PAIR_MS, pairRank: o.coverPairRank === true, pairMemo: o.coverPairMemo === true });
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? (o.coverPairOrderFree === true ? PAIR_CONFIRM_BUDGET_FREE : PAIR_CONFIRM_BUDGET)), pairStop: o.coverPairStop !== false, pairMs: o.coverPairMs ?? COVER_PAIR_MS, pairRank: o.coverPairRank === true, pairMemo: o.coverPairMemo === true, pairOrderFree: o.coverPairOrderFree === true });
     const before = out.before;
     coverSlack = {
       price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
@@ -3684,7 +3840,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       pairMoves: out.pairMoves, relieves: out.relieves, trades: out.trades,
       pairPrice: pairOn ? o.coverPairPrice : 0, pairHoursBefore: out.pairHoursBefore, pairHours: out.pairHours, pairHoursScreen: out.pairHoursScreen, pairConfirmed: out.pairConfirmed,
       pairWalks: out.pairWalks, pairStops: out.pairStops, pairSkips: out.pairSkips, pairsSearched: out.pairsSearched, pairMemoHits: out.pairMemoHits, pairMemoMisses: out.pairMemoMisses,
-      pairTimedOut: out.pairTimedOut, pairStartTimedOut: out.pairStartTimedOut, pairMs: pairOn ? (o.coverPairMs ?? COVER_PAIR_MS) : null,
+      pairTimedOut: out.pairTimedOut, pairStartTimedOut: out.pairStartTimedOut, pairMs: pairOn ? (o.coverPairMs ?? COVER_PAIR_MS) : null, pairOrderFree: out.pairOrderFree,
       pairSkipped: o.coverPairPrice > 0 && !pairOn ? { slots: ctx.S, cap: o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS } : null,
       cases: out.risk.cases.map((c) => ({ person: c.person, day: c.day, hours: c.hours })),
     };
@@ -5307,7 +5463,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
