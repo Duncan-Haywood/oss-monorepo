@@ -839,7 +839,14 @@ export const ANNEX_I_HEAD_LINE_CODES = [
 // Annex I 120-160: "value list: 02-20; 22-44; 51".
 const countyOk = (c) => /^\d{2}$/.test(c) && ((c >= "02" && c <= "20") || (c >= "22" && c <= "44") || c === "51");
 const DAY = 86400000;
-const isDate = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "") && !Number.isNaN(Date.parse(`${d}T00:00:00Z`));
+// A real calendar day: Date.parse would roll 2026-02-30 over to March, so round-trip the day.
+const isDate = (d) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || "");
+  if (!m) return false;
+  const [y, mo, day] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const t = new Date(Date.UTC(y, mo - 1, day));
+  return t.getUTCFullYear() === y && t.getUTCMonth() === mo - 1 && t.getUTCDate() === day;
+};
 const addDays = (d, n) => new Date(Date.parse(`${d}T00:00:00Z`) + n * DAY).toISOString().slice(0, 10);
 const daysBetween = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / DAY);
 

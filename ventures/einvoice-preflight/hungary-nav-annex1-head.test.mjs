@@ -118,6 +118,11 @@ test("a manageInvoice request's own timestamp is the day of reporting", () => {
   assert.ok(!r.skipped.some((s) => s.rule === "HU-034"));
 });
 
+test("an impossible calendar date is not compared", () => {
+  // 2022-06-31 does not exist; a naive Date.parse rolls it to 1 July 2022, 412 days after the 2021-05-15 issue.
+  assert.ok(!codes(once(foreign, "<invoiceDeliveryDate>2021-05-10", "<invoiceDeliveryDate>2022-06-31")).includes("INCORRECT_DATE_INVOICE_DELIVERY_DATE_LATE"));
+});
+
 test("320 and 321: an aggregate invoice's dates against its lines", () => {
   const fixed = aggregate.replaceAll("<lineDeliveryDate>2019-05-13", "<lineDeliveryDate>2021-05-13");
   assert.deepEqual(codes(fixed.replace("<invoiceIssueDate>2021-05-15", "<invoiceIssueDate>2021-05-12")), ["INCORRECT_DATE_AGGREGATE_INVOICE_ISSUE_DATE"]);

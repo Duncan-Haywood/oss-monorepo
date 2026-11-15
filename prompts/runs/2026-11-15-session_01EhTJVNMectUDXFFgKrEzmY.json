@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A first coverage count matched NAV codes by a 30-character prefix and reported I.1 date codes 312/313 and I.2 595/631/5810/5820 as covered; they were not. Caught by reading the module and fixed before the PR."
+    "A first coverage count matched NAV codes by a 30-character prefix and reported I.1 date codes 312/313 and I.2 595/631/5810/5820 as covered; they were not. Caught by reading the module and fixed before the PR.",
+    "check_calendar_dates.py (run by run_workflow_locally --for-changes) caught that the new isDate accepted 2026-02-30 via Date.parse rollover; fixed with a UTC round-trip and a test."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,7 +46,7 @@
     "ventures/einvoice-preflight/eval/nav-annex1-head-lines-2026-11-15.md"
   ],
   "goal": null,
-  "notes": "Flagship row 3 einvoice-preflight, item Annex I I.1/I.2. HU-034 (23 header warnings) and HU-035 (19 line-data warnings) added. NAV samples: one new real finding (Gyujtoszamla 2.xml 2019 line dates), 805 mutants with 796 caught (172/172 new). run_venture_tests.py einvoice-preflight: 2494 tests, 0 failed. Local verification only, no CI wait.",
+  "notes": "Flagship row 3 einvoice-preflight, item Annex I I.1/I.2. HU-034 (23 header warnings) and HU-035 (19 line-data warnings) added. NAV samples: one new real finding (Gyujtoszamla 2.xml 2019 line dates), 805 mutants with 796 caught (172/172 new). run_venture_tests.py einvoice-preflight: 2494 tests, 0 failed. Local verification only, no CI wait. Local ventures-tests.yml run found the calendar-date lint failure; fixed and rerun: run_venture_tests.py --since origin/main 6 suites, 0 failed.",
   "corrections": [],
   "redteam": null,
   "usage": {
