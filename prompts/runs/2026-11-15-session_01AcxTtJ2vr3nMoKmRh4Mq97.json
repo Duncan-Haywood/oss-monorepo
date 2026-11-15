@@ -1,0 +1,430 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtJ2vr3nMoKmRh4Mq97",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T08:07:03Z",
+  "ended": "2026-11-15T08:09:15Z",
+  "wall_minutes": 22.27,
+  "tokens_in": 2655048,
+  "tokens_out": 19460,
+  "cost_usd": 1.4825,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16152",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First post description was 202 chars (limit 160); check_post_frontmatter, the site build and shorts.test.mjs caught it locally; shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "All 8 entries on `redteam.py open` are control-plane fixes awaiting owner approval, so step 0 had nothing this run could land; the list could flag control-plane entries so runs skip them without reading each one."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes on a one-venture plus one-post diff ran portfolio-pages and took over 10 minutes; a second pass with --foreground hit the 590 s timeout before the pages build."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that catches the class; both defects were missing domain rules (K-code cap, Marriage Allowance eligibility), not a pattern a lint can see.",
+      "did": "Added tests to the venture's own suite only, no repo-wide check.",
+      "result": "The defects are guarded in the venture's own suite; there is still no class-level guard."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's open entries are all control plane (owner approval needed).",
+      "did": "Left them open and moved on to seeding.",
+      "result": "No step-0 progress this run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-redteam-uk-tax-code-checker.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1 (random draw): terraform-plan-blast-radius-check/usage.mjs, 8/8. Campaign 2: uk-tax-code-checker/calc.mjs, 3/10; 6 gaps, 1 equivalent; after the fixes, 17/18 caught. Local: venture suite 40/40, shorts.test 10/10, front matter ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+        "test": "node --test ventures/terraform-plan-blast-radius-check/**/*.test.mjs  (in .)",
+        "seed": 213307951,
+        "commit": "7e05ed985",
+        "sites": 24,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+            "line": 11,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "return typeof localStorage === \"undefined\";",
+            "after": "return typeof localStorage !== \"undefined\";",
+            "line_text": "    return typeof localStorage === \"undefined\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+            "line": 24,
+            "col": 57,
+            "operator": "eq-flip",
+            "before": "return !noStorage() && localStorage.getItem(OPT_OUT) === \"1\";",
+            "after": "return !noStorage() && localStorage.getItem(OPT_OUT) !== \"1\";",
+            "line_text": "    return !noStorage() && localStorage.getItem(OPT_OUT) === \"1\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+            "line": 27,
+            "col": 11,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "    return false;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+            "line": 34,
+            "col": 79,
+            "operator": "true-to-false",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return false;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+            "line": 45,
+            "col": 51,
+            "operator": "or-to-and",
+            "before": "current = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "after": "current = JSON.parse(localStorage.getItem(KEY) && \"{}\");",
+            "line_text": "    current = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+            "line": 49,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current !== \"object\" && Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+            "line": 50,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/terraform-plan-blast-radius-check/usage.mjs",
+            "line": 62,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed || typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/uk-tax-code-checker/calc.mjs",
+        "test": "node --test ventures/uk-tax-code-checker/**/*.test.mjs  (in .)",
+        "seed": 145473183,
+        "commit": "7e05ed985",
+        "sites": 238,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 58,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "after": "const r2 = (n) => Math.round(n * 100) / 101;",
+            "line_text": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 60,
+            "col": 177,
+            "operator": "const-plus-one",
+            "before": "export const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"\u00a3\" + Math.abs(r2(n)).toLocaleString(\"en-GB\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));",
+            "after": "export const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"\u00a3\" + Math.abs(r2(n)).toLocaleString(\"en-GB\", { minimumFractionDigits: 2, maximumFractionDigits: 3 }));",
+            "line_text": "export const money = (n) => ((t) => (n < 0 && /[1-9\u221e]/.test(t) ? \"-\" : \"\") + t)(\"\u00a3\" + Math.abs(r2(n)).toLocaleString(\"en-GB\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "money() rounds with r2 to 2 dp before toLocaleString, so maximumFractionDigits 3 never shows a third digit: the nearest double to k/100 prints as k/100."
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 81,
+            "col": 128,
+            "operator": "const-plus-one",
+            "before": "return { ...base, type: number === 0 ? \"zero\" : \"allowance\", number, letter, allowance: number * 10 + 9 - (number === 0 ? 9 : 0), label: number === 0 ? `No allowance: ${m[0]}, bands still apply` : `${money(number * 10 + 9)} tax-free for the year: ${meaning}` };",
+            "after": "return { ...base, type: number === 0 ? \"zero\" : \"allowance\", number, letter, allowance: number * 10 + 9 - (number === 0 ? 9 : 1), label: number === 0 ? `No allowance: ${m[0]}, bands still apply` : `${money(number * 10 + 9)} tax-free for the year: ${meaning}` };",
+            "line_text": "  return { ...base, type: number === 0 ? \"zero\" : \"allowance\", number, letter, allowance: number * 10 + 9 - (number === 0 ? 9 : 0), label: number === 0 ? `No allowance: ${m[0]}, bands still apply` : `${money(number * 10 + 9)} tax-free for the year: ${meaning}` };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 119,
+            "col": 36,
+            "operator": "ge-to-gt",
+            "before": "if (taxPaid === null || !(taxPaid >= 0)) errors.push(\"Enter the tax paid so far this tax year (year-to-date on the payslip).\");",
+            "after": "if (taxPaid === null || !(taxPaid > 0)) errors.push(\"Enter the tax paid so far this tax year (year-to-date on the payslip).\");",
+            "line_text": "  if (taxPaid === null || !(taxPaid >= 0)) errors.push(\"Enter the tax paid so far this tax year (year-to-date on the payslip).\");",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs (Red-team guards, 2026-11-15)"
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 141,
+            "col": 51,
+            "operator": "times-to-div",
+            "before": "const a = gapAllowance * 0.2, b = gapAllowance * 0.4;",
+            "after": "const a = gapAllowance * 0.2, b = gapAllowance / 0.4;",
+            "line_text": "    const a = gapAllowance * 0.2, b = gapAllowance * 0.4;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs (Red-team guards, 2026-11-15)"
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 146,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (Math.abs(vsCode) > Math.max(10, onCode * 0.02)) {",
+            "after": "if (Math.abs(vsCode) > Math.max(11, onCode * 0.02)) {",
+            "line_text": "  if (Math.abs(vsCode) > Math.max(10, onCode * 0.02)) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs (Red-team guards, 2026-11-15)"
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 152,
+            "col": 20,
+            "operator": "max-to-min",
+            "before": "else if (vsStd < -Math.max(10, onStd * 0.02)) findings.push({ severity: \"medium\", title: `Compared with the standard code, you have paid about ${money(-vsStd)} less so far. That is expected with a higher allowance code, but check you are not building a bill.` });",
+            "after": "else if (vsStd < -Math.min(10, onStd * 0.02)) findings.push({ severity: \"medium\", title: `Compared with the standard code, you have paid about ${money(-vsStd)} less so far. That is expected with a higher allowance code, but check you are not building a bill.` });",
+            "line_text": "  else if (vsStd < -Math.max(10, onStd * 0.02)) findings.push({ severity: \"medium\", title: `Compared with the standard code, you have paid about ${money(-vsStd)} less so far. That is expected with a higher allowance code, but check you are not building a bill.` });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs (Red-team guards, 2026-11-15)"
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 176,
+            "col": 25,
+            "operator": "gt-to-ge",
+            "before": "const marriageAdj = pa > 0 ? (marriage === \"received\" ? MARRIAGE : marriage === \"given\" ? -MARRIAGE : 0) : 0;",
+            "after": "const marriageAdj = pa >= 0 ? (marriage === \"received\" ? MARRIAGE : marriage === \"given\" ? -MARRIAGE : 0) : 0;",
+            "line_text": "  const marriageAdj = pa > 0 ? (marriage === \"received\" ? MARRIAGE : marriage === \"given\" ? -MARRIAGE : 0) : 0;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs (Red-team guards, 2026-11-15)"
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 180,
+            "col": 16,
+            "operator": "lt-to-le",
+            "before": "if (allowance < 0) body = \"K\" + Math.ceil(-allowance / 10);",
+            "after": "if (allowance <= 0) body = \"K\" + Math.ceil(-allowance / 10);",
+            "line_text": "  if (allowance < 0) body = \"K\" + Math.ceil(-allowance / 10);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-tax-code-checker/calc.mjs",
+            "line": 191,
+            "col": 27,
+            "operator": "plus-to-minus",
+            "before": "[\"Marriage Allowance \" + (marriage === \"none\" ? \"(not used)\" : marriage), marriageAdj],",
+            "after": "[\"Marriage Allowance \" - (marriage === \"none\" ? \"(not used)\" : marriage), marriageAdj],",
+            "line_text": "    [\"Marriage Allowance \" + (marriage === \"none\" ? \"(not used)\" : marriage), marriageAdj],",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs (Red-team guards, 2026-11-15)"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-tax-code-checker/calc.mjs",
+        "issue": "buildCode gave an M or N Marriage Allowance code (1383M / 1131N at 60,000) to higher-rate taxpayers, who can neither give nor receive it (Scotland: above the intermediate rate). Now gated at 12,570 + 37,700 (Scotland + 31,092) with a finding; test 'a higher-rate taxpayer can neither give nor receive Marriage Allowance'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16152"
+      },
+      {
+        "file": "ventures/uk-tax-code-checker/calc.mjs",
+        "issue": "K codes ignored the 50% overriding limit: K3000 on 1,000 of monthly pay expected 771.60 tax, so a payslip correctly capped at 500 was flagged 'high: ask payroll'. taxToDate now caps K-code tax at 50% of pay to date, with a finding showing the uncapped figure; test 'K code tax is capped at 50% of pay'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16152"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5a319432-62cf-5b48-a5cc-2c971ca6f487",
+    "transcripts": 1,
+    "first": "2026-11-15T08:07:03Z",
+    "last": "2026-11-15T08:29:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 66,
+        "output": 19460,
+        "thinking": 5854,
+        "cache_read": 2582924,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72058,
+        "api_equivalent_usd": 1.4825,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 66,
+      "output": 19460,
+      "thinking": 5854,
+      "cache_read": 2582924,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72058,
+      "api_equivalent_usd": 1.4825,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.27,
+      "active_minutes": 22.27,
+      "model_minutes": 3.94,
+      "tool_minutes": 18.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, UK tax rule research, two fixes with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 269.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
