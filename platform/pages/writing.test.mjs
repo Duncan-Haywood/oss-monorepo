@@ -642,3 +642,31 @@ test('a post may not take the slug "topic", which holds the topic pages', () => 
   const root = repoWith({ '2026-10-01-topic.md': post('Topic', '2026-10-01') });
   assert.throws(() => loadPosts(root), /topic/);
 });
+
+import { pagerWindow, renderPager } from './writing.mjs';
+
+test('the pager window shows first, last and two either side, with a gap only where pages are hidden', () => {
+  assert.deepEqual(pagerWindow(1, 98), [1, 2, 3, null, 98]);
+  assert.deepEqual(pagerWindow(50, 98), [1, null, 48, 49, 50, 51, 52, null, 98]);
+  assert.deepEqual(pagerWindow(98, 98), [1, null, 96, 97, 98]);
+  // A gap of one page shows the page itself, not an ellipsis standing for one number.
+  assert.deepEqual(pagerWindow(4, 98), [1, 2, 3, 4, 5, 6, null, 98]);
+  assert.deepEqual(pagerWindow(3, 7), [1, 2, 3, 4, 5, 6, 7]);
+  assert.deepEqual(pagerWindow(1, 2), [1, 2]);
+});
+
+test('a long pager shows a short row and keeps every page one click away in a closed details', () => {
+  const html = renderPager(50, 98, '../../');
+  const row = html.match(/<\/p><p class="nums">(.*?)<\/p>/)[1];
+  assert.equal([...row.matchAll(/<a /g)].length, 6);
+  assert.match(row, /<span aria-current="page">50<\/span>/);
+  assert.equal([...html.matchAll(/aria-current/g)].length, 1);
+  assert.match(html, /<details class="all"><summary>All 98 pages<\/summary>/);
+  const all = html.match(/<details class="all">.*<\/details>/)[0];
+  assert.equal([...all.matchAll(/<a href/g)].length, 97);
+  assert.match(all, /href="\.\.\/\.\.\/"/);
+  assert.match(all, /href="\.\.\/\.\.\/page\/98\/"/);
+  // Short pagers have nothing hidden, so no details.
+  assert.doesNotMatch(renderPager(2, 5, ''), /<details/);
+  assert.equal(renderPager(1, 1, ''), '');
+});
