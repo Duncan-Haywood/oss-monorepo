@@ -815,6 +815,33 @@ class OpenPrClaimTest(unittest.TestCase):
         (14000, "process: allocate.py notes", "2026-11-11T06:00:00Z"),
     ]
 
+    def test_reads_the_pulls_list_first_and_drops_fork_prs(self):
+        """The search index lagged new claims by 10+ minutes on 2026-11-15
+        (#16190, #16173); the REST pulls list does not lag."""
+        from unittest import mock
+        import allocate
+        repo = {"full_name": allocate.REPO}
+        pulls = [
+            {"number": 16190, "title": "shift-roster-builder: claim", "created_at": "2026-11-15T10:58:20Z",
+             "head": {"repo": repo, "ref": "claude/x"}},
+            {"number": 16191, "title": "shift-roster-builder: from a fork", "created_at": "2026-11-15T10:59:00Z",
+             "head": {"repo": {"full_name": "someone/oss-monorepo"}, "ref": "main"}},
+            {"number": 16192, "title": "deleted fork", "created_at": "2026-11-15T11:00:00Z",
+             "head": {"repo": None, "ref": "main"}},
+        ]
+        with mock.patch.object(allocate, "_search_pr_titles") as search:
+            got = allocate.open_pr_titles(pulls=lambda: pulls)
+        search.assert_not_called()
+        self.assertEqual(got, [(16190, "shift-roster-builder: claim", "2026-11-15T10:58:20Z")])
+
+    def test_falls_back_to_search_when_the_pulls_list_is_unreadable(self):
+        from unittest import mock
+        import allocate
+        rows = [(1, "t", "2026-11-15T00:00:00Z")]
+        with mock.patch.object(allocate, "_search_pr_titles", return_value=rows) as search:
+            self.assertEqual(allocate.open_pr_titles(pulls=lambda: None), rows)
+        search.assert_called_once()
+
     def test_matches_whole_slug_only(self):
         claims = claims_by_venture(["ai-bookkeeper", "bookkeeper", "league-schedule-generator", "sales-agent"], self.PRS)
         self.assertEqual([h[0] for h in claims["ai-bookkeeper"]], [14678, 11151])

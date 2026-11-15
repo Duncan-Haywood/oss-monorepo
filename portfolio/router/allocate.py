@@ -26,7 +26,7 @@ Neither count drives ranking yet — see README.md's "Attribution honesty"
 section for why that next step is deliberately not automated.
 
 Rows that an open PR already works say so first ("OPEN PR #N (2h old)"),
-from one `gh api` search; `--no-claims` skips it.
+from the REST pulls list (search as fallback); `--no-claims` skips it.
 
 Usage:
     python3 portfolio/router/allocate.py           # table
@@ -50,7 +50,7 @@ from typing import Optional
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from claim_check import claim_recipe  # noqa: E402
+from claim_check import REPO, claim_recipe, open_prs  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
@@ -732,14 +732,36 @@ OPEN_PR_TIMEOUT_S = 20
 OPEN_PR_TITLE_CHARS = 70
 
 
-def open_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S) -> Optional[list[tuple[int, str, str]]]:
+def open_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S, pulls=None) -> Optional[list[tuple[int, str, str]]]:
     """Open same-repo PRs as (number, title, created_at), or None if unreadable.
 
-    Display-only. Concurrent sessions kept taking the same top row because the
-    table did not show that an open PR already worked it (run-record
-    doc_friction on this file, 2026-11-10/11: #14628, #14678 and rows 3-5
-    found only by searching by hand). One `gh api` search call; `gh` is
-    unauthenticated in cloud sessions but search works there (CLAUDE.md)."""
+    Concurrent sessions kept taking the same top row because the table did
+    not show that an open PR already worked it (run-record doc_friction on
+    this file, 2026-11-10/11: #14628, #14678 and rows 3-5 found only by
+    searching by hand).
+
+    Read from the REST pulls list, as claim_check.py and pick_track.py do,
+    and only then from the search index: the index can lag a new PR by
+    minutes, and the claim that matters here is the one opened minutes ago.
+    On 2026-11-15 'Start here' sent sessions to shift-roster-builder and
+    league-schedule-generator while #16190 (10 min old) and #16173 (15 min
+    old) held them, both titled with the slug; the table listed only an
+    older PR for the first, so the reader had not seen the new one. Fork PRs
+    are not claims (claim_check.decide drops them too)."""
+    batch = (pulls or open_prs)()
+    if batch is not None:
+        rows = []
+        for p in batch:
+            head_repo = ((p.get("head") or {}).get("repo") or {}).get("full_name") or ""
+            if head_repo.lower() != REPO.lower():
+                continue
+            rows.append((int(p["number"]), str(p.get("title", "")), str(p.get("created_at", ""))))
+        return rows
+    return _search_pr_titles(timeout)
+
+
+def _search_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S) -> Optional[list[tuple[int, str, str]]]:
+    """The fallback: one `gh api` search call (unauthenticated works in cloud sessions)."""
     try:
         remote = subprocess.run(
             ["git", "remote", "get-url", "origin"], capture_output=True, text=True,
