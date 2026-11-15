@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqycR29fRrQgqtut873p",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T19:38:56Z",
+  "ended": "2026-11-15T21:13:49Z",
+  "wall_minutes": 184.11,
+  "tokens_in": 10022758,
+  "tokens_out": 50576,
+  "cost_usd": 4.1702,
+  "tool_calls": 86,
+  "task": "build-data: staleness cut per source city, feed close-out status (session 93)",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16321",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A sibling run (PR #16320) ran the same fixed-threshold sweep in the same minutes and merged first; this run found out only at merge time (git merge conflict), then reworked its PR into session 93 with the parts it alone had: per-source threshold, status-field query, replication."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "The claim step (open the PR within a few minutes) cannot stop a sibling that started in the same minute: both runs saw no open PR at pick time; pick_track.py's CLAIM CHECK has no way to see a sibling that has not pushed yet. ~3 h of compute duplicated (it did make a free replication)."
+    },
+    {
+      "file": "research/build-data (rounds.py)",
+      "issue": "run.log reused 'DONE' from the chained wait_for, so wait_for --marker DONE never fired on the second phase; had to wait with --until on a count of DONE lines."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Session numbering: my pre-registration was committed as 'session 92' before the sibling's session 92 landed",
+      "did": "Reported the same predictions unchanged as session 93, citing the pre-registration commit, and dropped my duplicate fixed-threshold claims in favour of a replication note",
+      "result": "No duplicate results on main; the overlap became a bit-identical replication"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-build-data-what-never-closed-permits-are.md",
+    "research/build-data/LOG.md session 93"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: build-data tests 150 passed 2 skipped (/usr/bin/python3.13); research/_homepage/build.py ok; research_live_links, check_md_links, post frontmatter/links/similarity clean; cite_check no ids. Experiment: 16 variant-cells, 19:55-22:38 UTC, 4 threads.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4b8cee66-b354-513a-8b92-a981e50b40ba",
+    "transcripts": 1,
+    "first": "2026-11-15T19:38:56Z",
+    "last": "2026-11-15T22:43:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 163,
+        "output": 50576,
+        "thinking": 9301,
+        "cache_read": 9874705,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147890,
+        "api_equivalent_usd": 4.1702,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 163,
+      "output": 50576,
+      "thinking": 9301,
+      "cache_read": 9874705,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147890,
+      "api_equivalent_usd": 4.1702,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 81,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 184.11,
+      "active_minutes": 184.11,
+      "model_minutes": 8.63,
+      "tool_minutes": 175.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an RA designing, running and writing up a pre-registered model sweep plus feed queries",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 143.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
