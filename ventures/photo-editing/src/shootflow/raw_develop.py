@@ -1319,7 +1319,7 @@ class DevelopSettings:
     # padded-plane taps and threaded bands it costs less than bilinear did before.
     warp_kernel: str = "cubic"
     # How a CFA is demosaiced: "bilinear" (the 3x3 average; both engines, byte for byte), "directional"
-    # (``xtrans_demosaic``: four directional greens, the most homogeneous kept; X-Trans only, numpy engine)
+    # (``xtrans_demosaic``: four directional greens, blended by smoothness along each line; X-Trans only, numpy engine)
     # or "auto" (directional on X-Trans when the numpy engine runs, else bilinear). Measured against known
     # truth and LibRaw in eval/xtrans-directional-demosaic-2026-11-14.md.
     demosaic: str = "auto"

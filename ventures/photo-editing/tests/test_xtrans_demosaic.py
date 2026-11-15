@@ -105,6 +105,59 @@ class DirectionalTests(unittest.TestCase):
         whole3 = directional(c, XE1_PATTERN, band_rows=None, passes=3)
         np.testing.assert_array_equal(directional(c, XE1_PATTERN, band_rows=18, passes=3), whole3)
 
+    def test_bands_equal_one_piece_for_each_choice(self):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import directional
+
+        c = self.mosaic(_edge_truth(h=120, w=36))[0] + np.random.default_rng(5).uniform(0, 0.05, (120, 36))
+        for kw in ({"select": "homogeneity"}, {"clamp": False}, {"select": "homogeneity", "clamp": False}):
+            whole = directional(c, XE1_PATTERN, band_rows=None, **kw)
+            np.testing.assert_array_equal(directional(c, XE1_PATTERN, band_rows=24, threads=2, **kw), whole)
+
+    def test_clamped_green_lies_between_its_greens(self):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import _directional_piece, colour_map
+
+        # Noise makes the colour-difference estimate overshoot; with the clamp every direction's green at a red
+        # or blue sensel lies within the range of all green sensels up to three away (a loose but exact bound),
+        # so the blended green does too.
+        rng = np.random.default_rng(7)
+        c = rng.uniform(0.0, 1.0, (36, 42))
+        out = _directional_piece(c, XE1_PATTERN, median_passes=0)
+        cm = colour_map(XE1_PATTERN, *c.shape)
+        g = np.where(cm == 1, c, np.nan)
+        pad = np.pad(g, 3, constant_values=np.nan)
+        win = np.stack([pad[3 + a : 3 + a + 36, 3 + b : 3 + b + 42] for a in range(-3, 4) for b in range(-3, 4)])
+        lo, hi = np.nanmin(win, axis=0), np.nanmax(win, axis=0)
+        inner = (slice(6, -6), slice(6, -6))
+        sites = (cm != 1)[inner]
+        self.assertTrue(np.all(out[..., 1][inner][sites] >= lo[inner][sites] - 1e-6))
+        self.assertTrue(np.all(out[..., 1][inner][sites] <= hi[inner][sites] + 1e-6))
+
+    def test_gradient_choice_beats_homogeneity_on_edges(self):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import directional
+
+        # The 2026-11-15 measurement in miniature: on the slanted edge and grating, the default (clamp, gradient
+        # choice) has a lower error than the 2026-11-14 rule (no clamp, homogeneity choice).
+        truth = _edge_truth(h=60, w=72)
+        c, _ = self.mosaic(truth)
+        new = directional(c, XE1_PATTERN)
+        old = directional(c, XE1_PATTERN, clamp=False, select="homogeneity")
+        err = lambda a: float(np.mean((a - truth)[6:-6, 6:-6] ** 2))  # noqa: E731
+        self.assertLess(err(new), err(old))
+
+    def test_unknown_choice_refused(self):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import directional
+
+        with self.assertRaises(ValueError):
+            directional(np.ones((12, 12)), XE1_PATTERN, select="best")
+
     def test_any_phase_of_the_layout(self):
         import numpy as np
 

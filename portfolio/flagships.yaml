@@ -254,10 +254,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md; raw.pixls.us answered 403 here on 2026-11-15). CR3 C-RAW
       read 2026-11-15 (eval/canon-cr3-craw-2026-11-15.md); a tiled CR3 (R5-class
-      bodies) needs a public file. X-Trans demosaic toward LibRaw's three-pass (2-6
-      dB short; a noisy known truth for the real-frame luma gap; a C path;
-      eval/xtrans-directional-demosaic-2026-11-14.md). DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      bodies) needs a public file. X-Trans demosaic: real frames 0.5-0.7 dB short of
+      LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings; median
+      and green; C path; eval/xtrans-clamp-gradient-2026-11-15.md). DNG 1.7.1.0 spec
+      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
