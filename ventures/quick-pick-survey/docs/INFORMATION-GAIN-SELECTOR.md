@@ -4074,3 +4074,102 @@ a turn read from the slot run's start backwards is still a search over splits;
 a turn scored only against the run's own start (one candidate, as d9 does for
 slots) would bound the wander step's chance of moving the cut, and real answer
 times (item c) will say how often wander steps happen at all.
+
+## A turn scored against the run's own start (2026-11-15; measured, not shipped)
+
+Item (d11) on the flagship list. Since d10 the default ranking moves a slot
+run's cut back to an earlier fast turn (`slotBlocksBackToTurns`), and it reads
+that turn with `fastBlockStarts`' wander bar off (`looseFastTurns`). That is a
+search over every split with nothing to bound it: under a wandering pace a
+large enough wander step passes as a turn. d10's text asked for a turn scored
+against the run's own start, so the wander step's chance of moving the cut has
+a bound.
+
+**The test** (`pinnedTurnsBeforeRuns`, `groupRanking.ts`). For someone the slot
+run test flagged from answer `s`:
+
+- Their log times are read against the panel's median at each point (the people
+  not flagged, as `fastBlockStarts`' later passes read them).
+- The null model is their pace as a random walk with a straight-line trend and a
+  step at `s`. The run is known to be careless, so it may be quicker; that step
+  is given, not searched for.
+- Each earlier split `t` (from `FAST_BLOCK_MIN_SEG` up to `s`) adds one more
+  step and scores twice the gain in log likelihood (`walkLogLik`, d's Kalman
+  filter).
+- The best split that is quicker after than before moves the cut when its
+  chi-square(1) tail (`chiSq1Tail`) times the number of splits tried is at most
+  `alpha`.
+
+Nobody is flagged who was not already.
+
+**The walk ratio has to come from the panel.** The first version profiled each
+person's own walk ratio in each model. On a pure 0.08-log-per-answer walk (20
+panels of 20, 120 answers, a made-up run from answer 90) it moved 3.25% of runs
+at alpha 0.01. Adding the step let the ratio shrink, so a wander step read as a
+turn. Fixing the ratio at the null model's own estimate held the bound (0.5%)
+but lost the real turns, because a person's own ratio grows to swallow their
+turn: a clear 0.6-log turn 15 answers before a run did not move. The ratio
+that shipped in the function is `panelWalkRatio` over the people not flagged,
+read together and used in both models. On the pure walk it moves 0-0.5% at
+alpha 0.01 (walk 0 to 0.12) and 1.5% at 0.05. On the seeded no-wander panel two
+of three real turns move back to the right answer (`groupRanking.test.ts`).
+
+**The sweep** (`scripts/slot-turn-back-sweep.ts`, with two variants and a null
+added; raw rows `docs/pinned-turn-2026-11-15.jsonl`).
+
+- Seed base 9100: 144 cells, wander 0, 0.08 and 0.12, q 1 and 0.6, 0.4x and
+  0.7x pace, lag -0.25, 0 and 0.25, 15 and 30 items, a quarter or 40% careless,
+  20 surveys each.
+- Seed base 51000: 32 cells, wander 0.08 and 0.12, lag 0 and 0.25, a quarter
+  careless.
+
+The null gives every honest person who was not flagged a made-up run from 3/4 of
+their session, and counts how often each rule would move it. Paired Spearman
+difference from the default without any move back (`gated`):
+
+| rule | seeds 9100, 144 cells: mean (min, max) | above / below by 2 SE | seeds 51000, 32 cells: lag 0.25 / lag 0 | above / below |
+|---|---|---|---|---|
+| `back` (today's default: loose turn) | +0.0004 (-0.0018, +0.0047) | 8 / 0 | +0.0006 / -0.0002 | 2 / 0 |
+| `pinned`, alpha 0.01 | +0.0002 (-0.0005, +0.0042) | 1 / 0 | +0.0002 / -0.0001 | 0 / 0 |
+| `pinned05`, alpha 0.05 | +0.0004 (-0.0016, +0.0069) | 7 / 0 | +0.0003 / -0.0006 | 0 / 1 |
+| oracle | +0.0034 | | | |
+
+Made-up runs moved (honest people, 6,480 per row; second seed set 9,600):
+
+| wander, items | loose turn (`back`) | pinned 0.01 | pinned 0.05 |
+|---|---|---|---|
+| 0, 15 or 30 | 0.0% | 0.6% | 2.7-2.8% |
+| 0.08, 15 | 11.2% | 3.2% | 6.6% |
+| 0.08, 30 | 19.5% | 1.3% | 5.1% |
+| 0.12, 15 | 19.7% | 1.7% | 4.9% |
+| 0.12, 30 | 32.1% | 0.9% | 4.7% |
+| second seed set, 0.08 and 0.12 | 22.3% | 2.2% | 6.6% |
+
+The bound is exact only for the walk the test models. The sweep's times also
+slow on close pairs, which the staged selector serves more of as a session goes
+on. So at 15 items (60 answers) alpha 0.01 lets through up to 3.2%, not 1%. It
+is still 3-35x fewer moves than the loose turn under wander. Where nobody
+wanders, the loose turn moves nothing (its other bars hold), and the pinned test
+moves 0.6-2.8%.
+
+Careless people under wander:
+
+- **Run after the speed-up (lag 0.25):** the pinned test moved 12-22% of them
+  (`back`: 33-35%). It took out 19-21 careless answers per move and cut 0.8-1.0
+  honest ones (`back`: 17-18 and 2.1-3.9). Its moves landed before the true
+  onset 12-13% of the time (`back`: 20-33%).
+- **Run starting with or before the speed-up:** every move is a loss. The
+  pinned test moved 1-2% (`back`: 7-9%).
+
+**Decision.** Not shipped. The bound does what d11 asked: wander-only moves
+fall 3-35x. But the ranking is what the product is for, and on it the bounded
+rule never beats the loose one. At alpha 0.01 it keeps half the gain (+0.0002
+against +0.0004) with no cell below. At 0.05 it matches the gain on the first
+seed set and falls 0.0004 short on the second, with one cell below by 2 SE.
+`back` stays the default.
+
+`pinnedTurnsBeforeRuns` is kept, with tests, for the first real survey. If real
+paces wander more than the sweep's 0.12, or in ways it does not model, the loose
+turn's 11-32% made-up-run moves would grow while the pinned test's would not.
+Item (c) can read both on real answer times: count how many of `back`'s moves
+the pinned test agrees with.
