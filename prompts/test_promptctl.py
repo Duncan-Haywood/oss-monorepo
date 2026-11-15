@@ -5,9 +5,11 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
 import random
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import promptctl
@@ -169,6 +171,25 @@ class RouteTest(PromptTestCase):
         a = promptctl.route(self.fx.root, rng=random.Random(3), task="tidy up")
         b = promptctl.route(self.fx.root, rng=random.Random(3))
         self.assertEqual(a["track"], b["track"])
+
+    def test_session_task_reads_the_starting_message_from_the_transcript(self):
+        base = self.fx.root / "projects"
+        (base / "proj").mkdir(parents=True)
+        lines = [
+            {"type": "queue-operation", "content": "ignored"},
+            {"type": "user", "message": {"content": "<system-reminder>context</system-reminder>"}},
+            {"type": "user", "isMeta": True, "message": {"content": "meta"}},
+            {"type": "user", "message": {"content": [
+                {"type": "text", "text": "develop and sell revenue generating products"}]}},
+            {"type": "user", "message": {"content": "a later message"}},
+        ]
+        (base / "proj" / "s1.jsonl").write_text("\n".join(json.dumps(x) for x in lines) + "\n")
+        with mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": ""}):
+            task = promptctl.session_task(base)
+        self.assertEqual(task, "develop and sell revenue generating products")
+        self.assertEqual(promptctl.route(self.fx.root, rng=random.Random(0), task=task)["track"],
+                         "ventures")
+        self.assertIsNone(promptctl.session_task(self.fx.root / "missing"))
 
     def test_skip_review_routes_to_work_when_a_review_is_claimed(self):
         for i in range(3):
