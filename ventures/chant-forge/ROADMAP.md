@@ -203,8 +203,9 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
      ecclesiastical Latin as a men's choir at acceptable quality, with a
      listening test and a written protocol. First step landed 2026-11-15: `sing.mjs`
      (`--sing`), a dependency-free formant choir on the right vowels, with each syllable's
-     opening consonants sung before the beat (2026-11-15); next are final consonants,
-     formant tuning on high notes and a listening test.
+     opening consonants sung before the beat (2026-11-15); final consonants landed
+     2026-11-15 in three rounds (the third fixed a blip of bare vowel in every final nasal, README); next are
+     formant tuning on high notes, /m/ entered by a slow transition, and a listening test.
 6. **Mix and master checks:**
    - a script that measures integrated LUFS, true peak, mono compatibility and
      clipping against streaming targets;

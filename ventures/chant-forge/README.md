@@ -441,7 +441,7 @@ vowel coming back (a vibrato swing on a high note looks like one too); a brief d
 release after an obstruent, and *as et ad an er a* on D3 read back from the MIDI path (and as none from the
 vowel-only choir). Nobody has listened to it.
 
-#### Final consonants, second round: *x* and the nasals (2026-11-15, latest)
+#### Final consonants, second round: *x* and the nasals (2026-11-15)
 
 The first round's misses were mostly two things: *x* (k s, as in *lux*, *dex*, *Rex*) read as a plain s
 (3 of 13 corpus velars right), and final /m/ and /n/ read as nothing (22 of 42). Before changing anything,
@@ -497,6 +497,51 @@ more of a short note, so 874 of 920 (95.0%, was 895) read right; ending the wind
 consonant's transition starts, 695 of the 714 notes left with 0.1 s (97.3%). `sing.test.mjs` gains a test
 (12 in all): the murmur 5-9 dB under /a/ and /u/ on E2, D3, A3 and E4 with one voice, and *dex* read as
 a voiceless velar stop on 0.24 and 0.5 s notes.
+
+#### Final consonants, third round: /m/ after /u/, and a blip in every final nasal (2026-11-15, latest)
+
+The second round left most final /m/ after a dark vowel unread (*-um*, *-num*, *-rum*: B read 20 of 39
+nasals). Before changing anything a second held-out set was fixed (part E of `eval/coda-check-report.md`:
+every sixth file of `corpus/gregobase-1908` from the fourth, 3403 to 3459, ten more Graduale pieces, none
+in D) and scored: 71 of 86 closings (82.6%), nasals 14 of 22. Its misses were not read.
+
+- **What the reader saw** (part A's *um*, *u*, *a*, frame by frame): after /u/ nearly all the vowel's
+  energy is already under 500 Hz, so its murmur is the vowel 10-13 dB down and only 8-12 dB darker above
+  1 kHz, not the 15 the reader asks for (a vowel's fade into its release darkens by up to 12, so the
+  bar cannot simply drop). What a fade does not do is step: the lips shut in 10 ms and the murmur holds
+  its level, while a release falls 1-3 dB per 10 ms. A first version of the rule (a step in the overall
+  level) called 13 of 30 vowel-only A2 fades nasals, the same trap as the looser rule dropped in the first
+  round: an open vowel's release on A2 loses its upper formants first while its band under 500 Hz holds
+  within 3 dB. So the rule asks for the step under 500 Hz.
+- **The new cue** (`readCoda` in `onsets.mjs`): a run 6 dB or more under the vowel below 500 Hz and 7 dB
+  darker above 1 kHz, entered by a drop of 5 dB or more there within 20 ms and holding within 4 dB for
+  45 ms, is a nasal, alongside the old 15 dB rule (the earlier of the two wins).
+- **A synthesiser bug it turned up** (`codaTracks` in `sing.mjs`): reading B's *num,* and *num.* frame by
+  frame showed a 10-20 ms burst of bright sound (+12-19 dB above 1 kHz) about 45 ms into the murmur, at
+  the same place every time. `paintSeg` ramps a nasal's weight down over its last 10 ms, then the hum after
+  the note sets it back to 1, so between murmur and hum the nose's low-pass and antiformant were lifted:
+  every final *-m* and *-n* since the first round had a 10 ms blip of bare vowel in it, the kind of click
+  a listener would hear. The ramp-out of a final nasal is now held at 1. `sing.test.mjs` checks it with
+  one voice on /u/ and /a/ at A2, D3 and A3 (it fails on the old code with a 10.2 dB blip).
+
+Results (`eval/coda-check-report.md`; vowel-only controls unchanged in every part):
+
+| set | before | after | synth fix alone | reader rule alone |
+|---|---|---|---|---|
+| E, held out, fixed this round (10 more Graduale pieces) | 71 of 86 (82.6%) | 75 of 86 (87.2%) | 71 | - |
+| E: nasals | 14 of 22 | 18 of 22 | 14 | - |
+| D, held out last round (printed four times now) | 63 of 70 (90.0%) | 66 of 70 (94.3%) | 63 | - |
+| B, the five pieces (misses read) | 134 of 162 (82.7%) | 142 of 162 (87.7%) | 135 | 139 |
+| B: nasals | 20 of 39 | 28 of 39 | 21 | 25 |
+| A, syllables before a rest (tuning set) | 134 of 180 (74.4%) | 137 of 180 (76.1%) | 135 | 136 |
+| vowel-only control, A / B / D / E | 174, 160, 68, 84 | unchanged | | |
+
+The two changes help each other: the blip broke the plateau the new cue looks for. E was printed three
+times (baseline, after, and the synth-only ablation); nothing was changed after its second print.
+Openings (742 of 934) and vowels (874 of 920) are unchanged. Left: B's *-num* and *-rum* before a pause
+enter the murmur through a 40 ms formant transition rather than a step and still read as nothing (10 of
+39), and *-unt*/*-unc* still read on their stop. Nobody has listened to it, so the blip fix is the part of
+this round most worth an ear: a final *-um* should now hum without a click.
 
 ### A score for the choir: `--musicxml` (2026-11-14)
 

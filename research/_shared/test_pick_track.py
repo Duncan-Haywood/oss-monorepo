@@ -376,9 +376,6 @@ class FocusTest(unittest.TestCase):
         self.assertEqual(set(firsts), {p[0] for p in progs})
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class SessionDrawTest(unittest.TestCase):
     def test_same_draw_until_new(self):
@@ -489,3 +486,18 @@ class FreeChoiceTest(unittest.TestCase):
         self.assertIn("why_standalone", text)
         self.assertIn("PROPOSAL.md", text)
         self.assertIn("2 open programme(s)", text)
+
+
+class PostLimitsTest(unittest.TestCase):
+    def test_line_carries_the_checker_caps(self):
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+        import check_post_frontmatter as cpf
+        line = pick_track.post_limits_line()
+        self.assertTrue(line.startswith("post front matter:"))
+        self.assertIn(f"description {cpf.MIN_DESCRIPTION} to {cpf.LIMITS['description']}", line)
+
+
+if __name__ == "__main__":
+    unittest.main()

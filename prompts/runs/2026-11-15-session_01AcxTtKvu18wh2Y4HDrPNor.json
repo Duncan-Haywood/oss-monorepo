@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKvu18wh2Y4HDrPNor",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T16:06:41Z",
+  "ended": "2026-11-15T16:12:01Z",
+  "wall_minutes": 5.49,
+  "tokens_in": 3077581,
+  "tokens_out": 21442,
+  "cost_usd": 1.7433,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16269",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "PROPOSAL.md attributed a '0.97 to 0.33' Swinburne sensitivity to the NDPR review; the review has no such figure. Sentence withdrawn in this PR."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/theism-formal-evidence/LOG.md",
+      "issue": "Swinburne's inputs were listed as 'not done' for ~10 entries because the book was unreachable, but Otte's NDPR review (reachable by curl) quotes all four inputs verbatim with page numbers; a probe of the review would have closed it a week earlier."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/theism-formal-evidence/experiments/e16_model_theorems/results.md",
+      "why": "Earlier runs declined to transcribe the inputs from a secondary summary; the review gives verbatim quotations with page numbers, which is a transcription rather than a summary.",
+      "did": "Transcribed from the quotations, disclosed that the book was not read, listed checking pp. 50, 211-213 as not done.",
+      "result": "0.97 reproduced exactly (100/103)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-swinburne-097-resurrection-bayes-reproduced.md",
+    "research/theism-formal-evidence/LOG.md (2026-11-15 entry)"
+  ],
+  "goal": null,
+  "notes": "E25: test_theism.py 34 passed; research/_homepage/build.py ok; check_md_links ok; post frontmatter/links/similarity ok. No Lean: the result is exact rational arithmetic checked by Fraction in tests.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e6ac1d13-5dee-5dca-98f0-f49bfaf691f5",
+    "transcripts": 1,
+    "first": "2026-11-15T16:06:41Z",
+    "last": "2026-11-15T16:12:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 68,
+        "output": 21442,
+        "thinking": 4836,
+        "cache_read": 2987940,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89573,
+        "api_equivalent_usd": 1.7433,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 68,
+      "output": 21442,
+      "thinking": 4836,
+      "cache_read": 2987940,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89573,
+      "api_equivalent_usd": 1.7433,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 30,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "WebSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.49,
+      "active_minutes": 5.49,
+      "model_minutes": 4.29,
+      "tool_minutes": 1.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

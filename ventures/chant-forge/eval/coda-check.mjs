@@ -126,7 +126,7 @@ function scorePieces(list) {
 const CLS = ['stop', 'fricative', 'nasal', 'tap', 'none'];
 const PIECES = ['dies-irae', 'pange-lingua', 'veni-creator', 'te-deum', 'salve-regina'];
 lines.push('## B. The corpus pieces (final D3, fitted to 4/4 at 124 BPM)', '',
-  'Not a clean held-out set: no threshold was set on it, but its first run (60.5%) was read for misses, which showed the window cutting off bursts at the next sound and /m/ after /u/ barely a murmur; both were fixed (in the reader\'s window and in sing.mjs) before this run. One looser nasal rule was also tried and dropped: it read 136 of 162 here (84.0%) but called 13 of 30 vowel-only A2 fades in part A nasals. Its misses were read again for the second round (README "Final consonants, second round").', '',
+  'Not a clean held-out set: no threshold was set on it, but its first run (60.5%) was read for misses, which showed the window cutting off bursts at the next sound and /m/ after /u/ barely a murmur; both were fixed (in the reader\'s window and in sing.mjs) before this run. One looser nasal rule was also tried and dropped: it read 136 of 162 here (84.0%) but called 13 of 30 vowel-only A2 fades in part A nasals. Its misses were read again for the second round (README "Final consonants, second round") and the third, which found the blip of bare vowel at the end of every final nasal\'s murmur (README "Final consonants, third round").', '',
   'The last note of every syllable that closes on a consonant, 0.2 s or more, with 60 ms of steady vowel before the coda\'s room. The window ends where the next sound starts (the next beat, less its opening consonant sung before it). The vowel-only control column is the same notes from the choir with no consonants: how often the reader (rightly) finds none.', '',
   ...scorePieces(PIECES));
 
@@ -134,8 +134,16 @@ lines.push('## B. The corpus pieces (final D3, fitted to 4/4 at 124 BPM)', '',
 // changes and scored once before and once after them; its misses were not read while tuning.
 const HELD = readdirSync(new URL('gregobase-1908/', corpus)).filter((f) => f.endsWith('.gabc')).sort().filter((_, i) => i % 6 === 0).map((f) => `gregobase-1908/${f.slice(0, -5)}`);
 lines.push('## D. Held out: ten Graduale pieces (every sixth file of corpus/gregobase-1908)', '',
-  `${HELD.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Chosen by file name before the second round's changes, and scored before and after them without its misses being read in between.`, '',
+  `${HELD.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Chosen by file name before the second round's changes, and scored before and after them without its misses being read in between; scored again after the third round (README "Final consonants, third round"), when E below is the clean set.`, '',
   ...scorePieces(HELD));
+
+// Held out, second set (2026-11-15, third round): every sixth file from the fourth (3403 ... 3459), fixed and
+// scored before the third round's changes (README "Final consonants, third round"); its misses were not
+// read while tuning. D had been printed three times by then, so this is the round's clean score.
+const HELD2 = readdirSync(new URL('gregobase-1908/', corpus)).filter((f) => f.endsWith('.gabc')).sort().filter((_, i) => i % 6 === 3).map((f) => `gregobase-1908/${f.slice(0, -5)}`);
+lines.push('## E. Held out, second set: ten more Graduale pieces (every sixth file from the fourth)', '',
+  `${HELD2.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Chosen by file name and scored before the third round's changes (README "Final consonants, third round"), then once after them; its misses were not read in between.`, '',
+  ...scorePieces(HELD2));
 
 // ---- C ----
 const files = [];

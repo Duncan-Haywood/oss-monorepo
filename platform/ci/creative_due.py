@@ -155,6 +155,17 @@ def audio_mb(root: Path = ROOT) -> int:
     return -(-blocks * 512 // (1 << 20))
 
 
+def post_limits_line() -> str:
+    """The front-matter caps for the post a creative PR carries, printed with the draw
+    (the 160-character description cap was the top repeated friction, 2026-11-12..15)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    try:
+        from check_post_frontmatter import limits_line
+    except ImportError:
+        return "post front matter: python3 platform/ci/check_post_frontmatter.py --limits"
+    return "post " + limits_line()
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--json", action="store_true")
@@ -185,6 +196,7 @@ def main(argv=None) -> int:
         print("then: " + ", ".join(s for s, _ in order[1:]) + " (if an open PR already covers the one above)")
     verdict = "text only, no new audio" if mb >= AUDIO_CAP_MB else "new audio fits"
     print(f"audio: {mb} MB of {AUDIO_CAP_MB} MB cap ({verdict})")
+    print(post_limits_line())
     return 0
 
 

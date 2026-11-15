@@ -10,7 +10,7 @@ corresponding author are left for the owner to fill in before any submission.*
 
 - The 1/8 in panel gap shrinks a joint nail's window from ±3.93 to ±3.14 mm.
 - Bowed studs cap single-2x joints at 87% clean sheets, even with perfect reads.
-- Doubled joint studs give 99.97% clean sheets with one read a stud, 76–216 s a sheet.
+- Doubled joint studs give 99.94% clean sheets with one read a stud, 76–216 s a sheet.
 - A G1 on a lift base beats a hand crew in only 37% of draws at 100 houses a year.
 - Decayed-wall tests fit only with end nails at about a quarter of their NDS strength.
 
@@ -21,7 +21,7 @@ must land on a 1.5 in stud face. We carry every error source (panel gap, sheet p
 stud sensing, arm, tool) through a tolerance model, MuJoCo and Drake placement simulations and a
 cost model to the share of sheets with every nail inside its window. At the stud bow published for
 kiln-dried lumber, single-2x joints cap at 87% clean sheets even with perfect sensing; doubled
-joint studs lift a one-read robot to 99.97%. Neither stock humanoid can carry the 21.8 kg sheet,
+joint studs lift a one-read robot to 99.94%. Neither stock humanoid can carry the 21.8 kg sheet,
 and a G1 on a lift base beats a two-person crew in only 37% of draws at 100 houses a year. An
 escaped miss costs about 2% of its sheet's racking capacity. Five capacity models match
 decayed-wall tests only if end-nailed joints carry about a quarter of their code strength.
@@ -360,12 +360,12 @@ run.
 
 ### 5.5 The whole cycle in seconds (milestone 5)
 
-On two 2x with one read a stud the first-pass clean rate is 0.9997 [0.999, 1.000] and a sheet
+On two 2x with one read a stud the first-pass clean rate is 0.9994 [0.999, 1.000] and a sheet
 takes 76 to 216 s (median 146); a single read is the fastest policy in all 108 time cells. On
-single 2x no policy passes 0.5833 (dense reads; 0.70 nails missed a sheet), three reads are
-fastest in all 108 cells, and the best single-2x sheet takes 94 to 281 s (median 183). Before the
-extra stud is charged, two 2x win by 17.8 to 65.2 s a sheet, all of it rework (Fig. 1). Firing
-through the recoil costs up to 7.64 points on single 2x (a conservative model) and at most 0.12
+single 2x no policy passes 0.5814 (dense reads; 0.71 nails missed a sheet), three reads are
+fastest in all 108 cells, and the best single-2x sheet takes 94 to 282 s (median 184). Before the
+extra stud is charged, two 2x win by 17.9 to 65.5 s a sheet, all of it rework (Fig. 1). Firing
+through the recoil costs up to 7.39 points on single 2x (a conservative model) and at most 0.12
 on two 2x. On two 2x a lift that hangs and tacks the sheet to 0.25° and 5 mm needs no ledger
 (0.9775 with one read, 0.9960 with three). Nailing is the largest stage in 90 of 108 cells
 (place is in the other 18), refuting our expectation that it always would be.
@@ -411,8 +411,8 @@ sheet is seated and a clean ledger are the placement rules that follow.
 
 | Class | 10 houses/yr | 100 houses/yr | 1,000 houses/yr |
 |---|---|---|---|
-| walking H1 | 151.73 [98.02, 245.83] | 17.23 [11.48, 26.77] | 4.02 [2.34, 6.45] |
-| G1 on a lift base | 54.43 [33.04, 93.51] | 7.03 [4.52, 11.03] | 2.20 [1.17, 3.50] |
+| walking H1 | 151.73 [98.03, 245.83] | 17.23 [11.48, 26.77] | 4.02 [2.34, 6.45] |
+| G1 on a lift base | 54.43 [33.04, 93.51] | 7.03 [4.52, 11.04] | 2.20 [1.17, 3.50] |
 | gantry (plant) | 99.24 [27.59, 337.09] | 10.51 [3.33, 34.17] | 1.78 [0.63, 4.57] |
 | hand crew | 5.21 [1.93, 14.46] | 5.21 [1.93, 14.46] | 5.21 [1.93, 14.46] |
 
@@ -428,7 +428,7 @@ two decades. Against the crew, the base is cheaper in 37% of draws at 100 houses
 
 Every robot picks single 2x joints with three reads. The extra stud costs $5.42 a sheet (median),
 while the 0.79 missed nails a sheet it saves are worth well under a dollar of robot and
-supervisor time. Doubled joints pay only if a missed nail costs $6.51 [5.21, 7.88] more than its
+supervisor time. Doubled joints pay only if a missed nail costs $6.47 [5.17, 7.83] more than its
 re-drive, about ten loaded person-minutes.
 
 ![Figure 3. Dollars per clean sheet by robot class and house volume; which class is cheapest (milestone 7).](../experiments/m7_cost/figure.png)
@@ -513,7 +513,7 @@ by line laser, costs $7.42 at 0.7707. Below the machine's capacity extra seconds
 supervision, so first-pass quality up to 0.77 is nearly free. Doubled joints reach 1.0000 in 145 s
 but cost $12.17, and the cheapest single-2x pipeline beats them in every one of the 4,000 draws at
 100, 300 and 1,000 houses a year (median saving $5.13). Doubling pays only if a missed nail costs a
-median $5.51 more than its re-drive (8.8 loaded person-minutes), against $6.51 on the parabolic
+median $5.51 more than its re-drive (8.8 loaded person-minutes), against $6.47 on the parabolic
 studs of section 5.7. A line laser beats three point reads once it sweeps faster than about
 0.23 m/s.
 
@@ -603,7 +603,7 @@ doubled joints save 18–65 s of rework a sheet; in dollars, that rework is chea
 stud is not. The decision turns on the cost of a missed nail found late: a miss the robot finds
 and re-drives at once is cheap, a miss found at inspection or in a shear wall where it is a
 structural defect is not. Where a shear-wall design already calls for 3x or doubled joints, the
-stud is sunk and the robot gets its 99.97% for free. On measured studs
+stud is sunk and the robot gets its 99.94% for free. On measured studs
 (section 5.12) the threshold is about $5.50 a missed nail, and the single-2x remedies cost about
 30 cents a sheet, so the framing choice reduces to that one number.
 
@@ -651,7 +651,7 @@ readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in h
 
 A robot can nail wall sheathing to the code's windows, but not on any wall. With the panel gap in
 the budget and studs bowed as real lumber is, single-2x joints cap a perfectly sensing robot at
-87% clean sheets, while doubled joint studs let a robot that reads each stud once reach 99.97% and
+87% clean sheets, while doubled joint studs let a robot that reads each stud once reach 99.94% and
 hang the sheet 18 times more coarsely. A ledger board seats a released sheet in two physics
 engines, so the placement problem reduces to carrying the sheet there, which no stock humanoid
 can do. On cost, a G1 on a drive-and-lift base is the best robot below panel-plant volumes, but it

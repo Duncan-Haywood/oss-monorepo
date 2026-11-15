@@ -34,6 +34,7 @@ zero dependencies, one JSON file on a disk you own.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Honour system: no geofence or PIN. Details in "Time clock and timesheets" below.
+- **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Section "Overtime, meal periods and rounding" below.
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
 - **Shift trades:** staff pick their shift and a colleague's on the team page ("Want to trade shifts?"). `/admin` shows each request with the same check as the browser tool's trade checker (rest gaps, hour limits, availability, payroll change) and enables **Approve** only when both weeks stay inside the rules. Approving swaps the two people on the published schedule; declining changes nothing. Nobody is notified automatically (the "Tell the team" links give you the text to send).
@@ -76,8 +77,7 @@ has one, on the Node server and the free Cloudflare Worker alike (`timeclock.mjs
   last-resort size guard keeps the newest 1,500.
 - **What it is not:** an honour system. Anyone with the team link can punch for anyone (no geofence, photo or PIN); the
   manager's edits and the "added by manager" marks are the check, which is fine for a ten-person café and not for a site that
-  needs proof of presence. It does not compute overtime pay, meal-break premiums or rounding: those depend on where you are,
-  and the timesheet shows the hours for you to check. Keeping time records may be a legal duty where you are; this keeps them
+  needs proof of presence. Overtime, meal premiums and rounding are in the next section (`PAY_RULES`). Keeping time records may be a legal duty where you are; this keeps them
   only as long as the 3,000-punch cap, so download the CSV each pay period.
 - **Checked:** `timeclock.test.mjs` (six tests: zone conversion across a clock change, double-tap and out-without-in refusals,
   a week with an on-time split shift, late, early, past-end, unscheduled, missing clock-out and no-show cases, a Chicago week
@@ -86,6 +86,51 @@ has one, on the Node server and the free Cloudflare Worker alike (`timeclock.mjs
   4.40.0 `wrangler dev`, 2026-11-15, `TIMEZONE=America/Chicago`): a week published from a browser-built owner array, a
   clock-in shown as 09:01 Chicago time, the second clock-in refused, a clock-out, and the CSV and timesheet page served.
   Not claimed: no real team has used it, and it has not run on a live Cloudflare account.
+
+## Overtime, meal periods and rounding (2026-11-15 later)
+
+The time clock above stopped at hours: "It does not compute overtime pay, meal-break premiums or rounding." That left the
+step a manager actually dreads (turning a week of punches into what to pay) to a spreadsheet, and it is the step where the
+subscription schedulers charge extra (labour-compliance add-ons) and where small employers get sued: California's daily
+overtime, seventh-day rule and meal-period premiums are not what the 40-hour line on the timesheet shows. `payrules.mjs`
+now does it, read on the timesheet page and in the CSV.
+
+- **Set `PAY_RULES`** to `federal` (default), `california`, `alaska` or `colorado`. What each applies, from the text named:
+  - federal: 1.5x over 40 in the workweek (FLSA, 29 U.S.C. 207(a)(1)).
+  - california: 1.5x over 8 in a workday and over 40 in the workweek, 2x over 12 in a workday; on the seventh consecutive
+    day worked in the workweek, 1.5x for the first 8 hours and 2x after (Labor Code 510(a)). Meal periods (Labor Code 512(a)):
+    a 30-minute clock-out must start before the end of the fifth hour worked, and a second before the end of the tenth; a
+    missing one is flagged with "fine only with a signed waiver" when the work period is 6 hours or less (or 12 or less for
+    the second, first taken), otherwise as owing one extra hour at the regular rate, at most one per workday (Labor Code
+    226.7).
+  - alaska: 1.5x over 8 in a day or 40 in a week (AS 23.10.060; it covers employers with 4 or more employees).
+  - colorado: 1.5x over 40 in the week, 12 in a workday or 12 consecutive hours, whichever pays more (COMPS Order #39,
+    Rule 4.1.1); the 30-minute meal period over 5 hours (Rule 5.1) is a note, since it carries no premium.
+  No hour is counted twice: weekly overtime is regular hours past 40 after daily overtime is taken out, which for a
+  1.5x-only state equals "whichever is greater".
+- **Pay estimate:** each person's wage comes from the published week's staff list. The regular rate is straight-time pay over
+  hours worked (29 CFR 778.115), so if stretches carry different rates the overtime premium uses the blend; with one wage it
+  is that wage. Gross = straight time + 0.5 x regular rate per overtime hour + 1.0 x per double-time hour + one hour per
+  meal-premium day. Shown to the cent, with a total.
+- **Rounding (`PUNCH_ROUND_MIN` = 5, 6 or 15):** each punch to the nearest step, which 29 CFR 785.48(b) presumes lawful if it
+  averages out over time. The page and CSV show each person's net minutes gained or lost, since a total that always leans
+  against staff is what makes rounding unlawful. Under the California rules it refuses to round at all: the California
+  Supreme Court held that meal-period punches may not be rounded (Donohue v. AMN Services, 2021).
+- **Assumptions to know:** the workweek is the published week (Monday 00:00 to Sunday 24:00) and the workday the calendar day in
+  `TIMEZONE`; a stretch crossing midnight splits there for daily overtime, and one past Sunday midnight stays in its clock-in
+  week. Stretches less than 2 hours apart are one work period (so a 3-hour gap is a split shift); a meal break is any
+  clock-out of 30 minutes or more. Paid rest breaks are not punched and not checked. Not in the estimate: tips, bonuses,
+  commissions and shift differentials (which belong in the regular rate), city minimum wages, predictive-scheduling pay,
+  split-shift premiums, union rules, and every other state. Nevada's daily overtime depends on the wage against the minimum
+  and is left out rather than guessed.
+- **Checked:** `payrules.test.mjs` (eight tests, every expected figure worked by hand in the test's comments): five 9-hour days
+  federal (40 + 5) and California with and without lunch (one extra hour a day without); a 13-hour California day (8 + 4 +
+  1 at 2x, two missed meals, one premium); a seventh consecutive day (8 at 1.5x, 2 at 2x) with waivable six-hour periods;
+  six 8-hour days (8 weekly overtime); Alaska four 10s (8) against federal and Colorado (0); Colorado's 14-hour day and an
+  overnight 13 hours that is 6 + 7 by calendar day but 13 in a row; quarter-hour rounding with its net, and its refusal under
+  California rules; a blended regular rate (30 h at $10 and 20 h at $20: $14, $770); and the hub's page and CSV end to end.
+  Not claimed: no payroll provider has read the CSV, no real team's punches have been through it, and none of this is legal
+  advice: it is an estimate to check before you pay.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 

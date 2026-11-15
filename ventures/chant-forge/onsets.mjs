@@ -241,7 +241,23 @@ export function readCoda(x, rate, vowelAt, tEnd) {
   // and a murmur closes the syllable: when the vowel comes back after it (a vibrato swing taking a
   // harmonic off F1 on a high note looks like one for 30 ms) it was not a nasal
   const vowelAgain = (r) => fr.slice(r[1] + 1).some((f) => f.hiRel > -6 && f.lvl > -10);
-  const nas = runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r));
+  // After a dark vowel (/u/, and /o/ low down) the vowel has little above 1 kHz to lose, so its murmur is
+  // only 8-12 dB darker, which a fade also reaches (README "Final consonants, third round"). What a fade
+  // does not do is step under 500 Hz: the lips shut in 10 ms and the murmur, quieter than the vowel in
+  // every band, then holds its level, while a release falls 1-3 dB per 10 ms and an open vowel's release
+  // (/a/ on A2) loses its upper formants first with its low band held within 3 dB. So a run 6 dB or more
+  // under the vowel under 500 Hz and 7 dB darker, entered by a drop of 5 dB or more there within 20 ms
+  // and holding within 4 dB for 45 ms, is a murmur too.
+  const darkish = (f) => f.lvl > -20 && f.loRel <= -6 && f.loRel > -20 && f.hiRel < f.loRel - 7;
+  const stepped = (r) => {
+    const held = fr.slice(r[0], r[0] + 6).map((f) => f.loRel);
+    if (held.length < 6 || Math.max(...held) - Math.min(...held) > 4) return false;
+    const before = fr.slice(Math.max(0, r[0] - 4), r[0]).map((f) => f.loRel);
+    return before.length > 0 && Math.max(...before) >= median(held) + 5;
+  };
+  const step = runs(darkish, 45).find((r) => stepped(r) && !vowelAgain(r));
+  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r)), step]
+    .filter(Boolean).sort((p, q) => p[0] - q[0])[0];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
   if (!cands.length) return { cls: 'none' };

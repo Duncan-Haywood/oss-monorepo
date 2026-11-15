@@ -4,6 +4,7 @@
     python3 research/_shared/cite_check.py research/<slug>/README.md [more files]
     python3 research/_shared/cite_check.py --offline README.md   # list ids only
     python3 research/_shared/cite_check.py --no-write README.md  # do not update cite_check.json
+    python3 research/_shared/cite_check.py hand README.md doi:10.x/y "Title (2019)" "<where you checked it>"
 
 Each identifier is looked up (Crossref for DOIs, DataCite when Crossref has no such DOI, the arXiv API for arXiv ids)
 and printed with the title and year the registry holds, so you can compare it
@@ -35,6 +36,17 @@ A file below its project root (`research/<slug>/paper/draft.md`) also reads the
 `cite_check.json` files of the directories above it, up to `research/<slug>/`,
 so ids confirmed for the README still print `ok*` for the paper (friction
 2026-11-12). New lookups are written beside the file checked, as before.
+
+When every registry refuses, runs check an id by hand (web search, the
+publisher's page, an upstream README) and the result used to be lost: on
+2026-11-15, 310 of the 414 DOIs and arXiv ids cited in 216 research READMEs
+had never been confirmed live, so they printed SKIP in every blocked session
+and each one re-checked them. `hand` records such a check with the title and
+year you saw and where you saw it (`"via": "hand"` plus `source`). A blocked
+session then prints `ok?` with that date and source: a person checked it, no
+registry has. It is kept apart from `ok` and `ok*` so a hand check never reads
+as a machine one. A later live lookup replaces it, and a 404 removes it. Only
+ids the file cites can be recorded, and a live entry is never overwritten.
 """
 import datetime
 import os
@@ -146,14 +158,41 @@ def save_cache(cpath, cache):
         f.write("\n")
 
 
+def record_hand(path, key, title, source, today=None):
+    """Record a hand check of `key` (an id `path` cites) in its cite_check.json; returns (exit code, message)."""
+    kind, _, i = key.partition(":")
+    dois, arxivs = extract(open(path, encoding="utf-8").read())
+    if kind not in ("doi", "arxiv") or i not in (dois if kind == "doi" else arxivs):
+        cited = [f"doi:{d}" for d in dois] + [f"arxiv:{a}" for a in arxivs]
+        return 2, f"{key} is not cited in {path}; it cites: {', '.join(cited) or 'no DOI or arXiv id'}"
+    if not title.strip() or not source.strip():
+        return 2, "give the title (year) you saw and where you saw it (a URL or the document)"
+    cpath = cache_path(path)
+    cache = load_cache(cpath)
+    old = cache.get(key) or {}
+    if old and old.get("via") != "hand":
+        return 0, f"{key} already confirmed by a lookup on {old.get('checked')} ({old.get('title')}): kept"
+    cache[key] = {"title": title.strip(), "checked": today or datetime.date.today().isoformat(),
+                  "via": "hand", "source": source.strip()}
+    save_cache(cpath, cache)
+    return 0, f"recorded {key} as hand-checked in {os.path.relpath(cpath)}: commit it with the README"
+
+
 def main(argv):
+    if argv[:1] == ["hand"]:
+        if len(argv) != 5:
+            print('usage: cite_check.py hand FILE doi:<id>|arxiv:<id> "Title (year)" "<where you checked it>"')
+            return 2
+        rc, msg = record_hand(*argv[1:])
+        print(msg)
+        return rc
     offline = "--offline" in argv
     write = "--no-write" not in argv
     paths = [a for a in argv if not a.startswith("--")]
     if not paths:
         print(__doc__)
         return 2
-    bad = blocked = cached = rescued = 0
+    bad = blocked = cached = rescued = handed = 0
     today = datetime.date.today().isoformat()
     for path in paths:
         dois, arxivs = extract(open(path, encoding="utf-8").read())
@@ -172,7 +211,7 @@ def main(argv):
                 try:
                     found = fn(i)
                     print(f"  ok   {key}  {found}")
-                    if (cache.get(key) or {}).get("title") != found:
+                    if (cache.get(key) or {}).get("title") != found or "via" in (cache.get(key) or {}):
                         cache[key] = {"title": found, "checked": today}
                 except urllib.error.HTTPError as e:
                     if e.code == 404:  # the registry answered: no such id
@@ -196,16 +235,21 @@ def main(argv):
                 if found:
                     rescued += 1
                     print(f"  ok~  {key}  {found}  (primary registry unreachable: {reason}; found via OpenAlex)")
-                    if (cache.get(key) or {}).get("title") != found:
+                    if (cache.get(key) or {}).get("title") != found or (cache.get(key) or {}).get("via") == "hand":
                         cache[key] = {"title": found, "checked": today, "via": "openalex"}
                     continue
                 hit = cache.get(key) or next((c[key] for c in inherited if key in c), None)
-                if hit:
+                if hit and hit.get("via") == "hand":
+                    handed += 1
+                    print(f"  ok?  {key}  {hit['title']}  (host unreachable; checked by hand on {hit['checked']} "
+                          f"against {hit.get('source', '?')}, never by a registry)")
+                elif hit:
                     cached += 1
                     print(f"  ok*  {key}  {hit['title']}  (host unreachable now; a live lookup confirmed it on {hit['checked']})")
                 else:
                     blocked += 1
-                    print(f"  SKIP {key}  host unreachable ({reason}); open the source and say so in the README")
+                    print(f"  SKIP {key}  host unreachable ({reason}); open the source, then record it: "
+                          f"cite_check.py hand {path} {key} \"<title (year)>\" \"<where>\"")
         if write and not offline and json.dumps(cache, sort_keys=True) != before:
             save_cache(cpath, cache)
             print(f"  (updated {os.path.relpath(cpath)}: commit it with the README)")
@@ -213,6 +257,8 @@ def main(argv):
         print(f"{rescued} id(s) marked ok~ were confirmed live via OpenAlex because the primary registry refused the lookup.")
     if cached:
         print(f"{cached} id(s) marked ok* were confirmed by an earlier live lookup ({CACHE_NAME}), not this run.")
+    if handed:
+        print(f"{handed} id(s) marked ok? were checked by hand in an earlier session, never by a registry.")
     if blocked:
         print(f"{blocked} id(s) could not be checked because the host refused the lookup (not a verdict on the id).")
     return 1 if bad else 0

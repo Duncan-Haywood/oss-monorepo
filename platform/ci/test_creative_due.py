@@ -65,6 +65,7 @@ class DueTest(unittest.TestCase):
         self.assertIn(f"due: {first} ", text)
         self.assertIn("then: ", text)
         self.assertIn("audio: 0 MB of 400 MB cap (new audio fits)", text)
+        self.assertIn("post front matter: title <= 110 chars, description 60 to 160", text)
 
     def tied(self):
         # Four shelves all with a piece today, like 2026-11-15 (29/31/48/76 this week).

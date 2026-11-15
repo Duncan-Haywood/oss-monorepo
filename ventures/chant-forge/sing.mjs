@@ -355,6 +355,11 @@ function codaTracks(coda, dur, end, total, rate, V, rand, refRms, share) {
   if (first.F === undefined) for (let i = Math.max(0, ic - ramp); i < ic; i++) av[i] = Math.min(av[i], 1 - (1 - av[ic]) * ((i - (ic - ramp)) / ramp));
   const ie = Math.round(last.t1 * rate);
   const after = last.F === undefined ? 0 : last.kind === 'tap' ? 0.6 : last.av;
+  // a final nasal hums on through the nose: its murmur's 10 ms ramp-out (paintSeg) is held at 1, or the
+  // low-pass and antiformant lifted for 10 ms between murmur and hum, a blip of bare vowel (+12-19 dB above
+  // 1 kHz, 45 ms into every final -m and -n; README "Final consonants, third round")
+  const i0h = last.kind === 'nasal' ? Math.max(0, ie - Math.round(0.01 * rate)) : ie;
+  for (let i = i0h; i < ie && i < total; i++) { nas[i] = 1; nas.z[i] = last.Z; }
   for (let i = ie; i < total; i++) { av[i] = after; if (last.bw) bwm[i] = last.bw; if (last.kind === 'nasal') { nas[i] = 1; nas.z[i] = last.Z; } }
   const formantsAt = (t) => {
     if (t < keys[0][0]) return null;
