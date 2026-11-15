@@ -509,7 +509,7 @@
         const h = r.hingeTest;
         $("#slopeResult").innerHTML += h.refused
           ? `<p class="note" role="note"><strong>Slope test on the levels:</strong> not run. ${esc(h.reason)}.</p>`
-          : `<p class="note" role="note"><strong>Slope test on the levels:</strong> ${h.significant ? "a change of slope" : "no significant change of slope"}, best at ${esc(h.label)}: ${esc(h.slopeBefore)} → ${esc(h.slopeAfter)} per step (F ${esc(h.f)}, bootstrap bar ${esc(h.bar95)}, p ${esc(h.p)}). ${esc(h.note)}</p>`;
+          : `<p class="note" role="note"><strong>Slope test on the levels:</strong> ${h.significant ? "a change of slope" : "no significant change of slope"}, best at ${esc(h.label)}: ${esc(h.slopeBefore)} → ${esc(h.slopeAfter)} per step (F ${esc(h.f)}, bootstrap bar ${esc(h.bar95)}, p ${esc(h.p)}).${h.admittedByCut ? ` Tested although the straight line's residuals are sticky (rho ${esc(h.rhoLine)}): the bend cuts that to ${esc(h.rhoHinge)}, more than 99% of random walks this long are cut (${esc(h.cutBar)}).` : ""} ${esc(h.note)}</p>`;
       }
       $("#chart").innerHTML = chartSvg(r);
       $("#changes").innerHTML = r.pelt.changepoints.length

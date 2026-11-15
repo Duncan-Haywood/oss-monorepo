@@ -2296,6 +2296,7 @@ export function hingeTestReport(values, labels, opt) {
     refused: false, index: h.index, label: labels[h.index] ?? String(h.index), f: Number(h.f.toFixed(2)), bar95: Number(h.bar95.toFixed(2)),
     p: Number(h.p.toFixed(4)), reps: h.reps, rho: Number(h.rho.toFixed(3)),
     slopeBefore: Number(h.slopeBefore.toPrecision(4)), slopeAfter: Number(h.slopeAfter.toPrecision(4)), significant: h.p <= 0.05, note,
+    ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), rhoHinge: Number(h.rhoHinge.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
   };
 }
 

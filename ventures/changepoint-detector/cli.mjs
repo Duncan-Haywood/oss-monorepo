@@ -241,6 +241,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     lines.push('', 'One change of slope, tested on the levels:');
     if (h.refused) lines.push(`  Not tested: ${h.reason}.`);
     else lines.push(`  ${h.significant ? 'A change of slope' : 'No significant change of slope'}: best knot ${h.label}, slope ${h.slopeBefore} -> ${h.slopeAfter} per step, F ${h.f} against a bootstrap bar of ${h.bar95}, p ${h.p} (${h.reps} replicates; AR(1) rho ${h.rho})`);
+    if (h.admittedByCut) lines.push(`  Tested although the residuals about a straight line are sticky (rho ${h.rhoLine}): the bend cuts that to ${h.rhoHinge}, more than 99% of random walks of this length are cut (${h.cutBar}), so this is a bend, not a wander.`);
     lines.push(`  (${h.note})`);
   }
   if (r.episodes && r.episodes.length) {

@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { hingeTest } from './hinge-test.mjs';
+import { hingeTest, randomWalkCutBar } from './hinge-test.mjs';
 import { analyze } from './engine.mjs';
 import { main } from './cli.mjs';
 
@@ -61,10 +61,47 @@ test('analyze and the CLI report it', async () => {
 
 test('hinge-residual guard (eval/hinge-guard-prereg-2026-11-15.md): admits GCAG 1930-2024, which the shipped line guard refuses; not the default', () => {
   const g = load('global-temp-annual.csv'), i = g.labels.indexOf('1930'), x = g.x.slice(i), labels = g.labels.slice(i);
-  assert.equal(hingeTest(x, { reps: 19 }).refused, true); // default stays 'line': the hinge guard failed bar S2
+  assert.equal(hingeTest(x, { reps: 19, guard: 'line' }).refused, true); // the old line guard refuses it
   const h = hingeTest(x, { reps: 199, guard: 'hinge' });
   assert.equal(h.refused, false);
   assert.equal(labels[h.index], '1974');
   assert.equal(h.p, 1 / 200);
   assert.equal(hingeTest(load('us-real-gdp.csv').x.map(Math.log), { reps: 19, guard: 'hinge' }).refused, true);
+});
+
+test('rho-cut guard (eval/hinge-cut-guard-prereg-2026-11-15.md): admits GCAG 1930-2024 by the cut, still refuses log GDP and a random walk', () => {
+  const g = load('global-temp-annual.csv'), i = g.labels.indexOf('1930'), x = g.x.slice(i), labels = g.labels.slice(i);
+  const h = hingeTest(x, { reps: 199, guard: 'cut' });
+  assert.equal(h.refused, false);
+  assert.equal(h.admittedByCut, true);
+  assert.ok(h.rhoLine - h.rhoHinge > h.cutBar);
+  assert.equal(labels[h.index], '1974');
+  assert.equal(h.p, 1 / 200);
+  assert.equal(hingeTest(x, { reps: 19 }).admittedByCut, true); // the default since all four bars held
+  const gdp = hingeTest(load('us-real-gdp.csv').x.map(Math.log), { reps: 19, guard: 'cut' });
+  assert.equal(gdp.refused, true);
+  assert.match(gdp.reason, /still above the guard/);
+  // a series the line guard admits is untouched by the cut guard
+  const s = series(145, 0.3, 90, 0.1, 11);
+  const strip = (o) => { const { guard, admittedByCut, cutBar, ...rest } = o; return rest; };
+  assert.deepEqual(strip(hingeTest(s, { reps: 49, guard: 'cut' })), strip(hingeTest(s, { reps: 49, guard: 'line' })));
+});
+
+test('random-walk cut bar shrinks with length and is deterministic', () => {
+  const a = randomWalkCutBar(60), b = randomWalkCutBar(145), c = randomWalkCutBar(300);
+  assert.ok(a > b && b > c && c > 0);
+  assert.equal(randomWalkCutBar(60), a);
+});
+
+test('the CLI says when a sticky series was admitted by the cut', async () => {
+  const { readFileSync: rf, writeFileSync, mkdtempSync } = await import('node:fs');
+  const { join } = await import('node:path'); const { tmpdir } = await import('node:os');
+  const rows = rf(new URL('./data/global-temp-annual.csv', import.meta.url), 'utf8').trim().split('\n');
+  const i = rows.findIndex((l) => l.startsWith('1930,'));
+  const f = join(mkdtempSync(join(tmpdir(), 'hinge-')), 'gcag-1930.csv');
+  writeFileSync(f, [rows[0], ...rows.slice(i)].join('\n') + '\n');
+  let out = '';
+  await main([f, '--hinge-test'], { out: (s) => { out += s; } });
+  assert.match(out, /best knot 1974/);
+  assert.match(out, /more than 99% of random walks/);
 });

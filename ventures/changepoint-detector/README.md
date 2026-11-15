@@ -4159,6 +4159,45 @@ both rhos to clear, or one that refuses when a hinge cuts the rho by less than a
 target the gap; each needs its own pre-registration and fresh seeds, since these cells are now seen.
 Test: `hinge-test.test.mjs` ("hinge-residual guard").
 
+### A guard that asks how much the bend cut the stickiness (2026-11-15, later; pre-registered on fresh seeds; ships as the default)
+
+The section above ended with an untested idea: refuse when a hinge cuts rho by less than a unit root's typical cut.
+A real bend makes a straight line's residuals sticky and the hinge removes most of that; a random walk's wander is
+cut far less. `guard: 'cut'` keeps the line guard where it admits a series, and where it would refuse, admits only
+when (1) the best OLS hinge's residuals clear the guard (0.9; 0.7 under 100 points) and (2) the cut, line rho minus
+hinge rho (both bias corrected), is above the 99th percentile of the same cut over 299 random walks of the same length
+(seed 7; detrending removes a walk's drift and rho ignores scale, so the bar depends on n alone: 0.42 at n 60, 0.25 at
+95, 0.21 at 145, 0.09 at 300, 0.05 at 600). An admitted series' null draws with its line rho capped at 0.95.
+
+The bars were the four of the hinge-guard pre-registration, written down before the guard ran through `hingeTest`
+(`eval/hinge-cut-guard-prereg-2026-11-15.md`), after one look at cut distributions on development seeds that are not
+reused. The synthetic cells are the same as above with every seed moved by 50,000,000, so the series are fresh
+(`node eval/hinge-cut-guard-sim.mjs 300 99`, `eval/hinge-cut-guard-sim.out.txt`; `node eval/hinge-cut-guard-real.mjs`,
+`eval/hinge-cut-guard-real.out.txt`). Share of **all** series with p <= 0.05, refusals counted as not rejecting:
+
+| bar | cell | line guard | cut guard | holds? |
+|---|---|---|---|---|
+| R | GCAG 1930-2024 | refused (rho 0.76) | knot 1974, p 0.001, slope -0.00 -> 2.08 per century (hinge rho 0.33, cut 0.43 against a bar of 0.25) | yes |
+| R | GCAG/GISTEMP 1880, GCAG 1850; log GDP, productivity | 1976, p 0.001; refused | same; refused (hinge rho 0.95, 0.96) | yes |
+| P | n 95, rho 0.5, slope change 0.2 | 15.3% (47 tested) | **83.0%** (250 tested) | yes |
+| P | slope change 0.1 / 0.05 | 62.0% / 19.0% | 64.0% / 19.0% | |
+| S1 | 12 cells, straight line plus AR(1) | 2.0-8.0% | identical but n 60 rho 0.8 (3.7% against 3.0%); 8.0% at n 300 rho 0.6 sits on the bar under both guards | yes |
+| S2 | random walk with drift, n 60 / 145 / 300 | 1.3% / 1.7% / 0.0% | 4.0% / 2.7% / 3.3% | yes |
+| S2 | AR(1) rho 0.9, n 60 / 145 / 300 | 1.3% / 5.3% / 2.7% | 2.3% / 5.3% / 2.7% | yes |
+| S2 | AR(1) rho 0.95, n 60 / 145 / 300 | 1.3% / 2.7% / 0.7% | 2.3% / 3.0% / 2.0% | yes |
+
+All four bars hold, so `cut` is now the default of `hingeTest`, `--hinge-test` and the page box; `guard: 'line'`
+gives the old rule. Against the `hinge` guard it keeps most of the power on strong bends (83% against 98.7% on the
+earlier seeds) without the random-walk leak: at n 145 the hinge guard admitted 171 of 300 walks and rejected 16.0%
+of all of them; the cut guard admits 34 of 300 fresh walks and rejects 2.7%. The CLI and the page say when a series was admitted by the cut, with both rhos and
+the bar.
+
+**What it does not say.** The 99% bar means about one random walk in a hundred is admitted by the cut alone, and
+admitted walks then reject more often than not; S2 shows the total stays at or under 4%. The bar is calibrated on
+Gaussian walks; a walk with heavy-tailed steps was not measured. R's 1930 cell is the case that motivated the guard,
+so it is seen, not fresh evidence. Test: `hinge-test.test.mjs` ("rho-cut guard", "random-walk cut bar", "the CLI
+says when a sticky series was admitted by the cut").
+
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
 The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a
