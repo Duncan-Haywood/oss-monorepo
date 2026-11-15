@@ -33,6 +33,16 @@ run_workflow_locally fix (2026-11-12), and the top live rows were often
 gated files no run could land (run records 2026-11-14/15). `--ungated` hides
 the gated rows; `--no-prs` skips the one network read.
 
+On a shallow clone (every cloud session) the fetched history usually starts
+after most reports, so the touched-since check said "unknown" for them and
+`--live` hid nothing: on 2026-11-15 three process runs spent minutes each on
+top rows already fixed on main. So when the history edge is newer than the
+oldest report, this first fetches main back to that report (`git fetch
+--shallow-since`, about 40 s for ten days; `--no-fetch` skips it) and reads
+origin/main as well as HEAD, so a fix that landed after the session started
+counts too. Measured that day: `--live --ungated` hid 0 clusters before the
+fetch and 68 after.
+
 Software for the routine (prompts/goals.md): the counting is done here, so a
 run spends its time on the fix, not on grepping 4,000 records.
 """
@@ -151,12 +161,43 @@ def named(file, issues):
     return {n for n in out if n}
 
 
+def revs(root=ROOT, run=subprocess.run):
+    """HEAD, plus origin/main when it exists: a fix that landed on main after
+    this branch was cut still answers a report."""
+    done = run(["git", "-C", str(root), "rev-parse", "--verify", "-q", "origin/main"],
+               capture_output=True, text=True)
+    return ["HEAD", "origin/main"] if done.returncode == 0 else ["HEAD"]
+
+
+DEEPEN_MAX_DAYS = 21  # a full fetch is ~5 GB; `--days 0` must not ask for it
+
+
+def deepen(since, root=ROOT, run=subprocess.run, timeout=180, today=None):
+    """Fetch main back to a day before `since` (at most DEEPEN_MAX_DAYS ago)
+    into a shallow clone. Best effort: a failure (offline, a parallel fetch
+    holding shallow.lock) leaves the clone as it was and the output's shallow
+    note still applies."""
+    today = today or dt.datetime.now(dt.timezone.utc).date()
+    day = max(dt.date.fromisoformat(utc(since)[:10]) - dt.timedelta(days=1),
+              today - dt.timedelta(days=DEEPEN_MAX_DAYS)).isoformat()
+    print(f"(shallow clone: fetching main since {day} to date the reports, "
+          "about 40 s; --no-fetch skips)", file=sys.stderr)
+    try:
+        done = run(["git", "-C", str(root), "fetch", "-q", f"--shallow-since={day}", "origin", "main"],
+                   capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return done.returncode == 0
+
+
 def changes(since, rev="HEAD", root=ROOT, run=subprocess.run):
     """[(when, sha, subject, [paths])] for non-merge commits after `since`,
     newest first, and the date history is complete from (None when not a
-    shallow clone; a touch older than it may be missing)."""
+    shallow clone; a touch older than it may be missing). `rev` is one
+    revision or a list (their union)."""
     fmt = "@@%cI\t%H\t%s"
-    done = run(["git", "-C", str(root), "log", rev, "--no-merges", f"--since={since}",
+    rev = [rev] if isinstance(rev, str) else list(rev)
+    done = run(["git", "-C", str(root), "log", *rev, "--no-merges", f"--since={since}",
                 f"--format={fmt}", "--name-only"], capture_output=True, text=True)
     shallow = Path(root) / ".git" / "shallow"
     shas = shallow.read_text().split() if shallow.exists() else []
@@ -345,6 +386,8 @@ def main(argv=None):
     ap.add_argument("--live", action="store_true",
                     help="hide clusters whose named files changed after their last report")
     ap.add_argument("--no-git", action="store_true", help="skip the touched-since check")
+    ap.add_argument("--no-fetch", action="store_true",
+                    help="do not deepen a shallow clone back to the oldest report first")
     ap.add_argument("--ungated", action="store_true",
                     help="hide clusters whose file is owner-gated in .github/CODEOWNERS")
     ap.add_argument("--no-prs", action="store_true", help="skip the open-PR read (network)")
@@ -352,7 +395,12 @@ def main(argv=None):
     ranked = rank(load(a.runs), days=a.days or None, min_sessions=a.min)
     edge = None
     if ranked and not a.no_git:
-        commits, edge = changes(min(utc(c["last_at"]) for c in ranked))
+        oldest = min(utc(c["last_at"]) for c in ranked)
+        rev = revs()
+        commits, edge = changes(oldest, rev)
+        if edge and utc(edge) > oldest and not a.no_fetch and deepen(oldest):
+            rev = revs()
+            commits, edge = changes(oldest, rev)
         annotate(ranked, commits, edge, basename_counts())
     prs = None if a.no_prs or not ranked else open_prs()
     claims(ranked, prs, codeowner_rules())
