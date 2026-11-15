@@ -57,7 +57,7 @@ button released *and* a `CLEAR_ESTOP` command.
 | 36 | Battery voltage via 100k/10k divider |
 | 12 | Ball lift gearmotor MOSFET (PWM). The module must pull its input down: GPIO 12 high at reset makes the ESP32 pick 1.8 V flash and not boot |
 | 2 | Hopper agitator gearmotor MOSFET (PWM; low through reset, so the motor stays off while the board boots) |
-| 0 | Lift over-current: LM393 comparator output (open collector, 10k pull-up to 3.3 V; low = the lift draws over its trip current, about 2.5 A). High at reset because the lift is off then, so the board boots normally (cad/README.md "Lift jam cutoff") |
+| 0 | Lift over-current: LM393 comparator output (open collector, 10k pull-up to 3.3 V; low = the lift draws over its trip current, about 1.7 A). High at reset because the lift is off then, so the board boots normally (cad/README.md "Lift jam cutoff") |
 | 17 / 16 | UART2 TX / RX to the Pi |
 
 Until 2026-11-14 the lift and agitator were on GPIO 16 and 17, the UART's
@@ -80,13 +80,16 @@ Wiring:
   only while the MOSFET conducts (the flyback diode's current bypasses it);
 - 10k from the shunt's top to an LM393's `-` input, 100 nF from that input to
   ground (1 ms: it averages the 20 kHz PWM and brush spikes);
-- 100k from 3.3 V to the `+` input and 3.9k from it to ground (0.124 V: a trip
-  at 2.48 A, 2.18 to 2.78 A over the rail, resistor and offset tolerances);
+- 100k from 3.3 V to the `+` input and 2.7k from it to ground (0.087 V: a trip
+  at 1.74 A, 1.47 to 2.00 A over the rail, resistor and offset tolerances;
+  3.9k and 2.48 A until the drive pulley's slip hub, 2026-11-15: the trip must
+  sit under the 2.3 A the motor draws while the hub slides, so a jam is still
+  cut and flagged);
 - the LM393 powered from 3.3 V, its open-collector output to GPIO 0 with a 10k
   pull-up to 3.3 V (most dev boards already carry one for their BOOT button);
   the unused half's inputs to ground and 3.3 V.
 
-The firmware (`controller.LiftRun`) ignores the comparator for 300 ms after
+The firmware (`controller.LiftRun`) ignores the comparator for 400 ms after
 each start, cuts the motor when it reads low on two ticks 10 ms apart, rests
 2 s, tries once more, and then leaves the lift off with `FLAG_LIFT_JAM` set
 until the e-stop is pressed and released (the bus dropping clears it). The

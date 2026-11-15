@@ -1309,7 +1309,7 @@ class LiftParamsTest(unittest.TestCase):
         p = Feeder()
         self.assertEqual(p.check_lift_jam(), [])
         c = p.lift_jam_cutoff()
-        self.assertAlmostEqual(c["trip_a"], 3.3 * 3.9 / 103.9 / 0.05, places=6)
+        self.assertAlmostEqual(c["trip_a"], 3.3 * 2.7 / 102.7 / 0.05, places=6)
         self.assertLess(c["trip_lo_a"], c["trip_a"])
         self.assertLess(c["trip_a"], c["trip_hi_a"])
         self.assertGreater(c["stall_hot_a"], c["trip_hi_a"])
@@ -1325,6 +1325,25 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=1.0).check_lift_jam()))
         self.assertTrue(any("two ticks" in r for r in Feeder(lift_jam_trip_ms=0.0).check_lift_jam()))
         self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6).check_lift_jam()))
+
+    def test_lift_slip_hub_numbers_and_rules(self):
+        # 2026-11-15, cad/README.md "Lift slip coupling"
+        p = Feeder()
+        self.assertEqual(p.check_lift_slip(), [])
+        s = p.lift_slip_design()
+        c = p.lift_jam_cutoff()
+        self.assertGreater(s["slide_lo_a"], c["trip_hi_a"])           # sliding is still seen by the cutoff
+        self.assertLess(s["peak_n"], c["plate_allow_n"])
+        self.assertGreater(s["stick_lo_nm"], s["start_nm"])
+        self.assertAlmostEqual(s["set_n"], p.lift_slip_nm / (p.lift_pd / 2000))
+        self.assertLess(s["belt_share"], 0.2)
+        self.assertGreater(s["shaft_mm"], s["rigid_shaft_mm"])
+        # each rule fires
+        self.assertTrue(any("slip on a start" in r for r in Feeder(lift_slip_nm=0.25).check_lift_slip()))
+        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=3.9e3).check_lift_slip()))
+        self.assertTrue(any("flight cap" in r for r in Feeder(lift_slip_nm=1.6, lift_sense_r2=3.9e3).check_lift_slip()))
+        self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_n=100.0).check_lift_slip()))
+        self.assertTrue(any("boot's wall" in r for r in Feeder(lift_slip_collar_w=20.0).check_lift_slip()))
 
     def test_lift_rules_catch_bad_changes(self):
         self.assertTrue(any("inlet falls" in r for r in Feeder(lift_finger_l=26.0).check_lift()))

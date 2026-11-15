@@ -1082,19 +1082,40 @@ class Feeder:
     lift_shunt_ohm: float = 0.05      # low-side shunt between the MOSFET module's source and ground (3 W, 1%)
     lift_shunt_w: float = 3.0
     lift_sense_r1: float = 100e3      # comparator's reference divider from 3.3 V: top (1%)
-    lift_sense_r2: float = 3.9e3      # and bottom (1%)
+    lift_sense_r2: float = 2.7e3      # and bottom (1%): 3.9k before the slip coupling (2026-11-15), now under its slide
     lift_sense_rc_s: float = 1.0e-3   # 10k + 100 nF from the shunt to the comparator: averages the 20 kHz PWM
     lift_sense_offset_v: float = 0.009  # LM393 input offset over temperature, worst case (datasheet: 9 mV)
     lift_rail_tol: float = 0.03       # 3.3 V rail
     lift_res_tol: float = 0.01
     lift_duty: float = 1.0            # config LIFT_DUTY: with the shunt in the MOSFET's source the filter sees duty x I
     lift_stall_trip_margin: float = 1.25  # hot stall current at the low-battery cut over the highest trip current
-    lift_jam_blank_ms: float = 300.0  # config LIFT_JAM_BLANK_MS: over-current ignored this long after each start
+    lift_jam_blank_ms: float = 400.0  # config LIFT_JAM_BLANK_MS: over-current ignored this long after each start (300 before the slip hub lowered the trip)
     lift_jam_trip_ms: float = 10.0    # config LIFT_JAM_TRIP_MS: over-current on two ticks 10 ms apart cuts the motor
     lift_jam_rest_ms: float = 2000.0  # config LIFT_JAM_REST_MS: off this long before a retry
     lift_jam_retries: int = 1         # config LIFT_JAM_RETRIES: then it stays off (FLAG_LIFT_JAM) until the bus drops
     lift_blank_factor: float = 3.0    # blanking over the longest a normal start stays over the trip current
     ball_k_n_m: float = 14300.0       # a ball's stiffness: ITF forward deformation 5.6-7.4 mm under 8.165 kg; the stiff end
+    # Lift slip coupling (2026-11-15, `lift_slip_design`, `check_lift_slip`; cad `lift_slip_hub`; tests/lift_jam_sweep.py).
+    # The cutoff stops a held stall, but the gearmotor's rotor (18 kg at the belt through 30:1) met a jammed ball within
+    # a quarter period, before any cut, and put 149-172 N on one flight cap (it allows 156 N). A friction slip hub
+    # between the gearmotor's shaft and the drive pulley lets the rotor run on while the belt stops: the cap then sees
+    # the hub's slip torque plus the belt's own 1.4 kg, and the motor's current while it slides is over the cutoff's
+    # trip, so the cutoff still cuts and latches. Friction figures are assumptions; the slip torque is set on the bench.
+    lift_slip_nm: float = 0.9         # slip torque the hub is set to (bench: a belt strip round the pulley, 71 N on a scale)
+    lift_slip_tol: float = 0.2        # +- on it: setting, wear, damp, temperature (assumption)
+    lift_slip_kinetic: float = 0.8    # sliding over sticking friction of the facing on aluminium (assumption)
+    lift_slip_mu: float = 0.3         # facing on the pulley's face, sliding (assumption: a fibre or cork-composite washer)
+    lift_slip_faces: int = 2          # a facing each side of the pulley
+    lift_slip_od: float = 20.0        # facing washers and the D-bore plates, mm (inside the pulley's flange)
+    lift_slip_id: float = 6.5         # facing washers ride the shaft
+    lift_slip_facing_t: float = 1.5   # facing washer thickness
+    lift_slip_plate_t: float = 2.0    # laser-cut steel plate with a 6 mm D bore: keyed to the shaft, slides along it
+    lift_slip_spring_t: float = 0.7   # disc spring (DIN 2093 6.2 x 12.5 x 0.7 class) between plate B and collar B
+    lift_slip_collar_w: float = 6.0   # 6 mm shaft collars (12 mm OD), set screw on the shaft's flat
+    lift_slip_collar_d: float = 12.0
+    lift_slip_start_factor: float = 1.5  # lowest sticking torque over what a cold start passes through the hub
+    lift_slip_trip_margin: float = 1.1   # motor's current while the hub slides at its lowest, over the highest trip
+    lift_slip_spring_n: float = 400.0    # disc spring's flat load (6.2 x 12.5 x 0.7 class, assumption: read yours)
 
     # Hopper agitator (2026-11-13): balls piled over a 75 mm outlet for 67 mm balls bridge it (two or three on the floor
     # round the hole, each held in by the others), and the feed column then runs dry. A printed two-arm stirrer turns
@@ -1578,6 +1599,7 @@ class Feeder:
         bad += self.check_trough()
         bad += self.check_lift()
         bad += self.check_lift_jam()
+        bad += self.check_lift_slip()
         bad += self.check_agitator()
         return bad
 
@@ -3897,6 +3919,92 @@ class Feeder:
             bad.append(f"lift shunt takes {c['shunt_stall_w']:.1f} W at stall, over its {self.lift_shunt_w:g} W")
         if self.lift_jam_trip_ms < 10.0:
             bad.append("lift jam cutoff needs over-current on two ticks (10 ms) so one stray reading cannot trip it")
+        return bad
+
+    def lift_slip_design(self) -> dict:
+        """The drive pulley's friction slip hub (2026-11-15; cad/README.md "Lift slip coupling").
+
+        Two inertias joined by friction: the motor side (the rotor through the gearbox, `lift_rotor_kgm2` x ratio^2) and
+        the belt side (belt, caps and balls at the pulley's radius). Stuck, the hub passes whatever keeps them turning
+        together; past its sticking torque it slides and passes the sliding torque, `lift_slip_kinetic` of it, until the
+        two speeds meet again.
+
+        Start: from rest the motor puts out its cold stall torque; stuck, the belt side takes the full belt's torque
+        plus its share of the acceleration, J_belt / J_total of the rest. The lowest sticking torque must be
+        `lift_slip_start_factor` times that and `lift_torque_factor` times the full belt's torque.
+        Trip: while it slides at speed the motor draws its no-load current plus sliding torque / kt; at the lowest
+        sliding torque that must be `lift_slip_trip_margin` over the cutoff's highest trip, or a jam would slide for
+        the whole run-on with nothing cut and no flag.
+        Impact (estimate; tests/lift_jam_sweep.py runs it on the real firmware): stuck, the hub slips once the ball's
+        force is T_stick / r / (1 - J_belt / J_total); then the belt side is a mass on the ball's spring under the
+        sliding torque, so its peak is F0 + sqrt((F_slip - F0)^2 + k m v^2), F0 = (T_slide - T_belt) / r, at the
+        highest torques and the cold pack's speed. It must stay under the cap plate's allowance.
+        Spring: the axial force F that makes T = mu F r_eff n (r_eff of an annulus, 2/3 (R^3 - r^3) / (R^2 - r^2))."""
+        m = self.lift_motor_model()
+        c = self.lift_jam_cutoff()
+        d = self.lift_design()
+        r = m["r_m"]
+        j_m = self.lift_rotor_kgm2 * self.lift_gear_ratio ** 2
+        j_b = m["moving_kg"] * r * r
+        share = j_b / (j_m + j_b)
+        t_belt = d["torque_nm"]
+        t_f = m["kt"] * self.lift_motor_noload_a
+        t_stall_cold = m["kt"] * (c["stall_cold_a"] - self.lift_motor_noload_a)
+        t_start = t_belt + share * (t_stall_cold - t_f - t_belt)
+        lo, hi = self.lift_slip_nm * (1 - self.lift_slip_tol), self.lift_slip_nm * (1 + self.lift_slip_tol)
+        slide_lo, slide_hi = lo * self.lift_slip_kinetic, hi * self.lift_slip_kinetic
+        i_slide_lo = self.lift_motor_noload_a + slide_lo / m["kt"]
+        v_cold = d["speed_m_s"] * self.battery_v_max / self.supply_v
+        f0 = (slide_hi - t_belt) / r
+        f_slip = hi / r / (1 - share)
+        peak = f0 + math.sqrt((f_slip - f0) ** 2 + self.ball_k_n_m * m["moving_kg"] * v_cold ** 2)
+        ro, ri = self.lift_slip_od / 2000, self.lift_slip_id / 2000
+        r_eff = 2 / 3 * (ro ** 3 - ri ** 3) / (ro ** 2 - ri ** 2)
+        spring_n = self.lift_slip_nm / (self.lift_slip_mu * r_eff * self.lift_slip_faces)
+        w0 = m["noload_rad_s"] * self.battery_v_max / self.supply_v
+        slide_w = slide_hi * w0
+        # the stack along the shaft from the pulley's faces (the pulley is belt_w + 5 wide, centred on lift_y)
+        half = (self.lift_belt_w + 5.0) / 2
+        motor_side = self.lift_slip_facing_t + self.lift_slip_plate_t + self.lift_slip_collar_w
+        far_side = motor_side + self.lift_slip_spring_t
+        wall_in = self.lift_depth / 2
+        shaft_mm = wall_in + self.lift_wall + half + far_side         # from the gearmotor's face
+        rigid_shaft_mm = wall_in + self.lift_wall + half
+        return {
+            "j_motor": j_m, "j_belt": j_b, "belt_share": share, "start_nm": t_start, "stick_lo_nm": lo,
+            "stick_hi_nm": hi, "slide_lo_nm": slide_lo, "slide_hi_nm": slide_hi, "start_factor": lo / t_start,
+            "belt_factor": lo / t_belt, "slide_lo_a": i_slide_lo, "trip_margin": i_slide_lo / c["trip_hi_a"],
+            "peak_n": peak, "plate_allow_n": c["plate_allow_n"],
+            "plate_margin": c["plate_allow_n"] / peak, "set_n": self.lift_slip_nm / r, "set_lo_n": lo / r,
+            "set_hi_n": hi / r, "r_eff_mm": r_eff * 1000, "spring_n": spring_n, "slide_w": slide_w,
+            "slide_j": slide_w * c["dwell_s"], "half_pulley_mm": half, "motor_side_mm": motor_side,
+            "far_side_mm": far_side, "wall_gap_mm": wall_in - half - motor_side, "far_gap_mm": wall_in - half - far_side,
+            "shaft_mm": shaft_mm, "rigid_shaft_mm": rigid_shaft_mm,
+        }
+
+    def check_lift_slip(self) -> list[str]:
+        bad = []
+        s = self.lift_slip_design()
+        if s["start_factor"] < self.lift_slip_start_factor:
+            bad.append(f"lift slip hub may slip on a start: its lowest {s['stick_lo_nm']:.2f} N m is "
+                       f"{s['start_factor']:.2f}x the {s['start_nm']:.2f} N m a cold start passes "
+                       f"({self.lift_slip_start_factor:g}x wanted): raise lift_slip_nm")
+        if s["belt_factor"] < self.lift_torque_factor:
+            bad.append(f"lift slip hub's lowest {s['stick_lo_nm']:.2f} N m is under {self.lift_torque_factor:g}x the full "
+                       f"belt's torque: raise lift_slip_nm")
+        if s["trip_margin"] < self.lift_slip_trip_margin:
+            bad.append(f"lift slip hub sliding at {s['slide_lo_nm']:.2f} N m draws {s['slide_lo_a']:.2f} A, "
+                       f"{s['trip_margin']:.2f}x the cutoff's highest trip ({self.lift_slip_trip_margin:g}x wanted): "
+                       f"a jam would slide unseen; lower lift_sense_r2 or raise lift_slip_nm")
+        if s["peak_n"] > s["plate_allow_n"]:
+            bad.append(f"lift slip hub lets a jam put {s['peak_n']:.0f} N on a flight cap, over its plate's "
+                       f"{s['plate_allow_n']:.0f} N: lower lift_slip_nm or lift_slip_tol")
+        if min(s["wall_gap_mm"], s["far_gap_mm"]) < 2.0:
+            bad.append(f"lift slip hub's stack leaves {min(s['wall_gap_mm'], s['far_gap_mm']):.1f} mm to the boot's wall "
+                       f"(2 mm wanted)")
+        if s["spring_n"] > self.lift_slip_spring_n:
+            bad.append(f"lift slip hub needs {s['spring_n']:.0f} N of spring, over the disc spring's "
+                       f"{self.lift_slip_spring_n:g} N flat: a bigger facing or a stiffer spring")
         return bad
 
     # ---- hopper agitator (2026-11-13) ------------------------------------------
