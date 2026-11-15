@@ -69,7 +69,7 @@ def reference(episodes, seed, steps=None):
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover"):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
@@ -98,6 +98,14 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     the three position-loop gains; mix_mode="free" lets the mixer shift the collective ("airmode", `allocation.mix_priority`). With diag, also "dead_why" (1 roll/pitch past dead_tilt_deg, 2 position past DEAD_POS, 0
     alive), "gust_over_tmax" (share of alive steps with the gust torque above the plant's torque limit on roll or pitch) and
     "gust_peak" (peak over alive steps of that ratio).
+    tilt_cone, tilt_rate, perr_max and sp_rate (milestone 7k) are controller-side fixes a builder can make without retuning; all are
+    inert at their defaults. tilt_cone=True limits the tilt command's magnitude, sqrt(roll^2 + pitch^2) <= TILT_CMD_MAX, keeping its
+    direction (PX4's MPC_TILTMAX_AIR limits the angle of the thrust vector), where the default clips each axis on its own (which
+    lets the combined tilt reach about 55 deg at a 45 deg limit). tilt_rate (rad/s) slews the roll/pitch reference toward the
+    position loop's request at most that fast per axis. perr_max (m) clips the norm of the position error that enters the
+    proportional term only (a cascade's velocity-setpoint limit in acceleration form); the derivative and integral terms are
+    untouched. sp_rate (m/s) starts the setpoint at the vehicle's initial position and moves it toward the hold point at most that
+    fast (a speed-limited trajectory generator); the score still measures the distance to the hold point.
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
     RMS roll/pitch tracking error (deg), the share of episodes that diverged, and (dead_ep, (N, E)) which ones, with each episode's position RMS (pos_ep, (N, E))."""
     if steps is None:
@@ -131,6 +139,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     th_prev = np.zeros((N, E, 3)); om_prev = np.zeros((N, E, 3))
     lag_nom = sz["lag"][:, None, None]; m_nom = sz["mass"][:, None]
     tq_hat = np.zeros((N, E, 3)); f_ff = np.zeros((N, E, 2)); b_ff = (A.DT / np.maximum(np.broadcast_to(np.asarray(tau_ff, float), (N,)), A.DT))[:, None, None]
+    spt = np.zeros((N, E, 2)) + off[None] if sp_rate is not None else None; rp_cmd = np.zeros((N, E, 2))
     pos = np.zeros((N, E, 2)) + off[None]; vel = np.zeros((N, E, 2)); pint = np.zeros((N, E, 2))
     s_ax = np.zeros((N, E, 2)); s_pos = np.zeros((N, E)); s_late = np.zeros((N, E)); s_yaw = np.zeros((N, E)); s_att = np.zeros((N, E))
     n_steps = steps
@@ -141,9 +150,17 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     for t in range(n_steps):
         m_t = gust_mean if t < k_step else mean_after
         v = a * v + (1 - a) * m_t + gust_std * np.sqrt(1 - a * a) * gust_n[:, :, t][None]
-        ep = -(pos + pn[:, :, t][None]); ev = vel + vn[:, :, t][None]
+        if spt is not None:
+            dn = np.sqrt((spt ** 2).sum(-1, keepdims=True)); spt = spt * np.maximum(dn - sp_rate * A.DT, 0.0) / np.maximum(dn, 1e-12)
+            ep = spt - (pos + pn[:, :, t][None])
+        else:
+            ep = -(pos + pn[:, :, t][None])
+        ev = vel + vn[:, :, t][None]
         pint = np.clip(pint + ep * A.DT, -2.0, 2.0)
-        acc = kpp * ep - kdp * ev + kip * pint
+        if perr_max is not None:
+            en = np.sqrt((ep ** 2).sum(-1, keepdims=True)); acc = kpp * ep * np.minimum(1.0, perr_max / np.maximum(en, 1e-12)) - kdp * ev + kip * pint
+        else:
+            acc = kpp * ep - kdp * ev + kip * pint
         psi = th_prev[:, :, 2] + ang_n[:, 2, t][None]
         c, s_ = np.cos(psi), np.sin(psi)
         ab_x = c * acc[:, :, 0] + s_ * acc[:, :, 1]
@@ -156,7 +173,13 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         if ff:
             ab_x = ab_x - ff * f_ff[:, :, 0] / m_nom
             ab_y = ab_y - ff * f_ff[:, :, 1] / m_nom
-        rp_ref = np.stack([np.clip(-ab_y / A.G, -TILT_CMD_MAX, TILT_CMD_MAX), np.clip(ab_x / A.G, -TILT_CMD_MAX, TILT_CMD_MAX)], -1)
+        if tilt_cone:
+            rp_ref = np.stack([-ab_y / A.G, ab_x / A.G], -1)
+            rn = np.sqrt((rp_ref ** 2).sum(-1, keepdims=True)); rp_ref = rp_ref * np.minimum(1.0, TILT_CMD_MAX / np.maximum(rn, 1e-12))
+        else:
+            rp_ref = np.stack([np.clip(-ab_y / A.G, -TILT_CMD_MAX, TILT_CMD_MAX), np.clip(ab_x / A.G, -TILT_CMD_MAX, TILT_CMD_MAX)], -1)
+        if tilt_rate is not None:
+            dr = rp_ref - rp_cmd; rp_cmd = np.where(np.abs(dr) <= tilt_rate * A.DT, rp_ref, rp_cmd + np.sign(dr) * tilt_rate * A.DT); rp_ref = rp_cmd
         refv = np.concatenate([rp_ref, np.broadcast_to(yaw_ref[:, t][None, :, None], (N, E, 1))], -1)
         e = refv - (th_prev + ang_n[:, :, t][None])
         integ = np.clip(integ + e * A.DT, -integ_clip, integ_clip)

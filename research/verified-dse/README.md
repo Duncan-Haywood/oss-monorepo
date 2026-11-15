@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 126 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 127 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -126,6 +126,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   the ladder would lose at 33 gates. The 64-bit twin falls under the routing-cost threshold, so width scaling stays untested.
   Over milestones 121 to 124's 50 blind cells SWG(36) has 2.41% against 5.11% random (better in 23, worse in 1):
   [`experiments/amount_place/`](experiments/amount_place/results.txt).
+- **A top-probe guard sees the ladder's failures but cannot afford to act on them (milestone 127, replay of the same 90 cells,
+  no flow run).** Routing the clipped ladder's best 3 and 3 uniform points and trusting the ladder only when its best wins (SWT(3))
+  falls back in 54% of draws where the ladder fails and 7% where it wins, far sharper than milestone 126's random probes (12% and 7%).
+  But the whole pool is mapped before the test, so the fall-back has only 2 more routes: SWT(3) has 5.11% mean regret against 4.77%
+  unguarded and 5.44% random. Even a free fall-back (a bound, not a schedule) reaches only 4.19%:
+  [`experiments/top_probe/`](experiments/top_probe/results.txt).
 - **A probe-rank guard cannot see the ladder's failures (milestone 126, replay of milestones 119 to 125's 90 cells, no flow run).**
   Routing 4 uniformly drawn probes and trusting the clipped ladder only when its order agrees with routed order on them (SWCV)
   gives 5.14% mean regret, worse than the unguarded ladder (4.77%) and barely better than random routing (5.44%). It falls back

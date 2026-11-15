@@ -31,14 +31,14 @@
   "austin": {
    "dataset": "3syk-w9eu",
    "host": "data.austintexas.gov",
-   "rows": 2385260,
-   "applied": 2385231,
-   "issued": 2385260,
-   "completed": 2186122,
-   "cost": 1190549,
-   "both_applied_issued": 2385231,
+   "rows": 2385402,
+   "applied": 2385373,
+   "issued": 2385402,
+   "completed": 2186393,
+   "cost": 1190568,
+   "both_applied_issued": 2385373,
    "negative_issue_lag": 863,
-   "negative_build_time": 3535,
+   "negative_build_time": 3534,
    "pulled": "2026-11-14"
   },
   "seattle": {

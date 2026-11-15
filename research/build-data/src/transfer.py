@@ -168,6 +168,68 @@ def ipcw_completed(d, decision, floor=0.05):
     return d[seen], w[seen]
 
 
+Y_INF = 1e5  # session 89: the "+infinity" label of a censored pseudo-row (days; above every prediction)
+
+
+def km_cdf_at(t, event, query):
+    """Kaplan-Meier F = 1 - S at each `query` time, from times t with event flags (1 = completed, 0 = censored).
+    S is right-continuous: an event at time u counts for queries >= u; at tied times events precede censorings."""
+    t = np.asarray(t, float); e = np.asarray(event, bool)
+    u = np.unique(t)
+    d = np.bincount(np.searchsorted(u, t[e]), minlength=len(u)).astype(float)
+    n_tot = np.bincount(np.searchsorted(u, t), minlength=len(u)).astype(float)
+    at_risk = n_tot[::-1].cumsum()[::-1]
+    S = np.cumprod(1.0 - d / at_risk)
+    i = np.searchsorted(u, np.asarray(query, float), side="right") - 1
+    return np.where(i >= 0, 1.0 - S[np.maximum(i, 0)], 0.0)
+
+
+def censored_pseudo(d, decision, km_rows, taus=TAUS, y_inf=Y_INF, cap=False):
+    """Session 89: the rows of d as a deployment sees them on `decision`, open permits kept as lower bounds.
+
+    Rows completed by the decision date (y <= window c) stay as they are, weight 1 at every quantile. A row
+    still open (y > c) is right-censored at c; its quantile level tau_i = F(c) is the Kaplan-Meier estimate over
+    `km_rows` (seen at the decision date) of the same city (column `city`, if present) and class (`cls`). For
+    quantile tau (Portnoy 2003): tau <= tau_i puts weight 1 on a pseudo-row at y_inf; otherwise weight
+    (tau - tau_i)/(1 - tau_i) at c and (1 - tau)/(1 - tau_i) at y_inf. Returns (rows, {tau: weights}, info):
+    rows = completed rows, then the open rows labelled c, then the open rows labelled y_inf.
+    cap=True (session 89, post hoc): the upper pseudo-row goes to max(c, the longest build completed by the decision
+    date in the same city and class) instead of y_inf (Efron's convention of putting the mass left past the last
+    observation on it). With y_inf, LightGBM's quantile leaf renewal (weighted percentile of residuals) sets a leaf
+    to ~y_inf whenever more than 1 - tau of its weight is open permits above tau_i, and the predictions explode."""
+    def win(x):
+        return np.array([(decision - s).days for s in pd.to_datetime(x.start).dt.date], dtype=float)
+    def key(x):
+        return (x["city"].astype(str) + ":" if "city" in x else "") + x["cls"].astype(str)
+    c = win(d); y = d.y.to_numpy(float); open_ = y > c
+    kc = win(km_rows); ky = km_rows.y.to_numpy(float)
+    kt, ke, kk = np.minimum(ky, kc), ky <= kc, key(km_rows).to_numpy()
+    k = key(d).to_numpy()
+    ti = np.zeros(len(d))
+    for g in pd.unique(k[open_]):
+        m = open_ & (k == g)
+        r = kk == g
+        ti[m] = km_cdf_at(kt[r], ke[r], c[m]) if r.any() else 0.0
+    done, op = d[~open_], d[open_]
+    lo, hi = op.copy(), op.copy()
+    lo["y"], hi["y"] = c[open_], y_inf
+    if cap:
+        smax = pd.Series(np.where(ke, ky, -np.inf)).groupby(kk).max()
+        top = pd.Series(k[open_]).map(smax).fillna(-np.inf).to_numpy()
+        hi["y"] = np.maximum(c[open_], top)
+    rows = pd.concat([done, lo, hi])
+    t_i = np.minimum(ti[open_], 1 - 1e-9)
+    W = {}
+    for t in taus:
+        a = np.where(t > t_i, (t - t_i) / (1 - t_i), 0.0)
+        b = np.where(t > t_i, (1 - t) / (1 - t_i), 1.0)
+        W[t] = np.concatenate([np.ones(len(done)), a, b])
+    info = dict(n_completed=len(done), n_open=int(open_.sum()), tau_i_mean=float(t_i.mean()) if len(t_i) else None,
+                tau_i_q10_q50_q90=[float(x) for x in np.quantile(t_i, [.1, .5, .9])] if len(t_i) else None,
+                share_open_above={str(t): float((t_i >= t).mean()) if len(t_i) else None for t in taus})
+    return rows, W, info
+
+
 def deploy_rounds(tr_r, va_r, seeds):
     """Session 86: boosting rounds per quantile and seed, chosen by early stopping a model trained on
     the sources' years <= Y-4 on their year Y-3 (both cut to rows completed by the decision date, which

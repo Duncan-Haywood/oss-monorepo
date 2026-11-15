@@ -1,0 +1,84 @@
+Round 18: label-free floors on SMD, 28 servers, 862 varying metrics, hourly buckets, Quiet, test halves from point 24.
+
+  machine        cols  setup checks  L   k R    k S (loud columns: own k)        k K   null checks  segments scored
+  machine-1-1      30           213   4  43.05  43.05                            15.62          237  8
+  machine-1-2      33           173   3  21.38  21.38                            124.87          197  10
+  machine-1-3      30           173   3   7.14  7.14                             22.44          198  10
+  machine-1-4      32           173   3   9.32  9.32                             38.37          198  11
+  machine-1-5      30           173   3  32.49  22.86 (m25: 44.3, m23: 31.9)     29.22          198  7
+  machine-1-6      33           173   3  119.51  6.81 (m10: 188.9, m11: 112.0, m6: 14.0) 431.27          197  28
+  machine-1-7      34           173   3  190.39  190.39                            5.70          197  12
+  machine-1-8      30           173   3  199.87  9.20 (m10: 347.7)                 8.60          197  19
+  machine-2-1      33           173   3  40.30  5.90 (m11: 60.8, m10: 57.2, m9: 36.7, m30: 16.3) 12.66          197  13
+  machine-2-2      31           173   3  54.08  14.08 (m10: 223.9, m1: 55.7, m25: 31.5, m19: 26.1) 33.92          197  11
+  machine-2-3      31           173   3  34.90  21.54 (m7: 66.8)                 18.58          197  9
+  machine-2-4      30           173   3  243.58  243.58                           274.08          197  19
+  machine-2-5      31           173   3  67.29  15.48 (m10: 1859.4)               6.97          197  21
+  machine-2-6      30           215   4  13.96  5.81 (m10: 960.4, m23: 14.1)      3.25          240  7
+  machine-2-7      30           173   3  29.60  7.50 (m10: 72.2, m9: 9.9)        29.75          197  19
+  machine-2-8      31           173   3  97.62  3.51 (m6: 490.2, m32: 119.9, m23: 31.0, m11: 8.2)  5.13          198  1
+  machine-2-9      30           215   4  19.30  19.30                            82.30          239  10
+  machine-3-1      30           215   4  21.24  21.24                            3004804676184.03          239  3
+  machine-3-10     29           173   3  4300.99  1726.58 (m23: 8567.4)            7022.35          197  12
+  machine-3-11     28           215   4   3.19  3.19                              2.91          239  3
+  machine-3-2      32           173   3  478.56  63.64 (m10: 1768.0, m11: 830.2)  390.74          198  9
+  machine-3-3      34           173   3  11.13  11.13                            10.21          198  25
+  machine-3-4      30           173   3   8.55  8.55                              2.53          197  8
+  machine-3-5      27           173   3  26553334806907.96  112.74 (m23: 1744447607956574.3) 165.84          197  10
+  machine-3-6      30           215   4  19.83  4.96 (m6: 33.9, m23: 14.6)        2.49          239  10
+  machine-3-7      33           215   4  43.97  43.97                             4.76          239  5
+  machine-3-8      30           215   4  17.49  17.49                            25.64          239  6
+  machine-3-9      30           215   4  17.35  17.35                            10.35          239  3
+
+  Chance: 12.4% of scored test points lie inside a segment window. Null checks: 5899.
+
+  arm (28 test halves)                         lines  at a mark (share)  per 1000 checks  segments caught  median delay h  null per 100
+  Q  Quiet, no floor                            10039    2364 (23.5%)       902.8        290/309            4        75.79
+  R  spread floor, one k (round 15)               522     184 (35.2%)        46.9         88/309            5        3.05
+  S  spread floor, loud split (round 16)          679     263 (38.7%)        61.1        106/309            5        4.25
+  K  rolling move floor, k read (round 17)        300     106 (35.3%)        27.0         42/309            4        1.24
+  T14 R vs Q: (a) null 3.05 per 100 vs 2 FAIL; (b) 88 vs 290 - 17 FAIL; (c) 35.2% vs 23.5% PASS. FAILS.
+  T14 S vs Q: (a) null 4.25 per 100 vs 2 FAIL; (b) 106 vs 290 - 17 FAIL; (c) 38.7% vs 23.5% PASS. FAILS.
+  T14 K vs Q: (a) null 1.24 per 100 vs 2 PASS; (b) 42 vs 290 - 17 FAIL; (c) 35.3% vs 23.5% PASS. FAILS.
+
+  Reported only, deciding nothing.
+
+  by segment length: caught under 60 minutes / longer
+  Q  204/222  86/87   first line from a metric the interpretation label names: 150/290
+  R  38/222  50/87   first line from a metric the interpretation label names: 58/88
+  S  52/222  54/87   first line from a metric the interpretation label names: 66/106
+  K  15/222  27/87   first line from a metric the interpretation label names: 23/42
+
+  A2, Q's lines kept when two metrics agree within 12 points (round 13), after the fact: 684 messages, 20.9% at a mark, 132/309 caught, null 6.22 per 100.
+
+  by machine: null lines Q R S K | test lines Q R S K | caught Q R S K
+  machine-1-1     147   0   0   0 |   484   10   10    9 |   8  4  4  2/8
+  machine-1-2     264   6   6   0 |   545   29   29    6 |  10  3  3  0/10
+  machine-1-3     118  22  22  10 |   266   44   44   16 |   7  6  6  2/10
+  machine-1-4     121  21  21   5 |   244   36   36   11 |  10  7  7  1/11
+  machine-1-5     222   7   8   1 |   491   13   16    9 |   7  3  4  0/7
+  machine-1-6     107   0   6   0 |   197    2   28    7 |  26  1  6  1/28
+  machine-1-7     133   3   3  14 |   231    8    8   15 |  12  2  2  3/12
+  machine-1-8     293   6   6   0 |   490    6   12   12 |  19  3  6  4/19
+  machine-2-1     110  21  25   0 |   251   45   50    4 |  11  7  9  2/13
+  machine-2-2     213   2   7   3 |   462    7   14    8 |  11  3  3  2/11
+  machine-2-3     122   1   7   1 |   340   17   31    9 |   9  4  6  2/9
+  machine-2-4     135   0   0   0 |   333    3    3    4 |  19  2  2  1/19
+  machine-2-5     261   2   2   2 |   557    7   14   14 |  20  5  2  3/21
+  machine-2-6      69   3   6   3 |   360   27   40   15 |   7  3  5  5/7
+  machine-2-7     308   2  13   2 |   572   12   36    2 |  19  4  6  0/19
+  machine-2-8     138   2  33   6 |   276   19   46   22 |   1  1  1  1/1
+  machine-2-9     331  31  31   1 |   696   62   62    2 |  10  6  6  0/10
+  machine-3-1     171   0   0   0 |   345    6    6    6 |   3  1  1  0/3
+  machine-3-10     72   0   0   0 |   267    4    8    3 |  12  2  2  1/12
+  machine-3-11     54   3   3   3 |   112   25   25   25 |   3  3  3  3/3
+  machine-3-2     134   1   3   1 |   269    0    0    9 |   7  0  0  0/9
+  machine-3-3      67   0   0   0 |   160    6    6   11 |  21  0  0  0/25
+  machine-3-4     111   0   0   6 |   239   24   24   21 |   8  4  4  2/8
+  machine-3-5      86   4   2   1 |   286    1    7   12 |   8  0  2  1/10
+  machine-3-6      67   3   7   4 |   287    9   24   12 |   9  5  7  4/10
+  machine-3-7     103  11  11   9 |   216   24   24   19 |   5  4  4  1/5
+  machine-3-8     333  29  29   0 |   661   66   66    7 |   5  4  4  1/6
+  machine-3-9     181   0   0   1 |   402   10   10   10 |   3  1  1  0/3
+
+5361 s wall on 4 cores.
