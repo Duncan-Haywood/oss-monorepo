@@ -39,10 +39,6 @@
       "issue": "Backlog held only owner rows again, and the top live friction files (prompt.md, redteam prompt, promptctl, CLAUDE.md) are all CODEOWNERS-gated; went to the first ungated cluster (run_workflow_locally)."
     },
     {
-      "file": "platform/ci/wait_for.py",
-      "issue": "--until reads like a log pattern but is something else; 'wait_for --until EXIT log' waited the full 540 s although the log ended with 'EXIT 0'. The default DONE/EXIT detection works without it."
-    },
-    {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "A clean --for-changes sweep always exited 5: pages.yml's build step was skipped on an unevaluated vars||format() expression and agent-cross-review.yml can run nothing locally. Fixed in this PR."
     }
