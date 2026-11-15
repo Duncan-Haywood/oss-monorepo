@@ -1,9 +1,9 @@
 ---
 title: "Give a leak localiser a perfect residual and it finds one more leak"
-seo_title: "Water leak localisation on BattLeDIM: is the residual or the hydraulic model the bottleneck?"
+seo_title: "BattLeDIM leak localisation: residual or hydraulic model to blame?"
 date: 2026-11-15
-tags: [research, water, leak-detection, digital-twin, battledim]
-description: "On the BattLeDIM L-Town benchmark, the exact pressure effect of each leak lifts a nominal-model localiser from 15 to 16 of 32 leaks within 300 m. The model limits localisation; the residual limits detection delay."
+tags: [research, water, leak-detection, digital-twin, BattLeDIM]
+description: "On BattLeDIM L-Town, the exact leak residual lifts a nominal-model localiser from 15 to 16 of 32 leaks within 300 m; the model, not the residual, is the limit."
 ---
 
 Leak localisation in a water network usually has two parts. First you estimate
