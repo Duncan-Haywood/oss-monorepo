@@ -411,6 +411,11 @@ MANUSCRIPT_CHECKS = [
     ("about +0.0162 per kW", "gear_pump_shape_results.txt", "slope +0.0162 E50 per kW"),
     ("by at most 0.0013", "gear_pump_shape_results.txt", "pressure tilt t +0.05 per 100 bar: E50 0.8264 (-0.0013)"),
     ("by up to 0.0086", "gear_pump_shape_results.txt", "size slope k -0.10 per 85 L/min: E50 0.8192 (-0.0086)"),
+    ("from 0.7647 to 0.8983 on the Casappa shape", "gear_pump_drag_results.txt", "casappa       0.7647   0.7800   0.7955   0.8113   0.8277   0.8452   0.8625   0.8983"),
+    ("a slope of 0.0187 per kW", "gear_pump_drag_results.txt", "casappa      0.7627  +0.01870   +0.002649"),
+    ("within 0.0012 of each other", "gear_pump_drag_results.txt", "slopes span 0.00118 per kW; Casappa slope rounded 0.0187 per kW, 0.0026 per bar"),
+    ("off by at most 0.0035", "gear_pump_drag_results.txt", "+0.0027 +0.0008 -0.0006 -0.0015 -0.0023 -0.0017 -0.0009 +0.0035"),
+    ("RMS error of 0.0053 against 0.0066", "gear_pump_drag_results.txt", "RMS error: two-number 0.0053, one-number 0.0066"),
 ]
 
 
