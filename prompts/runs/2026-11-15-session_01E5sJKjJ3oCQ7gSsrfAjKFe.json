@@ -54,7 +54,7 @@
     "ventures/chant-forge/README.md (Final consonants, third round)"
   ],
   "goal": null,
-  "notes": "Fixed a new held-out set E (10 Graduale pieces) before any change: 71/86. Found a synth bug (final nasal's 10 ms ramp-out let a bare-vowel blip through before the hum) and added a reader cue (a step under 500 Hz into a held murmur). E 71->75/86, D 63->66/70, B 134->142/162, A 134->137/180; vowel-only controls, openings 742/934 and vowels 874/920 unchanged. Ablation: synth fix alone E 71, B 135; reader rule alone B 139. E was printed three times (baseline, final, ablation), and nothing changed after its second print. Verification: run_venture_tests.py chant-forge exit 0 (248 tests); the new sing test fails on the old code (10.2 dB blip); portfolio/router/validate.py ok; venture-preflight: see below.",
+  "notes": "Fixed a new held-out set E (10 Graduale pieces) before any change: 71/86. Found a synth bug (final nasal's 10 ms ramp-out let a bare-vowel blip through before the hum) and added a reader cue (a step under 500 Hz into a held murmur). E 71->75/86, D 63->66/70, B 134->142/162, A 134->137/180; vowel-only controls, openings 742/934 and vowels 874/920 unchanged. Ablation: synth fix alone E 71, B 135; reader rule alone B 139. E was printed three times (baseline, final, ablation), and nothing changed after its second print. Verification: run_venture_tests.py chant-forge exit 0 (248 tests); the new sing test fails on the old code (10.2 dB blip); portfolio/router/validate.py ok; venture-preflight chant-forge clean on its second run (the first failed only on the post front matter, since fixed).",
   "corrections": [],
   "redteam": null,
   "usage": {
