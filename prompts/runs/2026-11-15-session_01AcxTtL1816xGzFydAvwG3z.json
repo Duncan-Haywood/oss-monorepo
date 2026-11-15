@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtL1816xGzFydAvwG3z",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T17:05:43Z",
+  "ended": "2026-11-15T17:11:13Z",
+  "wall_minutes": 5.85,
+  "tokens_in": 4377765,
+  "tokens_out": 16782,
+  "cost_usd": 1.8353,
+  "tool_calls": 53,
+  "task": "polish: drop the duplicate sub-nav bar on research topic and project pages",
+  "projects": [
+    "research/_homepage"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16284",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/test_research_homepage_publish.py",
+      "issue": "An `if __name__ == '__main__'` block sat mid-file, so `python3 <file>` silently ran 6 of 15 tests (pytest collects all). Moved to the end in this PR."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to run the 3-20 minute full build first. For a change inside research/_homepage, running build.py directly with writeResearchChrome() output plus renderSiteStyle() rebuilds all research pages with the real chrome in about 5 s. Worth one line in the prompt or platform/pages/README.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the full site build and check.mjs: the change only touches the research builder, which can be rebuilt with the real site chrome in seconds.",
+      "did": "Built research/ alone with the chrome JSON and pf-site.css, served it over HTTP, and measured and screenshot it with Playwright. Ran test_research_homepage_publish.py (17 OK), site-nav.test.mjs (23 OK) and the full platform/pages test glob.",
+      "result": "Before and after numbers on 3 pages at 2 widths. No sideways scroll."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-15-crumb-echo.md",
+      "why": "Item 2 proposed changing the eyebrow. On the page, the row above it (the old topbar) was the real duplicate, and it was mislabelled.",
+      "did": "Removed the topbar under the site chrome. Kept the eyebrow.",
+      "result": "h1 56 px higher on 1,111 pages."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-row-that-said-all-projects.md",
+    "docs/reports/polish-2026-11-15-research-bar.md"
+  ],
+  "goal": null,
+  "notes": "Measured at 390 px: project h1 236 to 180 px, topic h1 231 to 174 px. At 1,280 px: 213 to 157 px. scrollWidth equals the viewport everywhere. Tests: test_research_homepage_publish.py ran 17, all OK; node --test platform/pages/site-nav.test.mjs ran 23, all pass; the full node --test 'platform/pages/*.test.mjs' run is recorded in the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "65596f58-379d-5bd4-a07c-4f01a1a2f08e",
+    "transcripts": 1,
+    "first": "2026-11-15T17:05:43Z",
+    "last": "2026-11-15T17:11:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 99,
+        "output": 16782,
+        "thinking": 2587,
+        "cache_read": 4297695,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79971,
+        "api_equivalent_usd": 1.8353,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 99,
+      "output": 16782,
+      "thinking": 2587,
+      "cache_read": 4297695,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79971,
+      "api_equivalent_usd": 1.8353,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 47,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.85,
+      "active_minutes": 5.85,
+      "model_minutes": 4.43,
+      "tool_minutes": 1.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "senior front-end dev: find the duplicate row, change the builder, measure, write a test and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 109.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
