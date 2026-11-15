@@ -2,8 +2,8 @@
 title: "Our sudoers checker missed Defaults:ADMINS !authenticate"
 seo_title: "sudoers Defaults:User_Alias !authenticate: passwordless root"
 date: 2026-11-15
-tags: [sudo, linux, security, red-team, testing, open-source]
-description: "A red-team pass on the free sudoers checker found that a Defaults line bound to a User_Alias was never expanded, so a passwordless root rule was listed as asking for a password."
+tags: [sudo, linux, security, redteam, testing, open-source]
+description: "Our free sudoers checker never expanded a User_Alias in a Defaults binding, so it listed a passwordless root rule as asking for a password."
 ---
 
 The [sudoers Check](../../ventures/sudoers-check/) lists who can become root
