@@ -1,0 +1,3 @@
+20x56 w2: pairs 780, capped@500 485 (44 ms), capped@200000 0 (198 ms); capped@500 resolve as { chain: 262, false: 223 } clashing hours 3119 -> 1696
+40x112 w2: pairs 3916, capped@500 0 (45 ms), capped@200000 0 (32 ms); capped@500 resolve as {} clashing hours 0 -> 0
+40x112 w0: pairs 741, capped@500 13 (9 ms), capped@200000 0 (10 ms); capped@500 resolve as { chain: 11, false: 2 } clashing hours 123 -> 51

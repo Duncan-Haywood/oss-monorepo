@@ -10,8 +10,35 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (175 of 175,
-revised with milestones 4e–4j) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (202 of 202,
+revised with milestones 4e–4l) and a list of what a submission still needs.
+
+**Milestone 4l headline** (can the unit's own twin say in advance which updates can catch a 2% focal
+change? no new solve): **yes, as a ranking, not as a promise.** For every split of old and new views the
+linearised twin's draws give a predicted power; against the real detections it ranks the splits with
+AUC 0.66–0.75 on four cameras. **Testing only the quarter of updates the twin rates highest doubles the
+TUM cameras' power at ±2%, 10.0% to 21.5%, at 0–2.3% false alarms** (OpenCV's: 33% to 48–50%), and every
+split holding one of milestone 4j's far solves lands in the quarter it rates lowest. The twin's predicted
+sd of the focal difference ranks just as well, so no threshold draws are needed to choose. Its absolute
+power is 1.2–1.9× too high, and at 4 new views the ranking fails (AUC 0.42 on the Kinect). Three of four
+pre-registered predictions held (H73, AUC ≥ 0.70 on every unit, missed on OpenCV's cameras).
+
+![left: real detection rate against the twin's predicted power, by decile, on four cameras; right: real ±2% detection rate over all splits and over the quarter the twin rates highest, with false alarms](experiments/m4l_predict/power.png)
+
+**Milestone 4k headline** (do the TUM cameras' far subset solves come from the cold start? 11,442
+solves re-run from the fleet's spec focal length): **no. They are real minima, and dropping them makes
+the test worse.** Started at TUM's nominal 527.1 px instead of 1.3× the Zhang estimate, every one of the 38
+far 6-view solves milestone 4j found (including f = 9,289 px) comes back at the same focal length, and on
+the Xtion those far solves fit their corners as well as the 13-view calibration does (rms 0.071 px against
+0.075 px): the view set leaves f nearly free. On the Kinect the spec start is worse, not better: the full
+13-view solve stops in a local minimum (f 508.9 px, rms 0.48 px against 526.5 px at 0.15 px), as do 5–6%
+of the 6–7-view sets. **A basin check that discards solves more than 10% from the spec raises the robust
+jackknife test's false alarms at 4 new views from 4.7% to 20%** (it strips the wide delete-one values the
+test needs) on the Xtion, and the power at ±2% stays at 10–11%. All five pre-registered predictions refuted. For a
+fleet: keep the lowest-cost of several starts, never clip the focal length to a window; the lost power on
+these hand-held captures is information, not solver failure.
+
+![left: false alarms on unchanged updates for cold and warm starts, with and without a basin check, on the two TUM cameras at 4 to 6 new views; right: detection of 1, 2 and 4 percent focal changes at 7 old and 6 new views](experiments/m4k_warm/power.png)
 
 **Milestone 4j headline** (does the update test hold on other cameras? the first data beyond
 OpenCV's stereo pair): **its false-alarm rate does at 5–6 new views; its power does not.** Two cameras from
@@ -798,6 +825,12 @@ python3 experiments/m4j_tum/prepare.py fr3 /tmp/tum/rgbd_dataset_freiburg3_calib
 OMP_NUM_THREADS=1 python3 experiments/m4j_tum/run.py        # ~2 h on 4 cores; results.json.gz (stored)
 python3 experiments/m4j_tum/analyse.py                      # ~5 min; summary.json, reference.png
 OMP_NUM_THREADS=1 python3 experiments/m4j_tum/check.py      # ~8 min; check.json (H64)
+OMP_NUM_THREADS=1 python3 experiments/m4k_warm/run.py       # milestone 4k: ~85 min on 4 cores; results.json.gz (stored)
+python3 experiments/m4k_warm/analyse.py                     # ~10 min; summary.json, arms/*/summary.json, power.png
+python3 experiments/m4k_warm/compare.py                     # seconds; compare.json (warm against cold, per subset)
+python3 experiments/m4l_predict/analyse.py --rig opencv     # milestone 4l: ~5 min; rig_opencv.npz/.json (npz not stored)
+python3 experiments/m4l_predict/analyse.py --rig tum        # ~5 min; rig_tum.npz/.json
+python3 experiments/m4l_predict/score.py                    # seconds; summary.json, power.png (H73-H76)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -872,7 +905,11 @@ reference on a second unit (done in milestone 4j on two TUM RGB-D cameras: quiet
 3–5% false alarms at 4, 10% power at ±2%). After milestone 4j: warm-start the subset solves from the
 unit's own full solve (or reject far minima with a basin check) and re-score both TUM units, pre-registered;
 fit k1 + k2 on the Kinect; add TUM's third RGB unit (fr2); and use only k ≥ 5 new views for the
-twin-referenced test.
+twin-referenced test. After milestone 4k (done: the far solves are real minima, a warm start reproduces
+them and a basin check raises false alarms): stop treating near-degenerate subsets as solver failures and
+use the twin's gain norm (how strongly the views pin f) to choose or weight the old and new sets before
+testing, pre-registered; a full spec start (principal point, k1 and poses from a previous solve) to see
+whether any start beats the cold one on the Kinect.
 
 ## References
 

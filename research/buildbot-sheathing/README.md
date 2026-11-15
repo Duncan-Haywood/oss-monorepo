@@ -1495,7 +1495,8 @@ tested 16d end-nail ultimate, and a degrading (cumulative-damage) nail model or 
 unsupported panel edge, to test fatigue and tear-out. Milestone 21 added energy-based strength degradation to every nail: it lowers intact
 and decayed walls together and lifts the decayed shares by up to 2.9 points, so spread damage is ruled out. Next:
 a local failure model for the nails left along the unnailed bottom edge (edge distance and cycle count, from
-tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14).
+The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps

@@ -2,7 +2,8 @@
 
 [`draft.md`](draft.md) is the programme's paper, written for *Automation in Construction*
 (Elsevier, full research article): highlights, abstract, keywords, introduction, related work,
-the error model, methods and results for milestones 1 to 7, discussion, limitations, a
+the error model, methods and results for milestones 1 to 7, 9 to 13 and (since milestone 22)
+the capacity models of milestones 14 to 21, discussion, limitations, a
 generative-AI declaration as Elsevier asks, and references ([`references.bib`](references.bib)).
 Authorship and affiliations are left blank for the owner.
 
@@ -12,7 +13,7 @@ came from: every entry names a phrase that must be in the draft and the text tha
 a quoted number, fails it (`tests/test_paper.py` runs it).
 
 ```bash
-python3 paper/check_numbers.py   # stdlib only; prints "70 of 70 checks ok"
+python3 paper/check_numbers.py   # stdlib only; prints "190 of 190 checks ok"
 ```
 
 Before submission: convert to the Elsevier LaTeX template (`elsarticle`), confirm the citations

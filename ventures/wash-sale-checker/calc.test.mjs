@@ -461,3 +461,17 @@ test("random lists: replacement shares sum exactly to each sale's disallowed and
   }
   assert.ok(split > 50, `only ${split} sales split over several buys; the generator no longer tests the rounding`);
 });
+
+test("an unquoted thousands separator refuses the row instead of reading 1 share at $0", () => {
+  const p = parseTrades("Date,Symbol,Action,Quantity,Price\n2025-01-02,AAPL,buy,1,000,150.00\n2025-02-03,AAPL,sell,\"1,000\",140.00");
+  assert.equal(p.trades.length, 1);
+  assert.equal(p.trades[0].qty, 1000);
+  assert.match(p.errors[0], /^Line 2: 6 fields but the header has 5/);
+  // a trailing empty field (some broker exports end every row with a comma) is still read
+  assert.equal(parseTrades("Date,Symbol,Action,Quantity,Price\n2025-01-02,AAPL,buy,10,150.00,").trades.length, 1);
+});
+
+test("a + sign or a trailing minus on an amount reads as the same size", () => {
+  const p = parseTrades("Date,Symbol,Action,Quantity,Price\n2025-01-02,AAPL,buy,+10,+150.00\n2025-01-03,AAPL,sell,10-,140.00");
+  assert.deepEqual(p.trades.map((t) => [t.qty, t.price]), [[10, 150], [10, 140]]);
+});

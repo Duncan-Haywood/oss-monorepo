@@ -6,7 +6,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gradedFit, estimateTau, hasGrades, BIT, MUCH, GRADED_TAU } from "./graded-fit.mjs";
 import { fit } from "./rank-core.mjs";
-import { encodeAnswers, decodeAnswers, decisionFit, overallOrder, decisionTable, decisionDone, decisionDoneGraded, nextQuestion, longRunLevel, decisionMax, STOP_CONFIDENCE } from "./decide-core.mjs";
+import { encodeAnswers, decodeAnswers, decisionFit, overallOrder, decisionTable, decisionDone, decisionDoneGraded, nextQuestion, longRunLevel, decisionMax, STOP_CONFIDENCE, PLAIN_GUARD_BELOW } from "./decide-core.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -97,6 +97,39 @@ test("the graded stop rechecks at a cautious tau: never stops where the plain ch
   assert.equal(decisionDoneGraded(n, C, plain, pt).table, pt);
   // and before the plain check passes it never stops
   assert.equal(decisionDoneGraded(n, C, { crit: [], opt: [] }, decisionTable(decisionFit(n, C, { crit: [], opt: [] }), { draws: 100 })).done, false);
+});
+
+test("a person who says \"much\" for most picks is guarded by the plain picks", () => {
+  // 60 of the page's own questions answered on the ordinal model at the person's tau. At tau 0.5 ("much"
+  // for most picks) estimateTau reads below PLAIN_GUARD_BELOW and the default guard ("switch") ignores
+  // the grades; at tau 3 the guard is the graded refit at GUARD_TAU 1, as before.
+  const n = 5, C = 3, x = [[1.2, 0.4, -0.3, -1.3, 0.1], [0.8, -0.6, 0.3, -0.5, 0], [-0.4, 0.9, 0.2, -0.7, 0.5]], s = [0.9, -0.4, -0.5];
+  const walk = (tau, seed) => {
+    const r = mulberry32(seed), answers = { crit: [], opt: [] };
+    let df = decisionFit(n, C, answers);
+    for (let k = 0; k < 60; k++) {
+      const q = nextQuestion(df, answers, { seed: 3 });
+      const [a, b] = q.pair;
+      const u = Math.min(Math.max(r(), 1e-12), 1 - 1e-12);
+      const z = (q.kind === "crit" ? s[a] - s[b] : x[q.c][a] - x[q.c][b]) - Math.log(u / (1 - u));
+      const [w, l] = z > 0 ? [a, b] : [b, a], g = Math.abs(z) > tau ? MUCH : BIT;
+      if (q.kind === "crit") answers.crit.push([w, l, false, g]); else answers.opt.push([q.c, w, l, false, g]);
+      answers.lastKind = q.kind;
+      df = decisionFit(n, C, answers);
+    }
+    return answers;
+  };
+  const lists = (answers) => [[C, answers.crit], ...Array.from({ length: C }, (_, c) => [n, answers.opt.filter((a) => a[0] === c).map(([, p, q, t, g]) => [p, q, t, g])])];
+  const passing = { safe: 1, confidence: 1 }; // a usual check that passes, so the guard decides
+  const free = walk(0.5, 11);
+  assert.ok(estimateTau(lists(free)) < PLAIN_GUARD_BELOW, `tau 0.5 reads ${estimateTau(lists(free))}`);
+  const plainTable = decisionTable(decisionFit(n, C, free, { grades: "ignore" }), { draws: 400 });
+  assert.equal(decisionDoneGraded(n, C, free, passing).table.safe, plainTable.safe, "the default guard is the plain refit");
+  assert.notEqual(decisionDoneGraded(n, C, free, passing, { guardTau: "auto" }).table.safe, plainTable.safe, "auto reads the grades");
+  const sparing = walk(3, 12);
+  assert.ok(estimateTau(lists(sparing)) >= PLAIN_GUARD_BELOW, `tau 3 reads ${estimateTau(lists(sparing))}`);
+  const graded = decisionTable(decisionFit(n, C, sparing, { tau: 1 }), { draws: 400 });
+  assert.equal(decisionDoneGraded(n, C, sparing, passing).table.safe, graded.safe, "tau 3 keeps the graded guard");
 });
 
 test("the page offers both grades for each side and keys for them", () => {

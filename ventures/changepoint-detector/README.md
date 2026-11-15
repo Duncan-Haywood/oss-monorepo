@@ -3980,6 +3980,40 @@ rho, slopeBefore, slopeAfter, significant, note }` or `{ refused, reason }`; on 
 slope on the levels" box. Test: `hinge-test.test.mjs`.
 
 
+### A guard read off the hinge's residuals (2026-11-15, pre-registered; fails, not the default)
+
+The guard above reads the straight line's residuals, and a real bend makes those stickier, so on GCAG 1930-2024
+(95 points) it refused at rho 0.76, above the short-series 0.7. `guard: 'hinge'` reads the guard off the best OLS
+hinge's residuals instead, and its bootstrap null still draws with the straight-line rho, capped at 0.95. Four bars
+were written down first (`eval/hinge-guard-prereg-2026-11-15.md`); both guards ran on the same series
+(`node eval/hinge-guard-sim.mjs 300 99`, `eval/hinge-guard-sim.out.txt`; `node eval/hinge-guard-real.mjs`,
+`eval/hinge-guard-real.out.txt`). Each figure is the share of **all** series with p <= 0.05, with refusals counted as
+not rejecting.
+
+| bar | cell | line guard (shipped) | hinge guard | holds? |
+|---|---|---|---|---|
+| R | GCAG 1930-2024 | refused | knot 1974, p 0.001, slope -0.00 -> 2.08 per century | yes |
+| R | GCAG/GISTEMP 1880, GCAG 1850; log GDP, productivity | 1976, p 0.001; refused | same; refused (hinge rho 0.95, 0.96) | yes |
+| P | n 95, rho 0.5, slope change 0.2 | 20.7% (64 tested) | 98.7% (300 tested) | yes |
+| P | slope change 0.1 / 0.05 | 63.3% / 25.0% | 70.3% / 25.3% | |
+| S1 | n 60, rho 0.8 (straight line, no bend) | 3.3% | **10.7%** | no (8% cap) |
+| S1 | other 11 cells | 3.0-7.7% | identical to the line guard but n 60 rho 0.6 (6.7%) | |
+| S2 | random walk with drift, n 60 / 145 / 300 | 0.3% / 2.0% / 0.0% | **11.0% / 16.0%** / 3.0% | no |
+| S2 | AR(1) rho 0.9, n 60 / 145 / 300 | 1.0% / 5.7% / 6.3% | **8.3% / 8.3%** / 7.3% | no |
+| S2 | AR(1) rho 0.95, n 60 / 145 / 300 | 0.7% / 3.0% / 0.3% | **9.0% / 8.7%** / 5.3% | no |
+
+Two bars fail, so the default stays `line`. The risk named in the pre-registration is what happened: a hinge fits a
+random walk's wander better than a line does, so a hinge-residual guard admits random walks (171 of 300 at n 145),
+and on those the level test rejects about one time in six. The power is real, though. With a 0.2 slope change at
+n 95, the line guard refuses 236 of 300 series, and the hinge guard tests all 300 and finds 98.7%. That is the
+1930-2024 problem: the stronger the bend, the more often the shipped guard refuses it. `guard: 'hinge'` stays in
+`hingeTest` for evaluation, and it is not in the CLI or on the page.
+
+**What the table suggests, not tested.** The failures are at n 60 and 145 and near a unit root. A guard that needs
+both rhos to clear, or one that refuses when a hinge cuts the rho by less than a unit root's typical cut, would
+target the gap; each needs its own pre-registration and fresh seeds, since these cells are now seen.
+Test: `hinge-test.test.mjs` ("hinge-residual guard").
+
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
 The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a
@@ -4579,3 +4613,123 @@ on SKAB are not worth a sixth round.
 Tests: `watch-rolling.test.mjs` (5: the move reading on a step, a ramp, a constant stretch and white noise; the floor
 keeping a step and dropping a drift-made move, in a replay; T13 on made-up totals; the committed output's verdict with the
 help, page and llms.txt texts).
+
+## Round 18: the label-free floors on a fresh multi-sensor set, SMD's 28 servers (2026-11-15, pre-registered on unseen data; all three fail)
+
+Rounds 14-17 tried four label-free floors for a loud many-column watch on SKAB, and every one missed the three-part bar
+narrowly, from both sides. Round 17 closed with "a fresh labelled multi-sensor set (the stronger test, now overdue)".
+This is that test. The Server Machine Dataset (SMD; Su et al. 2019, KDD, "OmniAnomaly"; github.com/NetManAIOps/OmniAnomaly,
+MIT, fetched and not committed) holds 28 servers of a large internet company, 38 metrics each, one row a minute for
+about five weeks: a train half with no labels, which the benchmark treats as normal, and a test half with 327 labelled
+anomaly segments. Nobody here had scored it. `sh eval/smd-fetch.sh smd-data && node eval/watch-smd.mjs smd-data` (output
+`eval/watch-smd.out.txt`, 5,361 s on 4 cores). The rule, design, predictions and code were committed in this PR's
+second commit, before any run that printed a score.
+
+**Design.** Hourly buckets (a timing-only pilot: 30-minute buckets would have cost about 8 times as much). The 862
+metrics that vary over the first half of a machine's train half are watched, 27-34 a machine, under the shipped Quiet
+policy, replayed after every point. Each floor's k is read per machine, by its own round's rule, off Quiet's lines on
+the first half of the train half, at a whole-watch budget of 2 lines per 100 checks (3-4 lines a machine). The
+out-of-sample null is the second half of the train half (other days, 5,899 whole-watch checks): every line sent there
+counts false. The test halves are scored from point 24 (one day of baseline); a segment's window is its hours plus one
+each side; 309 segments start after the baseline. The arms are Q (no floor), R (round 15's one spread k), S (round 16's
+loud split) and K (round 17's rolling move floor with k read off the setup lines). Round 14's equal split was left out:
+with about 30 columns its per-column share is 0 lines.
+
+| every metric on Quiet (28 test halves, 309 segments) | lines | at a mark | per 1,000 checks | segments caught | under 60 min / longer | median delay | null, per 100 checks |
+|---|---|---|---|---|---|---|---|
+| Q, no floor | 10,039 | 23.5% | 902.8 | **290** | 204/222, 86/87 | 4 h | 75.79 |
+| R, one spread k (round 15) | 522 | 35.2% | 46.9 | 88 | 38, 50 | 5 h | 3.05 |
+| S, loud split (round 16) | 679 | **38.7%** | 61.1 | 106 | 52, 54 | 5 h | 4.25 |
+| K, rolling move floor, k read (round 17) | 300 | 35.3% | 27.0 | 42 | 15, 27 | 4 h | **1.24** |
+
+Chance for "at a mark" is 12.4% (the share of scored hours inside a segment window).
+
+- **T14 fails for all three arms.** Every arm fails (b) by a wide margin: the rule allowed losing 17 of Q's 290 caught
+  segments, and the arms lost 184 to 248. R and S also fail (a), at 3.05 and 4.25 false lines per 100 null checks; K
+  passes (a) at 1.24. All three pass (c): their lines sat at a segment 35-39% of the time, against Q's 23.5%.
+  As pre-registered, nothing ships: `--columns`'s help, the watch page and llms.txt say the label-free floors missed the
+  bar on a second, fresh set too, and the advice (replay first, hand floors on the columns that do not matter) stands.
+
+**Predictions, scored.** Q's null: I predicted about 15 lines per 100 whole-watch checks. It was 75.79, five times that:
+on 30 server metrics Quiet sent about three lines every four hours of normal operation. (a): I predicted a pass for all
+three, about 2-4, with one or two under 2. Only K passed (1.24); R was 3.05 and S 4.25. (b): I predicted a fail for all
+three, each under 80% of Q's catches. They all failed, and by far more than I predicted: 30%, 37% and 14% of Q's
+catches. (c): I predicted a pass for all three, and all three passed.
+
+**What the round says (deciding nothing).** Five floors over two labelled sets have now missed the same bar, and SMD
+shows why more plainly than SKAB did. Without a floor, Quiet on a server's 30 metrics alerts at almost every hourly
+check: 0.9 lines a check on the test halves and 0.76 on the normal days. It reaches 290 of 309 segments only because it
+alerts nearly everywhere: its share at a segment (23.5%) is under twice chance. A budget of 2 lines per 100 checks for
+the whole watch leaves 3 or 4 setup lines a machine to read a k from. Any k read that way sits in the far tail of
+normal moves, so it also silences most labelled events. Two thirds of SMD's segments (222 of 309) last under an hour.
+In hourly buckets they are diluted, and every floor caught few of them (K 15, R 38, S 52). On the 87 longer segments
+the spread floors caught 50-54. There was one failure of mechanism, not of trade-off. On some machines a metric sits
+almost constant and then steps, so the spread before the step is nearly zero and the ratio is enormous: R's k came out
+at 2.7 x 10^13 on machine-3-5 and K's at 3.0 x 10^12 on machine-3-1. A spread or move floor in units of recent
+wiggle is undefined in practice on step-like counters, which servers have many of. The metrics the publishers name for
+a segment sent the first line that caught it 52% of the time under Q and 66% under R, so a floor did favour the
+"right" metric, at the cost of most of the catches. Round 13's two-metric agreement, applied after the fact to Q's
+lines, sent 6.22 false messages per 100 null checks and caught 132.
+
+So the conclusion is stronger than "the floors narrowly miss": no label-free floor read off a normal stretch gets a
+30-metric server watch near a 2-per-100 budget without losing most labelled events. The trade is set by the data and
+the budget, not by the floor's shape. For the product this means three things. The watch's job on many metrics is
+level changes in the few metrics a person chooses, not anomaly detection across everything on a box; the page now says
+so. Hand floors and dropping columns stay the advice. And a whole-watch budget for 30 metrics should be stated per
+metric-day, not per check, before anyone tunes for it. Open, not pre-registered: per-group floors named by the person
+(SMD's metric names are not published, so this needs another set); a floor that skips columns that were constant
+before the move; and SMD at 10-minute buckets on a few machines, to see how much of the miss is hourly dilution.
+
+Tests: `watch-smd.test.mjs` (7: the round's constants, segments and the interpretation labels, a machine in hourly
+buckets, the score on made-up lines, T14 on made-up totals, the floors' reading with a loud column, and the committed
+output's verdicts).
+
+## Round 19: SMD at 10-minute buckets on three machines, to see how much of round 18's miss is hourly dilution (2026-11-15, pre-registered; no arm meets either line)
+
+Round 18 left open "SMD at 10-minute buckets on a few machines, to see how much of the miss is hourly dilution": two
+thirds of SMD's segments last under an hour, and an hourly mean shrinks a 10-minute event to a sixth. This round runs
+round 18's pipeline twice on the same three machines, chosen by name before anything was looked at (the first of each
+SMD group: machine-1-1, machine-2-1, machine-3-1; 93 watched metrics, 24 scored segments), changing only the bucket:
+H is hourly buckets replayed after every point (round 18 exactly), T is 10-minute buckets checked once an hour
+(replayWatch's `step` of 6, each alert dated back by bisection to the point that would have sent it). The whole-watch
+budget (2 lines per 100 hourly checks, so 3-4 setup lines a machine) is the same in both. The policy and the floors'
+rolling windows are kept in points, as shipped. The null stretch was not run (it would have doubled a 70-minute run);
+round 18 measured it under H on all 28 machines. `node eval/watch-smd-10min.mjs smd-data [cache]` (output
+`eval/watch-smd-10min.out.txt`, 4,162 s on 4 cores). The rule, design, predictions and code were committed in this PR's
+second commit, before any run that printed a score.
+
+| three machines, 24 segments | H lines | H caught (under 60 min, longer) | H median delay | T lines | T caught (under 60 min, longer) | T median delay | T at a mark |
+|---|---|---|---|---|---|---|---|
+| Q, no floor | 1,080 | 22 (12/14, 10/10) | 4 h | 5,193 | **24** (14/14, 10/10) | **0.7 h** | 10.7% |
+| R, one spread k (round 15) | 61 | 12 (4, 8) | 4.5 h | 39 | 12 (3, 9) | 1.1 h | **66.7%** |
+| S, loud split (round 16) | 66 | 14 (6, 8) | 4 h | 289 | 16 (7, 9) | 0.8 h | 32.2% |
+| K, rolling move floor (round 17) | 19 | 4 (1, 3) | 4.5 h | 62 | 9 (1, 8) | 1 h | 24.2% |
+
+Chance for "at a mark" is 11.2% under H and 6.3% under T (the windows are a bucket wide each side, so they shrink with
+the bucket). H reproduced round 18's by-machine catches for every arm (Q 8/11/3, R 4/7/1, S 4/9/1, K 2/2/0).
+
+- **D19 (under T an arm keeps Q's catches less 6%) is not met by any arm**: R 12, S 16 and K 9 against the 23 needed.
+- **D19' (an arm's kept share of Q's catches rises 20 points from H to T) is not met either**: R went from 55% to 50%,
+  S from 64% to 67%, K from 18% to 38% (19.3 points, one short).
+- As pre-registered, nothing changes for the product: finer buckets did not rescue the floors on these machines, and
+  round 18's reading (the miss is set by the data and the budget, not the bucket) stands.
+
+**Predictions, scored.** H reproduces round 18: right, exactly. Q under T catches about as many: right (24 of 24, from
+22). No arm meets D19: right. R and S meet D19': wrong for both; R's kept share fell and S's rose 3 points. K does not
+meet D19': right, by 0.7 points.
+
+**What the round says (deciding nothing).** The short segments are not where finer buckets help the floors. Under T the
+floors caught 3, 7 and 1 of the 14 segments under an hour, against 4, 6 and 1 under H. What T changes is the long
+segments and the delay: the floors caught 8-9 of the 10 longer ones (3-8 under H), and every arm's median delay fell
+from 4-4.5 hours to 0.7-1.1 hours, because a step is seen within a few 10-minute points rather than after several
+hourly ones. Without a floor, T's Quiet is far louder: 408 lines per 100 hourly checks (85 under H), with 10.7% at a
+mark against chance 6.3%, so on 30 server metrics it alerts on almost every 10-minute wiggle. The k's read off the
+finer setup lines are higher (R's 91 against 43 on machine-1-1, and 3,780 on machine-2-1, where a step-like counter
+had a near-zero spread before its step, round 18's failure of mechanism again), so a short event in a busy metric
+still sits under the floor. So the honest summary for a person: on server metrics, finer data makes the watch faster
+on the changes it does catch (a quarter of the delay), not able to catch short spikes under a budget. Short spikes are
+anomaly detection, which this watch does not claim. Three machines and 24 segments is a small sample; the delay
+finding is the one worth testing on the other 25 machines with the null, if anyone runs a server watch on finer data.
+
+Tests: `watch-smd-10min.test.mjs` (4: the round's constants, a machine in 10-minute buckets with its windows and
+baseline, D19 and D19' on made-up totals including the tie, and the committed output's verdicts).

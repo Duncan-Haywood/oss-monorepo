@@ -26,7 +26,15 @@ serial time; with them the whole script took 72 s on an idle 4-core container
 `unittest discover` over the folder is not used: it also descends into
 agent_review/, whose test_review.py imports `review` from its own folder and fails
 that way (it has its own workflow), so it reports 1 error that is not a fault.
+
+A run record this session wrote and has not filled yet (`promptctl.py record`
+writes `outcome: null`; the master prompt says fill it in last, before merging)
+is not a fault on main: when `promptctl.py validate`'s only errors are that
+unfilled outcome, on records origin/main does not hold, the line says PEND and
+the exit stays 0. venture-preflight runs this script mid-run, so three run
+records on 2026-11-14 and 2026-11-15 saw it stop on their own blank record.
 """
+import re
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -80,6 +88,31 @@ def status(rc):
     return "ok  " if rc == 0 else "TIME" if rc == TIMED_OUT else "FAIL"
 
 
+UNFILLED = re.compile(r"^error: (prompts/runs/[^:\s]+\.json): outcome must be one of .*"
+                      r"\(got None\); fill it in before merging$")
+
+
+def on_main(path):
+    """True when origin/main holds `path`; None when origin/main cannot be read."""
+    r = subprocess.run(["git", "ls-tree", "--name-only", "origin/main", "--", path],
+                       cwd=ROOT, capture_output=True, text=True)
+    return None if r.returncode else bool(r.stdout.strip())
+
+
+def pending_records(name, rc, text, main_has=on_main):
+    """The unfilled run records that alone make `promptctl.py validate` red, or [].
+
+    Only records origin/main does not hold count: an unfilled record that reached
+    main is a real fault. When origin/main cannot be read, nothing is excused."""
+    if name != "prompts/promptctl.py" or rc in (0, TIMED_OUT):
+        return []
+    errors = [l for l in text.splitlines() if l.startswith("error:")]
+    paths = [m.group(1) for m in map(UNFILLED.match, errors) if m]
+    if not errors or len(paths) != len(errors):
+        return []
+    return paths if all(main_has(p) is False for p in paths) else []
+
+
 def rerun_timeouts(jobs, results, runner=run):
     """Re-run, one at a time, the jobs that timed out in the parallel pass.
 
@@ -116,10 +149,16 @@ def main(argv=None):
         results = []
         for f in as_completed(futures):
             results.append(f.result())
-            name, rc, _ = results[-1]
-            print(f"{status(rc)} {name} ({len(results)}/{len(jobs)})", flush=True)
+            name, rc, text = results[-1]
+            tag = "PEND" if pending_records(name, rc, text) else status(rc)
+            print(f"{tag} {name} ({len(results)}/{len(jobs)})", flush=True)
     results = sorted(rerun_timeouts(jobs, results))
-    bad = [r for r in results if r[1] != 0]
+    pending = {r[0]: pending_records(*r) for r in results}
+    for name, paths in pending.items():
+        if paths:
+            print(f"PEND {name}: this session's unfilled run record ({', '.join(paths)}); "
+                  "fill in outcome and the rest before merging, it is not a fault on main")
+    bad = [r for r in results if r[1] != 0 and not pending[r[0]]]
     for name, rc, out in bad:
         print(f"{status(rc)} {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
     tests = sum(1 for j in jobs if is_test(j[0]))

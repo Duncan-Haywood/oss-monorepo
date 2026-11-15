@@ -123,6 +123,58 @@ class Render(unittest.TestCase):
         self.assertIn("a / b", ohp.render(rows, self.NOW))
 
 
+def row(n, title="t", added="", owned=("prompt.md",), on_main=()):
+    return {"number": n, "title": title, "created_at": "2026-11-12T00:00:00Z", "draft": False,
+            "owned": list(owned), "on_main": list(on_main), "unowned": 0, "added": added}
+
+
+class Redteam(unittest.TestCase):
+    """2026-11-15: three red-team runs each re-checked all 12 open entries by hand,
+    though every one already had a fix waiting on the owner in a held PR."""
+
+    WIRING = {"record": "r1.json", "index": 4, "file": ".github/workflows/portfolio-validate.yml",
+              "issue": "check_csv_formula_guard.py runs in no PR workflow. Fix: in portfolio-validate.yml "
+                       "add `python3 platform/ci/check_csv_formula_guard.py` and a step "
+                       "`python3 -m unittest test_check_csv_formula_guard`."}
+    NAMED = {"record": "r2.json", "index": 1, "file": "prompts/redteam.py",
+             "issue": "run_suite kills only node; fix in control-plane PR #15945."}
+    ORPHAN = {"record": "r3.json", "index": 0, "file": "platform/ci/x.py",
+              "issue": "nothing guards report.mjs rounding."}
+
+    def test_tokens_skip_the_file_it_is_filed_under(self):
+        toks = ohp.entry_tokens(self.WIRING)
+        self.assertIn("check_csv_formula_guard", toks)
+        self.assertNotIn("portfolio-validate.yml", toks)
+        self.assertNotIn("portfolio-validate", toks)
+
+    def test_workflow_keywords_are_not_tokens(self):
+        e = {"file": "x.yml", "issue": "add to both pull_request and push paths"}
+        self.assertEqual(ohp.entry_tokens(e), [])
+
+    def test_bare_stem_is_not_a_token(self):
+        self.assertEqual(ohp.entry_tokens(self.ORPHAN), ["report.mjs"])
+
+    def test_matches_added_lines_and_named_prs(self):
+        rows = [row(15248, "wire csv", "- run: python3 platform/ci/check_csv_formula_guard.py"),
+                row(15945, "kill the group", "os.killpg(p.pid)"),
+                row(14000, "edits portfolio-validate.yml", "- run: other.py",
+                    owned=(".github/workflows/portfolio-validate.yml",))]
+        got = {m["record"]: [h["number"] for h in m["held_in"]]
+               for m in ohp.match_redteam([self.WIRING, self.NAMED, self.ORPHAN], rows)}
+        self.assertEqual(got, {"r1.json": [15248], "r2.json": [15945], "r3.json": []})
+
+    def test_render_counts_and_flags_entries_with_no_pr(self):
+        rows = [row(15248, added="check_csv_formula_guard.py", on_main=("prompt.md",))]
+        out = ohp.render_redteam(ohp.match_redteam([self.WIRING, self.ORPHAN], rows))
+        self.assertIn("2 open red-team entries", out)
+        self.assertIn("1 have a fix waiting", out)
+        self.assertIn("#15248 (check_csv_formula_guard.py, check_csv_formula_guard; already on main)", out)
+        self.assertIn("NO HELD PR", out.split("r3.json")[1])
+
+    def test_open_list_loads_from_the_repo(self):
+        self.assertIsInstance(ohp.load_redteam_open(), list)
+
+
 class GitMain(unittest.TestCase):
     def test_missing_ref_knows_nothing(self):
         main = ohp.GitMain("refs/does-not-exist")

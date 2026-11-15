@@ -1,0 +1,64 @@
+cell-fidelity milestone 5s: 5r's balance map fed a power-law extrapolation of ten DFN cycles' lithium loss, as the union screen's fade list
+1108 ten-cycle DFN runs (0 failed); reproduction of committed cycle-10 Wh/kg: max relative difference 0.00e+00, median 0.00e+00 over 1108
+median seconds: ten DFN cycles 4.16, map tables 0.000 per design
+
+condition            n  rho raw  rho map rho sqrt |fade| map   sqrt  gap map gap sqrt  rank raw/map/sqrt     b fade dfn   map
+Ai2020@0.25x        51    0.083    0.445    0.647      0.420  0.142   0.0688   0.0000       16/35/1  0.84    0.561 0.991
+Ai2020@0.275x       51    0.097    0.547    0.569      0.423  0.090   0.0317   0.0016        8/20/8  0.85    0.548 0.978
+Ai2020@0.3x         53    0.244    0.400    0.764      0.425  0.069   0.0558   0.0032       28/13/5  0.86    0.523 0.972
+Ai2020@0.35x        59    0.482    0.346    0.625      0.424  0.061   0.0039   0.0000       22/21/3  0.87    0.498 0.937
+Ai2020@0.375x       62    0.578    0.268    0.676      0.422  0.101   0.0204   0.0003       14/23/14  0.88    0.487 0.936
+Ai2020@0.4375x      64    0.760    0.339    0.686      0.426  0.116   0.0130   0.0000       10/40/1  0.89    0.465 0.920
+Ai2020@0.5x         64    0.889    0.329    0.733      0.404  0.119   0.0236   0.0000       14/41/1  0.90    0.450 0.866
+Ai2020@0.625x       64    0.972    0.520    0.578      0.366  0.198   0.0000   0.0000        1/24/17  0.92    0.429 0.792
+Chen2020@0.5x       64    0.981   -0.458    0.751      0.373  0.040   0.0000   0.0000        1/60/1  0.88    0.449 0.822
+Chen2020@1x         64    0.977    0.440    0.890      0.099  0.072   0.0000   0.0000        1/56/2  0.92    0.372 0.472
+Chen2020@2x         64    0.899    0.556    0.572      0.116  0.154   0.0000   0.0000        1/14/14  0.96    0.246 0.255
+NCA_Kim2011@0.5x    64    0.852   -0.258   -0.019      0.379  0.685   0.0000   0.0000        3/46/34  0.23    0.364 0.755
+NCA_Kim2011@0.75x   64    0.949   -0.467   -0.328      0.413  0.693   0.0000   0.0000        3/42/37  0.27    0.337 0.760
+NCA_Kim2011@1x      64    0.956   -0.272   -0.597      0.382  0.504   0.0023   0.0023        5/61/51  0.30    0.309 0.673
+OKane2022@1x       128    0.962    0.416    0.921      0.082  0.082   0.0000   0.0000        1/117/1  0.92    0.381 0.461
+OKane2022@1.25x     64    0.931    0.501    0.896      0.055  0.095   0.0000   0.0000        1/20/8  0.93    0.357 0.402
+OKane2022@2x        64    0.899    0.627    0.570      0.111  0.141   0.0000   0.0000        1/11/15  0.96    0.235 0.219
+
+H108 (map ranks DFN@100 better than the sqrt fit on >= 12 of 17): refuted (2 of 17)
+H109 (map's median |fade error| below the sqrt fit's on >= 12): refuted (7 of 17)
+H110 (union raw + map within 1% of the pool's DFN best on every condition): refuted (worst 0.0688)
+H111 (union raw + map no worse than 5n's union raw + sqrt on every condition): refuted (worst excess +0.0688)
+
+Selection slip (found after the verdicts): the rule ranked committed cycle-10 energy in Wh, not Wh/kg, so 9 of the 17 have the DFN best in the raw top 4. On the 8 that meet the rule as meant (Ai2020@0.25x, Ai2020@0.275x, Ai2020@0.3x, Ai2020@0.35x, Ai2020@0.375x, Ai2020@0.4375x, Ai2020@0.5x, NCA_Kim2011@1x): map beats sqrt on ranking 1 of 8, on fade size 1; worst union gap map 0.0688, sqrt 0.0032. No verdict changes.
+
+Post hoc diagnostic (after the verdicts): DFN to cycle 100 on the first 8 designs of Ai2020@0.3x, NCA_Kim2011@1x, Chen2020@0.5x, OKane2022@1x; 27 of 32 completed (the rest were killed for memory, not by the solver)
+condition         j Lpow/Ltrue  b 2-10 b 50-99 fade DFN map(true L) map(pow L)
+Ai2020@0.3x       1       2.78    0.77    0.24    0.519       0.524      1.000
+Ai2020@0.3x       2       1.93    0.86    0.40    0.551       0.518      0.964
+Ai2020@0.3x       5       1.93    0.86    0.40    0.550       0.525      0.972
+Ai2020@0.3x       6       2.06    0.81    0.33    0.554       0.539      0.997
+Ai2020@0.3x       8       1.78    0.88    0.46    0.503       0.474      0.910
+NCA_Kim2011@1x    0       1.25    0.26    0.14    0.290       0.314      0.553
+NCA_Kim2011@1x    1       1.44    0.34    0.15    0.321       0.324      0.684
+NCA_Kim2011@1x    2       1.56    0.37    0.14    0.389       0.341      0.886
+NCA_Kim2011@1x    3       1.21    0.24    0.14    0.195       0.312      0.503
+NCA_Kim2011@1x    4       1.28    0.26    0.14    0.268       0.331      0.626
+NCA_Kim2011@1x    5       1.49    0.36    0.15    0.374       0.329      0.749
+NCA_Kim2011@1x    6       1.53    0.35    0.14    0.343       0.327      0.849
+NCA_Kim2011@1x    7       1.22    0.24    0.16    0.178       0.267      0.435
+Chen2020@0.5x     0       1.74    0.87    0.48    0.435       0.398      0.751
+Chen2020@0.5x     1       1.94    0.88    0.45    0.456       0.408      0.840
+Chen2020@0.5x     2       1.62    0.90    0.54    0.407       0.359      0.645
+Chen2020@0.5x     3       2.04    0.85    0.35    0.494       0.463      0.883
+Chen2020@0.5x     4       1.90    0.87    0.43    0.460       0.425      0.842
+Chen2020@0.5x     5       1.60    0.92    0.54    0.422       0.349      0.621
+Chen2020@0.5x     6       1.93    0.88    0.45    0.455       0.408      0.840
+Chen2020@0.5x     7       1.96    0.87    0.44    0.463       0.418      0.845
+OKane2022@1x      0       1.69    0.88    0.50    0.391       0.288      0.553
+OKane2022@1x      2       1.61    0.95    0.58    0.401       0.253      0.420
+OKane2022@1x      3       1.45    0.92    0.63    0.334       0.228      0.326
+OKane2022@1x      5       1.54    0.95    0.60    0.370       0.223      0.343
+OKane2022@1x      6       1.61    0.94    0.57    0.404       0.288      0.506
+OKane2022@1x      7       1.66    0.84    0.47    0.371       0.274      0.509
+  Ai2020@0.3x      n=5 median Lpow/Ltrue 1.93; MAE map(true L) 0.021, map(pow L) 0.433
+  NCA_Kim2011@1x   n=8 median Lpow/Ltrue 1.36; MAE map(true L) 0.051, map(pow L) 0.366
+  Chen2020@0.5x    n=8 median Lpow/Ltrue 1.91; MAE map(true L) 0.045, map(pow L) 0.335
+  OKane2022@1x     n=6 median Lpow/Ltrue 1.61; MAE map(true L) 0.120, map(pow L) 0.076
+  all: MAE map(true L) 0.059, map(pow L) 0.305; max reproduction difference of the committed cycle-100 Wh/kg 0.0e+00

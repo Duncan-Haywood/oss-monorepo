@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below). Other RAW formats (CR3, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a full-quality Canon CR3 ("Canon CR3" below). Other RAW formats (a C-RAW CR3, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -916,7 +916,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF" and "Fujifilm RAF" below; convert CR3 with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Canon CR3 with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, CR3 since 2026-11-15, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF", "Fujifilm RAF" and "Canon CR3" below; convert a C-RAW CR3 with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1138,6 +1138,34 @@ Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion para
 applied. Since the same day the maker note's LensSpec names the lens for lensfun (see "Sony and Samsung:
 lenses named from the maker note" below).
 
+## Canon CR3 (2026-11-15)
+
+Every Canon body since 2018 (EOS R, RP, R5, R6, R7, R8, R10, R50, R3, M50, M6 Mark II, 90D, 250D...)
+writes CR3, and until now ShootFlow sent those files to Adobe's DNG Converter first. A full-quality CR3
+("RAW" in the camera's menu) is now read directly: `shootflow develop IMG_0001.CR3 --dcp PROFILE.dcp`
+(or `--dcp FOLDER`, chosen per camera) and the pipeline's grade stage take it like a CR2.
+
+What it reads (`src/shootflow/cr3.py`): a CR3 is an MP4-family box file, not a TIFF. Canon's `uuid` box
+holds IFD0 (CMT1), EXIF (CMT2) and the maker note (CMT3: SensorInfo for the crop, the lens name); the
+raw track's `CMP1` box is the codec header and its `CDI1/IAD1` box names the optical-black rectangle,
+where black is measured (on the R8 the light-sensitive area starts 12 columns left of the crop, so the
+CR2 rule of "every column left of the crop" would read 6 levels high). The as-shot white balance is not in
+the maker note: it is in the timed-metadata track (CTMD), record type 8, ColorData11 index 0x69. The
+CFA is CMP1's layout turned by the crop's parity.
+
+The sensor data is Canon's CRX codec at its lossless setting: four planes, one per 2x2 position, each
+coded line by line with a median edge predictor, an adaptive Rice code and a JPEG-LS-style run mode.
+An independent implementation (the format as LibRaw's `crx.cpp` decodes it), pure Python as the
+reference and C through the same optional ctypes library as the other readers.
+
+Checked on the five CR3s in the public metadata-extractor-images collection (`tools/cr3_libraw_check.py`,
+`eval/canon-cr3-reader-2026-11-15.md`): on both full-quality EOS R8 files every one of 25.5 M sensels
+equals LibRaw 0.22's, with both decoders, and the white balance, CFA and white level match; black is
+within 1 level of LibRaw's stated figure. 0.5 s per file with the C decoder, 35 s in pure Python. The
+other three files (an R3 and two R8s) are C-RAW, the smaller wavelet-coded quality; they are refused
+with that reason and a pointer to the DNG Converter. C-RAW and sensors stored in several tiles are the
+next steps.
+
 ## Fujifilm RAF (2026-11-14)
 
 Fujifilm raw files no longer need Adobe's DNG Converter, and that includes X-Trans, the 6x6 colour
@@ -1178,7 +1206,8 @@ an uncompressed RAF, is now read directly too, X-Trans and Bayer (GFX): `shootfl
 DSCF0001.RAF --dcp PROFILE.dcp` and the grade stage take it like any other RAF
 (`src/shootflow/raf_compressed.py`; the strip decoder also in C in the optional `ljpeg_native`
 library, strips in parallel; the pure-Python decoder is the reference and runs with no compiler).
-The lossy compressed mode (header version 0) is refused with the reason.
+The lossy compressed mode (header version 0) is read too since the same day: see "Fujifilm lossy
+compressed RAF" below.
 
 How it was checked (`tools/raf_libraw_check.py`, `eval/fujifilm-compressed-raf-2026-11-15.md`, rows
 in `eval/fujifilm-compressed-raf-libraw-2026-11-15.jsonl`): five real lossless compressed RAFs from
@@ -1189,7 +1218,28 @@ one); 48-56 s in pure Python, which also matches on every sensel. 24 s to develo
 frame end to end. A Bayer RAF with a Fujifilm sub-IFD now takes the 0x3E00 white level the older
 Bayer bodies use (LibRaw's value for the GFX 50S; that frame has no clipped highlights to confirm
 it). `tests/test_raf_compressed.py` (10 tests) encodes known sensels with a test-only encoder and
-decodes them on both paths. Not done: the lossy mode (two real files are named in the eval for it).
+decodes them on both paths.
+
+## Fujifilm lossy compressed RAF (2026-11-15)
+
+The "compressed" (lossy) raw setting of the X-S10, X-E4 and other recent Fujifilm bodies is read
+directly too, by the same decoder (`src/shootflow/raf_compressed.py`, C and pure Python). It was the
+top open item on this flagship. A lossy stream adds, for each strip and each six-row group, a
+quantisation base `q`: residuals are coded in steps of `2q + 1`, the gradient thresholds widen with
+`q`, and flat patches switch to one of three fixed side quantisers. The module docstring has the
+layout.
+
+How it was checked (`eval/fujifilm-lossy-raf-2026-11-15.md`, rows in
+`eval/fujifilm-lossy-raf-libraw-2026-11-15.jsonl`): the two lossy RAFs on raw.pixls.us (CC0), an
+X-S10 and an X-E4. Against LibRaw 0.22.2 (rawpy 0.28) every one of 2 x 26.7 M sensels is equal, and
+so are the balance, black level, white level and CFA, in C (0.7 s a file on four cores) and in pure
+Python (73-75 s a file). The X-T2 and GFX 50S lossless files were rerun after the change and still
+match on every sensel. What the files show about the format: both sit at 4.75 bits a sensel
+(15.8 MB for 26.7 M sensels), so the camera holds a bit budget and varies the step instead: the
+X-S10 frame's bases run 0-9 (mean step 5.7 counts), the X-E4 frame's 0-13 (mean step 11.2 counts,
+under 0.1% of its 1,022-16,383 range). `tests/test_raf_compressed.py` (now 15 tests) has a lossy
+test encoder: bases changing between groups, all three side quantisers, a 12-bit Bayer stream, a
+base-0 lossy stream that must come back exactly, and truncated bases.
 
 ## Directional X-Trans demosaic (2026-11-14)
 

@@ -26,7 +26,8 @@ Panasonic RW2 decode of ``shootflow.rw2`` (``tests/test_rw2.py`` runs both), and
 decoders of ``shootflow.srw`` (``shootflow_samsung_rows_run``, ``_huffman_run``, ``_blocks_run``;
 ``tests/test_srw.py`` runs both), and ``shootflow_pentax_run``, the Pentax PEF decode of
 ``shootflow.pef`` (``tests/test_pef.py`` runs both), and ``shootflow_fuji_strip``, one strip of a
-Fujifilm lossless compressed RAF (``shootflow.raf_compressed``; ``tests/test_raf_compressed.py`` runs both).
+Fujifilm lossless compressed RAF (``shootflow.raf_compressed``; ``tests/test_raf_compressed.py`` runs both),
+and ``shootflow_crx_band``, one band of a Canon CR3 (``shootflow.cr3``; ``tests/test_cr3.py`` runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -605,9 +606,10 @@ long shootflow_samsung_blocks_run(const uint8_t *d, long len, long start, long w
     }
     return 0;
 }
-/* Fujifilm lossless compressed RAF: one strip (shootflow.raf_compressed.decode_strip, the reference).
-   18 lines of lw + 2 values (R0..R4, G0..G7, B0..B4); six pairs per group of six rows.
-   out points at the strip's first sensel; rows are out_stride apart.
+/* Fujifilm compressed RAF, lossless or lossy: one strip (shootflow.raf_compressed.decode_strip, the
+   reference). 18 lines of lw + 2 values (R0..R4, G0..G7, B0..B4); six pairs per group of six rows.
+   out points at the strip's first sensel; rows are out_stride apart. qb is NULL for a lossless
+   stream, else the strip's quantisation base per line group (lossy).
    Returns the number of coding errors (0 on a clean stream). */
 static const int fuji_xtrans_abs[6][6] = {{1,1,0,1,1,2},{1,1,2,1,1,0},{2,0,1,0,2,1},
                                          {1,1,2,1,1,0},{1,1,0,1,1,2},{0,2,1,2,0,1}};
@@ -616,6 +618,36 @@ static const int fuji_pairs[6][2][2] = {{{0,2},{1,2}},{{1,3},{2,2}},{{0,3},{1,4}
 static const int fuji_base[3] = {0, 5, 13};
 
 typedef struct { const uint8_t *d; long p, end; uint32_t acc; int n; long err; } fuji_bits;
+
+/* one quantiser: gradient table over -top..top, residual step 2 * q_base + 1 */
+typedef struct { int8_t *t; int q_base, total, raw_bits, mult, max_grad, step; } fuji_qt;
+
+static int fuji_log2ceil(int v) { int r = 0; if (v--) { do { r++; } while (v >>= 1); } return r; }
+
+static int fuji_qt_init(fuji_qt *q, int top, int q_base, int p1, int p2, int p3, int mult, int max_grad) {
+    q->t = (int8_t *)malloc((size_t)2 * top + 1);
+    if (!q->t) return -1;
+    for (int i = 0; i <= 2 * top; i++) {
+        int v = i - top, t;
+        if (v <= -p3) t = -4; else if (v <= -p2) t = -3; else if (v <= -p1) t = -2;
+        else if (v < -q_base) t = -1; else if (v <= q_base) t = 0; else if (v < p1) t = 1;
+        else if (v < p2) t = 2; else if (v < p3) t = 3; else t = 4;
+        q->t[i] = (int8_t)t;
+    }
+    q->q_base = q_base; q->step = 2 * q_base + 1;
+    q->total = (top + 2 * q_base) / (2 * q_base + 1) + 1;
+    q->raw_bits = fuji_log2ceil(q->total);
+    q->mult = mult; q->max_grad = max_grad;
+    return 0;
+}
+
+static int fuji_main_qt(fuji_qt *q, int top, int q_base) {
+    int p1 = 3 * q_base + 0x12, p2 = 5 * q_base + 0x43, p3 = 7 * q_base + 0x114;
+    if (p1 > top || p1 < q_base + 1) p1 = q_base + 1;
+    if (p2 < p1 || p2 > top) p2 = p1;
+    if (p3 < p2 || p3 > top) p3 = p2;
+    return fuji_qt_init(q, top, q_base, p1, p2, p3, 9, 0);
+}
 
 static inline int fuji_bit(fuji_bits *b) {
     if (!b->n) {
@@ -642,25 +674,35 @@ static inline int fuji_get(fuji_bits *b, int k) {
 }
 
 long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int lw, long lines,
-                          int strip_width, int xtrans, long out_stride, uint16_t *out)
+                          int strip_width, int xtrans, long out_stride, uint16_t *out, const uint8_t *qb)
 {
     int stride = lw + 2;
-    int top = (1 << bits) - 1, total = 1 << bits;
-    int long_cut = 4 * bits - bits - 1, min_value = 0x40, max_diff = 1 << (bits - 6);
-    const int q1 = 0x12, q2 = 0x43, q3 = 0x114;
+    int top = (1 << bits) - 1;
+    int max_bits = 4 * fuji_log2ceil(top + 1), min_value = 0x40;
     int32_t *buf = (int32_t *)calloc((size_t)18 * stride, sizeof(int32_t));
-    int8_t *qt = (int8_t *)malloc((size_t)2 * top + 1);
-    if (!buf || !qt) { free(buf); free(qt); return -1; }
-    for (int i = 0; i <= 2 * top; i++) {
-        int v = i - top, t;
-        if (v <= -q3) t = -4; else if (v <= -q2) t = -3; else if (v <= -q1) t = -2;
-        else if (v < 0) t = -1; else if (v == 0) t = 0; else if (v < q1) t = 1;
-        else if (v < q2) t = 2; else if (v < q3) t = 3; else t = 4;
-        qt[i] = (int8_t)t;
+    fuji_qt *mains = (fuji_qt *)calloc(256, sizeof(fuji_qt)); /* main quantisers, built per base on first use */
+    fuji_qt side[3] = {{0}};
+    long result = -1;
+    if (!buf || !mains) goto done;
+    if (fuji_main_qt(&mains[0], top, 0)) goto done;
+    {
+        static const int sp[3][4] = {{0x12, 0x43, 0x114, 5}, {0x15, 0x48, 0x11B, 6}, {0x18, 0x4D, 0x122, 7}};
+        for (int i = 0; i < 3; i++) {
+            int p1 = top >= sp[i][0] ? sp[i][0] : i + 1;
+            int p2 = top >= sp[i][1] ? sp[i][1] : p1;
+            int p3 = top >= sp[i][2] ? sp[i][2] : p2;
+            if (fuji_qt_init(&side[i], top, i, p1, p2, p3, 3, sp[i][3])) goto done;
+        }
     }
-    int ge[3][41][2], go[3][41][2];
+    fuji_qt *main_q = &mains[0];
+    int ge[3][41][2], go[3][41][2], se[3][3][5][2], so[3][3][5][2];
     for (int s = 0; s < 3; s++) for (int g = 0; g < 41; g++) {
-        ge[s][g][0] = go[s][g][0] = max_diff; ge[s][g][1] = go[s][g][1] = 1;
+        ge[s][g][0] = go[s][g][0] = 1 << (bits - 6); ge[s][g][1] = go[s][g][1] = 1;
+    }
+    for (int s = 0; s < 3; s++) for (int t = 0; t < 3; t++) {
+        int md = (side[t].total + 0x20) >> 6;
+        if (md < 2) md = 2;
+        for (int g = 0; g < 5; g++) { se[s][t][g][0] = so[s][t][g][0] = md; se[s][t][g][1] = so[s][t][g][1] = 1; }
     }
     /* coded[line][p & 3]: some sensel of the line's rows reads entry p */
     int coded[18][4] = {{0}};
@@ -674,6 +716,19 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
     }
     fuji_bits b = {d, start, end, 0, 0, 0};
     for (long grp = 0; grp < lines; grp++) {
+        if (qb) {
+            int base = qb[grp];
+            if (grp == 0 || base != main_q->q_base) {
+                if (!mains[base].t && fuji_main_qt(&mains[base], top, base)) goto done;
+                main_q = &mains[base];
+                int md = (main_q->total + 0x20) >> 6;
+                if (md < 2) md = 2;
+                for (int s = 0; s < 3; s++) for (int g = 0; g < 41; g++) {
+                    ge[s][g][0] = go[s][g][0] = md; ge[s][g][1] = go[s][g][1] = 1;
+                }
+            }
+        }
+        int nside = main_q->q_base < 3 ? main_q->q_base : 3;
         for (int pn = 0; pn < 6; pn++) {
             int (*cge)[2] = ge[pn % 3], (*cgo)[2] = go[pn % 3];
             int li[2];
@@ -689,6 +744,7 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
                         if (step) odd[k] += 2; else even[k] += 2;
                         int c = p + 1, grad, interp;
                         int (*ctx)[2];
+                        const fuji_qt *q = main_q;
                         if (!step) {
                             int rb = up[c], rc = up[c - 1], rd = up[c + 1], rf = up2[c];
                             int dcb = abs(rc - rb), dfb = abs(rf - rb), ddb = abs(rd - rb);
@@ -696,23 +752,27 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
                             else if (ddb > dcb && ddb > dfb) interp = rf + rc + 2 * rb;
                             else interp = rd + rc + 2 * rb;
                             if (!coded[li[k]][p & 3]) { cur[c] = interp >> 2; continue; }
-                            grad = qt[top + rb - rf] * 9 + qt[top + rc - rb];
-                            interp >>= 2;
                             ctx = cge;
+                            for (int t = 0; t < nside; t++)
+                                if (dfb + dcb <= side[t].max_grad) { q = &side[t]; ctx = se[pn % 3][t]; break; }
+                            grad = q->t[top + rb - rf] * q->mult + q->t[top + rc - rb];
+                            interp >>= 2;
                         } else {
                             int ra = cur[c - 1], rb = up[c], rc = up[c - 1], rd = up[c + 1], rg = cur[c + 1];
-                            grad = qt[top + rb - rc] * 9 + qt[top + rc - ra];
+                            ctx = cgo;
+                            for (int t = 0; t < nside; t++)
+                                if (abs(rc - ra) + abs(rb - rc) <= side[t].max_grad) { q = &side[t]; ctx = so[pn % 3][t]; break; }
+                            grad = q->t[top + rb - rc] * q->mult + q->t[top + rc - ra];
                             if ((rb > rc && rb > rd) || (rb < rc && rb < rd)) interp = (rg + ra + 2 * rb) >> 2;
                             else interp = (ra + rg) >> 1;
-                            ctx = cgo;
                         }
                         int *g = ctx[grad < 0 ? -grad : grad];
                         int sample = 0, code;
                         while (!fuji_bit(&b)) {
                             sample++;
-                            if (b.err > 64) { free(buf); free(qt); return b.err; }
+                            if (b.err > 64) { result = b.err; goto done; }
                         }
-                        if (sample < long_cut) {
+                        if (sample < max_bits - q->raw_bits - 1) {
                             int dec = 0;
                             if (g[1] < g[0]) {
                                 do { dec++; } while (dec <= 15 && (g[1] << dec) < g[0]);
@@ -720,15 +780,16 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
                             }
                             code = fuji_get(&b, dec) + (sample << dec);
                         } else {
-                            code = fuji_get(&b, bits) + 1;
+                            code = fuji_get(&b, q->raw_bits) + 1;
                         }
-                        if (code < 0 || code >= total) b.err++;
+                        if (code < 0 || code >= q->total) b.err++;
                         code = (code & 1) ? -1 - (code >> 1) : (code >> 1);
                         g[0] += code < 0 ? -code : code;
                         if (g[1] == min_value) { g[0] >>= 1; g[1] >>= 1; }
                         g[1]++;
-                        interp = grad < 0 ? interp - code : interp + code;
-                        if (interp < 0) interp += total; else if (interp > top) interp -= total;
+                        interp = grad < 0 ? interp - code * q->step : interp + code * q->step;
+                        if (interp < -q->q_base) interp += q->total * q->step;
+                        else if (interp > q->q_base + top) interp -= q->total * q->step;
                         cur[c] = interp >= 0 ? (interp <= top ? interp : top) : 0;
                     }
                 }
@@ -764,8 +825,148 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
             l0[2 * stride + lw + 1] = l0[stride + lw];
         }
     }
-    free(buf); free(qt);
-    return b.err;
+    result = b.err;
+done:
+    if (mains) for (int i = 0; i < 256; i++) free(mains[i].t);
+    for (int i = 0; i < 3; i++) free(side[i].t);
+    free(mains); free(buf);
+    return result;
+}
+
+/* Canon CR3 (CRX) band at imageLevels 0, the twin of shootflow.cr3.decode_band:
+   median edge predictor, adaptive Rice code and JPEG-LS run mode. Each value, clamped to the
+   signed bits range plus 2^(bits-1), goes to out[line * stride + 2 * x] (one 2x2 position of the
+   sensor). Returns 0, or -1 on an invalid stream. */
+typedef struct { const uint8_t *d; long len, pos; uint64_t acc; int n; } crx_bits;
+static void crx_fill(crx_bits *b) {
+    while (b->n <= 56) { uint64_t v = b->pos < b->len ? b->d[b->pos] : 0; b->pos++; b->acc |= v << (56 - b->n); b->n += 8; }
+}
+static inline uint32_t crx_get(crx_bits *b, int k) {
+    if (!k) return 0;
+    if (b->n < k) crx_fill(b);
+    uint32_t v = (uint32_t)(b->acc >> (64 - k)); b->acc <<= k; b->n -= k; return v;
+}
+static inline long crx_zeros(crx_bits *b) {
+    long count = 0;
+    for (;;) {
+        if (b->n < 33) crx_fill(b);
+        if (b->acc) {
+            int z = __builtin_clzll(b->acc);
+            if (z < b->n) { count += z; b->acc <<= z; b->acc <<= 1; b->n -= z + 1; return count; }
+        }
+        count += b->n; b->acc = 0; b->n = 0;
+        if (b->pos > b->len + 16) return -1;
+    }
+}
+static const int crx_J[32] = {0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,5,5,6,6,7,7,8,9,10,11,12,13,14,15};
+static inline int crx_next_k(int k, uint32_t code) {
+    int nk = k - (code < (uint32_t)((1 << k) >> 1)) + ((code >> k) > 2) + ((code >> k) > 5);
+    return nk < 15 ? nk : 15;
+}
+static inline long crx_error(crx_bits *b, int k) {
+    long code = crx_zeros(b);
+    if (code < 0) return -1;
+    if (code >= 41) return crx_get(b, 21);
+    if (k) return (long)crx_get(b, k) | (code << k);
+    return code;
+}
+static inline long crx_run(crx_bits *b, int *s, long length) {
+    if (!crx_get(b, 1)) return 0;
+    long n = 1;
+    while (crx_get(b, 1)) {
+        n += 1L << crx_J[*s];
+        if (n > length) { n = length; break; }
+        if (*s < 31) ++*s;
+        if (n == length) break;
+    }
+    if (n < length) {
+        if (crx_J[*s]) n += crx_get(b, crx_J[*s]);
+        if (*s > 0) --*s;
+        if (n > length) return -1;
+    }
+    return n;
+}
+static void crx_store(const int32_t *line, long width, int bits, uint16_t *out)
+{
+    int32_t lo = -(1 << (bits - 1)), hi = (1 << (bits - 1)) - 1, mid = 1 << (bits - 1);
+    for (long x = 0; x < width; x++) {
+        int32_t v = line[x];
+        out[2 * x] = (uint16_t)((v < lo ? lo : (v > hi ? hi : v)) + mid);
+    }
+}
+long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int bits, uint16_t *out, long stride)
+{
+    crx_bits b = {d, len, 0, 0, 0};
+    int32_t *bufs = (int32_t *)calloc((size_t)(2 * (width + 2)), sizeof(int32_t));
+    if (!bufs) return -1;
+    int32_t *cur = bufs, *prev = bufs + width + 2;
+    int s = 0, k = 0;
+    long i = 0, length = width, code, n;
+    cur[0] = 0;
+    while (length > 1) {
+        if (cur[i]) cur[i + 1] = cur[i];
+        else {
+            n = crx_run(&b, &s, length);
+            if (n < 0) goto bad;
+            if (n) {
+                length -= n;
+                while (n-- > 0) { cur[i + 1] = cur[i]; i++; }
+                if (length <= 0) break;
+            }
+            cur[i + 1] = 0;
+        }
+        if ((code = crx_error(&b, k)) < 0) goto bad;
+        cur[i + 1] += -(int32_t)(code & 1) ^ (int32_t)(code >> 1);
+        k = crx_next_k(k, (uint32_t)code); i++; length--;
+    }
+    if (length == 1) {
+        cur[i + 1] = cur[i];
+        if ((code = crx_error(&b, k)) < 0) goto bad;
+        cur[i + 1] += -(int32_t)(code & 1) ^ (int32_t)(code >> 1);
+        k = crx_next_k(k, (uint32_t)code); i++;
+    }
+    cur[i + 1] = cur[i] + 1;
+    crx_store(cur + 1, width, bits, out);
+    for (long line = 1; line < height; line++) {
+        int32_t *t = prev; prev = cur; cur = t;
+        cur[0] = prev[1];
+        long j = 0; i = 0; length = width;
+        while (length > 0) {
+            int median = 1;
+            if (length > 1 && cur[i] == prev[j + 1] && cur[i] == prev[j + 2]) {
+                n = crx_run(&b, &s, length);
+                if (n < 0) goto bad;
+                if (n) {
+                    length -= n; j += n;
+                    while (n-- > 0) { cur[i + 1] = cur[i]; i++; }
+                    if (length <= 0) break;
+                }
+                median = 0;
+            }
+            int32_t a = cur[i], bb = prev[j + 1], value;
+            if (median) {
+                int32_t c = prev[j], delta = bb - c;
+                int neg = delta < 0;
+                int pick = (((c < a) ^ neg) << 1) + ((a < bb) ^ neg);
+                value = pick < 2 ? delta + a : (pick == 2 ? a : bb);
+            } else value = bb;
+            if ((code = crx_error(&b, k)) < 0) goto bad;
+            cur[i + 1] = value + (-(int32_t)(code & 1) ^ (int32_t)(code >> 1));
+            if (length > 1) {
+                int32_t nd = (prev[j + 2] - prev[j + 1]) * 2;
+                code = (code + (nd < 0 ? -nd : nd)) >> 1;
+                j++;
+            }
+            k = crx_next_k(k, (uint32_t)code); i++; length--;
+        }
+        cur[i + 1] = cur[i] + 1;
+        crx_store(cur + 1, width, bits, out + line * stride);
+    }
+    free(bufs);
+    return 0;
+bad:
+    free(bufs);
+    return -1;
 }
 """
 
@@ -893,8 +1094,12 @@ def _load():
     fuji = lib.shootflow_fuji_strip
     fuji.restype = ctypes.c_long
     fuji.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_int, ctypes.c_long,
-                     ctypes.c_int, ctypes.c_int, ctypes.c_long, ctypes.c_void_p]
+                     ctypes.c_int, ctypes.c_int, ctypes.c_long, ctypes.c_void_p, ctypes.c_char_p]
     _STATE["fuji_strip"] = fuji
+    crx = lib.shootflow_crx_band
+    crx.restype = ctypes.c_long
+    crx.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_void_p, ctypes.c_long]
+    _STATE["crx"] = crx
     return fn
 
 
@@ -1187,3 +1392,9 @@ def fuji_strip_function():
     """``shootflow_fuji_strip`` (one strip of a compressed RAF, ``shootflow.raf_compressed``), or None."""
 
     return _STATE.get("fuji_strip") if reader() is not None else None
+
+
+def crx_function():
+    """``shootflow_crx_band`` (one band of a Canon CR3, ``shootflow.cr3``), or None."""
+
+    return _STATE.get("crx") if reader() is not None else None

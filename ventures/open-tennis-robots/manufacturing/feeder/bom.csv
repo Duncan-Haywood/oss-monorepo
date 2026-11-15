@@ -174,6 +174,9 @@ TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers
 "24 V on-delay timer relay module, set 0.5 s",cots,1,"24 V on-delay timer relay module, set 0.5 s",closes the contactor's coil after the precharge (manifest inrush line)
 PC817 optocoupler + 10k 0.5 W resistor,cots,1,PC817 optocoupler + 10k 0.5 W resistor,"contactor coil sense: LED across the coil through the 10k, transistor from ESP32 GPIO 15 to GND (cad/README.md ""Stepper ENABLE after the contactor"")"
 4.7k resistor,cots,1,4.7k resistor,"stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"
+Current-sense resistor 0.05 ohm 3 W 1% (2512 or through-hole),cots,1,Current-sense resistor 0.05 ohm 3 W 1% (2512 or through-hole),lift jam cutoff: between the lift MOSFET module's source and ground (manifest lift jam line)
+LM393 dual comparator (DIP-8 or SOIC on an adapter) + 100 nF decoupling,cots,1,LM393 dual comparator (DIP-8 or SOIC on an adapter) + 100 nF decoupling,"lift jam cutoff: shunt to its - input through 10k with 100 nF to ground, open-collector output to ESP32 GPIO 0 (hardware/electronics.md ""Lift jam cutoff"")"
+"Resistors 1%: 100k, 3.9k, two 10k; capacitor 100 nF",cots,1,"Resistors 1%: 100k, 3.9k, two 10k; capacitor 100 nF","lift jam cutoff: reference divider from 3.3 V, input filter, output pull-up (most dev boards already pull GPIO 0 up)"
 "Schottky diode, 45 V 20 A or more (TO-220 class)",cots,1,"Schottky diode, 45 V 20 A or more (TO-220 class)","regen return across the contactor and precharge relay: anode on the switched bus, cathode between the main fuse and the contactor (manifest regen line)"
 "Wireless e-stop relay remote, latching",cots,1,"Wireless e-stop relay remote, latching",second cut-off
 5 V 5 A buck converter,cots,1,5 V 5 A buck converter,Pi supply
