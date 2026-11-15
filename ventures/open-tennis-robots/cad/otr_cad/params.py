@@ -1200,7 +1200,7 @@ class Feeder:
     # between the gearmotor's shaft and the drive pulley lets the rotor run on while the belt stops: the cap then sees
     # the hub's slip torque plus the belt's own 1.4 kg, and the motor's current while it slides is over the cutoff's
     # trip, so the cutoff still cuts and latches. Friction figures are assumptions; the slip torque is set on the bench.
-    lift_slip_nm: float = 1.0         # slip torque the hub is set to (bench: a belt strip round the pulley, 79 N on a scale;
+    lift_slip_nm: float = 0.9         # slip torque the hub is set to (bench: a belt strip round the pulley, 79 N on a scale;
                                       # 0.9 N m, 71 N, until the duty followed the battery, 2026-11-15)
     lift_slip_tol: float = 0.2        # +- on it: setting, wear, damp, temperature (assumption)
     lift_slip_kinetic: float = 0.8    # sliding over sticking friction of the facing on aluminium (assumption)
