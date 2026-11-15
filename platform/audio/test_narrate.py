@@ -1,5 +1,6 @@
 """Tests for the narration engine's text, timing and cache logic. No model needed:
 the voice is stood in for by audio written into the cache first."""
+import os
 import shutil
 import subprocess
 import sys
@@ -132,7 +133,7 @@ class Voicing(unittest.TestCase):
         models = self.dir / "a" / "b"
 
         def fake(url, dest):
-            self.assertTrue(str(dest).endswith(".part"))
+            self.assertTrue(str(dest).endswith(f".{os.getpid()}.part"))
             Path(dest).write_bytes(b"x")
 
         with mock.patch.object(N.urllib.request, "urlretrieve", side_effect=fake) as get:
@@ -140,7 +141,7 @@ class Voicing(unittest.TestCase):
             self.assertEqual(get.call_count, len(N.MODEL_FILES))
             for name in N.MODEL_FILES:
                 self.assertTrue((models / name).exists())
-                self.assertFalse((models / f"{name}.part").exists())
+                self.assertEqual(list(models.glob(f"{name}*.part")), [])
             N.ensure_models(models)  # present files are not fetched again
             self.assertEqual(get.call_count, len(N.MODEL_FILES))
 

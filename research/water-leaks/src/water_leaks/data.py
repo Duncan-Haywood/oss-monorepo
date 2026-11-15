@@ -54,22 +54,27 @@ def cache_dir() -> Path:
 
 
 def fetch(name: str) -> Path:
-    """Path to a checked local copy of one BattLeDIM file, downloading it if needed."""
+    """Path to a checked local copy of one BattLeDIM file, downloading it if needed.
+
+    Each process downloads to its own `<name>.<pid>.part` and renames it into place, so two
+    jobs fetching the same file at once no longer write into one shared `.part` (run-record
+    doc_friction on this file, 2026-11-15); the last complete, hash-checked copy wins."""
     p = cache_dir() / name
     for url in [RECORD] + MIRRORS:
         if p.exists():
             break
-        tmp = p.with_suffix(p.suffix + ".part")
+        tmp = p.with_name(f"{p.name}.{os.getpid()}.part")
         try:
             with urllib.request.urlopen(url.format(name=name), timeout=300) as r, open(tmp, "wb") as f:
                 while chunk := r.read(1 << 20):
                     f.write(chunk)
         except OSError:
+            tmp.unlink(missing_ok=True)
             continue
         if name in SHA256 and hashlib.sha256(tmp.read_bytes()).hexdigest() != SHA256[name]:
             tmp.unlink()
             continue
-        tmp.rename(p)
+        os.replace(tmp, p)
     if not p.exists():
         raise OSError(f"{name}: no source reachable (Zenodo record 4017659 or the mirrors in data.py)")
     h = hashlib.sha256(p.read_bytes()).hexdigest()

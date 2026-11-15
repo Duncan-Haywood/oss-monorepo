@@ -90,7 +90,20 @@ class RemoteZipTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             remote_zip.fetch(self.url, info, self.tmp.name, log=lambda s: None)
         self.assertFalse(os.path.exists(os.path.join(self.tmp.name, "set/a/speaker.csv")))
-        self.assertFalse(os.path.exists(os.path.join(self.tmp.name, "set/a/speaker.csv.part")))
+        self.assertEqual([f for f in os.listdir(os.path.join(self.tmp.name, "set/a")) if f.endswith(".part")], [])
+
+    def test_temp_file_is_per_process(self):
+        # Two jobs fetching one member must not share a temp path (doc_friction 2026-11-15).
+        info = remote_zip.members(self.url, "speaker")[0]
+        dst = os.path.join(self.tmp.name, info.filename)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        with open(dst + ".part", "wb") as f:  # another process's half-written download
+            f.write(b"half")
+        remote_zip.fetch(self.url, info, self.tmp.name, log=lambda s: None)
+        with open(dst, "rb") as f:
+            self.assertEqual(f.read(), FILES[info.filename][0])
+        with open(dst + ".part", "rb") as f:
+            self.assertEqual(f.read(), b"half")  # untouched: not ours to rename
 
     def test_name_escaping_outdir_is_refused(self):
         info = remote_zip.members(self.url, "speaker")[0]
