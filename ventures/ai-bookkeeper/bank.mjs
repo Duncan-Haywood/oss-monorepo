@@ -1132,8 +1132,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // The card network's merchant category: a four-digit code (Tinkoff's MCC, purchasing-card files) or its name.
   // The City of Toronto's PCard report calls them "Merchant Type" (the code) and "Merchant Type Description".
   // A code column wins over a name column; a "merchant category" column is read only when it is not the description.
+  // Oklahoma's county P-Card report spells it "MCC_DESCRPTION" in most months (eval/oklahoma-pcard.mjs).
   const mccCodeCol = hdr.findIndex((x, ix) => ix !== columns.desc && /^(mch\.)?(mcc|mcc code|mcc_code|mcc-code|merchant category code|merchant category code \(mcc\)|merchant category number|sic\/mcc code|mcc kod|код mcc|merchant type)$/.test(x));
-  const mccNameCol = mccCodeCol !== -1 ? -1 : hdr.findIndex((x, ix) => ix !== columns.desc && /^(mch\.)?(mcc description|merchant category|merchant category name|merchant category description|merchant type description|mcc name)$/.test(x));
+  const mccNameCol = mccCodeCol !== -1 ? -1 : hdr.findIndex((x, ix) => ix !== columns.desc && /^(mch\.)?(mcc description|mcc descrption|mcc desc|merchant category|merchant category name|merchant category description|merchant type description|mcc name)$/.test(x));
   const mccCol = mccCodeCol !== -1 ? mccCodeCol : mccNameCol;
   const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
   // Which card on a business account made the charge: Chase's business card writes the last four

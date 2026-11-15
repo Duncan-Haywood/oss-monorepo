@@ -293,6 +293,12 @@ export const BUILT_IN = [
   // Gap probe 27 (2026-11-05, eval/probe27.mjs): locksmiths, piano tuners, chimney sweeps, mobile welders, home stagers.
   // Miller Electric (welders) hit the utilities rule through "electric", so it comes before it. Fourteen rows had no suggestion.
   ["6100", "out", /miller electric|rotobrush|national chimney supply|rooms to go|cort furniture/],
+  // Oklahoma's state purchasing cards (eval/oklahoma-pcard.mjs, fiscal 2017 read, 2018 held out): electrical supply
+  // houses ("CBI WHOLESALE ELECTRIC", "ELLIOTT ELECTRIC", "WHITE ELECTRICAL SUPPLY") and electricians hit the utilities
+  // rule through "electric"; Hertz's equipment-rental arm hit car hire.
+  ["6100", "out", /wholesale electric|electric(al)? (supply|supplies|su|wholesale|motors?|distributors?)\b|elliott electric/],
+  ["6090", "out", /\belectrical cont|\belectrical contracting|\belectrical services\b/],
+  ["6080", "out", /hertz equip/],
   ["6060", "out", /tunelab|roomsketcher/],
   ["4000", "in", /lockout service|piano tuning|tuning service|regulation fee|weld repair|staging fee/],
   ["6170", "out", /hearth,? patio|american welding society|staging association/],
@@ -607,7 +613,7 @@ export const BUILT_IN = [
   ["6140", "out", /\bcp ?energy\b|\bcenterpoint energy\b|\bxcel energy\b|\bconsumers energy\b|\bdte energy\b|\bentergy\b/],
   ["6030", "out", /insurance|\bins (billing|premium)|hartford|cigna|anthem|lemonade|prudential|blue cross|united healthcare|hiscox|next insurance|thimble|state farm|geico|liberty mutual|progressive/],
   ["6050", "out", /attorney|law office|cpa\b|accountant|bookkeep|tax prep|legalzoom|registered agent/],
-  ["6060", "out", /adobe|microsoft|google ?\*? ?(workspace|gsuite|domains)|gsuite|uptimerobot|nodeping|migadu|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|openrouter|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|google ?\*? ?cloud|linode|vultr|hetzner|backblaze|rackspace|fly\.io|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
+  ["6060", "out", /adobe|microsoft|google ?\*? ?(workspace|gsuite|domains)|gsuite|uptimerobot|nodeping|migadu|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|openrouter|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero(?!x)|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|google ?\*? ?cloud|linode|vultr|hetzner|backblaze|rackspace|fly\.io|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
   // Resale-app payouts are sales; thrift and consignment stores are stock for resale (1450). Both go to review, never post themselves.
   ["4000", "in", /\b(poshmark|mercari|depop|vinted|thredup|offerup|grailed|reverb)\b/],
   ["1450", "out", /goodwill|salvation army|plato'?s closet|value village|buffalo exchange|once upon a child|savers thrift|thrift (store|shop)/],
@@ -615,19 +621,20 @@ export const BUILT_IN = [
   ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|property management|miete\b|loyer\b|alquiler|storage unit|public storage/],
   ["6100", "out", /home depot|lowes|ace hardware|menards|harbor freight|uline|grainger/],
   ["6110", "out", /business licen[cs]e|secretary of|annual report|franchise tax|permit fee/],
-  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta ?air|united ?air|american ?air|southwest(?!\s+grill)|southwes\s{2,}\d|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
+  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta ?air|united ?air|american ?air|southwest(?=\s*(\d|\*|air|\.com))|^\s*southwest\s*$|southwes\s{2,}\d|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
   // Real Mint exports (2026-11-10, eval/mint-labelled.mjs, "tune" files only): restaurant words and chains on bank
   // lines, Seamless's glued descriptor ("SEAMLSSTHEMILL"), and the airline rule no longer fires on "Moe's Southwest Grill".
   ["6130", "out", /\bseamle?ss|\bkitchen\b(?!\s*(supply|store|aid|cabinet|collection))|\bgrille\b|\bpub\b|\btavern\b|\bcantina\b|\btrattoria\b|\bpizzeria\b|\bcreperie\b|\bcrepes?\b|\bbarb[ae]c?(ue|que)\b|\bsoup\b|\bsandwich|\bqdoba\b|\bsweetgreen\b|\bcava mezze\b|\bbrioche doree\b|\beurest\b|\bmeatball shop\b|\bburgers?\b(?!\s*king)/],
-  ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
-  ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
+  ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino['’]?s\b|domino pizza|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
+  ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum(?! paint)|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|\bebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
   // Written after scoring two real Apple Card exports (eval/applecard.mjs, 109 purchases, Apple's own category labels; tuned on that data, README Next): a grocer's fuel pumps are fuel, not meals, so this sits ahead of the H-E-B meals rule.
   ["6160", "out", /\bgas\/car ?wash|\bgas (station|mart)\b|\bcar ?wash\b|\bgarage\b|passport p(ar)?k(in)?g|\bpkg\d/],
-  ["6120", "out", /\bcruise\b|royal caribbean|carnival cruise|norwegian cruise/],
+  ["6120", "out", /\bcruise\b(?! avia)|royal caribbean|carnival cruise|norwegian cruise/],
   ["6060", "out", /youtube ?(premium|music|tv)/],
   ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|sunoco|valero|\barco\b|phillips 66|quiktrip|speedway|casey's|firestone|safelite|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
   ["6170", "out", /udemy|coursera|chegg|datacamp|skillshare|linkedin learning|masterclass|pearson|mcgraw|tuition|conference|membership dues|association dues|chamber of commerce/],
+  ["6070", "out", /fedex ?office|fedex kinko/],
   ["6180", "out", /fedex|\bups\b|dhl|pirate ship|shipstation|shippo/],
   // From a US nonprofit's own books (eval/hackclub-ledger.mjs), rules written looking at its train fifth only.
   ["6120", "out", /^uber(\s+(technologies|bv))?$|clipper card|\bsfmta\b|\bmuni\b|\bbart\b/],
