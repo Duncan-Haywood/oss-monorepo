@@ -39,7 +39,7 @@ WORK = np.float32
 _PAD = 8  # covers the reach of every step: 2 (green) + window radius + 2 (red/blue) + 1 (median)
 
 
-def _phase(pat) -> tuple[int, int, int, int]:
+def _phase(pat) -> tuple[int, ...]:
     if len(pat) != 4:
         raise ValueError("the Bayer demosaic needs a 2x2 pattern")
     p = tuple(int(v) for v in pat)
@@ -55,8 +55,13 @@ def _box(a: np.ndarray, r: int) -> np.ndarray:
 
     if r == 0:
         return a
-    rows = sum(_sh(a, 0, dx) for dx in range(-r, r + 1))
-    return sum(_sh(rows, dy, 0) for dy in range(-r, r + 1))
+    rows = a.copy()
+    for dx in range(1, r + 1):
+        rows += _sh(a, 0, -dx) + _sh(a, 0, dx)
+    out = rows.copy()
+    for dy in range(1, r + 1):
+        out += _sh(rows, -dy, 0) + _sh(rows, dy, 0)
+    return out
 
 
 def _sh(a: np.ndarray, dy: int, dx: int) -> np.ndarray:
