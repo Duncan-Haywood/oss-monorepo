@@ -6,7 +6,7 @@ import { parseStaff, parseShifts, buildRoster } from "../calc.mjs";
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const [P, S, week] = [2, 3, 4].map((i) => Number(process.argv[i]));
 const cfg = process.argv[5] || "default", runSeed = Number(process.argv[6] || 1);
-const configs = { default: {}, noclique: { cliqueFloor: false } };
+const configs = { default: {}, noclique: { cliqueFloor: false }, unguided: { coverGuide: false }, guide90: { coverGuideProb: 0.9 } };
 const extra = configs[cfg] ?? JSON.parse(cfg);
 let seed = Number(process.env.SEED || 20261022) + P * 100 + S;
 const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
