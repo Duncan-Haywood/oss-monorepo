@@ -276,8 +276,39 @@ crossing matches with 6 million moves, not 0), and odd leagues at 6 times are no
 sitting out the middle round of a group breaks its order). The group search costs up to about 3 s a build at
 24 teams, and nothing at 4 or 5 times.
 
-Not done: groups for odd leagues; a round robin built from a design rather than searched (an affine plane on 16
-teams gives K4 groups every night); 18 to 24 teams at 6 times.
+### Designed round robins for two sessions a night (2026-11-15, latest)
+
+The search above stops at 2 crossing matches for 18 to 24 teams at 6 times, and 12 teams were wait-free on
+only 4 of 6 seeds. Those nights need closed groups, and a closed-group round robin can be written down instead
+of searched for (`designedRounds`, `designedNights` in `nights.mjs`). `waitFreeNights` tries it first whenever a
+night has two or more sessions; it is used only if every night packs wait-free, and otherwise the search runs as
+before. Two designs:
+
+- **Teams a multiple of 12.** Split the league into halves A and B of m = n / 2. The first rounds play the circle
+  method inside both halves at once, three at a time: a night is two groups of m, one per session. The m cross
+  rounds pair team a of A with team a + k (mod m) of B, and the shifts k, k + m/3 and k + 2m/3 make one night:
+  m/3 groups of six, three teams of A each playing the same three of B (a K3,3). The two rounds left over from
+  the halves are a short two-game last night.
+- **Teams a power of two.** Round r pairs team t with team t XOR r. A night of rounds a, b and a XOR b is
+  groups of four that play everyone in their group (K4s, the parallel classes of an affine plane on 16 teams);
+  any other three rounds give groups of eight. The rounds are grouped to hold as many K4 nights as possible.
+
+Measured (`node eval/three-game-nights.mjs`, `eval/three-game-nights.txt`, seeds 1 to 3, every season valid):
+24 teams on 6 courts x 6 times 254 waits to 0, 12 teams on 3 courts x 6 times 22 to 0 (6 of 6 seeds), and
+the 16-team build 1.2 s to 0.4 s (same 0 waits, no annealing). Part 4 adds 28 to 48 teams at 6 times: the
+designed sizes (32, 36, 48) reach 0; 28 teams has no design and keeps its waits. Settings with no waits 28 to
+30 of 39; total waits 743 to 467.
+
+**8 teams on 2 courts x 6 times cannot be wait-free** (part 3), though the counting bound allows it. Every
+slot is booked, so the four teams in the first time slot fill slots 1 to 3 and the other four fill 4 to 6: a
+wait-free night is two groups of four playing everyone in their group. The season has two three-game nights,
+and no two of the 35 ways to split 8 teams into two fours share no pair (any four of one split puts two teams
+together in the other). So one night always has a wait; the 30 waits in part 1 are that night.
+
+Not done: groups for odd leagues; designs for 14, 18, 20 and 28 teams (20 teams on 5 x 6 is also fully booked,
+so each night must be two closed groups of ten; the halves design needs K10,10 in three such nights plus a
+matching, and annealing from it stops at 2 crossing matches); three sessions a night (9 times) by design; the
+full-booking argument above as part of the courts hint.
 
 ## Even carry-over (2026-11-11)
 

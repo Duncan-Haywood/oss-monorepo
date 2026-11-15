@@ -5,8 +5,13 @@
 // bound (waitFreePossible with an odd league's g-1-game teams and even rows) allows, seeds 1 to 3.
 // Part 2, proof by exhaustion: every night of 7 teams (three near-perfect matchings with three
 // different byes) on 2 courts x 5 times, laid out by nightRowsExact with no node cap.
+// Part 3 (2026-11-15, latest): 8 teams on 2 courts x 6 times. Every slot is booked, so row 1's four
+// teams all start there and fill rows 1-3, and the other four fill rows 4-6: a wait-free night is
+// two groups of four that each play all three of their group (two K4s). Checked: no two of the 35
+// splits of 8 teams into two fours are edge-disjoint, so two such nights cannot both happen.
+// Part 4: the designed round robin (designedRounds) at 28 to 48 teams, 3 games, 6 times.
 import { buildSchedule, validateSchedule, nightWaits, parseDate } from "../calc.mjs";
-import { waitFreePossible, nightRowsExact, sessionBlocks } from "../nights.mjs";
+import { waitFreePossible, nightRowsExact, sessionBlocks, designedRounds } from "../nights.mjs";
 
 const g = 3;
 console.log("Part 1. teams times courts | least courts for a wait-free night: old bound / new bound | blocks | waits off (3 seeds) | waits on | ms on (avg) | valid");
@@ -47,3 +52,36 @@ for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) {
   }
 }
 console.log(`\nPart 2. 7 teams, 3 games, 2 courts x 5 times: ${nights} distinct nights (unordered), ${packed} can be laid out with every team's games back to back. Old bound: ${waitFreePossible(4, 3, 2, 5) ? "possible" : "impossible"}; new bound: ${waitFreePossible(4, 3, 2, 5, 3) ? "possible" : "impossible"}.`);
+
+// Part 3
+{
+  const splits = [];
+  const rest = [1, 2, 3, 4, 5, 6, 7];
+  for (let a = 0; a < 7; a++) for (let b = a + 1; b < 7; b++) for (let c = b + 1; c < 7; c++) {
+    const g1 = [0, rest[a], rest[b], rest[c]];
+    const g2 = rest.filter((x) => !g1.includes(x));
+    const pairs = new Set();
+    for (const gr of [g1, g2]) for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) pairs.add(gr[i] * 10 + gr[j]);
+    splits.push(pairs);
+  }
+  let disjoint = 0;
+  for (let i = 0; i < splits.length; i++) for (let j = i + 1; j < splits.length; j++) if ([...splits[i]].every((p) => !splits[j].has(p))) disjoint++;
+  console.log(`\nPart 3. 8 teams, 3 games, 2 courts x 6 times (every slot booked): ${splits.length} splits into two groups of four, ${disjoint} edge-disjoint pairs of splits, so at most one of the season's two three-game nights can be wait-free.`);
+}
+
+// Part 4
+console.log("\nPart 4. teams times courts | blocks | designed | waits off (3 seeds) | waits on | ms on (avg) | valid");
+for (const n of [28, 32, 36, 48]) {
+  const T = 6, C = Math.ceil((n / 2) * g / T);
+  const spec = (seed, waitFree) => ({ teams: Array.from({ length: n }, (_, i) => `T${i + 1}`), start: parseDate("2026-01-06"), weekdays: [6], courts: Array.from({ length: C }, (_, i) => `C${i + 1}`), times: Array.from({ length: T }, (_, i) => `${String(9 + i).padStart(2, "0")}:00`), gamesPerNight: g, seed, waitFree });
+  let off = 0, on = 0, ms = 0, ok = true;
+  for (const seed of [1, 2, 3]) {
+    const a = buildSchedule(spec(seed, false));
+    const t0 = performance.now();
+    const b = buildSchedule(spec(seed, true));
+    ms += performance.now() - t0;
+    ok = ok && validateSchedule(a).ok && validateSchedule(b).ok;
+    off += nightWaits(a).idle; on += nightWaits(b).idle;
+  }
+  console.log(`${n} ${T} ${C} | ${(sessionBlocks(n, g, C, T) || ["-"]).join("+")} | ${designedRounds(n, g) ? "yes" : "no"} | ${off} | ${on} | ${Math.round(ms / 3)} | ${ok}`);
+}

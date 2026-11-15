@@ -6,7 +6,7 @@ import {
   teamSchedule, restReport, applyRainouts, applyLateTeams, seasonGrid, scheduleText, parseDate,
 } from "./calc.mjs";
 import { lowCarryOverRounds } from "./carryover.mjs";
-import { nightLayout, nightComponents, waitFreePossible, waitFreeNights, planWaitCost, nightRowsExact, rowsWaitFree, sessionBlocks, sessionNights } from "./nights.mjs";
+import { nightLayout, nightComponents, waitFreePossible, waitFreeNights, planWaitCost, nightRowsExact, rowsWaitFree, sessionBlocks, sessionNights, designedRounds, designedNights } from "./nights.mjs";
 
 const names = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
 const times = (k) => Array.from({ length: k }, (_, i) => `${18 + i}:00`);
@@ -229,4 +229,39 @@ test("12 teams, 2 games on 3 courts x 4 times is wait-free (the last two-game ga
   const s = build(12, 3, 4, 2);
   assert.ok(validateSchedule(s).ok);
   assert.equal(nightWaits(s).idle, 0);
+});
+
+test("designedRounds: a one-factorisation whose nights of three split into small closed groups", () => {
+  for (const n of [8, 12, 16, 24, 32, 36, 48]) {
+    const d = designedRounds(n, 3, 2);
+    assert.equal(d.length, n - 1, `${n}: n - 1 rounds`);
+    const seen = new Set();
+    for (const r of d) {
+      const inRound = new Set(r.flat());
+      assert.equal(inRound.size, n, `${n}: every team once a round`);
+      for (const [a, b] of r) { const k = Math.min(a, b) * 100 + Math.max(a, b); assert.ok(!seen.has(k), `${n}: a pair meets once`); seen.add(k); }
+    }
+    assert.equal(seen.size, (n * (n - 1)) / 2);
+  }
+  assert.equal(designedRounds(20, 3), null); // no design known: the search's job
+  assert.equal(designedRounds(12, 2), null);
+  // 16 teams: five nights, each four groups of four (an affine plane's parallel classes)
+  const d = designedRounds(16, 3, 1);
+  for (let i = 0; i < 15; i += 3) {
+    const adj = new Map();
+    for (const r of d.slice(i, i + 3)) for (const [a, b] of r) { (adj.get(a) || adj.set(a, new Set()).get(a)).add(b); (adj.get(b) || adj.set(b, new Set()).get(b)).add(a); }
+    for (const [t, ns] of adj) for (const u of ns) for (const v of ns) if (u !== v) assert.ok(adj.get(u).has(v) || u === t, "a night's opponents of a team all meet each other: K4 groups");
+  }
+});
+
+test("24 teams, 3 games on 6 courts x 6 times: the designed round robin is wait-free where the search was not", () => {
+  assert.ok(designedNights(24, 3, 6, 6, 1));
+  assert.equal(designedNights(24, 3, 4, 9, 1), null); // three sessions: no design, falls back to the search
+  const s = build(24, 6, 6, 3);
+  assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
+  perNight(s);
+  assert.equal(nightWaits(s).idle, 0);
+  for (let t = 0; t < 24; t++) assert.equal(teamSchedule(s, t).filter((r) => !r.bye).length, 23);
+  // every seed, not only seed 1
+  for (const seed of [2, 3]) assert.equal(nightWaits(build(24, 6, 6, 3, { seed })).idle, 0);
 });
