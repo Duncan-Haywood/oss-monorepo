@@ -231,7 +231,7 @@ test("a slash date with a first part above 12 is day-first even without dots", (
 });
 
 test("a lone amount line above the header is not taken as the header", () => {
-  const n = normalizeRows(parseCsv("Total amount,180\n" + HEAD + "2026-06-01,1,Order,Cleared,Logo,amy,100,20,80\n"));
+  const n = normalizeRows(parseCsv("Amount,180\n" + HEAD + "2026-06-01,1,Order,Cleared,Logo,amy,100,20,80\n"));
   assert.equal(n.error, undefined);
   assert.equal(n.rows.length, 1);
   assert.equal(n.rows[0].net, 80);
