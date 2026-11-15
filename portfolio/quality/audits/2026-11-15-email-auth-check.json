@@ -238,7 +238,8 @@
    "what": "No RFC 7489 s6.6.3 organizational-domain fallback: a subdomain with no _dmarc record of its own is reported DANGER 'No DMARC record found ... completely spoofable' and the CLI exits 1, although the parent's policy applies. Live: mail.zendesk.com (zendesk.com is p=reject).",
    "where": "ventures/email-auth-check/lookup.mjs:218",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260"
   },
   {
    "severity": "medium",
@@ -252,7 +253,8 @@
    "what": "With two DMARC records the report flags the duplicate but still says 'DMARC policy is p=reject' from records[0]; RFC 7489 s6.6.3 says no policy applies.",
    "where": "ventures/email-auth-check/analyze.mjs:340",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260"
   },
   {
    "severity": "medium",
@@ -287,7 +289,8 @@
    "what": "BIMI-absent finding says enforcement means BIMI 'would be honored once published'; Gmail shows BIMI logos only with a VMC or CMC.",
    "where": "ventures/email-auth-check/analyze.mjs:678",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260"
   },
   {
    "severity": "low",
@@ -312,7 +315,8 @@
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260"
  ],
  "verdict": "A well-structured, private, zero-dependency checker whose headline feature works: its recursive RFC 7208 lookup count matches an independent counter on 7 real domains, the 10/11 boundary, qualifiers and void-lookup limit are right, 124/124 tests pass and the served page loads with its disclaimer. It does not meet the bar. Its PASS/DANGER verdicts are not what a receiver computes: an include: to a domain with no or broken SPF (a real PermError) passes clean; a subdomain covered by its parent's p=reject (live: mail.zendesk.com) gets a DANGER 'no DMARC' and a failing exit code; redirect= is counted beside all; two DMARC records still show a policy in force; and any non-empty p= is a 'valid' DKIM key. Four of seven seeded mutants survive, including the 10-lookup boundary itself. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished (completeness 3), not at the bar."
 }
