@@ -41,7 +41,7 @@ The lookup that respects the list's order is one line:
 col[k] = names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1;
 ```
 
-We applied it to all 21 files and ran each product's full test suite, about 3,000 tests across 21 products. All passed, so no existing test had relied on column position. Two new tests reproduce the bugs and fail on the old code: one in the on-call analyzer and one in MRR Pulse.
+We applied it to all 21 files and ran each product's full test suite, about 5,000 tests across 21 products. All passed, so no existing test had relied on column position. Two new tests reproduce the bugs and fail on the old code: one in the on-call analyzer and one in MRR Pulse.
 
 One fix is not enough, because the idiom is easy to write again. `platform/ci/check_alias_priority.py` now fails on any `x.findIndex((h) => names.includes(h))` in product code. It picks up checks like this automatically and runs them on every pull request. If a lookup really does mean "any of these, wherever it is", the author marks that line `alias-order: any`.
 
