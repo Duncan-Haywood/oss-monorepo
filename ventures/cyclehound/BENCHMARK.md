@@ -120,6 +120,81 @@ loaded without error: the modules only use the names they import inside
 functions. They are latent, not bugs; they would break if someone moved a
 use of an imported value to the top level of a module.
 
+## Unused exports: against ts-unused-exports 11.0.1
+
+`cyclehound --unused-exports` (added 2026-11-15) lists exports that no file
+in the graph imports. The reference is
+[ts-unused-exports](https://github.com/pzavolinsky/ts-unused-exports) 11.0.1
+on TypeScript 5.6.3, run with `allowJs` over the same files. Both tools ran
+on this repository's 11,736 `.mjs` files under `ventures/` (11,800 files
+read once cyclehound followed imports into other extensions), Node 22.23.4,
+4-core container, 2026-11-15. cyclehound ran with `--entries`, because
+ts-unused-exports reports the exports of files nothing imports too.
+
+| tool | wall time | peak memory | findings |
+| --- | --- | --- | --- |
+| ts-unused-exports 11.0.1 | 10.7 to 11.4 s (3 runs) | 368 to 390 MB | 6,222 |
+| cyclehound `--unused-exports --entries --ext mjs` | 0.31 to 0.33 s warm, 2.96 s on a cold disk cache (3 runs) | 29 to 30 MB | 5,470 |
+
+About 34 times faster in a thirteenth of the memory. The findings agree on
+5,419 (file, name) pairs, a Jaccard agreement of 0.864
+(`tests/bench/compare_unused.py`). Every difference was classified, by a
+script for the bulk and by reading the source for the rest:
+
+- **803 only ts-unused-exports reported.**
+  - 527 are in modules a file loads whole with a dynamic import
+    (`const calc = await import("./calc.mjs")`, then `calc[name]`).
+    cyclehound counts a whole-module import as taking every export, since it
+    cannot see which members are read; ts-unused-exports reports them. In
+    this repository most are page tests that check *every* name an inline
+    script imports, so counting them as used is right here; in other code
+    it can hide a real unused export. A deliberate, conservative difference.
+  - 252 are taken by a destructured dynamic import inside a function
+    (`const { replay } = await import("./x.mjs")` in a test). cyclehound
+    reads the destructured keys as names taken. ts-unused-exports reported
+    these as unused; a two-file case reproduces it (an `await import()`
+    destructured inside an async function is not counted). These are
+    false positives in its report.
+  - 24 others: 21 are whole-module dynamic imports in other shapes
+    (`Promise.all([import("./a.mjs"), ...])`, `(await import("./a.mjs")).f()`),
+    two are this tool's own test fixture (a namespace import), and one is a
+    spelling difference (ts-unused-exports names a rest element `...restC`,
+    cyclehound `restC`; both report it).
+- **51 only cyclehound reported.**
+  - 36 are a second or later name in one declaration
+    (`export const A = "1450", B = "5000";`). ts-unused-exports does not
+    report `B` when only `A` is imported; the same two-file case
+    reproduces it. cyclehound is right on these: `B` is exported and nobody
+    imports it.
+  - 1 is a name inside an exported destructuring pattern, the same gap.
+  - 10 are in `shift-roster-builder/hub.mjs`, which reaches its importers
+    only through `export * from "./hub.mjs"` in `server.mjs`. The only
+    importer of `server.mjs` takes four names, so the other ten exports of
+    `hub.mjs` are unused; ts-unused-exports does not report them.
+  - 4 are this tool's own test fixture.
+
+So on this repository nearly every disagreement is either a choice
+(whole-module imports count as taking everything) or a case where the
+source shows cyclehound's answer is the right one.
+
+Reproduce:
+
+```sh
+npm install --prefix /tmp/tue ts-unused-exports@11.0.1 typescript@5.6.3
+cat > /tmp/tue/tsconfig.json <<'JSON'
+{"compilerOptions": {"allowJs": true, "noEmit": true, "module": "esnext",
+  "moduleResolution": "bundler", "target": "es2022"},
+ "include": ["/ABSOLUTE/PATH/oss-monorepo/ventures/**/*.mjs"],
+ "exclude": ["/ABSOLUTE/PATH/oss-monorepo/ventures/**/node_modules"]}
+JSON
+python3 ventures/cyclehound/tests/bench/measure.py /tmp/tue.txt node /tmp/tue/node_modules/.bin/ts-unused-exports /tmp/tue/tsconfig.json --showLineNumber
+python3 ventures/cyclehound/tests/bench/measure.py /tmp/ch.txt ventures/cyclehound/target/release/cyclehound --unused-exports --entries --ext mjs ventures
+python3 ventures/cyclehound/tests/bench/compare_unused.py /tmp/tue.txt /tmp/ch.txt ventures
+```
+
+knip also reports unused exports, but it needs a per-project entry
+configuration to run on a tree like this one, so it was not measured.
+
 ## Reproducing
 
 ```sh
