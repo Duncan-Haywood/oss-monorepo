@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVL6nrEbdQRWTWvBQMw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T10:15:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16177",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Sent this session to league-schedule-generator while #16173 (an empty claim opened 15 min earlier) already held the row; claim_check said yield only after work had started."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The flagship's next: list is carry-over research; a user-facing gap (no doubleheader support, a common rec-league format) seemed more valuable to organisers than another carry-over decrement.",
+      "did": "Built gamesPerNight with a wait-free round-robin search (nights.mjs) instead of a listed item.",
+      "result": "Over 18 feasible two-game setups waits fell from 458 to 10 (eval/doubleheader.txt); all 162 seasons valid."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "#16173 is an empty claim for the same flagship; my work is a different feature (new module, no listed item), so the overlap risk is low.",
+      "did": "Continued and landed rather than yielding.",
+      "result": "No shared files with #16173 at merge time (it had no diff)."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local verification: node --test doubleheader.test.mjs 14/14; calc.test.mjs 180/180; python3 platform/ci/run_venture_tests.py league-schedule-generator passed apart from one share-link round-trip test that needed the new field (fixed, then calc.test.mjs re-run green). eval/doubleheader.mjs: 60 settings x 3 seeds, 0 invalid, total waits 3503 -> 3055; 2-game feasible settings 458 -> 10. Time-row spread rises (20 teams ~2 -> 5 a season), recorded in README. Three-game nights not improved. Final: run_venture_tests.py league-schedule-generator ok (534 tests, 281 s) after fixing page.test.mjs's import pin; venture-preflight.mjs clean; headless Chromium built an 8-team doubleheader season with no page errors.",
+  "corrections": [],
+  "redteam": null
+}

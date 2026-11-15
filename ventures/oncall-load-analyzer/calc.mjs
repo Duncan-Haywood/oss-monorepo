@@ -64,7 +64,12 @@ export function normalizeRows(table) {
   if (!table.length) return { error: "No rows found. Paste the CSV text including its header row.", incidents: [], skipped: [] };
   const header = table[0].map(HEADER_KEY);
   const idx = {};
-  for (const [k, names] of Object.entries(ALIASES)) idx[k] = header.findIndex((h) => names.includes(h));
+  // Each alias list is in priority order: an export with both service_id and
+  // service_name (or team and service) must group by the name, wherever it sits.
+  for (const [k, names] of Object.entries(ALIASES)) {
+    const hit = names.find((name) => header.includes(name));
+    idx[k] = hit === undefined ? -1 : header.indexOf(hit);
+  }
   if (idx.time < 0) return { error: `No timestamp column. Expected one of: ${ALIASES.time.slice(0, 5).join(", ")}. Found: ${header.join(", ")}.`, incidents: [], skipped: [] };
   if (idx.person < 0) return { error: `No responder column. Expected one of: ${ALIASES.person.slice(0, 5).join(", ")}. Found: ${header.join(", ")}.`, incidents: [], skipped: [] };
   const incidents = [], skipped = [];

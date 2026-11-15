@@ -1,0 +1,121 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqye5yDpsk5yfeyKiTCT",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T10:38:52Z",
+  "ended": "2026-11-15T10:52:07Z",
+  "wall_minutes": 13.4,
+  "tokens_in": 4611398,
+  "tokens_out": 31018,
+  "cost_usd": 2.3012,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16186",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First sweep version imported playwright as an ES module (ERR_MODULE_NOT_FOUND); switched to createRequire like check_numeric_sort.mjs.",
+    "First sweep version only fired input/change events; most pages compute on a button click, so it added example-loading and calculate-button clicks plus an inert-input guard."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The already-swept list is long prose; a machine-readable list (sweep, tool, date, result) would be faster to scan and to append to. Not edited here because prompts/ is a CODEOWNERS path."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-typing-1200-with-a-comma.md",
+    "docs/reports/2026-11-15-thousands-separator-sweep.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: a thousands-separator runtime sweep (a kind not on the explore already-swept list). platform/ci/check_thousands_input.mjs types 1200 and 1,200 into every inputmode=decimal/numeric text input on venture pages (Playwright, example data loaded, calculate button pressed, control and inert guards) and compares visible text. First run: 335 pages, 509 inputs probed, 199 inert, 111 read 1,200 differently (75 silently on 42 ventures, 36 with a message), 20 skipped. Fixed 22 ventures with a grouped-number-only ungroup helper (1,5 still rejected); all re-swept clean (one rental-fleet residual verified by hand as a timing artefact) and each venture's node --test suite passes (22 suites, 0 failures). Positive-control test with a parseFloat fixture page. Remaining list in docs/reports/2026-11-15-thousands-separator-sweep.md.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c3d8aa2f-a07c-559c-a3e9-b59a77d30947",
+    "transcripts": 1,
+    "first": "2026-11-15T10:38:52Z",
+    "last": "2026-11-15T10:52:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 101,
+        "output": 31018,
+        "thinking": 6803,
+        "cache_read": 4514099,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97198,
+        "api_equivalent_usd": 2.3012,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 101,
+      "output": 31018,
+      "thinking": 6803,
+      "cache_read": 4514099,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97198,
+      "api_equivalent_usd": 2.3012,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.4,
+      "active_minutes": 13.4,
+      "model_minutes": 5.09,
+      "tool_minutes": 8.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

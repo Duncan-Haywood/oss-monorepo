@@ -865,3 +865,165 @@ carries its piles, so the first real team codes will show how often picks
 contradict piles). 40 and 60 options were not run (a 40-option close-call
 person takes over 10 minutes a run here). The favourite and top-k modes use
 the piles too, unmeasured.
+
+## Best and worst of four (2026-11-15)
+
+A fourth mode on the ranker, "Best and worst of four" (`rank.html?mode=screens`,
+landing page `site/maxdiff-best-worst.html`). Each screen shows four options;
+the person taps the one they like most, then the one they like least (keys 1
+to 4; tapping the "most" again changes it; Undo takes back a whole screen).
+It is the MaxDiff / best-worst scaling question, which survey platforms sell
+as a paid module, and the one the customer-pain-points ready list already
+named as its alternative.
+
+**Model** (`site/best-worst.mjs`). The sequential best-worst model on the
+refit's own Bradley-Terry scale: P(best = b | S) = e^{s_b} / sum_S e^{s},
+then P(worst = w | S \ b) = e^{-s_w} / sum_{S \ b} e^{-s}. On a screen of
+two it is exactly one pick (`best-worst.test.mjs` checks mode and covariance
+to 1e-6), so pairs and screens share one likelihood: `fitAt` in
+`rank-core.mjs` hands any answer list that contains a screen to `setFitAt`
+(Newton on the concave log posterior, Laplace covariance, the same prior and
+pile prior options), and lists of pairs alone still go to the engine's refit
+unchanged. `linearize` adds a screen's exact terms (observed information), so
+both team reads and `combine` take codes made of screens; `ownPrior` finds a
+screen-answerer's own prior sd by golden section on the Laplace evidence
+(`setPriorPhi`), so the stop rule's second check works as for pairs.
+
+**Why not implied pairs.** Best A and worst D of {A, B, C, D} implies five
+wins (A over B, C, D; B and C over D). Read as five independent picks they
+overstate two taps: a test shows one screen read exactly leaves a larger
+Var(s_A - s_D) and a smaller gap than its five implied picks. Overstated
+evidence means narrow ranges and a stop that fires early, the failure this
+page's stop rule was built to avoid ("Noisy answerers").
+
+**The next screen** (`nextScreen`). Greedy on the expected information gain
+(1/2) log det(I + I_S Cov_SS), with I_S the screen's expected Fisher
+information at the current mode (best term plus the worst term averaged over
+which option is best). On a pair it is (1/2) log(1 + p(1 - p) Var), the pair
+picker's score made monotone (tested). Start from the best pair, add the
+option that raises the gain most up to four; the same set is never asked
+twice in a row, and options are shown shuffled. Piles are not offered in this
+mode (the pile prior was measured with pairs only), and lists of 3 or 4 show
+every option on each screen.
+
+**Codes and links.** A screen travels in the result code as `s` + best,
+worst, rest in base 36 (`s4.0.3.1`); a code that repeats an option, names
+one outside the list or has best = worst is refused as damaged. A list link
+carries `m: "screens"`, so a team answers the same question. The screen cap
+is half the pair cap (`suggestedMax`) in screens, the same taps.
+
+**Measured** (`node scripts/best-worst-sim.mjs`, rows in
+`docs/best-worst-gumbel-2026-11-15.jsonl.gz` and
+`docs/best-worst-probit-2026-11-15.jsonl.gz`, each with the true Spearman
+after every tap). The page's own loop twice per simulated person, pairs then
+screens, same true scores (evenly spaced over `spread` logits, shuffled);
+stopCheck at 0.9 in both arms. 48 people per cell at 8 and 15 options, 12 at
+30 (a 30-option close-call cell runs about 25 minutes per 6 people on one
+core). "gumbel" answers as the model assumes (logistic pairs, Gumbel-max
+screens); "probit" is off-model: each option seen with N(0, 1.6^2) noise,
+highest best, lowest worst, which is also noisier on a pair (difference sd
+2.26) than the logistic answerer.
+
+| answerer | spread | n | pairs: picks | rho | screens: screens | taps | rho | rho at 2n taps, pairs / screens |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| gumbel | 6 | 8 | 37.8 | 0.960 | 13.0 | 25.9 | 0.958 | 0.889 / 0.923 |
+| gumbel | 6 | 15 | 69.8 | 0.934 | 27.2 | 54.3 | 0.943 | 0.828 / 0.903 |
+| gumbel | 6 | 30 | 149.6 | 0.930 | 64.8 | 129.7 | 0.951 | 0.809 / 0.889 |
+| gumbel | 3 | 8 | 46.3 | 0.871 | 21.1 | 42.2 | 0.903 | 0.742 / 0.783 |
+| gumbel | 3 | 15 | 109.1 | 0.862 | 47.2 | 94.4 | 0.901 | 0.631 / 0.754 |
+| gumbel | 3 | 30 | 228.3 | 0.844 | 101.8 | 203.7 | 0.865 | 0.549 / 0.653 |
+| probit | 6 | 8 | 42.7 | 0.927 | 16.0 | 32.1 | 0.947 | 0.803 / 0.887 |
+| probit | 6 | 15 | 86.8 | 0.913 | 33.1 | 66.1 | 0.927 | 0.756 / 0.854 |
+| probit | 6 | 30 | 152.4 | 0.881 | 62.5 | 125.0 | 0.920 | 0.755 / 0.856 |
+| probit | 3 | 8 | 46.9 | 0.824 | 21.7 | 43.5 | 0.862 | 0.599 / 0.669 |
+| probit | 3 | 15 | 114.2 | 0.816 | 53.6 | 107.3 | 0.851 | 0.479 / 0.639 |
+| probit | 3 | 30 | 202.0 | 0.730 | 125.0 | 250.0 | 0.834 | 0.479 / 0.577 |
+
+rho is the true Spearman of the order shown at the stop (or the cap). At equal
+taps screens lead in every cell; to the stop they take fewer taps in 11 of 12.
+The exception, probit close calls at 30, is the stop rule's: pairs that
+stopped on their own (8 of 12) claimed 0.90 for orders that were truly 0.68,
+screens that stopped (6 of 12) 0.81 under the same claim. Calibration of the
+self-stopped runs elsewhere: ordinary people 0.92 to 0.96 true under a 0.90
+to 0.91 claim in both arms; gumbel close calls at 15, pairs 0.83 and screens
+0.88 under a 0.90 claim. Long close-call lists overclaim in both arms (the
+"Open" item on noisy answerers stands).
+
+**Not simulated: time.** A screen of four takes longer to read than a pair,
+and taps are a stand-in for effort. Since 2026-11-15 the page measures it on
+real people instead ("Answer times" below). The page counts `screen` events and
+`mode:screens` starts locally; real codes now show which kind of answer a
+person gave. The status line quotes the gumbel screens to the stop (13 / 21
+at 8 options, 27 / 47 at 15, 65 / 102 at 30, ordinary / close calls).
+
+**Checks.** `node --test site/best-worst.test.mjs` (9 tests): a two-option
+screen equals one pick; gradient and information match finite differences;
+one screen is weaker than its implied pairs; screenGain on a pair matches the
+pair score; nextScreen shows distinct options and never repeats a set; screens
+recover a simulated order (Spearman over 0.85 in 25 screens of 10 options);
+codes round-trip mixed screens and picks and refuse damaged screens; both team
+reads take screen codes; the page, link mode and landing page are wired, with
+the disclaimer. Browser, Playwright at 390 px: example list in screens mode,
+four options as a 2 by 2 grid, "Most" marked on the first tap, 24 screens to
+the cap answering at random, results, a `QP1.` code with screens, the share
+note names the mode, combine with that code works, no console errors.
+
+## Answer times (2026-11-15)
+
+The simulations above count taps, and a tap on a screen of four is not a tap
+on a pair: reading four options and choosing twice takes longer. Whether
+screens are quicker overall turns on one number, seconds per screen over
+seconds per pick. A screen replaces about pairs-to-stop / screens-to-stop
+picks (40 / 13 = 3.1 at 8 options, 73 / 27 = 2.7 at 15, 146 / 65 = 2.2 at
+30, ordinary answerers), so screens save time while a screen takes less than
+that many picks' time. No simulation can supply the ratio, so the page now
+measures it on the people who use it.
+
+**What is recorded** (`site/answer-time.mjs`). From the moment a pair or a
+screen is shown to the answer (for a screen, the second tap), in whole tenths
+of a second. A question during which the page was hidden at any point
+(another tab, a locked phone) gets no time, as does one over ten minutes or
+one whose clock ran backwards: unknown, not a wrong number. Undo drops the
+time with the answer; times are saved with the answers on the device, and an
+older save without them reads as unknown.
+
+**Codes.** A result code carries the times as `t`, one base-36 token per
+answer (`-` for unknown), only when they line up one-to-one with the answers.
+A `t` of the wrong length, a token outside base 36 or over the cap is
+refused as damaged rather than half-read, since a time pinned to the wrong
+answer could pass a pair's time off as a screen's. A box under the code,
+ticked by default, leaves the times out ("Include how long each answer
+took"). Codes made before this read as before.
+
+**What a person and a team see.** Results show the person's own median
+seconds per pick and per screen. A team combine gives, for each kind, the
+median over people of their own median (people with at least 3 timed answers
+of that kind), so one slow person with many answers does not set it. When
+both kinds are present it gives the ratio and the time to a settled order
+for the list: real median seconds times the simulated typical answers to the
+stop (`picksGuide(n).ordinary` picks; the nearest measured screens row; the
+best-worst simulation's own pair arm needed 38, 70 and 150 picks where the
+picks table says 40, 73 and 146, so the two tables agree within 6%), and
+says whether screens save or cost time for this team. The counts are
+simulated and the times are the team's own, and the page says so.
+
+**Not yet.** No real times exist yet; the codes now carry them. Once a few
+teams have combined, the ratio decides whether the best-worst landing page
+should say screens are quicker, and the same times give the first real
+check of the answer-time model the survey app's pace tools assume (flagship
+item c).
+
+**Checks.** `node --test site/answer-time.test.mjs` (7 tests): times in
+tenths with none for a hidden page, a backward clock or over the cap; codes
+round-trip times across mixed pairs and screens; misaligned or all-unknown
+times are not sent and old codes still read; seven kinds of damaged `t` are
+refused (the test fails with the decode check removed); a person's pace
+splits pairs (ties included) from screens by the median; a team's pace is
+the median of medians over people with 3 or more timed answers, and the time
+to the stop is computed from it; the page starts a clock for pairs and
+screens, records both, drops times on both undos, and passes times into the
+code and the combine. Browser, Playwright at 390 px: 6 pairs at about 0.4 s
+and 6 screens at about 0.9 s read back as 0.4 s per pick and 1.0 s per
+screen; a combine of the screens person with two pairs codes gave "A screen
+took 2.5 times as long as a pick ... about 16 s with picks against 13 s with
+screens"; unticking the box shortens the code; no console errors.

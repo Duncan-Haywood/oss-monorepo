@@ -3,6 +3,8 @@
 // from src/lib/btRefit.ts and favouriteSet.ts by scripts/build-rank-engine.mjs.
 import { refitRatings, cholesky, cholSolve, cholInverse, empiricalPriorPhi, REFIT_PRIOR_PHI, EB_PHI_MIN } from "./engine/btRefit.mjs";
 import { favouriteSet } from "./engine/favouriteSet.mjs";
+import { isSetAnswer, setAnswerError, setFitAt, setPriorPhi, answerTerms } from "./best-worst.mjs";
+import { timeToken, parseTimes, alignedTimes } from "./answer-time.mjs";
 
 export const MAX_ITEMS = 60;
 export const MIN_ITEMS = 3;
@@ -61,12 +63,13 @@ function fromBase64Url(s) {
 }
 
 /** Modes a shared link may carry besides the default full order. */
-export const LINK_MODES = ["favourite", "top"];
+export const LINK_MODES = ["favourite", "top", "screens"];
 
 /**
  * The list (and an optional question) as a URL fragment: the fragment never
  * reaches a server. A link can also carry the mode the sender picked
- * ("favourite", or "top" with its shortlist size k), so the people it is sent
+ * ("favourite", "screens" for best-worst screens of four, or "top" with its
+ * shortlist size k), so the people it is sent
  * to answer the same question; a full-order link stays as it always was.
  */
 export function encodeList({ title = "", items, mode, k, images = false }) {
@@ -94,6 +97,7 @@ export function decodeList(fragment) {
     // at: the list opens in the full order and `modeIgnored` says why, so the
     // page can tell the person rather than silently asking a different question.
     if (d.m === "favourite") out.mode = "favourite";
+    else if (d.m === "screens") out.mode = "screens";
     else if (d.m === "top" && Number.isInteger(d.k) && d.k >= 2 && d.k < items.length) Object.assign(out, { mode: "top", k: d.k });
     else if (d.m !== undefined) out.modeIgnored = d.m === "top" ? `a shortlist of ${String(d.k).slice(0, 12)} does not fit a list of ${items.length}` : "the link asks for a mode this page does not know";
     return out;
@@ -103,12 +107,27 @@ export function decodeList(fragment) {
 }
 
 /**
- * Answers are [winnerIndex, loserIndex, tie] triples. A result code carries
- * them with the list's fingerprint and an optional name: "QP1." + base64url.
+ * Answers are [winnerIndex, loserIndex, tie] triples, or best-worst screens
+ * { set, best, worst } (site/best-worst.mjs). A result code carries them with
+ * the list's fingerprint and an optional name: "QP1." + base64url. A screen
+ * is written "s" + best.worst.rest... in base 36.
  */
-export function encodeAnswers({ items, answers, name = "", piles }) {
-  const a = answers.map(([w, l, t]) => `${w.toString(36)}.${l.toString(36)}${t ? "=" : ""}`).join(",");
+function answerToken(a) {
+  if (isSetAnswer(a)) {
+    // Best and worst lead; the rest follow with one copy of each removed, so a damaged screen stays damaged.
+    const rest = a.set.slice();
+    for (const x of [a.best, a.worst]) { const k = rest.indexOf(x); if (k >= 0) rest.splice(k, 1); }
+    return "s" + [a.best, a.worst, ...rest].map((i) => i.toString(36)).join(".");
+  }
+  const [w, l, t] = a;
+  return `${w.toString(36)}.${l.toString(36)}${t ? "=" : ""}`;
+}
+export function encodeAnswers({ items, answers, name = "", piles, times }) {
+  const a = answers.map(answerToken).join(",");
   const d = { l: listId(items), n: Array.from(String(name)).slice(0, 60).join(""), a };
+  // Answer times (site/answer-time.mjs), one per answer in tenths of a second, "-" where unknown; only when they line up.
+  const t = alignedTimes(answers, times);
+  if (t) d.t = t.map(timeToken).join(",");
   // Pile placements (sort into piles first), one character per option: 0 top, 1 middle, 2 bottom, - not sorted.
   if (pilePrior(piles)) d.p = piles.map((x) => (x === 0 || x === 1 || x === 2 ? String(x) : "-")).join("");
   return "QP1." + toBase64Url(JSON.stringify(d));
@@ -126,6 +145,14 @@ export function decodeAnswers(code, items) {
   if (d.l !== listId(items)) return { error: "this code is for a different list" };
   const answers = [];
   for (const part of String(d.a || "").split(",").filter(Boolean)) {
+    const sm = /^s([0-9a-z]+(?:\.[0-9a-z]+)+)$/.exec(part);
+    if (sm) {
+      const set = sm[1].split(".").map((x) => parseInt(x, 36));
+      const screen = { set, best: set[0], worst: set[1] };
+      if (setAnswerError(screen, items.length)) return { error: "the code is damaged (copy it again in full)" };
+      answers.push(screen);
+      continue;
+    }
     const pm = /^([0-9a-z]+)\.([0-9a-z]+)(=?)$/.exec(part);
     if (!pm) return { error: "the code is damaged (copy it again in full)" };
     const w = parseInt(pm[1], 36), l = parseInt(pm[2], 36);
@@ -137,6 +164,11 @@ export function decodeAnswers(code, items) {
     // Rejected, not guessed at: a pile string of the wrong length would shift every placement onto the wrong option.
     if (typeof d.p !== "string" || d.p.length !== items.length || !/^[012-]+$/.test(d.p)) return { error: "the code is damaged (copy it again in full)" };
     out.piles = Array.from(d.p, (c) => (c === "-" ? null : Number(c)));
+  }
+  if (d.t !== undefined) {
+    const t = parseTimes(d.t, answers.length);
+    if (t.error) return { error: "the code is damaged (copy it again in full)" };
+    out.times = t.times;
   }
   return out;
 }
@@ -157,6 +189,11 @@ export function fitAt(n, answers, priorPhi, piles, tau = PILE_NOISE) {
   const opts = { priorPhi };
   const pp = piles ? pilePrior(piles, { phi: priorPhi, tau }) : null;
   if (pp) Object.assign(opts, { priorMean: pp.mean, priorScale: pp.scale });
+  // Best-worst screens use the same link extended to a softmax (best-worst.mjs); pairs alone keep the engine's refit.
+  if (answers.some(isSetAnswer)) {
+    const r = setFitAt(n, answers, { phi: priorPhi, ...opts });
+    return { mu: r.mu, cov: r.cov, n };
+  }
   const r = refitRatings(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), opts);
   return { mu: r.mu, cov: r.cov, n };
 }
@@ -296,10 +333,7 @@ export function pileEvidence(n, answers, piles, phi, tau = PILE_NOISE) {
     const z = (f.mu[i] - pp.mean[i]) / pp.scale[i];
     s += -0.5 * z * z - Math.log(pp.scale[i]) - 0.5 * Math.log(2 * Math.PI);
   }
-  for (const [w, l, t] of answers) {
-    const d = f.mu[w] - f.mu[l], y = t ? 0.5 : 1;
-    s -= y * Math.log1p(Math.exp(-d)) + (1 - y) * Math.log1p(Math.exp(d));
-  }
+  s += answerTerms(n, answers, f.mu).ll;
   const L = cholesky(Float64Array.from(f.cov), n);
   let logDetCov = 0;
   for (let i = 0; i < n; i++) logDetCov += 2 * Math.log(L[i * n + i]);
@@ -342,6 +376,7 @@ export function pilePriorPhi(n, answers, piles, { steps = STOP_EB_STEPS, tau = P
 /** The stop rules' second read: the person's own prior sd, and with piles their own pile noise too. */
 function ownPrior(n, answers, piles, steps) {
   if (pilePrior(piles)) return pilePriorFit(n, answers, piles, { steps });
+  if (answers.some(isSetAnswer)) return { phi: setPriorPhi(n, answers, { lo: EB_PHI_MIN, hi: REFIT_PRIOR_PHI, steps }), tau: PILE_NOISE };
   return { phi: empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps }), tau: PILE_NOISE };
 }
 
@@ -435,7 +470,9 @@ export function nextPair(f, answers, { mode = "order", seed = 1, k = 3, topPool 
   }
   const last = answers.at(-1);
   const asked = new Map();
-  for (const [w, l] of answers) {
+  for (const a of answers) {
+    if (isSetAnswer(a)) continue;
+    const [w, l] = a;
     const k = w < l ? `${w},${l}` : `${l},${w}`;
     asked.set(k, (asked.get(k) || 0) + 1);
   }
@@ -672,7 +709,17 @@ export function linearize(n, answers, c, terms = null) {
   const J = new Float64Array(n * n);
   const grad = new Array(n).fill(0);
   let ll = 0;
-  for (const [w, l, t] of answers) {
+  // Best-worst screens: their exact terms (observed information) from best-worst.mjs.
+  const screens = answers.filter(isSetAnswer);
+  if (screens.length) {
+    const t = answerTerms(n, screens, c);
+    ll += t.ll;
+    for (let i = 0; i < n; i++) grad[i] += t.grad[i];
+    for (let k = 0; k < n * n; k++) J[k] += t.J[k];
+  }
+  for (const a of answers) {
+    if (isSetAnswer(a)) continue;
+    const [w, l, t] = a;
     const p = sigmoid(c[w] - c[l]);
     const v = p * (1 - p), score = t ? 0.5 : 1;
     // log p and log(1 - p) without overflow for large gaps.

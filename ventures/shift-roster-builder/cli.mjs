@@ -76,6 +76,7 @@ Options:
   --second-callout-price <$>  with --cover-price, also charge $ per hour for pairs of call-outs that are each covered alone
                       but not together (the slack one call-out's cover uses up that a second one in the week needed)
   --second-callout-seconds <s>  time limit on the --second-callout-price search (default 10); it keeps the moves made
+  --second-callout-rank         walk each round's candidates largest room first (opt-in; mixed on seeded weeks, README)
   --no-cover-pairs    with --cover-price, try only moves of the at-risk person's own shifts (no relief, trade or relay)
   --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
@@ -330,6 +331,7 @@ export function parseArgs(argv) {
       if (!(v > 0)) throw new Error("--second-callout-seconds needs a number of seconds above 0 (Infinity for no limit)");
       o.options.coverPairMs = v * 1000;
     }
+    else if (a === "--second-callout-rank") o.options.coverPairRank = true;
     else if (a === "--no-cover-pairs") o.options.coverPairs = false;
     else if (a === "--cover-chain") {
       const v = Number(argv[++i]);

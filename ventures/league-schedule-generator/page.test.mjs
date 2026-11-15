@@ -60,8 +60,9 @@ test("the module scripts import only local files, and the inline script parses",
   const html = page("index.html");
   assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./carryover.mjs", "./checkout.mjs", "./divisions.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
-  // calc.mjs imports one sibling module only (the carry-over search), never a package or URL
-  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./carryover.mjs"]);
+  // calc.mjs imports sibling modules only (the carry-over search and the doubleheader nights), never a package or URL
+  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./carryover.mjs", "./nights.mjs"]);
+  assert.doesNotMatch(page("nights.mjs"), /from "(?!\.\/carryover\.mjs")/);
   assert.doesNotMatch(page("carryover.mjs"), /from "(?!\.\/(calc|orient)\.mjs")/);
   // orient.mjs: calc.mjs and its generated WebAssembly kernel (wasm/build.sh), nothing else
   assert.doesNotMatch(page("orient.mjs"), /from "(?!\.\/(calc|wasm\/minplus-wasm)\.mjs")/);

@@ -1,0 +1,64 @@
+Milestone 6zzi: the learned seasonal correction on every k-subset of learning years, 2005 to 2014 (50 W)
+lag g: scoring L learns from 2010 - g, scoring E from 2009 + g; LC_S = AT_90 on the climatology scaled by c_m learned on lag set S
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+AT_90 (no correction): all168 139, real8 8, hi168 25, hireal8 1, pp240 126
+
+Per lag set: dominance counts
+  set        k  mean lag |  all168 |   real8 |   hi168 | hireal8 |   pp240
+  LC_1       1      1.00 |      97 |       4 |      77 |       4 |     106
+  LC_2       1      2.00 |     117 |       7 |     153 |       7 |     121
+  LC_3       1      3.00 |     132 |       8 |       1 |       0 |     107
+  LC_4       1      4.00 |     152 |       8 |     124 |       6 |     131
+  LC_5       1      5.00 |     111 |       7 |      50 |       2 |     105
+  LC_12      2      1.50 |     116 |       7 |     138 |       7 |     121
+  LC_13      2      2.00 |     140 |       8 |      33 |       1 |     122
+  LC_14      2      2.50 |     155 |       8 |     107 |       5 |     127
+  LC_15      2      3.00 |     121 |       7 |      92 |       4 |     118
+  LC_23      2      2.50 |     145 |       8 |      92 |       4 |     126
+  LC_24      2      3.00 |     154 |       8 |     149 |       7 |     137
+  LC_25      2      3.50 |     128 |       7 |     128 |       6 |     132
+  LC_34      2      3.50 |     153 |       8 |      69 |       3 |     126
+  LC_35      2      4.00 |     149 |       8 |      42 |       2 |     117
+  LC_45      2      4.50 |     147 |       8 |      73 |       3 |     128
+  LC_123     3      2.00 |     142 |       8 |     104 |       5 |     135
+  LC_124     3      2.33 |     151 |       8 |     127 |       6 |     137
+  LC_125     3      2.67 |     123 |       7 |     107 |       5 |     135
+  LC_134     3      2.67 |     158 |       8 |      89 |       5 |     129
+  LC_135     3      3.00 |     146 |       8 |      56 |       2 |     127
+  LC_145     3      3.33 |     149 |       8 |     102 |       5 |     122
+  LC_234     3      3.00 |     160 |       8 |     106 |       5 |     132
+  LC_235     3      3.33 |     153 |       8 |      88 |       4 |     129
+  LC_245     3      3.67 |     153 |       8 |     128 |       6 |     137
+  LC_345     3      4.00 |     158 |       8 |      50 |       2 |     117
+  LC_1234    4      2.50 |     160 |       8 |     106 |       5 |     137
+  LC_1235    4      2.75 |     143 |       8 |     100 |       5 |     135
+  LC_1245    4      3.00 |     144 |       8 |     107 |       5 |     135
+  LC_1345    4      3.25 |     156 |       8 |      81 |       4 |     131
+  LC_2345    4      3.50 |     158 |       8 |     105 |       5 |     135
+  LC_12345   5      3.00 |     158 |       8 |     105 |       5 |     138
+
+Per k over its subsets: mean [min, max]; 6zzb's nearest set {1..k} and its rank (1 = best)
+  k=1 ( 5 sets) |  121.8 [ 97,152] near  97 r5 |    6.8 [  4,  8] near   4 r5 |   81.0 [  1,153] near  77 r3 |    3.8 [  0,  7] near   4 r3 |  114.0 [105,131] near 106 r4
+  k=2 (10 sets) |  140.8 [116,155] near 116 r10 |    7.7 [  7,  8] near   7 r8 |   92.3 [ 33,149] near 138 r2 |    4.2 [  1,  7] near   7 r1 |  125.4 [117,137] near 121 r8
+  k=3 (10 sets) |  149.3 [123,160] near 142 r9 |    7.9 [  7,  8] near   8 r1 |   95.7 [ 50,128] near 104 r5 |    4.5 [  2,  6] near   5 r3 |  130.0 [117,137] near 135 r3
+  k=4 ( 5 sets) |  152.2 [143,160] near 160 r1 |    8.0 [  8,  8] near   8 r1 |   99.8 [ 81,107] near 106 r2 |    4.8 [  4,  5] near   5 r1 |  134.6 [131,137] near 137 r1
+  k=5 ( 1 sets) |  158.0 [158,158] near 158 r1 |    8.0 [  8,  8] near   8 r1 |  105.0 [105,105] near 105 r1 |    5.0 [  5,  5] near   5 r1 |  138.0 [138,138] near 138 r1
+
+Recency (Spearman rho of count against lag; negative = recent years learn better)
+  single years, all 168:            rho +0.400  counts by lag 1..5: [97, 117, 132, 152, 111]
+  single years, high-amp 168:       rho -0.300  counts by lag 1..5: [77, 153, 1, 124, 50]
+  within-k, k = 1 to 4 (30 sets), all 168:      rho +0.331
+  within-k, k = 1 to 4 (30 sets), high-amp 168: rho -0.284
+
+Check: 6zzb's LC_k = nearest sets over 168 cells: 97 / 116 / 142 / 158 (6zzb: 97 / 116 / 142 / 158)
+
+Predictions
+S1 subset-mean all-168 non-decreasing in k: held (121.8 / 140.8 / 149.3 / 152.2 / 158.0)
+S2 subset-mean LC_1 < 139: held (121.8)
+S3 subset-mean LC_3 >= 139: held (149.3)
+S4 subset-mean high-amp 168 non-decreasing in k: held (81.0 / 92.3 / 95.7 / 99.8 / 105.0)
+S5 single-year span >= 10: held (55: 97 to 152)
+S6 single-year rho < 0: refuted (+0.400)
+S7 within-k rho < 0: refuted (+0.331)
+S8 nearest within range for every k and within 5 of the mean at k = 2, 3: refuted (k=2 116 vs 140.8; k=3 142 vs 149.3)

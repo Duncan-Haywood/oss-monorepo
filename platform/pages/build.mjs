@@ -12090,6 +12090,18 @@ const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
  * visitor picks, and each category's own `assets` are that category's tool
  * pages and their scripts.
  */
+// Node-only scripts a venture keeps beside its page: measurements under `eval/` and the
+// `build-*.mjs` generators that write its data modules. No page imports either (checked
+// across every venture on 2026-11-15), yet both were saved to a visitor's phone with the
+// category: einvoice-preflight alone carried about 150 KB of them gzipped, enough to push
+// `evidence` past its 4 MiB bound in build.test.mjs. They stay published (a page may link
+// one as source); they are just not part of the offline download.
+export const isNodeOnlyScript = (relToVenture) => {
+  const parts = relToVenture.split(/[\\/]/);
+  if (!/\.(mjs|js|cjs)$/.test(parts[parts.length - 1])) return false;
+  return parts[0] === 'eval' || (parts.length === 1 && /^build-[\w.-]+\.(mjs|js|cjs)$/.test(parts[0]));
+};
+
 export async function collectOfflineBundle(outDir, surfaces) {
   // The shared scripts and stylesheets are loaded by every tool page, so a
   // tool cached for offline use without them opens with no band at all — or,
@@ -12124,7 +12136,7 @@ export async function collectOfflineBundle(outDir, surfaces) {
       assets.add(`${surface.slug}/`);
     }
     for (const file of await listFiles(dir)) {
-      if (BUNDLE_EXTENSIONS.has(path.extname(file))) assets.add(rel(file));
+      if (BUNDLE_EXTENSIONS.has(path.extname(file)) && !isNodeOnlyScript(path.relative(dir, file))) assets.add(rel(file));
     }
     if (assets.size === 0) continue;
 
