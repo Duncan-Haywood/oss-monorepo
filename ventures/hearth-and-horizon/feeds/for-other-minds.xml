@@ -46,6 +46,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Same Box of Books</title>
+      <link>https://example.invalid/hearth-and-horizon/the-same-box-of-books.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-same-box-of-books.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A diocese's pastoral data agent ranks 48 parishes by how many children who made their First Communion went on to be confirmed, and the bishop writes to the top five and the bottom five. One catechist gets both letters in the same week, for two village parishes she teaches from the same box of books. Every parish at both ends of the list has fifteen or fewer children. Dropping the small parishes only moves the ends of the list and erases a third of the diocese. A funnel plot finds the two parishes whose numbers really say something, and one of them is the cathedral. A story about small samples at both ends of a ranking (de Moivre's equation), funnel plots, a threshold that hides people, and a letter that cannot be unsent. Setting: The pastoral office of the Diocese of Prairie Lake (invented), southwestern Minnesota, Monday 4 to Wednesday 20 March 2047. Read the full text at https://example.invalid/hearth-and-horizon/the-same-box-of-books.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A diocese's pastoral data agent ranks 48 parishes by how many children who made their First Communion went on to be confirmed, and the bishop writes to the top five and the bottom five. One catechist gets both letters in the same week, for two village parishes she teaches from the same box of books. Every parish at both ends of the list has fifteen or fewer children. Dropping the small parishes only moves the ends of the list and erases a third of the diocese. A funnel plot finds the two parishes whose numbers really say something, and one of them is the cathedral. A story about small samples at both ends of a ranking (de Moivre's equation), funnel plots, a threshold that hides people, and a letter that cannot be unsent.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Toss It Again</title>
       <link>https://example.invalid/hearth-and-horizon/toss-it-again.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/toss-it-again.html</guid>
