@@ -161,3 +161,16 @@ def test_degree_discount_budget_any_p(setup, p):
     for v in V[:3]:
         b = int(v.leader.sum())
         assert sd.rule_degree_discount(v, b, p=p).sum() == b
+
+
+def test_independent_columns_differ_and_match_for_one(setup):
+    """independent=True: one column consumes the stream as the shared path does; two columns differ."""
+    V, beta = setup
+    v = V[0]
+    a = sd.simulate_batch(v, beta, v.leader, 1, np.random.default_rng(1), return_matrix=True, **sd.MODELS["I"])
+    b = sd.simulate_batch(v, beta, v.leader, 1, np.random.default_rng(1), return_matrix=True,
+                          independent=True, **sd.MODELS["I"])
+    assert (a == b).all()
+    X = np.stack([v.leader] * 8, 1)
+    out = sd.simulate_batch(v, beta, X, 1, np.random.default_rng(2), independent=True, **sd.MODELS["I"])
+    assert len(set(out[:, 0].tolist())) > 1
