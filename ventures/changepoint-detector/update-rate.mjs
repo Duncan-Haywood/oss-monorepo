@@ -290,7 +290,7 @@ function roundingVerdict(sticky, cu = CATCHUP, values = null, span = sticky) {
   if (cu.method === 'lr') {
     const t = oneTick && values && cu.test ? cu.test(values, span.from - 1, span.to, sticky.tick) : null;
     const catchUp = !!(t && t.lr >= (cu.lr ?? 5.41));
-    return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null, staleLR: t ? t.lr : null, staleP: t ? t.p : null };
+    return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null, staleLR: t ? t.lr : null, staleP: t ? t.p : null, ...(t && t.lrIid != null ? { staleLRIid: t.lrIid } : {}) };
   }
   const catchUp = oneTick && r != null && r >= cu.ratio;
   return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null };
