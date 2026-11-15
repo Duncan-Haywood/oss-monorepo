@@ -273,7 +273,8 @@
  ],
  "fix_prs": [
   "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236",
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16275"
  ],
  "verdict": "A tidy, private, honestly caveated first-read tool. Most of its headline dates match the Official Journal text: passport and removability 18 Feb 2027, label 18 Aug 2026, EPR 18 Aug 2025, recycled content 18 Aug 2028, and due diligence 18 Aug 2027 after Regulation (EU) 2025/1561. Its 29 tests pass. It does not meet the bar. It tells portable-battery makers they have no QR-code duty, though Art 13(6) covers all batteries from 18 Feb 2027, and its test pins that error. It scopes due diligence by SME status, not the Art 47 EUR 40m turnover test. It declares nuclear-safety batteries wholly out of scope, against Art 1(6). It tells an EU fulfilment provider with no EU operator that 'every duty ... is marked done'. It never shows EPR to distributors who are producers under Art 3(47). Three of six seeded date or category mutants survive. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished (completeness 3), not at the bar."
 }

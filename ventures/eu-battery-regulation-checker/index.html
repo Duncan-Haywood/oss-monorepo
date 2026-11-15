@@ -62,6 +62,7 @@
       <div><label for="sellsEu">Do you sell into the EU?</label><select id="sellsEu"><option value="yes">Yes</option><option value="no">No</option><option value="unsure">Not sure</option></select></div>
       <div><label for="euOperator">Is an EU manufacturer, importer or authorised representative named for it?</label><select id="euOperator"><option value="unsure">Not sure</option><option value="yes">Yes</option><option value="no">No</option></select></div>
       <div><label for="under40m">Was your net turnover under EUR 40 million in the financial year before last (group-consolidated if you are part of a group)?</label><select id="under40m"><option value="unsure">Not sure</option><option value="yes">Yes, under EUR 40 million</option><option value="no">No</option></select></div>
+      <div><label for="nuclear">Is the battery only for equipment designed for the safety of nuclear installations?</label><select id="nuclear"><option value="no">No</option><option value="yes">Yes</option></select></div>
       <div><label for="today">Reference date (blank = today)</label><input id="today" type="date"></div>
       <div><label for="substances">Mercury, cadmium and lead are within the Regulation's limits</label><select id="substances"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="conformity">Conformity assessment is done, the EU declaration of conformity exists and the CE marking is on the battery</label><select id="conformity"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
@@ -98,7 +99,7 @@
   <section class="card" id="rules">
     <h2>What it does, and what it leaves to you</h2>
     <ul>
-      <li><strong>Scope:</strong> batteries placed on the EU market, including batteries built into other products and online sales from outside the EU. Batteries for military or security equipment and for equipment sent into space are outside it (Art 1(5)). Batteries in equipment designed for the safety of nuclear installations are inside it, with Chapters III and VIII disapplied (Art 1(6)); this tool does not model that split.</li>
+      <li><strong>Scope:</strong> batteries placed on the EU market, including batteries built into other products and online sales from outside the EU. Batteries for military or security equipment and for equipment sent into space are outside it (Art 1(5)). Batteries in equipment designed for the safety of nuclear installations are inside it, with Chapters III and VIII disapplied (Art 1(6)): answer the nuclear-safety question and the label, collection-symbol, QR-code and producer-registration rows drop out.</li>
       <li><strong>Timeline:</strong> duties are filtered by battery category and role and ordered by the date they apply from. Duties that wait on EU delegated or implementing acts, such as the carbon-footprint declaration, show no date.</li>
       <li><strong>Roles:</strong> a distributor that is the first to supply a battery in an EU country, or resells it under its own name, is a producer there and must register (Art 3(47), Art 55). An EU fulfilment service provider has handling duties (Art 43) and, when no EU manufacturer, importer or authorised representative is named, becomes the responsible economic operator (Regulation (EU) 2019/1020 Art 4). Due diligence reaches operators with net turnover of EUR 40 million or more, counted at group level (Art 47).</li>
       <li><strong>Not decided:</strong> whether your battery meets the performance, safety and durability requirements, the exact data fields of the passport, sector-law conformity, national penalties and registration fees.</li>
@@ -137,8 +138,8 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
-    const map = { category: "category", role: "role", location: "location", sellsEu: "sellsEu", euOperator: "euOperator", under40m: "under40m", today: "today", substances: "substances", conformity: "conformity", epr: "epr", handling: "handling", operator: "operator", collection: "collection", label: "label", removable: "removable", qr: "qr", passport: "passport", diligence: "diligence", recycled: "recycled", carbon: "carbon" };
-    const DEFAULTS = { sellsEu: "yes", euOperator: "unsure", under40m: "unsure" };
+    const map = { category: "category", role: "role", location: "location", sellsEu: "sellsEu", euOperator: "euOperator", under40m: "under40m", nuclear: "nuclear", today: "today", substances: "substances", conformity: "conformity", epr: "epr", handling: "handling", operator: "operator", collection: "collection", label: "label", removable: "removable", qr: "qr", passport: "passport", diligence: "diligence", recycled: "recycled", carbon: "carbon" };
+    const DEFAULTS = { sellsEu: "yes", euOperator: "unsure", under40m: "unsure", nuclear: "no" };
     const IDLE = "Choose the battery, your role and where you are established, then click Check my battery.";
     const RP = { self: "You can carry the operator's duties", fallback: "You are the responsible operator", covered: "Covered by an EU operator", check: "Check who is named", gap: "Gap: no EU operator", unknown: "Not confirmed" };
     const ST = { applies: "Applies now", soon: "Within a year", later: "Later", pending: "Date not yet set" };

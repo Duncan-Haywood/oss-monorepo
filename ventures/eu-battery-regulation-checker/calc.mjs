@@ -34,14 +34,14 @@ const ALL = ["portable", ...NONPORTABLE];
 export const OBLIGATIONS = [
   { id: "substances", label: "Mercury (all batteries) and cadmium (portable) stay under the Annex I limits; the 0.01 % lead limit for portable batteries applies from 18 Aug 2024 (zinc-air button cells from 18 Aug 2028)", article: "Art 6, Annex I", from: "2024-02-18", categories: ALL, roles: ["manufacturer", "importer", "distributor", "distance"], done: "substances" },
   { id: "conformity", label: "Conformity assessment done, EU declaration of conformity drawn up, CE marking on the battery", article: "Chapter IV (conformity), Art 17", from: "2024-08-18", categories: ALL, roles: ["manufacturer", "importer", "distributor", "distance"], done: "conformity" },
-  { id: "epr", label: "Registered as a producer for each EU country you sell into; an authorised representative appointed there if you sell from abroad; take-back and recycling financed", article: "Art 56 and following", from: "2025-08-18", categories: ALL, roles: ["manufacturer", "importer", "distance"], done: "epr" },
+  { id: "epr", chapter: "VIII", label: "Registered as a producer for each EU country you sell into; an authorised representative appointed there if you sell from abroad; take-back and recycling financed", article: "Art 56 and following", from: "2025-08-18", categories: ALL, roles: ["manufacturer", "importer", "distance"], done: "epr" },
   { id: "handling", label: "Warehousing, packaging, addressing and dispatching do not put the battery out of compliance; cooperate with national authorities on request and tell them at once if a battery presents a risk", article: "Art 43 (with Art 40(3)(c) and 40(4))", from: "2024-08-18", categories: ALL, roles: ["fulfilment"], done: "handling" },
   { id: "operator", label: "As the responsible economic operator for a battery with no EU manufacturer, importer or authorised representative: check the EU declaration of conformity and technical documentation exist, keep the declaration available to authorities, put your name and contact details on the battery, its packaging, parcel or accompanying document, and act on risks", article: "Regulation (EU) 2019/1020 Art 4 (Batteries Regulation added to its Art 4(5) by Art 91)", from: "2024-08-18", categories: ALL, roles: ["fulfilment"], onlyIf: "fallback", done: "operator" },
-  { id: "epr-first", label: "Registered as a producer in each EU country where you are the first to supply the battery on a professional basis (you buy it from another EU country or from outside the EU), or where you resell it under your own name", article: "Art 3(47)(b) and (c), Art 55(2)", from: "2025-08-18", categories: ALL, roles: ["distributor"], done: "epr" },
-  { id: "collection", label: "Separate-collection symbol (crossed-out wheeled bin) on the battery, with Cd or Pb beneath it above 0.002 % cadmium or 0.004 % lead", article: "Art 13(4) and (5)", from: "2025-08-18", categories: ALL, roles: ["manufacturer", "importer"], done: "collection" },
-  { id: "label", label: "General information label: manufacturer, type, date of manufacture, capacity and hazard information (from 18 Aug 2026, or 18 months after the EU labelling implementing act if that is later)", article: "Art 13(1) to (3)", from: "2026-08-18", categories: ALL, roles: ["manufacturer", "importer"], done: "label" },
+  { id: "epr-first", chapter: "VIII", label: "Registered as a producer in each EU country where you are the first to supply the battery on a professional basis (you buy it from another EU country or from outside the EU), or where you resell it under your own name", article: "Art 3(47)(b) and (c), Art 55(2)", from: "2025-08-18", categories: ALL, roles: ["distributor"], done: "epr" },
+  { id: "collection", chapter: "III", label: "Separate-collection symbol (crossed-out wheeled bin) on the battery, with Cd or Pb beneath it above 0.002 % cadmium or 0.004 % lead", article: "Art 13(4) and (5)", from: "2025-08-18", categories: ALL, roles: ["manufacturer", "importer"], done: "collection" },
+  { id: "label", chapter: "III", label: "General information label: manufacturer, type, date of manufacture, capacity and hazard information (from 18 Aug 2026, or 18 months after the EU labelling implementing act if that is later)", article: "Art 13(1) to (3)", from: "2026-08-18", categories: ALL, roles: ["manufacturer", "importer"], done: "label" },
   { id: "removable", label: "A portable battery in an appliance can be removed and replaced by the user; an e-bike or e-scooter battery by an independent professional", article: "Art 11", from: "2027-02-18", categories: ["portable", "lmt"], roles: ["manufacturer", "importer"], done: "removable" },
-  { id: "qr", label: "QR code printed or engraved on the battery, linking to its required information (and to its battery passport where one is required); applies to every category, portable included", article: "Art 13(6)", from: "2027-02-18", categories: ALL, roles: ["manufacturer", "importer"], done: "qr" },
+  { id: "qr", chapter: "III", label: "QR code printed or engraved on the battery, linking to its required information (and to its battery passport where one is required); applies to every category, portable included", article: "Art 13(6)", from: "2027-02-18", categories: ALL, roles: ["manufacturer", "importer"], done: "qr" },
   { id: "passport", label: "Digital battery passport for the battery, with the data fields the Regulation lists", article: "Art 77", from: "2027-02-18", categories: ["lmt", "industrial-big", "ev"], roles: ["manufacturer", "importer"], done: "passport" },
   { id: "diligence", label: "Supply-chain due-diligence policy for cobalt, natural graphite, lithium and nickel, with third-party verification (not for operators with net turnover under EUR 40 million that are not in a group over that limit)", article: "Arts 47 to 52 (date as amended by Regulation (EU) 2025/1561)", from: "2027-08-18", categories: ALL, roles: ["manufacturer", "importer"], done: "diligence", notSmall: true },
   { id: "recycled", label: "Documentation of recycled content for cobalt, lead, lithium and nickel in the battery", article: "Art 8", from: "2028-08-18", categories: ["ev", "industrial-big", "sli"], roles: ["manufacturer", "importer"], done: "recycled" },
@@ -72,7 +72,8 @@ export function parse(input) {
   const euOperator = opt(i.euOperator, ["yes", "no", "unsure"], "unsure");
   const done = {};
   for (const k of DONE_KEYS) done[k] = Boolean(i[k]) && i[k] !== "0";
-  return { errors, category, role, location, today, under40m, sellsEu, euOperator, done };
+  const nuclear = opt(i.nuclear, ["yes", "no"], "no");
+  return { errors, category, role, location, today, under40m, nuclear, sellsEu, euOperator, done };
 }
 
 // Does an EU-established operator stand behind the battery?
@@ -107,9 +108,14 @@ export function daysUntil(from, today) {
   return Math.round((Date.parse(from) - Date.parse(today)) / DAY);
 }
 
+// Art 1(6): Chapters III (labelling, marking, QR code) and VIII (waste batteries, producer
+// responsibility) do not apply to equipment specifically designed for the safety of nuclear
+// installations. Every other chapter, the passport and due diligence included, still does.
+export const NUCLEAR_DISAPPLIED_CHAPTERS = ["III", "VIII"];
+
 export function timeline(p, rp = null) {
   if (!p.category) return [];
-  const rows = OBLIGATIONS.filter((o) => o.categories.includes(p.category.id) && o.roles.includes(p.role.id) && !(o.notSmall && p.under40m === "yes") && (!o.onlyIf || rp?.status === o.onlyIf)).map((o) => {
+  const rows = OBLIGATIONS.filter((o) => o.categories.includes(p.category.id) && o.roles.includes(p.role.id) && !(o.notSmall && p.under40m === "yes") && (!o.onlyIf || rp?.status === o.onlyIf) && !(p.nuclear === "yes" && NUCLEAR_DISAPPLIED_CHAPTERS.includes(o.chapter))).map((o) => {
     let state;
     let days = null;
     if (o.from === null) state = "pending";
@@ -136,6 +142,7 @@ export function compute(input) {
     if (rp.status === "gap" || rp.status === "unknown") findings.push({ severity: "high", title: "No EU operator is confirmed. Name an EU authorised representative or sell through an EU importer, and appoint an EPR representative in each country you sell into." });
     if (rp.status === "fallback") findings.push({ severity: "high", title: rp.reason });
     if (rp.status === "check") findings.push({ severity: "medium", title: rp.reason });
+    if (p.nuclear === "yes") findings.push({ severity: "info", title: "For equipment designed for the safety of nuclear installations, Chapter III (label, collection symbol, QR code) and Chapter VIII (producer registration and take-back) do not apply (Art 1(6)). Every other duty does." });
     for (const r of overdue) findings.push({ severity: "high", title: `Applies since ${r.from}: ${r.label} (${r.article}).` });
     for (const r of open.filter((x) => x.state === "soon")) findings.push({ severity: "medium", title: `Applies in ${r.days} days (${r.from}): ${r.label} (${r.article}).` });
     for (const r of open.filter((x) => x.state === "pending")) findings.push({ severity: "info", title: `Date waits on EU delegated or implementing acts: ${r.label} (${r.article}).` });
@@ -146,7 +153,7 @@ export function compute(input) {
   return { input: p, category: p.category, role: p.role, location: p.location, verdict, responsible: rp, timeline: rows, open, overdue, findings };
 }
 
-export const SAMPLE = { category: "lmt", role: "importer", location: "noneu", sellsEu: "yes", euOperator: "no", under40m: "yes", today: "", substances: "", conformity: "1", epr: "", handling: "", operator: "", collection: "", label: "", removable: "", qr: "", passport: "", diligence: "", recycled: "", carbon: "" };
+export const SAMPLE = { category: "lmt", role: "importer", location: "noneu", sellsEu: "yes", euOperator: "no", under40m: "yes", nuclear: "no", today: "", substances: "", conformity: "1", epr: "", handling: "", operator: "", collection: "", label: "", removable: "", qr: "", passport: "", diligence: "", recycled: "", carbon: "" };
 
 const STATE_TEXT = { applies: "applies now", soon: "applies within a year", later: "applies later", pending: "date not yet set" };
 const RP_TEXT = { self: "you can carry the operator's duties", fallback: "you are the responsible operator", covered: "covered by an EU operator", check: "check who is named", gap: "gap: no EU operator", unknown: "not confirmed" };
