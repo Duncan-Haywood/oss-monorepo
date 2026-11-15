@@ -1,0 +1,436 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKim3Uy2S8QDepRPMMM",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T05:18:15Z",
+  "ended": "2026-11-15T05:19:00Z",
+  "wall_minutes": 9.07,
+  "tokens_in": 6218578,
+  "tokens_out": 32019,
+  "cost_usd": 2.7352,
+  "tool_calls": 62,
+  "task": "redteam: wash-sale-checker calc.mjs campaign plus a random-draw campaign; real-defect hunt in the CSV parser",
+  "projects": [
+    "wash-sale-checker",
+    "h1b-weighted-lottery-odds-calculator",
+    "roofing-insurance-supplement-finder",
+    "shopify-inventory-reorder-planner"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16105",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix each open defect, but all 12 open entries are control-plane fixes already written in owner-gated PRs; the step could say to skip entries whose patched_in PR is open, or redteam.py open could print the PR it is waiting on."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20 | grep` for a named venture printed nothing and `targets` lists only 7 calc.mjs of ~1,000 guarded calculators; passing --target worked, but which files the draw covers is not obvious."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "A campaign on one copy of the shared usage.mjs counts a mutant as escaped even when platform/ci/usage_contract.mjs (portfolio-validate) catches it repo-wide; catch rate measures the venture's own suite only, which undercounts CI guards."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-redteam-wash-sale-title-line.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 12 open entries, all control-plane, all with open owner-gated PRs (#15871, #14877, #15248, #15561, #14698, #15945, #15728, #14612); none re-fixed. Campaign 1 wash-sale-checker/calc.mjs 9/10 (1 equivalent epsilon). Campaign 2 random draw roofing-insurance-supplement-finder/usage.mjs 6/8 (1 equivalent, 1 gap already caught by usage_contract.mjs in CI, verified by applying the mutant by hand; test added to the copy; rerun caught_after_fix true). Real defects: title line above header refused the whole file; row numbers skipped blank lines (also fixed in h1b-weighted-lottery-odds-calculator parseCsv). Each test failed on the unfixed code (checked by restoring HEAD calc.mjs) and passes after. Verification: run_venture_tests.py on the 3 slugs ok (3 suites, 0 failed); check_post_frontmatter and check_post_links clean; run_workflow_locally --for-changes result below. Guard (4b): no new automated check this run; the class guard for the usage counter (usage_contract.mjs) already exists and was confirmed to catch the escaped mutant. Sibling sweep for the blank-line numbering bug: grep over ventures/*/calc.mjs for filter(l.trim()) with n+2/i+2 found 3; h1b and shopify-inventory-reorder-planner had the same bug and are fixed with failing-first tests; shift-roster-builder's matches report no row numbers.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wash-sale-checker/calc.mjs",
+        "test": "node --test ventures/wash-sale-checker/**/*.test.mjs  (in .)",
+        "seed": 672083897,
+        "commit": "b768360d5",
+        "sites": 225,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 36,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "else if (/-$/.test(b)) { neg = true; b = b.slice(0, -1); }",
+            "after": "else if (/-$/.test(b)) { neg = true; b = b.slice(0, -2); }",
+            "line_text": "  else if (/-$/.test(b)) { neg = true; b = b.slice(0, -1); }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 61,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const head = splitLine(lines[0], delim).map((h) => h.toLowerCase());",
+            "after": "const head = splitLine(lines[1], delim).map((h) => h.toLowerCase());",
+            "line_text": "  const head = splitLine(lines[0], delim).map((h) => h.toLowerCase());",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 98,
+            "col": 28,
+            "operator": "ge-to-gt",
+            "before": "const amount = c.amount >= 0 ? Math.abs(num(f[c.amount])) : NaN;",
+            "after": "const amount = c.amount > 0 ? Math.abs(num(f[c.amount])) : NaN;",
+            "line_text": "    const amount = c.amount >= 0 ? Math.abs(num(f[c.amount])) : NaN;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 105,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "const basis = c.basis >= 0 && side === \"sell\" && f[c.basis] !== \"\" ? Math.abs(num(f[c.basis])) : null;",
+            "after": "const basis = c.basis >= 0 || side === \"sell\" && f[c.basis] !== \"\" ? Math.abs(num(f[c.basis])) : null;",
+            "line_text": "    const basis = c.basis >= 0 && side === \"sell\" && f[c.basis] !== \"\" ? Math.abs(num(f[c.basis])) : null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 127,
+            "col": 42,
+            "operator": "minus-to-plus",
+            "before": "const take = Math.min(need, lot.qty - lot.soldFromTaxable);",
+            "after": "const take = Math.min(need, lot.qty + lot.soldFromTaxable);",
+            "line_text": "      const take = Math.min(need, lot.qty - lot.soldFromTaxable);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 131,
+            "col": 40,
+            "operator": "and-to-or",
+            "before": "while (rest > 1e-9 && lot.carried && lot.carried.length) {",
+            "after": "while (rest > 1e-9 && lot.carried || lot.carried.length) {",
+            "line_text": "      while (rest > 1e-9 && lot.carried && lot.carried.length) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 138,
+            "col": 33,
+            "operator": "gt-to-ge",
+            "before": "const unmatchedShares = need > 1e-9 ? need : 0;",
+            "after": "const unmatchedShares = need >= 1e-9 ? need : 0;",
+            "line_text": "    const unmatchedShares = need > 1e-9 ? need : 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "need > 1e-9 vs >= 1e-9 differ only when the unsold remainder is exactly 1e-9 shares, a float-noise threshold below any broker share precision (1e-6 at most); the only effect is whether the basis-unknown note prints for that remainder. Mutating the twin line `if (need <= 1e-9) break;` is the same epsilon."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 152,
+            "col": 38,
+            "operator": "lt-to-le",
+            "before": "if (b.sym !== s.sym || b.date < lo || b.date > hi) continue;",
+            "after": "if (b.sym !== s.sym || b.date <= lo || b.date > hi) continue;",
+            "line_text": "        if (b.sym !== s.sym || b.date < lo || b.date > hi) continue;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 152,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "if (b.sym !== s.sym || b.date < lo || b.date > hi) continue;",
+            "after": "if (b.sym !== s.sym || b.date < lo && b.date > hi) continue;",
+            "line_text": "        if (b.sym !== s.sym || b.date < lo || b.date > hi) continue;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 171,
+            "col": 26,
+            "operator": "eq-flip",
+            "before": "const share = i === sale.replacements.length - 1 ? left : r2(disallowed * (rep.qty / matched));",
+            "after": "const share = i !== sale.replacements.length - 1 ? left : r2(disallowed * (rep.qty / matched));",
+            "line_text": "          const share = i === sale.replacements.length - 1 ? left : r2(disallowed * (rep.qty / matched));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+        "test": "node --test ventures/roofing-insurance-supplement-finder/**/*.test.mjs  (in .)",
+        "seed": 660826732,
+        "commit": "b768360d5",
+        "sites": 24,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+            "line": 13,
+            "col": 11,
+            "operator": "true-to-false",
+            "before": "return true;",
+            "after": "return false;",
+            "line_text": "    return true;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "noStorage() catch returning false instead of true: every later localStorage access (usageOptedOut, record, readUsage, setUsageOptOut) is inside its own try, so a store whose global read throws is still handled; platform/ci/usage_contract.mjs blocked-store checks also pass with the mutant applied (run by hand)."
+          },
+          {
+            "file": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+            "line": 22,
+            "col": 39,
+            "operator": "true-to-false",
+            "before": "if (globalThis.__usageOptOut) return true;",
+            "after": "if (globalThis.__usageOptOut) return false;",
+            "line_text": "  if (globalThis.__usageOptOut) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+            "line": 24,
+            "col": 57,
+            "operator": "eq-flip",
+            "before": "return !noStorage() && localStorage.getItem(OPT_OUT) === \"1\";",
+            "after": "return !noStorage() && localStorage.getItem(OPT_OUT) !== \"1\";",
+            "line_text": "    return !noStorage() && localStorage.getItem(OPT_OUT) === \"1\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+            "line": 34,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack !== \"1\" || navigator.globalPrivacyControl) return true;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+            "line": 34,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" && navigator.globalPrivacyControl) return true;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+            "line": 49,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current !== \"object\" && Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Own suite never stored valid non-object JSON. Already caught repo-wide by platform/ci/usage_contract.mjs (portfolio-validate, check_storage_guard.py; verified by hand with the mutant applied); added the same case to this copy's usage.test.mjs."
+          },
+          {
+            "file": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+            "line": 50,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) - 1;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/roofing-insurance-supplement-finder/usage.mjs",
+            "line": 50,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wash-sale-checker/calc.mjs",
+        "issue": "parseTrades took line 1 as the header, so an export with a title or account line above the header (Schwab's older 'Transactions for account ... as of ...' line, a 'For Account:' block) was refused whole with 'Need columns for: date, symbol, action (buy/sell), quantity.' Fixed: the first of the first 10 non-blank lines that names every required column is the header; tests in calc.test.mjs.",
+        "patched": true
+      },
+      {
+        "file": "ventures/wash-sale-checker/calc.mjs",
+        "issue": "Row numbers were counted after blank lines were dropped, so errors and sale lines pointed at the wrong row in any file with blank lines (Fidelity's export ends with a blank line and a disclaimer: the disclaimer at line 7 was reported as 'Line 4'). Fixed: each row keeps its own line number in the file.",
+        "patched": true
+      },
+      {
+        "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+        "issue": "parseCsv dropped blank rows and normalizeSales/normalizeStock numbered skipped rows i + 2, so a blank line or a quoted note with a line break made a skipped row's line point at the wrong file line. Fixed: parseCsv tags each row with the file line it starts on.",
+        "patched": true
+      },
+      {
+        "file": "ventures/h1b-weighted-lottery-odds-calculator/calc.mjs",
+        "issue": "parseCsv numbered rows n + 2 after dropping blank lines, so 'Line N: wage level must be ...' pointed at the wrong row. Fixed: rows keep their file line.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e2e27fb-0645-5251-8329-ad0ca86b682b",
+    "transcripts": 1,
+    "first": "2026-11-15T05:18:15Z",
+    "last": "2026-11-15T05:27:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 121,
+        "output": 32019,
+        "thinking": 9572,
+        "cache_read": 6109404,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109053,
+        "api_equivalent_usd": 2.7352,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 121,
+      "output": 32019,
+      "thinking": 9572,
+      "cache_read": 6109404,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109053,
+      "api_equivalent_usd": 2.7352,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.07,
+      "active_minutes": 9.07,
+      "model_minutes": 6.57,
+      "tool_minutes": 2.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: two mutation campaigns with triage, reproduce and fix 4 parser defects across 3 products with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 109.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
