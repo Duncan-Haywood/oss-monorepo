@@ -8,7 +8,7 @@ first time it is asked for and loaded through ``ctypes`` (the build and cache ru
 ``shootflow.ljpeg_native``: ``$CC`` or ``cc``, ``$SHOOTFLOW_CACHE``, ``SHOOTFLOW_NATIVE=0`` turns it
 off). With no compiler or a failed build ``piece()`` returns ``None`` and the numpy path runs.
 
-What it covers: the default settings and ``rb="simple"``, any ``window`` and ``power``. The optional
+What it covers: the default settings and ``rb="simple"``, any ``window``, ``power`` and ``laplace``. The optional
 median clean-up (``median_passes > 0``) stays numpy-only. The two paths agree to float32 rounding,
 not bit for bit (the C compiler may contract ``a * b + c``; ``-ffp-contract=off`` is passed to keep
 that rare): ``tests/test_bayer_native.py`` holds them within 1e-5 of full scale on edges, gratings,
@@ -64,7 +64,7 @@ static void box_sum(const float *a, float *tmp, float *out, long R, long W, int 
 static inline float powr(float t, float p) { return p == 2.0f ? t * t : powf(t, p); }
 
 long shootflow_bayer_piece(const float *c, const int8_t *col, long R, long W, int window, float power,
-                           int simple, float eps, long oy0, long orows, long ox0, long ow,
+                           float lap, int simple, float eps, long oy0, long orows, long ox0, long ow,
                            float *out, long ostride) {
     size_t n = (size_t)R * W;
     if (window < 0 || window > M - 4) return -2;
@@ -87,8 +87,8 @@ long shootflow_bayer_piece(const float *c, const int8_t *col, long R, long W, in
         for (long x = 0; x < W; x++) {
             size_t i = (size_t)y * W + x;
             float cc = c[i];
-            float eh = (AT(c, y, x - 1) + AT(c, y, x + 1)) / 2.0f + ((2.0f * cc - AT(c, y, x - 2)) - AT(c, y, x + 2)) / 4.0f;
-            float ev = (AT(c, y - 1, x) + AT(c, y + 1, x)) / 2.0f + ((2.0f * cc - AT(c, y - 2, x)) - AT(c, y + 2, x)) / 4.0f;
+            float eh = (AT(c, y, x - 1) + AT(c, y, x + 1)) / 2.0f + ((2.0f * cc - AT(c, y, x - 2)) - AT(c, y, x + 2)) * lap;
+            float ev = (AT(c, y - 1, x) + AT(c, y + 1, x)) / 2.0f + ((2.0f * cc - AT(c, y - 2, x)) - AT(c, y + 2, x)) * lap;
             float s = col[i] == 1 ? 1.0f : -1.0f;
             est_h[i] = eh; est_v[i] = ev;
             dh[i] = s * (cc - eh); dv[i] = s * (cc - ev);
@@ -210,7 +210,7 @@ def _load():
     fn = lib.shootflow_bayer_piece
     fn.restype = ctypes.c_long
     L, P = ctypes.c_long, ctypes.c_void_p
-    fn.argtypes = [P, P, L, L, ctypes.c_int, ctypes.c_float, ctypes.c_int, ctypes.c_float, L, L, L, L, P, L]
+    fn.argtypes = [P, P, L, L, ctypes.c_int, ctypes.c_float, ctypes.c_float, ctypes.c_int, ctypes.c_float, L, L, L, L, P, L]
     return fn
 
 
@@ -228,7 +228,8 @@ def available() -> bool:
     return function() is not None
 
 
-def piece(c, colours, window: int, power: float, simple: bool, eps: float, oy0: int, ox0: int, out) -> bool:
+def piece(c, colours, window: int, power: float, simple: bool, eps: float, oy0: int, ox0: int, out,
+          laplace: float = 0.1875) -> bool:
     """Demosaic the padded band ``c`` (float32, C-contiguous, colour per sensel in ``colours``, int8) into
     ``out`` (a (rows, cols, 3) float32 view with unit column stride), whose top-left is band row ``oy0``,
     column ``ox0``. False when the C path is unavailable (the caller runs numpy)."""
@@ -245,7 +246,7 @@ def piece(c, colours, window: int, power: float, simple: bool, eps: float, oy0: 
     if three != 3 or out.dtype != np.float32 or out.strides[1] != 12 or out.strides[2] != 4:
         raise ValueError("out must be a float32 (rows, cols, 3) view with packed sensels")
     rc = fn(
-        c.ctypes.data, colours.ctypes.data, R, W, int(window), float(power), 1 if simple else 0, float(eps),
+        c.ctypes.data, colours.ctypes.data, R, W, int(window), float(power), float(laplace), 1 if simple else 0, float(eps),
         oy0, rows, ox0, cols, out.ctypes.data, out.strides[0] // 4,
     )
     if rc == -2:

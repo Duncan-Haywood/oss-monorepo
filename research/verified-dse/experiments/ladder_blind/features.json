@@ -1,0 +1,58 @@
+{
+ "bcd2": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 20,
+  "amount_gates": 41,
+  "mux_share": 0.806,
+  "shift_width": 128
+ },
+ "bcd3": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "amount_gate_depth": 30,
+  "amount_gates": 91,
+  "mux_share": 0.674,
+  "shift_width": 128
+ },
+ "cmp16": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 28,
+  "amount_gates": 97,
+  "mux_share": 0.7741,
+  "shift_width": 128
+ },
+ "cmp48": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 40,
+  "amount_gates": 266,
+  "mux_share": 0.6743,
+  "shift_width": 128
+ },
+ "crc7s16": {
+  "amount_cells": 46,
+  "amount_depth": 31,
+  "amount_gate_depth": 18,
+  "amount_gates": 120,
+  "mux_share": 0.8131,
+  "shift_width": 128
+ },
+ "fib12": {
+  "amount_cells": 1,
+  "amount_depth": 1,
+  "amount_gate_depth": 51,
+  "amount_gates": 252,
+  "mux_share": 0.6137,
+  "shift_width": 128
+ },
+ "fib14": {
+  "amount_cells": 1,
+  "amount_depth": 1,
+  "amount_gate_depth": 58,
+  "amount_gates": 374,
+  "mux_share": 0.6386,
+  "shift_width": 128
+ }
+}

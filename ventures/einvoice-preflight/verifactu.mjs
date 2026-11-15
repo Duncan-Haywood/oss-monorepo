@@ -38,6 +38,7 @@
 import { parseXmlTree } from "./ubl.mjs";
 import { sha256 } from "./zatca-stamp.mjs";
 import { esOk } from "./vat.mjs";
+import { COUNTRY_CODES, GENERATED_BY, ID_TYPES, REGIME_CODES, TAX_CODES } from "./verifactu-lists.mjs";
 
 const RECORD_ROOTS = new Set(["RegistroAlta", "RegistroAnulacion"]);
 const INVOICE_TYPES = {
@@ -107,6 +108,7 @@ function readRecord(node, index) {
   const prev = kid(enc, "RegistroAnterior");
   const lines = kids(kid(node, "Desglose"), "DetalleDesglose").map((d) => ({
     tax: val(d, "Impuesto") || "01",
+    rawTax: val(d, "Impuesto"),
     regime: val(d, "ClaveRegimen"),
     qualification: val(d, "CalificacionOperacion"),
     exempt: val(d, "OperacionExenta"),
@@ -118,6 +120,8 @@ function readRecord(node, index) {
     surcharge: val(d, "CuotaRecargoEquivalencia"),
   }));
   const tercero = kid(node, "Tercero");
+  const generador = kid(node, "Generador");
+  const otro = (n) => (kid(n, "IDOtro") ? { country: val(n, "IDOtro", "CodigoPais"), type: val(n, "IDOtro", "IDType"), id: val(n, "IDOtro", "ID") } : null);
   // AEAT code 1287: no value may contain < > " ' = (checked on the decoded text).
   const badChars = [];
   (function walk(n, path) {
@@ -129,7 +133,7 @@ function readRecord(node, index) {
   const recipients = kids(kid(node, "Destinatarios"), "IDDestinatario").map((d) => ({
     name: val(d, "NombreRazon"),
     nif: val(d, "NIF"),
-    other: kid(d, "IDOtro") ? { country: val(d, "IDOtro", "CodigoPais"), type: val(d, "IDOtro", "IDType"), id: val(d, "IDOtro", "ID") } : null,
+    other: otro(d),
   }));
   return {
     index,
@@ -161,7 +165,10 @@ function readRecord(node, index) {
     art61d: val(node, "FacturaSinIdentifDestinatarioArt61d"),
     agreement: val(node, "NumRegistroAcuerdoFacturacion"),
     issuedBy: val(node, "EmitidaPorTerceroODestinatario"),
-    third: tercero ? { nif: val(tercero, "NIF"), other: !!kid(tercero, "IDOtro"), type: val(tercero, "IDOtro", "IDType") } : null,
+    third: tercero ? { nif: val(tercero, "NIF"), other: !!kid(tercero, "IDOtro"), type: val(tercero, "IDOtro", "IDType"), ids: otro(tercero) } : null,
+    generatedBy: val(node, "GeneradoPor"),
+    generator: generador ? { nif: val(generador, "NIF"), other: otro(generador) } : null,
+    systemFlags: [["TipoUsoPosibleSoloVerifactu", "1212"], ["TipoUsoPosibleMultiOT", "1213"], ["IndicadorMultiplesOT", "1226"]].map(([name, code]) => ({ name, code, value: val(node, "SistemaInformatico", name) })),
     systemNif: val(node, "SistemaInformatico", "NIF"),
     generated: val(node, "FechaHoraHusoGenRegistro"),
     rawGenerated: raw(node, "FechaHoraHusoGenRegistro"),
@@ -245,7 +252,7 @@ export function readVerifactu(source) {
 }
 
 // Findings for one record on its own (no chain).
-export function recordFindings(r) {
+export function recordFindings(r, { now = new Date() } = {}) {
   const out = [];
   const at = r.kind === "alta" ? "/RegistroAlta" : "/RegistroAnulacion";
   const label = `${r.kind === "alta" ? "Record" : "Cancellation record"} ${r.index + 1} (${idText(r.id)})`;
@@ -326,6 +333,7 @@ export function recordFindings(r) {
   for (const b of r.badChars || []) {
     push("VF-042", `${b.path.slice(1)} "${b.value.slice(0, 60)}" contains a character AEAT refuses (< > " ' =).`, "Remove the character or replace it (an apostrophe in a name, for example, by a plain space); AEAT rejects the record whatever the XML escaping (AEAT code 1287).", b.path);
   }
+  listRules(r, push);
   if (r.kind !== "alta") return out;
 
   // Invoice type, recipients, corrective fields.
@@ -423,6 +431,7 @@ export function recordFindings(r) {
     push("VF-016", `ImporteTotal ${r.importeTotal} is not the breakdown's bases plus tax (${fmt(base + cuota)}).`, "ImporteTotal is the bases plus tax and surcharge (a rounding difference up to 0.02 is accepted here). A withholding (IRPF) is not deducted from it.", "/ImporteTotal", { severity: "warning" });
   }
   aeatRecordRules(r, push);
+  dateAndRateRules(r, push, now);
   return out;
 }
 
@@ -549,6 +558,92 @@ function aeatRecordRules(r, push) {
       if (row && allowed && !allowed.includes(sRate)) push("VF-032", `breakdown line ${i + 1}: surcharge rate ${l.surchargeRate}% beside VAT ${l.rate}% on ${opDate ?? "an unknown date"}; AEAT accepts ${allowed.join(" or ")}%.`, `Use the surcharge rate that goes with the VAT rate on the operation's date (AEAT code ${row.code}).`, p);
       if (row && !allowed) push("VF-032", `breakdown line ${i + 1}: VAT ${l.rate}% with an equivalence surcharge on ${opDate ?? "an unknown date"}, a date for which AEAT lists no surcharge rate at ${l.rate}%.`, `Check the VAT rate and the operation's date (AEAT code ${row.code}).`, p);
     }
+  });
+}
+
+// Values outside the schema's code lists, the S/N flags of SistemaInformatico, and the
+// Generador block of a cancellation (AEAT codes 1101, 1111, 1212, 1213, 1218, 1224-1231,
+// 1246, 1254, 1255). The lists are in verifactu-lists.mjs.
+function listRules(r, push) {
+  const parties = [
+    ...r.recipients.map((d, i) => [`recipient ${i + 1}`, d.other, `/Destinatarios/IDDestinatario[${i + 1}]/IDOtro`]),
+    ["the third party", r.third?.ids, "/Tercero/IDOtro"],
+    ["the generator", r.generator?.other, "/Generador/IDOtro"],
+  ];
+  const opDate = iso(r.operationDate) || iso(r.id?.date);
+  for (const [who, o, p] of parties) {
+    if (!o) continue;
+    if (o.country && !COUNTRY_CODES.has(o.country)) push("VF-043", `${who}'s CodigoPais "${o.country}" is not in the AEAT's country list.`, "Use the ISO 3166 two-letter code from the AEAT's list (CountryType2); Greece is GR there, Northern Ireland has no code of its own (AEAT code 1101).", `${p}/CodigoPais`);
+    if (!o.country && o.type && o.type !== "02") push("VF-043", `${who} is identified by IDOtro type ${o.type} with no CodigoPais.`, "Write CodigoPais; only a VAT number (IDType 02) may leave it out, as its prefix names the country (AEAT code 1111).", `${p}/CodigoPais`);
+    if (o.type && !ID_TYPES.has(o.type)) push("VF-043", `${who}'s IDType "${o.type}" is not one of 02 to 07.`, `Use 02 (VAT number), 03 (passport), 04 (official ID of the country of residence), 05 (residence certificate), 06 (other document) or 07 (not in the census) (AEAT code ${who === "the generator" ? "1231" : "1100"}).`, `${p}/IDType`);
+    // NIF-IVA prefixes around Brexit: XI (Northern Ireland) from 2021, GB until January 2021.
+    const id = String(o.id || "").toUpperCase();
+    if (o.type === "02" && opDate) {
+      if (id.startsWith("XI") && opDate < "2021-01-01") push("VF-046", `${who}'s VAT number ${o.id} starts with XI on an operation dated before 1 January 2021.`, "XI numbers (Northern Ireland) exist from 2021; use the GB number for earlier operations (AEAT code 1254).", `${p}/ID`);
+      if (id.startsWith("GB") && opDate >= "2021-02-01") push("VF-046", `${who}'s VAT number ${o.id} starts with GB on an operation dated ${opDate}, after Brexit.`, "A British VAT number is no longer an EU VAT number (IDType 02): a Northern Ireland trader goes as XI, others under IDType 04 or 06 (AEAT code 1255).", `${p}/IDType`);
+    }
+  }
+  for (const f of r.systemFlags || []) {
+    if (f.value !== null && !["S", "N"].includes(f.value)) push("VF-043", `SistemaInformatico/${f.name} is "${f.value}", not S or N.`, `Write ${f.name} S or N (AEAT code ${f.code}).`, `/SistemaInformatico/${f.name}`);
+  }
+  r.lines.forEach((l, i) => {
+    const p = `/Desglose/DetalleDesglose[${i + 1}]`;
+    if (l.rawTax !== null && !TAX_CODES.has(l.rawTax)) push("VF-043", `breakdown line ${i + 1}: Impuesto "${l.rawTax}" is not 01 (VAT), 02 (IPSI), 03 (IGIC) or 05 (other).`, "Use one of the four tax codes (AEAT code 1218).", `${p}/Impuesto`);
+    if (l.regime !== null && !REGIME_CODES.has(l.regime)) push("VF-043", `breakdown line ${i + 1}: ClaveRegimen "${l.regime}" is not in the AEAT's list.`, `Use one of ${[...REGIME_CODES].join(", ")}; 12, 13 and 16 are not VERI*FACTU regime keys (AEAT code 1246).`, `${p}/ClaveRegimen`);
+  });
+  // Generador: who generated a cancellation record (RegistroAnulacion only).
+  const g = r.generator, by = r.generatedBy;
+  if (by === null && !g) return;
+  const P = "/Generador";
+  if ((by === null) !== !g) push("VF-047", by === null ? "has a Generador block but no GeneradoPor." : `says GeneradoPor ${by} but has no Generador block.`, "Write GeneradoPor and Generador together, or neither (AEAT code 1224).", by === null ? "/GeneradoPor" : P);
+  if (by !== null && !GENERATED_BY.has(by)) push("VF-047", `GeneradoPor is "${by}", not E, D or T.`, "Write E (the issuer), D (the recipient) or T (a third party) (AEAT code 1225).", "/GeneradoPor");
+  if (!g) return;
+  if (!!g.nif === !!g.other) push("VF-047", g.nif ? "Generador carries both NIF and IDOtro." : "Generador carries neither NIF nor IDOtro.", "Identify the generator by NIF or by IDOtro, one of the two (AEAT code 1228).", P);
+  if (by === "E" && !g.nif) push("VF-047", "GeneradoPor is E (the issuer) but Generador has no NIF.", "The issuer generating its own cancellation is identified by NIF (AEAT code 1227).", `${P}/NIF`);
+  if (by === "T" && g.other?.type === "07") push("VF-047", "GeneradoPor is T (a third party) with Generador IDType 07 (not in the census).", "A third party that generates the record cannot be IDType 07 (AEAT code 1229).", `${P}/IDOtro/IDType`);
+  if (by === "D" && g.other?.country === "ES" && g.other.type && !["03", "07"].includes(g.other.type)) push("VF-047", `GeneradoPor is D (the recipient), Spanish (CodigoPais ES), with Generador IDType ${g.other.type}.`, "A Spanish recipient in IDOtro is a passport (03) or not in the census (07); otherwise use NIF (AEAT code 1230).", `${P}/IDOtro/IDType`);
+  if (g.nif && !nifLike(g.nif)) push("VF-047", `Generador's NIF "${g.nif}" is not shaped like a Spanish NIF.`, "Write the NIF without spaces, dashes or the ES prefix (AEAT code 1258).", `${P}/NIF`);
+  else if (g.nif && !esOk(g.nif)) push("VF-047", `Generador's NIF ${g.nif} fails its check character.`, "Check the NIF; AEAT matches it against its census (AEAT code 1258).", `${P}/NIF`, { severity: "warning" });
+  if (g.nif && by !== "E" && r.id?.issuer && g.nif.toUpperCase() === r.id.issuer.toUpperCase()) push("VF-047", `GeneradoPor is ${by ?? "absent"} but Generador's NIF is the issuer's own (${g.nif}).`, "Only GeneradoPor E names the issuer; a recipient or third party has its own NIF (AEAT code 1259).", `${P}/NIF`);
+}
+
+// Spanish VAT rates the AEAT's codes name, with the dates each holds: 21, 10 and 4 always
+// (1162-1164, 1206); 5% from 1 July 2022 to 30 September 2024 (1194, matching the 5%
+// surcharge windows of 1167 and 1168); 2% and 7.5% from 1 October to 31 December 2024
+// (1235 and 1236, matching 1166 and 1169); 0% (S2 lines and 1165, 1170); and 7, 8, 16,
+// 18 up to 2012 (1132). The AEAT's own list (1124) is in its validation document, which
+// this tool could not fetch, so a rate outside these is a warning, not an error.
+const VAT_RATE_WINDOWS = [
+  { rate: 21 }, { rate: 10 }, { rate: 4 }, { rate: 0 },
+  { rate: 5, from: "2022-07-01", to: "2024-09-30", code: "1194" },
+  { rate: 2, from: "2024-10-01", to: "2024-12-31", code: "1235, 1236" },
+  { rate: 7.5, from: "2024-10-01", to: "2024-12-31", code: "1235, 1236" },
+  ...[7, 8, 16, 18].map((rate) => ({ rate, to: "2012-12-31", code: "1132" })),
+];
+const ymd = (d) => d.toISOString().slice(0, 10);
+const yearsBefore = (d, n) => `${String(d.getUTCFullYear() - n).padStart(4, "0")}${ymd(d).slice(4)}`;
+
+// Dates against the AEAT's clock (1133, 1134, 1146, 1173) and the VAT rate list by date
+// (1124, 1132, 1194, 1235, 1236). `now` is the day the record would be sent.
+function dateAndRateRules(r, push, now) {
+  const today = ymd(now), floor = yearsBefore(now, 20);
+  const issued = iso(r.id?.date), op = iso(r.operationDate);
+  if (issued && issued < floor) push("VF-044", `the issue date ${r.id.date} is more than twenty years before ${today}.`, "Check the issue date's year (AEAT code 1133).", "/IDFactura/FechaExpedicionFactura");
+  if (op && op < floor) push("VF-044", `FechaOperacion ${r.operationDate} is more than twenty years before ${today}.`, "Check the operation date's year (AEAT code 1134).", "/FechaOperacion");
+  // An operation after the issue date, or in the future, is allowed only for public works
+  // certifications and similar (ClaveRegimen 14 or 15 on VAT, IGIC or an empty Impuesto).
+  const deferred = r.lines.some((l) => ["14", "15"].includes(l.regime) && (l.rawTax === null || l.rawTax === "01" || l.rawTax === "03"));
+  if (op && issued && op > issued && !deferred) push("VF-044", `FechaOperacion ${r.operationDate} is after the issue date ${r.id.date}, and no breakdown line is under ClaveRegimen 14 or 15.`, "An invoice is issued on or after the operation; only regimes 14 and 15 (VAT or IGIC) may invoice ahead of it (AEAT code 1146).", "/FechaOperacion");
+  if (op && op > today && !deferred) push("VF-044", `FechaOperacion ${r.operationDate} is in the future (after ${today}), and no breakdown line is under ClaveRegimen 14 or 15.`, "Only regimes 14 and 15 (VAT or IGIC) may carry a future operation date (AEAT code 1173).", "/FechaOperacion");
+  const when = op || issued;
+  r.lines.forEach((l, i) => {
+    if (l.rawTax !== null && l.rawTax !== "01") return; // IGIC and IPSI rates differ; not checked
+    const rate = num(l.rate);
+    if (rate === null) return;
+    const p = `/Desglose/DetalleDesglose[${i + 1}]/TipoImpositivo`;
+    const row = VAT_RATE_WINDOWS.find((w) => w.rate === rate);
+    if (!row) { push("VF-045", `breakdown line ${i + 1}: VAT rate ${l.rate}% is not a Spanish VAT rate the AEAT's codes name (21, 10, 5, 4, 2, 0 and 7.5, or 7, 8, 16, 18 up to 2012).`, "Check TipoImpositivo; the AEAT rejects a rate outside its list (AEAT code 1124).", p, { severity: "warning" }); return; }
+    if (when && (row.from || row.to) && !inRange(when, row.from || "0000-01-01", row.to)) push("VF-045", `breakdown line ${i + 1}: VAT ${l.rate}% on ${when}, outside the dates it applied (${row.from ?? "until"}${row.from ? " to " : " "}${row.to}).`, `Use the rate in force on the operation's date (FechaOperacion, else the issue date) (AEAT code ${row.code}).`, p);
   });
 }
 
