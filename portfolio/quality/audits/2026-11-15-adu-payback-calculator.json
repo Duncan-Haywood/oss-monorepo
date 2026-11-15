@@ -190,7 +190,8 @@
    "what": "Loan term 0 (or under ~0.04 years) with a financed share above 0 is accepted; monthlyPayment and loanBalance return 0 for n<=0, so the loan becomes free money: sample IRR 59.9% instead of an error (or 13.7% all-cash).",
    "where": "ventures/adu-payback-calculator/calc.mjs:135",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
   },
   {
    "severity": "medium",
@@ -225,7 +226,8 @@
    "what": "FAQ says the $220,000 / $23,800 example has 'a simple payback near eight years'; the tool gives 8.27 years with the sample's 3% growth (9.24 flat).",
    "where": "ventures/adu-payback-calculator/index.html:132",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
   },
   {
    "severity": "low",
@@ -242,6 +244,8 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+ ],
  "verdict": "The arithmetic is right: six headline outputs on the page's own example (payment $1,243.93, balance after 120 payments $138,394.78, equity IRR 30.31%, NPV@8% $106,312, interpolated payback 8.27 years, cash break-even rent $1,818) match an independent Python recomputation to the cent, and the page's claims and 'not modelled' list are honest. It misses the bar on verification: 3 of 5 seeded mutants in core rules survive (payback rounding, management in break-even rent, owner-use order). Two input paths give wrong numbers silently: a loan term of 0 makes an 80% loan free (IRR 59.9%), and a commaless first cost line disappears without a warning. For the named CPA/analyst the method is a sound pre-tax levered pro forma but omits 27.5-year depreciation and sale taxes, the first thing they would add. Finished (completeness 3), not at the bar (verification 2)."
 }

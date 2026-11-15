@@ -182,14 +182,16 @@
    "what": "The grocery markup is subtracted from cost before grossing up for margin, so the quote falls as the markup rises (0% $539.84, 15% $536.54, 100% $517.84) and the realised margin undershoots the target (19.5%, or 16.6% at 100%). With the default 15% markup every quote is under the chef's own target, and the advice says the markup is added 'plus'.",
    "where": "ventures/private-chef-service-price-calculator/calc.mjs:55",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
   },
   {
    "severity": "medium",
    "what": "Tests pin the buggy price ($536.54) and check the target margin only with the markup set to 0, so the markup defect is locked in instead of caught.",
    "where": "ventures/private-chef-service-price-calculator/calc.test.mjs:17",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
   },
   {
    "severity": "medium",
@@ -234,6 +236,8 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+ ],
  "verdict": "A small, private, well-disclaimed cost-plus calculator. Its hours build-up recomputes by hand ($431.88 cost on the sample), every listed feature runs, and the 24 tests pass. Its main insight is right and useful for a private chef: shopping, travel and cleanup make small tables expensive per head. It does not meet the bar. The headline price is wrong whenever a grocery markup is entered, which the default does: calc.mjs:55 subtracts the markup from cost before applying the margin, so a 15% markup lowers the quote from $539.84 to $536.54, and a 100% markup lowers it to $517.84 at a 16.6% realised margin. The advice tells the chef the markup is added. The tests pin that buggy figure. Two of five seeded mutants survive, including the effective-hourly headline. Blank fields silently take default values. A working chef would also miss service charge or gratuity, sales tax and a food-cost check before sending a quote."
 }
