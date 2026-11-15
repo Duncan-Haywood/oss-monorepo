@@ -1837,6 +1837,7 @@ taken from the English interface specification, 2026-02-12 edition, section 3.3.
 | HU-017 | INVOICE_REFERENCE_(NOT_)EXPECTED, LINE_MODIFICATION_(NOT_)EXPECTED, INVALID_LINE_OPERATION, LINE_NUMBER_REFERENCE_NOT_UNIQUE, SUPPLIER/CUSTOMER_NOT_IDENTICAL | modification structure, and the request's operation against it |
 | HU-018 | (register) | tax-number check digit (9-7-3-1) on supplier, customer and group members |
 | HU-027..032 | SCHEMA_VIOLATION | the schema gate (`hu-xsd.mjs`): an element not allowed or repeated (027), out of order (028), missing (029), a value outside its length, pattern, range, digits or code list (030), an attribute (031), an element in the wrong namespace, e.g. `taxpayerId` without `base:` (032) |
+| HU-033 (warnings) | INCORRECT_PRODUCT_CODE_FEE_*, MISSING_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_CALCULATION_* | product fee (termékdíj, Annex I ids 270-810): CSK/KT code types, the obligated flag against line content, line content against the summary, quantity and unit by code, quantity x rate, amounts by code and productChargeSum; Annex I's tolerance (1% of the HUF value, at least 1 HUF or 0.01 of the currency) |
 | HU-020..026 (warnings) | INCORRECT_LINE_CALCULATION_*, INCORRECT_SUMMARY_CALCULATION_*, INCORRECT_SUMMARY_DATA_* | quantity x price, VAT from net, gross, every HUF conversion, each VAT-rate row against its lines, invoice totals against the rows, simplified gross by VAT content; NAV's tolerance, 1% and at least one unit |
 
 **Measured on NAV's own samples** (`eval/hungary-nav-samples-2026-11-15.md`): of
@@ -1853,11 +1854,20 @@ test), so the page checks the hash in the browser too.
 
 Not checked (listed under `skipped`): what NAV checks against its own records
 (unique numbers, the base invoice of a modification, registered tax numbers),
-gzip-compressed operations, product-fee totals. Not done: a real business's
-report with NAV's response to compare verdicts.
+gzip-compressed operations, product fee lines against a summary when there are
+two (REFUND and DEPOSIT). Not done: a real business's report with NAV's response
+to compare verdicts.
 
-Tests: `hungary-nav.test.mjs` (14) on five of NAV's files kept in
-`fixtures/hungary-nav/` with NAV's MIT licence.
+**Product fee totals (2026-11-15, later; `eval/nav-product-fee-2026-11-15.md`).**
+An earlier note said Annex I (the warning descriptions) was not in NAV's
+repository. It is: the English specification dated 2026.02.12 carries it from
+about page 300. Its 13 product fee (termékdíj) warnings are HU-033. NAV's one
+product fee sample (`fixtures/hungary-nav/product-fee.xml`) is clean, and each
+warning is seeded into it in `hungary-nav-product-fee.test.mjs` (8 tests). No real
+business's product fee invoice has been read.
+
+Tests: `hungary-nav.test.mjs` (14) and `hungary-nav-product-fee.test.mjs` (8) on
+six of NAV's files kept in `fixtures/hungary-nav/` with NAV's MIT licence.
 
 ### The schema gate: invoiceData.xsd with NTCA common 1.0 (2026-11-15, latest)
 

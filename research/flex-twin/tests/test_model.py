@@ -58,5 +58,13 @@ class T(unittest.TestCase):
         self.assertIsNone(settle_time([0.0, 0.5, 0.0], 1.0, 1.0))
 
 
+    def test_published_worked_values(self):
+        # README and whitepaper quote these; the zeta they are quoted at was wrong once (quality census 2026-11-15)
+        self.assertEqual([round(eps_crit_cubic(d, 0.7), 4) for d in (0.01, 0.05)], [0.0143, 0.0714])
+        self.assertAlmostEqual(eps_crit_cubic(0.2, 0.7), 0.286, delta=0.001)
+        z = 2 ** -0.5
+        self.assertEqual(round(eps_crit_cubic(0.2, z) * z / 0.2, 4), 1.0055)
+        self.assertEqual(round(eps_crit_cubic(0.2, 0.7) * 0.7 / 0.2, 4), 1.0027)
+
 if __name__ == "__main__":
     unittest.main()

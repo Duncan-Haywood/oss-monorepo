@@ -67,6 +67,12 @@
           <tr><td><code>restricted_card</code></td><td>The card is restricted and cannot be used for this kind of payment.</td><td>hard</td></tr>
           <tr><td><code>invalid_account</code></td><td>The card or the account it is linked to is not valid.</td><td>hard</td></tr>
           <tr><td><code>new_account_information_failed</code></td><td>The issuer rejected the new account information.</td><td>hard</td></tr>
+          <tr><td><code>stop_payment_order</code></td><td>The customer asked their bank to stop this payment.</td><td>hard</td></tr>
+          <tr><td><code>revocation_of_authorization</code></td><td>The customer revoked authorization for this merchant.</td><td>hard</td></tr>
+          <tr><td><code>revocation_of_all_authorizations</code></td><td>The customer revoked all authorizations on the card.</td><td>hard</td></tr>
+          <tr><td><code>do_not_try_again</code></td><td>The issuer asks that the charge not be retried.</td><td>hard</td></tr>
+          <tr><td><code>merchant_blacklist</code></td><td>The issuer blocked payments to this merchant.</td><td>hard</td></tr>
+          <tr><td><code>security_violation</code></td><td>The issuer declined for a security reason.</td><td>hard</td></tr>
           <tr><td><code>expired_card</code></td><td>The card has expired.</td><td>update</td></tr>
           <tr><td><code>incorrect_number</code></td><td>The card number is wrong.</td><td>update</td></tr>
           <tr><td><code>invalid_number</code></td><td>The card number is not valid.</td><td>update</td></tr>

@@ -118,7 +118,8 @@ cyclehound --no-type --no-dynamic src/           # only loops that run at load t
 cyclehound --json src/ &gt; cycles.json              # components, loops, edges with line numbers
 cyclehound --graph --json src/ &gt; graph.json       # the whole graph, in madge's --json shape
 cyclehound --unresolved src/                     # relative imports that point at no file
-cyclehound --orphans src/                        # files nothing imports</pre>
+cyclehound --orphans src/                        # files nothing imports
+cyclehound --unused-exports src/                 # exports no file imports (ts-unused-exports' job)</pre>
     <p class="note">Needs a Rust toolchain (<code>rustup</code>). Respects <code>.gitignore</code>. <code>cyclehound --help</code> lists every option.</p>
   </section>
 
