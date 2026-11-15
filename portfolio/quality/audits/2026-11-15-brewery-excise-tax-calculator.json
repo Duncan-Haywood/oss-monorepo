@@ -200,28 +200,32 @@
    "what": "Growth table multiplies volume up to 3x but keeps the small-brewer status, so a brewer projected past 2,000,000 barrels still gets $3.50 on 60,000 barrels: 1M bbl x3 shows $47,250,000 instead of $48,000,000, and the 'cost of growing' the tool is built to show understates the loss of the reduced rate. No warning either.",
    "where": "ventures/brewery-excise-tax-calculator/calc.mjs:72",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
   },
   {
    "severity": "medium",
    "what": "A cleared allotment field is read as 0 (num('') = 0), so a small brewer silently loses the reduced rate: plan({halfKegs:200, allotment:''}) gives $1,600 instead of $350. The only signal is an advice line saying the share is 0.",
    "where": "ventures/brewery-excise-tax-calculator/calc.mjs:61",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
   },
   {
    "severity": "medium",
    "what": "Seven of eight seeded mutations survive: no test at the $1,000/$50,000 filing edges, at the marginal-rate boundary, for a small brewer above 6M barrels (t2 cap), for the 60,000 clamp, or for any package size other than half kegs.",
    "where": "ventures/brewery-excise-tax-calculator/calc.test.mjs:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
   },
   {
    "severity": "low",
    "what": "small=true is accepted with removals above 2,000,000 barrels and no warning that the reduced rate requires production of 2M or fewer.",
    "where": "ventures/brewery-excise-tax-calculator/calc.mjs:57",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
   },
   {
    "severity": "low",
@@ -259,6 +263,8 @@
    "origin": "audit"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+ ],
  "verdict": "A small, honest planning calculator whose core arithmetic is right: every recomputed tier total (70,000 bbl, 6.5M small, 2.5M non-small, the sample mix) and every FAQ per-package figure matches 26 U.S.C. 5051(a) as amended by the CBMA, and the page states its limits and disclaimer. It misses the bar on verification: 22 tests pass but 7 of 8 seeded bugs in the tier caps, boundaries, filing thresholds and package sizes survive. Two secondary outputs are wrong: the growth table keeps the $3.50 rate past 2M barrels of production, and a cleared allotment field silently becomes 0. Finished for what it claims; not a per-period F 5000.24 tool, which it says."
 }
