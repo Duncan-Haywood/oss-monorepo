@@ -186,32 +186,33 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: NAV chain, a base invoice and its corrections
-      checked together, HU-036/037, 58 of 58 mutants, eval/nav-chain-2026-11-15.md).
-      Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
-      signed Facturae file or FACe rejection; ZATCA: a real KSA note; SdI receipt
-      reader landed (NS/RC/MC/NE/DT/AT explained and paired with the file; a real
-      00305 reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA
-      rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
-      which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
-      (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
-      keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
-      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
-      Dutch file; India's INV-01 check on a real IRP payload; mandate texts: IL, ES,
-      SK, NRS, SRO 1852, Jordan open; Mexico CFDI 4.0 landed: open: SAT's CP error
-      matrix to map MX-070..080 to CP codes (omawww blocked), a real payroll or
-      export file, a PAC rejection compared; cCredPres rules and cClassTrib at IT
-      1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001)
-      landed, 211120 (removed in v1.40) flagged (README): open: a real event; a real
-      reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a
-      cClassTrib; national NFS-e landed: open: a national rejection compared; ISS
-      2-5% band landed (ABR-024/NFSE-024, README): open: a city's own rate table;
-      ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file,
-      city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,
-      ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF
-      reply; refresh the Bulgaria page when its draft passes. A run that lands a
-      slice replaces its item here; keep this under 2,000 characters.
+      History: README and git (latest: VERI*FACTU records, Huella recomputed, slip
+      named, chain, VF-001..028, eval/verifactu-records-2026-11-15.md; open: a
+      production SIF's records, AEAT error codes). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real chain
+      with NAV's replies; a real signed Facturae file or FACe rejection; ZATCA: a
+      real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT explained and
+      paired with the file; a real 00305 reproduced,
+      eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection with its
+      file; HR: a real HR invoice, cash accounting; CIUS-PT: which validator does AT
+      run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real
+      KSeF rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
+      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
+      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
+      check on a real IRP payload; mandate texts: IL, ES, SK, NRS, SRO 1852, Jordan
+      open; Mexico CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080
+      to CP codes (omawww blocked), a real payroll or export file, a PAC rejection
+      compared; cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC
+      events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in
+      v1.40) flagged (README): open: a real event; a real reform NF-e from a SEFAZ
+      test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e
+      landed: open: a national rejection compared; ISS 2-5% band landed
+      (ABR-024/NFSE-024, README): open: a city's own rate table; ABRASF NFS-e
+      2.00-2.04 landed (README): open: ISS retained on a real file, city provider
+      schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed
+      (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply;
+      refresh the Bulgaria page when its draft passes. A run that lands a slice
+      replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -268,24 +269,23 @@ flagships:
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans; compressed 2026-11-15, eval/fujifilm-*)
       read directly since 2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from
       maker notes (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15. Bayer
-      demosaic directional 2026-11-15 (eval/bayer-directional-*). NEF edge columns
-      from the sensels 2026-11-15 (eval/nikon-nef-visible-area-*). Next: an RW2
-      RawFormat 8 with a tone curve (0x39/0x3A); a real NEF split row; Sony's
-      vignetting table vs an evenly lit frame; a real DNG and a
-      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
-      lit frame shot wide open (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
-      synthetic files so far, or the SDK to check them; lateral colour measured on a
-      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; tiled C-RAW and a real tiled CR3 (eval/canon-cr3-tiled-*); the DJI
-      Phantom 4 DNG's vignette lift against DJI's own render
-      (eval/opcode-quality-flag-*); a real DNG with opcode flag bit 1 set; a phone
-      DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
-      chart to say which colour model is closer (the 70D frame, 4,700 K and
-      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
-      Adobe render of a known frame (settles `--default-tone-curve always`); a
-      trained blink model and a real shoot with a photographer's picks; photos with
-      a real horizon and human tilt labels.
+      demosaic directional 2026-11-15 (eval/bayer-directional-*). NEF edge columns,
+      real split rows, Z 6II curve, 12-bit black 2026-11-15 (eval/nikon-nef-*).
+      Next: an RW2 RawFormat 8 with a tone curve (0x39/0x3A); Sony's vignetting
+      table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
+      through the pipeline's lens stage; a real evenly lit frame shot wide open
+      (corners level after lensfun's vignetting?); a second maker-against-lensfun
+      DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
+      or the SDK to check them; lateral colour measured on a real frame with sharp
+      corner edges; a real Adobe `.dcp` through the profile chooser; tiled C-RAW and
+      a real tiled CR3 (eval/canon-cr3-tiled-*); the DJI Phantom 4 DNG's vignette
+      lift against DJI's own render (eval/opcode-quality-flag-*); a real DNG with
+      opcode flag bit 1 set; a phone DNG with its own JPEG of the frame (corrected
+      corners); a tungsten-lit colour chart to say which colour model is closer (the
+      70D frame, 4,700 K and green-tinted, is where they part most; the Nexus 5X
+      carries ForwardMatrix); an Adobe render of a known frame (settles
+      `--default-tone-curve always`); a trained blink model and a real shoot with a
+      photographer's picks; photos with a real horizon and human tilt labels.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -410,9 +410,9 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-15
-      latest: --sing codas round 4 (final l no longer a nasal, murmur-tilt rule
-      pre-registered, eval/coda-check-report.md A-F); next: the sung l is up to 8 dB
-      louder than its vowel (PHONES.l), slow-transition -num, onsets on the coda
+      latest: --sing codas rounds 4-5 (final l not a nasal; final r as contact +
+      voiced tail, held-out r 16 to 26 of 27, eval/coda-check-report.md); next: the
+      sung l up to 8 dB over its vowel, slow-transition -num, onsets on the coda
       murmur). Open checks that need a person: listen to the studio page, --sing,
       the options (--stretch, --halftime, --fills, --limit pumping, stems, sections,
       breakdown, riser, the a cappella verse and whether the key lift sounds like a
