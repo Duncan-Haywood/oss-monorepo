@@ -358,6 +358,49 @@ def cpin_summary(path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
                 cells=cells, n_cells=len(cells), mean_change=sw, counts=g, held=verdict)
 
 
+def nc_summary(path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 91: cpin_es3, cpin_es3_nc, cpin_es3_nc5 (this file) against session 88's full (base_path): per cell
+    the q0.5 / q0.9 loss change against full on completed test rows, the censored test loss over all test rows,
+    the q0.9 rounds and prediction maxima, the never-completed row counts, and predictions N1 to N5 (N5 against
+    session 90's results/rounds_score_cpin_i2c.json)."""
+    B = json.load(open(base_path))
+    R = json.load(open(path))
+    s90 = json.load(open(os.path.join(os.path.dirname(path), "rounds_score_cpin_i2c.json")))
+    vs = ("cpin_es3", "cpin_es3_nc", "cpin_es3_nc5")
+    cells = []
+    for h in held:
+        for Y in years:
+            if not all(f"{h} {Y} {v}" in R for v in vs):
+                continue
+            f = B[f"{h} {Y} full"]["test_loss"]
+            row = dict(held=h, year=Y, full={t: f[t] for t in ("0.5", "0.9")}, loss={}, change={}, closs_all={},
+                       q90_rounds={}, q90_pred_max={}, n_never_completed={})
+            for v in vs:
+                r = R[f"{h} {Y} {v}"]
+                row["loss"][v] = {t: r["test_loss"][t] for t in ("0.5", "0.9")}
+                row["change"][v] = {t: r["test_loss"][t] - f[t] for t in ("0.5", "0.9")}
+                row["closs_all"][v] = r.get("test_closs_all")
+                row["q90_rounds"][v] = float(np.mean([x["0.9"] for x in r["rounds"].values()]))
+                row["q90_pred_max"][v] = max(p["max"] for p in r["test_pred_q90"].values())
+                row["n_never_completed"][v] = dict(train=r["n_train_never_completed"], es=r["n_es_never_completed"],
+                                                   train_open=r["n_train_open"], n_train=r["n_train"],
+                                                   test=r.get("n_test_never_completed"), n_test=r["n_test"])
+            row["s90_cpin_es3_q90"] = s90.get(f"{h} {Y} cpin_es3", {}).get("test_loss", {}).get("0.9")
+            cells.append(row)
+    mean = {v: {t: float(np.mean([c["change"][v][t] for c in cells])) for t in ("0.5", "0.9")} for v in vs}
+    L = lambda c, v, t="0.9": c["loss"][v][t]  # noqa: E731
+    g = dict(N1=sum(L(c, "cpin_es3_nc") > L(c, "cpin_es3") for c in cells),
+             N3=sum(c["closs_all"]["cpin_es3_nc"]["0.9"] < c["closs_all"]["cpin_es3"]["0.9"] for c in cells),
+             N5=sum(c["s90_cpin_es3_q90"] is not None and abs(L(c, "cpin_es3") - c["s90_cpin_es3_q90"]) <= 0.3
+                    for c in cells))
+    verdict = dict(N1=g["N1"] >= 3, N2=abs(mean["cpin_es3_nc5"]["0.9"] - mean["cpin_es3"]["0.9"]) <= 1, N3=g["N3"] >= 3,
+                   N4=mean["cpin_es3_nc"]["0.5"] - mean["cpin_es3"]["0.5"] <= 1, N5=g["N5"] == len(cells) == 4)
+    return dict(note="cascade2 transfer model; change = mean pinball loss on completed test-year rows minus session "
+                     "88's full, days, negative = better; closs_all = mean censored pinball loss over all test-year "
+                     "rows, never-completed ones with their window at the pull date; 3 seeds",
+                cells=cells, n_cells=len(cells), mean_change=mean, counts=g, held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -379,6 +422,15 @@ if __name__ == "__main__":
     ap.add_argument("--summarise-nc", help="session 91: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_nc:
+        s = nc_summary(a.summarise_nc, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
+        json.dump(s, open(a.summarise_nc.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean_change"], counts=s["counts"], held=s["held"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], {v: {t: round(x, 2) for t, x in d.items()} for v, d in c["change"].items()},
+                  {v: {t: round(x, 1) for t, x in (d or {}).items()} for v, d in c["closs_all"].items()},
+                  {v: round(x, 1) for v, x in c["q90_rounds"].items()}, {v: round(x) for v, x in c["q90_pred_max"].items()})
+        sys.exit()
     if a.summarise_cpin:
         s = cpin_summary(a.summarise_cpin, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
         json.dump(s, open(a.summarise_cpin.replace(".json", "_summary.json"), "w"), indent=1)
