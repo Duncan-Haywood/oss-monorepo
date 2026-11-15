@@ -26,9 +26,9 @@ writes it. What a CR2 holds in TIFF IFDs, a CR3 holds in boxes:
   first sensel, turned by the crop's parity.
 
 Storage read: Canon's CRX codec with no wavelet levels (``imageLevels`` 0),
-which is the full "RAW" quality; the smaller "C-RAW" quality is a 5/3 wavelet
-with quantised subbands (CMP1 version 0x200, three levels on the test bodies)
-and is refused with that reason. Each of the four planes (one per 2x2
+which is the full "RAW" quality, and since 2026-11-15 the smaller "C-RAW"
+quality, a 5/3 wavelet with quantised subbands (CMP1 version 0x200, three
+levels on the test bodies), read by ``shootflow.cr3_wavelet``. In the RAW quality each of the four planes (one per 2x2
 position, at half width and height) is a single band coded line by line: a
 median edge predictor (the LOCO-I one: left, above, and left + above -
 above-left), an adaptive Rice code for the error whose parameter K follows
@@ -39,7 +39,7 @@ value, clamped to the signed ``bits`` range, plus ``2^(bits-1)``.
 The codec as LibRaw reads it (``crx.cpp``, from Alexey Danilchenko's
 reverse-engineered decoder) and as the ``lclevy/canon_cr3`` notes describe
 the container; this is an independent implementation, checked sensel for
-sensel against LibRaw 0.22 on two full-quality EOS R8 files
+sensel against LibRaw 0.22 on two full-quality EOS R8 files (and, for C-RAW, three more: two R8, one R3)
 (``tools/cr3_libraw_check.py``, ``eval/canon-cr3-reader-2026-11-15.md``).
 """
 
@@ -449,15 +449,18 @@ class Band:
 def check_supported(head: Cmp1) -> None:
     """Raise with the reason when this reader cannot decode the sensor data CMP1 describes."""
 
-    if head.version != 0x100 or head.levels != 0:
+    if not ((head.version == 0x100 and head.levels == 0) or (head.version == 0x200 and 1 <= head.levels <= 3)):
         raise rd.DevelopError(
-            "CR3: C-RAW (the smaller, wavelet-coded quality) is not supported yet; shoot RAW, or convert to DNG "
+            f"CR3: codec version {head.version:#x} with {head.levels} wavelet levels is not supported; convert to DNG "
             "with Adobe's free DNG Converter"
         )
     if head.planes != 4 or head.enc_type != 0:
         raise rd.DevelopError(f"CR3: {head.planes} planes with encoding type {head.enc_type} is not supported (only 4-plane Bayer)")
     if head.tile_cols or head.tile_rows or head.tile_width != head.width or head.tile_height != head.height:
-        raise rd.DevelopError("CR3: a sensor stored in several tiles is not supported yet (no test file)")
+        raise rd.DevelopError(
+            "CR3: a sensor stored in several tiles is not supported yet (no test file); convert to DNG with Adobe's "
+            "free DNG Converter"
+        )
 
 
 def band_layout(sample: bytes, head: Cmp1) -> list[Band]:
@@ -499,13 +502,19 @@ def decode_sensor(data: bytes, box: Container, engine: str = "auto") -> tuple[Cm
     if t.offset + t.size > len(data):
         raise rd.DevelopError("CR3: the sensor sample lies outside the file")
     sample = data[t.offset : t.offset + t.size]
-    bands = band_layout(sample, head)
     w, h = head.width, head.height
     pw, ph = w // 2, h // 2
     if pw * 2 != w or ph * 2 != h:
         raise rd.DevelopError("CR3: an odd sensor size is not supported")
     lo, hi, mid = -(1 << (head.bits - 1)), (1 << (head.bits - 1)) - 1, 1 << (head.bits - 1)
     out = array("H", bytes(2 * w * h))
+    if head.levels:
+        check_supported(head)
+        from shootflow import cr3_wavelet
+
+        cr3_wavelet.decode_sensor(sample, head, out, engine=engine)
+        return head, out
+    bands = band_layout(sample, head)
     native = None
     if engine in ("auto", "c"):
         from shootflow import ljpeg_native
@@ -529,7 +538,7 @@ def decode_sensor(data: bytes, box: Container, engine: str = "auto") -> tuple[Cm
 
 def camera_model(data: bytes, readable: bool = False) -> str:
     """The camera's name from CMT1; with ``readable``, first refuse a file whose sensor data this reader
-    cannot decode (C-RAW), so the profile chooser does not ask for a profile it could not use."""
+    cannot decode (several tiles, an unknown codec version), so the profile chooser does not ask for a profile it could not use."""
 
     box = Container(data)
     if readable:
