@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKmMBNatQqw6ThM2Nhk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T21:48:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 9 league-schedule-generator: fully booked odd nights (19 teams on 3x9, 25 on 4x9)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16342",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Bare python3 is 3.11 without python-sat; pip installs into python3.13. Used python3.13 for the eval scripts.",
+    "eval/odd-pack.py (general SAT packing of relabelled nights) timed out at 1500 s on 19 teams (3 runs); replaced by the group construction."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "pip install python-sat reports 'already satisfied' while python3 (a symlink to 3.11) cannot import it; the package lives under python3.13. A one-line note ('use python3.13 or platform/ci/pyenv.py') would have saved two steps."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud harness blocks foreground 'sleep N' chained with commands; waiting on long solver runs needs run_in_background until-loops or Monitor, which the long-commands note could say."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-one-night-turned-six-times-19-team-league.md",
+    "ventures/league-schedule-generator/README.md (Fully booked odd nights section)",
+    "ventures/league-schedule-generator/eval/odd-orbit.txt"
+  ],
+  "goal": null,
+  "notes": "New eval/odd-orbit.py: for n = 3k+1 (k even), a permutation g of three k-cycles; one wait-free night taking exactly one pair per full orbit of g, turned k times, plus the half-turn pairs and {3k, bye} as the last round, is a whole wait-free season. 19 on 3x9 SAT in 22.9 s, 25 on 4x9 in 141 s (both previously open after whole-season, cyclic and packing attempts). Stored in odd-designs.mjs (23 designs). Through the tool (eval/odd-cyclic-check.mjs, seeds 1-3): 19 teams 171 -> 0 waits, 25 teams 281 -> 0. doubleheader.test.mjs extended with both sizes: 32/32 pass locally. odd-night-sat.build gained fix_round0 (default on, no behaviour change).",
+  "corrections": [],
+  "redteam": null
+}
