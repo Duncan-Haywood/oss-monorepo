@@ -6862,7 +6862,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
 
   const renderCard = (entry) => `          <li class="card">
             <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
-              <h3>${escapeHtml(entry.title)}</h3>
+              <h3>${escapeHtml(cardName(entry.title))}</h3>
             </a>
             <p>${escapeHtml(truncate(entry.description, 120))}</p>
           </li>`;
@@ -6886,7 +6886,7 @@ ${group.items.map(renderCard).join('\n')}
   const singleItems = singles
     .map((group) => {
       const entry = group.items[0];
-      return `        <li><strong>${escapeHtml(group.subject)}</strong><a href="${escapeHtml(entryHref(entry))}" data-pf-to="${escapeHtml(entry.slug)}">${escapeHtml(entry.title)}</a></li>`;
+      return `        <li><strong>${escapeHtml(group.subject)}</strong><a href="${escapeHtml(entryHref(entry))}" data-pf-to="${escapeHtml(entry.slug)}">${escapeHtml(cardName(entry.title))}</a></li>`;
     })
     .join('\n');
 
@@ -7088,7 +7088,7 @@ export function renderCompareProductPage({
       // Lighthouse's heading-order audit on all 45 pages until 2026-11-11).
       (entry) => `          <li class="card">
             <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
-              <h2>${escapeHtml(entry.title)}</h2>
+              <h2>${escapeHtml(cardName(entry.title))}</h2>
             </a>
             <p>${escapeHtml(truncate(entry.description, 120))}</p>
           </li>`,
@@ -7347,7 +7347,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
   const entryHref = (item) => `${toRoot}${item.slug}/${item.file}`;
 
   const renderTool = (group) => `        <div class="tool" style="${escapeHtml(guideBlockStyle(group.title, group.items))}">
-          <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(group.title)}</a></h3>
+          <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(cardName(group.title))}</a></h3>
           <p class="note">${escapeHtml(
             `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the tool`,
           )}</p>
