@@ -3,7 +3,7 @@ title: "Stale feeds that sit still in clumps: catching 97% instead of 81%"
 seo_title: "Detecting clumped stale data feeds: a Markov carry-forward test"
 date: 2026-11-15
 tags: [changepoint-detection, data-quality, stale-data, statistics, pre-registration]
-description: "A pre-registered fifth round: letting carried-forward values clump lifts detection of a clumped stale feed from 80.6% to 96.8% on the same series, with rounded slow series called stale at most 1.5%."
+description: "Pre-registered: letting carried-forward repeats clump lifts a clumped stale feed from 80.6% to 96.8% caught; rounded series stay at 1.5% or less."
 ---
 
 When a series repeats its last value, there are two common reasons. The figure was carried forward because nobody refreshed it (a stale feed). Or the series moved less than its recorded precision, so it rounds to the same number (a slow series). The [changepoint detector](https://marisstella.app/changepoint-detector/) flags changes in how often a series repeats. Since this morning it has also told the two apart, using a likelihood ratio between a rounded random walk and the same walk with some steps carried forward.
