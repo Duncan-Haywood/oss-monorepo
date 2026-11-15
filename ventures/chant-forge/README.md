@@ -311,8 +311,8 @@ replaces it with a small source-filter singing synthesiser in `sing.mjs`:
   cascade branch) at the men's averages of Peterson and Barney (1952): /ɑ/ 730/1090/2440, /ɛ/
   530/1840/2480, /i/ 270/2290/3010, /ɔ/ 570/840/2410, /u/ 300/870/2240 Hz. Consecutive notes cross-fade
   in 50 ms instead of the pad's 0.25 s release, since the same singers go straight on.
-- **Not:** consonants, words, a soloist, formant tuning on high notes (real singers raise F1 as they go
-  up), or any listener's judgement. It is a vocalise on the right vowels, for hearing which syllables land
+- **Not:** consonants, words, a soloist (formant tuning on high notes and consonants came later the same
+  day, below), or any listener's judgement. It is a vocalise on the right vowels, for hearing which syllables land
   on which notes and beats; it is not a release voice (`RECORDING-GUIDE.md`).
 
 Checked from the audio, never from the synthesiser's settings (`eval/vowel-check.mjs`, report in
@@ -542,6 +542,42 @@ Openings (742 of 934) and vowels (874 of 920) are unchanged. Left: B's *-num* an
 enter the murmur through a 40 ms formant transition rather than a step and still read as nothing (10 of
 39), and *-unt*/*-unc* still read on their stop. Nobody has listened to it, so the blip fix is the part of
 this round most worth an ear: a final *-um* should now hum without a click.
+
+#### Formant tuning on high notes (2026-11-15, latest)
+
+The vowels were fixed at Peterson and Barney's spoken values at every pitch. That is fine for basses, but
+a tenor's G4 is 392 Hz and A4 440 Hz, above the first formant of /i/ (270 Hz) and /u/ (300 Hz): every
+harmonic then sits on the falling side of the first resonance and the vowel loses most of its strength.
+Trained singers avoid this by opening the jaw on high notes so F1 rises with the pitch, the "formant
+tuning" Sundberg describes (*The Science of the Singing Voice*, 1987), at the price of /i/ drifting
+toward /e/. `sing.mjs` now does the same: `tuneF1` raises a vowel's F1 (for a diphthong, both ends;
+the consonants' transitions follow the tuned vowel) to at least 1.1 x f0, and leaves F2, F3 and every
+vowel whose F1 is already higher alone (`SING_DEFAULTS.f1Tune`, 0 turns it off). The ratio 1.1 is an
+assumption (F1 just above the first harmonic), not fitted to singers.
+
+Pre-registered in the header of `eval/f1-tune-check.mjs` before its first run, with the ratio fixed:
+(1) at G4 and A4, /i/ and /u/ gain 2 dB or more against /a/ at the same pitch; (2) the vowel reader gets
+no fewer of the held notes right from E2 to A4; (3) the corpus vowels, openings and codas at final D3
+stay within 0.5 points. Results (held 2 s notes, five seeds each, `eval/f1-tune-check-report.md`):
+
+| | off | on |
+|---|---|---|
+| /i/ against /a/, E4 / G4 / A4 (dB) | -9.1 / -16.5 / -14.8 | -2.5 / -3.7 / +0.9 |
+| /u/ against /a/, E4 / G4 / A4 (dB) | -3.6 / -11.6 / -9.8 | -1.5 / -1.9 / +3.5 |
+| line 1: mean gain, /i/ /u/ at G4 A4 | | 12.9 dB (holds) |
+| line 2: held vowels read right, E2-A4 | 179 of 200 | 180 of 200 (holds) |
+| line 3: corpus vowels (`vowel-check`, C) | 1,497 of 1,571 | identical |
+| line 3: corpus openings (`consonant-check`) | 742 of 934 | 743 of 934 |
+| line 3: closings (`coda-check`, A, B, D, E) | | identical |
+
+Nothing moves below B3: 1.1 x f0 first passes /i/'s 270 Hz at 245 Hz and /u/'s 300 Hz at 273 Hz, and
+never reaches /e/, /o/ or /a/ under A4. So basses sound as before, the top of the default E2-E4 unison
+range changes a little (E4 /i/ -9.1 to -2.5 dB), and the main gain is for tenors in `--split-voices`,
+`--second-tenors` and `--choir` arrangements. The tuning set of the consonant check loses one (E4 *bi*'s b read voiceless).
+What the reader cannot say: at G4 and A4 the LPC reader finds F1 at about f0 whether or not the filter
+was tuned (only 1 of 5 /i/ at G4 and none at A4 read as /i/ either way), so line 2 shows the change does
+no harm to what it can measure, not that the tuned /i/ sounds like /i/. That, and whether 1.1 is the right
+ratio, is a question for a listener.
 
 ### A score for the choir: `--musicxml` (2026-11-14)
 
