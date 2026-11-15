@@ -3,7 +3,7 @@ title: "A jaw coupling's free play rang the tennis lift's start. A 100 ms ramp f
 seo_title: "Jaw coupling backlash and motor soft start: a three-inertia simulation"
 date: 2026-11-15
 tags: [open-tennis-robots, hardware, firmware, simulation, mechanical]
-description: "Modelling the tennis lift's jaw coupling as a spring with play showed switched starts reaching 2.3x the torque assumed, and slipping the hub. A firmware soft start fixes it."
+description: "Modelled as a spring with play, the tennis lift's jaw coupling rang switched starts to 2.3x the assumed torque. A firmware soft start fixes it."
 ---
 
 The open tennis-ball feeder lifts balls to its hopper on a cleated belt.
