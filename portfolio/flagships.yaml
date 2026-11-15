@@ -186,15 +186,15 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: NAV Annex I I.1/I.2 header and line warnings
-      HU-034/035, 172 of 172 mutants, eval/nav-annex1-head-lines-2026-11-15.md).
+      History: README and git (latest: NAV chain, a base invoice and its corrections
+      checked together, HU-036/037, 58 of 58 mutants, eval/nav-chain-2026-11-15.md).
       Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: Annex I I.5 re-read; a real signed Facturae
-      file or FACe rejection; ZATCA: a real KSA note; SdI receipt reader landed
-      (NS/RC/MC/NE/DT/AT explained and paired with the file; a real 00305
-      reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection
-      with its file; HR: a real HR invoice, cash accounting; CIUS-PT: which
-      validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
+      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
+      signed Facturae file or FACe rejection; ZATCA: a real KSA note; SdI receipt
+      reader landed (NS/RC/MC/NE/DT/AT explained and paired with the file; a real
+      00305 reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA
+      rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
+      which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
       (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
       keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
       business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real

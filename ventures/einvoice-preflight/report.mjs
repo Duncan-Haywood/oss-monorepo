@@ -10,6 +10,7 @@ import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 import { checkFacturae, looksLikeFacturae } from "./facturae.mjs";
 import { budapestToday, checkNavInvoice, looksLikeNavInvoice } from "./hungary-nav.mjs";
+import { checkNavChains } from "./hungary-nav-chain.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -78,6 +79,14 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
 
   const zatcaStamps = []; // { file, meta } for the PIH chain across the batch
   const fa3Seen = new Map(); // KSeF duplicate key (seller NIP, RodzajFaktury, P_2) -> first file name
+  // Hungarian NAV files dropped together: a base invoice and its modifications are checked as a
+  // chain (what NAV checks against its invoice store; hungary-nav-chain.mjs).
+  const navInputs = inputs.filter((o) => {
+    const s = o.source ?? "";
+    const bytes = typeof s === "string" ? s.length : s.length;
+    return bytes <= maxBytes && !looksLikePdf(o.name || "", s) && looksLikeNavInvoice(typeof s === "string" ? s.slice(0, 4096) : new TextDecoder().decode(s.slice(0, 4096)));
+  });
+  const navChain = navInputs.length > 1 ? checkNavChains(navInputs.map((o) => ({ name: o.name || "invoice.json", source: o.source }))) : null;
   for (const input of inputs) {
     const name = input.name || "invoice.json";
     const source = input.source ?? "";
@@ -135,7 +144,11 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         // A preflight runs before the report is sent, so today (in Budapest) stands in for the day NAV receives it.
         const hungarian = checkNavInvoice(peek, { reportDate: budapestToday() });
         const m = hungarian.meta;
-        reports.push({ file: name, errors: hungarian.findings, envelope: `Read as a Hungarian NAV Online Számla 3.0 ${m.request ? `manageInvoice request (${m.operations} operation${m.operations === 1 ? "" : "s"})` : "invoice data report"}${m.category ? `, ${m.category}` : ""}${m.modification ? " modifying document" : ""}, not EN 16931`, ...(hungarian.skipped.length ? { skipped: hungarian.skipped } : {}) });
+        const chainFindings = navChain?.byFile.get(name) || [];
+        const chainSkipped = navChain ? navChain.skipped.filter((s) => s.file === name).map(({ file, ...rest }) => rest) : [];
+        const chain = navChain?.chains.find((c) => c.base === name || c.members.some((x) => x.file === name));
+        const skipped = [...hungarian.skipped, ...chainSkipped];
+        reports.push({ file: name, errors: [...hungarian.findings, ...chainFindings], envelope: `Read as a Hungarian NAV Online Számla 3.0 ${m.request ? `manageInvoice request (${m.operations} operation${m.operations === 1 ? "" : "s"})` : "invoice data report"}${m.category ? `, ${m.category}` : ""}${m.modification ? " modifying document" : ""}, not EN 16931${chain ? `; checked as a chain with base invoice ${chain.base} and ${chain.members.length} modification${chain.members.length === 1 ? "" : "s"}` : ""}`, ...(skipped.length ? { skipped } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFacturae(peek)) {
