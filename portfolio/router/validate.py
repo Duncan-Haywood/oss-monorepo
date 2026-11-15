@@ -162,6 +162,13 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"`flagship_field.py {entry.get('venture')} --landed` lists the landed notes to cut, and "
                 f"`--park ITEM` moves an open item to ventures/{entry.get('venture')}/NEXT.md."
             )
+        hosts = entry.get("hosts")
+        if hosts is not None and (not isinstance(hosts, list) or not all(
+                isinstance(h, str) and h.startswith(("https://", "http://")) for h in hosts)):
+            errors.append(
+                f"flagships.yaml: {entry.get('venture')} `hosts:` must be a list of http(s) URLs "
+                f"(allocate.py --venture probes each one), got {hosts!r}."
+            )
         n = len(str(entry.get("buildable") or "").strip())
         if n > FLAGSHIP_BUILDABLE_MAX:
             errors.append(

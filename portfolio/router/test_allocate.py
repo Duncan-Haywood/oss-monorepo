@@ -23,6 +23,8 @@ from allocate import (
     load_flagships,
     load_flagship_field,
     load_inputs_only,
+    load_flagship_hosts,
+    row_hosts,
     start_here,
     load_merit_scores,
     load_ventures as _load_ventures,
@@ -776,6 +778,29 @@ class FlagshipTests(unittest.TestCase):
         self.assertIn("Context: Long history", task)
         self.assertIn("buildable here: (1) a second reader", venture_report("deep", [v]))
         self.assertNotIn("BUILDABLE", next_task(self.flag("plain", 1, "x")))
+
+    def test_row_hosts_reads_the_hosts_field_then_the_prose(self):
+        v = self.flag("deep", 0, "Scans on archive.org; see README.md and calc.mjs, eval/x.jsonl.")
+        v.flagship_hosts = ["https://raw.pixls.us/"]
+        v.flagship_buildable = "samples from raw.pixls.us and omawww.sat.gob.mx (SAT)"
+        self.assertEqual(row_hosts(v), ["https://raw.pixls.us/", "https://omawww.sat.gob.mx/",
+                                        "https://archive.org/"])
+        self.assertEqual(row_hosts(self.flag("plain", 1, "README.md, flagships.yaml, v1.40")), [])
+
+    def test_venture_report_probes_the_row_hosts_only_when_asked(self):
+        v = self.flag("deep", 0, "history")
+        v.flagship_hosts = ["https://archive.org/", "https://github.com/"]
+        out = venture_report("deep", [v], probe=lambda url: "github" in url)
+        self.assertIn("archive.org REFUSED; github.com answers", out)
+        self.assertNotIn("probed just now", venture_report("deep", [v]))
+
+    def test_load_flagship_hosts_takes_a_list_or_a_string(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            p.write_text("flagships:\n  - venture: a\n    hosts: [https://a.org/]\n"
+                         "  - venture: b\n    hosts: https://b.org/ https://c.org/\n  - venture: c\n")
+            self.assertEqual(load_flagship_hosts(p), {"a": ["https://a.org/"],
+                                                      "b": ["https://b.org/", "https://c.org/"]})
 
     def test_load_flagship_field_folds_whitespace(self):
         with tempfile.TemporaryDirectory() as d:
