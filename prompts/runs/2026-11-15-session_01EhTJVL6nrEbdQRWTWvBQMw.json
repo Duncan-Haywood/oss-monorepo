@@ -51,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Local verification: node --test doubleheader.test.mjs 14/14; calc.test.mjs 180/180; python3 platform/ci/run_venture_tests.py league-schedule-generator passed apart from one share-link round-trip test that needed the new field (fixed, then calc.test.mjs re-run green). eval/doubleheader.mjs: 60 settings x 3 seeds, 0 invalid, total waits 3503 -> 3055; 2-game feasible settings 458 -> 10. Time-row spread rises (20 teams ~2 -> 5 a season), recorded in README. Three-game nights not improved.",
+  "notes": "Local verification: node --test doubleheader.test.mjs 14/14; calc.test.mjs 180/180; python3 platform/ci/run_venture_tests.py league-schedule-generator passed apart from one share-link round-trip test that needed the new field (fixed, then calc.test.mjs re-run green). eval/doubleheader.mjs: 60 settings x 3 seeds, 0 invalid, total waits 3503 -> 3055; 2-game feasible settings 458 -> 10. Time-row spread rises (20 teams ~2 -> 5 a season), recorded in README. Three-game nights not improved. Final: run_venture_tests.py league-schedule-generator ok (534 tests, 281 s) after fixing page.test.mjs's import pin; venture-preflight.mjs clean; headless Chromium built an 8-team doubleheader season with no page errors.",
   "corrections": [],
   "redteam": null
 }
