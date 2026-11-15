@@ -257,7 +257,7 @@ class DevelopTests(unittest.TestCase):
         for half in (False, True):
             with self.subTest(half=half):
                 a = develop(blob, engine="python", half=half)
-                b = develop(blob, engine="numpy", half=half)
+                b = develop(blob, engine="numpy", half=half, demosaic="bilinear")
                 self.assertEqual(list(a[2]), list(b[2]))
 
 

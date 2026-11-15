@@ -188,51 +188,60 @@
    "what": "The average-case certificate is unsound: envelope() hulls point samples of a convex delta, so between grid nodes psi lies ABOVE delta and Jensen fails. A point-mass verifier at a tight pair beats the 'certified cap' by up to 25x at small score gaps (Costs(1,1,c=0.2), Brier, E[D]=1e-6: regret 0.001, certificate 0.0004), and the E6 pair itself gives regret 0.050000 > certificate 0.049993. Fix: hull (k h, delta((k-1) h)) instead (delta is nondecreasing), verified 0 violations",
    "where": "research/decision-regret-transfer/src/decision_regret_transfer/model.py:115",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
   },
   {
    "severity": "medium",
    "what": "test_envelope_is_convex_and_below_delta asserts regret_bound(h, delta(eps)) <= eps + 1e-2, the opposite of psi <= delta; it can never catch an unsound envelope (a 1.5x inflated envelope passes). 5 of 6 seeded mutants survive: every audit test uses A=R so the 1-c/R edge and the audit cutoff are unpinned; nothing pins results.txt",
    "where": "research/decision-regret-transfer/tests/test_model.py:57",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
   },
   {
    "severity": "medium",
    "what": "'certified cap' (page, research/README.md:65), 'auditable cap' (whitepaper Implication 1) and 'attained by a two-point verifier' (README:14, whitepaper.md:40) are not backed: the shipped certificate is violated at small gaps and at the E6 pair; E6 only shows delta, not psi^{-1}, is attained",
    "where": "research/decision-regret-transfer/README.md:14",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
   },
   {
    "severity": "medium",
    "what": "Implication 2 'log score is preferable when fault cost >> slashing cost' contradicts R2's own caveat that the nats-vs-squared-error certificates compare each rule's guarantee, not the rules",
    "where": "research/decision-regret-transfer/paper/whitepaper.md:44",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
   },
   {
    "severity": "medium",
    "what": "The binary result (tight regret bound of a proper loss for cost-weighted decisions = its Bregman divergence at the threshold) is Reid & Williamson (ICML 2009; JMLR 2011); Steinwart 2007 (calibration functions) and the classification-with-reject literature (Chow 1970; Bartlett & Wegkamp 2008; Ramaswamy, Tewari & Agarwal 2018) cover the audit band; none is cited and nothing states what is new",
    "where": "research/decision-regret-transfer/paper/whitepaper.md:8",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
   },
   {
    "severity": "low",
    "what": "README says run.py takes '~1 min'; measured 6.9 s",
    "where": "research/decision-regret-transfer/README.md:10",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
   },
   {
    "severity": "low",
    "what": "Wildcard export with no __all__; Costs.action returns None for q outside [0,1], then cost() raises KeyError(None); test comment claims hinge equality is reachable (ratio is 1+|f|, infimum only)",
    "where": "research/decision-regret-transfer/src/decision_regret_transfer/model.py:60",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16204"
+ ],
  "verdict": "A tidy, reproducible note whose exact calibration function is right and whose headline certificate is not. delta recomputes independently (E1 to 6 digits with scipy KL, E4 against a 4001^2 numpy brute force, E5 with a separate RNG), and run.py and figure.py reproduce their committed outputs byte for byte. But psi^{-1}(E[D]), sold as a 'certified cap', is built from a convex hull of grid samples that lies above delta between nodes, so a point-mass verifier beats it by up to 25x at small gaps and the E6 'attained' pair violates it (0.050000 vs 0.049993); the test meant to guard this asserts the wrong inequality, and 5 of 6 seeded mutants survive. The binary result is Reid & Williamson (2009) uncited, and Implication 2 contradicts the paper's own caveat. A one-line lower-step envelope fixes the soundness."
 }

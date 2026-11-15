@@ -259,7 +259,7 @@ class DevelopTests(unittest.TestCase):
         dcp = rd.read_dcp(self.dir / "profiles" / "Sony ILCE-7M3 Adobe Standard.dcp")
         outs = {}
         for engine in engines():
-            w, h, px, report = rd.develop(raw, rd.DevelopSettings(engine=engine, dcp=dcp, default_tone="never"))
+            w, h, px, report = rd.develop(raw, rd.DevelopSettings(engine=engine, dcp=dcp, default_tone="never", demosaic="bilinear"))
             outs[engine] = px.tobytes()
         self.assertEqual((w, h), (W, H))
         self.assertEqual(report.cfa, "RGGB")

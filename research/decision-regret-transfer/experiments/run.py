@@ -41,12 +41,26 @@ for rule in ("brier", "log"):
         B = regret_bound(h, S)
         p(f"  {rule:5} {name:14}: excess score={S:.4f} realised regret={Rg:.4f} certificate={B:.4f} realised/certificate={Rg/B:.2f}")
 
-p("E6. worst case: verifier sits exactly on the tight pair (eta just past a region edge, q at the edge): certificate is attained")
+p("E6. worst case: verifier sits exactly on the tight pair (eta just past a region edge, q at the edge): delta is attained, the certificate is within one grid step")
 C = Costs(0.9, 0.1)  # tau=0.1
 eps = 0.05
 eta = 0.1 + eps
 S = log_D(eta, 0.1)
-p(f"  point mass eta={eta}, q=tau: excess log={S:.6f}, delta(eps)={delta(C,'log',eps):.6f}, regret of acting on q=tau-: {C.regret(eta,'accept'):.4f} = eps")
+p(f"  point mass eta={eta:.2f}, q=tau: excess log={S:.6f}, delta(eps)={delta(C,'log',eps):.6f}, regret of acting on q=tau-: {C.regret(eta,'accept'):.4f} = eps, certificate psi^-1(excess)={regret_bound(envelope(C,'log'),S):.4f}")
+
+p("E7. soundness sweep: certificate psi^-1(delta(eps)) vs eps for point-mass verifiers on every tight pair, eps in [1e-6, 1] x max regret")
+n = bad = 0
+worst = 1.0
+for C in (Costs(1, 1, c=0.2), Costs(0.9, 0.1), Costs(0.98, 0.02), Costs(3, 1, c=0.3), Costs(1, 1, c=0.05), Costs(0.5, 2, c=0.2)):
+    top = C.max_regret()
+    for rule in RULES:
+        h = envelope(C, rule)
+        for e in [top * 10 ** (-k / 4) for k in range(0, 25)] + [top * j / 997 for j in range(1, 997)]:
+            b = regret_bound(h, delta(C, rule, e))
+            n += 1
+            bad += b < e - 1e-12
+            worst = max(worst, b / e)
+p(f"  {n} pairs over 6 cost settings x 2 rules: {bad} with certificate < realised regret; certificate/regret at most {worst:.3f}")
 
 with open(os.path.join(os.path.dirname(__file__), "results.txt"), "w") as f:
     f.write("\n".join(out) + "\n")
