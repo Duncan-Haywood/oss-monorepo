@@ -3597,7 +3597,7 @@ test('the offline bundle leaves out Node-only eval/ and build-*.mjs scripts, kee
   const { offline } = await site();
   const all = offline.categories.flatMap((c) => c.assets);
   assert.ok(!all.some((a) => /^[^/]+\/(eval\/.*|build-[^/]+)\.m?js$/.test(a)), 'a Node-only script is in an offline bundle');
-  assert.ok(all.includes('einvoice-preflight/nav-xsd.mjs'), 'a browser module went missing from the offline bundle');
+  assert.ok(all.includes('einvoice-preflight/hu-xsd.mjs'), 'a browser module went missing from the offline bundle');
 });
 
 test('the hub tells a visitor the real offline size per category, not a stale guess', async () => {
