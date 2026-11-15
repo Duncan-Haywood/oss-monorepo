@@ -1,0 +1,65 @@
+name: inter-rater-agreement
+description: >-
+  Free browser tool, CLI and agent call for researchers, annotation teams,
+  clinicians and anyone whose data were coded or scored by more than one
+  person: paste ratings in a column-per-rater, subject-rater-rating or
+  counts layout and get Krippendorff's alpha at any level of measurement with
+  missing data and a bootstrap interval, Cohen's and weighted kappa, Fleiss'
+  kappa, Gwet's AC1, the six intraclass correlations, and which category,
+  rater and subjects the raters disagree on. Matches krippendorff, irrCAC,
+  statsmodels, scikit-learn and pingouin. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-15 on an explore run, as the nineteenth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md). No venture in the
+# tree measured agreement between raters (grep for kappa, Krippendorff,
+# intraclass found none).
+# Implemented from the papers' mathematics; no third-party code was ported.
+# krippendorff and pingouin (GPL-3.0), irrCAC (MIT), scikit-learn and
+# statsmodels (BSD-3-Clause) were used only to produce eval/reference.json.
+# Example data: GoEmotions (Demszky et al. 2020, Apache-2.0), reduced to one
+# sentiment per rater per comment by data/build_example.py.
+#
+# First visitor: searches such as "krippendorff's alpha calculator", "inter
+# rater reliability calculator", "cohen's kappa calculator", "fleiss kappa
+# online", "icc calculator"; graduate students coding interviews or content,
+# ML teams checking annotation quality, clinical researchers with two readers.
+# Volume not measured with an external tool.
+#
+# Alternatives: ReCal (web, upload), the R packages irr and irrCAC, Python
+# krippendorff and statsmodels, SPSS/Stata macros (Hayes' KALPHA), Agreestat.
+# Differentiators here: no install and no upload, every layout including
+# long annotation exports, alpha and kappa and ICC in one view, and the
+# diagnostic tables (per category, drop-one rater, contested subjects).
+#
+# Liability: statistical output from supplied data, not advice; the page says
+# agreement is not accuracy. Data never leave the browser (tests assert no
+# network calls).
+
+hypotheses:
+  - claim: >-
+      Researchers and annotation teams will use a no-upload agreement tool
+      that reads their export as it is and shows where raters disagree, over
+      R packages or upload-based calculators.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a coefficient that disagrees with krippendorff, irrCAC, statsmodels or pingouin on the same data and settings beyond rounding, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/inter-rater-agreement/
+  analytics: null
