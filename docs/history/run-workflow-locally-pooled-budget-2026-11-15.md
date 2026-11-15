@@ -42,6 +42,18 @@ Measured in this 4-core container with
   gets what the earlier ones left, less a full share for each later one, and
   never less than before. The sweep's worst case (n x 300 s) is unchanged.
 
+- Found by the end-to-end sweep: every diff selects agent-cross-review.yml,
+  whose one runnable step reads `github.event.pull_request.number` and always
+  skips. `report()` called that "nothing executed" a failure, so every
+  `--for-changes` sweep exited 1 with nothing failed (three run records on
+  2026-11-14 noted it in passing). It now returns `NOTHING_RAN`, which a
+  sweep counts as no verdict (exit 5) and a by-name run still maps to 1.
+
+Sweep on this branch before that third fix (`--for-changes`, 8 workflows):
+portfolio-validate 100/100 run steps passed with a 2,082 s pooled budget,
+portfolio-pages 12/12 with 2,184 s, and the only red was agent-cross-review's
+"nothing executed".
+
 ## What is still open
 
 A cold first run in a new container still costs ~370 s for the suite plus

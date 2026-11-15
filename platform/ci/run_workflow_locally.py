@@ -1593,6 +1593,13 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
 BUDGET_SPENT = 3
 # report()'s exit when steps failed only after a step of their job was skipped.
 AFTER_SKIP = 4
+# report()'s exit when every step was skipped and none ran. A by-name run maps
+# it to 1, as before; a sweep counts it as no verdict, not a failure. Every
+# diff selects agent-cross-review.yml, whose one runnable step reads
+# `github.event.pull_request.number` and so always skips: as a failure it made
+# every --for-changes sweep exit 1 with nothing failed (three run records,
+# 2026-11-14, had to read the log to say so).
+NOTHING_RAN = 6
 # The sweep's exit (`--for-changes`, `--tree`) when no step failed but some
 # workflow reached no verdict (BUDGET_SPENT or AFTER_SKIP). Still not a pass,
 # but not 1 either: through 2026-11-14 a text-only diff ended `DONE exit 1`
@@ -1719,7 +1726,7 @@ def report(name, steps, uses_skipped, forced) -> int:
         return AFTER_SKIP
     if not total:
         print("  Nothing was executed, so nothing was verified.")
-        return 1
+        return NOTHING_RAN
     if skipped or refused or uses_skipped or setup_failed or unrun:
         print("  Not a green check: the steps listed above did not run. Say so\n"
               "  in the pull request rather than reporting the workflow passed.")
@@ -2105,7 +2112,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
         code = report(name, steps, uses_skipped, False)
         if code == BUDGET_SPENT:
             out_of_budget.append(name)
-        elif code == AFTER_SKIP:
+        elif code in (AFTER_SKIP, NOTHING_RAN):
             after_skip.append(name)
         elif code != 0:
             failures.append(name)
@@ -2364,7 +2371,8 @@ def _main(argv=None) -> int:
           flush=True)
     run_steps(steps, args.timeout)
 
-    return report(name, steps, uses_skipped, args.force)
+    code = report(name, steps, uses_skipped, args.force)
+    return 1 if code == NOTHING_RAN else code
 
 
 if __name__ == "__main__":

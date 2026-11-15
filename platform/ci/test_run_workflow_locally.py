@@ -777,7 +777,8 @@ class Report(unittest.TestCase):
 
     def test_running_nothing_is_not_a_pass(self):
         code, out = self.report([], uses_skipped=["a / b: uses: step"])
-        self.assertEqual(code, 1)
+        self.assertEqual(code, runner.NOTHING_RAN)  # 1 by name, no verdict in a sweep
+        self.assertNotEqual(code, 0)
         self.assertIn("nothing was verified", out.lower())
 
     def test_skipped_steps_are_named_and_the_report_says_it_is_not_green(self):
@@ -1490,6 +1491,16 @@ class SweepExitCode(unittest.TestCase):
             runner.report, runner.checkout_fingerprint = real_report, real_fp
         self.assertEqual(code, 1)
         self.assertNotIn("NO VERDICT", out.getvalue())
+
+    def test_a_workflow_where_nothing_ran_is_no_verdict_in_a_sweep(self):
+        code, out = self.sweep(runner.NOTHING_RAN)
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertIn("NO VERDICT", out)
+
+    def test_nothing_ran_is_distinct_from_the_other_report_codes(self):
+        self.assertNotIn(runner.NOTHING_RAN,
+                         (0, 1, runner.BUDGET_SPENT, runner.AFTER_SKIP,
+                          runner.NO_VERDICT))
 
     def test_a_clean_workflow_passes(self):
         code, _ = self.sweep(0)

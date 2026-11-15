@@ -52,6 +52,11 @@ The sweep now runs workflows cheapest first by their declared
 left, less a full share kept for each workflow still to come. The worst case is
 unchanged, and no workflow gets less than before.
 
+One more turned up when the whole sweep ran on this change. Every diff
+selects the cross-review workflow, whose only local step always skips, and
+the tool counted "nothing ran" as a failure. So every sweep exited 1 with
+nothing failed. It now counts as no verdict, which is what it is.
+
 ## The result
 
 The same command after the fix: 12 of 12 run steps passed, exit 0, in 4
