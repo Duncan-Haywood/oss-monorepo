@@ -1,5 +1,5 @@
 // Builds verifactu-errors-data.mjs from AEAT's own list of VERI*FACTU error codes,
-// fixtures/verifactu/aeat-errores.properties, kept byte for byte as AEAT serves it
+// fixtures/verifactu/aeat-errores.properties.txt, kept byte for byte as AEAT serves it
 // (ISO-8859-1) at
 // https://prewww2.aeat.es/static_files/common/internet/dep/aplicaciones/es/aeat/tikeV1.0/cont/ws/errores.properties
 // (read 2026-11-15; Last-Modified Thu, 30 Jul 2026 11:45:16 GMT). The file has three
@@ -13,7 +13,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
 
-const SRC = new URL("./fixtures/verifactu/aeat-errores.properties", import.meta.url);
+const SRC = new URL("./fixtures/verifactu/aeat-errores.properties.txt", import.meta.url);
 const OUT = new URL("./verifactu-errors-data.mjs", import.meta.url);
 const SCOPES = ["submission", "record", "accepted"];
 

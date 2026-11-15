@@ -2,7 +2,7 @@
 
 ## Source
 
-`fixtures/verifactu/aeat-errores.properties`, fetched from
+`fixtures/verifactu/aeat-errores.properties.txt`, fetched from
 `https://prewww2.aeat.es/static_files/common/internet/dep/aplicaciones/es/aeat/tikeV1.0/cont/ws/errores.properties`
 on 2026-11-15 (HTTP 200, Last-Modified Thu, 30 Jul 2026 11:45:16 GMT). SHA-256
 `06519ceb23422bd6b0ad3bfb659e3007615050da4920781d12cff536481d5902`, the same value

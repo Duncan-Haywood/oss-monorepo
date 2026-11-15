@@ -391,7 +391,7 @@ error-code list mapped to VF rules. It does not certify a billing system.
 
 The AEAT's own list of VERI*FACTU validation errors (errores.properties, 247 codes,
 Last-Modified 30 July 2026) answered this session at prewww2.aeat.es. It is kept byte
-for byte in `fixtures/verifactu/aeat-errores.properties` (SHA-256 06519ceb…5902) and
+for byte in `fixtures/verifactu/aeat-errores.properties.txt` (SHA-256 06519ceb…5902) and
 turned into `verifactu-errors-data.mjs` by `node build-verifactu-errors.mjs` (`--check`
 fails on a stale data file; a test does the same).
 

@@ -12,7 +12,7 @@ const fx = (n) => fxBytes(n).toString("utf8");
 const NS = "https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws";
 
 test("the data file is AEAT's errores.properties, unchanged and complete", () => {
-  const bytes = fxBytes("aeat-errores.properties");
+  const bytes = fxBytes("aeat-errores.properties.txt");
   assert.equal(createHash("sha256").update(bytes).digest("hex"), AEAT_ERRORS_SOURCE.sha256);
   assert.equal(AEAT_ERRORS_SOURCE.sha256, "06519ceb23422bd6b0ad3bfb659e3007615050da4920781d12cff536481d5902");
   assert.equal(readFileSync(new URL("./verifactu-errors-data.mjs", import.meta.url), "utf8"), render(bytes));
