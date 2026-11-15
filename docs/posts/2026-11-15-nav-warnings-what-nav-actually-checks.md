@@ -1,9 +1,9 @@
 ---
 title: "We checked a Hungarian invoice for five things NAV never checks"
-seo_title: "NAV Online Számla warnings: what Annex I actually checks (INCORRECT_LINE_CALCULATION, INCORRECT_SUMMARY_CALCULATION)"
+seo_title: "NAV Online Számla warnings: what Annex I actually checks"
 date: 2026-11-15
 tags: [einvoice-preflight, ventures]
-description: "Re-reading NAV's Annex I warning by warning: five checks NAV does not make, six renamed codes, a tolerance floor 100 times too loose for euro invoices, and 21 warnings we had missed."
+description: "NAV's Annex I, read warning by warning: five checks NAV never makes, six renamed codes, a euro tolerance 100 times too loose, 21 missing warnings."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) reads Hungary's NAV Online Számla 3.0 reports: the `InvoiceData` XML that every Hungarian invoicing program sends to the tax authority. When the numbers on a report don't add up, NAV still accepts it but attaches a *warning*. Our checker tries to tell you before you send which warnings NAV will give.
