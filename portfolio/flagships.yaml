@@ -306,14 +306,14 @@ flagships:
       k" mode since 2026-11-14 (RANK-PAGE.md "Find my top k"): exact shortlist 54/96
       vs 25/96 (ordinary, 15-30 options, 1.6x picks); since 2026-11-14 (k2) a link
       carries the mode and k (RANK-PAGE.md "Shortlist links"), the picks page tables
-      it, 3 ready lists link top 3. Graded answers: DECIDE-PAGE.md "Graded answers".
-      Decide: checkpoint then 3x, "Rank them all", long-run level (DECIDE-PAGE.md).
-      tau 0.5 guard: plain picks (0.91). Next: (r) get the rank page seen: ready
-      lists, hub, pictures (RANK-PAGE.md "Pictures"); next, read which draw visits,
-      then (c) the first real survey's answers: msToAnswer against the answer-time
-      model, panelWalkRatio on real times, whether times depend on which slot is
-      clicked (the d9 bound assumes not), whether real people have warm-ups, blocks,
-      slot runs or spread-out carelessness, and how noisy real pairwise answers are
+      it, 3 ready lists link top 3. Decide: DECIDE-PAGE.md. Piles first
+      (RANK-PAGE.md "Sort into piles first"): 20 options 64/87/120 actions by sort
+      care vs 93. Next: (r) get the rank page seen: ready lists, hub, pictures
+      (RANK-PAGE.md "Pictures"); next, read which draw visits, then (c) the first
+      real survey's answers: msToAnswer against the answer-time model,
+      panelWalkRatio on real times, whether times depend on which slot is clicked
+      (the d9 bound assumes not), whether real people have warm-ups, blocks, slot
+      runs or spread-out carelessness, and how noisy real pairwise answers are
       (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bounded turn measured,
       not shipped (selector doc 2026-11-15); on real times, count back moves it
       backs; (d8) a stronger pick signal under wander (staged pairs are near 50/50
