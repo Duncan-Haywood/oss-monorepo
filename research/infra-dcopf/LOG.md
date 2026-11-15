@@ -1,5 +1,18 @@
 # Research log
 
+## 2026-11-15 · Held-out cases under one protocol: milestone 6 re-tallied on all 24 with the slack at the largest unit and the PGLib/IPOPT reference (plan, written before it ran; the moved-reference step's Next)
+- Why: milestone 6's tally (6 of 12 within 20 rounds, 8 of 12 with the reactive stage) used three rules later steps replaced: PIPS as the cost reference (it fails on 11 of 24 where IPOPT matches PGLib within 0.005 %, `results_ipopt_ref.txt`), the slack at the file's or `fix_ref`'s reference (the RTE stall was a 15 to 30 MW slack carrying the losses, `results_bigslack.txt`), and a cold start at the DC dispatch. The paper needs one protocol on every held-out case, not a patchwork of diagnostics.
+- Protocol (`experiments/run_heldout_slack.py`), identical on all 24 cases (8 networks, TYP, API, SAD): reference at the bus of the live unit with the largest PMAX; DC start (with angle limits, else without); the fold step's continuation of that dispatch to the full-load power flow; the frozen 20-round J-m-a warm there (no constant changed); J10 = its first 10 rounds; J+R = the reactive stage on IPOPT on J's best point when J is not fully clean, with a 45-minute wall limit per case set before the run (a case that does not finish counts as not clean); cost against PGLib's published objective. A case with no DC start or no full-load power flow counts as not clean in the 24-case rates.
+- What I know before writing this: the earlier protocol's outcomes on its 19 scored cases (`results_heldout.json`, `_noref.json`: J clean on 7, J or J+R on 9), the five RTE outcomes under this same protocol (`results_bigslack.txt`: 3 clean), and a smoke test on case30 API (a development case). None of the other 19 held-out cases has run with the moved reference.
+- Predictions:
+  - **R1:** scored (DC start and a full-load power flow) on at least 19 of 24. Prior 55 % (four cases had no DC start before; moving the reference does not change the DC OPF's feasibility, so this mostly asks whether no new fold appears).
+  - **R2:** J fully clean within 20 rounds on at least 10 of 24. Prior 50 % (10 is what the earlier results plus the RTE step give if nothing else moves).
+  - **R3 (no harm):** on the 19 cases the earlier protocol scored, J is fully clean on at least as many as before (7), losing at most 2. Prior 60 %.
+  - **R4:** J or J+R fully clean on at least 12 of 24. Prior 45 %.
+  - **R5:** every fully clean point within +1 % of PGLib's objective. Prior 35 % (case588 TYP was +1.92 % before).
+  - **R6:** H2 as written (10 rounds, at least 75 %) stays refuted (below 50 %). Prior 90 %.
+  - **Controls:** C0, on cases whose reference does not move, the round-by-round statuses match the earlier run (the warm start is the same power flow); C1, the five RTE cases reproduce `results_bigslack` exactly.
+
 ## 2026-11-15 · The frozen repair from the moved reference: outcome. Fully feasible on 3 of 5 RTE cases at +0.02 to +0.62 % (B1, B2, B3 held)
 - Ran as planned (`experiments/run_bigslack.py`, `results_bigslack.txt`, `.json`; 82 to 391 s per case, two processes). The continuation reached &mu; = 1 on all five, as the diagnostic had.
 - The starts are far from feasible: 12 to 90 overloaded branches (worst 191 to 229 %), 43 to 293 buses out of voltage band, 6 to 86 units outside Q limits, and on three cases the new slack 227 to 1,657 MW outside its range.
