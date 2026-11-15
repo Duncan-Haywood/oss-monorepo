@@ -1,7 +1,7 @@
 // The rank page's logic, pure and DOM-free so node --test can run it
 // (rank-core.test.mjs). The model is the app's own: site/engine/ is generated
 // from src/lib/btRefit.ts and favouriteSet.ts by scripts/build-rank-engine.mjs.
-import { refitRatings, cholesky, cholSolve, cholInverse, empiricalPriorPhi, REFIT_PRIOR_PHI } from "./engine/btRefit.mjs";
+import { refitRatings, cholesky, cholSolve, cholInverse, empiricalPriorPhi, REFIT_PRIOR_PHI, EB_PHI_MIN } from "./engine/btRefit.mjs";
 import { favouriteSet } from "./engine/favouriteSet.mjs";
 
 export const MAX_ITEMS = 60;
@@ -106,9 +106,12 @@ export function decodeList(fragment) {
  * Answers are [winnerIndex, loserIndex, tie] triples. A result code carries
  * them with the list's fingerprint and an optional name: "QP1." + base64url.
  */
-export function encodeAnswers({ items, answers, name = "" }) {
+export function encodeAnswers({ items, answers, name = "", piles }) {
   const a = answers.map(([w, l, t]) => `${w.toString(36)}.${l.toString(36)}${t ? "=" : ""}`).join(",");
-  return "QP1." + toBase64Url(JSON.stringify({ l: listId(items), n: Array.from(String(name)).slice(0, 60).join(""), a }));
+  const d = { l: listId(items), n: Array.from(String(name)).slice(0, 60).join(""), a };
+  // Pile placements (sort into piles first), one character per option: 0 top, 1 middle, 2 bottom, - not sorted.
+  if (pilePrior(piles)) d.p = piles.map((x) => (x === 0 || x === 1 || x === 2 ? String(x) : "-")).join("");
+  return "QP1." + toBase64Url(JSON.stringify(d));
 }
 export function decodeAnswers(code, items) {
   const m = /^QP1\.([A-Za-z0-9_-]+)$/.exec(String(code).trim());
@@ -129,21 +132,217 @@ export function decodeAnswers(code, items) {
     if (w >= items.length || l >= items.length || w === l) return { error: "the code is damaged (copy it again in full)" };
     answers.push([w, l, pm[3] === "="]);
   }
-  return { name: Array.from(String(d.n || "")).slice(0, 60).join(""), answers };
+  const out = { name: Array.from(String(d.n || "")).slice(0, 60).join(""), answers };
+  if (d.p !== undefined) {
+    // Rejected, not guessed at: a pile string of the wrong length would shift every placement onto the wrong option.
+    if (typeof d.p !== "string" || d.p.length !== items.length || !/^[012-]+$/.test(d.p)) return { error: "the code is damaged (copy it again in full)" };
+    out.piles = Array.from(d.p, (c) => (c === "-" ? null : Number(c)));
+  }
+  return out;
 }
 
 const ids = (n) => Array.from({ length: n }, (_, i) => String(i));
 
-/** The refit over the answers: posterior mode and covariance on the logit scale. */
-export function fit(n, answers) {
-  const r = refitRatings(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })));
-  return { mu: r.mu, cov: r.cov, n };
+/**
+ * The refit over the answers: posterior mode and covariance on the logit
+ * scale. `piles` (optional; see pilePrior) are the person's "sort into piles
+ * first" placements, which move each item's prior to what its pile says.
+ */
+export function fit(n, answers, piles) {
+  return fitAt(n, answers, REFIT_PRIOR_PHI, piles);
 }
 
 /** The same refit at another prior sd (internal logit scale; the fixed one is REFIT_PRIOR_PHI, 2.01). */
-export function fitAt(n, answers, priorPhi) {
-  const r = refitRatings(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { priorPhi });
+export function fitAt(n, answers, priorPhi, piles, tau = PILE_NOISE) {
+  const opts = { priorPhi };
+  const pp = piles ? pilePrior(piles, { phi: priorPhi, tau }) : null;
+  if (pp) Object.assign(opts, { priorMean: pp.mean, priorScale: pp.scale });
+  const r = refitRatings(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), opts);
   return { mu: r.mu, cov: r.cov, n };
+}
+
+// ---- Sort into piles first ------------------------------------------------
+//
+// Before any pairs, a person can drop each option into one of three piles
+// (top, middle, bottom) with one tap each. A pile is weaker evidence than a
+// pick, and the person can misplace an option, so it enters the refit as a
+// prior, not as answers: an option's prior is what its pile says about its
+// score under the refit's own prior, allowing for misplacement.
+//
+// Model: score s ~ N(0, phi^2); the person sees s + e, e ~ N(0, tau^2), and
+// cuts that at two thresholds placed so the piles come out the sizes they did
+// (a person who puts most options on top gets a higher top cut). Then s given
+// the pile is the truncated-normal regression E[s | o in (a, b)] =
+// (phi^2/so^2) E[o | o in (a, b)] with variance phi^2 tau^2 / so^2 +
+// (phi^2/so^2)^2 Var[o | o in (a, b)], so^2 = phi^2 + tau^2. Measured:
+// docs/RANK-PAGE.md, "Sort into piles first".
+
+/** Pile codes: 0 top, 1 middle, 2 bottom; null or undefined is "not sorted". */
+export const PILES = ["top", "middle", "bottom"];
+/**
+ * Misplacement noise tau (logits) the prior allows for. 1.28 is the sd of one
+ * option's share of a pick's logistic noise (pi / sqrt 6): a pile is read as
+ * no more reliable than half a pick. Simulated people three times as careless
+ * (tau 3.85) are in the doc's table.
+ */
+export const PILE_NOISE = Math.PI / Math.sqrt(6);
+/**
+ * The piles as a Gaussian pseudo-likelihood on top of the refit's plain
+ * N(0, phi^2) prior: N(0, phi^2) times exp(-lam b^2 / 2 + eta b) is the pile
+ * prior N(m, s^2) when lam = 1/s^2 - 1/phi^2 and eta = m/s^2 (s < phi always:
+ * a pile narrows the prior). The team models take it in this form (linearize),
+ * since their prior is the group's, not the plain one. Null when nothing is sorted.
+ */
+export function pileTerms(piles, { phi = REFIT_PRIOR_PHI } = {}) {
+  const pp = pilePrior(piles, { phi });
+  if (!pp) return null;
+  return {
+    lam: pp.scale.map((s) => Math.max(0, 1 / (s * s) - 1 / (phi * phi))),
+    eta: pp.mean.map((m, i) => m / (pp.scale[i] * pp.scale[i])),
+  };
+}
+
+/**
+ * Every PILE_AUDIT_EVERY-th pair is chosen as if there were no piles. The
+ * pile prior is self-confirming otherwise: it calls pairs from different
+ * piles settled, so the picker never asks one and nothing tests a misplaced
+ * option. On 24 simulated close-call people (20 options, piles at the
+ * assumed noise) the order shown at the stop had a true Spearman of 0.79
+ * while the stop claimed 0.90 (0.86 with no piles); with a check pair every
+ * 4th pick it was 0.86, claimed 0.88, for 122 picks instead of 99
+ * (docs/RANK-PAGE.md, "Sort into piles first").
+ */
+export const PILE_AUDIT_EVERY = 4;
+
+/** The fit nextPair should read: the piles' fit `f`, or on a check turn the fit without them. */
+export function pairFit(n, answers, piles, f) {
+  return pilePrior(piles) && answers.length % PILE_AUDIT_EVERY === PILE_AUDIT_EVERY - 1 ? fit(n, answers) : f;
+}
+
+/** Lists shorter than this skip the pile step: three piles of two or three say little, and lists under 8 were not measured (doc table: 8 options already save a fifth of the actions). */
+export const PILE_MIN_ITEMS = 8;
+
+const stdPdf = (z) => Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI);
+/** Inverse standard normal CDF (Acklam's rational approximation, relative error under 1.2e-9). */
+export function normalQuantile(p) {
+  if (!(p > 0 && p < 1)) return p <= 0 ? -Infinity : Infinity;
+  const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239];
+  const b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572];
+  const c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416];
+  const lo = 0.02425;
+  if (p < lo) {
+    const q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  if (p > 1 - lo) return -normalQuantile(1 - p);
+  const q = p - 0.5, r = q * q;
+  return ((((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q) / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+}
+
+/** Mean and variance of a standard normal truncated to (lo, hi). */
+function truncMoments(lo, hi) {
+  const P = normalCdf(hi) - normalCdf(lo);
+  const plo = Number.isFinite(lo) ? stdPdf(lo) : 0, phi_ = Number.isFinite(hi) ? stdPdf(hi) : 0;
+  const lot = Number.isFinite(lo) ? lo * plo : 0, hit = Number.isFinite(hi) ? hi * phi_ : 0;
+  const m = (plo - phi_) / P;
+  const v = 1 + (lot - hit) / P - m * m;
+  return { m, v: Math.max(v, 1e-9) };
+}
+
+/**
+ * The per-option prior the piles imply: { mean, scale } arrays for
+ * refitRatings, or null when nothing is sorted. Unsorted options keep the
+ * plain prior (mean 0, sd phi). A pile's share is counted with half an option
+ * added to each pile, so an empty pile or a single sorted option never sets
+ * a cut at infinity.
+ */
+export function pilePrior(piles, { phi = REFIT_PRIOR_PHI, tau = PILE_NOISE } = {}) {
+  if (!Array.isArray(piles)) return null;
+  const counts = [0, 0, 0];
+  for (const p of piles) if (p === 0 || p === 1 || p === 2) counts[p]++;
+  const sorted = counts[0] + counts[1] + counts[2];
+  if (!sorted) return null;
+  const share = counts.map((c) => (c + 0.5) / (sorted + 1.5));
+  const so = Math.sqrt(phi * phi + tau * tau);
+  // Cuts on the standardised observed scale: top is above `hiCut`, bottom below `loCut`.
+  const hiCut = normalQuantile(1 - share[0]), loCut = normalQuantile(share[2]);
+  const bounds = [[hiCut, Infinity], [loCut, hiCut], [-Infinity, loCut]];
+  const beta = (phi * phi) / (so * so);
+  const per = bounds.map(([lo, hi]) => {
+    const { m, v } = truncMoments(lo, hi);
+    return { mean: beta * so * m, sd: Math.sqrt((phi * phi * tau * tau) / (so * so) + beta * beta * so * so * v) };
+  });
+  return {
+    mean: piles.map((p) => (p === 0 || p === 1 || p === 2 ? per[p].mean : 0)),
+    scale: piles.map((p) => (p === 0 || p === 1 || p === 2 ? per[p].sd : phi)),
+  };
+}
+
+/**
+ * Laplace evidence of the answers at prior sd `phi` with the piles' prior:
+ * log p(answers | mu*) + log prior(mu*) + (n/2) log 2 pi + (1/2) log det cov.
+ * The engine's own empirical-Bayes search assumes every prior is centred on
+ * 0; after a pile step the picks fall mostly inside a pile, so read alone they
+ * look like close calls and that search would put phi at its floor (measured:
+ * half of perfectly sorted 15-option runs hit the cap). This one scores the
+ * piles and the picks together.
+ */
+export function pileEvidence(n, answers, piles, phi, tau = PILE_NOISE) {
+  const pp = pilePrior(piles, { phi, tau });
+  const f = fitAt(n, answers, phi, piles, tau);
+  let s = 0;
+  for (let i = 0; i < n; i++) {
+    const z = (f.mu[i] - pp.mean[i]) / pp.scale[i];
+    s += -0.5 * z * z - Math.log(pp.scale[i]) - 0.5 * Math.log(2 * Math.PI);
+  }
+  for (const [w, l, t] of answers) {
+    const d = f.mu[w] - f.mu[l], y = t ? 0.5 : 1;
+    s -= y * Math.log1p(Math.exp(-d)) + (1 - y) * Math.log1p(Math.exp(d));
+  }
+  const L = cholesky(Float64Array.from(f.cov), n);
+  let logDetCov = 0;
+  for (let i = 0; i < n; i++) logDetCov += 2 * Math.log(L[i * n + i]);
+  return s + 0.5 * n * Math.log(2 * Math.PI) + 0.5 * logDetCov;
+}
+
+/**
+ * Misplacement noise values the stop rule's second read tries for a person's
+ * piles (logits): careful, the assumed PILE_NOISE, careless, and close to
+ * no information. Their own picks pick one, by the same evidence.
+ */
+export const PILE_TAU_GRID = [0.5, PILE_NOISE, 3, 8];
+
+/** The person's own prior sd and pile noise: for each tau in the grid, golden-section on log phi; the best evidence wins. */
+export function pilePriorFit(n, answers, piles, { steps = STOP_EB_STEPS, taus = PILE_TAU_GRID } = {}) {
+  let best = null;
+  for (const tau of taus) {
+    const phi = pilePriorPhi(n, answers, piles, { steps, tau });
+    const ev = pileEvidence(n, answers, piles, phi, tau);
+    if (!best || ev > best.ev) best = { phi, tau, ev };
+  }
+  return { phi: best.phi, tau: best.tau };
+}
+
+/** The person's own prior sd with their piles in the model: golden-section on log phi over [EB_PHI_MIN, REFIT_PRIOR_PHI]. */
+export function pilePriorPhi(n, answers, piles, { steps = STOP_EB_STEPS, tau = PILE_NOISE } = {}) {
+  const g = (Math.sqrt(5) - 1) / 2;
+  let a = Math.log(EB_PHI_MIN), b = Math.log(REFIT_PRIOR_PHI);
+  const ev = (x) => pileEvidence(n, answers, piles, Math.exp(x), tau);
+  let c = b - g * (b - a), d = a + g * (b - a), fc = ev(c), fd = ev(d);
+  for (let i = 0; i < steps; i++) {
+    if (fc > fd) { b = d; d = c; fd = fc; c = b - g * (b - a); fc = ev(c); }
+    else { a = c; c = d; fc = fd; d = a + g * (b - a); fd = ev(d); }
+  }
+  // The ends are candidates too: a consistent person's best phi is the ceiling.
+  const cands = [[Math.log(REFIT_PRIOR_PHI), ev(Math.log(REFIT_PRIOR_PHI))], [(a + b) / 2, ev((a + b) / 2)]];
+  return Math.exp(cands.sort((x, y) => y[1] - x[1])[0][0]);
+}
+
+/** The stop rules' second read: the person's own prior sd, and with piles their own pile noise too. */
+function ownPrior(n, answers, piles, steps) {
+  if (pilePrior(piles)) return pilePriorFit(n, answers, piles, { steps });
+  return { phi: empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps }), tau: PILE_NOISE };
 }
 
 /** Golden-section steps for the stop rule's prior search; 8 is the insights route's (phi within about 4.5%). */
@@ -166,14 +365,14 @@ export const STOP_EB_STEPS = 8;
  * (null when the search did not run). The search runs only after the fixed
  * check passes, so most picks cost nothing extra. `force` runs it anyway.
  */
-export function stopCheck(n, answers, { fixedFit, fixedConfidence, force = false, steps = STOP_EB_STEPS } = {}) {
-  const f = fixedFit || fit(n, answers);
+export function stopCheck(n, answers, { fixedFit, fixedConfidence, force = false, steps = STOP_EB_STEPS, piles } = {}) {
+  const f = fixedFit || fit(n, answers, piles);
   const cf = fixedConfidence ?? (answers.length ? orderConfidence(f) : 0);
   if (!answers.length || (!force && cf < STOP_CONFIDENCE)) return { done: false, confidence: cf, phi: null };
-  const phi = empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps });
-  const ce = phi >= REFIT_PRIOR_PHI * 0.999 ? cf : orderConfidence(fitAt(n, answers, phi));
+  const { phi, tau } = ownPrior(n, answers, piles, steps);
+  const ce = phi >= REFIT_PRIOR_PHI * 0.999 && tau === PILE_NOISE ? cf : orderConfidence(fitAt(n, answers, phi, piles, tau));
   const confidence = Math.min(cf, ce);
-  return { done: confidence >= STOP_CONFIDENCE, confidence, phi };
+  return { done: confidence >= STOP_CONFIDENCE, confidence, phi, tau: pilePrior(piles) ? tau : null };
 }
 
 const normalCdf = (z) => {
@@ -296,12 +495,12 @@ export function topSetConfidence(f, k, { draws = TOP_DRAWS, seed = 0x5e7, measur
  * person's own empirical-Bayes prior, so a run of close calls is not read as
  * a settled shortlist. Returns { done, confidence, phi }.
  */
-export function topStopCheck(n, answers, k, { fixedFit, force = false, steps = STOP_EB_STEPS, measure = TOP_MEASURE, level = STOP_CONFIDENCE } = {}) {
-  const f = fixedFit || fit(n, answers);
+export function topStopCheck(n, answers, k, { fixedFit, force = false, steps = STOP_EB_STEPS, measure = TOP_MEASURE, level = STOP_CONFIDENCE, piles } = {}) {
+  const f = fixedFit || fit(n, answers, piles);
   const cf = answers.length ? topSetConfidence(f, k, { measure }) : 0;
   if (!answers.length || (!force && cf < level)) return { done: false, confidence: cf, phi: null };
-  const phi = empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps });
-  const ce = phi >= REFIT_PRIOR_PHI * 0.999 ? cf : topSetConfidence(fitAt(n, answers, phi), k, { measure });
+  const { phi, tau } = ownPrior(n, answers, piles, steps);
+  const ce = phi >= REFIT_PRIOR_PHI * 0.999 && tau === PILE_NOISE ? cf : topSetConfidence(fitAt(n, answers, phi, piles, tau), k, { measure });
   const confidence = Math.min(cf, ce);
   return { done: confidence >= level, confidence, phi };
 }
@@ -409,7 +608,7 @@ export function resultsCsv(items, f, table) {
  */
 export function combine(items, people) {
   const n = items.length;
-  const fits = people.map((p) => fit(n, p.answers));
+  const fits = people.map((p) => fit(n, p.answers, p.piles));
   const centred = fits.map((f) => {
     const m = f.mu.reduce((a, b) => a + b, 0) / n;
     return f.mu.map((x) => x - m);
@@ -469,7 +668,7 @@ const sigmoid = (x) => 1 / (1 + Math.exp(-x));
  * the likelihood is about exp(-b'Jb/2 + h'b). J is singular for options they
  * never saw, which the Woodbury form below handles without inverting it.
  */
-export function linearize(n, answers, c) {
+export function linearize(n, answers, c, terms = null) {
   const J = new Float64Array(n * n);
   const grad = new Array(n).fill(0);
   let ll = 0;
@@ -481,6 +680,12 @@ export function linearize(n, answers, c) {
     ll += score * (Number.isFinite(logP) ? logP : d) + (1 - score) * (Number.isFinite(log1mP) ? log1mP : -d);
     grad[w] += score - p; grad[l] -= score - p;
     J[w * n + w] += v; J[l * n + l] += v; J[w * n + l] -= v; J[l * n + w] -= v;
+  }
+  // Pile terms (pileTerms; a list of them when several people's are pooled): exactly quadratic,
+  // so they add lam to J and eta to h and nothing to k.
+  for (const t of [terms].flat()) {
+    if (!t) continue;
+    for (let i = 0; i < n; i++) { J[i * n + i] += t.lam[i]; ll += -0.5 * t.lam[i] * c[i] * c[i] + t.eta[i] * c[i]; grad[i] += t.eta[i] - t.lam[i] * c[i]; }
   }
   const h = grad.map((g, i) => {
     let s = g;
@@ -502,16 +707,17 @@ export function linearize(n, answers, c) {
 }
 
 /** One person's refit and their likelihood linearised at it (the starting point of populationAt). */
-export function personInfo(n, answers) {
-  const f = fit(n, answers);
-  return { f, answers, ...linearize(n, answers, f.mu) };
+export function personInfo(n, answers, piles) {
+  const f = fit(n, answers, piles);
+  const terms = pileTerms(piles);
+  return { f, answers, terms, ...linearize(n, answers, f.mu, terms) };
 }
 
 /** A person's posterior mode under the prior N(m0, s2 I): Newton, which the Gaussian prior keeps concave. */
-export function modeAround(n, answers, m0, s2, start = m0) {
+export function modeAround(n, answers, m0, s2, start = m0, terms = null) {
   let b = start.slice();
   for (let it = 0; it < 50; it++) {
-    const { J, h } = linearize(n, answers, b);
+    const { J, h } = linearize(n, answers, b, terms);
     // Newton: (J + I/s2) b_new = h + m0/s2 (h already holds grad + J b).
     const H = Float64Array.from(J, (x, k) => x + (k % (n + 1) === 0 ? 1 / s2 : 0));
     const next = cholSolve(cholesky(H, n), n, h.map((x, i) => x + m0[i] / s2));
@@ -524,7 +730,7 @@ export function modeAround(n, answers, m0, s2, start = m0) {
 
 /** "This group": the posterior of the members' mean scores. */
 export function groupFit(n, people) {
-  const fits = people.map((p) => (p.f ? p.f : fit(n, p.answers)));
+  const fits = people.map((p) => (p.f ? p.f : fit(n, p.answers, p.piles)));
   const m = Math.max(1, fits.length);
   const mu = Array.from({ length: n }, (_, i) => fits.reduce((a, f) => a + f.mu[i], 0) / m);
   const cov = new Float64Array(n * n);
@@ -583,17 +789,18 @@ function populationFromInfos(n, infos, tau, phi, laplace = true) {
  * "Team ranges"). tau = 0 is every answer read as one person's.
  */
 export function populationAt(n, people, tau, { phi = REFIT_PRIOR_PHI, passes = TEAM_PASSES, laplace = true } = {}) {
-  let infos = people.map((p) => (p.J ? p : personInfo(n, p.answers)));
+  let infos = people.map((p) => (p.J ? p : personInfo(n, p.answers, p.piles)));
   if (tau === 0) {
     const all = infos.flatMap((p) => p.answers);
-    const m = modeAround(n, all, new Array(n).fill(0), phi * phi);
-    return populationFromInfos(n, [linearize(n, all, m)], 0, phi, laplace);
+    const terms = infos.map((p) => p.terms).filter(Boolean);
+    const m = modeAround(n, all, new Array(n).fill(0), phi * phi, undefined, terms);
+    return populationFromInfos(n, [linearize(n, all, m, terms)], 0, phi, laplace);
   }
   let r = populationFromInfos(n, infos, tau, phi, laplace);
   let modes = infos.map((p) => (p.f ? p.f.mu : r.mu));
   for (let k = 0; k < passes; k++) {
-    modes = infos.map((p, i) => modeAround(n, p.answers, r.mu, tau * tau, modes[i]));
-    infos = infos.map((p, i) => ({ answers: p.answers, ...linearize(n, p.answers, modes[i]) }));
+    modes = infos.map((p, i) => modeAround(n, p.answers, r.mu, tau * tau, modes[i], p.terms));
+    infos = infos.map((p, i) => ({ answers: p.answers, terms: p.terms, ...linearize(n, p.answers, modes[i], p.terms) }));
     r = populationFromInfos(n, infos, tau, phi, laplace);
   }
   return r;
@@ -609,7 +816,7 @@ export const TEAM_TAU_STEPS = 10;
 
 /** "People like these": the population posterior at the tau that best explains the codes. */
 export function populationFit(n, people, { steps = TEAM_TAU_STEPS, laplace = true } = {}) {
-  const infos = people.map((p) => (p.J ? p : personInfo(n, p.answers)));
+  const infos = people.map((p) => (p.J ? p : personInfo(n, p.answers, p.piles)));
   const memo = new Map();
   const at = (tau) => {
     if (!memo.has(tau)) memo.set(tau, populationAt(n, infos, tau, { laplace }));
@@ -635,7 +842,7 @@ export function populationFit(n, people, { steps = TEAM_TAU_STEPS, laplace = tru
 export function teamRanges(items, people, options = {}) {
   const n = items.length;
   const { k, ...rankOptions } = options;
-  const infos = people.map((p) => personInfo(n, p.answers));
+  const infos = people.map((p) => personInfo(n, p.answers, p.piles));
   const g = groupFit(n, infos);
   const pop = populationFit(n, infos);
   const gt = rankTable(g, rankOptions), pt = rankTable(pop, rankOptions);
@@ -674,13 +881,13 @@ function shortlistFrom(n, infos, g, pop, k, { draws = TOP_DRAWS } = {}) {
 /** The team shortlist alone (teamRanges with k returns it alongside the ranges). */
 export function teamShortlist(items, people, k, options = {}) {
   const n = items.length;
-  const infos = people.map((p) => personInfo(n, p.answers));
+  const infos = people.map((p) => personInfo(n, p.answers, p.piles));
   return shortlistFrom(n, infos, groupFit(n, infos), populationFit(n, infos), k, options);
 }
 
 /** A tally by hand: the k options most people put in their own top k, ties broken by the group order. */
 export function approvalShortlist(n, people, k) {
-  const infos = people.map((p) => (p.f ? p : { f: fit(n, p.answers) }));
+  const infos = people.map((p) => (p.f ? p : { f: fit(n, p.answers, p.piles) }));
   const votes = new Array(n).fill(0);
   for (const p of infos) for (const i of topK(p.f, k)) votes[i]++;
   const g = groupFit(n, infos);
