@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, singNote, FORMANTS } from './sing.mjs';
+import { tuneF1, latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, singNote, FORMANTS } from './sing.mjs';
 import { readOnset, readCoda } from './onsets.mjs';
 import { estimateFormants, nearestVowel, polyRoots } from './formants.mjs';
 import { eventsToMidi } from './midi.mjs';
@@ -218,5 +218,18 @@ test('a final nasal hums on through the nose with no blip of bare vowel, and -um
       const got = readCoda(x, rate, sec(notes[j].tick) + 0.1, sec(notes[j].end) + 0.25).cls;
       assert.equal(got, sing === true && s === 'um' ? 'nasal' : 'none', `${s} (${sing}): ${got}`);
     });
+  }
+});
+
+test('high /i/ and /u/ keep their level: F1 raised to 1.1 x f0 (tuneF1)', () => {
+  assert.deepEqual(tuneF1(FORMANTS.a, 440, 1.1), FORMANTS.a); // /a/ F1 730 is above 484
+  assert.deepEqual(tuneF1(FORMANTS.i, 440, 1.1).map(Math.round), [484, 2290, 3010]);
+  assert.deepEqual(tuneF1(FORMANTS.i, 440, 0), FORMANTS.i); // off
+  const db = (w) => { let s = 0; const a = Math.round(0.4 * rate), b = Math.round(1.9 * rate); for (let i = a; i < b; i++) s += w[i] * w[i]; return 10 * Math.log10(s / (b - a)); };
+  for (const v of ['i', 'u']) {
+    const rel = (f1Tune) => db(singNote(392, 2, rate, { vowel: v, seed: 3, f1Tune })) - db(singNote(392, 2, rate, { vowel: 'a', seed: 3, f1Tune }));
+    // untuned, G4's first harmonic sits above /i/'s and /u/'s F1 and the vowel drops 10-16 dB under /a/
+    assert.ok(rel(1.1) - rel(0) > 6, `${v}: ${rel(0).toFixed(1)} -> ${rel(1.1).toFixed(1)} dB`);
+    assert.ok(rel(1.1) > -6, `${v} tuned at G4: ${rel(1.1).toFixed(1)} dB against /a/`);
   }
 });
