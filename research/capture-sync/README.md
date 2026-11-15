@@ -61,7 +61,7 @@ python experiments/real-devices/figure.py
 python experiments/real-devices/bypair.py ~/libriwasn 200       # per-pair breakdown, ~15 min
 # step 2a: real speech and babble from MS-SNSD (MIT), sparse clone of only the files read (~100 MB)
 git clone --depth 1 --filter=blob:none --no-checkout https://github.com/microsoft/MS-SNSD ~/ms-snsd
-cd ~/ms-snsd && git sparse-checkout init --no-cone && printf '/clean_test/clnsp1[0-9].wav\n/clean_test/clnsp[2-9][0-9].wav\n/clean_test/clnsp1[0-9][0-9].wav\n/noise_test/Babble_*\n' > .git/info/sparse-checkout && git checkout HEAD && cd -
+cd ~/ms-snsd && git sparse-checkout init --no-cone && printf '/clean_test/clnsp1[0-9].wav\n/clean_test/clnsp[2-9][0-9].wav\n/clean_test/clnsp1[0-9][0-9].wav\n/noise_test/*\n' > .git/info/sparse-checkout && git checkout HEAD && cd -
 OMP_NUM_THREADS=1 python experiments/threshold/run.py ~/ms-snsd --trials 250 --procs 4   # ~15 min on 4 cores
 python experiments/threshold/figure.py
 OMP_NUM_THREADS=1 python experiments/threshold/libriwasn.py ~/libriwasn --procs 4   # step 2b, ~38 min on 4 cores
@@ -73,6 +73,10 @@ python experiments/gate/figure.py
 OMP_NUM_THREADS=1 python experiments/gate/noise.py collect ~/libriwasn /tmp/windows_b.npz --procs 4   # step 3b, ~17 min
 python experiments/gate/noise.py score /tmp/windows_b.npz    # ~10 s; noise_results.txt, noise_summary.json
 python experiments/gate/noise_figure.py
+# steps 3c/3d: MS-SNSD speech (clnsp10-199, as step 2a's checkout) and every noise_test type
+OMP_NUM_THREADS=1 python experiments/gate/noiseclass.py collect ~/ms-snsd /tmp/windows_d.npz --procs 4   # step 3d, ~4 min
+python experiments/gate/noiseclass.py score /tmp/windows_d.npz   # noiseclass_results.txt, noiseclass_summary.json
+python experiments/gate/noiseclass_figure.py
 ```
 
 ## Results (from [`experiments/real-devices/results.txt`](experiments/real-devices/results.txt))
@@ -190,6 +194,15 @@ Prior, search and failure rule are as in step 1. A cell is scored if it has at l
 
 ![Wrong among accepted 2 s windows at -10 dB per real noise type, three gates](experiments/gate/noisetype_gates.png)
 
+**Step 3d (2026-11-15): can a gate that sees what kind of noise a window holds carry its bound to a new kind? No, but it keeps far more.** Step 3c's 2 s windows replayed exactly (62,000; 62 of 62 failure cells identical), with two blind features per window: impulsiveness (kurtosis of the 32 ms frame energies) and spectral flatness. The new gate bins on blind SNR x impulsiveness and refuses windows whose features lie outside the calibration's (conformal novelty refusal, Bates et al. 2023):
+
+- **It keeps four times as much and breaks the bound more often.** Calibrated on nine noise types and tested on the tenth, it keeps 43% and 48% of held-out windows (step 3b's gate: 10% and 18%), but at -10 dB it stays at or under 2% wrong for only 5 and 3 of 10 types. Neighbor noise goes through at 66% and 75% wrong, typing at 86% and 97%.
+- **"Refuse what you have not seen" cannot see a new kind of real noise.** 92% to 100% of a held-out type's -10 dB windows sit inside the other nine types' features. Only white noise stands out (flatness -0.2 dB against -2.6 to -9.5 dB for every real type).
+- **Calibrating on the site's own noise holds the bound pooled over noise levels, not at the worst level.** Same type, other speech: at or under 2% for 9 to 10 of 10 types over all levels together, for every gate; at -10 dB alone, 4 to 8 of 10. The guarantee is for the calibration's mix of conditions, and the blind SNR estimate cannot pick out the hard ones under real noise.
+- **For an engineer:** state a sync confidence's failure rate as a rate over the site's own noise mix, measured there, and expect it to be exceeded in the loudest stretches. A per-level guarantee needs a better blind noise-level estimate than one window can give.
+
+![Wrong among accepted 2 s windows at -10 dB per held-out noise type, three gates](experiments/gate/noiseclass_gates.png)
+
 ## Step 3: a Learn-then-Test gate across rooms, phones and noise (`src/capture_sync/gate.py`, `experiments/gate/`)
 
 **Question.** Milestone 3: step 1's peak-to-sidelobe (PSR) gate used a plug-in threshold with no guarantee and broke at -10 dB from room to room. With a distribution-free threshold, which shifts keep the failure rate and which break it? Plan and six predictions in `LOG.md`, written before the run.
@@ -271,6 +284,27 @@ Within a room (S1, 16 cells of room, window and gamma), the share of session spl
 
 **Limits of step 3c.** Simulated rooms and delays, one speech corpus. Noise is independent per device, while in a real room both devices hear the same air conditioner or crowd, from a direction close to the speech's (a coherent noise peak near the true lag, which could help rather than hurt). The noise types are MS-SNSD's test clips, several of them loops of a few seconds. The -10 dB windows are harsh; at 0 dB the white-calibrated gate stays at or under 0.4% wrong for every type at gamma 0.25 (2 s), so the failure is one of very noisy audio.
 
+## Step 3d: a noise-class gate (`experiments/gate/noiseclass.py`)
+
+**Question.** Step 3c said a gate needs a feature that names the kind of noise. Do blind features of impulsiveness and spectral colour, used as Mondrian bins with a refusal of unfamiliar windows, keep the 1% bound on an unseen kind of real noise, and does calibrating on the site's own noise keep it? Plan and eight predictions in `LOG.md`, written before the run.
+
+**Method.** Step 3c's 2 s windows replayed exactly (same speech blocks, rooms, seeds and noise draws; the collection code is step 3c's with feature columns appended, checked bit for bit). Features per window, blind: `snr_hat` (step 3b), `kurt` (log10 kurtosis of 32 ms frame energies, the larger of the two devices') and `flat` (spectral flatness of the 100 Hz to 4 kHz band, dB, the mean of the two). Gates, LTT at alpha 1%, delta 0.1: *mondrian* (step 3b); *class* (8 bins, `snr_hat` quartile x `kurt` above or below its calibration median, plus conformal novelty refusal: a window is refused when its 5th-nearest-neighbour distance to half the calibration windows, in median/IQR-scaled features, exceeds the 99th percentile of the other half's); *select* (class, with the weighting chosen per bin on calibration between PHAT and gamma 0.25, each tested at delta/2). Shifts: T0 white to white; T1 white to each real type; T2 leave one type out; T3 site calibration (none plus the same type, other sessions).
+
+**Results** ([`experiments/gate/noiseclass_results.txt`](experiments/gate/noiseclass_results.txt); 2 s windows, gamma 0.25 unless named):
+
+| | 0.2 s room | 0.8 s room |
+|---|---|---|
+| T2, kept, all held-out windows: mondrian / class / select | 10% / 43% / 48% | 18% / 48% / 51% |
+| T2, -10 dB, types at or under 2%: mondrian / class / select | 7 / 5 / 4 of 10 | 6 / 3 / 4 of 10 |
+| T2, -10 dB, worst: class | Typing 86%, Neighbor 66% | Typing 97%, Neighbor 75% |
+| T3, all levels, types at or under 2%: mondrian / class / select | 9 / 9 / 10 of 10 | 10 / 10 / 10 of 10 |
+| T3, -10 dB, types at or under 2%: mondrian / class / select | 4 / 8 / 10 of 10 | 4 / 5 / 8 of 10 |
+| T0 white, class: wrong among accepted (kept) | 0.06% (87%) | 0.15% (68%) |
+
+Predictions: (a) replay held; (b) kurtosis flags all three impulsive types failed (Typing 1.55 and Munching 1.42 against white's 95th percentile of 1.32; ShuttingDoor 1.30); (c) class at or under 2% for 8 of 10 under T2 failed; (d) class keeps more than mondrian under T2 held; (e) select failed; (f) site calibration at -10 dB for 9 of 10 types, 25% kept, failed; (g) T0 held; (h) novelty refusal rejects most impulsive windows under T1 failed. Select was close to vacuous outside T2: at delta/2 a bin needs 299 accepted calibration windows, and T0, T1 and T3 calibrate on about 2,000 windows over 8 bins (a design slip found in the results, in `LOG.md`).
+
+**Limits of step 3d.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The features are three numbers from one 2 s window; a rig can watch the seconds before the window, which these gates do not use. The novelty threshold (1%) and the bin layout were fixed in advance and not tuned.
+
 ## Step 2b: threshold theory on the real phones (`experiments/threshold/libriwasn.py`)
 
 **Question.** H4 proper: does the gross-error model of step 2a predict how often a window misses on real devices, rooms and clocks? The harness was written in step 2a and not changed; the plan and five predictions were written to `LOG.md` before the run.
@@ -330,9 +364,9 @@ Record two or more of your own cameras with a clap at the start and end and a ti
 
 ## References
 
-The Rice (1944) DOI and the MS-SNSD arXiv id were checked by web search on 2026-11-13, because `cite_check.py` could not reach doi.org or arxiv.org from that session.
+Bates et al. (2023), arXiv:2104.08279 (*Annals of Statistics* 51(1), 149-178), and Martin (2001), doi:10.1109/89.928915, were checked by web search on 2026-11-15, because the proxy refused arxiv.org and doi.org. The Rice (1944) DOI and the MS-SNSD arXiv id were checked by web search on 2026-11-13, because `cite_check.py` could not reach doi.org or arxiv.org from that session.
 
-The full related-work list, each entry checked, is in [`PROPOSAL.md`](PROPOSAL.md). Cited here: Knapp and Carter (1976), [doi:10.1109/TASSP.1976.1162830](https://doi.org/10.1109/TASSP.1976.1162830); Schmalenstroeer, Gburrek and Haeb-Umbach (2023), LibriWASN, [arXiv:2308.10682](https://arxiv.org/abs/2308.10682); Chen et al. (2020), LibriCSS, [arXiv:2001.11482](https://arxiv.org/abs/2001.11482); Kammerl et al. (2014), [doi:10.1109/ICASSP.2014.6854474](https://doi.org/10.1109/ICASSP.2014.6854474); Ianniello (1982), [doi:10.1109/TASSP.1982.1163992](https://doi.org/10.1109/TASSP.1982.1163992); Rice (1944), "Mathematical analysis of random noise", *Bell System Technical Journal* 23(3), [doi:10.1002/j.1538-7305.1944.tb00874.x](https://doi.org/10.1002/j.1538-7305.1944.tb00874.x); Polack (1993), "Playing billiard in the concert hall: the mathematical foundations of geometrical room acoustics", *Applied Acoustics* 38, 235-244 (DOI not checked: doi.org was unreachable from this session; details from the author's publication list); Angelopoulos, Bates, Cand&egrave;s, Jordan and Lei (2021), "Learn then Test: calibrating predictive algorithms to achieve risk control", [arXiv:2110.01052](https://arxiv.org/abs/2110.01052); Reddy et al. (2019), "A scalable noisy speech dataset and online subjective test framework" (MS-SNSD), Interspeech, 1816-1820, [arXiv:1909.08050](https://arxiv.org/abs/1909.08050).
+The full related-work list, each entry checked, is in [`PROPOSAL.md`](PROPOSAL.md). Cited here: Knapp and Carter (1976), [doi:10.1109/TASSP.1976.1162830](https://doi.org/10.1109/TASSP.1976.1162830); Schmalenstroeer, Gburrek and Haeb-Umbach (2023), LibriWASN, [arXiv:2308.10682](https://arxiv.org/abs/2308.10682); Chen et al. (2020), LibriCSS, [arXiv:2001.11482](https://arxiv.org/abs/2001.11482); Kammerl et al. (2014), [doi:10.1109/ICASSP.2014.6854474](https://doi.org/10.1109/ICASSP.2014.6854474); Ianniello (1982), [doi:10.1109/TASSP.1982.1163992](https://doi.org/10.1109/TASSP.1982.1163992); Rice (1944), "Mathematical analysis of random noise", *Bell System Technical Journal* 23(3), [doi:10.1002/j.1538-7305.1944.tb00874.x](https://doi.org/10.1002/j.1538-7305.1944.tb00874.x); Polack (1993), "Playing billiard in the concert hall: the mathematical foundations of geometrical room acoustics", *Applied Acoustics* 38, 235-244 (DOI not checked: doi.org was unreachable from this session; details from the author's publication list); Angelopoulos, Bates, Cand&egrave;s, Jordan and Lei (2021), "Learn then Test: calibrating predictive algorithms to achieve risk control", [arXiv:2110.01052](https://arxiv.org/abs/2110.01052); Reddy et al. (2019), "A scalable noisy speech dataset and online subjective test framework" (MS-SNSD), Interspeech, 1816-1820, [arXiv:1909.08050](https://arxiv.org/abs/1909.08050). Bates, Cand&egrave;s, Lei, Romano and Sesia (2023), "Testing for outliers with conformal p-values", *Annals of Statistics* 51(1), [arXiv:2104.08279](https://arxiv.org/abs/2104.08279); Martin (2001), "Noise power spectral density estimation based on optimal smoothing and minimum statistics", *IEEE Transactions on Speech and Audio Processing* 9(5), [doi:10.1109/89.928915](https://doi.org/10.1109/89.928915).
 
 ## Outside dependencies
 
