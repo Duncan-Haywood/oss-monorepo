@@ -1,9 +1,9 @@
 ---
 title: "Reading Lumix raw files from the GH5 to the S5, and the white point we got wrong first"
-seo_title: "Panasonic RW2 RawFormat 5, 6, 7 decoder in Python: S1, S5, G9, GH5S match LibRaw"
+seo_title: "Panasonic RW2 decoder in Python: S1, S5, G9 and GH5S match LibRaw"
 date: 2026-11-15
 tags: [photo-editing, shootflow, raw, panasonic, rw2, image-processing]
-description: "ShootFlow now reads the RW2 layouts Panasonic has used since 2017. On 12 real bodies, all 331.7 million sensor values match LibRaw's, and a first-draft white point turned out to be wrong."
+description: "ShootFlow now reads the RW2 layouts Lumix bodies have used since 2017: on 12 real cameras, all 331.7 million sensor values match LibRaw's."
 ---
 
 ShootFlow is the open-source photo pipeline in this repository. It ingests a card, scores and culls
