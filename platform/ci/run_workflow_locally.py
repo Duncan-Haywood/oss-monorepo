@@ -272,8 +272,8 @@ GITHUB_TOKEN_EXPRESSION = re.compile(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}")
 # commit, and the local equivalent is the merge base with the branch
 # `--for-changes` compares against, so it is substituted rather than skipped.
 # `github.sha` is HEAD, `github.workspace` the checkout, `runner.temp` a
-# scratch directory. Anything else (`github.event_name`, step outputs,
-# `inputs.*`) still has no local meaning and keeps the skip.
+# scratch directory. Anything else (step outputs, `inputs.*`) still has no
+# local meaning and keeps the skip, apart from the two noted below.
 #
 # One difference stays: a step that runs `git diff "$BASE" HEAD` sees
 # committed work only. `--for-changes` selects workflows from the working
@@ -285,6 +285,23 @@ BASE_EXPRESSIONS = {
     "github.event.pull_request.base.sha || github.sha",
     "github.event.pull_request.base.sha",
 }
+
+
+# Two more, added 2026-11-15, because without them portfolio-pages could never
+# reach a verdict here: its `Build the site` step reads both in `env:`, was
+# skipped, and `Check the built artifact` then failed for want of dist/, so
+# every docs/posts or venture diff ended NO VERDICT however long it ran
+# (measured this run: 8/8 run steps passed, exit 4). A local run already
+# models a pull request (an `if:` false on a pull request is skipped), so
+# `github.event_name` is `pull_request`, and the one compound form workflows
+# here use, `github.event_name != 'x' && 'a' || 'b'`, is evaluated on it.
+# `needs.gate.outputs.base` is portfolio-pages' gate job choosing the origin;
+# with Cloudflare configured (live since 2026-10-30) it is
+# https://marisstella.app/, build.mjs's DEFAULT_BASE_URL (CLAUDE.md, "Hosting").
+EVENT_NAME = "pull_request"
+EVENT_TERNARY = re.compile(
+    r"^github\.event_name\s*(==|!=)\s*'([^']*)'\s*&&\s*'([^']*)'\s*\|\|\s*'([^']*)'$")
+LOCAL_NEEDS = {"needs.gate.outputs.base": "https://marisstella.app/"}
 
 
 def _git_out(*args) -> str:
@@ -304,6 +321,14 @@ def local_context(expression: str) -> str | None:
         return REPO
     if expression == "runner.temp":
         return tempfile.mkdtemp(prefix="runner-temp-")
+    if expression == "github.event_name":
+        return EVENT_NAME
+    ternary = EVENT_TERNARY.match(expression)
+    if ternary:
+        op, name, when, otherwise = ternary.groups()
+        return when if (EVENT_NAME == name) == (op == "==") else otherwise
+    if expression in LOCAL_NEEDS:
+        return LOCAL_NEEDS[expression]
     return None
 
 
@@ -2011,6 +2036,35 @@ def checkout_drift(before, after) -> str | None:
     return f"tracked files changed while the sweep ran{same_head}{where}"
 
 
+# Why a sweep's budget is pooled. Each workflow had its own 300 s, so a
+# research or venture diff plus a blog post selected two to four workflows
+# whose own checks finished in seconds, and portfolio-pages' site-builder
+# suite (cold in a fresh container: the share-card cache is empty) still ran
+# out of its 300 s alone: NO VERDICT on every post diff, and re-running by name
+# cost another ~10 min (seven doc-friction reports, 2026-11-14..15). Now the
+# workflows run cheapest-declared first (`declared_minutes`) and each one gets
+# what the earlier ones left, less the full share every later one keeps, so the
+# sweep's worst case (n x budget) is unchanged and no workflow gets less than
+# it did before.
+def declared_minutes(workflow: dict, allowed) -> float:
+    """Sum of the `timeout-minutes` of the jobs a sweep runs (unset: 360)."""
+    total = 0.0
+    for job_id in allowed:
+        try:
+            total += float(((workflow.get("jobs") or {}).get(job_id) or {})
+                           .get("timeout-minutes", DEFAULT_JOB_MINUTES))
+        except (TypeError, ValueError):
+            total += DEFAULT_JOB_MINUTES
+    return total
+
+
+def pooled_budget(per: int, n: int, index: int, elapsed: float) -> int:
+    """Seconds for workflow `index` of `n` when each was given `per` (0 = none)."""
+    if not per:
+        return 0
+    return max(per, int(per * n - elapsed) - per * (n - index - 1))
+
+
 def _run_selected(args, selected, held, absent=()) -> int:
     """Execute the chosen workflows' read-only steps and report."""
     for name, job_id, why in held:
@@ -2037,12 +2091,17 @@ def _run_selected(args, selected, held, absent=()) -> int:
     # to UNSTABLE CHECKOUT after editing the run record or committing while
     # it ran, and re-ran every workflow when only the later ones were void.
     stable, drift, latest = [], None, before
-    for name, workflow, allowed in selected:
+    per = getattr(args, "workflow_timeout", 0)
+    selected = sorted(selected, key=lambda s: declared_minutes(s[1], s[2]))
+    started = time.monotonic()
+    for i, (name, workflow, allowed) in enumerate(selected):
         steps, uses_skipped = collect(workflow, only=allowed)
+        budget = pooled_budget(per, len(selected), i, time.monotonic() - started)
         print(f"\nRunning {name} locally "
-              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: or non-PR step(s) skipped)",
+              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: or non-PR step(s) skipped"
+              + (f"; budget {budget} s" if budget and budget != per else "") + ")",
               flush=True)
-        run_steps(steps, args.timeout, getattr(args, "workflow_timeout", 0))
+        run_steps(steps, args.timeout, budget)
         code = report(name, steps, uses_skipped, False)
         if code == BUDGET_SPENT:
             out_of_budget.append(name)
@@ -2242,7 +2301,8 @@ def _main(argv=None) -> int:
                     help="wall-clock budget per workflow in --tree and "
                          "--for-changes runs, in seconds (default 300, 0 = "
                          "none); steps past it report TIMEOUT instead of "
-                         "hanging the sweep")
+                         "hanging the sweep. Pooled: time a workflow leaves "
+                         "unused goes to the later ones (pooled_budget)")
     ap.add_argument("--foreground", action="store_true",
                     help="never hand a long run to the background (see "
                          "HANDOFF_S); the default under an agent harness is "
