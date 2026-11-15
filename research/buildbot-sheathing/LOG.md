@@ -1,5 +1,20 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 21 result: nails that lose strength with dissipated energy lower every wall alike, and lift the decayed shares; the 3 in wall stays above 70% at code strength
+
+`experiments/m21_degrading/` (run.py, results.txt, results.json, check_diag.py, check_diag.txt, figure.py, figure.png); `wall_cyclic.Saws(gamma=...)` and `Saws.degrading`; `tests/test_wall_degrading.py` (5 tests). About 35 min on four CPUs (72 CUREE runs of 3,000–9,300 steps, 8 monotonic pushes).
+
+- **H98 refuted as registered, by a mechanism, not a bug.** γ = ∞ reproduces milestone 20 exactly (0 difference on the single-spring CUREE trace, the OpenSees trace and the registered-point wall peaks). But a monotonic push at γ 5 moves the wall peaks by up to **1.6e-5 FU**, not ≤ 1e-9: in a wall, 203–381 of the 218–454 springs reverse at least once after yielding during a one-way push (the cross spring of each oriented pair, and springs that unload after a neighbour snaps), so the rule does start counting their work. It does so after the peak (`check_diag.txt`: s falls to 0.69–0.83 by 150 mm), so the monotonic references stand.
+- **H99 refuted as scripted, by the check.** The hand recomputation in `run.py` left out the rule's "s never rises" clamp, so it disagreed by 9e-3 FU while a spring unloaded. With the clamp (`check_diag.py`) the force on the envelope equals s × E(d) to **4e-16 FU** and s matches the hand value exactly.
+- **H100 held.** At code-strength joints (m 1, λ 1, 1/16 in gap) the decayed 3-12 wall keeps **70.6, 70.9, 71.1, 72.4 and 73.2%** at γ ∞, 100, 50, 20 and 10 (73.5% at 5).
+- **H101 held, in the direction nobody wanted.** Degradation moves each decayed share by **+0.3 to +2.9 points**: up, not down. At m 0.25 the 6-12 share rises 10 points (57.9% to 68.1%) by γ 5.
+- **H102 held.** No point with m ≥ 0.75 within 10 points of both shares at any γ.
+- **Why the shares rise.** Damage follows the energy each nail dissipates, and an intact wall dissipates more in its sheathing nails than a decayed one whose capacity is set by the frame sliding on its end nails. At m 0.25, γ 5, the intact walls' sheathing nails keep 71–77% of their strength and the decayed walls' 86–96%. At m 1 all four walls lose about alike (s 0.69–0.74), and the shares still rise 1.5–2.9 points.
+- **The cost to the intact walls.** Their CUREE peaks fall to about **97, 94, 85, 75 and 63%** of their monotonic peaks at γ 100, 50, 20, 10 and 5 (within a point at every m), and the intact ratio 3-12/6-12 stays at 1.90–1.94 (tested 1.87). Rates that would matter at all therefore also predict cyclic peaks well below monotonic for the intact walls.
+- **Best fits get worse with damage.** The best point at every γ is m 0.25; its rms grows from **2.1 points** (no degradation) to 2.5, 3.1, 4.3, 6.4 and 8.7.
+- **What it means for the programme.** Damage spread by dissipated energy, the standard cumulative-damage term in hysteretic wall models, cannot produce the 34%: it scales intact and decayed walls together. What is left must single out the decayed wall: tear-out of the few nails left along its unnailed bottom edge, or the middle stud splitting (both reported by Weiss), or end nails that are genuinely weak. The first two need a local failure model (a nail that fails by edge distance and cycle count, from tested curves of nails at an unsupported panel edge); the third a tested 16d end-nail ultimate. For the robot nothing moves.
+- **Inputs not sourced:** γ (swept; no calibrated value for nails in OSB was found, and the Stanford repository holding the CUREE reports did not resolve from this session); the end-nail joint's curve (as milestones 19–20). One rule for every spring.
+
 ## 2026-11-14 · Milestone 21 planned: Weiss's wall with nails that lose strength as they dissipate energy
 
 Written before any milestone-21 wall load was computed (only the single-nail calibration below was run). Inputs: milestone 20's wall, nails, rods, CUREE history and Δ (`experiments/m20_cyclic/results.json`).

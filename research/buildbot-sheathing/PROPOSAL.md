@@ -301,6 +301,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    moves the intact peaks 0.1% and the decayed 3 in wall's share 0.1 point (70.6% against 34% tested); fits
    still need end nails at a quarter of NDS. Still open: a tested end-nail ultimate, and nail fatigue and
    tear-out (a degrading nail model).
+21. **Nails that lose strength with dissipated energy** (done 2026-11-15, `experiments/m21_degrading/`): the
+   Rahnama–Krawinkler energy rule (c = 1) on every SAWS spring, rate swept. The intact walls' CUREE peaks fall to
+   63–97% of monotonic, but the decayed shares rise 0.3–2.9 points at code-strength joints (3 in wall 70.6% to
+   73.5%); the best fit stays at end nails of a quarter of NDS with no degradation. Still open: a local failure
+   model for nails at the unnailed bottom edge, the middle stud splitting, and a tested 16d end-nail ultimate.
 
 ## Target venue
 
