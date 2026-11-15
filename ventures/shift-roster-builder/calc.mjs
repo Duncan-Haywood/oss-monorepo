@@ -187,7 +187,9 @@ export function parseSiteWage(spec) {
   for (const raw of String(spec).split(/[;\n]/)) {
     const item = raw.trim();
     if (!item) continue;
-    const m = /^(.+?)((?:\s+(?:[+-]\s*\$?\d+(?:\.\d+)?\s*%?|(?:min(?:imum)?|at least|>=)\s*\$?\d+(?:\.\d+)?))+)\s*$/i.exec(item);
+    // `(?:\s*%)?`, not `\s*%?`: the old form left a run of spaces or tabs between two parts to be split between this
+    // part's \s* and the next part's \s+, 2^n ways (ReDoS: 18 parts with double tabs took 0.1 s, each 4 more x16).
+    const m = /^(.+?)((?:\s+(?:[+-]\s*\$?\d+(?:\.\d+)?(?:\s*%)?|(?:min(?:imum)?|at least|>=)\s*\$?\d+(?:\.\d+)?))+)\s*$/i.exec(item);
     if (!m || !siteKey(m[1])) { out.errors.push(`site wage: could not read "${item}"; write "Airport +2" (dollars an hour more), "Airport +10%" or "Airport min 20.17"`); continue; }
     const rule = { site: siteKey(m[1]), label: m[1].trim(), add: 0, pct: 0, min: 0 };
     for (const part of m[2].matchAll(/([+-])\s*\$?(\d+(?:\.\d+)?)\s*(%?)|(?:min(?:imum)?|at least|>=)\s*\$?(\d+(?:\.\d+)?)/gi)) {

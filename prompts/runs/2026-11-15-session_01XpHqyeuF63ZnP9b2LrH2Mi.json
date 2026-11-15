@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyeuF63ZnP9b2LrH2Mi",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T15:39:01Z",
+  "ended": "2026-11-15T16:29:03Z",
+  "wall_minutes": 51.28,
+  "tokens_in": 17141888,
+  "tokens_out": 72636,
+  "cost_usd": 6.2511,
+  "tool_calls": 136,
+  "task": "Explore: ReDoS sweep of the repository's own product code, fix what is reachable, and close the gaps it exposed in the regex-redos-check venture",
+  "projects": [
+    "regex-redos-check",
+    "sudoers-check",
+    "jwt-verification-misuse-check",
+    "gpx-track-check",
+    "shift-roster-builder",
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16262",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "Generic --probe in regex-redos-check could not confirm the real exponential patterns (single-character pumps miss structured prefixes like 'Defaults:'); used recheck's attack strings and hand-built inputs instead.",
+    "A background V8 timing pass over all 1,105 recheck-polynomial patterns hit the 30-minute background limit and was stopped without output; the post makes no claim from it.",
+    "First CI push failed two checks of my own making: checklist-coverage (a *.test.mjs in platform/ci/ needs a line in the CODEOWNERS-gated verify-and-merge.md; moved the test into ventures/regex-redos-check/repo-sweep.test.mjs) and distribution versions.json stale (jwt-verification-misuse-check, devsec-toolkit shipped files changed; ran versions.mjs --write)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Its list of sweeps already done is long but has no ReDoS line; I added none because prompts/ is CODEOWNERS-gated. A later process run could add: 'ReDoS in venture code: node platform/ci/check_redos.mjs, 0 new of 21,939 regexes, 2026-11-15'."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The shift-roster-builder suite takes ~280 s, well past the 120 s tool limit; the note names ai-bookkeeper as the long one, but this suite needs run_in_background too."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "A new *.test.mjs anywhere under platform/ fails checklist-coverage unless this owner-gated file is edited, so a non-control-plane PR can't add a node test there; the workaround is to keep tests inside a venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc: the reusable state (allowlist with evidence, sweep command, open items) lives in platform/ci/redos_allowlist.json, the check_redos.mjs header and the venture README, which is where the next run will look.",
+      "did": "Put the handover in those files and the post's 'Two things are left open' section",
+      "result": "No separate report"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "Did not wire check_redos.mjs into a workflow: that edits .github/ (owner-approved control plane) and would hold this PR.",
+      "did": "Shipped the script with a test and allowlist, runnable by hand",
+      "result": "Sweep is repeatable in 4 s; CI wiring left for a separate small PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-five-regexes-that-could-hang-our-own-tools.md",
+    "ventures/regex-redos-check/README.md (Measured on a real codebase)"
+  ],
+  "goal": "Find and fix regexes in shipped products that can hang on one crafted input, and make the repository's own ReDoS checker catch what an independent checker found",
+  "notes": "Idea: point our own ReDoS checker at our own code and grade it against an independent one. Extracted 9,016 distinct regex literals (acorn) from 5,040 non-test venture .mjs files; recheck 4.6.2 (MIT): 7,828 safe, 1,105 polynomial, 5 exponential, 78 unknown (24 min). All 5 exponential timed in V8. Fixed 4 reachable ones with timing tests that fail on old code: sudoers-check (32 commas >20 s -> 2 ms), jwt-verification-misuse-check JS+Py (36 backslashes 4.3 s -> 2 ms), gpx-track-check (24 empty comments 1.2 s -> 1 ms), shift-roster-builder (exponential -> quadratic). sales-agent's was unreachable (parser cuts first) but replaced with an equivalent line loop. Old/new equivalence checked on 300k-400k random strings each. regex-redos-check: extractor now reads ${...} inside template literals and skips #! lines (recall vs acorn 98.6% -> 100%, spurious 2,739 -> 0 on 11,802 files); new delimiter-swallowing rule; flags 5/5 recheck-exponential (was 3). New platform/ci/check_redos.mjs + allowlist (5 entries, each with timing evidence): 0 new suspects. Local checks: run_venture_tests for all 6 ventures green (shift-roster-builder 637 tests, 281 s); check_post_frontmatter, check_post_links, check_conflict_markers clean. Next if it pays off: wire check_redos into CI, triage the polynomial list for server-side code (sales-agent self-host, status-keeper), and teach --probe to build attack strings from the finding's structure.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "65cd939b-58fd-541f-be20-54bff4f950da",
+    "transcripts": 1,
+    "first": "2026-11-15T15:39:01Z",
+    "last": "2026-11-15T16:30:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 130,
+        "input": 248,
+        "output": 72636,
+        "thinking": 21088,
+        "cache_read": 16966119,
+        "cache_write_5m": 0,
+        "cache_write_1h": 175521,
+        "api_equivalent_usd": 6.2511,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 130,
+      "input": 248,
+      "output": 72636,
+      "thinking": 21088,
+      "cache_read": 16966119,
+      "cache_write_5m": 0,
+      "cache_write_1h": 175521,
+      "api_equivalent_usd": 6.2511,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 136,
+    "tools": {
+      "Bash": 129,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 51.28,
+      "active_minutes": 51.28,
+      "model_minutes": 12.83,
+      "tool_minutes": 38.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "security engineer: sweep and triage ~9k regexes with two tools, fix and test 5 patterns across 6 products, extend a static analyser and its extractor, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 192.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

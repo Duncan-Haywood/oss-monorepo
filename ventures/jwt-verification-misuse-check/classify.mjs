@@ -186,7 +186,10 @@ const WEAK_LITERALS = new Set([
 const JS_CALLS = /\b(?:jwt|jsonwebtoken)\.(verify|sign|decode)\s*\(/g;
 const PY_CALLS = /\b(?:jwt|pyjwt|PyJWT)\.(decode|encode)\s*\(/g;
 const GO_CALLS = /\bjwt\.(?:Parse|ParseWithClaims)\s*\(/g;
-const STRING_ARG = /^[bBuU]?(["'`])((?:\\.|(?!\1).)*)\1$/;
+// A backslash is either an escape (\\.) or, only right before the closing quote, a lone
+// character (\\?). The old form `(?:\\.|(?!\1).)*` let a backslash match both ways, so a
+// run of backslashes with no closing quote split 2^n ways (ReDoS: 38 took 1.2 s).
+const STRING_ARG = /^[bBuU]?(["'`])((?:\\.|(?![\\]|\1).)*\\?)\1$/;
 const KEYWORD_ARG = /^([A-Za-z_]\w*)\s*=(?!=)\s*(.*)$/;
 const USER_KEY = /\b(?:req|request|ctx|event)\s*[.\[]|\bheaders?\b|\b(?:params|query|body)\b/;
 const GO_METHOD_CHECK = /\.Method\b/;
