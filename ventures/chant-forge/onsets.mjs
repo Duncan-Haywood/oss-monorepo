@@ -76,6 +76,8 @@ export function frameFeatures(x, i0, rate, len = 0.02) {
   return { tot, low, hi1, peakHz, lowR: tot ? low / tot : 0, hiR: tot ? hi / tot : 0, centroid: mid ? cw / mid : 0, compact: mid ? best / mid : 0, compactAny: mid ? slide / mid : 0, compactHz: slideHz };
 }
 
+// see readCoda's note on the murmur's own tilt
+export const MURMUR_TILT = 28;
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
@@ -84,7 +86,11 @@ const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length 
 // 'stop', 'affricate', 'fricative', 'nasal', 'tap', 'none'; stops add voiced and place
 // ('lab', 'alv', 'vel'), affricates voiced, fricatives place ('s', 'S', 'f', 'voiced').
 // The earliest cue wins, so "spi" reads as its /s/ and "tri" as its /t/.
-export function readOnset(x, rate, t0, vowelAt, { window = 0.2 } = {}) {
+// murmurTilt (readCoda's rule) is off for openings: tried 2026-11-15 as pre-registered in
+// eval/consonant-check.mjs, it cut the vowel-only control's false nasals from 123 to 23 of 934 but read
+// B's sung nasal openings 64 of 149 instead of 96 (openings keep the first, brighter murmur, sing.mjs
+// ONSET_NASAL_GAIN), so by the registration it stays off until the opening murmur changes.
+export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = 0 } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round(t0 * rate), z = Math.round(Math.min(vowelAt, t0 + window) * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < Math.round((vowelAt + 0.06) * rate); i += hop) ref.push(frameFeatures(x, i, rate));
@@ -116,7 +122,7 @@ export function readOnset(x, rate, t0, vowelAt, { window = 0.2 } = {}) {
     ['closure', runs(closed, 35).filter((r) => r[1] < fr.length - 1)[0]],
     ['fricative', runs(noisy, 30)[0]],
     ['vfricative', runs(vnoisy, 30)[0]],
-    ['nasal', runs(nasal, 30)[0]],
+    ['nasal', runs(nasal, 30).find((r) => !murmurTilt || median(fr.slice(r[0], r[1] + 1).map((f) => db(f.hi1, f.low))) <= -murmurTilt)],
   ].filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
   if (cands.length) {
     const [kind, r] = cands[0];
@@ -173,7 +179,12 @@ export function expectedRead(ph) {
 //   into silence has no burst, and the next vowel does not fall); place from the burst as before.
 // - a fricative, a nasal and a tap as for an opening.
 // The earliest cue wins, so "nunc" reads as its /n/ and "post" as its /s/.
-export function readCoda(x, rate, vowelAt, tEnd) {
+// A murmur is dark in itself, not only against its vowel: the nose passes little above a few hundred
+// hertz, so a nasal's energy above 1 kHz sits far under its own band under 500 Hz, while a lateral (/l/)
+// keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
+// /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
+// 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -255,8 +266,9 @@ export function readCoda(x, rate, vowelAt, tEnd) {
     const before = fr.slice(Math.max(0, r[0] - 4), r[0]).map((f) => f.loRel);
     return before.length > 0 && Math.max(...before) >= median(held) + 5;
   };
-  const step = runs(darkish, 45).find((r) => stepped(r) && !vowelAgain(r));
-  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r)), step]
+  const murmur = (r) => !murmurTilt || median(fr.slice(r[0], r[1] + 1).map((f) => db(f.hi1, f.low))) <= -murmurTilt;
+  const step = runs(darkish, 45).find((r) => stepped(r) && !vowelAgain(r) && murmur(r));
+  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step]
     .filter(Boolean).sort((p, q) => p[0] - q[0])[0];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);

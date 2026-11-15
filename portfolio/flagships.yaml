@@ -102,8 +102,8 @@ flagships:
       sample read (README); open: a real merchant's payout export, a real 1099-K;
       (4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round
       up`; open: a lender's full table, a supplier's terms letter; (5) receipts OCR
-      (page SROIE 84.6%, US 76.5%; CLI US 75.0%; guesses vote half; next: total-line
-      letter swaps (A7.90), CORD); (6) payroll (README): two journal layouts read;
+      (page SROIE 84.6%, US 78.1%; CLI US 75.0%; card line, glued letter; next:
+      split amounts ($2 17), CORD); (6) payroll (README): two journal layouts read;
       open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS
       TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
       `salestax return`: the last six listed states read
@@ -186,15 +186,15 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: NAV Annex I I.1/I.2 header and line warnings
-      HU-034/035, 172 of 172 mutants, eval/nav-annex1-head-lines-2026-11-15.md).
+      History: README and git (latest: NAV chain, a base invoice and its corrections
+      checked together, HU-036/037, 58 of 58 mutants, eval/nav-chain-2026-11-15.md).
       Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: Annex I I.5 re-read; a real signed Facturae
-      file or FACe rejection; ZATCA: a real KSA note; SdI receipt reader landed
-      (NS/RC/MC/NE/DT/AT explained and paired with the file; a real 00305
-      reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection
-      with its file; HR: a real HR invoice, cash accounting; CIUS-PT: which
-      validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
+      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
+      signed Facturae file or FACe rejection; ZATCA: a real KSA note; SdI receipt
+      reader landed (NS/RC/MC/NE/DT/AT explained and paired with the file; a real
+      00305 reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA
+      rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
+      which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
       (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
       keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
       business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
@@ -252,19 +252,18 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0) serves files with `curl -L`. CR3 C-RAW
-      read 2026-11-15 (eval/canon-cr3-craw-2026-11-15.md); Bayer demosaic: aliased
-      luma, noise (eval/bayer-*). X-Trans demosaic: real frames 0.5-0.7 dB short of
-      LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings; median
-      and green; C path; eval/xtrans-clamp-gradient-2026-11-15.md). DNG 1.7.1.0 spec
-      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      eval/*-reader-*.md); raw.pixls.us (CC0) serves files with `curl -L`. Tiled
+      C-RAW: re-tile a real R8 for LibRaw (eval/canon-cr3-tiled-*); Bayer demosaic:
+      aliased luma, noise (eval/bayer-*). X-Trans demosaic: real frames 0.5-0.7 dB
+      short of LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings;
+      median and green; C path; eval/xtrans-clamp-gradient-2026-11-15.md). DNG
+      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
       DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with the 1.7.1.0
       text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear matches the Leica
-      T's preview to 0.18 px; WarpRectilinear2,
-      eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
+      T's preview to 0.18 px; WarpRectilinear2). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans; compressed 2026-11-15, eval/fujifilm-*)
       read directly since 2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from
@@ -278,14 +277,15 @@ flagships:
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
       synthetic files so far, or the SDK to check them; lateral colour measured on a
       real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; a tiled CR3; the DJI Phantom 4 DNG's vignette lift against DJI's own
-      render (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag
-      bit 1 set; a phone DNG with its own JPEG of the frame (corrected corners); a
-      tungsten-lit colour chart to say which colour model is closer (the 70D frame,
-      4,700 K and green-tinted, is where they part most; the Nexus 5X carries
-      ForwardMatrix); an Adobe render of a known frame (settles
-      `--default-tone-curve always`); a trained blink model and a real shoot with a
-      photographer's picks; photos with a real horizon and human tilt labels.
+      chooser; tiled C-RAW and a real tiled CR3 (eval/canon-cr3-tiled-*); the DJI
+      Phantom 4 DNG's vignette lift against DJI's own render
+      (eval/opcode-quality-flag-*); a real DNG with opcode flag bit 1 set; a phone
+      DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
+      chart to say which colour model is closer (the 70D frame, 4,700 K and
+      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
+      Adobe render of a known frame (settles `--default-tone-curve always`); a
+      trained blink model and a real shoot with a photographer's picks; photos with
+      a real horizon and human tilt labels.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -337,33 +337,32 @@ flagships:
       (eval/three-game-nights.txt): SAT-found session designs
       (eval/session-design-sat.txt, session-designs.mjs): every even 10-48 teams on
       6 slots to 0 waits, 16 of 19 sizes on 9 slots; 8 on 2x6 and 12 on 2x9 UNSAT;
-      28 teams in the floor-priced step (eval/under-start.txt). Before: every
-      starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
-      carry-over 94 at 10 teams, at 12 none below 124; refill search in C: 14 teams
-      210, stored. Next, most valuable first: 3-game nights for odd leagues by
-      groups (7-13 teams on 6 slots keep waits), 3-session designs at 14, 38, 40, 46
-      (SAT timed out at 300 s); the rest of the 20-team gap (40 to 44 still
-      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 29-30 teams in the page (15
-      matches: profile 30 first; 27 teams add nothing on seed 1, README "Starting
-      under the gap"); the walk's last heavy tail (22 teams: 20 of 280 walks out of
-      budget either way, eval/walk-guide.txt); home-and-away breaks exact since
-      2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
-      home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
-      below 132, or 124-130 ruled out; 18 and 24 teams: 318 and 570 are the least
-      starters (eval/starter-exhaust.txt), so lower needs non-starter moves; 32-40
-      exhaustive needs a tighter bound (30 teams took 24 min); a real league's
-      travel and blackout list; printed sheets on a real printer and paper.
+      28 teams in the floor-priced step (eval/under-start.txt). Odd leagues on 6
+      slots (eval/odd-night-sat.py: rows in the SAT model, forced window shapes):
+      11-25 teams 0 waits; 7 and 9 on 2 courts proved impossible
+      (eval/nine-on-two.py). Next, most valuable first: odd designs for 23, 27-29
+      teams and at 9 slots; 3-session designs at 14, 38, 40, 46 (SAT timed out at
+      300 s); the rest of the 20-team gap (40 to 44 still ~444-550: four-round
+      re-deals or a longer run, now ~4x cheaper; or a starter family climbed with
+      the floor as its score); 29-30 teams in the page (15 matches: profile 30
+      first; 27 teams add nothing on seed 1, README "Starting under the gap"); the
+      walk's last heavy tail (22 teams: 20 of 280 walks out of budget either way,
+      eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
+      (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
+      search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12
+      teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
+      out; 18 and 24 teams: 318 and 570 are the least starters
+      (eval/starter-exhaust.txt), so lower needs non-starter moves; 32-40 exhaustive
+      needs a tighter bound (30 teams took 24 min); a real league's travel and
+      blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): belt stretch landed 2026-11-15 (cad/README.md "Lift belt
-      stretch"): every hood jam slackens the down strand for 0.34-0.6 s with the
-      tight strand at 89 N on 8 teeth in mesh. Next: a tooth-jump check for that jam
-      on the 16-tooth drive pulley (an AT5 per-tooth allowance from a public
-      catalogue, else assumed and swept), and if it fails, a faster hood cut or a
-      20-tooth pulley.
+      venv, about 2 min): tooth jump landed 2026-11-15 (cad/README.md "Lift tooth
+      jump"): 2.54x nominal, 1 of 81 corners under 1; a 20-tooth pulley does worse.
+      Next: the strands' sideways (string) modes against the flights' passing rate
+      and the 38/78 Hz drive modes, with the balls on the up strand only (the lumped
+      model spreads them round the loop).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -410,26 +409,26 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-15
-      latest: --sing codas round 3 (final-nasal blip fixed; held-out E 82.6% to
-      87.2%, eval/coda-check-report.md); F1 tuned on high notes,
-      eval/f1-tune-check-report.md; next: slow-transition -num, onsets on the new
-      murmur, l codas). Open checks that need a person: listen to the studio page,
-      --sing, the options (--stretch, --halftime, --fills, --limit pumping, stems,
-      sections, breakdown, riser, the a cappella verse and whether the key lift
-      sounds like a lift); --lrc in a real player and --markers/--stems in a DAW;
-      --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with
-      real singers; the release kit against a distributor's real form; the Te
-      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
-      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
-      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; tilted pages, curled staves straightened
-      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
-      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
-      3464's cephalicus; --split-voices (by phrase or at a word, --split-words,
-      eval/word-split-report.md) and --overlap (both sections sing the seam note at
-      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
-      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
-      overlap against a clean handoff; --baritones, --entrance-cost N and
-      --second-tenors (TTBB; README) need the same check. Next: a real choir's range
-      test; a director on --sit-out N, the --musicxml parts and the --learn tracks.
+      latest: --sing codas round 4 (final l no longer a nasal, murmur-tilt rule
+      pre-registered, eval/coda-check-report.md A-F); next: the sung l is up to 8 dB
+      louder than its vowel (PHONES.l), slow-transition -num, onsets on the coda
+      murmur). Open checks that need a person: listen to the studio page, --sing,
+      the options (--stretch, --halftime, --fills, --limit pumping, stems, sections,
+      breakdown, riser, the a cappella verse and whether the key lift sounds like a
+      lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its
+      section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the
+      release kit against a distributor's real form; the Te Deum/3427/3912/3775
+      fixes (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from
+      their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs
+      reads rhombi, quilismas, liquescents, lines at true thickness; tilted pages,
+      curled staves straightened (eval/staff-curl-check.md); 3506/3679 fixed
+      2026-11-15 (eval/broken-stroke-check.md); next: worn pages (new GABC needed),
+      mottled squares, a liquescent hook ending on a line (held-out misses), 3408's
+      strokes, 3464's cephalicus; --split-voices (by phrase or at a word,
+      --split-words, eval/word-split-report.md) and --overlap (both sections sing
+      the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
+      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
+      and of a one-note overlap against a clean handoff; --baritones,
+      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
+      Next: a real choir's range test; a director on --sit-out N, the --musicxml
+      parts and the --learn tracks.

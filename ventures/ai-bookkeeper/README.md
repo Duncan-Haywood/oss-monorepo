@@ -2456,6 +2456,42 @@ the total line ("Balance Due A7.90"). Grid, per-photo readings and commands:
 [`eval/guess-vote-2026-11-15.md`](eval/guess-vote-2026-11-15.md). Test:
 `receipt-crosscheck.test.mjs` ("readings that only guessed the largest amount count half").
 
+### No total line: the card line; a letter glued to the total (2026-11-15)
+
+Flagship item (5), the 17-photo gap above. Reading each missed photo's four texts for
+the labelled amount turned up two things the reader did not know, and a third that was tried and dropped:
+
+- **The card line.** "VISA 6.56", "Credit Card 13.22", "MASTERCARD ##4617 $52.47": with no
+  total line, the amount the card was charged is a better answer than the largest amount
+  on the page (a phone number, the cash handed over). It now comes before that fallback,
+  skipping tip, change, cash-back, balance, points and savings lines, and counts fully in
+  the vote. Not on whole-unit slips, where "[1] BCA DEBIT -259,000" reads as 1.
+- **A glued letter.** "Balance Due A7 .90" for 47.90 (SRD 1177): the money pattern took
+  7.90. A letter OCR makes of a digit (A 4, G and b 6, T 7, g and q 9), glued to the amount
+  with nothing else before it, gives a candidate, taken only when the receipt's own sums or
+  another total line give exactly that amount and nothing gives the amount as read. The
+  note asks for a check.
+- **"Tota 17.80"** (tried, dropped): reading "Tota", "TOTAI", "T0tal" and "Iotal" as total
+  words fixed one SRD photo and broke three SROIE scans, where those spellings are mostly
+  the worse reading of a line printed twice ("Tota Ami Rounded 108.00" for 104.00).
+
+| totals right | before | now |
+|---|---|---|
+| page, SRD US photos, 196 | 150 (76.5%) | **153 (78.1%)** |
+| SROIE OCR, 625 scans, two photo readings (held out) | 505 | **506** |
+| SROIE, dataset's own text, 625 | 611 | 611 |
+| CORD train / validation / test, dataset's own text | 749 / 96 / 92 | 749 / 96 / 92 |
+
+Rules, not fitted weights, so there is no tuning half to report (the SRD gain is +1 on the
+even photos, +2 on the odd). Fixed 1002, 1073, 1082, 1177; broken 1134 (its card line
+reads 21.13 for 21.73). Wrong totals with no warning stay at 3 of 196. The CLI's
+`--four-pass` was not re-measured (no tesseract binary in this session). Still in the gap:
+"mount Due $2 17" (an amount split by a space), "Total before tip: $58.30", and photos where
+no reading has any line with the amount. Per-photo readings, the SROIE OCR check and
+commands: [`eval/total-line-gaps-2026-11-15.md`](eval/total-line-gaps-2026-11-15.md).
+Tests: `receipt-crosscheck.test.mjs` ("no total line: the card line's amount", "a total's
+first digit read as a glued letter").
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

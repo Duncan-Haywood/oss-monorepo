@@ -81,3 +81,49 @@ test('score is the rounded share of signals found, and the warning counts the mi
   assert.equal(r.score, 57);
   assert.match(r.warnings[1], /^3 readiness/);
 });
+
+// Red-team 2026-11-15 (prompts/runs/2026-11-15-session_01E5sJKmMRkNpZrXdD1mYhYj.json): two real defects where a
+// required item read as waived, and guards for five mutants that escaped.
+test('a "not required" in another clause does not waive a requirement', () => {
+  const t = 'A 5% bid bond and proof of insurance are required, but a site visit is not required.';
+  assert.equal(find(t, 'bond').found, true);
+  assert.equal(find(t, 'bond').waived, undefined);
+  assert.equal(find(t, 'insurance').found, true);
+  assert.equal(find(t, 'site-visit').waived, true);
+  assert.equal(find('A bid bond is required while insurance is not required.', 'bond').found, true);
+  assert.equal(find('A bid bond is required and insurance is not required.', 'bond').found, true);
+});
+
+test('"no X will be required to attend" is an obligation, not a waiver', () => {
+  const r = find('Firms with no local office will be required to attend the mandatory site visit.', 'site-visit');
+  assert.equal(r.found, true);
+  assert.equal(r.waived, undefined);
+  assert.equal(find('Bidders must attend the site visit; those with no prior contract is required to bring references.', 'site-visit').found, true);
+});
+
+test('waivers that share one predicate still read as waived', () => {
+  assert.equal(find('A bid bond and insurance are not required.', 'bond').waived, true);
+  assert.equal(find('A bid bond and insurance are not required.', 'insurance').waived, true);
+  assert.equal(find('Bidders are not required to attend the site visit.', 'site-visit').waived, true);
+  assert.equal(find('No bid bond will be required.', 'bond').waived, true);
+});
+
+test('SF 30 alone counts as amendment wording', () => {
+  assert.ok(find('Sign and return the SF 30 with the offer.', 'questions').found);
+});
+
+test('the "no ... will be held" waiver reaches three words and stops at four', () => {
+  assert.equal(find('No pre-bid site visit will be held.', 'site-visit').waived, true);
+  assert.equal(find('Contractors with no prior public works experience will be held responsible for attending the site visit.', 'site-visit').waived, undefined);
+});
+
+test('evidence runs from the keyword to 100 characters past it', () => {
+  const tail = 'x'.repeat(150);
+  const r = find(`A bid bond ${tail}`, 'bond');
+  assert.equal(r.evidence, `bid bond ${tail}`.slice(0, 'bid bond'.length + 100));
+});
+
+test('with every signal found the warning says so', () => {
+  const r = checkTender('Responses due 30 September. Bid bond 5%. Insurance certificate required. Contractor license. Attendance at the mandatory pre-bid meeting is required. Portal submission. Questions due Friday; addenda follow.');
+  assert.match(r.warnings[1], /^All common readiness signals were found/);
+});

@@ -166,6 +166,18 @@ test("nuclear-safety equipment is not offered as out of scope (Art 1(6) disappli
   assert.doesNotMatch(cat("exempt").label, /nuclear/i);
 });
 
+test("nuclear-safety batteries drop exactly the Chapter III and VIII rows (Art 1(6))", () => {
+  const base = { category: "industrial-big", role: "manufacturer", location: "eu", under40m: "no" };
+  const normal = ids(run(base));
+  const nuke = run({ ...base, nuclear: "yes" });
+  assert.equal(nuke.verdict.status, "in");
+  const dropped = normal.filter((id) => !ids(nuke).includes(id)).sort();
+  assert.deepEqual(dropped, ["collection", "epr", "label", "qr"]);
+  for (const id of ["substances", "conformity", "passport", "diligence", "recycled", "carbon"]) assert.ok(ids(nuke).includes(id), id);
+  assert.ok(nuke.findings.some((f) => /Art 1\(6\)/.test(f.title)));
+  assert.ok(!ids(run({ category: "portable", role: "distributor", location: "eu", nuclear: "yes" })).includes("epr-first"));
+});
+
 test("the separate-collection symbol already applies between Aug 2025 and Aug 2026", () => {
   const r = run({ category: "portable", role: "manufacturer", location: "eu", today: "2026-01-15" });
   const by = Object.fromEntries(r.timeline.map((t) => [t.id, t.state]));
