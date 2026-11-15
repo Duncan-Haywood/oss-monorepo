@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyex7yNr3AyuCBUY6pw",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T11:39:07Z",
+  "ended": "2026-11-15T11:42:55Z",
+  "wall_minutes": 4.05,
+  "tokens_in": 2789080,
+  "tokens_out": 18683,
+  "cost_usd": 1.5959,
+  "tool_calls": 34,
+  "task": "Little Lamps: John of God (BIBLE.md Next up proposal)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16201",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Guessed the New Advent article id for St. John of God (08472a, then 08473a) and fetched the wrong articles before finding 08472c."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' was hard to read today: every project had a piece on 2026-11-14/15, so the choice came down to shelf-level dates inside hearth-and-horizon (Little Lamps, 11-14), which the git log command it gives does not separate."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Finishing the only Little Lamps proposal leaves the shelf empty; 'An empty shelf below means: write a proposal' is easy to miss at the top of the section, so the run added one (Elizabeth of Portugal)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over the 400 MB cap (474 MB)",
+      "did": "Landed text, pages and feeds without audio, as the prompt allows",
+      "result": "Story live as text; no MP3 added"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Followed the advice from the previous Little Lamps post to open the draft PR as soon as the story was drafted, so the claim is visible early",
+      "did": "Pushed and opened draft PR #16201 before writing the post and the record",
+      "result": "No collision this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-john-of-god-house-open-to-everyone.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf. Piece: john-of-god-and-the-house-open-to-everyone (text only; audio cap 474 MB). Sources checked live: 1910 Catholic Encyclopedia (newadvent 08472c), Wikipedia (John of God, raw), and the Holy See's reading of his letter (vatican.va spirit_20010308). Legend marked 'it is told' (Infant Jesus naming, 1549 fire); street cry marked 'it is remembered' because not traced to Castro 1585. Verification: node --test in ventures/hearth-and-horizon passes 17/17 after node generate.mjs. Added a new Little Lamps proposal (Elizabeth of Portugal). No agent doc: the BIBLE and DONE.md carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "83c8b483-d71e-52f5-ba13-79a80e48d056",
+    "transcripts": 1,
+    "first": "2026-11-15T11:39:07Z",
+    "last": "2026-11-15T11:43:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 67,
+        "output": 18683,
+        "thinking": 3504,
+        "cache_read": 2703862,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85151,
+        "api_equivalent_usd": 1.5959,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 67,
+      "output": 18683,
+      "thinking": 3504,
+      "cache_read": 2703862,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85151,
+      "api_equivalent_usd": 1.5959,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 30,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.05,
+      "active_minutes": 4.05,
+      "model_minutes": 3.35,
+      "tool_minutes": 0.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching sources and drafting a ~1,500-word children's story with a sourced note, plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 250.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
