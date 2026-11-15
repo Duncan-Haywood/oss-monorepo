@@ -1,0 +1,311 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtJQqy7jeXbiSmBHdu3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T18:05:44Z",
+  "ended": "2026-11-15T18:08:33Z",
+  "wall_minutes": 5.71,
+  "tokens_in": 2741588,
+  "tokens_out": 14572,
+  "cost_usd": 1.3501,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16298",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 8 entries, all control plane with PRs already waiting for owner approval; the prompt does not say to skip ones with an open control-plane PR, so checking each took a search per item."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-defaults-admins-not-authenticate-was-missed.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/sudoers-check/scan.mjs (security product, 0.5 s suite). Campaign: 12 seeded, 6 caught, 2 equivalent (dead runas.any field, deleted after rerun), 4 gaps closed; rerun caught_after_fix true for all 4. Real defect: Defaults:User_Alias binding not expanded in authOffFor; fixed with failing-first test. Guard: the new tests in scan.test.mjs run in ventures-tests on every sudoers-check change. Local: node --test in ventures/sudoers-check 97/97 pass. Noticed but not fixed: 'Defaults:ADMINS, !bob' (space after comma, which visudo rejects) parses silently without a note.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/sudoers-check/scan.mjs",
+        "test": "node --test ventures/sudoers-check/**/*.test.mjs  (in .)",
+        "seed": 884005010,
+        "commit": "7301ebe25",
+        "sites": 444,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 247,
+            "col": 9,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "  return false;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "matchesPath always true took any pasted file for a missing @include; test: @include of a file not pasted keeps its note"
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 394,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "if (aliasTable[item] && !seen.has(item)) {",
+            "after": "if (aliasTable[item] || !seen.has(item)) {",
+            "line_text": "    if (aliasTable[item] && !seen.has(item)) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 450,
+            "col": 42,
+            "operator": "and-to-or",
+            "before": "const any = expanded.some((u) => !u.neg && u.value === \"ALL\");",
+            "after": "const any = expanded.some((u) => !u.neg || u.value === \"ALL\");",
+            "line_text": "  const any = expanded.some((u) => !u.neg && u.value === \"ALL\");",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "runasInfo's `any` field is never read anywhere (grep: no .any in scan.mjs, check.mjs, index.html; policyEntries does not export it): dead field"
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 450,
+            "col": 53,
+            "operator": "eq-flip",
+            "before": "const any = expanded.some((u) => !u.neg && u.value === \"ALL\");",
+            "after": "const any = expanded.some((u) => !u.neg && u.value !== \"ALL\");",
+            "line_text": "  const any = expanded.some((u) => !u.neg && u.value === \"ALL\");",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "same dead `any` field as mutant 2"
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 452,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "const root = !rootNeg && expanded.some((u) => !u.neg && (u.value === \"ALL\" || u.value === \"root\" || u.value === \"#0\"));",
+            "after": "const root = !rootNeg || expanded.some((u) => !u.neg && (u.value === \"ALL\" || u.value === \"root\" || u.value === \"#0\"));",
+            "line_text": "  const root = !rootNeg && expanded.some((u) => !u.neg && (u.value === \"ALL\" || u.value === \"root\" || u.value === \"#0\"));",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 554,
+            "col": 57,
+            "operator": "true-to-false",
+            "before": "const authGlobalOff = global.authenticate?.negated === true;",
+            "after": "const authGlobalOff = global.authenticate?.negated === false;",
+            "line_text": "  const authGlobalOff = global.authenticate?.negated === true;",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test of a global Defaults !authenticate / authenticate on rootPaths.password; test added"
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 594,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "const name = v.split(\"=\")[0];",
+            "after": "const name = v.split(\"=\")[1];",
+            "line_text": "          const name = v.split(\"=\")[0];",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 595,
+            "col": 115,
+            "operator": "const-plus-one",
+            "before": "const hit = DANGEROUS_ENV.find(([n]) => name === n || (name.endsWith(\"*\") && n.startsWith(name.slice(0, -1))));",
+            "after": "const hit = DANGEROUS_ENV.find(([n]) => name === n || (name.endsWith(\"*\") && n.startsWith(name.slice(0, -2))));",
+            "line_text": "          const hit = DANGEROUS_ENV.find(([n]) => name === n || (name.endsWith(\"*\") && n.startsWith(name.slice(0, -1))));",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "slice(0,-2) widens a wildcard: env_keep HOME_* matched HOME; test added"
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 608,
+            "col": 82,
+            "operator": "and-to-or",
+            "before": "} else if (p.name === \"timestamp_timeout\" && !p.negated && p.value !== null && Number(p.value) > 60) {",
+            "after": "} else if (p.name === \"timestamp_timeout\" && !p.negated && p.value !== null || Number(p.value) > 60) {",
+            "line_text": "      } else if (p.name === \"timestamp_timeout\" && !p.negated && p.value !== null && Number(p.value) > 60) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 613,
+            "col": 108,
+            "operator": "or-to-and",
+            "before": "if ((p.name === \"tty_tickets\" && p.negated) || (p.name === \"timestamp_type\" && !p.negated && (p.value || \"\").toLowerCase() === \"global\")) {",
+            "after": "if ((p.name === \"tty_tickets\" && p.negated) || (p.name === \"timestamp_type\" && !p.negated && (p.value && \"\").toLowerCase() === \"global\")) {",
+            "line_text": "      if ((p.name === \"tty_tickets\" && p.negated) || (p.name === \"timestamp_type\" && !p.negated && (p.value || \"\").toLowerCase() === \"global\")) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 712,
+            "col": 37,
+            "operator": "plus-to-minus",
+            "before": "const list = negs.map((e) => \"!\" + e.path + (e.args ? \" \" + e.args : \"\")).join(\", \");",
+            "after": "const list = negs.map((e) => \"!\" - e.path + (e.args ? \" \" + e.args : \"\")).join(\", \");",
+            "line_text": "    const list = negs.map((e) => \"!\" + e.path + (e.args ? \" \" + e.args : \"\")).join(\", \");",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the negated-command-bypass detail text was never asserted; test pins '!\\/usr\\/bin\\/su -'"
+          },
+          {
+            "file": "ventures/sudoers-check/scan.mjs",
+            "line": 780,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "} else if (cls === \"write\" && open) {",
+            "after": "} else if (cls === \"write\" || open) {",
+            "line_text": "    } else if (cls === \"write\" && open) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/sudoers-check/scan.mjs",
+        "issue": "Defaults:ALIAS !authenticate compared the binding as the literal alias name, so with User_Alias ADMINS = alice, bob the rule ADMINS ALL=(ALL) ALL was reported as asking for a password (rootPaths password: true) and nopasswd-all never fired: a passwordless root path the checker called safe. Fixed: the binding is expanded through User_Alias, negated members excluded; failing-first test in scan.test.mjs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c06ced99-8d5e-59d6-be7d-0f53090ba5e2",
+    "transcripts": 1,
+    "first": "2026-11-15T18:05:44Z",
+    "last": "2026-11-15T18:11:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 74,
+        "output": 14572,
+        "thinking": 3761,
+        "cache_read": 2676120,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65394,
+        "api_equivalent_usd": 1.3501,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 74,
+      "output": 14572,
+      "thinking": 3761,
+      "cache_read": 2676120,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65394,
+      "api_equivalent_usd": 1.3501,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 34,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.71,
+      "active_minutes": 5.71,
+      "model_minutes": 3.05,
+      "tool_minutes": 2.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, alias-binding fix and tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 222.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
