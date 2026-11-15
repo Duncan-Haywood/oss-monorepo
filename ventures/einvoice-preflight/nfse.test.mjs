@@ -93,9 +93,9 @@ test("CNPJ and CPF check digits (NFSE-013)", () => {
 
 test("ISSQN sums: base, tax, retentions and net (NFSE-020..023)", () => {
   assert.deepEqual(rules(swap("<vBC>1400.00</vBC>", "<vBC>1500.00</vBC>")), ["NFSE-020", "NFSE-021"]);
-  assert.deepEqual(rules(swap("<pAliqAplic>5.00</pAliqAplic>", "<pAliqAplic>2.00</pAliqAplic>")), ["NFSE-021"]);
-  assert.deepEqual(rules(swap("<vTotalRet>91.00</vTotalRet>", "<vTotalRet>21.00</vTotalRet>")), ["NFSE-022", "NFSE-023"]);
-  assert.deepEqual(rules(swap("<vLiq>1309.00</vLiq>", "<vLiq>1400.00</vLiq>")), ["NFSE-023", "NFSE-033"]);
+  assert.deepEqual(rules(swap("<pAliqAplic>2.90</pAliqAplic>", "<pAliqAplic>2.00</pAliqAplic>")), ["NFSE-037", "NFSE-021"]);
+  assert.deepEqual(rules(swap("<vTotalRet>61.60</vTotalRet>", "<vTotalRet>21.00</vTotalRet>")), ["NFSE-022", "NFSE-023"]);
+  assert.deepEqual(rules(swap("<vLiq>1338.40</vLiq>", "<vLiq>1400.00</vLiq>")), ["NFSE-023", "NFSE-033"]);
   // ISSQN not retained: vTotalRet should drop to 21.00 and vLiq to 1379.00
   assert.deepEqual(rules(swap("<tpRetISSQN>2</tpRetISSQN>", "<tpRetISSQN>1</tpRetISSQN>")), ["NFSE-022"]);
   // a municipal benefit in R$ lowers the base
@@ -106,16 +106,16 @@ test("ISSQN sums: base, tax, retentions and net (NFSE-020..023)", () => {
 test("PIS/COFINS retained: a vTotalRet with or without them is accepted", () => {
   const ret = swap("<tpRetPisCofins>2</tpRetPisCofins>", "<tpRetPisCofins>1</tpRetPisCofins>");
   assert.deepEqual(rules(ret), []);
-  const withPc = ret.replace("<vTotalRet>91.00</vTotalRet>", "<vTotalRet>142.10</vTotalRet>").replace("<vLiq>1309.00</vLiq>", "<vLiq>1257.90</vLiq>").replace("<vTotNF>1309.00</vTotNF>", "<vTotNF>1257.90</vTotNF>");
+  const withPc = ret.replace("<vTotalRet>61.60</vTotalRet>", "<vTotalRet>112.70</vTotalRet>").replace("<vLiq>1338.40</vLiq>", "<vLiq>1287.30</vLiq>").replace("<vTotNF>1338.40</vTotNF>", "<vTotNF>1287.30</vTotNF>");
   assert.deepEqual(rules(withPc), []);
 });
 
 test("IBS/CBS sums (NFSE-030..033)", () => {
-  assert.deepEqual(rules(swap("<vBC>1278.90</vBC>", "<vBC>1400.00</vBC>")), ["NFSE-030", "NFSE-031", "NFSE-031"]);
-  assert.deepEqual(rules(swap("<vCBS>11.51</vCBS>", "<vCBS>12.51</vCBS>")), ["NFSE-031"]);
+  assert.deepEqual(rules(swap("<vBC>1308.30</vBC>", "<vBC>1400.00</vBC>")), ["NFSE-030", "NFSE-031", "NFSE-031"]);
+  assert.deepEqual(rules(swap("<vCBS>11.77</vCBS>", "<vCBS>12.77</vCBS>")), ["NFSE-031"]);
   assert.deepEqual(rules(swap("<pAliqEfetUF>0.10</pAliqEfetUF>", "<pAliqEfetUF>0.05</pAliqEfetUF>")), ["NFSE-031", "NFSE-031"]);
-  assert.deepEqual(rules(swap("<vIBSTot>1.28</vIBSTot>", "<vIBSTot>1.30</vIBSTot>")), ["NFSE-032"]);
-  assert.deepEqual(rules(swap("<vTotNF>1309.00</vTotNF>", "<vTotNF>1321.79</vTotNF>")), ["NFSE-033"]);
+  assert.deepEqual(rules(swap("<vIBSTot>1.31</vIBSTot>", "<vIBSTot>1.33</vIBSTot>")), ["NFSE-032"]);
+  assert.deepEqual(rules(swap("<vTotNF>1338.40</vTotNF>", "<vTotNF>1351.48</vTotNF>")), ["NFSE-033"]);
   // from 2027 IBS and CBS are charged on top, and PIS/COFINS leave the base
   const y27 = clean.replaceAll("2026-11-10", "2027-01-11").replace("2611", "2701");
   const r = checkNfse(y27).findings.map((f) => f.rule);
@@ -154,6 +154,6 @@ test("the report routes a national NFS-e to its own rules", async () => {
   const r = out.reports[0];
   assert.match(r.envelope, /national NFS-e/);
   assert.deepEqual(r.errors, []);
-  const bad = await preflightDocuments([{ name: "nota.xml", source: swap("<vLiq>1309.00</vLiq>", "<vLiq>1400.00</vLiq>") }]);
+  const bad = await preflightDocuments([{ name: "nota.xml", source: swap("<vLiq>1338.40</vLiq>", "<vLiq>1400.00</vLiq>") }]);
   assert.ok(bad.reports[0].errors.some((e) => e.rule === "NFSE-023"));
 });

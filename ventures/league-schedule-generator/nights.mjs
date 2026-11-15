@@ -314,9 +314,11 @@ export function waitFreePossible(teams, g, courts, times, short = 0) {
  * eval/three-game-nights.txt part 3), 9 teams on 2 x 6 (every slot booked forces one night shape,
  * and no three nights of it cover the 36 pairs: eval/nine-on-two.py by exhaustion, and
  * odd-night-sat.py --shape UNSAT), 12 teams on 2 x 9 (three K4s a night, three nights,
- * eval/session-design-sat.txt), 5 teams on 1 court x 6 (odd-night-sat.py, UNSAT).
+ * eval/session-design-sat.txt), 5 teams on 1 court x 6 (odd-night-sat.py, UNSAT), and at 9 times
+ * (2026-11-15, latest) 5 and 7 teams on 1 court and 7 on 2 (odd-night-sat.py without the shape
+ * constraints, UNSAT in 0.0, 0.0 and 12 s; eval/odd-night-sat.txt).
  */
-export const PROVED_NO_WAIT_FREE = [[5, 3, 1, 6], [7, 3, 2, 6], [8, 3, 2, 6], [9, 3, 2, 6], [12, 3, 2, 9]];
+export const PROVED_NO_WAIT_FREE = [[5, 3, 1, 6], [7, 3, 2, 6], [8, 3, 2, 6], [9, 3, 2, 6], [12, 3, 2, 9], [5, 3, 1, 9], [7, 3, 1, 9], [7, 3, 2, 9]];
 
 /** True when a season of `n` teams, g games a night, on courts x times is proved to keep a wait. */
 export function waitFreeProvedImpossible(n, g, courts, times) {

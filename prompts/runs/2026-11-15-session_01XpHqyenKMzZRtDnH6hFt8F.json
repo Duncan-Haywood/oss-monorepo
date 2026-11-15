@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyenKMzZRtDnH6hFt8F",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T18:39:21Z",
+  "ended": "2026-11-15T18:52:19Z",
+  "wall_minutes": 13.31,
+  "tokens_in": 11367905,
+  "tokens_out": 60103,
+  "cost_usd": 4.9367,
+  "tool_calls": 82,
+  "task": "Deepen flagship einvoice-preflight: a city's own ISS rate table (S\u00e3o Paulo)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16305",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First fixture-update script asserted 4 occurrences of a ValorIss swap in abrasf.test.mjs; there were 3, fixed and rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: was at 1992 of 2000 characters, so replacing the landed item with a slightly longer open one failed validate; had to trim an unrelated landed clause (SdI receipt reader) to fit."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-sao-paulo-iss-rates-renumbered-list.md",
+    "ventures/einvoice-preflight/eval/iss-city-rates-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "New iss-city-rates.mjs: S\u00e3o Paulo Lei 13.701/2003 art. 16 (consolidated text on legislacao.prefeitura.sp.gov.br, amendments through Lei 18.270/2025) as a per-LC-116-subitem table with part-of-subitem rates; SP's list renumbered vs LC 116 in four runs (3.01-3.04, 7.14-7.20, 13.01-13.04, 17.07-17.24 shift by +1/+2/+1/+1), found by matching all 200 subitem texts against the LC 116 mirror. Wired as ABR-025 (MunicipioIncidencia else issuing city) and NFSE-037 (cLocIncid). Measured: 70 public NFS-e from GitHub code search, 35 due in SP; the 4 production files issued by SP's own system pass (one at 2.9% on LC 17.25 confirms the shift); 10 flagged, all made up, 4 of them this venture's own fixtures (5% on SP software services; now 2.9% with every amount recomputed by hand; tests and the Brazil page samples updated). Local checks: node --test *.test.mjs in the venture 2022 pass 0 fail; check_post_frontmatter, check_post_links, post_similarity clean; portfolio/router/validate.py ok. venture-preflight einvoice-preflight: clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "959cb8c3-c39f-5dea-ae67-a3f2cdf2351d",
+    "transcripts": 1,
+    "first": "2026-11-15T18:39:21Z",
+    "last": "2026-11-15T18:52:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 153,
+        "output": 60103,
+        "thinking": 20576,
+        "cache_read": 11180517,
+        "cache_write_5m": 0,
+        "cache_write_1h": 187235,
+        "api_equivalent_usd": 4.9367,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 153,
+      "output": 60103,
+      "thinking": 20576,
+      "cache_read": 11180517,
+      "cache_write_5m": 0,
+      "cache_write_1h": 187235,
+      "api_equivalent_usd": 4.9367,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 74,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.31,
+      "active_minutes": 13.31,
+      "model_minutes": 9.56,
+      "tool_minutes": 3.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "read SP Lei 13.701 art. 16 history, align two 200-item service lists, code+tests, fixture recompute, corpus measurement, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 202.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

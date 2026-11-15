@@ -168,18 +168,19 @@ flagships:
       failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697
       on the 34 non-sticky), test it on fresh labelled data; update-rate check: date
       a documented collection change. Stale feeds: clumped LR shipped; next a real
-      documented carry-forward. Next: apple's volume in several-columns mode; joint
-      drift (measured, not offered) and its 2x penalty on fresh multi-column
-      labelled data; TSSB/HAS (README): count guard failed; next a shape-repeat
-      check. Open: (0) drift model: t-walk increments, biweight on fresh data, why
-      it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks:
-      `--hinge-test` refuses 7/8 real n<100 (README "Step or bend?"): try a log
-      hinge; heavy-tailed walks, a second hinge; a real step inside a cycle, a cycle
-      check not tied to rho, real documented ramps and close steps; (2) steep-bump
-      clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH failed one
-      pre-registered line (README "Heavy tails in the GARCH search"): re-test
-      scoring breaks with false alarms, new seeds; (4) driftWarning on real shocks;
-      (5) holiday list: wanted a shop's counts or a yearly term.
+      documented carry-forward. joint drift (measured, not offered) and its 2x
+      penalty on fresh multi-column labelled data; TSSB/HAS (README): count guard
+      failed; next a shape-repeat check. Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; (1) slope breaks: hinge test: logs fail (size ok at n 40), try 2
+      hinges; step/bend bootstrap tests (README "Step or bend, as two tests") fail:
+      walks called bend, use the cut guard; nulls rho low; a second hinge; a real
+      step inside a cycle, a cycle check not tied to rho, real documented ramps and
+      close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3)
+      `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the
+      GARCH search"): re-test scoring breaks with false alarms, new seeds; (4)
+      driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a
+      yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -191,12 +192,10 @@ flagships:
       production SIF's records, AEAT error codes). Open: a real HU report with NAV's
       businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real chain
       with NAV's replies; a real signed Facturae file or FACe rejection; ZATCA: a
-      real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT explained and
-      paired with the file; a real 00305 reproduced,
-      eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection with its
-      file; HR: a real HR invoice, cash accounting; CIUS-PT: which validator does AT
-      run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real
-      KSeF rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
+      real KSA note; SdI: open: a real FatturaPA rejection with its file; HR: a real
+      HR invoice, cash accounting; CIUS-PT: which validator does AT run (AA/RED
+      codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real KSeF
+      rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
       155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
       open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
       check on a real IRP payload; mandate texts: IL, ES, SK, NRS, SRO 1852, Jordan
@@ -206,13 +205,13 @@ flagships:
       events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in
       v1.40) flagged (README): open: a real event; a real reform NF-e from a SEFAZ
       test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e
-      landed: open: a national rejection compared; ISS 2-5% band landed
-      (ABR-024/NFSE-024, README): open: a city's own rate table; ABRASF NFS-e
-      2.00-2.04 landed (README): open: ISS retained on a real file, city provider
-      schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed
-      (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply;
-      refresh the Bulgaria page when its draft passes. A run that lands a slice
-      replaces its item here; keep this under 2,000 characters.
+      landed: open: a national rejection compared; ISS: Sao Paulo's own rates landed
+      (ABR-025, README): open: Rio, BH, Curitiba rate tables; ABRASF NFS-e 2.00-2.04
+      landed (README): open: ISS retained on a real file, city provider schemas,
+      1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README):
+      open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh the
+      Bulgaria page when its draft passes. A run that lands a slice replaces its
+      item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -257,8 +256,8 @@ flagships:
       C-RAW: re-tile a real R8 for LibRaw (eval/canon-cr3-tiled-*); Bayer demosaic:
       aliased luma, noise (eval/bayer-*). X-Trans demosaic: real frames 0.5-0.7 dB
       short of LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings;
-      median and green; C path; eval/xtrans-clamp-gradient-2026-11-15.md). DNG
-      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      median and green; eval/xtrans-clamp-gradient-2026-11-15.md). DNG 1.7.1.0 spec
+      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -269,23 +268,24 @@ flagships:
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans; compressed 2026-11-15, eval/fujifilm-*)
       read directly since 2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from
       maker notes (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15. Bayer
-      demosaic directional, in C 4-5x 2026-11-15 (eval/bayer-*). NEF edge columns,
-      real split rows, Z 6II curve, 12-bit black 2026-11-15 (eval/nikon-nef-*).
-      Next: an RW2 RawFormat 8 with a tone curve (0x39/0x3A); Sony's vignetting
-      table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
-      through the pipeline's lens stage; a real evenly lit frame shot wide open
-      (corners level after lensfun's vignetting?); a second maker-against-lensfun
-      DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
-      or the SDK to check them; lateral colour measured on a real frame with sharp
-      corner edges; a real Adobe `.dcp` through the profile chooser; tiled C-RAW and
-      a real tiled CR3 (eval/canon-cr3-tiled-*); the DJI Phantom 4 DNG's vignette
-      lift against DJI's own render (eval/opcode-quality-flag-*); a real DNG with
-      opcode flag bit 1 set; a phone DNG with its own JPEG of the frame (corrected
-      corners); a tungsten-lit colour chart to say which colour model is closer (the
-      70D frame, 4,700 K and green-tinted, is where they part most; the Nexus 5X
-      carries ForwardMatrix); an Adobe render of a known frame (settles
-      `--default-tone-curve always`); a trained blink model and a real shoot with a
-      photographer's picks; photos with a real horizon and human tilt labels.
+      and X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*).
+      NEF edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
+      (eval/nikon-nef-*). Next: an RW2 RawFormat 8 with a tone curve (0x39/0x3A);
+      Sony's vignetting table vs an evenly lit frame; a real DNG and a
+      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
+      lit frame shot wide open (corners level after lensfun's vignetting?); a second
+      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
+      synthetic files so far, or the SDK to check them; lateral colour measured on a
+      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
+      chooser; tiled C-RAW and a real tiled CR3 (eval/canon-cr3-tiled-*); the DJI
+      Phantom 4 DNG's vignette lift against DJI's own render
+      (eval/opcode-quality-flag-*); a real DNG with opcode flag bit 1 set; a phone
+      DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
+      chart to say which colour model is closer (the 70D frame, 4,700 K and
+      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
+      Adobe render of a known frame (settles `--default-tone-curve always`); a
+      trained blink model and a real shoot with a photographer's picks; photos with
+      a real horizon and human tilt labels.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -333,28 +333,26 @@ flagships:
       ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
-      2026-11-15 sections). 2026-11-15 latest: 3-game nights
-      (eval/three-game-nights.txt): SAT-found session designs
-      (eval/session-design-sat.txt, session-designs.mjs): every even 10-48 teams on
-      6 slots to 0 waits, 16 of 19 sizes on 9 slots; 8 on 2x6 and 12 on 2x9 UNSAT;
-      28 teams in the floor-priced step (eval/under-start.txt). Odd leagues on 6
-      slots (eval/odd-night-sat.py: rows in the SAT model, forced window shapes):
-      11-25 teams 0 waits; 7 and 9 on 2 courts proved impossible
-      (eval/nine-on-two.py). Next, most valuable first: odd designs for 23, 27-29
-      teams and at 9 slots; 3-session designs at 14, 38, 40, 46 (SAT timed out at
-      300 s); the rest of the 20-team gap (40 to 44 still ~444-550: four-round
-      re-deals or a longer run, now ~4x cheaper; or a starter family climbed with
-      the floor as its score); 29-30 teams in the page (15 matches: profile 30
-      first; 27 teams add nothing on seed 1, README "Starting under the gap"); the
-      walk's last heavy tail (22 teams: 20 of 280 walks out of budget either way,
-      eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
-      (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
-      search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12
-      teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
-      out; 18 and 24 teams: 318 and 570 are the least starters
-      (eval/starter-exhaust.txt), so lower needs non-starter moves; 32-40 exhaustive
-      needs a tighter bound (30 teams took 24 min); a real league's travel and
-      blackout list; printed sheets on a real printer and paper.
+      2026-11-15 sections). 2026-11-15: 3-game nights (eval/three-game-nights.txt):
+      SAT session designs (session-designs.mjs) take every even 10-48 teams on 6
+      slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6, 12 on 2x9 UNSAT. Odd leagues
+      (eval/odd-night-sat.py, odd-designs.mjs): 11-25 teams 0 waits on 6 slots; on 9
+      slots 11, 13 teams on 2 courts, 17 on 3; proved impossible: 7, 9 on 2x6; 5, 7
+      on 1x9; 7 on 2x9. Next, most valuable first: odd 9-slot designs for 19 (3
+      courts), 21-25 (4), 27-29 (5), and 27 on 7x6; 3-session designs at 14, 38, 40,
+      46 (SAT timed out at 300 s); the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 29-30 teams in the page (15
+      matches: profile 30 first; 27 teams add nothing on seed 1, README "Starting
+      under the gap"); the walk's last heavy tail (22 teams: 20 of 280 walks out of
+      budget either way, eval/walk-guide.txt); home-and-away breaks exact since
+      2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
+      home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
+      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
+      below 132, or 124-130 ruled out; 18 and 24 teams: 318 and 570 are the least
+      starters (eval/starter-exhaust.txt), so lower needs non-starter moves; 32-40
+      exhaustive needs a tighter bound (30 teams took 24 min); a real league's
+      travel and blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

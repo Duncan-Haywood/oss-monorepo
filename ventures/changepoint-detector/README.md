@@ -4260,6 +4260,86 @@ and might admit them; each needs its own size check on fresh seeds. A step-or-be
 when one RSS is clearly smaller, else "can't tell") is the obvious repair to the check; it needs fresh seeds too.
 Test: `hinge-test.test.mjs` ("step or bend").
 
+### Step or bend, as two tests (2026-11-15, last; pre-registered on fresh seeds; fails two bars, not offered)
+
+The RSS check above names whichever kind fits better even when the two fit equally, and that is where it failed. Its
+named repair was a rule that can say "can't tell". `stepOrBendTest(x)` in `hinge-test.mjs` does that with two tests:
+T = log(step RSS / bend RSS), and each kind in turn is the null, drawn from its best OLS fit plus AR(1) noise and
+rerun through the whole procedure 199 times. A kind is named only when its rival is rejected at 0.05 and it is not;
+otherwise "unclear". Guard: refused under 30 points, or when both fits' residuals have bias-corrected rho above 0.9
+(0.7 under 100). The bars were written down and committed before the fresh run
+(`eval/hinge-step-or-bend-boot-prereg-2026-11-15.md`), after one look at the old check's seeds, which showed why
+the bars are over **all** series and not only those the hinge test rejects: there, 9 of 28 and 10 of 41 sticky steps
+were called bends. The hinge test fires on a sticky step mainly when the noise happens to bend it, and no check on the
+same data can undo that selection. `node eval/hinge-step-or-bend-boot-sim.mjs 200 199` (seeds from 62,000,000,
+`eval/hinge-step-or-bend-boot-sim.out.txt`, about 45 min on 4 cores) and `node eval/hinge-step-or-bend-boot-real.mjs`
+(`eval/hinge-step-or-bend-boot-real.out.txt`, 999 replicates).
+
+| cell (200 series) | step | bend | unclear | bar |
+|---|---|---|---|---|
+| step 2, n 100, rho 0.5 | 68 | 9 (4.5%) | 123 | W holds |
+| step 3, n 100, rho 0.5 | 134 | 6 (3.0%) | 60 | W holds |
+| step 2, n 145, rho 0.5 | 86 | 10 (5.0%) | 104 | W holds |
+| step 2, n 100, rho 0 | 178 (89%) | 0 | 22 | W, U hold |
+| bend 0.08, n 100, rho 0.5 | **22 (11.0%)** | 52 | 126 | **W fails** (cap 8%) |
+| bend 0.08, n 100, rho 0 | 11 (5.5%) | 149 (74.5%) | 40 | W, U hold |
+| no change, n 100 rho 0 / n 100 rho 0.5 / n 145 rho 0.5 | 13 / 16 / 11 | 8 / 10 / 13 | 179 / 174 / 176 | N holds (all <= 8%) |
+| random walk with drift, n 100 (195 tested) | 5 | **129** | 61 | **RW fails** (cap 10% of all) |
+| random walk with drift, n 145 (162 tested) | 3 | **112** | 47 | **RW fails** |
+| reported: step 1 / bend 0.04 n 100 / bend 0.04 n 145, all rho 0.5 | 17 / 13 / 14 | 8 / 21 / 41 | 175 / 166 / 145 | |
+
+**Bar R holds:** the Nile is called `step` (after 1898, size -284;
+pStep 0.52, pBend 0.014), and GCAG 1880, GISTEMP and GCAG 1850 are called `bend` at 1976 (pStep 0.001, pBend 0.69 to
+0.76). Not predicted: GCAG 1930-2024 `bend` at 1974; Canada fertility (a rise and fall) rejects both kinds, so
+`unclear`; Lake Huron `unclear`; five short sticky series refused.
+
+**Verdict: two bars fail, so it is not offered** (it was wired into the CLI as `--step-or-bend` while the run went;
+that wiring was removed before merge). It is honest where its guard is: with white noise it names a clear step 89%
+of the time and a clear bend 75%, with wrong calls at or under 5.5%, and with no change it names a kind in 10.5-13% of
+series. Two things break it. (1) **The guard.** Read off the fitted step's and bend's residuals, it admits nearly every
+random walk at n 100 (where the limit is 0.9), and a walk's wander fits a bend far better than a step. On the same walks the
+hinge test, behind its rho-cut guard, rejected only 14 and 6: the next round should reuse that guard. (2) **Sticky bends.** Post hoc,
+on the development seeds: with true rho 0.5 the fitted bend's residuals give a bias-corrected rho of about 0.44 (the
+knot search soaks up stickiness), so the bend null's noise is too smooth and it rejects a real bend too often. A
+bootstrap bias correction of rho (fit, simulate, refit, shift by the mean bias) is the obvious repair; it needs fresh
+seeds. `stepOrBendTest` is exported for evaluation. Test: `hinge-test.test.mjs` ("step or bend as two bootstrap
+tests").
+
+### The hinge test on the logs, and its size at 40 points (2026-11-15, latest; pre-registered; size holds, logs admit nothing)
+
+"Step or bend" ended with the test refusing 7 of 8 real series under 100 points, and named a hinge on the log for
+growth curves as one way in. `--log --hinge-test` (and the page's "Take logs first" box) already passed logged values
+to the test, but nobody had run it, and the report still said "on the levels". The bars, the predictions and the
+decision rule were committed before any run (`eval/hinge-log-prereg-2026-11-15.md`). The two growth series that
+motivated it have 39 and 40 points, below the n 60 where the shipped size tables start, so the synthetic half measures
+the shipped test (guard `cut`) at n 40 on fresh seeds: `node eval/hinge-log-sim.mjs 300 99`
+(`eval/hinge-log-sim.out.txt`, seeds from 63,000,000, under a minute) and `node eval/hinge-log-real.mjs`
+(`eval/hinge-log-real.out.txt`, 999 replicates). One smoke run of the sim script (20 series, 19 replicates, the same
+first seeds) came before the full run; it only checked that the script ran.
+
+| bar | cell (n 40, 300 series) | share of all series with p <= 0.05 | tested | holds? |
+|---|---|---|---|---|
+| S1 | line plus AR(1), rho 0 / 0.3 / 0.6 / 0.8 | 3.7% / 5.0% / 6.7% / 3.3% | 300 / 300 / 266 / 134 | yes (cap 8%) |
+| S2 | AR(1) rho 0.9 / 0.95, random walk with drift | 4.0% / 1.7% / 2.3% | 93 / 57 / 72 | yes (cap 8%) |
+
+| series | logs | levels | prediction (logs) |
+|---|---|---|---|
+| L1 Australian gas, annual 1956-1994 (39) | refused: line rho 1.00, hinge 0.95 | refused: 0.97, 0.83 | tested, p <= 0.05, knot 1966-1976: **fails** |
+| L2 US electricity, annual 1973-2012 (40) | refused: line 0.89, hinge 0.71 (guard 0.7) | refused: 0.82, 0.72 | tested, p <= 0.05, knot 1998-2008: **fails** |
+| C Lake Huron, Michigan-Huron, US female murder rate | refused (0.75, 0.80, 0.79) | refused | refused: holds |
+| CO2 annual means 1959-2025 (reported) | refused: 0.96, 0.90 | refused | refused |
+| Canada fertility 1931-1968 (reported) | refused: 0.91, 0.79 | refused | none |
+
+**Verdict.** Size holds at 40 points, so the 30-point minimum stands: under 100 points the 0.7 guard keeps every cell,
+random walks included, at or under 6.7%. Logs do not help, and bar L fails. Logging gas makes it worse (a supply that
+grew from almost nothing in the 1960s is far from a straight line on the log scale, hinge rho 0.95), and electricity
+misses the guard by 0.01. What blocks these series is the stickiness left after one bend, not the scale. As the decision
+rule set out, no refusal suggests logs. The one change that ships is the wording: with logs on, the CLI, the page and
+`hingeTest.note` say the test ran on the logs and that a slope there is a growth rate (0.02 a step is about 2% a step),
+and the report carries `scale: 'log' | 'levels'`. **Next** (not run): the series' hinge residuals sit at 0.71-0.95, so a
+second hinge or a smooth trend term, not a transform, is the remaining route; it needs its own size check at n 40.
+Test: `hinge-test.test.mjs` ("with logs on, the report says the test ran on the logs").
+
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
 The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a
