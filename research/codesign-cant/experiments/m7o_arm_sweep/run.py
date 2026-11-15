@@ -81,14 +81,14 @@ def sets():
 def sweep(label, geom, s, x12, kp_hi):
     x0 = np.array(x12, float)
     L0 = float(L_of_u(x0[0]))
-    Ls = sorted(set(GRID + [round(L0, 6)]))
-    X = np.repeat(x0[None], len(Ls), axis=0); X[:, 0] = [u_of_L(L) for L in Ls]
+    Ls = list(GRID) + [L0]   # the last point is the design itself, its coordinate untouched (a sub-micron change in L flips marginal flights)
+    X = np.repeat(x0[None], len(Ls), axis=0); X[:-1, 0] = [u_of_L(L) for L in GRID]
     D = A.D_RANGE[0] + x0[1] * (A.D_RANGE[1] - A.D_RANGE[0])
     L7.setup(None, kp_hi)
     rho = H.margin_rho(X, np.full(len(X), A.TWR))
     L7.setup()
     c = M6.cond("aware"); al = c["alpha_max"] * np.clip(x0[2], 0, 1)
-    sz = _size(np.array(Ls), D, al, kappa_per_d=c["kappa_per_d"], actuator="hover")
+    sz = _size(L_of_u(X[:, 0]), D, al, kappa_per_d=c["kappa_per_d"], actuator="hover")
     own = _size(L0, D, al, kappa_per_d=c["kappa_per_d"], actuator="hover")
     rec = dict(label=label, geom=geom, seed=s, L0=L0, D=float(D), L=Ls, rho=[float(v) for v in rho],
                clear=[bool(np.sqrt(2) * L >= 1.05 * D) for L in Ls], feasible=[bool(v) for v in sz["feasible"]], mass=sz["mass"].tolist(),
@@ -122,7 +122,7 @@ def summarise(out):
             if not rs: continue
             L0 = np.mean([r["L0"] for r in rs])
             lines.append(f"[{g}, {lab}] own L mean {L0:.4f} m (seeds {', '.join(f'{r['L0']:.4f}' for r in rs)})")
-            own = {k: sum(r[f"dead_{k}"][r["L"].index(round(r["L0"], 6))] for r in rs) for k in
+            own = {k: sum(r[f"dead_{k}"][-1] for r in rs) for k in
                    [f"{m}_{t:g}_{l:g}" for m in MODES for t, l in CONDS]}
             lines.append("  own L: " + "; ".join(f"{k} {v}" for k, v in own.items() if k.startswith("resize")))
             hdr = "  L      ok  mass   tau/W   expo   " + "  ".join(f"{m[:3]}{t:g}/{l:g}" for m in MODES for t, l in CONDS) + "   J45/1 (resize, mean)"
