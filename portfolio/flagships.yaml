@@ -408,19 +408,19 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-15
-      latest: --sing codas rounds 4-6 (final l not a nasal, set 4 dB under its
-      vowel, eval/lateral-level-check.md; final r tap + tail); next: slow -num,
-      onsets on the coda murmur, opening l level). Open checks that need a person:
-      listen to the studio page, --sing, the options (--stretch, --halftime,
-      --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella
-      verse and whether the key lift sounds like a lift); --lrc in a real player and
-      --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md
-      and the E2-E4 range with real singers; the release kit against a distributor's
-      real form; the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md).
-      master-cli passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs
-      (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
-      liquescents, lines at true thickness; tilted pages, curled staves straightened
-      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      latest: openings sing the coda murmur, read with the tilt rule (held-out G
+      78.0 to 79.6%, false nasals halved; README); next: unread sung nasals (G 118
+      of 404), short -um's level beats with 5 voices, opening l level). Open checks
+      that need a person: listen to the studio page, --sing, the options (--stretch,
+      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
+      cappella verse and whether the key lift sounds like a lift); --lrc in a real
+      player and --markers/--stems in a DAW; --cues (and its section lines),
+      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
+      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
+      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
+      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
+      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
+      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
       3464's cephalicus; --split-voices (by phrase or at a word, --split-words,

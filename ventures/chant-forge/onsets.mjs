@@ -10,8 +10,8 @@
 // - a fricative is 30 ms or more of noise, most of its energy above 2.5 kHz; its centroid
 //   (1-11 kHz) splits /s/ (above 4.8 kHz) from /ʃ/ (2.2-4.8 kHz), and a weak, flat one is /f/.
 //   A closure straight before it makes it an affricate.
-// - a nasal is 30 ms or more 7 to 25 dB below the vowel, its low band near the vowel's and its
-//   energy above 1 kHz down at least 5 dB more (a murmur).
+// - a nasal is 30 ms or more 5 to 25 dB below the vowel, its low band near the vowel's and its
+//   energy above 1 kHz down at least 5 dB more, and dark in itself (MURMUR_TILT; a murmur).
 // - a tap is one brief contact: the level's floor, 12 dB or more under the vowel, lasts under 30 ms.
 // Anything else (l, the glides, a bare vowel) reads as no consonant.
 // Known limits: the thresholds were set on held syllables at D3 (eval/consonant-check.mjs part
@@ -86,11 +86,13 @@ const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length 
 // 'stop', 'affricate', 'fricative', 'nasal', 'tap', 'none'; stops add voiced and place
 // ('lab', 'alv', 'vel'), affricates voiced, fricatives place ('s', 'S', 'f', 'voiced').
 // The earliest cue wins, so "spi" reads as its /s/ and "tri" as its /t/.
-// murmurTilt (readCoda's rule) is off for openings: tried 2026-11-15 as pre-registered in
-// eval/consonant-check.mjs, it cut the vowel-only control's false nasals from 123 to 23 of 934 but read
-// B's sung nasal openings 64 of 149 instead of 96 (openings keep the first, brighter murmur, sing.mjs
-// ONSET_NASAL_GAIN), so by the registration it stays off until the opening murmur changes.
-export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = 0 } = {}) {
+// murmurTilt (readCoda's rule): first tried on openings 2026-11-15 (eval/consonant-check.mjs), it cut the
+// vowel-only control's false nasals from 123 to 23 of 934 but read B's sung nasal openings 64 of 149
+// instead of 96, as openings still sang the first murmur. Since openings sing the coda's murmur (sing.mjs,
+// README "Openings on the coda murmur") it is on, and a nasal's level bar is the coda reader's: 5 dB under
+// the vowel (`nasalBar`), not 7, which sat on the new murmur's own level (7 dB under). `murmurTilt: 0,
+// nasalBar: 7` is the reader before that round.
+export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = MURMUR_TILT, nasalBar = 5, tiltSpan = 3 } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round(t0 * rate), z = Math.round(Math.min(vowelAt, t0 + window) * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < Math.round((vowelAt + 0.06) * rate); i += hop) ref.push(frameFeatures(x, i, rate));
@@ -109,7 +111,7 @@ export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = 0 }
   const noisy = (f) => f.hiR > Math.max(0.5, 3 * vHi) && f.lvl > -45;
   const vnoisy = (f) => !noisy(f) && f.hiR > Math.max(0.12, 3 * vHi) && f.lowR > 0.2 && f.hiRel > -20 && f.lvl > -35 && f.lvl < -3;
   const closed = (f) => f.lvl < -22 && f.loRel < -12 && !noisy(f) && !vnoisy(f);
-  const nasal = (f) => f.loRel >= -15 && f.lvl < -7 && f.lvl > -25 && f.hiRel < f.loRel - 5;
+  const nasal = (f) => f.loRel >= -15 && f.lvl < -nasalBar && f.lvl > -25 && f.hiRel < f.loRel - 5;
   // a tap: one brief contact, the level's deepest part (within 6 dB of its floor, 12 dB or more
   // under the vowel) shorter than 30 ms, with louder frames on both sides
   let mk = 0; fr.forEach((f, k) => { if (f.lvl < fr[mk].lvl) mk = k; });
@@ -118,11 +120,13 @@ export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = 0 }
   const dip = floor <= -12 && s0 > 0 && s1 < fr.length - 1 && msOf([s0, s1]) < 30
     && Math.max(...fr.slice(0, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 1).map((f) => f.lvl)) >= floor + 10;
   if (dip && !fr.some((f) => noisy(f) || vnoisy(f))) return { cls: 'tap', floor }; // voiced throughout: no hiss before or after
+  // the murmur's tilt: the run's median, or with tiltSpan k its darkest stretch of k frames (its median)
+  const darkest = (r) => { const t = fr.slice(r[0], r[1] + 1).map((f) => db(f.hi1, f.low)); if (!tiltSpan || t.length <= tiltSpan) return median(t); let best = Infinity; for (let j = 0; j + tiltSpan <= t.length; j++) best = Math.min(best, median(t.slice(j, j + tiltSpan))); return best; };
   const cands = [
     ['closure', runs(closed, 35).filter((r) => r[1] < fr.length - 1)[0]],
     ['fricative', runs(noisy, 30)[0]],
     ['vfricative', runs(vnoisy, 30)[0]],
-    ['nasal', runs(nasal, 30).find((r) => !murmurTilt || median(fr.slice(r[0], r[1] + 1).map((f) => db(f.hi1, f.low))) <= -murmurTilt)],
+    ['nasal', runs(nasal, 30).find((r) => !murmurTilt || darkest(r) <= -murmurTilt)],
   ].filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
   if (cands.length) {
     const [kind, r] = cands[0];

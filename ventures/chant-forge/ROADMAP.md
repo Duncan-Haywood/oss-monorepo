@@ -205,7 +205,9 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
      (`--sing`), a dependency-free formant choir on the right vowels, with each syllable's
      opening consonants sung before the beat (2026-11-15); final consonants landed
      2026-11-15 in three rounds (the third fixed a blip of bare vowel in every final nasal, README); next are
-     formant tuning on high notes, /m/ entered by a slow transition, and a listening test.
+     formant tuning on high notes, /m/ entered by a slow transition, and a listening test. 2026-11-15: openings
+     sing the coda's murmur and are read with its tilt rule (held-out part G of `eval/consonant-check.mjs`, 78.0% to
+     79.6%, the vowel-only control's false nasals 287 to 135); a third of sung nasal openings still read as nothing.
 6. **Mix and master checks:**
    - a script that measures integrated LUFS, true peak, mono compatibility and
      clipping against streaming targets;
