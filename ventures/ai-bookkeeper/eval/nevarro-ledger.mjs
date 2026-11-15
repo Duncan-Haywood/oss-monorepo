@@ -41,7 +41,7 @@ const BANK = { bluevine: /^assets:cash:bluevine/, "chase-ink": /^liabilities:(cr
 
 export const wantFor = (account) => ACCOUNT_MAP.find(([re]) => re.test(account))?.[1] ?? null;
 
-const money = (s) => { const m = /(-?)\$(-?)([\d,]+(?:\.\d+)?)/.exec(s); return m ? Math.round(Number(m[3].replace(/,/g, "")) * 100) * (m[1] || m[2] ? -1 : 1) : null; };
+const money = (s) => { const m = /(-?)\$(-?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)/.exec(s); return m ? Math.round(Number(m[3].replace(/,/g, "")) * 100) * (m[1] || m[2] ? -1 : 1) : null; };
 
 // One hledger journal -> bank lines: { date, desc, cents (signed as the bank sees it), label }.
 // The label is the other posting with the largest amount (a Hetzner charge carries the payable
