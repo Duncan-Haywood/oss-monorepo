@@ -44,6 +44,7 @@ Options:
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
   --hinge-test              test for one change of slope on the levels, with AR(1) noise and a bootstrap p-value: far more power than --slope-breaks on a series that wanders about a trend (temperature), and refuses one whose residuals look like a unit root (GDP); 30 to 600 points
+  --step-or-bend            is the one change a level step or a change of slope? tests each against the other (AR(1) noise, bootstrap) and names a kind only when the data rule the other out, else 'unclear'; 30 to 600 points
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
   --bootstrap               with --model meanvar, mean or poisson: set the penalty from block-resampled residuals (much fewer false alarms on heavy tails, clustered volatility or autocorrelated noise; a little less power at n = 100)
@@ -107,6 +108,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--episodes') opt.episodes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
     else if (a === '--hinge-test') opt.hingeTest = true;
+    else if (a === '--step-or-bend') opt.stepOrBend = true;
     else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--joint-knots') opt.jointKnots = true;
     else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' ? argv[++i] : true;
@@ -243,6 +245,16 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else lines.push(`  ${h.significant ? 'A change of slope' : 'No significant change of slope'}: best knot ${h.label}, slope ${h.slopeBefore} -> ${h.slopeAfter} per step, F ${h.f} against a bootstrap bar of ${h.bar95}, p ${h.p} (${h.reps} replicates; AR(1) rho ${h.rho})`);
     if (h.admittedByCut) lines.push(`  Tested although the residuals about a straight line are sticky (rho ${h.rhoLine}): the bend cuts that to ${h.rhoHinge}, more than 99% of random walks of this length are cut (${h.cutBar}), so this is a bend, not a wander.`);
     lines.push(`  (${h.note})`);
+  }
+  if (r.stepOrBend) {
+    const s = r.stepOrBend;
+    lines.push('', 'Step or bend:');
+    if (s.refused) lines.push(`  Not tested: ${s.reason}.`);
+    else {
+      const what = s.call === 'step' ? `a level step (best step from ${s.stepLabel}, size ${s.stepSize}); a change of slope is ruled out` : s.call === 'bend' ? `a change of slope (best knot ${s.bendLabel}); a level step is ruled out` : 'unclear: the data do not rule out either kind';
+      lines.push(`  ${what[0].toUpperCase()}${what.slice(1)}. p if a step: ${s.pStep}; p if a bend: ${s.pBend} (${s.reps} replicates each; AR(1) rho ${s.rho})`);
+    }
+    lines.push(`  (${s.note})`);
   }
   if (r.episodes && r.episodes.length) {
     lines.push('', 'Episodes (a step and its step back, read as one burst):');

@@ -17,7 +17,7 @@
 
 import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
-import { hingeTest } from './hinge-test.mjs';
+import { hingeTest, stepOrBendTest } from './hinge-test.mjs';
 
 import { groupRamps } from './ramps.mjs';
 import { updateRateChanges, updateRateLines } from './update-rate.mjs';
@@ -2244,6 +2244,7 @@ export function analyze(input = {}) {
     ...(changes.length > 1 && groupRamps(changes, segments, values.length, { values }).length ? { ramps: groupRamps(changes, segments, values.length, { values }) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
     ...(o.hingeTest ? { hingeTest: hingeTestReport(values, labels, o.hingeTest) } : {}),
+    ...(o.stepOrBend ? { stepOrBend: stepOrBendReport(values, labels, o.stepOrBend) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -2297,6 +2298,27 @@ export function hingeTestReport(values, labels, opt) {
     p: Number(h.p.toFixed(4)), reps: h.reps, rho: Number(h.rho.toFixed(3)),
     slopeBefore: Number(h.slopeBefore.toPrecision(4)), slopeAfter: Number(h.slopeAfter.toPrecision(4)), significant: h.p <= 0.05, note,
     ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), rhoHinge: Number(h.rhoHinge.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
+  };
+}
+
+/**
+ * Step or bend? (eval/hinge-step-or-bend-boot-prereg-2026-11-15.md, README "Step or bend, as two tests".) Each kind is
+ * a null in turn, calibrated by a parametric bootstrap; a kind is called only when its rival is rejected and it is not,
+ * else 'unclear'. Standalone: the call is not reliable read under a rejected hinge test (selection), so it is not
+ * merged into hingeTest's output.
+ */
+export function stepOrBendReport(values, labels, opt) {
+  const n = values.length;
+  if (n < 30) throw new Error(`The step-or-bend check needs at least 30 points; got ${n}.`);
+  if (n > 600) throw new Error(`The step-or-bend check takes at most 600 points (its bootstrap is quadratic in length); got ${n}. Aggregate first (monthly to yearly).`);
+  const o = typeof opt === 'object' && opt ? opt : {};
+  const s = stepOrBendTest(values, { reps: Number(o.reps) || 199, seed: Number(o.seed) || 1 });
+  const note = 'Is the change a level step or a change of slope, each on one straight line with AR(1) noise? Each kind is tested as the null against the other by a parametric bootstrap, and a kind is named only when the other is rejected (p <= 0.05) and it is not. On synthetic series it named the wrong kind in under 8% of series in every pre-registered cell, and says "unclear" when the data cannot tell; a gentle bend in sticky noise usually is "unclear". It assumes one change, not several.';
+  if (s.refused) return { refused: true, reason: s.reason, note };
+  return {
+    refused: false, call: s.call, pStep: Number(s.pStep.toFixed(4)), pBend: Number(s.pBend.toFixed(4)), reps: s.reps,
+    rho: Number(s.rho.toFixed(3)), stepIndex: s.stepIndex, stepLabel: labels[s.stepIndex + 1] ?? String(s.stepIndex + 1),
+    stepSize: Number(s.stepSize.toPrecision(4)), bendIndex: s.bendIndex, bendLabel: labels[s.bendIndex] ?? String(s.bendIndex), note,
   };
 }
 

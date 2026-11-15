@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { hingeTest, randomWalkCutBar, stepOrBend } from './hinge-test.mjs';
+import { hingeTest, randomWalkCutBar, stepOrBend, stepOrBendTest } from './hinge-test.mjs';
 import { analyze } from './engine.mjs';
 import { main } from './cli.mjs';
 
@@ -134,4 +134,34 @@ test('the report note says a level step can pass for a hinge', async () => {
   const r = analyze({ csv: 'year,v\n' + nile.labels.map((l, i) => `${l},${nile.x[i]}`).join('\n'), hingeTest: { reps: 49 } });
   assert.match(r.hingeTest.note, /level step can pass for a hinge/);
   assert.match(r.hingeTest.note, /1898/);
+});
+
+test('step or bend as two bootstrap tests (eval/hinge-step-or-bend-boot-prereg-2026-11-15.md): Nile is a step, temperature a bend, a wander is refused', () => {
+  const nile = load('nile.csv'), s = stepOrBendTest(nile.x, { reps: 99, seed: 1 });
+  assert.equal(s.call, 'step');
+  assert.equal(nile.labels[s.stepIndex], '1898');
+  assert.ok(s.pBend <= 0.05 && s.pStep > 0.05, `pStep ${s.pStep}, pBend ${s.pBend}`);
+  const g = load('global-temp-annual.csv'), sg = stepOrBendTest(g.x, { reps: 99, seed: 1 });
+  assert.equal(sg.call, 'bend');
+  assert.equal(g.labels[sg.bendIndex], '1976');
+  assert.equal(stepOrBendTest(load('michigan-huron.csv').x, { reps: 19 }).refused, true);
+  assert.equal(stepOrBendTest(nile.x.slice(0, 20)).refused, true);
+});
+
+test('step or bend: a clear step and a clear bend in white noise are named; a straight line rarely is', () => {
+  const step = (seed) => series(100, 0, 1000, 0, seed).map((v, t) => v + (t > 60 ? 2.5 : 0));
+  assert.equal(stepOrBendTest(step(11), { reps: 99 }).call, 'step');
+  assert.equal(stepOrBendTest(series(100, 0, 60, 0.1, 12), { reps: 99 }).call, 'bend');
+  let called = 0;
+  for (let i = 0; i < 20; i++) if (stepOrBendTest(series(100, 0.3, 1000, 0, 900 + i), { reps: 39, seed: i + 1 }).call !== 'unclear') called++;
+  assert.ok(called <= 4, `${called} of 20 straight lines given a kind`); // full table: eval/hinge-step-or-bend-boot-sim.out.txt
+});
+
+test('the CLI prints --step-or-bend', async () => {
+  let out = '';
+  await main([new URL('./data/nile.csv', import.meta.url).pathname, '--step-or-bend'], { out: (s) => { out += s; } });
+  assert.match(out, /Step or bend:\n {2}A level step \(best step from 1899/);
+  const r = analyze({ values: load('nile.csv').x, labels: load('nile.csv').labels, stepOrBend: { reps: 49 } });
+  assert.equal(r.stepOrBend.call, 'step');
+  assert.equal(r.stepOrBend.stepLabel, '1899');
 });
