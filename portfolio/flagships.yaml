@@ -87,10 +87,10 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable first: (0)
-      built-in keywords on real exports (HISTORY); OSM chains (README): Durham cold
-      28.2 to 29.6%, name clash fixed; Open Collective books (README): 63-87% right
-      from memos, 43-65% from payees; new-payee guess (README): first-time payees
-      5-21% to 20-65% right; Mint held out 68.7% first-seen; YNAB +2 pts; Copilot
+      keywords on real exports (HISTORY); Oklahoma cards (README): MCC names 65-70%,
+      keywords agree 93% held out; Open Collective books (README): 63-87% right from
+      memos, 43-65% from payees; new-payee guess (README): first-time payees 5-21%
+      to 20-65% right; Mint held out 68.7% first-seen; YNAB +2 pts; Copilot
       (README): signs fixed; card MCC (README): first-seen right 41% to 66%
       (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); LLC labels:
       Mercury 90%, Rocket Money Amex 94% (README); (1) AI layer on real lines

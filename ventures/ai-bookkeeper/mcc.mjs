@@ -95,23 +95,26 @@ export const MCC_RANGES = [
 // The network's category names, normalised (lower case, punctuation to spaces,
 // "not elsewhere classified" and its abbreviations dropped). First match wins, so
 // the catch-alls come first and say nothing.
-const NAME_SKIP = /\b(business services|misc(ellaneous)? (and |& )?specialty retail|miscellaneous general merchandise|general merchandise|direct marketing|government services|department stores|discount stores|variety stores|wholesale clubs|computers computer peripheral|electronic sales|electronics? stores|miscellaneous (house )?furnishing|charitable|religious|political|financial institutions|cash disbursement|money orders|quasi cash|wire transfer|betting|lotter|professional services|publishing)/;
+const NAME_SKIP = /\b(business services|misc(ellaneous)? (and |& )?specialty retail|miscellaneous general merchandise|general merchandise|direct marketing|government services|department stores|discount stores|variety stores|wholesale clubs|computers computer peripheral|electronic sales|electronics? stores|miscellaneous (house )?furnishing|charitable|religious|political|financial institutions|cash disbursement|money orders|quasi cash|wire transfer|betting|lotter(y|ies)|professional services|publishing)/;
 const NAME_RULES = [
   ["6130", /\b(eating places|restaurants?|caterers?|fast food|drinking places|bars|taverns|cocktail|nightclubs)\b/],
-  ["6120", /\b(hilton|marriott|radisson|holiday inn|premier inn|travelodge|ibis|novotel|hyatt|sheraton|best western|mercure|crowne plaza|doubletree|hampton inn|automobile rental|car hire|lodging|hotels?|motels?|resorts?|airlines?|air carriers?|airports?|travel agenc|tour operators?|passenger railways?|railroads? passenger|commuter|suburban (and |& )?local|bus lines?|taxicabs?|limousines?|cruise|car rental|rent a car|motor home|transportation services)\b/],
-  ["6160", /\b(service stations?|automated fuel|fuel dispenser|petroleum|automotive service|auto(motive)? (body|paint|parts|tire)|tire (retread|stores?)|car washes|towing|parking|toll|truck (and |& )?(utility )?trailer rental|motor vehicle supplies)\b/],
+  // Codes 3000-3999 are named after one airline, car-hire firm or hotel chain each ("DELTA", "HERTZ CORPORATION",
+  // "WYNDHAM"); the commonest on Oklahoma's state cards (eval/oklahoma-pcard.mjs, fiscal 2017) are listed.
+  ["6120", /\b(delta|lufthansa|iberia|aeromexico|airways|air (canada|china|france|india|new zealand|lingus|jamaica)|vir amer|virgin (atlantic|america)|klm|emirates|alitalia|westjet|qantas|wyndham|westin|americinn|aloft|econo ?lodges?|ritz carlton|swissotel|extended stay|waldorf|howard johnson|gaylord (opryland|palms|texan|national)|hertz|avis|alamo|thrifty|dollar rent|national car|enterprise rent|budget rent)\b/],
+  ["6120", /\b(hilton|marriott|radisson|holiday inn|premier inn|travelodge|ibis|novotel|hyatt|sheraton|best western|mercure|crowne plaza|doubletree|hampton inn|automobile rental|car hire|lodging|hotels?|motels?|resorts?|inns?|suites|airlines?|air carriers?|airports?|travel agenc(y|ies)|tour operators?|passenger railways?|railroads? passenger|commuter|suburban (and |& )?local|bus lines?|taxicabs?|limousines?|cruise|car rental|rent a car|motor home|transportation services)\b/],
+  ["6160", /\b(service stations?|automated fuel|fuel dispenser|petroleum|automotive service|auto(motive)? (body|paint|parts|tire)|tire (retread|stores?)|car washes|towing|parking|tolls?|truck (and |& )?(utility )?trailer rental|motor vehicle supplies)\b/],
   ["6180", /\b(courier|freight|trucking|postal services?|post offices?)\b/],
   ["6140", /\b(telecommunication|telephone service|cable|satellite|pay television|utilities|electric gas|computer network|information services)\b/],
   ["6060", /\b(computer software|digital goods (software|applications?)|computer programming|data processing|integrated systems design)\b/],
   ["6070", /\b(stationery|office (and |& )?(school )?supply|office (school supply|supplies)|office (and |& )?photographic|photocopy|quick copy|reproduction|typewriter)\b/],
   ["6030", /\binsurance\b/],
   ["6050", /\b(legal services|attorneys|accounting|auditing|bookkeeping|consulting|management (and |& )?public relations|tax preparation|architectural|surveying)\b/],
-  ["6020", /\b(employment agenc|temporary help)\b/],
+  ["6020", /\b(employment agenc(y|ies)|temporary help)\b/],
   ["6000", /\b(advertising|typesetting)\b/],
-  ["6170", /\b(schools?|colleges?|universit|educational|training|correspondence|membership organi[sz]ations|organizations membership|civic social|professional (organi[sz]ations|associations)|books(tores| stores)|book stores|books periodicals)\b/],
+  ["6170", /\b(schools?|colleges?|universit(y|ies)|educational|training|correspondence|membership organi[sz]ations|organizations membership|civic social|professional (organi[sz]ations|associations)|books(tores| stores)|book stores|books periodicals)\b/],
   ["6080", /\b(real estate agents (and |& )?managers|equipment rental|equipment (and |& )?tool rental|leasing)\b/],
-  ["6090", /\b(contractors?|carpentry|roofing|masonry|concrete work|landscaping|horticultur|exterminat|cleaning (and |& )?maintenance|janitorial|repair shops?|repair services?|welding|furniture repair)\b/],
-  ["6100", /\b(hardware|lumber|building materials|home supply|glass paint|paints?|nurseries|lawn (and |& )?garden|industrial supplies|construction materials|plumbing|heating equipment|electrical parts|metal service|chemicals|dental lab|medical (and |& )?dental|ophthalmic|hosp(ital)? equip|laboratory)\b/],
+  ["6090", /\b(contractors?|carpentry|roofing|masonry|concrete work|landscap(e|ing)|horticultur(e|al)|exterminat(ing|ion|ors?)|cleaning (and |& )?maintenance|janitorial|repair shops?|repair services?|welding|furniture repair)\b/],
+  ["6100", /\b(hardware|lumber|building materials|home supply|glass paint|paints?|nurseries|lawn (and |& )?garden|industrial supplies|construction materials|plumbing|heating equipment|electrical parts|metal service|chemicals|dental lab|veterinary|medical (and |& )?dental|ophthalmic|hosp(ital)? equip|laboratory)\b/],
   ["6110", /\b(tax payments?)\b/],
 ];
 
