@@ -101,13 +101,13 @@ flagships:
       scan; (3) Adyen's sample read (README); open: a real merchant's payout export,
       a real 1099-K; (4) a real supplier's terms letter checked against the fee and
       discount rules, and one named lender's own schedule against the loan register
-      (`loan check`); (5) receipts through real OCR (page SROIE 83.4%, CORD 50.5%,
-      US 68.4%; CLI 4-pass 80.5%, 66.8%; next: curled slips, full-size photos); (6)
-      payroll (README; journal layout 11-14): a real Gusto or ADP report; (7) IRIS
-      NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real
-      upload, TY2026 template; (8) `salestax return`: the last six listed states
-      read (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from
-      the book (README); open: AR statutes, a real return layout; (8b) `annualized`
+      (`loan check`); (5) receipts OCR (page SROIE ~84.8%, US 68.4%; CLI 82.2%, CORD
+      50.5%; big photos done; next: curled slips); (6) payroll (README; journal
+      layout 11-14): a real Gusto or ADP report; (7) IRIS NEC and MISC rents files
+      on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
+      `salestax return`: the last six listed states read
+      (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
+      book (README); open: AR statutes, a real return layout; (8b) `annualized`
       (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
       once the 2026 instructions print; (9) EITC: 2025 EIC Table matched on all
       10,992 cells (HISTORY); open: the 2026 table once printed. A run that lands a
