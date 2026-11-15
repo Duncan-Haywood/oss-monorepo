@@ -152,3 +152,13 @@ def visible_from(D, on, n_hours, drop=0.05, run_len=3):
         if run == run_len:
             return h - run_len + 1
     return None
+
+
+def lagged_change(X, t, lag, span=24):
+    """Step 18: mean of X over hours [t, t + span) minus its mean over [t - lag, t - lag + span).
+
+    A tracking baseline: whatever changed before t - lag drops out, and so does any part of the
+    target leak's own effect that was already there. X is [hours, sensors]."""
+    if t - lag < 0:
+        raise ValueError(f"hour {t}: lag {lag} reaches before the data")
+    return X[t:t + span].mean(axis=0) - X[t - lag:t - lag + span].mean(axis=0)
