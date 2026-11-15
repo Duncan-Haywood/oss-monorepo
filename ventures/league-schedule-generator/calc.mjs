@@ -7,7 +7,7 @@
 // independent validator that re-checks the finished schedule from its output alone.
 
 import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, carryOverKeepIndex, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
-import { waitFreeNights, seasonLayout, waitFreePossible } from "./nights.mjs";
+import { waitFreeNights, seasonLayout, waitFreePossible, waitFreeProvedImpossible } from "./nights.mjs";
 
 export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -1040,9 +1040,10 @@ export function buildSchedule(spec) {
     if (w.idle) {
       const full = n % 2 ? Math.max(0, n - games) : n;
       let need = courts.length;
-      while (need < courts.length + 64 && !waitFreePossible(full, games, need, times.length, n % 2 ? Math.min(games, n) : 0)) need++;
+      const proved = (c) => waitFreeProvedImpossible(n, games, c, times.length);
+      while (need < courts.length + 64 && (!waitFreePossible(full, games, need, times.length, n % 2 ? Math.min(games, n) : 0) || proved(need))) need++;
       const hint = need > courts.length
-        ? ` Back-to-back games for every team need at least ${need} courts at these ${times.length} times (a team's games fill ${games} slots in a row, and each time slot holds two teams per court).`
+        ? ` Back-to-back games for every team need at least ${need} courts at these ${times.length} times (${proved(courts.length) && waitFreePossible(full, games, courts.length, times.length, n % 2 ? Math.min(games, n) : 0) ? `checked for every possible ${n}-team season on ${courts.length} courts: none has every team's games back to back` : `a team's games fill ${games} slots in a row, and each time slot holds two teams per court`}).`
         : " More courts or fewer time slots close them.";
       notices.push(`${w.idle} wait(s) of a time slot or more between a team's games on the same night (${w.nights} team-night(s)).${hint}`);
     } else if (schedule.waitFree) notices.push(`Back-to-back nights: the round robin was rearranged so every team plays its ${games} games in a row each night (the plain order would leave ${schedule.waitFree.before} match(es) that cannot sit back to back)${schedule.waitFree.designed ? "; it is built from a design, so each night splits into groups of teams that only play each other, one group per session" : ""}.`);

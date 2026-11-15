@@ -6,8 +6,9 @@ import {
   teamSchedule, restReport, applyRainouts, applyLateTeams, seasonGrid, scheduleText, parseDate,
 } from "./calc.mjs";
 import { lowCarryOverRounds } from "./carryover.mjs";
-import { nightLayout, nightComponents, waitFreePossible, waitFreeNights, planWaitCost, nightRowsExact, rowsWaitFree, sessionBlocks, sessionNights, designedRounds, designedNights, designCandidates, decodeDesign } from "./nights.mjs";
+import { nightLayout, nightComponents, waitFreePossible, waitFreeNights, planWaitCost, nightRowsExact, rowsWaitFree, sessionBlocks, sessionNights, designedRounds, designedNights, designCandidates, decodeDesign, oddDesigns, waitFreeProvedImpossible } from "./nights.mjs";
 import { SESSION_DESIGNS } from "./session-designs.mjs";
+import { ODD_DESIGNS } from "./odd-designs.mjs";
 
 const names = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
 const times = (k) => Array.from({ length: k }, (_, i) => `${18 + i}:00`);
@@ -300,6 +301,72 @@ test("14, 18, 20 and 28 teams, 3 games on the least courts x 6 times: wait-free 
     assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
     perNight(s);
     assert.equal(nightWaits(s).idle, 0, `${n} teams on ${c} x 6`);
+  }
+});
+
+test("stored odd-league designs: each a round robin with one bye a round whose every night lays out back to back on its courts", () => {
+  assert.ok(ODD_DESIGNS.length >= 5);
+  for (const d of ODD_DESIGNS) {
+    const { n, courts: c, times: T } = d;
+    const [{ rounds, layouts }] = oddDesigns(n, 3).filter((x) => x.courts === c);
+    assert.equal(rounds.length, n, `${n}: n rounds`);
+    const seen = new Set();
+    const byes = new Set();
+    for (const r of rounds) {
+      assert.equal(new Set(r.flat()).size, n + 1, `${n}: every team once a round`);
+      for (const [a, b] of r) {
+        const k = Math.min(a, b) * 100 + Math.max(a, b);
+        assert.ok(!seen.has(k), `${n}: a pair meets once`);
+        seen.add(k);
+        if (b === n) byes.add(a);
+      }
+    }
+    assert.equal(seen.size, ((n + 1) * n) / 2);
+    assert.equal(byes.size, n, `${n}: every team sits out once`);
+    for (let i = 0; i < n; i += 3) {
+      const edges = rounds.slice(i, i + 3).flatMap((r, k) => r.filter(([a, b]) => a < n && b < n).map(([a, b]) => [a, b, k]));
+      // the stored rows (the solver's layout), checked here without the tool's search
+      const row = edges.map(([a, b]) => layouts[i / 3].get(`${Math.min(a, b)},${Math.max(a, b)}`));
+      const load = Array(T).fill(0);
+      for (const r of row) { assert.ok(r >= 0 && r < T); load[r]++; }
+      assert.ok(Math.max(...load) <= c, `${n} night ${i / 3}: at most ${c} a row`);
+      assert.ok(rowsWaitFree(edges, row), `${n} on ${c} x ${T}, night ${i / 3}: back to back`);
+    }
+  }
+});
+
+test("11 teams, 3 games on 3 courts x 6 times: 22 waits to 0 from a stored odd design; byes kept", () => {
+  for (const seed of [1, 2, 3]) {
+    const s = build(11, 3, 6, 3, { seed });
+    assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
+    perNight(s);
+    assert.equal(nightWaits(s).idle, 0, `seed ${seed}`);
+    assert.ok(s.waitFree && s.waitFree.designed);
+    for (let t = 0; t < 11; t++) assert.equal(teamSchedule(s, t).filter((r) => !r.bye).length, 10);
+  }
+  assert.ok(nightWaits(build(11, 3, 6, 3, { waitFree: false })).idle > 0);
+});
+
+test("odd leagues of 13 to 25 teams, 3 games on the least courts x 6 times: wait-free from stored designs (25 teams through the stored rows)", () => {
+  for (const [n, c] of [[13, 3], [15, 4], [17, 4], [19, 5], [21, 5], [25, 6]]) {
+    if (!ODD_DESIGNS.some((d) => d.n === n)) continue;
+    const s = build(n, c, 6, 3);
+    assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
+    perNight(s);
+    assert.equal(nightWaits(s).idle, 0, `${n} teams on ${c} x 6`);
+  }
+});
+
+test("7, 8 and 9 teams, 3 games on 2 courts x 6 times: proved to keep a wait, and the hint asks for 3 courts", () => {
+  assert.equal(waitFreeProvedImpossible(7, 3, 2, 6), true);
+  assert.equal(waitFreeProvedImpossible(9, 3, 2, 6), true);
+  assert.equal(waitFreeProvedImpossible(7, 3, 3, 6), false);
+  assert.equal(waitFreePossible(4, 3, 2, 6, 3), true); // the one-night count allows it
+  for (const n of [7, 8, 9]) {
+    const s = build(n, 2, 6, 3);
+    assert.ok(nightWaits(s).idle > 0);
+    assert.ok(s.notices.some((x) => x.includes("need at least 3 courts") && x.includes("none has every team's games back to back")), s.notices.join(" | "));
+    assert.equal(nightWaits(build(n, 3, 6, 3)).idle, 0, `${n} on 3 courts`);
   }
 });
 
