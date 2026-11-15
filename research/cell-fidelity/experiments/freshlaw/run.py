@@ -29,7 +29,7 @@ EXP = HERE.parent
 
 SOBOL_SEED = 14
 N_LOG2 = 6
-WORKERS = int(os.environ.get("WORKERS", "3"))
+WORKERS = int(os.environ.get("WORKERS", "2"))   # three 100-cycle runs exceeded 15 GB
 B_SPLIT = 0.6          # pool-median ten-cycle exponent at or above which the sqrt law is used
 # fixed before any run: three Ai2020 currents (0.4x is new; 0.3x and 0.5x are seen currents with unseen designs), the
 # fade-limited cell the next-step note names, and NCA_Kim2011 at a current no milestone ran, where the selector must switch
@@ -137,7 +137,8 @@ def _child100(job):
 def bench():
     import subprocess
     path = HERE / "bench.jsonl"
-    done = {(r["cond"], r["j"]) for r in B._load(path)} if path.exists() else set()
+    # a run the kernel killed for memory (exit -9) is retried; the report keeps the last record per design
+    done = {(r["cond"], r["j"]) for r in B._load(path) if not str(r.get("error") or "").startswith("exit -9")} if path.exists() else set()
     rows = B._load(HERE / "balance.jsonl")
     only = os.environ.get("ONLY")
     todo = [(r["cond"], r["j"], "both", r["x"]) for r in rows if (r["cond"], r["j"]) not in done and (not only or r["cond"] == only)]
