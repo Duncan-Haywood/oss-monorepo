@@ -450,7 +450,7 @@ export function longRunLevel(nOptions, nCriteria, answerCount, { longRun = "leve
  * table the decision rests on (the guard's, when it ran).
  */
 export const GUARD_TAU = 1;
-export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule = "winner", guardTau = "auto", draws = 400, longRun = "level", power = LONG_RUN_POWER } = {}) {
+export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule = "winner", guardTau = "auto", guardScale = 1, draws = 400, longRun = "level", power = LONG_RUN_POWER } = {}) {
   const t = answers.crit.length + answers.opt.length;
   const level = longRunLevel(nOptions, nCriteria, t, { longRun, power });
   if (!decisionDone(table, answers, { rule, level })) return { done: false, table };
@@ -460,7 +460,13 @@ export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule =
   // reads at their own estimated tau when that is lower (estimateTau tracked tau 1,
   // 2 and 3 at 1.2, 2.3 and 3.4 on simulated people).
   const lists = [[nCriteria, answers.crit], ...Array.from({ length: nCriteria }, (_, c) => [nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t, g]) => [x, y, t, g])])];
-  let tau = guardTau === "auto" ? Math.min(GUARD_TAU, estimateTau(lists)) : guardTau;
+  // guardScale (measured): the estimate is divided out by a bias factor before the min.
+  // guardTau "plain" (measured): the guard reads the picks with every grade ignored.
+  if (guardTau === "plain") {
+    const guard = decisionTable(decisionFit(nOptions, nCriteria, answers, { grades: "ignore" }), { draws });
+    return { done: decisionDone(guard, answers, { rule, level }), table: guard };
+  }
+  let tau = guardTau === "auto" ? Math.min(GUARD_TAU, estimateTau(lists) * guardScale) : guardTau;
   // longRun "tau" (measured, not shipped): past the checkpoint the guard's tau shrinks with the answer count instead.
   const base = decisionMax(nOptions, nCriteria);
   if (longRun === "tau" && t > base) tau *= base / t;

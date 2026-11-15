@@ -20,8 +20,10 @@ for (const r of rows) {
   for (const [scale, s] of Object.entries(r.stops)) {
     // Rows from --long-run (2026-11-15 later) name the stop past the checkpoint; older rows are "none".
     const lr = r.longRun && r.longRun !== "none" ? ` long-run=${r.longRun}${r.longRun === "level" ? ` p${r.power}` : ""}` : "";
-    const keys = [`tau=${r.tauTrue} focus=${r.focus}${lr} cap x${scale}`];
-    if (byCase) keys.push(`tau=${r.tauTrue} focus=${r.focus}${lr} cap x${scale} | ${r.n}x${r.C} spread ${r.spread}`);
+    // Rows from --guard (2026-11-15, latest) name the guard; older rows are "auto" at scale 1.
+    const gd = r.guard && (r.guard !== "auto" || r.guardScale !== 1) ? ` guard=${r.guard}${r.guard === "auto" ? ` x${r.guardScale}` : ""}` : "";
+    const keys = [`tau=${r.tauTrue} focus=${r.focus}${lr}${gd} cap x${scale}`];
+    if (byCase) keys.push(`tau=${r.tauTrue} focus=${r.focus}${lr}${gd} cap x${scale} | ${r.n}x${r.C} spread ${r.spread}`);
     for (const key of keys) { if (!groups.has(key)) groups.set(key, []); groups.get(key).push(s); }
   }
 }
