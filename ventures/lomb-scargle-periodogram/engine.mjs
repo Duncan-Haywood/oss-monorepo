@@ -732,18 +732,18 @@ export function analyze(input = {}) {
     medianGap: medGap,
     grid: { fmin, fmax, df, nf, oversample, minPeriod, maxPeriod },
     fapParams: { n: P.n, groups: P.G, fmax, varT: P.varT },
-    frequency: power,
-    residualPower: residPower,
-    window: win,
+    frequency: Array.from(power),
+    residualPower: residPower ? Array.from(residPower) : null,
+    window: Array.from(win),
     windowPeaks,
     peaks,
     signals,
     found,
     warnings,
     summary,
-    times: Float64Array.from(t),
-    values: Float64Array.from(y),
-    errors: Float64Array.from(e),
+    times: Array.from(t),
+    values: Array.from(y),
+    errors: Array.from(e),
     groupOf: Array.from(P.idx),
     tShift: P.tm,
   };
@@ -769,7 +769,7 @@ function describe(found, stopped, series, P, { minPeriod, maxPeriod }) {
 
 export function csvCell(c) {
   const s = String(c);
-  const t = /^[=+\-@\t\r]/.test(s) && !/^[-+]?\d/.test(s) ? `'${s}` : s;
+  const t = /^[=+\-@\t\r]/.test(s) && !/^[-+]?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(s) ? `'${s}` : s;
   return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 }
 

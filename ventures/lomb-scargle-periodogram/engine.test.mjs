@@ -208,5 +208,7 @@ test("outputs: the periodogram CSV, the text report, formula-safe cells, and cit
   assert.match(report(r), /Signal 1: period 1,19\d/);
   assert.equal(csvCell("=1+1"), "'=1+1");
   assert.equal(csvCell("-3.5"), "-3.5");
+  assert.equal(csvCell("-1.5e-7"), "-1.5e-7");
+  assert.equal(csvCell("-1+CMD|' /C calc'!A0"), "'-1+CMD|' /C calc'!A0");
   assert.ok(PAPERS.length >= 5 && PAPERS.every((p) => p.implemented && p.deviations && p.url));
 });
