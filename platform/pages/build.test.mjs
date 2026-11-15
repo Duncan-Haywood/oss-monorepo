@@ -40,6 +40,7 @@ import {
   surfaceKind,
   faqEntries,
   injectChrome,
+  toolName,
   isPublishable,
   NO_SLA_PATTERN,
   listFiles as buildListFiles,
@@ -2475,6 +2476,32 @@ test('story pages sit under Stories in the header, the trail and the BreadcrumbL
   assert.match(tool, /data-pfs-nav="tools"[^>]*aria-current="page"/);
 });
 
+// 2026-11-15: the trail ended in the search title on 972 of 1,350 tools,
+// "Wall Framing Takeoff — free, private, in your browser" or a question.
+test('a tool crumb is its declared name, not its search title', () => {
+  const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
+  const app = ld({ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Actions Runner Starvation Check' });
+  assert.equal(toolName(`<head>${app}</head>`, 'Is your red GitHub Actions check even real?'), 'Actions Runner Starvation Check');
+  // In a @graph, typed as a list, with an entity in the name.
+  const graph = ld({ '@graph': [{ '@type': 'FAQPage' }, { '@type': ['WebApplication'], name: 'Fees &amp; Margins' }] });
+  assert.equal(toolName(graph, 'x'), 'Fees & Margins');
+  // No application, broken JSON, or a name too long for a crumb: the title without its tagline.
+  assert.equal(toolName('<script type="application/ld+json">{oops</script>', 'Wall Framing Takeoff — free, private, in your browser'), 'Wall Framing Takeoff');
+  assert.equal(toolName(ld({ '@type': 'SoftwareApplication', name: 'x'.repeat(61) }), 'Short — tagline'), 'Short');
+  // A long "Name: tagline" keeps the name; a short colon is part of the name.
+  assert.equal(toolName('', 'Gaussian process regression in your browser: a curve, a band, and how far to trust it'), 'Gaussian process regression');
+  assert.equal(toolName(ld({ '@type': 'SoftwareApplication', name: 'GitHub Actions secrets: inherit Check' }), 'x'), 'GitHub Actions secrets: inherit Check');
+  const page = `<html><head><title>T</title>${app}</head><body><p>.</p></body></html>`;
+  const html = injectChrome(page, {
+    slug: 'actions-runner-starvation-check', toRoot: '../', total: 2, related: [], isEntry: true,
+    title: toolName(page, 'Is your red GitHub Actions check even real?'),
+    canonical: 'https://x.test/actions-runner-starvation-check/', baseUrl: 'https://x.test/',
+  });
+  assert.match(html, /<span aria-current="page">Actions Runner Starvation Check<\/span>/);
+  const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
+  assert.equal(trail.itemListElement.at(-1).name, 'Actions Runner Starvation Check');
+});
+
 // Found 2026-09-23 on `git-exposure-check`'s own
 // "how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html": its FAQPage
 // JSON-LD quotes a literal example error page, `<html><body>404 Not
@@ -3807,7 +3834,7 @@ test('each tool entry page carries breadcrumb structured data', async () => {
     if (shelf) assert.equal(crumb.itemListElement[1].item, `${BASE}${STORIES_PATH}`, 'a story shelf sits under Stories');
     else assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
     assert.equal(crumb.itemListElement.at(-1).item, `${BASE}${surface.slug}/`);
-    assert.equal(crumb.itemListElement.at(-1).name, shelf ?? surface.title);
+    assert.equal(crumb.itemListElement.at(-1).name, shelf ?? toolName(html, surface.title));
   }
 });
 
