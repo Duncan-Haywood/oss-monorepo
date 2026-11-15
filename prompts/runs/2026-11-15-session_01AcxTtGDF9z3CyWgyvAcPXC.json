@@ -48,7 +48,7 @@
     "ventures/einvoice-preflight/eval/iss-city-rates-rio-2026-11-15.md"
   ],
   "goal": "Deepen flagship 5 (einvoice-preflight): a second city's own ISS rate per service",
-  "notes": "Security queue empty; IDEAS.md and website requests empty; router drew ventures; allocate.py picked row 3 einvoice-preflight; claim_check HOLD. Built Rio's art. 33 table (Lei 8.467/2024 caput, legisweb consolidated text cross-checked against carioca.rio Aliquotas-de-ISS-atualizado2025.pdf). Rio's list matched to LC 116 by difflib: same four shifted runs as Sao Paulo. Corpus: 48 public files, 42 naming 3304557, 0 Rio false positives. Verification: run_venture_tests.py einvoice-preflight: ok, 2540 tests, 0 failed; check_post_frontmatter ok; check_post_links 0 broken; post_similarity 0 pairs >= 0.25; portfolio/router/validate.py all valid.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; router drew ventures; allocate.py picked row 3 einvoice-preflight; claim_check HOLD. Built Rio's art. 33 table (Lei 8.467/2024 caput, legisweb consolidated text cross-checked against carioca.rio Aliquotas-de-ISS-atualizado2025.pdf). Rio's list matched to LC 116 by difflib: same four shifted runs as Sao Paulo. Corpus: 48 public files, 42 naming 3304557, 0 Rio false positives. Verification: run_venture_tests.py einvoice-preflight: ok, 2540 tests, 0 failed; check_post_frontmatter ok; check_post_links 0 broken; post_similarity 0 pairs >= 0.25; portfolio/router/validate.py all valid. venture-preflight.mjs einvoice-preflight: preflight clean (exit 0).",
   "corrections": [],
   "redteam": null,
   "usage": {
