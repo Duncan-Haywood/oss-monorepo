@@ -14,6 +14,7 @@
 // Rosters that came out identical are played once.
 //   node eval/pair-order-free-played.mjs [seeds=40]   SIZES=20x56,40x112  WEEKS=3  ONLY=<label substrings>  PRICE=25  PAIR=1
 //     CALL=0.01,0.084  BUILD_ONLY=1 (print the builds and stop)
+import { pathToFileURL } from "node:url";
 import { parseStaff, parseShifts, buildRoster, buildContext, coverSlackPass, coverPairRisk, rosterFromOwner } from "../calc.mjs";
 import { seededWeeks } from "./reissue-scale.mjs";
 import { drawWeek } from "./real-rate-week.mjs";
@@ -102,4 +103,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
