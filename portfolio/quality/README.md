@@ -158,7 +158,9 @@ easy failure is grading the README instead of the thing. So:
   it runs a baseline and the mutant in a private copy of the subject and
   prints the `mutations` row, so parallel auditors never see each other's
   mutants in the shared tree and nothing needs reverting (four run records,
-  2026-11-12, hit that race). By hand, set `PYTHONDONTWRITEBYTECODE=1`: a
+  2026-11-12, hit that race). The test command runs in the subject root, so
+  write `tests`, not `ventures/<slug>/tests` (or start it with `cd <path> &&`);
+  a red baseline from a repo-relative path now prints a hint. By hand, set `PYTHONDONTWRITEBYTECODE=1`: a
   revert of the same size in the same second leaves the mutated `.pyc` in
   use (round 45).
 - **Name the professional.** Write who the senior reviewer is ("a licensed
@@ -290,7 +292,8 @@ audit of each subject unless noted:
 - the **weekly trend**.
 
 `queue` lists open defects worst first (source-only left out); `census`
-draws the sweep; `coverage` prints the coverage table as JSON.
+draws the sweep (its seed takes a random tail like `sample`'s, and it passes
+over subjects an open PR title names, printing them as `skipped`); `coverage` prints the coverage table as JSON.
 
 ## Reflections
 

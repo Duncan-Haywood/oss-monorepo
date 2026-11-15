@@ -10759,12 +10759,19 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   const metaTags = () => [...next.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)];
   const tagFor = (attr, value) =>
     metaTags().find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0])) ?? null;
-  const contentOf = (tag) => decodeEntities(/\bcontent=(["'])([\s\S]*?)\1/i.exec(tag)?.[2] ?? '');
+  // Two quoted alternatives, not `(["'])...\1`: the same match, without the
+  // `i` backreference V8 runs about 20 times slower on two-byte pages
+  // (share.mjs, META_CONTENT).
+  const CONTENT = /\bcontent=(?:"([^"]*)"|'([^']*)')/i;
+  const contentOf = (tag) => {
+    const c = CONTENT.exec(tag);
+    return decodeEntities(c ? c[1] ?? c[2] : '');
+  };
 
   /** Rewrite one existing meta tag's content in place; a no-op if it has none. */
   const rewrite = (match, content) => {
     const replaced = match[0].replace(
-      /\bcontent=(["'])([\s\S]*?)\1/i,
+      CONTENT,
       () => `content="${escapeHtml(content)}"`,
     );
     if (replaced === match[0]) return;
@@ -11070,6 +11077,44 @@ export function bodyTopPadded(html) {
   return false;
 }
 
+/**
+ * A tool's name for its breadcrumb: the `name` of the entry page's
+ * SoftwareApplication (or WebApplication, MobileApplication) JSON-LD, which
+ * 1,344 of 1,350 tools declare, else the title without its search tagline.
+ *
+ * The `<title>` is written for a results page ("Wall Framing Takeoff — free,
+ * private, in your browser"; "Is your red GitHub Actions check even real?"),
+ * so until 2026-11-15 the trail on 972 tools ended in a tagline or a question,
+ * and the BreadcrumbList gave search results the same text as the tool's name.
+ * A declared name longer than a crumb can hold (over 60 characters) is
+ * skipped as more tagline than name.
+ */
+export function toolName(html, title) {
+  for (const block of String(html ?? '').matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    let data;
+    try { data = JSON.parse(block[1]); } catch { continue; }
+    const nodes = [data].flat().flatMap((node) => [node, ...[node?.['@graph'] ?? []].flat()]);
+    for (const node of nodes) {
+      if (!node || typeof node !== 'object') continue;
+      const types = [node['@type'] ?? []].flat();
+      const name = typeof node.name === 'string' ? decodeEntities(node.name).replace(/\s+/g, ' ').trim() : '';
+      if (name && name.length <= 60 && types.some((t) => /Application$/.test(String(t)))) return crumbShort(name);
+    }
+  }
+  return crumbShort(cardName(title));
+}
+
+/**
+ * "Synthetic Control: did my intervention work?" -> "Synthetic Control". Only
+ * past 40 characters: a short name can carry a colon of its own ("GitHub
+ * Actions secrets: inherit Check"), and cutting it there would misname it.
+ */
+function crumbShort(name) {
+  if (name.length <= 40) return name;
+  const head = name.split(/:\s/)[0].replace(/\s+in your browser$/i, '').trim();
+  return head.length >= 3 ? head : name;
+}
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
@@ -11322,6 +11367,10 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
     const dir = path.join(outDir, surface.slug);
     if (!(await exists(dir))) return found;
     const related = relatedTools(surfaces, surface.slug);
+    // The trail's tool name, read once from the entry page so every page in
+    // the tool shows the same one (`toolName`).
+    const entryFile = path.join(dir, 'index.html');
+    const crumbName = toolName((await exists(entryFile)) ? await fs.readFile(entryFile, 'utf8') : '', surface.title);
     // Read once per venture; several pages in a directory load the same script.
     const scriptCache = new Map();
 
@@ -11342,7 +11391,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         toRoot,
         total: surfaces.length,
         related,
-        title: surface.title,
+        title: crumbName,
         pageTitle: pageMeta.title,
         canonical,
         baseUrl,

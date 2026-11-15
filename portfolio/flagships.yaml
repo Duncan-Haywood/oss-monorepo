@@ -99,12 +99,12 @@ flagships:
       model (needs a key), real bank text; (2) bank readers: 63 US exports, Mercury,
       Monarch, Bluevine lines, card payments, scans (README); open: Relay, a bank
       scan; (3) Adyen's sample read (README); open: a real merchant's payout export,
-      a real 1099-K; (4) a real supplier's terms letter checked against the fee and
-      discount rules, and one named lender's own schedule against the loan register
-      (`loan check`); (5) receipts OCR (page SROIE ~84.8%, US 68.4%; CLI 82.2%, CORD
-      50.5%; big photos done; next: curled slips); (6) payroll (README; journal
-      layout 11-14): a real Gusto or ADP report; (7) IRIS NEC and MISC rents files
-      on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
+      a real 1099-K; (4) loans: LendingClub rounds payments up (99.97% of 445k,
+      README), `--round up`; open: a lender's full table, a supplier's terms letter;
+      (5) receipts OCR (page SROIE ~84.8%, US 68.4%; CLI 82.2%, CORD 50.5%; big
+      photos done; next: curled slips); (6) payroll (README): two journal layouts
+      read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on
+      IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
       `salestax return`: the last six listed states read
       (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
       book (README); open: AR statutes, a real return layout; (8b) `annualized`
@@ -167,51 +167,51 @@ flagships:
       level: four repeat treatments failed the frozen-juice bar; 3 log n led on all
       TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled
       data; update-rate check: date a documented collection change. Stale feeds:
-      t-step LR shipped; next clumped (T3). Next: apple's volume in several-columns
-      mode; joint drift (measured, not offered) and its 2x penalty on fresh
-      multi-column labelled data; long labelled series from outside TCPD (none over
-      991 points). Open: (0) drift model: t-walk increments, biweight on fresh data,
-      why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope
-      breaks: `--hinge-test` on more series, a guard on both rhos (hinge-only failed
-      11-15), a second hinge; a real step inside a cycle, a cycle check not tied to
-      rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell
-      under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line
-      (README "Heavy tails in the GARCH search"): re-test scoring breaks with false
-      alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a
-      shop's counts or a yearly term.
+      clumped LR shipped; next a real documented carry-forward. Next: apple's volume
+      in several-columns mode; joint drift (measured, not offered) and its 2x
+      penalty on fresh multi-column labelled data; long labelled series from outside
+      TCPD (none over 991 points). Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; (1) slope breaks: `--hinge-test` on more series, a guard on both
+      rhos (hinge-only failed 11-15), a second hinge; a real step inside a cycle, a
+      cycle check not tied to rho, real documented ramps and close steps; (2)
+      steep-bump clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH
+      failed one pre-registered line (README "Heavy tails in the GARCH search"):
+      re-test scoring breaks with false alarms, new seeds; (4) driftWarning on real
+      shocks; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: Facturae XAdES check, 180/180 vs signxml).
-      Open: a real signed Facturae file or FACe rejection; ZATCA stamp check landed
+      History: README and git (latest: NAV 3.0 schema gate HU-027..032 with NTCA
+      common 1.0, 5,776 of 5,776 mutants agree with xmllint,
+      eval/hungary-nav-xsd-2026-11-15.md). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text, product-fee totals; a
+      real signed Facturae file or FACe rejection; ZATCA stamp check landed
       (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
       explained and paired with the file; a real 00305 reproduced,
       eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection with its
-      file; HR-CIUS checker+creator landed, 8 official samples 16/16 vs XSLT
-      (README): open: a real HR invoice, cash accounting; CIUS-PT: which validator
-      does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a
-      real KSeF rejection, a business's real KOR/ZAL file; repair keeps PDF/A
-      (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real business's
-      PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file;
-      India's INV-01 check on a real IRP payload; mandate texts read (README); open:
-      IL (gov.il 403), ES, SK (hosts blocked 2026-11-14), NRS notice (CAPTCHA), SRO
-      1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed: open: SAT's CP error matrix
-      to map MX-070..080 to CP codes (omawww blocked), a real payroll or export
-      file, a PAC rejection compared; postal codes (MX-080) landed (README);
-      cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110,
-      12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged
-      (README): open: a real event; a real reform NF-e from a SEFAZ test
-      environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed:
-      open: a national rejection compared; ISS 2-5% band landed (ABR-024/NFSE-024,
-      README): open: a city's own rate table; ABRASF NFS-e 2.00-2.04 landed
-      (README): open: ISS retained on a real file, city provider schemas, 1.0x sets,
-      DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF
-      1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh the Bulgaria page
-      when its draft passes. A run that lands a slice replaces its item here; keep
-      this under 2,000 characters.
+      file; HR: a real HR invoice, cash accounting; CIUS-PT: which validator does AT
+      run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real
+      KSeF rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
+      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
+      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
+      check on a real IRP payload; mandate texts: IL, ES, SK, NRS, SRO 1852, Jordan
+      open; Mexico CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080
+      to CP codes (omawww blocked), a real payroll or export file, a PAC rejection
+      compared; cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC
+      events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in
+      v1.40) flagged (README): open: a real event; a real reform NF-e from a SEFAZ
+      test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e
+      landed: open: a national rejection compared; ISS 2-5% band landed
+      (ABR-024/NFSE-024, README): open: a city's own rate table; ABRASF NFS-e
+      2.00-2.04 landed (README): open: ISS retained on a real file, city provider
+      schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed
+      (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply;
+      refresh the Bulgaria page when its draft passes. A run that lands a slice
+      replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -238,13 +238,13 @@ flagships:
       directly"); Homebase (docs need an account); --cover-price moves two shifts
       together (README "Moving two shifts together": 20-person week exposure 113 to
       68 h for $35.27); second call-outs priced, off by default (README "The pair
-      price in played weeks": fewer open hours on 3 of 4 weeks); next: a time cap on
-      the pair pass (a 121-copy week took 241 s) to lift the 120-copy cap; a real
-      two-site export and staff list (README "Staff shared between sites"); own and
-      site rates read from staff CSVs and 7shifts (README "Per-location pay from an
-      export"); next a real wages export, real trip times; whether the priced cut's
-      r = 1 default suits a real manager; a manager's real task list for the fixed
-      minutes.
+      price in played weeks": fewer open hours on 3 of 4 weeks); next: the pair
+      pass's gain comes late (README "A time cap on the pair price"): try its best
+      moves first; a real two-site export and staff list (README "Staff shared
+      between sites"); own and site rates read from staff CSVs and 7shifts (README
+      "Per-location pay from an export"); next a real wages export, real trip times;
+      whether the priced cut's r = 1 default suits a real manager; a manager's real
+      task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -335,22 +335,24 @@ flagships:
       timetable-bound, exact break floor, three-round re-deals, balanced least
       priced, faster break floor, exact home-and-away breaks, backward table,
       blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-14 sections).
-      2026-11-15 latest: whole-break tables as int16 SIMD in the module (same
-      seasons, 189 s to 115 s over 8 page runs, eval/int16-step.txt), so 26 teams
-      join the floor-priced step (19-34 s, 1-2 seasons a seed); 28 teams 94 s,
-      nothing added; least carry-over 94 at 10 teams, at 12 none below 124; refill
-      search in C: 14 teams 210, stored. Next, most valuable first: the rest of the
-      20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now
-      ~4x cheaper; or a starter family climbed with the floor as its score); 27 to
-      30 teams in the page (14-15 matches; 28 teams 94 s: profile it first; or
-      narrower moves, which span 15 of 23 rounds); home-and-away breaks exact since
-      2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
-      home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
-      below 132, or 124-130 ruled out; 18 teams: refill from the climbed starter
-      (356 from circle, starter 318); close 24-40 (tabu, the literature's starters);
-      a real league's travel and blackout list; printed sheets on a real printer and
-      paper.
+      2026-11-15 latest: every starter enumerated (eval/starter-exhaust.c): 26 teams
+      716 to 670, 28 828 to 778, 30 948 to 894, stored as starts. Before:
+      whole-break tables as int16 SIMD in the module (same seasons, 189 s to 115 s
+      over 8 page runs, eval/int16-step.txt), so 26 teams join the floor-priced step
+      (19-34 s, 1-2 seasons a seed); 28 teams 94 s, nothing added; least carry-over
+      94 at 10 teams, at 12 none below 124; refill search in C: 14 teams 210,
+      stored. Next, most valuable first: the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 27 to 30 teams in the page (14-15
+      matches; 28 teams 94 s: profile it first; or narrower moves, which span 15 of
+      23 rounds); home-and-away breaks exact since 2026-11-13 (pairLeastBreaks,
+      eval/pair-exact.txt): a floor-priced home-and-away timetable search on it, and
+      its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12 teams 124-132 open
+      (132 by eval/window-refill.c): below 132, or 124-130 ruled out; 18 and 24
+      teams: 318 and 570 are the least starters (eval/starter-exhaust.txt), so lower
+      needs non-starter moves; 32-40 exhaustive needs a tighter bound (30 teams took
+      24 min); a real league's travel and blackout list; printed sheets on a real
+      printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

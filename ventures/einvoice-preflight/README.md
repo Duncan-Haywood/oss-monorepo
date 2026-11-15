@@ -1796,3 +1796,93 @@ is the value FirmaXadesNet, Odoo, OCA and Facturae-PHP write); ECDSA keys.
 python-stdnum 2.2 on 6,000 seeded numbers: 891 disagreements before (750 valid
 numbers refused), 55 after, all CIFs where stdnum takes either control form and we
 take the one the entity letter calls for.
+
+## Hungary: the NAV Online Számla 3.0 report (2026-11-15)
+
+Every Hungarian domestic invoice is reported to NAV, the tax authority, as an
+`InvoiceData` XML in NAV's own schema, usually by the invoicing program and
+without anyone looking at it. A blocking error means the invoice was not reported
+at all; a warning means it was reported with numbers that do not add up. NAV's
+own validator only runs once you send, with a technical user. Who would use this:
+a bookkeeper or developer who has the XML (exported, or the `manageInvoice`
+request from a log) and wants to know what NAV will say before sending, or why it
+said it. The free alternatives today are NAV's test environment (needs a
+registered technical user and sends the data) and the commercial invoicing
+programs' own checks; none of them explains a file offline.
+
+`hungary-nav.mjs` reads an `InvoiceData` file (namespace
+`http://schemas.nav.gov.hu/OSA/3.0/data`), single or batch, or a `manageInvoice`
+request, whose Base64 `invoiceData` operations it decodes and checks one by one.
+Rule ids are ours (HU-001..026); every message names the NAV code it mirrors,
+taken from the English interface specification, 2026-02-12 edition, section 3.3.2.
+
+| Rule | NAV code(s) | What it checks |
+| --- | --- | --- |
+| HU-001 | (read) | well-formed XML, an InvoiceData root, a decodable Base64 operation |
+| HU-002 | LINE_NUMBER_NOT_SEQUENTIAL | lineNumber 1, 2, 3, ... |
+| HU-003 | INVOICE_LINE_MISSING | a new invoice has lines |
+| HU-004 | MANDATORY_LINE_CONTENT_MISSING | description, quantity, unit, unit price by lineExpressionIndicator |
+| HU-005 | INVALID_VAT_DATA | VAT rates (5, 18, 27%, and 7, 12%) and simplified VAT contents; pre-2013 rates and 0 before 2024 by delivery date |
+| HU-006 | LINE_SUMMARY_TYPE_MISMATCH_*, INVALID_*_VAT_RATE_* | simplified vs normal amounts and vatContent vs vatPercentage, lines and summaries |
+| HU-007 | INVALID_*_VAT_EXEMPTION_CODE, _OUT_OF_SCOPE_CODE, _AMOUNT_MISMATCH_* | exemption, out-of-scope and mismatch codes and rates; UNKNOWN only on modifications |
+| HU-008 | CUSTOMER_INFO_MISSING, CUSTOMER_DATA_(NOT_)EXPECTED, CUSTOMER_*_TAXNUMBER_NOT_EXPECTED | customer data by VAT status (no name or address for a private person) |
+| HU-009 | ..._VAT_STATUS_VAT_DATA_MISMATCH_KBAET/KBAUK/EUFAD37/EUFADE, ..._DOMESTIC_REVERSE_CHARGE, DOMESTIC_TAXNUMBER_EXPECTED_REVERSE_CHARGE | exemption and reverse-charge codes against the buyer's VAT status |
+| HU-010 | INCORRECT_LINE/SUMMARY_DATA_VAT_EXEMPTION/OUT_OF_SCOPE_NORMAL | no VAT amount on exempt or out-of-scope lines and rows |
+| HU-011 | INCORRECT_LINE_DATA_AGGREGATE_INV_LINE_DATA_MANDATORY | aggregate invoice lines carry their own rate and date |
+| HU-012 | INCORRECT_HEAD_DATA_CURRENCY_CODE_HUF, _EXCHANGERATE_EXTREME | HUF takes rate 1; EUR, USD, GBP and 10 more inside NAV's bands |
+| HU-013 | INVALID_(ORIGINAL_)INVOICE_NUMBER, _MOD_REF_INVOICE_NUMBER, _MODIFICATIONINDEX_UNREAL | whitespace around numbers, a modification numbered like its base, index over 1000 |
+| HU-014 | INCORRECT_DATE_INVOICE_DELIVERY_TO_FROM, INVOICE_DELIVERY_DATE_LATE | period order; delivery over five years after issue |
+| HU-015 | INCORRECT_LINE_DATA_UOM_INCOMPLETE | OWN unit has unitOfMeasureOwn; units from the XSD list |
+| HU-016 | ELECTRONIC_INVOICE_HASH_EXPECTED, INVALID_INVOICE_HASH(_CRYPTO), INVOICE_APPEARANCE_MISMATCH, INVOICE_COMPLETENESS_* | a report that is the e-invoice itself: SHA3-512 hash recomputed, ELECTRONIC appearance, no private person, no merged lines |
+| HU-017 | INVOICE_REFERENCE_(NOT_)EXPECTED, LINE_MODIFICATION_(NOT_)EXPECTED, INVALID_LINE_OPERATION, LINE_NUMBER_REFERENCE_NOT_UNIQUE, SUPPLIER/CUSTOMER_NOT_IDENTICAL | modification structure, and the request's operation against it |
+| HU-018 | (register) | tax-number check digit (9-7-3-1) on supplier, customer and group members |
+| HU-027..032 | SCHEMA_VIOLATION | the schema gate (`hu-xsd.mjs`): an element not allowed or repeated (027), out of order (028), missing (029), a value outside its length, pattern, range, digits or code list (030), an attribute (031), an element in the wrong namespace, e.g. `taxpayerId` without `base:` (032) |
+| HU-020..026 (warnings) | INCORRECT_LINE_CALCULATION_*, INCORRECT_SUMMARY_CALCULATION_*, INCORRECT_SUMMARY_DATA_* | quantity x price, VAT from net, gross, every HUF conversion, each VAT-rate row against its lines, invoice totals against the rows, simplified gross by VAT content; NAV's tolerance, 1% and at least one unit |
+
+**Measured on NAV's own samples** (`eval/hungary-nav-samples-2026-11-15.md`): of
+the 30 InvoiceData samples NAV publishes, 27 get no finding; the other 3 get five,
+each a fault in NAV's file by NAV's current rules (two summary typos, a gross
+total of 500000 on a 600000 net row and an extra zero in a HUF amount; two
+placeholder tax numbers; a `lineOperation` MODIFY that code 60 now refuses).
+On NAV's `manageInvoice` sample all three `electronicInvoiceHash` values verify,
+and they verify only over the decoded XML bytes, not over the Base64 text the
+spec's wording suggests. 519 seeded faults of 27 kinds: 518 caught.
+
+The SHA3-512 is plain JavaScript (`sha3.mjs`, compared with node:crypto in the
+test), so the page checks the hash in the browser too.
+
+Not checked (listed under `skipped`): what NAV checks against its own records
+(unique numbers, the base invoice of a modification, registered tax numbers),
+gzip-compressed operations, product-fee totals. Not done: a real business's
+report with NAV's response to compare verdicts.
+
+Tests: `hungary-nav.test.mjs` (14) on five of NAV's files kept in
+`fixtures/hungary-nav/` with NAV's MIT licence.
+
+### The schema gate: invoiceData.xsd with NTCA common 1.0 (2026-11-15, latest)
+
+NAV refuses a report that breaks `invoiceData.xsd` before any business rule runs:
+`queryTransactionStatus` answers `SCHEMA_VIOLATION` (ERROR) and the invoice is
+ABORTED. The schema imports two others, `invoiceBase.xsd` (in NAV's repository)
+and the NTCA common 1.0 `common.xsd` (not in it). `build-hu-schema.mjs` reads all
+three into `hu-xsd-data.mjs` (facts only: content models, facets, the namespace of
+every element), fetching `common.xsd` from a public mirror and refusing it unless
+its SHA-256 is the one three independent mirrors agreed on. `hu-xsd.mjs` runs it
+through `xsd-check.mjs`, the validator FA(3) already used, now shared, plus a
+namespace pass of its own: the commonest hand-edit fault in these files is a
+`base:` prefix dropped or added, which the tag looks right with and NAV still refuses.
+Elements declared `fixed="true"` (`vatDomesticReverseCharge`, `noVatCharge`) take
+that value when empty and refuse any other, as XSD says.
+
+**Checked against xmllint on NAV's XSD** (`eval/hu-xsd-diff.mjs`,
+`eval/hungary-nav-xsd-2026-11-15.md`): NAV's 30 samples pass both. Of the mutants
+built from them (an element deleted, duplicated, swapped or unknown, a value
+emptied, lengthened, made text, negative, given a euro sign, a short date or a
+flipped boolean, a namespace prefix dropped or added), every verdict matches
+xmllint's; see the eval note for the counts on two seeds. One real fault turned up:
+NAV's own `manageInvoice` API sample still sends 2.0's `privatePersonIndicator`
+where 3.0 wants `customerVatStatus`, in all three operations; xmllint agrees, and
+the finding's fix names the replacement. The fuzzing also found a crash in the
+business checks on a summary row with an empty `vatRate`, now fixed.
+
+Tests: `hu-xsd.test.mjs` (10).

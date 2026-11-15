@@ -16,6 +16,10 @@
  * E + 1 or E + 2 instead. Each search stops after NODELIM nodes. After STALL moves with no new best
  * the incumbent restarts from the best with its rounds shuffled or reversed.
  *
+ * HOT=p (2026-11-15, default 0): with probability p the window is built around a transition that
+ * feeds a cell at 2 or more (both its rounds, the rest contiguous half the time), so moves go where
+ * the excess carry-over sits rather than anywhere.
+ *
  * Build: cc -O3 -march=native -o window-refill eval/window-refill.c
  * Run:   ./window-refill N SEED SECONDS [START_FILE]
  *        START_FILE holds opp[r][t] (any of whitespace, commas, brackets); without it the circle method.
@@ -71,6 +75,18 @@ static inline void add_cells(int r, int t, int u, int d) {
 }
 
 static int Slist[MAXN], w;
+static double hot;
+static long hotmoves;
+
+/* HOT (2026-11-15): a random round r whose transition r -> r + 1 adds to a cell holding 2 or more,
+ * or -1 when every cell is 0 or 1. A uniform pick over the offending (round, team) transitions. */
+static int hot_round(void) {
+  int c[MAXN][MAXN]; memset(c, 0, sizeof c);
+  for (int t = 0; t < n; t++) for (int r = 0; r + 1 < R; r++) c[opp[r][t]][opp[r + 1][t]]++;
+  int list[MAXN * MAXN], k = 0;
+  for (int t = 0; t < n; t++) for (int r = 0; r + 1 < R; r++) if (c[opp[r][t]][opp[r + 1][t]] >= 2) list[k++] = r;
+  return k ? list[rnd() % k] : -1;
+}
 
 static void dfs(int si) {
   if (found || nodes > nodelim) return;
@@ -153,6 +169,7 @@ int main(int argc, char **argv) {
   nodelim = getenv("NODELIM") ? atoll(getenv("NODELIM")) : 200000;
   double kick = getenv("KICK") ? atof(getenv("KICK")) : 0.02;
   long stall = getenv("STALL") ? atol(getenv("STALL")) : 20000;
+  hot = getenv("HOT") ? atof(getenv("HOT")) : 0;
   if (argc >= 5) { if (!read_file(argv[4], opp)) { fprintf(stderr, "bad start file\n"); return 2; } }
   else for (int r = 0; r < R; r++) { /* circle method */
     opp[r][n - 1] = r; opp[r][r] = n - 1;
@@ -175,7 +192,23 @@ int main(int argc, char **argv) {
     }
     w = wmin + rnd() % (wmax - wmin + 1);
     memset(inS, 0, sizeof inS);
-    if (rnd() & 1) { int a = rnd() % (R - w + 1); for (int i = 0; i < w; i++) inS[a + i] = 1; }
+    int hr = -1;
+    if (hot > 0 && (rnd() % 100000) / 100000.0 < hot) hr = hot_round();
+    if (hr >= 0) {
+      /* A hot window: both rounds of a transition that feeds a cell at 2 or more, then the rest
+       * contiguous around it half the time, anywhere otherwise. */
+      int k = 0;
+      inS[hr] = 1; k++;
+      if (w > 1) { inS[hr + 1] = 1; k++; }
+      if (rnd() & 1) {
+        int lo = hr, hi = hr + 1;
+        while (k < w) {
+          if ((rnd() & 1) ? lo > 0 : hi + 1 >= R) { if (lo > 0) { inS[--lo] = 1; k++; } }
+          else if (hi + 1 < R) { inS[++hi] = 1; k++; }
+        }
+      } else while (k < w) { int r = rnd() % R; if (!inS[r]) { inS[r] = 1; k++; } }
+      hotmoves++;
+    } else if (rnd() & 1) { int a = rnd() % (R - w + 1); for (int i = 0; i < w; i++) inS[a + i] = 1; }
     else { int k = 0; while (k < w) { int r = rnd() % R; if (!inS[r]) { inS[r] = 1; k++; } } }
     for (int r = 0, k = 0; r < R; r++) if (inS[r]) Slist[k++] = r;
     int save[MAXN][MAXN]; memcpy(save, opp, sizeof opp);
@@ -205,8 +238,8 @@ int main(int argc, char **argv) {
   int largest = 0, c[MAXN][MAXN]; memset(c, 0, sizeof c);
   for (int t = 0; t < n; t++) for (int r = 0; r + 1 < R; r++) c[best[r][t]][best[r + 1][t]]++;
   for (int a = 0; a < n; a++) for (int b = 0; b < n; b++) if (c[a][b] > largest) largest = c[a][b];
-  printf("END best value %d (E %d), largest cell %d, round robin %s; %ld moves, %.1f s\n",
-         n * (n - 2) + 2 * bestE, bestE, largest, is_rr(best) ? "yes" : "NO", moves,
+  printf("END best value %d (E %d), largest cell %d, round robin %s; %ld moves (%ld hot), %.1f s\n",
+         n * (n - 2) + 2 * bestE, bestE, largest, is_rr(best) ? "yes" : "NO", moves, hotmoves,
          (double)(clock() - c0) / CLOCKS_PER_SEC);
   print_opp(best);
   return 0;
