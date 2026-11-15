@@ -34,7 +34,8 @@ COIL_SENSE_PIN = 15
 # Lift over-current (2026-11-15, cad/README.md "Lift jam cutoff"): an LM393 comparator's open-collector output, low
 # while the lift draws more than its trip current, with a 10k pull-up to 3.3 V (most dev boards already have one on
 # GPIO 0, for their BOOT button). GPIO 0 low at reset selects the serial bootloader, but at reset the lift's MOSFET is
-# off (GPIO 12 is held low), no current flows in the shunt and the output is released: the board boots normally.
+# off (GPIO 12 is held low), no current flows in the shunt (the belt backdriving the motor through the diode puts
+# at most 0.16 A through it, under the 1.5 A trip) and the output is released: the board boots normally.
 # Pressing the BOOT button while running reads as over-current; after the blanking that trips the lift, nothing else.
 LIFT_SENSE_PIN = 0
 

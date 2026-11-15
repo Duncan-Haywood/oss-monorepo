@@ -1159,16 +1159,28 @@ class Feeder:
     lift_rotor_kgm2: float = 3.0e-6   # rotor inertia at the motor's own shaft (assumption: a 555-size motor)
     lift_gear_ratio: float = 30.0     # gearbox (assumption: a 6,000 rpm motor down to 200 rpm)
     lift_hot_rise_k: float = 80.0     # winding over ambient when hot: copper's resistance rises 0.393 %/K
-    lift_shunt_ohm: float = 0.05      # low-side shunt between the MOSFET module's source and ground (3 W, 1%)
-    lift_shunt_w: float = 3.0
+    # Where the shunt sits (2026-11-15, cad/README.md "Lift current sense inside the diode loop"): "high", in the
+    # motor's + lead between the lift fuse and the motor, with the flyback diode's cathode on the motor side of it,
+    # read by an INA186-class current-sense amplifier, so the motor's current flows through it while the MOSFET is
+    # on and while the diode freewheels, and the filtered reading is I x R x gain at any duty; "low", in the MOSFET
+    # module's source as first landed, where the filter sees duty x I (0.05 ohm, 2.4k: the figures before it moved).
+    lift_sense_side: str = "high"
+    lift_shunt_ohm: float = 0.01      # the shunt (1%, 2512 or a four-terminal part): 0.05 ohm low-side before
+    lift_shunt_tol: float = 0.01      # its tolerance (high side only: the low-side figures as landed left it out)
+    lift_shunt_w: float = 1.0         # its rating: 3 W for the 0.05 ohm low-side part
+    lift_sense_gain: float = 50.0     # INA186A2 (TI SBOS318B: gains 25/50/100/200/500 V/V for A1-A5, inputs -0.2 to
+                                      # 40 V common mode whatever the supply, so it sits on the 29.2 V pack)
+    lift_sense_gain_tol: float = 0.01   # INA186 gain error, maximum (datasheet: +-1%)
+    lift_sense_amp_offset_v: float = 50e-6  # INA186 input offset, maximum (datasheet: +-50 uV)
     lift_sense_r1: float = 100e3      # comparator's reference divider from 3.3 V: top (1%)
-    lift_sense_r2: float = 2.4e3      # and bottom (1%): 3.9k before the slip coupling, 2.7k until the duty followed the
-                                      # battery (2026-11-15): the trip rises 1/duty on a full pack and must stay under the slide
-    lift_sense_rc_s: float = 1.0e-3   # 10k + 100 nF from the shunt to the comparator: averages the 20 kHz PWM
+    lift_sense_r2: float = 33e3      # and bottom (1%): 3.9k before the slip coupling, 2.7k until the duty followed the
+                                      # battery, 2.4k low side after it; 33k high side (819 mV, 1.64 A), searched over the E24
+                                      # values for 0.005-0.02 ohm and gains 25-200 with every lift rule passing (2026-11-15)
+    lift_sense_rc_s: float = 1.0e-3   # 10k + 100 nF from the amplifier's output (the shunt, low side) to the comparator
     lift_sense_offset_v: float = 0.009  # LM393 input offset over temperature, worst case (datasheet: 9 mV)
     lift_rail_tol: float = 0.03       # 3.3 V rail
     lift_res_tol: float = 0.01
-    lift_duty: float = 1.0            # config LIFT_DUTY: with the shunt in the MOSFET's source the filter sees duty x I
+    lift_duty: float = 1.0            # config LIFT_DUTY: with the shunt low side (in the MOSFET's source) the filter sees duty x I
     lift_stall_trip_margin: float = 1.25  # hot stall current at the low-battery cut over the highest trip current
     lift_jam_blank_ms: float = 400.0  # config LIFT_JAM_BLANK_MS: over-current ignored this long after each start (300 before the slip hub lowered the trip)
     lift_jam_trip_ms: float = 10.0    # config LIFT_JAM_TRIP_MS: over-current on two ticks 10 ms apart cuts the motor
@@ -4071,6 +4083,11 @@ class Feeder:
             return self.lift_duty
         return self.lift_duty * max(self.lift_duty_min, min(1.0, self.lift_v_ref / volts))
 
+    def lift_shunt_series(self, duty: float) -> float:
+        """The shunt's share of the lift motor's mean loop resistance at `duty`: all of it high side (in the diode's
+        loop it carries the current all cycle), duty x R low side (in the MOSFET's source it carries it only while on)."""
+        return self.lift_shunt_ohm if self.lift_sense_side == "high" else duty * self.lift_shunt_ohm
+
     def lift_jam_cutoff(self) -> dict:
         """Trip current, its spread, and what it does to a start and to a jam (2026-11-15).
 
@@ -4092,7 +4109,14 @@ class Feeder:
         the trip in motor amps is the reference over duty x R_shunt, and a duty held down on a full pack raises it. The
         motor's mean voltage is duty x V less I x (winding + lead) less duty x I x R_shunt. So every rule is taken at
         both packs at its own duty (`lift_duty_at`): the stall margin at the worse of the hot 24 V and hot 29.2 V
-        stalls, the start at the worse of the two cold starts. `trip_*_a` stay the full-duty figures (at the cut)."""
+        stalls, the start at the worse of the two cold starts. `trip_*_a` stay the full-duty figures (at the cut).
+
+        High side (`lift_sense_side` "high", 2026-11-15, "Lift current sense inside the diode loop"): the shunt is in
+        the motor's + lead inside the loop the flyback diode closes, so it carries the motor's current at every point
+        of the PWM cycle, and an INA186-class amplifier gives gain x I x R_shunt at any duty. The trip in motor amps is
+        the reference over gain x R_shunt, its spread taking the amplifier's gain error and input offset and the
+        shunt's tolerance as well, and it is the same on both packs (`trip_hi_a_full_pack` = `trip_hi_a`). The motor's
+        mean voltage is duty x V less I x (winding + lead + R_shunt)."""
         m = self.lift_motor_model()
         g = lambda tol: 3.3 * (1 + tol * self.lift_rail_tol)          # noqa: E731
         def vref(sign):
@@ -4103,15 +4127,27 @@ class Feeder:
         # the lowest duty the firmware can drive is the floor, which the full pack's duty sits at or over
         d_lo = self.lift_duty_at(self.battery_v_min)
         d_hi = self.lift_duty * self.lift_duty_min if self.lift_v_ref else self.lift_duty
-        to_a = 1 / (self.lift_shunt_ohm * d_lo)
-        i_nom, i_lo, i_hi = v_nom * to_a, vref(-1) * to_a, vref(1) * to_a
+        high = self.lift_sense_side == "high"
+        if high:
+            rs, gain = self.lift_shunt_ohm, self.lift_sense_gain
+            def amps(sign):
+                return (vref(sign) / (gain * (1 - sign * self.lift_sense_gain_tol) * rs * (1 - sign * self.lift_shunt_tol))
+                        + sign * self.lift_sense_amp_offset_v / rs)
+            i_nom, i_lo, i_hi = v_nom / (gain * rs), amps(-1), amps(1)
+        else:
+            to_a = 1 / (self.lift_shunt_ohm * d_lo)
+            i_nom, i_lo, i_hi = v_nom * to_a, vref(-1) * to_a, vref(1) * to_a
+
+        def trip_at(i_trip, duty):
+            """The trip in motor amps at `duty`: fixed high side; low side, the cut's figure scaled by d_lo / duty."""
+            return i_trip if high else i_trip * d_lo / duty
         d = self.lift_design()
         i_run = self.lift_motor_noload_a + d["torque_nm"] / m["kt"]
         trip_nm_lo = m["kt"] * (i_lo - self.lift_motor_noload_a)
         hot_ohm = m["winding_ohm"] * (1 + 0.00393 * self.lift_hot_rise_k)
 
         def stall(v, duty, ohm):
-            return duty * v / (ohm + m["lead_ohm"] + duty * self.lift_shunt_ohm)
+            return duty * v / (ohm + m["lead_ohm"] + self.lift_shunt_series(duty))
 
         def over_s(i_stall, i_trip):
             if not (i_trip > i_run and i_stall > i_trip):
@@ -4119,8 +4155,8 @@ class Feeder:
             return m["tau_m_s"] * math.log((i_stall - i_run) / (i_trip - i_run))
 
         packs = ((self.battery_v_min, d_lo), (self.battery_v_max, d_hi))
-        margins = [stall(v, du, hot_ohm) / (i_hi * d_lo / du) for v, du in packs]
-        starts = [over_s(stall(v, du, m["winding_ohm"]), i_lo * d_lo / du) for v, du in packs]
+        margins = [stall(v, du, hot_ohm) / trip_at(i_hi, du) for v, du in packs]
+        starts = [over_s(stall(v, du, m["winding_ohm"]), trip_at(i_lo, du)) for v, du in packs]
         i_stall_hot = stall(self.battery_v_min, d_lo, hot_ohm)
         i_stall_cold = max(stall(v, du, m["winding_ohm"]) for v, du in packs)
         start_over_s = max(starts)
@@ -4137,7 +4173,8 @@ class Feeder:
             "trip_nm_lo": trip_nm_lo, "trip_factor": trip_nm_lo / d["torque_nm"],
             "stall_hot_a": i_stall_hot, "stall_cold_a": i_stall_cold, "stall_margin": min(margins),
             "stall_margin_lo_v": margins[0], "stall_margin_hi_v": margins[1], "duty_lo_v": d_lo, "duty_hi_v": d_hi,
-            "trip_hi_a_full_pack": i_hi * d_lo / d_hi, "start_over_lo_v_s": starts[0], "start_over_hi_v_s": starts[1],
+            "trip_hi_a_full_pack": trip_at(i_hi, d_hi), "trip_lo_a_full_pack": trip_at(i_lo, d_hi),
+            "sense": self.lift_sense_side, "sense_v_per_a": (self.lift_sense_gain if high else 1.0) * self.lift_shunt_ohm, "start_over_lo_v_s": starts[0], "start_over_hi_v_s": starts[1],
             "start_over_s": start_over_s, "blank_s": self.lift_jam_blank_ms / 1000, "dwell_s": dwell_s,
             "stall_w": stall_w, "attempt_j": stall_w * dwell_s, "cutoff_j": stall_w * dwell_s * (1 + self.lift_jam_retries),
             "uncut_j": stall_w * run_on_s, "run_on_s": run_on_s, "fuse_a": fuse, "fuse_ratio": i_stall_hot / fuse,
@@ -4592,7 +4629,7 @@ class Feeder:
         i_full = self.lift_motor_noload_a + d["torque_nm"] / m["kt"]
 
         def speed(v, duty, i):
-            return (v * duty - i * (r + duty * self.lift_shunt_ohm)) / m["ke"] / w0
+            return (v * duty - i * (r + self.lift_shunt_series(duty))) / m["ke"] / w0
         lo = speed(self.supply_v, self.lift_duty_at(self.supply_v), i_full)
         hi = speed(self.battery_v_max, self.lift_duty_at(self.battery_v_max), self.lift_motor_noload_a)
         f_lo = speed(self.supply_v, self.lift_duty, i_full)

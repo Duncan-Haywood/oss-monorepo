@@ -368,12 +368,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): jam sweep on the belt as a chain landed 2026-11-15
-      (cad/README.md "Lift belt as a chain": cuts unchanged; the up strand goes
-      slack up to 108 ms on starts). Next: a duty-independent lift current sense
-      (high-side amp, INA186 class, shunt inside the motor-diode loop) in params,
-      BOM and the sweep, so the trip stops moving with the duty (slide now 1.14x the
-      trip, 1.1 wanted).
+      venv, about 2 min): duty-independent lift current sense landed 2026-11-15
+      (cad/README.md "Lift current sense inside the diode loop": 0.01 ohm shunt
+      inside the motor-diode loop, INA186A2, 33k; slide 1.42x the trip at any duty,
+      jams cut by 49-59 ms). Next: with the trip fixed, retune the slip hub down
+      (0.9 N m: estimated cap peak 115 N against 124) and rerun the jam, start and
+      tooth sweeps at it; or model the amplifier's 20 kHz ripple and bandwidth in
+      the sweep plant.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

@@ -1337,19 +1337,38 @@ class LiftParamsTest(unittest.TestCase):
         self.assertAlmostEqual(m["ke"] * m["noload_rad_s"] + p.lift_motor_noload_a * m["winding_ohm"], p.supply_v)
         # each rule fires
         self.assertTrue(any("full belt" in r for r in Feeder(lift_sense_r2=1.0e3).check_lift_jam()))
-        self.assertTrue(any("never trip" in r for r in Feeder(lift_sense_r2=6.8e3).check_lift_jam()))
+        self.assertTrue(any("never trip" in r for r in Feeder(lift_sense_r2=91e3).check_lift_jam()))
         self.assertTrue(any("blanking" in r for r in Feeder(lift_jam_blank_ms=100.0).check_lift_jam()))
-        self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=1.0).check_lift_jam()))
+        self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=0.25).check_lift_jam()))
         self.assertTrue(any("two ticks" in r for r in Feeder(lift_jam_trip_ms=0.0).check_lift_jam()))
-        self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6).check_lift_jam()))
-        # 2026-11-15, "Lift duty follows the battery": the trip rises 1/duty on a full pack; the 2.7k divider and the
-        # 0.9 N m hub set before it would let a jam slide unseen there, and a lower floor would too
-        c = Feeder().lift_jam_cutoff()
+        low = dict(lift_sense_side="low", lift_shunt_ohm=0.05, lift_sense_r2=2.4e3, lift_shunt_w=3.0)
+        self.assertEqual(Feeder(**low).check_lift_jam() + Feeder(**low).check_lift_slip(), [])
+        self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6, **low).check_lift_jam()))
+        # 2026-11-15, "Lift duty follows the battery": low side the trip rises 1/duty on a full pack; the 2.7k divider
+        # and the 0.9 N m hub set before it would let a jam slide unseen there, and a lower floor would too
+        c = Feeder(**low).lift_jam_cutoff()
         self.assertAlmostEqual(c["trip_hi_a_full_pack"], c["trip_hi_a"] / Feeder().lift_duty_min)
         self.assertLess(c["stall_margin_hi_v"], c["stall_margin_lo_v"])
-        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=2.7e3, lift_slip_nm=0.9).check_lift_slip()))
-        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_duty_min=0.7).check_lift_slip()))
-        self.assertEqual(Feeder(lift_v_ref=0, lift_sense_r2=2.7e3, lift_slip_nm=0.9).check_lift_slip(), [])
+        self.assertTrue(any("slide unseen" in r for r in Feeder(**dict(low, lift_sense_r2=2.7e3, lift_slip_nm=0.9)).check_lift_slip()))
+        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_duty_min=0.7, **low).check_lift_slip()))
+        self.assertEqual(Feeder(lift_v_ref=0, **dict(low, lift_sense_r2=2.7e3, lift_slip_nm=0.9)).check_lift_slip(), [])
+        # 2026-11-15, "Lift current sense inside the diode loop": high side the trip is the same at every duty, so
+        # the floor, a lower fixed duty and the 0.9 N m hub no longer move it past the slide or the hot stall
+        c = Feeder().lift_jam_cutoff()
+        self.assertEqual(c["sense"], "high")
+        self.assertEqual(c["trip_hi_a_full_pack"], c["trip_hi_a"])
+        self.assertAlmostEqual(c["sense_v_per_a"], Feeder().lift_shunt_ohm * Feeder().lift_sense_gain)
+        self.assertGreater(Feeder().lift_slip_design()["trip_margin"], 1.3)
+        self.assertLess(c["trip_hi_a"] - c["trip_lo_a"], Feeder(**low).lift_jam_cutoff()["trip_hi_a"] - Feeder(**low).lift_jam_cutoff()["trip_lo_a"])
+        for kw in ({"lift_duty_min": 0.7}, {"lift_slip_nm": 0.9}, {"lift_v_ref": 0}):
+            self.assertEqual(Feeder(**kw).check_lift_jam() + Feeder(**kw).check_lift_slip(), [], kw)
+        self.assertEqual(Feeder(lift_duty_min=0.7).lift_jam_cutoff()["trip_hi_a_full_pack"], c["trip_hi_a"])
+        # the amplifier's output stays under its 3.3 V rail at the unregulated cold stall, so it reads, not clips
+        self.assertLess(c["stall_unregulated_a"] * c["sense_v_per_a"] * (1 + Feeder().lift_sense_gain_tol), 3.3)
+        # the tolerances widen the trip: gain error, shunt tolerance and the amplifier's offset each count
+        for kw in ({"lift_sense_gain_tol": 0.0}, {"lift_shunt_tol": 0.0}, {"lift_sense_amp_offset_v": 0.0}):
+            w = Feeder(**kw).lift_jam_cutoff()
+            self.assertLess(w["trip_hi_a"] - w["trip_lo_a"], c["trip_hi_a"] - c["trip_lo_a"], kw)
 
     def test_lift_slip_hub_numbers_and_rules(self):
         # 2026-11-15, cad/README.md "Lift slip coupling"
@@ -1365,8 +1384,8 @@ class LiftParamsTest(unittest.TestCase):
         self.assertGreater(s["shaft_mm"], s["rigid_shaft_mm"])
         # each rule fires
         self.assertTrue(any("slip on a start" in r for r in Feeder(lift_slip_nm=0.25).check_lift_slip()))
-        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=3.9e3).check_lift_slip()))
-        self.assertTrue(any("flight cap" in r for r in Feeder(lift_slip_nm=1.6, lift_sense_r2=3.9e3).check_lift_slip()))
+        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=56e3).check_lift_slip()))
+        self.assertTrue(any("flight cap" in r for r in Feeder(lift_slip_nm=1.6, lift_sense_r2=47e3).check_lift_slip()))
         self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_n=100.0).check_lift_slip()))
         self.assertTrue(any("boot's wall" in r for r in Feeder(lift_slip_collar_w=20.0).check_lift_slip()))
 
