@@ -108,6 +108,7 @@ import {
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   SITE_OWNED_CONTROLS_RE,
+  hasOwnControls,
   injectEmbedWidget,
   maskScriptAndStyleBodies,
   renderEmbedHostModule,
@@ -11192,7 +11193,19 @@ function crumbShort(name) {
   return head.length >= 3 ? head : name;
 }
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '' }) {
+/**
+ * The footer's lead line on a tool whose entry page has no field, button or
+ * drawing surface of its own (`hasOwnControls`, embed.mjs). Measured
+ * 2026-11-15: 28 pages (ShootFlow's docs, the Garmin watch face, the
+ * self-hosted SaaS stack list, photos-import-tools, vendor-watch, and the
+ * hub and guide pages of quick-pick-survey and the electronics academy) said
+ * "Free and private, like this one — everything runs in your browser" over a
+ * desktop app, a watch face, a server or a page with nothing to type into.
+ * This line claims nothing about the page above it.
+ */
+export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
+
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -11322,7 +11335,12 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
 ${askLine}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
-      : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
+      : browserTool
+        ? 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
+        // A product, docs or list page (a desktop app, a server, a watch
+        // face) has nothing that runs in the browser, so "like this one" was
+        // false there (`FOOTER_LEAD_NOT_A_BROWSER_TOOL`).
+        : FOOTER_LEAD_NOT_A_BROWSER_TOOL
     }</p>
 ${noSla}${isEntry && baseUrl && hasCiChannels(slug) ? renderCiInstall(slug, baseUrl) : ''}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${formatCount(total)} free tools →</a>
@@ -11450,9 +11468,9 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const names = new Map(await mapLimit(surfaces, 16, async (surface) => {
     const entryFile = path.join(outDir, surface.slug, 'index.html');
     const entry = (await exists(entryFile)) ? await fs.readFile(entryFile, 'utf8') : '';
-    return [surface.slug, toolName(entry, surface.title)];
+    return [surface.slug, { name: toolName(entry, surface.title), browserTool: !entry || hasOwnControls(entry) }];
   }));
-  const named = (surface) => ({ ...surface, title: names.get(surface.slug) || surface.title });
+  const named = (surface) => ({ ...surface, title: names.get(surface.slug)?.name || surface.title });
 
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
@@ -11491,6 +11509,12 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         externalCallHosts: surface.externalFetchHosts,
         audiences: audiencesFor(surface.slug, audiencePages),
         linkedCss: await ownStylesheets(html, path.dirname(file), styleCache),
+        // A browser tool if the tool's entry page has a control of its own (a
+        // deep guide inside a calculator has none, yet "like this one" means
+        // the calculator) or this page does (quick-pick-survey's and the
+        // electronics academy's index pages are hubs; their calculators are
+        // pages inside them).
+        browserTool: (names.get(surface.slug)?.browserTool ?? true) || hasOwnControls(html),
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
