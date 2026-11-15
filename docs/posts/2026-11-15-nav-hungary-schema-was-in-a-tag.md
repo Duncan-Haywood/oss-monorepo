@@ -1,9 +1,9 @@
 ---
 title: "The schema was in a tag: checking Hungarian NAV reports against NAV's own XSD"
-seo_title: "NAV Online Számla 3.0 XSD validation offline, NTCA common 1.0 and termékdíj checks"
+seo_title: "NAV Online Számla 3.0 XSD validation offline, with termékdíj checks"
 date: 2026-11-15
 tags: [einvoice-preflight, ventures]
-description: "Our checker now validates NAV Online Számla 3.0 reports against NAV's own schema in the browser. It agrees with xmllint on 6,909 seeded faults, and on its first run it found that NAV's own API sample fails."
+description: "NAV Online Számla 3.0 reports now get NAV's own XSD check in the browser. It matches xmllint on 6,909 seeded faults and found that NAV's API sample fails."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) learned to read Hungary's NAV Online Számla 3.0 reports this morning: the `InvoiceData` XML every Hungarian invoicing program sends to the tax authority. That version checked NAV's published business rules and the arithmetic behind its warnings. Two gaps were left, and both are now closed.
