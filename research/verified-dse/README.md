@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 129 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 130 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -126,6 +126,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   the ladder would lose at 33 gates. The 64-bit twin falls under the routing-cost threshold, so width scaling stays untested.
   Over milestones 121 to 124's 50 blind cells SWG(36) has 2.41% against 5.11% random (better in 23, worse in 1):
   [`experiments/amount_place/`](experiments/amount_place/results.txt).
+- **Hedging the pilot-probe guard's fall-back is nearly free and nearly useless (milestone 130, replay of the same 90 cells,
+  no flow run).** When the pilot beats the subset's best, routing the subset's next 3 clipped-ladder ranks before the random
+  fall-back (SWH(32, 3)) moves mean regret from 4.39% to 4.37% (paired draws; better on 24 cells, worse on 1; interval -0.04 to
+  -0.01 points). The hedge holds the cell's best point in only 19% of false alarms on the 40 cells where the ladder is perfect,
+  because a 32-point subset rarely contains the global winner. Mapping the rest first and routing the global ladder's next 3
+  (SWHM(32, 3)) halves the false-alarm cost (0.53 points) but starves the fall-back where the ladder fails (14.94% against
+  11.83%), 4.69% overall. All six predictions held; the false alarms are the test's, not the fall-back's:
+  [`experiments/hedge_probe/`](experiments/hedge_probe/results.txt).
 - **A probe the ladder pays for anyway makes the first measured guard that beats the unguarded ladder on mean (milestone 129,
   replay of the same 90 cells, no flow run).** Routing a mapped 32-point subset's clipped-ladder best against the timing pilot SWC
   already routes, and routing randomly with the unspent budget when the pilot wins (SWP(32)), has 4.39% mean regret against 4.77%

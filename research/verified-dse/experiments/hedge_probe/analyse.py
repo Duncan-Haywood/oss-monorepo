@@ -181,6 +181,7 @@ def main(dst):
     bad = [c for c in ladder if swc(c) > c["rand"] + 1]
     good = [c for c in ladder if swc(c) <= 0.5]
     fs = lambda cs: statistics.mean(c["fell"] for c in cs) if cs else float("nan")
+    hs = lambda cs: statistics.mean(c["hit"] for c in cs if c["hit"] == c["hit"])
     out = ["# Milestone 130: a hedged fall-back SWH(32, h) for the pilot-probe guard, priced by replay on milestones 119 to 125 "
            "(no flow run)", "",
            f"theta = {score.THETA}, alpha = {ALPHA}; {DRAWS} draws per cell, paired with milestone 129's SWP(32) draws; design "
@@ -197,7 +198,8 @@ def main(dst):
             f"ladder-branch cells only ({len(ladder)}): {means(ladder)}",
             f"cells where SWC loses to random by > 1 point ({len(bad)}): {means(bad)}",
             f"cells where SWC <= 0.5% ({len(good)}): {means(good)}",
-            f"distrust share: {fs(bad):.2f} where SWC loses, {fs(good):.2f} where SWC <= 0.5% (SWP(32)'s, by construction)", ""]
+            f"distrust share: {fs(bad):.2f} where SWC loses, {fs(good):.2f} where SWC <= 0.5% (SWP(32)'s, by construction)",
+            f"hit share (descriptive): {hs(bad):.2f} where SWC loses, {hs(good):.2f} where SWC <= 0.5%", ""]
     out += sp.compare_lines(rows, ((swh, swp, "SWH(32,3)", "SWP(32)"), (swh, swc, "SWH(32,3)", "SWC"),
                                    (swh, rand, "SWH(32,3)", "random"), (swh, swg, "SWH(32,3)", "SWG(32)")), SEED)
     out += ["", "## SWH(32, h) and SWHM(32, h) grid (descriptive; h = 3 was fixed before the table)", "",
