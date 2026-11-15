@@ -187,9 +187,10 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: VERI*FACTU records, Huella recomputed, slip
-      named, chain, VF-001..028, eval/verifactu-records-2026-11-15.md; open: a
-      production SIF's records, AEAT error codes). Open: a real HU report with NAV's
+      History: README and git (latest: VERI*FACTU: AEAT's 247 error codes mapped,
+      VF-029..042, AEAT reply read, eval/verifactu-aeat-codes-2026-11-15.md; open: a
+      production SIF's records and replies, offline codes 1101, 1124 rate list,
+      1133, 1246, 1254, Generador). Open: a real HU report with NAV's
       businessValidationMessages or SCHEMA_VIOLATION text; HU: open: a real chain
       with NAV's replies; a real signed Facturae file or FACe rejection; ZATCA: a
       real KSA note; SdI: open: a real FatturaPA rejection with its file; HR: a real

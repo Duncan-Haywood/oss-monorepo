@@ -387,6 +387,46 @@ taken as quoted by two MIT libraries, and the record rules follow
 josemmo/Verifactu-PHP's validations. Open: a production system's records; the AEAT's
 error-code list mapped to VF rules. It does not certify a billing system.
 
+## VERI*FACTU: the AEAT's error codes, and its reply read back (2026-11-15, later)
+
+The AEAT's own list of VERI*FACTU validation errors (errores.properties, 247 codes,
+Last-Modified 30 July 2026) answered this session at prewww2.aeat.es. It is kept byte
+for byte in `fixtures/verifactu/aeat-errores.properties` (SHA-256 06519ceb…5902) and
+turned into `verifactu-errors-data.mjs` by `node build-verifactu-errors.mjs` (`--check`
+fails on a stale data file; a test does the same).
+
+- **New record rules, VF-029 to VF-042,** each naming the AEAT code it anticipates:
+  issue date before 28-10-2024 (1152), Macrodato (1137-1139), an F2 over 3,000 (1150),
+  the equivalence surcharge allowed beside each VAT rate on the operation's date
+  (1160-1170, 1277), surcharge only on S1 and rate with amount (1281, 1284), S2 lines
+  at zero and on F1/F3/R1-R4 (1197, 1198, 1207), base and tax of one sign (1140,
+  1143), the S/N flags and their invoice types (1136, 1183-1185), each ClaveRegimen's
+  allowed qualifications (1199-1206, 1245, 1252, 1257, 1260, 1286, 1289, 1293, 2009),
+  R2/R3 buyers (1191, 1192), a buyer or third party with the issuer's NIF (1188,
+  1193), third-party issuers (1151-1159, 1186, 1187, 1211), the previous fingerprint
+  equal to the record's own (2008) and characters the AEAT refuses (< > " ' =, 1287).
+  VF-019 now also flags a value that is not NIF-shaped, on the issuer, the previous
+  record's issuer, the system and the buyers (1123).
+- **The AEAT's reply** (`verifactu-response.mjs`): drop the
+  RespuestaRegFactuSistemaFacturacion, alone or in its SOAP envelope, or the SOAP fault
+  whose faultstring carries `Codigo[nnnn]`, beside the records. Each rejected or
+  accepted-with-errors line becomes a finding AEAT-nnnn with an English paraphrase,
+  the AEAT's Spanish text, the VF rule that catches it before sending or the reason
+  none can (census, the AEAT's records, its clock, the header), and, when the record is
+  in the batch (paired by issuer, number and date), whether this checker reproduces
+  it. A line the AEAT registered as correct whose record this checker flags is
+  reported too (AEAT-PASSED), so a rule stricter than the AEAT can be found.
+
+Coverage: of the 203 codes about a record, 113 map to a rule (101 fully, 12 in part,
+e.g. a NIF's shape where the AEAT also checks the census); the 44 submission codes are
+schema, certificate or AEAT-side faults. Measured (eval/verifactu-aeat-codes-2026-11-15.md):
+the one real AEAT reply found (code 1123 on NIF "AAAA") is explained and, with the
+record rebuilt, reproduced by VF-019. The mapping is the AEAT's text read against the
+rules, not AEAT replies to every code. Two MIT libraries' copies of the list are stale
+(1278-1280 kept, 1285-1293, 2009 and 4141 missing). Open: a production system's
+replies; 80 unmapped record codes, several checkable offline (1101, 1111, 1124 the VAT
+rate list, 1133/1134, 1156, 1218, 1246, 1254/1255, the Generador block 1224-1231).
+
 ## Mandate calendar (shipped 2026-11-02)
 
 `node mandate-calendar.mjs` turns the "Key dates" column of the mandates hub
