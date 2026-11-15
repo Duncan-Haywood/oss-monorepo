@@ -2,7 +2,7 @@
 
     python3 tests/lift_tooth_sweep.py
 
-A hood jam slackens the down strand (tests/lift_jam_sweep.py --belt: 0.34-0.60 s at zero tension) while the tight
+A hood jam slackens the up strand (tests/lift_jam_sweep.py --belt: 0.34-0.60 s at zero tension) while the tight
 strand pulls up to 89 N on the 16-tooth drive pulley. This prints the two checks in `Feeder.lift_tooth_jump_design`
 (tooth strength against the catalogue's specific tooth force; ratcheting, the wrap's hold against the flanks'
 push-out) over every corner of belt stiffness, tooth stiffness, flank angle and flank friction, for the 16-tooth

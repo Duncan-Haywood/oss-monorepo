@@ -1399,6 +1399,62 @@ class LiftParamsTest(unittest.TestCase):
         self.assertIn(Feeder(lift_tooth_g_mpa=40.0, lift_tooth_flank_deg=35.0).check_lift_tooth()[0],
                       Feeder(lift_tooth_g_mpa=40.0, lift_tooth_flank_deg=35.0).check())
 
+    def test_lift_strand_modes_solver_and_numbers(self):
+        # 2026-11-15, cad/README.md "Lift strand modes"
+        from otr_cad.params import _modes_below, _string_beam_rows
+        # the solver against closed forms: a uniform string, and a pinned beam-string (f^2 = string^2 + beam^2)
+        L, n, T, m, ei = 2.0, 200, 10.0, 0.085, 3.0
+        h = L / n
+        f = _modes_below(_string_beam_rows(h, [T] * n, 0.0), [m * h] * (n - 1), 15.0)
+        for k, fk in enumerate(f[:5], 1):
+            self.assertAlmostEqual(fk, k * math.sqrt(T / m) / (2 * L), delta=0.002 * fk)
+        f = _modes_below(_string_beam_rows(h, [T] * n, ei), [m * h] * (n - 1), 40.0)
+        for k, fk in enumerate(f[:3], 1):
+            exact = math.hypot(k * math.sqrt(T / m) / (2 * L), (k * math.pi / L) ** 2 * math.sqrt(ei / m) / (2 * math.pi))
+            self.assertAlmostEqual(fk, exact, delta=0.002 * exact)
+        p = Feeder()
+        self.assertEqual(p.check_lift_strand(), [])
+        # tension: running, the down strand is the tight one at the drive pulley; both meet at the top
+        dn, up = p.lift_strand_tension("down"), p.lift_strand_tension("up")
+        t0 = p.lift_tension_design()["t0_n"]
+        self.assertAlmostEqual(dn["t_bottom_n"] - up["t_bottom_n"], up["pull_n"], delta=0.05)
+        self.assertAlmostEqual(dn["t_top_n"], up["t_top_n"], delta=0.05)
+        self.assertGreater(dn["t_bottom_n"], t0)
+        # the setting figure: flights' mass makes the strand ring under the bare formula, about 2.1 Hz
+        pl = p.lift_pluck_design()
+        self.assertLess(pl["pluck_hz"], pl["bare_hz"])
+        self.assertAlmostEqual(pl["pluck_hz"], 2.12, delta=0.02)
+        self.assertGreater(pl["over_tension"], 1.2)
+        # with no flights and no weight it is the bare formula
+        bare = Feeder(lift_flight_kg=0.0)
+        tp = bare.lift_strand_tension("down", 0, running=False)
+        r = bare.lift_strand_modes("down", "flat", loaded_every=0, running=False, f_max_hz=4.0)
+        mean_t = sum(tp["tension"]) / len(tp["tension"])
+        self.assertAlmostEqual(r["modes_hz"][0], math.sqrt(mean_t / p.lift_belt_kg_m) / (2 * tp["span_m"]), delta=0.01)
+        # loaded with balls that go with it, the up strand rings lower; pinned at the pads, its spans ring high
+        free = p.lift_strand_modes("up", "edge", ball_moves=False)["modes_hz"][0]
+        heavy = p.lift_strand_modes("up", "edge")["modes_hz"][0]
+        self.assertLess(heavy, 0.6 * free)
+        pinned = p.lift_strand_modes("up", "flat", pin_loaded=True)["modes_hz"][0]
+        self.assertGreater(pinned, 25.0)
+        # the belt's speed follows the battery at a fixed duty, and the flight rate meets the empty belt's fundamental
+        s = p.lift_speed_range()
+        self.assertLess(s["lo"], 1.0)
+        self.assertGreater(s["hi"], 1.2)
+        f1 = p.lift_strand_modes("down", "flat", loaded_every=0)["modes_hz"][0]   # the empty run-on
+        self.assertTrue(p.lift_strand_excitations(s["lo"])["flight"] < f1 < p.lift_strand_excitations(s["hi"])["flight"])
+        # stretch: held, uniform mass, the first mode is the lumped model's to a few per cent; balls on the up strand
+        # lower the first stuck mode a little and the lumped model's 38 Hz sits above the distributed one
+        held = p.lift_belt_axial_modes(1, stuck=False, balls_on_up=False)["modes_hz"][0]
+        bm = p.lift_belt_model()
+        self.assertAlmostEqual(held, bm["f_belt_hz"], delta=0.04 * bm["f_belt_hz"])
+        st_up = [f for f in p.lift_belt_axial_modes(1)["modes_hz"] if f > 1.0]
+        st_sp = [f for f in p.lift_belt_axial_modes(1, balls_on_up=False)["modes_hz"] if f > 1.0]
+        self.assertLess(st_up[0], st_sp[0])
+        self.assertLess(st_up[0], bm["f_stuck_hz"])
+        # the rule fires on a strand that goes slack
+        self.assertTrue(any("goes slack" in r for r in Feeder(lift_tension_factor=0.3).check_lift_strand()))
+
     def test_lift_drive_shaft_numbers_and_rules(self):
         # 2026-11-15, cad/README.md "Lift drive shaft"
         p = Feeder()
@@ -1460,7 +1516,7 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(t["off_lo_mm"] < t["off_set_mm"] < t["off_hi_mm"])
         # the setting figures: a taut string's fundamental and a mid-span push
         span = d["centre_mm"] / 1000
-        self.assertAlmostEqual(t["ring_hz"], math.sqrt(t["t0_n"] / p.lift_belt_kg_m) / (2 * span))
+        self.assertAlmostEqual(t["ring_hz"], math.sqrt(t["t0_n"] / p.lift_belt_kg_m) / (2 * span))   # bare belt
         self.assertAlmostEqual(t["push_1n_mm"], span * 1000 / (4 * t["t0_n"]))
         self.assertGreater(t["ring_hz_top"], t["ring_hz"])
         self.assertAlmostEqual(t["jack_n"], 2 * (t["t0_n"] + t["strand_weight_n"]) + p.lift_top_kg * 9.81)
