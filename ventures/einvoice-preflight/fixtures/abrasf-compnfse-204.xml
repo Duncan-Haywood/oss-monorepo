@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Made up for the tests: the ABRASF 2.04 NFS-e a municipality would return for
-     abrasf-gerar-nfse-204.xml. Base 850.00, ISS 42.50 (5%), net 1000.00 - 6.50 PIS - 30.00 COFINS
+     abrasf-gerar-nfse-204.xml. Base 850.00, ISS 24.65 (2.90%, São Paulo's rate for item 1), net 1000.00 - 6.50 PIS - 30.00 COFINS
      - 50.00 unconditional discount = 913.50 (ISS not retained, so not deducted). -->
 <CompNfse xmlns="http://www.abrasf.org.br/nfse.xsd">
   <Nfse versao="2.04">
@@ -10,8 +10,8 @@
       <DataEmissao>2026-11-10T14:05:00</DataEmissao>
       <ValoresNfse>
         <BaseCalculo>850.00</BaseCalculo>
-        <Aliquota>5.00</Aliquota>
-        <ValorIss>42.50</ValorIss>
+        <Aliquota>2.90</Aliquota>
+        <ValorIss>24.65</ValorIss>
         <ValorLiquidoNfse>913.50</ValorLiquidoNfse>
       </ValoresNfse>
       <PrestadorServico>
@@ -36,8 +36,8 @@
               <ValorDeducoes>100.00</ValorDeducoes>
               <ValorPis>6.50</ValorPis>
               <ValorCofins>30.00</ValorCofins>
-              <ValorIss>42.50</ValorIss>
-              <Aliquota>5.00</Aliquota>
+              <ValorIss>24.65</ValorIss>
+              <Aliquota>2.90</Aliquota>
               <DescontoIncondicionado>50.00</DescontoIncondicionado>
               <DescontoCondicionado>0.00</DescontoCondicionado>
             </Valores>
