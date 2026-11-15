@@ -36,6 +36,14 @@ repository").
     python3 platform/ci/owner_held_prs.py            # markdown table
     python3 platform/ci/owner_held_prs.py --json     # for scripts
     python3 platform/ci/owner_held_prs.py --grep promptctl   # is my fix already held?
+    python3 platform/ci/owner_held_prs.py --redteam  # which open red-team entries a held PR fixes
+
+`--redteam` exists because on 2026-11-15 three red-team runs each re-checked all
+12 entries `prompts/redteam.py open` lists, by hand, and found every one already
+fixed in a PR waiting on the owner (doc_friction in their run records). It
+matches each entry to held PRs by the PRs it names and the file and identifier
+names it mentions (check_x.py, current_approvers) found in a PR's added lines,
+and flags entries with no held PR, which are the ones a red-team run can fix.
 
 It reads the GitHub REST API with GITHUB_TOKEN when set, and without a token
 otherwise. A cloud session's proxy authenticates the request, so it needs no
@@ -49,6 +57,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -153,6 +162,8 @@ def held(prs: list[dict], files_of, rules, main=NoMain()) -> list[dict]:
             "owned": sorted(f["filename"] for f in owned),
             "on_main": on_main,
             "unowned": len(files) - len(owned),
+            # what the PR adds to its owned files, for --redteam matching (not printed)
+            "added": " ".join(b for f in owned for b in added_blocks(f.get("patch") or "")),
         })
     rows.sort(key=lambda r: (r["created_at"], r["number"]))
     return rows
@@ -236,10 +247,100 @@ def render(rows: list[dict], now: dt.datetime) -> str:
     return "\n".join(lines) + "\n"
 
 
+# --redteam: which open red-team entries already have a fix waiting on the owner.
+# Names in an entry's text that point at code: files (check_x.py, framerate.mjs),
+# identifiers with an underscore (current_approvers) and PR refs (#15945).
+_FILE = re.compile(r"[A-Za-z0-9_.-]+\.(?:py|mjs|js|yml|yaml|json)\b")
+_IDENT = re.compile(r"\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+\b")
+# Workflow and record keywords many held PRs add, so they identify nothing.
+_GENERIC = {"pull_request", "workflow_dispatch", "pull_request_target", "patched_in", "doc_friction"}
+_PR_REF = re.compile(r"(?:PR |#)(\d{3,6})\b")
+
+
+def entry_tokens(entry: dict) -> list[str]:
+    """The distinctive names an open red-team entry mentions, minus the file it is
+    filed under (a wiring entry filed under portfolio-validate.yml would otherwise
+    match every PR that edits that workflow). A compound file stem (check_x) counts
+    too, since a workflow list may add the check without its extension."""
+    text = entry.get("issue") or ""
+    own = Path(entry.get("file") or "").name
+    own_stem = own.rsplit(".", 1)[0] if own else ""
+    out: list[str] = []
+    for name in _FILE.findall(text):
+        stem = name.rsplit(".", 1)[0]
+        if name == own or stem == own_stem:
+            continue
+        out.append(name)
+        if "_" in stem or "-" in stem:  # a bare stem ("report") matches too much
+            out.append(stem)
+    for ident in _IDENT.findall(text):
+        if ident != own_stem and ident not in _GENERIC:
+            out.append(ident)
+    return list(dict.fromkeys(t for t in out if len(t) >= 6))
+
+
+def match_redteam(entries: list[dict], rows: list[dict]) -> list[dict]:
+    """Each open entry with the held PRs that carry its fix: a PR the entry names
+    (#n), or one whose title or added lines contain a name the entry mentions.
+    Best match (most names) first."""
+    by_number = {r["number"]: r for r in rows}
+    out = []
+    for e in entries:
+        tokens = entry_tokens(e)
+        named = [int(n) for n in _PR_REF.findall(e.get("issue") or "") if int(n) in by_number]
+        hits = []
+        for r in rows:
+            hay = r["title"] + " " + r.get("added", "")
+            found = [t for t in tokens if t in hay]
+            if r["number"] in named or found:
+                hits.append({"number": r["number"], "names": found, "named": r["number"] in named,
+                             "on_main": bool(r["on_main"]) and set(r["on_main"]) == set(r["owned"])})
+        hits.sort(key=lambda h: (-h["named"], -len(h["names"]), h["number"]))
+        out.append({**e, "held_in": hits})
+    return out
+
+
+def render_redteam(matched: list[dict]) -> str:
+    if not matched:
+        return "No open red-team entries.\n"
+    held_n = sum(1 for m in matched if m["held_in"])
+    lines = [f"{len(matched)} open red-team entries (prompts/redteam.py open); "
+             f"{held_n} have a fix waiting on the owner in a held PR, "
+             f"{len(matched) - held_n} have none and are a red-team run's to fix.", ""]
+    for m in matched:
+        head = f"- {m['record']} #{m['index']}  {m['file']}"
+        if not m["held_in"]:
+            lines.append(f"{head}\n    NO HELD PR: fix it (redteam prompt, step 0)")
+            continue
+        prs = []
+        for h in m["held_in"][:3]:
+            why = "named in the entry" if h["named"] else ", ".join(h["names"][:3])
+            prs.append(f"#{h['number']} ({why}{'; already on main' if h['on_main'] else ''})")
+        more = f" +{len(m['held_in']) - 3}" if len(m["held_in"]) > 3 else ""
+        lines.append(f"{head}\n    held in {', '.join(prs)}{more}")
+    lines += ["", "A held match is a candidate: read the PR before skipping its entry. Once the owner "
+                  "merges it, set patched: true and patched_in on the entry."]
+    return "\n".join(lines) + "\n"
+
+
+def load_redteam_open() -> list[dict]:
+    """prompts/redteam.py's open list, read without changing that (owner-gated) file."""
+    import importlib.util
+    path = cpg.REPO_ROOT / "prompts" / "redteam.py"
+    spec = importlib.util.spec_from_file_location("redteam", path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["redteam"] = mod  # its dataclasses look their module up
+    spec.loader.exec_module(mod)
+    runs = sorted((cpg.REPO_ROOT / "prompts" / "runs").glob("*.json"))
+    return mod.open_defects([(p.name, json.loads(p.read_text())) for p in runs])
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--json", action="store_true", help="print rows as JSON")
     ap.add_argument("--grep", help="keep PRs whose title or owned files contain this text")
+    ap.add_argument("--redteam", action="store_true",
+                    help="match each open red-team entry to the held PR that carries its fix")
     args = ap.parse_args(argv)
     rules = cpg.parse_codeowners(cpg.CODEOWNERS.read_text())
     try:
@@ -252,6 +353,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.grep:
         g = args.grep.lower()
         rows = [r for r in rows if g in r["title"].lower() or any(g in f.lower() for f in r["owned"])]
+    if args.redteam:
+        matched = match_redteam(load_redteam_open(), rows)
+        print(json.dumps(matched, indent=2) if args.json else render_redteam(matched), end="\n" if args.json else "")
+        return 0
+    for r in rows:
+        r.pop("added", None)
     if args.json:
         print(json.dumps(rows, indent=2))
     else:
