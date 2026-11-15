@@ -518,6 +518,11 @@ export function mulberry32(seed) {
 
 const LIMIT_PENALTY = 1000;
 const NIGHT_GAP_PENALTY = 200;
+// A team in two places at one time is never worth it. It was LIMIT_PENALTY (1000) until 2026-11-15,
+// and one swap touches up to four teams, each with up to `times` idle slots at NIGHT_GAP_PENALTY:
+// at 44 teams on 11 courts x 6 times (seed 2) a swap double-booked a team to save six idle slots.
+// One swap's gap change is at most 4 x times x NIGHT_GAP_PENALTY, far under this.
+const CLASH_PENALTY = 1e7;
 /** Most games one team plays on one night (a doubleheader is 2). */
 export const MAX_GAMES_PER_NIGHT = 4;
 
@@ -555,8 +560,18 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
         if (k === undefined) { later.push(i); return; }
         m.slot = k; open.delete(k); o[k] = i;
       });
-      const rest = openOf[ri].filter((x) => open.has(x));
-      later.forEach((i, j) => { r.matches[i].slot = rest[j]; o[rest[j]] = i; });
+      // matches the layout left over go to the open slots, each to the first one whose time row
+      // holds neither of its teams (2026-11-15: taking them in order double-booked a team at 44
+      // teams on 11 courts x 6 times, seed 2, and the annealing's swaps could not undo it)
+      const rowTeams = new Map();
+      const mark = (i, k) => { const t = Math.floor(k / courtCount); if (!rowTeams.has(t)) rowTeams.set(t, new Set()); rowTeams.get(t).add(r.matches[i].home).add(r.matches[i].away); };
+      r.matches.forEach((m, i) => { if (o[m.slot] === i) mark(i, m.slot); });
+      for (const i of later) {
+        const m = r.matches[i];
+        const free = [...open];
+        const k = free.find((x) => { const s = rowTeams.get(Math.floor(x / courtCount)); return !s || (!s.has(m.home) && !s.has(m.away)); }) ?? free[0];
+        m.slot = k; open.delete(k); o[k] = i; mark(i, k);
+      }
     } else {
       r.matches.forEach((m, i) => { m.slot = openOf[ri][i]; o[m.slot] = i; });
     }
@@ -592,7 +607,7 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
     let clash = 0;
     for (let k = 1; k < ts.length; k++) if (ts[k] === ts[k - 1]) clash++;
     const idle = Math.max(0, ts[ts.length - 1] - ts[0] - (ts.length - 1 - clash));
-    return clash * LIMIT_PENALTY + idle * NIGHT_GAP_PENALTY;
+    return clash * CLASH_PENALTY + idle * NIGHT_GAP_PENALTY;
   };
   if (multi) rounds.forEach((r, ri) => { for (const x of teamIn[ri].keys()) cost += nightCost(ri, x); });
   if (cap <= 1) return cost;

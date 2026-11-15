@@ -334,20 +334,21 @@ flagships:
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections). 2026-11-15 latest: 3-game nights
-      (eval/three-game-nights.txt): designed round robins (halves + cyclic cross at
-      12k teams, XOR at 2^k): 12-48 teams on 6 slots to 0 waits; 8 on 2x6 impossible
-      (full grid); 28 teams in the floor-priced step (eval/under-start.txt). Before:
-      every starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
+      (eval/three-game-nights.txt): SAT-found session designs
+      (eval/session-design-sat.txt, session-designs.mjs): every even 10-48 teams on
+      6 slots to 0 waits, 16 of 19 sizes on 9 slots; 8 on 2x6 and 12 on 2x9 UNSAT;
+      28 teams in the floor-priced step (eval/under-start.txt). Before: every
+      starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
       carry-over 94 at 10 teams, at 12 none below 124; refill search in C: 14 teams
-      210, stored. Next, most valuable first: 6-slot 3-game nights at 14, 18, 20, 28
-      teams (20 on 5x6: two closed tens a night; annealing stops at 2 crossing),
-      3-session designs, and odd leagues by groups; the rest of the 20-team gap (40
-      to 44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or
-      a starter family climbed with the floor as its score); 29-30 teams in the page
-      (15 matches: profile 30 first; 27 teams add nothing on seed 1, README
-      "Starting under the gap"); the walk's last heavy tail (22 teams: 20 of 280
-      walks out of budget either way, eval/walk-guide.txt); home-and-away breaks
-      exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
+      210, stored. Next, most valuable first: 3-game nights for odd leagues by
+      groups (7-13 teams on 6 slots keep waits), 3-session designs at 14, 38, 40, 46
+      (SAT timed out at 300 s); the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 29-30 teams in the page (15
+      matches: profile 30 first; 27 teams add nothing on seed 1, README "Starting
+      under the gap"); the walk's last heavy tail (22 teams: 20 of 280 walks out of
+      budget either way, eval/walk-guide.txt); home-and-away breaks exact since
+      2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
       home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
       PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
       below 132, or 124-130 ruled out; 18 and 24 teams: 318 and 570 are the least
