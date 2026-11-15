@@ -23,7 +23,7 @@ Not found (proves nothing about other round robins):
 13 2x9  | no | 20 starters | 7.7 s | fully booked; whole-season: 100 s
 19 3x9  | no | 42 starters, all 51 patterns each | stopped after ~20 min | fully booked
 25 4x9  | no | patterned starter, 92 patterns | 30.5 s | fully booked
-29 5x9  | see below
+29 5x9  | no | 3 starters (patterned + 2 random), all 126 patterns each, 0 lay out | stopped by timeout at 1700 s | 42 of 45 slots; whole-season: >1500 s
 
 One night of 19 teams on 3 x 9 does exist: eval/odd-night-sat.py 19 --courts 3 --times 9 --shape
 --nights 1 is SAT in 33 s (the first night only, any round robin). So 19 on 3 x 9 is open, not
