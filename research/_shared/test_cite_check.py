@@ -204,5 +204,72 @@ class Retry(unittest.TestCase):
             self.run_get([403, 403])
 
 
+
+
+class OpenAlexFallback(unittest.TestCase):
+    """A refused primary registry is retried on OpenAlex before SKIP (friction 2026-11-10..15)."""
+
+    def run_routes(self, text, routes):
+        import contextlib, io, tempfile, urllib.error
+        seen = []
+        def fake(url):
+            seen.append(url)
+            for prefix, resp in routes.items():
+                if url.startswith(prefix):
+                    if isinstance(resp, int):
+                        raise urllib.error.HTTPError(url, resp, "x", {}, None)
+                    if resp == "conn":
+                        raise urllib.error.URLError("Tunnel connection failed: 403 connect_rejected")
+                    return resp
+            raise AssertionError("unexpected url " + url)
+        old, cite_check._get = cite_check._get, fake
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                path = Path(d) / "README.md"
+                path.write_text(text)
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    rc = cite_check.main([str(path)])
+                cache = (Path(d) / cite_check.CACHE_NAME)
+                return rc, out.getvalue(), seen, cache.read_text() if cache.exists() else ""
+        finally:
+            cite_check._get = old
+
+    OA = '{"title": "Attention Is All You Need", "publication_year": 2017}'
+
+    def test_refused_arxiv_is_found_via_openalex(self):
+        rc, out, seen, cache = self.run_routes("arXiv:1706.03762", {
+            "https://export.arxiv.org/": "conn", "https://api.openalex.org/": self.OA})
+        self.assertEqual(rc, 0)
+        self.assertIn("ok~  arxiv:1706.03762  Attention Is All You Need (2017)", out)
+        self.assertIn("api.openalex.org/works/doi:10.48550/arXiv.1706.03762", seen[-1])
+        self.assertIn('"via": "openalex"', cache)
+
+    def test_refused_crossref_doi_is_found_via_openalex(self):
+        rc, out, seen, _ = self.run_routes("doi:10.1038/nature14539", {
+            "https://api.crossref.org/": 403, "https://api.openalex.org/": '{"title": "Deep learning", "publication_year": 2015}'})
+        self.assertEqual(rc, 0)
+        self.assertIn("ok~  doi:10.1038/nature14539  Deep learning (2015)", out)
+        self.assertTrue(seen[-1].endswith("works/doi:10.1038/nature14539"))
+
+    def test_openalex_404_is_not_a_verdict(self):
+        rc, out, _, _ = self.run_routes("arXiv:1706.03762", {
+            "https://export.arxiv.org/": 403, "https://api.openalex.org/": 404})
+        self.assertEqual(rc, 0)
+        self.assertIn("SKIP", out)
+        self.assertNotIn("FAIL", out)
+
+    def test_openalex_not_asked_when_primary_answers(self):
+        feed = "<feed><entry><title>Attention</title><published>2017-06-12</published></entry></feed>"
+        rc, out, seen, _ = self.run_routes("arXiv:1706.03762", {"https://export.arxiv.org/": feed})
+        self.assertEqual(rc, 0)
+        self.assertFalse(any("openalex" in u for u in seen))
+
+    def test_primary_404_still_fails_without_openalex(self):
+        rc, out, seen, _ = self.run_routes("arXiv:1706.03762", {"https://export.arxiv.org/": 404})
+        self.assertEqual(rc, 1)
+        self.assertFalse(any("openalex" in u for u in seen))
+
+
 if __name__ == "__main__":
     unittest.main()

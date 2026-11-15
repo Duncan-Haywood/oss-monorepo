@@ -11,7 +11,16 @@ with what the README claims the source says. A lookup that fails exits 1:
 the id is mistyped or invented. A host that refuses the lookup (403, 429, 5xx,
 as the cloud proxy sometimes does) or a connection that never completes
 (proxy connect rejected, DNS, timeout) prints SKIP and does not fail the run;
-open the source by hand and say in the README that it was not machine-checked. Citations without a DOI or arXiv id (datasheets, standards, URLs)
+open the source by hand and say in the README that it was not machine-checked.
+
+Before printing SKIP, a refused lookup is retried against OpenAlex
+(api.openalex.org), which indexes Crossref and DataCite DOIs and arXiv ids (as
+10.48550/arXiv.<id>). A hit prints `ok~` with OpenAlex's title and year and
+counts as checked; OpenAlex may list the journal version of an arXiv paper, so
+its year can be later. OpenAlex not knowing an id is not a verdict (its
+coverage is incomplete): that still falls through to `ok*` or SKIP. Run records
+to 2026-11-15 name doi.org, Crossref or arXiv as refused about 60 times across
+246 cite_check runs, while OpenAlex was reachable in sessions that tested it. Citations without a DOI or arXiv id (datasheets, standards, URLs)
 are not checked here: open them.
 
 Every successful lookup is remembered in `cite_check.json` beside the file
@@ -94,6 +103,15 @@ def lookup_arxiv(aid):
     return f"{' '.join(title.split())} ({year.group(1) if year else '?'})"
 
 
+def lookup_openalex(kind, i):
+    """Fallback when the primary registry refuses: OpenAlex by DOI (arXiv ids by their DataCite DOI)."""
+    doi = i if kind == "doi" else "10.48550/arXiv." + i
+    w = json.loads(_get("https://api.openalex.org/works/doi:" + urllib.parse.quote(doi, safe="/:.")))
+    if not w.get("title"):
+        raise ValueError("OpenAlex record has no title")
+    return f"{w['title']} ({w.get('publication_year')})"
+
+
 CACHE_NAME = "cite_check.json"
 
 
@@ -135,7 +153,7 @@ def main(argv):
     if not paths:
         print(__doc__)
         return 2
-    bad = blocked = cached = 0
+    bad = blocked = cached = rescued = 0
     today = datetime.date.today().isoformat()
     for path in paths:
         dois, arxivs = extract(open(path, encoding="utf-8").read())
@@ -171,6 +189,16 @@ def main(argv):
                     print(f"  FAIL {key}  {e}")
                 if reason is None:
                     continue
+                try:
+                    found = lookup_openalex(kind, i)
+                except (urllib.error.URLError, OSError, ValueError, KeyError):
+                    found = None  # refused too, or OpenAlex lacks it: not a verdict on the id
+                if found:
+                    rescued += 1
+                    print(f"  ok~  {key}  {found}  (primary registry unreachable: {reason}; found via OpenAlex)")
+                    if (cache.get(key) or {}).get("title") != found:
+                        cache[key] = {"title": found, "checked": today, "via": "openalex"}
+                    continue
                 hit = cache.get(key) or next((c[key] for c in inherited if key in c), None)
                 if hit:
                     cached += 1
@@ -181,6 +209,8 @@ def main(argv):
         if write and not offline and json.dumps(cache, sort_keys=True) != before:
             save_cache(cpath, cache)
             print(f"  (updated {os.path.relpath(cpath)}: commit it with the README)")
+    if rescued:
+        print(f"{rescued} id(s) marked ok~ were confirmed live via OpenAlex because the primary registry refused the lookup.")
     if cached:
         print(f"{cached} id(s) marked ok* were confirmed by an earlier live lookup ({CACHE_NAME}), not this run.")
     if blocked:
