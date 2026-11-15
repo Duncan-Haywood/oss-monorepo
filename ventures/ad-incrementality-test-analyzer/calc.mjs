@@ -8,8 +8,8 @@ export const pct = (v, d = 1) => (Number.isFinite(v) ? (v * 100).toFixed(d) + "%
 
 const MIN_PRE = 14;
 const MIN_POST = 3;
-const ISO = /^(\d{4})-(\d{1,2})-(\d{1,2})/;
-const US = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+const ISO = /^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/;
+const US = /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?!\d)/;
 
 // Returns a day number (days since 1970-01-01, UTC) or null.
 export function parseDate(s) {

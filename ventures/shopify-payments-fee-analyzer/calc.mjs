@@ -58,7 +58,7 @@ export function parseDate(value) {
   if (m && MONTHS[m[1].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[1].toLowerCase()], d: +m[2] };
   m = s.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?\s+(\d{4})/);
   if (m && MONTHS[m[2].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[2].toLowerCase()], d: +m[1] };
-  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})/);
+  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})(?!\d)/);
   if (m) return { y: +m[3], mo: +m[1] - 1, d: +m[2] };
   return null;
 }
