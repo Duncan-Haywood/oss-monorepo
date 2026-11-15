@@ -1464,7 +1464,10 @@ const COVER_PAIRS_SLOTS = 200;
 // (40-person week 0 32.3 s -> 16.1 s), but the 60-person week still takes 46.8 s against 1.7 s without the price, so the cap stays.
 // `coverPairPriceSlots` moves the cap; above it the price is ignored and the slack line says so.
 const COVER_PAIR_PRICE_SLOTS = 120;
-// Time cap on the pair-priced pass (coverPairMs; CLI --second-callout-seconds). Set from eval/pair-timecap.mjs, see README.
+// Time cap on the pair-priced pass (coverPairMs; CLI --second-callout-seconds), 2026-11-15, README "A time cap on the pair
+// price" (eval/pair-timecap.mjs): a worst-case bound, not a way past the copy cap above. Seeded 20-person weeks finish in 2-3 s
+// and lose nothing; the 60-person week's 88 s search that moved nobody stops at 10 s; but the 40-person week keeps only 22% of
+// its gain at 10 s and the 30-person week none (its first move lands at 80 s), so the copy cap stays at 120.
 const COVER_PAIR_MS = 10000;
 // Checks per pair for the confirming pair walk in the priced pass (2026-11-15, eval/cover-pair-capped.mjs): at 200,000 no pair
 // of the 22 bench rosters (five templates and six seeded 20-40 person weeks, default and priced) was given up on.

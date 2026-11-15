@@ -2347,3 +2347,56 @@ by either pass, so this is four rosters, not a population; the 60-person week wa
 and each reissue up to 20 s, about 10 hours for 100 seeds here); the 30 x 84 weeks 1-5 were stopped unfinished. Next: a time
 cap on the pair pass itself (stop at the build's budget and keep the moves made), so the price can run past 120 copies without
 a 241 s worst case.
+
+## A time cap on the pair price (2026-11-15 later)
+
+"The pair price in played weeks" ended on one next step: put a time cap on the pair pass itself, stopping at a limit and
+keeping the moves made, so `--second-callout-price` can run past 120 shift copies without a 241 s worst case. **The cap
+landed; the 120-copy limit stays**, because on the weeks measured the pass finds most of its gain late.
+
+**What landed.** `coverSlackPass(..., { pairMs })` (build option `coverPairMs`, CLI `--second-callout-seconds`, default
+**10 s**). Each move the pass takes lowers score + price x risk hours + pair price x pair hours, and is confirmed by the full
+walks before it is taken. So a pass stopped between moves posts a roster that is exactly the uncapped pass after its first k
+moves, never worse than where it started. The clock starts with the pass. Once the limit passes, no new move is tried, a
+pair walk under way stops (`coverPairRisk(..., { deadline })`, checked every 16 pairs) and its move is refused, and
+`coverSlack.pairTimedOut` is set. The slack line then says the search stopped at its limit and kept its moves. If the
+starting roster's own pair count does not finish in time (8.5 s of it on the 30-person week below), there is no whole count
+to price against. In that case the pass posts the starting roster with `pairHours` null and `pairStartTimedOut` true, and the
+line says second call-outs were not priced. With no pair price there is no cap and nothing changes.
+
+`node eval/pair-timecap.mjs` (`eval/pair-timecap.out.txt`) builds each seeded week's plain roster once and runs the uncapped
+pass from it ($25 an hour at risk, $1 a pair hour, cuts and confirm on), recording when each move lands. That gives the curve
+a cap would cut. Then it runs the pass at 2, 5 and 10 s caps and checks each capped roster is a prefix of the uncapped one
+(it was, on all twelve runs). "Gain kept" is the share of the uncapped pass's drop in its own objective.
+
+| week (copies) | uncapped pass | moves land at | kept at 2 / 5 / 10 s |
+|---|---|---|---|
+| 20 x 56 week 2 (75) | 4 moves, 2.0 s | 0.39, 0.73, 0.99, 1.53 s | 100% / 100% / 100% |
+| 30 x 84 week 0 (121) | 6 moves, **302 s** | 80, 129, 149, 241, 246, 282 s | 0% / 0% / 0% |
+| 40 x 112 week 0 (149) | 11 moves, 20.4 s | 0.5 s (21%), then 2.6-11.3 s, 7 more by 18.7 s | 21% / 22% / 22% |
+| 60 x 168 week 0 (245) | **0 moves, 88 s** | none | nothing to keep |
+
+The cap holds. Those capped runs started the clock after the starting walks, which is how the hole above was found: the
+30-person week's 10 s cap ran 19.0 s. With the shipped clock, which counts the starting walks (`CAPS_ONLY=1`,
+`eval/pair-timecap-caps.out.txt`), all nine capped runs ended 0.0-0.2 s past their limit. The 30-person week at 2 and 5 s
+was left unpriced, its starting count unfinished. At 10 s the count finished and no move landed. The 40-person week kept 1,
+2 and 2 moves ($107.45, $113.67 and $113.67 of the $508.85 gain).
+
+**What this says.** On the two small weeks the cap costs nothing: 20-person weeks finish in 2-3 s, and the five templates
+in milliseconds. On the 60-person week it saves 78 s of a search that moves nobody. But where a big week does gain, the gain
+comes late: on the 40-person week moves 4-11 (78% of the gain) land between 11 and 19 s, and the 30-person week's first move
+comes at 80 s, after about 105 pair walks over 89,910 pairs (about 1 ms a pair; 89 of the walks were cut off as unable to
+pay). A 10 s cap above 120 copies would mostly spend 10 s to keep a fifth of the gain or none. So the price still switches
+off above 120 copies (`coverPairPriceSlots`). The cap is a worst-case bound for the weeks under it, and any week can be given
+more time: `--second-callout-seconds 300` (or `Infinity`) reproduces the uncapped pass.
+
+Tests (`pair-timecap.test.mjs`; the clock is moved by hand, so they do not depend on the machine's speed): with no limit hit
+the capped pass is the uncapped pass; a stop right after the second move posts exactly the uncapped pass's roster and pair
+hours after two moves, between the start and the end in the objective; a clock spent before the starting count finishes posts
+the starting roster unpriced; `buildRoster` passes `coverPairMs` through and the slack line says which case happened.
+
+Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine, so the times (and what a given cap
+keeps) depend on the machine. A capped result is therefore not reproducible across machines the way an uncapped one is;
+`pairTimedOut` marks it. Next: make the pass find its gain sooner. On the 40-person week 0 the best moves came last and the
+first 80 s of the 30-person week went to moves that were refused, so trying first the candidates whose screen clears the
+most pair hours would let a short cap keep more of the gain.
