@@ -3,6 +3,7 @@
 // caller loads and `save` persists (a JSON file on Node, Durable Object storage on Cloudflare). Requests arrive as a
 // Node-style (req, res) pair; hub-worker.mjs adapts a fetch Request to that shape.
 import { parseStaff, parseShifts, buildRoster, rosterFromOwner, rosterIcs, rosterFeedIcs, rosterMessages, coverOptions, checkTrade, parseAvailabilityReply, mergeAvailabilityReplies, parseTimeOffRequest, addTimeOff, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
+import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zoneOf, localParts, clock } from "./timeclock.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -40,7 +41,7 @@ export function notifier(env, fetchImpl = globalThis.fetch) {
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body, head = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${head}<title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
-export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [] }; }
+export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [], punches: [], punchSeq: 0 }; }
 
 // What staff may see: who works when. Never wages, hour caps or the cost of the week.
 // `owner` (optional) is a roster built in the manager's browser (BUILD_IN_BROWSER): it is checked against every hard
@@ -82,7 +83,15 @@ self.addEventListener("fetch",e=>{const r=e.request,u=new URL(r.url);
 if(r.method!=="GET"||u.pathname!=="/team")return;
 e.respondWith(fetch(r).then(x=>{if(x.ok){const c=x.clone();caches.open(C).then(k=>k.put(r.url,c))}return x}).catch(()=>caches.match(r.url).then(m=>m||new Response("Offline and no saved schedule yet.",{status:503,headers:{"content-type":"text/plain"}}))))});`;
 
-function teamPage(state, token) {
+// The time clock on the staff page (TIME_CLOCK, on unless set to 0): who is on the clock now, and one form to clock in
+// or out. The time recorded is the server's, shown in the site's zone (TIMEZONE, an IANA name; UTC if unset).
+function clockSection(state, token, p, tc) {
+  const on = onTheClock(state.punches, tc.now);
+  const list = [...on.values()].sort((a, b) => a.person.localeCompare(b.person)).map((x) => `${esc(x.person)} since ${esc(clock(localParts(x.at, tc.tz).min))}`).join(", ");
+  return `<h2>Clock in or out</h2><p class="note">On the clock now: ${list || "nobody"}. Times are ${esc(tc.tz)}.</p><form method="post" action="/team/punch?t=${esc(token)}"><label>Who are you?<select name="name" required>${p.people.map((q) => `<option>${esc(q.name)}</option>`).join("")}</select></label><button name="kind" value="in">Clock in</button><button name="kind" value="out">Clock out</button></form><p class="note">The time is taken from the server when you press the button, not from your phone. Forgot to punch? Tell your manager; they can add it, and it is marked as added by them.</p>`;
+}
+
+function teamPage(state, token, tc = null) {
   const p = state.published;
   const form = `<h2>Send your availability</h2><form method="post" action="/team/reply?t=${esc(token)}"><label>One line: <code>Your name | Mon-Fri 9-17; Sat off | max: 30</code><input name="line" required maxlength="300"></label><button>Send</button></form><p class="note">Your manager sees it and decides. Nothing changes until they merge it.</p>`;
   const mine = (p ? p.assignments.filter((a) => a.person) : []).map((a, i) => ({ a, i })).sort((x, y) => x.a.person.localeCompare(y.a.person) || x.a.slot.day - y.a.slot.day || x.a.slot.startMin - y.a.slot.startMin);
@@ -98,9 +107,10 @@ function teamPage(state, token) {
   const names = p ? p.people.map((q) => q.name) : [];
   const off = names.length ? `<h2>Need days off?</h2><form method="post" action="/team/timeoff?t=${esc(token)}"><label>Who are you?<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>First day<input type="date" name="from" required></label><label>Last day (leave blank for one day)<input type="date" name="to"></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Ask my manager</button></form><p class="note">This only asks. If your manager agrees, the days come off your availability when they build that week.</p>` : "";
   if (!p) return page("Team schedule", `<p>No schedule has been published yet.</p>${form}`, teamHead(token));
+  const clockBlock = tc && p.people.length ? clockSection(state, token, p, tc) : "";
   const msgs = rosterMessages({ assignments: p.assignments, people: p.people }, p.weekStart);
   const rows = msgs.map((m) => `<tr><td><strong>${esc(m.person)}</strong></td><td>${esc(m.text.split("\n").slice(1, -1).join(" · ") || "no shifts")}</td><td>${p.weekStart && m.shifts ? `<a href="/team/ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Add to calendar</a><br><a href="/team/feed.ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Live feed</a>` : ""}</td></tr>`).join("");
-  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${claim}${callout}${trade}${off}${form}<p class="note">Calendar: "Live feed" is a link to paste into your calendar app's "add calendar from URL"; it keeps past weeks and updates when your manager publishes again. Tip: add this page to your home screen to open it like an app. It keeps the last schedule your phone saw, so you can read it with no signal.</p>`, teamHead(token));
+  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${clockBlock}${claim}${callout}${trade}${off}${form}<p class="note">Calendar: "Live feed" is a link to paste into your calendar app's "add calendar from URL"; it keeps past weeks and updates when your manager publishes again. Tip: add this page to your home screen to open it like an app. It keeps the last schedule your phone saw, so you can read it with no signal.</p>`, teamHead(token));
 }
 
 // Who could take each reported shift without moving anyone else, cheapest first. Read from the published week itself
@@ -232,7 +242,7 @@ f.addEventListener("submit", async (e) => {
 
 const slotText = (x) => `${esc(DAYS[x.day])} ${esc(fmtClock(x.startMin))}-${esc(fmtClock(x.endMin))}`;
 
-function adminPage(state, key, note = "", browserBuild = false) {
+function adminPage(state, key, note = "", browserBuild = false, clockOn = false) {
   const k = esc(key), p = state.published;
   const calls = calloutRows(state).map(({ c, fits, note: n }, i) => `<tr><td><strong>${esc(c.person)}</strong> cannot make ${esc(DAYS[c.day])} ${esc(fmtClock(c.startMin))}-${esc(fmtClock(c.endMin))}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fits.length ? fits.map((f) => `${esc(f.name)} (${f.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(f.extraCost)))}${f.overtimeAfter > 0 ? ", overtime" : ""})`).join("; ") : "nobody free can take it without changing someone else's week"}</td><td>${fits && fits.length ? `<form method="post" action="/admin/cover?key=${k}"><input type="hidden" name="i" value="${i}">${fits.map((f) => `<button name="name" value="${esc(f.name)}">Give to ${esc(f.name)}</button>`).join(" ")}</form>` : ""}</td></tr>`).join("");
   const callBlock = state.callouts.length ? `<h2>Call-outs (${state.callouts.length})</h2><table><thead><tr><th>Request</th><th>Could cover, cheapest first</th><th></th></tr></thead><tbody>${calls}</tbody></table><form method="post" action="/admin/clear-callouts?key=${k}"><button>Clear call-outs</button></form>` : "";
@@ -259,11 +269,41 @@ ${claimBlock}
 ${offBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
-<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p>`);
+<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded)</p>` : ""}`);
+}
+
+// The manager's timesheet for a published week (the current one or one of the last 12): worked time beside the
+// schedule, with the flags a payroll check needs, a missed-punch form and a CSV for payroll.
+export function weeksOf(state) {
+  const p = state.published;
+  return [...(p && p.weekStart ? [p] : []), ...[...(state.history || [])].reverse()].filter((w) => w.weekStart);
+}
+function timesheetPage(state, key, tc, weekStart, note = "") {
+  const k = esc(key), weeks = weeksOf(state), week = weeks.find((w) => w.weekStart === weekStart) || weeks[0];
+  if (!week) return page("Timesheet", `${note}<p>Set the week's Monday and publish it first; the timesheet reads punches against the published week.</p><p><a href="/admin?key=${k}">Back to admin</a></p>`);
+  const ts = timesheet(state.punches, week, { tz: tc.tz, nowMs: tc.now, graceMin: tc.grace });
+  const pick = weeks.length > 1 ? `<form method="get" action="/admin/timesheet"><input type="hidden" name="key" value="${k}"><label>Week<select name="week">${weeks.map((w) => `<option${w.weekStart === week.weekStart ? " selected" : ""}>${esc(w.weekStart)}</option>`).join("")}</select></label><button>Show</button></form>` : "";
+  const DAYN = DAYS;
+  const sum = ts.people.map((x) => `<tr><td><strong>${esc(x.name)}</strong></td><td>${x.workedH.toFixed(2)}</td><td>${x.scheduledH.toFixed(2)}</td><td>${(x.workedH - x.scheduledH >= 0 ? "+" : "") + (x.workedH - x.scheduledH).toFixed(2)}</td><td>${[x.overH > 0 ? `<span class="err">${x.overH.toFixed(2)} h over ${ts.overtimeAfter}</span>` : "", x.noShow.length ? `<span class="err">no punch:</span> ${x.noShow.map((n) => `${esc(DAYN[n.day])} ${esc(fmtClock(n.startMin))}`).join(", ")}` : "", x.missing.length ? `<span class="err">${x.missing.length} punch(es) unpaired</span>` : ""].filter(Boolean).join("; ")}</td></tr>`).join("");
+  const det = ts.people.flatMap((x) => [
+    ...x.rows.map((r) => { const i = ts.local(r.inAt), o = r.outAt != null ? ts.local(r.outAt) : null; return `<tr><td>${esc(x.name)}</td><td>${esc(i.date)}</td><td>${esc(i.time)}</td><td>${o ? esc(o.time) : ""}</td><td>${r.open ? "" : (r.minutes / 60).toFixed(2)}</td><td>${r.shift ? `${esc(DAYN[r.shift.day])} ${esc(fmtClock(r.shift.startMin))}-${esc(fmtClock(r.shift.endMin))}` : ""}</td><td>${esc(r.flags.join("; "))}</td></tr>`; }),
+    ...x.missing.map((m) => { const t = ts.local(m.at); return `<tr><td>${esc(x.name)}</td><td>${esc(t.date)}</td><td>${m.kind === "no-out" ? esc(t.time) : ""}</td><td>${m.kind === "no-in" ? esc(t.time) : ""}</td><td></td><td></td><td class="err">${m.kind === "no-out" ? "missing clock-out" : "missing clock-in"}</td></tr>`; }),
+  ]).join("");
+  const names = [...new Set([...(state.published ? state.published.people.map((q) => q.name) : []), ...ts.people.map((x) => x.name)])];
+  const recent = [...(state.punches || [])].sort((a, b) => b.at - a.at).slice(0, 30).map((x) => { const t = ts.local(x.at); return `<tr><td>${esc(x.person)}</td><td>${x.kind === "in" ? "in" : "out"}</td><td>${esc(t.date)} ${esc(t.time)}</td><td>${x.by === "manager" ? "manager" : "staff"}</td><td><form method="post" action="/admin/punch-remove?key=${k}"><input type="hidden" name="id" value="${x.id}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><button>Remove</button></form></td></tr>`; }).join("");
+  return page(`Timesheet, week of ${week.weekStart}`, `${note}${pick}<p class="note">Times are ${esc(ts.tz)} (set TIMEZONE to your site's zone, for example America/Chicago). Late and early flags allow ${ts.graceMin} min (TIME_GRACE_MIN). Hours over ${ts.overtimeAfter} are a number to check, not an overtime calculation: daily overtime, breaks and rounding depend on where you are.</p>
+<table><thead><tr><th>Person</th><th>Worked h</th><th>Scheduled h</th><th>Difference</th><th>Check</th></tr></thead><tbody>${sum || `<tr><td colspan="5">No punches or shifts this week.</td></tr>`}</tbody></table>
+<p><a href="/admin/timesheet.csv?key=${k}&amp;week=${esc(week.weekStart)}">Download CSV for payroll</a> · <a href="/admin?key=${k}">Back to admin</a></p>
+<h2>Every stretch worked</h2><table><thead><tr><th>Person</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Scheduled shift</th><th>Flags</th></tr></thead><tbody>${det}</tbody></table>
+<h2>Add a missed punch</h2><form method="post" action="/admin/punch-add?key=${k}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><label>Person<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>Date<input type="date" name="date" required></label><label>Time (HH:MM, ${esc(ts.tz)})<input name="time" required placeholder="09:00" maxlength="5"></label><button name="kind" value="in">Add clock-in</button><button name="kind" value="out">Add clock-out</button></form><p class="note">Added punches are marked "added by manager" here and in the CSV, so the record shows what was typed in later.</p>
+<h2>Latest punches</h2><table><thead><tr><th>Person</th><th></th><th>When</th><th>By</th><th></th></tr></thead><tbody>${recent}</tbody></table>`);
 }
 
 export function handler(state, save, env = globalThis.process?.env ?? {}, now = Date.now, fetchImpl = globalThis.fetch) {
   const adminKey = env.ADMIN_KEY || "", teamToken = env.TEAM_TOKEN || "", browserBuild = !!env.BUILD_IN_BROWSER;
+  const clockOn = String(env.TIME_CLOCK ?? "1") !== "0", tz = zoneOf(env.TIMEZONE);
+  const grace = Math.max(0, Math.min(60, Number(env.TIME_GRACE_MIN ?? 5) || 0));
+  const tcNow = () => ({ tz, grace, now: now() });
   const notify = notifier(env, fetchImpl);
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
@@ -284,7 +324,7 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
     const back = (dest, note) => send(303, "", "text/plain", { location: dest + (note ? `&note=${encodeURIComponent(note)}` : "") });
     const t = url.searchParams.get("t");
     if (isTeam) {
-      if (req.method === "GET" && url.pathname === "/team") return send(200, teamPage(state, t));
+      if (req.method === "GET" && url.pathname === "/team") return send(200, teamPage(state, t, clockOn ? tcNow() : null));
       if (req.method === "GET" && url.pathname === "/team/manifest.webmanifest") return send(200, manifestFor(t), "application/manifest+json");
       if (req.method === "GET" && url.pathname === "/team/icon.svg") return send(200, ICON_SVG, "image/svg+xml");
       if (req.method === "GET" && url.pathname === "/team/sw.js") return send(200, SW_JS, "text/javascript; charset=utf-8", { "service-worker-allowed": "/team" });
@@ -297,6 +337,15 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
         const p = state.published, person = url.searchParams.get("person");
         if (!p || !p.weekStart || !p.people.some((x) => x.name === person)) return send(404, "no such schedule\n", "text/plain");
         return send(200, rosterFeedIcs([...(state.history || []), { weekStart: p.weekStart, assignments: p.assignments }], person, { name: person + "'s shifts" }), "text/calendar; charset=utf-8");
+      }
+      if (req.method === "POST" && url.pathname === "/team/punch" && clockOn) {
+        const p = state.published, person = String(form.get("name") || ""), kind = String(form.get("kind") || "");
+        const bad = (m) => send(400, page("Could not record that", `<p class="err">${esc(m)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
+        if (!p || !p.people.some((q) => q.name === person)) return bad("Pick your name from the list.");
+        const r = punch(state, person, kind, now(), { tz });
+        if (r.error) return bad(r.error);
+        save();
+        return send(200, page("Recorded", `<p class="ok">${esc(person)} clocked ${kind === "in" ? "in" : "out"} at ${esc(clock(localParts(r.punch.at, tz).min))} (${esc(tz)}).</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
       }
       if (req.method === "POST" && url.pathname === "/team/reply") {
         const line = String(form.get("line") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 300);
@@ -369,7 +418,29 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
     const here = `/admin?key=${encodeURIComponent(adminKey)}`;
     if (req.method === "GET" && url.pathname === "/admin") {
       const note = url.searchParams.get("note");
-      return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", browserBuild));
+      return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", browserBuild, clockOn));
+    }
+    if (clockOn && req.method === "GET" && url.pathname === "/admin/timesheet") {
+      const note = url.searchParams.get("note");
+      return send(200, timesheetPage(state, adminKey, tcNow(), url.searchParams.get("week"), note ? `<p class="ok">${esc(note)}</p>` : ""));
+    }
+    if (clockOn && req.method === "GET" && url.pathname === "/admin/timesheet.csv") {
+      const weeks = weeksOf(state), w = weeks.find((x) => x.weekStart === url.searchParams.get("week")) || weeks[0];
+      if (!w) return send(404, "no published week\n", "text/plain");
+      const c = tcNow();
+      return send(200, timesheetCsv(timesheet(state.punches, w, { tz: c.tz, nowMs: c.now, graceMin: c.grace })), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="timesheet-${w.weekStart}.csv"` });
+    }
+    const sheet = `/admin/timesheet?key=${encodeURIComponent(adminKey)}&week=${encodeURIComponent(String(form.get("week") || ""))}`;
+    if (clockOn && req.method === "POST" && url.pathname === "/admin/punch-add") {
+      const r = addPunch(state, { person: String(form.get("name") || ""), date: String(form.get("date") || ""), time: String(form.get("time") || "").trim(), kind: String(form.get("kind") || "") }, tz, now());
+      if (r.error) return back(sheet, "Not added: " + r.error);
+      save();
+      return back(sheet, `Added a clock-${r.punch.kind} for ${r.punch.person}.`);
+    }
+    if (clockOn && req.method === "POST" && url.pathname === "/admin/punch-remove") {
+      const ok = removePunch(state, form.get("id"));
+      if (ok) save();
+      return back(sheet, ok ? "Punch removed." : "That punch is gone.");
     }
     if (req.method === "POST" && url.pathname === "/admin/save") {
       state.staff = String(form.get("staff") || ""); state.shifts = String(form.get("shifts") || ""); state.weekStart = String(form.get("weekStart") || "").trim();

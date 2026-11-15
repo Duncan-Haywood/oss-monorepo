@@ -29,7 +29,12 @@
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "dataclass field name clash (petg_e_mpa) silently overrode an existing parameter",
+      "fix": "renamed to petg_hoop_e_mpa; caught by reading the manifest diff"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -49,7 +54,7 @@
     "docs/posts/2026-11-15-a-test-ring-before-the-bearing-pocket.md"
   ],
   "goal": null,
-  "notes": "Targeted tests: 6 passed (bearing_fit numbers and geometry, lift shaft, collisions). Ran the feeder package regeneration (exit 0) and the full cad pytest suite in this session; results are in the PR's final commit message. All the model's figures are assumptions (printed holes 0.15 mm small, PETG at 2 GPa, mu 0.3). No disc has been printed.",
+  "notes": "Full cad suite: 132 passed in 310 s (venv, build123d 0.13.0), including the committed feeder package's freshness test after regenerating it (exit 0). Caught in this session: my first cut redefined the existing petg_e_mpa (1500, the retainer's bending modulus) to 2000, which silently moved retain_pass_n 16.7 to 22.2 N in the manifest. Renamed to petg_hoop_e_mpa; the manifest diff now shows only the new parameters and files. All model figures are assumptions; no disc has been printed.",
   "corrections": [],
   "redteam": null
 }
