@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "First Python edit referenced AEAT codes 1278-1280 taken from a library copy of the error list; the official file (fetched minutes later) no longer lists them. Caught by checking every referenced code against the official file; fixed before commit.",
-    "Wrote '16 November 2026' in page copy (UTC date was 2026-11-15); caught with date -u and corrected before commit."
+    "Wrote '16 November 2026' in page copy (UTC date was 2026-11-15); caught with date -u and corrected before commit.",
+    "build-verifactu-errors.mjs used a file:// string entry guard; venture-preflight (check_cli_entry.py) caught it; switched to pathToFileURL before merge."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -50,7 +51,7 @@
     "ventures/einvoice-preflight/eval/verifactu-aeat-codes-2026-11-15.md"
   ],
   "goal": null,
-  "notes": "Flagship row 3 (einvoice-preflight), item 'AEAT error codes' from next:. AEAT's errores.properties (247 codes, sha256 06519ceb...) kept intact; VF-029..042 added; verifactu-response.mjs reads AEAT replies and SOAP faults; 113/203 record codes mapped. Verification: run_venture_tests.py einvoice-preflight: 2558 tests pass; post front matter/links/similarity clean; venture-preflight run in background (result in PR). No agent doc in docs/reports: the eval file and flagship next: carry what the next run needs.",
+  "notes": "Flagship row 3 (einvoice-preflight), item 'AEAT error codes' from next:. AEAT's errores.properties (247 codes, sha256 06519ceb...) kept intact; VF-029..042 added; verifactu-response.mjs reads AEAT replies and SOAP faults; 113/203 record codes mapped. Verification: run_venture_tests.py einvoice-preflight: 2558 tests pass; post front matter/links/similarity clean; venture-preflight first run failed only on check_cli_entry (229/231 checks); fixed, rerun. No agent doc in docs/reports: the eval file and flagship next: carry what the next run needs.",
   "corrections": [],
   "redteam": null,
   "usage": {

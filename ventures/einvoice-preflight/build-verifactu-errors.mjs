@@ -11,6 +11,7 @@
 //   node build-verifactu-errors.mjs --check    exits 1 when the data file is stale
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 
 const SRC = new URL("./fixtures/verifactu/aeat-errores.properties", import.meta.url);
 const OUT = new URL("./verifactu-errors-data.mjs", import.meta.url);
@@ -54,7 +55,7 @@ ${rows}
 `;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const out = render(readFileSync(SRC));
   if (process.argv.includes("--check")) {
     if (readFileSync(OUT, "utf8") !== out) { console.error("verifactu-errors-data.mjs is stale: run node build-verifactu-errors.mjs"); process.exit(1); }
