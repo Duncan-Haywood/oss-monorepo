@@ -500,6 +500,22 @@ describe("blockAgreementDrop", () => {
     expect(blockAgreementDrop([...before.slice(0, 7), ...after], 7, rating)).toBe(0);
     expect(blockAgreementDrop([...before, ...after], 30, new Map([["i1", 1500], ["i2", 1500]]))).toBe(0);
   });
+  it("with lapse weighting equals the flat score when every gap is the same, and counts a flip on a clear pair more", () => {
+    const before = Array.from({ length: 30 }, (_, k) => pair(k, k % 5 !== 0));
+    const flips = Array.from({ length: 30 }, (_, k) => pair(k, k % 2 === 0));
+    expect(blockAgreementDrop([...before, ...flips], 30, rating, "lapse")).toBeCloseTo(blockAgreementDrop([...before, ...flips], 30, rating), 9);
+    // Mixed gaps: neighbours (gap 40) and the two ends (gap 360). The same number of disagreements after the split,
+    // landing on the clear end pair instead of a close one, reads as a larger drop under lapse weighting only.
+    const far = (agree: boolean) => ({ itemAId: "i0", itemBId: "i9", result: agree ? "B" : "A" });
+    const early = Array.from({ length: 20 }, (_, k) => (k % 2 ? far(true) : pair(k, k % 4 !== 0)));
+    const closeMiss = Array.from({ length: 20 }, (_, k) => (k % 2 ? far(true) : pair(k, k % 4 === 0 ? false : k % 4 !== 2)));
+    const farMiss = Array.from({ length: 20 }, (_, k) => (k % 2 ? far(k % 4 !== 1) : pair(k, k % 4 !== 0)));
+    const flatClose = blockAgreementDrop([...early, ...closeMiss], 20, rating), flatFar = blockAgreementDrop([...early, ...farMiss], 20, rating);
+    const lwClose = blockAgreementDrop([...early, ...closeMiss], 20, rating, "lapse"), lwFar = blockAgreementDrop([...early, ...farMiss], 20, rating, "lapse");
+    expect(flatFar).toBeCloseTo(flatClose, 9);
+    expect(lwFar).toBeGreaterThan(lwClose + 0.5);
+    expect(() => blockAgreementDrop(early, 10, rating, "bogus" as "flat")).toThrow();
+  });
 });
 
 describe("stepOverWalk", () => {
