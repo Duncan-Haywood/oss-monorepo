@@ -137,3 +137,27 @@ def test_survey_sees_only_surveyed_ties(setup):
     s, est, seen = sd.survey(v, 0.25, np.random.default_rng(0))
     assert (seen[np.ix_(~s, ~s)] == 0).all()
     assert (est[s] == v.deg[s]).all()
+
+
+@pytest.mark.parametrize("name", ["I", "T", "R"])
+def test_batch_shift_matches_complex_simulate(setup, name):
+    """Milestone 6: a per-run random effect gives the same draws as complex.simulate's shift."""
+    V, beta = setup
+    mod = sd.MODELS[name]
+    for v in V[:2]:
+        z = 0.5 * np.random.default_rng([9, v.village]).standard_normal(15)
+        a = cx.simulate(v, beta, mod["qN"], mod["qP"], 15, np.random.default_rng([4, v.village]),
+                        gamma=mod.get("gamma", 0.0), theta=mod.get("theta"),
+                        delta=mod.get("delta", 0.0), shift=z)
+        X = np.stack([v.leader, v.leader], 1)
+        b = sd.simulate_batch(v, beta, X, 15, np.random.default_rng([4, v.village]),
+                              return_matrix=True, shift=z, **mod)
+        assert (a == b[:, :15]).all() and (a == b[:, 15:]).all()
+
+
+@pytest.mark.parametrize("p", [0.0, 0.01, 0.3])
+def test_degree_discount_budget_any_p(setup, p):
+    V, _ = setup
+    for v in V[:3]:
+        b = int(v.leader.sum())
+        assert sd.rule_degree_discount(v, b, p=p).sum() == b

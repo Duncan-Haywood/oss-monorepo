@@ -26,15 +26,21 @@ MODELS = {
 
 def simulate_batch(v: bcdj.Village, beta, seeds, S: int, rng, qN: float, qP: float,
                    gamma: float = 0.0, theta: float | None = None, delta: float = 0.0,
-                   return_matrix: bool = False, fast: bool = False):
+                   return_matrix: bool = False, fast: bool = False, shift=None):
     """seeds: n x C bool. Returns C x S adopter counts (or the n x C*S adoption matrix,
     column c*S + s for seed set c and run s, if return_matrix). fast: float32 products
-    (greedy search only; final scores use float64, which matches `complex.simulate`)."""
+    (greedy search only; final scores use float64, which matches `complex.simulate`).
+    shift: optional village random effect on the logit (as `complex.simulate`'s shift;
+    milestone 6): length S, one value per run shared by every seed set, or length C*S, one
+    per column."""
     seeds = np.asarray(seeds, bool)
     if seeds.ndim == 1:
         seeds = seeds[:, None]
     n, C = seeds.shape
     base = (beta[0] + delta + v.Z @ beta[1:])[:, None]
+    if shift is not None:
+        z = np.asarray(shift, float)
+        base = base + (z if len(z) == C * S else np.tile(z, C))[None, :]
     U = np.tile(rng.random((n, S)), (1, C))
     contagious = np.repeat(seeds, S, axis=1)
     informed = np.zeros((n, C * S), bool)
