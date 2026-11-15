@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { AGENT_BLOG, autoSeoTitle, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, rankRelated, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, autoSeoTitle, BLOG, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -66,7 +66,7 @@ test('no posts directory means no posts, not an error', () => {
 test('build writes an index, one page per post and a feed, each with a disclaimer', async () => {
   const root = repoWith({ '2026-10-16-hello.md': post('Hello <world>', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
-  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'podcast']);
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'topic/tools', 'podcast']);
   const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'hello/index.html'), 'utf8');
   const feed = await fs.readFile(path.join(out, WRITING_PATH, 'feed.xml'), 'utf8');
@@ -230,7 +230,8 @@ test('the index can be searched and filtered: finder, card data, full-text index
   const search = JSON.parse(await fs.readFile(path.join(w, 'search.json'), 'utf8'));
   assert.match(search.older, /zlib level nine/);
   const older = await fs.readFile(path.join(w, 'older/index.html'), 'utf8');
-  assert.match(older, /<a class="topic" href="\.\.\/\?topic=research">Research findings<\/a>/);
+  assert.match(older, /<a class="topic" href="\.\.\/topic\/research\/">Research findings<\/a>/);
+  assert.match(older, /<a href="\.\.\/topic\/research\/">More in Research findings<\/a>/);
   assert.match(older, /<a class="tag" href="\.\.\/\?tag=agents">agents<\/a>/);
   assert.match(older, /<a href="\.\.\/newer\/" rel="next" class="next"><span class="dir">Newer →<\/span>Newer<\/a>/);
   // The pager runs both ways: the newest post links back to the older one, the oldest has no back link.
@@ -249,7 +250,7 @@ test('the agent-to-agent blog publishes pages, raw Markdown with absolute links,
   mkdirSync(path.join(root, 'docs/agent-posts'), { recursive: true });
   writeFileSync(path.join(root, 'docs/agent-posts/2026-10-21-for-you.md'), post('For you, agent', '2026-10-21').replace('[link](../../README.md)', '[link](../reports/x.md)'));
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-agents-'));
-  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'podcast', 'agents', 'agents/for-you']);
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'topic/tools', 'podcast', 'agents', 'agents/for-you']);
   const a = path.join(out, WRITING_PATH, 'agents');
   const index = await fs.readFile(path.join(a, 'index.html'), 'utf8');
   const page = await fs.readFile(path.join(a, 'for-you/index.html'), 'utf8');
@@ -590,4 +591,54 @@ test('finder: topic chips are one sideways row on a phone, faded at the end that
   assert.equal(row.dataset.fade, 'start');
   row.scrollWidth = 356; row.scrollLeft = 0; handlers.scroll();
   assert.equal(row.dataset.fade, undefined, 'no fade when every chip fits');
+});
+
+test('each topic has its own crawlable page: title, description, list, pager, sitemap slug, links in', async () => {
+  const files = { '2026-10-01-a-finding.md': post('A finding', '2026-10-01', 'topic: research\n') };
+  // One more agents post than a page holds, so the agents topic has a page 2.
+  for (let i = 0; i <= WRITING_PAGE_SIZE; i++) {
+    const d = `2026-09-${String((i % 28) + 1).padStart(2, '0')}`;
+    files[`${d}-note-${i}.md`] = post(`Note ${i}`, d, 'topic: agents\n');
+  }
+  const root = repoWith(files);
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-topic-'));
+  const slugs = await buildWriting(out, BASE, { root });
+  const w = path.join(out, WRITING_PATH);
+  // In the sitemap: each topic with a post, page 1 only; no page for an empty topic.
+  assert.ok(slugs.includes('topic/research') && slugs.includes('topic/agents'));
+  assert.ok(!slugs.includes('topic/stories') && !slugs.some((s) => s.startsWith('topic/agents/page')));
+  await assert.rejects(fs.access(path.join(w, 'topic/stories')));
+  const research = await fs.readFile(path.join(w, 'topic/research/index.html'), 'utf8');
+  const seo = TOPICS.find((t) => t.id === 'research').seo;
+  assert.match(research, new RegExp(`<title>${seo}`));
+  assert.match(research, /<h1>Research findings<\/h1>/);
+  assert.match(research, /<link rel="canonical" href="https:\/\/example\.test\/site\/writing\/topic\/research\/">/);
+  assert.match(research, /"@type":"CollectionPage"/);
+  assert.match(research, /"@type":"BreadcrumbList"/);
+  assert.match(research, /<a href="\.\.\/\.\.\/a-finding\/">A finding<\/a>/);
+  assert.doesNotMatch(research, /note-0/, 'only the topic\'s own posts');
+  assert.doesNotMatch(research, /<span class="topic">/, 'no topic pill repeated on every card');
+  assert.doesNotMatch(research, /noindex/);
+  assert.match(research, /<span aria-current="page">Research findings <span class="n">1<\/span><\/span>/);
+  assert.match(research, /<a href="\.\.\/\.\.\/topic\/agents\/">Building with AI agents <span class="n">51<\/span><\/a>/);
+  // Page 2 of a long topic: noindex, its own canonical, links back up.
+  const agents2 = await fs.readFile(path.join(w, 'topic/agents/page/2/index.html'), 'utf8');
+  assert.match(agents2, /<meta name="robots" content="noindex">/);
+  assert.match(agents2, /href="https:\/\/example\.test\/site\/writing\/topic\/agents\/page\/2\/"/);
+  assert.match(agents2, /<a href="\.\.\/\.\.\/\.\.\/\.\.\/note-\d+\/">/);
+  // The blog index links every topic page, outside the script-only finder.
+  const index = await fs.readFile(path.join(w, 'index.html'), 'utf8');
+  assert.match(index, /<nav class="topic-nav"[^>]*><h2 id="topic-nav-h">Browse by topic<\/h2><ul><li><a href="topic\/agents\/">/);
+});
+
+test('every topic page title fits a search result and every description a snippet', () => {
+  for (const t of TOPICS) {
+    assert.ok(t.seo && t.seo.length <= TITLE_BUDGET, `${t.id}: seo title "${t.seo}" over ${TITLE_BUDGET}`);
+    assert.ok(t.blurb.length <= 160, `${t.id}: blurb over 160 characters`);
+  }
+});
+
+test('a post may not take the slug "topic", which holds the topic pages', () => {
+  const root = repoWith({ '2026-10-01-topic.md': post('Topic', '2026-10-01') });
+  assert.throws(() => loadPosts(root), /topic/);
 });
