@@ -3426,6 +3426,59 @@ Still open: a real series with documented carry-forward to check a call against 
 is simulated); clumped carry-forward (T3) is the cell to improve. Tests: `rounded-walk-heavy.test.mjs`,
 `rounded-walk.test.mjs`, `update-rate-catchup.test.mjs`.
 
+### One-tick stale feeds: clumped carry-forward (2026-11-15, pre-registered round five; ships)
+
+Round four's weak cell was T3, the clumped stale feed (once it repeats, it repeats again with
+probability 0.7; after a fresh value, 0.2): 81.3%, just over the 80% bar. Its M1 carries each step forward
+with one probability, so it expects runs of repeats to be short and geometric; a feed that sits for
+several steps at a time looks to it more like a slow walk. Round five changes only M1. It is now a
+**Markov carry-forward**: one chance to start repeating after a fresh record (`pEnter`), another to keep
+repeating after a carried one (`pStay`). Whether the last record was carried is hidden too, since a
+repeat may be rounding, so the forward filter runs over the hidden value and that flag
+(`roundedWalkLogLikMarkov` in `rounded-walk.mjs`). With `pStay = pEnter` it is round four's M1 exactly (a
+test checks the likelihoods agree to 1e-9). It is fitted from round four's M1, for each degree of freedom
+in round four's grid, so its statistic is never below round four's. Steps, grid, trim and the one-tick
+test are all round four's.
+
+**The threshold had to come from simulation.** Under M0 (`pEnter = 0`), `pStay` is not identified, so the
+chi-square boundary mix behind 5.41 no longer holds. The rule, committed with the code before anything
+ran (`eval/update-rate-stale-lr-5.mjs`, commit 4cd7a9b45, with a 10-series smoke run in its message),
+set tau on the null cells only (R1-R3, X1, X2) of a new calibration seed, 31. Tau is the smallest value at
+which no null cell has more than 2% of its one-tick series at or above it, and never below 5.41. No stale
+cell was run on that seed. X1, the heavy-tailed walk, was the binding cell, and **tau = 6.56**
+(`eval/update-rate-stale-lr-5-calibration.out.txt`; the first calibration run crashed in its table printer
+after the fits and was rerun unchanged on the same seed). Then one confirmation on fresh seed 20261217
+with round four's K1-K4, plus a K5: T3 at 85% or more, and at least 5 points above round four's rule on the
+same series. Round four's statistic comes out of the same fit, so the comparison uses identical stretches.
+200 series a cell, 1,619 s on four threads:
+
+| seed 20261217, change nearest step 150 | called stale, Markov (LR >= 6.56) | round four (LR >= 5.41), same series | rule |
+|---|---|---|---|
+| R1 / R2 / R3, rounded walks | 1.0% / 0.0% / 0.0% | 0.5% / 0 / 0 | <= 5% each: pass |
+| T1 / T2 / T3, one-tick stale feeds | 98.6% / 100% / **96.8%** (60 of 62) | 97.8% / 100% / 80.6% (50 of 62) | >= 80% each: pass; T3 >= 85% and +5 points: pass |
+| F1-F3, rounding <= 5% | 0 / 0 / 0 | 0 / 0 / 0 | pass |
+| X1 heavy-tailed walk / X2 mean-reverting | 1.5% / 0.0% | 2.0% / 0.0% | <= 10% each: pass |
+| X3 heavy-tailed walk carried forward (not judged) | 81.5% | 83.5% | reported |
+
+**Verdict: ships.** `CATCHUP` is now `{ method: 'lr', test: staleTestMarkov, trim: 'range', lr: 6.56 }`.
+The update-rate line names the clumping it found ("carried forward in runs (after a fresh value the next
+repeats about A% of the time, after a repeat about B%)") and the threshold with what it means ("against
+6.6, which about 2% of rounded slow series clear in simulation"). Each change also carries `staleLRIid`
+(round four's statistic), `staleEnter` and `staleStay`. Rounds one to four still reproduce when their
+options are passed.
+
+What it costs: X3, a heavy-tailed stale feed with no clumping, falls 2 points (167 to 163 of 200), because
+the threshold is higher. The test takes about three times as long as round four's (four extra fits a
+degree of freedom; 2.7 s against 0.9 s a series on these cells). It still runs only on stretches that
+pass the one-tick test. On the juice file, `ppi` stays rounding. On the rounding check's own seed (20261212, `eval/update-rate-rounding.mjs`), 2 of
+200 R1 walks now read as catch-ups (198 rounding, Q1 still passes); that file predates the catch-up, so its
+test now reproduces it with the catch-up off.
+
+Still open: a real series with documented carry-forward to check a call against (all the evidence here
+is simulated), and a faster fit (the Markov ascent could skip the degrees of freedom that round four's
+M1 already places far behind). Tests: `rounded-walk-markov.test.mjs`, `rounded-walk-heavy.test.mjs`,
+`rounded-walk.test.mjs`.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other

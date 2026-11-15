@@ -320,14 +320,32 @@ def plan_audit_pre7ar(*args, **kw):
     return plan_audit(*args, **kw)
 
 
-def audit_interval(plan, f_all, labels, z=1.959964):
+def audit_interval(plan, f_all, labels, z=1.959964, rare_fallback=None):
     """The interval that closes `plan_audit`: (estimate, low, high) for the corpus prevalence. labels: {item index:
     human 0/1} for the pilot plus the items drawn from `to_label`. Estimator of 6ac and 6ad: one control-variate weight
     lambda = cov(y, f) / var(f) clipped to [0, 1], pooled over the audited items, applied in every cell; the stratified
     variance (with finite-population correction); then a Wilson interval on n_eff = p(1-p) / se^2 labels. Needs at
     least two labelled items in each cell. A cells plan made with pseudo > 0 floors each cell's variance at
-    `pseudo_var` of its audited labels (LOG.md 7am); a pooled plan never does."""
+    `pseudo_var` of its audited labels (LOG.md 7am); a pooled plan never does.
+
+    Rare categories (LOG.md 7av): with a handful of human positives in the audit the pooled interval is not valid
+    (GoEmotions grief, 0.09%, covered 1.6% at n 200 and 58% at n 1,000; nervousness, 0.28%, 72% at n 500), because
+    se is estimated from those few positives and collapses when there are none. rare_fallback=m (off by default; the
+    7av decision rule kept it off because it costs 4% of the width gain where the interval was already valid) closes a
+    pooled plan whose labels hold fewer than m positives with a Wilson interval on the labels alone (x of a, no coder,
+    no finite-population correction), point estimate unchanged; m = 5 covered 93.6% or more in all 21 cells under 1%
+    prevalence. Use it whenever the audit may hold under about 5 positives."""
     import math
+    if rare_fallback and not plan.get("two_phase") and len(plan["cells"]) == 1:
+        est, lo, hi = audit_interval(plan, f_all, labels, z)
+        y = [labels[i] for i in plan["cells"][0] if i in labels]
+        x, a = sum(y), len(y)
+        if x < rare_fallback:
+            q, z2 = x / a, z * z
+            d = 1 + z2 / a
+            mid, half = (q + z2 / (2 * a)) / d, z * math.sqrt(q * (1 - q) / a + z2 / (4 * a * a)) / d
+            return est, max(0.0, mid - half), min(1.0, mid + half)
+        return est, lo, hi
     if plan.get("two_phase"):
         return _two_phase_interval(plan, labels, z)
     cells = plan["cells"]

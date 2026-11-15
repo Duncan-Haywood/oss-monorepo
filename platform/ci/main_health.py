@@ -42,7 +42,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-NEEDS_SITE = {"check_pages_links.py", "check_built_site.py"}
+# check_orphan_pages.py reads _site/ too: with none it passed vacuously ("0
+# pages; 0 orphans") in every run, and once run_workflow_locally could build
+# pages.yml's _site/ (2026-11-15) a later sweep step failed on that leftover
+# build (13 orphans of 3,890 pages), a verdict CI's fresh checkout never sees.
+NEEDS_SITE = {"check_pages_links.py", "check_built_site.py", "check_orphan_pages.py"}
 # Checks outside platform/ci/check_*.py that no PR workflow runs (2026-11-08: a post
 # went over the title budget on main unseen). Each is (script path, args).
 # 2026-11-13: doc_index.py check had been red for days (43 report-tag problems).

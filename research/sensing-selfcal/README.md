@@ -10,8 +10,19 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (202 of 202,
-revised with milestones 4e–4l) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (212 of 212,
+revised with milestones 4e–4m) and a list of what a submission still needs.
+
+**Milestone 4m headline** (a robot holds one old calibration: does waiting for the new view set its twin
+rates highest catch a 2% focal change more often? no new solve): **somewhat, and the twin knows by how
+much.** With the old set fixed, the twin's pick among 7 candidate new sets catches ±2% in 9.7% of old sets
+on the TUM cameras against 7.3% for a blind pick (×1.33), and among 28 candidates ×1.63; on OpenCV's
+cameras ×1.17. False alarms stay at 0.06–1.40%. The twin's predicted gain matches the real one (within 0.11
+on 7 of 8 unit-designs) though its level is 1.2–1.9× high, and choosing by its sd alone does as well. Most of
+the ceiling is out of reach: some candidate catches the change in 19–55% of old sets. Three of five
+pre-registered predictions held (H77, ×1.5 on TUM, and H78, ×1.2 on OpenCV, missed).
+
+![per camera, the share of old sets in which a 2% focal change is caught by a blind pick of the new views, by the twin's pick, and by any candidate, at 6 + 6 and 5 + 6 views](experiments/m4m_wait/wait.png)
 
 **Milestone 4l headline** (can the unit's own twin say in advance which updates can catch a 2% focal
 change? no new solve): **yes, as a ranking, not as a promise.** For every split of old and new views the
@@ -831,6 +842,9 @@ python3 experiments/m4k_warm/compare.py                     # seconds; compare.j
 python3 experiments/m4l_predict/analyse.py --rig opencv     # milestone 4l: ~5 min; rig_opencv.npz/.json (npz not stored)
 python3 experiments/m4l_predict/analyse.py --rig tum        # ~5 min; rig_tum.npz/.json
 python3 experiments/m4l_predict/score.py                    # seconds; summary.json, power.png (H73-H76)
+python3 experiments/m4m_wait/analyse.py --rig opencv        # milestone 4m: ~15 min; rig_opencv.npz/.json (npz not stored)
+python3 experiments/m4m_wait/analyse.py --rig tum           # ~15 min; rig_tum.npz/.json
+python3 experiments/m4m_wait/score.py                       # seconds; summary.json, wait.png (H77-H81)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
