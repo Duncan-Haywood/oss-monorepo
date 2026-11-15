@@ -41,6 +41,18 @@ test("the message names São Paulo's own number for a shifted subitem", () => {
   assert.doesNotMatch(judge("1.07", "5.00").message, /own list numbers/);
 });
 
+test("the São Paulo number in the message is the inverse of spToLc at every run's ends", () => {
+  // Each shifted run's first and last LC subitem, and the unshifted neighbours either side.
+  const shifted = ["3.02", "3.05", "13.02", "13.05", "7.16", "7.22", "17.08", "17.25"];
+  for (const lc of shifted) {
+    const m = /São Paulo's own list numbers it (\d+\.\d+); LC 116 numbers it (\d+\.\d+)/.exec(judge(lc, "9.00").message);
+    assert.ok(m, lc);
+    assert.equal(m[2], lc);
+    assert.equal(spToLc(m[1]), lc, `${m[1]} maps back to ${lc}`);
+  }
+  for (const lc of ["3.01", "3.06", "13.01", "13.06", "7.15", "7.23", "17.07", "17.26"]) assert.doesNotMatch(judge(lc, "9.00").message, /own list numbers/, lc);
+});
+
 test("not judged: other cities, years outside 2024-2028, no item, no rate", () => {
   assert.equal(cityRateProblem({ city: "3304557", item: "1.07", rate: "5.00", year: 2026 }), null);
   assert.equal(judge("1.07", "5.00", { year: 2023 }), null);
