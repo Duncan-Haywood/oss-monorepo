@@ -18,8 +18,78 @@ M10 = E + "m10_ceiling/results.txt"
 M11 = E + "m11_measured/results.txt"
 M12 = E + "m12_remedies/results.txt"
 M13 = E + "m13_price/results.txt"
+M14 = E + "m14_escaped/results.txt"
+M15 = E + "m15_frame_joints/results.txt"
+M16 = E + "m16_soft_nails/results.txt"
+M17 = E + "m17_weiss_wall/results.txt"
+M18 = E + "m18_holddown_shear/results.txt"
+M19 = E + "m19_wall_pushover/results.txt"
+M20 = E + "m20_cyclic/results.txt"
+M21 = E + "m21_degrading/results.txt"
 
 CHECKS = [
+    # 5.14 the capacity model against Weiss's decayed walls (milestones 17 to 21)
+    (M17, "control 6-12 4688, decay 6-12 2649, control 3-12 8775, decay 3-12 2974", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
+    (M17, "share kept: 6-12 0.565, 3-12 0.339", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
+    (M17, "4,168 lb against 4,688 lb tested (0.89)", "0.89 and 0.92\nof the tested peaks"),
+    (M17, "8,049 lb against 8,775 lb tested (0.92)", "0.89 and 0.92\nof the tested peaks"),
+    (M17, "3-12 over 6-12: model 1.931, tested 1.872", "ratio of 1.931 against\n1.872 tested"),
+    (M17, "decay 6-12: 15.173 F, keeps 79.5%", "| Limit analysis, her wall (17) | 79.5% \\| 63.4% |"),
+    (M17, "decay 3-12: 23.348 F, keeps 63.4%", "| Limit analysis, her wall (17) | 79.5% \\| 63.4% |"),
+    (M17, "0.47 x NDS: keeps 58.2% (tested 56.5%) and 30.2% (tested 33.9%)", "| 58.2% \\| 30.2% | 0.47 × NDS |"),
+    (M17, "frame sliding capacity: 18 end nails", "carried by its 18 end nails alone"),
+    (M17, "registered (NDS joints)                 : mean loss 2.73%, 99th-percentile loss 10.41%", "cost a mean 2.73% and 10.41% at the 99th percentile"),
+    (M17, "joints at 0.47 x NDS (section F fit)    : mean loss 2.67%, 99th-percentile loss 10.19%", "2.67%\nand 10.19% at the fitted"),
+    (M18, "intact 3-12 36.83 F, decay 27.06 F: keeps 73.5%", "| + rods' shear path, rigid (18) | 79.5% \\| 73.5% |"),
+    (M18, "best fit 0.17 x NDS: keeps 68.9% (tested 56.5%) and 63.6% (tested 33.9%); rms 22.8%", "| 68.9% \\| 63.6% | 0.17 × NDS |"),
+    (M18, "rms 22.8%", "no joint strength fits both walls (rms 22.8%)"),
+    (M18, "slide stops (end studs below half the top plate's slide) at s = 1.75 F = 423 lb a rod; NDS design value of the rod path 2.55 F (617 lb)", "1.75 F = 423 lb\nagainst 617 lb"),
+    (M18, "Z = 617 lb (mode II, steel 0.125 in), 729 lb (mode II, steel 0.25 in), 1137 lb", "(617–1,137 lb)"),
+    (M19, "H89: m 1, lambda 1, cap 2.55, no gap: pushover keeps 79.5% and 72.8%", "| Springs, rod slack, pushover (19) | 79.5% \\| 72.8% |"),
+    (M19, "best overall: m 0.25, lambda 0.25, gap 0.0625 in, cap 2.55, dp 12 mm: keeps 57.8%|32.5%", "| 57.8% \\| 32.5% | 0.25 × NDS |"),
+    (M19, "gap 0 keeps 74.7%|44.4%, 1/16 in 74.6%|44.4%; largest drop 0.1 points", "0.1 point at a 1/16 in gap"),
+    (M19, "H91: m 1, lambda 0.25, cap 2.55, no gap: decayed 3-12 keeps 71.3%", "leave the 3 in wall at 71.3%"),
+    (M19, "grid points within 5 points rms: 30", "all 30 such points of the 960 pushovers"),
+    (M19, "H92: grid points with m >= 0.75 and both shares within 10 points: 0", "0.75 of NDS or stronger comes within 10 points"),
+    (M20, "decayed 6-12 keeps 78.3% monotonic, 77.8% cyclic; decayed 3-12 keeps 70.5% monotonic, 70.6% cyclic", "| CUREE history, SAWS nails (20) | 77.8% \\| 70.6% |"),
+    (M20, "decayed 3-12 keeps 70.5% monotonic, 70.6% cyclic", "(70.5%\nmonotonic, 70.6% cyclic)"),
+    (M20, "6-12 intact: cyclic 18.756 FU (+18.766/-18.747), monotonic 18.780 FU (-0.1%)", "(−0.1% and −0.0%)"),
+    (M20, "3-12 intact: cyclic 36.461 FU (+36.466/-36.456), monotonic 36.478 FU (-0.0%)", "(−0.1% and −0.0%)"),
+    (M20, "best overall: m 0.25, lambda 1.0, gap 0.0000 in: cyclic keeps 57.6%|31.4%", "| 57.6% \\| 31.4% | 0.25 × NDS |"),
+    (M20, "lo [-27.94, -5.07]", "crush to 27.94 mm on one side"),
+    (M20, "H97 (no point with m >= 0.75 within 10 points of both): 0 such points", "0.75 of NDS or stronger comes within 10 points"),
+    (M20, "largest 6.4e-13 FU", "under 1e-12 of the nail's peak"),
+    (M21, "m 1.0  gamma  10.0: 79.3%|73.2%", "| + energy damage, γ 10 (21) | 79.3% \\| 73.2% |"),
+    (M21, "m 0.25 gamma  10.0: 65.5%|34.8%", "| 65.5% \\| 34.8% | 0.25 × NDS |"),
+    (M21, "m 1.0  gamma 100.0: 78.1%|70.9%; intact 96.8%", "fall to 96.8%, 93.9%, 85.7%,\n75.1% and 63.2%"),
+    (M21, "m 1.0  gamma  50.0: 78.4%|71.1%; intact 93.9%", "fall to 96.8%, 93.9%, 85.7%"),
+    (M21, "m 1.0  gamma  20.0: 79.3%|72.4%; intact 85.7%", "fall to 96.8%, 93.9%, 85.7%"),
+    (M21, "m 1.0  gamma  10.0: 79.3%|73.2%; intact 75.1%", "75.1% and 63.2% of their monotonic peaks"),
+    (M21, "m 1.0  gamma   5.0: 79.3%|73.5%; intact 63.2%", "75.1% and 63.2% of their monotonic peaks"),
+    (M21, "inf: 70.6%, 100.0: 70.9%, 50.0: 71.1%, 20.0: 72.4%, 10.0: 73.2%", "keeps 70.6, 70.9, 71.1, 72.4, 73.2 and 73.5%"),
+    (M21, "10.0: +1.5|+2.6, 5.0: +1.5|+2.9", "rise\nby up to 2.9 points"),
+    (M21, "H102 (no m >= 0.75 point within 10 points of both): 0 such points", "0.75 of NDS or stronger comes within 10 points"),
+    # 5.13 an escaped miss costs about 2% of its sheet (milestones 14 to 16)
+    (M14, "      4      86         1.442         1.536           0.939", "4, 3 and 2 in edges give 0.939, 0.959 and\n1.062"),
+    (M14, "      3     110         1.884         1.964           0.959", "0.939, 0.959 and\n1.062"),
+    (M14, "      2     158         2.769         2.607           1.062", "0.939, 0.959 and\n1.062"),
+    (M14, "left joint edge  : mean 2.08%, min 2.00%, max 2.21%", "costs a mean 2.08% of the sheet\n(2.00–2.21% by height)"),
+    (M14, "field stud 1     : mean 0.85%", "a field nail 0.85%"),
+    (M14, "bottom plate     : mean 1.42%", "a plate nail 1.42%"),
+    (M14, "mean loss 2.34%, p99 loss 11.49%, wall p1 0.9340: refuted", "sheets lose a mean 2.34% and 11.49% at the 99th percentile"),
+    (M14, "mean loss 2.34%, p99 loss 11.49%, wall p1 0.9340: refuted", "keeps 0.9340 of its capacity"),
+    (M14, "H64 (>= the intact 6 in sheet in 99% of sheets): P = 0.9998: held", "beats an intact 6 in\nsheet in 0.9998 of draws"),
+    (M14, "4 in joint edges, three reads, misses left  : median $6.98", "a median $6.98 a sheet"),
+    (M14, "6 in, three reads, every miss re-driven     : median $7.10", "against $7.10 for 6 in edges"),
+    (M14, "(median saving $5.21)", "$5.21 less than doubled joints"),
+    (M14, "(16 extra nails", "(16 more nails a sheet)"),
+    (M14, "z < 12 in  : 11 of 62 nails omitted (18%), capacity 0.796, loss 20.4%", "(20.4% plastic"),
+    (M15, "rho = 2.549", "(2.549 sheathing-nail capacities a joint in DF-L)"),
+    (M15, "single 2x, three reads : mean loss 2.73% (m14 2.34%), p99 loss 16.66%", "raise the mean loss to 2.73% (99th\npercentile 16.66%)"),
+    (M15, "H69 (>= the intact 6 in sheet in 99% of sheets): P = 0.9989", "in 0.9989 of draws"),
+    (M16, "range 20.1% to 20.4%: refuted", "20.1% to 20.4% across the softening backbones"),
+    (M16, "mean loss 2.39% (milestone 14: 2.34%), 99th-percentile loss 11.80%", "softening nails give 2.39% and 11.80%"),
+    (M16, "Fp 0.972 kN, K at 0.4 Fp 0.496 kN/mm", "peak 0.972 kN, 0.496 kN/mm at 0.4 of peak"),
     # 5.12 what the remedies cost (milestone 13)
     (M13, "three point - ledger 0.4253 1.095 198 | 7.10", "cost a median $7.10 per clean sheet"),
     (M13, "local line push slide+shim 0.7707 0.301 248 | 7.42", "costs $7.42 at 0.7707"),

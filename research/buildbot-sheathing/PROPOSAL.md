@@ -306,6 +306,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    63–97% of monotonic, but the decayed shares rise 0.3–2.9 points at code-strength joints (3 in wall 70.6% to
    73.5%); the best fit stays at end nails of a quarter of NDS with no degradation. Still open: a local failure
    model for nails at the unnailed bottom edge, the middle stud splitting, and a tested 16d end-nail ultimate.
+22. **The paper's capacity half** (done 2026-11-15, `paper/draft.md` sections 4.9–4.10 and 5.13–5.14): milestones
+   14–21 written into the draft, with a table of the five decayed-wall models and 60 more numbers tied to their
+   results files (190 checks).
+
 
 ## Target venue
 
