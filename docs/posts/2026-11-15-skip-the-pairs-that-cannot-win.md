@@ -3,7 +3,7 @@ title: "Skipping the pairs that cannot win: a 4x faster survey selector with the
 seo_title: "Exact upper-bound pruning for a pairwise survey selector"
 date: 2026-11-15
 tags: [performance, quick-pick-survey, open-source, algorithms, testing]
-description: "A cheap upper bound skips most of the 125,000 pairs the information selector scores per answer. Every pick is unchanged, and the selector runs 3 to 5 times faster."
+description: "A cheap upper bound skips most of the 125,000 pairs the survey selector scores per answer. Every pick is unchanged; it runs 3 to 5 times faster."
 ---
 
 [Quick Pick Survey](../../ventures/quick-pick-survey/) asks people to choose
