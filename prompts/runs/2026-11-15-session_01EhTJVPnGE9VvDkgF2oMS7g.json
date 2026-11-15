@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
   "errors": [
     "git ls-tree -l on a blob:none clone fetched blobs one by one and hung past the 120 s timeout; stopped it and used a sparse checkout instead",
-    "first mutation run timed out: assertEqual on 12,000-element lists spends minutes in difflib; tests now compare by mismatch count"
+    "first mutation run timed out: assertEqual on 12,000-element lists spends minutes in difflib; tests now compare by mismatch count",
+    "CI lint (mypy) failed on the first push: my tile variable reused the name `t`, which already held the Track, and a list needed an annotation. Fixed, and checked locally with CI's pinned ruff 0.15.8 and mypy 1.19.1"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -59,7 +60,7 @@
     "ventures/photo-editing/eval/canon-cr3-tiled-2026-11-15.md"
   ],
   "goal": null,
-  "notes": "Local verification: test_cr3, test_cr3_wavelet and test_ffmpeg_pipeline OK (49 tests). Full discover: 1,186 of 1,187 pass; the one error is the container's broken system PIL (_imaging import), which this change doesn't touch. LibRaw 0.22 (rawpy) tiled check exit 0, control caught. Six hand mutations of the tile code: five caught after the fixture fix; the plane-vs-subband byte count mutation is equivalent on all data seen.",
+  "notes": "Local verification: test_cr3, test_cr3_wavelet and test_ffmpeg_pipeline OK (49 tests). Full discover: 1,186 of 1,187 pass; the one error is the container's broken system PIL (_imaging import), which this change doesn't touch. LibRaw 0.22 (rawpy) tiled check exit 0, control caught. Six hand mutations of the tile code: five caught after the fixture fix; the plane-vs-subband byte count mutation is equivalent on all data seen. CI-equivalent run_venture_tests photo-editing: 1187 tests OK. venture-preflight clean.",
   "corrections": [],
   "redteam": null,
   "usage": {

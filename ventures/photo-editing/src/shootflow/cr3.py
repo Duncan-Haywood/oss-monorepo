@@ -499,7 +499,7 @@ def tile_grid(head: Cmp1) -> list[Tile]:
         raise rd.DevelopError(f"CR3: a {cols} x {rows} tile grid leaves an edge tile under 22 sensels; not valid")
     if (cols > 1) != bool(head.tile_cols) or (rows > 1) != bool(head.tile_rows):
         raise rd.DevelopError("CR3: CMP1's several-tiles flags do not match its tile size")
-    tiles = []
+    tiles: list[Tile] = []
     for r in range(rows):
         for c in range(cols):
             tiles.append(Tile(len(tiles), r * th, c * tw, tw if c < cols - 1 else pw - tw * (cols - 1),
@@ -589,16 +589,17 @@ def decode_sensor(data: bytes, box: Container, engine: str = "auto") -> tuple[Cm
     for band in bands:
         chunk = sample[band.offset : band.offset + band.size]
         oy, ox = band.plane >> 1, band.plane & 1
-        t = band.tile
-        row0, col0 = 2 * t.row + oy, 2 * t.col + ox
+        tile = band.tile
+        assert tile is not None  # band_layout sets every band's tile
+        row0, col0 = 2 * tile.row + oy, 2 * tile.col + ox
         if native is not None:
             first = out.buffer_info()[0] + 2 * (row0 * w + col0)
-            if native(chunk, len(chunk), t.width, t.height, head.bits, first, 2 * w) < 0:
+            if native(chunk, len(chunk), tile.width, tile.height, head.bits, first, 2 * w) < 0:
                 raise rd.DevelopError("CR3: the compressed band is invalid")
         else:
-            for y, row in enumerate(decode_band(chunk, t.width, t.height)):
+            for y, row in enumerate(decode_band(chunk, tile.width, tile.height)):
                 base = (row0 + 2 * y) * w + col0
-                out[base : base + 2 * t.width : 2] = array("H", (min(max(v, lo), hi) + mid for v in row))
+                out[base : base + 2 * tile.width : 2] = array("H", (min(max(v, lo), hi) + mid for v in row))
     return head, out
 
 
