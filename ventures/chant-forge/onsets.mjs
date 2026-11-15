@@ -1,0 +1,159 @@
+// Reading a syllable's opening consonant back from audio, to check what sing.mjs sings.
+//
+// The textbook acoustic cues, measured on short frames (20 ms Hann, 5 ms hop, 1024-point FFT)
+// against the vowel that follows, never from the synthesiser's settings:
+// - a stop is a closure (the level drops well below the vowel's for 25 ms or more) and then a
+//   release (35 ms or more, so a tap is not one); it is voiced when the closure keeps a low murmur under 500 Hz (the voice bar).
+//   Its place is read from the release burst's spectrum, after Stevens and Blumstein (1978):
+//   alveolar bursts are high and diffuse (centroid above 3.4 kHz), velar bursts compact (one
+//   500 Hz band from 1 to 4 kHz holds much of the energy), labial bursts low and diffuse.
+// - a fricative is 30 ms or more of noise, most of its energy above 2.5 kHz; its centroid
+//   (1-11 kHz) splits /s/ (above 4.8 kHz) from /ʃ/ (2.2-4.8 kHz), and a weak, flat one is /f/.
+//   A closure straight before it makes it an affricate.
+// - a nasal is 30 ms or more 7 to 25 dB below the vowel, its low band near the vowel's and its
+//   energy above 1 kHz down at least 5 dB more (a murmur).
+// - a tap is one brief contact: the level's floor, 12 dB or more under the vowel, lasts under 30 ms.
+// Anything else (l, the glides, a bare vowel) reads as no consonant.
+// Known limits: the thresholds were set on held syllables at D3 (eval/consonant-check.mjs part
+// A); voiced fricatives (v, z) carry little noise and are read only as "voiced fricative"; and
+// it is a rule-based reader, not a listener.
+
+function fft(re, im) {
+  const n = re.length;
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) { [re[i], re[j]] = [re[j], re[i]]; [im[i], im[j]] = [im[j], im[i]]; }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const a = (-2 * Math.PI) / len, wr = Math.cos(a), wi = Math.sin(a);
+    for (let i = 0; i < n; i += len) {
+      let cr = 1, ci = 0;
+      for (let k = 0; k < len / 2; k++) {
+        const ur = re[i + k], ui = im[i + k], vr = re[i + k + len / 2] * cr - im[i + k + len / 2] * ci, vi = re[i + k + len / 2] * ci + im[i + k + len / 2] * cr;
+        re[i + k] = ur + vr; im[i + k] = ui + vi; re[i + k + len / 2] = ur - vr; im[i + k + len / 2] = ui - vi;
+        const t = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = t;
+      }
+    }
+  }
+}
+
+// second-order (RBJ) high-pass of x[i0..i1), from rest
+function highpass(x, i0, i1, fc, rate) {
+  const w0 = (2 * Math.PI * fc) / rate, al = Math.sin(w0) / Math.SQRT2, a0 = 1 + al, c = Math.cos(w0);
+  const b0 = (1 + c) / 2 / a0, b1 = -(1 + c) / a0, a1 = (-2 * c) / a0, a2 = (1 - al) / a0;
+  const out = new Float64Array(Math.max(0, i1 - i0)); let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+  for (let i = 0; i < out.length; i++) { const v = x[i0 + i] || 0, y = b0 * v + b1 * x1 + b0 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = v; y2 = y1; y1 = y; out[i] = y; }
+  return out;
+}
+
+const N = 1024;
+// band energies and shape of one frame of `len` seconds (default 20 ms) starting at sample i0
+export function frameFeatures(x, i0, rate, len = 0.02) {
+  const L = Math.round(len * rate), re = new Float64Array(N), im = new Float64Array(N);
+  for (let i = 0; i < L && i < N; i++) re[i] = (x[i0 + i] || 0) * (0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (L - 1)));
+  fft(re, im);
+  const df = rate / N; let tot = 0, low = 0, hi = 0, hi1 = 0, mid = 0, cw = 0, best = 0, peakHz = 0;
+  const bands = new Float64Array(8); // 500 Hz bands from 1 to 5 kHz
+  for (let k = 1; k < N / 2; k++) {
+    const f = k * df, p = re[k] * re[k] + im[k] * im[k];
+    tot += p;
+    if (f < 500) low += p;
+    if (f > 1000) hi1 += p;
+    if (f > 2500) hi += p;
+    if (f >= 1000 && f <= 11000) { mid += p; cw += p * f; }
+    if (f >= 1000 && f < 5000) bands[Math.floor((f - 1000) / 500)] += p;
+  }
+  for (let b = 0; b < 6; b++) if (bands[b] > best) { best = bands[b]; peakHz = 1250 + 500 * b; } // compact peak between 1 and 4 kHz
+  return { tot, low, hi1, peakHz, lowR: tot ? low / tot : 0, hiR: tot ? hi / tot : 0, centroid: mid ? cw / mid : 0, compact: mid ? best / mid : 0 };
+}
+
+const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
+const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
+
+// Classify the opening of a sung syllable: x is the signal, t0 the note start and vowelAt
+// a time inside the steady vowel (seconds). Returns { cls, ...cues } where cls is one of
+// 'stop', 'affricate', 'fricative', 'nasal', 'tap', 'none'; stops add voiced and place
+// ('lab', 'alv', 'vel'), affricates voiced, fricatives place ('s', 'S', 'f', 'voiced').
+// The earliest cue wins, so "spi" reads as its /s/ and "tri" as its /t/.
+export function readOnset(x, rate, t0, vowelAt, { window = 0.2 } = {}) {
+  const hop = Math.round(0.005 * rate), a = Math.round(t0 * rate), z = Math.round(Math.min(vowelAt, t0 + window) * rate);
+  const ref = [];
+  for (let i = Math.round(vowelAt * rate); i < Math.round((vowelAt + 0.06) * rate); i += hop) ref.push(frameFeatures(x, i, rate));
+  const avg = (k) => ref.reduce((s, f) => s + f[k], 0) / Math.max(1, ref.length);
+  const vTot = avg('tot'), vLow = avg('low'), vHi1 = avg('hi1'), vHi = avg('hiR');
+  const fr = [];
+  for (let i = a; i <= z; i += hop) fr.push({ t: (i - a) / rate, ...frameFeatures(x, i, rate) });
+  for (const f of fr) { f.lvl = db(f.tot, vTot); f.loRel = db(f.low, vLow); f.hiRel = db(f.hi1, vHi1); }
+  const runs = (pred, minMs) => {
+    const out = []; let s = -1;
+    fr.forEach((f, k) => { if (pred(f, k)) { if (s < 0) s = k; } else if (s >= 0) { out.push([s, k - 1]); s = -1; } });
+    if (s >= 0) out.push([s, fr.length - 1]);
+    return out.filter((r) => msOf(r) >= minMs);
+  };
+  const msOf = ([s, e]) => (e - s) * 5 + 20; // a run of frames covers (frames - 1) hops plus one frame
+  const noisy = (f) => f.hiR > Math.max(0.5, 3 * vHi) && f.lvl > -45;
+  const vnoisy = (f) => !noisy(f) && f.hiR > Math.max(0.12, 3 * vHi) && f.lowR > 0.2 && f.hiRel > -20 && f.lvl > -35 && f.lvl < -3;
+  const closed = (f) => f.lvl < -22 && f.loRel < -12 && !noisy(f) && !vnoisy(f);
+  const nasal = (f) => f.loRel >= -15 && f.lvl < -7 && f.lvl > -25 && f.hiRel < f.loRel - 5;
+  // a tap: one brief contact, the level's deepest part (within 6 dB of its floor, 12 dB or more
+  // under the vowel) shorter than 30 ms, with louder frames on both sides
+  let mk = 0; fr.forEach((f, k) => { if (f.lvl < fr[mk].lvl) mk = k; });
+  const floor = fr[mk].lvl;
+  let s0 = mk, s1 = mk; while (s0 > 0 && fr[s0 - 1].lvl < floor + 6) s0--; while (s1 < fr.length - 1 && fr[s1 + 1].lvl < floor + 6) s1++;
+  const dip = floor <= -12 && s0 > 0 && s1 < fr.length - 1 && msOf([s0, s1]) < 30
+    && Math.max(...fr.slice(0, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 1).map((f) => f.lvl)) >= floor + 10;
+  if (dip && !fr.some((f) => noisy(f) || vnoisy(f))) return { cls: 'tap', floor }; // voiced throughout: no hiss before or after
+  const cands = [
+    ['closure', runs(closed, 35).filter((r) => r[1] < fr.length - 1)[0]],
+    ['fricative', runs(noisy, 30)[0]],
+    ['vfricative', runs(vnoisy, 30)[0]],
+    ['nasal', runs(nasal, 30)[0]],
+  ].filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
+  if (cands.length) {
+    const [kind, r] = cands[0];
+    const seg = fr.slice(r[0], r[1] + 1);
+    if (kind === 'closure') {
+      const inner = seg.length > 2 ? seg.slice(1, -1) : seg;
+      const bar = median(inner.map((f) => f.loRel)), voiced = bar > -40;
+      const after = runs((f, k) => k > r[1] && (noisy(f) || vnoisy(f)), 50).filter((q) => q[0] <= r[1] + 4);
+      if (after.length) return { cls: 'affricate', voiced, bar, closureMs: msOf(r) };
+      // the release: the first 2 ms after the closure's middle whose energy above 600 Hz (so a voice
+      // bar does not count) rises 12 dB over the closure's and within 40 dB of the vowel's; the
+      // burst is the 10 ms from 1 ms before it
+      const from = a + Math.round((fr[r[0]].t + 0.01) * rate), to = a + Math.round((fr[r[1]].t + 0.04) * rate);
+      const hp = highpass(x, from - Math.round(0.02 * rate), to + Math.round(0.01 * rate), 600, rate), off = from - Math.round(0.02 * rate);
+      const vh = highpass(x, Math.round(vowelAt * rate) - Math.round(0.02 * rate), Math.round((vowelAt + 0.05) * rate), 600, rate);
+      let vMean = 0; for (let i = Math.round(0.02 * rate); i < vh.length; i++) vMean += vh[i] ** 2; vMean /= Math.max(1, vh.length - Math.round(0.02 * rate));
+      const w2 = Math.round(0.002 * rate), e2 = (i) => { let q = 0; for (let j = 0; j < w2; j++) q += (hp[i - off + j] || 0) ** 2; return q / w2; };
+      const base = e2(from) + vMean * 1e-6;
+      let rel = to;
+      for (let i = from; i < to; i += w2) { const q = e2(i); if (q > base * 10 ** 1.2 && q > vMean * 1e-4) { rel = i; break; } }
+      const b = frameFeatures(x, rel - Math.round(0.001 * rate), rate, 0.01);
+      const place = b.centroid > 3400 ? 'alv' : b.compact > 0.4 && b.peakHz >= 1500 ? 'vel' : 'lab';
+      return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz };
+    }
+    if (kind === 'fricative') {
+      const cen = seg.reduce((q, f) => q + f.centroid, 0) / seg.length, l = seg.reduce((q, f) => q + f.lvl, 0) / seg.length;
+      const voicedUnder = median(seg.map((f) => f.loRel)) > -25; // the voices go on under a v or a z
+      const place = voicedUnder ? 'voiced' : l < -20 ? 'f' : cen > 4800 ? 's' : cen > 2200 ? 'S' : 'f';
+      return { cls: 'fricative', place, centroid: cen, level: l };
+    }
+    if (kind === 'vfricative') return { cls: 'fricative', place: 'voiced' };
+    return { cls: 'nasal' };
+  }
+  return { cls: 'none' };
+}
+
+// what readOnset should report for a phone (sing.mjs's PHONES names)
+export function expectedRead(ph) {
+  if (!ph) return { cls: 'none' };
+  if ('pbtdkg'.includes(ph)) return { cls: 'stop', voiced: 'bdg'.includes(ph), place: { p: 'lab', b: 'lab', t: 'alv', d: 'alv', k: 'vel', g: 'vel' }[ph] };
+  if (ph === 'tS' || ph === 'dZ') return { cls: 'affricate', voiced: ph === 'dZ' };
+  if (ph === 's' || ph === 'S' || ph === 'f') return { cls: 'fricative', place: ph };
+  if (ph === 'v' || ph === 'z') return { cls: 'fricative', place: 'voiced' };
+  if ('mnN'.includes(ph)) return { cls: 'nasal' };
+  if (ph === 'r') return { cls: 'tap' };
+  return { cls: 'none' }; // l, j, w
+}
