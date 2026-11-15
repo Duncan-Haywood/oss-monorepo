@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "First eval draft claimed no sensels sat between LibRaw's 16319 white and the clip; measured before merge, it was false (S1: 152,552), so white switched to LibRaw's margin and the write-up says so.",
-    "First raw.pixls.us downloads were 0 bytes: the host 301-redirects to /download/...; curl -L fixed it."
+    "First raw.pixls.us downloads were 0 bytes: the host 301-redirects to /download/...; curl -L fixed it.",
+    "Local run_workflow_locally caught three own failures before merge: ruff E702 in the new test, and flagships.yaml photo-editing next:/buildable: over their caps after appending; fixed by replacing text, not appending."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -50,7 +51,7 @@
     "ventures/photo-editing/eval/panasonic-rw2-newer-2026-11-15.md"
   ],
   "goal": null,
-  "notes": "Explore idea: Panasonic RW2 RawFormat 5, 6, 7 (G9, GH5S, S1, S1R, S1H, S5) in ShootFlow, plus the in-camera aspect crop (tags 0x2F-0x32). 12 raw.pixls.us bodies, all 331.7 M sensels, WB, black, CFA, crop and white equal LibRaw 0.22. Venture suite: ok, 1159 tests. Next: RawFormat 8 (GH6-era Huffman), six public files already identified.",
+  "notes": "Explore idea: Panasonic RW2 RawFormat 5, 6, 7 (G9, GH5S, S1, S1R, S1H, S5) in ShootFlow, plus the in-camera aspect crop (tags 0x2F-0x32). 12 raw.pixls.us bodies, all 331.7 M sensels, WB, black, CFA, crop and white equal LibRaw 0.22. Venture suite: ok, 1159 tests. Next: RawFormat 8 (GH6-era Huffman), six public files already identified. Local checks: run_workflow_locally --for-changes run; failures fixed (ruff, flagship caps); test_allocate OK; validate.py OK.",
   "corrections": [],
   "redteam": null,
   "usage": {

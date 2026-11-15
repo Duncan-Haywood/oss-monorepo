@@ -509,12 +509,14 @@ class NewerFormatTests(unittest.TestCase):
         # 4: mul 16, base 0x2000, which is not below 0x2000, so no move.
         p0, p1 = 5000, 7000
         want = [p0, p1]
-        p0 = 0x210 + p0 - 0x200; want.append(p0)
-        p1 = 0x220 + p1 - 0x200; want.append(p1)
-        p0 = 0x230 + p0 - 0x200; want.append(p0)
-        p1 = 0x150 * 2 + p1 - 0x400; want.append(p1)
-        p0 = 0x160 * 2 + p0 - 0x400; want.append(p0)
-        p1 = 0x170 * 2 + p1 - 0x400; want.append(p1)
+        for value, mul, base, parity in ((0x210, 1, 0x200, 0), (0x220, 1, 0x200, 1), (0x230, 1, 0x200, 0),
+                                         (0x150, 2, 0x400, 1), (0x160, 2, 0x400, 0), (0x170, 2, 0x400, 1)):
+            if parity == 0:
+                p0 = value * mul + p0 - base
+                want.append(p0)
+            else:
+                p1 = value * mul + p1 - base
+                want.append(p1)
         want += [0x40 * 16, 0x50 * 16, 0x60 * 16]
         want = [v - 15 for v in want]
         for engine in engines():
