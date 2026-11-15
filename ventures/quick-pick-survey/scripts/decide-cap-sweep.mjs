@@ -25,7 +25,7 @@ const RULE = FOCUS === "order" ? "order" : "winner";
 const LONG_RUN = args["long-run"] || "none";
 const POWER = Number(args.power || 1);
 // --guard auto|plain|<tau> [--guard-scale k]: the graded guard (auto = min(1, k x estimateTau), the page).
-const GUARD = !args.guard || args.guard === "auto" || args.guard === "plain" ? (args.guard || "auto") : Number(args.guard);
+const GUARD = !args.guard || ["auto", "plain", "switch"].includes(args.guard) ? (args.guard || "auto") : Number(args.guard);
 const GUARD_SCALE = Number(args["guard-scale"] || 1);
 
 function mulberry32(seed) {

@@ -462,11 +462,12 @@ export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule =
   const lists = [[nCriteria, answers.crit], ...Array.from({ length: nCriteria }, (_, c) => [nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t, g]) => [x, y, t, g])])];
   // guardScale (measured): the estimate is divided out by a bias factor before the min.
   // guardTau "plain" (measured): the guard reads the picks with every grade ignored.
-  if (guardTau === "plain") {
+  const estimate = guardTau === "switch" || guardTau === "auto" ? estimateTau(lists) : null;
+  if (guardTau === "plain" || (guardTau === "switch" && estimate < GUARD_TAU)) {
     const guard = decisionTable(decisionFit(nOptions, nCriteria, answers, { grades: "ignore" }), { draws });
     return { done: decisionDone(guard, answers, { rule, level }), table: guard };
   }
-  let tau = guardTau === "auto" ? Math.min(GUARD_TAU, estimateTau(lists) * guardScale) : guardTau;
+  let tau = estimate !== null ? Math.min(GUARD_TAU, estimate * guardScale) : guardTau;
   // longRun "tau" (measured, not shipped): past the checkpoint the guard's tau shrinks with the answer count instead.
   const base = decisionMax(nOptions, nCriteria);
   if (longRun === "tau" && t > base) tau *= base / t;
