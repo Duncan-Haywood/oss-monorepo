@@ -65,6 +65,9 @@ test("timesheet: on time, late, early, past the end, no punch, unscheduled and a
   assert.match(csv, /Ben,2026-11-16,12:12,20:30,8\.30,Mon 12:00-20:00,late 12 min; 30 min past shift end/);
   assert.match(csv, /Ben,2026-11-19,09:00,,,,missing clock-out/);
   assert.match(csv, /Ana,TOTAL,,,7\.20,scheduled 16\.00,1 shift\(s\) with no punch/);
+  // A name that looks like a formula is written as text.
+  const evil = {}; punch(evil, "=HYPERLINK(1)", "in", at("2026-11-16T09:00:00Z")); punch(evil, "=HYPERLINK(1)", "out", at("2026-11-16T10:00:00Z"));
+  assert.match(timesheetCsv(timesheet(evil.punches, WEEK, { nowMs: at("2026-11-21T00:00:00Z") })), /\n'=HYPERLINK\(1\),2026-11-16/);
 });
 
 test("timesheet in the site's zone: a Chicago morning shift matches punches stored in UTC", () => {

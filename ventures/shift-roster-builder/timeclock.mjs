@@ -153,7 +153,8 @@ export function timesheet(punches, week, { tz = "UTC", graceMin = 5, nowMs = Dat
   return { weekStart: ws, tz: zone, graceMin, overtimeAfter, people, local };
 }
 
-const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+// CSV formula injection guard: a staff name typed as "=HYPERLINK(...)" must not run when payroll opens the file.
+const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 // One line per worked stretch (in the site's time zone), then each person's total: the file a bookkeeper pastes into payroll.
 export function timesheetCsv(ts) {
   const out = [["person", "date", "clock_in", "clock_out", "hours", "scheduled_shift", "flags"].join(",")];
