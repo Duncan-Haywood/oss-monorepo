@@ -376,7 +376,9 @@ const STYLE = `
   /* On a phone the topics are one swipeable row, not six wrapped rows above the first post: it bleeds to the panel's edges, and a fade marks whichever end has more chips (data-fade, set by the script). */
   @media (max-width:639px) {
     .chips { flex-wrap:nowrap; overflow-x:auto; overscroll-behavior-x:contain; margin:8px -16px 0; padding:4px 16px; scroll-padding-inline:16px; scrollbar-width:thin; }
-    .chips button { flex:none; white-space:nowrap; min-height:32px; }
+    /* Every chip, not only the blog finder's buttons: the podcast index's topic links share this row, and without flex:none they shrank to wrapped 105 px pills. */
+    .chips > * { flex:none; white-space:nowrap; min-height:32px; }
+    .chips > a { display:inline-flex; align-items:center; margin:0; }
     .chips[data-fade=end] { -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent); }
     .chips[data-fade=start] { -webkit-mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent); }
     .chips[data-fade=both] { -webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent); }
