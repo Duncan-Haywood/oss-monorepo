@@ -42,7 +42,7 @@
     "docs/posts/2026-11-15-saints-by-candlelight-122-paul-and-felix.md"
   ],
   "goal": null,
-  "notes": "Project: saints-by-candlelight; piece: paul-and-the-governor-who-said-not-tonight (episode 122, Acts 24, 6669 words, text only; audio folders 474 MB > 400 MB cap). Picked because Hearth & Horizon had four recent merges plus an open PR, and Saints had none open. Checks: generate.mjs --check-script ok; node --test 14/14; post front matter, links and similarity clean. Six fact fixes from the adversarial reread are listed in the post.",
+  "notes": "Project: saints-by-candlelight; piece: paul-and-the-governor-who-said-not-tonight (episode 122, Acts 24, 6669 words, text only; audio folders 474 MB > 400 MB cap). Picked because Hearth & Horizon had four recent merges plus an open PR, and Saints had none open. Checks: generate.mjs --check-script ok; node --test 14/14; post front matter, links and similarity clean. Six fact fixes from the adversarial reread are listed in the post. No CI check runs appeared on the PR after ~25 min (starved), so merged on local verification: run_workflow_locally.py --for-changes 11/11 selected workflows passed (ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12 incl. site builder tests); agent-cross-review and pages.yml reached no verdict (uses:/skipped build steps only), deploy jobs not run.",
   "corrections": [],
   "redteam": null,
   "usage": {
