@@ -95,13 +95,13 @@ rework.** One steady-state cycle along a row: a lift stands the sheet on a laser
 robot slides and presses it so it seats, tacks it, reads the three new studs and both edges, and
 nails the 62 nails with edge aim (timed by [`buildbot-mobilebase`](../buildbot-mobilebase));
 every missed nail is found and re-driven. With **two 2x at the joint**, a **single read** a stud
-gives **0.9997** first-pass clean sheets at the lower published stud warp (three reads 1.0000),
+gives **0.9994** first-pass clean sheets at the lower published stud warp (three reads 1.0000),
 and it is the fastest choice in all 108 swept time cells. On **single 2x** joints no sensing
 policy passes 0.59 (single read 0.42, three 0.56, dense 0.58; 0.7–2.2 nails missed a sheet),
-three reads are fastest everywhere, and the best single-2x sheet is **17.8–65.2 s slower**
+three reads are fastest everywhere, and the best single-2x sheet is **17.9–65.5 s slower**
 before the extra stud is charged: at 30 s of rework a nail, framing the extra joint stud may
 take **30–42 s a sheet** and still win. Firing the next nail without waiting out a 4 N s recoil
-costs **up to 7.6 points** of clean sheets on single 2x (a conservative model) and nothing on
+costs **up to 7.4 points** of clean sheets on single 2x (a conservative model) and nothing on
 doubled joints. On doubled joints even a lift that hangs and tacks the sheet to 0.25° and 5 mm
 without a ledger gives 0.978. Every stage time except the nailing is swept, not measured.
 
@@ -843,6 +843,19 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   degrades more; γ survives scaling and stacking (`tests/test_wall_degrading.py`).
 
 ## Reproduce
+One command per experiment, and a check that a re-run gives the committed numbers (milestone 25):
+
+```bash
+python3 reproduce.py --list                 # every experiment, what it needs, how long it takes
+python3 reproduce.py m5_cycle               # re-run one in place: run.py > results.txt, then figure.py
+python3 reproduce.py --check --quick        # re-run the ten numpy-only experiments in a temporary copy
+                                            # (~6 min) and diff each results.txt against the committed one
+```
+
+`--check` copies this project and its sibling `buildbot-*` projects to a temporary directory, so
+nothing committed is overwritten; it leaves out only wall-clock timings, and exits 1 if any other
+character of a results file differs. The per-experiment commands it wraps:
+
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
@@ -1028,21 +1041,21 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
 
 ## Milestone 5 results (`experiments/m5_cycle/results.txt`)
 - **A. First-pass clean sheets** (lower warp, ledger, 1 mm after the slide; single / three /
-  dense reads). Single 2x: 0.417 / 0.560 / 0.583 (2.16 / 0.79 / 0.70 nails missed); 3 mm after
-  the slide 0.250 / 0.295 / 0.309; higher warp 0.314 / 0.308 / 0.323. Two 2x: 0.9997 / 1.0000 /
-  1.0000; higher warp 0.938 / 1.0000 / 1.0000. Lift-tack (0.25°, 5 mm): single 2x 0.079–0.092,
+  dense reads). Single 2x: 0.417 / 0.560 / 0.581 (2.17 / 0.79 / 0.71 nails missed); 3 mm after
+  the slide 0.243 / 0.299 / 0.311; higher warp 0.312 / 0.307 / 0.322. Two 2x: 0.9994 / 1.0000 /
+  1.0000; higher warp 0.940 / 1.0000 / 1.0000. Lift-tack (0.25°, 5 mm): single 2x 0.079–0.092,
   two 2x 0.978 / 0.996 / 0.997. Wilson intervals are in the file.
 - **B. Fastest policy** by seconds a sheet including rework: single read on two 2x and three
   reads on single 2x in all 108 cells. At nailing 54 s, place 30 s, ledger 10 s, 1 s reads and
   30 s rework: two 2x single 101 s, single 2x three 131 s (of which 24 s rework), single 2x
   single 166 s (65 s rework).
-- **C. Break-even framing time** for the extra joint stud: 17.8–29.8 s at 15 s rework,
-  29.6–41.6 s at 30 s, 53.2–65.2 s at 60 s (the lower figure at 1 s reads, the higher at 3 s);
-  higher warp 33.8–129.2 s.
+- **C. Break-even framing time** for the extra joint stud: 17.9–29.9 s at 15 s rework,
+  29.7–41.7 s at 30 s, 53.5–65.5 s at 60 s (the lower figure at 1 s reads, the higher at 3 s);
+  higher warp 33.8–129.3 s.
 - **D. Stages** (two 2x, single read): place 10–57%, sensing 2–17%, nailing 37–86% of the sheet;
-  76–216 s a sheet (median 146) against 94–281 s (median 183) for the best single-2x pipeline.
+  76–216 s a sheet (median 146) against 94–282 s (median 184) for the best single-2x pipeline.
 - **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H22, H23, H24, H25 held; **H26 refuted**
-  (fire-at-once recoil costs up to 7.6 points on single 2x, at most 0.12 on two 2x); **H27
+  (fire-at-once recoil costs up to 7.4 points on single 2x, at most 0.12 on two 2x); **H27
   refuted** (placing the sheet outweighs fast nailing in 18 of 108 cells).
 
 ## Milestone 6 results (`experiments/m6_drake/results.txt`)
@@ -1085,7 +1098,7 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
 - **C. Sensitivity** of the base at 100 houses a year: life −0.58, base price +0.58, upkeep
   +0.29, supervision +0.26, hand minutes +0.19 (Spearman).
 - **D. Higher warp** raises the medians by $0.14–0.53 a sheet (100 and 1,000 houses a year).
-- **E. Break-even** for doubled joints on the base: a missed nail must cost $6.51 [5.21, 7.88]
+- **E. Break-even** for doubled joints on the base: a missed nail must cost $6.47 [5.17, 7.83]
   more than its re-drive.
 - **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H28 held (the base beats the H1 in every
   draw); **H29 refuted** (the median crossing is at about 500 houses a year, outside 30–300;
@@ -1204,7 +1217,7 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
   cheaper in **every** draw at 100, 300 and 1,000 houses a year (median saving $5.13).
 - **Break-even.** Doubling pays only if a missed nail costs a median **$5.51** more than its re-drive
   [5–95%: $3.91, $8.55], 8.8 loaded person-minutes ($5.83 with the common part removed). Measured
-  studs lower milestone 7's $6.51 (the three-read pipeline now misses 1.095 nails a sheet, not
+  studs lower milestone 7's $6.47 (the three-read pipeline now misses 1.095 nails a sheet, not
   0.79), but less than that rise suggests: in about half the draws the cheapest pipeline is one that
   misses fewer nails.
 - **Line laser or point reads.** Per-nail reads by point (31 + 2 a sheet) cost 15 cents more than
@@ -1354,6 +1367,36 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
 - **Fits** (H102 held): no m ≥ 0.75 point within 10 points of both; the best point at every γ is m 0.25, rms 2.1
   (γ ∞), 2.5, 3.1, 4.3, 6.4, 8.7 points. At m 0.25, γ 5 the 6-12 share rises from 57.9% to 68.1%, because the
   intact walls' sheathing nails keep 71–77% of their strength and the decayed walls' 86–96%.
+## Milestone 25 results (`reproduce.py`)
+- **What was checked.** Every numpy-only experiment of two minutes or less (m1, m2, m4, m5, m7,
+  m10–m14) and two scipy ones (m17, m18), each re-run from the committed code in a
+  temporary copy and compared character for character with its committed `results.txt`, timings
+  masked. The m6/m6b/m9/m3 runs need MuJoCo or Drake and m16/m20/m21 take 25–70 min; they were not
+  re-run, and m15 and m19 were started but stopped at this session's 30-minute limit for a
+  background job.
+- **Two experiments had drifted, both from later edits to shared code, neither from a bug.**
+  (1) Milestone 9 rewrote `cycle.ledger_draw` and in doing so drew the panel tilt from the random
+  stream before the ledger tilt (milestone 5 drew the ledger first). Same distributions, different
+  draws: re-running milestone 5's own commit gives its committed 0.5833 exactly; every commit from
+  milestone 9 on gives 0.5814 (bisected over the five commits that touched `tack.py`). (2) Milestone
+  14 changed the mean missed-nail count from (1 − mean hit rate) × 62 to a per-sheet sum: the same
+  quantity, which moves three of milestone 12's values in the third decimal (0.549 to 0.548). m7
+  and m13 read those files, so they moved with them.
+- **What moved.** m5: H22's best single-2x pipeline 0.5833 to **0.5814** [0.574, 0.588]; two 2x
+  with one read 0.9997 to **0.9994**; H26's largest recoil loss 7.64 to **7.39** points (now at three
+  reads, not dense); the single-2x penalty 17.8–65.2 to **17.9–65.5 s**. m7: the break-even
+  $6.51 [5.21, 7.88] to **$6.47 [5.17, 7.83]**. Each is well inside the Monte Carlo interval it was
+  quoted with, and every hypothesis verdict is unchanged. The four results files, the paper
+  (every moved number, among them the abstract's and a highlight's 99.97%, now 99.94%), this README and
+  the homepage card are updated.
+- **What the number check missed.** `paper/check_numbers.py` tied "0.9997" to its results line
+  but not the same number written as a percentage, so a stale 99.97% sat in the abstract, a
+  highlight and the conclusion. Four checks now bind it (194 of 194).
+- **After the refresh,** all ten quick experiments reproduce, and m17 and m18 reproduce as committed.
+- **Checks** (`tests/test_reproduce.py`, 4 tests): every experiment directory is listed, only
+  timings are masked, a changed number is reported, and milestone 7 reproduces from its committed
+  inputs.
+
 ## Limitations
 - **The cyclic wall (milestone 20).** SAWS has no cumulative damage: the envelope a spring reaches under cycles is
   its monotonic envelope, so nail fatigue and tear-out, which Anderson et al. and Weiss saw, are outside it.
@@ -1496,7 +1539,7 @@ tested 16d end-nail ultimate, and a degrading (cumulative-damage) nail model or 
 unsupported panel edge, to test fatigue and tear-out. Milestone 21 added energy-based strength degradation to every nail: it lowers intact
 and decayed walls together and lifts the decayed shares by up to 2.9 points, so spread damage is ruled out. Next:
 a local failure model for the nails left along the unnailed bottom edge (edge distance and cycle count, from
-tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14). Milestone 23 builds the draft into Elsevier's `elsarticle` template (`paper/build_latex.py`, a 27-page PDF with every citation resolved), completes two references and cuts the highlights to Elsevier's five bullets of 85 characters. Milestone 24 cuts the abstract from 469 words to the journal's 150 (26 pages, 24 works cited) and makes the build fail on a longer abstract, a single-author citation left as plain text and an unused reference.
+tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14). Milestone 23 builds the draft into Elsevier's `elsarticle` template (`paper/build_latex.py`, a 27-page PDF with every citation resolved), completes two references and cuts the highlights to Elsevier's five bullets of 85 characters. Milestone 24 cuts the abstract from 469 words to the journal's 150 (26 pages, 24 works cited) and makes the build fail on a longer abstract, a single-author citation left as plain text and an unused reference. Milestone 25 re-runs the committed experiments (`reproduce.py --check`): milestones 5 and 12 had drifted from later edits to shared code (a reordered random draw, a rounding change), now refreshed, with the paper's numbers updated and no verdict changed.
 The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
