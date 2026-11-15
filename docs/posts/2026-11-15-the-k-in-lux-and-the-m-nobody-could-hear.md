@@ -1,9 +1,9 @@
 ---
 title: "The k in lux, and the m nobody could hear"
-seo_title: "Synthesised choir final consonants: k s clusters and nasal murmurs, measured"
+seo_title: "Synthesised choir final consonants: k s clusters and nasals, measured"
 date: 2026-11-15
 tags: [chant-forge, music, choir, audio, speech-synthesis]
-description: "Chant Forge's preview choir now sings the k of lux, dex and Rex. A held-out set of ten Graduale pieces went from 82.9% to 90.0% of final consonants read back correctly."
+description: "Chant Forge's preview choir now sings the k of lux and dex. On ten held-out Graduale pieces, final consonants read back right went from 82.9% to 90.0%."
 ---
 
 Chant Forge turns Gregorian chant into MIDI and a preview mix. Its preview choir is a
