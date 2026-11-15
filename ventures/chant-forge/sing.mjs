@@ -186,9 +186,12 @@ const VOICED_FRIC = 0.3;
 // Each nasal also has its antiformant, the side branch's zero (Fujimura 1962: /m/ 750-1250 Hz,
 // /n/ 1450-2200 Hz; Z in PHONES), which takes out the band just above the murmur that the low-pass leaves.
 const NASAL_DB = 7;
-// Openings keep the first version's murmur for now (a fixed gain, no antiformant, a vowel-width F1): the
-// opening reader's thresholds were set on it, and the coda murmur cost openings 21 of 934 reads
-// (eval/consonant-check-report.md) before any listener has compared the two.
+// Openings now sing the same murmur as codas (2026-11-15, README "Openings on the coda murmur"): its gain
+// worked out per note against the vowel it goes to, its antiformant and its broad low resonance. Before,
+// an opening nasal kept the first version's murmur (this fixed gain, no antiformant, a vowel-width F1),
+// which with one voice and no vibrato sat 6.2 to 16.5 dB under its vowel by vowel and pitch (E2-E4; now
+// 7.6-7.8 dB after every vowel at every pitch). `onsetMurmur:
+// 'first'` (a singNote option) brings it back, to compare.
 const ONSET_NASAL_GAIN = 1.2;
 const NASAL_ZBW = 200;
 // The murmur's low resonance is broad (Fujimura 1962 measured nasal-murmur bandwidths of 100-300 Hz and
@@ -434,8 +437,9 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   const st = new Float64Array(10); // two state values per resonator
   let co = null, lp = 0, lp2 = 0, az = null, zx1 = 0, zx2 = 0;
   // the murmur's gain against the vowel it leaves (or, in an opening, the one it goes to)
-  const gains = new Map(), gainOf = (z, V) => { // per nasal (its zero) and vowel
-    const key = `${z}`;
+  const onCoda = o.onsetMurmur !== 'first'; // an opening nasal sings the coda's murmur
+  const gains = new Map(), gainOf = (z, V, side) => { // per nasal (its zero) and vowel (the one it leaves or goes to)
+    const key = `${z}:${side}`;
     if (!gains.has(key)) { const c = Object.values(PHONES).find((q) => q.Z === z); gains.set(key, nasalGain(f, rate, V, c)); }
     return gains.get(key);
   };
@@ -447,17 +451,17 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
       const c = (cd && cd.formantsAt(i / rate)) || (on && on.formantsAt(i / rate));
       const fs = [...(c || from.map((x, k) => x + (to[k] - x) * w)), ...F45];
       const bm = (on ? on.bwm[i] : 1) * (cd ? cd.bwm[i] : 1);
-      const b1 = 1 + (NASAL_BW1 - 1) * (cd ? cd.nas[i] : 0); // a final nasal's broad low resonance
+      const b1 = 1 + (NASAL_BW1 - 1) * Math.max(cd ? cd.nas[i] : 0, on && onCoda ? on.nas[i] : 0); // a nasal's broad low resonance
       co = fs.map((fk, k) => reson(fk, BW[k] * (k > 0 ? bm : b1), rate));
     }
     let x = src[i] * (on ? on.av[i] : 1) * (cd ? cd.av[i] : 1);
     const nOn = on ? on.nas[i] : 0, nCd = cd ? cd.nas[i] : 0, nz = Math.max(nOn, nCd);
     lp += NASAL_LP * (x - lp); lp2 += NASAL_LP * (lp - lp2);
     // the antiformant: an inverse resonator (Klatt's antiresonator, unity gain at 0 Hz) on the murmur
-    const zf = cd && cd.nas.z[i];
+    const zf = nCd >= nOn ? cd && cd.nas.z[i] : onCoda && on.nas.z[i];
     if (zf && (!az || az.f !== zf)) { const [A, B, C] = reson(zf, NASAL_ZBW, rate); az = { f: zf, a: 1 / A, b: -B / A, c: -C / A }; }
     const zy = az ? az.a * lp2 + az.b * zx1 + az.c * zx2 : lp2; zx2 = zx1; zx1 = lp2;
-    if (nz) x = nCd >= nOn ? x * (1 - nz) + zy * nz * gainOf(zf, to) : x * (1 - nz) + lp2 * nz * ONSET_NASAL_GAIN;
+    if (nz) x = nCd >= nOn ? x * (1 - nz) + zy * nz * gainOf(zf, to, 'cd') : onCoda ? x * (1 - nz) + zy * nz * gainOf(zf, from, 'on') : x * (1 - nz) + lp2 * nz * ONSET_NASAL_GAIN;
     for (let k = 0; k < 5; k++) {
       const [A, B, C] = co[k];
       const y = A * x + B * st[2 * k] + C * st[2 * k + 1];
