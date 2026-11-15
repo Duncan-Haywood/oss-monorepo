@@ -208,3 +208,28 @@ def test_milestone_7h_twr_default_is_bit_for_bit_and_headroom_adds_torque():
     c = poshold.score(x, 4, 5, twr=2.05, **kw)
     assert c[1]["tau_max"][0] > a[1]["tau_max"][0] and c[1]["mass"][0] > a[1]["mass"][0]
     assert poshold.score(x, 4, 5, twr=4.0, **kw)[1]["mass"][0] >= 19.0
+
+
+def test_milestone_7k_fixes_are_inert_at_their_defaults_and_bound_the_command():
+    """tilt_cone, tilt_rate, perr_max and sp_rate at their defaults reproduce the rollout bit for bit; each one, switched on,
+    changes a design's flight; a huge rate or error bound changes nothing; the cone equals the per-axis clip in one axis."""
+    r = _m7b_above_design(); sz, g, kap = _sz_gains(r["x"])
+    kw = dict(dist_sign=poshold.cop_signs(1.0), ff=1.0, ff_mode="integ", lever_scale=1.0)
+    a = poshold.rollout(sz, g, kap, 8, 5, **kw)
+    b = poshold.rollout(sz, g, kap, 8, 5, tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None, **kw)
+    for k in ("pos", "yaw", "att", "dead", "pos_ep"):
+        assert np.array_equal(a[k], b[k]), k
+    for fix in (dict(tilt_cone=True), dict(tilt_rate=1.0), dict(perr_max=0.1), dict(sp_rate=0.5)):
+        assert not np.array_equal(a["pos_ep"], poshold.rollout(sz, g, kap, 8, 5, **fix, **kw)["pos_ep"]), fix
+    for fix in (dict(tilt_rate=1e9), dict(perr_max=1e9)):
+        assert np.allclose(a["pos_ep"], poshold.rollout(sz, g, kap, 8, 5, **fix, **kw)["pos_ep"]), fix
+    # the cone limits the magnitude: a 45-deg per-axis clip lets both axes reach the limit, the cone only their norm
+    old = poshold.TILT_CMD_MAX
+    try:
+        poshold.TILT_CMD_MAX = np.deg2rad(45.0)
+        x = np.array([10.0, 10.0]) / poshold.A.G
+        per_axis = np.clip(x, -poshold.TILT_CMD_MAX, poshold.TILT_CMD_MAX)
+        cone = x * min(1.0, poshold.TILT_CMD_MAX / np.linalg.norm(x))
+        assert np.isclose(np.linalg.norm(cone), poshold.TILT_CMD_MAX) and np.linalg.norm(per_axis) > poshold.TILT_CMD_MAX
+    finally:
+        poshold.TILT_CMD_MAX = old

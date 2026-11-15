@@ -472,6 +472,21 @@ export function selectNextPairByInformation(
   const gSq = phis.map((phi) => glickoG(phi) ** 2);
   const recentKeys = [...recentPairKeys];
   const inRecent = ids.map((id) => recentKeys.some((k) => k.includes(id)));
+  // Exact skips, in two tiers. A pair's score is at most its bound below
+  // (with a margin far above float rounding), so a pair whose bound is under
+  // the best score so far cannot win and its exp/hypot/sqrt are skipped.
+  // rand() is still drawn for it, so the stream, and every pick, is
+  // unchanged; pairing.test.ts pins the result against the unskipped form.
+  // Tier 1, per item: p * (1 - p) <= 1/4 and g^2 <= 1, so an item's drop is
+  // at most phi^2 - 1 / (1 / phi^2 + 1/4) whoever it meets. The penalty is at
+  // most 1 and the noise under 1 + 1e-6.
+  // Tier 2, per pair: the pair's g is at least g(largest phi in the pool), as
+  // hypot(phiA, phiB) / sqrt 2 <= max(phiA, phiB) and g falls with phi; and
+  // p * (1 - p) = 1 / (2 + 2 cosh x) <= 1 / (4 + x^2). So the spread is at most
+  // 1 / (4 + (gMin * mu)^2), and each drop rises with the spread.
+  const dropCap = phis.map((phi, k) => phiSq[k] - 1 / (invPhiSq[k] + 0.25) + 1e-9 * phiSq[k]);
+  const conflictCap = Math.max(1, conflictBonus) * GLICKO_SCALE * GLICKO_SCALE * (1 + 1e-6) * (1 + 1e-9);
+  const gMin = glickoG(Math.max(...phis)) * (1 - 1e-9);
 
   let best: [string, string] | null = null;
   let bestScore = -Infinity;
@@ -487,9 +502,24 @@ export function selectNextPairByInformation(
       const db = dims[j];
       const conflict = da && db && da !== db ? conflictBonus : 1;
       const coverage = 1 + coverageWeight * (lags[i] + lags[j]);
+      const mu = (ra - ratings[j]) / GLICKO_SCALE;
+      if (coverage > 0) {
+        const cap = conflictCap * coverage;
+        if ((dropCap[i] + dropCap[j]) * cap < bestScore) {
+          rand();
+          continue;
+        }
+        const x = gMin * mu;
+        const spreadCap = 1 / (4 + x * x);
+        const capA = phiSq[i] - 1 / (invPhiSq[i] + gSq[j] * spreadCap) + 1e-9 * phiSq[i];
+        const capB = phiSq[j] - 1 / (invPhiSq[j] + gSq[i] * spreadCap) + 1e-9 * phiSq[j];
+        if ((capA + capB) * cap < bestScore) {
+          rand();
+          continue;
+        }
+      }
       // expectedVarianceReduction(pool[i], pool[j]), inlined.
       const phiB = phis[j];
-      const mu = (ra - ratings[j]) / GLICKO_SCALE;
       const p = 1 / (1 + Math.exp(-glickoG(Math.hypot(phiA, phiB) / Math.SQRT2) * mu));
       const spread = p * (1 - p);
       const dropA = phiSq[i] - 1 / (invPhiSq[i] + gSq[j] * spread);

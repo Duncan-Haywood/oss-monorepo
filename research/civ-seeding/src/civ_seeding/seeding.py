@@ -173,6 +173,103 @@ STRUCTURAL = {
 }
 
 
+# ---- milestone 5: rules without a fitted model, and rules from a partial survey ----
+
+def _spread_pick(score, A, b):
+    """Households in score order, skipping any next to a seed; if that runs out, the
+    highest-score households left. A is the adjacency the rule can see."""
+    n = len(score)
+    order = np.lexsort((np.arange(n), -np.asarray(score)))
+    m = np.zeros(n, bool)
+    blocked = np.zeros(n, bool)
+    for i in order:
+        if m.sum() == b:
+            break
+        if not blocked[i]:
+            m[i] = True
+            blocked |= A[i] > 0
+            blocked[i] = True
+    if m.sum() < b:
+        rest = [i for i in order if not m[i]]
+        m[rest[: b - int(m.sum())]] = True
+    return m
+
+
+def rule_spread_degree(v, b, rng=None):
+    """Top degree, no two seeds adjacent (while an independent choice remains)."""
+    return _spread_pick(v.deg, v.A, b)
+
+
+def rule_single_discount(v, b, rng=None):
+    """SingleDiscount (Chen, Wang and Yang 2009): highest degree counting only ties to
+    unseeded households, recomputed after each pick."""
+    m = np.zeros(v.n, bool)
+    d = v.deg.astype(float).copy()
+    for _ in range(b):
+        sc = np.where(m, -np.inf, d)
+        i = int(np.lexsort((np.arange(v.n), -sc))[0])
+        m[i] = True
+        d -= v.A[:, i]
+    return m
+
+
+def rule_degree_discount(v, b, rng=None, p: float = 0.05):
+    """DegreeDiscountIC (Chen, Wang and Yang 2009): dd = d - 2t - (d - t) t p, t = seeded
+    neighbours. p = 0.05, the information model's fitted q_N."""
+    m = np.zeros(v.n, bool)
+    d = v.deg.astype(float)
+    t = np.zeros(v.n)
+    for _ in range(b):
+        dd = d - 2 * t - (d - t) * t * p
+        sc = np.where(m, -np.inf, dd)
+        i = int(np.lexsort((np.arange(v.n), -sc))[0])
+        m[i] = True
+        t += v.A[:, i]
+    return m
+
+
+def survey(v, f, rng):
+    """Survey a random share f of households; each reports its ties. Returns the surveyed
+    mask, the estimated degree (exact if surveyed, surveyed neighbours / f if not) and the
+    adjacency the survey saw (ties with at least one surveyed end)."""
+    k = max(1, int(round(f * v.n)))
+    s = np.zeros(v.n, bool)
+    s[rng.choice(v.n, k, replace=False)] = True
+    seen = v.A * (s[:, None] | s[None, :])
+    est = np.where(s, v.deg, v.A[:, s].sum(1) / (k / v.n))
+    return s, est, seen
+
+
+def rule_survey_degree(v, b, rng, f: float):
+    _, est, _ = survey(v, f, rng)
+    return _top(est, b)
+
+
+def rule_survey_spread(v, b, rng, f: float):
+    _, est, seen = survey(v, f, rng)
+    return _spread_pick(est, seen, b)
+
+
+def rule_friend(v, b, rng):
+    """Friend nomination (after Kim et al. 2015): random households each name a uniform
+    random tie; seed the named until b distinct households are seeded."""
+    m = np.zeros(v.n, bool)
+    nbrs = [np.flatnonzero(v.A[i]) for i in range(v.n)]
+    while m.sum() < b:
+        i = int(rng.integers(v.n))
+        if len(nbrs[i]):
+            m[int(rng.choice(nbrs[i]))] = True
+    return m
+
+
+CENSUS_CHEAP = {
+    "spread-degree": rule_spread_degree,
+    "single-discount": rule_single_discount,
+    "degree-discount": rule_degree_discount,
+}
+SURVEY_SHARES = (0.1, 0.25, 0.5)
+
+
 def kendall_tau(x, y):
     """Kendall tau-b of two score vectors (ties counted as neither)."""
     x, y = np.asarray(x), np.asarray(y)

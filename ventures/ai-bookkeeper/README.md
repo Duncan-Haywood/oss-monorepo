@@ -1378,6 +1378,28 @@ On Monarch the reader change alone (item 2) gives keywords 67.7% / 7.2%, loop 91
 
 What it says, with care: the labels are a consumer app's, and they are noisy (Rocket Money files a Midjourney subscription and an AI writing tool under Dining & Drinks and a restaurant booking under Auto & Transport); one firm's card and one household. Convenience stores that sell fuel (Wawa, Sheetz, 7-Eleven) are left as meals: in the Monarch file the same store is fuel on one line and snacks on the next, and only the amount tells them apart. One more finding for the Mint reading above: one of its six held-out files (a student project's) has labels that look shuffled (Uber trips filed as Restaurants, pizza as Ride Share), which pulls its held-out figures down; it is left in, as it was when the figures were first read. Pinned in `aggregator-exports.test.mjs` (6 tests, rows written here under the real headers).
 
+### YNAB registers: three households' own categories (2026-11-15)
+
+`node eval/ynab-registers.mjs` reads three YNAB register exports that people committed to public GitHub repositories, fetched at run time at pinned commits and never committed (they hold names; only counts are written here): a Seattle family's 42 accounts, December 2024 to May 2025 (1,944 lines); a Utah couple's five accounts, April to September 2025 (602); a Chicago renter's six, June and July 2026 (257). YNAB's payee column is a name YNAB has already cleaned ("Seattle City Light", not the bank's descriptor), and the category is one the household chose itself, so this tests the built-in keywords on tidy names against labels no app guessed. The reader took all three registers with no problems. Every column that names the category (`Category Group/Category`, `Category Group`, `Category`) is blanked before the reader sees the file; emoji in front of a category ("🛒 Groceries") are dropped before the lookup. Only money out in categories that name one chart account is scored (dining, fuel and parking, insurance, utilities and phone, subscriptions, rent, a nanny's pay, interest and fees); groceries, gifts, allowances, trips, medical and transfers between the household's own accounts are left out.
+
+The rules were written from the Seattle file's first-seen misses only, then Utah and Chicago were read as held out:
+
+- the utilities rule matched "utility" but not "utilities", so "Seattle Public Utilities" went unsuggested; "city light", "espresso", Washington's toll pass ("Good To Go", WSDOT) and Impark parking; YNAB's own subscription.
+
+Then, after that reading, from the Utah and Chicago misses (so tuned on all three): Hulu's glued card name (`HLU*HULUPLUS`), ComEd, Chicago's Ventra transit card, Maverik and Cenex fuel, tire shops, a DMV and RealPage rent payments. Conoco was tried and dropped: in the software LLC's books below, `CONOCO - CITYMART` is a convenience-store supply run. Netflix, Audible, YouTube Premium, Peloton, iTunes and Prime were left alone on purpose: the households filed them as subscriptions, but in a business's books they are as often the owner's own, and three existing tests pin that they wait for a person.
+
+Right / wrong of the scored lines (first-seen: a payee key never filed before in that register):
+
+| register | scored (first-seen) | keywords alone, before | Seattle rules | all rules | first-seen, before | Seattle rules | all rules |
+|---|---|---|---|---|---|---|---|
+| Seattle (tuned) | 393 (110) | 61.3% / 1.0% | 69.7% / 1.0% | 69.7% / 1.0% | 70.9% / 12.7% | 76.4% / 10.9% | 76.4% / 10.9% |
+| Utah (held out) | 125 (48) | 41.6% / 0.0% | 42.4% / 0.0% | 56.0% / 0.0% | 66.7% / 20.8% | 68.8% / 18.8% | 79.2% / 10.4% |
+| Chicago (held out) | 115 (61) | 35.7% / 0.0% | 36.5% / 0.0% | 54.8% / 0.0% | 62.3% / 16.4% | 63.9% / 16.4% | 68.9% / 14.8% |
+
+The learning loop on every line, before / after all rules: Seattle 89.8% / 4.8% to 91.3% / 4.3%; Utah 71.2% / 14.4% to 76.0% / 10.4%; Chicago 77.4% / 9.6% to 80.9% / 8.7%.
+
+What it says, with care: the held-out gain from the Seattle rules is small (one or two points on each held-out file, about one line in 50), because each household's money goes to local names (a Utah fuel chain, a Chicago transit card) that one Seattle file cannot teach; the larger "all rules" figures are fitted to the files they are read on. Built-in keywords stayed almost never wrong on cleaned names (4 of 633 lines across the three files); what goes wrong is mostly the new-payee guess, which on a first-seen payee with nothing known about it leans to meals (Utah "Gas: Conoco" and "Rent: Greystar" both went to meals before). Labels are three households' budgets, not a bookkeeper's answer key. On the other labelled sets: the ten Mint exports moved by one line (keywords alone, first-seen right 47.0% to 47.1%, wrong unchanged at 2.6%), the Monarch and Rocket Money replay and the software LLC's books are unchanged. Pinned in `ynab-registers.test.mjs` (6 tests; register lines made up under YNAB's real headers).
+
 ### Card payments as the banks print them, and a software LLC's own books (2026-11-15)
 
 `node eval/nevarro-ledger.mjs` reads the published books of a single-member software LLC (MIT-licensed hledger journals, fetched at run time at a pinned commit; nothing committed): its Bluevine business checking and its Chase Ink business card, 2023 to 2026, 314 bank lines, each filed by the owner. The CSV downloads are not in that repository, but every journal entry keeps the bank's own description, so these are the first real Bluevine lines read here and the fourth set of a business's own labels (after Mercury, Rocket Money and Open Collective).

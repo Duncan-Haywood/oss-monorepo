@@ -565,30 +565,79 @@ class LinearAxis:
 
 
 class LiftRun:
-    """When the ball lift's gearmotor runs (2026-11-13, cad/README.md "Ball lift").
+    """When the ball lift's gearmotor runs (2026-11-13, cad/README.md "Ball lift"), and its jam cutoff (2026-11-15,
+    cad/README.md "Lift jam cutoff").
 
     A returning ball takes up to `run_on_ms` to reach the tub after the last ball is fed: its flight and fall down the
     net, the far end of the trough (about 5 s) and the lift itself (about 9 s at 0.27 m/s), the figure the CAD's
     manifest prints as the lift's run-on. So every ball fed restarts the timer, and the motor runs until it expires; it
-    is off from power-up and after every stop (e-stop, watchdog). `update(now_ms)` returns the duty to drive."""
+    is off from power-up and after every stop (e-stop, watchdog). `update(now_ms, over)` returns the duty to drive.
 
-    def __init__(self, run_on_ms, duty=1.0):
+    `over` is the shunt comparator (GPIO 0 low): the motor draws more than the trip current. A motor starts at its
+    stall current, so `over` is ignored for `blank_ms` after each start; after that, `over` on every tick for `trip_ms`
+    is a stall (a ball caught at a pulley), and the motor goes off. It rests `rest_ms` (the belt and the ball relax,
+    and a ball half in the boot may drop back) and tries again with a full run-on, up to `retries` times; then it stays
+    off and `jammed` is set (telemetry FLAG_LIFT_JAM) until `clear()`, which the board calls when the switched bus
+    drops: someone pressed the e-stop, which is how a person reaches into the lift. A stop (watchdog, ESTOP frame) does
+    not clear it: the Pi reconnecting must not drive the belt into the same jam. A run-on that ends untripped resets
+    the retry count."""
+
+    def __init__(self, run_on_ms, duty=1.0, blank_ms=300, trip_ms=10, rest_ms=2000, retries=1):
         self.run_on_ms = run_on_ms
         self.duty = duty
+        self.blank_ms, self.trip_ms, self.rest_ms, self.retries = blank_ms, trip_ms, rest_ms, retries
         self.until = None
+        self.on_since = None          # when the motor was last switched on
+        self.over_since = None        # first tick of the current run of over-current ticks
+        self.rest_until = None
+        self.trips = 0
+        self.jammed = False
 
     def kick(self, now_ms):
-        self.until = now_ms + self.run_on_ms
+        if not self.jammed:
+            self.until = max(self.until or 0, now_ms + self.run_on_ms)
 
     def stop(self):
         self.until = None
+        self.on_since = self.over_since = self.rest_until = None
 
-    def update(self, now_ms):
-        if self.until is None:
-            return 0.0
+    def clear(self):
+        self.stop()
+        self.jammed = False
+        self.trips = 0
+
+    def _off(self):
+        self.on_since = self.over_since = None
+        return 0.0
+
+    def update(self, now_ms, over=False):
+        if self.until is None or self.jammed:
+            return self._off()
+        if self.rest_until is not None:
+            if now_ms < self.rest_until:
+                return self._off()
+            self.rest_until = None
         if now_ms >= self.until:
             self.until = None
-            return 0.0
+            self.trips = 0
+            return self._off()
+        if self.on_since is None:
+            self.on_since = now_ms
+        if over and now_ms - self.on_since >= self.blank_ms:
+            if self.over_since is None:
+                self.over_since = now_ms
+            if now_ms - self.over_since >= self.trip_ms:
+                self.trips += 1
+                self._off()
+                if self.trips > self.retries:
+                    self.jammed = True
+                    self.until = None
+                else:
+                    self.rest_until = now_ms + self.rest_ms
+                    self.until = self.rest_until + self.run_on_ms
+                return 0.0
+        else:
+            self.over_since = None
         return self.duty
 
 

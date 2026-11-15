@@ -97,14 +97,18 @@ export function parseDate(v, dmy = false) {
 // Day-first if any slash date has a first part above 12 and none has a second
 // part above 12. Ambiguous files default to month-first.
 export function detectDmy(values) {
-  let first = false, second = false;
+  // Dots ("03.06.2026") are the European day.month.year form; no locale
+  // writes month.day.year, so a dotted file is day-first unless a second part
+  // is above 12 (red team 2026-11-15).
+  let first = false, second = false, dotted = false;
   for (const v of values) {
-    const m = String(v ?? "").trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}/);
+    const m = String(v ?? "").trim().match(/^(\d{1,2})([/.-])(\d{1,2})\2\d{2,4}/);
     if (!m) continue;
     if (+m[1] > 12) first = true;
-    if (+m[2] > 12) second = true;
+    if (+m[3] > 12) second = true;
+    if (m[2] === ".") dotted = true;
   }
-  return first && !second;
+  return (first || dotted) && !second;
 }
 
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);

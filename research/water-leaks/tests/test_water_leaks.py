@@ -410,3 +410,15 @@ def test_simulate_run_year_reads_points_every_five_minutes(tmp_path):
     assert abs(P[0, 0] - (100 - hl)) < 0.01
     assert abs(F[0, 0] - 36) < 1e-3
     assert abs(P[1, 0] - 100) < 1e-3 and abs(F[1, 0]) < 1e-3
+
+
+def test_visible_from_needs_a_sustained_drop_against_the_pre_onset_mean():
+    """Step 15: a 1-hour dip is ignored; a drop of 0.05 m held 3 hours is seen at its first hour;
+    an offset already present before onset does not count."""
+    D = np.zeros((100, 2))
+    D[:, 1] = -0.3                # a steady earlier leak at sensor 1
+    D[40, 0] = -0.2               # one-hour dip
+    D[50:60, 0] = -0.06
+    assert localise.visible_from(D, 30, 60) == 50
+    assert localise.visible_from(D, 30, 15) is None
+    assert localise.visible_from(np.zeros((100, 2)), 30, 60) is None

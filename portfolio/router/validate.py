@@ -158,7 +158,8 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"flagships.yaml: {entry.get('venture')} `next:` is {n} characters (cap "
                 f"{FLAGSHIP_NEXT_MAX}). Replace the item your slice landed instead of "
                 f"appending (portfolio/router/flagship_field.py <venture> --replace OLD NEW); "
-                f"history belongs in the venture's README."
+                f"history belongs in the venture's README; "
+                f"`flagship_field.py {entry.get('venture')} --landed` lists the landed notes to cut."
             )
         n = len(str(entry.get("buildable") or "").strip())
         if n > FLAGSHIP_BUILDABLE_MAX:

@@ -468,6 +468,69 @@ class FirmwareTest(unittest.TestCase):
         lift.stop()                                           # e-stop or watchdog
         self.assertEqual(lift.update(30001), 0.0)
 
+    def test_lift_jam_cutoff_blanks_the_start_trips_retries_and_latches(self):
+        # 2026-11-15, cad/README.md "Lift jam cutoff": over-current ignored for blank_ms after each start, then on two
+        # ticks (trip_ms) it cuts the motor, rests, retries once, then stays off until clear() (the bus dropping).
+        lift = controller.LiftRun(16000, 1.0, blank_ms=300, trip_ms=10, rest_ms=2000, retries=1)
+        lift.kick(0)
+        for t in range(0, 300, 10):
+            self.assertEqual(lift.update(t, True), 1.0, t)      # a start draws stall current: blanked
+        self.assertEqual(lift.update(300, False), 1.0)
+        self.assertEqual(lift.update(310, True), 1.0)            # one tick over: a stray reading, not a stall
+        self.assertEqual(lift.update(320, False), 1.0)
+        self.assertEqual(lift.update(330, True), 1.0)
+        self.assertEqual(lift.update(340, True), 0.0)            # two ticks over: cut
+        self.assertEqual(lift.trips, 1)
+        self.assertFalse(lift.jammed)
+        for t in range(350, 2340, 10):
+            self.assertEqual(lift.update(t, False), 0.0, t)     # resting
+        lift.kick(1000)                                          # a ball fed meanwhile does not end the rest
+        self.assertEqual(lift.update(1500, False), 0.0)
+        self.assertEqual(lift.update(2340, True), 1.0)           # retry: blanked again from its own start
+        self.assertEqual(lift.update(2630, True), 1.0)
+        self.assertEqual(lift.update(2640, True), 1.0)
+        self.assertEqual(lift.update(2650, True), 0.0)           # second stall: give up
+        self.assertTrue(lift.jammed)
+        lift.kick(3000)                                          # balls fed while jammed do not restart it
+        self.assertEqual(lift.update(3010, False), 0.0)
+        lift.stop()                                              # a watchdog or ESTOP frame does not clear it
+        lift.kick(3100)
+        self.assertEqual(lift.update(3110, False), 0.0)
+        self.assertTrue(lift.jammed)
+        lift.clear()                                             # the e-stop pressed: the bus dropped
+        self.assertFalse(lift.jammed)
+        lift.kick(4000)
+        self.assertEqual(lift.update(4000, False), 1.0)
+
+    def test_lift_trip_count_resets_after_a_clean_run_on(self):
+        lift = controller.LiftRun(1000, 1.0, blank_ms=100, trip_ms=10, rest_ms=200, retries=1)
+        lift.kick(0)
+        lift.update(0, False)
+        for t in range(100, 130, 10):
+            lift.update(t, True)
+        self.assertEqual(lift.trips, 1)                          # cut at 110; retry from 310 with a full run-on
+        for t in range(130, 1310, 10):
+            self.assertEqual(lift.update(t, False), 0.0 if t < 310 else 1.0, t)
+        self.assertEqual(lift.update(1310, False), 0.0)          # run-on over, untripped
+        self.assertEqual(lift.trips, 0)
+        lift.kick(2000)
+        lift.update(2000, False)
+        for t in range(2100, 2130, 10):
+            lift.update(t, True)
+        self.assertFalse(lift.jammed)                            # one trip again, not the second in a row
+
+    def test_lift_jam_config_matches_the_cad(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
+        import config
+        from otr_cad.params import Feeder
+        p = Feeder()
+        self.assertEqual(config.LIFT_JAM_BLANK_MS, p.lift_jam_blank_ms)
+        self.assertEqual(config.LIFT_JAM_TRIP_MS, p.lift_jam_trip_ms)
+        self.assertEqual(config.LIFT_JAM_REST_MS, p.lift_jam_rest_ms)
+        self.assertEqual(config.LIFT_JAM_RETRIES, p.lift_jam_retries)
+        self.assertEqual(config.LIFT_DUTY, p.lift_duty)
+        self.assertEqual(p.check_lift_jam(), [])
+
     def test_lift_run_on_covers_the_cad_return_time(self):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
         import config

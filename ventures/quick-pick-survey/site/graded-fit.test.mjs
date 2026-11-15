@@ -6,7 +6,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gradedFit, estimateTau, hasGrades, BIT, MUCH, GRADED_TAU } from "./graded-fit.mjs";
 import { fit } from "./rank-core.mjs";
-import { encodeAnswers, decodeAnswers, decisionFit, overallOrder, decisionTable, decisionDone, decisionDoneGraded, nextQuestion } from "./decide-core.mjs";
+import { encodeAnswers, decodeAnswers, decisionFit, overallOrder, decisionTable, decisionDone, decisionDoneGraded, nextQuestion, longRunLevel, decisionMax, STOP_CONFIDENCE } from "./decide-core.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -105,4 +105,25 @@ test("the page offers both grades for each side and keys for them", () => {
   assert.match(html, /answer\("left", MUCH\)/);
   assert.match(html, /Shift\+&larr;/);
   assert.match(html, /decisionDoneGraded\(n, C, state\.answers, table(, \{ rule \})?\)/, "the page stops through the graded guard");
+});
+
+test("past the checkpoint the stop's level rises with the answer count", () => {
+  const n = 6, C = 4, base = decisionMax(n, C);
+  assert.equal(longRunLevel(n, C, 0), STOP_CONFIDENCE);
+  assert.equal(longRunLevel(n, C, base), STOP_CONFIDENCE, "unchanged up to the checkpoint");
+  assert.ok(Math.abs(longRunLevel(n, C, 2 * base) - (1 - 0.1 / Math.SQRT2)) < 1e-12);
+  assert.ok(Math.abs(longRunLevel(n, C, 3 * base) - (1 - 0.1 / Math.sqrt(3))) < 1e-12);
+  assert.ok(Math.abs(longRunLevel(n, C, 3 * base, { power: 1 }) - (1 - 0.1 / 3)) < 1e-12);
+  assert.ok(longRunLevel(n, C, base + 1) > STOP_CONFIDENCE);
+  assert.equal(longRunLevel(n, C, 3 * base, { longRun: "none" }), STOP_CONFIDENCE);
+  // A table that passes at 0.9 but not at 0.942: stops at the checkpoint, not at 3x it.
+  const table = { safe: 0.93, confidence: 0.5 };
+  const answers = (k) => ({ crit: [[0, 1, false]], opt: Array.from({ length: k - 1 }, () => [0, 0, 1, false]) });
+  assert.equal(decisionDoneGraded(n, C, answers(base), table).done, true);
+  assert.equal(decisionDoneGraded(n, C, answers(3 * base), table).done, false, "the long-run level holds the stop");
+  assert.equal(decisionDoneGraded(n, C, answers(3 * base), table, { longRun: "none" }).done, true);
+  assert.equal(decisionDoneGraded(n, C, answers(3 * base), { safe: 0.95, confidence: 0.5 }).done, true);
+  // the page's status line and bar read the same level
+  const html = readFileSync(join(here, "decide.html"), "utf8");
+  assert.match(html, /const level = longRunLevel\(n, C, total\(\)\)/);
 });

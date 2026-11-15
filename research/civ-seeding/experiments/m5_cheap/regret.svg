@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 670" width="720" height="670" font-family="system-ui, sans-serif" font-size="12" role="img" aria-labelledby="t d">
+<title id="t">Regret of census, survey and greedy seeding rules under three fitted contagion models</title>
+<desc id="d">For each seeding rule, the share of expected adopters lost against the best rule, under the information, threshold and reinforcement models fitted to the 43 Karnataka villages. Rules sorted by their worst case.</desc>
+<style>text{fill:#222}.ax{stroke:#888}@media (prefers-color-scheme:dark){text{fill:#ddd}}</style>
+<text x="150" y="22" font-size="14" font-weight="600">Adopters lost against the best rule, by model: cheap and survey rules (43 villages)</text>
+<rect x="150" y="34" width="12" height="10" fill="#2a6fdb"/><text x="166" y="43">information (I)</text>
+<rect x="320" y="34" width="12" height="10" fill="#d9822b"/><text x="336" y="43">threshold (T)</text>
+<rect x="490" y="34" width="12" height="10" fill="#3a9d5d"/><text x="506" y="43">reinforcement (R)</text>
+<line class="ax" x1="150.0" y1="56" x2="150.0" y2="620" stroke-opacity="0.3"/><text x="150.0" y="636" text-anchor="middle">0.0%</text>
+<line class="ax" x1="256.0" y1="56" x2="256.0" y2="620" stroke-opacity="0.3"/><text x="256.0" y="636" text-anchor="middle">2.7%</text>
+<line class="ax" x1="362.0" y1="56" x2="362.0" y2="620" stroke-opacity="0.3"/><text x="362.0" y="636" text-anchor="middle">5.3%</text>
+<line class="ax" x1="468.0" y1="56" x2="468.0" y2="620" stroke-opacity="0.3"/><text x="468.0" y="636" text-anchor="middle">8.0%</text>
+<line class="ax" x1="574.0" y1="56" x2="574.0" y2="620" stroke-opacity="0.3"/><text x="574.0" y="636" text-anchor="middle">10.6%</text>
+<line class="ax" x1="680.0" y1="56" x2="680.0" y2="620" stroke-opacity="0.3"/><text x="680.0" y="636" text-anchor="middle">13.3%</text>
+<text x="142" y="76.0" text-anchor="end">greedy-T</text>
+<rect x="150" y="63" width="19.6" height="5" fill="#2a6fdb"><title>greedy-T under I: 0.49%</title></rect>
+<rect x="150" y="69" width="0.5" height="5" fill="#d9822b"><title>greedy-T under T: 0.00%</title></rect>
+<rect x="150" y="75" width="7.7" height="5" fill="#3a9d5d"><title>greedy-T under R: 0.19%</title></rect>
+<text x="142" y="104.0" text-anchor="end">greedy-R</text>
+<rect x="150" y="91" width="12.5" height="5" fill="#2a6fdb"><title>greedy-R under I: 0.31%</title></rect>
+<rect x="150" y="97" width="38.0" height="5" fill="#d9822b"><title>greedy-R under T: 0.95%</title></rect>
+<rect x="150" y="103" width="1.0" height="5" fill="#3a9d5d"><title>greedy-R under R: 0.03%</title></rect>
+<text x="142" y="132.0" text-anchor="end">degree-discount</text>
+<rect x="150" y="119" width="57.2" height="5" fill="#2a6fdb"><title>degree-discount under I: 1.44%</title></rect>
+<rect x="150" y="125" width="32.3" height="5" fill="#d9822b"><title>degree-discount under T: 0.81%</title></rect>
+<rect x="150" y="131" width="0.5" height="5" fill="#3a9d5d"><title>degree-discount under R: 0.00%</title></rect>
+<text x="142" y="160.0" text-anchor="end">single-discount</text>
+<rect x="150" y="147" width="87.6" height="5" fill="#2a6fdb"><title>single-discount under I: 2.20%</title></rect>
+<rect x="150" y="153" width="94.9" height="5" fill="#d9822b"><title>single-discount under T: 2.38%</title></rect>
+<rect x="150" y="159" width="26.7" height="5" fill="#3a9d5d"><title>single-discount under R: 0.67%</title></rect>
+<text x="142" y="188.0" text-anchor="end">greedy-I</text>
+<rect x="150" y="175" width="0.5" height="5" fill="#2a6fdb"><title>greedy-I under I: 0.00%</title></rect>
+<rect x="150" y="181" width="102.1" height="5" fill="#d9822b"><title>greedy-I under T: 2.56%</title></rect>
+<rect x="150" y="187" width="37.6" height="5" fill="#3a9d5d"><title>greedy-I under R: 0.94%</title></rect>
+<text x="142" y="216.0" text-anchor="end">spread-degree</text>
+<rect x="150" y="203" width="92.6" height="5" fill="#2a6fdb"><title>spread-degree under I: 2.32%</title></rect>
+<rect x="150" y="209" width="133.8" height="5" fill="#d9822b"><title>spread-degree under T: 3.36%</title></rect>
+<rect x="150" y="215" width="67.6" height="5" fill="#3a9d5d"><title>spread-degree under R: 1.70%</title></rect>
+<text x="142" y="244.0" text-anchor="end">patches</text>
+<rect x="150" y="231" width="113.1" height="5" fill="#2a6fdb"><title>patches under I: 2.84%</title></rect>
+<rect x="150" y="237" width="142.8" height="5" fill="#d9822b"><title>patches under T: 3.58%</title></rect>
+<rect x="150" y="243" width="63.1" height="5" fill="#3a9d5d"><title>patches under R: 1.58%</title></rect>
+<text x="142" y="272.0" text-anchor="end">survey-spread-0.5</text>
+<rect x="150" y="259" width="111.8" height="5" fill="#2a6fdb"><title>survey-spread-0.5 under I: 2.80%</title></rect>
+<rect x="150" y="265" width="145.8" height="5" fill="#d9822b"><title>survey-spread-0.5 under T: 3.66%</title></rect>
+<rect x="150" y="271" width="128.3" height="5" fill="#3a9d5d"><title>survey-spread-0.5 under R: 3.22%</title></rect>
+<text x="142" y="300.0" text-anchor="end">survey-degree-0.5</text>
+<rect x="150" y="287" width="153.5" height="5" fill="#2a6fdb"><title>survey-degree-0.5 under I: 3.85%</title></rect>
+<rect x="150" y="293" width="142.6" height="5" fill="#d9822b"><title>survey-degree-0.5 under T: 3.58%</title></rect>
+<rect x="150" y="299" width="141.2" height="5" fill="#3a9d5d"><title>survey-degree-0.5 under R: 3.54%</title></rect>
+<text x="142" y="328.0" text-anchor="end">degree</text>
+<rect x="150" y="315" width="128.9" height="5" fill="#2a6fdb"><title>degree under I: 3.23%</title></rect>
+<rect x="150" y="321" width="163.6" height="5" fill="#d9822b"><title>degree under T: 4.11%</title></rect>
+<rect x="150" y="327" width="66.8" height="5" fill="#3a9d5d"><title>degree under R: 1.68%</title></rect>
+<text x="142" y="356.0" text-anchor="end">survey-degree-0.25</text>
+<rect x="150" y="343" width="161.8" height="5" fill="#2a6fdb"><title>survey-degree-0.25 under I: 4.06%</title></rect>
+<rect x="150" y="349" width="178.3" height="5" fill="#d9822b"><title>survey-degree-0.25 under T: 4.47%</title></rect>
+<rect x="150" y="355" width="158.3" height="5" fill="#3a9d5d"><title>survey-degree-0.25 under R: 3.97%</title></rect>
+<text x="142" y="384.0" text-anchor="end">survey-spread-0.25</text>
+<rect x="150" y="371" width="146.9" height="5" fill="#2a6fdb"><title>survey-spread-0.25 under I: 3.69%</title></rect>
+<rect x="150" y="377" width="179.5" height="5" fill="#d9822b"><title>survey-spread-0.25 under T: 4.50%</title></rect>
+<rect x="150" y="383" width="155.6" height="5" fill="#3a9d5d"><title>survey-spread-0.25 under R: 3.90%</title></rect>
+<text x="142" y="412.0" text-anchor="end">friend</text>
+<rect x="150" y="399" width="166.4" height="5" fill="#2a6fdb"><title>friend under I: 4.17%</title></rect>
+<rect x="150" y="405" width="248.1" height="5" fill="#d9822b"><title>friend under T: 6.22%</title></rect>
+<rect x="150" y="411" width="190.4" height="5" fill="#3a9d5d"><title>friend under R: 4.78%</title></rect>
+<text x="142" y="440.0" text-anchor="end">survey-spread-0.1</text>
+<rect x="150" y="427" width="192.0" height="5" fill="#2a6fdb"><title>survey-spread-0.1 under I: 4.82%</title></rect>
+<rect x="150" y="433" width="260.4" height="5" fill="#d9822b"><title>survey-spread-0.1 under T: 6.53%</title></rect>
+<rect x="150" y="439" width="209.1" height="5" fill="#3a9d5d"><title>survey-spread-0.1 under R: 5.25%</title></rect>
+<text x="142" y="468.0" text-anchor="end">survey-degree-0.1</text>
+<rect x="150" y="455" width="194.4" height="5" fill="#2a6fdb"><title>survey-degree-0.1 under I: 4.88%</title></rect>
+<rect x="150" y="461" width="268.7" height="5" fill="#d9822b"><title>survey-degree-0.1 under T: 6.74%</title></rect>
+<rect x="150" y="467" width="211.5" height="5" fill="#3a9d5d"><title>survey-degree-0.1 under R: 5.31%</title></rect>
+<text x="142" y="496.0" text-anchor="end">diffusion</text>
+<rect x="150" y="483" width="209.6" height="5" fill="#2a6fdb"><title>diffusion under I: 5.26%</title></rect>
+<rect x="150" y="489" width="313.5" height="5" fill="#d9822b"><title>diffusion under T: 7.87%</title></rect>
+<rect x="150" y="495" width="159.3" height="5" fill="#3a9d5d"><title>diffusion under R: 4.00%</title></rect>
+<text x="142" y="524.0" text-anchor="end">eigenvector</text>
+<rect x="150" y="511" width="266.8" height="5" fill="#2a6fdb"><title>eigenvector under I: 6.69%</title></rect>
+<rect x="150" y="517" width="398.5" height="5" fill="#d9822b"><title>eigenvector under T: 10.00%</title></rect>
+<rect x="150" y="523" width="221.6" height="5" fill="#3a9d5d"><title>eigenvector under R: 5.56%</title></rect>
+<text x="142" y="552.0" text-anchor="end">leaders</text>
+<rect x="150" y="539" width="247.1" height="5" fill="#2a6fdb"><title>leaders under I: 6.20%</title></rect>
+<rect x="150" y="545" width="415.5" height="5" fill="#d9822b"><title>leaders under T: 10.42%</title></rect>
+<rect x="150" y="551" width="246.4" height="5" fill="#3a9d5d"><title>leaders under R: 6.18%</title></rect>
+<text x="142" y="580.0" text-anchor="end">ball</text>
+<rect x="150" y="567" width="281.5" height="5" fill="#2a6fdb"><title>ball under I: 7.06%</title></rect>
+<rect x="150" y="573" width="417.7" height="5" fill="#d9822b"><title>ball under T: 10.48%</title></rect>
+<rect x="150" y="579" width="256.6" height="5" fill="#3a9d5d"><title>ball under R: 6.44%</title></rect>
+<text x="142" y="608.0" text-anchor="end">random</text>
+<rect x="150" y="595" width="274.4" height="5" fill="#2a6fdb"><title>random under I: 6.88%</title></rect>
+<rect x="150" y="601" width="481.8" height="5" fill="#d9822b"><title>random under T: 12.09%</title></rect>
+<rect x="150" y="607" width="345.5" height="5" fill="#3a9d5d"><title>random under R: 8.67%</title></rect>
+<text x="150" y="660" font-size="11">regret = 1 &#8722; adopters / best rule&#8217;s adopters under that model; 200 runs per village</text>
+</svg>

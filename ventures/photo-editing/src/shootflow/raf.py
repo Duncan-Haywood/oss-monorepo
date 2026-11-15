@@ -36,14 +36,16 @@ The **CFA block** is one of two things:
 **Storage** read here: 16-bit little-endian words (X-E2's 14-bit data, the
 S5500's) and 12-bit little-endian packing, two sensels in three bytes, the first
 in the low 12 bits (X-E1). The length of the data says which. Fujifilm's lossless
-compression (X-T2 and later, an opt-in on those bodies) and SuperCCD layouts are
-refused with the reason: no test file of them was at hand.
+compression (X-Pro2, X-T2 and later, a menu choice on those bodies) is read by
+``shootflow.raf_compressed`` (X-T2, X-H1, X-T3 and X-S10 files checked against
+LibRaw, ``eval/fujifilm-compressed-raf-2026-11-15.md``); its lossy compression
+(header version 0) and SuperCCD layouts are refused with the reason.
 
 **Levels** (all as LibRaw 0.22 reports them on the three files): black from
 0xF00A, 0 for a Bayer RAF with no such tag (the S5500 has no masked sensels: its
 left and right edge columns average 1,050 to 1,570, exposed); white
-``2 ** bits - 1`` for X-Trans and 0x3E00 for an older Bayer body (dcraw's
-constant for them; the S5500's picture area peaks at 13,730).
+``2 ** bits - 1`` for X-Trans and 0x3E00 for a Bayer body (dcraw's constant for
+them; the S5500's picture area peaks at 13,730; LibRaw gives the GFX 50S the same).
 
 **Colour**: as for every non-DNG raw here, the camera's ``.dcp`` profile
 ("Fujifilm X-E1 Adobe Standard.dcp", from Adobe's free DNG Converter).
@@ -212,14 +214,42 @@ def decode_sensor(buf: bytes, width: int, height: int, bits: int) -> tuple[array
     """The stored frame from its data block, by the block's length: 16-bit words or 12-bit packing."""
 
     count = width * height
+    from shootflow import raf_compressed
+
+    if raf_compressed.is_compressed(buf):
+        return _decode_compressed(buf, width, height, bits)
     if len(buf) >= 2 * count:
         return unpack16_le(buf, count), f"RAF: uncompressed, 16-bit little-endian words ({bits}-bit data)"
     if bits == 12 and len(buf) >= (count * 3 + 1) // 2:
         return unpack12_le(buf, count), "RAF: uncompressed, 12-bit little-endian packing"
     raise rd.DevelopError(
         f"RAF: {len(buf):,} bytes of sensor data for {width}x{height} at {bits} bits is not an uncompressed layout read "
-        "here (Fujifilm's lossless compression is not supported yet); convert to DNG"
+        "here; convert to DNG"
     )
+
+
+def _decode_compressed(buf: bytes, width: int, height: int, bits: int) -> tuple[array, str]:
+    """Fujifilm's compressed sensor data (``shootflow.raf_compressed``): lossless only."""
+
+    from shootflow import raf_compressed
+
+    head = raf_compressed.Header(buf)
+    if head.version == 0:
+        raise rd.DevelopError(
+            "RAF: Fujifilm's lossy compressed raw (header version 0) is not read here, only the lossless one; "
+            "convert to DNG, or set the camera to lossless compressed or uncompressed"
+        )
+    if head.width != width or head.height != height or head.bits != bits:
+        raise rd.DevelopError(
+            f"RAF: the compressed header ({head.width}x{head.height}, {head.bits} bits) disagrees with the "
+            f"Fujifilm sub-IFD ({width}x{height}, {bits} bits)"
+        )
+    try:
+        _, values = raf_compressed.decode(buf)
+    except raf_compressed.CompressedRafError as exc:
+        raise rd.DevelopError(f"RAF: {exc}") from None
+    kind = "X-Trans" if head.xtrans else "Bayer"
+    return values, f"RAF: Fujifilm lossless compressed ({kind}, {bits}-bit, {head.blocks} strips of {head.block_size})"
 
 
 def parse_raf(data: bytes) -> rd.RawImage:
@@ -251,7 +281,10 @@ def parse_raf(data: bytes) -> rd.RawImage:
         start = cfa_at + int(offset)
         buf = bytes(data[start : start + int(length)])
         blk = fuji.get(TAG_F_BLACK)
-        white = (1 << bits) - 1
+        # X-Trans clips at 2**bits - 1 (the X-H1's compressed frame has 62,398 sensels at 16383). A Bayer
+        # body in this layout (GFX 50S) takes dcraw's 0x3E00, as LibRaw 0.22 reports it; that frame has no
+        # clipped highlights to confirm it (eval/fujifilm-compressed-raf-2026-11-15.md).
+        white = (1 << bits) - 1 if xtrans is not None else min((1 << bits) - 1, BAYER_WHITE)
         wb = fuji.get(TAG_F_WB)
         if wb and len(wb) >= 3 and min(wb[:3]) > 0:
             g, r, b = (float(v) for v in wb[:3])

@@ -2108,6 +2108,9 @@ COTS_EXTRA = [
     ("24 V on-delay timer relay module, set 0.5 s", 1, "closes the contactor's coil after the precharge (manifest inrush line)"),
     ("PC817 optocoupler + 10k 0.5 W resistor", 1, "contactor coil sense: LED across the coil through the 10k, transistor from ESP32 GPIO 15 to GND (cad/README.md \"Stepper ENABLE after the contactor\")"),
     ("4.7k resistor", 1, "stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"),
+    ("Current-sense resistor 0.05 ohm 3 W 1% (2512 or through-hole)", 1, "lift jam cutoff: between the lift MOSFET module's source and ground (manifest lift jam line)"),
+    ("LM393 dual comparator (DIP-8 or SOIC on an adapter) + 100 nF decoupling", 1, "lift jam cutoff: shunt to its - input through 10k with 100 nF to ground, open-collector output to ESP32 GPIO 0 (hardware/electronics.md \"Lift jam cutoff\")"),
+    ("Resistors 1%: 100k, 3.9k, two 10k; capacitor 100 nF", 1, "lift jam cutoff: reference divider from 3.3 V, input filter, output pull-up (most dev boards already pull GPIO 0 up)"),
     ("Schottky diode, 45 V 20 A or more (TO-220 class)", 1, "regen return across the contactor and precharge relay: anode on the switched bus, cathode between the main fuse and the contactor (manifest regen line)"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
     ("5 V 5 A buck converter", 1, "Pi supply"),
@@ -2175,6 +2178,26 @@ def _tension_text(p: Feeder) -> str:
     return (f"two jack screws raise the head {t['travel_mm']:.1f} mm on the spine to tension the belt to {t['t0_n']:.0f} N "
             f"at the drive pulley (slack strand {t['slack_n']:.1f} N; a strand plucked at mid-height swings "
             f"{t['ring_hz']:.1f} times a second)")
+
+
+def lift_jam_line(p: Feeder) -> str:
+    c = p.lift_jam_cutoff()
+    m = c["motor"]
+    return (f"lift jam: a {p.lift_shunt_ohm:g} ohm shunt under the lift MOSFET, a {p.lift_sense_rc_s * 1000:g} ms filter "
+            f"and an LM393 against {c['vref_v'] * 1000:.0f} mV pull GPIO 0 low over {c['trip_a']:.2f} A "
+            f"({c['trip_lo_a']:.2f}-{c['trip_hi_a']:.2f} A over the parts' tolerances); a full belt runs at "
+            f"{c['run_a']:.2f} A, so the lowest trip leaves {c['trip_nm_lo']:.2f} N m ({c['trip_factor']:.1f}x the "
+            f"belt's need), and a hot stall at {p.battery_v_min:g} V draws {c['stall_hot_a']:.2f} A "
+            f"({c['stall_margin']:.2f}x the highest trip; {c['fuse_ratio']:.2f}x the {c['fuse_a']:g} A fuse, which may "
+            f"never open). Firmware ignores it {p.lift_jam_blank_ms:g} ms after each start (a start stays over it about "
+            f"{c['start_over_s'] * 1000:.0f} ms: mechanical time constant {m['tau_m_s'] * 1000:.0f} ms), cuts on "
+            f"{p.lift_jam_trip_ms:g} ms over, rests {p.lift_jam_rest_ms / 1000:g} s, retries {p.lift_jam_retries}x, "
+            f"then stays off (FLAG_LIFT_JAM) until the e-stop drops the bus. A stall costs {c['attempt_j']:.0f} J in the "
+            f"winding per try against {c['uncut_j']:.0f} J over an uncut {c['run_on_s']:.1f} s run-on. The first "
+            f"impact is the rotor's inertia ({m['m_eff_kg']:.0f} kg at the belt) on the ball's stiffness, which no "
+            f"cutoff stops: tests/lift_jam_sweep.py puts the peak on a flight at 102-172 N for the assumed rotor, "
+            f"against {c['plate_allow_n']:.0f} N for the cap's plate and {c['weld_allow_n']:.0f} N for the weld "
+            f"(motor, gearbox and ball figures assumed)")
 
 
 def agitator_line(p: Feeder) -> str:
@@ -2484,6 +2507,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     checks.insert(-3, regen_line(p))
     checks.insert(-3, trough_line(p))
     checks.insert(-3, lift_line(p))
+    checks.insert(-3, lift_jam_line(p))
     checks.insert(-3, agitator_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),

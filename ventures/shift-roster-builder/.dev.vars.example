@@ -1,0 +1,8 @@
+# Secrets for the team hub (wrangler.jsonc). The Deploy to Cloudflare button asks for these; with wrangler, run
+# `npx wrangler secret put ADMIN_KEY` and `npx wrangler secret put TEAM_TOKEN`. Use long random strings (e.g. `openssl rand -hex 16`).
+# ADMIN_KEY unlocks /admin?key=...; TEAM_TOKEN is the secret in the staff link /team?t=...
+ADMIN_KEY=
+TEAM_TOKEN=
+# Optional: a Slack, Discord or ntfy webhook you own (README, "Alerts").
+NOTIFY_WEBHOOK_URL=
+TEAM_WEBHOOK_URL=

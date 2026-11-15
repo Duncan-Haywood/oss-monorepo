@@ -133,3 +133,9 @@ test("a long-term rate above the ordinary rate says 60/40 costs more, not 'saves
   assert.match(n, /costs about \$30\.00 more/);
   assert.match(n, /check the rates/);
 });
+
+test("a gain that the 60/40 split taxes less carries only the saving note, not the costs-more one", () => {
+  const n = evaluate("A,1000,0,0", { ordinary: 32, longTerm: 15 }).notes.join(" ");
+  assert.match(n, /saves about/);
+  assert.doesNotMatch(n, /costs about/);
+});

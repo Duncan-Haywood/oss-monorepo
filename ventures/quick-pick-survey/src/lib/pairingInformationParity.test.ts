@@ -2,7 +2,10 @@
  * Pins selectNextPairByInformation's precomputed pair loop (2026-11-12 perf
  * change) to the per-pair form it replaced: same pair, and the same number of
  * rand() draws, on random pools with recent keys, dimensions, coverage and
- * conflict weights, and pools over the cap.
+ * conflict weights, and pools over the cap. Since 2026-11-15 the loop also
+ * skips pairs whose upper bound is under the best score so far (still drawing
+ * their rand()); the simulated runs below pin that on continuous ratings and
+ * rds, where most pairs are skipped.
  */
 import { describe, expect, it } from "vitest";
 import {
@@ -17,6 +20,7 @@ import {
   type PairItem,
   type PairingInput,
 } from "./pairing";
+import { simulate } from "./infoGainSim";
 
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
@@ -118,4 +122,36 @@ describe("selectNextPairByInformation matches the per-pair form", () => {
     expect(pick(1220)).toEqual(["x0", "x2"]);
     expect(pick(1230)).toEqual(["x0", "x1"]);
   });
+
+  // Every pick of a seeded run, with the stream replayed: the skipping loop
+  // must pick the same pair from the same draws, and draw exactly as many.
+  const checked = (opts: InformationOptions) => {
+    let picks = 0;
+    const policy = (input: PairingInput): [string, string] => {
+      const drawn: number[] = [];
+      const want = reference({ ...input, rand: () => { const v = input.rand!(); drawn.push(v); return v; } }, opts);
+      let k = 0;
+      const got = selectNextPairByInformation({ ...input, rand: () => drawn[k++] }, opts);
+      expect(got).toEqual(want);
+      expect(k).toBe(drawn.length);
+      picks++;
+      return got;
+    };
+    return { policy, picks: () => picks };
+  };
+  const runs: [number, number, InformationOptions][] = [
+    [60, 400, {}],
+    [150, 300, { conflictBonus: 1.5 }],
+    [150, 300, { coverageWeight: 0.3 }],
+    [450, 120, { conflictBonus: 1.5, coverageWeight: 0.1 }],
+  ];
+  for (const [items, budget, opts] of runs) {
+    it(`every pick of a simulated run: ${items} items, ${budget} answers, ${JSON.stringify(opts)}`, () => {
+      for (const seed of [3, 4]) {
+        const c = checked(opts);
+        simulate(c.policy, items, budget, seed, 0.1);
+        expect(c.picks()).toBe(budget);
+      }
+    }, 120_000);
+  }
 });

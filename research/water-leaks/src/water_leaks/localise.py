@@ -139,3 +139,16 @@ def sign_test_counts(a, b):
     """Discordant counts (a only, b only) for two boolean arrays."""
     a, b = np.asarray(a, bool), np.asarray(b, bool)
     return int((a & ~b).sum()), int((~a & b).sum())
+
+
+def visible_from(D, on, n_hours, drop=0.05, run_len=3):
+    """Step 15: first hour index >= on at which (D - its mean over the 24 h before on) is at or
+    below -drop at some sensor for run_len consecutive hours; None if not within n_hours.
+    D is [hours, sensors], e.g. published minus leak-free simulated pressure."""
+    base = D[on - 24:on].mean(axis=0)
+    run = 0
+    for h in range(on, min(on + n_hours, len(D))):
+        run = run + 1 if bool(((D[h] - base) <= -drop).any()) else 0
+        if run == run_len:
+            return h - run_len + 1
+    return None
