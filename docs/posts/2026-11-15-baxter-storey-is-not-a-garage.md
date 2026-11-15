@@ -3,7 +3,7 @@ title: "Baxter Storey is not a garage: when a chain's name is also a person's"
 seo_title: "Bank-line categorisation: chain names that are also people's names"
 date: 2026-11-15
 tags: [ai-bookkeeper, bookkeeping, categorisation, openstreetmap, open-source]
-description: "A store-number check on 72 chain names that are also Census first names or surnames removed 38 wrong suggestions and lost one right one, across 23,000 real bank and card lines."
+description: "A store-number check on 72 chain names that are also Census names removed 38 wrong suggestions and lost one right one, on 23,000 real bank lines."
 ---
 
 Earlier today the [AI Bookkeeper](../../ventures/ai-bookkeeper/) learned about
