@@ -121,6 +121,25 @@ class MainTest(Fixture):
         code, _ = self.mutate("--old", "x > 100", "--new", "x >= 100")
         assert code == 2
 
+    def test_repo_relative_test_path_gets_a_hint(self):
+        # `-s ventures/a` inside ventures/a: discovery fails, and the hint says what to write
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                            "--", sys.executable, "-m", "unittest", "discover", "-s", "ventures/a"])
+        self.assertEqual(code, 2)
+        self.assertIn("hint: the command runs in ventures/a/, so `ventures/a` is written from the "
+                      "repository root; write `.`", err.getvalue())
+
+    def test_repo_relative_args(self):
+        cwd = Path("ventures/a")
+        self.assertEqual(qm.repo_relative_args(["pytest", "ventures/a/tests", "-q"], cwd),
+                         [("ventures/a/tests", "tests")])
+        self.assertEqual(qm.repo_relative_args(["node --test 'ventures/a/x.test.mjs'"], cwd),
+                         [("ventures/a/x.test.mjs", "x.test.mjs")])
+        self.assertEqual(qm.repo_relative_args(["pytest", "tests", "ventures/ab/t"], cwd), [])
+        self.assertEqual(qm.repo_relative_args(["pytest", "./ventures/a/"], cwd), [("./ventures/a/", ".")])
+
     def test_no_tests_patterns(self):
         assert qm.ran_no_tests("# tests 0\n# pass 0\n")
         assert qm.ran_no_tests("Ran 0 tests in 0.000s\n\nOK")
