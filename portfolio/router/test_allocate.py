@@ -1014,10 +1014,51 @@ class ClaimCheckTest(unittest.TestCase):
         from claim_check import report
         now = self.NOW
         lines = report(self.decide([], "x"), "x", now, 24)
-        self.assertTrue(any("--allow-empty" in l and "'x'" in l for l in lines), lines)
+        self.assertTrue(any("--allow-empty" in l and "'x: <item>'" in l for l in lines), lines)
         mine = [self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
         lines = report(self.decide(mine, "x", mine=3), "x", now, 24)
         self.assertFalse(any("--allow-empty" in l for l in lines), lines)
+
+    def test_item_lets_a_different_item_share_the_flagship(self):
+        # The 2026-11-13 changepoint-detector pair: #15407 and #15411 both merged.
+        prs = [self.pr(15407, "changepoint-detector: watch several metrics in one run (--columns)",
+                       "2026-11-12T14:00:00Z"),
+               self.pr(15411, "changepoint-detector: round 10 on NAB's 47 real series",
+                       "2026-11-12T14:04:00Z")]
+        r = self.decide(prs, "changepoint-detector", mine=15411, item="round 10 on NAB real series")
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["sharing"]], [15407])
+        # Without --item the check stays slug-only.
+        self.assertEqual(self.decide(prs, "changepoint-detector", mine=15411)["verdict"], "YIELD")
+
+    def test_item_still_yields_to_the_same_item_or_a_bare_claim(self):
+        same = [self.pr(1, "x: deferred revenue register", "2026-11-12T14:00:00Z"),
+                self.pr(2, "x: mine", "2026-11-12T14:05:00Z")]
+        r = self.decide(same, "x", mine=2, item="deferred revenue waterfall")
+        self.assertEqual(r["verdict"], "YIELD")
+        bare = [self.pr(15717, "ai-bookkeeper: claim (WIP)", "2026-11-12T14:00:00Z"),
+                self.pr(15718, "ai-bookkeeper: deferred revenue", "2026-11-12T14:01:00Z")]
+        r = self.decide(bare, "ai-bookkeeper", mine=15718, item="deferred revenue")
+        self.assertEqual(r["verdict"], "YIELD")
+        self.assertEqual(r["sharing"], [])
+
+    def test_item_words_drop_slug_and_claim_vocabulary(self):
+        from claim_check import item_words, overlap
+        self.assertEqual(item_words("ai-bookkeeper: claim (WIP) + post", "ai-bookkeeper"), set())
+        self.assertEqual(overlap("x: a slice", "x", "anything"), "bare")
+        self.assertEqual(overlap("x: OCR totals", "x", "receipt totals"), "same")
+
+    def test_report_prints_share_and_the_item_in_the_recipe(self):
+        from claim_check import report, claim_recipe
+        prs = [self.pr(1, "x: solver gap", "2026-11-12T14:00:00Z"),
+               self.pr(2, "x: sales reader", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, "x", mine=2, item="sales reader")
+        lines = report(r, "x", self.NOW, 24, "sales reader")
+        self.assertTrue(any(l.startswith("SHARE:") for l in lines), lines)
+        self.assertTrue(any("#1 " in l for l in lines), lines)
+        self.assertIn('--item "sales reader"', claim_recipe("x", "sales reader"))
+        slug_only = report(self.decide(prs, "x", mine=2), "x", self.NOW, 24)
+        self.assertTrue(any("--item" in l for l in slug_only), slug_only)
 
 
 class RequestsLineTest(unittest.TestCase):
