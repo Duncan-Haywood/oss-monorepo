@@ -2551,6 +2551,30 @@ reading, and receipts with two or three tax lines where OCR lost one. Details an
 commands: [`eval/receipt-tax-2026-11-15.md`](eval/receipt-tax-2026-11-15.md). Tests:
 `receipt-tax.test.mjs` (11).
 
+### Tax on receipt photos: misread labels and the arithmetic (2026-11-15)
+
+A second pass over the 55 SRD photos whose tax the page still missed. Five readable shapes:
+"Tax" with its first letter misread (`[ax 0.30`, `fax 1: 1.36`), an unlabelled amount that
+closes the subtotal to the total (`TAXABLE SALES $25.85`, `Go's THY $2.46`, total 28.31), a
+`Tax 2: 0.00` line read after `Tax 1: 6.35`, `Sub/Ttl` not known as a subtotal, and an
+amount column shifted up a line (`Tax $21.50`, then `$1.37`). `readTax` now reads each, only
+between the subtotal and the total and only when no real tax line is found, with a note
+asking for a check; `voteTax` breaks a tie between two subtotals one digit apart by how many
+readings read each.
+
+| | before | now |
+|---|---|---|
+| page, SRD tax right (185) | 130 (70.3%) | **136 (73.5%)** |
+| page, SRD tax wrong | 13 | 11 |
+| CORD tax, dataset's own text (train / validation / test), held out | 316 / 46 / 37 | **322 / 46 / 41** |
+| totals, SRD page and CORD | 156; 749 / 96 / 92 | unchanged |
+
+CORD's ten fixes are Indonesian restaurant-tax lines the reader did not know (`PB-1 10%
+2.818`, `P Resto 10% 3.273`, `PJR 4,909`) that close subtotal to total exactly. No receipt
+lost a right tax. SRD gains are in-sample; CORD is the held-out check. Details:
+[`eval/receipt-tax-labels-2026-11-15.md`](eval/receipt-tax-labels-2026-11-15.md). Tests:
+`receipt-tax.test.mjs` (17).
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

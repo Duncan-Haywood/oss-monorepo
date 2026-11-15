@@ -85,3 +85,45 @@ test("the page puts the voted tax into the receipts box and says so", () => {
   const same = settleReadings([readings[1], readings[0]]);
   assert.equal(same.taxNote, undefined);
 });
+
+// 2026-11-15, second pass (eval/receipt-tax-labels-2026-11-15.md)
+test("a Tax label with its first letter misread, between the subtotal and the total", () => {
+  assert.equal(parseReceipt(R("SubTotal 3.99\n[ax 0.30\nGratuity 1.00\nTotal 5.29")).taxCents, 30);
+  assert.equal(parseReceipt(R("SUB TOTAL : 16.39\nfax 1: 1.36\nTOTAL: 17.75")).taxCents, 136);
+  assert.equal(parseReceipt(R("Food Subtotal: 9.79\nflax 1: 0.46\nTotal 10.25")).taxCents, 46);
+  // the 1 that numbers the line is not an amount; a truncated "3.5" is not read
+  assert.equal(parseReceipt(R("SUB TOTAL: 44.20\nfax 1: 3.5\nTotal 47.70")).taxCents, null);
+  // above the subtotal it is the header's fax number, never a tax
+  assert.equal(parseReceipt(R("Fax 555-0134 2.50\nSubtotal 10.00\nTotal 10.80")).taxCents, null);
+  // a real tax line still wins
+  assert.equal(parseReceipt(R("Subtotal 10.00\nfax 0.50\nTax 0.80\nTotal 10.80")).taxCents, 80);
+});
+
+test("an unlabelled amount the subtotal makes the total is the tax", () => {
+  const r = parseReceipt(R("TAXABLE SALES $25.85\nGo's THY $2.46\nTL $28.31"));
+  assert.equal(r.taxCents, 246);
+  assert.ok(r.notes.some((n) => /unlabelled line/.test(n)));
+  assert.equal(readTax(["SUB TOTAL 30,000", "AMOUNT 2,727", "TOTAL 32,727"], "whole", 3272700).cents, 272700);
+  // a gap the line does not close is left alone
+  assert.equal(parseReceipt(R("Subtotal 25.85\nCoupon 2.00\nTotal 28.31")).taxCents, null);
+});
+
+test("a zero second tax line does not replace the first", () => {
+  assert.equal(parseReceipt(R("SUB TOTAL: 66.89\nTax 1: 6.35\nTax 2: 0.00\nTotal: 73.24")).taxCents, 635);
+  assert.equal(parseReceipt(R("Subtotal 5.00\nTax 0.00\nTotal 5.00")).taxCents, 0);
+});
+
+test("Sub/Ttl is a subtotal", () => {
+  assert.equal(parseReceiptPasses([R("Sub/Tt] 12.67\nTax 8.75% 1.1\nTotal 13.78"), R("Sub/Ttl 12.67\nTotal 13.78"), R("Total 13.78")]).taxCents, 111);
+});
+
+test("a tax line holding the subtotal's amount, the tax on the line below", () => {
+  const r = parseReceipt(R("Subtotal\nTax $21.50\n$1.37\nTotal 22.87"));
+  assert.equal(r.taxCents, 137);
+  assert.ok(r.notes.some((n) => /subtotal's amount/.test(n)));
+});
+
+test("two subtotals one digit apart: the one most readings read sets the tax", () => {
+  const p = parseReceiptPasses([R("subtotal $28.48\nTotal $30.76"), R("Subtotal $28.47\nTotal $30.76"), R("subtotal $28.48\nTotal $30.76"), R("subtotal $28.48\nTax 2.20\nTotal $30.76")]);
+  assert.equal(p.taxCents, 228);
+});

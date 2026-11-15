@@ -102,17 +102,17 @@ flagships:
       sample read (README); open: a real merchant's payout export, a real 1099-K;
       (4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round
       up`; open: a lender's full table, a supplier's terms letter; (5) receipts OCR
-      (page SROIE 84.6%, US totals 79.6%, US tax 70.3%; CLI US 75.0%; open: a lost
-      2nd tax line, unlabelled tax); (6) payroll (README): two journal layouts read;
-      open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS
-      TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
-      `salestax return`: the last six listed states read
-      (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
-      book (README); open: AR statutes, a real return layout; (8b) `annualized`
-      (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
-      once the 2026 instructions print; (9) EITC: 2025 EIC Table matched on all
-      10,992 cells (HISTORY); open: the 2026 table once printed. A run that lands a
-      slice replaces its item here; keep this under 2,000 characters.
+      (page SROIE 84.6%, US totals 79.6%, tax 73.5%; CLI 75.0%; open: lost 2nd tax
+      lines); (6) payroll (README): two journal layouts read; open: a real Gusto or
+      ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
+      (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
+      last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
+      IN's band and day from the book (README); open: AR statutes, a real return
+      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
+      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
+      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
+      printed. A run that lands a slice replaces its item here; keep this under
+      2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
