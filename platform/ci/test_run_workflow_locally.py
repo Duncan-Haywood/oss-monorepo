@@ -599,6 +599,38 @@ class ToolchainMissing(unittest.TestCase):
         line = "ImportError: cannot import name '_imaging' from 'PIL' (/usr/lib/python3/dist-packages/PIL/__init__.py)"
         self.assertEqual(runner.missing_toolchain([line], "."), "PIL._imaging")
 
+    PTH_NOISE = [
+        "Error processing line 1 of /usr/lib/python3/dist-packages/distutils-precedence.pth:",
+        "",
+        "  Traceback (most recent call last):",
+        '    File "<frozen site>", line 213, in addpackage',
+        '    File "<string>", line 1, in <module>',
+        "  ModuleNotFoundError: No module named '_distutils_hack'",
+        "",
+        "Remainder of file ignored",
+    ]
+
+    def test_a_broken_pth_at_startup_is_not_the_missing_tool(self):
+        # pip into python3.13 left a distutils-precedence.pth whose import
+        # fails on every start (run record 2026-11-15); the step ran anyway.
+        self.assertIsNone(runner.missing_toolchain(
+            self.PTH_NOISE + ["AssertionError: real defect"], "."))
+
+    def test_a_real_missing_module_after_pth_noise_is_still_found(self):
+        self.assertEqual(runner.missing_toolchain(
+            self.PTH_NOISE + ["ModuleNotFoundError: No module named 'pytest'"], "."),
+            "pytest")
+
+    def test_a_step_with_pth_noise_that_fails_reads_failed(self):
+        pth = "/tmp/rwl-pth-" + str(os.getpid())
+        os.makedirs(pth, exist_ok=True)
+        with open(os.path.join(pth, "zz.pth"), "w") as fh:
+            fh.write("import _no_such_hack_rwl\n")
+        step = self.run_one(
+            f"python3 -c \"import site; site.addsitedir('{pth}'); "
+            "assert False, 'real defect'\"")
+        self.assertEqual(step.status, "failed")
+
     def test_a_public_name_missing_from_a_package_is_not_a_tool(self):
         # `cannot import name 'foo'` is usually a code bug, not a broken install.
         self.assertIsNone(runner.missing_toolchain(

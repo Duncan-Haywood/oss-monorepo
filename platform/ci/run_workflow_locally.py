@@ -496,6 +496,8 @@ TOOLCHAIN_MISSING = (
     # working interpreter must import.
     re.compile(r"cannot import name '(?P<ext>_\w+)' from '(?P<pkg>[\w.]+)'"),
 )
+# Python's own header for a broken `.pth` line at startup (see missing_toolchain).
+PTH_ERROR_START = re.compile(r"^Error processing line \d+ of .+\.pth:$")
 
 # The same "did not run" class, reached from the other direction: a step whose
 # check needs a credential this environment does not have.
@@ -605,8 +607,26 @@ def missing_toolchain(output, cwd: str) -> str | None:
     """The tool a failing step could not find, or None if it found them all.
 
     `output` is the step's combined stdout/stderr, already split into lines.
+
+    Lines inside a `.pth` startup error are skipped. After a `pip install`
+    into /usr/bin/python3.13, its distutils-precedence.pth imports a
+    `_distutils_hack` that interpreter cannot find, so every Python start
+    prints "Error processing line 1 of ...pth: ... No module named
+    '_distutils_hack' ... Remainder of file ignored" and carries on. That
+    module is not what the step needed: reading it as one marked homepage,
+    post-frontmatter and site-build steps UNRUN and hid their real result
+    (run record 2026-11-15-session_01E5sJKo9N2JfJyia7MwKy7o).
     """
+    in_pth_error = False
     for line in output:
+        text = line.strip()
+        if PTH_ERROR_START.match(text):
+            in_pth_error = True
+            continue
+        if in_pth_error:
+            if text == "Remainder of file ignored":
+                in_pth_error = False
+            continue
         for pattern in TOOLCHAIN_MISSING:
             found = pattern.search(line.strip())
             if not found:
