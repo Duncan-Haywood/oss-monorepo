@@ -181,3 +181,14 @@ test("mutation guards: envelope clock width, second line, byte cap, trailing CR,
   assert.equal(describe(r), "4 messages read, 2 kept as replies; left out: 1 not a reply, 1 duplicate; 1 cut at 200 KB.");
   assert.equal(describe({ stats: { messages: 1, kept: 0, own: 1, notReply: 0, duplicates: 0, noText: 1, truncated: 0 } }), "1 message read, 0 kept as replies; left out: 1 of your own, 1 with no text.");
 });
+
+import { stripClosingRules } from "./mailfile.mjs";
+test("stripClosingRules matches the regex it replaced, without its exponential backtracking (ReDoS)", () => {
+  const old = (s) => s.replace(/(\n\s*-{3,}\s*)+$/, "");
+  for (const s of ["Thanks\n---", "Thanks\n\n---\n", "Thanks\n--- \n ----\n\n", "a\n--\n", "---", "a\n---x", "a\n\t---\t\r\n", "a\n---\nb", "", "a\n \n"]) {
+    assert.equal(stripClosingRules(s), old(s), JSON.stringify(s));
+  }
+  const t0 = performance.now();
+  assert.equal(stripClosingRules("Thanks" + "\n---\n".repeat(200) + "x"), "Thanks" + "\n---\n".repeat(200) + "x");
+  assert.ok(performance.now() - t0 < 200);
+});

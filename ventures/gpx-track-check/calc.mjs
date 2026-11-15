@@ -60,7 +60,9 @@ export function validate(text, opts = {}) {
   const add = (severity, code, message, line) => findings.push({ severity, code, message, line: line || 0 });
   const g = parse(text);
 
-  if (!/^\s*(<\?xml[^>]*\?>\s*)?(<!--[\s\S]*?-->\s*)*<gpx\b/.test(text)) {
+  // A comment's body may not contain "-->". The old `<!--[\s\S]*?-->` could stretch one comment over
+  // the next, so a run of empty comments split 2^n ways (ReDoS: 22 took 0.2 s, each 4 more x12).
+  if (!/^\s*(<\?xml[^>]*\?>\s*)?(<!--(?:(?!-->)[\s\S])*-->\s*)*<gpx\b/.test(text)) {
     add("error", "not-gpx", "The file does not start with a <gpx> element (after an optional XML declaration). Apps will refuse it.", 1);
   }
   if (!g.root) {

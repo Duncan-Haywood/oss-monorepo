@@ -359,6 +359,21 @@ export function analyzePattern(src, flags = "", lang = "js") {
           add("nested-quantifier", `${snippet(src, node)} repeats a body that already ends in an unbounded repeat over characters the next iteration can also start with, so a long run of them followed by a non-match splits exponentially many ways.`, node);
         }
       }
+      // 1b. an inner repeat that can swallow the delimiters: in (<!--[\s\S]*?-->\s*)* the [\s\S]*? can match
+      // "--><!--", so two iterations can also be read as one and a run of n splits 2^n ways. Flag a repeated
+      // sequence with an unbounded single-class repeat whose class holds every character the rest can match.
+      if (body.t === "seq" && body.items.length > 1) {
+        for (const it of body.items) {
+          if (!isUnbounded(it) || !singleChar(it.body)) continue;
+          const own = charsOf(it.body);
+          const rest = new Set();
+          for (const other of body.items) if (other !== it) charsOf(other, rest);
+          if (rest.size && [...rest].every((c) => own.has(c)) && body.items.some((o) => o !== it && !isNullable(o))) {
+            add("nested-quantifier", `${snippet(src, node)} repeats a body whose ${snippet(src, it)} can also match every character of the rest of the body, so it can swallow the next iteration's delimiters: one long iteration or many short ones match the same text, which splits exponentially many ways on a failing input.`, node);
+            break;
+          }
+        }
+      }
       // 2. overlapping alternation under a repeat.
       const alt = body.t === "alt" ? body : null;
       if (alt) {
@@ -448,15 +463,31 @@ function unescapeJsString(body) {
 export function extractJsRegexes(text) {
   const found = [];
   const n = text.length;
-  let i = 0;
   let prev = { kind: "start" };
   const regexAllowed = () => prev.kind === "start" || (prev.kind === "punct" && !")]}".includes(prev.v)) || (prev.kind === "word" && KEYWORDS_BEFORE_REGEX.has(prev.v));
+  // A template literal's ${...} parts are code and can hold regexes, e.g. `${s.replace(/x+$/, "")}`; skipping the
+  // whole literal missed them (2026-11-15: a ReDoS-prone /(\n\s*-{3,}\s*)+$/ in sales-agent sat in one).
+  const template = (start) => {
+    let i = start + 1;
+    while (i < n && text[i] !== "`") {
+      if (text[i] === "\\") { i += 2; continue; }
+      if (text[i] === "$" && text[i + 1] === "{") { prev = { kind: "start" }; i = code(i + 2, true); continue; }
+      i += 1;
+    }
+    return i + 1;
+  };
+  // Scans code from i; inside ${...} (inBrace) it stops after the closing brace and returns the index past it.
+  const code = (i, inBrace) => {
+  let depth = 0;
   while (i < n) {
     const c = text[i];
     if (/\s/.test(c)) { i += 1; continue; }
     if (c === "/" && text[i + 1] === "/") { while (i < n && text[i] !== "\n") i += 1; continue; }
     if (c === "/" && text[i + 1] === "*") { const end = text.indexOf("*/", i + 2); i = end < 0 ? n : end + 2; continue; }
-    if (c === '"' || c === "'" || c === "`") {
+    if (inBrace && c === "{") depth += 1;
+    if (inBrace && c === "}") { if (depth === 0) return i + 1; depth -= 1; }
+    if (c === "`") { i = template(i); prev = { kind: "lit" }; continue; }
+    if (c === '"' || c === "'") {
       const start = i;
       i += 1;
       while (i < n && text[i] !== c) { if (text[i] === "\\") i += 1; i += 1; }
@@ -499,6 +530,9 @@ export function extractJsRegexes(text) {
     prev = { kind: "punct", v: c };
     i += 1;
   }
+  return i;
+  };
+  code(text.startsWith("#!") ? Math.max(text.indexOf("\n"), 0) || n : 0, false); // a "#!/usr/bin/env node" line is not code
   return found;
 }
 

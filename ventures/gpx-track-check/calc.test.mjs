@@ -121,3 +121,15 @@ test("thin keeps a straight line to its two ends", () => {
   const t = thin(`<gpx version="1.1" creator="t" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>\n${pts.join("\n")}\n</trkseg></trk></gpx>`, 2);
   assert.equal(t.kept, 2);
 });
+
+test("a run of empty comments before <gpx> does not backtrack exponentially (ReDoS)", () => {
+  // The start-of-file check used <!--[\s\S]*?-->, which could stretch one comment over the next:
+  // 24 empty comments took 1.2 s in validate() and each 4 more about 12x as long.
+  const t0 = performance.now();
+  const r = validate("<!---->".repeat(40) + 'x<gpx version="1.1"></gpx>');
+  assert.ok(performance.now() - t0 < 1000, "validate took over a second");
+  assert.ok(r.findings.some((f) => f.code === "not-gpx"));
+  // Comments before the root are still allowed; text that only looks like a comment's tail is not.
+  assert.ok(!validate('<!-- a --><!-- b -->\n<gpx version="1.1" creator="t" xmlns="http://www.topografix.com/GPX/1/1"></gpx>').findings.some((f) => f.code === "not-gpx"));
+  assert.ok(validate('<!-- a -->stray --><gpx version="1.1"></gpx>').findings.some((f) => f.code === "not-gpx"));
+});

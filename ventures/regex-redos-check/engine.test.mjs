@@ -137,3 +137,17 @@ test("dynamic RegExp is an info note, never a failure", () => {
   assert.equal(scan.findings[0].rule, "dynamic-regexp");
   assert.equal(summarize(scan).status, "ok");
 });
+
+test("an inner repeat that can swallow the next iteration's delimiters is an error (2026-11-15 sweep)", () => {
+  // From gpx-track-check: [\s\S]*? can match "--><!--", so one comment can stand for several.
+  for (const p of ["^\\s*(<\\?xml[^>]*\\?>\\s*)?(<!--[\\s\\S]*?-->\\s*)*<gpx\\b", "^(a.*b)+$", "(<b>[\\s\\S]*</b>)+x"]) {
+    assert.ok(rules(p).includes("nested-quantifier"), p);
+  }
+  // The fixed forms, and delimiters the inner class cannot match, stay clean.
+  for (const p of ["^\\s*(<!--(?:(?!-->)[\\s\\S])*-->\\s*)*<gpx\\b", '("[^"]*")+', "(\\w+\\s)+", "(?:.*\\n)*"]) assert.deepEqual(rules(p), [], p);
+});
+
+test("regexes inside a template literal's ${...} are found; the template text and a shebang are not", () => {
+  const src = '#!/usr/bin/env node\nconst a = `x ${b.replace(/(\\n\\s*-{3,}\\s*)+$/, "")} y ${ {k: 1}.k } </td><td>${c}</td>`;\nconst d = /e+f/;\nconst g = `${`${/h+i/.source}`}`;\n';
+  assert.deepEqual(extractJsRegexes(src).map((r) => [r.line, r.pattern]), [[2, "(\\n\\s*-{3,}\\s*)+$"], [3, "e+f"], [4, "h+i"]]);
+});
