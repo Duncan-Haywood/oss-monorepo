@@ -66,18 +66,26 @@ export const TOPICS = Object.freeze([
   { id: 'agents', label: 'Building with AI agents', blurb: 'How the agent fleet builds, steers and measures itself: process, cost, mistakes and what changed.' },
   { id: 'research', label: 'Research findings', blurb: 'What the open research tracks found, with the numbers and caveats.' },
   { id: 'tools', label: 'Tools and projects', blurb: 'What a tool or project does, who it is for and why it exists.' },
+  { id: 'stories', label: 'Stories', blurb: 'Fiction from the story shelves: Hearth & Horizon science fiction, For Other Minds, Little Lamps and Saints by Candlelight.' },
   { id: 'infrastructure', label: 'Hosting and infrastructure', blurb: 'Hosting, CI, performance and the plumbing under the site.' },
 ]);
 const TOPIC_IDS = new Set(TOPICS.map((t) => t.id));
 const TOOL_TAGS = ['projects', 'tools', 'mcp', 'distribution', 'voice-interfaces', 'byok', 'local-llm', 'privacy', 'podcasting', 'desktop-apps'];
 const INFRA_TAGS = ['github-pages', 'hosting', 'kubernetes', 'github-actions', 'static-site', 'static-sites'];
 const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', 'engineering-management'];
+// Fiction: a fiction tag or a story shelf's name. The shelves are ventures, so until
+// 2026-11-15 their stories were filed under "Tools and projects" (about 400) or, for the
+// agent-facing shelf, "Building with AI agents". A post about how a shelf is run (its
+// to-do list, its audio cap, its story queue) carries a process or hosting tag and stays
+// where it was. `ai-agents` is not one of those: For Other Minds stories are about agents.
+const FICTION_TAGS = ['fiction', 'science-fiction', 'short-story', 'bedtime-story', 'hearth-and-horizon', 'for-other-minds', 'little-lamps', 'saints-by-candlelight'];
+const BACKSTAGE_TAGS = ['process', 'prompting', 'prompt-engineering', 'engineering-management', ...INFRA_TAGS];
 
 /**
  * A post's topic from its tags, first rule wins: onboarding posts (`start-here`)
  * are the newcomer's way in, so they group together whatever else they name; quality audits
  * (`quality-audit`, portfolio/quality/) grade work from every track, so they group apart; opinion pieces are about
- * steering the fleet; then research (the `research` tag, or a tag naming a project in
+ * steering the fleet; then fiction (`FICTION_TAGS`, unless it is about running a shelf); then research (the `research` tag, or a tag naming a project in
  * `research/`); then a named venture, tool or channel; then
  * hosting and CI plumbing; then anything about agents; everything else is a tool or project.
  * A post the rules file wrongly says so with `topic:` in its front matter.
@@ -92,6 +100,7 @@ export function topicOf(tags = [], explicit = '', projects = NO_PROJECTS) {
   if (tags.includes('start-here')) return 'start';
   if (tags.includes('quality-audit')) return 'quality';
   if (tags.includes('opinion')) return 'agents';
+  if (has(FICTION_TAGS) && !has(BACKSTAGE_TAGS)) return 'stories';
   if (tags.includes('research') || tags.some((t) => projects.research.has(t))) return 'research';
   if (has(TOOL_TAGS) || tags.some((t) => projects.ventures.has(t))) return 'tools';
   if (has(INFRA_TAGS)) return 'infrastructure';

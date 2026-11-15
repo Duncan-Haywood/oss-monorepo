@@ -154,6 +154,20 @@ test('topics: front matter wins, else the first rule the tags match; a bad topic
   assert.throws(() => loadPosts(repoWith({ '2026-10-01-podcast.md': post('X', '2026-10-01') })), /section of the blog/);
 });
 
+test('topics: fiction files under stories, though its shelf is a venture; a post about running a shelf does not', async () => {
+  const { topicOf, TOPICS } = await import('./writing.mjs');
+  const projects = { research: new Set(), ventures: new Set(['hearth-and-horizon', 'saints-by-candlelight']) };
+  assert.ok(TOPICS.some((t) => t.id === 'stories'));
+  assert.equal(topicOf(['fiction', 'hearth-and-horizon', 'science-fiction'], '', projects), 'stories');
+  assert.equal(topicOf(['creative', 'saints-by-candlelight', 'podcast'], '', projects), 'stories');
+  assert.equal(topicOf(['fiction', 'for-other-minds', 'ai-agents']), 'stories', 'a story for agents is still a story');
+  assert.equal(topicOf(['process', 'hearth-and-horizon', 'automation'], '', projects), 'tools', 'unchanged: the venture rule, as before');
+  assert.equal(topicOf(['hearth-and-horizon', 'audio', 'hosting', 'process'], '', projects), 'tools');
+  assert.equal(topicOf(['process', 'hearth-and-horizon', 'fiction'], '', projects), 'tools', 'the story queue post is about the queue');
+  assert.equal(topicOf(['opinion', 'fiction']), 'agents');
+  assert.equal(topicOf(['polish', 'seo', 'stories']), 'tools', 'a post about the Stories pages is not fiction');
+});
+
 test('topics: a tag naming a research/ project files the post under research, a ventures/ one under tools', async () => {
   const { topicOf, projectSlugs } = await import('./writing.mjs');
   const projects = { research: new Set(['marine-hull']), ventures: new Set(['sales-agent']) };
