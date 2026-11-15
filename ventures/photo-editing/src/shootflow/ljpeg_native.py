@@ -25,7 +25,8 @@ pure-Python decoder stays the reference (``tests/test_nef.py`` runs both), and
 Panasonic RW2 decode of ``shootflow.rw2`` (``tests/test_rw2.py`` runs both), and the three Samsung SRW
 decoders of ``shootflow.srw`` (``shootflow_samsung_rows_run``, ``_huffman_run``, ``_blocks_run``;
 ``tests/test_srw.py`` runs both), and ``shootflow_pentax_run``, the Pentax PEF decode of
-``shootflow.pef`` (``tests/test_pef.py`` runs both).
+``shootflow.pef`` (``tests/test_pef.py`` runs both), and ``shootflow_fuji_strip``, one strip of a
+Fujifilm lossless compressed RAF (``shootflow.raf_compressed``; ``tests/test_raf_compressed.py`` runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -48,6 +49,8 @@ from typing import Any
 C_SOURCE = r"""
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* luts: nf tables of 65536 entries, entry = (length << 8) | size, or 0 for no code.
    Returns the number of differences written (mcus * nf) or -1 on an invalid code. */
@@ -602,6 +605,168 @@ long shootflow_samsung_blocks_run(const uint8_t *d, long len, long start, long w
     }
     return 0;
 }
+/* Fujifilm lossless compressed RAF: one strip (shootflow.raf_compressed.decode_strip, the reference).
+   18 lines of lw + 2 values (R0..R4, G0..G7, B0..B4); six pairs per group of six rows.
+   out points at the strip's first sensel; rows are out_stride apart.
+   Returns the number of coding errors (0 on a clean stream). */
+static const int fuji_xtrans_abs[6][6] = {{1,1,0,1,1,2},{1,1,2,1,1,0},{2,0,1,0,2,1},
+                                         {1,1,2,1,1,0},{1,1,0,1,1,2},{0,2,1,2,0,1}};
+static const int fuji_pairs[6][2][2] = {{{0,2},{1,2}},{{1,3},{2,2}},{{0,3},{1,4}},
+                                        {{1,5},{2,3}},{{0,4},{1,6}},{{1,7},{2,4}}};
+static const int fuji_base[3] = {0, 5, 13};
+
+typedef struct { const uint8_t *d; long p, end; uint32_t acc; int n; long err; } fuji_bits;
+
+static inline int fuji_bit(fuji_bits *b) {
+    if (!b->n) {
+        if (b->p < b->end) b->acc = b->d[b->p++]; else { b->acc = 0; b->err++; }
+        b->n = 8;
+    }
+    b->n--;
+    return (b->acc >> b->n) & 1;
+}
+
+static inline int fuji_get(fuji_bits *b, int k) {
+    int code = 0;
+    while (k) {
+        if (!b->n) {
+            if (b->p < b->end) b->acc = b->d[b->p++]; else { b->acc = 0; b->err++; }
+            b->n = 8;
+        }
+        int take = k < b->n ? k : b->n;
+        b->n -= take;
+        code = (code << take) | (int)((b->acc >> b->n) & ((1u << take) - 1));
+        k -= take;
+    }
+    return code;
+}
+
+long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int lw, long lines,
+                          int strip_width, int xtrans, long out_stride, uint16_t *out)
+{
+    int stride = lw + 2;
+    int top = (1 << bits) - 1, total = 1 << bits;
+    int long_cut = 4 * bits - bits - 1, min_value = 0x40, max_diff = 1 << (bits - 6);
+    const int q1 = 0x12, q2 = 0x43, q3 = 0x114;
+    int32_t *buf = (int32_t *)calloc((size_t)18 * stride, sizeof(int32_t));
+    int8_t *qt = (int8_t *)malloc((size_t)2 * top + 1);
+    if (!buf || !qt) { free(buf); free(qt); return -1; }
+    for (int i = 0; i <= 2 * top; i++) {
+        int v = i - top, t;
+        if (v <= -q3) t = -4; else if (v <= -q2) t = -3; else if (v <= -q1) t = -2;
+        else if (v < 0) t = -1; else if (v == 0) t = 0; else if (v < q1) t = 1;
+        else if (v < q2) t = 2; else if (v < q3) t = 3; else t = 4;
+        qt[i] = (int8_t)t;
+    }
+    int ge[3][41][2], go[3][41][2];
+    for (int s = 0; s < 3; s++) for (int g = 0; g < 41; g++) {
+        ge[s][g][0] = go[s][g][0] = max_diff; ge[s][g][1] = go[s][g][1] = 1;
+    }
+    /* coded[line][p & 3]: some sensel of the line's rows reads entry p */
+    int coded[18][4] = {{0}};
+    for (int row = 0; row < 6; row++) for (int x = 0; x < 12; x++) {
+        int colour, idx;
+        if (xtrans) { colour = fuji_xtrans_abs[row][x % 6];
+                      idx = ((((x * 2) / 3) & ~1) | ((x % 3) & 1)) + ((x % 3) >> 1); }
+        else { colour = (row & 1) ? ((x & 1) ? 2 : 1) : ((x & 1) ? 1 : 0); idx = x >> 1; }
+        int li = fuji_base[colour] + (colour == 1 ? 2 + row : 2 + row / 2);
+        coded[li][idx & 3] = 1;
+    }
+    fuji_bits b = {d, start, end, 0, 0, 0};
+    for (long grp = 0; grp < lines; grp++) {
+        for (int pn = 0; pn < 6; pn++) {
+            int (*cge)[2] = ge[pn % 3], (*cgo)[2] = go[pn % 3];
+            int li[2];
+            for (int k = 0; k < 2; k++) li[k] = fuji_base[fuji_pairs[pn][k][0]] + fuji_pairs[pn][k][1];
+            int even[2] = {0, 0}, odd[2] = {1, 1};
+            while (even[0] < lw || odd[0] < lw) {
+                for (int step = 0; step < 2; step++) {
+                    if (step == 0 && even[0] >= lw) continue;
+                    if (step == 1 && even[0] <= 8) continue;
+                    for (int k = 0; k < 2; k++) {
+                        int32_t *cur = buf + (size_t)li[k] * stride, *up = cur - stride, *up2 = up - stride;
+                        int p = step ? odd[k] : even[k];
+                        if (step) odd[k] += 2; else even[k] += 2;
+                        int c = p + 1, grad, interp;
+                        int (*ctx)[2];
+                        if (!step) {
+                            int rb = up[c], rc = up[c - 1], rd = up[c + 1], rf = up2[c];
+                            int dcb = abs(rc - rb), dfb = abs(rf - rb), ddb = abs(rd - rb);
+                            if (dcb > dfb && dcb > ddb) interp = rf + rd + 2 * rb;
+                            else if (ddb > dcb && ddb > dfb) interp = rf + rc + 2 * rb;
+                            else interp = rd + rc + 2 * rb;
+                            if (!coded[li[k]][p & 3]) { cur[c] = interp >> 2; continue; }
+                            grad = qt[top + rb - rf] * 9 + qt[top + rc - rb];
+                            interp >>= 2;
+                            ctx = cge;
+                        } else {
+                            int ra = cur[c - 1], rb = up[c], rc = up[c - 1], rd = up[c + 1], rg = cur[c + 1];
+                            grad = qt[top + rb - rc] * 9 + qt[top + rc - ra];
+                            if ((rb > rc && rb > rd) || (rb < rc && rb < rd)) interp = (rg + ra + 2 * rb) >> 2;
+                            else interp = (ra + rg) >> 1;
+                            ctx = cgo;
+                        }
+                        int *g = ctx[grad < 0 ? -grad : grad];
+                        int sample = 0, code;
+                        while (!fuji_bit(&b)) {
+                            sample++;
+                            if (b.err > 64) { free(buf); free(qt); return b.err; }
+                        }
+                        if (sample < long_cut) {
+                            int dec = 0;
+                            if (g[1] < g[0]) {
+                                do { dec++; } while (dec <= 15 && (g[1] << dec) < g[0]);
+                                if (dec > 15) dec = 15;
+                            }
+                            code = fuji_get(&b, dec) + (sample << dec);
+                        } else {
+                            code = fuji_get(&b, bits) + 1;
+                        }
+                        if (code < 0 || code >= total) b.err++;
+                        code = (code & 1) ? -1 - (code >> 1) : (code >> 1);
+                        g[0] += code < 0 ? -code : code;
+                        if (g[1] == min_value) { g[0] >>= 1; g[1] >>= 1; }
+                        g[1]++;
+                        interp = grad < 0 ? interp - code : interp + code;
+                        if (interp < 0) interp += total; else if (interp > top) interp -= total;
+                        cur[c] = interp >= 0 ? (interp <= top ? interp : top) : 0;
+                    }
+                }
+            }
+            for (int k = 0; k < 2; k++) {
+                int colour = fuji_pairs[pn][k][0];
+                if (k == 1 && colour == fuji_pairs[pn][0][0]) continue;
+                int last = colour == 1 ? 7 : 4;
+                for (int i = 2; i <= last; i++) {
+                    int32_t *ln = buf + (size_t)(fuji_base[colour] + i) * stride, *pv = ln - stride;
+                    ln[0] = pv[1]; ln[lw + 1] = pv[lw];
+                }
+            }
+        }
+        for (int row = 0; row < 6; row++) {
+            const int32_t *lines3[3] = {buf + (size_t)(fuji_base[0] + 2 + row / 2) * stride,
+                                        buf + (size_t)(fuji_base[1] + 2 + row) * stride,
+                                        buf + (size_t)(fuji_base[2] + 2 + row / 2) * stride};
+            uint16_t *o = out + (size_t)(grp * 6 + row) * out_stride;
+            for (int x = 0; x < strip_width; x++) {
+                int colour, idx;
+                if (xtrans) { colour = fuji_xtrans_abs[row][x % 6];
+                              idx = ((((x * 2) / 3) & ~1) | ((x % 3) & 1)) + ((x % 3) >> 1); }
+                else { colour = (row & 1) ? ((x & 1) ? 2 : 1) : ((x & 1) ? 1 : 0); idx = x >> 1; }
+                o[x] = (uint16_t)lines3[colour][idx + 1];
+            }
+        }
+        for (int colour = 0; colour < 3; colour++) {
+            int last = colour == 1 ? 7 : 4;
+            int32_t *l0 = buf + (size_t)fuji_base[colour] * stride;
+            memcpy(l0, buf + (size_t)(fuji_base[colour] + last - 1) * stride, sizeof(int32_t) * 2 * stride);
+            l0[2 * stride] = l0[stride + 1];
+            l0[2 * stride + lw + 1] = l0[stride + lw];
+        }
+    }
+    free(buf); free(qt);
+    return b.err;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -725,6 +890,11 @@ def _load():
         f.restype = ctypes.c_long
         f.argtypes = args
         _STATE[name] = f
+    fuji = lib.shootflow_fuji_strip
+    fuji.restype = ctypes.c_long
+    fuji.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_int, ctypes.c_long,
+                     ctypes.c_int, ctypes.c_int, ctypes.c_long, ctypes.c_void_p]
+    _STATE["fuji_strip"] = fuji
     return fn
 
 
@@ -1011,3 +1181,9 @@ def pentax_run(data: bytes, width: int, height: int, bits: int, lut: array) -> a
         raise DevelopError("PEF: the compressed stream is invalid (a value out of range or an unassigned code)")
     del out[width * height :]
     return out
+
+
+def fuji_strip_function():
+    """``shootflow_fuji_strip`` (one strip of a compressed RAF, ``shootflow.raf_compressed``), or None."""
+
+    return _STATE.get("fuji_strip") if reader() is not None else None

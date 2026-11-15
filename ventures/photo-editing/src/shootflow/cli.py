@@ -758,12 +758,14 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         opcodes=not args.no_opcodes,
         preview_quality=args.preview_quality,
         warp_kernel=args.warp_kernel,
+        demosaic=args.demosaic,
         lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
         lens_name=args.lens,
         lens_focal=args.lens_focal,
         lens_crop=args.lens_crop,
         lens_fill=not args.no_lens_fill,
         lens_tca=not args.no_lens_tca,
+        lens_in_file=not args.no_in_file_lens,
         lens_vignetting=not args.no_lens_vignetting,
         lens_aperture=args.lens_aperture,
         lens_distance=args.lens_distance,
@@ -1327,6 +1329,17 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     develop.add_argument(
+        "--demosaic",
+        choices=("auto", "bilinear", "directional"),
+        default="auto",
+        help=(
+            "How the sensor's colour mosaic becomes full colour: 'auto' (default) uses the directional demosaic on "
+            "Fujifilm X-Trans files when numpy is installed and bilinear otherwise; 'directional' (X-Trans, numpy) "
+            "builds green along four directions and keeps the most even, which cuts the false colour bilinear "
+            "leaves on edges; 'bilinear' averages each 3x3 window (both engines, same bytes)."
+        ),
+    )
+    develop.add_argument(
         "--warp-kernel",
         choices=("bilinear", "cubic"),
         default="cubic",
@@ -1359,6 +1372,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--no-lens-tca",
         action="store_true",
         help="Correct the lens's distortion only, not its lateral colour (red and blue fringes toward the corners).",
+    )
+    develop.add_argument(
+        "--no-in-file-lens",
+        action="store_true",
+        help="Ignore a Sony ARW's own lens tables (distortion and lateral colour, applied by default when no "
+        "--lens-db correction runs).",
     )
     develop.add_argument(
         "--no-lens-vignetting",

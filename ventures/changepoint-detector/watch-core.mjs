@@ -45,10 +45,10 @@ export function emptyState() {
  * (0-based in the full series). opts: detector 'pelt' | 'bocpd', model, penalty, period, log, ...
  */
 export function detectChanges(values, labels, opts0 = {}) {
-  const { minShift, minSpreadRatio, ...opts } = opts0;
+  const { minShift, minSpreadRatio, minMoveRatio, ...opts } = opts0;
   const d = opts.detector ?? defaultDetector(opts.model ?? 'mean');
   if ((d.startsWith('bocpd-ar1') || d === 'drift') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
-  const floors = (cs) => aboveSpreadFloor(aboveFloor(cs, minShift), values, minSpreadRatio);
+  const floors = (cs) => aboveMoveFloor(aboveSpreadFloor(aboveFloor(cs, minShift), values, minSpreadRatio), values, minMoveRatio);
   if (d === 'drift') return floors(detectDrift(values, labels, opts));
   const all = detectBoth(values, labels, { ...opts, detector: d });
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
@@ -93,6 +93,44 @@ export function aboveSpreadFloor(changes, values, k) {
   if (k == null || k === 0) return changes;
   if (!(typeof k === 'number' && k > 0 && Number.isFinite(k))) throw new Error('minSpreadRatio takes a number above 0.');
   return changes.filter((c) => { const r = spreadRatio(values, c); return r === null || r >= k; });
+}
+
+/** Points before a change that its largest recent move is read from, and the span of the means compared (README "Round 17"). */
+export const MOVE_WINDOW = 60;
+export const MOVE_SPAN = 12;
+
+/**
+ * The largest level move the series made in the `w` points before index i: the largest |mean of h points - mean of the
+ * h points before them| over every split inside that stretch. A rolling, same-day reading of "how far does this column
+ * move on its own": on white noise it is about 0.9 sd, on a drifting column it grows with the drift over h points.
+ * null when fewer than 2h points precede i or the stretch never moves.
+ */
+export function largestMoveBefore(values, i, w = MOVE_WINDOW, h = MOVE_SPAN) {
+  const xs = values.slice(Math.max(0, i - w), Math.max(0, i)).map(Number);
+  if (xs.length < 2 * h) return null;
+  const cum = [0];
+  for (const x of xs) cum.push(cum[cum.length - 1] + x);
+  let best = 0;
+  for (let t = h; t + h <= xs.length; t++) best = Math.max(best, Math.abs((cum[t + h] - cum[t]) - (cum[t] - cum[t - h])) / h);
+  return best > 0 ? best : null;
+}
+
+/** A change's move in units of the largest move before it: |shift| / largestMoveBefore, or null when either is unknown. */
+export function moveRatio(values, c, w = MOVE_WINDOW, h = MOVE_SPAN) {
+  if (c.shift === undefined) return null;
+  const m = largestMoveBefore(values, c.index, w, h);
+  return m === null ? null : Math.abs(c.shift) / m;
+}
+
+/**
+ * The rolling move floor (option minMoveRatio; README "Round 17"): drop a detection whose move is under `k` times the
+ * largest move its own column made in the MOVE_WINDOW points before it. Re-read at every change from the same run, so
+ * a new day's level and wander reset it; nothing is read from another day. Unknown ratios are kept.
+ */
+export function aboveMoveFloor(changes, values, k) {
+  if (k == null || k === 0) return changes;
+  if (!(typeof k === 'number' && k > 0 && Number.isFinite(k))) throw new Error('minMoveRatio takes a number above 0.');
+  return changes.filter((c) => { const r = moveRatio(values, c); return r === null || r >= k; });
 }
 
 /**

@@ -15,7 +15,10 @@ getUTCDate or getUTCMonth) on the same line.
 The second pattern is the hand-rolled range check: a line that tests a month
 (`<= 12`, `< 12` or `> 12`) and a day with `d >= 1 && d <= 31` or its negation
 `d < 1 || d > 31` (added 2026-11-14, when 31 copies of the negated form had
-gone unchecked and seven of them accepted 30 February), and no calendar check
+gone unchecked and seven of them accepted 30 February), or the one-sided reject
+`|| d > 31` in a chain with no `< 1` (added the same day, when the on-call load
+analyzer read `2026-02-30 10:00` as 2 March and a Mailchimp birthday check passed
+`02/30`), and no calendar check
 (a Date.UTC round trip, a month-length table, a realDay/calDate helper) on that
 line or the twelve after it (four until 2026-11-14; parsers that read a time of
 day first put the round trip about ten lines down). Every month then has 31 days. The red-team run of
@@ -31,7 +34,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SHAPE = re.compile(r"\\d\{4\}-\\d\{2\}-\\d\{2\}|T00:00:00Z")
 NAN_CHECK = re.compile(r"isNaN\((?:Date\.parse\(|new Date\()")
 ROUND_TRIP = re.compile(r"toISOString\(\)\.slice\(0, ?10\)|getUTCDate\(\)|getUTCMonth\(\)")
-DAY_RANGE = re.compile(r"([\w.+\[\]]+) >= 1 && \1 <= 31\b|([\w.+\[\]]+) < 1 \|\| \2 > 31\b")
+DAY_RANGE = re.compile(r"([\w.+\[\]]+) >= 1 && \1 <= 31\b|([\w.+\[\]]+) < 1 \|\| \2 > 31\b|\|\| ?[\w.+\[\]]+ > 31\b")
 MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b|> ?12\b|monthOk")
 CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|getUTCMonth\(\)|getMonth\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|"
                       r"realDate\(|calDate\(|validDate\(|[cC]hecked\(")

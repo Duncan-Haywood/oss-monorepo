@@ -27,8 +27,11 @@
     button:disabled{opacity:.5;cursor:default}
     .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
     .pair{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0}
-    .pick{min-height:7rem;font-size:1.15rem;background:var(--bg);color:var(--ink);border:2px solid var(--line);white-space:normal;word-break:break-word}
-    .pick:hover,.pick:focus-visible{border-color:var(--accent)}
+    .side{display:flex;flex-direction:column;gap:.5rem;background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:.75rem}
+    .side .name{font-size:1.15rem;font-weight:600;min-height:3.2rem;word-break:break-word}
+    .pick{background:var(--panel);color:var(--ink);border:2px solid var(--line);white-space:normal}
+    .pick.much{border-color:var(--accent);font-weight:600}
+    .pick:hover,.pick:focus-visible{border-color:var(--accent);background:var(--accent);color:#fff}
     @media (max-width:520px){.pair{grid-template-columns:1fr}}
     .kind{display:inline-block;font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:.05rem .6rem;color:var(--muted)}
     .bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}.bar>div{height:100%;background:var(--good);width:0}
@@ -65,6 +68,7 @@
         <textarea id="criteria" placeholder="Rent&#10;Commute&#10;Space&#10;Light"></textarea>
       </div>
     </div>
+    <p><label><input type="checkbox" id="rank-all"> Rank them all, not just the best (more questions: it keeps asking until the whole order is settled, not only the winner)</label></p>
     <div class="row">
       <button id="start">Start picking</button>
       <button class="secondary" id="example">Try an example</button>
@@ -77,8 +81,12 @@
     <h2 id="ask-title"></h2>
     <p class="muted" id="link-note"></p>
     <div class="pair">
-      <button class="pick" id="left"></button>
-      <button class="pick" id="right"></button>
+      <div class="side"><div class="name" id="left"></div>
+        <button class="pick much" id="left-much">Much better</button>
+        <button class="pick" id="left-bit">A bit better</button></div>
+      <div class="side"><div class="name" id="right"></div>
+        <button class="pick much" id="right-much">Much better</button>
+        <button class="pick" id="right-bit">A bit better</button></div>
     </div>
     <div class="row">
       <button class="secondary" id="tie">About equal</button>
@@ -88,7 +96,7 @@
     <p></p>
     <div class="bar" aria-hidden="true"><div id="bar"></div></div>
     <p class="muted" id="status"></p>
-    <p class="muted">Keys: &larr; left, &rarr; right, &#8595; about equal, U undo.</p>
+    <p class="muted">Keys: &larr; / &rarr; a bit better, Shift+&larr; / Shift+&rarr; much better (or 1 2 3 4 from left to right), &#8595; about equal, U undo. "Much better" tells the page more than a plain pick, so it settles sooner; use it when the gap is clear to you, not out of habit.</p>
   </section>
 
   <section id="results" class="hidden">
@@ -134,11 +142,12 @@
       <li><strong>Two models in one.</strong> "Which matters more?" answers fit a Bradley-Terry model over the criteria; a criterion's weight is its share, so the weights add to 100%. "Which is better on Commute?" answers fit a Bradley-Terry model over the options for that criterion. An option's overall score is the weighted sum of its scores. It is the same refit the <a href="rank.html">list ranker</a> and the Quick Pick survey app run.</li>
       <li><strong>The next question</strong> is whichever one, of either kind, is expected to do most to settle the overall order: it targets neighbouring options that could still swap, and asks about the weight or the criterion that decides between them. Questions about a criterion that cannot change the order are skipped. Sides are random, so screen position cannot creep in.</li>
       <li><strong>Ranges include doubt about the weights.</strong> The page draws thousands of plausible weightings and scores consistent with your answers; the rank range is where 90% of them put each option, and "Best" is how often it came first.</li>
-      <li><strong>When it stops:</strong> as soon as there is under a 10% chance that any option beats the leader by more than a practical tie (a weighted edge of about 56 to 44 in a head-to-head pick), or when the whole order is 90% settled, or at a cap. You came to choose one option, so it does not wait for the order below the winner to settle; with only the order rule, nearly every simulated run hit the cap. You can stop at any time. Measured on simulated people: <a href="#measured">below</a>.</li>
+      <li><strong>When it stops:</strong> as soon as there is under a 10% chance that any option beats the leader by more than a practical tie (a weighted edge of about 56 to 44 in a head-to-head pick), or when the whole order is 90% settled, or at a cap. You came to choose one option, so it does not wait for the order below the winner to settle; with only the order rule, nearly every simulated run hit the cap. With "much" answers it checks once more before stopping, reading your "much" as cautiously as it can, so someone who says "much" freely is not taken as surer than they are. If you keep going past the point where it shows results, every extra answer is another look at the results and another chance to stop on a lucky run of picks, so it asks for a little more certainty the longer it goes (about 93% at twice that point, 94% at three times). You can stop at any time. Measured on simulated people: <a href="#measured">below</a>.</li>
+      <li><strong>"Much" or "a bit".</strong> Each pick says how big the gap feels. The page reads that with an ordinal model: a "much" answer means the gap felt past your own threshold, and that threshold is estimated from your answers, so someone who says "much" for nearly everything has each "much" count for less. On simulated people the graded answers named the true best more often and stopped sooner than plain picks (<a href="#measured">measured</a>).</li>
       <li><strong>Why not type the weights?</strong> People are poor at stating weights directly but consistent at comparing two things. This is the idea behind AHP (the analytic hierarchy process), without its full table of every pair: the picker asks only the comparisons that matter.</li>
     </ul>
     <h3 id="measured">Measured</h3>
-    <p id="measured-text" class="muted">Simulated people with random weights and scores, answering with ordinary noise, are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/quick-pick-survey/docs/DECIDE-PAGE.md">docs/DECIDE-PAGE.md</a>, with the script that produced them.</p>
+    <p id="measured-text" class="muted">Simulated people with random weights and scores, answering with ordinary noise, are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/quick-pick-survey/docs/DECIDE-PAGE.md">docs/DECIDE-PAGE.md</a>, with the script that produced them. Graded answers ("much" or "a bit"), on 300 simulated people: the true best came first 182 to 203 times against 165 with plain picks, at about the same number of picks, and the stop kept its 90% promise for people who use "much" sparingly, normally or inconsistently.</p>
     <p class="muted">One list and one question? The <a href="rank.html">list ranker</a> is simpler. Running a survey with many respondents? The full app is open source: <a href="./">deploy your own copy</a>.</p>
   </section>
 
@@ -155,7 +164,7 @@
   </footer>
 </main>
 <script type="module">
-  import { parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers, decisionFit, nextQuestion, decisionTable, decisionDone, decisionMax, bestPerCriterion, decisionCsv, combineDecisions, decisionId, whatWouldChange, STOP_CONFIDENCE } from "./decide-core.mjs";
+  import { parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers, decisionFit, nextQuestion, decisionTable, decisionDone, decisionDoneGraded, decisionMax, decisionHardMax, longRunLevel, bestPerCriterion, decisionCsv, combineDecisions, decisionId, whatWouldChange, STOP_CONFIDENCE, BIT, MUCH } from "./decide-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
   const $ = (s) => document.querySelector(s);
@@ -171,12 +180,13 @@
   const save = () => { try { localStorage.setItem(storeKey(), JSON.stringify(state.answers)); } catch {} };
   const load = () => { try { const a = JSON.parse(localStorage.getItem(storeKey()) || "null"); return a && Array.isArray(a.crit) && Array.isArray(a.opt) ? a : null; } catch { return null; } };
 
-  function begin(title, options, criteria, fromLink = false, note = "") {
-    state = { title, options, criteria, seed: (Math.random() * 1e9) >>> 0 };
+  function begin(title, options, criteria, fromLink = false, note = "", mode = "winner") {
+    state = { title, options, criteria, mode, seed: (Math.random() * 1e9) >>> 0 };
+    $("#rank-all").checked = mode === "order";
     state.answers = load() || { crit: [], opt: [], log: [] };
     if (!Array.isArray(state.answers.log)) state.answers.log = [];
     $("#title").value = title; $("#options").value = options.join("\n"); $("#criteria").value = criteria.join("\n");
-    history.replaceState(null, "", "#" + encodeDecision({ title, options, criteria }));
+    history.replaceState(null, "", "#" + encodeDecision({ title, options, criteria, mode }));
     $("#link-note").textContent = note;
     record(fromLink ? "shared_decision_opened" : "decision_started");
     show("#setup", false); show("#results", false); show("#share", false);
@@ -186,12 +196,16 @@
   const total = () => state.answers.crit.length + state.answers.opt.length;
 
   function ask() {
-    const n = state.options.length, C = state.criteria.length, cap = decisionMax(n, C);
+    const n = state.options.length, C = state.criteria.length, cap = decisionMax(n, C), rule = state.mode;
     df = decisionFit(n, C, state.answers);
     const table = decisionTable(df, { draws: 400 });
-    const done = decisionDone(table, state.answers);
-    if (state.until ? total() >= state.until : done || total() >= cap) return results(done);
-    current = nextQuestion(df, state.answers, { seed: state.seed });
+    const done = decisionDoneGraded(n, C, state.answers, table, { rule }).done;
+    // decisionMax is a checkpoint; "Keep going until it is settled" moves the limit to
+    // decisionHardMax and still stops on the rule; "Answer more" after a settled result
+    // asks a fixed few more whatever the rule says.
+    const limit = state.until ?? cap, stopOnDone = !state.until || state.untilDone;
+    if ((stopOnDone && done) || total() >= limit) return results(done);
+    current = nextQuestion(df, state.answers, { seed: state.seed, focus: rule });
     const [a, b] = current.pair;
     if (current.kind === "crit") {
       $("#kind").textContent = "Criteria";
@@ -203,19 +217,27 @@
       $("#left").textContent = state.options[a]; $("#right").textContent = state.options[b];
     }
     // Progress follows whichever stop is nearer: the winner being safe, or the whole order settled.
-    const read = Math.max(table.safe, table.confidence);
-    $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, read / STOP_CONFIDENCE)) * 100)}%`;
-    $("#status").textContent = `${total()} answered (${state.answers.crit.length} about criteria); ${Math.round(table.safe * 100)}% sure no option beats the leader by more than a practical tie, whole order ${Math.round(Math.max(0, table.confidence) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}% on either, or after ${cap}). Stop whenever you like.`;
+    const read = rule === "order" ? table.confidence : Math.max(table.safe, table.confidence);
+    // Past the checkpoint the stop asks for more (longRunLevel: 90% there, about 93% at twice it, 94% at three times).
+    const level = longRunLevel(n, C, total());
+    $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, read / level)) * 100)}%`;
+    const pctLevel = Math.round(level * 100);
+    const stopsAt = rule === "order" ? `stops when the order is ${pctLevel}% settled` : `stops at ${pctLevel}% on either`;
+    const until = state.untilDone ? `, or after ${state.until}` : state.until ? `; ${state.until - total()} more asked` : `, or shows the results so far after ${cap}`;
+    $("#status").textContent = `${total()} answered (${state.answers.crit.length} about criteria); ${Math.round(table.safe * 100)}% sure no option beats the leader by more than a practical tie, whole order ${Math.round(Math.max(0, table.confidence) * 100)}% settled (${stopsAt}${until}). Stop whenever you like.`;
     $("#undo").disabled = total() === 0;
     show("#ask");
-    $("#left").focus({ preventScroll: true });
+    $("#left-bit").focus({ preventScroll: true });
   }
 
-  function answer(kind) {
+  // kind: "left" | "right" | "tie"; grade: MUCH or BIT for a pick.
+  function answer(kind, grade = BIT) {
     if (!current || $("#ask").classList.contains("hidden")) return;
     const [a, b] = current.pair;
-    const [w, l, tie] = kind === "right" ? [b, a, false] : [a, b, kind === "tie"];
-    if (current.kind === "crit") state.answers.crit.push([w, l, tie]); else state.answers.opt.push([current.c, w, l, tie]);
+    const tie = kind === "tie";
+    const [w, l] = kind === "right" ? [b, a] : [a, b];
+    const rest = tie ? [true] : [false, grade];
+    if (current.kind === "crit") state.answers.crit.push([w, l, ...rest]); else state.answers.opt.push([current.c, w, l, ...rest]);
     state.answers.lastKind = current.kind;
     state.answers.log.push(current.kind);
     record("pick");
@@ -231,12 +253,15 @@
 
   function results(settled) {
     const n = state.options.length, C = state.criteria.length;
+    state.settled = settled;
+    const hard = decisionHardMax(n, C);
+    $("#more").textContent = !settled && total() < hard ? `Keep going until it is settled (at most ${hard - total()} more)` : "Answer more";
     df = decisionFit(n, C, state.answers);
     const table = decisionTable(df);
     const best = bestPerCriterion(df);
     const top = table.rows[0];
     $("#verdict").innerHTML = total() === 0 ? "No answers yet." :
-      `After ${total()} picks, <strong>${esc(state.options[top.item])}</strong> comes out best overall, with a ${pct(top.best)} chance of really being the best given your answers and a ${pct(table.safe)} chance that nothing beats it by more than a practical tie${settled ? "." : ". It is still close at the top: answer more to separate the front-runners."}`;
+      `After ${total()} picks, <strong>${esc(state.options[top.item])}</strong> comes out best overall, with a ${pct(top.best)} chance of really being the best given your answers and a ${pct(table.safe)} chance that nothing beats it by more than a practical tie${settled ? (state.mode === "order" ? ". The whole order below it is settled too." : ".") : state.mode === "order" ? ". The order is not settled yet: keep going to pin it down." : ". It is still close at the top: keep going to separate the front-runners."}`;
     $("#table").innerHTML = table.rows.map((r) => {
       const strong = best.map((b, c) => (b === r.item ? esc(state.criteria[c]) : null)).filter(Boolean).join(", ");
       return `<tr><td class="num">${r.rank}</td><td>${esc(state.options[r.item])}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${pct(r.best)}</td><td>${strong}</td></tr>`;
@@ -267,15 +292,22 @@
     const setup = parseSetup($("#options").value, $("#criteria").value);
     const err = setupError(setup);
     $("#setup-err").textContent = err;
-    if (!err) begin($("#title").value.trim(), setup.options, setup.criteria);
+    if (!err) begin($("#title").value.trim(), setup.options, setup.criteria, false, "", $("#rank-all").checked ? "order" : "winner");
   });
   $("#example").addEventListener("click", () => { $("#title").value = EXAMPLE.title; $("#options").value = EXAMPLE.options.join("\n"); $("#criteria").value = EXAMPLE.criteria.join("\n"); record("example_loaded"); });
-  $("#left").addEventListener("click", () => answer("left"));
-  $("#right").addEventListener("click", () => answer("right"));
+  $("#left-much").addEventListener("click", () => answer("left", MUCH));
+  $("#left-bit").addEventListener("click", () => answer("left", BIT));
+  $("#right-bit").addEventListener("click", () => answer("right", BIT));
+  $("#right-much").addEventListener("click", () => answer("right", MUCH));
   $("#tie").addEventListener("click", () => answer("tie"));
   $("#undo").addEventListener("click", undo);
   $("#finish").addEventListener("click", () => results(false));
-  $("#more").addEventListener("click", () => { state.until = total() + state.options.length + state.criteria.length; show("#results", false); show("#share", false); ask(); });
+  $("#more").addEventListener("click", () => {
+    const hard = decisionHardMax(state.options.length, state.criteria.length);
+    if (!state.settled && total() < hard) { state.until = hard; state.untilDone = true; record("keep_going"); }
+    else { state.until = total() + state.options.length + state.criteria.length; state.untilDone = false; }
+    show("#results", false); show("#share", false); ask();
+  });
   $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey()); } catch {} state = null; history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#setup"); });
   $("#csv").addEventListener("click", () => {
     const blob = new Blob([decisionCsv(state.options, state.criteria, decisionTable(df), df)], { type: "text/csv" });
@@ -305,7 +337,9 @@
   });
   document.addEventListener("keydown", (e) => {
     if (e.target.matches("input, textarea")) return;
-    if (e.key === "ArrowLeft") answer("left"); else if (e.key === "ArrowRight") answer("right");
+    if (e.key === "ArrowLeft") answer("left", e.shiftKey ? MUCH : BIT); else if (e.key === "ArrowRight") answer("right", e.shiftKey ? MUCH : BIT);
+    else if (e.key === "1") answer("left", MUCH); else if (e.key === "2") answer("left", BIT);
+    else if (e.key === "3") answer("right", BIT); else if (e.key === "4") answer("right", MUCH);
     else if (e.key === "ArrowDown") { e.preventDefault(); answer("tie"); }
     else if (e.key === "u" || e.key === "U") { if (state && total() && !$("#ask").classList.contains("hidden")) undo(); }
   });
@@ -313,7 +347,7 @@
   if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
 
   const linked = location.hash.length > 1 ? decodeDecision(location.hash) : null;
-  if (linked) begin(linked.title, linked.options, linked.criteria, true, "Someone sent you this decision. Answer for yourself, then send them your decision code.");
+  if (linked) begin(linked.title, linked.options, linked.criteria, true, "Someone sent you this decision. Answer for yourself, then send them your decision code.", linked.mode);
 </script>
 </body>
 </html>

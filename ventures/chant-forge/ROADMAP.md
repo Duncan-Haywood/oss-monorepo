@@ -157,6 +157,14 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   before download, `eval/clef-change-fresh-pages.json`): differences 129 to 13, 12 of 12 clefs real and on the right
   line. GregoBase 3775's *et confirmásti* was f f f f, printed h h h h: corrected (second reader wanted).
 
+- 2026-11-14, latest: a staff that slopes on a flat page (`staffSkew` in `scan.mjs`, 2 tests in `scan.test.mjs`,
+  `eval/staff-curl-check.md`): a leaf that curls at its head tilts its top staves 9-11 px while the page stays under the
+  straightening threshold; each staff's own slope is now measured and taken. The nine differences left on the clef-change
+  fresh list were all looked at: 3 GregoBase slips corrected (3461, 3500, 3706), 4 were the curl, 2 are reader faults
+  (left-stemmed cephalicus, a porrectus top). 88 earlier checks: agree 17,205 to 17,272, differ 66 to 63. Held out
+  (10 pieces chosen by page geometry before reading, `eval/staff-curl-fresh-pages.json`): agree 1,611 to 1,688,
+  differ 28 to 21, not read 78 to 41, none worse.
+
 ## Next
 
 1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni
@@ -216,3 +224,4 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-14, latest: tilted pages straightened (`estimateSkew`, `shearColumns` in `scan.mjs`): slope from the sharpest sheared row profile, columns moved whole pixels, only when a line drifts 10 px or more. Drawn pages: square reader fails from 0.5 degrees (1 or 36 of 99 heads at 0.5, 4 at most from 0.8), straightened 99 of 99 from 0.3 to 2.5 degrees (eval/deskew-check.md). Real pages, a later session (eval/deskew-report.md): 2 of 185 pages straightened. Leaf 424 (p. 399, -0.94 degrees) goes from 2 to 9 staves and 15 to 345 notes; leaf 585 is unchanged; nothing lost; shape-check identical.
 - 2026-11-14, latest: GregoBase 3670 (*Qui timetis*, pp. 398-399) added to the corpus and scan-check, the piece on leaf 424's newly read staves. Straightened, 290 of 299 notes agree and 0 differ; square, the alignment stops at note 180. Bivirga, trivirga, distropha and tristropha (`gvv`, `gvvv`, `gss`, `gsss`) are now one note per printed head in `parseGabc` and `gabcSteps`. That puts back 26 notes the MIDI dropped across 15 corpus files and clears 2 false disagreements (eval/deskew-check.md). `scan-pages.json` page labels for the six off-final pieces' third leaf corrected by one (leaf = page + 25, read off the running heads).
 - 2026-11-14, latest: `--musicxml FILE` (`musicxml.mjs`, README "A score for the choir"; a studio page download too): the choir's parts as MusicXML 4.0, one per section, Latin under the notes, 4/4 with ties, breath marks, rehearsal marks, fitted key signature. 304 corpus scores valid against the 4.0 XSD; music21 reads back 97,705 of 97,705 part-notes exactly (eval/musicxml-check-report.md). Not opened in a notation program; not sung from.
+- 2026-11-15: rehearsal tracks per section (`render-cli.mjs --learn DIR`, `learningTracks` in `render.mjs`, studio-page ZIP; README "Rehearsal tracks per section"): `-part` (section left, others -12 dB right, band -6 dB) and `-minus` (all but the section). `learn.test.mjs` 4 tests (levels measured from the WAVs); browser ZIP equals the CLI's byte for byte (eval/browser-e2e.mjs, 114 checks). Not tried by singers.

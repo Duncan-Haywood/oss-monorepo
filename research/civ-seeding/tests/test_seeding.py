@@ -87,3 +87,53 @@ def test_diffusion_centrality_ranks_like_degree_on_a_star():
     A[0, 1:] = A[1:, 0] = 1
     v = bcdj.Village(0, 8, A, np.zeros(5, int), np.zeros(5, bool), np.zeros((5, 6))).prepare()
     assert np.argmax(sd.diffusion_centrality(v)) == 0
+
+
+@pytest.mark.parametrize("rule", list(sd.CENSUS_CHEAP))
+def test_cheap_rules_give_budget(setup, rule):
+    V, _ = setup
+    for v in V[:5]:
+        b = int(v.leader.sum())
+        assert sd.CENSUS_CHEAP[rule](v, b).sum() == b
+
+
+def test_spread_degree_has_no_adjacent_seeds(setup):
+    V, _ = setup
+    for v in V[:5]:
+        b = int(v.leader.sum())
+        m = sd.rule_spread_degree(v, b)
+        assert v.A[np.ix_(m, m)].sum() == 0  # an independent set of size b exists here
+
+
+def test_single_discount_first_pick_is_top_degree(setup):
+    V, _ = setup
+    v = V[0]
+    assert sd.rule_single_discount(v, 1)[sd.rule_degree(v, 1)].all()
+
+
+def test_full_survey_equals_census(setup):
+    V, _ = setup
+    for v in V[:3]:
+        b = int(v.leader.sum())
+        rng = np.random.default_rng(1)
+        assert (sd.rule_survey_degree(v, b, rng, 1.0) == sd.rule_degree(v, b)).all()
+        assert (sd.rule_survey_spread(v, b, rng, 1.0) == sd.rule_spread_degree(v, b)).all()
+
+
+@pytest.mark.parametrize("f", sd.SURVEY_SHARES)
+def test_survey_rules_give_budget(setup, f):
+    V, _ = setup
+    v = V[2]
+    b = int(v.leader.sum())
+    rng = np.random.default_rng(4)
+    assert sd.rule_survey_degree(v, b, rng, f).sum() == b
+    assert sd.rule_survey_spread(v, b, rng, f).sum() == b
+    assert sd.rule_friend(v, b, rng).sum() == b
+
+
+def test_survey_sees_only_surveyed_ties(setup):
+    V, _ = setup
+    v = V[0]
+    s, est, seen = sd.survey(v, 0.25, np.random.default_rng(0))
+    assert (seen[np.ix_(~s, ~s)] == 0).all()
+    assert (est[s] == v.deg[s]).all()

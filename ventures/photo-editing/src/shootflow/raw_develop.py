@@ -1315,6 +1315,11 @@ class DevelopSettings:
     # Cubic is the default since 2026-11-13 (eval/warp-kernel-fast-cubic-2026-11-13.md): with the
     # padded-plane taps and threaded bands it costs less than bilinear did before.
     warp_kernel: str = "cubic"
+    # How a CFA is demosaiced: "bilinear" (the 3x3 average; both engines, byte for byte), "directional"
+    # (``xtrans_demosaic``: four directional greens, the most homogeneous kept; X-Trans only, numpy engine)
+    # or "auto" (directional on X-Trans when the numpy engine runs, else bilinear). Measured against known
+    # truth and LibRaw in eval/xtrans-directional-demosaic-2026-11-14.md.
+    demosaic: str = "auto"
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
     lens_db: "LensDb | None" = None
@@ -1333,6 +1338,10 @@ class DevelopSettings:
     # lens number gets that lens; with lens_name given, its lens is remembered under the frame's key (this dict is
     # updated in place, and the caller saves it).
     lens_memory: dict | None = None
+    # A Sony ARW's own lens tables (0x7037 distortion, 0x7035 lateral colour; ``sony_corrections``): applied when
+    # the file carries them and no lens database correction ran. Checked against lensfun in
+    # eval/sony-in-file-corrections-2026-11-15.md.
+    lens_in_file: bool = True
 
 
 @dataclass
@@ -1357,6 +1366,7 @@ class DevelopReport:
     lens: str | None = None
     lens_notes: list[str] = field(default_factory=list)
     lens_key: str | None = None  # the body's number for the lens (lens_profiles.lens_key), when it gives one
+    demosaic: str | None = None  # "bilinear" or "directional" for a CFA; None for LinearRaw
 
 
 CFA_PERIODS = (2, 6)  # Bayer 2x2 and Fujifilm X-Trans 6x6
@@ -1889,6 +1899,24 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                     memory[corr.lens_key] = corr.lens.name
                     lens_notes.append(f"lens memory: {corr.lens_key} is now {corr.lens.name}")
         notes.extend(lens_notes)
+    if settings.lens_in_file and raw.source == "arw" and lens_used is None and \
+            not any(isinstance(op, dng_opcodes.WARP_TYPES) for op in warps):
+        from shootflow import sony_corrections
+
+        own = sony_corrections.from_ifd(ifd)
+        if own is not None and own.distortion:
+            try:
+                crop = ifd.get(0xC620)  # DefaultCropSize
+                picture = (int(crop[0]), int(crop[1])) if crop and len(crop) == 2 else None
+                warp, _zoom, own_notes = sony_corrections.build_warp(own, w, h, fill=settings.lens_fill,
+                                                                     tca=settings.lens_tca, picture=picture)
+            except (ValueError, ArithmeticError) as exc:
+                own_notes = [f"Sony in-file lens tables not used: {exc}"]
+            else:
+                warps = list(warps) + [warp]
+                lens_used = "Sony in-file corrections"
+            lens_notes.extend(own_notes)
+            notes.extend(own_notes)
     # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
     half_f = 0.5 if (settings.half and not linear_raw) else 1.0
     stage3_w, stage3_h = (w // 2, h // 2) if half_f != 1.0 else (w, h)
@@ -1997,6 +2025,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     np_engine = _numpy_engine(settings.engine) if (w >= 2 and h >= 2) else None
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
+    demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes)
     if np_engine is not None:
         nw, nh, npx, report = _develop_numpy(
             np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
@@ -2005,8 +2034,10 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
             look=look, gain_maps=gain_maps, warps=warps, trim=trim, warp_kernel=settings.warp_kernel,
+            demosaic=demosaic or "bilinear",
         )
         report.lens, report.lens_notes, report.lens_key = lens_used, lens_notes, lens_key
+        report.demosaic = demosaic
         return nw, nh, npx, report
 
     out = array("H")
@@ -2078,8 +2109,40 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         lens=lens_used,
         lens_key=lens_key,
         lens_notes=lens_notes,
+        demosaic=demosaic,
     )
     return report_w, report_h, out, report
+
+
+DEMOSAICS = ("auto", "bilinear", "directional")
+
+
+def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
+    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional on
+    X-Trans with numpy, full and half size (X-Trans half size demosaics at full size, then averages; the
+    directional demosaic gains as much there: eval/xtrans-directional-demosaic-2026-11-14.md)."""
+
+    if choice not in DEMOSAICS:
+        raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")
+    if pat is None:
+        return None
+    xtrans = cfa_period(pat) == 6
+    if choice == "bilinear":
+        return "bilinear"
+    if choice == "directional":
+        if not xtrans:
+            raise DevelopError("the directional demosaic is for X-Trans (6x6) CFAs; Bayer files use bilinear")
+        if not numpy_engine:
+            raise DevelopError("the directional demosaic needs the numpy engine (numpy installed)")
+        if w < 6 or h < 6:
+            raise DevelopError("the directional demosaic needs at least 6 x 6 sensels")
+        return "directional"
+    # auto
+    if xtrans and w >= 6 and h >= 6:
+        if numpy_engine:
+            return "directional"
+        notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
+    return "bilinear"
 
 
 def _numpy_engine(engine: str):

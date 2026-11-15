@@ -22,6 +22,15 @@ uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE
 (since 2026-11-14) is a weighted decision matrix with nothing typed: it asks
 "which matters more?" and "on this criterion, which is better?", fits both with
 the same refit and shows rank ranges that include doubt about the weights.
+Each pick says "much better" or "a bit better", read with an ordinal model:
+on 300 simulated people it named the true best 182 to 203 times against 165
+for plain picks. Since 2026-11-15 the question cap is a checkpoint: if it is
+still close at the top you can keep going (up to 3x the cap), which on 300
+simulated people named the true best 254 times against 203; "Rank them all"
+pins down the whole order instead of only the winner. Past the checkpoint the
+stop asks for a little more certainty the longer it runs (94% at 3x), which
+on simulated people who say "much" for most picks cut false "settled" results
+from 30 to 21 in 300 and kept the 90% promise (0.91, from 0.89).
 Model, simulations and what is still open: [docs/DECIDE-PAGE.md](docs/DECIDE-PAGE.md).
 
 ## Deploy your own copy

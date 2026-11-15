@@ -105,7 +105,7 @@ def lossless_tiles(values, tile=32):
     return streams
 
 
-def make_arw(storage="craw", model="ILCE-7M3", encrypted=True, wb=WB, tile=32):
+def make_arw(storage="craw", model="ILCE-7M3", encrypted=True, wb=WB, tile=32, extra_raw_tags=()):
     """(file bytes, expected sensor values)."""
 
     if storage == "craw":
@@ -151,7 +151,7 @@ def make_arw(storage="craw", model="ILCE-7M3", encrypted=True, wb=WB, tile=32):
             where = [(324, 4, tuple(offs)), (325, 4, tuple(len(c) for c in chunks))]
         else:
             where = [(273, 4, (offs[0],)), (279, 4, (len(chunks[0]),))]
-        return _ifd_bytes(common + raw_tags + where, raw_at)
+        return _ifd_bytes(common + raw_tags + list(extra_raw_tags) + where, raw_at)
 
     data_at = raw_at + len(raw_ifd(0))
     blob = bytearray(b"II*\0" + struct.pack("<I", ifd0_at))

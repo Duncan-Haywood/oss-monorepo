@@ -268,6 +268,32 @@ drums) equal `render-cli.mjs chant.mid --stems DIR` file for file; and the stems
 within 2 steps of 32,767 at every sample (each file rounds to 16 bits on its own). Whether the markers land where a
 producer wants them and whether the stems import cleanly is for someone with a DAW to say.
 
+### Rehearsal tracks per section: `render-cli.mjs --learn` (2026-11-15)
+
+Choirs learn parts from "learning tracks": one recording per section with that part up front. They are a
+paid product today (per-part tracks are sold per piece by rehearsal-track services, or made by hand in a
+DAW by a director), and a split chant needs a set per section. `node render-cli.mjs piece.mid --learn DIR`
+writes two WAVs per choir section of a chant-forge MIDI:
+
+- `<base>-<section>-part.wav`: that section loud and panned left (pan -0.5, about 6 dB louder in the left
+  ear), the other sections 12 dB down and panned right, the band (organ, bass, chords, drums) 6 dB down.
+  A singer hears their own line and where it sits against the others; `--others DB` and `--backing DB`
+  (-60 to 0) change the two levels.
+- `<base>-<section>-minus.wav`: the full mix with that section left out, to sing the part against.
+
+A section is a choir-program MIDI channel named by its track (Tenors, First tenors, Second tenors,
+Baritones, Basses with `--split-voices`; a unison chant is one "Choir" section), listed in score order.
+`--lufs N` applies to each track. The studio page has the same files as "Download rehearsal tracks"
+(a ZIP, `learningTracks` in `render.mjs`).
+
+Checked: `learn.test.mjs` (4 tests) on a two-phrase tenor/bass MIDI measures the part track's own phrase
+6.02 dB louder left than right, the other section's phrase mirrored and 9-15 dB under it, and the minus
+track silent where only the left-out section sings while keeping the rest; the CLI writes six files for the
+Salve Regina split three ways and refuses `--others` without `--learn`. `eval/browser-e2e.mjs` (114 checks,
+all pass) downloads the page's ZIP for the split Dies irae and finds its four WAVs byte-for-byte equal to
+`render-cli.mjs --learn`. Not checked: whether a singer learns faster from these than from the full mix, and
+whether 12 dB is the right drop (rehearsal-track makers vary); the "choir" is still the preview synthesiser.
+
 ### A score for the choir: `--musicxml` (2026-11-14)
 
 The MIDI file is for a DAW; a choir director prints parts. `--musicxml FILE` writes the same
@@ -1065,6 +1091,25 @@ the right line, including two changes back from c3 to c4. Four of the 13 were a 
 (*Domine spes mea*, p. 458): *et confirmásti* is printed h h h h, the file had f f f f. Corrected, with
 a `correction:` header. `node eval/scan-check.mjs --no-clef-change` reads as before. Details:
 `eval/clef-change-check.md`.
+
+### A staff that curls on a flat page
+
+The nine differences left on that fresh list were each cropped from the scan and looked at
+(`eval/staff-curl-check.md`). Three were one-step slips in the GregoBase files, now corrected with a
+`correction:` header (3461 *aquárum:* prints j, 3500 *mihi* prints the porrectus j i k, 3706 *meos*
+prints the clivis g e); a second human reader is wanted. Two are reader faults seen once (a cephalicus
+with its stem on the left, a porrectus top read a step low). The other four were a page that curls at
+its head: on leaf 764 the top three staves slope 9-11 px across while the rest lie flat, so the
+whole-page straightening does not fire, the tilted lines are measured 11-16 px thick, and the heads on
+them are erased (staff 1: 18 of 38 notes read).
+
+`staffSkew` in `scan.mjs` now measures each staff's own slope the same way and, when it moves a line
+10 px or more, reads that staff from the page sheared by it. Level staves read exactly as before.
+On the 88 earlier piece checks, notes agreeing went from 17,205 to 17,272, differences 66 to 63 and
+notes not read 495 to 457. Held out, ten fresh pieces chosen only because a staff on their page slopes
+(7 of 173 leaves surveyed), listed before reading (`eval/staff-curl-fresh-pages.json`): agreeing 1,611
+to 1,688, differences 28 to 21, notes not read 78 to 41, no piece worse. `--no-staff-deskew` reads as
+before.
 
 ## Not checked yet
 

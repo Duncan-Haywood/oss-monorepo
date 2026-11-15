@@ -194,3 +194,12 @@ test("the example includes shipments in every state", () => {
   const a = analyzeInbound(s.items, normalizeReimbursements(parseCsv(x.reimbursements)).items, { asOf: NOW });
   assert.ok(a.summary.claimUnits > 0 && a.summary.waitUnits > 0 && a.summary.expiringUnits > 0);
 });
+
+test("addMonths clamps a month-end date so a claim deadline is never pushed late", async () => {
+  const { addMonths } = await import("./calc.mjs");
+  const ymd = (t) => new Date(t).toISOString().slice(0, 10);
+  assert.equal(ymd(addMonths(Date.UTC(2026, 7, 31), 6)), "2027-02-28"); // was 2027-03-03
+  assert.equal(ymd(addMonths(Date.UTC(2027, 7, 31), 6)), "2028-02-29");
+  assert.equal(ymd(addMonths(Date.UTC(2026, 4, 31), 3)), "2026-08-31");
+  assert.equal(ymd(addMonths(Date.UTC(2026, 0, 15), 9)), "2026-10-15");
+});

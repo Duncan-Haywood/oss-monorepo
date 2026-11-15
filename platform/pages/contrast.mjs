@@ -171,6 +171,9 @@ console.log(`Checking ${pages.length} pages at ${BASE}, ${RUNS.map((v) => v.name
 const browser = await chromium.launch(LAUNCH);
 const findings = [];
 let checked = 0;
+// Colour findings dropped because they passed once their sticky panel was
+// laid out statically (see the re-measure below); printed in the summary.
+let dismissed = 0;
 
 for (const viewport of RUNS) {
   const page = await browser.newPage({
@@ -203,6 +206,44 @@ for (const viewport of RUNS) {
         async (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
         TAGS,
       );
+      // axe reads a sticky result panel's text against the page behind it, not
+      // the panel's own fill: measured 2026-11-14 on a 1-in-25 sample, 64 of 66
+      // colour findings were near-white ink on the page background at
+      // 1.01-1.07:1 (holiday-light, spray-foam, countertop, cabinet bid
+      // calculators; two fee guides), every one legible in a screenshot of the
+      // dark panel. So when colour findings sit inside a sticky or scrolling
+      // panel, lay those panels out as ordinary blocks (no colour changes) and
+      // measure once more. A node is kept only if it fails both times, and the
+      // number dropped is printed, so a real failure is never hidden and a
+      // dismissal is never silent.
+      const contrastHit = result.violations.find((v) => v.id === 'color-contrast');
+      if (contrastHit) {
+        const unstuck = await page.evaluate(() => {
+          let n = 0;
+          for (const el of document.querySelectorAll('body *')) {
+            const cs = getComputedStyle(el);
+            const sticky = cs.position === 'sticky' || cs.position === 'fixed';
+            const scrolls = /auto|scroll/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1;
+            if (!sticky && !scrolls) continue;
+            el.style.setProperty('position', 'static', 'important');
+            if (scrolls) {
+              el.style.setProperty('max-height', 'none', 'important');
+              el.style.setProperty('height', 'auto', 'important');
+            }
+            n++;
+          }
+          return n;
+        });
+        if (unstuck) {
+          const again = await page.evaluate(
+            async () => window.axe.run(document, { runOnly: { type: 'rule', values: ['color-contrast'] } }),
+          );
+          const still = new Set((again.violations[0]?.nodes || []).map((node) => node.target.join(' ')));
+          const before = contrastHit.nodes.length;
+          contrastHit.nodes = contrastHit.nodes.filter((node) => still.has(node.target.join(' ')));
+          dismissed += before - contrastHit.nodes.length;
+        }
+      }
       for (const violation of result.violations) {
         for (const node of violation.nodes) {
           findings.push({
@@ -233,8 +274,13 @@ await browser.close();
 // JSON_OUT writes every finding, so a sweep's families can be counted and
 // diffed without re-parsing the grouped text below.
 if (process.env.JSON_OUT) {
-  await fs.writeFile(process.env.JSON_OUT, JSON.stringify({ pages: pages.length, runs: RUNS.map((r) => r.name), findings }, null, 1));
+  await fs.writeFile(process.env.JSON_OUT, JSON.stringify({ pages: pages.length, runs: RUNS.map((r) => r.name), dismissed, findings }, null, 1));
 }
+
+const dismissedLine = dismissed
+  ? `${dismissed} colour finding(s) inside sticky or scrolling panels passed when re-measured and are not counted.`
+  : '';
+if (dismissedLine) console.log(`\n${dismissedLine}`);
 
 if (findings.length === 0) {
   console.log(`\n${pages.length} pages, ${RUNS.length} viewport/scheme runs: no WCAG A/AA violations.`);

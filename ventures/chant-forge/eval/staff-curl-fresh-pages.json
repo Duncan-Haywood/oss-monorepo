@@ -1,0 +1,324 @@
+{
+  "note": "Fresh held-out pieces for the per-staff slope (scan.mjs staffSkew, readPage), chosen on 2026-11-14 after the rule was written from one page (leaf 764, GregoBase 3706) and frozen, and listed here before any note on their pages was read. Chosen by page geometry alone: of the 318 GregoBase ids 3463-3800 in no earlier piece list (all name only the Graduale Romanum, 1908), the 136 whose printed leaf no earlier list reads; their printed leaf and the leaf after (173 leaves) were downloaded and only staffSkew was run on each staff (no heads read). 7 leaves have a staff whose own slope moves a line 10 px or more across the page; the 10 pieces whose printed leaf or the leaf after is one of them are listed, with the sloping staves under curl (drift in px over the page width). A curled staff on the leaf after may belong to the next piece. Arabic page p is printed on leaf p+26, bracketed page [p] on leaf p+585; the two leaves before it and the one after are read and the piece found by local alignment. GABC files are unmodified GregoBase downloads (CC0), in corpus/gregobase-1908-curl/.",
+  "pieces": [
+    {
+      "name": "GregoBase 3483 (Anima...sicut passer)",
+      "gabc": "corpus/gregobase-1908-curl/3483.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 607",
+          "leaf": 607
+        },
+        {
+          "page": "leaf 608",
+          "leaf": 608
+        },
+        {
+          "page": "[24]",
+          "leaf": 609
+        },
+        {
+          "page": "leaf 610",
+          "leaf": 610
+        }
+      ],
+      "curl": {
+        "609": [
+          "staff 6 14.3 px",
+          "staff 9 20.3 px"
+        ],
+        "610": []
+      }
+    },
+    {
+      "name": "GregoBase 3533 (Laudate Dominum)",
+      "gabc": "corpus/gregobase-1908-curl/3533.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 791",
+          "leaf": 791
+        },
+        {
+          "page": "leaf 792",
+          "leaf": 792
+        },
+        {
+          "page": "[208]",
+          "leaf": 793
+        },
+        {
+          "page": "leaf 794",
+          "leaf": 794
+        }
+      ],
+      "curl": {
+        "793": [],
+        "794": [
+          "staff 2 11.4 px",
+          "staff 3 10.1 px",
+          "staff 4 15.6 px"
+        ]
+      }
+    },
+    {
+      "name": "GregoBase 3545 (Laudate Dominum)",
+      "gabc": "corpus/gregobase-1908-curl/3545.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 652",
+          "leaf": 652
+        },
+        {
+          "page": "leaf 653",
+          "leaf": 653
+        },
+        {
+          "page": "[69]",
+          "leaf": 654
+        },
+        {
+          "page": "leaf 655",
+          "leaf": 655
+        }
+      ],
+      "curl": {
+        "654": [],
+        "655": [
+          "staff 1 13.3 px",
+          "staff 2 11.0 px",
+          "staff 3 10.6 px"
+        ]
+      }
+    },
+    {
+      "name": "GregoBase 3550 (Rogate quae ad pacem)",
+      "gabc": "corpus/gregobase-1908-curl/3550.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 678",
+          "leaf": 678
+        },
+        {
+          "page": "leaf 679",
+          "leaf": 679
+        },
+        {
+          "page": "[95]",
+          "leaf": 680
+        },
+        {
+          "page": "leaf 681",
+          "leaf": 681
+        }
+      ],
+      "curl": {
+        "680": [],
+        "681": [
+          "staff 1 11.6 px",
+          "staff 2 10.3 px"
+        ]
+      }
+    },
+    {
+      "name": "GregoBase 3652 (Judicant sancti)",
+      "gabc": "corpus/gregobase-1908-curl/3652.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 573",
+          "leaf": 573
+        },
+        {
+          "page": "leaf 574",
+          "leaf": 574
+        },
+        {
+          "page": "549",
+          "leaf": 575
+        },
+        {
+          "page": "leaf 576",
+          "leaf": 576
+        }
+      ],
+      "curl": {
+        "575": [],
+        "576": [
+          "staff 9 14.0 px"
+        ]
+      }
+    },
+    {
+      "name": "GregoBase 3704 (Benedicte Dominum)",
+      "gabc": "corpus/gregobase-1908-curl/3704.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 653",
+          "leaf": 653
+        },
+        {
+          "page": "leaf 654",
+          "leaf": 654
+        },
+        {
+          "page": "[70]",
+          "leaf": 655
+        },
+        {
+          "page": "leaf 656",
+          "leaf": 656
+        }
+      ],
+      "curl": {
+        "655": [
+          "staff 1 13.3 px",
+          "staff 2 11.0 px",
+          "staff 3 10.6 px"
+        ],
+        "656": []
+      }
+    },
+    {
+      "name": "GregoBase 3718 (Sapientiam sanctorum)",
+      "gabc": "corpus/gregobase-1908-curl/3718.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 606",
+          "leaf": 606
+        },
+        {
+          "page": "leaf 607",
+          "leaf": 607
+        },
+        {
+          "page": "[23]",
+          "leaf": 608
+        },
+        {
+          "page": "leaf 609",
+          "leaf": 609
+        }
+      ],
+      "curl": {
+        "608": [],
+        "609": [
+          "staff 6 14.3 px",
+          "staff 9 20.3 px"
+        ]
+      }
+    },
+    {
+      "name": "GregoBase 3741 (Recordare Virgo)",
+      "gabc": "corpus/gregobase-1908-curl/3741.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 624",
+          "leaf": 624
+        },
+        {
+          "page": "leaf 625",
+          "leaf": 625
+        },
+        {
+          "page": "600",
+          "leaf": 626
+        },
+        {
+          "page": "leaf 627",
+          "leaf": 627
+        }
+      ],
+      "curl": {
+        "626": [
+          "staff 1 -11.0 px"
+        ],
+        "627": []
+      }
+    },
+    {
+      "name": "GregoBase 3791 (Ave Rex noster)",
+      "gabc": "corpus/gregobase-1908-curl/3791.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 663",
+          "leaf": 663
+        },
+        {
+          "page": "leaf 664",
+          "leaf": 664
+        },
+        {
+          "page": "[80]",
+          "leaf": 665
+        },
+        {
+          "page": "leaf 666",
+          "leaf": 666
+        }
+      ],
+      "curl": {
+        "665": [
+          "staff 8 -10.6 px"
+        ],
+        "666": []
+      }
+    },
+    {
+      "name": "GregoBase 3797 (In virtute tua)",
+      "gabc": "corpus/gregobase-1908-curl/3797.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 624",
+          "leaf": 624
+        },
+        {
+          "page": "leaf 625",
+          "leaf": 625
+        },
+        {
+          "page": "[41]",
+          "leaf": 626
+        },
+        {
+          "page": "leaf 627",
+          "leaf": 627
+        }
+      ],
+      "curl": {
+        "626": [
+          "staff 1 -11.0 px"
+        ],
+        "627": []
+      }
+    }
+  ]
+}

@@ -484,6 +484,9 @@ const NON_WEB_EXTENSIONS = new Set([
   '.jsonl',
   // Rust sources (dupehound): the page loads the compiled .wasm, never the source.
   '.rs',
+  // Deploy config (shift-roster-builder's wrangler.jsonc for its own Worker, .dev.vars.example listing the secrets
+  // to set): read by wrangler in the deployer's account, not by a browser.
+  '.jsonc', '.example',
   // C sources (league-schedule-generator's eval/carryover-bnb.c, an offline proof search): never loaded by a page.
   '.c', '.h',
 ]);

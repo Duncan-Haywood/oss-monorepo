@@ -1666,6 +1666,26 @@ table is a *desktop* bug — the sticky panel is narrow on a wide screen and the
 venture's own media query already handles the phone — so the 390px sweep
 `sweep.mjs` rightly uses would have found none of it.
 
+**Sticky panels are measured twice.** axe reads text inside a sticky (or
+internally scrolling) result panel against whatever sits behind the panel's
+box at that moment, usually the light page, not the panel's dark fill. On
+2026-11-14 a 1-in-25 sample reported 66 colour findings, 64 of them near-white
+panel ink "at 1.01 to 1.07:1" that a screenshot showed as legible. So when a
+page has colour findings, the check lays sticky and scrolling panels out as
+plain blocks (positions and heights only, no colours) and runs the colour rule
+again; a node counts only if it fails both times, and the run prints how many
+were dropped. Removing a real fix (StockX's comparison header, `#1857a8` on
+`#0d3d7a`, 1.5:1, also in a sticky panel) still fails, so the second pass
+hides layout noise, not ink.
+
+In a cloud session the npm registry is reachable through the proxy, so axe-core
+is one install away; keep it out of the tree:
+`npm i --no-save --prefix "$SCRATCH/axe" axe-core@4.10.2`, then
+`AXE=$SCRATCH/axe/node_modules/axe-core/axe.min.js
+PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js`. `SAMPLE_EVERY`,
+`SKIP_PREFIXES` and slug arguments keep a run inside the tool timeout (160
+pages at four viewport/scheme runs took about 5 minutes).
+
 Not in CI: axe-core and Playwright are not dependencies of this repo, the same
 reason `journey.mjs` and `sweep.mjs` are not. The parts that can be asserted
 without a browser are in `build.test.mjs` instead, and they check for the

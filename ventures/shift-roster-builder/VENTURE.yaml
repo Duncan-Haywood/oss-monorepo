@@ -28,6 +28,7 @@ owner: duncan
 # scheduling, breaks, minor labor not modelled and said so); staff lists never
 # leave the browser (tests assert no network calls); no vendor named.
 #
+# Team hub deploys free to the user's own Cloudflare account since 2026-11-15 (README "Free on Cloudflare").
 # Path to revenue (payment rails stay off): lead magnet and donations. A later
 # paid tier could be saved multi-week rosters, shift-swap links and multi-location
 # plans; not built.

@@ -170,7 +170,7 @@ class ReadTests(unittest.TestCase):
         self.assertEqual(raf.camera_model(data), "Fujifilm FinePix S5500")
 
     def test_refusals(self):
-        with self.assertRaisesRegex(rd.DevelopError, "lossless compression is not supported"):
+        with self.assertRaisesRegex(rd.DevelopError, "not an uncompressed layout"):
             raf.parse_raf(make_raf("xtrans_short")[0])
         with self.assertRaisesRegex(rd.DevelopError, "SuperCCD"):
             raf.parse_raf(make_raf("bayer", layout=b"\x80\x00\x00\x00")[0])
@@ -227,7 +227,7 @@ class XTransDemosaicTests(unittest.TestCase):
         raw = self.raw(fill={0: 1000, 1: 2000, 2: 1500})
         for engine in ["python"] + (["numpy"] if has_numpy() else []):
             for half in (False, True):
-                w, h, px, rep = self.develop(raw, engine=engine, half=half)
+                w, h, px, rep = self.develop(raw, engine=engine, half=half)  # numpy: the directional demosaic
                 first = tuple(px[0:3])
                 self.assertTrue(all(tuple(px[i : i + 3]) == first for i in range(0, len(px), 3)), (engine, half))
                 self.assertEqual(rep.cfa, XE1)
@@ -237,8 +237,9 @@ class XTransDemosaicTests(unittest.TestCase):
         for seed, (width, height) in enumerate(((25, 19), (13, 8), (6, 6), (31, 14))):
             raw = self.raw(width=width, height=height, seed=seed)
             for half in (False, True):
-                a = self.develop(raw, engine="python", half=half)
-                b = self.develop(raw, engine="numpy", half=half)
+                # bilinear on both: the directional X-Trans demosaic is numpy only (tests/test_xtrans_demosaic.py)
+                a = self.develop(raw, engine="python", half=half, demosaic="bilinear")
+                b = self.develop(raw, engine="numpy", half=half, demosaic="bilinear")
                 self.assertEqual(a[:2], b[:2], (width, height, half))
                 self.assertEqual(list(a[2]), list(b[2]), (width, height, half))
 

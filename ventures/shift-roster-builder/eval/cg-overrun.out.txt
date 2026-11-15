@@ -1,0 +1,49 @@
+# node eval/cg-overrun.mjs P S cases (2026-11-14, one cloud machine, run one after another); 'scoreCGHardStop:false' is the code before this change
+== 90 x 252, options {"timeBudgetMs":20000,"scoreCGHardStop":false}
+week 0: 348 copies, open 355 h, gap $329759.47, 22187 ms total; cg share 8761 ms, cg 8780 ms (lp 5971, longest 923; pricing 2785, longest 114; 14 rounds, 1260 calls), clique ran
+  anneal 424, eject 2054, scoreCG 8799, cliqueFloor 5301, coverPass 3562, coverRepair 0, exactSearch 0, dayLNS 2005, summary 3, critical 8, hireTest 0
+week 1: 352 copies, open 226 h, gap $9798460.54, 22182 ms total; cg share 8706 ms, cg 9487 ms (lp 4818, longest 1142; pricing 4645, longest 199; 14 rounds, 1260 calls), clique skipped
+  anneal 286, eject 2302, scoreCG 9500, coverPass 8076, coverRepair 0, exactSearch 1, dayLNS 2005, summary 2, critical 4, hireTest 0
+week 2: 363 copies, open 374 h, gap $30489.33, 22623 ms total; cg share 6392.608018394019 ms, cg 6948 ms (lp 4755, longest 1049; pricing 2176, longest 47; 15 rounds, 1350 calls), clique ran
+  anneal 209, eject 3013, scoreCG 6957, cliqueFloor 6782, coverPass 3647, coverRepair 0, exactSearch 0, dayLNS 2002, summary 2, critical 6, hireTest 0
+== 90 x 252, options {"timeBudgetMs":20000}
+week 0: 348 copies, open 355 h, gap $329759.47, 22429 ms total; cg share 8944 ms, cg 8950 ms (lp 6378, longest 1025; pricing 2550, longest 98; 15 rounds, 1260 calls), clique ran
+  anneal 356, eject 1756, scoreCG 8970, cliqueFloor 5735, coverPass 3554, coverRepair 0, exactSearch 0, dayLNS 2005, summary 4, critical 13, hireTest 0
+week 1: 352 copies, open 231 h, gap $1230858.45, 22564 ms total; cg share 8603 ms, cg 8608 ms (lp 4532, longest 828; pricing 4060, longest 163; 14 rounds, 1170 calls), clique ran
+  anneal 300, eject 2494, scoreCG 8625, cliqueFloor 5627, coverPass 3496, coverRepair 0, exactSearch 0, dayLNS 2002, summary 3, critical 7, hireTest 0
+week 2: 363 copies, open 377 h, gap $330446.35, 22490 ms total; cg share 6294.608018394019 ms, cg 6332 ms (lp 4293, longest 747; pricing 2020, longest 50; 15 rounds, 1260 calls), clique ran
+  anneal 332, eject 2988, scoreCG 6343, cliqueFloor 7597, coverPass 3209, coverRepair 0, exactSearch 0, dayLNS 2002, summary 3, critical 8, hireTest 0
+== 100 x 280, options {"timeBudgetMs":20000,"scoreCGHardStop":false}
+week 0: 400 copies, open 386 h, gap $9198708.33, 18350 ms total; cg share 1000 ms, cg 1708 ms (lp 197, longest 153; pricing 1502, longest 120; 2 rounds, 200 calls), clique skipped
+  anneal 488, eject 3297, scoreCG 1732, coverPass 10509, coverRepair 281, exactSearch 0, dayLNS 2002, summary 3, critical 9, hireTest 0
+week 1: 400 copies, open 347 h, gap $336025.94, 22750 ms total; cg share 1050.1162569753706 ms, cg 1680 ms (lp 102, longest 77; pricing 1573, longest 263; 2 rounds, 200 calls), clique ran
+  anneal 287, eject 3137, scoreCG 1697, cliqueFloor 10473, coverPass 5130, coverRepair 0, exactSearch 0, dayLNS 2007, summary 3, critical 9, hireTest 0
+== 100 x 280, options {"timeBudgetMs":20000}
+week 0: 400 copies, open 376 h, gap $1834434.89, 22164 ms total; cg share 1583.1162569753706 ms, cg 1632 ms (lp 316, longest 121; pricing 1309, longest 66; 4 rounds, 300 calls), clique ran
+  anneal 338, eject 2553, scoreCG 1651, cliqueFloor 11072, coverPass 4491, coverRepair 0, exactSearch 0, dayLNS 2007, summary 5, critical 13, hireTest 0
+week 1: 400 copies, open 351 h, gap $735950.75, 22536 ms total; cg share 1000 ms, cg 1046 ms (lp 54, longest 35; pricing 988, longest 157; 2 rounds, 156 calls), clique ran
+  anneal 448, eject 3268, scoreCG 1061, cliqueFloor 10460, coverPass 5281, coverRepair 0, exactSearch 0, dayLNS 2003, summary 3, critical 5, hireTest 0
+== 80 x 224, options {"timeBudgetMs":20000,"scoreCGHardStop":false}
+week 0: 304 copies, open 260 h, gap $327193.65, 22123 ms total; cg share 9128 ms, cg 10375 ms (lp 6267, longest 1107; pricing 4078, longest 127; 17 rounds, 1360 calls), clique ran
+  anneal 305, eject 1439, scoreCG 10394, cliqueFloor 3045, coverPass 4903, coverRepair 0, exactSearch 0, dayLNS 2002, summary 3, critical 7, hireTest 0
+week 1: 314 copies, open 332 h, gap $127059.78, 22147 ms total; cg share 8979 ms, cg 9994 ms (lp 8242, longest 1450; pricing 1730, longest 35; 19 rounds, 1520 calls), clique ran
+  anneal 203, eject 1839, scoreCG 10007, cliqueFloor 4458, coverPass 3626, coverRepair 0, exactSearch 0, dayLNS 2001, summary 2, critical 4, hireTest 0
+week 2: 326 copies, open 286 h, gap $528304.93, 22828 ms total; cg share 8656.5 ms, cg 9808 ms (lp 6622, longest 1379; pricing 3173, longest 77; 16 rounds, 1280 calls), clique ran
+  anneal 187, eject 2500, scoreCG 9816, cliqueFloor 4696, coverPass 3617, coverRepair 0, exactSearch 0, dayLNS 2001, summary 2, critical 3, hireTest 0
+== 80 x 224, options {"timeBudgetMs":20000}
+week 0: 304 copies, open 260 h, gap $327193.65, 22165 ms total; cg share 9159 ms, cg 9163 ms (lp 5262, longest 989; pricing 3879, longest 114; 17 rounds, 1280 calls), clique ran
+  anneal 335, eject 1347, scoreCG 9181, cliqueFloor 3032, coverPass 6226, coverRepair 0, exactSearch 0, dayLNS 2002, summary 3, critical 7, hireTest 1
+week 1: 314 copies, open 332 h, gap $127059.78, 22467 ms total; cg share 9056.5 ms, cg 9102 ms (lp 7399, longest 1173; pricing 1687, longest 36; 19 rounds, 1440 calls), clique ran
+  anneal 187, eject 1700, scoreCG 9114, cliqueFloor 3909, coverPass 5546, coverRepair 0, exactSearch 0, dayLNS 2001, summary 2, critical 3, hireTest 0
+week 2: 326 copies, open 286 h, gap $528304.93, 22630 ms total; cg share 8959 ms, cg 9026 ms (lp 5948, longest 1092; pricing 3062, longest 76; 16 rounds, 1200 calls), clique ran
+  anneal 178, eject 1904, scoreCG 9033, cliqueFloor 5234, coverPass 4267, coverRepair 1, exactSearch 0, dayLNS 2004, summary 1, critical 3, hireTest 0
+== 60 x 168, options {"timeBudgetMs":20000,"scoreCGHardStop":false}
+week 0: 245 copies, open 300 h, gap $6.68, 20785 ms total; cg share 9393 ms, cg 10038 ms (lp 7080, longest 763; pricing 2931, longest 225; 25 rounds, 1500 calls), clique ran
+  anneal 189, eject 1025, scoreCG 10049, cliqueFloor 1033, coverPass 1840, coverRepair 321, exactSearch 0, scoreFloor 4295, dayLNS 2002, summary 2, critical 6, hireTest 0
+week 1: 238 copies, open 308 h, gap $2099784.42, 9182 ms total; cg share 9221 ms, cg 7605 ms (lp 5668, longest 818; pricing 1894, longest 51; 48 rounds, 1951 calls), clique skipped
+  anneal 157, eject 1401, scoreCG 7617, exactSearch 0, summary 1, critical 3, hireTest 0
+== 60 x 168, options {"timeBudgetMs":20000}
+week 0: 245 copies, open 300 h, gap $6.68, 20038 ms total; cg share 9434.5 ms, cg 9444 ms (lp 7396, longest 753; pricing 2021, longest 194; 25 rounds, 1446 calls), clique ran
+  anneal 191, eject 940, scoreCG 9456, cliqueFloor 1159, coverPass 1815, coverRepair 403, exactSearch 0, scoreFloor 4043, dayLNS 2002, summary 2, critical 4, hireTest 0
+week 1: 238 copies, open 308 h, gap $2099784.42, 8410 ms total; cg share 9340 ms, cg 7075 ms (lp 5298, longest 838; pricing 1740, longest 37; 48 rounds, 1951 calls), clique skipped
+  anneal 133, eject 1187, scoreCG 7084, exactSearch 0, summary 1, critical 3, hireTest 0

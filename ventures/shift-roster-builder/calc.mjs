@@ -1011,6 +1011,20 @@ export function rosterScoreUnder(staff, slots, options, roster) {
   return { valid: true, score: scoreOwner(ctx, owner).total };
 }
 
+// A roster from an owner array built elsewhere (the manager's browser, 2026-11-15): owner[i] is the index into `staff` of
+// the person on slots[i], or -1 for open. Checked against every hard rule (availability, roles, rest, hours, days in a
+// row) and priced with the same payroll as buildRoster, with no search, so a host with a tight CPU limit (a free
+// Cloudflare Worker) can publish a week it could not afford to build. { error } when the owner does not fit the lists.
+export function rosterFromOwner(staff, slots, owner, options = {}) {
+  if (!Array.isArray(owner) || owner.length !== slots.length) return { error: "The roster does not match the shift list; build it again." };
+  if (owner.some((p) => !Number.isInteger(p) || p < -1 || p >= staff.length)) return { error: "The roster names someone who is not on the staff list; build it again." };
+  const ctx = buildContext(staff, slots, options);
+  if (!ownerValid(ctx, owner)) return { error: "The roster breaks a rule for the current staff list (availability, rest, hours or days in a row); build it again." };
+  const res = summarise(ctx, owner);
+  const assignments = slots.map((s, i) => ({ slot: s, person: owner[i] >= 0 ? staff[owner[i]].name : null }));
+  return { ok: true, options: ctx.o, owner: owner.slice(), cost: res.cost, unfilledHours: res.unfilledHours, unfilledSlots: res.unfilled.length, people: res.people, assignments };
+}
+
 function anneal(ctx, seed, iterations, jitter) {
   const { P, S, slots, elig } = ctx;
   const rng = mulberry32(seed);
@@ -3317,7 +3331,7 @@ function buildRosterOnce(staff, slots, options = {}) {
   };
   if (!deferCover) { runClique(); coverPasses(); }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
-  let optimality = null;
+  let optimality = null, cgShare = null;
   if (exactOn && !over()) {
     const annealScore = best.score;
     // Whole-score branch-and-price first (scoreColumnGeneration: the Dantzig-Wolfe LP costed at each person's score, solved by
@@ -3342,9 +3356,10 @@ function buildRosterOnce(staff, slots, options = {}) {
     // proved nothing and left a root bound of 294 h, while the clique LP then bounds 358 h and guides the day sweeps: 385 to 376
     // and 353 to 350 open hours (eval/clique-room.out.txt). `cliqueRoom: false` keeps the plain half.
     const cgHalf = scoreCGBudgetMs(budgetMs - (Date.now() - tStart), ctx.S, o);
+    cgShare = o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? cgHalf : Infinity);
     if (o.scoreCG !== false) {
       try {
-        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, openFloor: early?.floor || 0, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? cgHalf : Infinity), maxNodes: o.scoreCGPricingNodes ?? 200000 });
+        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, openFloor: early?.floor || 0, nodeLimit: o.scoreCGNodes ?? 20000, ms: cgShare, maxNodes: o.scoreCGPricingNodes ?? 200000, hardStop: o.scoreCGHardStop !== false });
       } catch { cg = null; } // a solver failure leaves the exact search to do the work alone
       mark("scoreCG");
       if (cg?.roster) {
@@ -3467,7 +3482,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       forcedOpenHours: ex.proven ? Math.floor(best.score / BIG + 1e-9) : Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)),
       coverageProven: ex.proven || Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)) === Math.floor(best.score / BIG + 1e-9),
       tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes, treeSkipped: !!ex.skipped,
-      scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
+      scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms, lpMs: cg.stats.lpMs, maxLpMs: cg.stats.maxLpMs, pricingMs: cg.stats.pricingMs, maxPricingMs: cg.stats.maxPricingMs, rounds: cg.stats.rounds, pricingCalls: cg.stats.pricingCalls, stoppedMidRound: cg.stats.stoppedMidRound || 0, shareMs: Number.isFinite(cgShare) ? cgShare : null } : null,
       earlyFloor: early,
       cliqueFloor: clique ? { floor: clique.floor, lp: clique.lp, rows: clique.rows, columns: clique.cols, pivots: clique.pivots, ms: clique.ms } : null,
       dayLNS,

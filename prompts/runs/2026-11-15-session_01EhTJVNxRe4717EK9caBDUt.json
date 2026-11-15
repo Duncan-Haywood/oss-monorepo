@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNxRe4717EK9caBDUt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T01:31:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 8) quick-pick-survey: (m3) decide guard on long runs",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16037",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook that refuses pkill -f also refuses a bracketed pattern when the same word appears elsewhere in the command line (e.g. in a later relaunch); killing by PID from ps was the workaround."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-quick-pick-survey-a-lucky-streak-past-the-checkpoint.md"
+  ],
+  "goal": "Keep the decide page's 90% stop promise over runs up to 3x the checkpoint",
+  "notes": "Added longRunLevel (site/decide-core.mjs): past decisionMax the stop level is 1 - 0.1*(decisionMax/t)^0.5, applied to the plain check and the graded guard; page status and bar read it. Measured on decide-cap-sweep (300 runs per row, 3,000 rows in docs/decide-long-run-2026-11-15.jsonl.gz): tau 1 promise 0.886 -> 0.911 (false settled 30 -> 21) for +10% picks; tau 2 0.977 -> 0.965, +7% picks, best right 254 -> 250 (noise); tau 3 0.953 -> 0.959; spread 0.951 -> 0.964; tau 0.5 unchanged at 0.858 (pre-checkpoint estimateTau bias, next item m4). Power 1 and a shrinking-guard-tau variant were measured and not shipped. Sweep with --long-run none reproduced the 2026-11-15 rows exactly. Checks: node --test site/graded-fit.test.mjs site/decide-core.test.mjs 22/22, new test red with the level held at 0.9; Playwright 390px past the checkpoint, no console errors; run_workflow_locally --for-changes (see PR).",
+  "corrections": [],
+  "redteam": null
+}

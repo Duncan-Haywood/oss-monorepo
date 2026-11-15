@@ -1,0 +1,407 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyf9dmkxthsk3AjBsPd",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T00:39:17Z",
+  "ended": "2026-11-15T00:40:35Z",
+  "wall_minutes": 5.87,
+  "tokens_in": 4247216,
+  "tokens_out": 26988,
+  "cost_usd": 2.1247,
+  "tool_calls": 51,
+  "task": "redteam: service-load-check",
+  "projects": [
+    "service-load-check",
+    "demand-charge-interval-analyzer",
+    "babysitting-business-kit"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16036",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 12 entries, all control-plane workflow wirings that already have open PRs waiting on the owner; the step says to fix each one, but a red-team run can do nothing with them. The open list could hide entries whose patched_in names an open PR."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets` with no --under shows a short default list, so recently changed files (shift-roster-builder/calc.mjs) seemed not to be targets; needed --under per venture to find them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix every open entry first; all 12 are control-plane edits with existing open PRs pending owner approval",
+      "did": "Checked each one had a pending PR and left them alone instead of opening duplicates",
+      "result": "No duplicate control-plane PRs; the run's time went to the campaign and its fixes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-redteam-fourteen-seventy-five.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/check_clock_rollover.py (dynamic probe of every exported time parser; picked up by unwired_checks.py on venture PRs). First run found babysitting-business-kit toMin. Suites run locally: service-load-check 41/41, demand-charge-interval-analyzer 54/54, babysitting-business-kit 333/333, test_check_clock_rollover 4/4.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/service-load-check/interval.mjs",
+        "test": "node --test ventures/service-load-check/**/*.test.mjs  (in .)",
+        "seed": 712493417,
+        "commit": "906ae20f0",
+        "sites": 394,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/service-load-check/interval.mjs",
+            "line": 20,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "let m = str.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})(?:[T\\s]+(\\d{1,2}):(\\d{2})(?::(\\d{2}))?\\s*(AM|PM)?)?/i);",
+            "after": "let m = str.match(/^(\\d{4})-(\\d{1,2})-(\\d{2,2})(?:[T\\s]+(\\d{1,2}):(\\d{2})(?::(\\d{2}))?\\s*(AM|PM)?)?/i);",
+            "line_text": "  let m = str.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})(?:[T\\s]+(\\d{1,2}):(\\d{2})(?::(\\d{2}))?\\s*(AM|PM)?)?/i);",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: single-digit ISO days and months parse (2025-1-5)"
+          },
+          {
+            "file": "ventures/service-load-check/interval.mjs",
+            "line": 49,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (a === \"AM\" && h === 12) h = 0;",
+            "after": "if (a === \"AM\" && h === 12) h = 1;",
+            "line_text": "  if (a === \"AM\" && h === 12) h = 0;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: a 12 AM start time in a separate time column is midnight"
+          },
+          {
+            "file": "ventures/service-load-check/interval.mjs",
+            "line": 90,
+            "col": 80,
+            "operator": "and-to-or",
+            "before": "const rangeCol = r0.findIndex((c) => /\\d.*\\s(to|-)\\s.*\\d{1,2}:\\d{2}/i.test(c) && Number.isFinite(parseTimestamp(c)));",
+            "after": "const rangeCol = r0.findIndex((c) => /\\d.*\\s(to|-)\\s.*\\d{1,2}:\\d{2}/i.test(c) || Number.isFinite(parseTimestamp(c)));",
+            "line_text": "  const rangeCol = r0.findIndex((c) => /\\d.*\\s(to|-)\\s.*\\d{1,2}:\\d{2}/i.test(c) && Number.isFinite(parseTimestamp(c)));",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/interval.mjs",
+            "line": 104,
+            "col": 17,
+            "operator": "ge-to-gt",
+            "before": "if (second >= 0) endCol = second;",
+            "after": "if (second > 0) endCol = second;",
+            "line_text": "      if (second >= 0) endCol = second;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "second is the index of a timestamp cell other than dateCol; dateCol is the FIRST timestamp cell (findIndex), so any other timestamp cell has index > dateCol >= 0 and second is never 0"
+          },
+          {
+            "file": "ventures/service-load-check/interval.mjs",
+            "line": 215,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "for (const [t, b] of [...blocks.entries()].sort((a, c) => a[0] - c[0])) {",
+            "after": "for (const [t, b] of [...blocks.entries()].sort((a, c) => a[1] - c[0])) {",
+            "line_text": "  for (const [t, b] of [...blocks.entries()].sort((a, c) => a[0] - c[0])) {",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "a[1] is a block object, so the comparator returns NaN and sort keeps insertion order; blocks are inserted in row order and every caller passes rows already sorted by t (finish sorts), so the order is unchanged"
+          },
+          {
+            "file": "ventures/service-load-check/interval.mjs",
+            "line": 239,
+            "col": 86,
+            "operator": "times-to-div",
+            "before": "const first = rows[0].t, last = rows[rows.length - 1].t + rows[rows.length - 1].min * 60000;",
+            "after": "const first = rows[0].t, last = rows[rows.length - 1].t + rows[rows.length - 1].min / 60000;",
+            "line_text": "  const first = rows[0].t, last = rows[rows.length - 1].t + rows[rows.length - 1].min * 60000;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: the period runs to the end of the last reading, coverage 1 for clean data"
+          },
+          {
+            "file": "ventures/service-load-check/interval.mjs",
+            "line": 311,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const summer = Math.max(0, Math.cos(((doy - 200) / 365) * 2 * Math.PI)); // peaks in July",
+            "after": "const summer = Math.max(0, Math.cos(((doy - 201) / 365) * 2 * Math.PI)); // peaks in July",
+            "line_text": "    const summer = Math.max(0, Math.cos(((doy - 200) / 365) * 2 * Math.PI)); // peaks in July",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/interval.mjs",
+            "line": 313,
+            "col": 39,
+            "operator": "times-to-div",
+            "before": "if (h >= 6.5 && h < 8.5) kw += 1.2 * rnd();",
+            "after": "if (h >= 6.5 && h < 8.5) kw += 1.2 / rnd();",
+            "line_text": "    if (h >= 6.5 && h < 8.5) kw += 1.2 * rnd();",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/service-load-check/greenbutton.mjs",
+        "test": "node --test ventures/service-load-check/**/*.test.mjs  (in .)",
+        "seed": 734227038,
+        "commit": "906ae20f0",
+        "sites": 190,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/service-load-check/greenbutton.mjs",
+            "line": 62,
+            "col": 10,
+            "operator": "const-plus-one",
+            "before": "if (!/^[0-9a-f]{1,8}$/i.test(s)) return null;",
+            "after": "if (!/^[1-9a-f]{1,8}$/i.test(s)) return null;",
+            "line_text": "  if (!/^[0-9a-f]{1,8}$/i.test(s)) return null;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/greenbutton.mjs",
+            "line": 98,
+            "col": 9,
+            "operator": "times-to-div",
+            "before": "d += 7 * (r.op - 2);",
+            "after": "d += 7 / (r.op - 2);",
+            "line_text": "  d += 7 * (r.op - 2);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/greenbutton.mjs",
+            "line": 99,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "while (d > n) d -= 7;",
+            "after": "while (d > n) d -= 8;",
+            "line_text": "  while (d > n) d -= 7;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/greenbutton.mjs",
+            "line": 111,
+            "col": 75,
+            "operator": "plus-to-minus",
+            "before": "const t = Date.UTC(year, r.month - 1, ruleDay(year, r)) + (r.hour * 3600 + r.seconds) * 1000;",
+            "after": "const t = Date.UTC(year, r.month - 1, ruleDay(year, r)) + (r.hour * 3600 - r.seconds) * 1000;",
+            "line_text": "  const t = Date.UTC(year, r.month - 1, ruleDay(year, r)) + (r.hour * 3600 + r.seconds) * 1000;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/greenbutton.mjs",
+            "line": 197,
+            "col": 50,
+            "operator": "or-to-and",
+            "before": "ivBlocks.push({ parent: parentReading(self) || parentReading(up) || \"\", readings });",
+            "after": "ivBlocks.push({ parent: parentReading(self) && parentReading(up) || \"\", readings });",
+            "line_text": "      ivBlocks.push({ parent: parentReading(self) || parentReading(up) || \"\", readings });",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/greenbutton.mjs",
+            "line": 209,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "type = looseTypes.length === 1 ? looseTypes[0] : looseTypes.length ? null : { uom: 72, p10: 0, flow: 0, commodity: NaN, intervalLength: NaN };",
+            "after": "type = looseTypes.length === 1 ? looseTypes[0] : looseTypes.length ? null : { uom: 73, p10: 0, flow: 0, commodity: NaN, intervalLength: NaN };",
+            "line_text": "      type = looseTypes.length === 1 ? looseTypes[0] : looseTypes.length ? null : { uom: 72, p10: 0, flow: 0, commodity: NaN, intervalLength: NaN };",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/greenbutton.mjs",
+            "line": 235,
+            "col": 42,
+            "operator": "or-to-and",
+            "before": "usable.sort((a, b) => rank(a) - rank(b) || median(a) - median(b) || b.readings.length - a.readings.length);",
+            "after": "usable.sort((a, b) => rank(a) - rank(b) && median(a) - median(b) || b.readings.length - a.readings.length);",
+            "line_text": "  usable.sort((a, b) => rank(a) - rank(b) || median(a) - median(b) || b.readings.length - a.readings.length);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/service-load-check/greenbutton.mjs",
+            "line": 235,
+            "col": 88,
+            "operator": "minus-to-plus",
+            "before": "usable.sort((a, b) => rank(a) - rank(b) || median(a) - median(b) || b.readings.length - a.readings.length);",
+            "after": "usable.sort((a, b) => rank(a) - rank(b) || median(a) - median(b) || b.readings.length + a.readings.length);",
+            "line_text": "  usable.sort((a, b) => rank(a) - rank(b) || median(a) - median(b) || b.readings.length - a.readings.length);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/service-load-check/interval.mjs",
+        "issue": "Out-of-range clock times were accepted: a time column of 77:30 put the reading three days later (span 3.2 days, coverage 1.3%), and a timestamp of 14:75 or 24:30 was rolled into a later hour. mk and parseTimeOfDay now refuse minutes over 59 and hours past 24:00, so the line is skipped and counted.",
+        "patched": true
+      },
+      {
+        "file": "ventures/service-load-check/interval.mjs",
+        "issue": "finish() took the UPPER median of the gaps between readings as the interval, so a short paste of 15-minute data with one missing line (gaps 15, 30) was read as 30-minute data: peak halved (2 kW instead of 4), coverage 120%, and the 'understates' warning shown. Now the lower median: a missing reading only ever lengthens a gap.",
+        "patched": true
+      },
+      {
+        "file": "ventures/demand-charge-interval-analyzer/calc.mjs",
+        "issue": "Sibling of the first: parseTimestamp's realUtc caught a day rolling over but not minutes, so 2026-03-04 14:75 and 3/4/2026 2:75 PM were read as 15:15. Now refuses hours over 23 and minutes over 59.",
+        "patched": true
+      },
+      {
+        "file": "ventures/babysitting-business-kit/engine.mjs",
+        "issue": "toMin (used by sitreport.mjs parseTimes and hhmm for medication authorisation and dose times) accepted minutes over 59 and hours over 12 with am/pm: '8:75pm' stored as 21:15, '13pm' as 01:00, so dose-spacing checks ran on a time nobody wrote. Found by the new check_clock_rollover.py on its first run. Now refused; 24:00 still means end of day.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4e12890e-8850-5262-a28b-b7f5d1e0ad16",
+    "transcripts": 1,
+    "first": "2026-11-15T00:39:17Z",
+    "last": "2026-11-15T00:45:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 93,
+        "output": 26988,
+        "thinking": 6336,
+        "cache_read": 4152876,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94247,
+        "api_equivalent_usd": 2.1247,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 93,
+      "output": 26988,
+      "thinking": 6336,
+      "cache_read": 4152876,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94247,
+      "api_equivalent_usd": 2.1247,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 46,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.87,
+      "active_minutes": 5.87,
+      "model_minutes": 4.43,
+      "tool_minutes": 1.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "seed/triage 16 mutants, find and fix 4 parser defects across 3 ventures, write a CI check and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 235.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -20,6 +20,8 @@
 // simulated people in docs/DECIDE-PAGE.md (scripts/decide-sim.mjs).
 import { fit, parseList, listId, suggestedMax, csvCell, STOP_CONFIDENCE } from "./rank-core.mjs";
 import { cholesky } from "./engine/btRefit.mjs";
+import { gradedFit, hasGrades, estimateTau, GRADED_TAU, BIT, MUCH } from "./graded-fit.mjs";
+export { GRADED_TAU, BIT, MUCH };
 
 export const MIN_OPTIONS = 2;
 export const MAX_OPTIONS = 20;
@@ -60,8 +62,14 @@ function fromBase64Url(s) {
 }
 
 /** The decision as a URL fragment ("d=" + base64url JSON); fragments never reach a server. */
-export function encodeDecision({ title = "", options, criteria }) {
-  return "d=" + toBase64Url(JSON.stringify({ v: 1, t: title, o: options, c: criteria }));
+// What the questions aim at: "winner" (the default: find the best option and
+// stop once it is safe) or "order" ("rank them all": the order picker and the
+// whole-order stop). A link carries "order" as m: "order"; a winner link has
+// no m, so links made before the switch read as they did.
+export const DECIDE_MODES = ["winner", "order"];
+export function encodeDecision({ title = "", options, criteria, mode = "winner" }) {
+  if (!DECIDE_MODES.includes(mode)) throw new Error(`unknown mode ${mode}`);
+  return "d=" + toBase64Url(JSON.stringify({ v: 1, t: title, o: options, c: criteria, ...(mode === "order" ? { m: "order" } : {}) }));
 }
 export function decodeDecision(fragment) {
   try {
@@ -69,21 +77,28 @@ export function decodeDecision(fragment) {
     if (!d || d.v !== 1 || !Array.isArray(d.o) || !Array.isArray(d.c)) return null;
     const setup = parseSetup(d.o.map(String).join("\n"), d.c.map(String).join("\n"));
     if (setupError(setup)) return null;
-    return { title: Array.from(String(d.t || "")).slice(0, 200).join(""), ...setup };
+    // An unknown mode is refused, not read as the default: a damaged link should say so.
+    if (d.m !== undefined && d.m !== "order") return null;
+    return { title: Array.from(String(d.t || "")).slice(0, 200).join(""), ...setup, mode: d.m === "order" ? "order" : "winner" };
   } catch {
     return null;
   }
 }
 
 /**
- * Answers: { crit: [[w, l, tie]], opt: [[c, w, l, tie]] }, indices into the
- * criteria and options. A result code is "QD1." + base64url JSON with the
- * decision fingerprint, an optional name and both answer lists.
+ * Answers: { crit: [[w, l, tie, grade]], opt: [[c, w, l, tie, grade]] },
+ * indices into the criteria and options; `grade` is optional (BIT "a bit",
+ * MUCH "much", absent for an ungraded pick, as in codes made before graded
+ * answers). A result code is "QD1." + base64url JSON with the decision
+ * fingerprint, an optional name and both answer lists; each answer ends in
+ * "=" for a tie, "-" for "a bit", "+" for "much", nothing when ungraded.
  */
+const GRADE_MARK = { [BIT]: "-", [MUCH]: "+" };
+const MARK_GRADE = { "-": BIT, "+": MUCH };
 export function encodeAnswers({ options, criteria, answers, name = "" }) {
-  const t = (x) => (x ? "=" : "");
-  const w = answers.crit.map(([a, b, tie]) => `${a.toString(36)}.${b.toString(36)}${t(tie)}`).join(",");
-  const a = answers.opt.map(([c, x, y, tie]) => `${c.toString(36)}.${x.toString(36)}.${y.toString(36)}${t(tie)}`).join(",");
+  const t = (tie, g) => (tie ? "=" : GRADE_MARK[g] || "");
+  const w = answers.crit.map(([a, b, tie, g]) => `${a.toString(36)}.${b.toString(36)}${t(tie, g)}`).join(",");
+  const a = answers.opt.map(([c, x, y, tie, g]) => `${c.toString(36)}.${x.toString(36)}.${y.toString(36)}${t(tie, g)}`).join(",");
   return "QD1." + toBase64Url(JSON.stringify({ l: decisionId(options, criteria), n: Array.from(String(name)).slice(0, 60).join(""), w, a }));
 }
 export function decodeAnswers(code, options, criteria) {
@@ -96,18 +111,18 @@ export function decodeAnswers(code, options, criteria) {
   if (d.l !== decisionId(options, criteria)) return { error: "this code is for a different decision" };
   const crit = [], opt = [];
   for (const part of String(d.w || "").split(",").filter(Boolean)) {
-    const pm = /^([0-9a-z]+)\.([0-9a-z]+)(=?)$/.exec(part);
+    const pm = /^([0-9a-z]+)\.([0-9a-z]+)([=+-]?)$/.exec(part);
     if (!pm) return damaged;
     const a = parseInt(pm[1], 36), b = parseInt(pm[2], 36);
     if (a >= criteria.length || b >= criteria.length || a === b) return damaged;
-    crit.push([a, b, pm[3] === "="]);
+    crit.push(MARK_GRADE[pm[3]] ? [a, b, false, MARK_GRADE[pm[3]]] : [a, b, pm[3] === "="]);
   }
   for (const part of String(d.a || "").split(",").filter(Boolean)) {
-    const pm = /^([0-9a-z]+)\.([0-9a-z]+)\.([0-9a-z]+)(=?)$/.exec(part);
+    const pm = /^([0-9a-z]+)\.([0-9a-z]+)\.([0-9a-z]+)([=+-]?)$/.exec(part);
     if (!pm) return damaged;
     const c = parseInt(pm[1], 36), x = parseInt(pm[2], 36), y = parseInt(pm[3], 36);
     if (c >= criteria.length || x >= options.length || y >= options.length || x === y) return damaged;
-    opt.push([c, x, y, pm[4] === "="]);
+    opt.push(MARK_GRADE[pm[4]] ? [c, x, y, false, MARK_GRADE[pm[4]]] : [c, x, y, pm[4] === "="]);
   }
   return { name: Array.from(String(d.n || "")).slice(0, 60).join(""), answers: { crit, opt } };
 }
@@ -128,13 +143,33 @@ const centre = (v) => {
  * the options, plus the plug-in weights and overall scores at the posterior
  * mode (what the page shows as the order).
  */
-export function decisionFit(nOptions, nCriteria, answers) {
-  const crit = fit(nCriteria, answers.crit);
-  const opts = Array.from({ length: nCriteria }, (_, c) => fit(nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t]) => [x, y, t])));
+/**
+ * Graded answers ("a bit" / "much") go through the ordinal fit in
+ * graded-fit.mjs; a list with no grades uses the plain refit, which the
+ * ordinal fit equals on ungraded answers (graded-fit.test.mjs). `grades`
+ * picks how grades are read, for the simulations: "ordinal" (the page),
+ * "double" (a "much" pick counted as two plain wins) or "ignore".
+ */
+const fitAnswers = (n, list, { grades = "ordinal", tau = GRADED_TAU } = {}) => {
+  if (!hasGrades(list) || grades === "ignore") return fit(n, list.map(([w, l, t]) => [w, l, t]));
+  if (grades === "double") return fit(n, list.flatMap(([w, l, t, g]) => (!t && g === MUCH ? [[w, l, false], [w, l, false]] : [[w, l, t]])));
+  return gradedFit(n, list, { tau });
+};
+
+export function decisionFit(nOptions, nCriteria, answers, fitOptions = {}) {
+  const lists = [[nCriteria, answers.crit], ...Array.from({ length: nCriteria }, (_, c) => [nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t, g]) => [x, y, t, g])])];
+  // Fixed GRADED_TAU by default: the per-person estimate ("auto") recovered
+  // tau on simulated people but did no better on the decision (DECIDE-PAGE.md
+  // "Graded answers") at about 15 times the fits per answer.
+  let tau = fitOptions.tau ?? GRADED_TAU;
+  if (tau === "auto") tau = (fitOptions.grades ?? "ordinal") === "ordinal" ? estimateTau(lists) : GRADED_TAU;
+  const fo = { ...fitOptions, tau };
+  const crit = fitAnswers(nCriteria, lists[0][1], fo);
+  const opts = lists.slice(1).map(([n, a]) => fitAnswers(n, a, fo));
   const weights = softmax(crit.mu);
   const centred = opts.map((f) => centre(f.mu));
   const score = Array.from({ length: nOptions }, (_, i) => centred.reduce((a, mu, c) => a + weights[c] * mu[i], 0));
-  return { n: nOptions, C: nCriteria, crit, opts, weights, centred, score };
+  return { n: nOptions, C: nCriteria, crit, opts, weights, centred, score, tau };
 }
 
 /** Options in overall order at the posterior mode, best first (index breaks ties). */
@@ -346,6 +381,20 @@ export function decisionMax(n, C) {
 }
 
 /**
+ * How far "Keep going until it is settled" goes: decisionMax is a checkpoint
+ * where the page shows the results so far, and a person who keeps going is
+ * asked until the stop passes or DECIDE_EXTEND x decisionMax. Chosen from
+ * 1.5, 2, 3 and 4 on 1,500 simulated people (docs/DECIDE-PAGE.md, "A larger
+ * cap"): at tau 2, 3x named the true best in 254 of 300 runs against 203 at
+ * the checkpoint and left it more than 0.25 behind in 12 against 42, for
+ * about 91% more picks; 4x added 3 right answers for another 8%.
+ */
+export const DECIDE_EXTEND = 3;
+export function decisionHardMax(n, C) {
+  return Math.ceil(DECIDE_EXTEND * decisionMax(n, C));
+}
+
+/**
  * The practical-tie margin for the winner stop, on the overall score's logit
  * scale: 0.25 is a weighted edge of about 56% to 44% in a head-to-head pick.
  * Chosen from 0.15, 0.25 and 0.4 on simulated people (docs/DECIDE-PAGE.md,
@@ -361,9 +410,62 @@ export const DECIDE_MARGIN = 0.25;
  * simulated runs: a weighted average pulls options together, so neighbours
  * further down rarely separate, and the person came to choose one.
  */
-export function decisionDone(table, answers, { rule = "winner" } = {}) {
+export function decisionDone(table, answers, { rule = "winner", level = STOP_CONFIDENCE } = {}) {
   if (!(answers.crit.length > 0 && answers.opt.length > 0)) return false;
-  return table.confidence >= STOP_CONFIDENCE || (rule === "winner" && table.safe >= STOP_CONFIDENCE);
+  return table.confidence >= level || (rule === "winner" && table.safe >= level);
+}
+
+/**
+ * The stop's level after the checkpoint. Every answer is another look at the
+ * results, and a stop that is checked after every answer for up to 3 x
+ * decisionMax answers gets more chances to end on a lucky run of picks. So
+ * past the checkpoint the allowed miss shrinks with the answer count:
+ * level = 1 - (1 - STOP_CONFIDENCE) x (decisionMax / answers)^LONG_RUN_POWER,
+ * 0.9 up to the checkpoint, then 0.929 at twice it and 0.942 at three times
+ * (power 0.5). On simulated people who say "much" for 63% of picks (tau 1)
+ * the runs that stopped on their own kept the 0.25 promise in 214 of 235
+ * (0.91) against 233 of 263 (0.89) before, for 10% more picks; power 1
+ * reached 0.92 for 16% more, and shrinking the guard's tau instead reached
+ * 0.89 (docs/DECIDE-PAGE.md "The guard over long runs"). `longRun: "none"`
+ * is the page before it.
+ */
+export const LONG_RUN_POWER = 0.5;
+export function longRunLevel(nOptions, nCriteria, answerCount, { longRun = "level", power = LONG_RUN_POWER } = {}) {
+  const base = decisionMax(nOptions, nCriteria);
+  if (longRun === "none" || longRun === "tau" || answerCount <= base) return STOP_CONFIDENCE;
+  return 1 - (1 - STOP_CONFIDENCE) * Math.pow(base / answerCount, power);
+}
+
+/**
+ * The stop for graded answers. The ordinal fit trusts "much" by the tau it is
+ * given, and a person who says "much" more freely than that tau assumes would
+ * be read as surer than they are: on simulated people who said "much" for 63%
+ * of picks, the winner stop at tau 2 kept its 90% promise in only 77% of the
+ * runs that stopped (docs/DECIDE-PAGE.md "Graded answers"). So once the usual
+ * check passes, the answers are refit at GUARD_TAU, a reading in which "much"
+ * counts for little and "a bit" for close to a tie, and the page stops only
+ * if that refit passes too (the list ranker's second check, the same shape).
+ * With guardTau "auto" (the default) the guard reads at the lower of GUARD_TAU
+ * and the person's own estimateTau. Ungraded answers skip the second fit. Returns { done, table } with the
+ * table the decision rests on (the guard's, when it ran).
+ */
+export const GUARD_TAU = 1;
+export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule = "winner", guardTau = "auto", draws = 400, longRun = "level", power = LONG_RUN_POWER } = {}) {
+  const t = answers.crit.length + answers.opt.length;
+  const level = longRunLevel(nOptions, nCriteria, t, { longRun, power });
+  if (!decisionDone(table, answers, { rule, level })) return { done: false, table };
+  const graded = [...answers.crit, ...answers.opt.map(([, x, y, t, g]) => [x, y, t, g])];
+  if (!hasGrades(graded)) return { done: true, table };
+  // A person who says "much" for most picks can sit below GUARD_TAU too, so the guard
+  // reads at their own estimated tau when that is lower (estimateTau tracked tau 1,
+  // 2 and 3 at 1.2, 2.3 and 3.4 on simulated people).
+  const lists = [[nCriteria, answers.crit], ...Array.from({ length: nCriteria }, (_, c) => [nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t, g]) => [x, y, t, g])])];
+  let tau = guardTau === "auto" ? Math.min(GUARD_TAU, estimateTau(lists)) : guardTau;
+  // longRun "tau" (measured, not shipped): past the checkpoint the guard's tau shrinks with the answer count instead.
+  const base = decisionMax(nOptions, nCriteria);
+  if (longRun === "tau" && t > base) tau *= base / t;
+  const guard = decisionTable(decisionFit(nOptions, nCriteria, answers, { tau }), { draws });
+  return { done: decisionDone(guard, answers, { rule, level }), table: guard };
 }
 
 /**

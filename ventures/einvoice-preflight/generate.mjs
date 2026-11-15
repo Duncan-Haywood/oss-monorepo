@@ -49,6 +49,19 @@ export function oibOk(value) {
 const HR_LABEL = { Z: "HR:Z", E: "HR:E", AE: "HR:AE", K: "HR:K", G: "HR:G", O: "HR:O" };
 const hrLabel = (category, percent) => category === "S" ? `HR:PDV${percent}` : HR_LABEL[category];
 const HR_RATES = new Set([25, 13, 5]);
+// HR-TB-2's out-of-scope labels: amounts outside the VAT base (a refundable deposit, consumption
+// tax, the special tax on motor vehicles, other non-taxable fees such as the tourist tax). The
+// Porezna uprava's own samples write each as category E in the EN layer, with the reason
+// "#HR:<label>#<text>", and as category O with the label in the HR breakdown, under its own tax
+// scheme (OTH, LOC, CAR; VAT for HR:N); the amount goes to OutOfScopeOfVATAmount (HR-BR-32) and
+// leaves the HR tax base (HR-BR-27).
+export const HR_OUT_OF_SCOPE = {
+  POVNAK: { text: "Povratna naknada", scheme: "OTH" },
+  PP: { text: "Porez na potrošnju", scheme: "LOC" },
+  PPMV: { text: "Posebni porez na motorna vozila", scheme: "CAR" },
+  N: { text: "Neoporeziva naknada", scheme: "VAT" },
+};
+const hrOutOfScope = (label) => (Object.hasOwn(HR_OUT_OF_SCOPE, label) ? HR_OUT_OF_SCOPE[label] : { text: "", scheme: "VAT" });
 // Invoice type codes on which a line may go without a KPD class (HR-BR-25): advance invoices and credit notes.
 const HR_NO_KPD = new Set(["386", "81", "83", "261", "262", "296", "308", "381", "396", "420", "458", "532"]);
 
@@ -177,6 +190,42 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   const rawLines = Array.isArray(d.lines) ? d.lines : [];
   if (!rawLines.length) err("lines", "At least one line is required.");
 
+  // The VAT side of a line, allowance or charge: category, rate, exemption reason, and in Croatia
+  // an out-of-scope label (hr_label). Null when the rate cannot be read.
+  const taxOf = (l, path) => {
+    const percent = num(l.tax_percent ?? 0);
+    if (percent === null || percent < 0 || percent > 100) err(`${path}.tax_percent`, "VAT percent must be a number from 0 to 100.");
+    let category = text(l.tax_category).toUpperCase();
+    let reason = text(l.tax_reason);
+    let label = text(l.hr_label).toUpperCase().replace(/^HR:/, "");
+    if (label && !hr) {
+      err(`${path}.hr_label`, "hr_label is one of Croatia's out-of-scope labels (HR:POVNAK, HR:PP, HR:PPMV, HR:N): use the hr profile, or leave it out.");
+      label = "";
+    } else if (label && !Object.hasOwn(HR_OUT_OF_SCOPE, label)) {
+      err(`${path}.hr_label`, `Unknown out-of-scope label "${text(l.hr_label)}". Use POVNAK (refundable deposit), PP (consumption tax), PPMV (special tax on motor vehicles) or N (other non-taxable fee, e.g. tourist tax) (HR-TB-2).`);
+      label = "";
+    } else if (label) {
+      // The authority's samples: E at 0 % in the EN layer, O in the HR breakdown.
+      if (category && category !== "E") err(`${path}.tax_category`, `An amount labelled HR:${label} is outside the VAT base: its EN category is E (the HR breakdown says O). Leave tax_category out or set it to E.`);
+      if (percent > 0) err(`${path}.tax_percent`, `An amount labelled HR:${label} carries no VAT: set tax_percent to 0.`);
+      category = "E";
+      if (!reason) reason = hrOutOfScope(label).text;
+    }
+    if (!category) category = percent > 0 ? "S" : "Z";
+    if (!CATEGORIES.has(category)) err(`${path}.tax_category`, `VAT category must be one of ${[...CATEGORIES].join(", ")}.`);
+    if (category === "S" && percent === 0) err(`${path}.tax_percent`, "Standard-rated (S) needs a rate above 0. For 0% pick Z, E, AE, K, G or O.");
+    if (category !== "S" && percent > 0 && !label) err(`${path}.tax_percent`, `Category ${category} is a 0% category; set tax_percent to 0.`);
+    if (hr && category === "S" && percent !== null && percent > 0 && !HR_RATES.has(percent)) {
+      err(`${path}.tax_percent`, "Croatia's standard-rate labels are HR:PDV25, HR:PDV13 and HR:PDV5 (HR-BR-CL-1): use 25, 13 or 5.");
+    }
+    if (NEEDS_REASON.has(category) && !reason) {
+      err(`${path}.tax_reason`, `Category ${category} needs an exemption reason, e.g. "Reverse charge" (AE), "Intra-community supply" (K), "Kleinunternehmer § 19 UStG" (E).`);
+    }
+    if (percent === null) return null;
+    const en_reason = label && !reason.startsWith("#HR:") ? `#HR:${label}#${reason}` : reason;
+    return { category, percent: label ? 0 : percent, reason, en_reason, hr_label: label };
+  };
+
   const lines = [];
   rawLines.forEach((raw, i) => {
     const path = `lines[${i}]`;
@@ -189,48 +238,75 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     if (price === null || price < 0) err(`${path}.unit_price`, "Unit price must be a number, 0 or more (use a credit note for refunds).");
     const unit = unitCode(l.unit);
     if (!unit) err(`${path}.unit`, `Unknown unit "${text(l.unit)}". Use a UN/ECE code (C62 piece, HUR hour, DAY, MON, KGM...) or hours/days/pieces.`);
-    const percent = num(l.tax_percent ?? 0);
-    if (percent === null || percent < 0 || percent > 100) err(`${path}.tax_percent`, "VAT percent must be a number from 0 to 100.");
-    let category = text(l.tax_category).toUpperCase();
-    if (!category) category = percent > 0 ? "S" : "Z";
-    if (!CATEGORIES.has(category)) err(`${path}.tax_category`, `VAT category must be one of ${[...CATEGORIES].join(", ")}.`);
-    if (category === "S" && percent === 0) err(`${path}.tax_percent`, "Standard-rated (S) needs a rate above 0. For 0% pick Z, E, AE, K, G or O.");
-    if (category !== "S" && percent > 0) err(`${path}.tax_percent`, `Category ${category} is a 0% category; set tax_percent to 0.`);
-    const reason = text(l.tax_reason);
-    if (hr && category === "S" && percent !== null && percent > 0 && !HR_RATES.has(percent)) {
-      err(`${path}.tax_percent`, "Croatia's standard-rate labels are HR:PDV25, HR:PDV13 and HR:PDV5 (HR-BR-CL-1): use 25, 13 or 5.");
-    }
+    const tax = taxOf(l, path);
     if (hr && text(l.kpd) && !/^\d{2}\.\d{2}\.\d{2}$/.test(text(l.kpd))) {
       err(`${path}.kpd`, "KPD 2025 class as six digits in pairs, e.g. 62.20.30 (HR-BR-25, HR-BR-CL-2).");
     }
-    if (NEEDS_REASON.has(category) && !reason) {
-      err(`${path}.tax_reason`, `Category ${category} needs an exemption reason, e.g. "Reverse charge" (AE), "Intra-community supply" (K), "Kleinunternehmer § 19 UStG" (E).`);
-    }
-    if (quantity === null || price === null || percent === null) return;
+    if (quantity === null || price === null || !tax) return;
     const net = cents(quantity * price);
     lines.push({
       id: String(i + 1), description, quantity, unit, unit_price: price, net,
-      category, percent, reason, note: text(l.note), kpd: text(l.kpd),
+      ...tax, note: text(l.note), kpd: text(l.kpd),
     });
   });
 
-  // Group into VAT breakdown rows by (category, percent): EN 16931 BG-23.
+  // Document-level allowances (BG-20) and charges (BG-21): a discount on the whole invoice, a
+  // delivery charge, and in Croatia the out-of-scope fees the authority's samples carry as
+  // charges (HR:PP, HR:PPMV, HR:N). Each has its own VAT category and counts in its row of the
+  // VAT breakdown (BR-S-08 and the like).
+  const adjustments = [];
+  for (const [field, isCharge] of [["allowances", false], ["charges", true]]) {
+    const raw = d[field];
+    if (raw === undefined || raw === null || raw === "") continue;
+    if (!Array.isArray(raw)) { err(field, `${field} must be a list of { reason, amount, tax_percent }.`); continue; }
+    raw.forEach((r0, i) => {
+      const path = `${field}[${i}]`;
+      const a = r0 && typeof r0 === "object" ? r0 : {};
+      const amount = num(a.amount);
+      if (amount === null || amount <= 0) err(`${path}.amount`, `The ${isCharge ? "charge" : "allowance"} amount must be a number above 0.`);
+      if (!isCharge && text(a.hr_label)) err(`${path}.hr_label`, "Croatia's out-of-scope labels (HR:POVNAK, HR:PP, HR:PPMV, HR:N) go on a line or a charge (HR-BR-30), not an allowance.");
+      const tax = taxOf(isCharge ? a : { ...a, hr_label: "" }, path);
+      let reason = text(a.reason);
+      if (!reason && tax && tax.hr_label) reason = hrOutOfScope(tax.hr_label).text;
+      if (!reason) err(`${path}.reason`, `A document-level ${isCharge ? "charge" : "allowance"} needs a reason, e.g. "${isCharge ? "Delivery" : "Early payment discount"}" (${isCharge ? "BR-38" : "BR-33"}).`);
+      if (amount === null || amount <= 0 || !tax) return;
+      if (tax.hr_label && !reason.startsWith("#HR:")) reason = `#HR:${tax.hr_label}#${reason}`;
+      adjustments.push({ ...tax, charge: isCharge, charge_reason: reason, amount: cents(amount) });
+    });
+  }
+  const allowances = adjustments.filter((a) => !a.charge);
+  const charges = adjustments.filter((a) => a.charge);
+
+  // Group into VAT breakdown rows by (category, percent): EN 16931 BG-23. Lines and charges add
+  // to a row, allowances take from it. EN 16931 allows one row per category and rate (BR-E-01 and
+  // the like), so an HR:E line and an HR:PP charge share the E row and its reasons are joined.
+  const items = [
+    ...lines.map((l) => ({ ...l, signed: l.net })),
+    ...adjustments.map((a) => ({ ...a, signed: a.charge ? a.amount : -a.amount })),
+  ];
   const groups = new Map();
-  for (const l of lines) {
-    const key = `${l.category}|${l.percent}`;
-    const g = groups.get(key) || { category: l.category, percent: l.percent, reason: "", taxable: 0, tax: 0 };
-    g.taxable += l.net;
-    if (l.reason && !g.reason) g.reason = l.reason;
+  for (const it of items) {
+    const key = `${it.category}|${it.percent}`;
+    const g = groups.get(key) || { category: it.category, percent: it.percent, reasons: [], taxable: 0, tax: 0 };
+    g.taxable += it.signed;
+    if (it.en_reason && !g.reasons.includes(it.en_reason)) g.reasons.push(it.en_reason);
     groups.set(key, g);
   }
-  const breakdown = [...groups.values()].map((g) => ({
+  const breakdown = [...groups.values()].map(({ reasons, ...g }) => ({
     ...g,
+    reason: reasons.join("; "),
     tax: g.category === "S" ? cents((g.taxable / 100) * (g.percent / 100)) : 0,
   }));
+  for (const g of breakdown) {
+    if (g.taxable < 0) err("allowances", `The allowances in VAT category ${g.category} ${g.percent} % are larger than the lines and charges in it: the taxable amount would be negative.`);
+  }
 
   const netTotal = lines.reduce((s, l) => s + l.net, 0);
+  const allowanceTotal = allowances.reduce((s, a) => s + a.amount, 0);
+  const chargeTotal = charges.reduce((s, a) => s + a.amount, 0);
+  const taxBasis = netTotal - allowanceTotal + chargeTotal;
   const taxTotal = breakdown.reduce((s, g) => s + g.tax, 0);
-  const gross = netTotal + taxTotal;
+  const gross = taxBasis + taxTotal;
   const prepaidNum = num(d.prepaid ?? 0);
   if (prepaidNum === null || prepaidNum < 0) err("prepaid", "Prepaid amount must be a number, 0 or more.");
   const prepaid = cents(prepaidNum || 0);
@@ -258,8 +334,8 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   }
 
   // Not subject to VAT (O) stands alone: no other category (BR-O-11, -12) and no VAT IDs (BR-O-02).
-  const hasO = lines.some((l) => l.category === "O");
-  if (hasO && lines.some((l) => l.category !== "O")) err("lines", "A line not subject to VAT (O) cannot share an invoice with lines in other VAT categories (BR-O-11, BR-O-12): put them on separate invoices.");
+  const hasO = items.some((l) => l.category === "O");
+  if (hasO && items.some((l) => l.category !== "O")) err("lines", "A line not subject to VAT (O) cannot share an invoice with lines in other VAT categories (BR-O-11, BR-O-12): put them on separate invoices.");
   if (hasO && !hr) {
     for (const p of [seller, buyer]) if (p.vat_id) err(`${p.role}.vat_id`, `An invoice whose lines are not subject to VAT (O) must not carry the ${p.role}'s VAT ID (BR-O-02).${p.role === "seller" ? " Give a company registration number (company_id) instead." : ""}`);
     if (!seller.company_id) err("seller.company_id", "With no VAT ID (category O), identify the seller by a company registration or other seller identifier (company_id, BR-CO-26).");
@@ -293,8 +369,8 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
       if (!p.endpoint) err(`${p.role}.endpoint`, `Croatia requires the ${p.role}'s electronic address (BT-${p.role === "seller" ? 34 : 49}); with a Croatian VAT ID it defaults to scheme 9934 and the OIB.`);
     }
     if (seller.country === "HR" && !/^HR\d{11}$/.test(seller.vat_id)) err("seller.vat_id", "A Croatian seller needs its VAT ID as HR plus the OIB (HR-BR-53).");
-    if (!buyer.vat_id && lines.some((l) => ["S", "Z", "E", "AE"].includes(l.category))) {
-      err("buyer.vat_id", "Croatia requires the buyer's VAT ID (BT-48) on an invoice with an S, Z, E or AE line.");
+    if (!buyer.vat_id && items.some((l) => ["S", "Z", "E", "AE"].includes(l.category))) {
+      err("buyer.vat_id", "Croatia requires the buyer's VAT ID (BT-48) on an invoice with an S, Z, E or AE line, allowance or charge (HR-BR-S-1 to -AE-3).");
     }
     if (hasO) err("lines", "On a Croatian invoice use E with the reason (the Porezna uprava's own sample for a seller outside the VAT system writes E, HR:E, \"Nije u sustavu PDV-a\"): category O would forbid the VAT IDs that HR-CIUS requires (BR-O-02).");
     const typeCode = kind === "credit_note" ? "381" : "380";
@@ -304,9 +380,25 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     // HRFISK20Data: compulsory when a line is exempt (HR-BR-26). Its breakdown carries the HR
     // labels; amounts outside the tax base (category O) go to OutOfScopeOfVATAmount (HR-BR-32)
     // and leave the HR tax base (HR-BR-27).
-    if (lines.some((l) => l.category === "E" || l.category === "O")) {
-      const outOfScope = breakdown.filter((g) => g.category === "O").reduce((s, g) => s + g.taxable, 0);
-      hrData = { taxExclusive: netTotal - outOfScope, outOfScope };
+    // An out-of-scope label (E in the EN layer) gets an O row of its own, under its label and tax
+    // scheme; every other row repeats the EN row with its HR label.
+    if (items.some((l) => l.category === "E" || l.category === "O")) {
+      const rows = new Map();
+      for (const it of items) {
+        const key = it.hr_label ? `O|${it.hr_label}` : `${it.category}|${it.percent}`;
+        const g = rows.get(key) || (it.hr_label
+          ? { category: "O", name: `HR:${it.hr_label}`, percent: 0, scheme: hrOutOfScope(it.hr_label).scheme, reasons: [], taxable: 0 }
+          : { category: it.category, name: hrLabel(it.category, it.percent), percent: it.percent, scheme: "VAT", reasons: [], taxable: 0 });
+        g.taxable += it.signed;
+        if (!it.hr_label && it.reason && !g.reasons.includes(it.reason)) g.reasons.push(it.reason);
+        rows.set(key, g);
+      }
+      const hrBreakdown = [...rows.values()].map(({ reasons, ...g }) => ({
+        ...g, reason: reasons.join("; "),
+        tax: g.category === "S" ? cents((g.taxable / 100) * (g.percent / 100)) : 0,
+      }));
+      const outOfScope = hrBreakdown.filter((g) => g.category === "O").reduce((s, g) => s + g.taxable, 0);
+      hrData = { taxExclusive: taxBasis - outOfScope, outOfScope, breakdown: hrBreakdown };
     }
     seller.operator = operator;
   }
@@ -332,9 +424,9 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
       original_invoice: text(d.original_invoice), original_invoice_date: originalDate && dateOk(originalDate) ? originalDate : "", note: text(d.note),
       period: period && (period.start || period.end) ? { start: text(period.start), end: text(period.end) } : null,
       delivery_date: delivery && dateOk(delivery) ? delivery : "", delivery_country: deliveryCountry,
-      seller, buyer, lines, breakdown, payment,
+      seller, buyer, lines, allowances, charges, breakdown, payment,
       issue_time: time, process: hrProcess, hr_extension: hrData,
-      totals: { net: netTotal, tax: taxTotal, gross, prepaid, due: due_amount },
+      totals: { net: netTotal, allowances: allowanceTotal, charges: chargeTotal, taxable: taxBasis, tax: taxTotal, gross, prepaid, due: due_amount },
     },
   };
 }
@@ -388,16 +480,16 @@ function hrExtensionXml(doc) {
   const x = doc.hr_extension;
   const o = [`  <ext:UBLExtensions>`, `    <ext:UBLExtension>`, `      <ext:ExtensionContent>`, `        <hrextac:HRFISK20Data>`, `          <hrextac:HRTaxTotal>`];
   o.push(amt("TaxAmount", doc.totals.tax, cur, "            "));
-  for (const g of doc.breakdown) {
+  for (const g of x.breakdown) {
     o.push(`            <hrextac:HRTaxSubtotal>`);
     o.push(amt("TaxableAmount", g.taxable, cur, "              "));
     o.push(amt("TaxAmount", g.tax, cur, "              "));
     o.push(`              <hrextac:HRTaxCategory>`);
     o.push(`                <cbc:ID>${g.category}</cbc:ID>`);
-    o.push(`                <cbc:Name>${hrLabel(g.category, g.percent)}</cbc:Name>`);
-    if (g.category !== "O") o.push(`                <cbc:Percent>${g.percent}</cbc:Percent>`);
+    o.push(`                <cbc:Name>${g.name}</cbc:Name>`);
+    o.push(`                <cbc:Percent>${g.percent}</cbc:Percent>`); // the authority's samples write 0 on an O row too
     if (g.reason) o.push(`                <cbc:TaxExemptionReason>${esc(g.reason)}</cbc:TaxExemptionReason>`);
-    o.push(`                <hrextac:HRTaxScheme><cbc:ID>VAT</cbc:ID></hrextac:HRTaxScheme>`);
+    o.push(`                <hrextac:HRTaxScheme><cbc:ID>${g.scheme}</cbc:ID></hrextac:HRTaxScheme>`);
     o.push(`              </hrextac:HRTaxCategory>`);
     o.push(`            </hrextac:HRTaxSubtotal>`);
   }
@@ -473,6 +565,21 @@ export function toUbl(doc) {
     o.push(`  </cac:PaymentMeans>`);
   }
   if (p.terms) o.push(`  <cac:PaymentTerms><cbc:Note>${esc(p.terms)}</cbc:Note></cac:PaymentTerms>`);
+  for (const a of [...doc.allowances, ...doc.charges]) {
+    o.push(`  <cac:AllowanceCharge>`);
+    o.push(`    <cbc:ChargeIndicator>${a.charge}</cbc:ChargeIndicator>`);
+    o.push(`    <cbc:AllowanceChargeReason>${esc(a.charge_reason)}</cbc:AllowanceChargeReason>`);
+    o.push(amt("Amount", a.amount, cur));
+    o.push(`    <cac:TaxCategory>`);
+    o.push(`      <cbc:ID>${a.category}</cbc:ID>`);
+    // Croatia wants the HR label and, for E and O, the reason on a charge too (HR-BR-11, -13).
+    if (hr) o.push(`      <cbc:Name>${a.hr_label ? `HR:${a.hr_label}` : hrLabel(a.category, a.percent)}</cbc:Name>`);
+    if (a.category !== "O") o.push(`      <cbc:Percent>${a.percent}</cbc:Percent>`);
+    if (hr && a.reason) o.push(`      <cbc:TaxExemptionReason>${esc(a.reason)}</cbc:TaxExemptionReason>`);
+    o.push(`      <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>`);
+    o.push(`    </cac:TaxCategory>`);
+    o.push(`  </cac:AllowanceCharge>`);
+  }
 
   o.push(`  <cac:TaxTotal>`);
   o.push(amt("TaxAmount", doc.totals.tax, cur));
@@ -488,8 +595,10 @@ export function toUbl(doc) {
   const t = doc.totals;
   o.push(`  <cac:LegalMonetaryTotal>`);
   o.push(amt("LineExtensionAmount", t.net, cur));
-  o.push(amt("TaxExclusiveAmount", t.net, cur));
+  o.push(amt("TaxExclusiveAmount", t.taxable, cur));
   o.push(amt("TaxInclusiveAmount", t.gross, cur));
+  if (doc.allowances.length) o.push(amt("AllowanceTotalAmount", t.allowances, cur));
+  if (doc.charges.length) o.push(amt("ChargeTotalAmount", t.charges, cur));
   if (t.prepaid) o.push(amt("PrepaidAmount", t.prepaid, cur));
   o.push(amt("PayableAmount", t.due, cur));
   o.push(`  </cac:LegalMonetaryTotal>`);
@@ -506,9 +615,9 @@ export function toUbl(doc) {
     if (hr && l.kpd) o.push(`      <cac:CommodityClassification><cbc:ItemClassificationCode listID="CG">${esc(l.kpd)}</cbc:ItemClassificationCode></cac:CommodityClassification>`);
     o.push(`      <cac:ClassifiedTaxCategory>`);
     o.push(`        <cbc:ID>${l.category}</cbc:ID>`);
-    if (hr) o.push(`        <cbc:Name>${hrLabel(l.category, l.percent)}</cbc:Name>`);
+    if (hr) o.push(`        <cbc:Name>${l.hr_label ? `HR:${l.hr_label}` : hrLabel(l.category, l.percent)}</cbc:Name>`);
     if (l.category !== "O") o.push(`        <cbc:Percent>${l.percent}</cbc:Percent>`);
-    if (hr && l.reason) o.push(`        <cbc:TaxExemptionReason>${esc(l.reason)}</cbc:TaxExemptionReason>`);
+    if (hr && l.en_reason) o.push(`        <cbc:TaxExemptionReason>${esc(l.en_reason)}</cbc:TaxExemptionReason>`);
     o.push(`        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>`);
     o.push(`      </cac:ClassifiedTaxCategory>`);
     o.push(`    </cac:Item>`);
@@ -626,6 +735,14 @@ export function toCii(doc) {
     if (doc.period.end) o.push(`        <ram:EndDateTime>\n  ${ciiDate(doc.period.end)}\n        </ram:EndDateTime>`);
     o.push(`      </ram:BillingSpecifiedPeriod>`);
   }
+  for (const a of [...doc.allowances, ...doc.charges]) {
+    o.push(`      <ram:SpecifiedTradeAllowanceCharge>`);
+    o.push(`        <ram:ChargeIndicator><udt:Indicator>${a.charge}</udt:Indicator></ram:ChargeIndicator>`);
+    o.push(`        <ram:ActualAmount>${fixed(a.amount)}</ram:ActualAmount>`);
+    o.push(`        <ram:Reason>${esc(a.charge_reason)}</ram:Reason>`);
+    o.push(`        <ram:CategoryTradeTax><ram:TypeCode>VAT</ram:TypeCode><ram:CategoryCode>${a.category}</ram:CategoryCode>${a.category === "O" ? "" : `<ram:RateApplicablePercent>${a.percent}</ram:RateApplicablePercent>`}</ram:CategoryTradeTax>`);
+    o.push(`      </ram:SpecifiedTradeAllowanceCharge>`);
+  }
   if (p.terms || (doc.kind !== "credit_note" && doc.due_date)) {
     o.push(`      <ram:SpecifiedTradePaymentTerms>`);
     if (p.terms) o.push(`        <ram:Description>${esc(p.terms)}</ram:Description>`);
@@ -635,7 +752,9 @@ export function toCii(doc) {
   const t = doc.totals;
   o.push(`      <ram:SpecifiedTradeSettlementHeaderMonetarySummation>`);
   o.push(`        <ram:LineTotalAmount>${fixed(t.net)}</ram:LineTotalAmount>`);
-  o.push(`        <ram:TaxBasisTotalAmount>${fixed(t.net)}</ram:TaxBasisTotalAmount>`);
+  if (doc.charges.length) o.push(`        <ram:ChargeTotalAmount>${fixed(t.charges)}</ram:ChargeTotalAmount>`);
+  if (doc.allowances.length) o.push(`        <ram:AllowanceTotalAmount>${fixed(t.allowances)}</ram:AllowanceTotalAmount>`);
+  o.push(`        <ram:TaxBasisTotalAmount>${fixed(t.taxable)}</ram:TaxBasisTotalAmount>`);
   o.push(`        <ram:TaxTotalAmount currencyID="${esc(cur)}">${fixed(t.tax)}</ram:TaxTotalAmount>`);
   o.push(`        <ram:GrandTotalAmount>${fixed(t.gross)}</ram:GrandTotalAmount>`);
   if (t.prepaid) o.push(`        <ram:TotalPrepaidAmount>${fixed(t.prepaid)}</ram:TotalPrepaidAmount>`);
@@ -663,6 +782,9 @@ export function generateInvoice(draft, { format = "ubl", profile = "xrechnung" }
   if (!result.ok) return result;
   const t = built.doc.totals;
   result.totals = { net: t.net / 100, tax: t.tax / 100, gross: t.gross / 100, prepaid: t.prepaid / 100, due: t.due / 100 };
+  if (built.doc.allowances.length) result.totals.allowances = t.allowances / 100;
+  if (built.doc.charges.length) result.totals.charges = t.charges / 100;
+  if (built.doc.allowances.length || built.doc.charges.length) result.totals.taxable = t.taxable / 100;
   result.xml = format === "cii" ? toCii(built.doc) : toUbl(built.doc);
   result.filename = `${built.doc.number.replace(/[^\w.-]+/g, "_")}.xml`;
   return result;

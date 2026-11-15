@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H, STROKE_TOP_FALL } from './scan.mjs';
+import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, staffSkew, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H, STROKE_TOP_FALL } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -353,4 +353,52 @@ test('a flat head is not a stroke top: squares keep their mean height (2026-11-1
   drawStaff(img, 120, [[300, 2], [400, 5], [430, 3], [460, 4], [640, 2]]);
   const [st] = readPage(readPgm(toPgm(img)));
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 5, 3, 4, 2]);
+});
+
+// A page that lies flat but curls at its head (leaf 764 of the 1908
+// Graduale): the top staff falls 11 px across, the rest are level, so the
+// page's own slope stays under the threshold (eval/staff-curl-check.md).
+function curledTop(deg) {
+  const img = canvas(1600, 1300);
+  const top = canvas(1600, 260);
+  // a recitation on the second line from the top: heads crowded on a line
+  const recit = [[150, 4], [200, 4], [250, 4], [300, 4], [380, 5], [420, 4], [520, 4], [570, 4], [620, 4], [700, 2],
+    [800, 4], [850, 4], [900, 4], [980, 3], [1100, 4], [1150, 4], [1200, 4], [1300, 6], [1350, 4]];
+  drawStaff(top, 90, recit, { clefPos: 4 });
+  const turned = rotate(top, deg);
+  img.data.set(turned.data.subarray(0, 260 * 1600), 0);
+  const level = [[[200, 0], [300, 2], [400, 4], [500, 3], [600, 6], [700, 5], [800, 1], [1000, 2]],
+    [[220, 4], [320, 3], [420, 2], [520, 1], [620, 0], [1100, 2]],
+    [[200, 1], [330, 3], [460, 2], [720, 0], [850, 2], [980, 4], [1200, 6]],
+    [[250, 2], [350, 4], [450, 6], [550, 5], [650, 3]]];
+  level.forEach((h, k) => drawStaff(img, 360 + k * 230, h));
+  return { img, heads: [recit, ...level] };
+}
+
+test('a staff that slopes on a flat page is straightened on its own and every head on its lines read (2026-11-14)', () => {
+  const { img, heads } = curledTop(-0.45);
+  const bin = binarize(img);
+  // the page as a whole is level: its own slope is not taken
+  assert.equal(estimateSkew(bin), 0);
+  const staves = findStaves(bin);
+  assert.equal(staves.length, 5);
+  const drift = staffSkew(bin, staves[0]) * bin.width;
+  assert.ok(Math.abs(drift - 1600 * Math.tan((0.45 * Math.PI) / 180)) < 3, `staff 1 drift ${drift}`);
+  for (const st of staves.slice(1)) assert.equal(staffSkew(bin, st), 0);
+  const page = readPage(img);
+  assert.deepEqual(page.map((st) => st.notes.map((n) => n.rel + st.clefPos)), heads.map((h) => h.map(([, p]) => p)));
+  assert.ok(page[0].skew !== 0 && page.slice(1).every((st) => st.skew === 0));
+  // the level staves read exactly as without the per-staff slope
+  const flat = readPage(img, { staffDeskew: false });
+  assert.deepEqual(page.slice(1), flat.slice(1));
+  // read square, the sloping staff loses heads on its thickened lines
+  assert.ok(flat[0].notes.length < heads[0].length, `square read ${flat[0].notes.length} of ${heads[0].length}`);
+});
+
+test('staffSkew gives 0 on a level staff and on a page read with deskew off', () => {
+  const { img } = threeStaves();
+  const bin = binarize(img);
+  for (const st of findStaves(bin)) assert.equal(staffSkew(bin, st), 0);
+  const { img: curled } = curledTop(-0.45);
+  assert.deepEqual(readPage(curled, { deskew: false }), readPage(curled, { deskew: false, staffDeskew: false }));
 });

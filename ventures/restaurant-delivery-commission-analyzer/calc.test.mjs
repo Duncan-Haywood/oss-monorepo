@@ -465,3 +465,61 @@ test("percentages print to one decimal", () => {
   assert.equal(pct(0.1234), "12.3%");
   assert.equal(pct(null), "–");
 });
+
+test("a weekday with exactly MIN_ORDERS orders counts; the example's dates are plain minutes", () => {
+  const rows = [];
+  for (let i = 0; i < MIN_ORDERS; i++) rows.push(`L${i},DoorDash,2026-06-01 12:00,Delivered,30,-6,0,0,0,0,24`);
+  for (let i = 0; i < MIN_ORDERS; i++) rows.push(`D${i},DoorDash,2026-06-05 19:00,Delivered,30,-12,0,0,0,0,18`);
+  const r = analyze(load(rows.join("\n") + "\n").orders, { foodPct: 30 });
+  assert.ok(r.findings.some((f) => /Monday orders left the most; Friday the least/.test(f.title)), "five orders is enough, not under five");
+  const dates = sampleCsv().trim().split("\n").slice(1).map((l) => l.split(",")[2]);
+  assert.ok(dates.length > 0 && dates.every((d) => /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(d)), dates.find((d) => !/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(d)));
+});
+
+// Red team 2026-11-15: guards for mutants that escaped, and two real defects.
+test("a skipped row reports its own file line number", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15\nB,DoorDash,not a date,Delivered,20,-5,0,0,0,0,15\n");
+  assert.deepEqual(n.skipped, [{ line: 3, reason: "date not readable" }]);
+  assert.equal(n.orders[0].line, 2);
+});
+
+test("worst orders are capped at ten", () => {
+  const body = Array.from({ length: 12 }, (_, i) => `O${i},DoorDash,2026-06-01 12:00,Delivered,${20 + i},-5,0,0,0,0,${15 + i}`).join("\n") + "\n";
+  assert.equal(analyze(load(body).orders).worstOrders.length, 10);
+});
+
+test("the daypart finding names the best daypart first, not the order rows happened to sort in", () => {
+  const lunch = Array.from({ length: 5 }, (_, i) => `L${i},DoorDash,2026-06-0${i + 1} 12:00,Delivered,20,-8,0,0,0,0,12`);
+  const dinner = Array.from({ length: 5 }, (_, i) => `D${i},DoorDash,2026-06-0${i + 1} 18:00,Delivered,20,-2,0,0,0,0,18`);
+  const r = analyze(load([...lunch, ...dinner].join("\n") + "\n").orders);
+  const f = r.findings.find((x) => /left the most per order/.test(x.title));
+  assert.ok(f, "daypart finding present");
+  assert.match(f.title, /^Dinner orders left the most per order; Lunch the least/);
+});
+
+test("the example file has varied minutes and mostly no error charges", () => {
+  const n = normalizeRows(parseCsv(sampleCsv()));
+  const minutes = new Set(n.orders.map((o) => new Date(o.t).getUTCMinutes()));
+  assert.ok(minutes.size > 30, `only ${minutes.size} distinct minutes`);
+  const withErrors = n.orders.filter((o) => o.errors !== 0).length;
+  assert.ok(withErrors < n.orders.length * 0.15, `${withErrors} of ${n.orders.length} rows carry an error charge`);
+});
+
+test("a row with only an ad or marketing charge stays in the totals instead of being skipped", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15\nADS,DoorDash,2026-06-02,Ad charge,,,,,-50,,-50\nPR,DoorDash,2026-06-03,Adjustment,,,,-7.5,,,-7.5\n");
+  assert.deepEqual(n.skipped, []);
+  const r = analyze(n.orders);
+  near(r.summary.ads, 50);
+  near(r.summary.marketing, 7.5);
+  assert.equal(r.summary.orders, 1);
+});
+
+test("dot-separated dates are read day-first even when every day is 12 or under", () => {
+  assert.equal(detectDmy(["03.06.2026 12:00", "05.06.2026 12:00"]), true);
+  // a second part above 12 still means month-first
+  assert.equal(detectDmy(["03.13.2026"]), false);
+  // slashes keep the US default
+  assert.equal(detectDmy(["03/06/2026"]), false);
+  const n = load("A,Uber Eats,03.06.2026 12:00,Delivered,20,-5,0,0,0,0,15\n");
+  assert.equal(n.orders[0].t, Date.UTC(2026, 5, 3, 12));
+});

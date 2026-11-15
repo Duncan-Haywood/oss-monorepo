@@ -26,7 +26,9 @@ export function parseMidi(bytes) {
   const notes = [];
   const tempos = [[0, 500000]];
   const programs = new Map(); // channel -> [[tick, program]]
+  const names = new Map(); // channel -> name of the first track that plays on it (meta 0x03)
   for (let t = 0; t < ntrk && pos + 8 <= b.length; t++) {
+    let trackName = null, named = false;
     if (b.toString('latin1', pos, pos + 4) !== 'MTrk') throw new Error('bad track chunk');
     const end = Math.min(b.length, pos + 8 + b.readUInt32BE(pos + 4));
     let p = pos + 8, tick = 0, status = 0;
@@ -39,11 +41,13 @@ export function parseMidi(bytes) {
       if (s === 0xff) {
         const type = b[p++], len = vlq();
         if (type === 0x51 && len === 3) tempos.push([tick, (b[p] << 16) | (b[p + 1] << 8) | b[p + 2]]);
+        if (type === 0x03 && trackName === null) trackName = new TextDecoder().decode(b.subarray(p, Math.min(end, p + len)));
         p += len;
         if (type === 0x2f) break;
       } else if (s === 0xf0 || s === 0xf7) { p += vlq(); }
       else {
         const hi = s & 0xf0, ch = s & 0x0f;
+        if (!named && trackName !== null && !names.has(ch)) { names.set(ch, trackName); named = true; }
         if (hi === 0xc0 || hi === 0xd0) {
           if (hi === 0xc0) { if (!programs.has(ch)) programs.set(ch, []); programs.get(ch).push([tick, b[p]]); }
           p += 1;
@@ -65,7 +69,7 @@ export function parseMidi(bytes) {
     pos = end;
   }
   tempos.sort((x, y) => x[0] - y[0]);
-  return { division, notes, tempos, programs };
+  return { division, notes, tempos, programs, names };
 }
 
 // tick -> seconds through the tempo map
@@ -201,7 +205,7 @@ export function limiterCurve(L, R, rate, ceil, ms = 5, scratch = null) {
   return out;
 }
 
-export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false } = {}) {
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null } = {}) {
   const m = parseMidi(midiBytes);
   const sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
@@ -219,6 +223,7 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
     const v = voiceFor(n.ch, progAt(n.ch));
     const start = Math.round(sec(n.tick) * rate);
     const dur = Math.max(0.03, sec(n.end) - sec(n.tick));
+    if (learn && learn.mode === 'minus' && v === 'choir' && n.ch === learn.ch) continue;
     let wave;
     if (v === 'drums') {
       if (!drumCache.has(n.note)) drumCache.set(n.note, drum(n.note, rate, rand));
@@ -228,8 +233,13 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       if (!waveCache.has(key)) waveCache.set(key, (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
       wave = waveCache.get(key);
     }
-    const g = (n.vel / 127) * gain[v];
-    const p = pan[v], gl = g * (1 - Math.max(0, p)), gr = g * (1 + Math.min(0, p));
+    let g = (n.vel / 127) * gain[v], p = pan[v];
+    if (learn) { // rehearsal track: the learner's section up front, the other sections and the band behind
+      if (v === 'choir' && n.ch === learn.ch) p = learn.pan;
+      else if (v === 'choir') { g *= learn.others; p = -learn.pan; }
+      else g *= learn.backing;
+    }
+    const gl = g * (1 - Math.max(0, p)), gr = g * (1 + Math.min(0, p));
     for (let i = 0; i < wave.length && start + i < total; i++) { L[start + i] += wave[i] * gl; R[start + i] += wave[i] * gr; }
     if (stemBuf) {
       if (!stemBuf.has(v)) stemBuf.set(v, [new Float64Array(total), new Float64Array(total)]);
@@ -302,4 +312,36 @@ export function encodeWav({ rate, channels }) {
     buf.writeInt16LE(Math.max(-32768, Math.min(32767, Math.round(channels[k][i] * 32767))), 44 + (i * c + k) * 2);
   }
   return buf;
+}
+
+// ---- rehearsal ("learning") tracks: one pair per choir section ----
+// The tracks choirs buy per part: "part" puts the learner's section loud on the left with
+// the other sections at `others` (default -12 dB) on the right and the band at `backing`
+// (default -6 dB), so a singer hears their line and where it sits; "minus" is the full
+// mix with the learner's section taken out, to sing the part against. A section is a
+// choir-program channel; its name is the MIDI track name (chant-forge writes Tenors,
+// Second tenors, Baritones, Basses with --split-voices; a unison chant has one section).
+export const LEARN_DEFAULTS = { others: 10 ** (-12 / 20), backing: 10 ** (-6 / 20), pan: -0.5 };
+
+export function choirSections(midiBytes) {
+  const m = parseMidi(midiBytes);
+  const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
+  const chans = [...new Set(m.notes.map((n) => n.ch))].filter((ch) => voiceFor(ch, progAt(ch)) === 'choir').sort((a, b) => a - b);
+  return chans.map((ch) => {
+    const name = (m.names.get(ch) || '').trim() || (chans.length === 1 ? 'Choir' : `Choir ${ch + 1}`);
+    const mine = m.notes.filter((n) => n.ch === ch);
+    return { ch, name, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), notes: mine.length, mean: mine.reduce((a, n) => a + n.note, 0) / mine.length };
+  }).sort((a, b) => rank(a) - rank(b) || b.mean - a.mean || a.ch - b.ch); // score order: highest section first
+}
+// chant-forge's own track names in score order; other names sort after them by average pitch
+const SCORE_ORDER = ['tenors', 'first-tenors', 'second-tenors', 'baritones', 'basses'];
+const rank = (s) => { const k = SCORE_ORDER.indexOf(s.slug); return k < 0 ? SCORE_ORDER.length : k; };
+
+export function learningTracks(midiBytes, { rate = 44100, others = LEARN_DEFAULTS.others, backing = LEARN_DEFAULTS.backing, minus = true, targetLufs = null } = {}) {
+  const out = [];
+  for (const s of choirSections(midiBytes)) {
+    out.push({ ...s, mode: 'part', wav: renderMidi(midiBytes, { rate, targetLufs, learn: { ch: s.ch, mode: 'part', others, backing, pan: LEARN_DEFAULTS.pan } }) });
+    if (minus) out.push({ ...s, mode: 'minus', wav: renderMidi(midiBytes, { rate, targetLufs, learn: { ch: s.ch, mode: 'minus', others: 1, backing: 1, pan: 0 } }) });
+  }
+  return out;
 }

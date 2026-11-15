@@ -1,0 +1,295 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKvK3LobtNkk656hfs",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T01:06:39Z",
+  "ended": "2026-11-15T01:08:24Z",
+  "wall_minutes": 6.59,
+  "tokens_in": 3666509,
+  "tokens_out": 23520,
+  "cost_usd": 1.883,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16043",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list (12 entries) is entirely control-plane edits needing owner approval; a run cannot clear it, so step 0 is a read-only formality until the owner approves those PRs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open entries first; all 12 are control-plane and need separate owner-approved PRs.",
+      "did": "Left them open, spent the run on the campaign plus a 29-copy sibling sweep",
+      "result": "two real defects fixed across 29 analyzers"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-03-06-2026-is-june-not-march.md"
+  ],
+  "goal": null,
+  "notes": "Target: restaurant-delivery-commission-analyzer/calc.mjs (changed on main in the last 2 days, 1.4 s suite). 10 mutants, 4 caught, 1 equivalent, 5 gaps guarded; catch rate 0.444 -> 1.0. Daypart test first written with lunch already best, so it missed the comparator mutant; flipped. Real defects: ad-only rows skipped; detectDmy dotted dates month-first, swept across 29 identical copies. Guard added: platform/ci/check_dotted_dates.py + test (runs via unwired_checks.py in ventures-tests.yml); first run on the old tree would have flagged 28 modules (probed before the sweep), 0 after. Verified: run_venture_tests.py on the 28 slugs, 28/28 ok; test_check_dotted_dates 5/5; post front matter and similarity checks clean.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 515458758,
+        "commit": "a09f3ce3e",
+        "sites": 590,
+        "baseline_seconds": 1.3,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 40,
+            "col": 91,
+            "operator": "const-plus-one",
+            "before": "const best = [[\"\\t\", n(\"\\t\")], [\";\", n(\";\")], [\",\", n(\",\")]].sort((a, b) => b[1] - a[1])[0];",
+            "after": "const best = [[\"\\t\", n(\"\\t\")], [\";\", n(\";\")], [\",\", n(\",\")]].sort((a, b) => b[1] - a[1])[1];",
+            "line_text": "  const best = [[\"\\t\", n(\"\\t\")], [\";\", n(\";\")], [\",\", n(\",\")]].sort((a, b) => b[1] - a[1])[0];",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 216,
+            "col": 21,
+            "operator": "plus-to-minus",
+            "before": "const lineNo = i + 1;",
+            "after": "const lineNo = i - 1;",
+            "line_text": "    const lineNo = i + 1;",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "skipped rows' line numbers were never asserted; new test 'a skipped row reports its own file line number'"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 271,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "{ key: \"afternoon\", label: \"Afternoon (14:00-16:59)\", from: 14, to: 17 },",
+            "after": "{ key: \"afternoon\", label: \"Afternoon (14:00-16:59)\", from: 15, to: 17 },",
+            "line_text": "  { key: \"afternoon\", label: \"Afternoon (14:00-16:59)\", from: 14, to: 17 },",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 278,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "return { key, label, orders: 0, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 0, errors: 0, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "after": "return { key, label, orders: 1, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 0, errors: 0, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "line_text": "  return { key, label, orders: 0, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 0, errors: 0, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 372,
+            "col": 62,
+            "operator": "gt-to-ge",
+            "before": "for (const x of list) { if (x.t < tMin) tMin = x.t; if (x.t > tMax) tMax = x.t; }",
+            "after": "for (const x of list) { if (x.t < tMin) tMin = x.t; if (x.t >= tMax) tMax = x.t; }",
+            "line_text": "  for (const x of list) { if (x.t < tMin) tMin = x.t; if (x.t > tMax) tMax = x.t; }",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "x.t >= tMax vs > only reassigns tMax to the equal value it already holds; tMax is identical either way"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 392,
+            "col": 48,
+            "operator": "plus-to-minus",
+            "before": "const afterP = spendRows.reduce((s, r) => s + r.netAfter, 0);",
+            "after": "const afterP = spendRows.reduce((s, r) => s - r.netAfter, 0);",
+            "line_text": "    const afterP = spendRows.reduce((s, r) => s + r.netAfter, 0);",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 412,
+            "col": 81,
+            "operator": "const-plus-one",
+            "before": "const worstOrders = [...live].sort((a, b) => a.netAfter - b.netAfter).slice(0, 10);",
+            "after": "const worstOrders = [...live].sort((a, b) => a.netAfter - b.netAfter).slice(0, 11);",
+            "line_text": "  const worstOrders = [...live].sort((a, b) => a.netAfter - b.netAfter).slice(0, 10);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "worstOrders length cap untested; new test 'worst orders are capped at ten'"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 464,
+            "col": 95,
+            "operator": "minus-to-plus",
+            "before": "const dp = byDaypart.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);",
+            "after": "const dp = byDaypart.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder + a.netAfterPerOrder);",
+            "line_text": "  const dp = byDaypart.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "daypart finding sort direction untested (only the weekday one was); new test names Dinner best, Lunch worst (lunch comes first in DAYPARTS, so an unsorted list fails)"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 507,
+            "col": 117,
+            "operator": "times-to-div",
+            "before": "const d = new Date(Date.UTC(2026, 5, 1 + Math.floor(rnd() * 90), 11 + Math.floor(rnd() * 11), Math.floor(rnd() * 60)));",
+            "after": "const d = new Date(Date.UTC(2026, 5, 1 + Math.floor(rnd() * 90), 11 + Math.floor(rnd() * 11), Math.floor(rnd() / 60)));",
+            "line_text": "      const d = new Date(Date.UTC(2026, 5, 1 + Math.floor(rnd() * 90), 11 + Math.floor(rnd() * 11), Math.floor(rnd() * 60)));",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sample file minute always 0 would show a degenerate example; new test asserts >30 distinct minutes"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 513,
+            "col": 79,
+            "operator": "const-plus-one",
+            "before": "const errors = rnd() < 0.05 ? Math.round((6 + rnd() * 20) * 100) / 100 : 0;",
+            "after": "const errors = rnd() < 0.05 ? Math.round((6 + rnd() * 20) * 100) / 100 : 1;",
+            "line_text": "      const errors = rnd() < 0.05 ? Math.round((6 + rnd() * 20) * 100) / 100 : 0;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sample file with a $1 error charge on every row went unnoticed; new test asserts under 15% of rows carry one"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "A row with only a delivery, marketing or ad charge (no subtotal, commission or error charge), such as a DoorDash ads billing line, was skipped as 'no amount', so that spend vanished from every total. Reproduced: a -50 ad-spend row left summary.ads at 0. Fixed: 'no amount' now means food sales and every charge column are blank.",
+        "patched": true
+      },
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "Dot-separated dates (03.06.2026, the European day.month.year form) were read month-first whenever every day in the file was 12 or under, so a short Uber Eats export from Germany put June orders in March and on the wrong weekdays. Reproduced with two rows. Fixed: detectDmy treats dotted dates as day-first unless a second part is above 12.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d369d063-f4ab-53df-8e6c-b371e86f8bea",
+    "transcripts": 1,
+    "first": "2026-11-15T01:06:39Z",
+    "last": "2026-11-15T01:13:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 82,
+        "output": 23520,
+        "thinking": 5269,
+        "cache_read": 3579378,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87049,
+        "api_equivalent_usd": 1.883,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 82,
+      "output": 23520,
+      "thinking": 5269,
+      "cache_read": 3579378,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87049,
+      "api_equivalent_usd": 1.883,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 41,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.59,
+      "active_minutes": 6.59,
+      "model_minutes": 4.26,
+      "tool_minutes": 2.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "mutation triage, two bug fixes with tests, a 29-file sweep, a CI check with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 265.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

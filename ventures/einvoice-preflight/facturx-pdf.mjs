@@ -495,7 +495,13 @@ function drawInvoice(doc, regular, bold, level, filename) {
     rows.push([label, money(g.tax, cur), false]);
   }
   const t = doc.totals;
-  rows.unshift(["Total net", money(t.net, cur), false]);
+  // Document-level allowances and charges (BG-20, BG-21) between the lines' total and the VAT
+  // rows, so the printed page adds up to the same amounts as the embedded XML.
+  const adj = [...(doc.allowances || []), ...(doc.charges || [])].map((a) => [
+    `${a.charge ? "Charge" : "Allowance"}: ${a.charge_reason.length > 34 ? `${a.charge_reason.slice(0, 33)}…` : a.charge_reason} (${a.category === "S" ? `${number(a.percent)}%` : a.category})`,
+    money(a.charge ? a.amount : -a.amount, cur), false]);
+  if (adj.length) rows.unshift(["Total net of lines", money(t.net, cur), false], ...adj, ["Total net", money(t.taxable, cur), false]);
+  else rows.unshift(["Total net", money(t.net, cur), false]);
   rows.push(["Total VAT", money(t.tax, cur), false], ["Total", money(t.gross, cur), true]);
   if (t.prepaid) rows.push(["Paid in advance", money(-t.prepaid, cur), false]);
   rows.push([doc.kind === "credit_note" ? "Amount credited" : "Amount due", money(t.due, cur), true]);
@@ -746,6 +752,9 @@ export function generateFacturX(draft, { profile = "en16931", fonts, date } = {}
   if (!built.ok) return result;
   const t = built.doc.totals;
   result.totals = { net: t.net / 100, tax: t.tax / 100, gross: t.gross / 100, prepaid: t.prepaid / 100, due: t.due / 100 };
+  if (built.doc.allowances.length) result.totals.allowances = t.allowances / 100;
+  if (built.doc.charges.length) result.totals.charges = t.charges / 100;
+  if (built.doc.allowances.length || built.doc.charges.length) result.totals.taxable = t.taxable / 100;
   result.xml = toCii(built.doc);
   result.pdf = writeFacturXPdf(built.doc, result.xml, { fonts, date });
   result.filename = `${built.doc.number.replace(/[^\w.-]+/g, "_")}.pdf`;
