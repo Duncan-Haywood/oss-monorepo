@@ -15,15 +15,18 @@ if (!dir) {
 }
 
 // Replace the first match of `re` (a regex with one capture group for the value) using fn(value).
+// The capture's own position (the regex `d` flag), never m[0].indexOf(m[1]), which can land on
+// an earlier copy of the value inside the match. Audited 2026-11-15 on NAV's 30 samples: every
+// current `first` mutant is byte-identical either way (the affected ones had moved to `tail`).
 const first = (re, fn) => (text) => {
-  const m = re.exec(text);
+  const m = new RegExp(re.source, re.flags.replace("d", "") + "d").exec(text);
   if (!m) return null;
-  const start = m.index + m[0].indexOf(m[1]);
+  const start = m.indices[1][0];
   const out = text.slice(0, start) + fn(m[1]) + text.slice(start + m[1].length);
   return out === text ? null : out;
 };
-// The same, for a pattern whose capture group closes the match: `first` finds the value with
-// indexOf, which lands on an earlier copy of the digit (the 5 in taxpayerId 98765432).
+// The same, kept for the patterns whose capture closes the match (written when `first` still
+// used indexOf, which landed on the 5 inside taxpayerId 98765432).
 const tail = (re, fn) => (text) => {
   const m = re.exec(text);
   if (!m) return null;

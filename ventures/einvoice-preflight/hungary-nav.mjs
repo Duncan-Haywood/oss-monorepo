@@ -951,7 +951,7 @@ function checkAnnexHeadAndLines(inv, ctx, out, skipped) {
   const delivery = txt(detail, "invoiceDeliveryDate");
   const dp = `${hp}/invoiceDetail`;
   if (isDate(issue) && isDate(delivery) && daysBetween(issue, delivery) >= 397) {
-    w("INCORRECT_DATE_INVOICE_DELIVERY_DATE_LATE", `invoiceDeliveryDate ${delivery} is ${daysBetween(issue, delivery)} days after the issue date ${issue}; NAV warns at 397 days (13 months)`,
+    w("INCORRECT_DATE_INVOICE_DELIVERY_DATE_LATE", `invoiceDeliveryDate ${delivery} is ${daysBetween(issue, delivery)} days after the issue date ${issue}; NAV warns at 397 days (13 months). Annex I (2026.02.12) still lists this warning, but the specification's change log for application version 3.11 says it was deprecated when the blocking INVOICE_DELIVERY_DATE_LATE (over 5 years, HU-014) came in, so NAV may no longer send it`,
       "Check the delivery date's year and month.", `${dp}/invoiceDeliveryDate`);
   }
   if (category === "AGGREGATE") {

@@ -84,3 +84,16 @@ checking NAV's boundary (5 and 15 days, 397 days, county list edges, TRAVEL_AGEN
   described as starting 17, so a group id 17x other than 177 in the member slot is not flagged.
 - I.5 (inconsistent modification data: 1140, 1200-1230 are in; 10311, 10082 untitled in the
   PDF's text layer) was not re-read in this pass.
+
+## Follow-up (2026-11-15, later): 313 and the harness
+
+- **313 against NAV's change log.** Annex I lists INCORRECT_DATE_INVOICE_DELIVERY_DATE_LATE
+  (397 days) with no comment, unlike the warnings it marks "Inactive" or "Deprecated". But the
+  same PDF's change log, under application version 3.11, lists it as the one "Deprecated WARN
+  message" next to the new blocking INVOICE_DELIVERY_DATE_LATE (delivery over issue + 5 years,
+  section 3.3.2 code 54, HU-014). The check stays (a delivery 13 months out is still worth a
+  look), and its message now says NAV may no longer send this warning.
+- **`first()` in the mutation harness** now places the seeded value by the capture's own index
+  (the regex `d` flag) instead of `indexOf`. Every current `first` mutant on NAV's 30 samples is
+  byte-identical under both (md5 of each mutated file compared), so no figure above moves; the
+  change stops the next mutation from landing on an earlier copy of its value.
