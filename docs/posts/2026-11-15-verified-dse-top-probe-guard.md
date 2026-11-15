@@ -3,7 +3,7 @@ title: "Chip design search: checking a cheap ranking at its top works, and still
 seo_title: "Spot-checking the top of a chip-flow ranking: detection without profit"
 date: 2026-11-15
 tags: [research, chip-design, verified-dse, open-source, eda, statistics]
-description: "Replayed on 90 Yosys and OpenROAD cells, routing the ladder's best 3 points against 3 random ones flags a failing cell in 54% of draws, but the guard still ends at 5.11% regret against 4.77% unguarded."
+description: "On 90 replayed Yosys and OpenROAD cells, checking a ranking's top 3 flags failing cells in 54% of draws, yet the guard ends at 5.11% regret vs 4.77% unguarded."
 ---
 
 The [verified-dse](../../research/verified-dse/) programme searches over ABC
