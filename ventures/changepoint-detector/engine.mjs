@@ -296,8 +296,9 @@ function solveSym(H, b) {
 const RANGE_TEMPER = 1.15;
 // Clumpy counts scored with the NB cost: 1.15 held the planted bend on 145 of 161 found bends (90%), 1.4 on 153 (95%), 1.7 on 157 (README, 2026-10-26).
 const RANGE_TEMPER_NB = 1.4;
-// Measured coverage (README, 2026-10-26 and 27): 94% over 277 found bends on tuning-free seeds, 80% (173 of 217, 2026-11-08) where the slope bump is steep (0.04).
-const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 94% of simulated series, but only about 80% where the growth change is steep (and the range narrow): treat a narrow range as optimistic.';
+// Measured coverage with the local NB size (README "Clumpy counts that grow", 2026-11-15): 299 of 301 found bends on seeds 3 and 11, 278 of 280 steep ones
+// on fresh seeds (it was 94% and 80% while the size was read against the global mean). The temper was not retuned, so ranges may be wider than needed.
+const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 99% of simulated series, steep growth changes included, so they may be wider than a 95% range needs; checked on simulations, not yet on a real series with a documented break in growth.';
 export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, diag = null } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
@@ -1404,6 +1405,37 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
  * Returns Infinity when the counts are no more spread than a Poisson (the negative binomial then adds nothing).
  */
 export function negbinSize(x) {
+  if (x.length < 8) return Infinity;
+  // Each first difference is read against the level around it (a 7-point window), not the series mean: under NB2 a pair at
+  // level m has E d^2 = 2 (m + m^2 / r). Solve mean_t min(z_t, K) = E min(chi2_1, K) for c = 1 / r, z_t = d_t^2 / (2 (m_t + c m_t^2)),
+  // K = 6.63 (chi2_1's 99th percentile), so a step's few huge differences are capped instead of driving the size, and the mean
+  // has no lattice on small counts (the median did). Poisson (Infinity) unless the c = 0 mean clears its target by two standard
+  // errors (1.5 for the overlap of neighbouring differences). The old estimator compared small local spreads with a large global
+  // mean and returned Infinity on growing counts (README, 2026-11-15).
+  const n = x.length, H = 3, pre = [0];
+  for (let t = 0; t < n; t++) pre.push(pre[t] + x[t]);
+  const d2 = [], m = [];
+  for (let t = 1; t < n; t++) {
+    const a = Math.max(0, t - 1 - H), z = Math.min(n, t + 1 + H);
+    const mt = (pre[z] - pre[a]) / (z - a);
+    if (mt > 0) { d2.push((x[t] - x[t - 1]) ** 2); m.push(mt); }
+  }
+  if (d2.length < 8) return Infinity;
+  const K = 6.635, TARGET = 0.9813;  // E min(chi2_1, K) = P(chi2_3 < K) + K P(chi2_1 > K)
+  const zs = (c) => d2.map((v, i) => Math.min(K, v / (2 * (m[i] + c * m[i] * m[i]))));
+  const meanAt = (c) => zs(c).reduce((s, v) => s + v, 0) / d2.length;
+  const z0 = zs(0), mu0 = z0.reduce((s, v) => s + v, 0) / z0.length;
+  const se = Math.sqrt(1.5 * z0.reduce((s, v) => s + (v - mu0) ** 2, 0) / (z0.length - 1) / z0.length);
+  if (!(mu0 > TARGET + 2 * se)) return Infinity;
+  let lo = 0, hi = 1;
+  while (meanAt(hi) > TARGET && hi < 1e6) hi *= 4;
+  for (let k = 0; k < 60; k++) { const c = (lo + hi) / 2; if (meanAt(c) > TARGET) lo = c; else hi = c; }
+  const c = (lo + hi) / 2;
+  return c > 0 ? 1 / c : Infinity;
+}
+
+/** The size against the global mean (the estimator before 2026-11-15), kept for comparison. */
+export function negbinSizeGlobal(x) {
   if (x.length < 8) return Infinity;
   const d = [];
   for (let t = 1; t < x.length; t++) d.push((x[t] - x[t - 1]) ** 2);
