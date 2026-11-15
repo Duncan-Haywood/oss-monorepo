@@ -76,7 +76,7 @@ export function parseDate(value) {
   if (m && MONTHS[m[1].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[1].toLowerCase()], d: +m[2] };
   m = s.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?\s+(\d{4})/);
   if (m && MONTHS[m[2].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[2].toLowerCase()], d: +m[1] };
-  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})/);
+  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})(?!\d)/);
   if (m) return { y: +m[3], mo: +m[1] - 1, d: +m[2] }; // US month-first
   return null;
 }
@@ -398,8 +398,8 @@ export function analyze(rows, orders = [], { costs = {}, returnsResellable = tru
   return out;
 }
 
-const $ = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
-const $2 = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+const $ = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
+const $2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
 const P = (x, d = 1) => (x * 100).toFixed(d) + "%";
 
 function findings(s, a) {

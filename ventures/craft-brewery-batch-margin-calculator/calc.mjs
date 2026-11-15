@@ -38,10 +38,10 @@ const r2 = (x) => Math.round(x * 100) / 100;
 
 export function money(x) {
   const s = Math.abs(Math.round(x)).toLocaleString("en-US");
-  return (x < 0 ? "-$" : "$") + s;
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(s);
 }
 export function money2(x) {
-  return (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2);
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2));
 }
 
 // Federal excise (TTB, Craft Beverage Modernization Act rates): brewers making 2,000,000 barrels or fewer a year pay $3.50

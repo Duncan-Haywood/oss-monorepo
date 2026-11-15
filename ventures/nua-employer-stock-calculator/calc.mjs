@@ -9,7 +9,7 @@ const num = (v) => {
 };
 const round2 = (n) => Math.round(n * 100) / 100;
 
-export const dollars = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const dollars = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const pctText = (n) => `${Math.round(n * 10) / 10}%`;
 
 export const SAMPLE = {

@@ -40,7 +40,7 @@ export function num(v, fallback = 0) {
   const n = typeof v === "number" ? v : Number.parseFloat(String(v ?? "").replace(/[$,%\s,]/g, ""));
   return Number.isFinite(n) ? n : fallback;
 }
-export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(n)).toLocaleString("en-US"));
 
 // "15:30", "3:30pm", "3pm", "15" -> minutes after midnight, or null when blank/unreadable.
 export function parseTime(v) {

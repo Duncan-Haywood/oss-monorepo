@@ -135,7 +135,7 @@ Sumatra Mandheling, 4.40, 83, 17</textarea>
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
     const v = (id) => $("#" + id).value;
     // Number("2,500") is NaN; the page treated that as 0 (comma sweep 2026-11-13).
     const nv = (id) => Number(v(id).trim().replace(/^(-?\d{1,3}(?:,\d{3})+)(\.\d*)?$/, (m) => m.replace(/,/g, "")));

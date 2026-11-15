@@ -15,7 +15,7 @@ released track:
    transposed for men's voices and fitted to a grid.
 3. **Arrange:** genre templates (drums, bass, synths, guitars) built around
    the line. Not built.
-4. **Voice:** a real men's choir (recorded) or a singing synthesiser. A first synthesised choir that sings each syllable's vowel (no consonants) is in `sing.mjs` (`render-cli.mjs --sing`, 2026-11-15); a real choir is not.
+4. **Voice:** a real men's choir (recorded) or a singing synthesiser. A first synthesised choir that sings each syllable's opening consonants and vowel (no final consonants) is in `sing.mjs` (`render-cli.mjs --sing`, 2026-11-15); a real choir is not.
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
@@ -336,6 +336,56 @@ a diphthong reading /a/ then /u/, and a three-note MIDI (*li*, melisma, *bo*) re
 choir stem. `eval/browser-e2e.mjs` (115 checks) finds the page's sung WAV byte-for-byte equal to
 `render-cli.mjs --sing`. Rendering is slower: Dies irae with deep house, 191 s of audio, takes about 4 s
 with `--sing --lufs -14 --limit` against 1 s for the pad. Nobody has listened to it.
+
+#### Opening consonants (2026-11-15, later)
+
+A vocalise lets you hear which vowel lands on which note, but not where a word starts: *Dies irae, dies
+illa* came out as *ie i-ae ie i-a*. 76.5% of the corpus's 8,085 sung syllables open on a consonant (t 1,013,
+s 576, d 564, m 546, n 536, k 535, r 472, l 390 ...). `--sing` now sings them; `sing: 'vowels'` keeps the
+old vocalise.
+
+- **Which consonants** (`latinOnset`): the letters before the syllable's vowel, read by the Liber Usualis's
+  rules: c and g soft (/tʃ/, /dʒ/) before e, i, y, ae and oe, hard elsewhere; sc before e or i is /ʃ/; gn
+  is /ɲ/; ch is k, ph f, th t; qu is kw and gu before a vowel gw; x is ks; h is silent; i opening a
+  syllable before a vowel is the glide j. Clusters (*Chri*, *spi*, *tri*, *glo*) are sung in order.
+- **How** (`PHONES`, on the same five voices and formant cascade): a stop is a closure (the voices stop;
+  a voiced one keeps a low voice bar with F1 at 180 Hz) and a band-limited burst: low and short for p and b,
+  high (4.5 kHz) for t and d, a narrow band just above the vowel's F2 for k and g, longer. The formants then
+  move to the vowel over 45 ms from halfway between the place's locus (Delattre, Liberman and Cooper 1955:
+  F2 near 800 Hz for labials, 1,800 Hz for alveolars) and the vowel. Fricatives are band noise (s at 6.5 kHz,
+  sh at 3 kHz, f weak and flat; v and z with the voices on under them); affricates a closure then the sh
+  noise; nasals a quieter span with the upper formants damped; l a voiced span with its own formants; r one
+  brief tap; j and w start from /i/ and /u/. Before an obstruent or a tap the previous note's cross-fade
+  drops from 50 ms to 15 ms, so a closure is silent.
+- **Where in time:** choirs sing a consonant before the beat so the vowel lands on it. A syllable's
+  consonant takes up to half the previous note (and any rest before it); what does not fit spills into its
+  own note, at most 30% of it, shortened in proportion when even that is too little. The first version put
+  the consonant inside the note: on the corpus's 0.24 s eighths at 124 BPM it was squeezed to a 30 ms
+  closure, and the reader below read 66.9% of openings right; before the beat, 74.7%.
+- **Not:** final consonants (*Dies* still loses its s), a doubled consonant held (*il-la*), a soloist's
+  diction, or any listener's judgement.
+
+Checked from the audio (`eval/consonant-check.mjs`, report in `eval/consonant-check-report.md`) by a
+rule-based acoustic reader written for it, `onsets.mjs`: a closure of 35 ms or more then a release burst is
+a stop (voiced when a voice bar sounds under the closure; place from the burst's spectrum, after Stevens
+and Blumstein 1978); a closure then 50 ms of noise an affricate; 30 ms of noise above 2.5 kHz a fricative
+(/s/ or /ʃ/ by centroid, weak for /f/, voiced when the low band carries on); a quieter low murmur a nasal;
+one brief contact a tap; l, j, w and a bare vowel none.
+
+- **Pairs** (*a* then each of 35 syllables, six pitches E2-E4, the set the reader's thresholds were set on):
+  184 of 210 (87.6%) read exactly as written (class, voicing and place); the vowel-only choir on the same
+  MIDI reads as no consonant 210 of 210, so the reader does not invent them. It misses n and m before /u/
+  and /o/ (the vowel is itself a low murmur), l and j against /a/ (read as nasals), and labial bursts at C4.
+- **Corpus, held out** (five pieces at final D3, 124 BPM; the first note of every syllable of 0.2 s or more):
+  698 of 934 openings (74.7%) read exactly as written, 724 (77.5%) by class. The same notes from the vowel-only
+  choir read as the written consonant 6.7% of the time, the chance level. Best: t 95.6%, s 89.3%, voiceless
+  affricate 93.3%, k 82.5%; worst: f 42.3%, nasals 52.3%.
+- **Vowels after the change** (`eval/vowel-check-report.md`): held vowels 29 of 30, unchanged; corpus notes
+  97.6% right, but only 920 of the 1,571 notes still have 0.1 s of steady vowel between their own consonant
+  and the next syllable's: on short notes the vowel is now shorter, as it is when people sing.
+
+`sing.test.mjs` gains 3 tests: the consonant rules, nine VCV pairs on D3 read back as their class, voicing and
+place (and as none from the vowel-only choir), and a consonant before the beat leaving the vowel on it.
 
 ### A score for the choir: `--musicxml` (2026-11-14)
 

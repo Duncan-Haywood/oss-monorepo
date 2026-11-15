@@ -30,7 +30,7 @@ export function num(v) {
   const n = Number(s);
   return Number.isFinite(n) ? n : NaN;
 }
-export const money = (v) => (v < 0 ? "-" : "") + "$" + Math.round(Math.abs(v)).toLocaleString("en-US");
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(v)).toLocaleString("en-US"));
 const statusOf = (s) => (BRACKETS[s] ? s : "single");
 
 export function incomeTax(taxable, status) {

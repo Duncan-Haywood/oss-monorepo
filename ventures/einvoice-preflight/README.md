@@ -1701,3 +1701,98 @@ network call), so a self-made certificate passes as long as it signed this
 invoice; Fatoora's acceptance is not known from any of this; the Python CLI
 does not run the stamp check.
 
+
+## Spain: Facturae 3.2.1 and 3.2.2 (2026-11-15)
+
+Invoices to Spanish public bodies go through FACe (and the regional hubs) as
+Facturae XML, and Facturae is one of the formats Spain's B2B regulation allows.
+A file whose root is `Facturae` in the 3.2.1 or 3.2.2 namespace is now read by its
+own reader (`facturae.mjs`), not as UBL:
+
+- **Structure (ES-018..022)**: element order, occurrence counts, choices, value
+  facets and all 22 code lists of the Ministry's two XSDs, read into
+  `facturae-xsd-data.mjs` by `build-facturae-schema.mjs` (downloads from
+  facturae.gob.es, SHA-256 pinned). A decimal comma gets its own message.
+- **Totals (ES-003..017, ES-023..025)**, each a formula from the Ministry's field
+  description (06/06/2017): TotalCost = Quantity x UnitPriceWithoutTax; GrossAmount
+  = TotalCost - discounts + charges; TotalGrossAmount, general discounts and
+  charges, TotalGrossAmountBeforeTaxes; each cuota and recargo de equivalencia =
+  base x rate; TotalTaxOutputs; withholdings (IRPF) and TotalTaxesWithheld;
+  InvoiceTotal = before taxes + outputs - withheld; TotalOutstandingAmount after
+  subsidies and advances; TotalExecutableAmount after retentions, payment in kind,
+  suplidos and financial expenses; the batch's three sums and InvoicesCount.
+- **Consistency**: Modality I/L against the invoice count (ES-002), SchemaVersion
+  against the namespace (ES-001), corrective invoices (ES-027 Corrective block,
+  ES-028 corrected number and, in 3.2.2, its date for methods 01/02, ES-029 reason
+  and method code/description pairs from the XSD's lists), summary invoices need
+  InvoicingPeriod (ES-030), foreign currency needs ExchangeRateDetails and euro
+  equivalents (ES-031), NIF/NIE/CIF check character (ES-032), installments against
+  the total to execute (ES-035, warning), a future IssueDate (ES-037, warning).
+
+Measured (`eval/facturae-differential-2026-11-15.md`): 1,000 generated files, all
+valid under xmllint and the official XSDs, 0 flagged; 6,539 structural mutants, our
+verdict equal to xmllint's on every one; 5,006 arithmetic mutants, all caught by the
+expected rule. Generator and checker share one reading of the field description,
+so the arithmetic is not independently confirmed. Not done: FACe's DIR3 directory and FACe's own error codes, Facturae 3.2 (2009) files (named,
+schema step skipped), and a real business's file. The Python CLI does not read
+Facturae.
+
+## Facturae XAdES signature, verified offline (2026-11-15, later)
+
+A Facturae file for FACe is signed XAdES-EPES under the Facturae signature
+policy, and a signed file that was edited, re-indented or re-encoded afterwards is
+rejected with a bare "firma no válida". A signed Facturae file is now verified on
+the page, the server API and the batch report, with no dependency and no network
+call (`facturae-signature.mjs` for the Facturae rules, `xmldsig.mjs` for XML-DSig:
+SHA-1, SHA-384/512 and RSA PKCS#1 v1.5 over BigInt written out; `c14n.mjs` gained
+exclusive C14N's InclusiveNamespaces PrefixList).
+
+| Rule | What it checks |
+| --- | --- |
+| ES-SIG-01 | The signature is a ds:Signature child of the Facturae root, with SignedInfo (a second root signature is a warning) |
+| ES-SIG-02 | A Reference covers the whole invoice (URI="" with the enveloped-signature transform, or the XPath `not(ancestor-or-self::ds:Signature)`) |
+| ES-SIG-03 | Every Reference digest, recomputed (SHA-1/256/384/512; C14N 1.0, 1.1, exclusive), equals its DigestValue; the message says which part changed, and when a digest matches only under the other C14N family it names the undeclared transform |
+| ES-SIG-04 | The SignatureValue verifies over the canonical SignedInfo with the certificate's RSA key (RSA-SHA1/256/384/512) |
+| ES-SIG-06 | The certificate in KeyInfo is readable and RSA (or an RSAKeyValue is given) |
+| ES-SIG-07 | XAdES SignedProperties exist and a Reference signs them (Type ...#SignedProperties, warning if missing) |
+| ES-SIG-08 | A SigningCertificate CertDigest is the digest of the KeyInfo certificate |
+| ES-SIG-09 | IssuerSerial's serial is the certificate's (decimal); its issuer name matches attribute by attribute in any order (warning) |
+| ES-SIG-10, -11 | The policy is the Facturae v3.1 one (URL) and SigPolicyHash is its SHA-1 digest; another Facturae policy URL is a warning |
+| ES-SIG-12 (warning) | SigningTime is present, an xs:dateTime, and inside the certificate's validity |
+| ES-SIG-14 (warning) | ClaimedRole is one the policy names (emisor/supplier, receptor/customer, tercero/third party) |
+| ES-SIG-16 (warning) | QualifyingProperties' Target points at the signature's Id |
+
+An algorithm, transform or XPath it does not implement is listed under `skipped`,
+never counted as a pass. The certificate chain to FNMT or another CA, revocation
+and XAdES-T timestamps are not checked (also listed under `skipped`). The result's
+`signature` summary gives the algorithms, issuer, expiry, signing time, policy and
+role, and leaves out the subject, which on a Spanish certificate carries the NIF.
+
+**Measured against signxml** (`eval/facturae-signature-2026-11-15.md`): 30 signed
+files (five algorithm pairs, three C14N methods, 2048 and 3072-bit keys) and five
+mutants of each (amount, SigningTime, SignatureValue, certificate, re-indent), 180
+in all: **our verdict equals signxml's on all 180**, 7.8 ms a file. The comparison
+turned up a signxml signer fault: with exclusive C14N it digests the untransformed
+SignedProperties and KeyInfo references exclusively, which XML-DSig says are
+inclusive, so its own verifier rejects those ten files; our recomputed inclusive
+digests equal lxml's byte for byte, and ES-SIG-03 now names the cause.
+
+Tests (`facturae-signature.test.mjs`, 21): the fixture signed at run time with a
+fresh RSA key and a self-made certificate in the layout Facturae signers write,
+then each part broken (an edit and a re-indent after signing, another key, a
+swapped certificate, SigningCertificate, serial, issuer order and value, no policy,
+wrong policy hash and URL, signing time outside validity in another zone, role,
+unsigned SignedProperties, no whole-document reference, undeclared exclusive C14N,
+unsupported algorithm and XPath, duplicate Id, nested signature), a default-namespace
+Facturae, the batch report, SHA and RSA agreement with node:crypto, DN parsing, and
+a fuzz pass over every signature field and every truncation of the certificate.
+
+Not done: a real business's signed file and a FACe verdict on it; the policy
+digest was not recomputed from the policy PDF (facturae.gob.es did not answer; it
+is the value FirmaXadesNet, Odoo, OCA and Facturae-PHP write); ECDSA keys.
+
+**Spanish NIE and K/L/M NIFs fixed (same day).** The party VAT check (`vat.mjs`,
+`vat.py`) refused every valid NIE (X/Y/Z) and K/L/M NIF as INV-023. Against
+python-stdnum 2.2 on 6,000 seeded numbers: 891 disagreements before (750 valid
+numbers refused), 55 after, all CIFs where stdnum takes either control form and we
+take the one the entity letter calls for.

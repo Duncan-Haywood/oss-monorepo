@@ -19,8 +19,8 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const opt = (v, d) => (String(v ?? "").trim() === "" ? d : num(v));
-const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
-const money2 = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
+const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2));
 const DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 export function parseMonths(text) {

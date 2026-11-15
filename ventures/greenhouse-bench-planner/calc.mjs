@@ -13,7 +13,7 @@ export const DEFAULTS = { benchSqft: 400, germSqft: 30, germDensity: 60, maxHold
 
 export function money(n) {
   const v = Math.round(Number(n) || 0);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
 }
 
 export function parseDate(s) {

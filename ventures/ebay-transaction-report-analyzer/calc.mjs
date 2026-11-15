@@ -62,7 +62,7 @@ export function parseDate(value) {
   if (m && MONTHS[m[1].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[1].toLowerCase()], d: +m[2] };
   m = s.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?\s+(\d{4})/);
   if (m && MONTHS[m[2].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[2].toLowerCase()], d: +m[1] };
-  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})/);
+  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})(?!\d)/);
   if (m) return { y: +m[3], mo: +m[1] - 1, d: +m[2] };
   return null;
 }
@@ -309,7 +309,7 @@ export function analyze(rows, { costs = {}, returnsResellable = true } = {}) {
   return { summary, items: itemList, months: monthList, findings: findings(summary, itemList, monthList) };
 }
 
-const $ = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+const $ = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 const P = (x, d = 1) => (x * 100).toFixed(d) + "%";
 
 function findings(s, list, months) {
@@ -441,7 +441,7 @@ export function sampleData() {
   const head = "Transaction creation date,Type,Order number,Legacy order ID,Buyer username,Buyer name,Ship to city,Ship to province/region/state,Ship to zip,Ship to country,Net amount,Payout currency,Payout date,Payout ID,Payout method,Payout status,Reason for hold,Item ID,Transaction ID,Item title,Custom label,Quantity,Item subtotal,Shipping and handling,Seller collected tax,eBay collected tax,Final Value Fee - fixed,Final Value Fee - variable,\"Very high \"\"not as described\"\" fee\",Below standard performance fee,International fee,Deposit processing fee,Gross transaction amount,Transaction currency,Exchange rate,Reference ID,Description";
   const out = ["Transaction report", "Seller ID,samplestore", "Report period,\"Jun 1, 2026 - Sep 30, 2026\"", "", head];
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
-  const m = (n) => (n < 0 ? "-" : "") + Math.abs(n).toFixed(2);
+  const m = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toFixed(2));
   const row = (o) => {
     const c = new Array(37).fill("--");
     const set = (name, v) => { c[head.split(",").indexOf(name)] = v; };

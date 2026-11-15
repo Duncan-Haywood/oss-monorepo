@@ -149,7 +149,7 @@ export function worthSuing(o) {
 
 export function verdictText(w) {
   const usd = (n) => "$" + money(Math.abs(n));
-  const sign = (n) => (n < 0 ? "-" : "") + usd(n);
+  const sign = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(usd(n));
   const lines = [];
   if (w.overLimit) lines.push(`Over the limit: the balance is above the ${usd(w.limit)} small-claims limit, so you would waive ${usd(w.excess)} or file in a higher court (usually needing a lawyer).`);
   const head = {

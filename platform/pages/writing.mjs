@@ -35,7 +35,7 @@
  * link from the hub. Rendering reuses the devlog's escaping Markdown renderer,
  * so a post cannot inject markup and repository paths become GitHub links.
  */
-import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
+import { promises as fs, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
@@ -1048,9 +1048,16 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
   }
   await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section })));
   await fs.writeFile(path.join(dir, 'search.json'), rebase(renderSearchIndex(posts)));
+  // Sync on purpose, as in build.mjs's rewritePagesSync. Awaiting an
+  // fs.promises mkdir and write per post, one post at a time, sent ~9,500
+  // round trips through libuv's thread pool for files that take microseconds
+  // to write: the main thread sat idle for about 45% of this loop over 4,741
+  // posts (2026-11-15, docs/history/pages-build-perf-2026-11-15-writing-sync-writes.md).
+  // Nothing else in this process is in flight here (the research builder is a
+  // child process with no pipe to drain), so blocking holds nothing up.
   for (const post of posts) {
-    await fs.mkdir(path.join(dir, post.slug), { recursive: true });
-    await fs.writeFile(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section })));
+    mkdirSync(path.join(dir, post.slug), { recursive: true });
+    writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section })));
   }
 }
 
@@ -1078,7 +1085,7 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     await writeSection(outDir, agentPosts, AGENT_BLOG, { baseUrl, socialCard, rebase });
     const dir = path.join(outDir, AGENTS_PATH);
     for (const p of agentPosts) {
-      await fs.writeFile(path.join(dir, `${p.slug}.txt`), rebase(`# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`));
+      writeFileSync(path.join(dir, `${p.slug}.txt`), rebase(`# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`));
     }
     await fs.writeFile(path.join(dir, 'llms.txt'), rebase(renderAgentLlmsTxt(agentPosts, { baseUrl })));
     await fs.writeFile(path.join(dir, 'llms-full.txt'), rebase(renderAgentLlmsFull(agentPosts, { baseUrl })));

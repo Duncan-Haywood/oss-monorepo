@@ -116,10 +116,10 @@ function splitLine(line, d) {
 
 export function parseDay(s) {
   s = String(s ?? "").trim();
-  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
-  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/))) {
+  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)/))) {
     let a = +m[1], b = +m[2]; y = +m[3]; if (y < 100) y += 2000;
     if (a > 12) { d = a; mo = b; } else { mo = a; d = b; }
   } else return NaN;

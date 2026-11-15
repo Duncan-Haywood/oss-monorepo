@@ -50,11 +50,11 @@ const r2 = (x) => Math.round(x * 100) / 100;
 
 export function money(x) {
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 export function money2(x) {
   const n = Math.round(x * 100) / 100;
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 // Cost of one job at its own hours. `overrun` stretches the hours spent on site only

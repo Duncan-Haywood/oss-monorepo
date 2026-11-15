@@ -53,8 +53,11 @@ const MP = (() => {
 })();
 export const MINPLUS_WASM_ON = !!MP;
 
-/** Largest number of matches in a round the exact programme takes (2^12 states, 24 or 25 teams). */
+/** Largest number of matches in a round the exact programme takes by default (2^12 states, 24 or 25
+ * teams). The floor-priced search passes FLOOR_PRICED_MAX_MATCHES (13, 26 teams) since the int16 step
+ * (README "Whole-break tables in int16"); leastBreaks' other callers keep 12, so their cost is unchanged. */
 export const ORIENT_MAX_MATCHES = 12;
+export const FLOOR_PRICED_MAX_MATCHES = 13;
 
 /** Predecessor entries a balanced walk keeps at most (4 bytes each: 16 MB), balancedWalk nearOf. */
 const NEAR_CACHE = 4000000;
@@ -384,11 +387,11 @@ export function relaxedBreakFloor(opp, n, opts = {}) {
  * span, backward before it) are brought up to date on the way, from rounds the move did not touch.
  * `commit()` keeps the last trial's rounds (call it only right after the trial it accepts; the
  * caller undoes a refused move instead). Same floor as leastBreaks(opp, n).floor. null when a round
- * has more than ORIENT_MAX_MATCHES matches. `opp` is read live (the caller moves it).
+ * has more than `maxMatches` (ORIENT_MAX_MATCHES) matches. `opp` is read live (the caller moves it).
  */
-export function floorTable(opp, n) {
+export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
   const R = opp.length;
-  if (n > 32 || roundMatches(opp, n).some((ms) => ms.length > ORIENT_MAX_MATCHES)) return null;
+  if (n > 32 || roundMatches(opp, n).some((ms) => ms.length > maxMatches)) return null;
   const playsOf = (r) => { let p = 0; for (let t = 0; t < n; t++) if (opp[r][t] < n) p |= 1 << t; return p >>> 0; };
   // committed rounds: matches, home masks, who plays
   const ms = [], H = [], plays = [];

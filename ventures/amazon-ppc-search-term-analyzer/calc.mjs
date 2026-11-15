@@ -58,11 +58,11 @@ export function parseNumber(v, decimalComma = false) {
 export function parseDate(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return NaN;
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)/);
     if (!m) return NaN;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -258,7 +258,7 @@ export function analyze(rows, { targetAcos = null, minClicks = 10, minOrders = 2
   return { summary, places: [...places].sort((a, b) => b.spend - a.spend), terms: [...terms].sort((a, b) => b.spend - a.spend), negatives, harvest, bids, overlap, buckets, findings };
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(1)}%`; }
 
 const q = (v) => `"${String(v).replace(/"/g, '""')}"`;

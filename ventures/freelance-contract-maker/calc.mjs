@@ -48,7 +48,7 @@ export function formatMoney(cents, currency = "USD") {
   const whole = currency === "JPY";
   const v = cents / 100;
   const body = Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: whole ? 0 : 2 });
-  return (cents < 0 ? "-" : "") + sym + body;
+  return ((t) => (cents < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(sym + body);
 }
 
 // "Design | 30" per line. Percentages must be positive and total at most 100.

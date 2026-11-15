@@ -382,7 +382,7 @@ const DAY = 86400000;
 export function parseDate(s) {
   const t = String(s ?? "").trim();
   let m;
-  if ((m = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T ](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(t))) {
+  if ((m = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)(?:[T ](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(t))) {
     const v = Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
     // Round-trip the day so 2026-02-30 is refused rather than rolled into March.
     return +m[2] >= 1 && +m[2] <= 12 && new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDate() === +m[3] ? v : null;
