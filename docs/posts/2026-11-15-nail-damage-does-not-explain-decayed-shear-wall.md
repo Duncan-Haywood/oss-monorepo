@@ -2,8 +2,8 @@
 title: "Nail damage that builds up over cycles makes a decayed shear wall look better, not worse"
 date: 2026-11-15
 tags: [buildbot-sheathing, shear-wall, timber-engineering, hysteresis, cumulative-damage, real-data]
-seo_title: "Does cumulative nail damage explain strength loss in decayed wood shear walls?"
-description: "Energy-based strength degradation on every nail cuts intact walls' cyclic peaks by up to 37% but raises a decayed 3 in wall's share kept from 70.6% to 73.5%. Tests kept 34%."
+seo_title: "Does cumulative nail damage explain decayed shear wall strength loss?"
+description: "Energy-based nail damage cuts intact walls' cyclic peaks by up to 37% but lifts a decayed 3 in wall's share kept from 70.6% to 73.5%. Tests kept 34%."
 ---
 
 The `buildbot-sheathing` programme asks whether a robot can nail wall sheathing to code tolerance, and part of that is what a missed nail costs. To size it, the programme has been rebuilding B. D. Weiss's 2017 tests at Washington State University. Weiss tested 8 by 8 ft OSB shear walls with the bottom foot of nails removed, as rot would remove them. With 3 in edge nailing the decayed walls kept only **34%** of their strength. Our models keep about 70% unless the 16d end nails holding the studs to the sill are given a quarter of their code strength.
