@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVL7GryMr7zNUPxhbjR",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T04:59:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Blog topic chips: one swipeable row on phones",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 16098,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Built only the writing section, not the full 3-20 min site build; the change touches one page's inline CSS/JS.",
+      "did": "buildWriting into scratch dir + Playwright",
+      "result": "measured before/after in 7 s per build"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-blog-filters-took-six-rows-on-a-phone.md",
+    "docs/reports/polish-2026-11-15-chip-row.md"
+  ],
+  "goal": "impressive sites: first post above the fold on the blog index at 390 px",
+  "notes": "Picked from polish-2026-11-15-blog-site-testing-topics.md item 1. Section build via buildWriting into scratch (7 s) instead of the full site build; Playwright 390/1280: chips 275->40 px, first post 1064->827 px at 390, desktop unchanged, no page errors, keyboard focus/Enter on last chip works. writing.test.mjs 42/42; full platform/pages suite 1654 pass, 0 fail.",
+  "corrections": [],
+  "redteam": null
+}

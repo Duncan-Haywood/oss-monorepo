@@ -87,10 +87,10 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable first: (0)
-      built-in keywords on real exports (HISTORY); OSM chain names (README): Durham
-      cold 28.2 to 29.6% right; Open Collective books (README): 63-87% right from
-      memos, 43-65% from payees; new-payee guess (README): first-time payees 5-21%
-      to 20-65% right; Mint held out: first-seen 68.7%; YNAB: +2 pts; card MCC
+      built-in keywords on real exports (HISTORY); OSM chains (README): Durham cold
+      28.2 to 29.6%, name clash fixed; Open Collective books (README): 63-87% right
+      from memos, 43-65% from payees; new-payee guess (README): first-time payees
+      5-21% to 20-65% right; Mint held out: first-seen 68.7%; YNAB: +2 pts; card MCC
       (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to
       88% (Durham, held out); LLC labels: Mercury 90%, Rocket Money Amex 94%
       (README); (1) AI layer on real lines (README "A year of Toronto"): local Qwen
@@ -187,22 +187,23 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       History: README and git (latest: ISS rate band). Open: ZATCA stamp check
-      landed (README): a real taxpayer's KSA note; FatturaPA tolerances and SdI
-      codes read from spec 1.9 (2026-11-13, eval/sdi-error-codes-2026-11-13.md);
-      open: a real SdI rejection receipt; HR-CIUS checker+creator landed, 8 official
-      samples 16/16 vs XSLT (README): open: a real HR invoice, cash accounting;
-      CIUS-PT: which validator does AT run (AA/RED codes)?; Poland's FA(3): receipt
-      checks landed (README); open: a real KSeF rejection, a real correction,
-      advance or settlement file; repair keeps PDF/A (veraPDF 155/155), PDF/A-3b
-      writer passes Mustang; PINT JP/MY/AE/OM rules and repair landed (README);
-      open: a real business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS
-      on a real Dutch file; India's INV-01 check on a real IRP payload; mandate
-      texts read (README); open: IL (gov.il 403), ES, SK (hosts blocked 2026-11-14),
-      NRS notice (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed:
-      open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a
-      real payroll or export file, a PAC rejection compared; postal codes (MX-080)
-      landed (README); cCredPres rules and cClassTrib at IT 1.71 landed (README):
-      RTC events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in
+      landed (README): a real taxpayer's KSA note; SdI receipt reader landed
+      (NS/RC/MC/NE/DT/AT explained and paired with the file; a real 00305
+      reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection
+      with its file; HR-CIUS checker+creator landed, 8 official samples 16/16 vs
+      XSLT (README): open: a real HR invoice, cash accounting; CIUS-PT: which
+      validator does AT run (AA/RED codes)?; Poland's FA(3): receipt checks landed
+      (README); open: a real KSeF rejection, a real correction, advance or
+      settlement file; repair keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes
+      Mustang; PINT JP/MY/AE/OM rules and repair landed (README); open: a real
+      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
+      Dutch file; India's INV-01 check on a real IRP payload; mandate texts read
+      (README); open: IL (gov.il 403), ES, SK (hosts blocked 2026-11-14), NRS notice
+      (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed: open: SAT's
+      CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
+      payroll or export file, a PAC rejection compared; postal codes (MX-080) landed
+      (README); cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC
+      events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in
       v1.40) flagged (README): open: a real event; a real reform NF-e from a SEFAZ
       test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e
       landed: open: a national rejection compared; ISS 2-5% band landed
