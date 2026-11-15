@@ -3,7 +3,7 @@ title: "The blog's Tools topic was full of testing and SEO posts"
 seo_title: "Splitting red-team and SEO posts out of the blog's Tools topic"
 date: 2026-11-15
 tags: [polish, seo, blog, platform]
-description: "Red-team campaigns, polish passes and SEO write-ups filled the blog's 'Tools and projects' topic. Two new topics hold 416 of them; Tools drops from 2,876 posts to 2,462."
+description: "Red-team, polish and SEO posts filled the blog's 'Tools and projects' topic. Two new topics now hold 416 of them; Tools drops from 2,876 posts to 2,462."
 ---
 
 This morning the blog's **Tools and projects** chip lost 415 bedtime stories to a new Stories topic. It still held 2,876 of 4,707 posts, 61% of the blog, and a reader who pressed it to find out what the tools do got a long run of posts like "Seeding 8 bugs into the npm publisher: 6 caught" and "Most of our blog titles were cut off in search results". Both are worth reading. Neither tells you what a tool is for.
