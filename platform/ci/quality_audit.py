@@ -456,7 +456,9 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("coverage", help="share of the whole repository ever audited")
     ce = sub.add_parser("census", help="the full-repository sweep: never-audited subjects first")
     ce.add_argument("--n", type=int, default=6)
-    ce.add_argument("--seed", default=dt.date.today().isoformat())
+    ce.add_argument("--seed", default=None,
+                    help="default: today's date plus a random tail, so concurrent census sessions draw differently")
+    ce.add_argument("--no-prs", action="store_true", help="skip the open-PR search that passes over subjects in flight")
     qu = sub.add_parser("queue", help="open defects with no fix PR, worst first")
     qu.add_argument("--severity", choices=SEVERITIES, default="medium")
     qu.add_argument("--limit", type=int, default=40)
@@ -500,6 +502,9 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"  {st:<9} none drawn: every subject was audited in the last {days} days (or none exist)")
         return 0
     audits = load_audits()
+    if args.cmd == "census" and not args.seed:
+        # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).
+        args.seed = claim_seed(dt.date.today().isoformat())
     if args.cmd in ("metrics", "coverage", "census", "queue", "mode"):
         sys.path.insert(0, str(Path(__file__).parent))
         import quality_metrics

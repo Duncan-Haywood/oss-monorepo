@@ -35,14 +35,25 @@
     {
       "file": "platform/ci/check_post_frontmatter.py",
       "issue": "First test-change attempt printed a FAIL summary after every failure, breaking three tag-spelling tests whose problem line was already last; limited the summary to the case where the caps line was printed."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched only the backlog and friction list, not open PRs, before building the flagship_field hint; another session landed the same fix within the hour and it surfaced only as a merge conflict."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "Did not search open PRs for each friction target before starting.",
+      "did": "Built three fixes, then dropped the duplicated one at merge.",
+      "result": "about 10 minutes lost on the duplicate; the other two fixes were not duplicated"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-15-the-last-line-should-say-what-broke.md"
   ],
   "goal": null,
-  "notes": "Critique mode (backlog had only owner rows). Fixed three ungated doc_friction targets from measure 'Doc friction by file': check_post_frontmatter (tail -1 hid the failing field), flagship_field (--replace not-found gave no field hint), run_venture_tests (ok line had no test count). main_health.py 227/227 before the change; unit tests for the three tools pass; run_venture_tests.py einvoice-preflight printed '(15.3s, 2431 tests)'. No backlog ids touched (prompts/process/backlog is CODEOWNERS-gated; nothing filed).",
+  "notes": "Critique mode (backlog had only owner rows). Fixed two ungated doc_friction targets from measure 'Doc friction by file': check_post_frontmatter (tail -1 hid the failing field) and run_venture_tests (ok line had no test count). A third fix, flagship_field's --replace not-found hint, was dropped at merge time because another session landed the same fix on main first (conflict in flagship_field.py; took main's). main_health.py 227/227 before the change; unit tests pass; run_venture_tests.py einvoice-preflight printed '(15.3s, 2431 tests)'; run_workflow_locally --for-changes: 10/10 workflows passed (cross-review no local verdict); PR CI green. No backlog ids touched.",
   "corrections": [],
   "redteam": null,
   "usage": {

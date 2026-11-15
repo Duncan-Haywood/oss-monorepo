@@ -102,16 +102,16 @@ flagships:
       a real 1099-K; (4) loans: LendingClub rounds payments up (99.97% of 445k,
       README), `--round up`; open: a lender's full table, a supplier's terms letter;
       (5) receipts OCR (page SROIE ~84.8%, US 68.4%; CLI 82.2%, CORD 50.5%; big
-      photos done; next: curled slips); (6) payroll (README; journal layout 11-14):
-      a real Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
-      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
-      discounts, IN's band and day from the book (README); open: AR statutes, a real
-      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
-      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
-      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
-      once printed. A run that lands a slice replaces its item here; keep this under
-      2,000 characters.
+      photos done; next: curled slips); (6) payroll (README): two journal layouts
+      read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on
+      IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
+      `salestax return`: the last six listed states read
+      (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
+      book (README); open: AR statutes, a real return layout; (8b) `annualized`
+      (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
+      once the 2026 instructions print; (9) EITC: 2025 EIC Table matched on all
+      10,992 cells (HISTORY); open: the 2026 table once printed. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -335,22 +335,24 @@ flagships:
       timetable-bound, exact break floor, three-round re-deals, balanced least
       priced, faster break floor, exact home-and-away breaks, backward table,
       blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-14 sections).
-      2026-11-15 latest: whole-break tables as int16 SIMD in the module (same
-      seasons, 189 s to 115 s over 8 page runs, eval/int16-step.txt), so 26 teams
-      join the floor-priced step (19-34 s, 1-2 seasons a seed); 28 teams 94 s,
-      nothing added; least carry-over 94 at 10 teams, at 12 none below 124; refill
-      search in C: 14 teams 210, stored. Next, most valuable first: the rest of the
-      20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now
-      ~4x cheaper; or a starter family climbed with the floor as its score); 27 to
-      30 teams in the page (14-15 matches; 28 teams 94 s: profile it first; or
-      narrower moves, which span 15 of 23 rounds); home-and-away breaks exact since
-      2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
-      home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
-      below 132, or 124-130 ruled out; 18 teams: refill from the climbed starter
-      (356 from circle, starter 318); close 24-40 (tabu, the literature's starters);
-      a real league's travel and blackout list; printed sheets on a real printer and
-      paper.
+      2026-11-15 latest: every starter enumerated (eval/starter-exhaust.c): 26 teams
+      716 to 670, 28 828 to 778, 30 948 to 894, stored as starts. Before:
+      whole-break tables as int16 SIMD in the module (same seasons, 189 s to 115 s
+      over 8 page runs, eval/int16-step.txt), so 26 teams join the floor-priced step
+      (19-34 s, 1-2 seasons a seed); 28 teams 94 s, nothing added; least carry-over
+      94 at 10 teams, at 12 none below 124; refill search in C: 14 teams 210,
+      stored. Next, most valuable first: the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 27 to 30 teams in the page (14-15
+      matches; 28 teams 94 s: profile it first; or narrower moves, which span 15 of
+      23 rounds); home-and-away breaks exact since 2026-11-13 (pairLeastBreaks,
+      eval/pair-exact.txt): a floor-priced home-and-away timetable search on it, and
+      its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12 teams 124-132 open
+      (132 by eval/window-refill.c): below 132, or 124-130 ruled out; 18 and 24
+      teams: 318 and 570 are the least starters (eval/starter-exhaust.txt), so lower
+      needs non-starter moves; 32-40 exhaustive needs a tighter bound (30 teams took
+      24 min); a real league's travel and blackout list; printed sheets on a real
+      printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

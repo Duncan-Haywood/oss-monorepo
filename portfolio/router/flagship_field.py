@@ -189,23 +189,48 @@ def set_value(text: str, venture: str, field: str, value: str) -> str:
     return out
 
 
+def where_else(text: str, venture: str, field: str, old: str) -> list[str]:
+    """Other `venture.field` values holding `old`, this venture's own fields first.
+
+    `--replace` defaults to `next:`, so a run editing a `buildable:` item got a
+    bare 'not found' (doc_friction, 2026-11-15T08:08); naming the field it is in
+    saves the guess. Whitespace is compared folded, as the value is.
+    """
+    want = " ".join(old.split())
+    if not want:
+        return []
+    hits: list[str] = []
+    entries = _entries(yaml.safe_load(text))
+    entries.sort(key=lambda e: e.get("venture") != venture)
+    for entry in entries:
+        name = entry.get("venture")
+        for key, v in entry.items():
+            if key == "venture" or (name == venture and key == field) or not isinstance(v, str):
+                continue
+            if want in " ".join(v.split()):
+                hits.append(f"{name}.{key}")
+    return hits
+
+
+def not_found_hint(text: str, venture: str, field: str, old: str, value: str) -> str:
+    msg = f"not found in {venture}.{field}: {old!r}"
+    if " ".join(old.split()) in " ".join(value.split()):
+        return msg + ("\n  it is there with different spacing or line breaks: copy OLD from "
+                      f"`flagship_field.py {venture} --field {field}` (the unfolded value)")
+    hits = where_else(text, venture, field, old)
+    if hits:
+        own = [h for h in hits if h.startswith(f"{venture}.")]
+        same = [h for h in hits if h.endswith(f".{field}")]
+        first = (own or same or hits)[0]
+        v, f = first.split(".", 1)
+        msg += f"\n  found in {', '.join(hits[:5])}" + (" ..." if len(hits) > 5 else "")
+        msg += f"\n  rerun as: flagship_field.py {v} --field {f} --replace ..."
+    return msg
+
+
 def hyphen_folds(text: str) -> list[int]:
     """1-based line numbers of folded lines that end in a word-hyphen."""
     return [text.count("\n", 0, m.start()) + 1 for m in HYPHEN_FOLD.finditer(text)]
-
-
-def other_fields_hint(text: str, venture: str, field: str, old: str) -> str:
-    """Name the other fields of this flagship that hold `old`.
-
-    --replace defaults to `next:`, so text living in `buildable:` answered a
-    bare 'not found' (run-record doc friction, 2026-11-15)."""
-    for entry in _entries(yaml.safe_load(text)):
-        if entry.get("venture") == venture:
-            hits = [k for k, v in entry.items()
-                    if k != field and isinstance(v, str) and old in " ".join(v.split())]
-            if hits:
-                return "; it is in " + ", ".join(f"`{k}:` (pass --field {k})" for k in hits)
-    return ""
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -256,8 +281,7 @@ def main(argv: list[str] | None = None) -> int:
             new = current or ""
         for old, rep in args.replace or []:
             if old not in new:
-                print(f"not found in {args.venture}.{args.field}: {old!r}"
-                      + other_fields_hint(text, args.venture, args.field, old), file=sys.stderr)
+                print(not_found_hint(text, args.venture, args.field, old, new), file=sys.stderr)
                 return 1
             new = new.replace(old, rep, 1)
         out = set_value(text, args.venture, args.field, new)
