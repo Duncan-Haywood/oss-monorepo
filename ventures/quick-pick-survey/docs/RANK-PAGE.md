@@ -600,3 +600,207 @@ Limits: simulated people with evenly spaced scores, no ties or fatigue; k = 3
 only in the sweep; a full-order or favourite link still combines as before
 (no shortlist), and a person who ranked in another mode is combined the same
 way.
+
+## Pictures (2026-11-15)
+
+The ranker now ranks pictures as well as words: "Or rank pictures" on
+`rank.html` takes 3 to 60 image files (photos to cull, logo drafts, design
+options), and each pair shows the two pictures with their names. Landing page:
+`site/pick-the-best-photo.html`.
+
+**Why.** Choosing the best of a set of pictures is a very common "this or
+that" there is, and the usual tools rate each picture alone (stars and flags
+in a photo manager or design review tool, which can drift over a long
+session) or send the pictures to strangers (paid panel polls, which answer a
+different question: what a market likes, not what you and your team like).
+Pairwise picks keep the judgement relative, and the page already had the
+picker, stop rule, rank ranges and team combine.
+
+**How it stays upload-free.** A picture list *is* a list of file names
+(`site/image-items.mjs`). The names go through the same `parseList`
+normalising as a typed line and are sorted, so the order a file picker returns
+them in never changes `listId`, and links, result codes and the team combine
+work unchanged. The pictures themselves are object URLs of the person's own
+files, held in memory only. A shared link carries the names and a flag
+(`g: 1` in the fragment, `encodeList({ images: true })`); whoever opens it is
+asked to select the same files (a shared drive folder works), which are
+matched back by name, case-blind (`matchImages`), and any picture not yet
+attached shows as its name. A reload keeps the answers (local storage, as
+before) and asks for the pictures again. Non-images, a second file whose name
+normalises to one already taken, and names past the 60 cap are listed back
+rather than dropped silently. HEIC is accepted and named (Safari draws it,
+other browsers do not; the page says so).
+
+**What it does not do.** It does not look at the pictures: there is no
+quality scoring, only the person's preferences. The order is an estimate from
+a limited number of picks, as for any list.
+
+**Checks.** `node --test site/image-items.test.mjs` (7 tests): picker order
+does not change the list or its fingerprint; non-images, case repeats and the
+cap are reported; MIME type counts with an odd extension; names survive the
+link round trip and stay `parseList`-idempotent; a typed list's link carries
+no picture flag; attached files match by name with gaps and extras named; the
+landing page carries disclaimer, canonical and usage counter and is linked
+from the ranker and the landing page. Browser, Playwright at 390 px: five
+PNGs and a `.txt` selected (the `.txt` named as left out), 15 picks to a
+result with five thumbnails and no horizontal scroll; a second person in a
+fresh browser opens the link, sees names until they attach 3 of 5 files ("2
+of 5 are not attached yet", naming them), then the rest; their opposite picks
+and the first person's code combine to agreement -1.00 with thumbnails in the
+team table; a reload asks for the pictures again; no console errors.
+
+**Open.** Whether people use it (`pictures_loaded`, `picture_list_started`,
+`pictures_attached`, `photo_page_viewed`, `photo_page_start` count locally);
+a larger side-by-side view on a phone; whether picture comparisons are
+noisier than word comparisons (more "about equal"), which a real session's
+answers would show.
+
+
+## Sort into piles first (2026-11-15)
+
+Lists of 8 or more now start with an optional step: each option is shown on
+its own and the person taps "near the top", "in the middle" or "near the
+bottom" (keys 1, 2, 3). Then the pairs start, as before. "Skip sorting" at any
+point keeps what was sorted and goes to the pairs.
+
+**Why.** The ranker's own measurements ("How many picks it takes") put an
+ordinary answerer at 93 picks for 20 options and 204 for 40. A rough sort is
+the step people do by hand before a long list anyway (a MoSCoW pass, high /
+medium / low), it costs one tap per option instead of reading two, and it
+should tell the picker where not to spend questions.
+
+**How the piles enter the model.** A pile is weaker evidence than a pick and
+can be wrong, so it enters the refit as each option's prior, not as answers
+(`pilePrior` in `site/rank-core.mjs`). The model: an option's score is
+s ~ N(0, phi^2) as in the plain refit; the person sees s + e, e ~ N(0, tau^2),
+and cuts that at two thresholds placed so the piles come out the sizes they
+did (someone who puts half the list on top gets a lower top cut). The prior of
+an option in a pile is the truncated-normal regression of s on its pile: mean
+(phi^2/so^2) E[o | pile] and the matching variance, so^2 = phi^2 + tau^2.
+`site/pile-first.test.mjs` checks those moments against 400,000 Monte Carlo
+draws of the model. The engine's refit (`src/lib/btRefit.ts`, regenerated into
+`site/engine/`) gained optional per-option `priorMean` and `priorScale` for
+this; with neither it is unchanged. The team combine reads the piles in the
+same model, as a Gaussian pseudo-likelihood on top of the plain prior
+(`pileTerms`), and result codes carry them (`p`, one character per option;
+an older code without them still decodes, a pile string of the wrong length is
+refused as damaged).
+
+**Two problems found on the way, both fixed before shipping.**
+
+1. *The stop rule's own-prior check fought the piles.* The second read refits
+   at the person's own prior sd, estimated from their picks. After a pile step
+   the picks fall mostly inside a pile, so read alone they look like close
+   calls, and the estimate went to its floor: half of 15-option runs with
+   perfect piles hit the question cap (4 runs, 113 picks against 90 with no
+   piles). The check now estimates the prior sd with the piles in the model
+   (`pileEvidence`, a Laplace evidence that agrees with the engine's own
+   estimate to 0.04 on plain picks) and, since 2026-11-15 later, the person's
+   pile noise tau too, from a grid of 0.5, 1.28, 3 and 8 logits
+   (`pilePriorFit`): a careless sorter's picks pick a large tau and the piles
+   count for less. `site/pile-first.test.mjs` goes red with the old check.
+2. *The pile prior confirmed itself.* It calls pairs from different piles
+   settled, so the picker never asks one, and a misplaced option is never
+   tested. On close-call people (3 logits over the list) with piles at the
+   assumed noise, the stop claimed 0.90 for orders whose true Spearman was
+   0.79 at 20 options (0.86 with no piles). Every 4th pair is now chosen as if
+   there were no piles (`pairFit`, `PILE_AUDIT_EVERY`); the same people's
+   stop then showed 0.86 against a claim of 0.88, as honest as no piles, for
+   122 picks instead of 99. Rows before the check pairs:
+   `docs/pile-first-no-check-pairs-2026-11-15.jsonl.gz`.
+
+**What it measured.** `node scripts/pile-first.mjs` runs the page's own loop
+(picker, check pairs, stop rule, cap) twice on each simulated person, with the
+same true scores and the same coin for every pick: picks only, and after a pile
+step. The person sorts by their own noisy view of each option (tau 0: never
+misplaces; 1.28: the noise the prior assumes; 3.85: three times as careless)
+at their own thirds. 24 people per cell at 8 to 20 options, 8 at 30 (the 30-option close-call cell took about 25 minutes on one core). Rows:
+`docs/pile-first-2026-11-15.jsonl.gz` (each with the true Spearman after every
+pick, so any budget can be read back). "Actions" counts a tap like a pick,
+which flatters picks-only (a tap is one option to read, a pick two).
+
+| answerer | options | sort | people | actions (taps + picks) | true Spearman at stop | stop claimed | hit cap | Spearman at 2n / 4n / 6n actions |
+|---|---|---|---|---|---|---|---|---|
+| ordinary | 8 | no sort | 24 | 39 | 0.945 | 0.900 | 21% | 0.856 / 0.944 / 0.969 |
+| ordinary | 8 | careful (tau 0) | 24 | 26 (8 + 18) | 0.957 | 0.905 | 0% | 0.944 / 0.963 / 0.974 |
+| ordinary | 8 | ordinary (tau 1.28) | 24 | 30 (8 + 22) | 0.950 | 0.904 | 0% | 0.900 / 0.951 / 0.970 |
+| ordinary | 8 | careless (tau 3.85) | 24 | 44 (8 + 36) | 0.937 | 0.897 | 21% | 0.607 / 0.905 / 0.945 |
+| ordinary | 12 | no sort | 24 | 59 | 0.947 | 0.903 | 0% | 0.872 / 0.921 / 0.955 |
+| ordinary | 12 | careful (tau 0) | 24 | 37 (12 + 25) | 0.945 | 0.902 | 0% | 0.947 / 0.944 / 0.963 |
+| ordinary | 12 | ordinary (tau 1.28) | 24 | 40 (12 + 28) | 0.932 | 0.903 | 0% | 0.899 / 0.937 / 0.956 |
+| ordinary | 12 | careless (tau 3.85) | 24 | 70 (12 + 58) | 0.928 | 0.901 | 4% | 0.582 / 0.893 / 0.933 |
+| ordinary | 20 | no sort | 24 | 93 | 0.933 | 0.903 | 0% | 0.823 / 0.915 / 0.943 |
+| ordinary | 20 | careful (tau 0) | 24 | 64 (20 + 44) | 0.929 | 0.902 | 0% | 0.927 / 0.942 / 0.958 |
+| ordinary | 20 | ordinary (tau 1.28) | 24 | 87 (20 + 67) | 0.937 | 0.904 | 0% | 0.849 / 0.932 / 0.959 |
+| ordinary | 20 | careless (tau 3.85) | 24 | 120 (20 + 100) | 0.933 | 0.904 | 0% | 0.552 / 0.840 / 0.937 |
+| close calls | 8 | no sort | 24 | 47 | 0.872 | 0.862 | 88% | 0.710 / 0.835 / 0.877 |
+| close calls | 8 | careful (tau 0) | 24 | 35 (8 + 27) | 0.912 | 0.898 | 13% | 0.886 / 0.892 / 0.928 |
+| close calls | 8 | ordinary (tau 1.28) | 24 | 45 (8 + 37) | 0.893 | 0.891 | 50% | 0.725 / 0.848 / 0.900 |
+| close calls | 8 | careless (tau 3.85) | 24 | 53 (8 + 45) | 0.824 | 0.842 | 83% | 0.248 / 0.700 / 0.817 |
+| close calls | 12 | no sort | 24 | 79 | 0.854 | 0.881 | 71% | 0.679 / 0.781 / 0.841 |
+| close calls | 12 | careful (tau 0) | 24 | 44 (12 + 32) | 0.905 | 0.902 | 4% | 0.899 / 0.902 / 0.911 |
+| close calls | 12 | ordinary (tau 1.28) | 24 | 79 (12 + 67) | 0.868 | 0.885 | 50% | 0.677 / 0.814 / 0.866 |
+| close calls | 12 | careless (tau 3.85) | 24 | 89 (12 + 77) | 0.871 | 0.869 | 67% | 0.399 / 0.726 / 0.842 |
+| close calls | 20 | no sort | 24 | 135 | 0.857 | 0.883 | 42% | 0.635 / 0.784 / 0.851 |
+| close calls | 20 | careful (tau 0) | 24 | 86 (20 + 66) | 0.906 | 0.902 | 4% | 0.903 / 0.896 / 0.901 |
+| close calls | 20 | ordinary (tau 1.28) | 24 | 142 (20 + 122) | 0.860 | 0.879 | 42% | 0.636 / 0.786 / 0.847 |
+| close calls | 20 | careless (tau 3.85) | 24 | 168 (20 + 148) | 0.820 | 0.882 | 63% | 0.349 / 0.618 / 0.766 |
+| ordinary | 30 | no sort | 8 | 123 | 0.918 | 0.901 | 0% | 0.825 / 0.922 / 0.944 |
+| ordinary | 30 | careful (tau 0) | 8 | 99 (30 + 69) | 0.935 | 0.901 | 0% | 0.920 / 0.938 / 0.959 |
+| ordinary | 30 | ordinary (tau 1.28) | 8 | 112 (30 + 82) | 0.926 | 0.902 | 0% | 0.839 / 0.926 / 0.959 |
+| ordinary | 30 | careless (tau 3.85) | 8 | 200 (30 + 170) | 0.926 | 0.902 | 0% | 0.536 / 0.819 / 0.920 |
+| close calls | 30 | no sort | 8 | 253 | 0.878 | 0.850 | 50% | 0.536 / 0.739 / 0.825 |
+| close calls | 30 | careful (tau 0) | 8 | 96 (30 + 66) | 0.914 | 0.901 | 0% | 0.913 / 0.914 / 0.923 |
+| close calls | 30 | ordinary (tau 1.28) | 8 | 258 (30 + 228) | 0.864 | 0.868 | 50% | 0.609 / 0.769 / 0.834 |
+| close calls | 30 | careless (tau 3.85) | 8 | 265 (30 + 235) | 0.836 | 0.873 | 50% | 0.383 / 0.629 / 0.775 |
+
+What it says:
+
+- **A careful sort is a large saving.** Ordinary answerers who sort without
+  misplacing: 20 options took 64 actions (20 taps, 44 picks) against 93 picks,
+  for the same order (Spearman 0.929 against 0.933). 30 options: 96 against 123. Close-call people gain
+  most: 86 actions against 135 at 20 options, with a better order (0.906
+  against 0.857) and 4% of runs at the cap against 42%; at 30, 96 against 253.
+- **An ordinary sort saves on short and mid lists and breaks even by 20.**
+  12 options: 40 actions against 59 (Spearman 0.932 against 0.947, both above
+  the 0.90 the stop promises); 20 options: 87 against 93 (0.937 against
+  0.933); 30 options: 112 against 123 (0.926 against 0.918). Close calls: 142
+  against 135 at 20 options and 258 against 253 at 30, same order.
+- **A careless sort costs.** Three times the assumed misplacement: 120 actions
+  against 93 at 20 options, same order; for close-call people 168 against 135
+  and a slightly worse order (0.820 against 0.857). The stop stays about as honest
+  as with no piles; the worst cell is close-call people sorting carelessly at
+  20 options, 0.82 shown against 0.88 claimed (no piles: 0.86 against 0.88).
+- **At equal effort** (the right-hand columns): for ordinary answerers a
+  careful or ordinary sort is ahead at every budget measured; for close-call
+  people a careful sort is far ahead and an ordinary one level. A careless sort
+  is behind everywhere, by 0.03 or less at 6n actions except close-call people
+  at 30 options (0.05).
+
+So the step is offered, not forced, and the page says what it is for: "if you
+can roughly tell top from bottom, sorting first saves picks". Lists under 8
+were not measured, and the step is not offered there.
+
+**Checks.** `node --test site/pile-first.test.mjs` (12 tests): the engine's
+new options default to the plain refit and reject bad input; `pilePrior` is
+null for nothing sorted, symmetric for equal piles, and matches Monte Carlo;
+the team models' pseudo-likelihood gives the same mode as the direct prior;
+codes round-trip piles and refuse damaged ones; a team member who only sorted
+moves the group order; with right piles a 15-option person needs under 70% of
+the picks (red with the old own-prior check); right piles read a careful tau
+and reversed piles the "no information" end of the grid; check turns come
+every 4th pick and only with piles; the page wires all of it. Browser,
+Playwright at 390 px: 15 options sorted with keys (one Back), 28 picks for a
+person who never wavers before the check pairs (51 measured without piles), the code carries
+`p: 000001111122222`, a reload keeps the results, a 7-option list goes
+straight to pairs, skipping at the first option goes straight to pairs,
+combine works, no console errors, no horizontal scroll. A second walk with
+the check pairs in: 27 picks, the exact order.
+
+**Open.** Whether real people sort carefully, ordinarily or carelessly is the
+whole question, and only real sessions answer it (`piles_started`,
+`pile_tap`, `piles_done`, `piles_skipped` count locally; a session's code now
+carries its piles, so the first real team codes will show how often picks
+contradict piles). 40 and 60 options were not run (a 40-option close-call
+person takes over 10 minutes a run here). The favourite and top-k modes use
+the piles too, unmeasured.

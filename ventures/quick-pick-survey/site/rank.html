@@ -39,6 +39,17 @@
     footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
     label.inline{display:inline-flex;gap:.35rem;align-items:center}
     .scroll-x{overflow-x:auto;max-width:100%}
+    .pair.images{grid-template-columns:1fr 1fr}
+    .pick.img{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.4rem;font-size:.85rem}
+    .pick.img img{display:block;width:100%;height:auto;max-height:min(48vh,380px);object-fit:contain;border-radius:6px}
+    .pick.img .cap{color:var(--muted);overflow-wrap:anywhere}
+    .pile-item{min-height:5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.6rem;margin:1rem 0;font-size:1.15rem;border:2px solid var(--line);border-radius:8px;text-align:center;word-break:break-word}
+    .pile-item img{display:block;width:100%;height:auto;max-height:min(40vh,320px);object-fit:contain;border-radius:6px}
+    .pile-item .cap{color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
+    .piles{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+    .piles button{white-space:normal}
+    td img.thumb{width:56px;height:56px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:.5rem;background:var(--bg)}
+    .notice{border-left:4px solid var(--accent);padding:.25rem .75rem}
   </style>
 </head>
 <body>
@@ -54,6 +65,8 @@
     <p></p>
     <label for="list" class="muted">One option per line, 3 to 60.</label>
     <textarea id="list" placeholder="Dark mode&#10;CSV export&#10;Faster search&#10;Mobile app&#10;Team accounts&#10;Calendar sync"></textarea>
+    <p class="muted"><label for="images"><strong>Or rank pictures</strong> (photos to cull, logo drafts, design options, 3 to 60):</label> <input type="file" id="images" accept="image/*" multiple> The pictures stay on your device: the page opens them locally and never uploads them. Their file names become the list, so a teammate opening your link attaches the same files on their device.</p>
+    <p id="images-note" class="muted"></p>
     <div class="row">
       <label class="inline"><input type="radio" name="mode" value="order" checked> Full order</label>
       <label class="inline"><input type="radio" name="mode" value="favourite"> Be sure of the favourite (more questions on the front-runners; the rest of the order stays rough)</label>
@@ -66,10 +79,34 @@
     </div>
   </section>
 
+  <section id="attach" class="hidden notice">
+    <h2>Attach the pictures</h2>
+    <p id="attach-why">This list is pictures. They never travel in the link, so choose the same files on this device (all at once is fine; they are matched by file name).</p>
+    <p><input type="file" id="attach-files" accept="image/*" multiple aria-label="Attach the pictures for this list"></p>
+    <p id="attach-note" class="muted"></p>
+  </section>
+
+  <section id="piles" class="hidden">
+    <h2>Sort first: one tap each</h2>
+    <p class="muted" id="piles-why">If you can roughly tell top from bottom, a quick sort first saves picks: in simulations, 20 options took about 64 taps and picks after a careful sort instead of 93 picks. Aim for about a third in each pile; it does not need to be exact. If you are unsure, skip it: a careless sort costs picks rather than saving them.</p>
+    <div class="pile-item" id="pile-item" aria-live="polite"></div>
+    <div class="piles">
+      <button id="pile-0">Near the top</button>
+      <button id="pile-1">In the middle</button>
+      <button id="pile-2">Near the bottom</button>
+    </div>
+    <div class="row">
+      <button class="secondary" id="pile-back">Back</button>
+      <button class="secondary" id="pile-skip">Skip sorting, go to pairs</button>
+    </div>
+    <p class="muted" id="pile-status"></p>
+    <p class="muted">Keys: 1 top, 2 middle, 3 bottom, U back.</p>
+  </section>
+
   <section id="ask" class="hidden">
     <h2 id="ask-title">Which do you prefer?</h2>
     <p class="muted" id="link-note"></p>
-    <div class="pair">
+    <div class="pair" id="pair">
       <button class="pick" id="left"></button>
       <button class="pick" id="right"></button>
     </div>
@@ -129,9 +166,11 @@
       <li><strong>When to stop:</strong> "settled" is how closely the orders your answers still allow agree with the order shown (the average Spearman correlation over draws from the model). It stops at 90%. On simulated respondents who answer with ordinary noise, the order shown at that point matched their real order with a Spearman correlation of about 0.94. If many of your picks are close calls, it checks again with the model fitted to how strongly you seem to feel (an estimate from your own answers) and keeps asking until that read passes too, because a model that assumes strong likes reads noise as a settled order (on 25 simulated near-coin-flip options it had claimed 90% for an order that was right at about 0.56). Two options you find genuinely close may never separate; the rank range shows that, and you can stop at any time.</li>
       <li><strong>Full order or favourite?</strong> Full order spreads questions across the list and stops when the whole order is 90% settled; that can leave the top two close. "Be sure of the favourite" asks only among options that could still be the favourite and stops when one has a 90% chance. In simulation it took about a third more questions and named the right favourite 12 times out of 12, against 6 to 8 for the full-order stop.</li>
       <li><strong>Find my top k</strong> is for a shortlist: it asks only about options that could still be either side of the cut and stops when the shortlist is 90% settled. On simulated people who answer with ordinary noise, choosing the top 3 or 5 of 15 to 30 options, it named exactly the right shortlist 56% of the time against 26% for the full-order stop, at about 1.6 times the questions; for people who never waver it costs about a fifth more questions, and on lists of 10 it gains little.</li>
+      <li><strong>Sort into piles first</strong> (lists of 8 or more, optional): one tap per option, near the top, in the middle or near the bottom. The piles become each option's starting estimate, allowing for a misplaced option, and the picks then go mostly to options in the same pile, with every 4th pair chosen as if there were no piles so a misplaced option still gets tested. If your picks keep disagreeing with your piles, the page notices and leans on the picks. On simulated people with ordinary noise it took 64 actions for 20 options after a careful sort, 87 after an ordinary one and 120 after a careless one, against 93 picks without; the order came out about as good in each case.</li>
       <li><strong>Team results</strong> refit each person separately, then average their centred scores, so someone who answered 80 questions counts the same as someone who answered 30. The page shows how much people agree and where they split.</li>
     </ul>
     <p class="muted">Ready lists to start from: <a href="use-feature-backlog.html">a feature backlog</a>, <a href="use-personal-values.html">your personal values</a>, <a href="use-name-shortlist.html">a name shortlist</a>, <a href="use-trip-shortlist.html">a group trip</a>, <a href="use-team-goals.html">team goals</a>, <a href="use-customer-pain-points.html">customer pain points</a>, <a href="use-todo-priorities.html">a to-do list</a>, or <a href="ready-lists.html">all ready lists</a>.</p>
+    <p class="muted">Ranking pictures (photos to cull, logo drafts, design options)? Use "Or rank pictures" above; <a href="pick-the-best-photo.html">how picture ranking works</a>.</p>
     <p class="muted">Choosing between a few options on several criteria (rent, commute, space)? <a href="decide.html">Weigh criteria by picking pairs</a>: a decision matrix with no typed weights.</p>
     <p class="muted">Running a survey with many respondents, demographic splits and an admin view? The full app is open source: <a href="./">deploy your own copy</a>.</p>
   </section>
@@ -150,8 +189,9 @@
 </main>
 <script type="module">
   import { picksGuide, topPicksGuide } from "./picks-measured.mjs";
-  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS } from "./rank-core.mjs";
+  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS, PILE_MIN_ITEMS, PILE_NOISE, pairFit } from "./rank-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { imageList, matchImages, itemKey, UNDRAWABLE_EXT } from "./image-items.mjs";
 
   const $ = (s) => document.querySelector(s);
   const show = (id, on = true) => $(id).classList.toggle("hidden", !on);
@@ -159,29 +199,77 @@
   const RANK_SHORTLIST_DRAWS = 1500;
   const EXAMPLE = { title: "Which feature should we build next?", items: ["Dark mode", "CSV export", "Faster search", "Mobile app", "Team accounts", "Calendar sync", "Offline mode", "Single sign-on"] };
 
-  let state = null; // { title, items, mode, k, answers, seed }
-  let current = null, f = null;
+  let state = null; // { title, items, mode, k, answers, seed, piles }
+  // piles: undefined = not offered yet, null = skipped (or a short list), else one entry per option: 0 top, 1 middle, 2 bottom, null not sorted.
+  const myPiles = () => (Array.isArray(state.piles) ? state.piles : undefined);
+  const fitNow = () => fit(state.items.length, state.answers, myPiles());
+  let current = null, f = null, lastSettled = false;
+
+  // Pictures: item key -> object URL of a file on this device. Nothing here is uploaded or stored.
+  const pictures = new Map();
+  const picture = (i) => pictures.get(itemKey(state.items[i]));
+  const clearPictures = () => { for (const url of pictures.values()) URL.revokeObjectURL(url); pictures.clear(); };
+  const addPicture = (item, file) => { const k = itemKey(item); if (pictures.has(k)) URL.revokeObjectURL(pictures.get(k)); pictures.set(k, URL.createObjectURL(file)); };
+  const listNames = (names, max = 5) => names.slice(0, max).map(esc).join(", ") + (names.length > max ? ` and ${names.length - max} more` : "");
+  // An option as the results tables show it: a thumbnail when its picture is attached.
+  const optionCell = (i) => { const url = picture(i); return url ? `<img class="thumb" src="${url}" alt="" loading="lazy">${esc(state.items[i])}` : esc(state.items[i]); };
+  function renderPick(button, i) {
+    const url = picture(i);
+    button.classList.toggle("img", !!url);
+    if (!url) { button.textContent = state.items[i]; button.removeAttribute("aria-label"); return; }
+    const odd = UNDRAWABLE_EXT.test(state.items[i]);
+    button.innerHTML = `<img src="${url}" alt="" decoding="async"><span class="cap">${esc(state.items[i])}${odd ? " (HEIC: if no picture shows, this browser cannot draw it; convert to JPEG)" : ""}</span>`;
+    button.setAttribute("aria-label", state.items[i]);
+  }
+  function refreshAttach() {
+    const missing = state?.images ? state.items.filter((_, i) => !picture(i)) : [];
+    show("#attach", missing.length > 0);
+    if (missing.length && missing.length < state.items.length) $("#attach-why").textContent = `${missing.length} of ${state.items.length} pictures are not attached yet (${listNames(missing)}); those show as names. Choose them on this device.`;
+  }
 
   const storeKey = (items) => `quick-pick-rank:${listId(items)}`;
-  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, mode: state.mode, k: state.k })); } catch {} };
+  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, mode: state.mode, k: state.k, piles: state.piles ?? null, pilesDecided: state.piles !== undefined, pileAt: state.pileAt ?? null })); } catch {} };
   const load = (items) => { try { return JSON.parse(localStorage.getItem(storeKey(items)) || "null"); } catch { return null; } };
 
   // The shortlist size: a whole number from 2 to one less than the list, else null (the mode needs options left out).
   const shortlistSize = (k, n) => (Number.isInteger(k) && k >= 2 && k < n ? k : null);
 
-  function begin(title, items, mode, fromLink = false, k = 3, note = "") {
+  function begin(title, items, mode, fromLink = false, k = 3, note = "", images = false) {
     const saved = load(items);
-    state = { title, items, mode: saved?.mode || mode, k: shortlistSize(saved?.k, items.length) ?? shortlistSize(k, items.length) ?? Math.min(3, items.length - 1), answers: Array.isArray(saved?.answers) ? saved.answers : [], seed: (Math.random() * 1e9) >>> 0 };
+    state = { title, items, images, mode: saved?.mode || mode, k: shortlistSize(saved?.k, items.length) ?? shortlistSize(k, items.length) ?? Math.min(3, items.length - 1), answers: Array.isArray(saved?.answers) ? saved.answers : [], seed: (Math.random() * 1e9) >>> 0 };
+    // Piles from an earlier visit are kept only if they still fit the list; anything else is read as not sorted.
+    const sp = saved?.piles;
+    state.pileAt = Array.isArray(sp) && Number.isInteger(saved?.pileAt) ? saved.pileAt : undefined;
+    state.piles = Array.isArray(sp) && sp.length === items.length ? sp.map((x) => (x === 0 || x === 1 || x === 2 ? x : null)) : saved?.pilesDecided || state.answers.length || items.length < PILE_MIN_ITEMS ? null : undefined;
     if (state.mode === "top" && !shortlistSize(state.k, items.length)) state.mode = "order";
     state.linkMode = state.mode; state.linkK = state.k;
     $("#title").value = title; $("#list").value = items.join("\n");
     // The link carries the mode and shortlist size, so everyone it is sent to answers the same question.
-    history.replaceState(null, "", "#" + encodeList({ title, items, mode: state.mode, k: state.k }));
+    history.replaceState(null, "", "#" + encodeList({ title, items, mode: state.mode, k: state.k, images }));
     $("#link-note").textContent = note;
     record(fromLink ? "shared_list_opened" : "list_started");
     if (!fromLink) record(`mode:${state.mode}`);
     show("#setup", false); show("#results", false); show("#share", false); show("#team", false);
-    ask();
+    refreshAttach();
+    if (state.piles === undefined) { state.piles = new Array(items.length).fill(null); state.pileAt = 0; record("piles_started"); save(); }
+    if (Array.isArray(state.piles) && !state.answers.length && state.pileAt !== undefined && state.pileAt < items.length) pileStep();
+    else ask();
+  }
+
+  // Sort into piles first (lists of PILE_MIN_ITEMS or more): one option at a time, in list order.
+  function pileStep() {
+    const n = state.items.length, i = state.pileAt;
+    if (i >= n) { show("#piles", false); record("piles_done"); state.pileAt = undefined; save(); return ask(); }
+    renderPick($("#pile-item"), i);
+    const c = [0, 1, 2].map((p) => state.piles.filter((x) => x === p).length);
+    $("#pile-status").textContent = `${i + 1} of ${n}. So far: ${c[0]} near the top, ${c[1]} in the middle, ${c[2]} near the bottom.`;
+    $("#pile-back").disabled = i === 0;
+    show("#ask", false); show("#piles");
+    $("#pile-0").focus({ preventScroll: true });
+  }
+  function pileAnswer(p) {
+    if (!state || $("#piles").classList.contains("hidden")) return;
+    state.piles[state.pileAt] = p; state.pileAt++; record("pile_tap"); save(); pileStep();
   }
 
   // Measured on simulated people running this page's own picker and stop rule (how-many-pairwise-comparisons.html).
@@ -197,24 +285,30 @@
   }
 
   function ask() {
-    f = fit(state.items.length, state.answers);
+    f = fitNow();
     const n = state.items.length, cap = suggestedMax(n);
     // Full order: stopCheck refits at the person's own prior once the fixed-prior read passes, so a list of close calls is not called settled too soon.
     // Top k: the same two-step check on the shortlist (the mean share of the shown k that a plausible order also puts in its top k).
-    const sc = state.mode === "order" ? stopCheck(n, state.answers, { fixedFit: f }) : state.mode === "top" ? topStopCheck(n, state.answers, state.k, { fixedFit: f }) : null;
+    const sc = state.mode === "order" ? stopCheck(n, state.answers, { fixedFit: f, piles: myPiles() }) : state.mode === "top" ? topStopCheck(n, state.answers, state.k, { fixedFit: f, piles: myPiles() }) : null;
     const p = sc ? sc.confidence : 0;
     const done = state.mode === "favourite" ? rankTable(f, { draws: 600 })[0].favourite >= 0.9 : sc.done;
     if (state.until ? state.answers.length >= state.until : done || state.answers.length >= cap) return results(done);
-    current = nextPair(f, state.answers, { mode: state.mode, seed: state.seed, k: state.k });
+    // With piles, every PILE_AUDIT_EVERY-th pair is chosen as if there were none, so a misplaced option gets tested.
+    current = nextPair(pairFit(n, state.answers, myPiles(), f), state.answers, { mode: state.mode, seed: state.seed, k: state.k });
     $("#ask-title").textContent = state.title || "Which do you prefer?";
-    $("#left").textContent = state.items[current[0]];
-    $("#right").textContent = state.items[current[1]];
+    renderPair();
     $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, state.mode === "favourite" ? state.answers.length / Math.max(6, n) : p / STOP_CONFIDENCE)) * 100)}%`;
     const what = state.mode === "top" ? `top-${state.k} shortlist` : "order";
-    $("#status").textContent = `${state.answers.length} answered${sc ? `; ${what} ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc.phi !== null && !sc.done ? `; many of your picks are close calls, so it checks the ${what} more strictly` : ""}` : ""}. ${state.mode === "top" ? topPicksLine(n, state.k) : picksLine(n)}; stop whenever you like.`;
+    $("#status").textContent = `${state.answers.length} answered${sc ? `; ${what} ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc.phi !== null && !sc.done ? (sc.tau > PILE_NOISE ? `; some picks disagree with your piles, so it leans on the picks and checks the ${what} more strictly` : `; many of your picks are close calls, so it checks the ${what} more strictly`) : ""}` : ""}. ${state.mode === "top" ? topPicksLine(n, state.k) : picksLine(n)}${myPiles() ? " (without a sort first)" : ""}; stop whenever you like.`;
     $("#undo").disabled = state.answers.length === 0;
     show("#ask");
     $("#left").focus({ preventScroll: true });
+  }
+
+  function renderPair() {
+    if (!current) return;
+    renderPick($("#left"), current[0]); renderPick($("#right"), current[1]);
+    $("#pair").classList.toggle("images", !!(picture(current[0]) || picture(current[1])));
   }
 
   function answer(kind) {
@@ -225,8 +319,9 @@
     save(); ask();
   }
 
-  function results(settled) {
-    f = fit(state.items.length, state.answers);
+  function results(settled, quiet = false) {
+    lastSettled = settled;
+    f = fitNow();
     const table = rankTable(f);
     const top = table[0];
     const shortlist = () => {
@@ -237,15 +332,15 @@
     };
     $("#verdict").innerHTML = state.answers.length === 0 ? "No answers yet." : state.mode === "top" ? shortlist() :
       `After ${state.answers.length} picks, <strong>${esc(state.items[top.item])}</strong> is your top pick with a ${Math.round(top.favourite * 100)}% chance of being the true favourite${settled ? "." : ". Some places are still close: answer more to separate them."}`;
-    $("#table").innerHTML = table.map((r) => `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${r.favourite >= 0.005 ? Math.round(r.favourite * 100) + "%" : "&lt;1%"}</td></tr>`).join("");
+    $("#table").innerHTML = table.map((r) => `<tr><td class="num">${r.rank}</td><td>${optionCell(r.item)}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${r.favourite >= 0.005 ? Math.round(r.favourite * 100) + "%" : "&lt;1%"}</td></tr>`).join("");
     show("#ask", false); show("#results"); show("#share"); show("#team");
     $("#share-link").textContent = location.href;
     $("#share-mode").textContent = state.linkMode === "top" ? `The link asks everyone for their top ${state.linkK}, as you did.` : state.linkMode === "favourite" ? "The link asks everyone to be sure of their favourite, as you did." : "";
     refreshCode();
-    record("results_shown");
+    if (!quiet) record("results_shown");
   }
 
-  function refreshCode() { $("#code").textContent = encodeAnswers({ items: state.items, answers: state.answers, name: $("#name").value }); }
+  function refreshCode() { $("#code").textContent = encodeAnswers({ items: state.items, answers: state.answers, name: $("#name").value, piles: myPiles() }); }
 
   async function copy(text, button, event) {
     try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; } catch { button.textContent = "Select and copy the text above"; }
@@ -259,9 +354,36 @@
     const k = Number($("#topk").value);
     if (mode === "top" && !shortlistSize(k, items.length)) { $("#setup-err").textContent = `A shortlist needs a whole number from 2 to ${items.length - 1} (one less than your ${items.length} options).`; return; }
     $("#setup-err").textContent = "";
-    begin($("#title").value.trim(), items, mode, false, k);
+    // A picture list when the options are the names of pictures chosen above (typed names with no picture show as text).
+    const images = items.some((item) => pictures.has(itemKey(item)));
+    if (images) record("picture_list_started");
+    begin($("#title").value.trim(), items, mode, false, k, "", images);
+  });
+  $("#images").addEventListener("change", (e) => {
+    const r = imageList(e.target.files);
+    const left = [r.notImages.length && `not pictures: ${listNames(r.notImages)}`, r.repeats.length && `same name as another: ${listNames(r.repeats)}`, r.overCap.length && `past the ${r.items.length} limit: ${listNames(r.overCap)}`].filter(Boolean);
+    if (r.items.length < MIN_ITEMS) { $("#images-note").innerHTML = `Choose at least ${MIN_ITEMS} pictures${left.length ? ` (left out: ${left.join("; ")})` : ""}.`; return; }
+    clearPictures();
+    r.items.forEach((item, i) => addPicture(item, e.target.files[r.files[i]]));
+    $("#list").value = r.items.join("\n");
+    if (!$("#title").value.trim()) $("#title").value = "Which picture is better?";
+    $("#images-note").innerHTML = `${r.items.length} pictures loaded; their names are in the list above.${left.length ? ` Left out: ${left.join("; ")}.` : ""}${r.items.some((x) => UNDRAWABLE_EXT.test(x)) ? " HEIC photos show only in Safari; convert them to JPEG for other browsers." : ""}`;
+    record("pictures_loaded");
+  });
+  $("#attach-files").addEventListener("change", (e) => {
+    const m = matchImages(state.items, e.target.files);
+    m.files.forEach((fi, i) => { if (fi >= 0) addPicture(state.items[i], e.target.files[fi]); });
+    const got = m.files.filter((x) => x >= 0).length;
+    $("#attach-note").innerHTML = `${got} matched.${m.extra.length ? ` Not in this list: ${listNames(m.extra)}.` : ""}`;
+    refreshAttach();
+    if (!$("#ask").classList.contains("hidden")) renderPair(); else if (!$("#results").classList.contains("hidden")) results(lastSettled, true);
+    if (got) record("pictures_attached");
   });
   $("#example").addEventListener("click", () => { $("#title").value = EXAMPLE.title; $("#list").value = EXAMPLE.items.join("\n"); record("example_loaded"); });
+  [0, 1, 2].forEach((p) => $(`#pile-${p}`).addEventListener("click", () => pileAnswer(p)));
+  $("#pile-back").addEventListener("click", () => { if (state.pileAt > 0) { state.pileAt--; state.piles[state.pileAt] = null; save(); pileStep(); } });
+  // Skipping keeps what is sorted so far (unsorted options keep the plain prior); skipping at the first option is no piles at all.
+  $("#pile-skip").addEventListener("click", () => { if (state.pileAt === 0) state.piles = null; state.pileAt = undefined; record("piles_skipped"); save(); show("#piles", false); ask(); });
   $("#left").addEventListener("click", () => answer("left"));
   $("#right").addEventListener("click", () => answer("right"));
   $("#tie").addEventListener("click", () => answer("tie"));
@@ -269,7 +391,7 @@
   $("#finish").addEventListener("click", () => results(false));
   // "Answer more" asks one more round of n questions in full-order mode, whatever the stop rule says.
   $("#more").addEventListener("click", () => { state.mode = "order"; state.until = state.answers.length + state.items.length; show("#results", false); show("#share", false); show("#team", false); ask(); });
-  $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey(state.items)); } catch {} state = null; history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#team", false); show("#setup"); });
+  $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey(state.items)); } catch {} state = null; clearPictures(); $("#images").value = ""; $("#images-note").textContent = ""; show("#attach", false); show("#piles", false); history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#team", false); show("#setup"); });
   $("#csv").addEventListener("click", () => {
     const blob = new Blob([resultsCsv(state.items, f, rankTable(f))], { type: "text/csv" });
     const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "quick-pick-ranking.csv" });
@@ -279,12 +401,12 @@
   $("#copy-link").addEventListener("click", (e) => copy(location.href, e.target, "link_copied"));
   $("#copy-code").addEventListener("click", (e) => copy($("#code").textContent, e.target, "code_copied"));
   $("#combine").addEventListener("click", () => {
-    const people = [{ name: $("#name").value || "You", answers: state.answers }];
+    const people = [{ name: $("#name").value || "You", answers: state.answers, piles: myPiles() }];
     const errors = [];
     $("#codes").value.split(/\s+/).filter(Boolean).forEach((code, k) => {
       const d = decodeAnswers(code, state.items);
       if (d.error) errors.push(`Code ${k + 1}: ${d.error}.`);
-      else if (d.answers.length) people.push({ name: d.name || `Person ${people.length + 1}`, answers: d.answers });
+      else if (d.answers.length || d.piles) people.push({ name: d.name || `Person ${people.length + 1}`, answers: d.answers, piles: d.piles });
     });
     $("#team-err").textContent = errors.join(" ");
     if (people.length < 2) { $("#team-out").innerHTML = "<p>Paste at least one other person's code.</p>"; return; }
@@ -305,13 +427,18 @@
       <p class="muted">The percentages are each option's chance of really being in the top ${sl.k}: for these ${c.people} people's average likes, and for the wider group they stand for. The count of people whose own shortlist has it is shown for the conversation; on 432 simulated teams the average-likes pick named the group's true top 3 in 78% against 72% for counting shortlists, and 75% against 63% when people's likes differed most (docs/RANK-PAGE.md, "A team's shortlist").</p>` : "";
     $("#team-out").innerHTML = `${shortlistHtml}<p>${c.people} people. Agreement between their orders: <strong>${agree.toFixed(2)}</strong> (1 = identical, 0 = unrelated, negative = opposite). Read as a model, their picks fit people with <strong>${tauWords}</strong>.</p>
       <div class="scroll-x"><table><thead><tr><th class="num">#</th><th>Option</th><th class="num" title="People who ranked it first">1st</th><th class="num" title="Best to worst place across people">Places</th><th class="num" title="90% rank range for this group">Group</th><th class="num" title="90% rank range for people like you">Wider</th></tr></thead><tbody>${
-      c.order.map((r) => { const x = tr.get(r.item); return `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.firsts}</td><td class="num">${r.best}&ndash;${r.worst}</td><td class="num">${range(x.low, x.high)}</td><td class="num">${range(x.popLow, x.popHigh)}</td></tr>`; }).join("")}</tbody></table></div>
+      c.order.map((r) => { const x = tr.get(r.item); return `<tr><td class="num">${r.rank}</td><td>${optionCell(r.item)}</td><td class="num">${r.firsts}</td><td class="num">${r.best}&ndash;${r.worst}</td><td class="num">${range(x.low, x.high)}</td><td class="num">${range(x.popLow, x.popHigh)}</td></tr>`; }).join("")}</tbody></table></div>
       <p class="muted"><strong>1st</strong>: people who ranked it first. <strong>Places</strong>: its best to worst place across people; a wide spread marks an option the team splits on, worth a conversation before a vote.</p>
       <p class="muted"><strong>Group</strong> (90% rank range, this group): where the option sits in these ${c.people} people's average order, allowing only for each person having answered a limited number of pairs. <strong>Wider</strong> (90% rank range, people like you): if these ${c.people} stand for a wider group (customers, a department), where it would sit for that group; this one widens when people disagree, because a few more people could have tipped it.</p>`;
     record("team_combined");
   });
   document.addEventListener("keydown", (e) => {
     if (e.target.matches("input, textarea")) return;
+    if (!$("#piles").classList.contains("hidden")) {
+      if (e.key === "1" || e.key === "2" || e.key === "3") pileAnswer(Number(e.key) - 1);
+      else if ((e.key === "u" || e.key === "U") && state.pileAt > 0) $("#pile-back").click();
+      return;
+    }
     if (e.key === "ArrowLeft") answer("left"); else if (e.key === "ArrowRight") answer("right");
     else if (e.key === "ArrowDown") { e.preventDefault(); answer("tie"); }
     else if (e.key === "u" || e.key === "U") { if (state?.answers.length && !$("#ask").classList.contains("hidden")) $("#undo").click(); }
@@ -320,7 +447,7 @@
   if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
 
   const linked = location.hash.length > 1 ? decodeList(location.hash) : null;
-  if (linked) begin(linked.title, linked.items, linked.mode || "order", true, linked.k ?? 3, linked.modeIgnored ? `This link's mode was not used (${linked.modeIgnored}), so it ranks the full order.` : linked.mode === "top" ? `Whoever sent this link asked for your top ${linked.k}: the questions go to the options near the cut.` : linked.mode === "favourite" ? "Whoever sent this link asked you to be sure of your favourite." : "");
+  if (linked) begin(linked.title, linked.items, linked.mode || "order", true, linked.k ?? 3, linked.modeIgnored ? `This link's mode was not used (${linked.modeIgnored}), so it ranks the full order.` : linked.mode === "top" ? `Whoever sent this link asked for your top ${linked.k}: the questions go to the options near the cut.` : linked.mode === "favourite" ? "Whoever sent this link asked you to be sure of your favourite." : "", !!linked.images);
 </script>
 </body>
 </html>

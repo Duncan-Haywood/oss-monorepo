@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a full-quality Canon CR3 ("Canon CR3" below). Other RAW formats (a C-RAW CR3, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Other RAW formats (a CR3 stored in several tiles, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -916,7 +916,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Canon CR3 with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, CR3 since 2026-11-15, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF", "Fujifilm RAF" and "Canon CR3" below; convert a C-RAW CR3 with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Canon CR3 with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, CR3 since 2026-11-15, C-RAW included, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF", "Fujifilm RAF" and "Canon CR3" below), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1161,10 +1161,17 @@ reference and C through the same optional ctypes library as the other readers.
 Checked on the five CR3s in the public metadata-extractor-images collection (`tools/cr3_libraw_check.py`,
 `eval/canon-cr3-reader-2026-11-15.md`): on both full-quality EOS R8 files every one of 25.5 M sensels
 equals LibRaw 0.22's, with both decoders, and the white balance, CFA and white level match; black is
-within 1 level of LibRaw's stated figure. 0.5 s per file with the C decoder, 35 s in pure Python. The
-other three files (an R3 and two R8s) are C-RAW, the smaller wavelet-coded quality; they are refused
-with that reason and a pointer to the DNG Converter. C-RAW and sensors stored in several tiles are the
-next steps.
+within 1 level of LibRaw's stated figure. 0.5 s per file with the C decoder, 35 s in pure Python.
+
+**C-RAW (later on 2026-11-15).** The other three files (an R3 and two R8s) are C-RAW, the smaller
+quality (about 40% smaller files), and are read directly too (`src/shootflow/cr3_wavelet.py`): each
+plane is a three-level reversible 5/3 wavelet whose subbands are quantised by a per-tile QP grid; the
+deepest low band is coded like a lossless band and the others with a zero-run Rice code that does not
+predict values. On all three files every one of 25.5-25.7 M sensels equals LibRaw 0.22's with both
+decoders, and the white balance, CFA and white level match; 0.6-0.7 s per file with the C decoder
+(each plane on its own thread), 25-28 s in pure Python. The R3 frame develops to a median 0.24 of an
+8-bit step from LibRaw's render (`eval/canon-cr3-craw-2026-11-15.md`). Sensors stored in several tiles
+are still refused with a pointer to the DNG Converter (no test file).
 
 ## Fujifilm RAF (2026-11-14)
 

@@ -202,8 +202,9 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    - (b) a research spike on whether an open singing synthesiser can sing
      ecclesiastical Latin as a men's choir at acceptable quality, with a
      listening test and a written protocol. First step landed 2026-11-15: `sing.mjs`
-     (`--sing`), a dependency-free formant choir on the right vowels, no consonants;
-     next are consonant onsets, formant tuning on high notes and a listening test.
+     (`--sing`), a dependency-free formant choir on the right vowels, with each syllable's
+     opening consonants sung before the beat (2026-11-15); next are final consonants,
+     formant tuning on high notes and a listening test.
 6. **Mix and master checks:**
    - a script that measures integrated LUFS, true peak, mono compatibility and
      clipping against streaming targets;
@@ -234,3 +235,4 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-14, latest: `--musicxml FILE` (`musicxml.mjs`, README "A score for the choir"; a studio page download too): the choir's parts as MusicXML 4.0, one per section, Latin under the notes, 4/4 with ties, breath marks, rehearsal marks, fitted key signature. 304 corpus scores valid against the 4.0 XSD; music21 reads back 97,705 of 97,705 part-notes exactly (eval/musicxml-check-report.md). Not opened in a notation program; not sung from.
 - 2026-11-15: rehearsal tracks per section (`render-cli.mjs --learn DIR`, `learningTracks` in `render.mjs`, studio-page ZIP; README "Rehearsal tracks per section"): `-part` (section left, others -12 dB right, band -6 dB) and `-minus` (all but the section). `learn.test.mjs` 4 tests (levels measured from the WAVs); browser ZIP equals the CLI's byte for byte (eval/browser-e2e.mjs, 114 checks). Not tried by singers.
 - 2026-11-15: the preview choir sings the vowels (`sing.mjs`, `formants.mjs`, `render-cli.mjs --sing`, studio page "Choir voice"; README "The choir sings the vowels"): Latin vowel rules, five detuned sawtooth voices through a five-formant cascade at Peterson and Barney's men's values, diphthong glides, 50 ms legato cross-fades. Measured by LPC from the audio (eval/vowel-check-report.md): corpus choir notes read as their written vowel 95.3% (pad 17.8%); held vowels 29 of 30 E2-E4. `sing.test.mjs` 5 tests; browser WAV equals the CLI's. Not listened to; no consonants.
+- 2026-11-15, later: the choir sings each syllable's opening consonants (`latinOnset`, `PHONES` in `sing.mjs`; README "Opening consonants"): stops as closure plus burst, affricates, fricatives as band noise, nasals, l, a tapped r, glides, on the same source and cascade, sung before the beat (up to half the previous note) so the vowel lands on it. Read back from the audio by a rule-based acoustic reader (`onsets.mjs`, `eval/consonant-check-report.md`): 184 of 210 VCV pairs E2-E4 (the tuning set), 698 of 934 held-out corpus syllable openings exactly (class, voicing, place; 724 by class; the vowel-only choir hits 6.7% by chance). Vowels still 97.6% on the 920 notes with 0.1 s of steady vowel left. Not listened to; no final consonants.

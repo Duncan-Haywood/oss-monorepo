@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVPs8v9rWdWBX6Dxhyp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (develop, deploy, market, sell revenue software products; merge when done)",
+  "input_sha256": "bff3f872a26d2f300c82f2f1486c14c446242cdd14e956098d06bf03ce160e07",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T06:22:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator flagship: int16 SIMD whole-break step, 26 teams join the page's floor-priced step",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16114",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The bare route drew process for the scheduled ventures brief; route --task picked ventures. Same report as several runs today."
+    },
+    {
+      "file": ".github/hooks (pkill guard)",
+      "issue": "The pkill hook blocked a combined command because 'http.server' appeared in both the server start and the bracketed pkill; the whole command, including file writes, was refused, which lost earlier steps silently."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "The draw routed to process, but the scheduled message is the ventures brief; re-routed with --task as prompt.md allows.",
+      "did": "followed prompts/ventures/prompt-1.md and the allocator's row 7",
+      "result": "flagship slice landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-16-bit-numbers-brought-26-team-leagues-into-the-schedule-page.md"
+  ],
+  "goal": null,
+  "notes": "Measured before building: 26 teams 70.7 s and 28 teams 199.5 s with the guards lifted; int32 kernel 73% of the 26-team profile. Plain C int16 loop was slower (0.166 vs 0.126 ms); explicit wasm_simd128 intrinsics gave 0.049 ms at 12 matches (2.6x), same tables. Page step old vs new over 8 shared runs: 188.9 s -> 115.2 s, identical runs/results/frontiers (eval/int16-step.txt). 26 teams 19-34 s, 1-2 seasons each seed; maxTeams 25 -> 26; ORIENT_MAX_MATCHES stays 12, FLOOR_PRICED_MAX_MATCHES = 13 only for floorPricedSingleRounds. Headless Chromium: module on in page thread and module worker, same table as the JS loop. Tests: orient.test.mjs + floor-priced.test.mjs 35/35; full venture suite via run_venture_tests.py (result in PR body). main_health.py at start: 222/222.",
+  "corrections": [],
+  "redteam": null
+}

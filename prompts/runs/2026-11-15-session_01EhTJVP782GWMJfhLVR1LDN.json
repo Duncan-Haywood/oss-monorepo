@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVP782GWMJfhLVR1LDN",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T07:08:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 5) einvoice-preflight: Facturae XAdES signature check",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 16127,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 21,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "inherited_keys.py lint failed on three DIGESTS/SIGNATURES/C14N map lookups",
+      "fix": "own() helper using Object.hasOwn"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/einvoice-preflight/eval/facturae-signature-2026-11-15.md",
+      "why": "Planned to also run Facturae-PHP's signer with its bundled FNMT test certificate; the auto-mode classifier denied it, so the second implementation is signxml only, with fresh self-made keys.",
+      "did": "signxml corpus of 180 files",
+      "result": "180/180 verdicts agree; found a signxml signer fault"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-facturae-xades-signature-check.md",
+    "ventures/einvoice-preflight/eval/facturae-signature-2026-11-15.md"
+  ],
+  "goal": "Close the 'XAdES check' open item of einvoice-preflight's flagship next:",
+  "notes": "New xmldsig.mjs (SHA-1/384/512, RSA PKCS#1 v1.5, reference/C14N processing incl. exc-c14n PrefixList) and facturae-signature.mjs (ES-SIG-01..16), wired into checkFacturae, report envelope, index.html, Spain page and llms.txt. Verification: facturae-signature.test.mjs 21/21; run_venture_tests.py einvoice-preflight ok (lint fixed); eval/facturae-signature-corpus.mjs 180/180 agree with signxml 5.3.0, 7.8 ms/file. Policy digest not recomputed from the PDF (facturae.gob.es timed out); value cross-checked across FirmaXadesNet, Odoo, OCA, Facturae-PHP and signxml via code search.",
+  "corrections": [],
+  "redteam": null
+}

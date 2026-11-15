@@ -223,20 +223,26 @@ def sensor(levels=(2048, 1024, 1024, 1536), seed=3) -> list[int]:
 
 
 def make_cr3(values=None, version=0x100, levels=0, tiles=False, color_len=3778, wb=(2048, 1024, 1024, 1536),
-             lens=b"RF24-240mm F4-6.3 IS USM", iad1=True) -> bytes:
+             lens=b"RF24-240mm F4-6.3 IS USM", iad1=True, sample=None, header_size=None) -> bytes:
+    """A whole CR3. ``sample`` and ``header_size`` replace the losslessly coded sensor sample (C-RAW tests)."""
+
     values = sensor(wb) if values is None else values
-    w2, h2 = SENSOR_W // 2, SENSOR_H // 2
-    bands = []
-    for plane in range(4):
-        oy, ox = plane >> 1, plane & 1
-        lines = [[values[(2 * y + oy) * SENSOR_W + 2 * x + ox] - MID for x in range(w2)] for y in range(h2)]
-        bands.append(encode_band(lines))
-    header = struct.pack(">HHII", 0xFF01, 8, sum(len(b) for b in bands), 0)
-    for plane, band in enumerate(bands):
-        header += struct.pack(">HHII", 0xFF02, 8, len(band), 0x08000000 | (plane << 28))
-        header += struct.pack(">HHII", 0xFF03, 8, len(band), 0)
-    header += bytes(4)
-    raw_sample = header + b"".join(bands)
+    if sample is None:
+        w2, h2 = SENSOR_W // 2, SENSOR_H // 2
+        bands = []
+        for plane in range(4):
+            oy, ox = plane >> 1, plane & 1
+            lines = [[values[(2 * y + oy) * SENSOR_W + 2 * x + ox] - MID for x in range(w2)] for y in range(h2)]
+            bands.append(encode_band(lines))
+        header = struct.pack(">HHII", 0xFF01, 8, sum(len(b) for b in bands), 0)
+        for plane, band in enumerate(bands):
+            header += struct.pack(">HHII", 0xFF02, 8, len(band), 0x08000000 | (plane << 28))
+            header += struct.pack(">HHII", 0xFF03, 8, len(band), 0)
+        header += bytes(4)
+        raw_sample = header + b"".join(bands)
+        header_size = len(header)
+    else:
+        raw_sample = sample
 
     cmp1 = bytearray(60)
     struct.pack_into(">HH", cmp1, 0, 0xFF00, 0x30)
@@ -246,7 +252,7 @@ def make_cr3(values=None, version=0x100, levels=0, tiles=False, color_len=3778, 
     cmp1[25] = 4 << 4
     cmp1[26] = levels
     cmp1[27] = 0x80 if tiles else 0
-    struct.pack_into(">I", cmp1, 28, len(header))
+    struct.pack_into(">I", cmp1, 28, header_size)
     rects = CROP + OB + (OB[2] + 1, 0, SENSOR_W - 1, 2) + (OB[2] + 1, 3, SENSOR_W - 1, SENSOR_H - 1)
     iad = bytes(4) + struct.pack(">22H", SENSOR_W, SENSOR_H, 1, 2, 1, 0, *rects)
     cdi1 = _box(b"CDI1", bytes(4) + _box(b"IAD1", iad))
@@ -349,11 +355,12 @@ class ReadTests(unittest.TestCase):
         self.assertNotIn(rd.TAG_AS_SHOT_NEUTRAL, raw.ifd.entries)
         self.assertTrue(any("999 entries is not known" in n for n in raw.notes))
 
-    def test_c_raw_is_refused_with_the_reason(self):
-        with self.assertRaisesRegex(rd.DevelopError, "C-RAW"):
-            rd.parse_raw(make_cr3(version=0x200, levels=3))
+    def test_unknown_codec_version_is_refused_with_the_reason(self):
+        # C-RAW (version 0x200) is read since 2026-11-15 (tests/test_cr3_wavelet.py); other versions are not.
+        with self.assertRaisesRegex(rd.DevelopError, "codec version 0x300.*DNG Converter"):
+            rd.parse_raw(make_cr3(version=0x300, levels=3))
 
-    def test_profile_chooser_refuses_c_raw_before_asking_for_a_profile(self):
+    def test_profile_chooser_refuses_an_unreadable_cr3_before_asking_for_a_profile(self):
         import tempfile
 
         from shootflow import camera_profiles
@@ -361,9 +368,9 @@ class ReadTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             good, c_raw = Path(tmp) / "a.CR3", Path(tmp) / "b.CR3"
             good.write_bytes(make_cr3())
-            c_raw.write_bytes(make_cr3(version=0x200, levels=3))
+            c_raw.write_bytes(make_cr3(tiles=True))
             self.assertEqual(camera_profiles.camera_of(good), "Canon EOS R8")
-            with self.assertRaisesRegex(rd.DevelopError, "C-RAW"):
+            with self.assertRaisesRegex(rd.DevelopError, "several tiles"):
                 camera_profiles.camera_of(c_raw)
 
     def test_tiled_sensor_is_refused(self):
