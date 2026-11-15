@@ -61,6 +61,12 @@
     .piles button{white-space:normal}
     td img.thumb{width:56px;height:56px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:.5rem;background:var(--bg)}
     .notice{border-left:4px solid var(--accent);padding:.25rem .75rem}
+    .pair.screen{grid-template-columns:1fr 1fr}
+    .pair.screen .pick{min-height:4.5rem;font-size:1.05rem}
+    .pick .tag{display:block;font-size:.8rem;font-weight:700;margin-top:.35rem}
+    .pick.most{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+    .pick.most .tag::before{content:"Most"}
+    .pick.least{opacity:.55}
   </style>
 </head>
 <body>
@@ -80,6 +86,7 @@
     <p id="images-note" class="muted"></p>
     <div class="row">
       <label class="inline"><input type="radio" name="mode" value="order" checked> Full order</label>
+      <label class="inline"><input type="radio" name="mode" value="screens"> Best and worst of four (each screen shows four options: tap the one you like most, then the one you like least; fewer screens than pairs)</label>
       <label class="inline"><input type="radio" name="mode" value="favourite"> Be sure of the favourite (more questions on the front-runners; the rest of the order stays rough)</label>
       <label class="inline"><input type="radio" name="mode" value="top"> <span>Find my top <input type="number" id="topk" min="2" max="59" value="3" inputmode="numeric" aria-label="How many to shortlist" style="width:3.5em;display:inline-block;padding:2px 4px"> (a shortlist: questions go to the options near the cut)</span></label>
     </div>
@@ -132,6 +139,21 @@
     <p class="muted" id="status"></p>
     <p class="muted"><a href="how-many-pairwise-comparisons.html">How many picks a list takes, measured</a></p>
     <p class="muted">Keys: &larr; left, &rarr; right, &#8595; about equal, U undo<span id="closer-key" class="hidden">, F look closer</span>.</p>
+  </section>
+
+  <section id="screen" class="hidden">
+    <h2 id="screen-title">Which do you like most?</h2>
+    <p class="muted" id="screen-link-note"></p>
+    <p id="screen-step"><strong>Tap the one you like most.</strong></p>
+    <div class="pair screen" id="screen-opts"></div>
+    <div class="row">
+      <button class="secondary" id="screen-undo">Undo</button>
+      <button class="secondary" id="screen-finish">Show results now</button>
+    </div>
+    <p></p>
+    <div class="bar" aria-hidden="true"><div id="screen-bar"></div></div>
+    <p class="muted" id="screen-status"></p>
+    <p class="muted">Keys: 1 to 4 pick the option in that place (most first, then least), U undo.</p>
   </section>
 
   <div class="closer hidden" id="closer" role="dialog" aria-modal="true" aria-labelledby="closer-which">
@@ -191,9 +213,11 @@
       <li><strong>Full order or favourite?</strong> Full order spreads questions across the list and stops when the whole order is 90% settled; that can leave the top two close. "Be sure of the favourite" asks only among options that could still be the favourite and stops when one has a 90% chance. In simulation it took about a third more questions and named the right favourite 12 times out of 12, against 6 to 8 for the full-order stop.</li>
       <li><strong>Find my top k</strong> is for a shortlist: it asks only about options that could still be either side of the cut and stops when the shortlist is 90% settled. On simulated people who answer with ordinary noise, choosing the top 3 or 5 of 15 to 30 options, it named exactly the right shortlist 56% of the time against 26% for the full-order stop, at about 1.6 times the questions; for people who never waver it costs about a fifth more questions, and on lists of 10 it gains little.</li>
       <li><strong>Sort into piles first</strong> (lists of 8 or more, optional): one tap per option, near the top, in the middle or near the bottom. The piles become each option's starting estimate, allowing for a misplaced option, and the picks then go mostly to options in the same pile, with every 4th pair chosen as if there were no piles so a misplaced option still gets tested. If your picks keep disagreeing with your piles, the page notices and leans on the picks. On simulated people with ordinary noise it took 64 actions for 20 options after a careful sort, 87 after an ordinary one and 120 after a careless one, against 93 picks without; the order came out about as good in each case.</li>
+      <li><strong>Best and worst of four</strong> (optional mode): each screen shows four options and you tap the one you like most, then the one you like least, the question MaxDiff surveys ask. It is scored with the exact best-worst model (the best is a choice among the four, the worst a choice among the other three), not split into implied pairs, which would count two taps as five independent answers and make the ranges too narrow. The next screen is the four whose answer is expected to tell the most. On simulated people with ordinary noise, 15 options took about 27 screens (54 taps) against 70 picks for an order about as good, and 8 options 13 screens against 38 picks. A screen takes longer to read than a pair, and how much longer is not measured yet.</li>
       <li><strong>Team results</strong> refit each person separately, then average their centred scores, so someone who answered 80 questions counts the same as someone who answered 30. The page shows how much people agree and where they split.</li>
     </ul>
     <p class="muted">Ready lists to start from: <a href="use-feature-backlog.html">a feature backlog</a>, <a href="use-personal-values.html">your personal values</a>, <a href="use-name-shortlist.html">a name shortlist</a>, <a href="use-trip-shortlist.html">a group trip</a>, <a href="use-team-goals.html">team goals</a>, <a href="use-customer-pain-points.html">customer pain points</a>, <a href="use-todo-priorities.html">a to-do list</a>, or <a href="ready-lists.html">all ready lists</a>.</p>
+    <p class="muted">Used to MaxDiff surveys? "Best and worst of four" is that question, scored with the exact best-worst model; <a href="maxdiff-best-worst.html">how it compares with pairs</a>.</p>
     <p class="muted">Ranking pictures (photos to cull, logo drafts, design options)? Use "Or rank pictures" above; <a href="pick-the-best-photo.html">how picture ranking works</a>.</p>
     <p class="muted">Choosing between a few options on several criteria (rent, commute, space)? <a href="decide.html">Weigh criteria by picking pairs</a>: a decision matrix with no typed weights.</p>
     <p class="muted">Running a survey with many respondents, demographic splits and an admin view? The full app is open source: <a href="./">deploy your own copy</a>.</p>
@@ -216,11 +240,14 @@
   import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS, PILE_MIN_ITEMS, PILE_NOISE, pairFit } from "./rank-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   import { imageList, matchImages, itemKey, UNDRAWABLE_EXT, pairLayout, zoomOrigin } from "./image-items.mjs";
+  import { nextScreen, BW_SET_SIZE } from "./best-worst.mjs";
 
   const $ = (s) => document.querySelector(s);
   const show = (id, on = true) => $(id).classList.toggle("hidden", !on);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const RANK_SHORTLIST_DRAWS = 1500;
+  // scripts/best-worst-sim.mjs, model-consistent answerers (docs/best-worst-gumbel-2026-11-15.jsonl.gz): mean screens to the stop, spread 6 (ordinary) and 3 (close calls).
+  const SCREENS_MEASURED = [{ n: 8, ordinary: 13, close: 21 }, { n: 15, ordinary: 27, close: 47 }, { n: 30, ordinary: 65, close: 102 }];
   const EXAMPLE = { title: "Which feature should we build next?", items: ["Dark mode", "CSV export", "Faster search", "Mobile app", "Team accounts", "Calendar sync", "Offline mode", "Single sign-on"] };
 
   let state = null; // { title, items, mode, k, answers, seed, piles }
@@ -266,14 +293,16 @@
     state.pileAt = Array.isArray(sp) && Number.isInteger(saved?.pileAt) ? saved.pileAt : undefined;
     state.piles = Array.isArray(sp) && sp.length === items.length ? sp.map((x) => (x === 0 || x === 1 || x === 2 ? x : null)) : saved?.pilesDecided || state.answers.length || items.length < PILE_MIN_ITEMS ? null : undefined;
     if (state.mode === "top" && !shortlistSize(state.k, items.length)) state.mode = "order";
+    // Screens are their own quick start, and the pile prior was measured with pairs only: no sort step.
+    if (state.mode === "screens" && !Array.isArray(sp)) state.piles = null;
     state.linkMode = state.mode; state.linkK = state.k;
     $("#title").value = title; $("#list").value = items.join("\n");
     // The link carries the mode and shortlist size, so everyone it is sent to answers the same question.
     history.replaceState(null, "", "#" + encodeList({ title, items, mode: state.mode, k: state.k, images }));
-    $("#link-note").textContent = note;
+    $("#link-note").textContent = note; $("#screen-link-note").textContent = note;
     record(fromLink ? "shared_list_opened" : "list_started");
     if (!fromLink) record(`mode:${state.mode}`);
-    show("#setup", false); show("#results", false); show("#share", false); show("#team", false);
+    show("#setup", false); show("#results", false); show("#share", false); show("#team", false); show("#screen", false);
     refreshAttach();
     if (state.piles === undefined) { state.piles = new Array(items.length).fill(null); state.pileAt = 0; record("piles_started"); save(); }
     if (Array.isArray(state.piles) && !state.answers.length && state.pileAt !== undefined && state.pileAt < items.length) pileStep();
@@ -313,10 +342,14 @@
     const n = state.items.length, cap = suggestedMax(n);
     // Full order: stopCheck refits at the person's own prior once the fixed-prior read passes, so a list of close calls is not called settled too soon.
     // Top k: the same two-step check on the shortlist (the mean share of the shown k that a plausible order also puts in its top k).
-    const sc = state.mode === "order" ? stopCheck(n, state.answers, { fixedFit: f, piles: myPiles() }) : state.mode === "top" ? topStopCheck(n, state.answers, state.k, { fixedFit: f, piles: myPiles() }) : null;
+    const sc = state.mode === "order" || state.mode === "screens" ? stopCheck(n, state.answers, { fixedFit: f, piles: myPiles() }) : state.mode === "top" ? topStopCheck(n, state.answers, state.k, { fixedFit: f, piles: myPiles() }) : null;
     const p = sc ? sc.confidence : 0;
     const done = state.mode === "favourite" ? rankTable(f, { draws: 600 })[0].favourite >= 0.9 : sc.done;
-    if (state.until ? state.answers.length >= state.until : done || state.answers.length >= cap) return results(done);
+    const screens = state.mode === "screens";
+    // Two taps per screen, so a screen list gets half the pair cap in screens (the same taps).
+    const limit = screens ? Math.ceil(cap / 2) : cap;
+    if (state.until ? state.answers.length >= state.until : done || state.answers.length >= limit) return results(done);
+    if (screens) return askScreen(sc, p);
     // With piles, every PILE_AUDIT_EVERY-th pair is chosen as if there were none, so a misplaced option gets tested.
     current = nextPair(pairFit(n, state.answers, myPiles(), f), state.answers, { mode: state.mode, seed: state.seed, k: state.k });
     $("#ask-title").textContent = state.title || "Which do you prefer?";
@@ -327,6 +360,50 @@
     $("#undo").disabled = state.answers.length === 0;
     show("#ask");
     $("#left").focus({ preventScroll: true });
+  }
+
+  // Best and worst of four (docs/RANK-PAGE.md "Best and worst of four"): first tap is most, second is least.
+  let screenPick = null; // the option tapped as most, or null
+  function askScreen(sc, p) {
+    const n = state.items.length;
+    current = nextScreen(f, state.answers, { seed: state.seed, size: BW_SET_SIZE });
+    screenPick = null;
+    $("#screen-title").textContent = state.title || "Which do you like most?";
+    const box = $("#screen-opts");
+    box.innerHTML = "";
+    box.classList.toggle("images", current.some((i) => picture(i)));
+    current.forEach((i, slot) => {
+      const b = document.createElement("button");
+      b.className = "pick";
+      renderPick(b, i);
+      b.insertAdjacentHTML("beforeend", `<span class="tag" aria-hidden="true"></span>`);
+      b.addEventListener("click", () => screenTap(slot));
+      box.appendChild(b);
+    });
+    renderScreenStep();
+    $("#screen-bar").style.width = `${Math.round(Math.max(0, Math.min(1, p / STOP_CONFIDENCE)) * 100)}%`;
+    $("#screen-status").textContent = `${state.answers.length} screens answered; order ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc.phi !== null && !sc.done ? "; many of your answers are close calls, so it checks the order more strictly" : ""}. ${screensLine(n)}; stop whenever you like.`;
+    show("#ask", false); show("#screen");
+    box.firstChild?.focus({ preventScroll: true });
+  }
+  function renderScreenStep() {
+    [...$("#screen-opts").children].forEach((b, slot) => { b.classList.toggle("most", screenPick === current[slot]); b.setAttribute("aria-pressed", String(screenPick === current[slot])); });
+    $("#screen-undo").disabled = state.answers.length === 0 && screenPick === null;
+    $("#screen-step").innerHTML = screenPick === null ? "<strong>Tap the one you like most.</strong>" : `<strong>Now tap the one you like least.</strong> (Tap ${esc(state.items[screenPick])} again to change your most.)`;
+  }
+  function screenTap(slot) {
+    if (!current || $("#screen").classList.contains("hidden") || slot >= current.length) return;
+    const i = current[slot];
+    if (screenPick === null) { screenPick = i; return renderScreenStep(); }
+    if (screenPick === i) { screenPick = null; return renderScreenStep(); }
+    state.answers.push({ set: current.slice(), best: screenPick, worst: i });
+    record("screen");
+    save(); ask();
+  }
+  // Measured on simulated people running this page's own screen picker and stop rule (docs/RANK-PAGE.md "Best and worst of four").
+  function screensLine(n) {
+    const g = SCREENS_MEASURED.reduce((a, b) => (Math.abs(b.n - n) < Math.abs(a.n - n) ? b : a));
+    return `Lists of ${g.n}${g.n !== n ? " (the nearest measured)" : ""} took about ${g.ordinary} screens typically and ${g.close} when the options are close calls, in simulations`;
   }
 
   function renderPair() {
@@ -415,11 +492,11 @@
       return `After ${state.answers.length} picks, your top ${state.k}: ${names.join(", ")}. The percentages are each one's chance of really being in your top ${state.k}; the closest one left out is <strong>${esc(state.items[next.item])}</strong> (${Math.round(pIn[next.item] * 100)}%)${settled ? "." : ". The cut is still close: answer more to settle it."}`;
     };
     $("#verdict").innerHTML = state.answers.length === 0 ? "No answers yet." : state.mode === "top" ? shortlist() :
-      `After ${state.answers.length} picks, <strong>${esc(state.items[top.item])}</strong> is your top pick with a ${Math.round(top.favourite * 100)}% chance of being the true favourite${settled ? "." : ". Some places are still close: answer more to separate them."}`;
+      `After ${state.answers.length} ${state.mode === "screens" ? "screens" : "picks"}, <strong>${esc(state.items[top.item])}</strong> is your top pick with a ${Math.round(top.favourite * 100)}% chance of being the true favourite${settled ? "." : ". Some places are still close: answer more to separate them."}`;
     $("#table").innerHTML = table.map((r) => `<tr><td class="num">${r.rank}</td><td>${optionCell(r.item)}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${r.favourite >= 0.005 ? Math.round(r.favourite * 100) + "%" : "&lt;1%"}</td></tr>`).join("");
-    show("#ask", false); show("#results"); show("#share"); show("#team");
+    show("#ask", false); show("#screen", false); show("#results"); show("#share"); show("#team");
     $("#share-link").textContent = location.href;
-    $("#share-mode").textContent = state.linkMode === "top" ? `The link asks everyone for their top ${state.linkK}, as you did.` : state.linkMode === "favourite" ? "The link asks everyone to be sure of their favourite, as you did." : "";
+    $("#share-mode").textContent = state.linkMode === "top" ? `The link asks everyone for their top ${state.linkK}, as you did.` : state.linkMode === "favourite" ? "The link asks everyone to be sure of their favourite, as you did." : state.linkMode === "screens" ? "The link asks everyone the best and worst of four, as you did." : "";
     refreshCode();
     if (!quiet) record("results_shown");
   }
@@ -472,10 +549,12 @@
   $("#right").addEventListener("click", () => answer("right"));
   $("#tie").addEventListener("click", () => answer("tie"));
   $("#undo").addEventListener("click", () => { state.answers.pop(); save(); ask(); });
+  $("#screen-undo").addEventListener("click", () => { if (screenPick !== null) { screenPick = null; return renderScreenStep(); } state.answers.pop(); save(); ask(); });
+  $("#screen-finish").addEventListener("click", () => results(false));
   $("#finish").addEventListener("click", () => results(false));
   // "Answer more" asks one more round of n questions in full-order mode, whatever the stop rule says.
-  $("#more").addEventListener("click", () => { state.mode = "order"; state.until = state.answers.length + state.items.length; show("#results", false); show("#share", false); show("#team", false); ask(); });
-  $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey(state.items)); } catch {} state = null; clearPictures(); $("#images").value = ""; $("#images-note").textContent = ""; show("#attach", false); show("#piles", false); history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#team", false); show("#setup"); });
+  $("#more").addEventListener("click", () => { if (state.mode !== "screens") state.mode = "order"; state.until = state.answers.length + state.items.length; show("#results", false); show("#share", false); show("#team", false); ask(); });
+  $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey(state.items)); } catch {} state = null; clearPictures(); show("#screen", false); $("#images").value = ""; $("#images-note").textContent = ""; show("#attach", false); show("#piles", false); history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#team", false); show("#setup"); });
   $("#csv").addEventListener("click", () => {
     const blob = new Blob([resultsCsv(state.items, f, rankTable(f))], { type: "text/csv" });
     const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "quick-pick-ranking.csv" });
@@ -534,6 +613,11 @@
       else if ((e.key === "u" || e.key === "U") && state.pileAt > 0) $("#pile-back").click();
       return;
     }
+    if (!$("#screen").classList.contains("hidden")) {
+      if (/^[1-9]$/.test(e.key)) screenTap(Number(e.key) - 1);
+      else if (e.key === "u" || e.key === "U") $("#screen-undo").click();
+      return;
+    }
     if (e.key === "ArrowLeft") answer("left"); else if (e.key === "ArrowRight") answer("right");
     else if (e.key === "ArrowDown") { e.preventDefault(); answer("tie"); }
     else if (e.key === "u" || e.key === "U") { if (state?.answers.length && !$("#ask").classList.contains("hidden")) $("#undo").click(); }
@@ -541,8 +625,11 @@
   $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
   if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
 
+  // rank.html?mode=screens (the best-worst page links this way) preselects a mode on the setup form; a list link's own mode still wins.
+  const askedMode = new URLSearchParams(location.search).get("mode");
+  if (["order", "screens", "favourite", "top"].includes(askedMode)) document.querySelector(`input[name=mode][value=${askedMode}]`).checked = true;
   const linked = location.hash.length > 1 ? decodeList(location.hash) : null;
-  if (linked) begin(linked.title, linked.items, linked.mode || "order", true, linked.k ?? 3, linked.modeIgnored ? `This link's mode was not used (${linked.modeIgnored}), so it ranks the full order.` : linked.mode === "top" ? `Whoever sent this link asked for your top ${linked.k}: the questions go to the options near the cut.` : linked.mode === "favourite" ? "Whoever sent this link asked you to be sure of your favourite." : "", !!linked.images);
+  if (linked) begin(linked.title, linked.items, linked.mode || "order", true, linked.k ?? 3, linked.modeIgnored ? `This link's mode was not used (${linked.modeIgnored}), so it ranks the full order.` : linked.mode === "top" ? `Whoever sent this link asked for your top ${linked.k}: the questions go to the options near the cut.` : linked.mode === "favourite" ? "Whoever sent this link asked you to be sure of your favourite." : linked.mode === "screens" ? "Whoever sent this link asked for the best and worst of four on each screen." : "", !!linked.images);
 </script>
 </body>
 </html>
