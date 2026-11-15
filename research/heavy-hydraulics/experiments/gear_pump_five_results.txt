@@ -1,0 +1,50 @@
+Milestone 6x: five gear-pump families crossed (moving shape x idle drag), rules fitted on 25 cells and tested leave-one-family-out
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps: Casappa KAPPA K 05 T A (6k), Danfoss SNP3 (6m), Marzocchi ALP3 (6o), Frosina, Senatore, Rigosi 2017 bench KP30 (6p, 6q), Bosch Rexroth AZPG RE 10093 (6w))
+
+Families (index 2 = eta_t(150 bar) at 85 L/min of 20 bar flow; size slope k = eta(150 L/min)/E - 1; idle kW at 85 L/min):
+  family     index 2  size slope k  idle kW
+  casappa    0.7590       +0.0334     3.57
+  danfoss    0.8481       -0.0283     3.64
+  marzocchi  0.8975       -0.0872     3.32
+  bench      0.9130       +0.0000     2.85
+  rexroth    0.9124       -0.0005     2.58
+
+50% crossing E50 of the share beating 3.986 L/h at S = 0.38 (rows: moving shape; columns: idle drag; E step 0.0025 from 0.70):
+  shape \ idle    casappa    danfoss  marzocchi      bench    rexroth   row mean
+  casappa          0.8277     0.8283     0.8300     0.8172     0.8108     0.8228
+  danfoss          0.8217     0.8297     0.8217     0.8100     0.8042     0.8174
+  marzocchi        0.8175     0.8214     0.8193     0.8069     0.8010     0.8132
+  bench            0.8216     0.8214     0.8231     0.8116     0.8057     0.8167
+  rexroth          0.8207     0.8220     0.8225     0.8108     0.8040     0.8160
+  column mean      0.8218     0.8246     0.8233     0.8113     0.8051
+  all 25 cells 0.8010 to 0.8300; largest distance from 6r's pooled 0.8212: 0.0202; shape main effect 0.0096, drag main effect 0.0194
+
+Check: the 16 four-family cells against 6u (grid from 0.74 there): largest difference 0.0000
+Check: AZPG diagonal 0.8040 (6w 0.804; -0.0000)
+
+Rules fitted on all 25 cells (least squares):
+  one-number   a 0.8172; in-sample RMS 0.0084, worst -0.0162
+  two-number   a 0.7600, b +0.0179 per kW; in-sample RMS 0.0040, worst +0.0105
+  three-number a 0.7611, b +0.0179 per kW, c +0.0650; in-sample RMS 0.0030, worst +0.0072
+  two-number fit at 3.57 kW: 0.8241 (6v's intercept 0.8277; -0.0036); as E50 = 0.8241 + 0.0179 (kW - 3.57)
+  6v's committed rule on the 25 cells: RMS 0.0052, worst -0.0102
+
+Leave-one-family-out (fit on the 16 cells with neither shape h nor drag h; error = cell minus prediction):
+  held out   diagonal E50   one-number  two-number  three-number   9-cell RMS: one  two  three   two-number fit (a at 3.57 kW, b)
+  casappa          0.8277      +0.0130     +0.0037       +0.0015   0.0091 0.0058 0.0045   0.8241, +0.0198
+  danfoss          0.8297      +0.0141     +0.0038       +0.0049   0.0088 0.0032 0.0032   0.8247, +0.0184
+  marzocchi        0.8193      +0.0026     -0.0002       +0.0069   0.0085 0.0052 0.0045   0.8237, +0.0171
+  bench            0.8116      -0.0073     +0.0006       -0.0008   0.0078 0.0032 0.0027   0.8244, +0.0186
+  rexroth          0.8040      -0.0166     -0.0042       -0.0056   0.0122 0.0038 0.0037   0.8242, +0.0162
+  RMS over the five held-out diagonals: one-number 0.0119, two-number 0.0030, three-number 0.0046
+  RMS over all 45 held-out cell predictions: one-number 0.0094, two-number 0.0044, three-number 0.0038
+
+Predictions (LOG.md 6x):
+  FX1 25-cell slope in 0.016 to 0.021 per kW: held (0.0179)
+  FX2 fit at 3.57 kW within 0.003 of 0.8277: refuted (-0.0036)
+  FX3 every held-out diagonal two-number error within 0.010: held (worst 0.0042)
+  FX4 held-out diagonal RMS, two-number below one-number: held (0.0030 against 0.0119)
+  FX5 three-number cuts the held-out diagonal RMS by at least 20%: refuted (0.0046 against 0.0030, -52%)
+  FX6 all 25 cells within 0.020 of 0.8212: refuted (0.0202)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0); Casappa KAPPA K 05 T A (2012); Danfoss SNP3; Marzocchi ALP3; Frosina et al. 2017; Bosch Rexroth RE 10093/2019-09-27 (AZPG); PVG 32 neutral curve; Moore 2020 (idle share).

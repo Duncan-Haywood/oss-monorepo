@@ -424,6 +424,17 @@ MANUSCRIPT_CHECKS = [
     ("drag crosses at 0.8207", "gear_pump_rexroth_results.txt", "AZPG shape, Casappa idle (diagnostic):     0.8207"),
     ("AZPG drag at 0.8108", "gear_pump_rexroth_results.txt", "Casappa shape, AZPG idle (diagnostic):     0.8108"),
     ("win in 100.0% of geometries.", "gear_pump_rexroth_results.txt", "share 100.0% of geometries"),
+    # milestone 6x: five-family factorial, leave-one-family-out
+    ('between 0.8010 and 0.8300', "gear_pump_five_results.txt", 'all 25 cells 0.8010 to 0.8300'),
+    ('(column-mean range 0.0194 against 0.0096)', "gear_pump_five_results.txt", 'shape main effect 0.0096, drag main effect 0.0194'),
+    ('E<sub>50</sub> = 0.8241 + 0.0179 (kW &minus; 3.57) (in-sample', "gear_pump_five_results.txt", 'as E50 = 0.8241 + 0.0179 (kW - 3.57)'),
+    ('(in-sample RMS 0.0040 against 0.0084', "gear_pump_five_results.txt", 'two-number   a 0.7600, b +0.0179 per kW; in-sample RMS 0.0040'),
+    ('errors of +0.0037, +0.0038, &minus;0.0002, +0.0006 and &minus;0.0042', "gear_pump_five_results.txt", 'casappa          0.8277      +0.0130     +0.0037'),
+    ('RMS 0.0030), against an RMS of 0.0119', "gear_pump_five_results.txt", 'one-number 0.0119, two-number 0.0030, three-number 0.0046'),
+    ('between 0.0162 and 0.0198 per kW', "gear_pump_five_results.txt", '0.8242, +0.0162'),
+    ('does not help a left-out family (RMS 0.0046)', "gear_pump_five_results.txt", 'three-number 0.0046'),
+    ('by at most 0.0202 from the pooled 0.8212', "gear_pump_five_results.txt", "largest distance from 6r's pooled 0.8212: 0.0202"),
+    ('predicts every family left out of the fit within 0.0042', "gear_pump_five_results.txt", 'rexroth          0.8040      -0.0166     -0.0042'),
 ]
 
 
