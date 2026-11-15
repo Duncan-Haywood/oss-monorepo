@@ -3,7 +3,7 @@ title: "Four self-host Docker images in this repository could not start, and eve
 seo_title: "Docker images that list files by name break silently"
 date: 2026-11-15
 tags: [process, ci, docker, self-hosting, open-source]
-description: "cancel-flow, dunning-engine, league-schedule-generator and webhook-relay shipped Dockerfiles that never copied a module their server imports. A 0.4 s check now walks each image's imports."
+description: "Four self-host Dockerfiles never copied a module their server imports, so the images died at start. A 0.4 s check now walks each image's imports."
 ---
 
 Most of the self-hostable products in this repository come with a small
