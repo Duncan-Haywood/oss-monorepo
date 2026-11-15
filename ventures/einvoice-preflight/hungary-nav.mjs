@@ -16,6 +16,8 @@
 //     schema gate, with NTCA common 1.0, is hu-xsd.mjs: HU-027..HU-032);
 //   - Annex I of the same specification (in the 2026.02.12 English PDF, about
 //     pages 300-320) for the product fee warnings, HU-033;
+//   - Annex I sections I.1 and I.2 (pages 237-300) for the header and line-data
+//     warnings a file can show, HU-034 and HU-035 (eval/nav-annex1-head-lines-2026-11-15.md);
 //   - the 29 InvoiceData files in sample/Data sample, which all pass (see
 //     eval/hungary-nav-samples-2026-11-15.md).
 // Blocking codes come out as errors; the arithmetic checks mirror NAV's WARN
@@ -796,6 +798,7 @@ function checkInvoice(inv, ctx, out, skipped) {
         "Report a reduction as a modification (invoiceReference to the base invoice), or check the signs.", `${sp}/summaryGrossData/invoiceGrossAmount`, navWarn("INCORRECT_SUMMARY_DATA_INVOICE_GROSS_AMOUNT")));
     }
   }
+  checkAnnexHeadAndLines(inv, ctx, out, skipped);
   checkProductFee(inv, lines, { base, modifying, rate }, out, skipped);
   if (ctx.merged && lines.length) skipped.push({ rule: "HU-020/HU-024/HU-026", path: `${base}/invoiceLines`, reason: "mergedItemIndicator is true (lines are merged), so line-to-summary sums were not compared." });
   // An amount that is not an xs:decimal fails NAV's schema check (HU-030 names it) before any
@@ -804,6 +807,300 @@ function checkInvoice(inv, ctx, out, skipped) {
   if (bad.length) {
     for (let i = out.length - 1; i >= firstFinding; i--) if (/^HU-02[0-6]$/.test(out[i].rule)) out.splice(i, 1);
     skipped.push({ rule: "HU-020..026", path: base, reason: `${bad.length} amount${bad.length === 1 ? " is" : "s are"} not a decimal number (${bad.slice(0, 3).map(([p]) => p.split("/").pop()).join(", ")}), so the line and summary arithmetic was not checked.` });
+  }
+}
+
+// --- Annex I sections I.1 (invoice header) and I.2 (line data): the warnings a file can show.
+// Read warning by warning from the 2026.02.12 English specification (eval/nav-annex1-head-lines-2026-11-15.md).
+// HU-034 is I.1, HU-035 is I.2; each finding names its Annex I code in `nav`. What NAV checks
+// against its taxpayer register or the stored base invoice (60, 71, 81, 91, 113, 1311, 510, 540,
+// 342, 11400, 11401, 632, 1030) is listed in `skipped`. 11, 72, 85, 112, 161, 180, 190, 210, 220,
+// 1301, 431-433 are marked deprecated or inactive and are left out.
+export const ANNEX_I_HEAD_LINE_CODES = [
+  "SUPPLIER_CUSTOMER_MATCH_TAXPAYER", "SUPPLIER_CUSTOMER_MATCH_BANKACCOUNT", "SUPPLIER_FISCAL_MATCH_TAXPAYER", "SUPPLIER_FISCAL_MATCH_NAME",
+  "INCORRECT_HEAD_DATA_FISCALREPRESENTATIVE", "INCORRECT_VAT_CODE_SUPPLIER", "INCORRECT_HEAD_DATA_CUSTOMER_GROUPMEMBER_TAXNUMBER",
+  "INCORRECT_VAT_CODE_FISCALREPRESENTATIVE", "INCORRECT_COUNTY_CODE_SUPPLIER", "INCORRECT_COUNTY_CODE_SUPPLIER_GROUPMEMBER",
+  "INCORRECT_COUNTY_CODE_CUSTOMER", "INCORRECT_COUNTY_CODE_CUSTOMER_GROUPMEMBER", "INCORRECT_COUNTY_CODE_FISCALREPRESENTATIVE",
+  "INCORRECT_COUNTRY_CODE_FISCALREPRESENTATIVEADDRESS", "INCORRECT_HEAD_DATA_SUPPLIER_COMMUNITY_VAT_NUMBER",
+  "INCORRECT_DATE_INVOICE_ISSUE_DATE_LATE", "INCORRECT_DATE_INVOICE_DELIVERY_DATE_EARLY", "INCORRECT_DATE_INVOICE_DELIVERY_DATE_LATE",
+  "INCORRECT_DATE_AGGREGATE_INVOICE_ISSUE_DATE", "INCORRECT_DATE_AGGREGATE_INVOICE_DELIVERY_DATE",
+  "INCORRECT_DATE_INVOICE_MODIFICATION_ISSUE_DATE_LATE", "INCORRECT_DATE_INVOICE_MODIFICATION_ISSUE_DATE_EARLY",
+  "INCORRECT_HEAD_DATA_PERIODICAL_SETTLEMENT",
+  "INCORRECT_LINE_DATA_BY_VATRATE", "INCORRECT_LINE_DATA_SELF_LINE_NUMBER", "INCORRECT_LINE_DATA_MARGIN_SCHEME_INDICATOR_NORMAL",
+  "INCORRECT_LINE_DATA_LINE_AMOUNTS_NORMAL_MANDATORY", "INCORRECT_LINE_DATA_LINE_AMOUNTS_SIMPLIFIED_MANDATORY",
+  "INCORRECT_LINE_DATA_LINE_AMOUNTS_SIMPLIFIED_NOT_ALLOWED",
+  "INCORRECT_LINE_DATA_VAT_DOMESTIC_REVERSE_CHARGE_NORMAL", "INCORRECT_LINE_DATA_AGGREGATE_INVOICE_LINE_DATA",
+  "INCORRECT_LINE_DATA_VAT_STATUS_VAT_DATA_MISMATCH_KBAET_SIMPLIFIED", "INCORRECT_LINE_DATA_VAT_STATUS_VAT_DATA_MISMATCH_KBAUK_SIMPLIFIED",
+  "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_KBAET", "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_KBAET_SIMPLIFIED",
+  "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_KBAUK", "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_KBAUK_SIMPLIFIED",
+  "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EAM", "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EAM_SIMPLIFIED",
+  "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EUFAD37", "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EUFADE", "INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EUE",
+];
+// Annex I 120-160: "value list: 02-20; 22-44; 51".
+const countyOk = (c) => /^\d{2}$/.test(c) && ((c >= "02" && c <= "20") || (c >= "22" && c <= "44") || c === "51");
+const DAY = 86400000;
+const isDate = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "") && !Number.isNaN(Date.parse(`${d}T00:00:00Z`));
+const addDays = (d, n) => new Date(Date.parse(`${d}T00:00:00Z`) + n * DAY).toISOString().slice(0, 10);
+const daysBetween = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / DAY);
+
+/** Today's date in Hungary (Europe/Budapest), yyyy-mm-dd: the day a report sent now reaches NAV. */
+export function budapestToday(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Budapest", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+  const get = (t) => parts.find((p) => p.type === t).value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function checkAnnexHeadAndLines(inv, ctx, out, skipped) {
+  const { base } = ctx;
+  const head = child(inv, "invoiceHead");
+  const detail = child(head, "invoiceDetail");
+  const supplier = child(head, "supplierInfo");
+  const customer = child(head, "customerInfo");
+  const fiscal = child(head, "fiscalRepresentativeInfo");
+  const custVat = child(customer, "customerVatData");
+  const category = txt(detail, "invoiceCategory");
+  const modifying = ctx.operation ? ctx.operation !== "CREATE" : Boolean(child(inv, "invoiceReference"));
+  const vatStatus = txt(customer, "customerVatStatus");
+  const hp = `${base}/invoiceHead`;
+  const w = (code, message, fix, path) => out.push(finding("HU-034", `${message} (NAV ${code}).`, fix, path, navWarn(code)));
+
+  const supTax = child(supplier, "supplierTaxNumber");
+  const supGroup = child(supplier, "groupMemberTaxNumber");
+  const custTax = child(custVat, "customerTaxNumber");
+  const custGroup = child(custTax, "groupMemberTaxNumber");
+  const fisTax = child(fiscal, "fiscalRepresentativeTaxNumber");
+  const supId = txt(supTax, "taxpayerId");
+  const supCounty = txt(supTax, "countyCode");
+
+  // 10, 20, 30, 40: the seller's data repeated as the customer's or the fiscal representative's.
+  if (supId && txt(custTax, "taxpayerId") && supId === txt(custTax, "taxpayerId")) {
+    w("SUPPLIER_CUSTOMER_MATCH_TAXPAYER", "The seller's and the customer's tax numbers have the same first eight digits",
+      "Check the customer's tax number: the seller's was probably copied into it.", `${hp}/customerInfo/customerVatData/customerTaxNumber/taxpayerId`);
+  }
+  const supBank = txt(supplier, "supplierBankAccountNumber");
+  if (vatStatus === "OTHER" && supBank && supBank === txt(customer, "customerBankAccountNumber")) {
+    w("SUPPLIER_CUSTOMER_MATCH_BANKACCOUNT", "The seller's and the customer's bank account numbers are identical",
+      "Give the customer's own account, or leave customerBankAccountNumber out.", `${hp}/customerInfo/customerBankAccountNumber`);
+  }
+  if (supId && txt(fisTax, "taxpayerId") && supId === txt(fisTax, "taxpayerId")) {
+    w("SUPPLIER_FISCAL_MATCH_TAXPAYER", "The seller's and the fiscal representative's tax numbers have the same first eight digits",
+      "Give the fiscal representative's own Hungarian tax number.", `${hp}/supplierInfo/supplierTaxNumber/taxpayerId`);
+  }
+  const supName = txt(supplier, "supplierName");
+  if (supName && supName === txt(fiscal, "fiscalRepresentativeName")) {
+    w("SUPPLIER_FISCAL_MATCH_NAME", "The seller's and the fiscal representative's names are identical",
+      "Give the fiscal representative's own name.", `${hp}/fiscalRepresentativeInfo/fiscalRepresentativeName`);
+  }
+  // 530: a fiscal representative only for a seller whose county code is 51.
+  if (supCounty && txt(fisTax, "taxpayerId") && supCounty !== "51") {
+    w("INCORRECT_HEAD_DATA_FISCALREPRESENTATIVE", `A fiscal representative is given but the seller's county code is ${supCounty}, not 51`,
+      "Only a foreign seller registered through a fiscal representative (county code 51) reports one; drop fiscalRepresentativeInfo or check the county code.", `${hp}/supplierInfo/supplierTaxNumber/countyCode`);
+  }
+  // 50, 100: VAT codes.
+  const supCode = txt(supTax, "vatCode");
+  if (supCode && !["1", "2", "3", "5"].includes(supCode)) {
+    w("INCORRECT_VAT_CODE_SUPPLIER", `The seller's VAT code is ${supCode}; NAV takes 1, 2, 3 or 5`,
+      "Copy the ninth digit of the seller's tax number again (4 marks a group member, which goes in groupMemberTaxNumber).", `${hp}/supplierInfo/supplierTaxNumber/vatCode`);
+  }
+  const fisCode = txt(fisTax, "vatCode");
+  if (fisCode && !["1", "2", "4"].includes(fisCode)) {
+    w("INCORRECT_VAT_CODE_FISCALREPRESENTATIVE", `The fiscal representative's VAT code is ${fisCode}; NAV takes 1, 2 or 4`,
+      "Copy the ninth digit of the fiscal representative's tax number again.", `${hp}/fiscalRepresentativeInfo/fiscalRepresentativeTaxNumber/vatCode`);
+  }
+  // 82: a VAT group's own id (NAV: "starting with 177") given as the customer's group member.
+  if (custVat && txt(custGroup, "taxpayerId").startsWith("177")) {
+    w("INCORRECT_HEAD_DATA_CUSTOMER_GROUPMEMBER_TAXNUMBER", "The customer's groupMemberTaxNumber starts with 177, which NAV reads as a VAT group's own number, not a member's",
+      "Put the VAT group's number in customerTaxNumber and the member's own tax number in groupMemberTaxNumber (NAV says this warning will become an error).", `${hp}/customerInfo/customerVatData/customerTaxNumber/groupMemberTaxNumber/taxpayerId`);
+  }
+  // 120-160: county codes.
+  for (const [node, code, p, who] of [
+    [supTax, "INCORRECT_COUNTY_CODE_SUPPLIER", "/supplierInfo/supplierTaxNumber", "seller's"],
+    [supGroup, "INCORRECT_COUNTY_CODE_SUPPLIER_GROUPMEMBER", "/supplierInfo/groupMemberTaxNumber", "seller's group member's"],
+    [custTax, "INCORRECT_COUNTY_CODE_CUSTOMER", "/customerInfo/customerVatData/customerTaxNumber", "customer's"],
+    [custGroup, "INCORRECT_COUNTY_CODE_CUSTOMER_GROUPMEMBER", "/customerInfo/customerVatData/customerTaxNumber/groupMemberTaxNumber", "customer's group member's"],
+    [fisTax, "INCORRECT_COUNTY_CODE_FISCALREPRESENTATIVE", "/fiscalRepresentativeInfo/fiscalRepresentativeTaxNumber", "fiscal representative's"],
+  ]) {
+    const c = txt(node, "countyCode");
+    if (c && !countyOk(c)) {
+      w(code, `The ${who} county code is ${c}; NAV's list is 02-20, 22-44 and 51`, "Copy the last two digits of the tax number again.", `${hp}${p}/countyCode`);
+    }
+  }
+  // 200: a fiscal representative's address is in Hungary.
+  const fisAddr = child(fiscal, "fiscalRepresentativeAddress");
+  const fisCountry = txt(fisAddr, "simpleAddress", "countryCode") || txt(fisAddr, "detailedAddress", "countryCode");
+  if (fisCountry && fisCountry !== "HU") {
+    w("INCORRECT_COUNTRY_CODE_FISCALREPRESENTATIVEADDRESS", `The fiscal representative's country code is ${fisCountry}, not HU`,
+      "A fiscal representative is established in Hungary: give its Hungarian address.", `${hp}/fiscalRepresentativeInfo/fiscalRepresentativeAddress`);
+  }
+  // 500: the seller's EU VAT number ends with its tax number's first eight digits.
+  const supEu = txt(supplier, "communityVatNumber");
+  if (supEu && supId && supEu.slice(-8) !== supId) {
+    w("INCORRECT_HEAD_DATA_SUPPLIER_COMMUNITY_VAT_NUMBER", "The last eight characters of the seller's EU VAT number are not the first eight digits of its tax number",
+      "A Hungarian EU VAT number is HU followed by the tax number's first eight digits.", `${hp}/supplierInfo/communityVatNumber`);
+  }
+
+  // Dates. 313, 320, 321 compare dates in the file; 310, 312, 340, 341 compare with the day of reporting.
+  const issue = ctx.issueDate;
+  const delivery = txt(detail, "invoiceDeliveryDate");
+  const dp = `${hp}/invoiceDetail`;
+  if (isDate(issue) && isDate(delivery) && daysBetween(issue, delivery) >= 397) {
+    w("INCORRECT_DATE_INVOICE_DELIVERY_DATE_LATE", `invoiceDeliveryDate ${delivery} is ${daysBetween(issue, delivery)} days after the issue date ${issue}; NAV warns at 397 days (13 months)`,
+      "Check the delivery date's year and month.", `${dp}/invoiceDeliveryDate`);
+  }
+  if (category === "AGGREGATE") {
+    const lineDates = kids(child(inv, "invoiceLines"), "line").map((l) => txt(l, "aggregateInvoiceLineData", "lineDeliveryDate")).filter(isDate);
+    const latest = lineDates.length ? lineDates.reduce((a, b) => (b > a ? b : a)) : null;
+    if (latest && isDate(issue) && ctx.operation !== "STORNO" && issue < latest) {
+      w("INCORRECT_DATE_AGGREGATE_INVOICE_ISSUE_DATE", `The aggregate invoice is issued ${issue}, before its latest line delivery date ${latest}`,
+        "An aggregate invoice is issued after the deliveries it sums: check the issue date or the line dates.", `${ctx.root}/invoiceIssueDate`);
+    }
+    if (latest && isDate(delivery) && !modifying && delivery !== latest) {
+      w("INCORRECT_DATE_AGGREGATE_INVOICE_DELIVERY_DATE", `invoiceDeliveryDate ${delivery} is not the latest line delivery date ${latest}`,
+        "On an aggregate invoice the header delivery date is technical: make it the latest lineDeliveryDate.", `${dp}/invoiceDeliveryDate`);
+    }
+  }
+  const rd = ctx.reportDate;
+  if (isDate(rd)) {
+    const when = ctx.reportDateFrom === "request" ? `the request's timestamp (${rd})` : `the day of reporting (taken as ${rd})`;
+    if (isDate(issue) && daysBetween(rd, issue) > 5) {
+      w("INCORRECT_DATE_INVOICE_ISSUE_DATE_LATE", `The issue date ${issue} is ${daysBetween(rd, issue)} days after ${when}; NAV tolerates 5`,
+        "Check the issue date's year and month; an invoice is reported after it is issued.", `${ctx.root}/invoiceIssueDate`);
+    }
+    const lapsed = `${Number(rd.slice(0, 4)) - 6}-01-01`;
+    if (isDate(delivery) && delivery < lapsed) {
+      w("INCORRECT_DATE_INVOICE_DELIVERY_DATE_EARLY", `invoiceDeliveryDate ${delivery} is before ${lapsed}, the first day of the sixth year before ${when}`,
+        "Check the delivery date's year; a supply that old is in a lapsed period.", `${dp}/invoiceDeliveryDate`);
+    }
+    if (modifying && isDate(issue)) {
+      if (daysBetween(rd, issue) > 5) {
+        w("INCORRECT_DATE_INVOICE_MODIFICATION_ISSUE_DATE_LATE", `The modifying document's issue date ${issue} is ${daysBetween(rd, issue)} days after ${when}; NAV tolerates 5`,
+          "Check the modifying document's issue date.", `${ctx.root}/invoiceIssueDate`);
+      }
+      if (daysBetween(issue, rd) >= 15) {
+        w("INCORRECT_DATE_INVOICE_MODIFICATION_ISSUE_DATE_EARLY", `The modifying document was issued ${issue}, ${daysBetween(issue, rd)} days before ${when}; NAV warns at 15`,
+          "Report a modifying document within days of issuing it; if the date is right, the warning only records the late report.", `${ctx.root}/invoiceIssueDate`);
+      }
+    }
+  } else {
+    skipped.push({ rule: "HU-034", path: `${ctx.root}/invoiceIssueDate`, reason: "No day of reporting was given (a bare InvoiceData file carries none), so NAV's issue-date and lapsed-delivery warnings (310, 312, 340, 341) were not run." });
+  }
+  // 561: periodic settlement dates without periodicalSettlement true.
+  const ps = txt(detail, "invoiceDeliveryPeriodStart");
+  const pe = txt(detail, "invoiceDeliveryPeriodEnd");
+  if ((ps || pe) && txt(detail, "periodicalSettlement") !== "true") {
+    w("INCORRECT_HEAD_DATA_PERIODICAL_SETTLEMENT", `A delivery period is given (${[ps, pe].filter(Boolean).join(" to ")}) but periodicalSettlement is ${txt(detail, "periodicalSettlement") || "missing"}, not true`,
+      "Set periodicalSettlement to true for an invoice that settles a period.", `${dp}/periodicalSettlement`);
+  }
+
+  // --- I.2: line data.
+  const lines = kids(child(inv, "invoiceLines"), "line");
+  const lp = (i) => `${base}/invoiceLines/line[${i + 1}]`;
+  const l = (code, message, fix, path) => out.push(finding("HU-035", `${message} (NAV ${code}).`, fix, path, navWarn(code)));
+  const simplified = category === "SIMPLIFIED";
+  const once = new Map(); // customer-tax-number mismatches: one finding per code, naming the lines
+  const hasEu = Boolean(child(custVat, "communityVatNumber"));
+  const hasThird = Boolean(child(custVat, "thirdStateTaxId"));
+  const hasDomestic = Boolean(custTax);
+  const lineKeys = new Set();
+  lines.forEach((line, i) => {
+    const p = lp(i);
+    const own = txt(line, "lineNumber");
+    // 590.
+    const selfRefs = kids(child(line, "referencesToOtherLines"), "referenceToOtherLine").map((r) => r.text.trim());
+    if (own && selfRefs.includes(own)) {
+      l("INCORRECT_LINE_DATA_SELF_LINE_NUMBER", `Line ${i + 1} lists its own number ${own} among its references to other lines`,
+        "referenceToOtherLine names the other line this one belongs to (a discount's goods line, say), never itself.", `${p}/referencesToOtherLines`);
+    }
+    const created = !modifying || txt(line, "lineModificationReference", "lineOperation") === "CREATE";
+    const normal = child(line, "lineAmountsNormal");
+    const simple = child(line, "lineAmountsSimplified");
+    // 600, 610.
+    if (created && category && !simplified && !normal) {
+      l("INCORRECT_LINE_DATA_LINE_AMOUNTS_NORMAL_MANDATORY", `Line ${i + 1} of a ${category} invoice has no lineAmountsNormal`,
+        "Give the line its net, VAT rate, VAT and gross in lineAmountsNormal.", `${p}/lineAmountsNormal`);
+    }
+    if (created && simplified && !simple) {
+      l("INCORRECT_LINE_DATA_LINE_AMOUNTS_SIMPLIFIED_MANDATORY", `Line ${i + 1} of a SIMPLIFIED invoice has no lineAmountsSimplified`,
+        "Give the line its VAT content and gross amount in lineAmountsSimplified.", `${p}/lineAmountsSimplified`);
+    }
+    // 630.
+    if (category && !simplified && simple) {
+      l("INCORRECT_LINE_DATA_LINE_AMOUNTS_SIMPLIFIED_NOT_ALLOWED", `Line ${i + 1} of a ${category} invoice carries simplified-invoice amounts`,
+        "Give normal and aggregate invoice lines lineAmountsNormal only.", `${p}/lineAmountsSimplified/lineVatContent`);
+    }
+    const amounts = simplified ? simple : normal;
+    const vr = child(amounts, "lineVatRate");
+    const key = rateKey(vr);
+    if (key) lineKeys.add(key.replace(/^(exempt|oos):.*/, "$1"));
+    // 631: aggregate line data on a normal or simplified invoice.
+    if (category && category !== "AGGREGATE" && child(line, "aggregateInvoiceLineData")) {
+      l("INCORRECT_LINE_DATA_AGGREGATE_INVOICE_LINE_DATA", `Line ${i + 1} of a ${category} invoice carries aggregateInvoiceLineData`,
+        "Only an AGGREGATE invoice gives lines their own exchange rate and delivery date; drop the block or report the invoice as AGGREGATE.", `${p}/aggregateInvoiceLineData`);
+    }
+    // 5810, 5820: the simplified-invoice versions of the KBAET / KBAUK customer status checks.
+    if (simplified && simple && vatStatus) {
+      const sc = txt(vr, "vatExemption", "case");
+      if (sc === "KBAET" && vatStatus !== "OTHER") {
+        l("INCORRECT_LINE_DATA_VAT_STATUS_VAT_DATA_MISMATCH_KBAET_SIMPLIFIED", `Line ${i + 1} is a tax-exempt intra-Community supply (KBAET) but the customer's VAT status is ${vatStatus}, not OTHER`,
+          "KBAET goes only to a buyer registered in another member state (customerVatStatus OTHER).", `${p}/lineAmountsSimplified/lineVatRate/vatExemption/case`);
+      }
+      if (sc === "KBAUK" && vatStatus === "DOMESTIC") {
+        l("INCORRECT_LINE_DATA_VAT_STATUS_VAT_DATA_MISMATCH_KBAUK_SIMPLIFIED", `Line ${i + 1} is an intra-Community supply of a new means of transport (KBAUK) but the customer is DOMESTIC`,
+          "KBAUK goes only to a PRIVATE_PERSON or OTHER buyer.", `${p}/lineAmountsSimplified/lineVatRate/vatExemption/case`);
+      }
+    }
+    // 595 and 597: domestic reverse charge or margin scheme with VAT on a normal or aggregate line.
+    if (!simplified && normal) {
+      const margin = txt(vr, "marginSchemeIndicator");
+      const vat = num(txt(normal, "lineVatData", "lineVatAmount"));
+      const vatHUF = num(txt(normal, "lineVatData", "lineVatAmountHUF"));
+      if (txt(vr, "vatDomesticReverseCharge") === "true" && ((vat !== null && vat !== 0) || (vatHUF !== null && vatHUF !== 0))) {
+        l("INCORRECT_LINE_DATA_VAT_DOMESTIC_REVERSE_CHARGE_NORMAL", `Line ${i + 1} is marked domestic reverse charge but carries a VAT amount`,
+          "Under domestic reverse charge the buyer accounts for the VAT: make lineVatAmount and lineVatAmountHUF 0.", `${p}/lineAmountsNormal/lineVatRate/vatDomesticReverseCharge`);
+      }
+      if (margin && margin !== "TRAVEL_AGENCY" && ((vat !== null && vat !== 0) || (vatHUF !== null && vatHUF !== 0))) {
+        l("INCORRECT_LINE_DATA_MARGIN_SCHEME_INDICATOR_NORMAL", `Line ${i + 1} is under the margin scheme (${margin}) but carries a VAT amount`,
+          "A margin-scheme line shows no VAT: make lineVatAmount and lineVatAmountHUF 0.", `${p}/lineAmountsNormal/lineVatData`);
+      }
+    }
+    // 585-592 and the simplified 5850, 5860, 5870: the exemption or out-of-scope case against the customer's tax number.
+    const ex = txt(vr, "vatExemption", "case");
+    const oos = txt(vr, "vatOutOfScope", "case");
+    const note = (code, why) => {
+      const e = once.get(code) || { lines: [], why, path: `${p}/${simplified ? "lineAmountsSimplified" : "lineAmountsNormal"}/lineVatRate` };
+      e.lines.push(i + 1);
+      once.set(code, e);
+    };
+    const notEu = hasDomestic || hasThird;
+    const sfx = simplified ? "_SIMPLIFIED" : "";
+    if (ex === "KBAET" && notEu && (simplified || category === "NORMAL")) note(`INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_KBAET${sfx}`, "KBAET (exempt intra-Community supply) but the customer is given a tax number other than an EU VAT number");
+    if (ex === "KBAUK" && notEu && (simplified || category === "NORMAL")) note(`INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_KBAUK${sfx}`, "KBAUK (new means of transport to another member state) but the customer is given a tax number other than an EU VAT number");
+    if (ex === "EAM" && hasEu && category) note(`INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EAM${sfx}`, "EAM (export outside the EU) but the customer is given an EU VAT number");
+    if (category === "NORMAL" && oos === "EUFAD37" && notEu) note("INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EUFAD37", "EUFAD37 (reverse charge in another member state) but the customer is given a tax number other than an EU VAT number");
+    if (category === "NORMAL" && oos === "EUFADE" && hasThird) note("INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EUFADE", "EUFADE (reverse charge in another member state) but the customer is given a non-EU tax number");
+    if (category === "NORMAL" && oos === "EUE" && hasThird) note("INCORRECT_LINE_DATA_VAT_DATA_MISMATCH_EUE", "EUE (supply taxed in another member state) but the customer is given a non-EU tax number");
+  });
+  for (const [code, e] of once) {
+    const which = e.lines.length === 1 ? `Line ${e.lines[0]} is` : `Lines ${e.lines.slice(0, 5).join(", ")}${e.lines.length > 5 ? ", ..." : ""} are`;
+    l(code, `${which} ${e.why}`, "Report the customer by the tax number that fits the supply: an EU VAT number for KBAET, KBAUK and EUFAD37; no EU VAT number for EAM; no third-country number for EUFADE and EUE.", `${hp}/customerInfo/customerVatData`);
+  }
+  // 435: a VAT rate (or marker) with a non-zero summary value that no line carries. Exemptions and
+  // out-of-scope cases are matched by node, not by case. On a MODIFY it runs only when some line has amounts.
+  const anyAmounts = lines.some((ln) => child(ln, "lineAmountsNormal") || child(ln, "lineAmountsSimplified"));
+  if (lines.length && (!modifying || anyAmounts)) {
+    const summary = child(inv, "invoiceSummary");
+    const rows = [
+      ...kids(child(summary, "summaryNormal"), "summaryByVatRate").map((r, k) => [r, num(txt(r, "vatRateNetData", "vatRateNetAmount")), `${base}/invoiceSummary/summaryNormal/summaryByVatRate[${k + 1}]/vatRate`]),
+      ...kids(summary, "summarySimplified").map((r, k) => [r, num(txt(r, "vatContentGrossAmount")), `${base}/invoiceSummary/summarySimplified[${k + 1}]/vatRate`]),
+    ];
+    for (const [row, value, path] of rows) {
+      const key = rateKey(child(row, "vatRate"));
+      if (!key || value === null || value === 0) continue;
+      if (!lineKeys.has(key.replace(/^(exempt|oos):.*/, "$1"))) {
+        l("INCORRECT_LINE_DATA_BY_VATRATE", `The summary has ${fmt(value)} at ${keyLabel(key)} but no line is at ${keyLabel(key)}`,
+          "Give the summary only the VAT rates its lines use, or add the missing line.", path);
+      }
+    }
   }
 }
 
@@ -960,7 +1257,7 @@ function checkProductFee(inv, lines, { base, modifying, rate }, out, skipped) {
 }
 
 /** Check one InvoiceData document (the decoded XML). `operation` is the request's invoiceOperation when known. */
-export function checkNavInvoiceData(source, { operation = null, electronicInvoiceHash = null, invoiceDataBytes = null, pathPrefix = "/InvoiceData" } = {}) {
+export function checkNavInvoiceData(source, { operation = null, electronicInvoiceHash = null, invoiceDataBytes = null, pathPrefix = "/InvoiceData", reportDate = null, reportDateFrom = "option" } = {}) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
   const findings = [];
   const skipped = [];
@@ -993,7 +1290,7 @@ export function checkNavInvoiceData(source, { operation = null, electronicInvoic
     const detail = at(inv, "invoiceHead", "invoiceDetail");
     const category = txt(detail, "invoiceCategory");
     const ctx = {
-      base, root: pathPrefix, operation, complete, issueDate, invoiceNumber,
+      base, root: pathPrefix, operation, complete, issueDate, invoiceNumber, reportDate, reportDateFrom,
       aggregate: category === "AGGREGATE",
       merged: txt(inv, "invoiceLines", "mergedItemIndicator") === "true",
       predecessorPotlas: additional(inv).some((n) => /JOGELOD_POTLAS$/.test(n)),
@@ -1040,7 +1337,7 @@ export function checkNavInvoiceData(source, { operation = null, electronicInvoic
       }
     }
   }
-  skipped.push({ rule: "NAV register", path: pathPrefix, reason: "NAV also checks against its own records (a unique invoice number per seller, the referenced base invoice and its modificationIndex, the sender's tax number, the technical user's customers); a file cannot show those." });
+  skipped.push({ rule: "NAV register", path: pathPrefix, reason: "NAV also checks against its own records (a unique invoice number per seller, the referenced base invoice and its modificationIndex, the sender's tax number, the technical user's customers), and Annex I warnings 60, 71, 81, 91, 113, 510, 540 and 1311 (the taxpayer register) and 342, 632, 1030, 11400 and 11401 (the stored base invoice); a file cannot show those." });
   const first = invoices[0][0];
   return {
     findings, skipped,
@@ -1054,13 +1351,18 @@ export function checkNavInvoiceData(source, { operation = null, electronicInvoic
 }
 
 /** Check a NAV InvoiceData file, or every invoiceOperation of a manageInvoice request. */
-export function checkNavInvoice(source) {
+// reportDate (yyyy-mm-dd) is the day the report reaches NAV, for Annex I 310, 312, 340 and 341. A
+// manageInvoice request carries its own (header/timestamp, read in Budapest time) and that wins; a bare
+// InvoiceData file carries none, so those four warnings run only when the caller names the day.
+export function checkNavInvoice(source, { reportDate = null } = {}) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
-  if (/<(?:[A-Za-z0-9_]+:)?InvoiceData[\s>]/.test(text.slice(0, 4096))) return checkNavInvoiceData(text);
+  if (/<(?:[A-Za-z0-9_]+:)?InvoiceData[\s>]/.test(text.slice(0, 4096))) return checkNavInvoiceData(text, { reportDate });
   if (!wellFormed(text)) return { findings: [finding("HU-001", "The XML is not well formed: a tag is never closed or closes out of order.", "Export the request again.", "/")], skipped: [], meta: {} };
   const tree = parseXmlTree(text);
   const req = tree.children.find((c) => c.name === "ManageInvoiceRequest");
   const ops = kids(at(req, "invoiceOperations"), "invoiceOperation");
+  const stamp = Date.parse(txt(req, "header", "timestamp"));
+  const requestDate = Number.isNaN(stamp) ? null : budapestToday(new Date(stamp));
   const findings = [];
   const skipped = [];
   const metas = [];
@@ -1082,7 +1384,7 @@ export function checkNavInvoice(source) {
       findings.push(finding("HU-001", `Operation ${i + 1}: invoiceData does not decode (Base64) to an InvoiceData document.`, "Base64-encode the UTF-8 InvoiceData XML into invoiceData.", prefix));
       return;
     }
-    const r = checkNavInvoiceData(decoded, { operation, electronicInvoiceHash: child(op, "electronicInvoiceHash"), invoiceDataBytes: bytes, pathPrefix: prefix });
+    const r = checkNavInvoiceData(decoded, { operation, electronicInvoiceHash: child(op, "electronicInvoiceHash"), invoiceDataBytes: bytes, pathPrefix: prefix, reportDate: requestDate || reportDate, reportDateFrom: requestDate ? "request" : "option" });
     findings.push(...r.findings.map((f) => ({ ...f, path: f.path.replace(/^\/ManageInvoiceRequest\/invoiceOperations\/invoiceOperation\//, `/ManageInvoiceRequest/invoiceOperations/invoiceOperation[${i + 1}]/`) })));
     skipped.push(...r.skipped);
     metas.push({ ...r.meta, operation });

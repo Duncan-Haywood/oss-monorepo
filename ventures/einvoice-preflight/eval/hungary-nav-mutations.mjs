@@ -22,6 +22,15 @@ const first = (re, fn) => (text) => {
   const out = text.slice(0, start) + fn(m[1]) + text.slice(start + m[1].length);
   return out === text ? null : out;
 };
+// The same, for a pattern whose capture group closes the match: `first` finds the value with
+// indexOf, which lands on an earlier copy of the digit (the 5 in taxpayerId 98765432).
+const tail = (re, fn) => (text) => {
+  const m = re.exec(text);
+  if (!m) return null;
+  const start = m.index + m[0].lastIndexOf(m[1]);
+  const out = text.slice(0, start) + fn(m[1]) + text.slice(start + m[1].length);
+  return out === text ? null : out;
+};
 // NAV tolerates 1% of the amount (never less than one unit), so a seeded error must be larger:
 // 10% of the value plus 2 units.
 const bump = () => (v) => (Number(v) + Math.abs(Number(v)) * 0.1 + 2).toFixed(2);
@@ -61,6 +70,14 @@ const MUTATIONS = [
   { name: "simplified line gross HUF +10% (901/921)", rules: ["HU-026"], apply: first(/<lineGrossAmountSimplifiedHUF>([-\d.]+)</, bump()) },
   { name: "discountRate 0.1 added, net unchanged (740)", rules: ["HU-020"], apply: (t) => /<lineDiscountData>/.test(t) ? null : first(/<unitPriceHUF>[^<]*<\/unitPriceHUF>(\s*)<lineAmountsNormal>/, () => "<lineDiscountData><discountRate>0.1</discountRate></lineDiscountData>")(t) },
   { name: "summary row at a rate no line uses (680)", rules: ["HU-024"], apply: (t) => { const m = /<summaryByVatRate>\s*<vatRate>\s*<vatPercentage>0\.27<\/vatPercentage>[\s\S]*?<\/summaryByVatRate>/.exec(t); if (!m || /<vatPercentage>0\.18</.test(t)) return null; return t.replace(m[0], m[0] + m[0].replace("0.27", "0.18").replace(/(Amount(?:HUF)?>)[-\d.]+</g, "$10.00<")); } },
+  // Added 2026-11-15 with the Annex I I.1/I.2 read (eval/nav-annex1-head-lines-2026-11-15.md): header
+  // and line-data warnings, HU-034 and HU-035. The four that need the day of reporting are not seeded here.
+  { name: "supplier county code 21 (120)", rules: ["HU-034"], apply: tail(/<supplierTaxNumber>[\s\S]*?<base:countyCode>(\d\d)</, () => "21") },
+  { name: "supplier VAT code 4 (50)", rules: ["HU-034"], apply: tail(/<supplierTaxNumber>[\s\S]*?<base:vatCode>(\d)</, () => "4") },
+  { name: "customer given the seller's tax number (10)", rules: ["HU-034"], apply: (t) => { const s = /<supplierTaxNumber>\s*<base:taxpayerId>(\d{8})</.exec(t); return s ? first(/<customerTaxNumber>\s*<base:taxpayerId>(\d{8})</, () => s[1])(t) : null; } },
+  { name: "delivery 400 days after issue (313)", rules: ["HU-034"], apply: (t) => { const i = /<invoiceIssueDate>([\d-]+)</.exec(t); return i ? first(/<invoiceDeliveryDate>([\d-]+)</, () => new Date(Date.parse(`${i[1]}T00:00:00Z`) + 400 * 86400000).toISOString().slice(0, 10))(t) : null; } },
+  { name: "seller EU VAT number of another company (500)", rules: ["HU-034"], apply: (t) => /<supplierInfo>[\s\S]*?<communityVatNumber>/.test(t.split("</supplierInfo>")[0]) ? null : t.replace("</supplierTaxNumber>", "</supplierTaxNumber><communityVatNumber>HU10000006</communityVatNumber>") },
+  { name: "line refers to itself (590)", rules: ["HU-035"], apply: (t) => t.includes("<lineNumber>1</lineNumber>") ? t.replace("<lineNumber>1</lineNumber>", "<lineNumber>1</lineNumber><referencesToOtherLines><referenceToOtherLine>1</referenceToOtherLine></referencesToOtherLines>") : null },
   { name: "new invoice net total negated (1090)", rules: ["HU-025"], apply: (t) => /<invoiceReference>/.test(t) ? null : first(/<invoiceNetAmount>([\d.]+)</, (v) => Number(v) === 0 ? v : `-${v}`)(t) },
 ];
 

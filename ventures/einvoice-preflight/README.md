@@ -1839,6 +1839,8 @@ taken from the English interface specification, 2026-02-12 edition, section 3.3.
 | HU-027..032 | SCHEMA_VIOLATION | the schema gate (`hu-xsd.mjs`): an element not allowed or repeated (027), out of order (028), missing (029), a value outside its length, pattern, range, digits or code list (030), an attribute (031), an element in the wrong namespace, e.g. `taxpayerId` without `base:` (032) |
 | HU-033 (warnings) | INCORRECT_PRODUCT_CODE_FEE_*, MISSING_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_CALCULATION_* | product fee (termékdíj, Annex I ids 270-810): CSK/KT code types, the obligated flag against line content, line content against the summary, quantity and unit by code, quantity x rate, amounts by code and productChargeSum; Annex I's tolerance (1% of the HUF value, at least 1 HUF or 0.01 of the currency) |
 | HU-020..026 (warnings) | INCORRECT_LINE_CALCULATION_*, INCORRECT_SUMMARY_CALCULATION_*, INCORRECT_SUMMARY_DATA_* | all 54 active Annex I calculation and summary warnings (re-read 2026-11-15): quantity x price less any discount, every HUF conversion, forint gross = net + VAT, rows against lines and rates, totals against rows and lines, simplified gross by VAT content, summary markers no line carries, negative CREATE totals; Annex I's tolerance (1% of the named reference, at least 1 HUF or 0.01 of the invoice currency). Each finding's `nav` names the warning; five extra checks NAV does not make (line VAT from rate, gross in the invoice currency, ...) say so and carry `nav: null` |
+| HU-034 (warnings) | SUPPLIER_*_MATCH_*, INCORRECT_VAT_CODE_*, INCORRECT_COUNTY_CODE_*, INCORRECT_DATE_*, INCORRECT_HEAD_DATA_* | Annex I section I.1 (invoice header, read 2026-11-15): the seller's tax number, name or bank account repeated for the customer or fiscal representative, VAT codes, county codes (02-20, 22-44, 51), a fiscal representative only for county 51 and only in Hungary, the seller's EU VAT number against its tax number, a group id (177...) as the customer's group member, delivery 397+ days after issue, aggregate dates against line dates, periodicalSettlement; and, against the day of reporting (a request's timestamp, else today in Budapest on the page), a future issue date (5 days), a lapsed delivery date, a modifying document in the future or 15+ days old |
+| HU-035 (warnings) | INCORRECT_LINE_DATA_* | Annex I section I.2 (line data): a summary rate no line carries (435), a line referring to itself, a reverse-charge or margin-scheme line with VAT, aggregate line data on a non-aggregate invoice, missing or wrong-kind line amounts, the exemption or out-of-scope case (KBAET, KBAUK, EAM, EUFAD37, EUFADE, EUE) against the kind of customer tax number |
 
 **Measured on NAV's own samples** (`eval/hungary-nav-samples-2026-11-15.md`): of
 the 30 InvoiceData samples NAV publishes, 27 get no finding; the other 3 get five,
@@ -1897,7 +1899,29 @@ business checks on a summary row with an empty `vatRate`, now fixed.
 
 Tests: `hu-xsd.test.mjs` (10).
 
-### The VAT arithmetic against Annex I (2026-11-15, latest)
+### Header and line-data warnings: Annex I I.1 and I.2 (2026-11-15, latest)
+
+The earlier passes read Annex I's calculation, summary and product fee warnings. Sections I.1
+(invoice header) and I.2 (line data) were still unread: of I.1's 34 active warnings, none was
+checked by its own definition. Read warning by warning (`eval/nav-annex1-head-lines-2026-11-15.md`),
+23 of them can be decided from the file alone and are now HU-034; 19 line-data warnings are
+HU-035. Each finding names its Annex I code in `nav`. The ones that need NAV's taxpayer register
+or the stored base invoice (13 codes) are listed in `skipped` by number; the 14 marked
+deprecated or inactive are left out.
+
+Four warnings compare dates with the day NAV receives the report (310, 312, 340, 341). A
+manageInvoice request carries that day in its `header/timestamp`, which wins. A bare
+InvoiceData file does not, so the page passes today's date in Budapest (a preflight runs just
+before sending) and the message says "taken as"; called as a library without `reportDate`,
+those four are listed in `skipped`.
+
+On NAV's 30 samples, one new finding, and it is real: the aggregate sample `Gyujtoszamla 2.xml`
+gives every line delivery date in 2019 under a 2021 header date (warning 321), while its twin
+`Gyujtoszamla 1.xml` has 2021 line dates. NAV's API sample gets warning 500 three times (a
+placeholder seller EU VAT number). 172 new mutants, all caught. Tests:
+`hungary-nav-annex1-head.test.mjs` (22).
+
+### The VAT arithmetic against Annex I (2026-11-15)
 
 HU-020..026 were first written from NAV's warning code names. Annex I of the 2026.02.12
 specification defines each warning: its formula, when it runs, and what its 1% is 1% of.
