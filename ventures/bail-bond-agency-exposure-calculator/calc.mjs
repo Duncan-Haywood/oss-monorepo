@@ -22,7 +22,7 @@ const blank = (b) => !b || ["face", "label"].every((k) => b[k] === "" || b[k] ==
 
 export function money(n) {
   const v = Math.round(n);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US");
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US"));
 }
 
 function dayNumber(iso, name) {

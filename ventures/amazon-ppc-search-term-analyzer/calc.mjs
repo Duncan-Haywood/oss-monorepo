@@ -258,7 +258,7 @@ export function analyze(rows, { targetAcos = null, minClicks = 10, minOrders = 2
   return { summary, places: [...places].sort((a, b) => b.spend - a.spend), terms: [...terms].sort((a, b) => b.spend - a.spend), negatives, harvest, bids, overlap, buckets, findings };
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(1)}%`; }
 
 const q = (v) => `"${String(v).replace(/"/g, '""')}"`;

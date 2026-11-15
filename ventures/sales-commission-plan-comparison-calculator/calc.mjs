@@ -11,7 +11,7 @@
 //   target * (min(a,1) + accel * max(0, a-1))   otherwise
 // Attainment is a share of quota, so quota itself never enters the maths.
 
-export const money = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (v < 0 ? "-" : "") + "$" + Math.round(Math.abs(v)).toLocaleString("en-US"));
+export const money = (v) => (v == null || !Number.isFinite(v) ? "n/a" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(v)).toLocaleString("en-US")));
 export const pct = (v) => (v == null || !Number.isFinite(v) ? "n/a" : Math.round(v * 100) + "%");
 
 const num = (v, d = 0) => {

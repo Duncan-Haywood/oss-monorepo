@@ -14,7 +14,7 @@
 
 const EPS = 1e-9;
 
-export const money = (v) => (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(v)).toLocaleString("en-US"));
 export const pct = (v, d = 0) => (v * 100).toFixed(d) + "%";
 export const num = (v, d = 0) =>
   Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });

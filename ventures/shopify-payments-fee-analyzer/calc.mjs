@@ -311,7 +311,7 @@ export function whatIfIntl(s, targetPct) {
   return { moved, saved: moved * (i.intlRate - i.domRate), currentShare: i.share };
 }
 
-const $ = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+const $ = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 const P = (x, d = 1) => (x * 100).toFixed(d) + "%";
 
 function findings(s, g, months) {

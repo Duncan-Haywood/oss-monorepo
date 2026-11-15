@@ -177,7 +177,7 @@ function roundingNote(exact, prices, step) {
 
 export function money(x) {
   const s = Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return (x < 0 ? "-$" : "$") + s;
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(s);
 }
 
 export function resultText(res, input) {

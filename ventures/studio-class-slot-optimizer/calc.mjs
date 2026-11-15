@@ -22,7 +22,7 @@ const mean = (v) => v.reduce((s, x) => s + x, 0) / v.length;
 const variance = (v) => (v.length < 2 ? 0 : v.reduce((s, x) => s + (x - mean(v)) ** 2, 0) / (v.length - 1));
 const quantile = (sorted, q) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.round(q * (sorted.length - 1))))];
 
-export const money = (v) => (Number.isFinite(v) ? (v < 0 ? "-$" : "$") + Math.abs(Math.round(v)).toLocaleString("en-US") : "n/a");
+export const money = (v) => (Number.isFinite(v) ? ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(v)).toLocaleString("en-US")) : "n/a");
 export const pct = (v, d = 0) => (Number.isFinite(v) ? (v * 100).toFixed(d) + "%" : "n/a");
 
 function splitLine(line) {

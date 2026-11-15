@@ -16,7 +16,7 @@
 
 const num = (s) => (/^-?\d+$/.test(s) ? Number(s) : NaN);
 const pad = (n, w) => String(n).padStart(w, "0");
-const cents = (n) => (n < 0 ? "-" : "") + "$" + (Math.abs(n) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const cents = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + (Math.abs(n) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const mask = (a) => { const t = String(a).trim(); return t.length <= 4 ? t : "…" + t.slice(-4); };
 
 // A selection of common type codes. Unlisted codes fall back to their range.

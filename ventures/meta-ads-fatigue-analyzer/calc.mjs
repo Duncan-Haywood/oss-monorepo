@@ -323,7 +323,7 @@ export function analyze(rows, { targetCpa = null, freqThreshold = 3, minImpr = 1
   return { summary, ads: [...ads].sort((a, b) => b.spend - a.spend), fatigued, zero: [...zero].sort((a, b) => b.spend - a.spend), scale, buckets, byCampaign: groupBy(ads, (a) => a.campaign), byAdset: groupBy(ads, (a) => a.adset), findings };
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(2)}%`; }
 
 export function adsCsv(result) {

@@ -19,7 +19,7 @@ const num = (v, d = NaN) => {
 export function usd(n) {
   if (!Number.isFinite(n)) return "n/a";
   const r = Math.round(n);
-  return (r < 0 ? "-$" : "$") + Math.abs(r).toLocaleString("en-US");
+  return ((t) => (r < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(r).toLocaleString("en-US"));
 }
 
 export function monthlyPayment(principal, annualRatePct, years) {

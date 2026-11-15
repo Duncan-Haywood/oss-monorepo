@@ -166,7 +166,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     const KEYS = ["price", "rent", "otherIncome", "rehab", "downPct", "apr", "termYears", "interestOnly", "closingPct", "targetDscr", "vacancy", "propertyTax", "insurance", "hoa", "utilities", "management", "maintenance", "years", "rentGrowth", "expenseGrowth", "appreciation", "sellCost"];
     const x2 = (v) => (v === null ? "n/a" : v.toFixed(2));
     const pct = (v) => (v === null ? "n/a" : (v * 100).toFixed(1) + "%");

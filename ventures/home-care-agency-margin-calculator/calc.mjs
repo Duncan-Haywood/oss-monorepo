@@ -54,8 +54,8 @@ export const DEFAULTS = Object.freeze({
 const PRIVATE_NAME = /^(private|self[ -]?pay|cash|direct|family|out[ -]of[ -]pocket)/i;
 export const isPrivatePay = (name) => PRIVATE_NAME.test(String(name).trim());
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
-export const money2 = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
+export const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
 export const pct = (v, d = 0) => `${(v * 100).toFixed(d)}%`;
 
 function splitLine(line, sep) {

@@ -47,8 +47,8 @@ export function parseMapping(text) {
 }
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
-const dollars = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
-export const money = (c, cur = "USD") => (c < 0 ? "-" : "") + Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur;
+const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
 
 // ---- parsing ----------------------------------------------------------------
 
@@ -305,7 +305,7 @@ export function decodeBuffer(buf) {
 // ---- samples -----------------------------------------------------------------
 
 const HEAD = ["Date", "Time", "Time Zone", "Gross Sales", "Discounts", "Service Charges", "Net Sales", "Gift Card Sales", "Tax", "Tip", "Partial Refunds", "Total Collected", "Source", "Card", "Card Brand", "PAN Suffix", "Fees", "Net Total", "Transaction ID", "Payment ID", "Deposit ID", "Description"];
-const usd = (c) => (c < 0 ? "-" : "") + "$" + Math.abs(c / 100).toFixed(2);
+const usd = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(c / 100).toFixed(2));
 
 // items: { date, gross, disc, tax, tip, refund, fee, deposit, id } in dollars; totals are computed.
 export function buildReport(items) {

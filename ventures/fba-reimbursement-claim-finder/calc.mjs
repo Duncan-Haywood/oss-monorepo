@@ -145,7 +145,7 @@ export function detectDmy(values) {
 const DAY = 86400000;
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
-const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(0);
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(0));
 // Calendar months, clamped to the target month's last day: 31 Aug + 6 months is 28 Feb, not 3 March.
 // (setUTCMonth alone rolls the 29th-31st into the next month, which put a claim deadline 1-3 days late.)
 export const addMonths = (t, m) => {
@@ -438,7 +438,7 @@ export function analyze(ledgerItems, reimbItems, { asOf = Date.now(), defaultUni
   return { rows, findings, summary };
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");
 export const dateStr = ymd;
 
 // A case text a seller can adapt for Seller Support; it states only what the

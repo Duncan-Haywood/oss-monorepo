@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm, reports } from "./engine.mjs";
 
 const rng = (seed) => () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
-const fixed = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
+const fixed = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
 const csvOf = (rows) => "Date,Description,Amount\n" + rows.map((x) => `${x.d},${x.name},${fixed(x.c)}`).join("\n") + "\n";
 const sig = (b) => b.transactions.map((t) => `${t.date}|${t.cents}|${t.desc}`).sort().join("\n");
 const file = (b) => confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, t.cents > 0 ? "4000" : "6010"])));

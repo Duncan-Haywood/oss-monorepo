@@ -119,7 +119,7 @@ export function analyze(input = {}) {
   };
 }
 
-export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 export function summarize(r) {
   const win = `${fromDay(r.best.start)} to ${fromDay(r.best.end)}`;

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULTS, DEFAULT_DIAMETERS, num, money2, parseDiameters, grindMinutes, jobCost, perStumpPrices, quoteCheck, hardnessSensitivity, bundleSensitivity, speedSensitivity, wageSensitivity } from "./calc.mjs";
+import { DEFAULTS, DEFAULT_DIAMETERS, HARDNESS, num, money, money2, parseDiameters, grindMinutes, jobCost, perStumpPrices, quoteCheck, hardnessSensitivity, bundleSensitivity, speedSensitivity, wageSensitivity } from "./calc.mjs";
 
 const near = (a, b, e = 1e-9) => assert.ok(Math.abs(a - b) < e, `${a} vs ${b}`);
 const O = { ...DEFAULTS };
@@ -91,4 +91,39 @@ test("empty, zero and hostile inputs never produce NaN or Infinity", () => {
   assert.equal(z.price, null);
   assert.ok(Number.isFinite(z.direct));
   assert.equal(quoteCheck(D, { ...O, overheadPct: 60, targetMarginPct: 60 }).gap, null);
+});
+
+// Red team 2026-11-15: six calc.mjs mutants escaped the tests above, and money()/money2() printed "-$0".
+test("money and money2 sign only amounts that round below zero", () => {
+  assert.equal(money(0), "$0");
+  assert.equal(money(1234.4), "$1,234");
+  assert.equal(money(-1234.6), "-$1,235");
+  assert.equal(money(-0.4), "$0");
+  assert.equal(money2(0), "$0.00");
+  assert.equal(money2(-0.001), "$0.00");
+  assert.equal(money2(-0.005), "-$0.01");
+});
+
+test("break-even covers direct cost and overhead only; profit is what is left after overhead", () => {
+  const j = jobCost(D, { ...O, minCharge: 0 });
+  near(j.breakEven, j.direct / (1 - 0.12), 1e-6);
+  near(j.profit, j.price - j.direct - j.price * 0.12, 1e-6);
+  near(j.profit, j.price * 0.25, 1e-6);
+  const q = quoteCheck(D, O);
+  near(q.profit, q.quote - j.direct - q.quote * 0.12, 1e-6);
+  near(q.profit, (q.marginPct / 100) * q.quote, 1e-6);
+});
+
+test("the medium-wood row is the default hardness of 1", () => {
+  const medium = HARDNESS.find((h) => h.label.startsWith("Medium"));
+  assert.equal(medium.factor, 1);
+  near(hardnessSensitivity(D, O)[1].price, jobCost(D, O).price, 1e-9);
+});
+
+test("with no time to weigh by, per-stump prices split the job evenly", () => {
+  const zero = { ...O, depthIn: 0, heightIn: 0, repositionMin: 0, cleanupMin: 0, setupMin: 0, driveMinRoundTrip: 0 };
+  const p = perStumpPrices(D, zero);
+  const price = jobCost(D, zero).price;
+  assert.ok(price > 0);
+  for (const s of p) near(s.price, price / D.length, 1e-9);
 });

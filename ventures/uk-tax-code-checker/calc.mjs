@@ -57,7 +57,7 @@ export const SAMPLE_BUILD = {
 
 const r2 = (n) => Math.round(n * 100) / 100;
 const floor2 = (n) => Math.floor(n * 100 + 1e-6) / 100;
-export const money = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(r2(n)).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("£" + Math.abs(r2(n)).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const num = (v) => { const s = String(v ?? "").replace(/[£,\s]/g, ""); return s === "" ? null : Number(s); };
 
 export function parseCode(raw) {

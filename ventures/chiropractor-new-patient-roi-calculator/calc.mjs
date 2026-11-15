@@ -5,7 +5,7 @@
 const nn = (x) => (Number.isFinite(Number(x)) && Number(x) > 0 ? Number(x) : 0);
 
 export const money = (x) =>
-  (x < 0 ? "-$" : "$") + Math.abs(Math.round(x)).toLocaleString("en-US");
+  ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(x)).toLocaleString("en-US"));
 export const pct = (x) => (x === null || !Number.isFinite(x) ? "n/a" : (x * 100).toFixed(1) + "%");
 
 // One patient segment per line: name, share of new patients (%), visits over

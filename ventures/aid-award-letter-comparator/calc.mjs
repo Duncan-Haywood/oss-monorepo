@@ -34,7 +34,7 @@ const num = (v, d = 0) => {
 export const round2 = (x) => Math.round(x * 100) / 100;
 export function money(x) {
   const n = Math.round(Math.abs(x));
-  return (x < 0 ? "-$" : "$") + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 }
 
 export function normaliseSettings(raw = {}) {
