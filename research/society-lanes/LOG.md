@@ -21,7 +21,7 @@ Newest first.
   - A7: the AVM's best fit loss is below the social-force twin's 43.2. Prior 35%.
 - H3 for the AVM family passes if A2, A3 and A4 hold.
 
-### Outcome of milestone 4a (`experiments/m4_avm_exits.py`, `experiments/m4_avm_exits_results.txt`, `experiments/m4_avm_exits_runs.csv`, `experiments/m4_avm_fit.csv`, figure `experiments/m4_avm_exits.svg`; about 60 min on 4 cores, about 3,000 JuPedSim runs; 3 new tests)
+### Outcome of milestone 4a (`experiments/m4_avm_exits.py`, `experiments/m4_avm_exits_results.txt`, `experiments/m4_avm_exits_runs.csv`, `experiments/m4_avm_fit.csv`, figure `experiments/m4_avm_exits.svg`; about 35 min on 4 cores, about 3,000 JuPedSim runs; 3 new tests)
 - **E1 held:** the social-force rerun at exits 0.25 reproduces milestone 3's 14 held-out shares exactly (largest difference 0.0000), so the code changes for the AVM left social force untouched and JuPedSim's social force is deterministic given the seed.
 - **E2 held, E3 held (13 of 14):** moving the exits to the walls lowers the pooled HERMES held-out share from 0.781 to **0.678** (0.818 near the centre), b_03 from 0.825 to 0.764, b_08 from 0.717 to 0.600. People: 0.541, 0.754, 0.505. Only bot-360-075 falls just under (0.643 against 0.646). The exit position moves the result by about 0.10, a third of the gap; milestone 3's conclusion stands.
 - **A1 held, on the line:** at β = 0 the AVM's pooled free share is 0.585 and the mean seed sd 0.3003 (bar 0.30). Each run forms lanes almost perfectly (mean lane order 0.93) and the whole run picks a side at random. A self-organised convention without a direction, as the probe showed.

@@ -10,7 +10,7 @@ milestone 3's protocol: walker count calibrated to speed at beta = 0, beta fitte
 free-choice runs, scored with 20 seeds, held out on the assigned-exit runs.
 
 Needs jupedsim and numpy: PY=$(python3 platform/ci/pyenv.py jupedsim numpy), then
-  "$PY" experiments/m4_avm_exits.py     (about 30 min on 4 cores; cached per job in
+  "$PY" experiments/m4_avm_exits.py     (about 35 min on 4 cores; cached per job in
                                          data_cache/m4_cache.json, delete it to rerun)
 """
 from __future__ import annotations

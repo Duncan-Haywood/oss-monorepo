@@ -76,7 +76,7 @@ Reproduce: `PY=$(python3 platform/ci/pyenv.py jupedsim numpy)`, then `"$PY" rese
 - **Part B, a second family:** JuPedSim 1.4.2's `AnticipationVelocityModel` (Xu, Chraibi and Seyfried 2021) with JuPedSim's defaults (radius 0.2 m, time gap 1.06 s, anticipation 1.0 s, reaction 0.3 s, neighbour repulsion 8.0 over 0.1 m), the same steering stage and side bias β, and milestone 3's protocol unchanged except a finer walker-count grid (20 to 130), because this model deadlocks above about 1.3 walkers/m² in the 4 m corridor. Its lateral influence (`AnticipationVelocityModel.cpp`, v1.4.2) is left/right symmetric, so it carries no side preference of its own.
 - Predictions E1 to E3 and A1 to A7 were registered in `LOG.md` before the full run (after a disclosed 16-run probe).
 
-Reproduce: `"$PY" research/society-lanes/experiments/m4_avm_exits.py` (about 60 min on 4 cores, about 3,000 runs) and `python3 research/society-lanes/experiments/m4_figure.py`.
+Reproduce: `"$PY" research/society-lanes/experiments/m4_avm_exits.py` (about 35 min on 4 cores, about 3,000 runs) and `python3 research/society-lanes/experiments/m4_figure.py`.
 
 ## Results
 
