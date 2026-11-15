@@ -37,24 +37,27 @@ export async function loadEngine(onProgress = () => {}) {
   return {
     // psm: tesseract's page-segmentation mode, "6" (one block, tesseract.js's
     // default) or "4" (one column of text of varying sizes)
-    // grow: also read a grey copy drawn at that long side in pixels (null when the
-    // photo is already that big: those readings are skipped, see PASSES)
+    // grow: also read a grey copy drawn at that long side in pixels, enlarged or
+    // shrunk (null when the photo is exactly that size: the reading is skipped, see
+    // PASSES). A shrunk copy's reading comes back as { text, shrunk: true }, and
+    // readPhotos puts it before the photo's own readings.
     recognize: async (file, { psm, grow } = {}) => {
-      const img = grow ? await greyCopy(file, grow) : file;
-      if (!img) return null;
+      const copy = grow ? await greyCopy(file, grow) : null;
+      if (grow && !copy) return null;
       if (psm) await worker.setParameters({ tessedit_pageseg_mode: psm });
-      return (await worker.recognize(img)).data.text;
+      const text = (await worker.recognize(copy ? copy.canvas : file)).data.text;
+      return copy?.shrunk ? { text, shrunk: true } : text;
     },
     close: () => worker.terminate(),
   };
 }
 
 // A grey copy of the photo drawn on a canvas with its long side at `side` pixels,
-// or null when the photo is already at least that big.
+// enlarged or shrunk, or null when the photo is exactly that size.
 async function greyCopy(file, side) {
   const bmp = await createImageBitmap(file);
   const k = side / Math.max(bmp.width, bmp.height);
-  if (k <= 1) { bmp.close?.(); return null; }
+  if (k === 1) { bmp.close?.(); return null; }
   const c = document.createElement("canvas");
   c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
   const g = c.getContext("2d");
@@ -62,7 +65,7 @@ async function greyCopy(file, side) {
   g.filter = "grayscale(1)";
   g.drawImage(bmp, 0, 0, c.width, c.height);
   bmp.close?.();
-  return c;
+  return { canvas: c, shrunk: k < 1 };
 }
 
 // Each photo is read in these modes, as the CLI's `receipts --two-pass` does.
@@ -71,7 +74,9 @@ async function greyCopy(file, side) {
 // reads each photo twice"). A photo under 2,000 pixels on its long side (a
 // downsized phone photo) is read twice more, as a grey copy drawn at 2,000: on
 // ExpressExpense's 200 US receipt photos (750 x 1000) the four readings' vote
-// takes the total from 60.7% to 67.9% right (README, "US receipt photos").
+// takes the total from 60.7% to 67.9% right (README, "US receipt photos"). A
+// bigger photo (a full-size phone photo, a flatbed scan) is drawn shrunk to 2,000
+// and that copy is read first (README, "Full-size photos").
 export const PASSES = ["6", "4", { psm: "6", grow: 2000 }, { psm: "4", grow: 2000 }];
 
 const tidy = (raw) => cleanOcr(String(raw || "")).split(/\r?\n/).map((l) => l.trimEnd()).filter((l) => l.trim()).join("\n");
@@ -137,10 +142,14 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, onProgr
       const readings = [];
       // one photo the reader cannot open is skipped; the others are still read
       try {
+        const first = [];
         for (const pass of passes) {
           const t = await engine.recognize(f, typeof pass === "string" ? { psm: pass } : pass);
-          if (t != null) { readings.push(t); readingsDone++; }
+          if (t == null) continue;
+          if (typeof t === "object") (t.shrunk ? first : readings).push(t.text); else readings.push(t);
+          readingsDone++;
         }
+        readings.unshift(...first);
       }
       catch (e) { skipped.push({ name: f.name, why: `could not be read (${String(e?.message ?? e).replace(/^Error: /, "")})` }); continue; }
       const { text, note } = settleReadings(readings);

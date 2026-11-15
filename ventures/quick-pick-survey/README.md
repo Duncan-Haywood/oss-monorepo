@@ -27,8 +27,9 @@ uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE
 (since 2026-11-15): select 3 to 60 image files on the ranker and pick between
 two pictures at a time; the files are opened in the browser and never
 uploaded. The file names are the list, so a team link works as for words:
-each person selects the same files on their own device. How it works:
-[docs/RANK-PAGE.md](docs/RANK-PAGE.md), "Pictures".
+each person selects the same files on their own device. "Look closer" flips
+between the two pictures full screen with a shared tap-to-zoom. How it works:
+[docs/RANK-PAGE.md](docs/RANK-PAGE.md), "Pictures" and "Pictures on a phone".
 
 **Choosing on several criteria?** [Weigh criteria by picking pairs](https://marisstella.app/quick-pick-survey/decide.html)
 (since 2026-11-14) is a weighted decision matrix with nothing typed: it asks

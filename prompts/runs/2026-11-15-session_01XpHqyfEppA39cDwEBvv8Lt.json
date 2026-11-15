@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyfEppA39cDwEBvv8Lt",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T06:39:09Z",
+  "ended": "2026-11-15T07:07:54Z",
+  "wall_minutes": 28.95,
+  "tokens_in": 6143515,
+  "tokens_out": 42019,
+  "cost_usd": 3.1455,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16123",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to find numpy via platform/ci/pyenv.py; the default python3 lacks numpy but /usr/bin/python3.13 has numpy and pytest, and pyenv.py returned it at once. Fine, but the 'Tests and figures' paragraph could say outright that a numpy-only experiment can just use /usr/bin/python3.13."
+    },
+    {
+      "file": "research/aerolog-scaling/LOG.md",
+      "issue": "11s and 11t reported closed-form-vs-exact agreement (0.25% mean, 0.33% sd) on common random numbers without saying the ratio's noise cancels; 11x found the reference's own noise is ~3x larger. Future LOG entries scoring against the sampled exact estimator should state that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc: the project LOG.md entry's Limits and Next carry everything the next run needs, and a separate report would duplicate it.",
+      "did": "LOG.md entry + README + project.json summary + blog post",
+      "result": "next run's pick_track prints the LOG entry"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-aerolog-deterministic-flux-term.md",
+    "research/aerolog-scaling/LOG.md (11x entry)"
+  ],
+  "goal": null,
+  "notes": "Programme aerolog-scaling, milestone 11x: deterministic flux term by destination-pair sums (numpy, 130 s/layout). Predictions committed in 9d76b14ec before any layout ran; 4 of 7 held (P2, P4 refuted, P5 refuted in part). Post-hoc tail check (16 fresh seeds, 4 layouts) disclosed as such. Checks run locally: tests (aerolog-scaling suite with /usr/bin/python3.13), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "623b547e-0352-5e51-bf89-b1f00ee61b27",
+    "transcripts": 1,
+    "first": "2026-11-15T06:39:09Z",
+    "last": "2026-11-15T07:08:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 102,
+        "output": 42019,
+        "thinking": 14086,
+        "cache_read": 6005462,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137951,
+        "api_equivalent_usd": 3.1455,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 102,
+      "output": 42019,
+      "thinking": 14086,
+      "cache_read": 6005462,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137951,
+      "api_equivalent_usd": 3.1455,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 49,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.95,
+      "active_minutes": 28.94,
+      "model_minutes": 6.98,
+      "tool_minutes": 21.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "derive and vectorise the dense pair sum, test, run 24 layouts, tail check, write-up: about 1.5 days for a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 381.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
