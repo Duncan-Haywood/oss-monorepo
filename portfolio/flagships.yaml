@@ -316,8 +316,8 @@ flagships:
       blocks, slot runs or spread-out carelessness, and how noisy real pairwise
       answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bounded
       turn measured, not shipped (selector doc 2026-11-15); on real times, count
-      back moves it backs; (d8) a stronger pick signal under wander (staged pairs
-      are near 50/50 late in a session; anchor pairs?); (h) share-drop beat both
+      back moves it backs; (d8 closed 2026-11-15: lapse-weighted pick test ships,
+      check pairs cost rank; selector doc "Check pairs"); (h) share-drop beat both
       pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a real panel's
       times.
 

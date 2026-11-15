@@ -265,10 +265,16 @@ careless, so timing alone stays weak there. Since later that day the picks help:
 the wander test still counts when the person's picks from it on agree with the rest of the panel
 much less than their earlier picks did (2.5 standard errors, allowing for the closer pairs shown
 late in a session). Under the same wander it finds 24% of the careless instead of 18% and recovers
-27% of the harm instead of 19%, for 3.9% of honest people flagged against 3.4%. A comparison for now (same file, "Carelessness that starts
+27% of the harm instead of 19%, for 3.9% of honest people flagged against 3.4%. Since 2026-11-15 the
+pick test counts a disagreement on a clear pair more than one on a close pair (read as a lapse
+estimate, 3 standard errors): 27% of the careless found instead of 24% (26% against 23% on a second
+seed set) for 3.8% of honest people flagged against 3.9%. Easy check pairs asked every 5 or 10
+answers were tried for the same test and did not help: they cost ranking accuracy and found fewer
+blocks ("Check pairs for the pick test"). A comparison for now (same file, "Carelessness that starts
 mid-session", "A panel curve the careless cannot drag down", "A threshold from the panel's own
 slow turns", "A later-pass curve that drift cannot lift", "A step net of the person's own trend"
-"A step a wandering pace cannot make" and "A block's picks as well as its times").
+"A step a wandering pace cannot make", "A block's picks as well as its times" and "Check pairs for
+the pick test").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once
