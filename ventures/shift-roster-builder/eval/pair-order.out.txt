@@ -1,0 +1,6 @@
+20x56 week 2, order usual: 435 pairs; at 500 checks 57 clash (53 given up), 321 h, 24 ms; at 200,000 29 clash (0 given up), 179 h
+20x56 week 2, order fewest: 435 pairs; at 500 checks 41 clash (27 given up), 237 h, 12 ms; at 200,000 31 clash (0 given up), 187 h
+20x56 week 2, order takers: 435 pairs; at 500 checks 71 clash (63 given up), 391 h, 17 ms; at 200,000 31 clash (0 given up), 187 h
+40x112 week 0, order usual: 703 pairs; at 500 checks 314 clash (308 given up), 1832 h, 31 ms; at 200,000 44 clash (0 given up), 327 h
+40x112 week 0, order fewest: 703 pairs; at 500 checks 332 clash (326 given up), 1941 h, 25 ms; at 200,000 45 clash (0 given up), 313 h
+40x112 week 0, order takers: 703 pairs; at 500 checks 345 clash (337 given up), 2019 h, 21 ms; at 200,000 50 clash (0 given up), 355 h

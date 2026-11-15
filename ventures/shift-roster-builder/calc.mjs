@@ -1594,7 +1594,13 @@ function coverDayJoint(ctx, lists, p, day, mine, chain, budget = Infinity, calle
 // returns { stopped: true, hours } with the hours counted so far (a lower bound): a caller that would reject the roster at
 // that many hours needs no more. A walk that ends below it is the whole walk. `first`, a list of earlier `cases`, walks
 // those pairs before the rest: each pair's verdict is its own, so the order changes only how soon `stopAt` is reached.
-export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, callerTakes = true, single = null, maxPairs = Infinity, keep = false, stopAt = Infinity, first = null, deadline = Infinity } = {}) {
+// `memo` (2026-11-15, README "Remembered pair searches"), an object from pairMemo(), carries pair verdicts from one walk to the
+// next. A pair's search is a fixed depth-first walk over the callers' shifts, the eligible people and their lists, so it reads
+// only the lists of the people it visits; when every one of those lists is the same as when the verdict was found, the search
+// would retrace itself step for step and end the same way. A remembered verdict is used only then, so a walk with a memo
+// returns exactly what it would without one. Only the dear verdicts are kept (given up on, or no cover found); `memo.hits` and
+// `memo.misses` count lookups.
+export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, callerTakes = true, single = null, maxPairs = Infinity, keep = false, stopAt = Infinity, first = null, deadline = Infinity, memo = null, handOut = null } = {}) {
   const lists = Array.from({ length: ctx.P }, () => []);
   owner.forEach((p, i) => { if (p >= 0) lists[p].push(i); });
   lists.forEach((l) => l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b));
@@ -1627,6 +1633,21 @@ export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, bu
     order = head.concat(tail);
   }
   const nPairs = days.length * (days.length - 1) / 2;
+  // Memo: each person's list as an interned number, so a remembered verdict is checked by comparing a few integers.
+  let sig = null, seen = null, dayKey = null, store = null;
+  if (memo) {
+    store = memo.byKey.get(chain + "|" + budget + "|" + (callerTakes ? 1 : 0) + "|" + fromDay);
+    if (!store) memo.byKey.set(chain + "|" + budget + "|" + (callerTakes ? 1 : 0) + "|" + fromDay, (store = new Map()));
+    sig = new Int32Array(ctx.P);
+    for (let p = 0; p < ctx.P; p++) {
+      const k = lists[p].join(",");
+      let id = memo.ids.get(k);
+      if (id === undefined) memo.ids.set(k, (id = memo.ids.size));
+      sig[p] = id;
+    }
+    seen = new Uint8Array(ctx.P);
+    dayKey = days.map((d) => d.person + "|" + d.day + "|" + d.mine.join(","));
+  }
   outer: for (let a = 0, b = 1, n = 0; n < nPairs; n++) {
     if (order) { a = order[2 * n]; b = order[2 * n + 1]; }
     else if (n > 0 && ++b >= days.length) { a++; b = a + 1; }
@@ -1637,7 +1658,23 @@ export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, bu
       const A = days[a], B = days[b];
       if (A.person === B.person && A.day === B.day) continue;
       pairs++;
-      const how = coverGroupsJoint(ctx, lists, [A, B], chain, budget, callerTakes);
+      let how;
+      if (memo) {
+        const key = dayKey[a] + "#" + dayKey[b], got = store.get(key);
+        let ok = !!got;
+        if (ok) for (let k = 0; k < got.who.length; k++) if (sig[got.who[k]] !== got.sig[k]) { ok = false; break; }
+        if (ok) { how = got.how; memo.hits++; }
+        else {
+          memo.misses++;
+          seen.fill(0);
+          how = coverGroupsJoint(ctx, lists, [A, B], chain, budget, callerTakes, seen, handOut);
+          if (!how) {
+            const who = [];
+            for (let q = 0; q < ctx.P; q++) if (seen[q]) who.push(q);
+            store.set(key, { how, who: Int32Array.from(who), sig: Int32Array.from(who, (q) => sig[q]) });
+          } else if (got) store.delete(key);
+        }
+      } else how = coverGroupsJoint(ctx, lists, [A, B], chain, budget, callerTakes, null, handOut);
       if (how === null) capped++;
       if (checked) checked.push({ a: { person: A.person, day: A.day, hours: A.hours }, b: { person: B.person, day: B.day, hours: B.hours }, how });
       if (!how) {
@@ -1651,11 +1688,17 @@ export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, bu
   return { stopped: false, pairs, clashing: cases.length, hours, share: pairs ? cases.length / pairs : 0, cases, capped, safeDays: days.length, checked };
 }
 
+/** An empty memo for coverPairRisk's `memo` option: remembered verdicts, keyed by the walk's settings. */
+export function pairMemo() { return { ids: new Map(), byKey: new Map(), hits: 0, misses: 0 }; }
+
 // coverDayJoint for several call-outs at once: every caller's shifts handed out together, each caller off only on their own
 // day. `groups` are { person, day, mine }. Returns "direct", "chain", false, or null when the budget ran out; lists restored.
-function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTakes = false) {
+// `seen`, a Uint8Array over people, is marked with everyone whose list the search reads (the callers and each person it
+// considers for a shift), which is all the search depends on beyond ctx (coverPairRisk's `memo`).
+function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTakes = false, seen = null, handOut = null) {
   let left = budget;
   const saved = lists.slice();
+  if (seen) for (const g of groups) seen[g.person] = 1;
   // Each caller loses their call-out day's shifts; a person calling out twice loses both days.
   for (const g of groups) lists[g.person] = lists[g.person].filter((x) => !g.mine.includes(x));
   const offDays = new Map();
@@ -1671,11 +1714,21 @@ function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTa
   const by = ctx.eligBy || (ctx.eligBy = Array.from({ length: ctx.S }, (_, i) => { const out = []; for (let q = 0; q < ctx.P; q++) if (ctx.elig[q][i]) out.push(q); return out; }));
   const work = [];
   for (const g of groups) for (const i of g.mine) work.push({ i, day: g.day });
+  // `handOut` (2026-11-15, README "Remembered pair searches"): "fewest" hands out first the shift with the fewest eligible people,
+  // "takers" the one with the fewest people who could take it now (those checks count against the budget). Measurement only:
+  // neither gave up on fewer pairs on both measured weeks, and the verdict at any budget can depend on the order, because a
+  // chain may pass on a shift handed out earlier in the same search.
+  if (handOut === "fewest") work.sort((x, y) => by[x.i].length - by[y.i].length);
+  if (handOut === "takers") {
+    for (const w of work) { let n = 0; for (const q of by[w.i]) { if (!callerOk(q, w.i)) continue; left--; if (validWith(ctx, q, lists[q], w.i)) n++; } w.n = n; }
+    work.sort((x, y) => x.n - y.n);
+  }
   const place = (i, day, depth, rest) => {
     const who = by[i];
     for (let k = 0; k < who.length; k++) {
       const q = who[k];
       if (!callerOk(q, i)) continue;
+      if (seen) seen[q] = 1;
       if (--left < 0) throw COVER_STOP;
       const Lq = lists[q];
       if (!validWith(ctx, q, Lq, i)) continue;
@@ -1688,6 +1741,7 @@ function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTa
     for (let k = 0; k < who.length; k++) {
       const q = who[k];
       if (!callerOk(q, i)) continue;
+      if (seen) seen[q] = 1;
       const Lq = lists[q];
       for (const j of Lq) {
         if (ctx.slots[j].day < day) continue;
@@ -1716,7 +1770,7 @@ function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTa
 // shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
 // Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
 // one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
-export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET, pairStop = true, pairMs = Infinity, pairRank = false, onMove = null }) {
+export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET, pairStop = true, pairMs = Infinity, pairRank = false, pairMemo: memoOn = false, onMove = null }) {
   // A time cap on the pair-priced pass (2026-11-15, README "A time cap on the pair price"). Every move the pass takes is a
   // confirmed gain on its own, so stopping between moves posts a roster no worse than the one it started from and keeps
   // every move made so far. Once `pairMs` has passed since the pass began, the pass takes no new move and ends; a walk under way is
@@ -1739,10 +1793,16 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   // leaves them clashing is cut off after a few searches instead of after most of the walk.
   let pairWalks = 0, pairStops = 0, pairSkips = 0, pairsSearched = 0;
   const casesOf = new Map(), lastCases = new Map();
+  // Remembered pair searches (2026-11-15, README of that name): verdicts carried between the pass's walks, used only when the
+  // search would retrace itself exactly, so the pass's path and result are the same with or without it. Opt-in
+  // (`coverPairMemo: true`): it hit on 3% of lookups on the 20-person week 2 and 0.07% on the 40-person week 0, where its
+  // bookkeeping made the pass 24% slower, because a pair search that fails reads nearly everyone's list. `pairMemoHits` /
+  // `pairMemoMisses` count it.
+  const memo = memoOn && pairPrice > 0 ? pairMemo() : null;
   const pairWalk = (own, single, b, limit) => {
     pairWalks++;
     const stopAt = pairStop && Number.isFinite(limit) ? Math.max(0, limit) : Infinity;
-    const r = coverPairRisk(ctx, own, { fromDay, chain, budget: b, callerTakes, single, stopAt, first: pairStop ? casesOf.get(b) : null, deadline: pairDeadline });
+    const r = coverPairRisk(ctx, own, { fromDay, chain, budget: b, callerTakes, single, stopAt, first: pairStop ? casesOf.get(b) : null, deadline: pairDeadline, memo });
     pairsSearched += r.pairs;
     if (r.timedOut) { pairTimedOut = true; return Infinity; } // its cases are partial: keep the last full walk's
     lastCases.set(b, r.cases);
@@ -1773,7 +1833,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   keepCases();
   const pairBefore = pairF ?? pairBefore0;
   if (pairTimedOut) { // the starting walks did not finish: nothing to price against
-    return { owner, score, risk: strict || risk, before, moves: 0, tried: 0, pairMoves: 0, relieves: 0, trades: 0, pairTried: 0, pairHours: null, pairHoursBefore: null, pairHoursScreen: null, pairConfirmed: false, pairWalks, pairStops, pairSkips, pairsSearched, pairTimedOut, pairStartTimedOut: true };
+    return { owner, score, risk: strict || risk, before, moves: 0, tried: 0, pairMoves: 0, relieves: 0, trades: 0, pairTried: 0, pairHours: null, pairHoursBefore: null, pairHoursScreen: null, pairConfirmed: false, pairWalks, pairStops, pairSkips, pairsSearched, pairMemoHits: memo ? memo.hits : 0, pairMemoMisses: memo ? memo.misses : 0, pairTimedOut, pairStartTimedOut: true };
   }
   let moves = 0, tried = 0, pairMoves = 0, relieves = 0, trades = 0, pairTried = 0;
   const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
@@ -1933,7 +1993,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     pending = null;
     if (!improved) break;
   } } catch (e) { if (e !== COVER_STOP || !pairTimedOut) throw e; }
-  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched, pairTimedOut, pairStartTimedOut: false };
+  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched, pairMemoHits: memo ? memo.hits : 0, pairMemoMisses: memo ? memo.misses : 0, pairTimedOut, pairStartTimedOut: false };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -3615,7 +3675,7 @@ function buildRosterOnce(staff, slots, options = {}) {
   if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
     const chain = o.coverChain ?? COVER_CHAIN, budget = o.coverBudget ?? COVER_BUDGET;
     const pairOn = o.coverPairPrice > 0 && ctx.S <= (o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS);
-    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? PAIR_CONFIRM_BUDGET), pairStop: o.coverPairStop !== false, pairMs: o.coverPairMs ?? COVER_PAIR_MS, pairRank: o.coverPairRank === true });
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? PAIR_CONFIRM_BUDGET), pairStop: o.coverPairStop !== false, pairMs: o.coverPairMs ?? COVER_PAIR_MS, pairRank: o.coverPairRank === true, pairMemo: o.coverPairMemo === true });
     const before = out.before;
     coverSlack = {
       price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
@@ -3623,7 +3683,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       scoreBefore: best.score, scoreAfter: out.score, moves: out.moves, candidates: out.tried,
       pairMoves: out.pairMoves, relieves: out.relieves, trades: out.trades,
       pairPrice: pairOn ? o.coverPairPrice : 0, pairHoursBefore: out.pairHoursBefore, pairHours: out.pairHours, pairHoursScreen: out.pairHoursScreen, pairConfirmed: out.pairConfirmed,
-      pairWalks: out.pairWalks, pairStops: out.pairStops, pairSkips: out.pairSkips, pairsSearched: out.pairsSearched,
+      pairWalks: out.pairWalks, pairStops: out.pairStops, pairSkips: out.pairSkips, pairsSearched: out.pairsSearched, pairMemoHits: out.pairMemoHits, pairMemoMisses: out.pairMemoMisses,
       pairTimedOut: out.pairTimedOut, pairStartTimedOut: out.pairStartTimedOut, pairMs: pairOn ? (o.coverPairMs ?? COVER_PAIR_MS) : null,
       pairSkipped: o.coverPairPrice > 0 && !pairOn ? { slots: ctx.S, cap: o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS } : null,
       cases: out.risk.cases.map((c) => ({ person: c.person, day: c.day, hours: c.hours })),
