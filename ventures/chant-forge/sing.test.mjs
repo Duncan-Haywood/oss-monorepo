@@ -194,3 +194,29 @@ test('a final nasal hums about 7 dB under its vowel at any pitch (one voice), an
     assert.deepEqual([got.cls, got.voiced, got.place], ['stop', false, 'vel'], `dex at ${dur} s: ${JSON.stringify(got)}`);
   }
 });
+
+test('a final nasal hums on through the nose with no blip of bare vowel, and -um after a dark vowel reads as its murmur', async () => {
+  const { frameFeatures } = await import('./onsets.mjs');
+  // one voice, so the voices' beating does not hide it: before the fix the low-pass lifted for 10 ms between
+  // murmur and hum, +12-19 dB above 1 kHz (README "Final consonants, third round")
+  for (const vowel of ['u', 'a']) for (const midi of [45, 50, 57]) {
+    const f = 440 * 2 ** ((midi - 69) / 12), dur = 0.5;
+    const w = singNote(f, dur, rate, { vowel, coda: ['m'], release: 0.3, detunes: [0], vibratoCents: 0, breath: 0 });
+    const hiShare = (t) => { const q = frameFeatures(w, Math.round(t * rate), rate); return 10 * Math.log10((q.hi1 + 1e-20) / (q.tot + 1e-20)); };
+    const murmur = hiShare(dur - 0.045);
+    for (let t = dur - 0.04; t < dur + 0.04; t += 0.0025) assert.ok(hiShare(t) < murmur + 6, `${vowel} on ${midi} at ${(t - dur).toFixed(4)} s: ${(hiShare(t) - murmur).toFixed(1)} dB brighter than the murmur`);
+  }
+  // through the MIDI path on D3, where the murmur after /u/ is only 8-12 dB darker than the vowel
+  const ev = [];
+  for (const s of ['um', 'u', 'a']) ev.push({ type: 'note', midi: 50, pulses: 4, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 120 });
+  const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+  const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+  for (const sing of [true, 'vowels']) {
+    const x = renderMidi(mid, { stems: true, sing }).stems.choir.channels[0];
+    ['um', 'u', 'a'].forEach((s, j) => {
+      const got = readCoda(x, rate, sec(notes[j].tick) + 0.1, sec(notes[j].end) + 0.25).cls;
+      assert.equal(got, sing === true && s === 'um' ? 'nasal' : 'none', `${s} (${sing}): ${got}`);
+    });
+  }
+});
