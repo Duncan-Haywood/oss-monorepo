@@ -2,7 +2,7 @@
 title: "The question cap was picking the winner: a checkpoint instead of an end"
 seo_title: "How many pairwise questions does a decision matrix need? A simulation"
 date: 2026-11-15
-description: "On 300 simulated people, our free decision page ended at its question cap 80% of the time. Letting people keep going to three times the cap named the true best 254 times instead of 203."
+description: "Our free decision page ended at its question cap in 80% of simulated runs. Going on to 3x the cap named the true best 254 times in 300, not 203."
 tags: [quick-pick-survey, decision-matrix, pairwise-comparison, stopping-rules, simulation, product]
 ---
 
