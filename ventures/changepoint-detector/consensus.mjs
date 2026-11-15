@@ -89,6 +89,8 @@ export function levelRunFromMain(opts, r) {
 // repeating waveforms every setting cuts the same peaks, so they agree, and agreement is no
 // evidence of a change. Fires on 15 or more every-setting changes that fall in at least 8 of the
 // 10 equal tenths of the series. Reads only the agreed indexes and n. Returns null or a note.
+// Measured, NOT offered: it failed two of its three pre-registered lines (TCPD's bank fires; on
+// the fresh HAS 2023 set it cost 0.008 covering, worse on 20 of 31), so consensus() does not call it.
 export const REPEAT_GUARD = { minCount: 15, minTenths: 8 };
 export function repeatGuard(indexes, n) {
   const k = indexes.length;
@@ -143,9 +145,8 @@ export function mergeConsensus(runs, { tolerance = null } = {}) {
   changes.sort((a, z) => z.support - a.support || a.index - z.index);
   const tier = (c) => (c.support === c.of ? 'all' : c.support >= Math.ceil(c.of / 2) ? 'most' : 'few');
   for (const c of changes) c.tier = tier(c);
-  const repeatWarning = repeatGuard(changes.filter((c) => c.tier === 'all').map((c) => c.index), n);
   return {
-    n, tolerance: tol, repeatWarning, settings: ok.map((r) => ({ name: r.name, changes: r.cuts.length })),
+    n, tolerance: tol, settings: ok.map((r) => ({ name: r.name, changes: r.cuts.length })),
     skipped: runs.filter((r) => r.error).map((r) => ({ name: r.name, error: r.error })),
     changes,
     note: 'Agreement among settings that share one likelihood family, not a probability: a change every setting finds is the one to trust, a change one setting finds is a candidate. No setting is told which series it is.',

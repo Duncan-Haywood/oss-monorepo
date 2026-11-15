@@ -32,10 +32,10 @@ test('a change at the very end counts in the last tenth, and n of 0 never fires'
   assert.equal(repeatGuard(Array.from({ length: 20 }, (_, i) => i), 0), null);
 });
 
-test('consensus() carries repeatWarning: null on a two-step series', () => {
+test('measured, not offered: consensus() carries no repeat warning', () => {
   let s = 3; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32 - 0.5);
   const values = Array.from({ length: 300 }, (_, i) => (i < 100 ? 0 : i < 200 ? 5 : 1) + r());
-  assert.equal(consensus({ values }).repeatWarning, null);
+  assert.equal('repeatWarning' in consensus({ values }), false);
 });
 
 test('HAS csv lines: quoted lists keep their commas; magnitude is the axis-free length', () => {
@@ -48,4 +48,9 @@ test('the committed output carries the three pre-registered verdicts', () => {
   if (!existsSync(f)) return;
   const t = readFileSync(f, 'utf8');
   for (const k of ['G1', 'G2', 'G3']) assert.match(t, new RegExp(`  ${k} .*: (MET|NOT MET|NOT INFORMATIVE)$`, 'm'));
+  // As run 2026-11-15: G1 met, G2 and G3 not, so the guard is not offered.
+  assert.match(t, /  G1 .*: MET$/m);
+  assert.match(t, /  G2 .*: NOT MET$/m);
+  assert.match(t, /  G3 .*: NOT MET$/m);
+  assert.match(t, /every-setting minus zero: mean \+0\.175/);
 });
