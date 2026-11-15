@@ -1,5 +1,14 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 23 result: the paper builds into Elsevier's template, 27 pages with every citation resolved
+
+`paper/build_latex.py` (new), `tests/test_latex.py` (6 tests), `paper/references.bib` (two entries completed, four standards added), `paper/draft.md` (sections 4.7–4.8 reordered, five new highlights, two citations renamed). No new computation; `paper/check_numbers.py` still 190 of 190.
+
+- **What it does.** Turns `draft.md` into `paper/latex/manuscript.tex` in the `elsarticle` class (author-year, `elsarticle-harv`) through pandoc, with the highlights, abstract and keywords in the front matter. Author-year citations in the draft's three forms (`[A 2016; B 2017]`, `A et al. [2016]`, `A (2017)` and bare ones inside parentheses) become natbib commands keyed to `references.bib`: 23 works cited, 4 standards listed with `\nocite`. Compiled with pdflatex and bibtex: 27 pages, no undefined citation or reference, 3 tables and 3 figures numbered by LaTeX.
+- **What the checks caught in the draft.** Section 4.8 came before 4.7, so LaTeX's numbering would have made every "section 4.7" in the text point at the wrong one; the two blocks are swapped (text unchanged). All eight highlights ran past Elsevier's 85 characters (84 to 110) and Elsevier asks for 3 to 5: now five, 74 to 84 characters, every number from the abstract or results. The script fails on any of these from now on, and on a citation left as plain text or a key missing from the .bib file.
+- **References completed.** "Construction Robotics (2024)" had no authors: it is Cote, Tish, Koehle, Koga and Chitta, *Construction Robotics* 8, 8 (catalogue record and Autodesk Research listing); the text now cites Cote et al. Lachmayer et al. (2022) had no title: "Autonomous sensing and localization of a mobile robot for multi-step additive manufacturing in construction", pages 453–458, doi:10.5194/isprs-archives-XLIII-B1-2022-453-2022 (Copernicus page, TUM record). Both seen through web search; Crossref and OpenAlex were refused by this session's proxy.
+- **Still open before submission:** authorship; the abstract is 469 words where Elsevier journals commonly cap near 250 (the journal's own guide was not reachable, so not confirmed); the NDS and SDPWS editions; `ghazinader2024` is in the .bib but not cited by the draft.
+
 ## 2026-11-15 · Milestone 22 result: the paper now carries the capacity half; five models of Weiss's decayed walls in one table
 
 `paper/draft.md` (sections 4.9–4.10, 5.13–5.14, Table 3; abstract, highlights, discussion, limitations, conclusion and references extended); `paper/check_numbers.py` (60 new checks, 190 of 190 ok; its README said 70 before this step, the file had 130). No new computation.

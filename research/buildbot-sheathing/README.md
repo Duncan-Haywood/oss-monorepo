@@ -846,7 +846,7 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 106 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, eight scipy
+python -m pytest -q tests                                    # 135 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, eight scipy
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -899,6 +899,7 @@ python experiments/m21_degrading/run.py > experiments/m21_degrading/results.txt 
 python experiments/m21_degrading/check_diag.py --walls > experiments/m21_degrading/check_diag.txt
 python experiments/m21_degrading/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
+python paper/build_latex.py --pdf                            # the elsarticle manuscript in paper/latex/ (pandoc, pdflatex, bibtex, texlive-publishers)
 ```
 
 ## Milestone 1 results (`experiments/m1_gap_placement/results.txt`)
@@ -1495,7 +1496,7 @@ tested 16d end-nail ultimate, and a degrading (cumulative-damage) nail model or 
 unsupported panel edge, to test fatigue and tear-out. Milestone 21 added energy-based strength degradation to every nail: it lowers intact
 and decayed walls together and lifts the decayed shares by up to 2.9 points, so spread damage is ruled out. Next:
 a local failure model for the nails left along the unnailed bottom edge (edge distance and cycle count, from
-tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14).
+tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14). Milestone 23 builds the draft into Elsevier's `elsarticle` template (`paper/build_latex.py`, a 27-page PDF with every citation resolved), completes two references and cuts the highlights to Elsevier's five bullets of 85 characters.
 The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 

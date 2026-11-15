@@ -8,14 +8,11 @@ corresponding author are left for the owner to fill in before any submission.*
 
 ## Highlights
 
-- The 1/8 in panel gap shrinks the window of a sheathing joint nail from ±3.93 to ±3.14 mm.
-- Bowed studs, not sensing, cap single-2x joints: 87% clean sheets with perfect reads.
-- Doubled joint studs give 99.97% clean sheets with one read a stud, in 76–216 s a sheet.
-- A ledger seats a released sheet in MuJoCo and Drake; clean sheets agree within 0.06 points.
-- A G1 on a lift base beats a walking H1 in every draw, but a hand crew in only 37% at 100 houses.
-- Pushing a bowed joint stud straight takes 28–126 N and lifts single-2x joints only to 71%.
-- An escaped joint nail costs about 2% of its sheet; 4 in joint edges absorb escaped misses in 99.98% of sheets.
-- No model with code-strength end nails explains decayed-wall tests; fits need a quarter of NDS.
+- The 1/8 in panel gap shrinks a joint nail's window from ±3.93 to ±3.14 mm.
+- Bowed studs cap single-2x joints at 87% clean sheets, even with perfect reads.
+- Doubled joint studs give 99.97% clean sheets with one read a stud, 76–216 s a sheet.
+- A G1 on a lift base beats a hand crew in only 37% of draws at 100 houses a year.
+- Decayed-wall tests fit only with end nails at about a quarter of their NDS strength.
 
 ## Abstract
 
@@ -67,7 +64,7 @@ millimetres across repositioning [Sandy et al. 2016; Giftthaler et al. 2017; Lac
 2022], factory and multi-robot timber assembly correct their paths from as-built measurement
 [Willmann et al. 2016; Adel et al. 2024], a humanoid has carried and screwed plasterboard to a
 wall [Kumagai et al. 2019], and stud pose has been estimated from images for robot-assisted
-light-frame assembly [Construction Robotics 2024]. None of these carries the error sources of a
+light-frame assembly [Cote et al. 2024]. None of these carries the error sources of a
 real sheathed wall to the outcome a builder inspects. That outcome is strict: a nail that misses
 the stud holds nothing, and where the sheathing is a shear wall the nailing schedule is
 structural.
@@ -103,7 +100,7 @@ factory. Adel et al. [2024] adapt a multi-robot timber process from as-built mea
 pose and by topology, and reduce deviations on nail-laminated panels and a two-robot wall frame;
 it is the strongest published "measure, then correct" baseline, and its data set
 [Adel et al. 2024, data] is the most promising source of measured as-built framing. The
-coarse-to-fine stud pose estimator of Construction Robotics [2024] is the real-sensor counterpart
+coarse-to-fine stud pose estimator of Cote et al. [2024] is the real-sensor counterpart
 of the stud-reading error we sweep.
 
 **Humanoids at the wall.** Kumagai et al. [2019] had the HRP-5P humanoid carry an 11 kg board and
@@ -236,6 +233,15 @@ Prices: G1 $13,500–21,600, H1 $90,000–150,000, base and lift $10,000–40,00
 $40,000–600,000; the last two are **not sourced** and are swept wide. 4,000 draws with common
 random numbers across classes.
 
+### 4.7 A second contact model (milestone 6)
+
+The ledger seat and slide are rebuilt in Drake 1.51.1 (`MultibodyPlant`, discrete at 1 ms, point
+contact, SAP; TAMSI as a third check) with the same sheet, contact points and holder law, applied
+as an external wrench each step. Contact stiffness (10⁵–10⁷ N/m), Hunt–Crossley dissipation
+(0.5–50 s/m) and the time step (0.5–2 ms) are swept. To test H-E, 2,000 seats are drawn per
+engine (holder error uniform in ±1°, wall friction 0.3–0.5, press 5–50 N), and each engine's
+seated residual is added to milestone 5's ledger tilt draw for all 24 ledger pipelines.
+
 ### 4.8 Straightening a bowed joint stud (milestone 9)
 
 A carpenter pushes a bowed stud onto the line and nails it there; once the first sheet's joint
@@ -255,15 +261,6 @@ stud is straightened as if its bow were b + N(0, 0.5 mm) and the robot believes 
 policy leaves. Clean sheets then come from the cycle model of Section 4.5 with both joint studs
 replaced by their straightened shape. Whether a robot can supply the force is checked in the
 static whole-body model of Section 4.3, pushing along the wall with both hands at 1.0–1.3 m.
-
-### 4.7 A second contact model (milestone 6)
-
-The ledger seat and slide are rebuilt in Drake 1.51.1 (`MultibodyPlant`, discrete at 1 ms, point
-contact, SAP; TAMSI as a third check) with the same sheet, contact points and holder law, applied
-as an external wrench each step. Contact stiffness (10⁵–10⁷ N/m), Hunt–Crossley dissipation
-(0.5–50 s/m) and the time step (0.5–2 ms) are swept. To test H-E, 2,000 seats are drawn per
-engine (holder error uniform in ±1°, wall friction 0.3–0.5, press 5–50 N), and each engine's
-seated residual is added to milestone 5's ledger tilt draw for all 24 ledger pipelines.
 
 ### 4.9 What an escaped miss costs in capacity (milestones 14 to 16)
 
@@ -688,7 +685,7 @@ ultimate for a 16d end-nailed joint, and a mock-up to check the whole chain.
 ## Data and code availability
 
 All code, results files and figures are MIT licensed in this directory: `src/buildbot_sheathing/`
-(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (129 test functions), and
+(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (135 test functions), and
 `README.md`, "Reproduce". MuJoCo 4.0.1 and Drake 1.51.1 produced the simulated results.
 
 ## Declaration of generative AI use
@@ -708,10 +705,10 @@ BibTeX entries are in `paper/references.bib`. Identifiers were checked by
 - Castro, A.M., Qu, A., Kuppuswamy, N., Alspach, A., Sherman, M. (2020). A transition-aware method for the simulation of compliant contact with regularized friction. *IEEE Robotics and Automation Letters*. arXiv:1909.05700.
 - Castro, A.M., Permenter, F.N., Han, X. (2023). An unconstrained convex formulation of compliant contact. *IEEE Transactions on Robotics*. arXiv:2110.10107.
 - Chase, K.W., Parkinson, A.R. (1991). A survey of research in the application of tolerance analysis to the design of mechanical assemblies. *Research in Engineering Design* 3, 23–37. doi:10.1007/BF01580066.
-- Construction Robotics (2024). Adaptive robotic construction of wood frames. doi:10.1007/s41693-024-00122-0. (Title from Crossref; authors not confirmed in this session.)
+- Cote, N., Tish, D., Koehle, M., Koga, Y., Chitta, S. (2024). Adaptive robotic construction of wood frames. *Construction Robotics* 8, 8. doi:10.1007/s41693-024-00122-0.
 - Giftthaler, M., et al. (2017). Mobile robotic fabrication at 1:1 scale: the In situ Fabricator. *Construction Robotics*. doi:10.1007/s41693-017-0003-5.
 - Kumagai, I., et al. (2019). Toward industrialization of humanoid robots: autonomous plasterboard installation to improve safety and efficiency. *IEEE Robotics & Automation Magazine* 26(4), 20–29.
-- Lachmayer, L., et al. (2022). *ISPRS Archives* XLIII-B1-2022, 453. (Title not confirmed beyond the record.)
+- Lachmayer, L., Recker, T., Dielemans, G., Dörfler, K., Raatz, A. (2022). Autonomous sensing and localization of a mobile robot for multi-step additive manufacturing in construction. *ISPRS Archives* XLIII-B1-2022, 453–458. doi:10.5194/isprs-archives-XLIII-B1-2022-453-2022.
 - Sandy, T., Giftthaler, M., Dörfler, K., Kohler, M., Buchli, J. (2016). Autonomous repositioning and localization of an in situ fabricator. ICRA 2016, 2852–2858.
 - Tobin, J., et al. (2017). Domain randomization for transferring deep neural networks from simulation to the real world. arXiv:1703.06907.
 - Todorov, E., Erez, T., Tassa, Y. (2012). MuJoCo: a physics engine for model-based control. IROS. doi:10.1109/IROS.2012.6386109.
