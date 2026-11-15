@@ -1319,9 +1319,10 @@ class DevelopSettings:
     # padded-plane taps and threaded bands it costs less than bilinear did before.
     warp_kernel: str = "cubic"
     # How a CFA is demosaiced: "bilinear" (the 3x3 average; both engines, byte for byte), "directional"
-    # (``xtrans_demosaic``: four directional greens, blended by smoothness along each line; X-Trans only, numpy engine)
-    # or "auto" (directional on X-Trans when the numpy engine runs, else bilinear). Measured against known
-    # truth and LibRaw in eval/xtrans-directional-demosaic-2026-11-14.md.
+    # (numpy engine: ``xtrans_demosaic`` on X-Trans, four directional greens blended by smoothness along each
+    # line; ``bayer_demosaic`` on Bayer, row and column greens blended by a colour-difference test) or "auto"
+    # (directional when the numpy engine runs, else bilinear). Measured against known truth and LibRaw in
+    # eval/xtrans-directional-demosaic-2026-11-14.md and eval/bayer-directional-demosaic-2026-11-15.md.
     demosaic: str = "auto"
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
@@ -2122,30 +2123,32 @@ DEMOSAICS = ("auto", "bilinear", "directional")
 
 
 def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
-    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional on
-    X-Trans with numpy, full and half size (X-Trans half size demosaics at full size, then averages; the
-    directional demosaic gains as much there: eval/xtrans-directional-demosaic-2026-11-14.md)."""
+    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional
+    whenever the numpy engine runs: on X-Trans at full and half size (X-Trans half size demosaics at
+    full size, then averages; eval/xtrans-directional-demosaic-2026-11-14.md), and on Bayer at full size
+    since 2026-11-15 (eval/bayer-directional-demosaic-2026-11-15.md; Bayer half size bins each 2x2
+    block and demosaics nothing)."""
 
     if choice not in DEMOSAICS:
         raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")
     if pat is None:
         return None
     xtrans = cfa_period(pat) == 6
+    least = 6 if xtrans else 2
     if choice == "bilinear":
         return "bilinear"
     if choice == "directional":
-        if not xtrans:
-            raise DevelopError("the directional demosaic is for X-Trans (6x6) CFAs; Bayer files use bilinear")
         if not numpy_engine:
             raise DevelopError("the directional demosaic needs the numpy engine (numpy installed)")
-        if w < 6 or h < 6:
-            raise DevelopError("the directional demosaic needs at least 6 x 6 sensels")
+        if w < least or h < least:
+            raise DevelopError(f"the directional demosaic needs at least {least} x {least} sensels")
         return "directional"
     # auto
-    if xtrans and w >= 6 and h >= 6:
+    if w >= least and h >= least:
         if numpy_engine:
             return "directional"
-        notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
+        if xtrans:  # (Bayer: report.demosaic says "bilinear"; its half size demosaics nothing, so no note)
+            notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
     return "bilinear"
 
 

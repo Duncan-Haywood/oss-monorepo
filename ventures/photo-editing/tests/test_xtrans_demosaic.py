@@ -213,8 +213,9 @@ class DeveloperChoiceTests(unittest.TestCase):
             self.develop(raw, engine="python", demosaic="directional")
         with self.assertRaisesRegex(rd.DevelopError, "unknown demosaic"):
             self.develop(raw, engine="python", demosaic="ahd")
+        # Bayer has its own directional demosaic since 2026-11-15 (tests/test_bayer_demosaic.py): numpy only too
         bayer = raf.parse_raf(make_raf("bayer")[0])
-        with self.assertRaisesRegex(rd.DevelopError, "for X-Trans"):
+        with self.assertRaisesRegex(rd.DevelopError, "needs the numpy engine"):
             self.develop(bayer, engine="python", demosaic="directional")
         _, _, _, rep = self.develop(bayer, engine="python")
         self.assertEqual(rep.demosaic, "bilinear")
