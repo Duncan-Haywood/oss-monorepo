@@ -8,7 +8,7 @@ const num = (v, fallback = NaN) => {
   return Number.isFinite(n) ? n : fallback;
 };
 
-export const usd = (n) => (n < 0 ? "-" : "") + "$" + (Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + (Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const ceilCent = (n) => Math.ceil(n * 100 - 1e-9) / 100;
 export const SE_RATE = 0.153;
 export const SE_BASE = 0.9235;

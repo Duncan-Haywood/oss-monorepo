@@ -165,14 +165,15 @@ test("carryOverFloorPriced: seasons into the widest gap, on the frontier, number
   assert.deepEqual(carryOverFloorPriced(8, d, { seed: 1 }), []);
 });
 
-test("carryOverFloorPriced runs at up to 25 teams in the page, not at 26 (README \"minPlusStep in WebAssembly\")", async () => {
+test("carryOverFloorPriced runs at up to 26 teams in the page, not at 27 (README \"Whole-break tables in int16\")", async () => {
   const { carryOverFloorPriced } = await import("./carryover.mjs");
-  // a list whose frontier has a 10-break gap and empty timetables: at 26 the size gate returns [],
-  // at 22 to 25 the call gets past it into the search, which throws on the empty timetable
+  // a list whose frontier has a 10-break gap and empty timetables: at 27 the size gate returns [],
+  // at 22 to 26 the call gets past it into the search, which throws on the empty timetable
   const fake = (n, coe, breaks, index) => ({ rounds: Array.from({ length: n % 2 ? n : n - 1 }, () => ({ matches: [] })), coe, breaks, index });
-  assert.deepEqual(carryOverFloorPriced(26, [fake(26, 500, 50, 0), fake(26, 900, 40, 1)], { seed: 1 }), []);
-  for (const n of [22, 23, 24, 25]) assert.throws(() => carryOverFloorPriced(n, [fake(n, 500, 50, 0), fake(n, 900, 40, 1)], { seed: 1, iterations: 1 }), `${n}`);
-  // the old gate stays available
+  assert.deepEqual(carryOverFloorPriced(27, [fake(27, 500, 50, 0), fake(27, 900, 40, 1)], { seed: 1 }), []);
+  for (const n of [22, 23, 24, 25, 26]) assert.throws(() => carryOverFloorPriced(n, [fake(n, 500, 50, 0), fake(n, 900, 40, 1)], { seed: 1, iterations: 1 }), `${n}`);
+  // the old gates stay available
+  assert.deepEqual(carryOverFloorPriced(26, [fake(26, 500, 50, 0), fake(26, 900, 40, 1)], { seed: 1, maxTeams: 25 }), []);
   assert.deepEqual(carryOverFloorPriced(23, [fake(23, 500, 50, 0), fake(23, 900, 40, 1)], { seed: 1, maxTeams: 22 }), []);
 });
 
@@ -312,4 +313,19 @@ test("floorPricedSingleRounds priced on the balanced least: within the cap where
   const v = on.rounds.map((rd) => { const x = new Uint8Array(18); for (const [h] of rd.matches) x[h] = 1; return x; });
   assert.equal(countBreaks(v, opp, 17), on.breaks);
   assert.equal(coeOf(on.rounds, 17), on.coe);
+});
+
+test("26 teams (13 matches a round): the floor table runs at FLOOR_PRICED_MAX_MATCHES and agrees with leastBreaks; the default limit stays 12", async () => {
+  const { FLOOR_PRICED_MAX_MATCHES, ORIENT_MAX_MATCHES } = await import("./orient.mjs");
+  assert.equal(ORIENT_MAX_MATCHES, 12);
+  assert.equal(FLOOR_PRICED_MAX_MATCHES, 13);
+  const t = carryOverTry(26, 0, { seed: 1, weighted: 8 });
+  const opp = oppOf(t.rounds, 26);
+  assert.equal(floorTable(opp, 26), null);
+  assert.equal(leastBreaks(opp, 26, { budget: 0 }), null);
+  const tab = floorTable(opp, 26, { maxMatches: FLOOR_PRICED_MAX_MATCHES });
+  const lb = leastBreaks(opp, 26, { budget: 0, maxMatches: FLOOR_PRICED_MAX_MATCHES });
+  assert.ok(tab && lb);
+  assert.equal(tab.floor, lb.floor);
+  assert.ok(tab.floor <= t.breaks, `${tab.floor} > ${t.breaks}`);
 });

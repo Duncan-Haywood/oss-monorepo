@@ -82,8 +82,8 @@ export function parseCsv(text, delim = ",") {
 
 const r2 = (n) => Math.round(n * 100) / 100;
 const r1 = (n) => Math.round(n * 10) / 10;
-export const money = (n) => (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 
 export function findColumns(header, aliases) {
@@ -113,9 +113,9 @@ function findHeader(table, aliases, need) {
 export function parseDateTime(text) {
   const s = String(text ?? "").trim();
   let y, mo, d, rest;
-  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
-  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/))) {
+  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/))) {
     let a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
     if (a > 12) { d = a; mo = b; } else { mo = a; d = b; }

@@ -61,3 +61,13 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("quote_run");
   assert.equal(readUsage().quote_run, 1);
 });
+
+// Red-team 2026-11-15: a stored array is valid JSON but not a counter; `||` turned `&&` in the shape check kept
+// it, and every event was then dropped (JSON.stringify of an array ignores named keys).
+test("a stored array or number is replaced, so counting recovers", () => {
+  for (const bad of ["[1,2]", "5"]) {
+    globalThis.localStorage.setItem("roofing-insurance-supplement-finder-usage", bad);
+    record("quote_run");
+    assert.deepEqual(readUsage(), { quote_run: 1 });
+  }
+});

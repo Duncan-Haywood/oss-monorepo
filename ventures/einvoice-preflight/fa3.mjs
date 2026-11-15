@@ -4,10 +4,11 @@
 // ids are PL-nnn and are this tool's own, not KSeF error codes. Element names,
 // tax-rate codes and the P_13_n / P_14_n meanings were read from the published
 // XSD (schemat_FA(3)_v1-0E.xsd); the example in examples/fa3-invoice.xml
-// validates against it with xmllint. Sums are only checked on a plain VAT invoice
-// (RodzajFaktury VAT or UPR): advance, settlement and correcting invoices carry
-// differences and part-amounts this reader does not model, so those checks are
-// skipped and named in `skipped`, never counted as a pass. The XSD itself is run
+// validates against it with xmllint. Sums are checked on every RodzajFaktury: VAT,
+// UPR and KOR against the lines (a correction's StanPrzed rows count minus); ZAL,
+// ROZ, KOR_ZAL and KOR_ROZ against the payment split across the order's rates
+// (PL-023), as the Ministry's 26 published FA(3) examples apply it; what cannot be
+// computed is named in `skipped`, never counted as a pass. The XSD itself is run
 // first from fa3-xsd.mjs (PL-012..PL-017). This is an offline observation, not
 // KSeF's acceptance and not tax advice. Findings never repeat a tax number.
 
@@ -42,6 +43,167 @@ const num = (value) => {
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 };
+
+// Amounts are compared in whole grosze: |a - b| > 0.01 in floating point called 2050.99 against 2051 a
+// two-grosz gap (the Ministry's example 1).
+const offBy = (a, b, grosze = 1) => Math.abs(Math.round(a * 100) - Math.round(b * 100)) > grosze;
+const TAXED = (rate) => BUCKET[rate] && BUCKET[rate].length === 3;
+
+/** Zamowienie on an advance invoice: each line's quantity x price and the order's gross value (PL-024, PL-025). */
+function checkOrder(order, out) {
+  const rows = kids(order, "ZamowienieWiersz");
+  rows.forEach((row, i) => {
+    const qty = num(txt(row, "P_8BZ"));
+    const price = num(txt(row, "P_9AZ"));
+    const net = num(txt(row, "P_11NettoZ"));
+    if (qty !== null && price !== null && net !== null && offBy(qty * price, net)) {
+      out.push(finding("PL-025", `Order line ${txt(row, "NrWierszaZam") || i + 1}: quantity x unit price is ${cents(qty * price).toFixed(2)} but P_11NettoZ says ${net.toFixed(2)}.`,
+        "Make P_11NettoZ equal P_8BZ x P_9AZ to the grosz, or correct the quantity or price.", `/Faktura/Fa/Zamowienie/ZamowienieWiersz[${i + 1}]/P_11NettoZ`));
+    }
+  });
+  const value = num(txt(order, "WartoscZamowienia"));
+  const after = rows.filter((r) => txt(r, "StanPrzedZ") !== "1");
+  if (value === null || !after.length || after.some((r) => num(txt(r, "P_11NettoZ")) === null)) return;
+  const gross = after.reduce((s, r) => s + num(txt(r, "P_11NettoZ")) + (num(txt(r, "P_11VatZ")) || 0), 0);
+  if (offBy(gross, value)) {
+    out.push(finding("PL-024", `WartoscZamowienia is ${value.toFixed(2)} but the order lines (net plus tax${rows.length > after.length ? ", after the correction" : ""}) add up to ${cents(gross).toFixed(2)}.`,
+      "Make WartoscZamowienia the order's value including tax: the sum of P_11NettoZ and P_11VatZ over its lines.", "/Faktura/Fa/Zamowienie/WartoscZamowienia"));
+  }
+}
+
+/** VAT, UPR and KOR: each P_13_n against the lines at that rate (PL-006), P_14_n against it x the rate (PL-007). */
+function checkLineTotals(fa, lines, kind, before, out, skipped) {
+  const stated = (f) => num(txt(fa, f));
+  const sums = new Map();
+  // A line with a rate code outside the list is PL-004's; one with no amount or no rate leaves the totals unknowable.
+  const priced = lines.length > 0 && lines.every((l) => txt(l, "P_12") && num(txt(l, "P_11")) !== null);
+  if (lines.some((l) => txt(l, "P_11A"))) {
+    skipped.push("P_13_n against lines (a line states a gross value, P_11A)");
+  } else if (!lines.length) {
+    if (kind === "KOR") skipped.push("P_13_n against lines (a correction with no lines, such as a discount on a period's supplies)");
+  } else if (!priced) {
+    skipped.push("P_13_n against lines (not every line states both P_11 and a rate, P_12)");
+  } else {
+    for (const line of lines) {
+      if (!BUCKET[txt(line, "P_12")]) continue;
+      const field = BUCKET[txt(line, "P_12")][0];
+      const net = num(txt(line, "P_11")) * (before(line) ? -1 : 1);
+      sums.set(field, (sums.get(field) || 0) + net);
+    }
+    const how = kind === "KOR" && lines.some(before) ? " (after rows minus StanPrzed rows)" : "";
+    for (const [field, total] of sums) {
+      const value = stated(field);
+      if (value === null && Math.round(total * 100) === 0) continue;
+      if (value === null) {
+        out.push(finding("PL-006", `${field} is missing but the lines have ${cents(total).toFixed(2)} at that rate${how}.`,
+          `Add ${field} with the sum of those lines' P_11${how}.`, `/Faktura/Fa/${field}`));
+      } else if (offBy(value, total)) {
+        out.push(finding("PL-006", `${field} is ${value.toFixed(2)} but the lines at that rate add up to ${cents(total).toFixed(2)}${how}.`,
+          `Set ${field} to the sum of the lines' P_11 for that rate${how}.`, `/Faktura/Fa/${field}`));
+      }
+    }
+    for (const field of NET_FIELDS) {
+      if (!sums.has(field) && stated(field) && !["P_13_4", "P_13_5", "P_13_11"].includes(field)) {
+        out.push(finding("PL-006", `${field} states ${txt(fa, field)} but no line carries the matching rate.`,
+          "Remove it, or give the lines the rate it totals.", `/Faktura/Fa/${field}`));
+      }
+    }
+  }
+  // VAT per rate: stated tax against stated net x the lines' rate (the 23/22 and 8/7 totals take either rate).
+  for (const [netField, vatField] of [["P_13_1", "P_14_1"], ["P_13_2", "P_14_2"], ["P_13_3", "P_14_3"]]) {
+    const used = new Set(lines.map((l) => txt(l, "P_12")).filter((r) => BUCKET[r] && BUCKET[r][0] === netField));
+    const net = stated(netField);
+    const vat = stated(vatField);
+    if (used.size !== 1 || net === null || vat === null) continue;
+    const pct = BUCKET[[...used][0]][1];
+    if (offBy(net * pct / 100, vat)) {
+      out.push(finding("PL-007", `${vatField} is ${vat.toFixed(2)} but ${pct}% of ${netField} (${net.toFixed(2)}) is ${cents(net * pct / 100).toFixed(2)}.`,
+        `Recompute ${vatField} as the net total times the rate, rounded once per rate.`, `/Faktura/Fa/${vatField}`));
+    }
+  }
+}
+
+/**
+ * The split of a payment across rates (art. 106f ust. 1 pkt 3 of the VAT Act, as the Ministry's FA(3)
+ * examples 10-18 apply it): each rate gets the payment x its gross / the order's gross, rounded to the
+ * grosz; its tax is that share x rate / (100 + rate), rounded; its net is the rest. Rows are
+ * [rate, net, tax-or-null]. Returns Map field -> amount, or null when a row cannot be placed.
+ */
+export function splitPayment(paid, rows) {
+  const gross = new Map();
+  for (const [rate, net, tax] of rows) {
+    if (!BUCKET[rate] || net === null) return null;
+    const g = net + (tax ?? (TAXED(rate) ? net * BUCKET[rate][1] / 100 : 0));
+    gross.set(rate, (gross.get(rate) || 0) + g);
+  }
+  const all = [...gross.values()].reduce((s, g) => s + g, 0);
+  if (!gross.size || Math.round(all * 100) === 0) return null;
+  const out = new Map();
+  const add = (f, v) => out.set(f, (out.get(f) || 0) + v);
+  for (const [rate, g] of gross) {
+    const share = cents(paid * g / all);
+    if (TAXED(rate)) {
+      const [netField, pct, vatField] = BUCKET[rate];
+      const tax = cents(share * pct / (100 + pct));
+      add(netField, share - tax);
+      add(vatField, tax);
+    } else {
+      add(BUCKET[rate][0], share);
+    }
+  }
+  return out;
+}
+
+/** ZAL, ROZ, KOR_ZAL, KOR_ROZ: P_13_n and P_14_n against the payment split (PL-023). */
+function checkPaymentSplit(fa, kind, out, skipped) {
+  const stated = (f) => num(txt(fa, f));
+  const advance = kind === "ZAL" || kind === "KOR_ZAL";
+  const correction = kind.startsWith("KOR_");
+  const rows = advance
+    ? kids(child(fa, "Zamowienie"), "ZamowienieWiersz").map((r) => ({ before: txt(r, "StanPrzedZ") === "1", row: [txt(r, "P_12Z"), num(txt(r, "P_11NettoZ")), num(txt(r, "P_11VatZ"))] }))
+    : kids(fa, "FaWiersz").map((l) => ({ before: txt(l, "StanPrzed") === "1", row: [txt(l, "P_12"), num(txt(l, "P_11")), num(txt(l, "P_11Vat"))] }));
+  const where = advance ? "the order (Zamowienie)" : "the lines";
+  const paid = stated("P_15");
+  if (paid === null || !rows.length) {
+    skipped.push(`P_13_n and P_14_n against the payment split (RodzajFaktury ${kind}: no P_15 or no rows in ${where})`);
+    return;
+  }
+  let expected;
+  let basis;
+  if (!correction) {
+    expected = splitPayment(paid, rows.map((r) => r.row));
+    basis = `splitting P_15 (${paid.toFixed(2)}) across the rates of ${where}`;
+  } else {
+    const was = stated("P_15ZK");
+    const pre = rows.filter((r) => r.before).map((r) => r.row);
+    const post = rows.filter((r) => !r.before).map((r) => r.row);
+    if (was === null || !pre.length || pre.length !== post.length) {
+      skipped.push(`P_13_n and P_14_n against the payment split (RodzajFaktury ${kind}: ${was === null ? "no P_15ZK, the amount before the correction" : `${where} are not shown as before (StanPrzed) and after rows, one for one`})`);
+      return;
+    }
+    const a = splitPayment(was + paid, post);
+    const b = splitPayment(was, pre);
+    if (a && b) {
+      expected = new Map(a);
+      for (const [f, v] of b) expected.set(f, (expected.get(f) || 0) - v);
+    }
+    basis = `the split of ${(was + paid).toFixed(2)} after the correction minus the split of P_15ZK (${was.toFixed(2)}) before it, across the rates of ${where}`;
+  }
+  if (!expected) {
+    skipped.push(`P_13_n and P_14_n against the payment split (RodzajFaktury ${kind}: a row in ${where} has no amount or a rate this reader does not place)`);
+    return;
+  }
+  // Two roundings per rate (share, then tax), four on a correction: allow 2 grosze.
+  for (const field of [...NET_FIELDS, ...VAT_FIELDS]) {
+    const want = expected.get(field) || 0;
+    const have = stated(field);
+    if (offBy(have || 0, want, 2)) {
+      out.push(finding("PL-023", `${field} is ${have === null ? "missing" : have.toFixed(2)} but ${basis} gives ${cents(want).toFixed(2)}.`,
+        `On ${advance ? "an advance" : "a settlement"}${correction ? " correction" : ""} invoice P_13_n and P_14_n are the payment split by each rate's share of the gross, tax = share x rate / (100 + rate) (art. 106f of the VAT Act; the Ministry's FA(3) examples 10-18).`,
+        `/Faktura/Fa/${field}`));
+    }
+  }
+}
 
 export function looksLikeFa3(text) {
   const head = String(text).slice(0, 4096);
@@ -216,13 +378,17 @@ export function checkFa3(source, { today = warsawToday() } = {}) {
   const kind = txt(fa, "RodzajFaktury");
   const lines = kids(fa, "FaWiersz");
 
+  const before = (line) => txt(line, "StanPrzed") === "1";
+  // A correction shows a changed line twice, before (StanPrzed) and after, and the Ministry's
+  // own example 2 gives both rows the same NrWierszaFa, so a number is unique within each side.
   const seen = new Set();
   lines.forEach((line, i) => {
     const nr = txt(line, "NrWierszaFa");
-    if (nr && seen.has(nr)) {
-      out.push(finding("PL-009", `Line number ${nr} is used twice.`, "Give each FaWiersz its own NrWierszaFa.", `/Faktura/Fa/FaWiersz[${i + 1}]/NrWierszaFa`));
+    const key = `${before(line) ? "before" : "after"}:${nr}`;
+    if (nr && seen.has(key)) {
+      out.push(finding("PL-009", `Line number ${nr} is used twice.`, "Give each FaWiersz its own NrWierszaFa (a correction's before row, StanPrzed, may repeat its after row's number).", `/Faktura/Fa/FaWiersz[${i + 1}]/NrWierszaFa`));
     }
-    seen.add(nr);
+    seen.add(key);
     const rate = txt(line, "P_12");
     if (rate && !RATES.has(rate)) {
       out.push(finding("PL-004", `Line ${nr || i + 1} has a tax rate (${rate}) that is not in the FA(3) list.`,
@@ -234,67 +400,40 @@ export function checkFa3(source, { today = warsawToday() } = {}) {
     if (qty !== null && price !== null && net !== null) {
       if (txt(line, "P_10")) {
         skipped.push("line amount = quantity x unit price (a line discount, P_10, is present)");
-      } else if (Math.abs(cents(qty * price) - net) > TOLERANCE) {
+      } else if (offBy(qty * price, net)) {
         out.push(finding("PL-005", `Line ${nr || i + 1}: quantity x unit price is ${cents(qty * price).toFixed(2)} but P_11 says ${net.toFixed(2)}.`,
           "Make P_11 equal P_8B x P_9A to the grosz, or correct the quantity or price.", `/Faktura/Fa/FaWiersz[${i + 1}]/P_11`));
       }
     }
   });
 
-  const plain = kind === "VAT" || kind === "UPR";
-  if (!plain) {
-    skipped.push(`totals against lines (RodzajFaktury ${kind || "missing"}: advance, settlement and correcting invoices carry differences this reader does not model)`);
+  const order = child(fa, "Zamowienie");
+  if (order) checkOrder(order, out);
+  const stated = (f) => num(txt(fa, f));
+  const anyTotal = [...NET_FIELDS, ...VAT_FIELDS].some((f) => stated(f) !== null);
+  // Which way the totals follow from the lines depends on RodzajFaktury (the XSD's notes on P_13_1,
+  // P_14_1 and P_15, and the Ministry's 26 FA(3) examples):
+  //  VAT, UPR, KOR: P_13_n is the lines' P_11 at that rate (a correction's before rows, StanPrzed, count minus);
+  //  ZAL, ROZ:      the payment (or the remainder) P_15 split across the rates in proportion to each rate's
+  //                 gross in the order (Zamowienie) or the lines, tax = share x rate / (100 + rate);
+  //  KOR_ZAL, KOR_ROZ: that split after the correction (P_15ZK + P_15) minus the split before (P_15ZK).
+  if (["VAT", "UPR", "KOR"].includes(kind)) {
+    checkLineTotals(fa, lines, kind, before, out, skipped);
+  } else if (["ZAL", "ROZ", "KOR_ZAL", "KOR_ROZ"].includes(kind)) {
+    checkPaymentSplit(fa, kind, out, skipped);
   } else {
-    const sums = new Map();
-    let gross = false;
-    for (const line of lines) {
-      const rate = txt(line, "P_12");
-      const net = num(txt(line, "P_11"));
-      if (txt(line, "P_11A")) gross = true;
-      if (!BUCKET[rate] || net === null) continue;
-      sums.set(BUCKET[rate][0], (sums.get(BUCKET[rate][0]) || 0) + net);
+    skipped.push(`totals against lines (RodzajFaktury ${kind || "missing"} is not one this reader models)`);
+  }
+  // P_15 is the sum of every P_13_n and P_14_n on every kind (for a correction, the sum of the differences).
+  const total = stated("P_15");
+  if (total !== null && !(kind === "UPR" && !anyTotal)) {
+    const expected = cents([...NET_FIELDS, ...VAT_FIELDS].reduce((s, f) => s + (stated(f) || 0), 0));
+    if (offBy(expected, total)) {
+      out.push(finding("PL-008", `P_15 is ${total.toFixed(2)} but the net and tax totals add up to ${expected.toFixed(2)}.`,
+        "Make P_15 the sum of every P_13_n and P_14_n.", "/Faktura/Fa/P_15"));
     }
-    if (gross) {
-      skipped.push("P_13_n against lines (a line states a gross value, P_11A)");
-    } else if (lines.length) {
-      for (const [field, total] of sums) {
-        const stated = num(txt(fa, field));
-        if (stated === null) {
-          out.push(finding("PL-006", `${field} is missing but the lines have ${cents(total).toFixed(2)} at that rate.`,
-            `Add ${field} with the sum of those lines' P_11.`, `/Faktura/Fa/${field}`));
-        } else if (Math.abs(stated - total) > TOLERANCE) {
-          out.push(finding("PL-006", `${field} is ${stated.toFixed(2)} but the lines at that rate add up to ${cents(total).toFixed(2)}.`,
-            `Set ${field} to the sum of the lines' P_11 for that rate.`, `/Faktura/Fa/${field}`));
-        }
-      }
-      for (const field of NET_FIELDS) {
-        if (!sums.has(field) && num(txt(fa, field)) && !["P_13_4", "P_13_5", "P_13_11"].includes(field)) {
-          out.push(finding("PL-006", `${field} states ${txt(fa, field)} but no line carries the matching rate.`,
-            "Remove it, or give the lines the rate it totals.", `/Faktura/Fa/${field}`));
-        }
-      }
-    }
-    // VAT per rate: stated tax against stated net x the lines' rate (the 23/22 and 8/7 totals take either rate).
-    for (const [netField, vatField] of [["P_13_1", "P_14_1"], ["P_13_2", "P_14_2"], ["P_13_3", "P_14_3"]]) {
-      const used = new Set(lines.map((l) => txt(l, "P_12")).filter((r) => BUCKET[r] && BUCKET[r][0] === netField));
-      const net = num(txt(fa, netField));
-      const vat = num(txt(fa, vatField));
-      if (used.size !== 1 || net === null || vat === null) continue;
-      const pct = BUCKET[[...used][0]][1];
-      if (Math.abs(cents(net * pct / 100) - vat) > TOLERANCE) {
-        out.push(finding("PL-007", `${vatField} is ${vat.toFixed(2)} but ${pct}% of ${netField} (${net.toFixed(2)}) is ${cents(net * pct / 100).toFixed(2)}.`,
-          `Recompute ${vatField} as the net total times the rate, rounded once per rate.`, `/Faktura/Fa/${vatField}`));
-      }
-    }
-    const total = num(txt(fa, "P_15"));
-    if (total !== null) {
-      const parts = [...NET_FIELDS, ...VAT_FIELDS].map((f) => num(txt(fa, f)) || 0);
-      const expected = cents(parts.reduce((s, v) => s + v, 0));
-      if (Math.abs(expected - total) > TOLERANCE) {
-        out.push(finding("PL-008", `P_15 is ${total.toFixed(2)} but the net and tax totals add up to ${expected.toFixed(2)}.`,
-          "Make P_15 the sum of every P_13_n and P_14_n.", "/Faktura/Fa/P_15"));
-      }
-    }
+  } else if (total !== null) {
+    skipped.push("P_15 against the totals (a simplified invoice, UPR, that states no P_13_n or P_14_n: the tax is read from the single rate, as the Ministry's example 16 allows)");
   }
   if (currency && currency !== "PLN") {
     for (const f of ["P_14_1", "P_14_2", "P_14_3", "P_14_4"]) {

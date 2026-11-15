@@ -27,7 +27,9 @@ decoders of ``shootflow.srw`` (``shootflow_samsung_rows_run``, ``_huffman_run``,
 ``tests/test_srw.py`` runs both), and ``shootflow_pentax_run``, the Pentax PEF decode of
 ``shootflow.pef`` (``tests/test_pef.py`` runs both), and ``shootflow_fuji_strip``, one strip of a
 Fujifilm lossless compressed RAF (``shootflow.raf_compressed``; ``tests/test_raf_compressed.py`` runs both),
-and ``shootflow_crx_band``, one band of a Canon CR3 (``shootflow.cr3``; ``tests/test_cr3.py`` runs both).
+and ``shootflow_crx_band``, one band of a Canon CR3 (``shootflow.cr3``; ``tests/test_cr3.py`` runs both),
+and ``shootflow_craw_plane``, one plane of a C-RAW CR3 (``shootflow.cr3_wavelet``; ``tests/test_cr3_wavelet.py``
+runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -894,7 +896,8 @@ static void crx_store(const int32_t *line, long width, int bits, uint16_t *out)
         out[2 * x] = (uint16_t)((v < lo ? lo : (v > hi ? hi : v)) + mid);
     }
 }
-long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int bits, uint16_t *out, long stride)
+/* The median-predicted band as signed values, row-major into dst (width * height). */
+static long crx_median_band(const uint8_t *d, long len, long width, long height, int32_t *dst)
 {
     crx_bits b = {d, len, 0, 0, 0};
     int32_t *bufs = (int32_t *)calloc((size_t)(2 * (width + 2)), sizeof(int32_t));
@@ -926,7 +929,7 @@ long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int
         k = crx_next_k(k, (uint32_t)code); i++;
     }
     cur[i + 1] = cur[i] + 1;
-    crx_store(cur + 1, width, bits, out);
+    memcpy(dst, cur + 1, (size_t)width * sizeof(int32_t));
     for (long line = 1; line < height; line++) {
         int32_t *t = prev; prev = cur; cur = t;
         cur[0] = prev[1];
@@ -960,13 +963,232 @@ long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int
             k = crx_next_k(k, (uint32_t)code); i++; length--;
         }
         cur[i + 1] = cur[i] + 1;
-        crx_store(cur + 1, width, bits, out + line * stride);
+        memcpy(dst + line * width, cur + 1, (size_t)width * sizeof(int32_t));
     }
     free(bufs);
     return 0;
 bad:
     free(bufs);
     return -1;
+}
+
+long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int bits, uint16_t *out, long stride)
+{
+    int32_t *vals = (int32_t *)malloc((size_t)width * (size_t)height * sizeof(int32_t));
+    if (!vals) return -1;
+    if (crx_median_band(d, len, width, height, vals) < 0) { free(vals); return -1; }
+    for (long line = 0; line < height; line++) crx_store(vals + line * width, width, bits, out + line * stride);
+    free(vals);
+    return 0;
+}
+
+/* Canon CR3 C-RAW (CMP1 version 0x200), the twin of shootflow.cr3_wavelet: the bands other than the
+   deepest LL are coded with no value prediction (crx_highpass, cr3_wavelet.decode_highpass), every
+   coefficient is multiplied by its quantisation step, and the reversible 5/3 inverse rebuilds each
+   level, deepest first. */
+static inline int crx_next_k_cap(int k, uint32_t code, int cap) {
+    int nk = k - (code < (uint32_t)((1 << k) >> 1)) + ((code >> k) > 2) + ((code >> k) > 5);
+    return (!cap || nk < cap) ? nk : cap;
+}
+static inline int crx_bump(int k, const int32_t *kcol, long i) {
+    if (kcol[i + 1] - k <= 1) return k >= 15 ? 15 : k;
+    return k + 1;
+}
+#define ZIG(c) (-(int32_t)((c) & 1) ^ (int32_t)((c) >> 1))
+#define ZIG1(c) (-(int32_t)(((c) + 1) & 1) ^ (int32_t)(((c) + 1) >> 1))
+static long crx_highpass(const uint8_t *d, long len, long width, long height, int32_t *dst)
+{
+    crx_bits b = {d, len, 0, 0, 0};
+    int32_t *mem = (int32_t *)calloc((size_t)(3 * (width + 2)), sizeof(int32_t));
+    if (!mem) return -1;
+    int32_t *above = mem, *cur = mem + width + 2, *kcol = mem + 2 * (width + 2);
+    int s = 0, k = 0;
+    long i = 0, length = width, code, n;
+    while (length > 1) {
+        if (cur[i]) {
+            if ((code = crx_error(&b, k)) < 0) goto bad;
+            cur[i + 1] = ZIG(code);
+            k = crx_next_k_cap(k, (uint32_t)code, 15);
+        } else {
+            n = crx_run(&b, &s, length);
+            if (n < 0) goto bad;
+            length -= n;
+            while (n-- > 0) { kcol[i] = 0; cur[i + 1] = 0; i++; }
+            if (length <= 0) break;
+            if ((code = crx_error(&b, k)) < 0) goto bad;
+            cur[i + 1] = ZIG1(code);
+            k = crx_next_k_cap(k, (uint32_t)code, 15);
+        }
+        kcol[i] = k; i++; length--;
+    }
+    if (length == 1) {
+        if ((code = crx_error(&b, k)) < 0) goto bad;
+        cur[i + 1] = ZIG(code);
+        k = crx_next_k_cap(k, (uint32_t)code, 15);
+        kcol[i] = k;
+    }
+    memcpy(dst, cur + 1, (size_t)width * sizeof(int32_t));
+    for (long line = 1; line < height; line++) {
+        int32_t *t = above; above = cur; cur = t;
+        memset(cur, 0, (size_t)(width + 2) * sizeof(int32_t));
+        above[width + 1] = 0;
+        long last = width - 1;
+        i = 0;
+        while (i < last) {
+            if (above[i + 2] | above[i + 1] | cur[i]) {
+                if ((code = crx_error(&b, k)) < 0) goto bad;
+                cur[i + 1] = ZIG(code);
+                k = crx_bump(crx_next_k_cap(k, (uint32_t)code, 0), kcol, i);
+            } else {
+                n = crx_run(&b, &s, width - i);
+                if (n < 0) goto bad;
+                for (long j = i; j < i + n; j++) kcol[j] = 0;
+                i += n;
+                if (i >= last) {
+                    if (i == last) {
+                        if ((code = crx_error(&b, k)) < 0) goto bad;
+                        cur[i + 1] = ZIG1(code);
+                        k = crx_next_k_cap(k, (uint32_t)code, 15);
+                        kcol[i] = k;
+                    }
+                    i++;
+                    continue;
+                }
+                if ((code = crx_error(&b, k)) < 0) goto bad;
+                cur[i + 1] = ZIG1(code);
+                k = crx_bump(crx_next_k_cap(k, (uint32_t)code, 0), kcol, i);
+            }
+            kcol[i] = k; i++;
+        }
+        if (i == last) {
+            if ((code = crx_error(&b, k)) < 0) goto bad;
+            cur[i + 1] = ZIG(code);
+            k = crx_next_k_cap(k, (uint32_t)code, 15);
+            kcol[i] = k;
+        }
+        memcpy(dst + line * width, cur + 1, (size_t)width * sizeof(int32_t));
+    }
+    free(mem);
+    return 0;
+bad:
+    free(mem);
+    return -1;
+}
+#undef ZIG
+#undef ZIG1
+
+/* One line of the 5/3 inverse: low (ceil(n/2)) and high (floor(n/2)) to n samples; even is scratch. */
+static void crx_inv53(const int32_t *low, const int32_t *high, long n, int32_t *out, int32_t *even)
+{
+    if (n <= 1) { out[0] = low[0]; return; }
+    long m = n >> 1, ne = (n + 1) >> 1;
+    even[0] = low[0] - ((high[0] + 1) >> 1);
+    for (long k = 1; k < m; k++) even[k] = low[k] - ((high[k - 1] + high[k] + 2) >> 2);
+    if (n & 1) even[m] = low[m] - ((high[m - 1] + 1) >> 1);
+    for (long k = 0; k < m; k++) {
+        out[2 * k] = even[k];
+        out[2 * k + 1] = k + 1 < ne ? high[k] + ((even[k] + even[k + 1]) >> 1) : high[k] + even[k];
+    }
+    if (n & 1) out[n - 1] = even[m];
+}
+
+/* bands: 3 * levels + 1 subbands in coded order; for each: offset and size in sample, width, height,
+   step multiplier, step base, column shift and level (0 deepest). steps: each level's step table
+   (rows of qw), at step_off[level]. Writes out[(2y + oy) * stride + 2x + ox] for this plane. */
+long shootflow_craw_plane(const uint8_t *sample, long sample_len, int levels, const long *band_info,
+                          const int32_t *steps, const long *step_off, const long *step_rows, long qw,
+                          long width, long height, int bits, uint16_t *out, long stride)
+{
+    int nb = 3 * levels + 1;
+    int32_t *coef[10] = {0};
+    long bw[10], bh[10];
+    long rc = -1;
+    int32_t *rows_lo = NULL, *rows_hi = NULL, *scratch = NULL, *cur = NULL;
+    for (int bi = 0; bi < nb; bi++) {
+        const long *f = band_info + 7 * bi;
+        long off = f[0], size = f[1], w = f[2], h = f[3], mult = f[4], base = f[5], shift = f[6];
+        long level = bi == 0 ? 0 : (bi - 1) / 3;
+        bw[bi] = w; bh[bi] = h;
+        coef[bi] = (int32_t *)calloc((size_t)(w * h > 0 ? w * h : 1), sizeof(int32_t));
+        if (!coef[bi] || off < 0 || size < 0 || off + size > sample_len) goto done;
+        if (size) {
+            long r = bi == 0 ? crx_median_band(sample + off, size, w, h, coef[bi]) : crx_highpass(sample + off, size, w, h, coef[bi]);
+            if (r < 0) goto done;
+        }
+        for (long y = 0; y < h; y++) {
+            if (y >= step_rows[level]) goto done;
+            const int32_t *st = steps + step_off[level] + y * qw;
+            int32_t *row = coef[bi] + y * w;
+            for (long x = 0; x < w; x++) {
+                if (!row[x]) continue;
+                long col = x >> shift;
+                if (col >= qw) col = qw - 1;
+                int64_t q = base + (((int64_t)(uint32_t)st[col] * mult) >> 3);
+                if (q < 1) q = 1;
+                if (q > 0x168000) q = 0x168000;
+                row[x] = (int32_t)(row[x] * q);
+            }
+        }
+    }
+    rows_lo = (int32_t *)malloc((size_t)((height + 1) / 2 + 1) * (size_t)width * sizeof(int32_t));
+    rows_hi = (int32_t *)malloc((size_t)(height / 2 + 1) * (size_t)width * sizeof(int32_t));
+    scratch = (int32_t *)malloc((size_t)(width > height ? width : height) * sizeof(int32_t) + 8);
+    if (!rows_lo || !rows_hi || !scratch) goto done;
+    {
+        int32_t *ll = coef[0];
+        long llw = bw[0], llh = bh[0];
+        long sizes_w[4], sizes_h[4];
+        long w = width, h = height;
+        for (int l = levels - 1; l >= 0; l--) { sizes_w[l] = w; sizes_h[l] = h; w = (w + 1) >> 1; h = (h + 1) >> 1; }
+        for (int l = 0; l < levels; l++) {
+            int32_t *hl = coef[3 * l + 1], *lh = coef[3 * l + 2], *hh = coef[3 * l + 3];
+            long ow = sizes_w[l], oh = sizes_h[l];
+            long nlo = (oh + 1) >> 1, nhi = oh >> 1;
+            long hlw = bw[3 * l + 1], lhw = bw[3 * l + 2], hhw = bw[3 * l + 3];
+            if (llh != nlo || bh[3 * l + 1] != nlo || bh[3 * l + 2] != nhi || llw != lhw || hlw != hhw) goto done;
+            for (long y = 0; y < nlo; y++) crx_inv53(ll + y * llw, hl + y * hlw, ow, rows_lo + y * ow, scratch);
+            for (long y = 0; y < nhi; y++) crx_inv53(lh + y * lhw, hh + y * hhw, ow, rows_hi + y * ow, scratch);
+            int32_t *res = (int32_t *)malloc((size_t)(ow * oh) * sizeof(int32_t));
+            int32_t *ev = (int32_t *)malloc((size_t)((oh + 1) / 2) * (size_t)ow * sizeof(int32_t));
+            if (!res || !ev) { free(res); free(ev); goto done; }
+            if (oh <= 1) memcpy(res, rows_lo, (size_t)ow * sizeof(int32_t));
+            else {
+                for (long x = 0; x < ow; x++) ev[x] = rows_lo[x] - ((rows_hi[x] + 1) >> 1);
+                for (long r = 1; r < nhi; r++) {
+                    const int32_t *a = rows_lo + r * ow, *p = rows_hi + (r - 1) * ow, *q = rows_hi + r * ow;
+                    int32_t *e = ev + r * ow;
+                    for (long x = 0; x < ow; x++) e[x] = a[x] - ((p[x] + q[x] + 2) >> 2);
+                }
+                if (oh & 1) {
+                    const int32_t *a = rows_lo + nhi * ow, *p = rows_hi + (nhi - 1) * ow;
+                    int32_t *e = ev + nhi * ow;
+                    for (long x = 0; x < ow; x++) e[x] = a[x] - ((p[x] + 1) >> 1);
+                }
+                for (long r = 0; r < nhi; r++) {
+                    memcpy(res + 2 * r * ow, ev + r * ow, (size_t)ow * sizeof(int32_t));
+                    const int32_t *hr = rows_hi + r * ow, *e0 = ev + r * ow;
+                    int32_t *o = res + (2 * r + 1) * ow;
+                    if (r + 1 < nlo) { const int32_t *e1 = ev + (r + 1) * ow; for (long x = 0; x < ow; x++) o[x] = hr[x] + ((e0[x] + e1[x]) >> 1); }
+                    else for (long x = 0; x < ow; x++) o[x] = hr[x] + e0[x];
+                }
+                if (oh & 1) memcpy(res + (oh - 1) * ow, ev + nhi * ow, (size_t)ow * sizeof(int32_t));
+            }
+            free(ev);
+            if (cur) free(cur);
+            cur = res; ll = res; llw = ow; llh = oh;
+        }
+        int32_t mid = 1 << (bits - 1), top = (1 << bits) - 1;
+        for (long y = 0; y < height; y++) {
+            const int32_t *r = cur + y * width;
+            uint16_t *o = out + 2 * y * stride;
+            for (long x = 0; x < width; x++) { int32_t v = r[x] + mid; o[2 * x] = (uint16_t)(v < 0 ? 0 : (v > top ? top : v)); }
+        }
+    }
+    rc = 0;
+done:
+    for (int bi = 0; bi < nb; bi++) free(coef[bi]);
+    free(rows_lo); free(rows_hi); free(scratch); free(cur);
+    return rc;
 }
 """
 
@@ -1100,6 +1322,12 @@ def _load():
     crx.restype = ctypes.c_long
     crx.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_void_p, ctypes.c_long]
     _STATE["crx"] = crx
+    craw = lib.shootflow_craw_plane
+    craw.restype = ctypes.c_long
+    craw.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p,
+                     ctypes.c_void_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_void_p,
+                     ctypes.c_long]
+    _STATE["craw"] = craw
     return fn
 
 
@@ -1398,3 +1626,9 @@ def crx_function():
     """``shootflow_crx_band`` (one band of a Canon CR3, ``shootflow.cr3``), or None."""
 
     return _STATE.get("crx") if reader() is not None else None
+
+
+def craw_function():
+    """``shootflow_craw_plane`` (one plane of a Canon C-RAW CR3, ``shootflow.cr3_wavelet``), or None."""
+
+    return _STATE.get("craw") if reader() is not None else None

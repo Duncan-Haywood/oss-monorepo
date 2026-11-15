@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKkf9LPuxBHe34RoqRm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T06:09:35Z",
+  "ended": "2026-11-15T06:28:57Z",
+  "wall_minutes": 19.67,
+  "tokens_in": 5427457,
+  "tokens_out": 31632,
+  "cost_usd": 2.6071,
+  "tool_calls": 52,
+  "task": "changepoint-detector flagship (row 2 of allocate.py): one-tick stale feeds, rounded-walk likelihood (README next item)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16118",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "A first Bash call chained sleep 240 with cat; the harness blocked it and I used Monitor/run_in_background instead.",
+    "First full run_venture_tests failed drift-page.test.mjs: update-rate.mjs must keep no imports (the page and worker load it alone). Fixed by passing the likelihood test in as catchUp.test; the eval and why scripts were edited only to pass it (the why output reproduced byte-for-byte), disclosed here as a post-confirmation edit to the pre-registered file."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: was at 1990 of 2000 chars, so the replacement had to be compressed to a terse phrase ('LR failed (README); next trim + t-step M0'); the README carries the substance."
+    },
+    {
+      "file": "ventures/changepoint-detector/update-rate.mjs",
+      "issue": "Its header does not say it must stay import-free; only drift-page.test.mjs enforces it, found after a 40 s full-suite run. Added a comment at the new code saying so."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-stale-feed-or-rounded-walk-a-likelihood-that-failed.md",
+    "ventures/changepoint-detector/README.md 'One-tick stale feeds: a likelihood'"
+  ],
+  "goal": "Deepen a flagship with a hard statistical slice",
+  "notes": "Pre-registered round three (eval/update-rate-stale-lr.mjs committed in 259872106 before seed 20261215 ran). Grid-HMM likelihood ratio, rounded Gaussian walk vs the walk carried forward, threshold 5.41 from the boundary chi-square mix. Result: T cells caught 100/100/98.3% (rounds one-two 80-96%), but R cells called stale 7.0/11.5/9.0% (bar 5%): K1 fails, not offered; heavy-tailed X1 61.5%. Post hoc seed 5: calibrated on the true slow half (1/80); failures come from the partition cut landing late, trimming 15 steps removes them; heavy tails remain. Local checks: node --test rounded-walk.test.mjs update-rate*.test.mjs 29/29 pass; run_venture_tests.py changepoint-detector (see PR); post front matter, links and similarity clean; validate.py ok. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4df2171e-95e7-5072-bd3d-48236705122c",
+    "transcripts": 1,
+    "first": "2026-11-15T06:09:35Z",
+    "last": "2026-11-15T06:29:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 31632,
+        "thinking": 8347,
+        "cache_read": 5313437,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113924,
+        "api_equivalent_usd": 2.6071,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 31632,
+      "thinking": 8347,
+      "cache_read": 5313437,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113924,
+      "api_equivalent_usd": 2.6071,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 42,
+      "Write": 4,
+      "Monitor": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.67,
+      "active_minutes": 19.67,
+      "model_minutes": 6.39,
+      "tool_minutes": 13.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, coding and pre-registering an HMM likelihood test with simulation study and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 383.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

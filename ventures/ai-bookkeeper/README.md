@@ -1486,16 +1486,43 @@ In the learning loop (books filed a day at a time, first-seen merchants right / 
 | Mint, six held-out files | 403 | 69.2% / 15.4% | 69.7% / 15.4% | | |
 | YNAB, three households (`eval/ynab-registers.mjs`) | 219 | 74.9% / 11.9% | 74.4% / 12.3% | | |
 
-The YNAB loss is two lines read after the run: "The Hampton Social" (a restaurant) matched Hampton, the hotel chain, and a payee called "Albert" matched Albert, a Czech supermarket. A first name or a surname that is also a chain is the layer's known weakness.
+The YNAB loss is two lines read after the run: "The Hampton Social" (a restaurant) matched Hampton, the hotel chain, and a payee called "Albert" matched Albert, a Czech supermarket. A first name or a surname that is also a chain was the layer's known weakness (fixed below, "Chain names that are people's names").
 
 What it says, with care:
 
 - **It is a first-import layer.** Once a book has filed a merchant its own memory takes over, and on card files with a merchant category code that layer places nearly every new merchant first, so the learning-loop figures barely move.
 - **Where it speaks it is mostly right on the UK council and the US exports** (91.5% on Durham, 48 of 48 by eye), but the average gain is small: most lines are big names the keywords already know, or local firms no chain list has.
-- **The Scottish Government's file got worse** (61 right, 73 wrong where it spoke). That file lists only lines over £500, and at that size a Malmaison, Crowne Plaza or Novotel line is a venue the government hired, filed as rent or hire, not travel. Baxter Storey, a caterer, matched Baxter, a car-service chain (26 lines). A name that is also a surname is the layer's known weakness.
+- **The Scottish Government's file got worse** (61 right, 73 wrong where it spoke). That file lists only lines over £500, and at that size a Malmaison, Crowne Plaza or Novotel line is a venue the government hired, filed as rent or hire, not travel. Baxter Storey, a caterer, matched Baxter, a car-service chain (26 lines). A name that is also a surname was the layer's known weakness (fixed below).
 - Labels are three councils', one government's and some households'; the map from their categories to a small business's chart is a judgment.
 
-Pinned in `brands.test.mjs` (7 tests: descriptions in the shapes real exports print, amounts made up, and the builder on a made-up index). To rebuild: the commands at the top of `brands-build.mjs`.
+Pinned in `brands.test.mjs` (7 tests at the time, 9 now: descriptions in the shapes real exports print, amounts made up, and the builder on a made-up index). To rebuild: the commands at the top of `brands-build.mjs`.
+
+### Chain names that are people's names (2026-11-15, later)
+
+The chain-name layer's two known misses were people and firms that share a chain's one-word name: "Baxter Storey", a caterer, filed as Baxter, a car-service chain (26 Scottish Government lines); "The Hampton Social", a restaurant, as Hampton, the hotel; a YNAB payee called "Albert" as the Czech grocer. Reading every line the layer spoke on turned up more of the same: "Michael's Phone" (a household's phone bill to a person) as Michaels, the craft store; "Granger Medical" as a hardware chain; "Alex Forbes & Son" as a restaurant.
+
+The rule, set before any set was rescored: a one-word chain name that is also a person's first name, or one of the 5,000 commonest surnames, in the 1990 US Census lists (public domain; packaged by the `names` project, MIT, read at build time only) counts only when a store number follows it on the line. A chain's card line carries its store number ("KRYSTAL #0412", "O'REILLY 1938", "MICHAELS #1234"); a person or an independent firm carries another word or nothing. 72 of the 6,555 mapped names are affected (`BRAND_PERSON_NAMES` in `brands.mjs`, written by `brands-build.mjs --names`); their longer names ("Albert Heijn", "Costa Coffee", "Hyatt Place") are untouched, and Hilton, Hyatt, Costa, Ferguson and Hampton Inn are also in the built-in keywords, which run first. `skip: brand-names` turns the check off for comparison.
+
+Every line it changed, read from empty books on the sets reachable from here (Durham's and South Lakeland's council hosts did not answer this session, so those two are not rescored):
+
+| set | money-out lines | changed | wrong suggestion removed | right suggestion lost |
+|---|---|---|---|---|
+| 63 real US exports | 4,927 | 0 | | |
+| Mint exports (nine files) | 4,565 | 3 | Hampton Chutney (hotel), "SANTA BARBARA" (a place, not the Santa grocer) | a bare "Michaels" (the craft store) |
+| YNAB, three households | 2,234 | 8 | Michael's x3, Michael's Phone x2, Granger Medical, Albert, The Hampton Social | |
+| Scottish Government, lines over £500 | 11,087 | 29 | Baxter Storey x26, Alex Forbes & Son, Alex Kirkwood & Son, O'Reilly UK Ltd (not the US auto-parts chain) | |
+
+38 of 39 changed lines were wrong suggestions turned into no suggestion; one right one was lost. Scored against the owners' labels:
+
+| set | before (check off) | after |
+|---|---|---|
+| YNAB, learning loop, first-seen payees (219) | 74.4% right / 12.3% wrong | 74.9% / 11.9% |
+| YNAB, learning loop, every line (633) | 86.3% / 6.5% | 86.4% / 6.3% |
+| Scottish Government, empty books (11,087 lines) | 12.3% / 7.1% | 12.3% / 6.9% |
+| Mint tuning half, keywords alone, first-seen (835) | 50.5% / 2.5% | 50.4% / 2.4% |
+| Mint held-out half | unchanged | unchanged |
+
+What it says, with care: a small fix on a small layer. It takes back the whole YNAB loss the chain layer brought in (first-seen 74.9% / 11.9% is where that set stood before the layer) and most of its Scottish Government damage, at the cost of one bare chain name a budgeting app had already stripped of its store number. The name lists are American; a British or Dutch given name that is also a chain and is not on them still matches. Pinned in `brands.test.mjs` (two tests: the cases above in the shapes the files print, and the builder on a made-up index).
 
 ### PNC CSV (2026-10-22)
 
@@ -2139,9 +2166,9 @@ right (wrong 112 to 96). Merchant and date are unchanged, except that 2 merchant
 another reading found are wrong. These scans were not looked at when the
 weights were chosen, so this is a second held-out check.
 
-Not measured: CORD's phone photos with four readings (Hugging Face, where
+Not measured then: CORD's phone photos with four readings (Hugging Face, where
 they are fetched from, did not answer from this session); full-size 12
-megapixel phone photos. The CLI reads four times with `--four-pass` since
+megapixel phone photos. Both were measured on 2026-11-15 ("Full-size photos" below). The CLI reads four times with `--four-pass` since
 2026-11-14 (next section). Reproduce: `node eval/srd-fetch.mjs <photos>`, `node
 eval/sroie-tesseractjs.mjs <photos> <ocr> <node_modules>`, `node
 eval/srd-canvas-grow.mjs <photos> <grown>`, `node eval/sroie-tesseractjs.mjs
@@ -2196,6 +2223,81 @@ eval/cord-receipts.mjs eval/srd/labels.jsonl --ocr <out>/psm6,<out>/psm4,<out>/g
 for SROIE point `eval/srd-cli.mjs` at `<clone>/data/img` and score with `node
 eval/sroie-receipts.mjs <clone>/data --ocr` and the same four folders. Tests:
 `receipt-crosscheck.test.mjs` (14, two new: the four-pass calls and the damaged-JPEG retry).
+
+### Full-size photos: a grey copy shrunk to 2,000 px, read first (2026-11-15)
+
+Flagship item (5), "next: full-size photos". Until today a photo 2,000 pixels or more
+on its long side (a phone's own 12 megapixel photo, a flatbed scan) was read only
+twice, as it is. It now gets the same grey copy as a small photo, shrunk to 2,000 px
+instead of enlarged, and the copy's two readings go **first**, ahead of the photo's.
+The first reading is the one the receipt box shows and the one merchant and date
+come from, and the vote's ties go to it. Page (`greyCopy` and `readPhotos` in
+`photoocr.mjs`) and CLI (`--four-pass`, `greyCopyFile` in `ocr.mjs`) do the same.
+
+Measured on SROIE's 189 scans over 2,000 px (flatbed scans, up to 4961 x 7016),
+with the labels as before:
+
+| 189 large SROIE scans | total right | date right (of 188) | merchant exact |
+|---|---|---|---|
+| CLI (tesseract 5.3.4), the photo twice (before) | 144 | 149 | 93 |
+| CLI, photo first, then the shrunk copy | 152 | 150 | 94 |
+| CLI, the shrunk copy alone, twice | 156 | 152 | 94 |
+| **CLI now: shrunk copy first, then the photo** | **155** | **152** | **94** |
+| page (tesseract.js 5.1.1), the photo twice (before) | 151 | 154 | 92 |
+| page, photo first, then the canvas copy | 156 | 155 | 92 |
+| **page now: canvas copy first, then the photo** | **160** | 154 | **95** |
+
+The order was chosen on these 189 scans, so they are not a held-out test. The held-out
+check is CORD's 17 test photos over 2,000 px (real Indonesian phone photos, 2304 x 4096
+and 1836 x 3264, never looked at when choosing): 7 right before and 8 after, in either
+order. That is one receipt, so it says little more than "no harm".
+
+End to end, through the CLI's own code on every photo (`eval/srd-cli.mjs`):
+
+| totals right, CLI `--four-pass` | before | now |
+|---|---|---|
+| SROIE, all 625 labelled scans | 503 (80.5%) | **514 (82.2%)** |
+| CORD test, 95 phone photos with a total | 47 (49.5%) | **48 (50.5%)** |
+| SRD US photos, 196 | 131 (66.8%) | 131 (66.8%) |
+
+SROIE dates went from 490 to 493 of 611 and merchants from 287 to 288. SRD has one
+full-size photo (3024 x 4032); its total was right before and is right now. The page's
+full SROIE score, assuming the 437 smaller scans read as before (their code path did not
+change): 521 + 9 = **530 of 625 (84.8%)**. Cost, CLI, one thread: on the largest scan
+(4961 x 7016) one tesseract pass on the photo takes 2.3 s, making the copy 1.8 s and each
+pass on it 0.5 s, so the four readings take about 7.6 s against 4.6 s for two.
+
+**CORD's phone photos read four times, measured for the first time** (Hugging Face
+answered today): the CLI's one reading gets 44 of 95 totals right, `--four-pass` 47
+before today's change and 48 after.
+
+**What did not help, kept so later runs need not try it again:**
+
+- *More image variants.* On SRD the right total already appears somewhere in the four
+  readings' text on 153 of 196 photos; the vote picks it on 131. Adding a fifth and sixth
+  reading of another copy raised that ceiling by only 2 to 6 receipts: 3,000 px (+3),
+  flattened lighting by dividing by a blur (+2 to +3; read alone, 36 of 196), sharpened and
+  normalised (+5), deskewed (+4), the bottom 55% enlarged (+6). None was built: a pass costs
+  as much as the others and the vote would have to find those few.
+- *Two vote rules from the 22 receipts where the total was read but not picked.* (a) A
+  reading taken as whole units ("8262", "190275" on a dollar receipt: 60 such readings on
+  SRD, none right) sits out when at least half the readings use decimals: SRD 131 to 131,
+  CORD 47 to 46. Not shipped. (b) A value whose digits end another's ("4.78" beside
+  "94.78") lends its votes to the longer one: SRD 131 to 128. Not shipped. Both rules were
+  written after looking at all 196 SRD misses, so SRD was not a fair test for them; they
+  failed anyway.
+
+Reproduce: `git clone --depth 1 https://github.com/zzzDavid/ICDAR-2019-SROIE`, then
+`node eval/srd-cli.mjs <clone>/data/img <out> [k/n]` (for a photo over 2,000 px it writes
+the shrunk copy's readings to `psm6`/`psm4` and the photo's to `g6`/`g4`, in reading
+order) and `node eval/sroie-receipts.mjs <clone>/data --ocr
+<out>/psm6,<out>/psm4,<out>/g6,<out>/g4`. For the page, `node eval/srd-canvas-grow.mjs
+<photos> <grey>` now draws shrunk copies too (`--grow-only` for the old behaviour), then
+`node eval/sroie-tesseractjs.mjs` on both folders and `--settled` scoring with the copy's
+folders first. Numbers and commands: [`eval/full-size-photos-2026-11-15.md`](eval/full-size-photos-2026-11-15.md).
+Tests: `receipt-crosscheck.test.mjs` (the four-pass test now checks a big photo's four
+readings and their order) and `photoocr.test.mjs` (12, one new: a shrunk copy's reading
+leads the block). `node eval/photo-ocr-browser.mjs` in headless Chromium: 6/6.
 
 ## Budget against actual
 

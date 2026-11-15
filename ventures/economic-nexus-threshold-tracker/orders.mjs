@@ -126,7 +126,7 @@ export function parseDate(value) {
     const back = new Date(t);
     return back.getUTCMonth() === month - 1 && back.getUTCDate() === day ? t : null;
   }
-  m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})/);
+  m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})(?!\d)/);
   if (m) {
     const year = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
     const month = Number(m[1]);

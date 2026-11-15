@@ -269,7 +269,7 @@ export function codesCsv(result) {
   return [head].concat(result.byCode.map((c) => [q(c.key), c.orders, c.gross.toFixed(2), c.discount.toFixed(2), c.rate.toFixed(4), c.aov.toFixed(2), c.refundRate.toFixed(4), c.breakEven === null ? "" : c.breakEven === Infinity ? "never" : c.breakEven.toFixed(4)].join(","))).join("\n");
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(1)}%`; }
 
 // Deterministic synthetic store in Shopify's own export layout (one row per line

@@ -15,7 +15,7 @@ export const EXAMPLE_FLOWERS = [
   { name: "Peonies", stems: "33", sizeA: "5", priceA: "29", sizeB: "", priceB: "" },
 ];
 
-export const money = (n) => (n < 0 ? "-" : "") + "$" + (Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + (Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 const num = (v) => {
   if (v === "" || v == null) return null;

@@ -20,7 +20,7 @@
 // and a new payee's shape and size (guessNewPayee).
 
 import { mccAccount, mccKey } from "./mcc.mjs";
-import { BRAND_KINDS, BRANDS_VERSION } from "./brands.mjs";
+import { BRAND_KINDS, BRANDS_VERSION, BRAND_PERSON_NAMES } from "./brands.mjs";
 
 const NOISE = new Set(("pos ach debit credit card purchase checkcard visa mastercard mc dda withdrawal deposit payment pmt pymt web ppd ccd id ref trn txn " +
   "recurring online mobile preauthorized pre auth authorized authorization authorisation pending non pin at on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
@@ -1032,7 +1032,7 @@ export function suggest(txn, model) {
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
   if (d === "out" && !off.has("brand")) {
-    const b = brandAccount(txn.desc);
+    const b = brandAccount(txn.desc, off);
     // The keywords know this chain's bare name but stayed silent on the line ("Iceland Travel" is
     // not the grocer): their exception stands (read on the Scottish Government's held-out lines).
     // The keywords then decide on the cleaned payee ("www.iceland.co.uk" -> "iceland uk"): the grocer
@@ -1069,7 +1069,18 @@ export const BRAND = { confidence: 0.5, maxTokens: 5, version: BRANDS_VERSION };
 const BRAND_LABEL = { "6130": "a food shop, cafe or restaurant", "6120": "a hotel, car hire or travel agent", "6160": "a fuel station or car service", "6100": "a hardware, DIY or trade store", "6070": "a stationer, copy shop or post office", "6180": "a carrier", "6140": "a phone or internet provider", "6030": "an insurer", "6080": "a coworking or self-storage operator" };
 const BRAND_FINANCE = /^(financial|finance|financing|credit|capital|bank|banking|loans?|lease|leasing|insurance|mortgage)$/;
 let BRAND_INDEX = null;
-export function brandAccount(desc) {
+const BRAND_PERSON = new Set(BRAND_PERSON_NAMES);
+// A one-word chain name that is also a person's name ("ALBERT", "BAXTER STOREY", "The Hampton
+// Social", "DENNIS SMITH") counts only when a store number follows it ("KRYSTAL #12", "OREILLY
+// 4567"): a chain's card line carries its store number, a person or an independent firm carries
+// another word or nothing. Read on YNAB and the Scottish Government's lines (README "Chain names
+// that are people's names"); `skip: brand-names` turns the check off.
+export function storeNumberFollows(desc, name) {
+  const flat = String(desc).toLowerCase().replace(/['\u2019`]/g, "");
+  const m = new RegExp(`(^|[^a-z0-9])${name}(?![a-z0-9])\\W*(\\S*)`).exec(flat);
+  return !!m && /^#?\d/.test(m[2]);
+}
+export function brandAccount(desc, off = new Set()) {
   if (!BRAND_INDEX) {
     BRAND_INDEX = new Map();
     for (const [account, names] of Object.entries(BRAND_KINDS)) for (const n of names) BRAND_INDEX.set(n, account);
@@ -1082,6 +1093,7 @@ export function brandAccount(desc) {
       // The chain's finance arm, card or insurer ("JOHN DEERE FINANCIAL", "TESCO BANK") is a loan or a
       // policy, not a purchase at the chain.
       if (t.slice(i).some((w) => BRAND_FINANCE.test(w))) return null;
+      if (i === 1 && BRAND_PERSON.has(name) && !off.has("brand-names") && !storeNumberFollows(desc, name)) return null;
       return account ? { account, name } : null;
     }
   }

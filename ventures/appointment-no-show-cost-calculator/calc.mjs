@@ -30,10 +30,10 @@ const pc = (x) => Math.min(100, nz(x)) / 100;
 
 export function money(x) {
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 export function money2(x) {
-  return (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2);
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2));
 }
 
 // Scheduled appointment slots per year.

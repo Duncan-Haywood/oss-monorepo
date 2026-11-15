@@ -475,3 +475,52 @@ test("a + sign or a trailing minus on an amount reads as the same size", () => {
   const p = parseTrades("Date,Symbol,Action,Quantity,Price\n2025-01-02,AAPL,buy,+10,+150.00\n2025-01-03,AAPL,sell,10-,140.00");
   assert.deepEqual(p.trades.map((t) => [t.qty, t.price]), [[10, 150], [10, 140]]);
 });
+
+// Red-team 2026-11-15: real defects found by reading parseTrades as a stranger with a real export.
+test("a title line above the header (Schwab's older export) is skipped, not read as the header", () => {
+  const body = ['"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount"',
+    '"01/02/2025","Buy","ABC","ABC CORP","10","$100.00","","-$1,000.00"',
+    '"02/03/2025","Sell","ABC","ABC CORP","10","$80.00","","$800.00"',
+    '"02/10/2025","Buy","ABC","ABC CORP","10","$70.00","","-$700.00"'];
+  const r = evaluate(['"Transactions  for account Individual ...123 as of 11/14/2025 10:00 PM ET"', ...body].join("\n"));
+  assert.equal(r.error, undefined);
+  assert.equal(r.summary.disallowed, 200);
+  assert.deepEqual(r.sales.map((s) => s.line), [4]); // the file's own line number, title line counted
+  // a two-line account block and a blank line before the header
+  const p = parseTrades(["For Account:,XXXX-1234", "", "Date,Symbol,Action,Quantity,Price", "2025-01-02,ABC,buy,10,100"].join("\n"));
+  assert.deepEqual(p.trades.map((t) => [t.line, t.qty]), [[4, 10]]);
+  // with no usable header anywhere, the message still names what is missing
+  assert.match(parseTrades("Account summary\nTotal,5").error, /Need columns for: date/);
+});
+
+test("error and sale line numbers count blank lines, so they match the file", () => {
+  const r = evaluate(["", "", "Date,Symbol,Action,Quantity,Price", "2025-01-02,ABC,buy,10,100", "", "2025-02-03,ABC,sell,10,80", "", "Not a trade row"].join("\n"));
+  assert.deepEqual(r.sales.map((s) => s.line), [6]);
+  assert.match(r.errors[0], /^Line 8: date not readable/);
+});
+
+// Red team 2026-11-15 (second campaign): three mutants escaped this suite.
+test("ISO dates with one-digit month and day are read", () => {
+  assert.equal(isoDate(parseDate("2025-3-5")), "2025-03-05");
+  assert.equal(isoDate(parseDate("2025-03-5")), "2025-03-05");
+});
+
+test("a summary line with only a total above the header is skipped, not taken as the header", () => {
+  const r = evaluate(["Statement summary,Total value", "Date,Symbol,Action,Quantity,Price",
+    "2025-01-02,AAPL,buy,10,100", "2025-06-01,AAPL,sell,10,80"].join("\n"));
+  assert.equal(r.error, undefined);
+  assert.equal(r.summary.grossLoss, 200);
+});
+
+test("a wash under one dollar still counts as a washed sale", () => {
+  const r = evaluate(csv("2025-01-02,AAPL,buy,1,100,Taxable", "2025-06-01,AAPL,sell,1,99.5,Taxable", "2025-06-05,AAPL,buy,1,99,Taxable"));
+  assert.equal(r.summary.disallowed, 0.5);
+  assert.equal(r.summary.washed, 1);
+});
+
+test("a date with a stray digit is refused, not read as a nearby day (red team 2026-11-15)", () => {
+  // "2025-03-091" read as 9 March could move a sale in or out of the 30-day window without a word.
+  assert.equal(parseDate("2025-03-091"), null);
+  assert.equal(parseDate("03/09/20251"), null);
+  assert.equal(isoDate(parseDate("2025-03-09T10:00")), "2025-03-09");
+});

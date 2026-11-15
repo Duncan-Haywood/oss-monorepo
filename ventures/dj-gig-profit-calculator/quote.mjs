@@ -199,8 +199,8 @@ export function annualPlan(opts = {}, addons = []) {
   };
 }
 
-export const money = (v) => (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
-export const money2 = (v) => (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(v)).toLocaleString("en-US"));
+export const money2 = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 export function sampleAddons() {
   return "add-on,price,your cost,extra hours,tier\nCeremony sound,250,15,0.5,good\nCocktail hour music,300,10,1,better\nUplighting (12 fixtures),350,40,0.5,better\nPhoto booth,600,150,0.5,best\nMC and games,200,0,0,best";

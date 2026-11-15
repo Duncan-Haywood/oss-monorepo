@@ -237,6 +237,52 @@ class OpenPrsTest(unittest.TestCase):
         pick_track._open_pr_titles.cache_clear()
 
 
+class OwnPrTest(unittest.TestCase):
+    """A run that re-ran pick_track after opening its own draft PR had its programme skipped."""
+
+    def setUp(self):
+        pick_track._open_pr_titles.cache_clear()
+        pick_track._HEADS.clear()
+
+    tearDown = setUp
+
+    def _fetch(self):
+        import io, json
+        from unittest import mock
+        body = json.dumps([{"number": 7, "title": "research/lowcomm-training: 3d", "head": {"ref": "claude/mine"}},
+                           {"number": 8, "title": "research/lowcomm-training: 4", "head": {"ref": "claude/sib"}}]).encode()
+        return mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)), \
+            mock.patch.object(pick_track, "current_branch", return_value="claude/mine")
+
+    def test_own_pr_is_not_a_claim(self):
+        a, b = self._fetch()
+        with a, b:
+            self.assertEqual(pick_track.open_prs_for("lowcomm-training"), ["#8 research/lowcomm-training: 4"])
+
+    def test_draw_keeps_the_programme_once_its_own_pr_is_open(self):
+        import io, json
+        from unittest import mock
+        body = json.dumps([{"number": 7, "title": "research/a-prog: m3", "head": {"ref": "claude/mine"}}]).encode()
+        progs = [("a-prog", True), ("b-prog", True)]
+        with mock.patch.object(pick_track, "current_branch", return_value="claude/mine"), \
+             mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)):
+            for r in (i / 50 for i in range(50)):
+                first = pick_track.draw_programme(r, progs, lambda s: [], unreachable=lambda s: [])[0]
+                again = pick_track.draw_programme(r, progs, unreachable=lambda s: [])[0]
+                self.assertEqual(first, again)
+
+    def test_claim_check_labels_own_pr(self):
+        from unittest import mock
+        a, b = self._fetch()
+        with a, b, mock.patch.object(pick_track, "recent_programme_commits", return_value=[]), \
+                mock.patch.object(pick_track, "origin_main_age_hours", return_value=1.0), \
+                mock.patch.object(pick_track, "history_covers", return_value=True):
+            lines = pick_track.claim_check("lowcomm-training")
+        self.assertTrue(any("#7" in l and "own PR" in l for l in lines))
+        self.assertFalse(any("#7" in l and "take a different" in l for l in lines))
+        self.assertTrue(any("#8" in l and "take a different" in l for l in lines))
+
+
 class ClaimCheckTest(unittest.TestCase):
     def setUp(self):
         pick_track._open_pr_titles.cache_clear()

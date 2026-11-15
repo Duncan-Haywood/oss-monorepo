@@ -156,7 +156,7 @@ export function num(v) {
 export function money(n) {
   const v = Math.round((Number.isFinite(n) ? n : 0) * 100) / 100;
   const s = Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return (v < 0 ? "-$" : "$") + s;
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(s);
 }
 
 const round2 = (n) => Math.round(n * 100) / 100;

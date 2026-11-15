@@ -1,0 +1,275 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/gumroad-sales-fee-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-15-b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a creator-economy bookkeeper / accountant who closes the books for digital-product sellers on Gumroad. They would check first that the tool reads the CSV Gumroad actually exports (Sales export: 'Sale Price ($)', 'Fees ($)', 'Net Total ($)', 'Refunded?', 'Discover?'), that the fee it reports matches Gumroad's schedule (10% + $0.50 per direct sale plus card processing on Gumroad's merchant account, 30% flat on Discover sales), and that refunds reduce income, before looking at the per-product tables",
+ "scores": {
+  "correctness": 1,
+  "completeness": 1,
+  "verification": 2,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Ran the shipped engine on probes (scratchpad probe/probes.mjs). gumroad.com/pricing and the help center are not reachable from this session (DNS blocked), so the fee schedule and export headers were taken from Gumroad's own open-sourced code (antiwork/gumroad main, app/services/exports/purchase_export_service.rb (PURCHASE_FIELDS) and app/models/purchase.rb (calculate_fees, GUMROAD_FLAT_FEE_PER_THOUSAND=100, GUMROAD_FIXED_FEE_CENTS=50, PROCESSOR_FEE_PER_THOUSAND=29, PROCESSOR_FIXED_FEE_CENTS=30, GUMROAD_DISCOVER_FEE_PER_THOUSAND=300), fetched via raw.githubusercontent.com). (1) A file with Gumroad's real Sales-export header row returns 'No header row found': none of 'Sale Price ($)', 'Fees ($)', 'Net Total ($)' matches an alias, because aliases are compared exactly and the export suffixes amount columns with ' ($)'. The tool's primary job therefore fails on the real file. (2) With the same rows renamed to Amount/Fees/Net the arithmetic is right: fees 2.09+13.70+7.50+2.09+1.45 = 26.83 of 150 = 17.887%, matching the tool. (3) Amount-only file: the default 20% fee charges $20.00 on a $100 sale; Gumroad's calculate_fees gives round(10000*129/1000)+80 = 1370 cents ($13.70; $10.50 on the headline 10% + $0.50). (4) Break-even for a $50 take-home from a file of $10 direct sales (observed 20.9%): tool $63.21; correct (50 + 0.80)/(1 - 0.129) = $58.32, because the model is percent-only and turns Gumroad's fixed per-sale fee into a rate inflated at the low price observed. (5) Refunds: Gumroad marks refunds with 'Refunded?'/'Fully Refunded?' flags on the sale row, not negative rows; the tool ignores those columns, so a fully refunded $10 sale stays in take-home (123.17 vs 115.26). (6) A row with an amount and blank Fees and Net is read as a zero-fee sale (net = amount), silently diluting the observed rate (P5: 10.45% instead of 20.9%). Decimal-comma semicolon files read correctly. Score 1: right arithmetic on hand-renamed files, but the real export is unreadable and every assumed-fee output is wrong for Gumroad.",
+  "completeness": "Claimed features checked: CSV/TSV/semicolon parse, quoted fields, UTF-16, day-first dates (work, tests and probe P7); observed fee from a fee column or amount minus earnings (works on aliased headers); refunds and cancellations (work only for negative or typed rows, which Gumroad's export does not produce); withdrawals, tips and 'funds still clearing' (rely on Type/Status columns that do not exist in Gumroad's sales export, so on a real file they never fire); per-product, per-buyer, repeat buyers, by-month, break-even, product CSV download (work on aliased files). The headline 'drop in your Gumroad sales CSV' fails on the real export (P1). Score 1: the parts work only after the user rebuilds the file by hand.",
+  "verification": "`cd ventures/gumroad-sales-fee-analyzer && node --test '*.test.mjs'`: 34 tests, 34 pass, ~0.1 s. Four mutants via platform/ci/quality_mutate.py: 2 caught (negative-amount-to-refund :205, total-row skip :187), 2 survived (net = g - fee dropped to net = g when a fee column exists but net is blank, :223; refund-share cap 0.9 -> 0.5, :366, weaker). No test uses Gumroad's real header row or fee schedule; tests and sample data are Fiverr-shaped (Order/Cleared/Tip, 20% fee).",
+  "craft": "Read calc.mjs (495 lines), index.html (233), calc.test.mjs, page.test.mjs. Pure, dependency-free, output escaped, local-only usage counter. But it is a copied Fiverr engine: DEFAULT_FEE_PCT = 20 (calc.mjs:122), sample products 'Logo design', 'Blog post writing', 'Voice-over 60 seconds' with 20% fees, 'Pending clearance' and Tip rows (calc.mjs:451-470), hours-per-order inputs, and the page eyebrow reads 'FIVERR EARNINGS FEE ANALYZER' (index.html:62). Aliases are matched by exact lower-case equality with no stripping of ' ($)' (calc.mjs:126). The status alias 'state' (calc.mjs:110) maps Gumroad's US-state address column to order status. Blank fee and net silently becomes zero fee (calc.mjs:223). Duplicate aliases ('product name', 'your earnings' twice).",
+  "claims": "Disclaimer, not-affiliated, privacy and alias caveat present (page.test.mjs asserts them; no fetch/XHR in index.html or calc.mjs). Unbacked or wrong: 'Drop in your Gumroad sales CSV' (index.html header, README, llms.txt) fails on Gumroad's real export; the Fiverr eyebrow (index.html:62); 'Not modelled: the buyer's own service fee' (index.html:127) and 'Any buyer-side fee comes on top' (calc.mjs findings) describe Fiverr, Gumroad has no buyer service fee; 'withdrawal costs' and 'funds still clearing' cannot come from a Gumroad sales export. To its credit the page and README say column names were not checked against a real export. The served page could not be loaded (proxy 403 on marisstella.app), so the llms.txt github.io host is not filed (deploy rewrites it).",
+  "fitness": "Job: a Gumroad seller downloads Analytics/Sales export CSV and wants fee, take-home and per-product net. Walked through with a file using Gumroad's real header names: the tool stops at 'No header row found'. A seller who renames three columns gets correct fee totals but refunds ignored, no Discover vs direct split (the 'Discover?' column is the single biggest fee driver, 30% vs ~13%), and a break-even price that overstates the needed price. A bookkeeper would not use it.",
+  "domain": "Compared with Gumroad's fee logic (purchase.rb calculate_fees): 10% + $0.50 per direct sale, +2.9% + $0.30 processing when charged on Gumroad's merchant account, 30% flat (no fixed fee) on Discover sales, PayPal/Stripe-Connect fee columns separate. The tool models a single percentage (default 20%, a Fiverr number), no fixed per-sale component, no Discover split, refunds as negative rows, and Fiverr concepts (withdrawals, clearance, tips as rows, hours per order, buyer service fee). Departs from the standard on every Gumroad-specific rule."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Gumroad's real Sales export header row is read",
+   "method": "antiwork/gumroad main, app/services/exports/purchase_export_service.rb (PURCHASE_FIELDS) and app/models/purchase.rb (calculate_fees, GUMROAD_FLAT_FEE_PER_THOUSAND=100, GUMROAD_FIXED_FEE_CENTS=50, PROCESSOR_FEE_PER_THOUSAND=29, PROCESSOR_FIXED_FEE_CENTS=30, GUMROAD_DISCOVER_FEE_PER_THOUSAND=300), fetched via raw.githubusercontent.com PURCHASE_FIELDS",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs",
+   "expected": "header found; gross=Sale Price ($), fee=Fees ($), net=Net Total ($)",
+   "observed": "P1: 'No header row found. Expected an amount column such as Amount or Earnings'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Observed fee rate on 5 sales ($10, $100, $25 Discover, $10 refunded, $5) with fees from Gumroad's calculate_fees",
+   "method": "hand: direct fee = round(cents*129/1000)+80c, Discover = 30%; 26.83/150",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs (P2, headers renamed to Amount/Fees/Net)",
+   "expected": "fee 26.83, rate 17.887%",
+   "observed": "fee 26.83, feeRate 17.887",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Assumed fee on a $100 direct sale when the file has only an amount",
+   "method": "Gumroad purchase.rb calculate_fees: 12.9% + $0.80 on Gumroad merchant account (10% + $0.50 headline)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs (P3)",
+   "expected": "$13.70 (or $10.50)",
+   "observed": "$20.00 (20% default)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even price for $50 take-home from $10 direct sales",
+   "method": "hand: P(1-0.129) - 0.80 = 50 -> P = 58.32, from Gumroad's fee formula",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs (P4)",
+   "expected": "58.32",
+   "observed": "63.21",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fully refunded sale reduces take-home",
+   "method": "Gumroad export marks refunds with 'Fully Refunded?'=1 on the sale row (purchase_export_service.rb)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs (P2)",
+   "expected": "refunds 1, take-home 115.26",
+   "observed": "refunds 0, take-home 123.17",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Row with amount but blank Fees and Net",
+   "method": "hand: a blank fee is unknown, not zero",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs (P5)",
+   "expected": "flagged or skipped; rate stays 20.9%",
+   "observed": "read as zero-fee sale; feeRate 10.45%, no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Semicolon file with decimal commas and dotted day-first date",
+   "method": "hand: 10,00 / 2,09 / 7,91",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs (P7)",
+   "expected": "gross 10, fee 2.09, rate 20.9%",
+   "observed": "gross 10, fee 2.09, feeRate 20.9",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Negative typed refund row",
+   "method": "hand: 7.91 - 7.91 = 0",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs (P8)",
+   "expected": "refunds 1, take-home 0",
+   "observed": "refunds 1, takeHome 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Totals row at the end of Gumroad's export is skipped",
+   "method": "purchase_export_service.rb TOTALS_COLUMN_NAME = 'Totals' in column 0",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs (P2)",
+   "expected": "skipped as total row",
+   "observed": "skipped line 7 'total row'",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/gumroad-sales-fee-analyzer && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "34/34 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page eyebrow names the right product",
+   "method": "read index.html",
+   "command": "grep -n FIVERR ventures/gumroad-sales-fee-analyzer/index.html",
+   "expected": "no Fiverr text",
+   "observed": "index.html:62 'FIVERR EARNINGS FEE ANALYZER'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Drop in your Gumroad sales CSV' (README, page, llms.txt)",
+   "method": "P1 with real headers",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/gumroad/probe/probes.mjs",
+   "expected": "reads the export",
+   "observed": "No header row found",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded",
+   "method": "grep for fetch/XHR/sendBeacon; page.test.mjs network test",
+   "command": "grep -n 'fetch\\|XMLHttpRequest\\|sendBeacon' ventures/gumroad-sales-fee-analyzer/index.html ventures/gumroad-sales-fee-analyzer/calc.mjs",
+   "expected": "none",
+   "observed": "none",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and not-affiliated lines",
+   "method": "read index.html footer; page.test.mjs",
+   "command": "node --test page.test.mjs",
+   "expected": "present",
+   "observed": "present, tests pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Discover vs direct fee split",
+   "method": "purchase.rb charge_discover_fee? / GUMROAD_DISCOVER_FEE_PER_THOUSAND=300",
+   "command": "grep -n -i discover ventures/gumroad-sales-fee-analyzer/calc.mjs",
+   "expected": "Discover? column read and reported separately",
+   "observed": "no code reads Discover?",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:223",
+   "change": "if (g !== null) { gross = g; net = n ?? g - fa; } -> if (g !== null) { gross = g; net = n ?? g; }",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:205",
+   "change": "else if (negative) kind = \"refund\"; -> else if (negative) kind = \"order\";",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:366",
+   "change": "Math.min(refundNet / net, 0.9) -> Math.min(refundNet / net, 0.5)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:187",
+   "change": "if (/^(total|totals|subtotal -> if (/^(xtotal|subtotal",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Gumroad's real Sales export is unreadable: aliases are exact lower-case matches and the export's amount headers are 'Sale Price ($)', 'Fees ($)', 'Net Total ($)', so no amount column is found and the tool stops with 'No header row found'",
+   "where": "ventures/gumroad-sales-fee-analyzer/calc.mjs:126",
+   "category": "input-handling",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "high",
+   "what": "Default assumed fee is 20% (a Fiverr rate) with no fixed per-sale component; Gumroad charges 10% + $0.50 (+2.9% + $0.30 processing on its merchant account) or 30% on Discover. A $100 amount-only sale is charged $20.00 instead of $13.70",
+   "where": "ventures/gumroad-sales-fee-analyzer/calc.mjs:122",
+   "category": "source-data",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "high",
+   "what": "Break-even price is percent-only, (target+cost)/(1-rate), so Gumroad's fixed per-sale fee is folded into a rate; $50 target from $10 sales gives $63.21 instead of $58.32",
+   "where": "ventures/gumroad-sales-fee-analyzer/calc.mjs:369",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "high",
+   "what": "Refunds in Gumroad's export are flags on the sale row ('Refunded?', 'Fully Refunded?', 'Partial Refund ($)', 'Disputed?'); they are ignored, so refunded sales stay in take-home",
+   "where": "ventures/gumroad-sales-fee-analyzer/calc.mjs:113",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "medium",
+   "what": "No Discover vs direct split: the 'Discover?' column, the largest fee driver (30% vs ~13%), is not read",
+   "where": "ventures/gumroad-sales-fee-analyzer/calc.mjs:104",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "medium",
+   "what": "Page eyebrow reads 'FIVERR EARNINGS FEE ANALYZER' on the Gumroad page",
+   "where": "ventures/gumroad-sales-fee-analyzer/index.html:62",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "medium",
+   "what": "Fiverr concepts presented as Gumroad: buyer-side service fee, withdrawals, clearance status, Tip rows, hours per order; sample file is Fiverr gigs at 20%",
+   "where": "ventures/gumroad-sales-fee-analyzer/index.html:127",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "A sale with an amount and blank Fees and Net is read silently as a zero-fee sale, diluting the observed fee rate",
+   "where": "ventures/gumroad-sales-fee-analyzer/calc.mjs:223",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Status alias 'state' captures Gumroad's US-state address column as order status",
+   "where": "ventures/gumroad-sales-fee-analyzer/calc.mjs:110",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "low",
+   "what": "No test uses Gumroad's real header row or fee schedule; mutant dropping net = amount - fee survives",
+   "where": "ventures/gumroad-sales-fee-analyzer/calc.test.mjs:27",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+ ],
+ "verdict": "A tidy, private, well-disclaimed CSV analyzer that is a Fiverr engine relabelled for Gumroad and does not read Gumroad's file. Checked against Gumroad's own open-sourced export and fee code (gumroad.com was unreachable): the real Sales export header ('Sale Price ($)', 'Fees ($)', 'Net Total ($)') returns 'No header row found'. After renaming columns by hand the fee arithmetic is correct (26.83 of 150 = 17.887%), but refunds, which Gumroad records as flags on the sale row, are ignored. The 'Discover?' column (30% vs about 13%) is never read. The default fee is Fiverr's 20% with no $0.50 fixed fee, and the break-even price overstates the needed price ($63.21 vs $58.32). The page eyebrow says 'FIVERR EARNINGS FEE ANALYZER'. 34/34 tests pass, 2 of 4 seeded mutants survive. Scores: correctness 1, completeness 1, verification 2, craft 2, claims 1, fitness 1, domain 1. Not finished, not at the bar."
+}

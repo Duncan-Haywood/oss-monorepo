@@ -12,9 +12,9 @@ const LOW_SAMPLE = 5;
 export const money = (n) => {
   const v = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
   const [i, f] = Math.abs(v).toFixed(2).split(".");
-  return (v < 0 ? "-" : "") + i.replace(/\B(?=(\d{3})+$)/g, ",") + "." + f;
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(i.replace(/\B(?=(\d{3})+$)/g, ",") + "." + f);
 };
-const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
 const pct = (n, d) => (d > 0 ? (n / d) * 100 : null);
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 

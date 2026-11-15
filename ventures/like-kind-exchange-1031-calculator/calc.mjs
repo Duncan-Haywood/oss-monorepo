@@ -8,7 +8,7 @@ const MS_DAY = 86400000;
 export function money(n) {
   const v = Number.isFinite(n) ? n : 0;
   const s = Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return (v < 0 ? "-$" : "$") + s;
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(s);
 }
 
 const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;

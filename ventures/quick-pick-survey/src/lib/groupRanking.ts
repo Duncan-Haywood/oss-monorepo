@@ -1170,3 +1170,92 @@ export function fastBlockStarts(answers: (AnswerTime & Partial<Omit<ReplayAnswer
   for (const [participantId, list] of people) if (splits.has(participantId)) out.set(participantId, list[splits.get(participantId)!].index);
   return out;
 }
+
+/** Upper tail of a chi-square with one degree of freedom, erfc(sqrt(x / 2)) (Numerical Recipes' erfcc, relative error under 1.2e-7). */
+export function chiSq1Tail(x: number): number {
+  if (!(x > 0)) return 1;
+  const z = Math.sqrt(x / 2), t = 1 / (1 + 0.5 * z);
+  const r = t * Math.exp(-z * z - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return Math.min(1, r);
+}
+
+/** The family-wise chance pinnedTurnsBeforeRuns allows a pace that only wanders, at the panel's rate, to move a cut. */
+export const PINNED_TURN_ALPHA = 0.01;
+
+/**
+ * Turns before a slot run, each scored against that run's own start: for each respondent the slot run test flagged
+ * from answer `from` (slotBlockStarts), the earlier answer from which they turned quick, when the evidence for it
+ * survives a bound on the search. The answers they timed are read against the panel's median time at each point
+ * (the people not flagged, as fastBlockStarts' later passes read them); the null model is their pace as a random walk
+ * with a straight-line trend and a step at the run's start (the run is known to be careless, so it may be quicker);
+ * each earlier split `t` from FAST_BLOCK_MIN_SEG up to the run adds one more step, and scores twice the gain in log
+ * likelihood, each model at its own best walk ratio (WALK_RATIOS). The best split that is quicker after than before
+ * is kept when its chi-square(1) tail times the number of splits tried is at most `alpha`. So a pace that only wanders
+ * at the panel's rate moves the cut at most about `alpha` of the time (0.5% of made-up runs at alpha 0.01 on a pure
+ * 0.08 walk; 0.6-3.2% in the sweep's panels, whose times also depend on how close each pair is), where looseFastTurns'
+ * split search (no wander bar) is free to take a wander step as a turn. Nobody is flagged here who was not already.
+ * Measured against slotBlocksBackToTurns at looseFastTurns (the default) and not shipped (2026-11-15,
+ * docs/INFORMATION-GAIN-SELECTOR.md, "A turn scored against the run's own start"): under wander it moved 3-35x fewer
+ * made-up runs, but over 176 cells the ranking gained +0.0002 on average to the default's +0.0004. Empty when fewer
+ * than AGREEMENT_MIN_RESPONDENTS people have 2 x FAST_BLOCK_MIN_SEG timed answers.
+ */
+export function pinnedTurnsBeforeRuns(answers: AnswerTime[], from: Map<string, number>, alpha = PINNED_TURN_ALPHA, minSeg = FAST_BLOCK_MIN_SEG): Map<string, number> {
+  if (!(alpha > 0 && alpha < 1)) throw new Error(`alpha must be between 0 and 1, got ${alpha}`);
+  if (!(Number.isInteger(minSeg) && minSeg >= 2)) throw new Error(`minSeg must be an integer of at least 2, got ${minSeg}`);
+  const out = new Map<string, number>();
+  if (!from.size) return out;
+  const by = new Map<string, { index: number; ms: number }[]>();
+  const seen = new Map<string, number>();
+  for (const a of answers) {
+    const index = seen.get(a.participantId) ?? 0;
+    seen.set(a.participantId, index + 1);
+    const list = by.get(a.participantId) ?? by.set(a.participantId, []).get(a.participantId)!;
+    if (a.ms !== null && Number.isFinite(a.ms) && a.ms > 0 && a.ms < PACE_MAX_MS) list.push({ index, ms: a.ms });
+  }
+  const people = [...by].filter(([, l]) => l.length >= 2 * minSeg);
+  if (people.length < AGREEMENT_MIN_RESPONDENTS) return out;
+  const unflagged = people.filter(([id]) => !from.has(id));
+  const ref = unflagged.length >= AGREEMENT_MIN_RESPONDENTS ? unflagged : people;
+  const longest = Math.max(...people.map(([, l]) => l.length));
+  const atPos: number[] = [];
+  for (let i = 0; i < longest; i++) {
+    const v = ref.filter(([, l]) => l.length > i).map(([, l]) => Math.log(l[i].ms));
+    atPos.push(v.length ? medianOf(v) : NaN);
+  }
+  const curve: number[] = [];
+  for (let i = 0; i < longest; i++) {
+    const w = atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite);
+    curve.push(w.length ? medianOf(w) : curve[i - 1]);
+  }
+  // How much an honest pace wanders in this survey: the walk ratio of the people not flagged, read together. One
+  // person's own best ratio would grow to swallow their turn (and, profiled again with the turn in, shrink to make a
+  // wander step look like one: under a 0.08 walk that let 3% of honest made-up runs move at alpha 0.01).
+  const r0 = panelWalkRatio(ref.map(([, l]) => l.map((a, i) => Math.log(a.ms) - curve[i])));
+  for (const [id, runAt] of from) {
+    const list = by.get(id);
+    if (!list || list.length < 2 * minSeg) continue;
+    const x = list.map((a, i) => Math.log(a.ms) - curve[i]);
+    let s = list.findIndex((a) => a.index >= runAt);
+    if (s < 0) s = list.length;
+    if (s <= minSeg) continue;
+    const trend = x.map((_, i) => i);
+    const base = s < x.length ? [trend, x.map((_, i) => (i >= s ? 1 : 0))] : [trend];
+    const ll0 = walkLogLik(x, base, r0);
+    const tried = s - minSeg;
+    let best: { p: number; t: number } | null = null;
+    let before = 0;
+    for (let i = 0; i < minSeg; i++) before += x[i];
+    let between = 0;
+    for (let i = minSeg; i < s; i++) between += x[i];
+    for (let t = minSeg; t < s; t++) {
+      if (t > minSeg) { before += x[t - 1]; between -= x[t - 1]; }
+      if (!(between / (s - t) < before / t)) continue;
+      const cols = [...base, x.map((_, i) => (i >= t ? 1 : 0))];
+      const ll1 = walkLogLik(x, cols, r0);
+      const p = chiSq1Tail(Math.max(0, 2 * (ll1 - ll0)));
+      if (!best || p < best.p) best = { p, t };
+    }
+    if (best && best.p * tried <= alpha) out.set(id, list[best.t].index);
+  }
+  return out;
+}

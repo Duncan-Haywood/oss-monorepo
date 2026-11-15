@@ -454,7 +454,7 @@ export function toCsv(result) {
 }
 
 export function summaryText(result) {
-  const m = (v) => (v === null || v === undefined ? "–" : (v < 0 ? "-$" : "$") + Math.abs(v).toFixed(2));
+  const m = (v) => (v === null || v === undefined ? "–" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toFixed(2)));
   const out = [`Reseller books: ${result.channels.map((c) => c.label).join(", ")}`];
   const t = result.total;
   out.push(`Sales ${m(t.sales)}, refunds ${m(t.refunds)}, fees ${m(t.platformFees)}, postage ${m(t.labels)}, ads ${m(t.ads)}, other ${m(t.other)}, net payout ${m(t.net)}.`);
@@ -481,5 +481,5 @@ export function sampleFiles() {
   };
 }
 
-export const money = (v) => (v === null || v === undefined ? "–" : (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { style: "currency", currency: "USD" }));
+export const money = (v) => (v === null || v === undefined ? "–" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { style: "currency", currency: "USD" })));
 export const decodeBuffer = poshmark.decodeBuffer;

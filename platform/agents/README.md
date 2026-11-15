@@ -7,7 +7,7 @@ local [MCP](https://modelcontextprotocol.io) server for Claude Code, Claude
 Desktop, Cursor, VS Code and other MCP clients.
 
 The tools are published as web pages at
-**https://duncan-haywood.github.io/oss-monorepo/**. Many of them are more
+**https://marisstella.app/**, the address `search` and `describe` hand back. Many of them are more
 useful to an agent working for a person than to the person: a contractor's
 assistant pricing three bids, a bookkeeper's agent checking a 1099 vendor CSV,
 or a coding agent estimating the CI minutes a workflow change will burn. An
@@ -32,6 +32,7 @@ it needs no network after the clone.
 | --- | --- |
 | `search <words...> [--limit N]` | JSON `{ total, tools: [{ slug, title, description, url }] }`. Every word must match. |
 | `describe <slug>` | JSON: each engine module's exported functions with their parameter lists and doc comments, its constants (`DEFAULTS` holds the page's default inputs, plus any sample inputs), the live page URL and source, the tool's own CLI if it has one, and `papers`: the full citation of each method a [research-algorithm tool](../../portfolio/research-tools/README.md) implements. |
+| `example <slug>` | JSON: the first call that ran on what the tool itself ships (its `DEFAULTS`, a `sample*()` function or `SAMPLE*` constant, its parameter defaults), or `null`. `describe` includes it as `example`. |
 | `call <slug> <function> [--input JSON] [--args JSON] [--stdin] [--module FILE]` | JSON `{ module, function, args, result }`. `--input` is one object laid over the module's `DEFAULTS`, which is what the page does with its form, so you pass only what differs. `--args` is a JSON array of positional arguments. `--stdin` passes pasted text or CSV as the first argument. |
 | `run <slug> -- <args>` | Runs the tool's own `cli.mjs`, for the ~170 tools that have one. |
 | `mcp` | A stdio MCP server with `search_tools`, `describe_tool`, `call_tool` and `run_cli`. |
@@ -70,6 +71,23 @@ As of 2026-10-20, 1,262 of 1,283 tools are callable this way. 15 have no
 engine module, and 6 are skipped by the gate.
 `tools.test.mjs` imports every tool's engine and fails if one stops loading
 outside a browser, for example because it touches `document` at import time.
+
+## A first call that is known to work
+
+`describe` lists every export, but a list does not say which function is the
+tool, nor whether `DEFAULTS` are its input or only its options (in
+`dog-grooming-profit-calculator` they are the options of
+`analyze(services, opts)`; the services come from pasted text through
+`parseServices`). So `describe` also returns `example`: a call, or a parse
+step then a call, that was run on the inputs the tool ships and gave a result
+with no `NaN`, no `ok: false` and no thrown error. It is run in a child process
+with an 8-second timeout on every `describe`, so it is never a guess and never
+stale. An unknown function name now gets the list of real ones in the error.
+
+`node platform/agents/example_coverage.mjs` counts the tools that get one (about
+35 s). On 2026-11-15, 769 of 1,350 (57.0%): 294 take `input: {}`, 336 a shipped
+sample as `args`, 107 a sample string as `text`, and 32 a parse step first. The
+other 581 need the doc comments read first; `--list null` names them.
 
 ## Relation to the npm MCP package
 

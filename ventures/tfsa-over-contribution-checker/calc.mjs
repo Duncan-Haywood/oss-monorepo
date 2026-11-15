@@ -12,7 +12,7 @@ export const LAST_YEAR = 2026;
 export const PENALTY_RATE = 0.01;
 export const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-const money = (n) => (n < 0 ? "-CAD " : "CAD ") + Math.abs(Math.round(n * 100) / 100).toLocaleString("en-CA");
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-CAD " : "CAD ") + t)(Math.abs(Math.round(n * 100) / 100).toLocaleString("en-CA"));
 const round2 = (n) => Math.round(n * 100) / 100;
 const blank = (v) => v === undefined || v === null || v === "";
 

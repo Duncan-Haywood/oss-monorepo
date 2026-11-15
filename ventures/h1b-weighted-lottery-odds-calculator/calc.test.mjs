@@ -59,3 +59,9 @@ test("report csv has a row per candidate", () => {
   const csv = reportCsv(evaluate(sampleList(), DEFAULT_POOL));
   assert.equal(csv.trim().split("\n").length, 6);
 });
+
+// Red-team 2026-11-15: rows were numbered after blank lines were dropped, so "Line 3" could point at line 5.
+test("row line numbers count blank lines, so an error names the file's own line", () => {
+  const rows = parseCsv("Name,Wage level\n\nAna,2\n\nBo,7\n");
+  assert.deepEqual(rows.map((r) => r.line), [3, 5]);
+});

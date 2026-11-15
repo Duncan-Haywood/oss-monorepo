@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { latinVowel, singNote, FORMANTS } from './sing.mjs';
+import { latinVowel, latinOnset, onsetLength, singNote, FORMANTS } from './sing.mjs';
+import { readOnset } from './onsets.mjs';
 import { estimateFormants, nearestVowel, polyRoots } from './formants.mjs';
 import { eventsToMidi } from './midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from './render.mjs';
@@ -71,4 +72,56 @@ test('renderMidi sing: the choir sings the lyric under each note, a melisma keep
   // deterministic, and sing off is the pad as before
   assert.deepEqual(renderMidi(mid, { sing: true }).channels[0], r.channels[0]);
   assert.notDeepEqual(renderMidi(mid).channels[0], r.channels[0]);
+});
+
+test('latinOnset reads the consonants of ecclesiastical Latin syllables', () => {
+  const o = (s) => latinOnset(s).join(' ');
+  assert.equal(o('Chri'), 'k r'); // ch is k
+  assert.equal(o('qui'), 'k w'); // qu
+  assert.equal(o('gua'), 'g w'); // lin-gua
+  assert.equal(o('ci'), 'tS'); // soft c
+  assert.equal(o('cae'), 'tS'); // c before ae
+  assert.equal(o('ca'), 'k');
+  assert.equal(o('ge'), 'dZ');
+  assert.equal(o('glo'), 'g l');
+  assert.equal(o('sce'), 'S'); // sc before e
+  assert.equal(o('sco'), 's k');
+  assert.equal(o('gna'), 'N');
+  assert.equal(o('iam'), 'j');
+  assert.equal(o('pha'), 'f');
+  assert.equal(o('thro'), 't r');
+  assert.equal(o('ho'), ''); // h silent
+  assert.equal(o('xi'), 'k s');
+  assert.equal(o('spi'), 's p');
+  assert.equal(o('a'), '');
+  assert.equal(o(''), '');
+  assert.equal(o('℣'), '');
+});
+
+test('renderMidi sing: the opening consonant reads back from the audio, and the vowel-only choir has none', () => {
+  // vowel-consonant-vowel pairs on D3: "a" then the syllable; the consonant is sung before the beat
+  const SY = { ta: { cls: 'stop', voiced: false, place: 'alv' }, ka: { cls: 'stop', voiced: false, place: 'vel' }, da: { cls: 'stop', voiced: true, place: 'alv' }, sa: { cls: 'fricative', place: 's' }, sce: { cls: 'fricative', place: 'S' }, ci: { cls: 'affricate', voiced: false }, ma: { cls: 'nasal' }, ra: { cls: 'tap' }, a: { cls: 'none' } };
+  const ev = [];
+  for (const s of Object.keys(SY)) ev.push({ type: 'note', midi: 50, pulses: 4, syllable: 'a' }, { type: 'note', midi: 50, pulses: 4, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 120 });
+  const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+  const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+  for (const sing of [true, 'vowels']) {
+    const x = renderMidi(mid, { stems: true, sing }).stems.choir.channels[0];
+    Object.entries(SY).forEach(([s, want], j) => {
+      const t0 = sec(notes[2 * j + 1].tick);
+      const got = readOnset(x, rate, t0 - 0.15, t0 + 0.06, { window: 1 });
+      if (sing === true) for (const [k, v] of Object.entries(want)) assert.equal(got[k], v, `${s}: ${JSON.stringify(got)}`);
+      else assert.equal(got.cls, 'none', `${s} sung without consonants: ${JSON.stringify(got)}`);
+    });
+  }
+});
+
+test('a consonant before the beat: the vowel is on the beat, the wave starts lead seconds early', () => {
+  const plain = singNote(146.83, 0.5, rate, { vowel: 'a', release: 0.05 });
+  const w = singNote(146.83, 0.5, rate, { vowel: 'a', release: 0.05, onset: ['s'], lead: onsetLength(['s']), onsetLen: onsetLength(['s']) });
+  assert.equal(w.length - plain.length, Math.round(onsetLength(['s']) * rate));
+  const lead = onsetLength(['s']);
+  assert.equal(nearestVowel(estimateFormants(w, rate, { from: lead + 0.08, to: lead + 0.45 }), FORMANTS), 'a');
+  assert.equal(readOnset(w, rate, 0, lead + 0.06).place, 's');
 });

@@ -23,7 +23,7 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
 const p2 = (n) => String(n).padStart(2, "0");
 const fmtDate = (fmt, d) => fmt.replace(/%([YymdbBHMSe])/g, (_, c) => ({ Y: d.y, y: p2(d.y % 100), m: p2(d.m), d: p2(d.d), e: d.d, b: MON[d.m - 1], B: MON[d.m - 1], H: "00", M: "00", S: "00" })[c]);
 const TX = [[-450, "COFFEE SHOP 4411", { y: 2026, m: 3, d: 13 }], [120000, "PAYROLL ACME LTD", { y: 2026, m: 3, d: 14 }], [-95000, "RENT MARCH", { y: 2026, m: 3, d: 15 }], [2000, "REFUND AMAZON", { y: 2026, m: 3, d: 16 }]];
-const money = (c, comma) => { const s = (Math.abs(c) / 100).toFixed(2); return (c < 0 ? "-" : "") + (comma ? s.replace(".", ",") : s); };
+const money = (c, comma) => { const s = (Math.abs(c) / 100).toFixed(2); return ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((comma ? s.replace(".", ",") : s)); };
 const HEAD = { Date: "Date", Payee: "Description", Memo: "Memo", Outflow: "Debit", Inflow: "Credit", "Running Balance": "Balance", CDFlag: "D/C" };
 const PRE = ["Account statement", "Account number: 12-3456-789", "Period: 01.03.2026 - 31.03.2026", "Opening balance: 5000.00", "", "Customer: EXAMPLE LTD", "Currency: EUR", "Exported on 01.04.2026", "", "Note: amounts in account currency", "Booked items only", "Page 1 of 1", "Statement no. 3/2026"];
 const out = [];

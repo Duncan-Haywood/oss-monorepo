@@ -20,7 +20,7 @@ python3 experiments/figure.py                # plots experiments/ratio_vs_n.svg 
 ```
 
 ## Results (from `experiments/results.txt`)
-- Greedy stays within about 1 to 3% of the optimum on average at every size tried (mean 96.3% to 99.9% of optimal), but it is exactly optimal in only 33 to 95 of 100 instances, and its worst case is 49.6% at n = 7, overlap 0.9 and 87 to 98% at n = 18 and 24.
+- Greedy stays within about 0.1 to 4% of the optimum on average at every size tried (mean 96.3% to 99.9% of optimal), but it is exactly optimal in only 33 to 95 of 100 instances, and its worst case is 49.6% at n = 7, overlap 0.9 and 87 to 98% at n = 18 and 24.
 - Heavy overlap helps greedy: at overlap 0.9 it is optimal in 91 to 95 of 100 instances, because most substitutions cover the same few lines and the budget only buys a few.
 - From n = 12 up, local search has the best mean at overlap 0 and 0.5 (99.4% to 99.7%; at overlap 0.9 it ties greedy), but its worst case is poor at n = 7 (13.6% at overlap 0.9: with a tiny feasible set, five restarts can all stall).
 - Random search with 64 evaluations is perfect at n = 7 (it nearly enumerates the space) and falls to about 89 to 90% at n = 24 for overlap 0 and 0.5 (97% at 0.9), so the "random-search baseline" used in earlier projects flatters itself on small lists.
@@ -28,7 +28,7 @@ python3 experiments/figure.py                # plots experiments/ratio_vs_n.svg 
 
 ## Limitations
 - Synthetic instances: nothing here says anything about the real Prusa Mendel list, whose substitutions overlap in ways nobody has measured. Additive penalties and a coverage objective are simplifications (closure in `selfrep-closure` is a ratio over a shop, not a sum).
-- 100 instances per cell; ratios of means, not confidence intervals. Budget fixed at 25%; other budgets not run.
+- 100 instances per cell; means of per-instance ratios, with no confidence intervals. The problem is budgeted maximum coverage (Khuller, Moss and Naor 1999; Sviridenko 2004); greedy plus best single item is the Khuller-Moss-Naor modified greedy, and their (1-1/e) partial-enumeration algorithm was not run as a baseline (quality audit 2026-11-15). Budget fixed at 25%; other budgets not run.
 - Branch and bound was only run to n = 24.
 
 ## Next steps

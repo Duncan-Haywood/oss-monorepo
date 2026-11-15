@@ -49,7 +49,7 @@ export const EXAMPLE_SHARED = {
   ].join("\n"),
 };
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: n % 1 === 0 ? 0 : 2 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: n % 1 === 0 ? 0 : 2 }));
 
 const num = (t) => (t == null || String(t).trim() === "" ? NaN : Number(String(t).replace(/[$,\s]/g, "")));
 

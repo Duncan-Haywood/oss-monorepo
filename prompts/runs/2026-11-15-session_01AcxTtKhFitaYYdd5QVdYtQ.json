@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKhFitaYYdd5QVdYtQ",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T05:06:25Z",
+  "ended": "2026-11-15T05:25:11Z",
+  "wall_minutes": 19.91,
+  "tokens_in": 5733777,
+  "tokens_out": 30159,
+  "cost_usd": 2.5308,
+  "tool_calls": 62,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16104",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "test_check_numeric_sort.mjs first guessed a column number in a stack frame; fixed to check the line only"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The 'already swept' list lives under prompts/ (CODEOWNERS, owner-held), so an explore run that finishes a new sweep cannot add it without holding its PR; recorded in docs/reports/2026-11-15-numeric-sort-sweep.md instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Did not add the numeric-sort sweep to the swept list because prompts/ is owner-held and would hold the whole PR.",
+      "did": "Recorded it in docs/reports/2026-11-15-numeric-sort-sweep.md.",
+      "result": "PR stays mergeable without owner approval."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-ten-sorts-before-nine.md",
+    "docs/reports/2026-11-15-numeric-sort-sweep.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: a runtime sweep for comparator-less sorts of numbers. platform/ci/numeric_sort_hook.mjs patches Array.prototype.sort/toSorted under NODE_OPTIONS=--import; check_numeric_sort.mjs runs it over every venture suite (1,365, 0 failed under the hook: 24 product call sites sorting numbers, 1 wrong order) and --pages over 1,376 venture pages (3 sites, 0 wrong). Fixed shift-roster-builder's When I Work offsets note (string order put +1000 before -0500; new test fails on old code) and made era-835 payment dates sort numerically. Static grep: 454 .sort() hits. Verified: node --test platform/ci/test_check_numeric_sort.mjs 4/4; run_venture_tests.py shift-roster-builder era-835-underpayment-finder: 2 suites, 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "40c1896b-8af6-559e-9522-5d76d9f48205",
+    "transcripts": 1,
+    "first": "2026-11-15T05:06:25Z",
+    "last": "2026-11-15T05:26:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 30159,
+        "thinking": 5771,
+        "cache_read": 5633601,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100058,
+        "api_equivalent_usd": 2.5308,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 30159,
+      "thinking": 5771,
+      "cache_read": 5633601,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100058,
+      "api_equivalent_usd": 2.5308,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 56,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.91,
+      "active_minutes": 19.91,
+      "model_minutes": 5.71,
+      "tool_minutes": 14.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "write a runtime hook, driver and tests, run two full sweeps, triage 27 sites, fix two ventures, write post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 237.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

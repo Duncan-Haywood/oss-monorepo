@@ -119,7 +119,7 @@ export function summarize(trips, { year, override = {}, yearStartOdo = null, yea
   return { summary, trips: list, findings: audit(list, summary) };
 }
 
-const $ = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const $ = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
 const P = (x, d = 0) => (x * 100).toFixed(d) + "%";
 
 const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);

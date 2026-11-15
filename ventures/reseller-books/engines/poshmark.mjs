@@ -87,10 +87,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -143,7 +143,7 @@ export const FEE_MODES = ["auto", "schedule"];
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 const norm = (s) => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2));
 
 // Returns { items, skipped, excludedCount, currency, columns, dmy, feeSource, error }.
 // An item is { line, id, title, brand, sku, t, listedT, price, fee, scheduleFee,
@@ -338,7 +338,7 @@ export function analyze(rawItems, { costList = "", from = null, to = null, minBr
 // Plain text for pasting into a note, a forum post or a message to yourself.
 export function summaryText(r, { currency = "" } = {}) {
   const s = r.summary, c = currency ? currency + " " : "";
-  const m = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + c + "$" + Math.abs(n).toFixed(2) : "n/a");
+  const m = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(c + "$" + Math.abs(n).toFixed(2)) : "n/a");
   const lines = [
     `Poshmark sales ${dateStr(s.from)} to ${dateStr(s.to)}: ${s.items} sales across ${s.brands} brand(s)`,
     `Sales ${m(s.price)}, Poshmark fees ${m(s.fee)} (${(s.feeRate * 100).toFixed(1)}% effective), shipping deductions ${m(s.shippingLoss)}, payout ${m(s.payout)}`,
@@ -355,7 +355,7 @@ export function summaryText(r, { currency = "" } = {}) {
   return lines.join("\n");
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(0) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 

@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtGZ61REB1c4Bao1ypA",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T06:07:10Z",
+  "ended": "2026-11-15T06:52:28Z",
+  "wall_minutes": 45.66,
+  "tokens_in": 7446116,
+  "tokens_out": 32536,
+  "cost_usd": 3.1493,
+  "tool_calls": 72,
+  "task": "perf: platform/pages build, blog writeSection per-post awaited writes made synchronous",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16126",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Timed test files with /usr/bin/time, which does not exist in the container; redid with the bash time builtin.",
+    "First two full-suite runs (402 s, 310 s) were not comparable to later ones: the share-card cache was cold or held only the fixture origin's cards. Only the warm interleaved pair is used as before/after."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Says to measure the Pages tests but not that a fair local number needs PAGES_CARD_CACHE set and warmed for every base URL the suite builds under; without it the suite took 402 s locally vs 133 s CI median, and I spent two suite runs on it."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are still owner-gated; the prompt already says to skip, which worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-the-blog-that-waited-on-every-post.md",
+    "docs/history/pages-build-perf-2026-11-15-writing-sync-writes.md"
+  ],
+  "goal": "CI and session time: Pages build",
+  "notes": "Metric: full buildSite wall, warm share-card cache, this 4-core container. Before 50.7, 53.0 s; after 47.7, 49.4 s (interleaved runs of node full2.mjs, writing.mjs swapped between HEAD and the change). buildWriting alone: 7.22/7.55/7.23 s to 5.24/5.28/5.58 s (first call in a process). platform/pages suite wall (node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\", warm cache, interleaved): before 137.8, 137.6 s; after 138.9, 133.1 s, no measurable change; 1672 pass / 0 fail / 26 skipped both ways. Same output: buildWriting diff -r empty over 4,897 files; full build diff -rq over 29,376 files differs only in version.json built_at. Found with node --cpu-prof on one full build, self time bucketed per wall second under buildSiteInner's callee: writeSection seconds ~45% idle. ci_profile.py --runs 600 reading before: Test the site builder 133 s median (26 runs), Build the site 44 s median (32 runs); CI after-number left to the next reading.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7e62079b-ebe9-5628-9de0-72fe28adf20d",
+    "transcripts": 1,
+    "first": "2026-11-15T06:07:10Z",
+    "last": "2026-11-15T06:52:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 137,
+        "output": 32536,
+        "thinking": 9439,
+        "cache_read": 7316647,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129332,
+        "api_equivalent_usd": 3.1493,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 137,
+      "output": 32536,
+      "thinking": 9439,
+      "cache_read": 7316647,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129332,
+      "api_equivalent_usd": 3.1493,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 45.66,
+      "active_minutes": 45.66,
+      "model_minutes": 6.54,
+      "tool_minutes": 39.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profiling a 50 s build, finding the idle loop, before/after full builds and suites, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 95.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

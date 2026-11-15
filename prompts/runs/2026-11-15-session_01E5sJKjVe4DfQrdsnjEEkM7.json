@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjVe4DfQrdsnjEEkM7",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T05:18:15Z",
+  "ended": "2026-11-15T06:05:24Z",
+  "wall_minutes": 47.36,
+  "tokens_in": 7467088,
+  "tokens_out": 33374,
+  "cost_usd": 3.0418,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16110",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "/usr/bin/time is not installed in the container; the first timing run exited 127 and was re-run without it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Its NO VERDICT message advised re-running portfolio-pages by name to get a verdict, but Build the site was always skipped for two env expressions, so a by-name run could only ever end exit 4; seven reports blamed the 300 s budget instead. Fixed here."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Every sweep exited 1 because agent-cross-review.yml (selected by every diff) always skips and 'nothing executed' counted as a failure. Fixed here (NOTHING_RAN, no verdict in a sweep). Its 're-run by name' hint still does not apply to it (not verification-only)."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; Critique via the doc-friction table worked, the top ungated live cluster (run_workflow_locally) took about 10 minutes to confirm unfixed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-local-ci-portfolio-pages-verdict.md",
+    "docs/history/run-workflow-locally-pooled-budget-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode, no backlog ids touched. Verification: python3 -m unittest test_run_workflow_locally 196 tests OK; main_health 222/222 before the change; run_workflow_locally.py --foreground portfolio-pages.yml before: 8/8 run steps, Build the site skipped, exit 4 (site-builder suite 368.6 s cold); after: 12/12 passed, exit 0, 4 m 37 s warm. Final --for-changes sweep on the branch: 7/7 selected workflows passed (portfolio-validate 100/100 with a 2,079 s pooled budget, portfolio-pages 12/12 with 2,167 s), exit 5 only for agent-cross-review (nothing runs locally). promptctl validate ok. PR opened with the session token, so no CI check runs; local sweep is the verdict.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "52b395cc-aed5-5c44-8f4b-840b28708c28",
+    "transcripts": 1,
+    "first": "2026-11-15T05:18:15Z",
+    "last": "2026-11-15T06:05:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 131,
+        "output": 33374,
+        "thinking": 8740,
+        "cache_read": 7354085,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112872,
+        "api_equivalent_usd": 3.0418,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 131,
+      "output": 33374,
+      "thinking": 8740,
+      "cache_read": 7354085,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112872,
+      "api_equivalent_usd": 3.0418,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 70,
+      "ToolSearch": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 47.36,
+      "active_minutes": 47.36,
+      "model_minutes": 6.94,
+      "tool_minutes": 40.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "diagnosing a CI-emulator verdict bug, two fixes with tests, two timed runs, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 131.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

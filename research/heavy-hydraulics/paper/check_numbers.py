@@ -399,6 +399,12 @@ MANUSCRIPT_CHECKS = [
     ("| 0.9130 | 100.0% | 96.8% |", "gear_pump_evidence_results.txt", "E 0.9130, share 100.0%, curve 96.8%"),
     ("| 0.8400 | 74.0% | 66.7% |", "gear_pump_evidence_results.txt", "E 0.8400, share 74.0%, curve 66.7%"),
     ("0.759, 0.849 and 0.898", "excavator_gear_pump_marzocchi_results.txt", "index 2 (at Q20 85 L/min): 0.8975"),
+    ("cross at 0.8191 to 0.8229", "gear_pump_form_results.txt", "across forms: E50 0.8191 to 0.8229"),
+    ("a model-free isotonic fit at 0.8250", "gear_pump_form_results.txt", "50% crossing E 0.8250"),
+    ("between 0.8128 and 0.8260", "gear_pump_form_results.txt", "E50 min 0.8128 (marzocchi+marzocchi+marzocchi), median 0.8212, max 0.8260"),
+    ("pooled RMS 4.33 against 5.62 points; worst left-out RMS 7.85 against 8.91", "gear_pump_form_results.txt", "cloglog: E50 0.8229, scale 0.0398; pooled RMS 4.33 points"),
+    ("10% and 90% points at 0.7479 and 0.8707", "gear_pump_form_results.txt", "10% at E 0.7479, 90% at E 0.8707"),
+    ("span 0.7479 to 0.7730 and 0.8707 to 0.8914", "gear_pump_form_results.txt", "10% threshold 0.7479 to 0.7730 (span 0.0251); 90% threshold 0.8707 to 0.8914"),
 ]
 
 

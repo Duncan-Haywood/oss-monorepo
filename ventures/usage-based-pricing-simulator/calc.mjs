@@ -14,8 +14,8 @@
 // quantiles, so there is no randomness and results are reproducible), or a
 // pasted list of real per-customer monthly usage.
 
-export const money = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (v < 0 ? "-" : "") + "$" + Math.round(Math.abs(v)).toLocaleString("en-US"));
-export const money2 = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (v < 0 ? "-" : "") + "$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+export const money = (v) => (v == null || !Number.isFinite(v) ? "n/a" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(v)).toLocaleString("en-US")));
+export const money2 = (v) => (v == null || !Number.isFinite(v) ? "n/a" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
 export const pct = (v) => (v == null || !Number.isFinite(v) ? "n/a" : Math.round(v * 100) + "%");
 export const units = (v) => (v == null || !Number.isFinite(v) ? "n/a" : Math.round(v).toLocaleString("en-US"));
 

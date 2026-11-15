@@ -166,7 +166,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     const KEYS = ["price","rehab","closingPct","holdMonths","carryMonthly","hardPct","hardRehabPct","hardRate","points","arv","refiLtv","refiRate","refiTerm","refiClosingPct","targetDscr","rent","otherIncome","vacancy","propertyTax","insurance","hoa","utilities","management","maintenance"];
     const pct = (v) => (v === null ? "n/a" : (v * 100).toFixed(1) + "%");
     const prompt = "Enter the price, ARV and monthly rent, then click Calculate BRRRR.";

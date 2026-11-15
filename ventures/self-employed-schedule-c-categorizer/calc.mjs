@@ -155,8 +155,8 @@ export function parseCsv(text, delim = ",") {
 }
 
 const r2 = (n) => Math.round(n * 100) / 100;
-export const money = (n) => (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 
 export function findColumns(header, aliases) {
@@ -174,7 +174,7 @@ export function findColumns(header, aliases) {
 // "2024-03-05", "03/05/2024", "3/5/24", "5 Mar 2024" -> "YYYY-MM-DD" or null.
 export function parseDate(v, dayFirst = false) {
   const s = String(v ?? "").trim();
-  let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+  let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) [y, mo, d] = [+m[1], +m[2], +m[3]];
   else if ((m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4}|\d{2})(?!\d)/))) {

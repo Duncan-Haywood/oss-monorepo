@@ -59,7 +59,7 @@ export function num(v) {
 
 export function money(n) {
   const v = Math.round(Number.isFinite(n) ? n : 0);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US");
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US"));
 }
 
 const sevRank = (id) => (SEVERITIES.find((s) => s.id === id) || { rank: 3 }).rank;

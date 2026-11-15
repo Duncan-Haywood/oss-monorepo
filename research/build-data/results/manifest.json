@@ -1,5 +1,5 @@
 {
- "pulled": "2026-11-14",
+ "pulled": "2026-11-15",
  "max_rows": null,
  "cities": {
   "chicago": {
@@ -26,7 +26,7 @@
    "both_applied_issued": 1233436,
    "negative_issue_lag": 2257,
    "negative_build_time": 736,
-   "pulled": "2026-11-14"
+   "pulled": "2026-11-15"
   },
   "austin": {
    "dataset": "3syk-w9eu",
@@ -39,20 +39,20 @@
    "both_applied_issued": 2385373,
    "negative_issue_lag": 863,
    "negative_build_time": 3534,
-   "pulled": "2026-11-14"
+   "pulled": "2026-11-15"
   },
   "seattle": {
    "dataset": "76t5-zqzr",
    "host": "data.seattle.gov",
-   "rows": 194285,
-   "applied": 148120,
-   "issued": 141302,
-   "completed": 108228,
-   "cost": 159049,
-   "both_applied_issued": 139155,
+   "rows": 194311,
+   "applied": 148133,
+   "issued": 141321,
+   "completed": 108259,
+   "cost": 159075,
+   "both_applied_issued": 139174,
    "negative_issue_lag": 15,
    "negative_build_time": 10,
-   "pulled": "2026-11-14"
+   "pulled": "2026-11-15"
   }
  }
 }

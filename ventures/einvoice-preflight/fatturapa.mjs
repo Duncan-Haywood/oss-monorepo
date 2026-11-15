@@ -103,24 +103,28 @@ function checkParty(role, data, path, out) {
   const vat = txt(data, "IdFiscaleIVA", "IdCodice");
   const cf = txt(data, "CodiceFiscale");
   if (role === "buyer" && !vat && !cf) {
-    out.push(finding("IT-005", "The buyer has neither a VAT number nor a codice fiscale.",
-      "Add the buyer's IdFiscaleIVA or CodiceFiscale (a foreign buyer needs IdFiscaleIVA with their country code).", `${path}/IdFiscaleIVA`));
+    out.push(finding("IT-005", "The buyer has neither a VAT number nor a codice fiscale; SdI rejects it (error 00417).",
+      "Add the buyer's IdFiscaleIVA or CodiceFiscale (a foreign buyer needs IdFiscaleIVA with their country code).", `${path}/IdFiscaleIVA`, { sdi: "00417" }));
   }
   if (role === "seller" && !vat) {
     out.push(finding("IT-005", "The seller has no VAT number (IdFiscaleIVA).",
       "Add the seller's IdFiscaleIVA with IdPaese and IdCodice.", `${path}/IdFiscaleIVA`));
   }
   if (vat && vatCountry === "IT" && !partitaIvaValid(vat)) {
-    out.push(finding("IT-003", `The ${role}'s Italian partita IVA does not pass its check digit.`,
-      "Re-key the 11-digit partita IVA from the registration document; one digit is probably wrong.", `${path}/IdFiscaleIVA/IdCodice`));
+    // A partita IVA that fails its check digit cannot be in the register: SdI 00301 (seller), 00305 (buyer).
+    const code = role === "seller" ? "00301" : role === "buyer" ? "00305" : "";
+    out.push(finding("IT-003", `The ${role}'s Italian partita IVA does not pass its check digit${code ? `, so SdI's register check rejects it (error ${code})` : ""}.`,
+      "Re-key the 11-digit partita IVA from the registration document; one digit is probably wrong.", `${path}/IdFiscaleIVA/IdCodice`, code ? { sdi: code } : undefined));
   }
   if (vat && !vatCountry) {
     out.push(finding("IT-003", `The ${role}'s VAT number has no country code (IdPaese).`,
       "Add IdPaese, a two-letter ISO country code, beside IdCodice.", `${path}/IdFiscaleIVA/IdPaese`));
   }
   if (cf && !codiceFiscaleValid(cf)) {
-    out.push(finding("IT-004", `The ${role}'s codice fiscale is not a valid 16-character code or 11-digit company number.`,
-      "Check the codice fiscale against the tessera sanitaria or the company registration; a single wrong character fails the check letter.", `${path}/CodiceFiscale`));
+    // SdI checks the buyer's codice fiscale (00306) only when the buyer has no VAT number.
+    const code = role === "buyer" && !vat ? "00306" : "";
+    out.push(finding("IT-004", `The ${role}'s codice fiscale is not a valid 16-character code or 11-digit company number${code ? `; SdI rejects it (error ${code})` : ""}.`,
+      "Check the codice fiscale against the tessera sanitaria or the company registration; a single wrong character fails the check letter.", `${path}/CodiceFiscale`, code ? { sdi: code } : undefined));
   }
   const name = at(data, "Anagrafica");
   if (!txt(name, "Denominazione") && !(txt(name, "Nome") && txt(name, "Cognome"))) {
@@ -460,6 +464,19 @@ export function checkFatturaPa(source) {
   if (/^sdi\d*@pec\.fatturapa\.it$/.test(pec)) {
     out.push(finding("IT-002", "PECDestinatario is one of SdI's own certified-mail addresses; SdI rejects it (error 00330).",
       "Put the buyer's own PEC address here, or leave it out and let SdI deliver by CodiceDestinatario.", "/FatturaElettronicaHeader/DatiTrasmissione/PECDestinatario", { sdi: "00330" }));
+  }
+  // The transmitter's tax id (1.1.1.2 IdTrasmittente/IdCodice): SdI checks it in the register
+  // (00300). An Italian one must be a partita IVA or codice fiscale; a failed check digit
+  // cannot be registered. A foreign id is not checked by SdI (specification 1.9, Appendix 1).
+  const sender = at(transmission, "IdTrasmittente");
+  const senderCountry = txt(sender, "IdPaese").toUpperCase();
+  const senderId = txt(sender, "IdCodice").toUpperCase();
+  if (senderCountry === "IT" && senderId) {
+    const ok = /^\d{11}$/.test(senderId) ? partitaIvaValid(senderId) : /^[A-Z0-9]{16}$/.test(senderId) ? codiceFiscaleValid(senderId) : false;
+    if (!ok) {
+      out.push(finding("IT-034", "The transmitter's Italian tax id (IdTrasmittente/IdCodice) is not a partita IVA or codice fiscale that passes its check digit, so SdI's register check rejects it (error 00300).",
+        "Use the transmitter's own partita IVA (11 digits) or codice fiscale (16 characters), exactly as registered: the software house or intermediary that sends the file, or the seller.", "/FatturaElettronicaHeader/DatiTrasmissione/IdTrasmittente/IdCodice", { sdi: "00300" }));
+    }
   }
   const seller = at(header, "CedentePrestatore");
   checkParty("seller", at(seller, "DatiAnagrafici"), "/FatturaElettronicaHeader/CedentePrestatore/DatiAnagrafici", out);
