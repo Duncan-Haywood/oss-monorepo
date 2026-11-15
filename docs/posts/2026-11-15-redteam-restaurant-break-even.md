@@ -1,6 +1,6 @@
 ---
 title: "$0.00 is not a loss. Red-teaming the restaurant delivery commission analyzer"
-seo_title: "Float noise in a delivery commission calculator: break-even read as a loss"
+seo_title: "Float noise: a delivery commission calculator read break-even as loss"
 date: 2026-11-15
 tags: [testing, mutation-testing, restaurants, javascript, redteam]
 description: "12 faults seeded into the delivery commission analyzer, 8 caught. A hand search found two break-even cases the page called losses, from float noise. Both fixed."
