@@ -125,3 +125,15 @@ test('exported row shape matches what the page and share module expect', () => {
     'flatFeePerNight', 'flatFeePlatformCollectsPercent',
   ]);
 });
+
+test('a thousands separator is an error, not a silent 1 (quality census 2026-11-15)', () => {
+  const r = calculateTax({ nightlyRate: '1,200', nights: 2, rows: [{ name: 'S', ratePercent: 6, platformCollectsPercent: 0 }] });
+  assert.equal(r.ok, false);
+});
+
+test('the flat fee splits by its own platform share (quality census 2026-11-15)', () => {
+  const r = calculateTax({ nightlyRate: 100, nights: 5, flatFeePerNight: 2, flatFeePlatformCollectsPercent: 50, rows: [] });
+  assert.equal(r.flatFee.amount, 10);
+  assert.equal(r.flatFee.platformAmount, 5);
+  assert.equal(r.flatFee.hostAmount, 5);
+});
