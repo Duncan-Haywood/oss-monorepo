@@ -16,7 +16,10 @@ copied into this repository:
     share speech);
   * noise: noise_test/<Type>_*.wav for the nine types AirConditioner, AirportAnnouncements, Babble,
     CopyMachine, Munching, Neighbor, ShuttingDoor, Typing, VacuumCleaner (35 s to 7 min each), plus
-    white Gaussian noise.
+    white Gaussian noise. Each type's files are split between the two devices (`split_files`, keeping files
+    that duplicate each other on one side; one-file VacuumCleaner by halves), so the two devices never hear
+    the same noise recording. v1 drew both devices' noise from the whole corpus and v2 from its two halves;
+    both let the devices share noise and are kept as noisetype_v1/_v2_results.txt (LOG.md, step 3c).
 Per trial (room, window L): a stretch of the session's speech is played in a statistical room (a fresh
 impulse response per device, RT60 0.2 or 0.8 s, DRR 0 dB, step 2a's `rir`), the second device's
 stretch is cut around the true lag plus a prior error uniform in +-1 s and searched +-1.5 s, exactly as
@@ -82,9 +85,42 @@ def speech_blocks(root):
     return [np.concatenate([load(p) for p in files[k * per:(k + 1) * per]]) for k in range(N_SESS)]
 
 
+# Files whose audio recurs in another file of the same type (normalised cross-correlation of 1 s chunks 0.62 to
+# 1.0, found after v2 of this run; LOG.md 3c). Each group goes to one device only. Many files are also loops
+# of a shorter recording (a chunk recurs within the file), which is harmless once no file feeds both devices.
+DUP_GROUPS = {"Neighbor": [["Neighbor_1", "Neighbor_7"]],
+              "Munching": [["Munching_2", "Munching_3", "Munching_4", "Munching_7"]]}
+
+
+def split_files(durations, groups=()):
+    """Assign files to device a (0) or b (1) so no group is split: groups (and the remaining single files)
+    largest first, each to the side with less audio so far. Returns {name: side}."""
+    grouped = {f for g in groups for f in g}
+    units = [list(g) for g in groups] + [[f] for f in durations if f not in grouped]
+    units.sort(key=lambda u: (-sum(durations[f] for f in u), u))
+    side, tot = {}, [0.0, 0.0]
+    for u in units:
+        k = 0 if tot[0] <= tot[1] else 1
+        for f in u:
+            side[f] = k
+        tot[k] += sum(durations[f] for f in u)
+    return side
+
+
 def noises(root):
-    return {t: np.concatenate([load(p) for p in sorted(glob.glob(os.path.join(root, "noise_test", t + "_*.wav")))])
-            for t in TYPES[1:]}
+    """{type: (device a's noise, device b's noise)}, never sharing a file (v3). A type with one file (here only
+    VacuumCleaner, checked not to be a loop) is split into halves."""
+    out = {}
+    for t in TYPES[1:]:
+        fs = sorted(glob.glob(os.path.join(root, "noise_test", t + "_*.wav")))
+        x = {os.path.basename(p)[:-4]: load(p) for p in fs}
+        if len(x) == 1:
+            (v,) = x.values()
+            out[t] = (v[:len(v) // 2], v[len(v) // 2:])
+            continue
+        side = split_files({k: len(v) for k, v in x.items()}, DUP_GROUPS.get(t, ()))
+        out[t] = tuple(np.concatenate([x[k] for k in sorted(x) if side[k] == d]) for d in (0, 1))
+    return out
 
 
 def rir(rt60, rng, drr_db=0.0, onset=0.005):
@@ -122,11 +158,13 @@ def run_chunk(args):
         for ti, snr in CONDS:
             a, b = a0.copy(), b0.copy()
             if ti >= 0:
-                for w, s in ((a, sa), (b, sb)):
+                for dev, (w, s) in enumerate(((a, sa), (b, sb))):
                     if TYPES[ti] == "white":
                         z = rng.standard_normal(len(w))
                     else:
-                        src = nz[TYPES[ti]]
+                        # each device draws from its own files (v1 drew both from the whole corpus, v2 from
+                        # halves of it, which still shared duplicated recordings; see LOG.md 3c)
+                        src = nz[TYPES[ti]][dev]
                         j = int(rng.integers(0, len(src) - len(w)))
                         z = src[j:j + len(w)].copy()
                     w += z * np.sqrt(s / 10 ** (snr / 10) / (np.mean(z ** 2) + 1e-20))
