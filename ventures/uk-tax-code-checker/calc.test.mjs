@@ -116,3 +116,68 @@ test("builder: region prefixes and validation", () => {
   assert.ok(build({ income: "" }).errors.length);
   assert.ok(build({ region: "Mars" }).errors.length);
 });
+
+// Red-team guards, 2026-11-15: each test below fails on a mutant that the suite above let through.
+test("zero tax paid so far is a valid payslip (new job, pay under the allowance)", () => {
+  assert.equal(run({ code: "1257L", taxPaid: "0" }).errors.length, 0);
+});
+
+test("the allowance gap is costed at exactly 20% and 40%", () => {
+  const f = run({ code: "1000L", taxPaid: "2000" }).findings.find((x) => /less allowance/.test(x.title));
+  assert.match(f.title, /£514\.00 a year/);
+  assert.match(f.title, /£1,028\.00 if higher-rate/);
+});
+
+test("the payroll mismatch flag starts just above £10 when 2% of the tax is smaller", () => {
+  const base = { code: "1257L", frequency: "monthly", period: "1", gross: "1100" };
+  const r = compute({ ...base, taxPaid: "20.70" });
+  assert.equal(r.onCode, 10.2);
+  assert.ok(r.findings.some((f) => f.severity === "high" && /differs from what code/.test(f.title)));
+  assert.ok(compute({ ...base, taxPaid: "20.20" }).findings.some((f) => /close to what code/.test(f.title)));
+});
+
+test("underpaying the standard code by less than 2% of it reads as close, not as a shortfall", () => {
+  const r = run({ code: "1257L", taxPaid: "1722" });
+  assert.equal(r.vsStd, -20);
+  assert.ok(r.findings.some((f) => /close to what the standard code/.test(f.title)));
+  assert.ok(!r.findings.some((f) => /paid about .* less so far/.test(f.title)));
+  assert.ok(run({ code: "1257L", taxPaid: "1700" }).findings.some((f) => /less so far/.test(f.title)));
+});
+
+test("builder: no Personal Allowance means no Marriage Allowance to receive", () => {
+  const r = build({ income: "130000", benefits: "0", marriage: "received" });
+  assert.equal(r.codeText, "0T");
+  assert.equal(r.rows.find((x) => /^Marriage Allowance/.test(x[0]))[1], 0);
+});
+
+test("builder: the breakdown rows are labelled", () => {
+  const r = build({});
+  assert.deepEqual(r.rows.map((x) => x[0]).slice(0, 3), ["Personal Allowance", "Reduction for income over £100,000", "Marriage Allowance (not used)"]);
+  assert.equal(build({ income: "30000", marriage: "received" }).rows[2][0], "Marriage Allowance received");
+});
+
+// Real defects found 2026-11-15.
+test("builder: a higher-rate taxpayer can neither give nor receive Marriage Allowance", () => {
+  for (const marriage of ["received", "given"]) {
+    const r = build({ income: "60000", benefits: "0", marriage });
+    assert.equal(r.codeText, "1257L", marriage);
+    assert.ok(r.findings.some((f) => /higher-rate|higher rate/i.test(f.title) && /Marriage Allowance/.test(f.title)), marriage);
+  }
+  // Scotland: only starter, basic and intermediate rate taxpayers qualify (to 12,570 + 31,092).
+  assert.equal(build({ region: "Scotland", income: "45000", benefits: "0", marriage: "received" }).codeText, "S1257L");
+  assert.equal(build({ region: "Scotland", income: "43000", benefits: "0", marriage: "received" }).codeText, "S1383M");
+  assert.equal(build({ income: "50270", benefits: "0", marriage: "received" }).codeText, "1383M");
+});
+
+test("K code tax is capped at 50% of pay (the overriding limit), so a capped payslip is not flagged", () => {
+  const k = parseCode("K3000");
+  assert.equal(taxToDate(k, 1000, 1, 12), 500);
+  assert.equal(taxToDate(k, 6000, 6, 12), 3000);
+  assert.equal(taxToDate(parseCode("K3000 M1"), 6000, 6, 12), 3000);
+  const r = compute({ code: "K3000", frequency: "monthly", period: "1", gross: "1000", taxPaid: "500" });
+  assert.equal(r.onCode, 500);
+  assert.ok(r.findings.some((f) => /close to what code/.test(f.title)));
+  assert.ok(r.findings.some((f) => /50%/.test(f.title)));
+  // Below the cap nothing changes.
+  assert.equal(taxToDate(parseCode("K475"), 20000, 12, 12), Math.floor((20000 + 4759) * 0.2 * 100) / 100);
+});
