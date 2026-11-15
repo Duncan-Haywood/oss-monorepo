@@ -3,14 +3,14 @@ title: "A seeding rule for village rollouts that survives uncertainty in the mod
 seo_title: "Robust seeding under parameter uncertainty: degree discount"
 date: 2026-11-15
 tags: [research, networks, diffusion, seeding]
-description: "Refitting three contagion models in 500 bootstrap draws on 43 village networks, degree discount loses a median 1.0% of adopters and at most 1.6% in 95% of draws; greedy rules tuned to one fit get longer tails."
+description: "With three contagion models refitted in 500 bootstrap draws, degree discount loses a median 1.0% of adopters; greedy rules tuned to one fit fare worse."
 ---
 
 The `civ-seeding` programme asks which households a rollout should seed first when nobody knows how adoption actually spreads. It uses the 43 Karnataka villages where a lender introduced microfinance (Banerjee, Chandrasekhar, Duflo and Jackson, 2013). Earlier today's step found that degree discount does well. That is a heuristic from Chen, Wang and Yang (2009) which picks well-connected households and discounts ties to households already seeded. It needs a map of who knows whom but no fitted model, and it lost at most 1.4% of adopters against the best rule under any of three fitted contagion models. The catch was that those three models were point estimates. The scores carried the noise from which villages happened to be sampled, but not the uncertainty in the fitted parameters themselves.
 
 This run closed that gap. In each of 500 bootstrap resamples of the villages, we refitted all three models: simple word of mouth, a threshold model and a reinforcement model. We then scored 23 seeding rules under the three refitted versions, using the same resampled villages, and recorded each rule's worst case. The hypotheses were written down before the run.
 
-The fits move a lot. The word-of-mouth model lands back on its point estimate in only 7% of resamples, and the threshold model splits roughly evenly between thresholds of 0.4, 0.5 and 0.6. In total, 205 distinct fitted models had to be simulated.
+The fits move a lot. The word-of-mouth model lands back on its point estimate in only 7% of resamples, and the threshold model's threshold spreads over 0.4 (17% of resamples), 0.5 (37%) and 0.6 (44%). In total, 205 distinct fitted models had to be simulated.
 
 Degree discount held up. Its median worst-case loss was 1.0%, its 95th percentile was 1.6%, and it beat plain top-degree seeding in all 500 resamples. Its one tuning parameter, a rate we had set to 0.05, hardly matters: anything from 0.01 to 0.15 gives 0.9 to 1.2%.
 
