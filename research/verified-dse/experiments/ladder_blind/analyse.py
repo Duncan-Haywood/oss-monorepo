@@ -13,7 +13,7 @@ question this set asks first is whether any guard is worth its cost out of sampl
 Rules (unchanged from the files that define them; nothing here is tuned on this table):
   SWC      the clipped ladder (milestone 115) on the ladder branch (routed/r2 > theta = 3), equal-cost random below it.
   SWG(32)  SWC, but equal-cost random on designs with shift_width >= 64 and amount_gate_depth < 32 (milestone 124/125). On this
-           blind set it flags crc16 (18 gates), bcd2 (20), cmp16 (28) and bcd3 (30).
+           blind set it flags crc7s16 (18 gates), bcd2 (20), cmp16 (28) and bcd3 (30).
   SWP(32)  experiments/pilot_probe/analyse.py's pilot_regret, unchanged (200 draws per cell, seed "m133" + clock + design).
   SWPF(32) new, milestone 132's "Next": SWP(32) except that a distrusting draw routes only fresh uniform points (outside the
            subset, R each) with all of its remaining budget n - s + 7 (R - 1), instead of the subset's mapped points first. Same
@@ -22,14 +22,14 @@ Rules (unchanged from the files that define them; nothing here is tuned on this 
   Reported, not predicted: SWGP(32), SWG(32)'s flag in front of SWP(32).
 
 Designs (run.py; checked by check_designs.py; features.json and probe.txt computed before the flow run):
-  crc16   CRC-7 of a 16-bit field                    gates 18, probe routed/r2 3.78
+  crc7s16 CRC-7 of a 16-bit field                    gates 18, probe routed/r2 3.78
   bcd2    two BCD digits to binary                    gates 20, 5.41
   cmp16   (p < q) ? a : b, 16-bit compare             gates 28, 6.42
   bcd3    three BCD digits to binary (mod 128)        gates 30, 5.26
   cmp48   (p < q) ? a : b, 48-bit compare             gates 40, 5.87
   fib12   Fibonacci hash of a 12-bit key              gates 51, 3.58
   fib14   Fibonacci hash of a 14-bit key              gates 58, 4.23
-  (crc32, 3.05, and fib10, 3.21, were probed and dropped by probe.py's rule, routed/r2 > 3.3.)
+  (crc7s32, 3.05, and fib10, 3.21, were probed and dropped by probe.py's rule, routed/r2 > 3.3.)
 
 Predictions, written in this file before the blind table existed (checked in main()):
  (1) every one of the 14 cells is on the ladder branch (the probe works);

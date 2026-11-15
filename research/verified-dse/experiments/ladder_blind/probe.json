@@ -51,7 +51,7 @@
   "t2_yosys": 0.44160938262939453,
   "t_pnr_total": 4.499000072479248
  },
- "crc16": {
+ "crc7s16": {
   "amount_cells": 46,
   "amount_depth": 31,
   "amount_gate_depth": 18,
@@ -64,7 +64,7 @@
   "t2_yosys": 0.614255428314209,
   "t_pnr_total": 3.265000104904175
  },
- "crc32": {
+ "crc7s32": {
   "amount_cells": 94,
   "amount_depth": 63,
   "amount_gate_depth": 32,

@@ -25,8 +25,8 @@ from verified_dse import flow  # noqa: E402
 # name: (file stem, top, parameters, clock port); candidates for probe.py. KEEP (below) is fixed from probe.txt before any
 # sequence of this milestone is run.
 CAND = {
-    "crc16": ("crc7sh_w", "crc7sh_w", {"W": 128, "SW": 7, "NB": 16}, ""),
-    "crc32": ("crc7sh_w", "crc7sh_w", {"W": 128, "SW": 7, "NB": 32}, ""),
+    "crc7s16": ("crc7sh_w", "crc7sh_w", {"W": 128, "SW": 7, "NB": 16}, ""),
+    "crc7s32": ("crc7sh_w", "crc7sh_w", {"W": 128, "SW": 7, "NB": 32}, ""),
     "fib10": ("fibsh_w", "fibsh_w", {"W": 128, "SW": 7, "NA": 10, "C": 633}, ""),
     "fib12": ("fibsh_w", "fibsh_w", {"W": 128, "SW": 7, "NA": 12, "C": 2531}, ""),
     "fib14": ("fibsh_w", "fibsh_w", {"W": 128, "SW": 7, "NA": 14, "C": 10127}, ""),
@@ -35,7 +35,7 @@ CAND = {
     "cmp16": ("cmpsel_w", "cmpsel_w", {"W": 128, "SW": 7, "NP": 16}, ""),
     "cmp48": ("cmpsel_w", "cmpsel_w", {"W": 128, "SW": 7, "NP": 48}, ""),
 }
-KEEP = ["fib14", "fib12", "cmp48", "bcd3", "cmp16", "crc16", "bcd2"]  # probe.txt: routed/r2 > 3.3; crc32 (3.05), fib10 (3.21) dropped; largest first
+KEEP = ["fib14", "fib12", "cmp48", "bcd3", "cmp16", "crc7s16", "bcd2"]  # probe.txt: routed/r2 > 3.3; crc7s32 (3.05), fib10 (3.21) dropped; largest first
 NEW = {k: CAND[k] for k in KEEP}
 FACTORS = {"tight": 1.0, "relaxed": 1.5}
 ORDER = list(KEEP)
