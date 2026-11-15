@@ -127,3 +127,31 @@ test("two subtotals one digit apart: the one most readings read sets the tax", (
   const p = parseReceiptPasses([R("subtotal $28.48\nTotal $30.76"), R("Subtotal $28.47\nTotal $30.76"), R("subtotal $28.48\nTotal $30.76"), R("subtotal $28.48\nTax 2.20\nTotal $30.76")]);
   assert.equal(p.taxCents, 228);
 });
+
+test("tax lines printed together whose label OCR lost are added when the items or subtotal close the total", () => {
+  // SRD photo 1173's shape: "IL Sales" and "Restaurant" lost the word tax, MPEA kept it
+  const r = parseReceipt(R("1 Bottled Water $2.45\n1 Pollo Taco $4.95\n1 Carnitas Taco $4.95\n1 Sour Cream $1.25\n1 Cheese $1.25\nCTT et otal eA\nIL Sales $1.52\nMPEA Tax $0.15\nRestaurant $0.04\nTOTAL: $16.56"));
+  assert.equal(r.taxCents, 171);
+  assert.ok(r.notes.some((n) => /3 lines beside the tax line/.test(n) && /check the tax/.test(n)));
+  // a subtotal line closes it too
+  assert.equal(parseReceipt(R("Subtotal 40.00\nSales Tax 2.80\nResort 0.80\nTotal 43.60")).taxCents, 360);
+});
+
+test("a service charge, rounding or tip beside the tax line is not a tax", () => {
+  assert.equal(parseReceipt(R("Subtotal 65.00\nPB1 (10%) 6.50\nSC (3%) 1.95\nTotal 73.45")).taxCents, 650);
+  assert.equal(parseReceipt(R("Subtotal 45.00\nPB1 (10%) 4.50\nRounding 0.01\nTotal 49.51")).taxCents, 450);
+  assert.equal(parseReceipt(R("Subtotal 40.00\nSales Tax 2.80\nGratuity 7.20\nTotal 50.00")).taxCents, 280);
+  // nothing closes the sum: the tax line stands alone
+  assert.equal(parseReceipt(R("Subtotal 40.00\nSales Tax 2.80\nResort 0.85\nTotal 43.60")).taxCents, 280);
+});
+
+test("the subtotal plus the taxes may close to a Total printed before a tip", () => {
+  const r = parseReceipt(R("Sub-total: 40.00\nSales Tax 7%: 2.80\nResort Tax 2%: 0.80\nTotal: 43.60\nGratuity 18%: 7.20\nTotal 50.80"));
+  assert.equal(r.taxCents, 360);
+});
+
+test("one reading's tax lines added, checked against another reading's subtotal", () => {
+  // SRD photo 1182: the reading with both tax lines lost the subtotal line
+  const p = parseReceiptPasses([R("Sales Tax 7%: 2.80\nResort Tax 2%: 0.80\nTotal: 43.60"), R("Sub-total: 40.00\nSales Tax 7%: 2.80\nResort Tax 2%: 0.60\nTotal 43.60"), R("Sub-total: 40.00\nSales Tax 7%: 2 80\nResort fax 2%: an\nTotal: 43.60")]);
+  assert.equal(p.taxCents, 360);
+});

@@ -282,6 +282,32 @@ const SUB_RE = /sub\s*-?\s*total|\bsbtl?\b|\bsubttl\b|\bsub\s*\/\s*tt\s*[l1i\]|]
 // "flax 1: 0.46", "Bax 0.46". Read only between a subtotal and the total (a fax number
 // sits in the header), and only when no real tax line is found.
 const DAMAGED_TAX_RE = /^\W*(?:[\[(|!lfFbB]|fl)ax\b/;
+// Two or three tax lines printed together (state, city, resort, liquor) where OCR kept
+// the amounts but lost the word "tax" on some ("IL Sales $1.52", "MPEA Tax $0.15",
+// "Restaurant $0.04", total 16.56: SRD photo 1173). The lines touching a tax line, each
+// with one amount and none a subtotal, total, tip, discount or payment, are the taxes
+// when a subtotal, or the items above them, plus their sum is exactly the total.
+const NOT_IN_TAX_BLOCK = /\b(?:tip|gratuity|service|discount|coupon|savings|cash|change|tender|visa|master\s*card|amex|debit|credit|card|paid|payment|balance|due|deposit|rounding|round|pembulatan|food|beverage|bev|drinks?|items?|qty|count|sc|ser|srv|svc|serv|charge|chg|fee|biaya|tambahan|admin|delivery|packing|takeaway|take\s*out|carry\s*out|to\s*go|bag|bottle|crv|surcharge|donation)\b/i;
+function taxBlock(lines, comma, cands, cents, subtotals, ends) {
+  const one = (l) => {
+    if (SUB_RE.test(l) || TOTAL_RE.test(l) || NOT_IN_TAX_BLOCK.test(l) || NOT_TAX_LINE_RE.test(l)) return null;
+    const a = amountsIn(l.replace(PCT_RE, " "), comma);
+    return a.length === 1 && a[0] > 0 && a[0] < cents ? a[0] : null;
+  };
+  const at = cands.map((c) => lines.indexOf(c.line)).filter((i) => i >= 0);
+  if (!at.length) return null;
+  let lo = Math.min(...at), hi = Math.max(...at);
+  for (let i = lo; i <= hi; i++) if (!at.includes(i) && one(lines[i]) === null) return null;
+  while (lo > 0 && one(lines[lo - 1]) !== null) lo--;
+  while (hi + 1 < lines.length && one(lines[hi + 1]) !== null) hi++;
+  if (hi - lo + 1 < 2 || hi - lo + 1 > 4) return null;
+  const sum = lines.slice(lo, hi + 1).reduce((a, l, k) => a + (at.includes(lo + k) ? cands.find((c) => c.line === l).v : one(l)), 0);
+  const items = parseItems(lines.slice(0, lo), comma).reduce((a, i) => a + i.cents, 0);
+  const base = [...subtotals, ...(items > 0 ? [items] : [])].find((b) => ends.has(b + sum) && sum <= b * 0.15);
+  if (base === undefined || sum <= 0 || cands.every((c) => c.v === sum)) return null;
+  return { cents: sum, note: `${hi - lo + 1} lines beside the tax line added as taxes (${lines.slice(lo, hi + 1).map((l) => `"${l}"`).join(", ")}): the ${subtotals.includes(base) ? "subtotal" : "items"} plus their sum is the total, check the tax` };
+}
+
 export function readTax(lines, comma, cents) {
   const amt = (l) => { const a = amountsIn(l, comma); return a.length ? a[a.length - 1] : null; };
   const cands = [], subtotals = [];
@@ -330,14 +356,25 @@ export function readTax(lines, comma, cents) {
   }
   if (!cands.length) return { cents: null, subtotals, note, line: null };
   const printed = cands.filter((c) => c.total);
+  // what the subtotal plus the taxes may close to: the total, or a "Total" printed after
+  // the tax lines and before a printed tip ("Total: 43.60", 18% tip, "Total 50.80")
+  const lastTax = Math.max(...cands.map((c) => lines.indexOf(c.line)));
+  const ends = new Set(cents === null ? [] : [cents]);
+  lines.forEach((l, i) => { if (i > lastTax && TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) { const t = amt(l); if (t !== null && cents !== null && t < cents && subtotals.some((s) => t > s)) ends.add(t); } });
   let pick = printed.length ? printed[printed.length - 1] : cands[cands.length - 1];
   let v = pick.v;
   if (!printed.length && cands.length >= 2 && cents !== null) {
     const sum = cands.reduce((a, c) => a + c.v, 0);
-    if (sum !== v && subtotals.some((s) => s + sum === cents) && !subtotals.some((s) => s + v === cents)) { v = sum; note = `${cands.length} tax lines added (the subtotal plus their sum is the total)`; pick = null; }
+    if (sum !== v && subtotals.some((s) => ends.has(s + sum)) && !subtotals.some((s) => ends.has(s + v))) { v = sum; note = `${cands.length} tax lines added (the subtotal plus their sum is the total)`; pick = null; }
+  }
+  if (!printed.length && cents !== null && pick && !subtotals.some((s) => ends.has(s + v))) {
+    const block = taxBlock(lines, comma, cands, cents, subtotals, ends);
+    if (block) { v = block.cents; note = block.note; pick = null; }
   }
   if (pick?.lost) note = `tax line read "${pick.lost}" with its decimal point lost: took ${(v / 100).toFixed(2)}, check the tax`;
-  return { cents: v, subtotals, note, line: pick?.line ?? null };
+  // every tax line added, for another reading's subtotal to check (receipts.mjs voteTax)
+  const sum = cands.length >= 2 && !printed.length ? cands.reduce((a, c) => a + c.v, 0) : null;
+  return { cents: v, subtotals, note, line: pick?.line ?? null, sum };
 }
 
 export function parseReceipt(block, { dayFirst = null } = {}) {
@@ -533,6 +570,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   Object.defineProperty(out, "checks", { value: checks, enumerable: false });
   Object.defineProperty(out, "subtotals", { value: taxRead.subtotals, enumerable: false });
   Object.defineProperty(out, "taxLine", { value: taxRead.line, enumerable: false });
+  Object.defineProperty(out, "taxSum", { value: taxRead.sum ?? null, enumerable: false });
   return out;
 }
 
@@ -588,6 +626,12 @@ export function voteTax(ps, out, pick) {
   let win = null;
   for (const [t, v] of votes) if (!win || v.score > win.score || (v.score === win.score && v.first < win.first)) win = { t, ...v };
   const t = win ? win.t : out.taxCents;
+  // two tax lines (sales 2.80, resort 0.80) read in one reading that had no subtotal,
+  // the subtotal read in another: their sum is the tax when it closes to the total
+  if (t !== null && out.cents !== null && !subs.some((s) => s + t === out.cents)) {
+    const sums = [...new Set(ps.map((p) => p.taxSum).filter((x) => x != null && x !== t && subs.some((s) => s + x === out.cents)))];
+    if (sums.length === 1) return sums[0];
+  }
   // a tax one digit away from the settled total less a subtotal ("Tax: 8.21" where
   // 42.16 less 38.95 is 3.21) was misread: the receipt's own arithmetic wins
   if (t !== null && out.cents !== null && !subs.some((s) => s + t === out.cents)) {

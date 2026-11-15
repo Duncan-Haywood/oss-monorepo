@@ -2575,6 +2575,30 @@ lost a right tax. SRD gains are in-sample; CORD is the held-out check. Details:
 [`eval/receipt-tax-labels-2026-11-15.md`](eval/receipt-tax-labels-2026-11-15.md). Tests:
 `receipt-tax.test.mjs` (17).
 
+### Tax on receipt photos: two and three tax lines (2026-11-15)
+
+US hotel, stadium and city receipts print the tax in two or three lines (state and resort,
+"IL Sales", "MPEA Tax", "Restaurant"), and OCR often keeps the amounts but loses the word
+tax on some of them. `readTax` now adds the lines touching a tax line (each with one
+amount; never a subtotal, total, tip, service charge, rounding, fee, carry-out or payment
+line) when a subtotal, or the items above them, plus their sum is exactly the total, with a
+note asking for a check. A "Total" printed before a tip counts as the total for that sum,
+and across the page's four readings a reading's added tax lines can be checked against a
+subtotal another reading found (`voteTax`).
+
+| | before | now |
+|---|---|---|
+| page, SRD tax right (185) | 136 (73.5%) | **138 (74.6%)** |
+| page, SRD tax wrong | 11 | 9 |
+| CORD tax (train / validation / test), held out | 322 / 46 / 41 | 322 / 46 / 41 |
+| totals, SRD page and CORD | 156; 749 / 96 / 92 | unchanged |
+
+Both SRD fixes (1173, 1182) are in-sample. CORD's training split caught the first version
+adding Indonesian service charges and rounding lines as tax (seven right taxes broken);
+those words are excluded and CORD is back where it was. 1142 and 1198 are OCR-bound.
+Details: [`eval/receipt-tax-lines-2026-11-15.md`](eval/receipt-tax-lines-2026-11-15.md).
+Tests: `receipt-tax.test.mjs` (21).
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
