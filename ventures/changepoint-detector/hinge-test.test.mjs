@@ -161,3 +161,17 @@ test('step or bend as two tests failed bar W, so it is not in analyze or the CLI
   const r = analyze({ values: load('nile.csv').x, labels: load('nile.csv').labels, stepOrBend: true });
   assert.equal(r.stepOrBend, undefined);
 });
+
+test('with logs on, the report says the test ran on the logs (eval/hinge-log-prereg-2026-11-15.md)', async () => {
+  const { labels, x } = load('us-real-gdp.csv');
+  const r = analyze({ values: x, labels, log: true, hingeTest: { reps: 19 } });
+  assert.equal(r.hingeTest.scale, 'log');
+  assert.equal(r.hingeTest.refused, true); // log GDP is the unit-root case, as in bar R
+  assert.match(r.hingeTest.note, /on the logs/);
+  const g = load('global-temp-annual.csv'), lv = analyze({ values: g.x, labels: g.labels, hingeTest: { reps: 19 } });
+  assert.equal(lv.hingeTest.scale, 'levels');
+  assert.match(lv.hingeTest.note, /on the levels/);
+  let out = '';
+  await main([new URL('./data/us-real-gdp.csv', import.meta.url).pathname, '--log', '--hinge-test'], { out: (s) => { out += s; } });
+  assert.match(out, /One change of slope, tested on the logs/);
+});

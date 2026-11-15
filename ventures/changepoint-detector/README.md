@@ -4305,6 +4305,41 @@ bootstrap bias correction of rho (fit, simulate, refit, shift by the mean bias) 
 seeds. `stepOrBendTest` is exported for evaluation. Test: `hinge-test.test.mjs` ("step or bend as two bootstrap
 tests").
 
+### The hinge test on the logs, and its size at 40 points (2026-11-15, latest; pre-registered; size holds, logs admit nothing)
+
+"Step or bend" ended with the test refusing 7 of 8 real series under 100 points, and named a hinge on the log for
+growth curves as one way in. `--log --hinge-test` (and the page's "Take logs first" box) already passed logged values
+to the test, but nobody had run it, and the report still said "on the levels". The bars, the predictions and the
+decision rule were committed before any run (`eval/hinge-log-prereg-2026-11-15.md`). The two growth series that
+motivated it have 39 and 40 points, below the n 60 where the shipped size tables start, so the synthetic half measures
+the shipped test (guard `cut`) at n 40 on fresh seeds: `node eval/hinge-log-sim.mjs 300 99`
+(`eval/hinge-log-sim.out.txt`, seeds from 63,000,000, under a minute) and `node eval/hinge-log-real.mjs`
+(`eval/hinge-log-real.out.txt`, 999 replicates). One smoke run of the sim script (20 series, 19 replicates, the same
+first seeds) came before the full run; it only checked that the script ran.
+
+| bar | cell (n 40, 300 series) | share of all series with p <= 0.05 | tested | holds? |
+|---|---|---|---|---|
+| S1 | line plus AR(1), rho 0 / 0.3 / 0.6 / 0.8 | 3.7% / 5.0% / 6.7% / 3.3% | 300 / 300 / 266 / 134 | yes (cap 8%) |
+| S2 | AR(1) rho 0.9 / 0.95, random walk with drift | 4.0% / 1.7% / 2.3% | 93 / 57 / 72 | yes (cap 8%) |
+
+| series | logs | levels | prediction (logs) |
+|---|---|---|---|
+| L1 Australian gas, annual 1956-1994 (39) | refused: line rho 1.00, hinge 0.95 | refused: 0.97, 0.83 | tested, p <= 0.05, knot 1966-1976: **fails** |
+| L2 US electricity, annual 1973-2012 (40) | refused: line 0.89, hinge 0.71 (guard 0.7) | refused: 0.82, 0.72 | tested, p <= 0.05, knot 1998-2008: **fails** |
+| C Lake Huron, Michigan-Huron, US female murder rate | refused (0.75, 0.80, 0.79) | refused | refused: holds |
+| CO2 annual means 1959-2025 (reported) | refused: 0.96, 0.90 | refused | refused |
+| Canada fertility 1931-1968 (reported) | refused: 0.91, 0.79 | refused | none |
+
+**Verdict.** Size holds at 40 points, so the 30-point minimum stands: under 100 points the 0.7 guard keeps every cell,
+random walks included, at or under 6.7%. Logs do not help, and bar L fails. Logging gas makes it worse (a supply that
+grew from almost nothing in the 1960s is far from a straight line on the log scale, hinge rho 0.95), and electricity
+misses the guard by 0.01. What blocks these series is the stickiness left after one bend, not the scale. As the decision
+rule set out, no refusal suggests logs. The one change that ships is the wording: with logs on, the CLI, the page and
+`hingeTest.note` say the test ran on the logs and that a slope there is a growth rate (0.02 a step is about 2% a step),
+and the report carries `scale: 'log' | 'levels'`. **Next** (not run): the series' hinge residuals sit at 0.71-0.95, so a
+second hinge or a smooth trend term, not a transform, is the remaining route; it needs its own size check at n 40.
+Test: `hinge-test.test.mjs` ("with logs on, the report says the test ran on the logs").
+
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
 The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a

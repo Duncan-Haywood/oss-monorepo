@@ -1,0 +1,8 @@
+n 40, series per cell 300, bootstrap reps 99, guard cut; share of ALL series with p <= 0.05 (refused = not rejected)
+S1 rho 0.00           3.7%  tested 300 (by the cut 0)  holds (cap 8%)
+S1 rho 0.30           5.0%  tested 300 (by the cut 0)  holds (cap 8%)
+S1 rho 0.60           6.7%  tested 266 (by the cut 1)  holds (cap 8%)
+S1 rho 0.80           3.3%  tested 134 (by the cut 2)  holds (cap 8%)
+S2 rho 0.90           4.0%  tested 93 (by the cut 2)  holds (cap 8%)
+S2 rho 0.95           1.7%  tested 57 (by the cut 2)  holds (cap 8%)
+S2 random walk        2.3%  tested 72 (by the cut 1)  holds (cap 8%)
