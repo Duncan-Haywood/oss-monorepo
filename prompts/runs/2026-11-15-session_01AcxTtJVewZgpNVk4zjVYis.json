@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtJVewZgpNVk4zjVYis",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T05:06:32Z",
+  "ended": "2026-11-15T05:12:00Z",
+  "wall_minutes": 5.63,
+  "tokens_in": 2292792,
+  "tokens_out": 13227,
+  "cost_usd": 1.2226,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16102",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First git checkout -b failed because the work branch already existed (harness had checked it out); the && chain skipped the file write, rewritten with Write."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique mode points at doc-friction clusters, but most of the top live ones (CLAUDE.md, research/CLAUDE.md, prompt.md, track prompts) are CODEOWNERS-gated; finding an ungated target meant reading several clusters by hand."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-one-site-build-per-directory.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed process/1 by draw. Backlog: owner rows only, so Critique. Target: two 2026-11-15 polish doc_friction reports on concurrent build.mjs runs into one dist/. Shipped platform/pages/build-lock.mjs (pid lock <outDir>.building, CLI only, exit 75 on refusal, stale-lock takeover) + 5 tests. Verified: build-lock.test.mjs 5/5; real double build (second exit 75, first exit 0, lock removed); ci-install and css-lint tests pass; main_health 222/222 on main. No agent doc: the module header records the behaviour. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba572fc7-02b1-5779-bb08-cc78fb9b7ce0",
+    "transcripts": 1,
+    "first": "2026-11-15T05:06:32Z",
+    "last": "2026-11-15T05:12:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 13227,
+        "thinking": 2555,
+        "cache_read": 2228720,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64013,
+        "api_equivalent_usd": 1.2226,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 13227,
+      "thinking": 2555,
+      "cache_read": 2228720,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64013,
+      "api_equivalent_usd": 1.2226,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.63,
+      "active_minutes": 5.63,
+      "model_minutes": 2.55,
+      "tool_minutes": 3.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "write and test a pid lock for a CLI, plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 122.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
