@@ -335,7 +335,7 @@ const STYLE = `
   .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
   .posts h2 a::after { content:""; position:absolute; inset:0; border-radius:14px; }
   .posts h2 a:hover, .posts h2 a:focus-visible { color:var(--accent); }
-  .pager { margin:1.4rem 0; color:var(--muted); font-size:.95rem; } .pager .nums { display:flex; flex-wrap:wrap; gap:4px 6px; } .pager .nums > * { min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; } .pager [aria-current] { font-weight:700; color:var(--text, inherit); }
+  .pager { margin:1.4rem 0; color:var(--muted); font-size:.95rem; } .pager .nums { display:flex; flex-wrap:wrap; gap:4px 6px; } .pager .nums > * { min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; } .pager [aria-current] { font-weight:700; color:var(--text, inherit); } .pager .gap { color:var(--muted); } .pager > p { margin:.25rem 0; } .pager details.all { flex-basis:100%; margin-top:.25rem; } .pager details.all summary { cursor:pointer; padding:4px 0; width:max-content; } .pager details.all .nums { margin:.5rem 0 0; } .pager details.all .here { font-weight:700; color:var(--text, inherit); }
   .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
   .posts .meta { display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; margin:.7em 0 0; font-size:.85rem; }
   .posts .when { white-space:nowrap; }
@@ -665,14 +665,37 @@ export function renderPostRows(posts) {
 
 const pageCount = (posts) => Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
 
-/** The newer/older links and every page number, so any post is at most two clicks from the index. */
-function renderPager(n, count, prefix) {
+/** Pages a windowed pager shows: the first, the last and `PAGER_SPAN` either side of the current one; a run of one hidden page shows that page instead of a gap. */
+export const PAGER_SPAN = 2;
+export function pagerWindow(n, count, span = PAGER_SPAN) {
+  const keep = new Set([1, count]);
+  for (let i = n - span; i <= n + span; i++) if (i >= 1 && i <= count) keep.add(i);
+  const pages = [...keep].sort((a, b) => a - b);
+  const out = [];
+  for (const i of pages) {
+    const last = out.length ? out[out.length - 1] : 0;
+    if (last && i - last === 2) out.push(last + 1);
+    else if (last && i - last > 2) out.push(null);
+    out.push(i);
+  }
+  return out;
+}
+
+/**
+ * The newer/older links, a short windowed row of page numbers, and (when the window hides some)
+ * every page number in a closed `<details>`, so any post stays at most two clicks from the index
+ * without a 98-link wall of numbers.
+ */
+export function renderPager(n, count, prefix) {
   if (count <= 1) return '';
   const href = (i) => (i === 1 ? `${prefix}` || './' : `${prefix}page/${i}/`);
-  const numbers = Array.from({ length: count }, (_, k) => k + 1)
-    .map((i) => (i === n ? `<span aria-current="page">${i}</span>` : `<a href="${href(i)}">${i}</a>`))
-    .join(' ');
-  return `<nav class="pager" id="pager" aria-label="Pages of posts"><p>Page ${n} of ${count}: ${n > 1 ? `<a rel="prev" href="${href(n - 1)}">newer</a>` : 'newer'} · ${n < count ? `<a rel="next" href="${href(n + 1)}">older</a>` : 'older'}</p><p class="nums">${numbers}</p></nav>`;
+  const num = (i) => (i === n ? `<span aria-current="page">${i}</span>` : `<a href="${href(i)}">${i}</a>`);
+  const win = pagerWindow(n, count);
+  const windowed = win.map((i) => (i === null ? '<span class="gap" aria-hidden="true">…</span>' : num(i))).join(' ');
+  const all = win.includes(null)
+    ? `<details class="all"><summary>All ${count} pages</summary><p class="nums">${Array.from({ length: count }, (_, k) => (k + 1 === n ? `<span class="here">${k + 1}</span>` : `<a href="${href(k + 1)}">${k + 1}</a>`)).join(' ')}</p></details>`
+    : '';
+  return `<nav class="pager" id="pager" aria-label="Pages of posts"><p>Page ${n} of ${count}: ${n > 1 ? `<a rel="prev" href="${href(n - 1)}">newer</a>` : 'newer'} · ${n < count ? `<a rel="next" href="${href(n + 1)}">older</a>` : 'older'}</p><p class="nums">${windowed}</p>${all}</nav>`;
 }
 
 /** The post cards an index lists; `up` climbs from the page to the blog's folder. A topic's own page leaves out the topic pill every card would repeat. */
