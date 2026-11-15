@@ -33,7 +33,7 @@ EXPERIMENTS = {
     "m3b_humanoid": ("numpy, mujoco, Menagerie G1/H1 (cloned once)", 6, []),
     "m4_tack_measure": ("numpy", 1.7, []),
     "m5_cycle": ("numpy", 1, []),
-    "m6_drake": ("numpy, drake", 7, []),
+    "m6_drake": ("numpy, drake 1.51.1 (drake 1.58 has no TAMSI solver; run.py fails there)", 7, []),
     "m6b_bowed_edge": ("numpy, mujoco, drake", 8, [("envelope.py", "envelope.txt")]),
     "m7_cost": ("numpy; reads m5_cycle/results.json", 0.1, []),
     "m9_straighten": ("numpy, mujoco", 1, []),
