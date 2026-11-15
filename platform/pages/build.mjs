@@ -107,6 +107,7 @@ import {
   EMBED_MODULE_FILE,
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
+  SITE_OWNED_CONTROLS_RE,
   injectEmbedWidget,
   maskScriptAndStyleBodies,
   renderEmbedHostModule,
@@ -4249,14 +4250,11 @@ export async function finishPagesInOneWalk(outDir, { baseUrl, siteName, siteCard
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
 const NOSCRIPT_CONTROL_RE = /<(?:input|select|button|textarea)\b/i;
 const BODY_OPEN_RE = /<body\b[^>]*>/i;
-// Controls the site itself adds to every page: the "Embed this tool" box
-// (embed.mjs, `pf-embed-offer`) and the chrome's search form (site-nav.mjs,
-// a plain GET form that works with scripts off). Measured 2026-11-15: five
-// venture pages with no script and no field of their own (ShootFlow,
-// quick-pick-survey, photos-import-tools, vendor-watch, the Garmin watch
-// face) told visitors "This tool needs JavaScript to calculate" because the
-// embed box's textarea and copy button counted as the page's controls.
-const SITE_OWNED_CONTROLS_RE = /<details class="pf-chrome pf-embed-offer"[\s\S]*?<\/details>|<form class="pfs-search"[\s\S]*?<\/form>/gi;
+// The site's own controls (the embed box, the chrome's search form) are not the
+// page's: `SITE_OWNED_CONTROLS_RE` in embed.mjs. Measured 2026-11-15: five
+// venture pages with no script and no field of their own told visitors "This
+// tool needs JavaScript to calculate" because the embed box's textarea and copy
+// button counted as the page's controls.
 export const NOSCRIPT_NOTICE =
   '<noscript><p role="note" style="margin:0;padding:12px 16px;background:#fff4d6;color:#4a3300;'
   + 'border-bottom:1px solid #d9b45a;font:600 15px/1.4 system-ui,sans-serif">'
@@ -11523,7 +11521,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
       const withRates = injectShopRates(withEmbed, surface.slug, toRoot);
-      if (withRates !== withCard) rated.push(relative);
+      if (withRates !== withEmbed) rated.push(relative);
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
       // one adds.
