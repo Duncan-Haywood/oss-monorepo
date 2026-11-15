@@ -244,8 +244,31 @@ test('the chrome goes dark only on a page whose own background is dark', () => {
 });
 
 test('a widened venture header keeps its content offset as padding (phone: no sideways scroll, so no undo)', () => {
-  assert.match(VENTURE_CHROME_JS, /paddingLeft=Math\.max\(0,r\.left\)/);
+  assert.match(VENTURE_CHROME_JS, /pl=Math\.max\(0,r\.left\)/);
   assert.match(VENTURE_CHROME_JS, /paddingRight=''/, 'reset() clears the padding it set');
+});
+
+test('a venture header that already fills a phone gets a 16px gutter, not the brand at x = 0', () => {
+  // polish-2026-11-15-header-gutter.md: 49 tools put their side padding on main, not body, so the
+  // band filled the window, fit() returned early, and the brand and trail started at the left edge.
+  const run = (left, width, vw, tagName = 'NAV') => {
+    const style = {};
+    const el = { tagName, style, setAttribute() {}, removeAttribute() {},
+      getBoundingClientRect: () => { const l = left + (parseFloat(style.marginLeft) || 0), w = parseFloat(style.width) || width;
+        return { left: l, width: w, right: l + w, top: 0 }; } };
+    const doc = { querySelectorAll: () => [el], documentElement: { clientWidth: vw, scrollWidth: vw }, body: { nodeType: 1, parentElement: null } };
+    new Function('document', 'getComputedStyle', 'window', 'addEventListener', 'matchMedia', 'setTimeout', 'clearTimeout', VENTURE_CHROME_JS)(
+      doc, () => ({ backgroundColor: 'rgb(255, 255, 255)' }), { scrollY: 0 }, () => {}, null, () => {}, () => {});
+    return style;
+  };
+  const flush = run(0, 390, 390);
+  assert.equal(flush.paddingLeft, '16px');
+  assert.equal(flush.paddingRight, '16px');
+  assert.ok(!flush.width, 'a bar that already fills the window is not resized');
+  assert.equal(run(0, 390, 390, 'ASIDE').paddingLeft || '', '', 'the footer keeps its own padding');
+  const inset = run(24, 342, 390);
+  assert.equal(inset.paddingLeft, '24px', "a host's own inset is kept");
+  assert.equal(inset.width, '390px');
 });
 
 test('siteTitle adds the site name only when the whole title still fits a results page', () => {
