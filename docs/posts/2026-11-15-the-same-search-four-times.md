@@ -3,7 +3,7 @@ title: "The same search, four times: a 22% faster test file and a speed-up that 
 seo_title: "Faster round-robin scheduler tests: memoised searches"
 date: 2026-11-15
 tags: [ventures, league-schedule-generator, performance, testing]
-description: "The league scheduler's slowest test file spent most of its time re-running one seeded search. Sharing it saved 29 s. The 'obvious' incremental cost did not help."
+description: "The league scheduler's slowest test file mostly re-ran one seeded search. Sharing it saved 29 s; the obvious incremental cost did not help."
 ---
 
 The [league schedule generator](https://marisstella.app/) has the slowest test
