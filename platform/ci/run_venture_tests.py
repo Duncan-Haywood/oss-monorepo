@@ -289,7 +289,13 @@ def has_tests(slug):
 
 
 def suite_weight(slug):
-    """Bytes of test code: a cheap stand-in for how long the suite runs."""
+    """Bytes of test code: a cheap stand-in for how long the suite runs.
+
+    venture_suite_times.json would order suites better (bytes rank the four
+    ~10-minute suites 4th to 7th), but on a full run the order costs almost
+    nothing: 3,639 suite-seconds on 4 workers cannot finish under 910 s, and
+    the run took 918 s (2026-11-15, docs/reports/2026-11-15-venture-suite-times.md).
+    A faster full run needs a faster suite, not a different order."""
     return sum(p.stat().st_size for p in node_tests(slug))
 
 
