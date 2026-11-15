@@ -144,3 +144,42 @@ def test_replace_not_found_spacing_hint(capsys):
 
 def test_replace_not_found_plain_when_nowhere():
     assert ff.not_found_hint(DOC, "a", "next", "zzz", "First") == "not found in a.next: 'zzz'"
+
+
+def test_remove_items_tidies_separators():
+    v = "History: README. Next: (a) one thing; (b) two thing; (c) three."
+    assert ff.remove_items(v, ["(b) two thing"]) == "History: README. Next: (a) one thing; (c) three."
+    assert ff.remove_items(v, ["(a) one thing;"]) == "History: README. Next: (b) two thing; (c) three."
+    assert ff.remove_items(v, ["(c) three."]) == "History: README. Next: (a) one thing; (b) two thing."
+    with pytest.raises(ValueError, match="not found"):
+        ff.remove_items(v, ["(d) absent"])
+
+
+def test_park_text_creates_then_appends():
+    first = ff.park_text(None, "a", ["(b) two thing;"], "2026-11-15")
+    assert first.startswith("# a: open items beyond flagships.yaml")
+    assert first.endswith(f"{ff.PARK_HEADING}\n\n- (2026-11-15) (b) two thing\n")
+    again = ff.park_text(first, "a", ["(c) three"], "2026-11-16")
+    assert again.count(ff.PARK_HEADING) == 1
+    assert again.endswith("- (2026-11-15) (b) two thing\n- (2026-11-16) (c) three\n")
+    kept = ff.park_text("# Existing notes\n\nKeep me.\n", "a", ["x"], "2026-11-15")
+    assert kept.startswith("# Existing notes\n\nKeep me.\n\n" + ff.PARK_HEADING)
+
+
+def test_park_cli_moves_item_and_adds_pointer(tmp_path):
+    f = tmp_path / "flagships.yaml"
+    f.write_text(DOC)
+    (tmp_path / "ventures" / "a").mkdir(parents=True)
+    rc = ff.main(["a", "--park", "then a long tail of words that wraps.", "--file", str(f),
+                  "--ventures-dir", str(tmp_path / "ventures")])
+    assert rc == 0
+    got = ff.read_value(f.read_text(), "a", "next")
+    assert "long tail" not in got and got.endswith(ff.PARK_POINTER)
+    assert ff.read_value(f.read_text(), "a", "buildable") == "Something here."
+    parked = (tmp_path / "ventures" / "a" / "NEXT.md").read_text()
+    assert "then a long tail of words that wraps." in parked
+
+
+def test_cap_refusal_names_park():
+    with pytest.raises(ValueError, match="--park"):
+        ff.set_value(DOC, "b", "next", "x " * 1001)
