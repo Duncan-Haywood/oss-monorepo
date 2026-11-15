@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtGizZwj5uHQyYFzSSF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T01:06:39Z",
+  "ended": "2026-11-15T01:22:48Z",
+  "wall_minutes": 22.05,
+  "tokens_in": 4006795,
+  "tokens_out": 26753,
+  "cost_usd": 2.102,
+  "tool_calls": 42,
+  "task": "civ-seeding milestone 5: cheap (no-model) and partial-survey seeding rules against greedy",
+  "projects": [
+    "research/civ-seeding"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16042",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "new post's description (184 chars) and seo_title (79) over the front-matter limits; check_post_frontmatter and the site-builder tests failed locally",
+      "fix": "shortened both; check_post_frontmatter ok, platform/pages node --test 1664/1664"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "first README draft stated a share of households BCDJ surveyed from memory, not from a source in the repo",
+      "fix": "removed the figure before commit; caveat now says only that their survey sampled households and asked about named relationships"
+    },
+    {
+      "what": "first LOG outcome said milestone-4 regrets reproduce exactly; under R-delta they move by up to 0.1 point because a new rule became the best",
+      "fix": "reworded to: adopter counts reproduce exactly, regrets under R-delta move up to 0.1 point"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "says a bare python3 lacks pytest/numpy; here /usr/local/bin/python3 lacked numpy and pyenv.py returned /usr/bin/python3.13, which had numpy but needed pytest installed; worked as documented, no change needed"
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "front-matter failure also cascaded into 173 'site builder' test failures, which looked like an unrelated environment problem until the post was fixed; the summary could say which failure is upstream"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-seeding-a-village-rollout-without-a-fitted-model.md",
+    "research/civ-seeding/LOG.md (milestone 5 plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Routed research (draw), pick_track -> track 24, programme civ-seeding, milestone 4's Next step (b). Plan with H6/H7 and predictions logged and pushed before the run (PR opened draft as claim). Full run 200 s on 4 cores. H6 held via degree discount only (worst-case regret 1.4%); spread degree 3.4% and single discount 2.4% missed the 2% bar (prediction failed). H7 held narrowly: 25% survey 4.5%, friend nomination beats random under all three models. Local verification: civ-seeding tests 46 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check all DOIs ok (Chen 2009, Kim 2015 added); check_post_frontmatter ok; platform/pages node --test 1664 pass 0 fail; run_workflow_locally --for-changes otherwise ok (some steps UNRUN for missing pytest on system python / base ref).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ed4d91c0-dc02-5319-8738-b2682d3937da",
+    "transcripts": 1,
+    "first": "2026-11-15T01:06:39Z",
+    "last": "2026-11-15T01:28:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 26753,
+        "thinking": 3500,
+        "cache_read": 3908604,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98111,
+        "api_equivalent_usd": 2.102,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 26753,
+      "thinking": 3500,
+      "cache_read": 3908604,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98111,
+      "api_equivalent_usd": 2.102,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.05,
+      "active_minutes": 22.05,
+      "model_minutes": 4.55,
+      "tool_minutes": 17.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a researcher implementing three IM heuristics and survey designs, rerunning the scoring harness, and writing up: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 570.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
