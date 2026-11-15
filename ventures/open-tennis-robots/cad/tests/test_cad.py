@@ -1362,6 +1362,43 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_n=100.0).check_lift_slip()))
         self.assertTrue(any("boot's wall" in r for r in Feeder(lift_slip_collar_w=20.0).check_lift_slip()))
 
+    def test_lift_tooth_jump_numbers_and_rules(self):
+        # 2026-11-15, cad/README.md "Lift tooth jump"
+        p = Feeder()
+        self.assertEqual(p.check_lift_tooth(), [])
+        d = p.lift_tooth_jump_design()
+        self.assertEqual(d["mesh"], 8)
+        self.assertGreater(d["strength_margin"], 5.0)
+        self.assertGreater(d["jump_margin"], p.lift_tooth_jump_factor)
+        # with the slack strand at zero the margin is the same at any pull
+        self.assertAlmostEqual(p.lift_tooth_jump_design(pull_n=20.0)["jump_margin"], d["jump_margin"])
+        # soft teeth give back the even share: hold = (T1 + T2) x wrap / 2
+        soft = p.lift_tooth_jump_design(g_mpa=1e-6)
+        self.assertAlmostEqual(soft["hold_n"], d["pull_n"] * math.pi / 2, delta=0.01)
+        # stiffer teeth crowd the first tooth and lower the margin; friction and a taut slack strand raise it
+        stiff = p.lift_tooth_jump_design(g_mpa=40.0)
+        self.assertGreater(stiff["first_tooth_share"], d["first_tooth_share"])
+        self.assertLess(stiff["jump_margin"], d["jump_margin"])
+        self.assertGreater(p.lift_tooth_jump_design(mu=0.3)["jump_margin"], d["jump_margin"])
+        self.assertGreater(p.lift_tooth_jump_design(slack_n=10.0)["jump_margin"], d["jump_margin"])
+        # the needed slack-side tension brings a failing corner exactly to the factor
+        bad = p.lift_tooth_jump_design(0.5, 40.0, 35.0, 0.0)
+        self.assertLess(bad["jump_margin"], 1.0)
+        fixed = p.lift_tooth_jump_design(0.5, 40.0, 35.0, 0.0, slack_n=bad["slack_need_n"])
+        self.assertAlmostEqual(fixed["jump_margin"], p.lift_tooth_jump_factor, places=6)
+        # the sweep: one corner of 81 fails, and a 20-tooth pulley does not help
+        w16, w20 = p.lift_tooth_jump_sweep(), p.lift_tooth_jump_sweep(20)
+        self.assertEqual(len(w16["rows"]), 81)
+        self.assertEqual(len(w16["fail"]), 1)
+        self.assertLess(w20["worst"]["margin"], w16["worst"]["margin"])
+        # each rule fires
+        self.assertTrue(any("teeth in mesh" in r for r in Feeder(lift_tooth_fuspec_n_mm=0.4,
+                                                                 lift_tooth_fuspec_1200_n_mm=0.3).check_lift_tooth()))
+        self.assertTrue(any("jump a tooth" in r for r in Feeder(lift_tooth_g_mpa=40.0, lift_tooth_flank_deg=35.0,
+                                                                lift_belt_cspec_n=30000.0).check_lift_tooth()))
+        self.assertIn(Feeder(lift_tooth_g_mpa=40.0, lift_tooth_flank_deg=35.0).check_lift_tooth()[0],
+                      Feeder(lift_tooth_g_mpa=40.0, lift_tooth_flank_deg=35.0).check())
+
     def test_lift_drive_shaft_numbers_and_rules(self):
         # 2026-11-15, cad/README.md "Lift drive shaft"
         p = Feeder()

@@ -358,12 +358,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): belt stretch landed 2026-11-15 (cad/README.md "Lift belt
-      stretch"): every hood jam slackens the down strand for 0.34-0.6 s with the
-      tight strand at 89 N on 8 teeth in mesh. Next: a tooth-jump check for that jam
-      on the 16-tooth drive pulley (an AT5 per-tooth allowance from a public
-      catalogue, else assumed and swept), and if it fails, a faster hood cut or a
-      20-tooth pulley.
+      venv, about 2 min): tooth jump landed 2026-11-15 (cad/README.md "Lift tooth
+      jump"): 2.54x nominal, 1 of 81 corners under 1; a 20-tooth pulley does worse.
+      Next: the strands' sideways (string) modes against the flights' passing rate
+      and the 38/78 Hz drive modes, with the balls on the up strand only (the lumped
+      model spreads them round the loop).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
