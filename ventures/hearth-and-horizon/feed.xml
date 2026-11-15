@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Short Night on the Backup Battery</title>
+      <link>https://example.invalid/hearth-and-horizon/the-short-night-on-the-backup-battery.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-short-night-on-the-backup-battery.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A Woonsocket parish hall's cellar pump runs on its backup battery through a storm night, and the hall's assistant promised eleven hours by dividing the label's 89 amp-hours by the pump's average current. But the label is the 20-hour rate, and at the twenty amps the pump pulls when it runs, the battery's own published rates give about 71 amp-hours: eight hours and fifty minutes, gone at first light. A retired forklift-battery technician with a clamp meter, a float switch moved for nothing, a utility estimate that slips to one in the afternoon, and her own battery carried down the hill, because two in parallel give more than twice as long. A story about Peukert's law and asking slowly. Setting: Saint Claude's parish hall (invented), Woonsocket, Rhode Island, Monday 14 June and the night of Saturday 18 to Sunday 19 September 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-short-night-on-the-backup-battery.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Woonsocket parish hall's cellar pump runs on its backup battery through a storm night, and the hall's assistant promised eleven hours by dividing the label's 89 amp-hours by the pump's average current. But the label is the 20-hour rate, and at the twenty amps the pump pulls when it runs, the battery's own published rates give about 71 amp-hours: eight hours and fifty minutes, gone at first light. A retired forklift-battery technician with a clamp meter, a float switch moved for nothing, a utility estimate that slips to one in the afternoon, and her own battery carried down the hill, because two in parallel give more than twice as long. A story about Peukert's law and asking slowly.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Bede and the Last Sentence</title>
       <link>https://example.invalid/hearth-and-horizon/bede-and-the-last-sentence.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/bede-and-the-last-sentence.html</guid>
