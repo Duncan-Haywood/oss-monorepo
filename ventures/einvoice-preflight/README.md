@@ -1837,6 +1837,8 @@ taken from the English interface specification, 2026-02-12 edition, section 3.3.
 | HU-017 | INVOICE_REFERENCE_(NOT_)EXPECTED, LINE_MODIFICATION_(NOT_)EXPECTED, INVALID_LINE_OPERATION, LINE_NUMBER_REFERENCE_NOT_UNIQUE, SUPPLIER/CUSTOMER_NOT_IDENTICAL | modification structure, and the request's operation against it |
 | HU-018 | (register) | tax-number check digit (9-7-3-1) on supplier, customer and group members |
 | HU-020..026 (warnings) | INCORRECT_LINE_CALCULATION_*, INCORRECT_SUMMARY_CALCULATION_*, INCORRECT_SUMMARY_DATA_* | quantity x price, VAT from net, gross, every HUF conversion, each VAT-rate row against its lines, invoice totals against the rows, simplified gross by VAT content; NAV's tolerance, 1% and at least one unit |
+| HU-027..032 | SCHEMA_VIOLATION | NAV's own 3.0 XSD with NTCA common 1.0 (`nav-xsd.mjs`): elements not allowed or repeated, out of order, missing, values off their facets or code lists, an element in the wrong one of the three namespaces, attributes |
+| HU-033 (warnings) | INCORRECT_PRODUCT_CODE_FEE_*, MISSING_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_CALCULATION_* | product fee (termékdíj): CSK/KT code types, obligated flag against line content, line content against the summary, quantity and unit by code, quantity x rate, amounts by code and productChargeSum; Annex I's tolerance |
 
 **Measured on NAV's own samples** (`eval/hungary-nav-samples-2026-11-15.md`): of
 the 30 InvoiceData samples NAV publishes, 27 get no finding; the other 3 get five,
@@ -1850,11 +1852,26 @@ spec's wording suggests. 519 seeded faults of 27 kinds: 518 caught.
 The SHA3-512 is plain JavaScript (`sha3.mjs`, compared with node:crypto in the
 test), so the page checks the hash in the browser too.
 
+**The XSD pass and product fee totals (2026-11-15, later;
+`eval/nav-xsd-and-product-fee-2026-11-15.md`).** The NTCA common 1.0 schema the
+invoice XSD imports is in nav-gov-hu/Common at its `common-1.0.0` tag (main holds
+2.0). `build-nav-schema.mjs` reads the three XSDs into `nav-xsd-data.mjs` and
+`nav-xsd.mjs` validates against it in the browser, namespaces included. Against
+xmllint on 6,909 seeded faults in NAV's 30 samples (three seeds), the verdict agreed
+on every one. It found a real fault on its first run: the three invoices inside NAV's
+own `manageInvoice.xml` API sample carry the 2.0 `privatePersonIndicator` where 3.0
+wants `customerVatStatus`, and xmllint refuses them too. Annex I, which the earlier
+note said was missing, is in the 2026.02.12 English PDF; its 13 product fee warnings
+(ids 270-810) are HU-033, with Annex I's tolerance (1% of the HUF value, at least 1
+HUF or 0.01 of the currency). NAV's product fee sample is clean; each warning is
+seeded into it in the tests.
+
 Not checked (listed under `skipped`): what NAV checks against its own records
 (unique numbers, the base invoice of a modification, registered tax numbers),
-gzip-compressed operations, product-fee totals. No XSD pass yet: the schema
-imports NTCA common 1.0, not in NAV's repository. Not done: a real business's
-report with NAV's response to compare verdicts.
+gzip-compressed operations, product fee lines against a summary when there are two
+(REFUND and DEPOSIT). Not done: a real business's report with NAV's response to
+compare verdicts; product fee warning 260 and the takeover/declaration warnings.
 
-Tests: `hungary-nav.test.mjs` (14) on five of NAV's files kept in
+Tests: `hungary-nav.test.mjs` (14), `nav-xsd.test.mjs` (9) and
+`hungary-nav-product-fee.test.mjs` (8) on six of NAV's files kept in
 `fixtures/hungary-nav/` with NAV's MIT licence.

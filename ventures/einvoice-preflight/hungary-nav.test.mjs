@@ -104,7 +104,13 @@ test("NAV's manageInvoice sample: three Base64 operations, electronicInvoiceHash
   assert.equal(r.meta.operations, 3);
   assert.ok(!r.findings.some((f) => f.rule === "HU-016"));
   // The sample's placeholder data uses 0.25 on a 2020 delivery: NAV's current list refuses it.
-  assert.ok(r.findings.every((f) => f.rule === "HU-005"));
+  // Its invoices also carry the 2.0 privatePersonIndicator, which the 3.0 XSD refuses (xmllint
+  // agrees: "Expected is customerVatStatus"), once per operation.
+  assert.ok(r.findings.every((f) => ["HU-005", "HU-027", "HU-029"].includes(f.rule)));
+  const pp = r.findings.filter((f) => f.rule === "HU-027" && /privatePersonIndicator/.test(f.message));
+  assert.equal(pp.length, 3);
+  assert.match(pp[0].fix, /customerVatStatus/);
+  assert.equal(r.findings.filter((f) => f.rule === "HU-029" && /customerVatStatus/.test(f.message)).length, 3);
   const tampered = request.replace(/(<electronicInvoiceHash cryptoType="SHA3-512">)0/, "$11");
   assert.ok(checkNavInvoice(tampered).findings.some((f) => f.rule === "HU-016" && /does not match/.test(f.message)));
   const lower = request.replace(/(<electronicInvoiceHash cryptoType="SHA3-512">)([0-9A-F]+)/, (m, a, h) => a + h.toLowerCase());
