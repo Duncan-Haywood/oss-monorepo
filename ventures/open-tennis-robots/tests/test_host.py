@@ -42,7 +42,8 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         sim.run_ms(20)
         self.assertEqual(sim.hw.target_rpm, (0, 0))      # wheels told to stop at the end
         self.assertFalse(sim.ctl.estop)
-        self.assertEqual(sim.hw.lift_pwm.duty, 65535)    # the ball lift runs on for the balls still coming back
+        # the ball lift runs on for the balls still coming back, at the duty held to 24 V / the 25.6 V pack reading
+        self.assertEqual(sim.hw.lift_pwm.duty, int(24000 / sim.pack_mv * 65535))
         sim.run_ms(3100)
         self.assertEqual(sim.hw.agit_pwm.duty, 0)        # the agitator stops once no ball is wanted
 
@@ -469,7 +470,7 @@ class LiftJamTest(unittest.TestCase):
         hw.lift.kick(sim.us // 1000)
         sim.lift_over = True                         # stalled from the start: a ball wedged in the boot
         self._beat(sim, 300)
-        self.assertEqual(hw.lift_pwm.duty, 65535)    # blanked
+        self.assertEqual(hw.lift_pwm.duty, int(hw.lift.run_duty() * 65535))    # blanked
         self._beat(sim, 200)
         self.assertEqual(hw.lift_pwm.duty, 0)        # cut
         self.assertFalse(hw.flags() & P.FLAG_LIFT_JAM)
@@ -490,7 +491,7 @@ class LiftJamTest(unittest.TestCase):
         self.assertFalse(hw.flags() & P.FLAG_LIFT_JAM)
         hw.lift.kick(sim.us // 1000)
         self._beat(sim, 100)
-        self.assertEqual(hw.lift_pwm.duty, 65535)    # runs again
+        self.assertEqual(hw.lift_pwm.duty, int(hw.lift.run_duty() * 65535))    # runs again
 
     def test_drill_carries_on_and_warns_once(self):
         sim = SimFeeder()
@@ -613,7 +614,9 @@ class LiftJamTest(unittest.TestCase):
             self.assertEqual(r["slack_ms"], 0.0, b)        # at the boot the ball stops the pulley, not the belt's mass
         corner = dict(loaded=False, slip="lo", coupler=(max(p.lift_coupler_k_sweep), 5.0))
         sweep.start(29.2, 0.0, 0.5, "lo", **corner)
-        self.assertGreater(sweep.start.plant.slid_ms, 0.0)
+        # since 2026-11-15 ("Lift duty follows the battery": duty 0.82 on a full pack, hub set to 1.0 N m) the rigid
+        # belt's corner no longer slips either
+        self.assertEqual(sweep.start.plant.slid_ms, 0.0)
         tripped, _, _ = sweep.start(29.2, 0.0, 0.5, "lo", belt=1.0, **corner)
         self.assertFalse(tripped)
         self.assertEqual(sweep.start.plant.slid_ms, 0.0)

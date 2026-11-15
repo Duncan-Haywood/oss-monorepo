@@ -358,12 +358,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): strand modes landed 2026-11-15 (cad/README.md "Lift strand
-      modes"): the empty belt's 2.12 Hz sits in the flight rate's band because speed
-      follows the battery. Next: a lift duty of about min(1, V_ref / V_bus) in
-      firmware and `lift_speed_range`, checked against `lift_jam_cutoff`'s rules and
-      tests/lift_jam_sweep.py; then rerun the jam sweep on `lift_belt_axial_modes`'
-      distributed belt (stuck 34-41 Hz, not 38).
+      venv, about 2 min): duty held to the battery landed 2026-11-15 (cad/README.md
+      "Lift duty follows the battery"). Next: rerun the jam sweep on
+      `lift_belt_axial_modes`' distributed belt (stuck 34-41 Hz, not 38); then a
+      duty-independent lift current sense (high-side amp, INA186 class, shunt inside
+      the motor-diode loop) in params, BOM and the sweep, so the trip stops moving
+      with the duty (slide now 1.14x the trip, 1.1 wanted).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

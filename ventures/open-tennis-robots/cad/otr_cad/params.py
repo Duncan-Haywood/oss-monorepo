@@ -1162,7 +1162,8 @@ class Feeder:
     lift_shunt_ohm: float = 0.05      # low-side shunt between the MOSFET module's source and ground (3 W, 1%)
     lift_shunt_w: float = 3.0
     lift_sense_r1: float = 100e3      # comparator's reference divider from 3.3 V: top (1%)
-    lift_sense_r2: float = 2.7e3      # and bottom (1%): 3.9k before the slip coupling (2026-11-15), now under its slide
+    lift_sense_r2: float = 2.4e3      # and bottom (1%): 3.9k before the slip coupling, 2.7k until the duty followed the
+                                      # battery (2026-11-15): the trip rises 1/duty on a full pack and must stay under the slide
     lift_sense_rc_s: float = 1.0e-3   # 10k + 100 nF from the shunt to the comparator: averages the 20 kHz PWM
     lift_sense_offset_v: float = 0.009  # LM393 input offset over temperature, worst case (datasheet: 9 mV)
     lift_rail_tol: float = 0.03       # 3.3 V rail
@@ -1176,6 +1177,10 @@ class Feeder:
     lift_blank_factor: float = 3.0    # blanking over the longest a normal start stays over the trip current
     lift_ramp_ms: float = 100.0       # config LIFT_RAMP_MS: each start ramps the duty up this long (2026-11-15, the jaw
                                       # coupling's play rang a switched start to 2.3x its torque; tests/lift_jam_sweep.py)
+    lift_v_ref: float = 24.0          # config LIFT_V_REF_MV / 1000: over it the duty is lift_duty x lift_v_ref / battery, so the
+                                      # belt keeps its 24 V speed to 29.2 V (2026-11-15, "Lift duty follows the battery"); 0: fixed
+    lift_duty_min: float = 0.82       # config LIFT_DUTY_MIN: the regulated duty's floor (24 / 29.2 = 0.822); the jam rules are
+                                      # taken at it, so a reading over the charger's voltage cannot lift the trip further
     ball_k_n_m: float = 14300.0       # a ball's stiffness: ITF forward deformation 5.6-7.4 mm under 8.165 kg; the stiff end
     # Lift slip coupling (2026-11-15, `lift_slip_design`, `check_lift_slip`; cad `lift_slip_hub`; tests/lift_jam_sweep.py).
     # The cutoff stops a held stall, but the gearmotor's rotor (18 kg at the belt through 30:1) met a jammed ball within
@@ -1183,7 +1188,8 @@ class Feeder:
     # between the gearmotor's shaft and the drive pulley lets the rotor run on while the belt stops: the cap then sees
     # the hub's slip torque plus the belt's own 1.4 kg, and the motor's current while it slides is over the cutoff's
     # trip, so the cutoff still cuts and latches. Friction figures are assumptions; the slip torque is set on the bench.
-    lift_slip_nm: float = 0.9         # slip torque the hub is set to (bench: a belt strip round the pulley, 71 N on a scale)
+    lift_slip_nm: float = 1.0         # slip torque the hub is set to (bench: a belt strip round the pulley, 79 N on a scale;
+                                      # 0.9 N m, 71 N, until the duty followed the battery, 2026-11-15)
     lift_slip_tol: float = 0.2        # +- on it: setting, wear, damp, temperature (assumption)
     lift_slip_kinetic: float = 0.8    # sliding over sticking friction of the facing on aluminium (assumption)
     lift_slip_mu: float = 0.3         # facing on the pulley's face, sliding (assumption: a fibre or cork-composite washer)
@@ -4057,6 +4063,13 @@ class Feeder:
                 "m_eff_kg": j / (r * r), "l_h": self.lift_motor_mh / 1000,
                 "tau_e_s": self.lift_motor_mh / 1000 / rw, "tau_m_s": j * rw / (kt * ke)}
 
+    def lift_duty_at(self, volts: float) -> float:
+        """The lift's running duty on a battery at `volts` (firmware `LiftRun.run_duty`): `lift_duty`, scaled by
+        `lift_v_ref` / volts above `lift_v_ref`, never under `lift_duty_min`; `lift_v_ref` 0 keeps it fixed."""
+        if not self.lift_v_ref:
+            return self.lift_duty
+        return self.lift_duty * max(self.lift_duty_min, min(1.0, self.lift_v_ref / volts))
+
     def lift_jam_cutoff(self) -> dict:
         """Trip current, its spread, and what it does to a start and to a jam (2026-11-15).
 
@@ -4072,7 +4085,13 @@ class Feeder:
         same on the real firmware with the electrical lag and the filter.
 
         Stall: with the cutoff a stalled motor is cut after at most blank + trip + one 10 ms tick (+ the filter), and
-        retried `lift_jam_retries` times; without it the stall holds for the run-on (and again after every ball fed)."""
+        retried `lift_jam_retries` times; without it the stall holds for the run-on (and again after every ball fed).
+
+        Duty (2026-11-15, "Lift duty follows the battery"): the shunt sees current only while the MOSFET conducts, so
+        the trip in motor amps is the reference over duty x R_shunt, and a duty held down on a full pack raises it. The
+        motor's mean voltage is duty x V less I x (winding + lead) less duty x I x R_shunt. So every rule is taken at
+        both packs at its own duty (`lift_duty_at`): the stall margin at the worse of the hot 24 V and hot 29.2 V
+        stalls, the start at the worse of the two cold starts. `trip_*_a` stay the full-duty figures (at the cut)."""
         m = self.lift_motor_model()
         g = lambda tol: 3.3 * (1 + tol * self.lift_rail_tol)          # noqa: E731
         def vref(sign):
@@ -4080,17 +4099,31 @@ class Feeder:
             r2 = self.lift_sense_r2 * (1 + sign * self.lift_res_tol)
             return g(sign) * r2 / (r1 + r2) + sign * self.lift_sense_offset_v
         v_nom = 3.3 * self.lift_sense_r2 / (self.lift_sense_r1 + self.lift_sense_r2)
-        to_a = 1 / (self.lift_shunt_ohm * self.lift_duty)
+        # the lowest duty the firmware can drive is the floor, which the full pack's duty sits at or over
+        d_lo = self.lift_duty_at(self.battery_v_min)
+        d_hi = self.lift_duty * self.lift_duty_min if self.lift_v_ref else self.lift_duty
+        to_a = 1 / (self.lift_shunt_ohm * d_lo)
         i_nom, i_lo, i_hi = v_nom * to_a, vref(-1) * to_a, vref(1) * to_a
         d = self.lift_design()
         i_run = self.lift_motor_noload_a + d["torque_nm"] / m["kt"]
         trip_nm_lo = m["kt"] * (i_lo - self.lift_motor_noload_a)
         hot_ohm = m["winding_ohm"] * (1 + 0.00393 * self.lift_hot_rise_k)
-        series = m["lead_ohm"] + self.lift_shunt_ohm
-        i_stall_hot = self.battery_v_min / (hot_ohm + series)
-        i_stall_cold = self.battery_v_max / (m["winding_ohm"] + series)
-        start_over_s = (m["tau_m_s"] * math.log((i_stall_cold - i_run) / (i_lo - i_run))
-                        if i_lo > i_run and i_stall_cold > i_lo else math.inf)
+
+        def stall(v, duty, ohm):
+            return duty * v / (ohm + m["lead_ohm"] + duty * self.lift_shunt_ohm)
+
+        def over_s(i_stall, i_trip):
+            if not (i_trip > i_run and i_stall > i_trip):
+                return math.inf if i_trip <= i_run else 0.0
+            return m["tau_m_s"] * math.log((i_stall - i_run) / (i_trip - i_run))
+
+        packs = ((self.battery_v_min, d_lo), (self.battery_v_max, d_hi))
+        margins = [stall(v, du, hot_ohm) / (i_hi * d_lo / du) for v, du in packs]
+        starts = [over_s(stall(v, du, m["winding_ohm"]), i_lo * d_lo / du) for v, du in packs]
+        i_stall_hot = stall(self.battery_v_min, d_lo, hot_ohm)
+        i_stall_cold = max(stall(v, du, m["winding_ohm"]) for v, du in packs)
+        start_over_s = max(starts)
+        i_unreg = stall(self.battery_v_max, self.lift_duty, m["winding_ohm"])   # no good battery reading: fixed duty
         dwell_s = (self.lift_jam_blank_ms + self.lift_jam_trip_ms + 10.0) / 1000 + 3 * self.lift_sense_rc_s
         stall_w = i_stall_cold ** 2 * m["winding_ohm"]
         run_on_s = d["run_on_s"]
@@ -4101,12 +4134,14 @@ class Feeder:
         return {
             "vref_v": v_nom, "trip_a": i_nom, "trip_lo_a": i_lo, "trip_hi_a": i_hi, "run_a": i_run,
             "trip_nm_lo": trip_nm_lo, "trip_factor": trip_nm_lo / d["torque_nm"],
-            "stall_hot_a": i_stall_hot, "stall_cold_a": i_stall_cold, "stall_margin": i_stall_hot / i_hi,
+            "stall_hot_a": i_stall_hot, "stall_cold_a": i_stall_cold, "stall_margin": min(margins),
+            "stall_margin_lo_v": margins[0], "stall_margin_hi_v": margins[1], "duty_lo_v": d_lo, "duty_hi_v": d_hi,
+            "trip_hi_a_full_pack": i_hi * d_lo / d_hi, "start_over_lo_v_s": starts[0], "start_over_hi_v_s": starts[1],
             "start_over_s": start_over_s, "blank_s": self.lift_jam_blank_ms / 1000, "dwell_s": dwell_s,
             "stall_w": stall_w, "attempt_j": stall_w * dwell_s, "cutoff_j": stall_w * dwell_s * (1 + self.lift_jam_retries),
             "uncut_j": stall_w * run_on_s, "run_on_s": run_on_s, "fuse_a": fuse, "fuse_ratio": i_stall_hot / fuse,
-            "shunt_stall_w": i_stall_cold ** 2 * self.lift_shunt_ohm, "shunt_run_w": i_run ** 2 * self.lift_shunt_ohm,
-            "shunt_drop_v": i_stall_cold * self.lift_shunt_ohm, "plate_allow_n": plate_n, "weld_allow_n": weld_n,
+            "shunt_stall_w": i_unreg ** 2 * self.lift_shunt_ohm, "stall_unregulated_a": i_unreg, "shunt_run_w": i_run ** 2 * self.lift_shunt_ohm,
+            "shunt_drop_v": i_unreg * self.lift_shunt_ohm, "plate_allow_n": plate_n, "weld_allow_n": weld_n,
             "motor": m,
         }
 
@@ -4117,8 +4152,9 @@ class Feeder:
             bad.append(f"lift jam cutoff can trip at {c['trip_lo_a']:.2f} A ({c['trip_nm_lo']:.2f} N m), under "
                        f"{self.lift_torque_factor:g}x the full belt's torque: raise lift_sense_r2")
         if c["stall_margin"] < self.lift_stall_trip_margin:
-            bad.append(f"lift jam cutoff may never trip: a hot stall at {self.battery_v_min:g} V draws {c['stall_hot_a']:.2f} A, "
-                       f"{c['stall_margin']:.2f}x the highest trip ({c['trip_hi_a']:.2f} A); "
+            v = self.battery_v_min if c["stall_margin_lo_v"] <= c["stall_margin_hi_v"] else self.battery_v_max
+            bad.append(f"lift jam cutoff may never trip: a hot stall at {v:g} V, at its duty, is only "
+                       f"{c['stall_margin']:.2f}x the highest trip there; "
                        f"{self.lift_stall_trip_margin:g}x wanted: lower lift_sense_r2 or raise lift_shunt_ohm")
         if not math.isfinite(c["start_over_s"]):
             bad.append("lift jam cutoff's trip is under the full belt's running current: every run would trip")
@@ -4186,7 +4222,7 @@ class Feeder:
         return {
             "j_motor": j_m, "j_belt": j_b, "belt_share": share, "start_nm": t_start, "stick_lo_nm": lo,
             "stick_hi_nm": hi, "slide_lo_nm": slide_lo, "slide_hi_nm": slide_hi, "start_factor": lo / t_start,
-            "belt_factor": lo / t_belt, "slide_lo_a": i_slide_lo, "trip_margin": i_slide_lo / c["trip_hi_a"],
+            "belt_factor": lo / t_belt, "slide_lo_a": i_slide_lo, "trip_margin": i_slide_lo / c["trip_hi_a_full_pack"],
             "peak_n": peak, "plate_allow_n": c["plate_allow_n"],
             "plate_margin": c["plate_allow_n"] / peak, "set_n": self.lift_slip_nm / r, "set_lo_n": lo / r,
             "set_hi_n": hi / r, "r_eff_mm": r_eff * 1000, "spring_n": spring_n, "slide_w": slide_w,
@@ -4207,7 +4243,8 @@ class Feeder:
                        f"belt's torque: raise lift_slip_nm")
         if s["trip_margin"] < self.lift_slip_trip_margin:
             bad.append(f"lift slip hub sliding at {s['slide_lo_nm']:.2f} N m draws {s['slide_lo_a']:.2f} A, "
-                       f"{s['trip_margin']:.2f}x the cutoff's highest trip ({self.lift_slip_trip_margin:g}x wanted): "
+                       f"{s['trip_margin']:.2f}x the cutoff's highest trip at the lowest duty "
+                       f"({self.lift_slip_trip_margin:g}x wanted): "
                        f"a jam would slide unseen; lower lift_sense_r2 or raise lift_slip_nm")
         if s["peak_n"] > s["plate_allow_n"]:
             bad.append(f"lift slip hub lets a jam put {s['peak_n']:.0f} N on a flight cap, over its plate's "
@@ -4544,16 +4581,22 @@ class Feeder:
     def lift_speed_range(self) -> dict:
         """The belt's speed as a share of nominal (`lift_motor_rpm`), lowest at the 24 V cut with every flight loaded
         (the motor's resistance and its lead's drop under the full belt's current), highest on the charger's 29.2 V
-        with an empty belt (no-load current). The lift runs at a fixed duty (`lift_duty`), so its speed follows the
-        battery."""
+        with an empty belt (no-load current), each at its duty (`lift_duty_at`). At a fixed duty (`lift_v_ref` 0) the
+        speed followed the battery, 0.91 to 1.23; held to `lift_v_ref` it spans only the load and the IR drop
+        (2026-11-15, "Lift duty follows the battery"). `fixed_lo`/`fixed_hi` are the fixed duty's figures."""
         m = self.lift_motor_model()
         d = self.lift_design()
         r = m["winding_ohm"] + m["lead_ohm"]
         w0 = m["noload_rad_s"]
         i_full = self.lift_motor_noload_a + d["torque_nm"] / m["kt"]
-        lo = (self.supply_v * self.lift_duty - i_full * r) / m["ke"] / w0
-        hi = (self.battery_v_max * self.lift_duty - self.lift_motor_noload_a * r) / m["ke"] / w0
-        return {"lo": lo, "hi": hi, "i_full_a": i_full}
+
+        def speed(v, duty, i):
+            return (v * duty - i * (r + duty * self.lift_shunt_ohm)) / m["ke"] / w0
+        lo = speed(self.supply_v, self.lift_duty_at(self.supply_v), i_full)
+        hi = speed(self.battery_v_max, self.lift_duty_at(self.battery_v_max), self.lift_motor_noload_a)
+        f_lo = speed(self.supply_v, self.lift_duty, i_full)
+        f_hi = speed(self.battery_v_max, self.lift_duty, self.lift_motor_noload_a)
+        return {"lo": lo, "hi": hi, "i_full_a": i_full, "fixed_lo": f_lo, "fixed_hi": f_hi}
 
     def lift_strand_excitations(self, speed_factor: float = 1.0) -> dict:
         """What shakes a strand, Hz, at `speed_factor` x the belt's nominal speed. Direct: flights passing a point
@@ -4651,7 +4694,28 @@ class Feeder:
         pl = self.lift_pluck_design()
         if not 0.0 < pl["pluck_hz"] < pl["bare_hz"]:
             bad.append(f"lift tension-setting figure {pl['pluck_hz']:.2f} Hz is not under the bare belt's {pl['bare_hz']:.2f} Hz")
+        r = self.lift_run_on_resonance()
+        if r["hits"]:
+            bad.append(f"lift's empty belt (the run-on after each ball) rings at {', '.join(r['hits'])} inside the flights' "
+                       f"passing band ({r['flight_lo_hz']:.2f}-{r['flight_hi_hz']:.2f} Hz, x1-3, +-{r['band']:.0%}): hold the "
+                       f"belt's speed (lift_v_ref) or move lift_tension_factor")
         return bad
+
+    def lift_run_on_resonance(self, band: float = 0.05) -> dict:
+        """The empty belt's first three string modes (both strands at T0: the run-on after each ball, `lift_strand_modes`
+        down, off its face) against the flights' passing rate and its 2nd and 3rd harmonics over the belt's speed range
+        (`lift_speed_range`), each band widened by `band` (2026-11-15, "Lift duty follows the battery"). `hits` names
+        every mode inside a band; at a fixed duty the 2.12 Hz fundamental sat in the x1 band."""
+        s = self.lift_speed_range()
+        lo, hi = self.lift_strand_excitations(s["lo"]), self.lift_strand_excitations(s["hi"])
+        modes = self.lift_strand_modes("down", "flat", loaded_every=0)["modes_hz"][:3]
+        hits = []
+        for i, f in enumerate(modes):
+            for k in ("flight", "flight_x2", "flight_x3"):
+                if lo[k] * (1 - band) <= f <= hi[k] * (1 + band):
+                    hits.append(f"n{i + 1} {f:.2f} Hz ({k})")
+        return {"modes_hz": modes, "hits": hits, "flight_lo_hz": lo["flight"], "flight_hi_hz": hi["flight"], "band": band,
+                "clearance": modes[0] / (hi["flight"] * (1 + band))}
 
     def lift_shaft_geometry(self) -> dict:
         """Positions along y for `lift_shaft_design` (geometry only, so the cable route can use it without the motor

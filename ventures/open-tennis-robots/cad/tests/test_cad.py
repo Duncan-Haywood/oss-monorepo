@@ -1326,7 +1326,7 @@ class LiftParamsTest(unittest.TestCase):
         p = Feeder()
         self.assertEqual(p.check_lift_jam(), [])
         c = p.lift_jam_cutoff()
-        self.assertAlmostEqual(c["trip_a"], 3.3 * 2.7 / 102.7 / 0.05, places=6)
+        self.assertAlmostEqual(c["trip_a"], 3.3 * 2.4 / 102.4 / 0.05, places=6)
         self.assertLess(c["trip_lo_a"], c["trip_a"])
         self.assertLess(c["trip_a"], c["trip_hi_a"])
         self.assertGreater(c["stall_hot_a"], c["trip_hi_a"])
@@ -1342,6 +1342,14 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=1.0).check_lift_jam()))
         self.assertTrue(any("two ticks" in r for r in Feeder(lift_jam_trip_ms=0.0).check_lift_jam()))
         self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6).check_lift_jam()))
+        # 2026-11-15, "Lift duty follows the battery": the trip rises 1/duty on a full pack; the 2.7k divider and the
+        # 0.9 N m hub set before it would let a jam slide unseen there, and a lower floor would too
+        c = Feeder().lift_jam_cutoff()
+        self.assertAlmostEqual(c["trip_hi_a_full_pack"], c["trip_hi_a"] / Feeder().lift_duty_min)
+        self.assertLess(c["stall_margin_hi_v"], c["stall_margin_lo_v"])
+        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=2.7e3, lift_slip_nm=0.9).check_lift_slip()))
+        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_duty_min=0.7).check_lift_slip()))
+        self.assertEqual(Feeder(lift_v_ref=0, lift_sense_r2=2.7e3, lift_slip_nm=0.9).check_lift_slip(), [])
 
     def test_lift_slip_hub_numbers_and_rules(self):
         # 2026-11-15, cad/README.md "Lift slip coupling"
@@ -1437,12 +1445,22 @@ class LiftParamsTest(unittest.TestCase):
         self.assertLess(heavy, 0.6 * free)
         pinned = p.lift_strand_modes("up", "flat", pin_loaded=True)["modes_hz"][0]
         self.assertGreater(pinned, 25.0)
-        # the belt's speed follows the battery at a fixed duty, and the flight rate meets the empty belt's fundamental
-        s = p.lift_speed_range()
+        # at a fixed duty the belt's speed follows the battery and the flight rate meets the empty belt's fundamental;
+        # held to lift_v_ref (2026-11-15, "Lift duty follows the battery") the band stops short of it
+        fixed = Feeder(lift_v_ref=0)
+        s = fixed.lift_speed_range()
         self.assertLess(s["lo"], 1.0)
         self.assertGreater(s["hi"], 1.2)
         f1 = p.lift_strand_modes("down", "flat", loaded_every=0)["modes_hz"][0]   # the empty run-on
-        self.assertTrue(p.lift_strand_excitations(s["lo"])["flight"] < f1 < p.lift_strand_excitations(s["hi"])["flight"])
+        self.assertTrue(fixed.lift_strand_excitations(s["lo"])["flight"] < f1 < fixed.lift_strand_excitations(s["hi"])["flight"])
+        self.assertTrue(fixed.lift_run_on_resonance()["hits"])
+        self.assertTrue(any("passing band" in r for r in fixed.check_lift_strand()))
+        held = p.lift_speed_range()
+        self.assertAlmostEqual(held["lo"], s["lo"])                 # the 24 V cut is unchanged: full duty there
+        self.assertLess(held["hi"], 1.02)
+        r = p.lift_run_on_resonance()
+        self.assertEqual(r["hits"], [])
+        self.assertGreater(r["clearance"], 1.1)
         # stretch: held, uniform mass, the first mode is the lumped model's to a few per cent; balls on the up strand
         # lower the first stuck mode a little and the lumped model's 38 Hz sits above the distributed one
         held = p.lift_belt_axial_modes(1, stuck=False, balls_on_up=False)["modes_hz"][0]
