@@ -11196,7 +11196,7 @@ function crumbShort(name) {
 /**
  * The footer's lead line on a tool whose entry page has no field, button or
  * drawing surface of its own (`hasOwnControls`, embed.mjs). Measured
- * 2026-11-15: 22 pages (ShootFlow's docs, the Garmin watch face, the
+ * 2026-11-15: 28 pages (ShootFlow's docs, the Garmin watch face, the
  * self-hosted SaaS stack list, photos-import-tools, vendor-watch, and the
  * hub and guide pages of quick-pick-survey and the electronics academy) said
  * "Free and private, like this one — everything runs in your browser" over a
