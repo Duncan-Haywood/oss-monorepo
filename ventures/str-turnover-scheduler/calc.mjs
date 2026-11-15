@@ -7,7 +7,8 @@
 export const DEFAULTS = { checkoutHour: 11, checkinHour: 16, cleanHours: 2.5, fee: 120, shiftStart: 9, shiftEnd: 17, travelMin: 20, hourlyRate: 25, payTravel: true, cleaners: 2, maxCrew: 8, horizonDays: 14 };
 
 const DAY = 1440;
-const BLOCKED = /not available|unavailable|blocked|closed|owner|hold/i;
+// Whole words only: "Reserved - Holden Smith" and "Ann Downer" are guests, not blocks (quality audit 2026-11-15).
+const BLOCKED = /\b(?:not available|unavailable|blocked|closed|owner|hold)\b/i;
 
 export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const pad = (n) => String(n).padStart(2, "0");

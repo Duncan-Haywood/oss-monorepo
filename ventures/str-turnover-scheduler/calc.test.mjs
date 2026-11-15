@@ -116,3 +116,11 @@ test("a double-booked stay is flagged but gets no clean of its own (quality audi
   assert.equal(new Set(days).size, days.length, "two cleans at one unit on one day");
   assert.equal(out.jobs.length, 15);
 });
+
+test("guest names containing 'hold' or 'owner' are stays, not blocks (quality audit 2026-11-15)", () => {
+  const ev = (sum, s, e) => `BEGIN:VEVENT\nDTSTART;VALUE=DATE:${s}\nDTEND;VALUE=DATE:${e}\nSUMMARY:${sum}\nEND:VEVENT\n`;
+  const feed = `# Lake House\nBEGIN:VCALENDAR\n${ev("Reserved - Holden Smith", "20261001", "20261003")}${ev("Reserved - Ann Downer", "20261004", "20261006")}${ev("Owner stay", "20261007", "20261009")}${ev("Not available", "20261010", "20261011")}END:VCALENDAR\n`;
+  const r = c.parseBookings(feed);
+  assert.equal(r.bookings.length, 2);
+  assert.equal(r.skippedBlocks, 2);
+});
