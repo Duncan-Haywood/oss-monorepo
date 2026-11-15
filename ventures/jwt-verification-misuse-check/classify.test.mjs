@@ -141,3 +141,15 @@ test("parity: classify.mjs and check.py agree on every fixture, field for field"
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("a run of backslashes in a key argument does not backtrack exponentially (ReDoS)", () => {
+  // The old string-literal pattern let each backslash match two ways, so 40 of them with no
+  // closing quote took minutes; scanning someone's repository must not hang on one line.
+  const src = `jwt.verify(token, "${"\\".repeat(40)}"x);\n`; // 36 took 4.3 s before the fix
+  const t0 = performance.now();
+  scanText(src, "a.js");
+  assert.ok(performance.now() - t0 < 1000, "scan took over a second");
+  // A closed literal ending in an escaped backslash is still read as a hard-coded key.
+  const f = scanText(`jwt.sign(payload, "a-long-literal-key-that-is-hardcoded-in-source-01\\\\");\n`, "b.js");
+  assert.ok(f.some((x) => x.type === HARDCODED_SECRET));
+});
