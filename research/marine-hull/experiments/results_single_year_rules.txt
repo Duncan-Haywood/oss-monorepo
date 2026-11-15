@@ -1,0 +1,75 @@
+Milestone 6zzj: the one-year rules of 6zzb to 6zzh learned on each of the five single years, 2005 to 2014 (50 W)
+lag g: scoring L learns from 2010 - g, scoring E from 2009 + g; every pool uses the same single year
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+AT_90 (no correction): all168 139, real8 8, hi168 25, hireal8 1, pp240 126
+
+Per rule and lag: dominance counts
+  rule     |  all168 |   real8 |   hi168 | hireal8 |   pp240
+  LC_1     |      97 |       4 |      77 |       4 |     106
+  LC_2     |     117 |       7 |     153 |       7 |     121
+  LC_3     |     132 |       8 |       1 |       0 |     107
+  LC_4     |     152 |       8 |     124 |       6 |     131
+  LC_5     |     111 |       7 |      50 |       2 |     105
+  LHF_1    |     126 |       8 |      89 |       4 |     134
+  LHF_2    |     136 |       8 |     140 |       7 |     131
+  LHF_3    |     149 |       8 |       1 |       0 |     122
+  LHF_4    |     155 |       7 |     103 |       5 |     135
+  LHF_5    |     128 |       7 |      38 |       2 |     122
+  LAP_1    |     132 |       8 |      54 |       2 |     134
+  LAP_2    |     141 |       8 |     103 |       5 |     132
+  LAP_3    |     153 |       8 |       2 |       0 |     126
+  LAP_4    |     153 |       7 |      75 |       3 |     141
+  LAP_5    |     132 |       7 |      38 |       2 |     123
+  LB_1     |     133 |       8 |      65 |       2 |     135
+  LB_2     |     141 |       8 |      90 |       3 |     134
+  LB_3     |     152 |       8 |       4 |       0 |     131
+  LB_4     |     151 |       7 |      62 |       2 |     138
+  LB_5     |     140 |       8 |      26 |       1 |     128
+  HR_1     |     140 |       8 |      97 |       5 |     140
+  HR_2     |     142 |       8 |      55 |       2 |     133
+  HR_3     |     153 |       8 |       9 |       0 |     129
+  HR_4     |     148 |       7 |      53 |       2 |     141
+  HR_5     |     152 |       8 |      37 |       2 |     125
+  HX_1     |     140 |       8 |     102 |       5 |     141
+  HX_2     |     141 |       8 |      55 |       2 |     133
+  HX_3     |     153 |       8 |       9 |       0 |     129
+  HX_4     |     148 |       7 |      57 |       2 |     141
+  HX_5     |     151 |       8 |      36 |       2 |     125
+
+Per rule over the five lags: mean [min, max] and lag 1's rank (1 = best)
+  LC   |  121.8 [ 97,152] r5 |    6.8 [  4,  8] r5 |   81.0 [  1,153] r3 |    3.8 [  0,  7] r3 |  114.0 [105,131] r4
+  LHF  |  138.8 [126,155] r5 |    7.6 [  7,  8] r1 |   74.2 [  1,140] r3 |    3.6 [  0,  7] r3 |  128.8 [122,135] r2
+  LAP  |  142.2 [132,153] r4 |    7.6 [  7,  8] r1 |   54.4 [  2,103] r3 |    2.4 [  0,  5] r3 |  131.2 [123,141] r2
+  LB   |  143.4 [133,152] r5 |    7.8 [  7,  8] r1 |   49.4 [  4, 90] r2 |    1.6 [  0,  3] r2 |  133.2 [128,138] r2
+  HR   |  147.0 [140,153] r5 |    7.8 [  7,  8] r1 |   50.2 [  9, 97] r1 |    2.2 [  0,  5] r1 |  133.6 [125,141] r2
+  HX   |  146.6 [140,153] r5 |    7.8 [  7,  8] r1 |   51.8 [  9,102] r1 |    2.2 [  0,  5] r1 |  133.8 [125,141] r1
+
+Spearman rho of each rule's per-lag 168-cell counts against LC's (same bad years?)
+  LHF  rho +1.000  counts by lag 1..5: [126, 136, 149, 155, 128]
+  LAP  rho +0.949  counts by lag 1..5: [132, 141, 153, 153, 132]
+  LB   rho +0.900  counts by lag 1..5: [133, 141, 152, 151, 140]
+  HR   rho +0.500  counts by lag 1..5: [140, 142, 153, 148, 152]
+  HX   rho +0.500  counts by lag 1..5: [140, 141, 153, 148, 151]
+
+Real shape, all 30 points, km/B pooled over the 8 cells (half x pack): min / mean / max over lags
+  AT_90: 1.0803 / 1.0803 / 1.0803
+  LC   : 1.0512 / 1.0638 / 1.0795
+  LHF  : 1.0397 / 1.0601 / 1.0754
+  LAP  : 1.0449 / 1.0625 / 1.0735
+  LB   : 1.0477 / 1.0640 / 1.0731
+  HR   : 1.0482 / 1.0631 / 1.0727
+  HX   : 1.0483 / 1.0633 / 1.0731
+
+Check: LC by lag 97 / 117 / 132 / 152 / 111 (6zzi: 97 / 117 / 132 / 152 / 111); lag 1 LHF 126 (126), LAP 132 (132), LB 133 (133), HR 140 (140), HX 140 (140); AT_90 139 (139)
+
+Predictions
+J1 HX five-lag mean >= 139: held (146.6)
+J2 HR five-lag mean >= 139: held (147.0)
+J3 every shrinkage span < LC's: held (LC 55, LHF 29, LAP 21, LB 19, HR 13, HX 13)
+J4 lag 1 not best for HX nor HR: held (HX rank 5, HR rank 5)
+J5 HX worst lag >= 130: held (140)
+J6 HX high-amp five-lag mean >= 81.0: refuted (HX 51.8, LC 81.0)
+J7 HX highest five-lag mean among the harmonic rules: refuted (LHF 138.8, LAP 142.2, LB 143.4, HR 147.0, HX 146.6)
+J8 rho(HX, LC) > 0: held (+0.500)
+J9 every harmonic rule's mean > LC's 121.8: held
