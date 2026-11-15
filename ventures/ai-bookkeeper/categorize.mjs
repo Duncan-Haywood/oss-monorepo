@@ -14,11 +14,13 @@
 // "PURCHASE AUTHORIZED ON 03/14 AMZN MKTP US*2K3"), so everything keys on a
 // normalised payee. Pure functions, no DOM, no network.
 //
-// After the built-in keywords, three hints a file may carry are read for review
+// After the built-in keywords, four hints a file may carry are read for review
 // only: the card network's merchant category code (mcc.mjs), the bank's own
-// category label, and a new payee's shape and size (guessNewPayee).
+// category label, a chain's name from OpenStreetMap's name-suggestion-index (brands.mjs),
+// and a new payee's shape and size (guessNewPayee).
 
 import { mccAccount, mccKey } from "./mcc.mjs";
+import { BRAND_KINDS, BRANDS_VERSION } from "./brands.mjs";
 
 const NOISE = new Set(("pos ach debit credit card purchase checkcard visa mastercard mc dda withdrawal deposit payment pmt pymt web ppd ccd id ref trn txn " +
   "recurring online mobile preauthorized pre auth authorized authorization authorisation pending non pin at on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
@@ -1029,6 +1031,16 @@ export function suggest(txn, model) {
     const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
+  if (d === "out" && !off.has("brand")) {
+    const b = brandAccount(txn.desc);
+    // The keywords know this chain's bare name but stayed silent on the line ("Iceland Travel" is
+    // not the grocer): their exception stands (read on the Scottish Government's held-out lines).
+    // The keywords then decide on the cleaned payee ("www.iceland.co.uk" -> "iceland uk"): the grocer
+    // if they file it, nothing if their exception holds.
+    const kw = (t) => BUILT_IN.find(([a, rd, re]) => a !== "transfer" && (rd === "any" || rd === "out") && re.test(t));
+    if (b && kw(b.name)) { const k = kw(payeeTokens(txn.desc).join(" ")); b.account = k?.[0] ?? null; }
+    if (b?.account && (model.codes?.has(b.account) ?? true)) return { account: b.account, confidence: BRAND.confidence, source: "brand", reason: `"${b.name}" is a chain listed by OpenStreetMap as ${Object.hasOwn(BRAND_LABEL, b.account) ? BRAND_LABEL[b.account] : "this kind of place"}`, alternatives: ranked.slice(0, 2) };
+  }
   // A split category: enough earlier lines but no majority, so mccSuggest said nothing.
   // Its commonest account beat the new-payee guess on the 140 Toronto lines the AI layer
   // is measured on, but not more widely (README "Split categories", 2026-11-11: sixteen
@@ -1048,6 +1060,32 @@ export function suggest(txn, model) {
     }
   }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
+}
+
+// Chain names (brands.mjs, built from OpenStreetMap's name-suggestion-index): the longest listed
+// name a line's payee starts with. Money out only, for review only (confidence under every
+// auto-post threshold), after the keywords, the card code and the bank's own category.
+export const BRAND = { confidence: 0.5, maxTokens: 5, version: BRANDS_VERSION };
+const BRAND_LABEL = { "6130": "a food shop, cafe or restaurant", "6120": "a hotel, car hire or travel agent", "6160": "a fuel station or car service", "6100": "a hardware, DIY or trade store", "6070": "a stationer, copy shop or post office", "6180": "a carrier", "6140": "a phone or internet provider", "6030": "an insurer", "6080": "a coworking or self-storage operator" };
+const BRAND_FINANCE = /^(financial|finance|financing|credit|capital|bank|banking|loans?|lease|leasing|insurance|mortgage)$/;
+let BRAND_INDEX = null;
+export function brandAccount(desc) {
+  if (!BRAND_INDEX) {
+    BRAND_INDEX = new Map();
+    for (const [account, names] of Object.entries(BRAND_KINDS)) for (const n of names) BRAND_INDEX.set(n, account);
+  }
+  const t = payeeTokens(desc).slice(0, BRAND.maxTokens);
+  for (let i = t.length; i >= 1; i--) {
+    const name = t.slice(0, i).join(" ");
+    if (BRAND_INDEX.has(name)) {
+      const account = BRAND_INDEX.get(name);
+      // The chain's finance arm, card or insurer ("JOHN DEERE FINANCIAL", "TESCO BANK") is a loan or a
+      // policy, not a purchase at the chain.
+      if (t.slice(i).some((w) => BRAND_FINANCE.test(w))) return null;
+      return account ? { account, name } : null;
+    }
+  }
+  return null;
 }
 
 export function historyRecord(txn, account) {
