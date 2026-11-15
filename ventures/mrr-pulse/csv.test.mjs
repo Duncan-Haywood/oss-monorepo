@@ -33,3 +33,13 @@ test("the sample data produces a believable dashboard", () => {
   const s = summarize(backfill(subs, now, 12).months);
   assert.ok(s.mrr > 100000 && s.customers > 50, JSON.stringify(s));
 });
+
+// Red-team 2026-11-15: the header matched the leftmost column naming any
+// alias, so a Stripe export with Canceled At (the day the customer asked)
+// before Ended At (the day the revenue stopped) dated churn a month early.
+test("Ended At wins over an earlier Canceled At column, and Created over Start Date", () => {
+  const a = subsFromCsv("id,Amount,Interval,Status,Created (UTC),Canceled At (UTC),Ended At (UTC)\nsub_1,100,month,canceled,2026-01-01 00:00,2026-03-02 10:00,2026-04-01 00:00");
+  assert.equal(a.subs[0].endedAt, Date.UTC(2026, 3, 1));
+  const b = subsFromCsv("id,Amount,Interval,Status,Start Date,Created\nsub_1,100,month,active,2026-02-01,2026-01-01");
+  assert.equal(b.subs[0].created, Date.UTC(2026, 0, 1));
+});

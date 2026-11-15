@@ -122,7 +122,7 @@ export function normalizeRows(rows) {
   if (!rows.length) return { error: "The file is empty." };
   const head = rows[0].map((h) => norm(h));
   const col = {};
-  for (const [k, names] of Object.entries(ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const missing = ["table", "name", "def", "scans"].filter((k) => col[k] < 0);
   if (missing.length) return { error: `Missing column(s): ${missing.map((k) => ALIASES[k][0]).join(", ")}. Run the query on this page and paste its output (psql: \\copy (…) TO STDOUT WITH CSV HEADER).` };
   const indexes = [], skipped = [];

@@ -21,7 +21,7 @@ function parseCsv(text) {
   return { headers: rows[0].map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_')), rows: rows.slice(1) };
 }
 
-function column(headers, names) { return headers.findIndex(h => names.includes(h)); }
+function column(headers, names) { return (names.map((n) => headers.indexOf(n)).find((i) => i >= 0) ?? -1); }
 // A blank cell, a bare currency symbol, or whitespace all strip down to an
 // empty string. `Number('')` is 0, not NaN, so without the digit check below
 // a missing amount silently became a real $0.00 record instead of the
