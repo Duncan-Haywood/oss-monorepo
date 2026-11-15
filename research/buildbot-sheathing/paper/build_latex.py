@@ -48,6 +48,7 @@ CITES = [
     ("Anderson et al.", "2007", "anderson2007fyb"),
     ("Rahnama and Krawinkler", "1993", "rahnama1993soft"),
     ("Ibarra et al.", "2005", "ibarra2005hysteretic"),
+    ("Ghazinader", "2024", "ghazinader2024"),
 ]
 # Standards the draft names without an author-year citation; listed in the references.
 NOCITE = ["awc_nds", "awc_sdpws", "apa_buildertips", "ps2"]
@@ -154,7 +155,7 @@ def convert_citations(text):
 
 def leftover_citations(text):
     """Author-year phrases the conversion missed (they would print as plain text)."""
-    pat = r"(et al\.|\band [A-Z][\w\-]+|Weiss)'?s?\s+[\[(]?(19|20)\d\d\b"
+    pat = r"(et al\.|\band [A-Z][\w\-]+|\b[A-Z][a-z]+)'?s?\s+[\[(]?(19|20)\d\d\b"
     return [m.group(0) for m in re.finditer(pat, text)]
 
 
@@ -217,6 +218,17 @@ def check_highlights(highlights):
     return problems
 
 
+# Automation in Construction's guide for authors: "The abstract ... must not exceed 150 words"
+# (as excerpted by a web search on 2026-11-15; the guide page itself is refused by this session's proxy).
+ABSTRACT_WORDS = 150
+
+
+def check_abstract(abstract):
+    """The journal's abstract limit, counted as whitespace-separated words (keywords excluded)."""
+    n = len(abstract.split())
+    return [] if n <= ABSTRACT_WORDS else [f"abstract of {n} words (limit {ABSTRACT_WORDS})"]
+
+
 def prepare_body(body):
     """Strip the numbers LaTeX will add and turn table and figure captions into pandoc's."""
     body = re.sub(r"^(#{2,3}) \d+\.(\d+)?\.? ?", r"\1 ", body, flags=re.M)
@@ -250,7 +262,7 @@ def pandoc(md):
 def build():
     md = DRAFT.read_text(encoding="utf-8")
     title, highlights, abstract, keywords, body, sec = split_draft(md)
-    problems = check_numbering(body) + check_highlights(highlights)
+    problems = check_numbering(body) + check_highlights(highlights) + check_abstract(abstract)
     body = convert_citations(prepare_body(body))
     abstract = convert_citations(abstract)
     left = leftover_citations(body) + leftover_citations(abstract)
@@ -262,6 +274,8 @@ def build():
     unused = sorted(set(keys) - set(cited) - set(NOCITE))
     if missing:
         problems.append("cited but not in references.bib: " + ", ".join(missing))
+    if unused:
+        problems.append("in references.bib but cited nowhere in the draft: " + ", ".join(unused))
     if problems:
         raise SystemExit("\n".join(problems))
     fields = {

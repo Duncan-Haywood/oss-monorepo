@@ -1,7 +1,7 @@
 # Can a robot nail wall sheathing to code tolerance? A tolerance, contact and cost analysis of robotic sheathing on wood-frame walls
 
-*Draft for* Automation in Construction *(Elsevier, full research article). Milestones 8 and 22
-of the `buildbot-sheathing` programme (22 added sections 4.9–4.10 and 5.13–5.14). Written with AI assistance (Claude Code); simulation and analysis
+*Draft for* Automation in Construction *(Elsevier, full research article). Milestones 8, 22 and 24
+of the `buildbot-sheathing` programme (22 added sections 4.9–4.10 and 5.13–5.14; 24 cut the abstract to the journal's 150 words). Written with AI assistance (Claude Code); simulation and analysis
 only, nothing tested on hardware. Every number below is produced by code in this directory and
 checked against its results file by `paper/check_numbers.py`. Authorship, affiliations and the
 corresponding author are left for the owner to fill in before any submission.*
@@ -16,34 +16,15 @@ corresponding author are left for the owner to fill in before any submission.*
 
 ## Abstract
 
-Fastening sheathing is the most repetitive part of framing a wood-frame wall: a 4x8 sheet takes 62
-nails, and the 34 on its two vertical edges must land on a 1.5 in stud face while staying 3/8 in
-from a panel edge that is itself hung with a 1/8 in gap. Construction robots have been localised
-to millimetres and timber assembly has been corrected from measurement, but no work we found
-carries every error source of a real wall (the panel gap, sheet pose, row drift, bowed and
-twisted studs, stud sensing, the arm and the tool's recoil) through to the outcome a builder
-inspects: the share of sheets with every nail inside its window. We build that chain as a
-statistical tolerance model checked against closed forms and Monte Carlo, simulate the placement
-step (a ledger board, a stock Unitree G1 or H1 holding the sheet) in MuJoCo and again in Drake,
-and price the result per clean sheet for four ways to do the work. With the gap in the budget, a
-robot must read each stud to 0.41 mm (1σ) and hang the sheet plumb to about 0.03° for 95% clean
-sheets on single-2x joints, and at the stud bow published for kiln-dried lumber no sensing
-reaches it: one read a stud gives 55%, three 80% and perfect sensing 87%. Framing each joint with
-two fastened 2x members, which the shear-wall standard already names for adjoining panel edges,
-lifts a one-read robot to 99.97% and lets it hang the sheet 18 times more coarsely. A ledger seats
-a released sheet to 0.0001° under a light press in MuJoCo, Drake moves no pipeline's clean-sheet
-rate by more than 0.06 points, and neither stock humanoid can carry the 21.8 kg sheet, though both
-can press it on the ledger. Priced, a G1 on a drive-and-lift base is the cheapest robot below
-about 500 houses a year and beats a walking H1 in every draw, yet beats a two-person crew's $5.21
-a sheet in only 37% of draws at 100 houses a year; the extra joint stud that wins in seconds does
-not pay in dollars unless a missed nail costs about $6.50 more than its re-drive. A miss that
-escapes costs about 2% of its sheet's racking capacity, and nailing the joint edges at 4 in
-instead of 6 carries the escaped misses for 16 nails a sheet (99.98% of sheets still beat an
-intact 6 in sheet). Checked against tests of walls with
-their bottom 12 in unnailed, five models of rising detail (limit analysis, anchor-rod shear,
-softening springs with slack, the CUREE cyclic history, energy-based damage) all leave the 3 in
-decayed wall at 63–74% of its capacity where the test kept 34%, unless the end-nailed
-stud-to-plate joints carry about a quarter of their design-code strength.
+Sheathing is the most repetitive nailing in wood framing: 34 of a 4x8 sheet's 62 nails
+must land on a 1.5 in stud face. We carry every error source (panel gap, sheet pose, bowed studs,
+stud sensing, arm, tool) through a tolerance model, MuJoCo and Drake placement simulations and a
+cost model to the share of sheets with every nail inside its window. At the stud bow published for
+kiln-dried lumber, single-2x joints cap at 87% clean sheets even with perfect sensing; doubled
+joint studs lift a one-read robot to 99.97%. Neither stock humanoid can carry the 21.8 kg sheet,
+and a G1 on a lift base beats a two-person crew in only 37% of draws at 100 houses a year. An
+escaped miss costs about 2% of its sheet's racking capacity. Five capacity models match
+decayed-wall tests only if end-nailed joints carry about a quarter of their code strength.
 
 **Keywords:** construction robotics; wood-frame construction; sheathing; tolerance analysis;
 humanoid robots; sim-to-sim; MuJoCo; Drake; cost of automation; shear walls; missing nails
@@ -307,7 +288,8 @@ time:
    found.
 
 Each model reduces to its predecessor in a code check (the cyclic springs match OpenSees'
-`SAWSMaterial` to under 1e-12 of the nail's peak). Shares kept are compared, not absolute loads, because
+`SAWSMaterial` to under 1e-12 of the nail's peak, for Anderson et al.'s nails and for Folz and
+Filiatrault's own 8d set as tabulated by Ghazinader (2024)). Shares kept are compared, not absolute loads, because
 the sourced nails are not exactly Weiss's.
 
 ## 5. Results

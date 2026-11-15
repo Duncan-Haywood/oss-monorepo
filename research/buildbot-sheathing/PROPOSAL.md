@@ -316,6 +316,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    eight highlights all ran past 85 characters (now five). Cote et al. (2024) and Lachmayer et al. (2022)
    completed from catalogue records. Still open: authorship, the abstract's length (469 words), the NDS and
    SDPWS editions.
+24. **Submission limits** (done 2026-11-15, `paper/build_latex.py`): the abstract cut from 469 to 150 words,
+   the journal's limit as excerpted from its guide for authors, and the build now fails on a longer abstract,
+   on a single-author citation left as plain text (milestone 23's check missed them) and on a .bib entry
+   cited nowhere; Ghazinader (2024) is cited where Folz and Filiatrault's set is used. 26 pages, 24 works
+   cited. Still open: authorship, the NDS and SDPWS editions.
 
 
 ## Target venue
