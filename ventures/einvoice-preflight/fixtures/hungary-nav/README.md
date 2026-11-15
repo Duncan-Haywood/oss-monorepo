@@ -12,4 +12,5 @@ password hash, request signature and exchange token were replaced, since the che
 | `simplified.xml` | `Belfoldi egyszerusitett szamla.xml` (simplified invoice, VAT content) |
 | `modification.xml` | `Teves termek helyesbitese.xml` (a modifying document) |
 | `several-vat-types.xml` | `Belfoldi ertekesites tobb AFA tipus.xml` (exempt, reverse charge, margin scheme; it carries two summary typos the checker reports) |
-| `manageInvoice.xml` | `API sample/manageInvoice.xml` (three Base64 invoiceData operations with electronicInvoiceHash) |
+| `manageInvoice.xml` | `API sample/manageInvoice.xml` (three Base64 invoiceData operations with electronicInvoiceHash; the embedded invoices carry the 2.0 `privatePersonIndicator`, which the 3.0 XSD refuses) |
+| `product-fee.xml` | `Termekdijas szamla.xml` (two lines with KT product fee content, a DEPOSIT productFeeSummary of three codes) |

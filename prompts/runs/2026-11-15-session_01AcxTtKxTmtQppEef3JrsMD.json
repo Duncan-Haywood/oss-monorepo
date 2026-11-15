@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKxTmtQppEef3JrsMD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T09:07:14Z",
+  "ended": "2026-11-15T09:11:43Z",
+  "wall_minutes": 27.89,
+  "tokens_in": 8231097,
+  "tokens_out": 35759,
+  "cost_usd": 3.4084,
+  "tool_calls": 72,
+  "task": "Flagship 8 quick-pick-survey item (d8): a stronger pick signal under a wandering pace (check pairs vs a lapse-weighted score)",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16160",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "agg script keyed shift-drop's detect field wrongly (blockFound*, not shift-dropFound*)",
+      "fix": "mapped the key; no effect on the data"
+    },
+    {
+      "what": "a draft doc line said the careless filter gains about 0.002 Spearman under wander; the rows say about 0.006 (27% of 0.021)",
+      "fix": "corrected before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "quick-pick-survey's next: names d8 as 'anchor pairs?' but the detail lives at the end of a 4,175-line selector doc; grep for 'Next (d8)' found it at once, so it cost little"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "a foreground 'sleep 240' is blocked by the harness; the until-loop with run_in_background is the only way to wait, which CLAUDE.md's 'Long commands' pointer does not say outright"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-quick-pick-survey-easy-questions-did-not-help.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (Check pairs for the pick test)"
+  ],
+  "goal": "Deepen flagship 8 (quick-pick-survey) with a measured improvement to careless-block detection",
+  "notes": "Sweep: scripts/answer-time-sweep.ts with --anchors 0/10/5 x walk 0/0.04/0.08, --agree 2.5,2.5:lapse,2:lapse,3:lapse, 40 surveys per cell, 270 cells (seed 4000) + 60 cells (seed 9000). anchors 0 reproduces docs/fast-blocks-agree-2026-11-14.jsonl's shift-drop and az25 rows to the digit. Result: check pairs cost 0.004/0.009 Spearman at 1 in 10/1 in 5 and do not raise found; lapse weighting z 3 finds 0.27 vs 0.24 (0.26 vs 0.23) at walk 0.08 with honest flags 3.8 vs 3.9% (3.4 vs 3.4%), shipped as default. npm run verify in the venture: typecheck ok, lint 0 errors (3 pre-existing warnings), 65 files / 576 tests passed, next build ok. venture-preflight: see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "78a81f8b-f7c9-5a2e-a104-6229037a1f67",
+    "transcripts": 1,
+    "first": "2026-11-15T09:07:14Z",
+    "last": "2026-11-15T09:35:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 139,
+        "output": 35759,
+        "thinking": 7728,
+        "cache_read": 8096792,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134166,
+        "api_equivalent_usd": 3.4084,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 139,
+      "output": 35759,
+      "thinking": 7728,
+      "cache_read": 8096792,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134166,
+      "api_equivalent_usd": 3.4084,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 67,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.89,
+      "active_minutes": 13.15,
+      "model_minutes": 6.54,
+      "tool_minutes": 6.61,
+      "waiting_on_human_minutes": 14.74,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, running and writing up a 330-cell simulation comparison plus a library change and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 293.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,234 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/studio-class-slot-optimizer",
+ "stratum": "venture",
+ "seed": "2026-11-15-1fba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a boutique-fitness operations consultant / studio FP&A lead who reviews timetables for multi-room yoga, pilates and cycling studios. They would check first that break-even class size and per-class contribution are the standard contribution-margin arithmetic, that the tool reads a real booking-system export (date, day, time, class name, signed-in, capacity in separate columns) without silent regrouping, how membership (unlimited) revenue and churn from a cut class are valued, and whether a 'cut' verdict is reliable on a few weeks of data",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The engine's outputs recompute exactly with an independent numpy script (/tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/indep.py, Morris 1983 parametric empirical-Bayes shrinkage factor B=(s2/n)/(s2/n+tau2) with pooled within-slot variance, numpy default_rng bootstrap of 20,000 resamples, nothing imported from calc.mjs) on the page's 80-class example: grand 10.85, break-even 70/16 = 4.375, every slot's adjusted mean (e.g. Tue 12pm 4.1357, Sat 9am 18.0405), cut gain (30.297, -103.189), earns-per-class (-3.83, 218.65) identical to node output; pCut and 10th/90th ranges agree within bootstrap noise (Mon 6am 0.963 vs 0.968) and all 8 verdicts match. A ground-truth simulation (sim.mjs, own LCG + binomial attendance, 400 timetables x 8 slots, true means 2-19 of 20) gives wrong 'cut or move' on 2.7% / 1.3% / 1.1% of cut verdicts at 3 / 6 / 10 weeks and wrong keep on 3.0% / 1.8% / 1.4%: the 80% bootstrap rule is well calibrated. Not 4: input parsing silently regroups or drops data on realistic logs (see defects), so a correct engine can be fed the wrong slots.",
+  "completeness": "Claimed features checked end to end with node: parse header/tab/comma (pass), cap above capacity with warning (pass), refuses <20 classes, <4 slots with 3+, missing money inputs, transfer outside 0-1, no capacity (all pass), thin slots excluded with warning (pass), 300 seeded bootstrap ranges reproducible (pass), full: add a class verdict on Sat 9am (pass), spare-seat warning at transfer 1 (pass), CSV download round-trips through parseReport/compareReports (pass). Served page https://marisstella.app/studio-class-slot-optimizer/ 200 (34,402 bytes), served calc.mjs byte-identical to the source, llms.txt and canonical rewritten to marisstella.app at deploy. No stubs or TODOs.",
+  "verification": "cd ventures/studio-class-slot-optimizer && node --test '*.test.mjs': 32 pass, 0 fail, 0.18 s. Six seeded mutants via platform/ci/quality_mutate.py: 1 caught (cut gain on raw instead of adjusted mean), 5 survived: cut threshold pCut >= 0.8 -> 0.6, full-class lower-fill 0.85 -> 0.7, spare-seat sum ignoring current attendance, empirical-Bayes between-slot variance var(means) - noise -> + noise, and the 'usable' evidence threshold 8 -> 3 classes. The verdict rules a user acts on and the shrinkage estimator itself are unpinned; tests check formula identities on the shipped example and one shrinkage direction only. Seven of the 13 page tests are presence/link greps.",
+  "craft": "Read calc.mjs (183 lines), index.html inline script, calc.test.mjs, page.test.mjs, usage.mjs. Pure, dependency-free functions, seeded RNG, escaped HTML output, refusal paths with clear messages. Defects: header detection is a keyword regex over the first row with no check that its cells are non-numeric (calc.mjs:39), so a first data row labelled 'Spin class ...' or 'Lunchtime ...' is eaten as a header and the capacity column is lost; splitLine (calc.mjs:28-31) splits on every comma, so quoted labels like \"Mon, 6am\" are dropped as unreadable; within-slot variance is an unweighted mean of slot variances rather than pooled by df (calc.mjs:97) and its filter(x >= 0) is dead; dense one-line expressions (money, the per-row verdict line); page.test.mjs carries four near-identical one-link tests.",
+  "claims": "Checked: break-even, earns-per-class and cut-gain formulas on the page and README match calc.mjs:88-115 (pass); 300 seeded bootstrap resamples and 80% rules match calc.mjs:7,119-120 (pass); refusals as stated (pass, test + probe); 'Nothing is uploaded' backed by code with no network calls and a test grep (pass); disclaimer, 'Not modelled' and 'Unverified: simulated timetables only' present on page and README (pass); clamp 0.5-20 on k disclosed in README:18 (pass). Partial: index.html:69 'Upload a CSV export' with README:15 'a header may reorder columns by name' implies booking-system exports work, but an export with separate Day/Time/Class columns is grouped by the first matching column (probe: grouped by 'Day', merging Mon 6am Spin at 3 with Mon 6pm Yoga at 12 into 'Mon' 7.5 'watch'). index.html:159 'Gain per week' rests on the once-a-week assumption stated in the note at index.html:80.",
+  "fitness": "Job walked through: a studio owner exports a term of class history and decides which slots to cut, move or double. With a hand-made slot,attended,capacity file the answer is usable and correctly hedged. With a realistic export (Date, Day, Time, Class, Instructor, Signed In, Capacity) the tool silently picks one column as the slot and merges distinct classes (probe output: slots 'Wed', 'Mon', 'Thu', 'Tue'), so the owner must first build a combined slot column by hand; a first data row containing 'class' or 'time' is silently treated as a header. A single revenue-per-attendee figure applies to every slot, although a 6am slot of unlimited members and a Saturday slot of drop-ins have very different marginal revenue, and most boutique studios sell memberships where per-class revenue is near zero and the cost of a cut is churn. The spare-seat warning and full-room warning are genuinely useful.",
+  "domain": "Against standard studio-operations practice (contribution margin per class, break-even headcount = class cost / per-head contribution, as in ClassPass/boutique-fitness operator guides and standard managerial accounting) the core arithmetic is right, and the empirical-Bayes shrinkage (Efron and Morris 1975; Morris 1983) plus bootstrap is beyond common practice. Departures a practitioner would raise: the cost of cutting is valued as one class's lost per-head margin, not the membership churn of regulars whose only slot disappears (the dominant risk in membership studios); one revenue figure for all slots; the lower clamp on k overrides the moment estimate (on the example k_raw = 0.092 is raised to 0.5, 5.4x more shrinkage, shifting adjusted means by up to 0.34 attendee); grand mean is class-weighted rather than precision-weighted. Seasons, instructor draw and feeding effects are disclosed as not modelled."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "adjusted (shrunk) mean and k on the 80-class example",
+   "method": "independent numpy implementation of Morris (1983) parametric EB with pooled within-slot variance and method-of-moments tau2",
+   "command": "node -e 'import(\"./calc.mjs\").then(m=>process.stdout.write(m.sampleText()))' > /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/sample.csv; /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/indep.py /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/sample.csv; node /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/probe.mjs",
+   "expected": "independent: Tue 12pm 4.1357, Mon 6am 6.3262, Sat 9am 18.0405, k 0.5 (raw 0.092)",
+   "observed": "calc.mjs: 4.135714, 6.326190, 18.040476, k 0.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even headcount, earns per class, gain from cutting",
+   "method": "contribution-margin arithmetic by hand / numpy: 70/(18-2); adj*16-70; 70-0.6*adj*16",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/indep.py /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/sample.csv; node /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/probe.mjs",
+   "expected": "4.375; Tue 12pm -3.829 and 30.297; Sat 9am 218.648 and -103.189",
+   "observed": "4.375; -3.8286 and 30.2971; 218.6476 and -103.1886",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "bootstrap chance-cutting-helps, 80% ranges and verdicts",
+   "method": "independent numpy default_rng bootstrap, 20,000 resamples per slot, same verdict rules",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/indep.py /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/sample.csv",
+   "expected": "8 verdicts; Mon 6am pCut 0.968, gain range 2.55 to 15.99",
+   "observed": "same 8 verdicts; Mon 6am pCut 0.963, range 2.55 to 17.91 (300 resamples)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "verdict error rate against known true slot means",
+   "method": "own simulator (LCG, binomial attendance of 20 seats, true mean 2-19), 400 timetables x 8 slots, truth gain = 70 - 0.6*mu*16",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/sim.mjs",
+   "expected": "wrong cut/keep verdicts well under 20%",
+   "observed": "wrong cut 2.7% / 1.3% / 1.1%, wrong keep 3.0% / 1.8% / 1.4% at 3 / 6 / 10 weeks",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headerless log whose first slot label contains 'class'",
+   "method": "probe through parseRows + analyze",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/probe.mjs",
+   "expected": "24 rows read with capacity 12",
+   "observed": "23 rows, first row eaten as a header, capacity column lost (capacity null); refuses without a default capacity, and with one silently uses it instead of 12",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "booking-system style export with Date, Day, Time, Class, Instructor, Signed In, Capacity",
+   "method": "probe: 5 distinct classes over 6 weeks",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/probe.mjs",
+   "expected": "5 slots, Mon 6am Spin (avg 3) flagged cut",
+   "observed": "grouped by 'Day': 4 slots; Mon 6am Spin (3) and Mon 6pm Yoga (12) merged into 'Mon' 7.5 'watch', no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "quoted slot label containing a comma",
+   "method": "probe parseRows",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/probe.mjs",
+   "expected": "rows 'Mon, 6am' and 'Tue, 6pm' read",
+   "observed": "both rows skipped as unreadable",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/studio-class-slot-optimizer && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "32 pass, 0 fail, 0.18 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in verdict rules and shrinkage",
+   "method": "platform/ci/quality_mutate.py, 6 mutants",
+   "command": "python3 platform/ci/quality_mutate.py ventures/studio-class-slot-optimizer/calc.mjs --old 'pCut >= 0.8' --new 'pCut >= 0.6' -- node --test '*.test.mjs' (and 5 more)",
+   "expected": "most caught",
+   "observed": "1 of 6 caught",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served page and assets",
+   "method": "curl",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/studio-class-slot-optimizer/ ; .../llms.txt ; .../calc.mjs",
+   "expected": "200; calc.mjs equal to source",
+   "observed": "200 (34,402 B), llms.txt 200 with marisstella.app links, calc.mjs 200 byte-identical, canonical rewritten",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "page formulas and thresholds match code",
+   "method": "read index.html 'How it is calculated' and README Model against calc.mjs:88-120",
+   "command": "grep -nE 'Gain from cutting|80%|clamped' README.md index.html; sed -n 88,120p calc.mjs",
+   "expected": "same formulas and thresholds",
+   "observed": "same",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Upload a CSV export' / 'a header may reorder columns by name'",
+   "method": "export probe above",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/probe.mjs",
+   "expected": "an export's columns mapped to a meaningful slot",
+   "observed": "first keyword match wins; Day/Time/Class not combined",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "EB clamp on k against the moment estimate",
+   "method": "independent numpy k = pooled s2 / tau2",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/indep.py /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/scso/sample.csv",
+   "expected": "k used close to the estimate",
+   "observed": "k_raw 0.092 clamped to 0.5 (disclosed in README:18); adjusted means move by up to 0.34 attendee",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:119",
+   "change": "pCut >= 0.8 -> pCut >= 0.6",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:120",
+   "change": "quantile(fills, 0.1) >= 0.85 -> quantile(fills, 0.1) >= 0.7",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:128",
+   "change": "Math.max(0, s.capacity - s.adjMean) -> Math.max(0, s.capacity)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:99",
+   "change": "variance(means) - noise -> variance(means) + noise",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:137",
+   "change": "s.classes >= 8) -> s.classes >= 3)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:115",
+   "change": "gain on adj -> gain on raw mean",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Header detection is a keyword regex on the first row with no numeric check: a headerless log whose first slot label contains 'class', 'time', 'sign', 'head', 'size' etc. ('Spin class Mon 6am,5,12') loses that row and its capacity column, so the tool refuses or silently substitutes the default capacity",
+   "where": "ventures/studio-class-slot-optimizer/calc.mjs:39",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  },
+  {
+   "severity": "medium",
+   "what": "A booking-system export with separate Day/Time/Class columns is grouped by the first matching column (Day), silently merging different classes into one slot and hiding a weak one (Mon 6am Spin avg 3 merged with Mon 6pm Yoga avg 12 -> 'Mon' 7.5 'watch'); the page invites 'Upload a CSV export' with no warning",
+   "where": "ventures/studio-class-slot-optimizer/calc.mjs:42",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Verdict thresholds (80% cut rule, 85% full-room floor), the spare-seat warning, the EB between-slot variance and the 8-class 'usable' rule are unpinned: 5 of 6 seeded mutants survive",
+   "where": "ventures/studio-class-slot-optimizer/calc.test.mjs:21",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Cost of cutting valued as one class's lost per-head margin with one revenue figure for all slots; churn of members whose only slot is cut (the dominant cost in membership studios) and slot-specific member/drop-in mix are not modelled beyond a disclosure",
+   "where": "ventures/studio-class-slot-optimizer/calc.mjs:115",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "splitLine splits on every comma, so quoted labels such as \"Mon, 6am\" are skipped as unreadable",
+   "where": "ventures/studio-class-slot-optimizer/calc.mjs:30",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Lower clamp k >= 0.5 overrides the moment estimate (0.092 on the shipped example), 5.4x more shrinkage than the data imply; within-slot variance is an unweighted mean of slot variances with a dead filter(x >= 0)",
+   "where": "ventures/studio-class-slot-optimizer/calc.mjs:100",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+ ],
+ "verdict": "A correct, well-hedged engine behind a fragile front door. Every number on the shipped example (break-even 4.375, each slot's empirical-Bayes adjusted mean, earns per class, cut gain, bootstrap verdicts) recomputes exactly with an independent numpy Morris-EB script, and a ground-truth simulation shows the 80% bootstrap rule wrong on only 1-3% of cut/keep verdicts. It misses the bar on verification (5 of 6 seeded mutants in the verdict rules and the shrinkage estimator survive 32 green tests) and on fitness and domain: a realistic booking export with Day/Time/Class columns is silently grouped by one column, a first data row mentioning 'class' or 'time' is eaten as a header, and the cost of cutting ignores membership churn and per-slot revenue mix."
+}

@@ -405,6 +405,12 @@ MANUSCRIPT_CHECKS = [
     ("pooled RMS 4.33 against 5.62 points; worst left-out RMS 7.85 against 8.91", "gear_pump_form_results.txt", "cloglog: E50 0.8229, scale 0.0398; pooled RMS 4.33 points"),
     ("10% and 90% points at 0.7479 and 0.8707", "gear_pump_form_results.txt", "10% at E 0.7479, 90% at E 0.8707"),
     ("span 0.7479 to 0.7730 and 0.8707 to 0.8914", "gear_pump_form_results.txt", "10% threshold 0.7479 to 0.7730 (span 0.0251); 90% threshold 0.8707 to 0.8914"),
+    ("between 0.8069 and 0.8300, at most 0.0143", "gear_pump_shape_results.txt", "all 16 cells 0.8069 to 0.8300, largest distance from 6r's pooled 0.8212: 0.0143"),
+    ("column-mean range 0.0138 against 0.0095", "gear_pump_shape_results.txt", "shape main effect (range of row means) 0.0095; drag main effect (range of column means) 0.0138"),
+    ("interaction at most 0.0043", "gear_pump_shape_results.txt", "interaction (cell minus row and column effects): largest 0.0043"),
+    ("about +0.0162 per kW", "gear_pump_shape_results.txt", "slope +0.0162 E50 per kW"),
+    ("by at most 0.0013", "gear_pump_shape_results.txt", "pressure tilt t +0.05 per 100 bar: E50 0.8264 (-0.0013)"),
+    ("by up to 0.0086", "gear_pump_shape_results.txt", "size slope k -0.10 per 85 L/min: E50 0.8192 (-0.0086)"),
 ]
 
 

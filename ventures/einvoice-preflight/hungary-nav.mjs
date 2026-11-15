@@ -12,7 +12,10 @@
 //     3.3.3 "Warnings", which sets the arithmetic tolerance used here: "The
 //     greatest deviation thus 'tolerated' is 1% of the net price, but no less
 //     than 1 unit."
-//   - invoiceData.xsd / invoiceBase.xsd 3.0 for element names and nesting;
+//   - invoiceData.xsd / invoiceBase.xsd 3.0 for element names and nesting (the full
+//     schema gate, with NTCA common 1.0, is hu-xsd.mjs: HU-027..HU-032);
+//   - Annex I of the same specification (in the 2026.02.12 English PDF, about
+//     pages 300-320) for the product fee warnings, HU-033;
 //   - the 29 InvoiceData files in sample/Data sample, which all pass (see
 //     eval/hungary-nav-samples-2026-11-15.md).
 // Blocking codes come out as errors; the arithmetic checks mirror NAV's WARN
@@ -20,15 +23,16 @@
 // with a warning, so they come out with severity "warning". What NAV checks
 // against its own records (unique invoice numbers, the referenced base invoice,
 // the technical user's customers, the taxpayer register) cannot be checked from
-// the file and is listed in `skipped`. Annex I (the WARN descriptions) was not
-// in the repository, so the WARN arithmetic is written from the code names and
-// the tolerance sentence above, not from NAV's own formulas.
+// the file and is listed in `skipped`. The VAT WARN arithmetic (HU-020..026) was
+// written from the code names and the tolerance sentence above; Annex I, which the
+// 2026.02.12 English PDF does carry, was read for the product fee family (HU-033).
 // This is an offline observation, not NAV's acceptance and not tax advice.
 // Findings never repeat a tax number.
 
 import { base64Bytes, sha3_512Hex } from "./sha3.mjs";
 import { parseXmlTree } from "./ubl.mjs";
 import { wellFormed } from "./fatturapa-xsd.mjs";
+import { checkAgainstNavSchema } from "./hu-xsd.mjs";
 
 export const NAV_DATA_NS = "http://schemas.nav.gov.hu/OSA/3.0/data";
 export const NAV_API_NS = "http://schemas.nav.gov.hu/OSA/3.0/api";
@@ -54,11 +58,31 @@ const raw = (node, ...names) => {
   return n ? n.text : "";
 };
 const txt = (node, ...names) => raw(node, ...names).trim();
+// xs:decimal's lexical form; Number() alone would also take "0x10FE", "1e3", "Infinity" and " ".
+const DECIMAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;
 const num = (value) => {
-  if (value === "" || value === undefined) return null;
+  if (value === "" || value === undefined || !DECIMAL.test(value)) return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 };
+// The decimal-typed leaves of invoiceData.xsd that this module reads (amounts, prices, quantities, rates).
+const DECIMAL_LEAVES = new Set(["quantity", "unitPrice", "unitPriceHUF", "vatPercentage", "vatContent", "vatRate", "discountValue", "discountRate"]);
+const decimalLeaf = (node) => !node.children.length && (DECIMAL_LEAVES.has(node.name) || /(?:Amount|AmountHUF|ExchangeRate|exchangeRate)$/.test(node.name));
+/** Every decimal-typed leaf under `node` whose text is not an xs:decimal, with its path. */
+function badDecimals(node, path, found = []) {
+  const counts = {};
+  for (const c of node.children) counts[c.name] = (counts[c.name] || 0) + 1;
+  const seen = {};
+  for (const c of node.children) {
+    seen[c.name] = (seen[c.name] || 0) + 1;
+    const p = `${path}/${c.name}${counts[c.name] > 1 ? `[${seen[c.name]}]` : ""}`;
+    if (decimalLeaf(c)) {
+      const t = c.text.trim();
+      if (t !== "" && num(t) === null) found.push([p, t]);
+    } else badDecimals(c, p, found);
+  }
+  return found;
+}
 const fmt = (n) => (Math.round(n * 100) / 100).toFixed(2);
 
 // NAV section 3.3.3: rounding is tolerated up to 1% of the amount, never less than one unit.
@@ -101,7 +125,8 @@ function rateKey(vatRate) {
   if (txt(vatRate, "noVatCharge") === "true") return "novat";
   return null;
 }
-const keyLabel = (key) => key.startsWith("pct:") ? `${fmt(Number(key.slice(4)) * 100).replace(/\.00$/, "")}%` : key.startsWith("content:") ? `VAT content ${key.slice(8)}` : key;
+// A row whose vatRate is empty or missing (a schema fault, reported as HU-029/HU-030) has no key.
+const keyLabel = (key) => !key ? "unnamed VAT rate" : key.startsWith("pct:") ? `${fmt(Number(key.slice(4)) * 100).replace(/\.00$/, "")}%` : key.startsWith("content:") ? `VAT content ${key.slice(8)}` : key;
 const ratePercent = (key) => (key && key.startsWith("pct:") ? Number(key.slice(4)) : null);
 
 /** The VAT-rate code list checks (codes 14, 31-37, 41-44, 48, 49) for one vatRate / lineVatRate node. */
@@ -171,13 +196,16 @@ function checkInvoice(inv, ctx, out, skipped) {
   const category = txt(detail, "invoiceCategory");
   const simplified = category === "SIMPLIFIED";
   const currency = txt(detail, "currencyCode");
-  const rate = num(txt(detail, "exchangeRate"));
+  const statedRate = num(txt(detail, "exchangeRate"));
+  // ExchangeRateType is minExclusive 0 (the schema gate names it); forint conversions at 0 or below would only repeat it.
+  const rate = statedRate !== null && statedRate > 0 ? statedRate : null;
+  const firstFinding = out.length;
   const deliveryDate = txt(detail, "invoiceDeliveryDate") || txt(detail, "invoiceDeliveryPeriodEnd");
   const issueDate = ctx.issueDate;
   const vatStatus = txt(customer, "customerVatStatus");
 
   // --- Header: currency and exchange rate (codes 77, 78).
-  if (currency === "HUF" && rate !== null && rate !== 1) {
+  if (currency === "HUF" && statedRate !== null && statedRate !== 1) {
     out.push(finding("HU-012", `The invoice is in HUF but exchangeRate is ${txt(detail, "exchangeRate")} (NAV INCORRECT_HEAD_DATA_CURRENCY_CODE_HUF).`,
       "A forint invoice takes exchangeRate 1.", `${base}/invoiceHead/invoiceDetail/exchangeRate`));
   }
@@ -640,7 +668,167 @@ function checkInvoice(inv, ctx, out, skipped) {
         "Make the forint gross total the sum of the simplified summary rows.", `${sp}/summaryGrossData/invoiceGrossAmountHUF`, warn));
     }
   }
+  checkProductFee(inv, lines, { base, modifying, rate }, out, skipped);
   if (ctx.merged && lines.length) skipped.push({ rule: "HU-020/HU-024/HU-026", path: `${base}/invoiceLines`, reason: "mergedItemIndicator is true (lines are merged), so line-to-summary sums were not compared." });
+  // An amount that is not an xs:decimal fails NAV's schema check (HU-030 names it) before any
+  // arithmetic, and a sum built around an unreadable amount names a wrong total; drop the sums.
+  const bad = badDecimals(inv, base);
+  if (bad.length) {
+    for (let i = out.length - 1; i >= firstFinding; i--) if (/^HU-02[0-6]$/.test(out[i].rule)) out.splice(i, 1);
+    skipped.push({ rule: "HU-020..026", path: base, reason: `${bad.length} amount${bad.length === 1 ? " is" : "s are"} not a decimal number (${bad.slice(0, 3).map(([p]) => p.split("/").pop()).join(", ")}), so the line and summary arithmetic was not checked.` });
+  }
+}
+
+// --- Product fee (termékdíj, Act LXXXV of 2011): the line contents against productFeeSummary.
+// Annex I of the interface specification (2026.02.12), warnings 270-290, 450-490, 651, 670,
+// 780, 790 and 810; NAV accepts the report with a warning, so these are warnings too. The
+// tolerance is NAV's for these codes: 1% of the forint value, at least 1 HUF or 0.01 of the
+// invoice currency, whichever is greater. On a modification only lineOperation CREATE lines
+// count (as NAV says for 480, 490, 790 and 810).
+const FEE_CODES = new Set(["CSK", "KT"]);
+const feeTol = (value, rate) => Math.max(Math.abs(value) * 0.01, 1, 0.01 * (rate || 1));
+const feeOff = (stated, computed, rate) => Math.abs(stated - computed) > feeTol(computed, rate) + 1e-9;
+const feeCode = (node) => {
+  const c = child(node, "productFeeCode");
+  const cat = txt(c, "productCodeCategory");
+  return { cat, key: `${cat}:${txt(c, "productCodeValue") || txt(c, "productCodeOwnValue")}` };
+};
+const cents = (n) => Math.round(n * 100);
+
+function checkProductFee(inv, lines, { base, modifying, rate }, out, skipped) {
+  const summaries = kids(inv, "productFeeSummary");
+  const lp = (i) => `${base}/invoiceLines/line[${i + 1}]`;
+  const lineData = []; // { i, j, code, qty, unit, amount }
+  let obligated = false;
+  let anyContent = false;
+  lines.forEach((line, i) => {
+    const contents = kids(line, "lineProductFeeContent");
+    const ob = txt(line, "obligatedForProductFee");
+    if (ob === "true" || ob === "1") obligated = true;
+    if (contents.length) anyContent = true;
+    if ((ob === "true" || ob === "1") && !contents.length) {
+      out.push(finding("HU-033", `Line ${i + 1} is marked obligatedForProductFee but carries no lineProductFeeContent (NAV MISSING_PRODUCT_FEE_DATA_LINE_OBLIGATED_CONTENT_EMPTY).`,
+        "Give the line its product fee code, quantity, unit, rate and amount, or set obligatedForProductFee to false.", `${lp(i)}/lineProductFeeContent`, warn));
+    }
+    if (contents.length && !(ob === "true" || ob === "1")) {
+      out.push(finding("HU-033", `Line ${i + 1} carries product fee content but obligatedForProductFee is ${ob || "missing"}; it must be true (NAV INCORRECT_PRODUCT_FEE_DATA_OBLIGATED_LINE).`,
+        "Set obligatedForProductFee to true on every line that reports product fee content.", `${lp(i)}/obligatedForProductFee`, warn));
+    }
+    const op = txt(line, "lineModificationReference", "lineOperation");
+    contents.forEach((c, j) => {
+      const code = feeCode(c);
+      const where = `${lp(i)}/lineProductFeeContent${contents.length > 1 ? `[${j + 1}]` : ""}`;
+      if (code.cat && !FEE_CODES.has(code.cat)) {
+        out.push(finding("HU-033", `Line ${i + 1}: the product fee code type is ${code.cat}; a product fee is coded under CSK (packaging) or KT (environmental product fee) only (NAV INCORRECT_PRODUCT_CODE_FEE_CATEGORY).`,
+          "Use the CSK or KT code from the product fee act's annex.", `${where}/productFeeCode/productCodeCategory`, warn));
+      }
+      if (!modifying || op === "CREATE") {
+        lineData.push({ i, code, qty: num(txt(c, "productFeeQuantity")), unit: txt(c, "productFeeMeasuringUnit"), amount: num(txt(c, "productFeeAmount")) });
+      }
+    });
+  });
+  const sp = (k) => `${base}/productFeeSummary${summaries.length > 1 ? `[${k + 1}]` : ""}`;
+  if (!summaries.length) {
+    if (obligated) {
+      out.push(finding("HU-033", "A line is marked obligatedForProductFee but the invoice has no productFeeSummary (NAV MISSING_PRODUCT_FEE_DATA_LINE_OBLIGATED_SUMMARY_EMPTY).",
+        "Add a productFeeSummary with one productFeeData per product fee code and the productChargeSum.", `${base}/productFeeSummary`, warn));
+    } else if (anyContent) {
+      out.push(finding("HU-033", "Lines carry product fee content but the invoice has no productFeeSummary (NAV MISSING_PRODUCT_FEE_DATA_LINE_CONTENT_SUMMARY_EMPTY).",
+        "Add a productFeeSummary with one productFeeData per product fee code and the productChargeSum.", `${base}/productFeeSummary`, warn));
+    }
+    return;
+  }
+  if (!anyContent) {
+    out.push(finding("HU-033", "The invoice has a productFeeSummary but no line carries lineProductFeeContent (NAV MISSING_LINE_PRODUCT_FEE_CONTENT, INCORRECT_PRODUCT_FEE_DATA_CHARGE_SUM).",
+      "Report the product fee on the lines it belongs to, or drop the summary.", sp(0), warn));
+  }
+  const summaryByCode = new Map();
+  summaries.forEach((summary, k) => {
+    const data = kids(summary, "productFeeData");
+    let sum = 0;
+    let sumOk = true;
+    data.forEach((d, j) => {
+      const where = `${sp(k)}/productFeeData${data.length > 1 ? `[${j + 1}]` : ""}`;
+      const code = feeCode(d);
+      if (code.cat && !FEE_CODES.has(code.cat)) {
+        out.push(finding("HU-033", `A product fee summary row is coded ${code.cat}; summary rows take CSK or KT only (NAV INCORRECT_PRODUCT_CODE_FEE_SUMMARY_CATEGORY).`,
+          "Use the CSK or KT code from the product fee act's annex.", `${where}/productFeeCode/productCodeCategory`, warn));
+      }
+      const q = num(txt(d, "productFeeQuantity"));
+      const r = num(txt(d, "productFeeRate"));
+      const a = num(txt(d, "productFeeAmount"));
+      if (a === null) sumOk = false; else sum += a;
+      if (q !== null && r !== null && a !== null && feeOff(a, q * r, rate)) {
+        out.push(finding("HU-033", `Product fee ${code.key.replace(":", " ")}: quantity ${q} x rate ${r} is ${fmt(q * r)} HUF but productFeeAmount says ${fmt(a)} (NAV INCORRECT_PRODUCT_FEE_CALCULATION_PRODUCT_FEE_AMOUNT).`,
+          "Make productFeeAmount the quantity times the rate (HUF per unit); check the unit is the one the rate is set for (kg or piece).", `${where}/productFeeAmount`, warn));
+      }
+      if (summaries.length === 1) summaryByCode.set(code.key, { where, q, unit: txt(d, "productFeeMeasuringUnit"), a, cat: code.cat });
+    });
+    // Not a NAV code: productChargeSum against the summary's own rows (NAV's 790 compares it with the lines, below).
+    const charge = num(txt(summary, "productChargeSum"));
+    if (charge !== null && sumOk && data.length && feeOff(charge, sum, rate) && summaries.length > 1) {
+      out.push(finding("HU-033", `productChargeSum is ${fmt(charge)} HUF but this summary's productFeeData rows add up to ${fmt(sum)}.`,
+        "Make productChargeSum the sum of the summary's productFeeAmount values.", `${sp(k)}/productChargeSum`, warn));
+    }
+  });
+  if (summaries.length > 1) {
+    skipped.push({ rule: "HU-033", path: `${base}/productFeeSummary`, reason: "The invoice has two productFeeSummary blocks (REFUND and DEPOSIT); a line does not say which one it belongs to, so the line-to-summary comparisons (NAV 290, 480, 490, 790, 810) were not run." });
+    return;
+  }
+  if (!lineData.length) return;
+  // Code 290: a line's code type that no summary row shows.
+  const summaryCats = new Set([...summaryByCode.values()].map((v) => v.cat));
+  const reported = new Set();
+  for (const l of lineData) {
+    if (l.code.cat && !summaryCats.has(l.code.cat) && !reported.has(l.code.cat)) {
+      reported.add(l.code.cat);
+      out.push(finding("HU-033", `Line ${l.i + 1} has product fee code type ${l.code.cat}, which no productFeeData row in the summary shows (NAV INCORRECT_PRODUCT_CODE_FEE_CATEGORY_MISSING).`,
+        "Add a summary row for every product fee code the lines use.", `${sp(0)}/productFeeData`, warn));
+    }
+  }
+  // Codes 480, 490, 810: per product fee code, lines against the summary row.
+  const byCode = new Map();
+  for (const l of lineData) {
+    const b = byCode.get(l.code.key) ?? { qty: 0, qtyOk: true, amount: 0, amountOk: true, units: new Set(), lines: [] };
+    if (l.qty === null) b.qtyOk = false; else b.qty += l.qty;
+    if (l.amount === null) b.amountOk = false; else b.amount += l.amount;
+    if (l.unit) b.units.add(l.unit);
+    b.lines.push(l.i + 1);
+    byCode.set(l.code.key, b);
+  }
+  const label = (key) => key.replace(":", " ");
+  const lineWord = (b) => `line${b.lines.length === 1 ? "" : "s"} ${b.lines.join(", ")}`;
+  for (const [key, b] of byCode) {
+    const row = summaryByCode.get(key);
+    if (!row) {
+      if (summaryCats.has(key.split(":")[0])) {
+        out.push(finding("HU-033", `Product fee ${label(key)} on ${lineWord(b)} has no row in productFeeSummary (NAV MISSING_PRODUCT_FEE_DATA_LINE_QUANTITY_SUMMARY_QUANTITY).`,
+          "Add a productFeeData row for this code with the lines' total quantity and amount.", `${sp(0)}/productFeeData`, warn));
+      }
+      continue;
+    }
+    if (b.qtyOk && row.q !== null && Math.abs(b.qty - row.q) > 1e-6 * Math.max(1, Math.abs(row.q))) {
+      out.push(finding("HU-033", `Product fee ${label(key)}: the summary quantity is ${row.q} but ${lineWord(b)} add up to ${Number(b.qty.toFixed(10))} (NAV MISSING_PRODUCT_FEE_DATA_LINE_QUANTITY_SUMMARY_QUANTITY).`,
+        "Make each summary row's quantity the sum of the line quantities with that code.", `${row.where}/productFeeQuantity`, warn));
+    }
+    if (row.unit && [...b.units].some((u) => u !== row.unit)) {
+      out.push(finding("HU-033", `Product fee ${label(key)}: the summary gives the quantity in ${row.unit} but ${lineWord(b)} use ${[...b.units].join(" and ")} (NAV MISSING_PRODUCT_FEE_DATA_LINE_MEASURING_SUMMARY).`,
+        "Use the same unit (KG or DARAB) for a code on the lines and in the summary.", `${row.where}/productFeeMeasuringUnit`, warn));
+    }
+    if (b.amountOk && row.a !== null && feeOff(row.a, b.amount, rate)) {
+      out.push(finding("HU-033", `Product fee ${label(key)}: the summary amount is ${fmt(row.a)} HUF but ${lineWord(b)} add up to ${fmt(b.amount)} (NAV INCORRECT_PRODUCT_FEE_CALCULATION_PRODUCT_FEE_AMOUNT_SUMMARY).`,
+        "Make each summary row's productFeeAmount the sum of the line amounts with that code.", `${row.where}/productFeeAmount`, warn));
+    }
+  }
+  // Code 790: productChargeSum against the lines' product fee amounts.
+  const charge = num(txt(summaries[0], "productChargeSum"));
+  if (charge !== null && lineData.every((l) => l.amount !== null)) {
+    const total = lineData.reduce((s2, l) => s2 + cents(l.amount), 0) / 100;
+    if (feeOff(charge, total, rate)) {
+      out.push(finding("HU-033", `productChargeSum is ${fmt(charge)} HUF but the lines' product fee amounts add up to ${fmt(total)} (NAV INCORRECT_PRODUCT_FEE_CALCULATION_AGGREGATE_PRODUCT_CHARGE_SUM).`,
+        "Make productChargeSum the sum of every line's productFeeAmount.", `${sp(0)}/productChargeSum`, warn));
+    }
+  }
 }
 
 /** Check one InvoiceData document (the decoded XML). `operation` is the request's invoiceOperation when known. */
@@ -654,6 +842,9 @@ export function checkNavInvoiceData(source, { operation = null, electronicInvoic
   const tree = parseXmlTree(text);
   const root = tree.children.find((c) => c.name === "InvoiceData");
   if (!root) return { findings: [finding("HU-001", "No InvoiceData root element was found.", "Check the file is a NAV Online Számla 3.0 invoice data report.", "/")], skipped, meta: {} };
+  // The schema gate first (HU-027..HU-032, hu-xsd.mjs): NAV aborts a report that breaks
+  // invoiceData.xsd before any business rule, so these are listed ahead of the rest.
+  findings.push(...checkAgainstNavSchema(root, pathPrefix, text));
   const invoiceNumberRaw = raw(root, "invoiceNumber");
   const invoiceNumber = invoiceNumberRaw.trim();
   const issueDate = txt(root, "invoiceIssueDate");
@@ -755,7 +946,7 @@ export function checkNavInvoice(source) {
     try { bytes = base64Bytes(b64); } catch { /* reported below */ }
     if (compressed) {
       // gzip cannot be undone synchronously in a browser without a library; name it instead of guessing.
-      skipped.push({ rule: "HU-001..026", path: prefix, reason: "compressedContent is true (gzip); compressed operations are not read by this checker. Paste the uncompressed InvoiceData XML instead." });
+      skipped.push({ rule: "HU-001..032", path: prefix, reason: "compressedContent is true (gzip); compressed operations are not read by this checker. Paste the uncompressed InvoiceData XML instead." });
       return;
     }
     const decoded = new TextDecoder().decode(bytes);

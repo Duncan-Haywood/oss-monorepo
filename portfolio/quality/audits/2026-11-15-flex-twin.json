@@ -1,0 +1,222 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/flex-twin",
+ "stratum": "research",
+ "seed": "2026-11-15-1fba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior motion-control / structural-dynamics engineer (servo drives, flexible manipulators). They would check first that the two-mass closed-loop polynomial is right for load-side vs motor-side sensing, that the stability boundary agrees with an eigenvalue computation, whether the delta/zeta limit is already known (non-collocated control of a lightly damped mode: Gevarter 1970, Cannon & Schmitz 1984, Preumont), and whether 'ordinary validation gives no warning' survives a frequency-response (sine-sweep / Bode) validation",
+ "scores": {
+  "correctness": 4,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Derived both closed-loop polynomials by hand from the transfer functions x2/u=(cs+k)/(s^2(J1J2 s^2+cMs+kM)) and x1/u=(J2s^2+cs+k)/(...): both match coeffs() (model.py:20-24) and the normalised quartic; expanded the third Hurwitz minor by hand and it reduces exactly to -4e*cubic (model.py:66); evaluated cubic(delta/zeta) symbolically: d^5(1/z^3-4/z)+d^3(2/z-4z), = -2*sqrt2*d^5 at z=1/sqrt2 as claimed. Independent numerics (indep.py: state matrix from Newton's laws, numpy eigvals, scipy brentq on max Re, scipy lsim): eps_c = 0.071415910590 for all five mu (identical to 12 digits), the full 6x3 eps_c table identical to 5 digits, delta=0 has max Re > 0 at every eps tried, 7320 collocated grid points all with max Re < 0 (worst -9.9e-13), step-response gaps 2.336e-05 / 2.103e-03 / 6.247e-03 and peak 1.0485 and ts 94.6 identical to RK4, 1.1 eps_c diverges. Extended beyond the paper's grid (delta 0.3-1.0, zeta 0.3-1.0): the stable eps set is always one interval and eps_c equals the unique positive cubic root. Every number reproduces; run.py rerun is byte-identical to results.txt.",
+  "completeness": "README promises: 9 tests <1 s (Ran 9 tests in 0.672s OK), run.py about 20 s reproducing results.txt (real 21.3 s, byte-identical diff), figure.py regenerates critical_bandwidth.svg (identical in a scratch copy), live page https://marisstella.app/research/flex-twin/ (HTTP 200, title 'How high a bandwidth does a rigid-body twin...', figure linked). All six results in the whitepaper are produced by run.py sections 1-6. Notch, delta identification, sampling delay, multi-mode are honestly Next steps. Unused path: simulate(collocated=True) is never exercised by run.py or tests.",
+  "verification": "cd research/flex-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v: 9 OK. Five mutants via platform/ci/quality_mutate.py: 3 caught (Hurwitz a3^2 a0 -> a3 a0; damper c scaled 1.01; settle_time off by one step), 2 SURVIVED: the collocated a2 coefficient kp*J2 -> kp*J1 (model.py:23; the only collocated test asserts 'always stable', which a wrong polynomial also satisfies, so result 3 is not tested against physics) and the twin simulation's inertia M -> 1.05 M (model.py:93; changes every section-4 number, nothing pins results.txt). No test compares any polynomial to an eigenvalue computation.",
+  "craft": "Read src/flex_twin/model.py (121 lines), tests/test_model.py, experiments/run.py, figure.py. Stdlib only, small pure functions, docstrings carry the derivation, figure parsed from results.txt. Defects: params() takes (1-4mu)**0.5 with no check, so mu > 0.25 returns complex inertias and real_stable raises \"TypeError: '<' not supported between instances of 'complex' and 'complex'\" (model.py:29); eps_crit's hi=100 and the 1e-6 probe are magic numbers; simulate's collocated branch is dead in practice; run.py duplicates the test's 'early/late' growth heuristic rather than sharing it.",
+  "claims": "Checked against results.txt and my recomputation: mu-independence, 1.7e-16 agreement, the delta/zeta table, delta=0 instability, 7320/0 collocated, step gaps and settling times, sim-vs-Routh growth, the f/m table: all backed. Wrong: README:3 says the law is 'exact to O(delta^5) at zeta = 1/sqrt2: 0.0143, 0.0714, 0.286 of ws'; those are the zeta = 0.7 values; at 1/sqrt2 they are 0.0141, 0.0707, 0.2844. whitepaper:15 cites '(1.0027 at delta = 0.2)' as the accuracy at zeta = 1/sqrt2; 1.0027 is the zeta = 0.7 column, at 1/sqrt2 the ratio is 1.0055 (the served page correctly says zeta = 0.7). README:3 'ordinary validation gives no warning' is stronger than whitepaper:17, which concedes a validation exciting the mode would see it; a frequency-response test (the standard servo commissioning step) is not tested. Limitations and stylised disclaimer present on README, paper and page.",
+  "fitness": "Job: a researcher or controls engineer wanting a quantitative rule for how far a rigid-body twin can be trusted on a flexible-joint plant. The note gives a clean, exactly-derived rule (zeta*w < delta*ws), reproducible in 20 s with no dependencies, which someone could extend. But the nearest prior work on non-collocated control of lightly damped modes (Gevarter 1970, AIAA J. 8(4); Spector & Flashner 1990; the non-collocated chapter of Preumont) is not compared against, so whether delta/zeta is new or a restatement of the first-order modal-perturbation result is not established; no hardware or identified plant; not part of any programme in research/PROGRAMMES.md (grep finds no entry). Sound short note, well short of the PhD-programme bar.",
+  "domain": "Against classical servo practice (Routh-Hurwitz, two-mass benchmark of Spong 1987, Preumont collocation argument): the plant, sensing and normalisation are right and the cubic is derived correctly. Departures a practitioner would raise: pure PD with ideal load velocity and no roll-off filter (any real loop has one and it changes the phase at ws); validation strawmanned as step-response matching, whereas commissioning normally checks loop gain/phase margins by a sine sweep, which would show the resonance; collocated stability shown on a grid when a short passivity proof exists. Limits are disclosed, so a controls engineer would sign off on the analysis as stated."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "eps_c independent of mass ratio, delta=0.05 zeta=0.7",
+   "method": "numpy eigvals of closed-loop state matrix built from Newton's laws, scipy brentq on max real part",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/ft/indep.py (numpy 2.5.3 eigvals of the 4-state closed loop built from Newton's laws, scipy 1.18.1 brentq/lsim; imports nothing from flex_twin)",
+   "expected": "0.071415910590 for mu 0.01..0.25",
+   "observed": "0.071415910590 for all five mu",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "eps_c table delta 0.005..0.2 x zeta 0.5/0.7/1.0",
+   "method": "same eigenvalue boundary",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/ft/indep.py (numpy 2.5.3 eigvals of the 4-state closed loop built from Newton's laws, scipy 1.18.1 brentq/lsim; imports nothing from flex_twin)",
+   "expected": "results.txt section 2",
+   "observed": "all 18 values identical to 5 decimals",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "characteristic polynomials and cubic reduction",
+   "method": "hand derivation from two-mass transfer functions; hand expansion of Hurwitz Delta3 = a3a2a1 - a1^2 - a3^2a0 in normalised coefficients",
+   "command": "by hand; compared with model.py:20-24 and model.py:66",
+   "expected": "coeffs() and cubic() as coded",
+   "observed": "identical; Delta3 = -4*eps*cubic(eps); cubic(delta/zeta) = -2*sqrt2*delta^5 at zeta=1/sqrt2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "collocated sensing stable on 7320 grid points; delta=0 unstable at every gain",
+   "method": "numpy eigvals",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/ft/indep.py (numpy 2.5.3 eigvals of the 4-state closed loop built from Newton's laws, scipy 1.18.1 brentq/lsim; imports nothing from flex_twin)",
+   "expected": "7320 points, 0 unstable; delta=0 unstable",
+   "observed": "0 with max Re >= 0 (worst -9.9e-13); delta=0 max Re 7e-7 .. 2.19 > 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "twin vs real step response gap and settling at 0.05/0.5/0.9 eps_c",
+   "method": "scipy.signal.lsim (exact ZOH discretisation) and scipy.signal.step for the rigid loop",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/ft/indep.py (numpy 2.5.3 eigvals of the 4-state closed loop built from Newton's laws, scipy 1.18.1 brentq/lsim; imports nothing from flex_twin)",
+   "expected": "2.336e-05, 2.103e-03, 6.247e-03; ts 94.6; peak 1.0485",
+   "observed": "2.336e-05, 2.103e-03, 6.247e-03; ts 94.62; peak 1.0485; 1.1 eps_c diverges",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py reproduce committed outputs; runtime",
+   "method": "rerun and diff",
+   "command": "cd research/flex-twin && time PYTHONPATH=src python3 experiments/run.py > $S/results.txt && diff $S/results.txt experiments/results.txt; figure.py in a scratch copy, diff svg",
+   "expected": "no diff, about 20 s",
+   "observed": "no diff in both, real 21.3 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/flex-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "9 tests pass",
+   "observed": "Ran 9 tests in 0.672s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/flex-twin/",
+   "expected": "200 with the results",
+   "observed": "200, worked values stated at zeta = 0.7, stylised disclaimer present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:3 worked values 0.0143, 0.0714, 0.286 'at zeta = 1/sqrt2'",
+   "method": "compute eps_c at zeta = 2**-0.5",
+   "command": "cd research/flex-twin && PYTHONPATH=src python3 -c \"from flex_twin.model import eps_crit_cubic as e; print([round(e(d,2**-0.5),4) for d in (0.01,0.05,0.2)], round(e(0.2,2**-0.5)*2**-0.5/0.2,4), round(e(0.2,0.7)*0.7/0.2,4))\"",
+   "expected": "0.0143, 0.0714, 0.286",
+   "observed": "0.0141, 0.0707, 0.2844 (the quoted values are zeta = 0.7)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "whitepaper:15 '(1.0027 at delta = 0.2)' as accuracy of the law at zeta = 1/sqrt2",
+   "method": "same command",
+   "command": "same as above",
+   "expected": "1.0027",
+   "observed": "1.0055 at zeta=1/sqrt2; 1.0027 is the zeta=0.7 value",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:3 'ordinary validation gives no warning'",
+   "method": "read whitepaper:17 and run.py section 4",
+   "command": "sed -n 17p research/flex-twin/paper/whitepaper.md",
+   "expected": "backed for ordinary validation",
+   "observed": "only step responses tested; paper concedes a test exciting the mode would see it; frequency-response validation untested",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work on the non-collocated damping limit compared",
+   "method": "grep references for Gevarter / frequency response / comparison",
+   "command": "grep -rn 'Gevarter\\|Bode\\|sweep' research/flex-twin/README.md research/flex-twin/paper/",
+   "expected": "nearest prior result cited and compared",
+   "observed": "no match; five references, none states or is compared with the delta/zeta limit",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "input outside documented domain (mu > 0.25)",
+   "method": "call it",
+   "command": "cd research/flex-twin && PYTHONPATH=src python3 -c 'from flex_twin.model import *; print(params(0.3,0.05)); real_stable(0.3,0.05,0.05,0.7)'",
+   "expected": "ValueError naming mu <= 1/4",
+   "observed": "complex inertias, then TypeError comparing complex numbers",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/flex_twin/model.py:23",
+   "change": "k * M + kp * J2 + kd * c -> k * M + kp * J1 + kd * c (collocated a2)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/flex_twin/model.py:93",
+   "change": "twin acceleration / M -> / (1.05 * M)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/flex_twin/model.py:17",
+   "change": "a4 * a1 * a1 + a3 * a3 * a0 -> a4 * a1 * a1 + a3 * a0",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/flex_twin/model.py:32",
+   "change": "c = 2 * delta * ws -> c = 2.02 * delta * ws",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/flex_twin/model.py:121",
+   "change": "return (last + 1) * dt -> return (last + 2) * dt",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "README attributes the zeta = 0.7 worked values (0.0143, 0.0714, 0.286) to zeta = 1/sqrt2, where they are 0.0141, 0.0707, 0.2844; whitepaper:15 likewise cites 1.0027 as the law's accuracy at delta = 0.2 for zeta = 1/sqrt2 when it is 1.0055 there (1.0027 is the zeta = 0.7 column)",
+   "where": "research/flex-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  },
+  {
+   "severity": "low",
+   "what": "whitepaper's '(1.0027 at delta = 0.2)' follows the O(delta^5) statement for zeta = 1/sqrt2 but is the zeta = 0.7 value; at 1/sqrt2 it is 1.0055",
+   "where": "research/flex-twin/paper/whitepaper.md:15",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not check the collocated polynomial against physics (a2 kp*J2 -> kp*J1 survives because the only collocated test asserts 'always stable') and nothing pins results.txt (twin inertia scaled 1.05 survives while every section-4 number changes); no test compares a polynomial to an eigenvalue computation",
+   "where": "research/flex-twin/tests/test_model.py:39",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work on non-collocated control of a lightly damped mode is not compared (Gevarter 1970; Spector & Flashner 1990; Preumont's non-collocated chapter), so novelty of the delta/zeta limit is not established; 'ordinary validation gives no warning' is tested only for step responses, not the frequency-response checks used in servo commissioning",
+   "where": "research/flex-twin/paper/whitepaper.md:17",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "params() accepts mu > 1/4 and returns complex inertias; real_stable then raises TypeError comparing complex numbers instead of a clear ValueError",
+   "where": "research/flex-twin/src/flex_twin/model.py:29",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+ ],
+ "verdict": "A small, correct and fully reproducible control note: every number recomputes from an independent eigenvalue model (eps_c = 0.071415910590 for all mass ratios, the 18-entry delta/zeta table, 7320/7320 collocated points stable, step-response gaps to four significant figures) and the cubic and its -2*sqrt2*delta^5 residual check by hand. It misses the bar on claims and verification: the README and whitepaper attribute the zeta = 0.7 worked values and the 1.0027 accuracy figure to zeta = 1/sqrt2 (true values 0.0141/0.0707/0.2844 and 1.0055), 2 of 5 seeded mutants survive because the collocated polynomial is never checked against physics and nothing pins results.txt, and the delta/zeta limit is not compared with the classical non-collocated literature, so its novelty is unestablished."
+}

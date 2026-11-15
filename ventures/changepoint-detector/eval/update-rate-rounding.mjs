@@ -53,12 +53,14 @@ export const CELLS = {
   F1: (r) => stale(r, 2.0, [0.6, 0.6], [0.1, 0.1]), F2: (r) => stale(r, 0.5, [0.1, 0.1], [0.6, 0.6]), F3: (r) => stale(r, 2.0, [0.7, 0.2], [0.05, 0.05]),
 };
 
-export function run(seed = SEED, reps = REPS) {
+// The rule was committed before any catch-up check existed, so it reproduces with the catch-up off
+// (`{ method: null }`, the median-move test alone). The later catch-up rounds score their own R cells.
+export function run(seed = SEED, reps = REPS, catchUp = { method: null }) {
   const rnd = makeRng(seed), out = {};
   for (const [name, gen] of Object.entries(CELLS)) {
     let found = 0, flagged = 0, near = 0;
     for (let i = 0; i < reps; i++) {
-      const u = updateRateChanges(gen(rnd));
+      const u = updateRateChanges(gen(rnd), { catchUp });
       if (!u.changes.length) continue;
       found++;
       const c = u.changes.reduce((a, z) => (Math.abs(z.index - AT) < Math.abs(a.index - AT) ? z : a));

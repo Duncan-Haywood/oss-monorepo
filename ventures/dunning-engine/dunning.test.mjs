@@ -23,6 +23,15 @@ test("hard and update declines are never retried, only emailed", () => {
   }
 });
 
+test("revoked-authorization and do-not-retry codes are hard, never retried (quality census 2026-11-15)", () => {
+  for (const code of ["stop_payment_order", "revocation_of_authorization", "revocation_of_all_authorizations",
+    "do_not_try_again", "merchant_blacklist", "security_violation"]) {
+    assert.equal(classifyDecline(code), "hard", code);
+    const { steps } = planRecovery({ declineCode: code, t0: T0 });
+    assert.equal(steps.filter((s) => s.kind === "retry").length, 0, code);
+  }
+});
+
 test("soft declines get spaced retries and the first email goes out immediately", () => {
   const { steps } = planRecovery({ declineCode: "generic_decline", t0: T0 });
   const retries = steps.filter((s) => s.kind === "retry");

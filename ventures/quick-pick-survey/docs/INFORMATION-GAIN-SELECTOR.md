@@ -4173,3 +4173,112 @@ paces wander more than the sweep's 0.12, or in ways it does not model, the loose
 turn's 11-32% made-up-run moves would grow while the pinned test's would not.
 Item (c) can read both on real answer times: count how many of `back`'s moves
 the pinned test agrees with.
+
+## Check pairs for the pick test (2026-11-15; the weighting shipped, the check pairs did not)
+
+Item (d8) on the flagship list. d7's pick test (`blockAgreementDrop`) is weak
+because the staged selector's late pairs are close: an honest person agrees
+with the panel on them not much more often than a coin flip does. d7 named two
+ways to get more out of each answer, and this measures both.
+
+**Check pairs** (`scripts/answer-time-sweep.ts --anchors N`). Every N-th answer
+is the pair the person's own ratings call most lopsided instead of the
+selector's pair. It uses the 2026-11-11 anchor rule: both items shown at least
+twice, not a recent pair, sides at random. An honest person agrees with the
+panel on such a pair nearly always and a coin flip half the time, so one answer
+there says much more.
+
+**A lapse-weighted score** (`blockAgreementDrop(..., "lapse")`). A careless
+pick moves an answer's chance of agreeing from p to p - e (p - 1/2). So the
+earlier and later sides are each read as an estimate of e. Residuals are
+weighted by w = 2p - 1: e = -2 sum(w r) / sum(w^2), with variance 4 sum(w^2
+p (1 - p)) / sum(w^2)^2. The score is the later e minus the earlier e over
+their joint standard error. A disagreement on a clear pair now counts more than
+one on a close pair. When every pair has the same gap, the score equals the
+flat one exactly (unit-tested). This needs no new questions, so it also works
+on surveys already answered.
+
+**Grid.** d7's cells: salience and random patterns, 25% and 40% careless at
+0.6x, onsets 0.25, 0.5 and 0.75, plus cost cells (nobody careless, or a 25-40%
+camp with a second taste, ratio 1). Panels of 20 on 15 and 30 items, 4 answers
+per item, 40 surveys per cell, at walk 0, 0.04 and 0.08, and with no check
+pairs, one in 10 or one in 5. Raw rows: `docs/check-pairs-2026-11-15.jsonl.gz`
+(seed base 4000, 270 cells). With no check pairs, the `shift-drop` and
+`shift-drop-az25` rows reproduce d7's file to the digit. A second seed set at
+walk 0.04 and 0.08 with no check pairs (seed base 9000):
+`docs/check-pairs-seed9000-2026-11-15.jsonl.gz`.
+
+Each cell reads ceiling, careless found, honest flags mean / worst. For cost
+cells it reads Spearman change and honest flags. As in d7, the ceiling is the
+summed Spearman gain over the gain from leaving out exactly the careless
+answers.
+
+| check pairs, walk | flat z 2.5 (before) | lapse z 2.5 | lapse z 2 | **lapse z 3 (shipped)** |
+|---|---|---|---|---|
+| none, 0.08, careless (24) | 27%, 0.24, 3.9 / 5.7% | 33%, 0.30, 4.2 / 6.5% | 36%, 0.34, 4.8 / 8.3% | **30%, 0.27, 3.8 / 5.3%** |
+| none, 0.08, cost (6) | -0.0019, 4.3 / 4.6% | -0.0020, 4.5 / 5.2% | -0.0022, 5.4 / 6.8% | **-0.0019, 4.3 / 4.8%** |
+| none, 0.04, careless (24) | 51%, 0.51, 2.5 / 4.3% | 54%, 0.54, 2.7 / 4.7% | 56%, 0.56, 2.7 / 4.7% | **51%, 0.53, 2.6 / 4.7%** |
+| none, 0.04, cost (6) | -0.0016, 4.6 / 7.0% | same | -0.0016, 4.6 / 7.1% | **same** |
+| none, 0, careless and cost | 93%, 0.89, 0.0 / 0.2%; no change | same, 0.90 | same, 0.90 | **same** |
+| seed 9000, none, 0.08, careless | 18%, 0.23, 3.4 / 4.3% | 25%, 0.29, 3.7 / 5.6% | | **22%, 0.26, 3.4 / 4.8%** |
+| seed 9000, none, 0.08, cost | -0.0011, 5.1 / 7.6% | -0.0010, 5.3 / 7.7% | | **-0.0010, 5.0 / 7.6%** |
+| seed 9000, none, 0.04, careless | 46%, 0.50, 2.2 / 3.3% | 50%, 0.53, 2.4 / 3.3% | | **48%, 0.52, 2.2 / 3.3%** |
+| 1 in 10, 0.08, careless | 20%, 0.23, 3.9 / 5.7% | 26%, 0.29, 4.2 / 6.3% | 29%, 0.33, 4.5 / 6.9% | 21%, 0.25, 3.9 / 6.0% |
+| 1 in 5, 0.08, careless | 20%, 0.23, 3.7 / 5.7% | 25%, 0.28, 3.9 / 5.8% | 29%, 0.31, 4.1 / 6.2% | 22%, 0.25, 3.8 / 6.0% |
+
+The ranking itself, with every answer kept (mean Spearman with the truth,
+seed base 4000):
+
+| check pairs | nobody careless or a camp | careless cells | leaving out exactly the careless answers |
+|---|---|---|---|
+| none | 0.9604 | 0.9439 | 0.9651 |
+| 1 in 10 | 0.9562 | 0.9405 | 0.9614 |
+| 1 in 5 | 0.9513 | 0.9381 | 0.9563 |
+
+What it shows:
+
+- **Check pairs do not pay for themselves.** Every check pair replaces an
+  adaptive pair, and the ranking loses 0.004 Spearman at one in 10 and 0.009 at
+  one in 5, careless or not. Under walk 0.08 the whole careless-block filter
+  gains about 0.006 (27% of the 0.021 an oracle would recover), and the check
+  pairs' cost is paid on every survey, careless or not. The block test does
+  not get better either.
+  At walk 0.08 the flat test finds 0.23 of the careless with check pairs
+  against 0.24 without. One check pair in 10 is 3 to 4 answers on the later
+  side of a split, too few to make up for the adaptive answers they replace.
+  A likely second cause, not separately measured: a check pair is easy, so
+  honest people answer it quickly too (the sweep's times slow down on close
+  pairs), which adds noise to the timing split. The 2026-11-11 anchor work
+  scored the whole session. The block test has only the answers after a
+  split.
+- **Weighting by how clear a pair is helps, with no new questions.** The
+  staged selector's pairs are not all close, and the weight finds the clear
+  ones it already asks. At the same z, lapse weighting finds more of the
+  careless (0.30 against 0.24 at walk 0.08) and flags somewhat more honest
+  people (4.2% against 3.9%). Raising the bar to 3 keeps most of the gain (0.27,
+  30% of the ceiling against 27%) with honest flags at or under the flat
+  rule's on both seed sets: 3.8% against 3.9% (worst cell 5.3% against 5.7%),
+  then 3.4% against 3.4% (worst 4.8% against 4.3%). A cell holds 480 to 600
+  honest people, so half a point in the worst cell is two or three people. At walk 0.04 it is level
+  (51% either way, 0.53 against 0.51 found). Where nobody wanders the test is
+  not engaged, so nothing changes.
+
+**Decision.** `fastBlockStarts` now defaults to `FAST_BLOCK_AGREE_Z = 3` with
+`FAST_BLOCK_AGREE_WEIGHTING = "lapse"`. Flat at 2.5 (the rule before) is kept
+as `agreeWeighting` "flat". Check pairs are not added to the survey. The
+sweep's `--anchors` stays so a later run can retest them, for example with
+real answer times. Tests: `blockAgreementDrop`'s weighting equals the flat
+score on equal gaps, and with mixed gaps it reads a miss on the clear pair as a
+larger drop than a miss on a close one. The flat score cannot tell the two
+apart, so that test fails under the old code. The seeded wander panel flags the
+same two careless people and no one honest under both rules. The view stays a
+comparison, not the default ranking.
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --agree
+2.5,2.5:lapse,2:lapse,3:lapse --surveys 40 --items 15,30 --person-walk 0.08
+--patterns salience,random --careless 0.25,0.4 --ratio 0.6 --onset
+0.25,0.5,0.75 [--anchors 10]` (about 10 minutes on one CPU).
+
+**Next.** The pick signal is still the weak half under wander: 30% of the
+ceiling against 93% with no wander. What is left is whether real paces wander
+at all (item c).
