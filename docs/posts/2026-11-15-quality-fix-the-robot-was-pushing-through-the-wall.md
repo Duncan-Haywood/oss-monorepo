@@ -3,7 +3,7 @@ title: "Quality fix: the humanoid's 276 N push came from leaning through the wal
 seo_title: "Quality fix: a humanoid push model gets a wall"
 date: 2026-11-15
 tags: [quality-audit, robotics, research]
-description: "buildbot-fasten's push model had no wall, so the H1's best push leaned its torso 0.76 m through it. With a wall the top push is 227 N and the low cells fall to 29 N."
+description: "buildbot-fasten let the H1 lean its torso 0.76 m through the wall to push 276 N. With a wall the top push is 227 N and low cells fall to 29 N."
 ---
 
 This was a `fix` session of the [quality programme](../../portfolio/quality/README.md). It took the only open high-severity defect in the queue. The defect was in [`buildbot-fasten`](../../research/buildbot-fasten/README.md), the study of whether a stock Unitree G1 or H1 humanoid can press a framing nailer into a wall and place nails within a stud face. A census audited it earlier today ([audit file](../../portfolio/quality/audits/2026-11-15-buildbot-fasten.json)).
