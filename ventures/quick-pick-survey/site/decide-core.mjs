@@ -62,8 +62,14 @@ function fromBase64Url(s) {
 }
 
 /** The decision as a URL fragment ("d=" + base64url JSON); fragments never reach a server. */
-export function encodeDecision({ title = "", options, criteria }) {
-  return "d=" + toBase64Url(JSON.stringify({ v: 1, t: title, o: options, c: criteria }));
+// What the questions aim at: "winner" (the default: find the best option and
+// stop once it is safe) or "order" ("rank them all": the order picker and the
+// whole-order stop). A link carries "order" as m: "order"; a winner link has
+// no m, so links made before the switch read as they did.
+export const DECIDE_MODES = ["winner", "order"];
+export function encodeDecision({ title = "", options, criteria, mode = "winner" }) {
+  if (!DECIDE_MODES.includes(mode)) throw new Error(`unknown mode ${mode}`);
+  return "d=" + toBase64Url(JSON.stringify({ v: 1, t: title, o: options, c: criteria, ...(mode === "order" ? { m: "order" } : {}) }));
 }
 export function decodeDecision(fragment) {
   try {
@@ -71,7 +77,9 @@ export function decodeDecision(fragment) {
     if (!d || d.v !== 1 || !Array.isArray(d.o) || !Array.isArray(d.c)) return null;
     const setup = parseSetup(d.o.map(String).join("\n"), d.c.map(String).join("\n"));
     if (setupError(setup)) return null;
-    return { title: Array.from(String(d.t || "")).slice(0, 200).join(""), ...setup };
+    // An unknown mode is refused, not read as the default: a damaged link should say so.
+    if (d.m !== undefined && d.m !== "order") return null;
+    return { title: Array.from(String(d.t || "")).slice(0, 200).join(""), ...setup, mode: d.m === "order" ? "order" : "winner" };
   } catch {
     return null;
   }
@@ -370,6 +378,20 @@ export function bestPerCriterion(df, { level = 0.75 } = {}) {
  */
 export function decisionMax(n, C) {
   return Math.ceil((suggestedMax(Math.max(C, 2)) + C * suggestedMax(Math.max(n, 2))) / 2);
+}
+
+/**
+ * How far "Keep going until it is settled" goes: decisionMax is a checkpoint
+ * where the page shows the results so far, and a person who keeps going is
+ * asked until the stop passes or DECIDE_EXTEND x decisionMax. Chosen from
+ * 1.5, 2, 3 and 4 on 1,500 simulated people (docs/DECIDE-PAGE.md, "A larger
+ * cap"): at tau 2, 3x named the true best in 254 of 300 runs against 203 at
+ * the checkpoint and left it more than 0.25 behind in 12 against 42, for
+ * about 91% more picks; 4x added 3 right answers for another 8%.
+ */
+export const DECIDE_EXTEND = 3;
+export function decisionHardMax(n, C) {
+  return Math.ceil(DECIDE_EXTEND * decisionMax(n, C));
 }
 
 /**

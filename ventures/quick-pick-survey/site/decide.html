@@ -68,6 +68,7 @@
         <textarea id="criteria" placeholder="Rent&#10;Commute&#10;Space&#10;Light"></textarea>
       </div>
     </div>
+    <p><label><input type="checkbox" id="rank-all"> Rank them all, not just the best (more questions: it keeps asking until the whole order is settled, not only the winner)</label></p>
     <div class="row">
       <button id="start">Start picking</button>
       <button class="secondary" id="example">Try an example</button>
@@ -163,7 +164,7 @@
   </footer>
 </main>
 <script type="module">
-  import { parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers, decisionFit, nextQuestion, decisionTable, decisionDone, decisionDoneGraded, decisionMax, bestPerCriterion, decisionCsv, combineDecisions, decisionId, whatWouldChange, STOP_CONFIDENCE, BIT, MUCH } from "./decide-core.mjs";
+  import { parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers, decisionFit, nextQuestion, decisionTable, decisionDone, decisionDoneGraded, decisionMax, decisionHardMax, bestPerCriterion, decisionCsv, combineDecisions, decisionId, whatWouldChange, STOP_CONFIDENCE, BIT, MUCH } from "./decide-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
   const $ = (s) => document.querySelector(s);
@@ -179,12 +180,13 @@
   const save = () => { try { localStorage.setItem(storeKey(), JSON.stringify(state.answers)); } catch {} };
   const load = () => { try { const a = JSON.parse(localStorage.getItem(storeKey()) || "null"); return a && Array.isArray(a.crit) && Array.isArray(a.opt) ? a : null; } catch { return null; } };
 
-  function begin(title, options, criteria, fromLink = false, note = "") {
-    state = { title, options, criteria, seed: (Math.random() * 1e9) >>> 0 };
+  function begin(title, options, criteria, fromLink = false, note = "", mode = "winner") {
+    state = { title, options, criteria, mode, seed: (Math.random() * 1e9) >>> 0 };
+    $("#rank-all").checked = mode === "order";
     state.answers = load() || { crit: [], opt: [], log: [] };
     if (!Array.isArray(state.answers.log)) state.answers.log = [];
     $("#title").value = title; $("#options").value = options.join("\n"); $("#criteria").value = criteria.join("\n");
-    history.replaceState(null, "", "#" + encodeDecision({ title, options, criteria }));
+    history.replaceState(null, "", "#" + encodeDecision({ title, options, criteria, mode }));
     $("#link-note").textContent = note;
     record(fromLink ? "shared_decision_opened" : "decision_started");
     show("#setup", false); show("#results", false); show("#share", false);
@@ -194,12 +196,16 @@
   const total = () => state.answers.crit.length + state.answers.opt.length;
 
   function ask() {
-    const n = state.options.length, C = state.criteria.length, cap = decisionMax(n, C);
+    const n = state.options.length, C = state.criteria.length, cap = decisionMax(n, C), rule = state.mode;
     df = decisionFit(n, C, state.answers);
     const table = decisionTable(df, { draws: 400 });
-    const done = decisionDoneGraded(n, C, state.answers, table).done;
-    if (state.until ? total() >= state.until : done || total() >= cap) return results(done);
-    current = nextQuestion(df, state.answers, { seed: state.seed });
+    const done = decisionDoneGraded(n, C, state.answers, table, { rule }).done;
+    // decisionMax is a checkpoint; "Keep going until it is settled" moves the limit to
+    // decisionHardMax and still stops on the rule; "Answer more" after a settled result
+    // asks a fixed few more whatever the rule says.
+    const limit = state.until ?? cap, stopOnDone = !state.until || state.untilDone;
+    if ((stopOnDone && done) || total() >= limit) return results(done);
+    current = nextQuestion(df, state.answers, { seed: state.seed, focus: rule });
     const [a, b] = current.pair;
     if (current.kind === "crit") {
       $("#kind").textContent = "Criteria";
@@ -211,9 +217,11 @@
       $("#left").textContent = state.options[a]; $("#right").textContent = state.options[b];
     }
     // Progress follows whichever stop is nearer: the winner being safe, or the whole order settled.
-    const read = Math.max(table.safe, table.confidence);
+    const read = rule === "order" ? table.confidence : Math.max(table.safe, table.confidence);
     $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, read / STOP_CONFIDENCE)) * 100)}%`;
-    $("#status").textContent = `${total()} answered (${state.answers.crit.length} about criteria); ${Math.round(table.safe * 100)}% sure no option beats the leader by more than a practical tie, whole order ${Math.round(Math.max(0, table.confidence) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}% on either, or after ${cap}). Stop whenever you like.`;
+    const stopsAt = rule === "order" ? `stops when the order is ${Math.round(STOP_CONFIDENCE * 100)}% settled` : `stops at ${Math.round(STOP_CONFIDENCE * 100)}% on either`;
+    const until = state.untilDone ? `, or after ${state.until}` : state.until ? `; ${state.until - total()} more asked` : `, or shows the results so far after ${cap}`;
+    $("#status").textContent = `${total()} answered (${state.answers.crit.length} about criteria); ${Math.round(table.safe * 100)}% sure no option beats the leader by more than a practical tie, whole order ${Math.round(Math.max(0, table.confidence) * 100)}% settled (${stopsAt}${until}). Stop whenever you like.`;
     $("#undo").disabled = total() === 0;
     show("#ask");
     $("#left-bit").focus({ preventScroll: true });
@@ -242,12 +250,15 @@
 
   function results(settled) {
     const n = state.options.length, C = state.criteria.length;
+    state.settled = settled;
+    const hard = decisionHardMax(n, C);
+    $("#more").textContent = !settled && total() < hard ? `Keep going until it is settled (at most ${hard - total()} more)` : "Answer more";
     df = decisionFit(n, C, state.answers);
     const table = decisionTable(df);
     const best = bestPerCriterion(df);
     const top = table.rows[0];
     $("#verdict").innerHTML = total() === 0 ? "No answers yet." :
-      `After ${total()} picks, <strong>${esc(state.options[top.item])}</strong> comes out best overall, with a ${pct(top.best)} chance of really being the best given your answers and a ${pct(table.safe)} chance that nothing beats it by more than a practical tie${settled ? "." : ". It is still close at the top: answer more to separate the front-runners."}`;
+      `After ${total()} picks, <strong>${esc(state.options[top.item])}</strong> comes out best overall, with a ${pct(top.best)} chance of really being the best given your answers and a ${pct(table.safe)} chance that nothing beats it by more than a practical tie${settled ? (state.mode === "order" ? ". The whole order below it is settled too." : ".") : state.mode === "order" ? ". The order is not settled yet: keep going to pin it down." : ". It is still close at the top: keep going to separate the front-runners."}`;
     $("#table").innerHTML = table.rows.map((r) => {
       const strong = best.map((b, c) => (b === r.item ? esc(state.criteria[c]) : null)).filter(Boolean).join(", ");
       return `<tr><td class="num">${r.rank}</td><td>${esc(state.options[r.item])}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${pct(r.best)}</td><td>${strong}</td></tr>`;
@@ -278,7 +289,7 @@
     const setup = parseSetup($("#options").value, $("#criteria").value);
     const err = setupError(setup);
     $("#setup-err").textContent = err;
-    if (!err) begin($("#title").value.trim(), setup.options, setup.criteria);
+    if (!err) begin($("#title").value.trim(), setup.options, setup.criteria, false, "", $("#rank-all").checked ? "order" : "winner");
   });
   $("#example").addEventListener("click", () => { $("#title").value = EXAMPLE.title; $("#options").value = EXAMPLE.options.join("\n"); $("#criteria").value = EXAMPLE.criteria.join("\n"); record("example_loaded"); });
   $("#left-much").addEventListener("click", () => answer("left", MUCH));
@@ -288,7 +299,12 @@
   $("#tie").addEventListener("click", () => answer("tie"));
   $("#undo").addEventListener("click", undo);
   $("#finish").addEventListener("click", () => results(false));
-  $("#more").addEventListener("click", () => { state.until = total() + state.options.length + state.criteria.length; show("#results", false); show("#share", false); ask(); });
+  $("#more").addEventListener("click", () => {
+    const hard = decisionHardMax(state.options.length, state.criteria.length);
+    if (!state.settled && total() < hard) { state.until = hard; state.untilDone = true; record("keep_going"); }
+    else { state.until = total() + state.options.length + state.criteria.length; state.untilDone = false; }
+    show("#results", false); show("#share", false); ask();
+  });
   $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey()); } catch {} state = null; history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#setup"); });
   $("#csv").addEventListener("click", () => {
     const blob = new Blob([decisionCsv(state.options, state.criteria, decisionTable(df), df)], { type: "text/csv" });
@@ -328,7 +344,7 @@
   if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
 
   const linked = location.hash.length > 1 ? decodeDecision(location.hash) : null;
-  if (linked) begin(linked.title, linked.options, linked.criteria, true, "Someone sent you this decision. Answer for yourself, then send them your decision code.");
+  if (linked) begin(linked.title, linked.options, linked.criteria, true, "Someone sent you this decision. Answer for yourself, then send them your decision code.", linked.mode);
 </script>
 </body>
 </html>

@@ -104,5 +104,5 @@ test("the page offers both grades for each side and keys for them", () => {
   for (const id of ["left-much", "left-bit", "right-bit", "right-much"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /answer\("left", MUCH\)/);
   assert.match(html, /Shift\+&larr;/);
-  assert.match(html, /decisionDoneGraded\(n, C, state\.answers, table\)/, "the page stops through the graded guard");
+  assert.match(html, /decisionDoneGraded\(n, C, state\.answers, table(, \{ rule \})?\)/, "the page stops through the graded guard");
 });

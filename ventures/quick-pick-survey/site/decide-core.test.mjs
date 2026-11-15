@@ -6,7 +6,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers,
-  decisionFit, overallOrder, nextQuestion, decisionTable, decisionDone, decisionMax, decisionCsv, combineDecisions, bestPerCriterion,
+  decisionFit, overallOrder, nextQuestion, decisionTable, decisionDone, decisionMax, decisionHardMax, DECIDE_EXTEND, decisionCsv, combineDecisions, bestPerCriterion,
   whatWouldChange, DECIDE_MARGIN,
 } from "./decide-core.mjs";
 
@@ -25,9 +25,27 @@ test("setup parsing drops bullets and repeats, and refuses too few options or cr
 test("a decision link round-trips and a broken one is refused", () => {
   const frag = encodeDecision({ title: "Flat?", options: OPTIONS, criteria: CRITERIA });
   assert.ok(frag.startsWith("d="));
-  assert.deepEqual(decodeDecision("#" + frag), { title: "Flat?", options: OPTIONS, criteria: CRITERIA });
+  assert.deepEqual(decodeDecision("#" + frag), { title: "Flat?", options: OPTIONS, criteria: CRITERIA, mode: "winner" });
   assert.equal(decodeDecision("#d=nonsense"), null);
   assert.equal(decodeDecision(encodeDecision({ options: OPTIONS, criteria: ["only one"] })), null);
+});
+
+test("a rank-them-all link carries its mode, a winner link is unchanged, and an unknown mode is refused", () => {
+  const order = encodeDecision({ title: "Flat?", options: OPTIONS, criteria: CRITERIA, mode: "order" });
+  assert.equal(decodeDecision(order).mode, "order");
+  // A winner link is byte for byte the link made before the switch existed.
+  const before = "d=" + Buffer.from(JSON.stringify({ v: 1, t: "Flat?", o: OPTIONS, c: CRITERIA })).toString("base64url");
+  assert.equal(encodeDecision({ title: "Flat?", options: OPTIONS, criteria: CRITERIA }), before);
+  assert.equal(decodeDecision(before).mode, "winner");
+  const bad = "d=" + Buffer.from(JSON.stringify({ v: 1, t: "", o: OPTIONS, c: CRITERIA, m: "all" })).toString("base64url");
+  assert.equal(decodeDecision(bad), null);
+  assert.throws(() => encodeDecision({ options: OPTIONS, criteria: CRITERIA, mode: "all" }), /unknown mode/);
+});
+
+test("the cap is a checkpoint and keeping going runs to DECIDE_EXTEND times it", () => {
+  assert.equal(DECIDE_EXTEND, 3);
+  assert.equal(decisionHardMax(5, 3), 123);
+  assert.equal(decisionHardMax(8, 4), 3 * decisionMax(8, 4));
 });
 
 test("decision codes round-trip, and a code for another decision or a damaged one is refused", () => {
@@ -201,5 +219,11 @@ test("the page loads the engine it is tested against, and carries the disclaimer
   assert.match(html, /from "\.\/usage\.mjs"/);
   assert.match(html, /<strong>Disclaimer\.<\/strong>/);
   assert.match(html, /id="optout"/);
+  // The rank-them-all switch reaches the picker and the stop, and the cap is a checkpoint.
+  assert.match(html, /id="rank-all"/);
+  assert.match(html, /nextQuestion\(df, state\.answers, \{ seed: state\.seed, focus: rule \}\)/);
+  assert.match(html, /decisionDoneGraded\(n, C, state\.answers, table, \{ rule \}\)/);
+  assert.match(html, /Keep going until it is settled/);
+  assert.match(html, /decisionHardMax/);
   assert.match(html, /rel="canonical" href="https:\/\/marisstella\.app\/quick-pick-survey\/decide\.html"/);
 });

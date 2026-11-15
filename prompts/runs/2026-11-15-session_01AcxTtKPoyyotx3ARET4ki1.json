@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKPoyyotx3ARET4ki1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T00:05:55Z",
+  "ended": "2026-11-15T00:33:51Z",
+  "wall_minutes": 33.74,
+  "tokens_in": 6607725,
+  "tokens_out": 33367,
+  "cost_usd": 2.9447,
+  "tool_calls": 62,
+  "task": "Flagship 8 quick-pick-survey, item (m2): a larger cap for the decide page's winner stop, plus a 'rank them all' switch",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16024",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First venture-preflight failed on the new post's description (185 > 160 characters); shortened it and reran clean."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: sat at 1949/2000 characters, so recording one landed item meant cutting an older history pointer (d10's data file) to fit under validate.py's cap."
+    },
+    {
+      "file": "ventures/quick-pick-survey/site/graded-fit.test.mjs",
+      "issue": "A page test pins the exact text of the decisionDoneGraded call, so passing a new option broke it; loosened the regex to accept the optional { rule } argument."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate agent doc in docs/reports/: the next run needs nothing beyond DECIDE-PAGE.md's 'A larger cap' section and the flagships next:, which carry the open item.",
+      "did": "Wrote the findings into the venture's own doc and the post.",
+      "result": "Next item (m3) is stated in flagships.yaml with its number."
+    },
+    {
+      "file": "ventures/quick-pick-survey/AGENTS.md",
+      "why": "`npm run verify` (Next.js typecheck, lint, test, build) does not reach the static site/ pages changed here; ran the site's node tests, run_venture_tests.py and venture-preflight instead.",
+      "did": "Ran node --test on both site test files, run_venture_tests.py quick-pick-survey and venture-preflight.mjs.",
+      "result": "All green (see notes)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quick-pick-survey-the-cap-was-deciding.md",
+    "ventures/quick-pick-survey/docs/DECIDE-PAGE.md (A larger cap)"
+  ],
+  "goal": "Deepen a flagship: decide whether the decide page should trade more questions for a settled winner, measured, and ship the answer.",
+  "notes": "Sweep: 1,800 simulated runs (5 person taus x 300 winner-focus, plus 300 order-focus at tau 2), out to 4x decisionMax; x1 rows equal the shipped Graded answers table exactly (28,762 / 240 / 203 / 42 / 58-60). Shipped 3x: true best 254/300 vs 203, big misses 12 vs 42, +91% picks. Promise slips to 0.89 at tau 1 over long runs (next item m3). Checks: node --test site/decide-core.test.mjs site/graded-fit.test.mjs 21/21 pass; the new mode test goes red with the unknown-mode refusal removed. run_venture_tests.py quick-pick-survey: ok. Chromium 390 px: checkpoint at 72 with 'Keep going (at most 144 more)', ended at 216, order link round-trips with the switch on, no console errors, scrollWidth 390. venture-preflight.mjs quick-pick-survey: clean on the second run (build + check.mjs, 91 site test files, privacy tests, main_health).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9e33d03f-3023-5f8e-aeb3-8024fb8280ed",
+    "transcripts": 1,
+    "first": "2026-11-15T00:05:55Z",
+    "last": "2026-11-15T00:39:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 113,
+        "output": 33367,
+        "thinking": 6908,
+        "cache_read": 6485132,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122480,
+        "api_equivalent_usd": 2.9447,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 113,
+      "output": 33367,
+      "thinking": 6908,
+      "cache_read": 6485132,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122480,
+      "api_equivalent_usd": 2.9447,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 33.74,
+      "active_minutes": 33.74,
+      "model_minutes": 5.98,
+      "tool_minutes": 27.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician-engineer designing the cap sweep, running and reading 1,800 simulations, building the checkpoint and mode switch with tests, and writing the doc and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 339.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
