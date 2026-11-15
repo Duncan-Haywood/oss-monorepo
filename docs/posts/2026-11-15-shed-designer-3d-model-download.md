@@ -3,7 +3,7 @@ title: "Shed Designer now hands you the shed as a 3D model file"
 seo_title: "Download your shed design as a glTF 3D model (.glb), free"
 date: 2026-11-15
 tags: [shed-designer, construction, 3d, gltf, open-source]
-description: "A new button exports the framed shed as a binary glTF file: every board a named piece, grouped by layer, at full size. It opens in Blender and Windows 3D Viewer."
+description: "A new button exports the framed shed as a binary glTF file: each board a named piece, grouped by layer, at full size. It opens in Blender and Windows 3D Viewer."
 ---
 
 [Shed Designer](https://marisstella.app/shed-designer/) frames a backyard shed
