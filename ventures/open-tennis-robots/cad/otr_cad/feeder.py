@@ -1452,7 +1452,7 @@ def trough_sump(p: Feeder) -> Part:
 # ---------------------------------------------------------------- ball lift (2026-11-13)
 
 LIFT_PARTS = ("lift_boot", "lift_base_plate", "lift_spine", "lift_belt", "lift_pulley", "lift_motor", "lift_rod",
-              "lift_clip", "lift_head", "lift_jack_screw", "lift_chute", "lift_strut")
+              "lift_clip", "lift_head", "lift_jack_screw", "lift_chute", "lift_strut", "lift_flight_cap")
 
 
 def _stadium(p: Feeder, r: float, z0: float, z1: float, half_w: float, x: float | None = None):
@@ -1554,19 +1554,72 @@ def lift_spine(p: Feeder) -> Part:
                       "and the strut. It stops short of the top pulley so the head can come down to put the belt on.")
 
 
-def lift_belt(p: Feeder) -> Part:
-    """The belt and its flights as the envelope they sweep: a racetrack shell from the tooth tips to the finger tips."""
-    d = p.lift_design()
+def lift_belt_envelope(p: Feeder):
+    """What the belt and its flights sweep: a racetrack shell from the tooth tips to the finger tips."""
     zb, zt = p.lift_z_bottom, p.lift_z_top
     hw = p.lift_finger_w / 2
-    shell = _stadium(p, p.lift_r_sweep, zb, zt, hw) - _stadium(p, p.lift_r_in, zb, zt, hw + 1)
+    return _stadium(p, p.lift_r_sweep, zb, zt, hw) - _stadium(p, p.lift_r_in, zb, zt, hw + 1)
+
+
+def lift_belt(p: Feeder) -> Part:
+    """The belt and its flights as the envelope they sweep, less the one flight cap drawn on its own."""
+    d = p.lift_design()
+    shell = lift_belt_envelope(p) - lift_flight_cap_solid(p).moved(lift_flight_cap_location(p))
     return Part("lift_belt", "cots", "", 1, shell, [Location((0, 0, 0))],
                 spec=f"AT5 polyurethane timing belt, steel cords, {p.lift_belt_w:g} mm wide, {d['belt_teeth']} teeth "
-                     f"({d['belt_mm']:.0f} mm), welded endless; {d['flights']} flights every {d['flight_pitch_mm']:.1f} mm "
-                     f"of two {p.lift_finger_l:g} mm fingers over {p.lift_finger_w:g} mm on a {p.lift_flight_base:g} mm base: "
-                     f"order PU cleats welded to the back by the belt supplier (a screw through the belt does not fit: its "
-                     f"head would sit on the tooth side, which runs on the pulleys' teeth and the spine's strip, and an M3 "
-                     f"countersunk head, 6 mm across, is wider than an AT5 tooth)")
+                     f"({d['belt_mm']:.0f} mm), welded endless; {d['flights']} straight PU cleats welded to its back every "
+                     f"{d['flight_pitch_mm']:.1f} mm by the belt supplier, {p.lift_cleat_h:g} mm high, {p.lift_cleat_t:g} mm "
+                     f"thick, cut to the belt's width, with two {p.M3_HOLE:g} mm holes drilled through each "
+                     f"{p.lift_cap_pin_x:g} mm off the belt and {2 * p.lift_cap_pin_y:g} mm apart (a screw through the "
+                     f"belt does not fit: its head would sit on the tooth side, which runs on the pulleys' teeth and the "
+                     f"spine's strip, and an M3 countersunk head, 6 mm across, is wider than an AT5 tooth); each cleat "
+                     f"carries a printed lift_flight_cap")
+
+
+
+def lift_flight_cap_solid(p: Feeder):
+    """One flight cap in the flight's frame (see `Feeder.lift_flight_design`): x off the belt's back, y across the belt
+    from the ball line, z along the travel with the finger plate's middle at 0 and its leading face (the one a ball
+    sits on) up."""
+    f = p.lift_flight_design()
+    h, W, bw = p.lift_finger_t / 2, p.lift_finger_w, p.lift_belt_w
+    g, l = p.lift_cap_gap, p.lift_finger_l
+    (zc0, zc1), (zp1, zp0) = f["cleat_z"], f["pad_z"]
+    plate = Box(l - g, W, 2 * h).moved(Location(((g + l) / 2, 0, 0)))
+    ch_x1 = p.lift_cleat_h + 1.0
+    ch_z0 = zp0 - 3.0                                         # cheeks run down onto the pad
+    cheeks = None
+    for s in (1, -1):
+        yc = s * (bw / 2 + 0.25 + p.lift_cap_cheek / 2)
+        c = Box(ch_x1 - g, p.lift_cap_cheek, h - ch_z0).moved(Location(((g + ch_x1) / 2, yc, (ch_z0 - h) / 2)))
+        cheeks = c if cheeks is None else cheeks + c
+    pad = Box(p.lift_cap_pad_t, W, zp0 - zp1).moved(Location((p.lift_cap_pad_t / 2, 0, (zp0 + zp1) / 2)))
+    cap = plate + cheeks + pad
+    for s in (1, -1):
+        y = s * p.lift_cap_pin_y
+        cap = cap - Cylinder(p.M3_HOLE / 2, 2 * h + 2).moved(Location((p.lift_cap_pin_x, y, 0)))
+        cap = cap - Cone(p.M3_HOLE / 2, 3.2, 1.75).moved(Location((p.lift_cap_pin_x, y, h - 1.75 / 2 + 1e-3)))
+    return cap
+
+
+def lift_flight_cap_location(p: Feeder) -> Location:
+    """Where the one drawn cap sits: on the up strand, halfway between the second and third rod clips."""
+    zs = p.lift_clip_z()
+    z = (zs[1] + zs[2]) / 2 if len(zs) > 2 else (p.lift_z_bottom + p.lift_z_top) / 2
+    return Location((p.lift_x_belt, p.lift_y, z))
+
+
+def lift_flight_cap(p: Feeder) -> Part:
+    d, f = p.lift_design(), p.lift_flight_design()
+    return Part("lift_flight_cap", "print", "PETG", d["flights"], lift_flight_cap_solid(p), [lift_flight_cap_location(p)],
+                notes=f"One per welded cleat ({d['flights']}; one drawn). The {p.lift_finger_w:g} mm plate is the flight a "
+                      f"ball sits on; two M3 x 12 countersunk screws go through it and the cleat (nuts on the cleat's "
+                      f"trailing face) and its cheeks wrap the cleat's ends. The {f['pad_mm']:.1f} mm pad behind lies loose "
+                      f"on the belt's back: on the straight it takes the ball's moment {f['arm_mm']:.1f} mm from the cleat "
+                      f"(the belt presses the spine's strip with {f['pad_push_n']:.2f} N a ball, against "
+                      f"{f['cleat_push_n']:.2f} N with the cleat alone), and round a pulley the belt wraps away under it. "
+                      f"Print on the plate's leading face, no support; 100% infill (a stalled jam puts "
+                      f"{f['jam_mpa']:.0f} MPa in the plate).")
 
 
 def lift_pulleys(p: Feeder) -> list[Part]:
@@ -1761,7 +1814,7 @@ def lift_strut(p: Feeder) -> Part:
 
 def lift_parts(p: Feeder) -> list[Part]:
     return [lift_boot(p), lift_base_plate(p), lift_spine(p), lift_belt(p), *lift_pulleys(p), lift_rods(p), lift_clips(p),
-            lift_head(p), *lift_tensioner_parts(p), lift_chute(p), lift_strut(p)]
+            lift_head(p), *lift_tensioner_parts(p), lift_chute(p), lift_strut(p), lift_flight_cap(p)]
 
 
 _ALL_PARTS_CACHE: list[tuple[Feeder, list[Part]]] = []
@@ -2014,6 +2067,7 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M3 x 8 screw (lift)", 4, "lift gearmotor's face to the boot"),
         ("8 mm axle, 60 mm, + two 608 bearings + e-clips", 1, "lift's top pulley in the head"),
         ("PU cleat welding by the belt supplier (flights)", p.lift_design()["flights"], "cleats on the belt's back at the flight pitch (lift_belt spec)"),
+        ("M3 x 12 countersunk screw + nut (flight caps)", 2 * p.lift_design()["flights"], "each flight cap through its cleat"),
         ("UHMW-PE tape, 25 mm wide, self-adhesive", 1, f"both 20 mm faces of the lift spine ({2 * (p.lift_z_top - p.lift_z_bottom) / 1000:.1f} m)"),
         ("Logic-level N-MOSFET module, 24 V 5 A, + flyback diode", 1, "lift gearmotor from GPIO 12 (module with a gate pull-down)"),
         ("M3 x 10 socket cap screw (agitator)", 4, "agitator gearmotor's face to its mount, from the mount's counterbores"),
