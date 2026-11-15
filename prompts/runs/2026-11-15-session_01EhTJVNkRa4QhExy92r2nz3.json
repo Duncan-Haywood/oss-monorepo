@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNkRa4QhExy92r2nz3",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled ventures brief: continue work on revenue generating software products; merge when done.",
+  "input_sha256": "b314544ce00940f6653a979a0116806eed01251f71d0dae3dfc981436fb9a152",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T23:08:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10): open-tennis-robots lift slip hub back to 0.9 N m now the trip is duty-independent; rerun jam, start and tooth sweeps",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16370",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Ran the cad tests with pytest first; this container's python3 has no pytest, so used python3 -m unittest (test_host needs cwd tests/ and PYTHONPATH=../src)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Session-id pick sent this run to ai-bookkeeper, whose every open item needs real inputs and whose data hosts (data.delaware.gov, durham.gov.uk, raw.pixls.us for photo-editing) the proxy refused; about 20 minutes went to confirming that before moving to a row with a buildable item. ai-bookkeeper's row has no inputs_only or buildable field to say so."
+    },
+    {
+      "file": "ventures/open-tennis-robots/tests/lift_jam_sweep.py",
+      "issue": "No way to override a Feeder parameter from the command line, so comparing hub settings meant copying the venture tree and editing params.py in each copy."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Its 'Start here' row (ai-bookkeeper) had nothing buildable from this session's network; flagship 10's BUILDABLE HERE item needed no outside input.",
+      "did": "Took open-tennis-robots row 7 instead of row 1.",
+      "result": "Slice landed with measured results."
+    },
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "The weighted draw picked research; the scheduled brief asks for revenue ventures work.",
+      "did": "Re-routed with --task, which picked ventures/2 as prompt.md describes.",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-tennis-lifts-slip-hub-goes-back-to-0-9-n-m.md",
+    "ventures/open-tennis-robots/cad/README.md \"Slip hub back to 0.9 N m\""
+  ],
+  "goal": null,
+  "notes": "Full lift_jam_sweep.py run at 1.0, 0.9 and 0.8 N m (eval/lift-slip-*-2026-11-15.txt). 0.9 adopted: worst flight peak 91->84 N, hood jam pull 100->90 N (lift_jam_belt_n 90), slowest cut 109->129 ms, slide margin 1.42->1.30; no soft start slips at 0.9; 0.8 slips 3 of 6 soft starts on a worn stiff spider. Checks: cad unittest LiftParamsTest 12 OK; tests/test_host 45 OK; cad full unittest under a venv with build123d 0.13.0: 138 tests OK (system python3 lacks build123d, so run_venture_tests.py open-tennis-robots reports that suite as not run). Chain sweep at 0.9: tightest segment 90 N (eval/lift-slip-0p9-chain-2026-11-15.txt). Feeder manufacturing package rebuilt with build123d 0.13.0.",
+  "corrections": [],
+  "redteam": null
+}

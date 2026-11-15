@@ -1200,8 +1200,9 @@ class Feeder:
     # between the gearmotor's shaft and the drive pulley lets the rotor run on while the belt stops: the cap then sees
     # the hub's slip torque plus the belt's own 1.4 kg, and the motor's current while it slides is over the cutoff's
     # trip, so the cutoff still cuts and latches. Friction figures are assumptions; the slip torque is set on the bench.
-    lift_slip_nm: float = 1.0         # slip torque the hub is set to (bench: a belt strip round the pulley, 79 N on a scale;
-                                      # 0.9 N m, 71 N, until the duty followed the battery, 2026-11-15)
+    lift_slip_nm: float = 0.9         # slip torque the hub is set to (bench: a belt strip round the pulley, 71 N on a scale;
+                                      # 1.0 N m, 79 N, from "Lift duty follows the battery" until the high-side sense made
+                                      # the trip the same at every duty: cad/README.md "Slip hub back to 0.9 N m", 2026-11-15)
     lift_slip_tol: float = 0.2        # +- on it: setting, wear, damp, temperature (assumption)
     lift_slip_kinetic: float = 0.8    # sliding over sticking friction of the facing on aluminium (assumption)
     lift_slip_mu: float = 0.3         # facing on the pulley's face, sliding (assumption: a fibre or cork-composite washer)
@@ -1277,8 +1278,9 @@ class Feeder:
     # jam slackens the down strand, so the 16-tooth drive pulley holds the whole pull on its 8 teeth in mesh with
     # nothing on the slack side. Two checks: tooth strength against the catalogue's specific tooth force, and
     # ratcheting (the belt climbing out over the teeth), which no catalogue figure covers. Figures are assumptions.
-    lift_jam_belt_n: float = 100.0    # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt and --chain, every
-                                      # c_spec; 89 until the duty was held to the battery, eval/lift-belt-chain-2026-11-15.txt)
+    lift_jam_belt_n: float = 90.0     # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt and --chain, every
+                                      # c_spec; 89 until the duty was held to the battery, then 100 with the 1.0 N m hub,
+                                      # eval/lift-belt-chain-2026-11-15.txt; 90 with the 0.9 N m hub, eval/lift-slip-0p9-2026-11-15.txt)
     lift_tooth_fuspec_n_mm: float = 3.6   # AT5 specific tooth force per mm of width at 0 rpm (Optibelt ALPHA LINEAR and
                                       # Ammeraal PU AT5 sheets, as quoted in search results: 3.6 and 3.64; sheets unread)
     lift_tooth_fuspec_1200_n_mm: float = 2.478  # the same at 1200 rpm (Optibelt, as quoted; straight line between)

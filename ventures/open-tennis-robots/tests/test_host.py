@@ -615,7 +615,7 @@ class LiftJamTest(unittest.TestCase):
             self.assertEqual(r["slack_ms"], 0.0, b)        # at the boot the ball stops the pulley, not the belt's mass
         corner = dict(loaded=False, slip="lo", coupler=(max(p.lift_coupler_k_sweep), 5.0))
         sweep.start(29.2, 0.0, 0.5, "lo", **corner)
-        # since 2026-11-15 ("Lift duty follows the battery": duty 0.82 on a full pack, hub set to 1.0 N m) the rigid
+        # since 2026-11-15 ("Lift duty follows the battery": duty 0.82 on a full pack, hub set to 1.0 N m, 0.9 since the high-side sense) the rigid
         # belt's corner no longer slips either
         self.assertEqual(sweep.start.plant.slid_ms, 0.0)
         tripped, _, _ = sweep.start(29.2, 0.0, 0.5, "lo", belt=1.0, **corner)
