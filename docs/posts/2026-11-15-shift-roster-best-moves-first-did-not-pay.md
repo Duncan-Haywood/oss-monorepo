@@ -1,9 +1,9 @@
 ---
 title: "Best moves first didn't pay, and a profile that says why"
-seo_title: "Local search move ordering in shift scheduling: a measured negative result"
+seo_title: "Move ordering in a shift scheduler: a measured negative result"
 date: 2026-11-15
 tags: [scheduling, shift-roster-builder, search, operations-research, profiling]
-description: "Trying the most promising moves first in Shift Roster Builder's second-call-out search was 21% faster on one week, 1.8x slower on another and worse on a third. A profile shows where the time actually goes."
+description: "Trying the most promising moves first in a shift scheduler's search: faster on one week, slower on another, worse on a third. A profile shows why."
 ---
 
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) has an
