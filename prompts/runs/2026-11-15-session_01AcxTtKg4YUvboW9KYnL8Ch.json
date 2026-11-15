@@ -39,6 +39,10 @@
     {
       "what": "The round-five worker first imported round four's eval module, whose top-level worker hook posted round four's verdicts; the smoke run showed all-zero one-tick counts. Moved the judge into its own worker file before any recorded run.",
       "fixed": true
+    },
+    {
+      "what": "Full suite failed one test: update-rate-columns.test.mjs re-runs the 2026-11-12 rounding eval with the default catch-up and compares it to its file; under the Markov default 2/200 R1 walks became catch-ups (198 vs 200). Pinned that eval to catchUp {method: null} (it predates any catch-up), recorded the 2/200 in the README.",
+      "fixed": true
     }
   ],
   "integrity_issues": [],
@@ -46,6 +50,10 @@
     {
       "file": "ventures/changepoint-detector/eval/update-rate-stale-lr-4.mjs",
       "issue": "Its unconditional `if (!isMainThread) parentPort.postMessage(...)` hook fires in any worker that imports the module for its CELLS, silently answering with round four's verdicts; later eval rounds must keep their worker entry in a separate file."
+    },
+    {
+      "file": "ventures/changepoint-detector/update-rate-columns.test.mjs",
+      "issue": "Re-ran an older eval under whatever CATCHUP was the default (763 s), so changing the default broke a historical-file test after a 16-minute suite run; now pinned."
     }
   ],
   "deviations": [],

@@ -3470,7 +3470,9 @@ options are passed.
 What it costs: X3, a heavy-tailed stale feed with no clumping, falls 2 points (167 to 163 of 200), because
 the threshold is higher. The test takes about three times as long as round four's (four extra fits a
 degree of freedom; 2.7 s against 0.9 s a series on these cells). It still runs only on stretches that
-pass the one-tick test. On the juice file, `ppi` stays rounding.
+pass the one-tick test. On the juice file, `ppi` stays rounding. On the rounding check's own seed (20261212, `eval/update-rate-rounding.mjs`), 2 of
+200 R1 walks now read as catch-ups (198 rounding, Q1 still passes); that file predates the catch-up, so its
+test now reproduces it with the catch-up off.
 
 Still open: a real series with documented carry-forward to check a call against (all the evidence here
 is simulated), and a faster fit (the Markov ascent could skip the degrees of freedom that round four's
