@@ -663,7 +663,7 @@ test('--overdispersion nb --trend bend ranks knots with the negative-binomial li
   assert.ok(Math.abs(a.trend.growthChangesAt - 105) <= 15, `knot ${a.trend.growthChangesAt}`);
   const fit = poissonTrend(x, { bend: true, nbSize: 3.5 });
   assert.ok(Number.isFinite(fit.g) && fit.exposure.length === n);
-  assert.match(a.trend.growthChangeRangeNote, /optimistic/);
+  assert.match(a.trend.growthChangeRangeNote, /wider than a 95% range needs/);
   assert.equal(analyze({ values: x, model: 'poisson', trend: 'bend' }).trend.growthChangeRangeNote, undefined);
 });
 

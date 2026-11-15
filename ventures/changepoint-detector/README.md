@@ -5255,6 +5255,10 @@ and calls the series Poisson unless the mean at c = 0 clears 0.9813 by two stand
   list still removes changes in every year (239 to 205 before, 205 to 179 now). Bike-share at period 7: 56 to 30 changes,
   and the holiday factor no longer adds any (61 before). One pinned observation reversed: at period 365 bike-share goes
   134 to 29 changes, and the holiday list now adds changes there (29 to 36) instead of removing them.
+- **Milder bends too (measured after, not a bar).** On the earlier held-out seeds 3 and 11 (bumps 0.015, 0.025, 0.04, 100
+  series each; `eval/growth-change-interval-nb-local-size.out.txt`) bends found went from 114 to 301 of 600 and the range
+  held 299 of them (99%, was 107 of 114, 94%). The 1.4 temper was not retuned, so the ranges are now probably wider than a
+  95% range needs; the note under them says 99% and says so.
 - **Not checked.** A real count series with a documented steep slope break (still wanted, as before); clumping that
   itself changes with the level (NB1-like, variance proportional to the mean), which a single r cannot describe.
 
