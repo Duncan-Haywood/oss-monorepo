@@ -451,15 +451,37 @@ def changes_since(subject: str, date: str, git=_git) -> dict:
 
 # --- open PRs that already name a queued subject -------------------------------------
 
-def open_pr_titles(timeout: int = 20, pages: int = 3, run=None) -> list[tuple[int, str]] | None:
+def _rest_open_prs() -> list[dict] | None:
+    """The REST pulls list via portfolio/router/claim_check.py, or None if unreadable."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "portfolio" / "router"))
+    try:
+        from claim_check import open_prs
+    except ImportError:
+        return None
+    return open_prs()
+
+
+def open_pr_titles(timeout: int = 20, pages: int = 3, run=None, pulls=None) -> list[tuple[int, str]] | None:
     """(number, title) of open PRs in this repository, newest first, or None when the search failed.
 
     The queue only knew fix PRs recorded in an audit's fix_prs, which happens at merge. Two fix
     sessions took the same high defect (osrobot-pairprice) minutes apart on 2026-11-14, and two more
     runs that day saw platform/agents listed as unfixed while PR #14674 sat open (run-record
     doc_friction on this file and on duplicate-work.md). One `gh api` search per 100 PRs; it works
-    unauthenticated in cloud sessions."""
+    unauthenticated in cloud sessions.
+
+    The REST pulls list is read first (unless a test passes `run`): the search index can lag a new
+    PR by minutes (claim_check.py), and allocate.py missed 10- and 15-minute-old claims through it
+    on 2026-11-15. Fork PRs are dropped there, as claim_check.decide does."""
     import subprocess
+
+    if run is None:
+        batch = (pulls or _rest_open_prs)()
+        if batch is not None:
+            own = "duncan-haywood/oss-monorepo"
+            rows = [(int(p["number"]), str(p.get("title", ""))) for p in batch
+                    if (((p.get("head") or {}).get("repo") or {}).get("full_name") or "").lower() == own]
+            return sorted(rows, reverse=True)
 
     def default_run(page: int) -> subprocess.CompletedProcess:
         return subprocess.run(

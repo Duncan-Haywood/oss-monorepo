@@ -293,6 +293,13 @@ class OpenPrTest(unittest.TestCase):
         self.assertEqual([n for n, _ in m.prs_naming("ventures/ai-bookkeeper", self.PRS)], [15760])
         self.assertEqual(m.prs_naming("ventures/agents", self.PRS), [])
 
+    def test_pulls_list_first_newest_first_without_forks(self):
+        own = {"full_name": "duncan-haywood/oss-monorepo"}
+        pulls = [{"number": 5, "title": "a", "head": {"repo": own}},
+                 {"number": 9, "title": "b", "head": {"repo": own}},
+                 {"number": 7, "title": "fork", "head": {"repo": {"full_name": "x/oss-monorepo"}}}]
+        self.assertEqual(m.open_pr_titles(pulls=lambda: pulls), [(9, "b"), (5, "a")])
+
     def test_search_pages_and_fails_soft(self):
         import subprocess
         pages = {1: "\n".join(f"{i}\tt{i}" for i in range(100)), 2: "7\tlast"}
