@@ -501,6 +501,21 @@ def skipped(out):
     return n, (max(reasons, key=lambda r: (reasons[r], r)) if reasons else None)
 
 
+# How many tests a suite ran, so "ok (15.9s)" says whether the 2,000 node
+# tests ran or only a 0.4 s smoke file (run-record doc friction, 2026-11-15:
+# einvoice-preflight's single ok line sent a run to rerun node --test by hand).
+RAN_TOTALS = (
+    re.compile(r"^Ran (\d+) tests? in ", re.M),                          # unittest
+    re.compile(r"^=+ .*?\b(\d+) passed\b.* in [\d.]+s", re.M),         # pytest
+    re.compile(r"^(?:# |\u2139 )tests (\d+)$", re.M),                    # node --test (TAP, spec)
+)
+
+
+def ran_note(out):
+    n = sum(int(m) for rx in RAN_TOTALS for m in rx.findall(out))
+    return f", {n} test{'s' if n != 1 else ''}" if n else ""
+
+
 def skipped_note(out):
     n, why = skipped(out)
     if not n:
@@ -667,7 +682,7 @@ def main(argv):
             unrun = sorted({w for w, _ in python_run_elsewhere(slug)}) if no_yaml else []
             if unrun:
                 partial.append(slug)
-            print(f"{('PART' if unrun else 'ok  ') if ok else 'FAIL'} {slug} ({secs:.1f}s)"
+            print(f"{('PART' if unrun else 'ok  ') if ok else 'FAIL'} {slug} ({secs:.1f}s{ran_note(out)})"
                   + (f" incl. Python steps of {', '.join(also)}" if also else "")
                   + (f"; Python steps of {', '.join(unrun)} NOT run (no PyYAML)" if unrun else "")
                   + skipped_note(out), flush=True)

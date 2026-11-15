@@ -439,6 +439,13 @@ class Skipped(unittest.TestCase):
                "======= 5 passed, 2 skipped in 1.20s =======\n")
         self.assertEqual(rvt.skipped(out), (3, "no browser"))
 
+    def test_ran_counts_add_up_across_runners(self):
+        out = ("# tests 4\n# skipped 1\n\u2139 tests 2000\nRan 96 tests in 1.0s\n\nOK\n"
+               "======= 5 passed, 2 skipped in 1.20s =======\n")
+        self.assertEqual(rvt.ran_note(out), ", 2105 tests")
+        self.assertEqual(rvt.ran_note("Ran 1 test in 0.1s\n"), ", 1 test")
+        self.assertEqual(rvt.ran_note("no counts here\n"), "")
+
     def test_nothing_skipped_says_nothing(self):
         self.assertEqual(rvt.skipped_note("# tests 3\n# skipped 0\nRan 4 tests\n\nOK\n"), "")
 
