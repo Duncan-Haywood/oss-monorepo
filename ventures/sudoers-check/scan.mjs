@@ -447,8 +447,10 @@ function runasInfo(runasText, aliases, runasDefault) {
   const groups = expandList(splitTop(groupPart || "", ",").filter(Boolean), aliases.Runas_Alias);
   const list = (xs) => xs.map((x) => (x.neg ? "!" : "") + unquote(x.value));
   const lists = { users: list(expanded), groups: list(groups) };
-  const rootNeg = expanded.some((u) => u.neg && (u.value === "root" || u.value === "#0"));
-  const root = !rootNeg && expanded.some((u) => !u.neg && (u.value === "ALL" || u.value === "root" || u.value === "#0"));
+  // sudoers(5): in a list the last item that matches decides, so "(!root, ALL)" still allows root
+  // and "(ALL, !root)" does not.
+  let root = false;
+  for (const u of expanded) if (u.value === "ALL" || u.value === "root" || u.value === "#0") root = !u.neg;
   // '(:group)' alone runs the command as the invoking user.
   if (!users.length && groupPart !== undefined) return { text: `(${runasText.trim()})`, root: false, self: true, ...lists };
   if (!users.length) return { text: `(${runasDefault})`, root: runasDefault === "root" || runasDefault === "#0", ...lists };

@@ -323,3 +323,10 @@ test("env_keep wildcards match by their own prefix only", () => {
 test("negated-command-bypass names the subtracted commands", () => {
   assert.match(one(scan("carol ALL=(ALL) ALL, !/usr/bin/su -\n"), "negated-command-bypass").detail, /ALL with !\/usr\/bin\/su - for carol/);
 });
+
+test("runas lists: the last matching item decides whether root is reachable (sudoers(5))", () => {
+  // Quality census 2026-11-15-8ced: "(!root, ALL)" was read as excluding root; real sudo grants root.
+  assert.equal(one(scan("nobody ALL = (!root, ALL) NOPASSWD: ALL\n"), "nopasswd-all").severity, "high");
+  assert.equal(one(scan("nobody ALL = (ALL, !root) NOPASSWD: ALL\n"), "nopasswd-all").severity, "medium");
+  assert.equal(one(scan("nobody ALL = (ALL, !#0) NOPASSWD: ALL\n"), "nopasswd-all").severity, "medium");
+});

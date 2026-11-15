@@ -23,6 +23,7 @@ function principal(p) {
   if ("username" in p) return neg + p.username;
   if ("usergroup" in p) return neg + "%" + p.usergroup;
   if ("userid" in p) return neg + "#" + p.userid;
+  if ("usergid" in p) return neg + "%#" + p.usergid; // what cvtsudoers 1.9 writes for %#gid
   if ("groupid" in p) return neg + "%#" + p.groupid;
   if ("netgroup" in p) return neg + "+" + p.netgroup;
   if ("nonunixgroup" in p) return neg + "%:" + p.nonunixgroup;
