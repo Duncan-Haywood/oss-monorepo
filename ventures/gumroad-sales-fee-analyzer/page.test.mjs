@@ -34,10 +34,12 @@ test("page documents the model and what it leaves out", () => {
   assert.match(html, /estimates that depend entirely on the file you provide/);
 });
 
-test("page states the column names are assumed and matched by alias", () => {
+test("page says Gumroad's export is read as it comes and other sheets are matched by alias", () => {
   const html = page("index.html");
   assert.match(html, /matched by alias/);
-  assert.match(html, /These are assumed names, not Gumroad's documented ones/);
+  assert.match(html, /Gumroad's sales export<\/strong> works as it comes/);
+  assert.doesNotMatch(html, /FIVERR|Fiverr/);
+  assert.match(html, /12\.9% \+ \$0\.80/);
 });
 
 test("robots and sitemap let crawlers find the page", () => {
@@ -47,7 +49,7 @@ test("robots and sitemap let crawlers find the page", () => {
 
 test("the option inputs are labelled", () => {
   const html = page("index.html");
-  for (const id of ["feemode", "feepct", "from", "to", "cost", "hoursdefault", "target", "targethourly"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  for (const id of ["feemode", "feepct", "feefixed", "from", "to", "cost", "hoursdefault", "target", "targethourly"]) assert.match(html, new RegExp(`<label for="${id}">`));
 });
 
 test("page states it is independent of Gumroad and links to sibling fee tools", () => {

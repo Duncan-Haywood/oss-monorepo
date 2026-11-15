@@ -464,6 +464,10 @@ function esOk(body) {
   if (/^\d/.test(body[0]) && /[A-Z]/.test(body[8])) {
     return body[8] === letters[Number(body.slice(0, 8)) % 23];
   }
+  // NIE (foreign residents): X, Y, Z stand for 0, 1, 2 ahead of the DNI letter test.
+  if (/^[XYZ]\d{7}[A-Z]$/.test(body)) return body[8] === letters[Number("XYZ".indexOf(body[0]) + body.slice(1, 8)) % 23];
+  // K, L and M NIFs (under-14s, non-residents, foreigners without a NIE) use the DNI letter on their seven digits.
+  if (/^[KLM]\d{7}[A-Z]$/.test(body)) return body[8] === letters[Number(body.slice(1, 8)) % 23];
   if (!/^[A-Z]/.test(body[0]) || !/^\d{7}$/.test(body.slice(1, 8))) return false;
   let total = 0;
   for (let index = 0; index < 7; index += 1) {

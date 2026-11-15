@@ -8,6 +8,7 @@ import { checkPdfEnvelope } from "./pdf-envelope.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
+import { checkFacturae, looksLikeFacturae } from "./facturae.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -30,7 +31,7 @@ export function looksLikeIsdoc(text) {
   return /xmlns(?::\w+)?\s*=\s*["']http:\/\/isdoc\.cz\/namespace\/2013["']/.test(String(text).slice(0, 4096));
 }
 
-export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, FA(3), CFDI 4.0, NF-e 4.00 and the national NFS-e, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
+export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, Facturae, FA(3), CFDI 4.0, NF-e 4.00 and the national NFS-e, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
 
 export async function inspectInvoiceSource(name, source) {
   let payload = source;
@@ -125,6 +126,12 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         // Italy's FatturaPA is its own schema, not EN 16931: own rules, no UBL/CII reading.
         const italian = checkFatturaPa(peek);
         reports.push({ file: name, errors: italian.findings, envelope: "Read as Italian FatturaPA (SdI), not EN 16931", ...(italian.skipped.length ? { skipped: italian.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeFacturae(peek)) {
+        // Spain's Facturae (3.2.1, 3.2.2) is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const spanish = checkFacturae(peek);
+        reports.push({ file: name, errors: spanish.findings, envelope: `Read as Spanish Facturae ${spanish.version || ""} (FACe), not EN 16931; ${spanish.signature ? `XAdES signature checked (${spanish.signature.signatureValid === true ? "SignatureValue verifies" : spanish.signature.signatureValid === false ? "SignatureValue does not verify" : "SignatureValue not verified"}; certificate chain not checked)` : "unsigned"}`.replace("  ", " "), ...(spanish.skipped.length ? { skipped: spanish.skipped } : {}), ...(spanish.signature ? { signature: spanish.signature } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFa3(peek)) {

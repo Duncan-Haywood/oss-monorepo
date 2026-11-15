@@ -14,9 +14,9 @@ test("the worked example prices chef hours, groceries, travel and margin", () =>
   assert.equal(c.markup, 13.2);
   assert.equal(c.travel, 21);
   assert.equal(c.cost, 431.88);
-  assert.equal(c.wanted, 536.54);
-  assert.equal(c.price, 536.54);
-  assert.equal(c.pricePerGuest, 134.14);
+  assert.equal(c.wanted, 553.04);
+  assert.equal(c.price, 553.04);
+  assert.equal(c.pricePerGuest, 138.26);
 });
 
 test("dietary needs stretch prep time only", () => {
@@ -79,4 +79,14 @@ test("csv has a header and one row per table size", () => {
   const lines = toCsv(plan(sampleInput())).split("\n");
   assert.equal(lines.length, 6);
   assert.match(lines[0], /^guests,/);
+});
+
+test("a higher grocery markup raises the quote and never lowers the margin", () => {
+  let last = -Infinity;
+  for (const k of ["0", "15", "50", "100"]) {
+    const j = plan({ ...sampleInput(), groceryMarkupPct: k }).job;
+    assert.ok(j.price > last, `markup ${k}% gave ${j.price}, not above ${last}`);
+    assert.ok(j.actualMarginPct >= 20, `markup ${k}% left a ${j.actualMarginPct}% margin`);
+    last = j.price;
+  }
 });

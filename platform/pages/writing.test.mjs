@@ -560,7 +560,8 @@ test('finder: topic chips are one sideways row on a phone, faded at the end that
   const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
   const phone = html.match(/@media \(max-width:639px\) \{([\s\S]*?)\n  \}/)?.[1] || '';
   assert.match(phone, /\.chips \{ flex-wrap:nowrap; overflow-x:auto;/);
-  assert.match(phone, /\.chips button \{ flex:none; white-space:nowrap;/);
+  assert.match(phone, /\.chips > \* \{ flex:none; white-space:nowrap;/, 'every chip, buttons and the podcast index\'s links alike, keeps its width in the row');
+  assert.match(phone, /\.chips > a \{ display:inline-flex;/);
   for (const end of ['start', 'end', 'both']) assert.match(phone, new RegExp(`\\.chips\\[data-fade=${end}\\] \\{[^}]*mask-image`));
 
   const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));

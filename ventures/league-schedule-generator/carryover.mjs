@@ -13,7 +13,7 @@
 // Pure functions, seeded, no DOM, so the page, the CLI and the tests share it.
 
 import { mulberry32 } from "./calc.mjs";
-import { leastBreaks, floorTable, pairLeastBreaks } from "./orient.mjs";
+import { leastBreaks, floorTable, pairLeastBreaks, FLOOR_PRICED_MAX_MATCHES } from "./orient.mjs";
 
 /**
  * Carry-over matrix from each team's opponents in playing order. `opponents[k]` is team k's list of
@@ -2156,17 +2156,17 @@ export function threeRoundDeals(opp, rs, cap = 20000) {
  * above the floor; the best few timetables seen within the cap are tried, and the season returned is
  * the one with the least carry-over among those whose balanced least is within the cap (else the
  * fewest breaks). `start` is a single round robin (carryOverTry, lowCarryOverRounds, a squeeze).
- * Up to 25 teams (12 matches a round). `iterations` caps the moves; `timeMs` stops early. Seeded.
+ * Up to 26 teams (13 matches a round, FLOOR_PRICED_MAX_MATCHES). `iterations` caps the moves; `timeMs` stops early. Seeded.
  * Returns the shape squeezeSingleRounds does, plus { floor, leastProved, floorPriced: true }, or null
  * when no balanced choice was found for any kept timetable.
  */
 export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = CARRY_OVER_DEALS, dealFloors = 3, balanced = true, balancedBudget = 50000 } = {}) {
-  if (!Number.isInteger(n) || n < 4 || n > 25) throw new Error("A floor-priced season needs 4 to 25 teams.");
+  if (!Number.isInteger(n) || n < 4 || n > 26) throw new Error("A floor-priced season needs 4 to 26 teams.");
   if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   if (!start || !Array.isArray(start.rounds) || start.rounds.length !== R) throw new Error("start must be a single round robin for this many teams.");
   const opp = oppFromRounds(start.rounds, N, n);
-  const table = floorTable(opp, n);
+  const table = floorTable(opp, n, { maxMatches: FLOOR_PRICED_MAX_MATCHES });
   const costOf = (c, f) => c + over * Math.max(0, f - maxBreaks);
   // the breaks a timetable is priced on: its floor, or, when the floor is within the cap and
   // `balanced` is on, its least balanced host choice if that is within the cap too, else the cap + 2
@@ -2273,7 +2273,7 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
   const cands = [...(kept.length ? kept : [fallback]), ...(kept.includes(origin) || fallback === origin ? [] : [origin])];
   let best = null;
   for (const c of cands) {
-    const x = leastBreaks(c.opp, n, { seed, budget: 2000000 });
+    const x = leastBreaks(c.opp, n, { seed, budget: 2000000, maxMatches: FLOOR_PRICED_MAX_MATCHES });
     if (!x || !x.balanced) continue;
     const within = x.breaks <= maxBreaks;
     const b = { c, x, within };
@@ -2328,7 +2328,9 @@ export const CARRY_OVER_DEALS = 0.15;
 
 /**
  * Seasons the page adds after the regrounded ones (README "Pricing the break floor"): for a single
- * round robin of 6 to `maxTeams` (25) teams (22 until 2026-11-14, when the step's kernel moved to
+ * round robin of 6 to `maxTeams` (26) teams (25 until 2026-11-15, when the whole-break step went to
+ * int16 SIMD and 26 teams went from 71 s to 34 s: README "Whole-break tables in int16", eval/int16-step.txt;
+ * 22 until 2026-11-14, when the step's kernel moved to
  * WebAssembly and 24 teams went from 90-178 s to 21-42 s: README "minPlusStep in WebAssembly",
  * eval/wasm-step.txt), the widest break gap (at least `minGap`) between neighbouring
  * seasons on the frontier of `results`, searched by floorPricedSingleRounds from the season above
@@ -2339,7 +2341,7 @@ export const CARRY_OVER_DEALS = 0.15;
  * `results` and `seed` alone, so a share link that keeps one rebuilds it. [] for a home-and-away
  * season or when the frontier has no such gap.
  */
-export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true, maxTeams = 25 } = {}) {
+export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true, maxTeams = 26 } = {}) {
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   const base = [...results].sort((a, b) => a.index - b.index);
   if (n < 6 || n > maxTeams || !count || base.some((t) => t.rounds.length !== R)) return [];

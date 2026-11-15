@@ -103,3 +103,13 @@ test("a small photo is read four times, and the grey copy's readings can outvote
   assert.match(r.text, /Total 31\.00|TOTAL 31\.00/);
   assert.match(r.notes[0].note, /31\.00 in 2 of 4 readings; kept 31\.00/);
 });
+
+test("a big photo's shrunk grey copy is read first, so its text is the block and its total leads", async () => {
+  // the engine reads the photo twice (4,000 px, misread) and a copy shrunk to 2,000 px twice
+  const e = engine(["Kedai\n05/03/2018\nTotal 8.20", "Kedai\nTotal 8.20",
+    { text: "KEDAI MAJU\n05/03/2018\nTotal 18.20", shrunk: true }, { text: "KEDAI MAJU\nTotal 18.20", shrunk: true }]);
+  const r = await readPhotos([png("scan.jpg")], { loadEngine: async () => e });
+  assert.equal(r.readings, 4);
+  assert.equal(r.text, "KEDAI MAJU\n05/03/2018\nTotal 18.20");
+  assert.deepEqual(r.notes, []);
+});
