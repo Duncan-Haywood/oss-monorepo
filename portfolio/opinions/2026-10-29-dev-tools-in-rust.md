@@ -62,6 +62,9 @@ been measured yet.
   11,422 `.mjs` files, dependency-cruiser 52 s and 2.3 GB; cyclehound 0.2 s
   and 20 MB, with madge's graph matched edge for edge
   ([`ventures/cyclehound/BENCHMARK.md`](../../ventures/cyclehound/BENCHMARK.md)).
+  *Unused exports 2026-11-15:* `cyclehound --unused-exports` took 0.3 s and
+  30 MB where ts-unused-exports 11.0.1 took 11 s and 380 MB on the same
+  11,736 files, agreeing on 5,419 findings with every difference explained.
   Next: tsconfig `paths` aliases, then a CI gate.
 - *yamllint*: Python, run on every YAML file in a repository (this one has
   550 workflow files). *Checked 2026-11-12: taken.* `ryl` and `yamllint-rs`

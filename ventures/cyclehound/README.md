@@ -41,9 +41,12 @@ cyclehound --json src/ > cycles.json     # components, cycles, edges with line n
 cyclehound --graph --json src/           # whole graph, madge --json shape
 cyclehound --unresolved src/             # relative imports that point at no file
 cyclehound --orphans src/                # files nothing imports
+cyclehound --unused-exports src/         # exports no file imports; exit 1 if any
 ```
 
-Options: `--ext a,b,c` (default `js,mjs,cjs,jsx,ts,mts,cts,tsx`),
+Options: `--entries` (with `--unused-exports`, also report the exports of
+files nothing imports, which are skipped by default as entry points),
+`--ext a,b,c` (default `js,mjs,cjs,jsx,ts,mts,cts,tsx`),
 `--no-type`, `--no-dynamic`, `--no-require`, `--no-follow` (stay inside the
 given paths), `--ignore-dir NAME`, `--no-gitignore`, `--base DIR`, `--warn`
 (report but exit 0). It respects `.gitignore` and always skips
@@ -76,6 +79,29 @@ Component 4 (4 files):
 4. **List** a shortest cycle (breadth-first, inside the component) through
    each file, duplicates removed.
 
+## Unused exports
+
+`--unused-exports` does the job of `ts-unused-exports` (or knip's unused
+exports check) on the same lexer. On this repository's 11,736 `.mjs` files it
+took 0.3 s and 30 MB where ts-unused-exports 11.0.1 took 11 s and 380 MB, and
+the two agree on 5,419 findings; every difference is explained in
+[`BENCHMARK.md`](BENCHMARK.md). What counts as taking an export:
+
+- `import d, { a, b as c } from "./x"` takes `default`, `a` and `b`;
+  `const { a, b: c } = await import("./x")` takes `a` and `b`.
+- `import * as ns`, a dynamic import kept whole, and `require()` take every
+  export (member reads on the namespace are not followed); `import "./x"`
+  takes none.
+- `export { a as b } from "./x"` passes a request for `b` on to `a` in x;
+  `export * from "./x"` passes on every name the file does not export
+  itself (never `default`).
+- A name used only inside its own file is still reported: the `export`
+  keyword is what is unused.
+
+Files nothing imports are entry points (a page script, a CLI, a test, a
+package's public API), so their exports are skipped unless `--entries`.
+CommonJS `module.exports` is not read.
+
 ## Limits
 
 - No path aliases yet (`tsconfig.json` `paths`, webpack `resolve.alias`):
@@ -103,7 +129,7 @@ cp target/wasm32-unknown-unknown/release/cyclehound.wasm web/
 ## Tests
 
 ```sh
-cargo test --release                      # lexer, resolver, components, cycles (13 tests)
+cargo test --release                      # lexer, resolver, components, cycles, exports (18 tests)
 cargo clippy --release --all-targets -- -D warnings
 node --test web/cyclehound.test.mjs page.test.mjs usage.test.mjs
 ```
