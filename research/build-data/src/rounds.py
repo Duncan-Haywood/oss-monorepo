@@ -450,7 +450,8 @@ def sweep_summary(path, base_path, s91_path, held=("sf", "seattle"), years=(2021
             row["selected_change"] = row["change"][row["selected"]]
             row["regret_q90"] = row["change"][row["selected"]]["0.9"] - row["change"][row["oracle"]]["0.9"]
             row["s91_nc5_q90"] = S91.get(f"{h} {Y} cpin_es3_nc5", {}).get("test_loss", {}).get("0.9")
-            row["s91_cpin_es3_change_q90"] = S91[f"{h} {Y} cpin_es3"]["test_loss"]["0.9"] - f["0.9"]
+            s91 = S91.get(f"{h} {Y} cpin_es3")
+            row["s91_cpin_es3_change_q90"] = s91["test_loss"]["0.9"] - f["0.9"] if s91 else None
             cells.append(row)
     mean = {v: {t: float(np.mean([c["change"][v][t] for c in cells])) for t in ("0.5", "0.9")} for v in SWEEP}
     mean["selected"] = {t: float(np.mean([c["selected_change"][t] for c in cells])) for t in ("0.5", "0.9")}
@@ -464,7 +465,7 @@ def sweep_summary(path, base_path, s91_path, held=("sf", "seattle"), years=(2021
         S2=mean["cpin_es3_nc8"]["0.9"] - mean["cpin_es3_nc5"]["0.9"] > 1,
         S3=float(np.mean([c["regret_q90"] for c in cells])) <= 1,
         S4=mean["selected"]["0.9"] <= 0,
-        S5=len(cells) == 4 and all(c["s91_nc5_q90"] is not None and
+        S5=len(cells) == 4 and len(se) == 2 and all(c["s91_nc5_q90"] is not None and
                                     abs(R[f"{c['held']} {c['year']} cpin_es3_nc5"]["test_loss"]["0.9"] - c["s91_nc5_q90"]) <= 0.3
                                     for c in cells))
     return dict(note="cascade2 transfer model; change = mean pinball loss on completed test-year rows minus session "
