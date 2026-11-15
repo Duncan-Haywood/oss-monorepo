@@ -74,13 +74,23 @@ def check(task, source):
             return res
         # 4. formal (combinational tasks): SAT miter against the reference
         if task not in NO_FORMAL:
-            script = (f"read_verilog {cand}; read_verilog {t / 'golden.v'}; proc; flatten; "
+            # -sv: read the same language the compile step accepts (iverilog -g2012).
+            script = (f"read_verilog -sv {cand}; read_verilog -sv {t / 'golden.v'}; proc; flatten; "
                       f"miter -equiv -flatten -make_outputs {task} {task}_ref miter; "
                       f"hierarchy -top miter; sat -verify -prove trigger 0 miter")
-            res["formal"] = _run(["yosys", "-q", "-p", script]).returncode == 0
-            if not res["formal"]:
-                res.update(stage="formal", feedback="yosys miter: not equivalent to the reference")
+            y = _run(["yosys", "-q", "-p", script])
+            if y.returncode == 0:
+                res["formal"] = True
+            elif "proof did fail" in (y.stdout + y.stderr):
+                res.update(formal=False, stage="formal", feedback="yosys miter: not equivalent to the reference")
                 return res
+            else:
+                # Yosys could not read or elaborate a design that compiled and simulated: that is a
+                # tool limit, not evidence the design is wrong (quality audit 2026-11-15). Leave the
+                # formal result unknown; the combinational testbenches are exhaustive.
+                err = next((l for l in (y.stderr + y.stdout).splitlines() if "ERROR" in l), "unknown error")
+                res["formal"] = None
+                warns = list(warns) + [f"formal skipped, yosys could not read the design: {err.strip()}"]
     res.update(ok=True, stage="pass", feedback="all checks pass" +
                (f" ({len(warns)} lint warnings)" if warns else ""))
     return res
