@@ -357,6 +357,18 @@ edge, the middle stud splitting, or genuinely weak end nails.
 
 ![Decayed walls' share kept against the degradation rate for three end-nail strengths; intact walls' cyclic peak over monotonic peak against the same rate](experiments/m21_degrading/figure.png)
 
+**Milestone 27: what does sliding the sheet along the ledger actually leave? About 0.26 mm if the robot lets go
+within 20 ms of the sheet moving, 4 mm at 100 ms.** Milestones 10–13 credited the slide with a 0.5 mm residual. A
+seated sheet breaks away on static friction and runs on kinetic friction, and a hand that can only push its edge
+stops it by letting go. Along the wall the stock G1 hand is a 63 N/m spring (one hand, Unitree's gains, MuJoCo
+Menagerie model), soft enough to act as a force source, so how far the sheet runs is set by the time from slip to
+release and by the gap between static and kinetic friction. Tapping from either edge until the sheet sits within
+half a tap leaves 0.05–0.64 mm rms at 2–20 ms and 0.66–10 mm at 50–100 ms (μ_s 0.4, μ_k/μ_s 0.5–0.9). The best
+single-2x stack on measured studs (0.771 with 0.5 mm) gives 0.79 at 20 ms and 0.32 at 100 ms (μ_k/μ_s 0.8). The
+slide is a 20 ms control requirement, not a free 0.5 mm. The OSB friction pair is swept, not measured.
+
+![Slide residual against the reaction time for four friction ratios; the best single-2x stack's clean sheets against the same](experiments/m27_slide_mech/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -842,6 +854,26 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 - **Checks.** γ = ∞ equals milestone 20 exactly; on the envelope the force is s × E(d) to 4e-16 FU; lower γ always
   degrades more; γ survives scaling and stacking (`tests/test_wall_degrading.py`).
 
+## Milestone 27 method (`src/buildbot_sheathing/slide_mech.py`)
+- **Friction.** Breakaway F_s = μ_s (m g + F_n) and sliding F_k = (μ_k/μ_s) F_s, the ledger and wall at the same
+  coefficients (milestone 3b's P = μ_l m g + μ_w F_n), F_n 50 N. μ_s 0.3–0.7 and μ_k/μ_s 0.5–0.9 are swept: a review
+  of timber friction gives static 0.25–0.7 and kinetic 0.15–0.4 (Preprints 202404.0050, seen in a search excerpt),
+  and an EPFL study of OSB on OSB and on glulam (Materials and Structures 51, 2, 2018, doi:10.1617/s11527-017-1124-5)
+  finds static above kinetic and more variable; its full text (link.springer.com, infoscience.epfl.ch) was not
+  reachable from this session, so neither gives the OSB-on-lumber pair used here. Breakaway varies 10% tap to tap
+  (0 and 20% shown), not sourced.
+- **Hand.** The pushing hand's stiffness along the wall is 1 / C_yy of the hands' compliance J K⁻¹ Jᵀ at milestone
+  3b's press pose (feet planted, point grip, Unitree's published kp); damping is kd/kp = 1.5/60 s times that,
+  with and without a velocity command. The force ramps at 200 N/s (100–500 swept) while the sheet sticks.
+- **Control.** The sheet's motion is seen at 0.1 mm (0.05–0.2 swept); τ later the push is gone (instantly: no arm
+  inertia, no force-rate limit). Kinetic friction then stops the sheet. Force-source closed form: with
+  dF = F_s − F_k, x(t) = (dF t²/2 + Ḟ t³/6)/m to release at T = t_det + τ, then v(T)² m / (2 F_k).
+- **Loop.** 2,000 sheets start U(−3, 3) mm off; each tap pushes from the edge that moves the sheet toward the
+  target, and the robot stops once the error is within max(0.1 mm, half the last tap). Section E puts the loop's
+  rms residual into milestone 12's grid as the slide's Gaussian residual (`ceiling.slide_sx`, edge reads added
+  as before).
+- **Checks.** The time-stepped tap matches the closed form to within 0.3% (tests: 5).
+
 ## Reproduce
 One command per experiment, and a check that a re-run gives the committed numbers (milestone 25):
 
@@ -914,6 +946,8 @@ python experiments/m20_cyclic/figure.py
 python experiments/m21_degrading/run.py > experiments/m21_degrading/results.txt   # ~35 min on 4 CPUs
 python experiments/m21_degrading/check_diag.py --walls > experiments/m21_degrading/check_diag.txt
 python experiments/m21_degrading/figure.py
+python experiments/m27_slide_mech/run.py > experiments/m27_slide_mech/results.txt # ~1 min; mujoco, Menagerie G1/H1
+python experiments/m27_slide_mech/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 python paper/build_latex.py --pdf                            # the elsarticle manuscript in paper/latex/ (pandoc, pdflatex, bibtex, texlive-publishers)
 ```
@@ -1400,6 +1434,23 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
   timings are masked, a changed number is reported, and milestone 7 reproduces from its committed
   inputs.
 
+## Milestone 27 results (`experiments/m27_slide_mech/results.txt`)
+
+- **The stock hands are soft along the wall.** One hand: G1 35–102 N/m, H1 286–590 N/m; both together: G1 128–134,
+  H1 596–1,394 N/m. Against a force source a tap travels at most 1.9% less with a G1 hand and up to 17.4% less with both H1
+  hands at 100 ms, so **H103 is refuted** (bar 10%), only by the stiffest H1 pose at the slowest reactions.
+- **One tap** (μ_s 0.4, μ_k/μ_s 0.8): 0.17 mm at 2 ms, 0.81 mm at 20 ms, 3.2 mm at 50 ms, 12.3 mm at 100 ms. Across
+  the friction grid at 20 ms: 0.51–3.2 mm. A coarser motion threshold (0.2 mm) and a faster ramp (500 N/s) together add
+  0.54 mm at 20 ms (1.35 against 0.81 mm).
+- **The loop** leaves 0.054–0.090 mm rms at 2 ms (5–10 taps, 3–6 s), 0.19–0.64 mm at 20 ms (1.5–3 taps, about 1–2 s),
+  0.66–2.9 mm at 50 ms and 2.5–10 mm at 100 ms. **H104 held**: 3.855 mm at 100 ms (bar 0.5 mm).
+- **Back in milestone 12's best stack** (0.7707 with 0.5 mm, reproduced): 0.79–0.80 at 2–10 ms, 0.754–0.795 at
+  20 ms, 0.40–0.75 at 50 ms, 0.13–0.45 at 100 ms. **H105 held**: 0.7912 at 20 ms, ratio 0.8 (+2.04 points).
+- **What it means.** The pose fix of milestones 10–13 stands if the slide is a closed loop that drops the push within
+  about 20 ms of the sheet moving (or 50 ms if kinetic friction is within 10% of static); a robot that reacts at
+  human-like 100 ms loses most of what the slide was for. A grasp that can also brake, or a slower creep with
+  vibration, is not modelled.
+
 ## Limitations
 - **The cyclic wall (milestone 20).** SAWS has no cumulative damage: the envelope a spring reaches under cycles is
   its monotonic envelope, so nail fatigue and tear-out, which Anderson et al. and Weiss saw, are outside it.
@@ -1489,6 +1540,10 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
   results (APA pages, a manufacturer's guide, a trade Q&A), not in APA E30 or the code.
 
 ## Next steps
+Milestone 27 turned the slide into a reaction-time requirement (release within about 20 ms of the sheet moving).
+What would pin it: the static and kinetic friction of OSB on a lumber ledger and on framing (the EPFL OSB data
+set, or a tilt-table test), a G1's measured latency from hand displacement to zero push, and the same model for
+the shim (a wedge driven under the low corner), which still carries an assumed 0.5 mm.
 Milestone 2 left two checks: measured stud profiles (the Adel et al. 2024 data set, or a scan of
 real studs in a wall) in place of means and assumed shapes, and how far sheathing nails pull a
 bowed stud straight. Milestone 3 is done for a static robot; what is left is dynamic: a

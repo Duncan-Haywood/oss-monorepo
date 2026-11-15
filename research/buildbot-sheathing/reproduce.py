@@ -49,6 +49,7 @@ EXPERIMENTS = {
     "m19_wall_pushover": ("numpy, scipy", 10, []),
     "m20_cyclic": ("numpy, scipy (ops_check.py: openseespy)", 70, []),
     "m21_degrading": ("numpy, scipy", 35, [("check_diag.py --walls", "check_diag.txt")]),
+    "m27_slide_mech": ("numpy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b results.json", 3, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]
