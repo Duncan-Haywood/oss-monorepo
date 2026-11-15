@@ -22,6 +22,6 @@ for (const [n, g, T] of cases) {
   }
   const full = n % 2 ? n - g : n;
   rows++; offTot += off; onTot += on; if (off === 0) zeroOff++; if (on === 0) zeroOn++; if (!ok) invalid++;
-  console.log(`${n} ${g} ${T} ${C} | ${waitFreePossible(full, g, C, T) ? "yes" : "no "} | ${off} | ${on} | ${spOff} / ${spOn} | ${Math.round(ms / 3)} | ${ok}`);
+  console.log(`${n} ${g} ${T} ${C} | ${waitFreePossible(full, g, C, T, n % 2 ? g : 0) ? "yes" : "no "} | ${off} | ${on} | ${spOff} / ${spOn} | ${Math.round(ms / 3)} | ${ok}`);
 }
 console.log(`\n${rows} settings x 3 seeds: total waits ${offTot} -> ${onTot}; settings with no waits ${zeroOff} -> ${zeroOn}; invalid ${invalid}`);
