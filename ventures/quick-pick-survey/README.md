@@ -15,7 +15,12 @@ the whole order, for when you need a shortlist; its link carries the k, so a
 team all answers for the same cut, and combining their codes leads with the
 team's top k, each option's chance of really being in it and how many people
 shortlisted it (on 432 simulated teams the model's pick was right 78% of the
-time, a show of hands 72%). Nothing is
+time, a show of hands 72%). Since 2026-11-15 lists of 8 or more can start
+with an optional rough sort (one tap per option: near the top, middle, near
+the bottom), which the refit reads as each option's prior; on simulated
+ordinary answerers, 20 options took 64 taps and picks after a careful sort, 87
+after an ordinary one and 120 after a careless one, against 93 picks, for
+about the same order (docs/RANK-PAGE.md, "Sort into piles first"). Nothing is
 uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
 
 **Ranking pictures?** [Pick the best photo or logo by comparing pairs](https://marisstella.app/quick-pick-survey/pick-the-best-photo.html)
