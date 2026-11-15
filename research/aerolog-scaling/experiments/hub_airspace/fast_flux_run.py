@@ -3,6 +3,7 @@ import importlib.util
 import multiprocessing as mp
 import os
 import statistics as S
+import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -57,10 +58,12 @@ def run_layout(idx):
     mix = rl.mix_radii(pts, hubs, radii, shares)
     out = {"idx": idx, "n": len(mix)}
     stats, tf = {}, {}
-    out["fast"] = ff.flux_terms(mix, speeds, LAM, R=R, stats=stats, timing=tf)
+    out["fast"] = ff.flux_terms(mix, speeds, LAM, R=R, stats=stats, timing=tf, sym_same=True)
     out["dense"], td = dense_timed(mix, speeds)
     out["stats"], out["tf"], out["td"] = stats, tf, td
     out["start"] = st.start_terms(mix, speeds, LAM, R=R)["start"]
+    print("layout %d done: fast cross %.1f s, sym same %.1f s, dense cross %.1f s, dense same %.1f s" % (
+        idx, tf["cross"], tf["same"], td["cross"], td["same"]), file=sys.stderr, flush=True)
     return out
 
 
@@ -73,27 +76,35 @@ def main():
     P("# semi base rule, R = %.0f m, Lambda = %d/h, 11g's 24 layouts; CPU s are process time per layout" % (R, LAM))
     P()
     P("## F1 exactness, F2 cost, F3 pruning")
-    P("idx   legs   max_rel_diff   dense_cross  dense_same  fast_cross  fast_same  speedup  tested  crossed  t/c")
-    rels, sps, fts, tfr, ratio = [], [], [], [], []
+    P("# pre-registered kernel: pruned cross + 11x's same_sum (whose time is dense_same); post hoc: pruned cross +")
+    P("# the symmetric same_sum (sym_same); max_rel_diff compares the post hoc kernel's every weight with 11x's")
+    P("idx   legs   max_rel_diff   dense_cross  dense_same  fast_cross  sym_same  speedup  speedup_sym  tested  crossed  t/c")
+    rels, sps, fts, tfr, ratio, sps2, fts2 = [], [], [], [], [], [], []
     for L in lays:
         D, F = L["dense"], L["fast"]
         rel = max(abs(F.get(k, 0.0) - D.get(k, 0.0)) / abs(D[k]) if D.get(k) else abs(F.get(k, 0.0))
                   for k in set(D) | set(F))
         td, tf, s = L["td"], L["tf"], L["stats"]
-        dt, fs = td["cross"] + td["same"], tf["cross"] + tf["same"]
+        dt, fs, fs2 = td["cross"] + td["same"], tf["cross"] + td["same"], tf["cross"] + tf["same"]
         tested, crossed = s["tested"] / s["pairs"], s["crossed"] / s["pairs"]
         rels.append(rel)
         sps.append(dt / fs)
         fts.append(fs)
+        sps2.append(dt / fs2)
+        fts2.append(fs2)
         tfr.append(tested)
         ratio.append(tested / crossed)
-        P("%3d  %6d  %11.3e  %9.1f  %9.1f  %9.1f  %9.1f  %6.2f  %6.4f  %6.4f  %5.2f" % (
-            L["idx"], L["n"], rel, td["cross"], td["same"], tf["cross"], tf["same"], dt / fs, tested, crossed,
+        P("%3d  %6d  %11.3e  %9.1f  %9.1f  %9.1f  %9.1f  %6.2f  %6.2f  %6.4f  %6.4f  %5.2f" % (
+            L["idx"], L["n"], rel, td["cross"], td["same"], tf["cross"], tf["same"], dt / fs, dt / fs2, tested, crossed,
             tested / crossed))
     P("max relative difference %.3e; speed-up median %.2f (min %.2f, max %.2f); pruned CPU mean %.1f s, max %.1f s; "
       "dense CPU mean %.1f s" % (max(rels), S.median(sps), min(sps), max(sps), S.mean(fts), max(fts),
                                 S.mean(L["td"]["cross"] + L["td"]["same"] for L in lays)))
-    P("same-operator share of pruned CPU: mean %.3f" % S.mean(L["tf"]["same"] / (L["tf"]["cross"] + L["tf"]["same"])
+    P("post hoc (pruned cross + symmetric same): speed-up median %.2f (min %.2f, max %.2f); CPU mean %.1f s, max %.1f s" % (
+        S.median(sps2), min(sps2), max(sps2), S.mean(fts2), max(fts2)))
+    P("cross-only speed-up (dense cross / pruned cross): median %.2f; same-only (11x / symmetric): median %.2f" % (
+        S.median(L["td"]["cross"] / L["tf"]["cross"] for L in lays), S.median(L["td"]["same"] / L["tf"]["same"] for L in lays)))
+    P("symmetric same-operator share of post hoc CPU: mean %.3f" % S.mean(L["tf"]["same"] / (L["tf"]["cross"] + L["tf"]["same"])
                                                      for L in lays))
     P("tested fraction median %.4f (max %.4f); tested/crossed median %.2f (max %.2f)" % (
         S.median(tfr), max(tfr), S.median(ratio), max(ratio)))

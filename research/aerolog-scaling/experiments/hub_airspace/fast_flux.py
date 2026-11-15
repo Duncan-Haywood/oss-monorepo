@@ -45,7 +45,7 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 WEDGE_EPS = 1e-9
-MAX_PAIRS = 4_000_000          # candidate pairs held in memory at once
+BLOCK_B = 64                   # legs of B per broadcast block
 
 
 def _load(name, fname):
@@ -59,30 +59,6 @@ ft = _load("hub_airspace_flux_term_11y", "flux_term.py")
 gp = ft.gp
 R_TERM = ft.R_TERM
 TWO_PI = 2 * math.pi
-
-
-def _exact(A, B, jj, kk, qx, qy, R):
-    """11x's crossing test and conflict window on the listed pairs (jj: legs of A, kk: legs of B)."""
-    rax, ray = A.dx[jj], A.dy[jj]
-    rbx, rby = B.dx[kk], B.dy[kk]
-    with np.errstate(divide="ignore", invalid="ignore"):
-        den = rax * rby - ray * rbx
-        t = (qx * rby - qy * rbx) / den
-        u = (qx * ray - qy * rax) / den
-    m = (den != 0) & (t >= 0) & (t <= 1) & (u >= 0) & (u <= 1)
-    if not m.any():
-        return 0.0, 0.0, 0
-    jj, kk, tt, uu = jj[m], kk[m], t[m], u[m]
-    dA, dB = A.d[jj], B.d[kk]
-    zt = 0.5 * (tt * dA + uu * dB) < R_TERM
-    oax, oay = A.v * A.dx[jj] / dA, A.v * A.dy[jj] / dA
-    obx, oby = B.v * B.dx[kk] / dB, B.v * B.dy[kk] / dB
-    cr = np.abs(oax * oby - oay * obx)
-    sg = np.where(A.east[jj] == B.east[kk], -1.0, 1.0)
-    rel = np.hypot(oax + sg * obx, oay + sg * oby)
-    cap = dA / A.v + dB / B.v
-    x = np.minimum(2 * R * rel / cr, cap) * A.w[jj] * B.w[kk]
-    return float(x[zt].sum()), float(x[~zt].sum()), int(m.sum())
 
 
 def wedges(A, B):
@@ -99,34 +75,68 @@ def wedges(A, B):
     i0 = np.searchsorted(tri, start - WEDGE_EPS, side="left")
     i1 = np.searchsorted(tri, start + width + WEDGE_EPS, side="right")
     cnt = np.minimum(i1 - i0, A.n)
-    cnt = np.where(width >= math.pi - 1e-9, A.n, cnt)    # A on (or nearly on) segment b: test every leg
+    ex, ey = qx + B.dx, qy + B.dy                       # B + r_b - A
+    on = (qx * ey - qy * ex == 0) & (qx * ex + qy * ey <= 0)   # A on segment b (incl. b's end at hub A)
+    cnt = np.where(on | (width >= math.pi - 1e-9), A.n, cnt)
     return order, i0, cnt
 
 
-def cross_sum(A, B, R=50.0, max_pairs=MAX_PAIRS, stats=None):
-    """Same value as flux_term.cross_sum(A, B, R): only the legs of A inside each b's wedge are tested."""
+def _dense(A, sl, B, kk, qx, qy, R):
+    """11x's broadcast test of every A leg in slice sl (of the angle-sorted, tripled arrays) against B legs kk."""
+    rax, ray = A.tdx[None, sl], A.tdy[None, sl]
+    rbx, rby = B.dx[kk, None], B.dy[kk, None]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        den = rax * rby - ray * rbx
+        t = (qx * rby - qy * rbx) / den
+        u = (qx * ray - qy * rax) / den
+        m = (den != 0) & (t >= 0) & (t <= 1) & (u >= 0) & (u <= 1)
+        if not m.any():
+            return 0.0, 0.0, 0
+        ii, jj = np.nonzero(m)
+        jj = jj + sl.start
+        kk = kk[ii]
+        tt, uu = t[m], u[m]
+        dA, dB = A.td[jj], B.d[kk]
+        zt = 0.5 * (tt * dA + uu * dB) < R_TERM
+        oax, oay = A.v * A.tdx[jj] / dA, A.v * A.tdy[jj] / dA
+        obx, oby = B.v * B.dx[kk] / dB, B.v * B.dy[kk] / dB
+        cr = np.abs(oax * oby - oay * obx)
+        sg = np.where(A.teast[jj] == B.east[kk], -1.0, 1.0)
+        rel = np.hypot(oax + sg * obx, oay + sg * oby)
+        cap = dA / A.v + dB / B.v
+        x = np.minimum(2 * R * rel / cr, cap) * A.tw[jj] * B.w[kk]
+    return float(x[zt].sum()), float(x[~zt].sum()), int(m.sum())
+
+
+def _tripled(A, order):
+    for name in ("dx", "dy", "d", "w", "east"):
+        v = getattr(A, name)[order]
+        setattr(A, "t" + name, np.concatenate([v, v, v]))
+
+
+def cross_sum(A, B, R=50.0, block=BLOCK_B, stats=None):
+    """Same value as flux_term.cross_sum(A, B, R). B's legs are sorted by where their wedge starts and taken in blocks;
+    each block tests (11x's broadcast test) only the contiguous run of angle-sorted A legs that covers its wedges."""
     if A.n == 0 or B.n == 0:
         return 0.0, 0.0
     qx, qy = B.hub[0] - A.hub[0], B.hub[1] - A.hub[1]
     order, i0, cnt = wedges(A, B)
+    _tripled(A, order)
+    full = np.nonzero(cnt >= A.n)[0]
+    part = np.nonzero(cnt < A.n)[0]
+    part = part[np.argsort(i0[part], kind="stable")]
     term = enr = 0.0
     tested = crossed = 0
-    k = 0
-    csum = np.cumsum(cnt)
-    while k < B.n:
-        base = csum[k - 1] if k else 0
-        k1 = int(np.searchsorted(csum, base + max_pairs, side="right"))
-        k1 = max(k1, k + 1)
-        c = cnt[k:k1]
-        tot = int(c.sum())
-        if tot:
-            kk = np.repeat(np.arange(k, k1), c)
-            off = np.arange(tot) - np.repeat(np.cumsum(c) - c, c)
-            jj = order[(np.repeat(i0[k:k1], c) + off) % A.n]
-            t_, e_, n_ = _exact(A, B, jj, kk, qx, qy, R)
-            term, enr, crossed = term + t_, enr + e_, crossed + n_
-            tested += tot
-        k = k1
+    jobs = [(slice(A.n, 2 * A.n), full[s:s + block]) for s in range(0, len(full), block)]
+    for s in range(0, len(part), block):
+        kk = part[s:s + block]
+        lo, hi = int(i0[kk].min()), int((i0[kk] + cnt[kk]).max())
+        sl = slice(lo, hi) if hi - lo <= A.n else slice(A.n, 2 * A.n)
+        jobs.append((sl, kk))
+    for sl, kk in jobs:
+        t_, e_, n_ = _dense(A, sl, B, kk, qx, qy, R)
+        term, enr, crossed = term + t_, enr + e_, crossed + n_
+        tested += (sl.stop - sl.start) * len(kk)
     if stats is not None:
         stats["tested"] = stats.get("tested", 0) + tested
         stats["crossed"] = stats.get("crossed", 0) + crossed
@@ -134,8 +144,32 @@ def cross_sum(A, B, R=50.0, max_pairs=MAX_PAIRS, stats=None):
     return term, enr
 
 
-def flux_terms(mix, speeds, lam_h, R=50.0, max_pairs=MAX_PAIRS, stats=None, timing=None):
-    """flux_term.flux_terms with the pruned cross_sum; optional stats (pair counts) and timing (CPU s by part)."""
+def same_sum(A, R=50.0, block=256):
+    """Same value as flux_term.same_sum(A, R) (post hoc, added after layout 0 was profiled; see the outcome). Pairs with
+    equal east bits contribute the constant 2R/v, so their total is (sum w_east)^2 + (sum w_west)^2 times it; the
+    opposite-bit pairs are symmetric, so the east x west block is summed once and doubled."""
+    v = A.v
+    we, ww_ = A.w[A.east], A.w[~A.east]
+    term = (float(we.sum()) ** 2 + float(ww_.sum()) ** 2) * 2 * R / v
+    enr = 0.0
+    E, W = np.nonzero(A.east)[0], np.nonzero(~A.east)[0]
+    dW, tW, wW = A.d[W][None, :], A.th[W][None, :], A.w[W][None, :]
+    for s in range(0, len(E), block):
+        e = E[s:s + block]
+        ww = A.w[e, None] * wW
+        sn = np.abs(np.sin((tW - A.th[e, None]) / 2))
+        L = 2 * np.minimum(dW, A.d[e, None])
+        with np.errstate(divide="ignore"):
+            L = np.where(sn > 0, np.minimum(L, R / sn), L)
+        out = np.maximum(0.0, L - 2 * R_TERM)
+        enr += 2 * float((ww * out).sum()) / v
+        term += 2 * float((ww * (L - out)).sum()) / v
+    return term, enr
+
+
+def flux_terms(mix, speeds, lam_h, R=50.0, block=BLOCK_B, stats=None, timing=None, sym_same=False):
+    """flux_term.flux_terms with the pruned cross_sum (and, with sym_same, the symmetric same_sum above); optional
+    stats (pair counts) and timing (CPU s by part)."""
     import time
     lam = lam_h / 3600.0
     sc = lam * lam * 3600.0
@@ -144,13 +178,13 @@ def flux_terms(mix, speeds, lam_h, R=50.0, max_pairs=MAX_PAIRS, stats=None, timi
     out = {}
     for ai, A in enumerate(keys):
         c0 = time.process_time()
-        t, e = ft.same_sum(ops[A], R)
+        t, e = (same_sum if sym_same else ft.same_sum)(ops[A], R)
         if timing is not None:
             timing["same"] = timing.get("same", 0.0) + time.process_time() - c0
         out[(A, A, "term")], out[(A, A, "enr")] = sc * t, sc * e
         for B in keys[ai + 1:]:
             c0 = time.process_time()
-            t, e = cross_sum(ops[A], ops[B], R, max_pairs, stats)
+            t, e = cross_sum(ops[A], ops[B], R, block, stats)
             if timing is not None:
                 timing["cross"] = timing.get("cross", 0.0) + time.process_time() - c0
             k = gp.key(A, B)

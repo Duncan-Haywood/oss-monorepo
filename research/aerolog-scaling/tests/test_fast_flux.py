@@ -45,8 +45,8 @@ def test_matches_brute_force_and_chunking_invariant():
     mix = _mix(rnd, hubs, [1800.0, 2200.0, 1000.0], [0.5, 0.3, 0.2], 30)
     speeds = {0: 18.0, 1: 22.0, 2: 15.0}
     ref = ft.brute(mix, speeds, 240.0)
-    _close(ff.flux_terms(mix, speeds, 240.0, max_pairs=1), ref, 1e-9)
-    _close(ff.flux_terms(mix, speeds, 240.0, max_pairs=37), ref, 1e-9)
+    _close(ff.flux_terms(mix, speeds, 240.0, block=1), ref, 1e-9)
+    _close(ff.flux_terms(mix, speeds, 240.0, block=5), ref, 1e-9)
 
 
 def test_edges_axis_aligned_collinear_and_hub_on_leg():
@@ -82,3 +82,26 @@ def test_wedge_never_drops_a_crossing_pair():
     st = {}
     ff.cross_sum(A, B, stats=st)
     assert st["crossed"] <= st["tested"] < st["pairs"]
+
+
+def test_leg_ending_at_the_other_hub():
+    # 11y's first kernel dropped every crossing of a leg whose destination is the other operator's hub
+    # (its wedge seen from that hub is undefined: atan2(0, 0)); found on layout 0, 12,588 pairs
+    rnd = random.Random(4)
+    hubs = [(-940.0, -2710.0), (1040.0, -2060.0)]
+    mix = _mix(rnd, hubs, [2500.0, 3000.0], [0.5, 0.5], 60)
+    mix.append((0.01, 1, 1040.0, -2060.0, -940.0, -2710.0))     # operator 1 flies to operator 0's hub
+    mix.append((0.01, 0, -940.0, -2710.0, 1040.0, -2060.0))     # and the reverse
+    speeds = {0: 20.0, 1: 16.0}
+    _close(ff.flux_terms(mix, speeds, 240.0, block=4), ft.flux_terms(mix, speeds, 240.0))
+
+
+def test_symmetric_same_operator_sum():
+    rnd = random.Random(9)
+    hubs = [(0.0, 0.0), (800.0, 500.0)]
+    mix = _mix(rnd, hubs, [2000.0, 1200.0], [0.7, 0.3], 150)
+    mix.append((0.01, 0, 0.0, 0.0, 0.0, 700.0))          # dx == 0: east bit from dy
+    mix.append((0.01, 0, 0.0, 0.0, 0.0, -700.0))
+    speeds = {0: 20.0, 1: 15.0}
+    _close(ff.flux_terms(mix, speeds, 240.0, sym_same=True), ft.flux_terms(mix, speeds, 240.0))
+    _close(ff.flux_terms(mix, speeds, 240.0, sym_same=True), ft.brute(mix, speeds, 240.0), 1e-9)
