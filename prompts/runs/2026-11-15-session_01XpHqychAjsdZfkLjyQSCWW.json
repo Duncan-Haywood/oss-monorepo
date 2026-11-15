@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqychAjsdZfkLjyQSCWW",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T02:39:10Z",
+  "ended": "2026-11-15T02:55:32Z",
+  "wall_minutes": 16.71,
+  "tokens_in": 18339766,
+  "tokens_out": 151995,
+  "cost_usd": 10.2183,
+  "tool_calls": 199,
+  "task": "quality census (mode drawn by quality_audit.py mode): four never-audited subjects",
+  "projects": [
+    "ventures/str-turnover-scheduler",
+    "research/chip-systolic-p32",
+    "research/chip-repair-baseline",
+    "research/swe-errlabel"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "My first chip-systolic-p32 metric test cited rows (7076 cells x 37) that are not in results.txt; caught on re-reading against results.txt and replaced with real rows before commit.",
+    "A subagent's apt-get install of yosys/iverilog was denied by the permission classifier; the tools were already installed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/pyenv.py",
+      "issue": "Run as a bare command it prints 'shell variables not kept between commands?' on stderr even when used as PY=$(...) in the same call; harmless but noisy."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 5 names a round post for sample mode only; census mode's post naming is unstated (README says fix sessions name theirs for the fix); I used 2026-11-15-quality-census-<slug>.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "census drew 4 subjects (census --n 4) rather than the README example of --n 6, to leave time to verify each auditor's main finding and fix the high-value defects in the same PR",
+      "did": "4 subjects, every main finding reproduced, fixes in 4 subjects",
+      "result": "9 defects marked fixed_by this PR, 1 high"
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "auditor's 'seed 1 repairs gray2bin8 at 210' was not reproduced by me, so I left it out of the README rather than publishing an unchecked number",
+      "did": "README says seed 0 only",
+      "result": "no unchecked figure added"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quality-census-the-phantom-clean.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (quality_audit.py mode, seeded draw). Census --n 4: ventures/str-turnover-scheduler, research/chip-systolic-p32, research/chip-repair-baseline, research/swe-errlabel; seed recorded in audit files as 2026-11-15-census. Share meeting the bar: 0 of 4 (census, not in the sampled share; sampled share unchanged 33/306, Wilson 8%-15%). Seeded bugs caught by subjects' tests: 10 of 26. Spot-checks by lead session: str-turnover phantom Pine Cabin clean (jobs 6 and 7 same day) reproduced, exact-solver 83/400 rerun; chip-repair SV popcount rejected at formal reproduced; swe-errlabel 8 of 9 ci-or-tooling entries without a rule keyword recomputed with own script; chip-systolic 1.30/1.28 -> 23%/22% by hand. Fix PR: #16065 (same PR). Local verification: str-turnover node --test 30/30; swe-errlabel unittest 7/7 and run.py byte-identical; chip-systolic-p32 unittest 8/8 (24 s); chip-repair-baseline unittest 8/8, run_repair.py and run_session.py rerun after the -sv change (see next commit). Coverage 323 of 2471 subjects.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "08147b7c-603f-5f8a-b9fd-b888a44b0d0f",
+    "transcripts": 5,
+    "first": "2026-11-15T02:39:10Z",
+    "last": "2026-11-15T02:55:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 187,
+        "input": 375,
+        "output": 151995,
+        "thinking": 40061,
+        "cache_read": 17696573,
+        "cache_write_5m": 501668,
+        "cache_write_1h": 141150,
+        "api_equivalent_usd": 10.2183,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 187,
+      "input": 375,
+      "output": 151995,
+      "thinking": 40061,
+      "cache_read": 17696573,
+      "cache_write_5m": 501668,
+      "cache_write_1h": 141150,
+      "api_equivalent_usd": 10.2183,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 199,
+    "tools": {
+      "Bash": 184,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 3,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.71,
+      "active_minutes": 7.95,
+      "model_minutes": 6.4,
+      "tool_minutes": 1.55,
+      "waiting_on_human_minutes": 8.75,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 34.36
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "four subject audits at ~3 h each by a senior reviewer plus ~4 h of fixes and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 156.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
