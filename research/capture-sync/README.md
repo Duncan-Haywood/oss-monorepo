@@ -179,6 +179,17 @@ Prior, search and failure rule are as in step 1. A cell is scored if it has at l
 
 ![Wrong among accepted 2 s windows for three gates, by shift](experiments/gate/noise_gates.png)
 
+**Step 3c (2026-11-15): does that recipe survive real noise? No.** Real read speech in statistical rooms (MS-SNSD, MIT; LibriWASN was out of reach from this session), 186,000 windows, each clean pair scored under white noise and nine kinds of real recorded noise (air conditioner, airport announcements, babble, copy machine, munching, neighbour, door, typing, vacuum cleaner) at +10, 0 and -10 dB:
+
+- **The blind SNR estimate cannot place real noise.** At -10 dB it reads 1.1 dB under white noise but 3.3 to 16.6 dB under the real types (medians, 2 s), so every real -10 dB window looks like audio the white-noise calibration has seen. Frame-energy spread measures how steady the noise is, not how loud it is.
+- **Step 3b's gate, calibrated on white noise, fails on all nine real types in both rooms.** 2 s windows, gamma 0.25, -10 dB: **2.6% to 77% wrong among accepted** (0.2 s room) and 3.8% to 81% (0.8 s room), against a 1% target, while accepting 99-100% of windows.
+- **Calibrating on a library of the other nine types mostly refuses, and still fails on impulsive noise.** The pooled gate refuses every window, because even the most confident windows are more than 1% wrong. The per-bin gate keeps 10-18% of windows, and when the held-out type is typing it lets **80% and 93% wrong** through.
+- **Requiring PHAT and gamma 0.25 to agree works for steady noise, not for impulses**: 0.0% to 0.3% wrong for air conditioner, airport and vacuum cleaner (keeping 70% to 91%), but 87% to 90% for typing, where both weightings land on the same wrong lag.
+- **No fixed weighting wins.** At -10 dB, 2 s, PHAT misses 2% under air-conditioner noise against 12% for gamma 0.25, and 40% against 59% under babble. Under copy-machine noise it misses 84% against 30%. Step 1's "partial whitening, not PHAT" holds for white and impulsive noise, not for steady coloured or speech-like noise.
+- **For an engineer:** an SNR-only confidence does not carry a failure bound across kinds of noise. Calibrate on the site's own noise, or add a feature that names the noise (impulsiveness, spectral flatness) and refuse what it has not seen.
+
+![Wrong among accepted 2 s windows at -10 dB per real noise type, three gates](experiments/gate/noisetype_gates.png)
+
 ## Step 3: a Learn-then-Test gate across rooms, phones and noise (`src/capture_sync/gate.py`, `experiments/gate/`)
 
 **Question.** Milestone 3: step 1's peak-to-sidelobe (PSR) gate used a plug-in threshold with no guarantee and broke at -10 dB from room to room. With a distribution-free threshold, which shifts keep the failure rate and which break it? Plan and six predictions in `LOG.md`, written before the run.
@@ -233,6 +244,33 @@ Within a room (S1, 16 cells of room, window and gamma), the share of session spl
 
 **What it means, and what it does not.** No score carries a failure bound to a noise level the calibration never saw. What a window can do is tell that it is outside the calibration, and the frame-energy spread does that cleanly for white noise. The guarantee then holds bin by bin, so the practical recipe is to cover the noise range in calibration (adding noise to clean recordings is cheap) and refuse below it. Limits: added white noise only (real babble is speech-like, and its frame-energy spread may not separate levels so well); the per-bin LTT bound assumes exchangeability within a bin, which session clustering still bends; no intervals on S2 to S4, each one calibration and one test set.
 
+## Step 3c: gates under unseen kinds of real noise (`experiments/gate/noisetype.py`)
+
+**Question.** Step 3b's rule was found with white noise. Does it hold when the *kind* of noise changes, and does calibrating on a library of real noise types carry to a type it has not seen? Plan and six predictions in `LOG.md`, written before the run.
+
+**Data and design.** MS-SNSD (Reddy et al. 2019, MIT): `clean_test` read speech (190 files, 37 min), split into 10 contiguous blocks that serve as sessions, and the nine `noise_test` types (35 s to 7 min each). Statistical rooms as step 2a (RT60 0.2 and 0.8 s, a fresh impulse response per device, DRR 0 dB). Prior, search and failure rule as step 1. 1000 trials per room and window length (1, 2, 4 s); each clean pair is scored under 31 conditions: none, plus white and the nine real types at +10, 0 and -10 dB, with noise scaled to each device's own speech power. The two devices never hear the same noise recording: each type's files are split between them, with files that duplicate each other kept on one side (`split_files`; checked by `noise_overlap_check.py`). Gates (LTT, 1% target, delta 0.1): pooled PSR, step 3b's mondrian, and step 3's agree. Calibrate on sessions 0-4 and test on 5-9. **T0** white to white; **T1** white (all levels) to each real type; **T2** leave one noise type out.
+
+**Two reruns before the result** (`LOG.md`). v1 drew both devices' noise from one pool, so a pair could share noise samples and lock onto them: 41% of the 230 most confident calibration windows were wrong. v2 split each type's audio into halves, but two Neighbor files are the same recording and four Munching files overlap. v3, reported here, splits by file. All predictions scored the same in the three runs, except that v1 met (d) only vacuously. The earlier outputs are kept as [`noisetype_v1_results.txt`](experiments/gate/noisetype_v1_results.txt) and [`noisetype_v2_results.txt`](experiments/gate/noisetype_v2_results.txt). Step 2a's babble drew both devices from one pool too, so some of its babble windows may share noise samples; how much that moved its babble miss rates is not measured here (this run's differ from step 2a's by up to 11 points, with different seeds, trials and speech blocks).
+
+**Results** ([`experiments/gate/noisetype_results.txt`](experiments/gate/noisetype_results.txt); 2 s windows, -10 dB, 0.2 s room; the 0.8 s room is alike):
+
+| noise | blind SNR, median dB | miss: PHAT / gamma 0.25 | T1 mondrian (white cal.): kept, wrong | T1 agree: kept, wrong | T2 mondrian (other 9 types): kept, wrong |
+|---|---|---|---|---|---|
+| white | 1.1 | 18.4% / 0.2% | (T0: 99%, 0.10%) | | 0% |
+| AirConditioner | 3.3 | 2.0% / 11.9% | 100%, 11.4% | 87%, 0.23% | 0% |
+| AirportAnnouncements | 5.2 | 5.9% / 25.2% | 100%, 25.2% | 71%, 0.00% | 0% |
+| Babble | 5.5 | 39.6% / 58.7% | 100%, 60.8% | 28%, 5.8% | 0% |
+| CopyMachine | 5.1 | 83.6% / 30.4% | 100%, 31.6% | 22%, 27.9% | 17%, 4.8% |
+| Munching | 11.5 | 68.0% / 29.6% | 100%, 30.0% | 48%, 38.3% | 2%, 50% |
+| Neighbor | 12.9 | 27.6% / 67.2% | 100%, 68.2% | 27%, 11.0% | 0% |
+| ShuttingDoor | 16.6 | 34.2% / 21.3% | 100%, 23.0% | 66%, 13.6% | 0% |
+| Typing | 12.7 | 91.2% / 78.1% | 100%, 77.2% | 63%, 87.3% | 61%, 80.2% |
+| VacuumCleaner | 3.3 | 5.6% / 2.5% | 100%, 2.6% | 91%, 0.22% | 0% |
+
+**Predictions** (`LOG.md`): (a) real noise reads cleaner than white at -10 dB, for at least 5 of 9 types: **held** (9/9). (b) T1 mondrian over 2% for at least 3 types per room: **held** (9 and 9). (c) pooled at least as bad: **held**. (d) T2 mondrian at or under 2% for at least 7 of 10 held-out types per room: **failed** (7 and 6, mostly by accepting nothing). (e) T0 at or under 1%: **held** (0.00% to 0.20%). (f) exploratory, agree beats mondrian under T1: **held** (7 of 9 per room).
+
+**Limits of step 3c.** Simulated rooms and delays, one speech corpus. Noise is independent per device, while in a real room both devices hear the same air conditioner or crowd, from a direction close to the speech's (a coherent noise peak near the true lag, which could help rather than hurt). The noise types are MS-SNSD's test clips, several of them loops of a few seconds. The -10 dB windows are harsh; at 0 dB the white-calibrated gate stays at or under 0.4% wrong for every type at gamma 0.25 (2 s), so the failure is one of very noisy audio.
+
 ## Step 2b: threshold theory on the real phones (`experiments/threshold/libriwasn.py`)
 
 **Question.** H4 proper: does the gross-error model of step 2a predict how often a window misses on real devices, rooms and clocks? The harness was written in step 2a and not changed; the plan and five predictions were written to `LOG.md` before the run.
@@ -282,7 +320,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- The blind-SNR Mondrian gate (step 3b) under real babble and shared crowd noise, where frame-energy spread may not separate noise levels; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- A gate binned on a noise-class feature (spectral flatness, frame-energy kurtosis) instead of the blind SNR, which step 3c showed cannot place real noise, with the weighting chosen per window from the same feature; then shared noise heard by both devices, the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 
@@ -298,4 +336,4 @@ The full related-work list, each entry checked, is in [`PROPOSAL.md`](PROPOSAL.m
 
 ## Outside dependencies
 
-Python, NumPy, SciPy (decimation in the coarse offset), Matplotlib (figure), pytest; the LibriWASN recordings from Zenodo (CC BY 4.0); for step 2a, MS-SNSD speech and babble from GitHub (MIT), read at run time and not copied.
+Python, NumPy, SciPy (decimation in the coarse offset), Matplotlib (figure), pytest; the LibriWASN recordings from Zenodo (CC BY 4.0); for steps 2a and 3c, MS-SNSD speech and noise from GitHub (MIT), read at run time and not copied.
