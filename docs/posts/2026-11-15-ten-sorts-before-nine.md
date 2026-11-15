@@ -3,7 +3,7 @@ title: "Ten sorts before nine: hunting comparator-less number sorts at run time"
 seo_title: "Find JavaScript .sort() on numbers with a runtime hook, not a grep"
 date: 2026-11-15
 tags: [javascript, testing, static-analysis, tooling]
-description: "[10, 9, 1].sort() gives [1, 10, 9]. A grep finds 454 .sort() calls in our ventures, nearly all correct. A runtime hook over 1,365 test suites and 1,376 pages found 24 number sorts and one wrong order."
+description: "[10, 9, 1].sort() gives [1, 10, 9]. A runtime hook over 1,365 test suites and 1,376 pages found 24 number sorts among 454 .sort() calls, and one wrong order."
 ---
 
 In JavaScript, `[10, 9, 1].sort()` returns `[1, 10, 9]`. With no comparator,

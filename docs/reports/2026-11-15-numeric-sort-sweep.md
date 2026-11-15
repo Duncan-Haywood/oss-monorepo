@@ -1,3 +1,8 @@
+---
+kind: note
+topics: [ci, software-for-routine]
+date: 2026-11-15
+---
 # Numeric `.sort()` sweep, 2026-11-15
 
 For the next run: a sweep of comparator-less sorts on numbers has been done.
