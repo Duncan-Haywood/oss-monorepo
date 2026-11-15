@@ -1168,7 +1168,8 @@ class Feeder:
                                       # near pocket, so a disc is about as stiff round the bearing as the boot is
     print_hole_under_mm: float = 0.15  # how far under its drawn diameter a printed 19 mm hole comes out (assumption: FDM
                                       # holes commonly print 0.1-0.3 mm small; the ring measures yours)
-    petg_e_mpa: float = 2000.0        # PETG modulus, printed (assumption; datasheets 1.9-2.1 GPa for moulded bars)
+    petg_hoop_e_mpa: float = 2000.0   # PETG modulus in the layer plane, round a vertical bore (assumption; 1.9-2.1 GPa
+                                      # moulded; petg_e_mpa above is the bending modulus across layers)
     petg_nu: float = 0.38
     petg_yield_mpa: float = 45.0      # printed PETG, along the layers (assumption; 50 moulded)
     petg_steel_mu: float = 0.3        # steel ring on printed PETG, dry (assumption)
@@ -4262,7 +4263,7 @@ class Feeder:
         for s in self.bearing_ring_steps:
             drawn = self.lift_bearing_od + 2 * s
             delta = max(0.0, self.print_hole_under_mm / 2 - s)    # radial interference on the bearing
-            p = delta * self.petg_e_mpa / (b * (k + self.petg_nu))
+            p = delta * self.petg_hoop_e_mpa / (b * (k + self.petg_nu))
             rows.append({"step_mm": s, "drawn_bore_mm": drawn, "printed_bore_mm": drawn - self.print_hole_under_mm,
                          "interference_mm": delta, "pressure_mpa": p, "hoop_mpa": p * k,
                          "push_n": self.petg_steel_mu * p * 2 * math.pi * b * L})

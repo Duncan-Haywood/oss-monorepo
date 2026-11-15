@@ -2463,7 +2463,7 @@ def bearing_fit_line(p: Feeder) -> str:
             f"(lift_bearing_fit_mm). Print lift_bearing_fit_ring first: {len(p.bearing_ring_steps)} discs "
             f"{p.bearing_ring_od:g} mm across, {p.bearing_ring_steps[0]:g}-{p.bearing_ring_steps[-1]:g} mm a side over, which "
             f"brackets printers whose holes come out {d['under_lo_mm']:g}-{d['under_hi_mm']:g} mm small. At an assumed "
-            f"{p.print_hole_under_mm:g} mm (solid PETG, E {p.petg_e_mpa:g} MPa, mu {p.petg_steel_mu:g}; Lame, the bearing "
+            f"{p.print_hole_under_mm:g} mm (solid PETG, E {p.petg_hoop_e_mpa:g} MPa, mu {p.petg_steel_mu:g}; Lame, the bearing "
             f"rigid) the push to seat and the bore's hoop stress are {rows}; step {d['first_clear_step_mm']} and up slip in. "
             f"Infill makes a real disc softer than solid, and PETG creeps, so the pushes are upper bounds and a press fit "
             f"loosens with time: a drop of retaining compound on both")
