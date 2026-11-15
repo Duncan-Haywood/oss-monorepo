@@ -1265,7 +1265,8 @@ class Feeder:
     # jam slackens the down strand, so the 16-tooth drive pulley holds the whole pull on its 8 teeth in mesh with
     # nothing on the slack side. Two checks: tooth strength against the catalogue's specific tooth force, and
     # ratcheting (the belt climbing out over the teeth), which no catalogue figure covers. Figures are assumptions.
-    lift_jam_belt_n: float = 89.0     # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt, every c_spec)
+    lift_jam_belt_n: float = 100.0    # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt and --chain, every
+                                      # c_spec; 89 until the duty was held to the battery, eval/lift-belt-chain-2026-11-15.txt)
     lift_tooth_fuspec_n_mm: float = 3.6   # AT5 specific tooth force per mm of width at 0 rpm (Optibelt ALPHA LINEAR and
                                       # Ammeraal PU AT5 sheets, as quoted in search results: 3.6 and 3.64; sheets unread)
     lift_tooth_fuspec_1200_n_mm: float = 2.478  # the same at 1200 rpm (Optibelt, as quoted; straight line between)
@@ -4616,7 +4617,7 @@ class Feeder:
                 "drive_upper_half": b["f_upper_hz"] / 2, "drive_upper": b["f_upper_hz"]}
 
     def lift_belt_axial_modes(self, loaded_every: int = 1, cspec_factor: float = 1.0, stuck: bool = True,
-                              balls_on_up: bool = True, f_max_hz: float = 150.0) -> dict:
+                              balls_on_up: bool = True, f_max_hz: float = 150.0, nodes_per_pitch: int | None = None) -> dict:
         """The belt loop's stretch modes with its mass where it really is (the open item after "Lift belt stretch").
 
         The loop runs from the drive pulley up the up strand, over the top pulley (half a wrap, free to turn: its own
@@ -4627,38 +4628,14 @@ class Feeder:
         on it is one mass; `stuck` couples it through the jaw coupling to the rotor (the hub stuck), else the pulley is
         held. The first held mode is what `lift_belt_model`'s `f_belt_hz` lumps; stuck, the first two are its
         `f_stuck_hz` and `f_upper_hz`."""
-        d = self.lift_design()
-        cm = self.lift_coupler_model()
-        r = self.lift_pd / 2000
-        span = d["centre_mm"] / 1000
-        wrap = math.pi * r
-        total = 2 * span + wrap
-        pitch = d["flight_pitch_mm"] / 1000
-        npp = self.LIFT_FD_PER_PITCH // 2
-        n = max(8, round(total / (pitch / npp)))
-        h = total / n
-        ea = self.lift_belt_cspec_n * cspec_factor
-        mass = [self.lift_belt_kg_m * h] * (n - 1)     # interior nodes 1 .. n - 1 (s = i h from the pulley, up strand first)
-        n_fl = d["flights"]
-        fl_s = [(k + 0.5) * pitch for k in range(n_fl) if (k + 0.5) * pitch < total]
-        up_fl = [s for s in fl_s if s < span]
-        loaded = up_fl[::loaded_every] if loaded_every else []
-        ball_kg = self.ball_g / 1000
-        for s in fl_s:
-            mass[min(n - 2, max(0, round(s / h) - 1))] += self.lift_flight_kg
-        if balls_on_up:
-            for s in loaded:
-                mass[min(n - 2, max(0, round(s / h) - 1))] += ball_kg
-        else:
-            spread = ball_kg * len(loaded) / (n - 1)
-            mass = [m + spread for m in mass]
-        k = ea / h
+        c = self.lift_belt_chain(loaded_every, cspec_factor, balls_on_up, nodes_per_pitch)
+        n, k, mass, r, cm = c["n"], c["k_n_m"], list(c["mass"]), c["r_m"], self.lift_coupler_model()
         rows = []
         for i in range(n - 1):
             j0 = max(0, i - 1)
             rows.append((j0, [-k, 2 * k] if i > 0 else [2 * k]))
         # the pulley: both ends of the loop on it, the shaft side and the belt on its half wrap
-        m_p = cm["j_shaft"] / r ** 2 + self.lift_belt_kg_m * wrap
+        m_p = cm["j_shaft"] / r ** 2 + c["m_wrap_kg"]
         p_row = [0.0] * (n - 1) + [2 * k]
         p_row[0] -= k
         p_row[n - 2] -= k
@@ -4670,7 +4647,51 @@ class Feeder:
         else:
             pass                                        # pulley held: the ends are fixed
         modes = _modes_below(rows, mass, f_max_hz)
-        return {"modes_hz": modes, "balls": len(loaded), "nodes": n, "moving_kg": sum(mass[:n - 1]) + self.lift_belt_kg_m * wrap}
+        return {"modes_hz": modes, "balls": len(c["ball_nodes"]), "nodes": n, "moving_kg": sum(mass[:n - 1]) + c["m_wrap_kg"]}
+
+    def lift_belt_chain(self, loaded_every: int = 1, cspec_factor: float = 1.0, balls_on_up: bool = True,
+                        nodes_per_pitch: int | None = None) -> dict:
+        """The belt loop as a chain of point masses on springs (2026-11-15; `lift_belt_axial_modes` solves its modes,
+        tests/lift_jam_sweep.py `chain=` runs it in time). Node i (0 .. n - 2) sits s = (i + 1) h along the loop from
+        the drive pulley, up strand first, over the top pulley's half wrap and down the down strand; both ends are on
+        the drive pulley. Segment j (0 .. n - 1) joins node j - 1 to node j, the pulley standing in at both ends, k =
+        c_spec / h. Flights every pitch, a ball on every `loaded_every`-th flight of the up strand (or spread evenly
+        round the loop). `ball_nodes` are the loaded flights' nodes (the up strand's, either way), `up_nodes` and
+        `down_nodes` the straight strands' nodes, `top_node` the last node of the up strand (the hood). Even
+        `nodes_per_pitch` (default `LIFT_FD_PER_PITCH` // 2) put every flight on a node."""
+        d = self.lift_design()
+        r = self.lift_pd / 2000
+        span = d["centre_mm"] / 1000
+        wrap = math.pi * r
+        total = 2 * span + wrap
+        pitch = d["flight_pitch_mm"] / 1000
+        npp = nodes_per_pitch or self.LIFT_FD_PER_PITCH // 2
+        n = max(8, round(total / (pitch / npp)))
+        h = total / n
+        ea = self.lift_belt_cspec_n * cspec_factor
+        mass = [self.lift_belt_kg_m * h] * (n - 1)     # interior nodes 1 .. n - 1 (s = i h from the pulley, up strand first)
+        n_fl = d["flights"]
+        fl_s = [(k + 0.5) * pitch for k in range(n_fl) if (k + 0.5) * pitch < total]
+        up_fl = [s for s in fl_s if s < span]
+        loaded = up_fl[::loaded_every] if loaded_every else []
+        ball_kg = self.ball_g / 1000
+
+        def node(s):
+            return min(n - 2, max(0, round(s / h) - 1))
+        for s in fl_s:
+            mass[node(s)] += self.lift_flight_kg
+        if balls_on_up:
+            for s in loaded:
+                mass[node(s)] += ball_kg
+        else:
+            spread = ball_kg * len(loaded) / (n - 1)
+            mass = [m + spread for m in mass]
+        top = node(span)
+        bottom_down = node(span + wrap)
+        return {"n": n, "h_m": h, "k_n_m": ea / h, "mass": mass, "r_m": r, "m_wrap_kg": self.lift_belt_kg_m * wrap,
+                "ball_nodes": [node(s) for s in loaded], "flight_nodes": [node(s) for s in fl_s],
+                "up_flight_nodes": [node(s) for s in up_fl], "up_nodes": list(range(0, top + 1)),
+                "down_nodes": list(range(bottom_down, n - 1)), "top_node": top, "span_m": span}
 
     def lift_strand_cases(self) -> list:
         """The strands and axes `tests/lift_strand_sweep.py` runs, as keyword sets for `lift_strand_modes`."""

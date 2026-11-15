@@ -14,6 +14,7 @@ space, so `ventures/wall-framing-\n takeoff` reads as
     flagship_field.py ai-bookkeeper --replace OLD NEW [--replace OLD2 NEW2]
     flagship_field.py ai-bookkeeper --set new.txt   # or --set - for stdin
     flagship_field.py ai-bookkeeper --landed        # landed-work clauses and what of each to keep
+    flagship_field.py ai-bookkeeper --park ITEM [--park ITEM2]  # move open items to ventures/<v>/NEXT.md
     flagship_field.py --check                       # exit 1 on a hyphen-folded break
 
 Edits touch only that field's lines, rewrap without breaking at hyphens or
@@ -26,10 +27,21 @@ cap made them shorten other runs' open items by hand. Landed work belongs in
 the README those clauses name; across the 11 flagships, 959 characters of
 landed notes could go without touching an open item (421 in
 einvoice-preflight), which `--landed` lists.
+
+Once the landed notes were gone the cap still bit: by the evening of
+2026-11-15 all 11 rows sat at 1,611 to 1,999 with no landed clause left, and
+13 sessions in two days (friction_rank.py) said recording one result meant
+deleting someone else's open item ("the cap forces silent loss of open
+items"). `--park ITEM` makes that cut a move: it takes ITEM out of `next:` and
+appends it, dated, to the venture's own `ventures/<v>/NEXT.md` under
+PARK_HEADING, so `next:` keeps the items most worth starting and nothing open
+is lost. `next:` should say the rest lives there (the tool adds that pointer
+once if it fits).
 """
 from __future__ import annotations
 
 import argparse
+import datetime
 import re
 import sys
 import textwrap
@@ -55,6 +67,9 @@ TAIL = re.compile(r"\b(?:open|next)\b:?\s")
 # "Landed work and measurements: README ..." is the pointer, not a landed item.
 POINTER = re.compile(r"(?:Landed work|History)\b", re.I)
 LANDED_SHOWN = 5
+REPO_ROOT = HERE.parents[1]
+PARK_HEADING = "## Parked from flagships.yaml `next:`"
+PARK_POINTER = "More open items: NEXT.md."
 
 
 def _entries(doc) -> list[dict]:
@@ -176,7 +191,9 @@ def set_value(text: str, venture: str, field: str, value: str) -> str:
     if field == "next" and len(value) > FLAGSHIP_NEXT_MAX:
         hint = landed_hint(value, len(value) - FLAGSHIP_NEXT_MAX)
         raise ValueError(f"`next:` would be {len(value)} of {FLAGSHIP_NEXT_MAX} characters: "
-                         "replace what you landed, don't append" + (f"\n{hint}" if hint else ""))
+                         "replace what you landed, don't append" + (f"\n{hint}" if hint else "")
+                         + f"\nTo make room without losing an open item, move the least urgent one to "
+                         f"ventures/{venture}/NEXT.md: flagship_field.py {venture} --park 'ITEM' (then retry)")
     if field == "buildable" and len(value) > FLAGSHIP_BUILDABLE_MAX:
         raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters: "
                          "name only items a session can start now; landed work goes in the README or eval/")
@@ -187,6 +204,47 @@ def set_value(text: str, venture: str, field: str, value: str) -> str:
     if got != value:
         raise ValueError(f"round trip failed for {venture}.{field}: wrote {value[:80]!r}, read {str(got)[:80]!r}")
     return out
+
+
+def remove_items(value: str, items: list[str]) -> str:
+    """`value` with each item cut out and the separators around it tidied."""
+    out = " ".join(value.split())
+    for item in items:
+        want = " ".join(item.split()).strip(" ;")
+        if not want or want not in out:
+            raise ValueError(f"--park: not found in `next:`: {item!r} (copy it from "
+                             "`flagship_field.py <venture>`, the unfolded value)")
+        out = out.replace(want, "", 1)
+    out = re.sub(r"\s*;\s*(?:;\s*)+", "; ", out)       # "a; ; b" -> "a; b"
+    out = re.sub(r"\s+([;,.:])", r"\1", out)            # "a ; b" / "a ." -> "a; b" / "a."
+    out = re.sub(r"([:.])\s*;\s*", r"\1 ", out)        # "next: ; b" -> "next: b"
+    out = re.sub(r";\s*$", ".", out.strip())
+    out = re.sub(r"^[;,.]\s*", "", out)
+    return " ".join(out.split())
+
+
+def park_text(existing: str | None, venture: str, items: list[str], day: str) -> str:
+    """NEXT.md with the items appended under PARK_HEADING (created if missing)."""
+    body = existing if existing is not None else (
+        f"# {venture}: open items beyond flagships.yaml\n\n"
+        "`portfolio/flagships.yaml` caps a flagship's `next:` at "
+        f"{FLAGSHIP_NEXT_MAX} characters, so it holds the items most worth starting. "
+        "Open items moved out to make room are kept here by "
+        "`portfolio/router/flagship_field.py --park`. Take one back into `next:` "
+        "when it becomes the most useful thing to do, and delete it here when it lands.\n")
+    if PARK_HEADING not in body:
+        body = body.rstrip("\n") + f"\n\n{PARK_HEADING}\n\n"
+    else:
+        body = body.rstrip("\n") + "\n"
+    add = "".join(f"- ({day}) {' '.join(i.split()).strip(' ;')}\n" for i in items)
+    return body + add
+
+
+def with_pointer(value: str) -> str:
+    if PARK_POINTER in value:
+        return value
+    grown = f"{value} {PARK_POINTER}"
+    return grown if len(grown) <= FLAGSHIP_NEXT_MAX else value
 
 
 def where_else(text: str, venture: str, field: str, old: str) -> list[str]:
@@ -243,7 +301,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--check", action="store_true", help="exit 1 if any folded line breaks at a hyphen")
     ap.add_argument("--landed", action="store_true",
                     help="list the clauses that report landed work, longest first (cut candidates)")
+    ap.add_argument("--park", action="append", metavar="ITEM",
+                    help="move an open item out of `next:` into ventures/<v>/NEXT.md (repeatable)")
     ap.add_argument("--file", type=Path, default=FLAGSHIPS_PATH)
+    ap.add_argument("--ventures-dir", type=Path, default=REPO_ROOT / "ventures", help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
     text = args.file.read_text()
 
@@ -266,6 +327,24 @@ def main(argv: list[str] | None = None) -> int:
                 print(line)
             print(f"-- {len(found)} landed clause(s); trimming them frees {_saved(found)} of "
                   f"{len(current)} characters", file=sys.stderr)
+            return 0
+        if args.park:
+            if args.field != "next" or args.set is not None or args.replace:
+                ap.error("--park works on `next:` alone; run --replace/--set separately")
+            if current is None:
+                print(f"{args.venture} has no `next:`", file=sys.stderr)
+                return 1
+            new = with_pointer(remove_items(current, args.park))
+            out = set_value(text, args.venture, "next", new)
+            dest = args.ventures_dir / args.venture / "NEXT.md"
+            if not dest.parent.is_dir():
+                raise ValueError(f"no venture folder {dest.parent}")
+            parked = park_text(dest.read_text() if dest.exists() else None, args.venture,
+                               args.park, datetime.date.today().isoformat())
+            args.file.write_text(out)
+            dest.write_text(parked)
+            print(f"parked {len(args.park)} item(s) in {dest.relative_to(dest.parents[2])}; "
+                  f"wrote {args.venture}.next: {len(new)} of {FLAGSHIP_NEXT_MAX} characters")
             return 0
         if args.set is None and not args.replace:
             if current is None:

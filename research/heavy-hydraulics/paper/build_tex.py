@@ -82,6 +82,7 @@ CITES: list[tuple[str, str]] = [
     (r"Danfoss's GearMe Aluminum Group 3 technical information \(BC319661777599en-000202, 2023, pp\. 19 to 21\)", "Danfoss's GearMe Aluminum Group 3 technical information (pp. 19 to 21)\x02" + C("danfoss_gearme3")),
     (r"Marzocchi's ALP catalogue \(\"Serie ALP\", printed pages 38 and 43 to 46\)", "Marzocchi's ALP catalogue (printed pages 38 and 43 to 46)\x02" + C("marzocchi_alp")),
     (r"its data sheet \(RE 10093\)", "its data sheet\x02" + C("rexroth_azpg")),
+    (r"AZPN \(RE 10091; ", "AZPN\x02" + C("rexroth_azpn") + " ("),
 ]
 
 TOKEN = re.compile(r"(?:doi:|arXiv:)\S+")

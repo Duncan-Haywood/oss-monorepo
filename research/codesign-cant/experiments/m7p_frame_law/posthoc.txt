@@ -1,0 +1,17 @@
+Milestone 7p, post hoc (not predicted): on a fixed tune, does lever-2 robustness track the arm or the mass?
+
+set, geometry: n points; coefficient on arm (flights per mm), on mass (flights per 100 g), each with a 95% interval (design-cluster bootstrap)
+  7e                   above n  75: arm -0.06 (-0.08 to -0.03); mass -0.03 (-0.05 to -0.01)
+  7e                   below n 167: arm -0.14 (-0.17 to -0.11); mass -0.27 (-0.44 to -0.17)
+  7l t45 cap wide      above n 135: arm -0.18 (-0.20 to -0.15); mass -0.32 (-0.55 to -0.20)
+  7l t45 cap wide      below n 163: arm -0.14 (-0.16 to -0.12); mass -0.89 (-1.42 to -0.63)
+  aware cap wide       above n 114: arm -0.15 (-0.18 to -0.12); mass -0.20 (-0.37 to -0.05)
+  aware cap wide       below n 130: arm -0.18 (-0.21 to -0.13); mass -0.37 (-0.60 to -0.21)
+  aware cap wide fixL  above n 120: arm -0.16 (-0.20 to -0.12); mass -0.15 (-0.30 to -0.04)
+  aware cap wide fixL  below n 135: arm -0.17 (-0.19 to -0.14); mass -0.30 (-0.51 to -0.18)
+
+Same design, same arm, heavier law minus lighter law (inh vs fam), points valid under both: count of designs-points with fewer / equal / more crashes when heavier
+  7e                   heavier (inh) fewer 49, equal 31, more 0; mass difference median 165 g
+  7l t45 cap wide      heavier (inh) fewer 85, equal 22, more 1; mass difference median 95 g
+  aware cap wide       heavier (inh) fewer 62, equal 19, more 1; mass difference median 157 g
+  aware cap wide fixL  heavier (inh) fewer 57, equal 20, more 3; mass difference median 165 g

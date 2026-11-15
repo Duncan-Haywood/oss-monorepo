@@ -1,0 +1,31 @@
+main = engine at b92b1c892; unguided = this change, repair unguided (now the default); default = repair guided (as measured);
+reserve500 / reserve500u = 500 ms kept back for the repair, guided / unguided. Cells: open h / proven floor, repair ms.
+(80, 224, 0, 4) main 257/257 0ms | unguided 257/257 0ms | default 257/257 0ms | reserve500 257/257 358ms | reserve500u 257/257 247ms
+(80, 224, 0, 5) main 259/257 0ms | unguided 259/257 0ms | default 259/257 0ms | reserve500 259/257 206ms | reserve500u 259/257 484ms
+(80, 224, 0, 6) main 257/257 381ms | unguided 257/257 369ms | default 257/257 415ms | reserve500 257/257 428ms | reserve500u 257/257 403ms
+(80, 224, 1, 4) main 331/331 366ms | unguided 331/331 395ms | default 331/331 469ms | reserve500 331/331 582ms | reserve500u 331/331 397ms
+(80, 224, 1, 5) main 331/331 0ms | unguided 331/331 441ms | default 331/331 437ms | reserve500 334/331 424ms | reserve500u 331/331 371ms
+(80, 224, 1, 6) main 331/331 389ms | unguided 331/331 512ms | default 331/331 648ms | reserve500 331/331 685ms | reserve500u 331/331 580ms
+(80, 224, 2, 4) main 281/281 328ms | unguided 281/281 427ms | default 281/281 477ms | reserve500 281/281 525ms | reserve500u 281/281 455ms
+(80, 224, 2, 5) main 281/281 0ms | unguided 281/281 0ms | default 281/281 0ms | reserve500 281/281 230ms | reserve500u 281/281 244ms
+(80, 224, 2, 6) main 281/281 457ms | unguided 281/281 547ms | default 281/281 520ms | reserve500 281/281 528ms | reserve500u 281/281 559ms
+(90, 252, 0, 4) main 352/352 0ms | unguided 352/352 0ms | default 352/352 0ms | reserve500 352/352 293ms | reserve500u 352/352 0ms
+(90, 252, 0, 5) main 354/352 0ms | unguided 354/352 0ms | default 354/352 0ms | reserve500 355/352 350ms | reserve500u 355/352 255ms
+(90, 252, 0, 6) main 359/352 0ms | unguided 359/352 1ms | default 359/352 0ms | reserve500 359/352 252ms | reserve500u 359/352 231ms
+(90, 252, 1, 4) main 222/219 0ms | unguided 222/219 0ms | default 223/219 0ms | reserve500 222/219 362ms | reserve500u 222/219 0ms
+(90, 252, 1, 5) main 226/219 0ms | unguided 226/219 0ms | default 226/219 0ms | reserve500 226/219 329ms | reserve500u 226/219 0ms
+(90, 252, 1, 6) main 220/219 0ms | unguided 220/219 0ms | default 220/219 0ms | reserve500 220/219 263ms | reserve500u 220/219 0ms
+(90, 252, 2, 4) main 374/374 275ms | unguided 374/374 428ms | default 374/374 356ms | reserve500 374/374 371ms | reserve500u 374/374 436ms
+(90, 252, 2, 5) main 374/374 1ms | unguided 374/374 0ms | default 374/374 0ms | reserve500 374/374 0ms | reserve500u 374/374 448ms
+(90, 252, 2, 6) main 374/374 266ms | unguided 374/374 426ms | default 374/374 358ms | reserve500 374/374 348ms | reserve500u 374/374 476ms
+(100, 280, 0, 4) main 372/358 0ms | unguided 372/358 1ms | default 376/358 0ms | reserve500 376/358 0ms | reserve500u 376/358 241ms
+(100, 280, 0, 5) main 377/358 0ms | unguided 377/358 0ms | default 377/358 0ms | reserve500 377/358 416ms | reserve500u 377/358 0ms
+(100, 280, 0, 6) main 376/358 0ms | unguided 376/358 0ms | default 375/358 0ms | reserve500 376/358 0ms | reserve500u 371/358 257ms
+(100, 280, 1, 4) main 351/344 0ms | unguided 351/344 0ms | default 351/344 0ms | reserve500 351/344 0ms | reserve500u 351/344 0ms
+(100, 280, 1, 5) main 344/344 0ms | unguided 344/344 0ms | default 344/344 0ms | reserve500 344/344 220ms | reserve500u 344/344 0ms
+(100, 280, 1, 6) main 347/344 0ms | unguided 347/344 0ms | default 347/344 0ms | reserve500 347/344 410ms | reserve500u 348/344 0ms
+main: total open 7631 h, at the floor on 13 of 24
+unguided: total open 7631 h, at the floor on 13 of 24
+default: total open 7635 h, at the floor on 13 of 24
+reserve500: total open 7639 h, at the floor on 12 of 24
+reserve500u: total open 7632 h, at the floor on 13 of 24

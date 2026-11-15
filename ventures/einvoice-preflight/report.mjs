@@ -12,6 +12,7 @@ import { checkFacturae, looksLikeFacturae } from "./facturae.mjs";
 import { budapestToday, checkNavInvoice, looksLikeNavInvoice } from "./hungary-nav.mjs";
 import { checkNavChains } from "./hungary-nav-chain.mjs";
 import { looksLikeVerifactu, readVerifactu, verifactuReport } from "./verifactu.mjs";
+import { looksLikeAeatResponse, readAeatResponse, responseEnvelope, responseFindings } from "./verifactu-response.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -124,6 +125,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         } catch (e) {
           readErrors.push({ file: name, error: ISDOC_MESSAGE + " (best-effort read failed: " + e.message + ")" });
         }
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeAeatResponse(peek)) {
+        // The AEAT's reply to a VERI*FACTU submission (or its SOAP fault): each code explained
+        // from the AEAT's own list, and checked against the records when they are in the batch.
+        const resp = readAeatResponse(peek);
+        reports.push({ file: name, errors: responseFindings(resp, vfBatch), envelope: responseEnvelope(resp, vfBatch), aeatResponse: { status: resp.status ?? null, csv: resp.csv ?? null, codes: resp.kind === "fault" ? [resp.code] : resp.lines.filter((l) => l.code).map((l) => l.code) } });
         continue;
       }
       if (vfByFile.has(input)) {

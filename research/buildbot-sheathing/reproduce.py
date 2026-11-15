@@ -33,7 +33,7 @@ EXPERIMENTS = {
     "m3b_humanoid": ("numpy, mujoco, Menagerie G1/H1 (cloned once)", 6, []),
     "m4_tack_measure": ("numpy", 1.7, []),
     "m5_cycle": ("numpy", 1, []),
-    "m6_drake": ("numpy, drake", 7, []),
+    "m6_drake": ("numpy, drake 1.51.1 (drake 1.58 has no TAMSI solver; run.py fails there)", 7, []),
     "m6b_bowed_edge": ("numpy, mujoco, drake", 8, [("envelope.py", "envelope.txt")]),
     "m7_cost": ("numpy; reads m5_cycle/results.json", 0.1, []),
     "m9_straighten": ("numpy, mujoco", 1, []),
@@ -57,8 +57,11 @@ QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
 # (``303.4 s``) or the closing ``(run time ...; python ...)`` line is skipped; a timing in parentheses
 # inside a result line (``cyclic runs 72 (2099 s); largest residual ...``) is masked, so the rest of
 # that line is still compared. Every other character must match.
-SKIP = re.compile(r"^\(?\d+(\.\d+)? s\)?$|\brun ?time\b|\belapsed\b", re.IGNORECASE)
+SKIP = re.compile(r"^\(?\d+(\.\d+)? s\)?$|\brun ?time\b|\belapsed\b|^wall time \d+ s\b", re.IGNORECASE)
 MASK = re.compile(r"\(\d+(\.\d+)? s\)")
+# m6_drake section F ends each simulator's row with its wall-clock seconds a seat
+# (``drake  +0.00002  0.00142  0.00325  0.00466  0.114``): mask that last column only.
+SEAT_TIME = re.compile(r"^((?:drake|mujoco)(?:\s+[-+]?\d+\.\d+){4}\s+)\d+\.\d+$")
 
 
 def run_one(root, name, python):
@@ -77,7 +80,8 @@ def run_one(root, name, python):
 
 
 def stable(lines):
-    return [MASK.sub("(<time> s)", ln.strip()) for ln in lines if not SKIP.search(ln.strip())]
+    return [SEAT_TIME.sub(r"\1<time>", MASK.sub("(<time> s)", ln.strip()))
+            for ln in lines if not SKIP.search(ln.strip())]
 
 
 def compare(committed, fresh):
@@ -111,7 +115,7 @@ def check(names, python, keep=False):
             bad += 1
             print(f"{name}: DIFFERS ({secs:.0f} s; {n} changed lines of {total} compared)")
             for o, v in diffs.items():
-                for d in v[:40]:
+                for d in v[:80]:
                     print(f"  {o}: {d}")
         else:
             print(f"{name}: reproduces ({secs:.0f} s; {total} lines compared)")

@@ -323,3 +323,37 @@ test("one card charge for several receipts matches them as a group, only when th
   const other = addReceipts(b0, "Cafe One\n2026-03-10\nTotal 20.00\n---\nCafe Two\n2026-03-11\nTotal 15.50").books;
   assert.ok(matchReceipts(other).receipts.every((r) => !r.matched));
 });
+
+test("a bank line paying a group of receipts is split by every receipt's items, not one receipt plus a 'tip'", async () => {
+  const { splitFromReceipt } = await import("./receipts.mjs");
+  const slips = "Corner Market\n2026-05-04\nStarbucks coffee 6.00\nUSPS stamps 10.00\nTotal 16.00\n---\nCorner Market\n2026-05-04\nStarbucks coffee 14.00\nUSPS stamps 8.00\nTotal 22.00";
+  const b = addReceipts(books([["2026-05-05", "CORNER MARKET", "-38.00"]]), slips).books;
+  assert.deepEqual(b.receipts.map((r) => r.group), [2, 2], "two slips, one card charge");
+  for (const id of ["r1", "r2"]) {
+    const plan = planReceiptSplit(b, id);
+    assert.deepEqual(plan.parts.map((p) => [p.account, p.cents, p.extraCents ?? 0]), [["6130", -2000, 0], ["6070", -1800, 0]], `${id}: the other slip's total is not a tip`);
+    assert.deepEqual(plan.group, ["r1", "r2"]);
+  }
+  const done = splitFromReceipt(b, "r2");
+  assert.deepEqual(done.books.transactions[0].split, [{ account: "6130", cents: -2000 }, { account: "6070", cents: -1800 }]);
+  // a group member with no line items cannot be split by items: refuse rather than guess
+  const bare = addReceipts(books([["2026-05-05", "CORNER MARKET", "-38.00"]]), slips.replace("Starbucks coffee 14.00\nUSPS stamps 8.00\n", "")).books;
+  assert.equal(bare.receipts[1].group, 2);
+  assert.throws(() => planReceiptSplit(bare, "r1"), /r2 .*no line items/);
+});
+
+test("edge rows of the total reader (red team 2026-11-15: each pinned a mutant the suite let through)", () => {
+  // a GST column one cent off 6% of the base is still the tax: the total is the two added
+  assert.equal(parseReceipt("Kedai Ali\n2026-03-05\nNasi 140.00\nTotal : 140.00 8.41").cents, 14841);
+  // "Amount paid" was cash handed over; the earlier total line has its amount on the next line
+  const paid = parseReceipt("Corner Shop\n2026-01-02\nTotal\n12.50\nAmount paid 20.00\nChange 7.50");
+  assert.equal(paid.cents, 1250);
+  assert.ok(paid.notes.some((n) => /cash handed over/.test(n)));
+  // no total line: the card line is read even when it is the slip's last line
+  const card = parseReceipt("Corner Shop\n2026-01-02\nLatte 7.00\nCoupon 0.44\nVISA 6.56");
+  assert.equal(card.cents, 656);
+  assert.ok(card.notes.some((n) => /card line/.test(n)));
+  // a dotted part number with three leading digits is not a date, so its row stays an item
+  const hinge = parseReceipt("Hardware Hank\n2026-03-05\nHinge 110.12.25 3.50\nScrews 2.00\nTotal 5.50");
+  assert.deepEqual(hinge.items.map((i) => i.cents), [350, 200]);
+});

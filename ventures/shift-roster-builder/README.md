@@ -2769,3 +2769,112 @@ seeds at 8.4% took 88 minutes for three rosters in the earlier study). The defau
 both studies, but its changes and premiums differ slightly from "The pair price in played weeks" (187 and $3,239 here, 183 and
 $3,177 there), because the reissues inside each play are time-gated and the machine was busier. Every other cell for the
 cover and default rosters matches that study exactly.
+
+## The clique LP steers the cover passes (2026-11-15 later)
+
+"Column generation keeps to its share" left a question for 350-400 copy weeks: the open-hours clique LP takes 5-11 s there and
+buys a much tighter bound, while the cover passes turn the same seconds into filled shifts, and in single runs neither won every
+week. **Measured first** (`node eval/clique-vs-cover.mjs P S week config seed`, `eval/clique-vs-cover.out.txt`): each of the five
+350-400 copy bench weeks built three times (search seeds 1-3) with the clique LP on and off, at the default 20 s budget.
+
+| open hours, mean of 3 seeds | clique LP off | clique LP on (unguided cover passes, as before) | on, cover passes guided (now) | bound the clique LP proves |
+|---|---|---|---|---|
+| 90 x 252 week 0 (348 copies) | 356.7 | 356.7 | **353.7** | 352 |
+| 90 x 252 week 1 (352) | 224.0 | 229.3 | **220.7** | 219 |
+| 90 x 252 week 2 (363) | 376.3 | 374.7 | **374.0** (proven on all 3) | 374 |
+| 100 x 280 week 0 (400) | 387.0 | 377.7 | **374.3** | 358 |
+| 100 x 280 week 1 (400) | 353.3 | **350.0** | 350.7 | 344 |
+
+So the clique LP paid for itself on four of five weeks even before this change: on the 400-copy weeks by 9.3 and 3.3 hours on
+every seed. Without it the only bound left is column generation's root (288-294 h on those weeks), so the page could not tell a
+manager that 344-358 of the hours are unavoidable. The one loss was 90 x 252 week 1, where the cover passes got about 2.5 s less
+and the roster left 5 more hours open.
+
+**What landed:** the LP's answer is now used twice. It already guided the day sweeps (README "A guide when the pay floor is
+skipped"); now it guides the cover passes too. When a cover-pass step tries to fill an open shift, it picks the person to try in
+proportion to their value on that shift in the LP's solution half the time, and picks uniformly the other half, as before
+(`coverPass`'s `guide`). It only changes which move is proposed. Every move is still checked by the same rules and accepted by
+the same test, so the guide cannot make a roster invalid, and a week whose LP gives nobody to a shift is proposed as before.
+`coverGuide: false` turns it off, `coverGuideProb` sets the share (0.9 was tried: no better than 0.5, worse on two weeks), and
+`optimality.coverGuided` says whether the cover passes used it.
+
+The before/after columns above come from two separate runs. So the change was checked again in **one run, on fresh search seeds
+4-6 and ten bench weeks** (60 to 100 people), guided against `coverGuide: false`, paired by week and seed:
+
+| same run, seeds 4-6 (`eval/clique-guide-ab.jsonl`) | unguided: open h | guided: open h |
+|---|---|---|
+| 80 x 224 weeks 0-2 | 260/259/259, 331/331/334, 284/282/282 | **257/259/257, 331/331/331, 281/281/281** |
+| 90 x 252 weeks 0-2 | 354/355/359, 221/222/224, 374 x 3 | **352/354/359, 220/226/219**, 374 x 3 |
+| 100 x 280 weeks 0-1 | 381/373/381, 346/349/348 | **372/377/374, 351/344/347** |
+| 60 x 168 weeks 0-1 | 300 x 3, 308 x 3 | 300 x 3, 308 x 3 (no change: proven or nothing to cover) |
+
+Guided builds left fewer open hours on **14 of 30, more on 3**, and tied on 13 (two-sided sign test p = 0.013): 9,450 hours in all
+against 9,481. Of the 24 builds above 60 people, **14 guided rosters reached the clique LP's bound**, so their open hours are
+proven least, against 5 unguided. They include all three seeds of 80 x 224 weeks 1 and 2, 90 x 252 week 1 seed 6 (219) and
+100 x 280 week 1 seed 5 (344). Because the plateau walk stops at the bound,
+those builds also spent less time in the cover passes (0.5-1.9 s instead of 3.3-5.9 s on 80 x 224 weeks 1 and 2). On weeks of
+up to about 245 copies the clique LP proves the posted roster's open hours before the cover passes start, so nothing changes there.
+
+**What this says** about the question it started from: on 350-400 copies the clique LP is worth its seconds, so its gate stays
+as it is. The way to stop it costing the cover passes is to let the cover passes use what it found, not to skip it.
+
+Tests: `cover-guide.test.mjs` (on 80 seeded small weeks a guided pass from an empty roster, at guide shares 0.5 and 1, keeps every
+rule, reports its own open hours, never ends above where it started and never below the clique LP's floor; an all-zero guide
+gives the unguided pass's roster exactly; buildRoster reports `coverGuided` true when the clique LP ran and false with
+`coverGuide: false`). Not claimed: generated weeks only, three or six search seeds each, one cloud machine with two builds at a
+time. The time-bound passes move a few hours run to run (README "Room for the clique LP"), which is why the claim rests on the
+paired same-run comparison. Next: the same guide for `coverRepair`'s choice of people, and for `ejectPass`, which run before the
+LP today.
+
+## The clique LP picks the repair's people (2026-11-15 later)
+
+"The clique LP steers the cover passes" ended on a next step: give the same LP guide to `coverRepair`, the exact repair that
+releases k people's shifts and re-solves them plus every open shift. Looking first at what the repair does on the 350-400 copy
+weeks changed the question. On most of those builds it got **0 ms**: the plateau walks run until the 20 s budget is gone
+(`eval/clique-guide-ab.jsonl`). And when it was given time (`coverRepairReserveMs`), it ended on its node budget after about 15 of
+its 60 rounds, because **every round hit its 200,000-node cap**. A three-person neighbourhood there holds about 68 open shifts, and
+the depth-first search began each round with no bound, so it often never even found the roster it started from (361 open hours
+found, 356 held, on 90 x 252 week 0).
+
+**What landed:**
+
+- **Each round starts from its own value.** The search must beat the neighbourhood as it stands, so it prunes from the first node.
+  Shifts no chosen person may take are counted once and not branched on, and a second bound prunes on the chosen people's weekly
+  hours: hours still to place, less what those people can still take, must stay open. Both only relax the rules, and a new test
+  checks the repair over everyone against a brute-force search on 60 tiny weeks: the same least open hours on all 60
+  (`repair-guide.test.mjs`).
+- **An LP-guided choice of people, opt-in** (`repairGuide: true`, `repairGuideProb`, default share 0.5). A guided round builds its
+  people as a chain the LP suggests: an open shift, a person the LP puts on it (drawn by value), a shift that person holds which the
+  LP gives mostly to someone else, that someone, and so on.
+- **A reserve for the repair, off by default** (`coverRepairReserveMs`): under a time budget the plateau walks stop starting once
+  only that much is left. The repair's own time is now capped at what the budget has left (at least 0.2 s).
+- `optimality.coverRepair` reports `guided`, `guidedRounds`, `gains` and `guidedGains` when the repair ran.
+
+**Measured on the repair alone** (`node eval/repair-alone.mjs P S week startSeed`, `eval/repair-alone.out.txt`): the eight
+80-100 person bench weeks, three fixed starts each (a guided plateau walk of 400,000 steps from an empty roster), then the
+repair under the same node budget:
+
+| 24 starts, k = 3 people, 60 rounds | total open h | cut from the start | paired against the unguided new repair |
+|---|---|---|---|
+| main's repair (b92b1c892) | 8,455 | 206 h | fewer open on 1, more on 8 (p = 0.039) |
+| this repair, unguided (the default) | **8,444** | **217 h** | |
+| this repair, guided half the rounds | 8,443 | 218 h | fewer on 11, more on 9, tied 4 (p = 0.82) |
+| this repair, guided every round | 8,481 | 180 h | fewer on 9, more on 13 (p = 0.52) |
+
+Five-person neighbourhoods (first start of each week) left more open than three on 6 of 8 weeks unguided and 6 of 8 guided, fewer on 1 (they hit the node cap sooner). So the bound is a small, real gain
+and the guide is not one: the LP's people are no better places to look than random ones, and guiding every round narrows the
+search and loses. That is why the guide is opt-in.
+
+**End to end** (`node eval/repair-guide.mjs P S week config seed`, `eval/repair-guide.out.txt`, same eight weeks, search seeds 4-6,
+default 20 s budget, two builds at a time): main 7,631 open hours in all, this change 7,631, the guided repair 7,635, a 500 ms
+reserve 7,639 guided and 7,632 unguided, each at the proven floor on 13 of 24 builds (12 for the guided reserve). The differences
+are the time-bound passes' run-to-run noise. On 40 small seeded weeks with no budget (`eval/repair-small.out.txt`) open hours and
+score are identical to main on all 40.
+
+**What this says:** the repair is not where the 350-400 copy weeks lose hours. Even with time and a bound it closes about 9 of the
+46 open hours (24-81) a start leaves above the floor, because a depth-first search over 50-80 shifts does not finish inside its node
+cap. A neighbourhood solved by something other than depth-first search (the flow bound of `openHoursFloor` or the clique LP
+restricted to the chosen people, then rounded) is the next thing to try; more of the same search, or a better choice of people,
+is not.
+
+Not claimed: generated weeks only, three starts or three search seeds each, one cloud machine.

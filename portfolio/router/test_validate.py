@@ -46,6 +46,15 @@ def test_flagship_buildable_over_cap_is_reported(tmp_path):
     assert len(errors) == 1 and "x `buildable:`" in errors[0]
 
 
+def test_flagship_hosts_must_be_a_list_of_urls(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n  - venture: x\n    hosts: archive.org\n    next: ok\n"
+                 "  - venture: y\n    hosts: [https://archive.org/]\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert len(errors) == 1 and "x `hosts:`" in errors[0]
+
+
 def test_flagship_hyphen_fold_is_reported(tmp_path):
     p = tmp_path / "flagships.yaml"
     p.write_text("flagships:\n  - venture: x\n    next: >-\n      see ventures/wall-\n      framing/README.md\n")
