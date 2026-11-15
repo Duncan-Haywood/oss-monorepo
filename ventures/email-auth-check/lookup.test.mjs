@@ -170,6 +170,64 @@ test('resolveDmarc queries _dmarc.<domain>', async () => {
   assert.equal(error, null);
 });
 
+test('resolveDmarc falls back to the parent when the subdomain has no DMARC record (RFC 7489 s6.6.3)', async () => {
+  const asked = [];
+  const map = { '_dmarc.zendesk.com': ['v=DMARC1; p=reject; rua=mailto:d@zendesk.com'] };
+  const fetchTxt = async (name) => { asked.push(name); return { ok: true, records: map[name] ?? [], error: null }; };
+  const r = await resolveDmarc('mail.zendesk.com', { fetchTxt });
+  assert.deepEqual(asked, ['_dmarc.mail.zendesk.com', '_dmarc.zendesk.com']);
+  assert.equal(r.foundAt, 'zendesk.com');
+  assert.deepEqual(r.records, map['_dmarc.zendesk.com']);
+});
+
+test('resolveDmarc never queries the bare TLD, and an unrelated TXT record does not stop the walk', async () => {
+  const asked = [];
+  const map = { '_dmarc.a.b.example.com': ['google-site-verification=x'] };
+  const fetchTxt = async (name) => { asked.push(name); return { ok: true, records: map[name] ?? [], error: null }; };
+  const r = await resolveDmarc('a.b.example.com', { fetchTxt });
+  assert.deepEqual(asked, ['_dmarc.a.b.example.com', '_dmarc.b.example.com', '_dmarc.example.com']);
+  assert.equal(r.foundAt, null);
+  assert.equal(r.error, null);
+});
+
+test('resolveDmarc stops at a name with several DMARC records instead of walking past it', async () => {
+  const map = { '_dmarc.sub.example.com': ['v=DMARC1; p=none', 'v=DMARC1; p=reject'], '_dmarc.example.com': ['v=DMARC1; p=reject'] };
+  const fetchTxt = async (name) => ({ ok: true, records: map[name] ?? [], error: null });
+  const r = await resolveDmarc('sub.example.com', { fetchTxt });
+  assert.equal(r.foundAt, 'sub.example.com');
+  assert.equal(r.records.length, 2);
+});
+
+test('resolveDmarc reports a transport failure during the walk as an error, not as absent', async () => {
+  const fetchTxt = async (name) => (name === '_dmarc.example.com' ? { ok: false, records: null, error: 'timed out' } : { ok: true, records: [], error: null });
+  const r = await resolveDmarc('sub.example.com', { fetchTxt });
+  assert.equal(r.error, 'timed out');
+});
+
+test('resolveDmarc caps a deep name at 8 queries, shortening to 7 labels first (DMARCbis tree walk)', async () => {
+  const asked = [];
+  const fetchTxt = async (name) => { asked.push(name); return { ok: true, records: [], error: null }; };
+  await resolveDmarc('a.b.c.d.e.f.g.h.i.example.com', { fetchTxt });
+  assert.ok(asked.length <= 8);
+  assert.equal(asked[0], '_dmarc.a.b.c.d.e.f.g.h.i.example.com');
+  assert.equal(asked[1], '_dmarc.e.f.g.h.i.example.com');
+  assert.equal(asked.at(-1), '_dmarc.example.com');
+});
+
+test('runFullCheck: a subdomain covered by its parent p=reject is not reported as spoofable', async () => {
+  const map = {
+    'mail.zendesk.com': ['v=spf1 -all'],
+    '_dmarc.zendesk.com': ['v=DMARC1; p=reject; pct=100; rua=mailto:d@zendesk.com'],
+  };
+  const fetchTxt = async (name) => ({ ok: true, records: map[name] ?? [], error: null });
+  const report = await runFullCheck('mail.zendesk.com', { fetchTxt, queryCount: async () => ({ ok: true, count: 1, error: null }) });
+  const ids = report.findings.map((f) => f.id);
+  assert.ok(!ids.includes('dmarc-missing'), ids.join(','));
+  assert.ok(ids.includes('dmarc-inherited'));
+  assert.ok(ids.includes('dmarc-policy-reject'));
+  assert.equal(report.dangerCount, 0);
+});
+
 test('resolveBimi queries default._bimi.<domain>', async () => {
   const fetchTxt = async (name) => ({ ok: true, records: name === 'default._bimi.example.com' ? ['v=BIMI1; l=https://example.com/logo.svg'] : [], error: null });
   const { records } = await resolveBimi('example.com', { fetchTxt });

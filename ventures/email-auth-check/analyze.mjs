@@ -332,10 +332,22 @@ export function selectDmarcRecords(txtRecords) {
   );
 }
 
-export function analyzeDmarc(txtRecords) {
+/**
+ * `opts.foundAt` is the name whose _dmarc TXT answer this is, and
+ * `opts.domain` the domain being checked. When they differ the record was
+ * found by walking up to a parent (RFC 7489 s6.6.3 step 3, the
+ * organizational-domain fallback; the DMARCbis DNS tree walk), and the
+ * policy that applies to the checked domain is the parent's sp= when
+ * present, else its p= (RFC 7489 s6.3, "sp"). `appliedPolicy` is that
+ * policy; it is null when no policy applies, including when more than one
+ * DMARC record is published (s6.6.3 step 5: policy discovery terminates).
+ */
+export function analyzeDmarc(txtRecords, { foundAt = null, domain = null } = {}) {
   const records = selectDmarcRecords(txtRecords);
+  const fromKey = foundAt ? normalizeDomainKey(foundAt) : null;
+  const inheritedFrom = fromKey && domain && fromKey !== normalizeDomainKey(domain) ? fromKey : null;
   if (records.length === 0) {
-    return { found: false, multiple: false, record: null, tags: {}, policy: null, pct: null, hasReporting: false, malformed: [] };
+    return { found: false, multiple: false, record: null, tags: {}, policy: null, appliedPolicy: null, inheritedFrom: null, pct: null, hasReporting: false, malformed: [] };
   }
   const record = records[0];
   const { tags, duplicates } = parseTagList(record);
@@ -360,12 +372,20 @@ export function analyzeDmarc(txtRecords) {
   const adkim = (tags.get('adkim') || 'r').toLowerCase() === 's' ? 'strict' : 'relaxed';
   const aspf = (tags.get('aspf') || 'r').toLowerCase() === 's' ? 'strict' : 'relaxed';
 
+  const multiple = records.length > 1;
+  const validPolicy = (v) => (['none', 'quarantine', 'reject'].includes(v) ? v : null);
+  let appliedPolicy = validPolicy(policy);
+  if (inheritedFrom && validPolicy(subdomainPolicy)) appliedPolicy = subdomainPolicy;
+  if (multiple) appliedPolicy = null;
+
   return {
     found: true,
-    multiple: records.length > 1,
+    multiple,
     record,
     tags: Object.fromEntries(tags),
     policy,
+    appliedPolicy,
+    inheritedFrom,
     subdomainPolicy,
     pct,
     rua,
@@ -389,7 +409,7 @@ export function selectBimiRecords(txtRecords) {
 
 /** Is DMARC enforced strongly enough for Google/Yahoo to display a BIMI logo? */
 export function dmarcSufficientForBimi(dmarc) {
-  return !!dmarc && dmarc.found && ['quarantine', 'reject'].includes(dmarc.policy) && dmarc.pct === 100;
+  return !!dmarc && dmarc.found && ['quarantine', 'reject'].includes(dmarc.appliedPolicy) && dmarc.pct === 100;
 }
 
 export function analyzeBimi(txtRecords, dmarc) {
@@ -607,71 +627,88 @@ function dmarcFindings(domain, dmarc, transportError) {
   if (transportError) {
     findings.push(finding(
       'dmarc-lookup-failed', 'notice', 'Could not look up DMARC',
-      `Looking up the DMARC record at _dmarc.${domain} failed: ${transportError}. Re-run the check once the lookup succeeds.`,
+      `Looking up the DMARC record at _dmarc.${domain} (or a parent domain) failed: ${transportError}. Re-run the check once the lookup succeeds.`,
       `error: ${transportError}`,
     ));
     return findings;
   }
   if (!dmarc.found) {
+    const parents = domain.split('.').length > 2 ? ' or at any parent domain' : '';
     findings.push(finding(
       'dmarc-missing', 'danger', 'No DMARC record found',
-      `No TXT record starting with "v=DMARC1" was found at _dmarc.${domain}. Without DMARC, receivers have no instruction for what to do with mail that fails SPF or DKIM alignment, and you receive no reports telling you who is sending mail (legitimate or spoofed) using your domain. A domain can look fully configured with SPF and DKIM in place and still be completely spoofable without this.`,
+      `No TXT record starting with "v=DMARC1" was found at _dmarc.${domain}${parents}. Without DMARC, receivers have no instruction for what to do with mail that fails SPF or DKIM alignment, and you receive no reports telling you who is sending mail (legitimate or spoofed) using your domain. A domain can look fully configured with SPF and DKIM in place and still be completely spoofable without this.`,
       `TXT _dmarc.${domain}: (no v=DMARC1 record)`,
     ));
     return findings;
   }
+  // Where the record was read: the domain itself, or the parent that the
+  // RFC 7489 s6.6.3 organizational-domain fallback reached.
+  const at = dmarc.inheritedFrom || domain;
+  const inherited = Boolean(dmarc.inheritedFrom);
+  const usesSp = inherited && dmarc.appliedPolicy && dmarc.subdomainPolicy === dmarc.appliedPolicy;
+  const tag = usesSp ? 'sp' : 'p';
+  if (inherited) {
+    findings.push(finding(
+      'dmarc-inherited', 'info', `No DMARC record of its own: the policy at _dmarc.${at} applies`,
+      `_dmarc.${domain} publishes no DMARC record, so receivers fall back to the record of the organizational domain (RFC 7489 s6.6.3), found at _dmarc.${at}. For a subdomain that record's sp= tag applies when present, otherwise its p= tag (RFC 7489 s6.3)${dmarc.appliedPolicy ? `; here that is ${tag}=${dmarc.appliedPolicy}` : ''}. Publish a record at _dmarc.${domain} only if this subdomain needs a different policy or its own reports.`,
+      `TXT _dmarc.${domain}: (no v=DMARC1 record); TXT _dmarc.${at}: ${dmarc.record}`,
+    ));
+  }
   if (dmarc.multiple) {
     findings.push(finding(
-      'dmarc-multiple-records', 'danger', 'Multiple DMARC records published',
-      `_dmarc.${domain} publishes more than one TXT record starting with "v=DMARC1". RFC 7489 expects exactly one; multiple records make DMARC evaluation undefined for many receivers, which commonly means it is simply ignored.`,
-      `TXT _dmarc.${domain}: multiple v=DMARC1 records`,
+      'dmarc-multiple-records', 'danger', 'Multiple DMARC records published: no policy applies',
+      `_dmarc.${at} publishes more than one TXT record starting with "v=DMARC1". RFC 7489 s6.6.3 says policy discovery then terminates and DMARC is not applied at all, so none of these records' policies is in force: receivers treat the domain as if it had no DMARC record. Delete all but one.`,
+      `TXT _dmarc.${at}: multiple v=DMARC1 records`,
     ));
   }
   if (dmarc.malformed.length) {
     findings.push(finding(
       'dmarc-malformed', 'danger', 'DMARC record has invalid tags',
-      `_dmarc.${domain}'s DMARC record has a problem: ${dmarc.malformed.join('; ')}.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      `_dmarc.${at}'s DMARC record has a problem: ${dmarc.malformed.join('; ')}.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
-  if (dmarc.policy === 'none') {
+  const policy = dmarc.appliedPolicy;
+  const who = inherited ? `Mail from ${domain} is covered by ${tag}=${policy} at _dmarc.${at}` : `_dmarc.${domain} is published with p=${policy}`;
+  const title = (p) => (inherited ? `DMARC policy for this subdomain is ${tag}=${p} (inherited)` : `DMARC policy is p=${p}`);
+  if (policy === 'none') {
     findings.push(finding(
-      'dmarc-policy-none', 'notice', 'DMARC policy is p=none (monitor-only)',
-      `_dmarc.${domain} is published with p=none: receivers are asked to take no action even on a message that fails alignment. This is the most common real-world gap -- the domain looks configured (SPF, DKIM, and DMARC all present) but is still fully spoofable in practice. p=none is a reasonable first step while reviewing reports; move to p=quarantine or p=reject once they look clean.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      'dmarc-policy-none', 'notice', `${title('none')} (monitor-only)`,
+      `${who}: receivers are asked to take no action even on a message that fails alignment. This is the most common real-world gap -- the domain looks configured (SPF, DKIM, and DMARC all present) but is still fully spoofable in practice. p=none is a reasonable first step while reviewing reports; move to p=quarantine or p=reject once they look clean.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
-  } else if (dmarc.policy === 'quarantine') {
+  } else if (policy === 'quarantine') {
     findings.push(finding(
-      'dmarc-policy-quarantine', 'info', 'DMARC policy is p=quarantine',
-      `_dmarc.${domain} asks receivers to route a message that fails alignment to spam/junk rather than the inbox. Real enforcement, one step short of p=reject.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      'dmarc-policy-quarantine', 'info', title('quarantine'),
+      `${who}, which asks receivers to route a message that fails alignment to spam/junk rather than the inbox. Real enforcement, one step short of p=reject.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
-  } else if (dmarc.policy === 'reject') {
+  } else if (policy === 'reject') {
     findings.push(finding(
-      'dmarc-policy-reject', 'info', 'DMARC policy is p=reject',
-      `_dmarc.${domain} asks receivers to refuse a message that fails alignment outright. The strongest DMARC enforcement level.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      'dmarc-policy-reject', 'info', title('reject'),
+      `${who}, which asks receivers to refuse a message that fails alignment outright. The strongest DMARC enforcement level.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
-  if (dmarc.policy && dmarc.policy !== 'none' && dmarc.pct < 100) {
+  if (policy && policy !== 'none' && dmarc.pct < 100) {
     findings.push(finding(
       'dmarc-pct-partial', 'notice', `Only ${dmarc.pct}% of failing mail is subject to the policy (pct=${dmarc.pct})`,
-      `_dmarc.${domain} sets pct=${dmarc.pct}, so only that percentage of messages failing alignment get the p=${dmarc.policy} treatment above -- the rest are handled as if p=none. Consider raising toward pct=100 once reports look clean.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      `_dmarc.${at} sets pct=${dmarc.pct}, so only that percentage of messages failing alignment get the ${tag}=${policy} treatment above -- the rest are handled as if p=none. Consider raising toward pct=100 once reports look clean.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
   if (!dmarc.hasReporting) {
     findings.push(finding(
       'dmarc-no-reporting', 'notice', 'No rua= (or ruf=) reporting address configured',
-      `_dmarc.${domain} has no rua= aggregate-report address, so you receive no visibility into who is sending mail -- legitimate or spoofed -- using your domain. Adding rua=mailto:you@${domain} (or a DMARC report-aggregation service) is what makes DMARC's reports actually useful.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      `_dmarc.${at} has no rua= aggregate-report address, so you receive no visibility into who is sending mail -- legitimate or spoofed -- using your domain. Adding rua=mailto:you@${at} (or a DMARC report-aggregation service) is what makes DMARC's reports actually useful.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
-  if (dmarc.found && (dmarc.adkim === 'strict' || dmarc.aspf === 'strict')) {
+  if (dmarc.adkim === 'strict' || dmarc.aspf === 'strict') {
     findings.push(finding(
       'dmarc-strict-alignment', 'info', `Alignment mode: DKIM ${dmarc.adkim}, SPF ${dmarc.aspf}`,
-      `_dmarc.${domain} requires ${dmarc.adkim === 'strict' ? 'an exact domain match for DKIM' : 'DKIM alignment (relaxed, default)'} and ${dmarc.aspf === 'strict' ? 'an exact domain match for SPF' : 'SPF alignment (relaxed, default)'}. Strict mode is more precise but breaks alignment for mail sent via a subdomain of a third-party sender.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      `_dmarc.${at} requires ${dmarc.adkim === 'strict' ? 'an exact domain match for DKIM' : 'DKIM alignment (relaxed, default)'} and ${dmarc.aspf === 'strict' ? 'an exact domain match for SPF' : 'SPF alignment (relaxed, default)'}. Strict mode is more precise but breaks alignment for mail sent via a subdomain of a third-party sender.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
   return findings;
@@ -690,7 +727,7 @@ function bimiFindings(domain, bimi, dmarc, transportError) {
   if (!bimi.found) {
     findings.push(finding(
       'bimi-absent', 'info', 'No BIMI record found (optional)',
-      `No TXT record starting with "v=BIMI1" was found at default._bimi.${domain}. BIMI is optional: it shows your logo next to messages in supporting inboxes (Gmail, Yahoo, and others) once DMARC is enforced. ${dmarc.found && dmarcSufficientForBimi(dmarc) ? 'DMARC enforcement here is already strong enough that adding BIMI would be honored once published.' : 'DMARC enforcement is not yet strong enough for BIMI to be honored even if added -- see the DMARC findings above.'}`,
+      `No TXT record starting with "v=BIMI1" was found at default._bimi.${domain}. BIMI is optional: it shows your logo next to messages in supporting inboxes (Gmail, Yahoo, and others) once DMARC is enforced. ${dmarc.found && dmarcSufficientForBimi(dmarc) ? 'DMARC enforcement here already meets the DNS prerequisite for BIMI; Gmail also requires a Verified Mark Certificate or Common Mark Certificate (the a= tag) before it shows a logo.' : 'DMARC enforcement is not yet strong enough for BIMI to be honored even if added -- see the DMARC findings above.'}`,
       `TXT default._bimi.${domain}: (no v=BIMI1 record)`,
     ));
     return findings;
@@ -705,13 +742,13 @@ function bimiFindings(domain, bimi, dmarc, transportError) {
   if (bimi.dmarcSufficient) {
     findings.push(finding(
       'bimi-present-and-honored', 'info', 'BIMI record found, and DMARC enforcement is strong enough for it to be honored',
-      `default._bimi.${domain} is published, and DMARC is at p=${dmarc.policy} with pct=100 -- the enforcement level Google and Yahoo require before they will display a BIMI logo. (They may still require a Verified Mark Certificate via the a= tag for a checkmark in some inboxes; this check only confirms the DNS-level prerequisites.)`,
+      `default._bimi.${domain} is published, and DMARC is at p=${dmarc.appliedPolicy} with pct=100 -- the enforcement level Google and Yahoo require before they will display a BIMI logo. (They may still require a Verified Mark Certificate via the a= tag for a checkmark in some inboxes; this check only confirms the DNS-level prerequisites.)`,
       `TXT default._bimi.${domain}: ${bimi.record}`,
     ));
   } else {
     findings.push(finding(
       'bimi-present-not-honored', 'notice', 'BIMI record found, but DMARC enforcement is not strong enough for it to be honored',
-      `default._bimi.${domain} is published, but Google and Yahoo require DMARC at p=quarantine or p=reject with pct=100 before they will display a BIMI logo. ${dmarc.found ? `Current DMARC here is p=${dmarc.policy ?? '(none)'} pct=${dmarc.pct ?? 100}.` : 'No DMARC record was found at all -- see the DMARC findings above.'}`,
+      `default._bimi.${domain} is published, but Google and Yahoo require DMARC at p=quarantine or p=reject with pct=100 before they will display a BIMI logo. ${dmarc.found ? `Current DMARC here is p=${dmarc.appliedPolicy ?? '(none applies)'} pct=${dmarc.pct ?? 100}.` : 'No DMARC record was found at all -- see the DMARC findings above.'}`,
       `TXT default._bimi.${domain}: ${bimi.record}`,
     ));
   }
