@@ -87,10 +87,10 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable first: (0)
-      built-in keywords on real exports (HISTORY); UK chains, cold: Durham 11% to
-      28% right, held out (README); Open Collective books (README): 63-87% right
-      from memos, 43-65% from payees; new-payee guess (README): first-time payees
-      5-21% to 20-65% right; Mint held out: first-seen 68.7%; YNAB: +2 pts; card MCC
+      built-in keywords on real exports (HISTORY); OSM chain names (README): Durham
+      cold 28.2 to 29.6% right; Open Collective books (README): 63-87% right from
+      memos, 43-65% from payees; new-payee guess (README): first-time payees 5-21%
+      to 20-65% right; Mint held out: first-seen 68.7%; YNAB: +2 pts; card MCC
       (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to
       88% (Durham, held out); LLC labels: Mercury 90%, Rocket Money Amex 94%
       (README); (1) AI layer on real lines (README "A year of Toronto"): local Qwen

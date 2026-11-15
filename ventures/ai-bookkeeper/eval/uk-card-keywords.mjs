@@ -4,7 +4,7 @@
 // commands there); this one only reads the merchant name.
 //
 //   node eval/uk-card-keywords.mjs --sl <South Lakeland dir> --durham <Durham dir> \
-//        --scot <govspend.opendata.scot/_data/spendsOver500> [--misses 20] [--blanks 20]
+//        --scot <govspend.opendata.scot/_data/spendsOver500> [--misses 20] [--blanks 20] [--skip brand]
 //
 // South Lakeland (eval/southlakeland-pcard.mjs) is the buyer the 2026-11-15 UK merchant
 // block was written from; Durham (eval/durham-pcard.mjs) and the Scottish Government
@@ -22,11 +22,11 @@ const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");
 
 // Every line from empty books, the merchant name only. `merchants` counts each distinct
 // name once (its first line), which is closer to what a reader of the table sees.
-export function cold(rows) {
+export function cold(rows, skip = new Set()) {
   const lines = { n: 0, right: 0, wrong: 0, blank: 0 }, merchants = { n: 0, right: 0, wrong: 0, blank: 0 };
   const misses = new Map(), blanks = new Map(), seen = new Set();
   for (const r of rows) {
-    const s = suggest({ desc: r.desc, cents: r.cents }, { rules: [], codes: null });
+    const s = suggest({ desc: r.desc, cents: r.cents }, { rules: [], codes: null, skip });
     const k = r.desc.toLowerCase().replace(/\s+/g, " ").trim();
     const kind = !s.account ? "blank" : r.want.includes(s.account) ? "right" : "wrong";
     lines.n++; lines[kind]++;
@@ -50,7 +50,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   }
   if (arg("--scot")) buyers.push(["Scottish Government (scored first, then read)", loadScot(arg("--scot"))]);
   for (const [name, rows] of buyers) {
-    const o = cold(rows);
+    const o = cold(rows, new Set((arg("--skip") ?? "").split(",").filter(Boolean)));
     console.log(`${name}`);
     console.log(`  lines      ${line(o.lines)}`);
     console.log(`  merchants  ${line(o.merchants)}`);
