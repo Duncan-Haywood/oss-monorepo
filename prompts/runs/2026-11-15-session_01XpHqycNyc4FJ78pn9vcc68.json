@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqycNyc4FJ78pn9vcc68",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T15:38:32Z",
+  "ended": "2026-11-15T15:45:48Z",
+  "wall_minutes": 19.61,
+  "tokens_in": 3877898,
+  "tokens_out": 22499,
+  "cost_usd": 1.9005,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/gen_llms_txt.py",
+      "issue": "The llms.txt disclaimer 'Results are estimates from the numbers typed in' is hard-coded for every venture, so a DNS checker's llms.txt describes a calculator; the audit filed it as a per-venture defect but the fix is in the generator."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Audit JSON files use indent=1; rewriting one with json.dumps(indent=2) reformats every line. Worth one line saying to keep indent=1 when adding fixed_by."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "The track prompt describes a sample round, but quality_audit.py sample printed that today's mode is fix (3 high defects open); the README's 'Four modes' governs, so this ran fix mode and wrote a quality-fix post instead of round 74.",
+      "did": "Fixed the top actionable high defect (email-auth-check DMARC fallback) plus two smaller defects in the same audit.",
+      "result": "Open high defects 3 -> 2."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quality-fix-a-subdomain-inherits-its-parents-dmarc.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (quality_audit.py mode; seed of the unused sample draw 2026-11-15-c-4ef0). Subject: ventures/email-auth-check, audit 2026-11-15-email-auth-check.json. Fixed defects #1 (high, RFC 7489 s6.6.3 org-domain fallback), #3 (medium, two DMARC records still reported a policy), #8 (low, BIMI logo overclaim); fixed_by set on each. Verification: node --test '*.test.mjs' 135/135 (11 new); run_venture_tests.py email-auth-check ok; run_workflow_locally.py --for-changes 11/11 passed (agent-cross-review and portfolio-pages deploy jobs not runnable locally). Seeded mutations all caught: lookup.mjs walk bound (i<=len-2 -> i<1), analyze.mjs sp= rule (-> if(false)), analyze.mjs multiple->null removed. Live: node cli.mjs mail.zendesk.com went from DANGER/exit 1 to inherited p=reject, 0 danger, exit 0. Fix PR: #16260. Queue after: 2 high open (buildbot-fasten, eu-battery-regulation-checker).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "10d000ae-a8d5-5e18-b8a7-5f8a39a62952",
+    "transcripts": 1,
+    "first": "2026-11-15T15:38:32Z",
+    "last": "2026-11-15T15:58:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 22499,
+        "thinking": 3109,
+        "cache_read": 3791324,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86493,
+        "api_equivalent_usd": 1.9005,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 22499,
+      "thinking": 3109,
+      "cache_read": 3791324,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86493,
+      "api_equivalent_usd": 1.9005,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.61,
+      "active_minutes": 19.61,
+      "model_minutes": 3.5,
+      "tool_minutes": 16.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "RFC reading, tree-walk implementation, 11 tests and live check for a mail admin/dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 157.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -386,3 +386,45 @@ test('an include: whose target has no SPF record is a PermError (RFC 7208 s5.2),
   const healthy = report({ 'ex.com': ['v=spf1 include:_spf.ex.com -all'], '_spf.ex.com': ['v=spf1 ip4:192.0.2.0/24 -all'] });
   assert.ok(!healthy.findings.some((f) => f.id === 'spf-include-broken'));
 });
+
+// ---------------------------------------------------------------------------
+// DMARC organizational-domain fallback and multiple records (RFC 7489 s6.6.3)
+// ---------------------------------------------------------------------------
+
+test('analyzeDmarc: an inherited record applies the parent sp= to the subdomain, else p=', () => {
+  const withSp = analyzeDmarc(['v=DMARC1; p=reject; sp=none'], { foundAt: 'example.com', domain: 'mail.example.com' });
+  assert.equal(withSp.inheritedFrom, 'example.com');
+  assert.equal(withSp.appliedPolicy, 'none');
+  const noSp = analyzeDmarc(['v=DMARC1; p=quarantine'], { foundAt: 'example.com', domain: 'mail.example.com' });
+  assert.equal(noSp.appliedPolicy, 'quarantine');
+  const own = analyzeDmarc(['v=DMARC1; p=reject; sp=none'], { foundAt: 'example.com', domain: 'example.com' });
+  assert.equal(own.inheritedFrom, null);
+  assert.equal(own.appliedPolicy, 'reject');
+});
+
+test('buildReport: an inherited sp=none is reported as monitor-only for the subdomain, naming the parent record', () => {
+  const dmarc = analyzeDmarc(['v=DMARC1; p=reject; sp=none; rua=mailto:d@example.com'], { foundAt: 'example.com', domain: 'mail.example.com' });
+  const report = buildReport('mail.example.com', { spfWalk: walkSpfChain('mail.example.com', new Map([['mail.example.com', ['v=spf1 -all']]])), dkim: analyzeDkim([]), dmarc, bimi: analyzeBimi([], dmarc) });
+  const none = report.findings.find((f) => f.id === 'dmarc-policy-none');
+  assert.ok(none, report.findings.map((f) => f.id).join(','));
+  assert.match(none.title, /sp=none/);
+  assert.match(none.evidence, /_dmarc\.example\.com/);
+  assert.ok(!report.findings.some((f) => f.id === 'dmarc-policy-reject'));
+});
+
+test('buildReport: with two DMARC records no policy is reported as in force', () => {
+  const dmarc = analyzeDmarc(['v=DMARC1; p=reject', 'v=DMARC1; p=none']);
+  assert.equal(dmarc.appliedPolicy, null);
+  assert.equal(dmarcSufficientForBimi(dmarc), false);
+  const report = buildReport('example.com', { spfWalk: walkSpfChain('example.com', new Map([['example.com', ['v=spf1 -all']]])), dkim: analyzeDkim([]), dmarc, bimi: analyzeBimi([], dmarc) });
+  const ids = report.findings.map((f) => f.id);
+  assert.ok(ids.includes('dmarc-multiple-records'));
+  assert.ok(!ids.some((id) => id.startsWith('dmarc-policy-')), ids.join(','));
+});
+
+test('BIMI-absent finding does not promise a logo from DMARC alone (Gmail needs a VMC or CMC)', () => {
+  const dmarc = analyzeDmarc(['v=DMARC1; p=reject; pct=100']);
+  const report = buildReport('example.com', { spfWalk: walkSpfChain('example.com', new Map([['example.com', ['v=spf1 -all']]])), dkim: analyzeDkim([]), dmarc, bimi: analyzeBimi([], dmarc) });
+  const f = report.findings.find((x) => x.id.startsWith('bimi-') && /VMC|Verified Mark/.test(x.detail ?? x.message ?? JSON.stringify(x)));
+  assert.ok(f, JSON.stringify(report.findings.filter((x) => x.id.startsWith('bimi'))));
+});

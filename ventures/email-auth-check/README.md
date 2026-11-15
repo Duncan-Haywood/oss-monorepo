@@ -27,7 +27,13 @@ says and why it matters:
   `rua=`/`ruf=` reporting addresses, and `adkim=`/`aspf=` alignment mode.
   Flags `p=none` (monitor-only) as the most common gap that leaves a domain
   spoofable while every other record looks configured, and flags a missing
-  DMARC record entirely as the more serious problem it is.
+  DMARC record entirely as the more serious problem it is. A subdomain with
+  no `_dmarc` record of its own is checked against its parent's record, as a
+  receiver would (RFC 7489 s6.6.3; the walk follows the DMARCbis DNS tree
+  walk, so it needs no Public Suffix List), and the parent's `sp=` (else
+  `p=`) is reported as the policy in force. Two or more DMARC records at one
+  name mean no policy applies, and the report says so instead of quoting the
+  first.
 - **BIMI** (bonus) -- checks whether a BIMI record is published and whether
   DMARC enforcement is actually strong enough (`p=quarantine`/`reject` with
   `pct=100`) for Google and Yahoo to honor it.
