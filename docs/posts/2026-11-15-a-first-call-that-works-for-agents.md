@@ -1,5 +1,5 @@
 ---
-title: "Agents guessed `compute`. Now the tools server hands them a call that ran"
+title: "Agents guessed compute. Now the tools server hands them a call that ran"
 date: 2026-11-15
 tags: [agents, mcp, open-source, tooling]
 seo_title: "An MCP tools server that hands agents a first call that ran"
