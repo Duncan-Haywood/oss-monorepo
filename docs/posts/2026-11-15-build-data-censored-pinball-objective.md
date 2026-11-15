@@ -1,8 +1,8 @@
 ---
 title: "A censored pinball loss lets a boosted model learn from builds that haven't finished yet"
-seo_title: "Censored quantile loss for LightGBM: a custom objective with leaf renewal"
+seo_title: "Censored quantile loss for LightGBM: custom objective, leaf renewal"
 date: 2026-11-15
-description: "Charging unfinished permits only while the forecast is below their elapsed time, and renewing leaves from that loss, cuts the deployable tail cost from +2.53 to +1.63 days."
+description: "Charging unfinished permits only while the forecast is below their elapsed time cuts the deployable tail cost from +2.53 to +1.63 days."
 tags: [research, build-data, construction, censoring, quantile-regression, lightgbm, survival-analysis]
 ---
 
@@ -36,11 +36,12 @@ Change in 0.9-quantile pinball loss on the test year, in days, against a model t
 
 That closes about two-thirds of the gap to the hindsight model. The median forecast gets slightly better too: −0.15 days on average, against IPCW's +0.34. With the hindsight model's early stopping, the same loss recovers 47 to 89% of what dropping the open permits costs. It comes within a day of the hindsight model in 3 of 4 city-years, a test IPCW and the pseudo-rows both failed.
 
-We wrote seven predictions down before the run, and six held. The one that failed: no q0.9 forecast would pass ten years. Three of 24 runs produced one, at most 4,569 days, on one to three test permits each. The capped pseudo-rows did this in 33 of 36 runs, on up to 4% of permits.
+We wrote seven predictions down before the run, and six held. The one that failed: no q0.9 forecast would pass ten years. Three of 24 runs produced one, at most 4,569 days, on one to three test permits each. The capped pseudo-rows did this in 33 of 36 runs, on up to 4% of permits. The hindsight model, refitted afterwards to check, does the same in 3 of its 12 San Francisco runs, up to 4,337 days. So that bar was set below what complete labels give.
 
 ## Caveats
 
 - One work-type class and 3 seeds. No confidence intervals, because per-row losses weren't kept. Each gap to IPCW is under a day and a quarter, so the evidence is that all four city-years go the same way.
+- Longer tails aren't better everywhere. Austin's builds are shorter than its source cities', so there the models that lose the long builds win. Giving the open permits back shrinks Austin's q0.9 gain against the hindsight model from 7.5 and 10.2 days (IPCW) to 2.6 and 7.7. This was reported, not tested.
 - The 0.1 quantile wasn't fitted, to save time. Open permits sit far above it.
 - The frame still leaves out permits that never complete in the feed. A real deployment would see those as open too.
 - The loss isn't a proper scoring rule for censored rows: it never learns how far past its window an open build ran. What is left of the gap probably lives there, and in a censored early-stopping year.
