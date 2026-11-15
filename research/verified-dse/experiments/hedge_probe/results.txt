@@ -1,0 +1,112 @@
+# Milestone 130: a hedged fall-back SWH(32, h) for the pilot-probe guard, priced by replay on milestones 119 to 125 (no flow run)
+
+theta = 3, alpha = 1.25; 200 draws per cell, paired with milestone 129's SWP(32) draws; design bootstrap 2000 resamples, seed 130.
+90 cells on 45 designs; 67 on the ladder branch. All are seen (see the docstring); SWH's parameters were fixed before this table existed.
+
+## Per cell, ladder branch (distrust = share of draws that fall back; hit = share of distrusting draws whose t or 3-point hedge holds the cell's best point)
+
+table | clock | design | k | random % | SWC % | SWP(32) % | SWH(32,3) % | SWHM(32,3) % | distrust | hit
+amount_place | tight | max3b6 | 33 | 22.73 | 0.00 | 2.98 | 2.98 | 0.00 | 0.10 | 0.00
+amount_place | relaxed | max3b6 | 33 | 20.89 | 0.00 | 4.97 | 4.97 | 0.00 | 0.15 | 0.00
+amount_place | relaxed | sat2b5 | 34 | 13.33 | 0.00 | 0.49 | 0.49 | 0.13 | 0.03 | 0.20
+amount_place | tight | sat2b5 | 34 | 12.83 | 0.00 | 0.44 | 0.44 | 0.19 | 0.03 | 0.20
+amount_lanes | relaxed | pmul3 | 31 | 12.44 | 0.00 | 3.28 | 3.28 | 0.00 | 0.20 | 0.23
+shift_power | tight | lzcnorm128 | 35 | 11.83 | 0.00 | 1.36 | 1.36 | 0.00 | 0.09 | 0.06
+shift_power | relaxed | lzcnorm128 | 35 | 11.37 | 0.00 | 1.42 | 1.42 | 0.00 | 0.09 | 0.28
+amount_lanes | tight | pmul3 | 32 | 10.61 | 0.00 | 3.19 | 3.19 | 4.02 | 0.22 | 0.20
+amount_cut | relaxed | mul2w | 20 | 10.34 | 0.00 | 2.37 | 1.96 | 2.29 | 0.20 | 0.28
+amount_lanes | relaxed | avg5 | 33 | 10.04 | 0.00 | 2.75 | 2.75 | 0.00 | 0.18 | 0.00
+amount_cut | tight | mul3n | 24 | 9.44 | 0.00 | 1.03 | 0.87 | 0.28 | 0.10 | 0.20
+amount_lanes | tight | avg5 | 33 | 8.70 | 0.00 | 2.28 | 2.28 | 0.00 | 0.14 | 0.00
+amount_cut | relaxed | mul3n | 24 | 8.36 | 0.00 | 1.58 | 1.49 | 0.00 | 0.12 | 0.00
+amount_lanes | tight | lane4k1 | 25 | 7.72 | 0.00 | 1.96 | 1.69 | 2.39 | 0.24 | 0.27
+amount_cut | relaxed | wsum3w | 26 | 6.00 | 0.00 | 1.38 | 1.24 | 0.00 | 0.17 | 0.00
+amount_threshold | tight | chainsh8 | 31 | 5.65 | 0.00 | 1.77 | 1.61 | 3.70 | 0.24 | 0.21
+amount_place | tight | max3b5 | 31 | 5.60 | 0.00 | 1.00 | 1.00 | 0.00 | 0.09 | 0.35
+amount_threshold | relaxed | chainsh8 | 31 | 5.53 | 0.00 | 0.98 | 0.99 | 0.00 | 0.10 | 0.00
+amount_place | tight | sat1b9 | 27 | 5.17 | 0.00 | 0.26 | 0.26 | 0.00 | 0.05 | 0.50
+struct_guard | tight | maxtree16x16 | 31 | 4.95 | 0.00 | 0.71 | 0.67 | 0.00 | 0.09 | 0.06
+amount_place | relaxed | max3b5 | 32 | 4.87 | 0.00 | 0.51 | 0.51 | 0.00 | 0.04 | 0.38
+amount_place | relaxed | sat1b9 | 28 | 4.77 | 0.00 | 0.20 | 0.20 | 0.07 | 0.04 | 0.50
+amount_lanes | tight | lane4k2 | 24 | 4.75 | 0.00 | 0.60 | 0.57 | 0.47 | 0.09 | 0.11
+amount_place | relaxed | sad1b8 | 34 | 4.57 | 0.00 | 0.56 | 0.56 | 4.14 | 0.18 | 0.54
+amount_threshold | relaxed | chainsh2 | 32 | 3.43 | 0.00 | 0.72 | 0.72 | 0.00 | 0.17 | 0.00
+amount_cut | tight | mul2w | 18 | 3.25 | 0.00 | 0.70 | 0.63 | 0.14 | 0.17 | 0.20
+struct_guard | relaxed | maxtree32x16 | 30 | 3.18 | 0.00 | 0.08 | 0.04 | 0.00 | 0.04 | 0.78
+amount_threshold | tight | pcnsh24 | 31 | 3.14 | 0.00 | 0.60 | 0.60 | 0.12 | 0.12 | 0.04
+amount_threshold | relaxed | pcnsh24 | 30 | 3.11 | 0.00 | 0.53 | 0.50 | 0.51 | 0.17 | 0.21
+amount_lanes | tight | lane2k2 | 36 | 2.89 | 0.00 | 1.06 | 1.06 | 0.00 | 0.17 | 0.00
+amount_threshold | tight | chainsh2 | 32 | 2.79 | 0.00 | 0.51 | 0.51 | 0.00 | 0.09 | 0.00
+amount_lanes | relaxed | lane2k2 | 35 | 2.75 | 0.00 | 0.60 | 0.60 | 0.00 | 0.13 | 0.00
+amount_lanes | relaxed | sel64 | 26 | 2.73 | 0.00 | 0.70 | 0.58 | 0.00 | 0.15 | 0.13
+amount_lanes | tight | sel64 | 26 | 2.55 | 0.00 | 0.88 | 0.75 | 0.00 | 0.19 | 0.11
+amount_lanes | relaxed | avg6 | 29 | 2.44 | 0.00 | 0.46 | 0.45 | 1.00 | 0.14 | 0.14
+amount_lanes | tight | avg6 | 29 | 2.40 | 0.00 | 0.60 | 0.57 | 1.11 | 0.15 | 0.20
+amount_lanes | relaxed | lane4k1 | 25 | 8.15 | 5.89 | 6.25 | 6.17 | 6.84 | 0.20 | 0.00
+amount_place | relaxed | sad2b5 | 31 | 3.25 | 1.17 | 1.61 | 1.61 | 1.41 | 0.08 | 0.06
+amount_place | tight | sad2b5 | 31 | 3.48 | 1.59 | 1.93 | 1.93 | 1.74 | 0.04 | 0.00
+amount_depth | tight | pcsh128 | 27 | 1.81 | 0.00 | 0.14 | 0.11 | 0.29 | 0.10 | 0.45
+amount_depth | relaxed | pcsh128 | 27 | 1.66 | 0.00 | 0.21 | 0.21 | 0.27 | 0.11 | 0.14
+amount_cut | tight | wsum4n | 31 | 1.89 | 0.73 | 1.01 | 0.96 | 0.72 | 0.15 | 0.13
+amount_depth | relaxed | pcsh64 | 39 | 0.95 | 0.00 | 0.17 | 0.17 | 0.00 | 0.05 | 0.30
+struct_guard | tight | maxtree32x16 | 24 | 1.58 | 0.65 | 0.68 | 0.68 | 0.64 | 0.05 | 0.00
+amount_depth | tight | pcsh64 | 39 | 0.92 | 0.00 | 0.10 | 0.10 | 0.00 | 0.04 | 0.25
+amount_cut | relaxed | wsum4n | 31 | 1.46 | 0.73 | 0.92 | 0.92 | 0.73 | 0.15 | 0.03
+amount_lanes | relaxed | lane4k2 | 25 | 4.97 | 4.81 | 4.66 | 4.68 | 4.59 | 0.06 | 0.08
+shift_power | tight | alignsh64 | 37 | 13.70 | 13.77 | 14.46 | 14.46 | 13.77 | 0.18 | 0.08
+amount_cut | tight | xor4 | 33 | 0.61 | 0.76 | 0.62 | 0.62 | 0.87 | 0.20 | 0.51
+struct_guard | tight | rotmask64 | 39 | 1.02 | 1.22 | 1.25 | 1.25 | 1.22 | 0.05 | 0.10
+struct_guard | tight | rotmask128 | 28 | 7.95 | 9.37 | 9.13 | 9.12 | 9.17 | 0.20 | 0.03
+shift_power | tight | alignsh128 | 31 | 5.43 | 7.11 | 6.93 | 6.90 | 7.18 | 0.15 | 0.13
+amount_cut | relaxed | xor4 | 33 | 0.53 | 2.81 | 2.49 | 2.49 | 2.66 | 0.14 | 0.07
+shift_power | relaxed | alignsh128 | 31 | 5.32 | 9.34 | 8.11 | 8.06 | 8.92 | 0.23 | 0.06
+amount_depth | relaxed | addsh128 | 29 | 1.30 | 7.74 | 5.16 | 5.07 | 7.99 | 0.43 | 0.29
+amount_cut | tight | wsum3w | 27 | 5.52 | 12.74 | 10.10 | 10.03 | 11.68 | 0.39 | 0.19
+amount_depth | tight | fpalign128 | 34 | 8.73 | 21.03 | 17.94 | 17.94 | 20.41 | 0.26 | 0.00
+amount_depth | relaxed | fpalign128 | 33 | 8.38 | 21.30 | 18.82 | 18.82 | 20.42 | 0.23 | 0.00
+struct_guard | relaxed | rotmask128 | 31 | 9.68 | 22.94 | 19.15 | 18.97 | 23.95 | 0.28 | 0.16
+shift_power | tight | muxshl128 | 34 | 2.37 | 17.85 | 10.60 | 10.60 | 15.04 | 0.46 | 0.00
+shift_power | relaxed | muxshl128 | 34 | 2.99 | 19.68 | 12.18 | 12.18 | 17.07 | 0.43 | 0.00
+amount_cut | tight | xor8 | 34 | 0.03 | 16.88 | 10.34 | 10.34 | 12.80 | 0.39 | 0.00
+amount_cut | relaxed | xor8 | 34 | 0.02 | 16.91 | 9.51 | 9.51 | 11.91 | 0.43 | 0.00
+amount_lanes | tight | pmul4 | 35 | 3.80 | 21.43 | 12.56 | 12.56 | 19.26 | 0.52 | 0.00
+amount_lanes | relaxed | pmul4 | 35 | 4.07 | 24.78 | 14.63 | 14.63 | 22.62 | 0.50 | 0.04
+amount_depth | tight | addsh128 | 28 | 1.82 | 23.02 | 13.32 | 13.21 | 17.00 | 0.42 | 0.42
+amount_place | tight | sad1b8 | 34 | 4.32 | 27.73 | 20.08 | 20.08 | 25.83 | 0.34 | 0.00
+
+## Mean regret % over all 90 cells
+
+SWC 4.77, SWG(32) 3.91, SWP(32) 4.39, SWH(32,3) 4.37, SWHM(32,3) 4.69, random 5.44, oracle switch 2.42
+
+ladder-branch cells only (67): SWC 4.69, SWG(32) 3.54, SWP(32) 4.19, SWH(32,3) 4.15, SWHM(32,3) 4.59, random 5.59, oracle switch 1.54
+cells where SWC loses to random by > 1 point (17): SWC 16.63, SWG(32) 8.82, SWP(32) 11.83, SWH(32,3) 11.79, SWHM(32,3) 14.94, random 4.25, oracle switch 4.25
+cells where SWC <= 0.5% (40): SWC 0.00, SWG(32) 1.35, SWP(32) 1.15, SWH(32,3) 1.11, SWHM(32,3) 0.53, random 6.56, oracle switch 0.00
+distrust share: 0.34 where SWC loses, 0.12 where SWC <= 0.5% (SWP(32)'s, by construction)
+hit share (descriptive): 0.08 where SWC loses, 0.19 where SWC <= 0.5%
+
+SWH(32,3) vs SWP(32): better 27, worse 3, tied 60; sign p = 0.000; design bootstrap 95% interval of mean (SWH(32,3) - SWP(32)) -0.04 to -0.01 points
+SWH(32,3) vs SWC: better 19, worse 48, tied 23; sign p = 0.001; design bootstrap 95% interval of mean (SWH(32,3) - SWC) -1.23 to +0.31 points
+SWH(32,3) vs random: better 47, worse 20, tied 23; sign p = 0.001; design bootstrap 95% interval of mean (SWH(32,3) - random) -2.65 to +0.54 points
+SWH(32,3) vs SWG(32): better 13, worse 54, tied 23; sign p = 0.000; design bootstrap 95% interval of mean (SWH(32,3) - SWG(32)) -0.67 to +1.52 points
+
+## SWH(32, h) and SWHM(32, h) grid (descriptive; h = 3 was fixed before the table)
+
+rule | mean %, all cells | ladder branch | where SWC loses | where SWC <= 0.5% | better / worse / tied against SWP(32)
+SWH(32,1) | 4.39 | 4.18 | 11.82 | 1.14 | 17 / 1 / 49
+SWH(32,2) | 4.37 | 4.16 | 11.81 | 1.12 | 23 / 1 / 43
+SWH(32,3) | 4.37 | 4.15 | 11.79 | 1.11 | 24 / 1 / 42
+SWH(32,5) | 4.36 | 4.14 | 11.78 | 1.11 | 24 / 0 / 43
+SWH(32,7) | 4.36 | 4.14 | 11.77 | 1.10 | 24 / 0 / 43
+SWHM(32,3) | 4.69 | 4.59 | 14.94 | 0.53 | 40 / 27 / 0
+SWHM(32,5) | 4.71 | 4.62 | 15.63 | 0.28 | 44 / 23 / 0
+
+## Predictions
+
+(1) SWH(32,3) below SWP(32): True (4.37% against 4.39%)
+(2) SWH(32,3) above SWG(32): True (4.37% against 3.91%)
+(3) where SWC <= 0.5%, SWH(32,3) gives up less than SWP(32) but more than 0.5 points: True (1.11 against 1.15 points)
+(4) where SWC loses by > 1 point, SWH(32,3) within 1 point of SWP(32): True (11.79% against 11.83%)
+(5) SWH(32,3) better than SWP(32) on more cells than worse: True (better 24, worse 1, tied 65)
+(6) SWHM(32,3) above SWP(32): True (4.69% against 4.39%)
+
+design-bootstrap 95% interval of mean (SWH(32,3) - SWP(32)): -0.04 to -0.01 points
