@@ -1,5 +1,20 @@
 # build-data log
 
+## Session 92, 2026-11-15: sweeping the staleness threshold (2, 3, 5, 8 years and a per-source 99th-percentile rule), and what the never-completed permits are in Seattle's and Austin's own status fields
+
+Why: session 91's 5-year staleness rule was fixed before the run and not swept, and it helped Seattle (q0.9 -5.7 to -6.9 days against cpin_es3) while costing SF (+1.6 to +2.9). Its "Next" asked for the sweep, a deployable way to set the cut, and the status fields Seattle and Austin carry.
+- Method: `rounds.py` variants `cpin_es3_nc2`, `_nc3`, `_nc8` (as session 91's `cpin_es3_nc5`, any source permit open at D for more than 2, 3 or 8 years, 730 / 1,096 / 2,922 days, is dropped) and `cpin_es3_ncq` (a threshold per source city, the 0.99 quantile of its own issue-to-completion days over builds of years <= Y-2 completed by D: something a deployment on D can compute; `rounds.q_threshold`). `src/closeout_status.py` asks each feed's status field what its never-completed permits are (SoQL group-by), so a cure-fraction model knows which labels each source can give.
+Design (fixed before any run): cascade2 class; H = sf, seattle; Y = 2021, 2022; 3 seeds; fresh pull 2026-11-15; `rounds.py DIR --score --keep-open --variants cpin_es3_ncq cpin_es3_nc3 cpin_es3_nc2 cpin_es3_nc8 --held sf seattle --out-name rounds_score_stale_i2c.json`; compared with session 91's cpin_es3 and cpin_es3_nc5 in `results/rounds_score_nc_i2c.json` (same pull date; not rerun, for time).
+Predictions (written before any model run; q0.9 = cascade2's mean pinball loss change against session 88's full on completed test-year rows, 3 seeds):
+- (S1) cpin_es3_nc8's SF and Seattle q0.9 mean change is more than 5 days above cpin_es3_nc5's (-0.41): the 5-to-8-year permits are mostly never closed out, as the nc run's +181 suggests.
+- (S2) cpin_es3_nc2's SF q0.9 mean change (2 cells) is below cpin_es3_nc5's (+2.78).
+- (S3) cpin_es3_ncq's per-source threshold lies between 2 and 5 years (730 to 1,826 days) for every source city-year, and its SF and Seattle q0.9 mean change is at most 0.5 days above cpin_es3_nc5's.
+- (S4) No one fixed threshold of 2, 3, 5 and 8 years has the lowest q0.9 loss in all 4 city-years.
+- (S5, check) The pull's SF, Seattle and Austin row counts are within 0.1% of session 91's (1,298,381; 194,311; 2,385,435).
+Refuted if any part fails.
+
+Outcome: running.
+
 ## Session 91, 2026-11-15: putting the permits never completed by the pull back as open rows wrecks the borrowed tail model (q0.9 +181 days against the complete-label model in SF and Seattle; Seattle +311 and +344), because 23 to 39% of source permits are never closed out and in SF most still read "issued" years later; dropping any permit open more than 5 years on the decision date turns that into the first deployable variant to match the complete-label model (q0.9 -0.41 days on average, cpin_es3 +1.63) and the best on the censored score over all test permits in 4 of 4; N1, N3, N5 held, N2 and N4 refuted
 
 Why: session 90's censored pinball loss closed two-thirds of the deployable model's tail gap, but its frame still dropped every permit never completed by the pull, so "open at D" meant "open at D and completed later": the model was told, in hindsight, which open permits would finish. Its "Next" asked to put them back as open rows, since a deployment on D sees them open too.

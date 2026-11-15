@@ -123,6 +123,19 @@ class NeverCompleted(unittest.TestCase):
         self.assertEqual(len(kept), 3)  # only the 2014 permit (open 2,191 days > 1,826) goes
         self.assertEqual(len(transfer.completed_by(d, D)), 1)
 
+    def test_stale_thresholds(self):
+        """Session 92: the swept thresholds in days, and the per-source quantile rule from builds done by D."""
+        import datetime, rounds
+        import pandas as pd
+        self.assertEqual(rounds.stale_days("cpin_es3_nc5"), rounds.STALE_DAYS)
+        self.assertEqual([rounds.stale_days(f"cpin_es3_nc{k}") for k in (2, 3, 8)], [730, 1096, 2922])
+        D = datetime.date(2020, 1, 1)
+        d = pd.DataFrame(dict(start=["2010-01-01", "2011-01-01", "2012-01-01", "2019-12-01", "2013-01-01"],
+                              y=[100.0, 200.0, 300.0, 400.0, np.inf]))
+        # the 2019 permit's 400 days end after D and the 2013 permit never completed: neither counts
+        self.assertEqual(rounds.q_threshold(d, D, q=1.0), 300.0)
+        self.assertEqual(rounds.q_threshold(d, D, q=0.5), 200.0)
+
 
 if __name__ == "__main__":
     unittest.main()

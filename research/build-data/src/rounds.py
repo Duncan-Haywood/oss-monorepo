@@ -50,8 +50,25 @@ import boosted, transfer  # noqa: E402
 
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
-            "cpin_es3_nc", "cpin_es3_nc5")
+            "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
+# Session 92: the staleness threshold swept, in days (365.25 x years, rounded), and a per-source-city rule.
+STALE_YEARS = {"cpin_es3_nc2": 2, "cpin_es3_nc3": 3, "cpin_es3_nc5": 5, "cpin_es3_nc8": 8}
+STALE_Q = 0.99  # cpin_es3_ncq: a source's threshold = this quantile of its builds completed by D (years <= Y-2)
+
+
+def stale_days(variant):
+    return round(365.25 * STALE_YEARS[variant])
+
+
+def q_threshold(d, decision, q=STALE_Q):
+    """Session 92 (cpin_es3_ncq): the q-quantile of issue-to-completion days over d's rows completed by
+    `decision`; a deployment on that date can compute it from the source's own records."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    y = d.y.to_numpy(float)
+    done = y <= win
+    return float(np.quantile(y[done], q))
 
 
 def stale_drop(d, decision, days=STALE_DAYS):
@@ -111,6 +128,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     frames = {c: (d if nc and c != held else d[np.isfinite(d.y.to_numpy(float))]) for c, d in frames.items()}
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
+    thresholds = None
     if variant == "cpin_cut":
         tr, ca = cat(lambda d: d.year <= Y - 2), cat(lambda d: d.year == Y - 1)
         ytr, otr = cpin.censor(tr, D)
@@ -119,8 +137,15 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         tr, ca = cat(lambda d: (d.year <= Y - 4) | (d.year == Y - 2)), cat(lambda d: d.year == Y - 3)
         if variant == "cpin_es3_done":
             tr, ca = transfer.completed_by(tr, D), transfer.completed_by(ca, D)
-        if variant == "cpin_es3_nc5":
-            tr, ca = stale_drop(tr, D), stale_drop(ca, D)
+        if variant in STALE_YEARS:
+            tr, ca = stale_drop(tr, D, stale_days(variant)), stale_drop(ca, D, stale_days(variant))
+        if variant == "cpin_es3_ncq":
+            # per source city, from its own builds of years <= Y-2 completed by D (training years only)
+            thresholds = {c: q_threshold(frames[c][(frames[c].year <= Y - 2) & np.isfinite(frames[c].y)], D)
+                          for c in src}
+            tr = pd.concat([stale_drop(frames[c][(frames[c].year <= Y - 4) | (frames[c].year == Y - 2)], D,
+                                       thresholds[c]) for c in src])
+            ca = pd.concat([stale_drop(frames[c][frames[c].year == Y - 3], D, thresholds[c]) for c in src])
         ytr, otr = cpin.censor(tr, D)
         yca, oca = cpin.censor(ca, D)
     te = frames[held][frames[held].year == Y]
@@ -147,6 +172,10 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
                     preds[str(s)] = dict(max=float(pr[done_te].max()), share_above_3650=float((pr[done_te] > 3650).mean()))
         out[str(s)] = {str(t): int(v) for t, v in r.items()}
     res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
+    if thresholds is not None:
+        res["stale_threshold_days"] = thresholds
+    elif variant in STALE_YEARS:
+        res["stale_threshold_days"] = stale_days(variant)
     res["n_train_never_completed"] = int(np.isinf(tr.y.to_numpy(float)).sum())
     res["n_es_never_completed"] = int(np.isinf(ca.y.to_numpy(float)).sum())
     if score:
