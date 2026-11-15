@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVP3q5M98E5H5grJ11X",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T10:55:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 9 (league-schedule-generator): profile the 28-team floor-priced step and bring 27-28 teams into the page",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 16173,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace could not place a second edit in the league next: field ('no safe split'), so the rewrite was done by hand in flagships.yaml"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-the-walk-that-got-unlucky-28-team-leagues.md",
+    "ventures/league-schedule-generator/README.md (Starting under the gap)"
+  ],
+  "goal": "28-team single round robins get floor-priced seasons on the page",
+  "notes": "Profiled 28 teams (node --cpu-prof): every floor-priced search returned null because balancedWalk ran out of budget (heavy tail: 0.9-6.8M steps by seed on the start's own timetable) and the starter season above the gap was too rigid to move. Fixes: balance-guided walk order on a tenth of the budget, then the old seeded order (33 of 960 walks out of budget vs 40; 146M vs 191M steps, eval/walk-guide.txt); carryOverFloorPriced starts from the season under the gap once the search from above lands nothing within a cap. Page step now up to 28 teams (FLOOR_PRICED_MAX_MATCHES 14). Old vs new on the same lists, 14 runs at 20-28 teams (eval/under-start.txt): no run's gap cut went down, five went up (28 teams all three seeds, 26/1, 25/2, 24/2), 381.7 s -> 335.7 s. Local verification: run_venture_tests.py league-schedule-generator 521 tests pass (244 s); venture-preflight clean; post front matter/links/similarity clean. A first cut with half the budget guided lost 22 teams' 440/58 on seed 1; caught in the A/B and fixed by the 0.1 share before merging.",
+  "corrections": [],
+  "redteam": null
+}
