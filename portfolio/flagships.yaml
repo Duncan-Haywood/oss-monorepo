@@ -26,6 +26,13 @@
 # need no key, account or person; drop or rewrite it when they land. validate.py
 # caps it at 600 characters (FLAGSHIP_BUILDABLE_MAX): it is not a history log.
 #
+# `hosts: [<url>, ...]` (optional) lists the hosts those items need.
+# `allocate.py --venture <slug>` probes each one (and any host name the row's
+# prose names) and prints which answer from this session now. Write no
+# "X answers 403" or "X serves files" in the prose: reachability changes
+# between sessions, and such notes went stale within a day (13 run reports,
+# 2026-11-13..15).
+#
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
@@ -182,6 +189,7 @@ flagships:
       driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a
       yearly term.
   - venture: einvoice-preflight
+    hosts: [https://omawww.sat.gob.mx/]
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
@@ -247,13 +255,14 @@ flagships:
       export, real trip times; whether the priced cut's r = 1 default suits a real
       manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
+    hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0) serves files with `curl -L`. Tiled
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Tiled
       C-RAW: re-tile a real R8 for LibRaw (eval/canon-cr3-tiled-*); Bayer demosaic:
       aliased luma, noise (eval/bayer-*). X-Trans demosaic: real frames 0.5-0.7 dB
       short of LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings;
@@ -403,6 +412,7 @@ flagships:
   # "would be fun to make as a long term project. also being able to publish to
   # spotify etc." Placed last so it does not displace the construction programme.
   - venture: chant-forge
+    hosts: [https://archive.org/]
     why: >-
       Long-term music production programme: public-domain chant (GABC) to MIDI
       men's-choir lines with Latin lyrics, then genre templates, voices,
