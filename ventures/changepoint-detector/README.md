@@ -4971,3 +4971,50 @@ in `llms.txt`) now say that a change of shape at an unchanged level and spread i
 that on long repeating waveforms the agreed changes can be the cycle itself, and name a shape method (ClaSP) for that
 job. Tests: `tssb.test.mjs` (5: desc parsing, the pinned round, single-annotator covering, every setting on a made-up
 step, and the committed output's four verdicts).
+
+## Many agreed changes spread through a series: a guard, and a fresh activity set (2026-11-15, pre-registered; fails two of three lines, not offered)
+
+The TSSB round above found the page's headline ("every setting agrees on these changes") scoring below "no change" on
+long repeating waveforms, and named a guard on "many agreed changes, evenly spread" as the next round. Fixed before it
+ran on anything (`eval/repeat-guard-prereg-2026-11-15.md`): the guard (`consensus.mjs` `repeatGuard`) fires on 15 or
+more every-setting changes falling in at least 8 of the series' 10 equal tenths; when it fires, the series is scored as
+reporting no agreed change. Three sets: TSSB (seen: the guard was designed on its counts), TCPD's 38 univariate series
+(it must stay quiet) and a **fresh** labelled set, the Human Activity Segmentation Challenge 2023 (HAS; 250 smartphone
+recordings of people moving through routines of activities, 1.93 M points, 785 labelled activity changes; CC BY-NC-SA,
+fetched by `eval/has-fetch.sh` with a pinned sha256, never committed), read as the accelerometer magnitude.
+`node eval/repeat-guard.mjs tssb-data tcpd-data has-data` (output `eval/repeat-guard.out.txt`, 10 min on 4 cores).
+
+| covering (one annotator) | TSSB, 75 | HAS 2023, 250 (fresh) |
+|---|---|---|
+| zero (no change) | 0.401 | 0.444 |
+| every-setting consensus (the page's headline) | 0.344 | **0.619** |
+| guarded every-setting | **0.403** | 0.611 |
+| guard fires on | 14 (all repeating waveforms) | 31 |
+
+- **G1 holds (seen set).** On TSSB the guard fires on exactly the 14 series with 23 or more agreed changes, holding 568
+  of the 579 agreed changes; guarded covering 0.403 against zero's 0.401 (+0.059 over unguarded, better on 14, worse on 0).
+- **G2 fails.** It fires on one TCPD series, `bank` (30 agreed changes). The pre-registration's premise, "TCPD's most on
+  any one series is 12", was wrong: 12 was the held-out seven's most; the shipped 31 were not checked per series. (Post
+  hoc, deciding nothing: `bank` has no annotated change, so firing there would raise its score.)
+- **G3 fails (fresh set).** On HAS the guard costs 0.008 covering (bar -0.005; 95% interval -0.020 to 0.003) and is worse
+  on 20 of the 31 series where it fires, better on 11. Repeated motions (steps, jumps, sit-ups) do produce evenly spread
+  agreed changes, but a routine of several activities spread through a recording does too, and there the agreed
+  changes carry real ones: on has-195 (8 labelled changes) dropping them takes covering from 0.743 to 0.117. Count and
+  spread alone cannot tell the two apart. The count-only arm (descriptive) is worse still: 0.587.
+- **Predictions, scored:** G1 met: right. G2 met: wrong (the premise above). G3 met: wrong. Fires on 10 to 60 HAS series:
+  right (31). Consensus above zero on HAS: right.
+
+**The finding that matters more: on a fresh set nearer the detector's domain the headline holds.** HAS's activity
+changes move the level and spread of the accelerometer magnitude, and there the every-setting consensus beats reporting
+no change by +0.175 covering (95% 0.142 to 0.207; better on 160 series, worse on 32), with 1.15 cuts per 1,000 points;
+24% of its 2,220 agreed changes lie within 2% of the length of a labelled change. Following the over-cut warning lifts the
+plain level model from 0.131 to 0.492. This is the third labelled set the agreed-changes headline has been scored on
+(TCPD held out F1 0.711, TSSB covering 0.344 below zero, HAS 0.619 above zero), and it is the first fresh one of over a
+million points.
+
+**What changes now.** As pre-registered, nothing ships: `repeatGuard` stays in `consensus.mjs` for the eval, uncalled by
+`consensus()`. The limits keep saying that many evenly spread agreed changes on a long periodic signal can be the cycle,
+now with the counter-case: on a routine of activities they can be real. A next guard would need a reading of the
+waveform between cuts (are the segments the same shape repeated?), not their count or spread. Tests:
+`repeat-guard.test.mjs` (7: the thresholds, firing and quiet cases, the tenth at the end, `consensus()` without the
+warning, the HAS line parser, the committed verdicts and the HAS headline).
