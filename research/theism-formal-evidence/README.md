@@ -49,7 +49,7 @@ large to enumerate) are not covered, and general models are not excluded by sear
 Unwin's formula. They multiply to 2.5×10^−4, so P(God) = 0.025%, not the 2% the column states; the
 stated bottom line is about 82 times too large in odds for its own inputs. Unwin's 67% does reproduce.
 Which side is a slip is not knowable from the column; no claim is made. Order of application is
-irrelevant. Swinburne's four inputs remain untranscribed (the book is not reachable).
+irrelevant. Swinburne's four inputs are transcribed in E25 below.
 
 **M4 (part), shared-cause dependence (E5, 2026-11-07).** Replacing the crude ρ discount, the
 resurrection testimony items share one latent source reliability. The combined Bayes factor is
@@ -224,6 +224,21 @@ inside A iff inside S, and miss A iff they miss S (`essential_sep_iff`, `essenti
 worlds the separable pairs are exactly E21's 36 block-algebra failures; at 4 worlds, 10,464 pairs
 against E23's 14,688 for general collections. A definition-level check passes at all 11,628
 separable cases up to 4 worlds ([results](experiments/e24_block_separation/results.md)).
+
+**M2 (part), Swinburne's 0.97 reproduced (E25, 2026-11-15).** Swinburne's Bayesian case for the
+incarnation and resurrection (*The Resurrection of God Incarnate*, 2003) has four inputs, quoted
+with the book's page numbers in Otte's NDPR review: P(theism) = 1/2, P(divided incarnation | God)
+= 1/2, P(evidence | incarnation) = 1/10 (p. 212), P(evidence | no incarnation) = 1/1000 (p. 213).
+Exact arithmetic gives **100/103 = 0.9709**, so the published "around .97" follows from its
+inputs (Shermer's 2% did not, E6). The whole historical case enters as a likelihood ratio of
+100, two orders of magnitude, against up to 10^44 claimed for the testimony elsewhere (E5). The
+posterior falls to 1/2 if the evidence-without-incarnation input rises from 1/1000 to 1/30, if
+the two priors multiply to less than 1/101 (P(theism) below about 1/50), or if more than 97/101 of the
+incarnation probability goes to a unified rather than divided incarnation (Otte's coherence
+point). Otte's own suggestion of 1/3 for incarnation leaves it at 20/21 = 0.952. The "0.97 to
+0.33" sensitivity the proposal attributed to critics is not in Otte's review and is withdrawn
+until sourced ([results](experiments/e25_swinburne/results.md)). The book itself has not been
+read; the inputs rest on the review's quotations.
 
 ## Layout
 
