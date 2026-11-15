@@ -250,6 +250,17 @@ CHECKS = [
     ("json", "m4l_predict/summary.json", 'k6/right/ratio', 1.19, 2, None, '1.19–1.89× the real rate'),
     ("json", "m4l_predict/summary.json", 'k6/fr3/ratio', 1.89, 2, None, '1.19–1.89× the real rate'),
     ("json", "m4l_predict/summary.json", 'other_designs/fr1/7+4/auc_pm2', 0.42, 2, None, 'ranking fails on the Kinect (AUC 0.42)'),
+    # Section 7, milestone 4m
+    ("json", "m4m_wait/summary.json", 'hypotheses/H77/chosen', 9.7, 1, pct, 'catches ±2% in 9.7% of old sets'),
+    ("json", "m4m_wait/summary.json", 'hypotheses/H77/random', 7.3, 1, pct, 'against 7.3% for a blind pick'),
+    ("json", "m4m_wait/summary.json", 'hypotheses/H77/ratio', 1.33, 2, None, '(×1.33, 7 candidates at 6 + 6)'),
+    ("json", "m4m_wait/summary.json", 'hypotheses/H80/ratio_5_6', 1.63, 2, None, '×1.63 among 28 candidates'),
+    ("json", "m4m_wait/summary.json", 'hypotheses/H78/ratio', 1.17, 2, None, "on OpenCV's cameras ×1.17"),
+    ("json", "m4m_wait/summary.json", 'units/right/6+6/pi/fa', 0.06, 2, pct, 'stay at 0.06–1.40%'),
+    ("json", "m4m_wait/summary.json", 'units/left/6+6/pi/fa', 1.40, 2, pct, 'stay at 0.06–1.40%'),
+    ("json", "m4m_wait/summary.json", 'units/fr1/6+6/ceiling_pm2', 19.2, 1, pct, '19.2–55.1% of old sets'),
+    ("json", "m4m_wait/summary.json", 'units/left/6+6/ceiling_pm2', 55.1, 1, pct, '19.2–55.1% of old sets'),
+    ("log", "within 0.11 on 7 of 8 unit-designs", "within\n0.11 on 7 of 8 unit-designs"),
 ]
 
 
