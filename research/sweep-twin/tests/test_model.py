@@ -34,6 +34,16 @@ class T(unittest.TestCase):
         nv, f, b = walls(sc)
         self.assertAlmostEqual(wall_x(nv, f) - wall_x(nv, b) - (R.d1 + R.d2), length_bias(L, 10.0), places=9)
 
+    def test_length_bias_matches_scan_for_every_seam(self):
+        # Quality census 2026-11-15-8ced: the old closed form spin*v*tau/2 had the wrong sign clockwise.
+        for spin, phi0 in ((1, -math.pi / 2), (-1, math.pi / 2), (1, math.pi / 2), (-1, -math.pi / 2),
+                           (1, 0.3), (-1, 2.0)):
+            lid = Lidar(spin=spin, phi0=phi0)
+            sc = scan(R, lid, 10.0)
+            nv = naive_points(sc)
+            measured = wall_x(nv, fan(sc, 0.0, 0.05)) - wall_x(nv, fan(sc, math.pi, 0.05)) - (R.d1 + R.d2)
+            self.assertAlmostEqual(measured, length_bias(lid, 10.0), places=2, msg=(spin, phi0))
+
     def test_parallel_wall_unbiased(self):
         sc = scan(R, L, 10.0)
         nv = naive_points(sc)

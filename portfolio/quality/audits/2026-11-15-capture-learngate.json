@@ -1,0 +1,220 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/capture-learngate",
+ "stratum": "research",
+ "seed": "2026-11-15-8ced",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior image-based-rendering / novel-view-synthesis researcher (the kind who reviews for CVPR or SIGGRAPH). They would check first that the scene, stereo and warp are geometrically right, that the hand-set baseline was tuned as hard as the learned model, that the gain survives a different training seed, that prior learned-blending work is cited, and whether PSNR alone on a toy scene supports the conclusion",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Rerun in a scratch copy (`PYTHONPATH=src python3 experiments/run.py`) reproduces experiments/results.txt byte for byte, and figure.py reproduces bystanders.svg identically. Independent checks (indep.py, my own scalar look-at pinhole + ray/plane + ray/cylinder tracer, scipy, scikit-image, scikit-learn): render depth matches my tracer to 3.6e-14 m on 2,192 random pixels with no sky/hit mismatches; the block matcher's disparity matches analytic F*b/z (F=166.277) with median error 0.14 to 0.16 px; psnr equals skimage peak_signal_noise_ratio(data_range=1) to 6 decimals; ideal_weight equals scipy bounded argmin of the per-pixel squared error to 2e-8; Ridge matches sklearn Ridge to 4e-5 (lam=1) and 4e-3 (lam=100, it also penalises the intercept). Derived numbers (headroom 2.71, shares 0.148/0.288/0.358, stress 0.46 of 1.61, +0.13 over fill) recompute. Robustness (fair.py): a 400-point soft-gate sweep over t0, t1, grow and smooth finds train 26.352 vs the committed grid's 26.331 and test 26.209 vs 26.206, so the baseline was not under-tuned; MLP seeds 0, 1, 2 give test 26.780/26.780/26.782 and +0.571 to +0.573 dB over the better-tuned soft gate, 40/40 ahead each. Not 4: PSNR only, toy scene.",
+  "completeness": "README promises 7 tests (7 passed in 0.60 s), run.py writes results.txt (byte-identical), figure.py from results.txt (identical SVG), every table row and bullet in Results (all present in results.txt), ablation section F (present), stress split (present). Live page https://marisstella.app/research/capture-learngate/ not checked: the session proxy returned 403 on CONNECT. README says run.py takes 'about 2.5 minutes'; it took 13 min 42 s wall here, but under concurrent load from my other checks, so not scored as a defect. Next steps are honestly marked undone (capture-whichwrong has since taken two of them).",
+  "verification": "`cd research/capture-learngate && python3 -m pytest -q tests`: 7 passed in 0.60 s. The tests cover ideal_weight, the texture seed, feature shape, Ridge on a linear target, MLP beating Ridge on an interaction, and output range. Four seeded mutants via platform/ci/quality_mutate.py: 1 caught (tanh derivative 1-a^2 -> 1-a, by the MLP test), 3 survived: stereo depth F*b/disp -> F*b/(disp+1) (stereo.py:53), near_hole feature built from the wrong source mask (learn.py:47), and the soft gate losing its grow step (hybrid.py:101). Nothing tests the stereo matcher, the warp, the gates, the feature values or any committed result; only a full 2.5+ minute rerun and diff would notice.",
+  "craft": "Read scene.py, stereo.py, synth.py, hybrid.py, learn.py, run.py, figure.py, tests. Numpy-only, vectorised, deterministic seeds, results parsed into the figure rather than retyped. Defects: scene, stereo, synth and hybrid are copied from capture-softgate (hybrid.py is byte-identical to research/capture-softgate/src/capture_softgate/hybrid.py), the 'copied engines' pattern across the capture-* family; learn.blend (learn.py:126) is dead code, run.py reimplements it as render_with; Ridge penalises the intercept (learn.py:78, non-standard); run.py defines a class inside the ablation loop; pyproject.toml description is the copied capture-softgate one ('Confidence-gated fallback and hole filling'), not this project.",
+  "claims": "Every headline number (26.78/26.21/25.81, +0.57 se 0.05, 40/40, 0.36/0.15/0.29 of 2.7 dB, stress +0.24 and 24/25, by-bystander table, ablation figures, 'MLP 0.19 above ridge', '0.13 above filling') is in results.txt and recomputes. Limitations are specific and candid (toy scene, same-family textures, PSNR only, unequal capacity, 10 validation configs, fixed holes). Small overstatements: 'raw nearest camera' when the target is the exact midpoint so the two sources are equidistant and 'nearest' is just the first after a tie-breaking sort (run.py:46,53); hybrid.py:9 and the table call the binary oracle an upper bound, but it picks per pixel by L1 and is scored by L2, so it is not the PSNR-optimal binary choice. Neither changes a headline.",
+  "fitness": "Job: a researcher who wants to know whether learned per-pixel blend weights beat a hand-set disagreement ramp for two-view stereo-depth synthesis, and to build on it. It is reproducible, deterministic and was built on (capture-whichwrong). But the nearest prior work makes the result unsurprising and not new: view-dependent blending weights (Buehler et al., Unstructured Lumigraph Rendering, SIGGRAPH 2001), learned per-pixel blending weights from warped mosaics (Hedman et al., Deep Blending for Free-Viewpoint IBR, SIGGRAPH Asia 2018), Soft3D (Penner & Zhang 2017), DeepStereo (Flynn et al. 2016) and Free View Synthesis (Riegler & Koltun, ECCV 2020) all learn or derive blend weights with far richer inputs. None is cited; README:9 says only that it is 'ordinary in learned image-based rendering'. A +0.57 dB PSNR gain on an analytic cylinder scene with a block matcher is sound as an internal measurement but does not transfer, and the project is not part of a programme in research/PROGRAMMES.md. Well short of the PhD bar.",
+  "domain": "Against IBR evaluation practice (PSNR plus SSIM and LPIPS on standard multi-view datasets, e.g. the protocols of Hedman 2018 and Riegler & Koltun 2020): PSNR only (disclosed), one analytic scene family, no perceptual or seam metric, and 0.5 dB may be invisible (disclosed). The method itself (regress the closed-form least-squares weight with an image-loss weighting, tune baselines on the same training configs, held-out textures, an out-of-range stress split, ablation) is sound and the baseline-tuning is fair as my wider sweep shows. The binary oracle uses an L1 choice under an L2 score, and the 'nearest camera' is a tie at the midpoint. A reviewer would accept it as a careful toy study and reject it as a contribution."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "ray-traced depth of the scene at random pixels, two azimuths",
+   "method": "auditor's own scalar look-at pinhole camera with ray/plane and ray/cylinder intersection (textbook geometry), compared to render()",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/scripts/indep.py /home/user/oss-monorepo/research/capture-learngate/src /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/pylib (scipy, scikit-image, scikit-learn in pylib)",
+   "expected": "agreement to float precision, same hit/miss",
+   "observed": "max abs err 3.55e-14 m (1104 px) and 2.18e-14 m (1088 px), 0 hit/miss mismatches",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "block-matcher disparity against analytic disparity F*b/z",
+   "method": "rectified-stereo relation d = f*B/Z with f = (W/2)/tan(HFOV/2)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/scripts/indep.py /home/user/oss-monorepo/research/capture-learngate/src /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/pylib (scipy, scikit-image, scikit-learn in pylib)",
+   "expected": "sub-pixel median error",
+   "observed": "F=166.277; median |disp err| 0.137 px (b=0.1), 0.160 px (b=0.3); >1 px on 3.7% / 4.4% of covered pixels",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "PSNR implementation",
+   "method": "skimage.metrics.peak_signal_noise_ratio(data_range=1.0)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/scripts/indep.py /home/user/oss-monorepo/research/capture-learngate/src /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/pylib (scipy, scikit-image, scikit-learn in pylib)",
+   "expected": "identical",
+   "observed": "27.328544 vs 27.328544",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "closed-form least-squares blend weight w*",
+   "method": "scipy.optimize.minimize_scalar bounded on [0,1] of |w*near+(1-w)*base-truth|^2 at 300 random pixels",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/scripts/indep.py /home/user/oss-monorepo/research/capture-learngate/src /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/pylib (scipy, scikit-image, scikit-learn in pylib)",
+   "expected": "same argmin",
+   "observed": "max difference 2.06e-08",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Ridge regressor on standardised weighted features",
+   "method": "sklearn.linear_model.Ridge with sample_weight",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/scripts/indep.py /home/user/oss-monorepo/research/capture-learngate/src /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/pylib (scipy, scikit-image, scikit-learn in pylib)",
+   "expected": "same predictions",
+   "observed": "max pred diff 4.1e-05 (lam 1), 4.1e-03 (lam 100); intercept 0.39687 vs 0.40074 because the repo penalises the intercept",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline is robust to a harder-tuned soft gate and to MLP seed",
+   "method": "400-point sweep over t0, t1, grow, smooth on the 40 training configs; MLP hidden 64 refitted with seeds 0, 1, 2",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/scripts/fair.py /home/user/oss-monorepo/research/capture-learngate",
+   "expected": "MLP still ahead of soft by about +0.57 dB",
+   "observed": "wider sweep best (0.0,1.0,1,1) train 26.352 vs 26.331, test 26.209 vs 26.206; MLP test 26.780/26.780/26.782, +0.571/+0.571/+0.573 dB, 40/40 each",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "derived shares and differences in README Results",
+   "method": "arithmetic from the committed table; scipy binomtest for 40/40",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/scripts/indep.py /home/user/oss-monorepo/research/capture-learngate/src /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/pylib (scipy, scikit-image, scikit-learn in pylib)",
+   "expected": "0.15 / 0.29 / 0.36 of 2.71; stress 0.46 of 1.61; MLP-ridge 0.19",
+   "observed": "0.148 / 0.288 / 0.358; 0.460 of 1.61; 0.19; sign test p = 1.8e-12",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment and figure reproduce the committed outputs",
+   "method": "rerun in a scratch copy and diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/capture-learngate/copy/research/capture-learngate && PYTHONPATH=src python3 experiments/run.py && diff experiments/results.txt <repo copy>; python3 experiments/figure.py && diff -q experiments/bystanders.svg <repo copy>",
+   "expected": "no diff; about 2.5 minutes",
+   "observed": "no diff in either; 13 min 42 s wall under concurrent load",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/capture-learngate && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "7 tests pass (README)",
+   "observed": "7 passed in 0.60s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/capture-learngate/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403; not checked",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'raw nearest camera' and 'nearest camera alone' baseline",
+   "method": "read run.py: target azimuth t, sources at t -/+ gap/2",
+   "command": "sed -n 44,53p research/capture-learngate/experiments/run.py",
+   "expected": "one source strictly nearer",
+   "observed": "both equidistant; min() returns the first (lower-angle) source by tie",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "binary oracle as an upper bound",
+   "method": "read hybrid.py:120 and run.py:81",
+   "command": "sed -n 118,121p research/capture-learngate/src/capture_learngate/hybrid.py",
+   "expected": "per-pixel choice minimising the scored (L2) error",
+   "observed": "choice by L1 distance, scored by PSNR (L2): not the binary L2 optimum",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "compare README Builds-on with Buehler 2001, Hedman 2018, Penner & Zhang 2017, Flynn 2016, Riegler & Koltun 2020",
+   "command": "grep -n -i -E 'hedman|lumigraph|buehler|riegler|soft3d|deepstereo' research/capture-learngate/README.md",
+   "expected": "cited",
+   "observed": "no match; only 'ordinary in learned image-based rendering' (README:9)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/capture_learngate/stereo.py:53",
+   "change": "z = np.where(ok, F * baseline / disp, np.inf) -> z = np.where(ok, F * baseline / (disp + 1), np.inf)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_learngate/learn.py:47",
+   "change": "_dilate(~o1, 1).astype(float) -> _dilate(~o2, 1).astype(float)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_learngate/hybrid.py:101",
+   "change": "w = _smooth(_grow_max(ramp(d, t0, t1), grow), smooth) -> w = _smooth(ramp(d, t0, t1), smooth)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_learngate/learn.py:113",
+   "change": "ga = (go @ self.W2.T) * (1 - a ** 2) -> ga = (go @ self.W2.T) * (1 - a)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Nearest prior work on learned and derived per-pixel blending weights in image-based rendering is not cited (Buehler et al. 2001 Unstructured Lumigraph; Hedman et al. 2018 Deep Blending; Penner & Zhang 2017 Soft3D; Flynn et al. 2016 DeepStereo; Riegler & Koltun 2020 FVS); the result is a toy-scene confirmation of an established idea, PSNR only, with no SSIM/LPIPS",
+   "where": "research/capture-learngate/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not cover the stereo matcher, warp, gates, feature values or any committed result: 3 of 4 seeded mutants survive (stereo depth formula, near_hole feature from the wrong mask, soft gate without grow)",
+   "where": "research/capture-learngate/tests/test_learngate.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "The target is the exact midpoint, so the two sources are equidistant and the 'raw nearest camera' used for holes, the blend and the 'nearest camera' baseline is the lower-angle source chosen by a tie in min(); the README never says so",
+   "where": "research/capture-learngate/experiments/run.py:53",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Binary oracle chooses per pixel by L1 distance but is scored by PSNR (L2), yet is described as an upper bound; it is not the L2-optimal binary choice",
+   "where": "research/capture-learngate/src/capture_learngate/hybrid.py:120",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Scene, stereo, synth and hybrid modules copied from capture-softgate (hybrid.py byte-identical); learn.blend is dead code duplicated by run.py's render_with; Ridge penalises the intercept",
+   "where": "research/capture-learngate/src/capture_learngate/learn.py:126",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "pyproject.toml description is the copied capture-softgate one ('Confidence-gated fallback and hole filling ...'), not this project's question",
+   "where": "research/capture-learngate/pyproject.toml:4",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"],
+ "verdict": "A careful, honest toy study whose numbers are right and robust. results.txt and the figure reproduce byte for byte; the scene geometry matches an independent ray tracer to 1e-14 m, the matcher's disparity matches F*b/z to 0.15 px, and PSNR, the least-squares blend weight and Ridge agree with scikit-image, scipy and scikit-learn. The headline +0.57 dB over the soft gate survives a 400-point re-tuning of that gate (it gains 0.003 dB) and three MLP seeds (40/40 each time). It misses the bar on verification (3 of 4 seeded mutants survive; nothing tests the stereo, warp, gates or results) and on the research bar: the idea of learned per-pixel blend weights is established IBR practice (Hedman 2018, Riegler & Koltun 2020) and none of it is cited, the evaluation is PSNR only on an analytic cylinder scene, and the copied engines from capture-softgate are a maintenance smell. Minor overstatements: the 'nearest' camera is a tie at the midpoint, and the binary oracle is not an L2 bound."
+}
