@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKiZHo2XKsmgj71Eubd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T02:30:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship BUILDABLE item: torque-limiting slip coupling for the lift's jam impact",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16059",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/cad/otr_cad/feeder.py",
+      "issue": "lift_jam_line hard-codes sweep results (102-172 N) in a generated manifest line; the new lift_slip_line repeats the pattern because the sweep is too slow to run inside the package build. A sweep-results file the line reads would keep them honest."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots next: sat at 1981/2000 chars, so landing anything meant trimming landed clauses first; flagship_field.py's suggestion list made that quick."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (buildable)",
+      "why": "The buildable item asked only for a slip coupling, but a slipping hub draws less than the old trip current, so the cutoff would no longer see a jam.",
+      "did": "Lowered the comparator trip as well (3.9k to 2.7k, 2.48 A to 1.74 A) and raised the start blanking from 300 to 400 ms, which touches the firmware config.",
+      "result": "Sweep: every jam is still cut and flagged, and the start never trips at any corner."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-slip-hub-takes-the-tennis-lifts-jam-off-the-flight.md",
+    "ventures/open-tennis-robots/cad/README.md (Lift slip coupling)"
+  ],
+  "goal": null,
+  "notes": "tests/lift_jam_sweep.py is now a two-inertia stick-slip plant running the real firmware. With the hub, a jam's peak on a flight is 51-88 N at every corner (rigid: 85-214 N at the same trip); the plate allows 156 N. Local: PYTHONPATH=src pytest tests -> 112 passed; cad pytest and the feeder package rebuild are below. Open: the stack needs 63 mm of 6 mm D shaft past the gearmotor's face (now the flagship's buildable item).",
+  "corrections": [],
+  "redteam": null
+}
