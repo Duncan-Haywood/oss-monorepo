@@ -77,8 +77,9 @@ VENTURES = ROOT / "ventures"
 WORKFLOWS = ROOT / ".github" / "workflows"
 NULL_SHA = "0" * 40
 # A suite that hangs should fail by name, not eat the whole job's 30 minutes.
-# The slowest real suite, changepoint-detector, took over 10 minutes on a
-# loaded 4-core container (2026-10-29), so the cap sits well above it.
+# The slowest real suites take about 10 minutes on a loaded 4-core container
+# (changepoint-detector, 2026-10-29; league-schedule-generator 627 s in the
+# 2026-11-15 full run, venture_suite_times.json), so the cap sits well above them.
 SUITE_TIMEOUT = 1200
 TIMES_FILE = ROOT / "platform" / "ci" / "venture_suite_times.json"
 ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
