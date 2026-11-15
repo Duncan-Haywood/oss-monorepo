@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
@@ -35,7 +35,8 @@
     "First measurement ran with JavaScript disabled and missed the chrome stylesheet's effect (crumbs looked 40-60px tall); re-ran with JS on.",
     "First CSS gave every middle crumb a 4.5em floor, which stretched 'Tools' on compare pages; switched to a server-side .pfs-mid class for labels over 12 chars.",
     "Flex-shrink 1000:1 still cost the name a sub-pixel and drew an ellipsis on 'Actions Checkout Credentials Check'; raised to 100000:1.",
-    "PIL in the system python is broken (_imaging import); composed the before/after image with Playwright instead."
+    "PIL in the system python is broken (_imaging import); composed the before/after image with Playwright instead.",
+    "Merged nothing on the first CI pass: pages `test` failed on 'research has a topic level...' (pinned the topic anchor markup). My local suite ran before the research template fix, so it missed it; fixed the test, full local suite re-run after a rebuild."
   ],
   "integrity_issues": [],
   "doc_friction": [

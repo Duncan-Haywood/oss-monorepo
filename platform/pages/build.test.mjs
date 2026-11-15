@@ -2007,7 +2007,7 @@ test('every page type carries the one site header, with every nav item', async (
 test('research has a topic level, and every project page routes up and sideways', async () => {
   const { outDir } = await site();
   const project = await read('research', 'accel-kws', 'index.html');
-  assert.match(project, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/\.\.\/research\/">Research<\/a>.*href="\.\.\/\.\.\/research\/topics\/accel\/">/s);
+  assert.match(project, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/\.\.\/research\/">Research<\/a>.*href="\.\.\/\.\.\/research\/topics\/accel\/" class="pfs-mid">/s);
   assert.doesNotMatch(project, /\{\{\w+\}\}/, 'no unfilled placeholder');
   assert.doesNotMatch(project, /<title>accel-kws /, 'the title is the project, not its slug');
   // "More in <topic>", previous/next, and every topic.
