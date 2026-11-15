@@ -1,5 +1,18 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 25 result: two experiments no longer reproduced their committed numbers; both drifted from later edits to shared code, now refreshed, no verdict changed
+
+`reproduce.py` (new: one command per experiment; `--check` re-runs in a temporary copy and diffs each `results.txt`, wall-clock timings masked), `tests/test_reproduce.py` (4 tests), `experiments/m5_cycle`, `m7_cost`, `m12_remedies`, `m13_price` (results and figures re-run), `paper/draft.md` and `paper/check_numbers.py` (moved numbers updated; 194 of 194, was 190).
+
+- **Why.** The paper is near submission and the programme's bar asks for a reproducible artefact. `check_numbers.py` ties the paper to the committed results files, but nothing tied the results files to the code that is committed now. Shared modules (`tack.py`, `cycle.py`) have been edited by eight later milestones.
+- **What was re-run.** m1, m2, m4, m5, m7 and m10–m14 (numpy, ~6 min together) and m15, m17, m18 and m19 (scipy, ~35 min). The MuJoCo/Drake experiments (m3, m3b, m6, m6b, m9) and the long cyclic ones (m16, m20, m21) were not.
+- **m5 drifted.** H22's best single-2x pipeline came back 0.5814, not 0.5833. Bisecting over the five commits that touched `tack.py`: milestone 5's own commit reproduces 0.5833 exactly, and every commit from milestone 9 (1d598701) on gives 0.5814. Milestone 9 rewrote `cycle.ledger_draw` to add the bowed-edge option and, in doing so, drew the panel tilt before the ledger tilt from the same generator. The distributions are the same and the draws are not. Not a bug; the committed table was simply from older code.
+- **m12 drifted in the third decimal.** Milestone 14 changed the mean missed-nail count from (1 − mean hit) × 62 to a per-sheet sum, the same quantity: three values move 0.001 (0.549 to 0.548). m7 and m13 read m5's and m12's results, so they moved with them.
+- **What moved, all inside the intervals quoted with them.** H22 0.5833 → 0.5814 [0.574, 0.588]; H23 0.9997 → 0.9994; H26 7.64 → 7.39 points (largest loss now at three reads, not dense); single-2x penalty 17.8–65.2 → 17.9–65.5 s; break-even $6.51 [5.21, 7.88] → $6.47 [5.17, 7.83]. H22–H26 keep their verdicts.
+- **A gap in the number check.** `check_numbers.py` bound "0.9997" to its results line but not the same number written as "99.97%", so the stale figure sat in the abstract, a highlight, the discussion and the conclusion without failing anything. Four checks now bind the percentage form.
+- **After the refresh** all ten quick experiments reproduce; LONGCHECK.
+- **Still open before submission:** authorship and affiliations; the NDS and SDPWS editions; re-running the MuJoCo/Drake experiments (needs `pip install mujoco drake`) and the long cyclic ones under `--check`.
+
 ## 2026-11-15 · Milestone 24 result: the abstract fits the journal's 150 words, and the build now fails on a long abstract, a single-author citation left as text, or an unused reference
 
 `paper/draft.md` (abstract rewritten, 469 to 150 words; Ghazinader 2024 cited in section 4.10), `paper/build_latex.py` (abstract check, wider leftover-citation pattern, unused .bib entries now fail), `paper/check_numbers.py` (one check re-pointed), `paper/references.bib` (SDPWS note), `tests/test_latex.py` (8 tests, was 6). No new computation; `check_numbers.py` still 190 of 190; `build_latex.py --pdf` compiles to 26 pages with 24 works cited and nothing undefined.

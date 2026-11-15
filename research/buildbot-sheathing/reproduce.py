@@ -8,7 +8,7 @@
 ``--check`` copies this project and its sibling ``buildbot-*`` projects to a temporary directory,
 runs each experiment there (so nothing committed is overwritten), and compares the fresh
 ``results.txt`` with the committed one line by line. Lines that report wall-clock time or library
-versions are left out of the comparison (``VOLATILE``); every other line must match exactly. Exit
+versions are left out of the comparison (``SKIP``, ``MASK``); every other line must match exactly. Exit
 status 0 when every checked experiment reproduces, 1 otherwise. Stdlib only; the experiments
 themselves need what ``--list`` says.
 """
@@ -53,10 +53,12 @@ EXPERIMENTS = {
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]
 
-# Lines whose content legitimately changes between runs: timings and library versions.
-VOLATILE = re.compile(r"(\brun time\b|\belapsed\b|\d+(\.\d+)? s\)?$|\(\d+ s\)|\bseconds?\b.*\b\d+(\.\d+)? s\b|"
-                      r"python \d+\.\d+|numpy \d|scipy \d|mujoco \d|drake \d|\bCPUs?\b.*\d+ s|^\d+(\.\d+)? s$)",
-                      re.IGNORECASE)
+# Wall-clock time and library versions legitimately change between runs. A line that is only a timing
+# (``303.4 s``) or the closing ``(run time ...; python ...)`` line is skipped; a timing in parentheses
+# inside a result line (``cyclic runs 72 (2099 s); largest residual ...``) is masked, so the rest of
+# that line is still compared. Every other character must match.
+SKIP = re.compile(r"^\(?\d+(\.\d+)? s\)?$|\brun ?time\b|\belapsed\b", re.IGNORECASE)
+MASK = re.compile(r"\(\d+(\.\d+)? s\)")
 
 
 def run_one(root, name, python):
@@ -75,7 +77,7 @@ def run_one(root, name, python):
 
 
 def stable(lines):
-    return [ln.rstrip() for ln in lines if not VOLATILE.search(ln)]
+    return [MASK.sub("(<time> s)", ln.strip()) for ln in lines if not SKIP.search(ln.strip())]
 
 
 def compare(committed, fresh):

@@ -205,7 +205,7 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    lift single-2x joints to 95%. Run before milestone 3, to give it a target.
 5. **End-to-end cycle** (done 2026-11-12, `experiments/m5_cycle/`): ledger or lift-tack
    placement, sensing, recoil and rework in one steady-state cycle. Two 2x at the joint with one
-   read a stud: 0.9997 clean, 76–216 s a sheet; the best single-2x pipeline (three reads) 0.56
+   read a stud: 0.9994 clean, 76–216 s a sheet; the best single-2x pipeline (three reads) 0.56
    clean and 18–65 s slower, which is what the extra joint stud may cost. Still open: a measured
    time for each stage.
 6. **Sim-to-sim on a second contact model** (done 2026-11-12, `experiments/m6_drake/`): the
@@ -321,6 +321,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    on a single-author citation left as plain text (milestone 23's check missed them) and on a .bib entry
    cited nowhere; Ghazinader (2024) is cited where Folz and Filiatrault's set is used. 26 pages, 24 works
    cited. Still open: authorship, the NDS and SDPWS editions.
+25. **Reproducibility check** (done 2026-11-15, `reproduce.py`): one command per experiment, and
+   `--check`, which re-runs experiments in a temporary copy and diffs their results files against
+   the committed ones. Fourteen re-run; milestones 5 and 12 had drifted from later edits to shared
+   code (milestone 9 reordered two random draws; milestone 14 changed how a mean is rounded), so
+   m5, m7, m12 and m13 are refreshed and every moved number in the paper updated (H22 0.5833 to
+   0.5814, two 2x 0.9997 to 0.9994, break-even $6.51 to $6.47); no verdict changes.
 
 
 ## Target venue
