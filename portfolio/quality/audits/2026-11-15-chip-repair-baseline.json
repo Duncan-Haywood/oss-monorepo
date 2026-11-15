@@ -1,0 +1,270 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/chip-repair-baseline",
+ "stratum": "research",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior RTL design-verification engineer who also publishes on automated hardware repair (the kind who reviews for ASPLOS/DAC/ICCAD on CirFix, RTL-Repair or VerilogEval-style work). They would check first whether the checker's verdicts are right in both directions (does it reject wrong designs, and does it accept every correct one, including legal Verilog-2005/SystemVerilog the simulator accepts), whether the testbenches really pin the spec (reset semantics, saturation, arbitration order), and whether the no-model baseline is compared with the existing Verilog repair tools (CirFix, ASPLOS 2022; RTL-Repair, ASPLOS 2024) rather than a random-token hill climb alone",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Installed the README's toolchain (apt: Yosys 0.33, Icarus Verilog 12.0, Verilator 5.020, the Ubuntu 24.04 packages the README names). Reran both experiments: `cd research/chip-repair-baseline && python3 experiments/run_session.py` is byte-identical to experiments/session_results.txt, and `python3 experiments/run_repair.py` (513 s on 4 cores) is byte-identical to experiments/repair_results.txt (diff empty both times). Independent check of all ten reference designs against Python models written from spec.md alone (/tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/chip-repair-baseline/indep.py; imports nothing from the package, drives each <task>_ref from its own Verilog harness): 0 mismatches on all 65,536 vectors of absdiff8, div8 and sat_add_s8, all 256 of clz8, gray2bin8, popcount8 and prio_enc8, all 20,000 BCD vectors of bcd_add2, 3,000 random cycles of satcnt4 (both saturation points reached) and 2,999 of rr_arb4. The repair table was re-tallied from the raw rows with awk (9/20, 4/20, 4/20; stages sim 18/lint 2, sim 16/compile 4, sim 19/lint 1), matching README. Crafted probes through check() (/tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/chip-repair-baseline/probe.py): a wrong absdiff8 is rejected by sim (199 vectors) and by the miter on its own; a wrapping counter and a fixed-priority arbiter are rejected (1365 and 2188 mismatches). Not 4, and the reason the checker is not trustworthy outside the committed runs: a correct popcount8 written in SystemVerilog (always_comb, int loop variable) and a correct clz8 using $clog2 both pass compile, lint and simulation (0/256) and are then rejected with 'yosys miter: not equivalent to the reference' because Yosys failed to parse them (read_verilog without -sv; '$clog2 with non-constant value'), and check.py:80 treats any Yosys non-zero exit as non-equivalence. An asynchronous-reset satcnt4 passes against a spec that says synchronous.",
+  "completeness": "README claims checked: ten tasks with spec/golden/tb (present, all ten goldens pass their own checks); four-stage checker (runs; stage 4 runs on the 7 combinational tasks other than bcd_add2 as stated); seeded mutation hill-climb baseline (runs, deterministic, reproduces); session attempts 10/10 at round 1 (reproduced); repair table (reproduced); 'about 9 min on 4 cores' (513 s); '7 tests, about 5 s' (7 OK in 4.17 s); live page https://marisstella.app/research/chip-repair-baseline/ HTTP 200 with the same 9/20, 4/20, 4/20 summary. llm_proposer is disclosed as never run, and the feedback loop the project exists to measure is disclosed as unmeasured; run_session.py supports later rounds but no round 2 exists. Everything it says is done works; the comparison it says it supplies 'for a fair comparison' has not been made.",
+  "verification": "`cd research/chip-repair-baseline && python3 -m unittest discover -s tests -v`: 7 tests OK in 4.17 s with the tools installed. Without them every test is skipped (test_loop.py:18 skipUnless), and research/_audit/audit.json records this project as tests 'pass' with '7 skipped', so CI has never exercised it. Eight seeded mutants via platform/ci/quality_mutate.py: 3 caught (compile stage disabled, check.py:50; bcd_add2 removed from NO_FORMAL, check.py:15; hill climb accepting worse moves, mutate.py:65 '<=' -> '>='), 5 survived: the formal stage always passing (check.py:80 '== 0' -> '>= 0'), the lint stage never failing (check.py:55 stderr -> stdout), the hill climb refusing equal-score moves (mutate.py:65 '<=' -> '<', a documented design choice), literal mutation only ever adding 1 (mutate.py:31), and the satcnt4 testbench ignoring mismatches at q=15 (tasks/satcnt4/tb.v:20). No test feeds a design that passes simulation but fails formal, or one that fails lint, so two of the four checker stages can be switched off with every test green.",
+  "craft": "Read src/chip_repair_baseline/check.py (86 lines), mutate.py (67), llm.py (32), tests/test_loop.py, experiments/run_session.py and run_repair.py, all ten tasks. Small, stdlib-only, readable, seeded, multiprocessing for the repair sweep. Defects: check.py:80-82 maps every Yosys failure (parse error, unsupported construct) to 'not equivalent to the reference', which is wrong feedback for a repair loop; iverilog runs with -g2012 (check.py:48) but Yosys reads without -sv, so the stages disagree on the accepted language; mutate.py:58-59 counts a no-op proposal as a checker evaluation (gray2bin8 one-fault start, seed 0: used=400, real checker calls 382); mutate.py:19 is a garbled comment that says the opposite of the code; mutate.py:15 falls back to position 1 when ');' is absent, so the port list can be mutated; '<=' non-blocking arrows are mutated into compile errors, wasting budget; llm.py:30 indexes content[0] with no error handling. The project duplicates research/chip-rtl-loop's checker and four of its tasks (prio_enc, gray2bin, sat_add, popcount) with separate code.",
+  "claims": "Backed: 10/10 round-1 passes and the 1-to-9 warning range (session_results.txt); 9/20, 4/20, 4/20 and the first-rejecting stages (repair_results.txt, re-tallied); per-task 'zero of six' for prio_enc8, rr_arb4, sat_add_s8, satcnt4 and 'four of six' for clz8 and div8 (rows); exhaustive testbench sizes 256/65,536/20,000 (tb.v); runtime ~9 min (513 s); 7 tests ~5 s; 'Preliminary', AI-assistance note, untested llm_proposer and the unmeasured loop are all stated plainly on README and live page. Partial: 'not repaired in 400 evaluations' for gray2bin8 is in no committed file; rerun, seed 0 fails at 400 (382 real checker calls) but seed 1 repairs at 210, and 'evaluations' include no-op proposals; '4,000 seeded pseudo-random cycles' compares 3,999 for rr_arb4; 'Stage 4 never rejected anything that simulation had accepted' is true of these runs but hides that it falsely rejects correct designs Yosys cannot parse. No overclaim on any headline number.",
+  "fitness": "Job: a researcher wanting a no-model baseline to compare an LLM repair loop against. Nearest prior work, none cited: CirFix (Ahmad, Huang, Le Goues, ASPLOS 2022), genetic-programming repair of Verilog with fault localization over 32 defect scenarios; RTL-Repair (Laeufer et al., ASPLOS 2024), SMT-based repair of Verilog bugs; AutoChip (Thakur et al., 2023) and RTLFixer (Tsai et al., DAC 2024), LLM loops with compiler/simulator feedback, i.e. the exact loop this project prepares. Against these, a random single-token hill climb on 10 tiny original tasks with self-injected token faults (the same operator family the repair uses, so a repair is often a literal inverse) is a weaker baseline than the field already has, and the 9/20 vs 4/20 rates have overlapping Wilson 95% intervals (0.26-0.66 vs 0.08-0.42) on 20 non-independent cases. The LLM side was never run and the session agent's 10/10 is uninformative. The result is reproducible and honestly framed but not new; a researcher could reuse the tasks and testbenches, though research/chip-rtl-loop already offers a near-duplicate harness.",
+  "domain": "Against DV practice: exhaustive simulation plus a Yosys SAT miter for combinational blocks with `!==` comparison is sound and a verification engineer would accept it for 8-bit blocks. They would not sign off the checker as a repair oracle: the formal stage conflates tool failure with non-equivalence (shown with SystemVerilog and $clog2), sequential tasks have no equivalence check at all (no induction or bounded model check), the satcnt4 testbench cannot tell an asynchronous reset from the specified synchronous one because rst is only applied before a clock edge and sampled after, lint warnings (including LATCH/WIDTH classes) never affect pass/fail, and the baseline is measured on mutation faults rather than on a real bug corpus like CirFix's."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "7 combinational references (absdiff8, clz8, div8, gray2bin8, popcount8, prio_enc8, sat_add_s8), every input vector",
+   "method": "Python models written from spec.md only (abs, bit_length, //,%, cumulative xor, bin().count, highest set bit, clamp to [-128,127]); own Verilog harness, imports nothing from the package",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/chip-repair-baseline/indep.py research/chip-repair-baseline/tasks",
+   "expected": "0 mismatches",
+   "observed": "0/65536, 0/256, 0/65536, 0/256, 0/256, 0/256, 0/65536",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "bcd_add2 reference over the full BCD domain with carry-in",
+   "method": "decimal arithmetic in Python: t=a+b+cin, cout=t>=100, s=packed BCD of t mod 100",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/chip-repair-baseline/indep.py research/chip-repair-baseline/tasks",
+   "expected": "0 of 20000 mismatches",
+   "observed": "0 of 20000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "satcnt4 and rr_arb4 references under independent random stimulus",
+   "method": "cycle models from spec.md (sync reset, saturate at 0/15; round-robin scan last+1..last mod 4, last=3 after reset)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/chip-repair-baseline/indep.py research/chip-repair-baseline/tasks",
+   "expected": "0 mismatches; counter reaches 0 and 15",
+   "observed": "satcnt4 0/3000 (0 and 15 reached), rr_arb4 0/2999",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "checker accepts a correct SystemVerilog popcount8 (always_comb, int loop) and a correct clz8 using $clog2",
+   "method": "spec semantics; both simulate 0/256 against the reference, and $clog2/always_comb are legal in the -g2012 language the compile stage uses",
+   "command": "cd research/chip-repair-baseline && python3 /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/chip-repair-baseline/probe.py (and an inline check('popcount8', ...) call)",
+   "expected": "ok=True",
+   "observed": "stage=formal, 'yosys miter: not equivalent to the reference' (Yosys: 'Failed to evaluate system function $clog2 with non-constant value'; read_verilog without -sv)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "satcnt4 with an asynchronous reset (spec says synchronous)",
+   "method": "spec.md: 'rst is synchronous'",
+   "command": "cd research/chip-repair-baseline && python3 /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/chip-repair-baseline/probe.py",
+   "expected": "rejected",
+   "observed": "ok=True, all checks pass",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "checker rejects wrong designs: absdiff8 wrong at a=200 (sim and miter alone), wrapping counter, fixed-priority arbiter",
+   "method": "hand-built faulty designs",
+   "command": "cd research/chip-repair-baseline && python3 /tmp/claude-0/-home-user-oss-monorepo/08147b7c-603f-5f8a-b9fd-b888a44b0d0f/scratchpad/chip-repair-baseline/probe.py",
+   "expected": "rejected",
+   "observed": "sim 199 fails and miter non-equivalent; 1365 fails; 2188/3999 fails",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce committed results",
+   "method": "rerun and diff",
+   "command": "cd research/chip-repair-baseline && python3 experiments/run_session.py; python3 experiments/run_repair.py",
+   "expected": "identical to session_results.txt and repair_results.txt",
+   "observed": "both byte-identical; repair 513 s on 4 cores",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "repair table 9/20, 4/20, 4/20 and first-rejecting stages",
+   "method": "awk re-tally of raw rows",
+   "command": "cd research/chip-repair-baseline && awk 'NF==6 && $2~/^[123]$/ ...' experiments/repair_results.txt",
+   "expected": "README table",
+   "observed": "9/20 sim18 lint2; 4/20 sim16 compile4; 4/20 sim19 lint1",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "gray2bin8 'not repaired in 400 evaluations from a one-fault start'",
+   "method": "rerun mutation_search on the unit test's fault with budget 400, counting real checker calls",
+   "command": "cd research/chip-repair-baseline && python3 -c '... mutation_search(\"gray2bin8\", bad, 400, seed=s) ...'",
+   "expected": "not repaired, 400 evaluations",
+   "observed": "seed 0: not repaired, used=400 but 382 real checker calls; seed 1: repaired at 210; claim backed by no committed file",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'7 tests, about 5 s', '~9 min on 4 cores', live page",
+   "method": "timed runs; curl",
+   "command": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests -v; curl https://marisstella.app/research/chip-repair-baseline/",
+   "expected": "7 tests ~5 s; ~9 min; page 200 with the same numbers",
+   "observed": "7 OK 4.17 s; 513 s; HTTP 200, title 'What does a no-model baseline repair when a...', 9/20, 4/20, 4/20 and 'Preliminary'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'4,000 seeded pseudo-random cycles for sequential' testbenches",
+   "method": "session_results.txt totals",
+   "command": "cd research/chip-repair-baseline && cat experiments/session_results.txt",
+   "expected": "4000 compared cycles",
+   "observed": "satcnt4 4000, rr_arb4 3999 (first pre-reset cycle not compared)",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "tests run in CI",
+   "method": "research/_audit/audit.json entry",
+   "command": "grep -n -A12 '\"slug\": \"chip-repair-baseline\"' research/_audit/audit.json",
+   "expected": "tests executed",
+   "observed": "tests 'pass' with '7 skipped in 0.37s' (no EDA tools in that environment)",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work on automated Verilog repair cited",
+   "method": "CirFix (ASPLOS 2022), RTL-Repair (ASPLOS 2024), AutoChip (2023), RTLFixer (DAC 2024)",
+   "command": "grep -n -i 'cirfix\\|rtl-repair\\|autochip\\|rtlfixer' research/chip-repair-baseline/README.md",
+   "expected": "cited and compared",
+   "observed": "no matches",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/chip_repair_baseline/check.py:50",
+   "change": "p.returncode != 0: -> p.returncode != 0 and False: (compile stage never fails)",
+   "caught": true,
+   "test_cmd": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_repair_baseline/check.py:55",
+   "change": "\"%Error\" in lp.stderr -> \"%Error\" in lp.stdout (lint stage never fails)",
+   "caught": false,
+   "test_cmd": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_repair_baseline/check.py:80",
+   "change": "returncode == 0 -> returncode >= 0 (formal stage always passes)",
+   "caught": false,
+   "test_cmd": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_repair_baseline/check.py:15",
+   "change": "NO_FORMAL = SEQUENTIAL | {\"bcd_add2\"} -> NO_FORMAL = SEQUENTIAL",
+   "caught": true,
+   "test_cmd": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_repair_baseline/mutate.py:65",
+   "change": "_score(r) <= _score(best_r) -> _score(r) < _score(best_r)",
+   "caught": false,
+   "test_cmd": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_repair_baseline/mutate.py:65",
+   "change": "_score(r) <= _score(best_r) -> _score(r) >= _score(best_r)",
+   "caught": true,
+   "test_cmd": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_repair_baseline/mutate.py:31",
+   "change": "v + rng.choice([-1, 1]) -> v + rng.choice([1])",
+   "caught": false,
+   "test_cmd": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "tasks/satcnt4/tb.v:20",
+   "change": "q !== qr -> q !== qr && q != 15 (ignore mismatches at saturation)",
+   "caught": false,
+   "test_cmd": "cd research/chip-repair-baseline && python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Formal stage reports every Yosys failure as 'not equivalent to the reference': correct designs that compile under iverilog -g2012 and simulate 0/256 (SystemVerilog always_comb/int; $clog2 of a signal) are rejected with false feedback, because Yosys reads them without -sv and the return code alone is tested. A repair loop would be told a correct design is wrong.",
+   "where": "research/chip-repair-baseline/src/chip_repair_baseline/check.py:80",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "medium",
+   "what": "Two of the four checker stages are untested: switching the formal stage to always pass, or the lint stage to never fail, leaves all 7 tests green; no test uses a design that fails only lint or only formal.",
+   "where": "research/chip-repair-baseline/tests/test_loop.py:30",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests skip silently when Yosys/Icarus/Verilator are absent, so the repository's research audit records '7 skipped' as a pass; the checker has never been exercised in CI.",
+   "where": "research/chip-repair-baseline/tests/test_loop.py:18",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work on automated Verilog repair and on LLM-with-tool-feedback loops (CirFix, ASPLOS 2022; RTL-Repair, ASPLOS 2024; AutoChip 2023; RTLFixer, DAC 2024) is not cited; the random-token hill climb is weaker than the existing non-LLM baseline (CirFix) and is evaluated on self-injected faults from its own operator family rather than a real bug corpus.",
+   "where": "research/chip-repair-baseline/README.md:7",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "low",
+   "what": "satcnt4 testbench applies rst only before a clock edge and samples after it, so an asynchronous-reset design passes against a spec that says 'rst is synchronous'.",
+   "where": "research/chip-repair-baseline/tasks/satcnt4/tb.v:14",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The hill climb counts a no-op proposal (mutation that changes nothing) as a checker evaluation, so 'budget of 60 checker evaluations' overstates real evaluations (gray2bin8 seed 0: 400 counted, 382 real).",
+   "where": "research/chip-repair-baseline/src/chip_repair_baseline/mutate.py:58",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'not repaired in 400 evaluations' on gray2bin8 is backed by no committed file and holds for seed 0 only (seed 1 repairs at 210).",
+   "where": "research/chip-repair-baseline/README.md:38",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  },
+  {
+   "severity": "low",
+   "what": "Garbled comment says '<=' is skipped and then 'allowed'; the code mutates non-blocking assignment arrows, producing compile errors that waste budget.",
+   "where": "research/chip-repair-baseline/src/chip_repair_baseline/mutate.py:19",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "README says sequential testbenches run 4,000 cycles; rr_arb4 compares 3,999 (the pre-reset cycle is skipped).",
+   "where": "research/chip-repair-baseline/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16065"
+ ],
+ "verdict": "A small, honest, fully reproducible project: both experiments rerun byte-identical (repair in 513 s), all ten reference designs agree exhaustively with independent spec models, and the README states plainly that the LLM loop it exists to support was never measured. It misses the bar on verification (2): five of eight seeded bugs survive, including switching off the formal or lint stage, and the tests skip silently in CI. The checker also gives false 'not equivalent' feedback for correct SystemVerilog or $clog2 designs because any Yosys error counts as non-equivalence, and accepts an asynchronous reset for a synchronous spec. As research it is not new: CirFix and RTL-Repair already provide stronger non-LLM Verilog repair baselines and are not cited, and the 9/20 vs 4/20 rates rest on 20 non-independent self-injected cases."
+}
