@@ -368,8 +368,8 @@ def _load():
         return None
     fn = lib.shootflow_xtrans_piece
     fn.restype = ctypes.c_long
-    L, P, I = ctypes.c_long, ctypes.c_void_p, ctypes.c_int
-    fn.argtypes = [P, P, L, L, P, I, I, ctypes.c_float, I, I, P]
+    L, P, N = ctypes.c_long, ctypes.c_void_p, ctypes.c_int
+    fn.argtypes = [P, P, L, L, P, N, N, ctypes.c_float, N, N, P]
     return fn
 
 
