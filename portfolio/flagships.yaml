@@ -401,10 +401,11 @@ flagships:
       History and every measurement: README and ROADMAP.md (studio page, CLI
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
-      eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-14
-      latest: C clefs inside a staff, held out 129 to 13 differences; 3775 corrected
-      (eval/clef-change-check.md)). Open checks that need a person: listen to the
-      studio page, the options (--stretch, --halftime, --fills, --limit pumping,
+      eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-15
+      latest: --sing, the choir sings each syllable's vowel, 95.3% of corpus notes
+      read back by LPC (eval/vowel-check-report.md); next: consonant onsets, F1
+      tuning on high notes). Open checks that need a person: listen to the studio
+      page, --sing, the options (--stretch, --halftime, --fills, --limit pumping,
       stems, sections, breakdown, riser, the a cappella verse and whether the key
       lift sounds like a lift); --lrc in a real player and --markers/--stems in a
       DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range
