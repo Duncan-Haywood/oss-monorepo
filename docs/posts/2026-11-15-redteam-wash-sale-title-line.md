@@ -53,9 +53,13 @@ Fidelity history export, with blank lines and a disclaimer after the trades,
 the disclaimer on line 7 was reported as line 4. Each row now keeps its own
 line number.
 
-The same numbering bug was in the
-[H-1B weighted lottery odds calculator](https://marisstella.app/h1b-weighted-lottery-odds-calculator/)'s
-CSV reader, so that is fixed too. For each fix, a test was written first and
+A search of the other calculators for the same pattern found it in two more:
+the
+[H-1B weighted lottery odds calculator](https://marisstella.app/h1b-weighted-lottery-odds-calculator/)
+and the
+[Shopify inventory reorder planner](https://marisstella.app/shopify-inventory-reorder-planner/),
+where an order note with a line break in it also shifted every later row's
+number. Both are fixed. For each fix, a test was written first and
 shown to fail without it.
 
 ## Numbers
@@ -63,7 +67,7 @@ shown to fail without it.
 | | Before | After |
 |---|---|---|
 | Faults caught (non-equivalent) | 15 of 16 | 16 of 16 |
-| Real defects found | 2 | 2 patched |
+| Real defects found | 4 (2 here, 2 in siblings) | 4 patched |
 
 The checker matches identical tickers only and is not tax advice. Whether two
 securities are "substantially identical" is a judgement it leaves to you and
