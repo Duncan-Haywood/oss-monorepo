@@ -1,0 +1,519 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKkzCZM9i1aspPE84KW",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T02:09:00Z",
+  "ended": "2026-11-15T02:11:32Z",
+  "wall_minutes": 7.89,
+  "tokens_in": 5093577,
+  "tokens_out": 28490,
+  "cost_usd": 2.413,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16058",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Duplicate import of parseRows in the youtube-adsense test file made the suite fail to load; reverted the extra import."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says to fix every open entry first, but all 12 are control-plane edits already sitting in open PRs awaiting owner approval; the open list gives no way to see that a fix PR already exists, so each run re-checks all 12 by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not fix the 12 open entries; each is control plane with an existing open PR (#15871, #14877, #15561, #15945, #15728, #14612, #14698, #15248).",
+      "did": "Confirmed each still reproduces on main and left patched: false; no duplicate PRs.",
+      "result": "Run time went to seeding, the hunt and a new class guard instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-one-comma-one-share-at-zero.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/check_column_shift.py (19 flagged, 0 silent, 6 skipped after fixes; found youtube-adsense on first run). Probe of the 41 calc.mjs files with splitLine and no field-count check: only the journal family had a uniform sample/parse shape to probe automatically; other calculators (e.g. 1256 already refuses >4 fields) untested by the probe. Verification: run_venture_tests.py wash-sale-checker section-1256-futures-tax-calculator payoneer-statement-to-journal youtube-adsense-payout-to-journal -> 4 suites, 0 failed; python3 -m unittest test_check_column_shift OK; check_post_frontmatter, check_post_links clean.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wash-sale-checker/calc.mjs",
+        "test": "node --test ventures/wash-sale-checker/**/*.test.mjs  (in .)",
+        "seed": 859775063,
+        "commit": "d54c8673f",
+        "sites": 220,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 10,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "const DAY = 86400000;",
+            "after": "const DAY = 86400001;",
+            "line_text": "const DAY = 86400000;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "DAY 86400000 -> 86400001 widens the +/-30 day window by 30 ms and moves safeRebuyDate by 31 ms; every parsed date is a UTC midnight, so no trade falls in the extra 30 ms and isoDate of the safe date is unchanged."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 21,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "after": "if (chk.getUTCFullYear() !== y && chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "line_text": "  if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 25,
+            "col": 92,
+            "operator": "const-plus-one",
+            "before": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");",
+            "after": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(2).replace(/\\B(?=(\\d{4})+(?!\\d))/g, \",\");",
+            "line_text": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 35,
+            "col": 43,
+            "operator": "eq-flip",
+            "before": "if (/^[-+]/.test(b)) { neg = neg || b[0] === \"-\"; b = b.slice(1); }",
+            "after": "if (/^[-+]/.test(b)) { neg = neg || b[0] !== \"-\"; b = b.slice(1); }",
+            "line_text": "  if (/^[-+]/.test(b)) { neg = neg || b[0] === \"-\"; b = b.slice(1); }",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "num() is module-private and every caller in parseTrades wraps it in Math.abs (qty, price, amount, basis), so flipping the sign test changes no output. Checked: a + sign and a trailing minus test was added as a regression but cannot fail on this mutant."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 80,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "if (c.price < 0 && c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "after": "if (c.price < 1 && c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "line_text": "  if (c.price < 0 && c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 101,
+            "col": 50,
+            "operator": "and-to-or",
+            "before": "const basis = c.basis >= 0 && side === \"sell\" && f[c.basis] !== \"\" ? Math.abs(num(f[c.basis])) : null;",
+            "after": "const basis = c.basis >= 0 && side === \"sell\" || f[c.basis] !== \"\" ? Math.abs(num(f[c.basis])) : null;",
+            "line_text": "    const basis = c.basis >= 0 && side === \"sell\" && f[c.basis] !== \"\" ? Math.abs(num(f[c.basis])) : null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 145,
+            "col": 71,
+            "operator": "times-to-div",
+            "before": "const lo = s.date - WINDOW_DAYS * DAY, hi = s.date + WINDOW_DAYS * DAY;",
+            "after": "const lo = s.date - WINDOW_DAYS * DAY, hi = s.date + WINDOW_DAYS / DAY;",
+            "line_text": "      const lo = s.date - WINDOW_DAYS * DAY, hi = s.date + WINDOW_DAYS * DAY;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 178,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "const disallowed = r2(losses.reduce((a, x) => a + x.disallowed, 0));",
+            "after": "const disallowed = r2(losses.reduce((a, x) => a + x.disallowed, 1));",
+            "line_text": "  const disallowed = r2(losses.reduce((a, x) => a + x.disallowed, 0));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/ucr-fee-calculator/calc.mjs",
+        "test": "node --test ventures/ucr-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 600034892,
+        "commit": "d54c8673f",
+        "sites": 71,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 22,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const max = m[3] ? Infinity : Number(m[2]);",
+            "after": "const max = m[4] ? Infinity : Number(m[2]);",
+            "line_text": "    const max = m[3] ? Infinity : Number(m[2]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 28,
+            "col": 38,
+            "operator": "minus-to-plus",
+            "before": "if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${span(brackets[i - 1])} and ${brackets[i].min}+ overlap.`);",
+            "after": "if (brackets[i].min <= brackets[i + 1].max) errors.push(`Fee brackets ${span(brackets[i - 1])} and ${brackets[i].min}+ overlap.`);",
+            "line_text": "    if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${span(brackets[i - 1])} and ${brackets[i].min}+ overlap.`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 30,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 1; i < brackets.length; i++) {",
+            "after": "for (let i = 1; i <= brackets.length; i++) {",
+            "line_text": "  for (let i = 1; i < brackets.length; i++) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 31,
+            "col": 28,
+            "operator": "minus-to-plus",
+            "before": "const from = brackets[i - 1].max + 1;",
+            "after": "const from = brackets[i + 1].max + 1;",
+            "line_text": "    const from = brackets[i - 1].max + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 31,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const from = brackets[i - 1].max + 1;",
+            "after": "const from = brackets[i - 2].max + 1;",
+            "line_text": "    const from = brackets[i - 1].max + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 31,
+            "col": 37,
+            "operator": "plus-to-minus",
+            "before": "const from = brackets[i - 1].max + 1;",
+            "after": "const from = brackets[i - 1].max - 1;",
+            "line_text": "    const from = brackets[i - 1].max + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 53,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "const type = (p[2] || \"motor-carrier\").toLowerCase().replace(/\\s+/g, \"-\");",
+            "after": "const type = (p[3] || \"motor-carrier\").toLowerCase().replace(/\\s+/g, \"-\");",
+            "line_text": "    const type = (p[2] || \"motor-carrier\").toLowerCase().replace(/\\s+/g, \"-\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 90,
+            "col": 43,
+            "operator": "eq-flip",
+            "before": "else if (r.toNext && r.toNext.headroom === 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "after": "else if (r.toNext && r.toNext.headroom !== 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "line_text": "    else if (r.toNext && r.toNext.headroom === 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+        "test": "node --test ventures/section-1256-futures-tax-calculator/**/*.test.mjs  (in .)",
+        "seed": 746507732,
+        "commit": "d54c8673f",
+        "sites": 88,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 14,
+            "col": 38,
+            "operator": "div-to-times",
+            "before": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "after": "const r2 = (x) => Math.round(x * 100) * 100;",
+            "line_text": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 35,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "else if (ch === delim && !q) { out.push(cur); cur = \"\"; }",
+            "after": "else if (ch === delim || !q) { out.push(cur); cur = \"\"; }",
+            "line_text": "    else if (ch === delim && !q) { out.push(cur); cur = \"\"; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 49,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "after": "if (first.slice(2).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "line_text": "  if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 57,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "after": "rows.push({ label: f[1] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "line_text": "    rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 57,
+            "col": 104,
+            "operator": "plus-to-minus",
+            "before": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "after": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior - current) });",
+            "line_text": "    rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 76,
+            "col": 52,
+            "operator": "minus-to-plus",
+            "before": "const lt = r2(net * LONG_TERM_SHARE), st = r2(net - lt);",
+            "after": "const lt = r2(net * LONG_TERM_SHARE), st = r2(net + lt);",
+            "line_text": "  const lt = r2(net * LONG_TERM_SHARE), st = r2(net - lt);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 82,
+            "col": 10,
+            "operator": "lt-to-le",
+            "before": "if (net < 0) notes.push(`Net 1256 loss of ${money(-net)}. It first offsets your other capital gains, then up to $3,000 ($1,500 if married filing separately) of other income this year. Checking box D on Form 6781 (amount on Part I line 6) elects to carry the rest back three years against earlier net 1256 gains, earliest year first and no more than each year's net 1256 gain; it is claimed with Form 1045 or an amended return, and estates and trusts cannot elect it. Ask a preparer whether it pays for you.`);",
+            "after": "if (net <= 0) notes.push(`Net 1256 loss of ${money(-net)}. It first offsets your other capital gains, then up to $3,000 ($1,500 if married filing separately) of other income this year. Checking box D on Form 6781 (amount on Part I line 6) elects to carry the rest back three years against earlier net 1256 gains, earliest year first and no more than each year's net 1256 gain; it is claimed with Form 1045 or an amended return, and estates and trusts cannot elect it. Ask a preparer whether it pays for you.`);",
+            "line_text": "  if (net < 0) notes.push(`Net 1256 loss of ${money(-net)}. It first offsets your other capital gains, then up to $3,000 ($1,500 if married filing separately) of other income this year. Checking box D on Form 6781 (amount on Part I line 6) elects to carry the rest back three years against earlier net 1256 gains, earliest year first and no more than each year's net 1256 gain; it is claimed with Form 1045 or an amended return, and estates and trusts cannot elect it. Ask a preparer whether it pays for you.`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 84,
+            "col": 14,
+            "operator": "and-to-or",
+            "before": "if (net > 0 && t.saving < 0) notes.push(`At the rates you entered the 60/40 split costs about ${money(-t.saving)} more than taxing the gain as short-term, because the long-term rate is above the ordinary rate. Long-term rates are at or below the ordinary rate in every federal bracket, so check the rates.`);",
+            "after": "if (net > 0 || t.saving < 0) notes.push(`At the rates you entered the 60/40 split costs about ${money(-t.saving)} more than taxing the gain as short-term, because the long-term rate is above the ordinary rate. Long-term rates are at or below the ordinary rate in every federal bracket, so check the rates.`);",
+            "line_text": "  if (net > 0 && t.saving < 0) notes.push(`At the rates you entered the 60/40 split costs about ${money(-t.saving)} more than taxing the gain as short-term, because the long-term rate is above the ordinary rate. Long-term rates are at or below the ordinary rate in every federal bracket, so check the rates.`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "net > 0 || saving < 0 adds the costs-more note to every positive gain; new test asserts a normal 32/15 gain carries only the saving note."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wash-sale-checker/calc.mjs",
+        "issue": "An unquoted thousands separator (buy,1,000,150.00) shifted every later column: read as 1 share at $0 with no error, so a 1,000-share washed loss vanished. Rows with more non-empty fields than the header are now refused with a line error.",
+        "patched": true
+      },
+      {
+        "file": "ventures/payoneer-statement-to-journal/calc.mjs",
+        "issue": "An unquoted 1,001.40 debit shifted the Status column to '157.10', and the row was dropped as 'not completed' with only an info note: a $1,001.40 fee missing from the journal. Now an error on that line.",
+        "patched": true
+      },
+      {
+        "file": "ventures/youtube-adsense-payout-to-journal/calc.mjs",
+        "issue": "An unquoted 1,842.17 payment parsed as $1.00 with no finding when the file has no currency column (with one, the only sign was a confusing 'No 842.17-to-GBP rate'). Found by the new check_column_shift.py on its first run. Now an error on that line.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e8a4e3f-b26f-5585-b54a-4287186cb317",
+    "transcripts": 1,
+    "first": "2026-11-15T02:09:00Z",
+    "last": "2026-11-15T02:16:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 97,
+        "output": 28490,
+        "thinking": 6885,
+        "cache_read": 4987824,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105656,
+        "api_equivalent_usd": 2.413,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 97,
+      "output": 28490,
+      "thinking": 6885,
+      "cache_read": 4987824,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105656,
+      "api_equivalent_usd": 2.413,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 47,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.89,
+      "active_minutes": 7.89,
+      "model_minutes": 5.5,
+      "tool_minutes": 2.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, three parser fixes with tests, a new CI probe and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 165.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -188,6 +188,9 @@ export function parseStatement(text, opts = {}) {
   for (let i = first + 1; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
     const cells = splitLine(lines[i], d);
+    // An unquoted thousands separator ("1,001.40") splits one field in two and shifts the columns after it, so the
+    // status read as "157.10" and the row was skipped as not completed, with only an info note.
+    if (cells.length > head.length && cells.slice(head.length).some((x) => x.trim() !== "")) { add("error", `Line ${i + 1} has ${cells.length} fields but the header has ${head.length}`, "An amount with a thousands separator needs quotes (\"1,001.40\"); export the CSV again or remove the comma. The row is left out.", i + 1); continue; }
     const amount = amountOf(cells), balance = parseAmount(get(cells, "balance")), fee = parseAmount(get(cells, "fee")), rate = parseRate(get(cells, "rate"));
     const label = get(cells, "id") || `line ${i + 1}`;
     if (amount === null || Number.isNaN(amount) || Number.isNaN(balance) || Number.isNaN(fee)) { add("error", `An amount on ${label} is not a number`, "The row is left out, so the running balance will not follow.", i + 1); continue; }
