@@ -106,7 +106,9 @@ export function parseBookings(text) {
     for (const b of list) {
       const prev = kept[kept.length - 1];
       if (prev && prev.start === b.start && prev.end === b.end) { duplicates++; continue; }
-      if (prev && b.start < prev.end) conflicts.push({ property, a: prev, b });
+      // An overlapping stay cannot happen at one unit: flag it and leave it out of the
+      // schedule, so it does not get a phantom second clean on the same day (quality audit 2026-11-15).
+      if (prev && b.start < prev.end) { conflicts.push({ property, a: prev, b }); continue; }
       kept.push({ ...b });
     }
     bookings.push(...kept);
@@ -226,7 +228,7 @@ export function analyze(bookingText, propsText, options = {}) {
   const sched = schedule(jobs, o);
   const sweep = crewSweep(jobs, o);
   const warnings = [];
-  for (const c of parsed.conflicts) warnings.push({ level: "high", text: `Double booking at ${c.property}: ${dayLabel(c.a.start)}–${dayLabel(c.a.end)} overlaps ${dayLabel(c.b.start)}–${dayLabel(c.b.end)}. Two feeds disagree; one guest will be turned away unless this is fixed.` });
+  for (const c of parsed.conflicts) warnings.push({ level: "high", text: `Double booking at ${c.property}: ${dayLabel(c.a.start)}–${dayLabel(c.a.end)} overlaps ${dayLabel(c.b.start)}–${dayLabel(c.b.end)}. Two feeds disagree; one guest will be turned away unless this is fixed. The second stay is left out of the cleaning schedule until you resolve it.` });
   for (const j of sched.jobs) {
     if (j.windowMin !== null && j.windowMin < j.dur) warnings.push({ level: "high", text: `${j.property}, ${dayLabel(j.guestOut)}: only ${(j.windowMin / 60).toFixed(1)} h between checkout and the next check-in, and a clean takes ${(j.dur / 60).toFixed(1)} h. No crew size fixes this; move the check-in time, block the night, or add a second cleaner on that job.` });
     else if (j.windowMin !== null && j.windowMin - j.dur < 30 && j.sameDay) warnings.push({ level: "medium", text: `${j.property}, ${dayLabel(j.guestOut)}: same-day turnover with under 30 minutes of slack.` });
