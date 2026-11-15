@@ -69,3 +69,22 @@ test('two heads stacked a third apart with nothing joining them are not a clef',
   assert.equal(st.clefChanges, undefined);
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [3, 5]);
 });
+
+// GregoBase 3506, leaf 403 (eval/broken-stroke-check.md): a liquescent's small
+// note after a clef change was read against the staff's first clef, because
+// readPage built it without an x0 and the clef in force is looked up by x0.
+test('a liquescent after a clef inside the staff is read against the new clef (2026-11-15)', () => {
+  const img = canvas(1600, 400);
+  const bottom = staff(img, 120);
+  clef(img, 62, bottom, 6); // c4
+  head(img, bottom, 200, 2);
+  clef(img, 500, bottom, 4); // c3
+  head(img, bottom, 640, 4);
+  // cephalicus: a hook below the head's right edge, one step down
+  rect(img, 640 + 14, bottom - (4 * S) / 2, 8, S / 2 + 0.25 * S);
+  head(img, bottom, 840, 2);
+  const [st] = readPage(readPgm(toPgm(img)));
+  assert.deepEqual(st.clefChanges.map((c) => c.pos), [4]);
+  assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'square', 'liquescent', 'square']);
+  assert.deepEqual(st.notes.map((n) => n.rel), [2 - 6, 4 - 4, 3 - 4, 2 - 4]);
+});

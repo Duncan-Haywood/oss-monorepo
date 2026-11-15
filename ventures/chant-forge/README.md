@@ -1111,6 +1111,20 @@ notes not read 495 to 457. Held out, ten fresh pieces chosen only because a staf
 to 1,688, differences 28 to 21, notes not read 78 to 41, no piece worse. `--no-staff-deskew` reads as
 before.
 
+### The last two reader faults on that list (2026-11-15)
+
+The two differences left (`eval/broken-stroke-check.md`) are fixed. GregoBase 3506's cephalicus was not
+a left-stem problem: the reader found the small note at the right height, but it was named against the
+staff's first clef rather than the C clef printed earlier on that staff, because the small note carried
+no left edge for the clef lookup. 3679's porrectus top was a stroke the reader broke in two near its
+top; the short top piece fell too little on its own to be read at its left end. A head whose right
+edge runs into a wide falling piece at its own height is now read as that stroke's top
+(`BROKEN_STROKE` in `scan.mjs`, `--no-broken-stroke` reads as before). On the 98 earlier piece checks,
+differences 81 to 78 (3506, 3679 and 3403, one each), none worse. Held out, fifteen pieces with a
+porrectus listed before their pages were read (`eval/broken-stroke-fresh-pages.json`): identical both
+ways, 2,869 agreeing and 2 differing. The rule fires on 43 of 303 leaves; 12 crops looked at are all
+real stroke tops.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif

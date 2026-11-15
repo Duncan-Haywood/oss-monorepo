@@ -402,3 +402,31 @@ test('staffSkew gives 0 on a level staff and on a page read with deskew off', ()
   const { img: curled } = curledTop(-0.45);
   assert.deepEqual(readPage(curled, { deskew: false }), readPage(curled, { deskew: false, staffDeskew: false }));
 });
+
+// A stroke that breaks in two near its top (GregoBase 3679, leaf 721;
+// eval/broken-stroke-check.md): a short first piece that falls less than
+// STROKE_TOP_FALL on its own, then the rest of the stroke as a wide piece
+// starting at its right edge. The short piece is read at its left end.
+test('a stroke broken near its top is read at its top (2026-11-15)', () => {
+  const draw = () => {
+    const img = canvas(1600, 400);
+    const bottom = 120 + 3 * S;
+    const y = (pos) => bottom - (pos * S) / 2;
+    drawStaff(img, 120, [[300, 2], [700, 2]]);
+    rect(img, 400, y(6) - H / 2, 3, 2.4 * S); // the porrectus's left stem
+    // centre heights below the top line, in spaces, near leaf 721's: the top
+    // piece 0.16 to 0.42 over 0.56 spaces (measured 0.12 to 0.38; drawn 0.04
+    // lower so its mean rounds a step low, as the real piece's did), a break
+    // in the print, then the rest 0.63 to 1.02 (the line below) over 1.15
+    const wA = Math.round(0.56 * S);
+    stroke(img, 403, y(6) + 0.16 * S, wA, 0.26 * S);
+    stroke(img, 403 + wA, y(6) + 0.63 * S, Math.round(1.15 * S), 0.39 * S);
+    rect(img, 403 + wA + Math.round(1.15 * S) + 4, y(5) - H / 2, 20, H); // the head on its stem
+    return readPgm(toPgm(img));
+  };
+  const [st] = readPage(draw());
+  assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 6, 4, 5, 2]);
+  // as before 2026-11-15: the top piece read at its mean height, a step low
+  const [old] = readPage(draw(), { brokenStroke: false });
+  assert.deepEqual(old.notes.map((n) => n.rel + 6), [2, 5, 4, 5, 2]);
+});

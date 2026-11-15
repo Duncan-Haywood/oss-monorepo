@@ -415,15 +415,14 @@ flagships:
       Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
       levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
       thickness; tilted pages, curled staves straightened
-      (eval/staff-curl-check.md); next: left-stem cephalicus (3506), worn pages (new
-      GABC needed), mottled squares, a liquescent hook ending on a line (held-out
-      misses), broken-up strokes (3403, 3408); --split-voices (by phrase or at a
-      word, --split-words, eval/word-split-report.md) and --overlap (both sections
-      sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
-      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
-      and of a one-note overlap against a clean handoff; --baritones,
-      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
-      --choir presets, --singers (a choir's range test CSV) and --sit-out N (README
-      "Letting a singer sit a note out") landed. --learn rehearsal tracks
-      (2026-11-15) landed. Next: a real choir's range test; a director on --sit-out
-      N, the --musicxml parts and the --learn tracks.
+      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
+      squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
+      3464's cephalicus; --split-voices (by phrase or at a word, --split-words,
+      eval/word-split-report.md) and --overlap (both sections sing the seam note at
+      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
+      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
+      overlap against a clean handoff; --baritones, --entrance-cost N and
+      --second-tenors (TTBB; README) need the same check. --choir, --singers,
+      --sit-out N and --learn landed (README). Next: a real choir's range test; a
+      director on --sit-out N, the --musicxml parts and the --learn tracks.
