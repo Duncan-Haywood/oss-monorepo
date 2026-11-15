@@ -188,30 +188,30 @@ flagships:
       History: README and git (latest: NAV 3.0 schema gate HU-027..032 with NTCA
       common 1.0, 5,776 of 5,776 mutants agree with xmllint,
       eval/hungary-nav-xsd-2026-11-15.md). Open: a real HU report with NAV's
-      businessValidationMessages or SCHEMA_VIOLATION text; termékdíj HU-033 landed
-      (README): open: HU-020..026 vs Annex I; a real signed Facturae file or FACe
-      rejection; ZATCA: a real KSA note; SdI receipt reader landed
-      (NS/RC/MC/NE/DT/AT explained and paired with the file; a real 00305
-      reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection
-      with its file; HR: a real HR invoice, cash accounting; CIUS-PT: which
-      validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
-      (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
-      keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
-      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
-      Dutch file; India's INV-01 check on a real IRP payload; mandate texts: IL, ES,
-      SK, NRS, SRO 1852, Jordan open; Mexico CFDI 4.0 landed: open: SAT's CP error
-      matrix to map MX-070..080 to CP codes (omawww blocked), a real payroll or
-      export file, a PAC rejection compared; cCredPres rules and cClassTrib at IT
-      1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001)
-      landed, 211120 (removed in v1.40) flagged (README): open: a real event; a real
-      reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a
-      cClassTrib; national NFS-e landed: open: a national rejection compared; ISS
-      2-5% band landed (ABR-024/NFSE-024, README): open: a city's own rate table;
-      ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file,
-      city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,
-      ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF
-      reply; refresh the Bulgaria page when its draft passes. A run that lands a
-      slice replaces its item here; keep this under 2,000 characters.
+      businessValidationMessages or SCHEMA_VIOLATION text; HU: open: Annex I I.1/I.2
+      re-read (VAT sums done); a real signed Facturae file or FACe rejection; ZATCA:
+      a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT explained and
+      paired with the file; a real 00305 reproduced,
+      eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection with its
+      file; HR: a real HR invoice, cash accounting; CIUS-PT: which validator does AT
+      run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real
+      KSeF rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
+      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
+      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
+      check on a real IRP payload; mandate texts: IL, ES, SK, NRS, SRO 1852, Jordan
+      open; Mexico CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080
+      to CP codes (omawww blocked), a real payroll or export file, a PAC rejection
+      compared; cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC
+      events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in
+      v1.40) flagged (README): open: a real event; a real reform NF-e from a SEFAZ
+      test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e
+      landed: open: a national rejection compared; ISS 2-5% band landed
+      (ABR-024/NFSE-024, README): open: a city's own rate table; ABRASF NFS-e
+      2.00-2.04 landed (README): open: ISS retained on a real file, city provider
+      schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed
+      (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply;
+      refresh the Bulgaria page when its draft passes. A run that lands a slice
+      replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
