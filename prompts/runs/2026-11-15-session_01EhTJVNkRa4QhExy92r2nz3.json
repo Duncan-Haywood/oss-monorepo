@@ -62,7 +62,7 @@
     "ventures/open-tennis-robots/cad/README.md \"Slip hub back to 0.9 N m\""
   ],
   "goal": null,
-  "notes": "Full lift_jam_sweep.py run at 1.0, 0.9 and 0.8 N m (eval/lift-slip-*-2026-11-15.txt). 0.9 adopted: worst flight peak 91->84 N, hood jam pull 100->90 N (lift_jam_belt_n 90), slowest cut 109->129 ms, slide margin 1.42->1.30; no soft start slips at 0.9; 0.8 slips 3 of 6 soft starts on a worn stiff spider. Checks: cad unittest LiftParamsTest 12 OK; tests/test_host 45 OK; cad full unittest: only build123d-dependent LiftCadTest setUpClass errored before build123d was installed (same on the unchanged copy). Feeder manufacturing package rebuilt with build123d 0.13.0.",
+  "notes": "Full lift_jam_sweep.py run at 1.0, 0.9 and 0.8 N m (eval/lift-slip-*-2026-11-15.txt). 0.9 adopted: worst flight peak 91->84 N, hood jam pull 100->90 N (lift_jam_belt_n 90), slowest cut 109->129 ms, slide margin 1.42->1.30; no soft start slips at 0.9; 0.8 slips 3 of 6 soft starts on a worn stiff spider. Checks: cad unittest LiftParamsTest 12 OK; tests/test_host 45 OK; cad full unittest under a venv with build123d 0.13.0: 138 tests OK (system python3 lacks build123d, so run_venture_tests.py open-tennis-robots reports that suite as not run). Chain sweep at 0.9: tightest segment 90 N (eval/lift-slip-0p9-chain-2026-11-15.txt). Feeder manufacturing package rebuilt with build123d 0.13.0.",
   "corrections": [],
   "redteam": null
 }
