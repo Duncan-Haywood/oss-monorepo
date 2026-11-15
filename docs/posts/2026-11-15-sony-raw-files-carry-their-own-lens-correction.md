@@ -1,9 +1,9 @@
 ---
 title: "Every Sony Raw File Carries Its Own Lens Correction. Now ShootFlow Uses It."
-seo_title: "Sony ARW Embedded Lens Correction (Distortion, Chromatic Aberration) Checked Against Lensfun"
+seo_title: "Sony ARW Embedded Lens Correction, Checked Against Lensfun"
 date: 2026-11-15
 tags: [photo-editing, raw, lens-correction, sony]
-description: "Sony A7 and E-mount ARWs store the lens's distortion and colour-fringe curves. Read and checked against lensfun on three real frames: within 9 px on 84-411 px corrections."
+description: "Sony E-mount ARWs store the lens's distortion and fringe curves. Checked against lensfun on three real frames: within 9 px on 84-411 px corrections."
 ---
 
 When a Sony A7 makes a JPEG, it straightens the lens's barrel distortion and pulls in the red and blue
