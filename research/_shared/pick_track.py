@@ -235,6 +235,24 @@ def refresh_origin_main(hours=6, run=subprocess.run):
     return None
 
 
+# PR number -> head branch, filled by _open_pr_titles. A run that re-ran this script after
+# opening its own draft PR saw that PR as a sibling's claim: the draw skipped its programme
+# and the CLAIM CHECK named a different one (friction 2026-11-11..14, five reports).
+_HEADS = {}
+
+
+@functools.lru_cache(maxsize=None)
+def current_branch():
+    out = subprocess.run(["git", "branch", "--show-current"], cwd=RESEARCH, capture_output=True, text=True)
+    return out.stdout.strip()
+
+
+def is_own_pr(number):
+    """True when open PR `number` comes from the branch checked out here (this run's own PR)."""
+    branch = current_branch()
+    return bool(branch) and _HEADS.get(number) == branch
+
+
 @functools.lru_cache(maxsize=None)
 def _open_pr_titles(repo, limit, pages=10):
     """[(number, title)] of open PRs, fetched once per process; None when the API could not be read.
@@ -249,6 +267,7 @@ def _open_pr_titles(repo, limit, pages=10):
             with urllib.request.urlopen(url, timeout=15) as r:
                 batch = json.load(r)
             found += [(p["number"], p.get("title", "")) for p in batch]
+            _HEADS.update({p["number"]: (p.get("head") or {}).get("ref", "") for p in batch})
             if len(batch) < limit:
                 break
     except Exception:
@@ -262,7 +281,7 @@ def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
     The commit check cannot see a sibling that has not merged yet: two runs drew the same
     programme milestone and one trained for 2 hours before the other landed (friction
     2026-10-25). Unauthenticated REST works from cloud sessions for this public repo."""
-    return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t]
+    return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t and not is_own_pr(n)]
 
 
 def origin_main_age_hours():
@@ -296,7 +315,10 @@ def claim_check(slug, hours=6):
     if titles is None:
         lines.append(f"CLAIM CHECK: could not list open PRs (GitHub API unreachable); search open PRs for '{slug}' by hand")
     else:
-        prs = [f"#{n} {t}" for n, t in titles if slug in t]
+        named = [(n, t) for n, t in titles if slug in t]
+        prs = [f"#{n} {t}" for n, t in named if not is_own_pr(n)]
+        lines += [f"CLAIM CHECK: #{n} {t} is this branch's own PR ({current_branch()}), not a sibling's claim"
+                  for n, t in named if is_own_pr(n)]
         lines += [f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {p}"
                   for p in prs]
         if recent and not prs:
@@ -304,7 +326,7 @@ def claim_check(slug, hours=6):
                          "that this check can see; a sibling that has not pushed yet is invisible to it")
         if not recent and not prs and age is not None and age <= hours:
             if history_covers(hours):
-                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug}); "
+                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; no other open PR of {len(titles)} names {slug}); "
                              f"after opening your draft PR, `python3 portfolio/router/claim_check.py {slug}` says who keeps it if a sibling opened one too")
             else:
                 lines.append(f"CLAIM CHECK: no commit in this clone's history and no open PR names {slug}, but the shallow "
@@ -490,8 +512,7 @@ def session_draw(new=False, ttl=12 * 3600):
     try:
         git = subprocess.run(["git", "rev-parse", "--git-dir"], cwd=RESEARCH, capture_output=True,
                              text=True, check=True).stdout.strip()
-        branch = subprocess.run(["git", "branch", "--show-current"], cwd=RESEARCH, capture_output=True,
-                                text=True).stdout.strip()
+        branch = current_branch()
         f = (RESEARCH / git).resolve() / "pick_track_draw.json"
     except (OSError, subprocess.CalledProcessError):
         return random.random()

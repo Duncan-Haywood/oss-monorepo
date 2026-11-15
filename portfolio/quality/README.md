@@ -290,7 +290,8 @@ audit of each subject unless noted:
 - the **weekly trend**.
 
 `queue` lists open defects worst first (source-only left out); `census`
-draws the sweep; `coverage` prints the coverage table as JSON.
+draws the sweep (its seed takes a random tail like `sample`'s, and it passes
+over subjects an open PR title names, printing them as `skipped`); `coverage` prints the coverage table as JSON.
 
 ## Reflections
 

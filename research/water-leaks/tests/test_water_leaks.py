@@ -422,3 +422,80 @@ def test_visible_from_needs_a_sustained_drop_against_the_pre_onset_mean():
     assert localise.visible_from(D, 30, 60) == 50
     assert localise.visible_from(D, 30, 15) is None
     assert localise.visible_from(np.zeros((100, 2)), 30, 60) is None
+
+
+TANK_INP = """[TITLE]
+step 16 test
+[JUNCTIONS]
+ J1 0 0
+ J2 0 0
+[RESERVOIRS]
+ R1 50
+[TANKS]
+ T1 100 2 0 10 2000 0
+[PIPES]
+ P1 T1 J1 1000 300 100 0 Open
+ P2 J1 J2 1000 300 100 0 Open
+[PUMPS]
+ PUMP_1 R1 T1 HEAD C1
+[CURVES]
+ C1 100 80
+[TIMES]
+ Duration 24:00
+ Hydraulic Timestep 0:05
+ Pattern Timestep 0:05
+ Report Timestep 0:05
+[OPTIONS]
+ Units CMH
+ Headloss H-W
+[END]
+"""
+
+
+def test_realsig_restart_sets_tank_level_and_signature_is_the_pipe_loss(tmp_path):
+    """Step 16's restarted day runs: with the pump closed and no demand the junction sees the tank's
+    static head (100 m + the level set at the restart); a constant 36 m3/h at J2 lowers J2 by the
+    Hazen-Williams loss over 2 km of 300 mm pipe, and J1 by half that."""
+    import pytest
+    pytest.importorskip("wntr")
+    from water_leaks import realsig
+    inp = tmp_path / "tank.inp"
+    inp.write_text(TANK_INP)
+    out = realsig.window_signatures(inp, ["J1", "J2"], ["J1", "J2"], [(0, 3.0, False, 36.0), (3600, 5.0, False, 36.0)], procs=2)
+    hl = 10.67 * 1000 * (36 / 3600) ** 1.852 / (100 ** 1.852 * 0.3 ** 4.87)
+    for (base, S), level in zip(out, (3.0, 5.0)):
+        assert base.shape == (realsig.DAY_STEPS, 2)
+        assert np.allclose(base, 100 + level, atol=1e-3)
+        assert S.shape == (2, 2)
+        assert abs(S[1, 1] + 2 * hl) < 0.01 and abs(S[1, 0] + hl) < 0.01   # leak at J2
+        assert abs(S[0, 0] + hl) < 0.01 and abs(S[0, 1] + hl) < 0.01       # leak at J1: J2 is downstream, no flow
+    # the tank drains 36 m3/h over 2000 m diameter: under 0.3 mm a day, so no level drift shows above
+
+
+def test_realsig_rank_and_near_ties():
+    from water_leaks import realsig
+    s = np.array([0.5, 0.9995, 0.2, 1.0, np.nan])
+    assert realsig.rank_of(s, [3]) == 1 and realsig.rank_of(s, [0, 2]) == 3
+    far = np.array([True, True, True, False, True])
+    assert realsig.near_ties(s, far) == 1 and realsig.near_ties(s, far, tol=1e-5) == 0
+
+
+def test_replay_splits_the_pipe_and_draws_the_flow_at_its_midpoint(tmp_path):
+    """Step 17's leak replay: a leak on P2 (1 km, J1 to J2) drawn at its midpoint lowers J1 by the
+    Hazen-Williams loss over P1 and J2 (downstream of the midpoint, no flow beyond it) by 1.5 times
+    that; the flow is reset every 5 minutes, so a leak starting at step 144 shows from step 144."""
+    import pytest
+    pytest.importorskip("wntr")
+    from water_leaks import realsig, replay
+    inp = tmp_path / "tank.inp"
+    inp.write_text(TANK_INP)
+    r = replay.Replay(inp, ["J1", "J2"], ["P2"])
+    fl = np.zeros((realsig.DAY_STEPS, 1))
+    fl[144:] = 36.0
+    out = r.run(0, 3.0, False, fl)
+    hl = 10.67 * 1000 * (36 / 3600) ** 1.852 / (100 ** 1.852 * 0.3 ** 4.87)
+    assert np.allclose(out[:144], 103.0, atol=1e-3)
+    assert abs(out[200, 0] - (103 - hl)) < 0.01
+    assert abs(out[200, 1] - (103 - 1.5 * hl)) < 0.01
+    none = replay.Replay(inp, ["J1", "J2"], []).run(0, 3.0, False, np.zeros((realsig.DAY_STEPS, 0)))
+    assert np.allclose(none, 103.0, atol=1e-3)

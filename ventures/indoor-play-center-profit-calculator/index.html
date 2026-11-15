@@ -166,7 +166,7 @@
     let last = null;
     const map = { weekdaydays: "weekdayDays", weekdayvisits: "weekdayVisits", weekenddays: "weekendDays", weekendvisits: "weekendVisits", admission: "admission", memberpct: "memberPct", membervisit: "memberVisit", feespct: "feesPct", cafespend: "cafeSpend", cafecogspct: "cafeCogsPct", pervisitcost: "perVisitCost", partiesweek: "partiesWeek", partyprice: "partyPrice", partycost: "partyCost", partystaffmin: "partyStaffMin", staffhours: "staffHours", wage: "wage", burdenpct: "burdenPct", rentmonthly: "rentMonthly", utilitiesmonthly: "utilitiesMonthly", insuranceyear: "insuranceYear", marketingmonthly: "marketingMonthly", managermonthly: "managerMonthly", othermonthly: "otherMonthly", sqft: "sqft", buildoutpersqft: "buildoutPerSqft", playequipment: "playEquipment", cafeequipment: "cafeEquipment", launch: "launch", depositmonths: "depositMonths", contingencypct: "contingencyPct", startpct: "startPct", rampmonths: "rampMonths", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", targetmargin: "targetMargin" };
     const IDLE = "Fill in your centre, then click Work out the centre. A walk-in admission price is required; the rest default to zero or the neutral choice.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
     const pct = (n) => (n * 100).toFixed(1) + "%";
     const sgn = (n) => (n > 0 ? "+" : "") + n + "%";
     const cells = (x) => `<td class="n">${whole(x.profit)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td><td class="n">${whole(x.cash)}</td>`;

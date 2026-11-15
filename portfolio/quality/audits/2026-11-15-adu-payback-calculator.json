@@ -1,0 +1,251 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/adu-payback-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-15-b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a real-estate financial analyst / CPA who prepares ADU feasibility pro formas for homeowners and small ADU builders. They would check first that the loan payment and balance tie to a standard amortisation schedule, that the levered cash flows (equity out, cash after debt, net sale proceeds less loan payoff) are built and discounted correctly, that payback is interpolated rather than rounded, and then ask what the pre-tax result leaves out: depreciation (27.5-year residential MACRS, mid-month, IRS Pub 527/946), recapture and capital-gains tax on sale, and the construction period",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the shipped engine on the page's 'Load an example' inputs (probe.mjs in scratchpad) and recomputed every headline output with an independent Python script (indep.py: own annuity PMT, balance by an explicit 120-step amortisation loop rather than the closed form, own NPV and IRR bisection). All match to the cent or 1e-12: total cost $220,000; payment $1,243.93/month on $176,000 at 7%/25y (also the textbook annuity value P*r/(1-(1+r)^-n), and the figure published amortisation tables give); year-1 NOI $23,840, yield on cost 10.836%; cash after debt $8,912.82; loan balance after 120 payments $138,394.78; uplift value 230,000*1.03^10 = $309,100.77, net sale $152,159.94; equity IRR 30.311%; NPV at 8% $106,312.11; simple payback 8.265 years (interpolated, matches); cash break-even rent $1,818.17; unlevered IRR 13.727% (matches an independent all-cash series). The defects are input handling, not arithmetic: a loan term of 0 with the default 80% financed returns no error and treats the $176,000 loan as free money (no payments, zero balance at sale), giving an equity IRR of 59.9% instead of an error (calc.mjs:49-50, :58-59, :135); and a first cost line without a comma ('Permits 18000') is dropped with no warning, so the total silently falls by $18,000 (calc.mjs:37). Taxes and depreciation are not modelled (stated), so no IRS rule could be checked.",
+  "completeness": "Every listed feature runs end to end in the engine: line-item build costs with contingency, financing (loan payment, equity), vacancy, management, owner-use months, rent and cost growth, year-by-year table, yield on cost, simple payback, equity IRR and NPV with value uplift at sale, both break-even rents, rent and cost sensitivity tables (5 rows each, monotone), CSV export (10 year rows, quoted commas). page.test.mjs checks every element id the inline script looks up exists and every import is exported. The served page https://marisstella.app/adu-payback-calculator/ could not be loaded from this container (proxy CONNECT 403), so the served build was not checked; llms.txt's github.io host is rewritten at deploy by platform/ci/build_pages_site.py rewrite_base_urls, so it is not filed. No stubs or TODOs. equityPaybackYear is computed and tested but never shown on the page.",
+  "verification": "`cd ventures/adu-payback-calculator && node --test '*.test.mjs'`: 32 tests, 32 pass, 0.12 s. The suite does pin the payment to an external value (1,243.93) and a balance to a published amortisation figure (98,771.99), which is better than average. Five mutants via platform/ci/quality_mutate.py: 2 caught (uplift growth exponent :114, IRR bisection cut short :80), 3 survived: simple payback rounded up to the whole year (:161; the only payback test is an exact integer 5 years, so 8.27 -> 9 passes), management fee dropped from the cash break-even rent (:187; the break-even test uses 0% management), and owner-use months taken after vacancy (:100; owner-use test uses 0% vacancy). No test covers loanYears 0, a commaless first line, or a non-integer payback.",
+  "craft": "Read calc.mjs (259 lines), index.html (220), calc.test.mjs (149), page.test.mjs (108), usage.mjs (80). Pure engine, no dependencies, output escaped, usage counter local with DNT/GPC opt-out, sensible validation for most fields. Defects: parseItems discards a non-matching line silently while no row has been read yet (meant to skip a header, but it also eats a real first line) (calc.mjs:37); loanYears 0 or under 0.04 is not rejected while a loan exists, and monthlyPayment/loanBalance both return 0 for n<=0 (calc.mjs:50, :59, :135); with 100% financed the NPV card says n/a but 'Rent per month for NPV zero' still shows $1,331 computed on a zero-equity flow series (calc.mjs:173-183, index.html:185); '18.000' (European thousands) parses as 18 (calc.mjs:25); all flows are lumped at year end, including twelve monthly payments, which is a standard simplification but is not stated.",
+  "claims": "Checked against files and runs. Disclaimer ('not investment, tax, lending, legal or construction advice'), no-warranty, independence and best-effort hosting lines are present (index.html:63, :149-151; page.test.mjs asserts them). 'Nothing uploaded' holds: no fetch/XHR/sendBeacon/WebSocket in index.html, calc.mjs or usage.mjs; module imports are local only. The method paragraph (index.html:125) matches the code line for line, and the 'Not modelled' list (index.html:126) honestly names tax, depreciation, recapture, construction-loan phase and the build period. The FAQ example ($220,000 cost, $23,800 NOI, 10.8% yield) reproduces exactly from the sample (NOI $23,840, 10.84%); its 'simple payback near eight years' is 8.27 years with the sample's 3% growth and 9.24 years flat, so 'near eight' rounds down (index.html:132 and the JSON-LD at :12). README says 'tested on hand-calculated examples' and 'unverified against a real project', which is accurate.",
+  "fitness": "Walked the homeowner's job: enter six quote lines, an 80% loan, $2,600 rent, four operating-cost lines and an appraiser's uplift, and read whether it beats 8%, how much cash goes in, whether year 1 is cash-negative, and the break-even rents. All of that works and the sensitivity tables answer 'what if the build runs 20% over'. A homeowner deciding whether to build can finish a pre-tax first pass with it. Gaps a builder or lender would hit: no construction period or construction-loan interest (equity at t=0, full rent from year 1), no HELOC/cash-out-refi option on the whole house, no after-tax view, and no save/share of a scenario.",
+  "domain": "Compared with a standard levered real-estate pro forma (annuity amortisation, NOI, cash after debt service, reversion net of selling costs and loan payoff, IRR/NPV on equity): the pre-tax method is right, and the sale counts only the uplift attributable to the ADU, which is the right marginal framing. Where it departs from what the named CPA/analyst would sign: it is pre-tax only. For a long-term rental ADU the building basis is depreciable over 27.5 years straight-line with the mid-month convention (IRS Pub 527 ch. 2, Pub 946 Table A-6); on a $200,000 basis placed in service in January that is $6,970 in year 1 (3.485%) and $7,273/yr after, which often shelters most of the $23,840 NOI, and on sale the unrecaptured section 1250 gain is taxed at up to 25%. Omitting both moves the IRR materially in either direction, and the page's say-so does not change that the answer is not the one an adviser gives. Annual year-end timing understates the IRR slightly against monthly flows. Score 2: the method is sound but the after-tax piece is the first thing the professional would add."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Monthly payment on $176,000 at 7% over 25 years (sample loan)",
+   "method": "standard annuity formula P*r/(1-(1+r)^-n), independent Python indep.py",
+   "command": "node probe.mjs (scratchpad) vs python3 indep.py",
+   "expected": "1,243.93",
+   "observed": "1,243.9313872",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Loan balance after 120 payments",
+   "method": "explicit month-by-month amortisation loop in Python (not the closed form the code uses)",
+   "command": "python3 indep.py",
+   "expected": "138,394.78",
+   "observed": "138,394.78 (sale net 152,159.94 = 309,100.77*0.94 - balance)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Equity IRR and NPV@8% for the page's sample with $230,000 uplift",
+   "method": "independent cash-flow build and IRR bisection / NPV in Python",
+   "command": "python3 indep.py",
+   "expected": "IRR 30.311%, NPV 106,312.11",
+   "observed": "IRR 30.311%, NPV 106,312.11",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Simple payback with 3% rent and cost growth, interpolated",
+   "method": "hand cumulative NOI series with linear interpolation in Python",
+   "command": "python3 indep.py",
+   "expected": "8.265 years",
+   "observed": "8.265 years",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Unlevered IRR (all-cash series)",
+   "method": "independent Python series -220,000, NOI growing 3%, + 309,100.77*0.94 at year 10",
+   "command": "python3 - (inline, scratchpad notes)",
+   "expected": "13.727%",
+   "observed": "13.727%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cash break-even rent",
+   "method": "(12*PMT + opex) / (0.95) / 12 by hand",
+   "command": "python3 indep.py",
+   "expected": "1,818.17",
+   "observed": "1,818.17",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Loan term 0 with 80% financed",
+   "method": "a loan cannot be both outstanding and payment-free; expected a validation error",
+   "command": "node probe.mjs (analyze(..., {loanYears:0}))",
+   "expected": "error, or treated as no loan (IRR 13.7%)",
+   "observed": "no error; payment 0, balance 0, equity 44,000, IRR 59.9%",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "First cost line without a comma",
+   "method": "input probe",
+   "command": "parseItems('Permits 18000\\nFraming,70000\\nFinishes,75000','cost')",
+   "expected": "3 rows or a skipped-line warning",
+   "observed": "2 rows, warnings [] (18,000 silently dropped)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "32/32 pass, 0.12 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ example: $220,000 cost, $23,800 NOI, 10.8% yield, payback near eight years",
+   "method": "recompute from sample inputs",
+   "command": "python3 indep.py",
+   "expected": "10.8%, ~8 years",
+   "observed": "10.84%, 8.27 years (9.24 with no growth)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded",
+   "method": "grep for network calls",
+   "command": "grep -nE 'fetch|XMLHttp|sendBeacon|WebSocket' index.html calc.mjs usage.mjs",
+   "expected": "none",
+   "observed": "none",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and 'Not modelled' list present and accurate",
+   "method": "read index.html:63,125-126,149-151 against calc.mjs",
+   "expected": "present, matches code",
+   "observed": "present; tax/depreciation/build period listed as not modelled",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Depreciation (27.5-year MACRS, mid-month) and sale-tax treatment",
+   "method": "IRS Pub 527 ch. 2 / Pub 946 Table A-6 (3.485% first year for January)",
+   "command": "grep -n 'depreci' calc.mjs",
+   "expected": "modelled or at least an after-tax option",
+   "observed": "not modelled (stated on page)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served page loads",
+   "method": "curl",
+   "command": "curl -sS https://marisstella.app/adu-payback-calculator/",
+   "expected": "HTTP 200",
+   "observed": "proxy CONNECT 403 from this container; not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:161",
+   "change": "simplePayback = y - 1 + (noi > 0 ? 1 - cum / noi : 1) -> simplePayback = y",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:114",
+   "change": "Math.pow(1 + appreciationPct/100, holdYears) -> holdYears - 1",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:187",
+   "change": "drop (1 - managementPct/100) from cash break-even keep factor",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:80",
+   "change": "IRR bisection stops after 21 iterations",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:100",
+   "change": "(rent - ownerRentLoss)*(1-vac) -> rent*(1-vac) - ownerRentLoss",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Loan term 0 (or under ~0.04 years) with a financed share above 0 is accepted; monthlyPayment and loanBalance return 0 for n<=0, so the loan becomes free money: sample IRR 59.9% instead of an error (or 13.7% all-cash).",
+   "where": "ventures/adu-payback-calculator/calc.mjs:135",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "medium",
+   "what": "parseItems silently discards any non-matching line before the first good row (intended to skip a header), so a real first cost line without a comma ('Permits 18000') vanishes with no warning and the build cost is understated.",
+   "where": "ventures/adu-payback-calculator/calc.mjs:37",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Pre-tax only: no depreciation (27.5-year residential MACRS, mid-month, IRS Pub 527/946), recapture or capital-gains tax at sale, which a CPA advising an ADU rental would model first. Stated on the page, but it is the main gap to a professional answer.",
+   "where": "ventures/adu-payback-calculator/calc.mjs:89",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Three core rules are untested: payback interpolation (only an integer-year case), management in the cash break-even rent, and the owner-use/vacancy order; seeded mutants of each survive.",
+   "where": "ventures/adu-payback-calculator/calc.test.mjs:39",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "With 100% financed the NPV card shows n/a but 'Rent per month for NPV zero' still shows $1,331 computed on a zero-equity flow series.",
+   "where": "ventures/adu-payback-calculator/calc.mjs:176",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "FAQ says the $220,000 / $23,800 example has 'a simple payback near eight years'; the tool gives 8.27 years with the sample's 3% growth (9.24 flat).",
+   "where": "ventures/adu-payback-calculator/index.html:132",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "low",
+   "what": "No construction period: equity goes in at t=0 and full rent starts in year 1, with no construction-loan interest; stated as not modelled.",
+   "where": "ventures/adu-payback-calculator/calc.mjs:98",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'18.000' (European thousands separator) parses as 18 with no warning.",
+   "where": "ventures/adu-payback-calculator/calc.mjs:25",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+ ],
+ "verdict": "The arithmetic is right: six headline outputs on the page's own example (payment $1,243.93, balance after 120 payments $138,394.78, equity IRR 30.31%, NPV@8% $106,312, interpolated payback 8.27 years, cash break-even rent $1,818) match an independent Python recomputation to the cent, and the page's claims and 'not modelled' list are honest. It misses the bar on verification: 3 of 5 seeded mutants in core rules survive (payback rounding, management in break-even rent, owner-use order). Two input paths give wrong numbers silently: a loan term of 0 makes an 80% loan free (IRR 59.9%), and a commaless first cost line disappears without a warning. For the named CPA/analyst the method is a sound pre-tax levered pro forma but omits 27.5-year depreciation and sale taxes, the first thing they would add. Finished (completeness 3), not at the bar (verification 2)."
+}

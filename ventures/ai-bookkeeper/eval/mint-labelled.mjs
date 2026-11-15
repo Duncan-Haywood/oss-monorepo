@@ -133,7 +133,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   for (const f of FILES.filter((f) => set === "all" || f[0] === set)) {
     const rows = mintRows(await fetchFile(f, dir));
     const skip = arg("--skip") ? new Set(arg("--skip").split(",")) : null;
-    const c = evaluate(rows, { learn: false }), o = evaluate(rows, { skip });
+    const c = evaluate(rows, { learn: false, skip }), o = evaluate(rows, { skip });
     add(tot.cold, c.all); add(tot.coldFirst, c.first); add(tot.online, o.all); add(tot.first, o.first); add(tot.repeat, o.repeat);
     misses.push(...o.misses);
     console.log(`${f[0]} ${f[1].padEnd(36)} rows ${rows.length} scored ${c.scored}  cold ${pct(c.all.right, c.all.n)}  online ${pct(o.all.right, o.all.n)}  first-seen ${pct(o.first.right, o.first.n)} (n=${o.first.n})`);

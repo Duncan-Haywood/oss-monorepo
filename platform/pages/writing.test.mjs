@@ -165,7 +165,30 @@ test('topics: fiction files under stories, though its shelf is a venture; a post
   assert.equal(topicOf(['hearth-and-horizon', 'audio', 'hosting', 'process'], '', projects), 'tools');
   assert.equal(topicOf(['process', 'hearth-and-horizon', 'fiction'], '', projects), 'tools', 'the story queue post is about the queue');
   assert.equal(topicOf(['opinion', 'fiction']), 'agents');
-  assert.equal(topicOf(['polish', 'seo', 'stories']), 'tools', 'a post about the Stories pages is not fiction');
+  assert.equal(topicOf(['polish', 'seo', 'stories']), 'site', 'a post about the Stories pages is not fiction');
+});
+
+test('topics: site craft and test campaigns leave Tools and projects; a tool-specific design or speed post stays', async () => {
+  const { topicOf, TOPICS } = await import('./writing.mjs');
+  const projects = { research: new Set(['marine-hull']), ventures: new Set(['dupehound', 'einvoice-preflight']) };
+  assert.ok(TOPICS.some((t) => t.id === 'site') && TOPICS.some((t) => t.id === 'testing'));
+  // Strong tags win over a named tool: a red-team pass on a tool is about the tests.
+  assert.equal(topicOf(['redteam', 'einvoice-preflight', 'testing'], '', projects), 'testing');
+  assert.equal(topicOf(['mutation-testing', 'ai-agents'], '', projects), 'testing');
+  assert.equal(topicOf(['polish', 'dupehound', 'css'], '', projects), 'site');
+  assert.equal(topicOf(['seo', 'tax'], '', projects), 'site');
+  assert.equal(topicOf(['aeo', 'llms-txt'], '', projects), 'site');
+  // Research and fiction still come first.
+  assert.equal(topicOf(['polish', 'marine-hull'], '', projects), 'research');
+  assert.equal(topicOf(['redteam', 'research'], '', projects), 'research');
+  // Loose tags only when nothing else matched.
+  assert.equal(topicOf(['accessibility', 'dupehound'], '', projects), 'tools', 'an accessibility feature of one tool');
+  assert.equal(topicOf(['accessibility', 'contrast'], '', projects), 'site');
+  assert.equal(topicOf(['testing', 'dupehound'], '', projects), 'tools');
+  assert.equal(topicOf(['testing', 'node'], '', projects), 'testing');
+  assert.equal(topicOf(['ci', 'ai-agents'], '', projects), 'agents', 'a CI post about the fleet stays with agents');
+  assert.equal(topicOf(['ci', 'regex'], '', projects), 'infrastructure');
+  assert.equal(topicOf(['performance', 'raw', 'photography'], '', projects), 'tools', 'making one tool faster is about the tool');
 });
 
 test('topics: a tag naming a research/ project files the post under research, a ventures/ one under tools', async () => {
@@ -525,4 +548,46 @@ test('buildWriting creates a missing nested output directory', async () => {
   const out = path.join(mkdtempSync(path.join(os.tmpdir(), 'wout-')), 'a', 'b');
   await buildWriting(out, BASE, { root });
   assert.ok((await fs.stat(path.join(out, 'writing', 'index.html'))).isFile());
+});
+
+// Ten topic chips wrapped to six rows (275 px) on a 390 px phone, above the first post (polish 2026-11-15).
+// Under 640 px they are one sideways row; the script fades whichever end has more chips and
+// scrolls a topic chosen from the URL into view.
+test('finder: topic chips are one sideways row on a phone, faded at the end that has more', async () => {
+  const root = repoWith({ '2026-10-01-one.md': post('One', '2026-10-01') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-chips-'));
+  await buildWriting(out, BASE, { root });
+  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const phone = html.match(/@media \(max-width:639px\) \{([\s\S]*?)\n  \}/)?.[1] || '';
+  assert.match(phone, /\.chips \{ flex-wrap:nowrap; overflow-x:auto;/);
+  assert.match(phone, /\.chips > \* \{ flex:none; white-space:nowrap;/, 'every chip, buttons and the podcast index\'s links alike, keeps its width in the row');
+  assert.match(phone, /\.chips > a \{ display:inline-flex;/);
+  for (const end of ['start', 'end', 'both']) assert.match(phone, new RegExp(`\\.chips\\[data-fade=${end}\\] \\{[^}]*mask-image`));
+
+  const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const handlers = {};
+  const row = { scrollWidth: 1600, clientWidth: 356, scrollLeft: 0, offsetLeft: 0, dataset: {}, removeAttribute(k) { if (k === 'data-fade') delete this.dataset.fade; }, addEventListener(t, f) { handlers[t] = f; } };
+  const chip = (id, offsetLeft) => ({ dataset: { topicChip: id }, parentElement: row, offsetLeft, offsetWidth: 100, addEventListener() {}, setAttribute() {} });
+  const chips = [chip('', 16), chip('agents', 400), chip('infrastructure', 1480)];
+  const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
+  const run = (search) => {
+    const els = { posts: { children: [], appendChild() {} }, q: el(), tag: { ...el(), selectedIndex: 0 }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
+    vm.runInNewContext(script, {
+      document: { getElementById: (id) => els[id], querySelectorAll: (s) => (s === '[data-topic-chip]' ? chips : []) },
+      location: { search, pathname: '/writing/' }, history: { replaceState() {} }, addEventListener() {},
+      fetch: () => Promise.resolve({ ok: false }), URLSearchParams, Array, String,
+    });
+  };
+  run('');
+  assert.equal(row.scrollLeft, 0);
+  assert.equal(row.dataset.fade, 'end');
+  row.scrollLeft = 500; handlers.scroll();
+  assert.equal(row.dataset.fade, 'both');
+  row.scrollLeft = 0;
+  run('?topic=infrastructure');
+  assert.equal(row.scrollLeft, 1480 - (356 - 100) / 2);
+  row.scrollLeft = 1244; handlers.scroll();
+  assert.equal(row.dataset.fade, 'start');
+  row.scrollWidth = 356; row.scrollLeft = 0; handlers.scroll();
+  assert.equal(row.dataset.fade, undefined, 'no fade when every chip fits');
 });

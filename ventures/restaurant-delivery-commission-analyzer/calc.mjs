@@ -104,7 +104,7 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
     // Two- or four-digit years only: "1/2/123" is a typo, not the year 123.
@@ -404,6 +404,9 @@ export function analyze(orders, opts = {}) {
       // the spend cost more than these orders earned even if every one was
       // incremental.
       profitBeforeSpendPerDollar: (afterP + spend) / spend,
+      // In dollars too, so the findings can compare at the cent: a ratio of
+      // 0.99999999999999 is float noise on an exact break-even, not a loss.
+      profitBeforeSpend: afterP + spend,
       netAfterPerOrderWith: spendRows.length ? afterP / spendRows.length : null,
       netAfterPerOrderWithout: plain.length ? afterN / plain.length : null,
       avgTicketWith: spendRows.length ? grossP / spendRows.length : null,
@@ -453,11 +456,13 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   } else if (s.costsEntered && s.orders) {
     out.push({ severity: "info", title: "No order lost money after food cost and packaging", detail: "That says nothing about labour, rent or the promotions not in this file." });
   }
-  if (s.costsEntered && s.netAfter < 0) {
+  // At the cent, like the per-order loss test: three break-even orders can
+  // sum to -5e-15, which printed "lost money overall" with a net of $0.00.
+  if (s.costsEntered && cents(s.netAfter) < 0) {
     out.push({ severity: "high", title: "Delivery lost money overall after food cost and packaging", detail: `Net after costs is ${usd(s.netAfter)} across ${s.orders} orders (${usd(s.netAfterPerOrder)} each), before any labour.` });
   }
   if (promo) {
-    const bad = promo.profitBeforeSpendPerDollar < 1;
+    const bad = cents(promo.profitBeforeSpend) < cents(promo.spend);
     out.push({ severity: bad ? "high" : "info", title: `Promotions and ads: ${usd(promo.spend)} spent on ${promo.orders} orders`, detail: `Those orders sold ${usd(promo.grossOnSpend)} (${usd(promo.grossPerDollar)} of food sales per $1 spent). ${s.costsEntered ? `Before the spend they left ${usd(promo.profitBeforeSpendPerDollar)} of profit per $1 spent, even if every one of them was an order you would not otherwise have had${bad ? "; the spend cost more than these orders earned" : ""}.` : "Enter food cost and packaging to see profit per $1 spent."} The file cannot show which orders were truly new customers.` });
   }
   const wd = byWeekday.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);

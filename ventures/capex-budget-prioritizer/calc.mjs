@@ -26,7 +26,7 @@ export function num(v, fallback = 0) {
   const n = typeof v === "number" ? v : Number.parseFloat(String(v ?? "").replace(/[$,%\s,]/g, ""));
   return Number.isFinite(n) ? n : fallback;
 }
-export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(n)).toLocaleString("en-US"));
 
 export function cleanShared(s = {}) {
   return {

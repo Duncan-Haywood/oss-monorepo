@@ -2237,3 +2237,166 @@ Not claimed: invented teams and seeded weeks; 200,000 steps is set from 22 roste
 clashing; the confirm makes the pass slower on big weeks (8.2 s against 3.5 s on the 40-person week 1), which is why the pair
 price still runs only up to 120 shift copies by default. Next: the 40- and 60-person weeks' played result with the pair price; a
 cheaper confirm (only the pairs a move touches) so the pair price can run past 120 copies.
+
+## Only the walks a move can pass (2026-11-15 later)
+
+"Fewer capped pairs" left the second-call-out price (`--second-callout-price`) capped at 120 shift copies because its pair
+walks were slow on bigger weeks: each candidate move that passes the single-risk test runs a 500-step walk over every pair of
+safe person-days, then a 200,000-step confirming walk. It named the fix to try first: confirm only the pairs a move touches.
+**That was tried and dropped** (below). What landed instead are two exact cuts that end a walk once the move it is testing
+cannot pay:
+
+1. **A walk stops at the hours that would reject the move.** A move is kept only if score + risk price + pair price falls.
+   Before a candidate's pair walk, everything but the pair term is known, so the walk is told how many clashing hours would
+   already reject it (`coverPairRisk(..., { stopAt })`) and returns as soon as it counts that many. A walk that finishes is the
+   same walk as before.
+2. **Last roster's clashes first.** Each pair's verdict is its own (the search puts every list back), so the order changes only
+   how soon a walk reaches its limit. The pass keeps the clashing pairs of the roster it last took, one list per budget, and
+   walks those first (`first`): a move that leaves them clashing is cut off after a few searches instead of after most of the
+   walk. Without this the cut saved only 12-15%, because the few clashing pairs were scattered through about 1,000.
+
+Plus one check the screen had and the confirm did not: if even zero clashing pairs would not pay for the move, the confirming
+walk is skipped. `coverPairStop: false` turns all three off. `coverSlack` now reports `pairWalks`, `pairStops`, `pairSkips` and
+`pairsSearched`.
+
+`node eval/pair-stop.mjs` (`eval/pair-stop.out.txt`) builds each week's plain roster once and runs the priced pass from it
+($25 an hour at risk, $1 a pair hour, confirm on) with the cuts off and on. Running the pass on one fixed roster matters here:
+the 40-person week 2's build is time-gated, and two `buildRoster` calls with different options started the pass from different
+rosters (scores 28,112,519.55 and 28,112,521.01), which first looked like the cuts changing the result.
+
+| week (copies) | no pair price | pair price, cuts off | pair price, cuts on | pairs searched, off → on | same roster |
+|---|---|---|---|---|---|
+| spare café, retail, café (20-32) | 64, 2, 9 ms | 446, 15, 56 ms | 480, 17, 60 ms | 8,862 → 6,775 (spare) | yes |
+| 20 x 56 weeks 0-1 (76, 82) | 143, 343 ms | 126, 344 ms | 132, 360 ms | 306, 6 (no move to test) | yes |
+| 20 x 56 week 2 (75; 4 moves) | 196 ms | 2.7 s | **1.65 s** | 118,227 → 36,864 | yes |
+| 40 x 112 week 0 (149; 11 moves) | 2.0 s | 32.3 s | **16.1 s** | 1,156,395 → 283,507 | yes |
+| 40 x 112 week 1 (148) | 1.8 s | 6.8 s | **2.6 s** | 484,380 → 25,262 | yes |
+| 40 x 112 week 2 (162) | 249 ms | 293 ms | 302 ms | 7,832 both | yes |
+| 60 x 168 week 0 (245; `eval/pair-stop-60.out.txt`) | 1.7 s | 89.7 s | **46.8 s** | 4,229,868 → 1,818,194 | yes |
+
+The cuts cost nothing where no move is tested (up to 10% on the millisecond weeks, within run-to-run noise) and halve or better
+the pass where moves are tested and refused. On an earlier run of the same eval the 40 x 112 week 2 started from another,
+time-gated roster that tested 124 moves: 5.3 s → 1.3 s. **The 120-copy cap stays.** On the 40-person weeks the pair price is now
+1.4-8x the pass without it instead of 3.7-16x, and on the 60-person week it is still 28x (46.8 s against 1.7 s), too slow to
+switch on by default inside a 20 s build. The run on the 80 x 224 weeks was stopped unfinished.
+
+**Tried and dropped: reusing verdicts the move cannot change.** A pair's search is deterministic, and its only inputs are the
+starting lists of the people it looks at (the two callers and each stand-in it tries). So a pair whose search never looked at
+anyone the move changed would end on the same verdict, and its verdict can be copied from the last roster taken. That is exact,
+and it was built and checked (same rosters on all nine weeks above). It copied only 4-17% of pairs: a pair's search tries every
+person eligible for the callers' shifts, so on these weeks it looks at most of the team, and a move changes two to four people.
+The bookkeeping (a set of people per pair, a map per walk) cost more than the walks it saved: the 40 x 112 week 1 took 8.1 s with
+it against 7.0 s without. Starting the confirm from the 500-step screen's settled verdicts (a verdict reached within 500 steps
+is final) was exact as well and also lost (7.8 s), for the same reason: the cheap pairs it skips were never the cost.
+
+Tests (`pair-stop.test.mjs`): `stopAt` stops at the first count that reaches it and never above the full count; walking known
+clashes first reaches the limit within three pairs and leaves the full count, pair count and clashing set unchanged; on the
+seeded 20-person week the pass with the cuts posts the same roster, score, moves and pair hours as without, cutting off more than
+100 walks and searching under half the pairs; `coverPairStop: false` turns them off.
+
+Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine; the cuts make the pass cheaper only where
+moves get tested and refused, and a move that is taken still pays for two full walks; what a manager gains from the pair price
+on these bigger weeks is not measured here.
+
+## The pair price in played weeks, 20 to 40 people (2026-11-15 later)
+
+"A second call-out in the same week" played `--second-callout-price` only on the five templates (the spare café: a big win;
+retail: a wash), and every section since left "the 40- and 60-person weeks' played result with the pair price" open. **Measured**
+with `node eval/pair-played-big.mjs` (`eval/pair-played-big.out.txt`). For each seeded week the plain roster is built once,
+then the priced pass runs from that one roster twice: $25 an hour at risk (`--cover-price 25`), and the same plus $1 a clashing
+pair hour (`--second-callout-price 1`; the 120-copy cap does not apply, since the eval calls the pass directly). The three
+rosters are played through the same seeded weeks of call-outs as the template study (5pm notice, started shifts pinned, kept
+reissues), 200 seeds on the 20-person weeks and 100 on the 30- and 40-person weeks, at the real file's rates (1.0% sick-only,
+8.4% all leave). Each cell is open hours the week's call-outs added, changes to others, premiums owed; "pair vs cover" counts
+the disrupted weeks where the pair roster added fewer or more open hours than the cover-price one (two-sided sign test).
+
+| week (copies), rate | plain | `--cover-price 25` | + `--second-callout-price 1` | pair vs cover: fewer / more weeks |
+|---|---|---|---|---|
+| 20 x 56 week 2 (75), 1.0% | 304 h, 328, $5,715 | 230 h, 373, $6,460 | **216 h, 310, $5,510** | 7 / 2 (p 0.18) |
+| 20 x 56 week 2, 8.4% | 2,838 h, 1,828, $31,245 | 2,697 h, 1,986, $33,677 | **2,610 h, 1,918, $32,631** | 63 / 34 (p 0.004) |
+| 20 x 56 week 5 (78), 1.0% | 572 h, 128, $2,188 | the same (no move) | 572 h, **116, $2,069** | 0 / 0 |
+| 20 x 56 week 5, 8.4% | 4,245 h, 1,127, $18,526 | the same (no move) | **4,168 h, 1,086, $18,071** | 20 / 2 (p 0.0001) |
+| 30 x 84 week 0 (121), 1.0% | 201 h, 198, $3,380 | 197 h, 177, $3,073 | **176 h**, 183, $3,177 | 5 / 0 (p 0.06) |
+| 30 x 84 week 0, 8.4% | 2,490 h, 1,754, $28,530 | 2,505 h, **1,740, $28,257** | **2,404 h**, 1,748, $28,381 | 45 / 21 (p 0.004) |
+| 40 x 112 week 0 (149), 1.0% | 392 h, 134, $2,409 | 396 h, 133, $2,399 | 396 h, **117, $2,144** | 0 / 0 |
+| 40 x 112 week 0, 8.4% | 2,796 h, 1,207, $20,476 | **2,751 h**, 1,166, $19,853 | 2,765 h, 1,159, $19,781 | 5 / 7 (p 0.77) |
+
+What the passes paid: on the 20-person week 2, cover $35.27 of score (+$35 payroll), pair $25.85 (+$26); week 5, pair one
+move for $4.62 (+$15 payroll); 30 x 84 week 0, cover four moves for $6.66, pair six for $8.84, payroll unchanged; 40 x 112
+week 0, cover one move for $4.47, pair eleven for $10.15, both $6 less payroll than plain. On eight of the twelve seeded
+weeks finished (20 x 56 weeks 0, 1, 3, 4, 6, 7; 40 x 112 weeks 1 and 2) neither pass moved anyone, so there was nothing to
+play.
+
+**What this says.** On every week where the pair price moved the roster it was never worse than the cover price alone beyond
+noise. On the 20- and 30-person weeks it cut the open hours call-outs added by 2-11% against the cover-price roster wherever
+the two differed (2-29% against plain), and three of the six comparisons are well outside noise (the sign tests at p 0.004 or
+less, all at 8.4%, where there are enough disrupted weeks to tell). Changes to others and premiums mostly fell too, but not
+always: on the 30-person week at 8.4% the cover roster moved 8 fewer people and owed $124 less. On the 40-person week the open hours were a
+wash (14 h more over 100 weeks, 5 weeks better and 7 worse), but the call-out reissues moved fewer people and owed less: 12%
+fewer changes and 11% less premium at 1.0%, under 1% at 8.4%. That matches the pair yardstick: the 40-person week's pair
+hours were already small (51 h on the cover roster, 8 on the pair one), so there was little left to buy.
+
+**Why the default stays off and the cap stays.** The 30 x 84 week has 121 copies, one over the 120-copy cap, and its build with
+the pair price took **241 s** here (the 40 x 112 week 0's took 22.7 s; the cost depends on how many candidate moves reach the
+pair walk, not on size alone). A price that helps on these weeks is no use if the page hangs. The evidence for the opt-in
+grows (fewer open hours added on three of four played weeks, fewer people moved on the fourth, none worse), so the page's note
+on the option now says so; a default needs the pass's worst case bounded first.
+
+Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine; only four of twelve weeks were moved
+by either pass, so this is four rosters, not a population; the 60-person week was not played (its pair pass alone took 46.8 s
+and each reissue up to 20 s, about 10 hours for 100 seeds here); the 30 x 84 weeks 1-5 were stopped unfinished. Next: a time
+cap on the pair pass itself (stop at the build's budget and keep the moves made), so the price can run past 120 copies without
+a 241 s worst case.
+
+## A time cap on the pair price (2026-11-15 later)
+
+"The pair price in played weeks" ended on one next step: put a time cap on the pair pass itself, stopping at a limit and
+keeping the moves made, so `--second-callout-price` can run past 120 shift copies without a 241 s worst case. **The cap
+landed; the 120-copy limit stays**, because on the weeks measured the pass finds most of its gain late.
+
+**What landed.** `coverSlackPass(..., { pairMs })` (build option `coverPairMs`, CLI `--second-callout-seconds`, default
+**10 s**). Each move the pass takes lowers score + price x risk hours + pair price x pair hours, and is confirmed by the full
+walks before it is taken. So a pass stopped between moves posts a roster that is exactly the uncapped pass after its first k
+moves, never worse than where it started. The clock starts with the pass. Once the limit passes, no new move is tried, a
+pair walk under way stops (`coverPairRisk(..., { deadline })`, checked every 16 pairs) and its move is refused, and
+`coverSlack.pairTimedOut` is set. The slack line then says the search stopped at its limit and kept its moves. If the
+starting roster's own pair count does not finish in time (8.5 s of it on the 30-person week below), there is no whole count
+to price against. In that case the pass posts the starting roster with `pairHours` null and `pairStartTimedOut` true, and the
+line says second call-outs were not priced. With no pair price there is no cap and nothing changes.
+
+`node eval/pair-timecap.mjs` (`eval/pair-timecap.out.txt`) builds each seeded week's plain roster once and runs the uncapped
+pass from it ($25 an hour at risk, $1 a pair hour, cuts and confirm on), recording when each move lands. That gives the curve
+a cap would cut. Then it runs the pass at 2, 5 and 10 s caps and checks each capped roster is a prefix of the uncapped one
+(it was, on all twelve runs). "Gain kept" is the share of the uncapped pass's drop in its own objective.
+
+| week (copies) | uncapped pass | moves land at | kept at 2 / 5 / 10 s |
+|---|---|---|---|
+| 20 x 56 week 2 (75) | 4 moves, 2.0 s | 0.39, 0.73, 0.99, 1.53 s | 100% / 100% / 100% |
+| 30 x 84 week 0 (121) | 6 moves, **302 s** | 80, 129, 149, 241, 246, 282 s | 0% / 0% / 0% |
+| 40 x 112 week 0 (149) | 11 moves, 20.4 s | 0.5 s (21%), then 2.6-11.3 s, 7 more by 18.7 s | 21% / 22% / 22% |
+| 60 x 168 week 0 (245) | **0 moves, 88 s** | none | nothing to keep |
+
+The cap holds. Those capped runs started the clock after the starting walks, which is how the hole above was found: the
+30-person week's 10 s cap ran 19.0 s. With the shipped clock, which counts the starting walks (`CAPS_ONLY=1`,
+`eval/pair-timecap-caps.out.txt`), all nine capped runs ended 0.0-0.2 s past their limit. The 30-person week at 2 and 5 s
+was left unpriced, its starting count unfinished. At 10 s the count finished and no move landed. The 40-person week kept 1,
+2 and 2 moves ($107.45, $113.67 and $113.67 of the $508.85 gain).
+
+**What this says.** On the two small weeks the cap costs nothing: 20-person weeks finish in 2-3 s, and the five templates
+in milliseconds. On the 60-person week it saves 78 s of a search that moves nobody. But where a big week does gain, the gain
+comes late: on the 40-person week moves 4-11 (78% of the gain) land between 11 and 19 s, and the 30-person week's first move
+comes at 80 s, after about 105 pair walks over 89,910 pairs (about 1 ms a pair; 89 of the walks were cut off as unable to
+pay). A 10 s cap above 120 copies would mostly spend 10 s to keep a fifth of the gain or none. So the price still switches
+off above 120 copies (`coverPairPriceSlots`). The cap is a worst-case bound for the weeks under it, and any week can be given
+more time: `--second-callout-seconds 300` (or `Infinity`) reproduces the uncapped pass.
+
+Tests (`pair-timecap.test.mjs`; the clock is moved by hand, so they do not depend on the machine's speed): with no limit hit
+the capped pass is the uncapped pass; a stop right after the second move posts exactly the uncapped pass's roster and pair
+hours after two moves, between the start and the end in the objective; a clock spent before the starting count finishes posts
+the starting roster unpriced; `buildRoster` passes `coverPairMs` through and the slack line says which case happened.
+
+Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine, so the times (and what a given cap
+keeps) depend on the machine. A capped result is therefore not reproducible across machines the way an uncapped one is;
+`pairTimedOut` marks it. Next: make the pass find its gain sooner. On the 40-person week 0 the best moves came last and the
+first 80 s of the 30-person week went to moves that were refused, so trying first the candidates whose screen clears the
+most pair hours would let a short cap keep more of the gain.

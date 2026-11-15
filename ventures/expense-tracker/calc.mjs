@@ -52,7 +52,7 @@ function validParts(y, m, d) {
 // "2026-03-04", "3/4/2026", "3/4/26", "03-04-2026" (month first). Returns ISO or null.
 export function parseDate(text) {
   const s = String(text ?? "").trim();
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   if (m) return validParts(+m[1], +m[2], +m[3]);
   m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2}|\d{4})$/);
   if (m) return validParts(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[1], +m[2]);

@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNWjotQMn7YnvC2qZU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T03:56:11Z",
+  "ended": "2026-11-15T04:15:48Z",
+  "wall_minutes": 26.47,
+  "tokens_in": 19479766,
+  "tokens_out": 113008,
+  "cost_usd": 8.0367,
+  "tool_calls": 118,
+  "task": "Deepen (flagship 7): photo-editing -- read Canon CR3 directly",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16082",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Early CRX run-mode readings decoded only 3-4 lines",
+      "fix": "bisected with LibRaw raw values as oracle; brute-forcing run index and Rice K at the failing line showed the run flag bit counts as one sample"
+    },
+    {
+      "what": "After a mutation check the restored cr3.py failed tests",
+      "fix": "stale __pycache__: same size and same-second mtime as the mutant; cleared it"
+    },
+    {
+      "what": "mypy (photo-editing-ci lint) flagged Cmp1(bytes | None) three times",
+      "fix": "Container keeps the parsed CMP1 as .head; ruff and mypy clean in a numpy-free venv as CI runs them"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing buildable said raw.pixls.us 'answers since 2026-11-15'; from this container it answered 403 (CONNECT tunnel refused) on 2026-11-15. Rewrote the line to say so."
+    },
+    {
+      "file": "ventures/photo-editing/src/shootflow/cr2.py",
+      "issue": "_AS_SHOT_INDEX comment lists ColorData8-11 but the table stops at ColorData10; CR3 bodies' ColorData11 lengths (3778, 3973) are added in cr3.py"
+    },
+    {
+      "file": "ventures/photo-editing/tests/test_production*.py, test_assembly.py, test_ffmpeg_pipeline.py",
+      "issue": "30 tests used IMG_0001.CR3 as the 'raw we do not develop' fixture with hard-coded graded names; supporting a format silently broke them. Now no ingested RAW extension is undevelopable by extension; the stop-at-grade test uses a synthetic C-RAW CR3."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "next: listed newer CR2s from raw.pixls.us, unreachable here; took full-quality CR3 (the format every Canon since 2018 writes) from the reachable metadata-extractor-images set instead",
+      "did": "new shootflow.cr3 reader, C twin, tests, eval, post",
+      "result": "0 of 25.5M sensels differ from LibRaw on both full-quality R8 files"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-canon-cr3-read-sensel-for-sensel.md",
+    "ventures/photo-editing/eval/canon-cr3-reader-2026-11-15.md"
+  ],
+  "goal": "Deepen the photo-editing flagship: CR3 is the raw format of every Canon body since 2018",
+  "notes": "tools/cr3_libraw_check.py on the 5 public CR3s: IMG_0036 and _MG_0039 (EOS R8, lossless) 0 sensels differing with C and Python, balance/CFA/white equal, black within 1; IMG_0041, _MG_0045, Canon EOS R3 (C-RAW) refused with reason. tests/test_cr3.py 12 OK with and without the C path. run_venture_tests.py photo-editing: ok, 0 failed, 8 skipped (151.5 s); a first run failed 30 planner/pipeline tests that used .CR3 as their undevelopable-raw fixture, updated to expect .CR3.tif graded names and a C-RAW CR3 for the stop-at-grade test. run_workflow_locally --for-changes: 13/15 passed; photo-editing-ci lint failed on mypy (fixed, rechecked clean); its test step UNRUN locally (no Pillow in system python) but run_venture_tests ran it green; portfolio-pages build/deploy and reviewer bots not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1965f296-e901-56f2-9ce2-80aa483fa456",
+    "transcripts": 1,
+    "first": "2026-11-15T03:56:11Z",
+    "last": "2026-11-15T04:22:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 113,
+        "input": 215,
+        "output": 113008,
+        "thinking": 43337,
+        "cache_read": 19238559,
+        "cache_write_5m": 0,
+        "cache_write_1h": 240992,
+        "api_equivalent_usd": 8.0367,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 113,
+      "input": 215,
+      "output": 113008,
+      "thinking": 43337,
+      "cache_read": 19238559,
+      "cache_write_5m": 0,
+      "cache_write_1h": 240992,
+      "api_equivalent_usd": 8.0367,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 118,
+    "tools": {
+      "Bash": 111,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.47,
+      "active_minutes": 26.47,
+      "model_minutes": 19.57,
+      "tool_minutes": 6.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "an experienced imaging engineer reverse-checking a raw codec and container against LibRaw, plus tests and integration: about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 298.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

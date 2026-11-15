@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNsgeMamyg8YpRWsJe",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled task: continue work on the repo (develop, deploy, market, sell, support products); routed to research",
+  "input_sha256": "c3761ad4de335e17e3a454b6869fffbc462357d54830aad67d3f0dc16da6ae9a",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T08:14:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/codesign-cant milestone 7m: the wide position-gain box and proportional-request cap under the lever-aware objective",
+  "projects": [
+    "codesign-cant"
+  ],
+  "pr": 16099,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first launch of run.py stopped at the 2-hour background limit after 32 of 48 training runs",
+      "fix": "resumed from the per-run cache; second launch 4,073 s"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "Next (c) (XE80E pump make and auto-idle speed) needs dealer spec sheets on hosts the proxy does not resolve (forklift.ee, xcmgmachinery.com.au, ned.us, xcmgca.com); the published XE80E sheets do not give an auto-idle rpm, so the step was dropped for codesign-cant"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "the scheduled prompt asks for revenue products; followed the master router's research draw as the repo's system intends",
+      "did": "research milestone",
+      "result": "one milestone landed with predictions committed first"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-robust-drone-tuner-lengthens-the-arms.md"
+  ],
+  "goal": "advance an open track-14 programme by one milestone",
+  "notes": "Drew track 14; heavy-hydraulics next step blocked by network (see doc_friction), so advanced codesign-cant 7l's first next step. 7 predictions committed before the full run (M1 M2 M3 M5 M7 held; M4 M6 refuted). Checks run locally: codesign-cant tests 47 passed, 1 skipped; research/_homepage/build.py ok; research_live_links --write; check_md_links ok.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateTrueUp, formatMoney, reviewMessage, evaluateNoticeDeadline, noticeMessage } from './calc.mjs';
@@ -168,6 +169,23 @@ test('a distant deadline is stated as a plain reminder', () => {
   const message = noticeMessage(result, notice);
   assert.match(message, /Notice deadline: 2026-12-02/);
   assert.match(message, /only real if the reduction is submitted by then/);
+});
+
+test('a notice window across a daylight-saving change keeps the calendar day', () => {
+  // Re-run in New York's zone: 1 Apr 2026 local midnight minus 30 x 24 hours
+  // is 23:00 on 1 March (EST), so the deadline used to read a day early.
+  const code = `import { evaluateNoticeDeadline, noticeMessage, calculateTrueUp } from ${JSON.stringify(new URL('./calc.mjs', import.meta.url).href)};
+const n = evaluateNoticeDeadline({ renewalDate: '2026-04-01', noticeDays: 30, today: '2026-02-01' });
+const f = evaluateNoticeDeadline({ renewalDate: '2026-12-01', noticeDays: 30, today: '2026-10-01' });
+const p = evaluateNoticeDeadline({ renewalDate: '2026-04-01', noticeDays: 30, today: '2026-03-10' });
+const r = calculateTrueUp({ seatsPurchased: 20, seatsUsed: 14, monthlyPrice: 18, monthsRemaining: 4 });
+console.log(JSON.stringify([n.deadline.toLocaleDateString('en-CA'), n.daysUntilDeadline, f.deadline.toLocaleDateString('en-CA'), noticeMessage(r, p)]));`;
+  const out = execFileSync(process.execPath, ['--input-type=module', '-e', code], { env: { ...process.env, TZ: 'America/New_York' } });
+  const [spring, springDays, fall, passed] = JSON.parse(String(out));
+  assert.equal(spring, '2026-03-02');
+  assert.equal(springDays, 29);
+  assert.equal(fall, '2026-11-01');
+  assert.match(passed, /next window to act closes around 2027-03-02/);
 });
 
 test('the page wires save, reset, and the overage premium without uploading totals', () => {

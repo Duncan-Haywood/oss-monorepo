@@ -11,7 +11,7 @@ const DAY = 86400000;
 
 export function parseDate(s) {
   const t = String(s).trim();
-  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
   else if ((m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})(?!\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }
@@ -22,7 +22,7 @@ export function parseDate(s) {
   return ms;
 }
 export const isoDate = (ms) => new Date(ms).toISOString().slice(0, 10);
-export const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 const r2 = (x) => Math.round(x * 100) / 100;
 // One amount: "$1,234.50", "(1,200)", "-100", "$-1,200", "USD 500", "100-", "1.5E+04". Anything that is not exactly
 // one number ("12-34", "1.2.3", "5 6") is NaN, so the line is refused rather than read as a different amount.
@@ -54,13 +54,10 @@ function splitLine(line, delim) {
 // account numbers such as "Z40123456" and names such as "September Growth" as IRAs and dropped their sales.
 const RETIREMENT = /(?<![a-z0-9])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\s*\(?k\)?)?|403(?:\s*\(?b\)?)?)(?![a-z0-9])/i;
 
-export function parseTrades(text) {
-  const lines = String(text).split(/\r?\n/).filter((l) => l.trim());
-  if (!lines.length) return { error: "No rows found." };
-  const delim = lines[0].includes("\t") ? "\t" : ",";
-  const head = splitLine(lines[0], delim).map((h) => h.toLowerCase());
-  // Names are tried in order of preference, each against every header, so "Trade Date" beats a "Settlement Date"
-  // that comes first; `avoid` keeps "Security Type" or "Account Type" from being read as the symbol or the action.
+// Headers matched by name, not position: names are tried in order of preference, each against every header, so
+// "Trade Date" beats a "Settlement Date" that comes first; `avoid` keeps "Security Type" or "Account Type" from being
+// read as the symbol or the action.
+function columnsOf(head) {
   const col = (names, avoid) => {
     for (const n of names) {
       const i = head.findIndex((h) => h.includes(n) && !(avoid && avoid.test(h)));
@@ -68,20 +65,37 @@ export function parseTrades(text) {
     }
     return -1;
   };
-  const c = {
+  return {
     date: col(["trade date", "run date", "activity date", "transaction date", "date"], /settle|process|acqui|expir|record|pay/),
     sym: col(["symbol", "ticker", "instrument", "security"], /type|desc|name/),
     side: col(["action", "side", "buy/sell", "trans code", "transaction type", "type"], /account|security|asset|instrument|order|option/),
     qty: col(["quantity", "shares", "qty"]), price: col(["price"]), amount: col(["amount", "proceeds", "total"]),
     basis: col(["basis", "cost"]), acct: col(["account"]),
   };
-  const miss = ["date", "sym", "side", "qty"].filter((k) => c[k] < 0);
+}
+const missingCols = (c) => ["date", "sym", "side", "qty"].filter((k) => c[k] < 0);
+// How far down a title or account block above the header is looked past (Schwab's older export starts with
+// "Transactions for account ... as of ..."; others put an account number and a blank line first).
+const HEADER_SCAN = 10;
+
+export function parseTrades(text) {
+  // Keep each row's line number in the file, blank lines counted, so "Line 8" points at line 8.
+  const lines = String(text).split(/\r?\n/).map((l, i) => ({ l, ln: i + 1 })).filter((x) => x.l.trim());
+  if (!lines.length) return { error: "No rows found." };
+  const delim = lines[0].l.includes("\t") ? "\t" : ",";
+  let hi = 0, head = null, c = null;
+  for (let i = 0; i < Math.min(lines.length, HEADER_SCAN); i++) {
+    const h = splitLine(lines[i].l, delim).map((x) => x.toLowerCase());
+    const cc = columnsOf(h);
+    if (!missingCols(cc).length && (cc.price >= 0 || cc.amount >= 0)) { hi = i; head = h; c = cc; break; }
+  }
+  if (!head) { head = splitLine(lines[0].l, delim).map((h) => h.toLowerCase()); c = columnsOf(head); }
+  const miss = missingCols(c);
   if (miss.length) return { error: `Need columns for: ${miss.map((k) => ({ date: "date", sym: "symbol", side: "action (buy/sell)", qty: "quantity" })[k]).join(", ")}.` };
   if (c.price < 0 && c.amount < 0) return { error: "Need a price or an amount column." };
   const trades = [], errors = [];
-  lines.slice(1).forEach((line, n) => {
+  lines.slice(hi + 1).forEach(({ l: line, ln }) => {
     const f = splitLine(line, delim);
-    const ln = n + 2;
     // An unquoted thousands separator ("1,000" shares) splits one field in two and shifts every later column, so
     // "buy,1,000,150.00" read as 1 share at $0 with no error. Extra non-empty fields mean the row is refused.
     if (delim === "," && f.length > head.length && f.slice(head.length).some((x) => x !== ""))

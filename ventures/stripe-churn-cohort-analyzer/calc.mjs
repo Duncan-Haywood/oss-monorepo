@@ -312,5 +312,5 @@ export function sampleCsv() {
   return lines.join("\n");
 }
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const pct = (x, d = 1) => (x * 100).toFixed(d) + "%";

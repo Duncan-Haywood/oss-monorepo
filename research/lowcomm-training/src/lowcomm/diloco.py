@@ -113,6 +113,20 @@ def rand_k(keep):
     return c
 
 
+def gauss_noise(omega, shaped=False):
+    """Unbiased additive Gaussian noise with the same expected energy as rand-k at the same omega, per tensor:
+    E[C(x)] = x and E||C(x) - x||^2 = omega ||x||^2. Isotropic (shaped=False): every coordinate gets variance
+    omega ||x||^2 / n. Shaped (shaped=True): coordinate i gets variance omega x_i^2, the per-coordinate variance of
+    rand-k itself, without zeroing any coordinate. Not a compressor (nothing is saved on the wire); a control that
+    separates rand-k's noise energy and allocation from its sparsity (milestone 6v)."""
+    def c(x, gen):
+        z = torch.randn(x.shape, generator=gen, dtype=x.dtype)
+        if shaped:
+            return x + omega ** 0.5 * x.abs() * z
+        return x + (omega * x.pow(2).sum() / x.numel()) ** 0.5 * z
+    return c
+
+
 def top_k(keep):
     """Biased top-k sparsifier per tensor: keep the ceil(keep * n) largest-magnitude coordinates, zero the rest (no
     rescaling). Contractive: ||C(x) - x||^2 <= (1 - keep) ||x||^2 (Stich et al. 2018)."""

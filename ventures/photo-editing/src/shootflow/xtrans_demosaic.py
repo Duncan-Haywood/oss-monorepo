@@ -18,14 +18,22 @@ Steps, on the white-balanced sensel plane ``c`` (so that the three colours are c
    distances depend only on the phase) are interpolated linearly, as colour differences: the green
    minus the sensel's own colour, the latter taken from step 1 at the green sites. Adding the
    sensel's own value back gives a green that follows the edge along that line and is not dragged
-   across it.
+   across it. The estimate is then held between those two greens (``clamp``): the colour difference
+   carries the sensel's own detail, but where the 3x3 estimate of its colour is off (fine texture,
+   an edge), it overshoots, and a green outside the two it lies between is almost always wrong
+   (2026-11-15: 1.7 dB on the X-E1 frame, eval/xtrans-clamp-gradient-2026-11-15.md).
 3. **Red and blue per direction.** Colour differences (red minus green, blue minus green) at the
    sensels holding red or blue, averaged over the 3x3 window and added to that direction's green.
-4. **Choice.** Each direction's picture goes to CIE L*a*b* (as if camera RGB were linear sRGB: the
-   choice needs a perceptual scale, not exact colour). A pixel's homogeneity in direction d counts its
-   8 neighbours within the pixel's own lightness and colour tolerances (the smallest step along its
-   best direction, as in adaptive homogeneity-directed demosaicing), summed over a 3x3 window. The
-   output averages the directions that score within ``keep`` of the best.
+4. **Choice** (``select``). The default, ``"gradient"`` (2026-11-15), weighs each direction's
+   picture by how smooth it is along its own line: the second difference along that direction,
+   summed over the three channels and a 3x3 window, D; the weights are (D_min / D)^4, so the
+   smoothest direction dominates but near ties are blended, not flipped. ``"homogeneity"`` (the
+   2026-11-14 rule, kept to reproduce it) takes each direction's picture to CIE L*a*b* (as if camera
+   RGB were linear sRGB), counts for each pixel its 8 neighbours within the pixel's own lightness and
+   colour tolerances (the smallest step along its best direction, as in adaptive
+   homogeneity-directed demosaicing), sums over a 3x3 window and averages the directions that score
+   within ``keep`` of the best. Measured, that rule did no better than averaging all four directions
+   on a real frame (36.38 against 36.39 dB) and worse on a synthetic sheet.
 5. **Optional clean-up** (``median_passes``): a 3x3 median of R - G and B - G, rebuilt around the
    sensels' own values, which removes isolated false colour left by step 4.
 
@@ -127,6 +135,30 @@ def _median9(a: np.ndarray) -> np.ndarray:
     return v[4]
 
 
+SELECTS = ("gradient", "homogeneity")
+GRADIENT_POWER = 4  # weights (D_min / D)^4: tuned on the X-E1 frame and the synthetic sheet (1, 2 and 4 tried)
+
+
+def _gradient_select(pictures, h: int, w: int, scale: float):
+    """Blend the directions' pictures, each weighted by (D_min / D)^4, D its second difference along its
+    own line summed over the channels and a 3x3 window. Returns the picture and the (4, h, w) weights."""
+
+    eps = WORK(1e-6 * scale)  # a flat patch: every direction equal, so all four blend
+    rough = []
+    for (dy, dx), pic in zip(DIRECTIONS, pictures):
+        pp = np.pad(pic, ((1, 1), (1, 1), (0, 0)), mode="reflect")
+        fwd = pp[1 + dy : 1 + dy + h, 1 + dx : 1 + dx + w]
+        back = pp[1 - dy : 1 - dy + h, 1 - dx : 1 - dx + w]
+        rough.append(_box3(np.abs(fwd + back - 2 * pic).sum(axis=-1)) + eps)
+    smooth = np.stack(rough)
+    weights = (smooth.min(axis=0) / smooth) ** GRADIENT_POWER  # in (0, 1], 1 for the smoothest
+    weights /= weights.sum(axis=0)
+    out = np.zeros((h, w, 3), dtype=WORK)
+    for d, pic in enumerate(pictures):
+        out += pic * weights[d][..., None]
+    return out, weights
+
+
 BAND_ROWS = 192  # rows per band (a multiple of 6); about 70 MB of working arrays per 1,000 columns
 OVERLAP = 12  # rows per pass (plus 12) each band reads beyond its own on each side: more than one pass's reach (about 9)
 
@@ -139,6 +171,8 @@ def directional(
     keep: float = 0.125,
     median_passes: int = 1,
     passes: int = 1,
+    clamp: bool = True,
+    select: str = "gradient",
     band_rows: int | None = BAND_ROWS,
     threads: int | None = None,
 ) -> np.ndarray:
@@ -146,7 +180,8 @@ def directional(
 
     ``scale`` is the level treated as white for the perceptual comparison (default: the plane's 99.9th
     percentile). ``keep`` is the share below the best homogeneity score that still counts as best (0
-    keeps only exact ties). Returns (h, w, 3) float64. Large frames run in bands of ``band_rows`` rows
+    keeps only exact ties; ``select="homogeneity"`` only). ``clamp`` holds each directional green between the
+    two greens it was interpolated from; ``select`` is ``"gradient"`` or ``"homogeneity"`` (step 4). Returns (h, w, 3) float64. Large frames run in bands of ``band_rows`` rows
     (None: one piece) on ``threads`` threads (``SHOOTFLOW_THREADS`` or up to 4 when None); every band reads
     ``OVERLAP * (passes + 1)`` rows past its own on each side, so the result equals the one-piece result exactly.
     """
@@ -154,13 +189,17 @@ def directional(
     import os
     from concurrent.futures import ThreadPoolExecutor
 
+    if select not in SELECTS:
+        raise ValueError(f"unknown select {select!r}; choose one of {', '.join(SELECTS)}")
     c = np.asarray(c, dtype=np.float64)
     h = c.shape[0]
     if scale is None:
         scale = float(np.percentile(c, 99.9)) or 1.0
 
     def piece_of(part, part_pat):
-        return _directional_piece(part, part_pat, scale=scale, keep=keep, median_passes=median_passes, passes=passes)
+        return _directional_piece(
+            part, part_pat, scale=scale, keep=keep, median_passes=median_passes, passes=passes, clamp=clamp, select=select
+        )
 
     overlap = OVERLAP * (passes + 1)
     if band_rows is None or h <= band_rows + 2 * overlap:
@@ -202,9 +241,11 @@ def _directional_piece(
     keep: float = 0.125,
     median_passes: int = 1,
     passes: int = 1,
+    clamp: bool = True,
+    select: str = "gradient",
     return_choice: bool = False,
 ):
-    """``directional`` on one piece; with ``return_choice`` also the (4, h, w) map of directions used."""
+    """``directional`` on one piece; with ``return_choice`` also the (4, h, w) weight of each direction."""
 
     c0 = np.asarray(c, dtype=np.float64)
     p = 6 if len(pat) == 36 else 2
@@ -224,7 +265,7 @@ def _directional_piece(
     # 1. Isotropic 3x3 estimates of each colour everywhere.
     iso = [np.where(masks[k], c, _box_average(c, masks[k])) for k in range(3)]
     for _pass in range(passes):
-        out, chosen = _one_pass(c, pat, p, h, w, masks, iso, scale, keep)
+        out, chosen = _one_pass(c, pat, p, h, w, masks, iso, scale, keep, clamp, select)
         # Later passes take their colour differences from the previous pass's picture.
         iso = [np.where(masks[k], c, out[..., k]) for k in range(3)]
 
@@ -257,12 +298,13 @@ def _fold(n: int, pad: int, p: int) -> np.ndarray:
     return idx
 
 
-def _one_pass(c, pat, p, h, w, masks, iso, scale, keep):
+def _one_pass(c, pat, p, h, w, masks, iso, scale, keep, clamp=True, select="gradient"):
     r = _MAX_REACH
     yy = np.arange(h)[:, None] % p
     xx = np.arange(w)[None, :] % p
     # The own-colour differences (green minus the estimate of red, or of blue), padded once.
     diffs = {k: np.pad(c - iso[k], r, mode="reflect") for k in (0, 2)}
+    cp = np.pad(c, r, mode="reflect") if clamp else None
     sites = {k: np.nonzero(masks[k]) for k in (0, 2)}
 
     pictures = []
@@ -288,7 +330,12 @@ def _one_pass(c, pat, p, h, w, masks, iso, scale, keep):
             d = diffs[k]
             d_f = d[ys + r + ka * dy, xs + r + ka * dx]
             d_b = d[ys + r - kb * dy, xs + r - kb * dx]
-            g[ys, xs] = c[ys, xs] + (kb * d_f + ka * d_b) / (ka + kb)
+            est = c[ys, xs] + (kb * d_f + ka * d_b) / (ka + kb)
+            if clamp:  # held between the two greens it lies between
+                g_f = cp[ys + r + ka * dy, xs + r + ka * dx]
+                g_b = cp[ys + r - kb * dy, xs + r - kb * dx]
+                est = np.clip(est, np.minimum(g_f, g_b), np.maximum(g_f, g_b))
+            g[ys, xs] = est
         # 3. Red and blue from this green, as 3x3 colour differences.
         rgb = np.empty((h, w, 3), dtype=WORK)
         rgb[..., 1] = g
@@ -297,6 +344,8 @@ def _one_pass(c, pat, p, h, w, masks, iso, scale, keep):
             rgb[..., k] = np.where(masks[k], c, g + d)
         pictures.append(rgb)
 
+    if select == "gradient":
+        return _gradient_select(pictures, h, w, scale)
     # 4. Homogeneity in L*a*b*. Each L*a*b* plane is padded once; neighbours are views into it.
     padded = []
     for pic in pictures:

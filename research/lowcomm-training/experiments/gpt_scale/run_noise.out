@@ -1,0 +1,17 @@
+{'kind': 'iso', 'omega': 7.0, 'H': 64, 'seed': 1, 'loss': 1.603632964193821, 'torch': '2.15.0+cu132', 'secs': 1089}
+{'kind': 'iso', 'omega': 7.0, 'H': 64, 'seed': 0, 'loss': 1.6243055909872055, 'torch': '2.15.0+cu132', 'secs': 1091}
+{'kind': 'none', 'omega': 7.0, 'H': 64, 'seed': 0, 'loss': 1.6021660193800926, 'torch': '2.15.0+cu132', 'secs': 1095}
+{'kind': 'iso', 'omega': 7.0, 'H': 16, 'seed': 0, 'loss': 1.5887305065989494, 'torch': '2.15.0+cu132', 'secs': 1107}
+{'kind': 'iso', 'omega': 7.0, 'H': 16, 'seed': 1, 'loss': 1.5833930224180222, 'torch': '2.15.0+cu132', 'secs': 1081}
+{'kind': 'iso', 'omega': 7.0, 'H': 64, 'seed': 2, 'loss': 1.6141348332166672, 'torch': '2.15.0+cu132', 'secs': 1088}
+{'kind': 'iso', 'omega': 7.0, 'H': 16, 'seed': 2, 'loss': 1.6090171560645103, 'torch': '2.15.0+cu132', 'secs': 1084}
+{'kind': 'iso', 'omega': 7.0, 'H': 64, 'seed': 3, 'loss': 1.6104236021637917, 'torch': '2.15.0+cu132', 'secs': 1101}
+{'kind': 'shaped', 'omega': 7.0, 'H': 64, 'seed': 0, 'loss': 1.6059988662600517, 'torch': '2.15.0+cu132', 'secs': 1096}
+{'kind': 'iso', 'omega': 7.0, 'H': 16, 'seed': 3, 'loss': 1.5926120802760124, 'torch': '2.15.0+cu132', 'secs': 1117}
+{'kind': 'shaped', 'omega': 7.0, 'H': 16, 'seed': 0, 'loss': 1.5890192240476608, 'torch': '2.15.0+cu132', 'secs': 1121}
+{'kind': 'shaped', 'omega': 7.0, 'H': 64, 'seed': 1, 'loss': 1.6165930777788162, 'torch': '2.15.0+cu132', 'secs': 1116}
+{'kind': 'shaped', 'omega': 7.0, 'H': 16, 'seed': 1, 'loss': 1.569661296904087, 'torch': '2.15.0+cu132', 'secs': 1078}
+{'kind': 'shaped', 'omega': 7.0, 'H': 64, 'seed': 2, 'loss': 1.5999096482992172, 'torch': '2.15.0+cu132', 'secs': 1066}
+{'kind': 'shaped', 'omega': 7.0, 'H': 16, 'seed': 2, 'loss': 1.5934618189930916, 'torch': '2.15.0+cu132', 'secs': 1077}
+{'kind': 'shaped', 'omega': 7.0, 'H': 64, 'seed': 3, 'loss': 1.5886445939540863, 'torch': '2.15.0+cu132', 'secs': 1062}
+{'kind': 'shaped', 'omega': 7.0, 'H': 16, 'seed': 3, 'loss': 1.5915393307805061, 'torch': '2.15.0+cu132', 'secs': 1068}

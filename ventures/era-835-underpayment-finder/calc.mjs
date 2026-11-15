@@ -374,8 +374,8 @@ export function analyze(parsed, opts = {}) {
   const summary = {
     payments: transactions.length, claims: claims.length, lines: lines.length,
     billed: round2(billed), paid: round2(paid), patientResp: round2(patientResp), plbNet: round2(plbNet),
-    firstPay: transactions.map((t) => t.payDate).filter((d) => d !== null).sort()[0] ?? null,
-    lastPay: transactions.map((t) => t.payDate).filter((d) => d !== null).sort().at(-1) ?? null,
+    firstPay: transactions.map((t) => t.payDate).filter((d) => d !== null).sort((a, b) => a - b)[0] ?? null,
+    lastPay: transactions.map((t) => t.payDate).filter((d) => d !== null).sort((a, b) => a - b).at(-1) ?? null,
     collectRate: billed > CENT ? paid / billed : null,
   };
 

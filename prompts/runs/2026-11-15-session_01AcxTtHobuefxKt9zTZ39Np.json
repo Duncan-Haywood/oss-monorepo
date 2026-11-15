@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtHobuefxKt9zTZ39Np",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T06:06:16Z",
+  "ended": "2026-11-15T07:15:22Z",
+  "wall_minutes": 69.39,
+  "tokens_in": 13821743,
+  "tokens_out": 55692,
+  "cost_usd": 5.1699,
+  "tool_calls": 103,
+  "task": "Deepen (flagship 2) ai-bookkeeper item (5): receipts through real OCR, full-size photos",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16115",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First 600 s foreground command (six image variants through tesseract) hit the tool timeout and was moved to the background; later long runs were started in the background from the start.",
+    "First version of the --four-pass test checked tesseract call order rather than the returned reading order; fixed.",
+    "Post front matter over the description (182/160) and seo_title (73/70) limits; caught by venture-preflight, fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "The CLI four-pass section says the SRD set is 750 x 1000 or smaller, but photo 1151 is 3024 x 4032; it took a re-read to confirm the SRD score was unaffected."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/srd-cli.mjs",
+      "issue": "It names its output folders psm6/psm4/g6/g4 by position, so once the reading order depends on photo size the names no longer say what is in them; documented in its header rather than renamed, to keep the README's reproduce commands working."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-ai-bookkeeper-full-size-receipt-photos.md",
+    "ventures/ai-bookkeeper/eval/full-size-photos-2026-11-15.md"
+  ],
+  "goal": "Flagship item (5): full-size photos and curled slips through real OCR",
+  "notes": "Installed tesseract-ocr 5.3.4 via apt; reproduced the README's SRD four-pass 131/196 and SROIE 503/625 exactly. Shipped: photos over 2,000 px get a grey copy shrunk to 2,000 px, read first (CLI ocr.mjs, page photoocr.mjs). SROIE all 625 CLI 503 -> 514; 189 large scans CLI 144 -> 155, page tesseract.js 151 -> 160; held-out CORD 17 large photos 7 -> 8; CORD 95 four-pass 47 -> 48 (first CORD four-reading measurement, HF answered); SRD unchanged 131. Rejected after measurement: extra image variants (ceiling +2 to +6 on SRD), whole-unit-reading sit-out rule (SRD 131->131, CORD 47->46), dropped-leading-digit rule (SRD 131->128). Verification: run_venture_tests.py ai-bookkeeper ok (156.9 s); node --test photoocr.test.mjs 12/12, receipt-crosscheck.test.mjs 14/14; eval/photo-ocr-browser.mjs 6/6 in headless Chromium; venture-preflight.mjs ai-bookkeeper clean after the front-matter fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f6837b96-53e3-57a6-aeae-dade3860d29c",
+    "transcripts": 1,
+    "first": "2026-11-15T06:06:16Z",
+    "last": "2026-11-15T07:15:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 101,
+        "input": 193,
+        "output": 55692,
+        "thinking": 13110,
+        "cache_read": 13656036,
+        "cache_write_5m": 0,
+        "cache_write_1h": 165514,
+        "api_equivalent_usd": 5.1699,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 101,
+      "input": 193,
+      "output": 55692,
+      "thinking": 13110,
+      "cache_read": 13656036,
+      "cache_write_5m": 0,
+      "cache_write_1h": 165514,
+      "api_equivalent_usd": 5.1699,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 99,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 69.39,
+      "active_minutes": 69.39,
+      "model_minutes": 11.19,
+      "tool_minutes": 58.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OCR engineer reproducing three receipt benchmarks, testing image variants and vote rules, and shipping a page+CLI change with tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 193.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

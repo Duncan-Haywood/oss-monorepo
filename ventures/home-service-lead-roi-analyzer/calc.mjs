@@ -72,10 +72,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -126,7 +126,7 @@ const DAY = 86400000;
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 const norm = (s) => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(0);
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(0));
 
 // What a status cell means. "bad" leads are ones the platform is commonly asked to
 // credit (spam, wrong number, out of area, duplicate); whether it does is the
@@ -269,14 +269,14 @@ export function analyze(rawItems, { marginPct = DEFAULT_MARGIN_PCT, from = null,
   };
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(0) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 
 // Plain text for pasting into a note, a message to a partner or a forum post.
 export function summaryText(r) {
   const s = r.summary;
-  const m = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(0) : "n/a");
+  const m = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(0)) : "n/a");
   const lines = [
     `Lead sources ${dateStr(s.from)} to ${dateStr(s.to)}: ${s.leads} leads from ${s.sources} source(s), ${m(s.spend)} spent, ${s.won} booked (${pct(s.closeRate)} close rate)`,
     `Job value ${m(s.revenue)}, profit ${m(s.profit)} after lead cost at an assumed ${(s.margin * 100).toFixed(0)}% job margin` + (s.costPerWon !== null ? `, ${m(s.costPerWon)} per booked job` : ""),

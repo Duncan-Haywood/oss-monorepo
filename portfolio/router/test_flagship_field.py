@@ -117,3 +117,30 @@ def test_cli_landed(tmp_path, capsys):
     out, err = capsys.readouterr()
     assert "keep: (nothing; cut the clause)" in out and "landed clause(s)" in err
     assert p.read_text() == DOC.replace("Only b.", LANDED_NEXT)  # read-only
+
+
+def test_replace_not_found_names_the_field_it_is_in(tmp_path, capsys):
+    f = tmp_path / "flagships.yaml"
+    f.write_text(DOC)
+    assert ff.main(["a", "--replace", "Something here", "x", "--file", str(f)]) == 1
+    err = capsys.readouterr().err
+    assert "found in a.buildable" in err
+    assert "flagship_field.py a --field buildable --replace" in err
+    assert f.read_text() == DOC
+
+
+def test_replace_not_found_points_at_other_flagships(tmp_path, capsys):
+    f = tmp_path / "flagships.yaml"
+    f.write_text(DOC)
+    assert ff.main(["a", "--replace", "Only b", "x", "--file", str(f)]) == 1
+    err = capsys.readouterr().err
+    assert "found in b.next" in err and "flagship_field.py b --field next" in err
+
+
+def test_replace_not_found_spacing_hint(capsys):
+    hint = ff.not_found_hint(DOC, "a", "next", "a  long\ntail", "then a long tail of")
+    assert "different spacing" in hint
+
+
+def test_replace_not_found_plain_when_nowhere():
+    assert ff.not_found_hint(DOC, "a", "next", "zzz", "First") == "not found in a.next: 'zzz'"

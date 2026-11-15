@@ -32,11 +32,10 @@ test("a foreign-currency invoice needs the tax in PLN", () => {
   assert.deepEqual(rules(eur), ["PL-011", "PL-011"]);
 });
 
-test("correcting invoices skip the totals checks and say so", () => {
-  const kor = clean.replace("<RodzajFaktury>VAT", "<RodzajFaktury>KOR").replace("<P_15>1584.00", "<P_15>1.00");
-  const r = checkFa3(kor);
-  assert.deepEqual(r.findings, []);
-  assert.match(r.skipped[0], /correcting/);
+test("correcting invoices are checked as differences (fa3-payment-split.test.mjs has the before/after cases)", () => {
+  const kor = clean.replace("<RodzajFaktury>VAT", "<RodzajFaktury>KOR");
+  assert.deepEqual(checkFa3(kor), { findings: [], skipped: [] });
+  assert.deepEqual(rules(kor.replace("<P_15>1584.00", "<P_15>1.00")), ["PL-008"]);
 });
 
 test("report.mjs routes a FA(3) file to these rules, not the EN 16931 reader", async () => {
@@ -98,13 +97,13 @@ test("a cut-off file is PL-017 and skips the other checks", () => {
   assert.match(r.skipped[0], /cut off/);
 });
 
-test("correction and settlement seeds pass the schema gate and say what they skip", () => {
+test("correction and settlement seeds pass the schema gate and, since 2026-11-15, the totals checks too", () => {
   for (const f of ["fa3-correction.xml", "fa3-settlement.xml"]) {
     const r = checkFa3(read(f));
     // The settlement seed carries a Zalacznik block, so it gets KSeF's batch-only note (PL-020, not blocking).
     assert.deepEqual(r.findings.filter((x) => x.severity !== "note"), [], f);
     assert.equal(r.findings.length, f === "fa3-settlement.xml" ? 1 : 0, f);
-    assert.equal(r.skipped.length, 1, f);
+    assert.deepEqual(r.skipped, [], f);
   }
 });
 

@@ -13,7 +13,7 @@ export const EXACT_LIMIT = 10;
 const BIG = 1e7;
 const EPS = 1e-9;
 
-export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
 export const pct = (x, d = 0) => (x * 100).toFixed(d) + "%";
 
 function splitLine(line) {

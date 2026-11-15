@@ -1,5 +1,20 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 22 result: the paper now carries the capacity half; five models of Weiss's decayed walls in one table
+
+`paper/draft.md` (sections 4.9–4.10, 5.13–5.14, Table 3; abstract, highlights, discussion, limitations, conclusion and references extended); `paper/check_numbers.py` (60 new checks, 190 of 190 ok; its README said 70 before this step, the file had 130). No new computation.
+
+- **What the paper now says.** An escaped joint-edge nail costs a mean 2.08% of its sheet (milestone 14); three reads with every miss left in lose 2.34% mean and 11.49% at p99, so misses should not escape on 6 in joint edges; 4 in joint edges carry them (0.9998 of sheets beat an intact 6 in sheet; $6.98 a sheet against $7.10 with re-drives). Joints of NDS strength and softening nails leave this standing.
+- **Table 3.** At code-strength end nails the decayed 3 in wall keeps 63.4% (limit analysis), 73.5% (rigid rod path), 72.8% (pushover), 70.6% (CUREE) and 73.2% (energy damage at γ 10), against 33.9% tested; the spring models' fits all sit at m 0.25 (all 30 of the 960 pushovers within 5 points rms; checked from `m19/results.json`).
+- **Writing checks that changed the text.** The first draft said every fit within 5 points rms had m 0.25; milestones 17 and 18 fit at 0.47 and 0.17, so the claim is now limited to the spring models. "4 in joint edges carry every escaped miss" was corrected to 0.9998 of sheets. H63's bar is stated as registered (it fails on p99 and the wall term, not the mean).
+- **Searched again for a tested 16d end-nail ultimate.** None reachable: the nearest hit (an NAHB roof-to-wall uplift report, two 16d end nails 211 lb) is uplift, not lateral, and nahb.org and huduser.gov are refused by this session's proxy.
+- **Still open:** the tested end-nail ultimate, a local tear-out model for the nails above the unnailed strip, the Elsevier template and authorship.
+
+## 2026-11-15 · Milestone 22 planned: the paper's capacity sections (milestones 14–21)
+
+- **Why.** `paper/draft.md` stops at milestone 13. Milestones 14–21 answer the paper's structural question (what an escaped missed nail costs a shear wall) and check the capacity model against Weiss's (2017) decayed-wall tests through eight models. None of it is in the paper, so a reviewer would see the robot results with no capacity check behind them.
+- **Plan.** Add methods 4.9–4.10 and results 5.13–5.14 to the draft, carry the finding into the abstract, discussion, limitations and conclusion, and tie every quoted number to its results file in `paper/check_numbers.py`. No new computation; every number is read from `experiments/m14`–`m21` results files.
+
 ## 2026-11-15 · Milestone 21 result: nails that lose strength with dissipated energy lower every wall alike, and lift the decayed shares; the 3 in wall stays above 70% at code strength
 
 `experiments/m21_degrading/` (run.py, results.txt, results.json, check_diag.py, check_diag.txt, figure.py, figure.png); `wall_cyclic.Saws(gamma=...)` and `Saws.degrading`; `tests/test_wall_degrading.py` (5 tests). About 35 min on four CPUs (72 CUREE runs of 3,000–9,300 steps, 8 monotonic pushes).

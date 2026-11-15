@@ -4,7 +4,7 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Latest step (milestone 5): a seeding rule that needs a list of who knows whom but no fitted model comes within 1.4% of the best rule under every model, and surveying a quarter of households costs about one more point.** Degree discount (Chen, Wang and Yang 2009), which picks well-connected households while discounting ties to households already seeded, loses at most 1.4% of adopters under the three fitted models (top degree: 4.1%; greedy under the threshold model, which also needs a fitted model: 0.5%). Simply forbidding adjacent seeds does worse (3.4%): it pushes seeds down to 13 ties each. If a rollout surveys only 25% of households, top degree on the estimated degrees loses up to 4.5%; asking random households to name a contact and seeding the named (friend nomination, no network data) loses up to 6.2%, against 12.1% for random seeds. **Milestone 4: whom to seed barely depends on which contagion model is right, and the best seeds are spread out, not clustered.** Scoring ten seeding rules under all three fitted models on the 43 real networks, one rule, greedy seeding under the threshold model, loses at most 0.5% of adopters against the best rule under every model; the structural rules rank almost the same under all three (Kendall &tau; 0.81 to 1.0). Seeding the highest-degree households loses 1.7 to 4.1%; the lender's actual leaders lose 6 to 10%; one clustered patch of neighbours loses 6 to 10.5%, even under the threshold model, where clustering was supposed to help. The greedy seeds have moderate degree (12 to 15 ties against 23 for the top-degree rule) and are rarely neighbours of each other. **Milestone 3b: the real villages cluster their adopters far more than the simple model allows, and a village random effect does not fix it; a threshold cascade model does.** Letting each village's base adoption rate vary (a random effect fitted to how much take-up varies between villages) adds nothing: the fitted spread is zero for all three models, because word of mouth alone already makes take-up vary as much between simulated villages as between real ones. The real held-out error (0.181) stays far above every synthetic dataset from the simple model (5&ndash;95%: 0.044&ndash;0.068), and 57% of it is one moment that measures adopters next to adopters' neighbours. A threshold model, where a household adopts once half its neighbours have, produces that clustering: 19% of its synthetic datasets reach the real error, and it now predicts held-out villages best (0.169 against 0.181 for the simple model and 0.210 for reinforcement). **Third step (milestone 3): the estimation cannot reliably tell the
+through village leaders. **Latest step (milestone 6): the cheap rule stays robust when the fitted models themselves are uncertain.** Refitting all three contagion models in each of 500 village bootstrap draws (the fits move a lot: 205 distinct fitted processes), degree discount loses a median 1.0% of adopters against the best rule under its worst model (5&ndash;95%: 0.3&ndash;1.6%), beats top degree in every draw, and its one rate parameter hardly matters (0.9&ndash;1.2% for any p from 0.01 to 0.15). The model-specific greedy rules get longer tails (greedy under the threshold model up to 2.4%, under the information model up to 7.3%); degree discount does not. **Milestone 5: a seeding rule that needs a list of who knows whom but no fitted model comes within 1.4% of the best rule under every model, and surveying a quarter of households costs about one more point.** Degree discount (Chen, Wang and Yang 2009), which picks well-connected households while discounting ties to households already seeded, loses at most 1.4% of adopters under the three fitted models (top degree: 4.1%; greedy under the threshold model, which also needs a fitted model: 0.5%). Simply forbidding adjacent seeds does worse (3.4%): it pushes seeds down to 13 ties each. If a rollout surveys only 25% of households, top degree on the estimated degrees loses up to 4.5%; asking random households to name a contact and seeding the named (friend nomination, no network data) loses up to 6.2%, against 12.1% for random seeds. **Milestone 4: whom to seed barely depends on which contagion model is right, and the best seeds are spread out, not clustered.** Scoring ten seeding rules under all three fitted models on the 43 real networks, one rule, greedy seeding under the threshold model, loses at most 0.5% of adopters against the best rule under every model; the structural rules rank almost the same under all three (Kendall &tau; 0.81 to 1.0). Seeding the highest-degree households loses 1.7 to 4.1%; the lender's actual leaders lose 6 to 10%; one clustered patch of neighbours loses 6 to 10.5%, even under the threshold model, where clustering was supposed to help. The greedy seeds have moderate degree (12 to 15 ties against 23 for the top-degree rule) and are rarely neighbours of each other. **Milestone 3b: the real villages cluster their adopters far more than the simple model allows, and a village random effect does not fix it; a threshold cascade model does.** Letting each village's base adoption rate vary (a random effect fitted to how much take-up varies between villages) adds nothing: the fitted spread is zero for all three models, because word of mouth alone already makes take-up vary as much between simulated villages as between real ones. The real held-out error (0.181) stays far above every synthetic dataset from the simple model (5&ndash;95%: 0.044&ndash;0.068), and 57% of it is one moment that measures adopters next to adopters' neighbours. A threshold model, where a household adopts once half its neighbours have, produces that clustering: 19% of its synthetic datasets reach the real error, and it now predicts held-out villages best (0.169 against 0.181 for the simple model and 0.210 for reinforcement). **Third step (milestone 3): the estimation cannot reliably tell the
 models apart, and the real villages fit none of them.** On 200 synthetic datasets per model,
 simulated on the real networks, the in-sample criterion picks the reinforcement model for 85%
 of datasets made by the simple model; leaving one village out recovers the true model 58.5%
@@ -342,6 +342,55 @@ The milestone-4 rules' adopter counts reproduce milestone 4 exactly (same stream
   households uniformly and assumes they report all their ties; BCDJ's own network survey sampled
   households and asked about named relationships, which this step does not mimic.
 
+## Milestone 6: do the robust rules survive uncertain fits? (`experiments/m6_uncertainty/`)
+
+Milestones 4 and 5 scored every rule under three point fits, so their intervals carried village
+sampling but not the uncertainty in the parameters the rules are scored under. This step refits
+the information (I), threshold (T) and reinforcement (R&delta;) models in each of 500 village
+Bayesian bootstrap draws (milestone 3b's grid with a village random effect &sigma; in {0, 0.25,
+0.5, 0.75}, nine moments, 5,400 grid points), scores every rule under each draw's three refitted
+processes with the same village weights (100 runs per village), and takes the worst case over
+the three models within each draw. Degree discount's rate p is swept from 0.01 to 0.3. Greedy
+sets are those searched at the point fits. Plan and hypotheses logged before the run.
+
+![worst-case regret with refitted and fixed fits](experiments/m6_uncertainty/regret.svg)
+
+| rule | point fits | refitted: median [5%, 95%] | fixed fits, same draws |
+|---|---|---|---|
+| greedy under T | 0.3% | 0.5% [0.1, 2.4] | 0.4% [0.1, 0.7] |
+| degree discount, p = 0.075 | 1.2% | 0.9% [0.1, 1.5] | 1.2% [0.7, 1.6] |
+| greedy under R&delta; | 1.0% | 0.9% [0.1, 4.1] | 1.0% [0.7, 1.3] |
+| degree discount, p = 0.05 | 1.3% | 1.0% [0.3, 1.6] | 1.3% [0.9, 1.7] |
+| single discount | 2.4% | 2.1% [1.7, 2.6] | 2.4% [2.0, 2.8] |
+| greedy under I | 2.7% | 2.7% [0.7, 7.3] | 2.7% [2.4, 3.1] |
+| top degree | 4.1% | 3.9% [3.2, 4.8] | 4.1% [3.5, 4.8] |
+| survey 25%, spread | 5.0% | 4.7% [3.4, 6.5] | 5.1% [4.3, 5.8] |
+| friend nomination | 6.7% | 7.1% [5.3, 9.5] | 6.7% [5.8, 7.7] |
+| observed leaders | 10.5% | 10.6% [7.8, 14.7] | 10.6% [9.3, 12.0] |
+| uniform random | 11.5% | 11.6% [8.2, 16.5] | 11.6% [10.2, 13.2] |
+
+Full table, the fitted-parameter histograms and the diagnostics: `experiments/m6_uncertainty/results.txt`.
+
+- **The fits move.** The information model refits to its point estimate in only 7% of draws
+  (&sigma; &gt; 0 in 81%); the threshold model splits &theta; 0.4 / 0.5 / 0.6 in 17 / 37 / 44% of
+  draws; the reinforcement model's q<sub>P</sub> ranges over the whole grid.
+- **H8 held.** Degree discount (p = 0.05) keeps a median worst-case regret of 1.0% (bar 2%) and
+  beats top degree in all 500 draws.
+- **H9 held.** Its median worst case is 0.9&ndash;1.2% for every p from 0.01 to 0.15 (p = 0.3:
+  1.8%). The best p in the grid is 0.075, 0.09 point better than the 0.05 chosen in milestone 5.
+- **Not pre-registered: uncertain fits lengthen the greedy rules' tails, not degree discount's.**
+  A greedy set is tuned to one fitted process; when the process moves, its 95th percentile rises
+  (threshold-greedy 0.7% to 2.4%, information-greedy 3.1% to 7.3%), while degree discount's stays
+  at 1.6%. Its worst draws are information or high-q<sub>P</sub> reinforcement processes, where
+  information-greedy's spread-out, low-degree seeds win.
+- **A correction to milestone 5.** The first full run scored the randomised rules' 100 draws
+  on one shared simulated run per village, as milestone 5 did; the noisy means inflated every
+  tail (kept as `results_shared_runs.txt`). Scored on independent runs (this table), the 25%
+  survey rules lose 5.0&ndash;5.1% at the point fits, at milestone 5's 5% bar rather than under it,
+  and friend nomination 6.7% rather than 6.2%. Milestone 5's deterministic results stand.
+- Caveats: greedy sets are not re-searched per draw; the bootstrap distribution is a histogram
+  on a coarse grid; the fixed leader budget, seeding-as-informing and no homophily, as before.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
@@ -359,7 +408,7 @@ villages. Adoption is observed once, not over time, so homophily and contagion a
 
 ```
 python3 data/build_dataset.py "<mirror>/datav4.0/Matlab Replication"   # optional, rebuilds the data
-python3 -m pytest -q tests                                                # 46 tests, about 5 s
+python3 -m pytest -q tests                                                # 53 tests, about 5 s
 python3 experiments/m1_reproduce/run.py      # about 2 minutes on 4 cores, writes results.txt
 python3 experiments/m1_reproduce/twostep.py  # seconds, needs run.py's dgrid.npz
 python3 experiments/m1_reproduce/periods.py  # about 12 minutes, periods.txt
@@ -375,20 +424,21 @@ OMP_NUM_THREADS=1 python3 experiments/m4_seeding/run.py   # about 3 minutes on 4
 python3 experiments/m4_seeding/figure.py
 OMP_NUM_THREADS=1 python3 experiments/m5_cheap/run.py     # about 3.5 minutes on 4 cores, results.txt, regret.json
 python3 experiments/m5_cheap/figure.py
+OMP_NUM_THREADS=1 python3 experiments/m6_uncertainty/run.py  # about 10 minutes on 4 cores, results.txt, regret.json
+python3 experiments/m6_uncertainty/figure.py
 ```
 
 Needs numpy (and scipy for the data builder).
 
 ## Next steps
 
-Milestone 5 finds degree discount within 1.4% of the best rule without a fitted model, and a
-25% survey within 4.5%. Next: sweep degree discount's p and score the rules over the bootstrap
-distribution of fitted parameters rather than three points; survey designs closer to BCDJ's own
-(a household sample that names relationships, so nominations reach unsurveyed households) and
-adaptive ones (survey, then survey the named); complex centrality (Guilbeault and Centola 2021);
-and the two checks left from milestone 3b: moments standardised by their synthetic SD (or
-without moment 5's quirk), and a degree-band moment to separate a threshold cascade from
-homophily.
+Milestone 6 finds degree discount robust to the uncertainty in the fits (median worst case 1.0%,
+95th percentile 1.6%) and insensitive to its rate. Next: survey designs closer to BCDJ's own (a
+household sample that names relationships, so nominations reach unsurveyed households) and
+adaptive ones (survey, then survey the named), since the survey rules are now at the 5% bar;
+complex centrality (Guilbeault and Centola 2021); the two checks left from milestone 3b (moments
+standardised by their synthetic SD, and a degree-band moment to separate a threshold cascade from
+homophily); then the paper draft, with milestones 4 to 6 as its seeding section.
 
 ## References
 

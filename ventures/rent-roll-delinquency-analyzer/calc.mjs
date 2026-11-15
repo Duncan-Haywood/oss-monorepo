@@ -70,10 +70,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -124,7 +124,7 @@ const DAY = 86400000;
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 const norm = (s) => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 const monthKey = (t) => new Date(t).toISOString().slice(0, 7);
 const days = (a, b) => Math.round((a - b) / DAY);
 
@@ -275,14 +275,14 @@ export function analyze(rawItems, { asOf = null, graceDays = DEFAULT_GRACE_DAYS,
   };
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(0) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 
 // Plain text for pasting into a note, an email to a partner or a bookkeeper.
 export function summaryText(r) {
   const s = r.summary;
-  const m = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US") : "n/a");
+  const m = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US")) : "n/a");
   const lines = [
     `Rent ledger ${dateStr(s.from)} to ${dateStr(s.to)}: ${s.charges} charges on ${s.units} unit(s), ${m(s.billed)} billed, ${m(s.collected)} collected (${pct(s.collectedRate)}), ${m(s.owed)} unpaid`,
   ];

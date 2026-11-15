@@ -245,12 +245,12 @@ const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', '
 
 function parseDate(s) {
   s = String(s).trim().replace(/^"|"$/g, '');
-  let m = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/.exec(s);
+  let m = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?!\d)/.exec(s);
   if (m) {
     const y = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
     return { y, mo: Number(m[1]), d: Number(m[2]) };
   }
-  m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
+  m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/.exec(s);
   if (m) return { y: Number(m[1]), mo: Number(m[2]), d: Number(m[3]) };
   return null;
 }

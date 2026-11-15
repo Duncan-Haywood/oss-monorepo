@@ -232,6 +232,24 @@ CHECKS = [
     ("json", "m4k_warm/summary.json", "hypotheses/H70/fr1", 4.36, 2, pct, "4.36% and 20.09% (fr1 / fr3)"),
     ("json", "m4k_warm/summary.json", "hypotheses/H70/fr3", 20.09, 2, pct, "4.36% and 20.09% (fr1 / fr3)"),
     ("json", "m4k_warm/summary.json", "hypotheses/H72/pm2_k6", 10.6, 1, pct, "stayed at 10.6%"),
+    # Section 7, milestone 4l (the twin's predicted power)
+    ("json", "m4l_predict/summary.json", 'k6/left/auc_pm2', 0.659, 3, None, 'AUC 0.659,\n0.693, 0.749 and 0.748'),
+    ("json", "m4l_predict/summary.json", 'k6/right/auc_pm2', 0.693, 3, None, 'AUC 0.659,\n0.693, 0.749 and 0.748'),
+    ("json", "m4l_predict/summary.json", 'k6/fr1/auc_pm2', 0.749, 3, None, 'AUC 0.659,\n0.693, 0.749 and 0.748'),
+    ("json", "m4l_predict/summary.json", 'k6/fr3/auc_pm2', 0.748, 3, None, 'AUC 0.659,\n0.693, 0.749 and 0.748'),
+    ("json", "m4l_predict/summary.json", 'hypotheses/H75/tum_all', 10.0, 1, pct, 'from 10.0% to 21.5%'),
+    ("json", "m4l_predict/summary.json", 'hypotheses/H75/tum_top_quartile', 21.5, 1, pct, 'from 10.0% to 21.5%'),
+    ("json", "m4l_predict/summary.json", 'k6/left/tq/real_pm2', 48.3, 1, pct, '48.3% and\n50.0%'),
+    ("json", "m4l_predict/summary.json", 'k6/right/tq/real_pm2', 50.0, 1, pct, '48.3% and\n50.0%'),
+    ("json", "m4l_predict/summary.json", 'k6/left/tq/fa', 0.7, 2, pct, 'at 0.70%, 0.00%, 2.35% and 0.00% false alarms'),
+    ("json", "m4l_predict/summary.json", 'k6/right/tq/fa', 0.0, 2, pct, 'at 0.70%, 0.00%, 2.35% and 0.00% false alarms'),
+    ("json", "m4l_predict/summary.json", 'k6/fr1/tq/fa', 2.35, 2, pct, 'at 0.70%, 0.00%, 2.35% and 0.00% false alarms'),
+    ("json", "m4l_predict/summary.json", 'k6/fr3/tq/fa', 0.0, 2, pct, 'at 0.70%, 0.00%, 2.35% and 0.00% false alarms'),
+    ("json", "m4l_predict/summary.json", 'k6/left/auc_pm2_by_sd', 0.66, 3, None, '(AUC 0.660–0.752)'),
+    ("json", "m4l_predict/summary.json", 'k6/fr1/auc_pm2_by_sd', 0.752, 3, None, '(AUC 0.660–0.752)'),
+    ("json", "m4l_predict/summary.json", 'k6/right/ratio', 1.19, 2, None, '1.19–1.89× the real rate'),
+    ("json", "m4l_predict/summary.json", 'k6/fr3/ratio', 1.89, 2, None, '1.19–1.89× the real rate'),
+    ("json", "m4l_predict/summary.json", 'other_designs/fr1/7+4/auc_pm2', 0.42, 2, None, 'ranking fails on the Kinect (AUC 0.42)'),
 ]
 
 

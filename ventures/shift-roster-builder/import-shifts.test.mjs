@@ -165,3 +165,15 @@ test("stamps with two-digit years and seconds; a location in the first column; n
   assert.doesNotMatch(notes, /locations/);
   assert.doesNotMatch(notes, /shift columns/);
 });
+
+// Red team 2026-11-15: `(\d{2}|\d{4})` with nothing after it took "20" of "2026" as the year, so every
+// four-digit slash date was read in 2020 and January 5, 2026 (a Monday) came out a Sunday.
+test("a four-digit year in a slash date is the year, not its first two digits", () => {
+  for (const d of ["01/05/2026", "1/5/2026", "01.05.2026", "01-05-2026", "01/05/26", "2026-01-05"]) {
+    const r = importShiftsCsv(`Date,Start,End,Position\n${d},7:00,15:00,Cook\n`);
+    assert.equal(r.rows, 1, d);
+    assert.match(r.shiftsText, /Mon, 7:00, 15:00, 1, , cook/, d);
+  }
+  assert.equal(importShiftsCsv("Date,Start,End\n01/05/20261,7:00,15:00\n").rows, 0);
+  assert.equal(importShiftsCsv("Date,Start,End\n2026-01-051,7:00,15:00\n").rows, 0);
+});

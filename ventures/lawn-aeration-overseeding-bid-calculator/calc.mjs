@@ -148,7 +148,7 @@ export function money(x) {
   const neg = Math.round(x) < 0;
   return (neg ? "-$" : "$") + Math.abs(Math.round(x)).toLocaleString("en-US");
 }
-export const cents = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2);
+export const cents = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2));
 export const pct = (x) => (x * 100).toFixed(1) + "%";
 
 export function sampleInput() {

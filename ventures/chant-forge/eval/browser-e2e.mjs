@@ -253,6 +253,23 @@ await page.click("#go");
 ok(/one section .* left out/.test(await out()) && !(await page.locator("#dlmid").isDisabled()), "one-section chant: options left out with a note");
 await page.selectOption("#acap", ""); await page.selectOption("#lift", "0");
 await page.selectOption("#sections", "");
+// choir voice: the sung preview equals render-cli.mjs --sing on the page's own MIDI, and differs from the pad
+{
+  await page.selectOption("#piece", "Dies irae");
+  await page.waitForFunction(() => document.querySelector("#src").value.includes("%%"));
+  await page.selectOption("#genre", "");
+  await page.selectOption("#voice", "sing");
+  await page.click("#go");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sing-"));
+  const [dm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  fs.writeFileSync(path.join(tmp, "chant.mid"), fs.readFileSync(await dm.path()));
+  const [dw] = await Promise.all([page.waitForEvent("download"), page.click("#dlwav")]);
+  const sungWav = fs.readFileSync(await dw.path());
+  execFileSync(process.execPath, [path.join(root, "render-cli.mjs"), path.join(tmp, "chant.mid"), "-o", path.join(tmp, "sing.wav"), "--sing"]);
+  execFileSync(process.execPath, [path.join(root, "render-cli.mjs"), path.join(tmp, "chant.mid"), "-o", path.join(tmp, "pad.wav")]);
+  ok(sungWav.equals(fs.readFileSync(path.join(tmp, "sing.wav"))) && !sungWav.equals(fs.readFileSync(path.join(tmp, "pad.wav"))), `sung preview WAV equals render-cli --sing (${sungWav.length} bytes) and differs from the pad`);
+  await page.selectOption("#voice", "");
+}
 // errors
 await page.fill("#src", "hello");
 await page.click("#go");

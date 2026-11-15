@@ -26,7 +26,7 @@ export const EXAMPLE_PROJECTS = [
   { name: "Hooli audit", rate: "200", hours: "40", skill: "strategy" },
 ];
 
-export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(n)).toLocaleString("en-US"));
 export const hoursFmt = (n) => (Math.round(n * 100) / 100).toLocaleString("en-US") + " h";
 
 const num = (v) => {

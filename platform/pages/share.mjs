@@ -113,7 +113,14 @@ const FOOTERS = {
 };
 const DEFAULT_FOOTER = 'Free · open source · MIT licensed';
 
-const decode = (s) => String(s ?? '')
+// Every entity below starts with `&`, so a string without one comes back as
+// it went in, without the fourteen passes; most meta values have none
+// (docs/history/pages-build-perf-2026-11-15-meta-content-backreference.md).
+const decode = (s) => {
+  const str = String(s ?? '');
+  return str.includes('&') ? decodeEntities(str) : str;
+};
+const decodeEntities = (str) => str
   .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
   .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
   .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
@@ -134,6 +141,14 @@ let metaTagsFor = null;
 let metaTagsOf = [];
 const metaMatchers = new Map();
 
+// A tag's content value, double- or single-quoted. Spelled as two quoted
+// alternatives rather than `(["'])([\s\S]*?)\1`: both stop at the first
+// closing quote of the same kind, but on a two-byte string (any page with a
+// `—` in it) V8 runs a backreference under `i` about 20 times slower, about
+// 4 us a tag, and this runs on every meta read
+// (docs/history/pages-build-perf-2026-11-15-meta-content-backreference.md).
+const META_CONTENT = /\bcontent\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
+
 function metaMatcher(attr, key) {
   const id = `${attr}\0${key}`;
   let test = metaMatchers.get(id);
@@ -152,8 +167,8 @@ function metaContent(html, attr, key) {
   const test = metaMatcher(attr, key);
   for (const tag of metaTagsOf) {
     if (test.test(tag)) {
-      const c = /\bcontent\s*=\s*(["'])([\s\S]*?)\1/i.exec(tag);
-      return c ? decode(c[2]) : '';
+      const c = META_CONTENT.exec(tag);
+      return c ? decode(c[1] ?? c[2]) : '';
     }
   }
   return null;
@@ -241,7 +256,7 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
     const test = metaMatcher(attr, key);
     for (const m of next.matchAll(META)) {
       if (!test.test(m[0])) continue;
-      const tag = m[0].replace(/\bcontent\s*=\s*(["'])[\s\S]*?\1/i, () => `content="${escapeAttr(value)}"`);
+      const tag = m[0].replace(META_CONTENT, () => `content="${escapeAttr(value)}"`);
       next = next.slice(0, m.index) + tag + next.slice(m.index + m[0].length);
       return true;
     }

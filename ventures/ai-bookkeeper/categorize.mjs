@@ -14,11 +14,13 @@
 // "PURCHASE AUTHORIZED ON 03/14 AMZN MKTP US*2K3"), so everything keys on a
 // normalised payee. Pure functions, no DOM, no network.
 //
-// After the built-in keywords, three hints a file may carry are read for review
+// After the built-in keywords, four hints a file may carry are read for review
 // only: the card network's merchant category code (mcc.mjs), the bank's own
-// category label, and a new payee's shape and size (guessNewPayee).
+// category label, a chain's name from OpenStreetMap's name-suggestion-index (brands.mjs),
+// and a new payee's shape and size (guessNewPayee).
 
 import { mccAccount, mccKey } from "./mcc.mjs";
+import { BRAND_KINDS, BRANDS_VERSION, BRAND_PERSON_NAMES } from "./brands.mjs";
 
 const NOISE = new Set(("pos ach debit credit card purchase checkcard visa mastercard mc dda withdrawal deposit payment pmt pymt web ppd ccd id ref trn txn " +
   "recurring online mobile preauthorized pre auth authorized authorization authorisation pending non pin at on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
@@ -96,6 +98,28 @@ export const BUILT_IN = [
   // "AMEX PAYMENT" stays for review as before (saas-gaps.test.mjs); Amex counts only with ACH PMT, E-PAYMENT or AUTOPAY.
   ["transfer", "in", /\bpayment\b[\s,-]*(received[\s-]*)?thank\b/],
   ["transfer", "any", /\bchase credit crd\b|\b(american ?express|amex)\b.{0,30}\b(e-?payment|epay|autopay|ach pmt)\b|\b(discover|apple ?card|citi ?(card|autopay)?|capital one|barclaycard|synchrony( bank)?|wells fargo card)\b.{0,30}\b(e-?payment|epay|autopay|ach pmt|pmt|pymt|payment|crcardpmt|cc pymt)\b|\b(e-?payment|epay|ccpymt|payment)\b.{0,12}\b(discover|citi card|wells fargo card)\b/],
+  // UK merchants (2026-11-15, eval/southlakeland-pcard.mjs and eval/uk-card-keywords.mjs). The table was
+  // written from US exports: on three UK public buyers' card lines it said nothing on 85-90% of them,
+  // Trainline, Travelodge, Ryanair, Screwfix and Tesco included. Written from South Lakeland District
+  // Council's blank list and the UK chains each account's US twin already covers (Kroger and Aldi are
+  // meals, Home Depot and Best Buy supplies, USPS postage, parking vehicle); Durham County Council's and
+  // the Scottish Government's lines were scored first and then read for its misses (filling stations,
+  // Asda's George clothing, Iceland Travel; Halfords, NCP and DVSA dropped as mostly wrong there). Discount and
+  // department stores (Argos, Home Bargains, Poundland, B&M, M&S) stay blank as Walmart and Target do;
+  // HMRC stays blank because a payment to it is usually VAT or PAYE owed, not an expense. DVLA (road tax)
+  // is a vehicle cost, as HMRC's own self-employed expense list files it; a US DMV fee stays a licence.
+  ["6120", "out", /\b(the ?)?train ?line\b|\bvirgin ?(trains?|rail)\b|\bnorthern ?rail(ways?)?\b|\bwest coast trains\b|\bavanti west coast\b|\btrans ?pennine\b|\btp ?express\b|\bftpe\b|\blner\b|\bgreat western rail|\bgwr\b|\bcross ?country trains\b|\bscotrail\b|\bthameslink\b|\bchiltern railways?\b|\beurostar\b|\bnational rail\b|\bnw trains\b|\bkeolis\b|\btfl travel\b|\bnational express\b|\btrav?ell?odge\b|\bryanair\b|\beasy ?jet\b|\bjet2\b|\bflybe\b|\bbritish airways\b|\bloganair\b|\bwizz ?air\b/],
+  ["6170", "out", /\bcipfa\b|\bcieh\b|\birrv\b|\bcipd\b|\bcips\b|\bcipp\b|\baat\b|\brics\b|\brtpi\b|\bicaew\b|\biosh\b|\bcima\b|\bciob\b|\bcilex\b|\bchart(ered)? inst(itute)?\b|\binst(itute)? of payroll\b/],
+  // A supermarket's filling station prints the grocer's name: "TESCO PFS 4088", "ASDA PETROL", "TESCO PAY AT PUMP".
+  ["6160", "out", /\bdvla\b|\b(tesco|asda|sainsbury'?s?|morrisons?|co-?op)\b.*\b(pfs|petrol|fuel|pay at pump|filling station)\b/],
+  ["6100", "out", /\basda george\b|\bgeorge at asda\b/],
+  ["6110", "out", /\bcompanies house\b|\binformation commissioner|\bico data protection\b/],
+  ["6050", "out", /\bmoney ?claim\b|\bhm courts\b|\bhmcts\b/],
+  ["6100", "out", /\bscrewfix\b|\btoolstation\b|\btravis perkins\b|\bjewson\b|\bwickes\b|\bb ?& ?q\b|\bb and q\b|\brs components\b|\bselco builders\b|\bbuildbase\b|\bhuws gray\b|\bcurrys\b|\blaptops direct\b|\bbunnings\b/],
+  ["6070", "out", /\brym[ae]ns?\b|\bw ?h ?smiths?\b|\bviking ?direct\b|\bofficeworks\b|\broyal mail\b/],
+  ["6180", "out", /\bparcel ?force\b|\bevri\b|\bmyhermes\b|\bhermes parcel|\byodel\b|\bparcel2go\b|\bdpd (uk|group|local)\b/],
+  ["6140", "out", /\be\.?on( energy| next)?\b|\bbritish gas\b|\bbt business\b|\bbt group\b/],
+  ["6130", "out", /\btesco'?s?\b(?! ?mobile)|\bsainsbury'?s?\b|\basda\b(?! ?mobile)|\bmorrisons?\b|\bwaitrose\b|\blidl\b|\be ?h booths?\b|^booths\b(?! ?(hire|rental))|^iceland\b(?!air| travel)|\biceland foods\b|\bco-?op(erative)? food\b|\bgreggs\b|\bpret( a)? manger\b|\bnando'?s\b|\b(jd )?wetherspoons?\b|\bwagamama\b/],
   // Gap probe 39 (2026-11-10, eval/probe39.mjs): pool service, personal trainers, wedding DJs, upholsterers, farriers.
   ["6110", "out", /upholstery shop license/],
   ["6170", "out", /pool and spa alliance|national strength trainers|american disc jockey|upholsterers international|american farriers/],
@@ -1007,6 +1031,16 @@ export function suggest(txn, model) {
     const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
+  if (d === "out" && !off.has("brand")) {
+    const b = brandAccount(txn.desc, off);
+    // The keywords know this chain's bare name but stayed silent on the line ("Iceland Travel" is
+    // not the grocer): their exception stands (read on the Scottish Government's held-out lines).
+    // The keywords then decide on the cleaned payee ("www.iceland.co.uk" -> "iceland uk"): the grocer
+    // if they file it, nothing if their exception holds.
+    const kw = (t) => BUILT_IN.find(([a, rd, re]) => a !== "transfer" && (rd === "any" || rd === "out") && re.test(t));
+    if (b && kw(b.name)) { const k = kw(payeeTokens(txn.desc).join(" ")); b.account = k?.[0] ?? null; }
+    if (b?.account && (model.codes?.has(b.account) ?? true)) return { account: b.account, confidence: BRAND.confidence, source: "brand", reason: `"${b.name}" is a chain listed by OpenStreetMap as ${Object.hasOwn(BRAND_LABEL, b.account) ? BRAND_LABEL[b.account] : "this kind of place"}`, alternatives: ranked.slice(0, 2) };
+  }
   // A split category: enough earlier lines but no majority, so mccSuggest said nothing.
   // Its commonest account beat the new-payee guess on the 140 Toronto lines the AI layer
   // is measured on, but not more widely (README "Split categories", 2026-11-11: sixteen
@@ -1026,6 +1060,44 @@ export function suggest(txn, model) {
     }
   }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
+}
+
+// Chain names (brands.mjs, built from OpenStreetMap's name-suggestion-index): the longest listed
+// name a line's payee starts with. Money out only, for review only (confidence under every
+// auto-post threshold), after the keywords, the card code and the bank's own category.
+export const BRAND = { confidence: 0.5, maxTokens: 5, version: BRANDS_VERSION };
+const BRAND_LABEL = { "6130": "a food shop, cafe or restaurant", "6120": "a hotel, car hire or travel agent", "6160": "a fuel station or car service", "6100": "a hardware, DIY or trade store", "6070": "a stationer, copy shop or post office", "6180": "a carrier", "6140": "a phone or internet provider", "6030": "an insurer", "6080": "a coworking or self-storage operator" };
+const BRAND_FINANCE = /^(financial|finance|financing|credit|capital|bank|banking|loans?|lease|leasing|insurance|mortgage)$/;
+let BRAND_INDEX = null;
+const BRAND_PERSON = new Set(BRAND_PERSON_NAMES);
+// A one-word chain name that is also a person's name ("ALBERT", "BAXTER STOREY", "The Hampton
+// Social", "DENNIS SMITH") counts only when a store number follows it ("KRYSTAL #12", "OREILLY
+// 4567"): a chain's card line carries its store number, a person or an independent firm carries
+// another word or nothing. Read on YNAB and the Scottish Government's lines (README "Chain names
+// that are people's names"); `skip: brand-names` turns the check off.
+export function storeNumberFollows(desc, name) {
+  const flat = String(desc).toLowerCase().replace(/['\u2019`]/g, "");
+  const m = new RegExp(`(^|[^a-z0-9])${name}(?![a-z0-9])\\W*(\\S*)`).exec(flat);
+  return !!m && /^#?\d/.test(m[2]);
+}
+export function brandAccount(desc, off = new Set()) {
+  if (!BRAND_INDEX) {
+    BRAND_INDEX = new Map();
+    for (const [account, names] of Object.entries(BRAND_KINDS)) for (const n of names) BRAND_INDEX.set(n, account);
+  }
+  const t = payeeTokens(desc).slice(0, BRAND.maxTokens);
+  for (let i = t.length; i >= 1; i--) {
+    const name = t.slice(0, i).join(" ");
+    if (BRAND_INDEX.has(name)) {
+      const account = BRAND_INDEX.get(name);
+      // The chain's finance arm, card or insurer ("JOHN DEERE FINANCIAL", "TESCO BANK") is a loan or a
+      // policy, not a purchase at the chain.
+      if (t.slice(i).some((w) => BRAND_FINANCE.test(w))) return null;
+      if (i === 1 && BRAND_PERSON.has(name) && !off.has("brand-names") && !storeNumberFollows(desc, name)) return null;
+      return account ? { account, name } : null;
+    }
+  }
+  return null;
 }
 
 export function historyRecord(txn, account) {

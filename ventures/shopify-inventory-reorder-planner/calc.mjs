@@ -55,26 +55,26 @@ export function detectDelimiter(text) {
   return best[1] > 0 ? best[0] : ",";
 }
 
+// Each row carries `line`, the file line it starts on (blank lines and line breaks inside quoted fields counted),
+// so a skipped row can be named by the line a person sees in the file.
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  let row = [], field = "", quoted = false, ln = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
+  const end = () => { row.push(field); field = ""; if (row.some((f) => f.trim() !== "")) { row.line = start; rows.push(row); } row = []; };
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) ln++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
-      row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      end(); ln++; start = ln;
     } else field += c;
   }
-  row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  end();
   return rows;
 }
 
@@ -82,10 +82,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -156,7 +156,7 @@ export function normalizeSales(table, { decimalComma = false } = {}) {
   const items = [], skipped = [];
   let lastT = null, lastVoid = false;
   body.forEach((r, i) => {
-    const line = i + 2;
+    const line = r.line ?? i + 2;
     const rawDate = (r[cols.date] ?? "").trim();
     if (rawDate) {
       const w = parseWhen(rawDate, dmy);
@@ -186,7 +186,7 @@ export function normalizeStock(table, { decimalComma = false } = {}) {
     const sku = (r[cols.sku] ?? "").trim();
     if (!sku) return;
     const onHand = parseNumber(r[cols.onHand], decimalComma);
-    if (!Number.isFinite(onHand)) { skipped.push({ line: i + 2, reason: "on-hand is not a number" }); return; }
+    if (!Number.isFinite(onHand)) { skipped.push({ line: r.line ?? i + 2, reason: "on-hand is not a number" }); return; }
     const num = (c) => { if (cols[c] === undefined) return null; const v = parseNumber(r[cols[c]], decimalComma); return Number.isFinite(v) && (r[cols[c]] ?? "").trim() !== "" ? v : null; };
     items.push({ sku, name: cols.name !== undefined ? (r[cols.name] ?? "").trim() : "", onHand, incoming: num("incoming") ?? 0, cost: num("cost"), price: num("price") });
   });

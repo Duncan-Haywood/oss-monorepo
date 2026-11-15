@@ -8,6 +8,9 @@ import { checkPdfEnvelope } from "./pdf-envelope.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
+import { checkFacturae, looksLikeFacturae } from "./facturae.mjs";
+import { checkNavInvoice, looksLikeNavInvoice } from "./hungary-nav.mjs";
+import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
 import { checkNfe, looksLikeNfe } from "./nfe.mjs";
@@ -29,7 +32,7 @@ export function looksLikeIsdoc(text) {
   return /xmlns(?::\w+)?\s*=\s*["']http:\/\/isdoc\.cz\/namespace\/2013["']/.test(String(text).slice(0, 4096));
 }
 
-export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, FA(3), CFDI 4.0, NF-e 4.00 and the national NFS-e, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
+export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, Facturae, FA(3), CFDI 4.0, NF-e 4.00 and the national NFS-e, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
 
 export async function inspectInvoiceSource(name, source) {
   let payload = source;
@@ -99,10 +102,45 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         }
         continue;
       }
+      if (!looksLikePdf(name, source) && looksLikeSdiReceipt(peek)) {
+        // A receipt or notice SdI sent back for a FatturaPA file (NS, RC, MC, NE, DT, AT, ...):
+        // each rejection code explained, and checked against the invoice when it is in the batch.
+        const receipt = readSdiReceipt(peek);
+        const decode = (o) => (typeof o.source === "string" ? o.source : new TextDecoder().decode(o.source));
+        // SdI carries FatturaPA and, for public bodies, EN 16931 UBL or CII files (names UB... and II...).
+        const found = pairReceipt(receipt, inputs.filter((o) => o !== input), (o) => !looksLikePdf(o.name, o.source) && !looksLikeSdiReceipt(decode(o)) && (looksLikeFatturaPa(decode(o)) || looksLikeXml(o.name || "", decode(o)) || looksLikeCii(decode(o))));
+        let pair = null;
+        if (found) {
+          const text = decode(found.input);
+          let findings = [];
+          let format = "FatturaPA";
+          try {
+            if (looksLikeFatturaPa(text)) findings = checkFatturaPa(text).findings;
+            else { format = "EN 16931"; findings = checkInvoice((await inspectInvoiceSource(found.input.name, found.input.source)).invoice); }
+          } catch { format = "unreadable"; }
+          pair = { name: found.input.name, by: found.by, digest: found.digest, format, findings };
+        }
+        reports.push({ file: name, errors: receiptFindings(receipt, pair), envelope: receiptEnvelope(receipt, pair), receipt: { type: receipt.type, identificativoSdI: receipt.identificativoSdI, fileName: receipt.fileName, codes: receipt.errors.map((e) => e.code), ...(receipt.outcome ? { outcome: receipt.outcome } : {}), ...(pair ? { pairedWith: pair.name, pairedBy: pair.by } : {}) } });
+        continue;
+      }
       if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {
         // Italy's FatturaPA is its own schema, not EN 16931: own rules, no UBL/CII reading.
         const italian = checkFatturaPa(peek);
         reports.push({ file: name, errors: italian.findings, envelope: "Read as Italian FatturaPA (SdI), not EN 16931", ...(italian.skipped.length ? { skipped: italian.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeNavInvoice(peek)) {
+        // Hungary's NAV Online Számla 3.0 data report (InvoiceData, or a manageInvoice request carrying
+        // it in Base64) is its own schema, not EN 16931: NAV's blocking codes and WARN arithmetic.
+        const hungarian = checkNavInvoice(peek);
+        const m = hungarian.meta;
+        reports.push({ file: name, errors: hungarian.findings, envelope: `Read as a Hungarian NAV Online Számla 3.0 ${m.request ? `manageInvoice request (${m.operations} operation${m.operations === 1 ? "" : "s"})` : "invoice data report"}${m.category ? `, ${m.category}` : ""}${m.modification ? " modifying document" : ""}, not EN 16931`, ...(hungarian.skipped.length ? { skipped: hungarian.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeFacturae(peek)) {
+        // Spain's Facturae (3.2.1, 3.2.2) is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const spanish = checkFacturae(peek);
+        reports.push({ file: name, errors: spanish.findings, envelope: `Read as Spanish Facturae ${spanish.version || ""} (FACe), not EN 16931; ${spanish.signature ? `XAdES signature checked (${spanish.signature.signatureValid === true ? "SignatureValue verifies" : spanish.signature.signatureValid === false ? "SignatureValue does not verify" : "SignatureValue not verified"}; certificate chain not checked)` : "unsigned"}`.replace("  ", " "), ...(spanish.skipped.length ? { skipped: spanish.skipped } : {}), ...(spanish.signature ? { signature: spanish.signature } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFa3(peek)) {

@@ -35,7 +35,7 @@
  * link from the hub. Rendering reuses the devlog's escaping Markdown renderer,
  * so a post cannot inject markup and repository paths become GitHub links.
  */
-import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
+import { promises as fs, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
@@ -67,6 +67,8 @@ export const TOPICS = Object.freeze([
   { id: 'research', label: 'Research findings', blurb: 'What the open research tracks found, with the numbers and caveats.' },
   { id: 'tools', label: 'Tools and projects', blurb: 'What a tool or project does, who it is for and why it exists.' },
   { id: 'stories', label: 'Stories', blurb: 'Fiction from the story shelves: Hearth & Horizon science fiction, For Other Minds, Little Lamps and Saints by Candlelight.' },
+  { id: 'site', label: 'Site design and SEO', blurb: 'How the pages look, read and get found: design passes, accessibility, SEO, answer-engine optimisation and llms.txt.' },
+  { id: 'testing', label: 'Testing and red team', blurb: 'Do the tests catch real faults? Red-team campaigns that seed bugs, mutation testing, and the checks that came out of them.' },
   { id: 'infrastructure', label: 'Hosting and infrastructure', blurb: 'Hosting, CI, performance and the plumbing under the site.' },
 ]);
 const TOPIC_IDS = new Set(TOPICS.map((t) => t.id));
@@ -79,6 +81,17 @@ const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', '
 // to-do list, its audio cap, its story queue) carries a process or hosting tag and stays
 // where it was. `ai-agents` is not one of those: For Other Minds stories are about agents.
 const FICTION_TAGS = ['fiction', 'science-fiction', 'short-story', 'bedtime-story', 'hearth-and-horizon', 'for-other-minds', 'little-lamps', 'saints-by-candlelight'];
+// Site craft and test campaigns: about how the pages and test suites are made, even when a
+// post names the tool it worked on, so they are checked before the venture rule. Until
+// 2026-11-15 they filed under "Tools and projects" (about 300 of its 2,846 posts).
+const SITE_TAGS = ['polish', 'seo', 'aeo', 'llms-txt'];
+const TESTING_TAGS = ['redteam', 'red-team', 'mutation-testing', 'fault-injection'];
+// Weaker signals, used only for a post that names no project: a design or accessibility
+// change to one tool is about that tool, a generic one is about the site; likewise testing,
+// CI. Not `performance`: a post making one tool faster carries it too.
+const SITE_LOOSE_TAGS = ['accessibility', 'design', 'css', 'site', 'web-design', 'structured-data'];
+const TESTING_LOOSE_TAGS = ['testing', 'test-coverage', 'property-testing'];
+const PLUMBING_LOOSE_TAGS = ['ci', 'build', 'caching'];
 const BACKSTAGE_TAGS = ['process', 'prompting', 'prompt-engineering', 'engineering-management', ...INFRA_TAGS];
 
 /**
@@ -86,8 +99,9 @@ const BACKSTAGE_TAGS = ['process', 'prompting', 'prompt-engineering', 'engineeri
  * are the newcomer's way in, so they group together whatever else they name; quality audits
  * (`quality-audit`, portfolio/quality/) grade work from every track, so they group apart; opinion pieces are about
  * steering the fleet; then fiction (`FICTION_TAGS`, unless it is about running a shelf); then research (the `research` tag, or a tag naming a project in
- * `research/`); then a named venture, tool or channel; then
- * hosting and CI plumbing; then anything about agents; everything else is a tool or project.
+ * `research/`); then red-team and mutation-testing campaigns; then polish, SEO and AEO work; then a named venture, tool or channel; then
+ * hosting and CI plumbing; then anything about agents; then, for a post that matched none of those,
+ * generic testing, site design, or CI and performance; everything else is a tool or project.
  * A post the rules file wrongly says so with `topic:` in its front matter.
  *
  * `projects` holds the slugs of `research/` and `ventures/` (`projectSlugs()`). Research posts
@@ -102,9 +116,14 @@ export function topicOf(tags = [], explicit = '', projects = NO_PROJECTS) {
   if (tags.includes('opinion')) return 'agents';
   if (has(FICTION_TAGS) && !has(BACKSTAGE_TAGS)) return 'stories';
   if (tags.includes('research') || tags.some((t) => projects.research.has(t))) return 'research';
+  if (has(TESTING_TAGS)) return 'testing';
+  if (has(SITE_TAGS)) return 'site';
   if (has(TOOL_TAGS) || tags.some((t) => projects.ventures.has(t))) return 'tools';
   if (has(INFRA_TAGS)) return 'infrastructure';
   if (has(AGENT_TAGS)) return 'agents';
+  if (has(TESTING_LOOSE_TAGS)) return 'testing';
+  if (has(SITE_LOOSE_TAGS)) return 'site';
+  if (has(PLUMBING_LOOSE_TAGS)) return 'infrastructure';
   return 'tools';
 }
 const NO_PROJECTS = Object.freeze({ research: new Set(), ventures: new Set() });
@@ -354,6 +373,17 @@ const STYLE = `
   .chips button { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
   .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:var(--bg); }
   .chips button span { margin-left:4px; font-variant-numeric:tabular-nums; }
+  /* On a phone the topics are one swipeable row, not six wrapped rows above the first post: it bleeds to the panel's edges, and a fade marks whichever end has more chips (data-fade, set by the script). */
+  @media (max-width:639px) {
+    .chips { flex-wrap:nowrap; overflow-x:auto; overscroll-behavior-x:contain; margin:8px -16px 0; padding:4px 16px; scroll-padding-inline:16px; scrollbar-width:thin; }
+    /* Every chip, not only the blog finder's buttons: the podcast index's topic links share this row, and without flex:none they shrank to wrapped 105 px pills. */
+    .chips > * { flex:none; white-space:nowrap; min-height:32px; }
+    .chips > a { display:inline-flex; align-items:center; margin:0; }
+    .chips[data-fade=end] { -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent); }
+    .chips[data-fade=start] { -webkit-mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent); }
+    .chips[data-fade=both] { -webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent); }
+  }
+  @media (max-width:639px) and (pointer:coarse) { .chips { scrollbar-width:none; } .chips::-webkit-scrollbar { display:none; } }
   .finder .foot { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:10px 0 0; }
   .finder #clear { font:inherit; font-size:.8rem; min-height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; flex:none; }
   .posts h3 { font-size:1.12rem; margin:0 0 .3em; line-height:1.3; } .posts h3 a { color:inherit; text-decoration:none; } .posts h3 a:hover { color:var(--accent); }
@@ -554,9 +584,27 @@ const FINDER_SCRIPT = `(() => {
   tag.addEventListener('change', apply);
   sort.addEventListener('change', apply);
   chips.forEach((c) => c.addEventListener('click', () => { topic = c.dataset.topicChip; apply(); }));
+  // The phone layout scrolls the chip row sideways: fade the end that has more, and bring a topic
+  // chosen from the URL into view without moving the page.
+  const row = chips.length ? chips[0].parentElement : null;
+  function fade() {
+    const more = row.scrollWidth - row.clientWidth;
+    const atStart = row.scrollLeft <= 1, atEnd = row.scrollLeft >= more - 1;
+    if (more <= 1) row.removeAttribute('data-fade');
+    else row.dataset.fade = atStart ? 'end' : atEnd ? 'start' : 'both';
+  }
+  if (row) {
+    row.addEventListener('scroll', fade, { passive: true });
+    addEventListener('resize', fade);
+  }
   document.getElementById('clear').addEventListener('click', () => { q.value = ''; tag.value = ''; topic = ''; sort.value = 'new'; apply(); q.focus(); });
   document.getElementById('finder').hidden = false;
   apply();
+  if (row) {
+    const on = chips.find((c) => c.dataset.topicChip === topic);
+    if (topic && on && row.scrollWidth > row.clientWidth) row.scrollLeft = on.offsetLeft - row.offsetLeft - (row.clientWidth - on.offsetWidth) / 2;
+    fade();
+  }
 })();`;
 
 /** Search box, topic chips, tag and sort menus. Hidden until the script runs, so a reader without JavaScript sees the plain list. */
@@ -1000,9 +1048,16 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
   }
   await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section })));
   await fs.writeFile(path.join(dir, 'search.json'), rebase(renderSearchIndex(posts)));
+  // Sync on purpose, as in build.mjs's rewritePagesSync. Awaiting an
+  // fs.promises mkdir and write per post, one post at a time, sent ~9,500
+  // round trips through libuv's thread pool for files that take microseconds
+  // to write: the main thread sat idle for about 45% of this loop over 4,741
+  // posts (2026-11-15, docs/history/pages-build-perf-2026-11-15-writing-sync-writes.md).
+  // Nothing else in this process is in flight here (the research builder is a
+  // child process with no pipe to drain), so blocking holds nothing up.
   for (const post of posts) {
-    await fs.mkdir(path.join(dir, post.slug), { recursive: true });
-    await fs.writeFile(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section })));
+    mkdirSync(path.join(dir, post.slug), { recursive: true });
+    writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section })));
   }
 }
 
@@ -1030,7 +1085,7 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     await writeSection(outDir, agentPosts, AGENT_BLOG, { baseUrl, socialCard, rebase });
     const dir = path.join(outDir, AGENTS_PATH);
     for (const p of agentPosts) {
-      await fs.writeFile(path.join(dir, `${p.slug}.txt`), rebase(`# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`));
+      writeFileSync(path.join(dir, `${p.slug}.txt`), rebase(`# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`));
     }
     await fs.writeFile(path.join(dir, 'llms.txt'), rebase(renderAgentLlmsTxt(agentPosts, { baseUrl })));
     await fs.writeFile(path.join(dir, 'llms-full.txt'), rebase(renderAgentLlmsFull(agentPosts, { baseUrl })));

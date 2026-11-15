@@ -89,8 +89,8 @@ export function parseCsv(text, delim = ",") {
 }
 
 const r2 = (n) => Math.round(n * 100) / 100;
-export const money = (n) => (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
 const median = (xs) => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
 export function findColumns(header, aliases) {
@@ -128,7 +128,7 @@ export function guessDateOrder(samples, fallback = "mdy") {
   let firstOver12 = false, secondOver12 = false, dots = false;
   for (const s of samples) {
     if (/^\d{1,2}\.\d{1,2}\.\d{2,4}/.test(String(s).trim())) dots = true;
-    const a = String(s).trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
+    const a = String(s).trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?!\d)/);
     if (!a) continue;
     if (+a[1] > 12) firstOver12 = true;
     if (+a[2] > 12) secondOver12 = true;

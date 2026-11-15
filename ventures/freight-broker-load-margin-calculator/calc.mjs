@@ -5,8 +5,8 @@
 // margin. Pure functions, no I/O, no network.
 
 const round = (x, d = 2) => Math.round(x * 10 ** d) / 10 ** d;
-export const money = (x) => (x < 0 ? "-" : "") + "$" + Math.abs(round(x, 0)).toLocaleString("en-US");
-export const money2 = (x) => (x < 0 ? "-" : "") + "$" + Math.abs(round(x, 2)).toFixed(2);
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(round(x, 0)).toLocaleString("en-US"));
+export const money2 = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(round(x, 2)).toFixed(2));
 export const pct = (x, d = 1) => round(x, d).toFixed(d) + "%";
 export const num = (s) => {
   const n = Number(String(s ?? "").replace(/[$,%\s]/g, ""));

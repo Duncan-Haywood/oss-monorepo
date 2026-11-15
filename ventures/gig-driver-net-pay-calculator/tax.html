@@ -96,7 +96,7 @@
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     const IDS = ["grossIncome", "businessMiles", "totalMiles", "mpg", "gasPrice", "maintenancePerMile", "insuranceAnnual", "depreciationAnnual", "parkingTolls", "otherDeductible", "standardRate", "incomeTaxRatePercent", "otherWages", "socialSecurityWageBase"];
     const el = id => document.getElementById(id);
-    const usd = v => (v < 0 ? '-' : '') + '$' + Math.round(Math.abs(v)).toLocaleString('en-US');
+    const usd = v => ((t) => (v < 0 && /[1-9∞]/.test(t) ? '-' : '') + t)('$' + Math.round(Math.abs(v)).toLocaleString('en-US'));
     let counted = false;
     function update() {
       let r;

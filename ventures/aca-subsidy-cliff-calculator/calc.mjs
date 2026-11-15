@@ -48,7 +48,7 @@ function num(v) {
 
 export function money(n) {
   const v = Math.round(num(n));
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US");
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US"));
 }
 
 export function fplAmount(householdSize, region = "contiguous") {

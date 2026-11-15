@@ -1,0 +1,36 @@
+series per cell 300, bootstrap reps 99; share of ALL series with p <= 0.05 (refused = not rejected), guard line | guard hinge
+
+S1 SIZE: straight line plus AR(1) noise
+n     rho    line guard               hinge guard
+60    0.00    3.3% (300 tested)     3.3% (300 tested)
+60    0.30    3.3% (300 tested)     3.3% (300 tested)
+60    0.60    6.3% (268 tested)     6.7% (295 tested)
+60    0.80    3.3% (105 tested)    10.7% (212 tested)
+145   0.00    6.0% (300 tested)     6.0% (300 tested)
+145   0.30    6.0% (300 tested)     6.0% (300 tested)
+145   0.60    6.0% (300 tested)     6.0% (300 tested)
+145   0.80    7.7% (298 tested)     7.7% (300 tested)
+300   0.00    3.0% (300 tested)     3.0% (300 tested)
+300   0.30    5.7% (300 tested)     5.7% (300 tested)
+300   0.60    4.0% (300 tested)     4.0% (300 tested)
+300   0.80    4.0% (300 tested)     4.0% (300 tested)
+series per cell 300, bootstrap reps 99; share of ALL series with p <= 0.05 (refused = not rejected), guard line | guard hinge
+
+S2 UNIT-ROOT AND NEAR-UNIT-ROOT NULLS (rho 1 = random walk with drift 0.02)
+n     rho    line guard               hinge guard
+60    0.90    1.0% ( 31 tested)     8.3% (120 tested)
+60    0.95    0.7% ( 23 tested)     9.0% (105 tested)
+60    1.00    0.3% ( 21 tested)    11.0% (108 tested)
+145   0.90    5.7% (191 tested)     8.3% (264 tested)
+145   0.95    3.0% ( 89 tested)     8.7% (207 tested)
+145   1.00    2.0% ( 48 tested)    16.0% (171 tested)
+300   0.90    6.3% (188 tested)     7.3% (242 tested)
+300   0.95    0.3% ( 25 tested)     5.3% ( 82 tested)
+300   1.00    0.0% (  3 tested)     3.0% ( 16 tested)
+series per cell 300, bootstrap reps 99; share of ALL series with p <= 0.05 (refused = not rejected), guard line | guard hinge
+
+P POWER at n 95, rho 0.5, slope change at 65% of the series
+dSlope  line guard               hinge guard
+0.05     25.0% (297 tested)    25.3% (300 tested)
+0.10     63.3% (272 tested)    70.3% (300 tested)
+0.20     20.7% ( 64 tested)    98.7% (300 tested)

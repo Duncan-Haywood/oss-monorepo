@@ -1,0 +1,37 @@
+WEEK 20x56 week 2 (75 copies): uncapped 4 moves in 2.0 s, objective 4811477.36 -> 4810162.21 (gain 1315.15), starting walks 0.0 s (before the cap's clock), risk 181 -> 107 h, pair hours 179 -> 688
+  move 1 at 0.39 s: gain kept 85.9%, risk 115 h, pair hours 654
+  move 2 at 0.73 s: gain kept 87.2%, risk 115 h, pair hours 654
+  move 3 at 0.99 s: gain kept 96.0%, risk 115 h, pair hours 532
+  move 4 at 1.53 s: gain kept 100.0%, risk 107 h, pair hours 688
+  cap 2.0 s: 2.0 s wall, 4 moves, timed out true, prefix of uncapped true, gain kept 100.0%, risk 107 h, pair hours 688
+  cap 5.0 s: 2.0 s wall, 4 moves, timed out false, prefix of uncapped true, gain kept 100.0%, risk 107 h, pair hours 688
+  cap 10.0 s: 2.0 s wall, 4 moves, timed out false, prefix of uncapped true, gain kept 100.0%, risk 107 h, pair hours 688
+WEEK 30x84 week 0 (121 copies): uncapped 6 moves in 302.4 s, objective 18121011.89 -> 18119382.73 (gain 1629.16), starting walks 8.5 s (before the cap's clock), risk 261 -> 208 h, pair hours 4118 -> 3805
+  move 1 at 80.01 s: gain kept 4.4%, risk 269 h, pair hours 3846
+  move 2 at 129.36 s: gain kept 13.2%, risk 271 h, pair hours 3643
+  move 3 at 149.41 s: gain kept 13.4%, risk 271 h, pair hours 3639
+  move 4 at 240.84 s: gain kept 77.6%, risk 237 h, pair hours 3428
+  move 5 at 246.30 s: gain kept 87.1%, risk 237 h, pair hours 3274
+  move 6 at 282.02 s: gain kept 100.0%, risk 208 h, pair hours 3805
+  cap 2.0 s: 11.4 s wall, 0 moves, timed out true, prefix of uncapped true, gain kept 0.0%, risk 261 h, pair hours 4118
+  cap 5.0 s: 13.6 s wall, 0 moves, timed out true, prefix of uncapped true, gain kept 0.0%, risk 261 h, pair hours 4118
+  cap 10.0 s: 19.0 s wall, 0 moves, timed out true, prefix of uncapped true, gain kept 0.0%, risk 261 h, pair hours 4118
+WEEK 40x112 week 0 (149 copies): uncapped 11 moves in 20.4 s, objective 16923814.78 -> 16923305.94 (gain 508.85), starting walks 0.2 s (before the cap's clock), risk 435 -> 427 h, pair hours 327 -> 8
+  move 1 at 0.53 s: gain kept 21.1%, risk 435 h, pair hours 217
+  move 2 at 2.55 s: gain kept 22.3%, risk 435 h, pair hours 210
+  move 3 at 6.83 s: gain kept 22.4%, risk 435 h, pair hours 209
+  move 4 at 11.29 s: gain kept 40.3%, risk 435 h, pair hours 110
+  move 5 at 14.27 s: gain kept 40.5%, risk 435 h, pair hours 110
+  move 6 at 14.35 s: gain kept 54.0%, risk 435 h, pair hours 43
+  move 7 at 14.43 s: gain kept 61.0%, risk 435 h, pair hours 0
+  move 8 at 17.23 s: gain kept 97.9%, risk 427 h, pair hours 8
+  move 9 at 17.75 s: gain kept 98.2%, risk 427 h, pair hours 8
+  move 10 at 18.17 s: gain kept 99.1%, risk 427 h, pair hours 8
+  move 11 at 18.68 s: gain kept 100.0%, risk 427 h, pair hours 8
+  cap 2.0 s: 2.2 s wall, 1 moves, timed out true, prefix of uncapped true, gain kept 21.1%, risk 435 h, pair hours 217
+  cap 5.0 s: 5.2 s wall, 2 moves, timed out true, prefix of uncapped true, gain kept 22.3%, risk 435 h, pair hours 210
+  cap 10.0 s: 10.2 s wall, 3 moves, timed out true, prefix of uncapped true, gain kept 22.4%, risk 435 h, pair hours 209
+WEEK 60x168 week 0 (245 copies): uncapped 0 moves in 88.2 s, objective 30027313.89 -> 30027313.89 (gain 0.00), starting walks 0.7 s (before the cap's clock), risk 292 -> 292 h, pair hours 27 -> 27
+  cap 2.0 s: 2.7 s wall, 0 moves, timed out true, prefix of uncapped true, gain kept n/a, risk 292 h, pair hours 27
+  cap 5.0 s: 5.6 s wall, 0 moves, timed out true, prefix of uncapped true, gain kept n/a, risk 292 h, pair hours 27
+  cap 10.0 s: 10.8 s wall, 0 moves, timed out true, prefix of uncapped true, gain kept n/a, risk 292 h, pair hours 27

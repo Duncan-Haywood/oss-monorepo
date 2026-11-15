@@ -166,7 +166,7 @@
       ['fees', 'Minimum-usage fees'], ['tou', 'Time-of-use windows'], ['touShare', 'Share in windows (%), if no interval data'],
       ['termMonths', 'Term (months)'], ['etf', 'Cancellation fee ($)'],
     ];
-    const money = (x) => (x < 0 ? '-$' : '$') + Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? '-$' : '$') + t)(Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     const COLORS = ['#a33a12', '#1f6f8b', '#5b8c2a', '#7a3e9d', '#c28f00', '#444'];
     let last = null;
 

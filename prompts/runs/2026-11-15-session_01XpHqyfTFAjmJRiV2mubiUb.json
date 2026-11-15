@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyfTFAjmJRiV2mubiUb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T05:39:05Z",
+  "ended": "2026-11-15T05:48:20Z",
+  "wall_minutes": 9.48,
+  "tokens_in": 7919085,
+  "tokens_out": 49526,
+  "cost_usd": 3.746,
+  "tool_calls": 67,
+  "task": "Deepen flagship einvoice-preflight (allocate.py row 3): FA(3) totals on KOR/ZAL/ROZ/KOR_ZAL/KOR_ROZ invoices",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16109",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "The FA(3) section said no correction/advance/settlement sample existed (only the CIRFMF GitHub templates had been searched); the Ministry's 'Pliki do pobrania' page on ksef.podatki.gov.pl has a zip of 26 examples covering every RodzajFaktury and answered from the cloud host. Now recorded in the README and eval."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The first --replace text was 9 characters over the 2,000 cap; the tool's hint listed 'landed' clauses of other items to cut, which a run shouldn't trim without reason; shortened my own text instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-ksef-advance-invoice-vat-split.md",
+    "ventures/einvoice-preflight/eval/ksef-ministry-examples-2026-11-15.md"
+  ],
+  "goal": "Check totals on Polish FA(3) corrections, advances and settlements, which were skipped, against real Ministry files",
+  "notes": "Found the Ministry of Finance's 26 published FA(3) example invoices (zip on ksef.podatki.gov.pl). Old checker: 6 false blocking findings on them (float compare 2051 vs 2050.99, two UPR shapes, StanPrzed pairs sharing NrWierszaFa) and 78 of 166 seeded total faults caught; after: 0 and 164 of 166. New PL-023 (payment split by gross share, tax = share x r/(100+r); corrections after minus before), PL-024 (order value), PL-025 (order line qty x price); KOR totals as after minus StanPrzed rows. Verification: node --test fa3*.test.mjs 33/33; run_venture_tests.py einvoice-preflight ok; run_workflow_locally --for-changes and venture-preflight run in background (results in PR body).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "37a1e943-468f-5ed6-bcfe-aacf57e48a22",
+    "transcripts": 1,
+    "first": "2026-11-15T05:39:05Z",
+    "last": "2026-11-15T05:48:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 124,
+        "output": 49526,
+        "thinking": 14858,
+        "cache_read": 7768810,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150151,
+        "api_equivalent_usd": 3.746,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 124,
+      "output": 49526,
+      "thinking": 14858,
+      "cache_read": 7768810,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150151,
+      "api_equivalent_usd": 3.746,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 62,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.48,
+      "active_minutes": 9.48,
+      "model_minutes": 7.9,
+      "tool_minutes": 1.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior dev reading the FA(3) XSD notes and 26 Ministry examples, deriving the split rule, implementing, testing and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 267.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

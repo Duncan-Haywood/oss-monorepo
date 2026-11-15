@@ -52,7 +52,7 @@ spreadsheet, or a bookkeeping subscription with a bank login.
 | `opening.mjs` | Opening balances from a trial balance CSV (`code,amount` in natural sign, or `code,debit,credit`), dated; whatever does not balance goes to 3000 and is reported. For starting mid-stream with a receivable, a loan, equipment and prior earnings already on the books. CLI `opening FILE --date D`; agents `opening: {csv, date}`. |
 | `payroll.mjs` | Pay-run register to books: wages, employer taxes, the 2300 liability, bank-line matching and a Form 941 worksheet. |
 | `ledger.mjs` | The double-entry core, in integer cents: a 37-account small-business chart (or your own), entries that must balance, trial balance, monthly profit and loss, and a balance sheet where unclosed profit shows as current earnings, and an indirect-method cash flow statement (`cashFlow`, in `report`) that must tie to the change in the bank accounts (since 2026-10-26 depreciation is an operating add-back and a disposal shows proceeds in investing; 2026-10-26 `freeCashFlow` = operations less fixed-asset purchases; `monthlyBurn` and `runwayMonths` = cash used by operations and investing per month, and closing cash over it, null when not burning; 2026-10-27 `cashFlowByMonth` gives each month's statement and the last three months' burn and runway, in the CLI `report` and a table on the page; 2026-10-27 `ratios` (in `report`, the CLI and the page): gross and net margin, working capital, current and quick ratio, debt to equity, each null rather than invented when its denominator is zero or negative, with the loan counted as long term). |
-| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), then, on a card line that carries the network's merchant category code or name (`mcc.mjs`), where these books filed that category before or a fixed table of codes (README "Merchant category codes"), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5 and at most its own record on earlier new payees, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
+| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), then, on a card line that carries the network's merchant category code or name (`mcc.mjs`), where these books filed that category before or a fixed table of codes (README "Merchant category codes"), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, then a chain's name from OpenStreetMap's name-suggestion-index (`brands.mjs`, README "Chain names from OpenStreetMap"), and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5 and at most its own record on earlier new payees, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
 | `engine.mjs` | Import, transfer pairing, auto-posting, confirming, the journal, close checks and exports. `analyze()` is the one call for agents and the CLI. |
 | `ai.mjs` | The optional fifth layer, through `byok.mjs` (a synced copy of `platform/llm/byok.mjs`): Anthropic, OpenAI, Gemini, any OpenAI-compatible endpoint, or Ollama, LM Studio or llama.cpp on your own computer. |
 
@@ -1416,6 +1416,114 @@ Replayed in date order against the owner's labels (money out to an expense the d
 
 What it says, with care: one small firm, a handful of recurring vendors, 227 scored lines; the loop was already near the top because the payees repeat monthly. The five first-seen lines still wrong are the new-payee guess sending a grocer, a fuel stop, a tutoring marketplace and a coworking charge to software (this book is almost all software, so its prior says software), and USPS suggested as postage where the owner filed a government fee. No change on the Mint (2,926 lines), Monarch, Rocket Money or Mercury replays, whose scored lines exclude transfers. Pinned in `card-payments.test.mjs` (5 tests: descriptions under the real wording, amounts made up, and the hledger reader).
 
+### UK merchants in the built-in keywords: a fourth card buyer (2026-11-15)
+
+The built-in keywords were written from US exports. On three UK public buyers' card lines, read from empty books with the merchant name only, they said nothing on 85-90% of lines: Trainline, Travelodge, Ryanair, Screwfix, Royal Mail and Tesco were all blank, while Kroger, Home Depot and USPS were not.
+
+The new buyer is South Lakeland District Council (England, `node eval/southlakeland-pcard.mjs --dir <folder>`, fetch command in the file; Open Government Licence v3.0, not copied here): 54 monthly reports, July 2014 to November 2019, 8,182 lines. 5,029 carry the council's procurement class ("Public Transport", "Accommodation", "Stationery"), and 3,311 of those name a chart account (`CLASS_MAP`, written from the class names before the first scored run). The report has no merchant category code, so this is the first card buyer here where only the bank-line layers can speak. Its purpose column ("Train to Birmingham for planning event") would give the answer away and is not read.
+
+A UK block now sits at the top of `BUILT_IN` (`categorize.mjs`), written from South Lakeland's blank list and from the UK twins of chains the table already filed: rail, coach and airlines and Travelodge as travel; Tesco, Sainsbury's, Asda, Morrisons, Waitrose, Lidl, Booths, Iceland, Greggs, Pret, Nando's and Wetherspoon as meals (as Kroger and Aldi already were); Screwfix, Toolstation, Travis Perkins, Jewson, Wickes, B&Q, Currys and RS Components as supplies; Ryman, WH Smith, Viking and Royal Mail as office and postage; Parcelforce, Evri and Yodel as shipping; CIPFA, CIEH, IRRV, CIPD, AAT, RICS and the chartered institutes as dues; Companies House as a licence; Money Claim and HM Courts as legal fees; E.ON and British Gas as utilities; DVLA (road tax) as a vehicle cost, the way HMRC's list of allowable expenses for the self-employed files it. General and department stores (Argos, Home Bargains, Poundland, B&M, M&S) stay blank, as Walmart and Target do, and HMRC stays blank because a payment to it is usually VAT or PAYE owed.
+
+Keywords alone from empty books, right / wrong (`node eval/uk-card-keywords.mjs --sl <dir> --durham <dir> --scot <dir>`):
+
+| buyer | lines | before | first block | after reading the misses |
+|---|---|---|---|---|
+| South Lakeland (written from) | 3,311 | 8.7% / 1.5% | 39.7% / 5.7% | 39.4% / 5.3% |
+| Durham County Council (held out for the first block) | 151,437 | 10.6% / 2.1% | 28.1% / 3.0% | 28.2% / 2.8% |
+| Scottish Government (held out for the first block) | 11,087 | 8.5% / 6.2% | 11.8% / 6.5% | 11.8% / 6.5% |
+
+The middle column is the held-out reading: Durham's and the Scottish Government's lines were scored before the block was written and not looked at until it had run. Then their misses were read and the block changed: supermarket filling stations print the grocer's name ("TESCO PFS 4088", "ASDA PETROL", "TESCO PAY AT PUMP") and now go to vehicle and fuel; Asda's George clothing goes to supplies; "Iceland Travel" is no longer the grocer; Halfords (Durham right 26, wrong 87), NCP car parks (Durham 0 and 11, South Lakeland 2 and 6) and DVSA (Durham 0 and 55) were dropped as more often wrong than right. The last column is fitted to all three.
+
+In the learning loop (books filed a day at a time, first-seen merchants right / wrong): South Lakeland 34.2% / 17.5% to 39.6% / 17.1%; Durham with the merchant code layer off 53.4% / 34.6% to 54.2% / 34.1%, and with it on unchanged at 87.8% (wrong 11.7% to 11.6%); the Scottish Government with the code layer off 42.6% / 45.5% to 42.8% / 45.4%, with it on unchanged at 64.8%.
+
+What it says, with care:
+
+- **The gain is on a new user's first import, not on books that have history.** From empty books a UK user now gets a suggestion on about three lines in ten instead of one in ten. Once a book has filed a merchant, its own memory does the work, and when the card file carries a merchant code that layer already covers almost every first-seen line, so the learning-loop figures barely move.
+- **Most of the held-out gain is a few big names.** Tesco, Asda, Sainsbury's, Screwfix, Travelodge and DVLA are most of Durham's 26,000 newly right lines; counted once per merchant name, Durham moved from 7.3% to 8.9% right. The long tail of local firms is still the books' own job.
+- **The Scottish Government's file barely moves** because it lists only lines over £500, few of them at chains.
+- **Wrong went up on South Lakeland** (1.5% to 5.3%): the council filed some Trainline and Virgin Trains lines as accountancy or insurance, Sainsbury's mostly as consumables, and DVLA as vehicle maintenance. Those count as misses here; the labels are one council's.
+- **No change on the US sets:** the YNAB, Mint, Monarch, Rocket Money, Mercury and software-LLC replays and the 63 US exports read the same or a line better (Mint first-seen 47.1% to 47.2%).
+
+Pinned in `uk-merchants.test.mjs` (5 tests: descriptions in the shapes UK card reports print, amounts made up, and the South Lakeland reader on made-up rows under the real header).
+
+### Chain names from OpenStreetMap (2026-11-15)
+
+The built-in keywords know the big names. A new user's first import is mostly the rest: Heron Foods, Wolseley, Scotmid, Cava, Blake's Lotaburger. OpenStreetMap's name-suggestion-index (NSI, BSD 3-Clause) lists about 50,000 chains worldwide with the kind of place each one is (`shop=supermarket`, `amenity=fuel`, `tourism=hotel`). `brands-build.mjs` turns release 8.0.20261101 into `brands.mjs` (6,555 chain names that suggest an account and 71 that only block, 105 KB, the NSI notice kept in its header); `suggest` tries it after the keywords, the card code and the bank's own category, before the new-payee guess. Money out only, confidence 0.5, review only (`source: "brand"`, reason `"heron foods" is a chain listed by OpenStreetMap as a food shop, cafe or restaurant`).
+
+How it was built, before any bank line was scored:
+
+- **`CATEGORY_MAP`**, NSI kind of place to account, following what `BUILT_IN` already does with the same merchants: supermarkets, convenience stores, cafes and restaurants as meals (as Kroger and Tesco), hotels, car hire and travel agents as travel, fuel, tyres and car repair as vehicle, DIY, hardware and trade counters as supplies, stationers, copy shops and post offices as office and postage, telecoms as utilities, insurers, coworking and self-storage. Kinds that fit two accounts (clothes, department and variety stores, pharmacies, electronics, furniture, banks, parking) are unmapped.
+- **Longest name wins, and an unmapped longer name blocks a shorter mapped one**: "Total" is fuel, "Total Wine" is an off-licence, so "TOTAL WINE" gets nothing. A name listed under two accounts says nothing.
+- **One-word names that are common English words are dropped** (SCOWL sizes 10-50 through `wordlist-english`, MIT, read at build time only): Access, Bell, Advantage, Shell, Target, Express. The famous ones are already in `BUILT_IN`, which runs first. Parcel lockers were left out because their names are the retailers (Amazon, AliExpress).
+- Names `BUILT_IN` measured and dropped (Halfords, NCP, DVSA) are excluded. This was the one change made after the development sets (South Lakeland and the Mint tuning half) were read.
+
+Held out, from empty books with the merchant name only, right / wrong (`node eval/uk-card-keywords.mjs ... [--skip brand]`, `node eval/mint-labelled.mjs --set tune|held [--skip brand]`):
+
+| set | lines | layer off | on | lines it spoke on (right) |
+|---|---|---|---|---|
+| South Lakeland (development) | 3,311 | 39.4% / 5.3% | 39.9% / 5.4% | 19 (16) |
+| Mint, tuning half (development) | 2,159 | 57.5% / 3.8% | 59.1% / 3.8% | |
+| Durham County Council (held out) | 151,437 | 28.2% / 2.8% | 29.6% / 2.9% | 2,210 (2,022) |
+| Scottish Government (held out) | 11,087 | 11.8% / 6.5% | 12.3% / 7.1% | 134 (61) |
+| Mint, six held-out files | 767 | 54.6% / 1.8% | 58.5% / 1.8% | |
+
+On 63 real US exports with no labels (`node eval/brand-lines.mjs --cache DIR`, 4,927 lines out), the layer changed 48 lines from no suggestion to one, and all 48 read by eye as the right kind of place (Arby's, Cava, Peet's, Vons, Harris Teeter, Sprouts, Smashburger, Candlewood Suites, O'Reilly Auto Parts, Hobby Lobby as supplies).
+
+Two changes came from reading held-out misses; the figures above include both, and together they moved the Durham and Scottish totals by at most 0.1 point:
+
+- `BUILT_IN` knew "Iceland Travel" is not the grocer, and the chain list undid that. When the keywords know a chain's bare name, they now decide on the cleaned payee (`www.iceland.co.uk` is still the grocer; "Iceland Travel" gets nothing).
+- The test suite's probe 6 caught "JOHN DEERE FINANCIAL" filed as supplies. A chain's name followed by "financial", "finance", "credit", "bank", "loan", "lease", "insurance" or "mortgage" now gets nothing.
+
+In the learning loop (books filed a day at a time, first-seen merchants right / wrong):
+
+| books | first-seen lines | card code off: layer off | on | card code on (default): layer off | on |
+|---|---|---|---|---|---|
+| Durham Resources | 933 | 43.1% / 24.9% | 43.3% / 25.1% | 75.3% / 20.4% | 75.3% / 20.4% |
+| Durham Adult and Health Services | 306 | 52.6% / 36.9% | 52.6% / 36.9% | 75.8% / 20.6% | 75.8% / 20.6% |
+| Durham Dedicated Schools Grant | 285 | 62.8% / 32.6% | 62.8% / 33.3% | 70.2% / 27.7% | 70.2% / 28.4% |
+| Durham Transformation and Partnerships | 92 | 62.0% / 23.9% | 62.0% / 23.9% | 75.0% / 18.5% | 75.0% / 18.5% |
+| Scottish Government, lines over £500 | 3,156 | 42.8% / 45.4% | 42.8% / 45.4% | (not run) | |
+| Mint, six held-out files | 403 | 69.2% / 15.4% | 69.7% / 15.4% | | |
+| YNAB, three households (`eval/ynab-registers.mjs`) | 219 | 74.9% / 11.9% | 74.4% / 12.3% | | |
+
+The YNAB loss is two lines read after the run: "The Hampton Social" (a restaurant) matched Hampton, the hotel chain, and a payee called "Albert" matched Albert, a Czech supermarket. A first name or a surname that is also a chain was the layer's known weakness (fixed below, "Chain names that are people's names").
+
+What it says, with care:
+
+- **It is a first-import layer.** Once a book has filed a merchant its own memory takes over, and on card files with a merchant category code that layer places nearly every new merchant first, so the learning-loop figures barely move.
+- **Where it speaks it is mostly right on the UK council and the US exports** (91.5% on Durham, 48 of 48 by eye), but the average gain is small: most lines are big names the keywords already know, or local firms no chain list has.
+- **The Scottish Government's file got worse** (61 right, 73 wrong where it spoke). That file lists only lines over £500, and at that size a Malmaison, Crowne Plaza or Novotel line is a venue the government hired, filed as rent or hire, not travel. Baxter Storey, a caterer, matched Baxter, a car-service chain (26 lines). A name that is also a surname was the layer's known weakness (fixed below).
+- Labels are three councils', one government's and some households'; the map from their categories to a small business's chart is a judgment.
+
+Pinned in `brands.test.mjs` (7 tests at the time, 9 now: descriptions in the shapes real exports print, amounts made up, and the builder on a made-up index). To rebuild: the commands at the top of `brands-build.mjs`.
+
+### Chain names that are people's names (2026-11-15, later)
+
+The chain-name layer's two known misses were people and firms that share a chain's one-word name: "Baxter Storey", a caterer, filed as Baxter, a car-service chain (26 Scottish Government lines); "The Hampton Social", a restaurant, as Hampton, the hotel; a YNAB payee called "Albert" as the Czech grocer. Reading every line the layer spoke on turned up more of the same: "Michael's Phone" (a household's phone bill to a person) as Michaels, the craft store; "Granger Medical" as a hardware chain; "Alex Forbes & Son" as a restaurant.
+
+The rule, set before any set was rescored: a one-word chain name that is also a person's first name, or one of the 5,000 commonest surnames, in the 1990 US Census lists (public domain; packaged by the `names` project, MIT, read at build time only) counts only when a store number follows it on the line. A chain's card line carries its store number ("KRYSTAL #0412", "O'REILLY 1938", "MICHAELS #1234"); a person or an independent firm carries another word or nothing. 72 of the 6,555 mapped names are affected (`BRAND_PERSON_NAMES` in `brands.mjs`, written by `brands-build.mjs --names`); their longer names ("Albert Heijn", "Costa Coffee", "Hyatt Place") are untouched, and Hilton, Hyatt, Costa, Ferguson and Hampton Inn are also in the built-in keywords, which run first. `skip: brand-names` turns the check off for comparison.
+
+Every line it changed, read from empty books on the sets reachable from here (Durham's and South Lakeland's council hosts did not answer this session, so those two are not rescored):
+
+| set | money-out lines | changed | wrong suggestion removed | right suggestion lost |
+|---|---|---|---|---|
+| 63 real US exports | 4,927 | 0 | | |
+| Mint exports (nine files) | 4,565 | 3 | Hampton Chutney (hotel), "SANTA BARBARA" (a place, not the Santa grocer) | a bare "Michaels" (the craft store) |
+| YNAB, three households | 2,234 | 8 | Michael's x3, Michael's Phone x2, Granger Medical, Albert, The Hampton Social | |
+| Scottish Government, lines over £500 | 11,087 | 29 | Baxter Storey x26, Alex Forbes & Son, Alex Kirkwood & Son, O'Reilly UK Ltd (not the US auto-parts chain) | |
+
+38 of 39 changed lines were wrong suggestions turned into no suggestion; one right one was lost. Scored against the owners' labels:
+
+| set | before (check off) | after |
+|---|---|---|
+| YNAB, learning loop, first-seen payees (219) | 74.4% right / 12.3% wrong | 74.9% / 11.9% |
+| YNAB, learning loop, every line (633) | 86.3% / 6.5% | 86.4% / 6.3% |
+| Scottish Government, empty books (11,087 lines) | 12.3% / 7.1% | 12.3% / 6.9% |
+| Mint tuning half, keywords alone, first-seen (835) | 50.5% / 2.5% | 50.4% / 2.4% |
+| Mint held-out half | unchanged | unchanged |
+
+What it says, with care: a small fix on a small layer. It takes back the whole YNAB loss the chain layer brought in (first-seen 74.9% / 11.9% is where that set stood before the layer) and most of its Scottish Government damage, at the cost of one bare chain name a budgeting app had already stripped of its store number. The name lists are American; a British or Dutch given name that is also a chain and is not on them still matches. Pinned in `brands.test.mjs` (two tests: the cases above in the shapes the files print, and the builder on a made-up index).
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.
@@ -1659,7 +1767,7 @@ February covered; the tax worksheets (Schedule C, SE tax) stay calendar-year, as
 
 ## Loans
 
-`loans.mjs` (2026-10-22): a fixed-rate, monthly, equal-payment loan. `cli.mjs loan add Van --amount 20000 --rate 6 --months 36 --first 2026-02-01` computes the level payment (608.44, the textbook figure, checked in the test) and the schedule; `loan apply LN-1` splits each unfiled bank outflow that equals a scheduled payment, within 5 days of its due date, into interest (6040) and principal (2200) as an ordinary split, so no one types the split each month; `loan` lists balance by schedule and the next payment; `loan LN-1` prints the schedule. Interest is balance x rate / 12 rounded to the cent, and the last payment clears the balance. Extra principal (2026-10-22): `loan extra LN-1 --amount 2000 --date 2026-06-10` records a prepayment; it comes off the balance after the last instalment on or before its date, the same payment then clears the loan sooner (the schedule has fewer rows and less interest), and `loan apply` files the matching bank outflow to 2200 (`loans.test.mjs`, hand-written case: 20,000 at 6% over 36 months with 2,000 extra in June ends early; no lender's real prepayment statement compared). Not modelled: balloon, interest-only periods, variable rates, day-count interest, prepayment penalties, and a lender's own schedule may differ by cents (use `--payment` to match its payment). `loan check LN-1 lender.csv` (2026-10-23, `checkLenderSchedule`) compares a lender's own amortization table (header row with date, payment, interest, principal, balance in any order) with the computed schedule row by row, prints the rows that differ by more than 2 cents and a plain-words guess: rounding only, a different payment (and the `--payment` to re-add the loan with), interest off from the first row (day-count or rate), or agreement through payment N then a fee, rate change or extra payment. It never edits the loan. Tested on tables derived from the schedule itself with one deliberate change each (`loans.test.mjs`); no lender's real table tried. Tested with hand-written statements (`loans.test.mjs`); no lender's real schedule compared. The page has a loans card (terms form, register, a button that splits matching bank payments; 2026-10-22, clicked through in headless Chromium with `eval/browser-click.mjs`: add, register, nothing to split, bad rate refused).
+`loans.mjs` (2026-10-22): a fixed-rate, monthly, equal-payment loan. `cli.mjs loan add Van --amount 20000 --rate 6 --months 36 --first 2026-02-01` computes the level payment (608.44, the textbook figure, checked in the test) and the schedule; `loan apply LN-1` splits each unfiled bank outflow that equals a scheduled payment, within 5 days of its due date, into interest (6040) and principal (2200) as an ordinary split, so no one types the split each month; `loan` lists balance by schedule and the next payment; `loan LN-1` prints the schedule. Interest is balance x rate / 12 rounded to the cent, and the last payment clears the balance. Extra principal (2026-10-22): `loan extra LN-1 --amount 2000 --date 2026-06-10` records a prepayment; it comes off the balance after the last instalment on or before its date, the same payment then clears the loan sooner (the schedule has fewer rows and less interest), and `loan apply` files the matching bank outflow to 2200 (`loans.test.mjs`, hand-written case: 20,000 at 6% over 36 months with 2,000 extra in June ends early; no lender's real prepayment statement compared). Not modelled: balloon, interest-only periods, variable rates, day-count interest, prepayment penalties, and a lender's own schedule may differ by cents (use `--payment` to match its payment). `loan check LN-1 lender.csv` (2026-10-23, `checkLenderSchedule`) compares a lender's own amortization table (header row with date, payment, interest, principal, balance in any order) with the computed schedule row by row, prints the rows that differ by more than 2 cents and a plain-words guess: rounding only, a different payment (and the `--payment` to re-add the loan with), interest off from the first row (day-count or rate), or agreement through payment N then a fee, rate change or extra payment. It never edits the loan. Tested on tables derived from the schedule itself with one deliberate change each (`loans.test.mjs`); no lender's real table tried. **Lenders that round the payment up (2026-11-15).** On LendingClub's public loan book (466,285 real loans, 2007-2014) the payment rounded to the nearest cent was LendingClub's own on only 50.2%; rounded up to the next cent it was LendingClub's on 98.6%, and on 445,325 of 445,471 (99.97%) issued 2011-2014. `loan add ... --round up` (on the page: "Payment rounded: up to the next cent") takes the lender's rounding, so the schedule's balances and smaller last payment match and `loan apply` finds the bank line of the real amount; `loan check` now says "the lender rounds the payment up" when a pasted schedule is a cent higher every month, where before the cent sat inside the tolerance and only the later balance drift was flagged, as a supposed fee. Payments only: no full month-by-month table was compared (`eval/lendingclub-loans-2026-11-15.md`, `loan-rounding.test.mjs`). Tested with hand-written statements (`loans.test.mjs`); no lender's real schedule compared. The page has a loans card (terms form, register, a button that splits matching bank payments; 2026-10-22, clicked through in headless Chromium with `eval/browser-click.mjs`: add, register, nothing to split, bad rate refused).
 
 ## Payroll runs (US)
 
@@ -1686,6 +1794,23 @@ The open payroll item wants a real Gusto or ADP report, and none is reachable fr
 3. **The `Employer taxes` total was ignored.** No employer cost was booked unless the report split it into social security, Medicare, FUTA and SUTA. With only the total, 6.2% and 1.45% of gross go to employer social security and Medicare and the rest to unemployment tax, with a note. The 941 worksheet then shows the employer half, and the 940 worksheet still recomputes FUTA from wages. Separate columns, when present, win.
 
 The bank match learnt the two ways a provider pays contractors: as their own debit, or inside one debit with net pay. `payrollSummary` counts both in what 2300 owes. Tests: `payroll-journal.test.mjs` (6, hand-written rows in that layout); all 35 payroll tests pass. Not claimed: no real company's journal has been read. Contractors paid through payroll are not in this tool's 1099 list, which reads bank lines; the provider usually files those 1099-NECs itself.
+
+### A Gusto-style payroll journal with the pay day above the table (2026-11-15)
+
+A second public layout, again a test fixture rather than a company's books: 85 weekly "Payroll Journal Report" CSVs (github.com/mc30ski/seedlings3, `apps/api/prisma/fixtures/payroll/`, no licence, so read from a sparse clone and not copied here; three made-up workers at a North Carolina lawn-care firm, August to November 2026). Each file has a title, the company's address, a `"Pay day"," 08/31/2026"` line, then one row per employee and a `Payroll Totals` row. Every tax has its own column with the side in brackets: `Federal Income Tax (Employee)`, `FUTA (Employer)`, `NC State Tax (Employee)`, `NC Unemployment Tax (Employer)`, next to `Employee Taxes` and `Employer Taxes` totals; `Net Pay` comes before `Reimbursements`, `Donations` and `Check Amount`.
+
+Before this change `payroll FILE.csv` refused all 85 files ("needs a pay date column"). Four faults, all fixed:
+
+1. **The pay date is printed once, above the table.** When no row has both a date and net pay column, the header is the first row with gross (or kinds of pay) and net pay, and a two-cell `Pay day` / `Pay date` / `Check date` line above it dates every row, with a note.
+2. **Columns named with the side in brackets, or with a state in front, were not read.** A header ending `(Employee)` or `(Employer)` is now matched on the rest of its name and its side (`FUTA (Employer)` is FUTA, `Additional Medicare (Employee)` is Medicare withheld). A state-prefixed tax withheld (`NC State Tax`, `CA SDI (Employee)`) is state and local withholding; a state unemployment column (`NC Unemployment Tax (Employer)`, `CA SUI`, `CA ETT`) is SUTA; another employer-only tax is other employer cost. Without this, state tax was missed, net pay failed its tie-out and every row was left out; FUTA and SUTA would have been lost from the employer's cost.
+3. **The `Payroll Totals` row would have counted as a fourth employee.** The total-row check looked only at an `Employee` column; it now also reads `Last Name`, `First Name` and the date, and knows `Payroll`, `Company`, `Report` and `Run Totals`.
+4. **Net pay before reimbursements and donations.** When a `Check Amount` column exists and equals net pay plus reimbursements less donations, the check is what the bank shows, so it is the net pay matched, and donations count as a deduction.
+
+Two cross-checks came with it, so an unknown column cannot slip through quietly: when a report prints both `Employee Taxes` and the taxes one by one, they must agree to the cent or the row is refused and named; when `Employer Taxes` exceeds the employer columns read, the gap is booked as other employer cost (6155) with a note, so the expense still matches the provider's total.
+
+Measured (`node eval/payroll-journal-report.mjs DIR`, which scores each booked run against the file's own `Payroll Totals` row, a row the reader skips): 85 of 85 files read, 85 runs, 255 employee rows, no problems, and 0 mismatches on gross, net, federal, Social Security and Medicare (both sides), state tax, FUTA, SUTA and total employer taxes. Booked together, the Form 941 worksheet gives Q3 2026 wages $73,441.20 over 54 runs and Q4 $43,047.00 over 31, with no 6.2% / 1.45% warnings, and the W-2 summary three employees with no warnings. Tests: `payroll-journal-report.test.mjs` (6, made-up rows in this layout, plus CA SDI, SUI and ETT columns); all payroll tests pass.
+
+Not claimed: these files were written by another project's fixture generator in a Gusto-like layout, not exported from Gusto, so they show the reader handles the layout and adds up; they say nothing about a real company's payroll. Tips (`Paycheck Tips`) are inside gross wages here and are not split out on the 941 worksheet (lines 5b and 5f are not modelled). A multi-section journal (contractor payments in their own block) has not been seen.
 
 ## Not modelled
 
@@ -2058,9 +2183,9 @@ right (wrong 112 to 96). Merchant and date are unchanged, except that 2 merchant
 another reading found are wrong. These scans were not looked at when the
 weights were chosen, so this is a second held-out check.
 
-Not measured: CORD's phone photos with four readings (Hugging Face, where
+Not measured then: CORD's phone photos with four readings (Hugging Face, where
 they are fetched from, did not answer from this session); full-size 12
-megapixel phone photos. The CLI reads four times with `--four-pass` since
+megapixel phone photos. Both were measured on 2026-11-15 ("Full-size photos" below). The CLI reads four times with `--four-pass` since
 2026-11-14 (next section). Reproduce: `node eval/srd-fetch.mjs <photos>`, `node
 eval/sroie-tesseractjs.mjs <photos> <ocr> <node_modules>`, `node
 eval/srd-canvas-grow.mjs <photos> <grown>`, `node eval/sroie-tesseractjs.mjs
@@ -2115,6 +2240,81 @@ eval/cord-receipts.mjs eval/srd/labels.jsonl --ocr <out>/psm6,<out>/psm4,<out>/g
 for SROIE point `eval/srd-cli.mjs` at `<clone>/data/img` and score with `node
 eval/sroie-receipts.mjs <clone>/data --ocr` and the same four folders. Tests:
 `receipt-crosscheck.test.mjs` (14, two new: the four-pass calls and the damaged-JPEG retry).
+
+### Full-size photos: a grey copy shrunk to 2,000 px, read first (2026-11-15)
+
+Flagship item (5), "next: full-size photos". Until today a photo 2,000 pixels or more
+on its long side (a phone's own 12 megapixel photo, a flatbed scan) was read only
+twice, as it is. It now gets the same grey copy as a small photo, shrunk to 2,000 px
+instead of enlarged, and the copy's two readings go **first**, ahead of the photo's.
+The first reading is the one the receipt box shows and the one merchant and date
+come from, and the vote's ties go to it. Page (`greyCopy` and `readPhotos` in
+`photoocr.mjs`) and CLI (`--four-pass`, `greyCopyFile` in `ocr.mjs`) do the same.
+
+Measured on SROIE's 189 scans over 2,000 px (flatbed scans, up to 4961 x 7016),
+with the labels as before:
+
+| 189 large SROIE scans | total right | date right (of 188) | merchant exact |
+|---|---|---|---|
+| CLI (tesseract 5.3.4), the photo twice (before) | 144 | 149 | 93 |
+| CLI, photo first, then the shrunk copy | 152 | 150 | 94 |
+| CLI, the shrunk copy alone, twice | 156 | 152 | 94 |
+| **CLI now: shrunk copy first, then the photo** | **155** | **152** | **94** |
+| page (tesseract.js 5.1.1), the photo twice (before) | 151 | 154 | 92 |
+| page, photo first, then the canvas copy | 156 | 155 | 92 |
+| **page now: canvas copy first, then the photo** | **160** | 154 | **95** |
+
+The order was chosen on these 189 scans, so they are not a held-out test. The held-out
+check is CORD's 17 test photos over 2,000 px (real Indonesian phone photos, 2304 x 4096
+and 1836 x 3264, never looked at when choosing): 7 right before and 8 after, in either
+order. That is one receipt, so it says little more than "no harm".
+
+End to end, through the CLI's own code on every photo (`eval/srd-cli.mjs`):
+
+| totals right, CLI `--four-pass` | before | now |
+|---|---|---|
+| SROIE, all 625 labelled scans | 503 (80.5%) | **514 (82.2%)** |
+| CORD test, 95 phone photos with a total | 47 (49.5%) | **48 (50.5%)** |
+| SRD US photos, 196 | 131 (66.8%) | 131 (66.8%) |
+
+SROIE dates went from 490 to 493 of 611 and merchants from 287 to 288. SRD has one
+full-size photo (3024 x 4032); its total was right before and is right now. The page's
+full SROIE score, assuming the 437 smaller scans read as before (their code path did not
+change): 521 + 9 = **530 of 625 (84.8%)**. Cost, CLI, one thread: on the largest scan
+(4961 x 7016) one tesseract pass on the photo takes 2.3 s, making the copy 1.8 s and each
+pass on it 0.5 s, so the four readings take about 7.6 s against 4.6 s for two.
+
+**CORD's phone photos read four times, measured for the first time** (Hugging Face
+answered today): the CLI's one reading gets 44 of 95 totals right, `--four-pass` 47
+before today's change and 48 after.
+
+**What did not help, kept so later runs need not try it again:**
+
+- *More image variants.* On SRD the right total already appears somewhere in the four
+  readings' text on 153 of 196 photos; the vote picks it on 131. Adding a fifth and sixth
+  reading of another copy raised that ceiling by only 2 to 6 receipts: 3,000 px (+3),
+  flattened lighting by dividing by a blur (+2 to +3; read alone, 36 of 196), sharpened and
+  normalised (+5), deskewed (+4), the bottom 55% enlarged (+6). None was built: a pass costs
+  as much as the others and the vote would have to find those few.
+- *Two vote rules from the 22 receipts where the total was read but not picked.* (a) A
+  reading taken as whole units ("8262", "190275" on a dollar receipt: 60 such readings on
+  SRD, none right) sits out when at least half the readings use decimals: SRD 131 to 131,
+  CORD 47 to 46. Not shipped. (b) A value whose digits end another's ("4.78" beside
+  "94.78") lends its votes to the longer one: SRD 131 to 128. Not shipped. Both rules were
+  written after looking at all 196 SRD misses, so SRD was not a fair test for them; they
+  failed anyway.
+
+Reproduce: `git clone --depth 1 https://github.com/zzzDavid/ICDAR-2019-SROIE`, then
+`node eval/srd-cli.mjs <clone>/data/img <out> [k/n]` (for a photo over 2,000 px it writes
+the shrunk copy's readings to `psm6`/`psm4` and the photo's to `g6`/`g4`, in reading
+order) and `node eval/sroie-receipts.mjs <clone>/data --ocr
+<out>/psm6,<out>/psm4,<out>/g6,<out>/g4`. For the page, `node eval/srd-canvas-grow.mjs
+<photos> <grey>` now draws shrunk copies too (`--grow-only` for the old behaviour), then
+`node eval/sroie-tesseractjs.mjs` on both folders and `--settled` scoring with the copy's
+folders first. Numbers and commands: [`eval/full-size-photos-2026-11-15.md`](eval/full-size-photos-2026-11-15.md).
+Tests: `receipt-crosscheck.test.mjs` (the four-pass test now checks a big photo's four
+readings and their order) and `photoocr.test.mjs` (12, one new: a shrunk copy's reading
+leads the block). `node eval/photo-ocr-browser.mjs` in headless Chromium: 6/6.
 
 ## Budget against actual
 

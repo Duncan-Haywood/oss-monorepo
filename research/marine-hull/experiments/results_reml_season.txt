@@ -1,0 +1,118 @@
+Milestone 6zzh: REML tau^2 for the band pool of the fitted yearly cosine, and an unshrunk high band, 2005 to 2014 (50 W)
+climatology 2015 to 2024 x s(d); learn on the k years of the other half nearest the scored half, k in (1, 2, 3, 5); clamp (0.85, 1.15)
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+Real shape: tau by moments (6zzg) and by REML, calendar (cal) and aligned (al), with median w
+  k=1 E:
+    low cal mom 0.0290 reml 0.0305 | al mom 0.0279 reml 0.0304 | w HR 0.76 RR 0.78 RB 0.78
+    mid cal mom 0.0259 reml 0.0253 | al mom 0.0119 reml 0.0103 | w HR 0.55 RR 0.54 RB 0.16
+    high cal mom 0.0303 reml 0.0310 | al mom 0.0128 reml 0.0120 | w HR 0.60 RR 0.61 RB 0.19
+  k=1 L:
+    low cal mom 0.0189 reml 0.0185 | al mom 0.0192 reml 0.0201 | w HR 0.65 RR 0.65 RB 0.68
+    mid cal mom 0.0038 reml 0.0000 | al mom 0.0163 reml 0.0000 | w HR 0.02 RR 0.00 RB 0.00
+    high cal mom 0.0354 reml 0.0368 | al mom 0.0171 reml 0.0200 | w HR 0.64 RR 0.65 RB 0.36
+  k=2 E:
+    low cal mom 0.0118 reml 0.0140 | al mom 0.0121 reml 0.0148 | w HR 0.49 RR 0.58 RB 0.61
+    mid cal mom 0.0187 reml 0.0190 | al mom 0.0111 reml 0.0121 | w HR 0.50 RR 0.51 RB 0.30
+    high cal mom 0.0276 reml 0.0271 | al mom 0.0122 reml 0.0117 | w HR 0.70 RR 0.69 RB 0.29
+  k=2 L:
+    low cal mom 0.0163 reml 0.0164 | al mom 0.0155 reml 0.0153 | w HR 0.65 RR 0.66 RB 0.63
+    mid cal mom 0.0070 reml 0.0115 | al mom 0.0104 reml 0.0110 | w HR 0.13 RR 0.29 RB 0.27
+    high cal mom 0.0354 reml 0.0364 | al mom 0.0198 reml 0.0211 | w HR 0.76 RR 0.77 RB 0.53
+  k=3 E:
+    low cal mom 0.0068 reml 0.0093 | al mom 0.0060 reml 0.0095 | w HR 0.31 RR 0.47 RB 0.48
+    mid cal mom 0.0171 reml 0.0171 | al mom 0.0158 reml 0.0153 | w HR 0.54 RR 0.55 RB 0.49
+    high cal mom 0.0269 reml 0.0277 | al mom 0.0000 reml 0.0000 | w HR 0.74 RR 0.75 RB 0.00
+  k=3 L:
+    low cal mom 0.0098 reml 0.0109 | al mom 0.0095 reml 0.0089 | w HR 0.52 RR 0.57 RB 0.47
+    mid cal mom 0.0096 reml 0.0119 | al mom 0.0128 reml 0.0129 | w HR 0.29 RR 0.39 RB 0.42
+    high cal mom 0.0358 reml 0.0364 | al mom 0.0239 reml 0.0247 | w HR 0.83 RR 0.83 RB 0.70
+  k=5 E:
+    low cal mom 0.0000 reml 0.0055 | al mom 0.0000 reml 0.0051 | w HR 0.00 RR 0.34 RB 0.31
+    mid cal mom 0.0162 reml 0.0148 | al mom 0.0127 reml 0.0121 | w HR 0.65 RR 0.60 RB 0.50
+    high cal mom 0.0308 reml 0.0308 | al mom 0.0157 reml 0.0151 | w HR 0.87 RR 0.87 RB 0.61
+  k=5 L:
+    low cal mom 0.0111 reml 0.0119 | al mom 0.0103 reml 0.0104 | w HR 0.68 RR 0.71 RB 0.65
+    mid cal mom 0.0135 reml 0.0145 | al mom 0.0148 reml 0.0146 | w HR 0.57 RR 0.60 RB 0.61
+    high cal mom 0.0357 reml 0.0365 | al mom 0.0189 reml 0.0197 | w HR 0.89 RR 0.89 RB 0.70
+
+Dominance counts, all 30 points
+  group              |  AT_90 |   HR_1 |   HR_2 |   HR_3 |   HR_5 |   RR_1 |   RR_2 |   RR_3 |   RR_5 |   RB_1 |   RB_2 |   RB_3 |   RB_5 |   HX_1 |   HX_2 |   HX_3 |   HX_5
+  real (of 8)        |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8
+  flat s0 (of 32)    |     27 |     26 |     28 |     28 |     30 |     26 |     27 |     28 |     30 |     23 |     27 |     27 |     30 |     26 |     28 |     28 |     30
+  combined (of 128)  |    104 |    106 |    113 |    115 |    122 |    106 |    113 |    116 |    123 |     96 |    108 |    115 |    124 |    106 |    113 |    115 |    122
+  all (of 168)       |    139 |    140 |    149 |    151 |    160 |    140 |    148 |    152 |    161 |    127 |    143 |    150 |    162 |    140 |    149 |    151 |    160
+
+Dominance counts, high-amplitude points only (9)
+  group              |  AT_90 |   HR_1 |   HR_2 |   HR_3 |   HR_5 |   RR_1 |   RR_2 |   RR_3 |   RR_5 |   RB_1 |   RB_2 |   RB_3 |   RB_5 |   HX_1 |   HX_2 |   HX_3 |   HX_5
+  real (of 8)        |      1 |      5 |      4 |      3 |      4 |      3 |      4 |      3 |      4 |      2 |      3 |      2 |      4 |      5 |      4 |      3 |      4
+  flat s0 (of 32)    |      6 |     18 |     15 |     10 |     14 |     13 |     13 |      9 |     14 |     10 |     10 |     10 |     14 |     19 |     15 |     11 |     14
+  combined (of 128)  |     18 |     74 |     61 |     43 |     55 |     50 |     50 |     41 |     52 |     57 |     68 |     52 |     67 |     78 |     62 |     44 |     58
+  all (of 168)       |     25 |     97 |     80 |     56 |     73 |     66 |     67 |     53 |     70 |     69 |     81 |     64 |     85 |    102 |     81 |     58 |     76
+
+Dominance counts over 168 pooled cells, each band's points only
+  band |  AT_90 |   HR_1 |   HR_2 |   HR_3 |   HR_5 |   RR_1 |   RR_2 |   RR_3 |   RR_5 |   RB_1 |   RB_2 |   RB_3 |   RB_5 |   HX_1 |   HX_2 |   HX_3 |   HX_5
+  low  |    120 |    127 |    131 |    140 |    141 |    126 |    131 |    140 |    143 |    122 |    127 |    137 |    145 |    127 |    131 |    140 |    141
+  mid  |    124 |    123 |    104 |    115 |    120 |    116 |    104 |    106 |    119 |    101 |    104 |    116 |    124 |    123 |    104 |    115 |    120
+  high |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0
+
+Real shape, all 30 points, per pooled cell: km/B ex/B dominates
+  half  kWh |  AT_90 km/B ex/B d |   HR_1 km/B ex/B d |   RR_1 km/B ex/B d |   RB_1 km/B ex/B d |   HX_1 km/B ex/B d
+  E     2.5 |      1.0258 0.59 y |      1.0024 0.57 y |      1.0015 0.57 y |      1.0047 0.57 y |      1.0031 0.57 y
+  E     5.0 |      1.0740 0.77 y |      1.0675 0.77 y |      1.0662 0.76 y |      1.0680 0.78 y |      1.0680 0.77 y
+  E    10.0 |      1.1179 0.90 y |      1.1089 0.75 y |      1.1068 0.74 y |      1.1071 0.84 y |      1.1090 0.75 y
+  E    20.0 |      1.1321 0.90 y |      1.1246 0.54 y |      1.1227 0.53 y |      1.1177 0.56 y |      1.1247 0.54 y
+  L     2.5 |      1.0392 0.62 y |      1.0367 0.61 y |      1.0361 0.61 y |      1.0405 0.63 y |      1.0371 0.62 y
+  L     5.0 |      1.0929 0.81 y |      1.0967 0.77 y |      1.0957 0.78 y |      1.0989 0.83 y |      1.0970 0.78 y
+  L    10.0 |      1.1182 0.74 y |      1.1221 0.79 y |      1.1204 0.80 y |      1.1293 0.90 y |      1.1224 0.79 y
+  L    20.0 |      1.1146 0.76 y |      1.0955 0.70 y |      1.0919 0.69 y |      1.0978 0.74 y |      1.0959 0.70 y
+
+Real shape, high-amplitude points (9), per pooled cell: km/B ex/B dominates
+  half  kWh |  AT_90 km/B ex/B d |   HR_1 km/B ex/B d |   RR_1 km/B ex/B d |   RB_1 km/B ex/B d |   HX_1 km/B ex/B d
+  E     2.5 |      0.8728 0.36 n |      0.9487 0.43 n |      0.9448 0.43 n |      0.9349 0.41 n |      0.9632 0.44 n
+  E     5.0 |      0.9307 0.49 n |      1.0542 0.54 y |      1.0455 0.52 y |      1.0471 0.57 y |      1.0678 0.59 y
+  E    10.0 |      0.9526 0.37 n |      1.1261 0.46 y |      1.1046 0.45 y |      1.1325 0.44 y |      1.1261 0.46 y
+  E    20.0 |      0.7966 0.37 n |      0.9234 0.46 n |      0.9144 0.45 n |      0.9077 0.44 n |      0.9234 0.46 n
+  L     2.5 |      0.9546 0.40 n |      1.0082 0.46 y |      0.9792 0.43 n |      0.9458 0.38 n |      1.0150 0.49 y
+  L     5.0 |      1.0011 0.33 y |      1.0777 0.45 y |      1.0305 0.38 y |      0.9825 0.33 n |      1.0812 0.47 y
+  L    10.0 |      0.9382 0.20 n |      1.0378 0.23 y |      0.9973 0.21 n |      0.9458 0.19 n |      1.0410 0.24 y
+  L    20.0 |      0.8686 0.20 n |      0.9076 0.23 n |      0.8789 0.21 n |      0.8492 0.19 n |      0.9110 0.24 n
+
+Per-point real-shape cells (point x half x pack, summed over the half's five years): dominance counts
+  set                |  AT_90 |   HR_1 |   HR_2 |   HR_3 |   HR_5 |   RR_1 |   RR_2 |   RR_3 |   RR_5 |   RB_1 |   RB_2 |   RB_3 |   RB_5 |   HX_1 |   HX_2 |   HX_3 |   HX_5
+  all 30 (of 240)    |    126 |    140 |    139 |    142 |    144 |    137 |    140 |    145 |    144 |    130 |    136 |    140 |    142 |    141 |    139 |    142 |    144
+  high-amp (of  72)  |     43 |     48 |     47 |     47 |     48 |     48 |     47 |     47 |     47 |     46 |     47 |     47 |     47 |     49 |     47 |     47 |     48
+  low  band (of  88) |     48 |     51 |     54 |     54 |     54 |     49 |     55 |     57 |     55 |     48 |     53 |     56 |     55 |     51 |     54 |     54 |     54
+  mid  band (of  80) |     36 |     47 |     43 |     46 |     47 |     46 |     43 |     46 |     46 |     39 |     41 |     42 |     44 |     47 |     43 |     46 |     47
+  high band (of  72) |     42 |     42 |     42 |     42 |     43 |     42 |     42 |     42 |     43 |     43 |     42 |     42 |     43 |     43 |     42 |     42 |     43
+
+km/B over the 168 pooled cells: n >= 1.0, min
+  AT_90 : 152 0.9549
+  HR_1  : 158 0.9873
+  HR_2  : 168 1.0011
+  HR_3  : 168 1.0030
+  HR_5  : 168 1.0025
+  RR_1  : 158 0.9864
+  RR_2  : 168 1.0006
+  RR_3  : 168 1.0024
+  RR_5  : 168 1.0025
+  RB_1  : 159 0.9872
+  RB_2  : 168 1.0016
+  RB_3  : 168 1.0042
+  RB_5  : 168 1.0071
+  HX_1  : 158 0.9880
+  HX_2  : 168 1.0013
+  HX_3  : 168 1.0032
+  HX_5  : 168 1.0026
+
+Check: HR_k 168-cell counts 140 / 149 / 151 / 160 (6zzg: 140 / 149 / see results_hier_season.txt / 160); AT_90 139 (6zzg: 139)
+
+Predictions
+R1 RR_1 >= 140 of 168: held (RR_1 140, RB_1 127, HX_1 140, HR_1 140, AT_90 139)
+R2 RR_1 >= 140 of 240 per-point real-shape cells: refuted (RR_1 137, RB_1 130, HX_1 141, HR_1 140, AT_90 126)
+R3 RB_1 > 133 per-point real shape: refuted (130)
+R4 HX_1 >= 97 of 168 at high-amplitude points: held (HX_1 102, HR_1 97, RR_1 66, RB_1 69, AT_90 25)
+R5 HX_1 >= 140 of 168: held (140)
+R6 aligned high-band REML tau > moment tau at k = 1, both halves: refuted (E moment 0.0128 REML 0.0120; L moment 0.0171 REML 0.0200)
+R7 |RR_k - HR_k| <= 2 for k >= 2: held (k=2 148 vs 149, k=3 152 vs 151, k=5 161 vs 160)
+R8 RR_1 8 of 8 real shape: held (8)

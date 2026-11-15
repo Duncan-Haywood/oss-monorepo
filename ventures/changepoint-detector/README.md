@@ -3337,6 +3337,95 @@ Next for this question: longer stretches (the ratio's noise falls with the numbe
 power curve in n would say where a setting could pass both bars), or a likelihood for a rounded walk
 against a rounded walk carried forward; and a real series with documented carry-forward to check against.
 
+### One-tick stale feeds: a likelihood (2026-11-15, pre-registered round three; negative, not offered)
+
+The catch-up ratio reads only the moves that end a run of repeats, and 300 steps hold too few of them.
+`rounded-walk.mjs` uses every step. Two models for the stickier stretch, in ticks: **M0**, a hidden
+Gaussian random walk (step sd s) recorded rounded; **M1**, the same walk, but with probability p each step
+repeats the last recorded value whatever the hidden value did. A forward filter over the hidden value on a
+grid (10 cells a tick; 20 and 40 move LR by under 0.02) gives each likelihood exactly up to the grid,
+maximised over s and p. Under M0 the statistic LR = 2 (l1 - l0) is a 50:50 mix of 0 and chi-square(1),
+since p = 0 is a boundary, so the threshold was set from theory at its 1% point, **5.41**, not tuned.
+
+Pre-registered in `eval/update-rate-stale-lr.mjs` (committed in 259872106 before the confirmation ran):
+the same cells and rule K1-K3 as rounds one and two, fresh seed 20261215, plus a K4 that would only have
+changed the wording: two rounded slow series that are not Gaussian walks (X1, Student t steps with 3
+degrees of freedom; X2, mean-reverting, rho 0.95).
+
+| seed 20261215, change nearest step 150 | called stale among one-tick series | rule |
+|---|---|---|
+| R1 / R2 / R3, rounded walks | 7.0% / **11.5%** / 9.0% | <= 5% each: **fails** |
+| T1 / T2 / T3, one-tick stale feeds | 100% / 100% / 98.3% | >= 80% each: pass (rounds one, two: 80-96%) |
+| F1-F3, rounding <= 5% | 0 / 0 / 0 | pass |
+| X1 heavy-tailed walk / X2 mean-reverting | **61.5%** / 9.5% | <= 10% each (wording only): fails on X1 |
+
+**Verdict: not offered.** `method: 'lr'` stays an opt-in (`updateRateChanges(values, { catchUp: { method:
+'lr', test: staleTest } })`, with `staleTest` from `rounded-walk.mjs`, returns `staleLR` and `staleP`); `CATCHUP` and every sentence are as before.
+
+**Why the rounded walks failed** (`eval/update-rate-stale-lr-why.mjs`, `.out.txt`; post hoc, fresh seed 5,
+80 series a cell, descriptive). On the true slow half the test is calibrated: 1, 0 and 1 of 80 rounded
+walks called stale (the 1% design rate). On the stretch the update-rate partition hands it, 11, 3 and 11.
+The partition's cut lands a few steps late, so the "sticky" stretch ends with fast, 10-tick moves; a
+Gaussian walk with one s cannot have both, and M1 explains the big moves as catch-ups. Trimming 15 steps
+on the side of the cut removes them (1, 0, 0 of 80). That points at a round four: test the stretch inside
+the cut's range, not up to the cut, on new seeds.
+
+**Why that would not be enough:** X1. A slow series whose hidden steps are heavy-tailed (most steps tiny,
+a few large) is called stale 61.5% of the time on its own true slow half (49 of 80 post hoc): to M0 its rare
+big jumps after quiet runs look exactly like catch-ups. A real slow price or index often moves that way.
+So a likelihood that assumes Gaussian steps cannot tell "stale" from "jumpy" on real data; a round four
+needs a heavy-tailed M0 (a t or a mixture of two step sizes) as well as the trimmed stretch.
+
+On the juice file (descriptive): `ppi`, the rounded index, has LR 1.26 (p 0.05): rounding, as the
+catch-up ratio also said. `price` is not one-tick, so the test does not run on it. Test: `rounded-walk.test.mjs`.
+
+### One-tick stale feeds: a heavy-tailed walk (2026-11-15, pre-registered round four; ships)
+
+Round three's post hoc named two causes of its false calls, and this round changes exactly those two:
+
+1. **The stretch.** The update-rate partition's cut lands a few steps late, so the "sticky" stretch ends
+   with the fast regime's moves. Now the likelihood sees the stretch only inside its cuts' date ranges
+   (`cutRanges`, the shipped slack 6): it starts after the latest date its left cut could have and ends
+   before the earliest its right cut could have (`trim: 'range'` in `update-rate.mjs`). Not the post
+   hoc's 15 steps, a number seen on the data.
+2. **The walk.** Both models now have Student t steps (`rounded-walk.mjs` `staleTestHeavy`), with the
+   degrees of freedom profiled over {2, 4, 10, Infinity}; Infinity is round three's Gaussian, so the old
+   M0 is inside the new one. M0 can now explain a rare big jump by a heavy tail; M1 has to win on
+   catch-ups whose size grows with the run of repeats before them. The grid was written down before any
+   run and does not contain X1's own 3. The threshold stays 5.41 (theory; the degrees of freedom are a
+   nuisance shared by both models).
+
+Pre-registered in `eval/update-rate-stale-lr-4.mjs` (committed in 3b049bf88 before the confirmation ran,
+with a 20-series smoke run on seed 6 in its commit message, used to choose nothing). Same cells and K1-K3
+as rounds one to three, round three's X1 and X2, and **K4 now binding**: a check that calls a jumpy slow
+series stale would mislead on real prices. One new cell reported, not judged: X3, X1's heavy-tailed walk
+carried forward 60% of steps. Fresh seed 20261216, 200 series a cell, run once (551 s on four threads):
+
+| seed 20261216, change nearest step 150 | called stale among one-tick series | rule |
+|---|---|---|
+| R1 / R2 / R3, rounded walks | 0.0% / 0.0% / 0.0% | <= 5% each: pass (round three 7.0-11.5%) |
+| T1 / T2 / T3, one-tick stale feeds | 98.0% / 96.9% / 81.3% | >= 80% each: pass |
+| F1-F3, rounding <= 5% | 0 / 0 / 0 | pass |
+| X1 heavy-tailed walk / X2 mean-reverting | 3.0% / 0.5% | <= 10% each: pass (round three 61.5% / 9.5%) |
+| X3 heavy-tailed walk carried forward (not judged) | 81.9% | power on a jumpy stale feed |
+
+**Verdict: ships.** `CATCHUP` is now `{ method: 'lr', test: staleTestHeavy, trim: 'range', lr: 5.41 }`:
+a one-tick sticky stretch where the likelihood ratio clears 5.41 is flagged `catchUp` instead of
+`rounding`, and the update-rate line says so ("the moves that end runs of repeats grow with the run, as a
+stale figure catching up would (a rounded walk carried forward on about N% of steps fits it better than
+the same walk only rounded, even allowing heavy-tailed jumps (likelihood ratio X, against 5.4 at the 1%
+level))"). Passing any `catchUp` option replaces the default whole over the ratio-only base, so rounds one
+to three still reproduce their files; `catchUp: { method: null }` is the median-move test alone.
+
+What it costs: T3, the clumped stale feed, is the weak cell (81.3%, just over the bar): long clumps look
+like a slow walk to both models. The heavy test takes about 0.5 s on a 150-step stretch (four model
+fits per side), and runs only on stretches that already pass the one-tick test. On the juice file,
+`ppi` (the rounded index) now has LR 0.0 (round three's Gaussian test gave 1.26): rounding, as before.
+
+Still open: a real series with documented carry-forward to check a call against (all the evidence here
+is simulated); clumped carry-forward (T3) is the cell to improve. Tests: `rounded-walk-heavy.test.mjs`,
+`rounded-walk.test.mjs`, `update-rate-catchup.test.mjs`.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
@@ -3979,6 +4068,40 @@ measured on real data. Up to 600 points in `analyze` (the bootstrap reruns a qua
 rho, slopeBefore, slopeAfter, significant, note }` or `{ refused, reason }`; on the page, the "Also test one change of
 slope on the levels" box. Test: `hinge-test.test.mjs`.
 
+
+### A guard read off the hinge's residuals (2026-11-15, pre-registered; fails, not the default)
+
+The guard above reads the straight line's residuals, and a real bend makes those stickier, so on GCAG 1930-2024
+(95 points) it refused at rho 0.76, above the short-series 0.7. `guard: 'hinge'` reads the guard off the best OLS
+hinge's residuals instead, and its bootstrap null still draws with the straight-line rho, capped at 0.95. Four bars
+were written down first (`eval/hinge-guard-prereg-2026-11-15.md`); both guards ran on the same series
+(`node eval/hinge-guard-sim.mjs 300 99`, `eval/hinge-guard-sim.out.txt`; `node eval/hinge-guard-real.mjs`,
+`eval/hinge-guard-real.out.txt`). Each figure is the share of **all** series with p <= 0.05, with refusals counted as
+not rejecting.
+
+| bar | cell | line guard (shipped) | hinge guard | holds? |
+|---|---|---|---|---|
+| R | GCAG 1930-2024 | refused | knot 1974, p 0.001, slope -0.00 -> 2.08 per century | yes |
+| R | GCAG/GISTEMP 1880, GCAG 1850; log GDP, productivity | 1976, p 0.001; refused | same; refused (hinge rho 0.95, 0.96) | yes |
+| P | n 95, rho 0.5, slope change 0.2 | 20.7% (64 tested) | 98.7% (300 tested) | yes |
+| P | slope change 0.1 / 0.05 | 63.3% / 25.0% | 70.3% / 25.3% | |
+| S1 | n 60, rho 0.8 (straight line, no bend) | 3.3% | **10.7%** | no (8% cap) |
+| S1 | other 11 cells | 3.0-7.7% | identical to the line guard but n 60 rho 0.6 (6.7%) | |
+| S2 | random walk with drift, n 60 / 145 / 300 | 0.3% / 2.0% / 0.0% | **11.0% / 16.0%** / 3.0% | no |
+| S2 | AR(1) rho 0.9, n 60 / 145 / 300 | 1.0% / 5.7% / 6.3% | **8.3% / 8.3%** / 7.3% | no |
+| S2 | AR(1) rho 0.95, n 60 / 145 / 300 | 0.7% / 3.0% / 0.3% | **9.0% / 8.7%** / 5.3% | no |
+
+Two bars fail, so the default stays `line`. The risk named in the pre-registration is what happened: a hinge fits a
+random walk's wander better than a line does, so a hinge-residual guard admits random walks (171 of 300 at n 145),
+and on those the level test rejects about one time in six. The power is real, though. With a 0.2 slope change at
+n 95, the line guard refuses 236 of 300 series, and the hinge guard tests all 300 and finds 98.7%. That is the
+1930-2024 problem: the stronger the bend, the more often the shipped guard refuses it. `guard: 'hinge'` stays in
+`hingeTest` for evaluation, and it is not in the CLI or on the page.
+
+**What the table suggests, not tested.** The failures are at n 60 and 145 and near a unit root. A guard that needs
+both rhos to clear, or one that refuses when a hinge cuts the rho by less than a unit root's typical cut, would
+target the gap; each needs its own pre-registration and fresh seeds, since these cells are now seen.
+Test: `hinge-test.test.mjs` ("hinge-residual guard").
 
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
@@ -4649,3 +4772,53 @@ before the move; and SMD at 10-minute buckets on a few machines, to see how much
 Tests: `watch-smd.test.mjs` (7: the round's constants, segments and the interpretation labels, a machine in hourly
 buckets, the score on made-up lines, T14 on made-up totals, the floors' reading with a loud column, and the committed
 output's verdicts).
+
+## Round 19: SMD at 10-minute buckets on three machines, to see how much of round 18's miss is hourly dilution (2026-11-15, pre-registered; no arm meets either line)
+
+Round 18 left open "SMD at 10-minute buckets on a few machines, to see how much of the miss is hourly dilution": two
+thirds of SMD's segments last under an hour, and an hourly mean shrinks a 10-minute event to a sixth. This round runs
+round 18's pipeline twice on the same three machines, chosen by name before anything was looked at (the first of each
+SMD group: machine-1-1, machine-2-1, machine-3-1; 93 watched metrics, 24 scored segments), changing only the bucket:
+H is hourly buckets replayed after every point (round 18 exactly), T is 10-minute buckets checked once an hour
+(replayWatch's `step` of 6, each alert dated back by bisection to the point that would have sent it). The whole-watch
+budget (2 lines per 100 hourly checks, so 3-4 setup lines a machine) is the same in both. The policy and the floors'
+rolling windows are kept in points, as shipped. The null stretch was not run (it would have doubled a 70-minute run);
+round 18 measured it under H on all 28 machines. `node eval/watch-smd-10min.mjs smd-data [cache]` (output
+`eval/watch-smd-10min.out.txt`, 4,162 s on 4 cores). The rule, design, predictions and code were committed in this PR's
+second commit, before any run that printed a score.
+
+| three machines, 24 segments | H lines | H caught (under 60 min, longer) | H median delay | T lines | T caught (under 60 min, longer) | T median delay | T at a mark |
+|---|---|---|---|---|---|---|---|
+| Q, no floor | 1,080 | 22 (12/14, 10/10) | 4 h | 5,193 | **24** (14/14, 10/10) | **0.7 h** | 10.7% |
+| R, one spread k (round 15) | 61 | 12 (4, 8) | 4.5 h | 39 | 12 (3, 9) | 1.1 h | **66.7%** |
+| S, loud split (round 16) | 66 | 14 (6, 8) | 4 h | 289 | 16 (7, 9) | 0.8 h | 32.2% |
+| K, rolling move floor (round 17) | 19 | 4 (1, 3) | 4.5 h | 62 | 9 (1, 8) | 1 h | 24.2% |
+
+Chance for "at a mark" is 11.2% under H and 6.3% under T (the windows are a bucket wide each side, so they shrink with
+the bucket). H reproduced round 18's by-machine catches for every arm (Q 8/11/3, R 4/7/1, S 4/9/1, K 2/2/0).
+
+- **D19 (under T an arm keeps Q's catches less 6%) is not met by any arm**: R 12, S 16 and K 9 against the 23 needed.
+- **D19' (an arm's kept share of Q's catches rises 20 points from H to T) is not met either**: R went from 55% to 50%,
+  S from 64% to 67%, K from 18% to 38% (19.3 points, one short).
+- As pre-registered, nothing changes for the product: finer buckets did not rescue the floors on these machines, and
+  round 18's reading (the miss is set by the data and the budget, not the bucket) stands.
+
+**Predictions, scored.** H reproduces round 18: right, exactly. Q under T catches about as many: right (24 of 24, from
+22). No arm meets D19: right. R and S meet D19': wrong for both; R's kept share fell and S's rose 3 points. K does not
+meet D19': right, by 0.7 points.
+
+**What the round says (deciding nothing).** The short segments are not where finer buckets help the floors. Under T the
+floors caught 3, 7 and 1 of the 14 segments under an hour, against 4, 6 and 1 under H. What T changes is the long
+segments and the delay: the floors caught 8-9 of the 10 longer ones (3-8 under H), and every arm's median delay fell
+from 4-4.5 hours to 0.7-1.1 hours, because a step is seen within a few 10-minute points rather than after several
+hourly ones. Without a floor, T's Quiet is far louder: 408 lines per 100 hourly checks (85 under H), with 10.7% at a
+mark against chance 6.3%, so on 30 server metrics it alerts on almost every 10-minute wiggle. The k's read off the
+finer setup lines are higher (R's 91 against 43 on machine-1-1, and 3,780 on machine-2-1, where a step-like counter
+had a near-zero spread before its step, round 18's failure of mechanism again), so a short event in a busy metric
+still sits under the floor. So the honest summary for a person: on server metrics, finer data makes the watch faster
+on the changes it does catch (a quarter of the delay), not able to catch short spikes under a budget. Short spikes are
+anomaly detection, which this watch does not claim. Three machines and 24 segments is a small sample; the delay
+finding is the one worth testing on the other 25 machines with the null, if anyone runs a server watch on finer data.
+
+Tests: `watch-smd-10min.test.mjs` (4: the round's constants, a machine in 10-minute buckets with its windows and
+baseline, D19 and D19' on made-up totals including the tie, and the committed output's verdicts).

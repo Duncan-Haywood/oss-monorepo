@@ -16,7 +16,7 @@ export const KEYS = Object.keys(DEFAULTS);
 export const FILLS = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 export const PRICE_STEPS = [-0.2, -0.1, 0, 0.1, 0.2];
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 }));
 export const pct = (n, d = 0) => (n * 100).toFixed(d) + "%";
 
 const num = (t) => {

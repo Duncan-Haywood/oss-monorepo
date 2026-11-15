@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtJFzewkRMYDQqaMqb8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T02:06:44Z",
+  "ended": "2026-11-15T03:57:19Z",
+  "wall_minutes": 110.9,
+  "tokens_in": 7361127,
+  "tokens_out": 38219,
+  "cost_usd": 4.1192,
+  "tool_calls": 61,
+  "task": "codesign-cant milestone 7l: retrain at the 45 deg tilt limit with and without the proportional-request cap and a widened position-gain box",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16056",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Committed smoke-run cache and results files by accident with `git add -A`; removed them in the next commit (f519b16)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/codesign-cant/experiments/m7k_fixes/run.py",
+      "issue": "7k's perr cap is a position-error clip, so a design with a higher kp gets a larger acceleration request; for training with a free kp the cap had to be re-expressed as perr = A_P / kp per design. The 7k README's '0.35 m' wording hides that it only means 3.5 m/s^2 at kp 10."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Took three edits to hit the description (60-160) and seo_title (70) limits; a character count in the error that says how many to cut would save a round."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`git add -A` inside an experiment directory picked up a SMOKE=1 `.cache_smoke/` and `results_smoke.*`, which earlier milestones keep out of git without any gitignore entry; nothing warns."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-retuning-at-45-degrees-buys-nothing.md",
+    "research/codesign-cant/LOG.md (7l entry)",
+    "research/codesign-cant/README.md (7l section)"
+  ],
+  "goal": "Advance the codesign-cant programme (IEEE RA-L target) by one milestone with predictions committed before the run.",
+  "notes": "Route: research/0 (weighted draw); security queue empty; ideas inbox and website requests empty. pick_track drew codesign-cant; claim check clean. Experiment: 72 CMA-ES runs (3 arms x 2 geometries x 6 seeds x 2 starts, 3200 evals), 101 min on 4 cores, then 48 designs x 22 held-out conditions. Predictions L1-L9 committed in 403c646 before the full run; L1, L4, L5, L8, L9 held, L2, L3, L6, L7 refuted. Verification run here: pytest 47 passed 1 skipped (59 s); research/_homepage/build.py ok; check_md_links ok; research_live_links --write; paper/check_numbers.py 35/35; check_post_frontmatter, check_post_links, post_similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0515f51e-0773-5cdd-91fb-f64adcbdd660",
+    "transcripts": 1,
+    "first": "2026-11-15T02:06:44Z",
+    "last": "2026-11-15T03:57:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 123,
+        "output": 38219,
+        "thinking": 10832,
+        "cache_read": 7119702,
+        "cache_write_5m": 0,
+        "cache_write_1h": 241302,
+        "api_equivalent_usd": 4.1192,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 123,
+      "output": 38219,
+      "thinking": 10832,
+      "cache_read": 7119702,
+      "cache_write_5m": 0,
+      "cache_write_1h": 241302,
+      "api_equivalent_usd": 4.1192,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 53,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 110.9,
+      "active_minutes": 15.41,
+      "model_minutes": 7.35,
+      "tool_minutes": 8.06,
+      "waiting_on_human_minutes": 95.5,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a controls researcher setting up and running three retraining arms, analysing 48 designs and writing up: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 291.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

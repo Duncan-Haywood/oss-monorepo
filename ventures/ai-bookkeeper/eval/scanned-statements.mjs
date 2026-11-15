@@ -42,8 +42,8 @@ const OUT_PAYEES = ["CORNER HARDWARE #112", "BLUE DOOR COFFEE", "CITY WATER UTIL
 const IN_PAYEES = ["DEPOSIT", "MOBILE DEPOSIT", "ACH CREDIT CLIENT PMT", "STRIPE TRANSFER", "SQUARE INC DEPOSIT", "ZELLE FROM J RIVERA", "WIRE IN HARBOR LTD", "INTEREST PAYMENT"];
 const CARD_PAYEES = ["BLUE DOOR COFFEE", "AIRLINE TICKET 0042", "HOTEL HARBORVIEW", "OFFICE CHAIR STORE", "SOFTWARE ANNUAL", "TAXI 7781", "RESTAURANT PINE", "ONLINE ADS", "FUEL STOP 19", "BOOKSHOP ON 5TH"];
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const signed = (c) => (c < 0 ? "-" : "") + money(c);
-const dollars = (c) => (c < 0 ? "-$" : "$") + money(c);
+const signed = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(money(c));
+const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(c));
 const money = (c) => (Math.abs(c) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function makeStatement(r, k) {

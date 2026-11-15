@@ -33,6 +33,15 @@ class LoopTests(unittest.TestCase):
         self.assertEqual(r["stage"], "sim")
         self.assertGreater(r["fail"], 0)
 
+    def test_systemverilog_design_passes_formal(self):
+        # A correct design in the SystemVerilog the compile step accepts (iverilog -g2012) used to be
+        # rejected at the formal stage because yosys read it without -sv (quality audit 2026-11-15).
+        sv = ("module popcount8(input logic [7:0] x, output logic [3:0] y);\n"
+              "  always_comb begin y = '0; for (int i = 0; i < 8; i++) y = y + x[i]; end\nendmodule\n")
+        r = check("popcount8", sv)
+        self.assertTrue(r["ok"], r["feedback"])
+        self.assertIs(r["formal"], True)
+
     def test_syntax_error_fails_at_compile(self):
         r = check("clz8", "module clz8(input [7:0] x, output [3:0] n); assign n = ;\nendmodule\n")
         self.assertEqual(r["stage"], "compile")
