@@ -1341,7 +1341,7 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("blanking" in r for r in Feeder(lift_jam_blank_ms=100.0).check_lift_jam()))
         self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=0.25).check_lift_jam()))
         self.assertTrue(any("two ticks" in r for r in Feeder(lift_jam_trip_ms=0.0).check_lift_jam()))
-        low = dict(lift_sense_side="low", lift_shunt_ohm=0.05, lift_sense_r2=2.4e3, lift_shunt_w=3.0)
+        low = dict(lift_sense_side="low", lift_shunt_ohm=0.05, lift_sense_r2=2.4e3, lift_shunt_w=3.0, lift_slip_nm=1.0)
         self.assertEqual(Feeder(**low).check_lift_jam() + Feeder(**low).check_lift_slip(), [])
         self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6, **low).check_lift_jam()))
         # 2026-11-15, "Lift duty follows the battery": low side the trip rises 1/duty on a full pack; the 2.7k divider
@@ -1358,7 +1358,10 @@ class LiftParamsTest(unittest.TestCase):
         self.assertEqual(c["sense"], "high")
         self.assertEqual(c["trip_hi_a_full_pack"], c["trip_hi_a"])
         self.assertAlmostEqual(c["sense_v_per_a"], Feeder().lift_shunt_ohm * Feeder().lift_sense_gain)
-        self.assertGreater(Feeder().lift_slip_design()["trip_margin"], 1.3)
+        # 1.42 with the 1.0 N m hub; 1.30 with the 0.9 N m hub set since (cad/README.md "Slip hub back to 0.9 N m"),
+        # against the rule's 1.1
+        self.assertGreater(Feeder(lift_slip_nm=1.0).lift_slip_design()["trip_margin"], 1.4)
+        self.assertGreater(Feeder().lift_slip_design()["trip_margin"], 1.25)
         self.assertLess(c["trip_hi_a"] - c["trip_lo_a"], Feeder(**low).lift_jam_cutoff()["trip_hi_a"] - Feeder(**low).lift_jam_cutoff()["trip_lo_a"])
         for kw in ({"lift_duty_min": 0.7}, {"lift_slip_nm": 0.9}, {"lift_v_ref": 0}):
             self.assertEqual(Feeder(**kw).check_lift_jam() + Feeder(**kw).check_lift_slip(), [], kw)

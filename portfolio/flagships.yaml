@@ -368,13 +368,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): duty-independent lift current sense landed 2026-11-15
-      (cad/README.md "Lift current sense inside the diode loop": 0.01 ohm shunt
-      inside the motor-diode loop, INA186A2, 33k; slide 1.42x the trip at any duty,
-      jams cut by 49-59 ms). Next: with the trip fixed, retune the slip hub down
-      (0.9 N m: estimated cap peak 115 N against 124) and rerun the jam, start and
-      tooth sweeps at it; or model the amplifier's 20 kHz ripple and bandwidth in
-      the sweep plant.
+      venv, about 2 min): slip hub back to 0.9 N m 2026-11-15 (cad/README.md "Slip
+      hub back to 0.9 N m": worst flight peak 91 to 84 N, slowest cut 109 to 129 ms;
+      0.8 N m slips 3 of 6 soft starts on a worn stiff spider). Next: model the
+      current-sense amplifier's 20 kHz ripple and bandwidth in the sweep plant; or
+      the facing's friction spread with wear as a sweep axis (the +-20% band is
+      assumed).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
