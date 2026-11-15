@@ -1,6 +1,6 @@
 # accel-lutft: does fine-tuning the shared values rescue low-K weight-sharing tables?
 
-**Why this was worth doing.** `accel-lut` found that a product-table engine did not beat an int8 MAC engine, but its shared values were never retrained, so it called its low-K accuracy a lower bound. This project tests that caveat directly. **Result: mixed, small, and assumption-dependent.** Fine-tuning rescues K = 2 and 4 in the 75%-pruned network, which brings the table engine 14% under int8 energy within 2 points of float32 when a table read costs 0.04 pJ/bit. It does not help the dense network at K = 8, where it was worse than no fine-tuning. At the 0.16 pJ/bit read cost the table loses everywhere.
+**Why this was worth doing.** `accel-lut` found that a product-table engine did not beat an int8 MAC engine, but its shared values were never retrained, so it called its low-K accuracy a lower bound. This project tests that caveat directly. **Result: mixed, small, and assumption-dependent.** Fine-tuning rescues K = 2 in the 75%-pruned network (K = 4 was already within 2 points before fine-tuning and did not move: drop 0.016 to 0.015), which brings the table engine 14% under int8 energy within 2 points of float32 when a table read costs 0.04 pJ/bit. It does not help the dense network at K = 8, where it was worse than no fine-tuning. At the 0.16 pJ/bit read cost the table loses everywhere.
 
 **Live page:** https://marisstella.app/research/accel-lutft/
 
@@ -19,7 +19,7 @@ cd research/accel-lutft
 python3 -m unittest discover -s tests -v     # 4 tests, <1 s
 python3 experiments/run.py                   # about 2 min; writes results.json, results.txt
 python3 experiments/run.py --report          # rebuild results.txt from results.json
-python3 experiments/figure.py                # writes experiments/frontier.png
+python3 experiments/figure.py                # writes experiments/lutft.svg
 ```
 
 ## Results (from `experiments/results.txt`; mean over 10 splits; drop is paired against the float32 model; energy in nJ per inference)
@@ -49,4 +49,4 @@ None.
 ## Outside dependencies
 NumPy, scikit-learn (BSD-3, bundled digits data), matplotlib.
 
-**Figure.** `experiments/frontier.png`: accuracy against modelled energy, post-training against fine-tuned shared values, with the int8 MAC point.
+**Figure.** `experiments/lutft.svg` (written by `figure.py`): test accuracy against codebook size K, post-training against fine-tuned shared values, at 0% and 75% sparsity. `experiments/frontier.png` (accuracy against modelled energy, with the int8 MAC point) is an older figure the current `figure.py` no longer regenerates.

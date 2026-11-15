@@ -1,0 +1,223 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/accel-lutft",
+ "stratum": "research",
+ "seed": "2026-11-15-225c",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a reviewer for an ML-hardware co-design venue (MLSys, DATE, ISLPED or IEEE TCAD) who works on weight-sharing / lookup-table inference accelerators. They would check first that the energy model and the accuracy model describe the same arithmetic (activation and codebook widths), that the trained-quantisation baseline follows Deep Compression's recipe or explains why not, that the 'fine-tuning helps' claims survive paired uncertainty, and that LUT-inference prior work (Deep Compression's codebook fine-tuning, UNPU, LUT-GEMM style product tables) is positioned against",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every reported number reproduces and three kinds of output recompute against code I wrote. `python3 experiments/run.py` in a scratch copy (66 s) gives results.json and results.txt byte-identical to the committed files. Energies recomputed by hand from the stated model (my own script, no import of the subject) match every energy cell: int8 dense 3.559 nJ, int8 pruned 1.507, K=2/4/8 dense @0.04 2.302/2.830/3.506, pruned 1.304/1.547/1.939, @0.16 7.218/8.114/9.527 and 2.809/3.421/4.550. Means, paired drops and standard errors recomputed from results.json with the statistics module match all 14 rows. For seed 0 my own forward pass (8-bit max-calibrated activations) reproduces float32 0.9753 and post2/4/8 0.4423/0.8984/0.9533 (dense) and 0.9396/0.9698/0.9670 (pruned) exactly. Not 4: the codebook is a Lloyd local optimum, not the k-means optimum: an exact 1-D k-means by dynamic programming gives up to 18% lower SSE (K=8 pruned seed 0: 8.31 vs 9.83) and moves single-seed accuracy by up to 1.1 points (dense K=4: 0.887 exact, 0.898 Lloyd, 0.885 sklearn), the same size as the fine-tuning effects reported at K=4 and 8.",
+  "completeness": "README promises: 4 tests in under 1 s (Ran 4 tests in 0.097s OK); run.py about 2 min (66 s, byte-identical outputs); --report rebuilds results.txt (run.py ends with report(), identical); figure.py writes experiments/frontier.png (FAILS: figure.py:1-32 now writes lutft.svg, a different plot of accuracy against K; frontier.png is a stale committed file no script in the tree regenerates). Results table matches results.txt in every cell. Post-training rows reproduce accel-lut's results.txt (share2/4/8 accuracies, drops and energies identical) as claimed. Not-done list (RTL, real KWS data, recipe sweep, centroid-gradient scheme) is honest.",
+  "verification": "Tests pass (4 OK). Five seeded mutants via platform/ci/quality_mutate.py, 1 caught (codebook size K -> K+1, lut.py:23), 4 survived: dropping the table-read term from the per-weight LUT energy (lut.py:55, which changes every table-engine energy and the 14% headline); removing the mask from the straight-through gradient (model.py:88); int8 weight width 8 -> 4 in the baseline energy (run.py:76); and evaluating the un-fine-tuned params in the ft rows (run.py:65, which would erase the project's whole effect). test_energy_matches_lut_model (tests/test_lutft.py:37) compares run.energy to the same lut.energy_lut_pj it calls, so it can never fail on a wrong constant; no test pins a hand-computed energy or results.txt.",
+  "craft": "Read src/accel_lutft/lut.py (56 lines), model.py (121), experiments/run.py (103), figure.py (91), tests/test_lutft.py (40). Small and readable, but: model.py and lut.py are copied from accel-lut (itself copied from accel-sparse), a third copy of the engine (README.md:7 says so); figure.py carries its own ~60-line SVG plotter instead of research/_shared/linefig.py, as research/CLAUDE.md asks; the x axis of lutft.svg is labelled 'table weight width (bits)' while it plots K = 2, 4, 8 codebook entries (1, 2, 3 index bits) (figure.py:31-32); `int(n.lstrip('postft'))` parses design names by stripping a character set (run.py:78); the k-means codebook is re-fit with 5 Lloyd iterations on every minibatch, an O(n*K) per step cost that a fixed-assignment scheme avoids.",
+  "claims": "Checked: 'cuts the drop from 6.5 to 1.7 points' (backed, results.txt), '14% under int8' (1.30/1.51 = 0.861, backed), 'se 0.4 points' (backed), '0.2 nJ margin' (1.51-1.30, backed), 'at 0.16 pJ/bit the table loses everywhere' (backed, 2.81+ vs 1.51, 7.22+ vs 3.56), 'fine-tuned K=8 is worse 3.2 vs 1.6 points' (backed; paired ft8-post8 = -1.6 points, 0 wins 10 losses). Not backed: the headline 'Fine-tuning rescues K = 2 and 4 in the 75%-pruned network' (README.md:3): pruned K=4 was already within 2 points without fine-tuning (drop 1.6) and fine-tuning moved it +0.08 points (paired se 0.35, 4 wins 4 losses); only K=2 is rescued (+4.7 points, 10/10 wins), as research/README.md:339 itself says. The Figure paragraph (README.md:52) and Reproduce line (README.md:22) describe frontier.png, which figure.py no longer writes. Deep Compression citation flagged as unverified, energy constants disclosed as assumptions, AI assistance disclosed.",
+  "fitness": "A researcher can rerun it in a minute and extend it, and the README frames it honestly as a hypothesis. But it does not reach the research/CLAUDE.md bar (programme aimed at a venue): one 64-32-10 MLP on 8x8 digits, one fine-tuning recipe with no validation sweep, and the result that trained shared values recover low-K accuracy is the expected one since Han, Mao and Dally (2016), who report 2-4-bit shared FC weights near lossless after centroid fine-tuning. The project's own recipe is worse than no fine-tuning at dense K=8 in 10 of 10 splits, which points at the recipe rather than the question. LUT-inference hardware work (UNPU, Lee et al. 2018 JSSC; LUT-GEMM, Park et al. 2024) is not cited, so the energy claim is not positioned.",
+  "domain": "Against Deep Compression's trained quantisation (fixed cluster assignments, gradients accumulated into centroids) the method departs knowingly (straight-through to latent weights with the codebook re-fit each step) and says so. Departures a reviewer would flag: the energy model charges first-layer activations at 4 bits (run.py:12 ABITS=[4,8]) while the accuracy model feeds unquantised inputs with 17 levels (0..16/16, 5 bits); codebook values stay float in accuracy but are costed as 8-bit multiplier operands and 16-bit table entries (lut.py:52-55) with no check that 16-bit products suffice; the k-means codebook is a Lloyd local optimum whose initialisation noise (~1 point) is as large as the K=4/8 effects; no learning-rate or epoch sweep; table-read energy (the decisive parameter) is swept at only two points, not to the crossover."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "all 20 energy cells of results.txt (int8 and K=2/4/8, dense and pruned, both table-read costs)",
+   "method": "hand arithmetic from the model stated in the README/docstrings, my own script with no import of the subject",
+   "command": "python3 -I scratchpad/accel-lutft/indep/energy_hand.py",
+   "expected": "results.txt: int8 3.56/1.51; K2 2.30/1.30 (7.22/2.81); K4 2.83/1.55 (8.11/3.42); K8 3.51/1.94 (9.53/4.55)",
+   "observed": "3.559/1.507; 2.302/1.304 (7.218/2.809); 2.830/1.547 (8.114/3.421); 3.506/1.939 (9.527/4.550)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "seed-0 post-training accuracies (6 rows) with my own forward pass and activation quantiser",
+   "method": "independent NumPy forward pass (8-bit, max-calibrated on train) applied to the subject's trained weights",
+   "command": "python3 scratchpad/accel-lutft/indep/kmeans_check.py research/accel-lutft",
+   "expected": "results.json seed 0: post2/4/8 0.4423/0.8984/0.9533 dense, 0.9396/0.9698/0.9670 pruned",
+   "observed": "identical to 4 decimals in all 6 rows; float32 0.9753/0.9725 also identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "k-means codebook optimality",
+   "method": "exact 1-D k-means by dynamic programming (my code) and sklearn KMeans(n_init=10)",
+   "command": "python3 scratchpad/accel-lutft/indep/kmeans_check.py research/accel-lutft",
+   "expected": "Lloyd SSE equal to the exact optimum",
+   "observed": "equal at K=2; K=8 pruned 9.83 vs exact 8.31 (+18%), dense K=8 17.43 vs 17.06; accuracy moves up to 1.1 points between quantisers",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "means, paired drops and standard errors of all 14 rows",
+   "method": "recomputed from results.json with the Python statistics module",
+   "command": "python3 -I scratchpad/accel-lutft/indep/stats.py results.committed.json",
+   "expected": "results.txt rows, e.g. pruned ft2 0.952 +0.017 (0.004)",
+   "observed": "identical in all 14 rows",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces results.json and results.txt",
+   "method": "rerun in a scratch copy and diff/cmp",
+   "command": "cd copy && python3 experiments/run.py && diff/cmp",
+   "expected": "identical, about 2 min",
+   "observed": "TXT_IDENTICAL, JSON_IDENTICAL, 66 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure.py writes experiments/frontier.png (README.md:22, :52)",
+   "method": "run figure.py in the scratch copy",
+   "command": "python3 experiments/figure.py",
+   "expected": "frontier.png, accuracy against modelled energy",
+   "observed": "wrote lutft.svg, accuracy against K labelled as 'bits'; frontier.png is not regenerated by any script",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "post-training rows reproduce accel-lut",
+   "method": "compare with research/accel-lut/experiments/results.txt",
+   "command": "cat research/accel-lut/experiments/results.txt",
+   "expected": "share2/4/8 identical to post2/4/8",
+   "observed": "accuracies, drops and energies identical in all 6 rows",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Fine-tuning rescues K = 2 and 4 in the 75%-pruned network' (README.md:3)",
+   "method": "paired ft-minus-post differences per split from results.json",
+   "command": "python3 -I scratchpad/accel-lutft/indep/stats.py results.committed.json",
+   "expected": "a K=4 improvement distinguishable from zero",
+   "observed": "K=2 +4.73 pts (se 1.0, 10 wins 0 losses); K=4 +0.08 pts (se 0.35, 4 wins 4 losses), and post4 was already within 2 points",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'14% under int8', '0.2 nJ margin', 'loses everywhere at 0.16'",
+   "method": "arithmetic on results.txt",
+   "command": "python3 -c 'print(1.30/1.51)'",
+   "expected": "about 0.86",
+   "observed": "0.861; margin 0.21 nJ; every table row at 0.16 exceeds int8",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Fine-tuned K = 8 is worse (3.2 against 1.6 points)' dense",
+   "method": "paired differences from results.json",
+   "command": "python3 -I scratchpad/accel-lutft/indep/stats.py results.committed.json",
+   "expected": "ft8 worse than post8",
+   "observed": "-1.59 pts, se 0.50, 0 wins 10 losses",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run the suite",
+   "command": "python3 -m unittest discover -s tests -v",
+   "expected": "4 tests pass under 1 s",
+   "observed": "Ran 4 tests in 0.097s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "activation width consistent between energy and accuracy model",
+   "method": "read run.py ABITS against model.forward input handling",
+   "command": "grep -n ABITS experiments/run.py",
+   "expected": "same input quantisation in both",
+   "observed": "energy charges 4-bit first-layer inputs; accuracy uses unquantised 17-level inputs (needs 5 bits)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/accel_lutft/lut.py:55",
+   "change": "per_w = (kb + idx) * E_READ_PJ_PER_BIT + PROD_BITS * e_tbl_bit + E_ADD_PJ_24 -> per_w = (kb + idx) * E_READ_PJ_PER_BIT + E_ADD_PJ_24",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/accel_lutft/model.py:88",
+   "change": "grads[k] = (a.T @ g * masks[k], g.sum(0)) -> grads[k] = (a.T @ g, g.sum(0))",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:76",
+   "change": "wb = 8 if n == 'int8' else 32 -> wb = 4 if n == 'int8' else 32",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/accel_lutft/lut.py:23",
+   "change": "k = min(k, np.unique(v).size) -> k = min(k + 1, np.unique(v).size)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:65",
+   "change": "rows['ft%d' % k] = evaluate(p2, m2, ...) -> evaluate(params, masks, ...) (ft rows report the un-fine-tuned model)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Energy model and experiment harness are untested: dropping the table-read term from the LUT energy, changing the int8 weight width, or reporting the un-fine-tuned model in the ft rows all leave every test green; test_energy_matches_lut_model compares run.energy with the same lut function it calls, so it cannot fail on a wrong constant.",
+   "where": "research/accel-lutft/tests/test_lutft.py:37",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Headline says fine-tuning 'rescues K = 2 and 4' in the pruned network; at K=4 the post-training design was already within 2 points and fine-tuning changed accuracy by +0.08 points (paired se 0.35, 4 wins 4 losses). Only K=2 is rescued (research/README.md:339 says so correctly).",
+   "where": "research/accel-lutft/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README says figure.py writes experiments/frontier.png (accuracy vs energy); figure.py now writes lutft.svg (accuracy vs K), so the committed frontier.png cannot be regenerated, and lutft.svg labels K = 2, 4, 8 codebook entries as 'table weight width (bits)'.",
+   "where": "research/accel-lutft/experiments/figure.py:32",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Energy charges 4-bit first-layer activations while the accuracy model feeds unquantised 17-level inputs (5 bits), and codebook values are float in the accuracy model but costed as 8-bit operands and 16-bit products.",
+   "where": "research/accel-lutft/experiments/run.py:12",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Lloyd k-means from quantile init is a local optimum (up to 18% above the exact 1-D optimum in SSE); quantiser noise moves single-seed accuracy by ~1 point, the size of the K=4/8 fine-tuning effects being interpreted.",
+   "where": "research/accel-lutft/src/accel_lutft/lut.py:24",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Result that trained shared values recover low-K accuracy is expected from Deep Compression (2016); LUT-inference hardware prior work (UNPU 2018, LUT-GEMM 2024) not cited; single recipe, no sweep, toy task: below the research/CLAUDE.md programme bar.",
+   "where": "research/accel-lutft/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "model.py and lut.py are a third copy of the accel-sparse/accel-lut engine; figure.py carries its own SVG plotter instead of research/_shared/linefig.py.",
+   "where": "research/accel-lutft/experiments/figure.py:36",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, fully reproducible follow-up: run.py regenerates results.json and results.txt byte-identically in 66 s, every energy cell matches hand arithmetic, every mean and paired se matches an independent recomputation, and my own forward pass reproduces the seed-0 post-training accuracies exactly. It misses the bar on claims, verification and the research bar. The headline 'rescues K = 2 and 4' overstates the data (K=4 moved +0.08 points, within noise, and was already inside the tolerance); the README's figure no longer matches figure.py; four of five seeded mutants, including one that reports the un-fine-tuned model as fine-tuned, survive the tests. The finding is the one Deep Compression predicts, on an 8x8-digits MLP with one recipe that hurts dense K=8 in 10 of 10 splits, and the energy and accuracy models disagree on input width. Median 2."
+}
