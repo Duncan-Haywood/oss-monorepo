@@ -43,3 +43,9 @@ Found (SAT, --shape), stored when it needs fewer courts than the size's 6-slot d
 13 2 9 | yes | True | 100.4 | fully booked; 3 at 6
 15 3 9 | yes | True | 50.9 | 4 at 6
 17 3 9 | yes | True | 245 | 4 at 6
+
+Timed out (--shape, killed by `timeout`; up to five runs shared the 4 cores):
+19 3 9 | yes | - | >1800 | fully booked
+21 4 9 | yes | - | >1200 |
+27 7 6 | yes | - | >2400 | (an earlier run passed 1500)
+23 4 9, 29 5 9 | yes | - | >1500 | stopped when the PR merged

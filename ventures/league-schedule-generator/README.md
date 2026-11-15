@@ -399,8 +399,11 @@ when it saves a court over the 6-slot one (`designedNights` already takes any de
 `times <=` the league's). `doubleheader.test.mjs` checks both: 11 and 13 teams on 2 x 9 build
 wait-free (and keep waits with the search off), and 11 on 3 x 9 still uses the 6-slot design.
 
-Open: 19 teams on 3 x 9 (fully booked), 21, 23 and 25 on 4 x 9, 27 and 29 on 5 x 9, 27 on 7 x 6
-(runs of up to 50 minutes each in `eval/odd-night-sat.txt`).
+Open: 19 teams on 3 x 9 (fully booked; the `--shape` run passed 30 minutes), 21 on 4 x 9 (passed
+20), 23 and 25 on 4 x 9, 27 and 29 on 5 x 9 (29 passed 25), and 27 on 7 x 6 (passed 40 this time,
+25 before). At 9 slots a full night allows far more window shapes than at 6, so the implied
+constraints prune less; a symmetry break on the first night, or solving night by night with the
+pairs left, are the next things to try (`eval/odd-night-sat.txt`).
 
 ### Odd leagues, three games a night: solved with the layout, and two proofs (2026-11-15, later)
 
