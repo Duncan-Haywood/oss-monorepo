@@ -1,0 +1,7064 @@
+{
+ "fail": {
+  "0.2|2.0|none": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|white|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|white|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|white|-10.0": [
+   0.25,
+   0.0
+  ],
+  "0.2|2.0|AirConditioner|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|AirConditioner|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|AirConditioner|-10.0": [
+   0.0,
+   0.125
+  ],
+  "0.2|2.0|AirportAnnouncements|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|AirportAnnouncements|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|AirportAnnouncements|-10.0": [
+   0.0625,
+   0.375
+  ],
+  "0.2|2.0|Babble|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|Babble|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|Babble|-10.0": [
+   0.5,
+   0.6875
+  ],
+  "0.2|2.0|CopyMachine|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|CopyMachine|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|CopyMachine|-10.0": [
+   0.8125,
+   0.3125
+  ],
+  "0.2|2.0|Munching|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|Munching|0.0": [
+   0.125,
+   0.0
+  ],
+  "0.2|2.0|Munching|-10.0": [
+   0.75,
+   0.375
+  ],
+  "0.2|2.0|Neighbor|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|Neighbor|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|Neighbor|-10.0": [
+   0.4375,
+   0.625
+  ],
+  "0.2|2.0|ShuttingDoor|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|ShuttingDoor|0.0": [
+   0.0625,
+   0.0
+  ],
+  "0.2|2.0|ShuttingDoor|-10.0": [
+   0.3125,
+   0.1875
+  ],
+  "0.2|2.0|Typing|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|Typing|0.0": [
+   0.3125,
+   0.0
+  ],
+  "0.2|2.0|Typing|-10.0": [
+   0.875,
+   0.875
+  ],
+  "0.2|2.0|VacuumCleaner|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|VacuumCleaner|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.2|2.0|VacuumCleaner|-10.0": [
+   0.0,
+   0.0625
+  ],
+  "0.8|2.0|none": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|white|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|white|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|white|-10.0": [
+   0.125,
+   0.0
+  ],
+  "0.8|2.0|AirConditioner|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|AirConditioner|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|AirConditioner|-10.0": [
+   0.0625,
+   0.1875
+  ],
+  "0.8|2.0|AirportAnnouncements|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|AirportAnnouncements|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|AirportAnnouncements|-10.0": [
+   0.125,
+   0.4375
+  ],
+  "0.8|2.0|Babble|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|Babble|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|Babble|-10.0": [
+   0.3125,
+   0.625
+  ],
+  "0.8|2.0|CopyMachine|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|CopyMachine|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|CopyMachine|-10.0": [
+   1.0,
+   0.25
+  ],
+  "0.8|2.0|Munching|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|Munching|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|Munching|-10.0": [
+   0.8125,
+   0.375
+  ],
+  "0.8|2.0|Neighbor|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|Neighbor|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|Neighbor|-10.0": [
+   0.25,
+   0.75
+  ],
+  "0.8|2.0|ShuttingDoor|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|ShuttingDoor|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|ShuttingDoor|-10.0": [
+   0.4375,
+   0.375
+  ],
+  "0.8|2.0|Typing|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|Typing|0.0": [
+   0.4375,
+   0.0
+  ],
+  "0.8|2.0|Typing|-10.0": [
+   0.9375,
+   0.75
+  ],
+  "0.8|2.0|VacuumCleaner|10.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|VacuumCleaner|0.0": [
+   0.0,
+   0.0
+  ],
+  "0.8|2.0|VacuumCleaner|-10.0": [
+   0.0,
+   0.0625
+  ]
+ },
+ "kurt": {
+  "none": [
+   0.5574245491256558,
+   1.0329591925026294,
+   1.3899475867390643
+  ],
+  "white": [
+   0.514910865020708,
+   0.9275010274843514,
+   1.3009859465706175
+  ],
+  "AirConditioner": [
+   0.43989797658997276,
+   0.6568098195283694,
+   1.0884379279412828
+  ],
+  "AirportAnnouncements": [
+   0.6009718216037803,
+   0.810018201761441,
+   1.0566284658887553
+  ],
+  "Babble": [
+   0.5352674881552387,
+   0.933435012768939,
+   1.4947225382128282
+  ],
+  "CopyMachine": [
+   0.9492422580420833,
+   1.2851116898918724,
+   1.6881153709701637
+  ],
+  "Munching": [
+   1.0002683149756684,
+   1.3733090063383437,
+   1.7060885247507718
+  ],
+  "Neighbor": [
+   0.6483609868140101,
+   1.0022959351686098,
+   1.4984617706274137
+  ],
+  "ShuttingDoor": [
+   0.7903302202111873,
+   1.4568153086946993,
+   1.6588628367503084
+  ],
+  "Typing": [
+   1.3051352444700752,
+   1.5879236517555713,
+   1.7728954734129998
+  ],
+  "VacuumCleaner": [
+   0.4014588283195612,
+   0.9661524047657618,
+   1.496010172479887
+  ]
+ },
+ "flat": {
+  "none": [
+   -11.902862423136739,
+   -9.458350577608362,
+   -6.676719592201379
+  ],
+  "white": [
+   -0.3623364991193279,
+   -0.23829245301665858,
+   -0.15944945052631396
+  ],
+  "AirConditioner": [
+   -11.914930639617314,
+   -9.425104070805109,
+   -6.192563074026401
+  ],
+  "AirportAnnouncements": [
+   -10.897044243824647,
+   -8.798226788941214,
+   -7.360458563076708
+  ],
+  "Babble": [
+   -9.256357437764917,
+   -7.411301169654456,
+   -4.417665038380599
+  ],
+  "CopyMachine": [
+   -4.176046057862948,
+   -2.6657829917057,
+   -1.655850950058981
+  ],
+  "Munching": [
+   -4.348600685170858,
+   -2.8658724432449176,
+   -1.843589232262505
+  ],
+  "Neighbor": [
+   -10.781929200736355,
+   -8.694080993526457,
+   -5.872729658222183
+  ],
+  "ShuttingDoor": [
+   -8.406538638461708,
+   -4.249865878456321,
+   -1.4014352451251342
+  ],
+  "Typing": [
+   -6.190446084104447,
+   -2.7973947213561963,
+   -1.4482326845322593
+  ],
+  "VacuumCleaner": [
+   -4.201787814617048,
+   -3.379115213215522,
+   -2.4680071180173626
+  ]
+ },
+ "choice": {
+  "T1|0.2": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|white": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|white": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|AirConditioner": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|AirConditioner": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|AirportAnnouncements": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|AirportAnnouncements": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|Babble": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|Babble": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|CopyMachine": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|CopyMachine": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|Munching": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|Munching": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|Neighbor": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|Neighbor": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|ShuttingDoor": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|ShuttingDoor": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|Typing": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|Typing": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.2|VacuumCleaner": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.2|VacuumCleaner": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T1|0.8": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|white": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|white": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|AirConditioner": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|AirConditioner": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|AirportAnnouncements": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|AirportAnnouncements": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|Babble": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|Babble": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|CopyMachine": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|CopyMachine": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|Munching": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|Munching": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|Neighbor": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|Neighbor": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|ShuttingDoor": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|ShuttingDoor": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|Typing": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|Typing": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T2|0.8|VacuumCleaner": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "T3|0.8|VacuumCleaner": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "T0": {
+  "0.2": {
+   "n_test": 24,
+   "inside": 0.8333333333333334,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8": {
+   "n_test": 24,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  }
+ },
+ "T1": {
+  "0.2|AirConditioner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  }
+ },
+ "T2": {
+  "0.2|white|all": {
+   "n_test": 18,
+   "inside": 0.8888888888888888,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|white|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|white|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|white|-10.0": {
+   "n_test": 6,
+   "inside": 0.6666666666666666,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|white|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|white|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|white|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|white|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  }
+ },
+ "T3": {
+  "0.2|white|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|white|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|white|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|white|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|all": {
+   "n_test": 18,
+   "inside": 0.8888888888888888,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|0.0": {
+   "n_test": 6,
+   "inside": 0.8333333333333334,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirConditioner|-10.0": {
+   "n_test": 6,
+   "inside": 0.8333333333333334,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|AirportAnnouncements|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Babble|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|CopyMachine|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Munching|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Neighbor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|all": {
+   "n_test": 18,
+   "inside": 0.9444444444444444,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|ShuttingDoor|-10.0": {
+   "n_test": 6,
+   "inside": 0.8333333333333334,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|Typing|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.2|VacuumCleaner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|white|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|white|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|white|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|white|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirConditioner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|AirportAnnouncements|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Babble|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|CopyMachine|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Munching|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Neighbor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|ShuttingDoor|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|Typing|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|all": {
+   "n_test": 18,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|0.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  },
+  "0.8|VacuumCleaner|-10.0": {
+   "n_test": 6,
+   "inside": 1.0,
+   "mondrian|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "mondrian|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|1.0": [
+    0.0,
+    NaN,
+    0
+   ],
+   "class|0.25": [
+    0.0,
+    NaN,
+    0
+   ],
+   "select": [
+    0.0,
+    NaN,
+    0
+   ]
+  }
+ },
+ "replay_equal": [
+  17,
+  62
+ ]
+}
