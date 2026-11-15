@@ -16,6 +16,9 @@ Per job: honest loss, the loss after stalling each segment, and per segment the 
 lr * RMS(update direction) (the effective step a referee can read off its own honest run).
 Honest-only runs on calibration seeds 100-109 for each test schedule give the referee's P_eff (no test seed used).
 Run: ADAM_TOTAL=6.0 OMP_NUM_THREADS=1 PYTHONPATH=../../src python3 run.py   (numpy + scikit-learn; about 15 minutes on 4 processes). Writes results.json.
+     After-the-run diagnostics (LOG.md): OPTS=adam ADAM_TOTAL=1.5 OUT=results_adam_lr1e-3.json, same command;
+     and OPTS=adam ADAM_TOTAL=1.5 ADAM_COUNT=taken OUT=results_adam_lr1e-3_taken.json (the stall freezes the counter);
+     and OPTS=adam ADAM_TOTAL=6.0 ADAM_COUNT=taken OUT=results_adam_taken.json.
      OMP_NUM_THREADS=1 python3 run.py --pick-adam-scale   (honest runs only; prints the calibration table)."""
 import importlib.util
 import json
@@ -34,7 +37,7 @@ from vtm.margin import grad, init, loss  # noqa: E402
 
 T, S, N = m82.T, m82.S, m82.N
 DATA = m82.DATA
-OPTS = ("momentum", "adam")
+OPTS = tuple(os.environ.get("OPTS", "momentum,adam").split(","))
 TEST_SCHEDULES = ("cosine", "step", "warmcos", "sgdr")
 CAL_SCHEDULE = "constant"
 BETA = 0.9
@@ -67,7 +70,10 @@ def step(opt, w, st, g, lr, t):
     return (w - lr * u).astype(np.float32), (m, v), u
 
 
-def run_from(opt, w, st, t_from, lrs, batches, keep=False):
+COUNT = os.environ.get("ADAM_COUNT", "global")  # "taken": a stall also freezes Adam's bias-correction counter
+
+
+def run_from(opt, w, st, t_from, lrs, batches, keep=False, skipped=0):
     """Train from step t_from to T. keep=True returns the state at every segment boundary and per-segment
     sum of lr * RMS(update direction)."""
     xtr, ytr = DATA[0], DATA[1]
@@ -76,7 +82,7 @@ def run_from(opt, w, st, t_from, lrs, batches, keep=False):
         if keep and t % S == 0:
             cps.append((w, st))
         b = batches[t]
-        w, st, u = step(opt, w, st, grad(w, xtr[b], ytr[b]), float(lrs[t]), t)
+        w, st, u = step(opt, w, st, grad(w, xtr[b], ytr[b]), float(lrs[t]), t - skipped)
         if keep:
             eff[t // S] += lrs[t] * float(np.sqrt(np.mean(u * u)))
     return w, cps, eff
@@ -100,7 +106,7 @@ def stall_job(args):
     single = []
     for j in range(N):
         w, st = cps[j]  # a stall commits the segment's start state as its end state
-        wf = run_from(opt, w, st, j * S + S, lrs, batches)[0]
+        wf = run_from(opt, w, st, j * S + S, lrs, batches, skipped=S if COUNT == "taken" else 0)[0]
         single.append(g7(loss(wf, xte, yte)))
     return opt, seed, sched, base, single, [g7(v) for v in eff]
 
@@ -142,7 +148,7 @@ def main():
         out = pool.map(stall_job, jobs, chunksize=1)
         cal = pool.map(honest_job, [(o, sd, sc, ADAM_TOTAL) for o in OPTS for sc in TEST_SCHEDULES
                                     for sd in m82.CAL_SEEDS])
-    res = {"T": T, "S": S, "N": N, "adam_total": ADAM_TOTAL, "beta": BETA, "adam_betas": [B1, B2, EPS], "opts": {}}
+    res = {"adam_count": COUNT, "T": T, "S": S, "N": N, "adam_total": ADAM_TOTAL, "beta": BETA, "adam_betas": [B1, B2, EPS], "opts": {}}
     for o in OPTS:
         res["opts"][o] = {}
         for sc in TEST_SCHEDULES + (CAL_SCHEDULE,):
@@ -153,7 +159,7 @@ def main():
                          for o2, sd, s2, base, single, eff in out if o2 == o and s2 == sc}}
             if sc != CAL_SCHEDULE:  # the referee's own honest runs: where P_eff comes from
                 res["opts"][o][sc]["cal_eff"] = {str(sd): eff for o2, sd, s2, _, _, eff in cal if o2 == o and s2 == sc}
-    json.dump(res, open(os.path.join(HERE, "results.json"), "w"), separators=(",", ":"))
+    json.dump(res, open(os.path.join(HERE, os.environ.get("OUT", "results.json")), "w"), separators=(",", ":"))
     print("wrote results.json:", len(out), "jobs")
 
 
