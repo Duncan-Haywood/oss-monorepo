@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKmkMe2XU3f2c8rZUDB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T07:09:22Z",
+  "ended": "2026-11-15T07:15:08Z",
+  "wall_minutes": 6.06,
+  "tokens_in": 3651705,
+  "tokens_out": 23340,
+  "cost_usd": 1.9765,
+  "tool_calls": 39,
+  "task": "research/heavy-hydraulics milestone 6t: functional-form robustness and a maker-level bootstrap interval for the paper's 0.82 gear-pump crossing",
+  "projects": [
+    "heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16134",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co and every maker host (boschrexroth, parker, casappa, bucher) refused at CONNECT (403) this session, so no break-even rerun or fourth catalogue was possible"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "drew heavy-hydraulics although its HOSTS file lists huggingface.co, which refused at CONNECT this session; the HOSTS header says pick_track skips such programmes, so either the probe passed through a different path or it did not run"
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "the failure message prints the rule but tail -1 of its output hides which field failed; two rounds to find the description was over 160 characters"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md (6s Next)",
+      "why": "every listed next step needed a refused host or the owner; took an offline robustness step a reviewer would ask for instead",
+      "did": "fitted three alternative link functions, an isotonic fit and an exact 27-draw maker bootstrap on the committed sweep points",
+      "result": "crossing robust (0.813 to 0.826); design-rule tails move by about 0.02, manuscript corrected to print ranges"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-is-the-gear-pump-threshold-an-artefact-of-the-logistic.md",
+    "research/heavy-hydraulics/LOG.md (6t)"
+  ],
+  "goal": null,
+  "notes": "Local checks: heavy-hydraulics tests 86 passed; check_numbers.py --paper manuscript.md 35 claims 0 missing 0 orphans; check_numbers.py 339 claims 0 missing; build_tex.py 0 problems for both sources; research/_homepage/build.py ok; check_md_links ok; post front matter ok; post_similarity 0 pairs. Six predictions pre-registered: FF1-3, FF5, FF6 held; FF4 (tails span <= 0.010) refuted (0.0251). No new citations, so cite_check unchanged.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c804b3d0-01c2-5381-90e0-14ae69ca935d",
+    "transcripts": 1,
+    "first": "2026-11-15T07:09:22Z",
+    "last": "2026-11-15T07:15:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 73,
+        "output": 23340,
+        "thinking": 5693,
+        "cache_read": 3551750,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99882,
+        "api_equivalent_usd": 1.9765,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 73,
+      "output": 23340,
+      "thinking": 5693,
+      "cache_read": 3551750,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99882,
+      "api_equivalent_usd": 1.9765,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 2,
+      "Write": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.06,
+      "active_minutes": 6.06,
+      "model_minutes": 4.89,
+      "tool_minutes": 1.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician refitting four link functions, isotonic and bootstrap, and revising a manuscript section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 303.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

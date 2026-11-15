@@ -1,9 +1,9 @@
 ---
 title: "Is the 0.82 gear-pump threshold just the logistic talking?"
-seo_title: "Gear pump efficiency threshold, excavator load-sensing: curve-form check"
+seo_title: "Gear pump efficiency threshold for excavators: a curve-form check"
 date: 2026-11-15
 tags: [research, heavy-equipment, hydraulics, gear-pump, load-sensing, excavator, statistics]
-description: "Four curve forms, a fit with no form at all and a maker-level bootstrap put the excavator's gear-pump crossing at 0.813 to 0.826. The design rule's tails move by about 0.02."
+description: "Four curve forms, a formless fit and a maker bootstrap put the excavator gear-pump crossing at 0.813 to 0.826. The tails move by about 0.02."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md)
