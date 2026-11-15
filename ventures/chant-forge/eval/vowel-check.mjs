@@ -14,7 +14,7 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
-import { FORMANTS, latinVowel, latinOnset, onsetLength, SING_DEFAULTS, singNote } from '../sing.mjs';
+import { FORMANTS, latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, SING_DEFAULTS, singNote } from '../sing.mjs';
 import { estimateFormants, nearestVowel } from '../formants.mjs';
 
 const args = process.argv.slice(2);
@@ -110,7 +110,7 @@ lines.push('## C. The corpus pieces (final D3, fitted to 4/4 at 124 BPM, every c
   'The window is the note from 60 ms in to 10 ms before its end (a diphthong\'s last note: up to where the glide starts), so the previous note\'s 50 ms legato crossfade has ended. On a syllable\'s first note the window starts later by the part of its consonant sung after the beat plus the 45 ms formant transition (the consonant goes before the beat where the previous note has room; `eval/consonant-check-report.md`), and it ends where the next syllable\'s consonant starts (up to half the note before the next beat). Notes left with under 0.1 s are skipped.', '',
   '| piece | notes measured | singing: vowel read right | pad (control): read right | pad reads everything as |', '|---|---|---|---|---|');
 const confusion = Object.fromEntries(V.map((v) => [v, Object.fromEntries(V.map((w) => [w, 0]))]));
-let cAll = [0, 0], pAll = [0, 0];
+let cAll = [0, 0], pAll = [0, 0]; const newWin = [0, 0];
 for (const p of PIECES) {
   const src = parseGabc(readFileSync(new URL(`${p}.gabc`, corpus), 'utf8'));
   const midiBytes = eventsToMidi(fitToBars(transposeToFinal(src.events, 50), 8), { bpm: 124, title: p });
@@ -127,15 +127,21 @@ for (const p of PIECES) {
       // and it ends where the next syllable's consonant starts, up to half this note before its beat
       const nx = notes[notes.indexOf(n) + 1], nxOn = sing && nx && first.get(nx.syl) === nx ? latinOnset(nx.lyric) : [];
       const cut = nxOn.length ? Math.max(0, Math.min(onsetLength(nxOn), 0.5 * (n.t1 - n.t0) + Math.max(0, nx.t0 - n.t1)) - Math.max(0, nx.t0 - n.t1)) : 0;
-      const to = glides ? n.t0 + SING_DEFAULTS.glideFrom * (n.t1 - n.t0) : n.t1 - cut - 0.01;
+      const toOld = glides ? n.t0 + SING_DEFAULTS.glideFrom * (n.t1 - n.t0) : n.t1 - cut - 0.01;
+      // and on a syllable's last note it ends where the final consonant's formant transition starts
+      // (codaPlan: the coda ends where the note's sound does); the first round's window ran over it
+      const cd = sing && last.get(n.syl) === n ? latinCoda(n.lyric) : [];
+      const cp = cd.length ? codaPlan(cd, n.t1 - n.t0, n.t1 - cut) : null;
+      const to = cp ? Math.min(toOld, cp.codaAt - 0.045 * cp.scale - 0.01) : toOld;
       // a syllable's consonant is sung mostly before the beat; what of it does not fit there spills
       // past the beat (render.mjs), so the window starts after the spill and its formant transition
       const on = sing && first.get(n.syl) === n ? latinOnset(n.lyric) : [];
       const spill = on.length ? Math.max(0, Math.min(onsetLength(on), 0.15 + 0.3 * (n.t1 - n.t0)) - 0.15) + 0.045 : 0;
-      if (to - (n.t0 + 0.06 + spill) < 0.1) continue;
-      const e = estimateFormants(stem, rate, { from: n.t0 + 0.06 + spill, to, frames: 3, frameMs: 30 });
+      if (toOld - (n.t0 + 0.06 + spill) < 0.1) continue;
+      const e = estimateFormants(stem, rate, { from: n.t0 + 0.06 + spill, to: toOld, frames: 3, frameMs: 30 });
       const got = nearestVowel(e, FORMANTS);
       all++; if (got === want.vowel) right++;
+      if (sing && to - (n.t0 + 0.06 + spill) >= 0.1) { const en = to === toOld ? e : estimateFormants(stem, rate, { from: n.t0 + 0.06 + spill, to, frames: 3, frameMs: 30 }); newWin[1]++; if (nearestVowel(en, FORMANTS) === want.vowel) newWin[0]++; }
       reads[got] = (reads[got] || 0) + 1;
       if (sing) confusion[want.vowel][got]++;
     }
@@ -145,7 +151,8 @@ for (const p of PIECES) {
   const top = Object.entries(res.false.reads).sort((a, b) => b[1] - a[1]).map(([v, c]) => `/${v}/ ${c}`).join(', ');
   lines.push(`| ${p} | ${res.true.all} | ${pct(res.true.right, res.true.all)} | ${pct(res.false.right, res.false.all)} | ${top} |`);
 }
-lines.push(`| all | ${cAll[1]} | ${pct(...cAll)} | ${pct(...pAll)} | |`, '', 'Singing, written vowel (rows) against vowel read (columns):', '',
+lines.push(`| all | ${cAll[1]} | ${pct(...cAll)} | ${pct(...pAll)} | |`, '',
+  `This window runs on into a syllable's final consonant, which since the second round of codas (per-phone floors, up to half a short note; README "Final consonants, second round") takes more of a short note: with the first round's codas it read 895 of 920. Ending the window where the final consonant's formant transition starts (\`codaPlan\`), on the ${newWin[1]} notes left with 0.1 s or more: ${pct(...newWin)}.`, '', 'Singing, written vowel (rows) against vowel read (columns):', '',
   '| written | ' + V.map((v) => `/${v}/`).join(' | ') + ' |', '|---|' + V.map(() => '---').join('|') + '|',
   ...V.map((v) => `| /${v}/ | ${V.map((w) => confusion[v][w]).join(' | ')} |`), '');
 

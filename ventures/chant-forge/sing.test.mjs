@@ -147,8 +147,14 @@ test('a coda sits at the end of the note and leaves the vowel before it', () => 
   const p = codaPlan(['s'], 0.6, 0.6);
   assert.equal(p.segs.at(-1).t1, 0.6);
   assert.equal(p.scale, 1);
+  // a cluster on a short note keeps its floors (a 45 ms closure, 35 ms of hiss) and may take up to half the note
   const short = codaPlan(['k', 's'], 0.24, 0.24);
-  assert.ok(short.scale < 1 && 0.24 - short.codaAt <= 0.35 * 0.24 + 1e-9, JSON.stringify(short));
+  assert.ok(short.scale < 1 && 0.24 - short.codaAt <= 0.5 * 0.24 + 1e-9, JSON.stringify(short));
+  const [k, s] = short.segs;
+  assert.ok(k.closure * k.k >= 0.045 - 1e-9 && s.t1 - s.t0 >= 0.035 - 1e-9 && Math.abs(s.t1 - 0.24) < 1e-9, JSON.stringify(short));
+  // a single consonant that fits in 35% of the note is not stretched
+  const one = codaPlan(['t'], 0.24, 0.24);
+  assert.ok(0.24 - one.codaAt <= 0.35 * 0.24 + 1e-9, JSON.stringify(one));
   const w = singNote(146.83, 0.6, rate, { vowel: 'a', coda: ['s'], release: 0.2 });
   assert.equal(nearestVowel(estimateFormants(w, rate, { from: 0.1, to: 0.4 }), FORMANTS), 'a');
   // after a final obstruent the voices stop: the release is silent
@@ -171,5 +177,20 @@ test('renderMidi sing: the final consonant reads back from the audio, and the vo
       if (sing === true) for (const [k, v] of Object.entries(want)) assert.equal(got[k], v, `${s}: ${JSON.stringify(got)}`);
       else assert.equal(got.cls, 'none', `${s} sung without consonants: ${JSON.stringify(got)}`);
     });
+  }
+});
+
+test('a final nasal hums about 7 dB under its vowel at any pitch (one voice), and x reads as its k', () => {
+  const rms = (x, a, b) => { let q = 0; for (let i = Math.round(a * rate); i < Math.round(b * rate); i++) q += x[i] * x[i]; return Math.sqrt(q / ((b - a) * rate)); };
+  for (const midi of [40, 50, 57, 64]) for (const vowel of ['a', 'u']) {
+    const f = 440 * 2 ** ((midi - 69) / 12), dur = 0.6;
+    const w = singNote(f, dur, rate, { vowel, coda: ['m'], release: 0.3, detunes: [0], vibratoCents: 0, breath: 0 });
+    const d = 20 * Math.log10(rms(w, dur - 0.04, dur - 0.01) / rms(w, 0.2, 0.4));
+    assert.ok(d < -5 && d > -9, `${vowel} on ${midi}: murmur ${d.toFixed(1)} dB`);
+  }
+  for (const dur of [0.242, 0.5]) {
+    const w = singNote(146.83, dur, rate, { vowel: 'e', coda: latinCoda('dex'), release: 0.25 });
+    const got = readCoda(w, rate, 0.05, dur);
+    assert.deepEqual([got.cls, got.voiced, got.place], ['stop', false, 'vel'], `dex at ${dur} s: ${JSON.stringify(got)}`);
   }
 });

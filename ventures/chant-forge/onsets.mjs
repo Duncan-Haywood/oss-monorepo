@@ -66,7 +66,14 @@ export function frameFeatures(x, i0, rate, len = 0.02) {
     if (f >= 1000 && f < 5000) bands[Math.floor((f - 1000) / 500)] += p;
   }
   for (let b = 0; b < 6; b++) if (bands[b] > best) { best = bands[b]; peakHz = 1250 + 500 * b; } // compact peak between 1 and 4 kHz
-  return { tot, low, hi1, peakHz, lowR: tot ? low / tot : 0, hiR: tot ? hi / tot : 0, centroid: mid ? cw / mid : 0, compact: mid ? best / mid : 0 };
+  // the same, with the 500 Hz band free to sit anywhere from 1 to 4 kHz (a peak at 2 kHz is not split
+  // between two fixed bands): readCoda's place uses it
+  let slide = 0, slideHz = 0; const w = Math.round(500 / df);
+  for (let k0 = Math.round(1000 / df); k0 + w <= Math.round(4000 / df); k0++) {
+    let q = 0; for (let k = k0; k < k0 + w; k++) q += re[k] * re[k] + im[k] * im[k];
+    if (q > slide) { slide = q; slideHz = (k0 + w / 2) * df; }
+  }
+  return { tot, low, hi1, peakHz, lowR: tot ? low / tot : 0, hiR: tot ? hi / tot : 0, centroid: mid ? cw / mid : 0, compact: mid ? best / mid : 0, compactAny: mid ? slide / mid : 0, compactHz: slideHz };
 }
 
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
@@ -216,6 +223,10 @@ export function readCoda(x, rate, vowelAt, tEnd) {
       let peak = q; for (let j = i; j < i + Math.round(0.01 * rate); j += w2) peak = Math.max(peak, e2(j));
       let late = 0, nl = 0; for (let j = i + Math.round(0.02 * rate); j < i + Math.round(0.03 * rate); j += w2) { late += e2(j); nl++; }
       if (late / Math.max(1, nl) < peak / 4) return i;
+      // or the burst runs straight into frication (the k s of "lux", the p s of "ops"): noise above
+      // 2.5 kHz from 10 to 30 ms after it, with the voices still off, is the cluster's fricative
+      const after = [0.01, 0.02].map((d) => frameFeatures(x, i + Math.round(d * rate), rate));
+      if (i + Math.round(0.04 * rate) <= zEnd && after.every((f) => f.hiR > Math.max(0.5, 3 * vHi) && db(f.low, vLow) < -20)) return i;
       return -1; // the energy came back and stayed: the next sound, not a burst
     }
     return -1;
@@ -239,11 +250,13 @@ export function readCoda(x, rate, vowelAt, tEnd) {
   if (kind === 'closure') {
     // the voice bar is read before the burst: after a final stop the closure runs on into silence
     const rel = burstAfter(r), shut = seg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);
-    const inner = shut.length > 2 ? shut.slice(1, -1) : shut.length ? shut : seg;
+    // read from the closure's later half: on a short closure the first frames' windows still reach back
+    // into the vowel, which then reads as a voice bar (a 35 ms k s closure read -39 dB, voiced)
+    const inner = shut.length >= 2 ? shut.slice(Math.floor(shut.length / 2)) : shut.length ? shut : seg;
     const bar = median(inner.map((f) => f.loRel)), voiced = bar > -40;
     const b = frameFeatures(x, rel - Math.round(0.001 * rate), rate, 0.01);
     // with no vowel after it a labial burst is plainly low: most of its energy under 1 kHz
-    const place = b.centroid > 3400 ? 'alv' : b.hi1 < 0.5 * b.tot ? 'lab' : b.compact > 0.4 && b.peakHz >= 1500 ? 'vel' : 'lab';
+    const place = b.centroid > 3400 ? 'alv' : b.hi1 < 0.5 * b.tot ? 'lab' : b.compactAny > 0.4 && b.compactHz >= 1500 ? 'vel' : 'lab';
     return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz };
   }
   if (kind === 'fricative') {
