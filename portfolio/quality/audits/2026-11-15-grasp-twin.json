@@ -1,0 +1,271 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/grasp-twin",
+ "stratum": "research",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a robotic grasping researcher reviewing for ICRA / IEEE RA-L (grasp force optimisation and robust grasping under contact uncertainty). They would check first: is the slip/crush model physically right for a two-finger pinch (friction cone, per-finger load), is the closed-form optimum actually the global optimum, does the Monte Carlo agree, are the plug-in/delta-method numbers converged, what is the nearest prior work (grasp force optimisation, robust grasp quality under friction uncertainty, value-of-the-stochastic-solution / estimate-then-optimise), and is anything here new or tested on real grasp data",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed with scipy 1.18 / numpy, importing nothing from grasp_twin (scratchpad indep.py). Base optimum: scipy bounded minimiser + brentq on my hand-derived J'(x) = -phi(u)/s + phi(v)/r gives x* 1.3976935, F* 4.0459 w0, J* 0.013731 (slip 0.00942, crush 0.00431) = results.txt; numpy.roots of the hand-derived stationarity quadratic (x+m)^2/s^2-(x-f)^2/r^2 = 2 ln(r/s) gives 1.39769349 (and 2.918, a maximum). Too-clean twin rows (s_twin 0.2/0.1/0.05: F 3.718/3.121/2.652, twin J 1.68e-3/1.09e-5/3.45e-8, real J 0.02010/0.06901/0.17354, 0.5/4.0/11.6 x J*), bias rows (delta -0.3/+0.15/+0.3: regret 0.01168/0.00208/0.00778), and DR width (continuous optimum 0.4668 for +0.3, regret 0.02017 at -0.3 for w=0.47) all match. Delta method with analytic implicit-function derivatives (J''=2.1379, dx/dm=-0.3089, dx/ds=0.5939; Fisher variances s^2/n, s^2/2n) gives 0.00523 (n=5), 0.00052 (50), 0.00003 (1000) = results.txt. numpy Monte Carlo at x*+0.3, 1e7 grasps: slip 0.000414, crush 0.26544 vs exact 0.00041 / 0.26529. Not 4: the small-n plug-in means are single 2000-fit draws of a heavy-tailed regret; 40,000 fits with the author's own code give 0.01216 +/- 0.00013 at n=5 (reported 0.01094 +/- 0.00052, 2.3 se low), and my numpy redraw 0.01227 +/- 0.00047, so delta/mean at n=5 is 0.43 not 0.48, and 0.93 (not 0.95) at n=50.",
+  "completeness": "README promises: 7 tests (`PYTHONPATH=src python3 -m unittest discover -s tests -v`: Ran 7 tests in 0.379s OK); run.py reproduces results.txt (rerun, diff empty); figure.py regenerates claimed_vs_real.svg (rerun in a scratch copy, byte-identical); live page https://marisstella.app/research/grasp-twin/ returns 200 with the headline numbers (0.069, 4.0x, 11.6x, real slip 0.50 to 0.015, 1.5x) and the figure at /research/grasp-twin/claimed_vs_real.svg (200 image/svg+xml); white paper present with Limitations and Next steps; companion twin projects named in README exist. Everything claimed as done runs end to end. Stale: README:10 says run.py takes ~1 min, it takes 2.0 s.",
+  "verification": "Tests pass (7 OK in 0.4 s). They check the closed form against the author's own numeric search, FOC, Monte Carlo agreement, regret signs and orderings, the local-quadratic ratio, width compensation, and the delta method at n=400 only. Five mutants via platform/ci/quality_mutate.py: 3 caught (Var s_hat s^2/2n -> s^2/n; sign of the log-weight term in the quadratic; min -> max over candidate roots), 2 survived: fit_plugin's variance divisor n -> n-1 (model.py:102, changes every small-n calibration number) and run.py:26 plateau upper edge 3 sd -> 2 sd (changes the headline 'real slip 0.015' number). No test pins results.txt, run.py is untested, and nothing tests small-n plug-in regret or the plateau numbers that the README headlines.",
+  "craft": "Read src/grasp_twin/model.py (123 lines), tests/test_model.py, experiments/run.py, figure.py, pyproject.toml. Stdlib only, small pure functions, figure parsed from results.txt rather than retyped, honest docstrings about the plateau. Defects: x_star filters roots by a finite-difference second derivative with e=1e-5 (model.py:58-59) that returns exactly 0.0 when the loss is ~1e-11 at the true minimum, so x_star returns None (seen on a real n=5 plug-in fit, s_hat=0.033, and on 248 of 3000 random parameter sets); the grid fallback hides it. x_star also returns an interior local minimum that is worse than the boundary 'do not grip / accept crush' limits (10 of 3000 random parameter sets, e.g. Ls 0.97, Lc 3.58), contradicting its docstring. run.py recomputes J'' by hand instead of reusing the module; `from grasp_twin.model import *` in tests and run.py; empty __init__.py.",
+  "claims": "Checked against results.txt and recomputation: the headline numbers (F* 4.05, J* 0.0137, 1.1e-5 vs 0.069, 4.0x, 11.6x, 2/15/57/85% bias costs, width 0.47, 0.020 = 1.5x J*, the plug-in means) are all in results.txt and recompute. Wrong or unbacked: (1) README:3 says the delta method 'over-predicts at small n, e.g. 0.48x at n=5'; delta/mean = 0.48 means it under-predicts, as the white paper (whitepaper.md:17) correctly says. (2) README:3 and whitepaper.md:17 'within 5% for n >= 50' rests on one 2000-fit draw; at 40,000 fits the ratio is 0.932 at n=50 and 0.961 at n=100, so the threshold is n >= 100. (3) README:10 '~1 min' for run.py, actual 2.0 s. (4) model.py:42 docstring 'cannot happen for positive weights with -m < f' is false (None on 8% of random positive-weight parameter sets with -m < f, including a base-case plug-in fit). (5) README:3 'upper edge ... real slip 0.015' is a point the author chose (3 crush-sd below the median crush force, run.py:26), not an edge of the twin's plateau; the white paper says so, the README and live page do not. Limits paragraph and 'chosen, not measured' caveat are present and candid; no affiliation claimed with the HIRO group.",
+  "fitness": "Job: a grasping or sim-to-real researcher wanting to build on 'what a too-clean friction twin does to grip force'. What is here is a one-dimensional newsvendor-style decision (two log-normal CDF risks in ln F) solved in closed form and probed at one chosen parameter point with no grasp data. Nearest prior work, none cited: grasp force optimisation (Kerr & Roth 1986, IJRR; Buss, Hashimoto & Moore 1996, IEEE T-RA), robust grasp quality under friction uncertainty (Zheng & Qian 2005, IEEE T-RO; Mahler et al. 2017 Dex-Net 2.0, RSS, which samples friction to compute robust grasp success probability), human grip-force safety margins (Johansson & Westling 1984), and the operations-research results the findings restate: a deterministic or under-dispersed model's regret is the value of the stochastic solution (Birge 1982), and plug-in regret ~ 1/2 J'' Var(x_hat) is the standard estimate-then-optimise / operational-statistics analysis (Liyanage & Shanthikumar 2005; Elmachtoub & Grigas 2022). The derivation is sound, but the result is not new beyond a worked example, it is one of ~130 near-identical *-twin projects that research/PROGRAMMES.md:8-13 itself says 'few would stand alone as a thesis chapter', and it is not part of a programme (sim2real-inference subsumes the question). A reviewer would reject it in the first read for novelty and absence of real contact data.",
+  "domain": "Against Murray, Li & Sastry (1994) ch. 5 and standard grasp-force practice: the per-finger slip condition mu F >= W(1+a)/2 is the right Coulomb condition for a symmetric two-finger pinch with the load tangential (pass). Departures a grasping reviewer would hit: one friction coefficient shared by both contacts (independent per-contact friction makes slip the weaker of two, changing the slip law); no torsional/soft-finger friction or off-centre centre of mass (rotational slip is the common failure for glassware); crush modelled as a normal-force threshold rather than contact stress/area; force set open-loop with no slip sensing, while real fragile-object grasping uses tactile reflexes (acknowledged in Limitations); log-normal friction spread 0.3 and crush at 6 w0 with r=0.15 are invented, with no measurement or citation; regret asymmetry and width-compensation conclusions are drawn from one parameter point (acknowledged). Method correct for the toy; not a method a practitioner would use to set grip force."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "base optimum x*, F*, J*, slip and crush",
+   "method": "scipy.optimize.minimize_scalar (bounded) + brentq on auditor's hand-derived J'(x); scipy.stats.norm",
+   "command": "cd /tmp && PYTHONPATH=$S/pylib /usr/bin/python3.13 $S/indep.py (S=/tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/grasp-twin)",
+   "expected": "x* 1.3976935, F* 4.0459, J* 0.013731 (slip 0.00942, crush 0.00431)",
+   "observed": "x* 1.3976935, F* 4.0459, J* 0.013731, slip 0.00942, crush 0.00431",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "stationarity quadratic derived by hand (log of Ls phi(u)/s = Lc phi(v)/r)",
+   "method": "hand derivation, numpy.roots",
+   "command": "same indep.py, section C1",
+   "expected": "a root at 1.3977",
+   "observed": "roots 2.91823 (maximum) and 1.39769349",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "too-clean twin rows s_twin 0.2/0.1/0.05",
+   "method": "scipy optimum of twin loss, real loss evaluated with scipy.stats.norm",
+   "command": "same indep.py, section C2",
+   "expected": "F 3.718/3.121/2.652; twin J 1.68e-3/1.09e-5/3.45e-8; real J 0.02010/0.06901/0.17354; 0.5/4.0/11.6 x J*",
+   "observed": "identical to the printed precision",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "biased-twin regret and DR width that cancels +0.3, its regret at -0.3",
+   "method": "scipy minimize_scalar over continuous width",
+   "command": "same indep.py, sections C3-C4",
+   "expected": "regret 0.01168 (-0.3), 0.00208 (+0.15), 0.00778 (+0.3); width 0.47; regret at -0.3 0.02017 (1.5x J*)",
+   "observed": "0.01168, 0.00208, 0.00778; continuous width 0.4668 (regret 5e-14); regret at -0.3 0.02017 for w=0.47, 0.02013 for 0.4668 (1.47x)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "delta-method calibration regret",
+   "method": "analytic implicit-function derivatives dx*/dm = -J_xm/J_xx, dx*/ds = -J_xs/J_xx (auditor-derived), Fisher variances s^2/n and s^2/2n",
+   "command": "same indep.py, section C5",
+   "expected": "0.00523 (n=5), 0.00052 (50), 0.00003 (1000)",
+   "observed": "J''=2.1379, dx/dm=-0.30890, dx/ds=0.59392; 0.00523, 0.00052, 0.00003",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Monte Carlo slip/crush at x*+0.3",
+   "method": "numpy vectorised Monte Carlo, 1e7 grasps, two seeds; exact via scipy",
+   "command": "/usr/bin/python3.13 -c '... np.random.default_rng(1).normal ...' (scratchpad)",
+   "expected": "slip 0.00041, crush 0.26529",
+   "observed": "slip 0.000414 / 0.000411, crush 0.26544 / 0.26522",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "plug-in mean regret at small n is converged",
+   "method": "40,000 fits with the author's fit_plugin/regret (seeds 99, 77+n) and 3,000 independent numpy fits",
+   "command": "cd research/grasp-twin && PYTHONPATH=src /usr/bin/python3.13 -c 'regs=[regret(R,fit_plugin(R,5,random.Random(99))) ...]'",
+   "expected": "0.01094 +/- 0.00052 (n=5); delta/mean 0.48 (n=5), 0.95 (n=50)",
+   "observed": "0.01216 +/- 0.00013 (author code, 40k), 0.01227 +/- 0.00047 (numpy, 3k); delta/mean 0.43 (n=5), 0.675 (10), 0.844 (20), 0.932 (50), 0.961 (100), 0.986 (400)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "x_star is the optimum for other parameter sets (docstring: None cannot happen for positive weights with -m < f)",
+   "method": "3000 random positive-weight parameter sets vs x_star_numeric; inspect failures",
+   "command": "cd research/grasp-twin && PYTHONPATH=src /usr/bin/python3.13 -c '... x_star(p) vs x_star_numeric(p) ...'",
+   "expected": "never None, never worse than numeric",
+   "observed": "None on 248/3000 (finite-difference J'' returns 0.0 at a true minimum, e.g. m=-0.593, s=0.0327: roots 0.2528, 0.8135 both J''=0.0); 10/3000 return an interior local min worse than the boundary",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py reproduce committed outputs",
+   "method": "rerun and diff",
+   "command": "cd research/grasp-twin && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py > $S/results.txt && diff $S/results.txt experiments/results.txt; figure.py in a scratch copy, diff svg",
+   "expected": "no diff",
+   "observed": "no diff for both; run.py takes 2.0 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page and figure",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/grasp-twin/ ; .../research/grasp-twin/claimed_vs_real.svg",
+   "expected": "200 with README numbers",
+   "observed": "200, numbers match README; SVG 200 image/svg+xml",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/grasp-twin && PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests -v",
+   "expected": "7 tests pass",
+   "observed": "Ran 7 tests in 0.379s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:3 'over-predicts at small n, e.g. 0.48x at n=5'",
+   "method": "compare with results.txt delta/mean column and whitepaper.md:17",
+   "command": "sed -n 50,52p research/grasp-twin/experiments/results.txt",
+   "expected": "delta > mean at small n",
+   "observed": "delta 0.00523 < mean 0.01094 (ratio 0.48): under-predicts; white paper says under-predicts",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:3 / whitepaper.md:17 delta method within 5% for n >= 50",
+   "method": "40,000-fit means with the author's code",
+   "command": "see the plug-in convergence check",
+   "expected": "ratio in 0.95-1.05 for n >= 50",
+   "observed": "0.932 at n=50, 0.961 at 100, 0.986 at 400",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:10 run.py takes ~1 min",
+   "method": "time it",
+   "command": "time PYTHONPATH=src /usr/bin/python3.13 experiments/run.py",
+   "expected": "~1 min",
+   "observed": "real 0m1.996s",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "per-finger slip condition mu F >= W(1+a)/2 for a two-finger pinch",
+   "method": "Coulomb friction for two opposed contacts, Murray, Li & Sastry (1994) ch. 5: 2 mu F >= W(1+a)",
+   "command": "hand derivation",
+   "expected": "mu F >= W(1+a)/2",
+   "observed": "model.py:2-3 uses exactly this (shared mu for both contacts)",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited and novelty",
+   "method": "read README 'Builds on' and whitepaper references against grasp-force-optimisation, robust-grasp and VSS / estimate-then-optimise literature",
+   "command": "sed -n 13p research/grasp-twin/README.md; sed -n 25,28p research/grasp-twin/paper/whitepaper.md",
+   "expected": "grasp force optimisation and robust-grasp-under-uncertainty work cited; novelty stated against it",
+   "observed": "only a textbook and two domain-randomisation papers; no grasp-force or robust-grasp prior work; the regret results restate the value of the stochastic solution",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/grasp_twin/model.py:112",
+   "change": "real.s ** 2 / (2 * n) -> real.s ** 2 / n",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/grasp_twin/model.py:46",
+   "change": "p.f ** 2 / p.r ** 2 - 2 * k -> p.f ** 2 / p.r ** 2 + 2 * k",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/grasp_twin/model.py:55",
+   "change": "return min(cands, ...) -> return max(cands, ...)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/grasp_twin/model.py:102",
+   "change": "sum((y - m) ** 2 for y in ys) / n -> / (n - 1) (MLE -> unbiased variance in fit_plugin)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:26",
+   "change": "hi = tw.f - 3 * tw.r -> hi = tw.f - 2 * tw.r (changes the headline 'upper edge' slip)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Novelty not established against prior work: the closed-form slip-vs-crush optimum and the 'too-clean model under-grips' regret restate grasp force optimisation (Kerr & Roth 1986; Buss et al. 1996), robust grasping under friction uncertainty (Zheng & Qian 2005; Mahler et al. 2017 Dex-Net 2.0) and the value of the stochastic solution / estimate-then-optimise plug-in regret (Birge 1982; Liyanage & Shanthikumar 2005; Elmachtoub & Grigas 2022), none cited; one chosen parameter point, no grasp data, one of ~130 twin variants",
+   "where": "research/grasp-twin/README.md:13",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "README states the delta method 'over-predicts at small n, e.g. 0.48x at n=5'; a ratio delta/mean of 0.48 is an under-prediction (the white paper says under-predicts)",
+   "where": "research/grasp-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "'within 5% for n >= 50' and the small-n means rest on single 2000-fit draws of a heavy-tailed regret: 40,000 fits give n=5 mean 0.01216 +/- 0.00013 (reported 0.01094 +/- 0.00052) and delta/mean 0.932 at n=50, 0.961 at n=100",
+   "where": "research/grasp-twin/experiments/run.py:61",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not pin the published numbers: run.py is untested, nothing checks results.txt, and fit_plugin's variance divisor (n -> n-1) and the plateau 'upper edge' (3 sd -> 2 sd) can both change with all 7 tests green",
+   "where": "research/grasp-twin/tests/test_model.py:42",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "x_star selects roots by a finite-difference J'' (e=1e-5) that returns 0.0 where the loss is ~1e-11, so it returns None at a true minimum (8% of random parameter sets, and an n=5 plug-in fit with s_hat=0.033); docstring says this 'cannot happen'. It also returns an interior local minimum worse than the do-not-grip boundary in 10/3000 sets. Grid fallback masks the None case",
+   "where": "research/grasp-twin/src/grasp_twin/model.py:42",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "README/page headline 'real slip ... 0.015 (upper edge)' is a point the author chose (3 crush-sd below the median crush force), not an edge of the twin's zero-risk plateau; only the white paper says so",
+   "where": "research/grasp-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Model gaps a grasping reviewer hits first: one friction coefficient shared by both contacts, no torsional/soft-finger friction or off-centre load, crush as a normal-force threshold, uncited invented spreads (s=0.3, r=0.15, crush 6 w0)",
+   "where": "research/grasp-twin/src/grasp_twin/model.py:2",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README says run.py takes ~1 min; it takes 2.0 s",
+   "where": "research/grasp-twin/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+ ],
+ "verdict": "A tidy, reproducible closed-form toy whose arithmetic is right and whose research contribution is thin. Every headline number recomputes independently with scipy/numpy (x* 1.3976935, J* 0.013731, the too-clean-twin rows 4.0x and 11.6x J*, bias regrets, width 0.47 and its 0.020 regret at the opposite bias, the delta-method values via analytic implicit derivatives, and 1e7-grasp Monte Carlo), and run.py and figure.py reproduce their committed outputs byte for byte; the live page serves them. It misses the bar on claims, verification and fitness: the README says the delta method over-predicts at small n when it under-predicts, 'within 5% for n >= 50' fails at n=50 once the heavy-tailed plug-in regret is averaged over 40,000 fits (0.93), 2 of 5 seeded mutants survive because nothing pins results.txt, and x_star's finite-difference curvature test returns None at real minima despite its docstring. A grasping reviewer would find the slip condition correct but the model (shared friction, no torsional slip, invented spreads, no data) a worked example, and the findings a restatement of grasp-force-optimisation and value-of-the-stochastic-solution results it does not cite."
+}

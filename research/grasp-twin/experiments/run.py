@@ -55,11 +55,11 @@ wbest = min(widths, key=lambda w: regret(REAL, dr_params(tw, w)))
 for d in (0.3, 0.15, 0.0, -0.15, -0.3):
     print("  width %.2f (tuned for +0.3), actual delta %+.2f: regret %.5f" % (wbest, d, regret(REAL, dr_params(REAL.replace(m=REAL.m + d), wbest))))
 
-print("\n== 5. Calibration budget: plug-in force from n real friction measurements (2000 fits each)")
+print("\n== 5. Calibration budget: plug-in force from n real friction measurements (40000 fits each)")
 print("%-6s %-12s %-9s %-14s %-9s %-10s" % ("n", "mean regret", "s.e.", "median regret", "delta", "delta/mean"))
 for n in (5, 10, 20, 50, 100, 400, 1000):
     rng = random.Random(1000 + n)
-    regs = [regret(REAL, fit_plugin(REAL, n, rng)) for _ in range(2000)]
+    regs = [regret(REAL, fit_plugin(REAL, n, rng)) for _ in range(40000)]
     mean = statistics.fmean(regs)
     print("%-6d %-12.5f %-9.5f %-14.5f %-9.5f %-10.2f" % (n, mean, statistics.stdev(regs) / math.sqrt(len(regs)), statistics.median(regs), regret_delta(REAL, n), regret_delta(REAL, n) / mean))
 rng = random.Random(7)
