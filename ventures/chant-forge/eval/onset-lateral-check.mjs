@@ -26,6 +26,11 @@
 //      nasal); the vowel-only controls identical (no consonant is sung there);
 //  (5) eval/coda-check.mjs every part's total within 2 of main; eval/vowel-check.mjs within 2 notes.
 // If (4) fails, the change stays off for openings (the reader's thresholds were set on the fixed gain).
+// Result (one run, 2026-11-15): (1) one voice -6.4 to -5.7 dB, spread 0.7, none over: holds; (2) five
+// voices -6.6 to -4.2 dB, spread 2.4, none over: holds; (3) tilt unchanged (0.00 dB): holds; (4) the
+// consonant-check report is byte-identical to main's (A 195 of 210, B 780 of 934, G 1959 of 2349; none
+// rows 56 of 61 and 249 of 258): holds; (5) coda-check and vowel-check reports byte-identical: hold. The
+// measured level sits about 2 dB under the 4 dB target: the voices' 30 ms swell, as expected above.
 import { writeFileSync } from 'node:fs';
 import { singNote, onsetPlan, SING_DEFAULTS } from '../sing.mjs';
 

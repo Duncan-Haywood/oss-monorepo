@@ -683,7 +683,8 @@ every final *-l*.
   note, as `nasalGain` does for the murmur. It is the harmonics' power through the vowel's five resonators
   against their power through the /l/'s, set so the /l/ sits 4 dB under the vowel. The 4 dB is an assumption,
   not fitted to recordings of singers: a liquid is quieter than a vowel and louder than a nasal (set 7 dB
-  under). The opening /l/ keeps its fixed gain, because the opening reader's thresholds were set on it.
+  under). The opening /l/ kept its fixed gain, because the opening reader's thresholds were set on it
+  (since the round "An opening /l/ at its vowel's level", below, it is set the same way).
   `lateralLevel: false` brings back the fixed gain for comparison.
 - **Pre-registered** in the header of `eval/lateral-level-check.mjs`, committed before the first run with the
   change, with four predictions. Prediction (2) was reworded after the baseline run on main and before any run
@@ -760,7 +761,7 @@ against each other (at roughly 0.2-4 Hz, from the detunes of -12 to +13 cents), 
 falls. A real section beats too; whether this much is natural, and whether the reader should compare a coda
 with the vowel just before it rather than at the note's start, is the next round's question.
 
-#### Nasal openings: the mouth closes (2026-11-15, latest)
+#### Nasal openings: the mouth closes (2026-11-15)
 
 After the coda-murmur round a third of the sung nasal openings still read as nothing (G 118 of 404, B 54 of
 149). Reading B's 54 misses frame by frame (B is now a development set, like A) showed two causes, both on
@@ -804,6 +805,36 @@ gain is not at every pitch. The test asserts 24 or more, a gain over the old pai
 vowel-only choir. Nobody has listened to it: whether a 15 ms hand-over into an m sounds clipped is the
 question for an ear. Reports: `eval/consonant-check-report.md`, `eval/coda-check-report.md`,
 `eval/vowel-check-report.md`.
+
+#### An opening /l/ at its vowel's level (2026-11-15, latest)
+
+The sixth coda round set a final /l/ per note, 4 dB under the vowel it leaves; the opening /l/ kept
+`PHONES.l`'s fixed voicing gain of 1.4. Measured from the wave (one voice, no vibrato, the middle half of the
+/l/ against 0.30-0.45 s of the vowel), that put an opening /l/ 7.7 dB under to 4.8 dB over the vowel it goes
+to, 11 of 30 cells at or over it: loud before /e/, /i/ and /u/ at G3 and E4, quiet at C4. A listener would
+hear *lux*, *laudate* and *lumen* open with a swell on some notes and a dip on others.
+
+- **The change** (`sing.mjs`): an opening /l/'s gain is worked out by `lateralGain` against the vowel it goes
+  to, as the coda's is. `onsetLateral: 'first'` keeps the fixed gain on openings; `lateralLevel: false` on both.
+- **Pre-registered** in the header of `eval/onset-lateral-check.mjs`, committed before the first run with the
+  change. Report: `eval/onset-lateral-check.md`.
+
+| prediction | main | after |
+|---|---|---|
+| (1) one voice: spread 4 dB or less, every cell under its vowel | -7.7 to +4.8 dB (spread 12.5), 11 of 30 at or over | -6.4 to -5.7 dB (spread 0.7), 0 over: holds |
+| (2) five voices, 12 seeds: spread 6 dB or less, every cell under | -7.7 to +6.3 dB (spread 13.9), 13 of 30 over | -6.6 to -4.2 dB (spread 2.4), 0 over: holds |
+| (3) the /l/'s own tilt unchanged to 0.5 dB | | 0.00 dB: holds |
+| (4) `eval/consonant-check.mjs` A, B, G within 2; written-none rows within 2 | A 195, B 780, G 1959 | byte-identical report: holds |
+| (5) `eval/coda-check.mjs` within 2, `eval/vowel-check.mjs` within 2 notes | | both byte-identical: hold |
+
+The measured level sits about 2 dB under the 4 dB target in every cell: the voices swell over 30 ms when a
+consonant leads and start up to 20 ms apart, which covers the /l/'s first half and which the steady-state sum
+does not see. That was expected and written into the registration. The reader's output did not move by one
+read: an /l/ is read as no consonant whether it sits 5 dB over its vowel or 6 under, so this round changes
+what is heard and nothing the checks can see. A new test in `sing.test.mjs` holds the opening /l/ within 2 dB
+of one level across five pitches and five vowels (the fixed gain spread over 8). Nobody has listened to it:
+whether a 6 dB step from /l/ into the vowel sounds like a Latin *l* or like a late entry is the question for
+an ear.
 
 #### Formant tuning on high notes (2026-11-15)
 

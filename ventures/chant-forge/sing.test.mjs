@@ -230,6 +230,21 @@ test('a final l sits about 4 dB under its vowel at any pitch and after any vowel
   assert.ok(over >= 8, `the fixed gain put the /l/ over its vowel on ${over} of 20`);
 });
 
+test('an opening l sits under the vowel it goes to by the same few dB at any pitch and before any vowel (one voice); the fixed gain did not', () => {
+  const rms = (x, a, b) => { let q = 0; for (let i = Math.round(a * rate); i < Math.round(b * rate); i++) q += x[i] * x[i]; return Math.sqrt(q / ((b - a) * rate)); };
+  const dur = 0.6, sg = onsetPlan(['l'], dur).segs[0], q = (sg.t1 - sg.t0) / 4;
+  const one = { onset: ['l'], detunes: [0], vibratoCents: 0, breath: 0 };
+  const got = [], old = [];
+  for (const midi of [40, 50, 55, 60, 64]) for (const vowel of ['a', 'e', 'i', 'o', 'u']) {
+    const f = 440 * 2 ** ((midi - 69) / 12), lvl = (o) => { const w = singNote(f, dur, rate, { vowel, ...one, ...o }); return 20 * Math.log10(rms(w, sg.t0 + q, sg.t1 - q) / rms(w, 0.3, 0.45)); };
+    got.push(lvl({})); old.push(lvl({ onsetLateral: 'first' }));
+  }
+  // 4 dB (LATERAL_DB) plus the voices' 30 ms swell over the /l/'s first half: eval/onset-lateral-check.md
+  assert.ok(Math.max(...got) < -4.5 && Math.min(...got) > -7.5, `opening /l/ ${Math.min(...got).toFixed(1)} to ${Math.max(...got).toFixed(1)} dB`);
+  assert.ok(Math.max(...got) - Math.min(...got) < 2, 'one level whatever the vowel and pitch');
+  assert.ok(Math.max(...old) - Math.min(...old) > 8, `the fixed gain spread ${(Math.max(...old) - Math.min(...old)).toFixed(1)} dB`);
+});
+
 test('a final nasal hums on through the nose with no blip of bare vowel, and -um after a dark vowel reads as its murmur', async () => {
   const { frameFeatures } = await import('./onsets.mjs');
   // one voice, so the voices' beating does not hide it: before the fix the low-pass lifted for 10 ms between
