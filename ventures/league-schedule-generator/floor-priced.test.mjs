@@ -167,11 +167,14 @@ test("carryOverFloorPriced: seasons into the widest gap, on the frontier, number
 
 test("carryOverFloorPriced runs at up to 26 teams in the page, not at 27 (README \"Whole-break tables in int16\")", async () => {
   const { carryOverFloorPriced } = await import("./carryover.mjs");
-  // a list whose frontier has a 10-break gap and empty timetables: at 27 the size gate returns [],
-  // at 22 to 26 the call gets past it into the search, which throws on the empty timetable
-  const fake = (n, coe, breaks, index) => ({ rounds: Array.from({ length: n % 2 ? n : n - 1 }, () => ({ matches: [] })), coe, breaks, index });
+  // a list whose frontier has a 10-break gap and rounds with no match list: at 27 the size gate
+  // returns [], at 22 to 26 the call gets past it into the search, whose first read of a round's
+  // matches throws. (Until 2026-11-15 the rounds held empty match lists; the search's cycle walk
+  // never closed on them and pushed until V8 refused the array, 3 to 4 s and gigabytes per size:
+  // docs/history/ci-perf-2026-11-15-league-tests-shared-tries.md.)
+  const fake = (n, coe, breaks, index) => ({ rounds: Array.from({ length: n % 2 ? n : n - 1 }, () => ({ matches: null })), coe, breaks, index });
   assert.deepEqual(carryOverFloorPriced(27, [fake(27, 500, 50, 0), fake(27, 900, 40, 1)], { seed: 1 }), []);
-  for (const n of [22, 23, 24, 25, 26]) assert.throws(() => carryOverFloorPriced(n, [fake(n, 500, 50, 0), fake(n, 900, 40, 1)], { seed: 1, iterations: 1 }), `${n}`);
+  for (const n of [22, 23, 24, 25, 26]) assert.throws(() => carryOverFloorPriced(n, [fake(n, 500, 50, 0), fake(n, 900, 40, 1)], { seed: 1, iterations: 1 }), /not iterable/, `${n}`);
   // the old gates stay available
   assert.deepEqual(carryOverFloorPriced(26, [fake(26, 500, 50, 0), fake(26, 900, 40, 1)], { seed: 1, maxTeams: 25 }), []);
   assert.deepEqual(carryOverFloorPriced(23, [fake(23, 500, 50, 0), fake(23, 900, 40, 1)], { seed: 1, maxTeams: 22 }), []);
