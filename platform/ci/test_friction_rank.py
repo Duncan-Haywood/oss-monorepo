@@ -201,3 +201,74 @@ def test_open_prs_skips_forks_pages_and_survives_errors():
     def boom(url):
         raise OSError("403")
     assert fr.open_prs(repo, fetch=boom) is None
+
+
+def _verdicts(tmp, items):
+    p = tmp / "v.json"
+    p.write_text(json.dumps({"verdicts": items}))
+    return p
+
+
+def test_verdict_hides_only_matching_clusters_reported_before_it(tmp_path):
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    write(runs, "r1.json", "2026-11-10", [{"file": "a.md", "issue": "the done list is very long to scan"}])
+    write(runs, "r2.json", "2026-11-11", [{"file": "a.md", "issue": "done list very long, scan takes ages"}])
+    write(runs, "r3.json", "2026-11-11", [{"file": "a.md", "issue": "proxy refused the archive host outright"}])
+    write(runs, "r4.json", "2026-11-11", [{"file": "a.md", "issue": "the archive host proxy refused outright again"}])
+    v = _verdicts(tmp_path, [{"file": "a.md", "match": "done list", "verdict": "fixed", "by": "#1",
+                              "at": "2026-11-12T00:00:00Z", "note": "moved"}])
+    ranked = fr.apply_verdicts(fr.rank(fr.load(runs)), fr.load_verdicts(v))
+    by = {("done" in c["example"]): c for c in ranked}
+    assert by[True]["verdict"]["by"] == "#1" and by[False]["verdict"] is None
+
+
+def test_report_after_verdict_reopens(tmp_path):
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    write(runs, "r1.json", "2026-11-10", [{"file": "a.md", "issue": "the done list is very long"}])
+    write(runs, "r2.json", "2026-11-14", [{"file": "a.md", "issue": "the done list is very long still"}])
+    v = _verdicts(tmp_path, [{"file": "a.md", "match": "done list", "verdict": "fixed", "by": "#1",
+                              "at": "2026-11-12"}])
+    c = fr.apply_verdicts(fr.rank(fr.load(runs)), fr.load_verdicts(v))[0]
+    assert c["verdict"] is None and c["reopened"]["by"] == "#1"
+
+
+def test_live_hides_settled_and_json_drops_internals(tmp_path, capsys):
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    write(runs, "r1.json", "2026-11-10", [{"file": "a.md", "issue": "the done list is very long"}])
+    write(runs, "r2.json", "2026-11-11", [{"file": "a.md", "issue": "the done list is very long still"}])
+    v = _verdicts(tmp_path, [{"file": "a.md", "match": "done list", "verdict": "by-design", "by": "x",
+                              "at": "2026-11-12"}])
+    base = ["--runs", str(runs), "--days", "0", "--no-git", "--no-prs", "--verdicts", str(v)]
+    assert fr.main(base + ["--json", "--live"]) == 0
+    assert json.loads(capsys.readouterr().out) == []
+    assert fr.main(base + ["--json"]) == 0
+    c = json.loads(capsys.readouterr().out)[0]
+    assert c["verdict"]["by"] == "x" and "re" not in c["verdict"] and "issues" not in c
+    assert fr.main(base + ["--live"]) == 0
+    assert "settled in v.json" in capsys.readouterr().out
+
+
+def test_record_verdict_refuses_a_regex_that_matches_nothing(tmp_path, capsys):
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    write(runs, "r1.json", "2026-11-10", [{"file": "a.md", "issue": "the done list is very long"}])
+    v = tmp_path / "v.json"
+    args = ["--runs", str(runs), "--verdicts", str(v), "--record-verdict", "a.md", "--verdict", "fixed", "--by", "#2"]
+    assert fr.main(args + ["--match", "no such words"]) == 2 and not v.exists()
+    assert fr.main(args + ["--match", "("]) == 2
+    assert fr.main(args + ["--match", "done list", "--note", "n"]) == 0
+    rec = json.loads(v.read_text())["verdicts"][0]
+    assert (rec["file"], rec["verdict"], rec["by"]) == ("a.md", "fixed", "#2") and rec["at"].endswith("Z")
+
+
+def test_real_verdicts_file_is_well_formed_and_each_matches_a_report():
+    raw = json.loads(fr.VERDICTS.read_text())
+    loaded = fr.load_verdicts()
+    assert len(loaded) == len(raw["verdicts"]), "a verdict failed to load (bad regex or missing key)"
+    reports = list(fr.load())
+    for v in loaded:
+        assert v["verdict"] in fr.VERDICT_KINDS and v.get("by")
+        assert any(f == v["file"] and v["re"].search(i) for _, _, f, i, _ in reports), v["match"]
