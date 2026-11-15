@@ -29,7 +29,12 @@
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "first venture-preflight failed on a .ppt in the git-ignored utsa-data/ download",
+      "fix": "moved eval data dirs to the scratchpad; second preflight clean"
+    }
+  ],
   "integrity_issues": [
     {
       "file": "ventures/changepoint-detector/eval/repeat-guard.mjs",
@@ -44,6 +49,10 @@
     {
       "file": "ventures/changepoint-detector/.gitignore",
       "issue": "has-data/ (the HAS 2023 fetch dir named by eval/has-fetch.sh, CC BY-NC-SA, must never be committed) was not ignored; a git add -A in the venture would have committed 1.9 M points of non-redistributable data. Added has-data/ and utsa-data/."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The preflight's build copies git-ignored local data dirs (here utsa-data/, a fetched eval set) into the site and failed on a .ppt inside it; CI never sees those dirs. Moving the eval data out of the venture fixed it. Eval fetch scripts that default to a dir inside the venture (tssb-data, has-data, utsa-data) will keep tripping this; the build could skip ignored paths."
     }
   ],
   "deviations": [],
@@ -52,7 +61,7 @@
     "ventures/changepoint-detector/README.md (section: Agreed changes that are the same waveform repeated)"
   ],
   "goal": "Pre-registered round on a fresh labelled set (UTSA, 32 series) for a guard that reads segment shapes between agreed changes",
-  "notes": "Pre-registration committed (a3082f74d) before any computation; code committed before the run. Result: S1 NOT MET (TSSB 0.365 vs 0.381), S2-S4 MET (fresh UTSA +0.064 covering, better on 5 of 5 touched; worse on no series of TSSB/HAS/UTSA). Not offered, as pre-registered. Reproduced eval/tssb.out.txt and eval/repeat-guard.out.txt before the round (identical apart from timings and the G2 bug above). Post checks: check_post_frontmatter, check_post_links, post_similarity all clean. Venture tests: see final commit.",
+  "notes": "Pre-registration committed (a3082f74d) before any computation; code committed before the run. Result: S1 NOT MET (TSSB 0.365 vs 0.381), S2-S4 MET (fresh UTSA +0.064 covering, better on 5 of 5 touched; worse on no series of TSSB/HAS/UTSA). Not offered, as pre-registered. Reproduced eval/tssb.out.txt and eval/repeat-guard.out.txt before the round (identical apart from timings and the G2 bug above). Post checks: check_post_frontmatter, check_post_links, post_similarity all clean. Venture tests: run_venture_tests.py changepoint-detector 748 tests, 0 failed; touched tests rerun after the last edits, 39 pass. venture-preflight: clean (second run).",
   "corrections": [],
   "redteam": null
 }
