@@ -384,9 +384,9 @@ def decode_strip(
         # the last two lines of each colour become the next group's history
         for colour, last in ((0, 4), (1, 7), (2, 4)):
             b0 = _line_index(colour, 0)
-            bl = _line_index(colour, last)
-            buf[b0][:] = buf[bl - 1]
-            buf[b0 + 1][:] = buf[bl]
+            b_last = _line_index(colour, last)
+            buf[b0][:] = buf[b_last - 1]
+            buf[b0 + 1][:] = buf[b_last]
             buf[b0 + 2][0] = buf[b0 + 1][1]
             buf[b0 + 2][lw + 1] = buf[b0 + 1][lw]
     if errors:
