@@ -1,0 +1,44 @@
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "ours bilinear", "cpsnr": 44.31, "lpsnr": 48.46, "chroma_mean": 6.294, "chroma_p99": 32.97, "s": 0.21}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "ours directional (default)", "cpsnr": 48.28, "lpsnr": 52.99, "chroma_mean": 4.914, "chroma_p99": 18.65, "s": 0.16}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "ours directional, Hamilton-Adams 1/4 (2026-11-15 first)", "cpsnr": 47.9, "lpsnr": 52.1, "chroma_mean": 5.066, "chroma_p99": 19.32, "s": 0.17}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "ours directional, Laplacian 1/8", "cpsnr": 48.35, "lpsnr": 53.12, "chroma_mean": 4.888, "chroma_p99": 18.72, "s": 0.16}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "libraw linear", "cpsnr": 44.31, "lpsnr": 48.47, "chroma_mean": 6.296, "chroma_p99": 32.99, "s": 1.18}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "libraw VNG", "cpsnr": 47.11, "lpsnr": 51.74, "chroma_mean": 5.373, "chroma_p99": 21.94, "s": 2.14}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "libraw PPG", "cpsnr": 47.32, "lpsnr": 51.59, "chroma_mean": 5.347, "chroma_p99": 20.93, "s": 1.02}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "libraw AHD", "cpsnr": 47.38, "lpsnr": 51.71, "chroma_mean": 5.255, "chroma_p99": 20.51, "s": 1.26}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "libraw DCB", "cpsnr": 47.14, "lpsnr": 51.0, "chroma_mean": 5.407, "chroma_p99": 21.86, "s": 2.6}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "libraw DHT", "cpsnr": 46.81, "lpsnr": 50.74, "chroma_mean": 5.482, "chroma_p99": 22.14, "s": 1.61}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "Canon EOS 70D.cr2 binned 4x4", "method": "libraw AAHD", "cpsnr": 47.46, "lpsnr": 51.43, "chroma_mean": 5.252, "chroma_p99": 20.03, "s": 3.55}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "ours bilinear", "cpsnr": 43.67, "lpsnr": 47.52, "chroma_mean": 7.58, "chroma_p99": 34.58, "s": 0.16}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "ours directional (default)", "cpsnr": 46.39, "lpsnr": 49.31, "chroma_mean": 5.489, "chroma_p99": 19.98, "s": 0.13}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "ours directional, Hamilton-Adams 1/4 (2026-11-15 first)", "cpsnr": 46.07, "lpsnr": 48.68, "chroma_mean": 5.569, "chroma_p99": 20.55, "s": 0.14}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "ours directional, Laplacian 1/8", "cpsnr": 46.48, "lpsnr": 49.57, "chroma_mean": 5.551, "chroma_p99": 20.22, "s": 0.14}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "libraw linear", "cpsnr": 43.68, "lpsnr": 47.52, "chroma_mean": 7.582, "chroma_p99": 34.58, "s": 1.2}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "libraw VNG", "cpsnr": 45.64, "lpsnr": 48.81, "chroma_mean": 5.97, "chroma_p99": 23.21, "s": 2.13}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "libraw PPG", "cpsnr": 45.46, "lpsnr": 48.52, "chroma_mean": 6.271, "chroma_p99": 22.97, "s": 0.99}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "libraw AHD", "cpsnr": 45.5, "lpsnr": 48.49, "chroma_mean": 6.121, "chroma_p99": 22.42, "s": 1.38}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "libraw DCB", "cpsnr": 45.46, "lpsnr": 48.56, "chroma_mean": 6.435, "chroma_p99": 23.93, "s": 2.97}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "libraw DHT", "cpsnr": 45.02, "lpsnr": 47.68, "chroma_mean": 6.313, "chroma_p99": 23.89, "s": 1.93}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 60", "method": "libraw AAHD", "cpsnr": 45.54, "lpsnr": 48.11, "chroma_mean": 5.978, "chroma_p99": 21.79, "s": 3.99}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "ours bilinear", "cpsnr": 41.51, "lpsnr": 44.67, "chroma_mean": 11.542, "chroma_p99": 45.02, "s": 0.14}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "ours directional (default)", "cpsnr": 42.16, "lpsnr": 43.62, "chroma_mean": 7.488, "chroma_p99": 26.03, "s": 0.12}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "ours directional, Hamilton-Adams 1/4 (2026-11-15 first)", "cpsnr": 41.91, "lpsnr": 43.15, "chroma_mean": 7.368, "chroma_p99": 25.97, "s": 0.12}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "ours directional, Laplacian 1/8", "cpsnr": 42.26, "lpsnr": 43.96, "chroma_mean": 7.779, "chroma_p99": 27.05, "s": 0.12}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "libraw linear", "cpsnr": 41.51, "lpsnr": 44.67, "chroma_mean": 11.542, "chroma_p99": 45.02, "s": 1.1}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "libraw VNG", "cpsnr": 41.93, "lpsnr": 43.61, "chroma_mean": 8.122, "chroma_p99": 29.11, "s": 2.24}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "libraw PPG", "cpsnr": 41.25, "lpsnr": 43.24, "chroma_mean": 9.328, "chroma_p99": 32.07, "s": 1.0}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "libraw AHD", "cpsnr": 41.25, "lpsnr": 43.07, "chroma_mean": 8.978, "chroma_p99": 30.96, "s": 1.34}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "libraw DCB", "cpsnr": 41.48, "lpsnr": 43.74, "chroma_mean": 9.688, "chroma_p99": 33.72, "s": 2.89}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "libraw DHT", "cpsnr": 40.94, "lpsnr": 42.43, "chroma_mean": 9.144, "chroma_p99": 31.62, "s": 1.69}
+{"file": "Canon EOS 70D.cr2", "truth": "Canon EOS 70D.cr2 binned 4x4, noise SNR 25", "method": "libraw AAHD", "cpsnr": 41.24, "lpsnr": 42.63, "chroma_mean": 8.519, "chroma_p99": 29.33, "s": 3.67}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "ours bilinear", "cpsnr": 21.72, "lpsnr": 24.88, "chroma_mean": 64.147, "chroma_p99": 367.82, "s": 0.16}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "ours directional (default)", "cpsnr": 39.87, "lpsnr": 44.2, "chroma_mean": 4.813, "chroma_p99": 42.1, "s": 0.13}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "ours directional, Hamilton-Adams 1/4 (2026-11-15 first)", "cpsnr": 35.59, "lpsnr": 36.63, "chroma_mean": 14.179, "chroma_p99": 119.47, "s": 0.13}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "ours directional, Laplacian 1/8", "cpsnr": 38.31, "lpsnr": 39.77, "chroma_mean": 6.188, "chroma_p99": 113.68, "s": 0.14}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "libraw linear", "cpsnr": 21.77, "lpsnr": 25.04, "chroma_mean": 68.466, "chroma_p99": 373.63, "s": 1.15}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "libraw VNG", "cpsnr": 25.86, "lpsnr": 27.73, "chroma_mean": 41.811, "chroma_p99": 327.12, "s": 2.08}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "libraw PPG", "cpsnr": 32.04, "lpsnr": 33.33, "chroma_mean": 17.297, "chroma_p99": 214.48, "s": 1.25}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "libraw AHD", "cpsnr": 32.89, "lpsnr": 34.45, "chroma_mean": 15.433, "chroma_p99": 165.07, "s": 1.23}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "libraw DCB", "cpsnr": 29.6, "lpsnr": 29.65, "chroma_mean": 22.513, "chroma_p99": 218.43, "s": 2.7}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "libraw DHT", "cpsnr": 31.68, "lpsnr": 33.34, "chroma_mean": 27.407, "chroma_p99": 212.7, "s": 1.35}
+{"file": "Canon EOS 70D.cr2", "cfa": "RGGB", "truth": "synthetic sheet", "method": "libraw AAHD", "cpsnr": 34.74, "lpsnr": 36.61, "chroma_mean": 15.211, "chroma_p99": 136.26, "s": 3.39}
