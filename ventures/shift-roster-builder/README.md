@@ -2528,3 +2528,120 @@ make that search fast. Until then, the confirmed pair hours are exact for the us
 Tests (`pair-memo.test.mjs`, 4): on two seeded weeks and two budgets, over a chain of random hand-overs, every walk with the
 memo equals the walk without it, verdicts included, and the memo is used; the pass and `buildRoster` give the same roster,
 moves, pair hours and pairs searched with it on and off; the `handOut` orders walk the same pairs. Not claimed: seeded weeks, single runs on one 4-core cloud machine.
+
+## An order-free pair check (2026-11-15 later)
+
+"Remembered pair searches" ended on a problem with the second-call-out check (`coverPairRisk`, behind `--second-callout-price`): its
+exact answer depended on the order its search handed out the shifts. With no pair given up, the seeded 20-person week 2 had
+179 or 187 clashing pair hours and the 40-person week 0 had 313 to 355, depending only on that order. So the confirmed count
+described the search, not the roster. The fix it named: decide what the check should mean, so its exact answer is the same in
+any order, then make that search fast. **That landed as an opt-in (`coverPairOrderFree: true`, CLI
+`--second-callout-order-free`).**
+
+**What the check now means.** A pair of call-outs is covered when there is a covered roster where:
+
+- every shift the two callers lose goes to someone eligible, and so does every shift someone gives up to make room;
+- a person gives up at most two of their own shifts (shifts they held before the call-outs, not ones taken in this cover), each
+  on or after the earlier call-out day, and only in exchange for taking one; the pair has the same total of give-ups the old
+  check allowed (two per lost shift);
+- callers are off on their own call-out days and may take a shift on a later day;
+- every person's final list keeps every hard rule.
+
+That is a question about the final roster, so no order can change the answer. The old search was order-dependent for two
+reasons, and both are gone. First, a chain could pass on a shift handed to that person earlier in the same search, so "two
+passes per shift" meant different things in different orders. Second, each hand-over was checked on the lists as they stood,
+so a stand-in who could take shift X only after giving up shift Y was refused X when X came first.
+
+**Why the search is still exact.** It hands shifts out depth-first and checks each hand-over on the current lists, like the
+old one. A person gives up shifts only together with the first shift they take. The hard rules are downward closed: dropping
+a shift never breaks rest, overlap, weekly or daily hours, or days in a row. So for any covered roster there is a search path
+on which every list checked is part of its owner's final list, and pruning on those checks never cuts a cover. Travel times
+between sites are the exception: if a trip table breaks the triangle inequality, the search can miss a cover, though it never
+invents one. `pair-order-free.test.mjs` checks the verdicts against an oracle that asks the same question another way (it picks
+the given-up shifts first, then assigns every open shift). They agreed on every pair of five small seeded weeks at three pass
+budgets, including covers that need a give-up. The verdict was the same in five hand-out orders (three fixed, two shuffled),
+with and without the look-ahead, on 12- and 20-person weeks.
+
+**Making it fast.** Three things, all exact:
+
+1. **Look-ahead and fewest-options-first.** Before each hand-out, every shift still to place must have someone who could take
+   it now, either outright or after giving up their own shifts, which is the only way a list can shrink. If one has nobody, the
+   branch is cut. The shift with the fewest takers goes next. An order chosen during the search is allowed now, because the
+   order cannot change the answer. Without the look-ahead, 6 pairs on the 20-person week were still given up at 200,000
+   checks; with it, none were.
+2. **A capped round first.** Between "no give-ups" and the whole question there is a round with at most two passes on any
+   one chain and one give-up per person. That is a narrower question, so any cover it finds is a real cover. The last round
+   runs only when it finds none. Without that round, one search allowing all four passes went four passes deep under a first
+   stand-in who could not be helped. At 2,000 checks it gave up on 1,592 of the 60-person week's 8,646 pairs; with the
+   capped round first, on 1.
+3. **More checks for the confirm.** At 200,000 checks the order-free walk gave up on 9 pairs of the 40-person week 0 and 1
+   on the 60-person week. At 2,000,000 it gave up on none, the count did not change (those pairs really clash), and the
+   walk took about the same time (0.39 s to 0.55 s on the 40-person week, 0.75 s to 0.86 s on the 60-person week), because only those few pairs use the extra checks. A build with the
+   order-free check confirms at 2,000,000 (`coverPairConfirmBudget` overrides it).
+
+**Tried and dropped:**
+
+- One give-up per person. It is the simplest exact rule, but on the priced retail template it flagged 82 pairs where the old
+  check flagged 55, and none of the 27 extra pairs opened hours when played.
+- Deepening one pass at a time (0, 1, 2, 3, 4). It gave up on more pairs at every budget, because each shallow round that
+  fails must search its whole tree.
+- A single round with every pass allowed. It was no better than two rounds.
+- Accepting a hand-over on the promise of a later give-up, with a final check at the end. This is exact for a looser rule
+  (several separate give-ups per person). But it cut almost nothing, so the 20-person week's walk took about 2 s, and 4 pairs
+  were still given up at 200,000 checks.
+
+`node eval/pair-order-free.mjs` (`eval/pair-order-free.out.txt`) walks each seeded week's plain roster:
+
+| week | check | 500 checks: clashing (given up), pair hours | full: pair hours, time | full count by hand-out order |
+|---|---|---|---|---|
+| 20 x 56 week 2 | old | 57 (53), 321 h | 179 h, 15 ms | 179 / 187 / 187 h |
+| | order-free | **29 (29), 180 h** | **148 h**, 32 ms | **148 / 148 / 148 h** |
+| 40 x 112 week 0 | old | 314 (308), 1,832 h | 327 h, 174 ms | 327 / 313 / 355 h |
+| | order-free | 293 (291), 1,697 h | **99 h**, 554 ms | **99 / 99 / 99 h** |
+| 40 x 112 week 1 | old | 1 (1), 7 h | 0 h, 15 ms | 0 h each |
+| | order-free | **0 (0), 0 h** | 0 h, 41 ms | 0 h each |
+| 60 x 168 week 0 | old | 2,214 (2,212), 14,479 h | 27 h, 236 ms | 27 h each |
+| | order-free | 4,158 (4,156), 25,267 h | 27 h, 856 ms | 27 h each |
+
+The old column's full count is at 200,000 checks and the order-free one's at 2,000,000. The orders are the usual one, fewest
+eligible first, and "takers" (old) or reversed (order-free). On the two weeks where the old count moved with the order, the
+order-free count is lower than all of the old ones: the pooled give-ups and the two-per-person rule admit covers the old
+per-shift chains could not reach.
+
+**Against what really happens.** `node eval/pair-order-free-exposure.mjs` (`eval/pair-order-free-exposure.out.txt`) plays
+every pair of safe person-days on the five templates (default and `--cover-price 25` rosters, 337 pairs, 118 of which open
+hours when played as kept 5pm reissues) and scores each check:
+
+| check | flagged (given up) | precision | recall | missed |
+|---|---|---|---|---|
+| old, 500 checks | 186 (43) | 58.1% | 91.5% | 10 |
+| old, 200,000 | 186 (0) | 58.1% | 91.5% | 10 |
+| order-free, 500 | 206 (110) | 52.9% | 92.4% | 9 |
+| order-free, 2,000,000 | **180 (0)** | **59.4%** | 90.7% | 11 |
+
+So the order-free check is about as good a predictor as the old one, a little more precise and one pair less complete. That
+is not a reason to switch on its own; the reason is that its answer is a fact about the roster.
+
+**The priced pass with each check** (`--cover-price 25 --second-callout-price 1`, uncapped, from each week's plain roster;
+pair hours counted on the posted roster by each check run to the end):
+
+| week (copies) | old check: moves, score added, time | posted pair hours, old / order-free count | order-free check: moves, score added, time | posted pair hours, old / order-free count |
+|---|---|---|---|---|
+| 20 x 56 week 2 (75) | 4, +$25.85, 1.9 s | 688 / 655 h | 3, +$35.70, 3.2 s | 669 / **562 h** |
+| 40 x 112 week 0 (149) | 11, +$10.15, 25.2 s | 8 / 0 h | 7, +$17.91, 31.0 s | 51 / 0 h |
+| 40 x 112 week 1 (148) | 0, 3.8 s | 0 / 0 h | 0, 3.1 s | 0 / 0 h |
+
+Each pass does best by its own count, and each check rates the other pass's roster worse. The order-free pass costs more
+score on both weeks it moved and is slower on them (its 500-check screen gives up on about as many pairs as the old one on the
+40-person week, and its walks cost more per pair). So `--second-callout-order-free` stays off by default, and the
+120-copy cap stays. Whether its rosters do better when played was not measured.
+
+Tests (`pair-order-free.test.mjs`, 5): the verdict agrees with the oracle on every pair of five small seeded weeks at three
+pass budgets; it is the same in five hand-out orders with and without the look-ahead; the whole walk's count is the same in
+three orders where the old one's is not; a verdict reached within 500 checks is the one reached at 200,000; the pass and
+`buildRoster` pass `coverPairOrderFree` through and report the order-free count.
+
+Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine; four seeded rosters and five
+templates, not a population. Next: play the order-free pass's rosters through seeded weeks of call-outs (as "The pair price
+in played weeks" did) to see whether its lower count opens fewer hours; a cheaper 500-check screen for the order-free check
+(its give-ups set the pass's cost on the 40- and 60-person weeks).

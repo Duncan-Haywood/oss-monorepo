@@ -1,0 +1,28 @@
+PART 1: walks of each plain roster
+20x56 week 2 old (26 risky person-days, pairs of the rest): 500: 57 clash (53 given up), 321 h, 17 ms; 2000: 31 clash (23 given up), 187 h, 11 ms; 200000: 29 clash (0 given up), 179 h, 15 ms; 2000000: 29 clash (0 given up), 179 h, 14 ms
+  at 200,000 by order: usual 179 h (0 given up), fewest 187 h (0 given up), takers 187 h (0 given up)
+20x56 week 2 order-free (26 risky person-days, pairs of the rest): 500: 29 clash (29 given up), 180 h, 33 ms; 2000: 25 clash (24 given up), 154 h, 24 ms; 200000: 24 clash (0 given up), 148 h, 36 ms; 2000000: 24 clash (0 given up), 148 h, 32 ms
+  at 2,000,000 by order: usual 148 h (0 given up), fewest 148 h (0 given up), reverse 148 h (0 given up)
+40x112 week 0 old (65 risky person-days, pairs of the rest): 500: 314 clash (308 given up), 1832 h, 24 ms; 2000: 204 clash (193 given up), 1171 h, 36 ms; 200000: 44 clash (0 given up), 327 h, 174 ms; 2000000: 44 clash (0 given up), 327 h, 251 ms
+  at 200,000 by order: usual 327 h (0 given up), fewest 313 h (0 given up), takers 355 h (0 given up)
+40x112 week 0 order-free (65 risky person-days, pairs of the rest): 500: 293 clash (291 given up), 1697 h, 48 ms; 2000: 244 clash (242 given up), 1372 h, 82 ms; 200000: 12 clash (9 given up), 99 h, 393 ms; 2000000: 12 clash (0 given up), 99 h, 554 ms
+  at 2,000,000 by order: usual 99 h (0 given up), fewest 99 h (0 given up), reverse 99 h (0 given up)
+40x112 week 1 old (66 risky person-days, pairs of the rest): 500: 1 clash (1 given up), 7 h, 25 ms; 2000: 0 clash (0 given up), 0 h, 14 ms; 200000: 0 clash (0 given up), 0 h, 15 ms; 2000000: 0 clash (0 given up), 0 h, 15 ms
+  at 200,000 by order: usual 0 h (0 given up), fewest 0 h (0 given up), takers 0 h (0 given up)
+40x112 week 1 order-free (66 risky person-days, pairs of the rest): 500: 0 clash (0 given up), 0 h, 81 ms; 2000: 0 clash (0 given up), 0 h, 42 ms; 200000: 0 clash (0 given up), 0 h, 44 ms; 2000000: 0 clash (0 given up), 0 h, 41 ms
+  at 2,000,000 by order: usual 0 h (0 given up), fewest 0 h (0 given up), reverse 0 h (0 given up)
+60x168 week 0 old (42 risky person-days, pairs of the rest): 500: 2214 clash (2212 given up), 14479 h, 272 ms; 2000: 3 clash (0 given up), 27 h, 279 ms; 200000: 3 clash (0 given up), 27 h, 220 ms; 2000000: 3 clash (0 given up), 27 h, 236 ms
+  at 200,000 by order: usual 27 h (0 given up), fewest 27 h (0 given up), takers 27 h (0 given up)
+60x168 week 0 order-free (42 risky person-days, pairs of the rest): 500: 4158 clash (4156 given up), 25267 h, 601 ms; 2000: 3 clash (1 given up), 27 h, 705 ms; 200000: 3 clash (1 given up), 27 h, 747 ms; 2000000: 3 clash (0 given up), 27 h, 856 ms
+  at 2,000,000 by order: usual 27 h (0 given up), fewest 27 h (0 given up), reverse 27 h (0 given up)
+PART 2: the pair-priced pass with each check
+20x56 week 2 (75 copies), start score 4806773.36
+  old check: 4 moves in 1.89 s, score +25.85, risk 107 h, reported pair hours 179 -> 688; posted roster counted by the old check 688 h (0 given up), by the order-free check 655 h (0 given up); walks 180 (163 cut off), pairs searched 36864
+  order-free check: 3 moves in 3.22 s, score +35.70, risk 115 h, reported pair hours 148 -> 562; posted roster counted by the old check 669 h (0 given up), by the order-free check 562 h (0 given up); walks 134 (123 cut off), pairs searched 23175
+40x112 week 0 (149 copies), start score 16912612.78
+  old check: 11 moves in 25.15 s, score +10.15, risk 427 h, reported pair hours 327 -> 8; posted roster counted by the old check 8 h (0 given up), by the order-free check 0 h (0 given up); walks 1591 (1462 cut off), pairs searched 283507
+  order-free check: 7 moves in 30.98 s, score +17.91, risk 427 h, reported pair hours 99 -> 0; posted roster counted by the old check 51 h (0 given up), by the order-free check 0 h (0 given up); walks 1172 (1072 cut off), pairs searched 280015
+40x112 week 1 (148 copies), start score 14612836.63
+  old check: 0 moves in 3.83 s, score +0.00, risk 440 h, reported pair hours 0 -> 0; posted roster counted by the old check 0 h (0 given up), by the order-free check 0 h (0 given up); walks 446 (422 cut off), pairs searched 25262
+  order-free check: 0 moves in 3.06 s, score +0.00, risk 440 h, reported pair hours 0 -> 0; posted roster counted by the old check 0 h (0 given up), by the order-free check 0 h (0 given up); walks 2 (0 cut off), pairs searched 2070
+EXIT 0
