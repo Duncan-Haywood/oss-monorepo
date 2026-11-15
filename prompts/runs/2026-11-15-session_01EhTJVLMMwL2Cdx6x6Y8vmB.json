@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLMMwL2Cdx6x6Y8vmB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products ...)",
+  "input_sha256": "cf702c1288ebc08221b484466e56ee76bf97346b7ff328733a76e94716f94e54",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T09:11:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship einvoice-preflight: Hungarian NAV Online Számla 3.0 XSD pass with NTCA common 1.0",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": 16156,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First recorded SHA-256 for common.xsd was the CRLF digest; the builder refused the file until corrected to the LF digest all three mirrors agree on.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper's row has no inputs_only flag although every item needs a real export or blocked host; allocate.py still routes runs there first. Not flagged here because other runs keep finding public data for it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Allocator picked ai-bookkeeper; every open item in its next: needs real outside data (Relay export, Gusto/ADP export, curled receipts, a hosted-model key, irs.gov which 403s here). Took einvoice-preflight (row 3) whose NAV XSD item became buildable once common.xsd was found on GitHub mirrors.",
+      "did": "Claimed ai-bookkeeper in the PR title first, then switched and retitled the PR.",
+      "result": "A working slice landed on einvoice-preflight; ai-bookkeeper left for a run holding real inputs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-nav-online-szamla-schema-check.md",
+    "ventures/einvoice-preflight/eval/hungary-nav-xsd-2026-11-15.md"
+  ],
+  "goal": "Land the NAV schema gate that the einvoice-preflight flagship listed as open, checked against an independent validator.",
+  "notes": "Verification: node --test hu-xsd.test.mjs hungary-nav.test.mjs fa3.test.mjs fa3-payment-split.test.mjs hungary-e-invoice-mandate.test.mjs -> 65 pass 0 fail; python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (21.8 s), then one inherited-keys lint fixed (0 new unguarded lookups). Differential vs xmllint on NAV's XSD: seed 1 1,803/1,803, seed 7 3,973/3,973 agree. Browser smoke (Playwright, local http.server): a NAV file with taxpayerId missing base: shows HU-032 on index.html, no console errors. node platform/pages/venture-preflight.mjs einvoice-preflight: 225/227, the two failures were this post's description/seo_title lengths, fixed; check_post_frontmatter.py then clean on 4783 posts, promptctl validate ok.",
+  "corrections": [],
+  "redteam": null
+}

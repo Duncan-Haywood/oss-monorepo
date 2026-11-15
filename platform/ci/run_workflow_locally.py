@@ -160,6 +160,11 @@ VERIFICATION_ONLY = {
     # valid), which is the question `--tree` exists to ask.
     "research-ci.yml",
     "prompts-ci.yml",
+    # Added 2026-11-15. `--for-changes` already runs it on every `ventures/**`
+    # diff (its one job is `contents: read`, no secrets: build into the
+    # gitignored `_site/`, then check links); naming it to re-run it was the
+    # one place it asked for --force (doc friction, 2026-11-13).
+    "pages.yml",
 }
 
 # Commands that change something outside this working tree. A verification
@@ -279,7 +284,8 @@ GITHUB_TOKEN_EXPRESSION = re.compile(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}")
 # committed work only. `--for-changes` selects workflows from the working
 # tree, so commit before relying on such a step's verdict.
 LOCAL_BASE = {"ref": "origin/main"}
-CONTEXT_EXPRESSION = re.compile(r"\$\{\{\s*([^}]*?)\s*\}\}")
+# A lone `}` may sit inside one (format's `{0}`); only `}}` closes it.
+CONTEXT_EXPRESSION = re.compile(r"\$\{\{\s*((?:[^}]|\}(?!\}))*?)\s*\}\}")
 BASE_EXPRESSIONS = {
     "github.event.pull_request.base.sha || github.event.before",
     "github.event.pull_request.base.sha || github.sha",
@@ -329,7 +335,80 @@ def local_context(expression: str) -> str | None:
         return when if (EVENT_NAME == name) == (op == "==") else otherwise
     if expression in LOCAL_NEEDS:
         return LOCAL_NEEDS[expression]
-    return None
+    if expression in REPOSITORY_EXPRESSIONS:
+        return repository_parts().get(expression)
+    fallback = UNSET_VAR_FALLBACK.match(expression)
+    if fallback:
+        return local_context(fallback.group(2))
+    return format_call(expression)
+
+
+# pages.yml's `Build the site` reads `vars.PAGES_BASE_URL || format(
+# 'https://{0}.github.io/{1}', github.repository_owner,
+# github.event.repository.name)`. Unevaluated, the step was skipped and the two
+# link checks after it read UNRUN, so pages.yml (selected by every `ventures/**`
+# diff) ended every --for-changes sweep with no verdict (measured 2026-11-15 on
+# a one-venture diff: 16 min sweep, exit 5). An unset repository variable is
+# the empty string, which `||` passes over, exactly as `${{ vars.X }}` alone is
+# handled above; the repository names come from the origin remote.
+REPOSITORY_EXPRESSIONS = ("github.repository", "github.repository_owner",
+                          "github.event.repository.name")
+UNSET_VAR_FALLBACK = re.compile(r"^vars\.([A-Za-z_][A-Za-z0-9_]*)\s*\|\|\s*(.+)$")
+FORMAT_CALL = re.compile(r"^format\(\s*'((?:[^']|'')*)'\s*((?:,.*)?)\)$")
+REMOTE_REPO = re.compile(r"github\.com[:/]+([^/\s]+)/([^/\s]+?)(?:\.git)?/?$")
+
+
+@functools.lru_cache(maxsize=None)
+def repository_parts() -> dict:
+    """{expression: value} for the repository contexts, from the origin remote ({} if none)."""
+    match = REMOTE_REPO.search(_git_out("remote", "get-url", "origin"))
+    if not match:
+        return {}
+    owner, name = match.groups()
+    return {"github.repository": f"{owner}/{name}",
+            "github.repository_owner": owner,
+            "github.event.repository.name": name}
+
+
+def _split_args(text: str) -> list[str]:
+    """Top-level comma-separated arguments (quotes and parentheses respected)."""
+    args, depth, quoted, current = [], 0, False, ""
+    for ch in text:
+        if ch == "'":
+            quoted = not quoted
+        elif not quoted and ch in "(":
+            depth += 1
+        elif not quoted and ch in ")":
+            depth -= 1
+        if ch == "," and not quoted and depth == 0:
+            args.append(current.strip())
+            current = ""
+            continue
+        current += ch
+    if current.strip():
+        args.append(current.strip())
+    return args
+
+
+def format_call(expression: str) -> str | None:
+    """`format('{0}...', a, ...)` when every argument has a local value, else None."""
+    match = FORMAT_CALL.match(expression)
+    if not match:
+        return None
+    template = match.group(1).replace("''", "'")
+    values = []
+    for arg in _split_args(match.group(2).lstrip(",")):
+        if len(arg) >= 2 and arg[0] == arg[-1] == "'":
+            values.append(arg[1:-1].replace("''", "'"))
+            continue
+        value = local_context(arg)
+        if value is None:
+            return None
+        values.append(value)
+    try:
+        return re.sub(r"\{(\d+)\}", lambda m: values[int(m.group(1))], template)
+    except IndexError:
+        return None
 
 
 def resolve_context(text: str) -> tuple[str, list[str]]:
@@ -2092,7 +2171,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
 
     before = checkout_fingerprint(with_untracked=True)
 
-    failures, out_of_budget, after_skip = [], [], []
+    failures, out_of_budget, after_skip, ci_only = [], [], [], []
     # Workflows that finished before the checkout first moved: their verdicts
     # still read one tree. Eleven run records to 2026-11-13 lost a whole sweep
     # to UNSTABLE CHECKOUT after editing the run record or committing while
@@ -2112,8 +2191,10 @@ def _run_selected(args, selected, held, absent=()) -> int:
         code = report(name, steps, uses_skipped, False)
         if code == BUDGET_SPENT:
             out_of_budget.append(name)
-        elif code in (AFTER_SKIP, NOTHING_RAN):
+        elif code == AFTER_SKIP:
             after_skip.append(name)
+        elif code == NOTHING_RAN:
+            ci_only.append(name)
         elif code != 0:
             failures.append(name)
         if drift is None:
@@ -2122,7 +2203,16 @@ def _run_selected(args, selected, held, absent=()) -> int:
             if drift is None:
                 stable.append(name)
 
-    finished = len(selected) - len(out_of_budget) - len(after_skip)
+    # A workflow with no step this machine can run (agent-cross-review.yml's
+    # one runnable step reads the PR number, and every diff selects it) is a
+    # held job by another name: CI is its only verdict. Counted as no verdict,
+    # it made every sweep exit 5, a clean one included (measured 2026-11-15:
+    # a one-venture diff, 10/10 workflows passed, exit 5), so the exit code
+    # could never say "pass". Named like the held jobs below; a sweep where
+    # nothing ran anywhere still has no verdict.
+    if ci_only and len(ci_only) == len(selected):
+        after_skip, ci_only = after_skip + ci_only, []
+    finished = len(selected) - len(out_of_budget) - len(after_skip) - len(ci_only)
     print(f"\n{finished - len(failures)}/{finished} selected "
           f"workflow(s) passed"
           + (f"; {len(out_of_budget)} ran out of budget with no verdict"
@@ -2133,6 +2223,9 @@ def _run_selected(args, selected, held, absent=()) -> int:
         print("  Re-run each by name (no budget), in the background: "
               + "; ".join(f"python3 platform/ci/run_workflow_locally.py {n}"
                           for n in out_of_budget))
+    if ci_only:
+        print("  Not a clean sweep: " + ", ".join(ci_only) + " had no step that "
+              "can run outside a pull request's CI. Say so in the pull request.")
     if held:
         print("  Not a clean sweep: " + ", ".join(
             f"{name}/{job_id}" for name, job_id, _ in held)

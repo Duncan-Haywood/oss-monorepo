@@ -58,7 +58,7 @@ test('round three (Gaussian, whole stretch) still reproduces when asked; round f
   const on = updateRateChanges(ppi, { catchUp: { method: 'lr', lr: 5.41, test: staleTest } });
   assert.equal(on.changes[0].rounding, true);
   assert.ok(on.changes[0].staleLR < 5.41);
-  // the default (round four): still rounding
+  // the default (round five): still rounding
   const now = updateRateChanges(ppi);
   assert.equal(now.changes[0].rounding, true);
   assert.ok(now.changes[0].staleLR < 5.41, `ppi LR ${now.changes[0].staleLR}`);

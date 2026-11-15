@@ -167,30 +167,30 @@ flagships:
       level: four repeat treatments failed the frozen-juice bar; 3 log n led on all
       TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled
       data; update-rate check: date a documented collection change. Stale feeds:
-      t-step LR shipped; next clumped (T3). Next: apple's volume in several-columns
-      mode; joint drift (measured, not offered) and its 2x penalty on fresh
-      multi-column labelled data; long labelled series from outside TCPD (none over
-      991 points). Open: (0) drift model: t-walk increments, biweight on fresh data,
-      why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope
-      breaks: `--hinge-test` on more series, a guard on both rhos (hinge-only failed
-      11-15), a second hinge; a real step inside a cycle, a cycle check not tied to
-      rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell
-      under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line
-      (README "Heavy tails in the GARCH search"): re-test scoring breaks with false
-      alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a
-      shop's counts or a yearly term.
+      clumped LR shipped; next a real documented carry-forward. Next: apple's volume
+      in several-columns mode; joint drift (measured, not offered) and its 2x
+      penalty on fresh multi-column labelled data; long labelled series from outside
+      TCPD (none over 991 points). Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; (1) slope breaks: `--hinge-test` on more series, a guard on both
+      rhos (hinge-only failed 11-15), a second hinge; a real step inside a cycle, a
+      cycle check not tied to rho, real documented ramps and close steps; (2)
+      steep-bump clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH
+      failed one pre-registered line (README "Heavy tails in the GARCH search"):
+      re-test scoring breaks with false alarms, new seeds; (4) driftWarning on real
+      shocks; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: NAV Online Számla 3.0 reader HU-001..026,
-      NAV's 30 samples: 27 clean, 5 real faults,
-      eval/hungary-nav-samples-2026-11-15.md). Open: a real HU report with NAV's
-      businessValidationMessages, the XSD pass (NTCA common 1.0), product-fee
-      totals; a real signed Facturae file or FACe rejection; ZATCA stamp check
-      landed (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
+      History: README and git (latest: NAV 3.0 schema gate HU-027..032 with NTCA
+      common 1.0, 5,776 of 5,776 mutants agree with xmllint,
+      eval/hungary-nav-xsd-2026-11-15.md). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text, product-fee totals; a
+      real signed Facturae file or FACe rejection; ZATCA stamp check landed
+      (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
       explained and paired with the file; a real 00305 reproduced,
       eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection with its
       file; HR: a real HR invoice, cash accounting; CIUS-PT: which validator does AT
