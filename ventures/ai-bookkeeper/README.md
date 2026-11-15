@@ -2505,7 +2505,7 @@ gap or a euro sign is left alone, and the note asks for a check.
 | totals right | before | now |
 |---|---|---|
 | page, SRD US photos, 196 | 153 (78.1%) | **156 (79.6%)** |
-| SROIE OCR, 625 scans, two photo readings (held out) | SROIE_BEFORE | **SROIE_AFTER** |
+| SROIE OCR, 625 scans, two photo readings (held out) | 506 | 506 (one fixed, one broken) |
 | SROIE and CORD, the datasets' own text | 611; 749 / 96 / 92 | unchanged |
 
 Fixed 1018, 1080, 1112, 1157; broken 1182, whose first total (43.60, before a printed 18% tip)

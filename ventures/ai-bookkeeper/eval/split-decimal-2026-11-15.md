@@ -40,7 +40,7 @@ never re-read.
 |---|---|---|
 | page, SRD US photos, 196 | 153 (78.1%) | **156 (79.6%)** |
 | wrong with no warning, SRD | 3 | 3 |
-| SROIE OCR, 625 scans, two photo readings (psm 6, psm 4; held out) | SROIE_BEFORE | **SROIE_AFTER** |
+| SROIE OCR, 625 scans, two photo readings (psm 6, psm 4; held out) | 506 | 506 (one fixed, one broken) |
 | SROIE, dataset's own text, 625 | 611 | 611 |
 | CORD train / validation / test, dataset's own text | 749 / 96 / 92 | 749 / 96 / 92 |
 
@@ -74,3 +74,15 @@ node eval/sroie-receipts.mjs <clone>/data --ocr <socr>/psm6,<socr>/psm4
 
 Before: `git stash` the change to `receipts.mjs` and score the same readings again.
 Test: `receipt-crosscheck.test.mjs` ("a total line with its decimal point lost ...").
+
+## The held-out check, in detail
+
+SROIE OCR with the page's two photo readings (tesseract.js, psm 6 and psm 4, read fresh in
+this session): 506 of 625 right before and after, the figure the last run recorded. The rule
+fired on 45 of the 1,252 readings. Fixed: scan 160 (8.20 to 8.60). Broken: scan 474, "Final
+Total SN 43 20" read as 43.20 where the label is 43.70 (the digit itself misread; before, a
+guess happened to land on 43.70). Most firings are on Malaysian "Total (Inclusive of GST): 4,20"
+lines, where the receipt's other readings already carry the total, so nothing moved. One firing is
+plainly wrong: "Grand Total RM1 4, 20" (scan 538, labelled 14.20) reads as 4.20, because OCR put
+a space inside "14"; the other readings outvoted it. Teaching the rule the `RM` prefix is a
+possible next step but would be fitted to the held-out set, so it was not done here.

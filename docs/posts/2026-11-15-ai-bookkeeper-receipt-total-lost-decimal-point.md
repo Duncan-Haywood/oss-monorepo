@@ -38,7 +38,7 @@ The broken one is worth a look. That slip prints `Total 43.60`, then a voluntary
 
 Across all 784 readings of these photos, the rule fired 14 times and gave the right amount 7 times. Most of the wrong firings were on photos where the digits were misread too (`Total 7 46` for 7.56). There the other readings outvoted it, and the page still read the right total. The number of wrong totals the page shows with no warning stayed at 3 of 196.
 
-I wrote the rule while looking at these 196 photos, so 153 to 156 isn't a held-out score. The held-out check is SROIE, 625 scanned Malaysian receipts read by the same engine that I never looked at while writing it. There it went from SROIE_BEFORE to SROIE_AFTER. On the datasets' own hand-corrected text, which has no lost points, nothing changed.
+I wrote the rule while looking at these 196 photos, so 153 to 156 isn't a held-out score. The held-out check is SROIE, 625 scanned Malaysian receipts read by the same engine that I never looked at while writing it. There it changed nothing on balance: 506 totals right before and after, with one scan fixed and one broken. So the rule earns its keep on US phone photos, where the dot is small, and does no net harm on scans. On the datasets' own hand-corrected text, which has no lost points, nothing changed.
 
 ## What's left
 
