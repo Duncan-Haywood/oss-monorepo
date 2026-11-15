@@ -55,8 +55,29 @@ test('the threshold rule and K5', () => {
   assert.equal(th.tau, 7.01);
   assert.equal(threshold({ R1: cell(Array(100).fill(1)) }).tau, 5.41, 'never below 5.41');
   const mk = (n, hit, hitIid) => Array.from({ length: n }, (_, i) => ({ oneTick: true, lr: i < hit ? 99 : 0, lrIid: i < hitIid ? 99 : 0 }));
-  const base = { R1: mk(100, 0, 0), R2: mk(100, 0, 0), R3: mk(100, 0, 0), T1: mk(100, 90, 90), T2: mk(100, 90, 90), F1: [null], F2: [null], F3: [null], X1: mk(100, 1, 1), X2: mk(100, 1, 1) };
+  const base = { R1: mk(100, 0, 0), R2: mk(100, 0, 0), R3: mk(100, 0, 0), T1: mk(100, 90, 90), T2: mk(100, 90, 90), F1: [{ oneTick: false }], F2: [{ oneTick: false }], F3: [{ oneTick: false }], X1: mk(100, 1, 1), X2: mk(100, 1, 1) };
   assert.equal(tally({ ...base, T3: mk(100, 90, 80) }, 7).ships, true);
   assert.equal(tally({ ...base, T3: mk(100, 90, 88) }, 7).k5, false, 'must beat round four by 5 points');
   assert.equal(tally({ ...base, T3: mk(100, 84, 70) }, 7).k5, false, 'must reach 0.85');
+});
+
+test('round five passed as committed, so it is the default', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { CATCHUP, updateRateLines } = await import('./update-rate.mjs');
+  const { staleTestMarkov } = await import('./rounded-walk.mjs');
+  const cal = readFileSync(new URL('./eval/update-rate-stale-lr-5-calibration.out.txt', import.meta.url), 'utf8');
+  assert.match(cal, /calibration seed 31, 200 series a null cell/);
+  assert.match(cal, /^tau = 6\.56$/m);
+  const out = readFileSync(new URL('./eval/update-rate-stale-lr-5.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /confirmation seed 20261217, 200 series a cell; Markov carry-forward LR >= 6\.56/);
+  for (const k of ['K1', 'K2', 'K3', 'K4', 'K5']) assert.match(out, new RegExp(`${k} \\(.*\\): pass`));
+  assert.match(out, /T3 +64 +62 +60 +0\.968 +50 +0\.806/);
+  assert.match(out, /Verdict: Markov carry-forward replaces round four/);
+  assert.equal(CATCHUP.test, staleTestMarkov);
+  assert.equal(CATCHUP.lr, 6.56);
+  assert.equal(CATCHUP.trim, 'range');
+  const u = { changes: [{ index: 3, from: 3, to: 3, shareBefore: 0.1, shareAfter: 0.6, direction: 'less often', rounding: false, catchUp: true, catchUpRatio: null, staleLR: 12.34, staleP: 0.4, staleLRIid: 3, staleEnter: 0.2, staleStay: 0.7, staleThreshold: 6.56, tick: 0.1 }] };
+  const line = updateRateLines(u)[0];
+  assert.match(line, /carried forward in runs \(after a fresh value the next repeats about 20% of the time, after a repeat about 70%\)/);
+  assert.match(line, /likelihood ratio 12\.3, against 6\.6/);
 });

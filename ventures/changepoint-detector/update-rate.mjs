@@ -13,7 +13,7 @@
 //   'markov':    a two-state chain per stretch (P(repeat | last step repeated), P(repeat | last step
 //                updated)), so long flat runs inside a stretch are not read as a change of rate.
 // Both are profiled -2 log likelihoods; a cut costs `penalty` (default mult x 2 log n).
-import { staleTestHeavy } from './rounded-walk.mjs';
+import { staleTestMarkov } from './rounded-walk.mjs';
 
 /** 0/1 per step t = 1..n-1: 1 when values[t] === values[t - 1]. Non-finite values never repeat. */
 export function repeatIndicators(values) {
@@ -256,7 +256,9 @@ export function medianMoveTicks(values, from, to, tick) {
 // all four pre-registered lines passed on seed 20261216): the call is made by the likelihood route below,
 // with Student t steps and the stretch trimmed to its cuts' ranges. The ratio stays a reported number.
 export const CATCHUP_BASE = { minRun: 3, ratio: Infinity, minMoves: 5 };
-export const CATCHUP = { minRun: 3, ratio: Infinity, minMoves: 5, method: 'lr', lr: 5.41, test: staleTestHeavy, trim: 'range' };
+// Round five ships (README "One-tick stale feeds: clumped carry-forward", eval/update-rate-stale-lr-5.out.txt,
+// K1-K5 passed on seed 20261217): Markov carry-forward, threshold 6.56 set on the null cells of seed 31.
+export const CATCHUP = { minRun: 3, ratio: Infinity, minMoves: 5, method: 'lr', lr: 6.56, test: staleTestMarkov, trim: 'range' };
 export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, minMoves = CATCHUP.minMoves } = {}) {
   if (!tick) return null;
   let after = 0, nAfter = 0, plain = 0, nPlain = 0, run = 0, prevMoved = false;
@@ -276,7 +278,8 @@ export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, 
 // walk carried forward beats the same walk merely rounded by LR >= `lr` (5.41, the 1% point of the
 // boundary chi-square mix). It runs only on stretches that already pass the one-tick test. Round three
 // (Gaussian steps, whole stretch) failed K1; round four (`staleTestHeavy`, t steps, `trim: 'range'`)
-// passed K1-K4 and is the default. Pass `catchUp: { method: null }` for the median-move test alone.
+// passed K1-K4; round five (`staleTestMarkov`, clumped carry-forward, lr 6.56) passed K1-K5 and is the
+// default. Pass `catchUp: { method: null }` for the median-move test alone.
 function trimmed(stretches, ranges, j, cu) {
   const st = stretches[j];
   if (cu.trim !== 'range') return { from: st.from, to: st.to };
@@ -290,7 +293,7 @@ function roundingVerdict(sticky, cu = CATCHUP, values = null, span = sticky) {
   if (cu.method === 'lr') {
     const t = oneTick && values && cu.test ? cu.test(values, span.from - 1, span.to, sticky.tick) : null;
     const catchUp = !!(t && t.lr >= (cu.lr ?? 5.41));
-    return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null, staleLR: t ? t.lr : null, staleP: t ? t.p : null, ...(t && t.lrIid != null ? { staleLRIid: t.lrIid } : {}) };
+    return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null, staleLR: t ? t.lr : null, staleP: t ? t.p : null, ...(t && t.lrIid != null ? { staleLRIid: t.lrIid, staleEnter: t.pEnter, staleStay: t.pStay, staleThreshold: cu.lr } : {}) };
   }
   const catchUp = oneTick && r != null && r >= cu.ratio;
   return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null };
@@ -311,7 +314,9 @@ export function updateRateLines(u, labels) {
     ? ` In the stretch with more repeats at least half the moves are one tick (${[...new Set(rounded.map(tk))].join(' or ')}, the smallest move there), so the repeats may only mean the series moved less than its recorded precision then: a slower series, not a stale one. If so, this is a change in how fast it moved, not in how often it was refreshed.`
     : ` This describes how often the data was refreshed (a stale feed, a figure carried forward, a change in how it was recorded), not a change in its level; jumps near these dates may be catch-ups after a stale stretch.${rounded.length ? ` Around ${rounded.map((c) => `${L(c.index)} (tick ${tk(c)})`).join(', ')}, though, at least half the moves in the stickier stretch are one tick, so those repeats may only be a slow series rounded to its precision.` : ''}`;
   const caught = u.changes.filter((c) => c.catchUp);
-  const lrNote = (c) => c.staleLR != null
+  const lrNote = (c) => c.staleStay != null
+    ? `a rounded walk carried forward in runs (after a fresh value the next repeats about ${pct(c.staleEnter)} of the time, after a repeat about ${pct(c.staleStay)}) fits it better than the same walk only rounded, even allowing heavy-tailed jumps (likelihood ratio ${c.staleLR.toFixed(1)}, against ${c.staleThreshold.toFixed(1)}, which about 2% of rounded slow series clear in simulation)`
+    : c.staleLR != null
     ? `a rounded walk carried forward on about ${pct(c.staleP)} of steps fits it better than the same walk only rounded, even allowing heavy-tailed jumps (likelihood ratio ${c.staleLR.toFixed(1)}, against 5.4 at the 1% level)`
     : `a move that ends two or more repeats is ${c.catchUpRatio.toFixed(1)}x the mean square of a move after a move`;
   const catchNote = caught.length

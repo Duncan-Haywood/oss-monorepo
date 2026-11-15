@@ -58,15 +58,13 @@ test('trim: the likelihood sees the sticky stretch only inside its cut range', (
   assert.ok(seen[1][1] <= seen[0][1]);
 });
 
-test('round four passed as committed, so it is the default', () => {
+test('round four passed as committed (round five has since replaced it as the default)', () => {
   const out = readFileSync(new URL('./eval/update-rate-stale-lr-4.out.txt', import.meta.url), 'utf8');
   assert.match(out, /seed 20261216, 200 series a cell/);
   for (const k of ['K1', 'K2', 'K3', 'K4']) assert.match(out, new RegExp(`${k} \\(.*\\): pass`));
   assert.match(out, /Verdict: the heavy-tailed, trimmed likelihood check ships/);
   assert.equal(CATCHUP.method, 'lr');
-  assert.equal(CATCHUP.test, staleTestHeavy);
   assert.equal(CATCHUP.trim, 'range');
-  assert.equal(CATCHUP.lr, 5.41);
 });
 
 test('the sentence names the likelihood when the call came from it', () => {

@@ -13,7 +13,8 @@
 //
 // What it does not model: a hidden value that mean-reverts, drifts or has heavy-tailed steps, and
 // carry-forward that clumps (a quote that sits for months). Those can move LR in either direction;
-// the pre-registered cells (eval/update-rate-stale-lr.mjs) include one clumped stale feed.
+// the pre-registered cells (eval/update-rate-stale-lr.mjs) include one clumped stale feed. Round four
+// added t steps; round five (roundedWalkLogLikMarkov, below) models clumped carry-forward and is the default.
 
 const SQRT1_2 = Math.SQRT1_2;
 // erfc with relative error under 1.2e-7 (Numerical Recipes, erfcc).
