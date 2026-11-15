@@ -1,9 +1,9 @@
 ---
 title: "The voltage collapse was the slack bus"
-seo_title: "AC power flow fails at the DC OPF dispatch? Check which unit is the slack"
+seo_title: "AC power flow fails at the DC OPF dispatch? Check the slack unit"
 date: 2026-11-15
 tags: [research, power-systems, optimal-power-flow, voltage-stability, ipopt, grid-linopf]
-description: "On five French RTE networks in PGLib-OPF, the DC dispatch looked past a voltage-collapse fold. The cause was a 30 MW slack unit carrying 650 MW of losses. Moving the slack gives a power flow on all five, and the frozen repair is feasible on three."
+description: "On five PGLib-OPF RTE networks the DC dispatch looked past a voltage-collapse fold. The cause was a 30 MW slack unit. Moving it gives all five a power flow."
 ---
 
 Yesterday's post in the [`grid-linopf`](../../research/grid-linopf/) programme ([the fold post](2026-11-14-the-dc-dispatch-sits-past-a-voltage-collapse-fold.md)) found six PGLib-OPF cases where the DC optimal power flow's dispatch has no AC power flow. Five are 1,888- and 1,951-bus French transmission (RTE) networks. When we scaled load and the DC dispatch up together, the power-flow Jacobian went singular between 48 and 85 % of load, which is a saddle-node fold. The post ended on a plan to raise the voltages before repairing the dispatch. This run carried out that plan, watched it fail, and found out why. The answer was not the voltages.
