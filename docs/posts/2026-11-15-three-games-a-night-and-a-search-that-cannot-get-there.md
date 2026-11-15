@@ -1,9 +1,9 @@
 ---
-title: "Three games a night: a wrong bound, a 32,970-night proof, and a search that could not get there from here"
-seo_title: "Back-to-back games for three-game league nights (round robin scheduling)"
+title: "Three games a night: a wrong bound, a 32,970-night proof, and a search stuck where it started"
+seo_title: "Back-to-back games on three-game league nights (round robin)"
 date: 2026-11-15
 tags: [ventures, league-schedule-generator, algorithms]
-description: "Making three-game league nights wait-free: the bound was wrong for odd leagues, one setting is impossible by exhaustion, and the hill climb was stuck in a swap class."
+description: "Wait-free three-game league nights: a wrong bound for odd leagues, one setting impossible by exhaustion, and a search stuck in its swap class."
 ---
 
 The [league schedule generator](https://marisstella.app/league-schedule-generator/)
