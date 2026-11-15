@@ -5160,3 +5160,56 @@ now with the counter-case: on a routine of activities they can be real. A next g
 waveform between cuts (are the segments the same shape repeated?), not their count or spread. Tests:
 `repeat-guard.test.mjs` (7: the thresholds, firing and quiet cases, the tenth at the end, `consensus()` without the
 warning, the HAS line parser, the committed verdicts and the HAS headline).
+
+## Agreed changes that are the same waveform repeated: a shape check, and a fresh fourth set (2026-11-15, pre-registered; fails one of four lines, not offered)
+
+The count-and-spread guard above failed on HAS because a routine of activities spreads agreed changes through a
+recording just as a repeating waveform does, and the round ended asking for "a reading of the waveform between cuts".
+This round is that reading. Fixed before it was computed on any series (`eval/shape-repeat-prereg-2026-11-15.md`), the
+check (`consensus.mjs` `shapeRepeats`) cuts the series at the every-setting changes, reduces each segment of 4 or more
+points to a 32-point z-normalised shape, calls two segments a match when their lengths are within 1.5x and their shapes
+correlate at 0.8 or more, calls a segment a repeat when it matches 2 or more others, and drops an agreed change when the
+segments on both sides of it repeat. Nothing reads labels or a period. Four sets: TSSB (seen), TCPD's 38 univariate
+series, HAS 2023 (seen) and a **fresh** one, the UCR Semantic Segmentation Benchmark (UTSA; Gharghabi et al., ICDM
+2017; 32 real physiological and mechanical repeating signals of 2,000 to 40,000 points with one or two labelled regime
+changes; fetched by `eval/utsa-fetch.sh` with a pinned sha256, never committed).
+`node eval/shape-repeat.mjs tssb-data tcpd-data has-data utsa-data` (output `eval/shape-repeat.out.txt`, 2.2 min on 4
+cores once the TSSB and HAS detections are cached).
+
+| covering (one annotator) | TSSB, 75 | HAS 2023, 250 | UTSA, 32 (fresh) |
+|---|---|---|---|
+| zero (no change) | 0.401 | 0.444 | 0.512 |
+| every-setting consensus (the page's headline) | 0.344 | 0.619 | 0.458 |
+| shape-filtered every-setting | 0.365 | **0.620** | **0.522** |
+| agreed changes dropped (series touched) | 113 of 579 (11) | 21 of 2,220 (7) | 176 of 301 (5) |
+
+- **S1 fails (TSSB, seen).** Shape-filtered 0.365 against a bar of 0.381 (zero minus 0.02). It helps on all 11 series it
+  touches (+0.021, 95% 0.008 to 0.037; worse on none) but drops only a fifth of the agreed changes: on most of TSSB's
+  waveforms the six settings cut at slightly different phases of each cycle, so neighbouring segments differ in length
+  or shape and do not count as repeats. The count guard, which drops everything, reached 0.403.
+- **S2 holds (TCPD).** F1 0.704 to 0.703, covering 0.653 to 0.656. It drops 8 of `bank`'s 30 agreed changes (bank has
+  no labelled change) and 1 of `bitcoin`'s 12, which costs bitcoin F1 0.570 to 0.521: the one loss anywhere in the round.
+- **S3 holds (HAS, seen).** +0.001 (95% 0.000 to 0.001), better on 6, worse on 0; it drops 21 of 2,220 agreed changes,
+  so the routines of activities that broke the count guard keep their real changes.
+- **S4 holds (fresh UTSA).** +0.064 (95% 0.015 to 0.124), better on all 5 series it touches, worse on none. Those five
+  (gun-draw motion, pig airway and arterial pressure, tilt-table ABP and ECG) are long repeating signals where the
+  headline listed 34 to 50 agreed changes against one labelled one; the filter drops 23 to 47 of each. Covering rises
+  from 0.04-0.12 to 0.24-0.67.
+- **Predictions, scored:** S1 met: wrong. S2, S3 met: right. S4 met: right, but it touched 5 UTSA series, not 10 to 25
+  (so S4 was one series from "not informative"). UTSA consensus below zero: right (-0.054, interval -0.136 to 0.026;
+  6 of 301 agreed changes lie within the file's window of a labelled change).
+
+**What it shows.** On the three long-series sets (357 series) it made covering worse on none; on TCPD it cost one
+series (`bitcoin`) one true change. It is a safe but timid filter: it catches the waveforms whose
+cycles every setting cuts at the same phase and misses the rest. Post hoc (deciding nothing): every series it touched
+on TSSB, UTSA and 6 of 7 on HAS is one where the count guard also fires, so the two read the same thing from
+different sides, the count guard too eagerly, the shape check too cautiously.
+
+**What changes now.** As pre-registered, a failed line means nothing ships: `shapeRepeats` stays in `consensus.mjs`
+for the eval, uncalled by `consensus()`, and the page's headline is unchanged. Also fixed: `eval/repeat-guard.mjs`
+read `consensus().repeatWarning`, which `consensus()` no longer sets, so a rerun reported G2 met; it now calls
+`repeatGuard` itself and reproduces the committed output. The next candidate, to be pre-registered on a fifth
+labelled set (none of TSSB, HAS or UTSA may decide it): segments matched with a tolerance for phase (a lag search or
+cross-correlation), or the count guard confirmed by the share of segments that repeat. Tests: `shape-repeat.test.mjs`
+(8: the settings, segment shapes, a sawtooth whose cuts all drop, a staircase that keeps all, the length rule, that
+`consensus()` does not call it, the UTSA name parser, the committed verdicts).
