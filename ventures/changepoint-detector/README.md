@@ -230,7 +230,8 @@ series, 40 each, in `engine.test.mjs`):
   Bayesian pass as a check that no longer cries wolf; a negative-binomial cost might recover power. Page: "Counts are clumpy or sticky".
 - **Independent clumpy counts (`--overdispersion nb`, added 2026-10-20).** A negative-binomial cost (`makeCost(..., 'negbin')`,
   variance mu + mu^2 / r, one mean per segment, PELT still exact) with r estimated from the series (`negbinSize`: the median
-  of squared first differences gives a variance that a step does not spoil). 200 counts, rate 10, each count drawn at a
+  of squared first differences gives a variance that a step does not spoil; since 2026-11-15 each difference is read against its
+  local level, see "Clumpy counts that grow" at the end). 200 counts, rate 10, each count drawn at a
   lognormal rate (sd 0.35) independently, seeds 1700..1739: false changes per series on a flat series 3.55 with the Poisson
   cost, 0.78 with the quasi-Poisson penalty (`--overdispersion`), 0.13 with the negative binomial. With a 1.8x step at 100 the
   step was found within 10 points on 39 of 40 with either correction, at 1.27 changes per series against 1.50. Sticky counts
@@ -5213,3 +5214,47 @@ labelled set (none of TSSB, HAS or UTSA may decide it): segments matched with a 
 cross-correlation), or the count guard confirmed by the share of segments that repeat. Tests: `shape-repeat.test.mjs`
 (8: the settings, segment shapes, a sawtooth whose cuts all drop, a staircase that keeps all, the length rule, that
 `consensus()` does not call it, the UTSA name parser, the committed verdicts).
+
+## Clumpy counts that grow: the clumping size read against the local level (2026-11-15, pre-registered twice; round 2 ships)
+
+`--overdispersion nb` needs the negative binomial's size r, and `negbinSize` estimated it by comparing the median squared
+first difference with the series' **global** mean. On counts whose level moves a lot that is wrong in one direction: the
+typical local spread belongs to a typical local level, far below the global mean squared, so r came out too large, and on
+steep growth (rate 7 to about 700) it came out Infinity. Infinity means "not clumpy", so the NB path quietly ran the plain
+Poisson cost, steps soaked up the growth, and the bend landed at the edge of the scan. That is why only 14% of the steep
+cell's bends were located before (2026-11-08 entry above, "Steep-bend range, replicated"), and why the range under them
+was short (80%).
+
+The new `negbinSize` reads each difference against the mean of the 7 points around it. Under NB2 a pair at level m has
+E d^2 = 2 (m + m^2 / r), so with z = d^2 / (2 (m + c m^2)) it solves mean min(z, 6.635) = 0.9813 for c = 1 / r (the cap is
+chi-square(1)'s 99th percentile, so a step's few big differences do not set the size; 0.9813 is E min(chi-square(1), cap)),
+and calls the series Poisson unless the mean at c = 0 clears 0.9813 by two standard errors. The old estimator stays as
+`negbinSizeGlobal` for comparison. Bars written first: `eval/nb-size-local-preregistration.md`.
+
+- **Round 1 failed.** The same idea with a median instead of the capped mean held the size and the false-bend bars, but
+  plain Poisson counts at rate 10 read as clumpy on 32 of 100 (bar: at most 10): at small counts d^2 takes a few lattice
+  values and the median jumps. Not shipped.
+- **Round 2, fresh seeds, all five bars hold** (`eval/nb-size-local.mjs 9501 9502 9503`, `eval/nb-size-local.out.txt`;
+  steep cell `eval/nb-size-local-steep.out.txt`):
+
+| 200 clumpy counts, lognormal sd 0.35 (true size 7.67) | global-mean size (before) | local size (now) |
+|---|---|---|
+| median size, no bend / bump 0.015 / 0.025 / 0.04 | 8.6 / 31 / 123 / Infinity | 8.2 / 8.2 / 8.4 / 8.6 |
+| Poisson counts read as Poisson, rate 10 / ramp 7 to 700 | 95 / 100 of 100 | 99 / 100 of 100 |
+| steep bend (bump 0.04) located within 20 points | 81 of 500 (16%) | **280 of 500 (56%)** |
+| ... and its 95% range holds the true knot | 58 of 81 (72%) | **278 of 280 (99%)** |
+| straight growth 0.02 per point: a bend kept | 11 of 100 | 0 of 100 |
+| straight growth 0.02 per point: step changes per series | 1.86 | 0.08 |
+
+- **Real series (bar 5).** 739 of 747 tests passed unchanged. The 8 that moved are pinned counts on real series, all
+  toward fewer changes, because the old size was too large wherever the level moved: bike-share days (size 58 before, 32
+  now, raw counts), Wikipedia "Payroll" views (45 to 27), UK lung deaths (104 to 59). No documented date was lost: the
+  Ansett 1989 stop and restart are found in every setup (23 and 24 other changes, was 37 and 30), the stop's range holds
+  on 29 of 30 routes as before, and the fewest changes outside the closure on any route fell from 8 to 4. UK lung deaths
+  (no documented step) lose the 1979-10 cut. Payroll 47 to 26 changes (45 to 25 with holidays). US births: the holiday
+  list still removes changes in every year (239 to 205 before, 205 to 179 now). Bike-share at period 7: 56 to 30 changes,
+  and the holiday factor no longer adds any (61 before). One pinned observation reversed: at period 365 bike-share goes
+  134 to 29 changes, and the holiday list now adds changes there (29 to 36) instead of removing them.
+- **Not checked.** A real count series with a documented steep slope break (still wanted, as before); clumping that
+  itself changes with the level (NB1-like, variance proportional to the mean), which a single r cannot describe.
+

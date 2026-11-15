@@ -1,0 +1,14 @@
+# round 2: node eval/nb-size-local.mjs 9501 9502 9503 (old = negbinSizeGlobal; bar 4 old numbers from the commit before this change)
+true size 7.67
+bar 1, clumpy bump 0: size quartiles old 7.69 / 8.64 / 19.48, new 7.35 / 8.19 / 10.11
+    clumpy bump 0.015: old 20.89 / 30.69 / 41.27, new 7.24 / 8.20 / 9.41
+    clumpy bump 0.025: old 60.70 / 123.02 / 425.13, new 7.40 / 8.37 / 9.78
+    clumpy bump 0.04: old Inf / Inf / Inf, new 7.39 / 8.55 / 9.63
+bar 2, Poisson rate 10: Infinity on old 95/100, new 99/100
+bar 2, Poisson ramp 7 to 700: Infinity on old 100/100, new 100/100
+bar 4, straight growth 0.004/point: bend kept 0/100, changes per series 0.14
+bar 4, straight growth 0.02/point: bend kept 0/100, changes per series 0.08
+# bar 4 with the old size:
+bar 4, straight growth 0.004/point: bend kept 0/100, changes per series 0.25
+bar 4, straight growth 0.02/point: bend kept 11/100, changes per series 1.86
+# round 1 (median version, failed bar 2): see eval/nb-size-local-preregistration.md

@@ -1405,7 +1405,6 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
  */
 export function negbinSize(x) {
   if (x.length < 8) return Infinity;
-  if (typeof process !== "undefined" && process.env?.CPD_NB_OLD) return negbinSizeGlobal(x);
   // Each first difference is read against the level around it (a 7-point window), not the series mean: under NB2 a pair at
   // level m has E d^2 = 2 (m + m^2 / r). Solve mean_t min(z_t, K) = E min(chi2_1, K) for c = 1 / r, z_t = d_t^2 / (2 (m_t + c m_t^2)),
   // K = 6.63 (chi2_1's 99th percentile), so a step's few huge differences are capped instead of driving the size, and the mean

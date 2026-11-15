@@ -55,3 +55,13 @@ Tuned on the round-1 seeds 9201 and 9202 only (Poisson 10: 98 of 100 Infinity;
 clumpy median size 8.47). The same five bars, on fresh seeds: bar 1 seed 9501,
 bar 2 seed 9502, bar 3 seeds 9601 and 9602 (250 series each), bar 4 seed 9503.
 If any bar fails, it does not ship and the old estimator stays.
+
+## Round 2 result: all five bars hold; ships as the only `negbinSize`
+
+Fresh seeds, run once (`eval/nb-size-local.out.txt`, `eval/nb-size-local-steep.out.txt`):
+
+1. Holds. Median size 8.19 against the true 7.67 (7%); 8.2 to 8.6 at every bump, where the global-mean size gave 8.6, 31, 123 and Infinity.
+2. Holds. Poisson rate 10: Infinity on 99 of 100 (old 95); Poisson ramp 7 to 700: 100 of 100 (old 100).
+3. Holds. Steep bends located within 20 points on 280 of 500 (56%; old size on the same seeds 81 of 500, 16%); the 95% range held the knot on 278 of 280 (99%; old 58 of 81, 72%). Median width 46 points.
+4. Holds. A bend kept on 0 of 100 straight series at growth 0.004 and at 0.02 (old 0 and 11); step changes per series 0.14 and 0.08 (old 0.25 and 1.86).
+5. Holds as worded. 739 of 747 tests passed unchanged; the 8 that moved are pinned counts on real series, all fewer changes, and no documented date was lost: the Ansett 1989 stop and restart are still found in every setup and the stop's range still holds it on 29 of 30 routes; the 1979-10 cut on UK lung deaths (no documented step there) is gone; the holiday list still removes changes in every year of US births. One pinned observation reversed: on bike-share days at period 365 the holiday list now adds changes (29 to 36) instead of removing them (134 to 125).
