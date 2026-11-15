@@ -1701,3 +1701,45 @@ network call), so a self-made certificate passes as long as it signed this
 invoice; Fatoora's acceptance is not known from any of this; the Python CLI
 does not run the stamp check.
 
+
+## Spain: Facturae 3.2.1 and 3.2.2 (2026-11-15)
+
+Invoices to Spanish public bodies go through FACe (and the regional hubs) as
+Facturae XML, and Facturae is one of the formats Spain's B2B regulation allows.
+A file whose root is `Facturae` in the 3.2.1 or 3.2.2 namespace is now read by its
+own reader (`facturae.mjs`), not as UBL:
+
+- **Structure (ES-018..022)**: element order, occurrence counts, choices, value
+  facets and all 22 code lists of the Ministry's two XSDs, read into
+  `facturae-xsd-data.mjs` by `build-facturae-schema.mjs` (downloads from
+  facturae.gob.es, SHA-256 pinned). A decimal comma gets its own message.
+- **Totals (ES-003..017, ES-023..025)**, each a formula from the Ministry's field
+  description (06/06/2017): TotalCost = Quantity x UnitPriceWithoutTax; GrossAmount
+  = TotalCost - discounts + charges; TotalGrossAmount, general discounts and
+  charges, TotalGrossAmountBeforeTaxes; each cuota and recargo de equivalencia =
+  base x rate; TotalTaxOutputs; withholdings (IRPF) and TotalTaxesWithheld;
+  InvoiceTotal = before taxes + outputs - withheld; TotalOutstandingAmount after
+  subsidies and advances; TotalExecutableAmount after retentions, payment in kind,
+  suplidos and financial expenses; the batch's three sums and InvoicesCount.
+- **Consistency**: Modality I/L against the invoice count (ES-002), SchemaVersion
+  against the namespace (ES-001), corrective invoices (ES-027 Corrective block,
+  ES-028 corrected number and, in 3.2.2, its date for methods 01/02, ES-029 reason
+  and method code/description pairs from the XSD's lists), summary invoices need
+  InvoicingPeriod (ES-030), foreign currency needs ExchangeRateDetails and euro
+  equivalents (ES-031), NIF/NIE/CIF check character (ES-032), installments against
+  the total to execute (ES-035, warning), a future IssueDate (ES-037, warning).
+
+Measured (`eval/facturae-differential-2026-11-15.md`): 1,000 generated files, all
+valid under xmllint and the official XSDs, 0 flagged; 6,539 structural mutants, our
+verdict equal to xmllint's on every one; 5,006 arithmetic mutants, all caught by the
+expected rule. Generator and checker share one reading of the field description,
+so the arithmetic is not independently confirmed. Not done: the XAdES signature,
+FACe's DIR3 directory and FACe's own error codes, Facturae 3.2 (2009) files (named,
+schema step skipped), and a real business's file. The Python CLI does not read
+Facturae.
+
+**Spanish NIE and K/L/M NIFs fixed (same day).** The party VAT check (`vat.mjs`,
+`vat.py`) refused every valid NIE (X/Y/Z) and K/L/M NIF as INV-023. Against
+python-stdnum 2.2 on 6,000 seeded numbers: 891 disagreements before (750 valid
+numbers refused), 55 after, all CIFs where stdnum takes either control form and we
+take the one the entity letter calls for.
