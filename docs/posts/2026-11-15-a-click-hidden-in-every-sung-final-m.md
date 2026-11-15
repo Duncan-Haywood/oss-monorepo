@@ -1,9 +1,9 @@
 ---
 title: "A click hidden in every final -m our synthetic choir sang"
-seo_title: "Formant singing synthesis: finding a nasal-murmur glitch by reading the audio"
+seo_title: "Formant singing synthesis: a nasal-murmur glitch found in the audio"
 date: 2026-11-15
 tags: [chant-forge, music, speech-synthesis, signal-processing]
-description: "Chant Forge's preview choir sings Latin consonants, and an acoustic reader checks them. Teaching the reader to hear /m/ after /u/ turned up a 10 ms glitch in the synthesiser."
+description: "Teaching Chant Forge's acoustic reader to hear /m/ after /u/ turned up a 10 ms glitch in every final nasal its synthetic choir sang."
 ---
 
 Chant Forge turns Gregorian chant into MIDI, scores and a preview mix. Its
