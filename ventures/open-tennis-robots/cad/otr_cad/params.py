@@ -2954,17 +2954,36 @@ class Feeder:
                     a += w / max(vx, 1e-6)
             return a
 
+        # The loop below is `draw` inlined (perf note 2026-11-15): the loads drawing during a step are fixed for
+        # that step, so their watts are listed once per step and summed in the same order as `draw`, which keeps
+        # every float the same. Without start-up loads (the common case) the per-load loops vanish.
+        idle, stop_v, start_v = self.bus_idle_a, self.switched_stop_v, self.switched_start_v
+        ks, durs = range(len(loads)), [dur for _, _, dur in loads]
+        watts = [w for _, w, _ in loads]
         for _ in range(n):
-            for k in range(len(loads)):
-                if on[k] and vb < self.switched_stop_v:
+            act = []
+            for k in ks:
+                if on[k] and vb < stop_v:
                     on[k] = False
-                elif not on[k] and vb >= self.switched_start_v:
+                elif not on[k] and vb >= start_v:
                     on[k] = True
                     starts[k] += 1
-            k1 = ((v_pack - vb) / rp - draw(vb)) / c_bus
+                if on[k] and used[k] < durs[k]:
+                    act.append(watts[k])
+            a = idle
+            if act:
+                x = 1e-6 if vb < 1e-6 else vb
+                for w in act:
+                    a += w / x
+            k1 = ((v_pack - vb) / rp - a) / c_bus
             vm = vb + k1 * dt / 2
-            vb += ((v_pack - vm) / rp - draw(vm)) / c_bus * dt
-            for k in range(len(loads)):
+            a = idle
+            if act:
+                x = 1e-6 if vm < 1e-6 else vm
+                for w in act:
+                    a += w / x
+            vb += ((v_pack - vm) / rp - a) / c_bus * dt
+            for k in ks:
                 if on[k]:
                     used[k] += dt
         return {"v_pack": v_pack, "bus_v": vb, "gap_v": v_pack - vb, "load_a": draw(vb),
@@ -3018,23 +3037,41 @@ class Feeder:
         settle = 20 * max(r * c, math.sqrt(l * c))
         h0 = min(math.sqrt(l * c), r * c, l / r) / 60
 
-        def deriv(vv, ii):
-            ip = (vp - vv) / rp if rp != math.inf else 0.0
-            return (ii + ip - load_a) / c, (vp - r * ii - vv) / l
-
         makes, breaks, arc_j = [], [], 0.0
+        has_rp = rp != math.inf
         for k in range(n + 1):
             dur = t_shut if k < n else settle
             steps = max(int(math.ceil(dur / h0)), 1)
             h, peak, gap = dur / steps, 0.0, vp - v
-            for _ in range(steps):
-                a1, b1 = deriv(v, i)
-                a2, b2 = deriv(v + a1 * h / 2, i + b1 * h / 2)
-                a3, b3 = deriv(v + a2 * h / 2, i + b2 * h / 2)
-                a4, b4 = deriv(v + a3 * h, i + b3 * h)
-                v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
-                i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
-                peak = max(peak, i)
+            # RK4 on the closed-contact ODE above, written out inline rather than through a `deriv(v, i)` helper
+            # (65 M calls in the CAD suite; perf note 2026-11-15). Same float operations in the same order as that
+            # helper had, so results are bit-identical; `if i > peak` is what max(peak, i) picked.
+            if has_rp:
+                for _ in range(steps):
+                    a1, b1 = (i + (vp - v) / rp - load_a) / c, (vp - r * i - v) / l
+                    vv, ii = v + a1 * h / 2, i + b1 * h / 2
+                    a2, b2 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
+                    vv, ii = v + a2 * h / 2, i + b2 * h / 2
+                    a3, b3 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
+                    vv, ii = v + a3 * h, i + b3 * h
+                    a4, b4 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
+                    v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
+                    i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
+                    if i > peak:
+                        peak = i
+            else:  # no precharge resistor: the precharge current is 0.0, kept as `+ 0.0` so the floats match
+                for _ in range(steps):
+                    a1, b1 = (i + 0.0 - load_a) / c, (vp - r * i - v) / l
+                    vv, ii = v + a1 * h / 2, i + b1 * h / 2
+                    a2, b2 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
+                    vv, ii = v + a2 * h / 2, i + b2 * h / 2
+                    a3, b3 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
+                    vv, ii = v + a3 * h, i + b3 * h
+                    a4, b4 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
+                    v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
+                    i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
+                    if i > peak:
+                        peak = i
             makes.append({"gap_v": gap, "peak_a": peak})
             if k == n:
                 break
