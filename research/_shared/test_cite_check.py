@@ -126,6 +126,61 @@ class Cache(unittest.TestCase):
         self.assertFalse(self.cache.exists())
 
 
+    def hand(self, *args):
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = cite_check.main(["hand", str(self.dir / "README.md"), *args])
+        return rc, out.getvalue()
+
+    def test_hand_check_prints_ok_question_when_blocked(self):
+        import json
+        rc, _ = self.hand("arxiv:1706.03762", "Attention Is All You Need (2017)", "https://example.org/paper")
+        self.assertEqual(rc, 0)
+        entry = json.loads(self.cache.read_text())["arxiv:1706.03762"]
+        self.assertEqual((entry["via"], entry["source"]), ("hand", "https://example.org/paper"))
+        rc, out = self.run_in(self.dir, 403)
+        self.assertEqual(rc, 0)
+        self.assertIn("ok?  arxiv:1706.03762  Attention Is All You Need (2017)", out)
+        self.assertIn("never by a registry", out)
+        self.assertNotIn("ok*", out)
+        self.assertNotIn("SKIP", out)
+
+    def test_hand_refuses_an_id_the_file_does_not_cite(self):
+        rc, out = self.hand("doi:10.1/x", "T (2000)", "s")
+        self.assertEqual(rc, 2)
+        self.assertIn("arxiv:1706.03762", out)
+        self.assertFalse(self.cache.exists())
+
+    def test_hand_needs_a_source(self):
+        rc, _ = self.hand("arxiv:1706.03762", "T (2000)", " ")
+        self.assertEqual(rc, 2)
+        self.assertFalse(self.cache.exists())
+
+    def test_hand_never_overwrites_a_live_entry(self):
+        import json
+        self.run_in(self.dir, self.FEED)
+        rc, out = self.hand("arxiv:1706.03762", "Other (1999)", "s")
+        self.assertEqual(rc, 0)
+        self.assertIn("kept", out)
+        self.assertNotIn("via", json.loads(self.cache.read_text())["arxiv:1706.03762"])
+
+    def test_live_lookup_replaces_a_hand_entry_and_404_drops_it(self):
+        import json
+        self.hand("arxiv:1706.03762", "Attention Is All You Need (2017)", "s")
+        self.run_in(self.dir, self.FEED)
+        self.assertNotIn("via", json.loads(self.cache.read_text())["arxiv:1706.03762"])
+        self.hand("arxiv:1706.03762", "Attention Is All You Need (2017)", "s")  # kept: live entry wins
+        self.cache.write_text(json.dumps({"arxiv:1706.03762": {"title": "x", "checked": "d", "via": "hand"}}))
+        rc, _ = self.run_in(self.dir, 404)
+        self.assertEqual(rc, 1)
+        self.assertEqual(json.loads(self.cache.read_text()), {})
+
+    def test_skip_names_the_hand_command(self):
+        _, out = self.run_in(self.dir, 403)
+        self.assertIn("SKIP", out)
+        self.assertIn("cite_check.py hand", out)
+
     def test_paper_subdir_reads_the_project_cache(self):
         import json
         self.run_in(self.dir, self.FEED)  # README at the project root records the id
