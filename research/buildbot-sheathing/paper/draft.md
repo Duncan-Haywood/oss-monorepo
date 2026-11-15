@@ -1,7 +1,7 @@
 # Can a robot nail wall sheathing to code tolerance? A tolerance, contact and cost analysis of robotic sheathing on wood-frame walls
 
-*Draft for* Automation in Construction *(Elsevier, full research article). Milestone 8 of the
-`buildbot-sheathing` programme. Written with AI assistance (Claude Code); simulation and analysis
+*Draft for* Automation in Construction *(Elsevier, full research article). Milestones 8 and 22
+of the `buildbot-sheathing` programme (22 added sections 4.9–4.10 and 5.13–5.14). Written with AI assistance (Claude Code); simulation and analysis
 only, nothing tested on hardware. Every number below is produced by code in this directory and
 checked against its results file by `paper/check_numbers.py`. Authorship, affiliations and the
 corresponding author are left for the owner to fill in before any submission.*
@@ -14,6 +14,8 @@ corresponding author are left for the owner to fill in before any submission.*
 - A ledger seats a released sheet in MuJoCo and Drake; clean sheets agree within 0.06 points.
 - A G1 on a lift base beats a walking H1 in every draw, but a hand crew in only 37% at 100 houses.
 - Pushing a bowed joint stud straight takes 28–126 N and lifts single-2x joints only to 71%.
+- An escaped joint nail costs about 2% of its sheet; 4 in joint edges absorb escaped misses in 99.98% of sheets.
+- No model with code-strength end nails explains decayed-wall tests; fits need a quarter of NDS.
 
 ## Abstract
 
@@ -37,10 +39,17 @@ rate by more than 0.06 points, and neither stock humanoid can carry the 21.8 kg 
 can press it on the ledger. Priced, a G1 on a drive-and-lift base is the cheapest robot below
 about 500 houses a year and beats a walking H1 in every draw, yet beats a two-person crew's $5.21
 a sheet in only 37% of draws at 100 houses a year; the extra joint stud that wins in seconds does
-not pay in dollars unless a missed nail costs about $6.50 more than its re-drive.
+not pay in dollars unless a missed nail costs about $6.50 more than its re-drive. A miss that
+escapes costs about 2% of its sheet's racking capacity, and nailing the joint edges at 4 in
+instead of 6 carries the escaped misses for 16 nails a sheet (99.98% of sheets still beat an
+intact 6 in sheet). Checked against tests of walls with
+their bottom 12 in unnailed, five models of rising detail (limit analysis, anchor-rod shear,
+softening springs with slack, the CUREE cyclic history, energy-based damage) all leave the 3 in
+decayed wall at 63–74% of its capacity where the test kept 34%, unless the end-nailed
+stud-to-plate joints carry about a quarter of their design-code strength.
 
 **Keywords:** construction robotics; wood-frame construction; sheathing; tolerance analysis;
-humanoid robots; sim-to-sim; MuJoCo; Drake; cost of automation
+humanoid robots; sim-to-sim; MuJoCo; Drake; cost of automation; shear walls; missing nails
 
 ## 1. Introduction
 
@@ -255,6 +264,54 @@ as an external wrench each step. Contact stiffness (10⁵–10⁷ N/m), Hunt–C
 (0.5–50 s/m) and the time step (0.5–2 ms) are swept. To test H-E, 2,000 seats are drawn per
 engine (holder error uniform in ±1°, wall friction 0.3–0.5, press 5–50 N), and each engine's
 seated residual is added to milestone 5's ledger tilt draw for all 24 ledger pipelines.
+
+### 4.9 What an escaped miss costs in capacity (milestones 14 to 16)
+
+Sections 4.5 and 4.6 re-drive every missed nail. A miss that escapes is a structural question: a
+missing sheathing nail on a shear wall lowers its racking capacity. We size that loss three ways.
+Milestone 14 uses Källsner and Girhammar's (2009) plastic model of a fully anchored sheet: pinned
+framing, a rigid 4x8 sheet and equal rigid-plastic nails, the capacity being the least plastic work
+over the sheet's rigid motions. Milestone 15 rebuilds it as a rigid-body upper-bound limit analysis
+(a linear programme, HiGHS) in which the studs and plates are bodies joined by stud-to-plate joints
+of finite strength, set from the NDS yield-limit equations for two 16d common end nails with the
+end-grain factor 0.67 (2.549 sheathing-nail capacities a joint in DF-L). Milestone 16 replaces the
+rigid-plastic nails with a softening backbone fitted to tested 8d nails through 7/16 in OSB
+(Shameli Derakshan et al. 2019: peak 0.972 kN, 0.496 kN/mm at 0.4 of peak) and pushes the sheet
+over. Each model is checked against SDPWS Table 4.3A's ratios for 6, 4, 3 and 2 in edge spacing,
+and each then scores the 20,000 simulated sheets of the measured-stud pipelines (section 4.5) with
+every miss left in.
+
+### 4.10 Checking the capacity model against decayed walls (milestones 17 to 21)
+
+A capacity model that removes nails needs a test that removed nails. Weiss (2017) racked 8 by 8 ft
+walls (two vertical sheets of 7/16 in OSB, DF-L studs at 16 in, HTT4 hold-downs on the double end
+studs, CUREE cyclic loading) at 6 in and 3 in edge spacing, intact and with every nail below 12 in
+omitted to simulate decay. Her decayed walls kept 56.5% (6 in edges) and 33.9% (3 in) of the intact
+walls' peak, where every model in section 4.9 removes about a fifth. Five more models of her wall,
+each registered with its hypotheses before it was run (`LOG.md`), test the explanations one at a
+time:
+
+1. **Her wall and anchorage** (milestone 17): the section 4.9 limit analysis for two sheets, seven
+   studs, the double top plate held to slide without rotating and rigid hold-downs, with the
+   end-nail joint strength swept as a multiple m of the NDS ratio.
+2. **The anchor rods' shear path** (milestone 18): each held-down stud bottom also resists sliding
+   on the sill through its 5/8 in anchor rod, rigid-plastic at s sheathing-nail capacities, scaled
+   by the NDS dowel equations for a rod bearing in the sill (617–1,137 lb).
+3. **Slack and softening** (milestone 19): the same bodies joined by springs (milestone 16's nail
+   backbone, end-nail joints of strength m and slip scale λ), anchor rods that bear only after a gap
+   of up to 1/4 in, pushed to 150 mm; 960 pushovers.
+4. **The cyclic protocol** (milestone 20): Weiss tested under the CUREE basic history (Krawinkler
+   et al. 2001), so the wall is driven through it with every sheathing nail an oriented pair of SAWS
+   hysteretic springs (Folz and Filiatrault 2001; Judd and Fonseca 2005) fitted to cyclic tests of
+   nails through 7/16 in OSB into DF-L (Anderson et al. 2007), and rod holes that crush.
+5. **Cumulative damage** (milestone 21): every spring's envelope scaled by s = 1 − E/(γ F_U Δ_u),
+   E the energy it dissipates after its first reversal past yield (Rahnama and Krawinkler 1993, as
+   in Ibarra et al. 2005), with γ swept from ∞ to 5 since no calibrated value for nails in OSB was
+   found.
+
+Each model reduces to its predecessor in a code check (the cyclic springs match OpenSees'
+`SAWSMaterial` to under 1e-12 of the nail's peak). Shares kept are compared, not absolute loads, because
+the sourced nails are not exactly Weiss's.
 
 ## 5. Results
 
@@ -481,6 +538,71 @@ median $5.51 more than its re-drive (8.8 loaded person-minutes), against $6.51 o
 studs of section 5.7. A line laser beats three point reads once it sweeps faster than about
 0.23 m/s.
 
+### 5.13 An escaped miss costs about 2% of its sheet (milestones 14 to 16)
+
+The plastic model reproduces the code's spacing ratios: 4, 3 and 2 in edges give 0.939, 0.959 and
+1.062 of SDPWS Table 4.3A's ratios. One missing joint-edge nail costs a mean 2.08% of the sheet
+(2.00–2.21% by height), a field nail 0.85% and a plate nail 1.42%. With every miss of the three-read
+pipeline on measured studs left in, sheets lose a mean 2.34% and 11.49% at the 99th percentile, and
+a four-sheet wall keeps 0.9340 of its capacity in 99% of walls. The registered bar (mean loss
+under 3%, 99th percentile under 10%, the wall at 95% or more in 99% of walls) fails on its last two
+terms (H63 refuted), so misses should not escape on 6 in joint edges. Nailing the joint
+edges at 4 in instead (16 more nails a sheet) carries the misses: the sheet beats an intact 6 in
+sheet in 0.9998 of draws, and at 100 houses a year it costs a median $6.98 a sheet with misses left
+in, against $7.10 for 6 in edges with every miss re-driven and $5.21 less than doubled joints. The
+other two models leave this standing. Joints of NDS strength raise the mean loss to 2.73% (99th
+percentile 16.66%) and 4 in joint edges still beat an intact 6 in sheet in 0.9989 of draws;
+softening nails give 2.39% and 11.80%.
+
+### 5.14 The capacity model against Weiss's decayed walls (milestones 17 to 21)
+
+Every model of a lone sheet removes about a fifth of its capacity with the bottom 12 in unnailed
+(20.4% plastic, 20.1% to 20.4% across the softening backbones), against "close to or more than
+half" in Weiss's tests. Her own wall, modelled as built, reproduces her intact walls: 0.89 and 0.92
+of the tested peaks at the backbone's nail strength, and a 3 in over 6 in ratio of 1.931 against
+1.872 tested. Its decayed walls do not follow. Table 3 lists what each added mechanism leaves.
+
+*Table 3. Share of the intact wall kept by the decayed walls (6 in | 3 in edges): with end-nail
+joints at their NDS strength (m = 1; rods at their design value, no gap in milestone 19 and a
+1/16 in gap in 20 and 21), and the best fit over each model's swept inputs (for milestone 21, the
+best at γ 10).*
+
+| Model (milestone) | At NDS joints | Best fit | Best fit's end nails |
+|---|---|---|---|
+| Weiss (2017), tested | 56.5% \| 33.9% | | |
+| Limit analysis, her wall (17) | 79.5% \| 63.4% | 58.2% \| 30.2% | 0.47 × NDS |
+| + rods' shear path, rigid (18) | 79.5% \| 73.5% | 68.9% \| 63.6% | 0.17 × NDS |
+| Springs, rod slack, pushover (19) | 79.5% \| 72.8% | 57.8% \| 32.5% | 0.25 × NDS |
+| CUREE history, SAWS nails (20) | 77.8% \| 70.6% | 57.6% \| 31.4% | 0.25 × NDS |
+| + energy damage, γ 10 (21) | 79.3% \| 73.2% | 65.5% \| 34.8% | 0.25 × NDS |
+
+At code-strength joints the decayed 3 in wall keeps 63–74% in every model. In the limit analysis it
+fails by every stud sliding on the sill, carried by its 18 end nails alone. The anchor rods stop
+that slide well below their NDS design value (at the 0.47 fit, once a rod carries 1.75 F = 423 lb
+against 617 lb), and with the slide stopped no joint strength fits both walls (rms 22.8%). Once the wall is a set of
+springs, slack at the rods changes the decayed shares by 0.1 point at a 1/16 in gap (end nails at
+0.47 of NDS), and joints that peak at a quarter of the nails' slip leave the 3 in wall at 71.3%. Under the CUREE history its envelope peak is its monotonic peak (70.5%
+monotonic, 70.6% cyclic), as for the intact walls (−0.1% and −0.0%); the cycles act on the rods,
+whose holes crush to 27.94 mm on one side, but only after the peak. Energy-based damage lowers
+intact and decayed walls together: at code strength the intact 6 in walls fall to 96.8%, 93.9%, 85.7%,
+75.1% and 63.2% of their monotonic peaks at γ 100, 50, 20, 10 and 5, while the decayed shares rise
+by up to 2.9 points: the decayed 3 in wall keeps 70.6, 70.9, 71.1, 72.4, 73.2 and 73.5%
+from γ ∞ down to γ 5.
+
+Two things survive every model with springs (milestones 19 to 21). No grid point with end nails at
+0.75 of NDS or stronger comes within 10 points of both tested shares, and every fit within 5 points
+rms of both has end nails at a quarter of NDS (all 30 such points of the 960 pushovers have m 0.25,
+and so do the best cyclic and damaged fits; the rigid-plastic models fit at 0.47 and 0.17). Either the 16d end-nailed joints in these
+walls carry about a quarter of their NDS ratio at ultimate, or the decayed walls fail by a local
+mode none of these models has: tear-out of the few nails left near the unnailed bottom edge, or
+the middle stud splitting, both of which Weiss reports. A tested ultimate of a 16d end-nailed
+stud-to-plate joint decides between them; none was found in the sources this programme could reach.
+
+For the robot, nothing in section 5.13 moves. In Weiss's two-sheet wall the escaped misses of the
+three-read pipeline cost a mean 2.73% and 10.41% at the 99th percentile at NDS joints, and 2.67%
+and 10.19% at the fitted 0.47 × NDS. The decayed-wall gap is a gap in what the model knows about
+a wall that has lost its bottom row, not about one that has lost a scattered nail or two.
+
 ## 6. Discussion
 
 **What decides a clean sheet.** The robot's sensing matters only where the framing leaves room
@@ -511,6 +633,15 @@ over about 100 houses a year, more than a robot moving between single-house site
 the honest headline for the economics: the technical problem is solvable with a ledger and the
 right framing; the business case needs volume.
 
+**What an escaped miss means.** A robot that misses a joint nail and lets it pass costs about 2%
+of a sheet's racking capacity per miss, which a designer can carry by nailing the joint edges at
+4 in: that wins on dollars against both re-driving every miss and doubling the joint stud. The
+check against Weiss's decayed walls (section 5.14) bounds how far to trust that figure. The model
+reproduces intact walls and their spacing ratios, and it reproduces the decayed walls only if the
+end-nailed joints are about a quarter of their NDS strength. That uncertainty sits in walls that
+have lost a whole bottom row of nails, the regime a scattered miss never reaches, and in both
+readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in her wall).
+
 ## 7. Limitations and threats to validity
 
 - **Swept, not measured.** Stud, edge, gauge and width errors, every hang and sway, every stage
@@ -529,6 +660,11 @@ right framing; the business case needs volume.
   miss or re-drive it; the crew's own misses are not charged, which favours it.
 - **Windows from secondary sources.** The gap, edge distance and trim were read in APA pages and a
   manufacturer's guide seen in search results, not in APA E30 or the building code.
+- **Capacity models.** Every capacity is a model of rigid framing and sheets; the end-nail
+  joint's load-slip shape is borrowed from the sheathing nail, its strength swept; the damage rate
+  γ is swept, not calibrated; the sourced nails (0.113 in and 8d in SPF) are not exactly Weiss's 8d
+  common in DF-L, so only shares are compared. Decayed walls are explained only with end nails at
+  about a quarter of NDS, which no test available to us confirms.
 - **No hardware.** Nothing here is a rated accuracy or a safety case; nailing near people needs a
   risk assessment under ISO 10218 and ISO/TS 15066.
 
@@ -542,13 +678,17 @@ engines, so the placement problem reduces to carrying the sheet there, which no 
 can do. On cost, a G1 on a drive-and-lift base is the best robot below panel-plant volumes, but it
 beats a two-person crew only above about 100 houses a year. Pushing the bowed joint stud straight, which a stock G1 can just
 manage, buys back 15–37 points but leaves single-2x joints at the straight-stud ceiling of 74%.
-The open terms are measured: stud profiles, panel squareness, stage times, the cost of a missed
-nail, and a mock-up to check the whole chain.
+An escaped miss costs about 2% of its sheet, and with 4 in joint edges 99.98% of sheets still beat an intact
+6 in sheet. The capacity
+model matches intact shear walls but explains walls that have lost their bottom row only if
+end-nailed stud-to-plate joints carry a quarter of their code strength. The open terms are
+measured: stud profiles, panel squareness, stage times, the cost of a missed nail, a tested
+ultimate for a 16d end-nailed joint, and a mock-up to check the whole chain.
 
 ## Data and code availability
 
 All code, results files and figures are MIT licensed in this directory: `src/buildbot_sheathing/`
-(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (69 test functions), and
+(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (129 test functions), and
 `README.md`, "Reproduce". MuJoCo 4.0.1 and Drake 1.51.1 produced the simulated results.
 
 ## Declaration of generative AI use
@@ -577,6 +717,16 @@ BibTeX entries are in `paper/references.bib`. Identifiers were checked by
 - Todorov, E., Erez, T., Tassa, Y. (2012). MuJoCo: a physics engine for model-based control. IROS. doi:10.1109/IROS.2012.6386109.
 - Willmann, J., Knauss, M., Bonwetsch, T., Apolinarska, A.A., Gramazio, F., Kohler, M. (2016). Robotic timber construction — expanding additive fabrication to new dimensions. *Automation in Construction* 61, 16–23. doi:10.1016/j.autcon.2015.09.011.
 - Zakka, K., et al. (2025). MuJoCo Playground. arXiv:2502.08844.
+- Anderson, E.N., Leichti, R.J., Sutt, E.G., Rosowsky, D.V. (2007). Sheathing nail bending-yield stress: effect on cyclic performance of wood shear walls. *Wood and Fiber Science* 39(4), 536–547.
+- Folz, B., Filiatrault, A. (2001). Cyclic analysis of wood shear walls. *Journal of Structural Engineering* 127(4), 433–441. doi:10.1061/(ASCE)0733-9445(2001)127:4(433).
+- Ibarra, L.F., Medina, R.A., Krawinkler, H. (2005). Hysteretic models that incorporate strength and stiffness deterioration. *Earthquake Engineering & Structural Dynamics* 34(12), 1489–1511. doi:10.1002/eqe.495.
+- Judd, J.P., Fonseca, F.S. (2005). Analytical model for sheathing-to-framing connections in wood shear walls and diaphragms. *Journal of Structural Engineering* 131(2), 345–352. doi:10.1061/(ASCE)0733-9445(2005)131:2(345).
+- Källsner, B., Girhammar, U.A. (2009). Plastic models for analysis of fully anchored light-frame timber shear walls. *Engineering Structures* 31(9), 2171–2181. doi:10.1016/j.engstruct.2009.03.023.
+- Krawinkler, H., Parisi, F., Ibarra, L., Ayoub, A., Medina, R. (2001). Development of a testing protocol for woodframe structures. CUREE Publication W-02.
+- Rahnama, M., Krawinkler, H. (1993). Effects of soft soil and hysteresis model on seismic demands. Blume Earthquake Engineering Center report 108, Stanford University. (Catalogue record only.)
+- Shameli Derakshan, S., Zhou, L., Ni, C. (2019). Effect of loading speed on the mechanical properties of nail joints. Modular and Offsite Construction Summit, 462–470.
+- Weiss, B.D. (2017). Structural performance of light-frame shear walls with simulated decay and a repair design. MS thesis, Washington State University.
+- American Forest & Paper Association / American Wood Council. *National Design Specification for Wood Construction* (NDS), yield-limit equations for dowel-type fasteners (edition not confirmed).
 - APA – The Engineered Wood Association. Builder tips (panel spacing, fastener edge distance) and Technical Topic TT-055 (sized for spacing). Web pages seen as search records.
 - American Wood Council. *Special Design Provisions for Wind and Seismic* (SDPWS), section 4.3.7.1 (edition not confirmed).
 - DOC PS 2: Performance Standard for Wood Structural Panels.
