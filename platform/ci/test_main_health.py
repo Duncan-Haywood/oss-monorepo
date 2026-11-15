@@ -56,3 +56,40 @@ class UnitTestJobs(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PendingRecords(unittest.TestCase):
+    """The session's own unfilled run record is PEND, not a red check (2026-11-15)."""
+    NAME = "prompts/promptctl.py"
+    REC = "prompts/runs/2026-11-15-session_x.json"
+    LINE = (f"error: {REC}: outcome must be one of success, partial, failed "
+            "(got None); fill it in before merging")
+
+    def test_unfilled_record_not_on_main_is_pending(self):
+        out = mh.pending_records(self.NAME, 1, self.LINE, main_has=lambda p: False)
+        self.assertEqual(out, [self.REC])
+
+    def test_unfilled_record_on_main_is_a_fault(self):
+        self.assertEqual(mh.pending_records(self.NAME, 1, self.LINE, main_has=lambda p: True), [])
+
+    def test_unreadable_main_excuses_nothing(self):
+        self.assertEqual(mh.pending_records(self.NAME, 1, self.LINE, main_has=lambda p: None), [])
+
+    def test_any_other_error_keeps_it_red(self):
+        text = self.LINE + "\nerror: prompts/runs/y.json: session must be the session URL"
+        self.assertEqual(mh.pending_records(self.NAME, 1, text, main_has=lambda p: False), [])
+
+    def test_a_filled_but_wrong_outcome_is_red(self):
+        text = self.LINE.replace("(got None)", "(got 'done')")
+        self.assertEqual(mh.pending_records(self.NAME, 1, text, main_has=lambda p: False), [])
+
+    def test_other_checks_and_timeouts_untouched(self):
+        self.assertEqual(mh.pending_records("check_a.py", 1, self.LINE, main_has=lambda p: False), [])
+        self.assertEqual(mh.pending_records(self.NAME, mh.TIMED_OUT, self.LINE,
+                                            main_has=lambda p: False), [])
+
+    def test_on_main_reads_origin_main(self):
+        if mh.on_main("platform/ci/main_health.py") is None:
+            self.skipTest("no origin/main in this clone")
+        self.assertTrue(mh.on_main("platform/ci/main_health.py"))
+        self.assertFalse(mh.on_main("prompts/runs/no-such-record.json"))
