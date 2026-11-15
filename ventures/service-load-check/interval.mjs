@@ -33,10 +33,12 @@ function mk(y, mo, d, h, mi, ap) {
   const a = String(ap || "").toUpperCase();
   if (a === "PM" && hh < 12) hh += 12;
   if (a === "AM" && hh === 12) hh = 0;
-  if (mo < 1 || mo > 12 || d < 1 || d > 31 || hh > 24) return NaN;
+  const mm = +(mi || 0);
+  // 24:00 is the end of a day; 14:75 or 24:30 is a typo, not a later hour.
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || hh > 24 || mm > 59 || (hh === 24 && mm > 0)) return NaN;
   // Date.UTC rolls 30 February over to 2 March; refuse a day the month does not have.
   if (new Date(Date.UTC(y, mo - 1, d)).getUTCDate() !== d) return NaN;
-  return Date.UTC(y, mo - 1, d, hh, +(mi || 0));
+  return Date.UTC(y, mo - 1, d, hh, mm);
 }
 
 /** A bare time of day such as 14:15 or 2:15 PM, in ms after midnight. */
@@ -47,6 +49,7 @@ function parseTimeOfDay(s) {
   const a = String(m[3] || "").toUpperCase();
   if (a === "PM" && h < 12) h += 12;
   if (a === "AM" && h === 12) h = 0;
+  if (h > 24 || +m[2] > 59 || (h === 24 && +m[2] > 0)) return NaN;
   return (h * 60 + +m[2]) * 60000;
 }
 
@@ -162,7 +165,9 @@ function finish(raw, unit, notes) {
   const gaps = [];
   for (let i = 1; i < raw.length; i++) if (raw[i].t > raw[i - 1].t) gaps.push((raw[i].t - raw[i - 1].t) / 60000);
   gaps.sort((a, b) => a - b);
-  const typical = gaps.length ? gaps[Math.floor(gaps.length / 2)] : NaN;
+  // Lower median: a missing reading only ever lengthens a gap, so with an even
+  // count (15, 30) the meter's interval is the smaller middle value.
+  const typical = gaps.length ? gaps[Math.floor((gaps.length - 1) / 2)] : NaN;
   const rows = [];
   let dups = 0, negative = 0;
   for (const r of raw) {

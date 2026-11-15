@@ -89,6 +89,8 @@ export function toMin(hhmm) {
   if (!m) return NaN;
   let h = Number(m[1]);
   const min = Number(m[2] || 0);
+  // 8:75pm or 13pm is a typo, not 9:15pm or 1am the next day: refuse it (24:00 ends a day).
+  if (min > 59 || h > 24 || (h === 24 && min > 0) || (m[3] && h > 12)) return NaN;
   if (m[3]) {
     const pm = m[3].toLowerCase() === "pm";
     if (h === 12) h = pm ? 12 : 0;
