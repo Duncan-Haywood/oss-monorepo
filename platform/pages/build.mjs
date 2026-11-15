@@ -11361,16 +11361,27 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   // Sixteen tools at a time: each tool's pages are independent of every other
   // tool's, and one at a time the pass mostly waited on the disk. Results are
   // gathered per tool and joined in catalogue order, so the output is the same.
+  // Each tool's short name, read once from its entry page (`toolName`), so the
+  // trail, the related-tool links in every other tool's footer and the embed
+  // offer all call a tool the same thing. Until 2026-11-15 only the trail did;
+  // the footer links and the embed iframe's title used the search-result
+  // `<title>`, so a roofer saw "Wall Framing Takeoff — free, private, in your
+  // browser" as a link label, and the embed's title said "free" twice.
+  const names = new Map(await mapLimit(surfaces, 16, async (surface) => {
+    const entryFile = path.join(outDir, surface.slug, 'index.html');
+    const entry = (await exists(entryFile)) ? await fs.readFile(entryFile, 'utf8') : '';
+    return [surface.slug, toolName(entry, surface.title)];
+  }));
+  const named = (surface) => ({ ...surface, title: names.get(surface.slug) || surface.title });
+
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
     const dir = path.join(outDir, surface.slug);
     if (!(await exists(dir))) return found;
-    const related = relatedTools(surfaces, surface.slug);
-    // The trail's tool name, read once from the entry page so every page in
-    // the tool shows the same one (`toolName`).
-    const entryFile = path.join(dir, 'index.html');
-    const crumbName = toolName((await exists(entryFile)) ? await fs.readFile(entryFile, 'utf8') : '', surface.title);
+    const related = relatedTools(surfaces, surface.slug).map(named);
+    // The trail's tool name, the same on every page in the tool (`names` above).
+    const crumbName = named(surface).title;
     // Read once per venture; several pages in a directory load the same script.
     const scriptCache = new Map();
 
@@ -11420,7 +11431,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         slug: surface.slug,
         toRoot,
         canonical,
-        title: surface.title,
+        title: crumbName,
         isEntry: url === `${surface.slug}/index.html`,
       });
       if (withEmbed !== withCard) embedded.push(relative);
