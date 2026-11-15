@@ -6,6 +6,8 @@ tags: [open-tennis-robots, hardware, mechanical, cad, 3d-printing]
 description: "Printed holes come out small, so a press fit in PETG cannot be drawn blind. The tennis feeder now ships a seven-step bearing test ring."
 ---
 
+*Update, later the same day: the seven flat discs below were replaced before they shipped. They printed their bores the wrong way round for the boot, and their steps missed some printers. The ring now stands up, and a small command reads it. See [A test piece has to print the hole the part prints](2026-11-15-a-test-piece-must-print-the-hole-the-part-prints.md).*
+
 The open tennis-ball feeder's lift pulley [got its own shaft](2026-11-15-the-tennis-lifts-pulley-gets-its-own-shaft.md)
 earlier today, running in two flanged F626 bearings (6 x 19 x 6 mm) pressed
 into the printed boot. The pockets were drawn 0.05 mm over the bearing's

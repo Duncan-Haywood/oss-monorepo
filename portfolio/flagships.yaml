@@ -102,9 +102,9 @@ flagships:
       sample read (README); open: a real merchant's payout export, a real 1099-K;
       (4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round
       up`; open: a lender's full table, a supplier's terms letter; (5) receipts OCR
-      (page SROIE ~84.8%, US 68.4%; CLI 82.2%, CORD 50.5%; big photos done; next:
-      curled slips); (6) payroll (README): two journal layouts read; open: a real
-      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      (page SROIE 84.6%, US 74.0%; CLI US 74.5%; shaded: Sauvola; next: CORD, vote
+      picks 145 of 169); (6) payroll (README): two journal layouts read; open: a
+      real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
       return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
       discounts, IN's band and day from the book (README); open: AR statutes, a real
@@ -358,9 +358,10 @@ flagships:
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min): the F626 fit test ring landed 2026-11-15 (cad/README.md
-      "Bearing fit test ring": 7 discs 0-0.15 mm a side over, lift_bearing_fit_mm
-      sets the boot's pockets, Lame push and hoop stress). Next: belt stretch as a
-      fourth inertia in tests/lift_jam_sweep.py (the belt's span stiffness from its
+      "Bearing fit test ring": prints standing so its bores are sideways like the
+      boot's; six bores -0.03 to 0.12 cover printers 0-0.35 mm small; `python -m
+      otr_cad fit-ring` picks lift_bearing_fit_mm). Next: belt stretch as a fourth
+      inertia in tests/lift_jam_sweep.py (the belt's span stiffness from its
       modulus, assumed; does the 49 Hz stuck mode or a jam's flight load move?).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -390,9 +391,10 @@ flagships:
       with a scale, hold a flight, watch it slip and trip; twist a jaw coupling with
       a lever and a scale for its stiffness and play; measure the lift gearmotor's
       shaft and body (75 mm face to back at most) and press F626s into the printed
-      fit ring (lift_bearing_fit_ring) and set lift_bearing_fit_mm. Scope GPIO 39 at
-      part duty. Actuator's lead: cut 220 mm, 209-231 fits; find where a real
-      actuator's cable leaves its housing and bend a built lead through the travel.
+      fit ring (lift_bearing_fit_ring), run `fit-ring` and set lift_bearing_fit_mm.
+      Scope GPIO 39 at part duty. Actuator's lead: cut 220 mm, 209-231 fits; find
+      where a real actuator's cable leaves its housing and bend a built lead through
+      the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
@@ -407,26 +409,25 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-15
-      latest: --sing codas round 2, x as k s, nasal murmur 7 dB under its vowel;
-      held-out closings 82.9% to 90.0% (eval/coda-check-report.md part D); next: /m/
-      after /u/ (reader asks 15 dB), onsets on the new murmur, F1 on high notes, l
-      codas). Open checks that need a person: listen to the studio page, --sing, the
-      options (--stretch, --halftime, --fills, --limit pumping, stems, sections,
-      breakdown, riser, the a cappella verse and whether the key lift sounds like a
-      lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its
-      section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the
-      release kit against a distributor's real form; the Te Deum/3427/3912/3775
-      fixes (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from
-      their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs
-      reads rhombi, quilismas, liquescents, lines at true thickness; tilted pages,
-      curled staves straightened (eval/staff-curl-check.md); 3506/3679 fixed
-      2026-11-15 (eval/broken-stroke-check.md); next: worn pages (new GABC needed),
-      mottled squares, a liquescent hook ending on a line (held-out misses), 3408's
-      strokes, 3464's cephalicus; --split-voices (by phrase or at a word,
-      --split-words, eval/word-split-report.md) and --overlap (both sections sing
-      the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
-      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
-      and of a one-note overlap against a clean handoff; --baritones,
-      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
-      Next: a real choir's range test; a director on --sit-out N, the --musicxml
-      parts and the --learn tracks.
+      latest: --sing codas round 3 (final-nasal blip fixed; held-out E 82.6% to
+      87.2%, eval/coda-check-report.md); next: slow-transition -num, onsets on the
+      new murmur, F1 on high notes, l codas). Open checks that need a person: listen
+      to the studio page, --sing, the options (--stretch, --halftime, --fills,
+      --limit pumping, stems, sections, breakdown, riser, the a cappella verse and
+      whether the key lift sounds like a lift); --lrc in a real player and
+      --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md
+      and the E2-E4 range with real singers; the release kit against a distributor's
+      real form; the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md).
+      master-cli passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs
+      (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
+      liquescents, lines at true thickness; tilted pages, curled staves straightened
+      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
+      squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
+      3464's cephalicus; --split-voices (by phrase or at a word, --split-words,
+      eval/word-split-report.md) and --overlap (both sections sing the seam note at
+      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
+      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
+      overlap against a clean handoff; --baritones, --entrance-cost N and
+      --second-tenors (TTBB; README) need the same check. Next: a real choir's range
+      test; a director on --sit-out N, the --musicxml parts and the --learn tracks.

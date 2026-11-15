@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjzHVZBneoQoptY37o",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T14:18:14Z",
+  "ended": "2026-11-15T15:10:08Z",
+  "wall_minutes": 52.19,
+  "tokens_in": 20008344,
+  "tokens_out": 79426,
+  "cost_usd": 7.1879,
+  "tool_calls": 132,
+  "task": "ai-bookkeeper flagship item (5), receipts OCR, 'next: curled slips'",
+  "projects": [
+    "ventures/ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16241",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A chained Bash command (python edit + pkill) was refused whole by the pkill hook, so the --modes edit to eval/sroie-tesseractjs.mjs silently never ran; two SROIE Sauvola runs then read 0 scans before I noticed (about 10 min lost)."
+    },
+    {
+      "what": "First design (Sauvola in place of --psm 4 on every photo) won on SRD but lost 11 totals on SROIE scans; replaced with a per-photo rule before shipping."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The bracketed pkill hint is right, but the hook rejects the whole command line if the bare name appears anywhere else in it (e.g. an edited filename in the same command), which blocks unrelated steps chained with it; worth one line."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-ai-bookkeeper-shaded-receipt-photos.md",
+    "ventures/ai-bookkeeper/eval/shaded-photos-2026-11-15.md",
+    "ventures/ai-bookkeeper/README.md (Shaded photos: a local threshold)"
+  ],
+  "goal": "Deepen the top flagship with a measured slice",
+  "notes": "Unevenly lit receipt photos (lightSpread of a 32x32 grey thumbnail >= 0.13) now get tesseract's Sauvola threshold for the second reading of each image instead of --psm 4, page and CLI. Cut chosen on even halves of SRD and SROIE; held-out odd halves: page SRD 67->73, SROIE 268->268; CLI --four-pass SRD held-out 66->72. Totals: page SRD 134->145, SROIE 530->529; CLI --four-pass SRD 131->146 (end to end through eval/srd-cli.mjs with tesseract 5.3.4), --two-pass 113->120, SROIE 514->514 (only the 48 scans over the cut re-read). Verification: photoocr.test.mjs + receipt-crosscheck.test.mjs 29/29; run_venture_tests.py ai-bookkeeper 3237 tests ok; eval/photo-ocr-browser.mjs 6/6 in headless Chromium; post frontmatter/links/similarity checks clean. CORD not measured: huggingface.co refused by the proxy. venture-preflight.mjs ai-bookkeeper: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "823a01a2-af76-5822-857f-a31246d74e7e",
+    "transcripts": 1,
+    "first": "2026-11-15T14:18:14Z",
+    "last": "2026-11-15T15:10:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 128,
+        "input": 245,
+        "output": 79426,
+        "thinking": 20488,
+        "cache_read": 19803378,
+        "cache_write_5m": 0,
+        "cache_write_1h": 204721,
+        "api_equivalent_usd": 7.1879,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 128,
+      "input": 245,
+      "output": 79426,
+      "thinking": 20488,
+      "cache_read": 19803378,
+      "cache_write_5m": 0,
+      "cache_write_1h": 204721,
+      "api_equivalent_usd": 7.1879,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 132,
+    "tools": {
+      "Bash": 121,
+      "ToolSearch": 3,
+      "Read": 3,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 52.19,
+      "active_minutes": 52.19,
+      "model_minutes": 13.04,
+      "tool_minutes": 39.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior engineer running OCR ablations on two datasets, a held-out cut, and wiring page + CLI with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 139.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

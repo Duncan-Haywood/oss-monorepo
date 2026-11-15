@@ -2365,6 +2365,57 @@ Tests: `receipt-crosscheck.test.mjs` (the four-pass test now checks a big photo'
 readings and their order) and `photoocr.test.mjs` (12, one new: a shrunk copy's reading
 leads the block). `node eval/photo-ocr-browser.mjs` in headless Chromium: 6/6.
 
+### Shaded photos: a local threshold, chosen per photo (2026-11-15)
+
+Flagship item (5), "next: curled slips". Tesseract turns a photo into black and white
+before reading it, with one threshold for the whole image (Otsu). On a phone photo with a
+shadow across the slip, a dim room or a slip held in the hand, that one threshold loses
+the print on the dark side. Tesseract 5 also has Sauvola's method, a threshold set from
+each pixel's neighbourhood (`thresholding_method=2`, a parameter in tesseract.js and the
+binary alike: no image work, nothing more to download).
+
+**Now:** a photo that is unevenly lit is read with block mode twice, once with each
+threshold, on the photo and on the grey copy, in place of block mode and `--psm 4`. An
+evenly lit photo or scan is read exactly as before. "Unevenly lit" is `lightSpread` in
+`photoocr.mjs`: the photo drawn as a 32 x 32 grey thumbnail, standard deviation over mean,
+at or over 0.13 (`SHADED_CUT`). The page draws the thumbnail on a canvas
+(`engine.shading`); the CLI asks ImageMagick for it (`photoSpread` in `ocr.mjs`) and keeps
+`--psm 4` when ImageMagick is missing. The status line says when a photo was read this way.
+Still four readings (two with `--two-pass`): no extra time beyond the thumbnail.
+
+| totals right | before | now |
+|---|---|---|
+| page, SRD US photos, 196 | 134 (68.4%) | **145 (74.0%)** |
+| page, SRD odd half (held out) | 67 of 97 | **73** |
+| page, SROIE scans, 625 | 530 (84.8%) | 529 (84.6%) |
+| CLI `--four-pass`, SRD 196 | 131 (66.8%) | **146 (74.5%)** |
+| CLI `--four-pass`, SRD odd half (held out) | 66 of 97 | **72** |
+| CLI `--two-pass`, SRD 196 | 113 (57.7%) | **120 (61.2%)** |
+| CLI `--four-pass`, SROIE 625 | 514 (82.2%) | 514 (82.2%) |
+
+On the page, wrong totals with no warning stay at 3 of 196 and tax at 79 of 185.
+
+**Why per photo.** Sauvola on every photo did better still on the phone photos (page SRD
+146, and the right total somewhere in the four readings on 169 photos against 153) but
+cost the flatbed scans 11 totals (SROIE 530 to 519): a scan is evenly lit, and `--psm 4`
+earns its place there. The cut was chosen on the even halves of both sets (SRD by photo
+number, SROIE by position) with ImageMagick's thumbnail: any cut from 0.127 to 0.139 tuned
+best, and the odd halves were scored once (SRD 67 to 73, SROIE 268 to 268). The canvas
+thumbnail differs from ImageMagick's by up to 0.06, so 4 of 200 SRD photos and 7 of 626
+scans sit on the other side of the cut on the page; the page's numbers above use the
+canvas. Of the photos the change fixed, about half show a visible shadow or dim light by
+eye; the rest look evenly lit, so "shaded" is the best single word for where it helps, not
+the whole story. CORD's phone photos were not measured (Hugging Face refused this
+session).
+
+Numbers, the rejected variants and commands:
+[`eval/shaded-photos-2026-11-15.md`](eval/shaded-photos-2026-11-15.md).
+`eval/sroie-tesseractjs.mjs` takes `--set thresholding_method=2` and `--modes psm6`. Tests:
+`photoocr.test.mjs` (a shaded photo gets `SHADED_PASSES`, a failed measurement falls back,
+the threshold is set on every reading), `receipt-crosscheck.test.mjs` (the CLI's second
+reading by lighting, with and without `--four-pass`); `node eval/photo-ocr-browser.mjs`:
+6/6 in headless Chromium.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

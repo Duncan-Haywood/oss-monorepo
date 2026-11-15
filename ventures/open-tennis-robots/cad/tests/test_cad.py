@@ -671,34 +671,6 @@ class FeederGeometryTest(unittest.TestCase):
         long_gm = Feeder(lift_gm_len=100.0)
         self.assertTrue(any("drive_bracket" in c and "lift_motor" in c for c in collisions(F.all_parts(long_gm))))
 
-    def test_bearing_fit_ring_geometry(self):
-        # 2026-11-15: one printable piece, flat on the bed; each disc's bore is the bearing's OD plus twice its step,
-        # with the flange counterbore and k + 1 marks; it has no place on the machine, so no collision or mass
-        from build123d import Cylinder, Location
-        F, p = self.F, self.p
-        ring = next(part for part in self.parts if part.name == "lift_bearing_fit_ring")
-        self.assertEqual(ring.placements, [])
-        sh = ring.shape
-        self.assertTrue(sh.is_valid)
-        self.assertEqual(len(sh.solids()), 1)
-        bb = sh.bounding_box()
-        self.assertAlmostEqual(bb.min.Z, 0.0, places=6)
-        self.assertAlmostEqual(bb.size.Z, p.lift_bearing_w, places=6)
-        self.assertLess(max(bb.size.X, bb.size.Y), 220.0)       # fits a 220 mm bed
-        pitch = p.bearing_ring_od + 2.0
-        for k, step in enumerate(p.bearing_ring_steps):
-            cx, cy = (k % 4) * pitch, -(k // 4) * pitch
-            r = p.lift_bearing_od / 2 + step
-            # a thin probe ring just inside the bore is empty, one just outside (below the counterbore) is solid
-            inside = Cylinder(r - 0.005, 1.0) - Cylinder(r - 0.01, 1.0)
-            outside = Cylinder(r + 0.01, 1.0) - Cylinder(r + 0.005, 1.0)
-            at = Location((cx, cy, 2.0))
-            self.assertLess((sh & inside.moved(at)).volume, 1e-6, f"step {step}")
-            self.assertAlmostEqual((sh & outside.moved(at)).volume, outside.volume, delta=1e-4 * 10, msg=f"step {step}")
-        # the boot's pocket bore follows lift_bearing_fit_mm
-        wide = Feeder(lift_bearing_fit_mm=0.15)
-        self.assertGreater(F.lift_bearing_pockets(wide).volume, F.lift_bearing_pockets(p).volume)
-
     def test_elevation_sweep_can_fail(self):
         from otr_cad.package import elevation_sweep
         bad = Feeder(mast_top_z=700.0)  # turntable raised into the head's path
@@ -1425,38 +1397,6 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("spacer's bore" in r for r in Feeder(lift_coupler_d=30.0).check_lift_shaft()))
         self.assertIn(Feeder(lift_coupler_nm=1.0).check_lift_shaft()[0], Feeder(lift_coupler_nm=1.0).check())
 
-    def test_bearing_fit_ring_numbers_and_rules(self):
-        # 2026-11-15, cad/README.md "Bearing fit test ring"
-        p = Feeder()
-        self.assertEqual(p.check_bearing_fit_ring(), [])
-        d = p.bearing_fit_ring_design()
-        rows = d["rows"]
-        self.assertEqual([r["step_mm"] for r in rows], list(p.bearing_ring_steps))
-        # interference falls with the step and is zero once the step passes half the printed undersize
-        inter = [r["interference_mm"] for r in rows]
-        self.assertEqual(inter, sorted(inter, reverse=True))
-        self.assertAlmostEqual(rows[0]["interference_mm"], p.print_hole_under_mm / 2)
-        self.assertEqual(d["first_clear_step_mm"], 0.075)
-        # Lame by hand for step 0: b 9.5, c 20
-        b, c = 9.5, 20.0
-        k = (c * c + b * b) / (c * c - b * b)
-        p0 = 0.075 * 2000.0 / (b * (k + 0.38))
-        self.assertAlmostEqual(rows[0]["pressure_mpa"], p0, places=9)
-        self.assertAlmostEqual(rows[0]["hoop_mpa"], p0 * k, places=9)
-        self.assertAlmostEqual(rows[0]["push_n"], 0.3 * p0 * 2 * math.pi * b * 4.5, places=6)
-        # a thin-walled disc is softer: less pressure for the same interference
-        self.assertLess(Feeder(bearing_ring_od=26.0).bearing_fit_ring_design()["rows"][0]["pressure_mpa"], p0)
-        # the boot's pockets follow lift_bearing_fit_mm, and its default is one of the ring's steps
-        self.assertIn(p.lift_bearing_fit_mm, p.bearing_ring_steps)
-        self.assertAlmostEqual(d["fit_hoop_mpa"], rows[2]["hoop_mpa"])
-        # each rule fires
-        self.assertTrue(any("bracket" in r for r in Feeder(print_hole_under_mm=0.5).check_bearing_fit_ring()))
-        self.assertTrue(any("outside the test ring" in r for r in Feeder(lift_bearing_fit_mm=0.4).check_bearing_fit_ring()))
-        self.assertTrue(any("counterbore" in r for r in Feeder(bearing_ring_od=26.0).check_bearing_fit_ring()))
-        self.assertTrue(any("split" in r for r in Feeder(print_hole_under_mm=0.3, petg_yield_mpa=10.0).check_bearing_fit_ring()))
-        self.assertTrue(any("rising" in r for r in Feeder(bearing_ring_steps=(0.1, 0.05)).check_bearing_fit_ring()))
-        self.assertIn(Feeder(lift_bearing_fit_mm=0.4).check_bearing_fit_ring()[0], Feeder(lift_bearing_fit_mm=0.4).check())
-
     def test_lift_rules_catch_bad_changes(self):
         self.assertTrue(any("inlet falls" in r for r in Feeder(lift_finger_l=26.0).check_lift()))
         self.assertTrue(any("do not hold" in r for r in Feeder(lift_finger_l=8.0).check_lift()))
@@ -1529,6 +1469,73 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("width" in r for r in Feeder(lift_cap_pin_y=10.0).check_lift()))
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class BearingFitParamsTest(unittest.TestCase):
+    """2026-11-15, cad/README.md "Bearing fit test ring"."""
+
+    def test_lame_limits_and_kinds(self):
+        p = Feeder()
+        r = p.lift_bearing_od / 2
+        # an endless block: the bore's compliance is 1 + nu; zero interference, zero pressure
+        self.assertAlmostEqual(p.bearing_fit(0.0, 0.1, b=1e6)["compliance"], 1 + p.petg_nu, places=6)
+        self.assertEqual(p.bearing_fit(0.1, 0.2)["pressure_mpa"], 0.0)
+        # hand check at b = 22: i = 0.1 mm, K = (22^2 + 9.5^2) / (22^2 - 9.5^2)
+        k = (22 ** 2 + r * r) / (22 ** 2 - r * r)
+        f = p.bearing_fit(0.05, 0.2)
+        self.assertAlmostEqual(f["pressure_mpa"], p.petg_hoop_e_mpa * 0.05 / (r * (k + p.petg_nu)), places=6)
+        self.assertAlmostEqual(f["hoop_mpa"], f["pressure_mpa"] * k, places=6)
+        self.assertAlmostEqual(f["press_n"], p.petg_steel_mu * f["pressure_mpa"] * math.pi * 19.0 * 4.5, places=6)
+        # tighter bores, more pressure; the kinds run loose, slip, light, press, tight as the bore shrinks
+        order = ["loose", "slip", "light", "press", "tight"]
+        kinds = [p.bearing_fit(o, 0.2)["kind"] for o in (0.2, 0.11, 0.095, 0.05, -0.05)]
+        self.assertEqual(kinds, order)
+        lo, hi = p.bearing_fit_window()
+        self.assertAlmostEqual(lo, 19.0 * (p.petg_cte - p.steel_cte) * p.fit_dt_k)
+        self.assertAlmostEqual(p.bearing_fit(0.0, hi * 0.999)["hoop_mpa"], p.fit_hoop_allow_mpa, delta=0.02)
+
+    def test_ring_covers_every_swept_printer_and_the_boot_is_stiffer(self):
+        p = Feeder()
+        self.assertEqual(p.check_bearing_fit_ring(), [])
+        d = p.bearing_fit_ring_design()
+        for s, c in d["covered"].items():
+            self.assertTrue(c, s)
+        # no single drawn size suits every swept printer: that is why the ring exists
+        self.assertFalse(any(all(p.bearing_fit(o, s)["kind"] == "press" for s in p.print_hole_under_sweep)
+                             for o in [x / 100 for x in range(-10, 21)]))
+        self.assertGreater(d["boot_factor"], 1.0)
+        self.assertEqual(d["boot"]["kind"], "press")
+        self.assertLess(d["boot"]["race_close_um"], 13.0)
+
+    def test_rules_fire(self):
+        self.assertTrue(any("apart on the diameter" in r for r in Feeder(bearing_ring_steps=(0.0, 0.15)).check_bearing_fit_ring()))
+        self.assertTrue(any("no bore in the press window" in r
+                            for r in Feeder(print_hole_under_sweep=(-0.3,)).check_bearing_fit_ring()))
+        self.assertTrue(any("rising order" in r for r in Feeder(bearing_ring_steps=(0.05, 0.0)).check_bearing_fit_ring()))
+        self.assertTrue(any("counterbore" in r for r in Feeder(bearing_ring_pitch=28.0).check_bearing_fit_ring()))
+        self.assertTrue(any("set lift_bearing_fit_mm" in r for r in Feeder(lift_bearing_fit_mm=0.2).check_bearing_fit_ring()))
+        self.assertIn(Feeder(lift_bearing_fit_mm=0.2).check_bearing_fit_ring()[0], Feeder(lift_bearing_fit_mm=0.2).check())
+
+    def test_pick_and_cli(self):
+        p = Feeder()
+        # bores run tightest first: a real ring reads cracked or hard at the top and drops at the bottom
+        self.assertEqual(p.pick_bore_over(["cracks", "hard", "presses", "presses", "presses", "slides"])["over"], 0.05)
+        self.assertEqual(p.pick_bore_over(["hard", "presses", "presses", "slides", "drops", "drops"])["over"], -0.03 + 0.03)
+        self.assertEqual(p.pick_bore_over(["cracks", "hard", "hard", "slides", "drops", "drops"])["over"], 0.03)
+        self.assertIsNone(p.pick_bore_over(["slides"] * 6)["over"])
+        self.assertIsNone(p.pick_bore_over(["cracks"] * 6)["over"])
+        with self.assertRaises(ValueError):
+            p.pick_bore_over(["presses"] * 5)
+        with self.assertRaises(ValueError):
+            p.pick_bore_over(["snug"] * 6)
+        run = subprocess.run([sys.executable, "-m", "otr_cad", "fit-ring", "hard", "hard", "presses", "presses",
+                              "slides", "drops"], cwd=HERE.parent, capture_output=True, text=True)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(json.loads(run.stdout)["over"], 0.03)
+        self.assertIn("lift_bearing_fit_mm=0.03", run.stderr)
+        bad = subprocess.run([sys.executable, "-m", "otr_cad", "fit-ring", "presses"], cwd=HERE.parent,
+                             capture_output=True, text=True)
+        self.assertEqual(bad.returncode, 2)
+
+
 class LiftCadTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -1536,6 +1543,44 @@ class LiftCadTest(unittest.TestCase):
         cls.F = F
         cls.p = Feeder()
         cls.parts = {q.name: q for q in F.all_parts(cls.p)}
+
+    def test_bearing_fit_ring(self):
+        # 2026-11-15, cad/README.md "Bearing fit test ring": one pocket per step, sized as drawn, cut as the boot's
+        from build123d import Box, Cylinder, Location
+        F, p = self.F, self.p
+        ring = self.parts["lift_bearing_fit_ring"]
+        self.assertEqual(ring.placements, [])           # a test print: not in the assembly, the sweeps or the mass
+        self.assertEqual(ring.kind, "print")
+        s = ring.shape
+        self.assertTrue(s.is_valid)
+        bb = s.bounding_box()
+        self.assertLessEqual(max(bb.size.X, bb.size.Z), 200.0)   # fits a 220 mm bed standing up
+        self.assertAlmostEqual(bb.min.Z, 0.0, places=3)
+        cells = F.fit_ring_cells(p)
+        self.assertEqual([c[2] for c in cells], list(p.bearing_ring_steps))
+        B, ft = p.lift_bearing_w, p.lift_bearing_flange_t
+        for k, (x, z, over) in enumerate(cells):
+            rb = p.lift_bearing_od / 2 + over
+            probe = lambda r, y0, y1: Cylinder(r, y1 - y0).moved(Location((x, (y0 + y1) / 2, z), (90, 0, 0)))
+            # the bore is empty to its drawn radius and solid just past it, behind the counterbore
+            self.assertLess((probe(rb - 0.005, -B / 2, B / 2 - ft - 0.05) & s).volume, 0.01, over)
+            ring_band = probe(rb + 0.05, -B / 2 + 0.1, B / 2 - ft - 0.1) - probe(rb + 0.01, -B / 2, B / 2)
+            self.assertAlmostEqual((ring_band & s).volume, ring_band.volume, delta=0.01 * ring_band.volume)
+            # the flange's counterbore from the front face, as in the boot
+            self.assertLess((probe(p.lift_bearing_flange_d / 2 + 0.15, B / 2 - ft + 0.05, B / 2) & s).volume, 0.01)
+            # k + 1 dimples over the bore
+            dots = Box(4.0 * (k + 2), 1.0, 2.6).moved(Location((x, B / 2 - 0.5, z + p.lift_bearing_flange_d / 2 + 0.2 + 4.5)))
+            vol = dots.volume - (dots & s).volume
+            self.assertAlmostEqual(vol, (k + 1) * math.pi * 1.0 * 1.0, delta=0.3, msg=f"dots over bore {k}")
+        # the boot's pocket bore follows lift_bearing_fit_mm
+        self.assertGreater(F.lift_bearing_pockets(Feeder(lift_bearing_fit_mm=0.15)).volume, F.lift_bearing_pockets(p).volume)
+        # the boot is solid round both pockets out to boot_b (what bearing_fit_ring_design takes it as)
+        boot = self.parts["lift_boot"].placed()[0]
+        g, b = p.lift_shaft_geometry(), p.bearing_fit_ring_design()["boot_b_mm"]
+        for yc in g["bearing_y"]:
+            loc = Location((p.lift_x_pulley, p.lift_y + yc, p.lift_z_bottom), (90, 0, 0))
+            ann = Cylinder(b, B - 2 * ft).moved(loc) - Cylinder(p.lift_bearing_flange_d / 2 + 0.3, B).moved(loc)
+            self.assertGreater((ann & boot).volume / ann.volume, 0.85, yc)
 
     def _solids(self, name):
         q = self.parts[name]

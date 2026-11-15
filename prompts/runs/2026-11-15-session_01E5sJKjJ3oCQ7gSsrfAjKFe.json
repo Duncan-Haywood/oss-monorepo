@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjJ3oCQ7gSsrfAjKFe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T15:09:34Z",
+  "ended": "2026-11-15T15:23:28Z",
+  "wall_minutes": 14.56,
+  "tokens_in": 5819144,
+  "tokens_out": 29924,
+  "cost_usd": 2.8993,
+  "tool_calls": 51,
+  "task": "Deepen (flagship 11) chant-forge: /m/ after /u/ in --sing final consonants (allocate.py row 8)",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16253",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "an unescaped apostrophe in a single-quoted JS string I added to eval/coda-check.mjs broke the script once",
+      "fix": "escaped it and reran"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/coda-check.mjs",
+      "issue": "held-out set D had already been printed three times across rounds, so a clean score needed a new set (E); the script had no notion of when a held-out set is used up"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge's next: sits at 1988 of 2000 characters, so a landed slice must be summarised very tersely; the first replacement was 68 characters over the cap"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-a-click-hidden-in-every-sung-final-m.md",
+    "ventures/chant-forge/README.md (Final consonants, third round)"
+  ],
+  "goal": null,
+  "notes": "Fixed a new held-out set E (10 Graduale pieces) before any change: 71/86. Found a synth bug (final nasal's 10 ms ramp-out let a bare-vowel blip through before the hum) and added a reader cue (a step under 500 Hz into a held murmur). E 71->75/86, D 63->66/70, B 134->142/162, A 134->137/180; vowel-only controls, openings 742/934 and vowels 874/920 unchanged. Ablation: synth fix alone E 71, B 135; reader rule alone B 139. E was printed three times (baseline, final, ablation), and nothing changed after its second print. Verification: run_venture_tests.py chant-forge exit 0 (248 tests); the new sing test fails on the old code (10.2 dB blip); portfolio/router/validate.py ok; venture-preflight chant-forge clean on its second run (the first failed only on the post front matter, since fixed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e0f65fd3-3c46-590c-8eeb-14b462b07b0c",
+    "transcripts": 1,
+    "first": "2026-11-15T15:09:34Z",
+    "last": "2026-11-15T15:24:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 90,
+        "output": 29924,
+        "thinking": 9240,
+        "cache_read": 5673326,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145728,
+        "api_equivalent_usd": 2.8993,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 90,
+      "output": 29924,
+      "thinking": 9240,
+      "cache_read": 5673326,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145728,
+      "api_equivalent_usd": 2.8993,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.56,
+      "active_minutes": 14.56,
+      "model_minutes": 6.31,
+      "tool_minutes": 8.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an audio DSP engineer: build a held-out set, diagnose the murmur frame by frame, find and fix the ramp glitch, design and ablate a reader cue, write up (about 1.5 days)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 344.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
