@@ -23,6 +23,16 @@ checked six reports and five were already fixed in software (pyenv.py cv2,
 cite_check's ancestor cache, wait_for's cap ...), each check costing minutes.
 A touch is a hint, not proof: read the commit subject it prints.
 
+Each cluster also says whether its file is owner-gated (a path in
+.github/CODEOWNERS, so a fix waits for the owner's approval) and names the
+open PRs whose title mentions the file or a tool its reports name. Process
+runs pick their Critique target from this list, and concurrent ones kept
+picking the same row: #16028 and #16035 built the same perf timing table
+within the hour (2026-11-15), #15074/#15075/#15072 the same
+run_workflow_locally fix (2026-11-12), and the top live rows were often
+gated files no run could land (run records 2026-11-14/15). `--ungated` hides
+the gated rows; `--no-prs` skips the one network read.
+
 Software for the routine (prompts/goals.md): the counting is done here, so a
 run spends its time on the fix, not on grepping 4,000 records.
 """
@@ -31,6 +41,7 @@ import datetime as dt
 import json
 import re
 import subprocess
+import urllib.request
 import sys
 from pathlib import Path
 
@@ -209,6 +220,112 @@ def annotate(ranked, commits, edge=None, counts=None):
     return ranked
 
 
+CODEOWNERS = ROOT / ".github" / "CODEOWNERS"
+
+
+def codeowner_rules(path=CODEOWNERS):
+    """[(pattern, has_owner)] in file order; GitHub applies the last match."""
+    try:
+        text = Path(path).read_text()
+    except OSError:
+        return []
+    rules = []
+    for line in text.splitlines():
+        parts = line.split("#", 1)[0].split()
+        if parts:
+            rules.append((parts[0], len(parts) > 1))
+    return rules
+
+
+def _matches(pattern, path):
+    anchored = pattern.startswith("/")
+    pat = pattern.strip("/")
+    if pat.startswith("**/"):
+        pat, anchored = pat[3:], False
+    if pattern.endswith("/"):  # a directory: everything under it
+        rx = re.escape(pat) + r"/.*"
+    else:
+        rx = re.escape(pat).replace(r"\*\*", ".*").replace(r"\*", "[^/]*") + r"(/.*)?"
+    return re.fullmatch(("" if anchored else r"(?:.*/)?") + rx, path) is not None
+
+
+def gated(path, rules):
+    """True when the last CODEOWNERS rule matching `path` names an owner."""
+    hit = None
+    for pat, owned in rules:
+        if _matches(pat, path.strip("/")):
+            hit = owned
+    return bool(hit)
+
+
+GENERIC_STEMS = {"prompt", "readme", "claude", "agents", "index", "skill", "log", "notes", "main"}
+
+
+def stems(c):
+    """Words a PR title would use for this cluster: the file's and named
+    tools' basenames without extension (`friction_rank`, `pick_track`),
+    skipping generic ones (prompt-1, README) that name half the repository."""
+    out = set()
+    for i, n in enumerate([c["file"], *c.get("names", [])]):
+        b = n.rsplit("/", 1)[-1]
+        stem = b.rsplit(".", 1)[0] if "." in b else b
+        if len(stem) < 5 or stem.lower() in GENERIC_STEMS or re.fullmatch(r"prompt-\d+", stem):
+            continue
+        # A tool the reports merely mention counts only when its name is
+        # distinctive: `redteam` or `promptctl` sits in dozens of PR titles.
+        if i and not re.search(r"[_-]", stem):
+            continue
+        out.add(stem)
+    return sorted(out)
+
+
+FRESH_HOURS = 48  # an older open PR is stalled work, not a claim on the row
+
+
+def open_prs(repo="duncan-haywood/oss-monorepo", pages=3, timeout=15, fetch=None,
+             fresh_hours=FRESH_HOURS, now=None):
+    """[(number, title)] of open same-repo PRs opened in the last
+    `fresh_hours`, or None when unreadable. The
+    public REST pulls list works unauthenticated from cloud sessions and,
+    unlike search, shows a PR the minute it opens (claim_check.py)."""
+    def get(url):
+        req = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json",
+                                                   "User-Agent": "friction-rank"})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.load(r)
+    fetch = fetch or get
+    now = now or dt.datetime.now(dt.timezone.utc)
+    cut = (now - dt.timedelta(hours=fresh_hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = []
+    try:
+        for page in range(1, pages + 1):
+            batch = fetch(f"https://api.github.com/repos/{repo}/pulls?state=open&per_page=100&page={page}")
+            for pr in batch:
+                head = (pr.get("head") or {}).get("repo") or {}
+                if head.get("full_name", "").lower() != repo.lower():
+                    continue  # a fork PR is never a claim
+                if str(pr.get("created_at") or "9") < cut:
+                    continue
+                rows.append((int(pr["number"]), str(pr.get("title") or "")))
+            if len(batch) < 100:
+                break
+    except Exception:  # noqa: BLE001 - display only; any failure means "unknown"
+        return None
+    return rows
+
+
+def claims(ranked, prs, rules=None):
+    """Set c["gated"] and c["prs"] (open PRs whose title names a stem)."""
+    for c in ranked:
+        c["gated"] = gated(c["file"], rules or []) if rules is not None else None
+        if prs is None:
+            c["prs"] = None
+            continue
+        pats = [re.compile(rf"(?<![\w-]){re.escape(s)}(?![\w-])", re.I) for s in stems(c)]
+        c["prs"] = [n for n, t in prs if any(p.search(t) for p in pats)]
+    return ranked
+
+
 def rank(entries, days=None, today=None, min_sessions=2):
     entries = list(entries)
     if days is not None:
@@ -228,12 +345,19 @@ def main(argv=None):
     ap.add_argument("--live", action="store_true",
                     help="hide clusters whose named files changed after their last report")
     ap.add_argument("--no-git", action="store_true", help="skip the touched-since check")
+    ap.add_argument("--ungated", action="store_true",
+                    help="hide clusters whose file is owner-gated in .github/CODEOWNERS")
+    ap.add_argument("--no-prs", action="store_true", help="skip the open-PR read (network)")
     a = ap.parse_args(argv)
     ranked = rank(load(a.runs), days=a.days or None, min_sessions=a.min)
     edge = None
     if ranked and not a.no_git:
         commits, edge = changes(min(utc(c["last_at"]) for c in ranked))
         annotate(ranked, commits, edge, basename_counts())
+    prs = None if a.no_prs or not ranked else open_prs()
+    claims(ranked, prs, codeowner_rules())
+    if a.ungated:
+        ranked = [c for c in ranked if not c.get("gated")]
     hidden = 0
     if a.live:
         hidden = sum(1 for c in ranked if c.get("touched"))
@@ -248,8 +372,12 @@ def main(argv=None):
         return 0
     print(f"Repeated doc friction, last {a.days or 'all'} days (distinct sessions, first..last report):\n")
     for i, c in enumerate(ranked, 1):
-        print(f"{i:>2}. {c['sessions']:>3}x  {c['file']}  ({c['first']}..{c['last']})")
+        tag = "  [owner-gated]" if c.get("gated") else ""
+        print(f"{i:>2}. {c['sessions']:>3}x  {c['file']}  ({c['first']}..{c['last']}){tag}")
         print(f"       {c['example']}")
+        if c.get("prs"):
+            print(f"       open PRs naming it (last {FRESH_HOURS} h): "
+                  + ", ".join(f"#{n}" for n in c["prs"][:6]) + " (check before taking it: claim_check.py)")
         t = c.get("touched")
         if t:
             print(f"       touched since: {t[3]} {t[0]} {t[1]} {t[2][:90]}")
@@ -257,6 +385,8 @@ def main(argv=None):
             print("       (last report predates the fetched history: touched-since unknown)")
     if hidden:
         print(f"\n({hidden} cluster(s) hidden by --live: a file they name changed after their last report)")
+    if prs is None and not a.no_prs:
+        print("\n(open PRs could not be read: search titles by hand before taking a row)")
     if edge:
         print(f"\nShallow clone: commits before {edge[:10]} are not seen; "
               "`git fetch --shallow-since=<date> origin main` to look further back.")
