@@ -82,6 +82,10 @@ export function parseTrades(text) {
   lines.slice(1).forEach((line, n) => {
     const f = splitLine(line, delim);
     const ln = n + 2;
+    // An unquoted thousands separator ("1,000" shares) splits one field in two and shifts every later column, so
+    // "buy,1,000,150.00" read as 1 share at $0 with no error. Extra non-empty fields mean the row is refused.
+    if (delim === "," && f.length > head.length && f.slice(head.length).some((x) => x !== ""))
+      return errors.push(`Line ${ln}: ${f.length} fields but the header has ${head.length}. If an amount has a thousands separator, put it in quotes ("1,000") or remove the comma.`);
     const date = parseDate(f[c.date]);
     const sideRaw = (f[c.side] || "").toLowerCase();
     // A dividend reinvestment is a purchase and can wash a loss (Pub. 550); Schwab's "Reinvest Dividend" is the cash

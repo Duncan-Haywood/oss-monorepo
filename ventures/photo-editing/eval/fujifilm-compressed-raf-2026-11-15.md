@@ -98,9 +98,8 @@ the new message for a short uncompressed block.
 
 ## Not done
 
-- **Lossy compressed RAF** (header version 0; the X-S10 and X-E4 files above). It quantises the
-  residuals with tables that change through the frame; the two files here are the test set when it
-  is built.
+- **Lossy compressed RAF** (header version 0; the X-S10 and X-E4 files above): read since later the
+  same day, every sensel equal to LibRaw's, `eval/fujifilm-lossy-raf-2026-11-15.md`.
 - Older compressed bodies with 12-bit data (none found compressed on raw.pixls.us); the 12-bit
   path is tested on synthetic streams only.
 - The GFX 50S white level is LibRaw's constant, not measured on a clipped frame.

@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 420" font-family="sans-serif" font-size="12">
+<rect width="520" height="420" fill="#fff"/>
+<line x1="60" y1="360" x2="460" y2="60" stroke="#999" stroke-dasharray="4 3"/>
+<line x1="60" y1="360" x2="460" y2="360" stroke="#333"/>
+<line x1="60" y1="360" x2="60" y2="60" stroke="#333"/>
+<text x="60" y="376" text-anchor="middle">0</text>
+<text x="52" y="364" text-anchor="end">0</text>
+<text x="160.0" y="376" text-anchor="middle">0.25</text>
+<text x="52" y="289.0" text-anchor="end">0.25</text>
+<text x="260.0" y="376" text-anchor="middle">0.5</text>
+<text x="52" y="214.0" text-anchor="end">0.5</text>
+<text x="360.0" y="376" text-anchor="middle">0.75</text>
+<text x="52" y="139.0" text-anchor="end">0.75</text>
+<text x="460" y="376" text-anchor="middle">1</text>
+<text x="52" y="64" text-anchor="end">1</text>
+<text x="260.0" y="402" text-anchor="middle">DFN energy fade, cycle 10 to 100</text>
+<text x="16" y="210.0" text-anchor="middle" transform="rotate(-90 16 210.0)">predicted fade</text>
+<text x="260.0" y="24" text-anchor="middle" font-weight="bold">Balance map: right with DFN's lithium loss, wrong with a power law</text>
+<circle cx="267.7" cy="202.9" r="4" fill="#2a6fdb"/>
+<path d="M263.7,56.0L271.7,64.0M263.7,64.0L271.7,56.0" stroke="#2a6fdb" stroke-width="1.5"/>
+<circle cx="280.5" cy="204.5" r="4" fill="#2a6fdb"/>
+<path d="M276.5,66.9L284.5,74.9M276.5,74.9L284.5,66.9" stroke="#2a6fdb" stroke-width="1.5"/>
+<circle cx="280.0" cy="202.4" r="4" fill="#2a6fdb"/>
+<path d="M276.0,64.3L284.0,72.3M276.0,72.3L284.0,64.3" stroke="#2a6fdb" stroke-width="1.5"/>
+<circle cx="281.6" cy="198.4" r="4" fill="#2a6fdb"/>
+<path d="M277.6,57.0L285.6,65.0M277.6,65.0L285.6,57.0" stroke="#2a6fdb" stroke-width="1.5"/>
+<circle cx="261.4" cy="217.7" r="4" fill="#2a6fdb"/>
+<path d="M257.4,82.9L265.4,90.9M257.4,90.9L265.4,82.9" stroke="#2a6fdb" stroke-width="1.5"/>
+<circle cx="176.0" cy="265.7" r="4" fill="#d9480f"/>
+<path d="M172.0,190.2L180.0,198.2M172.0,198.2L180.0,190.2" stroke="#d9480f" stroke-width="1.5"/>
+<circle cx="188.5" cy="262.7" r="4" fill="#d9480f"/>
+<path d="M184.5,150.7L192.5,158.7M184.5,158.7L192.5,150.7" stroke="#d9480f" stroke-width="1.5"/>
+<circle cx="215.7" cy="257.7" r="4" fill="#d9480f"/>
+<path d="M211.7,90.2L219.7,98.2M211.7,98.2L219.7,90.2" stroke="#d9480f" stroke-width="1.5"/>
+<circle cx="137.9" cy="266.3" r="4" fill="#d9480f"/>
+<path d="M133.9,205.1L141.9,213.1M133.9,213.1L141.9,205.1" stroke="#d9480f" stroke-width="1.5"/>
+<circle cx="167.2" cy="260.8" r="4" fill="#d9480f"/>
+<path d="M163.2,168.2L171.2,176.2M163.2,176.2L171.2,168.2" stroke="#d9480f" stroke-width="1.5"/>
+<circle cx="209.5" cy="261.2" r="4" fill="#d9480f"/>
+<path d="M205.5,131.4L213.5,139.4M205.5,139.4L213.5,131.4" stroke="#d9480f" stroke-width="1.5"/>
+<circle cx="197.1" cy="261.8" r="4" fill="#d9480f"/>
+<path d="M193.1,101.4L201.1,109.4M193.1,109.4L201.1,101.4" stroke="#d9480f" stroke-width="1.5"/>
+<circle cx="131.2" cy="279.8" r="4" fill="#d9480f"/>
+<path d="M127.2,225.4L135.2,233.4M127.2,233.4L135.2,225.4" stroke="#d9480f" stroke-width="1.5"/>
+<circle cx="233.9" cy="240.7" r="4" fill="#2b8a3e"/>
+<path d="M229.9,130.7L237.9,138.7M229.9,138.7L237.9,130.7" stroke="#2b8a3e" stroke-width="1.5"/>
+<circle cx="242.3" cy="237.6" r="4" fill="#2b8a3e"/>
+<path d="M238.3,104.0L246.3,112.0M238.3,112.0L246.3,104.0" stroke="#2b8a3e" stroke-width="1.5"/>
+<circle cx="222.8" cy="252.2" r="4" fill="#2b8a3e"/>
+<path d="M218.8,162.4L226.8,170.4M218.8,170.4L226.8,162.4" stroke="#2b8a3e" stroke-width="1.5"/>
+<circle cx="257.5" cy="221.0" r="4" fill="#2b8a3e"/>
+<path d="M253.5,91.0L261.5,99.0M253.5,99.0L261.5,91.0" stroke="#2b8a3e" stroke-width="1.5"/>
+<circle cx="244.0" cy="232.5" r="4" fill="#2b8a3e"/>
+<path d="M240.0,103.3L248.0,111.3M240.0,111.3L248.0,103.3" stroke="#2b8a3e" stroke-width="1.5"/>
+<circle cx="228.7" cy="255.2" r="4" fill="#2b8a3e"/>
+<path d="M224.7,169.6L232.7,177.6M224.7,177.6L232.7,169.6" stroke="#2b8a3e" stroke-width="1.5"/>
+<circle cx="241.9" cy="237.5" r="4" fill="#2b8a3e"/>
+<path d="M237.9,103.9L245.9,111.9M237.9,111.9L245.9,103.9" stroke="#2b8a3e" stroke-width="1.5"/>
+<circle cx="245.3" cy="234.5" r="4" fill="#2b8a3e"/>
+<path d="M241.3,102.5L249.3,110.5M241.3,110.5L249.3,102.5" stroke="#2b8a3e" stroke-width="1.5"/>
+<circle cx="216.3" cy="273.6" r="4" fill="#7048e8"/>
+<path d="M212.3,190.0L220.3,198.0M212.3,198.0L220.3,190.0" stroke="#7048e8" stroke-width="1.5"/>
+<circle cx="220.5" cy="284.2" r="4" fill="#7048e8"/>
+<path d="M216.5,230.1L224.5,238.1M216.5,238.1L224.5,230.1" stroke="#7048e8" stroke-width="1.5"/>
+<circle cx="193.6" cy="291.6" r="4" fill="#7048e8"/>
+<path d="M189.6,258.2L197.6,266.2M189.6,266.2L197.6,258.2" stroke="#7048e8" stroke-width="1.5"/>
+<circle cx="208.0" cy="293.1" r="4" fill="#7048e8"/>
+<path d="M204.0,253.1L212.0,261.1M204.0,261.1L212.0,253.1" stroke="#7048e8" stroke-width="1.5"/>
+<circle cx="221.6" cy="273.7" r="4" fill="#7048e8"/>
+<path d="M217.6,204.3L225.6,212.3M217.6,212.3L225.6,204.3" stroke="#7048e8" stroke-width="1.5"/>
+<circle cx="208.3" cy="277.8" r="4" fill="#7048e8"/>
+<path d="M204.3,203.2L212.3,211.2M204.3,211.2L212.3,203.2" stroke="#7048e8" stroke-width="1.5"/>
+<circle cx="72" cy="50" r="4" fill="#2a6fdb"/>
+<text x="82" y="54">Ai2020@0.3x</text>
+<circle cx="72" cy="66" r="4" fill="#d9480f"/>
+<text x="82" y="70">NCA_Kim2011@1x</text>
+<circle cx="72" cy="82" r="4" fill="#2b8a3e"/>
+<text x="82" y="86">Chen2020@0.5x</text>
+<circle cx="72" cy="98" r="4" fill="#7048e8"/>
+<text x="82" y="102">OKane2022@1x</text>
+<text x="72" y="122">dots: map fed DFN's L(99); crosses: power law from cycles 2 to 10</text>
+</svg>

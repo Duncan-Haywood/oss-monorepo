@@ -98,7 +98,7 @@ function statistic(x, margin, rhoCap) {
  * root; otherwise { index, f, p, bar95, rho, slopeBefore, slopeAfter, reps, n }. `index` is the knot: the slope is
  * `slopeBefore` per step up to x[index] and `slopeAfter` after it. Slopes are from the transformed (GLS) fit at that knot.
  */
-export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, gen = 'line' } = {}) {
+export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, gen = 'line', guard = 'line' } = {}) {
   x = Array.from(x, Number);
   const n = x.length;
   if (n < 30) return { refused: true, reason: `needs 30 or more points (got ${n})`, n };
@@ -107,8 +107,13 @@ export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9
   // Short series: the AR(1) estimate is too rough near a unit root (size 10.7% at n 60, rho 0.8 with the 0.9 guard,
   // eval/hinge-test-sim.out.txt), so below 100 points the guard is 0.7.
   if (n < 100) rhoMax = Math.min(rhoMax, 0.7);
-  if (rhoLineC > rhoMax) {
-    return { refused: true, reason: `the residuals about a straight line have lag-1 autocorrelation ${rhoLineC.toFixed(2)} (bias-corrected), above ${rhoMax}: too close to a unit root for a level test; use the test on differences (slopeBreaks)`, rhoLine: rhoLineC, n };
+  // guard 'hinge' (eval/hinge-guard-prereg-2026-11-15.md): read the guard off the best OLS hinge's residuals, which a
+  // real bend does not make sticky; the null still draws with the straight-line rho, capped at rhoCap, not at the guard.
+  const rhoHingeC = corrected(st.o.rhoHinge, n);
+  const guardRho = guard === 'hinge' ? rhoHingeC : rhoLineC;
+  if (guardRho > rhoMax) {
+    const what = guard === 'hinge' ? 'the best hinge' : 'a straight line';
+    return { refused: true, reason: `the residuals about ${what} have lag-1 autocorrelation ${guardRho.toFixed(2)} (bias-corrected), above ${rhoMax}: too close to a unit root for a level test; use the test on differences (slopeBreaks)`, rhoLine: rhoLineC, rhoHinge: rhoHingeC, n };
   }
   // GLS fit at the chosen knot, for slopes and the null's line and innovation sd
   const rho = st.rho, one = pw(new Float64Array(n).fill(1), rho), tt = pw(Float64Array.from({ length: n }, (_, t) => t), rho), y = pw(x, rho);
@@ -118,7 +123,7 @@ export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9
   // slope before the knot: the line coefficient after partialling the hinge out
   const alt = fit3(y, one, tt, h);
   // null generator: fitted line, AR(1) noise with the bias-corrected rho of the line's residuals and their innovation sd
-  const rhoGen = Math.max(-0.9, Math.min(rhoMax, gen === 'hinge' ? corrected(st.rho, n) : rhoLineC));
+  const rhoGen = Math.max(-0.9, Math.min(guard === 'hinge' ? rhoCap : rhoMax, gen === 'hinge' ? corrected(st.rho, n) : rhoLineC));
   const sdInnov = Math.sqrt(nul.ss / (n - 2));
   const r = mulberry(seed), nulls = [];
   for (let b = 0; b < reps; b++) {
@@ -130,7 +135,7 @@ export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9
   const ge = nulls.filter((v) => v >= st.f).length;
   return {
     refused: false, index: st.k, f: st.f, p: (1 + ge) / (1 + reps), bar95: nulls[Math.floor(0.95 * (reps - 1))],
-    rho, rhoLine: rhoLineC, slopeBefore: alt[1], slopeAfter: alt[1] + alt[2], reps, n,
+    rho, rhoLine: rhoLineC, rhoHinge: rhoHingeC, guard, slopeBefore: alt[1], slopeAfter: alt[1] + alt[2], reps, n,
   };
 }
 

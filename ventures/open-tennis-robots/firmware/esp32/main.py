@@ -31,6 +31,12 @@ AGIT_PIN = 2
 # release, and a mid-run reset of the board leaves at worst a quiet boot).
 AZ_EN_PIN = 5
 COIL_SENSE_PIN = 15
+# Lift over-current (2026-11-15, cad/README.md "Lift jam cutoff"): an LM393 comparator's open-collector output, low
+# while the lift draws more than its trip current, with a 10k pull-up to 3.3 V (most dev boards already have one on
+# GPIO 0, for their BOOT button). GPIO 0 low at reset selects the serial bootloader, but at reset the lift's MOSFET is
+# off (GPIO 12 is held low), no current flows in the shunt and the output is released: the board boots normally.
+# Pressing the BOOT button while running reads as over-current; after the blanking that trips the lift, nothing else.
+LIFT_SENSE_PIN = 0
 
 
 class Encoder:
@@ -188,7 +194,10 @@ class FeederHw:
         self.gate_homed = False       # a back stroke has run since power-up or the last stop
         # Ball lift (cad/README.md, "Ball lift"): a gearmotor on a MOSFET (GPIO 12, PWM) runs on after each ball fed.
         self.lift_pwm = PWM(Pin(LIFT_PIN), freq=20000, duty_u16=0)
-        self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0))
+        self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0),
+                                       getattr(config, "LIFT_JAM_BLANK_MS", 300), getattr(config, "LIFT_JAM_TRIP_MS", 10),
+                                       getattr(config, "LIFT_JAM_REST_MS", 2000), getattr(config, "LIFT_JAM_RETRIES", 1))
+        self.lift_sense = Pin(LIFT_SENSE_PIN, Pin.IN, Pin.PULL_UP)
         # Hopper agitator (cad/README.md, "Hopper agitator"): a gearmotor on a MOSFET (GPIO 2, PWM) stirs the tub's
         # outlet while balls are being fed, so a bridge of balls over it cannot leave the column empty.
         self.agit_pwm = PWM(Pin(AGIT_PIN), freq=20000, duty_u16=0)
@@ -242,6 +251,7 @@ class FeederHw:
         self.az_enable.value(0 if self.power.enabled else 1)
         if lost:
             self.azim.unpowered()
+            self.lift.clear()             # an e-stop is how a person reaches into a jammed lift: try it again after
         return lost
 
     def set_launch_rpm(self, top, bottom):
@@ -279,6 +289,8 @@ class FeederHw:
             f |= protocol.FLAG_WHEELS_SETTLING
         if not self.power.enabled:
             f |= protocol.FLAG_BUS_OFF
+        if self.lift.jammed:
+            f |= protocol.FLAG_LIFT_JAM
         return f
 
     def balls_fed(self):
@@ -359,7 +371,7 @@ class FeederHw:
         elif self.gate_rest_at is not None and now >= self.gate_rest_at:
             self.gate.pwm.duty_u16(0)     # back at the dead centre: rest unpowered
             self.gate_rest_at = None
-        self.lift_pwm.duty_u16(int(self.lift.update(now) * 65535))
+        self.lift_pwm.duty_u16(int(self.lift.update(now, self.lift_sense.value() == 0) * 65535))
         self.agit_pwm.duty_u16(int(self.agit.update(now, self.feeding > 0 or self.gate_out) * 65535))
 
 

@@ -220,7 +220,11 @@ function staffExtent(bin, lines) {
 // the staff position counted in steps from the bottom line (0 = bottom
 // line, 1 = first space, 2 = second line, ...).
 export const STROKE_TOP_FALL = 0.4;
-export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true } = {}) {
+// A stroke broken near its top (readStaff): the short top piece falls at
+// least minFall spaces, and the wide rest starts within join spaces of its
+// right end's height. Set from one stroke (GregoBase 3679, leaf 721).
+export const BROKEN_STROKE = { minFall: 0.15, join: 0.35 };
+export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
   const y0 = Math.max(0, Math.round(staff.top - 2.1 * s));
@@ -315,9 +319,34 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = tru
   // read at its left end. If
   // no head starts just after it below its right end (the stroke's foot, read
   // as its own piece), its right end is the stroke's second note.
+  // A stroke can also break in two near its top (eval/broken-stroke-check.md):
+  // a short first piece that falls under STROKE_TOP_FALL on its own, and
+  // the rest of the stroke as a wide piece starting at its right edge. The
+  // short piece is then read at its mean height, a step below the stroke's
+  // first note (GregoBase 3679, leaf 721). A head that falls, whose right
+  // edge runs into a piece wider than 0.8 spaces that starts within 0.1
+  // spaces of it, at its own height (within BROKEN_STROKE.join spaces), and
+  // that falls further, is read at its left end, and the wide piece at its
+  // right end (the stroke's second note).
+  if (strokeTop && brokenStroke) {
+    for (const o of out) {
+      if (!o.feat || o.feat.afterStroke || !(o.feat.fall >= BROKEN_STROKE.minFall) || o.feat.fall >= STROKE_TOP_FALL) continue;
+      if (out.some((t) => t !== o && t.x0 < o.x0 && t.x1 >= o.x0 - 0.2 * s && Math.abs(t.y - o.y) <= 1.2 * s)) continue;
+      const rest = out.find((t) => t !== o && t.ends && t.x1 - t.x0 + 1 > 0.8 * s && t.x0 > o.x0 &&
+        Math.abs(t.x0 - o.x1) <= 0.1 * s && Math.abs(t.ends.a - o.ends.b) <= BROKEN_STROKE.join * s && t.ends.b - t.ends.a >= BROKEN_STROKE.minFall * s);
+      if (!rest) continue;
+      o.y = o.ends.a;
+      o.pos = posOf(o.ends.a);
+      o.strokeTop = true;
+      o.brokenStroke = true;
+      rest.y = rest.ends.b;
+      rest.pos = posOf(rest.ends.b);
+      rest.brokenStroke = true;
+    }
+  }
   const extra = [];
   for (const o of out) {
-    if (!strokeTop || !o.feat || o.feat.afterStroke || !(o.feat.fall >= STROKE_TOP_FALL)) continue;
+    if (!strokeTop || o.brokenStroke || !o.feat || o.feat.afterStroke || !(o.feat.fall >= STROKE_TOP_FALL)) continue;
     // a stroke's top follows its stem; a piece touching another on its left
     // is the middle of a stroke the reader broke into several pieces
     if (out.some((t) => t !== o && t.x0 < o.x0 && t.x1 >= o.x0 - 0.2 * s && Math.abs(t.y - o.y) <= 1.2 * s)) continue;
@@ -753,7 +782,7 @@ export function readPage(img, opts = {}) {
       skew: t ? Math.round(Math.atan(t) * 18000 / Math.PI) / 100 : 0,
       clefPos: clef ? clef.pos : null,
       ...(changes.length ? { clefChanges: changes.map((c) => ({ x: Math.round((c.x0 + c.x1) / 2), pos: c.pos })) } : {}),
-      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(back(h.x, h.y)), rel: clef ? h.pos - clefAt(h.x0) : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
+      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(back(h.x, h.y)), rel: clef ? h.pos - clefAt(h.x0 ?? h.x) : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
     };
   });
 }

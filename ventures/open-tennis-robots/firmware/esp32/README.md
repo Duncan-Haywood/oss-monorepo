@@ -143,6 +143,17 @@ bus is back and settled the board drives nothing, and telemetry sets
 and aborts if it comes back mid-drill. The reasoning and numbers are in
 `cad/README.md`, "Stepper ENABLE after the contactor, and contact bounce".
 
+**Lift jam cutoff (2026-11-15).** `LiftRun.update(now, over)` takes the lift
+comparator's output (GPIO 0, low over about 2.5 A). It ignores it for
+`LIFT_JAM_BLANK_MS` (300 ms) after each start, cuts the motor when it reads
+over on two ticks `LIFT_JAM_TRIP_MS` (10 ms) apart, rests `LIFT_JAM_REST_MS`
+(2 s) and retries with a full run-on, `LIFT_JAM_RETRIES` (1) times. Then it
+stays off and telemetry sets `FLAG_LIFT_JAM` (2048) until the switched bus
+drops (someone pressed the e-stop to reach in); a watchdog, an ESTOP frame or
+balls fed do not restart it. The drill runner logs the flag once and carries
+on. Wiring: `hardware/electronics.md`, "Lift jam cutoff"; numbers:
+`cad/README.md`, "Lift jam cutoff", and `tests/lift_jam_sweep.py`.
+
 **Lowering a wheel's speed: brake or coast (2026-11-14).** `SpinupRamp` lowers
 a target at the same capped power it raises one, so an ESC that brakes sends
 up to about 170 W back to the pack. `FeederHw.update` allows that only while

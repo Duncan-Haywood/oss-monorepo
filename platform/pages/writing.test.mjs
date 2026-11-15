@@ -165,7 +165,30 @@ test('topics: fiction files under stories, though its shelf is a venture; a post
   assert.equal(topicOf(['hearth-and-horizon', 'audio', 'hosting', 'process'], '', projects), 'tools');
   assert.equal(topicOf(['process', 'hearth-and-horizon', 'fiction'], '', projects), 'tools', 'the story queue post is about the queue');
   assert.equal(topicOf(['opinion', 'fiction']), 'agents');
-  assert.equal(topicOf(['polish', 'seo', 'stories']), 'tools', 'a post about the Stories pages is not fiction');
+  assert.equal(topicOf(['polish', 'seo', 'stories']), 'site', 'a post about the Stories pages is not fiction');
+});
+
+test('topics: site craft and test campaigns leave Tools and projects; a tool-specific design or speed post stays', async () => {
+  const { topicOf, TOPICS } = await import('./writing.mjs');
+  const projects = { research: new Set(['marine-hull']), ventures: new Set(['dupehound', 'einvoice-preflight']) };
+  assert.ok(TOPICS.some((t) => t.id === 'site') && TOPICS.some((t) => t.id === 'testing'));
+  // Strong tags win over a named tool: a red-team pass on a tool is about the tests.
+  assert.equal(topicOf(['redteam', 'einvoice-preflight', 'testing'], '', projects), 'testing');
+  assert.equal(topicOf(['mutation-testing', 'ai-agents'], '', projects), 'testing');
+  assert.equal(topicOf(['polish', 'dupehound', 'css'], '', projects), 'site');
+  assert.equal(topicOf(['seo', 'tax'], '', projects), 'site');
+  assert.equal(topicOf(['aeo', 'llms-txt'], '', projects), 'site');
+  // Research and fiction still come first.
+  assert.equal(topicOf(['polish', 'marine-hull'], '', projects), 'research');
+  assert.equal(topicOf(['redteam', 'research'], '', projects), 'research');
+  // Loose tags only when nothing else matched.
+  assert.equal(topicOf(['accessibility', 'dupehound'], '', projects), 'tools', 'an accessibility feature of one tool');
+  assert.equal(topicOf(['accessibility', 'contrast'], '', projects), 'site');
+  assert.equal(topicOf(['testing', 'dupehound'], '', projects), 'tools');
+  assert.equal(topicOf(['testing', 'node'], '', projects), 'testing');
+  assert.equal(topicOf(['ci', 'ai-agents'], '', projects), 'agents', 'a CI post about the fleet stays with agents');
+  assert.equal(topicOf(['ci', 'regex'], '', projects), 'infrastructure');
+  assert.equal(topicOf(['performance', 'raw', 'photography'], '', projects), 'tools', 'making one tool faster is about the tool');
 });
 
 test('topics: a tag naming a research/ project files the post under research, a ventures/ one under tools', async () => {

@@ -165,6 +165,12 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   (10 pieces chosen by page geometry before reading, `eval/staff-curl-fresh-pages.json`): agree 1,611 to 1,688,
   differ 28 to 21, not read 78 to 41, none worse.
 
+- 2026-11-15: the clef-change list's last two reader faults (`eval/broken-stroke-check.md`). A liquescent's small note
+  after a mid-staff clef was read against the staff's first clef (it had no `x0` for the lookup; 3506); a porrectus
+  stroke broken near its top is read at its top (`BROKEN_STROKE`, 3679, and 3403 on the first list). 98 earlier
+  checks: differ 81 to 78, none worse. Held out (15 porrectus pieces listed before reading,
+  `eval/broken-stroke-fresh-pages.json`): identical both ways, 2,869 agree, 2 differ. 2 tests.
+
 ## Next
 
 1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni
@@ -195,7 +201,9 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
      against the MIDI line;
    - (b) a research spike on whether an open singing synthesiser can sing
      ecclesiastical Latin as a men's choir at acceptable quality, with a
-     listening test and a written protocol.
+     listening test and a written protocol. First step landed 2026-11-15: `sing.mjs`
+     (`--sing`), a dependency-free formant choir on the right vowels, no consonants;
+     next are consonant onsets, formant tuning on high notes and a listening test.
 6. **Mix and master checks:**
    - a script that measures integrated LUFS, true peak, mono compatibility and
      clipping against streaming targets;
@@ -225,3 +233,4 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-14, latest: GregoBase 3670 (*Qui timetis*, pp. 398-399) added to the corpus and scan-check, the piece on leaf 424's newly read staves. Straightened, 290 of 299 notes agree and 0 differ; square, the alignment stops at note 180. Bivirga, trivirga, distropha and tristropha (`gvv`, `gvvv`, `gss`, `gsss`) are now one note per printed head in `parseGabc` and `gabcSteps`. That puts back 26 notes the MIDI dropped across 15 corpus files and clears 2 false disagreements (eval/deskew-check.md). `scan-pages.json` page labels for the six off-final pieces' third leaf corrected by one (leaf = page + 25, read off the running heads).
 - 2026-11-14, latest: `--musicxml FILE` (`musicxml.mjs`, README "A score for the choir"; a studio page download too): the choir's parts as MusicXML 4.0, one per section, Latin under the notes, 4/4 with ties, breath marks, rehearsal marks, fitted key signature. 304 corpus scores valid against the 4.0 XSD; music21 reads back 97,705 of 97,705 part-notes exactly (eval/musicxml-check-report.md). Not opened in a notation program; not sung from.
 - 2026-11-15: rehearsal tracks per section (`render-cli.mjs --learn DIR`, `learningTracks` in `render.mjs`, studio-page ZIP; README "Rehearsal tracks per section"): `-part` (section left, others -12 dB right, band -6 dB) and `-minus` (all but the section). `learn.test.mjs` 4 tests (levels measured from the WAVs); browser ZIP equals the CLI's byte for byte (eval/browser-e2e.mjs, 114 checks). Not tried by singers.
+- 2026-11-15: the preview choir sings the vowels (`sing.mjs`, `formants.mjs`, `render-cli.mjs --sing`, studio page "Choir voice"; README "The choir sings the vowels"): Latin vowel rules, five detuned sawtooth voices through a five-formant cascade at Peterson and Barney's men's values, diphthong glides, 50 ms legato cross-fades. Measured by LPC from the audio (eval/vowel-check-report.md): corpus choir notes read as their written vowel 95.3% (pad 17.8%); held vowels 29 of 30 E2-E4. `sing.test.mjs` 5 tests; browser WAV equals the CLI's. Not listened to; no consonants.

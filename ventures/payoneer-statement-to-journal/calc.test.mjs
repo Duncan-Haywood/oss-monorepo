@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, sampleStatement, sampleBrokenStatement, SAMPLE_RATES, SAMPLE_ITEMS, buildStatement, parseDate, parseAmount, parseRates, rateFor, parseMapping, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, workingsCsv, findingsCsv } from "./calc.mjs";
+import { validate, parseStatement, sampleStatement, sampleBrokenStatement, SAMPLE_RATES, SAMPLE_ITEMS, buildStatement, parseDate, parseAmount, parseRates, rateFor, parseMapping, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, workingsCsv, findingsCsv } from "./calc.mjs";
 
 const run = (text = sampleStatement(), o = {}) => validate(text, { base: "USD", ratesText: SAMPLE_RATES, ...o });
 const line = (j, cat) => j.lines.find((l) => l.category === cat);
@@ -182,4 +182,16 @@ test("mappingText is applied after the currency is known; the generic balance ac
   assert.equal(line(r.journals[0], "bank").account, "Payoneer EUR");
   assert.equal(line(r.journals[0], "fx").account, "7600");
   assert.ok(r.findings.some((f) => /account line was not read/.test(f.title)));
+});
+
+test("an unquoted thousands separator is an error on that line, not a skipped not-completed row", () => {
+  const head = "Transaction Date,Transaction ID,Description,Credit,Debit,Currency,Exchange Rate,Balance,Status";
+  const r = parseStatement([head, "2026-10-04,tx-1007,Payoneer fee,,1,001.40,EUR,,157.10,Completed", "2026-10-03,tx-1006,Payment,500.00,,EUR,,500.00,Completed"].join("\n"));
+  assert.equal(r.rows.length, 1);
+  const e = r.findings.filter((f) => f.severity === "error");
+  assert.equal(e.length, 1);
+  assert.match(e[0].title, /^Line 2 has 10 fields but the header has 9/);
+  assert.ok(!r.findings.some((f) => /not completed/.test(f.title)));
+  // a trailing empty field is still read
+  assert.equal(parseStatement([head, "2026-10-03,tx-1006,Payment,500.00,,EUR,,500.00,Completed,"].join("\n")).rows.length, 1);
 });

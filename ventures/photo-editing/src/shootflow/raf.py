@@ -38,8 +38,9 @@ S5500's) and 12-bit little-endian packing, two sensels in three bytes, the first
 in the low 12 bits (X-E1). The length of the data says which. Fujifilm's lossless
 compression (X-Pro2, X-T2 and later, a menu choice on those bodies) is read by
 ``shootflow.raf_compressed`` (X-T2, X-H1, X-T3 and X-S10 files checked against
-LibRaw, ``eval/fujifilm-compressed-raf-2026-11-15.md``); its lossy compression
-(header version 0) and SuperCCD layouts are refused with the reason.
+LibRaw, ``eval/fujifilm-compressed-raf-2026-11-15.md``), and so is its lossy
+compression (header version 0; X-S10 and X-E4 files, ``eval/fujifilm-lossy-raf-2026-11-15.md``).
+SuperCCD layouts are refused with the reason.
 
 **Levels** (all as LibRaw 0.22 reports them on the three files): black from
 0xF00A, 0 for a Bayer RAF with no such tag (the S5500 has no masked sensels: its
@@ -229,16 +230,11 @@ def decode_sensor(buf: bytes, width: int, height: int, bits: int) -> tuple[array
 
 
 def _decode_compressed(buf: bytes, width: int, height: int, bits: int) -> tuple[array, str]:
-    """Fujifilm's compressed sensor data (``shootflow.raf_compressed``): lossless only."""
+    """Fujifilm's compressed sensor data (``shootflow.raf_compressed``), lossless or lossy."""
 
     from shootflow import raf_compressed
 
     head = raf_compressed.Header(buf)
-    if head.version == 0:
-        raise rd.DevelopError(
-            "RAF: Fujifilm's lossy compressed raw (header version 0) is not read here, only the lossless one; "
-            "convert to DNG, or set the camera to lossless compressed or uncompressed"
-        )
     if head.width != width or head.height != height or head.bits != bits:
         raise rd.DevelopError(
             f"RAF: the compressed header ({head.width}x{head.height}, {head.bits} bits) disagrees with the "
@@ -249,7 +245,8 @@ def _decode_compressed(buf: bytes, width: int, height: int, bits: int) -> tuple[
     except raf_compressed.CompressedRafError as exc:
         raise rd.DevelopError(f"RAF: {exc}") from None
     kind = "X-Trans" if head.xtrans else "Bayer"
-    return values, f"RAF: Fujifilm lossless compressed ({kind}, {bits}-bit, {head.blocks} strips of {head.block_size})"
+    mode = "lossless" if head.lossless else "lossy"
+    return values, f"RAF: Fujifilm {mode} compressed ({kind}, {bits}-bit, {head.blocks} strips of {head.block_size})"
 
 
 def parse_raf(data: bytes) -> rd.RawImage:

@@ -379,7 +379,7 @@ stopped on its own with the true best more than 0.25 ahead):
   0.857 already at the checkpoint (120/140), so it is not a long-run effect:
   `estimateTau` reads such a person high (its prior centres on 2) and the
   guard at min(1, tau estimate) trusts them too much. The level rule leaves
-  it at 0.858; p = 1 reaches 0.871. That is the next item.
+  it at 0.858; p = 1 reaches 0.871. Fixed in the next section (0.908).
 
 Browser (Chromium, 390 px): the example decision answered "a bit" with sides
 alternating stops at the checkpoint (72) with "Keep going until it is
@@ -388,9 +388,69 @@ either" at 72 and "stops at 94% on either" at 215, and the run ended at 216
 with the button back to "Answer more". No console errors, no horizontal
 scroll.
 
+## People who say "much" for most picks (2026-11-15, latest)
+
+"The guard over long runs" held the promise at tau 1 to 3 but left a person
+who says "much" for 80% of picks (tau 0.5) at 0.858. The guard read them at
+min(1, `estimateTau`), and `estimateTau` reads everyone about a quarter
+high: at the checkpoint, on 12 simulated people in two cases, medians 0.68
+to 0.83 for tau 0.5, 1.21 to 1.32 for tau 1 and 2.50 for tau 2. So the
+tau 0.5 guard sat at 0.7 to 1, above the person's own threshold.
+
+`node scripts/decide-cap-sweep.mjs --tau-true T --long-run level --power 0.5 --scales 1,3 --guard auto|plain|switch [--guard-scale k] [--switch-below t]`,
+the same people, seeds and cases, 300 runs per row; all 4,200 rows in
+`docs/decide-guard-2026-11-15.jsonl.gz`, summed by
+`node scripts/decide-cap-summary.mjs docs/decide-guard-2026-11-15.jsonl.gz`
+(the tau 1, 2, 3 and spread "before" rows are in
+`docs/decide-long-run-2026-11-15.jsonl.gz`).
+The "auto" row equals "The guard over long runs" level p 0.5 row exactly
+(43,368 picks, 193/225), so the sweep is the same page. At 3 x the checkpoint
+(at the checkpoint in brackets):
+
+| person | guard | picks | best right | true best > 0.25 ahead | self-stops within 0.25 | false settled |
+|---|---|---|---|---|---|---|
+| tau 0.5 | min(1, estimate) (before) | 43,368 | 215 | 44 | 193/225 (0.858) [120/140, 0.857] | 32 [20] |
+| tau 0.5 | min(1, 0.75 x estimate) | 51,554 | 216 | 44 | 170/195 (0.872) | 25 |
+| tau 0.5 | min(1, 0.6 x estimate) | 56,713 | 219 | 42 | 151/172 (0.878) | 21 |
+| tau 0.5 | plain picks, always | 64,140 | 221 | 40 | 138/151 (0.914) [42/47] | 13 [5] |
+| tau 0.5 | plain below estimate 1 | 62,171 | 218 | 44 | 141/159 (0.887) [55/65] | 18 [10] |
+| tau 0.5 | **plain below estimate 1.25 (shipped)** | 63,958 | 221 | 40 | **138/152 (0.908)** [43/49, 0.878] | **14** [6] |
+| tau 1 | before | 43,791 | 212 | 38 | 214/235 (0.911) | 21 |
+| tau 1 | plain below 1 | 46,399 | 210 | 39 | 209/229 (0.913) | 20 |
+| tau 1 | **plain below 1.25** | 57,923 | 214 | 38 | 176/188 (0.936) | 12 |
+| tau 2 | before = plain below 1 = **below 1.25** | 58,987 | 250 | 14 | 167/173 (0.965) | 6 |
+| tau 3 | before = plain below 1 = **below 1.25** | 74,522 | 219 | 30 | 117/122 (0.959) | 5 |
+| tau 0.5 to 4 | before = plain below 1 = **below 1.25** | 61,805 | 228 | 30 | 160/166 (0.964) | 6 |
+
+- **A better tau did not fix it.** Scaling the estimate down (a guard at
+  0.6 x the estimate is close to the person's true 0.5) moved the promise
+  only to 0.878. The graded reading itself is the weak part for such a
+  person: nearly every answer is "much", so the grades carry little, and a
+  model that reads them still leans on them.
+- **The plain picks keep it.** Read without grades the guard is plain
+  Bradley-Terry, whose own promise was 0.90 ("Graded answers": 62/69), so
+  ignoring the grades for this person brings the promise back (0.914).
+  Doing that for everyone would cost every person; doing it only when
+  `estimateTau` reads below 1.25 (the quarter-high reading of a true 1)
+  costs nothing for tau 2, 3 and the inconsistent person: their rows are
+  identical, run for run.
+- **The cost lands on tau 1** (63% "much"): 32% more picks over a long run,
+  for a promise of 0.936 against 0.911 and false "settled" results down
+  from 21 to 12. Below 1 instead costs them 6%, but leaves tau 0.5 at 0.887.
+  The promise is the page's claim, so 1.25 ships; the long run is opt in
+  ("Keep going until it is settled"), so the extra picks are the person's
+  choice.
+- **At the checkpoint** tau 0.5 is at 0.878 (43/49) against 0.857: few runs
+  stop on their own there (49 of 300), so this is noise-sized, but the
+  false "settled" results fall from 20 to 6.
+
+`PLAIN_GUARD_BELOW = 1.25` and `guardTau: "switch"` (the default) in
+`site/decide-core.mjs`; "auto", "plain" and a scaled estimate stay as
+measured options.
+
 ## Checks
 
-- `node --test site/graded-fit.test.mjs` (8 tests since 2026-11-15 later: `longRunLevel` is 0.9 up to the checkpoint and 1 - 0.1/sqrt(t/decisionMax) after it, and a table at safe 0.93 stops at the checkpoint but not at 3x it, while `longRun: "none"` still stops there; the page's bar and status read the same level. Red with the level held at 0.9, checked. Before: 7 tests, 2026-11-14 latest): the ordinal fit equals the plain refit on ungraded answers (mode and covariance to 1e-9); "much" moves and tightens a gap more than an ungraded pick and "a bit" less; `estimateTau` reads a person at 1 below 1.5 and at 3.5 above 2.5 from 120 answers and stays at the default with none; graded codes round-trip and an old code reads as ungraded; one "much" against two "a bit" picks reverses a 2-1 plain lead; the graded stop's guard runs and never reads safer; the page's four buttons, keys and guarded stop. Red with grades ignored (3 tests) and with the guard skipped (1), checked.
+- `node --test site/graded-fit.test.mjs` (9 tests since 2026-11-15 latest: 60 of the page's questions answered at tau 0.5 read below PLAIN_GUARD_BELOW and the default guard is the plain refit, while "auto" reads the grades; at tau 3 the guard is the graded refit at tau 1. Red with the default back at "auto", checked. Before: 8 tests since 2026-11-15 later: `longRunLevel` is 0.9 up to the checkpoint and 1 - 0.1/sqrt(t/decisionMax) after it, and a table at safe 0.93 stops at the checkpoint but not at 3x it, while `longRun: "none"` still stops there; the page's bar and status read the same level. Red with the level held at 0.9, checked. Before: 7 tests, 2026-11-14 latest): the ordinal fit equals the plain refit on ungraded answers (mode and covariance to 1e-9); "much" moves and tightens a gap more than an ungraded pick and "a bit" less; `estimateTau` reads a person at 1 below 1.5 and at 3.5 above 2.5 from 120 answers and stays at the default with none; graded codes round-trip and an old code reads as ungraded; one "much" against two "a bit" picks reverses a 2-1 plain lead; the graded stop's guard runs and never reads safer; the page's four buttons, keys and guarded stop. Red with grades ignored (3 tests) and with the guard skipped (1), checked.
 - `node --test site/decide-core.test.mjs` (14 tests since 2026-11-15: a "rank them all" link carries `m: "order"`, a winner link is byte for byte the link made before the switch, an unknown mode is refused (red with the refusal removed, checked); `decisionHardMax` is 3 x decisionMax; the page wires the switch to the picker and the stop. Before: 12 tests, under 1 s; since 2026-11-14 later also: the winner stop ends the questions while the order below is unsettled, refuses with one kind of answer, reads low with no answers (red with `safe` forced to 1, checked), and a wider margin reads safer; `whatWouldChange` names a weight at which the named rival really overtakes, checked just either side of it): setup
   parsing and refusals, link and code round trips and refusals (another
   decision, damaged, wrong prefix), weights follow "matters more" answers and
@@ -412,12 +472,13 @@ scroll.
 
 ## Open, most valuable first
 
-0. **People who say "much" for most picks (tau 0.5).** The long-run level
-   (2026-11-15, "The guard over long runs") holds the promise at tau 1 to 3,
-   but a person at tau 0.5 is at 0.86 from the checkpoint on: `estimateTau`
-   reads them high. A wider prior on log tau, or a guard at a bias-corrected
-   estimate, would close it. Also open: whether real people keep going at
-   the checkpoint at all (the `keep_going` counter).
+0. **Whether real people keep going at the checkpoint** (the `keep_going`
+   counter), and how many say "much" for most picks: since 2026-11-15
+   latest those people are guarded by their plain picks ("People who say
+   much for most picks"), which costs a person at tau 1 32% more picks
+   over a long run. A better `estimateTau` (it reads a quarter high; a
+   bias-corrected or full-posterior estimate) could move the switch, but
+   a better tau alone did not keep the promise (0.878 at 0.6 x).
 
 1. **Graded answers, next steps.** Whether real people use "much"
    consistently, and how often (the guard assumes nothing about it, but a

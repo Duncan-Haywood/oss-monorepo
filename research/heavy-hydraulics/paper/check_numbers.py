@@ -1,6 +1,7 @@
 """Check that numbers quoted in paper/draft.md appear in the results files they cite.
 
-    python3 paper/check_numbers.py
+    python3 paper/check_numbers.py                        # draft.md
+    python3 paper/check_numbers.py --paper manuscript.md  # the venue-length cut (milestone 6s)
 
 Each row is (draft snippet, results file, snippet in that file). Exit 1 on any miss.
 """
@@ -365,15 +366,78 @@ CHECKS = [
 
 
 
-def main():
-    draft, bad = (P / "draft.md").read_text(), 0
-    for dsnip, fname, fsnip in CHECKS:
-        ok_d = dsnip in draft
+# paper/manuscript.md (milestone 6s): the venue-length cut. Each row is (manuscript snippet,
+# results file, snippet in that file); the audit below also requires every decimal number in
+# the manuscript to appear in draft.md (itself checked above) or in a committed results file.
+MANUSCRIPT_CHECKS = [
+    ("within 2.3% (ratio 1.023)", "measured_loader_results.txt", "1.023"),
+    ("needs 1.54 times the LS pump energy (per-cycle 95% interval 1.46 to 1.63)", "measured_motion_results.txt", "1.54"),
+    ("only at 28.51 cc, where the record takes 1.3885 times as long", "measured_pump_size_results.txt", "28.51"),
+    ("11.5% more at the fuel-minimising 53.5 cc", "measured_fuel_time_results.txt", "53.5 cc, open-centre +107.9 mL (+11.5% of load-sensing fuel)"),
+    ("p_s = 99.5 bar", "measured_volume_ratio_results.txt", "99.5"),
+    ("break-even margin is 87.0 bar", "measured_breakeven_results.txt", "87.0"),
+    ("p99 demand without swing comes out at 218.8 L/min", "measured_excavator_flow_results.txt", "218.8"),
+    ("1.95 to 3.08 over the 384 geometries (median 2.44)", "measured_excavator_flow_results.txt", "1.95"),
+    ("1.046 to 1.686 (median 1.197)", "measured_excavator_pump_size_results.txt", "1.686"),
+    ("median of 1.00 L/h (p10 0.42, p90 1.71, range 0.33 to 3.00)", "excavator_breakeven_geometry_results.txt", "f_t,max min 0.33, p10 0.42, median 1.00, p90 1.71, max 3.00 L/h"),
+    ("held-out median relative error of 17.3% (p90 41.0%)", "excavator_threshold_screening_results.txt", "median 0.173, p90 0.410"),
+    ("no-load rate is 3.99 to 5.06 L/h", "asabe_no_load_fuel_results.txt", "at 2100 rpm: no-load 3.986 to 5.056 L/h"),
+    ("in 17.2 to 32.8% of geometries", "excavator_part_stroke_eta_results.txt", "3.986 L/h: 32.8%; 4.022 L/h: 32.8%; 4.298 L/h: 28.9%; 4.689 L/h: 23.7%; 4.731 L/h: 22.1%; 5.056 L/h: 17.2%"),
+    ("44.3 to 66.7% of geometries", "excavator_loss_below_x0_results.txt", "beats 3.986: 66.7%, 5.056: 44.3%"),
+    ("loses again at a median 0.950", "excavator_loss_below_x0_results.txt", "256 geometries where a fixed pump wins: median 0.9496"),
+    ("overall 0.9130", "kp30_bench_results.txt", "0.9756     0.9894        0.9359      0.8011       0.9130"),
+    ("1.155 to 1.182 times the bench", "kp30_bench_results.txt", "1000 r/min 1.156, 1500 r/min 1.155, 2500 r/min 1.182"),
+    ("median break-even rest-of-machine fuel rate of 8.08 L/h", "excavator_gear_pump_bench_results.txt", "S = 0.38: central 8.820 L/h at q_p 107.5; median 8.08"),
+    ("100.0% in every one of the 18 idle settings", "excavator_gear_pump_bench_results.txt", "over the 18 settings: 100.0% to 100.0%"),
+    ("E<sub>50</sub> 0.8212 and w 0.0270 and an RMS residual of 5.62 points", "gear_pump_evidence_results.txt", "pooled (29 points): E50 0.8212, w 0.0270; RMS residual 5.62 points"),
+    ("by &minus;0.0091 (Casappa), &minus;0.0118 (Danfoss) and +0.0062 (Marzocchi)", "gear_pump_evidence_results.txt", "marzocchi own crossing 0.8188, error +0.0062"),
+    ("worst left-out RMS residual of 8.91 points", "gear_pump_evidence_results.txt", "GE4 every left-out RMS < 10 points: held (8.91)"),
+    ("between 0.7619 and 0.8805", "gear_pump_evidence_results.txt", "10% to 90% of geometries between E 0.7619 and 0.8805"),
+    ("| 0.7590 | 9.9% | 9.1% |", "gear_pump_evidence_results.txt", "E 0.7590, share 9.9%, curve 9.1%"),
+    ("| 0.8485 | 70.1% | 73.3% |", "gear_pump_evidence_results.txt", "E 0.8485, share 70.1%, curve 73.3%"),
+    ("| 0.8975 | 99.5% | 94.4% |", "gear_pump_evidence_results.txt", "E 0.8975, share 99.5%, curve 94.4%"),
+    ("| 0.9130 | 100.0% | 96.8% |", "gear_pump_evidence_results.txt", "E 0.9130, share 100.0%, curve 96.8%"),
+    ("| 0.8400 | 74.0% | 66.7% |", "gear_pump_evidence_results.txt", "E 0.8400, share 74.0%, curve 66.7%"),
+    ("0.759, 0.849 and 0.898", "excavator_gear_pump_marzocchi_results.txt", "index 2 (at Q20 85 L/min): 0.8975"),
+]
+
+
+
+def orphans(text, pool):
+    """Decimal numbers in text that occur nowhere in pool (draft.md plus every results file)."""
+    import re
+    found = set(re.findall(r"(?<![\w.])\d+\.\d+(?!\d)", text))
+    return sorted(n for n in found if not re.search(r"(?<![\d.])" + re.escape(n) + r"(?!\d)", pool))
+
+
+def check(paper, rows):
+    bad = 0
+    for dsnip, fname, fsnip in rows:
+        ok_d = dsnip in paper
         ok_f = fsnip in " ".join((EXP / fname).read_text().split()) or fsnip in (EXP / fname).read_text()
         if not (ok_d and ok_f):
             bad += 1
-            print("MISS", dsnip, "| in draft:", ok_d, "|", fname, ":", fsnip, "| in file:", ok_f)
-    print("checked", len(CHECKS), "claims;", bad, "missing")
+            print("MISS", dsnip, "| in paper:", ok_d, "|", fname, ":", fsnip, "| in file:", ok_f)
+    return bad
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--paper", default="draft.md", help="draft.md (default) or manuscript.md")
+    a = ap.parse_args()
+    paper = (P / a.paper).read_text()
+    if a.paper == "draft.md":
+        bad = check(paper, CHECKS)
+        print("checked", len(CHECKS), "claims;", bad, "missing")
+    else:
+        bad = check(paper, MANUSCRIPT_CHECKS)
+        pool = (P / "draft.md").read_text() + "\n".join(f.read_text() for f in sorted(EXP.glob("*.txt")))
+        lost = orphans(paper, pool)
+        for n in lost:
+            print("ORPHAN", n, "appears in neither draft.md nor any results file")
+        print("checked", len(MANUSCRIPT_CHECKS), "claims;", bad, "missing;", len(lost), "orphan numbers")
+        bad += len(lost)
     sys.exit(1 if bad else 0)
 
 

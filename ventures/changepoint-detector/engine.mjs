@@ -810,10 +810,16 @@ export function stepResiduals(x, cps) {
 export function fisherG(r) {
   const n = r.length, q = Math.floor((n - 1) / 2);
   if (q < 2) return { g: 0, p: 1, period: null };
+  // cos and sin of 2 pi k t / n depend only on k t mod n, so one table of n values replaces n q trig calls (n = 8,609: 679 ms
+  // to tens of ms). The table angle is exact in the integer, so its rounding error is that of 2 pi j / n with j < n, where the old
+  // 2 pi k t / n carried an argument error growing with k t; the sums run in the same order
+  // (docs/history/ci-perf-2026-11-15-changepoint-fisher-table.md).
+  const C = new Float64Array(n), Sn = new Float64Array(n);
+  for (let j = 0; j < n; j++) { const a = 2 * Math.PI * j / n; C[j] = Math.cos(a); Sn[j] = Math.sin(a); }
   let tot = 0, best = 0, bk = 1;
   for (let k = 1; k <= q; k++) {
     let c = 0, s = 0;
-    for (let t = 0; t < n; t++) { const a = 2 * Math.PI * k * t / n; c += r[t] * Math.cos(a); s += r[t] * Math.sin(a); }
+    for (let t = 0, j = 0; t < n; t++) { c += r[t] * C[j]; s += r[t] * Sn[j]; j += k; if (j >= n) j -= n; }
     const I = c * c + s * s;
     tot += I;
     if (I > best) { best = I; bk = k; }

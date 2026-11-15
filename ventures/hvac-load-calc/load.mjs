@@ -169,6 +169,7 @@ export function validate(input) {
       const wn = `${n} wall ${j + 1}`;
       if (!Object.hasOwn(FACINGS, w.facing)) errs.push(`${wn} facing must be one of ${Object.keys(FACINGS).join(', ')}`);
       num(w.lengthFt, `${wn} length`, errs, { min: 0, max: 500 });
+      if (w.heightFt != null) num(w.heightFt, `${wn} height`, errs, { min: 1, max: 40 });
       num(w.windowFt2 ?? 0, `${wn} window area`, errs, { min: 0, max: 5000 });
       num(w.doorFt2 ?? 0, `${wn} door area`, errs, { min: 0, max: 500 });
       const gross = w.lengthFt * (w.heightFt ?? r.ceilingFt ?? 8);
