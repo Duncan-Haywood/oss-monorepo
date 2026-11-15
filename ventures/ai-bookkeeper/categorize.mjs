@@ -85,6 +85,17 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Card payments as the card and the paying bank actually print them (2026-11-15: a software LLC's
+  // own hledger books, eval/nevarro-ledger.mjs, and the 63 real exports in eval/us-bank-exports.mjs).
+  // Chase cuts its card's line to "AUTOMATIC PAYMENT - THANK", Citi writes "ONLINE PAYMENT, THANK YOU",
+  // Amex "ELECTRONIC PAYMENT RECEIVED-THANK"; the paying side names the issuer ("CHASE CREDIT CRD
+  // AUTOPAY", Bluevine's "CHASE CREDIT CRD, AUTOPAYBUS", "DISCOVER E-PAYMENT", "AMERICAN EXPRESS ACH
+  // PMT", "APPLECARD GSBANK PAYMENT", "CCPYMT WELLS FARGO CARD"). None was read as a transfer, so a
+  // one-sided import never said "import the other account". Only an issuer's name next to a payment
+  // word counts: "CITI FLEX PAY", "WELLS FARGO CARD DES:CRD" and "VENMO PAYMENT" stay as they were, and a bare
+  // "AMEX PAYMENT" stays for review as before (saas-gaps.test.mjs); Amex counts only with ACH PMT, E-PAYMENT or AUTOPAY.
+  ["transfer", "in", /\bpayment\b[\s,-]*(received[\s-]*)?thank\b/],
+  ["transfer", "any", /\bchase credit crd\b|\b(american ?express|amex)\b.{0,30}\b(e-?payment|epay|autopay|ach pmt)\b|\b(discover|apple ?card|citi ?(card|autopay)?|capital one|barclaycard|synchrony( bank)?|wells fargo card)\b.{0,30}\b(e-?payment|epay|autopay|ach pmt|pmt|pymt|payment|crcardpmt|cc pymt)\b|\b(e-?payment|epay|ccpymt|payment)\b.{0,12}\b(discover|citi card|wells fargo card)\b/],
   // Gap probe 39 (2026-11-10, eval/probe39.mjs): pool service, personal trainers, wedding DJs, upholsterers, farriers.
   ["6110", "out", /upholstery shop license/],
   ["6170", "out", /pool and spa alliance|national strength trainers|american disc jockey|upholsterers international|american farriers/],
@@ -572,7 +583,7 @@ export const BUILT_IN = [
   ["6140", "out", /\bcp ?energy\b|\bcenterpoint energy\b|\bxcel energy\b|\bconsumers energy\b|\bdte energy\b|\bentergy\b/],
   ["6030", "out", /insurance|\bins (billing|premium)|hartford|cigna|anthem|lemonade|prudential|blue cross|united healthcare|hiscox|next insurance|thimble|state farm|geico|liberty mutual|progressive/],
   ["6050", "out", /attorney|law office|cpa\b|accountant|bookkeep|tax prep|legalzoom|registered agent/],
-  ["6060", "out", /adobe|microsoft|google ?(workspace|gsuite)|gsuite|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|openrouter|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|google ?\*? ?cloud|linode|vultr|hetzner|backblaze|rackspace|fly\.io|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
+  ["6060", "out", /adobe|microsoft|google ?\*? ?(workspace|gsuite|domains)|gsuite|uptimerobot|nodeping|migadu|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|openrouter|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|google ?\*? ?cloud|linode|vultr|hetzner|backblaze|rackspace|fly\.io|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
   // Resale-app payouts are sales; thrift and consignment stores are stock for resale (1450). Both go to review, never post themselves.
   ["4000", "in", /\b(poshmark|mercari|depop|vinted|thredup|offerup|grailed|reverb)\b/],
   ["1450", "out", /goodwill|salvation army|plato'?s closet|value village|buffalo exchange|once upon a child|savers thrift|thrift (store|shop)/],
@@ -678,7 +689,7 @@ export const BUILT_IN = [
   ["6090", "out", /roto-?rooter|\bhvac\b|servpro|\bplumb(er|ing)\b|\belectrician\b|\bpest control\b|\bterminix\b|\borkin\b|\bjanitorial\b/],
   ["6150", "out", /^paychex\b|\bpaychex (payroll|inc)/],
   ["4000", "in", /amazon (payments )?(settlement|payout|disburse)/],
-  ["6110", "out", /\bdiv(ision)? of corp|secretary of state|business license/],
+  ["6110", "out", /\bdiv(ision)? of corp|secretary (of )?state\b|\bsec of state\b|business license|\bregistering (a )?dba\b|\bdba (filing|registration)\b/],
   // A real Chase card export (eval/billcat-card.mjs, 2026-11-07): US regional chains and card-feed names it left blank.
   ["6130", "out", /freddy'?s\b|skyline chili|gold star chili|texas roadhouse|cheesecake|graeter|auntie anne|big boy|maggiano|cracker barrel|culver'?s|bob evans|steak ?n ?shake|whataburger|cook out|zaxby|bojangles|waffle house|raising cane/],
   ["6160", "out", /united dairy farmers|\bcountrymark\b|\bsheetz\b|buc-?ee|\bcircle k\b|\bthorntons\b|kwik (trip|star)|love'?s travel|flying j|pilot travel|\bparkmobile\b|\bpaybyphone\b|\bspothero\b|^raceway \d|^tom thumb #/],
