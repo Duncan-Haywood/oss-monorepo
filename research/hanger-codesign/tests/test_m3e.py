@@ -10,6 +10,13 @@ import numpy as np
 
 EXP = Path(__file__).resolve().parents[1] / "experiments"
 _saved = sys.modules.get("run")
+# 3d's run.py does `import run` for milestone 3a's module; other tests leave their own `run` in
+# sys.modules, so pin 3a's while loading (as test_m3d does), then restore
+sys.path.insert(0, str(EXP / "m3_fem_tier"))
+_s3 = importlib.util.spec_from_file_location("run", EXP / "m3_fem_tier" / "run.py")
+_m3 = importlib.util.module_from_spec(_s3)
+sys.modules["run"] = _m3
+_s3.loader.exec_module(_m3)
 _s = importlib.util.spec_from_file_location("m3e_run", EXP / "m3e_pooled" / "run.py")
 m3e = importlib.util.module_from_spec(_s)
 _s.loader.exec_module(m3e)
