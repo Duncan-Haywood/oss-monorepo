@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 127 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 128 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -126,6 +126,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   the ladder would lose at 33 gates. The 64-bit twin falls under the routing-cost threshold, so width scaling stays untested.
   Over milestones 121 to 124's 50 blind cells SWG(36) has 2.41% against 5.11% random (better in 23, worse in 1):
   [`experiments/amount_place/`](experiments/amount_place/results.txt).
+- **Deciding before the pool is mapped gives the fall-back its budget back, but the probes cost more than they save (milestone 128,
+  replay of the same 90 cells, no flow run).** Mapping a uniform 24-point subset, routing its clipped-ladder best 3 against 3 of
+  its other points, and routing randomly with the unspent budget when the ladder's best loses (SWS(24, 3)) cuts regret on the 17
+  cells where the ladder fails from 16.63% unguarded (13.32% for milestone 127's guard) to 9.16%, falling back in 40% of draws
+  there and 9% where the ladder wins. On those 40 winning cells the 6 probes displace ladder routes and cost 4.23 points, so the
+  mean over 90 cells is 5.31% against 4.77% unguarded and 5.44% random. Five of six predictions held. One probe (m = 1) costs
+  less (4.50% to 4.55% for s from 16 to 32, read after the table, not chosen), still behind the 32-gate rule's 3.91%:
+  [`experiments/staged_probe/`](experiments/staged_probe/results.txt).
 - **A top-probe guard sees the ladder's failures but cannot afford to act on them (milestone 127, replay of the same 90 cells,
   no flow run).** Routing the clipped ladder's best 3 and 3 uniform points and trusting the ladder only when its best wins (SWT(3))
   falls back in 54% of draws where the ladder fails and 7% where it wins, far sharper than milestone 126's random probes (12% and 7%).
