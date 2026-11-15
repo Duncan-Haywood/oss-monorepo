@@ -3,7 +3,7 @@ title: "Will NAV accept it? Checking a Hungarian Online Számla report before it
 seo_title: "NAV Online Számla 3.0 XML validator: check InvoiceData offline"
 date: 2026-11-15
 tags: [einvoice-preflight, ventures]
-description: "Our free checker now reads Hungary's NAV Online Számla 3.0 invoice data report and applies NAV's published blocking rules and warning arithmetic. On NAV's own 30 sample files it found five faults in the samples themselves."
+description: "Our free checker now reads Hungary's NAV Online Számla 3.0 report offline. On NAV's own 30 samples it found five faults in the samples themselves."
 ---
 
 Every invoice a Hungarian business issues to another domestic business is reported to NAV, the tax authority, as XML. Usually the invoicing program sends the report on its own, and nobody looks at it until something goes wrong. When something does go wrong it shows up in one of two ways:
