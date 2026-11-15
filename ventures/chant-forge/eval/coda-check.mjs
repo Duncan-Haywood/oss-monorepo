@@ -11,6 +11,15 @@
 //    data: its first run's misses (60.5%) showed the reader's window cut off bursts at the next sound
 //    and that /m/ after /u/ was barely a murmur, and both were fixed before the run reported here.
 // C. Every syllable in the corpus: how often each closing consonant occurs.
+// F. Fourth round (2026-11-15): final /l/ and the murmur's own tilt. Pre-registered here before the
+//    first run with the change, its threshold fixed: a coda's murmur (both nasal rules in readCoda) must
+//    be dark in itself, its energy above 1 kHz a median 28 dB or more under its band under 500 Hz
+//    (`murmurTilt`). Set from held 0.5 s syllables measured with sing.mjs outside this script, E2-E4:
+//    the sung /l/ 12-25 dB, /m/ and /n/ 38-54 dB, after every vowel. Predictions: (1) A's *al* and *el*
+//    read as none on 11 or more of 12 (2 of 12 before); (2) no part's nasals read exactly less often;
+//    (3) A, B, D and E totals no lower, vowel-only controls no lower; (4) F, the 51 files of the four
+//    other gregobase-1908-* folders, never scored before: its /l/ codas read as a nasal on 10% or fewer,
+//    its nasal codas read exactly no less often than with the rule off (`murmurTilt: 0`, printed beside).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
