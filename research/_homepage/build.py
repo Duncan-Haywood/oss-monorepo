@@ -364,8 +364,11 @@ def with_site_chrome(page, chrome, root, replace_topbar, header_key="header", fi
 
     `chrome` is the JSON platform/pages/build.mjs writes from site-nav.mjs, so the
     markup is defined once, in JavaScript, for every page on the site. On the
-    research index the site header replaces this page's own top bar; on a project
-    page it sits above it, and the bar stays as the "← All projects" sub-nav.
+    research index, a topic page and a project page the site header replaces the
+    page's own top bar. (Until 2026-11-15 topic and project pages kept the bar under
+    the header as a "← All projects | GitHub" row: 56 px that repeated the trail's
+    Research link, led to the topic index rather than a project list, and pointed
+    GitHub at the whole repository. The project's own code links sit in "Links".)
 
     Topic and project pages take the breadcrumb variants (`topic_header`, `project_header`);
     `fill` supplies their other placeholders as already-escaped text."""
@@ -501,7 +504,7 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         page = published_page(page, slug, base_url, chrome is None)
         page = page.replace("</head>", project_ld(p, theme, base_url) + "</head>", 1)
     if chrome:
-        page = with_site_chrome(page, chrome, "../../", replace_topbar=False, header_key="project_header",
+        page = with_site_chrome(page, chrome, "../../", replace_topbar=True, header_key="project_header",
                                 fill={"TOPIC_ID": theme["id"], "TOPIC": text(theme["name"]), "TITLE": text(p["title"])})
     (d / "index.html").write_text(page)
 
@@ -539,7 +542,7 @@ def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_
             [(text(p["title"]), f"research/{p['slug']}/") for p in theme["projects"]],
             [("Research", "research/"), (text(theme["name"]), f"research/{TOPICS_DIR}/{theme['id']}/")]) + "</head>", 1)
     if chrome:
-        page = with_site_chrome(page, chrome, "../../../", replace_topbar=False, header_key="topic_header",
+        page = with_site_chrome(page, chrome, "../../../", replace_topbar=True, header_key="topic_header",
                                 fill={"TOPIC": text(theme["name"])})
     (d / "index.html").write_text(page)
 
