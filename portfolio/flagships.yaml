@@ -268,7 +268,7 @@ flagships:
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans; compressed 2026-11-15, eval/fujifilm-*)
       read directly since 2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from
       maker notes (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15. Bayer
-      demosaic directional 2026-11-15 (eval/bayer-directional-*). NEF edge columns,
+      demosaic directional, in C 4-5x 2026-11-15 (eval/bayer-*). NEF edge columns,
       real split rows, Z 6II curve, 12-bit black 2026-11-15 (eval/nikon-nef-*).
       Next: an RW2 RawFormat 8 with a tone curve (0x39/0x3A); Sony's vignetting
       table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens

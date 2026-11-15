@@ -1331,6 +1331,13 @@ finest, most aliased frames (A7 III, K-1 II) its luma trails bilinear, DCB or VN
 heavy noise (SNR 25) a plain average has the higher colour PSNR on two frames while leaving 1.2-1.9x the
 false colour. A 24 MP frame takes 1.8 s on four cores (bilinear 0.6 s, LibRaw's AHD 1.0 s).
 
+**In C since 2026-11-15** (`src/shootflow/bayer_native.py`, `eval/bayer-native-2026-11-15.md`). The same
+steps in one C function per band, built with the system compiler on first use and loaded through
+`ctypes` like the raw decoders; numpy stays the reference and the fallback. On the five real frames
+above the output is equal to numpy's bit for bit, and it runs 4.2-4.9x faster on four cores: a 24 MP
+A7 III frame in 0.44 s (numpy 2.13 s; LibRaw's single-threaded AHD `postprocess` 0.99 s), a 36 MP D810
+or K-1 II in 0.6-0.7 s. The median clean-up stays numpy-only; `SHOOTFLOW_NATIVE=0` turns it off.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:

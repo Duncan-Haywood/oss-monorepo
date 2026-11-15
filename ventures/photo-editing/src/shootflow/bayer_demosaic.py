@@ -174,11 +174,16 @@ def directional(
     power: float = 2.0,
     rb: str = "weighted",
     median_passes: int = 0,
-    band: int = 512,
+    band: int | None = None,
     threads: int | None = None,
+    native: bool | None = None,
 ) -> np.ndarray:
     """Demosaic the (h, w) Bayer plane ``c`` (pattern ``pat``: 4 colours, 0 R, 1 G, 2 B, row-major over
-    the top-left 2x2) to (h, w, 3) float32. See the module docstring for the steps and options."""
+    the top-left 2x2) to (h, w, 3) float32. See the module docstring for the steps and options.
+
+    ``native``: None (default) runs the C path of ``shootflow.bayer_native`` when it builds and
+    ``median_passes`` is 0, else numpy; True requires it (RuntimeError if unavailable); False is numpy
+    only. The two agree to float32 rounding (``eval/bayer-native-2026-11-15.md``)."""
 
     if rb not in ("weighted", "simple"):
         raise ValueError(f"unknown rb {rb!r} (weighted or simple)")
@@ -199,12 +204,25 @@ def directional(
     # one floor for the whole frame (not per band), so the band height never changes the output
     eps = WORK(1e-6 * max(float(np.max(np.abs(c))), 1e-6))
     out = np.empty((h, w, 3), dtype=WORK)
-    band = max(int(band), 16)
+    use_c = False
+    if native is not False and median_passes == 0:
+        from shootflow import bayer_native
+
+        use_c = 0 <= int(window) <= 12 and bayer_native.available()
+    if native is True and not use_c:
+        raise RuntimeError("the native Bayer demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0, median_passes > 0 or window over 12)")
+    # The C path keeps 17 band-sized float32 planes; 128 rows keep that near 60 MB per thread at 6000 columns.
+    band = max(int(band if band is not None else (128 if use_c else 512)), 16)
 
     def run(y0: int) -> None:
         y1 = min(h, y0 + band)
         a, b = y0, y1 + 2 * pad  # rows of `big` covering [y0 - pad, y1 + pad)
         cm = colours[a:b]
+        if use_c:
+            from shootflow import bayer_native
+
+            bayer_native.piece(big[a:b], cm, window, power, rb == "simple", eps, pad, pad, out[y0:y1])
+            return
         masks = (cm == 0, cm == 1, cm == 2)
         piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps)
         out[y0:y1] = piece[pad : pad + (y1 - y0), pad : pad + w]
