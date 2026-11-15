@@ -50,6 +50,11 @@ SAY = {
     "Powys": "Pow-iss",
     "Oen": "Oyn",
     "Hiltibod": "Hilti-bod",
+    "Culross": "Koo-ross",
+    "Thenew": "Then-yoo",
+    "Rhydderch": "Ruh-ther-k",
+    "Languoreth": "Lan-gwor-eth",
+    "Glasgu": "Glas-goo",
 }
 
 
