@@ -2,6 +2,7 @@
 
     PYTHONPATH=src python3 tests/lift_jam_sweep.py           # everything
     PYTHONPATH=src python3 tests/lift_jam_sweep.py --belt    # belt stretch only
+    PYTHONPATH=src python3 tests/lift_jam_sweep.py --duty    # duty held to the battery against the fixed duty
 
 The real firmware (main.py's FeederHw and controller.LiftRun, through tests/feeder_sim.py) drives the lift's MOSFET
 and reads the comparator on GPIO 0 every 10 ms tick. Between its 1 ms steps this file integrates the plant at 0.1 ms:
@@ -168,6 +169,7 @@ class Plant:
         return tight - slack + self.cb * (self.wb - self.wv) * self.rp, slack == 0.0
 
     def step(self, duty):
+        self.last_duty = duty
         on = duty > 0
         if on:
             vm = self.v * duty
@@ -286,8 +288,10 @@ class Plant:
                 self._face = face
 
 
-def _sim():
+def _sim(volts=None):
     sim = SimFeeder()
+    if volts is not None:                  # the battery reading the firmware holds the lift's duty to (LIFT_V_REF_MV)
+        sim.pack_mv = int(volts * 1000)
     for _ in range(4):                     # the contactor's coil settles; heartbeats keep the watchdog quiet
         sim.write(P.encode(P.HEARTBEAT))
         sim.run_ms(100)
@@ -314,7 +318,7 @@ def start(volts, rise_k, j_factor, trip, loaded=True, slip="lo", coupler="nom", 
     """Kick the lift from rest. (tripped, ms the comparator was on, speed reached as a share of no-load); the plant's
     `slid_ms` says whether the hub slipped."""
     p = Feeder()
-    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, loaded, slip, coupler, belt)
+    sim, plant = _sim(volts), Plant(p, volts, rise_k, j_factor, trip, loaded, slip, coupler, belt)
     start.plant = plant
     sim.hw.lift.kick(sim.us // 1000)
     over = [0]
@@ -326,7 +330,7 @@ def jam(volts, rise_k, j_factor, trip, where, cutoff=True, after_ms=6000, slip="
     """Run 1 s, then a ball jams. Returns a dict: ms from contact to the first cut (None: never), peak force on the
     flight before that cut and over the whole run, joules in the winding after contact, ms to FLAG_LIFT_JAM."""
     p = Feeder()
-    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, slip=slip, coupler=coupler, belt=belt)
+    sim, plant = _sim(volts), Plant(p, volts, rise_k, j_factor, trip, slip=slip, coupler=coupler, belt=belt)
     hw = sim.hw
     if not cutoff:
         hw.lift.blank_ms = 10 ** 9
@@ -361,8 +365,8 @@ LOADS = (("loaded", True), ("empty", False))
 
 def _ramped(ramp_ms):
     """Run `start` and `jam` with the firmware's soft start set to `ramp_ms` (config LIFT_RAMP_MS is the default)."""
-    def mk():
-        sim = _sim0()
+    def mk(volts=None):
+        sim = _sim0(volts)
         sim.hw.lift.ramp_ms = ramp_ms
         return sim
     return mk
@@ -471,6 +475,53 @@ def belt_report():
                 print(f"  {where:4} {name:11} {case:15} " + " | ".join(cells))
 
 
+def _fixed_duty():
+    """Run `start` and `jam` with the firmware's duty fixed (LIFT_V_REF_MV 0), as before 2026-11-15."""
+    def mk(volts=None):
+        sim = _sim0(volts)
+        sim.hw.lift.v_ref_mv = 0
+        return sim
+    return mk
+
+
+def duty_report():
+    """The duty held to the battery (2026-11-15; cad/README.md "Lift duty follows the battery") against the fixed duty,
+    at both packs: the firmware's duty and belt speed after 1.5 s, starts (every flight loaded, hub lo, trip lo, rotor
+    0.5-2x) and jams (rotor 1x, boot and hood, both hub/trip cases). Printed alone by `--duty`."""
+    global _sim
+    p = Feeder()
+    c = p.lift_jam_cutoff()
+    print(f"Duty held to {p.lift_v_ref:g} V / battery: {c['duty_lo_v']:.2f} at {p.battery_v_min:g} V, {c['duty_hi_v']:.2f} at "
+          f"{p.battery_v_max:g} V; the trip in motor amps rises to {c['trip_hi_a_full_pack']:.2f} A at most on a full pack, "
+          f"a hot stall there {c['stall_margin_hi_v']:.2f}x it (at {p.battery_v_min:g} V {c['stall_margin_lo_v']:.2f}x)")
+    print(f"{'duty':6} {'corner':12} {'pwm':>5} {'speed':>6} {'starts tripped':>15} {'max over ms':>12} | jams: "
+          f"{'slowest cut':>11} {'peak N':>7} {'latest give-up':>15} {'winding J':>10}")
+    try:
+        for label, mk in (("held", _sim0), ("fixed", _fixed_duty())):
+            _sim = mk
+            for name, v, rise in CORNERS:
+                tripped = over_ms = 0
+                pwm = speed = None
+                for jf in INERTIAS:
+                    t, over, sp = start(v, rise, jf, "lo")
+                    tripped += t
+                    over_ms = max(over_ms, over)
+                    if jf == 1.0:
+                        speed = sp
+                        pwm = start.plant.last_duty
+                cut = peak = gave = wj = 0
+                for where in WHERE:
+                    for _, slip, trip in CASES[:2]:
+                        r = jam(v, rise, 1.0, trip, where, slip=slip)
+                        cut = max(cut, r["cut_ms"] if r["cut_ms"] is not None else math.inf)
+                        gave = max(gave, r["jammed_ms"] if r["jammed_ms"] is not None else math.inf)
+                        peak, wj = max(peak, r["peak_n"]), max(wj, r["winding_j"])
+                print(f"{label:6} {name:12} {pwm:5.2f} {speed:6.0%} {tripped:>12d}/3 {over_ms:12d} | {cut:>11g} {peak:7.0f} "
+                      f"{gave:>15g} {wj:10.0f}")
+    finally:
+        _sim = _sim0
+
+
 def main():
     p = Feeder()
     c = p.lift_jam_cutoff()
@@ -529,10 +580,14 @@ def main():
 
     print()
     belt_report()
+    print()
+    duty_report()
 
 
 if __name__ == "__main__":
     if "--belt" in sys.argv[1:]:
         belt_report()
+    elif "--duty" in sys.argv[1:]:
+        duty_report()
     else:
         main()

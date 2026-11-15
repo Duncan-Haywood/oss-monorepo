@@ -1310,6 +1310,15 @@ ahead. Still open: the sheet's 4.4 dB gap to LibRaw's three passes (fine rings n
 whether the median should leave green alone (+0.4 dB on the frames, -2.4 on the sheet; needs a real
 noisy frame with a known answer), a C path, Bayer.
 
+**In C since 2026-11-15** (`src/shootflow/xtrans_native.py`, `eval/xtrans-native-2026-11-15.md`). The
+whole X-Trans demosaic (estimates, four clamped directional greens, red and blue, the gradient blend,
+passes and median) in one C function per band, built with the system compiler on first use and loaded
+through `ctypes`; numpy stays the reference and the fallback. On the real X-E1 and X-E2 frames the output
+is equal to numpy's bit for bit, and a 16 MP frame takes 1.3 s on four cores (numpy 5.0 s; LibRaw's
+single-threaded three-pass `postprocess` 2.5 s). To make that exact on every machine the blend's
+`** 4` became two squarings: numpy's float32 power follows the CPU's SIMD library and differed from libm
+on a fifth of values here (output moved by at most 0.02 of a 16-bit step). `SHOOTFLOW_NATIVE=0` turns it off.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

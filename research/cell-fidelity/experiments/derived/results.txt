@@ -1,0 +1,20 @@
+cell-fidelity milestone 5x: the self-limiting correction derived from the plating law, no fitted constant
+(alpha = 0.65, T = 298.15 K, kappa = 25.30 /V; dU = rise of U_n at the open-circuit upper cut-off);
+ten committed 100-cycle pools (5u, 5v, 5w); ranks on 5w's held-out split of every pool
+
+condition              n   law |lnerr| law    der  S true  S der dU99 mV  lost rhoE sqrt    law    one    der    raw rhoL der
+Ai2020@0.3x           53  sqrt       0.119  0.296   0.571  0.293    42.4 0.353     0.697  0.741  0.886  0.800  0.252    0.995
+Ai2020@0.4x           60  sqrt       0.133  0.319   0.602  0.316    39.7 0.333     0.716  0.651  0.974  0.950  0.799    0.993
+Ai2020@0.5x           64  sqrt       0.178  0.312   0.595  0.327    38.7 0.311     0.639  0.783  0.978  0.979  0.855    0.988
+NCA_Kim2011@0.625x    64 power       0.275  0.056   0.807  0.631   161.1 0.496    -0.210 -0.408  0.514  0.692  0.922    0.999
+Ai2020@0.35x          62  sqrt       0.112  0.318   0.588  0.315    40.5 0.331     0.674  0.613  0.943  0.867  0.535    0.994
+Ai2020@0.45x          63  sqrt       0.158  0.323   0.602  0.326    38.9 0.308     0.650  0.677  0.956  0.959  0.887    0.989
+Ai2020@0.6x           64  sqrt       0.182  0.311   0.577  0.323    37.9 0.285     0.582  0.807  0.963  0.980  0.976    0.987
+NCA_Kim2011@0.875x    64 power       0.303  0.031   0.709  0.599   131.5 0.455    -0.420 -0.510  0.758  0.911  0.959    0.997
+Chen2020@1.5x         64  sqrt       0.327  0.327   0.349  0.021     0.5 0.172     0.796  0.897  0.939  0.906  0.932    0.964
+OKane2022@1.5x        64  sqrt       0.338  0.396   0.339 -0.014     8.9 0.165     0.801  0.897  0.936  0.902  0.927    0.961
+
+H131 (derived |ln err| at cycle 99 below the uncorrected law's on all 10): refuted (2 of 10)
+H132 (derived median |ln err| <= 0.06 on at least 7 of 10): refuted (2 of 10)
+H133 (derived slope within 0.15 of the fitted slope on at least 7 of 10, Spearman >= 0.6): refuted (1 of 10; Spearman 0.915)
+H134 (derived map above the sqrt fit on >= 8 of 10 and within 0.05 of the one-constant map on >= 7): supported (above sqrt 10, within 0.05 of one-constant 8)

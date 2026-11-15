@@ -37,6 +37,9 @@ Steps, on the white-balanced sensel plane ``c`` (so that the three colours are c
 5. **Optional clean-up** (``median_passes``): a 3x3 median of R - G and B - G, rebuilt around the
    sensels' own values, which removes isolated false colour left by step 4.
 
+With a C compiler the whole piece runs in ``shootflow.xtrans_native`` instead (``native``), equal to this
+code bit for bit; this module stays the reference and the fallback.
+
 The output keeps every sensel's own value in its own colour. ``directional`` returns (h, w, 3) linear
 values on the scale of ``c``; the caller clips and encodes them as it does the bilinear result.
 """
@@ -151,7 +154,11 @@ def _gradient_select(pictures, h: int, w: int, scale: float):
         back = pp[1 - dy : 1 - dy + h, 1 - dx : 1 - dx + w]
         rough.append(_box3(np.abs(fwd + back - 2 * pic).sum(axis=-1)) + eps)
     smooth = np.stack(rough)
-    weights = (smooth.min(axis=0) / smooth) ** GRADIENT_POWER  # in (0, 1], 1 for the smoothest
+    q = smooth.min(axis=0) / smooth  # in (0, 1], 1 for the smoothest
+    q *= q
+    weights = q * q  # q ** GRADIENT_POWER by squaring: numpy's float32 ``**`` follows the CPU's SIMD library
+    # (on an AVX-512 machine it differs from libm's powf on 20% of values, 2026-11-15), squaring does not,
+    # so the result is the same on every machine and equals the C path's bit for bit.
     weights /= weights.sum(axis=0)
     out = np.zeros((h, w, 3), dtype=WORK)
     for d, pic in enumerate(pictures):
@@ -175,6 +182,7 @@ def directional(
     select: str = "gradient",
     band_rows: int | None = BAND_ROWS,
     threads: int | None = None,
+    native: bool | None = None,
 ) -> np.ndarray:
     """Demosaic the white-balanced sensel plane ``c`` (h, w) with the 6x6 (or 2x2) pattern ``pat``.
 
@@ -184,6 +192,10 @@ def directional(
     two greens it was interpolated from; ``select`` is ``"gradient"`` or ``"homogeneity"`` (step 4). Returns (h, w, 3) float64. Large frames run in bands of ``band_rows`` rows
     (None: one piece) on ``threads`` threads (``SHOOTFLOW_THREADS`` or up to 4 when None); every band reads
     ``OVERLAP * (passes + 1)`` rows past its own on each side, so the result equals the one-piece result exactly.
+
+    ``native``: None (default) runs each piece through the C function of ``shootflow.xtrans_native`` when it
+    builds and ``select`` is ``"gradient"``; False forces numpy; True refuses to fall back. The two are equal
+    bit for bit (``eval/xtrans-native-2026-11-15.md``).
     """
 
     import os
@@ -195,10 +207,18 @@ def directional(
     h = c.shape[0]
     if scale is None:
         scale = float(np.percentile(c, 99.9)) or 1.0
+    use_c = False
+    if native is not False and select == "gradient":
+        from shootflow import xtrans_native
+
+        use_c = xtrans_native.available()
+    if native is True and not use_c:
+        raise RuntimeError("the native X-Trans demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0 or select other than gradient)")
 
     def piece_of(part, part_pat):
         return _directional_piece(
-            part, part_pat, scale=scale, keep=keep, median_passes=median_passes, passes=passes, clamp=clamp, select=select
+            part, part_pat, scale=scale, keep=keep, median_passes=median_passes, passes=passes, clamp=clamp, select=select,
+            native=use_c,
         )
 
     overlap = OVERLAP * (passes + 1)
@@ -244,6 +264,7 @@ def _directional_piece(
     clamp: bool = True,
     select: str = "gradient",
     return_choice: bool = False,
+    native: bool = False,
 ):
     """``directional`` on one piece; with ``return_choice`` also the (4, h, w) weight of each direction."""
 
@@ -260,6 +281,14 @@ def _directional_piece(
     h, w = c.shape
     # colour_map(pat) from the padded origin: the padding is a whole number of periods.
     cmap = colour_map(pat, h, w)
+    if native and select == "gradient" and not return_choice:
+        from shootflow import xtrans_native
+
+        out = xtrans_native.piece(
+            c, cmap, _reach_table(pat, p), p, clamp, WORK(1e-6 * scale), passes, median_passes
+        )
+        if out is not None:
+            return _finish(out, c0, cmap, pad)
     masks = [cmap == k for k in range(3)]
 
     # 1. Isotropic 3x3 estimates of each colour everywhere.
@@ -279,11 +308,31 @@ def _directional_piece(
             axis=-1,
         )
 
-    out = out[pad:-pad, pad:-pad].astype(np.float64)  # float64 out, so each sensel keeps its exact value
-    out[...] = np.where(cmap[pad:-pad, pad:-pad, None] == np.arange(3), c0[..., None], out)  # exact own values
+    out = _finish(out, c0, cmap, pad)
     if return_choice:
         return out, chosen[:, pad:-pad, pad:-pad]
     return out
+
+
+def _finish(out, c0, cmap, pad):
+    """Crop the padding, widen to float64 and put back every sensel's exact own value."""
+
+    out = out[pad:-pad, pad:-pad].astype(np.float64)  # float64 out, so each sensel keeps its exact value
+    out[...] = np.where(cmap[pad:-pad, pad:-pad, None] == np.arange(3), c0[..., None], out)  # exact own values
+    return out
+
+
+def _reach_table(pat, p: int) -> np.ndarray:
+    """(4, 2, p, p) distances from each phase to the nearest green forward and back along each direction."""
+
+    t = np.zeros((4, 2, p, p), dtype=np.int8)
+    for d, (dy, dx) in enumerate(DIRECTIONS):
+        for py in range(p):
+            for px in range(p):
+                if pat[py * p + px] != 1:
+                    t[d, 0, py, px] = _reach(pat, p, py, px, dy, dx)
+                    t[d, 1, py, px] = _reach(pat, p, py, px, -dy, -dx)
+    return t
 
 
 def _fold(n: int, pad: int, p: int) -> np.ndarray:
