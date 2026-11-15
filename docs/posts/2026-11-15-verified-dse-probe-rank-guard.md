@@ -1,6 +1,6 @@
 ---
 title: "Chip design search: a cheap ranking fails at its own top, so random spot checks miss it"
-seo_title: "Why random probe points cannot catch a misleading cheap ranking in chip flow search"
+seo_title: "Why random spot checks miss a misleading chip-flow ranking"
 date: 2026-11-15
 tags: [research, chip-design, verified-dse, open-source, eda, statistics]
 description: "Replayed on 90 Yosys and OpenROAD cells, a guard that spot-checks four random points does worse than no guard: 5.14% regret against 4.77%."
