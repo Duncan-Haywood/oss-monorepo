@@ -116,10 +116,26 @@ won.
 - Same answers: the bench digest above is identical before and after.
   A full build with the new code against the capture build with the old:
   `diff -rq` over 29,463 files differs only in `version.json` (`built_at`).
-- `share.test.mjs` 31/31. The whole `platform/pages` suite: see the run
-  record's `notes`.
+- `share.test.mjs` 31/31. The whole `platform/pages` suite: 1,658 pass,
+  26 skipped, 2 fail. Both failures were two tests in `build.test.mjs`
+  saying that files under `docs/` changed while the suite ran (this run
+  wrote its post and this file mid-run). `build.test.mjs` re-run on an
+  unedited tree: 313/313 pass.
 
-Full-build timing (warm card cache, interleaved): see the run record's `notes`.
+Faster: full `buildSite` (`--base=https://example.test/site/`, warm
+`PAGES_CARD_CACHE`, same container, run new, old, new, old):
+
+| | before | after |
+|---|---|---|
+| full build, wall | 53.9, 61.0 s | 47.4, 55.1 s |
+
+Each new build was about 6 s faster than the old one beside it. The
+container got slower across the four runs (47 to 55 s for the same code), so
+take the size as rough. The share step alone (the bench above) accounts for
+about 1.5 s. The rest is plausibly `injectDiscoveryTags`'s `contentOf`,
+which uses the same regex on every page; that was not measured separately.
+The CI figure will come from the next `ci_profile.py` reading of "Build the
+site" (44 s median before) and of the `check` step.
 
 ## Not changed, ranked for the next run
 

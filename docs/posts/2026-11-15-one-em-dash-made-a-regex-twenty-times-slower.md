@@ -49,8 +49,8 @@ path for that. Most of our pages have a `—` or a curly quote in them.
 
 ## What it bought
 
-The share step over the same 9,983 captured pages went from 3.8 to 4.3 s to
-2.3 to 2.8 s. A second change helped a little: the entity decoder ran 14
+The share step over the same 9,983 captured pages went from 4.1 s to 2.7 s
+on average (16 timed rounds before, 8 after, same output). A second change helped a little: the entity decoder ran 14
 `replace` passes on every value, and now returns at once when the value has
 no `&`. The same regex shape sat in two more places, the build's search
 snippet pass and the page checker, and both got the same fix. A full site
