@@ -277,7 +277,11 @@ export function splitDecimal(line) {
 const TAX_LINE_RE = /\b(sales\s+t[ae]x|tax(?:es)?|t[ae]x|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?|txtl|get)\b/i;
 const NOT_TAX_LINE_RE = /taxable|w\/\s*tax|with\s+tax|excl|before\s+(?:gst|tax)|(?:tax|gst|vat)\s*(?:id\b|invoice|no\b|reg|#)|sub\s*-?\s*total|\bsbt|summary|dasar\s+pengenaan|\bdpp\b/i;
 const PCT_RE = /\(?\d{1,2}(?:[.,]\d{1,4})?\s*%\)?/g;
-const SUB_RE = /sub\s*-?\s*total|\bsbtl?\b|\bsubttl\b|before\s+(?:gst|tax)|\bnet\b/i;
+const SUB_RE = /sub\s*-?\s*total|\bsbtl?\b|\bsubttl\b|\bsub\s*\/\s*tt\s*[l1i\]|]|before\s+(?:gst|tax)|\bnet\b/i;
+// "Tax" with its first letter misread by OCR on a receipt photo: "[ax 0.30", "fax 1: 1.36",
+// "flax 1: 0.46", "Bax 0.46". Read only between a subtotal and the total (a fax number
+// sits in the header), and only when no real tax line is found.
+const DAMAGED_TAX_RE = /^\W*(?:[\[(|!lfFbB]|fl)ax\b/;
 export function readTax(lines, comma, cents) {
   const amt = (l) => { const a = amountsIn(l, comma); return a.length ? a[a.length - 1] : null; };
   const cands = [], subtotals = [];
@@ -295,6 +299,35 @@ export function readTax(lines, comma, cents) {
     if (v === null || (cents !== null && v >= cents)) return;
     cands.push({ v, total: TAX_TOTAL_RE.test(l) || /total\s+taxes/i.test(l), lost, line: l });
   });
+  // "Tax 1: 6.35" then "Tax 2: 0.00": a zero line is a tax that does not apply, not the tax
+  if (cands.some((c) => c.v > 0)) for (let k = cands.length - 1; k >= 0; k--) if (cands[k].v === 0 && !cands[k].total) cands.splice(k, 1);
+  // "Tax $21.50" then a bare "$1.37", with the subtotal line's amount gone: OCR moved
+  // the column up one line. The tax line's amount is the subtotal when it and the
+  // bare amount below make the total.
+  if (cents !== null && cands.length === 1 && cands[0].v * 2 >= cents) {
+    const i = lines.indexOf(cands[0].line), next = lines[i + 1] ?? "";
+    const b = /\p{L}{2}/u.test(next) ? [] : amountsIn(next, comma);
+    if (b.length === 1 && b[0] > 0 && cands[0].v + b[0] === cents) {
+      subtotals.push(cands[0].v);
+      return { cents: b[0], subtotals, note: `tax line read "${cands[0].line}" with the subtotal's amount; took ${(b[0] / 100).toFixed(2)} from the line below (the two make the total): check the tax`, line: next };
+    }
+  }
+  if (!cands.length && cents !== null) {
+    // Nothing reads as a tax line. Between the last subtotal and the total, take a line
+    // whose label is a misread "Tax", or a line with one amount that the subtotal
+    // makes the total ("THY $2.46" under "TAXABLE SALES $25.85", total 28.31).
+    const subAt = lines.reduce((a, l, i) => (SUB_RE.test(l) || /taxable\s+sales/i.test(l)) && amt(l) !== null ? i : a, -1);
+    const totAt = lines.findIndex((l, i) => i > subAt && TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l));
+    const sub = subAt >= 0 ? amt(lines[subAt]) : null;
+    if (sub !== null && /taxable\s+sales/i.test(lines[subAt]) && !subtotals.includes(sub)) subtotals.push(sub);
+    for (let i = subAt + 1; subAt >= 0 && i < (totAt >= 0 ? totAt : lines.length); i++) {
+      // "fax 1: 3.5": the 1 numbers the tax line, it is not an amount
+      const l = lines[i], a = amountsIn(l.replace(PCT_RE, " ").replace(/^(\W*\S{0,3}ax)\s*[1-3]\s*[:;|]/, "$1 "), comma);
+      if (a.length !== 1 || a[0] <= 0 || a[0] >= cents || a[0] > sub * 0.15) continue;
+      if (DAMAGED_TAX_RE.test(l) && (comma !== false || /\d\.\d{2}(?!\d)/.test(l)) && !/\d{3}[-. ]\d{4}/.test(l)) return { cents: a[0], subtotals, note: `tax line read as "${l}": took ${(a[0] / 100).toFixed(2)}, check the tax`, line: l };
+      if (sub + a[0] === cents) return { cents: a[0], subtotals, note: `an unlabelled line "${l}" between the subtotal and the total makes them add up: took ${(a[0] / 100).toFixed(2)} as the tax, check it`, line: l };
+    }
+  }
   if (!cands.length) return { cents: null, subtotals, note, line: null };
   const printed = cands.filter((c) => c.total);
   let pick = printed.length ? printed[printed.length - 1] : cands[cands.length - 1];
@@ -560,6 +593,13 @@ export function voteTax(ps, out, pick) {
   if (t !== null && out.cents !== null && !subs.some((s) => s + t === out.cents)) {
     const near = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && oneDigitApart(d, t));
     if (near.length === 1) return near[0];
+    // two subtotals one digit apart ("$28.48" in three readings, "$28.47" in one): the
+    // subtotal most readings agree on, when one has more readings than any other
+    if (near.length > 1) {
+      const n = near.map((d) => subs.filter((s) => out.cents - s === d).length);
+      const top = Math.max(...n);
+      if (n.filter((k) => k === top).length === 1) return near[n.indexOf(top)];
+    }
   }
   if (t === null && out.cents !== null) {
     const d = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && d <= (out.cents - d) * 0.15);
