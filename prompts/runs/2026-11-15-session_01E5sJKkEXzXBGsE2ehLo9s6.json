@@ -29,16 +29,22 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push put the tool in a new platform/creative/ test directory; checklist_coverage (CI coverage + validate) failed because the merge checklist (.github/prompts/verify-and-merge.md, CODEOWNERS-gated) did not name it. Moved to platform/ci/creative_due.py, which the checklist already covers."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/creative/prompt-0.md",
-      "issue": "'Pick one piece of work' suggests git log -15 to find the shelf longest without a piece; on a shallow clone it shows 3-5 commits (25 creative records). platform/creative/due.py now answers it; the prompt line is CODEOWNERS-gated so it still names git log."
+      "issue": "'Pick one piece of work' suggests git log -15 to find the shelf longest without a piece; on a shallow clone it shows 3-5 commits (25 creative records). platform/ci/creative_due.py now answers it; the prompt line is CODEOWNERS-gated so it still names git log."
     },
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "Critique via 'Doc friction by file': the first two ungated candidates I checked (venture-preflight own-record PEND, run_venture_tests PyYAML skip) were already fixed; the table does not mark reports that predate a fix in another file."
+    },
+    {
+      "file": "platform/ci/checklist_coverage.py",
+      "issue": "A new Python test directory anywhere needs a line in .github/prompts/verify-and-merge.md, a CODEOWNERS path, so any new tool dir with tests holds its PR for owner approval; the workaround is putting tools in an already-listed dir like platform/ci."
     }
   ],
   "deviations": [],
@@ -46,7 +52,7 @@
     "docs/posts/2026-11-15-which-shelf-is-due-front-matter-not-git-log.md"
   ],
   "goal": null,
-  "notes": "Critique mode: backlog held only owner rows. Lens: creative-track friction (72/591 creative records cite 'longest without a piece'). Shipped platform/creative/due.py + tests (5/5), linked from H&H README and Saints PRODUCTION.md. main_health 222/222 on main. Backlog ids touched: none. Follow-up: one-line edit to prompts/creative/prompt-0.md (control plane) to name due.py instead of git log.",
+  "notes": "Critique mode: backlog held only owner rows. Lens: creative-track friction (72/591 creative records cite 'longest without a piece'). Shipped platform/ci/creative_due.py + tests (5/5), linked from H&H README and Saints PRODUCTION.md. main_health 222/222 on main. Backlog ids touched: none. Follow-up: one-line edit to prompts/creative/prompt-0.md (control plane) to name due.py instead of git log.",
   "corrections": [],
   "redteam": null,
   "usage": {

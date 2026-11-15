@@ -1,4 +1,4 @@
-"""Tests for due.py: python3 -m unittest discover -s platform/creative"""
+"""Tests for creative_due.py: (cd platform/ci && python3 -m unittest test_creative_due)"""
 import datetime as dt
 import io
 import sys
@@ -8,7 +8,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import due  # noqa: E402
+import creative_due as due  # noqa: E402
 
 
 def write(root, rel, text):

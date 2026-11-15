@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Which creative shelf is due for a piece, and whether new audio fits.
 
-    python3 platform/creative/due.py          # table, then a `due:` line and the audio line
-    python3 platform/creative/due.py --json
+    python3 platform/ci/creative_due.py          # table, then a `due:` line and the audio line
+    python3 platform/ci/creative_due.py --json
 
 The creative track spreads its runs by picking "the project that has gone
 longest without a new piece". It suggested reading that from `git log -15`

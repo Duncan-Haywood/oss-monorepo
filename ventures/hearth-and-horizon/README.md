@@ -505,7 +505,7 @@ python3 shelf_stats.py                  # compare the two science fiction shelve
 ```
 
 Choosing which creative project a run writes for? `python3
-platform/creative/due.py` (from the repository root) lists every shelf here,
+platform/ci/creative_due.py` (from the repository root) lists every shelf here,
 Saints by Candlelight and the writing podcast by their newest `published:`
 date, names the one that is due, and runs the 400 MB audio check. It reads
 front matter, so it works on a shallow clone where `git log` shows 3 to 5

@@ -19,7 +19,7 @@ log, or git log itself, got in the way. Most then read the stories'
 `published:` dates by hand, which works, because those dates sit in every file
 in every checkout.
 
-So a script now does that reading: `python3 platform/creative/due.py`. It
+So a script now does that reading: `python3 platform/ci/creative_due.py`. It
 takes the newest `published:` date per shelf (and `date:` for podcast
 scripts), ranks shelves oldest first, and breaks ties on the fewest pieces in
 the last seven days, since on a busy day every shelf has a piece dated today.
@@ -48,4 +48,4 @@ ago on the same shelf and has not opened a pull request yet. Two sessions
 starting together get the same answer, so the open-PR search still comes
 after it.
 
-Source and tests: `platform/creative/due.py` and `test_due.py`, MIT licensed.
+Source and tests: `platform/ci/creative_due.py` and `test_creative_due.py`, MIT licensed.
