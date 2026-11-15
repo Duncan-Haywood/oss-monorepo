@@ -1,0 +1,68 @@
+Milestone 7p analysis (results.json). L2-45 = diverged of 384 at lever 2, 45 deg, cap; window = grid points where all 6 seeds are valid.
+
+P1: inh vs 7o resize, 2304 (design, L, condition) counts compared, 0 differ.
+    own-L L2-45 7e                   above: inh 12 fam 12 xb 12 xb_abs 139; below: inh 52 fam 52 xb 52 xb_abs 107
+    own-L L2-45 7l t45 cap wide      above: inh 73 fam 73 xb 73 xb_abs 160; below: inh 105 fam 105 xb 105 xb_abs 151
+    own-L L2-45 aware cap wide       above: inh 53 fam 53 xb 53 xb_abs 116; below: inh 52 fam 52 xb 52 xb_abs 97
+    own-L L2-45 aware cap wide fixL  above: inh 39 fam 39 xb 39 xb_abs 120; below: inh 46 fam 46 xb 46 xb_abs 124
+
+Windows (L mm: L2-45 count):
+  7e                   above inh    max rise after a minimum  -2 | 100: 2, 105: 0
+  7e                   above fam    max rise after a minimum   0 | 100: 6, 105: 1, 110: 0, 115: 0, 120: 0
+  7e                   above xb     max rise after a minimum   0 | 
+  7e                   above xb_abs max rise after a minimum -21 | 105: 53, 110: 23, 115: 2
+  7e                   below inh    max rise after a minimum  -2 | 100: 55, 105: 44, 110: 37, 115: 29, 120: 21, 125: 12, 130: 7, 135: 5
+  7e                   below fam    max rise after a minimum  -1 | 100: 56, 105: 47, 110: 39, 115: 33, 120: 29, 125: 28, 130: 20, 135: 18, 140: 12, 145: 9, 150: 6
+  7e                   below xb     max rise after a minimum -19 | 100: 59, 105: 36, 110: 17
+  7e                   below xb_abs max rise after a minimum -16 | 100: 116, 105: 95, 110: 64, 115: 48, 120: 28, 125: 9
+  7l t45 cap wide      above inh    max rise after a minimum  -7 | 105: 62, 110: 52, 115: 31, 120: 21, 125: 14, 130: 6
+  7l t45 cap wide      above fam    max rise after a minimum   1 | 105: 63, 110: 58, 115: 48, 120: 33, 125: 30, 130: 21, 135: 15, 140: 11, 145: 5, 150: 6
+  7l t45 cap wide      above xb     max rise after a minimum -38 | 105: 53, 110: 15
+  7l t45 cap wide      above xb_abs max rise after a minimum -21 | 105: 139, 110: 102, 115: 63, 120: 29, 125: 8
+  7l t45 cap wide      below inh    max rise after a minimum  -4 | 105: 103, 110: 87, 115: 74, 120: 70, 125: 61, 130: 54, 135: 44, 140: 37, 145: 31, 150: 27
+  7l t45 cap wide      below fam    max rise after a minimum   0 | 105: 105, 110: 92, 115: 82, 120: 75, 125: 70, 130: 70, 135: 66, 140: 58, 145: 56, 150: 54
+  7l t45 cap wide      below xb     max rise after a minimum -24 | 105: 96, 110: 72, 115: 41
+  7l t45 cap wide      below xb_abs max rise after a minimum -17 | 105: 136, 110: 118, 115: 101, 120: 74, 125: 54, 130: 31
+  aware cap wide       above inh    max rise after a minimum  -4 | 115: 19, 120: 13, 125: 9
+  aware cap wide       above fam    max rise after a minimum  -4 | 115: 29, 120: 21, 125: 16, 130: 12, 135: 6
+  aware cap wide       above xb     max rise after a minimum   0 | 
+  aware cap wide       above xb_abs max rise after a minimum   0 | 120: 18
+  aware cap wide       below inh    max rise after a minimum  -6 | 125: 20, 130: 14
+  aware cap wide       below fam    max rise after a minimum  -3 | 125: 29, 130: 22, 135: 19, 140: 15
+  aware cap wide       below xb     max rise after a minimum   0 | 
+  aware cap wide       below xb_abs max rise after a minimum   0 | 125: 16
+  aware cap wide fixL  above inh    max rise after a minimum  -8 | 105: 36, 110: 28
+  aware cap wide fixL  above fam    max rise after a minimum  -5 | 105: 35, 110: 30, 115: 25
+  aware cap wide fixL  above xb     max rise after a minimum   0 | 105: 28
+  aware cap wide fixL  above xb_abs max rise after a minimum -28 | 105: 103, 110: 65, 115: 37
+  aware cap wide fixL  below inh    max rise after a minimum  -9 | 105: 43, 110: 34
+  aware cap wide fixL  below fam    max rise after a minimum  -4 | 105: 44, 110: 40, 115: 35
+  aware cap wide fixL  below xb     max rise after a minimum   0 | 105: 40
+  aware cap wide fixL  below xb_abs max rise after a minimum -26 | 110: 71, 115: 45
+
+P2 (fam non-increasing, rises <= 2): 8 of 8 set-geometries -> held
+P3 (fam 7l best below 7o's 6 / 44 in >= 1 geometry): {'above': (0.145, 5), 'below': (0.15, 54)} -> held
+P4 (xb 7l best above aware's 53 / 52 in >= 1 geometry): {'above': (0.11, 15), 'below': (0.115, 41)} -> refuted
+P5 (|inh - fam| <= 5 at common window points, 7l): above 105: 62/63, 110: 52/58, 115: 31/48, 120: 21/33, 125: 14/30, 130: 6/21; below 105: 103/105, 110: 87/92, 115: 74/82, 120: 70/75, 125: 61/70, 130: 54/70, 135: 44/66, 140: 37/58, 145: 31/56, 150: 27/54 -> refuted
+P6 (xb_abs own-L > inh own-L, 7l, both): {'above': (73, 160), 'below': (105, 151)} -> held
+P7 (|J xb_abs - J inh| <= 0.05 at own L, 7l, lever 1 45): above -1.580 vs -2.261; below -1.713 vs -2.164 -> refuted
+
+7l set at its best window point per law (mean mass kg, mean hover power W, L2-45):
+  above inh    L 130 mm  mass 2.079  power 703  L2-45 6
+  above fam    L 145 mm  mass 2.031  power 678  L2-45 5
+  above xb     L 110 mm  mass 1.830  power 576  L2-45 15
+  above xb_abs L 125 mm  mass 2.009  power 666  L2-45 8
+  below inh    L 150 mm  mass 1.736  power 537  L2-45 27
+  below fam    L 150 mm  mass 1.355  power 355  L2-45 54
+  below xb     L 115 mm  mass 1.428  power 387  L2-45 41
+  below xb_abs L 130 mm  mass 1.527  power 431  L2-45 31
+
+Longest all-six-valid arm per set and law (mm):
+  7e                   above inh 105  fam 120  xb nan  xb_abs 115
+  7e                   below inh 135  fam 150  xb 110  xb_abs 125
+  7l t45 cap wide      above inh 130  fam 150  xb 110  xb_abs 125
+  7l t45 cap wide      below inh 150  fam 150  xb 115  xb_abs 130
+  aware cap wide       above inh 125  fam 135  xb nan  xb_abs 120
+  aware cap wide       below inh 130  fam 140  xb nan  xb_abs 125
+  aware cap wide fixL  above inh 110  fam 115  xb 105  xb_abs 115
+  aware cap wide fixL  below inh 110  fam 115  xb 105  xb_abs 115

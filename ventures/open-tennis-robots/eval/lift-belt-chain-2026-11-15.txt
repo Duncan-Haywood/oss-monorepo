@@ -1,0 +1,47 @@
+# PYTHONPATH=src python3 tests/lift_jam_sweep.py --chain  (2026-11-15; cad/README.md "Lift belt as a chain"; 11 min 57 s)
+Chain (two nodes a flight pitch, both ends on the drive pulley; hub stuck) against the 8-node reference and the lumped belt: first stuck modes, Hz
+  c_spec 0.5x, a ball every 1: chain 27.4, 70.6, 89.6; reference 27.5, 70.7, 89.4; lumped 30.5, 69.2
+  c_spec 0.5x, a ball every 2: chain 33.4, 84.2, 100.8; reference 33.4, 84.2, 100.6; lumped 30.5, 69.2
+  c_spec 1x, a ball every 1: chain 34.0, 97.9, 118.1; reference 34.0, 98.0, 117.8; lumped 38.0, 78.4
+  c_spec 1x, a ball every 2: chain 41.1, 118.5, 131.4; reference 41.1, 118.5, 131.0; lumped 38.0, 78.4
+  c_spec 2x, a ball every 1: chain 39.4, 134.4, 159.2; reference 39.4, 134.5, 158.9; lumped 43.3, 97.3
+  c_spec 2x, a ball every 2: chain 47.4, 165.1, 175.1; reference 47.4, 165.0, 174.6; lumped 43.3, 97.3
+
+Starts, hub at its lowest, trip lo (2 packs x 3 rotors): largest coupling torque, starts that slipped the hub of 6, largest net belt pull, ms any segment was slack (most of the 6); columns rigid, lumped 1x, chain 0.5x, chain 1x, chain 2x, chain 1x /2
+  switched    nominal              loaded 0.36 N m s0   0 N   0 ms | 0.41 N m s0  21 N   2 ms | 0.33 N m s0  25 N  53 ms | 0.35 N m s0  26 N  44 ms | 0.35 N m s0  28 N  38 ms | 0.26 N m s0  20 N  10 ms
+  switched    nominal              empty  0.50 N m s0   0 N   0 ms | 0.39 N m s0  21 N   0 ms | 0.36 N m s0  27 N  59 ms | 0.38 N m s0  31 N  51 ms | 0.43 N m s0  34 N  46 ms | 0.31 N m s0  24 N  18 ms
+  switched    80 N m/rad 5 deg     loaded 0.53 N m s0   0 N   0 ms | 0.37 N m s0  20 N   0 ms | 0.33 N m s0  25 N  49 ms | 0.33 N m s0  26 N  40 ms | 0.35 N m s0  28 N  37 ms | 0.25 N m s0  20 N   9 ms
+  switched    80 N m/rad 5 deg     empty  0.81 N m s6   0 N   0 ms | 0.81 N m s3  25 N   5 ms | 0.49 N m s0  37 N  90 ms | 0.60 N m s0  45 N  87 ms | 0.74 N m s0  56 N 108 ms | 0.49 N m s0  38 N  48 ms
+  100 ms ramp nominal              loaded 0.24 N m s0   0 N   0 ms | 0.21 N m s0  15 N   0 ms | 0.21 N m s0  16 N   0 ms | 0.22 N m s0  17 N   0 ms | 0.22 N m s0  17 N   0 ms | 0.12 N m s0   9 N   0 ms
+  100 ms ramp nominal              empty  0.15 N m s0   0 N   0 ms | 0.12 N m s0   7 N   0 ms | 0.29 N m s0  22 N  26 ms | 0.29 N m s0  23 N  41 ms | 0.32 N m s0  25 N  40 ms | 0.21 N m s0  17 N   0 ms
+  100 ms ramp 80 N m/rad 5 deg     loaded 0.24 N m s0   0 N   0 ms | 0.22 N m s0  12 N   0 ms | 0.21 N m s0  16 N   0 ms | 0.20 N m s0  15 N   0 ms | 0.20 N m s0  16 N   0 ms | 0.11 N m s0   9 N   0 ms
+  100 ms ramp 80 N m/rad 5 deg     empty  0.71 N m s0   0 N   0 ms | 0.55 N m s0  17 N   0 ms | 0.39 N m s0  31 N  80 ms | 0.43 N m s0  33 N  80 ms | 0.52 N m s0  41 N  92 ms | 0.35 N m s0  28 N  34 ms
+
+Jams, rotor 1x, nominal coupling (6 s): peak N on a flight, ms to the cut, ms to give up, largest net belt pull (the chain: tight strand in less slack strand out at the drive pulley), tightest segment; columns rigid, lumped 1x, chain 0.5x, chain 1x, chain 2x, chain 1x /2
+  boot 29.2 V cold hub lo, trip hi  56 N cut  79 gave 2489 belt   0 N seg   0 N |  59 N cut  79 gave 2489 belt  16 N seg   0 N |  60 N cut  79 gave 2489 belt  19 N seg  22 N |  59 N cut  79 gave 2489 belt  18 N seg  24 N |  58 N cut  79 gave 2489 belt  17 N seg  26 N |  61 N cut  89 gave 2499 belt  13 N seg  22 N
+  boot 29.2 V cold hub hi, trip lo  87 N cut  39 gave 2449 belt   0 N seg   0 N |  93 N cut  39 gave 2449 belt  16 N seg   0 N |  87 N cut  39 gave 2449 belt  20 N seg  24 N |  92 N cut  39 gave 2449 belt  21 N seg  25 N |  93 N cut  39 gave 2449 belt  20 N seg  27 N |  97 N cut  39 gave 2449 belt  13 N seg  23 N
+  boot 24 V hot    hub lo, trip hi  56 N cut  69 gave 2479 belt   0 N seg   0 N |  58 N cut  59 gave 2469 belt  16 N seg   0 N |  59 N cut  59 gave 2469 belt  19 N seg  23 N |  59 N cut  69 gave 2479 belt  17 N seg  23 N |  57 N cut  69 gave 2479 belt  17 N seg  25 N |  61 N cut  69 gave 2479 belt  12 N seg  22 N
+  boot 24 V hot    hub hi, trip lo  85 N cut  29 gave 2439 belt   0 N seg   0 N |  92 N cut  29 gave 2439 belt  16 N seg   0 N |  85 N cut  29 gave 2439 belt  19 N seg  24 N |  95 N cut  29 gave 2439 belt  21 N seg  25 N |  91 N cut  29 gave 2439 belt  20 N seg  26 N |  95 N cut  39 gave 2449 belt  13 N seg  22 N
+  hood 29.2 V cold hub lo, trip hi  60 N cut  79 gave 2489 belt   0 N seg   0 N |  62 N cut  89 gave 2499 belt  66 N seg   0 N |  55 N cut  89 gave 2499 belt  60 N seg  69 N |  56 N cut  89 gave 2499 belt  60 N seg  71 N |  55 N cut  89 gave 2499 belt  61 N seg  71 N |  60 N cut  89 gave 2499 belt  62 N seg  70 N
+  hood 29.2 V cold hub hi, trip lo  91 N cut  39 gave 2449 belt   0 N seg   0 N |  93 N cut  39 gave 2449 belt 100 N seg   0 N |  89 N cut  49 gave 2459 belt  93 N seg  99 N |  93 N cut  39 gave 2449 belt  94 N seg 100 N |  94 N cut  39 gave 2449 belt  94 N seg 101 N |  93 N cut  49 gave 2459 belt  94 N seg 100 N
+  hood 24 V hot    hub lo, trip hi  58 N cut  59 gave 2469 belt   0 N seg   0 N |  61 N cut  69 gave 2479 belt  65 N seg   0 N |  55 N cut  69 gave 2479 belt  60 N seg  68 N |  54 N cut  69 gave 2479 belt  61 N seg  69 N |  53 N cut  69 gave 2479 belt  61 N seg  70 N |  60 N cut  69 gave 2479 belt  62 N seg  68 N
+  hood 24 V hot    hub hi, trip lo  85 N cut  39 gave 2449 belt   0 N seg   0 N |  89 N cut  39 gave 2449 belt  97 N seg   0 N |  87 N cut  49 gave 2459 belt  93 N seg  99 N |  90 N cut  39 gave 2449 belt  93 N seg  99 N |  92 N cut  39 gave 2449 belt  94 N seg 100 N |  93 N cut  39 gave 2449 belt  94 N seg  99 N
+
+Worst over every jam: peak N on a flight, slowest cut ms, latest give-up ms, largest net belt pull N, tightest segment N
+  rigid          91     79   2489     0     0
+  lumped 1x      93     89   2499   100     0
+  chain 0.5x     89     89   2499    93    99
+  chain 1x       95     89   2499    94   100
+  chain 2x       94     89   2499    94   101
+  chain 1x /2    97     89   2499    94   100
+
+# PYTHONPATH=src python3 tests/lift_jam_sweep.py --belt, rerun the same day after "Lift duty follows the battery" (the lumped belt; eval/lift-belt-stretch-2026-11-15.txt was run before it)
+Jams, rotor 1x, nominal coupling: peak N on a flight, ms to the cut, ms to give up, largest net belt pull, ms the slack strand spent slack
+  boot 29.2 V cold hub lo, trip hi  56 N cut  79 gave 2489 belt   0 N slack   0 |  60 N cut  79 gave 2489 belt  15 N slack   0 |  59 N cut  79 gave 2489 belt  16 N slack   0 |  59 N cut  79 gave 2489 belt  19 N slack   0
+  boot 29.2 V cold hub hi, trip lo  87 N cut  39 gave 2449 belt   0 N slack   0 |  87 N cut  39 gave 2449 belt  15 N slack   0 |  93 N cut  39 gave 2449 belt  16 N slack   0 |  91 N cut  39 gave 2449 belt  19 N slack   0
+  boot 24 V hot    hub lo, trip hi  56 N cut  69 gave 2479 belt   0 N slack   0 |  58 N cut  59 gave 2469 belt  14 N slack   0 |  58 N cut  59 gave 2469 belt  16 N slack   0 |  58 N cut  69 gave 2479 belt  18 N slack   0
+  boot 24 V hot    hub hi, trip lo  85 N cut  29 gave 2439 belt   0 N slack   0 |  90 N cut  29 gave 2439 belt  15 N slack   0 |  92 N cut  29 gave 2439 belt  16 N slack   0 |  88 N cut  29 gave 2439 belt  18 N slack   0
+  hood 29.2 V cold hub lo, trip hi  60 N cut  79 gave 2489 belt   0 N slack   0 |  62 N cut  89 gave 2499 belt  68 N slack 525 |  62 N cut  89 gave 2499 belt  66 N slack 496 |  64 N cut  79 gave 2489 belt  68 N slack 471
+  hood 29.2 V cold hub hi, trip lo  91 N cut  39 gave 2449 belt   0 N slack   0 |  89 N cut  49 gave 2459 belt  97 N slack 479 |  93 N cut  39 gave 2449 belt 100 N slack 428 |  90 N cut  39 gave 2449 belt  96 N slack 410
+  hood 24 V hot    hub lo, trip hi  58 N cut  59 gave 2469 belt   0 N slack   0 |  61 N cut  69 gave 2479 belt  68 N slack 431 |  61 N cut  69 gave 2479 belt  65 N slack 405 |  63 N cut  69 gave 2479 belt  67 N slack 390
+  hood 24 V hot    hub hi, trip lo  85 N cut  39 gave 2449 belt   0 N slack   0 |  87 N cut  39 gave 2449 belt  96 N slack 394 |  89 N cut  39 gave 2449 belt  97 N slack 353 |  90 N cut  39 gave 2449 belt  97 N slack 335

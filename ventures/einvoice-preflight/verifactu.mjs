@@ -117,6 +117,15 @@ function readRecord(node, index) {
     surchargeRate: val(d, "TipoRecargoEquivalencia"),
     surcharge: val(d, "CuotaRecargoEquivalencia"),
   }));
+  const tercero = kid(node, "Tercero");
+  // AEAT code 1287: no value may contain < > " ' = (checked on the decoded text).
+  const badChars = [];
+  (function walk(n, path) {
+    const kidsOf = n.children || [];
+    if (!kidsOf.length) { const t = decode(n.text || ""); if (/[<>"'=]/.test(t)) badChars.push({ path, value: t }); return; }
+    // A signed record (non-VERI*FACTU systems) carries ds:Signature, whose Base64 ends in "=".
+    for (const c of kidsOf) if (local(c.name) !== "Signature") walk(c, `${path}/${local(c.name)}`);
+  })(node, "");
   const recipients = kids(kid(node, "Destinatarios"), "IDDestinatario").map((d) => ({
     name: val(d, "NombreRazon"),
     nif: val(d, "NIF"),
@@ -145,6 +154,14 @@ function readRecord(node, index) {
     first: val(enc, "PrimerRegistro"),
     hasEnc: !!enc,
     prev: prev ? { ...readId(prev), huella: val(prev, "Huella"), rawHuella: raw(prev, "Huella") } : null,
+    badChars,
+    operationDate: val(node, "FechaOperacion"),
+    macrodato: val(node, "Macrodato"),
+    art7273: val(node, "FacturaSimplificadaArticulos7273"),
+    art61d: val(node, "FacturaSinIdentifDestinatarioArt61d"),
+    agreement: val(node, "NumRegistroAcuerdoFacturacion"),
+    issuedBy: val(node, "EmitidaPorTerceroODestinatario"),
+    third: tercero ? { nif: val(tercero, "NIF"), other: !!kid(tercero, "IDOtro"), type: val(tercero, "IDOtro", "IDType") } : null,
     systemNif: val(node, "SistemaInformatico", "NIF"),
     generated: val(node, "FechaHoraHusoGenRegistro"),
     rawGenerated: raw(node, "FechaHoraHusoGenRegistro"),
@@ -268,6 +285,12 @@ export function recordFindings(r) {
   } else if (r.prev && !r.prev.huella) {
     push("VF-004", "RegistroAnterior has no Huella.", "Copy the previous record's fingerprint into RegistroAnterior/Huella.", "/Encadenamiento/RegistroAnterior/Huella");
   }
+  if (r.prev?.huella && !/^[0-9A-F]{64}$/.test(r.prev.huella)) {
+    push("VF-002", `RegistroAnterior's Huella "${r.prev.huella.slice(0, 70)}" is not 64 upper-case hexadecimal characters.`, "Copy the previous record's fingerprint exactly: 64 upper-case hexadecimal characters (AEAT codes 1262, 1291, 2002, 2003).", "/Encadenamiento/RegistroAnterior/Huella");
+  }
+  if (r.prev?.huella && r.huella && r.prev.huella.toUpperCase() === r.huella.toUpperCase()) {
+    push("VF-036", "RegistroAnterior carries this record's own fingerprint.", "RegistroAnterior/Huella is the previous record's fingerprint, never this one's (AEAT code 2008).", "/Encadenamiento/RegistroAnterior/Huella");
+  }
   if (r.kind === "anulacion" && !r.prev) {
     push("VF-022", "is a cancellation with no previous record.", "A cancellation always follows the record it cancels, so it chains to an earlier record (RegistroAnterior).", "/Encadenamiento", { severity: "warning" });
   }
@@ -289,11 +312,20 @@ export function recordFindings(r) {
     }
   }
 
+  // NIF shape: nine characters, letters or digits first and last, seven digits between
+  // (AEAT code 1123, which the AEAT also raises inside the Encadenamiento block).
+  const idPath = r.kind === "alta" ? "/IDFactura/IDEmisorFactura" : "/IDFactura/IDEmisorFacturaAnulada";
+  for (const [who, v, path] of [["the issuer", r.id?.issuer, idPath], ["RegistroAnterior's issuer", r.prev?.issuer, "/Encadenamiento/RegistroAnterior/IDEmisorFactura"], ["SistemaInformatico", r.systemNif, "/SistemaInformatico/NIF"], ...r.recipients.map((d, i) => [`recipient ${i + 1}`, d.nif, `/Destinatarios/IDDestinatario[${i + 1}]/NIF`])]) {
+    if (v && !nifLike(v)) push("VF-019", `${who}'s NIF "${v}" is not shaped like a Spanish NIF (nine characters: a letter or digit, seven digits, a letter or digit).`, "Write the NIF without spaces, dashes or the ES prefix; a foreign party goes in IDOtro (AEAT code 1123).", path);
+  }
   // Issuer NIF.
   if (r.id?.issuer && nifLike(r.id.issuer) && !esOk(r.id.issuer)) {
     push("VF-019", `the issuer NIF ${r.id.issuer} fails its check character.`, "Check the NIF; AEAT matches it against its census. (AEAT's test environment uses its own test NIFs, which may not pass this check.)", r.kind === "alta" ? "/IDFactura/IDEmisorFactura" : "/IDFactura/IDEmisorFacturaAnulada", { severity: "warning" });
   }
 
+  for (const b of r.badChars || []) {
+    push("VF-042", `${b.path.slice(1)} "${b.value.slice(0, 60)}" contains a character AEAT refuses (< > " ' =).`, "Remove the character or replace it (an apostrophe in a name, for example, by a plain space); AEAT rejects the record whatever the XML escaping (AEAT code 1287).", b.path);
+  }
   if (r.kind !== "alta") return out;
 
   // Invoice type, recipients, corrective fields.
@@ -390,7 +422,134 @@ export function recordFindings(r) {
   if (ok && r.lines.length && isAmount(r.importeTotal) && Math.abs(cents(r.importeTotal) - (base + cuota)) > 2) {
     push("VF-016", `ImporteTotal ${r.importeTotal} is not the breakdown's bases plus tax (${fmt(base + cuota)}).`, "ImporteTotal is the bases plus tax and surcharge (a rounding difference up to 0.02 is accepted here). A withholding (IRPF) is not deducted from it.", "/ImporteTotal", { severity: "warning" });
   }
+  aeatRecordRules(r, push);
   return out;
+}
+
+// dd-mm-yyyy to yyyy-mm-dd, so dates compare as strings; null when not a real date.
+const iso = (s) => (validDate(s) ? String(s).replace(DATE_RE, "$3-$2-$1") : null);
+const num = (s) => (isAmount(s) ? Number(s) : null);
+const inRange = (d, from, to) => !!d && d >= from && (!to || d <= to);
+// The equivalence surcharge rates AEAT accepts beside each VAT rate, by the operation's
+// date (FechaOperacion, else the issue date): AEAT codes 1160 to 1170 and 1277.
+const SURCHARGE_FOR_RATE = [
+  { rate: 21, ok: () => [5.2, 1.75], code: "1162" },
+  { rate: 10, ok: () => [1.4], code: "1163" },
+  { rate: 4, ok: () => [0.5], code: "1164" },
+  { rate: 5, ok: (d) => (inRange(d, "2022-07-01", "2022-12-31") ? [0.5] : inRange(d, "2023-01-01", "2024-09-30") ? [0.62] : [0.5, 0.62]), code: "1160, 1167, 1168" },
+  { rate: 2, ok: (d) => (inRange(d, "2024-10-01", "2024-12-31") ? [0.26] : null), code: "1166" },
+  { rate: 7.5, ok: (d) => (inRange(d, "2024-10-01", "2024-12-31") ? [1] : null), code: "1169" },
+  { rate: 0, ok: (d) => (inRange(d, "2023-01-01", "2024-09-30") ? [0] : inRange(d, "2024-10-01") ? [0.26] : null), code: "1165, 1170, 1277" },
+];
+
+// Record rules taken from AEAT's own list of validation errors (errores.properties,
+// read from prewww2.aeat.es on 2026-11-15; verifactu-errors-data.mjs). Each finding names
+// the AEAT code it anticipates, so a developer sees the rejection before sending.
+function aeatRecordRules(r, push) {
+  const issued = iso(r.id?.date);
+  const opDate = iso(r.operationDate) || issued;
+  if (issued && issued < "2024-10-28") {
+    push("VF-029", `the issue date ${r.id.date} is before 28 October 2024, the earliest date AEAT accepts.`, "Check the issue date; AEAT rejects a record issued before 28-10-2024 (code 1152).", "/IDFactura/FechaExpedicionFactura");
+  }
+  // Macrodato: S exactly when |ImporteTotal| >= 100,000,000 (1137, 1138, 1139).
+  const total = num(r.importeTotal);
+  if (r.macrodato !== null && !["S", "N"].includes(r.macrodato)) {
+    push("VF-030", `Macrodato is "${r.macrodato}", not S or N.`, "Write Macrodato S or N (AEAT code 1137).", "/Macrodato");
+  } else if (total !== null) {
+    const big = Math.abs(total) >= 100000000;
+    if (big && r.macrodato !== "S") push("VF-030", `ImporteTotal ${r.importeTotal} is 100,000,000 or more but Macrodato is not S.`, "Write Macrodato S on a record of 100 million or more (AEAT code 1139).", "/Macrodato");
+    if (!big && r.macrodato === "S") push("VF-030", `Macrodato is S but ImporteTotal ${r.importeTotal} is under 100,000,000.`, "Remove Macrodato or write N (AEAT code 1138).", "/Macrodato");
+  }
+  // A simplified invoice is capped at 3,000 unless the buyer-less art. 61d flag or a
+  // billing agreement says otherwise (1150).
+  if (r.type === "F2" && r.agreement === null && r.art61d !== "S") {
+    let sum = 0, ok = true;
+    for (const l of r.lines) {
+      for (const v of [l.base, l.cuota]) if (v !== null) { if (isAmount(v)) sum += cents(v); else ok = false; }
+    }
+    if (ok && sum > 300000) push("VF-031", `is a simplified invoice (F2) whose bases and tax add up to ${fmt(sum)}, over 3,000.`, "Issue a full invoice (F1) naming the buyer; an F2 above 3,000 needs FacturaSinIdentifDestinatarioArt61d S or a billing agreement (AEAT code 1150).", "/TipoFactura");
+  }
+  // The S/N flags and the invoice types they go with (1136, 1183, 1184, 1185).
+  for (const [name, v, types, code] of [["FacturaSimplificadaArticulos7273", r.art7273, ["F1", "F3", "R1", "R2", "R3", "R4"], "1136, 1183"], ["FacturaSinIdentifDestinatarioArt61d", r.art61d, ["F2", "R5"], "1184, 1185"]]) {
+    if (v === null) continue;
+    if (!["S", "N"].includes(v)) push("VF-037", `${name} is "${v}", not S or N.`, `Write ${name} S or N (AEAT codes ${code}).`, `/${name}`);
+    else if (v === "S" && r.type && !types.includes(r.type)) push("VF-037", `${name} is S on a ${r.type}; AEAT allows S only on ${types.join(", ")}.`, `Remove ${name} or change the invoice type (AEAT codes ${code}).`, `/${name}`);
+  }
+  // FacturasSustituidas belong to an F3 only (1116).
+  if (r.type && r.type !== "F3" && r.replaced.length) {
+    push("VF-025", `is ${r.type} but lists FacturasSustituidas.`, "Only an F3 (an invoice replacing simplified invoices) lists FacturasSustituidas (AEAT code 1116).", "/FacturasSustituidas");
+  }
+  // Recipients: who may receive which corrective type, and not the issuer itself.
+  r.recipients.forEach((d, i) => {
+    const p = `/Destinatarios/IDDestinatario[${i + 1}]`;
+    const t = d.other?.type;
+    if (r.type === "R3" && d.other && t !== "07") push("VF-039", `is an R3 (bad-debt correction) whose recipient ${i + 1} is identified by IDOtro type ${t ?? "?"}.`, "An R3 names the buyer by NIF or IDType 07 (not in the census) only (AEAT code 1191).", p);
+    if (r.type === "R2" && d.other && !["02", "07"].includes(t)) push("VF-039", `is an R2 (insolvency correction) whose recipient ${i + 1} is identified by IDOtro type ${t ?? "?"}.`, "An R2 names the buyer by NIF, IDType 02 (VAT number) or 07 (not in the census) only (AEAT code 1192).", p);
+    if (d.nif && r.id?.issuer && d.nif.toUpperCase() === r.id.issuer.toUpperCase()) push("VF-040", `recipient ${i + 1}'s NIF is the issuer's own (${d.nif}).`, "The buyer's NIF must differ from the issuer's (AEAT code 1193).", `${p}/NIF`);
+  });
+  // Issued by a third party or the recipient (1151, 1155, 1158, 1159, 1186, 1187, 1188, 1211).
+  if (r.issuedBy !== null && !["T", "D"].includes(r.issuedBy)) {
+    push("VF-041", `EmitidaPorTerceroODestinatario is "${r.issuedBy}", not T or D.`, "Write T (issued by a third party) or D (issued by the recipient) (AEAT code 1151).", "/EmitidaPorTerceroODestinatario");
+  }
+  if (r.issuedBy === "T" && !r.third) push("VF-041", "says the invoice was issued by a third party (EmitidaPorTerceroODestinatario T) but has no Tercero block.", "Identify the third party in Tercero (AEAT codes 1158, 1186).", "/Tercero");
+  if (r.third && r.issuedBy !== "T") push("VF-041", `has a Tercero block but EmitidaPorTerceroODestinatario is ${r.issuedBy ?? "absent"}, not T.`, "Fill Tercero only when a third party issued the invoice, with EmitidaPorTerceroODestinatario T (AEAT codes 1155, 1159, 1187).", "/Tercero");
+  if (r.third?.nif && r.id?.issuer && r.third.nif.toUpperCase() === r.id.issuer.toUpperCase()) push("VF-041", `the third party's NIF is the issuer's own (${r.third.nif}).`, "The third party (Tercero) is someone other than the issuer (AEAT code 1188).", "/Tercero/NIF");
+  if (r.third?.type === "07") push("VF-041", "the third party is identified as not in the census (IDType 07).", "A third party issuer cannot be IDType 07 (AEAT code 1211).", "/Tercero/IDOtro/IDType");
+
+  // Breakdown lines against AEAT's regime and qualification rules.
+  r.lines.forEach((l, i) => {
+    const p = `/Desglose/DetalleDesglose[${i + 1}]`;
+    const q = l.qualification, e = l.exempt;
+    const vatLike = l.tax === "01" || l.tax === "03";
+    const rate = num(l.rate), cuotaL = num(l.cuota), baseL = num(l.base), sRate = num(l.surchargeRate);
+    const reg = (code, msg, fix) => push("VF-038", `breakdown line ${i + 1}: ${msg}`, `${fix} (AEAT code ${code}).`, p);
+    if (vatLike && !l.regime) reg("1245", `tax ${l.tax} with no ClaveRegimen.`, "Write ClaveRegimen on every VAT or IGIC line");
+    // 1260 allows ClaveRegimen only on VAT and IGIC, but the later 2009 (record accepted, to
+    // be corrected) asks for it on IPSI (02) too; AEAT's list carries both, so IPSI is left out.
+    if (!vatLike && l.tax !== "02" && l.regime) reg("1260", `ClaveRegimen ${l.regime} on tax ${l.tax}, which takes none.`, "Write ClaveRegimen only on VAT (01) or IGIC (03) lines");
+    if (l.tax === "02" && !l.regime) push("VF-038", `breakdown line ${i + 1}: IPSI (tax 02) with no ClaveRegimen.`, "Write ClaveRegimen on an IPSI line; AEAT accepts the record but asks for a correction (AEAT code 2009).", p, { severity: "warning" });
+    if (l.regime === "02" && vatLike && q) reg("1286", `regime 02 (export) with CalificacionOperacion ${q}.`, "A regime 02 VAT or IGIC line is exempt: write OperacionExenta, not CalificacionOperacion");
+    if (l.regime === "20" && q !== "N2") reg("1293", `regime 20 with ${q || e || "no qualification"}.`, "Regime 20 lines carry CalificacionOperacion N2");
+    if (e === "E5" && l.tax === "01" && r.recipients.some((d) => d.nif)) reg("1289", "exemption E5 (intra-EU supply) with a recipient identified by Spanish NIF.", "An E5 line's buyer is identified by IDOtro only");
+    if (l.regime === "01" && vatLike && ["E2", "E3"].includes(e)) reg("1199", `general regime (01) with exemption ${e} (an export).`, "Exports (E2, E3) go under ClaveRegimen 02, not 01");
+    if (l.regime === "03" && q && q !== "S1") reg("1200", `regime 03 (second-hand goods) with ${q}.`, "Regime 03 lines are S1");
+    if (l.regime === "03" && e) reg("1200", `regime 03 (second-hand goods) on an exempt line (${e}).`, "Regime 03 lines are S1");
+    if (l.regime === "04" && q && q !== "S2") reg("1201", `regime 04 (investment gold) with ${q}.`, "Regime 04 lines are S2 or exempt");
+    if (l.regime === "06" && ["F2", "F3", "R5"].includes(r.type)) reg("1202", `regime 06 (VAT groups) on an invoice of type ${r.type}.`, "A regime 06 line cannot sit on an F2, F3 or R5");
+    if (l.regime === "06" && l.baseAtCost === null) reg("1202", "regime 06 (VAT groups) without BaseImponibleACoste.", "Write BaseImponibleACoste on a regime 06 line");
+    if (l.baseAtCost !== null && l.regime !== "06" && !["02", "05"].includes(l.tax)) reg("1257", `BaseImponibleACoste outside regime 06 (regime ${l.regime ?? "none"}, tax ${l.tax}).`, "BaseImponibleACoste goes only with ClaveRegimen 06 or tax 02 (IPSI) or 05 (other)");
+    if (l.regime === "07" && (["E2", "E3", "E4", "E5"].includes(e) || ["S2", "N1", "N2"].includes(q))) reg("1203", `regime 07 (cash accounting) with ${e || q}.`, "Regime 07 excludes E2-E5, S2, N1 and N2");
+    if (l.regime === "08" && q !== "N2") reg("1252", `regime 08 with ${q || e || "no qualification"}.`, "Regime 08 lines carry CalificacionOperacion N2");
+    if (l.regime === "10") {
+      if (q !== "N1") reg("1205", `regime 10 (collections for third parties) with ${q || e || "no qualification"}.`, "Regime 10 lines carry CalificacionOperacion N1");
+      if (r.type !== "F1") reg("1205", `regime 10 on an invoice of type ${r.type}.`, "Regime 10 goes on an F1");
+      if (!r.recipients.some((d) => d.nif)) reg("1205", "regime 10 with no recipient identified by NIF.", "Regime 10 names the buyer by NIF");
+    }
+    if (l.regime === "11" && q === "S1" && rate !== null && rate !== 21) reg("1206", `regime 11 (business premises lease) at ${l.rate}%.`, "Regime 11 lines are taxed at 21%");
+    if (l.regime === "14") {
+      if (r.type && !["F1", "R1", "R2", "R3", "R4"].includes(r.type)) reg("1148", `regime 14 (public works certification) on an invoice of type ${r.type}.`, "Regime 14 goes on F1 or R1-R4");
+      const od = iso(r.operationDate);
+      if (!od) reg("1147", "regime 14 with no FechaOperacion.", "Regime 14 needs FechaOperacion, later than the issue date");
+      else if (issued && od <= issued) reg("1147", `regime 14 with FechaOperacion ${r.operationDate} not after the issue date ${r.id.date}.`, "Regime 14 needs FechaOperacion later than the issue date");
+    }
+    if (q === "S2") {
+      if (r.type && !["F1", "F3", "R1", "R2", "R3", "R4"].includes(r.type)) push("VF-034", `breakdown line ${i + 1} is S2 (reverse charge) on an invoice of type ${r.type}.`, "A reverse-charge line goes on F1, F3 or R1-R4 (AEAT code 1197).", p);
+      if ((rate !== null && rate !== 0) || (cuotaL !== null && cuotaL !== 0)) push("VF-034", `breakdown line ${i + 1} is S2 (reverse charge, the buyer pays the tax) but carries rate ${l.rate} and tax ${l.cuota}.`, "Write TipoImpositivo 0 and CuotaRepercutida 0 on an S2 line (AEAT codes 1198 and 1207).", p);
+    }
+    if (cuotaL && baseL && Math.sign(cuotaL) !== Math.sign(baseL)) push("VF-035", `breakdown line ${i + 1}: CuotaRepercutida ${l.cuota} and BaseImponibleOimporteNoSujeto ${l.base} have opposite signs.`, "Tax and base carry the same sign; a refund makes both negative (AEAT code 1143).", p);
+    const atCost = num(l.baseAtCost);
+    if (cuotaL && atCost && Math.sign(cuotaL) !== Math.sign(atCost)) push("VF-035", `breakdown line ${i + 1}: CuotaRepercutida ${l.cuota} and BaseImponibleACoste ${l.baseAtCost} have opposite signs.`, "Tax and base at cost carry the same sign (AEAT code 1140).", p);
+    // Equivalence surcharge (1279, 1280 are VF-028; 1281, 1284 and the rate table here).
+    const hasRate = l.surchargeRate !== null, hasAmt = l.surcharge !== null;
+    if (hasRate !== hasAmt) push("VF-033", `breakdown line ${i + 1} has ${hasRate ? "TipoRecargoEquivalencia without CuotaRecargoEquivalencia" : "CuotaRecargoEquivalencia without TipoRecargoEquivalencia"}.`, "Write the surcharge rate and amount together (AEAT code 1284).", p);
+    if ((hasRate || hasAmt) && q && q !== "S1") push("VF-033", `breakdown line ${i + 1} carries an equivalence surcharge on a ${q} line.`, "The surcharge goes only on S1 lines (AEAT code 1281).", p);
+    if (l.tax === "01" && sRate !== null && rate !== null) {
+      const row = SURCHARGE_FOR_RATE.find((x) => x.rate === rate);
+      const allowed = row?.ok(opDate);
+      if (row && allowed && !allowed.includes(sRate)) push("VF-032", `breakdown line ${i + 1}: surcharge rate ${l.surchargeRate}% beside VAT ${l.rate}% on ${opDate ?? "an unknown date"}; AEAT accepts ${allowed.join(" or ")}%.`, `Use the surcharge rate that goes with the VAT rate on the operation's date (AEAT code ${row.code}).`, p);
+      if (row && !allowed) push("VF-032", `breakdown line ${i + 1}: VAT ${l.rate}% with an equivalence surcharge on ${opDate ?? "an unknown date"}, a date for which AEAT lists no surcharge rate at ${l.rate}%.`, `Check the VAT rate and the operation's date (AEAT code ${row.code}).`, p);
+    }
+  });
 }
 
 // Chain findings across every record of a batch. `all` holds { record, file } pairs.

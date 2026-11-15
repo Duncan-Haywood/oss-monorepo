@@ -101,6 +101,12 @@ class Venture:
     # to find a tractable item (run-record doc_friction on this file,
     # 2026-11-11: seven runs read rows 1-4 in full, then took a lower row).
     flagship_buildable: Optional[str] = None
+    # flagships.yaml `hosts: [<url>, ...]`: hosts the row's buildable items
+    # need. `--venture` probes them each run, because a prose "X answers 403"
+    # or "X serves files" note goes stale between sessions (13 reports in 4
+    # friction_rank clusters on this file, 2026-11-13..15: raw.pixls.us and
+    # archive.org each read both ways within a day).
+    flagship_hosts: list = field(default_factory=list)
 
     @property
     def flagship(self) -> bool:
@@ -319,6 +325,71 @@ def load_flagship_field(field: str, path: Path = FLAGSHIPS_PATH) -> dict[str, st
     }
 
 
+def load_flagship_hosts(path: Path = FLAGSHIPS_PATH) -> dict[str, list[str]]:
+    """{venture: [url, ...]} for flagships that set `hosts:` (a list, or URLs separated by spaces)."""
+    if not path.is_file():
+        return {}
+    out: dict[str, list[str]] = {}
+    for e in _load_yaml(path).get("flagships") or []:
+        if isinstance(e, dict) and e.get("venture") and e.get("hosts"):
+            raw = e["hosts"]
+            out[e["venture"]] = [str(h).strip() for h in (raw if isinstance(raw, list) else str(raw).split()) if str(h).strip()]
+    return out
+
+
+# Host names written into a row's prose (`buildable:`/`next:`) are probed too,
+# so a row that names a host without listing it in `hosts:` still gets a reading.
+# Only real TLDs, so file names (README.md, calc.mjs, flagships.yaml) never match.
+_HOST_RE = re.compile(
+    r"(?<![\w./@-])((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+"
+    r"(?:org|com|net|gov|edu|io|int|eu|uk|de|fr|it|es|nl|us|ca|au|ch|mx|br|pl|pt|ro|hr|app|dev|info))(?![\w-])",
+    re.I,
+)
+
+
+def row_hosts(v: "Venture") -> list[str]:
+    """Hosts to probe for flagship `v`: its `hosts:` URLs, then host names its prose names."""
+    seen: dict[str, str] = {}
+    for url in v.flagship_hosts:
+        name = re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
+        seen.setdefault(name, url if "://" in url else "https://" + url)
+    for text in (v.flagship_buildable or "", v.flagship_next or ""):
+        for m in _HOST_RE.finditer(text):
+            name = m.group(1).lower()
+            seen.setdefault(name, "https://" + name + "/")
+    return list(seen.values())
+
+
+def host_answers(url: str, timeout: float = 6, tries: int = 2) -> bool:
+    """True when `url` answers at all (any HTTP status, a 403 from the host included);
+    False when the connection or the egress proxy's CONNECT fails every try.
+    Same test as research/_shared/pick_track.py's, which the research HOSTS files use."""
+    import urllib.error
+    import urllib.request
+    for _ in range(tries):
+        try:
+            urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=timeout).close()
+            return True
+        except urllib.error.HTTPError:
+            return True
+        except Exception:
+            pass
+    return False
+
+
+def hosts_line(urls: list[str], answers=host_answers) -> str:
+    """One line saying which of `urls` answer from this session right now."""
+    if not urls:
+        return ""
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=min(8, len(urls))) as ex:
+        ok = list(ex.map(answers, urls))
+    parts = [re.sub(r"^[a-z]+://", "", u, flags=re.I).rstrip("/") + (" answers" if a else " REFUSED")
+             for u, a in zip(urls, ok)]
+    return ("hosts, probed just now (trust this over any 'answers 403' or 'serves files' note "
+            "in the row; reachability changes between sessions): " + "; ".join(parts))
+
+
 def load_inputs_only(path: Path = FLAGSHIPS_PATH) -> dict[str, str]:
     """{venture: what is missing} for flagships marked `inputs_only:`."""
     return load_flagship_field("inputs_only", path)
@@ -335,6 +406,7 @@ def load_ventures(
     flagships = load_flagships(flagships_path)
     inputs_only = load_inputs_only(flagships_path)
     buildable = load_flagship_field("buildable", flagships_path)
+    hosts = load_flagship_hosts(flagships_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -374,6 +446,7 @@ def load_ventures(
                 flagship_next=flag_next,
                 flagship_inputs_only=inputs_only.get(name) if flag_rank is not None else None,
                 flagship_buildable=buildable.get(name) if flag_rank is not None else None,
+                flagship_hosts=hosts.get(name, []) if flag_rank is not None else [],
             )
         )
     return ventures
@@ -514,7 +587,8 @@ def next_task(v: Venture) -> str:
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
             f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
-            f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks)."
+            f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
+            "`--park ITEM` moves an open item to the venture's NEXT.md when there is no room)."
         )
     if not v.measured:
         claim = v.untested_hypothesis
@@ -931,14 +1005,16 @@ def last_landed(name: str, boundary: Optional[set[str]] = None) -> Optional[str]
 def venture_report(name: str, ventures: list[Venture],
                    claims: Optional[dict[str, list]] = None,
                    landed: Optional[str] = None,
-                   now: Optional[datetime] = None) -> Optional[str]:
+                   now: Optional[datetime] = None,
+                   probe=None) -> Optional[str]:
     """One venture's row in full: rank, task with the untruncated flagship
     `next:`, open PRs with their ages and when work last landed.
 
     The table cuts each flagship's `next:` at FLAGSHIP_NEXT_CHARS, so runs
     grepped flagships.yaml for the rest, and `grep 'slug: <name>'` misses
     because the key is `venture:` (run-record doc_friction on this file,
-    2026-11-11). None when `name` is not a venture."""
+    2026-11-11). `probe(url) -> bool`, when given, is asked about each host
+    the row needs (`row_hosts`). None when `name` is not a venture."""
     now = now or datetime.now(timezone.utc)
     ranked = rank(ventures)
     pos = next((i for i, v in enumerate(ranked) if v.name == name), None)
@@ -952,6 +1028,10 @@ def venture_report(name: str, ventures: list[Venture],
                      + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else ""))
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
+        if probe is not None:
+            line = hosts_line(row_hosts(v), probe)
+            if line:
+                lines.append(line)
         lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
                      "so replace the item you land rather than appending)")
         lines.append(v.flagship_next or "(none written)")
@@ -1062,7 +1142,7 @@ def print_table(ventures: list[Venture], queue: list[dict],
         print(
             f"Start here: row {first[0]}, {first[1]} ({how} with no PR "
             f"opened in the last {CLAIM_FRESH_HOURS} h; `allocate.py --venture {first[1]}` "
-            "prints its full `next:`; a BUILDABLE HERE note says what a session can do with "
+            "prints its full `next:` and probes the hosts it needs; a BUILDABLE HERE note says what a session can do with "
             "no outside input; if every item needs a key, account, person or blocked host, add "
             "`inputs_only:` to its portfolio/flagships.yaml row in your PR and take the next "
             "row, so later runs are not sent there). Open your draft PR with the slug in its title "
@@ -1154,6 +1234,8 @@ def main(argv: Optional[list[str]] = None) -> int:
                         help="skip the shallow-clone fetch; 7-day commit counts may be partial")
     parser.add_argument("--no-claims", action="store_true",
                         help="skip the open-PR lookup (one `gh api` search) that marks rows already being worked")
+    parser.add_argument("--no-probe", action="store_true",
+                        help="with --venture: skip probing the hosts the flagship row needs")
     parser.add_argument("--venture", metavar="SLUG",
                         help="print one venture's row in full (untruncated flagship `next:`, open PRs, last landing)")
     args = parser.parse_args(argv)
@@ -1177,7 +1259,8 @@ def main(argv: Optional[list[str]] = None) -> int:
             if prs is not None:
                 claims_one = claims_by_venture([args.venture], prs)
         report = venture_report(args.venture, ventures, claims=claims_one,
-                                landed=last_landed(args.venture))
+                                landed=last_landed(args.venture),
+                                probe=None if args.no_probe else host_answers)
         if report is None:
             print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
             return 1

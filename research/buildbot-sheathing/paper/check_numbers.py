@@ -215,7 +215,7 @@ CHECKS = [
     # 5.6 Drake (milestone 6)
     (M6, "drake +0.00002 0.00142 0.00325 0.00466", "seated residual of 0.00142° (1σ; 0.00466° at most)"),
     (M6, "mujoco +0.00000 0.00001", "MuJoCo's 0.00001°"),
-    (M6, "worst |Drake - MuJoCo| = 0.06 points over 24 pipelines -> held (bar 10)", "**0.06 points** (bar 10)"),
+    (M6, "worst |Drake - MuJoCo| = 0.05 points over 24 pipelines -> held (bar 10)", "**0.05 points** (bar 10)"),
     (M6, "H34 held wrist: 70% of cells within max(0.005 deg, 10%) -> refuted", "70% of cells within tolerance"),
     (M6, "bow, theta0 +1.00 deg (predicted +/-0.1492) +0.1070 [+0.1386]", "0.107–0.123° in Drake and 0.139–0.145° in\nMuJoCo"),
     (M6, "bow, theta0 +0.25 deg (predicted +/-0.1492) +0.1233 [+0.1452]", "0.107–0.123° in Drake"),

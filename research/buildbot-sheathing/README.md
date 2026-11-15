@@ -130,14 +130,14 @@ correlation ±0.58), both unsourced.
 ![Dollars per clean sheet by robot class and house volume; which way is cheapest](experiments/m7_cost/figure.png)
 
 **Milestone 6 headline: do the MuJoCo results survive a second physics engine? Yes for clean
-sheets: Drake moves no ledger pipeline by more than 0.06 points.** Every simulated number above
+sheets: Drake moves no ledger pipeline by more than 0.05 points.** Every simulated number above
 came from one contact model, MuJoCo's soft contact. Milestone 6 rebuilt the ledger seat and the
 ledger slide in **Drake** (Toyota Research Institute's `MultibodyPlant`, point contact, the SAP
 solver of Castro et al. 2022) with the same sheet, contacts and holder law. A sheet released
 under a light press seats in both: Drake leaves **0.0014° (1σ, 0.0047° at most)** over 2,000
 random seats, a hundred times MuJoCo's 0.00001° but twenty times under the 0.03° a sheet may hang
 on single 2x joints, so all 24 of milestone 5's ledger pipelines keep their clean-sheet rates
-within **0.06 points** (the bar was 10). The press at which wall friction stops the ledger working
+within **0.05 points** (the bar was 10). The press at which wall friction stops the ledger working
 is **97–100%** of the closed form m g W / (2 μ r̄) in Drake and **87–99%** in MuJoCo: in MuJoCo wall
 friction starts holding the sheet at up to 13% less press, the cautious side for a press limit. The
 push height that tips a sliding sheet matches W / (2 μ_l) within 0.7% in Drake (1.6% in MuJoCo). Two things do depend on
@@ -854,12 +854,15 @@ python3 reproduce.py --check --quick        # re-run the ten numpy-only experime
 
 `--check` copies this project and its sibling `buildbot-*` projects to a temporary directory, so
 nothing committed is overwritten; it leaves out only wall-clock timings, and exits 1 if any other
-character of a results file differs. The per-experiment commands it wraps:
+character of a results file differs. As of milestone 26 all 22 experiments have been through it: every results
+file reproduces character for character under numpy 2.5.3, scipy 1.18.1 and MuJoCo 4.0.1, except
+that m6 needs Drake 1.51.1 (`pip install drake==1.51.1`; Drake 1.58 no longer has the TAMSI solver
+its section D compares). m6b and the Drake tests also pass on Drake 1.58. The per-experiment commands it wraps:
 
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 135 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, eight scipy
+python -m pytest -q tests                                    # 142 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, eight scipy
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -1076,13 +1079,13 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
   ledger** (1–3 mm over the sheet): the sheet follows it within 0.004° (Drake) and 0.0000°
   (MuJoCo). **Creep** under a stuck 400 N press: 4×10⁻⁵ °/s in Drake, 4×10⁻⁸ in MuJoCo.
 - **F. H-E:** seated residual sd 0.00142° (Drake) against 0.00001° (MuJoCo); the 24 ledger
-  pipelines' first-pass clean sheets differ by at most **0.06 points**. Cost: 0.11 s a Drake
-  seat, 0.025 s a MuJoCo seat (four processes).
+  pipelines' first-pass clean sheets differ by at most **0.05 points** (0.06 before milestone 26's re-run). Cost: 0.080 s a Drake
+  seat, 0.020 s a MuJoCo seat (four processes).
 - **G. Tip height:** Drake/closed form 0.995–1.007, MuJoCo 0.984–1.007.
 - **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H32 held (worst Drake/MuJoCo 12.7% at
   μ 0.5); H33 held (0.0025° at most, bar 0.005°); **H34 refuted** (70% of held-wrist cells within
   max(0.005°, 10%), bar 90%: the misses are Drake's 0.005–0.016° where the closed form says
-  zero); H35 held (0.06 points, bar 10); H36 held.
+  zero); H35 held (0.05 points, bar 10); H36 held.
 
 ## Milestone 7 results (`experiments/m7_cost/results.txt`)
 - **A. Dollars per clean sheet** (median [5%, 95%]) at 10 / 30 / 100 / 300 / 1,000 houses a year.

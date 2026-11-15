@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Who holds a claim when two sessions open a PR for the same item?
 
-    python3 portfolio/router/claim_check.py <keyword> [--pr N] [--hours 24]
+    python3 portfolio/router/claim_check.py <keyword> [--item "<words>"] [--pr N] [--hours 24]
 
 Run it right after you open your draft PR (title naming the slug, milestone
 or target), and again before you merge. Open that PR before exploring, not
@@ -24,6 +24,20 @@ for who steps back. Eighty-one run records on 2026-11-10 to 12 report this
 race in doc_friction (ventures, redteam, perf, process alike). A fixed rule
 read from live data settles it in one command: the later session learns
 within minutes, not after an hour of duplicate work.
+
+--item names the piece of the flagship you are taking ("deferred revenue
+module"). A large flagship (300 hours of work, many open items) has room for two
+sessions at once, but a slug-only check made every later one yield the whole
+product: four runs on 2026-11-13 and 14 overrode YIELD because the older PR
+worked another item (#15407, #15484, #15717, #15977; their run records'
+`deviations`), and all eight PRs merged (#15411, #15486, #15718, #15979 beside
+them). #15717 was a bare "claim (WIP)" later retitled to another product, so
+that yield guarded nothing. With --item, an older
+PR whose title names a *different* item is listed as SHARE, not a blocker; one
+that shares a word of your item, or names no item at all (a bare "x: claim"),
+still blocks. Without --item the check is slug-only, as before. The words
+are matched literally, so read the SHARE titles: a judgment the tool cannot
+make (overlapping files under different names) is yours.
 
 Your PR is found by --pr, or else by the current git branch (the PR whose
 head is this branch). Fork PRs never count as claims and are never yours.
@@ -58,13 +72,40 @@ def names(title: str, keyword: str) -> bool:
     return re.search(pat, title.lower()) is not None
 
 
+# Words a claim title carries whatever its item is; they never tell two items apart.
+GENERIC = frozenset("""claim claims wip draft post posts and the for with from into onto
+    over under via its new add adds fix fixes item items slice next more first round page
+    pages critique process ventures venture research polish perf quality redteam creative
+    explore review""".split())
+
+
+def item_words(text: str, keyword: str = "") -> set[str]:
+    """The words of `text` that could name an item: three letters or more, not
+    generic claim vocabulary, and not part of the slug itself."""
+    slug = set(re.findall(r"[a-z0-9]+", keyword.lower()))
+    return {w for w in re.findall(r"[a-z0-9]+", text.lower())
+            if len(w) >= 3 and w not in GENERIC and w not in slug}
+
+
+def overlap(title: str, keyword: str, item: str) -> str:
+    """How an older PR's title relates to my item: "same" (a shared word),
+    "bare" (it names no item, so it claims the whole slug) or "other"."""
+    theirs = item_words(title, keyword)
+    if not theirs:
+        return "bare"
+    return "same" if theirs & item_words(item, keyword) else "other"
+
+
 def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
            branch: Optional[str] = None, repo: str = REPO,
-           now: Optional[datetime] = None, hours: float = FRESH_HOURS) -> dict:
+           now: Optional[datetime] = None, hours: float = FRESH_HOURS,
+           item: Optional[str] = None) -> dict:
     """The verdict for `keyword` given open PRs as returned by the REST pulls list.
 
     Returns {"verdict": "HOLD"|"YIELD", "mine": pr|None, "older": [...],
-    "newer": [...]}, each pr a dict with number, title, created, branch."""
+    "newer": [...], "sharing": [...]}, each pr a dict with number, title,
+    created, branch. With `item`, older PRs on a different item go to
+    "sharing" and do not make the verdict YIELD."""
     now = now or datetime.now(timezone.utc)
     since = now - timedelta(hours=hours)
     rows = []
@@ -85,7 +126,12 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
     else:
         older = sorted((r for r in rivals if key(r) < key(me)), key=key)
         newer = sorted((r for r in rivals if key(r) > key(me)), key=key)
-    return {"verdict": "YIELD" if older else "HOLD", "mine": me, "older": older, "newer": newer}
+    sharing = []
+    if item and item_words(item, keyword):
+        sharing = [r for r in older if overlap(r["title"], keyword, item) == "other"]
+        older = [r for r in older if r not in sharing]
+    return {"verdict": "YIELD" if older else "HOLD", "mine": me, "older": older,
+            "newer": newer, "sharing": sharing}
 
 
 def open_prs(repo: str = REPO, timeout: int = 15) -> Optional[list[dict]]:
@@ -120,7 +166,7 @@ def _line(r: dict, now: datetime) -> str:
     return f"#{r['number']} (opened {r['created']}, {age_s} ago): {r['title']}"
 
 
-def claim_recipe(keyword: str) -> str:
+def claim_recipe(keyword: str, item: Optional[str] = None) -> str:
     """How to open a claim PR before there is anything to commit.
 
     A PR needs a commit, so sessions explored for 20 to 40 minutes before
@@ -130,26 +176,39 @@ def claim_recipe(keyword: str) -> str:
     chant-forge, league-schedule-generator, quick-pick-survey), and quality
     runs committed placeholder posts to claim a seed. An empty commit is
     enough to open the PR, and the squash merge drops it."""
-    return (f"No diff yet? Claim now: `git commit --allow-empty -m \"{keyword}: claim\"`, "
-            f"push, and open a draft PR whose title names '{keyword}' (the squash merge "
-            f"drops the empty commit), then `python3 portfolio/router/claim_check.py {keyword}`.")
+    it = item or "<item>"
+    return (f"No diff yet? Claim now: `git commit --allow-empty -m \"{keyword}: {it} (claim)\"`, "
+            f"push, and open a draft PR titled '{keyword}: {it}' (name the item, so a second "
+            f"session on another item can share the flagship; the squash merge drops the "
+            f"empty commit), then `python3 portfolio/router/claim_check.py {keyword} --item \"{it}\"`.")
 
 
-def report(result: dict, keyword: str, now: datetime, hours: float) -> list[str]:
+def report(result: dict, keyword: str, now: datetime, hours: float,
+           item: Optional[str] = None) -> list[str]:
     me, older, newer = result["mine"], result["older"], result["newer"]
+    sharing = result.get("sharing") or []
     lines = []
     if me is None:
         lines.append(f"Your PR: none found (pass --pr N, or open your draft PR naming '{keyword}' first).")
-        lines.append(claim_recipe(keyword))
+        lines.append(claim_recipe(keyword, item))
     else:
         lines.append("Your PR: " + _line(me, now))
     if older:
-        lines.append(f"YIELD: an older open PR claims '{keyword}' (opened first wins):")
+        what = f"'{keyword}' for your item or names no item" if item else f"'{keyword}'"
+        lines.append(f"YIELD: an older open PR claims {what} (opened first wins):")
         lines += ["  " + _line(r, now) for r in older]
+        if not item:
+            lines.append(f"  Working a different item of a large flagship? Rerun with --item \"<your item>\": "
+                         f"an older PR on another item then shares instead of blocking.")
         lines.append("Pick a different item, or help land that PR; if you already have work, "
                      "close yours as superseded after `portfolio/ledger/supersede_check.py`.")
     else:
-        lines.append(f"HOLD: no older open PR in the last {hours:g} h names '{keyword}'.")
+        lines.append(f"HOLD: no older open PR in the last {hours:g} h names '{keyword}'"
+                     + (f" for '{item}'." if item else "."))
+    if sharing:
+        lines.append(f"SHARE: older PRs on '{keyword}' that name a different item (read the titles; "
+                     f"keep out of their files):")
+        lines += ["  " + _line(r, now) for r in sharing]
     if newer:
         lines.append("Newer PRs on it (they should yield to yours):")
         lines += ["  " + _line(r, now) for r in newer]
@@ -160,6 +219,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("keyword", help="slug, milestone or target your PR title names")
+    ap.add_argument("--item", help="the flagship item you are taking; older PRs on other items then share")
     ap.add_argument("--pr", type=int, help="your PR number (default: the PR for the current branch)")
     ap.add_argument("--hours", type=float, default=FRESH_HOURS,
                     help=f"only PRs opened this recently count as claims (default {FRESH_HOURS})")
@@ -171,11 +231,12 @@ def main(argv: Optional[list[str]] = None) -> int:
         return 2
     now = datetime.now(timezone.utc)
     result = decide(prs, args.keyword, mine=args.pr,
-                    branch=None if args.pr else current_branch(), now=now, hours=args.hours)
+                    branch=None if args.pr else current_branch(), now=now, hours=args.hours,
+                    item=args.item)
     if args.json:
         print(json.dumps(result, indent=2))
     else:
-        print("\n".join(report(result, args.keyword, now, args.hours)))
+        print("\n".join(report(result, args.keyword, now, args.hours, args.item)))
     return 1 if result["verdict"] == "YIELD" else 0
 
 

@@ -106,6 +106,62 @@ export function repeatGuard(indexes, n) {
   };
 }
 
+// The shape-repeat check (pre-registered 2026-11-15, eval/shape-repeat-prereg-2026-11-15.md;
+// measured in eval/shape-repeat.mjs). The agreed changes cut the series into segments; each
+// segment of 4+ points becomes a 32-point z-normalised shape. Two segments match when their
+// lengths are within 1.5x and their shapes correlate at 0.8 or more; a segment repeats when it
+// matches 2 or more others; an agreed change is a repeat cut when the segments on both sides
+// repeat (the same waveform cut at the same phase, cycle after cycle). Returns the indexes kept
+// and dropped. Reads only the values and the agreed indexes.
+export const SHAPE_REPEAT = { points: 32, minLen: 4, lenRatio: 1.5, minCorr: 0.8, minMatches: 2 };
+export function segmentShape(seg, P = SHAPE_REPEAT.points) {
+  const m = seg.length;
+  if (m < SHAPE_REPEAT.minLen) return null;
+  const out = new Array(P);
+  if (m >= P) {
+    for (let b = 0; b < P; b++) {
+      const lo = Math.floor((b * m) / P), hi = Math.floor(((b + 1) * m) / P);
+      let s = 0; for (let i = lo; i < hi; i++) s += seg[i];
+      out[b] = s / (hi - lo);
+    }
+  } else {
+    for (let b = 0; b < P; b++) {
+      const t = (b * (m - 1)) / (P - 1), i = Math.floor(t), f = t - i;
+      out[b] = i + 1 < m ? seg[i] * (1 - f) + seg[i + 1] * f : seg[i];
+    }
+  }
+  const mu = out.reduce((s, v) => s + v, 0) / P;
+  const sd = Math.sqrt(out.reduce((s, v) => s + (v - mu) ** 2, 0) / P);
+  if (!(sd > 1e-12)) return null;
+  return out.map((v) => (v - mu) / sd);
+}
+export function shapeRepeats(values, indexes) {
+  const cuts = [...new Set(indexes)].filter((c) => c > 0 && c < values.length).sort((a, z) => a - z);
+  if (cuts.length < 3) return { kept: cuts, dropped: [], segments: cuts.length + 1 };
+  const bounds = [0, ...cuts, values.length];
+  const segs = [];
+  for (let k = 0; k + 1 < bounds.length; k++) {
+    const len = bounds[k + 1] - bounds[k];
+    segs.push({ len, shape: segmentShape(values.slice(bounds[k], bounds[k + 1])) });
+  }
+  const P = SHAPE_REPEAT.points;
+  const repeats = segs.map((a, i) => {
+    if (!a.shape) return false;
+    let hits = 0;
+    for (let j = 0; j < segs.length && hits < SHAPE_REPEAT.minMatches; j++) {
+      const b = segs[j];
+      if (j === i || !b.shape) continue;
+      if (Math.max(a.len, b.len) > SHAPE_REPEAT.lenRatio * Math.min(a.len, b.len)) continue;
+      let r = 0; for (let t = 0; t < P; t++) r += a.shape[t] * b.shape[t];
+      if (r / P >= SHAPE_REPEAT.minCorr) hits++;
+    }
+    return hits >= SHAPE_REPEAT.minMatches;
+  });
+  const kept = [], dropped = [];
+  cuts.forEach((c, k) => ((repeats[k] && repeats[k + 1]) ? dropped : kept).push(c));
+  return { kept, dropped, segments: segs.length };
+}
+
 export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
   return mergeConsensus(panel.map((p) => runSetting(base, p)), { tolerance });
 }

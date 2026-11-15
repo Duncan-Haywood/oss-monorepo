@@ -1901,7 +1901,11 @@ words (your rules and past filings, then the built-in keywords), else to
 `--other`, else to the account the merchant's name suggests; sales tax is shared
 over the accounts in proportion (largest remainder, cents add up) and a tip
 joins the biggest one. `--apply` posts it as a split (one account for
-everything is filed plainly). `--fix WORD=CODE` (repeatable) places any item whose words contain WORD; items placed by `--fix` or `--other` are learned under their own words on `--apply`, so the next receipt with them needs no flag (hand-written receipts only; CLI, not the page). The page shows a "Split by items" button under the matched table when a receipt's items fall in two or more accounts (clicked through in headless Chromium). Tried on hand-written receipts only, no real ones,
+everything is filed plainly). A bank line that pays several receipts at once (matched as a
+group) is split by every receipt's items together, from any of its receipt
+ids; when one of them has no usable item lines the split is refused (fixed
+2026-11-15: before, the other receipts' totals were posted as a "tip" on one
+account). `--fix WORD=CODE` (repeatable) places any item whose words contain WORD; items placed by `--fix` or `--other` are learned under their own words on `--apply`, so the next receipt with them needs no flag (hand-written receipts only; CLI, not the page). The page shows a "Split by items" button under the matched table when a receipt's items fall in two or more accounts (clicked through in headless Chromium). Tried on hand-written receipts only, no real ones,
 no foreign currency. Engine: `receipts.mjs`; kept in the books
 file, never in the journal. The page has a card for it (paste, read, tables;
 clicked through in headless Chromium with `eval/browser-click.mjs`). Receipts
@@ -2514,6 +2518,90 @@ at 3 of 196. Written looking at all SRD photos; SROIE's OCR is the held-out chec
 `--four-pass` not re-measured (no tesseract binary here). Per-photo lines and commands:
 [`eval/split-decimal-2026-11-15.md`](eval/split-decimal-2026-11-15.md). Test:
 `receipt-crosscheck.test.mjs` ("a total line with its decimal point lost ...").
+
+### Tax on receipt photos (2026-11-15)
+
+Flagship item (5). Earlier runs only measured the total. On the same 185 SRD photos that
+carry a tax, the page read **78 taxes right (42.2%)** and left 92 empty. Of the misses,
+31 had the right tax in another of the four readings, which the page never used, and 33
+had it in the text with nothing able to read it: `Taxes: 3.85`, `Tax 8.75% 1.11`,
+`TXTL .75`, `Tax 12,94`, and `Tax:: $0.70` overwritten by `Sbt1 w/Tax: $10.70` and then
+dropped.
+
+- **One text** (`readTax`): a rate beside the tax is not the amount, "Taxable" and
+  "w/Tax" lines are not tax lines, a printed "Total Tax" wins, and two tax lines (state
+  and resort, food and drink) are added when the subtotal plus their sum is the total.
+  A tax line that lost its decimal point is read with a note.
+- **Four readings** (`voteTax`): each reading's tax gets a vote, plus two when a subtotal
+  plus that tax is the total. A tax one digit off the total less the subtotal takes the
+  difference. A tax over 22% of the total is dropped. With no tax read anywhere, the
+  total less the subtotal is used when it is under 15% of the subtotal.
+- **The page** (`settleTax` in `photoocr.mjs`) writes the voted tax into the receipts
+  box as a `Tax` line and says so in the photo's status line.
+
+| SRD, 185 photos with a tax | before | now |
+|---|---|---|
+| page, tax right | 78 (42.2%) | **130 (70.3%)** |
+| page, tax wrong | 15 | 13 |
+| even / odd photos right | 40 / 38 | 63 / 67 |
+| page totals, SRD 196 (unchanged by construction) | 156 | 156 |
+| CORD tax, dataset's own text (train / validation / test) | 316 / 46 / 37 | 316 / 46 / 37 |
+
+The odd half is not a clean held-out test: the first listing of misses showed both halves.
+CORD's 404 labelled taxes did not move, and that set is a different country and layout.
+SROIE has no tax labels. The CLI's `--four-pass` takes the same path but was not
+re-measured (no tesseract binary here). Left: 28 photos with the tax nowhere in any
+reading, and receipts with two or three tax lines where OCR lost one. Details and
+commands: [`eval/receipt-tax-2026-11-15.md`](eval/receipt-tax-2026-11-15.md). Tests:
+`receipt-tax.test.mjs` (11).
+
+### Tax on receipt photos: misread labels and the arithmetic (2026-11-15)
+
+A second pass over the 55 SRD photos whose tax the page still missed. Five readable shapes:
+"Tax" with its first letter misread (`[ax 0.30`, `fax 1: 1.36`), an unlabelled amount that
+closes the subtotal to the total (`TAXABLE SALES $25.85`, `Go's THY $2.46`, total 28.31), a
+`Tax 2: 0.00` line read after `Tax 1: 6.35`, `Sub/Ttl` not known as a subtotal, and an
+amount column shifted up a line (`Tax $21.50`, then `$1.37`). `readTax` now reads each, only
+between the subtotal and the total and only when no real tax line is found, with a note
+asking for a check; `voteTax` breaks a tie between two subtotals one digit apart by how many
+readings read each.
+
+| | before | now |
+|---|---|---|
+| page, SRD tax right (185) | 130 (70.3%) | **136 (73.5%)** |
+| page, SRD tax wrong | 13 | 11 |
+| CORD tax, dataset's own text (train / validation / test), held out | 316 / 46 / 37 | **322 / 46 / 41** |
+| totals, SRD page and CORD | 156; 749 / 96 / 92 | unchanged |
+
+CORD's ten fixes are Indonesian restaurant-tax lines the reader did not know (`PB-1 10%
+2.818`, `P Resto 10% 3.273`, `PJR 4,909`) that close subtotal to total exactly. No receipt
+lost a right tax. SRD gains are in-sample; CORD is the held-out check. Details:
+[`eval/receipt-tax-labels-2026-11-15.md`](eval/receipt-tax-labels-2026-11-15.md). Tests:
+`receipt-tax.test.mjs` (17).
+
+### Tax on receipt photos: two and three tax lines (2026-11-15)
+
+US hotel, stadium and city receipts print the tax in two or three lines (state and resort,
+"IL Sales", "MPEA Tax", "Restaurant"), and OCR often keeps the amounts but loses the word
+tax on some of them. `readTax` now adds the lines touching a tax line (each with one
+amount; never a subtotal, total, tip, service charge, rounding, fee, carry-out or payment
+line) when a subtotal, or the items above them, plus their sum is exactly the total, with a
+note asking for a check. A "Total" printed before a tip counts as the total for that sum,
+and across the page's four readings a reading's added tax lines can be checked against a
+subtotal another reading found (`voteTax`).
+
+| | before | now |
+|---|---|---|
+| page, SRD tax right (185) | 136 (73.5%) | **138 (74.6%)** |
+| page, SRD tax wrong | 11 | 9 |
+| CORD tax (train / validation / test), held out | 322 / 46 / 41 | 322 / 46 / 41 |
+| totals, SRD page and CORD | 156; 749 / 96 / 92 | unchanged |
+
+Both SRD fixes (1173, 1182) are in-sample. CORD's training split caught the first version
+adding Indonesian service charges and rounding lines as tax (seven right taxes broken);
+those words are excluded and CORD is back where it was. 1142 and 1198 are OCR-bound.
+Details: [`eval/receipt-tax-lines-2026-11-15.md`](eval/receipt-tax-lines-2026-11-15.md).
+Tests: `receipt-tax.test.mjs` (21).
 
 ## Budget against actual
 

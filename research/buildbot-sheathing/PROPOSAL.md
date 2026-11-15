@@ -210,7 +210,7 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    time for each stage.
 6. **Sim-to-sim on a second contact model** (done 2026-11-12, `experiments/m6_drake/`): the
    ledger seat and slide rebuilt in Drake (SAP). Clean sheets of all 24 ledger pipelines agree
-   within 0.06 points (H-E held); Drake's press thresholds sit at 97–100% of the closed form,
+   within 0.05 points (H-E held); Drake's press thresholds sit at 97–100% of the closed form,
    MuJoCo's at 87–99%. Still open: how far a bowed bottom edge rocks the sheet (0.11–0.15°,
    model-dependent).
    **6b. The bowed bottom edge** (done 2026-11-13, `experiments/m6b_bowed_edge/`): modelled as a
