@@ -2,7 +2,7 @@
 title: "The battery map needed the size of the loss, not its order"
 date: 2026-11-15
 tags: [cell-fidelity, batteries, simulation, pybamm, lithium-plating, capacity-fade, pre-registration]
-seo_title: "Predicting 100-cycle Li-ion fade from ten DFN cycles: a self-limiting correction"
+seo_title: "Li-ion fade from ten DFN cycles: a self-limiting loss correction"
 description: "A two-constant correction of a ten-cycle lithium-loss forecast lets a balance map rank 100-cycle DFN energy at 0.92 to 0.96 on fresh designs."
 ---
 
