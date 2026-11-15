@@ -1,0 +1,77 @@
+Milestone 6y: a sixth gear-pump family (Bosch Rexroth AZPN) held out from every fit, then six families crossed (moving shape x idle drag), rules refitted on 36 cells and tested leave-one-family-out
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps: Casappa KAPPA K 05 T A (6k), Danfoss SNP3 (6m), Marzocchi ALP3 (6o), Frosina, Senatore, Rigosi 2017 bench KP30 (6p, 6q), Bosch Rexroth AZPG RE 10093 (6w), Bosch Rexroth AZPN RE 10091/2024-11-18 (6y))
+
+AZPN at 2100 r/min, from the digitised curves (sizes 20 to 36 cm3/r):
+  size  V cm3/r  Q20 L/min  Q20/geometric  eta_t(100)  eta_t(150)  eta_t(200)
+    20     20.0      42.55         1.0130      0.9176      0.9214      0.9184
+    22     22.5      48.02         1.0163      0.9135      0.9189      0.9175
+    25     25.0      53.56         1.0202      0.9405      0.9428      0.9393
+    28     28.0      58.92         1.0021      0.9088      0.9121      0.9079
+    32     32.0      67.15         0.9992      0.8921      0.8947      0.8886
+    36     36.0      75.58         0.9997      0.9171      0.9250      0.9229
+  largest size gives 75.58 L/min of 20 bar flow, so at 85 L/min the family is read at size 36's per-unit values
+
+Families (index 2 = eta_t(150 bar) at 85 L/min of 20 bar flow; size slope k = eta(150 L/min)/E - 1; idle kW at 85 L/min):
+  family     index 2  size slope k  idle kW
+  casappa    0.7590       +0.0334     3.57
+  danfoss    0.8481       -0.0283     3.64
+  marzocchi  0.8975       -0.0872     3.32
+  bench      0.9130       +0.0000     2.85
+  rexroth    0.9124       -0.0005     2.58
+  azpn       0.9587       -0.0352     2.49
+
+(i) AZPN as a held-out family, rules as 6x committed them:
+  E50 (own shape, own drag) 0.8342
+  two-number 0.8241 + 0.0179 (2.49 - 3.57) = 0.8049; error +0.0293
+  one-number 0.8172; error +0.0170
+  diagnostics: AZPN shape with Casappa drag 0.8538, with AZPG drag 0.8357; Casappa shape with AZPN drag 0.8106; AZPG shape with AZPN drag 0.8037
+
+50% crossing E50 of the share beating 3.986 L/h at S = 0.38 (rows: moving shape; columns: idle drag; E step 0.0025 from 0.70):
+  shape \ idle    casappa    danfoss  marzocchi      bench    rexroth       azpn   row mean
+  casappa          0.8277     0.8283     0.8300     0.8172     0.8108     0.8106     0.8208
+  danfoss          0.8217     0.8297     0.8217     0.8100     0.8042     0.8033     0.8151
+  marzocchi        0.8175     0.8214     0.8193     0.8069     0.8010     0.8004     0.8111
+  bench            0.8216     0.8214     0.8231     0.8116     0.8057     0.8050     0.8147
+  rexroth          0.8207     0.8220     0.8225     0.8108     0.8040     0.8037     0.8139
+  azpn             0.8538     0.8595     0.8534     0.8415     0.8357     0.8342     0.8463
+  column mean      0.8272     0.8304     0.8283     0.8163     0.8102     0.8095
+  all 36 cells 0.8004 to 0.8595; shape main effect 0.0353, drag main effect 0.0209
+Check: the 25 five-family cells against 6x (25 read): largest difference 0.0000
+
+Rules fitted on all 36 cells (least squares):
+  one-number   a 0.8203; in-sample RMS 0.0148, worst +0.0392
+  two-number   a 0.7634, b +0.0185 per kW; in-sample RMS 0.0122, worst +0.0288
+  two-number fit as E50 = 0.8295 + 0.0185 (kW - 3.57) (6x: 0.8241 + 0.0179 (kW - 3.57))
+  6x's committed rule on the 36 cells: RMS 0.0132, worst +0.0342
+
+Leave-one-family-out (fit on the 25 cells with neither shape h nor drag h; error = cell minus prediction):
+  held out   diagonal E50   one-number  two-number   11-cell RMS: one  two   two-number fit (a at 3.57 kW, b)
+  casappa          0.8277      +0.0089     -0.0032   0.0123 0.0096   0.8309, +0.0203
+  danfoss          0.8297      +0.0102     -0.0024   0.0147 0.0112   0.8309, +0.0187
+  marzocchi        0.8193      -0.0013     -0.0065   0.0141 0.0116   0.8302, +0.0177
+  bench            0.8116      -0.0107     -0.0056   0.0121 0.0100   0.8309, +0.0190
+  rexroth          0.8040      -0.0197     -0.0088   0.0150 0.0104   0.8309, +0.0182
+  azpn             0.8342      +0.0169     +0.0294   0.0243 0.0232   0.8241, +0.0179
+  RMS over the six held-out diagonals: one-number 0.0127, two-number 0.0131
+  RMS over all 66 held-out cell predictions: one-number 0.0160, two-number 0.0135
+
+Predictions (LOG.md 6y):
+  AY1 AZPN within 0.010 of 6x's two-number rule: refuted (+0.0293)
+  AY2 two-number error smaller than one-number: refuted (0.0293 against 0.0170)
+  AY3 AZPN idle kW outside 2.58 to 3.64: held (2.49)
+  AY4 AZPN index 2 within 0.020 of the AZPG's 0.9124: refuted (0.9587, +0.0463)
+  AY5 36-cell slope in 0.016 to 0.021 per kW: held (0.0185)
+  AY6 six-fold held-out diagonal RMS, two-number below 0.005 and below one-number: refuted (0.0131 against 0.0127)
+
+(iii) Post hoc (found after the run, not registered): gear_pump_shape.index2 interpolates eta(150 bar) over the sizes' 20 bar flows
+  and extrapolates linearly past the largest size, while Gear (the model) holds the largest size's per-unit values there.
+  AZPN: eta(150) 0.8947 at 67.15 L/min (size 32) and 0.9250 at 75.58 L/min (size 36); index 2 extrapolated to 85 L/min 0.9587; the model's own efficiency there 0.9250
+  the five other families reach 85 L/min, so the two readings agree for them: largest difference 0.0000
+  with the model's efficiency as the index: AZPN E50 0.8050 (registered reading 0.8342; ratio of the indices 0.9648, crossings 0.9650)
+  6x's two-number rule 0.8049: error +0.0001; one-number 0.8172: error -0.0122
+  AZPN shape row with this index: casappa 0.8237, danfoss 0.8289, marzocchi 0.8232, bench 0.8125, rexroth 0.8065, azpn 0.8050
+  two-number on 36 cells: E50 = 0.8245 + 0.0183 (kW - 3.57), in-sample RMS 0.0037
+  leave-one-family-out two-number diagonal errors: casappa +0.0029, danfoss +0.0036, marzocchi -0.0005, bench +0.0003, rexroth -0.0030, azpn +0.0002
+  RMS over the six held-out diagonals: one-number 0.0120, two-number 0.0023
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0); Casappa KAPPA K 05 T A (2012); Danfoss SNP3; Marzocchi ALP3; Frosina et al. 2017; Bosch Rexroth RE 10093/2019-09-27 (AZPG); Bosch Rexroth RE 10091/2024-11-18 (AZPN); PVG 32 neutral curve; Moore 2020 (idle share).
