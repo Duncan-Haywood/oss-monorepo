@@ -373,7 +373,8 @@ export function planMarkdown(raw) {
     cost: 0, salvage: 0, dispersion: 0.25, decay: 1, maxDiscount: 60, step: 10, floorPrice: 0, changeCost: 0,
     simRuns: 4000, seed: 20260930, ...raw,
   };
-  inp.elasticity = Math.min(inp.elasticity, -0.05);
+  // Clamp only a valid (negative) elasticity: a positive or zero one must reach validate() and its error.
+  if (inp.elasticity < 0) inp.elasticity = Math.min(inp.elasticity, -0.05);
   const errors = validate(inp);
   if (errors.length) return { error: errors[0], errors };
   const warnings = [];
