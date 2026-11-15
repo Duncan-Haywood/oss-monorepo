@@ -481,6 +481,7 @@
     "lift_jam_rest_ms": 2000.0,
     "lift_jam_retries": 1,
     "lift_blank_factor": 3.0,
+    "lift_ramp_ms": 100.0,
     "ball_k_n_m": 14300.0,
     "lift_slip_nm": 0.9,
     "lift_slip_tol": 0.2,
@@ -512,6 +513,21 @@
     "lift_coupler_spider": 4.0,
     "lift_coupler_nm": 2.0,
     "lift_coupler_factor": 1.5,
+    "lift_coupler_k_nm_rad": 20.0,
+    "lift_coupler_k_sweep": [
+      5.0,
+      20.0,
+      80.0
+    ],
+    "lift_coupler_backlash_deg": 1.0,
+    "lift_coupler_backlash_sweep": [
+      0.0,
+      1.0,
+      3.0,
+      5.0
+    ],
+    "lift_coupler_zeta": 0.06,
+    "lift_coupler_hub_l": 10.5,
     "lift_shaft_clear": 1.5,
     "lift_shaft_allow_mpa": 80.0,
     "lift_shaft_static_mpa": 120.0,

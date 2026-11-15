@@ -154,6 +154,14 @@ balls fed do not restart it. The drill runner logs the flag once and carries
 on. Wiring: `hardware/electronics.md`, "Lift jam cutoff"; numbers:
 `cad/README.md`, "Lift jam cutoff", and `tests/lift_jam_sweep.py`.
 
+**Lift soft start (2026-11-15).** Every lift start, the first and each retry
+after a trip, ramps the duty from 10% to `LIFT_DUTY` over `LIFT_RAMP_MS`
+(100 ms) in 10 ms ticks, inside the 400 ms jam blanking. The jaw coupling
+between the gearmotor and the drive shaft is a spring with free play; a
+switched start rang it to 2.3 times the start torque and, with a hard, worn
+spider, slipped the pulley's hub on an empty belt. `LIFT_RAMP_MS = 0` gives the
+old switched start. Numbers: `cad/README.md`, "Lift coupling dynamics".
+
 **Lowering a wheel's speed: brake or coast (2026-11-14).** `SpinupRamp` lowers
 a target at the same capped power it raises one, so an ESC that brakes sends
 up to about 170 W back to the pack. `FeederHw.update` allows that only while

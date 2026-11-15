@@ -196,7 +196,8 @@ class FeederHw:
         self.lift_pwm = PWM(Pin(LIFT_PIN), freq=20000, duty_u16=0)
         self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0),
                                        getattr(config, "LIFT_JAM_BLANK_MS", 400), getattr(config, "LIFT_JAM_TRIP_MS", 10),
-                                       getattr(config, "LIFT_JAM_REST_MS", 2000), getattr(config, "LIFT_JAM_RETRIES", 1))
+                                       getattr(config, "LIFT_JAM_REST_MS", 2000), getattr(config, "LIFT_JAM_RETRIES", 1),
+                                       getattr(config, "LIFT_RAMP_MS", 0))
         self.lift_sense = Pin(LIFT_SENSE_PIN, Pin.IN, Pin.PULL_UP)
         # Hopper agitator (cad/README.md, "Hopper agitator"): a gearmotor on a MOSFET (GPIO 2, PWM) stirs the tub's
         # outlet while balls are being fed, so a bridge of balls over it cannot leave the column empty.

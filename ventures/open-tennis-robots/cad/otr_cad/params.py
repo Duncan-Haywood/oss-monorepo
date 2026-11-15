@@ -1094,6 +1094,8 @@ class Feeder:
     lift_jam_rest_ms: float = 2000.0  # config LIFT_JAM_REST_MS: off this long before a retry
     lift_jam_retries: int = 1         # config LIFT_JAM_RETRIES: then it stays off (FLAG_LIFT_JAM) until the bus drops
     lift_blank_factor: float = 3.0    # blanking over the longest a normal start stays over the trip current
+    lift_ramp_ms: float = 100.0       # config LIFT_RAMP_MS: each start ramps the duty up this long (2026-11-15, the jaw
+                                      # coupling's play rang a switched start to 2.3x its torque; tests/lift_jam_sweep.py)
     ball_k_n_m: float = 14300.0       # a ball's stiffness: ITF forward deformation 5.6-7.4 mm under 8.165 kg; the stiff end
     # Lift slip coupling (2026-11-15, `lift_slip_design`, `check_lift_slip`; cad `lift_slip_hub`; tests/lift_jam_sweep.py).
     # The cutoff stops a held stall, but the gearmotor's rotor (18 kg at the belt through 30:1) met a jammed ball within
@@ -1140,6 +1142,15 @@ class Feeder:
     lift_coupler_spider: float = 4.0  # the spider's gap between the two hubs' bores
     lift_coupler_nm: float = 2.0      # its rated torque (20 mm aluminium jaw class, assumption: read yours)
     lift_coupler_factor: float = 1.5  # rated torque over the slip hub's highest sticking torque
+    # Coupling dynamics (2026-11-15, `lift_coupler_model`; tests/lift_jam_sweep.py, a three-inertia plant). The spider
+    # is an elastomer spring between the rotor (through the gearbox) and the drive shaft, and a worn or loose spider
+    # leaves a gap the jaws cross before they bite. Every figure is an assumed class figure, swept in the test.
+    lift_coupler_k_nm_rad: float = 20.0   # torsional stiffness, 20 mm jaw with a 92-98 Shore A spider (assumption)
+    lift_coupler_k_sweep: tuple = (5.0, 20.0, 80.0)   # soft spider to a hard one, N m/rad
+    lift_coupler_backlash_deg: float = 1.0   # total free play at the output: a used spider (assumption; 0 new, preloaded)
+    lift_coupler_backlash_sweep: tuple = (0.0, 1.0, 3.0, 5.0)   # 5: a worn spider plus the gearbox's own play
+    lift_coupler_zeta: float = 0.06   # the spider's damping ratio (relative damping about 0.75, polyurethane; assumption)
+    lift_coupler_hub_l: float = 10.5  # each aluminium hub's length (the bore length above)
     lift_shaft_clear: float = 1.5     # coupling to the bearing's flange, and to the gearmotor's face at least
     lift_shaft_allow_mpa: float = 80.0  # stainless D shaft in rotating bending at the running load (fatigue; assumption)
     lift_shaft_static_mpa: float = 120.0  # at a jam's load: a few turns while the hub slides, so against yield
@@ -3987,6 +3998,9 @@ class Feeder:
                        f"{c['start_over_s'] * 1000:.0f} ms a start stays over the trip current: it would trip on starting")
         if c["shunt_stall_w"] > self.lift_shunt_w:
             bad.append(f"lift shunt takes {c['shunt_stall_w']:.1f} W at stall, over its {self.lift_shunt_w:g} W")
+        if 2 * self.lift_ramp_ms > self.lift_jam_blank_ms:
+            bad.append(f"lift soft start's {self.lift_ramp_ms:g} ms ramp is over half the {self.lift_jam_blank_ms:g} ms "
+                       f"blanking: the motor would reach full duty with too little blanking left to settle")
         if self.lift_jam_trip_ms < 10.0:
             bad.append("lift jam cutoff needs over-current on two ticks (10 ms) so one stray reading cannot trip it")
         return bad
@@ -4156,6 +4170,41 @@ class Feeder:
             "gm_allow_nm": self.gm_radial_n * self.gm_radial_at / 1000,
             "old_gm_ratio": f_jam * rigid_arm / (self.gm_radial_n * self.gm_radial_at),
         }
+
+    def lift_coupler_model(self) -> dict:
+        """The drive shaft's side of the jaw coupling as an inertia, and the coupling as a spring with a gap
+        (2026-11-15; cad/README.md "Lift coupling dynamics"; tests/lift_jam_sweep.py).
+
+        Three inertias: the rotor through the gearbox (`j_motor`); the drive shaft with what is keyed to it
+        (`j_shaft`: the 6 mm D shaft, the coupling's far aluminium hub, the slip hub's two steel plates and two
+        collars, all as solid discs or tubes, the spider counted half); the pulley, belt, caps and balls (`j_belt`).
+        The coupling joins the first two: torque k (twist - gap / 2) once the jaws touch, nothing inside the gap, plus
+        the spider's damping on the coupled mode. The slip hub joins the last two. `f_*_hz` are the drive's torsional
+        modes: with the hub stuck (rotor against shaft and belt) and sliding (rotor against the shaft alone)."""
+        steel, alu, pu = 7900.0, 2700.0, 1200.0
+        g = self.lift_shaft_geometry()
+
+        def disc(rho, od, idd, l):                    # mm in, kg m^2 out
+            ro, ri, l = od / 2000, idd / 2000, l / 1000
+            m = rho * math.pi * (ro * ro - ri * ri) * l
+            return 0.5 * m * (ro * ro + ri * ri)
+
+        parts = {
+            "shaft": disc(steel, 6.0, 0.0, g["shaft_mm"]),
+            "coupler_hub": disc(alu, self.lift_coupler_d, 6.0, self.lift_coupler_hub_l),
+            "spider_half": 0.5 * disc(pu, self.lift_coupler_d, 6.0, self.lift_coupler_spider),
+            "plates": 2 * disc(steel, self.lift_slip_od, 6.0, self.lift_slip_plate_t),
+            "collars": 2 * disc(steel, self.lift_slip_collar_d, 6.0, self.lift_slip_collar_w),
+        }
+        j_s = sum(parts.values())
+        s = self.lift_slip_design()
+        j_m, j_b = s["j_motor"], s["j_belt"]
+        k = self.lift_coupler_k_nm_rad
+        stuck = math.sqrt(k * (1 / j_m + 1 / (j_s + j_b))) / (2 * math.pi)
+        sliding = math.sqrt(k * (1 / j_m + 1 / j_s)) / (2 * math.pi)
+        return {"j_motor": j_m, "j_shaft": j_s, "j_belt": j_b, "parts": parts, "k_nm_rad": k,
+                "backlash_rad": math.radians(self.lift_coupler_backlash_deg), "zeta": self.lift_coupler_zeta,
+                "f_stuck_hz": stuck, "f_sliding_hz": sliding}
 
     def lift_shaft_geometry(self) -> dict:
         """Positions along y for `lift_shaft_design` (geometry only, so the cable route can use it without the motor
