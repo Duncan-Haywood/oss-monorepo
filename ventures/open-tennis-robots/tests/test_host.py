@@ -451,3 +451,69 @@ class TelemetryTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LiftJamTest(unittest.TestCase):
+    """The ball lift's jam cutoff (2026-11-15, cad/README.md "Lift jam cutoff"): the real board layer reading the
+    comparator on GPIO 0, and the plant model in tests/lift_jam_sweep.py."""
+
+    def _beat(self, sim, ms):
+        for _ in range(ms // 100):
+            sim.write(P.encode(P.HEARTBEAT))
+            sim.run_ms(100)
+
+    def test_board_cuts_retries_reports_and_clears_on_the_estop(self):
+        sim = SimFeeder()
+        self._beat(sim, 400)
+        hw = sim.hw
+        hw.lift.kick(sim.us // 1000)
+        sim.lift_over = True                         # stalled from the start: a ball wedged in the boot
+        self._beat(sim, 200)
+        self.assertEqual(hw.lift_pwm.duty, 65535)    # blanked
+        self._beat(sim, 200)
+        self.assertEqual(hw.lift_pwm.duty, 0)        # cut
+        self.assertFalse(hw.flags() & P.FLAG_LIFT_JAM)
+        self._beat(sim, 2500)                        # rest, retry, second stall
+        self.assertEqual(hw.lift_pwm.duty, 0)
+        self.assertTrue(hw.flags() & P.FLAG_LIFT_JAM)
+        sim.lift_over = False
+        sim.write(P.encode(P.ESTOP))                 # the Pi's ESTOP frame and its clear do not reset it
+        sim.run_ms(10)
+        sim.write(P.encode(P.CLEAR_ESTOP))
+        self._beat(sim, 200)
+        self.assertTrue(hw.flags() & P.FLAG_LIFT_JAM)
+        sim.estop_button = True                      # a person presses the e-stop: the contactor drops the bus
+        self._beat(sim, 200)
+        sim.estop_button = False
+        sim.write(P.encode(P.CLEAR_ESTOP))
+        self._beat(sim, 400)
+        self.assertFalse(hw.flags() & P.FLAG_LIFT_JAM)
+        hw.lift.kick(sim.us // 1000)
+        self._beat(sim, 100)
+        self.assertEqual(hw.lift_pwm.duty, 65535)    # runs again
+
+    def test_drill_carries_on_and_warns_once(self):
+        sim = SimFeeder()
+        sim.hw.lift.jammed = True
+        logs = []
+        res, _ = run(sim, drill(), log=logs.append)
+        self.assertTrue(res.ok, res.aborted)
+        self.assertEqual(len(res.shots), 4)
+        self.assertEqual(len(res.warnings), 1)
+        self.assertEqual(sum("lift jammed" in line for line in logs), 1)
+
+    def test_starts_never_trip_and_jams_are_cut(self):
+        import lift_jam_sweep as sweep
+        for name, v, rise in sweep.CORNERS:
+            tripped, over_ms, speed = sweep.start(v, rise, 2.0, "lo")    # the slowest start against the lowest trip
+            self.assertFalse(tripped, name)
+            self.assertLess(over_ms, _feeder().lift_jam_blank_ms / 2, name)
+            for where in sweep.WHERE:
+                r = sweep.jam(v, rise, 1.0, "hi", where)                  # the highest trip
+                self.assertIsNotNone(r["cut_ms"], (name, where))
+                self.assertLess(r["cut_ms"], 100, (name, where))
+                self.assertIsNotNone(r["jammed_ms"], (name, where))
+                self.assertLess(r["jammed_ms"], 3000, (name, where))
+                off = sweep.jam(v, rise, 1.0, "hi", where, cutoff=False)
+                self.assertLess(r["winding_j"], off["winding_j"] / 10, (name, where))
+                self.assertLess(r["peak_n"], _feeder().lift_jam_cutoff()["weld_allow_n"], (name, where))

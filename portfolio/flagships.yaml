@@ -351,10 +351,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): a lift jam cutoff (the lift gearmotor runs from a
-      MOSFET on GPIO 16 with no current sense, and a stalled jam puts 118 N on
-      one flight cap, cad/README.md "Flight caps"): a shunt or sense input, a
-      firmware stall trip in LiftRun, its CAD and power line.
+      venv, about 2 min): the lift's jam impact (cad/README.md "Lift jam cutoff"):
+      the cutoff stops a held stall, but the gearmotor rotor's inertia (18 kg at the
+      belt, assumed) puts 149-172 N on one flight cap in a boot jam at a full pack,
+      over the cap's 156 N. A torque-limiting slip coupling between the gearmotor
+      and the drive pulley (its CAD, slip torque over the full belt's 0.13 N m), or
+      a soft-start retry; rerun tests/lift_jam_sweep.py with it.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -375,15 +377,15 @@ flagships:
       on the shuttle and the servo's loaded stroke time and stall current; click the
       home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
       stop with a scale; hang a real hose from a tube; bend a built cable loop
-      through the actuator's travel. Stepper ENABLE on GPIO 5 after an opto on the
-      contactor's coil (GPIO 15) landed 2026-11-14: contactor makes 12-29 A in the
-      sweep, a 10 ms bounce re-closes at 5-21 A; scope a real contactor's pull-in
-      and bounce. Regen, then brakes and bounces in a row (700 mV guard band),
-      landed 2026-11-14 (cad/README.md): scope the bus on a 20% slow-down; log a
-      real ESC braking and the battery reading noise. Lift tensioner and flight caps
-      landed 2026-11-13/15 (cad/README.md): weigh a real belt, pluck a strand; drag
-      one capped cleat over a strip. Pot pickup from the PWM landed 2026-11-14 (1 uF
-      on GPIO 39, trimmed reads): scope GPIO 39 at part duty. Actuator's lead landed
+      through the actuator's travel. Stepper ENABLE after the contactor landed
+      2026-11-14: scope a real contactor's pull-in and bounce. Regen, then brakes
+      and bounces in a row (700 mV guard band), landed 2026-11-14 (cad/README.md):
+      scope the bus on a 20% slow-down; log a real ESC braking and the battery
+      reading noise. Lift tensioner, flight caps and jam cutoff landed 2026-11-13/15
+      (cad/README.md): weigh a real belt, pluck a strand; drag a capped cleat over a
+      strip; scope the lift shunt on a start and a held stall; read the real
+      gearmotor's rotor inertia. Pot pickup from the PWM landed 2026-11-14 (1 uF on
+      GPIO 39, trimmed reads): scope GPIO 39 at part duty. Actuator's lead landed
       2026-11-14 (cad/README.md "The elevation actuator's lead"): cut 220 mm,
       209-231 fits; find where a real actuator's cable leaves its housing and bend a
       built lead through the travel.

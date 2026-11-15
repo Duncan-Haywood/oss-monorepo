@@ -1067,6 +1067,34 @@ class Feeder:
     lift_cap_pin_y: float = 7.0       # and this far either side of the ball line
     lift_stall_factor: float = 2.5    # gearmotor's stall torque over its rated (assumption: read yours); a jam meets it
     lift_cap_allow_mpa: float = 20.0  # bending stress allowed in a printed PETG plate printed flat (assumption)
+    # Lift jam cutoff (2026-11-15, `lift_jam_cutoff`, `check_lift_jam`; firmware `controller.LiftRun`, config LIFT_JAM_*;
+    # tests/lift_jam_sweep.py). A ball caught at a pulley stalls the gearmotor, and a MOSFET with nothing watching it
+    # holds the stall (118 N on one flight cap, 5.5 A in the winding) for the whole run-on, restarted by every ball fed;
+    # the 3 A branch fuse at 1.8x its rating may take seconds or never open once the winding warms. A 0.05 ohm shunt in
+    # the MOSFET's source, an RC filter and an LM393 comparator against a divider from 3.3 V pull GPIO 0 low while the
+    # motor draws more than the trip current; the firmware cuts the motor when that lasts LIFT_JAM_TRIP_MS, ignoring
+    # the first LIFT_JAM_BLANK_MS of each start (a motor starts at stall current). Motor figures are assumptions.
+    lift_motor_noload_a: float = 0.3  # no-load current (assumption: 37 mm 24 V class)
+    lift_motor_mh: float = 2.0        # winding inductance (assumption)
+    lift_rotor_kgm2: float = 3.0e-6   # rotor inertia at the motor's own shaft (assumption: a 555-size motor)
+    lift_gear_ratio: float = 30.0     # gearbox (assumption: a 6,000 rpm motor down to 200 rpm)
+    lift_hot_rise_k: float = 80.0     # winding over ambient when hot: copper's resistance rises 0.393 %/K
+    lift_shunt_ohm: float = 0.05      # low-side shunt between the MOSFET module's source and ground (3 W, 1%)
+    lift_shunt_w: float = 3.0
+    lift_sense_r1: float = 100e3      # comparator's reference divider from 3.3 V: top (1%)
+    lift_sense_r2: float = 3.9e3      # and bottom (1%)
+    lift_sense_rc_s: float = 1.0e-3   # 10k + 100 nF from the shunt to the comparator: averages the 20 kHz PWM
+    lift_sense_offset_v: float = 0.009  # LM393 input offset over temperature, worst case (datasheet: 9 mV)
+    lift_rail_tol: float = 0.03       # 3.3 V rail
+    lift_res_tol: float = 0.01
+    lift_duty: float = 1.0            # config LIFT_DUTY: with the shunt in the MOSFET's source the filter sees duty x I
+    lift_stall_trip_margin: float = 1.25  # hot stall current at the low-battery cut over the highest trip current
+    lift_jam_blank_ms: float = 300.0  # config LIFT_JAM_BLANK_MS: over-current ignored this long after each start
+    lift_jam_trip_ms: float = 10.0    # config LIFT_JAM_TRIP_MS: over-current on two ticks 10 ms apart cuts the motor
+    lift_jam_rest_ms: float = 2000.0  # config LIFT_JAM_REST_MS: off this long before a retry
+    lift_jam_retries: int = 1         # config LIFT_JAM_RETRIES: then it stays off (FLAG_LIFT_JAM) until the bus drops
+    lift_blank_factor: float = 3.0    # blanking over the longest a normal start stays over the trip current
+    ball_k_n_m: float = 14300.0       # a ball's stiffness: ITF forward deformation 5.6-7.4 mm under 8.165 kg; the stiff end
 
     # Hopper agitator (2026-11-13): balls piled over a 75 mm outlet for 67 mm balls bridge it (two or three on the floor
     # round the hole, each held in by the others), and the feed column then runs dry. A printed two-arm stirrer turns
@@ -1549,6 +1577,7 @@ class Feeder:
         bad += self.check_regen()
         bad += self.check_trough()
         bad += self.check_lift()
+        bad += self.check_lift_jam()
         bad += self.check_agitator()
         return bad
 
@@ -3771,6 +3800,103 @@ class Feeder:
             bad.append("lift flight caps' screws or cheeks do not fit the cleat's width")
         if self.lift_belt_w / 2 + self.lift_cap_cheek > self.lift_finger_w / 2 + 1e-9:
             bad.append("lift flight caps' cheeks stand outside the plate")
+        return bad
+
+    def lift_motor_model(self) -> dict:
+        """The lift gearmotor as a DC motor seen at its output shaft, from the assumed class figures.
+
+        Winding resistance from the stall current at `supply_v`; torque per amp from the stall torque (rated x
+        `lift_stall_factor`, the figure the flight caps' jam check uses) over the stall current less the no-load current;
+        back-EMF per rad/s from the no-load speed. Their ratio is the gearbox and motor's efficiency the figures imply
+        (low for a spur gearbox: the stall torque assumed is on the cautious side for the cap). Inertia at the output is
+        the rotor's times the ratio squared, plus the belt, its caps and 15 balls at the pulley's radius."""
+        r = self.lift_pd / 2000
+        rw = self.supply_v / self.lift_motor_stall_a
+        t_stall = self.lift_motor_nm * self.lift_stall_factor
+        kt = t_stall / (self.lift_motor_stall_a - self.lift_motor_noload_a)
+        w0 = self.lift_motor_rpm * 2 * math.pi / 60
+        ke = (self.supply_v - self.lift_motor_noload_a * rw) / w0
+        d = self.lift_design()
+        moving_kg = self.lift_belt_kg_m * d["belt_mm"] / 1000 + d["flights"] * 0.005 + d["balls_up"] * self.ball_g / 1000
+        j = self.lift_rotor_kgm2 * self.lift_gear_ratio ** 2 + moving_kg * r * r
+        lead_ohm = self.deck_cable_electrics()["lift"]["lift_drop_v"] / self.lift_motor_stall_a
+        return {"r_m": r, "winding_ohm": rw, "lead_ohm": lead_ohm, "kt": kt, "ke": ke, "efficiency": kt / ke,
+                "stall_nm": t_stall, "noload_rad_s": w0, "j_kgm2": j, "moving_kg": moving_kg,
+                "m_eff_kg": j / (r * r), "l_h": self.lift_motor_mh / 1000,
+                "tau_e_s": self.lift_motor_mh / 1000 / rw, "tau_m_s": j * rw / (kt * ke)}
+
+    def lift_jam_cutoff(self) -> dict:
+        """Trip current, its spread, and what it does to a start and to a jam (2026-11-15).
+
+        Trip: the comparator switches when the filtered shunt voltage, duty x I x R_shunt, passes the divider's
+        reference. Its spread takes the 3.3 V rail, both resistors at their tolerance and the comparator's offset at its
+        worst. The lowest trip must leave the motor `lift_torque_factor` times the full belt's torque (the torque rule
+        `check_lift` applies to the motor); the highest must sit `lift_stall_trip_margin` under the stall current with
+        the winding hot and the pack at its low-battery cut, through the lead and the shunt, or a jam would never trip.
+
+        Start: from rest the motor draws its stall current, falling with the mechanical time constant toward its
+        running current; the time it stays over the lowest trip current (first-order, full belt, cold winding at the
+        charger's voltage) times `lift_blank_factor` must fit in the blanking time. tests/lift_jam_sweep.py checks the
+        same on the real firmware with the electrical lag and the filter.
+
+        Stall: with the cutoff a stalled motor is cut after at most blank + trip + one 10 ms tick (+ the filter), and
+        retried `lift_jam_retries` times; without it the stall holds for the run-on (and again after every ball fed)."""
+        m = self.lift_motor_model()
+        g = lambda tol: 3.3 * (1 + tol * self.lift_rail_tol)          # noqa: E731
+        def vref(sign):
+            r1 = self.lift_sense_r1 * (1 - sign * self.lift_res_tol)
+            r2 = self.lift_sense_r2 * (1 + sign * self.lift_res_tol)
+            return g(sign) * r2 / (r1 + r2) + sign * self.lift_sense_offset_v
+        v_nom = 3.3 * self.lift_sense_r2 / (self.lift_sense_r1 + self.lift_sense_r2)
+        to_a = 1 / (self.lift_shunt_ohm * self.lift_duty)
+        i_nom, i_lo, i_hi = v_nom * to_a, vref(-1) * to_a, vref(1) * to_a
+        d = self.lift_design()
+        i_run = self.lift_motor_noload_a + d["torque_nm"] / m["kt"]
+        trip_nm_lo = m["kt"] * (i_lo - self.lift_motor_noload_a)
+        hot_ohm = m["winding_ohm"] * (1 + 0.00393 * self.lift_hot_rise_k)
+        series = m["lead_ohm"] + self.lift_shunt_ohm
+        i_stall_hot = self.battery_v_min / (hot_ohm + series)
+        i_stall_cold = self.battery_v_max / (m["winding_ohm"] + series)
+        start_over_s = (m["tau_m_s"] * math.log((i_stall_cold - i_run) / (i_lo - i_run))
+                        if i_lo > i_run and i_stall_cold > i_lo else math.inf)
+        dwell_s = (self.lift_jam_blank_ms + self.lift_jam_trip_ms + 10.0) / 1000 + 3 * self.lift_sense_rc_s
+        stall_w = i_stall_cold ** 2 * m["winding_ohm"]
+        run_on_s = d["run_on_s"]
+        fuse = next(b["fuse_a"] for b in self.power_distribution()["branches"] if b["name"].startswith("lift"))
+        f = self.lift_flight_design()
+        plate_n = self.lift_cap_allow_mpa * self.lift_finger_w * self.lift_finger_t ** 2 / 6 / self.lift_finger_l
+        weld_n = self.lift_cleat_weld_n * f["arm_mm"] / self.lift_finger_l
+        return {
+            "vref_v": v_nom, "trip_a": i_nom, "trip_lo_a": i_lo, "trip_hi_a": i_hi, "run_a": i_run,
+            "trip_nm_lo": trip_nm_lo, "trip_factor": trip_nm_lo / d["torque_nm"],
+            "stall_hot_a": i_stall_hot, "stall_cold_a": i_stall_cold, "stall_margin": i_stall_hot / i_hi,
+            "start_over_s": start_over_s, "blank_s": self.lift_jam_blank_ms / 1000, "dwell_s": dwell_s,
+            "stall_w": stall_w, "attempt_j": stall_w * dwell_s, "cutoff_j": stall_w * dwell_s * (1 + self.lift_jam_retries),
+            "uncut_j": stall_w * run_on_s, "run_on_s": run_on_s, "fuse_a": fuse, "fuse_ratio": i_stall_hot / fuse,
+            "shunt_stall_w": i_stall_cold ** 2 * self.lift_shunt_ohm, "shunt_run_w": i_run ** 2 * self.lift_shunt_ohm,
+            "shunt_drop_v": i_stall_cold * self.lift_shunt_ohm, "plate_allow_n": plate_n, "weld_allow_n": weld_n,
+            "motor": m,
+        }
+
+    def check_lift_jam(self) -> list[str]:
+        bad = []
+        c = self.lift_jam_cutoff()
+        if c["trip_factor"] < self.lift_torque_factor:
+            bad.append(f"lift jam cutoff can trip at {c['trip_lo_a']:.2f} A ({c['trip_nm_lo']:.2f} N m), under "
+                       f"{self.lift_torque_factor:g}x the full belt's torque: raise lift_sense_r2")
+        if c["stall_margin"] < self.lift_stall_trip_margin:
+            bad.append(f"lift jam cutoff may never trip: a hot stall at {self.battery_v_min:g} V draws {c['stall_hot_a']:.2f} A, "
+                       f"{c['stall_margin']:.2f}x the highest trip ({c['trip_hi_a']:.2f} A); "
+                       f"{self.lift_stall_trip_margin:g}x wanted: lower lift_sense_r2 or raise lift_shunt_ohm")
+        if not math.isfinite(c["start_over_s"]):
+            bad.append("lift jam cutoff's trip is under the full belt's running current: every run would trip")
+        elif self.lift_blank_factor * c["start_over_s"] > c["blank_s"]:
+            bad.append(f"lift jam cutoff's {self.lift_jam_blank_ms:g} ms blanking is under {self.lift_blank_factor:g}x the "
+                       f"{c['start_over_s'] * 1000:.0f} ms a start stays over the trip current: it would trip on starting")
+        if c["shunt_stall_w"] > self.lift_shunt_w:
+            bad.append(f"lift shunt takes {c['shunt_stall_w']:.1f} W at stall, over its {self.lift_shunt_w:g} W")
+        if self.lift_jam_trip_ms < 10.0:
+            bad.append("lift jam cutoff needs over-current on two ticks (10 ms) so one stray reading cannot trip it")
         return bad
 
     # ---- hopper agitator (2026-11-13) ------------------------------------------
