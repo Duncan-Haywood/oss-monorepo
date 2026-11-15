@@ -40,3 +40,11 @@ def test_win_share_endpoints_and_variance_split():
     assert win_share(2018, "house", WEEKLY, 0.0, n=3) == 0.0
     b, w, g = variance_split("house", WEEKLY, 0.25, n=50)
     assert b > 0 and w > 0
+
+
+def test_vintage_step_moves_both_costs():
+    # README claim (corrected 2026-11-15): the older table flips the store years through the heat pump, the newer one flips none
+    older = [diff(y, "house", WEEKLY, m_store=1 / 1.257, m_hp=1 / 1.262) for y in YEARS]
+    newer = [diff(y, "house", WEEKLY, m_store=1.257, m_hp=1.262) for y in YEARS]
+    assert all(d > 0 for d in older)
+    assert [d < 0 for d in newer] == [d < 0 for d in (diff(y, "house", WEEKLY) for y in YEARS)]
