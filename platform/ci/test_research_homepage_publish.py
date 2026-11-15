@@ -106,8 +106,51 @@ class ResearchPublishTest(unittest.TestCase):
         self.assertLess(len(html), 2_000 * len(self.projects))
 
 
-if __name__ == "__main__":
-    unittest.main()
+class ResearchSiteChromeTest(unittest.TestCase):
+    """With the parent site's header (as platform/pages/build.mjs publishes it), a topic or project
+    page carries that header and its trail only: the page's own "← All projects | GitHub" bar used
+    to sit under it, 56 px repeating the trail's Research link (polish, 2026-11-15)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        tmp = Path(cls.tmp.name)
+        chrome = tmp / "chrome.json"
+        chrome.write_text(json.dumps({
+            "header": '<header class="pfs-test">site</header>',
+            "topic_header": '<header class="pfs-test">site › {{TOPIC}}</header>',
+            "project_header": '<header class="pfs-test">site › {{TOPIC}} › {{TITLE}}</header>',
+            "footer": "<p>links</p>", "style_file": "pf-site.css"}))
+        cls.out = tmp / "research"
+        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out), "--base-url", BASE,
+                        "--site-chrome", str(chrome)], check=True, capture_output=True, text=True)
+        cls.bare = tmp / "bare"
+        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.bare)], check=True, capture_output=True, text=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def pages(self, root):
+        topics = [t / "index.html" for t in (root / "topics").iterdir()]
+        projects = [p / "index.html" for p in root.iterdir()
+                    if (p / "index.html").is_file() and p.name not in ("topics", "fonts")]
+        return topics, projects
+
+    def test_site_header_replaces_the_page_bar(self):
+        topics, projects = self.pages(self.out)
+        self.assertGreater(len(projects), 100)
+        for f in [self.out / "index.html", *topics, *projects]:
+            html = f.read_text()
+            self.assertEqual(html.count('<header class="pfs-test">'), 1, f)
+            self.assertNotIn('<header class="topbar">', html, f)
+
+    def test_standalone_project_bar_names_where_it_goes(self):
+        topics, projects = self.pages(self.bare)
+        for f in projects:
+            bar = re.search(r'<header class="topbar">(.*?)</header>', f.read_text(), re.S).group(1)
+            self.assertIn("← All research", bar, f)
+            self.assertIn(f"/tree/main/research/{f.parent.name}\"", bar, f)
 
 
 class ResearchIndexLengthTest(unittest.TestCase):
@@ -220,3 +263,7 @@ class LogFormatTest(unittest.TestCase):
                  if not p.parent.name.startswith(("_", "."))
                  and not any(l.startswith("## ") for l in p.read_text().splitlines())]
         self.assertEqual(empty, [], "these LOG.md files need `## <date> · <title>` entry headings")
+
+
+if __name__ == "__main__":
+    unittest.main()
