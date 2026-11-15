@@ -1,0 +1,38 @@
+start (P S week seed) | floor | start | dfs k3 | flow k3 | dfs k5 | flow k5 | dfs k3 2s | flow k3 2s | flow k5 2s
+(80, 224, 0, 1) | 257 | 290 | 281 | 275 | 280 | 281 | 270 | 270 | 269
+(80, 224, 0, 2) | 257 | 295 | 281 | 279 | 283 | 283 | 273 | 269 | 269
+(80, 224, 0, 3) | 257 | 290 | 282 | 275 | 288 | 288 | 270 | 267 | 275
+(80, 224, 1, 1) | 331 | 361 | 355 | 338 | 361 | 361 | 342 | 332 | 348
+(80, 224, 1, 2) | 331 | 355 | 350 | 332 | 354 | 353 | 339 | 331 | 347
+(80, 224, 1, 3) | 331 | 355 | 355 | 337 | 355 | 350 | 346 | 331 | 346
+(80, 224, 2, 1) | 281 | 310 | 309 | 301 | 309 | 309 | 304 | 293 | 306
+(80, 224, 2, 2) | 281 | 317 | 316 | 310 | 316 | 316 | 310 | 302 | 312
+(80, 224, 2, 3) | 281 | 311 | 308 | 306 | 310 | 311 | 301 | 294 | 303
+(90, 252, 0, 1) | 352 | 390 | 380 | 373 | 388 | 387 | 370 | 370 | 381
+(90, 252, 0, 2) | 352 | 383 | 377 | 367 | 380 | 373 | 370 | 359 | 371
+(90, 252, 0, 3) | 352 | 401 | 388 | 380 | 390 | 388 | 372 | 376 | 383
+(90, 252, 1, 1) | 219 | 280 | 268 | 252 | 272 | 271 | 256 | 249 | 268
+(90, 252, 1, 2) | 219 | 276 | 263 | 253 | 270 | 270 | 239 | 244 | 265
+(90, 252, 1, 3) | 219 | 281 | 260 | 245 | 268 | 268 | 243 | 242 | 258
+(90, 252, 2, 1) | 374 | 417 | 406 | 389 | 416 | 416 | 389 | 380 | 391
+(90, 252, 2, 2) | 374 | 419 | 416 | 401 | 417 | 417 | 400 | 384 | 414
+(90, 252, 2, 3) | 374 | 417 | 413 | 397 | 416 | 416 | 399 | 379 | 402
+(100, 280, 0, 1) | 358 | 423 | 414 | 409 | 420 | 420 | 403 | 395 | 412
+(100, 280, 0, 2) | 358 | 428 | 413 | 402 | 425 | 423 | 399 | 390 | 416
+(100, 280, 0, 3) | 358 | 421 | 412 | 408 | 417 | 415 | 408 | 398 | 412
+(100, 280, 1, 1) | 344 | 412 | 397 | 390 | 404 | 401 | 369 | 378 | 387
+(100, 280, 1, 2) | 344 | 425 | 407 | 379 | 408 | 401 | 375 | 364 | 377
+(100, 280, 1, 3) | 344 | 404 | 393 | 379 | 398 | 392 | 380 | 373 | 378
+
+24 starts with every repair
+dfs k3: total open 8444 h, cut from start 217 h, mean 398 ms, rounds skipped by the floor 0, searches stopped at the floor 0
+flow k3: total open 8177 h, cut from start 484 h, mean 798 ms, rounds skipped by the floor 1889, searches stopped at the floor 200
+dfs k5: total open 8545 h, cut from start 116 h, mean 599 ms, rounds skipped by the floor 0, searches stopped at the floor 0
+flow k5: total open 8510 h, cut from start 151 h, mean 672 ms, rounds skipped by the floor 171, searches stopped at the floor 22
+dfs k3 2s: total open 8127 h, cut from start 534 h, mean 2010 ms, rounds skipped by the floor 0, searches stopped at the floor 0
+flow k3 2s: total open 7970 h, cut from start 691 h, mean 2042 ms, rounds skipped by the floor 14202, searches stopped at the floor 318
+flow k5 2s: total open 8290 h, cut from start 371 h, mean 2028 ms, rounds skipped by the floor 707, searches stopped at the floor 75
+flow k3 vs dfs k3: fewer open on 24, more on 0, tied 0 (two-sided sign test p = 1.19e-07)
+flow k5 vs dfs k5: fewer open on 11, more on 2, tied 11 (two-sided sign test p = 0.0225)
+flow k3 2s vs dfs k3 2s: fewer open on 19, more on 3, tied 2 (two-sided sign test p = 0.000855)
+flow k5 2s vs flow k3 2s: fewer open on 1, more on 22, tied 1 (two-sided sign test p = 5.72e-06)

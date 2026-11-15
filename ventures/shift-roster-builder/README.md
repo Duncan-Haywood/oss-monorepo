@@ -2934,3 +2934,63 @@ restricted to the chosen people, then rounded) is the next thing to try; more of
 is not.
 
 Not claimed: generated weeks only, three starts or three search seeds each, one cloud machine.
+
+## The repair's neighbourhood under a flow bound (2026-11-15 later)
+
+"The clique LP picks the repair's people" ended on the next thing to try: solve the repair's neighbourhood with something other
+than plain depth-first search, because even with time and a bound it closed only about 9 of the 46 open hours a start leaves above
+the floor. Every round hit its node cap, so the question was where those nodes went.
+
+**What landed** (`coverRepair`'s `bound: "flow"`, now the default; `coverRepairBound: "dfs"` on `buildRoster` keeps the old search):
+
+- **A max-flow floor for each neighbourhood** (`neighbourhoodFloor`): `openHoursFloor`'s flow restricted to the free shifts and the
+  chosen people, with everyone else fixed. A free shift reaches a chosen person's day only if that person may take it next to what
+  they already hold; each day carries at most its longest rest-respecting chain and the daily cap less the hours already worked that
+  day; each person at most the weekly hours they have left. Every rule only relaxes, so the floor never overstates.
+- **Rounds that cannot win cost no search.** When the floor equals the neighbourhood's open hours, the round is skipped, and a
+  skipped round does not count against the round limit (up to `skipRounds`, 4 x rounds). On the bench starts the floor skipped
+  about two of every three three-person rounds: most random neighbourhoods are already as good as they can be.
+- **The search stops at the floor**: once it finds an assignment whose open hours equal the floor, nothing below exists.
+- **Dead shifts are counted at once.** Each chosen person keeps a row of the free shifts they may still take; when a person takes a
+  shift the row is re-checked, and a shift no chosen person may still take is counted as open right away instead of when the search
+  reaches it. Every hard rule only tightens as a list grows, so a closed shift never reopens below that node.
+
+**Measured on the repair alone** (`node eval/repair-flow.mjs P S week startSeed`, `sh eval/repair-flow-run.sh`,
+`eval/repair-flow.out.txt`): the same eight 80-100 person bench weeks and three fixed starts each as before (a guided plateau walk
+of 400,000 steps from an empty roster), every repair from the same start:
+
+| 24 starts | total open h | cut from the start | paired |
+|---|---|---|---|
+| depth-first, 3 people, 60 rounds (main) | 8,444 | 217 h | |
+| **flow-bounded, 3 people, 60 rounds** | **8,177** | **484 h** | fewer open than depth-first on **24 of 24** (p = 1.2e-7) |
+| depth-first, 5 people | 8,545 | 116 h | |
+| flow-bounded, 5 people | 8,510 | 151 h | fewer on 11, more on 2 (p = 0.023) |
+| depth-first, 3 people, 2 s of rounds | 8,127 | 534 h | |
+| **flow-bounded, 3 people, 2 s of rounds** | **7,970** | **691 h** | fewer on 19, more on 3 (p = 0.0009) |
+| flow-bounded, 5 people, 2 s | 8,290 | 371 h | more open than 3 people on 22 of 24 |
+
+At the same node budget the flow-bounded repair takes about twice as long (798 ms against 398 ms a start), because it runs more
+rounds that search. At the same wall-clock time, the fair test, it still closes 29% more hours. Three people stay the right
+neighbourhood size: five fill the node cap sooner either way.
+
+**End to end** (`sh eval/repair-flow-e2e.sh`, `eval/repair-flow-e2e.out.txt`; same eight weeks, search seeds 4-6, the default 20 s
+budget, two builds at a time):
+
+| 24 builds | open h in all | at the proven floor | paired |
+|---|---|---|---|
+| depth-first, no reserve (main) | 7,633 | 14 | |
+| flow-bounded, no reserve (now) | 7,633 | 14 | fewer open on 1, more on 1 |
+| depth-first, 2 s repair reserve | 7,629 | 13 | |
+| flow-bounded, 2 s repair reserve | **7,613** | 13 | against depth-first with the reserve: fewer on 6, more on 2 (p = 0.29); 55 repair gains against 31 |
+
+**What this says:** the neighbourhood was losing its nodes to rounds that could not win and to shifts that were already lost, and a
+flow answers both cheaply. As a search on its own the repair is now about twice as strong. But posted rosters do not change at
+the defaults, because the plateau walks use the 20 s budget and leave the repair about 0.2 s. With a 2 s reserve the flow-bounded
+repair is ahead on 6 of 8 builds that differ, which is suggestive and not significant, so the reserve stays off by default.
+
+Tests: `repair-flow.test.mjs` (over everyone on 60 tiny weeks the flow-bounded and depth-first repairs find the same least open
+hours, so neither the dead-shift bound nor the stop prunes a better roster; the neighbourhood floor never exceeds an exhaustive
+search of the same neighbourhood on 80 small weeks and equals it on at least half; the repair keeps every rule and never opens more;
+`buildRoster` reports `floorSkipped` and `floorReached`). Not claimed: generated weeks only, three starts or three search seeds
+each, one cloud machine. Next: whether a repair reserve pays at 20-60 people, or a flow floor per dead-shift node (a cheaper bound
+inside the search than a full flow, which the measurements above did not need).

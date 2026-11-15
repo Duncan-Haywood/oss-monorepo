@@ -1,0 +1,100 @@
+// The flow-bounded repair (calc.mjs coverRepair with bound "flow", the default since 2026-11-15; neighbourhoodFloor; README
+// "The repair's neighbourhood under a flow bound"). The neighbourhood's max-flow floor must never overstate what the
+// neighbourhood can reach, the dead-shift bound must prune nothing a better assignment needs, and the search must stay valid.
+import test from "node:test";
+import assert from "node:assert/strict";
+import { parseStaff, parseShifts, buildRoster, _internals } from "./calc.mjs";
+
+const { buildContext, coverRepair, ownerValid, validList, validWith, insertSorted, neighbourhoodFloor } = _internals;
+
+function seededWeek(seed, P, S) {
+  const days = ["Mon", "Tue", "Wed"];
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const st = Array.from({ length: P }, (_, p) => [`P${p}`, 10 + rnd(12), [8, 11, 13, 16, 24][rnd(5)], 0, `Mon-Wed ${6 + rnd(3)}-${18 + rnd(6)}`].join(",")).join("\n");
+  const sh = Array.from({ length: S }, () => { const L = [3, 4, 8, 10][rnd(4)]; const a = 6 + rnd(10); return `${days[rnd(3)]},${a},${Math.min(24, a + L)},1`; }).join("\n");
+  return { staff: parseStaff(st).staff, slots: parseShifts(sh).slots };
+}
+const hrs = (ctx, i) => (ctx.slots[i].end - ctx.slots[i].start) / 60;
+const openOf = (ctx, own) => own.reduce((t, p, i) => t + (p < 0 ? hrs(ctx, i) : 0), 0);
+
+// A start with every other shift given to the first person who can take it.
+function halfStart(ctx) {
+  const start = new Array(ctx.S).fill(-1), lists = Array.from({ length: ctx.P }, () => []);
+  for (let i = 0; i < ctx.S; i += 2) for (let p = 0; p < ctx.P; p++) {
+    const nl = insertSorted(ctx, lists[p], i);
+    if (ctx.elig[p][i] && validList(ctx, p, nl)) { lists[p] = nl; start[i] = p; break; }
+  }
+  return start;
+}
+
+test("the flow-bounded and depth-first repairs agree over everyone (the dead-shift bound and the floor stop prune nothing)", () => {
+  let open = 0;
+  for (let seed = 1; seed <= 60; seed++) {
+    const { staff, slots } = seededWeek(seed, 2 + (seed % 3), 5 + (seed % 4));
+    const ctx = buildContext(staff, slots, { exact: true });
+    const start = new Array(ctx.S).fill(-1);
+    const a = coverRepair(ctx, start, seed, { k: ctx.P, rounds: 1, nodeLimit: 1e7, totalNodes: 1e8, bound: "dfs" });
+    const b = coverRepair(ctx, start, seed, { k: ctx.P, rounds: 1, nodeLimit: 1e7, totalNodes: 1e8, bound: "flow" });
+    assert.ok(ownerValid(ctx, b.owner), `seed ${seed}`);
+    assert.ok(Math.abs(a.open - b.open) < 1e-6, `seed ${seed}: dfs ${a.open}, flow ${b.open}`);
+    if (b.open > 0) open++;
+  }
+  assert.ok(open >= 10, `${open} weeks keep hours open`);
+});
+
+test("a neighbourhood's flow floor never exceeds the least open hours an exhaustive search of it finds", () => {
+  let tight = 0, checked = 0;
+  for (let seed = 1; seed <= 80; seed++) {
+    const { staff, slots } = seededWeek(seed, 4 + (seed % 3), 10 + (seed % 5));
+    const ctx = buildContext(staff, slots, { exact: true });
+    const owner = halfStart(ctx);
+    const people = [seed % ctx.P, (seed + 1) % ctx.P];
+    const pick = new Set(people);
+    const free = [];
+    owner.forEach((p, i) => { if ((p < 0 || pick.has(p)) && people.some((q) => ctx.elig[q][i])) free.push(i); });
+    const lists = Array.from({ length: ctx.P }, () => []);
+    owner.forEach((p, i) => { if (p >= 0 && !pick.has(p)) lists[p] = insertSorted(ctx, lists[p], i); });
+    const can = people.map((q) => free.map((i) => (ctx.elig[q][i] && validWith(ctx, q, lists[q], i) ? 1 : 0)));
+    const floor = neighbourhoodFloor(ctx, people, free, lists, can);
+    let best = Infinity;
+    const go = (d, o) => {
+      if (o >= best) return;
+      if (d === free.length) { best = o; return; }
+      const i = free[d];
+      for (const q of people) {
+        if (!ctx.elig[q][i]) continue;
+        const nl = insertSorted(ctx, lists[q], i);
+        if (!validList(ctx, q, nl)) continue;
+        const old = lists[q]; lists[q] = nl; go(d + 1, o); lists[q] = old;
+      }
+      go(d + 1, o + hrs(ctx, i));
+    };
+    go(0, 0);
+    assert.ok(floor <= best + 1e-9, `seed ${seed}: floor ${floor} above the best ${best}`);
+    checked++; if (Math.abs(floor - best) < 1e-9) tight++;
+  }
+  assert.ok(checked === 80 && tight >= 40, `floor tight on ${tight} of ${checked}`);
+});
+
+test("the flow-bounded repair keeps every rule, never opens more, and skips rounds it cannot win", () => {
+  let skipped = 0, gains = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const { staff, slots } = seededWeek(seed, 5 + (seed % 5), 14 + (seed % 9));
+    const ctx = buildContext(staff, slots, { exact: true });
+    const start = halfStart(ctx);
+    const r = coverRepair(ctx, start, seed, { k: 2, rounds: 20 });
+    assert.ok(ownerValid(ctx, r.owner), `seed ${seed}`);
+    assert.ok(Math.abs(openOf(ctx, r.owner) - r.open) < 1e-6, `seed ${seed}: reported ${r.open}`);
+    assert.ok(r.open <= openOf(ctx, start) + 1e-9);
+    skipped += r.skipped; gains += r.gains;
+  }
+  assert.ok(skipped > 0 && gains >= 20, `${skipped} skipped, ${gains} gains`);
+});
+
+test("buildRoster reports the floor's skips; coverRepairBound: 'dfs' keeps the old search", () => {
+  const { staff, slots } = seededWeek(7, 6, 22);
+  const on = buildRoster(staff, slots, { exact: true, deferCover: false });
+  const off = buildRoster(staff, slots, { exact: true, deferCover: false, coverRepairBound: "dfs" });
+  assert.equal(typeof on.optimality.coverRepair.floorSkipped, "number");
+  assert.equal(off.optimality.coverRepair.floorSkipped, 0);
+});
