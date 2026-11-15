@@ -156,6 +156,15 @@ await page.click("#go");
   const [dx] = await Promise.all([page.waitForEvent("download"), page.click("#dlxml")]);
   const score = fs.readFileSync(await dx.path(), "utf8");
   ok(score === fs.readFileSync(path.join(tmp, "s.musicxml"), "utf8") && score.includes("<part-name>Basses</part-name>"), `split score equals the CLI's --musicxml (${score.length} characters, Tenors and Basses parts)`);
+  // rehearsal tracks: the ZIP holds the same WAVs as render-cli.mjs --learn on the split MIDI
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#dllearn")]);
+  fs.writeFileSync(path.join(tmp, "chant-rehearsal.zip"), fs.readFileSync(await dl.path()));
+  execFileSync("unzip", ["-q", path.join(tmp, "chant-rehearsal.zip"), "-d", path.join(tmp, "learn-page")]);
+  fs.writeFileSync(path.join(tmp, "chant.mid"), mid);
+  execFileSync(process.execPath, [path.join(root, "render-cli.mjs"), path.join(tmp, "chant.mid"), "-o", path.join(tmp, "chant.wav"), "--learn", path.join(tmp, "learn-cli")]);
+  const ln = fs.readdirSync(path.join(tmp, "learn-page")).sort();
+  const lsame = ln.join() === "chant-basses-minus.wav,chant-basses-part.wav,chant-tenors-minus.wav,chant-tenors-part.wav" && ln.join() === fs.readdirSync(path.join(tmp, "learn-cli")).sort().join() && ln.every((n) => fs.readFileSync(path.join(tmp, "learn-page", n)).equals(fs.readFileSync(path.join(tmp, "learn-cli", n))));
+  ok(lsame && dl.suggestedFilename() === "chant-rehearsal.zip", `rehearsal ZIP equals render-cli --learn (${ln.join(", ")})`);
   // handing over at a word too: equals the CLI's --split-words
   await page.selectOption("#final", "splitwords");
   await page.click("#go");
