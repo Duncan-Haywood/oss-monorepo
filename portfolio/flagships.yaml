@@ -418,6 +418,6 @@ flagships:
       and of a one-note overlap against a clean handoff; --baritones,
       --entrance-cost N and --second-tenors (TTBB; README) need the same check.
       --choir presets, --singers (a choir's range test CSV) and --sit-out N (README
-      "Letting a singer sit a note out") landed. Next: a real choir's range test via
-      --singers; a director on --sit-out N and the --musicxml parts (music21 reads
-      all 97,705 notes back; open in MuseScore).
+      "Letting a singer sit a note out") landed. --learn rehearsal tracks
+      (2026-11-15) landed. Next: a real choir's range test; a director on --sit-out
+      N, the --musicxml parts and the --learn tracks.
