@@ -18,7 +18,7 @@ A new script, `platform/ci/check_thousands_input.mjs`, opens each page in headle
 
 | tool and field | with `1200` | with `1,200` |
 |---|---|---|
-| mid-term rental calculator, fixed monthly costs | short-term rental best by $984 a month | short-term rental best by $2183 a month |
+| mid-term rental calculator, fixed monthly costs | short-term rental nets $984 a month after fixed costs | short-term rental nets $2183 a month after fixed costs |
 | trial conversion timing, monthly price | $110769 | $NaN |
 | bid win-rate optimizer, your cost on the next job | quote on a $1200.00 job | quote on a $14400.00 job |
 | H-1B lottery odds, Level I registrations | 2.81 expected selections | 2.82 expected selections |
