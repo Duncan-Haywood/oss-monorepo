@@ -17,7 +17,8 @@ two ways, and both are read here:
   What the stream needs comes from the maker note's tag 0x0096
   (NEFLinearizationTable): two version bytes (0x46 = lossless; 0x44 0x10 =
   lossy with a full curve; 0x44 0x20 = lossy with a stepped curve and a split
-  row at byte 562), the four starting predictions, then the curve.
+  row at byte 562; 0x44 0x40 = the Z bodies' lossy form, the same with the
+  step and range quartered), the four starting predictions, then the curve.
 * **Uncompressed (compression 1)**: 12- or 14-bit samples packed MSB first,
   each row starting on a byte, or 16-bit words in the file's byte order.
 
@@ -27,7 +28,8 @@ a version, then a TIFF of its own whose offsets count from that header):
 * **As-shot white balance**: tag 0x000C (WB_RBLevels), the red and blue
   multipliers against green.
 * **Black level**: tag 0x003D (BlackLevel, four values) on bodies from about
-  2014 (D810: 600); older bodies store black-subtracted data and the level is 0.
+  2014 (D810: 600), on a 14-bit scale even in a 12-bit file (divided by 4
+  there); older bodies store black-subtracted data and the level is 0.
 * **White level**: the top of the linearisation curve where one is stored (the
   last value before the curve flattens), else 2^bits - 1.
 * **CFA phase**: the raw IFD's TIFF/EP CFAPattern tag, as in a DNG.
@@ -170,7 +172,12 @@ class Linearization:
                 csize = struct.unpack_from(end + "H", blob, pos + 8)[0]
                 pos += 10
                 step = maximum // (csize - 1) if csize > 1 else 0
-                if v0 == 0x44 and v1 == 0x20 and step > 0:
+                if v0 == 0x44 and (v1 == 0x20 or (v1 == 0x40 and step > 3)) and step > 0:
+                    if v1 == 0x40:
+                        # Z-series lossy (Z 6II, 2020 on): the stored points cover the bottom quarter
+                        # of the range, a quarter of the step apart (as LibRaw reads it).
+                        step //= 4
+                        maximum //= 4
                     if pos + 2 * csize > len(blob):
                         raise rd.DevelopError("Nikon linearisation table is shorter than its stated size")
                     pts = struct.unpack_from(end + f"{csize}H", blob, pos)
@@ -296,6 +303,11 @@ def decode_nikon(buf: bytes, width: int, height: int, lin: Linearization, engine
 
 
 MARGIN_MAX = 64  # widest masked edge searched; a side with no picture column within it is left whole
+# A varying edge column counts as picture when it correlates this well with the same-colour column
+# two further in. 0.8 until 2026-11-15 cut two picture columns of busy 12- and 14-bit lossy frames
+# (D3400, D5600: their first column correlates 0.70-0.80); the only masked column that varies as much
+# as picture (the D70's) correlates -0.005 (eval/nikon-nef-split-row-2026-11-15.md).
+PICTURE_CORR = 0.5
 
 
 def _column(values, width: int, rows, c: int) -> list[float]:
@@ -320,8 +332,8 @@ def masked_margins(values, width: int, height: int, white: float) -> tuple[int, 
     """Columns at the left and right edge that hold no picture, found from the sensels.
 
     A column counts as picture when it varies over the rows at least a tenth as
-    much as the middle of the frame and correlates (0.8 or more) with the
-    same-colour column two further in; or when it sits at 90% of white and is
+    much as the middle of the frame and correlates (``PICTURE_CORR``, 0.5, or
+    more) with the same-colour column two further in; or when it sits at 90% of white and is
     not one constant value (a clipped edge is picture; the D800E pads with
     columns of 16,382, every row the same). Scanning in from each edge, the first picture
     column ends the margin. The left margin is rounded up to even so the CFA
@@ -348,7 +360,7 @@ def masked_margins(values, width: int, height: int, white: float) -> tuple[int, 
             return False
         if mean >= 0.9 * white:
             return True
-        return sd >= floor and _corr(v, _column(values, width, rows, inward)) >= 0.8
+        return sd >= floor and _corr(v, _column(values, width, rows, inward)) >= PICTURE_CORR
 
     left = 0
     for c in range(MARGIN_MAX):
@@ -435,7 +447,10 @@ def parse_nef(data: bytes, engine: str = "auto") -> rd.RawImage:
     if mn is not None:
         b = mn.get(MN_BLACK)
         if b and len(b) >= 4:
-            black = tuple(float(v) for v in b[:4])
+            # Stored on a 14-bit scale whatever the file's depth: a 12-bit frame's level is a
+            # quarter of it (Z 6II 12-bit: 1008 stored, 252 in the data; LibRaw agrees).
+            scale = 1 << (14 - bits) if bits < 14 else 1
+            black = tuple(float(v) / scale for v in b[:4])
     as_shot = None
     wb = mn.get(MN_WB_RB) if mn is not None else None
     if wb and len(wb) >= 2 and wb[0] > 0 and wb[1] > 0:

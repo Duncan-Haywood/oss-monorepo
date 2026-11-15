@@ -133,12 +133,16 @@ def make_lin(kind: str, bits: int, split: int = 0):
         curve = list(range(0x10000))
         curve[:csize] = pts
         return bytes([0x44, 0x10]) + head + struct.pack("<H", csize) + struct.pack(f"<{csize}H", *pts), curve
-    # stepped: csize points every `step` values, linear in between, split row at byte 562
+    # stepped: csize points every `step` values, linear in between, split row at byte 562.
+    # "stepped40" is the Z bodies' 0x44 0x40: the same with step and range quartered.
     maximum = 1 << bits
     csize = 257
     step = maximum // (csize - 1)
+    if kind == "stepped40":
+        step //= 4
+        maximum //= 4
     pts = [min(maximum - 1, int(i * step * 0.9 + (i * i) % 7)) for i in range(csize)]
-    blob = bytearray(bytes([0x44, 0x20]) + head + struct.pack("<H", csize) + struct.pack(f"<{csize}H", *pts))
+    blob = bytearray(bytes([0x44, 0x40 if kind == "stepped40" else 0x20]) + head + struct.pack("<H", csize) + struct.pack(f"<{csize}H", *pts))
     blob = blob.ljust(564, b"\0")
     struct.pack_into("<H", blob, 562, split)
     curve = list(range(0x10000))
@@ -163,7 +167,7 @@ def make_nef(kind="lossless", bits=14, split=0, black=(600, 600, 600, 600), wb=(
         raw_tags = [(258, 3, (12,)), (259, 3, (1,))]
     else:
         tree = (2 if kind == "lossless" else 0) + (3 if bits == 14 else 0)
-        payload, recon = encode(field(top=(1 << bits) - 1), tree, split if kind == "stepped" else 0)
+        payload, recon = encode(field(top=(1 << bits) - 1), tree, split if kind in ("stepped", "stepped40") else 0)
         expected = [curve[max(0, min(0x3FFF, v - 0x10000 if v & 0x8000 else v))] for v in recon]
         raw_tags = [(258, 3, (bits,)), (259, 3, (34713,))]
     mn_entries = []
@@ -232,6 +236,25 @@ class ReadTests(unittest.TestCase):
             self.assertEqual(f"split at row {split}" in raw.notes[0], bool(split))
         # The after-split table scales differences (shl > 0): the nearest codable one is taken.
         self.assertTrue(any(sym >> 4 for sym in nef.NIKON_TREES[4][1]))
+
+    def test_z_body_lossy_quartered_curve_and_split_row(self):
+        # 0x44 0x40 (Z 6II and later): read as 0x44 0x20 with the step and range quartered. Before
+        # 2026-11-15 it fell to the full-curve branch and 99% of a real Z 6II frame's sensels were wrong.
+        for bits in (12, 14):
+            for split in (0, 5):
+                data, expected = make_nef("stepped40", bits, split=split)
+                raw = self.check(data, expected, (bits, split))
+                self.assertEqual(f"split at row {split}" in raw.notes[0], bool(split))
+        lin = nef.Linearization(make_lin("stepped40", 14)[0], 14, "<")
+        self.assertEqual(lin.version, (0x44, 0x40))
+        self.assertTrue(lin.has_curve)
+        self.assertEqual(lin.curve[:4097], make_lin("stepped40", 14)[1][:4097])
+
+    def test_12_bit_black_level_is_stored_on_a_14_bit_scale(self):
+        # Z 6II 12-bit: 1008 stored, 252 in the data (D3400, D5600, Nikon 1 J5 likewise; LibRaw agrees).
+        for bits, black in ((12, 252.0), (14, 1008.0)):
+            raw = nef.parse_nef(make_nef("lossless", bits, black=(1008,) * 4)[0])
+            self.assertEqual(raw.ifd.entries[rd.TAG_BLACK_LEVEL], (black,) * 4, bits)
 
     def test_uncompressed_packed_12_bit(self):
         data, expected = make_nef("plain")
@@ -347,6 +370,18 @@ class VisibleAreaTests(unittest.TestCase):
         flat = array("H", [600] * (300 * 64))
         self.assertEqual(nef.masked_margins(flat, 300, 64, 16383), (0, 0))
         self.assertEqual(nef.masked_margins(_frame(width=100, masked=4), 100, 64, 16383), (0, 0))
+
+    def test_busy_picture_edge_correlating_under_0_8_is_kept(self):
+        # A textured lossy frame (D3400, D5600): neighbouring same-colour columns correlate 0.70-0.80,
+        # which the 0.8 bar used before 2026-11-15 read as masked and cut two picture columns.
+        rng = random.Random(11)
+        width, height = 300, 64
+        rows = [3000 + 2500 * ((r * 7919) % 97) / 97 for r in range(height)]
+        frame = array("H", [max(0, min(16383, int(rows[r]) + rng.randint(-850, 850))) for r in range(height) for c in range(width)])
+        col = lambda c: [float(frame[r * width + c]) for r in range(0, height, 2)]  # noqa: E731
+        self.assertLess(nef._corr(col(0), col(2)), 0.8)
+        self.assertGreaterEqual(nef._corr(col(0), col(2)), nef.PICTURE_CORR)
+        self.assertEqual(nef.masked_margins(frame, width, height, 16383), (0, 0))
 
     def test_no_picture_column_within_the_search_leaves_that_side_whole(self):
         self.assertEqual(nef.masked_margins(_frame(masked=80), 300, 64, 16383), (0, 0))

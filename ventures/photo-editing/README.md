@@ -1571,10 +1571,22 @@ values the camera stored). `tests/test_nef.py` (11 tests) writes NEFs with an en
 every storage, including a split row coded with the scaling table, and runs the profile chooser,
 the CLI and both decoders.
 
-Not done: colour is only as good as the profile you supply (no profile ships here); none of the
-seven real files has a non-zero split row, so the after-split tables are checked on synthetic files
-only; Nikon's high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to
-convert to DNG.
+Not done: colour is only as good as the profile you supply (no profile ships here); Nikon's
+high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to convert to DNG.
+
+### Real split rows, the Z 6II's lossy curve and 12-bit black levels (2026-11-15)
+
+Eleven more NEFs from raw.pixls.us (CC0), found by probing all 235 for a non-zero split row in the
+maker note: 1 J5, D3400, D5000, D5200, D5500, D5600 x2, D5, D7000 and two Z 6II frames. The split
+rows were already right (every sensel equal to LibRaw's on all nine 0x44 0x20 files). Three other
+faults were not: the Z 6II's lossy form (0x44 0x40, a curve with its step and range quartered) fell
+to the full-curve branch and got 99.3% of sensels wrong; a 12-bit file's black level was read 4x too
+high (tag 0x003D is on a 14-bit scale), which put 82-95% of a frame's sensels at or under black, so
+every 12-bit NEF from a 2014-on body developed nearly black; and the edge-column rule cut two picture
+columns from busy D3400 and D5600 frames (its correlation bar is now 0.5, not 0.8, after measuring
+every masked column on 18 bodies). All three fixed: 18 of 18 real NEFs now equal LibRaw in every
+decoded sensel, black level, balance, CFA and visible area (the J5 keeps 2 picture rows LibRaw does
+not decode). `eval/nikon-nef-split-row-2026-11-15.md`, `tests/test_nef.py` (21 tests).
 
 ### The edge columns that hold no picture (2026-11-15)
 
@@ -1583,8 +1595,8 @@ sensels, then padding of one value (D800E: 46 of 7,424, ending in a column of 16
 1). Developed whole, a D800E came out with a grey band, a white line and fifteen black columns down
 its right side. Nothing in a NEF marks the edge, and dcraw and LibRaw trim by a per-model table, so
 `nef.masked_margins` reads it from the sensels: a picture column varies as much as a tenth of the
-middle of the frame and moves with its same-colour neighbour two columns in (correlation 0.8 or
-more); a masked or padding column does neither. The result becomes the ActiveArea, and the report's
+middle of the frame and moves with its same-colour neighbour two columns in (correlation 0.5 or
+more since 2026-11-15; it was 0.8, which cut two picture columns of busy lossy frames); a masked or padding column does neither. The result becomes the ActiveArea, and the report's
 notes say how many columns were left out. Against LibRaw's table: seven of seven bodies equal
 (D800E 46, D300 32, D5100 44, D90 42, D70 1, D200 2 left and 3 right, D810 none). Run on the picture
 alone at 0, 3 and 6 stops under, it cut nothing in 21 of 21 cases; on a very dark frame it keeps a
