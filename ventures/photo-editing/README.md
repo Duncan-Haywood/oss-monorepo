@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Other RAW formats (a CR3 stored in several tiles, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Other RAW formats (a CR3 stored in several tiles, a GH6-era RawFormat 8 RW2, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -1396,8 +1396,41 @@ the fixed-lens LX7 uses lensfun's camera entry as before.
 
 Not done: colour is only as good as the profile you supply; the GF7's own colour matrix (tags
 0x11C-0x120) is not read yet. The GF1's white level is 4095, where LibRaw takes 3986 from a
-per-model table. RawFormat 5 and later (the 14-bit and newer 12-bit blocks of the GH5 era on) and
-older 16-bit RW2s are refused for want of a test file.
+per-model table. Older 16-bit RW2s (RawFormat 2 and 3) are refused for want of a test file.
+
+### Lumix bodies from 2017 on: RawFormat 5, 6 and 7 (2026-11-15)
+
+Until today the reader stopped at the G9, GH5S, S1, S1R, S1H and S5: they write newer layouts,
+and a photographer on one of them still had to convert to DNG first. Now three of those layouts
+are read (`eval/panasonic-rw2-newer-2026-11-15.md`):
+
+| RawFormat | bodies checked | how it is stored |
+|---|---|---|
+| 5 | G9 (12-bit, an 82 MP high-resolution frame), GH5S (14-bit) | the same rotated 0x4000-byte blocks as RawFormat 4, but no prediction: each 16-byte line holds 10 sensels of 12 bits or 9 of 14, from the line's lowest bit up |
+| 6 | S1, S1R, S1H (14-bit) | 11 sensels a 16-byte line, read from the top bit down: two absolute 14-bit values, then three groups of a 2-bit shift and 10-bit values that step from the previous value of the same column parity; 15 is taken off every sensel |
+| 7 | S5 (14-bit) | RawFormat 5's packing, stored in order with no block rotation |
+
+Two fixes came with it, both found on the new files. The crop is now the camera's own (tags
+0x2F-0x32): a GH5 frame shot at 1:1 develops 3888 x 3888, as the camera framed it and as LibRaw
+crops it, where it used to develop the whole 5184-wide sensor; the GX9 and TZ200 frames are the
+same story at 1:1 and 4:3. And on formats 5 to 7 the black-level tags are used as stored (RawFormat
+4 adds 15) and a 14-bit body's white level is no longer held at 4095.
+
+Checked against LibRaw 0.22 (`tools/rw2_libraw_check.py`, rows in
+`eval/panasonic-rw2-newer-libraw-2026-11-15.jsonl`) on 12 public CC0 files from raw.pixls.us, one
+per body: every one of 331.7 M sensels is equal, and so are the as-shot white balance, the black
+level at each CFA position, the CFA pattern and the crop on all twelve. That includes six RawFormat
+4 bodies newer than the first set (GH5, G90, G100, GX9, LX100 II, TZ200), which already read
+sensel for sensel. The C decoder takes 0.06-0.6 s a file; the Python reference gives the same
+sensels on the S1, S5 and GH5S (1-8 s). The white level equals LibRaw's too, but not on the first
+try: we first used the hard clip (16368 on the S1), and counting the sensels near the top showed
+the S1-family bodies saturate at several levels from 16320 up (144,576 sensels of one S1 frame at
+16352-16355), which would have tinted blown highlights. RawFormat 6 and 7 now take LibRaw's 64-level
+margin (16319).
+
+Not done: RawFormat 8, the Huffman layout of the GH6, GH7, G9 II, S5 II, S1 II and S9, is refused
+with a pointer to the DNG Converter; public files of all six are on raw.pixls.us, so it is the
+next step. A RawFormat 5-7 row that is not whole 16-byte lines is refused (no file has one).
 
 ## Olympus ORF (2026-11-14)
 
