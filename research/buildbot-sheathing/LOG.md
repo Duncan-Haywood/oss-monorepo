@@ -1,5 +1,14 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 27 planned: the slide as a mechanism (stick-slip on the ledger)
+
+- **Why.** Milestones 10, 12 and 13 credit the slide (centre the sheet's gap along the ledger before tacking) with a 0.5 mm residual, and the paper's best single-2x stack (0.771 clean on measured studs) rests on it. Nobody has asked what leaves 0.5 mm. A seated sheet starts on static friction and slides on kinetic; a push-only hand overshoots by however far the sheet runs before the hand lets go.
+- **Plan.** `src/buildbot_sheathing/slide_mech.py`: a one-axis stick-slip model of the sheet on the ledger and wall (milestone 3b's P = mu_l m g + mu_w F_n, split into static and kinetic), pushed by a hand of the stiffness the stock G1/H1 gains give along the wall (MuJoCo Menagerie models, milestone 3b's press pose), which ramps its force, detects the slip and releases after a latency. A closed form for a force-source hand checks it. Then a correct-from-either-side loop gives the slide residual, which goes back into milestone 12's grid. Friction: static 0.3–0.7 and mu_k/mu_s 0.5–0.9 swept (no OSB-on-lumber pair measured in a source this session could open).
+- **Hypotheses, registered before the run.**
+  - **H103 (the stock hand is a force source).** Along the wall the stock G1 and H1 hands are so soft that a single tap's travel is within 10% of a pure force source's at every reaction time swept. Refuted if any robot pose differs by more than 10%.
+  - **H104 (reaction time sets the slide).** With mu_k/mu_s 0.8 and mu_s 0.4, the loop's rms residual exceeds 0.5 mm at a 100 ms reaction time. Refuted if it is 0.5 mm or less there.
+  - **H105 (what the stack keeps).** At a 500 Hz loop with 20 ms latency, milestone 12's best single-2x stack (0.771) stays within 2 points with the slide residual from the mechanism in place of 0.5 mm, at mu_k/mu_s 0.8. Refuted if it loses more than 2 points.
+
 ## 2026-11-15 · Milestone 26 result: every experiment now reproduces; the last ten re-runs found one more drifted table (m6), two rounding or bookkeeping lines, and a Drake upgrade that breaks m6
 
 `reproduce.py` (m6's per-seat timing column masked, `wall time N s` lines skipped, Drake 1.51.1 named for m6), `tests/test_reproduce.py` (5 tests, was 4), `src/buildbot_sheathing/drake_seat.py` (docstring), `experiments/m6_drake` and `m9_straighten` (re-run), `experiments/m21_degrading/check_diag.txt`, `paper/draft.md`, `paper/check_numbers.py` (194 of 194), README, PROPOSAL and project card.
