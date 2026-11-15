@@ -52,7 +52,24 @@ it found the layout the solver already had. So each stored schedule now carries
 the solver's layout too. The tool uses it only when its own search comes up empty,
 and only after checking that it really puts every team's games back to back.
 
-**Results**, three seeds each, every season valid: RESULTS_PLACEHOLDER
+**Results**, three seeds each, every season valid, on the fewest courts at six time
+slots. Waits over a season with the plain search, then now:
+
+| Teams | Courts | Before | Now |
+|---|---|---|---|
+| 11 | 3 | 22 | 0 |
+| 13 | 3 | 52 | 0 |
+| 15 | 4 | 53 | 0 |
+| 17 | 4 | 86 | 0 |
+| 19 | 5 | 89 | 0 |
+| 21 | 5 | 148 | 0 |
+| 23 | 6 | 125 | 0 |
+| 25 | 6 | 217 | 0 |
+| 27 | 7 | 201 | 201 |
+| 29 | 7 | 293 | 0 |
+
+Twenty-seven teams is the one gap: its solver run passed 25 minutes, where 23 and 29
+took five and six. A build with a stored schedule takes 0.1 to 1 second.
 
 The details, the encoding and every timing are in the
 [README](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#odd-leagues-three-games-a-night-solved-with-the-layout-and-two-proofs-2026-11-15-latest).

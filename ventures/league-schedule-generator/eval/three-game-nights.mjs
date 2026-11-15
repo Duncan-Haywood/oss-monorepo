@@ -11,8 +11,8 @@
 // splits of 8 teams into two fours are edge-disjoint, so two such nights cannot both happen.
 // Part 4: the designed round robin (designedRounds) at 22 to 48 teams, 3 games, 6 times; since
 // 2026-11-15 (later) every even size has a design (the stored SAT ones, session-designs.mjs).
-// Part 6 (2026-11-15, latest): odd leagues of 5 to 25 teams at 6 time slots on the least courts
-// the bound and the proofs (PROVED_NO_WAIT_FREE: 7 and 9 teams on 2 courts) allow, against the
+// Part 6 (2026-11-15, latest): odd leagues of 5 to 29 teams at 6 time slots on the least courts
+// the bound and the proofs (PROVED_NO_WAIT_FREE: 5 teams on 1 court, 7 and 9 on 2) allow, against the
 // stored odd designs (odd-designs.mjs, eval/odd-night-sat.py).
 // Part 5 (2026-11-15, later): three sessions a night (9 time slots) on the least courts
 // (ceil(n / 6)), every even size with session blocks, against the stored three-session designs.
@@ -113,7 +113,7 @@ for (let n = 12; n <= 48; n += 2) {
 
 // Part 6
 console.log("\nPart 6. odd leagues at 6 times: teams courts | least courts by the count bound | stored odd design (its courts) | waits off (3 seeds) | waits on | ms on (avg) | valid");
-for (let n = 5; n <= 25; n += 2) {
+for (let n = 5; n <= 29; n += 2) {
   const T = 6;
   let C = Math.max(newNeed(n, T), Math.ceil((Math.floor(n / 2) * g) / T));
   const bound = C;
