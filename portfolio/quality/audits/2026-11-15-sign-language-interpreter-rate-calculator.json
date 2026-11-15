@@ -203,7 +203,8 @@
    "what": "Leaving 'Hours notice given' blank on the cancellation card passes Number('') = 0 and bills the full scheduled fee (100%, under-24-hours tier) with no warning; only the scheduled fee is validated",
    "where": "ventures/sign-language-interpreter-rate-calculator/index.html:323",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
   },
   {
    "severity": "medium",
@@ -245,7 +246,8 @@
    "what": "Holiday test asserts against the imported HOLIDAY_MULTIPLIER constant, so changing the multiplier can never fail it (seeded 2 -> 1.5 survived)",
    "where": "ventures/sign-language-interpreter-rate-calculator/calc.test.mjs:61",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
   },
   {
    "severity": "low",
@@ -262,6 +264,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"],
  "verdict": "A small, honest, correctly-calculated assignment pricer: every hand recomputation (page example $185.39, a team evening booking $801.75, holiday, cancellation boundaries, the comparison-page figures) matches to the cent and the disclaimers are thorough. It misses the bar on claims and verification and sits at 2 on domain: a blank notice field bills a 100% cancellation fee, a 0 minimum cannot be entered, the mileage default is the 2024 IRS rate, and the team prompt, attributed to RID without a citation, misses a 2 h legal deposition and any long general or educational booking. Two of seven seeded mutants survived, one because the holiday test checks the constant against itself. Rerun: node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs."
 }

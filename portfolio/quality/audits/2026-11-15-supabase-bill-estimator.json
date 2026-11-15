@@ -197,7 +197,8 @@
    "what": "Plan quotas and the $10 compute credit are applied once however many Pro organizations are entered, though each org has its own quotas and credit: 2 orgs inside quota estimate $409.60 instead of $50. The merge-orgs lever inherits this and never counts the quotas lost by merging",
    "where": "ventures/supabase-bill-estimator/engine.mjs:92",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
   },
   {
    "severity": "high",
@@ -249,6 +250,6 @@
    "origin": "tests"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"],
  "verdict": "A tidy, honest-in-tone calculator that is right for the simplest case (one org, one project, uncached egress, cap off) and matches Supabase's published Pro rates on 7 of 8 lines. It misses the billing structure a Supabase FinOps engineer checks first: quotas and the compute credit per organization (two in-quota orgs estimate $409.60 instead of $50), disk quota per project, cached egress as its own cheaper meter (Supabase's own example: $106.50 vs $51), and the default spend cap. Tests pass but check only the author's arithmetic; 3 of 6 mutants survive. Does not meet the bar."
 }

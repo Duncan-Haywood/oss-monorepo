@@ -1,0 +1,225 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/chip-exact4",
+ "stratum": "research",
+ "seed": "2026-11-15-8354",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a logic-synthesis researcher who works on exact synthesis and ABC/mockturtle (SAT-based exact synthesis, NPN databases, technology mapping). They would check first: the gate basis and cost model on both sides of the comparison, that the 'exact' minima are really minimal (SAT encoding sound and complete, or matched against Knuth's exhaustive 4-input table), the NPN class enumeration, prior work (Knuth TAOCP 7.1.2; Kojevnikov-Kulikov-Yaroslavtsev 2009; Soeken et al. DATE 2018; Haaswijk et al. TCAD 2020; Kulikov et al. SAT-based circuit local improvement), and whether ABC was asked to optimise the same objective with its best available scripts",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Exact side fully reproduced independently: my own numpy enumeration of every normal-gate circuit up to 6 gates (indep6.py, 36 s, imports nothing from the project) gives the function histogram 10, 60, 456, 2474, 10624, 24184, 25008, 2720 for costs 0..7, identical to results.txt line 2 and to Knuth TAOCP 4A 7.1.2 (the README calls that match unverified; it is now verified by an independent method), and 0 of 222 class costs in exact_costs.json disagree. My own orbit code gives 3984 P-classes, 402 NP-classes and 222 NPN classes (textbook values) and the same 222 representatives as exact_costs.json. Hand-checked minima: 4-XOR 3 ((a^b)^(c^d), and n-1=3 is a lower bound), 4-AND 3, 3-majority 4, 2:1 mux 3, 3-XOR 2. ABC side: Yosys/ABC are not installed and the sandbox refused a pip install of python-sat/yowasp-yosys, so run.py could not be re-run; instead I recomputed every section-A and section-D number from the stored abc_counts.json with my own canonicaliser: all 7 mean gaps, optimal %, max gaps, portfolio 1.007 / 38.3% / 545 of 884, and fast == strash_map on all 884 match results.txt, and min gap is 0 (ABC never beats the exact count). Capped at 3 because the ABC counts themselves were not reproduced here.",
+  "completeness": "README claims: 222 classes with sizes summing to 65,536 (test passes); SAT exact cost for all classes (exact_costs.json, 222 entries, verified); seven ABC variants on 884 sampled functions (abc_counts.json has 884 x 7); sections A-D in results.txt; figure gap_by_cost.svg from figure.py; live page https://marisstella.app/research/chip-exact4/ HTTP 200 with the 34%/1.19 headline and AI-assistance disclaimer. All present. Next steps (class-weighted means, 5-input, SKY130 cost) are honestly left open. pyproject declares no dependencies (python-sat, yosys), so the tests silently skip the core.",
+  "verification": "cd research/chip-exact4 && /usr/bin/python3.13 -m pytest -q tests: 2 passed, 3 skipped (SAT and ABC tests skip: no python-sat, no yosys). Six mutants via quality_mutate.py: 2 caught (apply_npn output negation dropped; input negations halved), 4 survived: SAT clause for gate-type index 0 removed (exact.py:107), normal-form test target&1 -> target&2 (exact.py:54), inverter count no longer removed from gate total (abc.py:49), portfolio min -> max (run.py:78). The SAT ones survive only because the tests skip in an environment without python-sat; the run.py/abc.py analysis has no test at all, and nothing pins results.txt.",
+  "craft": "Read src/chip_exact4/exact.py (126 lines), abc.py (50), tests/test_exact.py (85), experiments/run.py (91), figure.py. Compact and readable; SAT encoding is a standard Kojevnikov-style single-selection encoding with normal gates and a used-gate constraint. Defects: AbcTest carries the same skipUnless decorator twice (tests/test_exact.py:249-250); exists() opens a fresh solver per r instead of incremental assumption (fine at 4 inputs); a stale comment on exact.py:80 ('index a*?'); no declared dependencies; run.py writes abc_counts.json keyed by hex strings with no schema note.",
+  "claims": "Checked against results.txt and my recount: 34%/1.19/max 4 default; 38.3%/1.007/545 portfolio; resyn2 1.72; dc2 1.21; dch 1.22; -fast = strash;map 4.91, 3.8%; 27/222 and 96/222 varying classes; per-cost gaps; cost histogram; 'ABC never beats exact' (min gap 0). All backed. Limitations section is honest (one Yosys version, fixed scripts, unit cost with free inverters, unweighted means, sample of 884). Not disclosed: that ABC was optimising Yosys's non-unit genlib areas rather than the unit-gate objective (see domain); the title 'Yosys/ABC' reads as a statement about the tool though Limitations line 42 narrows it to these scripts.",
+  "fitness": "Job: a synthesis researcher wanting to know how far heuristic flows are from optimal on small logic. The exact table is now independently verified and reusable, but it is Knuth's well-known 1-to-7 table; the new part is the ABC gap on 884 functions with 7 scripts. Nearest prior: Kulikov et al.'s SAT-based local improvement (shows ABC-produced circuits improve under exact resynthesis of small windows), Haaswijk et al. TCAD 2020 and Soeken et al. DATE 2018 (exact synthesis vs heuristics), and ABC's own rewrite, which already uses NPN-optimal 4-input AIG subgraphs (Mishchenko et al. DAC 2006). None is cited or compared, ABC's exact/NPN-database modes (lutexact, twoexact, &deepsyn, mockturtle XAG database rewriting) are not run, and the project is not listed in research/PROGRAMMES.md. A small sound note, not yet something a researcher could cite as new.",
+  "domain": "Exact side matches standard practice (full binary basis, free inverters, normal-function SAT formulation, Knuth's cost). The comparison is where a practitioner objects: (1) Yosys's abc -g hands ABC a genlib whose areas come from Yosys's default gate costs (NOT nonzero, XOR/XNOR heavier than AND-type; kernel/cost.h, not checked here because Yosys is absent), so map minimises a different objective than the one it is scored on; (2) ABC map/&nf are delay-aware tech mappers, not gate-count minimisers, and the best ABC options for this question (exact synthesis, &deepsyn, NPN-database rewriting) are not tried; (3) means are unweighted by class size. The README's own limitations mention (3) and that the gap belongs to these scripts, which keeps this a 2 rather than a 1."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "exact-cost histogram over all 65,536 functions, costs 0..7",
+   "method": "independent exhaustive enumeration of all normal-gate circuits up to 6 gates; cross-ref Knuth TAOCP 4A 7.1.2 table",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/chip/indep6.py /home/user/oss-monorepo/research/chip-exact4/experiments/exact_costs.json (numpy only; enumerates every normal 2-input-gate circuit up to 6 gates; imports nothing from chip_exact4)",
+   "expected": "10, 60, 456, 2474, 10624, 24184, 25008, 2720 (Knuth)",
+   "observed": "10, 60, 456, 2474, 10624, 24184, 25008, 2720",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "per-class exact cost for all 222 NPN classes in exact_costs.json",
+   "method": "same independent enumeration (cost 7 = unreachable with 6 gates)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/chip/indep6.py /home/user/oss-monorepo/research/chip-exact4/experiments/exact_costs.json (numpy only; enumerates every normal 2-input-gate circuit up to 6 gates; imports nothing from chip_exact4)",
+   "expected": "0 mismatches",
+   "observed": "0 mismatches; 12 cost-7 classes",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "number of 4-input classes under P, NP and NPN equivalence",
+   "method": "own numpy orbit computation vs textbook counts (3984, 402, 222; Knuth 7.1.2 / OEIS A000370-type tables)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/chip/indep.py /home/user/oss-monorepo/research/chip-exact4/experiments/exact_costs.json (numpy orbit computation and <=5-gate enumeration; imports nothing from chip_exact4)",
+   "expected": "3984 / 402 / 222",
+   "observed": "3984 / 402 / 222, and same 222 representatives as exact_costs.json",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "hand-known minima: 4-XOR, 4-AND, 3-majority, 2:1 mux, 3-XOR",
+   "method": "hand construction plus n-1 lower bound; textbook (Knuth: median cost 4)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/chip/indep.py /home/user/oss-monorepo/research/chip-exact4/experiments/exact_costs.json (numpy orbit computation and <=5-gate enumeration; imports nothing from chip_exact4)",
+   "expected": "3, 3, 4, 3, 2",
+   "observed": "3, 3, 4, 3, 2 (enumeration and json)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "section A and D statistics from stored ABC counts",
+   "method": "recomputed from abc_counts.json with my own NPN canonicaliser",
+   "command": "cd research/chip-exact4/experiments && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/chip/recount.py abc_counts.json exact_costs.json (own NPN canonicaliser, raw stored ABC counts)",
+   "expected": "default 1.188/33.9/4 ... portfolio 1.007/38.3/545",
+   "observed": "all 7 variants and portfolio identical; min gap 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "re-run of headline experiment run.py (ABC counts)",
+   "method": "requires yosys + python-sat",
+   "command": "which yosys yosys-abc abc; /usr/bin/python3.13 -c 'import pysat'",
+   "expected": "fresh abc_counts.json equal to stored",
+   "observed": "yosys not installed, pysat missing, install refused by sandbox; not reproduced",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run tests",
+   "command": "cd research/chip-exact4 && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "all pass, core exercised",
+   "observed": "2 passed, 3 skipped (SAT and ABC tests skip)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page and headline",
+   "method": "load served page",
+   "command": "curl -s https://marisstella.app/research/chip-exact4/",
+   "expected": "200 with headline and disclaimer",
+   "observed": "200; 34% / 1.19 / max 4 headline; AI-assistance disclaimer",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'-fast equals strash; map on this data'",
+   "method": "compare stored counts",
+   "command": "cd research/chip-exact4/experiments && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/chip/recount.py abc_counts.json exact_costs.json (own NPN canonicaliser, raw stored ABC counts)",
+   "expected": "identical on all 884",
+   "observed": "identical on all 884",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Knuth match 'treat as unverified'",
+   "method": "independent enumeration",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/chip/indep6.py /home/user/oss-monorepo/research/chip-exact4/experiments/exact_costs.json (numpy only; enumerates every normal 2-input-gate circuit up to 6 gates; imports nothing from chip_exact4)",
+   "expected": "match",
+   "observed": "matches; README can now say verified",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "ABC optimises the same objective it is scored on",
+   "method": "read abc.py:44 (abc -g, Yosys-generated genlib) against Yosys default gate costs",
+   "command": "sed -n 40,50p research/chip-exact4/src/chip_exact4/abc.py",
+   "expected": "unit-area genlib or disclosed mismatch",
+   "observed": "default non-unit genlib, not disclosed (not run: no yosys)",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work and programme membership",
+   "method": "grep README and research/PROGRAMMES.md",
+   "command": "grep -n 'Haaswijk\\|Soeken\\|Kulikov\\|mockturtle' research/chip-exact4/README.md; grep -n chip-exact4 research/PROGRAMMES.md",
+   "expected": "nearest exact-vs-heuristic prior cited; programme entry",
+   "observed": "only Kojevnikov-Kulikov-Yaroslavtsev 2009 and Knuth; no programme entry",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/chip_exact4/exact.py:20",
+   "change": "((f >> y) & 1) ^ neg_out -> ((f >> y) & 1)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/chip_exact4/exact.py:33",
+   "change": "for ni in range(ROWS) -> for ni in range(ROWS // 2)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/chip_exact4/exact.py:107",
+   "change": "clauses.append(base + [-out]) -> pass (gate-type row 0 unconstrained)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/chip_exact4/exact.py:54",
+   "change": "if target & 1: -> if target & 2:",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/chip_exact4/abc.py:49",
+   "change": "inv = cells.pop( -> inv = cells.get( (inverters counted as gates)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "experiments/run.py:78",
+   "change": "best = [min(counts[f, v][0] -> best = [max(counts[f, v][0]",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Comparison is not like-for-like: abc -g makes ABC map against Yosys's default non-unit gate areas (inverters cost area, XOR/XNOR heavier), while the gap is scored as a unit gate count with free inverters; and ABC's exact-synthesis / NPN-database options are not run. The headline gap therefore mixes mapper heuristics with an objective mismatch, which the README does not disclose",
+   "where": "research/chip-exact4/src/chip_exact4/abc.py:44",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Core tests silently skip: python-sat and yosys are undeclared, so in a plain environment the SAT encoding and ABC counting are untested; 4 of 6 seeded mutants (two in the SAT encoding, one in inverter accounting, one in the portfolio statistic) survive, and nothing pins results.txt",
+   "where": "research/chip-exact4/tests/test_exact.py:229",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited or compared (Soeken et al. DATE 2018, Haaswijk et al. TCAD 2020, Kulikov et al. SAT-based circuit local improvement, ABC DAG-aware rewriting with NPN-optimal 4-input subgraphs), and no programme entry in research/PROGRAMMES.md; novelty unestablished",
+   "where": "research/chip-exact4/README.md:53",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "pyproject.toml declares no dependencies (python-sat; yosys is external), so a pip install cannot run the core",
+   "where": "research/chip-exact4/pyproject.toml:5",
+   "category": "repo-hygiene",
+   "origin": "build",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
+  },
+  {
+   "severity": "low",
+   "what": "Duplicate @unittest.skipUnless decorator on AbcTest",
+   "where": "research/chip-exact4/tests/test_exact.py:250",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
+  },
+  {
+   "severity": "low",
+   "what": "README says the Knuth cost-histogram match is unverified; an independent exhaustive enumeration (this audit) confirms all eight counts and all 222 class costs, so the caveat is stale and understates a strength",
+   "where": "research/chip-exact4/README.md:17",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"],
+ "verdict": "The exact half is right and now independently proven: an enumeration of every circuit of up to six gates, written without the project's code, reproduces Knuth's 4-input cost table (10 ... 2720) and every one of the 222 class costs, and the NPN/NP/P class counts are 222/402/3984. Every ABC statistic in results.txt recomputes from the stored counts, but the ABC counts themselves could not be re-run here (no Yosys, install refused). It misses the bar on verification: the SAT and ABC tests skip without undeclared dependencies and 4 of 6 seeded mutants survive. A logic-synthesis reviewer would also object that ABC was mapping against Yosys's non-unit genlib areas while being scored on unit gates, that ABC's exact and NPN-database modes were not tried, and that the nearest exact-vs-heuristic prior work is uncited."
+}

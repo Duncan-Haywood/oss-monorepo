@@ -173,14 +173,16 @@
    "what": "A pattern naming a directory without a trailing slash (/apps/github, **/logs, /src/payments, docs) never matches files inside that directory, though GitHub's docs and gitignore both say it does. GitHub's own example file resolves wrong on 3 of 9 paths; the rule is then reported as a harmless 'unmatched' notice and its files shown owned by an earlier catch-all, so a lost review requirement is hidden rather than found",
    "where": "ventures/codeowners-shadow-check/codeowners.mjs:130",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
   },
   {
    "severity": "medium",
    "what": "CLI checks CODEOWNERS locations in the order root, .github/, docs/; GitHub uses .github/ first, so with two files present the CLI reports on the file GitHub ignores (the code comment claims 'the same order')",
    "where": "ventures/codeowners-shadow-check/cli/check.mjs:16",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
   },
   {
    "severity": "medium",
@@ -225,6 +227,6 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"],
  "verdict": "A small, clean, zero-dependency checker whose central idea (find rules that last-match-wins makes dead) is right, implemented right for the forms it understands, and agrees with git on 55,741 of 63,570 real paths, with every disagreement a case where the tool follows GitHub and git does not. It does not meet the bar: its matcher drops the most common way to write a directory rule. '/src/payments @team', '/apps/github' and '**/logs', all forms GitHub's own docs use, match no file beneath the directory, so GitHub's example file resolves wrong on 3 of 9 paths and the lost rule is shown as a reassuring 'unmatched' notice, the exact silent failure the tool exists to catch. The CLI also reads the root CODEOWNERS before .github/ (GitHub does the reverse), invalid lines take part in resolution though GitHub skips them, and ownerless winners, which remove required review, are never shown on the page. 3 of 5 seeded mutants were caught."
 }
