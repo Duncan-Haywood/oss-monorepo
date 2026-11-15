@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight 123: Paul and the King Who Said Almost"
-seo_title: "Paul before Festus and King Agrippa: a bedtime Bible story from Acts 25-26"
+seo_title: "Paul before Festus and Agrippa: a bedtime Bible story, Acts 25-26"
 date: 2026-11-15
 tags: [fiction, saints-by-candlelight, bedtime-story, saints, acts-of-the-apostles]
 description: "Episode 123 of the bedtime saints podcast: I appeal to Caesar, a governor with a blank letter, and the king whose famous 'almost' may not mean almost."
