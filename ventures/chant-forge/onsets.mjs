@@ -198,14 +198,17 @@ export function readCoda(x, rate, vowelAt, tEnd) {
   const nasal = (f) => f.loRel >= -15 && f.lvl < -5 && f.lvl > -25 && f.hiRel < f.loRel - 15;
   // a tap: a brief dip, 12 dB or more under the vowel and under 30 ms at its deepest, with frames
   // 10 dB louder within 40 ms on both sides (a final r hums on after it). Searched locally: the
-  // quietest frame of the window is the release's fade.
+  // quietest frame of the window is the release's fade. After a dark vowel (/u/, /o/) the r's own
+  // voice on either side of its contact is up to 7 dB louder than the vowel, so a contact 13-17 dB
+  // under its neighbours sat only 9-12 dB under the vowel (README "Final consonants, fourth round"):
+  // a dip 6 dB under the vowel counts when frames 12 dB louder than it stand on both sides.
   let tapRun = null;
   for (let k = 1; k < fr.length - 1 && !tapRun; k++) {
     const fl = fr[k].lvl;
-    if (fl > -12 || fr[k - 1].lvl < fl || fr[k + 1].lvl < fl) continue;
+    if (fl > -6 || fr[k - 1].lvl < fl || fr[k + 1].lvl < fl) continue;
     let p0 = k, p1 = k; while (p0 > 0 && fr[p0 - 1].lvl < fl + 6) p0--; while (p1 < fr.length - 1 && fr[p1 + 1].lvl < fl + 6) p1++;
     if (p0 === 0 || p1 === fr.length - 1 || msOf([p0, p1]) >= 30) continue;
-    const side = (lo, hi) => fr.slice(Math.max(0, lo), Math.max(0, hi)).some((f) => f.lvl >= fl + 10);
+    const rise = fl > -12 ? 12 : 10, side = (lo, hi) => fr.slice(Math.max(0, lo), Math.max(0, hi)).some((f) => f.lvl >= fl + rise);
     if (side(p0 - 8, p0) && side(p1 + 1, p1 + 9)) tapRun = [p0, p1];
   }
   const floor = tapRun ? fr[tapRun[0]].lvl : null, dip = !!tapRun, s0 = tapRun?.[0], s1 = tapRun?.[1];
@@ -256,8 +259,12 @@ export function readCoda(x, rate, vowelAt, tEnd) {
     return before.length > 0 && Math.max(...before) >= median(held) + 5;
   };
   const step = runs(darkish, 45).find((r) => stepped(r) && !vowelAgain(r));
+  // A murmur that runs into a tap's contact or through it is the r's own voice around the contact: its
+  // formants (F1 450 Hz) are darker than /a/'s, so after /a/ it met the murmur rule for 30 ms and more, and
+  // no Latin coda puts a nasal next to an r (README "Final consonants, fourth round").
+  const intoTap = (r) => tap && r[0] <= tap[1] && r[1] >= tap[0] - 2;
   const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r)), step]
-    .filter(Boolean).sort((p, q) => p[0] - q[0])[0];
+    .filter((r) => r && !intoTap(r)).sort((p, q) => p[0] - q[0])[0];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
   if (!cands.length) return { cls: 'none' };

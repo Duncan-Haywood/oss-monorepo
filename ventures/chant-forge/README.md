@@ -579,6 +579,65 @@ was tuned (only 1 of 5 /i/ at G4 and none at A4 read as /i/ either way), so line
 no harm to what it can measure, not that the tuned /i/ sounds like /i/. That, and whether 1.1 is the right
 ratio, is a question for a listener.
 
+#### Final consonants, fourth round: the final r (2026-11-15, latest)
+
+After the third round the final r was the weakest coda: 4 of 11 on held-out set E, 7 of 9 on D, 9 of 14
+on the five pieces, and every miss on a short note (0.24 s) and nearly all read as nothing. Before
+changing anything a third held-out set was fixed (part F of `eval/coda-check-report.md`: files 1 and 4 of
+every six in `corpus/gregobase-1908`, twenty Graduale pieces, none in D or E) and scored with its misses
+hidden (`--hide-misses F`): 117 of 134 closings, r 3 of 7. A development set was named at the same time
+(part G, the other twenty pieces) to read misses on alongside B.
+
+- **What the reader saw** (G's *tur* and *tor.*, frame by frame): the r was sung like an opening's tap,
+  45 ms with its contact in the middle, on the note's last 45 ms. Its contact then sat 15-25 ms from the
+  next sound, and the next sound starts where the reader's window ends, so there was no voice after the
+  contact inside the note: to the reader the r was the note simply stopping. And where the next syllable
+  cut the note (*tur re*), the r was shortened to 34 ms and its 9 ms contact, smeared by 20 ms frames,
+  came out only 7-9 dB under the vowel.
+- **The synthesis** (`CODA_TAP`, `codaPlan` in `sing.mjs`): a final r is now its contact and then the
+  voice open again for a moment, 45 ms of contact (the opening tap's length) and 35 ms of voice with the
+  r's formants (floors 40 and 30 ms), so the tongue's flick sits inside the note with sound after it.
+  The tail's length is an assumption, not fitted to recordings of singers. An r inside a cluster (*r k*)
+  keeps its plain tap.
+- **The reader** (`readCoda` in `onsets.mjs`): after /u/ and /o/ the r's own voice either side of the
+  contact is up to 7 dB louder than the vowel, so a contact 13-17 dB under its neighbours sat only
+  9-12 dB under the vowel, and the reader asked for 12. A dip 6 dB under the vowel now counts when frames
+  12 dB louder than it stand on both sides (the old rule, 12 under the vowel with 10 either side, stays).
+  And after /a/ the r's voice, darker than /a/ (F1 450 against 730 Hz), met the murmur rule and read as
+  a nasal; a murmur that runs into or through a tap's contact is now taken as the r (no Latin coda puts
+  a nasal next to an r). That second rule came from the new unit test (*ar* on a 0.197 s note), not from
+  any part of the report.
+
+Results (`eval/coda-check-report.md`; vowel-only controls and bare-vowel syllables unchanged in every part):
+
+| set | before | first version | final | first synthesis alone | dip rule alone |
+|---|---|---|---|---|---|
+| F, held out, fixed this round (20 Graduale pieces) | 117 of 134 (87.3%) | 119 | 120 of 134 (89.6%) | - | - |
+| F: r | 3 of 7 | 5 | 6 of 7 | - | - |
+| E, held out in round 3 (misses not read since) | 75 of 86; r 4 of 11 | 80; r 9 | 81 of 86 (94.2%); r 10 of 11 | - | - |
+| D, held out in round 2 | 66 of 70; r 7 of 9 | 68; r 9 | 68 of 70 (97.1%); r 9 of 9 | - | - |
+| B, the five pieces (misses read) | 142 of 162; r 9 of 14 | 147; r 14 | 147 of 162 (90.7%); r 14 of 14 | 146; r 13 | 142; r 9 |
+| G, development set (misses read) | 130 of 142; r 5 of 9 | 134; r 9 | 134 of 142 (94.4%); r 9 of 9 | 131; r 6 | 130; r 5 |
+| A, syllables before a rest (tuning set) | 137 of 180 | 138 | 138 of 180 | 138 | 137 |
+
+Across the three held-out sets, final r went from 14 of 27 to 25 of 27. The "first version" is the
+synthesis with a 30 ms contact plus the reader's dip rule; the two ablations were run on the sets whose
+misses were read. The two changes help each other (B: 9 with neither, 13 and 9 alone, 14 together). The unit test then showed *ur* on a
+0.24 s note still reading as nothing (the 30 ms contact too shallow in 20 ms frames) and *ar* reading as a
+nasal, which led to the 45 ms contact and the murmur-into-tap rule. F was printed three times (before,
+after the first version, after the final one); its misses were never read, and nothing was changed on its
+numbers. The numbers on F are small: 7 r in twenty pieces long enough to read.
+
+Openings are unchanged (742 of 934, `eval/consonant-check-report.md`). Vowels measured before each final
+consonant hold at 97.3% (696 of 715, `eval/vowel-check-report.md`); over the whole note, a window that
+runs on into the coda, 874 to 865 of 920, because the final r now takes 60-80 ms of a note instead of
+35-45. The vowel check also had the coda's position slightly wrong on a note the next consonant cuts
+(it planned the coda on the uncut note); fixed, which adds one note to the 715. `sing.test.mjs` gains a
+test (15 in all): a final r leaves 25 ms or more of voice after its contact on 0.197-0.5 s notes, and
+*ur*, *or*, *er*, *ar* on D3 read as a tap up to the note's end on 0.197 and 0.242 s notes (it fails on
+the old code). Nobody has listened to it: whether the r's tail sounds like a flicked r or like an extra
+little vowel is the question for an ear.
+
 ### A score for the choir: `--musicxml` (2026-11-14)
 
 The MIDI file is for a DAW; a choir director prints parts. `--musicxml FILE` writes the same
