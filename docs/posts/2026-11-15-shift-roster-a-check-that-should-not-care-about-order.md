@@ -1,9 +1,9 @@
 ---
 title: "A scheduling check whose answer depended on the order it searched"
-seo_title: "Making a depth-first cover search order-independent in shift scheduling"
+seo_title: "Making a depth-first cover search order-independent in shift rosters"
 date: 2026-11-15
 tags: [scheduling, shift-roster-builder, search, operations-research]
-description: "Shift Roster Builder's second-call-out check gave different exact answers in different search orders. Here is the definition that fixed it, and the proof that pruning stays exact."
+description: "Shift Roster Builder's second-call-out check gave different exact answers in different search orders. The definition that fixed it, and why it stays exact."
 ---
 
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) has an
