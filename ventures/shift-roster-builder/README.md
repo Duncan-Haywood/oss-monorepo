@@ -34,7 +34,7 @@ zero dependencies, one JSON file on a disk you own.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Honour system: no geofence or PIN. Details in "Time clock and timesheets" below.
-- **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Section "Overtime, meal periods and rounding" below.
+- **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
 - **Shift trades:** staff pick their shift and a colleague's on the team page ("Want to trade shifts?"). `/admin` shows each request with the same check as the browser tool's trade checker (rest gaps, hour limits, availability, payroll change) and enables **Approve** only when both weeks stay inside the rules. Approving swaps the two people on the published schedule; declining changes nothing. Nobody is notified automatically (the "Tell the team" links give you the text to send).
@@ -121,8 +121,8 @@ now does it, read on the timesheet page and in the CSV.
   week. Stretches less than 2 hours apart are one work period (so a 3-hour gap is a split shift); a meal break is any
   clock-out of 30 minutes or more. Paid rest breaks are not punched and not checked. Not in the estimate: tips, bonuses,
   commissions and shift differentials (which belong in the regular rate), city minimum wages, predictive-scheduling pay,
-  split-shift premiums, union rules, and every other state. Nevada's daily overtime depends on the wage against the minimum
-  and is left out rather than guessed.
+  split-shift premiums, union rules, and every state not listed (Nevada and 13 meal-period states were added later the same
+  day, next section).
 - **Checked:** `payrules.test.mjs` (eight tests, every expected figure worked by hand in the test's comments): five 9-hour days
   federal (40 + 5) and California with and without lunch (one extra hour a day without); a 13-hour California day (8 + 4 +
   1 at 2x, two missed meals, one premium); a seventh consecutive day (8 at 1.5x, 2 at 2x) with waivable six-hour periods;
@@ -131,6 +131,62 @@ now does it, read on the timesheet page and in the CSV.
   California rules; a blended regular rate (30 h at $10 and 20 h at $20: $14, $770); and the hub's page and CSV end to end.
   Not claimed: no payroll provider has read the CSV, no real team's punches have been through it, and none of this is legal
   advice: it is an estimate to check before you pay.
+
+## Nevada, and meal periods in 13 more states (2026-11-15 later)
+
+`PAY_RULES` covered four rule sets, and the README said "Nevada's daily overtime depends on the wage against the minimum and
+is left out rather than guessed". A café in Las Vegas, Seattle or Portland got federal overtime and no break check. Both gaps
+are now filled from text read this session, not from memory:
+
+- **`PAY_RULES=nevada`** (`nv`), from the statute (leg.state.nv.us, NRS chapter 608, read 2026-11-15):
+  - NRS 608.018(1): 1.5x over 8 hours in a workday and over 40 in a week for anyone paid less than 1.5 times the NRS 608.250
+    minimum; 608.018(2): only over 40 a week at or above it. The minimum is $12.00 (the US DOL state minimum-wage table, read
+    the same day), so the line is $18.00 an hour; `MIN_WAGE` changes it. A person's blended rate for the week decides which
+    side they are on; with no wage on the staff list the daily rule is applied and the row says so.
+  - NRS 608.0126: the **workday is 24 hours from when the employee begins work**, not the calendar day. This is the part a
+    spreadsheet gets wrong: a close Monday 14:00-22:00 and an open Tuesday 06:00-14:00 are 8 hours on each calendar day but
+    16 hours in one Nevada workday, so 8 hours of overtime (`rollingWorkdays` in `payrules.mjs`; the Alaska rules on the same
+    punches give none).
+  - The mutually agreed four 10-hour days of 608.018(1)(b): set `NV_FOUR_TENS=1` and the daily rule is off (an agreement the
+    tool cannot see, so it is a setting, not a guess).
+  - NRS 608.019(1): a 30-minute meal period in any continuous 8 hours; a break under 30 minutes does not interrupt the
+    continuous period. Flagged, with no premium (the section sets none). The paid 10-minute rest periods of 608.019(2) are not
+    punched, so they are a note.
+- **Meal-period flags for 13 states** from the US Department of Labor's "Minimum Length of Meal Period Required under State
+  Law" table (dol.gov/agencies/whd/state/meal-breaks, revised 2023-01-01, read 2026-11-15): `washington`, `oregon`,
+  `connecticut`, `delaware`, `illinois`, `kentucky`, `maine`, `massachusetts`, `minnesota`, `new-hampshire`,
+  `rhode-island`, `tennessee`, `west-virginia` (names in any case, spaces or underscores, or two-letter codes). Each is a
+  small rule in `MEAL_RULES`: how long the work period must be, how long a clock-out counts as a break, and the window it must
+  start in (Washington between 2 and 5 hours from the start; Connecticut and Delaware after the first 2 hours and before the
+  last 2 of a 7.5-hour period; Illinois 20 minutes within 5 hours; Oregon's two windows for 6-7 and over 7 hours; Rhode
+  Island's 20 minutes at 6 hours and 30 at 8; Tennessee not in the first hour; and so on). Overtime in these states stays
+  federal, with one exception: the DOL's state minimum-wage table (read the same day) lists general daily overtime only for
+  Alaska, California, Colorado and Nevada among the states, but also Kentucky's **seventh-day rule** (1.5x for the hours on the
+  seventh day when all seven days of the workweek are worked; not when the employee is not permitted over 40 in the week), so
+  `PAY_RULES=kentucky` pays the seventh day at 1.5x in a week over 40 and then regular hours past 40, never an hour twice. The
+  same table's narrower premiums are printed as notes, not applied: Oregon's 10-hour day in mills, factories and canneries,
+  Connecticut restaurants' seventh consecutive day, Rhode Island's Sunday and holiday pay in retail, and Minnesota's own
+  48-hour line (federal 40 is used, since it covers most employers). The meal-period table lists premium pay for a missed
+  break only in California and Puerto Rico, so these are flags, not money, and each state's
+  exceptions the punches cannot show (eating while working in New Hampshire and West Virginia, fewer than three on duty in
+  Maine, written waivers) are printed as a note under the row.
+- **Where the table's words leave room** ("between 3rd and 5th hour"), the window is read on the wide side, so a flag means the
+  punches plainly miss it. New York's noonday rules, North Dakota's "if desired" and Vermont's "reasonable opportunities" are
+  not checked; nor is any city ordinance.
+- **On one invented week** (`node eval/pay-rules-by-state.mjs`, `eval/pay-rules-by-state.out.txt`: four people, an opener with
+  lunch at 4 hours, a closer with a clopen and 20-minute breaks, a $24 lead on four 10s with lunch at 6 hours, a part-timer on
+  6.5-hour shifts with no break): overtime is 9 hours federally and in the 13 meal-period states, 17 in California, Alaska and
+  Nevada (by different routes: Nevada's 8 are the closer's clopen, Alaska's the lead's 10-hour days, which Nevada leaves to the
+  weekly rule at $24), and meal flags run from 0 (federal) and 2 (Minnesota, where any clock-out to eat counts) to 12
+  (Washington, Kentucky, New Hampshire, California).
+- **Checked:** seven new tests in `payrules.test.mjs`, each figure worked by hand in the test: Nevada daily overtime at $15 against
+  weekly-only at $20, a lower `MIN_WAGE`, `NV_FOUR_TENS`, no wage; the 24-hour workday on the clopen and across its boundary;
+  the meal period with a 20- and a 30-minute break; Washington, Connecticut, Delaware, Illinois, Oregon, Rhode Island,
+  Massachusetts, Minnesota and Tennessee windows on both sides of each line; Kentucky's seventh day (50 h: 8 + 2; 42 h: 6 against 2 federally;
+  35 h: none); the name and code parsing; and the hub page and
+  CSV end to end under Nevada rules ($712.50 for five 9-hour days at $15). Not claimed: no Nevada or other-state employer has
+  read it, no labour office or lawyer has checked the readings, the DOL table is a summary that says to consult the state, and
+  none of this is legal advice.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 
