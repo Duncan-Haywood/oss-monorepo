@@ -744,6 +744,14 @@ export const BUILT_IN = [
   ["6160", "out", /\bmaverik\b|\bcenex\b|\btires?\b(?!.*\b(swing|toy)\b)/],
   ["6110", "out", /\bdmv\b/],
   ["6080", "out", /\brealpage\b/],
+  // Copilot Money exports (eval/aggregator-exports.mjs, 2026-11-15): written from the Florida household's
+  // first-seen misses only; the second Copilot file (one person's 2022-2024 cards) was scored after. Most of
+  // the household's misses are its trip budget (a cafe or a grocer on holiday filed as travel), which no
+  // keyword should copy. Netflix, Kindle and IRS payments stay for a person, as the tests above pin.
+  ["6060", "out", /\bclaude\.ai\b|\botter\.ai\b|^google one$/],
+  ["6160", "out", /^marathon( #?\d{3,}|$)|\bjustpark\b|\bauto lease\b/],
+  ["6120", "out", /\be-pass\b/],
+  ["6140", "out", /\bfpl\b|\bdukeenergy\b/],
   // Labelled books (eval/opencollective-labelled.mjs, 2026-11-10): the words people type on an expense or invoice
   // ("web hosting", "legal services", "printing", "supplies"), written from two fiscal hosts' misses and checked on three
   // hosts no rule was written from. Last in the list, so a vendor name above always wins. "Gas", "maintenance" and a
@@ -919,6 +927,9 @@ export function parseRules(text, accounts) {
 // name one account unambiguously; everything else stays in review. Lower confidence than
 // a keyword, because these labels are coarse ("Shopping", "Bills & Utilities" are left out).
 export const BANK_CATEGORY = [
+  // Copilot Money's "internal transfer" type (bank.mjs reads it as this label): money between the owner's
+  // own accounts, 707 lines of one real export, 62 of which the keywords or memory filed as spending or income.
+  ["transfer", /^internal transfers?$/i],
   ["6040", /^(fee\/)?interest( charges?)?$|^fee\/interest charge$|^finance charges?$/i],
   ["6010", /^(fees? (&|and) adjustments|bank fees?|service fees?|fees?)$/i],
   // Mercury's merchant category for its own foreign-transaction fees: 45 of 45 lines were filed to
@@ -948,6 +959,7 @@ export const BANK_CATEGORY = [
 ];
 // Money in: only labels that name one income account.
 export const BANK_CATEGORY_IN = [
+  ["transfer", /^internal transfers?$/i],
   ["4200", /^(interest|interest income|dividends?)$/i],
   ["4000", /^(sales|business income|self[- ]employment income|revenue)$/i],
 ];
@@ -1028,7 +1040,7 @@ export function suggest(txn, model) {
   // payee these books have never seen (mcc.mjs; measured in eval/scotgov-card.mjs).
   if (!MCC_MEMORY.before) { const mc = mccSuggest(txn, model, ranked, off, d); if (mc) return mc; }
   if (txn.bankCat && !off.has("bank-category")) {
-    const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
+    const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (a === "transfer" || (model.codes?.has(a) ?? true)));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
   if (d === "out" && !off.has("brand")) {

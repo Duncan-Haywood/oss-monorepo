@@ -527,6 +527,11 @@ export function sniffBank(rows) {
     // 2026-11-14, eval/aggregator-exports.mjs: 944 of 958 lines positive, the 14 negative ones airline and
     // hotel refunds; two other projects' test files agree). Before, a card's spend was booked as income.
     if (/^date\|original date\|account type\|account name\|account number\|institution name\|name\|custom name\|amount\|description\|category/.test(h)) return "rocket-money";
+    // Copilot Money writes the same way round: money out positive, income and refunds negative, plus a
+    // "type" of regular, income or internal transfer (two real exports read 2026-11-15,
+    // eval/aggregator-exports.mjs: one household's 1,876 lines had every sign read backwards, the
+    // other was named Amex; two other projects' test files carry the same header).
+    if (/^date\|(name|description)\|amount\|(status\|)?category\|parent category\|/.test(h)) return "copilot-money";
     if (/^date\|description\|type\|amount\|current balance\|status/.test(h)) return "sofi";
     if (/^transferwise id\|date\|(date time\|)?amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
@@ -1278,7 +1283,10 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       else if (m === "from") cents = Math.abs(cents);
     }
     // The bank's or app's own category label (Chase, Capital One, Mint, Maybe): kept as a weak hint for the categorizer.
-    const bankCat = ((catCol === -1 ? "" : String(r[catCol] ?? "").trim()) || (catCol2 === -1 ? "" : String(r[catCol2] ?? "").trim())).slice(0, 60);
+    // Copilot Money marks money moved between the owner's own accounts with the type "internal transfer",
+    // whatever category it carries ("miscellaneous" on 680 lines of one real export): that type is the label.
+    const copilotTransfer = bank === "copilot-money" && typeSideCol !== -1 && /^internal transfer$/i.test(String(r[typeSideCol] ?? "").trim());
+    const bankCat = copilotTransfer ? "Internal Transfer" : ((catCol === -1 ? "" : String(r[catCol] ?? "").trim()) || (catCol2 === -1 ? "" : String(r[catCol2] ?? "").trim())).slice(0, 60);
     let mcc = mccCol === -1 ? "" : String(r[mccCol] ?? "").trim().slice(0, 60);
     // US Bank's card export has no MCC column but writes it into the memo after the
     // reference number: "24269794038500527407893; 05411; ; ; ;" (a real download read
@@ -1300,8 +1308,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1 && drcrCol === -1 && !sidesAgree(out, sides)) {
     // Discover's header is distinctive and its export always lists charges as positive, so a
     // file with no recognisable payment row (a month of purchases only) still flips.
-    const pos = bank === "rocket-money" || (chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null));
-    if (pos) { flip = true; inferred = bank === "rocket-money" ? "Rocket Money lists money out as positive amounts and refunds and deposits as negative, so signs were flipped." : "Charges were positive (the payment rows are negative), so signs were flipped."; }
+    const pos = bank === "rocket-money" || bank === "copilot-money" || (chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null));
+    if (pos) { flip = true; inferred = bank === "rocket-money" ? "Rocket Money lists money out as positive amounts and refunds and deposits as negative, so signs were flipped." : bank === "copilot-money" ? "Copilot Money lists money out as positive amounts and income and refunds as negative, so signs were flipped." : "Charges were positive (the payment rows are negative), so signs were flipped."; }
     // A merchant category column means a card file, and a purchasing-card report (Toronto's PCard
     // report, Durham's procurement-card file) lists charges as positive and refunds as negative, with
     // no payment rows for the test above to find. Before this, a month of card spend was booked as income.
