@@ -1,0 +1,62 @@
+name: mann-kendall-trend
+description: >-
+  Free browser tool, CLI and agent call for hydrologists, water-quality and
+  environmental staff, ecologists and climate analysts: paste dates and
+  values and get the Mann-Kendall trend test, Sen's slope with a confidence
+  interval, serial-correlation corrections, and for monthly data the seasonal
+  Kendall test with the Hirsch-Slack covariance and a homogeneity test.
+  Matches pymannkendall and scipy. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-15 on an explore run, as the eighteenth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md). No venture in the
+# tree tested for a monotonic trend (changepoint-detector finds shifts,
+# stl-decomposition separates trend from season without testing it).
+# Implemented from the papers' mathematics; no third-party code was ported.
+# pymannkendall 1.4.3 (MIT) and scipy 1.17.1 (BSD-3-Clause) were used only to
+# produce eval/reference.json.
+# Example data: USGS gauges 01646500 and 01646502, Potomac River at Little
+# Falls (public domain; data/SOURCE.md).
+#
+# First visitor: searches such as "mann kendall test online", "sen's slope
+# calculator", "seasonal kendall test", "modified mann kendall autocorrelation";
+# hydrology and environmental-science students and staff with a series in a
+# spreadsheet. Volume not measured with an external tool.
+#
+# Alternatives: pymannkendall and R's trend / Kendall / rkt packages (code),
+# USGS EGRET and the EPA's ProUCL (installs), spreadsheet add-ins. The
+# differentiators here: no install and no upload, every correction side by
+# side, the between-season covariance and homogeneity test in one view, and a
+# default chosen by a published simulation (README, "Why Yue-Wang").
+#
+# Liability: statistical output from supplied data, not advice; the page says
+# a trend is not a cause and does not replace a regulator's prescribed method.
+# Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      People testing environmental series for trend will use a no-install
+      Mann-Kendall tool that shows every autocorrelation correction and the
+      seasonal covariance, over writing pymannkendall or R code themselves.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with pymannkendall or scipy on the same data and settings beyond rounding (outside the documented Yue-Wang difference), and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/mann-kendall-trend/
+  analytics: null
