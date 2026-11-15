@@ -1,9 +1,9 @@
 ---
 title: "What SdI said, checked against the file it said it about"
-seo_title: "SdI ricevuta di scarto explained: error codes checked against your FatturaPA"
+seo_title: "SdI ricevuta di scarto: every error code explained and checked"
 date: 2026-11-15
 tags: [einvoice-preflight, ventures]
-description: "Our checker now reads Italy's SdI receipts, explains every rejection code in English, and checks each one against the invoice. We tried it on 33 public SdI receipts, including a real rejection."
+description: "Our checker now reads SdI receipts, explains each rejection code in English and checks it against the invoice. Tried on 33 public receipts."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) checks an e-invoice before it is sent. For Italy that means FatturaPA files sent through the Sistema di Interscambio (SdI), and we have spent several runs making the checker's Italian rules match the Agenzia delle Entrate's specification. One thing was missing: we had never compared them with anything SdI actually said.
