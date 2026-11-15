@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-15 · Milestone 6w (H6 mechanism): do long inner loops wash out one round's rand-k noise faster than short ones? Fork-and-inject at H = 16 and 64, four seeds (planned before running)
+
+- Why: 6u and 6v's "Next". Per-round noise energy (6u) and rand-k's sparsity (6v) do not explain why keep 1/8 (omega 7) costs +0.0220 (se 0.0016) at H = 16 and -0.0016 (0.0038) at H = 64. The candidate left: the inner loops after a noisy outer step remove that noise, and 64 AdamW steps remove more of it than 16.
+- Run (`experiments/gpt_scale/contraction_6w.py`, written before the runs): the size-2 setup of `scale.py`, uncompressed to step 1,920; then the full state (global model, workers, inner AdamW moments, data generators) is forked. The reference and the fork run the same next round, the fork aggregating rand-k keep-1/8 deltas, so the two global models differ only by that round's real rand-k noise. Both continue uncompressed with identical data for 256 more inner steps (16 rounds at H = 16, 4 at H = 64). Record D_k = ||theta_fork - theta_ref||^2 after each round, s_k = D_k / D_0. H = 16 and 64, seeds 0 to 3; 8 runs, plus a control (identity compressor in both forks) that must give D = 0 exactly.
+- **H6w-i** (prior 50%): after one further round, log s is lower at H = 64 than at H = 16 by more than 2 se (seed means, unpaired). **H6w-ii** (prior 35%): the same after an equal 64 inner steps (1 round at H = 64, 4 at H = 16). **H6w-iii** (prior 60%): the perturbation shrinks: s < 1 after 256 inner steps in every run (training does not amplify it, as chaotic divergence would).
+- Reading: i and ii holding make per-step contraction the mechanism (long inner loops forget outer noise faster per step); i holding with ii failing says contraction is per inner step and H = 64 just takes more of them per round, so the per-round account matters; iii failing makes parameter distance the wrong yardstick (trajectories diverge) and points at the loss difference, recorded as exploratory at injection and at the window's end.
+- Not tested: other injection points than mid-training, other omega, other widths, isotropic noise in place of rand-k.
+
 ## 2026-11-15 · Milestone 6v (H6 mechanism): is it rand-k's sparsity? Gaussian noise of rand-k's energy at omega 7, H = 16 and 64, four seeds (planned before running)
 
 - Why: 6u's "Next" and its second untested candidate. Per-round noise energy does not explain why keep 1/8 (omega 7) costs +0.0220 (se 0.0016) at H = 16 and -0.0016 (0.0038) at H = 64. What rand-k adds beyond its energy is structure: it zeros 7 of 8 coordinates per worker and scales the rest by 8, so its noise on coordinate i has variance omega d_i^2 and is heavy-tailed. AdamW's per-coordinate normalisation could treat that differently from spread-out noise.
