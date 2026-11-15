@@ -144,3 +144,56 @@ test("Green Button XML: daylight saving from the file's rules, and only the deli
   assert.equal(p.rows[0].kwh, 1); // the received 5 kWh is not merged in as a "larger reading"
   assert.equal(p.rows[1].kwh, 2);
 });
+
+test("single-digit ISO days and months parse (2025-1-5)", () => {
+  assert.equal(parseTimestamp("2025-1-5 14:15"), Date.UTC(2025, 0, 5, 14, 15));
+});
+
+test("a 12 AM start time in a separate time column is midnight, not 1 AM", () => {
+  const csv = [
+    "DATE,START TIME,END TIME,USAGE (kWh)",
+    "2025-01-01,12:00 AM,12:14 AM,0.5",
+    "2025-01-01,12:15 AM,12:29 AM,2",
+  ].join("\n");
+  const p = parseUsage(csv);
+  assert.equal(p.rows[0].t, Date.UTC(2025, 0, 1, 0, 0));
+  assert.equal(p.rows[1].t, Date.UTC(2025, 0, 1, 0, 15));
+  assert.equal(p.rows[0].min, 15);
+});
+
+test("the period runs to the end of the last reading, and coverage is 1 for clean data", () => {
+  const lines = ["Start,kWh"];
+  for (let i = 0; i < 8; i++) lines.push(`2025-01-01 ${String(Math.floor(i / 4)).padStart(2, "0")}:${String((i % 4) * 15).padStart(2, "0")},1`);
+  const m = measuredDemand(parseUsage(lines.join("\n")));
+  assert.equal(m.to, Date.UTC(2025, 0, 1, 2, 0));
+  close(m.coverage, 1);
+  close(m.spanDays, 2 / 24);
+});
+
+test("out-of-range clock times are refused, not rolled into another hour or day", () => {
+  assert.ok(Number.isNaN(parseTimestamp("2025-01-01 14:75")));
+  assert.ok(Number.isNaN(parseTimestamp("1/1/2025 14:60")));
+  assert.ok(Number.isNaN(parseTimestamp("2025-01-01 24:30")));
+  const csv = [
+    "DATE,START TIME,END TIME,USAGE (kWh)",
+    "2025-01-01,00:00,00:14,1",
+    "2025-01-01,00:15,00:29,1",
+    "2025-01-01,77:30,77:44,9",
+    "2025-01-01,00:45,00:59,1",
+  ].join("\n");
+  const p = parseUsage(csv);
+  assert.equal(p.rows.length, 3);
+  assert.match(p.notes.join(" "), /1 line\(s\) skipped/);
+  const m = measuredDemand(p);
+  assert.ok(m.spanDays < 1, `span ${m.spanDays} days`);
+});
+
+test("one missing line in a short paste does not double the interval length", () => {
+  // 00:00, 00:15, then 00:45: gaps 15 and 30. The meter reads every 15 minutes.
+  const p = parseUsage("Start,kWh\n2025-01-01 00:00,1\n2025-01-01 00:15,1\n2025-01-01 00:45,1");
+  assert.deepEqual(p.rows.map((r) => r.min), [15, 15, 15]);
+  const m = measuredDemand(p);
+  assert.equal(m.intervalMin, 15);
+  close(m.peakKw, 4);
+  assert.ok(m.coverage <= 1, `coverage ${m.coverage}`);
+});

@@ -205,3 +205,15 @@ test("a dose the parents gave before the sit spaces the next one but is not the 
   // The parent's email lists only what the sitter gave.
   assert.doesNotMatch(SR.reportMessage(report, { family: fam }), /Medicine given/);
 });
+
+test("impossible medication times are refused, not rolled into a later time", async () => {
+  const { parseTimes } = await import("./sitreport.mjs");
+  const { toMin } = await import("./engine.mjs");
+  assert.deepEqual(parseTimes("14:75"), []);
+  assert.deepEqual(parseTimes("8:75pm, 8pm"), ["20:00"]);
+  assert.deepEqual(parseTimes("13pm"), []);
+  assert.ok(Number.isNaN(toMin("24:30")));
+  assert.equal(toMin("24:00"), 1440);
+  assert.equal(toMin("12:59 am"), 59);
+  assert.deepEqual(parseTimes("8am, 8:30 pm"), ["08:00", "20:30"]);
+});
