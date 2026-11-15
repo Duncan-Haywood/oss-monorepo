@@ -37,6 +37,10 @@
     {
       "file": "research/_shared/pick_track.py",
       "issue": "CLAIM CHECK said 'clear' for marine-hull; a sibling opened #16349 on the same milestone about a minute before my PR, visible only via portfolio/router/claim_check.py after my PR was open. Two runs drawn to the same programme in the same minute both see clear."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing step 3's claim check runs before choosing; with two sessions drawn to the same programme within a minute, the only signal came from portfolio/router/claim_check.py after opening the PR. Running claim_check.py right after pick_track (before writing code) would have saved one discarded script."
     }
   ],
   "deviations": [
@@ -52,7 +56,7 @@
     "research/marine-hull/LOG.md (6zzm entry)"
   ],
   "goal": null,
-  "notes": "Research track draw 0.2456; programme draw redrawn past sensing-selfcal (open PR #16329) to marine-hull. Fetched ERA5 shortwave (Open-Meteo, 9 requests, one connection reset retried). Verification: tests/test_lag3_era5.py 4 OK; research/_homepage/build.py ok; cite_check ok; check_md_links ok; post front matter, links and similarity ok; programme_check ok. M1, M2, M4, M5 held; M3 refuted. No separate agent doc: the LOG entry carries the next steps.",
+  "notes": "Research track draw 0.2456; programme draw redrawn past sensing-selfcal (open PR #16329) to marine-hull. Fetched ERA5 shortwave (Open-Meteo, 9 requests, one connection reset retried). Verification: tests/test_lag3_era5.py 4 OK; research/_homepage/build.py ok; cite_check ok; check_md_links ok; post front matter, links and similarity ok; programme_check ok. M1, M2, M4, M5 held; M3 refuted. No separate agent doc: the LOG entry carries the next steps. Merge with main conflicted after #16349 (6zzl) landed; resolved LOG/README by keeping both entries, then added a labelled post-hoc check of 6zzl's summer-sign mechanism on both sources (NASA rho -0.70 reproduces it, ERA5 rho -0.10 does not).",
   "corrections": [],
   "redteam": null,
   "usage": {

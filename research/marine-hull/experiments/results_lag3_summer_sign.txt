@@ -1,0 +1,8 @@
+Milestone 6zzl exploratory: signed error of each single learning year against the scored half's own ratios (real shape, energy-weighted, mean over 9 points x 2 halves)
+  lag  hi168 (6zzi)  local summer e  rest of year e
+    1            77         -0.0031         +0.0085
+    2           153         -0.0021         -0.0089
+    3             1         +0.0023         -0.0063
+    4           124         -0.0106         -0.0020
+    5            50         +0.0057         +0.0064
+Spearman rho(hi168, local-summer e) over the five lags: -0.60

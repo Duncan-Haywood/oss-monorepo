@@ -42,6 +42,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
 import run_fresh_years as fy  # noqa: E402
+import run_lag3_diagnosis as dg  # noqa: E402
 import run_reserve_curve as rc  # noqa: E402
 import run_subset_years as su  # noqa: E402
 
@@ -53,6 +54,7 @@ LAGS = (1, 2, 3, 4, 5)
 LAG3_YEARS = (2007, 2012)
 MONTHS = tuple(range(12))
 MNAME = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+HI168_LC = (77, 153, 1, 124, 50)  # 6zzi / 6zzl: LC learned on lag 1..5, high-amplitude 168 cells
 ERA5_FILE = os.path.join(HERE, "data", "era5_sun_hiamp_2005_2024.json")
 
 
@@ -202,6 +204,26 @@ def main():
                     dk += [abs(x) for x, wi in zip(e, w) if wi < 1 / 24]
             out.append((st.fmean(al), st.fmean(dk), len(dk)))
         print(f"  {g:3d} | {out[0][0]:.4f}   | {out[1][0]:.4f}   | {out[0][1]:.4f}    | {out[1][1]:.4f}    | {out[0][2]}")
+
+    print("\nPost hoc, after 6zzl (PR #16349) landed during this run (not a test): 6zzl's summer-sign reading, that the two "
+          "worst learning years (lags 3 and 5) are the only two that learned a brighter local summer than the scored "
+          "years saw. Energy-weighted local-summer mean e (DJF south of the equator, JJA north), 9 points x 2 halves, "
+          "next to 6zzi's hi168 LC count")
+    print("  lag | NASA summer e | ERA5 summer e | hi168 LC (6zzi)")
+    summ = {"NASA": [], "ERA5": []}
+    for g in LAGS:
+        for S in ("NASA", "ERA5"):
+            vals = []
+            for p in HI:
+                an, w, _ = P[S][p]
+                ms = [m - 1 for m in dg.season_months(p, "summer")]
+                for hn in HALVES:
+                    e = lag_error(an, hn, g)
+                    vals.append(sum(w[m] * e[m] for m in ms) / sum(w[m] for m in ms))
+            summ[S].append(st.fmean(vals))
+        print(f"  {g:3d} | {summ['NASA'][-1]:+.4f}       | {summ['ERA5'][-1]:+.4f}       | {HI168_LC[g - 1]}")
+    print(f"  Spearman rho(hi168, summer e): NASA {su.spearman(list(HI168_LC), summ['NASA']):+.2f}, "
+          f"ERA5 {su.spearman(list(HI168_LC), summ['ERA5']):+.2f} (five lags; two-sided permutation p of |rho| >= 0.7 is 0.23)")
 
     v = lambda ok: "held" if ok else "refuted"  # noqa: E731
     top_e = max(LAGS, key=lambda g: wabs["ERA5"][g])

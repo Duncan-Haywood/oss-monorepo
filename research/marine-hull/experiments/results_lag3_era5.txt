@@ -89,6 +89,15 @@ Post hoc (added after the predictions were scored, not a test): unweighted mean 
     4 | 0.0792   | 0.0863   | 0.1065    | 0.1108    | 68
     5 | 0.0736   | 0.0843   | 0.0855    | 0.0947    | 68
 
+Post hoc, after 6zzl (PR #16349) landed during this run (not a test): 6zzl's summer-sign reading, that the two worst learning years (lags 3 and 5) are the only two that learned a brighter local summer than the scored years saw. Energy-weighted local-summer mean e (DJF south of the equator, JJA north), 9 points x 2 halves, next to 6zzi's hi168 LC count
+  lag | NASA summer e | ERA5 summer e | hi168 LC (6zzi)
+    1 | -0.0031       | -0.0245       | 77
+    2 | -0.0002       | +0.0123       | 153
+    3 | +0.0090       | +0.0056       | 1
+    4 | -0.0102       | -0.0106       | 124
+    5 | +0.0044       | +0.0172       | 50
+  Spearman rho(hi168, summer e): NASA -0.70, ERA5 -0.10 (five lags; two-sided permutation p of |rho| >= 0.7 is 0.23)
+
 Predictions
 M1 r(NASA, ERA5 anomalies) over 2007 and 2012 >= 0.6: held (+0.711)
 M2 r(NASA, ERA5 lag-3 errors) >= 0.5: held (+0.765)
