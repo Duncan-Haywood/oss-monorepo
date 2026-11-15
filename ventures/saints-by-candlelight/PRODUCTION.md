@@ -182,7 +182,7 @@ any already in `episodes/`). Mark one you finish `- *(Done: episode N,
 Title.)*` at the start of its line, then run `node list_done.mjs` to move it
 to DONE.md (`node --test` fails while one is left here):
 
-- Next up, suggestions: Paul before Felix and Drusilla, Tertullus the orator and the two years at Caesarea (Acts 24, a sequel to episode 121); Egeria at Sinai, the climb straight up as if up a wall and the burning bush still growing (Travels, chapters 1-5, a prequel to episode 120); more saints' lives (Saint Theognius or Saint John the Hesychast, Cyril's other desert lives; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
+- Next up, suggestions: Paul before Festus and King Agrippa and Bernice, I appeal to Caesar and almost you persuade me (Acts 25-26, a sequel to episode 122); Egeria at Sinai, the climb straight up as if up a wall and the burning bush still growing (Travels, chapters 1-5, a prequel to episode 120); more saints' lives (Saint Theognius or Saint John the Hesychast, Cyril's other desert lives; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
 
 ## Audio status
 
