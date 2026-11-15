@@ -24,7 +24,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 18,
@@ -38,7 +38,7 @@
     "ventures/einvoice-preflight/eval/nav-annex1-calculations-2026-11-15.md"
   ],
   "goal": null,
-  "notes": "Annex I (2026.02.12) read warning by warning: 5 cited codes nonexistent (now own checks, nav:null), 6 renamed, tolerance floor 0.01 currency not 1 unit, discounts handled, zero-base rows skipped, 21 warnings added; all 54 active calc/summary warnings in. NAV's 30 samples unchanged (27 clean, 5 findings). 633 mutants, 624 caught; 8 new misses all where Annex I says the warning does not run. run_venture_tests.py einvoice-preflight: 2475 tests ok (106 skipped, npm deps). Local workflow run and venture-preflight results appended below when done.",
+  "notes": "Annex I (2026.02.12) read warning by warning: 5 cited codes nonexistent (now own checks, nav:null), 6 renamed, tolerance floor 0.01 currency not 1 unit, discounts handled, zero-base rows skipped, 21 warnings added; all 54 active calc/summary warnings in. NAV's 30 samples unchanged (27 clean, 5 findings). 633 mutants, 624 caught; 8 new misses all where Annex I says the warning does not run. run_venture_tests.py einvoice-preflight: 2475 tests ok (106 skipped, npm deps). run_workflow_locally --for-changes: 8 workflows' run steps passed, ventures-tests handed off (same suite run directly above). venture-preflight: first run flagged the post's front matter lengths and the unfilled record (both fixed), second run clean. PR CI green.",
   "corrections": [],
   "redteam": null
 }
