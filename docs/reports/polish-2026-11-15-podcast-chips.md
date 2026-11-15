@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, regression]
+topics: [design, accessibility]
 date: 2026-11-15
 ---
 # Polish 2026-11-15: podcast topic chips crushed by the blog's phone chip row
