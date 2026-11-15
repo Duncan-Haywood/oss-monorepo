@@ -1,6 +1,6 @@
 ---
 title: "The Field That Held the Water Back: a story about a culvert that was too small on purpose"
-seo_title: "Culvert sizing, the rational method and a flood: a science fiction story"
+seo_title: "Sizing a culvert by the rational method: a science fiction story"
 date: 2026-11-15
 tags: [fiction, hearth-and-horizon, engineering, drainage, flooding, hydrology]
 description: "A new Hearth & Horizon story: a bigger pipe under a school lane moves the flood to the next culvert, and a dry basin on an estate green fixes it."
