@@ -4683,3 +4683,53 @@ before the move; and SMD at 10-minute buckets on a few machines, to see how much
 Tests: `watch-smd.test.mjs` (7: the round's constants, segments and the interpretation labels, a machine in hourly
 buckets, the score on made-up lines, T14 on made-up totals, the floors' reading with a loud column, and the committed
 output's verdicts).
+
+## Round 19: SMD at 10-minute buckets on three machines, to see how much of round 18's miss is hourly dilution (2026-11-15, pre-registered; no arm meets either line)
+
+Round 18 left open "SMD at 10-minute buckets on a few machines, to see how much of the miss is hourly dilution": two
+thirds of SMD's segments last under an hour, and an hourly mean shrinks a 10-minute event to a sixth. This round runs
+round 18's pipeline twice on the same three machines, chosen by name before anything was looked at (the first of each
+SMD group: machine-1-1, machine-2-1, machine-3-1; 93 watched metrics, 24 scored segments), changing only the bucket:
+H is hourly buckets replayed after every point (round 18 exactly), T is 10-minute buckets checked once an hour
+(replayWatch's `step` of 6, each alert dated back by bisection to the point that would have sent it). The whole-watch
+budget (2 lines per 100 hourly checks, so 3-4 setup lines a machine) is the same in both. The policy and the floors'
+rolling windows are kept in points, as shipped. The null stretch was not run (it would have doubled a 70-minute run);
+round 18 measured it under H on all 28 machines. `node eval/watch-smd-10min.mjs smd-data [cache]` (output
+`eval/watch-smd-10min.out.txt`, 4,162 s on 4 cores). The rule, design, predictions and code were committed in this PR's
+second commit, before any run that printed a score.
+
+| three machines, 24 segments | H lines | H caught (under 60 min, longer) | H median delay | T lines | T caught (under 60 min, longer) | T median delay | T at a mark |
+|---|---|---|---|---|---|---|---|
+| Q, no floor | 1,080 | 22 (12/14, 10/10) | 4 h | 5,193 | **24** (14/14, 10/10) | **0.7 h** | 10.7% |
+| R, one spread k (round 15) | 61 | 12 (4, 8) | 4.5 h | 39 | 12 (3, 9) | 1.1 h | **66.7%** |
+| S, loud split (round 16) | 66 | 14 (6, 8) | 4 h | 289 | 16 (7, 9) | 0.8 h | 32.2% |
+| K, rolling move floor (round 17) | 19 | 4 (1, 3) | 4.5 h | 62 | 9 (1, 8) | 1 h | 24.2% |
+
+Chance for "at a mark" is 11.2% under H and 6.3% under T (the windows are a bucket wide each side, so they shrink with
+the bucket). H reproduced round 18's by-machine catches for every arm (Q 8/11/3, R 4/7/1, S 4/9/1, K 2/2/0).
+
+- **D19 (under T an arm keeps Q's catches less 6%) is not met by any arm**: R 12, S 16 and K 9 against the 23 needed.
+- **D19' (an arm's kept share of Q's catches rises 20 points from H to T) is not met either**: R went from 55% to 50%,
+  S from 64% to 67%, K from 18% to 38% (19.3 points, one short).
+- As pre-registered, nothing changes for the product: finer buckets did not rescue the floors on these machines, and
+  round 18's reading (the miss is set by the data and the budget, not the bucket) stands.
+
+**Predictions, scored.** H reproduces round 18: right, exactly. Q under T catches about as many: right (24 of 24, from
+22). No arm meets D19: right. R and S meet D19': wrong for both; R's kept share fell and S's rose 3 points. K does not
+meet D19': right, by 0.7 points.
+
+**What the round says (deciding nothing).** The short segments are not where finer buckets help the floors. Under T the
+floors caught 3, 7 and 1 of the 14 segments under an hour, against 4, 6 and 1 under H. What T changes is the long
+segments and the delay: the floors caught 8-9 of the 10 longer ones (3-8 under H), and every arm's median delay fell
+from 4-4.5 hours to 0.7-1.1 hours, because a step is seen within a few 10-minute points rather than after several
+hourly ones. Without a floor, T's Quiet is far louder: 408 lines per 100 hourly checks (85 under H), with 10.7% at a
+mark against chance 6.3%, so on 30 server metrics it alerts on almost every 10-minute wiggle. The k's read off the
+finer setup lines are higher (R's 91 against 43 on machine-1-1, and 3,780 on machine-2-1, where a step-like counter
+had a near-zero spread before its step, round 18's failure of mechanism again), so a short event in a busy metric
+still sits under the floor. So the honest summary for a person: on server metrics, finer data makes the watch faster
+on the changes it does catch (a quarter of the delay), not able to catch short spikes under a budget. Short spikes are
+anomaly detection, which this watch does not claim. Three machines and 24 segments is a small sample; the delay
+finding is the one worth testing on the other 25 machines with the null, if anyone runs a server watch on finer data.
+
+Tests: `watch-smd-10min.test.mjs` (4: the round's constants, a machine in 10-minute buckets with its windows and
+baseline, D19 and D19' on made-up totals including the tie, and the committed output's verdicts).
