@@ -27,6 +27,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 ```
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D) at the default cant and model settings, 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - c is swept, not taken from measured propeller data. Replace the three values with C_P/C_T from the UIUC propeller database (Brandt and Selig 2011; Deters et al. 2018) for the propellers at the optimiser's chosen sizes.
 - Hover thrust components only; no position hold, so lateral coupling of the tilted thrust is not tested.
 - Cost, mass and motor models and plant ranges are inherited assumed fits; attitude steps only; no hardware.

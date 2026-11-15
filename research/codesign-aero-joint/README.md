@@ -35,6 +35,7 @@ PYTHONPATH=src "$PY" -m pytest -q tests     # 5 tests
 RECUV and the Autonomous Systems IRT (UAV simulation, safe autonomy), as direction only; no paper of theirs is reproduced and nothing is affiliated with or endorsed by them.
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D), 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. None of the airframes this README quotes falls in that set at its printed (rounded) value, but rounding near the fold can flip the answer, so this is not a clearance. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - The 5-parameter space is small and smooth; the joint advantage may not carry to larger design spaces or to higher-fidelity simulators.
 - The grid reference used a coarse 9×9 airframe grid and a different (per-cell) budget split, and its best cell was chosen on the held-out set; this is not a like-for-like tuned-grid benchmark. A finer grid might close the gap.
 - CMA-ES at 960 and 4800 evaluations ends at the same score, so the model's optimum is probably reached by 960; the budget comparison says little beyond that point.

@@ -28,6 +28,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 ```
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D) at the default cant and model settings, 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - The tilted thrust vectors are modelled only through their vertical and tangential components. Not modelled: lower rotor efficiency when tilted, internal force fighting under manoeuvre, roll/pitch cross-coupling from tilt, motor-mount mass. All make the real benefit smaller than here.
 - The cost, mass and motor models are the earlier projects' assumed fits; κ is swept over ×0.5 to ×3 only in the grid, not in the joint run.
 - Cant is capped at 35°; the joint optimum sits on the cap.

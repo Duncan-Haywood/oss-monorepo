@@ -173,7 +173,8 @@
    "what": "size() never checks that the 15-min endurance mass closure converged, so airframes with no fixed point (no battery mass gives 15 min of hover) are scored as feasible with an arbitrary 60-iteration mass. The reported grid optimum (L 0.146, D 0.097, 5.25 deg) and 9 of 10 joint CMA-ES winners are such designs. The best converged grid cell is 5.35 deg at L 0.102, and the only converged joint run is the worst (5.43 deg). The headline ranking compares infeasible with feasible designs",
    "where": "research/codesign-aero/src/codesign_aero/aero.py:39",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16198"
   },
   {
    "severity": "medium",
@@ -227,7 +228,8 @@
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16198"
  ],
  "verdict": "A tidy, reproducible stylised co-design study whose headline optimum is not a vehicle. The numbers in the README match results.txt, the closure, hover power, OU gust and closed-loop simulator check out against independent recomputation where the sizing converges, and the page carries the right disclaimers. But size() never checks that the 15-minute mass closure converged: the reported grid optimum (L 0.146, D 0.097) and 9 of 10 joint CMA-ES winners have no fixed point at all. The joint pipeline wins mostly by finding where the sizing model silently breaks, and the one converged joint run is the worst. Add a bilevel baseline that reuses 16 fixed gain vectors, a cost cap described as 'never binding' that screens 18 cells, an arm inertia 2.8x too large and tests where 4 of 5 seeded plant mutants survive, and a UAV flight-control engineer would reject the headline at the first feasibility check."
 }

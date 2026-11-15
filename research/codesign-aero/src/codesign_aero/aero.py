@@ -15,30 +15,42 @@ L_RANGE, D_RANGE = (0.08, 0.30), (0.08, 0.25)
 GAIN_LO, GAIN_HI = np.array([0.0, -2.0, -1.0]), np.array([2.7, 1.0, 2.0])   # log10 kp, kd, ki
 
 
+CLOSURE_ITERS, CLOSURE_TOL, M_CAP = 1000, 1e-4, 20.0  # damped iterations (200 left 4 slow near-fold designs short); relative residual; kg
+
+
+def _mass_update(m, L, D):
+    """Take-off mass implied by a guessed mass m: payload, avionics, battery for the endurance at m, frame, motors."""
+    T_hover = m * G / 4
+    P = 4 * T_hover ** 1.5 / np.sqrt(2 * RHO * np.pi * D ** 2 / 4) / (FM * ETA)
+    wh = P * ENDURANCE_MIN / 60 / DOD
+    m_motor = 0.045 * (TWR * T_hover / 9.0) ** 1.2
+    return PAYLOAD + ELEC + wh / WH_KG + (0.05 + 0.8 * L) + 4 * m_motor
+
+
 def size(L, D):
-    """Fixed-point mass closure. Returns dict of arrays (mass, battery Wh, inertia, torque limit, lag, cost, feasible)."""
+    """Fixed-point mass closure. Returns dict of arrays (mass, battery Wh, inertia, torque limit, lag, cost, closed,
+    feasible); feasible needs a closed mass, non-overlapping props and cost within the cap."""
     L, D = np.broadcast_arrays(np.asarray(L, float), np.asarray(D, float))
     m = np.full(L.shape, 1.0)
-    for _ in range(60):
-        T_hover = m * G / 4
-        P = 4 * T_hover ** 1.5 / np.sqrt(2 * RHO * np.pi * D ** 2 / 4) / (FM * ETA)
-        wh = P * ENDURANCE_MIN / 60 / DOD
-        Tmax = TWR * T_hover
-        m_motor = 0.045 * (Tmax / 9.0) ** 1.2
-        m_new = PAYLOAD + ELEC + wh / WH_KG + (0.05 + 0.8 * L) + 4 * m_motor
-        m = np.minimum(0.5 * m + 0.5 * m_new, 20.0)     # diverging (tiny-prop) designs stay finite and fail the cost cap
+    for _ in range(CLOSURE_ITERS):
+        m = np.minimum(0.5 * m + 0.5 * _mass_update(m, L, D), M_CAP)   # diverging designs stay finite
+    # A design is only sized if the closure reached a fixed point: with no battery mass that gives the endurance
+    # (m_new > m for every m), the loop stops at an arbitrary mass, which must not be scored (audit 2026-11-15).
+    closed = (np.abs(_mass_update(m, L, D) - m) <= CLOSURE_TOL * m) & (m < M_CAP)
     T_hover = m * G / 4
     Tmax = TWR * T_hover
     m_motor = 0.045 * (Tmax / 9.0) ** 1.2
     r = L / np.sqrt(2)
     inertia = 4 * m_motor * r ** 2 + (0.05 + 0.8 * L) * L ** 2 / 3 + (m - 4 * m_motor) * 0.04 ** 2
     tau_max = 4 * (Tmax - T_hover) * r
+    P = 4 * T_hover ** 1.5 / np.sqrt(2 * RHO * np.pi * D ** 2 / 4) / (FM * ETA)
+    wh = P * ENDURANCE_MIN / 60 / DOD
     lag = 0.015 * (D / 0.127) ** 1.5
     cost = 4 * 12.0 * (Tmax / 9.0) ** 1.1 + 0.35 * wh + 60 * (0.05 + 0.8 * L) + 25.0
     area = 0.02 + 0.5 * L ** 2           # frame plus sensor pod area facing a gust
-    feasible = (np.sqrt(2) * L >= 1.05 * D) & (cost <= COST_CAP)
+    feasible = closed & (np.sqrt(2) * L >= 1.05 * D) & (cost <= COST_CAP)
     return dict(mass=m, wh=wh, inertia=inertia, tau_max=tau_max, lag=lag, cost=cost, area=area, lever=0.05 + 0.3 * L,
-                feasible=feasible, L=L, D=D)
+                feasible=feasible, closed=closed, L=L, D=D)
 
 
 def gains_from_unit(u):

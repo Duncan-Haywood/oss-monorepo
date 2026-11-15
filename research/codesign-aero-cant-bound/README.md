@@ -27,6 +27,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 ```
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D) at the default cant and model settings, 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - The tilt loss is one functional form with one assumed coefficient (k = 0.2 swept against 0); a real loss from rotor-airframe interference and internal force fighting could be larger or shaped differently. The thrust cost 1/cos α in hover is already in the model.
 - Hover thrust components only: tangential force cancellation assumes a perfectly symmetric vehicle; no position control, so lateral coupling of the tilted thrust is not tested.
 - Cost, mass and motor models, κ = 0.016 m and plant ranges are inherited assumed fits; the parent swept κ (×0.5, ×3) in a grid but this project does not.
