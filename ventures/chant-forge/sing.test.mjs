@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { latinVowel, latinOnset, onsetLength, singNote, FORMANTS } from './sing.mjs';
-import { readOnset } from './onsets.mjs';
+import { latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, singNote, FORMANTS } from './sing.mjs';
+import { readOnset, readCoda } from './onsets.mjs';
 import { estimateFormants, nearestVowel, polyRoots } from './formants.mjs';
 import { eventsToMidi } from './midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from './render.mjs';
@@ -124,4 +124,52 @@ test('a consonant before the beat: the vowel is on the beat, the wave starts lea
   const lead = onsetLength(['s']);
   assert.equal(nearestVowel(estimateFormants(w, rate, { from: lead + 0.08, to: lead + 0.45 }), FORMANTS), 'a');
   assert.equal(readOnset(w, rate, 0, lead + 0.06).place, 's');
+});
+
+test('latinCoda reads the consonants that close a syllable', () => {
+  const c = (s) => latinCoda(s).join(' ');
+  assert.equal(c('es'), 's');
+  assert.equal(c('Di'), '');
+  assert.equal(c('num.'), 'm');
+  assert.equal(c('Sanc'), 'n k'); // c is hard in a coda
+  assert.equal(c('lux'), 'k s'); // x is ks
+  assert.equal(c('sunt'), 'n t');
+  assert.equal(c('laus'), 's'); // after a diphthong
+  assert.equal(c('ae'), '');
+  assert.equal(c('tuae'), ''); // two vowels in one syllable: nothing after the last
+  assert.equal(c('Christ'), 's t');
+  assert.equal(c('Ioseph'), 'f'); // ph is f
+  assert.equal(c('ad'), 'd');
+  assert.equal(c('℣'), '');
+});
+
+test('a coda sits at the end of the note and leaves the vowel before it', () => {
+  const p = codaPlan(['s'], 0.6, 0.6);
+  assert.equal(p.segs.at(-1).t1, 0.6);
+  assert.equal(p.scale, 1);
+  const short = codaPlan(['k', 's'], 0.24, 0.24);
+  assert.ok(short.scale < 1 && 0.24 - short.codaAt <= 0.35 * 0.24 + 1e-9, JSON.stringify(short));
+  const w = singNote(146.83, 0.6, rate, { vowel: 'a', coda: ['s'], release: 0.2 });
+  assert.equal(nearestVowel(estimateFormants(w, rate, { from: 0.1, to: 0.4 }), FORMANTS), 'a');
+  // after a final obstruent the voices stop: the release is silent
+  let tail = 0; for (let i = Math.round(0.62 * rate); i < w.length; i++) tail = Math.max(tail, Math.abs(w[i]));
+  assert.ok(tail < 1e-3, `tail ${tail}`);
+});
+
+test('renderMidi sing: the final consonant reads back from the audio, and the vowel-only choir has none', () => {
+  // on D3, where eval/coda-check.md part A reads these right (voiced and labial stops, l and clusters it does not)
+  const SY = { as: { cls: 'fricative', place: 's' }, et: { cls: 'stop', voiced: false, place: 'alv' }, ad: { cls: 'stop', voiced: true, place: 'alv' }, an: { cls: 'nasal' }, er: { cls: 'tap' }, a: { cls: 'none' } };
+  const ev = [];
+  for (const s of Object.keys(SY)) ev.push({ type: 'note', midi: 50, pulses: 4, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 120 });
+  const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+  const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+  for (const sing of [true, 'vowels']) {
+    const x = renderMidi(mid, { stems: true, sing }).stems.choir.channels[0];
+    Object.entries(SY).forEach(([s, want], j) => {
+      const got = readCoda(x, rate, sec(notes[j].tick) + 0.1, sec(notes[j].end) + 0.25);
+      if (sing === true) for (const [k, v] of Object.entries(want)) assert.equal(got[k], v, `${s}: ${JSON.stringify(got)}`);
+      else assert.equal(got.cls, 'none', `${s} sung without consonants: ${JSON.stringify(got)}`);
+    });
+  }
 });

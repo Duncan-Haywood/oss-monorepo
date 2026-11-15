@@ -157,3 +157,102 @@ export function expectedRead(ph) {
   if (ph === 'r') return { cls: 'tap' };
   return { cls: 'none' }; // l, j, w
 }
+
+// Reading a syllable's final consonant back from audio: the same cues, run the other way. x is the
+// signal, vowelAt a time inside the steady vowel before the coda (seconds; the 60 ms from it are
+// the reference) and tEnd where the next sound may start. Frames from the reference's end to tEnd:
+// - a stop is a closure (30 ms or more, the voices gone) and then one short burst:
+//   energy above 600 Hz rising 12 dB over the closure and falling 6 dB again within 25 ms (a fade
+//   into silence has no burst, and the next vowel does not fall); place from the burst as before.
+// - a fricative, a nasal and a tap as for an opening.
+// The earliest cue wins, so "nunc" reads as its /n/ and "post" as its /s/.
+export function readCoda(x, rate, vowelAt, tEnd) {
+  const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
+  const ref = [];
+  for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
+  const avg = (k) => ref.reduce((s, f) => s + f[k], 0) / Math.max(1, ref.length);
+  const vTot = avg('tot'), vLow = avg('low'), vHi1 = avg('hi1'), vHi = avg('hiR');
+  const fr = [];
+  for (let i = a; i <= z; i += hop) fr.push({ t: (i - a) / rate, ...frameFeatures(x, i, rate) });
+  if (fr.length < 3) return { cls: 'none' };
+  for (const f of fr) { f.lvl = db(f.tot, vTot); f.loRel = db(f.low, vLow); f.hiRel = db(f.hi1, vHi1); }
+  const msOf = ([s, e]) => (e - s) * 5 + 20;
+  const runs = (pred, minMs) => {
+    const out = []; let s = -1;
+    fr.forEach((f, k) => { if (pred(f, k)) { if (s < 0) s = k; } else if (s >= 0) { out.push([s, k - 1]); s = -1; } });
+    if (s >= 0) out.push([s, fr.length - 1]);
+    return out.filter((r) => msOf(r) >= minMs);
+  };
+  const noisy = (f) => f.hiR > Math.max(0.5, 3 * vHi) && f.lvl > -45;
+  const vnoisy = (f) => !noisy(f) && f.hiR > Math.max(0.12, 3 * vHi) && f.lowR > 0.2 && f.hiRel > -20 && f.lvl > -35 && f.lvl < -3;
+  const closed = (f) => f.lvl < -22 && f.loRel < -12 && !noisy(f) && !vnoisy(f);
+  // a coda's nasal must be a deeper murmur than an opening's: a vowel fading into its release also
+  // loses its upper formants first (they ring for less time), by 5 to 12 dB
+  const nasal = (f) => f.loRel >= -15 && f.lvl < -5 && f.lvl > -25 && f.hiRel < f.loRel - 15;
+  // a tap: a brief dip, 12 dB or more under the vowel and under 30 ms at its deepest, with frames
+  // 10 dB louder within 40 ms on both sides (a final r hums on after it). Searched locally: the
+  // quietest frame of the window is the release's fade.
+  let tapRun = null;
+  for (let k = 1; k < fr.length - 1 && !tapRun; k++) {
+    const fl = fr[k].lvl;
+    if (fl > -12 || fr[k - 1].lvl < fl || fr[k + 1].lvl < fl) continue;
+    let p0 = k, p1 = k; while (p0 > 0 && fr[p0 - 1].lvl < fl + 6) p0--; while (p1 < fr.length - 1 && fr[p1 + 1].lvl < fl + 6) p1++;
+    if (p0 === 0 || p1 === fr.length - 1 || msOf([p0, p1]) >= 30) continue;
+    const side = (lo, hi) => fr.slice(Math.max(0, lo), Math.max(0, hi)).some((f) => f.lvl >= fl + 10);
+    if (side(p0 - 8, p0) && side(p1 + 1, p1 + 9)) tapRun = [p0, p1];
+  }
+  const floor = tapRun ? fr[tapRun[0]].lvl : null, dip = !!tapRun, s0 = tapRun?.[0], s1 = tapRun?.[1];
+  const vh = highpass(x, Math.round(vowelAt * rate) - Math.round(0.02 * rate), a, 600, rate);
+  let vMean = 0; for (let i = Math.round(0.02 * rate); i < vh.length; i++) vMean += vh[i] ** 2; vMean /= Math.max(1, vh.length - Math.round(0.02 * rate));
+  // a burst after the closure that starts at frame r[0]: the release time, or -1
+  const burstAfter = (r) => {
+    const from = a + Math.round((fr[r[0]].t + 0.015) * rate), to = Math.min(zEnd - Math.round(0.003 * rate), a + Math.round((fr[r[1]].t + 0.04) * rate));
+    // nothing after tEnd is read: the next syllable's sound is not this one's burst decaying or not
+    const off = from - Math.round(0.02 * rate), hp = highpass(x, off, Math.min(to + Math.round(0.04 * rate), zEnd), 600, rate);
+    const w2 = Math.round(0.002 * rate), e2 = (i) => { let q = 0; for (let j = 0; j < w2; j++) q += (hp[i - off + j] || 0) ** 2; return q / w2; };
+    const base = e2(from) + vMean * 1e-6;
+    for (let i = from; i < to; i += w2) {
+      const q = e2(i); if (!(q > base * 10 ** 1.2 && q > vMean * 1e-4)) continue;
+      let peak = q; for (let j = i; j < i + Math.round(0.01 * rate); j += w2) peak = Math.max(peak, e2(j));
+      let late = 0, nl = 0; for (let j = i + Math.round(0.02 * rate); j < i + Math.round(0.03 * rate); j += w2) { late += e2(j); nl++; }
+      if (late / Math.max(1, nl) < peak / 4) return i;
+      return -1; // the energy came back and stayed: the next sound, not a burst
+    }
+    return -1;
+  };
+  // 30 ms, not an opening's 35: a coda on a short note is shortened to fit (codaPlan)
+  const closures = runs(closed, 30).filter((r) => r[0] > 0);
+  const stopRun = closures.find((r) => burstAfter(r) >= 0);
+  const fric = runs(noisy, 30)[0], vfric = runs(vnoisy, 30)[0], tap = dip && !fr.some((f) => noisy(f) || vnoisy(f)) ? [s0, s1] : null;
+  // F1 falls as the mouth closes for an obstruent, so the vowel's last 30-45 ms before a closure or
+  // a fricative look like a murmur. A nasal there counts only when it lasts 45 ms or more ("unt").
+  const next = [stopRun, fric, vfric, tap].filter(Boolean).map((r) => r[0]);
+  // and a murmur closes the syllable: when the vowel comes back after it (a vibrato swing taking a
+  // harmonic off F1 on a high note looks like one for 30 ms) it was not a nasal
+  const vowelAgain = (r) => fr.slice(r[1] + 1).some((f) => f.hiRel > -6 && f.lvl > -10);
+  const nas = runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r));
+  const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
+    .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
+  if (!cands.length) return { cls: 'none' };
+  const [kind, r] = cands[0];
+  const seg = fr.slice(r[0], r[1] + 1);
+  if (kind === 'closure') {
+    // the voice bar is read before the burst: after a final stop the closure runs on into silence
+    const rel = burstAfter(r), shut = seg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);
+    const inner = shut.length > 2 ? shut.slice(1, -1) : shut.length ? shut : seg;
+    const bar = median(inner.map((f) => f.loRel)), voiced = bar > -40;
+    const b = frameFeatures(x, rel - Math.round(0.001 * rate), rate, 0.01);
+    // with no vowel after it a labial burst is plainly low: most of its energy under 1 kHz
+    const place = b.centroid > 3400 ? 'alv' : b.hi1 < 0.5 * b.tot ? 'lab' : b.compact > 0.4 && b.peakHz >= 1500 ? 'vel' : 'lab';
+    return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz };
+  }
+  if (kind === 'fricative') {
+    const cen = seg.reduce((q, f) => q + f.centroid, 0) / seg.length, l = seg.reduce((q, f) => q + f.lvl, 0) / seg.length;
+    const voicedUnder = median(seg.map((f) => f.loRel)) > -25;
+    const place = voicedUnder ? 'voiced' : l < -20 ? 'f' : cen > 4800 ? 's' : cen > 2200 ? 'S' : 'f';
+    return { cls: 'fricative', place, centroid: cen, level: l };
+  }
+  if (kind === 'vfricative') return { cls: 'fricative', place: 'voiced' };
+  if (kind === 'tap') return { cls: 'tap', floor };
+  return { cls: 'nasal' };
+}

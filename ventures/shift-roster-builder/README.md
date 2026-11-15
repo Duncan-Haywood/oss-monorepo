@@ -2461,3 +2461,70 @@ pair hours; with no pair price it is the unranked pass; and `buildRoster` passes
 
 Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine; three weeks are three rosters, not a
 population. Next: a cheaper screen for the pairs the last roster gave up on (they set the screen's cost on the big weeks).
+
+## Remembered pair searches: exact, and almost never usable (2026-11-15 later)
+
+"The pair price's best moves first" ended on one next step: a cheaper screen for the pairs the last roster gave up on, since
+on the big weeks their 500-step searches are where the pass's time goes. Two screens were built and measured. Neither pays,
+and the reason is one number worth knowing before the next attempt.
+
+**What landed (opt-in, `coverPairMemo: true`).** `coverPairRisk` takes a `memo` (`pairMemo()`) that carries pair verdicts
+from one walk to the next. A pair's search is a fixed depth-first walk over the two callers' shifts, the people eligible for
+each and their lists, so it reads nothing but those lists and `ctx`. `coverGroupsJoint` now marks every person whose list it
+reads (the callers, and everyone it considers for a shift), and the memo keeps that set with each person's list (interned to
+an integer) beside every given-up or failed verdict. A later walk reuses the verdict only when all of those lists are
+unchanged, in which case the search would retrace itself step for step. So the memo is exact: with it on, the pass takes the
+same moves to the same roster and searches the same pairs.
+
+**Why it rarely applies.** A search that fails, or runs out of its 500 steps, has tried nearly everyone:
+
+| week (people) | given-up pairs on the plain roster | lists read by a given-up search, average | failed pairs, lists read |
+|---|---|---|---|
+| 20 x 56 week 2 (20) | 53 | 19.2 | 4, 17.8 |
+| 40 x 112 week 0 (40) | 308 | **39.8** | 6, 32.0 |
+
+A candidate move changes two people's lists, and nearly every remembered search read both. `node eval/pair-memo.mjs`
+(`eval/pair-memo.out.txt`, $25 an hour at risk and $1 a pair hour, uncapped, from each week's plain roster):
+
+| week (copies) | memo off: moves, time | memo on: moves, time | memo hits / lookups | same roster, moves, pairs searched |
+|---|---|---|---|---|
+| 20 x 56 week 2 (75) | 4 moves, 2.28 s | 4 moves, 2.34 s | 1,075 / 36,864 (2.9%) | yes |
+| 40 x 112 week 0 (149) | 11 moves, 22.4 s | 11 moves, **27.5 s** | 212 / 283,507 (0.07%) | yes |
+| 40 x 112 week 1 (148) | 0 moves, 4.04 s | 0 moves, 3.88 s | 7 / 25,262 | yes |
+
+On the 40-person week 0 the bookkeeping (interning each person's list per walk, a key per pair) cost more than the 212 saved
+searches, 23% slower; elsewhere it is within noise. So it stays off.
+
+**Tried and dropped: carrying given-up verdicts as they are.** A looser screen reused a given-up verdict whenever the same
+two person-days came up again, whatever else had changed, relying on the 200,000-step confirming walk to keep the pass
+honest. On the 20-person week 2 it ran in 0.21 s instead of 2.03 s and made **0 moves instead of 4**, ending at objective
+$4,811,477.36 instead of $4,810,162.21. The moves that pay on that week are the ones that free a given-up pair, and a screen
+that never searches those pairs again cannot see a move do it. It was not kept.
+
+**Tried: handing the shifts out in another order.** The cost is not repeated work that could be cached. A given-up search
+spends its 500 steps visiting almost everyone, mostly on pairs a longer search covers (262 of 485 on the 20-person week 2,
+`eval/cover-pair-capped.mjs`), so the natural next try was the search order inside `coverGroupsJoint`. `coverPairRisk`'s
+`handOut` option (measurement only) hands out first the shift with the fewest eligible people (`"fewest"`) or the fewest
+people who could take it now (`"takers"`). `node eval/pair-order.mjs` (`eval/pair-order.out.txt`), each week's plain roster:
+
+| week, order | 500 checks: clashing (given up), pair hours | 200,000 checks: clashing (given up), pair hours |
+|---|---|---|
+| 20 x 56 week 2, usual (A's day, then B's) | 57 (53), 321 h | 29 (0), 179 h |
+| 20 x 56 week 2, fewest eligible first | **41 (27)**, 237 h | 31 (0), **187 h** |
+| 20 x 56 week 2, fewest takers first | 71 (63), 391 h | 31 (0), 187 h |
+| 40 x 112 week 0, usual | 314 (308), 1,832 h | 44 (0), 327 h |
+| 40 x 112 week 0, fewest eligible first | 332 (326), 1,941 h | 45 (0), 313 h |
+| 40 x 112 week 0, fewest takers first | 345 (337), 2,019 h | 50 (0), 355 h |
+
+No order gives up on fewer pairs on both weeks, so none was made the default. The second column is the finding to carry
+forward: **the confirmed count depends on the order**: with no pair given up, 179 or 187 pair hours on the 20-person week and 313
+to 355 on the 40-person week. A complete search
+should not care about order. This one most likely does because a hand-over chain may pass on a shift handed out earlier in the same
+search, and the passes are counted per shift in the order they are made. So "at most two passes per shift" defines a
+different set of covers for each order. Next: decide what the pair check should mean, so its exact answer is the same in any
+order (for example, chains that pass on only the stand-ins' own shifts, or one budget of passes for the whole pair), then
+make that search fast. Until then, the confirmed pair hours are exact for the usual order only.
+
+Tests (`pair-memo.test.mjs`, 4): on two seeded weeks and two budgets, over a chain of random hand-overs, every walk with the
+memo equals the walk without it, verdicts included, and the memo is used; the pass and `buildRoster` give the same roster,
+moves, pair hours and pairs searched with it on and off; the `handOut` orders walk the same pairs. Not claimed: seeded weeks, single runs on one 4-core cloud machine.

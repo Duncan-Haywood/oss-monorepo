@@ -54,22 +54,22 @@ The window is the note from 60 ms in to 10 ms before its end (a diphthong's last
 
 | piece | notes measured | singing: vowel read right | pad (control): read right | pad reads everything as |
 |---|---|---|---|---|
-| dies-irae | 335 | 330 of 335 (98.5%) | 103 of 611 (16.9%) | /a/ 428, /o/ 143, /e/ 40 |
+| dies-irae | 335 | 329 of 335 (98.2%) | 103 of 611 (16.9%) | /a/ 428, /o/ 143, /e/ 40 |
 | pange-lingua | 20 | 20 of 20 (100.0%) | 4 of 53 (7.5%) | /a/ 46, /o/ 6, /e/ 1 |
 | veni-creator | 24 | 24 of 24 (100.0%) | 5 of 43 (11.6%) | /a/ 34, /o/ 7, /e/ 2 |
-| te-deum | 367 | 357 of 367 (97.3%) | 127 of 633 (20.1%) | /a/ 599, /o/ 24, /e/ 10 |
-| salve-regina | 174 | 167 of 174 (96.0%) | 41 of 231 (17.7%) | /a/ 160, /o/ 56, /e/ 15 |
-| all | 920 | 898 of 920 (97.6%) | 280 of 1571 (17.8%) | |
+| te-deum | 367 | 354 of 367 (96.5%) | 127 of 633 (20.1%) | /a/ 599, /o/ 24, /e/ 10 |
+| salve-regina | 174 | 168 of 174 (96.6%) | 41 of 231 (17.7%) | /a/ 160, /o/ 56, /e/ 15 |
+| all | 920 | 895 of 920 (97.3%) | 280 of 1571 (17.8%) | |
 
 Singing, written vowel (rows) against vowel read (columns):
 
 | written | /a/ | /e/ | /i/ | /o/ | /u/ |
 |---|---|---|---|---|---|
-| /a/ | 179 | 0 | 0 | 0 | 0 |
+| /a/ | 178 | 1 | 0 | 0 | 0 |
 | /e/ | 0 | 269 | 0 | 0 | 0 |
-| /i/ | 0 | 11 | 171 | 0 | 0 |
+| /i/ | 1 | 12 | 169 | 0 | 0 |
 | /o/ | 2 | 0 | 0 | 128 | 0 |
-| /u/ | 0 | 1 | 0 | 8 | 151 |
+| /u/ | 0 | 1 | 1 | 7 | 151 |
 
 ## E. The short /i/ on G3 (0.24 s, the corpus's eighth note at 124 BPM)
 

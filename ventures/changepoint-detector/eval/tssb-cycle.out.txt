@@ -1,0 +1,60 @@
+TSSB, 75 series: the level model's cycle warning against the every-setting consensus.
+  cycle warning fires: 40 series; 3 with agreed changes (118 in all); every-setting cover 0.395, zero 0.414
+  cycle warning quiet: 35 series; 13 with agreed changes (461 in all); every-setting cover 0.286, zero 0.386
+  of the 15 series with 10 or more agreed changes, the cycle warning fires on 3
+  hypothetical (post hoc, not a rule): dropping agreed changes where the warning fires gives cover 0.354 (zero 0.401, as run 0.344)
+
+Per series with any agreed change: name, n, agreed, cycle warning.
+  Adiac                          n  1408  agreed  0  cycle
+  ArrowHead                      n  1506  agreed  0  cycle
+  BeetleFly                      n  2560  agreed  0  cycle
+  BirdChicken                    n  2560  agreed  0  cycle
+  Car                            n  2163  agreed  0  cycle
+  Chinatown                      n   240  agreed  0  cycle
+  ChlorineConcentration          n  7801  agreed  0  cycle
+  CinCECGTorso                   n  7169  agreed 43  -
+  Coffee                         n  1000  agreed  0  cycle
+  Computers                      n 11250  agreed 23  cycle
+  CricketZ                       n  2717  agreed  0  cycle
+  Crop                           n 20700  agreed  0  cycle
+  DiatomSizeReduction            n  1293  agreed  0  cycle
+  DodgerLoopDay                  n  3456  agreed 23  -
+  ECG200                         n  2400  agreed  0  cycle
+  EOGHorizontalSignal            n  5155  agreed 48  -
+  EOGVerticalSignal              n  8014  agreed 48  -
+  FaceFour                       n  8400  agreed 50  -
+  FacesUCR                       n  6483  agreed  0  cycle
+  FiftyWords                     n  5196  agreed  0  cycle
+  Fish                           n 10124  agreed  0  cycle
+  FreezerRegularTrain            n 11286  agreed 50  cycle
+  Ham                            n  5870  agreed  0  cycle
+  Herring                        n  4992  agreed  0  cycle
+  GunPoint                       n  1875  agreed 45  -
+  Haptics                        n  5868  agreed  0  cycle
+  InlineSkate                    n  4821  agreed 10  -
+  InsectWingbeatSound            n  1280  agreed  0  cycle
+  ItalyPowerDemand               n  1608  agreed  0  cycle
+  LargeKitchenAppliances         n  8436  agreed  0  cycle
+  Lightning7                     n  6539  agreed 44  -
+  MedicalImages                  n  2474  agreed 45  cycle
+  MiddlePhalanxOutlineAgeGroup   n 10312  agreed  0  cycle
+  MiddlePhalanxOutlineCorrect    n  7940  agreed  0  cycle
+  MiddlePhalanxTW                n  6720  agreed  0  cycle
+  MoteStrain                     n  1680  agreed  1  -
+  NonInvasiveFetalECGThorax2     n 14107  agreed  0  cycle
+  OliveOil                       n  7410  agreed 49  -
+  Plane                          n  3780  agreed  0  cycle
+  ProximalPhalanxTW              n  4000  agreed  0  cycle
+  ShapesAll                      n  6400  agreed  0  cycle
+  SonyAIBORobotSurface1          n  1400  agreed  0  cycle
+  SonyAIBORobotSurface2          n  1755  agreed  0  cycle
+  Strawberry                     n  5947  agreed  0  cycle
+  SwedishLeaf                    n  4352  agreed  0  cycle
+  Symbols                        n  1889  agreed 24  -
+  SyntheticControl               n  3750  agreed  0  cycle
+  ToeSegmentation2               n  3086  agreed  0  cycle
+  Trace                          n  5086  agreed 45  -
+  TwoLeadECG                     n   471  agreed  0  cycle
+  UMD                            n  1800  agreed 31  -
+  WordSynonyms                   n  2395  agreed  0  cycle
+  Yoga                           n 15974  agreed  0  cycle

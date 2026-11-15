@@ -15,7 +15,7 @@ released track:
    transposed for men's voices and fitted to a grid.
 3. **Arrange:** genre templates (drums, bass, synths, guitars) built around
    the line. Not built.
-4. **Voice:** a real men's choir (recorded) or a singing synthesiser. A first synthesised choir that sings each syllable's opening consonants and vowel (no final consonants) is in `sing.mjs` (`render-cli.mjs --sing`, 2026-11-15); a real choir is not.
+4. **Voice:** a real men's choir (recorded) or a singing synthesiser. A first synthesised choir that sings each syllable's opening consonants, vowel and final consonants is in `sing.mjs` (`render-cli.mjs --sing`, 2026-11-15); a real choir is not.
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
@@ -362,8 +362,8 @@ old vocalise.
   own note, at most 30% of it, shortened in proportion when even that is too little. The first version put
   the consonant inside the note: on the corpus's 0.24 s eighths at 124 BPM it was squeezed to a 30 ms
   closure, and the reader below read 66.9% of openings right; before the beat, 74.7%.
-- **Not:** final consonants (*Dies* still loses its s), a doubled consonant held (*il-la*), a soloist's
-  diction, or any listener's judgement.
+- **Not:** a doubled consonant held (*il-la*), a soloist's diction, or any listener's judgement. Final
+  consonants came next (below).
 
 Checked from the audio (`eval/consonant-check.mjs`, report in `eval/consonant-check-report.md`) by a
 rule-based acoustic reader written for it, `onsets.mjs`: a closure of 35 ms or more then a release burst is
@@ -386,6 +386,61 @@ one brief contact a tap; l, j, w and a bare vowel none.
 
 `sing.test.mjs` gains 3 tests: the consonant rules, nine VCV pairs on D3 read back as their class, voicing and
 place (and as none from the vowel-only choir), and a consonant before the beat leaving the vowel on it.
+
+#### Final consonants (2026-11-15, latest)
+
+With openings sung, *Dies irae* still came out as *Di-e i-rae*: 37.4% of the corpus's 8,085 sung syllables
+close on a consonant (s 802, n 601, m 528, t 362, r 343, l 134, k 130 ...; 218 on a cluster such as *Sanc*,
+*sunt*, *lux*). `--sing` now sings them too.
+
+- **Which** (`latinCoda`): the letters after the syllable's vowel or diphthong (after the last vowel letter
+  when one syllable holds two, *tuae*), with c and g hard (no vowel follows), ch k, ph f, th t, x ks, h
+  silent. *Sanc* closes on n k, *lux* on k s, *laus* on s.
+- **How:** the same recipes as the openings (`paintSeg` in `sing.mjs` now paints both), run the other way:
+  the vowel's formants move to the consonant's over 45 ms, then a stop's closure and burst, a fricative's
+  noise, a nasal's murmur. After a final obstruent the voices stop, so the release is silent; after a nasal,
+  l or r they hum on as the note fades.
+- **Where in time** (`codaPlan`): choirs hold the vowel and close it late, so the coda ends where the note's
+  sound does (before the next syllable's consonant when that is sung ahead of the beat) and takes at most
+  35% of the note, shortened in proportion when it needs more. On the corpus's 0.24 s eighths a *k s*
+  cluster is squeezed to a 24 ms closure.
+- **Nasals changed too:** reading the first corpus run showed /m/ after /u/ (*-um*, *-num*, *-rum*, very
+  common) was the vowel 4 dB down with its upper formants intact: nothing to hear. A nasal's source is now
+  low-passed (two one-pole sections at 400 Hz, ramped in over 10 ms), as the nose passes little above a few
+  hundred hertz; murmurs now sit about 5 dB under /a/ with the band above 1 kHz 30-45 dB down. Openings get
+  the same murmur.
+
+Checked from the audio (`eval/coda-check.mjs`, report in `eval/coda-check-report.md`) by `readCoda` in
+`onsets.mjs`, the opening reader's cues run forwards from 60 ms of steady vowel: a closure of 30 ms or more
+then one short burst that rises 12 dB and falls 6 dB again within 25 ms (a fade has no burst; the next
+vowel does not fall); noise above 2.5 kHz; a murmur 15 dB darker than the vowel, of 45 ms or more when an
+obstruent follows (F1 falls into any closure, which looks like a murmur for 30-45 ms) and not followed by the
+vowel coming back (a vibrato swing on a high note looks like one too); a brief dip with voice after it.
+
+- **Syllables before a rest** (30 syllables, six pitches E2-E4; the set the reader was tuned on): 129 of 180
+  (71.7%) read exactly; the vowel-only choir reads as no consonant 174 of 180 (the six are /i/ read as a
+  voiced fricative at G3 and above). Misses: *l* reads as a nasal (both are voiced murmurs to this reader),
+  voiced and labial stops often read as nasals or velars, *-unt* and *-unc* read on their stop, and *x*
+  on short notes as its s.
+- **Corpus** (five pieces at final D3, 124 BPM; the last note of every syllable of 0.2 s or more with room for
+  a steady vowel first; 743 shorter notes skipped): 123 of 162 closings (75.9%) read exactly, 129 by class;
+  the vowel-only choir reads none on 160 of 162. s 73 of 74, t 14 of 17, nasals 22 of 42 (17 read as
+  nothing), r 9 of 14, k 3 of 13. Not a clean held-out score: the first run (60.5%) was read for its misses,
+  which led to two fixes (the reader's window ran past the next sound's start and cut off final bursts; the
+  /u/ nasal above), and a looser nasal rule that read 84.0% here was dropped because it called 13 of 30
+  vowel-only A2 fades nasals.
+- **Openings after the change** (`eval/consonant-check-report.md`): a syllable's opening is now often right
+  after the last one's coda, and the opening reader, whose window starts 150 ms before the beat, read the
+  coda first (74.7% fell to 66.4%). Its window now starts where this syllable's consonant starts (the
+  renderer's lead rule) when the syllable before closes on a consonant. With that window: 80.9% without
+  codas, 79.8% with them, so singing codas costs openings 1.1 points (745 of 934). The part A pairs are
+  unchanged (87.6%).
+- **Vowels after the change** (`eval/vowel-check-report.md`): 895 of 920 measurable corpus notes (97.3%,
+  was 97.6%).
+
+`sing.test.mjs` gains 3 tests (11 in all): the coda rules, a coda ending at the note's end with a silent
+release after an obstruent, and *as et ad an er a* on D3 read back from the MIDI path (and as none from the
+vowel-only choir). Nobody has listened to it.
 
 ### A score for the choir: `--musicxml` (2026-11-14)
 

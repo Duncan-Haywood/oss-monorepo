@@ -54,13 +54,22 @@ const MP = (() => {
 export const MINPLUS_WASM_ON = !!MP;
 
 /** Largest number of matches in a round the exact programme takes by default (2^12 states, 24 or 25
- * teams). The floor-priced search passes FLOOR_PRICED_MAX_MATCHES (13, 26 teams) since the int16 step
- * (README "Whole-break tables in int16"); leastBreaks' other callers keep 12, so their cost is unchanged. */
+ * teams). The floor-priced search passes FLOOR_PRICED_MAX_MATCHES: 13 (26 teams) since the int16 step
+ * (README "Whole-break tables in int16"), 14 (28 teams) since 2026-11-15's balance-guided walk and
+ * under-the-gap start (README "Starting under the gap"); leastBreaks' other callers keep 12, so their
+ * cost is unchanged. */
 export const ORIENT_MAX_MATCHES = 12;
-export const FLOOR_PRICED_MAX_MATCHES = 13;
+export const FLOOR_PRICED_MAX_MATCHES = 14;
 
 /** Predecessor entries a balanced walk keeps at most (4 bytes each: 16 MB), balancedWalk nearOf. */
 const NEAR_CACHE = 4000000;
+// balancedWalk tries a round's equally cheap host choices in order of how even they leave the
+// teams' home and away counts (README "Starting under the gap"); WALK_UNGUIDED = 1 in the environment
+// keeps the old seeded order, for comparison (eval/walk-guide.mjs)
+// the share of a walk's budget the guided pass gets: 0.1 left fewest walks out of budget over the
+// page's lists at 22 to 28 teams (33 of 960 at 20 seeds, 36 at 0.5, 40 unguided; eval/walk-guide.txt)
+const GUIDE_SHARE = +(typeof process !== "undefined" && process.env && process.env.GUIDE_SHARE || 0.1);
+const GUIDE = !(typeof process !== "undefined" && process.env && process.env.WALK_UNGUIDED === "1");
 
 function popcount(x) {
   x -= (x >>> 1) & 0x55555555;
@@ -256,7 +265,6 @@ export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = op
  */
 function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget = 5000000, maxSlack = 10, floor, nearCache = NEAR_CACHE }) {
   const R = opp.length, last = f[R - 1];
-  const rand = mulberry32(seed >>> 0);
   const g = new Int32Array(n); // games so far (within span), home minus away, per team
   const after = []; // after[r][t]: games t plays within span in rounds r..R-1
   {
@@ -267,7 +275,7 @@ function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget
     }
   }
   const pick = new Int32Array(R);
-  let steps = 0, found = null, complete = true;
+  let steps = 0, found = null, complete = true, guide = GUIDE, rand = mulberry32(seed >>> 0), limit = budget;
   const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const apply = (r, x, sign) => {
     if (r >= span) return;
@@ -307,7 +315,7 @@ function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget
   // many breaks over that the rest of the walk may still spend and keep the total within the target.
   const walk = (r, y, slack) => {
     if (found) return;
-    if (steps >= budget) { complete = false; return; }
+    if (steps >= limit) { complete = false; return; }
     steps++;
     pick[r] = y;
     apply(r, y, 1);
@@ -318,22 +326,46 @@ function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget
     } else if (feasible(r)) {
       const near = nearOf(r, y), prev = [];
       for (let i = 0; i < near.length; i++) { const extra = near[i] >>> 16; if (extra <= slack) prev.push([near[i] & 0xffff, extra]); }
-      shuffle(prev).sort((p, q) => p[1] - q[1]);
+      shuffle(prev);
+      if (guide && r - 1 < span) {
+        const A = H[r - 1], pl = plays[r - 1];
+        for (const q of prev) { const h = A[q[0]]; let s = 0; for (let t = 0; t < n; t++) if ((pl >>> t) & 1) { const v = g[t] + (((h >>> t) & 1) ? 1 : -1); s += v * v; } q.push(s); }
+        prev.sort((p, q) => p[1] - q[1] || p[2] - q[2]);
+      } else prev.sort((p, q) => p[1] - q[1]);
       for (const [x, extra] of prev) { walk(r - 1, x, slack - extra); if (found || !complete) break; }
     }
     apply(r, y, -1);
   };
   // the least balanced host choice: try the floor, then one break more, and so on. A level searched
   // to the end with nothing found proves no balanced choice has that many breaks.
-  let least = null, proved = true;
-  for (let k = 0; k <= maxSlack && !found; k++) {
-    const ends = [];
-    for (let y = 0; y < last.length; y++) if (last[y] - floor <= k) ends.push([y, last[y] - floor]);
-    shuffle(ends).sort((p, q) => p[1] - q[1]);
-    for (const [y, extra] of ends) { walk(R - 1, y, k - extra); if (found || !complete) break; }
-    if (found) least = floor + k;
-    if (!complete) { proved = false; break; }
-  }
+  //
+  // Two passes (README "Starting under the gap"): first with the balance guide (a round's equally
+  // cheap host choices tried in order of how even they leave the teams' home and away counts) on
+  // a tenth of the budget (GUIDE_SHARE); if that runs out, the old seeded order on the rest, from the first level the
+  // guided pass did not finish (a finished level is proved whatever the order). The guide finds most
+  // seasons' least in one step a round, but on a few it is worse than a shuffle, and being
+  // deterministic it gives every seed the same bad luck.
+  let least = null, proved = true, k0 = 0;
+  const levels = () => {
+    for (let k = k0; k <= maxSlack && !found; k++) {
+      const ends = [];
+      for (let y = 0; y < last.length; y++) if (last[y] - floor <= k) ends.push([y, last[y] - floor]);
+      shuffle(ends).sort((p, q) => p[1] - q[1]);
+      for (const [y, extra] of ends) { walk(R - 1, y, k - extra); if (found || !complete) break; }
+      if (found) least = floor + k;
+      if (!complete) return false;
+      k0 = k + 1;
+    }
+    return true;
+  };
+  if (guide) {
+    limit = Math.floor(budget * GUIDE_SHARE);
+    if (!levels()) {
+      guide = false; complete = true; limit = budget; rand = mulberry32(seed >>> 0);
+      g.fill(0);
+      proved = levels();
+    }
+  } else proved = levels();
   return { least, found, proved: least != null && proved, steps };
 }
 

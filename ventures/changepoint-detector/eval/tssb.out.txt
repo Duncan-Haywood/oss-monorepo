@@ -1,0 +1,115 @@
+TSSB at e0c7a1f6cee6874e60cbacd3b8601f2de259606e: 75 series, 359497 points (240 to 20700), 190 annotated changes.
+Settings exactly as eval/tcpd-heldout.mjs; pre-registered in eval/tssb-prereg-2026-11-15.md.
+Metric check: on 75 of 75 series some published method's covering equals this port's "zero" covering to 3 decimals (the published sheet rounds to 3).
+
+Mean over the 75 series (covering is TSSB's metric; F1 margin 5 is TCPDBench's; F1 margin w uses TSSB's window size):
+  setting                                  cover   F1@5   F1@w   cuts/1000 pts
+    ClaSP (published)                      0.855    -      -    
+    PELT (published)                       0.581    -      -    
+    BinSeg (published)                     0.575    -      -    
+    FLOSS (published)                      0.567    -      -    
+    BOCD (published)                       0.449    -      -    
+    ESPRESSO (published)                   0.444    -      -    
+  * zero                                   0.401  0.513  0.513  0.00
+    Window (published)                     0.401    -      -    
+  * consensus: every setting               0.344  0.414  0.416  1.61
+  * level, following the over-cut warning  0.304  0.349  0.352  9.17
+  * noise floor 2, local 25 (always)       0.304  0.349  0.352  9.14
+  * level+volatility                       0.235  0.189  0.198  26.88
+  * bocpd (default)                        0.165  0.119  0.124  31.40
+  * consensus: half or more                0.156  0.139  0.153  7.19
+  * level (default)                        0.094  0.086  0.087  123.53
+
+Pre-registered lines:
+  T1 every-setting consensus covering 0.344 >= zero 0.401 - 0.02 = 0.381: NOT MET
+  T2 over-cut warning fires on 61 of 75 (bar 50): MET
+  T3 following the warning minus plain level, on the 61 where it fires: mean +0.258 [95% 0.199, 0.320]; better on 59, worse on 2, sign test p 0.000: MET
+  T4 every-setting consensus 0.344 within 0.05 of published PELT 0.581 and BinSeg 0.5749, or above (>= 0.531): NOT MET
+
+Paired covering differences over all series:
+  consensus: every setting minus zero: mean -0.057 [95% -0.099, -0.022]; better on 1, worse on 15, sign test p 0.001
+  consensus: every setting minus published PELT: mean -0.237 [95% -0.301, -0.174]; better on 17, worse on 48, sign test p 0.000
+  consensus: every setting minus published BinSeg: mean -0.231 [95% -0.296, -0.168]; better on 17, worse on 48, sign test p 0.000
+  consensus: every setting minus published ClaSP: mean -0.510 [95% -0.576, -0.442]; better on 3, worse on 66, sign test p 0.000
+  bocpd (default) minus zero: mean -0.236 [95% -0.298, -0.178]; better on 11, worse on 53, sign test p 0.000
+  level+volatility minus zero: mean -0.166 [95% -0.240, -0.092]; better on 16, worse on 39, sign test p 0.003
+  level, following the over-cut warning minus zero: mean -0.097 [95% -0.151, -0.050]; better on 2, worse on 22, sign test p 0.000
+
+Every-setting changes within one window of a labelled change: 7 of 579 (1%).
+
+Per series: n, labelled changes, cuts (level / level+warn / bocpd / every), covering (every / zero / PELT / ClaSP).
+  Adiac                          n  1408  cps 3  cuts 128/0/1/0  cover 0.303/0.303/0.303/0.816  [warning]  1 s
+  ArrowHead                      n  1506  cps 1  cuts 223/0/47/0  cover 0.500/0.500/0.500/0.996  [warning]  1 s
+  Beef                           n  1410  cps 1  cuts 245/44/54/0  cover 0.500/0.500/0.500/0.848  [warning]  1 s
+  BeetleFly                      n  2560  cps 1  cuts 245/0/27/0  cover 0.500/0.500/0.500/1.000  [warning]  2 s
+  BirdChicken                    n  2560  cps 1  cuts 421/64/37/0  cover 0.500/0.500/0.500/0.500  [warning]  1 s
+  Car                            n  2163  cps 3  cuts 241/0/72/0  cover 0.256/0.256/0.256/0.761  [warning]  2 s
+  CBF                            n   960  cps 2  cuts 90/0/61/0  cover 0.342/0.342/0.342/0.680  [warning]  0 s
+  Chinatown                      n   240  cps 0  cuts 43/0/18/0  cover 1.000/1.000/1.000/1.000  [warning]  0 s
+  ChlorineConcentration          n  7801  cps 1  cuts 527/0/97/0  cover 0.577/0.577/0.577/0.577  [warning]  12 s
+  CinCECGTorso                   n  7169  cps 2  cuts 1276/342/197/43  cover 0.104/0.337/0.337/0.828  [warning]  2 s
+  Coffee                         n  1000  cps 1  cuts 132/0/50/0  cover 0.500/0.500/0.500/0.994  [warning]  1 s
+  Computers                      n 11250  cps 1  cuts 262/262/363/23  cover 0.404/0.500/0.457/0.975  3 s
+  CricketX                       n  3092  cps 4  cuts 387/0/158/0  cover 0.203/0.203/0.769/0.986  [warning]  3 s
+  CricketY                       n  3074  cps 4  cuts 424/0/175/0  cover 0.202/0.202/0.747/0.985  [warning]  2 s
+  CricketZ                       n  2717  cps 4  cuts 315/0/124/0  cover 0.202/0.202/0.740/0.935  [warning]  2 s
+  Crop                           n 20700  cps 8  cuts 2412/0/1212/0  cover 0.125/0.125/0.987/0.986  [warning]  30 s
+  DiatomSizeReduction            n  1293  cps 2  cuts 215/0/0/0  cover 0.342/0.342/0.342/0.947  [warning]  1 s
+  DistalPhalanxOutlineAgeGroup   n  1430  cps 1  cuts 0/0/0/0  cover 0.668/0.668/0.668/0.930  2 s
+  DistalPhalanxTW                n  2580  cps 2  cuts 0/0/1/0  cover 0.474/0.474/0.474/0.739  6 s
+  DodgerLoopDay                  n  3456  cps 0  cuts 101/44/13/23  cover 0.091/1.000/1.000/1.000  [warning]  2 s
+  ECG200                         n  2400  cps 1  cuts 367/0/147/0  cover 0.572/0.572/0.983/0.970  [warning]  1 s
+  ECGFiveDays                    n   782  cps 1  cuts 173/26/45/0  cover 0.524/0.524/0.524/0.524  [warning]  0 s
+  EOGHorizontalSignal            n  5155  cps 3  cuts 841/186/206/48  cover 0.107/0.256/0.256/0.922  [warning]  1 s
+  EOGVerticalSignal              n  8014  cps 5  cuts 1202/281/323/48  cover 0.144/0.170/0.170/0.662  [warning]  2 s
+  FaceAll                        n  9170  cps 6  cuts 0/0/0/0  cover 0.143/0.143/0.760/0.994  53 s
+  FaceFour                       n  8400  cps 3  cuts 3542/157/193/50  cover 0.091/0.281/0.572/0.281  [warning]  20 s
+  FacesUCR                       n  6483  cps 6  cuts 129/0/3/0  cover 0.152/0.152/0.717/0.929  [warning]  11 s
+  FiftyWords                     n  5196  cps 3  cuts 851/0/304/0  cover 0.278/0.278/0.975/0.991  [warning]  3 s
+  Fish                           n 10124  cps 6  cuts 1292/0/88/0  cover 0.144/0.144/0.144/0.963  [warning]  28 s
+  FreezerRegularTrain            n 11286  cps 3  cuts 1798/304/433/50  cover 0.091/0.260/0.260/0.916  [warning]  3 s
+  Ham                            n  5870  cps 3  cuts 861/4/323/0  cover 0.251/0.251/0.552/0.918  [warning]  2 s
+  Herring                        n  4992  cps 0  cuts 773/156/54/0  cover 1.000/1.000/1.000/1.000  [warning]  7 s
+  GunPoint                       n  1875  cps 1  cuts 480/0/124/45  cover 0.060/0.501/0.501/0.993  [warning]  1 s
+  Haptics                        n  5868  cps 2  cuts 788/0/182/0  cover 0.356/0.356/0.356/0.356  [warning]  3 s
+  InlineSkate                    n  4821  cps 2  cuts 986/148/81/10  cover 0.496/0.358/0.358/0.358  [warning]  2 s
+  InsectWingbeatSound            n  1280  cps 3  cuts 176/0/42/0  cover 0.250/0.250/0.992/0.980  [warning]  1 s
+  ItalyPowerDemand               n  1608  cps 1  cuts 207/0/118/0  cover 0.500/0.500/0.500/0.986  [warning]  1 s
+  LargeKitchenAppliances         n  8436  cps 2  cuts 18/18/342/0  cover 0.333/0.333/0.333/0.652  4 s
+  Lightning2                     n  1194  cps 1  cuts 278/0/100/0  cover 0.556/0.556/0.556/0.556  [warning]  1 s
+  Lightning7                     n  6539  cps 4  cuts 852/284/173/44  cover 0.147/0.215/0.377/0.626  [warning]  3 s
+  Mallat                         n  3968  cps 3  cuts 685/0/110/0  cover 0.267/0.267/0.267/0.996  [warning]  2 s
+  Meat                           n  3360  cps 2  cuts 585/0/194/0  cover 0.333/0.333/0.333/0.580  [warning]  1 s
+  MedicalImages                  n  2474  cps 1  cuts 509/101/136/45  cover 0.087/0.580/0.464/0.993  [warning]  1 s
+  MelbournePedestrian            n  4896  cps 6  cuts 0/0/0/0  cover 0.149/0.149/0.793/0.987  15 s
+  MiddlePhalanxOutlineAgeGroup   n 10312  cps 4  cuts 1219/0/379/0  cover 0.250/0.250/0.250/0.818  [warning]  10 s
+  MiddlePhalanxOutlineCorrect    n  7940  cps 3  cuts 793/0/542/0  cover 0.334/0.334/0.618/0.818  [warning]  22 s
+  MiddlePhalanxTW                n  6720  cps 0  cuts 957/1/41/0  cover 1.000/1.000/1.000/1.000  [warning]  12 s
+  MoteStrain                     n  1680  cps 1  cuts 358/58/67/1  cover 0.498/0.500/0.420/0.985  [warning]  1 s
+  NonInvasiveFetalECGThorax1     n 12420  cps 5  cuts 2687/0/827/0  cover 0.169/0.169/0.658/0.985  [warning]  7 s
+  NonInvasiveFetalECGThorax2     n 14107  cps 6  cuts 2995/0/970/0  cover 0.145/0.145/0.705/0.990  [warning]  11 s
+  OliveOil                       n  7410  cps 2  cuts 1579/338/145/49  cover 0.075/0.382/0.382/0.754  [warning]  2 s
+  OSULeaf                        n  2080  cps 2  cuts 0/0/1/0  cover 0.365/0.365/0.745/0.995  3 s
+  Plane                          n  3780  cps 6  cuts 221/0/8/0  cover 0.150/0.150/0.441/0.992  [warning]  8 s
+  ProximalPhalanxOutlineAgeGroup n  4000  cps 2  cuts 0/0/0/0  cover 0.376/0.376/0.675/0.884  14 s
+  ProximalPhalanxOutlineCorrect  n  6000  cps 3  cuts 0/0/0/0  cover 0.292/0.292/0.550/0.739  31 s
+  ProximalPhalanxTW              n  4000  cps 3  cuts 399/0/177/0  cover 0.395/0.395/0.395/0.982  [warning]  14 s
+  ShapesAll                      n  6400  cps 4  cuts 1058/165/43/0  cover 0.200/0.200/0.200/0.984  [warning]  3 s
+  ShapeletSim                    n  2500  cps 0  cuts 0/0/0/0  cover 1.000/1.000/0.786/1.000  5 s
+  SonyAIBORobotSurface1          n  1400  cps 1  cuts 185/0/72/0  cover 0.580/0.580/0.832/0.580  [warning]  2 s
+  SonyAIBORobotSurface2          n  1755  cps 1  cuts 211/0/44/0  cover 0.517/0.517/1.000/0.979  [warning]  1 s
+  Strawberry                     n  5947  cps 3  cuts 1155/0/263/0  cover 0.332/0.332/0.332/0.494  [warning]  24 s
+  SwedishLeaf                    n  4352  cps 3  cuts 523/0/5/0  cover 0.252/0.252/0.723/0.997  [warning]  13 s
+  Symbols                        n  1889  cps 3  cuts 547/104/23/24  cover 0.190/0.297/0.297/0.833  [warning]  1 s
+  SyntheticControl               n  3750  cps 4  cuts 300/0/107/0  cover 0.200/0.200/0.797/0.937  [warning]  6 s
+  ToeSegmentation1               n  2770  cps 1  cuts 439/0/171/0  cover 0.500/0.500/0.947/1.000  [warning]  1 s
+  ToeSegmentation2               n  3086  cps 1  cuts 492/8/179/0  cover 0.500/0.500/0.500/0.997  [warning]  1 s
+  Trace                          n  5086  cps 2  cuts 772/148/180/45  cover 0.083/0.344/0.344/0.652  [warning]  1 s
+  TwoLeadECG                     n   471  cps 1  cuts 92/0/42/0  cover 0.501/0.501/0.501/0.501  [warning]  0 s
+  UMD                            n  1800  cps 0  cuts 200/52/51/31  cover 0.057/1.000/1.000/1.000  [warning]  1 s
+  UWaveGestureLibraryAll         n  8459  cps 4  cuts 0/0/0/0  cover 0.201/0.201/0.884/0.992  31 s
+  UWaveGestureLibraryX           n  2818  cps 4  cuts 0/0/0/0  cover 0.201/0.201/0.502/0.987  4 s
+  UWaveGestureLibraryY           n  2818  cps 4  cuts 0/0/0/0  cover 0.201/0.201/0.599/0.963  7 s
+  UWaveGestureLibraryZ           n  2818  cps 4  cuts 0/0/0/0  cover 0.201/0.201/0.760/0.810  6 s
+  WordSynonyms                   n  2395  cps 2  cuts 413/0/151/0  cover 0.727/0.727/0.988/0.845  [warning]  1 s
+  Yoga                           n 15974  cps 1  cuts 1734/0/374/0  cover 0.504/0.504/0.504/0.995  [warning]  25 s

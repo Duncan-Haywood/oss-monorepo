@@ -2312,12 +2312,12 @@ export function threeRoundDeals(opp, rs, cap = 20000) {
  * above the floor; the best few timetables seen within the cap are tried, and the season returned is
  * the one with the least carry-over among those whose balanced least is within the cap (else the
  * fewest breaks). `start` is a single round robin (carryOverTry, lowCarryOverRounds, a squeeze).
- * Up to 26 teams (13 matches a round, FLOOR_PRICED_MAX_MATCHES). `iterations` caps the moves; `timeMs` stops early. Seeded.
+ * Up to 28 teams (14 matches a round, FLOOR_PRICED_MAX_MATCHES). `iterations` caps the moves; `timeMs` stops early. Seeded.
  * Returns the shape squeezeSingleRounds does, plus { floor, leastProved, floorPriced: true }, or null
  * when no balanced choice was found for any kept timetable.
  */
 export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = CARRY_OVER_DEALS, dealFloors = 3, balanced = true, balancedBudget = 50000 } = {}) {
-  if (!Number.isInteger(n) || n < 4 || n > 26) throw new Error("A floor-priced season needs 4 to 26 teams.");
+  if (!Number.isInteger(n) || n < 4 || n > 28) throw new Error("A floor-priced season needs 4 to 28 teams.");
   if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   if (!start || !Array.isArray(start.rounds) || start.rounds.length !== R) throw new Error("start must be a single round robin for this many teams.");
@@ -2484,7 +2484,9 @@ export const CARRY_OVER_DEALS = 0.15;
 
 /**
  * Seasons the page adds after the regrounded ones (README "Pricing the break floor"): for a single
- * round robin of 6 to `maxTeams` (26) teams (25 until 2026-11-15, when the whole-break step went to
+ * round robin of 6 to `maxTeams` (28) teams (26 until 2026-11-15's balance-guided walk and start under
+ * the gap let 28 teams land seasons on every seed: README "Starting under the gap", eval/under-start.txt;
+ * 25 until 2026-11-15, when the whole-break step went to
  * int16 SIMD and 26 teams went from 71 s to 34 s: README "Whole-break tables in int16", eval/int16-step.txt;
  * 22 until 2026-11-14, when the step's kernel moved to
  * WebAssembly and 24 teams went from 90-178 s to 21-42 s: README "minPlusStep in WebAssembly",
@@ -2497,7 +2499,7 @@ export const CARRY_OVER_DEALS = 0.15;
  * `results` and `seed` alone, so a share link that keeps one rebuilds it. [] for a home-and-away
  * season or when the frontier has no such gap.
  */
-export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true, maxTeams = 26 } = {}) {
+export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true, maxTeams = 28, underStart = true } = {}) {
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   const base = [...results].sort((a, b) => a.index - b.index);
   if (n < 6 || n > maxTeams || !count || base.some((t) => t.rounds.length !== R)) return [];
@@ -2514,13 +2516,24 @@ export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_
   const top = front[gi - 1], under = front[gi];
   const all = pts.slice();
   const out = [];
+  // once the search from the season above the gap lands nothing within a cap, it starts from the
+  // season under the gap instead, at that cap and every lower one (README "Starting under the gap"):
+  // at 28 teams the season above is a starter timetable no move of the search gets under its
+  // breaks, while from under the gap the same search lands inside it
+  let from = top;
   for (let cap = top.breaks - 2, k = 0; cap > under.breaks && out.length < count && k <= count; cap -= 2, k++) {
     // both neighbourhoods at this cap, the better kept: swaps alone, and swaps with three-round
     // re-deals (README "Re-dealing three rounds at once"; each wins on some sizes and seeds)
-    const two = [0, deals].filter((d, i, a) => a.indexOf(d) === i)
-      .map((d) => floorPricedSingleRounds(n, base[top.i], { seed: carryOverTrySeed(seed, top.i), maxBreaks: cap, iterations, deals: d, balanced }))
+    const search = (f, ds) => ds.filter((d, i, a) => a.indexOf(d) === i)
+      .map((d) => floorPricedSingleRounds(n, base[f.i], { seed: carryOverTrySeed(seed, f.i), maxBreaks: cap, iterations, deals: d, balanced }))
       .filter(Boolean);
-    const within = two.filter((r) => r.breaks <= cap);
+    let two = search(from, [0, deals]);
+    let within = two.filter((r) => r.breaks <= cap);
+    if (!within.length && from === top && underStart) {
+      from = under;
+      two = search(from, [deals]);
+      within = two.filter((r) => r.breaks <= cap);
+    }
     let s = null;
     // within the cap the least carry-over wins; when neither search got under it, the fewest breaks
     if (within.length) for (const r of within) { if (!s || r.coe < s.coe || (r.coe === s.coe && r.breaks < s.breaks)) s = r; }
@@ -2528,7 +2541,7 @@ export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_
     if (!s) continue;
     if (all.some((y) => y.coe <= s.coe && y.breaks <= s.breaks)) continue;
     all.push({ coe: s.coe, breaks: s.breaks });
-    out.push({ ...s, index: base.length + out.length, seed: carryOverTrySeed(seed, top.i), breakWeight: null, floorPricedFrom: top.i });
+    out.push({ ...s, index: base.length + out.length, seed: carryOverTrySeed(seed, from.i), breakWeight: null, floorPricedFrom: from.i });
   }
   return out;
 }

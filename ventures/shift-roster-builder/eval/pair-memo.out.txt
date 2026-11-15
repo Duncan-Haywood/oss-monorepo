@@ -1,0 +1,21 @@
+WEEK 20x56 week 2: 20 people; a given-up pair's search read 19.2 people's lists on average (53 pairs), a failed one 17.8 (4 pairs)
+WEEK 20x56 week 2 (75 copies)
+  off: 4 moves in 2.28 s, score 4806799.21, risk 107 h, pair hours 688, walks 180 (163 cut off), pairs searched 36864, memo hits 0 of 0, candidates 1718
+    moves at 0.46, 0.81, 1.11, 1.66 s
+  memo: 4 moves in 2.34 s, score 4806799.21, risk 107 h, pair hours 688, walks 180 (163 cut off), pairs searched 36864, memo hits 1075 of 36864, candidates 1718
+    moves at 0.48, 0.92, 1.17, 1.80 s
+  memo vs off: same roster, moves and pairs searched: yes; objective 4810162.21 vs 4810162.21; time 103% of off
+WEEK 40x112 week 0: 40 people; a given-up pair's search read 39.8 people's lists on average (308 pairs), a failed one 32.0 (6 pairs)
+WEEK 40x112 week 0 (149 copies)
+  off: 11 moves in 22.36 s, score 16912622.94, risk 427 h, pair hours 8, walks 1591 (1462 cut off), pairs searched 283507, memo hits 0 of 0, candidates 17344
+    moves at 0.63, 2.72, 7.39, 12.16, 15.44, 15.54, 15.62, 18.65, 19.21, 19.66, 20.25 s
+  memo: 11 moves in 27.49 s, score 16912622.94, risk 427 h, pair hours 8, walks 1591 (1462 cut off), pairs searched 283507, memo hits 212 of 283507, candidates 17344
+    moves at 0.69, 3.31, 8.57, 13.93, 17.77, 17.89, 17.98, 22.61, 23.35, 24.18, 25.15 s
+  memo vs off: same roster, moves and pairs searched: yes; objective 16923305.94 vs 16923305.94; time 123% of off
+WEEK 40x112 week 1: 40 people; a given-up pair's search read 35.0 people's lists on average (1 pairs), a failed one - (0 pairs)
+WEEK 40x112 week 1 (148 copies)
+  off: 0 moves in 4.04 s, score 14612836.63, risk 440 h, pair hours 0, walks 446 (422 cut off), pairs searched 25262, memo hits 0 of 0, candidates 3875
+    moves at none s
+  memo: 0 moves in 3.88 s, score 14612836.63, risk 440 h, pair hours 0, walks 446 (422 cut off), pairs searched 25262, memo hits 7 of 25262, candidates 3875
+    moves at none s
+  memo vs off: same roster, moves and pairs searched: yes; objective 14623836.63 vs 14623836.63; time 96% of off

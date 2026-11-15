@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtJBAgzAeWnN14gd6Eh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T11:05:59Z",
+  "ended": "2026-11-15T11:11:54Z",
+  "wall_minutes": 8.78,
+  "tokens_in": 9061567,
+  "tokens_out": 36455,
+  "cost_usd": 3.6398,
+  "tool_calls": 77,
+  "task": "Deepen flagship 8 quick-pick-survey (allocate.py row 6)",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16191",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Ran the seed-2000 coverage sweep without --out; rebuilt its jsonl from the captured stdout (same rows).",
+      "fixed": true
+    },
+    {
+      "what": "Stopped the mixture stop-rule sweep after 10 of 12 cells (25x3 and 25x1.5 were slow); recorded as partial.",
+      "fixed": false
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "quick-pick-survey next: is near the 2000-character cap and every listed next item needs real survey answers; a session must find its own buildable item in docs/RANK-PAGE.md 'Open'."
+    },
+    {
+      "file": "ventures/quick-pick-survey/docs/RANK-PAGE.md",
+      "issue": "The 'Open' bullet about orderConfidence overstating on short lists was stale since the 2026-11-14 second check (fixed in this PR)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship's listed next items (r, c, d11, bw, h) all need real respondents' answers; took the unlisted open item from RANK-PAGE.md (results table drawn at the fixed prior) instead.",
+      "did": "Measured and shipped own-prior results; measured and rejected a mixture rule.",
+      "result": "Shipped with tests and a browser check."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quick-pick-survey-too-sure-of-your-favourite.md",
+    "ventures/quick-pick-survey/docs/RANK-PAGE.md (Honest results for close calls)"
+  ],
+  "goal": null,
+  "notes": "Local: run_venture_tests.py quick-pick-survey ok (124 tests); node --test rank-core/answer-time/best-worst/pile-first 77 pass; new coin-flip results test fails with resultsFit returning the fixed fit (checked). Playwright 390px: consistent 25 picks, 75% fav, no note; coin-flip 48 picks (cap), 26% fav, close-calls note; no console errors. venture-preflight: see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1fe9027c-94f4-5566-9776-642006e2273a",
+    "transcripts": 1,
+    "first": "2026-11-15T11:05:59Z",
+    "last": "2026-11-15T11:14:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 36455,
+        "thinking": 7615,
+        "cache_read": 8920670,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140751,
+        "api_equivalent_usd": 3.6398,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 36455,
+      "thinking": 7615,
+      "cache_read": 8920670,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140751,
+      "api_equivalent_usd": 3.6398,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 63,
+      "Monitor": 9,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.78,
+      "active_minutes": 8.78,
+      "model_minutes": 7.05,
+      "tool_minutes": 1.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer designing two simulation sweeps, the results refit, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 274.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
