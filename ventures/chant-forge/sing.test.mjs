@@ -271,6 +271,29 @@ test('a final nasal hums on through the nose with no blip of bare vowel, and -um
   }
 });
 
+test('a short final -um is read against the vowel just before it: five beating voices move both together', () => {
+  // README "A short final -um against the vowel just before it": the murmur's level against the note's
+  // start swung 4-15 dB with the beat, so -num, -tum and -rum on short notes read as nothing
+  const SY = ['num', 'tum', 'rum', 'um', 'u', 'o', 'tu'], score = { near: 0, off: 0, all: 0 };
+  for (const P of [1, 2]) for (const midi of [48, 50, 53, 64]) {
+    const ev = [];
+    for (const s of SY) ev.push({ type: 'note', midi, pulses: P, syllable: s }, { type: 'rest', pulses: 2 });
+    const mid = eventsToMidi(ev, { bpm: 124 });
+    const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+    const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+    for (const sing of [true, 'vowels']) {
+      const x = renderMidi(mid, { stems: true, sing }).stems.choir.channels[0];
+      SY.forEach((s, j) => {
+        const read = (nearVowel) => readCoda(x, rate, sec(notes[j].tick) + 0.05, sec(notes[j].end) + 0.2, { nearVowel }).cls;
+        if (sing === true && s.endsWith('m')) { score.all++; if (read(true) === 'nasal') score.near++; if (read(false) === 'nasal') score.off++; }
+        else assert.equal(read(true), 'none', `${s} on ${midi}, ${P} pulses (${sing})`);
+      });
+    }
+  }
+  // measured 27 of 32 with it, 23 without (2026-11-15)
+  assert.ok(score.near >= score.off + 3 && score.near >= 0.8 * score.all, JSON.stringify(score));
+});
+
 test('high /i/ and /u/ keep their level: F1 raised to 1.1 x f0 (tuneF1)', () => {
   assert.deepEqual(tuneF1(FORMANTS.a, 440, 1.1), FORMANTS.a); // /a/ F1 730 is above 484
   assert.deepEqual(tuneF1(FORMANTS.i, 440, 1.1).map(Math.round), [484, 2290, 3010]);

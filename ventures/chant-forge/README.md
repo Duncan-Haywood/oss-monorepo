@@ -806,7 +806,7 @@ vowel-only choir. Nobody has listened to it: whether a 15 ms hand-over into an m
 question for an ear. Reports: `eval/consonant-check-report.md`, `eval/coda-check-report.md`,
 `eval/vowel-check-report.md`.
 
-#### An opening /l/ at its vowel's level (2026-11-15, latest)
+#### An opening /l/ at its vowel's level (2026-11-15)
 
 The sixth coda round set a final /l/ per note, 4 dB under the vowel it leaves; the opening /l/ kept
 `PHONES.l`'s fixed voicing gain of 1.4. Measured from the wave (one voice, no vibrato, the middle half of the
@@ -835,6 +835,46 @@ what is heard and nothing the checks can see. A new test in `sing.test.mjs` hold
 of one level across five pitches and five vowels (the fixed gain spread over 8). Nobody has listened to it:
 whether a 6 dB step from /l/ into the vowel sounds like a Latin *l* or like a late entry is the question for
 an ear.
+
+#### A short final -um against the vowel just before it (2026-11-15, latest)
+
+The coda-murmur round left a question: with the choir's five detuned voices a short final *-um* sat
+anywhere from 5.7 dB over to 20.1 dB under the vowel measured at the note's start, because a murmur passes
+only the voices' lowest harmonics and those beat against each other at 0.2-4 Hz. `readCoda` compared every
+frame of the coda with 60 ms of vowel taken at the note's start, so a murmur caught at a low point of the
+beat was too quiet for its nasal rule and one caught at a high point too loud. On the corpus's 0.24 s notes
+that was most of the nasal misses: *-num*, *-tum*, *-rum* and *-um* read as nothing (B 10 of 39 nasals).
+
+Read frame by frame (B, a development set), the vowel's own level drifts with the same beat in the 100 ms
+before the closure: a *num* at D3 whose murmur sat 12 dB under the note's start sat 3-6 dB under the vowel
+just before it. What holds is the step: at the closure the sound turns 10-15 dB darker within 10 ms and stays
+there.
+
+- **The change** (`onsets.mjs`): a third nasal rule reads a run as a murmur when, against the vowel 25-45 ms
+  before it, every frame is 8 dB or more darker (`NEAR.dark`) and from 0 to 18 dB quieter, its level and its
+  darkness each held within 4 dB over its first 30 ms (`hold`, `tiltHold`), 45 ms long, dark in itself
+  (`MURMUR_TILT`) and with no vowel coming back after it. `readCoda(..., { nearVowel: false })` is the reader
+  before; `node eval/coda-check.mjs --near off` prints the old report, byte for byte.
+- **The first registration was withdrawn.** Without `tiltHold` it read 9 of 9 vowel-only /u/ and /o/ notes on
+  F3 as nasals: as those vowels release, their darkness wanders by 8 dB while their level holds. That was
+  found on a synthetic set (*num tum rum um cum am em om* and bare vowels, eighth and quarter notes, E2-E4,
+  124 BPM) before any held-out part had finished, so the run was stopped unread, the darkness hold added,
+  and the predictions registered again (header of `eval/coda-check.mjs`, both commits on the branch).
+
+| prediction (second registration) | main (`--near off`) | after |
+|---|---|---|
+| (1) held-out nasals no fewer in D, E or H; 71 of 80 or more together | D 11 of 12, E 18 of 22, H 38 of 46 (67) | D 11, E 19, H 43 (73 of 80): holds |
+| (2) D, E, H totals no lower | 68 of 70, 81 of 86, 121 of 134 | 68, 82, 126 of 134 (94.0%): holds |
+| (2) their vowel-only controls and bare vowels within 1 | 68, 84, 131; 180, 216 bare | identical: holds |
+| (3) F's nasals 104 of 137 or more; its /l/ none on 4 of 4 | 96 of 137 | 106 of 137 (77.4%); /l/ 4 of 4: holds |
+| (4) vowel and consonant checks cannot move | | nothing else calls readCoda; synthesis untouched |
+| development: A, B, I | A 157, B 147 (nasals 28 of 39), I 136 | A 160, B 155 (nasals 36), I 138; controls identical |
+
+The synthetic set is now a test (`sing.test.mjs`): 27 of 32 short final nasals read with the rule, 23
+without, and no vowel-only or bare-vowel note read as anything. Still missed: *-unt* and *-sunt* read on
+their stop, *in* read as a voiced fricative, and a few *-num*/*-lum* after a dark vowel on E4 and in F's
+pages. Nothing in the synthesis changed, so the beat is still there: whether five real voices beat this
+much on a held *-um*, and whether a listener hears the murmur come and go, is a question for an ear.
 
 #### Formant tuning on high notes (2026-11-15)
 
