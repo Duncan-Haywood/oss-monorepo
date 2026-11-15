@@ -25,6 +25,17 @@ Each is computed alone under an assumption printed next to it (editable with
 
 Exit 1 when `--budget` (monthly USD) is exceeded; 2 on bad input.
 
+## Quotas are per organization
+
+Each Pro organization gets its own quotas (egress, storage, monthly active
+users, Edge Function invocations, Realtime messages) and its own $10 compute
+credit, so the allowances scale with `pro_orgs`. Database disk's 8 GB is per
+project; the estimate assumes one project per org. Because merging two orgs
+gives up one set of quotas, "consolidate organizations" is offered only when it
+still saves money. Cached egress, the spend cap and per-project disk for orgs
+with several projects are not modelled yet (quality census 2026-11-15,
+`portfolio/quality/audits/2026-11-15-supabase-bill-estimator.json`).
+
 ## What it is not
 
 Arithmetic on the numbers you give, at approximate public Pro-plan list prices

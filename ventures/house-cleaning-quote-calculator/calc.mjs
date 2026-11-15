@@ -124,12 +124,15 @@ export function analyze(jobIn, frequencies, addOns = []) {
   const losing = lines.filter((l) => l.profit < 0);
   const neededList = Math.max(...lines.map((l) => l.listPriceNeeded));
   const binding = lines.find((l) => l.listPriceNeeded === neededList);
+  // The "one-time price" the owner types excludes add-ons, which are added on top, so
+  // the price to type is the needed list price less the add-on revenue.
+  const neededBase = Math.max(0, neededList - addRevenue);
   let verdict;
   if (!below.length) verdict = `Every frequency clears your ${o.targetMarginPct}% target margin at a ${money2(o.basePrice + addRevenue)} list price.`;
-  else verdict = `${below.length} of ${lines.length} frequency line(s) fall below your ${o.targetMarginPct}% target; to clear all of them, list a one-time clean at ${money2(neededList)} or more (${binding.label} sets that).`;
+  else verdict = `${below.length} of ${lines.length} frequency line(s) fall below your ${o.targetMarginPct}% target; to clear all of them, set your one-time price to ${money2(neededBase)} or more${addRevenue > 0 ? ` before add-ons (${money2(neededList)} with them)` : ""} (${binding.label} sets that).`;
   if (losing.length) warnings.push(`${losing.map((l) => l.label).join(", ")} loses money on every visit at these figures.`);
 
-  return { job: o, addMinutes, addRevenue, cleanHours, driveHours, mileage, lines, verdict, neededListPrice: neededList, warnings };
+  return { job: o, addMinutes, addRevenue, cleanHours, driveHours, mileage, lines, verdict, neededListPrice: neededList, neededBasePrice: neededBase, warnings };
 }
 
 export function sampleJob() {

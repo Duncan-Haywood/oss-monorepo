@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKVCvhLnrK5gBtVRa9",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T23:06:54Z",
+  "ended": "2026-11-15T23:16:16Z",
+  "wall_minutes": 9.68,
+  "tokens_in": 14008548,
+  "tokens_out": 150385,
+  "cost_usd": 9.3203,
+  "tool_calls": 184,
+  "task": "quality census (mode drawn by quality_audit.py mode), seed 2026-11-15-8354",
+  "projects": [
+    "ventures/house-cleaning-quote-calculator",
+    "ventures/sign-language-interpreter-rate-calculator",
+    "ventures/codeowners-shadow-check",
+    "ventures/supabase-bill-estimator",
+    "research/accel-surrogate",
+    "research/chip-exact4"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first quality_audit.py validate run by one auditor crashed on a JSON parse error from another auditor's half-written file",
+      "fix": "re-ran after the write finished; 0 problems"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "step 5 names the post quality-audit-round-<n> and steps 1-3 describe a sample round, but quality_audit.py mode drew census; the mode table in portfolio/quality/README.md is the real instruction. The prompt could say 'run mode first'."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py printed 'shell variables not kept between commands?' instead of a path when run bare; the interpreter path was on the next line, fine once noticed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "mode was census, not sample, so the post is named quality-census-<seed> like other census posts rather than quality-audit-round-<n>",
+      "did": "followed portfolio/quality/README.md census mode",
+      "result": "consistent with the three earlier census posts of the day"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "fixes landed in the same PR as the audits rather than a separate fix PR, as earlier census rounds did; each fix is its own commit with a test",
+      "did": "one PR, per-subject fix commits, fixed_by marks pointing at it",
+      "result": "scores recorded before fixes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quality-census-8354.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-15-8354 (census). Subjects: house-cleaning-quote-calculator, sign-language-interpreter-rate-calculator, codeowners-shadow-check, supabase-bill-estimator, accel-surrogate, chip-exact4. 0 of 6 meet the bar, 6 of 6 finished; seeded mutations caught 20 of 37. Fix PR: #16371 (same PR): supabase per-org quotas (high), codeowners directory patterns + .github-first order (high, medium), house-cleaning needed price before add-ons (high), sign-language blank notice refused + holiday literal test (high, low), accel-surrogate README energy correction (high), chip-exact4 README confirmation, optional deps, duplicate decorator. I spot-checked the supabase $409.60 reproduction and the accel-surrogate banded-flop figure (1,920 flops, 1.19x MLP) myself. Local: run_venture_tests.py on the 4 ventures: 4 suites, 0 failed (29, 62, 66, 29 tests); chip-exact4 pytest 2 passed 3 skipped (no python-sat/yosys); quality_audit.py validate 382 files 0 problems. Not verified: storage $0.0213 and 2026 IRS mileage figures the auditors cited, so those constants were left unchanged and listed as gaps.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "98bb4f26-7393-5019-a94a-3eb571cb7a13",
+    "transcripts": 7,
+    "first": "2026-11-15T23:06:54Z",
+    "last": "2026-11-15T23:16:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 170,
+        "input": 347,
+        "output": 150385,
+        "thinking": 41986,
+        "cache_read": 13349610,
+        "cache_write_5m": 542465,
+        "cache_write_1h": 116126,
+        "api_equivalent_usd": 9.3203,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 170,
+      "input": 347,
+      "output": 150385,
+      "thinking": 41986,
+      "cache_read": 13349610,
+      "cache_write_5m": 542465,
+      "cache_write_1h": 116126,
+      "api_equivalent_usd": 9.3203,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.953,
+    "tool_calls": 184,
+    "tools": {
+      "Bash": 151,
+      "WebFetch": 7,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "ToolSearch": 5,
+      "WebSearch": 3,
+      "TaskStop": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Monitor": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.68,
+      "active_minutes": 6.77,
+      "model_minutes": 6.1,
+      "tool_minutes": 0.67,
+      "waiting_on_human_minutes": 2.91,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 23.36
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "six first audits by a domain reviewer (~3 h each) plus five small fixes with tests (~1 h each)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 257.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
