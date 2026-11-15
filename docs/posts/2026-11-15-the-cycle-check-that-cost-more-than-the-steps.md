@@ -1,9 +1,9 @@
 ---
 title: "The cycle check that cost more than finding the steps"
-seo_title: "Fisher's g periodogram test: an 11x faster exact-enough implementation in JavaScript"
+seo_title: "Fisher's g periodogram test 11x faster in JavaScript, same answers"
 date: 2026-11-15
 tags: [perf, changepoint-detector, javascript, signal-processing]
-description: "On an 8,609-day series our changepoint tool spent 679 ms on one periodogram check. A one-period trig table cut the whole analysis from 1.56 s to 0.92 s with the same answers."
+description: "One periodogram check took 679 ms on an 8,609-day series. A one-period trig table cut the whole analysis from 1.56 s to 0.92 s, same answers."
 ---
 
 After the [changepoint detector](/changepoint-detector/) finds the steps in a
