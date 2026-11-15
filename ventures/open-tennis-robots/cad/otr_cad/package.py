@@ -351,7 +351,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
                                "settings": "0.2 mm layers, 4 walls, 40% gyroid", "notes": part.notes})
         elif part.kind == "stock":
             cut_rows.append({"part": part.name, "qty": part.qty, "stock": part.spec, "notes": part.notes})
-        if part.material in DENSITY:
+        if part.material in DENSITY and part.placements:   # a test print (no placement) is not on the machine
             part_g = DENSITY[part.material] * part.shape.volume / 1000 * part.qty
             mass_g += part_g
             if part.name.startswith("hopper"):

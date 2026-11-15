@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVMMvhZ8mY1D7wFG2Fu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled ventures brief)",
+  "input_sha256": "b1c82026cc82c95d5b547c8ce83f59a9c0499c86701501193703810a0c454da0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T15:03:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10): open-tennis-robots BUILDABLE item, F626 press-fit test ring",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16249",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "dataclass field name clash (petg_e_mpa) silently overrode an existing parameter",
+      "fix": "renamed to petg_hoop_e_mpa; caught by reading the manifest diff"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder's next: is almost all real-input items plus marginal solver tuning, but it has no inputs_only or buildable field, so allocate.py still dispatches runs there as Deepen."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The router sent this run to row 4, shift-roster-builder. Its only buildable item (a gate sized for the warm solve) is one its own README calls timing-bound and small either way, and every other item needs real data or an account. I took flagship 10's named BUILDABLE item instead.",
+      "did": "open-tennis-robots bearing-fit test ring",
+      "result": "landed a printable part, a parameter and a model, with tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-test-ring-before-the-bearing-pocket.md"
+  ],
+  "goal": null,
+  "notes": "Full cad suite: 132 passed in 310 s (venv, build123d 0.13.0), including the committed feeder package's freshness test after regenerating it (exit 0). Caught in this session: my first cut redefined the existing petg_e_mpa (1500, the retainer's bending modulus) to 2000, which silently moved retain_pass_n 16.7 to 22.2 N in the manifest. Renamed to petg_hoop_e_mpa; the manifest diff now shows only the new parameters and files. All model figures are assumptions; no disc has been printed.",
+  "corrections": [],
+  "redteam": null
+}

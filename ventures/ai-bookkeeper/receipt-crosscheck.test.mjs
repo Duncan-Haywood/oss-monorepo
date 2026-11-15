@@ -77,14 +77,15 @@ test("a photo is read with --psm 6, then --psm 4 the second time; text files onc
   const run = (cmd, args) => { calls.push([cmd, ...args].join(" ")); return { status: 0, stdout: args.includes("4") ? "KEDAI MAJU\nTotal 31.00" : "KEDAI MAJU\nTotal 34.00" }; };
   const t = receiptPassesFromFile("slip.jpg", { run, env: {} });
   assert.equal(t.length, 2);
-  assert.deepEqual(calls, ["tesseract slip.jpg stdout --psm 6", "tesseract slip.jpg stdout --psm 4"]);
+  // (the thumbnail that measures the lighting is asked of ImageMagick; this stub has none)
+  assert.deepEqual(calls.filter((c) => c.startsWith("tesseract")), ["tesseract slip.jpg stdout --psm 6", "tesseract slip.jpg stdout --psm 4"]);
   // a custom engine, or tesseract already on --psm 4, is read once
   assert.equal(receiptPassesFromFile("slip.jpg", { run, env: { RECEIPT_OCR_CMD: "myocr {file}" } }).length, 1);
   assert.equal(receiptPassesFromFile("slip.jpg", { run, env: { RECEIPT_OCR_CMD: "tesseract {file} stdout --psm 4" } }).length, 1);
   // a tesseract command with no mode gets --psm 4 added for the second reading
   calls.length = 0;
   assert.equal(receiptPassesFromFile("slip.jpg", { run, env: { RECEIPT_OCR_CMD: "tesseract {file} stdout" } }).length, 2);
-  assert.deepEqual(calls, ["tesseract slip.jpg stdout", "tesseract slip.jpg stdout --psm 4"]);
+  assert.deepEqual(calls.filter((c) => c.startsWith("tesseract")), ["tesseract slip.jpg stdout", "tesseract slip.jpg stdout --psm 4"]);
   // a second pass that fails leaves the first
   let n = 0;
   const flaky = () => (n++ ? { status: 1, stdout: "" } : { status: 0, stdout: "KEDAI MAJU\nTotal 34.00" });
@@ -146,7 +147,7 @@ test("--four-pass reads a small photo four times (enlarged copy last), a big one
   // exactly 2,000 px: two readings, no copy
   const exact = mk(1500, 2000);
   assert.equal(receiptPassesFromFile("slip.jpg", { run: exact.run, env: {}, grow: 2000 }).length, 2);
-  assert.ok(!exact.calls.some((c) => c.startsWith("convert")));
+  assert.ok(!exact.calls.some((c) => c.startsWith("convert") && !/ gray:-$/.test(c))); // only the lighting thumbnail
   // no ImageMagick: two readings, no error
   assert.equal(receiptPassesFromFile("slip.jpg", { run: mk(750, 1000, { magick: false }).run, env: {}, grow: 2000 }).length, 2);
   // without grow, as before
@@ -170,4 +171,40 @@ test("a photo tesseract cannot open is read again from an ImageMagick PNG copy; 
   const bare = (cmd) => (cmd === "tesseract" ? { status: 1, stdout: "", stderr: "Error during processing." } : { error: new Error("ENOENT") });
   assert.throws(() => receiptTextFromFile("427.jpg", { run: bare, env: {} }), /tesseract failed: Error during processing/);
   assert.throws(() => receiptTextFromFile("427.jpg", { run: () => ({ error: new Error("ENOENT") }), env: {} }), /tesseract-ocr/);
+});
+
+// An unevenly lit photo (ImageMagick's 32 x 32 grey thumbnail varies by SHADED_CUT or
+// more) gets the local (Sauvola) threshold for its second reading of each image; an
+// evenly lit one keeps --psm 4 (README, "Shaded photos: a local threshold").
+test("--two-pass and --four-pass read an unevenly lit photo the second time with the local threshold, an evenly lit one with --psm 4", async () => {
+  const { receiptPassesFromFile, photoSpread } = await import("./ocr.mjs");
+  const { lightSpread, SHADED_CUT } = await import("./photoocr.mjs");
+  const even = Buffer.alloc(1024, 200);                                   // a flat white scan
+  const shade = Buffer.from(Array.from({ length: 1024 }, (_, i) => (i % 32 < 16 ? 60 : 220))); // half in shadow
+  assert.equal(lightSpread(even), 0);
+  assert.ok(lightSpread(shade) >= SHADED_CUT);
+  const mk = (thumb) => {
+    const calls = [];
+    const run = (cmd, args) => {
+      calls.push([cmd, ...args].join(" "));
+      if (cmd === "magick") return { error: new Error("ENOENT") };
+      if (cmd === "identify") return { status: 0, stdout: "750 1000" };
+      if (cmd === "convert") return { status: 0, stdout: args.at(-1) === "gray:-" ? thumb : "" };
+      return { status: 0, stdout: "KEDAI MAJU\nTotal 34.00" };
+    };
+    return { run, calls, ocr: () => calls.filter((c) => c.startsWith("tesseract")).map((c) => c.replace(/^tesseract \S+ stdout /, "")) };
+  };
+  const s = mk(shade);
+  assert.ok(photoSpread("slip.jpg", s.run) >= SHADED_CUT);
+  s.calls.length = 0;
+  receiptPassesFromFile("slip.jpg", { run: s.run, env: {} });
+  assert.deepEqual(s.ocr(), ["--psm 6", "--psm 6 -c thresholding_method=2"]);
+  s.calls.length = 0;
+  receiptPassesFromFile("slip.jpg", { run: s.run, env: {}, grow: 2000 });
+  assert.deepEqual(s.ocr(), ["--psm 6", "--psm 6 -c thresholding_method=2", "--psm 6", "--psm 6 -c thresholding_method=2"]);
+  const e = mk(even);
+  receiptPassesFromFile("slip.jpg", { run: e.run, env: {}, grow: 2000 });
+  assert.deepEqual(e.ocr(), ["--psm 6", "--psm 4", "--psm 6", "--psm 4"]);
+  // a thumbnail of the wrong size (a failed or odd ImageMagick) is no measurement
+  assert.equal(photoSpread("slip.jpg", mk(Buffer.alloc(10, 9)).run), null);
 });

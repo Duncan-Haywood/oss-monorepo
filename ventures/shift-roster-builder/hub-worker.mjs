@@ -43,7 +43,7 @@ export class RosterHub {
       const save = () => {
         // Requests are already capped (64 KB, 200 replies, 100 of each request list, 12 weeks of history); this is a
         // last guard so one oversized state cannot wedge the hub.
-        if (JSON.stringify(this.state).length > MAX_STATE) this.state.history = (this.state.history || []).slice(-4);
+        if (JSON.stringify(this.state).length > MAX_STATE) { this.state.history = (this.state.history || []).slice(-4); this.state.punches = (this.state.punches || []).slice(-1500); }
         return this.ctx.storage.put("state", this.state);
       };
       this.hub = handler(this.state, save, { ...this.env, BUILD_IN_BROWSER: "1" });
