@@ -16,7 +16,7 @@ DVL, sets the drift unless it is better than about 0.1 degree.
 - Distance to reach a 10 m error: 3.8 km for 0.2% scale and 0.1 degree; 1.1 km for 0.5 degree; 0.57 km for
   1 degree (table in [`experiments/results.txt`](experiments/results.txt)).
 - Monte Carlo, 20 km, 200 runs (scale sd 0.2%, bias sd 0.1 degree, gyro random walk 5e-5 rad/sqrt(s)):
-  no fix gives a median worst error of 64 m (95th percentile 178 m). A surface fix of 3 m sd every 2 km cuts
+  no fix gives a median worst error of 64 m in the committed 200-run draw (95th percentile 178 m); the same model with other noise seeds gives 72 to 77 m, so treat it as about 70 to 80 m (quality census 2026-11-15). A surface fix of 3 m sd every 2 km cuts
   it to 15 m, every 1 km to 11 m. Every 0.5 km gives 9.6 m, the fix-noise floor, so more frequent fixes buy nothing.
 
 ## Reproduce
@@ -37,3 +37,7 @@ A first Monte Carlo with an unrealistically large gyro random walk was discarded
 
 Related: [`marine-hull`](../marine-hull/README.md), [`marine-path`](../marine-path/README.md), `gnss-twin`, `doppler-twin`.
 Next: turns, a USBL aid, surfacing energy. AI-assisted (Claude Code).
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-marine-dr.json)): the Monte Carlo medians carry no interval and the 64 m median is a low draw; surface fixes reset position but never estimate the DVL scale or heading bias, so the surfacing interval is pessimistic against a filter that does; the error budget is textbook (Groves 2013; Kinsey, Eustice & Whitcomb 2006) and is not yet compared with it; seeded changes to the fix reset and to the velocity noise leave every test green.

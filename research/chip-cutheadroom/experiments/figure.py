@@ -25,7 +25,7 @@ for i, d in enumerate(designs):
             out.append(f'<text x="{x + 4:.1f}" y="{H - B - h - 16:.1f}" fill="#d62728">-{rm}</text>')
     out.append(f'<text x="{x0 + bw / 2:.1f}" y="{H - B + 18}" text-anchor="middle">{d}</text>')
 out.append(f'<line x1="{L}" y1="{H - B}" x2="{W - 10}" y2="{H - B}" stroke="#333"/>')
-out.append('<rect x="440" y="34" width="10" height="10" fill="#9aa5b1"/><text x="455" y="43">fast (strash; map)</text>')
+out.append('<rect x="440" y="34" width="10" height="10" fill="#9aa5b1"/><text x="455" y="43">fast (abc -fast)</text>')
 out.append('<rect x="440" y="50" width="10" height="10" fill="#1f77b4"/><text x="455" y="59">Yosys default script</text>')
 out.append(f'<text x="{L}" y="{H - 12}" fill="#d62728">red: gates an exact 4-cut rewrite could remove (zero except mul6/lt16 under resyn2)</text>')
 out.append("</svg>")
