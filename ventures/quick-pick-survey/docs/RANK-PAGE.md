@@ -651,10 +651,71 @@ team table; a reload asks for the pictures again; no console errors.
 
 **Open.** Whether people use it (`pictures_loaded`, `picture_list_started`,
 `pictures_attached`, `photo_page_viewed`, `photo_page_start` count locally);
-a larger side-by-side view on a phone; whether picture comparisons are
+whether picture comparisons are
 noisier than word comparisons (more "about equal"), which a real session's
 answers would show.
 
+
+## Pictures on a phone, and "Look closer" (2026-11-15)
+
+**Why.** Side by side in a 390 px wide browser, a pair of 3:2 landscape photos
+was drawn 135 by 90 px each: too small to see focus, eyes or fine detail, the
+things a cull turns on. And side by side is not how photographers compare
+frames anyway: culling tools flip between two frames in the same place,
+because a difference you cannot spot across a gap jumps out when the picture
+changes under your eye.
+
+**What changed.**
+
+1. *Stacking when it clearly wins.* Once both pictures have loaded, the page
+   works out each one's drawn size in either layout (`pairLayout` in
+   `site/image-items.mjs`: object-fit contain in the box the CSS gives it,
+   side by side at up to min(48vh, 380 px) tall, stacked at up to min(30vh,
+   300 px)) and stacks the pair only when the smaller picture comes out at
+   least 1.5 times the area (`STACK_GAIN`), since side by side is easier to
+   take in at a glance. Measured in Chromium (`scripts/picture-compare-browser-check.mjs`):
+
+   | viewport | pictures | layout | each drawn at |
+   |---|---|---|---|
+   | 390 x 844 | 3:2 landscape | stacked (was side by side) | 299 x 199 px (was 135 x 90: 4.9x the area) |
+   | 390 x 844 | 9:16 portrait | side by side (unchanged) | 135 x 240 px |
+   | 1280 x 900 | 3:2 landscape | side by side (unchanged) | 370 x 247 px |
+
+   A pair cut off at the top or bottom of the screen is scrolled into view
+   (the first stacked pair used to open with its top picture half above the
+   screen, because the page kept the scroll from the Start button).
+2. *Look closer.* A button (and the F key) shown only when both pictures are
+   attached opens one picture full screen. Space or "Flip to the other"
+   swaps it for the other picture in the same place; left and right arrows
+   show a given side. A tap zooms 3x on that spot, and the zoom point is kept
+   as percentages of the picture (`zoomOrigin`), so flipping shows the same
+   part of the other picture (exactly the same part when the two share an
+   aspect ratio, as frames from one camera do). "Choose this one" (Enter) or
+   "About equal" (down arrow) answers for the picture on screen and opens the
+   next pair full screen, so a whole cull can run there; it closes on Esc,
+   Close, or when the pairs end and the results show. Counted locally as
+   `closer_opened` and `closer_pick` (same opt-outs). Typed lists never show
+   the button.
+
+**Checks.** `node --test site/image-items.test.mjs` (10 tests; 3 new): the
+fitted size; the layout choice at the phone and desktop boxes (a landscape
+pair stacks on the phone with a gain over 4 and stays side by side on the
+desktop; a 9:16 pair stays side by side on the phone; the smaller picture
+decides a mixed pair; a picture with no size yet never stacks); the zoom
+origin's mapping and clamping. Browser, Playwright with five generated 1500
+x 1000 PNGs and four 900 x 1600 ones: the table above; no horizontal scroll;
+open, flip, tap-zoom at (80%, 20%), flip keeps the origin, choose records the
+shown picture's pick and opens the next pair unzoomed; Enter and down arrow
+answer and Esc closes; picking with Enter to the end closes the view on the
+results; the typed list shows no "Look closer"; no console errors. The first
+browser run caught a real fault: `.closer{display:flex}` overrode `.hidden`,
+so the invisible overlay swallowed every click on the page; fixed with
+`.closer.hidden`.
+
+**What it does not know.** Whether flipping changes what people choose or
+how fast; `closer_pick` against `pick` counts on real sessions would show how
+much of a cull runs full screen. Pinch zoom is the browser's own; the 3x tap
+zoom has one level.
 
 ## Sort into piles first (2026-11-15)
 

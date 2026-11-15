@@ -2,6 +2,8 @@
 // (ocr.mjs receiptPassesFromFile with grow 2000: tesseract --psm 6 and 4 on the
 // photo, then on an ImageMagick grey copy at 2,000 px) and writes the readings to
 // <out>/psm6, psm4, g6 and g4 (<id>.txt; an empty file where a reading was not made),
+// in reading order: for a photo over 2,000 px the shrunk copy is read first, so its
+// readings are in psm6/psm4 and the photo's in g6/g4 (README, "Full-size photos"),
 // so eval/cord-receipts.mjs can score them:
 //   node eval/srd-cli.mjs <photos> <out> [shard of shards, e.g. 1/4]
 //   node eval/cord-receipts.mjs eval/srd/labels.jsonl --ocr <out>/psm6,<out>/psm4,<out>/g6,<out>/g4

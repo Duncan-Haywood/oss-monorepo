@@ -1,0 +1,243 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/private-chef-service-price-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-15-b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a working personal/private chef (USPCA-style solo operator) who quotes dinner parties and weekly meal-prep cook dates. They would check first that the quoted price covers groceries, every hour of their time and their margin, how groceries are passed through (at cost or with a stated markup), and whether the quote has the service-charge/gratuity and sales-tax lines a client invoice needs",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the shipped engine (calc.mjs) on the worked example and probes (/tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs). Hand recomputation of the sample: prep 4x3x6/60 = 1.2 h x (1 + 0.25x0.25) = 1.275 h; chef hours 1.5+1.275+2+1+1 = 6.775 (shown 6.8); labour 6.775 x $45 = $304.88; + groceries $88 + mileage 30 x $0.70 = $21 + overhead $18 = cost $431.88, which matches. Monthly gap ($536.54-$400) x 8 = $1,092.32 and per guest $536.54/4 = $134.14 match. The headline price is wrong whenever a grocery markup is entered (default 15%). calc.mjs:55 prices (cost - markup)/(1 - m) + markup. Cost does not contain the markup, so the markup is subtracted from cost before grossing up. Profit is then (cost - markup) x m/(1-m), and raising the markup LOWERS the quote. Probes: markup 0% -> $539.84 (20.0% margin), 15% -> $536.54 (19.5%), 50% -> $528.84 (18.3%), 100% -> $517.84 (16.6%). Under the textbook margin-on-price definition (price = cost/(1-m)) the sample is $539.84 with the markup inside profit, or $553.04 with the markup on top as the advice text describes. Neither gives $536.54. Smaller issues: the effective hourly at today's price divides by the rounded 6.8 h, so it shows $40.15 where (400-127)/6.775 = $40.30. The dietary-time line uses the rounded prep hours, so it shows $3.44 where 0.075 h x $45 = $3.38. Input probes: '1,200' and '$45' parse correctly. Zero, blank or fractional guests are rejected. A blank chefRate or cookHrs silently becomes the default ($45, 2 h). A single space becomes 0 (price drops to the $200 minimum). '0x2d' is read as 45. With all hours and costs at zero it quotes '$0.00' with no warning.",
+  "completeness": "Checked each feature the README lists as modelled. Prep from guests x courses x minutes works, and so does the dietary multiplier. Shopping, cook, clean and travel hours work. Assistants on on-site hours only work (2 x 4.3 h x $22 checked). Groceries and markup work, as do mileage, overhead and insurance, margin, minimum charge (the $900 floor fires and the advice says so) and the current-quote gap. The guest table for 2/4/6/8/12 renders in the engine, CSV export works (6 lines), and the share link round-trips and drops unknown keys. The 'Not modelled' list (sales tax, tips, permits, cancellation, income tax) is stated on the page and in the README. No stubs or TODOs. Every claimed feature runs, so 3. The markup feature runs but mis-prices (scored under correctness). The served page could not be loaded: the proxy refused marisstella.app with CONNECT 403.",
+  "verification": "`cd ventures/private-chef-service-price-calculator && node --test '*.test.mjs'`: 24 tests, 24 pass, 0.12 s (calc, page, usage). Five mutants via platform/ci/quality_mutate.py: 3 caught and 2 survived. Travel added to on-site hours (:46) was caught, and so was mileage doubled (:51). Fixing the markup formula (:55) was caught, but only because calc.test.mjs:17-19 pins the buggy $536.54. The test pins the defect instead of catching it. calc.test.mjs:30 checks 'realised margin equals the margin asked for' only after setting groceryMarkupPct to 0, which sidesteps the bug. The effective-hourly formula dropping the add-back of chef labour (:80) survived, and so did minApplied < -> <= (:61). The 'you earn $X per chef hour' headline has no numeric test.",
+  "craft": "Read calc.mjs (122 lines), index.html (194), calc.test.mjs, page.test.mjs and usage.mjs. The engine is small, pure and escaped, and has no dependencies. Defects: readInput (calc.mjs:16) silently substitutes the default for a blank field (blank chefRate -> 45), but treats whitespace as 0 and accepts hex. The advice computes derived dollars from already-rounded hours (calc.mjs:80, :85). `const price = base` is a dead alias (calc.mjs:57). The key list is duplicated between calc.mjs:10 NUMERIC and index.html:146 keys. Dead CSS for tr.drive/.break/.off/.restart rows was copied from another tool (index.html:33-35). sitemap.xml has a relative <loc>./index.html</loc>, robots.txt has a relative Sitemap line, and the canonical is './index.html'. The build's rewrite_base_urls only rewrites absolute placeholder hosts, so these ship relative.",
+  "claims": "Checked against files. 'Nothing is uploaded' holds: no fetch, XHR or sendBeacon in index.html, calc.mjs or usage.mjs, and page.test.mjs asserts it. The no-warranty, not-advice and no-SLA footer is present. The 'Not modelled' list is present, as is 'The example is made up'. Usage events named in the footer match the record() calls. Related links resolve (page.test.mjs). Unbacked or contradicted: the advice line (calc.mjs:86) says groceries are at cost 'plus a 15% markup of $13.20', but adding the markup lowers the quote. The method line at index.html:107 accurately describes the wrong formula. The FAQ says 'Many chefs charge cost plus 10 to 20 percent' with no source. The $0.70/mile default (it matches the IRS 2025 business standard mileage rate) carries no citation or year. llms.txt points at duncan-haywood.github.io, which the build rewrites (source-only, not a defect). VENTURE.yaml honestly says search volume was not measured.",
+  "fitness": "Walked a private chef's job: a 4-guest, 3-course dinner with one guest on an allergy diet, groceries shopped by the chef, and an 8-visits-a-month comparison against today's $400 quote. It gives a defensible cost-plus number and a clear message that a per-person rate undercharges small tables. The guest table and CSV are useful. What a chef needs and does not get: the client-facing quote lines (service charge or gratuity, typically 18-20% on events, and sales tax where prepared-food services are taxable), a deposit, and a food-cost % sanity check. It also lacks a weekly meal-prep structure (service fee per cook date plus groceries at cost, the USPCA-style model) as a distinct mode, and cook and clean hours that scale with guests (a 12-guest row keeps the 2 h cook time). With the markup on, the price undershoots the chef's own target margin.",
+  "domain": "Compared with private and personal chef pricing practice. A personal chef service fee is commonly quoted plus groceries at cost (USPCA-style meal-prep model). Event pricing is per person with groceries included or passed through, plus a service charge or gratuity and tax. Margin means profit divided by price, and food cost on events is usually budgeted at roughly 25-35% of the price (restaurant norm 28-35%). The hourly cost-build with non-scaling shopping, travel and cleanup is sound, and its main insight is right. Departures: the grocery markup reduces the price (a chef who adds a 15% markup earns less than one who bills at cost). There are no service-charge, gratuity or tax lines. Cook and clean time are fixed regardless of table size. Assistants are costed at a bare wage with no payroll burden (employer FICA and workers' comp, roughly 10-15% or more). Food cost % is never shown (16.4% in the sample, low for an event, which suggests the default grocery spend is light). A practising chef would use the hours breakdown but not quote the price as is."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Cost to deliver for the worked example",
+   "method": "hand recomputation: 6.775 h x $45 + $88 + 30 x $0.70 + $12 + $6",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "$431.88",
+   "observed": "cost 431.88",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Price at a 20% margin on price with a 15% grocery markup",
+   "method": "textbook margin-on-price (price = cost/(1-m)); markup either inside profit (539.84) or on top (553.04)",
+   "command": "cd ventures/private-chef-service-price-calculator && node -e 'import(\"./calc.mjs\").then(m=>console.log(m.plan(m.sampleInput()).job))'",
+   "expected": "price >= $539.84 and realised margin >= 20%",
+   "observed": "price 536.54, actualMarginPct 19.5",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Raising the grocery markup should never lower the quote",
+   "method": "monotonicity of a markup by definition (revenue added for the same cost)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "price non-decreasing in groceryMarkupPct",
+   "observed": "0% $539.84, 15% $536.54, 50% $528.84, 100% $517.84",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Effective hourly earned at today's $400 quote",
+   "method": "hand: (400 - (431.875 - 304.875)) / 6.775 h",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "$40.30/h",
+   "observed": "$40.15 (divides by rounded 6.8 h)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Monthly gap and per-guest price",
+   "method": "hand: (536.54-400) x 8; 536.54/4",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "$1,092.32; $134.14",
+   "observed": "$1,092.32; $134.14",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Dietary prep time added",
+   "method": "hand: 1.2 h x 0.0625 = 0.075 h x $45",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "$3.38",
+   "observed": "$3.44 (from rounded 1.3 h)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Commas, currency symbols and zero guests",
+   "method": "probe",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "'1,200' -> 1200; '$45' -> 45; guests 0 rejected",
+   "observed": "all as expected",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Blank or whitespace field handling",
+   "method": "probe: chefRate '' and ' '",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "blank flagged or treated consistently",
+   "observed": "'' silently -> default $45 (price 536.54); ' ' -> 0 (price $200 minimum)",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "All-zero inputs",
+   "method": "probe",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "warning or error",
+   "observed": "'Quote $0.00 for 4 guests' with no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Advice says groceries billed 'plus a 15% markup'",
+   "method": "compare advice text calc.mjs:86 with price behaviour",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/chef/probe.mjs",
+   "expected": "markup adds to the quote",
+   "observed": "markup lowers the quote by $3.30",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Nothing is uploaded'",
+   "method": "grep for fetch/XMLHttpRequest/sendBeacon in index.html, calc.mjs, usage.mjs",
+   "command": "grep -n 'fetch\\|XMLHttp\\|sendBeacon' ventures/private-chef-service-price-calculator/*.mjs ventures/private-chef-service-price-calculator/index.html",
+   "expected": "no network calls",
+   "observed": "none",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ 'cost plus 10 to 20 percent' grocery markup and $0.70/mile default cited",
+   "method": "search README, page, VENTURE.yaml for a source",
+   "command": "grep -n '10 to 20\\|0.7' ventures/private-chef-service-price-calculator/index.html ventures/private-chef-service-price-calculator/README.md ventures/private-chef-service-price-calculator/VENTURE.yaml",
+   "expected": "a source or year",
+   "observed": "no citation for either",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite runs",
+   "method": "run",
+   "command": "cd ventures/private-chef-service-price-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "24/24 pass, 0.12 s",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:46",
+   "change": "onSiteHrs adds v.travelHrs",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:51",
+   "change": "travel = mileage * mileRate -> * 2",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:55",
+   "change": "(cost - markup)/(1-m) + markup -> cost/(1-m) + markup (the fix)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:61",
+   "change": "minApplied: wanted < v.minCharge -> <=",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:80",
+   "change": "(currentPrice - (cost - chefLabor))/chefHrs -> (currentPrice - cost)/chefHrs",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The grocery markup is subtracted from cost before grossing up for margin, so the quote falls as the markup rises (0% $539.84, 15% $536.54, 100% $517.84) and the realised margin undershoots the target (19.5%, or 16.6% at 100%). With the default 15% markup every quote is under the chef's own target, and the advice says the markup is added 'plus'.",
+   "where": "ventures/private-chef-service-price-calculator/calc.mjs:55",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests pin the buggy price ($536.54) and check the target margin only with the markup set to 0, so the markup defect is locked in instead of caught.",
+   "where": "ventures/private-chef-service-price-calculator/calc.test.mjs:17",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "medium",
+   "what": "The effective-hourly-at-today's-price headline has no numeric test (a mutant dropping the chef-labour add-back survives). It and the dietary-time line compute dollars from rounded hours ($40.15 vs $40.30; $3.44 vs $3.38).",
+   "where": "ventures/private-chef-service-price-calculator/calc.mjs:80",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "A blank field silently becomes the default (blank hourly pay -> $45, blank cook hours -> 2), whitespace becomes 0 and hex is accepted. An all-zero visit quotes $0.00 with no warning.",
+   "where": "ventures/private-chef-service-price-calculator/calc.mjs:16",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "No service charge or gratuity, sales tax or deposit lines, though event quotes carry them. Cook and clean hours do not scale with guests in the size table, and assistants are costed with no payroll burden.",
+   "where": "ventures/private-chef-service-price-calculator/calc.mjs:41",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The FAQ claims 'many chefs charge cost plus 10 to 20 percent' with no source. The $0.70/mile default (the IRS 2025 standard rate) has no citation or year.",
+   "where": "ventures/private-chef-service-price-calculator/index.html:120",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "sitemap.xml <loc>./index.html</loc>, the robots.txt Sitemap line and the canonical are relative. rewrite_base_urls rewrites only absolute placeholder hosts, so they ship relative (invalid per the sitemaps.org protocol).",
+   "where": "ventures/private-chef-service-price-calculator/sitemap.xml:3",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "Dead CSS for tr.drive/.break/.off/.restart rows copied from another tool, and a dead alias `const price = base`.",
+   "where": "ventures/private-chef-service-price-calculator/index.html:33",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+ ],
+ "verdict": "A small, private, well-disclaimed cost-plus calculator. Its hours build-up recomputes by hand ($431.88 cost on the sample), every listed feature runs, and the 24 tests pass. Its main insight is right and useful for a private chef: shopping, travel and cleanup make small tables expensive per head. It does not meet the bar. The headline price is wrong whenever a grocery markup is entered, which the default does: calc.mjs:55 subtracts the markup from cost before applying the margin, so a 15% markup lowers the quote from $539.84 to $536.54, and a 100% markup lowers it to $517.84 at a 16.6% realised margin. The advice tells the chef the markup is added. The tests pin that buggy figure. Two of five seeded mutants survive, including the effective-hourly headline. Blank fields silently take default values. A working chef would also miss service charge or gratuity, sales tax and a food-cost check before sending a quote."
+}
