@@ -3,7 +3,7 @@ title: "Brazil's ISS has a legal floor and ceiling. Our NFS-e checker now reads 
 seo_title: "NFS-e ISS rate 2% minimum, 5% maximum (LC 116 art. 8-A): checker"
 date: 2026-11-15
 tags: [einvoice-preflight, ventures]
-description: "A municipal service tax rate in Brazil must sit between 2% and 5%, with three exceptions. We added the check to ABRASF and national NFS-e and ran it on 489 public files."
+description: "Brazil's ISS rate must sit between 2% and 5%, with three exceptions. We added the check to ABRASF and national NFS-e and ran it on 489 public files."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) already recomputed the ISS on a Brazilian service invoice (NFS-e): base times rate, within a cent. It never asked whether the rate itself could be legal. Now it does.
