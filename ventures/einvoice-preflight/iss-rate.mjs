@@ -68,7 +68,7 @@ export function issRateProblem({ rate, item = null, year = NaN, fraction = "mayb
   const fits = (p) => p <= band.max + eps && (exempt || p >= band.min - eps);
   if (readings.some(fits)) return null;
   const shown = readings.length > 1 ? `${rate} (read as ${pct(readings[0])} or ${pct(readings[1])})` : `${rate} (${pct(readings[0])})`;
-  const yearNote = band.cut ? ` For ${year}, LC 116 art. 8-B (LC 214/2025) cuts municipal rates by ${band.cut * 100}%, so this tool scales the band to ${pct(band.min)}-${pct(band.max)}.` : "";
+  const yearNote = band.cut ? ` For ${year}, LC 116 art. 8-B (LC 214/2025) cuts municipal rates by ${pct(band.cut * 100)}, so this tool scales the band to ${pct(band.min)}-${pct(band.max)}.` : "";
   if (readings.every((p) => p > band.max + eps)) {
     return { kind: "high", message: `The ISS rate is ${shown}, above the national maximum of ${pct(band.max)} (LC 116/2003 art. 8, II).${yearNote}`, fix: "Check the rate in the municipality's ISS law for this service; no municipality may charge more than 5%. A 1.00 layout writes the rate as a fraction (0.05), a 2.x layout as a percentage (5.00)." };
   }
