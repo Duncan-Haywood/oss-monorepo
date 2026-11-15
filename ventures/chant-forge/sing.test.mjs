@@ -117,6 +117,27 @@ test('renderMidi sing: the opening consonant reads back from the audio, and the 
   }
 });
 
+test('nasal openings on short notes: the mouth closes (15 ms cross-fade) and the reader finds the murmur by its darkness', () => {
+  // "ba" then m or n before each vowel, 0.24 s notes at 124 BPM on A2, D3 and G3 (README "Nasal openings:
+  // the mouth closes"). Before it, with the 50 ms cross-fade and the level rule, 20 of these 30 read as nasal.
+  const SY = ['ma', 'me', 'mi', 'mo', 'mu', 'na', 'ne', 'ni', 'no', 'nu'];
+  const count = { now: 0, before: 0, vowels: 0 };
+  for (const midi of [45, 50, 55]) {
+    const ev = [];
+    for (const s of SY) ev.push({ type: 'note', midi, pulses: 1, syllable: 'ba' }, { type: 'note', midi, pulses: 1, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+    const mid = eventsToMidi(ev, { bpm: 124 });
+    const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+    const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+    for (const [k, opts, reader] of [['now', { sing: true }, {}], ['before', { sing: true, nasalCut: false }, { darkBy: 0 }], ['vowels', { sing: 'vowels' }, {}]]) {
+      const x = renderMidi(mid, { stems: true, ...opts }).stems.choir.channels[0];
+      SY.forEach((s, j) => { const t0 = sec(notes[2 * j + 1].tick); if (readOnset(x, rate, t0 - 0.12, t0 + 0.06, { window: 1, ...reader }).cls === 'nasal') count[k]++; });
+    }
+  }
+  assert.ok(count.now >= 24, `nasals read: ${JSON.stringify(count)}`);
+  assert.ok(count.now > count.before, `no gain over the old cross-fade and reader: ${JSON.stringify(count)}`);
+  assert.equal(count.vowels, 0, `the vowel-only choir read as nasal: ${JSON.stringify(count)}`);
+});
+
 test('a consonant before the beat: the vowel is on the beat, the wave starts lead seconds early', () => {
   const plain = singNote(146.83, 0.5, rate, { vowel: 'a', release: 0.05 });
   const w = singNote(146.83, 0.5, rate, { vowel: 'a', release: 0.05, onset: ['s'], lead: onsetLength(['s']), onsetLen: onsetLength(['s']) });

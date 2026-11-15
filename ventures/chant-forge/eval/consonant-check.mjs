@@ -67,6 +67,11 @@
 //    135): (1) G's total 1869 or more; (2) G's nasals read exactly 320 or more of 404; (3) G's control false
 //    nasals 30 or fewer; (4) A 188 or more of 210, its control 210 of 210; (5) eval/coda-check.mjs: every
 //    part's total within 2 of main; (6) eval/vowel-check.mjs: within 2 notes of main. G's misses stay hidden.
+//    Result (one run each): (1) G 1959 of 2349 (83.4%): holds; (2) G's nasals 347 of 404: holds; (3) G's
+//    control false nasals 44 (from 135): fails; (4) A 195 of 210, control 210: holds; (5) coda check: every
+//    part's total identical (one line moves: syllables closing on their vowel 210 to 211 of 220): holds;
+//    (6) vowel check: corpus notes 865 of 920 both, before the coda 696 to 698 of 715: holds. Kept, with (3)
+//    failed: README "Nasal openings: the mouth closes". G printed for the fourth time, misses still hidden.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';

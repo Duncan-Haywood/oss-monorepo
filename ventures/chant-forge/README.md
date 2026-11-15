@@ -705,7 +705,7 @@ every vowel, where the fixed gain put it over the vowel on 11 of 20. A second ve
 the detuned voices and the vibrato moved no cell by more than 0.2 dB and was dropped.
 Report: `eval/lateral-level-check.md`. Nobody has listened to it.
 
-#### Openings on the coda murmur (2026-11-15, latest)
+#### Openings on the coda murmur (2026-11-15)
 
 Since the second coda round a syllable's final nasal and its opening nasal were two different sounds. The
 coda's murmur has its gain worked out per note (7 dB under its vowel, the middle of Fujimura's 5-10 dB), an
@@ -759,6 +759,51 @@ seed loud or quiet after every vowel. The voices' low harmonics, which are all a
 against each other (at roughly 0.2-4 Hz, from the detunes of -12 to +13 cents), so the murmur's level against the vowel depends on where in the beat it
 falls. A real section beats too; whether this much is natural, and whether the reader should compare a coda
 with the vowel just before it rather than at the note's start, is the next round's question.
+
+#### Nasal openings: the mouth closes (2026-11-15, latest)
+
+After the coda-murmur round a third of the sung nasal openings still read as nothing (G 118 of 404, B 54 of
+149). Reading B's 54 misses frame by frame (B is now a development set, like A) showed two causes, both on
+the corpus's 0.24 s notes:
+
+- **The vowel before covered the murmur.** A sung note cross-fades into the next for 50 ms, cut to 15 ms
+  before a stop, an affricate, a fricative or a tap, so their closures are silent. A nasal kept the 50 ms,
+  so the previous vowel's tail covered the first 50 ms of the 70 ms murmur and only 20-30 ms of it stayed
+  dark. But m and n close the mouth as a stop does (lips, or tongue on the ridge): the oral vowel stops and
+  the sound goes on through the nose. `render.mjs` now cuts the cross-fade to 15 ms before a nasal opening
+  too (`renderMidi(..., { nasalCut: false })` keeps 50 ms). The murmur is now dark (above 1 kHz 44-51 dB
+  under its band under 500 Hz) for 45 ms or more.
+- **The reader looked for a quiet murmur, and it is not reliably quiet.** The synthesis sets a murmur 7 dB
+  under its vowel, true with one voice; with the five detuned voices, whose low harmonics beat, it sat
+  anywhere from 5 dB over to 17 dB under the vowel after it (the same beating found in the last round's
+  short final *-um*). Its darkness holds. `readOnset` now reads a frame as murmur when its own tilt is 10 dB
+  (`DARK_BY`) darker than both the vowel after it and the sound just before the window, its level from 25
+  dB under to 6 dB over the vowel, its low band within 15 dB, and the run dark in itself (`MURMUR_TILT`) as
+  before. "Than both" matters: darker than the vowel after alone also read every dark vowel (/u/, /o/)
+  before a bright one as a nasal (93-187 of the vowel-only control's 934 notes in B). `darkBy: 0` is the
+  old level rule.
+
+Pre-registered in the header of `eval/consonant-check.mjs` and committed before part G was run with either
+change; the settings (10 dB, 6 dB, both sides) were chosen on A and B only.
+
+| set | main | the cross-fade alone (dev) | both (kept) | prediction |
+|---|---|---|---|---|
+| G, held out: openings read exactly | 1869 of 2349 (79.6%) | | 1959 of 2349 (83.4%) | 1869 or more: holds |
+| G: nasals read exactly | 278 of 404 (68.8%) | | 347 of 404 (85.9%) | 320 or more: holds |
+| G: vowel-only control read as a nasal | 135 of 2349 | | 44 of 2349 | 30 or fewer: **fails** |
+| B (development now) | 753 of 934; nasals 95 of 149 | 761; nasals 106 | 780 (83.5%); nasals 123 of 149 | |
+| B: vowel-only control read as a nasal | 73 | 73 | 6 | |
+| A, tuning set | 188 of 210 | 192 | 195 of 210 (92.9%); control 210 of 210 | 188 or more: holds |
+| coda check, every part | | | totals identical | within 2: holds |
+| vowel check, corpus notes | 865 of 920 | | 865 of 920 (before the coda 696 to 698 of 715) | within 2: holds |
+
+Kept with the third line failed: the vowel-only choir's false nasals on G fell to a third, not to the
+fifth predicted from B. The pairs set in `sing.test.mjs` (m and n before five vowels, 0.24 s notes, A2, D3,
+G3) reads 26 of 30 nasals, against 20 of 30 before; at D3 alone it reads 6 of 10, against 8 before, so the
+gain is not at every pitch. The test asserts 24 or more, a gain over the old pair, and none from the
+vowel-only choir. Nobody has listened to it: whether a 15 ms hand-over into an m sounds clipped is the
+question for an ear. Reports: `eval/consonant-check-report.md`, `eval/coda-check-report.md`,
+`eval/vowel-check-report.md`.
 
 #### Formant tuning on high notes (2026-11-15)
 
