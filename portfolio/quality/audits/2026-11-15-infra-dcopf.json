@@ -1,0 +1,246 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/infra-dcopf",
+ "stratum": "research",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a power-systems optimisation researcher reviewing for IEEE Trans. Power Systems. First checks: is 'the DC OPF' the standard B-theta model and is its objective right against an independent solver; is the AC reference a validated optimum (PGLib/MATPOWER published values) under the same limit definitions; is the AC-feasibility check of the DC dispatch (power flow, MVA ratings, slack limits) computed correctly; are the counts in the headline the counts in the result files; and is the finding new against Stott et al. 2009, Baker 2021 and the successive-LP / loss-factor literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed with code the author did not write. (1) Auditor's own B-theta DC OPF (own .m parser, own bus-balance/flow/angle rows, solved as a QP by HiGHS 1.16 via highspy; indep_dcopf.py) on six PGLib cases in both susceptance conventions: case14 API 4664.36 (MATPOWER B) / 4797.60 (PowerModels b=x/(r2+x2)), case118 API 234168.63 / 231291.91, case30 API 16185.06 / 16145.05, case30 TYP 7504.44 / 7472.81, case118 TYP 93132.68 / 93100.73, case14 TYP 2051.53: every value equals results_pglib.txt to the cent and the PowerModels-form values equal PGLib BASELINE.md (4.7976e+03 etc.), so the README's 'DC OPF is two models, 2.8 % apart on case14 API' finding holds. MATPOWER case118 DC OPF (pypower case data) 125947.87 = results.txt 125947.9. (2) Auditor's own Newton-Raphson AC power flow (own Ybus from the MATPOWER pi model, setpoints from PYPOWER runopf called directly; pf_check.py) on the auditor's DC dispatch: case14 API worst loading 109.0 %, 1 overload, slack 48.7 MW over Pmax; case30 API 119.9 %, 2, 0.0; case118 API 115.4 %, 9, 228.0: identical to results_pglib.txt. (3) PYPOWER runopf on MATPOWER case300 = 719725.08, the README's quoted published optimum. (4) run_pglib.py rerun in a scratch copy is byte-identical to results_pglib.txt (46 s). Not 4: the original IEEE-case section uses pandapower's AC OPF, whose 'AC optimum' I measured at 578.49 / 41872.30 / 129704.74 on case30/39/118 against MATPOWER's published runopf 576.89 / 41864.18 / 129660.69 (+0.28 / +0.02 / +0.034 %): pandapower limits branch current (one case30 line at exactly 100 % loading) rather than MVA, so the case30 headline 'DC dispatch 0.31 % cheaper than the AC optimum' is about 0.03 % against MATPOWER's optimum; and two counts in the PGLib section are wrong (claims).",
+  "completeness": "Every script, result and figure the README names exists (scripted check over all experiments/*.py|txt|json|svg references: none missing). Test suite runs; run_pglib.py reproduces its committed table byte for byte; run.py reproduces all 37 committed rows of results.txt identically but now also writes 16 case300 rows not in the committed file (CASES in dcopf.py:17 includes case300). Live page https://marisstella.app/research/infra-dcopf/ returns 200 with the disclaimer text. 'Next steps' honestly lists what is not done (LMP decomposition, refresh rule, voltage/Q stage that is not a full AC OPF); refuted hypotheses (H2 on held-out cases, H4 convergence bound) are reported as refuted. I did not rerun the 20-30 minute vlin/heldout/perturb sweeps; their summary lines (31 of 34 by round 20, sign test P = 0.008 = binomtest(8,8) 0.0078) are consistent with results_converge.txt / results_heldout.txt.",
+  "verification": "`cd research/infra-dcopf && OMP_NUM_THREADS=1 /usr/bin/python3.13 -m pytest -q tests`: 67 passed, 1 skipped (cyipopt missing) in 27.8 s. Tests pin results against outside numbers (PGLib published case118 AC objectives, published case14 API DC cost, a two-bus closed form, finite-difference vs analytic sensitivities, Clarabel vs PIPS on the same QP). Five mutants via platform/ci/quality_mutate.py: 4 caught (penalty factor 1/(1-s) -> 1/(1+s); loss-factor sign in aclin.linearise; rating margin x1.05 in aclin.solve_linear; PowerModels convention keeping taps), 1 survived: the slack P-limit accounting in experiments/run_pglib.py:93 (Pmax x1.2) leaves every test green, and that number is the one the README misreports. Not 4: experiment-script logic that produces headline counts (run_pglib ac_check, the medians) is untested and nothing pins the committed result tables.",
+  "craft": "Read src/infra_dcopf/dcopf.py (328 lines), aclin.py (184), pglib.py (95), experiments/run_pglib.py (first 100 lines), tests/test_dcopf.py, test_pglib.py. Small, documented functions with physical docstrings; correct QP Hessian scaling (2*c2 for qps_pips' 0.5 x'Hx); PYPOWER index constants used, not magic columns. Defects: dcopf.py:15 sets warnings.filterwarnings('ignore') at library import, silencing warnings for every importer; dcopf.py:52 and :61 catch every Exception and return None, so a coding error looks like 'no solution' (disclosed for solver failures, not for bugs); the penalty-scaling block is copied three times (dcopf.py:219, 305-308, 324-327); pm_convention, which the tests import, lives in an experiment script (run_pglib.py:47) rather than the package; README is a 445-line, 74 KB accretion log in date order, with the original IEEE-30/39/118 headline first and the stronger PGLib results below it.",
+  "claims": "Checked against files: PGLib validation (AC within 0.004 % on 23 of 24, DC-PM within 0.003 %) = results_pglib.txt; DC cost gap medians 4.2 % TYP / 6.5 % API (recomputed medians 4.20, 6.47); overloads on all 11 API, worst 103-180 % (102.9-180.2); TYP overloads in 4 of 9; LMP median r 0.66 API / 0.96 TYP (0.655, 0.96); derating clears 1 of 11 (case57 at 0.85, +2.68 %); corrected_dc clean on 8 TYP / 1 API; case300 PYPOWER optimum 719725.08 = MATPOWER published; round budget 21 -> 31 of 34 = results_converge.txt. Wrong: README:27 'slack also runs past its P limit in 6 of 11 API cases (49 to 1,700 MW)': results_pglib.txt and the JSON show 8 of 11 (case14 48.7, case39 90.7, case73 128.8, case118 228.0, case162 180.8, case200 49.8, case240 1700.1, case300 795.0 MW). README:28 recall '(20 to 100 %)': case14 API recall is 0.00 (DC binds none of the 2 AC-binding lines), so 0 to 100 %. README:293 '59' tests and README:392 '52 tests, about 40 s' against 68 collected in 28 s. Method section (README:287-291) calls pandapower's runopp 'the AC OPF' without saying its limits are current-based or that its case30 optimum is 0.28 % above MATPOWER's. IPOPT DOI marked 'from memory'. Disclaimer present (modelled benchmark, AI assistance, safety note README:307).",
+  "fitness": "Job: a researcher wanting a reproducible DC-vs-AC OPF error study on standard benchmarks, or a starting point for AC-feasibility repair of a linear dispatch. Delivered: PGLib v23.07 cases vendored, AC reference validated against published optima, both DC conventions, per-case tables in JSON, pre-registered predictions in LOG.md, held-out SAD and 500-2,000-bus sets, refutations reported. I re-derived the core PGLib numbers from scratch in under an hour, which is what building on it requires. Nearest prior work: Stott, Jardim and Alsac 2009 (cited; DC flow error); Baker 2021, 'Solutions of DC OPF are never AC feasible' (ACM e-Energy, arXiv:1912.00319; not cited), which already establishes the 'DC dispatch AC-infeasible on every case' result in general; Castillo et al. 2016 SLP for IV-ACOPF and Misra/Molzahn adaptive linearisations (cited in the grid-linopf PROPOSAL, not this README); iterative loss-factor SCED as run by ISOs (Litvinov et al. 2004, 'Marginal loss modeling in LMP calculation', IEEE TPWRS 19(2); not cited). New and sound: the quantified MATPOWER-vs-PowerModels DC discrepancy on PGLib (useful, reproducible, though known to PowerModels users) and the honest held-out failure of the repair. Not publishable as a TPWRS paper on its own: one AC solver for most results, voltages from the AC optimum (oracle) for the headline repair counts, and the repair is a variant of known SLP.",
+  "domain": "Against standard practice (MATPOWER manual DC/AC OPF formulations; PGLib-OPF benchmarking protocol; Wood and Wollenberg penalty factors): B-theta DC with 1/(x tap) and phase-shift injections matches MATPOWER makeBdc (my independent build agrees to the cent); AC check uses MVA ratings at both ends, angle limits and slack P limits; penalty factor 1/(1 - dPL/dPi) is the textbook form; AC optima validated against PGLib to 0.004 % and the larger cases' validation is tabled per case. Departures: the early IEEE-case section relies on pandapower's current-limited OPF and its own case conversions without reconciling to MATPOWER's published optima (0.28 % on case30); the power-flow check does not enforce generator Q limits (disclosed and counted separately as Qviol); generator voltages for the DC-dispatch check are taken from the AC optimum, which favours DC (disclosed); 'no solution' rows conflate infeasible and non-converged (disclosed). A TPWRS reviewer would accept the PGLib methodology and ask for the pandapower section to be reconciled or dropped."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "DC OPF objective, PGLib case14 API, both susceptance conventions",
+   "method": "auditor's own B-theta DC OPF solved by HiGHS QP (highspy), compared with PGLib BASELINE.md published DC (PowerModels form) and README's MATPOWER-form value",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/infra-dcopf && /usr/bin/python3.13 -I indep_dcopf.py /home/user/oss-monorepo/research/infra-dcopf/data/pglib/pglib_opf_case14_ieee__api.m mp ; same with pm",
+   "expected": "4664.4 (MATPOWER B, README) and 4797.6 (PGLib published 4.7976e+03)",
+   "observed": "4664.36 and 4797.60",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "DC OPF objective, case118 API/TYP and case30 API/TYP, both conventions",
+   "method": "auditor's HiGHS DC OPF",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/infra-dcopf && /usr/bin/python3.13 -I indep_dcopf.py /home/user/oss-monorepo/research/infra-dcopf/data/pglib/pglib_opf_<case>.m <mp|pm> for case118_ieee__api, case118_ieee, case30_ieee__api, case30_ieee",
+   "expected": "results_pglib.txt: 234168.6/231291.9, 93132.7/93100.7, 16185.1/16145.1, 7504.4/7472.8",
+   "observed": "234168.63/231291.91, 93132.68/93100.73, 16185.06/16145.05, 7504.44/7472.81",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "DC dispatch through AC power flow: worst loading, overload count, slack over Pmax on case14/30/118 API",
+   "method": "auditor's own Newton-Raphson power flow (own Ybus, MATPOWER pi model) on the auditor's DC dispatch, setpoints from PYPOWER runopf called directly",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/infra-dcopf && /usr/bin/python3.13 -I pf_check.py /home/user/oss-monorepo/research/infra-dcopf/data/pglib/pglib_opf_case14_ieee__api.m /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/infra-dcopf (and case30_ieee__api, case118_ieee__api)",
+   "expected": "results_pglib.txt DC-MP: 109.0 %/1/48.7; 119.9 %/2/0.0; 115.4 %/9/228.0",
+   "observed": "109.0 %/1/48.7; 119.9 %/2/0.0; 115.4 %/9/228.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "MATPOWER case118 DC OPF objective and case300 AC OPF objective",
+   "method": "own HiGHS DC OPF on pypower's case118 data; PYPOWER runopf on case300 against MATPOWER's published optimum",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/infra-dcopf && /usr/bin/python3.13 -I indep_dcopf.py pypower:case118 mp ; /usr/bin/python3.13 -I ac_ref.py",
+   "expected": "125947.9 (results.txt); 719725.08 (README, MATPOWER published)",
+   "observed": "125947.87; 719725.08",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "pandapower AC optimum on the IEEE cases against MATPOWER's published runopf optima",
+   "method": "PYPOWER runopf (MATPOWER port) on case30/39/118 vs pandapower runopp as used by dcopf.solve_ac",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/infra-dcopf && /usr/bin/python3.13 -I ac_ref.py ; /usr/bin/python3.13 -I pp30.py",
+   "expected": "same optimum (README treats runopp as 'the AC OPF')",
+   "observed": "pandapower 578.49/41872.30/129704.74 vs MATPOWER 576.89/41864.18/129660.69 (+0.28/+0.02/+0.034 %); pandapower case30 has a line at 100.0 % current loading; case30 'DC 0.31 % cheaper' becomes ~0.03 % against MATPOWER's optimum",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run_pglib.py and run.py reproduce committed results",
+   "method": "rerun in a scratch copy and diff",
+   "command": "cp -r research/infra-dcopf /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/infra-dcopf/copy/ && cd /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/infra-dcopf/copy/infra-dcopf && python3 experiments/run_pglib.py && diff -q experiments/results_pglib.txt <repo copy>; PYTHONPATH=src python3 experiments/run.py; diff",
+   "expected": "no diff",
+   "observed": "results_pglib.txt identical (46 s); results.txt: 37 committed rows identical, 16 extra case300 rows written by the current code",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/infra-dcopf && OMP_NUM_THREADS=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "all pass; README says 59 (Checks) / 52 (Reproduce)",
+   "observed": "67 passed, 1 skipped (cyipopt) in 27.84 s; 68 tests",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:27 slack past its P limit in 6 of 11 API cases (49 to 1,700 MW)",
+   "method": "count slack_out_mw > 0 in results_pglib.json, DC-MP, API rows with an AC optimum",
+   "command": "python3 -c \"import json;d=json.load(open('research/infra-dcopf/experiments/results_pglib.json'));print([(r['case'],r['mp']['check']['slack_out_mw']) for r in d if r['kind']=='api' and r['ac_ok']])\"",
+   "expected": "6 of 11",
+   "observed": "8 of 11 (48.7, 90.7, 128.8, 228.0, 180.8, 49.8, 1700.1, 795.0 MW)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:28 DC binds a median 56 % of AC-binding lines on API cases (20 to 100 %)",
+   "method": "median and range of the recall column, DC-MP API rows of results_pglib.txt",
+   "command": "sed -n '/DC-MP (MATPOWER B/,/DC-PM/p' research/infra-dcopf/experiments/results_pglib.txt | grep api",
+   "expected": "median 56 %, range 20 to 100 %",
+   "observed": "median 0.56; range 0.00 (case14 API) to 1.00",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "PGLib section medians, overload range, derating and corrected-DC counts, LMP r",
+   "method": "recomputed from the per-case rows of results_pglib.txt",
+   "command": "sed -n 1,120p research/infra-dcopf/experiments/results_pglib.txt (medians by hand)",
+   "expected": "DC gap 4.2 % TYP / 6.5 % API; overloads all 11 API, 103-180 %; TYP 4 of 9; LMP r 0.66/0.96; derate 1 of 11; corrected 8 TYP / 1 API",
+   "observed": "4.20 / 6.47; 11 of 11, 102.9-180.2; 4 of 9; 0.655 / 0.96; case57 only; 8 / 1",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "held-out sign test P = 0.008 and round-budget 31 of 34",
+   "method": "scipy binomtest(8, 8, 0.5); read results_converge.txt",
+   "command": "/usr/bin/python3.13 -c 'from scipy.stats import binomtest; print(binomtest(8,8,0.5).pvalue)'; grep 'Clean by round' research/infra-dcopf/experiments/results_converge.txt",
+   "expected": "0.008; 31 by round 20",
+   "observed": "0.0078; '20: 31, 30: 31'",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page and file references",
+   "method": "HTTP fetch; scripted existence check of every experiments/ path named in README",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/infra-dcopf/ ; for f in $(grep -o 'experiments/[A-Za-z0-9_./]*' README.md); do [ -e $f ] || echo MISSING $f; done",
+   "expected": "200, nothing missing",
+   "observed": "200 (title 'How wrong is the DC approximation of optimal...'); none missing",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited for the headline 'DC dispatch AC-infeasible on all 11 API cases' and the loss-factor / SLP repair",
+   "method": "grep README and grid-linopf PROPOSAL for Baker 2021, Litvinov 2004, Castillo 2016, Wood and Wollenberg",
+   "command": "grep -n -i 'baker\\|litvinov\\|castillo\\|wollenberg' research/infra-dcopf/README.md research/grid-linopf/PROPOSAL.md",
+   "expected": "cited",
+   "observed": "Castillo 2016 in PROPOSAL only; Baker 2021 and Litvinov 2004 / ISO loss-factor practice cited nowhere",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/infra_dcopf/dcopf.py:196",
+   "change": "np.clip(1.0 / (1.0 - sens), 0.5, 2.0) -> np.clip(1.0 / (1.0 + sens), 0.5, 2.0)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests/test_dcopf.py"
+  },
+  {
+   "where": "src/infra_dcopf/aclin.py:108",
+   "change": "a[k] = (r[\"gen\"][s, PG] - pg_base[s]) / step -> a[k] = (pg_base[s] - r[\"gen\"][s, PG]) / step",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests/test_aclin.py"
+  },
+  {
+   "where": "src/infra_dcopf/aclin.py:153",
+   "change": "cap = np.maximum(margin * rate[keep] -> cap = np.maximum(1.05 * margin * rate[keep]",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "experiments/run_pglib.py:93",
+   "change": "slack_out = float(np.maximum(g[sl, PG] - g[sl, PMAX], 0).sum() -> slack_out = float(np.maximum(g[sl, PG] - 1.2 * g[sl, PMAX], 0).sum()",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "experiments/run_pglib.py:53",
+   "change": "p[\"branch\"][:, TAP] = 0.0 -> p[\"branch\"][:, TAP] = p[\"branch\"][:, TAP]",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests/test_pglib.py"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "README says the DC dispatch's slack runs past its P limit in 6 of 11 API cases; results_pglib.txt/json show 8 of 11 (case14, 39, 73, 118, 162, 200, 240, 300)",
+   "where": "research/infra-dcopf/README.md:27",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "medium",
+   "what": "pandapower's runopp is presented as 'the AC OPF' on MATPOWER case30/39/118, but it limits branch current, not MVA, and its optima are 0.28/0.02/0.034 % above MATPOWER's published runopf (576.89, 41864.18, 129660.69); never reconciled, and the case30 headline 'DC dispatch 0.31 % cheaper than the AC optimum' is ~0.03 % against MATPOWER's optimum",
+   "where": "research/infra-dcopf/src/infra_dcopf/dcopf.py:48",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "binding-line recall range stated as 20 to 100 % on API cases; case14 API recall is 0.00, so the range is 0 to 100 %",
+   "where": "research/infra-dcopf/README.md:28",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "test counts drifted: Checks heading says 59, Reproduce says '52 tests, about 40 s'; the suite collects 68 (67 pass, 1 skipped) in 28 s",
+   "where": "research/infra-dcopf/README.md:392",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "committed experiments/results.txt lacks the 16 case300 rows that run.py now writes (CASES includes case300), so the committed output is not what the documented command produces",
+   "where": "research/infra-dcopf/src/infra_dcopf/dcopf.py:17",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "slack P-limit accounting that feeds a headline count is untested: Pmax x1.2 mutant survives the whole suite",
+   "where": "research/infra-dcopf/experiments/run_pglib.py:93",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "library module silences all warnings at import and catches every Exception as 'no solution', so a coding error is indistinguishable from solver failure; penalty-scaling block copied three times",
+   "where": "research/infra-dcopf/src/infra_dcopf/dcopf.py:15",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "nearest prior work not cited: Baker 2021 'Solutions of DC OPF are never AC feasible' (the general form of the all-11-API infeasibility finding) and ISO loss-penalty-factor practice (Litvinov et al. 2004) that the penalty-factor DC sections reproduce",
+   "where": "research/infra-dcopf/README.md:428",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+ ],
+ "verdict": "A careful, reproducible benchmark study whose core numbers are right: an independent DC OPF (HiGHS) reproduces every PGLib DC objective in both susceptance conventions to the cent, an independent Newton power flow reproduces the AC overload, worst-loading and slack figures of the DC dispatch exactly, run_pglib.py reproduces its table byte for byte, and 4 of 5 seeded bugs are caught by a 68-test suite anchored to published values. It misses the bar on claims: the PGLib section misstates two counts (slack over limit on 8 of 11 API cases, not 6; recall range 0 to 100 %, not 20 to 100 %), test counts have drifted, and the original IEEE-case section treats pandapower's current-limited OPF as the AC optimum without reconciling it to MATPOWER's published optima (0.28 % off on case30, which is most of a headline number). As research it is a sound, incremental replication-and-repair study; the infeasibility finding is known (Baker 2021, uncited) and the repair is a variant of successive LP, so it is buildable-on but not a novel TPWRS result."
+}
