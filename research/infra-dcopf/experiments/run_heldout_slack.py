@@ -92,14 +92,15 @@ def phase_j(name, kind):
 
 
 def phase_r(name, kind):
-    """IPOPT reactive stage on J's best point (and on the 10-round best point when it differs)."""
+    """IPOPT reactive stage on J's best point. (J10+R, the 10-round point, is not run: no prediction rests on it, and
+    each IPOPT attempt can take most of the wall limit on these networks.)"""
     t0 = time.time()
     r = json.loads((PARTS / f"{name}_{kind}.json").read_text())
     out = {"case": name, "kind": kind}
     ppc, _ = fix_ref(load_m(case_path(name, kind)))
     p, _, _ = big_slack(ppc)
     with ipopt_nlp.use_ipopt():
-        for key, fk, pk in (("JR", "final", "best_pg"), ("J10R", "final10", "best_pg10")):
+        for key, fk, pk in (("JR", "final", "best_pg"),):
             f = r.get(fk)
             if f is None or f["clean"] or r.get(pk) is None:
                 continue
@@ -268,11 +269,13 @@ def summary(rows):
           + ", ".join(f"{c} {v:+.3f}%" for c, v in costs) + " -> " + ("HELD" if max(v for _, v in costs) <= 1.0 else "REFUTED"))
         v = [x for _, x in costs]
         P(f"     mean {np.mean(v):+.3f} %, median {np.median(v):+.3f} %, within +0.1 %: {sum(x <= 0.1 for x in v)} of {len(v)}")
-    P(f"  R6 H2 as written (J within 10 rounds on >= 75 %, refuted < 50 %): {res[('all', 'J10')]} of {n} -> "
-      f"{'HELD' if res[('all', 'J10')] >= 0.75 * n else ('REFUTED' if res[('all', 'J10')] < 0.5 * n else 'NEITHER')}")
+    P(f"  R6 H2 as written stays refuted (J within 10 rounds below 50 %): {res[('all', 'J10')]} of {n} -> "
+      f"{'HELD (H2 refuted)' if res[('all', 'J10')] < 0.5 * n else 'REFUTED'}")
     apisad = [r for r in sc if r["kind"] in ("api", "sad")]
-    h1 = sum(not r["S"]["p_clean"] for r in apisad)
-    P(f"  H1 DC dispatch breaks a thermal, slack or angle limit on {h1} of {len(apisad)} scored API and SAD cases")
+    h1 = sum(not r["S"]["p_clean"] for r in apisad if r["S"])
+    nopf = sum(r["S"] is None for r in apisad)
+    P(f"  H1 DC dispatch breaks a thermal, slack or angle limit on {h1} of {len(apisad)} scored API and SAD cases"
+      f" and has no AC power flow (cold Newton) on {nopf} more")
     el = sum(bool(q and "elastic" in q) for r in sc for q in r["qp"])
     P(f"Rounds run: {sum(len(r['status']) for r in sc)}; elastic QPs: {el}. Wall time: phase J "
       f"{sum(r['secs'] for r in rows):.0f} s, phase R {sum(r.get('R_secs', 0) for r in rows):.0f} s, summed over cases.")

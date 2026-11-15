@@ -1,0 +1,14 @@
+{
+ "case": "case1951_rte",
+ "kind": "api",
+ "nbus": 1951,
+ "old_ref": 46,
+ "slack_bus": 1671,
+ "slack_unit": 129,
+ "moved": true,
+ "ac": 2490300.0,
+ "ref": "PGLib",
+ "start_rule": null,
+ "stop": "no DC start",
+ "secs": 5.5909199714660645
+}
