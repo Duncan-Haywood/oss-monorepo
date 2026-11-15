@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtGZDwG3yeUw6UhGmX7",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T03:06:33Z",
+  "ended": "2026-11-15T09:47:25Z",
+  "wall_minutes": 401.22,
+  "tokens_in": 15681611,
+  "tokens_out": 59697,
+  "cost_usd": 5.6512,
+  "tool_calls": 111,
+  "task": "research programme hanger-codesign (pick_track draw): milestone 3e, registered pooled cross-mesh lowest-energy rule on one solver",
+  "projects": [
+    "research/hanger-codesign"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16073",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Container restart killed the first phase-1 launch about 20 min in; no checkpoints yet, work lost.",
+    "Checkpoint bug of my own: Path.with_suffix on 'partial_A_1.875_0' gives 'partial_A_1.json', so all seeds on a lattice shared one checkpoint and the A 1.875 mm seed 1 to 6 chains resumed from seed 0's state. Caught from the log (a chain printed EA 254 with no EA 150 line), killed, discarded every chain a resume could have touched, fixed with string-built names and atomic writes, added a resume-exactness test; about 25 more minutes lost.",
+    "test_m3e failed only in the full suite (each milestone has a run.py, so `import run` picked up another test's module); fixed by pinning 3a's module while loading, as test_m3d does."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "wait_for.py on a log returns at once if the log already holds an earlier phase's DONE line; appending a second phase to the same log made two 10-minute waits return instantly. Worth one line: use --pid or --until for multi-phase logs."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The 2 h background-job cap plus the harness note 'if it already had the longest timeout, do not restart it' fit badly with multi-hour resumable experiments; a sentence on making long jobs resumable (per-stage checkpoints) and resuming bounded remaining work would save the next run from guessing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "harness background-task note",
+      "why": "Both phases hit the 2 h background cap; the note says not to restart a job that already had the longest timeout. The job was resumable from cached stages/transfers and the remaining work was bounded (3 short chains; 47 transfers, about 1.5 h).",
+      "did": "Resumed each phase once from its cache, logged in run_log.txt.",
+      "result": "Both finished; resume exactness is tested (test_m3e)."
+    },
+    {
+      "file": "experiments/m3e_pooled/run.py (own registered plan)",
+      "why": "To save about 110 core-minutes, the 1.875 mm suiting reran seeds 0 to 2 only, taking 3d's seeds 3 to 6 (identical-energy twins), conditional on T1 holding.",
+      "did": "Declared in the docstring before the run.",
+      "result": "T1 held 24 of 24 with zero energy difference, so the substitution is exact."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-hanger-drape-pooled-search-converges.md",
+    "research/hanger-codesign/LOG.md (2026-11-15 entry)",
+    "research/hanger-codesign/README.md (Milestone 3e section)"
+  ],
+  "goal": "advance a PhD-level research programme by one registered, reproducible milestone",
+  "notes": "Registered predictions T1-T7 committed and pushed (PR #16073 opened as claim) before any full-run solve. Outcome: T1 held (24/24 identical), T2 acceptance held (pooled DC 2.5->1.875 mm A +0.0074, D +0.0053), T3 refuted (D +0.0221 from 3.75 to 2.5), T4-T7 held. Local checks: hanger-codesign tests 53 passed (/usr/bin/python3.13 -m pytest tests, 61 s); research/_homepage/build.py ok (1080 projects); research_live_links --write clean; check_md_links ok; post front matter, links and similarity checks ok. About 22 core-hours of simulation on 4 cores across ~5.5 h wall.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "45961801-10cf-591f-b238-4a0103b7608a",
+    "transcripts": 1,
+    "first": "2026-11-15T03:06:33Z",
+    "last": "2026-11-15T09:47:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 108,
+        "input": 206,
+        "output": 59697,
+        "thinking": 15715,
+        "cache_read": 15512159,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169246,
+        "api_equivalent_usd": 5.6512,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 108,
+      "input": 206,
+      "output": 59697,
+      "thinking": 15715,
+      "cache_read": 15512159,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169246,
+      "api_equivalent_usd": 5.6512,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 104,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 401.22,
+      "active_minutes": 401.06,
+      "model_minutes": 10.95,
+      "tool_minutes": 390.11,
+      "waiting_on_human_minutes": 0.16,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a PhD student designing, debugging and running a registered FEM mesh-convergence study with resumable experiments and a write-up: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 283.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
