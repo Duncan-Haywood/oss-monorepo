@@ -195,6 +195,20 @@ test('a final nasal hums about 7 dB under its vowel at any pitch (one voice), an
   }
 });
 
+test('a final l sits about 4 dB under its vowel at any pitch and after any vowel (one voice); the fixed gain did not', () => {
+  const rms = (x, a, b) => { let q = 0; for (let i = Math.round(a * rate); i < Math.round(b * rate); i++) q += x[i] * x[i]; return Math.sqrt(q / ((b - a) * rate)); };
+  const dur = 0.6, sg = codaPlan(['l'], dur, dur).segs[0], q = (sg.t1 - sg.t0) / 4;
+  const one = { coda: ['l'], detunes: [0], vibratoCents: 0, breath: 0 };
+  let over = 0;
+  for (const midi of [40, 50, 57, 64]) for (const vowel of ['a', 'e', 'i', 'o', 'u']) {
+    const f = 440 * 2 ** ((midi - 69) / 12), lvl = (o) => { const w = singNote(f, dur, rate, { vowel, ...one, ...o }); return 20 * Math.log10(rms(w, sg.t0 + q, sg.t1 - q) / rms(w, 0.2, 0.35)); };
+    const d = lvl({});
+    assert.ok(d < -3 && d > -5, `${vowel}l on ${midi}: /l/ ${d.toFixed(1)} dB against its vowel`);
+    if (lvl({ lateralLevel: false }) > 0) over++;
+  }
+  assert.ok(over >= 8, `the fixed gain put the /l/ over its vowel on ${over} of 20`);
+});
+
 test('a final nasal hums on through the nose with no blip of bare vowel, and -um after a dark vowel reads as its murmur', async () => {
   const { frameFeatures } = await import('./onsets.mjs');
   // one voice, so the voices' beating does not hide it: before the fix the low-pass lifted for 10 ms between

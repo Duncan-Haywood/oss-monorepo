@@ -48,36 +48,78 @@ function band(w, a, z, lo, hi) {
 }
 const dB = (x) => 20 * Math.log10(x);
 
-const rows = [];
-for (const [name, f] of PITCHES) {
-  for (const v of VOWELS) {
-    const w = singNote(f, dur, rate, { vowel: v, coda: ['l'], seed: 3 });
-    const sg = codaPlan(['l'], dur, dur, SING_DEFAULTS.codaShare).segs[0];
-    const q = (sg.t1 - sg.t0) / 4, la = sg.t0 + q, lz = sg.t1 - q;
-    const lvl = dB(rms(w, la, lz) / rms(w, 0.15, 0.3));
-    const tilt = 10 * Math.log10(band(w, la, lz, 0, 500) / band(w, la, lz, 1000, 5000));
-    rows.push({ name, v, lvl, tilt });
+const pw = (w, a, z) => rms(w, a, z) ** 2;
+const sg = codaPlan(['l'], dur, dur, SING_DEFAULTS.codaShare).segs[0], q = (sg.t1 - sg.t0) / 4, la = sg.t0 + q, lz = sg.t1 - q;
+function measure(extra, seeds) {
+  const rows = [];
+  for (const [name, f] of PITCHES) for (const v of VOWELS) {
+    let L = 0, V = 0, tilt = 0;
+    for (const seed of seeds) {
+      const w = singNote(f, dur, rate, { vowel: v, coda: ['l'], seed, ...extra });
+      L += pw(w, la, lz); V += pw(w, 0.15, 0.3);
+      if (seed === seeds[0]) tilt = 10 * Math.log10(band(w, la, lz, 0, 500) / band(w, la, lz, 1000, 5000));
+    }
+    rows.push({ name, v, lvl: 10 * Math.log10(L / V), tilt });
   }
+  return rows;
 }
-const lv = rows.map((r) => r.lvl), tl = rows.map((r) => r.tilt);
-const p1 = rows.filter((r) => r.lvl <= -1 && r.lvl >= -7).length, p2 = rows.filter((r) => r.tilt <= MURMUR_TILT - 3).length; // p2: how many stay 3 dB clear of the nasal rule
+const fmt = (x) => `${x >= 0 ? '+' : ''}${x.toFixed(1)} dB`;
+function table(rows, withTilt) {
+  return [
+    '| pitch | ' + VOWELS.map((v) => `${v}l level`).join(' | ') + (withTilt ? ' | ' + VOWELS.map((v) => `${v}l tilt`).join(' | ') : '') + ' |',
+    '|---|' + VOWELS.map(() => '---').join('|') + (withTilt ? '|' + VOWELS.map(() => '---').join('|') : '') + '|',
+    ...PITCHES.map(([name]) => {
+      const r = rows.filter((x) => x.name === name);
+      return `| ${name} | ` + r.map((x) => fmt(x.lvl)).join(' | ') + (withTilt ? ' | ' + r.map((x) => `${x.tilt.toFixed(1)} dB`).join(' | ') : '') + ' |';
+    }),
+  ];
+}
+const sum = (rows) => { const lv = rows.map((r) => r.lvl); return `range ${fmt(Math.min(...lv))} to ${fmt(Math.max(...lv))}, mean ${fmt(lv.reduce((a, b) => a + b, 0) / lv.length)}; within 1 to 7 dB under the vowel: ${rows.filter((r) => r.lvl <= -1 && r.lvl >= -7).length} of ${rows.length}`; };
+const SEEDS = Array.from({ length: 12 }, (_, k) => k + 1);
+const one = measure({}, [3]), oneOld = measure({ lateralLevel: false }, [3]);
+const many = measure({}, SEEDS), manyOld = measure({ lateralLevel: false }, SEEDS);
+const sameTilt = one.filter((r, k) => Math.abs(r.tilt - oneOld[k].tilt) <= 0.5).length;
 const out = [
   '# The sung final /l/ against its vowel',
   '',
-  'Written by `node eval/lateral-level-check.mjs`. A held syllable (vowel + l, 0.6 s, seed 3) per vowel and pitch;',
-  'level: RMS of the middle half of the /l/ against RMS of the vowel at 0.15-0.30 s. Tilt: the /l/\'s band under',
-  `500 Hz over its energy above 1 kHz (readCoda reads a coda murmur as a nasal only at ${MURMUR_TILT} dB or more).`,
+  'Written by `node eval/lateral-level-check.mjs`. A held syllable (vowel + l, 0.6 s) per vowel and pitch, sung by',
+  '`sing.mjs` `singNote`. Level: power of the middle half of the /l/ (codaPlan\'s span) against power of the vowel at',
+  '0.15-0.30 s. Tilt: the /l/\'s band under 500 Hz over its energy above 1 kHz (readCoda reads a coda murmur as a',
+  `nasal only at ${MURMUR_TILT} dB or more). "Fixed gain" is \`lateralLevel: false\`, PHONES.l.av = 1.4, as on main before this round.`,
   '',
-  '| pitch | ' + VOWELS.map((v) => `${v}l level`).join(' | ') + ' | ' + VOWELS.map((v) => `${v}l tilt`).join(' | ') + ' |',
-  '|---|' + VOWELS.map(() => '---').join('|') + '|' + VOWELS.map(() => '---').join('|') + '|',
-  ...PITCHES.map(([name]) => {
-    const r = rows.filter((x) => x.name === name);
-    return `| ${name} | ` + r.map((x) => `${x.lvl >= 0 ? '+' : ''}${x.lvl.toFixed(1)} dB`).join(' | ') + ' | ' + r.map((x) => `${x.tilt.toFixed(1)} dB`).join(' | ') + ' |';
-  }),
+  '## As registered: one seed (3)',
   '',
-  `Level range ${Math.min(...lv).toFixed(1)} to ${Math.max(...lv).toFixed(1)} dB (mean ${(lv.reduce((a, b) => a + b, 0) / lv.length).toFixed(1)}); tilt ${Math.min(...tl).toFixed(1)} to ${Math.max(...tl).toFixed(1)} dB.`,
+  '### Fixed gain (before)',
   '',
-  `Prediction (1), every /l/ 1 to 7 dB under its vowel: ${p1} of ${rows.length}. Tilt at least 3 dB under ${MURMUR_TILT}: ${p2} of ${rows.length} (prediction (2) compares the tilt column with the run on main).`,
+  ...table(oneOld, true),
+  '',
+  `Level ${sum(oneOld)}.`,
+  '',
+  '### Per-note gain, LATERAL_DB = 4 (after)',
+  '',
+  ...table(one, true),
+  '',
+  `Level ${sum(one)}.`,
+  '',
+  `Prediction (1), every /l/ 1 to 7 dB under its vowel: ${one.filter((r) => r.lvl <= -1 && r.lvl >= -7).length} of ${one.length}${one.every((r) => r.lvl <= -1 && r.lvl >= -7) ? ': holds' : ': fails'}.`,
+  `Prediction (2), tilt unchanged to 0.5 dB: ${sameTilt} of ${one.length}${sameTilt === one.length ? ': holds' : ': fails'}.`,
+  '',
+  '## Not registered: twelve seeds (1-12), power summed',
+  '',
+  'The /l/\'s middle half is 25 ms; over it the five detuned voices beat, so one seed\'s level moves by about 5 dB',
+  'either way from note to note. Summed over twelve seeds that variation averages out and the gain\'s own error shows.',
+  '',
+  '### Fixed gain (before)',
+  '',
+  ...table(manyOld, false),
+  '',
+  `Level ${sum(manyOld)}.`,
+  '',
+  '### Per-note gain (after)',
+  '',
+  ...table(many, false),
+  '',
+  `Level ${sum(many)}.`,
   '',
 ];
 const text = out.join('\n');

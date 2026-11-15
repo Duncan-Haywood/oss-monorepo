@@ -195,6 +195,14 @@ const NASAL_ZBW = 200;
 // more), not a vowel F1's 80 Hz: with 80 Hz the murmur's level swung 18 dB with pitch as harmonics hit
 // or missed it. 3.5 x 80 = 280 Hz.
 const NASAL_BW1 = 3.5;
+// A final /l/'s voicing, set per note (lateralGain) so its steady part sits LATERAL_DB under the vowel it
+// leaves. With PHONES.l's fixed 1.4 it sat -3 to +8 dB against the vowel, loudest after /e/, /i/ and /u/,
+// whose energy the /l/'s F1 of 400 Hz and F2 of 1250 Hz pass better than their own resonances do: a swell
+// on every final -l. 4 dB is an assumption, not fitted to recordings: a liquid is quieter than a vowel and
+// louder than a nasal (NASAL_DB 7). Openings keep PHONES.l.av (their reader's thresholds were set on it).
+// `lateralLevel: false` (a singNote option) keeps the fixed gain, to compare. README "Final consonants,
+// sixth round"; eval/lateral-level-check.md.
+export const LATERAL_DB = 4;
 const TRANSITION = 0.045; // formants move from the consonant to the vowel over this long
 
 function phoneLen(ph) { const c = PHONES[ph]; return (c.closure || 0) + (c.len || 0) + (c.burst ? c.blen || 0.012 : 0); }
@@ -356,8 +364,9 @@ export function codaPlan(coda, dur, end, share = SING_DEFAULTS.codaShare) {
 // Per-sample tracks for a coda (see onsetTracks). The vowel's formants move to the first
 // consonant's over the transition before it; after a final obstruent the voices stay silent
 // through the release, after a final nasal, l or r they hum on with its formants as they fade.
-function codaTracks(coda, dur, end, total, rate, V, rand, refRms, share) {
+function codaTracks(coda, dur, end, total, rate, V, rand, refRms, share, latAv = null) {
   const plan = codaPlan(coda, dur, end, share);
+  if (latAv) for (const sg of plan.segs) if (sg.kind === 'lateral') sg.av = latAv(sg);
   const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
   const keys = [[plan.codaAt - TRANSITION * plan.scale, V]], nas = nasTrack(total);
   for (const sg of plan.segs) paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas);
@@ -419,7 +428,7 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   const from = tuneF1(FORMANTS[vowel] || FORMANTS.a, f, o.f1Tune), to = glide ? tuneF1(FORMANTS[glide], f, o.f1Tune) : from;
   const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room) : null;
   const coda = o.coda || [];
-  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare) : null;
+  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare, o.lateralLevel === false ? null : (c) => lateralGain(f, rate, to, c)) : null;
   // a diphthong reaches its second vowel by the coda (or the note's end)
   const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.max(g0 + 1, Math.round((cd ? cd.plan.codaAt - TRANSITION * cd.plan.scale : lead + dur) * rate));
   const st = new Float64Array(10); // two state values per resonator
@@ -503,6 +512,20 @@ function nasalGain(f0, rate, V, c) {
     pv += gv; pm += gm;
   }
   return pm > 0 ? 10 ** (-NASAL_DB / 20) * Math.sqrt(pv / pm) : 0;
+}
+
+// The voicing gain that puts a lateral c LATERAL_DB under the vowel V on f0: as nasalGain, the harmonics'
+// power through the vowel's five resonators against their power through the lateral's (no low-pass, no
+// zero: the /l/ sounds through the mouth, round the tongue). Steady state; vibrato and detuning ignored.
+function lateralGain(f0, rate, V, c) {
+  const vf = [...V, ...F45], lf = [...c.F, ...F45];
+  let pv = 0, pl = 0;
+  for (let h = 1; h * f0 < 5000; h++) {
+    const hz = h * f0; let gv = 1 / (h * h), gl = gv;
+    for (let k = 0; k < 5; k++) { gv *= resonPow(hz, vf[k], BW[k], rate); gl *= resonPow(hz, lf[k], BW[k], rate); }
+    pv += gv; pl += gl;
+  }
+  return pl > 0 ? 10 ** (-LATERAL_DB / 20) * Math.sqrt(pv / pl) : c.av;
 }
 
 // f: Hz; dur: s; returns Float64Array of lead + dur + release seconds. `onset`: the syllable's
