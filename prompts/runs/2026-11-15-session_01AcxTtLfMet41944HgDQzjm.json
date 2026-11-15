@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtLfMet41944HgDQzjm",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T04:16:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: daylight-saving day-step bugs in venture date math",
+  "projects": [
+    "saas-seat-true-up",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16087",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "No agent doc in docs/reports/: the lint's docstring and the post carry what the next run needs.",
+      "did": "post only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-deadline-that-moved-a-day-in-march.md"
+  ],
+  "goal": null,
+  "notes": "Idea: timezone bugs CI cannot see because it runs in UTC. Found saas-seat-true-up subtracting days*MS_PER_DAY from a local-midnight renewal: 2026-04-01 with 30 days' notice showed 2026-03-01 in America/New_York (should be 2026-03-02). Fixed with calendar-day steps plus a TZ=America/New_York child-process test (fails on old code). Added platform/ci/check_dst_day_step.py + test_check_dst_day_step.py (3 unittest cases pass; 0 venture hits after fix, 2 before). Swept every venture test suite under TZ=America/New_York with xargs -P4 and a 120 s per-venture timeout: 1,348 suites, 1,344 passed, 4 timed out under load (changepoint-detector, league-schedule-generator, shed-designer, shift-roster-builder) and were rerun alone.",
+  "corrections": [],
+  "redteam": null
+}
