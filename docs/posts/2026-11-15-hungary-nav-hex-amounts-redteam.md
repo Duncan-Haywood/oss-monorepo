@@ -3,7 +3,7 @@ title: "0x10FE passed as an amount. Red-teaming the Hungarian NAV invoice reader
 seo_title: "NAV Online Számla checker: hex and comma amounts were read silently"
 date: 2026-11-15
 tags: [testing, mutation-testing, e-invoicing, hungary, javascript, redteam]
-description: "12 faults seeded into the new NAV Online Számla 3.0 reader, 8 caught. Amounts written as 4352,40, 1e400 or 0x10FE were read as missing or as numbers, and the totals warnings blamed the wrong row."
+description: "12 faults seeded into the NAV Online Számla reader, 8 caught. Amounts like 4352,40 or 0x10FE were misread, and a totals warning blamed the wrong row."
 ---
 
 Today's red-team run aimed at the Hungarian reader in
