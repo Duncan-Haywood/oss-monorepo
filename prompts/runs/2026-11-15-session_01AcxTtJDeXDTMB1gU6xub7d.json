@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtJDeXDTMB1gU6xub7d",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T21:23:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 4 (changepoint-detector): the shape-repeat check named in its next: after the count guard failed",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16341",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "file": "ventures/changepoint-detector/eval/repeat-guard.mjs",
+      "issue": "read consensus().repeatWarning, which consensus() no longer sets (the guard was reverted to measured-not-offered), so a rerun printed G2 MET where the committed output says NOT MET; fixed to call repeatGuard itself. The committed output was right."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagship next: was at 1999 of 2000 characters, so any replacement longer than the item it replaces needs a --park first; the hint says so, which helped, but every run on this flagship now pays this step."
+    },
+    {
+      "file": "ventures/changepoint-detector/.gitignore",
+      "issue": "has-data/ (the HAS 2023 fetch dir named by eval/has-fetch.sh, CC BY-NC-SA, must never be committed) was not ignored; a git add -A in the venture would have committed 1.9 M points of non-redistributable data. Added has-data/ and utsa-data/."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-changepoint-shape-check-safe-but-timid.md",
+    "ventures/changepoint-detector/README.md (section: Agreed changes that are the same waveform repeated)"
+  ],
+  "goal": "Pre-registered round on a fresh labelled set (UTSA, 32 series) for a guard that reads segment shapes between agreed changes",
+  "notes": "Pre-registration committed (a3082f74d) before any computation; code committed before the run. Result: S1 NOT MET (TSSB 0.365 vs 0.381), S2-S4 MET (fresh UTSA +0.064 covering, better on 5 of 5 touched; worse on no series of TSSB/HAS/UTSA). Not offered, as pre-registered. Reproduced eval/tssb.out.txt and eval/repeat-guard.out.txt before the round (identical apart from timings and the G2 bug above). Post checks: check_post_frontmatter, check_post_links, post_similarity all clean. Venture tests: see final commit.",
+  "corrections": [],
+  "redteam": null
+}
