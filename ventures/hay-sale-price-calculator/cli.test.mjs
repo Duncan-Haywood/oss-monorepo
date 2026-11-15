@@ -21,3 +21,9 @@ test("bad usage exits 2", () => {
   assert.equal(run("--acres", "10", "--tons", "4", "--loss", "100").status, 2);
   assert.equal(run("--bogus").status, 2);
 });
+
+test("non-numeric flag exits 2 (audit 2026-11-15)", () => {
+  const r = run("--acres", "80", "--tons", "4", "--grow", "abc");
+  assert.equal(r.status, 2);
+  assert.doesNotMatch(r.stdout, /NaN/);
+});

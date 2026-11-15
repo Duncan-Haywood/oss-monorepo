@@ -1,0 +1,254 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/hay-sale-price-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-15-efb6",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an extension forage/farm-management specialist who builds hay enterprise budgets (and, second, a hay broker who prices loads off a USDA AMS hay report). They would check first: that the per-bale to per-ton conversion uses the 2,000 lb short ton, that break-even is total cost over saleable (post-shrink) tons, that storage shrink can be set per bale type and storage method (inside vs outside rounds is the biggest driver of round-vs-square economics), that a price per bale shown to the producer is to the cent, and whether hay quality (RFV/RFQ, AMS grade) and moisture (dry-matter basis) enter the price at all",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran cli.mjs and calc.mjs and recomputed in an independent Python script from first principles (2,000 lb short ton; tons sold = produced x (1 - loss); cost = acres x grow + produced x (make + bale) + sold x sell). For the sample (80 ac, 4 t/ac, $240/ac, $30/t make, 5% loss, $8 / $130 / $95 per bale) every channel matches to the cent: small 304 t, $290.91/t, net $48,340.36, break-even $131.89/t and $3.63/bale; large 300.8 t, $305.88/t, net $56,022.21, BE $119.64/t, $50.85/bale; round 291.2 t, $190/t, net $21,580.80, BE $115.89/t, $57.95/bale. FAQ conversions ($8 per 55 lb = ~$291/t; $95 per 1,000 lb = $190/t) are right. Break-even definition matches the extension enterprise-budget method (total cost / saleable tons). Fails: (1) the break-even per bale the producer sees is rounded to whole dollars by money() in both the advice text and the results table: '$4 a bale' for a true $3.63 (10% off on the headline number for small squares); (2) non-numeric input passes validation: `node cli.mjs --acres 80 --tons 4 --grow abc` prints 'Best channel on your prices: Small squares, netting $NaN' and `--small 1,200` or a trailing `--round` with no value give $NaN rows, and the CLI exits 0 or 1 instead of 2; (3) a blank field silently becomes the default (analyze({acres:80,tonsPerAcre:4,smallPrice:''}) prices small squares at $272.73/t from the hidden $7.50 default), and in the browser a type=number field holding '1,200' reads as '' so the same thing happens. Core arithmetic right, shipped numbers sometimes wrong or NaN: 2.",
+  "completeness": "README/page claims checked end to end: break-even per ton and per bale (works, but per-bale display rounded), net per acre (works), ranking of the three bale types (works), 20% yield/price sensitivity table for the best channel (works; centre cell equals base net, test confirms), CSV download (toCsv gives header + 3 rows), CLI with --json and exit 1 when nothing covers cost (works: exit 0 on sample, exit 1 at $1/bale). Nothing claimed is a stub; no TODOs. CLI lacks flags for per-channel baling and selling cost that the page exposes (not claimed). 3.",
+  "verification": "`node --test '*.test.mjs'`: 22 tests, 22 pass, ~0.35 s. Tests include a hand-computed channel and a break-even round trip. Seeded 4 mutations with platform/ci/quality_mutate.py: reversing the ranking sort (calc.mjs:66, so the WORST channel is named best) SURVIVED; raising the round-bale hidden extra loss from 4% to 14% (calc.mjs:19) SURVIVED; charging selling cost on produced instead of sold tons (calc.mjs:34) caught; a 2,200 lb ton in the price conversion (calc.mjs:30) caught. 2 of 4 caught; the headline 'best channel' answer is untested. No test feeds NaN or blank input. 2.",
+  "craft": "Read calc.mjs (101 lines), cli.mjs, index.html script, usage.mjs, all tests. Small, pure, readable. Defects: num() (calc.mjs:22) converts with Number() and never checks isFinite, and the validations at calc.mjs:50 and :62 use `< 0` which NaN passes, so NaN flows to the output and into the sort; blank fields fall back to defaults silently; per-channel extra shrink (0/1/4%) is a hard-coded constant with no input, flag or comment citing a source; money() is a dense one-liner used for per-bale amounts where it rounds to dollars; page.test.mjs:25-26 asserts the same regex twice. 2.",
+  "claims": "Page and README claims checked: 'nothing is uploaded' (no fetch/XHR/sendBeacon in index.html, usage.mjs writes localStorage only: pass); no-warranty, not-legal/tax/financial-advice and no-SLA footer present (pass, test-guarded); 'Not modelled: hay quality or relative feed value, moisture discounts, depreciation, taxes, seasonal price' stated on page and README (pass); 'ships no hay price data, example numbers made up' (pass: only defaults); FAQ 'tool adds a channel-specific loss' is true but the values (0/1/4 points) are not shown anywhere on the page, so the user cannot see an assumption that moves the ranking. llms.txt links the old github.io host, which the Pages build rewrites at deploy (source-only; served page not reachable from this sandbox, proxy 403). Claims are backed with limits stated: 3.",
+  "fitness": "Walked the job of a 60-80 acre producer deciding what to bale and what to ask: they can get cost per ton and a channel ranking in a minute. They cannot set storage loss per channel (barn-stored squares at 3% vs outside rounds at 15% is the comparison that decides round vs square), so the ranking rests on a hidden +4 point round-bale shrink; they cannot enter quality (RFV/RFQ, AMS grade) or moisture, which is how buyers and hay reports actually set the price per ton; the per-bale break-even is shown to the dollar. A practitioner would rebuild this in a spreadsheet to get per-channel shrink and cent-level per-bale prices. 2.",
+  "domain": "Compared with extension hay enterprise budgets and pricing guides (land-grant budgets such as Iowa State Ag Decision Maker hay cost files; extension hay-pricing guidance pricing on dry-matter basis and on quality; USDA AMS hay market report quality guidelines for alfalfa: Supreme RFV>185/ADF<27/NDF<34/CP>22, Premium 170-185, Good 150-170, Fair 130-150, Utility <130). Agrees: short-ton conversion; break-even = total cost / saleable tons; shrink cost charged on produced tons. Departs: no quality term at all (an ADF 30 / NDF 40 alfalfa has RFV = (88.9-0.779x30)x(120/40)/1.29 = 152.4, AMS 'Good', and the tool cannot price that against 'Premium'); no moisture/dry-matter adjustment ($200/t at 18% moisture is $186.36 on a 12%-moisture standard, DM 0.82/0.88); outdoor round-bale shrink fixed at base + 4 points where extension storage fact sheets commonly report roughly 5-35% for unprotected outdoor rounds vs a few percent under cover, and not editable; machinery ownership, interest and labour are left to the user's lump sums with no prompt. Disclosed, but a forage specialist would not sign off a 'sale price' tool with no quality or DM basis: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Per-bale to per-ton conversion (FAQ examples)",
+   "method": "hand arithmetic on the 2,000 lb US short ton",
+   "command": "node cli.mjs --acres 80 --tons 4 --grow 240 --make 30 --loss 5 --small 8 --large 130 --round 95 --json",
+   "expected": "$8/55 lb = 290.91; $130/850 lb = 305.88; $95/1000 lb = 190.00",
+   "observed": "290.91 / 305.88 / 190",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Full sample recompute, all three channels",
+   "method": "independent Python script from first principles (tons sold, revenue, total cost, net, break-even)",
+   "command": "python3 recompute (A=80,T=4,G=240,M=30,L=5) vs cli --json",
+   "expected": "net 48340.36 / 56022.21 / 21580.80; BE/t 131.89 / 119.64 / 115.89; BE/bale 3.63 / 50.85 / 57.95",
+   "observed": "identical to the cent",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even definition",
+   "method": "extension hay enterprise-budget method: break-even price = total cost / saleable (post-shrink) tons",
+   "command": "calc.mjs:37 vs hand: 40096 / 304",
+   "expected": "131.89",
+   "observed": "131.89",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even per bale shown to the producer",
+   "method": "hand: 131.89 x 55/2000",
+   "command": "node cli.mjs --acres 80 --tons 4 --grow 240 --make 30 --loss 5 --small 8 --large 130 --round 95",
+   "expected": "$3.63 a bale",
+   "observed": "'break-even $132/ton ($4 a bale)'; results table uses the same money()",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Non-numeric input rejected",
+   "method": "a practitioner's expectation: invalid input is an error, never a result",
+   "command": "node cli.mjs --acres 80 --tons 4 --grow abc; echo $?",
+   "expected": "usage error, exit 2",
+   "observed": "'Best channel on your prices: Small squares, netting $NaN ...', exit 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Blank price field",
+   "method": "expectation: blank required price is an error, not a hidden default",
+   "command": "node -e 'import(\"./calc.mjs\").then(m=>console.log(m.analyze({acres:80,tonsPerAcre:4,smallPrice:\"\"}).channels[0].pricePerTon))'",
+   "expected": "error asking for the price",
+   "observed": "272.73 (silent $7.50 default)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Quality (RFV / AMS grade) enters price",
+   "method": "RFV = DDM x DMI / 1.29, DDM = 88.9 - 0.779 ADF, DMI = 120/NDF; USDA AMS alfalfa guidelines",
+   "command": "python3: ADF 30, NDF 40 -> RFV 152.4 (AMS Good); grep -i 'rfv|adf|ndf' calc.mjs",
+   "expected": "a quality or grade input that moves price",
+   "observed": "none; disclosed as not modelled",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Moisture / dry-matter price adjustment",
+   "method": "extension DM-basis pricing: price x DM_actual / DM_standard",
+   "command": "python3: 200 x 0.82/0.88 = 186.36; grep -i moisture calc.mjs",
+   "expected": "a moisture input",
+   "observed": "none; disclosed as not modelled",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Storage shrink per bale type and storage method",
+   "method": "extension round-bale storage fact sheets: outdoor unprotected rounds lose far more than covered storage",
+   "command": "node -e analyze({acres:80,tonsPerAcre:4,storageLossPct:30}) -> lossPct [30,31,34]; grep lossExtraPct calc.mjs index.html cli.mjs",
+   "expected": "an editable shrink per channel",
+   "observed": "fixed hidden +0/+1/+4 points, no input, no flag, not shown on page",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run it",
+   "command": "cd ventures/hay-sale-price-calculator && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "22 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Sensitivity grid and CSV",
+   "method": "run analyze/sensitivity/toCsv on the sample",
+   "command": "node --test calc.test.mjs (sensitivity centre == base; csv 4 lines)",
+   "expected": "centre equals base net; header + 3 rows",
+   "observed": "pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI exit code contract",
+   "method": "run it",
+   "command": "node cli.mjs --acres 80 --tons 4 --small 1 --large 1 --round 1; echo $?",
+   "expected": "exit 1 and 'No channel covers'",
+   "observed": "exit 1, message present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded; disclaimer present",
+   "method": "grep index.html and usage.mjs",
+   "command": "grep -n 'fetch(\\|XMLHttpRequest\\|sendBeacon' index.html usage.mjs; grep -n 'No warranty' index.html",
+   "expected": "no network calls; disclaimer present",
+   "observed": "none; footer present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt tool URL",
+   "method": "Pages build rewrites hosts at deploy (build_pages_site.py rewrite_base_urls)",
+   "command": "sed -n 9p llms.txt; curl https://marisstella.app/hay-sale-price-calculator/llms.txt",
+   "expected": "marisstella.app on the served file",
+   "observed": "source has github.io; served page unreachable here (proxy 403)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:66",
+   "change": "sort((a, b) => b.net - a.net) -> sort((a, b) => a.net - b.net) (worst channel reported as best)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:34",
+   "change": "+ soldTons * ch.sellCostPerTon -> + producedTons * ch.sellCostPerTon",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:19",
+   "change": "round lossExtraPct: 4 -> 14",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:30",
+   "change": "ch.baleLbs / 2000 -> ch.baleLbs / 2200",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Break-even price per bale, the headline number a producer prices from, is shown rounded to whole dollars: small squares show '$4 a bale' for a true $3.63 (and $3.49 would show $3). money() rounds every amount to the dollar and is used for per-bale figures in the advice text and the results table.",
+   "where": "ventures/hay-sale-price-calculator/calc.mjs:72",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "Non-numeric input passes validation: num() uses Number() without an isFinite check and the guards use `< 0`, which NaN passes. `node cli.mjs --acres 80 --tons 4 --grow abc` reports 'Best channel ... netting $NaN' (exit 1); '--small 1,200' or a trailing flag with no value also produce $NaN rows, sometimes with exit 0.",
+   "where": "ventures/hay-sale-price-calculator/calc.mjs:22",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "A blank field silently becomes the built-in default (e.g. small-square price $7.50); in the browser a number field holding '1,200' reads as '' and so also falls back to the default, with no message.",
+   "where": "ventures/hay-sale-price-calculator/calc.mjs:22",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "The 'best channel' ranking is untested: reversing the sort so the worst channel is named best leaves all 22 tests green (tests only check ranked[0] === best, both derived from the same sort).",
+   "where": "ventures/hay-sale-price-calculator/calc.mjs:66",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "Per-channel extra storage shrink is a hidden hard-coded constant (+0 small, +1 large, +4 round points), uncited, not editable on the page or CLI and not shown to the user; extension storage guidance puts unprotected outdoor round-bale losses far above covered storage, and the round-vs-square ranking turns on this number. Raising it to 14 leaves tests green.",
+   "where": "ventures/hay-sale-price-calculator/calc.mjs:17",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "A 'sale price' calculator with no hay quality (RFV/RFQ, AMS grade) or moisture/dry-matter basis: buyers and USDA AMS hay reports price per ton by quality and on DM basis. Disclosed as not modelled, and the venture's own kill criterion names it.",
+   "where": "ventures/hay-sale-price-calculator/README.md:19",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "CLI exposes prices and bale weights but not per-channel baling or selling cost, which the page lets the user set, so CLI results can only use the hidden defaults for those.",
+   "where": "ventures/hay-sale-price-calculator/cli.mjs:6",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "page.test.mjs asserts the same 'Break-even per ton' regex twice (once case-insensitive); the second line adds nothing.",
+   "where": "ventures/hay-sale-price-calculator/page.test.mjs:25",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt links the old github.io host; the Pages build rewrites hosts at deploy, so this is in source only.",
+   "where": "ventures/hay-sale-price-calculator/llms.txt:9",
+   "category": "source-only",
+   "origin": "audit"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+ ],
+ "verdict": "Below the bar (correctness 2, verification 2, median 2). The core arithmetic is right: an independent Python recompute of all three channels on the sample matches to the cent, and the break-even definition matches extension enterprise budgets. But what ships is weaker than the math: the per-bale break-even is shown to the whole dollar ($4 for $3.63), non-numeric or blank input produces $NaN or a silent default instead of an error, the 'best channel' sort is untested (reversed, all 22 tests pass), and the round-vs-square ranking rests on a hidden, uncited, uneditable +4-point outdoor shrink. As a hay 'sale price' tool it has no quality (RFV/AMS grade) or dry-matter basis, which an extension forage specialist or broker would check first; that gap is disclosed. Finished for what it claims (completeness 3)."
+}

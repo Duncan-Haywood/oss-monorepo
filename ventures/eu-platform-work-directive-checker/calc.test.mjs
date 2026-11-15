@@ -77,3 +77,16 @@ test("summary names the source and the not-advice line", () => {
   assert.ok(s.includes(VERIFY));
   assert.match(s, /employment lawyer/);
 });
+
+test("account suspension must be a human decision, Art. 10(5) (audit 2026-11-15)", () => {
+  const op = run({}).findings.find((f) => /Automated decisions/.test(f.title));
+  assert.match(op.title, /taken by a human being/);
+  const w = compute({ ...SAMPLE, role: "worker" }).findings.find((f) => /restrict, suspend or close your account/.test(f.title));
+  assert.match(w.title, /taken by a human/);
+});
+
+test("presumption does not apply in tax, criminal and social-security proceedings by default, Art. 5 (audit 2026-11-15)", () => {
+  const t = run({}).findings.find((f) => /rebuttable/.test(f.title)).title;
+  assert.match(t, /does not apply in tax, criminal and social-security proceedings/);
+  assert.doesNotMatch(t, /may limit/);
+});

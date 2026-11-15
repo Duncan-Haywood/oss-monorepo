@@ -21,3 +21,7 @@ costs entered, taxes, seasonal price moves. The tool holds no price data; the ex
 Not legal, tax or financial advice. No warranty; see the page footer.
 
 Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+
+## Known gaps (quality census, 2026-11-15)
+
+From [`portfolio/quality/audits/2026-11-15-hay-sale-price-calculator.json`](../../portfolio/quality/audits/2026-11-15-hay-sale-price-calculator.json); per-bale amounts to the cent, rejecting non-numeric input and a ranking test are fixed. Still open: no hay quality basis (RFV/RFQ, USDA AMS grade) or moisture and dry-matter price adjustment; the extra storage loss per bale type (+0/+1/+4 points) is hard-coded, uncited and not shown; a blank price silently uses the default; the CLI has no flags for baling or selling cost.
