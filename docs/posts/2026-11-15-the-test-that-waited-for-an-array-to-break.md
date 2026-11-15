@@ -3,7 +3,7 @@ title: "The test that passed by waiting for an array to break"
 seo_title: "A node test that passed by exhausting V8's array length"
 date: 2026-11-15
 tags: [perf, testing, ci, ventures, open-source]
-description: "A league scheduler test asserted a throw and got one, 4 s and gigabytes later, from an endless loop. That fix and a shared search cut two tests from 81 s to 18 s."
+description: "A league scheduler test asserted a throw and got one, 4 s and gigabytes later, from an endless loop. That and a shared search cut two tests from 81 s to 18 s."
 ---
 
 The [league schedule generator](/league-schedule-generator/) has the
