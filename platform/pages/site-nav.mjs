@@ -424,10 +424,13 @@ const CHROME_FIT_JS = `
     els.forEach(function(el){
       reset(el);
       var vw=root.clientWidth,r=el.getBoundingClientRect();
-      if(Math.abs(r.left)<1&&Math.abs(r.width-vw)<1)return;
-      el.style.maxWidth='none';el.style.width=vw+'px';el.style.marginLeft=(-r.left)+'px';el.style.marginRight='0';
       // Keep the content where the host put it: a bar that fills the width has no centring margin, so the offset becomes padding.
-      el.style.paddingLeft=Math.max(0,r.left)+'px';el.style.paddingRight=Math.max(0,vw-r.right)+'px';
+      // A host whose body has no side padding (its main carries it) would leave the brand at x = 0: the header gets the site's 16px.
+      var pl=Math.max(0,r.left),pr=Math.max(0,vw-r.right),nav=el.tagName==='NAV';
+      if(nav&&pl<8)pl=16;if(nav&&pr<8)pr=16;
+      if(Math.abs(r.left)<1&&Math.abs(r.width-vw)<1){if(nav){el.style.paddingLeft=pl+'px';el.style.paddingRight=pr+'px';}return;}
+      el.style.maxWidth='none';el.style.width=vw+'px';el.style.marginLeft=(-r.left)+'px';el.style.marginRight='0';
+      el.style.paddingLeft=pl+'px';el.style.paddingRight=pr+'px';
       var r2=el.getBoundingClientRect();
       if(Math.abs(r2.left)>=1)el.style.marginLeft=(parseFloat(el.style.marginLeft)-r2.left)+'px';
       if(el.tagName==='NAV'){
