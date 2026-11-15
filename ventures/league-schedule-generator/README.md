@@ -2062,6 +2062,62 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
+## Whole-break tables in int16: 26 teams join the page (2026-11-15)
+
+The section below put `minPlusStep`'s inner loop in WebAssembly and left the kernel at 62% of a
+24-team run. A 26-team league (13 matches a round) was still off the page: with the guards lifted it
+took 71 s on seed 1, with the int32 kernel at 73% of the profile. The whole-break kernel now runs on
+int16 with explicit SIMD, and the page's floor-priced step takes up to **26 teams** (`maxTeams` 25 -> 26).
+
+- **Why int16 is exact.** The floor programme's whole-break tables start at zero and a step adds at
+  most 2 to an entry, so a 26-team season's entries stay under 60. `in_i32` scans the input: when every
+  entry is under 30,000 (16 steps at most, so no overflow) the module copies it to int16 buffers and
+  runs the int16 step, eight lanes per SIMD instruction instead of four; otherwise it keeps the int32
+  loop. No caller of `orient.mjs` passes a wide table, but the test does, with negatives, to keep that
+  path checked. Priced (Float64) tables are unchanged.
+- **Explicit SIMD, not the autovectoriser.** The first int16 version, a plain C loop, was slower than
+  int32 (0.166 against 0.126 ms at 12 matches): clang widened every lane back to 32 bits. The step
+  now uses `wasm_simd128.h`. Eight entries z0 .. z0 + 7 (z0 a multiple of 8) share every bit of z from
+  bit 3 up, so each edge's break bit is either a fixed lane pattern (it reads bit 0, 1 or 2) or one
+  splatted value per group; the old table's pairs split into evens and odds with one shuffle each.
+  Blocks under 8 entries (the last steps) take a scalar loop.
+- **Thirteen matches for the floor-priced search only.** `ORIENT_MAX_MATCHES` stays 12, so
+  `leastBreaks`' other callers (regrounding, the home-and-away branch and bound) do the same work as
+  before. `floorTable(opp, n, { maxMatches })` and `leastBreaks(..., { maxMatches })` take
+  `FLOOR_PRICED_MAX_MATCHES` = 13 from `floorPricedSingleRounds`, which now accepts up to 26 teams.
+
+**The step** (`eval/minplus-bench.mjs --against` the old module, same tables): 10 matches 0.034 -> 0.019
+ms, 12 matches 0.126 -> 0.049 ms (2.6x).
+
+**The page's floor-priced step, old code against new** (`eval/int16-step.txt`, same cached lists, old
+and new side by side on one shared 4-CPU machine):
+
+| Teams, seed | old | new | seasons added (the same in both) |
+|---|---|---|---|
+| 24, 1 | 19.6 s | 10.2 s | 614/62, 640/60 (18.2% inside the gap) |
+| 24, 2 | 22.0 s | 11.5 s | 620/62, 610/62 (5.9%) |
+| 24, 3 | 40.0 s | 22.9 s | 610/62 (5.6%) |
+| 25, 1 / 2 / 3 | 16.8 / 49.8 / 33.4 s | 11.2 / 30.3 / 22.8 s | none / 715/47 (3.1%) / none |
+| 22, 1 | 5.0 s | 3.8 s | 670/50, 662/48 |
+| 20, 1 | 2.3 s | 2.5 s | 382/48, 444/46 |
+| 26, 1 | 70.7 s (guard lifted) | 33.9 s | 1014/58 (3.6%): beats 1030/66, 1088/62 and 1104/60 on the list |
+| 26, 2 | refused | 19.2 s | 738/68, 776/66 (11.4%) |
+| 26, 3 | refused | 24.0 s | 1104/56, 1140/54 (4.9%) |
+
+**188.9 s -> 115.2 s over the eight runs both can do (1.64x)**, with identical runs, results and
+frontiers. 26 teams take 19-34 s and add one or two seasons on every seed, inside the 10-50 s that 24
+and 25 teams already cost, so they join the page. 28 teams (14 matches) took 94 s on seed 1 and added
+nothing, so they stay off.
+
+- Tests: `orient.test.mjs`: the WebAssembly step equals the JS loop on 240 random rounds of 2 to 16
+  matches for int16-sized whole tables, wide int32 tables (negatives included) and tables at the
+  int16 edge (29,997-29,999), plus priced tables. `floor-priced.test.mjs`: 22 to 26 teams pass the size
+  gate, 27 do not, `maxTeams: 25` keeps the old gate; at 26 teams the default limit still returns
+  null and `FLOOR_PRICED_MAX_MATCHES` gives a floor table that agrees with `leastBreaks`.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser; no real
+  26-team league has been tried. Browsers without WebAssembly SIMD (Safari before 16.4) run the JS
+  loop, which is slower at 26 teams than the old module was at 25.
+
 ## minPlusStep in WebAssembly: 23 to 25 teams join the page (2026-11-14)
 
 The section below left 24 and 25 teams off the page at 54 to 184 s of worker time, with `minPlusStep`
