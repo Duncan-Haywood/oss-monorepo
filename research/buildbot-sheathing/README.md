@@ -1369,10 +1369,11 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
   intact walls' sheathing nails keep 71–77% of their strength and the decayed walls' 86–96%.
 ## Milestone 25 results (`reproduce.py`)
 - **What was checked.** Every numpy-only experiment of two minutes or less (m1, m2, m4, m5, m7,
-  m10–m14) and four scipy ones (m15, m17, m18, m19), each re-run from the committed code in a
+  m10–m14) and two scipy ones (m17, m18), each re-run from the committed code in a
   temporary copy and compared character for character with its committed `results.txt`, timings
   masked. The m6/m6b/m9/m3 runs need MuJoCo or Drake and m16/m20/m21 take 25–70 min; they were not
-  re-run.
+  re-run, and m15 and m19 were started but stopped at this session's 30-minute limit for a
+  background job.
 - **Two experiments had drifted, both from later edits to shared code, neither from a bug.**
   (1) Milestone 9 rewrote `cycle.ledger_draw` and in doing so drew the panel tilt from the random
   stream before the ledger tilt (milestone 5 drew the ledger first). Same distributions, different
@@ -1391,7 +1392,7 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
 - **What the number check missed.** `paper/check_numbers.py` tied "0.9997" to its results line
   but not the same number written as a percentage, so a stale 99.97% sat in the abstract, a
   highlight and the conclusion. Four checks now bind it (194 of 194).
-- **After the refresh,** all ten quick experiments reproduce; LONGCHECK.
+- **After the refresh,** all ten quick experiments reproduce, and m17 and m18 reproduce as committed.
 - **Checks** (`tests/test_reproduce.py`, 4 tests): every experiment directory is listed, only
   timings are masked, a changed number is reported, and milestone 7 reproduces from its committed
   inputs.

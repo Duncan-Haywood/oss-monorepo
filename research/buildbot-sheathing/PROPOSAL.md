@@ -323,7 +323,7 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    cited. Still open: authorship, the NDS and SDPWS editions.
 25. **Reproducibility check** (done 2026-11-15, `reproduce.py`): one command per experiment, and
    `--check`, which re-runs experiments in a temporary copy and diffs their results files against
-   the committed ones. Fourteen re-run; milestones 5 and 12 had drifted from later edits to shared
+   the committed ones. Twelve re-run (m1, m2, m4, m5, m7, m10–m14, m17, m18); milestones 5 and 12 had drifted from later edits to shared
    code (milestone 9 reordered two random draws; milestone 14 changed how a mean is rounded), so
    m5, m7, m12 and m13 are refreshed and every moved number in the paper updated (H22 0.5833 to
    0.5814, two 2x 0.9997 to 0.9994, break-even $6.51 to $6.47); no verdict changes.
