@@ -151,7 +151,7 @@ class DeveloperChoiceTests(unittest.TestCase):
     @unittest.skipUnless(has_numpy(), "numpy not installed")
     def test_auto_is_directional_on_bayer_with_numpy(self):
         raw = self.raw()
-        w, h, px, rep = self.develop(raw, engine="numpy")
+        _w, _h, px, rep = self.develop(raw, engine="numpy")
         self.assertEqual(rep.demosaic, "directional")
         _, _, bil, rep_b = self.develop(raw, engine="numpy", demosaic="bilinear")
         self.assertEqual(rep_b.demosaic, "bilinear")

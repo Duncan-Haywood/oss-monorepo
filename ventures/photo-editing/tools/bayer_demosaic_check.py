@@ -30,8 +30,7 @@ import sys
 import time
 
 import numpy as np
-
-from xtrans_demosaic_check import (  # noqa: E402  (tools/ on PYTHONPATH)
+from xtrans_demosaic_check import (  # tools/ on PYTHONPATH
     _fit,
     add_noise,
     mosaic,
@@ -143,7 +142,7 @@ def _pattern_bayer(raw) -> tuple[int, ...]:
     colours[colours == 3] = 1
     desc = raw.color_desc.decode()
     order = {ch: i for i, ch in enumerate("RGB")}
-    return tuple(order[desc[v]] if desc[v] in order else 1 for v in colours.ravel())
+    return tuple(order.get(desc[v], 1) for v in colours.ravel())
 
 
 def variants_for(names: list[str] | None):
