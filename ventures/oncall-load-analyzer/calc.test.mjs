@@ -141,3 +141,40 @@ test("parseTime refuses days a month does not have, seconds past 59 and impossib
   assert.equal(parseTime("2026-03-01T10:00+05:30"), Date.UTC(2026, 2, 1, 4, 30));
   assert.equal(parseTime("2026-03-01T10:00:59-14:00"), Date.UTC(2026, 2, 2, 0, 0, 59));
 });
+
+// Red-team 2026-11-15. A real defect first: the header matched the leftmost
+// column naming any alias, so an export with service_id before service_name
+// grouped every page under an opaque id, and a `team` column beat `service`.
+test("aliases are tried in priority order, not header order", () => {
+  const a = normalizeRows(parseCsv("id,description,service_id,service_name,created_on,assigned_to\n1,Disk full,PX1Y2Z3,checkout-api,2026-09-01T03:00:00Z,Dana"));
+  assert.equal(a.incidents[0].service, "checkout-api");
+  const b = normalizeRows(parseCsv("team,service,created_at,assigned_to,title\nPlatform,checkout-api,2026-09-01T03:00:00Z,Dana,x"));
+  assert.equal(b.incidents[0].service, "checkout-api");
+  // a lone lower-priority alias is still read
+  const c = normalizeRows(parseCsv("service_id,created_at,assigned_to\nPX1,2026-09-01T03:00:00Z,Dana"));
+  assert.equal(c.incidents[0].service, "PX1");
+});
+
+// Escaped mutants from the same campaign.
+test("business hours start at 09:00 local, not later", () => {
+  // Tuesday 2026-01-06 09:30Z
+  const r = run(["2026-01-06T09:30:00Z,,svc,A,low,t"]);
+  assert.equal(r.people[0].business, 1);
+  assert.equal(r.people[0].offHours, 0);
+});
+
+test("median resolve time of an even count is the mean of the middle two", () => {
+  const r = run(["2026-01-06T10:00:00Z,2026-01-06T10:10:00Z,svc,A,low,a", "2026-01-06T12:00:00Z,2026-01-06T12:30:00Z,svc,A,low,b"]);
+  assert.equal(r.people[0].medianResolveMin, 20);
+});
+
+test("commit hashes with a zero digit still group as one alert", () => {
+  assert.equal(fingerprint("deploy 0a1b2c3d failed"), fingerprint("deploy 9f8e7d6c failed"));
+});
+
+test("the single-alert advice appears only when that alert is 30% or more of pages", () => {
+  const rows = [];
+  for (let i = 0; i < 10; i++) rows.push(`2026-01-06T1${i % 8}:0${i}:00Z,,svc${i},A,low,alert ${String.fromCharCode(97 + i)}`);
+  const r = run(rows);
+  assert.ok(!r.advice.some((x) => /One alert on/.test(x.text)), JSON.stringify(r.advice));
+});

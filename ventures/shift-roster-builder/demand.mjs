@@ -184,7 +184,7 @@ function pastedFiles(lines, sep, out) {
 const WHERE = ["location", "location name", "site", "site name", "store", "store name", "branch", "branch name", "venue", "venue name", "outlet", "outlet name", "restaurant", "restaurant name", "shop", "shop name", "location code"];
 function pickLocation(lines, sep, head, o, out) {
   out.locations = [];
-  const w = head.findIndex((h) => WHERE.includes(h));
+  const w = (WHERE.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   if (w < 0) {
     if (o.location) out.notes.push(`No location column found (looked for: ${WHERE.join(", ")}), so "${o.location}" could not be picked: the whole file was read.`);
     return lines;
@@ -242,9 +242,9 @@ export function readSales(text, o = {}) {
   lines = pickLocation(lines, sep, head, o, out);
   if (out.noLocation) return out;
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
-  const net = head.findIndex((h) => NET_FIRST.includes(h));
+  const net = (NET_FIRST.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const ix = { stamp: find("stamp"), day: find("day"), sales: net >= 0 ? net : find("sales"), clock: -1 };
-  const voidCol = head.findIndex((h) => VOID.includes(h)), eventCol = head.findIndex((h) => EVENT.includes(h));
+  const voidCol = (VOID.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1), eventCol = (EVENT.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   // -> "void" for a voided line, "refund" for a refund/return/cancel event row, "" for a sale.
   const unsold = (c) => voidCol >= 0 && TRUTHY.test(String(c[voidCol] ?? "").trim()) ? "void"
     : eventCol >= 0 && UNSOLD.test(String(c[eventCol] ?? "").trim()) ? (/^void/i.test(String(c[eventCol]).trim()) ? "void" : "refund") : "";
@@ -255,10 +255,10 @@ export function readSales(text, o = {}) {
   // A line-item export (one row per item sold: a French bakery's "date,time,ticket_number,article,Quantity,unit_price",
   // 234,005 lines) has no total column: sales are quantity x unit price.
   if (ix.sales < 0) {
-    const q = head.findIndex((h) => QTY.includes(h)), p = head.findIndex((h, i) => i !== q && (PRICE.includes(h) || /^unit price\b/.test(h)));
+    const q = (QTY.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1), p = head.findIndex((h, i) => i !== q && (PRICE.includes(h) || /^unit price\b/.test(h)));
     if (q >= 0 && p >= 0) { ix.qty = q; ix.price = p; ix.sales = p; out.notes.push("No sales column: each row's sales are its quantity times its unit price (a line-item export)."); }
   }
-  const tix = head.findIndex((h) => TICKET.includes(h));
+  const tix = (TICKET.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   // A labour standard (2026-11-12): o.standard = { ticket, sale, item } minutes of work per ticket, per unit of money and
   // per item sold. Each row then counts the minutes it costs, so --splh is minutes of work per labor hour (60 is a person
   // busy every minute). This is the fixed-plus-variable workload model paid workforce tools call a labour standard.
@@ -382,7 +382,7 @@ export function describeStandard(st) {
 // first row; money and items at each row's own hour. Refund lines (negative money or quantity) are counted and left out.
 function readStandard(lines, sep, head, ix, tix, dateCol, timeCol, o, out, skip) {
   const st = parseStandard(o.standard);
-  const qty = head.findIndex((h) => QTY.includes(h));
+  const qty = (QTY.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const price = head.findIndex((h, i) => i !== qty && (PRICE.includes(h) || /^unit price\b/.test(h)));
   const money = ix.qty !== undefined ? { qty: ix.qty, price: ix.price } : ix.sales >= 0 ? { col: ix.sales } : qty >= 0 && price >= 0 ? { qty, price } : null;
   if (!st.sale) out.notes = out.notes.filter((n) => !n.startsWith("No sales column: each row's sales"));

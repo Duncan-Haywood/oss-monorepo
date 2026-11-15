@@ -160,7 +160,7 @@ export function importShiftsCsv(text, opts = {}) {
     date: pick("date", fam) >= 0 ? pick("date", fam) : pick("date", ""),
     role: own("role"), who: own("who"), where: own("where"),
   };
-  const flagCols = Object.fromEntries(Object.entries(SKIP_IF_TRUE).map(([k, names]) => [k, head.findIndex((h) => names.includes(h))]));
+  const flagCols = Object.fromEntries(Object.entries(SKIP_IF_TRUE).map(([k, names]) => [k, (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1)]));
   const used = new Set([...Object.values(ix), ...Object.values(flagCols)].filter((i) => i >= 0));
   // Columns of the families not read are known, not unknown: list them apart.
   const otherFam = new Set();

@@ -272,7 +272,7 @@ export function importDeferralsCsv(booksIn, text, { method = "daily", endExclusi
   const problems = [];
   if (!rows.length) return { books, added: 0, problems: ["The file is empty."] };
   const head = rows[0].map((h) => h.trim().toLowerCase().replace(/\s*\(.*\)\s*$/, "").replace(/[_-]+/g, " "));
-  const col = (...names) => head.findIndex((h) => names.includes(h));
+  const col = (...names) => (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const c = {
     name: col("name", "description", "product", "plan", "item"),
     amount: col("amount", "total", "price", "amount paid"),
