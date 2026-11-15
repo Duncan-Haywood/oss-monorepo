@@ -1,8 +1,8 @@
 ---
 title: "Flip, don't squint: comparing two photos on a phone"
-seo_title: "How to compare two photos on a phone: flip between them, don't put them side by side"
+seo_title: "How to compare two photos on a phone: flip, don't squint"
 date: 2026-11-15
-description: "Our free photo ranker showed two landscape photos at 135 by 90 pixels each on a phone. Stacking them gives nearly five times the area, and a full-screen flip view with a shared zoom shows what side by side hides."
+description: "On a phone our photo ranker drew two landscape photos at 135 by 90 px. Stacking gives five times the area; a full-screen flip with a shared zoom shows more."
 tags: [quick-pick-survey, photo-culling, pairwise-comparison, mobile, product]
 ---
 
