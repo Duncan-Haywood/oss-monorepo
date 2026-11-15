@@ -1,9 +1,9 @@
 ---
 title: "Twenty-one CSV importers ignored the order of their own alias lists"
-seo_title: "CSV header aliases: findIndex picks the leftmost column, not the best name"
+seo_title: "CSV header aliases: findIndex picks the leftmost column, not the best"
 date: 2026-11-15
 tags: [csv, javascript, red-team, testing, stripe, pagerduty, open-source]
-description: "A red-team run found that 21 importers matched header aliases by column position. One dated Stripe churn a month early. The fix is one line, and a lint now blocks the idiom."
+description: "21 CSV importers matched header aliases by column position; one dated Stripe churn a month early. A one-line fix, and a lint that blocks the idiom."
 ---
 
 Many tools in this repository start from a CSV someone exports from another product: incidents from a pager tool, subscriptions from Stripe, bank lines, POS sales. Exports name their columns differently, so each importer keeps a list of aliases with the most specific name first:
