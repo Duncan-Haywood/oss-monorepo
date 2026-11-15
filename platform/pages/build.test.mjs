@@ -3853,6 +3853,31 @@ test('each tool entry page carries breadcrumb structured data', async () => {
   }
 });
 
+test('footer related links and the embed offer use the tool name the trail shows', async () => {
+  // Until 2026-11-15 the trail used `toolName` but the "More free tools" links
+  // and the embed iframe's title used the search `<title>`, so a link read
+  // "Wall Framing Takeoff — free, private, in your browser".
+  const { surfaces } = await site();
+  const nameOf = new Map();
+  for (const surface of surfaces) nameOf.set(surface.slug, toolName(await read(surface.slug, 'index.html'), surface.title));
+  const text = (v) => v.replace(/&(amp|lt|gt|quot|#39|#x27);/g, (_, e) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", '#x27': "'" })[e]);
+  const wrong = [];
+  let links = 0;
+  for (const surface of surfaces) {
+    const html = await read(surface.slug, 'index.html');
+    const foot = /<aside class="pf-chrome pf-chrome-foot"[\s\S]*?<\/aside>/.exec(html)?.[0] ?? '';
+    for (const [, slug, label] of foot.matchAll(/<li><a href="[^"]*" data-pf-to="([^"]+)">([^<]*)<\/a><\/li>/g)) {
+      if (!nameOf.has(slug)) continue;
+      links += 1;
+      if (text(label) !== nameOf.get(slug)) wrong.push(`${surface.slug} -> ${slug}: ${label}`);
+    }
+    const embed = /data-pf-embed-title="([^"]*)"/.exec(html)?.[1];
+    if (embed !== undefined && text(embed) !== nameOf.get(surface.slug)) wrong.push(`${surface.slug} embed: ${embed}`);
+  }
+  assert.ok(links > 0, 'fixture assumption: some footer links to other tools');
+  assert.deepEqual(wrong, []);
+});
+
 test('every tool page declares the breadcrumb trail it shows', async () => {
   // Deep guide and comparison pages used to carry no BreadcrumbList on the
   // grounds that they were not a level of the site. The header has since shown
