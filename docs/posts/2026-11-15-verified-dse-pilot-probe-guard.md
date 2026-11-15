@@ -3,7 +3,7 @@ title: "Chip design search: a spot-check the schedule already pays for beats no 
 seo_title: "A free spot-check for a chip-flow ranking beats no check, narrowly"
 date: 2026-11-15
 tags: [research, chip-design, verified-dse, open-source, eda, statistics]
-description: "On 90 replayed Yosys and OpenROAD cells, checking a ranking against the timing pilot it already routes cuts mean regret from 4.77% to 4.39%, but loses on more cells than it wins."
+description: "On 90 replayed Yosys and OpenROAD cells, checking a ranking against its own timing pilot cuts mean regret from 4.77% to 4.39%, yet loses on most cells."
 ---
 
 The [verified-dse](../../research/verified-dse/) programme searches over ABC
