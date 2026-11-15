@@ -1326,7 +1326,7 @@ class LiftParamsTest(unittest.TestCase):
         p = Feeder()
         self.assertEqual(p.check_lift_jam(), [])
         c = p.lift_jam_cutoff()
-        self.assertAlmostEqual(c["trip_a"], 3.3 * 2.4 / 102.4 / 0.05, places=6)
+        self.assertAlmostEqual(c["trip_a"], 3.3 * 33 / 133 / (0.01 * 50), places=6)   # high side: vref / (R x gain)
         self.assertLess(c["trip_lo_a"], c["trip_a"])
         self.assertLess(c["trip_a"], c["trip_hi_a"])
         self.assertGreater(c["stall_hot_a"], c["trip_hi_a"])
@@ -1363,8 +1363,10 @@ class LiftParamsTest(unittest.TestCase):
         for kw in ({"lift_duty_min": 0.7}, {"lift_slip_nm": 0.9}, {"lift_v_ref": 0}):
             self.assertEqual(Feeder(**kw).check_lift_jam() + Feeder(**kw).check_lift_slip(), [], kw)
         self.assertEqual(Feeder(lift_duty_min=0.7).lift_jam_cutoff()["trip_hi_a_full_pack"], c["trip_hi_a"])
-        # the amplifier's output stays under its 3.3 V rail at the unregulated cold stall, so it reads, not clips
-        self.assertLess(c["stall_unregulated_a"] * c["sense_v_per_a"] * (1 + Feeder().lift_sense_gain_tol), 3.3)
+        # the amplifier's output stays under its 3.3 V rail at the held duty's cold stall; with no battery reading
+        # (full duty on a full pack) it reaches the rail, which is still far over the reference, so it still trips
+        self.assertLess(c["stall_cold_a"] * c["sense_v_per_a"] * (1 + Feeder().lift_sense_gain_tol), 3.3)
+        self.assertGreater(3.3 * 0.9, 3 * c["vref_v"])
         # the tolerances widen the trip: gain error, shunt tolerance and the amplifier's offset each count
         for kw in ({"lift_sense_gain_tol": 0.0}, {"lift_shunt_tol": 0.0}, {"lift_sense_amp_offset_v": 0.0}):
             w = Feeder(**kw).lift_jam_cutoff()

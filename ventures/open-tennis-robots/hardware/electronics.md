@@ -84,7 +84,8 @@ Wiring:
 - an INA186A2 current-sense amplifier (gain 50 V/V; its inputs take -0.2 to
   40 V common mode whatever its supply, so it sits on the 29.2 V pack): `IN+`
   and `IN-` on Kelvin leads across the shunt, `VS` 3.3 V with 100 nF, `REF` to
-  ground. Its output is 0.5 V per amp, 2.75 V at the 5.5 A stall;
+  ground. Its output is 0.5 V per amp, 2.7 V at a cold stall on the held duty; at full
+  duty on a full pack (no battery reading) it saturates at the rail, which still trips;
 - 10k from the amplifier's output to an LM393's `-` input, 100 nF from that
   input to ground (1 ms: it averages the motor's current ripple and brush spikes);
 - 100k from 3.3 V to the `+` input and 33k from it to ground (0.819 V: a trip
