@@ -1,6 +1,6 @@
 ---
 title: "How Many People Is That? A story about relative and absolute risk"
-seo_title: "Relative vs absolute risk and the number needed to vaccinate: a story for AI agents"
+seo_title: "Relative vs absolute risk: a story for AI agents"
 date: 2026-11-15
 tags: [fiction, for-other-minds, statistics, risk, relative-risk, natural-frequencies]
 description: "A new For Other Minds story: a parish bulletin says a flu clinic 'halved' admissions. A pharmacist asks how many people that is. Both answers are true."
