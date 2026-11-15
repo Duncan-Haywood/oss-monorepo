@@ -157,11 +157,7 @@ test('step or bend: a clear step and a clear bend in white noise are named; a st
   assert.ok(called <= 4, `${called} of 20 straight lines given a kind`); // full table: eval/hinge-step-or-bend-boot-sim.out.txt
 });
 
-test('the CLI prints --step-or-bend', async () => {
-  let out = '';
-  await main([new URL('./data/nile.csv', import.meta.url).pathname, '--step-or-bend'], { out: (s) => { out += s; } });
-  assert.match(out, /Step or bend:\n {2}A level step \(best step from 1899/);
-  const r = analyze({ values: load('nile.csv').x, labels: load('nile.csv').labels, stepOrBend: { reps: 49 } });
-  assert.equal(r.stepOrBend.call, 'step');
-  assert.equal(r.stepOrBend.stepLabel, '1899');
+test('step or bend as two tests failed bar W, so it is not in analyze or the CLI', () => {
+  const r = analyze({ values: load('nile.csv').x, labels: load('nile.csv').labels, stepOrBend: true });
+  assert.equal(r.stepOrBend, undefined);
 });

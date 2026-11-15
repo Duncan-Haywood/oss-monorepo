@@ -168,18 +168,19 @@ flagships:
       failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697
       on the 34 non-sticky), test it on fresh labelled data; update-rate check: date
       a documented collection change. Stale feeds: clumped LR shipped; next a real
-      documented carry-forward. Next: apple's volume in several-columns mode; joint
-      drift (measured, not offered) and its 2x penalty on fresh multi-column
-      labelled data; TSSB/HAS (README): count guard failed; next a shape-repeat
-      check. Open: (0) drift model: t-walk increments, biweight on fresh data, why
-      it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks:
-      `--hinge-test` refuses 7/8 real n<100 (README "Step or bend?"): try a log
-      hinge; heavy-tailed walks, a second hinge; a real step inside a cycle, a cycle
-      check not tied to rho, real documented ramps and close steps; (2) steep-bump
-      clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH failed one
-      pre-registered line (README "Heavy tails in the GARCH search"): re-test
-      scoring breaks with false alarms, new seeds; (4) driftWarning on real shocks;
-      (5) holiday list: wanted a shop's counts or a yearly term.
+      documented carry-forward. joint drift (measured, not offered) and its 2x
+      penalty on fresh multi-column labelled data; TSSB/HAS (README): count guard
+      failed; next a shape-repeat check. Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; (1) slope breaks: `--hinge-test` refuses 7/8 real n<100: try a log
+      hinge; step/bend bootstrap tests (README "Step or bend, as two tests") fail:
+      walks called bend, use the cut guard; nulls rho low; a second hinge; a real
+      step inside a cycle, a cycle check not tied to rho, real documented ramps and
+      close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3)
+      `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the
+      GARCH search"): re-test scoring breaks with false alarms, new seeds; (4)
+      driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a
+      yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,

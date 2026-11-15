@@ -188,6 +188,9 @@ export function stepOrBend(x, rho, margin = 0.15) {
 // OLS hinge, as the hinge test reads it). pStep is how often the step null gives a T at least this large; pBend how
 // often the bend null gives one at most this large. A kind is called only when its rival is rejected and it is not:
 // call 'bend' when pStep <= level < pBend, 'step' when pBend <= level < pStep, else 'unclear'.
+// Failed two pre-registered bars (README, "Step or bend, as two tests"): on a bend of 0.08 per step in AR(1) noise with
+// rho 0.5 it called 11% of series a step (cap 8%), and its guard let most random walks through, which it then called a
+// bend (129 of 200 at n 100, 112 at n 145; cap 10%). Kept for evaluation; not in analyze, the CLI or the page.
 function fitKind(x, rho, make, margin) {
   const n = x.length, one = pw(new Float64Array(n).fill(1), rho), tt = pw(Float64Array.from({ length: n }, (_, t) => t), rho);
   const y = pw(x, rho), null0 = resid2(y, one, tt), trim = trimOf(n, margin), col = new Float64Array(n);
