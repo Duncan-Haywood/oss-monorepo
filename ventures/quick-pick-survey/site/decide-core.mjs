@@ -463,7 +463,7 @@ export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule =
   // guardScale (measured): the estimate is divided out by a bias factor before the min.
   // guardTau "plain" (measured): the guard reads the picks with every grade ignored.
   const estimate = guardTau === "switch" || guardTau === "auto" ? estimateTau(lists) : null;
-  if (guardTau === "plain" || (guardTau === "switch" && estimate < GUARD_TAU)) {
+  if (guardTau === "plain" || (guardTau === "switch" && estimate * guardScale < GUARD_TAU)) {
     const guard = decisionTable(decisionFit(nOptions, nCriteria, answers, { grades: "ignore" }), { draws });
     return { done: decisionDone(guard, answers, { rule, level }), table: guard };
   }
