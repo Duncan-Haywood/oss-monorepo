@@ -1,5 +1,10 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 26 planned: re-run the experiments milestone 25 left unchecked
+
+- **Why.** Milestone 25 checked twelve experiments under `reproduce.py --check`; m15, m16, m19, m20, m21 (the long scipy ones, ~150 min on four CPUs together) and the MuJoCo/Drake ones (m3, m3b, m6, m6b, m9) were not. The paper quotes numbers from all of them, so a drifted one would put a stale number in the submission.
+- **Plan.** Install `mujoco` and `drake` in this session, run `reproduce.py --check` on each remaining experiment in background jobs, and for any that differ, bisect the cause as milestone 25 did, refresh the results and update `paper/draft.md` and `paper/check_numbers.py`. No new hypotheses.
+
 ## 2026-11-15 · Milestone 25 result: two experiments no longer reproduced their committed numbers; both drifted from later edits to shared code, now refreshed, no verdict changed
 
 `reproduce.py` (new: one command per experiment; `--check` re-runs in a temporary copy and diffs each `results.txt`, wall-clock timings masked), `tests/test_reproduce.py` (4 tests), `experiments/m5_cycle`, `m7_cost`, `m12_remedies`, `m13_price` (results and figures re-run), `paper/draft.md` and `paper/check_numbers.py` (moved numbers updated; 194 of 194, was 190).
