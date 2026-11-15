@@ -3,7 +3,8 @@
 // until it). The two TLS modes need tlsOpts = { key, cert }.
 import net from "node:net";
 import tls from "node:tls";
-export function fakeSmtp({ user = "me@example.com", pass = "pw", token = null, rejectRcpt = null, mode = "plain", tlsOpts = null } = {}) {
+export function fakeSmtp({ user = "me@example.com", pass = "pw", token = null, rejectRcpt = null, mode = "plain", tlsOpts = null, inject = null } = {}) {
+  // inject: text written right after "220 go ahead" in the same packet, as a man in the middle would
   const log = [], delivered = [];
   const onConn = (s) => {
     let buf = "", data = null, secured = mode !== "starttls", authFail = false;
@@ -18,7 +19,7 @@ export function fakeSmtp({ user = "me@example.com", pass = "pw", token = null, r
           log.push(line); const C = line.split(" ")[0].toUpperCase();
           if (C === "EHLO") sock.write(secured ? `250-fake\r\n250 AUTH PLAIN LOGIN${token ? " XOAUTH2" : ""}\r\n` : "250-fake\r\n250 STARTTLS\r\n");
           else if (C === "STARTTLS" && !secured) {
-            sock.write("220 go ahead\r\n"); sock.removeAllListeners("data");
+            sock.write("220 go ahead\r\n" + (inject || "")); sock.removeAllListeners("data");
             secured = true; buf = ""; wire(new tls.TLSSocket(sock, { isServer: true, ...tlsOpts })); return;
           }
           else if (C === "AUTH" && !secured) sock.write("530 5.7.0 Must issue a STARTTLS command first\r\n");

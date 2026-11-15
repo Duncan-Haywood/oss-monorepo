@@ -135,7 +135,9 @@ test("an operation flag that disagrees with the reference", () => {
 test("the batch report reads a NAV file as Hungarian, not EN 16931", async () => {
   const res = await preflightDocuments([{ name: "nav.xml", source: several }, { name: "req.xml", source: request }]);
   assert.match(res.reports[0].envelope, /NAV Online Számla 3\.0 invoice data report, NORMAL/);
-  assert.deepEqual(res.reports[0].errors.map((e) => e.rule).sort(), ["HU-023", "HU-025"]);
+  // The page reports "today" as the day of reporting, so a 2021 sample also gets Annex II's late-report note.
+  assert.deepEqual(res.reports[0].errors.map((e) => e.rule).sort(), ["HU-023", "HU-025", "HU-034"]);
+  assert.equal(res.reports[0].errors.find((e) => e.rule === "HU-034").severity, "information");
   assert.match(res.reports[1].envelope, /manageInvoice request \(3 operations\)/);
 });
 

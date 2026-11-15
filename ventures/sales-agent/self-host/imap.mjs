@@ -8,20 +8,64 @@ export const servername = (h) => (/^[\d.]+$|:/.test(h) ? undefined : h);
 
 const q = (s) => `"${String(s).replace(/[\\"]/g, "\\$&").replace(/[\r\n]/g, "")}"`;
 
-/** One connection, one command at a time. Resolves { lines, literals } per tagged response. */
+// Loopback is the one place a plain-text login is allowed (a test server); everywhere else the password needs TLS.
+export const isLocal = (h) => /^(127\.|localhost$|::1$|\[::1\]$)/i.test(String(h));
+
+/**
+ * One connection, one command at a time. Resolves { lines, literals } per tagged response.
+ * secure: TLS from the first byte (993). secure=false: plain TCP (143), upgraded with STARTTLS when the server offers it
+ * (`starttls`, default on). Off loopback, a server that offers no STARTTLS, or greets with PREAUTH (already logged in, so
+ * the upgrade can never happen), is refused before any credential is sent; so is anything the server sends after its
+ * STARTTLS "OK" and before the handshake (the plaintext-injection class of bug, CVE-2011-0411 and its 2021 IMAP cousins).
+ */
 export class Imap {
-  constructor({ host, port = 993, secure = true, timeoutMs = 20000, ca }) { Object.assign(this, { host, port, secure, timeoutMs, ca }); this.buf = Buffer.alloc(0); this.n = 0; }
+  constructor({ host, port = 993, secure = true, starttls = true, timeoutMs = 20000, ca, loopbackIsSafe = true }) { Object.assign(this, { host, port, secure, starttls, timeoutMs, ca }); this.local = loopbackIsSafe && isLocal(host); // loopbackIsSafe=false: treat 127.0.0.1 as remote (tests)
+    this.buf = Buffer.alloc(0); this.n = 0; this.encrypted = !!secure; this.caps = []; }
+  wire(s) {
+    s.setTimeout(this.timeoutMs, () => s.destroy(new Error("IMAP timeout")));
+    s.on("data", (d) => { this.buf = Buffer.concat([this.buf, d]); this.pump?.(); });
+    s.on("error", (e) => this.fail?.(e)); s.on("close", () => this.fail?.(new Error("connection closed")));
+    this.sock = s;
+  }
   connect() {
     return new Promise((resolve, reject) => {
       const onErr = (e) => reject(e);
       const s = (this.secure ? tls : net).connect({ host: this.host, port: this.port, ...(this.secure ? { servername: servername(this.host), ca: this.ca } : {}) }, () => { s.off("error", onErr); });
-      s.once("error", onErr); s.setTimeout(this.timeoutMs, () => s.destroy(new Error("IMAP timeout")));
-      s.on("data", (d) => { this.buf = Buffer.concat([this.buf, d]); this.pump?.(); });
-      s.on("error", (e) => this.fail?.(e)); s.on("close", () => this.fail?.(new Error("connection closed")));
-      this.sock = s;
-      this.waitGreeting().then(resolve, reject);
+      s.once("error", onErr);
+      this.wire(s);
+      this.waitGreeting().then(async (g) => {
+        const greet = g.lines.at(-1);
+        this.preauth = /^\* PREAUTH/i.test(greet);
+        this.caps = capsOf(greet);
+        if (!this.secure) await this.upgrade();
+        return this;
+      }).then(resolve, (e) => { this.sock?.destroy(); reject(e); });
     });
   }
+  // Plain connection: STARTTLS if offered, then capabilities again (RFC 9051 6.2.1: pre-TLS ones may be forged).
+  async upgrade() {
+    const local = this.local;
+    if (this.preauth) { if (local) return; throw new Error("IMAP server greeted with PREAUTH over plain text, so STARTTLS is impossible; refusing (use port 993)"); }
+    if (!this.caps.length) this.caps = capsOf((await this.cmd("CAPABILITY")).lines.find((l) => /^\* CAPABILITY /i.test(l)) || "");
+    if (!this.starttls || !this.caps.includes("STARTTLS")) {
+      if (local) return;
+      throw new Error(this.starttls ? "IMAP server offers no STARTTLS on this port; refusing to log in over plain text (use port 993)" : "refusing plain-text IMAP to a non-local host");
+    }
+    await this.cmd("STARTTLS");
+    if (this.buf.length) throw new Error("IMAP server sent data after its STARTTLS reply and before TLS began (possible injection); refusing");
+    const raw = this.sock;
+    raw.removeAllListeners("data"); raw.removeAllListeners("close"); raw.removeAllListeners("error"); raw.setTimeout(0);
+    raw.on("error", () => {});
+    await new Promise((resolve, reject) => {
+      const t = tls.connect({ socket: raw, servername: servername(this.host), ca: this.ca }, () => { t.off("error", reject); resolve(); });
+      t.once("error", reject);
+      this.wire(t);
+    });
+    this.encrypted = true;
+    this.caps = capsOf((await this.cmd("CAPABILITY")).lines.find((l) => /^\* CAPABILITY /i.test(l)) || "");
+  }
+  // A password or token goes out only over TLS, or to loopback.
+  guard() { if (!this.encrypted && !this.local) throw new Error("refusing to send IMAP credentials without TLS"); if (this.caps.includes("LOGINDISABLED") && !this.encrypted) throw new Error("IMAP server says LOGINDISABLED (it wants TLS first)"); }
   waitGreeting() { return this.read((line) => (/^\* (OK|PREAUTH)/i.test(line) ? true : (() => { throw new Error("bad greeting: " + line); })())); }
   // Reads until `done(line)` returns true; collects literals ({n}\r\n + n bytes) attached to the preceding line.
   read(done) {
@@ -59,9 +103,10 @@ export class Imap {
     if (!new RegExp(`^${tag} OK`, "i").test(last)) throw new Error(last.replace(/^A\d+ /, "").slice(0, 200));
     return r;
   }
-  async login(user, pass) { await this.cmd(`LOGIN ${q(user)} ${q(pass)}`); }
+  async login(user, pass) { this.guard(); await this.cmd(`LOGIN ${q(user)} ${q(pass)}`); }
   // SASL XOAUTH2 (Gmail, Microsoft 365). On failure the server sends a "+ <base64 json>" challenge and waits for an empty line before the NO.
   async loginXoauth2(user, token) {
+    this.guard();
     const tag = `A${++this.n}`;
     this.sock.write(`${tag} AUTHENTICATE XOAUTH2 ${Buffer.from(`user=${user}\x01auth=Bearer ${token}\x01\x01`).toString("base64")}\r\n`);
     let r = await this.read((l) => l.startsWith("+") || l.startsWith(tag + " "));
@@ -95,6 +140,12 @@ export class Imap {
     return r.literals[0] || "";
   }
   async logout() { try { await this.cmd("LOGOUT"); } catch {} this.sock?.destroy(); }
+}
+
+// "* OK [CAPABILITY IMAP4rev1 STARTTLS ...] ready" or "* CAPABILITY IMAP4rev1 ..." -> ["IMAP4REV1", "STARTTLS", ...]
+export function capsOf(line) {
+  const m = String(line).match(/^\* (?:OK|PREAUTH) \[CAPABILITY ([^\]]*)\]/i) || String(line).match(/^\* CAPABILITY (.*)$/i);
+  return m ? m[1].trim().split(/\s+/).filter(Boolean).map((c) => c.toUpperCase()) : [];
 }
 
 // The Sent folder by its RFC 6154 \Sent attribute (Gmail's "[Gmail]/Sent Mail", Outlook's "Sent Items", a localised name),
