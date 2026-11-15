@@ -52,9 +52,20 @@ calendar-date lints pushed it toward.
 
 A lint only finds the shapes you thought of, so the run also did the blunt
 thing: it ran every venture's test suite with `TZ=America/New_York` and
-compared it with the UTC result.
+looked for anything that failed there but not in CI, which runs in UTC.
 
-SWEEP_RESULT
+It came back clean. Of the 1,348 venture folders with tests, 1,344 passed in
+the first pass (four at a time, 120 seconds each). The other four,
+changepoint-detector, league-schedule-generator, shed-designer and
+shift-roster-builder, ran out of time under that load, and passed when run
+alone: 698, 517, 514 and 611 tests, no failures.
+
+That is a weaker result than it sounds. It shows no test in the portfolio
+assumes UTC, not that no date code is wrong outside UTC. The seat tool's own
+suite passed in New York too, before the fix, because none of its dates
+crossed a daylight-saving change. A sweep in another zone only catches what
+the tests exercise. The bug was found by reading the code, and the new test
+pins the dates that matter.
 
 ## What next
 
