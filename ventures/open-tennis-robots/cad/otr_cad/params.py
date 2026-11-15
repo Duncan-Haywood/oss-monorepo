@@ -1137,17 +1137,20 @@ class Feeder:
     lift_bearing_flange_d: float = 22.0
     lift_bearing_flange_t: float = 1.5
     lift_bearing_c0_n: float = 1000.0  # its static load rating (626 class about 1 kN, assumption: read yours)
-    # The bearings' press fit in printed PETG (2026-11-15, `bearing_fit_design`; cad/README.md "Bearing fit test
+    # The bearings' press fit in printed PETG (2026-11-15, `bearing_fit_ring_design`; cad/README.md "Bearing fit test
     # ring"). A printed hole comes out smaller than drawn by an amount that depends on the printer, the slicer and the
     # hole's axis, so the drawn size is set from a test ring printed on the same machine, not from a figure here.
-    lift_bearing_bore_over: float = 0.05   # each pocket's bore drawn this far over the bearing's radius (set from the ring)
-    fit_ring_steps: tuple = (-0.03, 0.00, 0.03, 0.05, 0.08, 0.12)   # the ring's six bores, radius over, mm (the
+    lift_bearing_fit_mm: float = 0.05  # each pocket's bore drawn this far over the bearing's radius (set from the ring)
+    bearing_ring_steps: tuple = (-0.03, 0.00, 0.03, 0.05, 0.08, 0.12)   # the ring's six bores, radius over, mm (the
                                       # first is drawn under size, for a printer with hole compensation)
-    fit_ring_pitch: float = 44.0      # cell size: each bore has 22 mm of material round its centre
-    fit_hole_shrink_mm: float = 0.20  # a sideways-printed hole's diameter short of drawn (FDM, assumption: the ring finds it)
-    fit_hole_shrink_sweep: tuple = (0.0, 0.05, 0.20, 0.35)   # a tuned printer with hole compensation to an over-extruding one
+    bearing_ring_pitch: float = 44.0  # cell size: each bore has 22 mm of material round its centre
+    print_hole_under_mm: float = 0.15  # a sideways-printed hole's diameter short of drawn (FDM holes commonly print
+                                      # 0.1-0.3 mm small; assumption: the ring measures yours)
+    print_hole_under_sweep: tuple = (0.0, 0.05, 0.15, 0.25, 0.35)   # hole compensation on, to an over-extruding printer
+    petg_hoop_e_mpa: float = 2000.0   # PETG modulus round the bore (1.9-2.1 GPa moulded; the higher figure is the
+                                      # conservative one for the hoop check; petg_e_mpa is the bending modulus across layers)
     petg_nu: float = 0.38             # PETG Poisson's ratio
-    fit_mu: float = 0.3               # steel ring on printed PETG, dry (assumption)
+    petg_steel_mu: float = 0.3        # steel ring on printed PETG, dry (assumption)
     fit_hoop_allow_mpa: float = 10.0  # sustained hoop stress at a printed bore (PETG creeps; same allowance as the gear teeth)
     fit_slip_mm: float = 0.05         # diametral clearance up to which a bearing still slides in snug, not rattling
     fit_dt_k: float = 25.0            # the boot warmer than when the bearing went in (sun, the gearmotor beside it)
@@ -1661,7 +1664,7 @@ class Feeder:
         bad += self.check_lift_jam()
         bad += self.check_lift_slip()
         bad += self.check_lift_shaft()
-        bad += self.check_bearing_fit()
+        bad += self.check_bearing_fit_ring()
         bad += self.check_agitator()
         return bad
 
@@ -4294,12 +4297,12 @@ class Feeder:
         ring: a ring of raceway diameter d_r loaded outside by p closes 2 p r^2 d_r / (E_s (r^2 - (d_r/2)^2)) on the
         diameter, taken from the bearing's internal clearance. b is the cell's half-pitch unless given."""
         r = self.lift_bearing_od / 2
-        b = self.fit_ring_pitch / 2 if b is None else b
+        b = self.bearing_ring_pitch / 2 if b is None else b
         k = (b * b + r * r) / (b * b - r * r)
         c = k + self.petg_nu
         i = shrink - 2 * over
         length = self.lift_bearing_w - self.lift_bearing_flange_t
-        p = max(i, 0.0) * self.petg_e_mpa / (2 * r * c)
+        p = max(i, 0.0) * self.petg_hoop_e_mpa / (2 * r * c)
         rr = self.lift_bearing_race_d / 2
         close_um = 2 * p * r * r * rr / (200000.0 * (r * r - rr * rr)) * 2 * 1000
         if i < -self.fit_slip_mm:
@@ -4312,19 +4315,19 @@ class Feeder:
             kind = "tight"
         else:
             kind = "press"
-        return {"interference_mm": i, "pressure_mpa": p, "hoop_mpa": p * k, "press_n": self.fit_mu * p * math.pi
+        return {"interference_mm": i, "pressure_mpa": p, "hoop_mpa": p * k, "press_n": self.petg_steel_mu * p * math.pi
                 * 2 * r * length, "race_close_um": close_um, "kind": kind, "b_mm": b, "compliance": c}
 
     def bearing_fit_window(self, b: float | None = None) -> tuple[float, float]:
         """The diametral interference a printed bore can take: from what `fit_dt_k` of warming takes away (PETG
         grows about five times as fast as the steel ring) to the hoop allowance."""
         r = self.lift_bearing_od / 2
-        b = self.fit_ring_pitch / 2 if b is None else b
+        b = self.bearing_ring_pitch / 2 if b is None else b
         k = (b * b + r * r) / (b * b - r * r)
         lo = 2 * r * (self.petg_cte - self.steel_cte) * self.fit_dt_k
-        return lo, self.fit_hoop_allow_mpa * 2 * r * (k + self.petg_nu) / (self.petg_e_mpa * k)
+        return lo, self.fit_hoop_allow_mpa * 2 * r * (k + self.petg_nu) / (self.petg_hoop_e_mpa * k)
 
-    def bearing_fit_design(self) -> dict:
+    def bearing_fit_ring_design(self) -> dict:
         """The ring's six bores across the swept printers, and the boot's drawn size on the assumed one.
 
         The window (still tight when warm, to the hoop allowance) is narrower than the spread of printed-hole error across
@@ -4335,45 +4338,45 @@ class Feeder:
         The ring's cells are softer than the boot, so a bore that presses firm on the ring presses firmer in the boot
         by `boot_factor` (the ring's compliance over the boot's), and the hoop check is made on the boot."""
         lo, hi = self.bearing_fit_window()
-        steps = list(self.fit_ring_steps)
-        table = {s: [self.bearing_fit(o, s) for o in steps] for s in self.fit_hole_shrink_sweep}
+        steps = list(self.bearing_ring_steps)
+        table = {s: [self.bearing_fit(o, s) for o in steps] for s in self.print_hole_under_sweep}
         covered = {s: [o for o, f in zip(steps, rows) if f["kind"] == "press"] for s, rows in table.items()}
         boot_b = self.lift_r_sweep + self.lift_wall   # the boot's bottom wall under the pulley (measured ~90% solid to here)
         r = self.lift_bearing_od / 2
         kb = (boot_b ** 2 + r * r) / (boot_b ** 2 - r * r)
-        ring = self.bearing_fit(self.lift_bearing_bore_over, self.fit_hole_shrink_mm)
-        boot = self.bearing_fit(self.lift_bearing_bore_over, self.fit_hole_shrink_mm, b=boot_b)
+        ring = self.bearing_fit(self.lift_bearing_fit_mm, self.print_hole_under_mm)
+        boot = self.bearing_fit(self.lift_bearing_fit_mm, self.print_hole_under_mm, b=boot_b)
         gaps = [2 * (b2 - b1) for b1, b2 in zip(steps, steps[1:])]
         return {"window_mm": (lo, hi), "table": table, "covered": covered, "boot_b_mm": boot_b,
                 "boot_factor": ring["compliance"] / (kb + self.petg_nu), "ring": ring, "boot": boot,
                 "max_gap_mm": max(gaps) if gaps else 0.0}
 
     def pick_bore_over(self, results: list[str]) -> dict:
-        """The drawn size to use from the fit ring: one word per bore in `fit_ring_steps` order, each one of
+        """The drawn size to use from the fit ring: one word per bore in `bearing_ring_steps` order, each one of
         drops, slides, presses, hard (needs a hard squeeze), cracks (whitens or cracks the ring).
 
         Take the middle of the run of bores it presses into (the tighter of two middles), so the fit has a step of
         margin both ways: towards slack as the boot warms and towards creep. A ring with no "presses" falls back to
         the loosest "hard" bore that did not crack, flagged, or to nothing."""
         words = ("drops", "slides", "presses", "hard", "cracks")
-        if len(results) != len(self.fit_ring_steps) or any(w not in words for w in results):
-            raise ValueError(f"want {len(self.fit_ring_steps)} words, each one of {', '.join(words)}")
-        ok = [o for o, w in zip(self.fit_ring_steps, results) if w == "presses"]
+        if len(results) != len(self.bearing_ring_steps) or any(w not in words for w in results):
+            raise ValueError(f"want {len(self.bearing_ring_steps)} words, each one of {', '.join(words)}")
+        ok = [o for o, w in zip(self.bearing_ring_steps, results) if w == "presses"]
         if ok:
             return {"over": sorted(ok)[(len(ok) - 1) // 2], "note": f"middle of {len(ok)} bore(s) that press in"}
-        hard = [o for o, w in zip(self.fit_ring_steps, results) if w == "hard"]
+        hard = [o for o, w in zip(self.bearing_ring_steps, results) if w == "hard"]
         if hard:
             return {"over": max(hard), "note": "no bore pressed in easily: the loosest hard one; check it after a week"}
         if all(w in ("drops", "slides") for w in results):
-            return {"over": None, "note": "every bore is loose: add tighter steps (smaller fit_ring_steps) and reprint"}
+            return {"over": None, "note": "every bore is loose: add tighter steps (smaller bearing_ring_steps) and reprint"}
         return {"over": None, "note": "every bore is tight or cracked: add looser steps and reprint"}
 
-    def check_bearing_fit(self) -> list[str]:
+    def check_bearing_fit_ring(self) -> list[str]:
         bad = []
-        d = self.bearing_fit_design()
+        d = self.bearing_fit_ring_design()
         lo, hi = d["window_mm"]
-        steps = sorted(self.fit_ring_steps)
-        if len(steps) < 2 or steps != list(self.fit_ring_steps):
+        steps = sorted(self.bearing_ring_steps)
+        if len(steps) < 2 or steps != list(self.bearing_ring_steps):
             bad.append("bearing fit ring wants two or more bore steps in rising order")
         if d["max_gap_mm"] > hi - lo:
             bad.append(f"bearing fit ring's steps are {d['max_gap_mm']:.2f} mm apart on the diameter, wider than the "
@@ -4381,12 +4384,12 @@ class Feeder:
         missed = [s for s, c in d["covered"].items() if not c]
         if missed:
             bad.append(f"bearing fit ring has no bore in the press window for a printer whose holes print "
-                       f"{', '.join(f'{s:g}' for s in missed)} mm small: widen fit_ring_steps")
-        if self.fit_ring_pitch / 2 - self.lift_bearing_flange_d / 2 < 4.0:
+                       f"{', '.join(f'{s:g}' for s in missed)} mm small: widen bearing_ring_steps")
+        if self.bearing_ring_pitch / 2 - self.lift_bearing_flange_d / 2 < 4.0:
             bad.append("bearing fit ring's cells leave under 4 mm of material outside the flange's counterbore")
         if d["boot"]["kind"] != "press":
-            bad.append(f"lift bearing pockets drawn {self.lift_bearing_bore_over:g} mm over are {d['boot']['kind']} on a "
-                       f"printer whose holes print {self.fit_hole_shrink_mm:g} mm small: set lift_bearing_bore_over "
+            bad.append(f"lift bearing pockets drawn {self.lift_bearing_fit_mm:g} mm over are {d['boot']['kind']} on a "
+                       f"printer whose holes print {self.print_hole_under_mm:g} mm small: set lift_bearing_fit_mm "
                        f"from the fit ring")
         return bad
 

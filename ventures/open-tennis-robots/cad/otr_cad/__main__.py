@@ -9,7 +9,7 @@ from .params import Collector, Feeder
 def fit_ring(argv) -> int:
     """`python -m otr_cad fit-ring WORD x6 [--set NAME=VALUE]`: the lift bearing pockets' drawn size from the
     printed fit ring (cad/README.md "Bearing fit test ring")."""
-    ap = argparse.ArgumentParser(prog="otr_cad fit-ring", description="Pick lift_bearing_bore_over from the fit ring.")
+    ap = argparse.ArgumentParser(prog="otr_cad fit-ring", description="Pick lift_bearing_fit_mm from the fit ring.")
     ap.add_argument("words", nargs="+", help="one per bore in order: drops, slides, presses, hard or cracks")
     ap.add_argument("--set", action="append", default=[], metavar="NAME=VALUE")
     a = ap.parse_args(argv)
@@ -17,12 +17,12 @@ def fit_ring(argv) -> int:
     try:
         r = p.pick_bore_over(a.words)
     except ValueError as e:
-        print(f"fit-ring: {e} (bores: {', '.join(f'{o:+.2f}' for o in p.fit_ring_steps)} mm over)", file=sys.stderr)
+        print(f"fit-ring: {e} (bores: {', '.join(f'{o:+.2f}' for o in p.bearing_ring_steps)} mm over)", file=sys.stderr)
         return 2
-    print(json.dumps({"bores_mm_over": list(p.fit_ring_steps), "results": a.words, **r}, indent=2))
+    print(json.dumps({"bores_mm_over": list(p.bearing_ring_steps), "results": a.words, **r}, indent=2))
     if r["over"] is None:
         return 1
-    print(f"rebuild: python -m otr_cad feeder --set lift_bearing_bore_over={r['over']:g}", file=sys.stderr)
+    print(f"rebuild: python -m otr_cad feeder --set lift_bearing_fit_mm={r['over']:g}", file=sys.stderr)
     return 0
 
 
