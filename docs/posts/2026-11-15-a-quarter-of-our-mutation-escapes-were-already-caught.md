@@ -2,7 +2,7 @@
 title: "One in four of our mutation-test draws measured the wrong test suite"
 seo_title: "Mutation testing: measure the suite CI runs, not the nearest one"
 date: 2026-11-15
-tags: [testing, mutation-testing, ci, red-team, open-source]
+tags: [testing, mutation-testing, ci, redteam, open-source]
 description: "Our red-team tool scored usage-counter mutants against each product's own tests. CI runs a shared contract too. Same mutants: 8 of 12 caught vs 12 of 12."
 ---
 
