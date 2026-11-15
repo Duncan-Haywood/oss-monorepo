@@ -2468,7 +2468,7 @@ test('story pages sit under Stories in the header, the trail and the BreadcrumbL
   assert.match(html, /data-pfs-nav="stories" href="\.\.\/stories\/" aria-current="page"/);
   assert.doesNotMatch(html, /data-pfs-nav="tools"[^>]*aria-current/);
   assert.match(html, /<a href="\.\.\/stories\/">Stories<\/a>/);
-  assert.match(html, /<a href="\.\.\/hearth-and-horizon\/">Hearth &amp; Horizon<\/a>/);
+  assert.match(html, /<a href="\.\.\/hearth-and-horizon\/" class="pfs-mid">Hearth &amp; Horizon<\/a>/);
   const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
   assert.deepEqual(trail.itemListElement.map((c) => c.name), ['Maris Stella Labs', 'Stories', 'Hearth & Horizon', 'Aim Off']);
   assert.equal(trail.itemListElement[1].item, 'https://x.test/stories/');

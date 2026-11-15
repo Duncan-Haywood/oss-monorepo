@@ -18,6 +18,7 @@ import {
   VENTURE_CHROME_JS,
   VENTURE_CHROME_EARLY_JS,
   renderSiteHeader,
+  MID_CRUMB_CHARS,
   renderSiteStyle,
   researchChromeTemplate,
   withSiteHeader,
@@ -92,6 +93,21 @@ test('a breadcrumb names the page last, unlinked', () => {
   assert.match(html, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>/);
   assert.match(html, /<a href="\.\.\/\.\.\/c\/">Tools<\/a>/);
   assert.match(html, /<span aria-current="page">A &lt;b&gt; page<\/span>/);
+});
+
+test('a long middle crumb is marked to give way on a phone, a short one is not', () => {
+  // A 4.5em floor on "Tools" would stretch it; a category gives way so the tool's name fits (2026-11-15).
+  const long = 'x'.repeat(MID_CRUMB_CHARS + 1);
+  const html = renderSiteHeader({
+    crumbs: [{ label: 'Tools', href: 't/' }, { label: long, href: 'c/' }, { label: 'x'.repeat(MID_CRUMB_CHARS), href: 'd/' }, { label: 'Page' }],
+  });
+  assert.match(html, /<a href="t\/">Tools<\/a>/);
+  assert.match(html, new RegExp(`<a href="c/" class="pfs-mid">${long}</a>`));
+  assert.match(html, /<a href="d\/">x+<\/a>/, 'exactly the limit stays unmarked');
+  assert.doesNotMatch(html, /class="pfs-mid"[^>]*>Page/, 'the page itself is never marked');
+  const phone = SITE_HEADER_CSS.slice(SITE_HEADER_CSS.indexOf('@media (max-width:600px)'));
+  assert.match(phone, /\.pfs-crumbs>\.pfs-mid\{flex:0 100000 auto;min-width:4\.5em/);
+  assert.match(phone, /\.pfs-crumbs>\[aria-current\]\{flex:0 1 auto;min-width:0/);
 });
 
 test('a venture header opens with the exact tag rates.mjs and jobs.mjs look for', () => {
@@ -169,7 +185,8 @@ test('research topic and project pages get the breadcrumb variants of the same h
   // Home › Research › topic › project, the topic linking its own page.
   assert.match(template.project_header, /class="pfs-crumbs"/);
   assert.match(template.project_header, /href="\{\{ROOT\}\}research\/">Research<\/a>/);
-  assert.match(template.project_header, /href="\{\{ROOT\}\}research\/topics\/\{\{TOPIC_ID\}\}\/">\{\{TOPIC\}\}<\/a>/);
+  // Marked to give way on a phone though the placeholder is short: the topic names are not.
+  assert.match(template.project_header, /href="\{\{ROOT\}\}research\/topics\/\{\{TOPIC_ID\}\}\/" class="pfs-mid">\{\{TOPIC\}\}<\/a>/);
   assert.match(template.project_header, /<span aria-current="page">\{\{TITLE\}\}<\/span>/);
   assert.match(template.topic_header, /<span aria-current="page">\{\{TOPIC\}\}<\/span>/);
 });

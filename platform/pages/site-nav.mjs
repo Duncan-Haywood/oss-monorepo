@@ -115,6 +115,13 @@ const esc = (value) =>
     .replace(/"/g, '&quot;');
 
 /**
+ * A middle crumb longer than this many characters may shrink, with an ellipsis, on a phone so the
+ * page's own name fits (see `.pfs-mid` below). A shorter one ("Tools", "Research") keeps its width:
+ * a 4.5em floor on it would stretch it and leave a gap before the separator.
+ */
+export const MID_CRUMB_CHARS = 12;
+
+/**
  * The header markup.
  *
  * List-free, and form-free where it lands inside someone else's page: a
@@ -134,7 +141,8 @@ const esc = (value) =>
  *   1080px only, or nothing. Default: the form; on the hub, 'narrow', because
  *   the hub's own search box is in view on a wide screen but sits about 700px
  *   down on a phone, below the fold.
- * @param {Array<{href?: string, label: string}>} [o.crumbs] breadcrumb trail after "Home"
+ * @param {Array<{href?: string, label: string, mid?: boolean}>} [o.crumbs] breadcrumb trail after "Home"; `mid`
+ *   says whether a linked middle crumb may shrink on a phone (default: its label is over MID_CRUMB_CHARS)
  * @param {string} [o.extraClass] extra classes (the venture chrome adds its marker)
  */
 export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [], extraClass = '' } = {}) {
@@ -159,7 +167,9 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
     ? `<span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="${esc(root)}" data-pf-to="hub">Home</a>${crumbs
         .map((c, i) =>
           c.href && i < crumbs.length - 1
-            ? `<span class="pfs-sep" aria-hidden="true">›</span><a href="${esc(c.href)}">${esc(c.label)}</a>`
+            ? `<span class="pfs-sep" aria-hidden="true">›</span><a href="${esc(c.href)}"${
+                (c.mid ?? [...c.label].length > MID_CRUMB_CHARS) ? ' class="pfs-mid"' : ''
+              }>${esc(c.label)}</a>`
             : `<span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">${esc(c.label)}</span>`,
         )
         .join('')}</span>`
@@ -259,7 +269,15 @@ export const SITE_HEADER_CSS = `
   /* One line on a phone: the current page's title (often a sentence) is cut with an ellipsis instead of wrapping to three lines. */
   .pfs-crumbs{display:flex;flex-wrap:nowrap;align-items:baseline;overflow:hidden;white-space:nowrap}
   .pfs-crumbs>a,.pfs-crumbs>.pfs-sep{flex:0 0 auto}
-  .pfs-crumbs>[aria-current]{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .pfs-crumbs>[aria-current]{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  /* A long middle crumb (a tool's category, a research topic; renderSiteHeader marks it .pfs-mid) gives way before the
+     page's own name does: it shrinks first, down to about five characters, and only then is the name cut. Before
+     2026-11-15 the category kept its full width, so "Home › CI checks & developer gates ›" left a tool's name about
+     18 characters at 390px. The shrink ratio is that large because flex shares a shortfall by shrink x width: at
+     1000 to 1 the name still lost a fraction of a pixel, which is enough to show an ellipsis. */
+  .pfs-crumbs>.pfs-mid{flex:0 100000 auto;min-width:4.5em;overflow:hidden;text-overflow:ellipsis}
+  /* With a middle crumb there, "Home" goes: the brand beside it already links home, and the trail starts at the section. */
+  .pfs-crumbs:has(>a:not([data-pf-to]))>a[data-pf-to=hub],.pfs-crumbs:has(>a:not([data-pf-to]))>a[data-pf-to=hub]+.pfs-sep{display:none}
 }
 @media (max-width:1080px){
   .pfs-search{display:none}
@@ -631,7 +649,8 @@ export function researchChromeTemplate() {
   // Home › Research › <topic> › <project> on a project page. build.py fills
   // {{TOPIC_ID}}, {{TOPIC}} and {{TITLE}} with escaped text.
   const research = { href: `${root}research/`, label: 'Research' };
-  const topic = { href: `${root}research/topics/{{TOPIC_ID}}/`, label: '{{TOPIC}}' };
+  // `mid`: the placeholder is short, the topic names it stands for are not ("Proper scoring & elicitation").
+  const topic = { href: `${root}research/topics/{{TOPIC_ID}}/`, label: '{{TOPIC}}', mid: true };
   return {
     style_file: SITE_STYLE_FILE,
     header: renderSiteHeader({ toRoot: root, current: 'research' }),
