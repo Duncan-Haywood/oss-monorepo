@@ -12,6 +12,8 @@ Open `index.html` in a browser, or serve this directory with `python3 -m http.se
 
 The checker is intentionally heuristic. Read the original tender, every attachment, and every addendum. A missing phrase is not proof that a requirement is absent, and a found phrase is not proof that your business qualifies.
 
+When the text appears to waive a signal ("A bid bond is not required", "No site visit will be held"), the finding says *Stated as not required* instead of *Found*. The waiver is read in the clause that holds the keyword, so in "Bid bond and insurance are required, but a site visit is not required" only the site visit is waived; a clause that both requires and waives something counts as found, because skipping a required bond costs more than checking an optional one.
+
 ## Privacy and usage
 
 Everything runs in your browser. Tender text is never uploaded and there are no accounts, cookies, tracking pixels, or analytics vendors. The optional counter stores only aggregate feature counts in local storage, honors DNT/GPC, and is disabled with **count local usage**. No text, IP, user agent, or identifier is collected.
