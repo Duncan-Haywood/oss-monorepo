@@ -15,7 +15,8 @@
 //      fraction, 0.05, and both readings are accepted);
 //      ValorLiquidoNfse = ValorServicos - PIS - COFINS - INSS - IR - CSLL - OutrasRetencoes
 //      - ISS retained (IssRetido 1) - DescontoIncondicionado - DescontoCondicionado;
-//      deductions plus the unconditional discount no more than ValorServicos.
+//      deductions plus the unconditional discount no more than ValorServicos;
+//   4. the rate (ABR-024): Aliquota within LC 116's national 2% to 5% band (iss-rate.mjs).
 //      The ABRASF manual itself was not reachable from the build host; the formulas are as
 //      quoted from integration manuals that reproduce it (see README) and were then measured
 //      on the real files described there, which is where the tolerance rules come from.
@@ -23,6 +24,7 @@
 
 import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider, providerSameAs, providerBase, providerMulti, multiFor, rootNamespace, CITY_COUNT } from "./abrasf-xsd.mjs";
 import { checkBrazilId } from "./brazil.mjs";
+import { issRateProblem, lcSubitem } from "./iss-rate.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { UF_CODE } from "./nfe.mjs";
 import { GAPS, CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
@@ -229,6 +231,7 @@ function checkValues(root, base, out, notes) {
       const want = node === servico && node !== tot ? issCandidates(wantBase, aliq) : [...issCandidates(baseC, aliq), ...issCandidates(wantBase, aliq)];
       if (want.length && !want.some((w) => Math.abs(w - cents(iss)) <= 1)) out.push(finding("ABR-021", `ValorIss is ${iss}, but BaseCalculo ${money(node === servico && node !== tot ? wantBase : baseC)} x Aliquota ${aliq}% = ${money(want[0])}.`, "Recompute the ISS from the base and the rate (Aliquota is a percentage in layouts 2.x: 5.00 for 5%).", `${where}/ValorIss`));
     }
+    checkIssRate(root, n, parent, tot, servico, txt(tot, "Aliquota") ? totPath : p, out, notes);
     const liqTxt = tot ? txt(tot, "ValorLiquidoNfse") : txt(n, "ValorLiquidoNfse");
     if (liqTxt && Number.isFinite(cents(liqTxt))) {
       const fed = ["ValorPis", "ValorCofins", "ValorInss", "ValorIr", "ValorCsll", "OutrasRetencoes"].map((k) => amt(n, k));
@@ -238,6 +241,31 @@ function checkValues(root, base, out, notes) {
       if (Number.isFinite(want) && Math.abs(want - cents(liqTxt)) > 1) out.push(finding("ABR-022", `ValorLiquidoNfse is ${liqTxt}, but ValorServicos ${money(vServ)} - PIS/COFINS/INSS/IR/CSLL/other retentions ${money(fed.reduce((a, b) => a + b, 0))}${issRetido ? ` - ISS retained ${money(issRet)}` : ""} - DescontoIncondicionado ${money(dInc)} - DescontoCondicionado ${money(dCond)} = ${money(want)}.`, issRetido ? "The net amount deducts the retained ISS (IssRetido 1) and every federal retention." : "The net amount deducts the federal retentions and both discounts; ISS is deducted only when retained (IssRetido 1).", `${tot ? totPath : p}/ValorLiquidoNfse`));
     }
   }
+}
+
+// ABR-024: the stated Aliquota against the national band (iss-rate.mjs: LC 116/2003 art. 8,
+// 2% to 5%, with 7.02, 7.05 and 16.01 allowed below 2%). Not judged: a Simples Nacional
+// provider (its rate follows its revenue band), a special regime (1 municipal micro-company,
+// 3 professional partnership, 5 MEI, 6 ME/EPP), ISS not due here (ExigibilidadeISS other
+// than 1; 1.00 NaturezaOperacao 3-6) and a zero rate.
+function checkIssRate(root, n, parent, tot, servico, p, out, notes) {
+  const aliq = txt(tot, "Aliquota") || txt(servico, "Aliquota");
+  if (!aliq || !Number.isFinite(Number(aliq)) || Number(aliq) === 0) return;
+  const decl = declaracao(n, root);
+  const sn = txt(decl, "OptanteSimplesNacional") === "1";
+  const reg = txt(decl, "RegimeEspecialTributacao");
+  const exig = txt(parent, "ExigibilidadeISS");
+  const nat = txt(decl, "NaturezaOperacao");
+  const why = sn ? "a Simples Nacional provider" : ["1", "3", "5", "6"].includes(reg) ? `RegimeEspecialTributacao ${reg}` : exig && exig !== "1" ? `ExigibilidadeISS ${exig}` : ["3", "4", "5", "6"].includes(nat) ? `NaturezaOperacao ${nat}` : "";
+  const item = lcSubitem(txt(parent, "ItemListaServico"));
+  // The competence month (2.x Competencia; 1.00 DataEmissao), for the 2029-2032 cuts.
+  let dateNode = null;
+  for (const [m] of walk(root, "")) if (m === decl || (m.name === "InfNfse" && [...walk(m, "")].some(([x]) => x === n))) { dateNode = m; }
+  const year = Number((txt(decl, "Competencia") || txt(decl, "DataEmissao") || txt(dateNode, "Competencia") || txt(dateNode, "DataEmissao")).slice(0, 4));
+  const prob = issRateProblem({ rate: aliq, item, year });
+  if (!prob) return;
+  if (why && prob.kind === "low") { notes.add(`Aliquota ${aliq}: below the national 2% minimum, from ${why}; not judged (the band applies to the municipal rate, not this regime)`); return; }
+  out.push(finding("ABR-024", prob.message, prob.fix, `${p}/Aliquota`));
 }
 
 // ---------- entry ----------
