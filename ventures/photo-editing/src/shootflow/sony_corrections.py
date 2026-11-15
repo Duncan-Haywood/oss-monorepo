@@ -56,7 +56,7 @@ class SonyCorrections:
     def ca_factors(self, rho: float) -> tuple[float, float]:
         """Red and blue source radius over green's at ``rho``."""
 
-        if not self.ca_red:
+        if not self.ca_red or not self.ca_blue:
             return 1.0, 1.0
         return 1.0 + _interp(self.ca_red, rho) * CA_SCALE, 1.0 + _interp(self.ca_blue, rho) * CA_SCALE
 
