@@ -57,6 +57,11 @@ in full" means the name's `scrollWidth` is not more than its `clientWidth`.
 pages, no dead links." Screenshot: `docs/reports/img/polish-crumb-gives-way-390.png` (two tools
 before and after at 390 px).
 
+Research project pages (1,080 with a topic crumb, same method, 390 px, pf-site.css before and
+after): the trail ran past the screen edge on 183, now 0; median characters of the project title
+visible 7 (10th percentile 0) before, 33 (10th percentile 31) after. Titles are questions, so most
+are still cut (1,078), but a reader now sees the start of the question instead of "Wh…" or nothing.
+
 The 60 names still cut at 390 px are long declared names ("ADA Title II Website Accessibility
 Evidence Report", "BAI2 to OFX, QBO, QIF and Xero CSV Converter"); they now show about 30
 characters instead of about 10.
@@ -70,5 +75,6 @@ characters instead of about 10.
    `VENTURE_CHROME_CSS` plus a check in `platform/pages/` would close it.
 2. Carried over: the podcast row has no edge fade; a sweep check for crushed controls in nowrap
    rows; Tools and projects is still about half the blog.
-3. The research page check in this run was by screenshot of one page; a sweep like the tool one
-   over `research/*/index.html` would give the same numbers for project titles.
+3. Research project titles are still cut on a phone (they are sentences, 33 characters show).
+   Hiding the topic crumb there too, or letting the title wrap to a second line on project pages,
+   is the next step; it needs a look at how much height a second line costs above the fold.
