@@ -62,3 +62,26 @@ def test_simulate_runs_when_jupedsim_present():
     r = S.simulate(20, 3.6, 16.0, 1.0, 0.35, 1, duration=40, warmup=15)
     assert r["failed"] == 0 and r["walkers"] > 0
     assert 0.5 < r["speed"] < 2.0
+
+
+def test_radius_sets_lateral_clip():
+    pos = np.array([[5.0, 0.1]])
+    _, ty = S.steer_targets(pos, np.array([1.0]), np.array([np.nan]), 0.0, 4.0, 16.0, radius=0.2)
+    assert ty[0] == pytest.approx(0.25)
+    _, ty = S.steer_targets(pos, np.array([1.0]), np.array([np.nan]), 0.0, 4.0, 16.0)
+    assert ty[0] == pytest.approx(S.RADIUS + 0.05)
+
+
+def test_unknown_model_rejected():
+    pytest.importorskip("jupedsim")
+    with pytest.raises(ValueError):
+        S.simulate(10, 3.6, 16.0, 1.2, 0.0, 1, model="orca", duration=1.0, warmup=0.0)
+
+
+def test_avm_runs_with_and_without_exit_goals():
+    pytest.importorskip("jupedsim")
+    for goals, e in ((False, 0.25), (True, 0.1), (True, 0.4)):
+        r = S.simulate(30, 3.6, 16.0, 1.2, 0.1, 3, goals=goals, exit_frac=e, model="avm",
+                       duration=40.0, warmup=10.0)
+        assert r["failed"] == 0 and r["walkers"] > 0
+        assert 0.0 <= r["share"] <= 1.0 and len(r["flags"]) == r["walkers"]

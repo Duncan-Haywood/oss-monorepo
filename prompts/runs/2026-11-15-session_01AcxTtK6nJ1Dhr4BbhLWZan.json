@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtK6nJ1Dhr4BbhLWZan",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T07:06:54Z",
+  "ended": "2026-11-15T07:52:45Z",
+  "wall_minutes": 46.18,
+  "tokens_in": 6321310,
+  "tokens_out": 42222,
+  "cost_usd": 3.1903,
+  "tool_calls": 56,
+  "task": "research programme society-lanes, milestone 4a: exit-position sensitivity of the milestone 3 social-force held-out result, and JuPedSim's AnticipationVelocityModel as a second model family",
+  "projects": [
+    "research/society-lanes"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16133",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First AVM runs crashed: a new walker entered next to one marked for removal (JuPedSim keeps it until the next step) and AVM checks contact on add_agent; fixed by treating a refused entry as no room yet, which left social-force runs bit-identical (E1)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says plain python3 may lack packages and to use pyenv.py; pyenv installed jupedsim into /usr/bin/python3.13, which then lacked playwright for the figure screenshot, so node's global playwright was used instead. A line saying 'for screenshots use node with NODE_PATH=$(npm root -g)' would save a try."
+    },
+    {
+      "file": "research/society-lanes/LOG.md",
+      "issue": "Milestone 3 gave about 35 min for ~1,400 runs; this step's ~3,000 runs also took about 35 min on 4 cores, because runtime is set by walker count (high-N social force, deadlocked AVM runs at 17 s each), not by run count. A per-N cost line in the script docstrings would make budgets predictable."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/society-lanes/PROPOSAL.md",
+      "why": "Milestone 4 names ORCA and the power law; this step added JuPedSim's anticipation velocity model first (named in milestone 3's next steps) because it runs on the same industrial-grade simulator with no new dependency, and split the milestone into 4a/4b to keep one step per PR.",
+      "did": "4a: exit sensitivity plus AVM; ORCA and power law left for 4b, recorded in LOG/README/PROPOSAL.",
+      "result": "Landed a complete, pre-registered result; ORCA/power law still open."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-two-crowd-models-keep-right-when-people-stop.md",
+    "research/society-lanes/LOG.md (milestone 4a entry)"
+  ],
+  "goal": "advance an open research programme by one pre-registered step",
+  "notes": "Predictions E1-E3, A1-A7 committed (aa213fc9b's parent, first push) before the full run, with a disclosed 16-run AVM probe. Results: E1 held (rerun identical), E2 held, E3 held 13/14 (wall exits lower SF held-out share 0.781 -> 0.678 vs observed 0.541). AVM: A1 held on the line (seed sd 0.3003 vs 0.30), A2-A7 refuted; fitted beta 0.35, held-out HERMES 0.996 vs 0.541. Local checks: society-lanes tests 22 passed (/usr/bin/python3.13 with jupedsim 1.4.2), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, check_post_frontmatter ok, check_post_links ok, cite_check all ok (Xu et al. 2021 DOI verified). No agent doc in docs/reports: the LOG.md entry carries the handoff (next step 4b) for the next run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c23b4c93-bf3b-5c9d-886e-76645e76c304",
+    "transcripts": 1,
+    "first": "2026-11-15T07:06:54Z",
+    "last": "2026-11-15T07:53:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 99,
+        "output": 42222,
+        "thinking": 8433,
+        "cache_read": 6182587,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138624,
+        "api_equivalent_usd": 3.1903,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 99,
+      "output": 42222,
+      "thinking": 8433,
+      "cache_read": 6182587,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138624,
+      "api_equivalent_usd": 3.1903,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 51,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 46.18,
+      "active_minutes": 46.18,
+      "model_minutes": 7.69,
+      "tool_minutes": 38.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "researcher: read AVM source, adapt twin, design/pre-register, run ~3k sims, analyse, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 501.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
