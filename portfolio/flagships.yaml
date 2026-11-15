@@ -240,7 +240,7 @@ flagships:
       together (README "Moving two shifts together": 20-person week exposure 113 to
       68 h for $35.27); second call-outs priced, off by default (README "The pair
       price in played weeks": fewer open hours on 3 of 4 weeks); order-free pair
-      check opt-in (README "An order-free pair check"): next play its rosters; a
+      check played: no gain, stays opt-in (README "The order-free pass played"); a
       real two-site export and staff list (README "Staff shared between sites"); own
       and site rates read from staff CSVs and 7shifts (README "Per-location pay from
       an export"); next a real wages export, real trip times; whether the priced
