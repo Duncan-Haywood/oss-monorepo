@@ -224,7 +224,7 @@ CHECKS = [
     (M7, "7.03 [ 4.52, 11.03]", "| G1 on a lift base | 54.43 [33.04, 93.51] | 7.03 [4.52, 11.03] |"),
     (M7, "h1 151.73 [ 98.02, 245.83]", "| walking H1 | 151.73 [98.02, 245.83] | 17.23 [11.48, 26.77] | 4.02 [2.34, 6.45] |"),
     (M7, "gantry 99.24 [ 27.59, 337.09]", "| gantry (plant) | 99.24 [27.59, 337.09] | 10.51 [3.33, 34.17] | 1.78 [0.63, 4.57] |"),
-    (M7, "worst over volume and forced policy = 1.0000", "beats a walking H1 in every draw"),
+    (M7, "worst over volume and forced policy = 1.0000", "costs less than the walking H1 in every draw"),
     (M7, "10: +43.67, 30: +13.78, 100: +3.36, 300: +0.51", "(+$43.67 a sheet)"),
     (M7, "with the median below zero: 501", "from about 501 houses a year"),
     (M7, "0.622 of draws cross inside 10-1000; of those 5/50/95% at 10 / 54 / 794 houses", "62% of draws cross\ninside 10–1,000 houses, at a median of 54"),
