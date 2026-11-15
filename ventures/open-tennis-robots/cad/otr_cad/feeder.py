@@ -2006,12 +2006,13 @@ def lift_tensioner_parts(p: Feeder) -> list[Part]:
     screw = (Cylinder(4.0, k).moved(Location((0, 0, k / 2)))
              + Cylinder(2.5, shank_top - zc - k).moved(Location((0, 0, k + (shank_top - zc - k) / 2))))
     t = p.lift_tension_design()
+    pl = p.lift_pluck_design()
     return [Part("lift_jack_screw", "cots", "", 2, screw,
                  [Location((p.lift_x_pulley, p.lift_y + s * p.lift_jack_y, zc)) for s in (1, -1)],
                  spec="M5 x 25 hex bolt + M5 nut (captive in the head) + M5 jam nut: the top pulley's jack screws",
                  notes=f"Stand on the top rod clip; turning them out raises the head. Set {t['t0_n']:.0f} N at the drive "
-                       f"pulley: a strand plucked at mid-height swings about {t['ring_hz']:.1f} times a second, or a 1 N push "
-                       f"there moves it about {t['push_1n_mm']:.0f} mm. Then tighten the four side M5s and lock each jack "
+                       f"pulley, belt stopped and empty: a plucked strand swings about {pl['pluck_hz']:.1f} times a second, or a 1 N push at mid-height "
+                       f"moves it about {t['push_1n_mm']:.0f} mm. Then tighten the four side M5s and lock each jack "
                        f"with its jam nut up against the head.")]
 
 
@@ -2405,8 +2406,8 @@ def lift_line(p: Feeder) -> str:
 def _tension_text(p: Feeder) -> str:
     t = p.lift_tension_design()
     return (f"two jack screws raise the head {t['travel_mm']:.1f} mm on the spine to tension the belt to {t['t0_n']:.0f} N "
-            f"at the drive pulley (slack strand {t['slack_n']:.1f} N; a strand plucked at mid-height swings "
-            f"{t['ring_hz']:.1f} times a second)")
+            f"at the drive pulley (slack strand {t['slack_n']:.1f} N; stopped and empty, a plucked strand swings "
+            f"{p.lift_pluck_design()['pluck_hz']:.1f} times a second, flights' mass included)")
 
 
 def lift_jam_line(p: Feeder) -> str:
