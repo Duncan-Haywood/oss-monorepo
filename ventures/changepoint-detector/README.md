@@ -4260,6 +4260,51 @@ and might admit them; each needs its own size check on fresh seeds. A step-or-be
 when one RSS is clearly smaller, else "can't tell") is the obvious repair to the check; it needs fresh seeds too.
 Test: `hinge-test.test.mjs` ("step or bend").
 
+### Step or bend, as two tests (2026-11-15, last; pre-registered on fresh seeds; fails two bars, not offered)
+
+The RSS check above names whichever kind fits better even when the two fit equally, and that is where it failed. Its
+named repair was a rule that can say "can't tell". `stepOrBendTest(x)` in `hinge-test.mjs` does that with two tests:
+T = log(step RSS / bend RSS), and each kind in turn is the null, drawn from its best OLS fit plus AR(1) noise and
+rerun through the whole procedure 199 times. A kind is named only when its rival is rejected at 0.05 and it is not;
+otherwise "unclear". Guard: refused under 30 points, or when both fits' residuals have bias-corrected rho above 0.9
+(0.7 under 100). The bars were written down and committed before the fresh run
+(`eval/hinge-step-or-bend-boot-prereg-2026-11-15.md`), after one look at the old check's seeds, which showed why
+the bars are over **all** series and not only those the hinge test rejects: there, 9 of 28 and 10 of 41 sticky steps
+were called bends. The hinge test fires on a sticky step mainly when the noise happens to bend it, and no check on the
+same data can undo that selection. `node eval/hinge-step-or-bend-boot-sim.mjs 200 199` (seeds from 62,000,000,
+`eval/hinge-step-or-bend-boot-sim.out.txt`, about 45 min on 4 cores) and `node eval/hinge-step-or-bend-boot-real.mjs`
+(`eval/hinge-step-or-bend-boot-real.out.txt`, 999 replicates).
+
+| cell (200 series) | step | bend | unclear | bar |
+|---|---|---|---|---|
+| step 2, n 100, rho 0.5 | 68 | 9 (4.5%) | 123 | W holds |
+| step 3, n 100, rho 0.5 | 134 | 6 (3.0%) | 60 | W holds |
+| step 2, n 145, rho 0.5 | 86 | 10 (5.0%) | 104 | W holds |
+| step 2, n 100, rho 0 | 178 (89%) | 0 | 22 | W, U hold |
+| bend 0.08, n 100, rho 0.5 | **22 (11.0%)** | 52 | 126 | **W fails** (cap 8%) |
+| bend 0.08, n 100, rho 0 | 11 (5.5%) | 149 (74.5%) | 40 | W, U hold |
+| no change, n 100 rho 0 / n 100 rho 0.5 / n 145 rho 0.5 | 13 / 16 / 11 | 8 / 10 / 13 | 179 / 174 / 176 | N holds (all <= 8%) |
+| random walk with drift, n 100 (195 tested) | 5 | **129** | 61 | **RW fails** (cap 10% of all) |
+| random walk with drift, n 145 (162 tested) | 3 | **112** | 47 | **RW fails** |
+| reported: step 1 / bend 0.04 n 100 / bend 0.04 n 145, all rho 0.5 | 17 / 13 / 14 | 8 / 21 / 41 | 175 / 166 / 145 | |
+
+**Bar R holds:** the Nile is called `step` (after 1898, size -284;
+pStep 0.52, pBend 0.014), and GCAG 1880, GISTEMP and GCAG 1850 are called `bend` at 1976 (pStep 0.001, pBend 0.69 to
+0.76). Not predicted: GCAG 1930-2024 `bend` at 1974; Canada fertility (a rise and fall) rejects both kinds, so
+`unclear`; Lake Huron `unclear`; five short sticky series refused.
+
+**Verdict: two bars fail, so it is not offered** (it was wired into the CLI as `--step-or-bend` while the run went;
+that wiring was removed before merge). It is honest where its guard is: with white noise it names a clear step 89%
+of the time and a clear bend 75%, with wrong calls at or under 5.5%, and with no change it names a kind in 10.5-13% of
+series. Two things break it. (1) **The guard.** Read off the fitted step's and bend's residuals, it admits nearly every
+random walk at n 100 (where the limit is 0.9), and a walk's wander fits a bend far better than a step. On the same walks the
+hinge test, behind its rho-cut guard, rejected only 14 and 6: the next round should reuse that guard. (2) **Sticky bends.** Post hoc,
+on the development seeds: with true rho 0.5 the fitted bend's residuals give a bias-corrected rho of about 0.44 (the
+knot search soaks up stickiness), so the bend null's noise is too smooth and it rejects a real bend too often. A
+bootstrap bias correction of rho (fit, simulate, refit, shift by the mean bias) is the obvious repair; it needs fresh
+seeds. `stepOrBendTest` is exported for evaluation. Test: `hinge-test.test.mjs` ("step or bend as two bootstrap
+tests").
+
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
 The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a

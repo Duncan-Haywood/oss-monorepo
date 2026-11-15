@@ -1,0 +1,15 @@
+Bar R
+Nile (1871-1970, n 100): step (pStep 0.516, pBend 0.014; log(step RSS / bend RSS) -0.103; rho 0.24; best step after 1898, size -284; best bend at 1913) | predicted: step
+GCAG (1880-2024, n 145): bend (pStep 0.001, pBend 0.736; log(step RSS / bend RSS) 0.151; rho 0.49; best step after 2000, size 0.383; best bend at 1976) | predicted: not step
+GISTEMP (1880-2024, n 145): bend (pStep 0.001, pBend 0.757; log(step RSS / bend RSS) 0.199; rho 0.52; best step after 2000, size 0.407; best bend at 1976) | predicted: not step
+GCAG (1850-2024, n 175): bend (pStep 0.001, pBend 0.691; log(step RSS / bend RSS) 0.164; rho 0.56; best step after 1996, size 0.454; best bend at 1976) | predicted: not step
+
+Reported, no prediction
+GCAG (1930-2024, n 95): bend (pStep 0.002, pBend 0.293; log(step RSS / bend RSS) 0.223; rho 0.31; best step after 1953, size -0.420; best bend at 1974) | predicted: none
+Australian gas, annual totals (1956-1994, n 39): REFUSED (the residuals about the best step and the best bend have lag-1 autocorrelation 0.73 and 0.83 (bias-corrected), both above 0.7: the series wanders too much to call it either) | predicted: none
+US electricity, annual totals (1973-2012, n 40): REFUSED (the residuals about the best step and the best bend have lag-1 autocorrelation 0.71 and 0.72 (bias-corrected), both above 0.7: the series wanders too much to call it either) | predicted: none
+US female murder rate (1950-2004, n 55): REFUSED (the residuals about the best step and the best bend have lag-1 autocorrelation 0.77 and 0.80 (bias-corrected), both above 0.7: the series wanders too much to call it either) | predicted: none
+Lake Huron (1875-1972, n 98): unclear (pStep 0.085, pBend 0.566; log(step RSS / bend RSS) -0.014; rho 0.71; best step after 1950, size 1.64; best bend at 1934) | predicted: none
+Canada fertility (1931-1968, n 38): unclear (pStep 0.001, pBend 0.039; log(step RSS / bend RSS) 0.763; rho 0.69; best step after 1945, size 618; best bend at 1962) | predicted: none
+Michigan-Huron (1918-2009, n 92): REFUSED (the residuals about the best step and the best bend have lag-1 autocorrelation 0.78 and 0.80 (bias-corrected), both above 0.7: the series wanders too much to call it either) | predicted: none
+CO2 annual means (1959-2025, n 67): REFUSED (the residuals about the best step and the best bend have lag-1 autocorrelation 0.84 and 0.92 (bias-corrected), both above 0.7: the series wanders too much to call it either) | predicted: none
