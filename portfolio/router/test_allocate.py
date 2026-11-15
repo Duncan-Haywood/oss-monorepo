@@ -711,9 +711,6 @@ class ReexecTests(unittest.TestCase):
             ex.assert_not_called()
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class FlagshipTests(unittest.TestCase):
     def flag(self, name, rank_, next_="Build the thing."):
@@ -1057,3 +1054,18 @@ class RequestsLineTest(unittest.TestCase):
     def test_missing_or_empty_file_prints_nothing(self):
         self.assertEqual(requests_line(self.queue, Path("/nonexistent/requests.json")), "")
         self.assertEqual(requests_line(self.queue, self.write([])), "")
+
+
+class PostLimitsLineTests(unittest.TestCase):
+    def test_line_carries_the_checker_caps(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+        import check_post_frontmatter as cpf
+        from allocate import post_limits_line
+        line = post_limits_line()
+        self.assertTrue(line.startswith("post front matter:"))
+        self.assertIn(f"seo_title <= {cpf.LIMITS['seo_title']}", line)
+
+
+if __name__ == "__main__":
+    unittest.main()

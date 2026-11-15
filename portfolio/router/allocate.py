@@ -1129,6 +1129,19 @@ def print_table(ventures: list[Venture], queue: list[dict],
         )
 
 
+def post_limits_line() -> str:
+    """The blog post front-matter caps, printed under the brief: most venture PRs
+    carry a post, and runs met the 160-character description cap only when CI or
+    the pre-push hook refused a first draft (friction_rank.py --live, 16 sessions
+    on 2026-11-12..15)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+    try:
+        from check_post_frontmatter import limits_line
+    except ImportError:  # a sparse checkout without platform/ci
+        return "post front matter: python3 platform/ci/check_post_frontmatter.py --limits"
+    return "post " + limits_line()
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="emit the work queue as JSON instead of a table")
@@ -1169,6 +1182,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
             return 1
         print(report)
+        print(post_limits_line())
         return 0
 
     queue = work_queue(ventures)
@@ -1187,6 +1201,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         if claims is None and not args.no_claims:
             print("(open PRs not read: `gh api` search failed; search PR titles before taking a row)")
         print_table(ventures, queue, recent=recent, claims=claims)
+        print(post_limits_line())
     return 0
 
 
