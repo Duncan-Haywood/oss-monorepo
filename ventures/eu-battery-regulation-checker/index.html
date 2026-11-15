@@ -68,7 +68,8 @@
       <div><label for="epr">You are registered as a producer in each EU country you sell into, with an authorised representative where you sell from abroad</label><select id="epr"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="label">The general information label (manufacturer, type, date, capacity, hazard and collection symbol) is on the battery</label><select id="label"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="removable">The battery can be removed and replaced as the Regulation requires</label><select id="removable"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
-      <div><label for="passport">A QR code and digital battery passport are set up</label><select id="passport"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="qr">A QR code is printed or engraved on the battery</label><select id="qr"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="passport">A digital battery passport is set up</label><select id="passport"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="diligence">A supply-chain due-diligence policy is in place and verified</label><select id="diligence"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="recycled">Recycled-content documentation is ready</label><select id="recycled"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="carbon">A carbon-footprint declaration and performance class are ready</label><select id="carbon"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
@@ -132,7 +133,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
-    const map = { category: "category", role: "role", location: "location", sellsEu: "sellsEu", euOperator: "euOperator", sme: "sme", today: "today", substances: "substances", conformity: "conformity", epr: "epr", label: "label", removable: "removable", passport: "passport", diligence: "diligence", recycled: "recycled", carbon: "carbon" };
+    const map = { category: "category", role: "role", location: "location", sellsEu: "sellsEu", euOperator: "euOperator", sme: "sme", today: "today", substances: "substances", conformity: "conformity", epr: "epr", label: "label", removable: "removable", qr: "qr", passport: "passport", diligence: "diligence", recycled: "recycled", carbon: "carbon" };
     const DEFAULTS = { sellsEu: "yes", euOperator: "unsure", sme: "yes" };
     const IDLE = "Choose the battery, your role and where you are established, then click Check my battery.";
     const RP = { self: "You can carry the operator's duties", covered: "Covered by an EU operator", check: "Check who is named", gap: "Gap: no EU operator", unknown: "Not confirmed" };

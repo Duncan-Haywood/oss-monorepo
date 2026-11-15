@@ -25,10 +25,10 @@ test("an e-bike battery gets passport, QR, removability and label; not recycled 
   assert.ok(!ids(r).includes("recycled"));
 });
 
-test("a portable battery gets no passport and no QR", () => {
+test("a portable battery gets no passport but does get the QR code (Art 13(6) covers all batteries)", () => {
   const r = run({ category: "portable", role: "manufacturer", location: "eu" });
   assert.ok(!ids(r).includes("passport"));
-  assert.ok(!ids(r).includes("qr"));
+  assert.equal(r.timeline.find((t) => t.id === "qr")?.from, "2027-02-18");
   assert.ok(ids(r).includes("removable"));
 });
 
@@ -91,4 +91,10 @@ test("sample runs and flags overdue duties as high", () => {
   const r = run({});
   assert.ok(r.overdue.length > 0);
   assert.equal(r.findings[0].severity, "high");
+});
+
+test("the QR code has its own done mark, separate from the passport", () => {
+  const r = run({ category: "ev", role: "manufacturer", location: "eu", passport: "1" });
+  assert.equal(r.timeline.find((t) => t.id === "passport").done, true);
+  assert.equal(r.timeline.find((t) => t.id === "qr").done, false);
 });
