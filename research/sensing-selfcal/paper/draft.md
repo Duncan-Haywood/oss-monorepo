@@ -358,6 +358,16 @@ share of it into f. The Kinect's target-free f stays +1.60% above TUM's with k<s
 Zhang on the same corners falls to +0.09% once k<sub>2</sub> and k<sub>3</sub> are fitted, so the remaining bias
 belongs to the free board points, not to the lens order.
 
+**Fitting the lens, then waiting (milestone 4o, pre-registered).** With the k<sub>1</sub> + k<sub>2</sub> twin, milestone
+4l's ranking and milestone 4m's waiting rule were re-run on the stored solves (7 + 6 and 6 + 6; same draws).
+On the Kinect the twin's predicted power now matches the real ±2% rate (mean π over real 0.995, against
+1.34 with k<sub>1</sub>), it ranks splits slightly better (AUC 0.775 against 0.749), and the top quarter it
+rates highest catches 38.9% (k<sub>1</sub>: 20.3%). With the old set held fixed, its pick among 7 candidate new
+sets catches ±2% in 15.2% of old sets on the TUM units against 11.3% blind (×1.35), so the two gains multiply:
+on the Kinect, 6.2% blind with k<sub>1</sub> becomes 17.9% chosen with k<sub>1</sub> + k<sub>2</sub>, at 0.59% false
+alarms. On the Xtion the twin still overstates its power 1.96×, so an unmodelled lens term is one source of
+the twin's optimism, not the only one.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -414,7 +424,7 @@ were found after a pre-registered prediction failed and are labelled so in the l
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
   Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set
   held fixed it gains ×1.33–1.63 on the TUM cameras (milestone 4m); fitting k<sub>2</sub> on the Kinect
-  doubles its power at 7 + 6 (milestone 4n), so the other designs and the waiting rule should be re-run with it; still needed: a stopping rule over
+  doubles its power at 7 + 6 (milestone 4n), and waiting multiplies with it (milestone 4o: 6.2% to 17.9% on the Kinect); still needed: a stopping rule over
   a longer stream of views (more than 13 per unit), and a twin that models the right camera's extra spread (a per-view offset
   term fitted to the unit's own jackknife) to bring that camera up to 1%.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:

@@ -10,8 +10,19 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (226 of 226,
-revised with milestones 4e–4n) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (239 of 239,
+revised with milestones 4e–4o) and a list of what a submission still needs.
+
+**Milestone 4o headline** (with the Kinect's lens fitted as k1 + k2, does the twin still choose good
+updates, and do the gains add up? no new solve): **they multiply.** Fitting k2 and then testing the new
+6-view set the unit's twin rates highest, with the old calibration held fixed, catches a 2% focal change in
+17.9% of old sets on TUM's Kinect, against 6.2% for a blind pick with k1 alone (×2.86), at 0.59% false
+alarms. The twin's predicted power, 1.34× too optimistic on the Kinect with k1, now matches the real rate
+(0.995×), and testing only the quarter of 7 + 6 updates it rates highest catches 38.9% there. All six
+pre-registered predictions (H86–H91) held. On the Xtion the twin still overstates its power 1.96×, so the
+lens order explains the Kinect's gap but not every gap.
+
+![share of old 6-view sets where a 2% focal change is caught, blind pick, twin's pick and best possible, for TUM's Kinect and Xtion with k1 and with k1 + k2](experiments/m4o_k2wait/k2wait.png)
 
 **Milestone 4n headline** (does fitting the Kinect's lens with k1 + k2 instead of k1 alone change the
 update test? 9,440 new solves): **yes, it doubles the test's power on that camera.** A 2% focal change from
@@ -858,6 +869,8 @@ python3 experiments/m4m_wait/analyse.py --rig tum           # ~15 min; rig_tum.n
 python3 experiments/m4m_wait/score.py                       # seconds; summary.json, wait.png (H77-H81)
 OMP_NUM_THREADS=1 python3 experiments/m4n_k2/run.py         # milestone 4n: ~2 h on 4 cores; results.json.gz (k1 + k2)
 python3 experiments/m4n_k2/analyse.py                      # ~4 min; summary.json, k2.png (H82-H85)
+python3 experiments/m4o_k2wait/analyse.py                  # milestone 4o: ~3 min; rig_k1/k2.npz (k1 and k1 + k2 twins)
+python3 experiments/m4o_k2wait/score.py                    # under a minute; summary.json, k2wait.png (H86-H91)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
