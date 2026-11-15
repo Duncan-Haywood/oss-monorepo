@@ -16,7 +16,8 @@ sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 M, B, STEPS, LR, DIM, HEADS, OMEGA = 4, 16, 3840, 2e-3, 192, 6, 7.0
 PATH = os.path.join(HERE, "noise_6v.jsonl")
 # iso first at both H, then shaped, so a cut-short run still scores H6v-i and ii
-JOBS = [(kind, H, s) for kind in ("iso", "shaped") for s in range(4) for H in (64, 16)]
+JOBS = [("none", 64, 0)] + [(kind, H, s) for kind in ("iso", "shaped") for s in range(4) for H in (64, 16)]
+# ("none", 64, 0) reruns one uncompressed baseline: its loss must equal scale.jsonl's, a check on this torch build
 
 
 def run(job):
@@ -31,7 +32,7 @@ def run(job):
     outer = lambda p: torch.optim.SGD(p, lr=1.0)
     t0 = time.time()
     d = DiLoCo(model, lambda m, rng: m(*data.batch("train", B, rng)), workers=M, H=H, inner=inner, outer=outer, seed=seed,
-               compress=gauss_noise(OMEGA, shaped=kind == "shaped"))
+               compress=None if kind == "none" else gauss_noise(OMEGA, shaped=kind == "shaped"))
     for _ in range(STEPS // H):
         d.round()
     model.eval()
@@ -54,6 +55,9 @@ def report():
     rows = [json.loads(l) for l in open(PATH)] if os.path.exists(PATH) else []
     got = {(r["kind"], r["H"], r["seed"]): r["loss"] for r in rows}
     print("runs:", len(rows), " torch:", sorted({r["torch"] for r in rows}), " mean secs:", round(sum(r["secs"] for r in rows) / max(1, len(rows))))
+    if ("none", 64, 0) in got:
+        print(f"build check, uncompressed H 64 seed 0: {got[('none', 64, 0)]:.5f} vs scale.jsonl {ref[(1.0, 64, 0)]:.5f} "
+              f"(diff {got[('none', 64, 0)] - ref[(1.0, 64, 0)]:+.6f})")
     ex, vs = {}, {}
     for kind in ("randk", "iso", "shaped"):
         for H in (16, 64):
