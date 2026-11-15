@@ -295,6 +295,24 @@ def census(audits: list[dict], pop: dict[str, list[str]], n: int, seed: str) -> 
     return [{"stratum": st, "subject": s, "last_audited": last.get(s)} for st, s in pool[:n]]
 
 
+def census_free(audits: list[dict], pop: dict[str, list[str]], n: int, seed: str,
+                prs: list[tuple[int, str]]) -> tuple[list[dict], list[tuple[str, list[tuple[int, str]]]]]:
+    """census(), passing over subjects an open PR title already names, so a second session on the
+    same day does not audit what the first is auditing: census had no claim check, unlike sample and
+    queue (run-record doc_friction on quality_audit.py, 2026-11-15T07:08). Returns (picks, skipped)."""
+    ranked = census(audits, pop, sum(len(v) for v in pop.values()), seed)
+    picks, skipped = [], []
+    for p in ranked:
+        if len(picks) >= n:
+            break
+        naming = prs_naming(p["subject"], prs)
+        if naming:
+            skipped.append((p["subject"], naming))
+        else:
+            picks.append(p)
+    return picks, skipped
+
+
 # --- the open-defect queue ---------------------------------------------------------
 
 SEV_RANK = {"high": 0, "medium": 1, "low": 2}
@@ -665,8 +683,16 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
     elif args.cmd == "coverage":
         print(json.dumps(coverage(audits, pop, today), indent=1))
     elif args.cmd == "census":
-        for p in census(audits, pop, args.n, args.seed):
+        import sys
+        prs = None if getattr(args, "no_prs", False) else open_pr_titles()
+        if prs is None and not getattr(args, "no_prs", False):
+            print("(open-PR search failed: search open PRs by subject before auditing one)", file=sys.stderr)
+        picks, skipped = census_free(audits, pop, args.n, args.seed, prs or [])
+        print(f"seed {args.seed}  (--seed {args.seed} repeats this draw)")
+        for p in picks:
             print(f"  {p['stratum']:<9} {p['subject']}  last audited: {p['last_audited'] or 'never'}")
+        for subject, naming in skipped:
+            print(f"  skipped   {subject}: open PR " + "; ".join(f"#{n} {t[:70]}" for n, t in naming[:2]))
     elif args.cmd == "queue":
         rows = queue(audits, args.severity)
         seen: dict[tuple[str, str], dict] = {}

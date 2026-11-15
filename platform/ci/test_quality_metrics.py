@@ -146,6 +146,16 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(picks, m.census(audits, self.POP, 4, "s"))
         self.assertEqual(m.census(audits, self.POP, 5, "s")[-1]["subject"], "ventures/b")
 
+    def test_census_free_passes_over_subjects_an_open_pr_names(self):
+        audits = [audit(subject="ventures/b", date="2026-11-01")]
+        first = m.census(audits, self.POP, 1, "s")[0]["subject"]
+        prs = [(901, f"quality: census {first} audit")]
+        picks, skipped = m.census_free(audits, self.POP, 4, "s", prs)
+        self.assertNotIn(first, [p["subject"] for p in picks])
+        self.assertEqual(len(picks), 4)  # the next subject fills the gap
+        self.assertEqual(skipped, [(first, prs)])
+        self.assertEqual(m.census_free(audits, self.POP, 4, "s", [])[0], m.census(audits, self.POP, 4, "s"))
+
 
 class ModeTest(unittest.TestCase):
     def test_reflection_is_forced_after_a_week(self):
