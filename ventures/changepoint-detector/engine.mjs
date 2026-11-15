@@ -2290,7 +2290,7 @@ export function hingeTestReport(values, labels, opt) {
   if (n > 600) throw new Error(`The hinge test takes at most 600 points (its bootstrap is quadratic in length); got ${n}. Aggregate first (monthly to yearly).`);
   const o = typeof opt === 'object' && opt ? opt : {};
   const h = hingeTest(values, { reps: Number(o.reps) || 499, seed: Number(o.seed) || 1 });
-  const note = 'One change of slope against a straight line, on the levels, assuming AR(1) noise about the trend; the p-value is from a parametric bootstrap. A step can pass for a hinge, and a small p says the straight line is wrong, not that exactly one bend is right.';
+  const note = 'One change of slope against a straight line, on the levels, assuming AR(1) noise about the trend; the p-value is from a parametric bootstrap. A level step can pass for a hinge (on the Nile it rejects with a knot in 1913, though the change is the 1898 drop; a step of 2 noise sd made it reject in 14-42% of synthetic series), so run the step models too; a small p says the straight line is wrong, not that exactly one bend is right.';
   if (h.refused) return { refused: true, reason: h.reason, note };
   return {
     refused: false, index: h.index, label: labels[h.index] ?? String(h.index), f: Number(h.f.toFixed(2)), bar95: Number(h.bar95.toFixed(2)),

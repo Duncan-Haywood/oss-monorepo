@@ -4198,6 +4198,68 @@ Gaussian walks; a walk with heavy-tailed steps was not measured. R's 1930 cell i
 so it is seen, not fresh evidence. Test: `hinge-test.test.mjs` ("rho-cut guard", "random-walk cut bar", "the CLI
 says when a sticky series was admitted by the cut").
 
+### Step or bend? A check beside the hinge test, and the test on eight fresh real series (2026-11-15, latest; pre-registered; the check fails, not offered)
+
+The hinge test asks "one bend against a straight line", so a level jump on a trend can reject the line and come back
+as a change of slope; its note said so but nothing measured how often. `stepOrBend(x, rho)` in `hinge-test.mjs` fits,
+with the test's Prais-Winsten rho and the same knot range, the best hinge and the best single level step on the same
+line. Both have three coefficients and one knot, so the smaller transformed residual sum of squares names the kind.
+The bars and the real predictions were written down first (`eval/hinge-step-or-bend-prereg-2026-11-15.md`, committed
+before the code existed); `node eval/hinge-step-or-bend-sim.mjs 200 99` (`eval/hinge-step-or-bend-sim.out.txt`, seeds
+from 61,000,000) and `node eval/hinge-step-or-bend-real.mjs` (`eval/hinge-step-or-bend-real.out.txt`, 999 replicates).
+
+**Synthetic** (line 0.02 t plus AR(1) noise, innovation sd 1, change at 60% of n, 200 series per cell). "Right kind"
+is among the series the hinge test rejects at p <= 0.05:
+
+| cell | hinge test rejects (share of all) | right kind (pre-registered, GLS) | post hoc: OLS | bar |
+|---|---|---|---|---|
+| step 1, n 100, rho 0.5 | 5.5% | 54.5% | 54.5% | reported |
+| step 2, n 100, rho 0.5 | 14.0% | 82.1% (28 rejections) | 71.4% | too few to decide |
+| step 3, n 100, rho 0.5 | 15.5% | 90.3% | 90.3% | SS holds |
+| step 2, n 145, rho 0.5 | 20.5% | 85.4% | 80.5% | SS holds |
+| step 2, n 100, rho 0 | 42.0% | 98.8% | 98.8% | SS holds |
+| bend 0.04, n 100, rho 0.5 | 17.0% | 29.4% | 35.3% | reported |
+| bend 0.08, n 100, rho 0.5 | 60.0% | **44.2%** | 56.7% | **SB fails** |
+| bend 0.04, n 145, rho 0.5 | 49.5% | 35.4% | 53.5% | reported |
+| bend 0.08, n 100, rho 0 | 100% | **82.0%** | 81.0% | **SB fails** |
+
+**Real, bar R** (recalled kinds, plausibility labels): it holds. The Nile is tested (n 100, rho 0.24) and the hinge
+test **rejects**, knot 1913, F 12.5 against 8.7, p 0.017, a slope of -8.1 a year turning flat: a bend that is not
+there. The check says `step`, after 1898, size -284, step RSS 0.90 of the bend's: the documented drop. GCAG
+1880/1850, GISTEMP and GCAG 1930-2024 all say `bend` (step RSS 1.16 to 1.25 of the bend's).
+
+**Verdict.** SB fails in both cells, so the check is not in `hingeTest`'s output, the CLI or the page (it is exported
+for evaluation). It is lopsided: given a real step it says `step` 85-99% of the time, but given a real bend at
+rho 0.5 it says `step` more often than not. With 40 points after the knot and sticky noise, a ramp of 3.2 is fit
+about as well by a jump half-way along it. The OLS column (looked at after the result, not pre-registered) does not
+rescue it. Two things do ship, as text: the report note now says a level step can pass for a hinge, with the Nile
+and the measured rate (a 2 sd step on a line makes the test reject in 14-42% of series, against about 5% with no
+change), and asks the reader to run the step models too.
+
+**The test on fresh real series: 4 of 5 predictions fail, all by refusal.** None of these had been run through
+`--hinge-test`:
+
+| series | n | prediction | result |
+|---|---|---|---|
+| P1 Australian gas, annual totals 1956-1994 | 39 | tested, p <= 0.05, knot 1966-1973 | refused: line rho 0.97, hinge 0.83 (guard 0.7) |
+| P2 US electricity, annual totals 1973-2012 | 40 | tested, p <= 0.05, knot 1998-2008 | refused: line 0.82, hinge 0.72 |
+| P3 US female murder rate 1950-2004 | 55 | tested, p <= 0.05, knot 1975-1995 | refused: line 0.97, hinge 0.80 |
+| P4 Lake Huron 1875-1972 | 98 | p > 0.05 | refused: line 0.80, hinge 0.75 |
+| P5 UK gas, annual totals 1960-1986 | 27 | refused (under 30) | refused, as predicted |
+| Canada fertility 1931-1968 (no prediction) | 38 | | refused: line 0.92, hinge 0.77 |
+| Michigan-Huron 1918-2009 (no prediction) | 92 | | refused: line 0.87, hinge 0.80 |
+| CO2 annual means 1959-2025 (no prediction) | 67 | | refused: line 0.97, hinge 0.92 |
+
+So, counting GCAG 1930-2024, the test has now run on one of eight real series under 100 points. Under 100 points the
+guard is 0.7 on the best hinge's residuals, and every one of these left the hinge's residuals above it: a growth
+curve (gas, CO2), a rise and fall (murder rate: two bends, one hinge), a near-random-walk lake. That is the guard
+doing what its size table asked for (it was set to keep n 60, rho 0.8 at 3.3%), and the predictions were wrong
+about how sticky these series are, not about their shapes. The page box now says it refuses most real series under
+100 points. **Next** (not run): a second hinge, or a hinge on the log for growth curves, would cut these rhos further
+and might admit them; each needs its own size check on fresh seeds. A step-or-bend rule with a margin (call it only
+when one RSS is clearly smaller, else "can't tell") is the obvious repair to the check; it needs fresh seeds too.
+Test: `hinge-test.test.mjs` ("step or bend").
+
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
 The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a

@@ -91,7 +91,7 @@
       <div><label for="holidays">Known holidays (counts model; dates or row numbers, comma-separated)</label><input id="holidays" type="text" placeholder="e.g. 2024-12-25, 2025-01-01"></div>
       <div><label for="log"><input id="log" type="checkbox"> Take logs first (level, volatility or slope models; positive values, e.g. sales or prices that grow by a percentage)</label></div>
       <div><label for="slopeBreaks"><input id="slopeBreaks" type="checkbox"> Also test for a change of growth rate (40+ points; tick &ldquo;take logs&rdquo; for percentage growth). A weak test: a miss does not rule a break out</label></div>
-      <div><label for="hingeTest"><input id="hingeTest" type="checkbox"> Also test one change of slope on the levels (30&ndash;600 points; for a series that wanders about a trend, like temperature; refuses one that drifts like GDP)</label></div>
+      <div><label for="hingeTest"><input id="hingeTest" type="checkbox"> Also test one change of slope on the levels (30&ndash;600 points; for a series that wanders about a trend, like temperature; refuses one that drifts like GDP, and most real series under 100 points)</label></div>
       <div><label for="bursts"><input id="bursts" type="checkbox"> Cut back isolated spikes before fitting (counts model; e.g. a post going viral)</label></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
       <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
