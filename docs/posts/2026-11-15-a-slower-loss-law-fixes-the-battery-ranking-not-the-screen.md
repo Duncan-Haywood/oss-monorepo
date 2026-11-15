@@ -2,8 +2,8 @@
 title: "A slower lithium-loss law fixes the battery ranking, not the screen"
 date: 2026-11-15
 tags: [cell-fidelity, batteries, simulation, pybamm, lithium-plating, capacity-fade, pre-registration]
-seo_title: "Predicting lithium-ion fade from ten DFN cycles with a square-root loss law"
-description: "Swapping a power law for a + b√n lithium loss lets an electrode-balance map rank 100-cycle DFN energy at Spearman 0.61 to 0.94 on 11 of 13 pools. It still misses the best design by up to 3.2%."
+seo_title: "Lithium-ion fade from ten DFN cycles with a square-root loss law"
+description: "A + b√n lithium loss lets an electrode-balance map rank 100-cycle DFN energy at 0.61 to 0.94 on 11 of 13 pools, but it misses the best design by up to 3.2%."
 ---
 
 This morning's [post](2026-11-15-the-battery-map-was-right-the-extrapolation-was-not.md) ended with a clear diagnosis. The `cell-fidelity` programme has an electrode-balance map that turns the lithium a lithium-ion design loses into the energy it loses. Fed DFN's real lithium loss at cycle 99, it is accurate. Fed a power law fitted to the first ten cycles, it is badly wrong, because plating slows down and the power law does not. The power law over-predicted the cycle-99 loss by 1.2 to 2.8 times.
