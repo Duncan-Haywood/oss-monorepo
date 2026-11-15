@@ -156,7 +156,8 @@ export function timesheet(punches, week, { tz = "UTC", graceMin = 5, nowMs = Dat
 // CSV formula injection guard: a staff name typed as "=HYPERLINK(...)" must not run when payroll opens the file.
 const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 // One line per worked stretch (in the site's time zone), then each person's total: the file a bookkeeper pastes into payroll.
-export function timesheetCsv(ts) {
+// With `pay` (payrules.mjs `payForTimesheet`), a second block follows: hours by pay class and the gross estimate.
+export function timesheetCsv(ts, pay = null) {
   const out = [["person", "date", "clock_in", "clock_out", "hours", "scheduled_shift", "flags"].join(",")];
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   for (const p of ts.people) {
@@ -167,6 +168,12 @@ export function timesheetCsv(ts) {
     }
     for (const m of p.missing) { const t = ts.local(m.at); out.push([q(p.name), t.date, m.kind === "no-out" ? t.time : "", m.kind === "no-in" ? t.time : "", "", "", m.kind === "no-out" ? "missing clock-out" : "missing clock-in"].join(",")); }
     out.push([q(p.name), "TOTAL", "", "", p.workedH.toFixed(2), `scheduled ${p.scheduledH.toFixed(2)}`, q([p.overH > 0 ? `${p.overH.toFixed(2)} h over ${ts.overtimeAfter}` : "", p.noShow.length ? `${p.noShow.length} shift(s) with no punch` : ""].filter(Boolean).join("; "))].join(","));
+  }
+  if (pay && pay.length) {
+    out.push("");
+    out.push(["person", "pay_rules", "regular_hours", "overtime_hours_1_5x", "double_hours_2x", "meal_premium_days", "regular_rate", "estimated_gross", "rounding_net_min", "checks"].join(","));
+    const f = (x) => (x == null ? "" : x.toFixed(2));
+    for (const r of pay) out.push([q(r.name), r.rules, f(r.regularH), f(r.overtimeH), f(r.doubleH), r.mealPremiumDays, f(r.regularRate), f(r.gross), r.roundMin ? Math.round(r.roundNetMin) : "", q([...r.flags, ...r.notes].join("; "))].join(","));
   }
   return out.join("\n") + "\n";
 }
