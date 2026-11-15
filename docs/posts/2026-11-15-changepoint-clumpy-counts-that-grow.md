@@ -3,7 +3,7 @@ title: "Clumpy counts that grow: one wrong mean hid three in four steep bends"
 seo_title: "Overdispersed growing counts: fixing a negative-binomial size estimate"
 date: 2026-11-15
 tags: [changepoint-detection, statistics, pre-registration, count-data, negative-binomial]
-description: "The changepoint detector read clumping against the global mean, so fast-growing counts looked like Poisson. Reading it locally finds 56% of steep bends, not 16%."
+description: "The changepoint detector read clumping against the global mean, so fast-growing counts looked Poisson. Reading it locally finds 56% of steep bends, not 16%."
 ---
 
 The [changepoint detector](https://marisstella.app/changepoint-detector/) has a setting for clumpy counts, `--overdispersion nb`. Real counts are rarely Poisson. Sales, visits and complaints come in bursts, so their spread is wider than their mean, and a plain Poisson cost reads every burst as a change. The negative binomial allows for that extra spread through one number, the size r: the smaller r is, the clumpier the counts.
