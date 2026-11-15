@@ -2062,12 +2062,12 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
-## Every starter, not a sample: 26 teams 716 to 670, 28 teams 828 to 778 (2026-11-15)
+## Every starter, not a sample: 26 teams 716 to 670, 28 teams 828 to 778, 30 teams 948 to 894 (2026-11-15)
 
 The built-in starters (`STARTERS`) came from sampling: `eval/starter-search.mjs` drew random starters
 for 20 s per size (3,242 draws at 18 teams) and `eval/starter-climb.mjs` climbed from them. Nobody had
 asked what the *best* starter is. `eval/starter-exhaust.c` (plain C, no dependencies) answers it for
-every size up to 28 teams by enumerating all of them.
+every size up to 30 teams by enumerating all of them.
 
 - **Why one step is enough.** A start only renames the teams, and starter S at step s is the starter
   s^-1 S at step 1 with the teams renamed (multiplying by a unit keeps a starter a starter). So the
@@ -2089,12 +2089,14 @@ every size up to 28 teams by enumerating all of them.
   | 26 | **670** | 716 | 624 | 26 s |
   | 28 | **778** | 828 | 728 | 265 s (capped at the old 828) |
   | 27 (28's timetable, one bye) | **773** | 823 | 675 | |
+  | 30 | **894** | 948 | 840 | 24 min (capped at the old 948) |
+  | 29 (30's timetable, one bye) | **889** | 891 | 783 | |
 
   So 18 and 24 teams are settled *for starters*: the 318 and 570 the searches kept hitting are the least
   any starter reaches, and going lower needs a timetable that is not a starter. 26 and 28 teams were not
-  settled: sampling had missed starters 6% lower.
-- **On the page.** Both are stored as a further start (`TIMETABLES[26].even`, `TIMETABLES[28].even`
-  and `.odd`), so the search still runs from the old starter too and keeps the best of all starts, as
+  settled, nor was 30: sampling had missed starters 6% lower.
+- **On the page.** All three are stored as a further start (`TIMETABLES[26].even`, `TIMETABLES[28]`
+  and `TIMETABLES[30]`, even and odd), so the search still runs from the old starter too and keeps the best of all starts, as
   for 12 and 14 teams. Through `lowCarryOverRounds` / `lowCarryOverDoubleRounds`, seeds 1 to 3, effort 1
   (carry-over / breaks; the full table is in `eval/starter-exhaust.txt`):
 
@@ -2104,10 +2106,13 @@ every size up to 28 teams by enumerating all of them.
   | Season, carry-over only | 2,618 (all seeds) | 2,610-2,618 | 3,146-3,148 | **3,038-3,044** | 3,015-3,079 | 2,953-3,015 |
   | Either, break weight 10 | unchanged | unchanged | unchanged | unchanged | unchanged | unchanged |
 
+  30 teams (seeds 1 to 3): single, carry-over only 948 to **894**; season, carry-over only 3,614 to
+  **3,502**; break weight 10 unchanged. 29 teams (seed 1): single 891 to **879**, the rest unchanged.
+
   Nothing got worse at any seed or setting. The page's carry-over-only season (`carryOverPure`) and its
   "most even carry-over" pick get these numbers; the break-weighted settings keep the weighted
   starter's seasons. The cost is one more start: a 26 or 28 team search takes about 30-40% longer
-  (seed 1, all four settings: 26 teams 19 s to 26 s; 28 teams 20 s to 26 s).
+  (seed 1, all four settings: 26 teams 19 s to 26 s; 28 teams 20 s to 26 s; 30 teams 23 s to 30 s).
 - **Hot windows tried and not kept as a result.** `eval/window-refill.c` gained `HOT=p`: with
   probability p a window is built around a transition that feeds a cell at 2. Four 600 s runs from the
   18 and 24 team starters (HOT 0.5 and 0.9, small and default windows) found nothing below 318 or 570.
