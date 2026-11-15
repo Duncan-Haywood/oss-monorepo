@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLUPcGAiV9dSc2xH3C",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt)",
+  "input_sha256": "4207abd77e9a8607d5ea627a8aa7754abc9fab62bb68e0f6eb3a480afbda5e64",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T10:55:55Z",
+  "ended": "2026-11-15T11:08:32Z",
+  "wall_minutes": 13.77,
+  "tokens_in": 11638865,
+  "tokens_out": 51276,
+  "cost_usd": 4.7011,
+  "tool_calls": 88,
+  "task": "Deepen (flagship 6) shift-roster-builder: a cheaper screen for given-up pairs",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16190",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "partial",
+  "errors": [
+    "calc.mjs: a new option named `order` clashed with an existing local `order` in coverPairRisk (SyntaxError); renamed to handOut"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 1 (ai-bookkeeper) is listed as Deepen, but every open item in its next: needs a real outside input (real exports, a hosted key, printed 2026 IRS tables). Two runs' worth of reading went into finding nothing buildable; it may want inputs_only or a buildable: note."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing's buildable: says raw.pixls.us serves files with curl -L; from this session the proxy refused CONNECT to raw.pixls.us (403), so the tiled CR3 was not reachable."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Two sessions claimed einvoice-preflight 1 minute apart without naming the item, so neither could tell whether they would overlap. A claim PR title naming the item would let a later session share a venture safely."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The picked row (ai-bookkeeper) had no buildable item, and the next pick (einvoice-preflight) was claimed a minute earlier by PR 16188",
+      "did": "took shift-roster-builder (flagship 6), whose next: had input-free algorithmic items",
+      "result": "landed an exact opt-in memo, a measured negative result and a correctness finding (the confirmed pair count depends on order)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-a-cache-that-was-always-right-and-never-useful.md",
+    "ventures/shift-roster-builder/README.md#remembered-pair-searches-exact-and-almost-never-usable-2026-11-15-later"
+  ],
+  "goal": null,
+  "notes": "Memo exact (same roster/moves/pairs on 3 seeded weeks, eval/pair-memo.out.txt) but 0.07% hits on 40x112 week 0 (23% slower), because a given-up search reads 39.8 of 40 lists. Loose carry of given-up verdicts: 0 moves vs 4 (dropped, not kept in code). Hand-out orders (eval/pair-order.out.txt): none better on both weeks; 200k confirmed pair hours vary with order (179 vs 187; 313-355), so the check is not order-free; that is the new next:. Partial because the screen did not get cheaper. Tests: pair-memo.test.mjs 4/4; run_venture_tests.py shift-roster-builder: ok, 625 tests, 235 s, 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6a587d59-792a-5724-8d64-bf24408c3740",
+    "transcripts": 1,
+    "first": "2026-11-15T10:55:55Z",
+    "last": "2026-11-15T11:09:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 163,
+        "output": 51276,
+        "thinking": 16888,
+        "cache_read": 11465990,
+        "cache_write_5m": 0,
+        "cache_write_1h": 172712,
+        "api_equivalent_usd": 4.7011,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 163,
+      "output": 51276,
+      "thinking": 16888,
+      "cache_read": 11465990,
+      "cache_write_5m": 0,
+      "cache_write_1h": 172712,
+      "api_equivalent_usd": 4.7011,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "Read": 2,
+      "Write": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "ListAgents": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.77,
+      "active_minutes": 13.77,
+      "model_minutes": 10.14,
+      "tool_minutes": 3.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer reading the pair-check code, building and testing an exact memo, three evals and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 127.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
