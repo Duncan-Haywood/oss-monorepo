@@ -23,7 +23,9 @@ float32) and reorder (the arbiter: float32, batch rows permuted each step). Stat
   wratio = ||w_committed - w_replay|| / mean replayed weight-step norm   (milestones 80-84's statistic)
   mratio = ||m_committed - m_replay|| / ||m_replay||                    (first moment; momentum and Adam only)
 Run: OMP_NUM_THREADS=1 PYTHONPATH=../../src python3 run.py   (numpy + scikit-learn; a few minutes on 4 processes).
-Writes results.json."""
+Writes results.json.
+Diagnostic (after the run, LOG.md): SGD_F64=1 OPTS=sgd OUT=results_sgd_f64.json, same command (plain SGD with float64
+weights, as milestones 80-84's workers ran through numpy's type promotion)."""
 import importlib.util
 import json
 import os
@@ -47,6 +49,7 @@ SCHEDULES = m85.TEST_SCHEDULES
 SKIPS = (1, 2, 5, 10, 20)
 TEST_SEEDS, CAL_SEEDS = tuple(range(40)), tuple(range(100, 140))
 MODES = ("fp16", "reorder")
+SGD_F64 = bool(os.environ.get("SGD_F64"))
 
 
 def zero_state(kind, w):
@@ -55,6 +58,8 @@ def zero_state(kind, w):
 
 def opt_step(kind, w, st, g, lr, t):
     if kind == "sgd":
+        if SGD_F64:  # diagnostic: milestones 80-84's worker, whose float64 lr promoted the weights to float64
+            return w.astype(np.float64) - lr * g, ()
         return (w - np.float32(lr) * g).astype(np.float32), ()
     w2, st2, _ = m85.step(kind, w, st, g, lr, t)
     return w2.astype(np.float32), st2
@@ -115,9 +120,10 @@ def job(args):
 def main():
     from multiprocessing import Pool
     seeds = TEST_SEEDS + CAL_SEEDS
-    if os.environ.get("SMOKE"):
-        seeds = (0, 100)
-    jobs = [(o, sc, sd) for o in OPTS for sc in SCHEDULES for sd in seeds]
+    opts = tuple(os.environ.get("OPTS", ",".join(OPTS)).split(","))
+    if os.environ.get("SEEDS"):
+        seeds = tuple(int(v) for v in os.environ["SEEDS"].split(","))
+    jobs = [(o, sc, sd) for o in opts for sc in SCHEDULES for sd in seeds]
     with Pool(int(os.environ.get("PROCS", 4))) as pool:
         res_list = pool.map(job, jobs, chunksize=1)
     res = {"T": T, "S": S, "N": N, "skips": list(SKIPS), "opts": {k: list(v) for k, v in OPTS.items()},
