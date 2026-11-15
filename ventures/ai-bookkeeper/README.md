@@ -2515,6 +2515,42 @@ at 3 of 196. Written looking at all SRD photos; SROIE's OCR is the held-out chec
 [`eval/split-decimal-2026-11-15.md`](eval/split-decimal-2026-11-15.md). Test:
 `receipt-crosscheck.test.mjs` ("a total line with its decimal point lost ...").
 
+### Tax on receipt photos (2026-11-15)
+
+Flagship item (5). Earlier runs only measured the total. On the same 185 SRD photos that
+carry a tax, the page read **78 taxes right (42.2%)** and left 92 empty. Of the misses,
+31 had the right tax in another of the four readings, which the page never used, and 33
+had it in the text with nothing able to read it: `Taxes: 3.85`, `Tax 8.75% 1.11`,
+`TXTL .75`, `Tax 12,94`, and `Tax:: $0.70` overwritten by `Sbt1 w/Tax: $10.70` and then
+dropped.
+
+- **One text** (`readTax`): a rate beside the tax is not the amount, "Taxable" and
+  "w/Tax" lines are not tax lines, a printed "Total Tax" wins, and two tax lines (state
+  and resort, food and drink) are added when the subtotal plus their sum is the total.
+  A tax line that lost its decimal point is read with a note.
+- **Four readings** (`voteTax`): each reading's tax gets a vote, plus two when a subtotal
+  plus that tax is the total. A tax one digit off the total less the subtotal takes the
+  difference. A tax over 22% of the total is dropped. With no tax read anywhere, the
+  total less the subtotal is used when it is under 15% of the subtotal.
+- **The page** (`settleTax` in `photoocr.mjs`) writes the voted tax into the receipts
+  box as a `Tax` line and says so in the photo's status line.
+
+| SRD, 185 photos with a tax | before | now |
+|---|---|---|
+| page, tax right | 78 (42.2%) | **130 (70.3%)** |
+| page, tax wrong | 15 | 13 |
+| even / odd photos right | 40 / 38 | 63 / 67 |
+| page totals, SRD 196 (unchanged by construction) | 156 | 156 |
+| CORD tax, dataset's own text (train / validation / test) | 316 / 46 / 37 | 316 / 46 / 37 |
+
+The odd half is not a clean held-out test: the first listing of misses showed both halves.
+CORD's 404 labelled taxes did not move, and that set is a different country and layout.
+SROIE has no tax labels. The CLI's `--four-pass` takes the same path but was not
+re-measured (no tesseract binary here). Left: 28 photos with the tax nowhere in any
+reading, and receipts with two or three tax lines where OCR lost one. Details and
+commands: [`eval/receipt-tax-2026-11-15.md`](eval/receipt-tax-2026-11-15.md). Tests:
+`receipt-tax.test.mjs` (11).
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
