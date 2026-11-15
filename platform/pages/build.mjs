@@ -53,7 +53,7 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
-import { cardTitle, drawPlannedCards, mapLimit, renderCards, shareTagsFor, siteAddress } from './share.mjs';
+import { cardKey, cardTitle, drawPlannedCards, mapLimit, renderCards, shareTagsFor, siteAddress } from './share.mjs';
 import {
   MARK_GEOMETRY,
   renderSiteCard,
@@ -12266,6 +12266,38 @@ export async function offlineCacheName(outDir, codeVersion, digests) {
 }
 
 /**
+ * An app icon, copied from the share-card cache (`PAGES_CARD_CACHE`) when an
+ * earlier build drew it. Drawing the four icons was about 1.1 s of every
+ * build's main thread, in CI and in each test file that builds the site,
+ * though their pixels change only with `sharecard.mjs`. The key is the card
+ * key (the renderer, its fonts, the options), which a card's options can never
+ * equal, so a renderer change misses the cache as a card would; hits are
+ * touched like cards, so the workflow's prune keeps them. The bytes are the
+ * ones `renderIcon` returns
+ * (docs/history/pages-build-perf-2026-11-15-share-memo-swap.md).
+ */
+export async function cachedIcon(options, { cacheDir = process.env.PAGES_CARD_CACHE || '' } = {}) {
+  if (!cacheDir) return renderIcon(options);
+  const file = path.join(cacheDir, `icon-${cardKey({ appIcon: options })}.png`);
+  try {
+    const png = await fs.readFile(file);
+    const now = new Date();
+    await fs.utimes(file, now, now);
+    return png;
+  } catch {
+    // Not cached yet: drawn below.
+  }
+  const png = renderIcon(options);
+  // Written aside and renamed, so a test file building at the same moment
+  // never reads half an icon.
+  await fs.mkdir(cacheDir, { recursive: true });
+  const part = `${file}.${process.pid}.part`;
+  await fs.writeFile(part, png);
+  await fs.rename(part, file);
+  return png;
+}
+
+/**
  * Emits the worker, the manifest, the icons and the offline fallback, then
  * wires every published page to them.
  *
@@ -12299,7 +12331,7 @@ export async function addOfflineSupport({
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
-      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
+      await cachedIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
     );
   }
   await fs.writeFile(

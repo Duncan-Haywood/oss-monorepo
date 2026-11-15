@@ -146,6 +146,30 @@ test('completeShareTags points at the page card and fills the twitter: and size 
   assert.equal(completeShareTags(out, { card: `${BASE}research/energy-tou/share-card.png`, toRoot: '../../' }), out);
 });
 
+test('tags read after an edit see the edit, with the tag memo swapped in place or dropped', () => {
+  // completeShareTags edits og:image and og:image:alt, then reads them back
+  // for the twitter: tags; the memo of the page's tags must follow each edit
+  // (docs/history/pages-build-perf-2026-11-15-share-memo-swap.md).
+  const card = `${BASE}research/energy-tou/share-card.png`;
+  const alt = (html) => [
+    /property="og:image:alt" content="([^"]*)"/.exec(html)?.[1],
+    /name="twitter:image:alt" content="([^"]*)"/.exec(html)?.[1],
+    /name="twitter:image" content="([^"]*)"/.exec(html)?.[1],
+  ];
+  const withAlt = page().replace('</head>', '<meta property="og:image:alt" content="An old alt">\n</head>');
+  // A stray tag opening before the edited one, whose quote never closes: the
+  // memo cannot be swapped there and is dropped, so the reads still agree.
+  const stray = withAlt.replace('<title>', '<meta name="stray" content="never closed><title>');
+  for (const html of [withAlt, stray, withAlt.replace(/"/g, "'")]) {
+    pageCardPlan(html, 'research/energy-tou/index.html', { baseUrl: BASE });
+    const out = completeShareTags(html, { card, toRoot: '../../' });
+    const [ogAlt, twitterAlt, twitterImage] = alt(out.replace(/'/g, '"'));
+    assert.equal(ogAlt, 'Does a battery pay? — Maris Stella Labs');
+    assert.equal(twitterAlt, ogAlt);
+    assert.equal(twitterImage, card);
+  }
+});
+
 test('the data: icon strip takes the whitespace before each link, as the one-regex form did', () => {
   // The form before 2026-11-13 (docs/history/pages-build-perf-2026-11-13-share-data-icon-scan.md).
   const before = /\s*<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi;
