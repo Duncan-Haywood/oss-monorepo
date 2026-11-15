@@ -2297,3 +2297,53 @@ seeded 20-person week the pass with the cuts posts the same roster, score, moves
 Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine; the cuts make the pass cheaper only where
 moves get tested and refused, and a move that is taken still pays for two full walks; what a manager gains from the pair price
 on these bigger weeks is not measured here.
+
+## The pair price in played weeks, 20 to 40 people (2026-11-15 later)
+
+"A second call-out in the same week" played `--second-callout-price` only on the five templates (the spare café: a big win;
+retail: a wash), and every section since left "the 40- and 60-person weeks' played result with the pair price" open. **Measured**
+with `node eval/pair-played-big.mjs` (`eval/pair-played-big.out.txt`). For each seeded week the plain roster is built once,
+then the priced pass runs from that one roster twice: $25 an hour at risk (`--cover-price 25`), and the same plus $1 a clashing
+pair hour (`--second-callout-price 1`; the 120-copy cap does not apply, since the eval calls the pass directly). The three
+rosters are played through the same seeded weeks of call-outs as the template study (5pm notice, started shifts pinned, kept
+reissues), 200 seeds on the 20-person weeks and 100 on the 30- and 40-person weeks, at the real file's rates (1.0% sick-only,
+8.4% all leave). Each cell is open hours the week's call-outs added, changes to others, premiums owed; "pair vs cover" counts
+the disrupted weeks where the pair roster added fewer or more open hours than the cover-price one (two-sided sign test).
+
+| week (copies), rate | plain | `--cover-price 25` | + `--second-callout-price 1` | pair vs cover: fewer / more weeks |
+|---|---|---|---|---|
+| 20 x 56 week 2 (75), 1.0% | 304 h, 328, $5,715 | 230 h, 373, $6,460 | **216 h, 310, $5,510** | 7 / 2 (p 0.18) |
+| 20 x 56 week 2, 8.4% | 2,838 h, 1,828, $31,245 | 2,697 h, 1,986, $33,677 | **2,610 h, 1,918, $32,631** | 63 / 34 (p 0.004) |
+| 20 x 56 week 5 (78), 1.0% | 572 h, 128, $2,188 | the same (no move) | 572 h, **116, $2,069** | 0 / 0 |
+| 20 x 56 week 5, 8.4% | 4,245 h, 1,127, $18,526 | the same (no move) | **4,168 h, 1,086, $18,071** | 20 / 2 (p 0.0001) |
+| 30 x 84 week 0 (121), 1.0% | 201 h, 198, $3,380 | 197 h, 177, $3,073 | **176 h**, 183, $3,177 | 5 / 0 (p 0.06) |
+| 30 x 84 week 0, 8.4% | 2,490 h, 1,754, $28,530 | 2,505 h, **1,740, $28,257** | **2,404 h**, 1,748, $28,381 | 45 / 21 (p 0.004) |
+| 40 x 112 week 0 (149), 1.0% | 392 h, 134, $2,409 | 396 h, 133, $2,399 | 396 h, **117, $2,144** | 0 / 0 |
+| 40 x 112 week 0, 8.4% | 2,796 h, 1,207, $20,476 | **2,751 h**, 1,166, $19,853 | 2,765 h, 1,159, $19,781 | 5 / 7 (p 0.77) |
+
+What the passes paid: on the 20-person week 2, cover $35.27 of score (+$35 payroll), pair $25.85 (+$26); week 5, pair one
+move for $4.62 (+$15 payroll); 30 x 84 week 0, cover four moves for $6.66, pair six for $8.84, payroll unchanged; 40 x 112
+week 0, cover one move for $4.47, pair eleven for $10.15, both $6 less payroll than plain. On eight of the twelve seeded
+weeks finished (20 x 56 weeks 0, 1, 3, 4, 6, 7; 40 x 112 weeks 1 and 2) neither pass moved anyone, so there was nothing to
+play.
+
+**What this says.** On every week where the pair price moved the roster it was never worse than the cover price alone beyond
+noise. On the 20- and 30-person weeks it cut the open hours call-outs added by 2-11% against the cover-price roster wherever
+the two differed (2-29% against plain), and three of the six comparisons are well outside noise (the sign tests at p 0.004 or
+less, all at 8.4%, where there are enough disrupted weeks to tell). Changes to others and premiums mostly fell too, but not
+always: on the 30-person week at 8.4% the cover roster moved 8 fewer people and owed $124 less. On the 40-person week the open hours were a
+wash (14 h more over 100 weeks, 5 weeks better and 7 worse), but the call-out reissues moved fewer people and owed less: 12%
+fewer changes and 11% less premium at 1.0%, under 1% at 8.4%. That matches the pair yardstick: the 40-person week's pair
+hours were already small (51 h on the cover roster, 8 on the pair one), so there was little left to buy.
+
+**Why the default stays off and the cap stays.** The 30 x 84 week has 121 copies, one over the 120-copy cap, and its build with
+the pair price took **241 s** here (the 40 x 112 week 0's took 22.7 s; the cost depends on how many candidate moves reach the
+pair walk, not on size alone). A price that helps on these weeks is no use if the page hangs. The evidence for the opt-in
+grows (fewer open hours added on three of four played weeks, fewer people moved on the fourth, none worse), so the page's note
+on the option now says so; a default needs the pass's worst case bounded first.
+
+Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine; only four of twelve weeks were moved
+by either pass, so this is four rosters, not a population; the 60-person week was not played (its pair pass alone took 46.8 s
+and each reissue up to 20 s, about 10 hours for 100 seeds here); the 30 x 84 weeks 1-5 were stopped unfinished. Next: a time
+cap on the pair pass itself (stop at the build's budget and keep the moves made), so the price can run past 120 copies without
+a 241 s worst case.

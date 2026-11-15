@@ -238,11 +238,11 @@ flagships:
       account or response through --import-wheniwork (README "Reading When I Work
       directly"); Homebase (docs need an account); --cover-price moves two shifts
       together (README "Moving two shifts together": 20-person week exposure 113 to
-      68 h for $35.27); second call-outs priced (README "A second call-out in the
-      same week", off by default); next: a cheaper pair walk to lift the 120-copy
-      cap (README "Only the walks a move can pass": 60-person 47 s); a real two-site
-      export and staff list (README "Staff shared between sites"); own and site
-      rates read from staff CSVs and 7shifts (README "Per-location pay from an
+      68 h for $35.27); second call-outs priced, off by default (README "The pair
+      price in played weeks": fewer open hours on 3 of 4 weeks); next: a time cap on
+      the pair pass (a 121-copy week took 241 s) to lift the 120-copy cap; a real
+      two-site export and staff list (README "Staff shared between sites"); own and
+      site rates read from staff CSVs and 7shifts (README "Per-location pay from an
       export"); next a real wages export, real trip times; whether the priced cut's
       r = 1 default suits a real manager; a manager's real task list for the fixed
       minutes.
