@@ -11,12 +11,12 @@ SER = (("rho_raw", "#adb5bd", "raw cycle 10"), ("rho_sqrt", "#495057", "5n sqrt 
 def main():
     s = json.loads((HERE / "summary.json").read_text())
     conds = list(s["conditions"])
-    W, rowh, top, left, right = 680, 30, 80, 170, 30
+    W, rowh, top, left, right = 720, 30, 80, 200, 30
     H = top + rowh * len(conds) + 50
     sx = lambda v: left + (v + 1) / 2 * (W - left - right)
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="sans-serif" font-size="12">',
          f'<rect width="{W}" height="{H}" fill="#fff"/>',
-         f'<text x="{W / 2}" y="22" text-anchor="middle" font-weight="bold">Ranking 100-cycle DFN energy from ten cycles, fresh pools (64 designs each)</text>']
+         f'<text x="{W / 2}" y="22" text-anchor="middle" font-weight="bold">Ranking 100-cycle DFN energy from ten cycles, four fresh pools (53 to 64 scored designs)</text>']
     for t in (-1, -0.5, 0, 0.5, 1):
         o += [f'<line x1="{sx(t)}" y1="{top - 10}" x2="{sx(t)}" y2="{H - 40}" stroke="#ddd"/>',
               f'<text x="{sx(t)}" y="{H - 26}" text-anchor="middle">{t:g}</text>']

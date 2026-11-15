@@ -261,7 +261,12 @@ def report():
           "Descriptive: 'alt' is the map with the law the selector did not pick; 'trueL' the map fed DFN's own cycle-99 loss; "
           "'raw8' the top 8 by raw cycle-10 Wh/kg (a cost-matched list with no fade model); 'tri' raw + sqrtE + law, 4 each.",
           f"resumed designs, mean: 5n {statistics.mean(d['n_5n'] for d in C.values()):.1f}, law {statistics.mean(d['n_law'] for d in C.values()):.1f}, "
-          f"tri {statistics.mean(d['n_tri'] for d in C.values()):.1f}"]
+          f"tri {statistics.mean(d['n_tri'] for d in C.values()):.1f}", "",
+          "Post hoc (after the verdicts): spread of the per-design L_law(99) / L_DFN(99), 10th / 50th / 90th percentile"]
+    for c in C:
+        lr = sorted(r["l_ratio"] for r in R[c] if r["l_ratio"])
+        q = lambda p: lr[int(p * (len(lr) - 1))]
+        L.append(f"  {c:20s}{q(0.1):6.2f}{q(0.5):6.2f}{q(0.9):6.2f}; median E2 / E_ocv {statistics.median(r['e2_eocv'] for r in R[c]):.2f}")
     (HERE / "results.txt").write_text("\n".join(L) + "\n")
     (HERE / "summary.json").write_text(json.dumps(dict(conditions=C, verdicts=V, rows=R), indent=1) + "\n")
     print("\n".join(L))
