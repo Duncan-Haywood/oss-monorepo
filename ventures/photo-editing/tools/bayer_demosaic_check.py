@@ -33,7 +33,6 @@ import numpy as np
 
 from xtrans_demosaic_check import (  # noqa: E402  (tools/ on PYTHONPATH)
     _fit,
-    _pattern,
     add_noise,
     mosaic,
     ours_bilinear,
