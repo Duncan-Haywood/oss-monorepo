@@ -99,13 +99,13 @@ flagships:
       model (needs a key), real bank text; (2) bank readers: 63 US exports, Mercury,
       Monarch, Bluevine lines, card payments, scans (README); open: Relay, a bank
       scan; (3) Adyen's sample read (README); open: a real merchant's payout export,
-      a real 1099-K; (4) a real supplier's terms letter checked against the fee and
-      discount rules, and one named lender's own schedule against the loan register
-      (`loan check`); (5) receipts OCR (page SROIE ~84.8%, US 68.4%; CLI 82.2%, CORD
-      50.5%; big photos done; next: curled slips); (6) payroll (README): two journal
-      layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents
-      files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026
-      template; (8) `salestax return`: the last six listed states read
+      a real 1099-K; (4) loans: LendingClub rounds payments up (99.97% of 445k,
+      README), `--round up`; open: a lender's full table, a supplier's terms letter;
+      (5) receipts OCR (page SROIE ~84.8%, US 68.4%; CLI 82.2%, CORD 50.5%; big
+      photos done; next: curled slips); (6) payroll (README): two journal layouts
+      read; open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on
+      IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
+      `salestax return`: the last six listed states read
       (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
       book (README); open: AR statutes, a real return layout; (8b) `annualized`
       (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
@@ -185,33 +185,33 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: Facturae XAdES check, 180/180 vs signxml).
-      Open: a real signed Facturae file or FACe rejection; ZATCA stamp check landed
-      (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
+      History: README and git (latest: NAV Online Számla 3.0 reader HU-001..026,
+      NAV's 30 samples: 27 clean, 5 real faults,
+      eval/hungary-nav-samples-2026-11-15.md). Open: a real HU report with NAV's
+      businessValidationMessages, the XSD pass (NTCA common 1.0), product-fee
+      totals; a real signed Facturae file or FACe rejection; ZATCA stamp check
+      landed (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
       explained and paired with the file; a real 00305 reproduced,
       eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection with its
-      file; HR-CIUS checker+creator landed, 8 official samples 16/16 vs XSLT
-      (README): open: a real HR invoice, cash accounting; CIUS-PT: which validator
-      does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a
-      real KSeF rejection, a business's real KOR/ZAL file; repair keeps PDF/A
-      (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real business's
-      PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file;
-      India's INV-01 check on a real IRP payload; mandate texts read (README); open:
-      IL (gov.il 403), ES, SK (hosts blocked 2026-11-14), NRS notice (CAPTCHA), SRO
-      1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed: open: SAT's CP error matrix
-      to map MX-070..080 to CP codes (omawww blocked), a real payroll or export
-      file, a PAC rejection compared; postal codes (MX-080) landed (README);
-      cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110,
-      12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged
-      (README): open: a real event; a real reform NF-e from a SEFAZ test
-      environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed:
-      open: a national rejection compared; ISS 2-5% band landed (ABR-024/NFSE-024,
-      README): open: a city's own rate table; ABRASF NFS-e 2.00-2.04 landed
-      (README): open: ISS retained on a real file, city provider schemas, 1.0x sets,
-      DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF
-      1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh the Bulgaria page
-      when its draft passes. A run that lands a slice replaces its item here; keep
-      this under 2,000 characters.
+      file; HR: a real HR invoice, cash accounting; CIUS-PT: which validator does AT
+      run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real
+      KSeF rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
+      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
+      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
+      check on a real IRP payload; mandate texts: IL, ES, SK, NRS, SRO 1852, Jordan
+      open; Mexico CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080
+      to CP codes (omawww blocked), a real payroll or export file, a PAC rejection
+      compared; cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC
+      events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in
+      v1.40) flagged (README): open: a real event; a real reform NF-e from a SEFAZ
+      test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e
+      landed: open: a national rejection compared; ISS 2-5% band landed
+      (ABR-024/NFSE-024, README): open: a city's own rate table; ABRASF NFS-e
+      2.00-2.04 landed (README): open: ISS retained on a real file, city provider
+      schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed
+      (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply;
+      refresh the Bulgaria page when its draft passes. A run that lands a slice
+      replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -238,13 +238,13 @@ flagships:
       directly"); Homebase (docs need an account); --cover-price moves two shifts
       together (README "Moving two shifts together": 20-person week exposure 113 to
       68 h for $35.27); second call-outs priced, off by default (README "The pair
-      price in played weeks": fewer open hours on 3 of 4 weeks); next: a time cap on
-      the pair pass (a 121-copy week took 241 s) to lift the 120-copy cap; a real
-      two-site export and staff list (README "Staff shared between sites"); own and
-      site rates read from staff CSVs and 7shifts (README "Per-location pay from an
-      export"); next a real wages export, real trip times; whether the priced cut's
-      r = 1 default suits a real manager; a manager's real task list for the fixed
-      minutes.
+      price in played weeks": fewer open hours on 3 of 4 weeks); next: the pair
+      pass's gain comes late (README "A time cap on the pair price"): try its best
+      moves first; a real two-site export and staff list (README "Staff shared
+      between sites"); own and site rates read from staff CSVs and 7shifts (README
+      "Per-location pay from an export"); next a real wages export, real trip times;
+      whether the priced cut's r = 1 default suits a real manager; a manager's real
+      task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

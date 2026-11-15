@@ -104,7 +104,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
   taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
   prepaid add NAME --amount 2400 --date D [--months 12] [--into 6030]  spread an up-front payment (filed to 1400) over the months it covers
-  loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34]  a fixed-rate loan and its schedule
+  loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34] [--round up]  a fixed-rate loan and its schedule (--round up: the lender rounds the payment up to the cent, as LendingClub does)
   loan extra ID --amount 2000 --date 2026-06-10   extra principal on top of the schedule (it ends sooner)
   loan check ID FILE.csv  compare a lender's own schedule (date, payment, interest, principal, balance) with this loan's
   loan apply ID           split the unfiled bank lines that are its scheduled payments into interest (6040) and principal (2200)
@@ -344,8 +344,8 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "loan") {
   try {
     if (rest[0] === "add") {
-      const amount = flag("--amount"), rate = flag("--rate"), months = flag("--months"), first = flag("--first"), payment = flag("--payment");
-      const r = addLoan(books, { name: argv.slice(2).join(" "), amount, rate, months, first, payment });
+      const amount = flag("--amount"), rate = flag("--rate"), months = flag("--months"), first = flag("--first"), payment = flag("--payment"), rounding = flag("--round") ?? undefined;
+      const r = addLoan(books, { name: argv.slice(2).join(" "), amount, rate, months, first, payment, rounding });
       books = r.books; save(); console.log(`${r.loan.id} ${r.loan.name}: ${fmt(r.loan.cents)} at ${r.loan.rateBp / 100}% over ${r.loan.months} months, payment ${fmt(r.loan.payment)}. Enter the proceeds as a deposit filed to 2200 (or use opening balances), then \`loan apply ${r.loan.id}\`.`);
     } else if (rest[0] === "extra") {
       const r = addLoanExtra(books, rest[1], { amount: flag("--amount"), date: flag("--date") });
