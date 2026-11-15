@@ -147,6 +147,29 @@ The simulation suite went from 630 s to 151 s
 (`docs/history/ci-perf-2026-11-12-qps-information-selector-loop.md` at the
 repository root).
 
+### Bound skip (2026-11-15)
+
+Most pairs cannot win, and a cheap upper bound shows it without `exp`,
+`hypot` or `sqrt`. An answer's spread p(1 - p) is at most 1/4, and at most
+1 / (4 + x^2) for x = g mu (cosh x >= 1 + x^2/2). The pair's g is at least g
+at the pool's largest phi, so each item's drop is bounded too. A pair whose
+bound, with a margin far above float rounding, is under the best score so far
+is skipped. Its rand() is still drawn, so the stream and every pick are
+unchanged: `pairingInformationParity.test.ts` checks every pick of four
+seeded simulated runs against the original per-pair form, and a deliberately
+loose bound turns seven of its tests red. The simulation MEASURE output is
+byte-identical. Selector compute by `pairLatency.test.ts`, median of 15
+calls, one 4-core container:
+
+| items | answers | information | staged |
+|---|---|---|---|
+| 220 | 300 | 2.80 to 0.78 ms | 3.31 to 0.76 ms |
+| 500 | 300 | 9.63 to 3.15 ms | 8.50 to 3.10 ms |
+| 500 | 1000 | 8.87 to 2.78 ms | 8.53 to 2.62 ms |
+
+The simulation suite went from 77 s to 33 s
+(`docs/history/ci-perf-2026-11-15-qps-bound-skip.md` at the repository root).
+
 ### Pool cap (2026-10-21)
 
 `selectNextPairByInformation` now scores at most `INFO_POOL_CAP` (400) items,
