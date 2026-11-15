@@ -56,12 +56,12 @@ The window is the note from 60 ms in to 10 ms before its end (a diphthong's last
 |---|---|---|---|---|
 | dies-irae | 335 | 317 of 335 (94.6%) | 103 of 611 (16.9%) | /a/ 428, /o/ 143, /e/ 40 |
 | pange-lingua | 20 | 19 of 20 (95.0%) | 4 of 53 (7.5%) | /a/ 46, /o/ 6, /e/ 1 |
-| veni-creator | 24 | 24 of 24 (100.0%) | 5 of 43 (11.6%) | /a/ 34, /o/ 7, /e/ 2 |
-| te-deum | 367 | 343 of 367 (93.5%) | 127 of 633 (20.1%) | /a/ 599, /o/ 24, /e/ 10 |
-| salve-regina | 174 | 162 of 174 (93.1%) | 41 of 231 (17.7%) | /a/ 160, /o/ 56, /e/ 15 |
+| veni-creator | 24 | 23 of 24 (95.8%) | 5 of 43 (11.6%) | /a/ 34, /o/ 7, /e/ 2 |
+| te-deum | 367 | 345 of 367 (94.0%) | 127 of 633 (20.1%) | /a/ 599, /o/ 24, /e/ 10 |
+| salve-regina | 174 | 161 of 174 (92.5%) | 41 of 231 (17.7%) | /a/ 160, /o/ 56, /e/ 15 |
 | all | 920 | 865 of 920 (94.0%) | 280 of 1571 (17.8%) | |
 
-This window runs on into a syllable's final consonant, which since the second round of codas (per-phone floors, up to half a short note; README "Final consonants, second round") takes more of a short note: with the first round's codas it read 895 of 920. Ending the window where the final consonant's formant transition starts (`codaPlan`), on the 715 notes left with 0.1 s or more: 696 of 715 (97.3%).
+This window runs on into a syllable's final consonant, which since the second round of codas (per-phone floors, up to half a short note; README "Final consonants, second round") takes more of a short note: with the first round's codas it read 895 of 920. Ending the window where the final consonant's formant transition starts (`codaPlan`), on the 715 notes left with 0.1 s or more: 698 of 715 (97.6%).
 
 Singing, written vowel (rows) against vowel read (columns):
 
@@ -70,8 +70,8 @@ Singing, written vowel (rows) against vowel read (columns):
 | /a/ | 168 | 3 | 0 | 1 | 7 |
 | /e/ | 0 | 262 | 7 | 0 | 0 |
 | /i/ | 1 | 13 | 168 | 0 | 0 |
-| /o/ | 2 | 4 | 0 | 119 | 5 |
-| /u/ | 0 | 5 | 1 | 6 | 148 |
+| /o/ | 0 | 5 | 0 | 120 | 5 |
+| /u/ | 0 | 5 | 1 | 7 | 147 |
 
 ## E. The short /i/ on G3 (0.24 s, the corpus's eighth note at 124 BPM)
 
