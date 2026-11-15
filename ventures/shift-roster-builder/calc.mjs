@@ -1462,6 +1462,9 @@ const COVER_PAIRS_SLOTS = 200;
 // 4.3 s on a seeded 20-person week (75 copies) and from 3.1 s to 43.6 s on a 40-person week (149 copies, 29 moves).
 // `coverPairPriceSlots` moves the cap; above it the price is ignored and the slack line says so.
 const COVER_PAIR_PRICE_SLOTS = 120;
+// Checks per pair for the confirming pair walk in the priced pass (2026-11-15, eval/cover-pair-capped.mjs): at 200,000 no pair
+// of the 22 bench rosters (five templates and six seeded 20-40 person weeks, default and priced) was given up on.
+const PAIR_CONFIRM_BUDGET = 200000;
 // Call-out risk, the cheap stand-in for calloutExposure (2026-11-13). `calloutExposure` rebuilds the week once per
 // person-day, which is far too slow to sit inside a search. This counts the same cases and asks only the quickest of its
 // questions: if this person called out for this day, could someone else take each of their shifts that day with every hard
@@ -1686,7 +1689,7 @@ function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTa
 // shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
 // Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
 // one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
-export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0 }) {
+export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET }) {
   let owner = owner0.slice();
   let score = scoreOwner(ctx, owner).total;
   let risk = coverRisk(ctx, owner, { fromDay, chain, budget, callerTakes });
@@ -1694,7 +1697,15 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   // it adds (or earns what it clears), so a hand-over that uses up the slack a second call-out needed is charged for it.
   const pairOf = (own, single) => (pairPrice > 0 ? coverPairRisk(ctx, own, { fromDay, chain, budget, callerTakes, single }).hours : 0);
   let pairH = pairOf(owner, risk);
-  const pairBefore = pairH;
+  // The pair walk's 500-check budget gives up on many pairs that are coverable, and a given-up pair counts as clashing: on the
+  // seeded 40-person week 0 the budgeted walk carried 1,832 pair hours where the walk run to the end carried 327, and 262 of
+  // the 485 given-up pairs on the 20-person week 2 were coverable (eval/cover-pair-capped.mjs, 2026-11-15). So, as for the
+  // single risk below, the budgeted walk screens and a move is kept only when the walk at `pairConfirm` checks a pair (default
+  // 200,000, which gave up on no pair of the 22 bench rosters and took 0-231 ms a walk) agrees it pays; the reported pair hours
+  // are that walk's. `coverPairConfirm: false` (pairConfirm 0) keeps the budgeted count alone.
+  const pairFull = (own, single) => (pairPrice > 0 && pairConfirm > budget ? coverPairRisk(ctx, own, { fromDay, chain, budget: pairConfirm, callerTakes, single }).hours : null);
+  let pairF = null; // set once `strict` is known, below
+  const pairBefore0 = pairH;
   // The budget makes the screening check cheap but can count a day at risk that a full search would cover, and a move that
   // only frees a capped search "clears" risk no call-out would see (4 such trades on the 60-person week, eval/cover-chain-
   // cost.mjs). So a move is kept only when the same check without the budget agrees it pays; that runs once per move that
@@ -1702,6 +1713,8 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   const full = (own) => (budget === Infinity ? null : coverRisk(ctx, own, { fromDay, chain, budget: Infinity, callerTakes }));
   let strict = full(owner);
   const before = strict || risk;
+  pairF = pairFull(owner, strict || risk);
+  const pairBefore = pairF ?? pairBefore0;
   let moves = 0, tried = 0, pairMoves = 0, relieves = 0, trades = 0, pairTried = 0;
   const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
   const take = (cand, needLess = false) => {
@@ -1717,7 +1730,9 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     const f2 = full(cand);
     if (needLess && f2 && f2.hours >= strict.hours - 1e-9) return false;
     if (f2 && s2 + price * f2.hours + pairPrice * p2 >= score + price * strict.hours + pairPrice * pairH - 1e-9) return false;
-    owner = cand; score = s2; risk = r2; strict = f2; pairH = p2; moves++;
+    const pf2 = pairF == null ? null : pairFull(cand, f2 || r2);
+    if (pf2 != null && s2 + price * (f2 || r2).hours + pairPrice * pf2 >= score + price * (strict || risk).hours + pairPrice * pairF - 1e-9) return false;
+    owner = cand; score = s2; risk = r2; strict = f2; pairH = p2; pairF = pf2; moves++;
     return true;
   };
   for (let round = 0; round < rounds; round++) {
@@ -1818,7 +1833,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     }
     if (!improved) break;
   }
-  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? pairH : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null };
+  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -3500,14 +3515,14 @@ function buildRosterOnce(staff, slots, options = {}) {
   if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
     const chain = o.coverChain ?? COVER_CHAIN, budget = o.coverBudget ?? COVER_BUDGET;
     const pairOn = o.coverPairPrice > 0 && ctx.S <= (o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS);
-    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0 });
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? PAIR_CONFIRM_BUDGET) });
     const before = out.before;
     coverSlack = {
       price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
       riskyDaysBefore: before.riskyDays, riskyDays: out.risk.riskyDays, personDays: before.personDays,
       scoreBefore: best.score, scoreAfter: out.score, moves: out.moves, candidates: out.tried,
       pairMoves: out.pairMoves, relieves: out.relieves, trades: out.trades,
-      pairPrice: pairOn ? o.coverPairPrice : 0, pairHoursBefore: out.pairHoursBefore, pairHours: out.pairHours,
+      pairPrice: pairOn ? o.coverPairPrice : 0, pairHoursBefore: out.pairHoursBefore, pairHours: out.pairHours, pairHoursScreen: out.pairHoursScreen, pairConfirmed: out.pairConfirmed,
       pairSkipped: o.coverPairPrice > 0 && !pairOn ? { slots: ctx.S, cap: o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS } : null,
       cases: out.risk.cases.map((c) => ({ person: c.person, day: c.day, hours: c.hours })),
     };

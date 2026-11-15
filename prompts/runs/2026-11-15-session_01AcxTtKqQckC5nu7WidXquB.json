@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKqQckC5nu7WidXquB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T02:06:47Z",
+  "ended": "2026-11-15T02:17:00Z",
+  "wall_minutes": 11.1,
+  "tokens_in": 6641154,
+  "tokens_out": 29989,
+  "cost_usd": 2.9388,
+  "tool_calls": 60,
+  "task": "Deepen flagship shift-roster-builder (allocate.py row 4): fewer capped pairs in the second-call-out check",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16054",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace that would exceed the 2000-char cap fails with rc 1 but the first attempt piped through tail and looked like a no-op; the message is clear when read in full."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Long eval scripts (>120 s) silently move to the background mid-tee; writing outputs into eval/ while committing risked committing a partial .out.txt (caught and re-committed)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-the-pairs-it-gave-up-on.md",
+    "ventures/shift-roster-builder/README.md#fewer-capped-pairs-the-second-call-out-price-checks-its-moves-2026-11-15"
+  ],
+  "goal": null,
+  "notes": "Measured: the 500-step pair walk gave up on many coverable pairs (262 of 485 on seeded 20x56 week 2; 1,832 vs 327 exact pair hours on 40x112 week 0). Landed a confirming 200,000-step pair walk in coverSlackPass (coverPairConfirm, coverPairConfirmBudget): 40x112 week 0 29 moves/+$11.69 -> 11 moves/+$5.69 at the same 8 exact pair hours; weeks 1 and 2 3 and 8 moves -> 0. Tried and dropped MRV ordering (no fewer caps, and it changes reachable covers). Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (188.6s), 1 suites run, 0 failed; venture-preflight run in background (result in PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "46a2e7e2-f529-5dbd-9e93-558fa22f7c56",
+    "transcripts": 1,
+    "first": "2026-11-15T02:06:47Z",
+    "last": "2026-11-15T02:17:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 114,
+        "output": 29989,
+        "thinking": 7854,
+        "cache_read": 6511502,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129538,
+        "api_equivalent_usd": 2.9388,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 114,
+      "output": 29989,
+      "thinking": 7854,
+      "cache_read": 6511502,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129538,
+      "api_equivalent_usd": 2.9388,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.1,
+      "active_minutes": 11.1,
+      "model_minutes": 5.5,
+      "tool_minutes": 5.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "measure capped pairs at four budgets on 22 rosters, implement and bench the confirm, test, README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 204.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

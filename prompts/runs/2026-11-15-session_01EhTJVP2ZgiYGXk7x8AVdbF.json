@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVP2ZgiYGXk7x8AVdbF",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T02:29:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Perf: shorten what agents and visitors wait on in the slowest venture suites; changepoint-detector fisherG trig table",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 16062,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are owner-gated again; the three slowest suites are now flat (changepoint), wall-clock budgeted (shift-roster) or worker-idle (shed), so per-file timing was needed before any lever showed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-the-cycle-check-that-cost-more-than-the-steps.md",
+    "docs/history/ci-perf-2026-11-15-changepoint-fisher-table.md"
+  ],
+  "goal": null,
+  "notes": "Metric: fisherG time and analyze wall on long series. fisherG total over 3,206 series 29,575 ms -> 2,530 ms (performance.now around each call, old engine.mjs from HEAD vs new, same process). analyze on DJIA n=8,609 defaults 1,558 -> 922 ms (median of 5, same process). djia-returns.test.mjs 11.8/12.1/12.7 s -> 10.5/9.7/10.8 s and quiet-series.test.mjs 14.5/14.6/14.7 -> 12.1/12.5/12.4 s (node --test alone, 3 runs each, git stash for before). Same answers: peak identical in 3,206/3,206, max rel g diff 4.5e-13, p 1.4e-11, 0 decision/text flips; analyze JSON byte-identical 243/243 (81 real series x 3 option sets). python3 platform/ci/run_venture_tests.py changepoint-detector: ok 122.6 s. Readings: per-file timings for changepoint (sum 404 s, max engine.test 36 s), shift-roster (calc 88 s, cg-hardstop 71 s: wall-clock budgets, left), shed-designer (browser 101, gallery 95, fuzz 77 under 4-way load; gallery 42 s alone, 21 s idle).",
+  "corrections": [],
+  "redteam": null
+}

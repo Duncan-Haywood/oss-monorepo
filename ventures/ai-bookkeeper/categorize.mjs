@@ -703,6 +703,23 @@ export const BUILT_IN = [
   ["6160", "out", /\bprk meter\b|\bparking meter\b|\bauto wash\b|\btexaco\b/],
   ["6140", "out", /natural ?gas/],
   ["6030", "out", /\bliability insuranc/],
+  // YNAB registers (eval/ynab-registers.mjs, 2026-11-15): payee names YNAB has already cleaned, written from the
+  // Seattle household's first-seen misses only; the Utah and Chicago registers were read after, as held out. The
+  // utilities rule above matched "utility" but not "utilities", so "Seattle Public Utilities" went unsuggested.
+  // Streaming and personal subscriptions (Netflix, Audible, YouTube Premium, Peloton, iTunes, Prime) were labelled
+  // as subscriptions by the households but stay for a person here, as gaps4 and saas-peo-lender-gaps pin: in a
+  // business's books they are as often the owner's own.
+  ["6140", "out", /\bcity light\b|\butilities\b/],
+  ["6130", "out", /\bespresso\b/],
+  ["6160", "out", /\bgood to go\b|\bwsdot\b|\bimpark\b/],
+  ["6060", "out", /\bynab\b/],
+  // Written after the held-out reading, from the Utah and Chicago misses, so tuned on all three registers.
+  ["6060", "out", /huluplus/],
+  ["6140", "out", /\bcomed\b/],
+  ["6120", "out", /\bventra\b/],
+  ["6160", "out", /\bmaverik\b|\bcenex\b|\btires?\b(?!.*\b(swing|toy)\b)/],
+  ["6110", "out", /\bdmv\b/],
+  ["6080", "out", /\brealpage\b/],
   // Labelled books (eval/opencollective-labelled.mjs, 2026-11-10): the words people type on an expense or invoice
   // ("web hosting", "legal services", "printing", "supplies"), written from two fiscal hosts' misses and checked on three
   // hosts no rule was written from. Last in the list, so a vendor name above always wins. "Gas", "maintenance" and a
