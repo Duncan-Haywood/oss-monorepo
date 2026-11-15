@@ -365,7 +365,44 @@ Two bugs found on the way, both fixed with a test:
 Open (updated below): three-session designs for 14, 38, 40 and 46 (longer solver runs, or a
 symmetry such as a cyclic group acting on the teams).
 
-### Odd leagues, three games a night: solved with the layout, and two proofs (2026-11-15, latest)
+### Odd leagues at 9 time slots: fewer courts, and three more proofs (2026-11-15, latest)
+
+The odd designs above were all solved at 6 time slots. A league with 9 slots (three sessions a
+night) could use them, but only on the 6-slot court count, and on the courts the count bound asks
+for at 9 slots the tool left long waits: 11 teams on 2 courts 31 waits over seeds 1 to 3, 13 on 2
+courts 95, 17 on 3 courts 60, 19 on 3 courts 171, 25 on 4 courts 281
+(`eval/three-game-nights.txt`, part 7 "before").
+
+`eval/odd-night-sat.py ... --times 9 --shape` (the same model; `window_shapes` already took any
+slot count) found seasons for:
+
+| Teams | Courts x 9 | Courts at 6 slots | Solver (s) | Waits before (3 seeds) | Waits now |
+|---|---|---|---|---|---|
+| 9 | 2 | 3 | 1.3 | 0 | 0 |
+| 11 | 2 | 3 | 6.0 | 31 | 0 |
+| 13 | 2 | 3 | 100 | 95 | 0 |
+| 15 | 3 | 4 | 51 | 0 | 0 |
+| 17 | 3 | 4 | 245 | 60 | 0 |
+
+(Four runs shared a 4-core container, so the solver times are rough.) 9 and 15 teams were already
+wait-free at 9 slots without a design (spare slots), so their designs are a guarantee, not a gain.
+
+**Three settings proved to keep a wait** (UNSAT without the shape constraints, so the proof does not
+lean on `window_shapes`): 5 teams on 1 court x 9 (0.0 s), 7 on 1 court x 9 (0.0 s) and 7 on 2 courts
+x 9 (12 s). They join `PROVED_NO_WAIT_FREE`, so 7 teams on 2 courts x 9 now get "need at least 3
+courts ... checked for every possible 7-team season on 2 courts" instead of a bound they can't reach.
+
+**Stored per slot count.** `eval/write-odd-designs.mjs` used to keep one design per team count (the
+fewest courts); a 9-slot design on fewer courts would have replaced a 6-slot one and left 6-slot
+leagues without any. It now keeps the fewest courts per (teams, slots), and a 9-slot design only
+when it saves a court over the 6-slot one (`designedNights` already takes any design with
+`times <=` the league's). `doubleheader.test.mjs` checks both: 11 and 13 teams on 2 x 9 build
+wait-free (and keep waits with the search off), and 11 on 3 x 9 still uses the 6-slot design.
+
+Open: 19 teams on 3 x 9 (fully booked), 21, 23 and 25 on 4 x 9, 27 and 29 on 5 x 9, 27 on 7 x 6
+(runs of up to 50 minutes each in `eval/odd-night-sat.txt`).
+
+### Odd leagues, three games a night: solved with the layout, and two proofs (2026-11-15, later)
 
 An odd league could not use any of the above. Each round one team sits out, so on a night of three
 rounds three teams play two games and the rest play three; a closed block cannot hold a two-game

@@ -29,3 +29,17 @@ Found (SAT), stored in odd-designs.mjs when it is the fewest courts for that siz
 23 6 | yes | True | 338.7 | six shapes
 25 6 | yes | True | 77.8 | fully booked, one shape
 29 7 | yes | True | 354.5 | fully booked, one shape
+
+At 9 time slots (2026-11-15, latest; same container, up to five runs at once, times rough):
+
+Proved impossible (UNSAT), run without --shape so the proof uses the plain model only:
+5 1 9 | no  | False | 0.0 |
+7 1 9 | no  | False | 0.0 |
+7 2 9 | no  | False | 11.8 | (also UNSAT with --shape, 0.8 s)
+
+Found (SAT, --shape), stored when it needs fewer courts than the size's 6-slot design:
+9 2 9  | yes | True | 1.3 | 3 courts at 6 slots
+11 2 9 | yes | True | 6.0 | 3 at 6
+13 2 9 | yes | True | 100.4 | fully booked; 3 at 6
+15 3 9 | yes | True | 50.9 | 4 at 6
+17 3 9 | yes | True | 245 | 4 at 6
