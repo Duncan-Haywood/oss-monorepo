@@ -233,3 +233,18 @@ def test_milestone_7k_fixes_are_inert_at_their_defaults_and_bound_the_command():
         assert np.isclose(np.linalg.norm(cone), poshold.TILT_CMD_MAX) and np.linalg.norm(per_axis) > poshold.TILT_CMD_MAX
     finally:
         poshold.TILT_CMD_MAX = old
+
+
+def test_milestone_7l_score_passes_perr_max_and_accepts_a_per_design_clip():
+    """score(perr_max=None) is the old score bit for bit; score passes perr_max to rollout; a per-design (N, 1, 1) clip equals
+    scoring each design alone with its own scalar clip (milestone 7l bounds |kp e| per design as perr = A_P / kp)."""
+    r = _m7b_above_design(); x1 = np.array(r["x"][:12], float)[None]
+    x = np.vstack([x1, x1]); x[1, 9] = 0.8                   # second design: a different position kp
+    kw = dict(dist_sign=poshold.cop_signs(1.0), ff=1.0, ff_mode="integ")
+    a = poshold.score(x, 4, 5, **kw); b = poshold.score(x, 4, 5, perr_max=None, **kw)
+    assert np.array_equal(a[0], b[0])
+    assert not np.array_equal(a[0], poshold.score(x, 4, 5, perr_max=0.1, **kw)[0])
+    clip = np.array([0.1, 0.3])
+    both = poshold.score(x, 4, 5, perr_max=clip[:, None, None], **kw)[0]
+    alone = [poshold.score(x[i:i + 1], 4, 5, perr_max=float(clip[i]), **kw)[0][0] for i in range(2)]
+    assert np.allclose(both, alone)
