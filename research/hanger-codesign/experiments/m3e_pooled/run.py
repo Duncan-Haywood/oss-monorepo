@@ -86,7 +86,11 @@ def chain_job(job):
     X = sp.start(seed)
     nw, w = localhess.LocalNewton(sp, X), fem.GRAV * sp.mass.max()
     rows = []
-    for ea in CHAIN[f]:
+    part = Path(cache) / f"partial_{f}_{mm(a)}_{seed}"      # per-stage checkpoint: the solver keeps no
+    if (part.with_suffix(".json")).exists():                # state between stages, so resuming from the
+        rows = json.loads(part.with_suffix(".json").read_text())   # saved positions is exact
+        X = np.load(part.with_suffix(".npz"))["X"]
+    for ea in CHAIN[f][len(rows):]:
         t = time.time()
         sp.EA = ea
         X, info = m3c.stage(sp, nw, w, X)
@@ -94,6 +98,8 @@ def chain_job(job):
         print(f"chain {f} {mm(a)}mm seed {seed} EA {ea:g}: DC {r['dc']:.4f} folds {r['folds']} "
               f"E {r['energy']:.8e} lam {r['lam']} steps {r['steps']} {r['sec']:.0f}s", flush=True)
         rows.append(r)
+        np.savez(part.with_suffix(".npz"), X=X)
+        part.with_suffix(".json").write_text(json.dumps(rows))
     np.savez_compressed(Path(cache) / f"state_{f}_{mm(a)}_{seed}.npz", X=X)
     out.write_text(json.dumps(rows))
     return rows
