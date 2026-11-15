@@ -15,14 +15,14 @@ LibRaw (every sensel equal): ``tools/nef_libraw_check.py`` and
 from __future__ import annotations
 
 import io
-from array import array
 import random
 import struct
 import sys
 import tempfile
 import unittest
-from unittest import mock
+from array import array
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
