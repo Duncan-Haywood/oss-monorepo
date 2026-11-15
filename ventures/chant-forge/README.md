@@ -387,7 +387,7 @@ one brief contact a tap; l, j, w and a bare vowel none.
 `sing.test.mjs` gains 3 tests: the consonant rules, nine VCV pairs on D3 read back as their class, voicing and
 place (and as none from the vowel-only choir), and a consonant before the beat leaving the vowel on it.
 
-#### Final consonants (2026-11-15, latest)
+#### Final consonants (2026-11-15)
 
 With openings sung, *Dies irae* still came out as *Di-e i-rae*: 37.4% of the corpus's 8,085 sung syllables
 close on a consonant (s 802, n 601, m 528, t 362, r 343, l 134, k 130 ...; 218 on a cluster such as *Sanc*,
@@ -402,8 +402,7 @@ close on a consonant (s 802, n 601, m 528, t 362, r 343, l 134, k 130 ...; 218 o
   l or r they hum on as the note fades.
 - **Where in time** (`codaPlan`): choirs hold the vowel and close it late, so the coda ends where the note's
   sound does (before the next syllable's consonant when that is sung ahead of the beat) and takes at most
-  35% of the note, shortened in proportion when it needs more. On the corpus's 0.24 s eighths a *k s*
-  cluster is squeezed to a 24 ms closure.
+  35% of the note, shortened when it needs more (see the second round below: each phone now keeps a floor).
 - **Nasals changed too:** reading the first corpus run showed /m/ after /u/ (*-um*, *-num*, *-rum*, very
   common) was the vowel 4 dB down with its upper formants intact: nothing to hear. A nasal's source is now
   low-passed (two one-pole sections at 400 Hz, ramped in over 10 ms), as the nose passes little above a few
@@ -441,6 +440,63 @@ vowel coming back (a vibrato swing on a high note looks like one too); a brief d
 `sing.test.mjs` gains 3 tests (11 in all): the coda rules, a coda ending at the note's end with a silent
 release after an obstruent, and *as et ad an er a* on D3 read back from the MIDI path (and as none from the
 vowel-only choir). Nobody has listened to it.
+
+#### Final consonants, second round: *x* and the nasals (2026-11-15, latest)
+
+The first round's misses were mostly two things: *x* (k s, as in *lux*, *dex*, *Rex*) read as a plain s
+(3 of 13 corpus velars right), and final /m/ and /n/ read as nothing (22 of 42). Before changing anything,
+a held-out set was fixed (part D of the report: every sixth file of `corpus/gregobase-1908`, ten Graduale
+pieces) and scored: 58 of 70 closings (82.9%).
+
+- **Each phone keeps a floor** (`CODA_FLOOR`, `codaPlan`): a 45 ms closure and a 10 ms burst, 35 ms of
+  frication, 60 ms of murmur. Shortening now cuts the part of each phone above its floor, and when the
+  floors need more than 35% of the note (a cluster on an eighth) the coda may take up to half of it. Before,
+  everything shrank in proportion, and the *k* of *dex* on a 0.24 s note had a 24 ms closure.
+- **A burst into frication is a release** (`readCoda`): a closure, then a burst that runs straight into
+  noise above 2.5 kHz with the voices off, is a stop followed by its fricative. The first reader only
+  accepted a burst whose energy fell away again, so every *k s* read as its s. Its voice bar is now read
+  from the closure's later half (a short closure's first frames reach back into the vowel), and velar place
+  uses a 500 Hz band that can sit anywhere from 1 to 4 kHz (a 2.25 kHz burst was split between two fixed
+  bands and read as labial).
+- **The murmur sits 7 dB under its vowel** (`nasalGain`): the first version used one fixed gain, and
+  measured over five vowels and E2-E4 the steady murmur sat 9 to 27 dB under the vowel (the calibration's
+  reference had been taken during the vowel's attack). The gain is now worked out per note from the
+  harmonics' power through the vowel's resonators against the murmur's path, for the middle of
+  Fujimura's (1962) 5-10 dB; with one voice it measures 7 dB at every pitch, and the five detuned voices
+  beat on the low harmonics around that. The murmur also gets its antiformant (/m/ 1000 Hz, /n/ 1800,
+  /gn/ 2200 Hz) and a broad low resonance (280 Hz), and the vowel's formants now move toward the place's
+  locus as the lips close instead of toward the murmur's F2, which had made /u/ 14 dB brighter just
+  before an /m/.
+
+Results (`eval/coda-check-report.md`):
+
+| set | before | after |
+|---|---|---|
+| D, held out (10 Graduale pieces) | 58 of 70 (82.9%) | 63 of 70 (90.0%) |
+| D: *k s* | 0 of 3 | 3 of 3 |
+| D: nasals | 6 of 12 | 8 of 12 (9 of 13 by class, with the *n t* cluster) |
+| B, the five pieces (misses read) | 123 of 162 (75.9%) | 134 of 162 (82.7%) |
+| B: *k* and *k s* | 3 of 13 | 12 of 13 |
+| B: nasals (clusters included) | 22 of 42 | 21 of 42 |
+| A, syllables before a rest (tuning set) | 129 of 180 (71.7%) | 134 of 180 (74.4%) |
+| vowel-only control, D and B | 68 of 70, 160 of 162 | unchanged |
+
+D's total was printed once in between (61 of 70, after the *x* fix); its misses were not read and no change
+was kept or dropped on it. The nasal changes did not move B (22 of 42 before them, 21 after), and in A they
+cost two nasal-plus-stop clusters (*ant* on E2, *unc* on G3, now read on their stop). They are kept because
+they meet a published level target the fixed gain missed by up to 20 dB, not because the reader liked them.
+After a dark vowel the reader still misses most /m/: after /u/ the murmur is 11-12 dB darker above 1 kHz
+than the vowel, and the reader asks for 15 (a vowel fading into silence darkens by up to 12). That is the
+next thing to fix, in the reader or with a listener. Nobody has listened to it.
+
+Openings and vowels after this round: openings 742 of 934 (79.4%, was 745). Openings keep the first
+version's murmur (`ONSET_NASAL_GAIN`): with the new one they fell to 724, nasal openings 96 to 78 of 149,
+because the opening reader's -7 dB murmur threshold was set on the old level, and no listener has said
+which is right. Vowels: the vowel check's window ran on into a syllable's final consonant, which now takes
+more of a short note, so 874 of 920 (95.0%, was 895) read right; ending the window where the final
+consonant's transition starts, 695 of the 714 notes left with 0.1 s (97.3%). `sing.test.mjs` gains a test
+(12 in all): the murmur 5-9 dB under /a/ and /u/ on E2, D3, A3 and E4 with one voice, and *dex* read as
+a voiceless velar stop on 0.24 and 0.5 s notes.
 
 ### A score for the choir: `--musicxml` (2026-11-14)
 

@@ -79,53 +79,63 @@ lines.push('## A. Syllables before a rest (the set the reader was tuned on)', ''
   `All pitches: ${pct(aScore.true[0], aScore.true[1])} read exactly (class, voicing, place); ${pct(aScore.true[2], aScore.true[1])} by class alone. `
   + `The vowel-only choir on the same syllables reads as no consonant ${pct(aScore.vowels[0], aScore.vowels[1])}.`, '', 'Misses:', '', ...misses.map((m) => `- ${m}`), '', 'Vowel-only control, read as a consonant:', '', ...ctlMiss.map((m) => `- ${m}`), '');
 
-// ---- B ----
-const PIECES = ['dies-irae', 'pange-lingua', 'veni-creator', 'te-deum', 'salve-regina'];
-const CLS = ['stop', 'fricative', 'nasal', 'tap', 'none'];
-const byClass = new Map(), conf = new Map();
-const bMiss = [];
-let bAll = [0, 0], bManner = 0, ctl = [0, 0], bare = [0, 0], bareCtl = [0, 0], skipped = 0, beforeCons = [0, 0], beforeVow = [0, 0];
-const bRows = [];
-for (const p of PIECES) {
-  const src = parseGabc(readFileSync(new URL(`${p}.gabc`, corpus), 'utf8'));
-  const mid = eventsToMidi(fitToBars(transposeToFinal(src.events, 50), 8), { bpm: 124, title: p });
-  const sungR = choir(mid, true), ctlR = choir(mid, 'vowels');
-  const firstOf = new Set(), lastOf = new Map();
-  for (const n of sungR.notes) if (n.syl) { if (![...firstOf].some((f) => f.syl === n.syl)) firstOf.add(n); lastOf.set(n.syl, n); }
-  let right = 0, all = 0, cRight = 0;
-  sungR.notes.forEach((n, k) => {
-    if (!n.syl || lastOf.get(n.syl) !== n || n.t1 - n.t0 < 0.2) return;
-    const cd = latinCoda(n.lyric), on = firstOf.has(n) ? latinOnset(n.lyric) : [];
-    const vAt = vowelStart(n, on), tEnd = nextSound(sungR.notes, k, firstOf);
-    // the reference must be steady vowel: before the coda's room (35% of the note and its transition)
-    if (vAt + 0.06 > n.t1 - 0.35 * (n.t1 - n.t0) - 0.045 || tEnd - vAt < 0.15) { skipped++; return; }
-    const got = readCoda(sungR.x, rate, vAt, tEnd), gotC = readCoda(ctlR.x, rate, vAt, tEnd);
-    if (!cd.length) { bare[1]++; if (got.cls === 'none') bare[0]++; bareCtl[1]++; if (gotC.cls === 'none') bareCtl[0]++; return; }
-    const nx = sungR.notes[k + 1], nxOn = nx && firstOf.has(nx) ? latinOnset(nx.lyric) : [];
-    const want = expectedRead(cd[0]), ok = match(want, got);
-    all++; if (ok) right++; else bMiss.push(`${p} *${n.lyric}*${nxOn.length ? ` (then ${nx.lyric})` : ''}, ${Math.round((n.t1 - n.t0) * 1000)} ms: ${label(want)} read as ${label(got)}`);
-    if (want.cls === got.cls) bManner++;
-    if (gotC.cls === 'none') cRight++;
-    const side = nxOn.length ? beforeCons : beforeVow; side[1]++; if (ok) side[0]++;
-    const key = label(want), c = byClass.get(key) || [0, 0];
-    c[1]++; if (ok) c[0]++; byClass.set(key, c);
-    const cm = conf.get(want.cls) || new Map(); cm.set(got.cls, (cm.get(got.cls) || 0) + 1); conf.set(want.cls, cm);
-  });
-  bAll = [bAll[0] + right, bAll[1] + all]; ctl = [ctl[0] + cRight, ctl[1] + all];
-  bRows.push(`| ${p} | ${all} | ${pct(right, all)} | ${pct(cRight, all)} |`);
+// ---- B and D ----
+// Score the last note of each syllable over a list of corpus files (paths under corpus/, no .gabc).
+function scorePieces(list) {
+  const byClass = new Map(), conf = new Map(), miss = [], rows = [];
+  const t = { all: [0, 0], manner: 0, ctl: [0, 0], bare: [0, 0], bareCtl: [0, 0], skipped: 0, beforeCons: [0, 0], beforeVow: [0, 0] };
+  for (const p of list) {
+    const src = parseGabc(readFileSync(new URL(`${p}.gabc`, corpus), 'utf8'));
+    const mid = eventsToMidi(fitToBars(transposeToFinal(src.events, 50), 8), { bpm: 124, title: p });
+    const sungR = choir(mid, true), ctlR = choir(mid, 'vowels');
+    const firstOf = new Set(), lastOf = new Map();
+    for (const n of sungR.notes) if (n.syl) { if (![...firstOf].some((f) => f.syl === n.syl)) firstOf.add(n); lastOf.set(n.syl, n); }
+    let right = 0, all = 0, cRight = 0;
+    sungR.notes.forEach((n, k) => {
+      if (!n.syl || lastOf.get(n.syl) !== n || n.t1 - n.t0 < 0.2) return;
+      const cd = latinCoda(n.lyric), on = firstOf.has(n) ? latinOnset(n.lyric) : [];
+      const vAt = vowelStart(n, on), tEnd = nextSound(sungR.notes, k, firstOf);
+      // the reference must be steady vowel: before the coda's room (35% of the note and its transition)
+      if (vAt + 0.06 > n.t1 - 0.35 * (n.t1 - n.t0) - 0.045 || tEnd - vAt < 0.15) { t.skipped++; return; }
+      const got = readCoda(sungR.x, rate, vAt, tEnd), gotC = readCoda(ctlR.x, rate, vAt, tEnd);
+      if (!cd.length) { t.bare[1]++; if (got.cls === 'none') t.bare[0]++; t.bareCtl[1]++; if (gotC.cls === 'none') t.bareCtl[0]++; return; }
+      const nx = sungR.notes[k + 1], nxOn = nx && firstOf.has(nx) ? latinOnset(nx.lyric) : [];
+      const want = expectedRead(cd[0]), ok = match(want, got);
+      all++; if (ok) right++; else miss.push(`${p} *${n.lyric}*${nxOn.length ? ` (then ${nx.lyric})` : ''}, ${Math.round((n.t1 - n.t0) * 1000)} ms: ${label(want)} read as ${label(got)}`);
+      if (want.cls === got.cls) t.manner++;
+      if (gotC.cls === 'none') cRight++;
+      const side = nxOn.length ? t.beforeCons : t.beforeVow; side[1]++; if (ok) side[0]++;
+      const key = cd.length > 1 ? `${label(want)} (cluster ${cd.join(' ')})` : label(want), c = byClass.get(key) || [0, 0];
+      c[1]++; if (ok) c[0]++; byClass.set(key, c);
+      const cm = conf.get(want.cls) || new Map(); cm.set(got.cls, (cm.get(got.cls) || 0) + 1); conf.set(want.cls, cm);
+    });
+    t.all = [t.all[0] + right, t.all[1] + all]; t.ctl = [t.ctl[0] + cRight, t.ctl[1] + all];
+    rows.push(`| ${p} | ${all} | ${pct(right, all)} | ${pct(cRight, all)} |`);
+  }
+  return [
+    '| piece | syllables | singing: read exactly as written | vowel-only control: read as none |', '|---|---|---|---|', ...rows,
+    `| all | ${t.all[1]} | ${pct(...t.all)} | ${pct(...t.ctl)} |`, '',
+    `By class alone: ${pct(t.manner, t.all[1])}. Before a syllable that opens on a consonant: ${pct(...t.beforeCons)}; before a vowel or a rest: ${pct(...t.beforeVow)}. `
+    + `Syllables that close on their vowel: ${pct(...t.bare)} read as no consonant (vowel-only choir: ${pct(...t.bareCtl)}). Too short for a steady vowel before the coda, skipped: ${t.skipped}.`, '',
+    'By written consonant (a cluster scored on its first phone is listed apart):', '', '| written | read exactly |', '|---|---|',
+    ...[...byClass].sort((x, y) => y[1][1] - x[1][1]).map(([k, [r, n]]) => `| ${k} | ${pct(r, n)} |`), '',
+    'Class written (rows) against class read (columns):', '', `| written | ${CLS.join(' | ')} |`, '|---|' + CLS.map(() => '---').join('|') + '|',
+    ...CLS.filter((c) => conf.has(c)).map((c) => `| ${c} | ${CLS.map((d) => conf.get(c).get(d) || 0).join(' | ')} |`), '',
+    'Misses:', '', ...miss.map((m) => `- ${m}`), ''];
 }
+const CLS = ['stop', 'fricative', 'nasal', 'tap', 'none'];
+const PIECES = ['dies-irae', 'pange-lingua', 'veni-creator', 'te-deum', 'salve-regina'];
 lines.push('## B. The corpus pieces (final D3, fitted to 4/4 at 124 BPM)', '',
-  'Not a clean held-out set: no threshold was set on it, but its first run (60.5%) was read for misses, which showed the window cutting off bursts at the next sound and /m/ after /u/ barely a murmur; both were fixed (in the reader\'s window and in sing.mjs) before this run. One looser nasal rule was also tried and dropped: it read 136 of 162 here (84.0%) but called 13 of the 30 vowel-only A2 fades in part A nasals.', '',
+  'Not a clean held-out set: no threshold was set on it, but its first run (60.5%) was read for misses, which showed the window cutting off bursts at the next sound and /m/ after /u/ barely a murmur; both were fixed (in the reader\'s window and in sing.mjs) before this run. One looser nasal rule was also tried and dropped: it read 136 of 162 here (84.0%) but called 13 of 30 vowel-only A2 fades in part A nasals. Its misses were read again for the second round (README "Final consonants, second round").', '',
   'The last note of every syllable that closes on a consonant, 0.2 s or more, with 60 ms of steady vowel before the coda\'s room. The window ends where the next sound starts (the next beat, less its opening consonant sung before it). The vowel-only control column is the same notes from the choir with no consonants: how often the reader (rightly) finds none.', '',
-  '| piece | syllables | singing: read exactly as written | vowel-only control: read as none |', '|---|---|---|---|', ...bRows,
-  `| all | ${bAll[1]} | ${pct(...bAll)} | ${pct(...ctl)} |`, '',
-  `By class alone: ${pct(bManner, bAll[1])}. Before a syllable that opens on a consonant: ${pct(...beforeCons)}; before a vowel or a rest: ${pct(...beforeVow)}. `
-  + `Syllables that close on their vowel: ${pct(...bare)} read as no consonant (vowel-only choir: ${pct(...bareCtl)}). Too short for a steady vowel before the coda, skipped: ${skipped}.`, '',
-  'By written consonant:', '', '| written | read exactly |', '|---|---|',
-  ...[...byClass].sort((a, b) => b[1][1] - a[1][1]).map(([k, [r, n]]) => `| ${k} | ${pct(r, n)} |`), '',
-  'Class written (rows) against class read (columns):', '', `| written | ${CLS.join(' | ')} |`, '|---|' + CLS.map(() => '---').join('|') + '|',
-  ...CLS.filter((c) => conf.has(c)).map((c) => `| ${c} | ${CLS.map((d) => conf.get(c).get(d) || 0).join(' | ')} |`), '',
-  'Misses:', '', ...bMiss.map((m) => `- ${m}`), '');
+  ...scorePieces(PIECES));
+
+// Held out: every sixth Graduale piece (1908 edition) by file name, fixed before the second round's
+// changes and scored once before and once after them; its misses were not read while tuning.
+const HELD = readdirSync(new URL('gregobase-1908/', corpus)).filter((f) => f.endsWith('.gabc')).sort().filter((_, i) => i % 6 === 0).map((f) => `gregobase-1908/${f.slice(0, -5)}`);
+lines.push('## D. Held out: ten Graduale pieces (every sixth file of corpus/gregobase-1908)', '',
+  `${HELD.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Chosen by file name before the second round's changes, and scored before and after them without its misses being read in between.`, '',
+  ...scorePieces(HELD));
 
 // ---- C ----
 const files = [];
