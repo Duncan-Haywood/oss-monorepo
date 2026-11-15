@@ -48,6 +48,10 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on leak 
 
 ![Localisation error per leak with and without the other leaks in the residual](experiments/step17-replay/localisation_error.svg)
 
+**Step 18 (2026-11-15): a residual a utility could compute, the change against the same hours a week earlier, finds only 12 of 32 leaks within 300 m.** With no model and no leak list in the residual (published pressure over a day minus the same hours a week before), the nominal-model localiser puts **12 of 32 within 300 m, slow leaks 4 of 17**: no better than step 11's regression residual (15; paired P = 0.45) or naming the sensor whose pressure fell most (12), and 16 leaks short of step 17's oracle (28). Removing week-to-week demand change with the leak-free model does not help (11), and no lag from 24 h to two weeks does better than 12. Three of five pre-registered predictions failed. The leak flows say why: over a week the other leaks' flows change by about as much as a slow leak's own (median 2.7 against 2.3 m³/h), and only a third of the slow leak's own growth is left in the window. On L-Town the other leaks have to be modelled, not differenced away ([step 18](#step-18-a-lagged-tracking-baseline-with-no-leak-list-experimentsstep18-lagged)).
+
+![Leaks localised within 300 m against the baseline lag, abrupt and incipient](experiments/step18-lagged/lag_sweep.svg)
+
 ![Localisation error per leak: nominal model against the generator's model on the leak's day](experiments/step16-realday/localisation_error.svg)
 
 We also found that **the released LILA identification code is not a blind detector**: its notebook writes in, for each known 2019 leak, the pipe, its most affected sensor and the calibration windows, and then dates that one leak (it prints a 0 h delay for p523). Our automatic version runs LILA's identification over a whole year without those inputs; we know of no earlier such run.
@@ -88,7 +92,7 @@ Every L-Town result we could read reports true-positive rates and false-alarm co
 - **Water.** 64% of the 2019 new leaks' volume (285,791 of 444,340 m³) flows after D1's alarms: the share an instant repair on alarm would save. An upper bound on value, since repairs take days.
 - **Pre-registered H1-step1** (at least 9 of 19 with at most 4 false alarms): held, and is uninformative, since chance alone reaches 11. Logged in [`LOG.md`](LOG.md) with the design change made after a first look at 2019.
 
-### Checks (`tests/`, 20)
+### Checks (`tests/`, 42)
 Decimal-comma SCADA parsing; leak list from the configuration file; hourly means; weekday/weekend columns; a synthetic 10-sd step on one of three sensors gives residuals below −5 and one alarm within a day (and the old hold-off version alarms twice); CUSUM ignores upward shifts; matching picks the latest onset and closes the 30-day window; carried-over leaks keep their 2018 onset; graph and straight distances on a three-link network. Step 2: pairwise models reconstruct leak-free data and predict each sensor itself exactly; a 1 m drop at one sensor gets every model's vote, while other sensors tie with it in more than half the steps and the norm tie-break finds it every time; automatic LILA raises one alarm for a step, at that sensor, within a day; a sensor rarely the MAS keeps a finite sd. Step 6: the water balance removes the tank's storage change; the night minimum uses hours 00 to 05 only; a 5-sd step in synthetic night minima alarms once within three nights and is then absorbed. Step 7: weekday offsets recover a planted weekly pattern and ignore nights outside the training set.
 
 ## Step 2: LILA, automatic (`src/water_leaks/lila.py`, `experiments/step2-lila/`)
@@ -289,6 +293,36 @@ Plan, set before any SICAMS statistic was computed: [`LOG.md`](LOG.md), 2026-11-
 - **For H1:** a third method, and the first published entry's own times, confirm the restated claim: detection-only counts on L-Town sit at or near chance, and location and timeliness carry the signal. For H2: a false-alarm rate tuned on 2018 does not transfer to 2019 (1 to 26 here), which is the case for a rate certified on leak-free operation.
 - **Not reproduced:** the paper's manual retraining of area C before p31 and p277, its hand-picked training intervals beyond the stated rule, its 5-minute resolution, and Algorithm 2's unstated &alpha; and &delta; (fixed here at 0.05 and a grid). p680's detection time is misprinted in the paper's Table 1 (before onset); its &Delta;t (2 h) was used.
 
+## Step 18: a lagged tracking baseline with no leak list (`experiments/step18-lagged/`)
+
+Plan, set before any lagged residual was computed: [`LOG.md`](LOG.md), 2026-11-15 (step 18). Milestone 3, H3.
+
+**Question.** Step 17's one-leak residual is an oracle. The simplest residual a utility could compute that drops old leaks is a change against a recent window. Does it recover part of the gap between D1's regression residual (15 of 32) and the oracle (28)?
+
+**Method.** For each of the 32 oracle-timed leaks at hour t: **P-lag(L)** = mean published pressure over [t, t + 24) minus the same over [t &minus; L, t &minus; L + 24) (`localise.lagged_change`; no model, no leak list); **D-lag(L)**, the same on published minus step 14's leak-free run (removes demand change between the windows). Primary L = 168 h (same weekday and hours); 24, 72 and 336 h as a sweep. Localised with step 11's nominal signatures at q = 5 (A) and the most-affected sensor (M); 300 m rule, Poisson-binomial chance, exact sign tests. Contamination is measured from the published leak flows: the target's own mean-flow change between the windows and the summed absolute change of every other leak.
+
+**Results** (`experiments/step18-lagged/results.txt`; deterministic). Within 300 m, of 32 (chance expects 1.4):
+
+| residual, estimate | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| P-lag(168), A (data only) | **12** | 8 | 4 | 841 m |
+| D-lag(168), A (demand removed) | 11 | 8 | 3 | 742 m |
+| P-lag(168), M | 12 | 10 | 2 | 402 m |
+| D1 regression residual, A (step 11) | 15 | 10 | 5 | 436 m |
+| one-leak oracle, A (step 17) | 28 | 13 | 15 | 68 m |
+
+| lag L | 24 h | 72 h | 168 h | 336 h |
+|---|---|---|---|---|
+| A on P-lag(L), of 32 | 12 | 8 | 12 | 11 |
+| abrupt / incipient | 11 / 1 | 7 / 1 | 8 / 4 | 8 / 3 |
+
+- **No better than D1, far from the oracle.** A on P-lag(168) against D1: 2 against 5 discordant leaks (P = 0.45); against the oracle 0 against 16 (P &lt; 0.0001); against the most-affected sensor 3 against 3 (P = 1.0).
+- **Not demand.** Removing demand change with the leak-free model moves 12 to 11; the loss is other leaks.
+- **Why no lag works.** Over 168 h a slow leak's own flow changes a median 2.34 m&sup3;/h and the other leaks' by a summed 2.66; only 0.32 of its own change since onset is left in the window. A short lag keeps abrupt leaks (11 of 15 at 24 h) but drops the slow ones' growth (1 of 17); a long lag lets other leaks back in. The best correlation has median 0.896 (oracle 0.9986).
+- **Pre-registered predictions.** (a) more than 15: **failed** (12). (b) more than 5 of 17 incipient on D-lag: **failed** (3). (c) demand costs at most 3 leaks: **held** (&minus;1). (d) at most 23: **held**. (e) beats the most-affected sensor at P &lt; 0.05: **failed** (P = 1.0).
+- **What it means.** On a network with many overlapping leaks, differencing against any fixed window cannot isolate a slow leak. The other leaks have to be modelled: a sequential localiser that subtracts leaks already found, or a joint multi-source fit over the 782 signatures, scored against step 17's 28 of 32.
+- **Caveats.** The localisation hour is still an oracle (half the leak's peak flow). One network, 32 leaks; the sweep's lags carry no verdicts.
+
 ## Step 17: a per-leak oracle residual, the other leaks replayed (`src/water_leaks/replay.py`, `experiments/step17-replay/`)
 
 Plan, set before any replayed residual was computed: [`LOG.md`](LOG.md), 2026-11-15 (step 17). Milestone 3, H3.
@@ -426,6 +460,8 @@ PYTHONPATH=src python experiments/step16-realday/run.py     # 25,056 day runs of
 PYTHONPATH=src python experiments/step16-realday/figure.py  # experiments/step16-realday/localisation_error.svg
 PYTHONPATH=src python experiments/step17-replay/run.py      # 128 replayed day runs (needs step 16 first), about 1 min on 4 cores
 PYTHONPATH=src python experiments/step17-replay/figure.py   # experiments/step17-replay/localisation_error.svg
+PYTHONPATH=src python experiments/step18-lagged/run.py      # lagged residuals (reuses steps 14 and 11's caches, about 7 min to rebuild them)
+python experiments/step18-lagged/figure.py                  # experiments/step18-lagged/lag_sweep.svg
 ```
 
 ## Limitations
@@ -439,6 +475,6 @@ PYTHONPATH=src python experiments/step17-replay/figure.py   # experiments/step17
 
 ## Next steps
 
-Step 15 bounds detection delay with an oracle: every leak is visible within hours, the detectors alarm after four to six days. Step 16 withdraws step 15's reading of localisation: the generator's exact model on each leak's day finds 15 of 32, no better than the nominal model, and the misses are the incipient leaks, whose residual carries weeks of other leaks' changes. Step 17 settles it: with the other leaks replayed out of the residual, 27 of 32 leaks localise within 300 m (nominal model 28), so contamination of the residual, not the model or the sensors, was the limit. Next for H3: a residual a utility can compute that removes the other leaks (a moving baseline, or a sequential localiser that subtracts the modelled effect of leaks already found), scored against step 17's oracle bound. Step 14 (milestone 4) gives the exact leak-free counterfactual: next, a null with the uncertainty the generator left out (demand multipliers perturbed per node and day, roughness and diameters within the README's 10%, sensor noise), seeded 20 or more times, for the e-process threshold (milestone 5, H2); and the oracle residual (published minus leak-free) as an upper bound on detection delay and on localisation for each leak. H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 is done (step 13: SICAMS reimplemented and its published times chance-corrected); next for SICAMS, an online (causal) PELT and retraining after each declared leak, and its 2018 FP rate measured on leak-free simulated years. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
+Step 15 bounds detection delay with an oracle: every leak is visible within hours, the detectors alarm after four to six days. Step 16 withdraws step 15's reading of localisation: the generator's exact model on each leak's day finds 15 of 32, no better than the nominal model, and the misses are the incipient leaks, whose residual carries weeks of other leaks' changes. Step 17 settles it: with the other leaks replayed out of the residual, 27 of 32 leaks localise within 300 m (nominal model 28), so contamination of the residual, not the model or the sensors, was the limit. Step 18 closes the moving baseline: the change against the same hours a week earlier finds 12 of 32 (slow leaks 4 of 17), no better than D1, at every lag from 24 h to two weeks, because other leaks change by as much as a slow leak inside any window. Next for H3: model the other leaks instead of differencing them away, with a sequential localiser that subtracts the modelled effect of leaks already found or a joint multi-source fit over the 782 signatures, scored against step 17's oracle bound (28 of 32). Step 14 (milestone 4) gives the exact leak-free counterfactual: next, a null with the uncertainty the generator left out (demand multipliers perturbed per node and day, roughness and diameters within the README's 10%, sensor noise), seeded 20 or more times, for the e-process threshold (milestone 5, H2); and the oracle residual (published minus leak-free) as an upper bound on detection delay and on localisation for each leak. H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 is done (step 13: SICAMS reimplemented and its published times chance-corrected); next for SICAMS, an online (causal) PELT and retraining after each declared leak, and its 2018 FP rate measured on leak-free simulated years. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
 
 AI-assisted research (Claude); no affiliation with the BattLeDIM organisers is implied. Code MIT; BattLeDIM data CC-BY-4.0 (Vrachimis et al.), not redistributed here.

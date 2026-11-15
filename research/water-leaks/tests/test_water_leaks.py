@@ -523,3 +523,22 @@ def test_fetch_uses_a_per_process_temp_file(tmp_path, monkeypatch):
     assert len(seen) == 1
     assert (tmp_path / "fake.csv.part").read_bytes() == b"half"
     assert not (tmp_path / f"fake.csv.{os.getpid()}.part").exists()
+
+
+def test_lagged_change_drops_what_was_already_there():
+    """Step 18: a step before the baseline window cancels; a step between the windows is kept in
+    full; a lag reaching before hour 0 is refused."""
+    from water_leaks import localise
+    X = np.zeros((400, 2))
+    X[50:, 1] = -0.4              # an older leak, steady before both windows
+    X[300:, 0] = -0.1             # the target, starting after the baseline window
+    r = localise.lagged_change(X, 300, 168)
+    assert np.allclose(r, [-0.1, 0.0])
+    X[290:, 0] = -0.1             # started 10 h before t: a 24 h lag keeps only the part not yet in the baseline
+    assert np.allclose(localise.lagged_change(X, 300, 24), [-0.1 * 14 / 24, 0.0])
+    try:
+        localise.lagged_change(X, 100, 168)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("expected ValueError")
