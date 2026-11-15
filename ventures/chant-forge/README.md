@@ -498,7 +498,7 @@ consonant's transition starts, 695 of the 714 notes left with 0.1 s (97.3%). `si
 (12 in all): the murmur 5-9 dB under /a/ and /u/ on E2, D3, A3 and E4 with one voice, and *dex* read as
 a voiceless velar stop on 0.24 and 0.5 s notes.
 
-#### Final consonants, third round: /m/ after /u/, and a blip in every final nasal (2026-11-15, latest)
+#### Final consonants, third round: /m/ after /u/, and a blip in every final nasal (2026-11-15)
 
 The second round left most final /m/ after a dark vowel unread (*-um*, *-num*, *-rum*: B read 20 of 39
 nasals). Before changing anything a second held-out set was fixed (part E of `eval/coda-check-report.md`:
@@ -543,7 +543,60 @@ enter the murmur through a 40 ms formant transition rather than a step and still
 39), and *-unt*/*-unc* still read on their stop. Nobody has listened to it, so the blip fix is the part of
 this round most worth an ear: a final *-um* should now hum without a click.
 
-#### Formant tuning on high notes (2026-11-15, latest)
+#### Final consonants, fourth round: a final /l/ is not a nasal (2026-11-15, latest)
+
+After the third round every final *al* in part A of `eval/coda-check-report.md` still read as a nasal (6 of
+6 pitches), and *el* on 4 of 6. Both nasal rules in `readCoda` compare the coda with its vowel: a murmur is
+quieter and much darker above 1 kHz than the vowel it leaves. The sung /l/ (F1 400 Hz) moves the vowel's
+first formant under 500 Hz, which brightens the low band against /a/'s by 9-13 dB, so the *difference*
+looks like a murmur's although the /l/ keeps its F2 and F3.
+
+- **What separates them is the coda's own spectrum.** Measured with `sing.mjs` on held 0.5 s syllables, E2
+  to E4, after /a/, /e/, /o/ and /u/ (outside the check, before any change): in its steady part the /l/'s
+  energy above 1 kHz sits 12-25 dB under its band under 500 Hz, and /m/ and /n/ 38-54 dB, after every
+  vowel and at every pitch, since the nose passes little above a few hundred hertz. A gap of 13 dB.
+- **The rule** (`MURMUR_TILT` in `onsets.mjs`): a run counts as a coda nasal, by either rule, only when its
+  frames' energy above 1 kHz is a median 28 dB or more under their band under 500 Hz. The threshold was
+  fixed from those measurements and written, with four predictions, into the header of
+  `eval/coda-check.mjs` and committed before the first run with it.
+- **A new set, F:** the 51 files of the other `gregobase-1908-*` folders (the scan-check sets), never
+  scored by the coda check before, read with the rule and without it.
+
+| set | before | after | prediction |
+|---|---|---|---|
+| A, syllables before a rest (tuning set) | 137 of 180 (76.1%) | 157 of 180 (87.2%) | no lower: holds |
+| A: *al* and *el* read as none | 2 of 12 | 12 of 12 | 11 or more: holds |
+| A: stops and taps read as a nasal | 14 | 4 | (not predicted) |
+| B, the five pieces | 142 of 162 | 142 of 162 | no lower: holds |
+| D, held out (printed five times now) | 66 of 70 | 66 of 70 | no lower: holds |
+| E, held out last round | 75 of 86 | 76 of 86 (*NAR*, *bar.* no longer nasals) | no lower: holds |
+| F: final /l/ read as a nasal | 1 of 4 | 0 of 4 | 10% or fewer: holds, on 4 notes |
+| F: nasals read as nasal | 96 of 137 | 96 of 137 | no fewer: holds |
+| vowel-only controls, A / B / D / E | 174, 160, 68, 84 | unchanged | no lower: holds |
+
+The rule also stopped 10 stops and taps in A (*at*, *ad*, *ab*, *ac* and *ar* on A2, and others) reading as nasals:
+the vowel's F1 falling into a closure has the same brighter-low-band, darker-top look, and is not dark in
+itself. F holds only 4 final /l/ long enough to score (most corpus /l/ codas are *al-le-lu-ia*'s, on
+short notes before a consonant), so its /l/ line says little; its nasal line is new held-out evidence that
+the rule costs nasals nothing, and that 41 of its 137 final nasals still read wrong, most *-num* and *-um*
+read as nothing (the slow transition into the murmur the third round left).
+
+**The same rule on openings failed its registration** (header of `eval/consonant-check.mjs`): it cut the
+vowel-only control's false nasals from 123 to 23 of 934, but read B's sung nasal openings 64 of 149
+instead of 96, because openings still use the first, brighter murmur (`ONSET_NASAL_GAIN`, no antiformant).
+As registered, `readOnset` keeps it off (`murmurTilt: 0`); it can come back if the opening murmur moves to
+the coda one.
+
+**Found on the way, not changed:** the sung /l/ is louder than its vowel. `PHONES.l` has a source gain of
+1.4, and measured the same way the steady /l/ sits -1 to +8 dB against the vowel, highest after /e/ and
+/u/ (and after /u/ 15-20 dB brighter above 1 kHz, as /l/'s F2 of 1250 Hz is above /u/'s 870). A spoken or
+sung /l/ is weaker than the vowels around it, so a listener may hear a swell on every final *-l*. Lowering
+it changes what both readers see, so it is the next round's change, made against a target level rather
+than the reader. `sing.test.mjs` gains a test (15 in all): the tilt of *al*, *el*, *am* and *um* on A2, D3
+and C4 at least 3 dB to the right side of the threshold, their reads, and *al* read as a nasal with the
+rule off. Nobody has listened to it.
+
+#### Formant tuning on high notes (2026-11-15)
 
 The vowels were fixed at Peterson and Barney's spoken values at every pitch. That is fine for basses, but
 a tenor's G4 is 392 Hz and A4 440 Hz, above the first formant of /i/ (270 Hz) and /u/ (300 Hz): every

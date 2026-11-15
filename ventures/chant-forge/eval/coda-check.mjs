@@ -11,6 +11,15 @@
 //    data: its first run's misses (60.5%) showed the reader's window cut off bursts at the next sound
 //    and that /m/ after /u/ was barely a murmur, and both were fixed before the run reported here.
 // C. Every syllable in the corpus: how often each closing consonant occurs.
+// F. Fourth round (2026-11-15): final /l/ and the murmur's own tilt. Pre-registered here before the
+//    first run with the change, its threshold fixed: a coda's murmur (both nasal rules in readCoda) must
+//    be dark in itself, its energy above 1 kHz a median 28 dB or more under its band under 500 Hz
+//    (`murmurTilt`). Set from held 0.5 s syllables measured with sing.mjs outside this script, E2-E4:
+//    the sung /l/ 12-25 dB, /m/ and /n/ 38-54 dB, after every vowel. Predictions: (1) A's *al* and *el*
+//    read as none on 11 or more of 12 (2 of 12 before); (2) no part's nasals read exactly less often;
+//    (3) A, B, D and E totals no lower, vowel-only controls no lower; (4) F, the 51 files of the four
+//    other gregobase-1908-* folders, never scored before: its /l/ codas read as a nasal on 10% or fewer,
+//    its nasal codas read exactly no less often than with the rule off (`murmurTilt: 0`, printed beside).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -144,6 +153,47 @@ const HELD2 = readdirSync(new URL('gregobase-1908/', corpus)).filter((f) => f.en
 lines.push('## E. Held out, second set: ten more Graduale pieces (every sixth file from the fourth)', '',
   `${HELD2.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Chosen by file name and scored before the third round's changes (README "Final consonants, third round"), then once after them; its misses were not read in between.`, '',
   ...scorePieces(HELD2));
+
+// ---- F ----
+// The 51 files of the other gregobase-1908-* folders (scan-check sets), never scored here before: their
+// final /l/ and nasal codas, read with the murmur-tilt rule and without it.
+const OTHER = readdirSync(corpus).filter((d) => d.startsWith('gregobase-1908-')).sort()
+  .flatMap((d) => readdirSync(new URL(`${d}/`, corpus)).filter((f) => f.endsWith('.gabc')).sort().map((f) => `${d}/${f.slice(0, -5)}`));
+{
+  const tally = { l: { on: [0, 0, 0], off: [0, 0, 0] }, nasal: { on: [0, 0], off: [0, 0] } }, lMiss = [], nMiss = [];
+  for (const p of OTHER) {
+    const src = parseGabc(readFileSync(new URL(`${p}.gabc`, corpus), 'utf8'));
+    const mid = eventsToMidi(fitToBars(transposeToFinal(src.events, 50), 8), { bpm: 124, title: p });
+    const sungR = choir(mid, true);
+    const firstOf = new Set(), lastOf = new Map();
+    for (const n of sungR.notes) if (n.syl) { if (![...firstOf].some((f) => f.syl === n.syl)) firstOf.add(n); lastOf.set(n.syl, n); }
+    sungR.notes.forEach((n, k) => {
+      if (!n.syl || lastOf.get(n.syl) !== n || n.t1 - n.t0 < 0.2) return;
+      const cd = latinCoda(n.lyric);
+      if (!cd.length || !(cd[0] === 'l' || 'mnN'.includes(cd[0]))) return;
+      const on = firstOf.has(n) ? latinOnset(n.lyric) : [], vAt = vowelStart(n, on), tEnd = nextSound(sungR.notes, k, firstOf);
+      if (vAt + 0.06 > n.t1 - 0.35 * (n.t1 - n.t0) - 0.045 || tEnd - vAt < 0.15) return;
+      for (const [mode, tilt] of [['on', undefined], ['off', 0]]) {
+        const got = readCoda(sungR.x, rate, vAt, tEnd, { murmurTilt: tilt });
+        if (cd[0] === 'l') {
+          const t = tally.l[mode]; t[2]++; if (got.cls === 'none') t[0]++; if (got.cls === 'nasal') t[1]++;
+          if (mode === 'on' && got.cls !== 'none') lMiss.push(`${p} *${n.lyric}*: read as ${label(got)}`);
+        } else {
+          const t = tally.nasal[mode]; t[1]++; if (got.cls === 'nasal') t[0]++;
+          if (mode === 'on' && got.cls !== 'nasal') nMiss.push(`${p} *${n.lyric}*: read as ${label(got)}`);
+        }
+      }
+    });
+  }
+  const L = tally.l, M = tally.nasal;
+  lines.push('## F. Final /l/ against the nasals: the 51 files of the other gregobase-1908-* folders', '',
+    `${OTHER.length} files, none scored by this check before (the scan-check sets); same settings and filters as B. Pre-registered in this script's header before its first run: the murmur's own tilt (readCoda \`murmurTilt\`, 28 dB) against the same reader without it.`, '',
+    '| final consonant | read with the tilt rule | without it |', '|---|---|---|',
+    `| /l/ (should read as none) | none ${pct(L.on[0], L.on[2])}, nasal ${pct(L.on[1], L.on[2])} | none ${pct(L.off[0], L.off[2])}, nasal ${pct(L.off[1], L.off[2])} |`,
+    `| m, n, gn (should read as nasal) | ${pct(...M.on)} | ${pct(...M.off)} |`, '',
+    '/l/ not read as none (with the rule):', '', ...(lMiss.length ? lMiss.map((m) => `- ${m}`) : ['- none']), '',
+    'Nasals not read as nasal (with the rule):', '', ...(nMiss.length ? nMiss.map((m) => `- ${m}`) : ['- none']), '');
+}
 
 // ---- C ----
 const files = [];
