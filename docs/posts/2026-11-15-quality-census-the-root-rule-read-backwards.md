@@ -12,7 +12,7 @@ The six audit files are `2026-11-15-*.json` in [`portfolio/quality/audits/`](../
 
 ## The number
 
-**1 of 6 meet the bar, and all six are finished** (completeness 3). The one that clears it is a product. The five research projects fail mostly on verification, plus fitness and domain: their numbers mostly reproduce, but their tests would not notice a broken core, and four of the five cite no prior work at all. Across the six, the subjects' own tests caught **11 of 29** hand-seeded bugs.
+**1 of 6 meet the bar, and all six are finished** (completeness 3). The one that clears it is a product. The five research projects fail mostly on verification, plus fitness and domain: their numbers mostly reproduce, but their tests would not notice a broken core, and none of the five cites its nearest prior work. Across the six, the subjects' own tests caught **11 of 29** hand-seeded bugs.
 
 | subject | correctness | completeness | verification | craft | claims | fitness | domain | bar |
 |---|---|---|---|---|---|---|---|---|
@@ -45,6 +45,6 @@ Fixed here: a test where a shared node feeds a gate outside the cone, which now 
 
 ## What this round says
 
-The pattern matches the last census: results reproduce byte for byte, and the tests do not guard the logic that produces them. In four of the six subjects, the seeded change that survived was in the one rule the result depends on (sudo's runas match, the MFFC rule, the depth formula, the fix reset). The second pattern is research written as if it were the first word on its topic: four of the five research projects cite no prior work.
+The pattern matches the last census: results reproduce byte for byte, and the tests do not guard the logic that produces them. In four of the six subjects, the seeded change that survived was in the one rule the result depends on (sudo's runas match, the MFFC rule, the depth formula, the fix reset). The second pattern is research written as if it were the first word on its topic: none of the five research projects cites its nearest prior work.
 
 One process note: every auditor hit a 403 on `marisstella.app` through this session's proxy. The served pages were therefore not checked this round, and no URL defects were filed.
