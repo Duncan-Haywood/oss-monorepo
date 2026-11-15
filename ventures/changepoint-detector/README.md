@@ -3337,6 +3337,48 @@ Next for this question: longer stretches (the ratio's noise falls with the numbe
 power curve in n would say where a setting could pass both bars), or a likelihood for a rounded walk
 against a rounded walk carried forward; and a real series with documented carry-forward to check against.
 
+### One-tick stale feeds: a likelihood (2026-11-15, pre-registered round three; negative, not offered)
+
+The catch-up ratio reads only the moves that end a run of repeats, and 300 steps hold too few of them.
+`rounded-walk.mjs` uses every step. Two models for the stickier stretch, in ticks: **M0**, a hidden
+Gaussian random walk (step sd s) recorded rounded; **M1**, the same walk, but with probability p each step
+repeats the last recorded value whatever the hidden value did. A forward filter over the hidden value on a
+grid (10 cells a tick; 20 and 40 move LR by under 0.02) gives each likelihood exactly up to the grid,
+maximised over s and p. Under M0 the statistic LR = 2 (l1 - l0) is a 50:50 mix of 0 and chi-square(1),
+since p = 0 is a boundary, so the threshold was set from theory at its 1% point, **5.41**, not tuned.
+
+Pre-registered in `eval/update-rate-stale-lr.mjs` (committed in 259872106 before the confirmation ran):
+the same cells and rule K1-K3 as rounds one and two, fresh seed 20261215, plus a K4 that would only have
+changed the wording: two rounded slow series that are not Gaussian walks (X1, Student t steps with 3
+degrees of freedom; X2, mean-reverting, rho 0.95).
+
+| seed 20261215, change nearest step 150 | called stale among one-tick series | rule |
+|---|---|---|
+| R1 / R2 / R3, rounded walks | 7.0% / **11.5%** / 9.0% | <= 5% each: **fails** |
+| T1 / T2 / T3, one-tick stale feeds | 100% / 100% / 98.3% | >= 80% each: pass (rounds one, two: 80-96%) |
+| F1-F3, rounding <= 5% | 0 / 0 / 0 | pass |
+| X1 heavy-tailed walk / X2 mean-reverting | **61.5%** / 9.5% | <= 10% each (wording only): fails on X1 |
+
+**Verdict: not offered.** `method: 'lr'` stays an opt-in (`updateRateChanges(values, { catchUp: { method:
+'lr' } })` returns `staleLR` and `staleP`); `CATCHUP` and every sentence are as before.
+
+**Why the rounded walks failed** (`eval/update-rate-stale-lr-why.mjs`, `.out.txt`; post hoc, fresh seed 5,
+80 series a cell, descriptive). On the true slow half the test is calibrated: 1, 0 and 1 of 80 rounded
+walks called stale (the 1% design rate). On the stretch the update-rate partition hands it, 11, 3 and 11.
+The partition's cut lands a few steps late, so the "sticky" stretch ends with fast, 10-tick moves; a
+Gaussian walk with one s cannot have both, and M1 explains the big moves as catch-ups. Trimming 15 steps
+on the side of the cut removes them (1, 0, 0 of 80). That points at a round four: test the stretch inside
+the cut's range, not up to the cut, on new seeds.
+
+**Why that would not be enough:** X1. A slow series whose hidden steps are heavy-tailed (most steps tiny,
+a few large) is called stale 61.5% of the time on its own true slow half (49 of 80 post hoc): to M0 its rare
+big jumps after quiet runs look exactly like catch-ups. A real slow price or index often moves that way.
+So a likelihood that assumes Gaussian steps cannot tell "stale" from "jumpy" on real data; a round four
+needs a heavy-tailed M0 (a t or a mixture of two step sizes) as well as the trimmed stretch.
+
+On the juice file (descriptive): `ppi`, the rounded index, has LR 1.26 (p 0.05): rounding, as the
+catch-up ratio also said. `price` is not one-tick, so the test does not run on it. Test: `rounded-walk.test.mjs`.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
