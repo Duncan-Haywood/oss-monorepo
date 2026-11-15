@@ -462,7 +462,8 @@
       {
         "file": ".github/workflows/portfolio-validate.yml",
         "issue": "check_unreachable_exit.py (added 2026-11-12) runs in no PR workflow yet. Fix: in the validate job add `python3 platform/ci/check_unreachable_exit.py` and a `working-directory: platform/ci` step `python3 -m unittest test_check_unreachable_exit`; paths should include ventures/*/check.mjs and ventures/*/cli/check.mjs. Needs node on the runner. Control plane: own PR, owner approval.",
-        "patched": false
+        "patched": true,
+        "patched_in": "already fixed on main: `python3 platform/ci/unwired_checks.py --list` (2026-11-15) names check_unreachable_exit.py and test_check_unreachable_exit.py; run_venture_tests.py --since (the ventures-tests.yml step) runs that set on every PR touching ventures/**, which is where the files these checks read change. The platform/ci-only path gap is the open 2026-11-13 #4 entry."
       }
     ]
   },
