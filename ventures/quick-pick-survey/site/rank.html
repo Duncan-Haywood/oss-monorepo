@@ -211,7 +211,7 @@
     <ul>
       <li><strong>The model</strong> is Bradley-Terry: each option has a hidden score, and the chance you pick A over B rises with the gap between their scores. After every answer the page refits all your answers at once (Newton's method, with a Laplace approximation for the uncertainty), the same code the Quick Pick survey app runs.</li>
       <li><strong>The next question</strong> is the pair whose answer is expected to tell the most about the order: two options the model cannot yet separate. Which side each appears on is random, so screen position cannot creep into the result.</li>
-      <li><strong>When to stop:</strong> "settled" is how closely the orders your answers still allow agree with the order shown (the average Spearman correlation over draws from the model). It stops at 90%. On simulated respondents who answer with ordinary noise, the order shown at that point matched their real order with a Spearman correlation of about 0.94. If many of your picks are close calls, it checks again with the model fitted to how strongly you seem to feel (an estimate from your own answers) and keeps asking until that read passes too, because a model that assumes strong likes reads noise as a settled order (on 25 simulated near-coin-flip options it had claimed 90% for an order that was right at about 0.56). Two options you find genuinely close may never separate; the rank range shows that, and you can stop at any time.</li>
+      <li><strong>When to stop:</strong> "settled" is how closely the orders your answers still allow agree with the order shown (the average Spearman correlation over draws from the model). It stops at 90%. On simulated respondents who answer with ordinary noise, the order shown at that point matched their real order with a Spearman correlation of about 0.94. If many of your picks are close calls, it checks again with the model fitted to how strongly you seem to feel (an estimate from your own answers) and keeps asking until that read passes too, because a model that assumes strong likes reads noise as a settled order (on 25 simulated near-coin-flip options it had claimed 90% for an order that was right at about 0.56). Two options you find genuinely close may never separate; the rank range shows that, and you can stop at any time. The results' ranges and chances use the same fitted model, so if your picks were close calls they come out wider and less sure than they would for someone who answered every pair firmly.</li>
       <li><strong>Full order or favourite?</strong> Full order spreads questions across the list and stops when the whole order is 90% settled; that can leave the top two close. "Be sure of the favourite" asks only among options that could still be the favourite and stops when one has a 90% chance. In simulation it took about a third more questions and named the right favourite 12 times out of 12, against 6 to 8 for the full-order stop.</li>
       <li><strong>Find my top k</strong> is for a shortlist: it asks only about options that could still be either side of the cut and stops when the shortlist is 90% settled. On simulated people who answer with ordinary noise, choosing the top 3 or 5 of 15 to 30 options, it named exactly the right shortlist 56% of the time against 26% for the full-order stop, at about 1.6 times the questions; for people who never waver it costs about a fifth more questions, and on lists of 10 it gains little.</li>
       <li><strong>Sort into piles first</strong> (lists of 8 or more, optional): one tap per option, near the top, in the middle or near the bottom. The piles become each option's starting estimate, allowing for a misplaced option, and the picks then go mostly to options in the same pile, with every 4th pair chosen as if there were no piles so a misplaced option still gets tested. If your picks keep disagreeing with your piles, the page notices and leans on the picks. On simulated people with ordinary noise it took 64 actions for 20 options after a careful sort, 87 after an ordinary one and 120 after a careless one, against 93 picks without; the order came out about as good in each case.</li>
@@ -239,7 +239,7 @@
 </main>
 <script type="module">
   import { picksGuide, topPicksGuide } from "./picks-measured.mjs";
-  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS, PILE_MIN_ITEMS, PILE_NOISE, pairFit } from "./rank-core.mjs";
+  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, resultsTable, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS, PILE_MIN_ITEMS, PILE_NOISE, pairFit } from "./rank-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   import { imageList, matchImages, itemKey, UNDRAWABLE_EXT, pairLayout, zoomOrigin } from "./image-items.mjs";
   import { nextScreen, BW_SET_SIZE } from "./best-worst.mjs";
@@ -495,10 +495,15 @@
     save(); ask();
   }
 
+  // When the person's own prior is narrower than the fixed one, say why the ranges are wider than a sure answerer's.
+  const closeNote = () => (resultsNow && resultsNow.phi < 1.99 ? " Many of your picks were close calls, so the ranges and chances below allow for that." : "");
+  let resultsNow = null; // the last results() table and the fit it was drawn from
   function results(settled, quiet = false) {
     lastSettled = settled;
     f = fitNow();
-    const table = rankTable(f);
+    // Ranges and favourite chances at the person's own prior, rows in the order shown (docs/RANK-PAGE.md "Honest results for close calls").
+    resultsNow = state.answers.length ? resultsTable(state.items.length, state.answers, { fixedFit: f, piles: myPiles() }) : { table: rankTable(f), fit: f };
+    const table = resultsNow.table;
     const top = table[0];
     const shortlist = () => {
       const pIn = topKChances(f, state.k, { draws: RANK_SHORTLIST_DRAWS });
@@ -507,7 +512,7 @@
       return `After ${state.answers.length} picks, your top ${state.k}: ${names.join(", ")}. The percentages are each one's chance of really being in your top ${state.k}; the closest one left out is <strong>${esc(state.items[next.item])}</strong> (${Math.round(pIn[next.item] * 100)}%)${settled ? "." : ". The cut is still close: answer more to settle it."}`;
     };
     $("#verdict").innerHTML = state.answers.length === 0 ? "No answers yet." : state.mode === "top" ? shortlist() :
-      `After ${state.answers.length} ${state.mode === "screens" ? "screens" : "picks"}, <strong>${esc(state.items[top.item])}</strong> is your top pick with a ${Math.round(top.favourite * 100)}% chance of being the true favourite${settled ? "." : ". Some places are still close: answer more to separate them."}`;
+      `After ${state.answers.length} ${state.mode === "screens" ? "screens" : "picks"}, <strong>${esc(state.items[top.item])}</strong> is your top pick with a ${Math.round(top.favourite * 100)}% chance of being the true favourite${settled ? "." : ". Some places are still close: answer more to separate them."}${closeNote()}`;
     $("#table").innerHTML = table.map((r) => `<tr><td class="num">${r.rank}</td><td>${optionCell(r.item)}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${r.favourite >= 0.005 ? Math.round(r.favourite * 100) + "%" : "&lt;1%"}</td></tr>`).join("");
     show("#ask", false); show("#screen", false); show("#results"); show("#share"); show("#team");
     $("#share-link").textContent = location.href;
@@ -593,7 +598,8 @@
   $("#more").addEventListener("click", () => { if (state.mode !== "screens") state.mode = "order"; state.until = state.answers.length + state.items.length; show("#results", false); show("#share", false); show("#team", false); ask(); });
   $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey(state.items)); } catch {} state = null; clearPictures(); show("#screen", false); $("#images").value = ""; $("#images-note").textContent = ""; show("#attach", false); show("#piles", false); history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#team", false); show("#setup"); });
   $("#csv").addEventListener("click", () => {
-    const blob = new Blob([resultsCsv(state.items, f, rankTable(f))], { type: "text/csv" });
+    const r = resultsNow || { table: rankTable(f), fit: f };
+    const blob = new Blob([resultsCsv(state.items, r.fit, r.table)], { type: "text/csv" });
     const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "quick-pick-ranking.csv" });
     a.click(); URL.revokeObjectURL(a.href); record("csv_downloaded");
   });
