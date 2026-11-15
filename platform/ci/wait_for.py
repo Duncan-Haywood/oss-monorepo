@@ -23,7 +23,9 @@ returns at once (friction 2026-11-06); use `--pid`, or bracket the first letter,
 `echo EXIT $?` works as a marker line too: with no `--marker`, a `DONE` line or an
 `EXIT 0` line both end the wait (friction 2026-11-11: runs guessed `--pattern` or
 waited out the timeout on an EXIT log), and the printed tail shows the exit code.
-`--marker X` waits for X alone. The default also accepts the line the harness
+`--marker X` waits for X alone. A marker followed by more output, in a log a
+process still has open, is an earlier phase's (a second `>>` phase): the wait
+goes on until a marker ends the log or the writer closes it. The default also accepts the line the harness
 ends a `run_in_background` task's own output file with, `[exited with code N]`,
 so the file the task notification names can be waited on as it stands (a wait
 on one ran its full 110 s past that line, 2026-11-12), and a `-` after the
@@ -73,12 +75,31 @@ def boot_time(stat="/proc/stat"):
     return None
 
 
+def stale_marker(lines, markers, held):
+    """True when every marker line is an earlier phase's: output follows the last
+    one and a process still has the log open, so the job is still writing.
+
+    A second phase appended to the same log (`>> out.log`) left phase one's DONE
+    in place, and two 10-minute waits on phase two returned at once (friction
+    2026-11-15). A finished job holds no descriptor, and a marker that is the
+    last line still ends the wait, so a wait called after the job is unchanged.
+    """
+    idx = [i for i, l in enumerate(lines) if any(is_marker(l, m) for m in markers)]
+    if not idx or not any(l.strip() for l in lines[idx[-1] + 1:]):
+        return False
+    return bool(held())
+
+
 def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep,
-         boot=None, grace=20.0):
+         boot=None, grace=20.0, held=None):
     """(True, lines) once a marker line appears; (False, []) on timeout; (None, lines)
     when the log was last written before `boot` (the machine's boot time) and stays
     so for `grace` seconds: the job died in a restart. The grace covers a job
-    started after the boot that appends (`>>`) and has not written yet."""
+    started after the boot that appends (`>>`) and has not written yet.
+    `held()` says whether a process still has the log open (default: /proc);
+    a marker with output after it in a held log is stale (`stale_marker`)."""
+    if held is None:
+        held = lambda: holders(path)
     start = clock()
     end = start + timeout
     while True:
@@ -86,7 +107,7 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
             with open(path, errors="replace") as f:
                 lines = f.read().splitlines()
             markers = (marker,) if isinstance(marker, str) else marker
-            if any(is_marker(l, m) for l in lines for m in markers):
+            if any(is_marker(l, m) for l in lines for m in markers) and not stale_marker(lines, markers, held):
                 return True, lines
             if boot is not None and os.stat(path).st_mtime < boot and clock() - start >= min(grace, timeout):
                 return None, lines
