@@ -216,16 +216,68 @@ teams per court, so for example 10 teams cannot all play two in a row on 4 court
 the middle row, which holds 8). When the bound fails, the page says how many courts back-to-back nights need.
 
 Measured (`node eval/doubleheader.mjs`, `eval/doubleheader.txt`; 60 settings of 6 to 24 teams, 2 or 3 games, 3 to
-5 times, the fewest courts that fit, seeds 1 to 3): all 162 seasons valid. Over the 18 two-game settings where the
-bound allows a wait-free night, total waits fell from 458 to 10 and 17 of 18 are now wait-free on every seed (5
-before), for example 8 teams on 2 courts x 4 times 18 to 0, 16 teams on 4 x 4 62 to 0, 20 teams on 5 x 4 100 to 0,
-24 teams on 6 x 4 156 to 0; 12 teams on 3 x 4 went 30 to 10. The search takes 0.1 to 1.7 s. The cost: the time-row
-spread (most minus least games a team plays in one time slot) rises, for example 20 teams from 2 to 5 a season,
-because a wait-free night fixes blocks of teams to early or late pairs of slots; `seasonLayout` rotates the blocks
-night by night but does not close it. Three games a night is not improved yet (7 of 7 three-game settings that pass
-the bound keep their waits), and 41 of the 60 settings cannot be wait-free at all with the fewest courts, which the
-notice now says. `waitFree: false` turns the search off; it is also off with carry-over spreading or a shorter
-season (they choose the timetable themselves).
+5 times, the fewest courts that fit, seeds 1 to 3): all 180 seasons valid. Every two-game setting the bound allows
+is now wait-free on every seed (18 of 18; 12 teams on 3 courts x 4 times went 30 to 0, the last one left by the
+first version, which stopped at 10). Total waits 3,391 to 3,025 with the search on; what is left is in the
+settings no layout can make wait-free. The cost: the time-row spread (most minus least games a team plays in one
+time slot) rises, for example 20 teams from 6 to 15 a season, because a wait-free night fixes blocks of teams to
+early or late pairs of slots; `seasonLayout` rotates the blocks night by night but does not close it.
+`waitFree: false` turns the search off; it is also off with carry-over spreading or a shorter season (they choose
+the timetable themselves).
+
+### Three games a night (2026-11-15, later)
+
+The first version said "7 of 7 three-game settings that pass the bound keep their waits". Four of those seven
+were never possible, and the bound was wrong about them, which also made the page's "you need N courts" hint
+too low for odd leagues:
+
+- **An odd league has two kinds of team on a night.** With g games a night, g teams sit out one round each
+  and play g - 1 games, so their windows are shorter. `waitFreePossible(teams, g, courts, times, short)`
+  now places both kinds. 9 teams, 3 games, 3 courts x 4 times books all 12 slots, and six 3-game windows
+  plus three 2-game windows cannot share 4 rows of 6 teams; the old bound counted only the six.
+- **Every row holds an even number of teams** (two per match). 7 teams, 3 games, 2 courts x 5 times passes
+  every count and fails on parity. Checked by exhaustion: all 32,970 possible nights of 7 teams on that
+  grid, laid out by the exact search below with no node cap: none is wait-free (`eval/three-game-nights.txt`,
+  part 2).
+
+With the corrected bound the hint asks for one more court for every odd league of 7 to 13 teams at 4 or 5 times,
+and for 7 and 11 teams at 6 times (9 teams at 4 times: 4 courts, not 3; `eval/three-game-nights.txt` lists both
+counts per setting).
+
+Three changes to the search and the layout:
+
+- **A team skipping the middle game was called back to back.** The component layout puts a whole round in one
+  row; in an odd league a team that sits out round 2 of 3 plays rounds 1 and 3, and the layout could put those
+  two rows apart and still report the night as wait-free. It now checks those teams (`rowsWaitFree`).
+- **Match-by-match layout** (`nightRowsExact`): when whole rounds of components do not pack, a depth-first
+  search gives each match its own row (a team's games in distinct adjacent rows, at most one match per court
+  per row), the match with the fewest open rows first, pruned by the rows every team's window must cover.
+  It runs inside `nightLayout` (3,000 nodes) and so in the season's slot layout even with the search off:
+  that alone made two-game nights of 9 teams on 2 courts x 4 times, 10 on 3 x 4, 14 on 4 x 4 and 18 on 5 x 4
+  wait-free from the plain circle order (`eval/doubleheader.txt`, waits off column). It is not free in settings
+  that cannot be wait-free: 11 teams, 3 games on 4 x 4 went 28 to 30 waits, because a layout the old check passed
+  wrongly now goes to the leftover slots.
+- **Two sessions a night** (`sessionBlocks`, `sessionNights`): with 6 time slots and 3 games, a night can hold
+  an early and a late session. When the courts are tight every night must split into groups that only play
+  each other: 12 teams on 3 courts x 6 times book all 18 slots, so each night is two groups of six. The hill
+  climb could not find that, and for a reason worth knowing: its moves trade opponents along two-round
+  cycles, which never leave the swap class of the starting round robin. From the circle method, simulated
+  annealing over groups and rounds stopped at exactly 14 crossing matches on every seed and temperature;
+  from a carry-over timetable it reached zero. A hand construction confirms the target exists (a prism on
+  each half, then the two 3 x 3 crossings as complete bipartite blocks, then a 6-cycle on each half for the
+  last two rounds). So each start (circle, then carry-over) gets both searches.
+
+Measured (`node eval/three-game-nights.mjs`, `eval/three-game-nights.txt`; 39 settings of 6 to 24 teams, 3 games,
+4 to 6 times, on the least courts the corrected bound allows, seeds 1 to 3; every season valid): at 4 and 5 times
+every setting is wait-free on every seed, with or without the search, once the courts are enough. At 6 times:
+10 teams on 3 courts 36 to 0, 16 teams on 4 courts 125 to 0, 12 teams on 3 courts 64 to 22 (4 of 6 seeds
+wait-free), 14 teams on 4 courts 54 to 33; 18, 20 and 24 teams keep their waits (the annealing gets to 2
+crossing matches with 6 million moves, not 0), and odd leagues at 6 times are not searched by groups (a team
+sitting out the middle round of a group breaks its order). The group search costs up to about 3 s a build at
+24 teams, and nothing at 4 or 5 times.
+
+Not done: groups for odd leagues; a round robin built from a design rather than searched (an affine plane on 16
+teams gives K4 groups every night); 18 to 24 teams at 6 times.
 
 ## Even carry-over (2026-11-11)
 

@@ -1025,7 +1025,7 @@ export function buildSchedule(spec) {
     if (w.idle) {
       const full = n % 2 ? Math.max(0, n - games) : n;
       let need = courts.length;
-      while (need < courts.length + 64 && !waitFreePossible(full, games, need, times.length)) need++;
+      while (need < courts.length + 64 && !waitFreePossible(full, games, need, times.length, n % 2 ? Math.min(games, n) : 0)) need++;
       const hint = need > courts.length
         ? ` Back-to-back games for every team need at least ${need} courts at these ${times.length} times (a team's games fill ${games} slots in a row, and each time slot holds two teams per court).`
         : " More courts or fewer time slots close them.";
