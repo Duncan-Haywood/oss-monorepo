@@ -345,13 +345,14 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (45 stories)
+### For Other Minds (46 stories)
 
 - [A Reason for a Second Look](stories/a-reason-for-a-second-look.md) (2026-11-15; 14 min read, text only)
 - [How Many People Is That?](stories/how-many-people-is-that.md) (2026-11-15; 12 min read, text only)
 - [Ninety-Seven Visits](stories/ninety-seven-visits.md) (2026-11-15; 12 min read, text only)
 - [Put Her In](stories/put-her-in.md) (2026-11-15; 17 min read, text only)
 - [Six More Chairs](stories/six-more-chairs.md) (2026-11-15; 13 min read, text only)
+- [The Average Parish](stories/the-average-parish.md) (2026-11-15; 14 min read, text only)
 - [The Months Before the List](stories/the-months-before-the-list.md) (2026-11-15; 15 min read, text only)
 - [The Same Box of Books](stories/the-same-box-of-books.md) (2026-11-15; 15 min read, text only)
 - [Toss It Again](stories/toss-it-again.md) (2026-11-15; 13 min read, text only)
