@@ -826,6 +826,8 @@ export const ANNEX_I_HEAD_LINE_CODES = [
   "INCORRECT_DATE_AGGREGATE_INVOICE_ISSUE_DATE", "INCORRECT_DATE_AGGREGATE_INVOICE_DELIVERY_DATE",
   "INCORRECT_DATE_INVOICE_MODIFICATION_ISSUE_DATE_LATE", "INCORRECT_DATE_INVOICE_MODIFICATION_ISSUE_DATE_EARLY",
   "INCORRECT_HEAD_DATA_PERIODICAL_SETTLEMENT",
+  // Annex II INFO 10311 (not a warning: severity "information").
+  "INCORRECT_DATE_INVOICE_ISSUE_DATE_EARLY",
   "INCORRECT_LINE_DATA_BY_VATRATE", "INCORRECT_LINE_DATA_SELF_LINE_NUMBER", "INCORRECT_LINE_DATA_MARGIN_SCHEME_INDICATOR_NORMAL",
   "INCORRECT_LINE_DATA_LINE_AMOUNTS_NORMAL_MANDATORY", "INCORRECT_LINE_DATA_LINE_AMOUNTS_SIMPLIFIED_MANDATORY",
   "INCORRECT_LINE_DATA_LINE_AMOUNTS_SIMPLIFIED_NOT_ALLOWED",
@@ -973,6 +975,11 @@ function checkAnnexHeadAndLines(inv, ctx, out, skipped) {
       w("INCORRECT_DATE_INVOICE_ISSUE_DATE_LATE", `The issue date ${issue} is ${daysBetween(rd, issue)} days after ${when}; NAV tolerates 5`,
         "Check the issue date's year and month; an invoice is reported after it is issued.", `${ctx.root}/invoiceIssueDate`);
     }
+    // Annex II INFO 10311 (CREATE only): issued more than 10 days before the report.
+    if (!modifying && isDate(issue) && daysBetween(issue, rd) > 10) {
+      out.push(finding("HU-034", `The invoice was issued ${issue}, ${daysBetween(issue, rd)} days before ${when}; NAV notes a report more than 10 days after issue (NAV INCORRECT_DATE_INVOICE_ISSUE_DATE_EARLY, information).`,
+        "Report invoices to NAV as soon as they are issued (in general without delay); if the date is right, the note only records a late report.", `${ctx.root}/invoiceIssueDate`, { severity: "information", nav: "INCORRECT_DATE_INVOICE_ISSUE_DATE_EARLY" }));
+    }
     const lapsed = `${Number(rd.slice(0, 4)) - 6}-01-01`;
     if (isDate(delivery) && delivery < lapsed) {
       w("INCORRECT_DATE_INVOICE_DELIVERY_DATE_EARLY", `invoiceDeliveryDate ${delivery} is before ${lapsed}, the first day of the sixth year before ${when}`,
@@ -989,7 +996,7 @@ function checkAnnexHeadAndLines(inv, ctx, out, skipped) {
       }
     }
   } else {
-    skipped.push({ rule: "HU-034", path: `${ctx.root}/invoiceIssueDate`, reason: "No day of reporting was given (a bare InvoiceData file carries none), so NAV's issue-date and lapsed-delivery warnings (310, 312, 340, 341) were not run." });
+    skipped.push({ rule: "HU-034", path: `${ctx.root}/invoiceIssueDate`, reason: "No day of reporting was given (a bare InvoiceData file carries none), so NAV's issue-date and lapsed-delivery warnings (310, 312, 340, 341) and the late-report note (Annex II 10311) were not run." });
   }
   // 561: periodic settlement dates without periodicalSettlement true.
   const ps = txt(detail, "invoiceDeliveryPeriodStart");
@@ -1344,7 +1351,7 @@ export function checkNavInvoiceData(source, { operation = null, electronicInvoic
       }
     }
   }
-  skipped.push({ rule: "NAV register", path: pathPrefix, reason: "NAV also checks against its own records (a unique invoice number per seller, the referenced base invoice and its modificationIndex, the sender's tax number, the technical user's customers), and Annex I warnings 60, 71, 81, 91, 113, 510, 540 and 1311 (the taxpayer register) and 342, 632, 1030, 11400 and 11401 (the stored base invoice); a file cannot show those." });
+  skipped.push({ rule: "NAV register", path: pathPrefix, reason: "NAV also checks against its own records (a unique invoice number per seller, the referenced base invoice and its modificationIndex, the sender's tax number, the technical user's customers), and Annex I warnings 60, 71, 81, 91, 113, 510, 540 and 1311 (the taxpayer register) and 342, 632, 1030, 11400 and 11401 (the stored base invoice); a file cannot show those. Dropped together with its base invoice, a modification is checked against it (hungary-nav-chain.mjs, HU-036/HU-037)." });
   const first = invoices[0][0];
   return {
     findings, skipped,
