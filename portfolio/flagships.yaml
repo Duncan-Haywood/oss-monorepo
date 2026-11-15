@@ -173,13 +173,13 @@ flagships:
       labelled data; TSSB/HAS (README): count guard failed; next a shape-repeat
       check. Open: (0) drift model: t-walk increments, biweight on fresh data, why
       it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks:
-      `--hinge-test` on more series, cut guard default 11-15; heavy-tailed walks, a
-      second hinge; a real step inside a cycle, a cycle check not tied to rho, real
-      documented ramps and close steps; (2) steep-bump clumpy-count cell
-      under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line
-      (README "Heavy tails in the GARCH search"): re-test scoring breaks with false
-      alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a
-      shop's counts or a yearly term.
+      `--hinge-test` refuses 7/8 real n<100 (README "Step or bend?"): try a log
+      hinge; heavy-tailed walks, a second hinge; a real step inside a cycle, a cycle
+      check not tied to rho, real documented ramps and close steps; (2) steep-bump
+      clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH failed one
+      pre-registered line (README "Heavy tails in the GARCH search"): re-test
+      scoring breaks with false alarms, new seeds; (4) driftWarning on real shocks;
+      (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
