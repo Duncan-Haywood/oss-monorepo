@@ -154,7 +154,7 @@ async function main() {
       const values = j.series[0].raw.map((v) => { if (v == null || !Number.isFinite(Number(v))) return last; last = Number(v); return last; });
       const c = consensus({ values });
       const every = clean(c.changes.filter((x) => x.tier === 'all').map((x) => x.index), values.length);
-      tcpd.push({ name, sub, n: values.length, every, guard: c.repeatWarning, count: countOnly(every), f1: fMeasure(ann[name], every, 5).F, cover: covering(ann[name], every, values.length) });
+      tcpd.push({ name, sub, n: values.length, every, guard: repeatGuard(every, values.length), count: countOnly(every), f1: fMeasure(ann[name], every, 5).F, cover: covering(ann[name], every, values.length) });
     }
   }
   const tFired = tcpd.filter((r) => r.guard);
