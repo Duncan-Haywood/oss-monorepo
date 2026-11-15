@@ -365,8 +365,9 @@ test("odd leagues at 9 times: stored 9-slot designs on fewer courts than the 6-s
     const six = ODD_DESIGNS.find((e) => e.n === d.n && e.times === 6);
     if (six) assert.ok(d.courts < six.courts, `${d.n}: ${d.courts} x 9 beats ${six.courts} x 6`);
   }
-  // 21 and 23 on 4, 27 on 5: 1-rotational round robins (eval/odd-cyclic.py), one night's layout shifted
-  for (const [n, c] of [[11, 2], [13, 2], [21, 4], [23, 4], [27, 5]]) {
+  // 21 and 23 on 4, 27 on 5: 1-rotational round robins (eval/odd-cyclic.py), one night's layout shifted;
+  // 19 on 3 and 25 on 4 (fully booked): one night turned by three k-cycles (eval/odd-orbit.py)
+  for (const [n, c] of [[11, 2], [13, 2], [19, 3], [21, 4], [23, 4], [25, 4], [27, 5]]) {
     const s = build(n, c, 9, 3);
     assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
     perNight(s);
