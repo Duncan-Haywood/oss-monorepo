@@ -345,6 +345,19 @@ chosen splits' false alarms stay at 0.06–1.40%. The twin's predicted gain matc
 have caught the change in 19.2–55.1% of old sets, so most of what makes one new set luckier than another
 is not foreseeable from the twin.
 
+**Fitting the lens the camera has (milestone 4n, pre-registered).** Every TUM result above fits k<sub>1</sub>
+alone, which the Kinect's lens (TUM's d<sub>1</sub> = −0.95) does not follow. Re-solving the 5-, 6- and 7-view
+sets with k<sub>1</sub> + k<sub>2</sub> and re-scoring every 7 + 6 split with a k<sub>1</sub> + k<sub>2</sub> twin
+(same draws, solver and start) raised the pooled ±2% detection from 10.0% to 14.8%, all of it on the
+Kinect (fr1: 21.9% and 16.6% at −2% and +2%, against 11.0% and 8.6%), with its false alarms at 0.59% (k<sub>1</sub>:
+0.76%). The Kinect's 6-view focal lengths scatter less (robust spread ×0.81), and a real unit swap is
+caught in 16.3% and 17.0% of splits, against 6.3% and 7.9%. On the Xtion, whose images arrive
+undistorted, the second term changed nothing measurable (spread ×0.97). We had predicted the opposite, a
+precision cost and lower power. The unmodelled distortion was not inert: each view set absorbed a different
+share of it into f. The Kinect's target-free f stays +1.60% above TUM's with k<sub>2</sub>, while flat-board
+Zhang on the same corners falls to +0.09% once k<sub>2</sub> and k<sub>3</sub> are fitted, so the remaining bias
+belongs to the free board points, not to the lens order.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -400,7 +413,8 @@ were found after a pre-registered prediction failed and are labelled so in the l
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
   Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set
-  held fixed it gains ×1.33–1.63 on the TUM cameras (milestone 4m); still needed: a stopping rule over
+  held fixed it gains ×1.33–1.63 on the TUM cameras (milestone 4m); fitting k<sub>2</sub> on the Kinect
+  doubles its power at 7 + 6 (milestone 4n), so the other designs and the waiting rule should be re-run with it; still needed: a stopping rule over
   a longer stream of views (more than 13 per unit), and a twin that models the right camera's extra spread (a per-view offset
   term fitted to the unit's own jackknife) to bring that camera up to 1%.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
