@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtK9qbU7HAj23Hadcbc",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T10:05:35Z",
+  "ended": "2026-11-15T10:18:54Z",
+  "wall_minutes": 13.5,
+  "tokens_in": 8843807,
+  "tokens_out": 60453,
+  "cost_usd": 4.2467,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16180",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First eval draft claimed no sensels sat between LibRaw's 16319 white and the clip; measured before merge, it was false (S1: 152,552), so white switched to LibRaw's margin and the write-up says so.",
+    "First raw.pixls.us downloads were 0 bytes: the host 301-redirects to /download/...; curl -L fixed it.",
+    "Local run_workflow_locally caught three own failures before merge: ruff E702 in the new test, and flagships.yaml photo-editing next:/buildable: over their caps after appending; fixed by replacing text, not appending."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing buildable said raw.pixls.us answered 403 on 2026-11-15; it serves files with curl -L (the 403/empty result was likely the unfollowed 301). Updated."
+    },
+    {
+      "file": "ventures/photo-editing/src/shootflow/rw2.py",
+      "issue": "Docstring said RawFormat 5-8 were refused for want of a test file; public files for all of them exist on raw.pixls.us."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-panasonic-lumix-rw2-newer-formats.md",
+    "ventures/photo-editing/eval/panasonic-rw2-newer-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: Panasonic RW2 RawFormat 5, 6, 7 (G9, GH5S, S1, S1R, S1H, S5) in ShootFlow, plus the in-camera aspect crop (tags 0x2F-0x32). 12 raw.pixls.us bodies, all 331.7 M sensels, WB, black, CFA, crop and white equal LibRaw 0.22. Venture suite: ok, 1159 tests. Next: RawFormat 8 (GH6-era Huffman), six public files already identified. Local checks: run_workflow_locally --for-changes run; failures fixed (ruff, flagship caps); test_allocate OK; validate.py OK.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a6214c1d-05e9-5b9e-a155-7c98680331a9",
+    "transcripts": 1,
+    "first": "2026-11-15T10:05:35Z",
+    "last": "2026-11-15T10:19:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 143,
+        "output": 60453,
+        "thinking": 15893,
+        "cache_read": 8681063,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162601,
+        "api_equivalent_usd": 4.2467,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 143,
+      "output": 60453,
+      "thinking": 15893,
+      "cache_read": 8681063,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162601,
+      "api_equivalent_usd": 4.2467,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 71,
+      "Read": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.5,
+      "active_minutes": 13.5,
+      "model_minutes": 11.12,
+      "tool_minutes": 2.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "reverse-engineering three raw layouts against LibRaw, C+Python decoders, tests, eval and post: about two days for an experienced imaging engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 376.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
