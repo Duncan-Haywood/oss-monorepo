@@ -6,3 +6,6 @@ TEAM_TOKEN=
 # Optional: a Slack, Discord or ntfy webhook you own (README, "Alerts").
 NOTIFY_WEBHOOK_URL=
 TEAM_WEBHOOK_URL=
+# Optional: the time clock (README, "Time clock and timesheets"). Your site's IANA zone (UTC if unset); TIME_CLOCK=0 turns it off.
+TIMEZONE=
+TIME_GRACE_MIN=5

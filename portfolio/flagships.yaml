@@ -219,33 +219,33 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and measurements: README and eval/*. Team hub free on Cloudflare
-      (README 2026-11-15): next a live-account deploy. Exact side: branch-and-price
-      and column generation prove 20-80 person weeks; the exact check is on by
-      default at every size. Forecast side (--from-sales, eight real files,
-      eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
-      cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
-      weeks: reissues hold started and posted shifts; a whole week at the Deputy
-      file's rates (README "A whole week of call-outs at a real roster's rates",
-      2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent both
-      ways. Next: whether a real manager would set keepShift above 1; 350+ copies:
-      clique LP vs cover passes (README "keeps to its share"); day sweeps LP-guided,
-      by the open-hours LP when the pay floor is skipped (README "A guide when the
-      pay floor is skipped"); next a warm-sized gate; re-run the keep-usual-shifts
-      sweep on real dated leave records; a manager's read on whether the steadier
-      plan is the one they would post; a real 7shifts account through
-      --import-7shifts (README "Reading 7shifts directly"); a real When I Work
-      account or response through --import-wheniwork (README "Reading When I Work
-      directly"); Homebase (docs need an account); --cover-price moves two shifts
-      together (README "Moving two shifts together": 20-person week exposure 113 to
-      68 h for $35.27); second call-outs priced, off by default (README "The pair
-      price in played weeks": fewer open hours on 3 of 4 weeks); order-free pair
-      check played: no gain, stays opt-in (README "The order-free pass played"); a
-      real two-site export and staff list (README "Staff shared between sites"); own
-      and site rates read from staff CSVs and 7shifts (README "Per-location pay from
-      an export"); next a real wages export, real trip times; whether the priced
-      cut's r = 1 default suits a real manager; a manager's real task list for the
-      fixed minutes.
+      History: README, eval/*. Team hub free on Cloudflare, with a time clock
+      (README 2026-11-15): next a live-account deploy, a real team's punches. Exact
+      side: branch-and-price and column generation prove 20-80 person weeks; the
+      exact check is on by default at every size. Forecast side (--from-sales, eight
+      real files, eval/real-pos-exports.mjs): backtest, closure score, half-life
+      auto, priced cut, tickets, labour standard, shut-door work, multi-file pastes.
+      Posted weeks: reissues hold started and posted shifts; a whole week at the
+      Deputy file's rates (README "A whole week of call-outs at a real roster's
+      rates", 2026-11-13): kept reissues cut changes 56-66%, open hours
+      path-dependent both ways. Next: whether a real manager would set keepShift
+      above 1; 350+ copies: clique LP vs cover passes (README "keeps to its share");
+      day sweeps LP-guided, by the open-hours LP when the pay floor is skipped
+      (README "A guide when the pay floor is skipped"); next a warm-sized gate;
+      re-run the keep-usual-shifts sweep on real dated leave records; a manager's
+      read on whether the steadier plan is the one they would post; a real 7shifts
+      account through --import-7shifts (README "Reading 7shifts directly"); a real
+      When I Work account or response through --import-wheniwork (README "Reading
+      When I Work directly"); Homebase (docs need an account); --cover-price moves
+      two shifts together (README "Moving two shifts together": 20-person week
+      exposure 113 to 68 h for $35.27); second call-outs priced, off by default
+      (README "The pair price in played weeks": fewer open hours on 3 of 4 weeks);
+      order-free pair check played: no gain, stays opt-in (README "The order-free
+      pass played"); a real two-site export and staff list (README "Staff shared
+      between sites"); own and site rates read from staff CSVs and 7shifts (README
+      "Per-location pay from an export"); next a real wages export, real trip times;
+      whether the priced cut's r = 1 default suits a real manager; a manager's real
+      task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
