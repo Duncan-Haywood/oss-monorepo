@@ -56,10 +56,10 @@ GATE_BACK_MS = 850              # back stroke: cad 0.68 s, plus 0.14 s for the n
 # so balls still in the trough or on the belt reach the tub (manifest "ball lift" line: run-on).
 LIFT_RUN_ON_MS = 16000
 LIFT_DUTY = 1.0
-# Lift jam cutoff (cad: Feeder.lift_jam_cutoff; manifest "lift jam" line). A comparator on a shunt in the lift MOSFET's
-# source pulls GPIO 0 low above about 1.55 A at full duty (1.3 to 1.8 A over the parts' tolerances; over the duty
-# below on a full pack, at most 2.2 A at 0.82, under the 2.5 A the motor draws while the pulley's slip hub slides).
-# Ignored for LIFT_JAM_BLANK_MS after each start (a start stays over it about 90 ms by the CAD's figures, 170 ms with twice the assumed rotor); over for LIFT_JAM_TRIP_MS cuts the motor,
+# Lift jam cutoff (cad: Feeder.lift_jam_cutoff; manifest "lift jam" line). A shunt in the lift motor's + lead, inside
+# the flyback diode's loop, read by an INA186-class amplifier and a comparator, pulls GPIO 0 low above about 1.64 A
+# (1.51 to 1.77 A over the parts' tolerances) at any duty, under the 2.5 A the motor draws while the slip hub slides.
+# Ignored for LIFT_JAM_BLANK_MS after each start (a start stays over it about 75 ms by the CAD's figures, 184 ms at most on the simulated feeder); over for LIFT_JAM_TRIP_MS cuts the motor,
 # which tries again after LIFT_JAM_REST_MS, LIFT_JAM_RETRIES times, then stays off (FLAG_LIFT_JAM) until the e-stop is
 # pressed and released. The CAD's params carry the same numbers and a test fails if they disagree.
 LIFT_JAM_BLANK_MS = 400
@@ -73,8 +73,8 @@ LIFT_RAMP_MS = 100
 # Lift speed held over the battery (cad: Feeder.lift_v_ref; cad/README.md "Lift duty follows the battery"). Above
 # LIFT_V_REF_MV on the battery reading the duty is LIFT_DUTY x LIFT_V_REF_MV / reading (smoothed over LIFT_BUS_TAU_MS),
 # so the belt runs at its 24 V speed from the cut to the charger's 29.2 V instead of 0.91 to 1.23 times nominal; never
-# under LIFT_DUTY_MIN. 0 keeps the fixed duty. The jam cutoff's trip rises as the duty falls (the shunt sees duty x I):
-# the CAD checks it still trips a hot stall at the lowest duty.
+# under LIFT_DUTY_MIN. 0 keeps the fixed duty. The jam cutoff's trip does not move with the duty (its shunt is inside
+# the diode's loop since 2026-11-15); the CAD still checks a hot stall trips at the lowest duty.
 LIFT_V_REF_MV = 24000
 LIFT_DUTY_MIN = 0.82
 LIFT_BUS_TAU_MS = 500
