@@ -85,3 +85,64 @@ def test_annotate_marks_only_later_unambiguous_touches():
     fr.annotate([before, after, ambiguous], commits, counts={"pyenv.py": 1, "figure.py": 40})
     assert before["touched"][1] == "abc" and after["touched"] is None and ambiguous["touched"] is None
     assert fr.utc("2026-11-13T05:00:00-07:00") == "2026-11-13T12:00:00Z"
+
+
+def test_codeowners_gating(tmp_path):
+    co = tmp_path / "CODEOWNERS"
+    co.write_text("# comment\n/CLAUDE.md @o\n**/CLAUDE.md @o\n/prompts/ @o\n/.github/ @o\n"
+                  "/platform/ci/control_plane_guard.py @o\n/prompts/runs/\n")
+    rules = fr.codeowner_rules(co)
+    assert fr.gated("CLAUDE.md", rules) and fr.gated("research/CLAUDE.md", rules)
+    assert fr.gated("prompts/process/prompt-1.md", rules) and fr.gated("prompts/promptctl.py", rules)
+    assert fr.gated(".github/prompts/cloud-session.md", rules)
+    assert fr.gated("platform/ci/control_plane_guard.py", rules)
+    assert not fr.gated("prompts/runs/x.json", rules)  # ownerless rule after: last match wins
+    assert not fr.gated("platform/ci/wait_for.py", rules)
+    assert not fr.gated("research/_shared/pick_track.py", rules)
+    assert not fr.gated("prompt.md", rules)  # not listed in this sample
+
+
+def test_real_codeowners_gates_the_control_plane():
+    rules = fr.codeowner_rules()
+    assert rules, "the repository's .github/CODEOWNERS should parse"
+    assert fr.gated("prompt.md", rules) and fr.gated("prompts/redteam/prompt-0.md", rules)
+    assert not fr.gated("platform/ci/friction_rank.py", rules)
+    assert not fr.gated("portfolio/flagships.yaml", rules)
+
+
+def test_open_pr_claims_match_tool_stems():
+    ranked = [
+        {"file": "platform/ci/run_workflow_locally.py", "names": ["platform/ci/run_workflow_locally.py", "redteam.py"]},
+        {"file": "prompts/perf/prompt-0.md", "names": ["run_venture_tests.py"]},
+        {"file": "prompt.md", "names": []},
+    ]
+    prs = [(1, "process: run_workflow_locally groups a failed step's errors"),
+           (2, "perf: run_venture_tests --table per-suite timings"),
+           (3, "process: prompt.md step 0 handles a missing branch"),
+           (4, "run_workflow_locally_extra is another tool"),
+           (5, "redteam: seed faults in calc.mjs")]
+    fr.claims(ranked, prs, rules=[("/prompts/", True)])
+    assert ranked[0]["prs"] == [1] and ranked[0]["gated"] is False
+    assert ranked[1]["prs"] == [2] and ranked[1]["gated"] is True
+    assert ranked[2]["prs"] == []  # generic stems never match
+    fr.claims(ranked, None)
+    assert ranked[0]["prs"] is None
+
+
+def test_open_prs_skips_forks_pages_and_survives_errors():
+    repo = "o/r"
+    new, old = "2026-11-15T00:00:00Z", "2026-11-10T00:00:00Z"
+    page1 = [{"number": i, "title": f"t{i}", "created_at": new, "head": {"repo": {"full_name": "o/r"}}}
+             for i in range(100)]
+    page2 = [{"number": 500, "title": "fork", "created_at": new, "head": {"repo": {"full_name": "x/r"}}},
+             {"number": 501, "title": "deleted fork", "created_at": new, "head": {"repo": None}},
+             {"number": 502, "title": "mine", "created_at": new, "head": {"repo": {"full_name": "O/R"}}},
+             {"number": 503, "title": "stalled", "created_at": old, "head": {"repo": {"full_name": "o/r"}}}]
+    pages = {1: page1, 2: page2}
+    now = dt.datetime(2026, 11, 15, 12, tzinfo=dt.timezone.utc)
+    rows = fr.open_prs(repo, fetch=lambda url: pages[int(url.rsplit("=", 1)[1])], now=now)
+    assert len(rows) == 101 and rows[-1] == (502, "mine")  # fork and 5-day-old PR dropped
+
+    def boom(url):
+        raise OSError("403")
+    assert fr.open_prs(repo, fetch=boom) is None
