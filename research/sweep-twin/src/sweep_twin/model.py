@@ -119,9 +119,20 @@ def tilt_first_order(room, lid, v, front=True):
     return (-1 if front else 1) * lid.spin * v * lid.tau / (2 * math.pi * d)
 
 
+def fire_time(lid, theta):
+    """Time within the revolution at which the beam points along world angle theta (no yaw)."""
+    frac = ((theta - lid.phi0) * lid.spin) % (2 * math.pi) / (2 * math.pi)
+    return lid.tau * frac
+
+
 def length_bias(lid, v):
-    """Apparent front-to-back length minus true length: spin v tau / 2 (seam on a side wall)."""
-    return lid.spin * v * lid.tau / 2
+    """Apparent front-to-back length minus true length: v (t_back - t_front).
+
+    The front wall centre is hit at t_front, when the sensor has moved v t_front towards it, and the back
+    wall centre at t_back; the sign therefore depends on which wall the beam reaches first, not on spin
+    alone.  With the seam on a side wall it is +v tau / 2 for both spin directions.
+    """
+    return v * (fire_time(lid, math.pi) - fire_time(lid, 0.0))
 
 
 def converge_angle(room, lid, v):
