@@ -2435,15 +2435,16 @@ readings there is no vote, so `--two-pass` is untouched.
 | page, SROIE scans, 625 | 529 (84.6%) | 529 (84.6%) |
 | CLI `--four-pass`, SRD 196 | 146 (74.5%) | 147 (75.0%) |
 | CLI `--four-pass`, SRD odd half (held out) | 72 of 97 | 71 |
-| CLI `--four-pass`, SROIE 625 | SROIE_CLI_BEFORE | SROIE_CLI_AFTER |
+| CLI `--four-pass`, SROIE 625 | 514 (82.2%) | **516 (82.6%)** |
 
 Chosen on the even-numbered SRD photos with the page's readings: guess weights 0.75, 0.5
 and 0.25 tie at 73 of 99 (72 before), and the middle one was taken; the same grid printed
 the odd half, which every tied setting improves (74 to 78 against 73). On the page five
 photos were fixed and none broken; wrong totals with no warning stay at 3 of 196. The CLI's
-tesseract binary reads differently, and there the change is mixed: two photos fixed, one
-broken (a garbled "AROUNT Due" line beat a right guess). It was kept for both, since the
-page is where most photos are read and the weight was not re-tuned on the binary.
+tesseract binary reads differently, and on SRD the change is mixed there: two photos fixed, one
+broken (a garbled "AROUNT Due" line beat a right guess). On SROIE's scans, never looked at
+while choosing, the CLI gains 2 (514 to 516; merchant and date unchanged), so it was kept
+for both and not re-tuned on the binary.
 
 The page's four readings can now be rebuilt from OCR folders without the browser:
 `eval/canvas-shading.mjs` measures each photo as the page does (lightSpread of the canvas

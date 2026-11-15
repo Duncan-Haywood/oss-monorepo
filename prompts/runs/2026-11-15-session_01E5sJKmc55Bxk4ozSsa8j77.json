@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKmc55Bxk4ozSsa8j77",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T16:09:21Z",
+  "ended": "2026-11-15T16:41:32Z",
+  "wall_minutes": 42.67,
+  "tokens_in": 10493873,
+  "tokens_out": 43725,
+  "cost_usd": 4.0628,
+  "tool_calls": 90,
+  "task": "ai-bookkeeper flagship item (5): receipt OCR vote picks the right total on more photos",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16267",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "git stash used to score 'before' after the change was already committed: the stash was empty and 'before' equalled 'after'; caught and rerun with HEAD~1:receipts.mjs"
+  ],
+  "integrity_issues": [
+    "The grid that chose GUESS_VOTE also printed the held-out odd-half column, so it was visible when choosing among the five settings tied on the even half; disclosed in the eval doc, README and post. Every tied setting improves the odd half."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "The 'Shaded photos' section's reproduce steps say 'per photo take <ocr>/psm6, <ocrS>/psm6 ... when its lightSpread is 0.13 or more' but there was no script measuring canvas lightSpread or laying out the four readings; had to write one (now eval/canvas-shading.mjs and eval/page-readings.mjs)."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "'vote picks 145 of 169' did not say how 169 was counted; this run's 'right total appears in some reading's text' count is 166."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-ai-bookkeeper-a-guess-should-not-outvote-a-total-line.md",
+    "ventures/ai-bookkeeper/eval/guess-vote-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Hosts: huggingface.co and irs.gov refused (CORD photos not re-read); raw.githubusercontent.com and git clone over github.com worked. tesseract-ocr 5.3.4 installed by apt. Reproduced the earlier figures exactly before changing anything: page SRD 145, page SROIE 529, CLI SRD 146, CLI SROIE 514. After: page SRD 150 (odd 73->77), page SROIE 529, CLI SRD 147 (odd 72->71), CLI SROIE 516. Verification: run_venture_tests.py ai-bookkeeper 3238 tests 0 failed; new test fails on old vote; venture-preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b77494ac-1ffe-58cd-9b2e-64d5df39ad7a",
+    "transcripts": 1,
+    "first": "2026-11-15T16:09:21Z",
+    "last": "2026-11-15T16:52:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 168,
+        "output": 43725,
+        "thinking": 8969,
+        "cache_read": 10354101,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139604,
+        "api_equivalent_usd": 4.0628,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 168,
+      "output": 43725,
+      "thinking": 8969,
+      "cache_read": 10354101,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139604,
+      "api_equivalent_usd": 4.0628,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 82,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 42.67,
+      "active_minutes": 42.67,
+      "model_minutes": 8.89,
+      "tool_minutes": 33.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "engineer: fetch data, run OCR on two datasets with two engines, grid, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 147.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

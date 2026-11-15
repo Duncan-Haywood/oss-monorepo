@@ -66,7 +66,7 @@ tied settings; every one of the tied settings scores 74 to 78 on it, against 73 
 | CLI `--four-pass`, SRD 196 | 146 (74.5%) | 147 (75.0%) |
 | CLI `--four-pass`, SRD even half | 74 of 99 | 76 |
 | CLI `--four-pass`, SRD odd half (held out) | 72 of 97 | **71** |
-| CLI `--four-pass`, SROIE 625 | SROIE_CLI_BEFORE | SROIE_CLI_AFTER |
+| CLI `--four-pass`, SROIE 625 | 514 (82.2%) | **516 (82.6%)** |
 
 Page: 5 photos fixed, none broken. Wrong totals with no warning stay at 3 of 196; tax
 78 of 185 before and after (the earlier record says 79; this run's OCR reproduces 145
@@ -76,7 +76,9 @@ total moved to within 5 cents of the label).
 CLI: two photos fixed (1018, 1070) and one broken (1157: the right 9.70 was a guess in
 one reading, and a garbled "AROUNT Due" total line read 44.00 in another). The binary's
 readings differ from tesseract.js's, so a weight chosen on the page's readings is a
-small, mixed change there: +1 overall, -1 on the held-out half.
+small, mixed change on SRD: +1 overall, -1 on the held-out half. On SROIE's scans (held
+out for both engines) the CLI gains 2 totals (514 reproduces the earlier record; merchant
+288 and date 493 unchanged), so the change was kept for the CLI as well.
 
 "Vote picks 145 of 169" before: of the 166 SRD photos where the right total appears in
 some reading's text (this run's count; the earlier record's 169 counted differently),

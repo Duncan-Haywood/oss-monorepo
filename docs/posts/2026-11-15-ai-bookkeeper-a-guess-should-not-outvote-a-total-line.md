@@ -35,10 +35,11 @@ I picked the weight on the even-numbered half of ExpressExpense's 196 labelled U
 | page, 625 SROIE flatbed scans | 529 | 529 |
 | command line `--four-pass`, 196 photos | 146 | 147 |
 | command line, held-out odd half | 72 of 97 | 71 |
+| command line, 625 SROIE scans | 514 | **516** |
 
-On the page, five photos were fixed and none broken. Wrong totals shown with no warning stayed at 3 of 196. The scans didn't move: an evenly lit scan almost always has its total line, so nobody is guessing.
+On the page, five photos were fixed and none broken. Wrong totals shown with no warning stayed at 3 of 196. The scans didn't move on the page: an evenly lit scan almost always has its total line, so nobody is guessing.
 
-The command line uses the tesseract binary, whose readings differ, and the result there is mixed. It gained one overall and lost one on the held-out half. On the photo it broke, the right total was a guess in one reading, and a garbled "AROUNT Due" line in another read 44.00. Halving the guess let the garbage line win. I'm reporting that rather than tuning a second weight for the binary on the same 196 photos.
+The command line uses the tesseract binary, whose readings differ, and the result there is mixed. It gained one overall and lost one on the held-out half. On the photo it broke, the right total was a guess in one reading, and a garbled "AROUNT Due" line in another read 44.00. Halving the guess let the garbage line win. On the scans, which I never looked at while choosing, the command line gained two totals, so I kept the change there too rather than tuning a second weight for the binary on the same 196 photos.
 
 ## What's left
 
