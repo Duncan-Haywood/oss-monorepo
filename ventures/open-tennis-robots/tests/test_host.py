@@ -2,6 +2,7 @@
 pieces it leans on: the period tachometer, the wheel speed loop and the steady-wheels gate."""
 
 import json
+import math
 import os
 import unittest
 
@@ -620,6 +621,50 @@ class LiftJamTest(unittest.TestCase):
         tripped, _, _ = sweep.start(29.2, 0.0, 0.5, "lo", belt=1.0, **corner)
         self.assertFalse(tripped)
         self.assertEqual(sweep.start.plant.slid_ms, 0.0)
+
+    def test_belt_chain_rests_and_rings(self):
+        # 2026-11-15 later, cad/README.md "Lift belt as a chain": at rest the chain holds still with the strands at the
+        # drive pulley averaging T0 (T0 -/+ P / 2) and the loaded up strand's top over its bottom by the balls' and
+        # belt's weight; with the pulley held, a half-sine pluck rings at the solver's first held mode
+        import lift_jam_sweep as sweep
+        p = _feeder()
+        h = 1.25e-5
+        for every in (1, 2):
+            pl = sweep.Plant(p, 29.2, 0.0, chain={"cspec": 1.0, "every": every})
+            k, u = pl.ck, pl.cu
+            t_up = pl.t0 + k * (u[0] - pl.s)
+            t_down = pl.t0 + k * (pl.s - u[-1])
+            t0 = p.lift_tension_design()["t0_n"]
+            self.assertAlmostEqual((t_up + t_down) / 2, t0, places=6)
+            self.assertAlmostEqual(t_down - t_up, pl.t_load / pl.rp / every, delta=0.01)
+            self.assertGreater(pl.t0 + k * (u[pl.top] - u[pl.top - 1]), t_up)
+            for _ in range(2000):
+                pl._chain_step(h, 0.0)
+            self.assertLess(max(abs(v) for v in pl.cv), 1e-9)
+            held = p.lift_belt_axial_modes(every, stuck=False, nodes_per_pitch=2)["modes_hz"][0]
+            rest, nn = list(pl.cu), len(pl.cv)
+            pl.cv = [0.05 * math.sin(math.pi * (i + 1) / (nn + 1)) for i in range(nn)]
+            x = []
+            for _ in range(int(0.2 / h)):
+                pl._chain_step(h, 0.0)
+                for i in range(nn):
+                    pl.cu[i] += pl.cv[i] * h
+                x.append(sum(m * (a - b) for m, a, b in zip(pl.cm, pl.cu, rest)))
+            ups = [i for i in range(1, len(x)) if x[i - 1] < 0 <= x[i]]
+            f = (len(ups) - 1) / ((ups[-1] - ups[0]) * h)
+            self.assertAlmostEqual(f, held, delta=0.01 * held)
+
+    def test_belt_chain_hood_jam(self):
+        # the chained belt's hood jam: the flight stays under the cap plate, the cutoff trips and the lift gives up,
+        # part of the up strand goes slack, and the net pull at the drive pulley stays within `lift_jam_belt_n`
+        import lift_jam_sweep as sweep
+        p = _feeder()
+        r = sweep.jam(29.2, 0.0, 1.0, "lo", "hood", slip="hi", chain={"cspec": 1.0, "every": 1}, after_ms=3000)
+        self.assertLess(r["peak_n"], p.lift_jam_cutoff()["plate_allow_n"])
+        self.assertIsNotNone(r["cut_ms"])
+        self.assertIsNotNone(r["jammed_ms"])
+        self.assertGreater(r["slack_ms"], 0.0)
+        self.assertLessEqual(r["belt_n"], p.lift_jam_belt_n)
 
     def test_coupling_model_parts_and_modes(self):
         p = _feeder()

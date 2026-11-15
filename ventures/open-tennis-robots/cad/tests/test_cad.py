@@ -1473,6 +1473,28 @@ class LiftParamsTest(unittest.TestCase):
         # the rule fires on a strand that goes slack
         self.assertTrue(any("goes slack" in r for r in Feeder(lift_tension_factor=0.3).check_lift_strand()))
 
+    def test_lift_belt_chain(self):
+        # 2026-11-15 later, cad/README.md "Lift belt as a chain": the node layout the axial modes and the jam sweep's
+        # time-domain chain share; two nodes a flight pitch keep the first stuck modes of the eight-node reference
+        p = Feeder()
+        c = p.lift_belt_chain(1, nodes_per_pitch=2)
+        d = p.lift_design()
+        self.assertEqual(len(c["mass"]), c["n"] - 1)
+        self.assertEqual(len(set(c["flight_nodes"])), len(c["flight_nodes"]))        # one flight to a node
+        self.assertEqual(len(c["ball_nodes"]), len(c["up_flight_nodes"]))
+        self.assertEqual(len(p.lift_belt_chain(2, nodes_per_pitch=2)["ball_nodes"]), len(c["ball_nodes"]) // 2)
+        self.assertAlmostEqual(c["h_m"] * (c["top_node"] + 1), d["centre_mm"] / 1000, delta=c["h_m"])
+        self.assertTrue(set(c["up_nodes"]).isdisjoint(c["down_nodes"]))
+        moving = sum(c["mass"]) + c["m_wrap_kg"]
+        # the same moving mass as the fine layout, less one segment's belt (n - 1 interior nodes)
+        self.assertAlmostEqual(moving, p.lift_belt_chain(1)["m_wrap_kg"] + sum(p.lift_belt_chain(1)["mass"]), delta=0.01)
+        for every in (1, 2):
+            for cs in p.lift_belt_cspec_sweep:
+                coarse = [f for f in p.lift_belt_axial_modes(every, cs, f_max_hz=200.0, nodes_per_pitch=2)["modes_hz"] if f > 1]
+                fine = [f for f in p.lift_belt_axial_modes(every, cs, f_max_hz=200.0)["modes_hz"] if f > 1]
+                for a, b in zip(coarse[:2], fine[:2]):
+                    self.assertAlmostEqual(a, b, delta=0.005 * b)
+
     def test_lift_drive_shaft_numbers_and_rules(self):
         # 2026-11-15, cad/README.md "Lift drive shaft"
         p = Feeder()

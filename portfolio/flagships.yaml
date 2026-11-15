@@ -360,12 +360,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): duty held to the battery landed 2026-11-15 (cad/README.md
-      "Lift duty follows the battery"). Next: rerun the jam sweep on
-      `lift_belt_axial_modes`' distributed belt (stuck 34-41 Hz, not 38); then a
-      duty-independent lift current sense (high-side amp, INA186 class, shunt inside
-      the motor-diode loop) in params, BOM and the sweep, so the trip stops moving
-      with the duty (slide now 1.14x the trip, 1.1 wanted).
+      venv, about 2 min): jam sweep on the belt as a chain landed 2026-11-15
+      (cad/README.md "Lift belt as a chain": cuts unchanged; the up strand goes
+      slack up to 108 ms on starts). Next: a duty-independent lift current sense
+      (high-side amp, INA186 class, shunt inside the motor-diode loop) in params,
+      BOM and the sweep, so the trip stops moving with the duty (slide now 1.14x the
+      trip, 1.1 wanted).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
