@@ -10,6 +10,10 @@
 
 **Replication (milestone 2, real data).** In the independent BaSiGo corridor experiment (Jülich, Düsseldorf 2013, 15 runs, 8,155 walkers, 4 m corridor), people with no exit instruction kept right **92.4%** of the time (2,001 of 2,165; 0.877 to 0.973), inside the HERMES interval. Telling each person which side exit to use cut it to **0.689** (0.566 to 0.839; difference +0.235, 0.073 to 0.365): the collapse replicates in direction, though less deeply than at HERMES. The share stepped down when the instruction began and did not keep drifting with run order. In the last two runs, which kept the exit instruction and added information on screens (content not documented by the archive), **1,212 of 1,218 walkers (99.5%)** kept right, the strongest convention in either experiment.
 
+**Crowd twin (milestone 3, simulation fitted to the real runs).** Does a social-force crowd simulator reproduce this? Plain social force (JuPedSim 1.4.2, the Helbing, Farkas and Vicsek 2000 parameters) has no side convention: 0.51 of walkers on their right. One added parameter, a slight turn to one's own right when someone is coming the other way, fitted on the nine free-choice runs, brings it to 0.89 to 0.97 with realistic lanes (lane order within 0.10 in 7 of 9 runs). But it is too uniform (only 3 of 9 runs inside their intervals), and it cannot congest beyond about 1.5 walkers/m² (1.2 with the fitted bias), while the densest real runs reached 3.8/m² at 0.24 m/s. **On the assigned-exit runs it never saw, the twin keeps 0.78 of walkers on their right where people kept 0.54**, and it overstates the share in all 14 held-out runs. A social-force twin over-trusts the convention, so a robot policy chosen in it would understate how easily goal-driven walkers break the lanes. H3 fails for this model family.
+
+![Simulated against observed share on own right per run: free choice (fitted) and exit assigned (held out)](experiments/m3_sf_twin.svg)
+
 ![Share of walkers on their own right per run](experiments/m1_hermes_sides.svg)
 
 ![Share on own right per run in start order, BaSiGo 2013](experiments/m2_basigo_sides.svg)
@@ -52,6 +56,16 @@ Reproduce: `python3 research/society-lanes/experiments/m2_basigo_sides.py` (stdl
 
 Reproduce: `python3 research/society-lanes/experiments/m7_wild_sides.py` (stdlib, about 20 s plus a 30 MB download from GitHub).
 
+## Method (milestone 3)
+
+- **Model:** JuPedSim 1.4.2's `SocialForceModel` (Forschungszentrum Jülich's open simulator; defaults are the Helbing, Farkas and Vicsek 2000 parameters: A = 2000 N, B = 0.08 m, body force 1.2e5 kg/s², friction 2.4e5 kg/(m s), reaction time 0.5 s, mass 80 kg), body radius 0.25 m, desired speed N(1.34, 0.26) m/s (Weidmann 1993). Walkers are steered through a direct-steering stage every 0.1 s (`sftwin.py`): with an oncoming walker within 3 m ahead and 1 m sideways, a walker aims at lateral slope β toward its own right, otherwise straight ahead. β = 0 is plain social force.
+- **Corridor:** straight, the run's width (3.6 or 4.0 m) and length (16 m assumed for HERMES), entrances centred. The number of walkers is fixed, as in the loop the participants walked: a walker who leaves re-enters at its own end when there is room. Measured with milestone 1's statistics in the middle 8 m, counting only walkers who entered after the start.
+- **Fit:** walker count calibrated per run to the observed median speed (β = 0); β on a grid of 7 values, 5 seeds per run, loss on share (scaled by the run's interval) and lane order; scored at the fitted β with 20 seeds per run.
+- **Held out:** the 3.6 m HERMES assigned-exit runs and the BaSiGo variant B runs without screens. Assigned walkers head for the far end at a quarter width from the left or right wall (50/50). For b_03 and b_08 the walker count is set from the density measured in the raw files that PedPy redistributes (pinned commit, sha256 checked; they reproduce milestone 2's counts and shares exactly).
+- Predictions F1 to F7 and one design change (fixed walker count instead of an inflow, after the raw files showed the congestion does not come from the inflow) were registered in `LOG.md` before any simulation ran.
+
+Reproduce: `PY=$(python3 platform/ci/pyenv.py jupedsim numpy)`, then `"$PY" research/society-lanes/experiments/m3_sf_twin.py` (about 35 min on 4 cores) and `python3 research/society-lanes/experiments/m3_figure.py`.
+
 ## Results
 
 | Set | Runs | Walkers | Share on own right (95% CI) | Lane order (shuffled null) |
@@ -85,6 +99,17 @@ Milestone 7, share of head-on encounters in which both walkers kept right:
 
 Registered predictions: W0 (the encounter measure reproduces the lab result) **held**. W1 (Zurich keeps right) **held**. W2 (Nicosia lower than Zurich) **refuted**: difference -0.026 (-0.160, +0.119). W3 (a keep-left norm in Nicosia) **refuted**. W4 (the street convention is weaker than the corridor's) **held**. No conclusion changes under the sensitivity settings (shares move by at most 0.03). Full output: `experiments/m7_wild_sides_results.txt`.
 
+Milestone 3, social-force twin (fitted β = 0.1; full output `experiments/m3_sf_twin_results.txt`, per run `experiments/m3_sf_twin_runs.csv`):
+
+| Condition | Runs | Observed share on own right | Twin share | Twin lane order |
+|---|---|---|---|---|
+| No side bias (β = 0), free choice | 9 | 0.82 to 1.00 per run | 0.510 pooled | 0.62 mean |
+| Fitted β = 0.1, free choice (fitted on) | 9 | 0.82 to 1.00 per run | 0.89 to 0.97 per run | within 0.10 of observed in 7 of 9 |
+| Exit assigned, HERMES 3.6 m (held out) | 8 | 0.541 pooled | 0.781 pooled | 0.61 to 0.75 |
+| Exit assigned, BaSiGo b_03 to b_08 (held out) | 6 | 0.505 to 0.754 | 0.717 to 0.851 | 0.51 to 0.72 |
+
+Registered predictions: F1 (no convention without a bias) **held**. F2 (share inside the interval in 6 of 9 free runs) **refuted**, 3 of 9. F3 (lane order within 0.10 in 6 of 9) **held**, 7 of 9. F4 (speed within 0.15 m/s at the measured density for b_03 and b_08) **refuted**: the twin cannot reach the densities (1.19 against 3.79/m² for b_08). F5 (held-out share within 0.10) **refuted**: 0.78 against 0.54 pooled for HERMES, 0.83 against 0.75 (b_03), 0.72 against 0.51 (b_08). F6 (the share falls with crowding) **held**, Spearman -0.92. F7 (the PedPy copies match the archive) **held**.
+
 ## Limitations
 
 - "Right" assumes the archive's coordinate frame is right-handed with z up, which head heights being positive suggests for HERMES (in BaSiGo the z column is a constant 176 cm and says nothing). If the frame is mirrored, people kept left. That both directions chose the same relative side does not depend on the frame.
@@ -92,17 +117,23 @@ Registered predictions: W0 (the encounter measure reproduces the lab result) **h
 - The participants were students in a hall in Germany in 2009, and laboratory crowds are not street crowds (milestone 7 checks data recorded in the wild).
 - Lane order uses one bin width (30 cm). Speeds rely on the archive's stated 16 fps, which this step cannot check independently.
 - The street data are two scenes per city, 6 to 13 one-minute blocks each. Scene layout (shop doors, a side street, a tram stop) can push walkers to one side for reasons other than a norm, so the Nicosia result says only that these pavements showed no keep-left norm, not that Cypriots keep right. HERMES pair encounters in a dense run are numerous and dependent; their intervals cluster by run.
+- Milestone 3's twin uses assumed geometry (HERMES length, centred entrances, exits a quarter width from each wall) because the FZJ archive's WKT polygons were out of reach; the exit position is the assumption most likely to move the held-out result and its sensitivity is not yet run. The steering rule's look-ahead (3 m) and lateral gap (1 m) are chosen, not fitted. In the dense BaSiGo runs the twin's crowd is lighter and faster than the real one (the calibration misses by 0.19 to 0.41 m/s), and 0 to 8 of 20 seeds in the densest cells ended when a walker was pushed through a wall; those seeds are dropped and counted.
 - No robots yet. Robots enter at milestone 5, in models fitted at milestones 3 and 4.
 
 ## Next steps
 
 1. Find what the BaSiGo b_09 and b_10 screens displayed (the PhD thesis by S. Holl, FZJ IAS Series vol. 32, which the archive cites for this experiment), and whether a displayed sign can restore the convention among walkers with lateral goals. If it can, signage is a fleet operator's lever alongside robot behaviour.
 2. Robot experiments should sweep the human side bias from 0.53 to 0.94, with the street value 0.65 as the reference, since a twin fitted only to the lab's free-choice runs overstates the convention.
-3. Fit a social-force model (JuPedSim or a checked implementation) on the free-choice runs of both experiments, then test it on the assigned-exit runs without refitting (PROPOSAL.md, H3 and H4).
-4. Fit ORCA and the anticipatory power law the same way.
+3. Test milestone 3's held-out result against the exit position (at the walls rather than a quarter width in), and rerun it on the archive's real geometry once the FZJ host answers.
+4. Fit ORCA, the anticipatory power law and JuPedSim's anticipation velocity model the same way (milestone 4), and see whether any family drops the convention under lateral goals as far as people do.
 
 ## References
 
-Full list with notes in [PROPOSAL.md](PROPOSAL.md), "Related work". All identifiers are machine-checked (`cite_check.json`).
+Full list with notes in [PROPOSAL.md](PROPOSAL.md), "Related work". Added for milestone 3:
+
+- Helbing, D., Farkas, I., Vicsek, T. (2000). Simulating dynamical features of escape panic. *Nature* 407, 487-490. doi:10.1038/35035023 (the social-force parameters JuPedSim uses by default; this DOI could not be looked up live on 2026-11-15, as doi.org refused the session proxy).
+- JuPedSim 1.4.2, Forschungszentrum Jülich, https://github.com/PedestrianDynamics/jupedsim (LGPL-3.0-or-later; used as a library, not redistributed).
+- PedPy, Forschungszentrum Jülich, https://github.com/PedestrianDynamics/PedPy (MIT), `notebooks/demo-data/bi-directional/`, commit 0604d9a: the source of the two raw BaSiGo runs read here.
+- Weidmann, U. (1993). *Transporttechnik der Fussgänger*. Schriftenreihe des IVT Nr. 90, ETH Zürich. (free walking speed 1.34 m/s; cited as used by Helbing et al. 2000, not read in this step). All identifiers are machine-checked (`cite_check.json`).
 
 *AI-assisted research: an AI agent wrote the code and text. No affiliation with any group or lab named here is implied.*
