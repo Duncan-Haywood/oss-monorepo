@@ -1,0 +1,15 @@
+# NAV Online Számla sample files
+
+Copied from NAV's public repository
+[nav-gov-hu/Online-Invoice](https://github.com/nav-gov-hu/Online-Invoice) (`sample/Data sample`
+and `sample/API sample`), MIT licence, copyright (c) 2019 Nemzeti Adó- és Vámhivatal
+(`LICENCE-NAV.md`). The one edit: in `manageInvoice.xml` the sample's technical-user login,
+password hash, request signature and exchange token were replaced, since the checker never reads them.
+
+| file here | NAV's name |
+|---|---|
+| `foreign-currency.xml` | `Belfoldi devizas szamla.xml` (EUR invoice, three VAT rates) |
+| `simplified.xml` | `Belfoldi egyszerusitett szamla.xml` (simplified invoice, VAT content) |
+| `modification.xml` | `Teves termek helyesbitese.xml` (a modifying document) |
+| `several-vat-types.xml` | `Belfoldi ertekesites tobb AFA tipus.xml` (exempt, reverse charge, margin scheme; it carries two summary typos the checker reports) |
+| `manageInvoice.xml` | `API sample/manageInvoice.xml` (three Base64 invoiceData operations with electronicInvoiceHash) |
