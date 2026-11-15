@@ -4,7 +4,9 @@
 //   node eval/repair-guide.mjs P S week config seed
 //   config: default (the guide on, as it was while measured) | unguided (repairGuide: false) | guided (repairGuide: true) | reserve<ms> | reserve<ms>u (unguided) | JSON options
 // Results: eval/repair-guide.jsonl, eval/repair-guide.out.txt, README "The clique LP picks the repair's people".
-const { parseStaff, parseShifts, buildRoster } = await import(process.env.ENGINE === "main" ? "../calc-main.mjs" : "../calc.mjs"); // ENGINE=main: git show b92b1c892:ventures/shift-roster-builder/calc.mjs, for the baseline
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+const { parseStaff, parseShifts, buildRoster } = await import(process.env.ENGINE === "main" ? pathToFileURL(resolve(process.env.MAIN_ENGINE)).href : "../calc.mjs"); // ENGINE=main with MAIN_ENGINE=<path to> git show b92b1c892:ventures/shift-roster-builder/calc.mjs, for the baseline
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const [P, S, week] = [2, 3, 4].map((i) => Number(process.argv[i]));
 const cfg = process.argv[5] || "default", runSeed = Number(process.argv[6] || 1);

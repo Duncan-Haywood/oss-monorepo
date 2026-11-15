@@ -1,9 +1,13 @@
 // The exact repair on its own, from one fixed start per week: the end-to-end generator's weeks (eval/repair-guide.mjs), a guided
 // plateau walk of a fixed step count from an empty roster (deterministic, so every repair starts from the same roster), then
-// coverRepair under the same node budget: main's version before this change (ENGINE copy ../calc-main.mjs: git show b92b1c892:ventures/shift-roster-builder/calc.mjs, with coverRepair added to _internals), this one with no
+// coverRepair under the same node budget: main's version before this change (MAIN_ENGINE, below), this one with no
 // guide, and this one guided. Prints one JSON line per (week, repair).   node eval/repair-alone.mjs P S week
 // Results: eval/repair-alone.jsonl, README "The clique LP picks the repair's people".
-const cur = await import("../calc.mjs"), old = await import("../calc-main.mjs");
+// MAIN_ENGINE: path to a copy of the engine before this change (git show b92b1c892:ventures/shift-roster-builder/calc.mjs, saved
+// next to calc.mjs, with coverRepair added to _internals); without it the "main k3" rows are skipped.
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+const cur = await import("../calc.mjs"), old = process.env.MAIN_ENGINE ? await import(pathToFileURL(resolve(process.env.MAIN_ENGINE)).href) : null;
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const [P, S, week] = [2, 3, 4].map((i) => Number(process.argv[i]));
 const startSeed = Number(process.argv[5] || 1), only = process.argv[6] ? process.argv[6].replaceAll("_", " ").split(",") : null; // only: repair names to run
@@ -29,6 +33,7 @@ for (let c = 0; c <= week; c++) {
   ];
   for (const [name, f] of runs) {
     if (only && !only.includes(name)) continue;
+    if (name.startsWith("main") && !old) continue;
     const t0 = Date.now(), r = f();
     console.log(JSON.stringify({ P, S, week, copies: slots.length, startSeed, floor: Math.round(lp.floor * 100) / 100, start: hrs(start), repair: name, open: hrs(r.owner), valid: ownerValid(ctx, r.owner), gains: r.gains ?? null, guidedGains: r.guidedGains ?? null, ms: Date.now() - t0 }));
   }
