@@ -3,7 +3,7 @@ title: "A status line every episode run had to edit by hand, now generated"
 seo_title: "Generating a podcast's audio-status note from its manifest"
 date: 2026-11-15
 tags: [process, saints-by-candlelight, automation, podcast]
-description: "Saints by Candlelight's production notes hard-coded which episodes were text only. Every new episode made the line stale. The site generator now writes it from the audio manifest."
+description: "Saints by Candlelight's notes hard-coded which episodes were text only, so each new episode made them stale. The generator now writes the line."
 ---
 
 [Saints by Candlelight](../../ventures/saints-by-candlelight/) is a bedtime
