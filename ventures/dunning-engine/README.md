@@ -77,7 +77,7 @@ Reference pages: [which Stripe decline codes to retry and which never to](https:
 
 ```sh
 cd ventures/dunning-engine
-node --test        # 91 tests, no network
+node --test        # 101 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com node server.mjs

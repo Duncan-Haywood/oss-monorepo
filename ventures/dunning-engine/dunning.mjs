@@ -11,6 +11,9 @@
 const CLASS_OF = {
   stolen_card: "hard", lost_card: "hard", pickup_card: "hard", fraudulent: "hard",
   restricted_card: "hard", invalid_account: "hard", new_account_information_failed: "hard",
+  // Stripe's docs say not to retry these: the customer or bank revoked the mandate or blocked the merchant.
+  stop_payment_order: "hard", revocation_of_authorization: "hard", revocation_of_all_authorizations: "hard",
+  do_not_try_again: "hard", merchant_blacklist: "hard", security_violation: "hard",
   expired_card: "update", incorrect_number: "update", invalid_number: "update",
   invalid_expiry_month: "update", invalid_expiry_year: "update", invalid_cvc: "update",
   incorrect_cvc: "update", incorrect_zip: "update", card_not_supported: "update",
