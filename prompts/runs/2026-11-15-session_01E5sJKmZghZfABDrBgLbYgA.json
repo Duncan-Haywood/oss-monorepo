@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKmZghZfABDrBgLbYgA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T16:25:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship chant-forge: F1 tuning on high notes",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16272",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First post description was 181 characters; venture preflight caught it, cut to 156."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Routed to changepoint-detector at the same moment as another session; claim_check said YIELD (older PR by 2 s), so the claim PR was retitled to chant-forge. Expected, but cost a round-trip."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-why-a-synthetic-tenor-lost-his-high-ee.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty. Lost the changepoint-detector claim to PR #16271 by 2 s; took chant-forge (no PR in 24 h). Landed the 'F1 on high notes' item: tuneF1 / SING_DEFAULTS.f1Tune 1.1 in sing.mjs. Pre-registered three lines in eval/f1-tune-check.mjs header before first run; all hold: /i/ /u/ at G4 A4 gain 12.9 dB mean vs /a/ (bar 2); held vowels E2-A4 179 -> 180 of 200; corpus vowels (vowel-check C) and codas (coda-check all parts) identical, openings 742 -> 743 of 934. Caveat: above E4 LPC cannot tell tuned from untuned /i/. Verification: run_venture_tests.py chant-forge 249 tests pass; venture-preflight first run failed only on the post description length (fixed), rerun: "preflight clean for chant-forge", exit 0. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null
+}

@@ -3,7 +3,7 @@ title: "Why our synthetic tenor lost his high 'ee', and the one-line fix singers
 seo_title: "Formant tuning in a singing synthesiser: raising F1 on high notes"
 date: 2026-11-15
 tags: [chant-forge, music, audio, speech-synthesis, singing]
-description: "Chant Forge's preview choir sang /i/ and /u/ 10-16 dB quieter than /a/ on a tenor's G4 and A4. Raising the first formant to the pitch, as trained singers do, closed most of the gap."
+description: "A synthetic choir sang a tenor's high /i/ and /u/ 10-16 dB under /a/. Raising F1 to the pitch, as trained singers do, closed most of the gap."
 ---
 
 Chant Forge turns Gregorian chant into backing tracks, scores and rehearsal
