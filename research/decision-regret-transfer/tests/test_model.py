@@ -62,5 +62,12 @@ class T(unittest.TestCase):
         self.assertEqual(v, sorted(v))
 
 
+    @unittest.expectedFailure
+    def test_certificate_covers_a_tight_pair(self):
+        # Known defect (quality census 2026-11-15): the grid hull lies above the step function delta.
+        C = Costs(1, 1, c=0.2)
+        h = envelope(C, "brier")
+        self.assertGreaterEqual(regret_bound(h, delta(C, "brier", 0.001)), 0.001 - 1e-12)
+
 if __name__ == "__main__":
     unittest.main()

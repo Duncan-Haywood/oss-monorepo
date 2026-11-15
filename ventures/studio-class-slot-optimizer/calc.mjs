@@ -36,7 +36,7 @@ export function parseRows(text) {
   let cols = { slot: 0, attended: 1, capacity: 2 };
   let start = 0;
   const first = splitLine(lines[0]).map((c) => c.toLowerCase());
-  if (first.some((c) => /[a-z]/.test(c) && /slot|class|time|attend|capacity|cap|count|size|people|head|sign/.test(c))) {
+  if (first.some((c) => /[a-z]/.test(c) && /slot|class|time|attend|capacity|cap|count|size|people|head|sign/.test(c)) && !first.some((c) => c !== "" && Number.isFinite(Number(c.replace(/,/g, ""))))) {
     start = 1;
     const find = (re) => first.findIndex((c) => re.test(c));
     const slot = find(/slot|class|time|name|day/), att = find(/attend|count|people|head|checked|sign|size|booked/), cap = find(/capacity|cap|max|spots|limit/);
