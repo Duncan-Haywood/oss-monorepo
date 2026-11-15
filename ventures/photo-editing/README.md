@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Other RAW formats (a CR3 stored in several tiles, a GH6-era RawFormat 8 RW2, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Other RAW formats (a CR3 stored in several tiles, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -1449,9 +1449,41 @@ the S1-family bodies saturate at several levels from 16320 up (144,576 sensels o
 16352-16355), which would have tinted blown highlights. RawFormat 6 and 7 now take LibRaw's 64-level
 margin (16319).
 
-Not done: RawFormat 8, the Huffman layout of the GH6, GH7, G9 II, S5 II, S1 II and S9, is refused
-with a pointer to the DNG Converter; public files of all six are on raw.pixls.us, so it is the
-next step. A RawFormat 5-7 row that is not whole 16-byte lines is refused (no file has one).
+Not done: a RawFormat 5-7 row that is not whole 16-byte lines is refused (no file has one).
+
+### Lumix bodies from 2022 on: RawFormat 8 (2026-11-15)
+
+Every Lumix announced since 2022 (GH6, GH7, G9 II, S5 II, S1 II, S9) writes RawFormat 8, and until
+today a photographer on one of them had to convert to DNG before the pipeline would develop a
+frame. Now `shootflow develop P1000001.RW2 --dcp PROFILE.dcp` and the grade stage read it
+(`eval/panasonic-rw2-format8-2026-11-15.md`).
+
+How it is stored: the frame is split into 2 or 3 tiles across, each its own bit stream (bytes read
+from their lowest bit). Sensels come in 2x2 blocks, each sensel a Huffman symbol from the file's own
+17-entry table (tag 0x40) and that many raw bits, a lossless-JPEG style step from the same sensel
+of the block to its left. The decode runs in C through the same optional library (0.5-0.6 s for a
+24 MP file, 1.6-1.9 s for the 96-100 MP high-resolution modes), with a pure-Python reference that
+gives the same sensels (12-14 s for 24 MP).
+
+Checked against LibRaw 0.22 (`tools/rw2_libraw_check.py`, rows in
+`eval/panasonic-rw2-format8-libraw-2026-11-15.jsonl`) on ten public CC0 files from raw.pixls.us,
+all six bodies, 12-, 14- and 16-bit, including the GH6's 100 MP and the S1 II's and S9's 96 MP
+high-resolution frames: every one of 464.6 M sensels is equal, and so are the as-shot white
+balance, the black level at each CFA position, the CFA pattern and the crop on all ten.
+
+White level: 12- and 14-bit files take LibRaw's 16- and 64-level margin under the clip, as
+RawFormat 6 and 7 do. Measured before choosing: on the S1 II's 96 MP frame 474,477 blown sensels
+sit at 16381-16382, one or two levels under the 16383 clip, and would have developed as not quite
+saturated. 16-bit files (GH6, GH7, G9 II) keep 65535, as LibRaw does.
+
+`tests/test_rw2_c8.py` (7 tests) writes RawFormat 8 files with an encoder of its own and checks
+both decoders sensel for sensel, a hand-worked stream through the per-symbol shift, tile grids,
+the levels and the refusals.
+
+Not done: no checked file uses a tone curve (tags 0x39/0x3A), per-symbol shifts or starting
+values. A file with a curve is refused with the reason; shifts and starting values are read as
+LibRaw reads them, tested on synthetic streams only. Colour needs the camera's `.dcp`, as for every
+RW2 here.
 
 ## Olympus ORF (2026-11-14)
 
