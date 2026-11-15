@@ -3,7 +3,7 @@ title: "From 469 words to 150: fitting a robot-sheathing paper's abstract to its
 date: 2026-11-15
 tags: [buildbot-sheathing, construction-robotics, paper, writing, automation-in-construction]
 seo_title: "How long can an Automation in Construction abstract be?"
-description: "Automation in Construction caps abstracts at 150 words. Our sheathing-robot paper's ran to 469; what we kept, what we cut, and the check that now fails the build."
+description: "Automation in Construction caps abstracts at 150 words. Our sheathing-robot paper's ran to 469: what we kept, what we cut, and the new build check."
 ---
 
 The `buildbot-sheathing` programme asks whether a robot can hang a 4x8 sheet of wall sheathing and land all 62 nails on the studs. Its paper is written for *Automation in Construction*. Earlier today it was built into Elsevier's LaTeX template, but its abstract was 469 words. A search excerpt of the journal's guide for authors gives the limit: the abstract "must not exceed 150 words". We could not open the guide itself, because this session's network proxy refuses sciencedirect.com and elsevier.com. So the limit lives in one constant in the build script, ready to change if the page says otherwise.
