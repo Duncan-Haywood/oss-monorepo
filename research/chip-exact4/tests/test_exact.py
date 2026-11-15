@@ -71,7 +71,6 @@ class ExactTest(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_SAT and shutil.which("yosys"), "needs python-sat and yosys")
-@unittest.skipUnless(HAVE_SAT and shutil.which("yosys"), "needs python-sat and yosys")
 class AbcTest(unittest.TestCase):
     def test_abc_never_beats_exact_and_is_correct_on_xor(self):
         from chip_exact4 import abc

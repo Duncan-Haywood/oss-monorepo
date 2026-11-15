@@ -61,3 +61,28 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("quote_run");
   assert.equal(readUsage().quote_run, 1);
 });
+
+// Red-team 2026-11-15: three mutants escaped this suite (the repo-wide
+// platform/ci/usage_contract.mjs covers the class; these keep the copy's own
+// suite honest too).
+test("a stored array, number, string, null or boolean reads as empty and record() recovers", () => {
+  for (const stored of ["[]", "5", "\"text\"", "null", "true"]) {
+    globalThis.localStorage = fakeStorage();
+    globalThis.localStorage.setItem("mortgage-points-break-even-calculator-usage", stored);
+    assert.deepEqual(readUsage(), {}, `stored ${stored}`);
+    assert.doesNotThrow(() => record("quote_run"), `stored ${stored}`);
+    assert.equal(readUsage().quote_run, 1, `stored ${stored}`);
+  }
+});
+
+test("a store whose reads throw is not read as an opt-out", () => {
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: () => { throw new Error("SecurityError"); },
+    setItem: (k, v) => store.set(k, String(v)),
+    removeItem: (k) => store.delete(k),
+  };
+  assert.equal(usageOptedOut(), false);
+  record("quote_run");
+  assert.equal(JSON.parse(store.get("mortgage-points-break-even-calculator-usage")).quote_run, 1);
+});

@@ -241,10 +241,26 @@ test("VF-045: VAT rates by date (1124, 1194, 1235, 1236, 1132)", () => {
   assert.ok(at(dated("02-04-2025", { rate: "5.00", cuota: "5.00" })).includes("VF-045"), "5% ended 30-09-2024 (1194)");
   assert.ok(at(dated("02-04-2025", { rate: "18.00", cuota: "18.00" })).includes("VF-045"), "18% up to 2012 only (1132)");
   const odd = recordFindings(one(dated("02-04-2025", { rate: "11.00", cuota: "11.00" })), { now: NOW }).find((f) => f.rule === "VF-045");
-  assert.equal(odd.severity, "warning", "1124: a rate outside the named ones is a warning");
+  assert.notEqual(odd.severity, "warning", "1124: a rate outside the AEAT's list (rule 15.1) is a rejection");
+  assert.ok(at(dated("02-04-2025", { rate: "3.00", cuota: "3.00" })).includes("VF-045"), "3% is no Spanish VAT rate");
+  assert.ok(!at(dated("02-04-2025", { q: "S2", rate: "11.00", cuota: "11.00" })).includes("VF-045"), "rule 15.1 is about S1 lines; S2 is VF-034's");
+  assert.ok(!at(dated("15-06-2012", { rate: "18.00", cuota: "18.00" })).includes("VF-045"), "18% in 2012 passes (1132)");
   assert.ok(!at(dated("02-04-2025", { tax: "03", rate: "7.00", cuota: "7.00" })).includes("VF-045"), "IGIC rates are not checked");
   // FechaOperacion, when given, decides: a 2% operation in December 2024 invoiced in January 2025.
   assert.ok(!at(dated("10-01-2025", { rate: "2.00", cuota: "2.00" }, "<sum1:FechaOperacion>20-12-2024</sum1:FechaOperacion>")).includes("VF-045"));
+});
+
+test("VF-032: the surcharge rate list (rule 15.3; AEAT 1127, 1135)", () => {
+  const sur = (date, sRate, rate = "21.00") => recordFindings(one(dated(date, { regime: "18", rate, cuota: (Number(rate)).toFixed(2), sRate, sAmt: Number(sRate).toFixed(2) })), { now: NOW }).filter((f) => f.rule === "VF-032");
+  assert.deepEqual(sur("02-04-2025", "5.2"), [], "5.2 beside 21%");
+  assert.deepEqual(sur("02-04-2025", "1.75"), [], "1.75 beside 21% (tobacco)");
+  const odd = sur("02-04-2025", "3.00");
+  const list = odd.filter((f) => /1127/.test(f.fix));
+  assert.equal(list.length, 1, "1127 once; the 21% pairing (1162) also fires");
+  assert.match(list[0].path, /TipoRecargoEquivalencia$/);
+  const four = sur("02-04-2025", "4.00");
+  assert.ok(four.some((f) => /1135/.test(f.fix)), "4% surcharge ended with 2012");
+  assert.ok(!sur("15-06-2012", "4.00", "18.00").some((f) => /1127|1135/.test(f.fix)), "4% beside 18% in 2012 is no list fault");
 });
 
 test("VF-046: GB and XI VAT numbers around Brexit (1254, 1255)", () => {

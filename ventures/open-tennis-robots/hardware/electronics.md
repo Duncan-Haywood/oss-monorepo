@@ -92,8 +92,9 @@ Wiring:
   at 1.64 A, 1.51 to 1.77 A over the rail, resistors, shunt, the amplifier's
   gain error and offset and the comparator's offset). It is the same at every
   duty, so on a full 29.2 V pack, where the firmware holds the duty to 0.82
-  (`LIFT_V_REF_MV`, below), the trip stays at 1.77 A at most, 1.42 times under
-  the 2.52 A the motor draws while the slip hub (set to 1.0 N m) slides. History
+  (`LIFT_V_REF_MV`, below), the trip stays at 1.77 A at most, 1.30 times under
+  the 2.30 A the motor draws while the slip hub (set to 0.9 N m, 1.0 until the
+  sense moved high side) slides. History
   (all 2026-11-15): a 0.05 ohm shunt in the MOSFET module's source, which sees
   current only while the MOSFET conducts, so its trip in motor amps was the
   divider's over the duty: 3.9k and 2.48 A until the slip hub, 2.7k and 1.74 A

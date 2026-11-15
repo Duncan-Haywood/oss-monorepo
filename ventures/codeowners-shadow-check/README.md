@@ -115,3 +115,11 @@ Assertions across the parsing, gitignore-style pattern matching, and last-match-
 resolution logic (`codeowners.test.mjs`), the CLI's file-discovery and argument parsing
 (`check.test.mjs`), the usage counter (`usage.test.mjs`), and the page's structure,
 disclaimers, and worked example (`page.test.mjs`).
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-codeowners-shadow-check.json)); the worst defect it found is fixed.
+
+- Lines with invalid owners still take part in last-match resolution; GitHub skips them.
+- Files whose winning rule has no owners (no review required) are counted as covered and not listed on the page.
+- `!` negation and `[ ]` ranges, which GitHub ignores, are accepted silently as literal patterns.

@@ -328,6 +328,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    m5, m7, m12 and m13 are refreshed and every moved number in the paper updated (H22 0.5833 to
    0.5814, two 2x 0.9997 to 0.9994, break-even $6.51 to $6.47); no verdict changes.
 
+27. **The slide as a mechanism** (done 2026-11-15, `experiments/m27_slide_mech/`): stick-slip on the ledger with
+   a push-only hand of the stock G1's stiffness along the wall (63 N/m, a force source in effect). Tapping from
+   either edge leaves 0.19–0.64 mm rms if the push is dropped within 20 ms of the sheet moving and 2.5–10 mm at
+   100 ms (friction swept); the best single-2x stack goes from 0.771 (0.5 mm assumed) to 0.79 at 20 ms and 0.32 at
+   100 ms (μ_k/μ_s 0.8). Still open: the OSB-on-lumber friction pair, a measured release latency, and the shim.
 
 ## Target venue
 

@@ -490,7 +490,7 @@
     "lift_v_ref": 24.0,
     "lift_duty_min": 0.82,
     "ball_k_n_m": 14300.0,
-    "lift_slip_nm": 1.0,
+    "lift_slip_nm": 0.9,
     "lift_slip_tol": 0.2,
     "lift_slip_kinetic": 0.8,
     "lift_slip_mu": 0.3,
@@ -568,7 +568,7 @@
       1.0,
       2.0
     ],
-    "lift_jam_belt_n": 100.0,
+    "lift_jam_belt_n": 90.0,
     "lift_tooth_fuspec_n_mm": 3.6,
     "lift_tooth_fuspec_1200_n_mm": 2.478,
     "lift_tooth_mesh_max": 12,
@@ -789,8 +789,8 @@
     "levelling_foot": 0.0
   },
   "files": {
-    "README.txt": "2b8419bb9cdc3c940ff7ec883b1f6e1e2c9d3642a2b504079dd7412811562e6b",
-    "bom.csv": "5a437d13cbb724cca29cae85b345c222d06b74046ee84eb5465f691a7e7c3334",
+    "README.txt": "a7eb0f2ba7f3f37dd3d4d2b73b8b41c4a57e956dff8a613082c00757bf1fce3d",
+    "bom.csv": "e9dcca9f8b12d0abbd9b831b873ecb334131a53a908c56912bd57c59edccc27a",
     "cut_list.csv": "ff12796221b4235a7976aae18c8382bed5c9a182a04845d1f1e5767714bc5382",
     "drawings/assembly_front.svg": "89dc55bd274c7ee8d84ae02553eb7f8b341b724b24d3bbd54065ff2b7103c2e2",
     "drawings/assembly_side.svg": "5352301b8a8c50e1c9eb19d44b16c1b55c495e5b12f2081b427afba5b2c518f5",
@@ -807,7 +807,7 @@
     "laser/trunnion_cheek__aluminium_5mm.dxf": "9394d290dcc7e43dc7d2c75b991dc674ee8804c71c3505651b7b87f83e61bccc",
     "laser/trunnion_cheek_elev__aluminium_5mm.dxf": "0b8d4e42c64678abbd56c6667820f4284ed57ff9e9d0e94291ac993a745bddcd",
     "laser/turntable_plate__aluminium_5mm.dxf": "fbb01c3ce384519d38e12a08ca801d671b23f2af207424e9e0da97a7ff40e237",
-    "laser_parts.csv": "1a9821bf3e4796547abeec8669ece6918b81be45526d0066a3e44ebffd42ac15",
+    "laser_parts.csv": "09adbb0e99408f8965ba7422c6d7d335d1653873586cb10c95f482a7b6d7849c",
     "print/az_gear_sector.stl": "2be1ec3a1af3948afc9cee798a9740a3717daa786abda1ec818b83ee8c235ea6",
     "print/az_stop_block.stl": "51a9d8b998d1b95d620f2195b8f71914d0509e16ccdfd1672356d2ab7820fcff",
     "print/cable_clamp.stl": "bff72b0531734d690d7e72308fae1f7e44eb882cd1d9f200ce1679bdfa98ff92",

@@ -19,6 +19,7 @@ test('real births: the holiday list removes changes in every year it was run on'
     assert.ok(b <= a, String(y));
     ta += a; tb += b;
   }
-  assert.equal(ta, 239);
-  assert.equal(tb, 205);
+  // (2026-11-15: the clumping size is read against the local level, eval/nb-size-local-preregistration.md; the old global-mean size was too large on these series, so the NB cost cut more often): 239 and 205 before
+  assert.equal(ta, 205);
+  assert.equal(tb, 179);
 });

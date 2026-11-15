@@ -34,13 +34,13 @@
   "doc_friction": [
     {
       "file": "prompts/creative/prompt-0.md",
-      "issue": "The 400 MB audio cap still blocks audio although the 2026-11-13 report shows the Pages limit no longer applies; the owner-approved prompt text in that report has not been merged, so 106 Saints episodes stayed silent."
+      "issue": "The 400 MB audio cap still blocks audio although the 2026-11-13 report shows the Pages limit no longer applies; the owner-approved prompt text in that report has not been merged, so 107 Saints episodes stayed silent."
     }
   ],
   "deviations": [
     {
       "file": "prompts/creative/prompt-0.md",
-      "why": "Audio size section says text only over 400 MB (du read 474 MB); its Pages reason is gone since audio is served from jsDelivr (docs/reports/2026-11-13-audio-cap-is-stale.md), and every creative shelf already had several text-only pieces today, so another text-only story added less than audio for a podcast with 106 silent episodes.",
+      "why": "Audio size section says text only over 400 MB (du read 474 MB); its Pages reason is gone since audio is served from jsDelivr (docs/reports/2026-11-13-audio-cap-is-stale.md), and every creative shelf already had several text-only pieces today, so another text-only story added less than audio for a podcast with 107 silent episodes.",
       "did": "Voiced Saints by Candlelight episodes 20-24 with Kokoro bm_george, 58.3 MB in total, inside that report's proposed 60 MB a run.",
       "result": "Five episodes, 194 minutes of audio, all -16.4 LUFS with no silence over 4 s; pages and feed regenerated; 18/18 venture tests pass."
     },

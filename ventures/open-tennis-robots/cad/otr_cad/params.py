@@ -49,6 +49,32 @@ def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
 COLLAR_SOCKET_MM = 25.0  # depth of the hose socket in the sleeve take-up's printed collar
 
 
+_SETTLE_BLOCK = 64
+
+
+def _settle_contracts(r: float, l: float, c: float, g: float, h: float) -> bool:
+    """True when one RK4 step of `Feeder.contactor_bounce_train`'s closed-contact ODE cannot grow the deviation
+    from equilibrium in the energy norm C ev^2 + L ei^2 (perf note 2026-11-15). In the scaled state
+    (sqrt(C) v, sqrt(L) i) the ODE is a skew part plus damping, and the RK4 step is the 2 x 2 matrix
+    M = I + X + X^2/2 + X^3/6 + X^4/24 with X = h A; this returns whether M's largest singular value is at most
+    1 - 1e-12. While it is, |i - i_eq| stays under the norm, so the settle loop may stop early with the same peak."""
+    s = h / math.sqrt(l * c)
+    x = ((-g / c * h, s), (-s, -r / l * h))
+
+    def mul(a, b):
+        return ((a[0][0] * b[0][0] + a[0][1] * b[1][0], a[0][0] * b[0][1] + a[0][1] * b[1][1]),
+                (a[1][0] * b[0][0] + a[1][1] * b[1][0], a[1][0] * b[0][1] + a[1][1] * b[1][1]))
+    x2 = mul(x, x)
+    x3 = mul(x2, x)
+    x4 = mul(x3, x)
+    m = [[(1.0 if p == q else 0.0) + x[p][q] + x2[p][q] / 2 + x3[p][q] / 6 + x4[p][q] / 24 for q in (0, 1)]
+         for p in (0, 1)]
+    a, b, cc, d = m[0][0], m[0][1], m[1][0], m[1][1]
+    t, det = a * a + b * b + cc * cc + d * d, a * d - b * cc
+    smax = math.sqrt((t + math.sqrt(max(t * t - 4 * det * det, 0.0))) / 2)
+    return smax <= 1 - 1e-12
+
+
 @functools.lru_cache(maxsize=4096)
 def _hose_curve_range(ox: float, oz: float, mx: float, mz: float, tilt_rad: float,
                       r_min: float, slope_min: float, step: float = 25.0) -> tuple[float, float] | None:
@@ -1200,8 +1226,9 @@ class Feeder:
     # between the gearmotor's shaft and the drive pulley lets the rotor run on while the belt stops: the cap then sees
     # the hub's slip torque plus the belt's own 1.4 kg, and the motor's current while it slides is over the cutoff's
     # trip, so the cutoff still cuts and latches. Friction figures are assumptions; the slip torque is set on the bench.
-    lift_slip_nm: float = 1.0         # slip torque the hub is set to (bench: a belt strip round the pulley, 79 N on a scale;
-                                      # 0.9 N m, 71 N, until the duty followed the battery, 2026-11-15)
+    lift_slip_nm: float = 0.9         # slip torque the hub is set to (bench: a belt strip round the pulley, 71 N on a scale;
+                                      # 1.0 N m, 79 N, from "Lift duty follows the battery" until the high-side sense made
+                                      # the trip the same at every duty: cad/README.md "Slip hub back to 0.9 N m", 2026-11-15)
     lift_slip_tol: float = 0.2        # +- on it: setting, wear, damp, temperature (assumption)
     lift_slip_kinetic: float = 0.8    # sliding over sticking friction of the facing on aluminium (assumption)
     lift_slip_mu: float = 0.3         # facing on the pulley's face, sliding (assumption: a fibre or cork-composite washer)
@@ -1277,8 +1304,9 @@ class Feeder:
     # jam slackens the down strand, so the 16-tooth drive pulley holds the whole pull on its 8 teeth in mesh with
     # nothing on the slack side. Two checks: tooth strength against the catalogue's specific tooth force, and
     # ratcheting (the belt climbing out over the teeth), which no catalogue figure covers. Figures are assumptions.
-    lift_jam_belt_n: float = 100.0    # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt and --chain, every
-                                      # c_spec; 89 until the duty was held to the battery, eval/lift-belt-chain-2026-11-15.txt)
+    lift_jam_belt_n: float = 90.0     # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt and --chain, every
+                                      # c_spec; 89 until the duty was held to the battery, then 100 with the 1.0 N m hub,
+                                      # eval/lift-belt-chain-2026-11-15.txt; 90 with the 0.9 N m hub, eval/lift-slip-0p9-2026-11-15.txt)
     lift_tooth_fuspec_n_mm: float = 3.6   # AT5 specific tooth force per mm of width at 0 rpm (Optibelt ALPHA LINEAR and
                                       # Ammeraal PU AT5 sheets, as quoted in search results: 3.6 and 3.64; sheets unread)
     lift_tooth_fuspec_1200_n_mm: float = 2.478  # the same at 1200 rpm (Optibelt, as quoted; straight line between)
@@ -3229,39 +3257,55 @@ class Feeder:
 
         makes, breaks, arc_j = [], [], 0.0
         has_rp = rp != math.inf
+        g = 0.0 if rp == math.inf else 1 / rp
+        i_eq = load_a / (1 + r * g)  # where the closed loop settles: C dv/dt = 0 and L di/dt = 0
+        v_eq = vp - r * i_eq
         for k in range(n + 1):
             dur = t_shut if k < n else settle
             steps = max(int(math.ceil(dur / h0)), 1)
             h, peak, gap = dur / steps, 0.0, vp - v
-            # RK4 on the closed-contact ODE above, written out inline rather than through a `deriv(v, i)` helper
-            # (65 M calls in the CAD suite; perf note 2026-11-15). Same float operations in the same order as that
-            # helper had, so results are bit-identical; `if i > peak` is what max(peak, i) picked.
-            if has_rp:
-                for _ in range(steps):
-                    a1, b1 = (i + (vp - v) / rp - load_a) / c, (vp - r * i - v) / l
-                    vv, ii = v + a1 * h / 2, i + b1 * h / 2
-                    a2, b2 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
-                    vv, ii = v + a2 * h / 2, i + b2 * h / 2
-                    a3, b3 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
-                    vv, ii = v + a3 * h, i + b3 * h
-                    a4, b4 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
-                    v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
-                    i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
-                    if i > peak:
-                        peak = i
-            else:  # no precharge resistor: the precharge current is 0.0, kept as `+ 0.0` so the floats match
-                for _ in range(steps):
-                    a1, b1 = (i + 0.0 - load_a) / c, (vp - r * i - v) / l
-                    vv, ii = v + a1 * h / 2, i + b1 * h / 2
-                    a2, b2 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
-                    vv, ii = v + a2 * h / 2, i + b2 * h / 2
-                    a3, b3 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
-                    vv, ii = v + a3 * h, i + b3 * h
-                    a4, b4 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
-                    v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
-                    i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
-                    if i > peak:
-                        peak = i
+            # Only the settle phase's peak is used, never its end state, so it may stop once the current provably
+            # cannot reach the peak again (perf note 2026-11-15, `_settle_contracts`); the shut phases run in full.
+            stop = k == n and _settle_contracts(r, l, c, g, h)
+            done = 0
+            while done < steps:
+                blk = min(_SETTLE_BLOCK, steps - done) if stop else steps - done
+                done += blk
+                # RK4 on the closed-contact ODE above, written out inline rather than through a `deriv(v, i)` helper
+                # (65 M calls in the CAD suite; perf note 2026-11-15). Same float operations in the same order as that
+                # helper had, so results are bit-identical; `if i > peak` is what max(peak, i) picked.
+                if has_rp:
+                    for _ in range(blk):
+                        a1, b1 = (i + (vp - v) / rp - load_a) / c, (vp - r * i - v) / l
+                        vv, ii = v + a1 * h / 2, i + b1 * h / 2
+                        a2, b2 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
+                        vv, ii = v + a2 * h / 2, i + b2 * h / 2
+                        a3, b3 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
+                        vv, ii = v + a3 * h, i + b3 * h
+                        a4, b4 = (ii + (vp - vv) / rp - load_a) / c, (vp - r * ii - vv) / l
+                        v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
+                        i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
+                        if i > peak:
+                            peak = i
+                else:  # no precharge resistor: the precharge current is 0.0, kept as `+ 0.0` so the floats match
+                    for _ in range(blk):
+                        a1, b1 = (i + 0.0 - load_a) / c, (vp - r * i - v) / l
+                        vv, ii = v + a1 * h / 2, i + b1 * h / 2
+                        a2, b2 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
+                        vv, ii = v + a2 * h / 2, i + b2 * h / 2
+                        a3, b3 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
+                        vv, ii = v + a3 * h, i + b3 * h
+                        a4, b4 = (ii + 0.0 - load_a) / c, (vp - r * ii - vv) / l
+                        v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
+                        i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
+                        if i > peak:
+                            peak = i
+                if stop and done < steps:
+                    ev, ei = v - v_eq, i - i_eq
+                    # |i - i_eq| can never exceed the energy norm sqrt(C/L ev^2 + ei^2) while each step contracts it;
+                    # the margins cover rounding (about 1e-8 A over a whole settle) with a factor of 100 to spare.
+                    if i_eq + math.sqrt(c / l * ev * ev + ei * ei) * (1 + 1e-6) + 1e-6 * (1 + abs(peak)) < peak:
+                        break
             makes.append({"gap_v": gap, "peak_a": peak})
             if k == n:
                 break

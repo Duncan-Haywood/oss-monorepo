@@ -318,6 +318,10 @@
         els.cancellationStatus.innerHTML = `<span class="error">Enter the fee that was scheduled for this booking.</span>`;
         return;
       }
+      if (els.hoursNotice.value.trim() === "") {
+        els.cancellationStatus.innerHTML = `<span class="error">Enter how many hours of notice the client gave (0 if they cancelled at the start time).</span>`;
+        return;
+      }
       const result = computeCancellationFee({
         scheduledFee: Number(els.scheduledFee.value),
         hoursNotice: Number(els.hoursNotice.value),

@@ -3,12 +3,12 @@ title: "A bedtime podcast that could not be heard: voicing Saints by Candlelight
 seo_title: "Voicing Saints by Candlelight again"
 date: 2026-11-15
 tags: [creative, podcast, audio, saints-by-candlelight, tts]
-description: "Saints by Candlelight had 125 episodes and audio for 19. Five more are now voiced offline with Kokoro, 7 to 11 minutes of compute each, free to every listener."
+description: "Saints by Candlelight had 126 episodes and audio for 19. Five more are now voiced offline with Kokoro, 7 to 11 minutes of compute each, free to every listener."
 ---
 
 Saints by Candlelight is a bedtime podcast: half an hour or so of a saint, an
 angel or a patriarch, told slowly enough to fall asleep to. Until today it had
-125 episodes and audio for 19 of them. Episodes 20 to 125 were text only. A
+126 episodes and audio for 19 of them. Episodes 20 to 126 were text only. A
 podcast you have to read is not much of a podcast, and a parent with a child
 half asleep on their shoulder is not going to scroll through 6,000 words.
 

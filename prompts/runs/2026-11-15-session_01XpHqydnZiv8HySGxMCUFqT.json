@@ -1,0 +1,368 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqydnZiv8HySGxMCUFqT",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T22:39:05Z",
+  "ended": "2026-11-15T22:40:38Z",
+  "wall_minutes": 15.79,
+  "tokens_in": 4427880,
+  "tokens_out": 26192,
+  "cost_usd": 2.1044,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16367",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Third campaign (random draw) exceeded my 290 s shell timeout and was killed before recording; git status clean afterwards."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 8 open defects, all control plane awaiting owner approval; a session that can push only its own branch can do nothing with them, and the list grows each run. It would help to filter them out (or mark them 'awaiting owner') in `redteam.py open`."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "catch rate for ventures/*/usage.mjs ignores the CI contract usage_contract.mjs, so about a quarter of draws produce escapes CI already catches; earlier runs patched copies one at a time (patch in docs/reports/patches/)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Control-plane fix to prompts/redteam.py wants its own PR, but the session may push only its assigned branch",
+      "did": "Wrote and tested the patch, shipped it as docs/reports/patches/2026-11-15-redteam-usage-contract.patch and logged an open real_defect",
+      "result": "Patch applies cleanly; 8/12 -> 12/12 on the same seed"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "shift-roster-builder (freshly changed payrules.mjs) suite takes 4 min, too slow for a campaign",
+      "did": "Read payrules.mjs by hand as the bug hunt (no defects: daily/weekly max() equivalence verified algebraically), and ran campaigns on fast random draws",
+      "result": "No defects found there"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-quarter-of-our-mutation-escapes-were-already-caught.md",
+    "docs/reports/redteam-2026-11-15-usage-contract-measurement.md"
+  ],
+  "goal": null,
+  "notes": "Guard left: no new automated check this run; the class already has usage_contract.mjs in CI. The patch makes the red-team metric count it. Verification: node --test mortgage-points suite 31/31; redteam rerun all 3 gaps caught_after_fix; doc_index check ok; prompts test_redteam 16 OK with the patch applied (reverted afterwards).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_duplicate_ids.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_duplicate_ids  (in platform/ci)",
+        "seed": 465417155,
+        "commit": "0c8bd5b00",
+        "sites": 6,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 22,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 35,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "line = self.getpos()[0]",
+            "after": "line = self.getpos()[1]",
+            "line_text": "        line = self.getpos()[0]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 56,
+            "col": 37,
+            "operator": "div-to-times",
+            "before": "files = [f for f in sorted((root / \"ventures\").rglob(\"*.html\")) if {\"node_modules\", \".next\"}.isdisjoint(f.parts)]",
+            "after": "files = [f for f in sorted((root * \"ventures\").rglob(\"*.html\")) if {\"node_modules\", \".next\"}.isdisjoint(f.parts)]",
+            "line_text": "    files = [f for f in sorted((root / \"ventures\").rglob(\"*.html\")) if {\"node_modules\", \".next\"}.isdisjoint(f.parts)]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 64,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 69,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 69,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+        "test": "node --test ventures/mortgage-points-break-even-calculator/**/*.test.mjs  (in .)",
+        "seed": 662624060,
+        "commit": "0c8bd5b00",
+        "sites": 24,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+            "line": 11,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "return typeof localStorage === \"undefined\";",
+            "after": "return typeof localStorage !== \"undefined\";",
+            "line_text": "    return typeof localStorage === \"undefined\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+            "line": 27,
+            "col": 11,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "    return false;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Escapes the venture suite (redteam.py measures only node --test there) but platform/ci/usage_contract.mjs, run in CI by check_storage_guard.py, catches it (checked on a scratch copy). Test added to usage.test.mjs."
+          },
+          {
+            "file": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+            "line": 34,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack !== \"1\" || navigator.globalPrivacyControl) return true;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+            "line": 45,
+            "col": 51,
+            "operator": "or-to-and",
+            "before": "current = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "after": "current = JSON.parse(localStorage.getItem(KEY) && \"{}\");",
+            "line_text": "    current = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+            "line": 49,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current && typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Escapes the venture suite (redteam.py measures only node --test there) but platform/ci/usage_contract.mjs, run in CI by check_storage_guard.py, catches it (checked on a scratch copy). Test added to usage.test.mjs."
+          },
+          {
+            "file": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+            "line": 49,
+            "col": 33,
+            "operator": "neq-flip",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current === \"object\" || Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+            "line": 62,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed || typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Escapes the venture suite (redteam.py measures only node --test there) but platform/ci/usage_contract.mjs, run in CI by check_storage_guard.py, catches it (checked on a scratch copy). Test added to usage.test.mjs."
+          },
+          {
+            "file": "ventures/mortgage-points-break-even-calculator/usage.mjs",
+            "line": 62,
+            "col": 35,
+            "operator": "eq-flip",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed && typeof parsed !== \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "prompts/redteam.py",
+        "issue": "suite_for measures a ventures/<v>/usage.mjs target with that venture's node --test only, but CI also runs platform/ci/usage_contract.mjs over every copy (portfolio-validate via check_storage_guard.py), so mutants CI rejects read as escaped (1099-vendor-csv-checker/usage.mjs, --mutants 12 --seed 11: 8/12 before, 12/12 with the contract; 43 of 152 usage.mjs mutants in 18 earlier records read escaped). Fix with a failing-first test is docs/reports/patches/2026-11-15-redteam-usage-contract.patch (git apply from the root; prompts tests 16 OK). Control plane (/prompts/): its own PR, owner approval; this session could push only its own branch.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a845b496-4501-529f-80ac-4925e0069fbf",
+    "transcripts": 1,
+    "first": "2026-11-15T22:39:05Z",
+    "last": "2026-11-15T22:54:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 26192,
+        "thinking": 9977,
+        "cache_read": 4338734,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89048,
+        "api_equivalent_usd": 2.1044,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 26192,
+      "thinking": 9977,
+      "cache_read": 4338734,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89048,
+      "api_equivalent_usd": 2.1044,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.79,
+      "active_minutes": 15.79,
+      "model_minutes": 4.6,
+      "tool_minutes": 11.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation campaigns, triage, a tested tool patch and two write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 190.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -34,5 +34,6 @@ test('Ansett sweep: 30 series, none quiet outside the closure; range95 holds the
     }
   }
   assert.deepEqual(hits, { mean: 19, nb: 29 });
-  assert.equal(fewest, 8);
+  // (2026-11-15: the clumping size is read against the local level, eval/nb-size-local-preregistration.md; the old global-mean size was too large on these series, so the NB cost cut more often): 8 before
+  assert.equal(fewest, 4);
 });

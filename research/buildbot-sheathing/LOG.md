@@ -1,5 +1,26 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 27 result: the slide leaves 0.19–0.64 mm if the push drops within 20 ms of the sheet moving, 2.5–10 mm at 100 ms; H103 refuted, H104 and H105 held
+
+`src/buildbot_sheathing/slide_mech.py` (new), `experiments/m27_slide_mech/` (run, results, figure), `tests/test_slide_mech.py` (5 tests), `reproduce.py` (m27 listed; `--check m27_slide_mech` reproduces, 110 lines), `paper/draft.md` (section 5.11 paragraph, a limitations bullet), `paper/check_numbers.py` (201 of 201, was 194), README, PROPOSAL and project card.
+
+- **Hand stiffness along the wall** (MuJoCo 4.0.1, Menagerie G1/H1, milestone 3b's press pose, stock kp, point grip): one hand G1 35–102 N/m, H1 286–590; both hands G1 128–134, H1 596–1,394. Breakaway is about 105 N, so at 63 N/m the set-point would sit 1.7 m behind the hand: the stock hand is a force source, and what stops the sheet is letting go.
+- **One tap.** The time-stepped model matches the force-source closed form to 0.3% or better. At μ_s 0.4, μ_k/μ_s 0.8: 0.17, 0.39, 0.81, 3.2 and 12.3 mm at 2, 10, 20, 50 and 100 ms. Across μ_s 0.3–0.7 and ratio 0.5–0.9 at 20 ms: 0.51–3.2 mm.
+- **H103 refuted.** G1 poses stay within 1.9% of a force source; both H1 hands at z 1.3 m travel 17.4% less at 100 ms (bar 10%). The stiffer the hand the less it runs, but no stock pose is stiff enough to matter below 50 ms.
+- **The loop** (2,000 sheets, from either edge, stop within max(0.1 mm, half the last tap), breakaway ±10% a tap): 0.054–0.090 mm rms at 2 ms but 5–10 taps; 0.19–0.64 mm at 20 ms in 1.5–3 taps; 0.66–2.9 mm at 50 ms; 2.5–10 mm at 100 ms. **H104 held**: 3.855 mm at 100 ms, ratio 0.8.
+- **H105 held.** Milestone 12's best stack with the loop's rms in place of 0.5 mm: 0.7912 at 20 ms, ratio 0.8 (0.7707 with 0.5 mm, reproduced exactly). At 50 ms 0.40–0.75, at 100 ms 0.13–0.45.
+- **Not measured.** The OSB-on-lumber friction pair (search excerpts only: static 0.25–0.7, kinetic 0.15–0.4 for timber, a review in Preprints 202404.0050; static above kinetic and more variable for OSB, Materials and Structures 51:2, 2018, full text unreachable here), the tap-to-tap variation, the release latency (instantaneous release after τ, no arm inertia). The residual is put into the tolerance model as a Gaussian at its rms, though the loop's residual is closer to uniform.
+- **Next.** The same treatment for the shim; a friction test or data set for OSB on SPF; a G1's measured slip-to-release latency.
+
+## 2026-11-15 · Milestone 27 planned: the slide as a mechanism (stick-slip on the ledger)
+
+- **Why.** Milestones 10, 12 and 13 credit the slide (centre the sheet's gap along the ledger before tacking) with a 0.5 mm residual, and the paper's best single-2x stack (0.771 clean on measured studs) rests on it. Nobody has asked what leaves 0.5 mm. A seated sheet starts on static friction and slides on kinetic; a push-only hand overshoots by however far the sheet runs before the hand lets go.
+- **Plan.** `src/buildbot_sheathing/slide_mech.py`: a one-axis stick-slip model of the sheet on the ledger and wall (milestone 3b's P = mu_l m g + mu_w F_n, split into static and kinetic), pushed by a hand of the stiffness the stock G1/H1 gains give along the wall (MuJoCo Menagerie models, milestone 3b's press pose), which ramps its force, detects the slip and releases after a latency. A closed form for a force-source hand checks it. Then a correct-from-either-side loop gives the slide residual, which goes back into milestone 12's grid. Friction: static 0.3–0.7 and mu_k/mu_s 0.5–0.9 swept (no OSB-on-lumber pair measured in a source this session could open).
+- **Hypotheses, registered before the run.**
+  - **H103 (the stock hand is a force source).** Along the wall the stock G1 and H1 hands are so soft that a single tap's travel is within 10% of a pure force source's at every reaction time swept. Refuted if any robot pose differs by more than 10%.
+  - **H104 (reaction time sets the slide).** With mu_k/mu_s 0.8 and mu_s 0.4, the loop's rms residual exceeds 0.5 mm at a 100 ms reaction time. Refuted if it is 0.5 mm or less there.
+  - **H105 (what the stack keeps).** At a 500 Hz loop with 20 ms latency, milestone 12's best single-2x stack (0.771) stays within 2 points with the slide residual from the mechanism in place of 0.5 mm, at mu_k/mu_s 0.8. Refuted if it loses more than 2 points.
+
 ## 2026-11-15 · Milestone 26 result: every experiment now reproduces; the last ten re-runs found one more drifted table (m6), two rounding or bookkeeping lines, and a Drake upgrade that breaks m6
 
 `reproduce.py` (m6's per-seat timing column masked, `wall time N s` lines skipped, Drake 1.51.1 named for m6), `tests/test_reproduce.py` (5 tests, was 4), `src/buildbot_sheathing/drake_seat.py` (docstring), `experiments/m6_drake` and `m9_straighten` (re-run), `experiments/m21_degrading/check_diag.txt`, `paper/draft.md`, `paper/check_numbers.py` (194 of 194), README, PROPOSAL and project card.

@@ -503,6 +503,17 @@ reach 0.7707 (0.7960 with the scan's common part removed), against 0.8600 on the
 give 1.0000 in every cell. The single-2x route therefore needs all of a line read along the stud,
 a push, a pose fix and a tighter tool; doubled joints need none of them.
 
+The 0.5 mm slide residual is an assumption, so milestone 27 asks what the slide leaves as a
+mechanism. A seated sheet breaks away on static friction and runs on kinetic friction, and a hand
+that can only push its edge stops it by letting go. Along the wall the stock G1 hand is a spring of
+63 N/m (one hand at the press pose, Unitree's gains), so soft that it acts as a force source; what
+sets the run is the time from slip to release. Correcting from either edge until the sheet sits
+within half a tap leaves 0.262 mm rms at a 20 ms reaction (μ_s 0.4, μ_k/μ_s 0.8), and the stack
+above then gives 0.7912; at 50 ms it leaves 1.035 mm and 0.6948, and at 100 ms 3.855 mm and 0.3167.
+The slide's assumption therefore holds only for a controller that releases within about 20 ms of
+seeing the sheet move; the friction pair of OSB on lumber, which sets how far the sheet runs, is
+swept rather than measured.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -633,6 +644,9 @@ readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in h
   regularised contact; agreeing with each other does not make either a real sheet on real
   framing. Real edge profiles are not measured: a smooth bow seats inside the friction band, a
   kink or grit does not, and how often real edges and ledgers have one is unknown.
+- **The slide's friction.** Static and kinetic coefficients of OSB on the ledger and the wall are
+  swept (μ_s 0.3–0.7, μ_k/μ_s 0.5–0.9); the hand's release is instantaneous after the latency, and
+  the residual enters the tolerance model as a Gaussian at its rms.
 - **Static humanoid.** No walking, balance controller or hand-off dynamics; joint gains are taken
   at face value.
 - **Strict pass/fail.** One nail outside its window fails a sheet, though a crew may accept a near

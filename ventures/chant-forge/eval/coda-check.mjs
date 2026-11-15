@@ -20,6 +20,18 @@
 //    (3) A, B, D and E totals no lower, vowel-only controls no lower; (4) F, the 51 files of the four
 //    other gregobase-1908-* folders, never scored before: its /l/ codas read as a nasal on 10% or fewer,
 //    its nasal codas read exactly no less often than with the rule off (`murmurTilt: 0`, printed beside).
+// Seventh round (2026-11-15): the murmur against the vowel just before it (onsets.mjs NEAR). Pre-registered
+//    here before D, E, H or F was run with the change. First registration (8 dB darker, 0 to -18 dB, level
+//    held within 4 dB) withdrawn before any held-out part had finished: on a synthetic set (README) it read
+//    9 of 9 vowel-only /u/ and /o/ releases on F3 as nasals, whose darkness wanders by 8 dB while their
+//    level holds. Second registration adds the murmur's darkness held within 4 dB over its first 30 ms
+//    (`tiltHold`), set on that synthetic set, A, B and I and not tuned further: A 157 to 160 of 180, B 147 to
+//    155 of 162 (nasals 28 to 36 of 39), I 136 to 138 of 142 (nasals 30 to 32 of 36), every vowel-only
+//    control unchanged. Against `--near off`: (1) the held-out nasals (D 11 of 12, E 18 of 22, H 38 of 46
+//    on main) no fewer in any part and 71 of 80 or more together; (2) D, E and H totals no lower; their
+//    vowel-only controls (68, 84, 131) and bare-vowel syllables read as none each within 1; (3) F's nasals
+//    104 of 137 or more (96 on main), its /l/ none on 4 of 4; (4) no other eval calls readCoda, and the
+//    synthesis is untouched, so eval/vowel-check.mjs and eval/consonant-check.mjs cannot move.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -33,6 +45,10 @@ const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new U
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
 const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
+// --near off: readCoda without its reading against the vowel just before the murmur (the reader before
+// 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
+const NEARARG = args.includes('--near') ? args[args.indexOf('--near') + 1] : '';
+const RC = NEARARG === 'off' ? { nearVowel: false } : NEARARG ? { nearOpts: Object.fromEntries(NEARARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -79,7 +95,7 @@ for (const [name, midi] of PITCHES) {
     SY.forEach((s, j) => {
       const n = notes[j], cd = latinCoda(s), want = expectedRead(cd[0]);
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25;
-      const got = readCoda(x, rate, n.t0 + 0.1, tEnd);
+      const got = readCoda(x, rate, n.t0 + 0.1, tEnd, RC);
       const sc = aScore[sing];
       sc[1]++;
       if (sing === true) { if (match(want, got)) { sc[0]++; row.true++; } else misses.push(`${name} *${s}* (${label(want)}) read as ${label(got)}`); if (want.cls === got.cls) sc[2]++; }
@@ -112,7 +128,7 @@ function scorePieces(list, hide = false) {
       const vAt = vowelStart(n, on), tEnd = nextSound(sungR.notes, k, firstOf);
       // the reference must be steady vowel: before the coda's room (35% of the note and its transition)
       if (vAt + 0.06 > n.t1 - 0.35 * (n.t1 - n.t0) - 0.045 || tEnd - vAt < 0.15) { t.skipped++; return; }
-      const got = readCoda(sungR.x, rate, vAt, tEnd), gotC = readCoda(ctlR.x, rate, vAt, tEnd);
+      const got = readCoda(sungR.x, rate, vAt, tEnd, RC), gotC = readCoda(ctlR.x, rate, vAt, tEnd, RC);
       if (!cd.length) { t.bare[1]++; if (got.cls === 'none') t.bare[0]++; t.bareCtl[1]++; if (gotC.cls === 'none') t.bareCtl[0]++; return; }
       const nx = sungR.notes[k + 1], nxOn = nx && firstOf.has(nx) ? latinOnset(nx.lyric) : [];
       const want = expectedRead(cd[0]), ok = match(want, got);
@@ -195,7 +211,7 @@ const OTHER = !PARTS.includes('F') ? [] : readdirSync(corpus).filter((d) => d.st
       const on = firstOf.has(n) ? latinOnset(n.lyric) : [], vAt = vowelStart(n, on), tEnd = nextSound(sungR.notes, k, firstOf);
       if (vAt + 0.06 > n.t1 - 0.35 * (n.t1 - n.t0) - 0.045 || tEnd - vAt < 0.15) return;
       for (const [mode, tilt] of [['on', undefined], ['off', 0]]) {
-        const got = readCoda(sungR.x, rate, vAt, tEnd, { murmurTilt: tilt });
+        const got = readCoda(sungR.x, rate, vAt, tEnd, { ...RC, murmurTilt: tilt });
         if (cd[0] === 'l') {
           const t = tally.l[mode]; t[2]++; if (got.cls === 'none') t[0]++; if (got.cls === 'nasal') t[1]++;
           if (mode === 'on' && got.cls !== 'none') lMiss.push(`${p} *${n.lyric}*: read as ${label(got)}`);

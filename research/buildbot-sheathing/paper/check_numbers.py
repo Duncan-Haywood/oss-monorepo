@@ -26,8 +26,17 @@ M18 = E + "m18_holddown_shear/results.txt"
 M19 = E + "m19_wall_pushover/results.txt"
 M20 = E + "m20_cyclic/results.txt"
 M21 = E + "m21_degrading/results.txt"
+M27 = E + "m27_slide_mech/results.txt"
 
 CHECKS = [
+    # 5.11 the slide as a mechanism (milestone 27)
+    (M27, "g1 1.0 ok    |       63", "spring of\n63 N/m"),
+    (M27, " 0.4   0.8     20 0.1 |      0.262", "leaves 0.262 mm rms at a 20 ms reaction"),
+    (M27, "  0.8     20 |         0.262 | 0.7912", "then gives 0.7912"),
+    (M27, " 0.4   0.8     50 0.1 |      1.035", "at 50 ms it leaves\n1.035 mm"),
+    (M27, "  0.8     50 |         1.035 | 0.6948", "1.035 mm and 0.6948"),
+    (M27, " 0.4   0.8    100 0.1 |      3.855", "at 100 ms 3.855 mm"),
+    (M27, "  0.8    100 |         3.855 | 0.3167", "3.855 mm and 0.3167"),
     # 5.14 the capacity model against Weiss's decayed walls (milestones 17 to 21)
     (M17, "control 6-12 4688, decay 6-12 2649, control 3-12 8775, decay 3-12 2974", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
     (M17, "share kept: 6-12 0.565, 3-12 0.339", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),

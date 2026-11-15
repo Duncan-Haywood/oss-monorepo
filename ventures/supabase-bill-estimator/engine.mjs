@@ -12,19 +12,23 @@
 export const PRICES_AS_OF = "approximate public Pro-plan list prices, 2025; verify at https://supabase.com/pricing";
 export const PRICING_URL = "https://supabase.com/pricing";
 
-// Editable. `included` is what the Pro plan bundles per month; `rate` is the
+// Editable. `included` is what the Pro plan bundles per month, per Pro
+// organization: each org gets its own quotas and its own $10 compute credit, so
+// lines marked `perOrg` scale their allowance by the number of orgs entered.
+// Database disk is the exception: its 8 GB is per project, and one project per
+// org is assumed. `rate` is the
 // overage price per `per` units. The Pro organization fee is fixed. Compute is
 // entered as the USD list price of the instances you run, and the $10 of
 // bundled compute credit is modeled as that line's allowance.
 export const DEFAULT_PRICES = {
   pro_orgs: { label: "Pro organizations (per org)", unit: "organizations", rate: 25, per: 1, included: 0 },
-  compute_usd: { label: "Compute instances (USD list price of your add-ons)", unit: "USD of compute", rate: 1, per: 1, included: 10 },
+  compute_usd: { label: "Compute instances (USD list price of your add-ons)", unit: "USD of compute", rate: 1, per: 1, included: 10, perOrg: true },
   db_disk_gb: { label: "Database disk (per GB)", unit: "GB", rate: 0.125, per: 1, included: 8 },
-  egress_gb: { label: "Egress (per GB)", unit: "GB", rate: 0.09, per: 1, included: 250 },
-  storage_gb: { label: "File storage (per GB)", unit: "GB", rate: 0.021, per: 1, included: 100 },
-  mau_thousand: { label: "Monthly active users (per thousand)", unit: "thousand users", rate: 3.25, per: 1, included: 100 },
-  edge_invocations_million: { label: "Edge Function invocations (per million)", unit: "million invocations", rate: 2, per: 1, included: 2 },
-  realtime_messages_million: { label: "Realtime messages (per million)", unit: "million messages", rate: 2.5, per: 1, included: 5 },
+  egress_gb: { label: "Egress (per GB)", unit: "GB", rate: 0.09, per: 1, included: 250, perOrg: true },
+  storage_gb: { label: "File storage (per GB)", unit: "GB", rate: 0.021, per: 1, included: 100, perOrg: true },
+  mau_thousand: { label: "Monthly active users (per thousand)", unit: "thousand users", rate: 3.25, per: 1, included: 100, perOrg: true },
+  edge_invocations_million: { label: "Edge Function invocations (per million)", unit: "million invocations", rate: 2, per: 1, included: 2, perOrg: true },
+  realtime_messages_million: { label: "Realtime messages (per million)", unit: "million messages", rate: 2.5, per: 1, included: 5, perOrg: true },
 };
 
 // Compute is already net of the bundled credit through its allowance, so no
@@ -87,13 +91,15 @@ export function normalizeUsage(partial = {}) {
 export function estimateBill(usageIn, prices = DEFAULT_PRICES, creditUsd = DEFAULT_CREDIT_USD) {
   const u = normalizeUsage(usageIn);
   const items = [];
+  const orgs = Math.max(1, u.pro_orgs ?? 0);
   for (const [key, p] of Object.entries(prices)) {
     const quantity = u[key] ?? 0;
-    const billable = Math.max(0, quantity - p.included);
+    const included = p.perOrg ? p.included * orgs : p.included;
+    const billable = Math.max(0, quantity - included);
     items.push({
       key, label: p.label, quantity, unit: p.unit, billable, rate: p.rate,
       monthly: round2((billable / p.per) * p.rate),
-      note: p.included ? `${p.included} ${p.unit} included` : "",
+      note: included ? `${round2(included)} ${p.unit} included${p.perOrg && orgs > 1 ? ` (${p.included} per org x ${orgs})` : ""}` : "",
     });
   }
   const pro_orgs = items.find((i) => i.key === "pro_orgs").monthly;
