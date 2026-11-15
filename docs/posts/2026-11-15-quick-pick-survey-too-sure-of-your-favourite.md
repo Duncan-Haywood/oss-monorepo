@@ -2,7 +2,7 @@
 title: "When your picks are close calls, the ranking shouldn't sound sure"
 seo_title: "Pairwise ranking confidence: honest rank ranges for close calls"
 date: 2026-11-15
-description: "Quick Pick's list ranker told simulated near-coin-flip answerers their favourite was 56-62% likely when it was right 17-50% of the time. Its results now use a prior fitted to the person's own answers."
+description: "The ranker told simulated near-coin-flip answerers their favourite was 56-62% likely when it was right 17-50% of the time. Now it refits first."
 tags: [quick-pick-survey, pairwise-comparison, bradley-terry, empirical-bayes, ranking, product]
 ---
 
