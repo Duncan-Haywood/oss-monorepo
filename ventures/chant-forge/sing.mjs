@@ -202,9 +202,11 @@ const NASAL_BW1 = 3.5;
 // leaves. With PHONES.l's fixed 1.4 it sat -3 to +8 dB against the vowel, loudest after /e/, /i/ and /u/,
 // whose energy the /l/'s F1 of 400 Hz and F2 of 1250 Hz pass better than their own resonances do: a swell
 // on every final -l. 4 dB is an assumption, not fitted to recordings: a liquid is quieter than a vowel and
-// louder than a nasal (NASAL_DB 7). Openings keep PHONES.l.av (their reader's thresholds were set on it).
-// `lateralLevel: false` (a singNote option) keeps the fixed gain, to compare. README "Final consonants,
-// sixth round"; eval/lateral-level-check.md.
+// louder than a nasal (NASAL_DB 7). An opening /l/ is set the same way against the vowel it goes to
+// (2026-11-15, README "An opening /l/ at its vowel's level"; eval/onset-lateral-check.md): with the fixed
+// 1.4 it sat 7.7 dB under to 6.3 dB over that vowel by vowel and pitch. `onsetLateral: 'first'` keeps the
+// fixed gain on openings only; `lateralLevel: false` (a singNote option) keeps it on both, to compare.
+// README "Final consonants, sixth round"; eval/lateral-level-check.md.
 export const LATERAL_DB = 4;
 const TRANSITION = 0.045; // formants move from the consonant to the vowel over this long
 
@@ -301,8 +303,9 @@ function paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas) {
 function nasTrack(total) { const t = new Float64Array(total); t.z = new Float64Array(total); return t; }
 
 // Per-sample voicing gain, frication noise and formant targets for a note's onset.
-function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room) {
+function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room, latAv = null) {
   const plan = onsetPlan(onset, dur, share, room);
+  if (latAv) for (const sg of plan.segs) if (sg.kind === 'lateral') sg.av = latAv(sg);
   const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
   const keys = []; // [t, F] formant keypoints before the vowel
   const nas = nasTrack(total);
@@ -429,7 +432,7 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   for (let i = 0; i < total; i++) src[i] = src[i] / nv + o.breath * rand();
   // formant track: the vowel, gliding to `glide` from glideFrom of the sung length
   const from = tuneF1(FORMANTS[vowel] || FORMANTS.a, f, o.f1Tune), to = glide ? tuneF1(FORMANTS[glide], f, o.f1Tune) : from;
-  const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room) : null;
+  const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room, o.lateralLevel === false || o.onsetLateral === 'first' ? null : (c) => lateralGain(f, rate, from, c)) : null;
   const coda = o.coda || [];
   const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare, o.lateralLevel === false ? null : (c) => lateralGain(f, rate, to, c)) : null;
   // a diphthong reaches its second vowel by the coda (or the note's end)
