@@ -1338,6 +1338,10 @@ class DevelopSettings:
     # lens number gets that lens; with lens_name given, its lens is remembered under the frame's key (this dict is
     # updated in place, and the caller saves it).
     lens_memory: dict | None = None
+    # A Sony ARW's own lens tables (0x7037 distortion, 0x7035 lateral colour; ``sony_corrections``): applied when
+    # the file carries them and no lens database correction ran. Checked against lensfun in
+    # eval/sony-in-file-corrections-2026-11-15.md.
+    lens_in_file: bool = True
 
 
 @dataclass
@@ -1895,6 +1899,24 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                     memory[corr.lens_key] = corr.lens.name
                     lens_notes.append(f"lens memory: {corr.lens_key} is now {corr.lens.name}")
         notes.extend(lens_notes)
+    if settings.lens_in_file and raw.source == "arw" and lens_used is None and \
+            not any(isinstance(op, dng_opcodes.WARP_TYPES) for op in warps):
+        from shootflow import sony_corrections
+
+        own = sony_corrections.from_ifd(ifd)
+        if own is not None and own.distortion:
+            try:
+                crop = ifd.get(0xC620)  # DefaultCropSize
+                picture = (int(crop[0]), int(crop[1])) if crop and len(crop) == 2 else None
+                warp, _zoom, own_notes = sony_corrections.build_warp(own, w, h, fill=settings.lens_fill,
+                                                                     tca=settings.lens_tca, picture=picture)
+            except (ValueError, ArithmeticError) as exc:
+                own_notes = [f"Sony in-file lens tables not used: {exc}"]
+            else:
+                warps = list(warps) + [warp]
+                lens_used = "Sony in-file corrections"
+            lens_notes.extend(own_notes)
+            notes.extend(own_notes)
     # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
     half_f = 0.5 if (settings.half and not linear_raw) else 1.0
     stage3_w, stage3_h = (w // 2, h // 2) if half_f != 1.0 else (w, h)

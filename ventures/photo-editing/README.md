@@ -2142,6 +2142,19 @@ On the ten real ARW and SRW files at hand, every frame now picks the lens its ow
 A500, ExifTool's reading of its lens number) gives, from maker-note and tag data alone; before, three gave
 no hint and three were refused as ties. Details: `eval/sony-samsung-lens-2026-11-14.md`.
 
+### Sony ARW: the lens's own correction tables (2026-11-15)
+
+Sony E-mount bodies write the lens's distortion, lateral-colour and vignetting curves into every ARW (tags
+0x7037, 0x7035, 0x7032 of the raw IFD), the curves the camera uses for its JPEGs. `shootflow develop` and the
+grade stage now apply the distortion and lateral colour from them when no lensfun correction runs, so an A7
+frame is corrected with no lens database at all (`--no-in-file-lens` to skip; a `--lens-db` match still wins).
+
+Checked against lensfun's own calibration of the same lens at the same focal length on three real frames
+(A5000 16 mm, A7 III 24 mm, A7 IV 42 mm): the distortion curves agree within 9 px on corrections of 84-411 px
+at 6000 px wide; reading the knots on the raw radius instead fits worse on all three. Lateral colour agrees on
+two of three. The vignetting table lifts the corners by 0.6-1.0 stops where lensfun lifts 2.6, so it is read
+but not applied. Details: `eval/sony-in-file-corrections-2026-11-15.md`.
+
 ### Converted DNGs: the camera's maker note from DNGPrivateData (2026-11-14)
 
 Adobe DNG Converter drops the camera's EXIF maker note and keeps it in the DNG's private data instead, so the

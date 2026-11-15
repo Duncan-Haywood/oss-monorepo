@@ -765,6 +765,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         lens_crop=args.lens_crop,
         lens_fill=not args.no_lens_fill,
         lens_tca=not args.no_lens_tca,
+        lens_in_file=not args.no_in_file_lens,
         lens_vignetting=not args.no_lens_vignetting,
         lens_aperture=args.lens_aperture,
         lens_distance=args.lens_distance,
@@ -1371,6 +1372,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--no-lens-tca",
         action="store_true",
         help="Correct the lens's distortion only, not its lateral colour (red and blue fringes toward the corners).",
+    )
+    develop.add_argument(
+        "--no-in-file-lens",
+        action="store_true",
+        help="Ignore a Sony ARW's own lens tables (distortion and lateral colour, applied by default when no "
+        "--lens-db correction runs).",
     )
     develop.add_argument(
         "--no-lens-vignetting",
