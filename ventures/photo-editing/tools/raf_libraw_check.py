@@ -22,7 +22,9 @@ Usage (from ``ventures/photo-editing``)::
 Prints one JSON line per file and exits 1 if any sensel, the balance, the black
 level, the white level or the CFA differs. Real files used on 2026-11-14: the
 three RAFs in drewnoakes/metadata-extractor-images (``raf/``),
-``eval/fujifilm-raf-reader-2026-11-14.md``.
+``eval/fujifilm-raf-reader-2026-11-14.md``; on 2026-11-15 four lossless compressed
+RAFs and two lossy ones from raw.pixls.us (CC0), ``eval/fujifilm-compressed-raf-2026-11-15.md``.
+A lossy file prints ``"ok": null`` with the refusal (by design, not a failure).
 """
 
 from __future__ import annotations
@@ -98,8 +100,14 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     bad = 0
     for path in args.files:
-        row = check(path)
-        bad += not row["ok"]
+        try:
+            row = check(path)
+        except rd.DevelopError as exc:
+            # A refusal is a result, not a crash: Fujifilm's lossy compression is refused by design.
+            row = {"file": path.name, "ok": False, "refused": str(exc)}
+            refused = "lossy compressed" in str(exc)
+            row["ok"] = None if refused else False
+        bad += row["ok"] is False
         print(json.dumps(row, sort_keys=True))
     return 1 if bad else 0
 

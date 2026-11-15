@@ -218,43 +218,42 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and measurements: README and eval/*. Exact side: branch-and-price
+      Landed work and measurements: README and eval/*. Team hub free on Cloudflare
+      (README 2026-11-15): next a live-account deploy. Exact side: branch-and-price
       and column generation prove 20-80 person weeks; the exact check is on by
-      default at every size. Forecast side (--from-sales, eight real files incl.
-      real Square and Toast exports, 2026-11-13: eval/real-pos-exports.mjs):
-      backtest, closure score, half-life auto, priced cut, tickets, labour standard,
-      shut-door work, multi-file pastes. Posted weeks: reissues hold started and
-      posted shifts (README "Is 91 the least?" to "Giving up two clashing shifts");
-      a whole week at the Deputy file's rates (README "A whole week of call-outs at
-      a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open
-      hours path-dependent both ways. Next: whether a real manager would set
-      keepShift above 1; 350+ copies: clique LP vs cover passes (README "keeps to
-      its share"); day sweeps LP-guided, by the open-hours LP when the pay floor is
-      skipped (README "A guide when the pay floor is skipped"); warm start landed
-      (README 2026-11-14), next a warm-sized gate; re-run the keep-usual-shifts
-      sweep on real dated leave records; a manager's read on whether the steadier
-      plan is the one they would post; a real 7shifts account through
-      --import-7shifts (README "Reading 7shifts directly"); a real When I Work
-      account or response through --import-wheniwork (README "Reading When I Work
-      directly"); Homebase (docs need an account); --cover-price moves two shifts
-      together (README "Moving two shifts together": 20-person week exposure 113 to
-      68 h for $35.27); second call-outs priced (README "A second call-out in the
-      same week", off by default); next: fewer capped pairs, pair price past 120
-      copies; a real two-site export and staff list (README "Staff shared between
-      sites"); own and site rates read from staff CSVs and 7shifts (README
-      "Per-location pay from an export"); next a real wages export, real trip times;
-      whether the priced cut's r = 1 default suits a real manager; a manager's real
-      task list for the fixed minutes.
+      default at every size. Forecast side (--from-sales, eight real files,
+      eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
+      cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
+      weeks: reissues hold started and posted shifts; a whole week at the Deputy
+      file's rates (README "A whole week of call-outs at a real roster's rates",
+      2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent both
+      ways. Next: whether a real manager would set keepShift above 1; 350+ copies:
+      clique LP vs cover passes (README "keeps to its share"); day sweeps LP-guided,
+      by the open-hours LP when the pay floor is skipped (README "A guide when the
+      pay floor is skipped"); warm start landed (README 2026-11-14), next a
+      warm-sized gate; re-run the keep-usual-shifts sweep on real dated leave
+      records; a manager's read on whether the steadier plan is the one they would
+      post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
+      directly"); a real When I Work account or response through --import-wheniwork
+      (README "Reading When I Work directly"); Homebase (docs need an account);
+      --cover-price moves two shifts together (README "Moving two shifts together":
+      20-person week exposure 113 to 68 h for $35.27); second call-outs priced
+      (README "A second call-out in the same week", off by default); next: fewer
+      capped pairs, pair price past 120 copies; a real two-site export and staff
+      list (README "Staff shared between sites"); own and site rates read from staff
+      CSVs and 7shifts (README "Per-location pay from an export"); next a real wages
+      export, real trip times; whether the priced cut's r = 1 default suits a real
+      manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      Public samples, no key: the proxy serves
-      github.com/drewnoakes/metadata-extractor-images (sparse checkout; ARW, NEF,
-      ORF, RW2, SRW, PEF and RAF read, eval/*-reader-2026-11-14.md). X-Trans
-      demosaic toward LibRaw's three-pass (2-6 dB short; a noisy known truth for the
-      real-frame luma gap; a C path;
+      Public samples, no key: raw.pixls.us (CC0, most bodies; answers since
+      2026-11-15) and github.com/drewnoakes/metadata-extractor-images (sparse
+      checkout; ARW, NEF, ORF, RW2, SRW, PEF and RAF read,
+      eval/*-reader-2026-11-14.md). X-Trans demosaic toward LibRaw's three-pass (2-6
+      dB short; a noisy known truth for the real-frame luma gap; a C path;
       eval/xtrans-directional-demosaic-2026-11-14.md). DNG 1.7.1.0 spec PDF: URL in
       eval/opcode-spec-audit-2026-11-12.md.
     next: >-
@@ -268,20 +267,21 @@ flagships:
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans, directional) read directly since
       2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from maker notes
-      (eval/*-lens-2026-11-14.md). Next: a compressed RAF (X-T2 or later); a real
-      NEF split row; Sony's vignetting table vs an evenly lit frame; a real DNG and
-      a vignetting-calibrated lens through the pipeline's lens stage; a real evenly
+      (eval/*-lens-2026-11-14.md). Next: lossy compressed RAF (lossless read
+      2026-11-15; lossy X-S10, X-E4 on raw.pixls.us); a real NEF split row; Sony's
+      vignetting table vs an evenly lit frame; a real DNG and a
+      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
       lit frame shot wide open (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
       synthetic files so far, or the SDK to check them; lateral colour measured on a
       real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
-      collection under their plain names); the DJI Phantom 4 DNG's vignette lift
-      against DJI's own render (eval/opcode-quality-flag-2026-11-13.md); a real DNG
-      with opcode flag bit 1 set; a phone DNG with its own JPEG of the frame
-      (corrected corners); a tungsten-lit colour chart to say which colour model is
-      closer (the 70D frame, 4,700 K and green-tinted, is where they part most; the
-      Nexus 5X carries ForwardMatrix); an Adobe render of a known frame (settles
+      chooser; newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; raw.pixls.us answers
+      since 2026-11-15); the DJI Phantom 4 DNG's vignette lift against DJI's own
+      render (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag
+      bit 1 set; a phone DNG with its own JPEG of the frame (corrected corners); a
+      tungsten-lit colour chart to say which colour model is closer (the 70D frame,
+      4,700 K and green-tinted, is where they part most; the Nexus 5X carries
+      ForwardMatrix); an Adobe render of a known frame (settles
       `--default-tone-curve always`); a trained blink model and a real shoot with a
       photographer's picks; photos with a real horizon and human tilt labels.
 
