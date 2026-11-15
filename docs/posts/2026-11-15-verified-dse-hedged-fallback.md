@@ -3,7 +3,7 @@ title: "Chip design search: hedging a failed spot-check barely helps, because th
 seo_title: "Hedging a ranking's fall-back in a chip flow search: a 0.02-point gain"
 date: 2026-11-15
 tags: [research, chip-design, verified-dse, open-source, eda, statistics]
-description: "On 90 replayed Yosys and OpenROAD cells, keeping three ranked candidates when a spot-check fails moves mean regret from 4.39% to 4.37%. The loss comes from false alarms, not from the response to them."
+description: "On 90 replayed Yosys and OpenROAD cells, keeping three ranked candidates when a spot-check fails moves mean regret only from 4.39% to 4.37%."
 ---
 
 The [verified-dse](../../research/verified-dse/) programme searches over ABC
