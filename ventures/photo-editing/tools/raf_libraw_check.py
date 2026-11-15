@@ -23,8 +23,9 @@ Prints one JSON line per file and exits 1 if any sensel, the balance, the black
 level, the white level or the CFA differs. Real files used on 2026-11-14: the
 three RAFs in drewnoakes/metadata-extractor-images (``raf/``),
 ``eval/fujifilm-raf-reader-2026-11-14.md``; on 2026-11-15 four lossless compressed
-RAFs and two lossy ones from raw.pixls.us (CC0), ``eval/fujifilm-compressed-raf-2026-11-15.md``.
-A lossy file prints ``"ok": null`` with the refusal (by design, not a failure).
+RAFs and two lossy ones from raw.pixls.us (CC0), ``eval/fujifilm-compressed-raf-2026-11-15.md``;
+the lossy ones are read since the same day (``eval/fujifilm-lossy-raf-2026-11-15.md``). A file the
+reader refuses by design prints ``"ok": null`` with the reason (none known now).
 """
 
 from __future__ import annotations
