@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 406" font-family="sans-serif" font-size="12">
+<rect width="640" height="406" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-weight="bold">Ranking the 100-cycle DFN energy from ten cycles (13 test pools)</text>
+<line x1="150.0" y1="62" x2="150.0" y2="366" stroke="#ddd"/>
+<text x="150.0" y="380" text-anchor="middle">-1</text>
+<line x1="265.0" y1="62" x2="265.0" y2="366" stroke="#ddd"/>
+<text x="265.0" y="380" text-anchor="middle">-0.5</text>
+<line x1="380.0" y1="62" x2="380.0" y2="366" stroke="#ddd"/>
+<text x="380.0" y="380" text-anchor="middle">0</text>
+<line x1="495.0" y1="62" x2="495.0" y2="366" stroke="#ddd"/>
+<text x="495.0" y="380" text-anchor="middle">0.5</text>
+<line x1="610.0" y1="62" x2="610.0" y2="366" stroke="#ddd"/>
+<text x="610.0" y="380" text-anchor="middle">1</text>
+<text x="380.0" y="398" text-anchor="middle">Spearman with DFN Wh/kg at cycle 100</text>
+<circle cx="60" cy="44" r="5" fill="#868e96"/>
+<text x="69" y="48">5n: sqrt-cycle energy fit</text>
+<circle cx="255" cy="44" r="5" fill="#d9480f"/>
+<text x="264" y="48">5s: map + power-law lithium</text>
+<circle cx="450" cy="44" r="5" fill="#2a6fdb"/>
+<text x="459" y="48">5t: map + a + b√n lithium</text>
+<text x="142" y="85.0" text-anchor="end">Ai2020@0.25x</text>
+<line x1="482.4165087007558" y1="81.0" x2="528.7819004524887" y2="81.0" stroke="#bbb"/>
+<circle cx="528.8" cy="81.0" r="5" fill="#868e96"/>
+<circle cx="482.4" cy="81.0" r="5" fill="#d9480f"/>
+<circle cx="519.2" cy="81.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="107.0" text-anchor="end">Ai2020@0.275x</text>
+<line x1="505.90405391395416" y1="103.0" x2="537.6904977375566" y2="103.0" stroke="#bbb"/>
+<circle cx="510.8" cy="103.0" r="5" fill="#868e96"/>
+<circle cx="505.9" cy="103.0" r="5" fill="#d9480f"/>
+<circle cx="537.7" cy="103.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="129.0" text-anchor="end">Ai2020@0.35x</text>
+<line x1="459.4854281370435" y1="125.0" x2="532.66569257744" y2="125.0" stroke="#bbb"/>
+<circle cx="523.8" cy="125.0" r="5" fill="#868e96"/>
+<circle cx="459.5" cy="125.0" r="5" fill="#d9480f"/>
+<circle cx="532.7" cy="125.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="151.0" text-anchor="end">Ai2020@0.375x</text>
+<line x1="441.6581465870668" y1="147.0" x2="535.4010223867442" y2="147.0" stroke="#bbb"/>
+<circle cx="535.4" cy="147.0" r="5" fill="#868e96"/>
+<circle cx="441.7" cy="147.0" r="5" fill="#d9480f"/>
+<circle cx="534.3" cy="147.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="173.0" text-anchor="end">Ai2020@0.4375x</text>
+<line x1="457.86448958197053" y1="169.0" x2="541.073717948718" y2="169.0" stroke="#bbb"/>
+<circle cx="537.8" cy="169.0" r="5" fill="#868e96"/>
+<circle cx="457.9" cy="169.0" r="5" fill="#d9480f"/>
+<circle cx="541.1" cy="169.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="195.0" text-anchor="end">Ai2020@0.5x</text>
+<line x1="455.76542305677486" y1="191.0" x2="559.7559523809524" y2="191.0" stroke="#bbb"/>
+<circle cx="548.6" cy="191.0" r="5" fill="#868e96"/>
+<circle cx="455.8" cy="191.0" r="5" fill="#d9480f"/>
+<circle cx="559.8" cy="191.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="217.0" text-anchor="end">Ai2020@0.625x</text>
+<line x1="499.62289896229964" y1="213.0" x2="565.9693223443223" y2="213.0" stroke="#bbb"/>
+<circle cx="513.0" cy="213.0" r="5" fill="#868e96"/>
+<circle cx="499.6" cy="213.0" r="5" fill="#d9480f"/>
+<circle cx="566.0" cy="213.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="239.0" text-anchor="end">Chen2020@1x</text>
+<line x1="481.1620879120879" y1="235.0" x2="596.0778388278388" y2="235.0" stroke="#bbb"/>
+<circle cx="584.6" cy="235.0" r="5" fill="#868e96"/>
+<circle cx="481.2" cy="235.0" r="5" fill="#d9480f"/>
+<circle cx="596.1" cy="235.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="261.0" text-anchor="end">Chen2020@2x</text>
+<line x1="507.7953296703297" y1="257.0" x2="587.1684981684982" y2="257.0" stroke="#bbb"/>
+<circle cx="511.5" cy="257.0" r="5" fill="#868e96"/>
+<circle cx="507.8" cy="257.0" r="5" fill="#d9480f"/>
+<circle cx="587.2" cy="257.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="283.0" text-anchor="end">NCA_Kim2011@0.5x</text>
+<line x1="276.25799822996095" y1="279.0" x2="375.66117216117215" y2="279.0" stroke="#bbb"/>
+<circle cx="375.7" cy="279.0" r="5" fill="#868e96"/>
+<circle cx="320.6" cy="279.0" r="5" fill="#d9480f"/>
+<circle cx="276.3" cy="279.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="305.0" text-anchor="end">NCA_Kim2011@0.75x</text>
+<line x1="272.5297619047619" y1="301.0" x2="304.5654761904762" y2="301.0" stroke="#bbb"/>
+<circle cx="304.6" cy="301.0" r="5" fill="#868e96"/>
+<circle cx="272.5" cy="301.0" r="5" fill="#d9480f"/>
+<circle cx="274.1" cy="301.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="327.0" text-anchor="end">OKane2022@1.25x</text>
+<line x1="495.1263736263736" y1="323.0" x2="585.9995421245421" y2="323.0" stroke="#bbb"/>
+<circle cx="586.0" cy="323.0" r="5" fill="#868e96"/>
+<circle cx="495.1" cy="323.0" r="5" fill="#d9480f"/>
+<circle cx="579.3" cy="323.0" r="5" fill="#2a6fdb"/>
+<text x="142" y="349.0" text-anchor="end">OKane2022@2x</text>
+<line x1="511.1547619047619" y1="345.0" x2="586.3786630036631" y2="345.0" stroke="#bbb"/>
+<circle cx="511.2" cy="345.0" r="5" fill="#868e96"/>
+<circle cx="524.3" cy="345.0" r="5" fill="#d9480f"/>
+<circle cx="586.4" cy="345.0" r="5" fill="#2a6fdb"/>
+</svg>
