@@ -50,6 +50,19 @@ dollars so the finding does not have to rebuild it from a ratio. A restaurant
 owner deciding whether to keep a promotion should not be told it loses money
 when the numbers on the same line say it broke even.
 
+## A second target: the missed-call text-back webhook
+
+A second campaign drew `twilio.mjs` in
+[missed-call text-back](https://marisstella.app/missed-call-textback/), the
+self-hosted server that checks each incoming Twilio webhook's signature. Seven
+faults, six caught (three of those only because the suite hung until its
+300-second limit, not because a test failed). The one that got through matters:
+turning `!authToken || !header` into `!authToken && !header` made the check
+accept a request signed with an empty key whenever the server ran with an empty
+auth token and signatures required, and an empty-key HMAC is something anyone
+can compute. The shipped code was right; nothing tested that branch. It has a
+test now.
+
 ## The general lesson
 
 Any finding that decides a sign or a threshold from a sum of money should round
