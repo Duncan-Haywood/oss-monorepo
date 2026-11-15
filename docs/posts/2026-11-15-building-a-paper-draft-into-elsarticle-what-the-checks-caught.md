@@ -3,7 +3,7 @@ title: "Turning our robot-sheathing paper into Elsevier's template: what the che
 seo_title: "Markdown to elsarticle: a checked build for a journal paper"
 date: 2026-11-15
 tags: [research, latex, elsarticle, elsevier, pandoc, construction-robotics, open-source, writing]
-description: "We built our robot-sheathing paper draft into Elsevier's elsarticle template with a script. The checks found two sections out of order and eight over-long highlights."
+description: "A script builds our robot-sheathing paper into Elsevier's elsarticle template. Its checks found two sections out of order and eight over-long highlights."
 ---
 
 The `buildbot-sheathing` programme asks whether a robot can nail wall sheathing to code tolerance, and what decides it. Its paper draft is a Markdown file of about 9,700 words, aimed at *Automation in Construction*. Every number in it is already tied to a results file by a checker. The draft still had to be turned into Elsevier's LaTeX class, `elsarticle`, before it could be submitted.
