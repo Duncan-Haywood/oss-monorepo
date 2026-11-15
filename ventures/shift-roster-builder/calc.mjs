@@ -1716,7 +1716,7 @@ function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTa
 // shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
 // Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
 // one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
-export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET, pairStop = true, pairMs = Infinity, onMove = null }) {
+export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET, pairStop = true, pairMs = Infinity, pairRank = false, onMove = null }) {
   // A time cap on the pair-priced pass (2026-11-15, README "A time cap on the pair price"). Every move the pass takes is a
   // confirmed gain on its own, so stopping between moves posts a roster no worse than the one it started from and keeps
   // every move made so far. Once `pairMs` has passed since the pass began, the pass takes no new move and ends; a walk under way is
@@ -1777,7 +1777,14 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   }
   let moves = 0, tried = 0, pairMoves = 0, relieves = 0, trades = 0, pairTried = 0;
   const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
-  const take = (cand, needLess = false) => {
+  // Best moves first (2026-11-15, README "The pair price's best moves first"). The pass is first-improvement: it takes the
+  // first candidate that pays, and with a pair price each candidate's pair walks are the cost. With `pairRank` (coverPairRank)
+  // a round first runs every candidate through the cheap tests (score, the budgeted single risk) and sets it aside with the
+  // room those leave for clashing pairs; then the pair walks run in order of that room, largest first, and the first that
+  // pays is taken. Every move taken is still confirmed by the same walks, so the pass is never worse than where it started;
+  // it walks a different path, so its end can differ from the first-improvement pass's.
+  let pending = null;
+  const take = (cand, needLess = false, kind = null) => {
     if (outOfTime()) throw COVER_STOP;
     tried++;
     if (!ownerValid(ctx, cand)) return false;
@@ -1788,6 +1795,10 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     if (s2 + price * r2.hours >= score + price * risk.hours + pairPrice * pairH - 1e-9) return false;
     // The walk can stop once p2 alone fails the test below: pairPrice x p2 >= room, with room what the rest leaves.
     const roomS = score + price * risk.hours + pairPrice * pairH - 1e-9 - s2 - price * r2.hours;
+    if (pending) { pending.push({ cand, needLess, kind, s2, r2, roomS }); return false; }
+    return finish(cand, needLess, s2, r2, roomS);
+  };
+  const finish = (cand, needLess, s2, r2, roomS) => {
     const p2 = pairOf(cand, r2, pairPrice > 0 ? roomS / pairPrice : Infinity);
     if (s2 + price * r2.hours + pairPrice * p2 >= score + price * risk.hours + pairPrice * pairH - 1e-9) return false;
     const f2 = full(cand);
@@ -1807,8 +1818,20 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     keepCases(); // both walks just ran on `cand` to their end (a cut-off walk returns Infinity and the move is refused)
     return true;
   };
+  const ranked = pairRank && pairPrice > 0;
+  const drain = () => { // the set-aside candidates, largest room first (a stable sort keeps the pass's order on ties)
+    const list = pending; pending = null;
+    list.sort((a, b) => b.roomS - a.roomS);
+    for (const e of list) {
+      if (outOfTime()) throw COVER_STOP;
+      if (finish(e.cand, e.needLess, e.s2, e.r2, e.roomS)) return e;
+    }
+    return null;
+  };
+  const tally = (kind) => { if (kind === "relief") relieves++; else if (kind === "trade") trades++; else if (kind) pairMoves++; };
   try { for (let round = 0; round < rounds; round++) {
     let improved = false;
+    if (ranked) pending = [];
     for (const c of risk.cases.slice()) {
       if (owner[c.slots[0]] !== c.person) continue; // this case has already been changed by an earlier move
       for (const i of c.slots) {
@@ -1828,6 +1851,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
       }
       if (improved) break;
     }
+    if (ranked) improved = drain() != null;
     // Two shifts moved together (2026-11-13 later, eval/cover-pairs.mjs). A risky shift i is one nobody can take, even through
     // coverRisk's chains, so a stand-in q eligible for it is blocked by their own list (hours cap, rest, a clash). The single
     // moves above only touch the risky person's shifts. Here, for every such q and each shift j of q's (any day: a chain may
@@ -1868,10 +1892,11 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
         if (!ownerValid(ctx, cand) || !coversSome(cand, movers)) return false;
         // A two-shift move must clear risk, not only score: on the spare-part-timer team a relief that left risk at 194 h
         // and saved $5 of score was taken without this, and the posted week's measured exposure rose from 54 h to 66 h.
-        if (!take(cand, true)) return false;
-        if (kind === "relief") relieves++; else if (kind === "trade") trades++; else pairMoves++;
+        if (!take(cand, true, kind)) return false;
+        tally(kind);
         return true;
       };
+      if (ranked) pending = [];
       try {
         outer: for (const c of risk.cases) {
           if (owner[c.slots[0]] !== c.person) continue;
@@ -1903,7 +1928,9 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
           }
         }
       } catch (e) { if (e !== COVER_STOP || pairTimedOut) throw e; }
+      if (ranked) { const e = drain(); if (e) { tally(e.kind); improved = true; } }
     }
+    pending = null;
     if (!improved) break;
   } } catch (e) { if (e !== COVER_STOP || !pairTimedOut) throw e; }
   return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched, pairTimedOut, pairStartTimedOut: false };
@@ -3588,7 +3615,7 @@ function buildRosterOnce(staff, slots, options = {}) {
   if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
     const chain = o.coverChain ?? COVER_CHAIN, budget = o.coverBudget ?? COVER_BUDGET;
     const pairOn = o.coverPairPrice > 0 && ctx.S <= (o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS);
-    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? PAIR_CONFIRM_BUDGET), pairStop: o.coverPairStop !== false, pairMs: o.coverPairMs ?? COVER_PAIR_MS });
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? PAIR_CONFIRM_BUDGET), pairStop: o.coverPairStop !== false, pairMs: o.coverPairMs ?? COVER_PAIR_MS, pairRank: o.coverPairRank === true });
     const before = out.before;
     coverSlack = {
       price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
