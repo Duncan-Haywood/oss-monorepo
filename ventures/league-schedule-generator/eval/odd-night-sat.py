@@ -58,7 +58,7 @@ def window_shapes(full, short, g, courts, times):
     return out
 
 
-def build(n, courts, times, g=3, only=None, shape=False):
+def build(n, courts, times, g=3, only=None, shape=False, fix_round0=True):
     assert n % 2 == 1
     N = n + 1
     R = n
@@ -76,7 +76,7 @@ def build(n, courts, times, g=3, only=None, shape=False):
     for r in range(R):
         for v in range(N):
             card([x[r, min(v, u), max(v, u)] for u in range(N) if u != v], 1, "eq")
-    for (i, j) in pairs:
+    for (i, j) in pairs if fix_round0 else ():  # off when a caller fixes its own structure (odd-orbit.py)
         cnf.append([x[0, i, j]] if (i % 2 == 0 and j == i + 1) else [-x[0, i, j]])
 
     nights = [list(range(s, min(s + g, R))) for s in range(0, R, g)]
