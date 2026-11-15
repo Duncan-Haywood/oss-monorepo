@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 92, 2026-11-15: staleness threshold sweep (2, 3, 5, 8 years) for the deployable borrowed model, chosen on Y-3 as seen on the decision date (in progress)
+
+Why: session 91's 5-year staleness rule made the deployable borrowed model match the complete-label model on average (q0.9 -0.41 days), but it cost SF 1.6 to 2.9 days against cpin_es3 while it helped Seattle 5.7 to 6.9; the threshold was fixed before the run, never tuned. Its "Next" asked to sweep 2, 3, 5 and 8 years as a deployable choice.
+- Method: variants `cpin_es3_nc2`, `_nc3`, `_nc5`, `_nc8` (`src/rounds.py`, `STALE`: 730, 1,095, 1,826, 2,922 days), each session 91's cpin_es3_nc with every source permit open at D for longer than the threshold dropped from training and from the Y-3 early-stopping set. New: each model also predicts a selection set a deployment has on D and that is the same for every threshold: all the sources' Y-3 permits, never-completed ones included and none dropped, open ones with their window at D, scored by the censored pinball loss (`sel_closs`). The selector takes, per held city-year, the threshold with the lowest q0.9 `sel_closs`. Test scoring as session 91 (completed test rows against session 88's `full`; censored loss over all test rows).
+Design (fixed before any run): cascade2 class; H = sf, seattle; Y = 2021, 2022; 3 seeds; fresh pull 2026-11-15; `rounds.py DIR --score --keep-open --variants cpin_es3_nc2 cpin_es3_nc3 cpin_es3_nc5 cpin_es3_nc8 --held sf|seattle --out-name rounds_score_sweep_i2c.json`, summarised by `--summarise-sweep`. The selection set overlaps the early-stopping set (both are Y-3), so the selector is not out of sample for the k >= 3 thresholds, whose early-stopping set is nearly all of it; disclosed, not fixed. Austin not run.
+Predictions (written before any run; q0.9 = cascade2's mean pinball-loss change against full on completed test-year rows, 3 seeds):
+- (S1) The best threshold differs by city: in SF nc3 beats nc5 in both years; in Seattle nc5 or nc8 beats nc3 in both years.
+- (S2) nc8's SF and Seattle q0.9 mean change is more than 1 day above nc5's (older never-closed records hurt).
+- (S3) The Y-3 selector's mean q0.9 regret against the per-cell best threshold is at most 1 day.
+- (S4) The Y-3 selector's SF and Seattle q0.9 mean change is at most 0 (it matches or beats the complete-label model).
+- (S5, check) nc5's q0.9 test loss is within 0.3 days of session 91's in all 4 cells.
+Refuted if any part fails.
+
 ## Session 91, 2026-11-15: putting the permits never completed by the pull back as open rows wrecks the borrowed tail model (q0.9 +181 days against the complete-label model in SF and Seattle; Seattle +311 and +344), because 23 to 39% of source permits are never closed out and in SF most still read "issued" years later; dropping any permit open more than 5 years on the decision date turns that into the first deployable variant to match the complete-label model (q0.9 -0.41 days on average, cpin_es3 +1.63) and the best on the censored score over all test permits in 4 of 4; N1, N3, N5 held, N2 and N4 refuted
 
 Why: session 90's censored pinball loss closed two-thirds of the deployable model's tail gap, but its frame still dropped every permit never completed by the pull, so "open at D" meant "open at D and completed later": the model was told, in hindsight, which open permits would finish. Its "Next" asked to put them back as open rows, since a deployment on D sees them open too.
