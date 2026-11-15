@@ -205,3 +205,18 @@ test('the worked example (a specific rule shadowed by a later broad rule) matche
   assert.equal(report.shadowed.length, 1);
   assert.equal(report.shadowed[0].rule.pattern, '/src/payments/*.js');
 });
+
+test('a directory pattern without a trailing slash covers the files under it (GitHub docs examples)', () => {
+  // Quality census 2026-11-15-8354: `/apps/github` and `**/logs` matched nothing
+  // inside the directory, so the lost review requirement was reported as "unmatched".
+  assert.equal(patternMatches('/src/payments', 'src/payments/charge.js'), true);
+  assert.equal(patternMatches('/apps/github', 'apps/github/deep/x.rb'), true);
+  assert.equal(patternMatches('**/logs', 'build/logs/a.log'), true);
+  assert.equal(patternMatches('**/logs', 'deeply/nested/logs/x/y.log'), true);
+  assert.equal(patternMatches('apps', 'web/apps/index.js'), true); // unanchored: any depth
+  assert.equal(patternMatches('/src/payments', 'src/paymentsX/a.js'), false);
+  // GitHub's exception: a wildcard last segment does not reach nested files.
+  assert.equal(patternMatches('docs/*', 'docs/getting-started.md'), true);
+  assert.equal(patternMatches('docs/*', 'docs/build-app/troubleshooting.md'), false);
+  assert.equal(patternMatches('*.js', 'src/app.js'), true);
+});

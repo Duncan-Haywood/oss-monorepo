@@ -13,7 +13,8 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
-const CANDIDATE_LOCATIONS = ['CODEOWNERS', '.github/CODEOWNERS', 'docs/CODEOWNERS'];
+// GitHub searches .github/, then the root, then docs/, and uses the first it finds.
+const CANDIDATE_LOCATIONS = ['.github/CODEOWNERS', 'CODEOWNERS', 'docs/CODEOWNERS'];
 
 export function findCodeownersPath(explicit) {
   if (explicit) {

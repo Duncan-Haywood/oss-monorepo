@@ -129,7 +129,15 @@ function segmentsMatch(patternSegments, pathSegments) {
 /** Does `rawPattern` match `path` (a repo-relative path, no leading '/')? */
 export function patternMatches(rawPattern, path) {
   const pathSegments = String(path).split('/').filter((s) => s.length > 0);
-  return segmentsMatch(patternToSegments(rawPattern), pathSegments);
+  const segs = patternToSegments(rawPattern);
+  if (segmentsMatch(segs, pathSegments)) return true;
+  // gitignore semantics: a pattern that names a directory also covers every
+  // file under it, with or without a trailing '/' (GitHub's docs use
+  // `/apps/github` and `**/logs` this way). GitHub's one exception is a
+  // wildcard final segment: `docs/*` matches docs/a.md but not docs/x/a.md,
+  // so only a literal final segment extends to descendants.
+  const last = segs[segs.length - 1];
+  return last !== '**' && !/[*?]/.test(last) && segmentsMatch([...segs, '**'], pathSegments);
 }
 
 /**
