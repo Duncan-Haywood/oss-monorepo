@@ -50,6 +50,23 @@
 //    holds (no gain); (3) G's control false nasals 135: holds; (4) B 753 of 934: holds, but its nasals 95 of
 //    149 (one short) and its control false nasals 73 (not 62 or fewer): fail; (5) A 188 of 210, control 210:
 //    holds; (6), (7): hold. Kept, with (4)'s two lines failed: README "Openings on the coda murmur".
+// Nasal openings: the mouth closes, and a murmur read by its darkness (2026-11-15, README "Nasal openings:
+//    the mouth closes"). Pre-registered here and committed before any run of part G with the change.
+//    Found by reading B's 54 nasal misses (B is now a development set, like A): on 0.24 s notes the previous
+//    vowel's 50 ms cross-fade covered the first 50 ms of the 70 ms murmur, and where the murmur showed, its
+//    level against the vowel after it sat 5 dB over to 17 dB under (the five voices beat), while its tilt
+//    stayed 10-25 dB darker than both neighbours. The change: (a) render.mjs cuts the cross-fade before a
+//    nasal opening to 15 ms, as before a stop (`nasalCut`; --no-nasal-cut keeps 50 ms); (b) readOnset's
+//    nasal rule reads a frame as murmur when its tilt is DARK_BY (10) dB darker than both the vowel after it
+//    and the frame before the window, its level from 25 dB under the vowel to 6 over, its low band within
+//    15 dB (--reader-level keeps the level rule). Chosen on A and B only (darkBy 6 or 10, darkLvl 0 or 6,
+//    with and without the frame before): B 780 of 934, its nasals 123 of 149, its control's false nasals 6;
+//    A 195 of 210. (a) alone: B 761, nasals 106; A 192. (b) without the frame before (darker than the vowel
+//    after only): control false nasals 93-187, so it is part of the rule.
+//    Predictions, against main (G as last printed: 1869 of 2349, nasals 278 of 404, control false nasals
+//    135): (1) G's total 1869 or more; (2) G's nasals read exactly 320 or more of 404; (3) G's control false
+//    nasals 30 or fewer; (4) A 188 or more of 210, its control 210 of 210; (5) eval/coda-check.mjs: every
+//    part's total within 2 of main; (6) eval/vowel-check.mjs: within 2 notes of main. G's misses stay hidden.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -63,7 +80,8 @@ const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new U
 const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABGC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --reader-first: the opening reader before the "openings on the coda murmur" round (an ablation)
-const READER = args.includes('--reader-first') ? { murmurTilt: 0, nasalBar: 7 } : args.includes('--tilt-span') ? { tiltSpan: +args[args.indexOf('--tilt-span') + 1] } : {};
+// --reader-level: the opening reader before the "darker than both sides" round (its level rule; an ablation)
+const READER = args.includes('--reader-first') ? { murmurTilt: 0, nasalBar: 7, darkBy: 0 } : args.includes('--reader-level') ? { darkBy: 0 } : args.includes('--tilt-span') ? { tiltSpan: +args[args.indexOf('--tilt-span') + 1] } : {};
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -72,7 +90,7 @@ const match = (want, got) => Object.entries(want).every(([k, v]) => got[k] === v
 const mannerOk = (want, got) => want.cls === got.cls;
 
 function choir(midiBytes, sing) {
-  const r = renderMidi(midiBytes, { rate, stems: true, sing });
+  const r = renderMidi(midiBytes, { rate, stems: true, sing, nasalCut: !args.includes('--no-nasal-cut') });
   const m = parseMidi(midiBytes), sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const notes = m.notes.filter((n) => n.ch !== 9 && m.programs.get(n.ch)?.[0]?.[1] === 52).map((n) => ({ ...n, t0: sec(n.tick), t1: sec(n.end) })).sort((a, b) => a.t0 - b.t0);
   return { x: r.stems.choir.channels[0], notes };
