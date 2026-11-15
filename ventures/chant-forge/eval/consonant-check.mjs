@@ -14,6 +14,8 @@
 //    readOnset's nasal, pre-registered before the first run: A's l and j openings read as a nasal less
 //    often, A's and B's nasal openings no fewer, totals and the vowel-only control no lower. If B's
 //    nasals fall, the rule stays off for openings.
+//    Result (one run): A 183 to 174 of 210, B 743 to 728 of 934, B's nasals 96 to 64 of 149 (the vowel-only
+//    control's false nasals 123 to 23). B's nasals fell, so it stays off (readOnset `murmurTilt: 0`).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
