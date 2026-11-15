@@ -579,12 +579,46 @@ export function sampleRanks(f, { draws = RANK_DRAWS, seed = 0x51ce } = {}) {
  * draws, and its chance of being the favourite, in posterior-mode order.
  */
 export function rankTable(f, options = {}) {
-  const { ranks, top, draws } = sampleRanks(f, options);
+  return tableFromDraws(f, sampleRanks(f, options), options.shownOrder);
+}
+
+function tableFromDraws(f, { ranks, top, draws }, shownOrder) {
   const lo = Math.floor(0.05 * draws), hi = Math.min(draws - 1, Math.ceil(0.95 * draws) - 1);
-  return order(f).map((i, k) => {
+  return (shownOrder || order(f)).map((i, k) => {
     const sorted = Array.from(ranks[i]).sort((a, b) => a - b);
     return { item: i, rank: k + 1, low: sorted[lo], high: sorted[hi], favourite: top[i] / draws, score: f.mu[i] };
   });
+}
+
+/**
+ * The fit the results table is drawn from: the answers refit at the person's
+ * own prior sd (and pile noise), the stop rule's second read, so the 90% rank
+ * ranges and favourite chances stop reading answer noise as real separation.
+ * At the fixed prior the table told simulated near-coin-flip answerers (8
+ * options) their top pick had a 61% chance of being the true favourite when
+ * it was 25% of the time, and its 90% ranges held the true rank 80% of the
+ * time; a consistent person's prior sits at the ceiling and nothing changes
+ * (docs/RANK-PAGE.md, "Honest results for close calls"). Returns the fit and
+ * the fixed fit's order, which the page keeps showing (the own-prior order
+ * can differ by a swap of near-ties, and the stop rule measured that order).
+ */
+export function resultsFit(n, answers, { fixedFit, piles, steps = STOP_EB_STEPS } = {}) {
+  const f = fixedFit || fit(n, answers, piles);
+  if (!answers.length) return { fit: f, shownOrder: order(f), phi: REFIT_PRIOR_PHI, tau: null };
+  const { phi, tau } = ownPrior(n, answers, piles, steps);
+  const same = phi >= REFIT_PRIOR_PHI * 0.999 && tau === PILE_NOISE;
+  return { fit: same ? f : fitAt(n, answers, phi, piles, tau), shownOrder: order(f), phi, tau: pilePrior(piles) ? tau : null };
+}
+
+/** The results table at the person's own prior (resultsFit), rows in the order shown. */
+export function resultsTable(n, answers, options = {}) {
+  const r = resultsFit(n, answers, options);
+  return { table: rankTable(r.fit, { shownOrder: r.shownOrder }), ...r };
+}
+
+/** The person's own prior sd for their answers (the stop rule's second read; REFIT_PRIOR_PHI at most). */
+export function ownPriorPhi(n, answers, piles, steps = STOP_EB_STEPS) {
+  return answers.length ? ownPrior(n, answers, piles, steps).phi : REFIT_PRIOR_PHI;
 }
 
 /**
@@ -595,12 +629,12 @@ export function rankTable(f, options = {}) {
  * neighbour is a small Spearman loss), so unlike a "every neighbour settled"
  * rule it can be reached by a respondent who answers with ordinary noise.
  */
-export function orderConfidence(f, { draws = 400, seed = 0xc0f1 } = {}) {
+export function orderConfidence(f, { draws = 400, seed = 0xc0f1, shownOrder } = {}) {
   const n = f.n;
   if (n < 2) return 1;
   const { ranks } = sampleRanks(f, { draws, seed });
   const shown = new Array(n);
-  order(f).forEach((item, k) => (shown[item] = k + 1));
+  (shownOrder || order(f)).forEach((item, k) => (shown[item] = k + 1));
   let sum = 0;
   for (let d = 0; d < draws; d++) {
     let d2 = 0;

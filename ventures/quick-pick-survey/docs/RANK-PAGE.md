@@ -125,6 +125,90 @@ still close" on the results. Pinned by three tests in
 `site/rank-core.test.mjs`. The last one fails if `stopCheck` returns the
 fixed read alone (checked).
 
+## Honest results for close calls (2026-11-15)
+
+The stop rule rechecks at the person's own prior (above), but the results
+table did not: its 90% rank ranges and "chance of being the true favourite"
+were still drawn from the fixed-prior fit (sd 2.01 logits). For a person
+whose picks are close calls that prior reads answer noise as real
+separation, so the table was too sure exactly where it matters.
+
+**Measured** (`node scripts/rank-range-coverage.mjs`: simulated
+respondents through the page's own picker and stop rule, scored at the
+moment the page shows results; seeds from 2000, 12 per row, and from 3000,
+24 per row, in `docs/rank-range-coverage-2026-11-15.jsonl` and
+`docs/rank-range-coverage-seed3000-2026-11-15.jsonl`). Coverage is the
+share of options whose true rank sits inside its 90% range; "favourite"
+is the mean chance the table gives its top option against how often that
+option really is the favourite. Fixed prior (before) / own prior (now):
+
+| options | spread | picks (runs at cap) | 90% coverage | mean range width | favourite said / right (fixed) -> said (own) |
+|---|---|---|---|---|---|
+| 8 | 100 | 25.5 (0 of 12), seeds 2000 | 1.00 / 1.00 | 4.1 / 4.1 | 0.75 / 1.00 -> 0.75 |
+| 8 | 100 | 26 (0 of 24), seeds 3000 | 1.00 / 1.00 | 4.1 / 4.1 | 0.77 / 1.00 -> 0.77 |
+| 8 | 6 | 34.8 (1 of 12), seeds 2000 | 1.00 / 1.00 | 3.9 / 4.0 | 0.71 / 0.83 -> 0.71 |
+| 8 | 6 | 38.5 (4 of 24), seeds 3000 | 1.00 / 1.00 | 3.8 / 3.9 | 0.73 / 0.83 -> 0.72 |
+| 8 | 3 | 44.7 (9 of 12), seeds 2000 | 1.00 / 1.00 | 4.1 / 4.5 | 0.64 / 0.58 -> 0.60 |
+| 8 | 3 | 44.8 (17 of 24), seeds 3000 | 0.96 / 0.97 | 4.2 / 4.9 | 0.66 / 0.67 -> 0.59 |
+| 8 | 1.5 | 46.8 (11 of 12), seeds 2000 | 0.80 / 0.90 | 4.9 / 5.9 | 0.60 / 0.25 -> 0.49 |
+| 8 | 1.5 | 47.2 (23 of 24), seeds 3000 | 0.92 / 0.98 | 5.2 / 6.5 | 0.62 / 0.50 -> 0.46 |
+| 15 | 100 | 51.3 (0 of 12), seeds 2000 | 1.00 / 1.00 | 6.9 / 6.9 | 0.65 / 1.00 -> 0.65 |
+| 15 | 100 | 51.3 (0 of 24), seeds 3000 | 1.00 / 1.00 | 6.9 / 6.9 | 0.63 / 1.00 -> 0.63 |
+| 15 | 6 | 75.4 (0 of 12), seeds 2000 | 0.98 / 0.99 | 6.4 / 6.6 | 0.58 / 0.58 -> 0.57 |
+| 15 | 6 | 75.3 (2 of 24), seeds 3000 | 0.99 / 0.99 | 6.5 / 6.7 | 0.63 / 0.46 -> 0.62 |
+| 15 | 3 | 101.6 (7 of 12), seeds 2000 | 0.89 / 0.92 | 6.5 / 7.7 | 0.54 / 0.50 -> 0.49 |
+| 15 | 3 | 110.1 (16 of 24), seeds 3000 | 0.92 / 0.96 | 6.5 / 7.9 | 0.60 / 0.33 -> 0.53 |
+| 15 | 1.5 | 118 (12 of 12), seeds 2000 | 0.80 / 0.96 | 7.8 / 10.7 | 0.60 / 0.17 -> 0.40 |
+| 15 | 1.5 | 108 (19 of 24), seeds 3000 | 0.81 / 0.89 | 7.6 / 9.8 | 0.56 / 0.29 -> 0.40 |
+| 25 | 100 | 91 (0 of 12), seeds 2000 | 1.00 / 1.00 | 10.8 / 10.8 | 0.58 / 1.00 -> 0.58 |
+| 25 | 6 | 116.8 (0 of 12), seeds 2000 | 0.96 / 0.97 | 10.3 / 10.6 | 0.58 / 0.50 -> 0.57 |
+| 25 | 3 | 191.3 (5 of 12), seeds 2000 | 0.85 / 0.89 | 9.6 / 11.4 | 0.51 / 0.42 -> 0.44 |
+| 25 | 1.5 | 202.6 (8 of 12), seeds 2000 | 0.70 / 0.83 | 10.9 / 15.3 | 0.56 / 0.00 -> 0.37 |
+
+Consistent answerers (spread 100) get exactly the same table: their own
+prior sits at the ceiling, so nothing is refit (pinned by a test). For
+near-coin-flip answerers the ranges now hold the true rank about as often
+as they claim (80-81% to 89-96% at 15 options), and the favourite chance comes
+down towards how often it is right. At 25 options and spread 1.5 the ranges
+still fall short (0.70 to 0.83). **Not fixed:** the favourite chance
+still overclaims for ordinary answerers on 15 options on one seed set (63%
+said, 46% right on the 3000 seeds; 58% / 58% on the 2000 seeds), where the own prior barely differs from the fixed one;
+the likeliest cause is the Gaussian (Laplace) posterior's tails rather than
+the prior (untested; a sampled posterior is the next read to try). Consistent answerers are
+told 58-77% when the favourite is always right: the model allows for
+lapses, the same conservatism as the stop rule's.
+
+**What changed** (`resultsTable` in `site/rank-core.mjs`): the results
+table, the verdict's favourite chance and the CSV are drawn from the
+answers refit at the person's own prior sd and pile noise (the stop rule's
+second read, `ownPrior`), with the rows kept in the fixed fit's order (the
+order the stop rule measured; the two can differ by a swap of near-ties).
+When the own prior is narrower than the fixed one the verdict adds "Many of
+your picks were close calls, so the ranges and chances below allow for
+that." The search costs one empirical-Bayes fit when results are shown (64
+to 330 ms, "Noisy answerers"). The shortlist percentages in top-k mode and
+the favourite mode's own stop (`favourite >= 0.9` at the fixed prior) are
+unchanged and unmeasured here.
+
+**Rejected: averaging over the prior sd.** Weighing a grid of six prior sds
+by the answers' evidence (`scripts/phi-mixture.mjs`) widened the ranges
+further, but for consistent answerers too (25 options, never wrong: mean
+width 10.8 to 17.8 places, favourite said 40% when right 100%). As a stop
+rule it cost consistent answerers 20-40% more picks (8 options: 25.7 to
+31.3; 25 options, spread 6: 110 to 170) for a smaller overclaim at 15 x 1.5
+(0.17 to 0.11): `docs/rank-stop-mixture-2026-11-15.jsonl`, 10 of the 12
+cells (the 25 x 3 and 25 x 1.5 cells were stopped unfinished).
+
+**Checks.** Two tests in `site/rank-core.test.mjs`: a consistent chain's
+results table equals the fixed-prior table; a simulated near-coin-flip
+respondent (15 options, spread 1.5, 118 picks) gets wider ranges and a
+lower favourite chance with rows in the fixed order (fails with
+`resultsFit` returning the fixed fit, checked). Browser (Playwright,
+390 px, 8 options): a consistent respondent finished in 25 picks with "75%
+chance" and no note; a coin-flipping one ran to the 48-pick cap and read
+"26% chance ... Many of your picks were close calls", ranges 1-7 and 1-8;
+no console errors.
+
 ## Favourite mode: more questions, not fewer
 
 The page first offered "Just find the favourite (fewer questions)". Measured
@@ -163,9 +247,10 @@ top pick's chance.
 - A real person's answers: none yet. The page counts anonymous local events
   only (`site/usage.mjs`); site page views come from the shared beacon.
 - Team combine's tau read low until the Laplace fix; see "Team ranges", "Laplace, not PQL".
-- `orderConfidence` overstates certainty for very noisy respondents on short
-  lists (table above); a lapse-aware prior or the app's `lapseEstimate` could
-  correct it.
+- `orderConfidence` overstated certainty for very noisy respondents; the
+  stop rule's second check ("Noisy answerers") and the own-prior results
+  table ("Honest results for close calls") correct most of it. The
+  favourite chance still overclaims for ordinary answerers on 15 options.
 
 ## Team ranges (2026-11-14)
 

@@ -14,6 +14,7 @@
 // order then shown and the respondent's real order.
 import { writeFileSync } from "node:fs";
 import { fit, nextPair, order, orderConfidence, suggestedMax, STOP_CONFIDENCE, fitAt, stopCheck } from "../site/rank-core.mjs";
+import { mixedStopCheck } from "./phi-mixture.mjs";
 
 const args = process.argv.slice(2);
 const opt = (k, d) => (args.includes(k) ? args[args.indexOf(k) + 1] : d);
@@ -52,6 +53,8 @@ const RULES = (opt("--rules", "fixed,eb,hold3,phi1")).split(",");
 const makeRule = (name) => {
   if (name === "fixed") return () => (n, answers, g, cf) => ({ done: cf >= STOP_CONFIDENCE, confidence: cf });
   if (name === "eb") return () => (n, answers, g, cf) => stopCheck(n, answers, { fixedFit: g, fixedConfidence: cf });
+  if (name === "mix") return () => (n, answers, g, cf) => mixedStopCheck(n, answers, { fixedFit: g, fixedConfidence: cf });
+  if (name === "mixs") return () => (n, answers, g, cf) => mixedStopCheck(n, answers, { fixedFit: g, fixedConfidence: cf, evidence: "sampled" });
   if (name.startsWith("hold")) {
     const k = Number(name.slice(4));
     return () => { let streak = 0; return (n, answers, g, cf) => { streak = cf >= STOP_CONFIDENCE ? streak + 1 : 0; return { done: streak >= k, confidence: cf }; }; };

@@ -309,19 +309,19 @@ flagships:
       (RANK-PAGE.md "Find my top k"): exact shortlist 54/96 vs 25/96 (ordinary,
       15-30 options, 1.6x picks); since 2026-11-14 (k2) a link carries the mode and
       k (RANK-PAGE.md "Shortlist links"), the picks page tables it, 3 ready lists
-      link top 3. Decide: DECIDE-PAGE.md. Piles first (RANK-PAGE.md "Sort into piles
-      first"): 20 options 64/87/120 actions by sort care vs 93. Phone: landscape
-      pairs stack (135x90 to 299x199 px); "Look closer" flips a pair full screen,
-      shared zoom (RANK-PAGE.md "Pictures on a phone"). Next: (r) read which draw
-      visits, then (c) the first real survey's answers: msToAnswer against the
-      answer-time model, panelWalkRatio on real times, whether times depend on which
-      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
-      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
-      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bounded
-      turn measured, not shipped (selector doc 2026-11-15); on real times, count
-      back moves it backs; (bw) answer times in codes (RANK-PAGE.md "Answer times"):
-      read real s/screen vs s/pick; (h) share-drop beat both pace cuts at q = 1 but
-      taxes a camp by up to 0.030: decide on a real panel's times.
+      link top 3. Decide: DECIDE-PAGE.md. Results at the own prior (RANK-PAGE.md
+      "Honest results for close calls"). Next: (fv) favourite chance overclaims for
+      ordinary answerers on 15 options (one seed set 63% said, 46% right): a sampled
+      posterior; (r) read which draw visits, then (c) the first real survey's
+      answers: msToAnswer against the answer-time model, panelWalkRatio on real
+      times, whether times depend on which slot is clicked (the d9 bound assumes
+      not), whether real people have warm-ups, blocks, slot runs or spread-out
+      carelessness, and how noisy real pairwise answers are
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bounded turn measured,
+      not shipped (selector doc 2026-11-15); on real times, count back moves it
+      backs; (bw) answer times in codes (RANK-PAGE.md "Answer times"): read real
+      s/screen vs s/pick; (h) share-drop beat both pace cuts at q = 1 but taxes a
+      camp by up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
