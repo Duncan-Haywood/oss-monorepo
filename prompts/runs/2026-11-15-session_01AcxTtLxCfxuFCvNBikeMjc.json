@@ -15,25 +15,55 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: a time cap on the second-call-out price's pair pass, so it can run past 120 shift copies",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16147",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "A shell heredoc patch was refused by the rm-safety parser (no rm in it); rewrote it as a Python file via Write.",
+    "First eval run shared the CPU with the full test suite and used a clock that skipped the starting walks; killed and rerun clean, plus a caps-only rerun on the shipped clock."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
-  "goal": null,
-  "notes": "",
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Picked changepoint-detector for this session id; another session opened its claim PR 9 seconds earlier (claim_check said YIELD). Lost one rename and one claim check, which is cheap, but the pick-by-session-id collided anyway."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder next: sits at 1978-1994 of 2000 characters, so replacing a landed item with its follow-up took three tries with flagship_field.py; the leading 'Landed work ...' clause can't be trimmed automatically."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row (changepoint-detector) was claimed by an older open PR #16146",
+      "did": "Renamed my claim PR to row 4, shift-roster-builder, which had no PR in the last 24 h",
+      "result": "HOLD from claim_check; landed a slice there"
+    },
+    {
+      "file": "ventures/shift-roster-builder/README.md (Next item)",
+      "why": "The item asked for a time cap 'so the price can run past 120 copies'. The measurement showed a cap keeps 0-22% of the gain on the 121-149 copy weeks.",
+      "did": "Shipped the cap as a worst-case bound (10 s) and kept the 120-copy cap",
+      "result": "No measured loss under 120 copies; the 60-person week's 88 s no-move search is bounded; the next item is rewritten to 'find the gain sooner'"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-time-cap-gain-comes-late.md",
+    "ventures/shift-roster-builder/README.md#a-time-cap-on-the-pair-price-2026-11-15-later"
+  ],
+  "goal": "flagship depth",
+  "notes": "Anytime curve recorded with an onMove hook: 20x56 wk2 4 moves by 1.5 s; 30x84 wk0 first move at 80 s, done at 282-302 s; 40x112 wk0 11 moves, 78% of the gain at 11-19 s; 60x168 wk0 0 moves in 88 s. Capped runs on the shipped clock ended 0.0-0.2 s past their limit (eval/pair-timecap-caps.out.txt), and every capped roster was a prefix of the uncapped one. A profile on 30x84 put the first 88 s into 105 pair walks over 89,910 pairs (89 cut off). Verification: run_venture_tests.py shift-roster-builder and venture-preflight; outputs below.",
   "corrections": [],
   "redteam": null
 }

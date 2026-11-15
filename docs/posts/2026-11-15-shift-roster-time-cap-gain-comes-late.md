@@ -1,6 +1,6 @@
 ---
 title: "A time cap that holds, and why it didn't buy what I wanted"
-seo_title: "Anytime local search in shift scheduling: a time cap and a late-arriving gain"
+seo_title: "Anytime search in shift scheduling: a time cap and a late gain"
 date: 2026-11-15
 tags: [scheduling, shift-roster-builder, search, operations-research]
 description: "The second-call-out price in Shift Roster Builder now stops at a time limit and keeps the moves it made. On the bigger weeks the moves worth having came last."
