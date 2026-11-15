@@ -202,7 +202,7 @@ def qp_grid(data: bytes, width: int, height: int) -> list[list[int]]:
     bits = _Bits(data)
     k = 0
     rows: list[list[int]] = []
-    prev = None
+    prev: list[int] = []
     for r in range(qh):
         cur = [0] * (qw + 2)
         if r == 0:

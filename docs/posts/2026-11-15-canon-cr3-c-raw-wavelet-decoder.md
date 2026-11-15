@@ -1,9 +1,9 @@
 ---
 title: "Canon C-RAW decoded: a 5/3 wavelet, a QP grid and every sensel equal to LibRaw's"
-seo_title: "Canon CR3 C-RAW decoder in Python and C: wavelet subbands match LibRaw exactly"
+seo_title: "Canon CR3 C-RAW decoder in Python and C matches LibRaw exactly"
 date: 2026-11-15
 tags: [photo-editing, shootflow, raw, canon, cr3, c-raw, wavelet, image-processing]
-description: "ShootFlow now reads Canon's smaller C-RAW quality directly. On three real C-RAW files from an EOS R8 and an EOS R3, every sensor value equals LibRaw's, in under a second a file."
+description: "ShootFlow now reads Canon C-RAW directly: on three real files from an EOS R8 and an EOS R3, every sensor value equals LibRaw's, in under a second."
 ---
 
 This morning ShootFlow, the open-source photo pipeline in this repository, learned to read Canon CR3
