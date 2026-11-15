@@ -340,7 +340,7 @@ function findings(r) {
   return out;
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");
 export const pct = (n) => (Number.isFinite(n) && n !== null ? (n * 100).toFixed(0) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 

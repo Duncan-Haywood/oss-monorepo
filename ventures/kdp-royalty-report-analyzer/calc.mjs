@@ -205,7 +205,7 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
   return { rows, skipped, columns: cols, dmy };
 }
 
-const fmt = (n) => (n < 0 ? "-" : "") + Math.abs(n).toFixed(2);
+const fmt = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toFixed(2));
 const p1 = (x) => (x * 100).toFixed(1) + "%";
 const blankT = (k, label) => ({ key: k, label, sold: 0, refundUnits: 0, netUnits: 0, freeUnits: 0, royalty: 0, kenp: 0, costTotal: 0 });
 
@@ -304,7 +304,7 @@ function findings({ summary: s, byTitle, byMarket, band, ads }) {
   return out;
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 

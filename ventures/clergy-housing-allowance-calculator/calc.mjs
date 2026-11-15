@@ -108,7 +108,7 @@ export function plan(input) {
   };
 }
 
-export const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 // A resolution for the governing body to adopt BEFORE the year (or before the new designation takes effect). Placeholders in brackets.
 export function resolution(r, opts = {}) {

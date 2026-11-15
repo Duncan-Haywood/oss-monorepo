@@ -125,7 +125,7 @@ const MONTH = 30.4375 * 86400000;
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 const norm = (s) => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const money = (n) => Math.round(n).toLocaleString("en-US");
 export const pct = (x) => Math.round(x * 100) + "%";
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);

@@ -345,7 +345,7 @@ export function reportCsv(r) {
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 
-export const money = (v) => (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(v)).toLocaleString("en-US"));
 export const money2 = (v) => (v === null || v === undefined ? "n/a" : "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 export const pct = (v, d = 1) => (v === null || v === undefined ? "n/a" : (v * 100).toFixed(d) + "%");
 export const yrs = (v) => (v === null || v === undefined ? "never" : v.toFixed(1) + " years");

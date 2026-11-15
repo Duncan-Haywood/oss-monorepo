@@ -34,7 +34,7 @@ export function num(v) {
 export function money(v) {
   if (!Number.isFinite(v)) return "n/a";
   const r = Math.round(v);
-  return (r < 0 ? "-$" : "$") + Math.abs(r).toLocaleString("en-US");
+  return ((t) => (r < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(r).toLocaleString("en-US"));
 }
 
 export const pct = (v) => (Number.isFinite(v) ? (v * 100).toFixed(1) + "%" : "n/a");

@@ -21,7 +21,7 @@ export function num(v) {
 
 export function money(n) {
   if (!Number.isFinite(n)) return "—";
-  return (n < 0 ? "-$" : "$") + Math.round(Math.abs(n)).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(n)).toLocaleString("en-US"));
 }
 
 export function percent(x) {

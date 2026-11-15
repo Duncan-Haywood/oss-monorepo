@@ -319,7 +319,7 @@ export function analyze(rows, items = [], { costs = {}, returnsResellable = true
   return { summary, listings: listingList, months: monthList, findings: findings(summary, listingList, monthList) };
 }
 
-const $ = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+const $ = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 const P = (x, d = 1) => (x * 100).toFixed(d) + "%";
 
 function findings(s, list, months) {
@@ -438,7 +438,7 @@ export function sampleData() {
   const itHead = "Sale Date,Item Name,Buyer,Quantity,Price,Coupon Code,Discount Amount,Order Shipping,Order Sales Tax,Item Total,Currency,Listing ID,Order ID,SKU";
   const st = [stHead], it = [itHead];
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
-  const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+  const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
   const rows = (date, type, title, info, amount, feesTaxes, net) =>
     st.push([q(date), type, q(title), info, "USD", money(amount), feesTaxes ? money(feesTaxes) : "--", money(net), "--"].join(","));
   const names = ["June", "July", "August", "September"];

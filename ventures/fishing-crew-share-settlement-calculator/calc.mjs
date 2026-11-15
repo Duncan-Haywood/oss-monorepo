@@ -9,7 +9,7 @@ export function num(v) {
   return Number.isFinite(n) ? n : NaN;
 }
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 
 function splitCsv(line) {
   const cells = [];

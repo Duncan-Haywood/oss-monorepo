@@ -8,8 +8,8 @@ export function num(v) {
   const n = typeof v === "number" ? v : parseFloat(String(v ?? "").replace(/[$,%\s]/g, ""));
   return Number.isFinite(n) ? n : NaN;
 }
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
-export const money2 = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
+export const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
 
 export const DEFAULTS = {
   acres: 40, tonsPerAcreCut: 1.5, cuts: 2, baleWeightLb: 850,

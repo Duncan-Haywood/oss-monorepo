@@ -28,8 +28,8 @@ export const EXAMPLE_SHARED = {
   defaultRate: "28",
 };
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
-export const money2 = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 }));
+export const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
 
 const num = (t) => {
   const s = String(t ?? "").replace(/[$\s,]/g, "");

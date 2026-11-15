@@ -24,7 +24,7 @@ export const MAX_ROWS = 200;
 const DAY = 86400000;
 
 export const money = (v) =>
-  (v < 0 ? "-" : "") + "$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 export function parseDate(s) {
   const t = String(s ?? "").trim();

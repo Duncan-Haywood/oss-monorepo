@@ -227,7 +227,7 @@ export function analyze(events, { windowDays = 14, uplift = 0.1 } = {}) {
   return { summary, cases, byReason, byCategory, byAttempts, byMonth, whatIf, findings, topLost: lostSorted.slice(0, 5) };
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(1)}%`; }
 
 // Deterministic synthetic data so the example, the tests and the docs agree.

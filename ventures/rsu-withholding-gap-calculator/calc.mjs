@@ -44,7 +44,7 @@ const statusOf = (s) => (BRACKETS[s] ? s : "single");
 
 export function money(n) {
   const v = Math.round(n * 100) / 100;
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 export function incomeTax(taxable, status) {

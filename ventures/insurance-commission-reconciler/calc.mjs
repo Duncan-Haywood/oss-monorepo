@@ -122,7 +122,7 @@ export function parseDate(s) {
   return Math.round(dt.getTime() / DAY);
 }
 export const isoDay = (n) => new Date(n * DAY).toISOString().slice(0, 10);
-export const dollars = (cents) => (cents < 0 ? "-" : "") + "$" + (Math.abs(cents) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const dollars = (cents) => ((t) => (cents < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + (Math.abs(cents) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 export const pct = (f) => (Math.round(f * 10000) / 100).toString().replace(/\.0+$/, "") + "%";
 const monthStart = (n) => { const d = new Date(n * DAY); return Math.round(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1) / DAY); };
 const monthEnd = (n) => { const d = new Date(n * DAY); return Math.round(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0) / DAY); };

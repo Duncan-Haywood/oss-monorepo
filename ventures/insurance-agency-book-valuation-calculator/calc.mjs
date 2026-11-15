@@ -9,7 +9,7 @@
 // horizon. An offer is a multiple of annual revenue, part paid at close and
 // the rest held back and scaled down if retention misses the agreed level.
 
-export const money = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (v < 0 ? "-" : "") + "$" + Math.round(Math.abs(v)).toLocaleString("en-US"));
+export const money = (v) => (v == null || !Number.isFinite(v) ? "n/a" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(v)).toLocaleString("en-US")));
 export const pct = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (Math.round(v * 1000) / 10) + "%");
 export const mult = (v) => (v == null || !Number.isFinite(v) ? "n/a" : (Math.round(v * 100) / 100) + "x");
 
