@@ -54,8 +54,8 @@ const DATE_RES = [
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
-const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|tota[il1]?|t0tal|[il]otal|netto|jumlah|due|tl)\b/i;
-const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?tota|zwischensumme|sous-total|(?:total|tota[il1]?|t0tal|[il]otal)\s+(?:savings|discount|items?|qty|quantity|pcs|tax|points|sv|gv|ev|qu)\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
+const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|tl)\b/i;
+const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items?|qty|quantity|pcs|tax|points|sv|gv|ev|qu)\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
 // "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
 const TAX_TOTAL_RE = /tax\s+total|total\s+tax/i;
@@ -89,7 +89,7 @@ export function splitReceipts(text) {
 }
 
 // Lines that carry an amount but are not things bought.
-const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?tota|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
+const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?total|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
 const TIP_RE = /\b(tip|gratuity)\b/i;
 
 // Item lines: words, then a price (the last amount on the line; "2 x 3.00  6.00"

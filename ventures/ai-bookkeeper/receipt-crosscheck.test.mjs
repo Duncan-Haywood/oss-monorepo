@@ -175,14 +175,6 @@ test("no total line: the card line's amount, before the largest amount on the pa
   assert.equal(parseReceipt("GARISH PC 259.000\n259.000\nTotal Rp\n[1] BCA DEBIT -259,000\nTotal Qty 2").cents, 25900000);
 });
 
-test("a TOTAL with its last letter clipped or misread is still a total line, and still not a quantity", () => {
-  assert.equal(parseReceipt("DINER\nBurger 9.80\nFries 8.00\nTota 17.80\nCash 20.00").cents, 1780); // SRD 1038
-  assert.equal(parseReceipt("DINER\nTOTAI 17.80\nCash 20.00").cents, 1780);
-  assert.equal(parseReceipt("DINER\nSub Tota 15.00\nTax 1.00\nTotal 16.00").cents, 1600);
-  // "TOTAI QTY 1" counts items (CORD train-286)
-  assert.equal(parseReceipt("1 Hokkaido 14,000\nSUBTOTAL 14.000\nDUE 14,000\nBCA: 14,000\nTOTAI QTY 1").cents, 1400000);
-});
-
 // --four-pass (CLI): the photo twice and an ImageMagick grey copy at 2,000 px twice.
 test("--four-pass reads a small photo four times (enlarged copy last), a big one four times (shrunk copy first), and skips the copy without ImageMagick", async () => {
   const { receiptPassesFromFile } = await import("./ocr.mjs");

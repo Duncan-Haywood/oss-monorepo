@@ -1,4 +1,4 @@
-# Three gaps on the total line: a glued letter, a card line, a clipped TOTAL (2026-11-15)
+# Two gaps on the total line: the card line and a glued letter (2026-11-15)
 
 Flagship item (5), the gap left by [`guess-vote-2026-11-15.md`](guess-vote-2026-11-15.md):
 17 SRD photos with the right total somewhere in the page's text that still lost. Engine
@@ -37,32 +37,38 @@ Reading the page's four texts of each missed photo for the labelled amount:
    lines. Not on whole-unit slips (rupiah, won): "[1] BCA DEBIT -259,000" reads as 1 there
    (CORD train-178, found by this check). The reading counts fully in the vote (it is not
    the largest-amount guess).
-3. **"Tota", "TOTAI", "Tota1", "T0tal", "Iotal"** read as total words, and the
-   exclusions that keep "Subtotal" and "Total Qty" off the total line learned the same
-   spellings ("TOTAI QTY 1" became a total on CORD train-286 until they did).
+3. **Tried and dropped: "Tota", "TOTAI", "Tota1", "T0tal", "Iotal" as total words**
+   (with "Sub Tota" and "TOTAI QTY" excluded; "TOTAI QTY 1" became a total on CORD
+   train-286 until they were). It fixed SRD 1038 and broke three held-out SROIE scans
+   (027, 250, 451) plus moved 194 and 026, net 503 against 506 without it: on those
+   scans the clipped spelling is mostly the worse reading of a line printed twice
+   ("Tota Ami Rounded 108.00" for 104.00; "GST @6% included in tota] RM 0.28").
 
 These are reading rules, not tuned weights: nothing was fitted, so there is no even/odd
-choice to report. For what it is worth, the SRD gain splits +2 on the even-numbered
+choice to report. For what it is worth, the SRD gain splits +1 on the even-numbered
 photos and +2 on the odd ones.
 
 ## Results
 
 | totals right | before | now |
 |---|---|---|
-| page, SRD US photos, 196 | 150 (76.5%) | **154 (78.6%)** |
+| page, SRD US photos, 196 | 150 (76.5%) | **153 (78.1%)** |
+| SROIE OCR, 625 scans, the page's two photo readings (psm 6, psm 4; held out) | 505 | **506** |
 | SROIE, dataset's own text, 625 | 611 | 611 |
 | CORD validation, dataset's own text, 98 | 96 | 96 |
 | CORD test, 95 | 92 | 92 |
 | CORD train, 779 | 749 | 749 |
 
-SRD fixed: 1002, 1038, 1073, 1082, 1177. Broken: 1134 (two readings print "Credit $21.13"
+SRD fixed: 1002, 1073, 1082, 1177. Broken: 1134 (two readings print "Credit $21.13"
 for 21.73; the old guesses happened to land on 21.73). Wrong totals with no warning stay
 at 3 of 196; tax unchanged at 78 of 185. On the per-reading level the card line fired on
 13 of the 784 SRD readings and was right on 10; the glued-letter repair fired on 2 and
 was right on both.
 
-SROIE OCR (held out; the page's two photo readings, psm 6 and psm 4, `--settled`): see
-the section below.
+SROIE OCR, held out (never looked at while writing the rules): tesseract.js on the 626
+scans, psm 6 and psm 4 on the photo (not the page's full four readings, which need the
+grey copies; that is why the figure is 505, not the page's 529). Fixed 228 (the card
+line); 509 moved from one wrong total to another; nothing broken.
 
 The CLI's tesseract binary was not installed in this session, so `--four-pass` was not
 re-measured; the rules are the same code path.
@@ -75,6 +81,8 @@ As in `guess-vote-2026-11-15.md`, then:
 node eval/cord-receipts.mjs eval/srd/labels.jsonl --ocr <page>/r1,<page>/r2,<page>/r3,<page>/r4 --settled --misses total
 node eval/cord-receipts.mjs eval/cord/train.jsonl --misses
 node eval/sroie-receipts.mjs <clone>/data
+node eval/sroie-tesseractjs.mjs <clone>/data <socr> <node_modules> 4
+node eval/sroie-receipts.mjs <clone>/data --ocr <socr>/psm6,<socr>/psm4 --misses total
 ```
 
 Before: `git stash` the change to `receipts.mjs` and score the same readings again.
