@@ -1554,9 +1554,23 @@ the CLI and both decoders.
 
 Not done: colour is only as good as the profile you supply (no profile ships here); none of the
 seven real files has a non-zero split row, so the after-split tables are checked on synthetic files
-only; masked columns LibRaw trims by a per-model table are developed (D800E: 7,424 stored, 7,378
-visible); Nikon's high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to
+only; Nikon's high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to
 convert to DNG.
+
+### The edge columns that hold no picture (2026-11-15)
+
+Five of the seven bodies store columns at the right edge that are not picture: optically masked
+sensels, then padding of one value (D800E: 46 of 7,424, ending in a column of 16,382 and thirty of
+1). Developed whole, a D800E came out with a grey band, a white line and fifteen black columns down
+its right side. Nothing in a NEF marks the edge, and dcraw and LibRaw trim by a per-model table, so
+`nef.masked_margins` reads it from the sensels: a picture column varies as much as a tenth of the
+middle of the frame and moves with its same-colour neighbour two columns in (correlation 0.8 or
+more); a masked or padding column does neither. The result becomes the ActiveArea, and the report's
+notes say how many columns were left out. Against LibRaw's table: seven of seven bodies equal
+(D800E 46, D300 32, D5100 44, D90 42, D70 1, D200 2 left and 3 right, D810 none). Run on the picture
+alone at 0, 3 and 6 stops under, it cut nothing in 21 of 21 cases; on a very dark frame it keeps a
+margin rather than guess. `eval/nikon-nef-visible-area-2026-11-15.md`, `tools/nef_libraw_check.py`
+(now gates on the visible area too), `tests/test_nef.py` `VisibleAreaTests`.
 
 ## The CR2 brightness gap was the check (2026-11-12)
 

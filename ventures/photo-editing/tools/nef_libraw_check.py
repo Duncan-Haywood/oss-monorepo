@@ -7,7 +7,10 @@ LibRaw through ``rawpy``:
 * every sensel of the stored sensor against LibRaw's ``raw_image``;
 * the as-shot white balance (R/G, B/G) against ``camera_whitebalance``;
 * the per-channel black level against ``black_level_per_channel``;
-* the CFA pattern against ``raw_pattern``.
+* the CFA pattern against ``raw_pattern``;
+* the visible area (the ActiveArea ``masked_margins`` finds from the sensels)
+  against LibRaw's ``sizes`` (left margin and width, which LibRaw takes from
+  a per-model table).
 
 Usage (from ``ventures/photo-editing``)::
 
@@ -15,10 +18,11 @@ Usage (from ``ventures/photo-editing``)::
     PYTHONPATH=src /tmp/v/bin/python tools/nef_libraw_check.py FILE.NEF [...] [--engines native,python]
 
 Prints one JSON line per file and exits 1 if any sensel, the balance, the
-black level or the CFA differs (the white level is reported, not gated: LibRaw
+black level, the CFA or the visible area differs (the white level is reported, not gated: LibRaw
 takes some bodies' from a per-model table). Real files used on 2026-11-14: the
 seven NEFs in drewnoakes/metadata-extractor-images (``nef/``),
-``eval/nikon-nef-reader-2026-11-14.md``.
+``eval/nikon-nef-reader-2026-11-14.md``; visible area added 2026-11-15,
+``eval/nikon-nef-visible-area-2026-11-15.md``.
 """
 
 from __future__ import annotations
@@ -63,12 +67,17 @@ def check(path: Path, engines: list[str]) -> dict:
     pat = e[rd.TAG_CFA_PATTERN]
     out["cfa_ours"] = "".join(CFA_NAMES[p] for p in pat)
     out["cfa_libraw"] = "".join(CFA_NAMES[int(p)] for p in lib.raw_pattern.ravel())
+    top, left, bottom, right = (int(v) for v in e[rd.TAG_ACTIVE_AREA])
+    sz = lib.sizes
+    out["visible_ours"] = [left, right - left, bottom - top]
+    out["visible_libraw"] = [int(sz.left_margin), int(sz.width), int(sz.height)]
     out["white_ours"], out["white_libraw"] = int(e[rd.TAG_WHITE_LEVEL][0]), int(lib.white_level)
     out["ok"] = (
         all(out[f"sensels_differing_{en}"] == 0 for en in engines)
         and ours_wb == lib_wb
         and out["black_ours"] == out["black_libraw"]
         and out["cfa_ours"] == out["cfa_libraw"]
+        and out["visible_ours"] == out["visible_libraw"]
     )
     return out
 
