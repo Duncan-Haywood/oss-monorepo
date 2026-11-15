@@ -152,7 +152,7 @@ def fresh_cells():
 
 def cells():
     for c in U.cells():
-        yield dict(c, fresh=False)
+        yield dict(c, fresh=False, prev=sum(c["h"]) / len(c["h"]))
     yield from fresh_cells()
 
 

@@ -680,3 +680,30 @@ def test_j_lower_bound_of_7at():
     assert abs(W.j_lower(y, f, 0.0) - A.informedness(y, f)) < 1e-12
     assert W.j_lower(y, f, 1.645) < W.j_lower(y, f, 1.0) < W.j_lower(y, f, 0.0)
     assert W.j_lower([0] * 50, [1] * 5 + [0] * 45, 1.0) == -1.0
+
+
+def test_rare_fallback_is_off_by_default_and_is_wilson_on_the_labels():
+    """LOG.md 7av: rare_fallback=m closes a pooled plan with under m audited positives by a Wilson interval on the
+    labels alone; off by default, so the shipped interval is unchanged."""
+    from llmci import audit_design as S
+    rng = random.Random(7)
+    y, f = corpus(4000, 0.003, 0.6, 0.97, rng)
+    plan = {"design": "pooled", "cells": [list(range(4000))]}
+    z, fired = 1.959964, 0
+    for seed in range(30):
+        aud = random.Random(seed).sample(range(4000), 400)
+        labels = {i: y[i] for i in aud}
+        x, a = sum(labels.values()), 400
+        base = S.audit_interval(plan, f, labels)
+        assert S.audit_interval(plan, f, labels, rare_fallback=None) == base
+        est, lo, hi = S.audit_interval(plan, f, labels, rare_fallback=5)
+        assert est == base[0]
+        if x < 5:
+            fired += 1
+            q = x / a
+            mid = (q + z * z / (2 * a)) / (1 + z * z / a)
+            half = z * math.sqrt(q * (1 - q) / a + z * z / (4 * a * a)) / (1 + z * z / a)
+            assert abs(lo - max(0.0, mid - half)) < 1e-12 and abs(hi - (mid + half)) < 1e-12 and lo <= q <= hi
+        else:
+            assert (est, lo, hi) == base
+    assert fired >= 10  # about 1.2 expected positives per audit, so the fallback is exercised
