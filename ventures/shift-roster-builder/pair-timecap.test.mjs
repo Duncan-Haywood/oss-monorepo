@@ -37,22 +37,31 @@ test("with no limit hit the capped pass is the uncapped pass; a stop between mov
   assert.ok(J(cut) < J(none) - 1e-6 && J(cut) >= J(full) - 1e-6);
 });
 
-test("a limit already spent posts the starting roster, with the starting pair hours whole", () => {
-  const r = coverSlackPass(ctx, start, { ...P, pairMs: 1 });
-  // 1 ms is far under the first move here (about 0.4 s on one machine), so nothing is taken.
+test("a limit spent before the starting count finishes posts the starting roster, unpriced", () => {
+  // Jump the clock as soon as the pass starts: the starting roster's own pair walks cannot finish.
+  const realNow0 = Date.now;
+  let calls = 0, r;
+  try {
+    Date.now = () => (++calls > 1 ? realNow0() + 1e9 : realNow0());
+    r = coverSlackPass(ctx, start, { ...P, pairMs: 60000 });
+  } finally { Date.now = realNow0; }
   assert.equal(r.pairTimedOut, true);
+  assert.equal(r.pairStartTimedOut, true);
   assert.equal(r.moves, 0);
   assert.deepEqual(r.owner, start);
-  const none = coverSlackPass(ctx, start, { ...P, rounds: 0 });
-  assert.equal(r.pairHoursBefore, none.pairHours);
-  assert.ok(Number.isFinite(r.pairHours));
+  assert.equal(r.pairHours, null);
+  assert.equal(r.pairHoursBefore, null);
 });
 
 test("buildRoster passes --second-callout-seconds through and the slack line says the search stopped", () => {
   const res = buildRoster(staff, slots, { ...O, seed: 1, coverPrice: 25, coverPairPrice: 1, coverPairMs: 1 });
   assert.equal(res.coverSlack.pairTimedOut, true);
   assert.equal(res.coverSlack.pairMs, 1);
-  assert.match(coverSlackText(res.coverSlack), /stopped at its \S+ s limit and kept the moves it had made/);
+  // 1 ms: the starting pair count itself runs out of time, so the week is priced on single call-outs only, and says so.
+  assert.equal(res.coverSlack.pairStartTimedOut, true);
+  assert.match(coverSlackText(res.coverSlack), /Second call-outs were not priced: counting the pairs on this week took longer than/);
+  const mid = { ...res.coverSlack, pairStartTimedOut: false, pairHours: 100, pairHoursBefore: 120, pairPrice: 1, pairMs: 10000 };
+  assert.match(coverSlackText(mid), /stopped at its 10 s limit and kept the moves it had made/);
   const plain = buildRoster(staff, slots, { ...O, seed: 1, coverPrice: 25 });
   assert.equal(plain.coverSlack.pairTimedOut, false);
   assert.doesNotMatch(coverSlackText(plain.coverSlack), /limit/);

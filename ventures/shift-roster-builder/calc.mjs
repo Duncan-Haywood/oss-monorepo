@@ -1718,8 +1718,10 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   // confirmed gain on its own, so stopping between moves posts a roster no worse than the one it started from and keeps
   // every move made so far. Once `pairMs` has passed since the pass began, the pass takes no new move and ends; a walk under way is
   // cut off (coverPairRisk's `deadline`) and its move refused. `pairTimedOut` says so; with no pair price there is no cap.
-  // The clock starts after the starting roster's own walks, so the pair hours reported before the pass are always whole.
-  let pairDeadline = Infinity;
+  // The clock starts with the pass, so the starting roster's own walks count too (8.5 s of them on the seeded 30-person week 0,
+  // eval/pair-timecap.out.txt). If those run out of time there is no whole count to price against: the pass posts the starting
+  // roster with `pairHours` null and `pairTimedOut` true.
+  const pairDeadline = pairPrice > 0 && Number.isFinite(pairMs) ? Date.now() + Math.max(0, pairMs) : Infinity;
   let pairTimedOut = false;
   const outOfTime = () => pairTimedOut || (pairDeadline !== Infinity && Date.now() > pairDeadline && (pairTimedOut = true));
   let owner = owner0.slice();
@@ -1767,8 +1769,10 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   pairF = pairFull(owner, strict || risk);
   keepCases();
   const pairBefore = pairF ?? pairBefore0;
+  if (pairTimedOut) { // the starting walks did not finish: nothing to price against
+    return { owner, score, risk: strict || risk, before, moves: 0, tried: 0, pairMoves: 0, relieves: 0, trades: 0, pairTried: 0, pairHours: null, pairHoursBefore: null, pairHoursScreen: null, pairConfirmed: false, pairWalks, pairStops, pairSkips, pairsSearched, pairTimedOut, pairStartTimedOut: true };
+  }
   let moves = 0, tried = 0, pairMoves = 0, relieves = 0, trades = 0, pairTried = 0;
-  if (pairPrice > 0 && Number.isFinite(pairMs)) pairDeadline = Date.now() + Math.max(0, pairMs);
   const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
   const take = (cand, needLess = false) => {
     if (outOfTime()) throw COVER_STOP;
@@ -1899,7 +1903,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     }
     if (!improved) break;
   } } catch (e) { if (e !== COVER_STOP || !pairTimedOut) throw e; }
-  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched, pairTimedOut };
+  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched, pairTimedOut, pairStartTimedOut: false };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -3590,7 +3594,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       pairMoves: out.pairMoves, relieves: out.relieves, trades: out.trades,
       pairPrice: pairOn ? o.coverPairPrice : 0, pairHoursBefore: out.pairHoursBefore, pairHours: out.pairHours, pairHoursScreen: out.pairHoursScreen, pairConfirmed: out.pairConfirmed,
       pairWalks: out.pairWalks, pairStops: out.pairStops, pairSkips: out.pairSkips, pairsSearched: out.pairsSearched,
-      pairTimedOut: out.pairTimedOut, pairMs: pairOn ? (o.coverPairMs ?? COVER_PAIR_MS) : null,
+      pairTimedOut: out.pairTimedOut, pairStartTimedOut: out.pairStartTimedOut, pairMs: pairOn ? (o.coverPairMs ?? COVER_PAIR_MS) : null,
       pairSkipped: o.coverPairPrice > 0 && !pairOn ? { slots: ctx.S, cap: o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS } : null,
       cases: out.risk.cases.map((c) => ({ person: c.person, day: c.day, hours: c.hours })),
     };
@@ -5387,6 +5391,7 @@ export function coverSlackText(cs, staff = null) {
 // The second-call-out term in words (--second-callout-price), appended to the slack line when it was priced.
 function pairText(cs) {
   if (cs.pairSkipped) return ` Second call-outs were not priced: the week has ${cs.pairSkipped.slots} shift copies, over the ${cs.pairSkipped.cap} the pair check runs on.`;
+  if (cs.pairStartTimedOut) return ` Second call-outs were not priced: counting the pairs on this week took longer than the ${num(cs.pairMs / 1000)} s limit (--second-callout-seconds), so the roster above is priced on single call-outs only.`;
   if (!(cs.pairPrice > 0) || cs.pairHours == null) return "";
   const moved = cs.pairHoursBefore !== cs.pairHours ? `from ${num(cs.pairHoursBefore)} to ${num(cs.pairHours)}` : `${num(cs.pairHours)}`;
   const capped = cs.pairTimedOut ? ` The search for these moves stopped at its ${num(cs.pairMs / 1000)} s limit and kept the moves it had made; a longer limit may find more.` : "";
