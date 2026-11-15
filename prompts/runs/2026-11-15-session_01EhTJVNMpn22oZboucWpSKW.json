@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNMpn22oZboucWpSKW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt.md)",
+  "input_sha256": "e7710cfbf7593885a44c98515fb38155574d91e862caf0f63f8c83124ca0298e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T19:14:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship open-tennis-robots: lift duty min(1, V_ref/V_bus), checked against the jam cutoff and sweep",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 16308,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py build123d reported the default python3 already had it only after a ~2 min run; the first run_venture_tests output said build123d missing, so the CAD package test needed a separate install step before it could run"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-holding-the-tennis-lifts-speed-moved-its-jam-trip.md",
+    "ventures/open-tennis-robots/eval/lift-duty-battery-2026-11-15.txt"
+  ],
+  "goal": "belt speed held over the battery so the flight rate clears the empty belt's 2.12 Hz mode, without losing the jam cutoff",
+  "notes": "Firmware LiftRun holds duty to 24 V / smoothed battery reading (floor 0.82). Speed 0.91-1.00x (was 0.91-1.23); flight rate 1.61-1.78 Hz; empty belt's first 3 modes out of every flight band (new check_lift_strand rule). The low-side shunt sees duty x I, so the held duty raised the jam trip 1/0.82; tests/lift_jam_sweep.py --duty (real firmware) showed a 29.2 V jam never cut (137 J). Rules now take each pack at its own duty; check_lift_slip caught it (0.94x). Searched shunt x E24 r2 x hub setting: divider 2.7k->2.4k, hub 0.9->1.0 N m; all lift rules and Feeder.check() pass; every simulated jam cut <=79 ms, no start trips. Verification run here: tests/test_robots, test_pins, test_host, test_physics 115 OK; cad/tests/test_cad params tests OK; build123d package tests after rebuilding manufacturing/feeder (see PR).",
+  "corrections": [],
+  "redteam": null
+}

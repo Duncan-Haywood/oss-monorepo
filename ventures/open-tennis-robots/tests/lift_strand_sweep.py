@@ -6,8 +6,8 @@ cad/README.md "Lift strand modes").
 Sideways: each 2.36 m strand between the pulleys' tangent points is a tensioned beam (`Feeder.lift_strand_modes`:
 finite differences, tension rising up each strand with its weight and, on the up strand, each loaded flight's pull;
 flights' 5 g and the balls as point masses). Every mode under 100 Hz is compared with what shakes the strand
-(`lift_strand_excitations`) over the belt's speed range (`lift_speed_range`: the lift runs at a fixed duty, so its
-speed follows the battery). Stretch: the loop as a bar with both ends on the drive pulley (`lift_belt_axial_modes`),
+(`lift_strand_excitations`) over the belt's speed range (`lift_speed_range`; since 2026-11-15 the firmware holds the
+duty to `lift_v_ref` / battery, so the speed no longer follows the battery, and the last block compares the fixed duty). Stretch: the loop as a bar with both ends on the drive pulley (`lift_belt_axial_modes`),
 balls on the up strand only against the same balls spread round the loop (the lumped model's assumption). Every
 figure is an assumption (cad params).
 """
@@ -97,6 +97,19 @@ def main() -> None:
             m = r["modes_hz"]
             print(f"  every {le}, T0 x {tf:3.1f}: lowest {m[0]:.1f} Hz, {len(m)} span modes under 100 Hz, "
                   f"in a drive band: {', '.join(hits(m, bnd, TENSION)) or 'none'}")
+
+    fixed = Feeder(lift_v_ref=0)
+    fb = bands(fixed)
+    fs = fixed.lift_speed_range()
+    print(f"\nDuty held to {p.lift_v_ref:g} V / battery (speed {s['lo']:.2f}-{s['hi']:.2f}) against a fixed duty "
+          f"({fs['lo']:.2f}-{fs['hi']:.2f}): low modes (first 3) in a direct band, per case")
+    for c in p.lift_strand_cases():
+        for le in ((0,) if c.get("loaded_every") == 0 else (1, 2)):
+            kw = {k: v for k, v in c.items() if k != "name"}
+            kw["loaded_every"] = le
+            m = p.lift_strand_modes(**kw)["modes_hz"]
+            tag = f"{c['name']}, every {le}" if le else c["name"]
+            print(f"  {tag}: held {', '.join(hits(m, bnd, LOW, 3)) or 'none'} | fixed {', '.join(hits(m, fb, LOW, 3)) or 'none'}")
 
     b = p.lift_belt_model()
     print(f"\nStretch modes of the loop (lumped model, balls spread, every flight: belt {b['f_belt_hz']:.1f} Hz held; "

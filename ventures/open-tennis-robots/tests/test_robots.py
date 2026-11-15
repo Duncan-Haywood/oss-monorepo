@@ -530,7 +530,10 @@ class FirmwareTest(unittest.TestCase):
         self.assertEqual(config.LIFT_JAM_RETRIES, p.lift_jam_retries)
         self.assertEqual(config.LIFT_DUTY, p.lift_duty)
         self.assertEqual(config.LIFT_RAMP_MS, p.lift_ramp_ms)
+        self.assertEqual(config.LIFT_V_REF_MV / 1000, p.lift_v_ref)
+        self.assertEqual(config.LIFT_DUTY_MIN, p.lift_duty_min)
         self.assertEqual(p.check_lift_jam(), [])
+        self.assertEqual(p.check_lift_slip(), [])
         bad = Feeder(lift_ramp_ms=250.0)
         self.assertTrue(any("soft start" in m for m in bad.check_lift_jam()))
 
@@ -549,6 +552,35 @@ class FirmwareTest(unittest.TestCase):
         plain = controller.LiftRun(16000)                        # ramp_ms 0: straight to full duty
         plain.kick(0)
         self.assertEqual(plain.update(0, False), 1.0)
+
+    def test_lift_duty_follows_the_battery(self):
+        # 2026-11-15, cad/README.md "Lift duty follows the battery": the duty is held to v_ref / battery
+        lift = controller.LiftRun(16000, 1.0, v_ref_mv=24000, duty_min=0.82, bus_tau_ms=500)
+        lift.kick(0)
+        self.assertEqual(lift.update(0, False, 24000), 1.0)                   # at the cut: full duty
+        lift2 = controller.LiftRun(16000, 1.0, v_ref_mv=24000, duty_min=0.82, bus_tau_ms=500)
+        lift2.kick(0)
+        self.assertAlmostEqual(lift2.update(0, False, 29200), 24 / 29.2)     # first reading seeds the filter
+        self.assertEqual(lift2.update(10, False, 22000), lift2.update(10, False, 22000))
+        lift2.update(20, False, 1000)                                        # a dead reading is ignored
+        self.assertLess(lift2.update(30, False, 29200), 1.0)
+        for t in range(40, 3000, 10):                                        # a reading drifts down to 26 V
+            d = lift2.update(t, False, 26000)
+        self.assertAlmostEqual(d, 24 / 26, places=3)
+        one = lift2.update(3010, False, 26260)                               # a braking wheel's 260 mV step
+        self.assertLess(d - one, 0.2 * (d - 24 / 26.26))                     # moves it under a fifth of the way
+        floor = controller.LiftRun(16000, 1.0, v_ref_mv=24000, duty_min=0.82)
+        floor.kick(0)
+        self.assertAlmostEqual(floor.update(0, False, 36000), 0.82)          # never under the floor
+        none = controller.LiftRun(16000, 1.0, v_ref_mv=24000)
+        none.kick(0)
+        self.assertEqual(none.update(0, False, None), 1.0)                   # no reading yet: the fixed duty
+        fixed = controller.LiftRun(16000, 1.0)
+        fixed.kick(0)
+        self.assertEqual(fixed.update(0, False, 29200), 1.0)                 # v_ref 0: the fixed duty
+        ramp = controller.LiftRun(16000, 1.0, ramp_ms=100, v_ref_mv=24000, duty_min=0.82)
+        ramp.kick(0)
+        self.assertAlmostEqual(ramp.update(0, False, 29200), 0.1 * 24 / 29.2)  # the soft start ramps to the held duty
 
     def test_lift_run_on_covers_the_cad_return_time(self):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))

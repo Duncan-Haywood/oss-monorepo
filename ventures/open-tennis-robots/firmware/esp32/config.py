@@ -57,9 +57,9 @@ GATE_BACK_MS = 850              # back stroke: cad 0.68 s, plus 0.14 s for the n
 LIFT_RUN_ON_MS = 16000
 LIFT_DUTY = 1.0
 # Lift jam cutoff (cad: Feeder.lift_jam_cutoff; manifest "lift jam" line). A comparator on a shunt in the lift MOSFET's
-# source pulls GPIO 0 low above about 1.7 A (1.5 to 2.0 A over the parts' tolerances; under the 2.3 A the motor draws
-# while the pulley's slip hub slides). Ignored for LIFT_JAM_BLANK_MS after each start (a start stays over it about
-# 90 ms by the CAD's figures, 170 ms with twice the assumed rotor); over for LIFT_JAM_TRIP_MS cuts the motor,
+# source pulls GPIO 0 low above about 1.55 A at full duty (1.3 to 1.8 A over the parts' tolerances; over the duty
+# below on a full pack, at most 2.2 A at 0.82, under the 2.5 A the motor draws while the pulley's slip hub slides).
+# Ignored for LIFT_JAM_BLANK_MS after each start (a start stays over it about 90 ms by the CAD's figures, 170 ms with twice the assumed rotor); over for LIFT_JAM_TRIP_MS cuts the motor,
 # which tries again after LIFT_JAM_REST_MS, LIFT_JAM_RETRIES times, then stays off (FLAG_LIFT_JAM) until the e-stop is
 # pressed and released. The CAD's params carry the same numbers and a test fails if they disagree.
 LIFT_JAM_BLANK_MS = 400
@@ -70,6 +70,14 @@ LIFT_JAM_RETRIES = 1
 # this long, so the rotor does not cross the jaw coupling's free play at speed and ring the drive into the slip hub.
 # It must end well inside LIFT_JAM_BLANK_MS; 0 switches straight to LIFT_DUTY.
 LIFT_RAMP_MS = 100
+# Lift speed held over the battery (cad: Feeder.lift_v_ref; cad/README.md "Lift duty follows the battery"). Above
+# LIFT_V_REF_MV on the battery reading the duty is LIFT_DUTY x LIFT_V_REF_MV / reading (smoothed over LIFT_BUS_TAU_MS),
+# so the belt runs at its 24 V speed from the cut to the charger's 29.2 V instead of 0.91 to 1.23 times nominal; never
+# under LIFT_DUTY_MIN. 0 keeps the fixed duty. The jam cutoff's trip rises as the duty falls (the shunt sees duty x I):
+# the CAD checks it still trips a hot stall at the lowest duty.
+LIFT_V_REF_MV = 24000
+LIFT_DUTY_MIN = 0.82
+LIFT_BUS_TAU_MS = 500
 # Hopper agitator (cad: Feeder.agitator_design): its gearmotor on a MOSFET from GPIO 2 stirs the outlet while balls
 # are queued or on their way, and this long after, for two more passes of its arms (manifest "hopper agitator" line).
 AGIT_RUN_ON_MS = 3000
