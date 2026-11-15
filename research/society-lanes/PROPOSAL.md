@@ -130,7 +130,7 @@ model; no anticipation (Murakami et al. 2021); corridor width 3.0 against 3.6 m.
 
 1. Human baseline on HERMES: share on own right, lane order against a null, speed (**this step**).
 2. Replicate on BaSiGo 2013 bidirectional (variants A and B), and test the run-order confound in H2.
-3. Fit the social-force family (JuPedSim or a checked implementation) on free-choice runs. Score H3 and H4.
+3. Fit the social-force family (JuPedSim or a checked implementation) on free-choice runs. Score H3 and H4. (Done 2026-11-15: H3 fails for social force, 3 of 9 runs in interval, densities unreachable; H4 fails, 0.78 kept right under assigned exits against 0.54; see LOG.md.)
 4. Add ORCA and the power law, and score H3 and H4 for all three.
 5. Add robots with four policies at three shares. Measure human costs per family.
 6. Test policy-ranking invariance (H5), and add SARL trained against each family.
