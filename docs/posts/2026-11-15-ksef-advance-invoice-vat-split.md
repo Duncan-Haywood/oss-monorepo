@@ -1,6 +1,6 @@
 ---
 title: "How the VAT on a Polish advance invoice is split, from the Ministry's own examples"
-seo_title: "FA(3) advance, settlement and correction invoice totals: P_13 and P_14 explained"
+seo_title: "FA(3) advance and settlement invoices: how P_13 and P_14 split"
 date: 2026-11-15
 tags: [einvoice-preflight, ventures, poland, ksef]
 description: "An FA(3) advance or settlement invoice splits the payment across VAT rates by each rate's share of the order's gross. We now check it, and the Ministry's 26 examples found six bugs in our checker."
