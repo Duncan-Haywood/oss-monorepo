@@ -434,6 +434,10 @@ def parse_arw(data: bytes, engine: str = "auto") -> rd.RawImage:
         synth.entries[TAG_DEFAULT_CROP_SIZE] = tuple(crop)
     if as_shot is not None:
         synth.entries[rd.TAG_AS_SHOT_NEUTRAL] = tuple(1.0 / v for v in as_shot)
+    # The lens's own correction tables (sony_corrections), kept for develop's in-file lens stage.
+    for tag in (0x7032, 0x7035, 0x7037, 0x7038):
+        if ifd.get(tag):
+            synth.entries[tag] = tuple(ifd.get(tag))
     head = rd.Ifd(entries=dict(ifd0.entries), byte_order=reader.end)
     head.entries[rd.TAG_UNIQUE_CAMERA_MODEL] = tuple(camera_model(data).encode("latin-1")) + (0,)
     exif = None

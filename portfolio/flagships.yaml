@@ -255,9 +255,8 @@ flagships:
       ORF, RW2, SRW, PEF and RAF read, eval/*-reader-2026-11-14.md). X-Trans
       demosaic toward LibRaw's three-pass (2-6 dB short; a noisy known truth for the
       real-frame luma gap; a C path;
-      eval/xtrans-directional-demosaic-2026-11-14.md); Sony's in-file lens
-      corrections (ARW 0x7032, 0x7035, 0x7037) against lensfun on the A7 III/IV
-      files. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      eval/xtrans-directional-demosaic-2026-11-14.md). DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -270,8 +269,8 @@ flagships:
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans, directional) read directly since
       2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from maker notes
       (eval/*-lens-2026-11-14.md). Next: a compressed RAF (X-T2 or later); a real
-      NEF with a split row; Sony's in-file lens corrections; a real DNG and a
-      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
+      NEF split row; Sony's vignetting table vs an evenly lit frame; a real DNG and
+      a vignetting-calibrated lens through the pipeline's lens stage; a real evenly
       lit frame shot wide open (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
       synthetic files so far, or the SDK to check them; lateral colour measured on a
