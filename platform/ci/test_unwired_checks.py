@@ -32,6 +32,11 @@ class Unwired(unittest.TestCase):
         self.assertNotIn("check_pages_links.py", names)
         self.assertNotIn("check_markup_basics.py", names)  # portfolio-validate.yml runs it
 
+    def test_a_check_that_reads_the_built_site_is_left_out(self):
+        # check_orphan_pages.py walks _site/: with none it passed vacuously,
+        # and with a leftover local build it failed a sweep CI never fails.
+        self.assertNotIn("check_orphan_pages.py", [p.name for p in u.unwired()])
+
     def test_main_exits_1_when_any_is_red_and_0_when_all_pass(self):
         """The exit code is the whole contract run_venture_tests.py and CI read."""
         cases = {

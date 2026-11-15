@@ -104,7 +104,13 @@ test("NAV's manageInvoice sample: three Base64 operations, electronicInvoiceHash
   assert.equal(r.meta.operations, 3);
   assert.ok(!r.findings.some((f) => f.rule === "HU-016"));
   // The sample's placeholder data uses 0.25 on a 2020 delivery: NAV's current list refuses it.
-  assert.ok(r.findings.every((f) => f.rule === "HU-005"));
+  // And each operation still carries 2.0's privatePersonIndicator where 3.0 wants customerVatStatus
+  // (xmllint on NAV's XSD agrees: "privatePersonIndicator: This element is not expected").
+  assert.ok(r.findings.every((f) => ["HU-005", "HU-027", "HU-029"].includes(f.rule)));
+  const schemaFaults = r.findings.filter((f) => f.rule !== "HU-005");
+  assert.equal(schemaFaults.length, 6);
+  assert.ok(schemaFaults.filter((f) => f.rule === "HU-027").every((f) => /privatePersonIndicator/.test(f.message) && /customerVatStatus/.test(f.fix)));
+  assert.ok(schemaFaults.filter((f) => f.rule === "HU-029").every((f) => /customerVatStatus is required in customerInfo/.test(f.message)));
   const tampered = request.replace(/(<electronicInvoiceHash cryptoType="SHA3-512">)0/, "$11");
   assert.ok(checkNavInvoice(tampered).findings.some((f) => f.rule === "HU-016" && /does not match/.test(f.message)));
   const lower = request.replace(/(<electronicInvoiceHash cryptoType="SHA3-512">)([0-9A-F]+)/, (m, a, h) => a + h.toLowerCase());
@@ -126,4 +132,48 @@ test("the batch report reads a NAV file as Hungarian, not EN 16931", async () =>
   assert.match(res.reports[0].envelope, /NAV Online Számla 3\.0 invoice data report, NORMAL/);
   assert.deepEqual(res.reports[0].errors.map((e) => e.rule).sort(), ["HU-023", "HU-025"]);
   assert.match(res.reports[1].envelope, /manageInvoice request \(3 operations\)/);
+});
+
+test("a summary row's VAT is checked against its rate and against its lines", () => {
+  // The 27% row says 4000.00 VAT; 27% of 16120.00 is 4352.40 and the two 27% lines add up to 4352.40.
+  const xml = foreign.replace("<vatRateVatAmount>4352.40<", "<vatRateVatAmount>4000.00<");
+  const msgs = checkNavInvoice(xml).findings.map((f) => f.message);
+  assert.ok(msgs.some((m) => /27% of 16120\.00 is 4352\.40/.test(m) && /VAT_RATE_VAT_AMOUNT\)/.test(m)), "row VAT vs its rate");
+  assert.ok(msgs.some((m) => /says VAT 4000\.00 but its lines add up to 4352\.40/.test(m) && /VAT_RATE_VAT_AMOUNT_LINE\)/.test(m)), "row VAT vs its lines");
+});
+
+test("an amount exactly 1% off sits inside NAV's tolerance, float noise included", () => {
+  // 6702 x 310 = 2077620; 1% more is 2098396.20, which in binary floats lands ~1.9e-10 past the tolerance.
+  const xml = foreign
+    .replace("<vatRateNetAmount>3000.00<", "<vatRateNetAmount>6702.00<")
+    .replace("<vatRateNetAmountHUF>930000.00<", "<vatRateNetAmountHUF>2098396.20<");
+  const f = checkNavInvoice(xml).findings;
+  assert.ok(!f.some((x) => x.rule === "HU-023" && x.path.endsWith("summaryByVatRate[1]/vatRateNetData/vatRateNetAmountHUF")), JSON.stringify(f.map((x) => x.message)));
+  // 2% off is still a warning.
+  const beyond = xml.replace("<vatRateNetAmountHUF>2098396.20<", "<vatRateNetAmountHUF>2119172.40<");
+  assert.ok(checkNavInvoice(beyond).findings.some((x) => x.rule === "HU-023" && x.path.endsWith("summaryByVatRate[1]/vatRateNetData/vatRateNetAmountHUF")));
+});
+
+test("an amount that is not an xs:decimal is the schema finding alone, with no sums built around it", () => {
+  for (const bad of ["4352,40", "NaN", "Infinity", "1e400", "0x10FE", "4 352.40"]) {
+    const r = checkNavInvoice(foreign.replace("<vatRateVatAmount>4352.40<", `<vatRateVatAmount>${bad}<`));
+    assert.ok(r.findings.some((f) => f.rule === "HU-030" && /vatRateVatAmount/.test(f.message)), `${bad}: ${JSON.stringify(r.findings.map((f) => f.message))}`);
+    // No sum built from a half-read file: the "rows add up to 150.00" warning was wrong, not just noisy.
+    assert.ok(!r.findings.some((f) => /^HU-02[0-6]$/.test(f.rule)), `${bad}: ${JSON.stringify(r.findings.map((f) => f.message))}`);
+    assert.ok(r.skipped.some((s) => /HU-020/.test(s.rule) && /not a decimal/.test(s.reason)));
+  }
+  // Signs, leading dots and surrounding whitespace are valid xs:decimal.
+  for (const ok of ["+4352.40", " 4352.40 ", "4352.4", "4352."]) {
+    assert.deepEqual(checkNavInvoice(foreign.replace("<vatRateVatAmount>4352.40<", `<vatRateVatAmount>${ok}<`)).findings, [], ok);
+  }
+  assert.ok(!rules(foreign.replace(/<quantity>[^<]+</, "<quantity>abc<")).some((r) => /^HU-02[0-6]$/.test(r)));
+});
+
+test("an exchange rate of 0 or below is the one finding, not a cascade of forint warnings", () => {
+  for (const r of ["0", "-310"]) {
+    const xml = foreign.replace(/<currencyCode>[^<]+</, "<currencyCode>XYZ<").replace(/<exchangeRate>[^<]+</, `<exchangeRate>${r}<`);
+    const f = checkNavInvoice(xml).findings;
+    assert.equal(f.length, 1, JSON.stringify(f.map((x) => x.message)));
+    assert.match(f[0].message, /exchangeRate must be above 0/);
+  }
 });

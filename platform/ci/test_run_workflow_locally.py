@@ -1497,6 +1497,42 @@ class SweepExitCode(unittest.TestCase):
         self.assertEqual(code, runner.NO_VERDICT)
         self.assertIn("NO VERDICT", out)
 
+    def sweep_codes(self, codes):
+        real_report, real_fp = runner.report, runner.checkout_fingerprint
+        it = iter(codes)
+        runner.report = lambda *a, **k: next(it)
+        runner.checkout_fingerprint = lambda **_: runner.Fingerprint("a" * 40, "d1")
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [(f"w{i}.yml", wf, {"j"}) for i in range(len(codes))], [])
+        finally:
+            runner.report, runner.checkout_fingerprint = real_report, real_fp
+        return code, out.getvalue()
+
+    def test_a_ci_only_workflow_beside_passes_does_not_block_a_pass(self):
+        # agent-cross-review.yml (nothing runnable here) is selected by every
+        # diff; it made every clean sweep exit 5 until 2026-11-15.
+        code, out = self.sweep_codes([runner.NOTHING_RAN, 0])
+        self.assertEqual(code, 0)
+        self.assertIn("1/1 selected workflow(s) passed", out)
+        self.assertIn("w0.yml had no step that can run", out)
+        self.assertNotIn("NO VERDICT", out)
+
+    def test_a_ci_only_workflow_does_not_hide_other_no_verdicts(self):
+        code, _ = self.sweep_codes([runner.NOTHING_RAN, runner.AFTER_SKIP])
+        self.assertEqual(code, runner.NO_VERDICT)
+        code, _ = self.sweep_codes([runner.NOTHING_RAN, 1])
+        self.assertEqual(code, 1)
+
+    def test_nothing_ran_anywhere_is_still_no_verdict(self):
+        code, out = self.sweep_codes([runner.NOTHING_RAN, runner.NOTHING_RAN])
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertIn("NO VERDICT", out)
+
     def test_nothing_ran_is_distinct_from_the_other_report_codes(self):
         self.assertNotIn(runner.NOTHING_RAN,
                          (0, 1, runner.BUDGET_SPENT, runner.AFTER_SKIP,
@@ -1534,6 +1570,54 @@ class PullRequestContextTest(unittest.TestCase):
     def test_other_step_outputs_keep_the_skip(self):
         self.assertIsNone(runner.local_context("needs.plan.outputs.checks"))
         self.assertIsNone(runner.local_context("github.event_name || 'x'"))
+
+
+class RepositoryContextTest(unittest.TestCase):
+    """pages.yml's base URL: `vars.X || format(...)` over the repository names."""
+
+    PARTS = {"github.repository": "o/r", "github.repository_owner": "o",
+             "github.event.repository.name": "r"}
+
+    def setUp(self):
+        runner.local_context.cache_clear()
+        patcher = mock.patch.object(runner, "repository_parts", return_value=self.PARTS)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(runner.local_context.cache_clear)
+
+    def test_pages_build_base_url_resolves(self):
+        text, resolved = runner.resolve_context(
+            "${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}', "
+            "github.repository_owner, github.event.repository.name) }}")
+        self.assertEqual(text, "https://o.github.io/r")
+        self.assertEqual(len(resolved), 1)
+
+    def test_format_keeps_quoted_commas_and_escaped_quotes(self):
+        self.assertEqual(runner.local_context(
+            "format('{1}:{0}''s', 'a,b', github.repository)"), "o/r:a,b's")
+
+    def test_an_unknown_operand_keeps_the_skip(self):
+        self.assertIsNone(runner.local_context("vars.X || needs.plan.outputs.y"))
+        self.assertIsNone(runner.local_context("format('{0}', steps.a.outputs.b)"))
+        self.assertIsNone(runner.local_context("format('{1}', 'a')"))
+
+    def test_no_origin_remote_keeps_the_skip(self):
+        with mock.patch.object(runner, "repository_parts", return_value={}):
+            runner.local_context.cache_clear()
+            self.assertIsNone(runner.local_context("github.repository_owner"))
+
+    def test_remote_url_forms(self):
+        for url in ("https://github.com/o/r.git", "git@github.com:o/r.git",
+                    "http://proxy@127.0.0.1/git/x https://github.com/o/r"):
+            self.assertEqual(runner.REMOTE_REPO.search(url).groups(), ("o", "r"), url)
+
+    def test_the_pages_workflow_build_step_is_no_longer_skipped(self):
+        wf = runner.load_workflow(os.path.join(runner.WORKFLOWS, "pages.yml"))
+        steps, _ = runner.collect(wf)
+        build = [s for s in steps if s.name == "Build the site"]
+        self.assertEqual(len(build), 1)
+        self.assertNotEqual(build[0].status, "skipped", build[0].reason)
+        self.assertEqual(build[0].env["BASE_URL"], "https://o.github.io/r")
 
 
 class PooledBudgetTest(unittest.TestCase):
