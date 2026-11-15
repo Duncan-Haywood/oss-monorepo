@@ -12,6 +12,10 @@
 
 **Crowd twin (milestone 3, simulation fitted to the real runs).** Does a social-force crowd simulator reproduce this? Plain social force (JuPedSim 1.4.2, the Helbing, Farkas and Vicsek 2000 parameters) has no side convention: 0.51 of walkers on their right. One added parameter, a slight turn to one's own right when someone is coming the other way, fitted on the nine free-choice runs, brings it to 0.89 to 0.97 with realistic lanes (lane order within 0.10 in 7 of 9 runs). But it is too uniform (only 3 of 9 runs inside their intervals), and it cannot congest beyond about 1.5 walkers/m² (1.2 with the fitted bias), while the densest real runs reached 3.8/m² at 0.24 m/s. **On the assigned-exit runs it never saw, the twin keeps 0.78 of walkers on their right where people kept 0.54**, and it overstates the share in all 14 held-out runs. A social-force twin over-trusts the convention, so a robot policy chosen in it would understate how easily goal-driven walkers break the lanes. H3 fails for this model family.
 
+**Is that a social-force artefact? (milestone 4a, simulation).** No. Moving the exits of the assigned walkers from a quarter width in to the walls, the assumption milestone 3 flagged as most likely to matter, lowers the social-force twin's held-out share from 0.78 to **0.68**, still above people's 0.54 in 13 of 14 runs. A second model family, JuPedSim's anticipation velocity model (Xu, Chraibi and Seyfried 2021), fitted the same way, does worse: it forms near-perfect lanes on its own, needs a stronger side bias (β = 0.35) to match the free-choice runs, and then keeps **0.996** of walkers on their right in the held-out assigned-exit runs, where an exit goal barely moves it. Both families, given a side bias that matches the free-choice runs, keep the convention where people drop it. H3 fails for the anticipation model too (4 of 9 runs in their intervals, lanes within 0.10 in 5 of 9, and it cannot reach the measured densities).
+
+![Held-out assigned-exit runs: social force with two exit positions and the anticipation velocity model, against the observed share](experiments/m4_avm_exits.svg)
+
 ![Simulated against observed share on own right per run: free choice (fitted) and exit assigned (held out)](experiments/m3_sf_twin.svg)
 
 ![Share of walkers on their own right per run](experiments/m1_hermes_sides.svg)
@@ -66,6 +70,14 @@ Reproduce: `python3 research/society-lanes/experiments/m7_wild_sides.py` (stdlib
 
 Reproduce: `PY=$(python3 platform/ci/pyenv.py jupedsim numpy)`, then `"$PY" research/society-lanes/experiments/m3_sf_twin.py` (about 35 min on 4 cores) and `python3 research/society-lanes/experiments/m3_figure.py`.
 
+## Method (milestone 4a)
+
+- **Part A, exit position:** the milestone 3 social-force twin at its fitted β = 0.1 and walker counts, on the 14 held-out assigned-exit runs, with each walker's exit at 0.10 (at the wall, after the body clip), 0.25 (milestone 3, rerun) and 0.40 of the width from the left or right wall; 20 seeds each.
+- **Part B, a second family:** JuPedSim 1.4.2's `AnticipationVelocityModel` (Xu, Chraibi and Seyfried 2021) with JuPedSim's defaults (radius 0.2 m, time gap 1.06 s, anticipation 1.0 s, reaction 0.3 s, neighbour repulsion 8.0 over 0.1 m), the same steering stage and side bias β, and milestone 3's protocol unchanged except a finer walker-count grid (20 to 130), because this model deadlocks above about 1.3 walkers/m² in the 4 m corridor. Its lateral influence (`AnticipationVelocityModel.cpp`, v1.4.2) is left/right symmetric, so it carries no side preference of its own.
+- Predictions E1 to E3 and A1 to A7 were registered in `LOG.md` before the full run (after a disclosed 16-run probe).
+
+Reproduce: `"$PY" research/society-lanes/experiments/m4_avm_exits.py` (about 60 min on 4 cores, about 3,000 runs) and `python3 research/society-lanes/experiments/m4_figure.py`.
+
 ## Results
 
 | Set | Runs | Walkers | Share on own right (95% CI) | Lane order (shuffled null) |
@@ -110,6 +122,17 @@ Milestone 3, social-force twin (fitted β = 0.1; full output `experiments/m3_sf_
 
 Registered predictions: F1 (no convention without a bias) **held**. F2 (share inside the interval in 6 of 9 free runs) **refuted**, 3 of 9. F3 (lane order within 0.10 in 6 of 9) **held**, 7 of 9. F4 (speed within 0.15 m/s at the measured density for b_03 and b_08) **refuted**: the twin cannot reach the densities (1.19 against 3.79/m² for b_08). F5 (held-out share within 0.10) **refuted**: 0.78 against 0.54 pooled for HERMES, 0.83 against 0.75 (b_03), 0.72 against 0.51 (b_08). F6 (the share falls with crowding) **held**, Spearman -0.92. F7 (the PedPy copies match the archive) **held**.
 
+Milestone 4a (full output `experiments/m4_avm_exits_results.txt`, per run `experiments/m4_avm_exits_runs.csv`, fit `experiments/m4_avm_fit.csv`):
+
+| Model, exits of assigned walkers | Held-out HERMES 3.6 m, pooled (observed 0.541) | b_03 (observed 0.754) | b_08 (observed 0.505) | Runs above observed |
+|---|---|---|---|---|
+| Social force β = 0.1, at the walls (0.10) | 0.678 | 0.764 | 0.600 | 13 of 14 |
+| Social force β = 0.1, a quarter in (0.25, milestone 3) | 0.781 | 0.825 | 0.717 | 14 of 14 |
+| Social force β = 0.1, near the centre (0.40) | 0.818 | 0.871 | 0.767 | 14 of 14 |
+| Anticipation velocity model β = 0.35, a quarter in | 0.996 | 0.970 | 0.767 | 14 of 14 |
+
+Registered predictions: E1 (the rerun reproduces milestone 3) **held**, identical to four decimals. E2 (the share falls as exits move to the walls) **held**. E3 (the twin stays above people in at least 12 of 14 runs even with wall exits) **held**, 13 of 14. A1 (the anticipation model has no convention of its own at β = 0, but each run locks into one side) **held**, barely: pooled 0.585, mean seed sd 0.3003 against a 0.30 bar. A2 (share in the interval in 6 of 9 free runs) **refuted**, 4 of 9. A3 (lanes within 0.10 in 6 of 9) **refuted**, 5 of 9: its lanes are near-perfect (0.94 to 1.00) where BaSiGo's were 0.77 to 0.84. A4 (speed at the measured density) **refuted**: it reaches 0.79/m² against 3.79 for b_08. A5 (held-out share within 0.10) **refuted**. A6 (closer to people than social force) **refuted**: 0.996 against 0.781. A7 (a lower fit loss than social force) **refuted**: 106.8 against 43.2.
+
 ## Limitations
 
 - "Right" assumes the archive's coordinate frame is right-handed with z up, which head heights being positive suggests for HERMES (in BaSiGo the z column is a constant 176 cm and says nothing). If the frame is mirrored, people kept left. That both directions chose the same relative side does not depend on the frame.
@@ -117,15 +140,16 @@ Registered predictions: F1 (no convention without a bias) **held**. F2 (share in
 - The participants were students in a hall in Germany in 2009, and laboratory crowds are not street crowds (milestone 7 checks data recorded in the wild).
 - Lane order uses one bin width (30 cm). Speeds rely on the archive's stated 16 fps, which this step cannot check independently.
 - The street data are two scenes per city, 6 to 13 one-minute blocks each. Scene layout (shop doors, a side street, a tram stop) can push walkers to one side for reasons other than a norm, so the Nicosia result says only that these pavements showed no keep-left norm, not that Cypriots keep right. HERMES pair encounters in a dense run are numerous and dependent; their intervals cluster by run.
-- Milestone 3's twin uses assumed geometry (HERMES length, centred entrances, exits a quarter width from each wall) because the FZJ archive's WKT polygons were out of reach; the exit position is the assumption most likely to move the held-out result and its sensitivity is not yet run. The steering rule's look-ahead (3 m) and lateral gap (1 m) are chosen, not fitted. In the dense BaSiGo runs the twin's crowd is lighter and faster than the real one (the calibration misses by 0.19 to 0.41 m/s), and 0 to 8 of 20 seeds in the densest cells ended when a walker was pushed through a wall; those seeds are dropped and counted.
+- Milestone 3's twin uses assumed geometry (HERMES length, centred entrances, exits a quarter width from each wall) because the FZJ archive's WKT polygons were out of reach. Milestone 4a ran the exit position: wall exits lower the held-out share to 0.68 but leave it above people's 0.54. The steering rule's look-ahead (3 m) and lateral gap (1 m) are chosen, not fitted. In the dense BaSiGo runs the twin's crowd is lighter and faster than the real one (the calibration misses by 0.19 to 0.41 m/s), and 0 to 8 of 20 seeds in the densest cells ended when a walker was pushed through a wall; those seeds are dropped and counted.
+- The anticipation velocity model runs with JuPedSim's default parameters, not ones fitted to these experiments; only the side bias and the walker count are fitted. At low density its walkers are slower than the HERMES walkers (0.95 to 1.05 m/s against 1.25 to 1.48 m/s at the smallest walker count tried, 20), because its speed is capped by spacing over a 1.06 s time gap. A model whose lane-forming strength is a free parameter might fit better; that is one reason ORCA and the power law (milestone 4b) still matter.
 - No robots yet. Robots enter at milestone 5, in models fitted at milestones 3 and 4.
 
 ## Next steps
 
 1. Find what the BaSiGo b_09 and b_10 screens displayed (the PhD thesis by S. Holl, FZJ IAS Series vol. 32, which the archive cites for this experiment), and whether a displayed sign can restore the convention among walkers with lateral goals. If it can, signage is a fleet operator's lever alongside robot behaviour.
 2. Robot experiments should sweep the human side bias from 0.53 to 0.94, with the street value 0.65 as the reference, since a twin fitted only to the lab's free-choice runs overstates the convention.
-3. Test milestone 3's held-out result against the exit position (at the walls rather than a quarter width in), and rerun it on the archive's real geometry once the FZJ host answers.
-4. Fit ORCA, the anticipatory power law and JuPedSim's anticipation velocity model the same way (milestone 4), and see whether any family drops the convention under lateral goals as far as people do.
+3. Rerun milestones 3 and 4a on the archive's real geometry once the FZJ host answers (the exit test is done: wall exits narrow the gap, they do not close it).
+4. Fit ORCA and the anticipatory power law the same way (milestone 4b). Both families so far add the convention as a steering bias that a goal does not switch off; a model in which the bias yields to a lateral goal (for example a bias that scales with how far the walker's goal is from its own side) is the next candidate, fitted on the free runs and judged on the held-out ones.
 
 ## References
 
@@ -134,6 +158,7 @@ Full list with notes in [PROPOSAL.md](PROPOSAL.md), "Related work". Added for mi
 - Helbing, D., Farkas, I., Vicsek, T. (2000). Simulating dynamical features of escape panic. *Nature* 407, 487-490. doi:10.1038/35035023 (the social-force parameters JuPedSim uses by default; this DOI could not be looked up live on 2026-11-15, as doi.org refused the session proxy).
 - JuPedSim 1.4.2, Forschungszentrum Jülich, https://github.com/PedestrianDynamics/jupedsim (LGPL-3.0-or-later; used as a library, not redistributed).
 - PedPy, Forschungszentrum Jülich, https://github.com/PedestrianDynamics/PedPy (MIT), `notebooks/demo-data/bi-directional/`, commit 0604d9a: the source of the two raw BaSiGo runs read here.
+- Xu, Q., Chraibi, M., Seyfried, A. (2021). Anticipation in a velocity-based model for pedestrian dynamics. *Transportation Research Part C: Emerging Technologies* 133, 103464. doi:10.1016/j.trc.2021.103464 (the anticipation velocity model, milestone 4a; DOI as JuPedSim's documentation gives it).
 - Weidmann, U. (1993). *Transporttechnik der Fussgänger*. Schriftenreihe des IVT Nr. 90, ETH Zürich. (free walking speed 1.34 m/s; cited as used by Helbing et al. 2000, not read in this step). All identifiers are machine-checked (`cite_check.json`).
 
 *AI-assisted research: an AI agent wrote the code and text. No affiliation with any group or lab named here is implied.*
