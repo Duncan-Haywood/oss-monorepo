@@ -39,6 +39,10 @@
     {
       "what": "After a mutation check the restored cr3.py failed tests",
       "fix": "stale __pycache__: same size and same-second mtime as the mutant; cleared it"
+    },
+    {
+      "what": "mypy (photo-editing-ci lint) flagged Cmp1(bytes | None) three times",
+      "fix": "Container keeps the parsed CMP1 as .head; ruff and mypy clean in a numpy-free venv as CI runs them"
     }
   ],
   "integrity_issues": [],
@@ -69,7 +73,7 @@
     "ventures/photo-editing/eval/canon-cr3-reader-2026-11-15.md"
   ],
   "goal": "Deepen the photo-editing flagship: CR3 is the raw format of every Canon body since 2018",
-  "notes": "tools/cr3_libraw_check.py on the 5 public CR3s: IMG_0036 and _MG_0039 (EOS R8, lossless) 0 sensels differing with C and Python, balance/CFA/white equal, black within 1; IMG_0041, _MG_0045, Canon EOS R3 (C-RAW) refused with reason. tests/test_cr3.py 12 OK with and without the C path. run_venture_tests.py photo-editing: ok, 0 failed, 8 skipped (151.5 s); a first run failed 30 planner/pipeline tests that used .CR3 as their undevelopable-raw fixture, updated to expect .CR3.tif graded names and a C-RAW CR3 for the stop-at-grade test.",
+  "notes": "tools/cr3_libraw_check.py on the 5 public CR3s: IMG_0036 and _MG_0039 (EOS R8, lossless) 0 sensels differing with C and Python, balance/CFA/white equal, black within 1; IMG_0041, _MG_0045, Canon EOS R3 (C-RAW) refused with reason. tests/test_cr3.py 12 OK with and without the C path. run_venture_tests.py photo-editing: ok, 0 failed, 8 skipped (151.5 s); a first run failed 30 planner/pipeline tests that used .CR3 as their undevelopable-raw fixture, updated to expect .CR3.tif graded names and a C-RAW CR3 for the stop-at-grade test. run_workflow_locally --for-changes: 13/15 passed; photo-editing-ci lint failed on mypy (fixed, rechecked clean); its test step UNRUN locally (no Pillow in system python) but run_venture_tests ran it green; portfolio-pages build/deploy and reviewer bots not run locally.",
   "corrections": [],
   "redteam": null,
   "usage": {

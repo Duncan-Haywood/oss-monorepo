@@ -163,11 +163,11 @@ class Container:
                 t = _track(data, pos + head, pos + size)
                 if t is not None:
                     self.tracks.append(t)
-        raws = [t for t in self.tracks if t.cmp1 is not None]
+        raws = [(t, Cmp1(t.cmp1)) for t in self.tracks if t.cmp1 is not None]
         if not raws:
             raise rd.DevelopError("CR3: no track with a CMP1 (sensor data) box")
         # The full-size raw is the CMP1 with the most sensels (the others are small previews, when present).
-        self.raw = max(raws, key=lambda t: Cmp1(t.cmp1).width * Cmp1(t.cmp1).height)
+        self.raw, self.head = max(raws, key=lambda pair: pair[1].width * pair[1].height)
         self.ctmd = next((t for t in self.tracks if t.entry == b"CTMD"), None)
 
 
@@ -494,7 +494,7 @@ def band_layout(sample: bytes, head: Cmp1) -> list[Band]:
 def decode_sensor(data: bytes, box: Container, engine: str = "auto") -> tuple[Cmp1, array]:
     """The whole stored sensor, ``width * height`` 16-bit sensels, row-major."""
 
-    head = Cmp1(box.raw.cmp1)
+    head = box.head
     t = box.raw
     if t.offset + t.size > len(data):
         raise rd.DevelopError("CR3: the sensor sample lies outside the file")
@@ -533,7 +533,7 @@ def camera_model(data: bytes, readable: bool = False) -> str:
 
     box = Container(data)
     if readable:
-        check_supported(Cmp1(box.raw.cmp1))
+        check_supported(box.head)
     found = _tiff_ifd(box.cmt.get(b"CMT1"))
     if found is None:
         raise rd.DevelopError("CR3: no CMT1 (IFD0) box")

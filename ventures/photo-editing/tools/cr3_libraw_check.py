@@ -48,7 +48,7 @@ def check(path: Path, engines: list[str]) -> dict:
     lib = rawpy.imread(str(path))
     ref = lib.raw_image
     out: dict = {"file": path.name, "camera": cr3.camera_model(data)}
-    head = cr3.Cmp1(cr3.Container(data).raw.cmp1)
+    head = cr3.Container(data).head
     out["cmp1"] = {"version": hex(head.version), "levels": head.levels, "bits": head.bits, "size": [head.width, head.height]}
     raw = None
     for engine in engines:
