@@ -173,7 +173,8 @@
    "what": "Costs in 2025 euros are compared with nominal 2015-2019 wholesale prices with no deflation; scaling all capex jointly below 0.85 (0.986 for 2019) hands house weekly to the heat pump in every year, and a ~0.80 deflator to 2017 euros does exactly that. The 'weekly mostly favours the store' baseline this project tests is an artefact of the currency-year mix, which neither the one-at-a-time sweep nor the limitations surface",
    "where": "research/energy-store-flip/README.md:44",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16221"
   },
   {
    "severity": "medium",
@@ -202,7 +203,8 @@
    "what": "'2 to 40% change' when the 2018 multiplier 0.59 is a 41% cut; sd_year is a five-year population sd (0.0063; sample sd 0.0070), unstated",
    "where": "research/energy-store-flip/README.md:10",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16221"
   },
   {
    "severity": "low",
@@ -213,7 +215,8 @@
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16221"
  ],
  "verdict": "Arithmetically right and fully reproducible, but its main interpretive claim rests on a one-sided reading of the cost table. run.py reproduces results.txt byte for byte in 31 s, 6 tests pass, and an independent numpy recomputation (own LCOH, own price reductions, closed-form flips, 200k-draw Monte Carlo) matches every flip multiplier, win share and variance figure. It misses the bar on claims, verification and domain: the README says the table's 1.257x vintage step flips the weekly verdict through the store's capex, when the same step moves the heat pump 1.262x (a whole-table step up flips nothing; the older table flips all four years through the cheaper pump). More fundamentally, 2025-euro costs are set against nominal 2015-2019 prices, and any joint capex scaling below 0.85 (about the inflation gap) hands weekly cycling to the heat pump in every year. 3 of 5 seeded mutants in the Monte Carlo and variance code survive, and no prior work is cited."
 }

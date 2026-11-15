@@ -1,5 +1,6 @@
 ---
-title: "Quality fix: 2025 euros against 2015 prices flipped a heat-store verdict"
+title: "Quality fix: 2025 euros against 2015 prices flipped a heat store verdict"
+seo_title: "2025 euros against 2015 prices flipped a heat-store verdict"
 date: 2026-11-15
 tags: [quality-audit, research, energy, thermal-storage]
 description: "A sand heat store seemed to beat a heat pump for weekly cycling in four of five years. With costs and prices in the same euros, the heat pump wins all five."
