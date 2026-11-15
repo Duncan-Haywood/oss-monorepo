@@ -162,6 +162,18 @@ class NeverCompleted(unittest.TestCase):
         self.assertTrue(out["held"]["S2"] and out["held"]["S3"] and out["held"]["S4"] and out["held"]["S5"])
         self.assertFalse(out["held"]["S1"])  # Seattle: nc3 is best, so S1's Seattle half fails
 
+    def test_q_threshold(self):
+        """Session 93: the per-source cut is a quantile of builds completed by D only."""
+        import datetime, rounds
+        import pandas as pd
+        D = datetime.date(2020, 1, 1)
+        d = pd.DataFrame(dict(start=["2010-01-01", "2011-01-01", "2012-01-01", "2019-12-01", "2013-01-01"],
+                              y=[100.0, 200.0, 300.0, 400.0, np.inf]))
+        # the 2019 permit's 400 days end after D and the 2013 permit never completed: neither counts
+        self.assertEqual(rounds.q_threshold(d, D, q=1.0), 300.0)
+        self.assertEqual(rounds.q_threshold(d, D, q=0.5), 200.0)
+        self.assertIn("cpin_es3_ncq", rounds.VARIANTS)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,3138 @@
+{
+ "note": "Session 92: what the never-completed permits are, in each feed's own status field.",
+ "queried": "2026-11-15T19:44:44+00:00",
+ "cities": {
+  "sf": {
+   "queries": {
+    "by_status_never_completed": "https://data.sf.gov/resource/i98e-djp9.json?%24select=status%2Ccount%28%2A%29+as+n&%24where=issued_date+IS+NOT+NULL+AND+completed_date+IS+NULL&%24group=status&%24order=n+DESC",
+    "by_status_completed": "https://data.sf.gov/resource/i98e-djp9.json?%24select=status%2Ccount%28%2A%29+as+n&%24where=issued_date+IS+NOT+NULL+AND+completed_date+IS+NOT+NULL&%24group=status&%24order=n+DESC",
+    "by_year_status_never": "https://data.sf.gov/resource/i98e-djp9.json?%24select=date_extract_y%28issued_date%29+as+y%2Cstatus%2Ccount%28%2A%29+as+n&%24where=issued_date+IS+NOT+NULL+AND+completed_date+IS+NULL+AND+issued_date+%3E%3D+%272010-01-01%27&%24group=y%2Cstatus&%24order=y%2Cstatus&%24limit=5000"
+   },
+   "results": {
+    "by_status_never_completed": [
+     {
+      "status": "issued",
+      "n": "246263"
+     },
+     {
+      "status": "expired",
+      "n": "229398"
+     },
+     {
+      "status": "cancelled",
+      "n": "6210"
+     },
+     {
+      "status": "reinstated",
+      "n": "1218"
+     },
+     {
+      "status": "suspend",
+      "n": "450"
+     },
+     {
+      "status": "withdrawn",
+      "n": "236"
+     },
+     {
+      "status": "revoked",
+      "n": "222"
+     },
+     {
+      "status": "disapproved",
+      "n": "111"
+     },
+     {
+      "status": "approved",
+      "n": "46"
+     },
+     {
+      "status": "issuing",
+      "n": "18"
+     },
+     {
+      "status": "appeal",
+      "n": "15"
+     },
+     {
+      "status": "filed",
+      "n": "11"
+     },
+     {
+      "status": "denied",
+      "n": "8"
+     },
+     {
+      "status": "inspection",
+      "n": "4"
+     },
+     {
+      "status": "incomplete",
+      "n": "1"
+     },
+     {
+      "status": "granted",
+      "n": "1"
+     },
+     {
+      "status": "overruled",
+      "n": "1"
+     },
+     {
+      "status": "unknown",
+      "n": "1"
+     },
+     {
+      "status": "upheld",
+      "n": "1"
+     }
+    ],
+    "by_status_completed": [
+     {
+      "status": "complete",
+      "n": "744892"
+     },
+     {
+      "status": "expired",
+      "n": "2930"
+     },
+     {
+      "status": "issued",
+      "n": "1280"
+     },
+     {
+      "status": "reinstated",
+      "n": "189"
+     },
+     {
+      "status": "approved",
+      "n": "145"
+     },
+     {
+      "status": "disapproved",
+      "n": "92"
+     },
+     {
+      "status": "suspend",
+      "n": "56"
+     },
+     {
+      "status": "cancelled",
+      "n": "54"
+     },
+     {
+      "status": "revoked",
+      "n": "39"
+     },
+     {
+      "status": "appeal",
+      "n": "9"
+     },
+     {
+      "status": "withdrawn",
+      "n": "1"
+     },
+     {
+      "status": "filed",
+      "n": "1"
+     },
+     {
+      "status": "incomplete",
+      "n": "1"
+     },
+     {
+      "status": "inspection",
+      "n": "1"
+     }
+    ],
+    "by_year_status_never": [
+     {
+      "y": "2010",
+      "status": "cancelled",
+      "n": "159"
+     },
+     {
+      "y": "2010",
+      "status": "expired",
+      "n": "1392"
+     },
+     {
+      "y": "2010",
+      "status": "issued",
+      "n": "10005"
+     },
+     {
+      "y": "2010",
+      "status": "reinstated",
+      "n": "65"
+     },
+     {
+      "y": "2010",
+      "status": "revoked",
+      "n": "9"
+     },
+     {
+      "y": "2010",
+      "status": "suspend",
+      "n": "8"
+     },
+     {
+      "y": "2010",
+      "status": "withdrawn",
+      "n": "21"
+     },
+     {
+      "y": "2011",
+      "status": "approved",
+      "n": "2"
+     },
+     {
+      "y": "2011",
+      "status": "cancelled",
+      "n": "192"
+     },
+     {
+      "y": "2011",
+      "status": "expired",
+      "n": "1184"
+     },
+     {
+      "y": "2011",
+      "status": "issued",
+      "n": "9011"
+     },
+     {
+      "y": "2011",
+      "status": "reinstated",
+      "n": "39"
+     },
+     {
+      "y": "2011",
+      "status": "revoked",
+      "n": "11"
+     },
+     {
+      "y": "2011",
+      "status": "suspend",
+      "n": "22"
+     },
+     {
+      "y": "2011",
+      "status": "withdrawn",
+      "n": "1"
+     },
+     {
+      "y": "2012",
+      "status": "cancelled",
+      "n": "186"
+     },
+     {
+      "y": "2012",
+      "status": "denied",
+      "n": "1"
+     },
+     {
+      "y": "2012",
+      "status": "expired",
+      "n": "1009"
+     },
+     {
+      "y": "2012",
+      "status": "issued",
+      "n": "9883"
+     },
+     {
+      "y": "2012",
+      "status": "reinstated",
+      "n": "53"
+     },
+     {
+      "y": "2012",
+      "status": "revoked",
+      "n": "7"
+     },
+     {
+      "y": "2012",
+      "status": "suspend",
+      "n": "7"
+     },
+     {
+      "y": "2013",
+      "status": "approved",
+      "n": "1"
+     },
+     {
+      "y": "2013",
+      "status": "cancelled",
+      "n": "269"
+     },
+     {
+      "y": "2013",
+      "status": "expired",
+      "n": "896"
+     },
+     {
+      "y": "2013",
+      "status": "issued",
+      "n": "11145"
+     },
+     {
+      "y": "2013",
+      "status": "reinstated",
+      "n": "65"
+     },
+     {
+      "y": "2013",
+      "status": "revoked",
+      "n": "4"
+     },
+     {
+      "y": "2013",
+      "status": "suspend",
+      "n": "23"
+     },
+     {
+      "y": "2014",
+      "status": "cancelled",
+      "n": "338"
+     },
+     {
+      "y": "2014",
+      "status": "expired",
+      "n": "846"
+     },
+     {
+      "y": "2014",
+      "status": "issued",
+      "n": "11562"
+     },
+     {
+      "y": "2014",
+      "status": "reinstated",
+      "n": "80"
+     },
+     {
+      "y": "2014",
+      "status": "revoked",
+      "n": "15"
+     },
+     {
+      "y": "2014",
+      "status": "suspend",
+      "n": "21"
+     },
+     {
+      "y": "2014",
+      "status": "withdrawn",
+      "n": "1"
+     },
+     {
+      "y": "2015",
+      "status": "approved",
+      "n": "2"
+     },
+     {
+      "y": "2015",
+      "status": "cancelled",
+      "n": "303"
+     },
+     {
+      "y": "2015",
+      "status": "expired",
+      "n": "904"
+     },
+     {
+      "y": "2015",
+      "status": "issued",
+      "n": "13300"
+     },
+     {
+      "y": "2015",
+      "status": "reinstated",
+      "n": "43"
+     },
+     {
+      "y": "2015",
+      "status": "revoked",
+      "n": "8"
+     },
+     {
+      "y": "2015",
+      "status": "suspend",
+      "n": "12"
+     },
+     {
+      "y": "2016",
+      "status": "cancelled",
+      "n": "367"
+     },
+     {
+      "y": "2016",
+      "status": "expired",
+      "n": "910"
+     },
+     {
+      "y": "2016",
+      "status": "issued",
+      "n": "13241"
+     },
+     {
+      "y": "2016",
+      "status": "overruled",
+      "n": "1"
+     },
+     {
+      "y": "2016",
+      "status": "reinstated",
+      "n": "48"
+     },
+     {
+      "y": "2016",
+      "status": "revoked",
+      "n": "14"
+     },
+     {
+      "y": "2016",
+      "status": "suspend",
+      "n": "18"
+     },
+     {
+      "y": "2016",
+      "status": "withdrawn",
+      "n": "1"
+     },
+     {
+      "y": "2017",
+      "status": "approved",
+      "n": "1"
+     },
+     {
+      "y": "2017",
+      "status": "cancelled",
+      "n": "418"
+     },
+     {
+      "y": "2017",
+      "status": "denied",
+      "n": "4"
+     },
+     {
+      "y": "2017",
+      "status": "expired",
+      "n": "859"
+     },
+     {
+      "y": "2017",
+      "status": "issued",
+      "n": "14192"
+     },
+     {
+      "y": "2017",
+      "status": "reinstated",
+      "n": "49"
+     },
+     {
+      "y": "2017",
+      "status": "revoked",
+      "n": "17"
+     },
+     {
+      "y": "2017",
+      "status": "suspend",
+      "n": "17"
+     },
+     {
+      "y": "2018",
+      "status": "appeal",
+      "n": "1"
+     },
+     {
+      "y": "2018",
+      "status": "approved",
+      "n": "1"
+     },
+     {
+      "y": "2018",
+      "status": "cancelled",
+      "n": "405"
+     },
+     {
+      "y": "2018",
+      "status": "denied",
+      "n": "2"
+     },
+     {
+      "y": "2018",
+      "status": "expired",
+      "n": "795"
+     },
+     {
+      "y": "2018",
+      "status": "issued",
+      "n": "15380"
+     },
+     {
+      "y": "2018",
+      "status": "reinstated",
+      "n": "69"
+     },
+     {
+      "y": "2018",
+      "status": "revoked",
+      "n": "14"
+     },
+     {
+      "y": "2018",
+      "status": "suspend",
+      "n": "13"
+     },
+     {
+      "y": "2018",
+      "status": "unknown",
+      "n": "1"
+     },
+     {
+      "y": "2019",
+      "status": "cancelled",
+      "n": "419"
+     },
+     {
+      "y": "2019",
+      "status": "denied",
+      "n": "1"
+     },
+     {
+      "y": "2019",
+      "status": "expired",
+      "n": "816"
+     },
+     {
+      "y": "2019",
+      "status": "issued",
+      "n": "15872"
+     },
+     {
+      "y": "2019",
+      "status": "reinstated",
+      "n": "62"
+     },
+     {
+      "y": "2019",
+      "status": "revoked",
+      "n": "10"
+     },
+     {
+      "y": "2019",
+      "status": "suspend",
+      "n": "16"
+     },
+     {
+      "y": "2019",
+      "status": "withdrawn",
+      "n": "1"
+     },
+     {
+      "y": "2020",
+      "status": "cancelled",
+      "n": "241"
+     },
+     {
+      "y": "2020",
+      "status": "expired",
+      "n": "464"
+     },
+     {
+      "y": "2020",
+      "status": "issued",
+      "n": "6814"
+     },
+     {
+      "y": "2020",
+      "status": "reinstated",
+      "n": "37"
+     },
+     {
+      "y": "2020",
+      "status": "revoked",
+      "n": "8"
+     },
+     {
+      "y": "2020",
+      "status": "suspend",
+      "n": "13"
+     },
+     {
+      "y": "2020",
+      "status": "withdrawn",
+      "n": "1"
+     },
+     {
+      "y": "2021",
+      "status": "cancelled",
+      "n": "328"
+     },
+     {
+      "y": "2021",
+      "status": "expired",
+      "n": "564"
+     },
+     {
+      "y": "2021",
+      "status": "issued",
+      "n": "4831"
+     },
+     {
+      "y": "2021",
+      "status": "reinstated",
+      "n": "31"
+     },
+     {
+      "y": "2021",
+      "status": "revoked",
+      "n": "6"
+     },
+     {
+      "y": "2021",
+      "status": "suspend",
+      "n": "17"
+     },
+     {
+      "y": "2022",
+      "status": "cancelled",
+      "n": "273"
+     },
+     {
+      "y": "2022",
+      "status": "expired",
+      "n": "537"
+     },
+     {
+      "y": "2022",
+      "status": "issued",
+      "n": "4690"
+     },
+     {
+      "y": "2022",
+      "status": "reinstated",
+      "n": "36"
+     },
+     {
+      "y": "2022",
+      "status": "revoked",
+      "n": "8"
+     },
+     {
+      "y": "2022",
+      "status": "suspend",
+      "n": "20"
+     },
+     {
+      "y": "2023",
+      "status": "approved",
+      "n": "1"
+     },
+     {
+      "y": "2023",
+      "status": "cancelled",
+      "n": "317"
+     },
+     {
+      "y": "2023",
+      "status": "expired",
+      "n": "449"
+     },
+     {
+      "y": "2023",
+      "status": "incomplete",
+      "n": "1"
+     },
+     {
+      "y": "2023",
+      "status": "issued",
+      "n": "4543"
+     },
+     {
+      "y": "2023",
+      "status": "reinstated",
+      "n": "51"
+     },
+     {
+      "y": "2023",
+      "status": "revoked",
+      "n": "11"
+     },
+     {
+      "y": "2023",
+      "status": "suspend",
+      "n": "38"
+     },
+     {
+      "y": "2024",
+      "status": "approved",
+      "n": "7"
+     },
+     {
+      "y": "2024",
+      "status": "cancelled",
+      "n": "275"
+     },
+     {
+      "y": "2024",
+      "status": "expired",
+      "n": "492"
+     },
+     {
+      "y": "2024",
+      "status": "issued",
+      "n": "4506"
+     },
+     {
+      "y": "2024",
+      "status": "reinstated",
+      "n": "60"
+     },
+     {
+      "y": "2024",
+      "status": "revoked",
+      "n": "2"
+     },
+     {
+      "y": "2024",
+      "status": "suspend",
+      "n": "33"
+     },
+     {
+      "y": "2025",
+      "status": "approved",
+      "n": "2"
+     },
+     {
+      "y": "2025",
+      "status": "cancelled",
+      "n": "221"
+     },
+     {
+      "y": "2025",
+      "status": "expired",
+      "n": "217"
+     },
+     {
+      "y": "2025",
+      "status": "issued",
+      "n": "6258"
+     },
+     {
+      "y": "2025",
+      "status": "reinstated",
+      "n": "55"
+     },
+     {
+      "y": "2025",
+      "status": "suspend",
+      "n": "23"
+     },
+     {
+      "y": "2026",
+      "status": "approved",
+      "n": "4"
+     },
+     {
+      "y": "2026",
+      "status": "cancelled",
+      "n": "137"
+     },
+     {
+      "y": "2026",
+      "status": "expired",
+      "n": "3"
+     },
+     {
+      "y": "2026",
+      "status": "filed",
+      "n": "10"
+     },
+     {
+      "y": "2026",
+      "status": "issued",
+      "n": "9704"
+     },
+     {
+      "y": "2026",
+      "status": "reinstated",
+      "n": "96"
+     },
+     {
+      "y": "2026",
+      "status": "suspend",
+      "n": "29"
+     }
+    ]
+   },
+   "never_completed": {
+    "total": 484215,
+    "share": {
+     "issued": 0.50858193157998,
+     "expired": 0.4737523620705678,
+     "cancelled": 0.012824881509246926,
+     "reinstated": 0.0025154115423933585,
+     "suspend": 0.0009293392398005019,
+     "withdrawn": 0.0004873868013175965,
+     "revoked": 0.0004584740249682476,
+     "disapproved": 0.0002292370124841238,
+     "approved": 9.499912229071796e-05,
+     "issuing": 3.717356959202007e-05,
+     "appeal": 3.097797466001673e-05,
+     "filed": 2.27171814173456e-05,
+     "denied": 1.6521586485342255e-05,
+     "inspection": 8.260793242671128e-06,
+     "incomplete": 2.065198310667782e-06,
+     "granted": 2.065198310667782e-06,
+     "overruled": 2.065198310667782e-06,
+     "unknown": 2.065198310667782e-06,
+     "upheld": 2.065198310667782e-06
+    }
+   },
+   "completed": {
+    "total": 749690,
+    "share": {
+     "complete": 0.9936000213421547,
+     "expired": 0.003908282089930505,
+     "issued": 0.0017073723805839747,
+     "reinstated": 0.0002521042030706025,
+     "approved": 0.00019341327748802838,
+     "disapproved": 0.0001227173898544732,
+     "suspend": 7.46975416505489e-05,
+     "cancelled": 7.202977230588644e-05,
+     "revoked": 5.202150222091798e-05,
+     "appeal": 1.2004962050981072e-05,
+     "withdrawn": 1.3338846723312303e-06,
+     "filed": 1.3338846723312303e-06,
+     "incomplete": 1.3338846723312303e-06,
+     "inspection": 1.3338846723312303e-06
+    }
+   },
+   "never_completed_by_year": {
+    "2010": {
+     "n": 11659,
+     "share": {
+      "issued": 0.8581353460845699,
+      "expired": 0.11939274380307059,
+      "cancelled": 0.013637533236126598,
+      "reinstated": 0.00557509220344798,
+      "withdrawn": 0.0018011836349601166,
+      "revoked": 0.0007719358435543357,
+      "suspend": 0.0006861651942705207
+     }
+    },
+    "2011": {
+     "n": 10462,
+     "share": {
+      "issued": 0.8613075893710571,
+      "expired": 0.11317147772892372,
+      "cancelled": 0.018352131523609254,
+      "reinstated": 0.0037277767157331294,
+      "suspend": 0.0021028484037468936,
+      "revoked": 0.0010514242018734468,
+      "approved": 0.00019116803670426305,
+      "withdrawn": 9.558401835213153e-05
+     }
+    },
+    "2012": {
+     "n": 11146,
+     "share": {
+      "issued": 0.8866858065673784,
+      "expired": 0.09052574914767629,
+      "cancelled": 0.01668760093307016,
+      "reinstated": 0.004755069083079132,
+      "revoked": 0.000628027992104791,
+      "suspend": 0.000628027992104791,
+      "denied": 8.971828458639871e-05
+     }
+    },
+    "2013": {
+     "n": 12403,
+     "share": {
+      "issued": 0.898572925905023,
+      "expired": 0.07224058695476901,
+      "cancelled": 0.02168830121744739,
+      "reinstated": 0.005240667580424091,
+      "suspend": 0.0018543900669192937,
+      "revoked": 0.0003225026203337902,
+      "approved": 8.062565508344755e-05
+     }
+    },
+    "2014": {
+     "n": 12863,
+     "share": {
+      "issued": 0.8988571872813496,
+      "expired": 0.06577003809375728,
+      "cancelled": 0.026276918292777736,
+      "reinstated": 0.00621938894503615,
+      "suspend": 0.0016325895980719893,
+      "revoked": 0.0011661354271942782,
+      "withdrawn": 7.774236181295187e-05
+     }
+    },
+    "2015": {
+     "n": 14572,
+     "share": {
+      "issued": 0.9127093055174307,
+      "expired": 0.06203678287125995,
+      "cancelled": 0.02079330222344222,
+      "reinstated": 0.0029508646719736483,
+      "suspend": 0.0008234971177600879,
+      "revoked": 0.0005489980785067252,
+      "approved": 0.0001372495196266813
+     }
+    },
+    "2016": {
+     "n": 14600,
+     "share": {
+      "issued": 0.9069178082191781,
+      "expired": 0.06232876712328767,
+      "cancelled": 0.025136986301369863,
+      "reinstated": 0.0032876712328767125,
+      "suspend": 0.001232876712328767,
+      "revoked": 0.0009589041095890411,
+      "overruled": 6.84931506849315e-05,
+      "withdrawn": 6.84931506849315e-05
+     }
+    },
+    "2017": {
+     "n": 15557,
+     "share": {
+      "issued": 0.912258147457736,
+      "expired": 0.05521630134344668,
+      "cancelled": 0.026868933599022947,
+      "reinstated": 0.0031497075271581924,
+      "revoked": 0.0010927556726875363,
+      "suspend": 0.0010927556726875363,
+      "denied": 0.000257118981808832,
+      "approved": 6.4279745452208e-05
+     }
+    },
+    "2018": {
+     "n": 16681,
+     "share": {
+      "issued": 0.9220070739164319,
+      "expired": 0.0476590132486062,
+      "cancelled": 0.024279119956837122,
+      "reinstated": 0.004136442659312991,
+      "revoked": 0.000839278220730172,
+      "suspend": 0.0007793297763923026,
+      "denied": 0.00011989688867573886,
+      "appeal": 5.994844433786943e-05,
+      "approved": 5.994844433786943e-05,
+      "unknown": 5.994844433786943e-05
+     }
+    },
+    "2019": {
+     "n": 17197,
+     "share": {
+      "issued": 0.9229516776181892,
+      "expired": 0.04745013665174158,
+      "cancelled": 0.024364714775832994,
+      "reinstated": 0.0036052799906960515,
+      "suspend": 0.0009303948363086585,
+      "revoked": 0.0005814967726929115,
+      "denied": 5.8149677269291154e-05,
+      "withdrawn": 5.8149677269291154e-05
+     }
+    },
+    "2020": {
+     "n": 7578,
+     "share": {
+      "issued": 0.8991818421747163,
+      "expired": 0.06122987595671681,
+      "cancelled": 0.031802586434415414,
+      "reinstated": 0.004882554763789918,
+      "suspend": 0.001715492214304566,
+      "revoked": 0.0010556875164951175,
+      "withdrawn": 0.0001319609395618897
+     }
+    },
+    "2021": {
+     "n": 5777,
+     "share": {
+      "issued": 0.8362471871213433,
+      "expired": 0.097628526917085,
+      "cancelled": 0.05677687380993595,
+      "reinstated": 0.005366106975939069,
+      "suspend": 0.0029427038255149733,
+      "revoked": 0.0010386013501817552
+     }
+    },
+    "2022": {
+     "n": 5564,
+     "share": {
+      "issued": 0.8429187634795111,
+      "expired": 0.09651329978432782,
+      "cancelled": 0.04906542056074766,
+      "reinstated": 0.006470165348670022,
+      "suspend": 0.0035945363048166786,
+      "revoked": 0.0014378145219266715
+     }
+    },
+    "2023": {
+     "n": 5411,
+     "share": {
+      "issued": 0.8395860284605433,
+      "expired": 0.0829791166143042,
+      "cancelled": 0.058584365182036593,
+      "reinstated": 0.009425244871557938,
+      "suspend": 0.0070227314729255225,
+      "revoked": 0.002032895952688967,
+      "approved": 0.00018480872297172427,
+      "incomplete": 0.00018480872297172427
+     }
+    },
+    "2024": {
+     "n": 5375,
+     "share": {
+      "issued": 0.8383255813953489,
+      "expired": 0.09153488372093023,
+      "cancelled": 0.05116279069767442,
+      "reinstated": 0.011162790697674419,
+      "suspend": 0.00613953488372093,
+      "approved": 0.0013023255813953488,
+      "revoked": 0.00037209302325581393
+     }
+    },
+    "2025": {
+     "n": 6776,
+     "share": {
+      "issued": 0.9235537190082644,
+      "cancelled": 0.03261511216056671,
+      "expired": 0.03202479338842975,
+      "reinstated": 0.008116883116883116,
+      "suspend": 0.003394332939787485,
+      "approved": 0.00029515938606847696
+     }
+    },
+    "2026": {
+     "n": 9983,
+     "share": {
+      "issued": 0.9720524892316939,
+      "cancelled": 0.01372332966042272,
+      "reinstated": 0.009616347791245117,
+      "suspend": 0.0029049383952719624,
+      "filed": 0.0010017028949213663,
+      "approved": 0.0004006811579685465,
+      "expired": 0.0003005108684764099
+     }
+    }
+   }
+  },
+  "seattle": {
+   "queries": {
+    "by_status_never_completed": "https://data.seattle.gov/resource/76t5-zqzr.json?%24select=statuscurrent%2Ccount%28%2A%29+as+n&%24where=issueddate+IS+NOT+NULL+AND+completeddate+IS+NULL&%24group=statuscurrent&%24order=n+DESC",
+    "by_status_completed": "https://data.seattle.gov/resource/76t5-zqzr.json?%24select=statuscurrent%2Ccount%28%2A%29+as+n&%24where=issueddate+IS+NOT+NULL+AND+completeddate+IS+NOT+NULL&%24group=statuscurrent&%24order=n+DESC",
+    "by_year_status_never": "https://data.seattle.gov/resource/76t5-zqzr.json?%24select=date_extract_y%28issueddate%29+as+y%2Cstatuscurrent%2Ccount%28%2A%29+as+n&%24where=issueddate+IS+NOT+NULL+AND+completeddate+IS+NULL+AND+issueddate+%3E%3D+%272010-01-01%27&%24group=y%2Cstatuscurrent&%24order=y%2Cstatuscurrent&%24limit=5000"
+   },
+   "results": {
+    "by_status_never_completed": [
+     {
+      "statuscurrent": "Expired",
+      "n": "13563"
+     },
+     {
+      "statuscurrent": "Completed",
+      "n": "10393"
+     },
+     {
+      "statuscurrent": "Issued",
+      "n": "8186"
+     },
+     {
+      "statuscurrent": "Withdrawn",
+      "n": "459"
+     },
+     {
+      "statuscurrent": "Canceled",
+      "n": "360"
+     },
+     {
+      "statuscurrent": "Closed",
+      "n": "59"
+     },
+     {
+      "statuscurrent": "Inspections Completed",
+      "n": "20"
+     },
+     {
+      "statuscurrent": "Phase Issued",
+      "n": "11"
+     },
+     {
+      "statuscurrent": "Reviews Completed",
+      "n": "9"
+     },
+     {
+      "statuscurrent": "Approved to Occupy",
+      "n": "6"
+     },
+     {
+      "statuscurrent": "Ready for Issuance",
+      "n": "3"
+     },
+     {
+      "statuscurrent": "Corrections Required",
+      "n": "2"
+     },
+     {
+      "statuscurrent": "Reviews In Process",
+      "n": "2"
+     },
+     {
+      "statuscurrent": "Additional Info Requested",
+      "n": "2"
+     },
+     {
+      "statuscurrent": "Scheduled",
+      "n": "1"
+     },
+     {
+      "statuscurrent": "Application Completed",
+      "n": "1"
+     }
+    ],
+    "by_status_completed": [
+     {
+      "statuscurrent": "Completed",
+      "n": "107141"
+     },
+     {
+      "statuscurrent": "Closed",
+      "n": "587"
+     },
+     {
+      "statuscurrent": "Expired",
+      "n": "318"
+     },
+     {
+      "statuscurrent": "Inspections Completed",
+      "n": "120"
+     },
+     {
+      "statuscurrent": "Withdrawn",
+      "n": "25"
+     },
+     {
+      "statuscurrent": "Approved to Occupy",
+      "n": "20"
+     },
+     {
+      "statuscurrent": "Issued",
+      "n": "16"
+     },
+     {
+      "statuscurrent": "Canceled",
+      "n": "12"
+     },
+     {
+      "statuscurrent": "Reviews Completed",
+      "n": "3"
+     },
+     {
+      "statuscurrent": "Reviews In Process",
+      "n": "2"
+     }
+    ],
+    "by_year_status_never": [
+     {
+      "y": "2010",
+      "statuscurrent": "Approved to Occupy",
+      "n": "1"
+     },
+     {
+      "y": "2010",
+      "statuscurrent": "Canceled",
+      "n": "9"
+     },
+     {
+      "y": "2010",
+      "statuscurrent": "Completed",
+      "n": "699"
+     },
+     {
+      "y": "2010",
+      "statuscurrent": "Expired",
+      "n": "126"
+     },
+     {
+      "y": "2011",
+      "statuscurrent": "Application Completed",
+      "n": "1"
+     },
+     {
+      "y": "2011",
+      "statuscurrent": "Canceled",
+      "n": "9"
+     },
+     {
+      "y": "2011",
+      "statuscurrent": "Completed",
+      "n": "644"
+     },
+     {
+      "y": "2011",
+      "statuscurrent": "Expired",
+      "n": "188"
+     },
+     {
+      "y": "2011",
+      "statuscurrent": "Issued",
+      "n": "7"
+     },
+     {
+      "y": "2011",
+      "statuscurrent": "Withdrawn",
+      "n": "2"
+     },
+     {
+      "y": "2012",
+      "statuscurrent": "Canceled",
+      "n": "9"
+     },
+     {
+      "y": "2012",
+      "statuscurrent": "Completed",
+      "n": "677"
+     },
+     {
+      "y": "2012",
+      "statuscurrent": "Expired",
+      "n": "137"
+     },
+     {
+      "y": "2012",
+      "statuscurrent": "Issued",
+      "n": "7"
+     },
+     {
+      "y": "2013",
+      "statuscurrent": "Canceled",
+      "n": "37"
+     },
+     {
+      "y": "2013",
+      "statuscurrent": "Completed",
+      "n": "778"
+     },
+     {
+      "y": "2013",
+      "statuscurrent": "Expired",
+      "n": "205"
+     },
+     {
+      "y": "2013",
+      "statuscurrent": "Inspections Completed",
+      "n": "1"
+     },
+     {
+      "y": "2013",
+      "statuscurrent": "Issued",
+      "n": "10"
+     },
+     {
+      "y": "2013",
+      "statuscurrent": "Withdrawn",
+      "n": "1"
+     },
+     {
+      "y": "2014",
+      "statuscurrent": "Canceled",
+      "n": "24"
+     },
+     {
+      "y": "2014",
+      "statuscurrent": "Closed",
+      "n": "1"
+     },
+     {
+      "y": "2014",
+      "statuscurrent": "Completed",
+      "n": "769"
+     },
+     {
+      "y": "2014",
+      "statuscurrent": "Expired",
+      "n": "317"
+     },
+     {
+      "y": "2014",
+      "statuscurrent": "Issued",
+      "n": "10"
+     },
+     {
+      "y": "2014",
+      "statuscurrent": "Withdrawn",
+      "n": "1"
+     },
+     {
+      "y": "2015",
+      "statuscurrent": "Canceled",
+      "n": "37"
+     },
+     {
+      "y": "2015",
+      "statuscurrent": "Closed",
+      "n": "1"
+     },
+     {
+      "y": "2015",
+      "statuscurrent": "Completed",
+      "n": "688"
+     },
+     {
+      "y": "2015",
+      "statuscurrent": "Expired",
+      "n": "479"
+     },
+     {
+      "y": "2015",
+      "statuscurrent": "Issued",
+      "n": "14"
+     },
+     {
+      "y": "2015",
+      "statuscurrent": "Withdrawn",
+      "n": "4"
+     },
+     {
+      "y": "2016",
+      "statuscurrent": "Additional Info Requested",
+      "n": "1"
+     },
+     {
+      "y": "2016",
+      "statuscurrent": "Canceled",
+      "n": "54"
+     },
+     {
+      "y": "2016",
+      "statuscurrent": "Closed",
+      "n": "1"
+     },
+     {
+      "y": "2016",
+      "statuscurrent": "Completed",
+      "n": "167"
+     },
+     {
+      "y": "2016",
+      "statuscurrent": "Expired",
+      "n": "1093"
+     },
+     {
+      "y": "2016",
+      "statuscurrent": "Issued",
+      "n": "45"
+     },
+     {
+      "y": "2016",
+      "statuscurrent": "Withdrawn",
+      "n": "8"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Approved to Occupy",
+      "n": "1"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Canceled",
+      "n": "27"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Closed",
+      "n": "22"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Completed",
+      "n": "257"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Expired",
+      "n": "1415"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Inspections Completed",
+      "n": "1"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Issued",
+      "n": "163"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Reviews Completed",
+      "n": "1"
+     },
+     {
+      "y": "2017",
+      "statuscurrent": "Withdrawn",
+      "n": "27"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Canceled",
+      "n": "4"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Closed",
+      "n": "12"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Completed",
+      "n": "161"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Corrections Required",
+      "n": "1"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Expired",
+      "n": "1217"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Inspections Completed",
+      "n": "3"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Issued",
+      "n": "414"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Reviews Completed",
+      "n": "3"
+     },
+     {
+      "y": "2018",
+      "statuscurrent": "Withdrawn",
+      "n": "37"
+     },
+     {
+      "y": "2019",
+      "statuscurrent": "Closed",
+      "n": "11"
+     },
+     {
+      "y": "2019",
+      "statuscurrent": "Completed",
+      "n": "169"
+     },
+     {
+      "y": "2019",
+      "statuscurrent": "Expired",
+      "n": "1517"
+     },
+     {
+      "y": "2019",
+      "statuscurrent": "Inspections Completed",
+      "n": "2"
+     },
+     {
+      "y": "2019",
+      "statuscurrent": "Issued",
+      "n": "166"
+     },
+     {
+      "y": "2019",
+      "statuscurrent": "Phase Issued",
+      "n": "1"
+     },
+     {
+      "y": "2019",
+      "statuscurrent": "Reviews In Process",
+      "n": "1"
+     },
+     {
+      "y": "2019",
+      "statuscurrent": "Withdrawn",
+      "n": "48"
+     },
+     {
+      "y": "2020",
+      "statuscurrent": "Additional Info Requested",
+      "n": "1"
+     },
+     {
+      "y": "2020",
+      "statuscurrent": "Closed",
+      "n": "5"
+     },
+     {
+      "y": "2020",
+      "statuscurrent": "Completed",
+      "n": "187"
+     },
+     {
+      "y": "2020",
+      "statuscurrent": "Expired",
+      "n": "1301"
+     },
+     {
+      "y": "2020",
+      "statuscurrent": "Inspections Completed",
+      "n": "7"
+     },
+     {
+      "y": "2020",
+      "statuscurrent": "Issued",
+      "n": "126"
+     },
+     {
+      "y": "2020",
+      "statuscurrent": "Withdrawn",
+      "n": "40"
+     },
+     {
+      "y": "2021",
+      "statuscurrent": "Approved to Occupy",
+      "n": "1"
+     },
+     {
+      "y": "2021",
+      "statuscurrent": "Closed",
+      "n": "6"
+     },
+     {
+      "y": "2021",
+      "statuscurrent": "Completed",
+      "n": "163"
+     },
+     {
+      "y": "2021",
+      "statuscurrent": "Expired",
+      "n": "1295"
+     },
+     {
+      "y": "2021",
+      "statuscurrent": "Inspections Completed",
+      "n": "3"
+     },
+     {
+      "y": "2021",
+      "statuscurrent": "Issued",
+      "n": "144"
+     },
+     {
+      "y": "2021",
+      "statuscurrent": "Reviews Completed",
+      "n": "5"
+     },
+     {
+      "y": "2021",
+      "statuscurrent": "Withdrawn",
+      "n": "55"
+     },
+     {
+      "y": "2022",
+      "statuscurrent": "Completed",
+      "n": "91"
+     },
+     {
+      "y": "2022",
+      "statuscurrent": "Expired",
+      "n": "1299"
+     },
+     {
+      "y": "2022",
+      "statuscurrent": "Issued",
+      "n": "205"
+     },
+     {
+      "y": "2022",
+      "statuscurrent": "Phase Issued",
+      "n": "2"
+     },
+     {
+      "y": "2022",
+      "statuscurrent": "Reviews In Process",
+      "n": "1"
+     },
+     {
+      "y": "2022",
+      "statuscurrent": "Withdrawn",
+      "n": "71"
+     },
+     {
+      "y": "2023",
+      "statuscurrent": "Completed",
+      "n": "63"
+     },
+     {
+      "y": "2023",
+      "statuscurrent": "Expired",
+      "n": "1059"
+     },
+     {
+      "y": "2023",
+      "statuscurrent": "Inspections Completed",
+      "n": "1"
+     },
+     {
+      "y": "2023",
+      "statuscurrent": "Issued",
+      "n": "290"
+     },
+     {
+      "y": "2023",
+      "statuscurrent": "Phase Issued",
+      "n": "1"
+     },
+     {
+      "y": "2023",
+      "statuscurrent": "Withdrawn",
+      "n": "46"
+     },
+     {
+      "y": "2024",
+      "statuscurrent": "Canceled",
+      "n": "5"
+     },
+     {
+      "y": "2024",
+      "statuscurrent": "Completed",
+      "n": "38"
+     },
+     {
+      "y": "2024",
+      "statuscurrent": "Expired",
+      "n": "882"
+     },
+     {
+      "y": "2024",
+      "statuscurrent": "Issued",
+      "n": "558"
+     },
+     {
+      "y": "2024",
+      "statuscurrent": "Phase Issued",
+      "n": "3"
+     },
+     {
+      "y": "2024",
+      "statuscurrent": "Withdrawn",
+      "n": "51"
+     },
+     {
+      "y": "2025",
+      "statuscurrent": "Approved to Occupy",
+      "n": "1"
+     },
+     {
+      "y": "2025",
+      "statuscurrent": "Completed",
+      "n": "12"
+     },
+     {
+      "y": "2025",
+      "statuscurrent": "Expired",
+      "n": "386"
+     },
+     {
+      "y": "2025",
+      "statuscurrent": "Inspections Completed",
+      "n": "2"
+     },
+     {
+      "y": "2025",
+      "statuscurrent": "Issued",
+      "n": "1824"
+     },
+     {
+      "y": "2025",
+      "statuscurrent": "Phase Issued",
+      "n": "1"
+     },
+     {
+      "y": "2025",
+      "statuscurrent": "Ready for Issuance",
+      "n": "1"
+     },
+     {
+      "y": "2025",
+      "statuscurrent": "Withdrawn",
+      "n": "43"
+     },
+     {
+      "y": "2026",
+      "statuscurrent": "Approved to Occupy",
+      "n": "2"
+     },
+     {
+      "y": "2026",
+      "statuscurrent": "Completed",
+      "n": "3"
+     },
+     {
+      "y": "2026",
+      "statuscurrent": "Issued",
+      "n": "4169"
+     },
+     {
+      "y": "2026",
+      "statuscurrent": "Phase Issued",
+      "n": "3"
+     },
+     {
+      "y": "2026",
+      "statuscurrent": "Ready for Issuance",
+      "n": "2"
+     },
+     {
+      "y": "2026",
+      "statuscurrent": "Withdrawn",
+      "n": "19"
+     }
+    ]
+   },
+   "never_completed": {
+    "total": 33077,
+    "share": {
+     "expired": 0.41004323245759894,
+     "completed": 0.314206246031986,
+     "issued": 0.24748314538803398,
+     "withdrawn": 0.013876711914623455,
+     "canceled": 0.010883695619312513,
+     "closed": 0.0017837167820539952,
+     "inspections completed": 0.000604649756628473,
+     "phase issued": 0.0003325573661456601,
+     "reviews completed": 0.00027209239048281284,
+     "approved to occupy": 0.0001813949269885419,
+     "ready for issuance": 9.069746349427095e-05,
+     "corrections required": 6.0464975662847296e-05,
+     "reviews in process": 6.0464975662847296e-05,
+     "additional info requested": 6.0464975662847296e-05,
+     "scheduled": 3.0232487831423648e-05,
+     "application completed": 3.0232487831423648e-05
+    }
+   },
+   "completed": {
+    "total": 108244,
+    "share": {
+     "completed": 0.9898100587561435,
+     "closed": 0.0054229333727504525,
+     "expired": 0.002937807176379291,
+     "inspections completed": 0.0011086064816525627,
+     "withdrawn": 0.00023095968367761724,
+     "approved to occupy": 0.00018476774694209378,
+     "issued": 0.00014781419755367504,
+     "canceled": 0.00011086064816525627,
+     "reviews completed": 2.7715162041314067e-05,
+     "reviews in process": 1.847677469420938e-05
+    }
+   },
+   "never_completed_by_year": {
+    "2010": {
+     "n": 835,
+     "share": {
+      "completed": 0.837125748502994,
+      "expired": 0.15089820359281436,
+      "canceled": 0.010778443113772455,
+      "approved to occupy": 0.0011976047904191617
+     }
+    },
+    "2011": {
+     "n": 851,
+     "share": {
+      "completed": 0.7567567567567568,
+      "expired": 0.2209165687426557,
+      "canceled": 0.010575793184488837,
+      "issued": 0.008225616921269096,
+      "withdrawn": 0.0023501762632197414,
+      "application completed": 0.0011750881316098707
+     }
+    },
+    "2012": {
+     "n": 830,
+     "share": {
+      "completed": 0.8156626506024096,
+      "expired": 0.1650602409638554,
+      "canceled": 0.010843373493975903,
+      "issued": 0.008433734939759036
+     }
+    },
+    "2013": {
+     "n": 1032,
+     "share": {
+      "completed": 0.7538759689922481,
+      "expired": 0.19864341085271317,
+      "canceled": 0.035852713178294575,
+      "issued": 0.009689922480620155,
+      "inspections completed": 0.0009689922480620155,
+      "withdrawn": 0.0009689922480620155
+     }
+    },
+    "2014": {
+     "n": 1122,
+     "share": {
+      "completed": 0.6853832442067737,
+      "expired": 0.2825311942959002,
+      "canceled": 0.0213903743315508,
+      "issued": 0.008912655971479501,
+      "closed": 0.00089126559714795,
+      "withdrawn": 0.00089126559714795
+     }
+    },
+    "2015": {
+     "n": 1223,
+     "share": {
+      "completed": 0.562551103843009,
+      "expired": 0.39165985282093213,
+      "canceled": 0.03025347506132461,
+      "issued": 0.011447260834014717,
+      "withdrawn": 0.003270645952575634,
+      "closed": 0.0008176614881439084
+     }
+    },
+    "2016": {
+     "n": 1369,
+     "share": {
+      "expired": 0.7983929875821768,
+      "completed": 0.12198685171658144,
+      "canceled": 0.039444850255661065,
+      "issued": 0.03287070854638422,
+      "withdrawn": 0.005843681519357195,
+      "additional info requested": 0.0007304601899196494,
+      "closed": 0.0007304601899196494
+     }
+    },
+    "2017": {
+     "n": 1914,
+     "share": {
+      "expired": 0.7392894461859979,
+      "completed": 0.13427377220480669,
+      "issued": 0.0851619644723093,
+      "canceled": 0.014106583072100314,
+      "withdrawn": 0.014106583072100314,
+      "closed": 0.011494252873563218,
+      "approved to occupy": 0.0005224660397074191,
+      "inspections completed": 0.0005224660397074191,
+      "reviews completed": 0.0005224660397074191
+     }
+    },
+    "2018": {
+     "n": 1852,
+     "share": {
+      "expired": 0.6571274298056156,
+      "issued": 0.22354211663066956,
+      "completed": 0.08693304535637149,
+      "withdrawn": 0.01997840172786177,
+      "closed": 0.0064794816414686825,
+      "canceled": 0.0021598272138228943,
+      "inspections completed": 0.0016198704103671706,
+      "reviews completed": 0.0016198704103671706,
+      "corrections required": 0.0005399568034557236
+     }
+    },
+    "2019": {
+     "n": 1915,
+     "share": {
+      "expired": 0.7921671018276762,
+      "completed": 0.08825065274151436,
+      "issued": 0.0866840731070496,
+      "withdrawn": 0.025065274151436032,
+      "closed": 0.005744125326370757,
+      "inspections completed": 0.0010443864229765013,
+      "phase issued": 0.0005221932114882506,
+      "reviews in process": 0.0005221932114882506
+     }
+    },
+    "2020": {
+     "n": 1667,
+     "share": {
+      "expired": 0.7804439112177565,
+      "completed": 0.11217756448710257,
+      "issued": 0.07558488302339532,
+      "withdrawn": 0.02399520095980804,
+      "inspections completed": 0.004199160167966407,
+      "closed": 0.002999400119976005,
+      "additional info requested": 0.0005998800239952009
+     }
+    },
+    "2021": {
+     "n": 1672,
+     "share": {
+      "expired": 0.7745215311004785,
+      "completed": 0.09748803827751196,
+      "issued": 0.0861244019138756,
+      "withdrawn": 0.03289473684210526,
+      "closed": 0.0035885167464114833,
+      "reviews completed": 0.0029904306220095694,
+      "inspections completed": 0.0017942583732057417,
+      "approved to occupy": 0.0005980861244019139
+     }
+    },
+    "2022": {
+     "n": 1669,
+     "share": {
+      "expired": 0.7783103654883163,
+      "issued": 0.12282804074295986,
+      "completed": 0.05452366686638706,
+      "withdrawn": 0.04254044337926902,
+      "phase issued": 0.0011983223487118035,
+      "reviews in process": 0.0005991611743559018
+     }
+    },
+    "2023": {
+     "n": 1460,
+     "share": {
+      "expired": 0.7253424657534246,
+      "issued": 0.19863013698630136,
+      "completed": 0.04315068493150685,
+      "withdrawn": 0.031506849315068496,
+      "inspections completed": 0.0006849315068493151,
+      "phase issued": 0.0006849315068493151
+     }
+    },
+    "2024": {
+     "n": 1537,
+     "share": {
+      "expired": 0.5738451528952505,
+      "issued": 0.3630448926480156,
+      "withdrawn": 0.03318152244632401,
+      "completed": 0.0247234873129473,
+      "canceled": 0.0032530904359141183,
+      "phase issued": 0.001951854261548471
+     }
+    },
+    "2025": {
+     "n": 2270,
+     "share": {
+      "issued": 0.8035242290748899,
+      "expired": 0.17004405286343613,
+      "withdrawn": 0.01894273127753304,
+      "completed": 0.0052863436123348016,
+      "inspections completed": 0.000881057268722467,
+      "approved to occupy": 0.0004405286343612335,
+      "phase issued": 0.0004405286343612335,
+      "ready for issuance": 0.0004405286343612335
+     }
+    },
+    "2026": {
+     "n": 4198,
+     "share": {
+      "issued": 0.9930919485469271,
+      "withdrawn": 0.004525964745116722,
+      "completed": 0.0007146260123868509,
+      "phase issued": 0.0007146260123868509,
+      "approved to occupy": 0.0004764173415912339,
+      "ready for issuance": 0.0004764173415912339
+     }
+    }
+   }
+  },
+  "austin": {
+   "queries": {
+    "by_status_never_completed": "https://data.austintexas.gov/resource/3syk-w9eu.json?%24select=status_current%2Ccount%28%2A%29+as+n&%24where=issue_date+IS+NOT+NULL+AND+completed_date+IS+NULL&%24group=status_current&%24order=n+DESC",
+    "by_status_completed": "https://data.austintexas.gov/resource/3syk-w9eu.json?%24select=status_current%2Ccount%28%2A%29+as+n&%24where=issue_date+IS+NOT+NULL+AND+completed_date+IS+NOT+NULL&%24group=status_current&%24order=n+DESC",
+    "by_year_status_never": "https://data.austintexas.gov/resource/3syk-w9eu.json?%24select=date_extract_y%28issue_date%29+as+y%2Cstatus_current%2Ccount%28%2A%29+as+n&%24where=issue_date+IS+NOT+NULL+AND+completed_date+IS+NULL+AND+issue_date+%3E%3D+%272010-01-01%27&%24group=y%2Cstatus_current&%24order=y%2Cstatus_current&%24limit=5000"
+   },
+   "results": {
+    "by_status_never_completed": [
+     {
+      "status_current": "Expired",
+      "n": "114649"
+     },
+     {
+      "status_current": "VOID",
+      "n": "52487"
+     },
+     {
+      "status_current": "Active",
+      "n": "27301"
+     },
+     {
+      "status_current": "Withdrawn",
+      "n": "2484"
+     },
+     {
+      "status_current": "Final",
+      "n": "1497"
+     },
+     {
+      "status_current": "Pending",
+      "n": "106"
+     },
+     {
+      "status_current": "Cancelled - Contractor Required",
+      "n": "96"
+     },
+     {
+      "status_current": "On Hold",
+      "n": "84"
+     },
+     {
+      "status_current": "Aborted",
+      "n": "78"
+     },
+     {
+      "status_current": "Inactive Pending Revision",
+      "n": "76"
+     },
+     {
+      "status_current": "Closed",
+      "n": "74"
+     },
+     {
+      "status_current": "Pending Permit",
+      "n": "47"
+     },
+     {
+      "status_current": "Cancelled",
+      "n": "34"
+     },
+     {
+      "status_current": "Expired - License",
+      "n": "20"
+     },
+     {
+      "n": "5"
+     },
+     {
+      "status_current": "New Permit Required",
+      "n": "3"
+     },
+     {
+      "status_current": "Application Incomplete",
+      "n": "1"
+     }
+    ],
+    "by_status_completed": [
+     {
+      "status_current": "Final",
+      "n": "2012934"
+     },
+     {
+      "status_current": "VOID",
+      "n": "100904"
+     },
+     {
+      "status_current": "Expired",
+      "n": "55448"
+     },
+     {
+      "status_current": "Withdrawn",
+      "n": "15354"
+     },
+     {
+      "status_current": "Active",
+      "n": "652"
+     },
+     {
+      "status_current": "Cancelled",
+      "n": "641"
+     },
+     {
+      "status_current": "Pending",
+      "n": "141"
+     },
+     {
+      "status_current": "Closed",
+      "n": "55"
+     },
+     {
+      "status_current": "Re Review",
+      "n": "55"
+     },
+     {
+      "status_current": "Denied but Closed",
+      "n": "43"
+     },
+     {
+      "status_current": "Aborted",
+      "n": "42"
+     },
+     {
+      "status_current": "Cancelled - Contractor Required",
+      "n": "29"
+     },
+     {
+      "status_current": "Suspended",
+      "n": "26"
+     },
+     {
+      "status_current": "On Hold",
+      "n": "24"
+     },
+     {
+      "status_current": "Pending Permit",
+      "n": "12"
+     },
+     {
+      "n": "9"
+     },
+     {
+      "status_current": "Cancelled - New Permit Required",
+      "n": "9"
+     },
+     {
+      "status_current": "Inactive Pending Revision",
+      "n": "7"
+     },
+     {
+      "status_current": "Inactive Contractor",
+      "n": "3"
+     },
+     {
+      "status_current": "Revoked",
+      "n": "2"
+     },
+     {
+      "status_current": "Rejected",
+      "n": "1"
+     },
+     {
+      "status_current": "Awaiting Upload",
+      "n": "1"
+     },
+     {
+      "status_current": "Application Incomplete",
+      "n": "1"
+     }
+    ],
+    "by_year_status_never": [
+     {
+      "y": "2010",
+      "status_current": "Aborted",
+      "n": "3"
+     },
+     {
+      "y": "2010",
+      "status_current": "Active",
+      "n": "6"
+     },
+     {
+      "y": "2010",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "2"
+     },
+     {
+      "y": "2010",
+      "status_current": "Closed",
+      "n": "5"
+     },
+     {
+      "y": "2010",
+      "status_current": "Expired",
+      "n": "3797"
+     },
+     {
+      "y": "2010",
+      "status_current": "New Permit Required",
+      "n": "1"
+     },
+     {
+      "y": "2010",
+      "status_current": "VOID",
+      "n": "2758"
+     },
+     {
+      "y": "2010",
+      "status_current": "Withdrawn",
+      "n": "89"
+     },
+     {
+      "y": "2011",
+      "status_current": "Aborted",
+      "n": "1"
+     },
+     {
+      "y": "2011",
+      "status_current": "Active",
+      "n": "4"
+     },
+     {
+      "y": "2011",
+      "status_current": "Closed",
+      "n": "4"
+     },
+     {
+      "y": "2011",
+      "status_current": "Expired",
+      "n": "3644"
+     },
+     {
+      "y": "2011",
+      "status_current": "VOID",
+      "n": "2197"
+     },
+     {
+      "y": "2011",
+      "status_current": "Withdrawn",
+      "n": "113"
+     },
+     {
+      "y": "2012",
+      "status_current": "Active",
+      "n": "3"
+     },
+     {
+      "y": "2012",
+      "status_current": "Closed",
+      "n": "1"
+     },
+     {
+      "y": "2012",
+      "status_current": "Expired",
+      "n": "3310"
+     },
+     {
+      "y": "2012",
+      "status_current": "VOID",
+      "n": "1352"
+     },
+     {
+      "y": "2012",
+      "status_current": "Withdrawn",
+      "n": "123"
+     },
+     {
+      "y": "2013",
+      "status_current": "Active",
+      "n": "6"
+     },
+     {
+      "y": "2013",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "1"
+     },
+     {
+      "y": "2013",
+      "status_current": "Closed",
+      "n": "5"
+     },
+     {
+      "y": "2013",
+      "status_current": "Expired",
+      "n": "3886"
+     },
+     {
+      "y": "2013",
+      "status_current": "VOID",
+      "n": "808"
+     },
+     {
+      "y": "2013",
+      "status_current": "Withdrawn",
+      "n": "103"
+     },
+     {
+      "y": "2014",
+      "status_current": "Active",
+      "n": "5"
+     },
+     {
+      "y": "2014",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "1"
+     },
+     {
+      "y": "2014",
+      "status_current": "Closed",
+      "n": "2"
+     },
+     {
+      "y": "2014",
+      "status_current": "Expired",
+      "n": "4516"
+     },
+     {
+      "y": "2014",
+      "status_current": "VOID",
+      "n": "564"
+     },
+     {
+      "y": "2014",
+      "status_current": "Withdrawn",
+      "n": "93"
+     },
+     {
+      "y": "2015",
+      "status_current": "Aborted",
+      "n": "22"
+     },
+     {
+      "y": "2015",
+      "status_current": "Active",
+      "n": "13"
+     },
+     {
+      "y": "2015",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "1"
+     },
+     {
+      "y": "2015",
+      "status_current": "Closed",
+      "n": "3"
+     },
+     {
+      "y": "2015",
+      "status_current": "Expired",
+      "n": "5394"
+     },
+     {
+      "y": "2015",
+      "status_current": "VOID",
+      "n": "595"
+     },
+     {
+      "y": "2015",
+      "status_current": "Withdrawn",
+      "n": "126"
+     },
+     {
+      "y": "2016",
+      "status_current": "Aborted",
+      "n": "21"
+     },
+     {
+      "y": "2016",
+      "status_current": "Active",
+      "n": "20"
+     },
+     {
+      "y": "2016",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "1"
+     },
+     {
+      "y": "2016",
+      "status_current": "Closed",
+      "n": "2"
+     },
+     {
+      "y": "2016",
+      "status_current": "Expired",
+      "n": "5498"
+     },
+     {
+      "y": "2016",
+      "status_current": "Pending",
+      "n": "1"
+     },
+     {
+      "y": "2016",
+      "status_current": "VOID",
+      "n": "454"
+     },
+     {
+      "y": "2016",
+      "status_current": "Withdrawn",
+      "n": "90"
+     },
+     {
+      "y": "2017",
+      "status_current": "Aborted",
+      "n": "3"
+     },
+     {
+      "y": "2017",
+      "status_current": "Active",
+      "n": "20"
+     },
+     {
+      "y": "2017",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "1"
+     },
+     {
+      "y": "2017",
+      "status_current": "Closed",
+      "n": "5"
+     },
+     {
+      "y": "2017",
+      "status_current": "Expired",
+      "n": "6133"
+     },
+     {
+      "y": "2017",
+      "status_current": "Pending",
+      "n": "1"
+     },
+     {
+      "y": "2017",
+      "status_current": "VOID",
+      "n": "331"
+     },
+     {
+      "y": "2017",
+      "status_current": "Withdrawn",
+      "n": "109"
+     },
+     {
+      "y": "2018",
+      "status_current": "Aborted",
+      "n": "1"
+     },
+     {
+      "y": "2018",
+      "status_current": "Active",
+      "n": "15"
+     },
+     {
+      "y": "2018",
+      "status_current": "Cancelled",
+      "n": "1"
+     },
+     {
+      "y": "2018",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "1"
+     },
+     {
+      "y": "2018",
+      "status_current": "Closed",
+      "n": "1"
+     },
+     {
+      "y": "2018",
+      "status_current": "Expired",
+      "n": "6696"
+     },
+     {
+      "y": "2018",
+      "status_current": "Pending",
+      "n": "6"
+     },
+     {
+      "y": "2018",
+      "status_current": "Pending Permit",
+      "n": "1"
+     },
+     {
+      "y": "2018",
+      "status_current": "VOID",
+      "n": "228"
+     },
+     {
+      "y": "2018",
+      "status_current": "Withdrawn",
+      "n": "60"
+     },
+     {
+      "y": "2019",
+      "status_current": "Aborted",
+      "n": "1"
+     },
+     {
+      "y": "2019",
+      "status_current": "Active",
+      "n": "40"
+     },
+     {
+      "y": "2019",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "1"
+     },
+     {
+      "y": "2019",
+      "status_current": "Closed",
+      "n": "2"
+     },
+     {
+      "y": "2019",
+      "status_current": "Expired",
+      "n": "7004"
+     },
+     {
+      "y": "2019",
+      "status_current": "Pending",
+      "n": "1"
+     },
+     {
+      "y": "2019",
+      "status_current": "VOID",
+      "n": "211"
+     },
+     {
+      "y": "2019",
+      "status_current": "Withdrawn",
+      "n": "60"
+     },
+     {
+      "y": "2020",
+      "status_current": "Active",
+      "n": "96"
+     },
+     {
+      "y": "2020",
+      "status_current": "Cancelled",
+      "n": "25"
+     },
+     {
+      "y": "2020",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "1"
+     },
+     {
+      "y": "2020",
+      "status_current": "Closed",
+      "n": "1"
+     },
+     {
+      "y": "2020",
+      "status_current": "Expired",
+      "n": "6225"
+     },
+     {
+      "y": "2020",
+      "status_current": "Pending",
+      "n": "3"
+     },
+     {
+      "y": "2020",
+      "status_current": "Pending Permit",
+      "n": "1"
+     },
+     {
+      "y": "2020",
+      "status_current": "VOID",
+      "n": "164"
+     },
+     {
+      "y": "2020",
+      "status_current": "Withdrawn",
+      "n": "14"
+     },
+     {
+      "y": "2021",
+      "status_current": "Active",
+      "n": "174"
+     },
+     {
+      "y": "2021",
+      "status_current": "Application Incomplete",
+      "n": "1"
+     },
+     {
+      "y": "2021",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "6"
+     },
+     {
+      "y": "2021",
+      "status_current": "Expired",
+      "n": "7572"
+     },
+     {
+      "y": "2021",
+      "status_current": "Pending",
+      "n": "4"
+     },
+     {
+      "y": "2021",
+      "status_current": "Pending Permit",
+      "n": "6"
+     },
+     {
+      "y": "2021",
+      "status_current": "VOID",
+      "n": "179"
+     },
+     {
+      "y": "2021",
+      "status_current": "Withdrawn",
+      "n": "43"
+     },
+     {
+      "y": "2022",
+      "status_current": "Aborted",
+      "n": "5"
+     },
+     {
+      "y": "2022",
+      "status_current": "Active",
+      "n": "322"
+     },
+     {
+      "y": "2022",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "5"
+     },
+     {
+      "y": "2022",
+      "status_current": "Closed",
+      "n": "3"
+     },
+     {
+      "y": "2022",
+      "status_current": "Expired",
+      "n": "7250"
+     },
+     {
+      "y": "2022",
+      "status_current": "On Hold",
+      "n": "7"
+     },
+     {
+      "y": "2022",
+      "status_current": "Pending",
+      "n": "8"
+     },
+     {
+      "y": "2022",
+      "status_current": "Pending Permit",
+      "n": "2"
+     },
+     {
+      "y": "2022",
+      "status_current": "VOID",
+      "n": "125"
+     },
+     {
+      "y": "2022",
+      "status_current": "Withdrawn",
+      "n": "45"
+     },
+     {
+      "y": "2022",
+      "n": "1"
+     },
+     {
+      "y": "2023",
+      "status_current": "Aborted",
+      "n": "3"
+     },
+     {
+      "y": "2023",
+      "status_current": "Active",
+      "n": "535"
+     },
+     {
+      "y": "2023",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "7"
+     },
+     {
+      "y": "2023",
+      "status_current": "Expired",
+      "n": "6537"
+     },
+     {
+      "y": "2023",
+      "status_current": "Expired - License",
+      "n": "3"
+     },
+     {
+      "y": "2023",
+      "status_current": "Final",
+      "n": "6"
+     },
+     {
+      "y": "2023",
+      "status_current": "Inactive Pending Revision",
+      "n": "8"
+     },
+     {
+      "y": "2023",
+      "status_current": "On Hold",
+      "n": "2"
+     },
+     {
+      "y": "2023",
+      "status_current": "Pending",
+      "n": "17"
+     },
+     {
+      "y": "2023",
+      "status_current": "Pending Permit",
+      "n": "14"
+     },
+     {
+      "y": "2023",
+      "status_current": "VOID",
+      "n": "110"
+     },
+     {
+      "y": "2023",
+      "status_current": "Withdrawn",
+      "n": "45"
+     },
+     {
+      "y": "2024",
+      "status_current": "Aborted",
+      "n": "15"
+     },
+     {
+      "y": "2024",
+      "status_current": "Active",
+      "n": "1081"
+     },
+     {
+      "y": "2024",
+      "status_current": "Cancelled",
+      "n": "1"
+     },
+     {
+      "y": "2024",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "12"
+     },
+     {
+      "y": "2024",
+      "status_current": "Expired",
+      "n": "5760"
+     },
+     {
+      "y": "2024",
+      "status_current": "Expired - License",
+      "n": "1"
+     },
+     {
+      "y": "2024",
+      "status_current": "Final",
+      "n": "71"
+     },
+     {
+      "y": "2024",
+      "status_current": "Inactive Pending Revision",
+      "n": "5"
+     },
+     {
+      "y": "2024",
+      "status_current": "On Hold",
+      "n": "11"
+     },
+     {
+      "y": "2024",
+      "status_current": "Pending",
+      "n": "20"
+     },
+     {
+      "y": "2024",
+      "status_current": "Pending Permit",
+      "n": "8"
+     },
+     {
+      "y": "2024",
+      "status_current": "VOID",
+      "n": "136"
+     },
+     {
+      "y": "2024",
+      "status_current": "Withdrawn",
+      "n": "62"
+     },
+     {
+      "y": "2025",
+      "status_current": "Active",
+      "n": "3863"
+     },
+     {
+      "y": "2025",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "22"
+     },
+     {
+      "y": "2025",
+      "status_current": "Expired",
+      "n": "4833"
+     },
+     {
+      "y": "2025",
+      "status_current": "Expired - License",
+      "n": "1"
+     },
+     {
+      "y": "2025",
+      "status_current": "Final",
+      "n": "606"
+     },
+     {
+      "y": "2025",
+      "status_current": "Inactive Pending Revision",
+      "n": "7"
+     },
+     {
+      "y": "2025",
+      "status_current": "On Hold",
+      "n": "25"
+     },
+     {
+      "y": "2025",
+      "status_current": "Pending",
+      "n": "28"
+     },
+     {
+      "y": "2025",
+      "status_current": "Pending Permit",
+      "n": "9"
+     },
+     {
+      "y": "2025",
+      "status_current": "VOID",
+      "n": "114"
+     },
+     {
+      "y": "2025",
+      "status_current": "Withdrawn",
+      "n": "32"
+     },
+     {
+      "y": "2026",
+      "status_current": "Aborted",
+      "n": "1"
+     },
+     {
+      "y": "2026",
+      "status_current": "Active",
+      "n": "21079"
+     },
+     {
+      "y": "2026",
+      "status_current": "Cancelled - Contractor Required",
+      "n": "34"
+     },
+     {
+      "y": "2026",
+      "status_current": "Expired",
+      "n": "1614"
+     },
+     {
+      "y": "2026",
+      "status_current": "Expired - License",
+      "n": "15"
+     },
+     {
+      "y": "2026",
+      "status_current": "Final",
+      "n": "38"
+     },
+     {
+      "y": "2026",
+      "status_current": "Inactive Pending Revision",
+      "n": "56"
+     },
+     {
+      "y": "2026",
+      "status_current": "On Hold",
+      "n": "39"
+     },
+     {
+      "y": "2026",
+      "status_current": "Pending",
+      "n": "15"
+     },
+     {
+      "y": "2026",
+      "status_current": "Pending Permit",
+      "n": "4"
+     },
+     {
+      "y": "2026",
+      "status_current": "VOID",
+      "n": "82"
+     },
+     {
+      "y": "2026",
+      "status_current": "Withdrawn",
+      "n": "16"
+     }
+    ]
+   },
+   "never_completed": {
+    "total": 199042,
+    "share": {
+     "expired": 0.5760040594447403,
+     "void": 0.26369811396589665,
+     "active": 0.13716200600878206,
+     "withdrawn": 0.01247977813727756,
+     "final": 0.007521025713166065,
+     "pending": 0.0005325509189015383,
+     "cancelled - contractor required": 0.00048231026617497817,
+     "on hold": 0.00042202148290310587,
+     "aborted": 0.00039187709126716977,
+     "inactive pending revision": 0.0003818289607218577,
+     "closed": 0.00037178083017654567,
+     "pending permit": 0.00023613106781483306,
+     "cancelled": 0.00017081821927030476,
+     "expired - license": 0.00010048130545312044,
+     "(blank)": 2.512032636328011e-05,
+     "new permit required": 1.5072195817968068e-05,
+     "application incomplete": 5.024065272656022e-06
+    }
+   },
+   "completed": {
+    "total": 2186393,
+    "share": {
+     "final": 0.9206643087496164,
+     "void": 0.04615089784864844,
+     "expired": 0.025360491000474297,
+     "withdrawn": 0.007022525227623762,
+     "active": 0.00029820805317250834,
+     "cancelled": 0.000293176935711009,
+     "pending": 6.448977837012833e-05,
+     "closed": 2.5155587307496868e-05,
+     "re review": 2.5155587307496868e-05,
+     "denied but closed": 1.9667095531315734e-05,
+     "aborted": 1.9209721216633973e-05,
+     "cancelled - contractor required": 1.3263855125771076e-05,
+     "suspended": 1.1891732181725792e-05,
+     "on hold": 1.0976983552362269e-05,
+     "pending permit": 5.4884917761811345e-06,
+     "(blank)": 4.116368832135851e-06,
+     "cancelled - new permit required": 4.116368832135851e-06,
+     "inactive pending revision": 3.2016202027723287e-06,
+     "inactive contractor": 1.3721229440452836e-06,
+     "revoked": 9.147486293635225e-07,
+     "rejected": 4.5737431468176126e-07,
+     "awaiting upload": 4.5737431468176126e-07,
+     "application incomplete": 4.5737431468176126e-07
+    }
+   },
+   "never_completed_by_year": {
+    "2010": {
+     "n": 6661,
+     "share": {
+      "expired": 0.5700345293499475,
+      "void": 0.41405194415252966,
+      "withdrawn": 0.013361357153580543,
+      "active": 0.0009007656508031827,
+      "closed": 0.0007506380423359856,
+      "aborted": 0.00045038282540159135,
+      "cancelled - contractor required": 0.00030025521693439425,
+      "new permit required": 0.00015012760846719713
+     }
+    },
+    "2011": {
+     "n": 5963,
+     "share": {
+      "expired": 0.6111017943987925,
+      "void": 0.3684387053496562,
+      "withdrawn": 0.018950192855944993,
+      "active": 0.000670803286936106,
+      "closed": 0.000670803286936106,
+      "aborted": 0.0001677008217340265
+     }
+    },
+    "2012": {
+     "n": 4789,
+     "share": {
+      "expired": 0.6911672583002715,
+      "void": 0.28231363541449156,
+      "withdrawn": 0.02568385884318229,
+      "active": 0.0006264355815410315,
+      "closed": 0.00020881186051367718
+     }
+    },
+    "2013": {
+     "n": 4809,
+     "share": {
+      "expired": 0.8080682054481181,
+      "void": 0.16801829902266582,
+      "withdrawn": 0.021418174256602203,
+      "active": 0.0012476606363069245,
+      "closed": 0.001039717196922437,
+      "cancelled - contractor required": 0.0002079434393844874
+     }
+    },
+    "2014": {
+     "n": 5181,
+     "share": {
+      "expired": 0.8716464003088207,
+      "void": 0.10885929357266937,
+      "withdrawn": 0.01795020266357846,
+      "active": 0.0009650646593321753,
+      "closed": 0.0003860258637328701,
+      "cancelled - contractor required": 0.00019301293186643504
+     }
+    },
+    "2015": {
+     "n": 6154,
+     "share": {
+      "expired": 0.8765030874228145,
+      "void": 0.09668508287292818,
+      "withdrawn": 0.020474488137796554,
+      "aborted": 0.0035749106272343193,
+      "active": 0.0021124471888202797,
+      "closed": 0.0004874878128046799,
+      "cancelled - contractor required": 0.00016249593760155997
+     }
+    },
+    "2016": {
+     "n": 6087,
+     "share": {
+      "expired": 0.9032364054542468,
+      "void": 0.07458518153441761,
+      "withdrawn": 0.014785608674223755,
+      "aborted": 0.0034499753573188764,
+      "active": 0.003285690816494168,
+      "closed": 0.0003285690816494168,
+      "cancelled - contractor required": 0.0001642845408247084,
+      "pending": 0.0001642845408247084
+     }
+    },
+    "2017": {
+     "n": 6603,
+     "share": {
+      "expired": 0.9288202332273209,
+      "void": 0.05012872936543995,
+      "withdrawn": 0.016507648038770258,
+      "active": 0.0030289262456459185,
+      "closed": 0.0007572315614114796,
+      "aborted": 0.00045433893684688776,
+      "cancelled - contractor required": 0.00015144631228229593,
+      "pending": 0.00015144631228229593
+     }
+    },
+    "2018": {
+     "n": 7010,
+     "share": {
+      "expired": 0.955206847360913,
+      "void": 0.03252496433666191,
+      "withdrawn": 0.008559201141226819,
+      "active": 0.0021398002853067048,
+      "pending": 0.0008559201141226819,
+      "aborted": 0.0001426533523537803,
+      "cancelled": 0.0001426533523537803,
+      "cancelled - contractor required": 0.0001426533523537803,
+      "closed": 0.0001426533523537803,
+      "pending permit": 0.0001426533523537803
+     }
+    },
+    "2019": {
+     "n": 7320,
+     "share": {
+      "expired": 0.9568306010928962,
+      "void": 0.028825136612021858,
+      "withdrawn": 0.00819672131147541,
+      "active": 0.00546448087431694,
+      "closed": 0.000273224043715847,
+      "aborted": 0.0001366120218579235,
+      "cancelled - contractor required": 0.0001366120218579235,
+      "pending": 0.0001366120218579235
+     }
+    },
+    "2020": {
+     "n": 6530,
+     "share": {
+      "expired": 0.9532924961715161,
+      "void": 0.025114854517611026,
+      "active": 0.014701378254211332,
+      "cancelled": 0.0038284839203675345,
+      "withdrawn": 0.0021439509954058193,
+      "pending": 0.0004594180704441041,
+      "cancelled - contractor required": 0.00015313935681470137,
+      "closed": 0.00015313935681470137,
+      "pending permit": 0.00015313935681470137
+     }
+    },
+    "2021": {
+     "n": 7985,
+     "share": {
+      "expired": 0.9482780212899186,
+      "void": 0.022417031934877898,
+      "active": 0.02179085785848466,
+      "withdrawn": 0.005385097056981841,
+      "cancelled - contractor required": 0.0007514088916718848,
+      "pending permit": 0.0007514088916718848,
+      "pending": 0.0005009392611145899,
+      "application incomplete": 0.00012523481527864746
+     }
+    },
+    "2022": {
+     "n": 7773,
+     "share": {
+      "expired": 0.9327158111411296,
+      "active": 0.041425447060337066,
+      "void": 0.016081307088640164,
+      "withdrawn": 0.005789270551910459,
+      "pending": 0.0010292036536729706,
+      "on hold": 0.0009005531969638492,
+      "aborted": 0.0006432522835456066,
+      "cancelled - contractor required": 0.0006432522835456066,
+      "closed": 0.00038595137012736397,
+      "pending permit": 0.00025730091341824265,
+      "(blank)": 0.00012865045670912132
+     }
+    },
+    "2023": {
+     "n": 7287,
+     "share": {
+      "expired": 0.8970769864141622,
+      "active": 0.07341841635789763,
+      "void": 0.015095375325922877,
+      "withdrawn": 0.006175380815150268,
+      "pending": 0.00233292164127899,
+      "pending permit": 0.0019212295869356388,
+      "inactive pending revision": 0.0010978454782489364,
+      "cancelled - contractor required": 0.0009606147934678194,
+      "final": 0.0008233841086867024,
+      "aborted": 0.0004116920543433512,
+      "expired - license": 0.0004116920543433512,
+      "on hold": 0.0002744613695622341
+     }
+    },
+    "2024": {
+     "n": 7183,
+     "share": {
+      "expired": 0.8018933593206181,
+      "active": 0.15049422246972016,
+      "void": 0.01893359320618126,
+      "final": 0.009884449394403453,
+      "withdrawn": 0.008631491020464987,
+      "pending": 0.0027843519420854795,
+      "aborted": 0.0020882639565641095,
+      "cancelled - contractor required": 0.0016706111652512877,
+      "on hold": 0.0015313935681470138,
+      "pending permit": 0.0011137407768341918,
+      "inactive pending revision": 0.0006960879855213699,
+      "cancelled": 0.00013921759710427398,
+      "expired - license": 0.00013921759710427398
+     }
+    },
+    "2025": {
+     "n": 9540,
+     "share": {
+      "expired": 0.5066037735849057,
+      "active": 0.4049266247379455,
+      "final": 0.06352201257861635,
+      "void": 0.011949685534591196,
+      "withdrawn": 0.0033542976939203353,
+      "pending": 0.0029350104821802936,
+      "on hold": 0.002620545073375262,
+      "cancelled - contractor required": 0.002306079664570231,
+      "pending permit": 0.0009433962264150943,
+      "inactive pending revision": 0.0007337526205450734,
+      "expired - license": 0.00010482180293501048
+     }
+    },
+    "2026": {
+     "n": 22993,
+     "share": {
+      "active": 0.9167572739529422,
+      "expired": 0.07019527682338103,
+      "void": 0.003566302787804984,
+      "inactive pending revision": 0.0024355238550863305,
+      "on hold": 0.0016961683990779801,
+      "final": 0.0016526769016657243,
+      "cancelled - contractor required": 0.0014787109120167007,
+      "withdrawn": 0.0006958639585960944,
+      "expired - license": 0.0006523724611838385,
+      "pending": 0.0006523724611838385,
+      "pending permit": 0.0001739659896490236,
+      "aborted": 4.34914974122559e-05
+     }
+    }
+   }
+  }
+ }
+}
