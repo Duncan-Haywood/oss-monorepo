@@ -159,7 +159,7 @@ export function toCsv(cmp) {
     ...cmp.ranked.map((r) => {
       const { e, targetPay, maxClass, annual, opts } = r.a;
       return [q(r.name), opts.pay.toFixed(2), e.expectedPay.toFixed(2), e.direct.toFixed(2), e.net.toFixed(2), hrs(e.workHours), hrs(e.commuteHours),
-        e.hourly.toFixed(2), e.quotedHourly.toFixed(2), targetPay.toFixed(2), maxClass === null ? "" : Number.isFinite(maxClass) ? maxClass : "any",
+        e.hourly.toFixed(2), Number.isFinite(e.quotedHourly) ? e.quotedHourly.toFixed(2) : "", targetPay.toFixed(2), maxClass === null ? "" : Number.isFinite(maxClass) ? maxClass : "any",
         annual.net.toFixed(2), hrs(annual.hours)].join(",");
     }),
   ].join("\n") + "\n";

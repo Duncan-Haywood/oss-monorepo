@@ -200,7 +200,7 @@
       if (!cmp.ranked.length) { h += '<div class="finding"><span class="pill">Check</span> Enter a pay above zero for at least one offer.</div>'; $("result").innerHTML = h; $("out").hidden = false; return; }
       const s = cmp.shared, b = cmp.best;
       h += `<div class="finding"><h3>${cmp.ranked.length > 1 ? "Best offer: " : ""}${esc(b.name)} at ${money2(b.a.e.hourly)} an hour</h3><p>That is after ${b.a.e.allHours.toFixed(0)} hours (${b.a.e.workHours.toFixed(0)} working, ${b.a.e.commuteHours.toFixed(0)} travelling) for ${money(b.a.e.net)} net per course. Across ${b.a.annual.courses} courses a year that is ${money(b.a.annual.net)} for ${b.a.annual.hours.toFixed(0)} hours.</p></div>`;
-      h += `<div class="finding"><h3>The offers side by side</h3>${table(["Offer", "Net per course", "Hours per course", "Real $/hour", "Contract $/class hour", "Per year"], cmp.ranked.map((r) => [esc(r.name), money(r.a.e.net), r.a.e.allHours.toFixed(0), money2(r.a.e.hourly), money2(r.a.e.quotedHourly), money(r.a.annual.net)]))}</div>`;
+      h += `<div class="finding"><h3>The offers side by side</h3>${table(["Offer", "Net per course", "Hours per course", "Real $/hour", "Contract $/class hour", "Per year"], cmp.ranked.map((r) => [esc(r.name), money(r.a.e.net), r.a.e.allHours.toFixed(0), money2(r.a.e.hourly), Number.isFinite(r.a.e.quotedHourly) ? money2(r.a.e.quotedHourly) : "-", money(r.a.annual.net)]))}</div>`;
       for (const r of cmp.ranked) {
         const e = r.a.e, o = r.a.opts;
         h += `<div class="finding"><h3>${esc(r.name)}</h3>`;
