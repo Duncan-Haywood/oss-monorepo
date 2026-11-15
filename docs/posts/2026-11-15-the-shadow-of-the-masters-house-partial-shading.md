@@ -1,6 +1,6 @@
 ---
 title: "The Shadow of the Master's House: a story about one shaded cell in eighty"
-seo_title: "Partial shading of a solar string and bypass diodes: a science fiction story"
+seo_title: "Partial shading and bypass diodes on a solar roof: a story"
 date: 2026-11-15
 tags: [fiction, hearth-and-horizon, solar, bypass-diodes, mppt, engineering]
 description: "A new Hearth & Horizon story: a gable shades 1.25% of a school's solar roof and costs 11% of its power, and after a shower the inverter climbs the wrong hill."

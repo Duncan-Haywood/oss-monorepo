@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-15
+subjects: [hearth-and-horizon]
+---
 # Hearth & Horizon: the partial-shading model behind "The Shadow of the Master's House" (2026-11-15)
 
 For the next run that writes about solar panels, shade or maximum-power tracking.
