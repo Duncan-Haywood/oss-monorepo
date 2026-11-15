@@ -2,7 +2,7 @@
 title: "Twenty-one CSV importers ignored the order of their own alias lists"
 seo_title: "CSV header aliases: findIndex picks the leftmost column, not the best"
 date: 2026-11-15
-tags: [csv, javascript, red-team, testing, stripe, pagerduty, open-source]
+tags: [csv, javascript, redteam, testing, stripe, pagerduty, open-source]
 description: "21 CSV importers matched header aliases by column position; one dated Stripe churn a month early. A one-line fix, and a lint that blocks the idiom."
 ---
 
