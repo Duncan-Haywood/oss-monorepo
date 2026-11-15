@@ -31,6 +31,15 @@ a version, then a TIFF of its own whose offsets count from that header):
 * **White level**: the top of the linearisation curve where one is stored (the
   last value before the curve flattens), else 2^bits - 1.
 * **CFA phase**: the raw IFD's TIFF/EP CFAPattern tag, as in a DNG.
+* **Visible area**: a NEF's stored width often includes columns that are not
+  picture: optically masked sensels, then padding the camera fills with one
+  value (D800E: 7,424 stored, 46 not picture; D90: 42; D5100: 44). Nothing in
+  the file says where the picture ends (the maker note's CropHiSpeed, 0x001B,
+  names the stored size), and dcraw and LibRaw trim by a per-model table.
+  ``masked_margins`` finds them from the data instead: a picture column moves
+  with its same-colour neighbour two columns in (correlation over rows near 1)
+  and varies as much as the middle of the frame; a masked or padding column
+  does neither. The result becomes the ActiveArea, so the developer skips them.
 * **Colour**: a NEF carries no colour matrix the DNG colour model can use.
   Like a CR2 or an ARW, developing one needs the camera's ``.dcp`` profile
   (Adobe's free DNG Converter installs one per camera, "Nikon D810 Adobe
@@ -286,6 +295,74 @@ def decode_nikon(buf: bytes, width: int, height: int, lin: Linearization, engine
     return _decode_python(buf, width, height, lin)
 
 
+MARGIN_MAX = 64  # widest masked edge searched; a side with no picture column within it is left whole
+
+
+def _column(values, width: int, rows, c: int) -> list[float]:
+    return [float(values[r * width + c]) for r in rows]
+
+
+def _stats(v: list[float]) -> tuple[float, float]:
+    n = len(v)
+    mean = sum(v) / n
+    return mean, (sum((x - mean) ** 2 for x in v) / n) ** 0.5
+
+
+def _corr(a: list[float], b: list[float]) -> float:
+    ma, mb = sum(a) / len(a), sum(b) / len(b)
+    sab = sum((x - ma) * (y - mb) for x, y in zip(a, b))
+    saa = sum((x - ma) ** 2 for x in a)
+    sbb = sum((y - mb) ** 2 for y in b)
+    return sab / (saa * sbb) ** 0.5 if saa > 0 and sbb > 0 else 0.0
+
+
+def masked_margins(values, width: int, height: int, white: float) -> tuple[int, int]:
+    """Columns at the left and right edge that hold no picture, found from the sensels.
+
+    A column counts as picture when it varies over the rows at least a tenth as
+    much as the middle of the frame and correlates (0.8 or more) with the
+    same-colour column two further in; or when it sits at 90% of white and is
+    not one constant value (a clipped edge is picture; the D800E pads with
+    columns of 16,382, every row the same). Scanning in from each edge, the first picture
+    column ends the margin. The left margin is rounded up to even so the CFA
+    phase stays the file's. Returns (0, 0) for a frame too flat to tell
+    (middle columns varying by under 8 levels), and 0 for a side with no
+    picture column within ``MARGIN_MAX``. Even rows only (one colour per
+    column), at most about 1,200 of them.
+    """
+
+    if width < 4 * MARGIN_MAX or height < 16:
+        return 0, 0
+    step = 2 * max(1, height // 2400)
+    rows = range(0, height, step)
+    mid = width // 2 & ~1
+    ref = sorted(_stats(_column(values, width, rows, c))[1] for c in range(mid - 8, mid + 8))[8]
+    if ref < 8:
+        return 0, 0
+    floor = max(2.0, 0.1 * ref)
+
+    def picture(c: int, inward: int) -> bool:
+        v = _column(values, width, rows, c)
+        mean, sd = _stats(v)
+        if sd == 0:
+            return False
+        if mean >= 0.9 * white:
+            return True
+        return sd >= floor and _corr(v, _column(values, width, rows, inward)) >= 0.8
+
+    left = 0
+    for c in range(MARGIN_MAX):
+        if picture(c, c + 2):
+            left = c
+            break
+    right = 0
+    for k in range(1, MARGIN_MAX + 1):
+        if picture(width - k, width - k - 2):
+            right = k - 1
+            break
+    return left + (left & 1), right
+
+
 def parse_nef(data: bytes, engine: str = "auto") -> rd.RawImage:
     """A NEF's sensor data and DNG-equivalent tags."""
 
@@ -370,6 +447,12 @@ def parse_nef(data: bytes, engine: str = "auto") -> rd.RawImage:
     if ifd.get(rd.TAG_CFA_REPEAT) != (2, 2) or not pattern or len(pattern) != 4 or sorted(pattern) != [0, 1, 1, 2]:
         raise rd.DevelopError("Nikon raw has no 2x2 RGB CFAPattern")
 
+    left, right = masked_margins(values, width, height, white)
+    if left or right:
+        notes.append(
+            f"NEF: {left + right} edge columns hold no picture (masked or padding: {left} left, {right} right),"
+            " found from the sensels and left out"
+        )
     synth = rd.Ifd(byte_order=reader.end)
     synth.entries = {
         rd.TAG_WIDTH: (width,),
@@ -379,7 +462,7 @@ def parse_nef(data: bytes, engine: str = "auto") -> rd.RawImage:
         rd.TAG_PHOTOMETRIC: (rd.PHOTOMETRIC_CFA,),
         rd.TAG_CFA_REPEAT: (2, 2),
         rd.TAG_CFA_PATTERN: tuple(pattern),
-        rd.TAG_ACTIVE_AREA: (0, 0, height, width),
+        rd.TAG_ACTIVE_AREA: (0, left, height, width - right),
         rd.TAG_BLACK_REPEAT: (2, 2),
         rd.TAG_BLACK_LEVEL: black,
         rd.TAG_WHITE_LEVEL: (int(white),),
@@ -392,4 +475,4 @@ def parse_nef(data: bytes, engine: str = "auto") -> rd.RawImage:
     return rd.RawImage(width, height, 1, values, synth, head, source="nef", notes=notes, exif=exif)
 
 
-__all__ = ["Linearization", "camera_model", "decode_nikon", "is_nef", "lut16", "maker_note", "parse_nef"]
+__all__ = ["Linearization", "camera_model", "decode_nikon", "is_nef", "lut16", "maker_note", "masked_margins", "parse_nef"]
