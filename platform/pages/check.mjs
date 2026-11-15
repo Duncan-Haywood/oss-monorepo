@@ -1294,7 +1294,11 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
         const tag = [...html.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)]
           .find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0]));
         if (!tag) continue;
-        const content = /\bcontent=(["'])([\s\S]*?)\1/i.exec(tag[0])?.[2] ?? '';
+        // Two quoted alternatives, not `(["'])...\1`: the same match, without
+        // the `i` backreference V8 runs about 20 times slower on two-byte
+        // pages (share.mjs, META_CONTENT).
+        const quoted = /\bcontent=(?:"([^"]*)"|'([^']*)')/i.exec(tag[0]);
+        const content = quoted ? quoted[1] ?? quoted[2] : '';
         // Entities are one character to a reader and to the count that matters.
         const length = content.replace(/&(?:[a-z][a-z0-9]*|#\d+|#x[0-9a-f]+);/gi, ' ').length;
         if (length > SNIPPET_MAX) {

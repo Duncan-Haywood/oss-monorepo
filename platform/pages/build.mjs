@@ -10759,12 +10759,19 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   const metaTags = () => [...next.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)];
   const tagFor = (attr, value) =>
     metaTags().find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0])) ?? null;
-  const contentOf = (tag) => decodeEntities(/\bcontent=(["'])([\s\S]*?)\1/i.exec(tag)?.[2] ?? '');
+  // Two quoted alternatives, not `(["'])...\1`: the same match, without the
+  // `i` backreference V8 runs about 20 times slower on two-byte pages
+  // (share.mjs, META_CONTENT).
+  const CONTENT = /\bcontent=(?:"([^"]*)"|'([^']*)')/i;
+  const contentOf = (tag) => {
+    const c = CONTENT.exec(tag);
+    return decodeEntities(c ? c[1] ?? c[2] : '');
+  };
 
   /** Rewrite one existing meta tag's content in place; a no-op if it has none. */
   const rewrite = (match, content) => {
     const replaced = match[0].replace(
-      /\bcontent=(["'])([\s\S]*?)\1/i,
+      CONTENT,
       () => `content="${escapeHtml(content)}"`,
     );
     if (replaced === match[0]) return;
