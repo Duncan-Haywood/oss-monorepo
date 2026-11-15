@@ -52,7 +52,7 @@ spreadsheet, or a bookkeeping subscription with a bank login.
 | `opening.mjs` | Opening balances from a trial balance CSV (`code,amount` in natural sign, or `code,debit,credit`), dated; whatever does not balance goes to 3000 and is reported. For starting mid-stream with a receivable, a loan, equipment and prior earnings already on the books. CLI `opening FILE --date D`; agents `opening: {csv, date}`. |
 | `payroll.mjs` | Pay-run register to books: wages, employer taxes, the 2300 liability, bank-line matching and a Form 941 worksheet. |
 | `ledger.mjs` | The double-entry core, in integer cents: a 37-account small-business chart (or your own), entries that must balance, trial balance, monthly profit and loss, and a balance sheet where unclosed profit shows as current earnings, and an indirect-method cash flow statement (`cashFlow`, in `report`) that must tie to the change in the bank accounts (since 2026-10-26 depreciation is an operating add-back and a disposal shows proceeds in investing; 2026-10-26 `freeCashFlow` = operations less fixed-asset purchases; `monthlyBurn` and `runwayMonths` = cash used by operations and investing per month, and closing cash over it, null when not burning; 2026-10-27 `cashFlowByMonth` gives each month's statement and the last three months' burn and runway, in the CLI `report` and a table on the page; 2026-10-27 `ratios` (in `report`, the CLI and the page): gross and net margin, working capital, current and quick ratio, debt to equity, each null rather than invented when its denominator is zero or negative, with the loan counted as long term). |
-| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), then, on a card line that carries the network's merchant category code or name (`mcc.mjs`), where these books filed that category before or a fixed table of codes (README "Merchant category codes"), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5 and at most its own record on earlier new payees, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
+| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), then, on a card line that carries the network's merchant category code or name (`mcc.mjs`), where these books filed that category before or a fixed table of codes (README "Merchant category codes"), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, then a chain's name from OpenStreetMap's name-suggestion-index (`brands.mjs`, README "Chain names from OpenStreetMap"), and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5 and at most its own record on earlier new payees, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
 | `engine.mjs` | Import, transfer pairing, auto-posting, confirming, the journal, close checks and exports. `analyze()` is the one call for agents and the CLI. |
 | `ai.mjs` | The optional fifth layer, through `byok.mjs` (a synced copy of `platform/llm/byok.mjs`): Anthropic, OpenAI, Gemini, any OpenAI-compatible endpoint, or Ollama, LM Studio or llama.cpp on your own computer. |
 
@@ -1415,6 +1415,87 @@ Replayed in date order against the owner's labels (money out to an expense the d
 | Bluevine checking | 3 | 0 / 0 | 3 / 0 | 0 / 0 | 3 / 0 | | |
 
 What it says, with care: one small firm, a handful of recurring vendors, 227 scored lines; the loop was already near the top because the payees repeat monthly. The five first-seen lines still wrong are the new-payee guess sending a grocer, a fuel stop, a tutoring marketplace and a coworking charge to software (this book is almost all software, so its prior says software), and USPS suggested as postage where the owner filed a government fee. No change on the Mint (2,926 lines), Monarch, Rocket Money or Mercury replays, whose scored lines exclude transfers. Pinned in `card-payments.test.mjs` (5 tests: descriptions under the real wording, amounts made up, and the hledger reader).
+
+### UK merchants in the built-in keywords: a fourth card buyer (2026-11-15)
+
+The built-in keywords were written from US exports. On three UK public buyers' card lines, read from empty books with the merchant name only, they said nothing on 85-90% of lines: Trainline, Travelodge, Ryanair, Screwfix, Royal Mail and Tesco were all blank, while Kroger, Home Depot and USPS were not.
+
+The new buyer is South Lakeland District Council (England, `node eval/southlakeland-pcard.mjs --dir <folder>`, fetch command in the file; Open Government Licence v3.0, not copied here): 54 monthly reports, July 2014 to November 2019, 8,182 lines. 5,029 carry the council's procurement class ("Public Transport", "Accommodation", "Stationery"), and 3,311 of those name a chart account (`CLASS_MAP`, written from the class names before the first scored run). The report has no merchant category code, so this is the first card buyer here where only the bank-line layers can speak. Its purpose column ("Train to Birmingham for planning event") would give the answer away and is not read.
+
+A UK block now sits at the top of `BUILT_IN` (`categorize.mjs`), written from South Lakeland's blank list and from the UK twins of chains the table already filed: rail, coach and airlines and Travelodge as travel; Tesco, Sainsbury's, Asda, Morrisons, Waitrose, Lidl, Booths, Iceland, Greggs, Pret, Nando's and Wetherspoon as meals (as Kroger and Aldi already were); Screwfix, Toolstation, Travis Perkins, Jewson, Wickes, B&Q, Currys and RS Components as supplies; Ryman, WH Smith, Viking and Royal Mail as office and postage; Parcelforce, Evri and Yodel as shipping; CIPFA, CIEH, IRRV, CIPD, AAT, RICS and the chartered institutes as dues; Companies House as a licence; Money Claim and HM Courts as legal fees; E.ON and British Gas as utilities; DVLA (road tax) as a vehicle cost, the way HMRC's list of allowable expenses for the self-employed files it. General and department stores (Argos, Home Bargains, Poundland, B&M, M&S) stay blank, as Walmart and Target do, and HMRC stays blank because a payment to it is usually VAT or PAYE owed.
+
+Keywords alone from empty books, right / wrong (`node eval/uk-card-keywords.mjs --sl <dir> --durham <dir> --scot <dir>`):
+
+| buyer | lines | before | first block | after reading the misses |
+|---|---|---|---|---|
+| South Lakeland (written from) | 3,311 | 8.7% / 1.5% | 39.7% / 5.7% | 39.4% / 5.3% |
+| Durham County Council (held out for the first block) | 151,437 | 10.6% / 2.1% | 28.1% / 3.0% | 28.2% / 2.8% |
+| Scottish Government (held out for the first block) | 11,087 | 8.5% / 6.2% | 11.8% / 6.5% | 11.8% / 6.5% |
+
+The middle column is the held-out reading: Durham's and the Scottish Government's lines were scored before the block was written and not looked at until it had run. Then their misses were read and the block changed: supermarket filling stations print the grocer's name ("TESCO PFS 4088", "ASDA PETROL", "TESCO PAY AT PUMP") and now go to vehicle and fuel; Asda's George clothing goes to supplies; "Iceland Travel" is no longer the grocer; Halfords (Durham right 26, wrong 87), NCP car parks (Durham 0 and 11, South Lakeland 2 and 6) and DVSA (Durham 0 and 55) were dropped as more often wrong than right. The last column is fitted to all three.
+
+In the learning loop (books filed a day at a time, first-seen merchants right / wrong): South Lakeland 34.2% / 17.5% to 39.6% / 17.1%; Durham with the merchant code layer off 53.4% / 34.6% to 54.2% / 34.1%, and with it on unchanged at 87.8% (wrong 11.7% to 11.6%); the Scottish Government with the code layer off 42.6% / 45.5% to 42.8% / 45.4%, with it on unchanged at 64.8%.
+
+What it says, with care:
+
+- **The gain is on a new user's first import, not on books that have history.** From empty books a UK user now gets a suggestion on about three lines in ten instead of one in ten. Once a book has filed a merchant, its own memory does the work, and when the card file carries a merchant code that layer already covers almost every first-seen line, so the learning-loop figures barely move.
+- **Most of the held-out gain is a few big names.** Tesco, Asda, Sainsbury's, Screwfix, Travelodge and DVLA are most of Durham's 26,000 newly right lines; counted once per merchant name, Durham moved from 7.3% to 8.9% right. The long tail of local firms is still the books' own job.
+- **The Scottish Government's file barely moves** because it lists only lines over £500, few of them at chains.
+- **Wrong went up on South Lakeland** (1.5% to 5.3%): the council filed some Trainline and Virgin Trains lines as accountancy or insurance, Sainsbury's mostly as consumables, and DVLA as vehicle maintenance. Those count as misses here; the labels are one council's.
+- **No change on the US sets:** the YNAB, Mint, Monarch, Rocket Money, Mercury and software-LLC replays and the 63 US exports read the same or a line better (Mint first-seen 47.1% to 47.2%).
+
+Pinned in `uk-merchants.test.mjs` (5 tests: descriptions in the shapes UK card reports print, amounts made up, and the South Lakeland reader on made-up rows under the real header).
+
+### Chain names from OpenStreetMap (2026-11-15)
+
+The built-in keywords know the big names. A new user's first import is mostly the rest: Heron Foods, Wolseley, Scotmid, Cava, Blake's Lotaburger. OpenStreetMap's name-suggestion-index (NSI, BSD 3-Clause) lists about 50,000 chains worldwide with the kind of place each one is (`shop=supermarket`, `amenity=fuel`, `tourism=hotel`). `brands-build.mjs` turns release 8.0.20261101 into `brands.mjs` (6,555 chain names that suggest an account and 71 that only block, 105 KB, the NSI notice kept in its header); `suggest` tries it after the keywords, the card code and the bank's own category, before the new-payee guess. Money out only, confidence 0.5, review only (`source: "brand"`, reason `"heron foods" is a chain listed by OpenStreetMap as a food shop, cafe or restaurant`).
+
+How it was built, before any bank line was scored:
+
+- **`CATEGORY_MAP`**, NSI kind of place to account, following what `BUILT_IN` already does with the same merchants: supermarkets, convenience stores, cafes and restaurants as meals (as Kroger and Tesco), hotels, car hire and travel agents as travel, fuel, tyres and car repair as vehicle, DIY, hardware and trade counters as supplies, stationers, copy shops and post offices as office and postage, telecoms as utilities, insurers, coworking and self-storage. Kinds that fit two accounts (clothes, department and variety stores, pharmacies, electronics, furniture, banks, parking) are unmapped.
+- **Longest name wins, and an unmapped longer name blocks a shorter mapped one**: "Total" is fuel, "Total Wine" is an off-licence, so "TOTAL WINE" gets nothing. A name listed under two accounts says nothing.
+- **One-word names that are common English words are dropped** (SCOWL sizes 10-50 through `wordlist-english`, MIT, read at build time only): Access, Bell, Advantage, Shell, Target, Express. The famous ones are already in `BUILT_IN`, which runs first. Parcel lockers were left out because their names are the retailers (Amazon, AliExpress).
+- Names `BUILT_IN` measured and dropped (Halfords, NCP, DVSA) are excluded. This was the one change made after the development sets (South Lakeland and the Mint tuning half) were read.
+
+Held out, from empty books with the merchant name only, right / wrong (`node eval/uk-card-keywords.mjs ... [--skip brand]`, `node eval/mint-labelled.mjs --set tune|held [--skip brand]`):
+
+| set | lines | layer off | on | lines it spoke on (right) |
+|---|---|---|---|---|
+| South Lakeland (development) | 3,311 | 39.4% / 5.3% | 39.9% / 5.4% | 19 (16) |
+| Mint, tuning half (development) | 2,159 | 57.5% / 3.8% | 59.1% / 3.8% | |
+| Durham County Council (held out) | 151,437 | 28.2% / 2.8% | 29.6% / 2.9% | 2,210 (2,022) |
+| Scottish Government (held out) | 11,087 | 11.8% / 6.5% | 12.3% / 7.1% | 134 (61) |
+| Mint, six held-out files | 767 | 54.6% / 1.8% | 58.5% / 1.8% | |
+
+On 63 real US exports with no labels (`node eval/brand-lines.mjs --cache DIR`, 4,927 lines out), the layer changed 48 lines from no suggestion to one, and all 48 read by eye as the right kind of place (Arby's, Cava, Peet's, Vons, Harris Teeter, Sprouts, Smashburger, Candlewood Suites, O'Reilly Auto Parts, Hobby Lobby as supplies).
+
+Two changes came from reading held-out misses; the figures above include both, and together they moved the Durham and Scottish totals by at most 0.1 point:
+
+- `BUILT_IN` knew "Iceland Travel" is not the grocer, and the chain list undid that. When the keywords know a chain's bare name, they now decide on the cleaned payee (`www.iceland.co.uk` is still the grocer; "Iceland Travel" gets nothing).
+- The test suite's probe 6 caught "JOHN DEERE FINANCIAL" filed as supplies. A chain's name followed by "financial", "finance", "credit", "bank", "loan", "lease", "insurance" or "mortgage" now gets nothing.
+
+In the learning loop (books filed a day at a time, first-seen merchants right / wrong):
+
+| books | first-seen lines | card code off: layer off | on | card code on (default): layer off | on |
+|---|---|---|---|---|---|
+| Durham Resources | 933 | 43.1% / 24.9% | 43.3% / 25.1% | 75.3% / 20.4% | 75.3% / 20.4% |
+| Durham Adult and Health Services | 306 | 52.6% / 36.9% | 52.6% / 36.9% | 75.8% / 20.6% | 75.8% / 20.6% |
+| Durham Dedicated Schools Grant | 285 | 62.8% / 32.6% | 62.8% / 33.3% | 70.2% / 27.7% | 70.2% / 28.4% |
+| Durham Transformation and Partnerships | 92 | 62.0% / 23.9% | 62.0% / 23.9% | 75.0% / 18.5% | 75.0% / 18.5% |
+| Scottish Government, lines over £500 | 3,156 | 42.8% / 45.4% | 42.8% / 45.4% | (not run) | |
+| Mint, six held-out files | 403 | 69.2% / 15.4% | 69.7% / 15.4% | | |
+| YNAB, three households (`eval/ynab-registers.mjs`) | 219 | 74.9% / 11.9% | 74.4% / 12.3% | | |
+
+The YNAB loss is two lines read after the run: "The Hampton Social" (a restaurant) matched Hampton, the hotel chain, and a payee called "Albert" matched Albert, a Czech supermarket. A first name or a surname that is also a chain is the layer's known weakness.
+
+What it says, with care:
+
+- **It is a first-import layer.** Once a book has filed a merchant its own memory takes over, and on card files with a merchant category code that layer places nearly every new merchant first, so the learning-loop figures barely move.
+- **Where it speaks it is mostly right on the UK council and the US exports** (91.5% on Durham, 48 of 48 by eye), but the average gain is small: most lines are big names the keywords already know, or local firms no chain list has.
+- **The Scottish Government's file got worse** (61 right, 73 wrong where it spoke). That file lists only lines over £500, and at that size a Malmaison, Crowne Plaza or Novotel line is a venue the government hired, filed as rent or hire, not travel. Baxter Storey, a caterer, matched Baxter, a car-service chain (26 lines). A name that is also a surname is the layer's known weakness.
+- Labels are three councils', one government's and some households'; the map from their categories to a small business's chart is a judgment.
+
+Pinned in `brands.test.mjs` (7 tests: descriptions in the shapes real exports print, amounts made up, and the builder on a made-up index). To rebuild: the commands at the top of `brands-build.mjs`.
 
 ### PNC CSV (2026-10-22)
 

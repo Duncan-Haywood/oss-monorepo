@@ -3980,6 +3980,40 @@ rho, slopeBefore, slopeAfter, significant, note }` or `{ refused, reason }`; on 
 slope on the levels" box. Test: `hinge-test.test.mjs`.
 
 
+### A guard read off the hinge's residuals (2026-11-15, pre-registered; fails, not the default)
+
+The guard above reads the straight line's residuals, and a real bend makes those stickier, so on GCAG 1930-2024
+(95 points) it refused at rho 0.76, above the short-series 0.7. `guard: 'hinge'` reads the guard off the best OLS
+hinge's residuals instead, and its bootstrap null still draws with the straight-line rho, capped at 0.95. Four bars
+were written down first (`eval/hinge-guard-prereg-2026-11-15.md`); both guards ran on the same series
+(`node eval/hinge-guard-sim.mjs 300 99`, `eval/hinge-guard-sim.out.txt`; `node eval/hinge-guard-real.mjs`,
+`eval/hinge-guard-real.out.txt`). Each figure is the share of **all** series with p <= 0.05, with refusals counted as
+not rejecting.
+
+| bar | cell | line guard (shipped) | hinge guard | holds? |
+|---|---|---|---|---|
+| R | GCAG 1930-2024 | refused | knot 1974, p 0.001, slope -0.00 -> 2.08 per century | yes |
+| R | GCAG/GISTEMP 1880, GCAG 1850; log GDP, productivity | 1976, p 0.001; refused | same; refused (hinge rho 0.95, 0.96) | yes |
+| P | n 95, rho 0.5, slope change 0.2 | 20.7% (64 tested) | 98.7% (300 tested) | yes |
+| P | slope change 0.1 / 0.05 | 63.3% / 25.0% | 70.3% / 25.3% | |
+| S1 | n 60, rho 0.8 (straight line, no bend) | 3.3% | **10.7%** | no (8% cap) |
+| S1 | other 11 cells | 3.0-7.7% | identical to the line guard but n 60 rho 0.6 (6.7%) | |
+| S2 | random walk with drift, n 60 / 145 / 300 | 0.3% / 2.0% / 0.0% | **11.0% / 16.0%** / 3.0% | no |
+| S2 | AR(1) rho 0.9, n 60 / 145 / 300 | 1.0% / 5.7% / 6.3% | **8.3% / 8.3%** / 7.3% | no |
+| S2 | AR(1) rho 0.95, n 60 / 145 / 300 | 0.7% / 3.0% / 0.3% | **9.0% / 8.7%** / 5.3% | no |
+
+Two bars fail, so the default stays `line`. The risk named in the pre-registration is what happened: a hinge fits a
+random walk's wander better than a line does, so a hinge-residual guard admits random walks (171 of 300 at n 145),
+and on those the level test rejects about one time in six. The power is real, though. With a 0.2 slope change at
+n 95, the line guard refuses 236 of 300 series, and the hinge guard tests all 300 and finds 98.7%. That is the
+1930-2024 problem: the stronger the bend, the more often the shipped guard refuses it. `guard: 'hinge'` stays in
+`hingeTest` for evaluation, and it is not in the CLI or on the page.
+
+**What the table suggests, not tested.** The failures are at n 60 and 145 and near a unit root. A guard that needs
+both rhos to clear, or one that refuses when a hinge cuts the rho by less than a unit root's typical cut, would
+target the gap; each needs its own pre-registration and fresh seeds, since these cells are now seen.
+Test: `hinge-test.test.mjs` ("hinge-residual guard").
+
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
 The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a

@@ -523,3 +523,42 @@ test("dot-separated dates are read day-first even when every day is 12 or under"
   const n = load("A,Uber Eats,03.06.2026 12:00,Delivered,20,-5,0,0,0,0,15\n");
   assert.equal(n.orders[0].t, Date.UTC(2026, 5, 3, 12));
 });
+
+// Red-team 2026-11-15: four mutants escaped, and two break-even cases read as
+// losses because float noise was compared against zero (and one) directly.
+test("a three-letter word in a cell is text, not an amount, when voting on the decimal format", () => {
+  // "Ref 1.25" is a note, not a dot-decimal amount; only "12,50" votes.
+  assert.equal(detectDecimalComma([["Subtotal", "Note"], ["12,50", "Ref 1.25"]]), true);
+});
+
+test("one digit after a decimal comma is a vote for decimal comma", () => {
+  assert.equal(detectDecimalComma([["Subtotal"], ["12,5"]]), true);
+});
+
+test("promo spend is split into promotions and ads, each a positive sum", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,30,-7.5,0,-3,-2,0,17.5\nB,DoorDash,2026-06-02 12:00,Delivered,30,-7.5,0,-1,0,0,21.5\n");
+  const p = analyze(n.orders, {}).promo;
+  near(p.marketing, 4); near(p.ads, 2); near(p.spend, 6);
+});
+
+test("delivery that exactly breaks even after costs is not called a loss overall", () => {
+  // 20 - 5 = 15 payout, 15 packaging: net after costs is exactly 0.
+  const exact = analyze(load("A,DoorDash,2026-06-01,Delivered,20,-5,0,0,0,0,15\n").orders, { packaging: 15 });
+  assert.equal(exact.summary.netAfter, 0);
+  assert.ok(!exact.findings.some((f) => /lost money overall/.test(f.title)));
+  // Three orders of 10.10 - 0.30 = 9.80 with 9.80 packaging sum to -5e-15.
+  const body = [1, 2, 3].map((i) => `O${i},DoorDash,2026-06-0${i} 12:00,Delivered,10.1,-0.3,0,0,0,0,9.8`).join("\n") + "\n";
+  const r = analyze(load(body).orders, { packaging: 9.8 });
+  assert.ok(r.findings.some((f) => /No order lost money/.test(f.title)));
+  assert.ok(!r.findings.some((f) => /lost money overall/.test(f.title)), "break-even read as a loss");
+});
+
+test("a promotion that earns back its spend to the cent is not flagged high, whatever the float noise", () => {
+  // Profit before spend equals spend (ratio 0.99999999999999 in floats).
+  const body = [1, 2, 3].map((i) => `O${i},DoorDash,2026-06-0${i} 12:00,Delivered,10.1,-0.1,0,-0.2,0,0,9.8`).join("\n") + "\n";
+  const r = analyze(load(body).orders, { packaging: 9.8 });
+  near(r.promo.profitBeforeSpend, r.promo.spend, 1e-9);
+  const f = r.findings.find((x) => /^Promotions and ads/.test(x.title));
+  assert.equal(f.severity, "info");
+  assert.ok(!/cost more than/.test(f.detail));
+});

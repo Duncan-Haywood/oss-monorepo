@@ -1178,7 +1178,8 @@ an uncompressed RAF, is now read directly too, X-Trans and Bayer (GFX): `shootfl
 DSCF0001.RAF --dcp PROFILE.dcp` and the grade stage take it like any other RAF
 (`src/shootflow/raf_compressed.py`; the strip decoder also in C in the optional `ljpeg_native`
 library, strips in parallel; the pure-Python decoder is the reference and runs with no compiler).
-The lossy compressed mode (header version 0) is refused with the reason.
+The lossy compressed mode (header version 0) is read too since the same day: see "Fujifilm lossy
+compressed RAF" below.
 
 How it was checked (`tools/raf_libraw_check.py`, `eval/fujifilm-compressed-raf-2026-11-15.md`, rows
 in `eval/fujifilm-compressed-raf-libraw-2026-11-15.jsonl`): five real lossless compressed RAFs from
@@ -1189,7 +1190,28 @@ one); 48-56 s in pure Python, which also matches on every sensel. 24 s to develo
 frame end to end. A Bayer RAF with a Fujifilm sub-IFD now takes the 0x3E00 white level the older
 Bayer bodies use (LibRaw's value for the GFX 50S; that frame has no clipped highlights to confirm
 it). `tests/test_raf_compressed.py` (10 tests) encodes known sensels with a test-only encoder and
-decodes them on both paths. Not done: the lossy mode (two real files are named in the eval for it).
+decodes them on both paths.
+
+## Fujifilm lossy compressed RAF (2026-11-15)
+
+The "compressed" (lossy) raw setting of the X-S10, X-E4 and other recent Fujifilm bodies is read
+directly too, by the same decoder (`src/shootflow/raf_compressed.py`, C and pure Python). It was the
+top open item on this flagship. A lossy stream adds, for each strip and each six-row group, a
+quantisation base `q`: residuals are coded in steps of `2q + 1`, the gradient thresholds widen with
+`q`, and flat patches switch to one of three fixed side quantisers. The module docstring has the
+layout.
+
+How it was checked (`eval/fujifilm-lossy-raf-2026-11-15.md`, rows in
+`eval/fujifilm-lossy-raf-libraw-2026-11-15.jsonl`): the two lossy RAFs on raw.pixls.us (CC0), an
+X-S10 and an X-E4. Against LibRaw 0.22.2 (rawpy 0.28) every one of 2 x 26.7 M sensels is equal, and
+so are the balance, black level, white level and CFA, in C (0.7 s a file on four cores) and in pure
+Python (73-75 s a file). The X-T2 and GFX 50S lossless files were rerun after the change and still
+match on every sensel. What the files show about the format: both sit at 4.75 bits a sensel
+(15.8 MB for 26.7 M sensels), so the camera holds a bit budget and varies the step instead: the
+X-S10 frame's bases run 0-9 (mean step 5.7 counts), the X-E4 frame's 0-13 (mean step 11.2 counts,
+under 0.1% of its 1,022-16,383 range). `tests/test_raf_compressed.py` (now 15 tests) has a lossy
+test encoder: bases changing between groups, all three side quantisers, a 12-bit Bayer stream, a
+base-0 lossy stream that must come back exactly, and truncated bases.
 
 ## Directional X-Trans demosaic (2026-11-14)
 

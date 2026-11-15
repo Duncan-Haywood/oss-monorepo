@@ -221,6 +221,17 @@ CHECKS = [
     ("json", "m4j_tum/summary.json", "hypotheses/H67/fr3", 7.9, 1, pct, "6.3% / 7.9% of splits"),
     ("log", "0.73% of f (fr1) and 0.51% (fr3), against 0.51% and 0.30%", "0.73% / 0.51% of f, against 0.51% / 0.30%"),
     ("log", "8 of 1,709 (fr1, up to f = 9,289 px) and 30 of 1,716 (fr3)", "5% away on 8 and 30"),
+    # Section 7, milestone 4k (warm start)
+    ("json", "m4k_warm/summary.json", "f_prior", 527.1, 1, None, "527.1 px"),
+    ("json", "m4k_warm/compare.json", "fr3/far6_median_rms", 0.071, 3, None, "median rms 0.071 px against 0.075 px"),
+    ("json", "m4k_warm/compare.json", "fr3/13/cold/rms", 0.075, 3, None, "median rms 0.071 px against 0.075 px"),
+    ("json", "m4k_warm/compare.json", "fr1/13/warm/f", 508.88, 2, None, "f 508.88 px with rms"),
+    ("json", "m4k_warm/compare.json", "fr1/13/warm/rms", 0.483, 3, None, "0.483 px"),
+    ("json", "m4k_warm/compare.json", "fr1/6/cold_lower_cost", 89, 0, None, "lower cost on 89 of the 6-view sets"),
+    ("json", "m4k_warm/compare.json", "fr1/6/warm_lower_cost", 0, 0, None, "the warm start on none"),
+    ("json", "m4k_warm/summary.json", "hypotheses/H70/fr1", 4.36, 2, pct, "4.36% and 20.09% (fr1 / fr3)"),
+    ("json", "m4k_warm/summary.json", "hypotheses/H70/fr3", 20.09, 2, pct, "4.36% and 20.09% (fr1 / fr3)"),
+    ("json", "m4k_warm/summary.json", "hypotheses/H72/pm2_k6", 10.6, 1, pct, "stayed at 10.6%"),
 ]
 
 

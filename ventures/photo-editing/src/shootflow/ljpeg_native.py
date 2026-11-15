@@ -605,9 +605,10 @@ long shootflow_samsung_blocks_run(const uint8_t *d, long len, long start, long w
     }
     return 0;
 }
-/* Fujifilm lossless compressed RAF: one strip (shootflow.raf_compressed.decode_strip, the reference).
-   18 lines of lw + 2 values (R0..R4, G0..G7, B0..B4); six pairs per group of six rows.
-   out points at the strip's first sensel; rows are out_stride apart.
+/* Fujifilm compressed RAF, lossless or lossy: one strip (shootflow.raf_compressed.decode_strip, the
+   reference). 18 lines of lw + 2 values (R0..R4, G0..G7, B0..B4); six pairs per group of six rows.
+   out points at the strip's first sensel; rows are out_stride apart. qb is NULL for a lossless
+   stream, else the strip's quantisation base per line group (lossy).
    Returns the number of coding errors (0 on a clean stream). */
 static const int fuji_xtrans_abs[6][6] = {{1,1,0,1,1,2},{1,1,2,1,1,0},{2,0,1,0,2,1},
                                          {1,1,2,1,1,0},{1,1,0,1,1,2},{0,2,1,2,0,1}};
@@ -616,6 +617,36 @@ static const int fuji_pairs[6][2][2] = {{{0,2},{1,2}},{{1,3},{2,2}},{{0,3},{1,4}
 static const int fuji_base[3] = {0, 5, 13};
 
 typedef struct { const uint8_t *d; long p, end; uint32_t acc; int n; long err; } fuji_bits;
+
+/* one quantiser: gradient table over -top..top, residual step 2 * q_base + 1 */
+typedef struct { int8_t *t; int q_base, total, raw_bits, mult, max_grad, step; } fuji_qt;
+
+static int fuji_log2ceil(int v) { int r = 0; if (v--) { do { r++; } while (v >>= 1); } return r; }
+
+static int fuji_qt_init(fuji_qt *q, int top, int q_base, int p1, int p2, int p3, int mult, int max_grad) {
+    q->t = (int8_t *)malloc((size_t)2 * top + 1);
+    if (!q->t) return -1;
+    for (int i = 0; i <= 2 * top; i++) {
+        int v = i - top, t;
+        if (v <= -p3) t = -4; else if (v <= -p2) t = -3; else if (v <= -p1) t = -2;
+        else if (v < -q_base) t = -1; else if (v <= q_base) t = 0; else if (v < p1) t = 1;
+        else if (v < p2) t = 2; else if (v < p3) t = 3; else t = 4;
+        q->t[i] = (int8_t)t;
+    }
+    q->q_base = q_base; q->step = 2 * q_base + 1;
+    q->total = (top + 2 * q_base) / (2 * q_base + 1) + 1;
+    q->raw_bits = fuji_log2ceil(q->total);
+    q->mult = mult; q->max_grad = max_grad;
+    return 0;
+}
+
+static int fuji_main_qt(fuji_qt *q, int top, int q_base) {
+    int p1 = 3 * q_base + 0x12, p2 = 5 * q_base + 0x43, p3 = 7 * q_base + 0x114;
+    if (p1 > top || p1 < q_base + 1) p1 = q_base + 1;
+    if (p2 < p1 || p2 > top) p2 = p1;
+    if (p3 < p2 || p3 > top) p3 = p2;
+    return fuji_qt_init(q, top, q_base, p1, p2, p3, 9, 0);
+}
 
 static inline int fuji_bit(fuji_bits *b) {
     if (!b->n) {
@@ -642,25 +673,35 @@ static inline int fuji_get(fuji_bits *b, int k) {
 }
 
 long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int lw, long lines,
-                          int strip_width, int xtrans, long out_stride, uint16_t *out)
+                          int strip_width, int xtrans, long out_stride, uint16_t *out, const uint8_t *qb)
 {
     int stride = lw + 2;
-    int top = (1 << bits) - 1, total = 1 << bits;
-    int long_cut = 4 * bits - bits - 1, min_value = 0x40, max_diff = 1 << (bits - 6);
-    const int q1 = 0x12, q2 = 0x43, q3 = 0x114;
+    int top = (1 << bits) - 1;
+    int max_bits = 4 * fuji_log2ceil(top + 1), min_value = 0x40;
     int32_t *buf = (int32_t *)calloc((size_t)18 * stride, sizeof(int32_t));
-    int8_t *qt = (int8_t *)malloc((size_t)2 * top + 1);
-    if (!buf || !qt) { free(buf); free(qt); return -1; }
-    for (int i = 0; i <= 2 * top; i++) {
-        int v = i - top, t;
-        if (v <= -q3) t = -4; else if (v <= -q2) t = -3; else if (v <= -q1) t = -2;
-        else if (v < 0) t = -1; else if (v == 0) t = 0; else if (v < q1) t = 1;
-        else if (v < q2) t = 2; else if (v < q3) t = 3; else t = 4;
-        qt[i] = (int8_t)t;
+    fuji_qt *mains = (fuji_qt *)calloc(256, sizeof(fuji_qt)); /* main quantisers, built per base on first use */
+    fuji_qt side[3] = {{0}};
+    long result = -1;
+    if (!buf || !mains) goto done;
+    if (fuji_main_qt(&mains[0], top, 0)) goto done;
+    {
+        static const int sp[3][4] = {{0x12, 0x43, 0x114, 5}, {0x15, 0x48, 0x11B, 6}, {0x18, 0x4D, 0x122, 7}};
+        for (int i = 0; i < 3; i++) {
+            int p1 = top >= sp[i][0] ? sp[i][0] : i + 1;
+            int p2 = top >= sp[i][1] ? sp[i][1] : p1;
+            int p3 = top >= sp[i][2] ? sp[i][2] : p2;
+            if (fuji_qt_init(&side[i], top, i, p1, p2, p3, 3, sp[i][3])) goto done;
+        }
     }
-    int ge[3][41][2], go[3][41][2];
+    fuji_qt *main_q = &mains[0];
+    int ge[3][41][2], go[3][41][2], se[3][3][5][2], so[3][3][5][2];
     for (int s = 0; s < 3; s++) for (int g = 0; g < 41; g++) {
-        ge[s][g][0] = go[s][g][0] = max_diff; ge[s][g][1] = go[s][g][1] = 1;
+        ge[s][g][0] = go[s][g][0] = 1 << (bits - 6); ge[s][g][1] = go[s][g][1] = 1;
+    }
+    for (int s = 0; s < 3; s++) for (int t = 0; t < 3; t++) {
+        int md = (side[t].total + 0x20) >> 6;
+        if (md < 2) md = 2;
+        for (int g = 0; g < 5; g++) { se[s][t][g][0] = so[s][t][g][0] = md; se[s][t][g][1] = so[s][t][g][1] = 1; }
     }
     /* coded[line][p & 3]: some sensel of the line's rows reads entry p */
     int coded[18][4] = {{0}};
@@ -674,6 +715,19 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
     }
     fuji_bits b = {d, start, end, 0, 0, 0};
     for (long grp = 0; grp < lines; grp++) {
+        if (qb) {
+            int base = qb[grp];
+            if (grp == 0 || base != main_q->q_base) {
+                if (!mains[base].t && fuji_main_qt(&mains[base], top, base)) goto done;
+                main_q = &mains[base];
+                int md = (main_q->total + 0x20) >> 6;
+                if (md < 2) md = 2;
+                for (int s = 0; s < 3; s++) for (int g = 0; g < 41; g++) {
+                    ge[s][g][0] = go[s][g][0] = md; ge[s][g][1] = go[s][g][1] = 1;
+                }
+            }
+        }
+        int nside = main_q->q_base < 3 ? main_q->q_base : 3;
         for (int pn = 0; pn < 6; pn++) {
             int (*cge)[2] = ge[pn % 3], (*cgo)[2] = go[pn % 3];
             int li[2];
@@ -689,6 +743,7 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
                         if (step) odd[k] += 2; else even[k] += 2;
                         int c = p + 1, grad, interp;
                         int (*ctx)[2];
+                        const fuji_qt *q = main_q;
                         if (!step) {
                             int rb = up[c], rc = up[c - 1], rd = up[c + 1], rf = up2[c];
                             int dcb = abs(rc - rb), dfb = abs(rf - rb), ddb = abs(rd - rb);
@@ -696,23 +751,27 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
                             else if (ddb > dcb && ddb > dfb) interp = rf + rc + 2 * rb;
                             else interp = rd + rc + 2 * rb;
                             if (!coded[li[k]][p & 3]) { cur[c] = interp >> 2; continue; }
-                            grad = qt[top + rb - rf] * 9 + qt[top + rc - rb];
-                            interp >>= 2;
                             ctx = cge;
+                            for (int t = 0; t < nside; t++)
+                                if (dfb + dcb <= side[t].max_grad) { q = &side[t]; ctx = se[pn % 3][t]; break; }
+                            grad = q->t[top + rb - rf] * q->mult + q->t[top + rc - rb];
+                            interp >>= 2;
                         } else {
                             int ra = cur[c - 1], rb = up[c], rc = up[c - 1], rd = up[c + 1], rg = cur[c + 1];
-                            grad = qt[top + rb - rc] * 9 + qt[top + rc - ra];
+                            ctx = cgo;
+                            for (int t = 0; t < nside; t++)
+                                if (abs(rc - ra) + abs(rb - rc) <= side[t].max_grad) { q = &side[t]; ctx = so[pn % 3][t]; break; }
+                            grad = q->t[top + rb - rc] * q->mult + q->t[top + rc - ra];
                             if ((rb > rc && rb > rd) || (rb < rc && rb < rd)) interp = (rg + ra + 2 * rb) >> 2;
                             else interp = (ra + rg) >> 1;
-                            ctx = cgo;
                         }
                         int *g = ctx[grad < 0 ? -grad : grad];
                         int sample = 0, code;
                         while (!fuji_bit(&b)) {
                             sample++;
-                            if (b.err > 64) { free(buf); free(qt); return b.err; }
+                            if (b.err > 64) { result = b.err; goto done; }
                         }
-                        if (sample < long_cut) {
+                        if (sample < max_bits - q->raw_bits - 1) {
                             int dec = 0;
                             if (g[1] < g[0]) {
                                 do { dec++; } while (dec <= 15 && (g[1] << dec) < g[0]);
@@ -720,15 +779,16 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
                             }
                             code = fuji_get(&b, dec) + (sample << dec);
                         } else {
-                            code = fuji_get(&b, bits) + 1;
+                            code = fuji_get(&b, q->raw_bits) + 1;
                         }
-                        if (code < 0 || code >= total) b.err++;
+                        if (code < 0 || code >= q->total) b.err++;
                         code = (code & 1) ? -1 - (code >> 1) : (code >> 1);
                         g[0] += code < 0 ? -code : code;
                         if (g[1] == min_value) { g[0] >>= 1; g[1] >>= 1; }
                         g[1]++;
-                        interp = grad < 0 ? interp - code : interp + code;
-                        if (interp < 0) interp += total; else if (interp > top) interp -= total;
+                        interp = grad < 0 ? interp - code * q->step : interp + code * q->step;
+                        if (interp < -q->q_base) interp += q->total * q->step;
+                        else if (interp > q->q_base + top) interp -= q->total * q->step;
                         cur[c] = interp >= 0 ? (interp <= top ? interp : top) : 0;
                     }
                 }
@@ -764,8 +824,12 @@ long shootflow_fuji_strip(const uint8_t *d, long start, long end, int bits, int 
             l0[2 * stride + lw + 1] = l0[stride + lw];
         }
     }
-    free(buf); free(qt);
-    return b.err;
+    result = b.err;
+done:
+    if (mains) for (int i = 0; i < 256; i++) free(mains[i].t);
+    for (int i = 0; i < 3; i++) free(side[i].t);
+    free(mains); free(buf);
+    return result;
 }
 """
 
@@ -893,7 +957,7 @@ def _load():
     fuji = lib.shootflow_fuji_strip
     fuji.restype = ctypes.c_long
     fuji.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_int, ctypes.c_long,
-                     ctypes.c_int, ctypes.c_int, ctypes.c_long, ctypes.c_void_p]
+                     ctypes.c_int, ctypes.c_int, ctypes.c_long, ctypes.c_void_p, ctypes.c_char_p]
     _STATE["fuji_strip"] = fuji
     return fn
 

@@ -29,7 +29,7 @@ test("the same stay in two feeds counts once; a true overlap is a double booking
   const r = c.parseBookings(csv(["A,2026-10-01,2026-10-04", "A,2026-10-01,2026-10-04", "A,2026-10-03,2026-10-06"]));
   assert.equal(r.duplicates, 1);
   assert.equal(r.conflicts.length, 1);
-  assert.equal(r.bookings.length, 2);
+  assert.equal(r.bookings.length, 1); // the overlapping stay is flagged, not scheduled
 });
 
 test("CSV rows with bad dates are reported, not guessed", () => {
@@ -101,9 +101,26 @@ test("exports: CSV, cleaner messages and a valid calendar file", () => {
   assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
 });
 
-test("sample shows a double booking, lateness at two cleaners, and needs three", () => {
+test("sample shows a double booking, lateness at one cleaner, and needs two", () => {
   const out = c.analyze(c.sampleBookings(), c.DEFAULT_PROPS, { cleaners: 2 });
   assert.ok(out.warnings.some((w) => /Double booking at Pine Cabin/.test(w.text)));
-  assert.equal(out.summary.minCrew, 3);
-  assert.ok(out.summary.late > 0);
+  assert.equal(out.summary.minCrew, 2);
+  assert.equal(out.summary.late, 0);
+  assert.ok(c.analyze(c.sampleBookings(), c.DEFAULT_PROPS, { cleaners: 1 }).summary.late > 0);
+});
+
+test("a double-booked stay is flagged but gets no clean of its own (quality audit 2026-11-15)", () => {
+  const out = c.analyze(c.sampleBookings(), c.DEFAULT_PROPS, { cleaners: 2 });
+  const pine = out.jobs.filter((j) => j.property === "Pine Cabin");
+  const days = pine.map((j) => j.guestOut);
+  assert.equal(new Set(days).size, days.length, "two cleans at one unit on one day");
+  assert.equal(out.jobs.length, 15);
+});
+
+test("guest names containing 'hold' or 'owner' are stays, not blocks (quality audit 2026-11-15)", () => {
+  const ev = (sum, s, e) => `BEGIN:VEVENT\nDTSTART;VALUE=DATE:${s}\nDTEND;VALUE=DATE:${e}\nSUMMARY:${sum}\nEND:VEVENT\n`;
+  const feed = `# Lake House\nBEGIN:VCALENDAR\n${ev("Reserved - Holden Smith", "20261001", "20261003")}${ev("Reserved - Ann Downer", "20261004", "20261006")}${ev("Owner stay", "20261007", "20261009")}${ev("Not available", "20261010", "20261011")}END:VCALENDAR\n`;
+  const r = c.parseBookings(feed);
+  assert.equal(r.bookings.length, 2);
+  assert.equal(r.skippedBlocks, 2);
 });

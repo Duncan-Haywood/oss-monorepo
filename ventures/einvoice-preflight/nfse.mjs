@@ -24,7 +24,9 @@
 //   5. the classification (NFSE-034..NFSE-036): the DPS's CST and cClassTrib against the
 //      published IBS/CBS table (cclasstrib.mjs): the code exists and belongs to the CST
 //      (NFSE-034), is allowed on an NFS-e and valid on the date (NFSE-035), and the NFS-e's
-//      pRedAliqUF/Mun/CBS is the code's reduction (NFSE-036).
+//      pRedAliqUF/Mun/CBS is the code's reduction (NFSE-036);
+//   6. the ISSQN rate (NFSE-024): pAliqAplic (or the DPS's pAliq) within LC 116's national
+//      2% to 5% band, and the burden after a municipal benefit not under 2% (iss-rate.mjs).
 // An offline observation, not the national system's authorisation, and not tax advice.
 
 import { COMPLEX, SIMPLE, PACKAGE } from "./nfse-xsd-data.mjs";
@@ -32,6 +34,7 @@ import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { keyCheckDigit } from "./nfe.mjs";
 import { checkClassTrib } from "./cclasstrib.mjs";
+import { issRateProblem, issBurdenProblem, lcSubitem } from "./iss-rate.mjs";
 
 export const NFSE_NS = "http://www.sped.fazenda.gov.br/nfse";
 export { PACKAGE };
@@ -240,6 +243,38 @@ function checkIds(infDPS, P, inf, out) {
   }
 }
 
+// ---------- ISSQN rate ----------
+
+// NFSE-024. Not judged below the minimum: a Simples Nacional or MEI provider (opSimpNac other
+// than 1), a special regime (regEspTrib other than 0), ISSQN not taxable here (tribISSQN other
+// than 1: immunity, export, non-incidence). The upper bound applies to every rate.
+function checkIssRate(inf, infDPS, DP, out, skipped) {
+  const vNFSe = kid(inf, "valores");
+  const tribMun = descend(infDPS, "valores", "trib", "tribMun");
+  const fromNfse = val(vNFSe, "pAliqAplic");
+  const rate = fromNfse || val(tribMun, "pAliq");
+  const path = fromNfse ? "/NFSe/infNFSe/valores/pAliqAplic" : `${DP}/valores/trib/tribMun/pAliq`;
+  const item = lcSubitem(val(infDPS, "serv", "cServ", "cTribNac"), true);
+  const year = Number((txt(infDPS, "dCompet") || txt(infDPS, "dhEmi")).slice(0, 4));
+  const op = val(infDPS, "prest", "regTrib", "opSimpNac");
+  const reg = val(infDPS, "prest", "regTrib", "regEspTrib");
+  const trib = txt(tribMun, "tribISSQN");
+  const why = op && op !== "1" ? `opSimpNac ${op} (Simples Nacional or MEI)` : reg && reg !== "0" ? `regEspTrib ${reg}` : trib && trib !== "1" ? `tribISSQN ${trib}` : kid(tribMun, "exigSusp") ? "exigSusp (ISSQN suspended)" : "";
+  const prob = rate ? issRateProblem({ rate, item, year, fraction: false }) : null;
+  if (prob) {
+    if (why && prob.kind === "low") skipped.push(`ISSQN rate ${rate}%: below the national 2% minimum, from ${why}; not judged (the band applies to the municipal rate, not this regime)`);
+    else out.push(finding("NFSE-024", prob.message, prob.fix, path));
+    return;
+  }
+  // The burden after a municipal benefit (BM): vISSQN on the base before the benefit.
+  if (!inf || why) return;
+  const bm = val(vNFSe, "vCalcBM") || val(tribMun, "BM", "vRedBCBM");
+  const vBC = cents(val(vNFSe, "vBC")), vISSQN = cents(val(vNFSe, "vISSQN"));
+  if (!bm || !(cents(bm) > 0) || !Number.isFinite(vBC)) return;
+  const b = issBurdenProblem({ issCents: vISSQN, grossBaseCents: vBC + cents(bm), item, year, benefit: `${bm} off the base` });
+  if (b) out.push(finding("NFSE-024", b.message, b.fix, "/NFSe/infNFSe/valores/vISSQN"));
+}
+
 // ---------- ISSQN sums ----------
 
 // PIS/COFINS retention codes (TSTipoRetPISCofins) under which PIS or COFINS is retained.
@@ -423,6 +458,7 @@ export function checkNfse(text) {
   if (inf) checkNfseKey(inf, infDPS, findings, skipped);
   checkIds(infDPS, DP, inf, findings);
   checkClassification(infDPS, DP, inf, findings);
+  checkIssRate(inf, infDPS, DP, findings, skipped);
   if (inf) {
     const iss = checkIssqn(inf, infDPS, DP, findings);
     checkReform(inf, infDPS, iss, findings, skipped);
