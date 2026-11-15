@@ -446,8 +446,8 @@ class Band:
         self.plane, self.offset, self.size = plane, offset, size
 
 
-def band_layout(sample: bytes, head: Cmp1) -> list[Band]:
-    """The planes' bands of a one-tile, no-wavelet CR3 sample, from its header (tags 0xFF01-0xFF03)."""
+def check_supported(head: Cmp1) -> None:
+    """Raise with the reason when this reader cannot decode the sensor data CMP1 describes."""
 
     if head.version != 0x100 or head.levels != 0:
         raise rd.DevelopError(
@@ -458,6 +458,12 @@ def band_layout(sample: bytes, head: Cmp1) -> list[Band]:
         raise rd.DevelopError(f"CR3: {head.planes} planes with encoding type {head.enc_type} is not supported (only 4-plane Bayer)")
     if head.tile_cols or head.tile_rows or head.tile_width != head.width or head.tile_height != head.height:
         raise rd.DevelopError("CR3: a sensor stored in several tiles is not supported yet (no test file)")
+
+
+def band_layout(sample: bytes, head: Cmp1) -> list[Band]:
+    """The planes' bands of a one-tile, no-wavelet CR3 sample, from its header (tags 0xFF01-0xFF03)."""
+
+    check_supported(head)
     hdr = sample[: head.header_size]
     pos = 0
     data_at = head.header_size
@@ -521,8 +527,13 @@ def decode_sensor(data: bytes, box: Container, engine: str = "auto") -> tuple[Cm
     return head, out
 
 
-def camera_model(data: bytes) -> str:
+def camera_model(data: bytes, readable: bool = False) -> str:
+    """The camera's name from CMT1; with ``readable``, first refuse a file whose sensor data this reader
+    cannot decode (C-RAW), so the profile chooser does not ask for a profile it could not use."""
+
     box = Container(data)
+    if readable:
+        check_supported(Cmp1(box.raw.cmp1))
     found = _tiff_ifd(box.cmt.get(b"CMT1"))
     if found is None:
         raise rd.DevelopError("CR3: no CMT1 (IFD0) box")

@@ -3,7 +3,7 @@ title: "Reading Canon CR3 raw files without a converter, sensel for sensel"
 seo_title: "Canon CR3 raw decoder in Python: CRX lossless matches LibRaw exactly"
 date: 2026-11-15
 tags: [photo-editing, shootflow, raw, canon, cr3, image-processing]
-description: "ShootFlow now develops full-quality Canon CR3 files directly. On two real EOS R8 frames all 25.5 million sensor values match LibRaw's. One run-length detail had to be found by brute force."
+description: "ShootFlow now develops full-quality Canon CR3 raw files directly: on two real EOS R8 frames, all 25.5 million sensor values match LibRaw's."
 ---
 
 ShootFlow is the open-source photo pipeline in this repository. It ingests a card, scores and culls

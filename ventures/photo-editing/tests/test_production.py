@@ -112,8 +112,8 @@ class ProductionPlanningTests(unittest.TestCase):
         self.assertEqual(
             grade_outputs,
             [
-                "graded/grade_asset_00000/IMG_0001.CR3",
-                "graded/grade_asset_00001/IMG_0001.CR3",
+                "graded/grade_asset_00000/IMG_0001.CR3.tif",
+                "graded/grade_asset_00001/IMG_0001.CR3.tif",
             ],
         )
         self.assertEqual(len(set(proxy_outputs)), 2)

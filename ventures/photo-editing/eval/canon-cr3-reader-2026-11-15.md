@@ -66,15 +66,24 @@ had to be found that way:
 
 ## Tests
 
-`tests/test_cr3.py`, 11 tests. A CRX encoder written in the test as the decoder's mirror round-trips
+`tests/test_cr3.py`, 12 tests. A CRX encoder written in the test as the decoder's mirror round-trips
 random bands through both decoders. The bands include zero runs on the top line, lines equal to
 the one above (runs to the line end), flat lines and jumps past the 41-zero escape. A whole
 synthetic CR3 (ftyp, Canon uuid with CMT1-CMT3, a CRAW entry with CMP1 and CDI1/IAD1, a CTMD
 track with ColorData11) checks every inferred tag. The other tests cover: exposed columns left of
 the crop kept out of black by IAD1 (and let in without it, with a note); an unknown ColorData
 length; C-RAW and tiled sensors refused; and a develop with a profile (and the "CR3 carries no
-colour matrix" error without one). Putting back the JPEG-LS run reading fails 7 tests, so the tests
-catch it.
+colour matrix" error without one); and the profile chooser refusing a C-RAW file before it asks
+for a profile. Putting back the JPEG-LS run reading fails 7 tests, so the tests catch it.
+
+**Pipeline tests that changed.** The planner and pipeline tests had used `IMG_0001.CR3` as their
+example of a raw the grade stage does not develop. A CR3 is developed now, so its graded output is
+named `.CR3.tif`, as a CR2's is, and those tests now expect that (`test_assembly`,
+`test_production`, `test_production_adapter`, `test_production_scheduler`). The test that a raw
+stops at the grade stage with the DNG route named now uses a synthetic C-RAW CR3 with a preview
+appended. It checks for the C-RAW refusal, which also names Adobe's DNG Converter. The full
+photo-editing suite passes (`platform/ci/run_venture_tests.py photo-editing`: 0 failed, 8 skipped,
+151.5 s).
 
 ## Reproduce
 

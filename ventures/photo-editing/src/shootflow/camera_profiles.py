@@ -55,7 +55,7 @@ def camera_of(source: Path | str) -> str:
 
     data = Path(source).read_bytes()
     if cr3.is_cr3(data):
-        kind, camera = "CR3", cr3.camera_model(data)
+        kind, camera = "CR3", cr3.camera_model(data, readable=True)
     elif raf.is_raf(data):
         kind, camera = "RAF", raf.camera_model(data)
     elif cr2.is_cr2(data):

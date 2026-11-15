@@ -353,6 +353,19 @@ class ReadTests(unittest.TestCase):
         with self.assertRaisesRegex(rd.DevelopError, "C-RAW"):
             rd.parse_raw(make_cr3(version=0x200, levels=3))
 
+    def test_profile_chooser_refuses_c_raw_before_asking_for_a_profile(self):
+        import tempfile
+
+        from shootflow import camera_profiles
+
+        with tempfile.TemporaryDirectory() as tmp:
+            good, c_raw = Path(tmp) / "a.CR3", Path(tmp) / "b.CR3"
+            good.write_bytes(make_cr3())
+            c_raw.write_bytes(make_cr3(version=0x200, levels=3))
+            self.assertEqual(camera_profiles.camera_of(good), "Canon EOS R8")
+            with self.assertRaisesRegex(rd.DevelopError, "C-RAW"):
+                camera_profiles.camera_of(c_raw)
+
     def test_tiled_sensor_is_refused(self):
         with self.assertRaisesRegex(rd.DevelopError, "several tiles"):
             rd.parse_raw(make_cr3(tiles=True))

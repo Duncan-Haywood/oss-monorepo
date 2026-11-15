@@ -574,7 +574,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         self.assertEqual(output_payload["scene_groups"][0]["photo_count"], 1)
         self.assertEqual(
             output_payload["scene_groups"][0]["asset_paths"],
-            ["graded/grade_asset_00000/A001.MOV", "graded/grade_asset_00001/IMG_0001.CR3"],
+            ["graded/grade_asset_00000/A001.MOV", "graded/grade_asset_00001/IMG_0001.CR3.tif"],
         )
         self.assertEqual(output_payload["scene_groups"][0]["primary_tags"], ["portrait", "vows", "wide"])
         self.assertEqual(loaded_manifest.job_statuses[4], result.final_status)
@@ -1447,7 +1447,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         )
         self.assertEqual(
             output_payload["sequences"][1]["asset_paths"],
-            ["graded/grade_asset_00001/IMG_0001.CR3"],
+            ["graded/grade_asset_00001/IMG_0001.CR3.tif"],
         )
         self.assertEqual(loaded_manifest.job_statuses[8], result.final_status)
 
@@ -2330,7 +2330,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             look_checksum="d" * 64,
             grade_checksums={
                 "graded/grade_asset_00000/A001.MOV": "e" * 64,
-                "graded/grade_asset_00001/IMG_0001.CR3": "f" * 64,
+                "graded/grade_asset_00001/IMG_0001.CR3.tif": "f" * 64,
             },
         )
         action = plan_production_worker_actions(
@@ -2349,7 +2349,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             story_checksum="a" * 64,
             grade_checksums={
                 "graded/grade_asset_00000/A001.MOV": "b" * 64,
-                "graded/grade_asset_00001/IMG_0001.CR3": "c" * 64,
+                "graded/grade_asset_00001/IMG_0001.CR3.tif": "c" * 64,
             },
         )
         action = next(
@@ -2586,7 +2586,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         video_grade_path = workspace / "graded/grade_asset_00000/A001.MOV"
         video_grade_path.parent.mkdir(parents=True, exist_ok=True)
         video_grade_path.write_bytes(b"trusted graded video")
-        photo_grade_path = workspace / "graded/grade_asset_00001/IMG_0001.CR3"
+        photo_grade_path = workspace / "graded/grade_asset_00001/IMG_0001.CR3.tif"
         photo_grade_path.parent.mkdir(parents=True, exist_ok=True)
         photo_grade_path.write_bytes(b"trusted graded photo")
         return cls._story_ready_manifest_with_checksums(
@@ -2599,7 +2599,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             look_checksum=cls._sha256_file(look_path),
             grade_checksums={
                 "graded/grade_asset_00000/A001.MOV": cls._sha256_file(video_grade_path),
-                "graded/grade_asset_00001/IMG_0001.CR3": cls._sha256_file(photo_grade_path),
+                "graded/grade_asset_00001/IMG_0001.CR3.tif": cls._sha256_file(photo_grade_path),
             },
         )
 
@@ -2624,7 +2624,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
                         {
                             "sequence_id": "carousel_main",
                             "deliverable_type": "instagram_carousel",
-                            "asset_paths": ["graded/grade_asset_00001/IMG_0001.CR3"],
+                            "asset_paths": ["graded/grade_asset_00001/IMG_0001.CR3.tif"],
                         },
                     ],
                 },
@@ -2638,7 +2638,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
         video_grade_path = workspace / "graded/grade_asset_00000/A001.MOV"
         video_grade_path.parent.mkdir(parents=True, exist_ok=True)
         video_grade_path.write_bytes(b"trusted package graded video")
-        photo_grade_path = workspace / "graded/grade_asset_00001/IMG_0001.CR3"
+        photo_grade_path = workspace / "graded/grade_asset_00001/IMG_0001.CR3.tif"
         photo_grade_path.parent.mkdir(parents=True, exist_ok=True)
         photo_grade_path.write_bytes(b"trusted package graded photo")
         return cls._package_ready_manifest_with_checksums(
@@ -2646,7 +2646,7 @@ class DryRunProductionAdapterTests(unittest.TestCase):
             story_checksum=cls._sha256_file(story_path),
             grade_checksums={
                 "graded/grade_asset_00000/A001.MOV": cls._sha256_file(video_grade_path),
-                "graded/grade_asset_00001/IMG_0001.CR3": cls._sha256_file(photo_grade_path),
+                "graded/grade_asset_00001/IMG_0001.CR3.tif": cls._sha256_file(photo_grade_path),
             },
         )
 
