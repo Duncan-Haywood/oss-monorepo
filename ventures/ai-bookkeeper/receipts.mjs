@@ -251,6 +251,20 @@ function totalCashChange(lines, comma) {
   return null;
 }
 
+// A total line whose decimal point OCR lost or misread: "TOTAL 184 47)", "esl TOTAL : 92:22",
+// "dount Due 9, 70", "mount Due $2 17" (SRD photos, eval/split-decimal-2026-11-15.md). Only on a
+// receipt written 12.50, only after the total word, only where no amount reads on the line, and
+// only as the line's last number: dollars, then a space, comma or colon, then exactly two digits.
+const SPLIT_DEC = /(?:\$\s*)?(?<![\d.,:])(\d{1,4})(?:\s+|\s*[,:]\s*)(\d{2})(?![\d%]|[.,:]\d)[^\d]*$/;
+export function splitDecimal(line) {
+  const m = line.match(TOTAL_RE);
+  if (!m || /€/.test(line)) return null; // a euro amount's comma is its decimal point ("TOTALE € 3,00")
+  const s = line.slice(m.index + m[0].length).match(SPLIT_DEC);
+  if (!s || /\d{1,2}:\d{2}\s*(?:[ap]\.?m\b)/i.test(s[0])) return null; // a time, "10:45 PM"
+  const cents = Number(s[1]) * 100 + Number(s[2]);
+  return cents > 0 ? { cents, was: s[0].replace(/[^\d$.,: ]+$/, "").trim() } : null;
+}
+
 export function parseReceipt(block, { dayFirst = null } = {}) {
   let lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
@@ -322,9 +336,12 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   lines.forEach((l, i) => {
     if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) {
       if (cents !== null && summaryAt >= 0 && i >= summaryAt) return;
-      const a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
+      let a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
+      let split = null;
+      if (!a.length && comma === false && (split = splitDecimal(l))) a = [split.cents];
       if (a.length && a[a.length - 1] > 0) {
         cents = a[a.length - 1]; from = l; at = i;
+        if (split) notes.push(`total line read "${split.was}" with its decimal point lost: took ${(split.cents / 100).toFixed(2)}, check the total`);
         // "Total : 140.00 8.40": a before-tax column and a tax column, the total
         // of the last column cut off or missing. When the last amount is exactly
         // 6% or 8% (Malaysian GST and SST) of the one before it to within a cent,
