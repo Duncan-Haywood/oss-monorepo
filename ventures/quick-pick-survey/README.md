@@ -18,6 +18,13 @@ shortlisted it (on 432 simulated teams the model's pick was right 78% of the
 time, a show of hands 72%). Nothing is
 uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
 
+**Ranking pictures?** [Pick the best photo or logo by comparing pairs](https://marisstella.app/quick-pick-survey/pick-the-best-photo.html)
+(since 2026-11-15): select 3 to 60 image files on the ranker and pick between
+two pictures at a time; the files are opened in the browser and never
+uploaded. The file names are the list, so a team link works as for words:
+each person selects the same files on their own device. How it works:
+[docs/RANK-PAGE.md](docs/RANK-PAGE.md), "Pictures".
+
 **Choosing on several criteria?** [Weigh criteria by picking pairs](https://marisstella.app/quick-pick-survey/decide.html)
 (since 2026-11-14) is a weighted decision matrix with nothing typed: it asks
 "which matters more?" and "on this criterion, which is better?", fits both with

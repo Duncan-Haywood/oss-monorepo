@@ -69,8 +69,11 @@ export const LINK_MODES = ["favourite", "top"];
  * ("favourite", or "top" with its shortlist size k), so the people it is sent
  * to answer the same question; a full-order link stays as it always was.
  */
-export function encodeList({ title = "", items, mode, k }) {
+export function encodeList({ title = "", items, mode, k, images = false }) {
   const d = { v: 1, t: title, i: items };
+  // A picture list (site/image-items.mjs): the items are file names and each
+  // person attaches the files on their own device; the pictures never travel.
+  if (images) d.g = 1;
   if (LINK_MODES.includes(mode)) d.m = mode;
   if (mode === "top") d.k = k;
   return toBase64Url(JSON.stringify(d));
@@ -85,6 +88,7 @@ export function decodeList(fragment) {
     const items = parseList(d.i.map(String).join("\n"));
     if (items.length < MIN_ITEMS) return null;
     const out = { title: Array.from(String(d.t || "")).slice(0, 200).join(""), items };
+    if (d.g === 1) out.images = true;
     // A mode the page does not know, or a shortlist size that does not fit the
     // list (it needs 2 to n-1, so some options are left out), is not guessed
     // at: the list opens in the full order and `modeIgnored` says why, so the
