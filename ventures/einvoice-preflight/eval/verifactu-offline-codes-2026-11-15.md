@@ -1,4 +1,7 @@
-# VERI*FACTU: the offline-checkable AEAT codes, VF-043 to VF-047 (2026-11-15, latest)
+# VERI*FACTU: the offline-checkable AEAT codes, VF-043 to VF-047 (2026-11-15, later)
+
+Update: 1124 is now mapped fully from the validation document's rule 15.1 as quoted publicly,
+and 1127/1135 added: eval/verifactu-rate-lists-2026-11-15.md.
 
 Follows eval/verifactu-aeat-codes-2026-11-15.md, whose "next rules to write" list this
 slice works through.

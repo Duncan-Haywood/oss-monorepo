@@ -427,7 +427,28 @@ rules, not AEAT replies to every code. Two MIT libraries' copies of the list are
 replies; the offline-checkable codes listed here then landed as VF-043 to VF-047 (next
 section).
 
-## VERI*FACTU: code lists, dates, VAT rates by date, Generador (2026-11-15, latest)
+## VERI*FACTU: the AEAT's VAT and surcharge rate lists (2026-11-15, latest)
+
+The AEAT's validation document ("Validaciones y errores del servicio") refused this
+session's proxy again, but two independent projects quote its section 3.1.3 rule 15
+word for word and agree (mdiago/VeriFactu, AGPL, whose comments copy the text; only the
+AEAT's text is used; and eloi24/verifactu-sdk, MIT, citing v1.2.2). So:
+
+- **VF-045** (1124, now fully): on an S1 line under Impuesto 01 or none, only 0, 2, 4,
+  5, 7.5, 10 and 21% are allowed, and an unlisted rate is now an **error**, not a warning.
+  The date windows stand (5% July 2022 to September 2024, 1194; 2% and 7.5% October to
+  December 2024, 1235/1236). 7, 8, 16 and 18% still pass up to 2012 (1132; an inference,
+  as the quoted list does not name them). Lines other than S1 are left to VF-034 (S2 at
+  0%) and the no-rate rules.
+- **VF-032** (1127, new, fully): a surcharge rate outside 0, 0.26, 0.5, 0.62, 1, 1.4,
+  1.75 and 5.2% is rejected; 4% after 2012 is 1135 (in part: the code's text does not
+  name the rate, and 4% is the one old rate outside the list).
+
+Record coverage: **142 of 203** codes (122 fully, 20 in part; was 140, 120 and 20).
+Measured in eval/verifactu-rate-lists-2026-11-15.md. Not done: the PDF itself, IGIC and
+IPSI rate lists, an AEAT reply for any of these codes.
+
+## VERI*FACTU: code lists, dates, VAT rates by date, Generador (2026-11-15, later)
 
 Five rules for 27 more AEAT codes, so 140 of the 203 record codes now map to a rule (120
 fully, 20 in part; was 113, 101 and 12). Measured in

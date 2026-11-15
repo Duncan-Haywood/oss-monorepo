@@ -441,6 +441,11 @@ const num = (s) => (isAmount(s) ? Number(s) : null);
 const inRange = (d, from, to) => !!d && d >= from && (!to || d <= to);
 // The equivalence surcharge rates AEAT accepts beside each VAT rate, by the operation's
 // date (FechaOperacion, else the issue date): AEAT codes 1160 to 1170 and 1277.
+// The surcharge rates the AEAT accepts at all (rule 15.3 of its validation document, as
+// quoted: "Solo se permiten TipoRecargoEquivalencia = 0; 0,26; 0,5; 0,62; 1; 1,4; 1,75;
+// 5,2"); any other is 1127. 4% (the surcharge beside 16% and 18% VAT) is taken as the rate
+// code 1135 admits up to 2012: an inference, as the code does not name the rate.
+const SURCHARGE_RATES = [0, 0.26, 0.5, 0.62, 1, 1.4, 1.75, 5.2];
 const SURCHARGE_FOR_RATE = [
   { rate: 21, ok: () => [5.2, 1.75], code: "1162" },
   { rate: 10, ok: () => [1.4], code: "1163" },
@@ -552,6 +557,11 @@ function aeatRecordRules(r, push) {
     const hasRate = l.surchargeRate !== null, hasAmt = l.surcharge !== null;
     if (hasRate !== hasAmt) push("VF-033", `breakdown line ${i + 1} has ${hasRate ? "TipoRecargoEquivalencia without CuotaRecargoEquivalencia" : "CuotaRecargoEquivalencia without TipoRecargoEquivalencia"}.`, "Write the surcharge rate and amount together (AEAT code 1284).", p);
     if ((hasRate || hasAmt) && q && q !== "S1") push("VF-033", `breakdown line ${i + 1} carries an equivalence surcharge on a ${q} line.`, "The surcharge goes only on S1 lines (AEAT code 1281).", p);
+    if (l.tax === "01" && q === "S1" && sRate !== null && !SURCHARGE_RATES.includes(sRate)) {
+      const sp = `${p}/TipoRecargoEquivalencia`;
+      if (sRate === 4 && opDate && opDate > "2012-12-31") push("VF-032", `breakdown line ${i + 1}: surcharge rate 4% on ${opDate}; 4% applied only up to 2012.`, "Use the surcharge rate in force on the operation's date (AEAT code 1135).", sp);
+      else if (sRate !== 4) push("VF-032", `breakdown line ${i + 1}: surcharge rate ${l.surchargeRate}% is not in the AEAT's list (0, 0.26, 0.5, 0.62, 1, 1.4, 1.75, 5.2; 4 up to 2012).`, "Use one of the AEAT's surcharge rates (AEAT code 1127).", sp);
+    }
     if (l.tax === "01" && sRate !== null && rate !== null) {
       const row = SURCHARGE_FOR_RATE.find((x) => x.rate === rate);
       const allowed = row?.ok(opDate);
@@ -607,12 +617,14 @@ function listRules(r, push) {
   if (g.nif && by !== "E" && r.id?.issuer && g.nif.toUpperCase() === r.id.issuer.toUpperCase()) push("VF-047", `GeneradoPor is ${by ?? "absent"} but Generador's NIF is the issuer's own (${g.nif}).`, "Only GeneradoPor E names the issuer; a recipient or third party has its own NIF (AEAT code 1259).", `${P}/NIF`);
 }
 
-// Spanish VAT rates the AEAT's codes name, with the dates each holds: 21, 10 and 4 always
-// (1162-1164, 1206); 5% from 1 July 2022 to 30 September 2024 (1194, matching the 5%
-// surcharge windows of 1167 and 1168); 2% and 7.5% from 1 October to 31 December 2024
-// (1235 and 1236, matching 1166 and 1169); 0% (S2 lines and 1165, 1170); and 7, 8, 16,
-// 18 up to 2012 (1132). The AEAT's own list (1124) is in its validation document, which
-// this tool could not fetch, so a rate outside these is a warning, not an error.
+// The VAT rates the AEAT accepts on an S1 line under Impuesto 01 (or none), with the
+// dates each holds. The AEAT's "Validaciones y errores" document, section 3.1.3 rule
+// 15.1, as quoted by two independent projects (eval/verifactu-rate-lists-2026-11-15.md):
+// "Solo se permiten TipoImpositivo = 0; 2; 4; 5; 7,5; 10 y 21"; 5 only from 1 July 2022
+// to 30 September 2024 (1194); 2 and 7.5 only from 1 October to 31 December 2024 (1235,
+// 1236). Any other rate is 1124. 7, 8, 16 and 18 are not in that quoted list, but code
+// 1132 says the AEAT admits a rate up to 2012, and these were Spain's rates then, so they
+// pass up to 2012 (an inference from 1132, not the document's text).
 const VAT_RATE_WINDOWS = [
   { rate: 21 }, { rate: 10 }, { rate: 4 }, { rate: 0 },
   { rate: 5, from: "2022-07-01", to: "2024-09-30", code: "1194" },
@@ -638,11 +650,12 @@ function dateAndRateRules(r, push, now) {
   const when = op || issued;
   r.lines.forEach((l, i) => {
     if (l.rawTax !== null && l.rawTax !== "01") return; // IGIC and IPSI rates differ; not checked
+    if (l.qualification !== "S1") return; // rule 15.1 is about S1 lines (S2 is VF-034's 0%)
     const rate = num(l.rate);
     if (rate === null) return;
     const p = `/Desglose/DetalleDesglose[${i + 1}]/TipoImpositivo`;
     const row = VAT_RATE_WINDOWS.find((w) => w.rate === rate);
-    if (!row) { push("VF-045", `breakdown line ${i + 1}: VAT rate ${l.rate}% is not a Spanish VAT rate the AEAT's codes name (21, 10, 5, 4, 2, 0 and 7.5, or 7, 8, 16, 18 up to 2012).`, "Check TipoImpositivo; the AEAT rejects a rate outside its list (AEAT code 1124).", p, { severity: "warning" }); return; }
+    if (!row) { push("VF-045", `breakdown line ${i + 1}: VAT rate ${l.rate}% is not in the AEAT's list for an S1 line (0, 2, 4, 5, 7.5, 10, 21; 7, 8, 16, 18 up to 2012).`, "Use one of the AEAT's VAT rates; it rejects any other on an S1 line (AEAT code 1124).", p); return; }
     if (when && (row.from || row.to) && !inRange(when, row.from || "0000-01-01", row.to)) push("VF-045", `breakdown line ${i + 1}: VAT ${l.rate}% on ${when}, outside the dates it applied (${row.from ?? "until"}${row.from ? " to " : " "}${row.to}).`, `Use the rate in force on the operation's date (FechaOperacion, else the issue date) (AEAT code ${row.code}).`, p);
   });
 }

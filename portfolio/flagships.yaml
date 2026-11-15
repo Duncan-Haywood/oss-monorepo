@@ -195,8 +195,9 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       History: README and git (latest: VERI*FACTU: AEAT's 247 error codes mapped,
-      VF-029..042, AEAT reply read, eval/verifactu-*-2026-11-15.md, 140/203 codes;
-      open: a production SIF's records and replies, 1124 full rate list, 1156).
+      VF-029..047, AEAT reply read, rate lists 1124/1127 from the validation
+      document as quoted, eval/verifactu-*-2026-11-15.md, 142/203 codes; open: a
+      production SIF's records and replies, the PDF itself, IGIC/IPSI rates, 1156).
       Open: a real HU report with NAV's businessValidationMessages or
       SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
       signed Facturae file or FACe rejection; ZATCA: a real KSA note; SdI: open: a
