@@ -21,13 +21,17 @@
 //    other gregobase-1908-* folders, never scored before: its /l/ codas read as a nasal on 10% or fewer,
 //    its nasal codas read exactly no less often than with the rule off (`murmurTilt: 0`, printed beside).
 // Seventh round (2026-11-15): the murmur against the vowel just before it (onsets.mjs NEAR). Pre-registered
-//    here before D, E, H or F was run with the change; its settings (8 dB darker, 0 to -18 dB, held within 4
-//    dB) were set once on A, B and I and not tuned: there A 157 to 163 of 180, B 147 to 155 of 162 (nasals 28
-//    to 36 of 39), I 136 to 140 of 142 (nasals 30 to 34 of 36), every vowel-only control unchanged. Against
-//    `--near off`: (1) the held-out nasals (D 11 of 12, E 18 of 22, H 38 of 46 on main) no fewer in any part
-//    and 72 of 80 or more together; (2) D, E and H totals no lower; their vowel-only controls (68, 84, 131)
-//    and bare-vowel syllables read as none each within 1; (3) F's nasals 106 of 137 or more (96 on main),
-//    its /l/ none on 4 of 4; (4) eval/vowel-check.mjs and eval/consonant-check.mjs reports unchanged.
+//    here before D, E, H or F was run with the change. First registration (8 dB darker, 0 to -18 dB, level
+//    held within 4 dB) withdrawn before any held-out part had finished: on a synthetic set (README) it read
+//    9 of 9 vowel-only /u/ and /o/ releases on F3 as nasals, whose darkness wanders by 8 dB while their
+//    level holds. Second registration adds the murmur's darkness held within 4 dB over its first 30 ms
+//    (`tiltHold`), set on that synthetic set, A, B and I and not tuned further: A 157 to 160 of 180, B 147 to
+//    155 of 162 (nasals 28 to 36 of 39), I 136 to 138 of 142 (nasals 30 to 32 of 36), every vowel-only
+//    control unchanged. Against `--near off`: (1) the held-out nasals (D 11 of 12, E 18 of 22, H 38 of 46
+//    on main) no fewer in any part and 71 of 80 or more together; (2) D, E and H totals no lower; their
+//    vowel-only controls (68, 84, 131) and bare-vowel syllables read as none each within 1; (3) F's nasals
+//    104 of 137 or more (96 on main), its /l/ none on 4 of 4; (4) no other eval calls readCoda, and the
+//    synthesis is untouched, so eval/vowel-check.mjs and eval/consonant-check.mjs cannot move.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';

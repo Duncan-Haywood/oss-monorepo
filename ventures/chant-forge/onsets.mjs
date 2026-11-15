@@ -81,7 +81,7 @@ export const MURMUR_TILT = 28;
 // readOnset's nasal: how much darker than its neighbours a murmur is (chosen on eval/consonant-check.mjs A and B)
 export const DARK_BY = 10;
 // readCoda's murmur against the vowel just before it (see its note); chosen on eval/coda-check.mjs A, B and I
-export const NEAR = { dark: 8, lo: -18, hi: 0, hold: 4 };
+export const NEAR = { dark: 8, lo: -18, hi: 0, hold: 4, tiltHold: 4 };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
@@ -297,7 +297,9 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   // the reference 60 ms at the note's start swung from 4 to 15 dB under (D3, the same -um); the vowel's
   // own level drifts with the same beat. So a run also counts as a murmur when, against the vowel 25-45
   // ms before it (NEAR), each frame is NEAR.dark dB or more darker, its level from NEAR.lo to NEAR.hi dB
-  // of it, holding within NEAR.hold dB for 45 ms (a fade falls 1-3 dB per 10 ms) and dark in itself.
+  // of it, its level and its darkness holding within NEAR.hold and NEAR.tiltHold dB over its first 30 ms
+  // (a fade falls 1-3 dB per 10 ms; the darkness of a /u/ or /o/ releasing wanders by 8 dB while its level
+  // holds), 45 ms long, and dark in itself.
   const NR = { ...NEAR, ...nearOpts };
   const tiltOf = (f) => db(f.hi1, f.low);
   const nearRun = () => {
@@ -308,8 +310,8 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
       const ok = (f) => tiltOf(f) <= pt - NR.dark && f.lvl - pl >= NR.lo && f.lvl - pl <= NR.hi && tiltOf(f) <= -murmurTilt;
       let e = k; while (e < fr.length && ok(fr[e])) e++;
       if (msOf([k, e - 1]) < 45 || e === k) continue;
-      const held = fr.slice(k, k + 6).map((f) => f.lvl);
-      if (Math.max(...held) - Math.min(...held) > NR.hold) continue;
+      const held = fr.slice(k, k + 6), spread = (v) => Math.max(...v) - Math.min(...v);
+      if (spread(held.map((f) => f.lvl)) > NR.hold || spread(held.map(tiltOf)) > NR.tiltHold) continue;
       out.push([k, e - 1]); break;
     }
     return out.find((r) => !vowelAgain(r)) || null;
