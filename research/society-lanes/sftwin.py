@@ -18,7 +18,12 @@ over 1 s lags. Only walkers that entered after the start count (the initial plac
 random and would otherwise leak into the statistics).
 
 Milestone 4 adds a second operational model, JuPedSim's AnticipationVelocityModel (`model="avm"`),
-under the same steering stage, and the exit position as a parameter (`exit_frac`).
+under the same steering stage, and the exit position as a parameter (`exit_frac`). Milestone 4b
+adds a third, JuPedSim's CollisionFreeSpeedModel (`model="cfsm"`, Tordeux, Chraibi and Seyfried
+2016), and the side-bias rule as a parameter (`rule`): "always" (milestones 3 and 4a), "yield"
+(the bias is off for a walker whose lateral goal lies on its left half) and "scaled" (the bias is
+weighted by (1 + r) / 2, r the goal's offset toward the walker's right in half-widths). Walkers
+without a lateral goal get the full bias under every rule, so the free-choice fit is unchanged.
 
 Needs numpy and jupedsim (`python3 platform/ci/pyenv.py jupedsim numpy`).
 """
@@ -41,7 +46,10 @@ CLEARANCE = 0.55     # m: free space needed to enter
 RADIUS = 0.25        # m: lower end of the 0.5-0.7 m diameters of Helbing et al. (2000); the
                      # JuPedSim default 0.3 m cannot pack to the 3.8/m2 measured in BaSiGo b_08
 AVM_RADIUS = 0.2     # m: JuPedSim 1.4.2 default for the anticipation velocity model
-MODELS = ("sf", "avm")
+CFSM_RADIUS = 0.2    # m: JuPedSim 1.4.2 default for the collision-free speed model
+CFSM_TIME_GAP = 1.0  # s: JuPedSim 1.4.2 default
+MODELS = ("sf", "avm", "cfsm")
+RULES = ("always", "yield", "scaled")
 
 
 def desired_speeds(rng, n, mean=1.34, sd=0.26, lo=0.6, hi=2.0):
@@ -49,7 +57,21 @@ def desired_speeds(rng, n, mean=1.34, sd=0.26, lo=0.6, hi=2.0):
     return np.clip(rng.normal(mean, sd, n), lo, hi)
 
 
-def steer_targets(pos, dirs, goal_y, beta, width, length, radius=RADIUS):
+def bias_weight(dirs, goal_y, width, rule="always"):
+    """Per-walker weight on the side bias. No lateral goal: 1 under every rule."""
+    if rule not in RULES:
+        raise ValueError(f"rule must be one of {RULES}")
+    w = np.ones(len(dirs))
+    has_goal = ~np.isnan(goal_y)
+    if rule == "always" or not has_goal.any():
+        return w
+    r = right_offset(np.nan_to_num(goal_y, nan=width / 2.0), dirs, width)
+    if rule == "yield":
+        return np.where(has_goal & (r < 0), 0.0, w)
+    return np.where(has_goal, np.clip((1.0 + r) / 2.0, 0.0, 1.0), w)
+
+
+def steer_targets(pos, dirs, goal_y, beta, width, length, radius=RADIUS, rule="always"):
     """Steering target per walker (vectorised).
 
     pos: (n, 2); dirs: (n,) +1 heading +x, -1 heading -x; goal_y: (n,) lateral goal or nan.
@@ -71,7 +93,8 @@ def steer_targets(pos, dirs, goal_y, beta, width, length, radius=RADIUS):
         dy = np.abs(y[None, :] - y[:, None])
         opp = dirs[None, :] != dirs[:, None]
         oncoming = (opp & (dx > 0) & (dx <= LOOK_AHEAD) & (dy < LATERAL_GAP)).any(axis=1)
-        ty = ty + np.where(oncoming, -dirs * beta * TARGET_AHEAD, 0.0)
+        w = bias_weight(dirs, goal_y, width, rule)
+        ty = ty + np.where(oncoming, -dirs * beta * w * TARGET_AHEAD, 0.0)
     tx = np.clip(tx, -1.4, length + 1.4)
     ty = np.clip(ty, radius + 0.05, width - radius - 0.05)
     return tx, ty
@@ -85,7 +108,7 @@ def right_offset(y, d, width):
 
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
              warmup=40.0, duration=160.0, dt=0.01, steer_every=0.1, record_every=0.1,
-             model="sf", exit_frac=0.25):
+             model="sf", exit_frac=0.25, rule="always"):
     """Run one closed-loop corridor. Returns per-run statistics (dict).
 
     model: "sf" (JuPedSim SocialForceModel, Helbing et al. 2000 defaults, radius 0.25 m) or
@@ -97,11 +120,18 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
 
     if model not in MODELS:
         raise ValueError(f"model must be one of {MODELS}")
-    radius = RADIUS if model == "sf" else AVM_RADIUS
+    if rule not in RULES:
+        raise ValueError(f"rule must be one of {RULES}")
+    radius = {"sf": RADIUS, "avm": AVM_RADIUS, "cfsm": CFSM_RADIUS}[model]
     rng = np.random.default_rng(seed)
     # walkable area runs 1.5 m past each end so leaving walkers are not held by an end wall
     area = [(-1.5, 0), (length + 1.5, 0), (length + 1.5, width), (-1.5, width)]
-    op = jps.SocialForceModel() if model == "sf" else jps.AnticipationVelocityModel(rng_seed=int(seed))
+    if model == "sf":
+        op = jps.SocialForceModel()
+    elif model == "avm":
+        op = jps.AnticipationVelocityModel(rng_seed=int(seed))
+    else:
+        op = jps.CollisionFreeSpeedModel()
     sim = jps.Simulation(model=op, geometry=area, dt=dt)
     stage = sim.add_direct_steering_stage()
     journey = sim.add_journey(jps.JourneyDescription([stage]))
@@ -117,6 +147,10 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
             par = jps.SocialForceModelAgentParameters(
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
                 orientation=(float(d), 0.0), desired_speed=float(v0), radius=radius)
+        elif model == "cfsm":
+            par = jps.CollisionFreeSpeedModelAgentParameters(
+                journey_id=journey, stage_id=stage, position=(float(x), float(y)),
+                time_gap=CFSM_TIME_GAP, desired_speed=float(v0), radius=radius)
         else:
             par = jps.AnticipationVelocityModelAgentParameters(
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
@@ -142,7 +176,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         d0 = 1 if k % 2 == 0 else -1
         try:
             add(p[0], p[1], d0, v0s[k], False)
-        except RuntimeError:  # AVM refuses overlapping placement: the walker enters later instead
+        except RuntimeError:  # AVM/CFSM refuse overlapping placement: the walker enters later instead
             queue[d0] += 1
     e_lo = max(radius + 0.05, width / 2 - entrance / 2)
     e_hi = min(width - radius - 0.05, width / 2 + entrance / 2)
@@ -169,7 +203,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                 keep = ~leaving
                 ids = [a for a, kk in zip(ids, keep) if kk]
                 pos, d, g = pos[keep], d[keep], g[keep]
-                tx, ty = steer_targets(pos, d, g, beta, width, length, radius)
+                tx, ty = steer_targets(pos, d, g, beta, width, length, radius, rule)
                 for a, xx, yy in zip(ids, tx, ty):
                     sim.agent(a).target = (float(xx), float(yy))
             for dd in (1, -1):
@@ -181,7 +215,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                     try:
                         add(x0, y0, dd, desired_speeds(rng, 1)[0], True)
                     except RuntimeError:
-                        # AVM checks contact on entry; a walker marked for removal is still
+                        # AVM/CFSM check contact on entry; a walker marked for removal is still
                         # present until the next step, so wait for room (SF never raises here)
                         break
                     queue[dd] -= 1

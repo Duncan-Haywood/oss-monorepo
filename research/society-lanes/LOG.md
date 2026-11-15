@@ -2,6 +2,25 @@
 
 Newest first.
 
+## 2026-11-15 · Milestone 4b: does a side bias that yields to a lateral goal fix the over-trusted convention, in three families? And a third family, JuPedSim's collision-free speed model (predictions written before the full run)
+- Why this step: milestones 3 and 4a found that two families with no side of their own, given the keep-right convention as a steering bias fitted on free-choice runs, keep it under assigned exits where people dropped it (social force 0.78, AVM 0.996, people 0.54 pooled over the eight HERMES runs). Milestone 4a's log pointed at the bias rule rather than the operational model. This step tests that directly, and adds a third operational family that this session can run with industrial-grade open code: JuPedSim 1.4.2's CollisionFreeSpeedModel (CFSM; Tordeux, Chraibi and Seyfried 2016, *Traffic and Granular Flow '15*, 225-232). ORCA and the power law stay open (no maintained RVO2 wheel for this interpreter; the power law needs its own integrator).
+- The rules (`sftwin.bias_weight`, no new parameter): **always** (milestones 3 and 4a); **yield**, the bias is off for a walker whose lateral goal lies on its left half; **scaled**, the bias is weighted by (1 + r) / 2, r the goal's offset toward the walker's right in half-widths (0.75 or 0.25 at exits 0.25 of the width from a wall). A walker without a lateral goal gets the full bias under every rule, so the free-choice runs, and the fitted beta, are untouched: social force keeps beta = 0.1 and the AVM 0.35, and nothing is refitted on the held-out runs.
+- Disclosure: the rule is chosen after seeing the held-out failures of the "always" rule, so the held-out runs are not unseen for the choice of rule, only for its parameter (there is none to fit). Before writing these predictions three probe simulations ran once each (one HERMES-like corridor, N = 40, beta = 0.1, rule yield, one per family; shares 0.72 SF, 0.78 AVM, 0.60 CFSM) to check the code runs.
+- Design (fixed now): **Part A**, social force (beta 0.1) and AVM (beta 0.35) at their earlier walker counts on the 14 held-out runs, exits at 0.25, rules yield and scaled, 20 seeds; their "always" numbers are read from the milestone 3 and 4a CSVs, not rerun. **Part B**, CFSM under milestone 3's protocol (N grid {20, 30, 40, 60, 80, 100, 130} calibrated to speed at beta = 0, 3 seeds; beta in {0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1.0} fitted with 5 seeds; scored with 20), then the 14 held-out runs under all three rules.
+- **Predictions:**
+  - Y1: social force with yield puts the pooled bot-360 held-out share within 0.10 of the observed 0.541. Prior 55%.
+  - Y2: the same for the AVM. Prior 30% (its lanes, once formed, hold).
+  - Y3: yield lands closer to the observed pooled share than scaled in all three families. Prior 70%.
+  - Y4: social force with yield puts b_03 (0.754) and b_08 (0.505) both within 0.10. Prior 25%.
+  - Y5: social force with yield is below the observed share in at least 5 of the 14 runs (the error is no longer one-sided). Prior 50%.
+  - C1: CFSM at beta = 0 gives a pooled free share in [0.40, 0.60]. Prior 70%.
+  - C2 (H3, side): CFSM at its fitted beta puts the share inside the run's 95% interval in at least 6 of 9 free runs. Prior 35%.
+  - C3 (H3, lanes): lane order within 0.10 in at least 6 of 9. Prior 35%.
+  - C4 (H3, speed): b_03 and b_08 median speed within 0.15 m/s at the calibrated count. Prior 10%.
+  - C5: CFSM with the "always" rule keeps the pooled bot-360 held-out share above 0.70 (the over-trust replicates in a third family). Prior 75%.
+  - C6: CFSM with yield puts it within 0.10 of 0.541. Prior 50%.
+  - Headline: yield within 0.10 in all three families. Prior 20%.
+
 ## 2026-11-15 · Milestone 4a: is the over-trusted convention a social-force artefact? The exit-position check, and a second family, JuPedSim's anticipation velocity model (predictions written before the full run)
 - Why this step: milestone 3 found the social-force twin keeps 0.78 of walkers on their right under assigned exits where people kept 0.54, and named the exit position as the assumption most likely to move that. Milestone 4 adds model families; the first one added here is the one this session can run with industrial-grade open code: JuPedSim 1.4.2's AnticipationVelocityModel (AVM; Xu, Chraibi and Seyfried 2021, *Transportation Research Part C* 133, 103464), a velocity-based model built to reproduce bidirectional flow. ORCA and the power law (Karamouzas et al. 2014) stay for milestone 4b.
 - Source read before predicting (JuPedSim v1.4.2, `libsimulator/src/AnticipationVelocityModel.cpp`): the AVM's lateral influence points away from each neighbour's predicted position, with a random left/right only at an exact tie, so it has no side preference of its own. The same steering bias β as milestone 3 is added through the same direct-steering stage. AVM parameters are JuPedSim's defaults (radius 0.2 m, time gap 1.06 s, anticipation 1.0 s, reaction 0.3 s, neighbour repulsion 8.0 over 0.1 m); desired speeds as milestone 3.
