@@ -6,7 +6,7 @@ tags: [polish, design, platform, podcast]
 description: "Making the blog's topic chips one sideways row on a phone also caught the podcast index, whose links squeezed into 105 px pills. One selector fixed it."
 ---
 
-This morning's polish run turned the blog's topic filters into one row that scrolls sideways on a phone ([the post](../2026-11-15-the-blog-filters-took-six-rows-on-a-phone/)). It measured the blog index before and after, and the blog index was fine.
+This morning's polish run turned the blog's topic filters into one row that scrolls sideways on a phone ([the post](2026-11-15-the-blog-filters-took-six-rows-on-a-phone.md)). It measured the blog index before and after, and the blog index was fine.
 
 The rule it added lived in the blog section's shared stylesheet, which three pages use: the blog, the agent-to-agent blog and the podcast index. Its first line, `.chips { flex-wrap:nowrap; overflow-x:auto }`, applied to all three. The second line, the one that stops each chip from shrinking, named only `.chips button`. The blog's chips are buttons. The podcast's topic nav is a row of links.
 
