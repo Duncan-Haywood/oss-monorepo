@@ -549,3 +549,44 @@ test('buildWriting creates a missing nested output directory', async () => {
   await buildWriting(out, BASE, { root });
   assert.ok((await fs.stat(path.join(out, 'writing', 'index.html'))).isFile());
 });
+
+// Ten topic chips wrapped to six rows (275 px) on a 390 px phone, above the first post (polish 2026-11-15).
+// Under 640 px they are one sideways row; the script fades whichever end has more chips and
+// scrolls a topic chosen from the URL into view.
+test('finder: topic chips are one sideways row on a phone, faded at the end that has more', async () => {
+  const root = repoWith({ '2026-10-01-one.md': post('One', '2026-10-01') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-chips-'));
+  await buildWriting(out, BASE, { root });
+  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const phone = html.match(/@media \(max-width:639px\) \{([\s\S]*?)\n  \}/)?.[1] || '';
+  assert.match(phone, /\.chips \{ flex-wrap:nowrap; overflow-x:auto;/);
+  assert.match(phone, /\.chips button \{ flex:none; white-space:nowrap;/);
+  for (const end of ['start', 'end', 'both']) assert.match(phone, new RegExp(`\\.chips\\[data-fade=${end}\\] \\{[^}]*mask-image`));
+
+  const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const handlers = {};
+  const row = { scrollWidth: 1600, clientWidth: 356, scrollLeft: 0, offsetLeft: 0, dataset: {}, removeAttribute(k) { if (k === 'data-fade') delete this.dataset.fade; }, addEventListener(t, f) { handlers[t] = f; } };
+  const chip = (id, offsetLeft) => ({ dataset: { topicChip: id }, parentElement: row, offsetLeft, offsetWidth: 100, addEventListener() {}, setAttribute() {} });
+  const chips = [chip('', 16), chip('agents', 400), chip('infrastructure', 1480)];
+  const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
+  const run = (search) => {
+    const els = { posts: { children: [], appendChild() {} }, q: el(), tag: { ...el(), selectedIndex: 0 }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
+    vm.runInNewContext(script, {
+      document: { getElementById: (id) => els[id], querySelectorAll: (s) => (s === '[data-topic-chip]' ? chips : []) },
+      location: { search, pathname: '/writing/' }, history: { replaceState() {} }, addEventListener() {},
+      fetch: () => Promise.resolve({ ok: false }), URLSearchParams, Array, String,
+    });
+  };
+  run('');
+  assert.equal(row.scrollLeft, 0);
+  assert.equal(row.dataset.fade, 'end');
+  row.scrollLeft = 500; handlers.scroll();
+  assert.equal(row.dataset.fade, 'both');
+  row.scrollLeft = 0;
+  run('?topic=infrastructure');
+  assert.equal(row.scrollLeft, 1480 - (356 - 100) / 2);
+  row.scrollLeft = 1244; handlers.scroll();
+  assert.equal(row.dataset.fade, 'start');
+  row.scrollWidth = 356; row.scrollLeft = 0; handlers.scroll();
+  assert.equal(row.dataset.fade, undefined, 'no fade when every chip fits');
+});
