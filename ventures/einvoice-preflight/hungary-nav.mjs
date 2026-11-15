@@ -12,7 +12,8 @@
 //     3.3.3 "Warnings", which sets the arithmetic tolerance used here: "The
 //     greatest deviation thus 'tolerated' is 1% of the net price, but no less
 //     than 1 unit."
-//   - invoiceData.xsd / invoiceBase.xsd 3.0 for element names and nesting;
+//   - invoiceData.xsd / invoiceBase.xsd 3.0 for element names and nesting (the full
+//     schema gate, with NTCA common 1.0, is hu-xsd.mjs: HU-027..HU-032);
 //   - the 29 InvoiceData files in sample/Data sample, which all pass (see
 //     eval/hungary-nav-samples-2026-11-15.md).
 // Blocking codes come out as errors; the arithmetic checks mirror NAV's WARN
@@ -29,6 +30,7 @@
 import { base64Bytes, sha3_512Hex } from "./sha3.mjs";
 import { parseXmlTree } from "./ubl.mjs";
 import { wellFormed } from "./fatturapa-xsd.mjs";
+import { checkAgainstNavSchema } from "./hu-xsd.mjs";
 
 export const NAV_DATA_NS = "http://schemas.nav.gov.hu/OSA/3.0/data";
 export const NAV_API_NS = "http://schemas.nav.gov.hu/OSA/3.0/api";
@@ -101,7 +103,8 @@ function rateKey(vatRate) {
   if (txt(vatRate, "noVatCharge") === "true") return "novat";
   return null;
 }
-const keyLabel = (key) => key.startsWith("pct:") ? `${fmt(Number(key.slice(4)) * 100).replace(/\.00$/, "")}%` : key.startsWith("content:") ? `VAT content ${key.slice(8)}` : key;
+// A row whose vatRate is empty or missing (a schema fault, reported as HU-029/HU-030) has no key.
+const keyLabel = (key) => !key ? "unnamed VAT rate" : key.startsWith("pct:") ? `${fmt(Number(key.slice(4)) * 100).replace(/\.00$/, "")}%` : key.startsWith("content:") ? `VAT content ${key.slice(8)}` : key;
 const ratePercent = (key) => (key && key.startsWith("pct:") ? Number(key.slice(4)) : null);
 
 /** The VAT-rate code list checks (codes 14, 31-37, 41-44, 48, 49) for one vatRate / lineVatRate node. */
@@ -654,6 +657,9 @@ export function checkNavInvoiceData(source, { operation = null, electronicInvoic
   const tree = parseXmlTree(text);
   const root = tree.children.find((c) => c.name === "InvoiceData");
   if (!root) return { findings: [finding("HU-001", "No InvoiceData root element was found.", "Check the file is a NAV Online Számla 3.0 invoice data report.", "/")], skipped, meta: {} };
+  // The schema gate first (HU-027..HU-032, hu-xsd.mjs): NAV aborts a report that breaks
+  // invoiceData.xsd before any business rule, so these are listed ahead of the rest.
+  findings.push(...checkAgainstNavSchema(root, pathPrefix, text));
   const invoiceNumberRaw = raw(root, "invoiceNumber");
   const invoiceNumber = invoiceNumberRaw.trim();
   const issueDate = txt(root, "invoiceIssueDate");
@@ -755,7 +761,7 @@ export function checkNavInvoice(source) {
     try { bytes = base64Bytes(b64); } catch { /* reported below */ }
     if (compressed) {
       // gzip cannot be undone synchronously in a browser without a library; name it instead of guessing.
-      skipped.push({ rule: "HU-001..026", path: prefix, reason: "compressedContent is true (gzip); compressed operations are not read by this checker. Paste the uncompressed InvoiceData XML instead." });
+      skipped.push({ rule: "HU-001..032", path: prefix, reason: "compressedContent is true (gzip); compressed operations are not read by this checker. Paste the uncompressed InvoiceData XML instead." });
       return;
     }
     const decoded = new TextDecoder().decode(bytes);
