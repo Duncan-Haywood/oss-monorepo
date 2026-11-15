@@ -86,10 +86,15 @@ def chain_job(job):
     X = sp.start(seed)
     nw, w = localhess.LocalNewton(sp, X), fem.GRAV * sp.mass.max()
     rows = []
-    part = Path(cache) / f"partial_{f}_{mm(a)}_{seed}"      # per-stage checkpoint: the solver keeps no
-    if (part.with_suffix(".json")).exists():                # state between stages, so resuming from the
-        rows = json.loads(part.with_suffix(".json").read_text())   # saved positions is exact
-        X = np.load(part.with_suffix(".npz"))["X"]
+    # per-stage checkpoint: the solver keeps no state between stages, so resuming from the saved
+    # positions is exact. (Names are built as strings: Path.with_suffix would read "1.875_0" as a
+    # suffix and make every seed's checkpoint the same file, a bug the first launch hit.)
+    base = f"partial_{f}_{mm(a)}_{seed}"
+    pj = Path(cache) / f"{base}.json"
+    pz = lambda k: Path(cache) / f"{base}_stage{k}.npy"
+    if pj.exists():
+        rows = json.loads(pj.read_text())
+        X = np.load(pz(len(rows) - 1))
     for ea in CHAIN[f][len(rows):]:
         t = time.time()
         sp.EA = ea
@@ -98,8 +103,10 @@ def chain_job(job):
         print(f"chain {f} {mm(a)}mm seed {seed} EA {ea:g}: DC {r['dc']:.4f} folds {r['folds']} "
               f"E {r['energy']:.8e} lam {r['lam']} steps {r['steps']} {r['sec']:.0f}s", flush=True)
         rows.append(r)
-        np.savez(part.with_suffix(".npz"), X=X)
-        part.with_suffix(".json").write_text(json.dumps(rows))
+        np.save(pz(len(rows) - 1), X)                        # positions first, then the row list
+        tmp = Path(cache) / f"{base}.json.tmp"               # that names them, by rename, so a kill
+        tmp.write_text(json.dumps(rows))                     # mid-write leaves the last good stage
+        tmp.replace(pj)
     np.savez_compressed(Path(cache) / f"state_{f}_{mm(a)}_{seed}.npz", X=X)
     out.write_text(json.dumps(rows))
     return rows

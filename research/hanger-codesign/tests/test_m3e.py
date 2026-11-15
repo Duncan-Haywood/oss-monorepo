@@ -1,6 +1,8 @@
 """Milestone 3e: the cross-lattice state transfer and the distinct-state filter behind the pooled rule."""
 import importlib.util
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -43,6 +45,24 @@ class TestM3e(unittest.TestCase):
                 dict(seed=2, folds=9, energy=-1.0, conv=True), dict(seed=3, folds=8, energy=-0.9, conv=True),
                 dict(seed=4, folds=7, energy=-2.0, conv=False)]
         self.assertEqual(sorted(r["seed"] for r in m3e.distinct(rows)), [1, 2, 3])
+
+    def test_checkpoint_names_are_distinct_per_seed_and_resume_is_exact(self):
+        f, a = "D", 0.015
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as e:
+            full = {s: m3e.chain_job((f, a, s, d)) for s in (0, 1)}
+            parts = sorted(p.name for p in Path(d).glob("partial_*.json"))
+            self.assertEqual(parts, [f"partial_D_15_{s}.json" for s in (0, 1)])
+            # interrupted after stage 2: keep only the checkpoint, as a killed run would
+            for s in (0, 1):
+                rows = json.loads((Path(d) / f"partial_D_15_{s}.json").read_text())[:2]
+                (Path(e) / f"partial_D_15_{s}.json").write_text(json.dumps(rows))
+                for k in (0, 1):
+                    n = f"partial_D_15_{s}_stage{k}.npy"
+                    (Path(e) / n).write_bytes((Path(d) / n).read_bytes())
+            for s in (0, 1):
+                res = m3e.chain_job((f, a, s, e))
+                self.assertEqual([r["energy"] for r in res], [r["energy"] for r in full[s]])
+                self.assertEqual([r["dc"] for r in res[2:]], [r["dc"] for r in full[s][2:]])
 
 
 if __name__ == "__main__":
