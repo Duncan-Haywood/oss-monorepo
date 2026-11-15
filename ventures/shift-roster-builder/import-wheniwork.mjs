@@ -22,6 +22,14 @@ const pad2 = (n) => String(n).padStart(2, "0");
 // "Mon, 08 May 2023 08:30:00 -0600" (RFC 2822, the API's form; the weekday is optional) or ISO 8601
 // ("2023-05-08T08:30:00-06:00") -> { date "YYYY-MM-DD", time "HH:MM", ms: the instant, for lengths }.
 // The date and time are the digits as written, i.e. the clock where the shift happens.
+// "-05:00", "-0500" or "+1000" to minutes east of UTC; "Z", "UTC" and none
+// are 0. Also orders the offsets note: a plain .sort() put "+1000" before
+// "-0500" (string order, found by platform/ci/check_numeric_sort.mjs).
+function offsetMinutes(off) {
+  const o = /^([+-])(\d{2}):?(\d{2})$/.exec(off || "");
+  return o ? (o[1] === "-" ? -1 : 1) * (+o[2] * 60 + +o[3]) : 0;
+}
+
 export function readWiwTime(s) {
   if (typeof s !== "string") return null;
   const t = s.trim();
@@ -40,11 +48,7 @@ export function readWiwTime(s) {
   const local = Date.UTC(y, mo - 1, d, h, mi, sec);
   const back = new Date(local);
   if (back.getUTCDate() !== d) return null; // 31 April and the like
-  let offMin = 0;
-  if (off && !/^(Z|UT|UTC|GMT)$/.test(off)) {
-    const o = /^([+-])(\d{2}):?(\d{2})$/.exec(off);
-    offMin = (o[1] === "-" ? -1 : 1) * (+o[2] * 60 + +o[3]);
-  }
+  const offMin = offsetMinutes(off);
   return { date: `${y}-${pad2(mo)}-${pad2(d)}`, time: `${pad2(h)}:${pad2(mi)}`, ms: local - offMin * 60000, offset: off || "" };
 }
 
@@ -142,7 +146,7 @@ export function importWhenIWork(inputs, opts = {}) {
   if (counts.draftsLeftOut) notes.push(`${plural(counts.draftsLeftOut, "unpublished shift")} left out.`);
   else if (counts.drafts) notes.push(`${plural(counts.drafts, "unpublished shift")} read as planned shifts.`);
   if (counts.open) notes.push(`${plural(counts.open, "open shift")} with nobody on ${counts.open === 1 ? "it" : "them"} counted as needed.`);
-  if (offsets.size > 1) notes.push(`Times are read as written, on each shift's own clock (offsets ${[...offsets].sort().join(", ")}: a daylight-saving change or locations in different zones).`);
+  if (offsets.size > 1) notes.push(`Times are read as written, on each shift's own clock (offsets ${[...offsets].sort((a, b) => offsetMinutes(a) - offsetMinutes(b)).join(", ")}: a daylight-saving change or locations in different zones).`);
   if (got.repeating) notes.push(`${plural(got.repeating, "repeating-series row")} not read: the dated shifts list is what counts (fetch a longer range for more weeks).`);
   if (counts.unreadable || got.unread) notes.push(`${counts.unreadable + got.unread} JSON value(s) were not When I Work shifts, positions or locations and were ignored.`);
   if (!got.positions.length && got.shifts.some((s) => s?.position_id)) notes.push("Positions are shown as numbers: add the positions response (GET /2/positions) for their names.");
