@@ -1270,6 +1270,27 @@ for a 16 MP frame on four cores (bilinear 0.9 s; LibRaw's three-pass 1.7 s in C)
 LibRaw's three-pass quality, a noisy known truth (on real sensor data our luminance is further from
 LibRaw's render than bilinear's is, unexplained), Bayer files (they keep bilinear).
 
+**2026-11-15: within half a dB of LibRaw's three-pass.** Two changes, both found by measuring where
+the error was (`eval/xtrans-clamp-gradient-2026-11-15.md`). First, the L\*a\*b\* homogeneity choice
+turned out to be no better than averaging all four directions on the X-E1 frame (36.38 against 36.39
+dB) and worse on the sheet, while the best direction per pixel would have reached 40.0: the choice
+was the weak step. It is replaced by a blend weighted by each direction's smoothness along its own
+line (second difference, 3x3 window, weights (D_min/D)^4). Second, each directional green is now
+held between the two greens it was interpolated from; the colour-difference estimate overshot where
+the 3x3 estimate of the sensel's own colour was off. Colour PSNR, old rule to new: X-E1 frame 36.60
+to 38.56 dB (LibRaw three-pass 39.27), held-out X-E2 frame 47.88 to 49.43 (LibRaw 49.89), sheet 33.51
+to 35.00 (LibRaw 39.37); 99th-percentile false colour down 20-33%. Half size: X-E1 40.07 to 42.27.
+Tuned on the X-E1 frame and the sheet; the X-E2 was looked at once, with the final settings. On the real
+frames' sensor data the output is nearer LibRaw's three-pass render than before (X-E1 colour 45.72 to
+47.52 dB, luma 47.41 to 49.44), and the luma gap to bilinear's closeness (51.22) is the median's: without
+it, 52.40. `directional(...,
+clamp=False, select="homogeneity")` reproduces the 2026-11-14 numbers exactly. With sensor-like
+noise added to the mosaic (`--noise-snr 60 --noise-snr 25`, scored against the clean truth, LibRaw given
+the same noisy mosaic) the gap narrows: X-E1 0.65 and 0.43 dB short, X-E2 0.09 dB short and 0.12 dB
+ahead. Still open: the sheet's 4.4 dB gap to LibRaw's three passes (fine rings near the sampling limit),
+whether the median should leave green alone (+0.4 dB on the frames, -2.4 on the sheet; needs a real
+noisy frame with a known answer), a C path, Bayer.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:
