@@ -180,6 +180,69 @@ export function stepOrBend(x, rho, margin = 0.15) {
   };
 }
 
+// Step or bend, as two tests (eval/hinge-step-or-bend-boot-prereg-2026-11-15.md). The RSS comparison above calls
+// whichever kind fits better even when the two fit about equally, which is where it failed. Here each kind is a null
+// in turn (a Cox-style non-nested test calibrated by a parametric bootstrap): the statistic is T = log(step RSS /
+// bend RSS) (above 0 favours the bend), and it is redrawn `reps` times from the best fitted step plus AR(1) noise and
+// `reps` times from the best fitted bend plus AR(1) noise, each replicate rerunning the whole procedure (rho from the
+// OLS hinge, as the hinge test reads it). pStep is how often the step null gives a T at least this large; pBend how
+// often the bend null gives one at most this large. A kind is called only when its rival is rejected and it is not:
+// call 'bend' when pStep <= level < pBend, 'step' when pBend <= level < pStep, else 'unclear'.
+function fitKind(x, rho, make, margin) {
+  const n = x.length, one = pw(new Float64Array(n).fill(1), rho), tt = pw(Float64Array.from({ length: n }, (_, t) => t), rho);
+  const y = pw(x, rho), null0 = resid2(y, one, tt), trim = trimOf(n, margin), col = new Float64Array(n);
+  let b = null;
+  for (let k = trim; k <= n - 1 - trim; k++) {
+    for (let t = 0; t < n; t++) col[t] = make(t, k);
+    const z = resid2(pw(col, rho), one, tt).e;
+    let ez = 0, zz = 0;
+    for (let t = 0; t < n; t++) { ez += null0.e[t] * z[t]; zz += z[t] * z[t]; }
+    if (!(zz > 0)) continue;
+    const rss = null0.ss - ez * ez / zz;
+    if (!b || rss < b.rss) b = { k, rss };
+  }
+  for (let t = 0; t < n; t++) col[t] = make(t, b.k);
+  const coef = fit3(y, one, tt, pw(col, rho));
+  return { ...b, coef, mean: Float64Array.from({ length: n }, (_, t) => coef[0] + coef[1] * t + coef[2] * make(t, b.k)) };
+}
+const HINGE_COL = (t, k) => Math.max(0, t - k), STEP_COL = (t, k) => (t > k ? 1 : 0);
+const rhoOf = (x, margin, rhoCap) => Math.max(-0.9, Math.min(rhoCap, olsHinge(x, margin).rhoHinge));
+const logRatio = (x, margin, rhoCap) => Math.log(stepOrBend(x, rhoOf(x, margin, rhoCap), margin).ratio);
+
+// Guard: refused under 30 points, and when the residuals of both the best OLS step and the best OLS bend have
+// bias-corrected lag-1 autocorrelation above rhoMax (0.9; 0.7 under 100 points, as the hinge test): a wandering
+// series is neither a step nor a bend on a line.
+export function stepOrBendTest(x, { margin = 0.15, reps = 199, seed = 1, level = 0.05, rhoCap = 0.95, rhoMax = 0.9 } = {}) {
+  x = Array.from(x, Number);
+  const n = x.length;
+  if (n < 30) return { refused: true, reason: `needs 30 or more points (got ${n})`, n };
+  if (n < 100) rhoMax = Math.min(rhoMax, 0.7);
+  const fits = { step: fitKind(x, 0, STEP_COL, margin), bend: fitKind(x, 0, HINGE_COL, margin) };
+  const resid = (f) => x.map((v, t) => v - f.mean[t]);
+  const rhoStepOls = corrected(lag1(resid(fits.step)), n), rhoBendOls = corrected(lag1(resid(fits.bend)), n);
+  if (Math.min(rhoStepOls, rhoBendOls) > rhoMax) return { refused: true, reason: `the residuals about the best step and the best bend have lag-1 autocorrelation ${rhoStepOls.toFixed(2)} and ${rhoBendOls.toFixed(2)} (bias-corrected), both above ${rhoMax}: the series wanders too much to call it either`, rhoStep: rhoStepOls, rhoBend: rhoBendOls, n };
+  const rho = rhoOf(x, margin, rhoCap), s = stepOrBend(x, rho, margin), T = Math.log(s.ratio);
+  const draw = (make, r) => {
+    // the null's mean is its OLS fit at its best knot; its noise is AR(1) with the bias-corrected lag-1 autocorrelation
+    // and innovation sd of those OLS residuals
+    const f = make === STEP_COL ? fits.step : fits.bend, e = resid(f);
+    const rg = Math.max(-0.9, Math.min(rhoCap, corrected(lag1(e), n)));
+    const sdE = Math.sqrt(Math.max(1e-12, e.reduce((a, v, t) => a + (t ? (v - rg * e[t - 1]) ** 2 : 0), 0) / (n - 4)));
+    const out = [];
+    for (let b = 0; b < reps; b++) {
+      const z = new Array(n); let u = gauss(r) * sdE / Math.sqrt(1 - rg * rg);
+      for (let t = 0; t < n; t++) { if (t) u = rg * u + gauss(r) * sdE; z[t] = f.mean[t] + u; }
+      out.push(logRatio(z, margin, rhoCap));
+    }
+    return out;
+  };
+  const r = mulberry(seed), underStep = draw(STEP_COL, r), underBend = draw(HINGE_COL, r);
+  const pStep = (1 + underStep.filter((v) => v >= T).length) / (1 + reps);
+  const pBend = (1 + underBend.filter((v) => v <= T).length) / (1 + reps);
+  const call = pStep <= level && pBend > level ? 'bend' : pBend <= level && pStep > level ? 'step' : 'unclear';
+  return { refused: false, call, pStep, pBend, logRatio: T, rho, rhoStep: rhoStepOls, rhoBend: rhoBendOls, stepIndex: s.stepIndex, stepSize: s.stepSize, bendIndex: s.bendIndex, reps, n };
+}
+
 // least squares on three columns (Gaussian elimination), returns coefficients
 function fit3(y, c1, c2, c3) {
   const C = [c1, c2, c3], A = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
