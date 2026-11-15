@@ -3,7 +3,7 @@ title: "Most cameras were still getting the softest demosaic. We replaced it and
 seo_title: "A directional Bayer demosaic, measured against LibRaw's seven"
 date: 2026-11-15
 tags: [photography, raw, demosaic, bayer, libraw, open-source, photo-editing]
-description: "ShootFlow developed every Bayer raw file with a bilinear demosaic. A directional one now has the best colour of LibRaw's seven methods on five of six tests, and we say where it loses."
+description: "A directional Bayer demosaic for ShootFlow beats bilinear on every test and has the best colour of LibRaw's seven methods on five of six. Where it loses, too."
 ---
 
 ShootFlow, the open-source photo workflow in this repository, reads raw files from Canon, Nikon,
