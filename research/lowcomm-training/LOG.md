@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-15 · Milestone 6v (H6 mechanism): is it rand-k's sparsity? Gaussian noise of rand-k's energy at omega 7, H = 16 and 64, four seeds (planned before running)
+
+- Why: 6u's "Next" and its second untested candidate. Per-round noise energy does not explain why keep 1/8 (omega 7) costs +0.0220 (se 0.0016) at H = 16 and -0.0016 (0.0038) at H = 64. What rand-k adds beyond its energy is structure: it zeros 7 of 8 coordinates per worker and scales the rest by 8, so its noise on coordinate i has variance omega d_i^2 and is heavy-tailed. AdamW's per-coordinate normalisation could treat that differently from spread-out noise.
+- Run (`experiments/gpt_scale/noise_6v.py`, written before the runs): the size-2 setup of `scale.py`, with rand-k replaced by `lowcomm.gauss_noise`, unbiased additive Gaussian noise of the same expected energy omega ||d||^2 per tensor, omega 7. Two variants: **iso** (every coordinate of a tensor gets variance omega ||d||^2 / n) and **shaped** (coordinate i gets omega d_i^2, rand-k's own per-coordinate variance, with nothing zeroed). H = 16 and 64, seeds 0 to 3; 16 runs, iso first. Each run pairs by seed with the uncompressed run and the rand-k keep-1/8 run in `scale.jsonl`.
+- **H6v-i** (prior 60%): the knee's move survives isotropic noise: the iso excess at H = 16 exceeds the iso excess at H = 64 by more than 2 se. **H6v-ii** (prior 45%): iso noise costs the same as rand-k: the per-seed paired difference (iso minus rand-k) is within 2 se of zero at both H. **H6v-iii** (prior 55%): shaped noise costs the same as rand-k at both H, same test. A diverged run refutes the hypothesis for its variant and is reported.
+- Reading: i and iii holding with ii failing would say the allocation of noise across coordinates matters but the zeroing does not; iii failing would point at the sparsity itself; i failing would make the H-dependence a property of rand-k's structure rather than of noise in the outer step.
+- Not tested: other omega, other widths, the contraction (perturbation-survival) test of 6u's "Next".
+
 ## 2026-11-14 · Milestone 6u (H6 mechanism): does rand-k noise measured against the workers' own disagreement explain the knee's move with H? Uncompressed runs at H = 16, 32, 64, two seeds, per-round delta norms (planned before running)
 
 - Why: 6s and 6t's "Next". The cost curve is a line through the origin at H = 16 and a hinge with its knee near omega 8 at H = 64 (bootstrap w0: 0.0/0.5/1.5, 0.75/4.25/7.0, 6.5/7.75/9.0 at H = 16, 32, 64). 6s's candidate explanation: over long inner loops the workers drift apart, and that disagreement, already averaged away by the outer step, masks small compression noise.
