@@ -585,6 +585,7 @@
       40.0
     ],
     "lift_tooth_jump_factor": 1.5,
+    "lift_flight_kg": 0.005,
     "lift_coupler_hub_l": 10.5,
     "lift_shaft_clear": 1.5,
     "lift_shaft_allow_mpa": 80.0,
@@ -781,8 +782,8 @@
     "levelling_foot": 0.0
   },
   "files": {
-    "README.txt": "92274f8c97ebcf7c4dea7a028a5fe9541c1cbd7f1e123764fb2b22440d465c3b",
-    "bom.csv": "0e71f804f55dee1c020da725864645a1eb1c099c900ab717d3527f93d6c55341",
+    "README.txt": "7fca0cba4fe3163aabf86d5ba327883582aaecdcd19b1dd0db2b3fc1eb2f9b5e",
+    "bom.csv": "85c12b73dfffec6d5bf29686af93549145ab795ea2ac50d042f544ca8a7f6e47",
     "cut_list.csv": "ff12796221b4235a7976aae18c8382bed5c9a182a04845d1f1e5767714bc5382",
     "drawings/assembly_front.svg": "89dc55bd274c7ee8d84ae02553eb7f8b341b724b24d3bbd54065ff2b7103c2e2",
     "drawings/assembly_side.svg": "5352301b8a8c50e1c9eb19d44b16c1b55c495e5b12f2081b427afba5b2c518f5",
