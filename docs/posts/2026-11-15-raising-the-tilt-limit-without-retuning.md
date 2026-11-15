@@ -3,7 +3,7 @@ title: "Raising a drone's tilt limit without retuning: cap what the position err
 date: 2026-11-15
 tags: [codesign-cant, quadrotor, PX4, ArduPilot, flight-control, research]
 description: Quadrotors tuned at a 20° tilt limit crashed at PX4's 45° default. Capping the position loop's proportional request removed every crash for 1–2% of cost; a tilt-rate limit made it far worse.
-seo_title: "Flying a quadrotor tuned at 20° tilt at 45°: which controller fix works"
+seo_title: "Flying a quadrotor tuned at 20° tilt at 45°: which fix works"
 ---
 
 Yesterday's step of the `codesign-cant` programme explained a crash. Quadrotor designs tuned in simulation with a 20° tilt-command limit tipped over at PX4's default limit of 45° (`MPC_TILTMAX_AIR`), even with no gust torque on them. Every crash happened in the first 0.8 s, while the vehicle closed a 0.5 m start offset. The position gain sat at the top of its search range, so that offset asked for a lean of about 27° on each axis. At 20° the limit had always clipped that request. At 45° it went through, and the motors ran out of differential thrust. The advice was to tune at the tilt limit you fly.
