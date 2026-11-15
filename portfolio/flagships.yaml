@@ -335,17 +335,16 @@ flagships:
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections). 2026-11-15 latest: 3-game nights
-      (eval/three-game-nights.txt): bound fixed (odd-league short windows, even
-      rows; 7 teams on 2x5 impossible by exhaustion), match-by-match layout,
-      two-session group search: 10 and 16 teams on 6 slots to 0 waits, 2-game 18 of
-      18; 28 teams in the floor-priced step (eval/under-start.txt). Before: every
-      starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
+      (eval/three-game-nights.txt): designed round robins (halves + cyclic cross at
+      12k teams, XOR at 2^k): 12-48 teams on 6 slots to 0 waits; 8 on 2x6 impossible
+      (full grid); 28 teams in the floor-priced step (eval/under-start.txt). Before:
+      every starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
       carry-over 94 at 10 teams, at 12 none below 124; refill search in C: 14 teams
-      210, stored. Next, most valuable first: 6-slot 3-game nights at 12-24 teams
-      (12: 4 of 6 seeds; 18-24 stop at 2 crossing; a designed start, e.g. XOR K4
-      groups at 16) and odd leagues by groups; the rest of the 20-team gap (40 to 44
-      still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a
-      starter family climbed with the floor as its score); 29-30 teams in the page
+      210, stored. Next, most valuable first: 6-slot 3-game nights at 14, 18, 20, 28
+      teams (20 on 5x6: two closed tens a night; annealing stops at 2 crossing),
+      3-session designs, and odd leagues by groups; the rest of the 20-team gap (40
+      to 44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or
+      a starter family climbed with the floor as its score); 29-30 teams in the page
       (15 matches: profile 30 first; 27 teams add nothing on seed 1, README
       "Starting under the gap"); the walk's last heavy tail (22 teams: 20 of 280
       walks out of budget either way, eval/walk-guide.txt); home-and-away breaks

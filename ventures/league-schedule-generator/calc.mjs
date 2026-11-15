@@ -934,7 +934,7 @@ export function buildSchedule(spec) {
     });
     if (wf.after === 0 && wf.before > 0) {
       plan = spec.double ? [...wf.rounds, ...wf.rounds.map((r) => ({ leg: 1, matches: r.matches.map(([h, a]) => [a, h]), bye: r.bye }))] : wf.rounds;
-      waitFree = { before: wf.before, after: wf.after };
+      waitFree = { before: wf.before, after: wf.after, ...(wf.designed ? { designed: true } : {}) };
     }
   }
   if (games > 1) {
@@ -1030,7 +1030,7 @@ export function buildSchedule(spec) {
         ? ` Back-to-back games for every team need at least ${need} courts at these ${times.length} times (a team's games fill ${games} slots in a row, and each time slot holds two teams per court).`
         : " More courts or fewer time slots close them.";
       notices.push(`${w.idle} wait(s) of a time slot or more between a team's games on the same night (${w.nights} team-night(s)).${hint}`);
-    } else if (schedule.waitFree) notices.push(`Back-to-back nights: the round robin was rearranged so every team plays its ${games} games in a row each night (the plain order would leave ${schedule.waitFree.before} match(es) that cannot sit back to back).`);
+    } else if (schedule.waitFree) notices.push(`Back-to-back nights: the round robin was rearranged so every team plays its ${games} games in a row each night (the plain order would leave ${schedule.waitFree.before} match(es) that cannot sit back to back)${schedule.waitFree.designed ? "; it is built from a design, so each night splits into groups of teams that only play each other, one group per session" : ""}.`);
   }
   schedule.stats = scheduleStats(schedule);
   return schedule;

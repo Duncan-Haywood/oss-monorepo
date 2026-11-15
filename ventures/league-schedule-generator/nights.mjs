@@ -363,6 +363,14 @@ export function waitFreeNights(rounds, n, g, courts, times, { seed = 1, evals = 
     }
     return b;
   };
+  // a designed round robin first (designedNights): when it packs, no search is needed
+  if (sessions) {
+    const d = designedNights(n, g, courts, times, seed);
+    if (d) {
+      const before = planWaitCost(oppOfRounds(rounds, n, n), n, g, courts, times);
+      if (before > 0) return { rounds: d.rounds, before, after: 0, evals: 0, start: "design", sessions: true, designed: true };
+    }
+  }
   let best = tryStart(rounds, seed, 0, null);
   for (let i = 0; i < starts.length && best.after > 0; i++) {
     const s = typeof starts[i] === "function" ? starts[i]() : starts[i];
@@ -486,6 +494,100 @@ export function sessionNights(rounds, n, g, courts, times, { seed = 1, evals = 4
     return { leg: 0, matches, bye: null };
   });
   return { rounds: out, before: before0, after, evals: used };
+}
+
+/**
+ * A round robin built from a design rather than searched, for three games a night in two or more
+ * sessions (sessionBlocks): an ordered list of n - 1 rounds (each a list of [a, b] pairs over
+ * 0..n-1) whose consecutive triples (rounds 0-2, 3-5, ...) each split into small closed groups, and
+ * whose last (n - 1) mod 3 rounds make a short last night. null when no design is known for n.
+ *
+ * - n a power of two (8 to 64): round r pairs t with t XOR r. A night of rounds {a, b, c} joins
+ *   the cosets of the subspace they span, so a night whose third round is a XOR b is four K4s
+ *   (every team plays the other three of its group of four) and any other night is groups of
+ *   eight (cubes). The nights are chosen to hold as many K4 triples as possible (a partial spread,
+ *   found by a capped exact search): 16 teams get five, every night in groups of four.
+ * - n a multiple of 12: two halves A and B of m = n / 2 teams. Rounds 1 to m - 1 play the circle
+ *   method inside each half at once (the first floor((m - 1) / 3) triples: two groups of m); the m
+ *   cross rounds pair a in A with b = a + k (mod m) in B, and the shifts {k, k + m/3, k + 2m/3}
+ *   make a night of m/3 groups of six (a K3,3 each: three teams of A against three of B). The two
+ *   rounds left over from the halves are the short last night.
+ *
+ * `seed` relabels the teams (same structure, a different season per seed).
+ */
+export function designedRounds(n, g, seed = 1) {
+  if (g !== 3 || !Number.isInteger(n) || n < 8) return null;
+  let rounds = null;
+  if ((n & (n - 1)) === 0 && n <= 64) rounds = xorDesign(n);
+  else if (n % 12 === 0) rounds = halvesDesign(n);
+  if (!rounds) return null;
+  const rand = rand32((seed >>> 0) * 2654435761 + 40503);
+  const lab = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); const t = lab[i]; lab[i] = lab[j]; lab[j] = t; }
+  return rounds.map((r) => r.map(([a, b]) => [lab[a], lab[b]]));
+}
+
+function xorDesign(n) {
+  // most disjoint triples {a, b, a ^ b} of the nonzero rounds (a partial spread), exact with a cap
+  const R = n - 1;
+  const lines = [];
+  for (let a = 1; a < n; a++) for (let b = a + 1; b < n; b++) { const c = a ^ b; if (c > b) lines.push([a, b, c]); }
+  const used = new Uint8Array(n);
+  let best = [], cur = [], nodes = 0;
+  const cap = Math.floor(R / 3);
+  const go = (from) => {
+    if (++nodes > 200000 || best.length === cap) return;
+    if (cur.length > best.length) best = cur.slice();
+    for (let i = from; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (used[a] || used[b] || used[c]) continue;
+      if (cur.length + 1 + Math.floor((R - 3 * (cur.length + 1)) / 3) <= best.length) return;
+      used[a] = used[b] = used[c] = 1; cur.push(lines[i]);
+      go(i + 1);
+      cur.pop(); used[a] = used[b] = used[c] = 0;
+      if (best.length === cap) return;
+    }
+  };
+  go(0);
+  const order = best.flat();
+  const inBest = new Set(order);
+  for (let r = 1; r < n; r++) if (!inBest.has(r)) order.push(r);
+  return order.map((r) => { const out = []; for (let t = 0; t < n; t++) if (t < (t ^ r)) out.push([t, t ^ r]); return out; });
+}
+
+function halvesDesign(n) {
+  const m = n / 2;
+  // circle method on m teams (m even), as pairs
+  const circle = [];
+  for (let r = 0; r < m - 1; r++) {
+    const pairs = [[r, m - 1]];
+    for (let k = 1; k < m / 2; k++) pairs.push([(r + k) % (m - 1), (r - k + m - 1) % (m - 1)]);
+    circle.push(pairs);
+  }
+  const within = circle.map((r) => [...r, ...r.map(([a, b]) => [a + m, b + m])]);
+  const cross = (k) => Array.from({ length: m }, (_, a) => [a, m + ((a + k) % m)]);
+  const full = Math.floor(within.length / 3) * 3;
+  const crossRounds = [];
+  for (let k = 0; k < m / 3; k++) crossRounds.push(cross(k), cross(k + m / 3), cross(k + (2 * m) / 3));
+  return [...within.slice(0, full), ...crossRounds, ...within.slice(full)];
+}
+
+/**
+ * The designed round robin (designedRounds) as a plan, when its nights all pack wait-free on
+ * `courts` x `times`: { rounds, after: 0 } with venues set by assignVenues, or null.
+ */
+export function designedNights(n, g, courts, times, seed = 1) {
+  const d = designedRounds(n, g, seed);
+  if (!d) return null;
+  const opp = d.map((r) => { const o = new Int16Array(n); for (const [a, b] of r) { o[a] = b; o[b] = a; } return o; });
+  if (planWaitCost(opp, n, g, courts, times) > 0) return null;
+  const venues = assignVenues(opp, n, seed);
+  const rounds = opp.map((o, r) => {
+    const matches = [];
+    for (let t = 0; t < n; t++) { const u = o[t]; if (t < u) matches.push(venues[r][t] ? [t, u] : [u, t]); }
+    return { leg: 0, matches, bye: null };
+  });
+  return { rounds, after: 0 };
 }
 
 /** Moves sessionNights may try inside waitFreeNights. */
