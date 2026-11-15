@@ -214,7 +214,7 @@ class Collect(unittest.TestCase):
               a:
                 steps:
                   - name: templated
-                    run: echo ${{ github.event_name }}
+                    run: echo ${{ inputs.target }}
         """)
         self.assertEqual(steps[0].status, "skipped")
         self.assertIn("expression", steps[0].reason)
@@ -777,7 +777,8 @@ class Report(unittest.TestCase):
 
     def test_running_nothing_is_not_a_pass(self):
         code, out = self.report([], uses_skipped=["a / b: uses: step"])
-        self.assertEqual(code, 1)
+        self.assertEqual(code, runner.NOTHING_RAN)  # 1 by name, no verdict in a sweep
+        self.assertNotEqual(code, 0)
         self.assertIn("nothing was verified", out.lower())
 
     def test_skipped_steps_are_named_and_the_report_says_it_is_not_green(self):
@@ -1202,8 +1203,8 @@ class LocalContext(unittest.TestCase):
                          ["github.event.pull_request.base.sha || github.event.before"])
 
     def test_an_expression_without_a_local_meaning_is_left_for_the_skip(self):
-        text, names = runner.resolve_context("${{ github.event_name }} ${{ steps.a.outputs.b }}")
-        self.assertEqual(text, "${{ github.event_name }} ${{ steps.a.outputs.b }}")
+        text, names = runner.resolve_context("${{ inputs.target }} ${{ steps.a.outputs.b }}")
+        self.assertEqual(text, "${{ inputs.target }} ${{ steps.a.outputs.b }}")
         self.assertEqual(names, [])
 
     def test_a_diff_scoped_step_is_collected_as_runnable(self):
@@ -1491,9 +1492,91 @@ class SweepExitCode(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertNotIn("NO VERDICT", out.getvalue())
 
+    def test_a_workflow_where_nothing_ran_is_no_verdict_in_a_sweep(self):
+        code, out = self.sweep(runner.NOTHING_RAN)
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertIn("NO VERDICT", out)
+
+    def test_nothing_ran_is_distinct_from_the_other_report_codes(self):
+        self.assertNotIn(runner.NOTHING_RAN,
+                         (0, 1, runner.BUDGET_SPENT, runner.AFTER_SKIP,
+                          runner.NO_VERDICT))
+
     def test_a_clean_workflow_passes(self):
         code, _ = self.sweep(0)
         self.assertEqual(code, 0)
+
+
+class PullRequestContextTest(unittest.TestCase):
+    """`github.event_name` and the gate's base URL have local values."""
+
+    def test_event_name_is_a_pull_request(self):
+        self.assertEqual(runner.local_context("github.event_name"), "pull_request")
+
+    def test_the_deploy_only_ternary_is_empty_on_a_pull_request(self):
+        expr = "github.event_name != 'pull_request' && '1' || ''"
+        self.assertEqual(runner.local_context(expr), "")
+        self.assertEqual(runner.local_context(
+            "github.event_name == 'pull_request' && 'a' || 'b'"), "a")
+
+    def test_build_the_site_now_runs(self):
+        text, resolved = runner.resolve_context(
+            "X=${{ github.event_name != 'pull_request' && '1' || '' }} "
+            "B=${{ needs.gate.outputs.base }}")
+        self.assertEqual(text, "X= B=https://marisstella.app/")
+        self.assertEqual(len(resolved), 2)
+
+    def test_the_gate_base_is_the_builds_default_origin(self):
+        build = open(os.path.join(runner.REPO, "platform/pages/build.mjs")).read()
+        self.assertIn("DEFAULT_BASE_URL = '%s'" % runner.LOCAL_NEEDS["needs.gate.outputs.base"],
+                      build)
+
+    def test_other_step_outputs_keep_the_skip(self):
+        self.assertIsNone(runner.local_context("needs.plan.outputs.checks"))
+        self.assertIsNone(runner.local_context("github.event_name || 'x'"))
+
+
+class PooledBudgetTest(unittest.TestCase):
+    """A sweep's per-workflow budgets are pooled (see `pooled_budget`)."""
+
+    def test_the_last_workflow_gets_what_the_fast_ones_left(self):
+        # Two research workflows done in 20 s leave the site builder ~880 s.
+        self.assertEqual(runner.pooled_budget(300, 3, 2, 20.0), 880)
+
+    def test_an_early_workflow_keeps_the_later_ones_full_share(self):
+        self.assertEqual(runner.pooled_budget(300, 3, 0, 0.0), 300)
+        self.assertEqual(runner.pooled_budget(300, 3, 1, 10.0), 590)
+
+    def test_never_less_than_the_old_per_workflow_budget(self):
+        self.assertEqual(runner.pooled_budget(300, 3, 2, 899.0), 300)
+
+    def test_no_budget_stays_none(self):
+        self.assertEqual(runner.pooled_budget(0, 3, 2, 5.0), 0)
+
+    def test_a_single_workflow_is_unchanged(self):
+        self.assertEqual(runner.pooled_budget(300, 1, 0, 0.0), 300)
+
+    def test_cheapest_declared_workflow_runs_first(self):
+        slow = workflow("jobs:\n  t:\n    timeout-minutes: 30\n    steps:\n"
+                        "      - name: s\n        run: 'true'")
+        fast = workflow("jobs:\n  j:\n    timeout-minutes: 2\n    steps:\n"
+                        "      - name: s\n        run: 'true'")
+        seen = []
+        real = (runner.report, runner.checkout_fingerprint, runner.run_steps)
+        runner.report = lambda name, *a, **k: seen.append(name) or 0
+        runner.checkout_fingerprint = lambda **_: runner.Fingerprint("a" * 40, "d1")
+        budgets = []
+        runner.run_steps = lambda steps, timeout, budget=None: budgets.append(budget)
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30, workflow_timeout=300),
+                    [("pages.yml", slow, {"t"}), ("validate.yml", fast, {"j"})], [])
+        finally:
+            runner.report, runner.checkout_fingerprint, runner.run_steps = real
+        self.assertEqual(seen, ["validate.yml", "pages.yml"])
+        self.assertEqual(budgets[0], 300)
+        self.assertGreater(budgets[1], 590)
 
 
 def fp(head, content, paths=None):
