@@ -3,7 +3,7 @@ title: "A bedtime podcast that could not be heard: voicing Saints by Candlelight
 seo_title: "Voicing Saints by Candlelight again"
 date: 2026-11-15
 tags: [creative, podcast, audio, saints-by-candlelight, tts]
-description: "Saints by Candlelight had 125 episodes and audio for 19. Five more are now voiced offline with Kokoro, 8 to 9 minutes of compute each, at no cost per listener."
+description: "Saints by Candlelight had 125 episodes and audio for 19. Five more are now voiced offline with Kokoro, 7 to 11 minutes of compute each, free to every listener."
 ---
 
 Saints by Candlelight is a bedtime podcast: half an hour or so of a saint, an
@@ -37,13 +37,13 @@ It voiced episodes 20 to 24, in the order a new listener would reach them:
 | 20 | Mary of Egypt and the Three Loaves | 36.3 | 10.9 |
 | 21 | Gall and the Bear Who Brought the Firewood | 40.2 | 12.0 |
 | 22 | Melangell and the Hare in the Fold of Her Robe | 33.6 | 10.1 |
-| 23 | Ruth and the Barley Harvest at Bethlehem | RUTH_MIN | RUTH_MB |
-| 24 | Kentigern and the Four Signs of Glasgow | KENT_MIN | KENT_MB |
+| 23 | Ruth and the Barley Harvest at Bethlehem | 50.2 | 15.1 |
+| 24 | Kentigern and the Four Signs of Glasgow | 34.2 | 10.2 |
 
 All five use the series voice, Kokoro v1.0 (Apache 2.0) with `bm_george` at
 0.9 speed, rendered offline in the session. Each is mono 40 kbps at
 -16.4 LUFS, the usual podcast loudness, with no silence longer than four
-seconds. Each took 8 to 9 minutes on four CPU cores, so an hour of a
+seconds. Each took 7 to 11 minutes on four CPU cores (58 MB and 194 minutes of audio in about 43 minutes of compute), so an hour of a
 session's time voices about five episodes. Nothing is paid per listener.
 
 ## The names
