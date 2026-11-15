@@ -252,19 +252,18 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0) serves files with `curl -L`. CR3 C-RAW
-      read 2026-11-15 (eval/canon-cr3-craw-2026-11-15.md); Bayer demosaic: aliased
-      luma, noise (eval/bayer-*). X-Trans demosaic: real frames 0.5-0.7 dB short of
-      LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings; median
-      and green; C path; eval/xtrans-clamp-gradient-2026-11-15.md). DNG 1.7.1.0 spec
-      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      eval/*-reader-*.md); raw.pixls.us (CC0) serves files with `curl -L`. Tiled
+      C-RAW: re-tile a real R8 for LibRaw (eval/canon-cr3-tiled-*); Bayer demosaic:
+      aliased luma, noise (eval/bayer-*). X-Trans demosaic: real frames 0.5-0.7 dB
+      short of LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings;
+      median and green; C path; eval/xtrans-clamp-gradient-2026-11-15.md). DNG
+      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
       DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with the 1.7.1.0
       text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear matches the Leica
-      T's preview to 0.18 px; WarpRectilinear2,
-      eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
+      T's preview to 0.18 px; WarpRectilinear2). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans; compressed 2026-11-15, eval/fujifilm-*)
       read directly since 2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from
@@ -278,14 +277,15 @@ flagships:
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
       synthetic files so far, or the SDK to check them; lateral colour measured on a
       real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; a tiled CR3; the DJI Phantom 4 DNG's vignette lift against DJI's own
-      render (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag
-      bit 1 set; a phone DNG with its own JPEG of the frame (corrected corners); a
-      tungsten-lit colour chart to say which colour model is closer (the 70D frame,
-      4,700 K and green-tinted, is where they part most; the Nexus 5X carries
-      ForwardMatrix); an Adobe render of a known frame (settles
-      `--default-tone-curve always`); a trained blink model and a real shoot with a
-      photographer's picks; photos with a real horizon and human tilt labels.
+      chooser; tiled C-RAW and a real tiled CR3 (eval/canon-cr3-tiled-*); the DJI
+      Phantom 4 DNG's vignette lift against DJI's own render
+      (eval/opcode-quality-flag-*); a real DNG with opcode flag bit 1 set; a phone
+      DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
+      chart to say which colour model is closer (the 70D frame, 4,700 K and
+      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
+      Adobe render of a known frame (settles `--default-tone-curve always`); a
+      trained blink model and a real shoot with a photographer's picks; photos with
+      a real horizon and human tilt labels.
 
   - venture: quick-pick-survey
     inputs_only: >-

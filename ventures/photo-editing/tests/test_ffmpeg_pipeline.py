@@ -363,14 +363,14 @@ class LocalPipelineTests(unittest.TestCase):
 
     def test_unreadable_raw_with_a_preview_stops_at_grade_naming_the_dng_route(self) -> None:
         # Every RAW extension ShootFlow ingests is developed since 2026-11-15 (CR3 then, C-RAW too), but a CR3
-        # whose sensor is stored in several tiles is not read yet: it is scored from its preview and stops at
+        # in C-RAW quality whose sensor is stored in several tiles is not read yet: it is scored from its preview and stops at
         # the grade stage.
         from test_cr3 import make_cr3
 
         with tempfile.TemporaryDirectory() as tmp:
             preview = Path(tmp) / "preview.jpg"
             _make_photo(preview, color="green")
-            c_raw = make_cr3(tiles=True) + preview.read_bytes() + b"\x00" * 16
+            c_raw = make_cr3(version=0x200, levels=3, tiles=True) + preview.read_bytes() + b"\x00" * 16
             manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.CR3": c_raw})
 
             result = run_local_pipeline(manifest, clock=_ticking_clock())
