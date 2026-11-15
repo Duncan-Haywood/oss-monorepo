@@ -17,6 +17,7 @@
 // CLI: node mt940-differential.mjs [seed] [variations,comma,separated|all] [cases]
 // Pure functions, no I/O beyond the CLI print. Deterministic for a seed.
 
+import { pathToFileURL } from "node:url";
 import { readMt940 } from "../ai-bookkeeper/sepa.mjs";
 import { validate as checkMt940 } from "../mt940-statement-check/calc.mjs";
 import { analyze } from "./calc.mjs";
@@ -158,7 +159,7 @@ export function run({ seed = 1, variations = [], cases = 500 } = {}) {
   return { tally, examples };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [seed = "1", vars = "", cases = "500"] = process.argv.slice(2);
   const variations = vars ? vars.split(",") : [];
   const { tally, examples } = run({ seed: +seed, variations, cases: +cases });
