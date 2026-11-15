@@ -3,7 +3,7 @@ title: "Five shear wall models, one missing input: what the robot sheathing pape
 date: 2026-11-15
 tags: [buildbot-sheathing, shear-wall, construction-robotics, paper, real-data]
 seo_title: "How much shear wall capacity does a missed sheathing nail cost?"
-description: "An escaped joint nail costs about 2% of its sheet's racking capacity. Five models of decayed-wall tests agree on that, and all need end nails at a quarter of code strength."
+description: "An escaped joint nail costs about 2% of a sheet's racking capacity. Five models of decayed shear wall tests all need end nails at a quarter of code strength."
 ---
 
 The `buildbot-sheathing` programme asks whether a robot can nail wall sheathing to code tolerance. Its paper draft for *Automation in Construction* covered the robot half: tolerances, placement, cycle time and cost per clean sheet. It stopped before the structural half: what a nail the robot misses, and does not catch, costs the wall. Eight milestones of capacity models answered that, and until today none of it was in the paper. This step writes it in. Two methods sections and two results sections were added, and every quoted number is tied to its results file by `paper/check_numbers.py`, which now checks 190 numbers.
