@@ -24,7 +24,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 4,
@@ -45,7 +45,7 @@
     "ventures/ai-bookkeeper/eval/lendingclub-loans-2026-11-15.md"
   ],
   "goal": "Loan payments match a real lender's to the cent",
-  "notes": "LendingClub's public 2007-2014 loan book (466,285 loans, sha256 43ecf2dc...) shows the instalment is rounded UP to the cent: 98.6% overall, 445,325/445,471 (99.97%) for 2011-2014, against 50.2% for the register's nearest-cent rounding. Shipped levelPayment(...,'up'), loan add --round up, a page select, and a loan check note. Verified: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok (23.7s), 1 skipped (tesseract missing); headless Chromium on the loans card: round up 885.46, nearest 885.45, no page errors. Interest-on-schedule comparison was not clean (payment timing unknown) and is reported as such.",
+  "notes": "LendingClub's public 2007-2014 loan book (466,285 loans, sha256 43ecf2dc...) shows the instalment is rounded UP to the cent: 98.6% overall, 445,325/445,471 (99.97%) for 2011-2014, against 50.2% for the register's nearest-cent rounding. Shipped levelPayment(...,'up'), loan add --round up, a page select, and a loan check note. Verified: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok (23.7s), 1 skipped (tesseract missing); headless Chromium on the loans card: round up 885.46, nearest 885.45, no page errors. Interest-on-schedule comparison was not clean (payment timing unknown) and is reported as such. run_workflow_locally --for-changes: 13/13 selected workflows passed, no step failed; agent-cross-review.yml and pages.yml reached no verdict (uses: steps not run locally; pages.yml hub-link checks only lacked the skipped build output). venture-preflight.mjs ai-bookkeeper: clean.",
   "corrections": [],
   "redteam": null
 }
