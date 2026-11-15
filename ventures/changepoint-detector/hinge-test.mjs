@@ -15,8 +15,12 @@
 // Calibration: a parametric bootstrap. `reps` series are drawn from the fitted straight line plus Gaussian AR(1) noise
 // with the estimated rho (small-sample bias corrected, Kendall 1954: rho + (1 + 3 rho) / n) and innovation sd, and each
 // replicate repeats the whole procedure, rho estimate included. p = (1 + #replicates >= F) / (1 + reps).
-// Guard: when the bias-corrected rho of the straight-line residuals is above `rhoMax` (0.9 by default) the residuals are
-// too close to a unit root for a level test to be honest, and the result is { refused: true } with the reason.
+// Guard: when the bias-corrected rho of the straight-line residuals is above `rhoMax` (0.9 by default; 0.7 under 100
+// points) the residuals may be too close to a unit root for a level test to be honest. Since 2026-11-15 the default
+// guard is 'cut' (eval/hinge-cut-guard-prereg-2026-11-15.md, all four bars held): such a series is still tested when
+// the best hinge's residuals clear `rhoMax` AND the hinge cuts rho by more than 99% of random walks of the same length
+// do (a real bend makes a line's residuals sticky; a walk's wander is cut far less). Otherwise { refused: true }.
+// guard 'line' is the old rule (refuse on the line's rho alone); 'hinge' (failed its bars) is kept for evaluation.
 //
 // What it does not cover: non-Gaussian noise, dependence beyond AR(1) (long memory makes it over-reject), more than
 // one hinge (it tests "one hinge against none"), and steps (a level jump can pass for a hinge). Size and power:
@@ -98,7 +102,7 @@ function statistic(x, margin, rhoCap) {
  * root; otherwise { index, f, p, bar95, rho, slopeBefore, slopeAfter, reps, n }. `index` is the knot: the slope is
  * `slopeBefore` per step up to x[index] and `slopeAfter` after it. Slopes are from the transformed (GLS) fit at that knot.
  */
-export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, gen = 'line', guard = 'line' } = {}) {
+export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, gen = 'line', guard = 'cut' } = {}) {
   x = Array.from(x, Number);
   const n = x.length;
   if (n < 30) return { refused: true, reason: `needs 30 or more points (got ${n})`, n };
@@ -111,7 +115,14 @@ export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9
   // real bend does not make sticky; the null still draws with the straight-line rho, capped at rhoCap, not at the guard.
   const rhoHingeC = corrected(st.o.rhoHinge, n);
   const guardRho = guard === 'hinge' ? rhoHingeC : rhoLineC;
-  if (guardRho > rhoMax) {
+  // guard 'cut' (eval/hinge-cut-guard-prereg-2026-11-15.md): where the line guard would refuse, admit only when the
+  // hinge's residuals clear the guard AND the hinge cuts rho by more than 99% of random walks of this length do.
+  let cutBar = null, admittedByCut = false;
+  if (guard === 'cut' && rhoLineC > rhoMax) {
+    cutBar = randomWalkCutBar(n, margin);
+    admittedByCut = rhoHingeC <= rhoMax && rhoLineC - rhoHingeC > cutBar;
+    if (!admittedByCut) return { refused: true, reason: `the residuals about a straight line have lag-1 autocorrelation ${rhoLineC.toFixed(2)} (bias-corrected), above ${rhoMax}, and the best hinge cuts it to ${rhoHingeC.toFixed(2)}, ${rhoHingeC > rhoMax ? 'still above the guard' : `a cut of ${(rhoLineC - rhoHingeC).toFixed(2)}, not more than random walks of this length give (99th percentile ${cutBar.toFixed(2)})`}: too close to a unit root for a level test; use the test on differences (slopeBreaks)`, rhoLine: rhoLineC, rhoHinge: rhoHingeC, cutBar, n };
+  } else if (guardRho > rhoMax) {
     const what = guard === 'hinge' ? 'the best hinge' : 'a straight line';
     return { refused: true, reason: `the residuals about ${what} have lag-1 autocorrelation ${guardRho.toFixed(2)} (bias-corrected), above ${rhoMax}: too close to a unit root for a level test; use the test on differences (slopeBreaks)`, rhoLine: rhoLineC, rhoHinge: rhoHingeC, n };
   }
@@ -123,7 +134,7 @@ export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9
   // slope before the knot: the line coefficient after partialling the hinge out
   const alt = fit3(y, one, tt, h);
   // null generator: fitted line, AR(1) noise with the bias-corrected rho of the line's residuals and their innovation sd
-  const rhoGen = Math.max(-0.9, Math.min(guard === 'hinge' ? rhoCap : rhoMax, gen === 'hinge' ? corrected(st.rho, n) : rhoLineC));
+  const rhoGen = Math.max(-0.9, Math.min(guard === 'hinge' || admittedByCut ? rhoCap : rhoMax, gen === 'hinge' ? corrected(st.rho, n) : rhoLineC));
   const sdInnov = Math.sqrt(nul.ss / (n - 2));
   const r = mulberry(seed), nulls = [];
   for (let b = 0; b < reps; b++) {
@@ -135,7 +146,7 @@ export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9
   const ge = nulls.filter((v) => v >= st.f).length;
   return {
     refused: false, index: st.k, f: st.f, p: (1 + ge) / (1 + reps), bar95: nulls[Math.floor(0.95 * (reps - 1))],
-    rho, rhoLine: rhoLineC, rhoHinge: rhoHingeC, guard, slopeBefore: alt[1], slopeAfter: alt[1] + alt[2], reps, n,
+    rho, rhoLine: rhoLineC, rhoHinge: rhoHingeC, guard, ...(guard === 'cut' ? { admittedByCut, cutBar } : {}), slopeBefore: alt[1], slopeAfter: alt[1] + alt[2], reps, n,
   };
 }
 
@@ -162,3 +173,29 @@ export const HINGE_PAPERS = [
   'Davies, R. B. (1987). Hypothesis testing when a nuisance parameter is present only under the alternative. Biometrika 74(1), 33-43. doi:10.1093/biomet/74.1.33',
   'Prais, S. J. & Winsten, C. B. (1954). Trend estimators and serial correlation. Cowles Commission Discussion Paper 383.',
 ];
+
+// 99th percentile of (line rho - hinge rho), both bias corrected, over 299 Gaussian random walks of length n (seed 7).
+// Detrending removes a walk's drift and lag-1 autocorrelation ignores scale, so the bar depends on n (and margin) only.
+const cutBars = new Map();
+export function randomWalkCutBar(n, margin = 0.15) {
+  const key = `${n}:${margin}`;
+  if (cutBars.has(key)) return cutBars.get(key);
+  const r = mulberry(7), cuts = [];
+  for (let b = 0; b < 299; b++) {
+    const z = new Array(n); let u = 0;
+    for (let t = 0; t < n; t++) { if (t) u += gauss(r); z[t] = u; }
+    const o = olsHinge(z, margin);
+    cuts.push(corrected(o.rhoLine, n) - corrected(o.rhoHinge, n));
+  }
+  cuts.sort((p, q) => p - q);
+  const bar = cuts[Math.floor(0.99 * (cuts.length - 1))];
+  cutBars.set(key, bar);
+  return bar;
+}
+
+/** Bias-corrected lag-1 autocorrelations of the residuals about the best straight line and the best OLS hinge. */
+export function hingeRhos(x, { margin = 0.15 } = {}) {
+  x = Array.from(x, Number);
+  const o = olsHinge(x, margin), n = x.length;
+  return { line: corrected(o.rhoLine, n), hinge: corrected(o.rhoHinge, n), index: o.k };
+}
