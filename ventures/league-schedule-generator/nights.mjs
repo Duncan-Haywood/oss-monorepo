@@ -17,6 +17,7 @@
 // sets home and away with assignVenues. Pure and seeded: the same input gives the same plan.
 
 import { assignVenues } from "./carryover.mjs";
+import { ALPHA, SESSION_DESIGNS } from "./session-designs.mjs";
 
 function rand32(seed) {
   let a = seed >>> 0;
@@ -79,6 +80,13 @@ export function nightLayout(edges, g, courts, times, usage = null, { exact = EXA
   if (out.unplaced && exact > 0) {
     const row = nightRowsExact(edges, courts, times, { nodes: exact, usage });
     if (row) return { unplaced: 0, row, score: 0, exact: true };
+    // the usage order can spend the node budget where the plain order finds a layout at once
+    // (2026-11-15: 26 teams, 3 games on 5 courts x 9 times, six of nine circle nights; the
+    // season kept 69 waits that planWaitCost, laid out without usage, said were not there)
+    if (usage) {
+      const plainRow = nightRowsExact(edges, courts, times, { nodes: exact });
+      if (plainRow) return { unplaced: 0, row: plainRow, score: 0, exact: true };
+    }
   }
   return out;
 }
@@ -512,15 +520,45 @@ export function sessionNights(rounds, n, g, courts, times, { seed = 1, evals = 4
  *   cross rounds pair a in A with b = a + k (mod m) in B, and the shifts {k, k + m/3, k + 2m/3}
  *   make a night of m/3 groups of six (a K3,3 each: three teams of A against three of B). The two
  *   rounds left over from the halves are the short last night.
+ * - any other even n of 10 to 48 (2026-11-15): a stored design (session-designs.mjs) found by a
+ *   SAT solver (eval/session-design-sat.py): every night two closed blocks of at most 2 x
+ *   ceil(n / 4) teams, the least courts on 6 time slots. Three-session designs are stored too;
+ *   designedNights tries every candidate (designCandidates) and keeps the first that packs.
  *
  * `seed` relabels the teams (same structure, a different season per seed).
  */
 export function designedRounds(n, g, seed = 1) {
-  if (g !== 3 || !Number.isInteger(n) || n < 8) return null;
-  let rounds = null;
-  if ((n & (n - 1)) === 0 && n <= 64) rounds = xorDesign(n);
-  else if (n % 12 === 0) rounds = halvesDesign(n);
-  if (!rounds) return null;
+  const c = designCandidates(n, g);
+  return c.length ? relabel(c[0], n, seed) : null;
+}
+
+/**
+ * Every known design for n teams and g games, in the order designedNights tries them: the
+ * algebraic ones (XOR, halves) first, then the stored SAT designs (session-designs.mjs, 2026-11-15:
+ * every even league of 10 to 48 teams in two sessions, and three-session ones), each with the
+ * session count and largest block it was built for.
+ */
+export function designCandidates(n, g) {
+  if (g !== 3 || !Number.isInteger(n) || n < 8) return [];
+  const out = [];
+  if ((n & (n - 1)) === 0 && n <= 64) out.push(xorDesign(n));
+  else if (n % 12 === 0) out.push(halvesDesign(n));
+  for (const d of SESSION_DESIGNS) if (d.n === n) out.push(decodeDesign(d));
+  return out;
+}
+
+/** A stored design (session-designs.mjs) as n - 1 rounds of [a, b] pairs. */
+export function decodeDesign({ n, code }) {
+  const rounds = [];
+  for (let r = 0; r < n - 1; r++) {
+    const pairs = [];
+    for (let t = 0; t < n; t++) { const u = ALPHA.indexOf(code[r * n + t]); if (t < u) pairs.push([t, u]); }
+    rounds.push(pairs);
+  }
+  return rounds;
+}
+
+function relabel(rounds, n, seed) {
   const rand = rand32((seed >>> 0) * 2654435761 + 40503);
   const lab = Array.from({ length: n }, (_, i) => i);
   for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); const t = lab[i]; lab[i] = lab[j]; lab[j] = t; }
@@ -577,10 +615,13 @@ function halvesDesign(n) {
  * `courts` x `times`: { rounds, after: 0 } with venues set by assignVenues, or null.
  */
 export function designedNights(n, g, courts, times, seed = 1) {
-  const d = designedRounds(n, g, seed);
-  if (!d) return null;
-  const opp = d.map((r) => { const o = new Int16Array(n); for (const [a, b] of r) { o[a] = b; o[b] = a; } return o; });
-  if (planWaitCost(opp, n, g, courts, times) > 0) return null;
+  let opp = null;
+  for (const c of designCandidates(n, g)) {
+    const d = relabel(c, n, seed);
+    const o = d.map((r) => { const x = new Int16Array(n); for (const [a, b] of r) { x[a] = b; x[b] = a; } return x; });
+    if (planWaitCost(o, n, g, courts, times) === 0) { opp = o; break; }
+  }
+  if (!opp) return null;
   const venues = assignVenues(opp, n, seed);
   const rounds = opp.map((o, r) => {
     const matches = [];
