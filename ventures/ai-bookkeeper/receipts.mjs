@@ -407,12 +407,22 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
 // a tie goes to the earlier reading. Chosen on the even-numbered half of the 200
 // ExpressExpense photos (eval/srd: 59 to 68 of 99 right) and scored once on the
 // odd half (60 to 66 of 97). With two readings the rule below is unchanged.
+//
+// A reading that found no total line and fell back on the largest amount on the
+// page counts half (GUESS_VOTE): on a phone photo that guess is usually the cash
+// handed over, a card number or noise, and three such readings agreeing on it used
+// to outvote the one reading that printed the total on a TOTAL line (SRD 1123:
+// 19.75 three times against "Total 21.76"). Chosen on the even-numbered SRD photos
+// (72 to 73 of 99; 0.25 and 0.75 tie with 0.5) and scored once on the odd half
+// (73 to 77 of 97); README, "A guessed total counts half in the vote".
+export const GUESS_VOTE = 0.5;
+const guessedLargest = (p) => !p.totalLine && p.notes.some((n) => /took the largest amount/.test(n));
 function voteTotal(ps, support) {
   const votes = new Map();
   ps.forEach((p, i) => {
     if (p.cents === null) return;
     const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
-    v.score += 1 + (p.totalLine ? 1 : 0);
+    v.score += (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
     votes.set(p.cents, v);
   });
   let win = null;
