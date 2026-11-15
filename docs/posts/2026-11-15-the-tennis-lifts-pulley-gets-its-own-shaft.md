@@ -1,9 +1,9 @@
 ---
 title: "The tennis lift's pulley gets its own shaft, and the motor has to get shorter"
-seo_title: "Supporting a belt pulley on its own shaft: flexible coupling vs rigid coupling, worked numbers"
+seo_title: "A belt pulley on its own shaft: flexible vs rigid coupling, in numbers"
 date: 2026-11-15
 tags: [open-tennis-robots, hardware, mechanical, cad]
-description: "The feeder's lift pulley moves onto its own 6 mm shaft in two bearings, so the gearbox carries torque only. The collision check then showed the motor can be at most 75 mm long."
+description: "The tennis feeder's lift pulley moves onto its own shaft in two bearings so the gearbox carries torque only; the collision check then caps the motor at 75 mm."
 ---
 
 The open tennis-ball feeder lifts balls to its hopper on a cleated belt. The
