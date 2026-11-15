@@ -1,8 +1,8 @@
 ---
 title: "Our tender checker read a required bid bond as waived"
 date: 2026-11-15
-tags: [red-team, tender-bid-readiness, testing, procurement]
-description: "One 'not required' anywhere in a sentence marked every signal in it as waived. A red-team run found it, fixed it clause by clause, and seeded 20 faults to see what the tests miss."
+tags: [redteam, tender-bid-readiness, testing, procurement]
+description: "One 'not required' anywhere in a sentence marked every signal in it as waived. A red-team run fixed it clause by clause and seeded 20 faults."
 ---
 
 The [tender bid readiness checker](https://marisstella.app/tender-bid-readiness/)
