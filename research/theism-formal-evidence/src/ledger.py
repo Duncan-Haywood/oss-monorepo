@@ -100,5 +100,10 @@ PUBLISHED_POSTERIORS = [
               "religious experience 0.1). Their product is 2.5e-4, so Unwin's own formula gives 0.025%, not the "
               "'2 percent' the column states: the published bottom line does not follow from its published inputs (E6)."),
     dict(who="R. Swinburne, The Resurrection of God Incarnate (OUP 2003)", claim="P(God incarnate and risen) ~ 0.97",
-         reproduce=None, note="NDPR review https://ndpr.nd.edu/news/the-resurrection-of-god-incarnate/"),
+         reproduce={"p_theism": "1/2", "p_divided_incarnation_given_theism": "1/2",
+                    "p_f_given_c": "1/10", "p_f_given_not_c": "1/1000"},
+         note="Four inputs as quoted verbatim, with the book's page numbers, in R. Otte's review, NDPR 2003.09.04, "
+              "https://ndpr.nd.edu/reviews/the-resurrection-of-god-incarnate/ : P(t|k) = 1/2 (review note 2), "
+              "P(divided incarnation | God) = 1/2 (pp. 50, 211), P(f|c&k) = 1/10 (p. 212), P(f|~c&k) = 1/1000 (p. 213). "
+              "Bayes gives exactly 100/103 = 0.9709 (E25). Not yet checked against the book itself."),
 ]

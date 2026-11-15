@@ -394,3 +394,22 @@ if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
             fn(); print("ok", name)
+
+
+def test_swinburne_reproduced_exactly():
+    """E25: Swinburne's four inputs (as quoted in Otte's NDPR review) give exactly 100/103."""
+    import importlib.util
+    from fractions import Fraction as F
+    spec = importlib.util.spec_from_file_location(
+        "e25", Path(__file__).resolve().parent / "experiments" / "e25_swinburne" / "run.py")
+    e25 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(e25)
+    x = e25.INPUTS
+    post = e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], x["p_f_given_c"], x["p_f_given_not_c"])
+    assert post == F(100, 103)
+    th = e25.thresholds(F(1, 2), x)
+    assert th["P(c|k)"] == F(1, 101) and th["P(f|~c&k)"] == F(1, 30) and th["LR"] == 3
+    # each threshold, plugged back in, gives exactly 1/2
+    assert e25.posterior(F(1), th["P(c|k)"], x["p_f_given_c"], x["p_f_given_not_c"]) == F(1, 2)
+    assert e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], th["P(f|c&k)"], x["p_f_given_not_c"]) == F(1, 2)
+    assert e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], x["p_f_given_c"], th["P(f|~c&k)"]) == F(1, 2)
