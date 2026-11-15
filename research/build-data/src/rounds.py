@@ -36,7 +36,7 @@ Run: python3.13 src/rounds.py DIR --held austin sf seattle --test-years 2021 202
      python3.13 src/rounds.py --summarise x   (data_dir unused)
 Writes results/rounds_i2c.json and results/rounds_summary.json.
 """
-import argparse, datetime, json, os, sys
+import argparse, datetime, json, os, sys, time
 import numpy as np, pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -103,11 +103,14 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False):
     te = frames[held][frames[held].year == Y]
     Xtr, Xca = transfer.feats(tr), transfer.feats(ca)
     Xte = transfer.feats(te) if score else Xca.iloc[:1]
-    out, loss, preds = {}, {t: [] for t in transfer.TAUS}, {}
+    taus = (0.5, 0.9)  # q0.1 is untouched by open permits and costs most rounds (300 in es3); skipped for time
+    out, loss, preds = {}, {t: [] for t in taus}, {}
     for s in range(seeds):
         r = {}
-        for t in transfer.TAUS:
+        for t in taus:
+            t0 = time.time()
             pr, r[t] = cpin.fit_one(Xtr, ytr, otr, Xca, yca, oca, Xte, t, seed=s)
+            print(f"  {held} {Y} {variant} seed {s} tau {t}: {r[t]} rounds, {time.time() - t0:.0f} s", flush=True)
             if score:
                 loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr, t).mean()))
                 if t == 0.9:
@@ -282,6 +285,42 @@ def cens_summary(path, base_path, held=("austin", "sf", "seattle"), years=(2021,
                 cells=cells, mean_change=mean, sf_seattle_q90_mean_change=sw_mean, counts=counts, held=verdict)
 
 
+def cpin_summary(path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 90: the cpin_* variants (this file) against session 88's full, cut_only, es3 and ipcw_es3 (base_path):
+    per cell the q0.5 / q0.9 loss change against full, the q0.9 rounds and prediction maxima, the share of
+    cut_only's q0.9 cost cpin_cut recovers, and predictions P1 to P6."""
+    R = dict(json.load(open(base_path)))
+    R.update(json.load(open(path)))
+    vs = ("cut_only", "es3", "ipcw_es3", "cpin_cut", "cpin_es3")
+    cells = []
+    for h in held:
+        for Y in years:
+            if not all(f"{h} {Y} {v}" in R for v in vs):
+                continue
+            f = R[f"{h} {Y} full"]["test_loss"]
+            row = dict(held=h, year=Y, full={t: f[t] for t in ("0.5", "0.9")}, change={}, q90_rounds={}, q90_pred_max={})
+            for v in vs:
+                k = f"{h} {Y} {v}"
+                row["change"][v] = {t: R[k]["test_loss"][t] - f[t] for t in ("0.5", "0.9")}
+                row["q90_rounds"][v] = float(np.mean([r["0.9"] for r in R[k]["rounds"].values()]))
+                if "test_pred_q90" in R[k]:
+                    row["q90_pred_max"][v] = max(p["max"] for p in R[k]["test_pred_q90"].values())
+            c = row["change"]
+            row["cpin_cut_recovered_q90"] = 1 - c["cpin_cut"]["0.9"] / c["cut_only"]["0.9"] if c["cut_only"]["0.9"] > 0 else None
+            cells.append(row)
+    sw = {v: {t: float(np.mean([c["change"][v][t] for c in cells])) for t in ("0.5", "0.9")} for v in vs}
+    g = dict(P2=sum(c["change"]["cpin_es3"]["0.9"] < c["change"]["ipcw_es3"]["0.9"] for c in cells),
+             P3=sum(c["q90_pred_max"][v] > 3650 for c in cells for v in ("cpin_cut", "cpin_es3")),
+             P4=sum(abs(c["change"]["cpin_cut"]["0.9"]) <= 1 for c in cells),
+             P5=sum((c["cpin_cut_recovered_q90"] or 0) >= 0.5 for c in cells))
+    verdict = dict(P1=sw["cpin_es3"]["0.9"] < sw["ipcw_es3"]["0.9"], P2=g["P2"] >= 3, P3=g["P3"] == 0,
+                   P4=g["P4"] >= 3, P5=g["P5"] >= 3, P6=sw["cpin_es3"]["0.5"] <= sw["ipcw_es3"]["0.5"])
+    return dict(note="cascade2 transfer model; change = variant's mean pinball loss on all test-year rows minus full's "
+                     "(session 88's rounds_score_ipcw_i2c.json), days, negative = better; 3 seeds; P3 counts cell-"
+                     "variants whose largest q0.9 test prediction (over seeds) exceeds 3,650 days",
+                cells=cells, n_cells=len(cells), mean_change=sw, counts=g, held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -296,8 +335,18 @@ if __name__ == "__main__":
     ap.add_argument("--summarise-cens", help="session 89: write results/<name>_summary.json from this file and "
                     "results/rounds_score_ipcw_i2c.json")
     ap.add_argument("--summarise", action="store_true", help="write results/rounds_summary.json from saved files")
+    ap.add_argument("--summarise-cpin", help="session 90: write results/<name>_summary.json from this file and "
+                    "results/rounds_score_ipcw_i2c.json")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_cpin:
+        s = cpin_summary(a.summarise_cpin, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
+        json.dump(s, open(a.summarise_cpin.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean_change"], counts=s["counts"], held=s["held"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], {v: {t: round(x, 2) for t, x in d.items()} for v, d in c["change"].items()},
+                  {v: round(x, 1) for v, x in c["q90_rounds"].items()}, {v: round(x) for v, x in c["q90_pred_max"].items()})
+        sys.exit()
     if a.summarise_cens:
         s = cens_summary(a.summarise_cens, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
         json.dump(s, open(a.summarise_cens.replace(".json", "_summary.json"), "w"), indent=1)
