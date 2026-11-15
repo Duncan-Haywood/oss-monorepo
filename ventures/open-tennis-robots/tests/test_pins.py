@@ -30,6 +30,10 @@ STRAPPING = {0, 2, 5, 12, 15}
 # contactor's coil through an opto, low only once the coil is on, long after reset (low at reset only silences the log).
 STRAP_HIGH_OUT = {5}
 STRAP_IN = {15}
+# Since 2026-11-15 GPIO 0 reads the lift's over-current comparator (open collector, 10k pull-up): low only while the lift
+# draws over its trip current, and at reset its MOSFET is off (GPIO 12 held low), so the pin is high and the board boots
+# normally rather than into the serial bootloader.
+STRAP_IN |= {0}
 
 
 class _Stop(Exception):

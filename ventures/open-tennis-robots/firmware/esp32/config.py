@@ -56,6 +56,15 @@ GATE_BACK_MS = 850              # back stroke: cad 0.68 s, plus 0.14 s for the n
 # so balls still in the trough or on the belt reach the tub (manifest "ball lift" line: run-on).
 LIFT_RUN_ON_MS = 16000
 LIFT_DUTY = 1.0
+# Lift jam cutoff (cad: Feeder.lift_jam_cutoff; manifest "lift jam" line). A comparator on a shunt in the lift MOSFET's
+# source pulls GPIO 0 low above about 2.5 A (2.2 to 2.8 A over the parts' tolerances). Ignored for LIFT_JAM_BLANK_MS
+# after each start (a start stays over it about 60 ms by the CAD's figures); over for LIFT_JAM_TRIP_MS cuts the motor,
+# which tries again after LIFT_JAM_REST_MS, LIFT_JAM_RETRIES times, then stays off (FLAG_LIFT_JAM) until the e-stop is
+# pressed and released. The CAD's params carry the same numbers and a test fails if they disagree.
+LIFT_JAM_BLANK_MS = 300
+LIFT_JAM_TRIP_MS = 10
+LIFT_JAM_REST_MS = 2000
+LIFT_JAM_RETRIES = 1
 # Hopper agitator (cad: Feeder.agitator_design): its gearmotor on a MOSFET from GPIO 2 stirs the outlet while balls
 # are queued or on their way, and this long after, for two more passes of its arms (manifest "hopper agitator" line).
 AGIT_RUN_ON_MS = 3000

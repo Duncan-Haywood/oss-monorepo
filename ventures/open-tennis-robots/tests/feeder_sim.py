@@ -42,6 +42,7 @@ class SimFeeder:
         self.pot_broken = False
         self.pot_pickup = None         # f(duty, read index) -> volts added to each pot reading (tests/pot_pickup_sweep.py)
         self.elev_jammed = False       # the actuator does not move whatever the duty
+        self.lift_over = False         # the lift's shunt comparator (GPIO 0, low = over the trip current; 2026-11-15)
         self.pack_mv = 25630           # battery reading; above REGEN_BRAKE_MAX_MV the wheels coast down (2026-11-14)
         self.brake_rise_mv = 0         # added to the reading while an ESC brakes: the charge current across the pack-side
                                        # resistance (cad Feeder.regen_guard: about 260 mV)
@@ -58,6 +59,8 @@ class SimFeeder:
                 if v is None:
                     if self.n == 4:
                         return 1 if sim.estop_button else 0
+                    if self.n == 0:
+                        return 0 if sim.lift_over else 1
                     if self.n == 15:           # contactor coil sense, low while energised: the wired e-stop and the
                         return 1 if sim.estop_button or sim.fob_cut else 0   # wireless fob are both in its series
                     return self.v

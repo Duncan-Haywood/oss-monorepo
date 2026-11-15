@@ -38,6 +38,9 @@ RPM_TOL = 0.05                 # the firmware's own feed-gate tolerance
 FAULT_FLAGS = {P.FLAG_ESTOP: "e-stop", P.FLAG_WATCHDOG: "watchdog (heartbeats missed)",
                P.FLAG_ELEV_FAULT: "elevation actuator fault",
                P.FLAG_BUS_OFF: "switched bus off (contactor open: wireless e-stop, its coil wire or the timer)"}
+# Reported once and the drill goes on: the hopper still holds balls, only their return has stopped (2026-11-15).
+WARN_FLAGS = {P.FLAG_LIFT_JAM: "ball lift jammed and off after its retry: balls stop returning to the hopper; clear the "
+                               "jam, then press and release the e-stop"}
 
 
 @dataclass
@@ -75,6 +78,7 @@ class DrillResult:
     shots: list = field(default_factory=list)
     aborted: str | None = None
     link_errors: int = 0
+    warnings: list = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -160,6 +164,11 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
             t = link.poll()
             now = clock()
             if t is not None:
+                for bit, text in WARN_FLAGS.items():
+                    if t.flags & bit and text not in res.warnings:
+                        res.warnings.append(text)
+                        if log:
+                            log(f"warning: {text}")
                 bad = _faults(t, ignore)
                 if bad:
                     raise Abort(f"{what}: firmware reports {bad}")

@@ -1304,6 +1304,28 @@ class LiftParamsTest(unittest.TestCase):
         # the sump's straight outlet plus the turn ends against the belt
         self.assertAlmostEqual(-p.rail_w - p.lift_turn_r, p.lift_x_belt + p.ball_d / 2)
 
+    def test_lift_jam_cutoff_numbers_and_rules(self):
+        # 2026-11-15, cad/README.md "Lift jam cutoff"
+        p = Feeder()
+        self.assertEqual(p.check_lift_jam(), [])
+        c = p.lift_jam_cutoff()
+        self.assertAlmostEqual(c["trip_a"], 3.3 * 3.9 / 103.9 / 0.05, places=6)
+        self.assertLess(c["trip_lo_a"], c["trip_a"])
+        self.assertLess(c["trip_a"], c["trip_hi_a"])
+        self.assertGreater(c["stall_hot_a"], c["trip_hi_a"])
+        self.assertLess(c["run_a"], c["trip_lo_a"])
+        self.assertLess(c["cutoff_j"], c["uncut_j"] / 10)
+        m = c["motor"]
+        self.assertAlmostEqual(m["kt"] * (p.lift_motor_stall_a - p.lift_motor_noload_a), p.lift_motor_nm * p.lift_stall_factor)
+        self.assertAlmostEqual(m["ke"] * m["noload_rad_s"] + p.lift_motor_noload_a * m["winding_ohm"], p.supply_v)
+        # each rule fires
+        self.assertTrue(any("full belt" in r for r in Feeder(lift_sense_r2=1.0e3).check_lift_jam()))
+        self.assertTrue(any("never trip" in r for r in Feeder(lift_sense_r2=6.8e3).check_lift_jam()))
+        self.assertTrue(any("blanking" in r for r in Feeder(lift_jam_blank_ms=100.0).check_lift_jam()))
+        self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=1.0).check_lift_jam()))
+        self.assertTrue(any("two ticks" in r for r in Feeder(lift_jam_trip_ms=0.0).check_lift_jam()))
+        self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6).check_lift_jam()))
+
     def test_lift_rules_catch_bad_changes(self):
         self.assertTrue(any("inlet falls" in r for r in Feeder(lift_finger_l=26.0).check_lift()))
         self.assertTrue(any("do not hold" in r for r in Feeder(lift_finger_l=8.0).check_lift()))

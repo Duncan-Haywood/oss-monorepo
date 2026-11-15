@@ -67,7 +67,10 @@ the recycle loop was open: balls reach the sump about 2.2 m below the tub's rim
 ([`cad/README.md`](cad/README.md), "Catch trough"). Ball lift (2026-11-13): a
 cleated belt in a column beside the mast now carries them up and drops them
 into the tub, about 53 a minute on paper, and the firmware runs it for 16 s
-after each ball fed ([`cad/README.md`](cad/README.md), "Ball lift"). Hopper
+after each ball fed ([`cad/README.md`](cad/README.md), "Ball lift"); since
+2026-11-15 a shunt and comparator on GPIO 0 let it cut a jammed lift within
+about 30-90 ms, retry once and then report `FLAG_LIFT_JAM`
+([`cad/README.md`](cad/README.md), "Lift jam cutoff"). Hopper
 agitator (2026-11-13): a two-arm stirrer on a small gearmotor sweeps over the
 tub's outlet at a ball's centre height while balls are being fed, so balls
 bridging the outlet cannot leave the feed column empty
