@@ -416,6 +416,14 @@ MANUSCRIPT_CHECKS = [
     ("within 0.0012 of each other", "gear_pump_drag_results.txt", "slopes span 0.00118 per kW; Casappa slope rounded 0.0187 per kW, 0.0026 per bar"),
     ("off by at most 0.0035", "gear_pump_drag_results.txt", "+0.0027 +0.0008 -0.0006 -0.0015 -0.0023 -0.0017 -0.0009 +0.0035"),
     ("RMS error of 0.0053 against 0.0066", "gear_pump_drag_results.txt", "RMS error: two-number 0.0053, one-number 0.0066"),
+    ("Its efficiency at the index point is 0.9124", "gear_pump_rexroth_results.txt", "rexroth    0.9124"),
+    ("idle power at 85 L/min is 2.58 kW", "gear_pump_rexroth_results.txt", "+0.0073       1.0014        0.9995                 2.58"),
+    ("it crosses 50% at 0.8040", "gear_pump_rexroth_results.txt", "AZPG shape, AZPG idle (the family):        0.8040"),
+    ("misses that by 0.0172", "gear_pump_rexroth_results.txt", "one-number rule (6r): E50 = 0.8212; error +0.0172"),
+    ("predicts 0.8091, an error of 0.0052", "gear_pump_rexroth_results.txt", "= 0.8091; error +0.0052"),
+    ("drag crosses at 0.8207", "gear_pump_rexroth_results.txt", "AZPG shape, Casappa idle (diagnostic):     0.8207"),
+    ("AZPG drag at 0.8108", "gear_pump_rexroth_results.txt", "Casappa shape, AZPG idle (diagnostic):     0.8108"),
+    ("win in 100.0% of geometries.", "gear_pump_rexroth_results.txt", "share 100.0% of geometries"),
 ]
 
 
