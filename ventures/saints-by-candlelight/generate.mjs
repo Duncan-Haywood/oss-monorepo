@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Regenerates the site from episodes/*.md and audio/manifest.json.
+// Regenerates the site from episodes/*.md and audio/manifest.json, and the
+// "Audio status" line in PRODUCTION.md (between its audio-status markers).
 //
 //   node generate.mjs                       write index.html, <slug>.html, feed.xml, sitemap.xml
 //   node generate.mjs --check               exit 1 if any generated file is stale
@@ -7,7 +8,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkScript, parseEpisode, renderEpisodePage, renderFeed, renderIndex, renderSitemap, wordCount } from './episodes.mjs';
+import { checkScript, parseEpisode, renderEpisodePage, renderFeed, renderIndex, renderSitemap, withAudioStatus, wordCount } from './episodes.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,6 +38,7 @@ export function buildAll(root = ROOT) {
     'index.html': renderIndex(episodes, audio),
     'feed.xml': renderFeed(episodes, audio, podcast),
     'sitemap.xml': renderSitemap(episodes),
+    'PRODUCTION.md': withAudioStatus(readFileSync(path.join(root, 'PRODUCTION.md'), 'utf8'), episodes, audio),
   };
   for (const ep of episodes) files[`${ep.slug}.html`] = renderEpisodePage(ep, audio);
   return files;
