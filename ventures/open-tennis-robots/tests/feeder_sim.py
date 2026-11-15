@@ -43,6 +43,8 @@ class SimFeeder:
         self.pot_pickup = None         # f(duty, read index) -> volts added to each pot reading (tests/pot_pickup_sweep.py)
         self.elev_jammed = False       # the actuator does not move whatever the duty
         self.pack_mv = 25630           # battery reading; above REGEN_BRAKE_MAX_MV the wheels coast down (2026-11-14)
+        self.brake_rise_mv = 0         # added to the reading while an ESC brakes: the charge current across the pack-side
+                                       # resistance (cad Feeder.regen_guard: about 260 mV)
         state = self
         sim = self
 
@@ -90,7 +92,7 @@ class SimFeeder:
                 return int(min(max(raw, 0), 65535))
 
             def read_uv(self):          # GPIO 36, the battery divider (100k/10k)
-                return int(sim.pack_mv * 1000 / 11)
+                return int((sim.pack_mv + (sim.brake_rise_mv if sim.braking() else 0)) * 1000 / 11)
 
         machine = types.SimpleNamespace(Pin=Pin, PWM=PWM, ADC=ADC, UART=object)
         fake_time = types.SimpleNamespace(sleep_us=lambda us: None, sleep_ms=lambda ms: None,
@@ -142,6 +144,10 @@ class SimFeeder:
         self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
         self.ctl = controller.Controller(hw, controller.ROLE_FEEDER, self.us // 1000)
         self._last_update_ms = self.us // 1000
+
+    def braking(self):
+        """An ESC brakes when it is driven (non-zero throttle) slower than its wheel turns; zero throttle coasts."""
+        return any(0 < c and self.wheel_max * c < w - 1.0 for c, w in zip(self.hw.esc_cmd, self.wheel))
 
     # -- the Pi's side of the cable
     def write(self, data):

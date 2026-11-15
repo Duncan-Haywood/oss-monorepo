@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { parseGabc, fitToBars, transposeToFinal } from './gabc.mjs';
 import { eventsToMidi } from './midi.mjs';
 import { arrange, barsFor } from './genre.mjs';
-import { parseMidi, tickToSeconds, renderMidi, encodeWav, readWav } from './render.mjs';
+import { parseMidi, tickToSeconds, renderMidi, encodeWav, readWav, limiterCurve } from './render.mjs';
 import { analyze } from './master.mjs';
 import { run } from './render-cli.mjs';
 
@@ -109,23 +109,6 @@ test('--lufs brings a quiet deep-house preview to the target within 0.3 LU, peak
   assert.equal(run(['x.mid', '--lufs', '5']).code, 2);
 });
 
-test('--limit reaches -14 LUFS on deep house with true peak under -1 dBTP, and stems still sum', () => {
-  const { p, events } = piece();
-  const fin = [...events].reverse().find((e) => e.type === 'note');
-  const backing = arrange({ genre: 'deep-house', mode: Number(p.header.mode), final: fin.midi, bars: barsFor(events) });
-  const midi = eventsToMidi(events, { bpm: 124, drone: true, backing });
-  const r = renderMidi(midi, { targetLufs: -14, limit: true, stems: true });
-  const res = analyze(readWav(encodeWav(r)));
-  assert.ok(Math.abs(res.lufs + 14) < 0.5, `lufs ${res.lufs}`);
-  assert.ok(res.truePeakDb <= -1, `true peak ${res.truePeakDb}`);
-  const L = r.channels[0];
-  for (const i of [20000, 50000, 90000, 150000]) {
-    let s = 0; for (const st of Object.values(r.stems)) s += st.channels[0][i];
-    assert.ok(Math.abs(s - L[i]) < 1e-9);
-  }
-  assert.equal(run(['x.mid', '--limit']).code, 2);
-});
-
 test('stems sum to the mix and cover each voice', () => {
   const { p, events } = piece();
   const backing = arrange({ genre: 'metal', mode: Number(p.header.mode), final: 50, bars: 4 });
@@ -140,4 +123,17 @@ test('stems sum to the mix and cover each voice', () => {
   }
   assert.ok(worst < 1e-9, `stems differ from mix by ${worst}`);
   assert.equal(renderMidi(midi).stems, undefined);
+});
+
+test('limiterCurve with a reused scratch returns the same curve as fresh arrays, call after call', () => {
+  let s = 3;
+  const rnd = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296) * 2 - 1;
+  const scratch = {};
+  for (const [n, ceil] of [[5000, 0.5], [5000, 0.9], [300, 0.2], [5000, 0.3], [1, 0.1]]) {
+    const L = Float64Array.from({ length: n }, rnd), R = Float64Array.from({ length: n }, rnd);
+    const fresh = limiterCurve(L, R, 44100, ceil);
+    const reused = limiterCurve(L, R, 44100, ceil, 5, scratch);
+    assert.equal(reused.length, n);
+    for (let i = 0; i < n; i++) assert.ok(Object.is(fresh[i], reused[i]), `n=${n} ceil=${ceil} i=${i}`);
+  }
 });

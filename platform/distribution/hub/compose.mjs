@@ -20,7 +20,9 @@ import crypto from 'node:crypto';
 import { tagUrl } from '../attribution.mjs';
 import { glen, graphemes, extract, thread, longPost, redditBody, hnComment, slides, videoScript } from './content.mjs';
 
-export const BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
+import { BASE_URL } from '../bluesky.mjs';
+
+export { BASE_URL };
 
 /** Short-post templates. `marker` must be the start of every post using it and unique among templates. */
 export const TEMPLATES = Object.freeze({

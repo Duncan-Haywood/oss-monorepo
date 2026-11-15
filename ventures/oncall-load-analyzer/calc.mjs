@@ -44,11 +44,16 @@ export function parseTime(v) {
   if (!m) return null;
   const [, y, mo, d, h = "0", mi = "0", se = "0", z] = m;
   let t = Date.UTC(+y, +mo - 1, +d, +h, +mi, +se);
-  if (Number.isNaN(t) || +mo > 12 || +d > 31 || +h > 23 || +mi > 59) return null;
+  // Date.UTC rolls 30 February over to 2 March, so round-trip the calendar day.
+  const day = new Date(Date.UTC(+y, +mo - 1, +d));
+  if (Number.isNaN(t) || +mo < 1 || +mo > 12 || day.getUTCMonth() !== +mo - 1 || day.getUTCDate() !== +d
+    || +h > 23 || +mi > 59 || +se > 59) return null;
   if (z && !/^(z|utc)$/i.test(z)) {
     const sign = z[0] === "-" ? -1 : 1;
     const digits = z.slice(1).replace(":", "");
-    t -= sign * (+digits.slice(0, 2) * 60 + +digits.slice(2)) * 60000;
+    const zh = +digits.slice(0, 2), zm = +digits.slice(2);
+    if (zh > 14 || zm > 59) return null;
+    t -= sign * (zh * 60 + zm) * 60000;
   }
   return t;
 }

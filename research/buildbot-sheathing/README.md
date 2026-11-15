@@ -344,6 +344,19 @@ have no term for (nail fatigue and tear-out at the unsupported bottom edge, the 
 
 ![Hysteresis loops of the intact and decayed 3 in walls under the CUREE history beside their monotonic pushes; decayed walls' share kept, cyclic against monotonic, over end-nail strength](experiments/m20_cyclic/figure.png)
 
+**Milestone 21: can nail damage that builds up over cycles explain the decayed wall? No: it lowers intact and
+decayed walls together.** Each nail now loses strength in proportion to the energy it has dissipated, the
+cumulative-damage rule of Rahnama and Krawinkler (1993) used in the Ibarra–Medina–Krawinkler model, at rates swept
+from none to one that costs a lone nail 39% of its peak over the CUREE history (no calibrated rate for nails in OSB
+was found). The intact walls' cyclic peaks fall to 63–97% of their one-way pushes, but the decayed walls' shares
+kept go **up**, by 0.3 to 2.9 points at code-strength joints (the 3 in wall from 70.6% to 73.5%; tested 34%),
+because an intact wall works its sheathing nails harder and so loses more of them. The best fit is still end nails
+at a quarter of their NDS ratio with no degradation (rms 2.1 points; 8.7 at the fastest rate). So whatever took
+Weiss's 3 in wall to 34% has to single out the decayed wall: tear-out of the nails left along its unnailed bottom
+edge, the middle stud splitting, or genuinely weak end nails.
+
+![Decayed walls' share kept against the degradation rate for three end-nail strengths; intact walls' cyclic peak over monotonic peak against the same rate](experiments/m21_degrading/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -813,6 +826,22 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   load; elastic response below the pinching intercept and the r3 K0 unloading slope; an OpenSees trace; the
   envelope's energy; the pair against the radial spring while elastic; the rod hole's crushing.
 
+
+## Milestone 21 method (`Saws(gamma=...)` in `src/buildbot_sheathing/wall_cyclic.py`)
+- **Question.** SAWS has no term for damage that grows with cycles. Does the standard cumulative-damage rule,
+  strength lost in proportion to dissipated energy, take the decayed walls to their tested shares?
+- **Rule.** Every spring's envelope and pinching lines are scaled by s = 1 − E/E_t, never rising; E is the work done
+  on the spring from its first reversal after yielding, E_t = γ FU Δu of that spring (the c = 1 continuous form of
+  Rahnama and Krawinkler 1993, Blume Center report 108, as in Ibarra, Medina and Krawinkler 2005,
+  doi:10.1002/eqe.495; both checked against catalogue records on 2026-11-15, as `cite_check.py` could not reach
+  doi.org). Unloading and reloading stiffness are not
+  degraded. γ ∈ {∞, 100, 50, 20, 10, 5}: one Anderson nail through the CUREE history at Δ = 2Δu keeps 1.00, 0.96,
+  0.91, 0.81, 0.73 and 0.61 of its peak.
+- **Runs.** Milestone 20's wall, nail (fyb 115), rods (1/16 in gap, cap 2.55 FU) and Δ, λ 1, end nails at m 0.25,
+  0.47 and 1 of the NDS ratio; four walls, 72 CUREE runs. H98–H102 registered in `LOG.md` first.
+- **Checks.** γ = ∞ equals milestone 20 exactly; on the envelope the force is s × E(d) to 4e-16 FU; lower γ always
+  degrades more; γ survives scaling and stacking (`tests/test_wall_degrading.py`).
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
@@ -866,6 +895,9 @@ python experiments/m19_wall_pushover/figure.py
 ops/bin/python experiments/m20_cyclic/ops_check.py          # H93: needs a venv with openseespy (pip install openseespy numpy)
 python experiments/m20_cyclic/run.py > experiments/m20_cyclic/results.txt         # ~70 min on 4 CPUs
 python experiments/m20_cyclic/figure.py
+python experiments/m21_degrading/run.py > experiments/m21_degrading/results.txt   # ~35 min on 4 CPUs
+python experiments/m21_degrading/check_diag.py --walls > experiments/m21_degrading/check_diag.txt
+python experiments/m21_degrading/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -1307,6 +1339,20 @@ python paper/check_numbers.py                                # every number the 
   keeps 74.3% and 66.2% cyclic (75.4%, 66.9% monotonic); Δ from the radial push and 1 mm steps change nothing to
   0.1 point. In the decayed 3-12 wall the rods yield and their holes crush to 25–28 mm on one side, after the peak.
 
+
+## Milestone 21 results (`experiments/m21_degrading/results.txt`)
+
+- **Code checks.** H98 refuted as registered: γ = ∞ reproduces milestone 20 exactly, but a monotonic push at γ 5
+  moves the wall peaks by 1.6e-5 FU (registered: 1e-9), because most springs in a wall reverse slightly during a
+  one-way push and start counting; that happens after the peak (`check_diag.txt`). H99 refuted as scripted: the
+  hand check omitted the never-rises clamp; with it the rule holds to 4e-16 FU.
+- **Code-strength joints** (H100, H101 held): the decayed walls keep 77.8%|70.6% at γ ∞ and 79.3%|73.5% at γ 5;
+  every share moves +0.3 to +2.9 points.
+- **Intact walls:** cyclic peaks about 97, 94, 85, 75 and 63% of monotonic at γ 100, 50, 20, 10, 5; intact ratio
+  1.90–1.94 (tested 1.87).
+- **Fits** (H102 held): no m ≥ 0.75 point within 10 points of both; the best point at every γ is m 0.25, rms 2.1
+  (γ ∞), 2.5, 3.1, 4.3, 6.4, 8.7 points. At m 0.25, γ 5 the 6-12 share rises from 57.9% to 68.1%, because the
+  intact walls' sheathing nails keep 71–77% of their strength and the decayed walls' 86–96%.
 ## Limitations
 - **The cyclic wall (milestone 20).** SAWS has no cumulative damage: the envelope a spring reaches under cycles is
   its monotonic envelope, so nail fatigue and tear-out, which Anderson et al. and Weiss saw, are outside it.
@@ -1446,7 +1492,10 @@ stud-to-plate joints (the one input every fit now hinges on), and a cyclic loadi
 pinching and strength degradation, since Weiss's tests were cyclic. Milestone 20 ran the CUREE history with
 SAWS pinching nails fitted to Weiss's materials: cycles move the decayed 3 in wall by 0.1 point. Next: a
 tested 16d end-nail ultimate, and a degrading (cumulative-damage) nail model or tested curves of nails at an
-unsupported panel edge, to test fatigue and tear-out. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+unsupported panel edge, to test fatigue and tear-out. Milestone 21 added energy-based strength degradation to every nail: it lowers intact
+and decayed walls together and lifts the decayed shares by up to 2.9 points, so spread damage is ruled out. Next:
+a local failure model for the nails left along the unnailed bottom edge (edge distance and cycle count, from
+tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps

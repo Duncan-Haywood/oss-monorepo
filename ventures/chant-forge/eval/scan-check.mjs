@@ -1,7 +1,12 @@
-// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew] [--no-stroke-top] [--manifest FILE]
+// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew] [--no-stroke-top] [--no-clef-change] [--no-staff-deskew] [--manifest FILE]
 //
 // --no-stroke-top reads a cut-short porrectus stroke as before 2026-11-14
 // (readStaff's { strokeTop: false }; eval/porrectus-top-check.md).
+//
+// --no-staff-deskew reads a staff that slopes on a flat page unstraightened,
+// as the reader did before 2026-11-14 (eval/staff-curl-check.md)
+// --no-clef-change ignores a C clef printed inside a staff, as the reader did
+// before 2026-11-14 (readPage's { clefChange: false }; eval/clef-change-check.md).
 //
 // --manifest reads another list of pieces in scan-pages.json's format (e.g.
 // eval/offfinal-supplement-pages.json) instead of scan-pages.json.
@@ -32,7 +37,7 @@ const cache = opt('--cache', join(tmpdir(), 'chant-forge-scans'));
 const only = opt('--only', null);
 const out = opt('--out', join(here, 'scan-check-report.md'));
 const trials = Number(opt('--trials', 200));
-const readOpts = { ...(args.includes('--no-deskew') ? { deskew: false } : {}), ...(args.includes('--no-stroke-top') ? { strokeTop: false } : {}) };
+const readOpts = { ...(args.includes('--no-deskew') ? { deskew: false } : {}), ...(args.includes('--no-stroke-top') ? { strokeTop: false } : {}), ...(args.includes('--no-clef-change') ? { clefChange: false } : {}), ...(args.includes('--no-staff-deskew') ? { staffDeskew: false } : {}) };
 mkdirSync(cache, { recursive: true });
 
 const NAMES = 'abcdefghijklm';
@@ -113,8 +118,11 @@ for (const piece of manifest.pieces) {
     for (let d = k; qq === null && d < r.pairs.length; d++) qq = r.pairs[d][1];
     const syl = qq !== null && qq < g.length ? g[qq].text : '';
     const where = n ? `${near}p. ${n.page} (leaf ${n.leaf}), staff ${n.staff}, x ${n.x}` : '';
-    const scanName = p !== null ? NAMES[scanNotes[p].rel + piece.clefLine] || `step ${scanNotes[p].rel}` : '-';
-    const gabcName = q !== null ? NAMES[g[q].rel + piece.clefLine] || `step ${g[q].rel}` : '-';
+    // letters under the clef in force at this point of the GABC, so a note
+    // after a clef change is named as printed
+    const cl = (q !== null ? g[q].clefLine : qq !== null && g[qq] ? g[qq].clefLine : null) ?? piece.clefLine;
+    const scanName = p !== null ? NAMES[scanNotes[p].rel + cl] || `step ${scanNotes[p].rel}` : '-';
+    const gabcName = q !== null ? NAMES[g[q].rel + cl] || `step ${g[q].rel}` : '-';
     diffs.push(`| ${syl || '?'} | ${q !== null ? g[q].group : ''} | ${gabcName} | ${scanName} | ${where} |`);
   });
   details.push('', `## ${piece.name}`, '', `${piece.gabc}, ${g.length} GABC notes; scan of ${piece.book} (archive.org item \`${piece.archive}\`).`, '');
@@ -123,8 +131,9 @@ for (const piece of manifest.pieces) {
     const last = g.slice(-6).map((n, k) => {
       const q = g.length - 6 + k;
       const pr = r.pairs.find(([, qq]) => qq === q);
-      const sn = pr && pr[0] !== null ? NAMES[a[pr[0]] + piece.clefLine] : '·';
-      return `${NAMES[n.rel + piece.clefLine]}/${sn}`;
+      const cl = n.clefLine ?? piece.clefLine;
+      const sn = pr && pr[0] !== null ? NAMES[a[pr[0]] + cl] : '·';
+      return `${NAMES[n.rel + cl]}/${sn}`;
     });
     details.push(`Ending, GABC/scan (· = not read or not on these pages): ${last.join(' ')}; GABC notes covered ${r.startJ + 1}-${r.endJ} of ${g.length}.`, '');
   }

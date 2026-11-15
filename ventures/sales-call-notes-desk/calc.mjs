@@ -83,7 +83,12 @@ export function parseDue(phrase, today) {
   let m = p.match(/^in (\d+) (day|week|month)s?$/);
   if (m) {
     const n = Number(m[1]);
-    if (m[2] === "month") { const d = new Date(base); d.setUTCMonth(d.getUTCMonth() + n); return iso(d); }
+    if (m[2] === "month") {
+      // "in 1 month" from 31 January is 28 February, not 3 March: clamp to the month's last day.
+      const y = base.getUTCFullYear(), mo = base.getUTCMonth() + n;
+      const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+      return iso(new Date(Date.UTC(y, mo, Math.min(base.getUTCDate(), last))));
+    }
     return iso(addDays(base, n * (m[2] === "week" ? 7 : 1)));
   }
   m = p.match(/^(?:this |next |on )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)$/);

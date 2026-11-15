@@ -3,6 +3,8 @@
 // asks for: the highest average kW held for a 15-minute interval, over a year.
 // Pure functions, no I/O. Timestamps are kept as wall-clock times.
 
+import { espiRows } from "./greenbutton.mjs";
+
 const DAY = 86400000;
 
 export const num = (v) => {
@@ -146,31 +148,12 @@ function parseCsv(text, opts) {
   return finish(raw, unit, notes);
 }
 
+// Green Button XML: the shared reader picks the delivered-electricity series,
+// applies each reading type's own unit and multiplier, and converts to local
+// wall-clock time with the file's daylight-saving rules.
 function parseEspi(xml) {
-  const notes = ["Read as Green Button XML (ESPI)."];
-  const tag = (name, src) => {
-    const m = src.match(new RegExp(`<(?:\\w+:)?${name}>\\s*([^<]*?)\\s*</(?:\\w+:)?${name}>`));
-    return m ? m[1] : null;
-  };
-  const p10 = Number(tag("powerOfTenMultiplier", xml) ?? 0) || 0;
-  const uom = Number(tag("uom", xml) ?? 72);
-  const tz = Number(tag("tzOffset", xml) ?? 0) || 0;
-  if (tag("tzOffset", xml) == null) notes.push("No time zone in the file; times are shown in UTC.");
-  const raw = [];
-  const re = /<(?:\w+:)?IntervalReading>([\s\S]*?)<\/(?:\w+:)?IntervalReading>/g;
-  let m;
-  while ((m = re.exec(xml))) {
-    const r = m[1];
-    const start = Number(tag("start", r));
-    const dur = Number(tag("duration", r));
-    const value = Number(tag("value", r));
-    if (!Number.isFinite(start) || !Number.isFinite(value)) continue;
-    raw.push({ t: (start + tz) * 1000, v: value * 10 ** p10, min: dur > 0 ? dur / 60 : NaN });
-  }
-  let unit = "wh";
-  if (uom === 38) unit = "w";
-  else if (uom !== 72) notes.push(`Unit code ${uom} is not watt-hours (72) or watts (38); read as watt-hours. Check the result.`);
-  return finish(raw, unit, notes);
+  const g = espiRows(xml);
+  return finish(g.rows, g.unit === "kw" ? "kw" : "kwh", g.notes);
 }
 
 /** Sorts, merges duplicates, fills interval lengths and converts to kWh. */

@@ -4480,3 +4480,102 @@ multi-sensor set is still the stronger test.
 Tests: `watch-spread.test.mjs` (6: the spread on made-up noise, quantized and constant stretches and the window; one k
 keeping a move on a flat column and dropping it on a wandering one; a replay with the floor; the k rule and T11 on
 made-up totals; the committed output's verdict with the help and page texts).
+
+## Round 16: the spread floor with the loud column given its own k (2026-11-14, pre-registered on a seen set; fails, not offered; hand-set `--min-spread` ships)
+
+Round 15's single k (4.94) was set by one column: 31 of the 37 normal-run lines that cleared it were the thermocouple's
+sharp steps on a flat trace, and that k cost the valve faults. Its first open item was a k read with the loudest column's
+lines left out. This round tested a label-free version (`loudSplit` in `eval/watch-skab-loud.mjs`): read the common k as
+round 15 did; a column is loud when more than half of the normal-run lines that clear it are its own; the loudest gets
+its own k, read so that at most m = floor(37 / 8) = 4 of its own normal-run lines clear it; its 4 lines leave the shared
+budget and the common k is read again from the other columns, until no column is loud. Nothing is set by hand and no
+label is read. Data, replay, policy, scoring, out-of-sample null (2,997 pre-fault checks) and the three-part rule are
+round 15's. `sh eval/skab-fetch.sh skab-data && node eval/watch-skab-loud.mjs skab-data` (output
+`eval/watch-skab-loud.out.txt`, 842 s on 4 cores; round 15's R is re-run there and matches its committed output). The
+rule, design, predictions and code were committed in this PR's second commit, before any scored run.
+
+The split took one column off: the thermocouple got k = 22.4; the other seven share k = 2.60.
+
+| every column on Quiet (33 fault runs, 123 marks) | lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | pre-fault, per 100 checks | normal run, per 100 (in-sample) |
+|---|---|---|---|---|---|---|---|---|
+| Q, no floor | 457 | 36.8% | 69.4 | 97 | 33/33 | 30 s | 6.34 (190) | 8.54 |
+| R, round 15's one k (re-run) | 150 | 59.3% | 22.8 | 75 | 27/33 | 50 s | 1.40 (42) | 2.69 |
+| **S, loud split in the watch** | 218 | 50.5% | 33.1 | 84 | **30/33** | 35 s | **2.47** (74) | 2.90 |
+| P, Q's lines with S's floors after the fact | 180 | 53.3% | 27.3 | 79 | 29/33 | 30 s | 2.04 (61) | 1.99 |
+
+- **T12 fails on two of three parts.** (a) 2.47 false lines per 100 pre-fault checks, over the budget of 2; (b) 30
+  faults caught against the 31 the rule allowed; (c) passes, 50.5% at a mark against Q's 36.8%. As pre-registered,
+  `--min-spread auto` does not ship. The hand-set `--min-spread <k>` (or `column=k,...` with `--columns`) ships either
+  way, as the rule said: the person's own threshold in units of the column's recent spread, not a claim this round
+  tested.
+
+**Predictions, scored.** I predicted the shared k "near 3": 2.60. (b) 30, a narrow fail: exactly that. (c) about 50%:
+50.5%. (a) about 1.9, a coin flip: wrong, 2.47.
+
+**What the round says (deciding nothing).** Splitting the thermocouple off did what it was meant to on the faults: the
+valve folder went from 12 of 16 under R to 15 of 16, flow rate alone caught 25 faults (R 19, Q 29) with 70.5% of its 88
+lines at a mark, and the median delay fell from 50 s to 35 s. The thermocouple went from 22 fault-run lines to 2. The
+false lines came back through temperature. On the normal run its 27 lines were all slow drift (median ratio 0.64) and
+none cleared even k = 2.60; on the fault runs, recorded on other days, it sent 47 lines, 17% of them at a mark. That is
+round 14's finding again: the motor temperature's normal day does not describe its other days, whatever the floor is
+measured in. Rounds 14-16 now bracket the bar from both sides (round 14: 28 faults, 2.27 false; round 15: 27, 1.40;
+round 16: 30, 2.47), and each miss traces to one column whose normal run did not predict the fault days.
+
+So the advice for a loud many-column watch stands and is sharper: put a hand-set floor on the slow-drifting columns that
+do not matter (`--min-spread temperature=8`, or leave temperature out), and a low spread floor, about 2.5, on the rest.
+Open, neither pre-registered: a floor re-read on a rolling normal window, so a new day's temperature resets it; and a
+fresh labelled multi-sensor set, which remains the stronger test than another look at SKAB.
+
+Tests: `watch-loud.test.mjs` (7: the loud split on made-up ratios, with and without a loud column; T12 on made-up totals;
+`--min-spread` parsing and refusals; the CLI with a per-column and a one-column spread floor; the committed output's
+verdict with the help and page texts).
+
+## Round 17: a floor re-read on a rolling window of the same run (2026-11-15, pre-registered on a seen set; fails, not offered)
+
+Rounds 14-16 read their floors off one anomaly-free day and applied them to fault runs recorded on other days, and each
+missed the bar through a column whose normal day did not describe its fault days, mostly the motor temperature. Round 16's
+open item was a floor re-read on a rolling normal window, so a new day resets it. This round tested the simplest such
+floor, with nothing read from another day: tell me about a move only when it is bigger than any move the same column made
+in the five minutes before it. `largestMoveBefore` (watch-core.mjs) takes the 60 points before the change and the largest
+|mean of 12 points - mean of the 12 before them| over every split; `minMoveRatio` drops a detection whose |shift| is under
+k times that. Unlike round 15's spread (the MAD of the points), it sees drift: a ramp of 0.1 a point reads as a move of
+1.2. W, the tested arm, fixes k = 1 before the run. K (reported only) reads k off the normal run by round 15's rule
+(at most 37 of the whole watch's lines clear it). Data, replay, policy, scoring and the out-of-sample null (2,997 pre-fault
+checks) are rounds 14-16's. `sh eval/skab-fetch.sh skab-data && node eval/watch-skab-rolling.mjs skab-data` (output
+`eval/watch-skab-rolling.out.txt`, 842 s on 4 cores). The rule, design, predictions and code were committed in this PR's
+first commit, before any scored run.
+
+| every column on Quiet (33 fault runs, 123 marks) | lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | pre-fault, per 100 checks | normal run, per 100 |
+|---|---|---|---|---|---|---|---|---|
+| Q, no floor | 457 | 36.8% | 69.4 | 97 | 33/33 | 30 s | 6.34 (190) | 8.54 |
+| **W, rolling floor, k = 1** | 352 | 38.4% | 53.5 | 87 | **32/33** | 27.5 s | **4.67** (140) | 6.13 (out of sample) |
+| K, rolling floor, k = 4.03 read off the normal run (reported only) | 134 | 55.2% | 20.4 | 64 | 29/33 | 50 s | 1.50 (45) | 2.69 (in-sample) |
+| P, Q's lines with W's floor after the fact | 312 | 39.4% | 47.4 | 83 | 31/33 | 25 s | 4.27 (128) | 5.37 |
+
+- **T13 fails on one of three parts.** (a) 4.67 false lines per 100 pre-fault checks, far over the budget of 2;
+  (b) passes, 32 faults caught against the 31 allowed; (c) passes, 38.4% at a mark against Q's 36.8%. As pre-registered,
+  nothing ships to the CLI; `--columns`'s help and the watch page record it, and the option stays in watch-core.mjs.
+
+**Predictions, scored.** (b) 32 caught: exactly. (c) about 45%: 38.4%, a pass but by less. (a) about 3.0, a fail: it
+failed, and worse, at 4.67. The normal run, about 4 predicted: 6.13. K's k, near 2 predicted: 4.03, catching 29 (28
+predicted).
+
+**What the round says (deciding nothing).** The idea behind the round was wrong about temperature. Its fault-run lines are
+not drift that a same-day window would explain: their median move was 1.07 times the largest move in the five minutes
+before, so 68 of 97 cleared k = 1, and only 16% of them sat at a mark. On the normal day its lines were smaller than its
+recent wander (median 0.70) and half fell. The thermocouple shows the same in reverse: its normal-day lines were sharp
+steps, 6.3 times its recent moves, while on the fault days its lines were 1.37. So on this testbed the columns behave
+differently on different days in ways no one-day reading, fixed or rolling, picks up. A rolling window at k = 1 is close
+to no floor at all on noisy columns (white noise reads about 0.9 sd), which is why the accelerometers kept most of their
+lines. With k read off the normal run (K), the rolling floor sits where rounds 14-16 sat: 1.50 false lines per 100 and
+29 of 33 faults, between round 15 (1.40, 27) and round 16 (2.47, 30). Five rounds of label-free floors now bracket the
+bar without meeting it; the trade between false lines and faults looks set by the data, not the floor's form.
+
+So the advice for a loud many-column watch does not change: replay first, drop or hand-floor the columns that do not
+matter (the two temperatures here), and leave the one that sees the faults alone. Open: a fresh labelled multi-sensor set
+(the stronger test, now overdue), or a floor named per sensor group by the person who sets the watch up. More floor shapes
+on SKAB are not worth a sixth round.
+
+Tests: `watch-rolling.test.mjs` (5: the move reading on a step, a ramp, a constant stretch and white noise; the floor
+keeping a step and dropping a drift-made move, in a replay; T13 on made-up totals; the committed output's verdict with the
+help, page and llms.txt texts).

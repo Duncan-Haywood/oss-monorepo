@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Short Night on the Backup Battery</title>
+      <link>https://example.invalid/hearth-and-horizon/the-short-night-on-the-backup-battery.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-short-night-on-the-backup-battery.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A Woonsocket parish hall's cellar pump runs on its backup battery through a storm night, and the hall's assistant promised eleven hours by dividing the label's 89 amp-hours by the pump's average current. But the label is the 20-hour rate, and at the twenty amps the pump pulls when it runs, the battery's own published rates give about 71 amp-hours: eight hours and fifty minutes, gone at first light. A retired forklift-battery technician with a clamp meter, a float switch moved for nothing, a utility estimate that slips to one in the afternoon, and her own battery carried down the hill, because two in parallel give more than twice as long. A story about Peukert's law and asking slowly. Setting: Saint Claude's parish hall (invented), Woonsocket, Rhode Island, Monday 14 June and the night of Saturday 18 to Sunday 19 September 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-short-night-on-the-backup-battery.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Woonsocket parish hall's cellar pump runs on its backup battery through a storm night, and the hall's assistant promised eleven hours by dividing the label's 89 amp-hours by the pump's average current. But the label is the 20-hour rate, and at the twenty amps the pump pulls when it runs, the battery's own published rates give about 71 amp-hours: eight hours and fifty minutes, gone at first light. A retired forklift-battery technician with a clamp meter, a float switch moved for nothing, a utility estimate that slips to one in the afternoon, and her own battery carried down the hill, because two in parallel give more than twice as long. A story about Peukert's law and asking slowly.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Fourteen Metres a Day</title>
       <link>https://example.invalid/hearth-and-horizon/fourteen-metres-a-day.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/fourteen-metres-a-day.html</guid>
@@ -72,6 +82,16 @@
       <pubDate>Sat, 14 Nov 2026 12:00:00 GMT</pubDate>
       <description>A Sicilian hill village's water agent shuts the valve at the foot of the 1987 plastic main in four seconds whenever it suspects a leak, and since March the bottom of the main has burst three times. The agent's one-minute pressure log shows nothing but a shut valve; a neighbour hears knocks twenty seconds apart. Water hammer (the Joukowsky surge, about 4 bar on a 6 bar line), a borrowed fast logger, a 60-second closure that fails because a gate valve does nothing until its last few per cent, and a two-stage closure that matches the old fontaniere's rule. A story about a log that was too slow to see what it was doing. Setting: Santa Venera di Monte (invented), a hill village in the Madonie, Sicily, Monday 11 October to Tuesday 2 November 2049. Read the full text at https://example.invalid/hearth-and-horizon/shut-it-like-a-door-on-a-sleeping-child.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>A Sicilian hill village's water agent shuts the valve at the foot of the 1987 plastic main in four seconds whenever it suspects a leak, and since March the bottom of the main has burst three times. The agent's one-minute pressure log shows nothing but a shut valve; a neighbour hears knocks twenty seconds apart. Water hammer (the Joukowsky surge, about 4 bar on a 6 bar line), a borrowed fast logger, a 60-second closure that fails because a gate valve does nothing until its last few per cent, and a two-stage closure that matches the old fontaniere's rule. A story about a log that was too slow to see what it was doing.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>The Ram at the Bottom of the Field</title>
+      <link>https://example.invalid/hearth-and-horizon/the-ram-at-the-bottom-of-the-field.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-ram-at-the-bottom-of-the-field.html</guid>
+      <pubDate>Sat, 14 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A hill boarding school in Negros Oriental buys a hydraulic ram to lift its spring 58 metres to the dormitories, and its planning assistant promised 138,000 litres a day by reading the spring's flow as the ram's delivery. The energy balance (delivery = efficiency × drive flow × fall ÷ lift, efficiency about 0.6 from published tables) gives 4,300. A stroke bolt set wrong, a ravine walked with a hose level, a farmer's &quot;no&quot; about a spring his father lost, and a ram moved nine metres down so that more water can run back to the stream on purpose. A story about a machine that pays for its water with water. Setting: San Isidro Labrador High School (invented), Barangay Lunhaw (invented), in the hills of Negros Oriental, Philippines, Monday 18 April to Monday 6 June 2050. Read the full text at https://example.invalid/hearth-and-horizon/the-ram-at-the-bottom-of-the-field.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A hill boarding school in Negros Oriental buys a hydraulic ram to lift its spring 58 metres to the dormitories, and its planning assistant promised 138,000 litres a day by reading the spring's flow as the ram's delivery. The energy balance (delivery = efficiency × drive flow × fall ÷ lift, efficiency about 0.6 from published tables) gives 4,300. A stroke bolt set wrong, a ravine walked with a hose level, a farmer's &quot;no&quot; about a spring his father lost, and a ram moved nine metres down so that more water can run back to the stream on purpose. A story about a machine that pays for its water with water.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>

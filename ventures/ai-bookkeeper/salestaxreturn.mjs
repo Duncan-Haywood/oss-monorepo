@@ -116,7 +116,7 @@ export const STATE_SOURCES = {
   HI: { url: "https://tax.hawaii.gov/geninfo/get/", freqs: ["monthly", "quarterly", "semiannual", "annual"] },
   IA: { url: "https://revenue.iowa.gov/taxes/file-my-taxes/business-taxes/filing-frequency-return-due-dates", freqs: ["monthly", "annual"] },
   ID: { url: "https://tax.idaho.gov/taxes/sales-use/stfiling/", freqs: ["monthly", "quarterly", "semiannual", "annual"] },
-  IN: { url: "https://www.in.gov/dor/files/new-small-business-handbook.pdf", freqs: ["monthly", "annual"] },
+  IN: { url: "https://secure.in.gov/dor/files/gb102.pdf", freqs: ["monthly", "annual"], read: "2026-11-14" },
   KS: { url: "https://www.ksrevenue.gov/pdf/pub1510.pdf", freqs: ["monthly", "quarterly", "annual"] },
   KY: { url: "https://revenue.ky.gov/News/Pages/January.aspx", freqs: ["monthly", "quarterly", "annual"] },
   LA: { url: "https://revenue.louisiana.gov/businesses/general-sales-and-use-taxes/general-sales-use-tax/" },
@@ -149,18 +149,27 @@ export const STATE_SOURCES = {
   NY: { url: "https://www.tax.ny.gov/pubs_and_bulls/tg_bulletins/st/filing_requirements_for_sales_and_use_tax_returns.htm", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
   OH: { url: "https://codes.ohio.gov/ohio-revised-code/section-5739.12", read: "2026-11-14" },
   TN: { url: "https://www.tn.gov/revenue/taxes/sales-and-use-tax/due-dates-and-tax-rates.html", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
+  // Fifth 2026-11-14 batch (eval/state-pages-2026-11-14e.md quotes each sentence): the six states item (8) still listed as unread.
+  // AR from its rules GR-77 and GR-84 (the Arkansas Administrative Code as published on law.cornell.edu; dfa.arkansas.gov's FAQ prints
+  // neither), NJ from its own filing page, RI, ME and MA from their statutes, IN from DOR bulletins #102 and #83.
+  AR: { url: "https://www.law.cornell.edu/regulations/arkansas/006-05-06-Ark-Code-R-005-GR-77", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
+  NJ: { url: "https://www.nj.gov/treasury/taxation/su_12.shtml", freqs: ["quarterly"], read: "2026-11-14" },
+  RI: { url: "https://webserver.rilegislature.gov/Statutes/TITLE44/44-19/44-19-10.htm", freqs: ["monthly", "quarterly"], read: "2026-11-14" },
+  ME: { url: "https://legislature.maine.gov/statutes/36/title36sec1951-A.html", read: "2026-11-14" },
+  MA: { url: "https://malegislature.gov/Laws/GeneralLaws/PartI/TitleIX/Chapter62C/Section16", read: "2026-11-14" },
 };
 export const STATE_SOURCES_READ = "2026-11-12";
 // The day a state's page was read: its own `read`, else the first batch's date.
 export const stateSourceRead = (s) => STATE_SOURCES[s]?.read ?? STATE_SOURCES_READ;
 const FREQ_WORD = { monthly: "monthly", quarterly: "quarterly", semiannual: "semiannual", annual: "annual" };
-const STATE_NAME = { AL: "Alabama", AZ: "Arizona", CA: "California", CT: "Connecticut", DC: "The District of Columbia", GA: "Georgia", HI: "Hawaii", IA: "Iowa", ID: "Idaho", IL: "Illinois", IN: "Indiana", KS: "Kansas", KY: "Kentucky", MI: "Michigan", MN: "Minnesota", MO: "Missouri", MS: "Mississippi", NC: "North Carolina", ND: "North Dakota", NM: "New Mexico", NV: "Nevada", NY: "New York", OH: "Ohio", OK: "Oklahoma", PA: "Pennsylvania", SC: "South Carolina", TN: "Tennessee", TX: "Texas", VA: "Virginia", VT: "Vermont", WA: "Washington", WI: "Wisconsin", WV: "West Virginia", WY: "Wyoming" };
+const STATE_NAME = { AL: "Alabama", AR: "Arkansas", AZ: "Arizona", CA: "California", CT: "Connecticut", DC: "The District of Columbia", GA: "Georgia", HI: "Hawaii", IA: "Iowa", ID: "Idaho", IL: "Illinois", IN: "Indiana", KS: "Kansas", KY: "Kentucky", MA: "Massachusetts", MD: "Maryland", ME: "Maine", MI: "Michigan", MN: "Minnesota", MO: "Missouri", MS: "Mississippi", NC: "North Carolina", ND: "North Dakota", NJ: "New Jersey", NM: "New Mexico", NV: "Nevada", NY: "New York", OH: "Ohio", OK: "Oklahoma", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina", TN: "Tennessee", TX: "Texas", UT: "Utah", VA: "Virginia", VT: "Vermont", WA: "Washington", WI: "Wisconsin", WV: "West Virginia", WY: "Wyoming" };
 
 // A frequency the state's own page does not offer: say so and name the ones it does.
 function frequencyNote(s, frequency) {
   const src = STATE_SOURCES[s];
   if (!src?.freqs || src.freqs.includes(frequency)) return null;
   if (s === "PA") return null; // PA's annual case has its own, more specific note below
+  if (s === "NJ" && frequency === "monthly") return null; // NJ's monthly payments have their own note below
   return `${STATE_NAME[s] ?? s}'s own page lists ${src.freqs.map((f) => FREQ_WORD[f]).join(", ")} sales tax filing, not ${FREQ_WORD[frequency] ?? frequency} (${src.url}, read ${stateSourceRead(s)}). Use the frequency on your own notice.`;
 }
 
@@ -175,7 +184,12 @@ const DISCOUNT_NOTES = {
   LA: "Louisiana's 0.84% is figured on state tax due plus excess tax collected; parish taxes are filed separately and are not covered here.",
   NE: "Nebraska's 2.5% collection fee is on state and local sales tax together (Form 10 line 8, $75 at most); book both under \"NE state\" or add a --discount for the local label.",
   MI: "Michigan's discount is applied for payment by the 20th (2026 Form 5080): the greater of 0.5% of the 4% part of the tax (2/3 of it), at most $15,000 a period, and $6 a month of the period ($18 a quarter, $72 a year for annual filers, or 2/3 of the tax when less). Paid by the 12th it is 0.75% with a $20,000 maximum, and accelerated filers have no maximum; neither is applied here. Use tax booked under \"MI state\" is discounted the same way.",
-  IN: "Indiana's collection allowance is not applied: its rate (0.73%, 0.53% or 0.26%) depends on your tax for the 12 months to June 30 of the previous year (in.gov handbook). Add yours with --discount \"IN state=0.73\".",
+  IN: "Indiana's collection allowance (Sales Tax Information Bulletin #83, effective January 1, 2026) is 0.73% of the tax when your tax for the 12 months to June 30 of the year before was $60,000 or less, 0.53% to $600,000 and 0.26% above, only on timely payment. It is worked out from the \"IN state\" tax lines of this book when the book covers those 12 months, and not applied for a year it does not; INTIME shows your own rate, which --discount \"IN state=<percent>\" sets.",
+  AR: "Arkansas's 2% prompt-payment discount (rule GR-84) is applied to \"AR state\", at most $1,000 for each month the return covers ($1,000 a month across all locations together). City and county tax gets 2% with no cap: add --discount \"<label>=2\" for each local label. Paying late, or not by EFT when EFT is required, forfeits it, and it cannot be taken off prepayments.",
+  NJ: "New Jersey: no vendor discount or collection allowance is applied; the Division of Taxation's filing page prints none.",
+  RI: "Rhode Island: no vendor discount is applied; R.I. Gen. Laws 44-19-10 prints none.",
+  ME: "Maine: no vendor discount is applied; 36 M.R.S. 1951-A prints none.",
+  MA: "Massachusetts: no vendor discount is applied; G.L. c. 62C, s. 16 prints none.",
   VA: "Virginia's dealer discount is applied from the Form ST-1 worksheet (Rev. 09/26): taxable sales x 0.043 x .01116, .00837 or .00558 by monthly taxable sales (a quarter divided by 3; under $62,501, under $208,001, more), figured on the \"VA state\" line's taxable sales. It assumes those are your total taxable general sales across all your returns. Dealers notified that their average monthly liability exceeds $20,000, and consumer's use accounts (numbers starting 14), get none: remove it with --discount \"VA state=0\".",
   MD: "Maryland's timely-filing credit is applied (Tax-General 11-105): 1.2% of the first $6,000 of tax on each return and 0.9% of the rest, at most $500 a return. It does not cover use tax on your own purchases booked under \"MD state\"; a consolidated return shares one $500 cap across its locations.",
   UT: "Utah: monthly filers retain 1.31% of the state and local sales tax they remit (Utah Code 59-12-108), applied here to \"UT state\" for --freq monthly only; quarterly and annual filers retain nothing. Monthly filing is required at $50,000 of tax a year and may be chosen below it. Book local sales tax under \"UT state\" or add a --discount for its label.",
@@ -217,7 +231,19 @@ function stateRuleNote(s, frequency) {
   if (s === "AZ") return "Arizona: TPT is due the 20th of the month after the period, the date here. azdor.gov allows a grace period (electronic returns and payments received by the last business day of that month, paper by the second-to-last business day, received not postmarked), but says penalties and interest accrue from the 20th, not from the end of the grace period.";
   // IN (in.gov New Small Business Handbook and ST-103 instructions, read 2026-11-12): monthly, or annual under $1,000 a year; neither names
   // the day of the month for sales tax (the handbook's 20th/30th table is withholding). The 30th stays from earlier search excerpts.
-  if (s === "IN") return "Indiana: the 30th of the month after the period is used here, from secondary sources; in.gov's handbook and ST-103 instructions do not print the day, and some guides give the 20th for larger monthly filers, so use the due date printed on your INTIME return.";
+  // IN (General Tax Information Bulletin #102, March 2023, read on secure.in.gov 2026-11-14): "sales tax returns are due on the 30th day of
+  // the month following the close of the reporting period, unless the average monthly tax due for the preceding year is in excess of
+  // $1,000.00, in which case the returns must be filed by the 20th day". stateHistoryPresets picks the day from the book's own year before.
+  if (s === "IN") return "Indiana: returns are due the 30th of the month after the period, or the 20th when your average monthly sales tax for the year before was over $1,000 (DOR Bulletin #102). The day is worked out from the \"IN state\" tax lines of the year before when this book holds that whole year; otherwise the 30th is used, so check the due date on your INTIME return.";
+  // NJ (nj.gov "How to Pay" su_12, read 2026-11-14): quarterly ST-50 returns by the 20th; monthly payments only for sellers who "Collected more than
+  // $30,000 in Sales and Use Tax in New Jersey during the prior calendar year; and Collected more than $500 in the first and/or second month".
+  if (s === "NJ" && frequency === "monthly") return "New Jersey files quarterly returns (ST-50, due the 20th after the quarter). Monthly payments (Monthly Voucher, due the 20th) are required only if you collected more than $30,000 of New Jersey sales and use tax in the prior calendar year, and only for a first or second month of a quarter over $500; the quarter's ST-50 then credits them. These monthly rows are payments, not returns.";
+  // RI (R.I. Gen. Laws 44-19-10, read 2026-11-14): quarterly "when specially authorized, in writing" for an average under $200 a month over six months;
+  // revoked if "the liability ... exceeds six hundred dollars ($600) in sales and use taxes for any subsequent quarter".
+  if (s === "RI" && frequency === "quarterly") return "Rhode Island: quarterly returns (due the last day of April, July, October and January) need the tax administrator's written authorization, given when tax has averaged under $200 a month for six months; it can be revoked once a quarter's tax exceeds $600 (R.I. Gen. Laws 44-19-10).";
+  // AR (rule GR-77, read 2026-11-14): monthly the 20th; quarterly (average under $100 a month in the prior July-June year) "on or before July 20,
+  // October 20, January 20, and April 20"; annual (under $25 a month) January 20; "Taxpayers should continue to file monthly reports until they receive the notice".
+  if (s === "AR" && frequency !== "monthly") return "Arkansas: quarterly filing (tax averaging $100 a month or less in the prior July-June year) and annual filing ($25 or less, due January 20) start only once the Department notifies you; until then, file monthly (rule GR-77).";
   // KY (Retail Packet 11-17 and the DOR January 2026 calendar, read 2026-11-12): accelerated filers are due the 25th
   if (s === "KY" && frequency === "monthly") return "Kentucky: monthly returns are due the 20th, but accelerated filers are due the 25th of the next month (revenue.ky.gov). Check which you are.";
   // WI (revenue.wi.gov sales tax FAQ, read 2026-11-12): "Early monthly sales tax filers are required to file by the 20th"
@@ -275,10 +301,72 @@ export function stateDiscounts(state, frequency = "quarterly") {
   // the seller is required to remit" of state and local sales tax. Monthly filing is required at $50,000 of tax a year and voluntary below
   // it; quarterly and annual filers retain nothing, so no preset for those.
   if (s === "UT") return frequency === "monthly" ? { "UT state": { rate: 0.0131 } } : {};
+  // AR (rule GR-84, Arkansas Administrative Code, read 2026-11-14): remitted by the GR-77 due date, "the taxpayer is entitled to deduct two
+  // percent (2%) of the state tax due"; "shall not exceed $1,000.00 for each month included in the tax report, regardless of whether the
+  // taxpayer files a report monthly, quarterly, annually"; city and county 2% with "no limitation" (note). Not from prepayments.
   // CO: none. HB25B-1005 (signed August 2025, read on leg.colorado.gov 2026-11-14) adds 39-26-105(1)(d)(V): "BEGINNING JANUARY 1, 2026, A
   // RETAILER IS NOT PERMITTED TO RETAIN ANY MONEY" for collecting state sales tax. Before 2026 it was 4%, at most $1,000 a filing period (note).
-  const d = { MD: { rate: 0.012, tiers: [{ upTo: 600000, rate: 0.012 }, { rate: 0.009 }], cap: 50000 }, AL: { rate: 0.05, tiers: [{ upTo: 10000, rate: 0.05 }, { rate: 0.02 }], capPerMonth: 40000 }, KY: { rate: 0.0175, tiers: [{ upTo: 100000, rate: 0.0175 }, { rate: 0.015 }], cap: 5000 }, LA: { rate: 0.0084, capPerMonth: 75000 }, MS: { rate: 0.02, cap: 5000 }, NE: { rate: 0.025, cap: 7500 }, ND: { rate: 0.015, cap: 11000 }, AZ: { rate: 0.012 }, PA: { rate: 0.01, capPerMonth: 2500 }, SC: { rate: 0.02, steps: [{ below: 10000, rate: 0.03 }, { rate: 0.02 }] }, WI: { rate: 0.0075, min: 1000, cap: 800000 }, MO: { rate: 0.02 }, WY: { rate: 0.0195, cap: 50000 }, OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
+  const d = { MD: { rate: 0.012, tiers: [{ upTo: 600000, rate: 0.012 }, { rate: 0.009 }], cap: 50000 }, AL: { rate: 0.05, tiers: [{ upTo: 10000, rate: 0.05 }, { rate: 0.02 }], capPerMonth: 40000 }, KY: { rate: 0.0175, tiers: [{ upTo: 100000, rate: 0.0175 }, { rate: 0.015 }], cap: 5000 }, LA: { rate: 0.0084, capPerMonth: 75000 }, MS: { rate: 0.02, cap: 5000 }, NE: { rate: 0.025, cap: 7500 }, ND: { rate: 0.015, cap: 11000 }, AZ: { rate: 0.012 }, PA: { rate: 0.01, capPerMonth: 2500 }, SC: { rate: 0.02, steps: [{ below: 10000, rate: 0.03 }, { rate: 0.02 }] }, WI: { rate: 0.0075, min: 1000, cap: 800000 }, MO: { rate: 0.02 }, WY: { rate: 0.0195, cap: 50000 }, OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] }, AR: { rate: 0.02, capPerMonth: 100000 } }[s];
   return d ? { [`${s} state`]: { ...d } } : {};
+}
+// Monthly tax on the book's invoice and credit-note lines labelled `label` (credit notes negative), with the first and last date the book
+// holds anything: { months: { "2025-07": cents }, first, last }. A month with no line counts as zero only inside first..last.
+export function monthlyTaxByLabel(books, label, account = "2100") {
+  const months = {};
+  const dates = [];
+  for (const d of books.documents ?? []) {
+    if (d.date) dates.push(d.date);
+    if (d.kind !== "invoice") continue;
+    for (const l of d.lines ?? []) if (l.account === account && (l.desc || "Unlabelled") === label) months[ym(d.date)] = (months[ym(d.date)] ?? 0) + (d.credit ? -l.cents : l.cents);
+  }
+  for (const t of books.transactions ?? []) if (t.date) dates.push(t.date);
+  dates.sort();
+  return { months, first: dates[0] ?? null, last: dates[dates.length - 1] ?? null };
+}
+const sumMonths = (months, from, to) => Object.entries(months).reduce((a, [k, v]) => (k >= from && k <= to ? a + v : a), 0);
+// the sign goes outside the symbol: -$5.00, not $-5.00 (a credit-heavy look-back year can be negative)
+const usd = (c) => {
+  const text = `$${(Math.abs(c) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return c < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+
+// Presets a state sets from your own past tax, worked out from the book when it holds the months the rule looks at:
+// { discounts, dueDay, notes }. Merged over stateDiscounts and stateDueDay by the CLI and the page; an explicit --discount or --due-day wins.
+// Indiana (read on secure.in.gov 2026-11-14, eval/state-pages-2026-11-14e.md):
+//   allowance, Sales Tax Information Bulletin #83 (December 2025, effective January 1, 2026): "The collection allowance for a calendar year
+//   will be based on the total sales tax ... liability accrued for the 12-month period ending on June 30 of the preceding calendar year":
+//   "$60,000.00 or Less 0.73%", "$60,000.01 through $600,000.00 0.53%", "$600,000.01 or More 0.26%".
+//   due day, General Tax Information Bulletin #102 (March 2023): the 30th, "unless the average monthly tax due for the preceding year is
+//   in excess of $1,000.00, in which case the returns must be filed by the 20th day of the month following".
+// A year whose look-back months the book does not hold gets no allowance and the 30th, and a note says which months are missing.
+export function stateHistoryPresets(state, books, frequency = "monthly", { from = null, to = null } = {}) {
+  const s = String(state ?? "").toUpperCase();
+  if (s !== "IN" || !books) return { discounts: {}, dueDay: null, notes: [] };
+  const label = "IN state";
+  const h = monthlyTaxByLabel(books, label);
+  const years = [...new Set((books.documents ?? []).filter((d) => d.kind === "invoice" && d.date && (!from || d.date >= from) && (!to || d.date <= to)).map((d) => Number(d.date.slice(0, 4))))].sort();
+  const holds = (a, b) => h.first != null && h.first.slice(0, 7) <= a && h.last.slice(0, 7) >= b;
+  const byYear = {}, dueByYear = {}, notes = [], missing = [];
+  for (const y of years) {
+    const a0 = `${y - 2}-07`, a1 = `${y - 1}-06`;
+    if (holds(a0, a1)) {
+      const t = sumMonths(h.months, a0, a1);
+      byYear[y] = t <= 6000000 ? 0.0073 : t <= 60000000 ? 0.0053 : 0.0026;
+      notes.push(`Indiana ${y}: ${(byYear[y] * 100).toFixed(2)}% collection allowance, from ${usd(t)} of "${label}" tax in July ${y - 2} to June ${y - 1} (Bulletin #83).`);
+    } else missing.push(`${y}'s allowance needs July ${y - 2} to June ${y - 1}`);
+    const d0 = `${y - 1}-01`, d1 = `${y - 1}-12`;
+    if (frequency === "monthly" && holds(d0, d1)) {
+      const t = sumMonths(h.months, d0, d1);
+      dueByYear[y] = t / 12 > 100000 ? 20 : 30;
+      notes.push(`Indiana ${y}: returns due the ${dueByYear[y]}th, from an average of ${usd(Math.round(t / 12))} a month of "${label}" tax in ${y - 1} (Bulletin #102: the 20th above $1,000).`);
+    } else if (frequency === "monthly") missing.push(`${y}'s due day needs all of ${y - 1}`);
+  }
+  if (missing.length) notes.push(`Indiana: this book does not hold the months the rule looks at (${missing.join("; ")}), so for those years no allowance is applied and the 30th is used; check your INTIME account or add --discount "${label}=<percent>".`);
+  return {
+    discounts: Object.keys(byYear).length ? { [label]: { rate: 0, byYear } } : {},
+    dueDay: Object.keys(dueByYear).length ? { byYear: dueByYear, otherwise: 30 } : null,
+    notes,
+  };
 }
 export function stateEndMonth(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
@@ -296,7 +384,8 @@ export function stateDueDay(state, frequency = "quarterly") {
   if (s === "WA" && frequency !== "monthly") return "last";
   // UT (tax.utah.gov/sales/due-dates, read 2026-10-28): the Aug 2026 monthly Sales and Use (STC) return is due 2026-09-30, the last day of the next month; equals the "last" preset (quarterly and annual dates unseen)
   // MO (dor.mo.gov sales tax filing FAQ, read whole 2026-10-28): monthly the last day of the next month, quarterly the last day of Apr/Jul/Oct/Jan, annual January 31; equals the "last" preset
-  // MA (mass.gov Sales and Use Tax guide, via search 2026-10-27): monthly, quarterly and annual returns all due the 30th day after the period; the 20th in 830 CMR 62C.16.2 is the older rule
+  // MA (G.L. c. 62C, s. 16(h), read on malegislature.gov 2026-11-14; earlier from the mass.gov guide via search 2026-10-27): "Every such return
+  // shall be filed within 30 days after the expiration of the period covered thereby" (a materialman's within 50 days, not modelled)
   if (s === "MA") return { after: 30 };
   // VA (tax.virginia.gov "Sales and use tax", read 2026-10-27): monthly the 20th; quarterly Jan-Mar Apr 20, Apr-Jun Jul 20, Jul-Sep Oct 20, Oct-Dec Jan 20; equals the default of 20
   // NC: monthly the 20th, quarterly the last day of Jan/Apr/Jul/Oct (ncdor.gov "Filing Frequency and Due Dates", read 2026-10-24)
@@ -315,6 +404,8 @@ export function stateDueDay(state, frequency = "quarterly") {
 }
 export function dueDate(period, dueDay = 20) {
   let [y, m] = periodEnd(period);
+  // { byYear: { 2026: 20 }, otherwise: 30 } = a due day that depends on the year the period ends in (Indiana: the 20th after a year over $1,000 a month)
+  if (dueDay && typeof dueDay === "object" && dueDay.byYear) dueDay = dueDay.byYear[y] ?? dueDay.otherwise;
   // { after: N } = N calendar days after the period's last day (Massachusetts quarterly and annual)
   if (dueDay && typeof dueDay === "object" && dueDay.after != null) return iso(new Date(Date.UTC(y, m, dueDay.after)));
   // { months: N, day: D } = day D of the Nth month after the period's last month (Minnesota annual: February 5)
@@ -383,11 +474,11 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
   for (const [j, w] of Object.entries(rates)) {
     if (!Number.isFinite(w) || w < 0 || w > 1) throw new Error(`rate for "${j}" needs a percent between 0 and 100, as in --rate "${j}=7.25"`);
   }
-  const dd = dueDay && typeof dueDay === "object" ? dueDay.day ?? dueDay.after : dueDay;
-  if (!(dd === "last" || (Number.isInteger(dd) && dd >= 1 && dd <= (dueDay?.after != null ? 366 : 31)))) throw new Error('due day must be a whole day from 1 to 31 or "last"');
+  const okDue = (v) => { const dd = v && typeof v === "object" ? v.day ?? v.after : v; return dd === "last" || (Number.isInteger(dd) && dd >= 1 && dd <= (v?.after != null ? 366 : 31)); };
+  if (!(dueDay?.byYear ? okDue(dueDay.otherwise) && Object.values(dueDay.byYear).every(okDue) : okDue(dueDay))) throw new Error('due day must be a whole day from 1 to 31 or "last"');
   for (const [j, d] of Object.entries(discounts)) {
     const okCap = (c) => c == null || (Number.isFinite(c) && c >= 0);
-    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo))))) || !okCap(d.min) || !(d.steps == null || (Array.isArray(d.steps) && d.steps.length && d.steps.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.below == null || okCap(t.below))))) || !(d.onSales == null || (Number.isFinite(d.onSales) && d.onSales >= 0 && d.onSales <= 1)) || !(d.bands == null || (Array.isArray(d.bands) && d.bands.length && d.bands.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.belowMonthlySales == null || okCap(t.belowMonthlySales))))) || !okCap(d.floorPerMonth) || !(d.floorShare == null || (Number.isFinite(d.floorShare) && d.floorShare >= 0 && d.floorShare <= 1))) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
+    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo))))) || !okCap(d.min) || !(d.steps == null || (Array.isArray(d.steps) && d.steps.length && d.steps.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.below == null || okCap(t.below))))) || !(d.onSales == null || (Number.isFinite(d.onSales) && d.onSales >= 0 && d.onSales <= 1)) || !(d.bands == null || (Array.isArray(d.bands) && d.bands.length && d.bands.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.belowMonthlySales == null || okCap(t.belowMonthlySales))))) || !okCap(d.floorPerMonth) || !(d.floorShare == null || (Number.isFinite(d.floorShare) && d.floorShare >= 0 && d.floorShare <= 1)) || !(d.byYear == null || Object.values(d.byYear).every((v) => Number.isFinite(v) && v >= 0 && v <= 1))) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
   }
   const cells = new Map();
   const cell = (period, j) => {
@@ -421,7 +512,9 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
     const disc = discounts[r.jurisdiction];
     const months = { monthly: 1, quarterly: 3, semiannual: 6, annual: 12 }[frequency];
     const cap = disc?.capPerMonth != null ? disc.capPerMonth * months : disc?.cap ?? Infinity;
-    let raw = disc ? r.tax * disc.rate : 0;
+    // byYear: a rate that depends on the year the period ends in (Indiana's allowance band, set by the 12 months to June 30 of the year before)
+    const rate = disc ? disc.byYear?.[periodEnd(r.period)[0]] ?? disc.rate : 0;
+    let raw = disc ? r.tax * rate : 0;
     if (disc?.tiers && r.tax > 0) { // tiered: each slice of tax earns its own rate, `upTo` is the tier's ceiling in cents of tax
       raw = 0; let lo = 0;
       for (const t of disc.tiers) { const hi = t.upTo ?? Infinity; if (r.tax > lo) raw += (Math.min(r.tax, hi) - lo) * t.rate; lo = hi; }

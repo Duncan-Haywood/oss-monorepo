@@ -1062,6 +1062,23 @@ list monthly and quarterly only, so `--state NC --freq annual` now says so. Geor
 vendor's compensation, until now from search excerpts, was read on Form ST-3 Part C itself. Quotes
 and what still refused: [`eval/state-pages-2026-11-14.md`](eval/state-pages-2026-11-14.md).
 
+**Indiana from the book's own history, Arkansas's 2%, and the last six states read (2026-11-14, fifth pass).**
+Indiana's rules depend on your own past tax, so the worksheet now works them out from the book. DOR
+Bulletin #83 (effective January 1, 2026) sets the collection allowance for a calendar year from tax in the
+12 months to June 30 of the year before: 0.73% up to $60,000, 0.53% to $600,000, 0.26% above. Bulletin #102
+puts monthly returns on the 30th, or on the 20th when the year before averaged over $1,000 a month. When
+the book holds those months, `--state IN` applies that year's band to "IN state" and that year's due day,
+and says which figures it used ("0.73% collection allowance, from $48,000.00 of "IN state" tax in July 2024
+to June 2025"). A year it cannot look back on gets no allowance and the 30th, and a note names the missing
+months. `--discount` and `--due-day` still win, and INTIME shows your real rate. Arkansas's rule GR-84 adds
+a 23rd preset: 2% of state tax when paid by the 20th, at most $1,000 for each month the return covers (city
+and county 2% uncapped, left to `--discount`). New Jersey's filing page, and the Rhode Island, Maine and
+Massachusetts statutes, confirm the dates already here and print no vendor discount. New Jersey's monthly
+rows are now explained as vouchers (required only above $30,000 a year), and Rhode Island's quarterly
+filing as needing written authorization. Every state item (8) listed has now been read on its own text.
+Quotes, worked figures and what refused: [`eval/state-pages-2026-11-14e.md`](eval/state-pages-2026-11-14e.md).
+Tests: `salestaxreturn.test.mjs` (3 new) and `cli-flags-once.test.mjs` (1 new, through the CLI). Not tax advice.
+
 **Maryland and Utah discounts, and Colorado's ended vendor fee (2026-11-14, fourth pass).** Three
 more hosts answered: mgaleg.maryland.gov, le.utah.gov and leg.colorado.gov. `--state MD` now applies
 Tax-General 11-105: 1.2% of the first $6,000 of tax on each timely return and 0.9% of the rest, at most
@@ -1322,6 +1339,60 @@ Measured before and after, on the same files (all fetched at run time, none comm
 | Capital One card, Chase card (billcat) | | identical |
 
 The gain is small because glued names are rare in these sets, but each of those lines was a payee the books could never learn. Pinned in `glued-payee.test.mjs` (6 tests, descriptions written here in the real shapes). Not tried: a US Bank business checking download, where `WEB AUTHORIZED PMT` lines are commoner.
+
+### Mercury business accounts (2026-11-14, fifth batch)
+
+Every business file read so far was at Chase. `node eval/mercury-exports.mjs` reads five files in the layout Mercury's download writes, fetched at run time from public GitHub repositories at pinned commits (none committed; the two real ones hold names, emails and account digits): two that look like LLCs' own downloads (200 and 372 rows) and three samples in Mercury's layout. The first carries the owner's own `Category` on 105 lines (Bank Fees, Software & Subscriptions, Business Meals, Legal & Professional Services, Revenue, Transfer...): the first set of a firm's own labels on its own bank lines. Four findings, two with money consequences:
+
+1. **Three accounts read as one.** Mercury writes every account into one file and names it on each row in `Source Account`: on the first LLC's file, a checking account, a second checking account and the Mercury Credit card. The reader did not know that column, so all 200 rows went into whichever account the user picked: card charges landed in the checking account, and each of the card's 24 autopayments (`IO AUTOPAY`) appeared twice in the same account, once out and once in, with nothing to pair against. `Source Account` is now read like Mint's `Account` column, so the page and `import file.csv --map "NAME"=CODE` ask for a chart code per account. Split that way, the 48 autopay and transfer lines pair as transfers between the accounts (0 before) and the card's charges land on the card.
+2. **Mercury's merchant category was ignored.** The file has two category columns: the owner's own (`Category`) and Mercury's (`Mercury Category`: Software, Restaurants, FinancialInstitutionsAndFees...). Only the first was read. It still wins; Mercury's now fills the lines the owner left blank, as the same weak, review-only hint as Chase's label. Two labels gained a mapping: `FinancialInstitutionsAndFees` (Mercury's own foreign-transaction fee, 45 of 45 filed to Bank Fees by the owner; written looking at this file) and `CarRental`. `Retail`, `Grocery`, `Entertainment`, `ProfessionalServices`, `GovernmentServices` and `Electronics` name no account and stay silent.
+3. **Card lines lost their card.** `Last Four Digits` is now read like Chase's `Card` column, so `cards` gives spend per card on a Mercury card account. The cardholder's name and email in the same row are never kept.
+4. **Failed charges.** On the second LLC's file 197 of 372 rows are `Failed` card charges, retried until they went through; they were already skipped, and stay skipped. A sample file marks every deposit `Received`; that is now read as booked instead of skipping all 53 deposits.
+
+Replayed in date order against the owner's labels (the `Category` column blanked first, so the categorizer never sees it; money out, labels that name an account; 100 lines):
+
+| | before | after |
+|---|---|---|
+| every line, right / wrong | 85.0% / 6.0% | 90.0% / 3.0% |
+| first-seen payee (25 lines) | 44.0% / 24.0% | 64.0% / 12.0% |
+
+On the second LLC's file (no owner labels), a cold import suggests an account for 167 of 174 lines against 72 before; by eye the new ones are AI and developer tools under Mercury's `Software` and its foreign-transaction fees, all plausible. Caveats: one firm's 100 labelled lines, a few recurring payees, and the fee rule was written looking at the same file, so the gain is an upper bound. The three wrong suggestions left are all the new-payee guess (a lodging charge, an Airwallex transfer and a Wise fee sent to meals). Pinned in `mercury-business.test.mjs` (6 tests, rows written here under the real header).
+
+### Monarch and Rocket Money exports (2026-11-14, sixth batch)
+
+Mint closed in 2024; the budgeting apps people moved to were Monarch and Rocket Money. `node eval/aggregator-exports.mjs` reads one real export of each, fetched at run time from public GitHub repositories at pinned commits (never committed: both hold names and account digits; only counts are written here). The Rocket Money file is a small agency's American Express business card, March to June 2024 (958 lines), the first real business card in the labelled sets; the Monarch file is one household's 2025 accounts (1,581 lines in five accounts). Each line carries the app's category, its own guess or the owner's correction. The replay is the import loop: money out only, in categories that name one chart account (shopping, groceries and transfers unscored), the Category column blanked first so the categorizer never sees what it is scored against, each day suggested from every earlier day's filed lines.
+
+1. **A Rocket Money export was booked as income.** Its layout was unknown, and it writes money out as a positive Amount and refunds as negative, on cards and checking alike (944 of 958 lines positive here; the 14 negative ones are airline and hotel refunds and Google credits; two other projects' test files agree). With no balance column and no "payment thank you" row, nothing told the reader to flip signs, so four months of a firm's card spending came in as money received. The layout is now named (`rocket-money`), signs are flipped with a note saying so, and each `Account Name` is its own account, as for Mint.
+2. **Monarch's cleaned merchant hid the line.** The reader took Monarch's `Merchant` column, which folds `KROGER FUEL #3532` and `KROGER #532` into one "Kroger" and `EXXON 7-ELEVEN` into "7-Eleven"; 30 fuel lines then went to meals. It now reads `Original Statement`, the bank's own text, and keeps the merchant only where the statement is blank. The same switch on the ten Mint exports (Description to Original Description, through this reader) was measured too and not made: on the held-out six the loop went 68.1% to 70.0% right but 23.8% to 24.4% wrong, and first-seen wrong 22.8% to 25.3%. Mint's cleaned names are better than Monarch's.
+3. **A glued Amex merchant had no payee.** `HOTELSCOM72791059909HOTELS.COM` is name, reference and web address in one token, so it keyed to nothing and nothing was learned from it. A first token of letters, six or more digits and letters now keeps its leading letters. Across 13,513 lines in 75 real files (the 63 US exports, these two and the ten Mint files) only these three lines changed key; a looser first try also turned two references (`OPE879BQLW`) into payees and was narrowed.
+4. **Keywords and labels.** Hotels.com, Amex Travel, limousines, parking meters (`PRK METER`), auto washes, Texaco, natural-gas utilities and liability insurance (written after the reading below, so tuned on these files). The bank-category layer now reads both apps' label names (Restaurants & Bars, Dining & Drinks, Travel & Vacation, Software & Tech, Gas & Electric, Internet & Cable, Water, Parking & Tolls, Auto Maintenance) as the same review-only hint as Chase's. A bare "resorts" was tried and dropped: on the Mint files it sent a pet resort to travel.
+
+Right / wrong of all scored lines. "Before" on Rocket Money is the first reading once its signs were right, with no rule written from the file; on Monarch it is `main`.
+
+| file | scored | keywords alone, before | after | learning loop, before | after | first-seen payee, before | after |
+|---|---|---|---|---|---|---|---|
+| Rocket Money, a firm's Amex card | 710 (205 first-seen) | 69.2% / 1.1% | 70.0% / 1.1% | 93.2% / 5.5% | 94.1% / 5.1% | 79.0% / 17.6% | 81.0% / 16.1% |
+| Monarch, household, 2025 | 502 (155) | 51.6% / 12.5% | 71.7% / 7.4% | 88.2% / 10.2% | 91.6% / 6.8% | 73.0% / 22.3% | 80.0% / 16.1% |
+
+On Monarch the reader change alone (item 2) gives keywords 67.7% / 7.2%, loop 91.0% / 6.8%, first-seen 78.1% / 16.1%: most of the gain, and not a rule fitted to the file. On the ten Mint exports one line changed on keywords alone: a liability-insurance charge now goes to insurance, which counts as wrong there (3.2% to 3.3% of 2,926) because that owner files it under business services; the loop is unchanged (90.7% / 5.3%), and so is the Mercury replay.
+
+What it says, with care: the labels are a consumer app's, and they are noisy (Rocket Money files a Midjourney subscription and an AI writing tool under Dining & Drinks and a restaurant booking under Auto & Transport); one firm's card and one household. Convenience stores that sell fuel (Wawa, Sheetz, 7-Eleven) are left as meals: in the Monarch file the same store is fuel on one line and snacks on the next, and only the amount tells them apart. One more finding for the Mint reading above: one of its six held-out files (a student project's) has labels that look shuffled (Uber trips filed as Restaurants, pizza as Ride Share), which pulls its held-out figures down; it is left in, as it was when the figures were first read. Pinned in `aggregator-exports.test.mjs` (6 tests, rows written here under the real headers).
+
+### Card payments as the banks print them, and a software LLC's own books (2026-11-15)
+
+`node eval/nevarro-ledger.mjs` reads the published books of a single-member software LLC (MIT-licensed hledger journals, fetched at run time at a pinned commit; nothing committed): its Bluevine business checking and its Chase Ink business card, 2023 to 2026, 314 bank lines, each filed by the owner. The CSV downloads are not in that repository, but every journal entry keeps the bank's own description, so these are the first real Bluevine lines read here and the fourth set of a business's own labels (after Mercury, Rocket Money and Open Collective).
+
+1. **Card payments were not seen as transfers, on either side.** Chase cuts the card's payment line to `AUTOMATIC PAYMENT - THANK`; Bluevine writes the same payment as `CHASE CREDIT CRD, AUTOPAYBUS`. Neither matched a transfer keyword, so on a one-sided import (only the card, or only the checking account) the line got no suggestion at all, instead of the review note that says "looks like a transfer, import the other account". 1 of 35 card payments and 1 of 29 Bluevine transfers were suggested as transfers. The same gap ran through the 63 real exports in `eval/us-bank-exports.mjs`: Citi's `ONLINE PAYMENT, THANK YOU`, Amex's `ELECTRONIC PAYMENT RECEIVED-THANK`, and on the paying side `DISCOVER E-PAYMENT`, `CHASE CREDIT CRD AUTOPAY` and `... EPAY`, `AMERICAN EXPRESS ACH PMT`, `APPLECARD GSBANK PAYMENT`, `Citi Autopay`, `Synchrony Bank CC PYMT`. Truist's `CCPYMT WELLS FARGO CARD ... INTERNET PAYMENT` and `EPAY CHASE CREDIT CRD` were worse: suggested as Wages (6150), six lines, and `Citi Autopay` as Utilities (6140), three lines. Two new first rules in `BUILT_IN` (`categorize.mjs`): money in reading "payment, thank" (with "received" allowed between), and a card issuer's name next to a payment word (`e-payment`, `epay`, `autopay`, `ach pmt`, `pmt`, `pymt`, `payment`, `crcardpmt`). After: 35 of 35 and 27 of 29 (the two left are Square deposits, suggested as sales, which the owner books as transfers from a Square balance). On the 63 exports plus the Mint, Monarch, Rocket Money and Mercury files (14,054 lines), 234 lines changed and every one became a transfer: 225 had no suggestion, the 9 others are the Wages and Utilities lines above. Read by eye, all 234 are card payments. Left alone: `CITI FLEX PAY` (an instalment plan), `WELLS FARGO CARD DES:CRD` (no payment word), `VENMO PAYMENT`, a phone or utility bill paid "by payment", `Thankyou Points Redeemed`, and loan payments (`CITIZENS MTG PMT`, `SALAL CU LOAN PYMT`), which are a liability's principal and interest, not a card payment.
+2. **Keyword gaps on the LLC's vendors.** `CO SECRETARY STATE FEE` (the state's own wording, without "of") and `NC SEC OF STATE` were not filing fees, `GOOGLE *Workspace` missed the existing Workspace rule because of the `*`, and `Google Domains`, UptimeRobot, NodePing and Migadu had no rule. All now go to Taxes and licences (6110) or Software and subscriptions (6060), as does "registering a DBA". These were written looking at this file, so the keyword gain below is an upper bound; outside it the same change turned three more lines right (a Colorado filing fee on the Rocket Money file, a North Carolina one on a Wells Fargo download, `GOOGLE*DOMAINS` on a Fidelity card) and no other line.
+
+Replayed in date order against the owner's labels (money out to an expense the default chart has: hosting, backup, mail, domains, monitoring and developer tools as software; foreign-transaction fees as bank fees; state fees as licences; donations unscored):
+
+| account | scored | keywords alone, before | after | learning loop, before | after | first-seen payee, before | after |
+|---|---|---|---|---|---|---|---|
+| Chase Ink card | 227 (24 first-seen) | 89.0% / 0.4% | 97.4% / 0.4% | 95.6% / 2.2% | 97.8% / 2.2% | 58.3% / 20.8% | 79.2% / 20.8% |
+| Bluevine checking | 3 | 0 / 0 | 3 / 0 | 0 / 0 | 3 / 0 | | |
+
+What it says, with care: one small firm, a handful of recurring vendors, 227 scored lines; the loop was already near the top because the payees repeat monthly. The five first-seen lines still wrong are the new-payee guess sending a grocer, a fuel stop, a tutoring marketplace and a coworking charge to software (this book is almost all software, so its prior says software), and USPS suggested as postage where the owner filed a government fee. No change on the Mint (2,926 lines), Monarch, Rocket Money or Mercury replays, whose scored lines exclude transfers. Pinned in `card-payments.test.mjs` (5 tests: descriptions under the real wording, amounts made up, and the hledger reader).
 
 ### PNC CSV (2026-10-22)
 

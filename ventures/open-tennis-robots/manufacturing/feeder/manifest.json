@@ -369,6 +369,23 @@
     "regen_diode_vr": 45.0,
     "regen_diode_a": 20.0,
     "regen_brake_max_v": 27.6,
+    "regen_brake_hyst_v": 0.7,
+    "battery_adc_noise_v": 0.15,
+    "pack_wh": 512.0,
+    "bounce_counts": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      10
+    ],
+    "bounce_open_fracs": [
+      0.2,
+      0.5,
+      0.8,
+      1.0
+    ],
     "trough_w": 125.0,
     "trough_wall": 1.8,
     "trough_x0": 30.0,
@@ -552,6 +569,9 @@
     "precharge_delay_s": 0.5,
     "stepper_enable_after_ms": 150.0,
     "bounce_reclose_a": 11.8,
+    "bounce_train_max_a": 19.3,
+    "regen_brake_hyst_mv": 700,
+    "regen_guard_flips_max": 1,
     "precharge_residual_v": 1.43,
     "agitator_torque_nm": 0.443,
     "agitator_torque_margin": 3.39,
@@ -609,7 +629,7 @@
     "levelling_foot": 0.0
   },
   "files": {
-    "README.txt": "b38d9d2dcb73a70ee2e67fd5b05e190e57fd43d4220288aa84084e1782053281",
+    "README.txt": "dd0b44c2669cca06181d53222c42b606e48d8142125da8ed6c1b8b4a400f3ba3",
     "bom.csv": "886adfe7b5c5faf102d8c16e3b4b588310a0d33266c8a84dc74bd3547c168785",
     "cut_list.csv": "a2b718b388db887626e387116c24a47df043fbf15afa1169b9e556306748c3db",
     "drawings/assembly_front.svg": "b58072ad4c208e92f3fb0b18d526e2d2da60c77caa55f5db732e5bc238703228",

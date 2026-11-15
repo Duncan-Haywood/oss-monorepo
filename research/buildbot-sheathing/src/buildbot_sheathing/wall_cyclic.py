@@ -48,6 +48,7 @@ class Saws:
     r4: float
     alpha: float
     beta: float
+    gamma: float = np.inf      # milestone 21: energy capacity E_t = gamma FU Du (inf: no degradation)
 
     @staticmethod
     def imperial(K0, r1, r2, r3, r4, F0, FI, Du, alpha, beta):
@@ -57,7 +58,12 @@ class Saws:
     def scaled(self, force, disp):
         """The same shape with forces times ``force`` and displacements times ``disp``."""
         return Saws(self.F0 * force, self.FI * force, self.Du * disp, self.K0 * force / disp,
-                    self.r1, self.r2, self.r3, self.r4, self.alpha, self.beta)
+                    self.r1, self.r2, self.r3, self.r4, self.alpha, self.beta, self.gamma)
+
+    def degrading(self, gamma):
+        """The same spring with energy-based strength degradation (milestone 21): E_t = gamma FU Du."""
+        return Saws(self.F0, self.FI, self.Du, self.K0, self.r1, self.r2, self.r3, self.r4, self.alpha, self.beta,
+                    gamma)
 
     # ---------------------------------------------------------------- envelope
     @cached_property
@@ -106,7 +112,7 @@ class Saws:
     def stack(parts):
         """One ``Saws`` whose parameters are arrays: ``parts`` is a list of (Saws, count)."""
         f = {}
-        for name in ("F0", "FI", "Du", "K0", "r1", "r2", "r3", "r4", "alpha", "beta"):
+        for name in ("F0", "FI", "Du", "K0", "r1", "r2", "r3", "r4", "alpha", "beta", "gamma"):
             f[name] = np.concatenate([np.full(n, getattr(sw, name), float) for sw, n in parts])
         return Saws(**f)
 
@@ -115,13 +121,16 @@ class Saws:
         z = np.zeros(n)
         return {"d": z.copy(), "F": z.copy(), "up": z.copy(), "um": z.copy(),
                 "yielded": np.zeros(n, bool), "dead": np.zeros(n, bool), "env": np.zeros(n, int),
-                "ulp": np.zeros(n, bool), "ulm": np.zeros(n, bool)}
+                "ulp": np.zeros(n, bool), "ulm": np.zeros(n, bool),
+                "s": np.ones(n), "E": z.copy(), "rev": np.zeros(n, bool), "dir": z.copy()}
 
-    def _reload(self, un):
-        """Target (Dmax, Fmax) and stiffness Kp of the reloading line for excursions ``un`` (signed)."""
+    def _reload(self, un, s=1.0):
+        """Target (Dmax, Fmax) and stiffness Kp of the reloading line for excursions ``un`` (signed); ``s`` is the
+        strength scale left by degradation (milestone 21)."""
         Dm = self.beta * un
         Fm, _ = self.env_odd(Dm)
-        Fm = np.where(np.abs(Dm) <= self.Du, np.clip(Fm, -self.FU, self.FU), Fm)
+        Fm = s * Fm
+        Fm = np.where(np.abs(Dm) <= self.Du, np.clip(Fm, -s * self.FU, s * self.FU), Fm)
         DY = self.F0 / self.K0
         with np.errstate(divide="ignore"):
             Kp = np.where(np.abs(Dm) > 0, self.K0 * (DY / np.maximum(np.abs(Dm), 1e-300)) ** self.alpha, self.K0)
@@ -132,28 +141,34 @@ class Saws:
         d = np.asarray(d, float)
         K0 = self.K0
         dead = st["dead"] | (np.abs(d) >= self.DF)
+        # milestone 21: the envelope and the pinching lines are scaled by the strength left, s (1 without
+        # degradation); stiffness at unloading (r3 K0) and the reloading slopes are not
+        sc = st["s"]
         Fe, ke = self.env_odd(d)
+        Fe, ke = sc * Fe, sc * ke
         # bounds
-        Dp, Fp, Kpp = self._reload(st["up"])
-        Dm, Fm, Kpm = self._reload(st["um"])
-        Pp = self.FI + self.r4 * K0 * d
-        Pm = -self.FI + self.r4 * K0 * d
+        Dp, Fp, Kpp = self._reload(st["up"], sc)
+        Dm, Fm, Kpm = self._reload(st["um"], sc)
+        Pp = sc * (self.FI + self.r4 * K0 * d)
+        Pm = sc * (-self.FI + self.r4 * K0 * d)
         Rp = Fp + Kpp * (d - Dp)
         Rm = Fm + Kpm * (d - Dm)
         # upper bound U = max(P+, min(R+, E), the unloading line from the last envelope point); its slope
         Fup, _ = self.env_odd(st["up"])
+        Fup = sc * Fup
         Ul = np.where(st["ulp"] & (d <= st["up"]), np.minimum(Fup + self.r3 * K0 * (d - st["up"]), Fe), -np.inf)
         inner_u = np.minimum(Rp, Fe)
         k_inner_u = np.where(Rp < Fe, Kpp, ke)
         U = np.maximum(np.maximum(Pp, inner_u), Ul)
-        kU = np.where(U == Ul, self.r3 * K0, np.where(Pp >= inner_u, self.r4 * K0, k_inner_u))
+        kU = np.where(U == Ul, self.r3 * K0, np.where(Pp >= inner_u, sc * self.r4 * K0, k_inner_u))
         on_env_u = np.isclose(U, Fe, rtol=0, atol=1e-12 * self.FU) & (d > st["up"])
         Fum, _ = self.env_odd(st["um"])
+        Fum = sc * Fum
         Ll = np.where(st["ulm"] & (d >= st["um"]), np.maximum(Fum + self.r3 * K0 * (d - st["um"]), Fe), np.inf)
         inner_l = np.maximum(Rm, Fe)
         k_inner_l = np.where(Rm > Fe, Kpm, ke)
         Lb = np.minimum(np.minimum(Pm, inner_l), Ll)
-        kL = np.where(Lb == Ll, self.r3 * K0, np.where(Pm <= inner_l, self.r4 * K0, k_inner_l))
+        kL = np.where(Lb == Ll, self.r3 * K0, np.where(Pm <= inner_l, sc * self.r4 * K0, k_inner_l))
         on_env_l = np.isclose(Lb, Fe, rtol=0, atol=1e-12 * self.FU) & (d < st["um"])
         Ft = st["F"] + self.r3 * K0 * (d - st["d"])
         F = np.clip(Ft, Lb, U)
@@ -182,6 +197,19 @@ class Saws:
                # force falls to that side's pinching line
                "ulp": (st["ulp"] | hit_u) & ~(F <= Pp) & ~hit_l,
                "ulm": (st["ulm"] | hit_l) & ~(F >= Pm) & ~hit_u}
+        # milestone 21: energy-based strength degradation. Work done on the spring, counted from its first
+        # reversal after it has yielded (so a monotonic push is never degraded), sets s = 1 - E / E_t with
+        # E_t = gamma FU Du: the c = 1 continuous form of Rahnama and Krawinkler (1993)'s rule as Ibarra, Medina
+        # and Krawinkler (2005) use it. s is applied from the next step (explicit), and never rises.
+        inc = d - st["d"]
+        sgn = np.sign(inc)
+        rev = st["rev"] | (st["yielded"] & (sgn * st["dir"] < 0))
+        E = st["E"] + np.where(rev, 0.5 * (st["F"] + F) * inc, 0.0)
+        Et = self.gamma * self.FU * self.Du
+        with np.errstate(invalid="ignore", divide="ignore"):
+            s_new = np.where(np.isfinite(Et), np.clip(1.0 - np.maximum(E, 0.0) / Et, 0.0, 1.0), 1.0)
+        new.update({"E": E, "rev": rev, "dir": np.where(sgn != 0, sgn, st["dir"]),
+                    "s": np.minimum(st["s"], s_new)})
         return F, k, new
 
     def run(self, history):

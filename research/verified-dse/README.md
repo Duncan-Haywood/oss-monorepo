@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 124 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 126 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -126,6 +126,19 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   the ladder would lose at 33 gates. The 64-bit twin falls under the routing-cost threshold, so width scaling stays untested.
   Over milestones 121 to 124's 50 blind cells SWG(36) has 2.41% against 5.11% random (better in 23, worse in 1):
   [`experiments/amount_place/`](experiments/amount_place/results.txt).
+- **A probe-rank guard cannot see the ladder's failures (milestone 126, replay of milestones 119 to 125's 90 cells, no flow run).**
+  Routing 4 uniformly drawn probes and trusting the clipped ladder only when its order agrees with routed order on them (SWCV)
+  gives 5.14% mean regret, worse than the unguarded ladder (4.77%) and barely better than random routing (5.44%). It falls back
+  in 12% of draws where the ladder fails and 7% where it wins, because the mapped score orders a failing cell's points about as
+  well overall (tau-b +0.45 against +0.53) and goes wrong only among its own top 16 (-0.18 against +0.23, post hoc):
+  [`experiments/pilot_rank/`](experiments/pilot_rank/results.txt).
+- **The gate-depth guard fails its second blind test (milestone 125, flow run, eight blind shifters from four new families,
+  five 128-bit and three 64-bit multi-lane).** The clipped ladder reaches 0.00% regret at both clocks with 28, 31, 33 and 35 gates
+  in front of the amount (random routing 2.40 to 12.44%), so the registered 32-gate guard routes two winning designs randomly; on a
+  4-bit by 7-bit product (36 gates) it has 21 to 25% against about 4%. Unguarded, the ladder has 3.56% blind regret against 5.69%
+  for random routing; SWG(32) has 6.79%. Four of eight predictions held. Wider data paths around a 64-bit shift do reach the
+  ladder branch (routed/r2 up to 5.6), and there the ladder wins (1.20% against 3.84% at 48 gates). Gate depth is not the
+  variable: [`experiments/amount_lanes/`](experiments/amount_lanes/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

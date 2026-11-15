@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULTS, analyze, carEconomics, breakEvenScrapPrice, maxTowMiles, breakEvenSellThrough, num, money, toCsv } from "./calc.mjs";
+import { DEFAULTS, analyze, carEconomics, breakEvenScrapPrice, maxTowMiles, breakEvenSellThrough, num, money, toCsv, scrapLadder, weightLadder } from "./calc.mjs";
 
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} vs ${b}`);
 
@@ -91,4 +91,10 @@ test("an ask that clears break-even but not the target is a counter, not a buy",
 test("with no parts, sell-through is 0 when the ask already works", () => {
   assert.equal(breakEvenSellThrough({ ...DEFAULTS, partsRetail: 0, sellerAsk: 100 }), 0);
   assert.ok(Number.isNaN(breakEvenSellThrough({ ...DEFAULTS, partsRetail: 0, sellerAsk: 900 })));
+});
+
+test("ladder labels stay rounded for an awkward input (rung() used to spread the raw value back over them)", () => {
+  const o = { ...DEFAULTS, weightLbs: 3333, scrapPricePerTon: 217 };
+  for (const x of weightLadder(o)) assert.ok(Number.isInteger(x.weightLbs), String(x.weightLbs));
+  for (const x of scrapLadder(o)) assert.ok(Number.isInteger(x.scrapPricePerTon), String(x.scrapPricePerTon));
 });

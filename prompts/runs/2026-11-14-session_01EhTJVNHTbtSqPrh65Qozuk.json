@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNHTbtSqPrh65Qozuk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T21:55:53Z",
+  "ended": "2026-11-14T22:07:47Z",
+  "wall_minutes": 41.49,
+  "tokens_in": 8438623,
+  "tokens_out": 51485,
+  "cost_usd": 3.9456,
+  "tool_calls": 67,
+  "task": "Deepen (flagship 8) quick-pick-survey: (m) graded option answers on decide.html",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15992",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to commit the run record after the PR is open, but venture-preflight's main_health step fails on an unfilled record in the working tree, so a preflight started mid-run reports a failure that is not the venture's."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate agent doc in docs/reports/: what the next run needs is in DECIDE-PAGE.md 'Graded answers' and 'Open' and in the flagship next: field.",
+      "did": "Put the findings in the venture's doc.",
+      "result": "Next run is pointed at item (m2) by flagships.yaml."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-quick-pick-survey-much-better-or-a-bit-better.md",
+    "ventures/quick-pick-survey/docs/DECIDE-PAGE.md (Graded answers)"
+  ],
+  "goal": null,
+  "notes": "Ordinal (cumulative-logit) Bradley-Terry fit for graded picks (site/graded-fit.mjs), equal to the plain refit on ungraded answers to 1e-9. Sim: scripts/decide-graded-sim.mjs, 60 people x 5 cases per reading (27 readings); rows docs/graded-answers-2026-11-14.jsonl.gz; summary scripts/decide-graded-summary.mjs. The fixed-tau fit overstated the stop for people who say 'much' freely (0.77 at tau 1, 0.66 at 0.5); a per-person tau estimate did not fix it; a guarded second check at min(1, estimateTau) does (0.91-0.97, 0.86 at tau 0.5). Checks: node --test site/graded-fit.test.mjs site/decide-core.test.mjs 19/19; red with grades ignored (3 fail) and with the guard skipped (1 fails); run_venture_tests quick-pick-survey ok; Playwright 390 px: 21 picks to a stop, no console errors, no horizontal scroll; venture-preflight first run failed only on the unfilled run record (209/210 main_health checks), rerun after filling.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b263c937-35ce-5547-8f3a-a7caec5b5518",
+    "transcripts": 1,
+    "first": "2026-11-14T21:55:53Z",
+    "last": "2026-11-14T22:37:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 127,
+        "output": 51485,
+        "thinking": 12062,
+        "cache_read": 8281101,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157395,
+        "api_equivalent_usd": 3.9456,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 127,
+      "output": 51485,
+      "thinking": 12062,
+      "cache_read": 8281101,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157395,
+      "api_equivalent_usd": 3.9456,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 57,
+      "Write": 5,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.49,
+      "active_minutes": 37.83,
+      "model_minutes": 9.32,
+      "tool_minutes": 28.51,
+      "waiting_on_human_minutes": 3.66,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "ordinal BT model, Laplace evidence tau search, guarded stop, 2,700-row sim sweep, page UI, tests, docs and post; a statistician-developer's day plus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 253.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

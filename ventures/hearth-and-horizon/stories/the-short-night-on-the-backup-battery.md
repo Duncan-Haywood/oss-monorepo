@@ -1,0 +1,273 @@
+---
+title: The Short Night on the Backup Battery
+shelf: hearth-and-horizon
+setting: Saint Claude's parish hall (invented), Woonsocket, Rhode Island, Monday 14 June and the night of Saturday 18 to Sunday 19 September 2049
+published: 2026-11-15
+summary: A Woonsocket parish hall's cellar pump runs on its backup battery through a storm night, and the hall's assistant promised eleven hours by dividing the label's 89 amp-hours by the pump's average current. But the label is the 20-hour rate, and at the twenty amps the pump pulls when it runs, the battery's own published rates give about 71 amp-hours: eight hours and fifty minutes, gone at first light. A retired forklift-battery technician with a clamp meter, a float switch moved for nothing, a utility estimate that slips to one in the afternoon, and her own battery carried down the hill, because two in parallel give more than twice as long. A story about Peukert's law and asking slowly.
+---
+
+Delphine Pelletier had looked after the batteries of a hundred and twelve forklift trucks for thirty-six years, and the first thing she asked about any battery was not how big it was but how hard it was going to be asked.
+
+She did not ask it of the battery in the cellar of Saint Claude's hall, because in June nobody asked her anything. In June it was Gerry Lussier who asked, on a Monday evening after one of his first meetings as chair of the buildings committee, sitting in the hall office with the rain coming down the window in sheets and the sump pit in the cellar below him making its small, contented gulping sound every few minutes.
+
+"Tally," he said. "If the power goes out in a storm, how long does the backup pump last?"
+
+The hall's assistant ran the bookings and the pantry rota and the heating schedule and the reminder that went out to Gerry every first Monday to test the smoke alarms. It had been called Tally since before Gerry's time, by a pastor who thought an assistant that counted things should have a name that said so. It took a moment.
+
+"The backup battery is a Trojan 27-AGM," it said. "Its label says 89 amp-hours. The backup pump draws about 20 amps when it runs. In the storm on the fourth of June the main pump ran about four minutes in every ten. Four tenths of 20 amps is 8 amps on average, and 89 amp-hours at 8 amps is about eleven hours."
+
+"Eleven hours," said Gerry. It was a good number. It was longer than any outage on the north side of the city in ten years. He wrote it in the minutes, and Tally put it in the buildings report, and the report went to Father Adjei and the finance council and onto the parish's shared drive, where it sat all summer next to the boiler inspection and the quote for the gutters.
+
+* * *
+
+What was left of the hurricane came up from the Carolinas on the eighteenth of September and stalled over southern New England. By the Saturday afternoon the Blackstone was running brown and high under the bridges downtown, and the four o'clock Mass had nineteen people in it, and Father Emmanuel Adjei, who had come to the diocese from Kumasi eleven years before and still regarded a New England autumn as a test of character, told them to go home carefully and not to come to the eight o'clock in the morning if the roads were bad, because God would understand and so would he.
+
+Gerry stayed at the hall. It was a habit from the man who had chaired the buildings committee before him, who had started it in the spring of 2047, when the old cellar flooded twice in a month and took out the pantry's whole stock of flour and the parish's Christmas crib, and the finance council paid for a proper sump: a pit dug in the low corner, a main pump on the hall's power, and above it on the same discharge pipe a second, smaller pump that ran from a battery in a plastic box on a shelf, with a charger that kept the battery full and a little controller that switched to it when the mains went. Gerry had spent four Saturdays of this summer moving everything in the cellar onto pallets and shelving, and had not stopped, since, going down after every heavy rain to watch the water come in through the gravel around the pit and go out again through the pipe.
+
+The cellar under Saint Claude's was the thing nobody saw. It held the hall's boiler and its electrical panel, the pantry's dry stock for a hundred and forty families until the truck came again on Thursday, the folding tables, the parish's fifty years of Christmas decorations, and the old French-language parish newsletters in boxes that the historical society kept meaning to collect. Water came into it from below, out of the ground, whenever the ground was full. Saint Claude's sat at the bottom of a slope in a city built on hills, and in a storm like this one the ground around it was always full.
+
+At ten past nine the lights went out.
+
+They went out all over the north side at once, with the faint double thump that meant something had gone at a substation, and Gerry sat in the dark office for a second before his phone lit up. He went down the cellar steps with its torch. The main pump was silent. The water in the pit was rising, an inch, two inches, black and gleaming in the light, and then the float on the backup pump lifted and the controller clicked and the small pump started with a high whine and a rush, and the water went down.
+
+It stopped. It rested. The water came up again from the gravel, steady as a slow tap. The pump ran again.
+
+Gerry stood and watched it three times. Then he went upstairs and asked Tally, through the phone, how long.
+
+"The backup took over at 21:10," said Tally. "On the estimate in the June report, the battery lasts about eleven hours, until about 08:15 tomorrow. The utility's outage map says power will be restored on the north side by 07:00."
+
+"An hour to spare," said Gerry.
+
+"About an hour."
+
+He put a message on the parish group, because people would worry: *Power's out at the hall. Backup pump running fine. Good till after 8 a.m. on the battery, power due back by 7. I'm going home, will check first thing.* He locked the hall and drove the five minutes home through water that came up to the hubcaps at the bottom of Cumberland Hill and down again, and he was in his kitchen with a candle and a cold supper at a quarter to ten.
+
+At twenty to eleven his phone rang. It was Dee Pelletier.
+
+* * *
+
+"Eleven hours at what rate?" she said.
+
+Gerry knew her the way everyone at Saint Claude's knew her. She did the second collection count on the first Sunday of the month and argued with the treasurer about rounding. She was seventy-four and had been widowed five years, and she lived at the top of the hill above the church in the house she and Roger had bought in 1999, and she had worked, before she retired, at the big distribution warehouse over the state line in Bellingham, where for thirty-six years she had charged, watered, tested and replaced the batteries of the forklift fleet. In 2047, when the finance council had asked around about backup pumps, it had been Dee who said: buy what I've got, it's a good battery, the same make they used to put in the floor scrubbers at work.
+
+"I don't know," said Gerry. "Tally worked it out."
+
+"Ask it."
+
+He asked it. He put the phone on speaker and held it out over the table and Tally repeated what it had said in June: 89 amp-hours, 20 amps when running, four minutes in ten, 8 amps on average, eleven hours.
+
+There was a silence on the line.
+
+"That's the twenty-hour figure," said Dee. "The eighty-nine. That's what you get out of it if you take it down over twenty hours. Four and a half amps. You're asking it for twenty."
+
+"But only four minutes in ten."
+
+"When it runs, it runs at twenty. The battery doesn't know it gets a rest after. It knows it's being asked for twenty amps." She breathed out. "I'm coming down."
+
+"Dee, it's eleven o'clock at night and the roads are rivers."
+
+"I know what the roads are."
+
+"No," said Gerry, and he meant it. "No. You're seventy-four, it's pitch dark, there's no power anywhere on that hill, and if you go off the road at the bottom by the mill, nobody's going to find you till morning. If the number's wrong I'll go back down and look. You tell me what to look for."
+
+Dee was quiet for a moment. She had driven forklifts with three tons on the forks between racking ten metres high, and she had been told no by better men than Gerry Lussier, and most of them had been right about as often as she had.
+
+"Then come and get me," she said. "You need a clamp meter, and you haven't got one, and I have."
+
+* * *
+
+They were in the cellar at five past eleven, the two of them on the bottom step in two circles of torchlight, with the water coming up quietly in the pit and the pump whining and gulping and stopping, and Dee in Roger's old fishing waders with the meter in her hand.
+
+It was a yellow DC clamp meter older than Gerry's daughter. She opened its jaws around the red lead from the battery box while the pump ran, and the numbers settled.
+
+"Nineteen point eight," she said. "Call it twenty. Your Tally's right about that."
+
+"The four in ten as well," said Tally, from Gerry's phone, which was propped on a shelf. "The controller logs every run. Since 21:10, in an hour and fifty minutes, the pump has run for forty-four minutes."
+
+"That's forty percent," said Dee. "Good. Now. The battery." She had the Trojan sheet on her own phone; she had had it on every phone she had owned since 2047. "Eighty-nine at the twenty-hour rate. Eighty-two at the ten-hour. Seventy-seven at the five-hour. And reserve capacity, a hundred and fifty-eight minutes at twenty-five amps, which is sixty-six amp-hours. You see what it does?"
+
+Gerry looked at the numbers. "It gets smaller."
+
+"It gets smaller the harder you pull. It's not that the battery's gone wrong. It's that the chemistry can't keep up. You pull slow, the acid has time to get into the plates and everything gets used. You pull fast, the surface gets used up first and the voltage drops to the cut-off before the inside's done. Every battery does it. Lead does it worse than most." She tilted the phone so Tally's camera could see it, which was a habit and not necessary. "There's a law for it. A man called Peukert, eighteen-something. I never used the formula, we had the tables. Twenty amps is between the five-hour and the twenty-five-amp line. What does that give?"
+
+"Between those two points," said Tally, after a moment, "taking the time to fall in a straight line on a logarithmic scale, the battery runs about three and a half hours at 20 amps. That is about 71 amp-hours, not 89." It paused, which it did not often do. "At forty percent of the time, three and a half hours of running is eight hours and fifty minutes. From 21:10 the battery is empty at about 06:00."
+
+Gerry looked at his watch, which he did not need to do.
+
+"Six o'clock," he said.
+
+"Six," said Dee. "And it's colder down here than twenty-seven degrees, which is what the sheet's measured at, so if anything it's a bit sooner. And the rests between runs give a battery a little back, which goes the other way. I'd not count on either." She shone her torch at the pit. "The water's at the top of the gravel by six-fifteen, and over the floor by seven, and the panel's a foot off the floor."
+
+"I'm sorry," said Tally. "In June I divided the twenty-hour capacity by the average current. That was wrong twice. The capacity depends on the rate, and the rate that matters is the current while the pump runs, not the average over the hour. I did not check whether the label's figure applied at 20 amps. It does not."
+
+"No," said Dee. "But you told me what you did, which is more than the last two supervisors I had ever managed." She looked at the pump. "Six o'clock. Power's due at seven."
+
+"Then we've an hour of water," said Gerry. "An hour isn't the end of the world. We can bail an hour."
+
+* * *
+
+He had an idea first, because he was the kind of man who had an idea first.
+
+"If it's how hard it's pulling," he said, "then let's make it pull less often. Raise the float. Let the water come up higher before it starts. It'll run longer each time and stop longer each time. Fewer starts. The motor pulls more when it starts, doesn't it? Every motor does."
+
+Dee opened her mouth, and then shut it, and looked at him over her glasses in the torchlight, and he understood later that she had decided to let him find out, the way she must have let a lot of young men on the warehouse floor find out a lot of things.
+
+"Go on," she said.
+
+He moved the float collar up the rod by four inches, tightened it, and they watched. The water rose higher in the pit, black and smooth, almost to the rim of the gravel. The pump started, ran for longer, and stopped. The water came back up.
+
+"Tally," said Gerry, at a quarter to midnight, "how's that doing?"
+
+"Since the float was moved at 23:16," said Tally, "the pump has run three times instead of six, for about four minutes each instead of about two. In twenty-nine minutes it has run for eleven and a half. That is forty percent."
+
+"Same," said Dee.
+
+"Same," said Gerry. He looked at the pit. "Because the water comes in at the same speed whatever I do. It has to go out at the same speed. I can't make the pump do less, I can only make it do it in bigger lumps."
+
+"And twenty amps is twenty amps, lumps or no lumps," said Dee. "The start's a few seconds. It's not the starts. It's the asking."
+
+He moved the float back down where it had been, because water four inches higher in the pit was water four inches nearer the floor, and as he was tightening the collar his phone buzzed on the shelf.
+
+"The utility has revised its estimate," said Tally. "Restoration on the north side is now expected by 13:00. A feeder is down on the Diamond Hill road."
+
+Gerry sat down on the bottom step.
+
+"Then it doesn't matter," he said. "Eleven hours, eight hours. It wasn't ever going to do it."
+
+* * *
+
+They went up to the hall kitchen, because Dee said there was no thinking to be done standing in a cellar in waders, and Gerry found the camping stove the youth group used on its retreats and made a pot of coffee on it, and they sat at the long steel counter with a candle between them.
+
+"Car battery," said Gerry. "Mine. In parallel. I've got jump leads."
+
+"No," said Dee, and this time she said it straight away. "It's a starting battery. Thin plates, made to give a few hundred amps for a few seconds and get charged again straight off. Run it flat a few times and it's scrap, and you don't put two different kinds side by side, they don't share fair. And then you've no car." She turned her cup round on the counter. "What you want is the same battery again. Same make, same size, about the same age."
+
+"Where am I going to get a Trojan 27 at midnight in a blackout?"
+
+She looked at him.
+
+"Dee."
+
+"It's on my shelf. In my cellar. In a plastic box with a charger and a pump, because Roger put it in in 2041, and Roger liked to be ready for things that never happened, and I put a new battery in it two years ago when we did this one, the same day, out of the same pallet at the same shop." She drank her coffee. "My cellar's been wet once in fifty years, and that was a pipe. The house is at the top of the hill. If the water gets into my cellar, Gerry, it'll be in the church first, and the mill, and the whole of Main Street, and nobody will be worrying about the pantry."
+
+"It's your backup."
+
+"It's my husband's backup," she said, "and he'd have had it out of the box and down this hill an hour ago, and told me off for not thinking of it. He hated waste. A full battery sitting on a dry shelf all night while the parish floods, that's waste." She put the cup down. "Two of them will do more than you think. That's the other half of the same law."
+
+"How do you mean?"
+
+"Tally," said Dee. "Two of them side by side, sharing the twenty. What does each one see?"
+
+"Ten amps each," said Tally. "At 10 amps, between the ten-hour and the five-hour lines, one battery runs about eight hours and gives about 80 amp-hours. Two together, both full, would run the pump for about eight hours of running, which at forty percent is about twenty hours. One alone gives eight hours and fifty minutes. Two give more than twice as long, because each of them is being asked more slowly."
+
+Gerry looked at the candle.
+
+"A battery's like a person," said Dee. "Ask it slowly and it gives you more. Ask it in a rush and you get the top of it and none of the rest. Thirty-six years I said that to young fellows on the night shift, and they all thought I meant their wives."
+
+* * *
+
+He did not let her carry it. That was the one thing he would not move on, and she let him have it, the way she had let him have the float switch. They drove up the hill in the dark with the wipers going full and the gutters running like streams, and in her cellar, which was bone dry and smelled of apples and old paint, she showed him by torchlight which leads to undo, in which order, and wrapped the ends in electrical tape. The battery weighed what a battery that size weighs. He carried it up her cellar stairs and out to the car with his back telling him about it, and she came behind him with the torch and her canvas tool bag and a length of red and black cable with a fuse holder in it that she had made up, she said, years ago, for a reason she could not now remember.
+
+"There's always a reason," she said. "You just have to wait for it."
+
+At half past twelve they were back in the hall cellar. Dee had Gerry lay the second battery on the shelf beside the first and do the connecting himself while she held the light and said each step before he did it: the fuse out of the holder, the black to the black, the red to the red, the fuse in last.
+
+"Yours is full and mine's been running three and a bit hours," said Gerry. "Won't it all go one way?"
+
+"Some," said Dee. "The full one'll push a bit into the tired one till they're level, and after that they'll share the pump between them. It's the same make and the same age, and it's through a fuse, so it'll do it quietly. That's what the fuse is for." She clamped the meter round the new lead as the pump started. "Look."
+
+The display wavered and settled on a little over eleven, and then, over the next few runs of the pump, came down toward ten.
+
+"Tally," said Gerry. "Where are we now?"
+
+"The first battery has run the pump for one hour and twenty minutes at 20 amps," said Tally, "which is about thirty-eight percent of what it holds at that rate. Taking the two batteries together as one bank, with about sixty-two percent left in the first and all of the second, and treating each as giving ten amps, the bank has about six and a half hours of pump running left. At forty percent of the time, that is about sixteen hours. The bank would be empty at about ten to five tomorrow afternoon. This is a rougher estimate than the last one, because the batteries will not share exactly equally."
+
+"Five in the afternoon," said Gerry, "and the power's due at one."
+
+"Four hours to spare," said Dee. "If they don't move it again." She looked at the pit, where the pump had just stopped and the water had begun its slow rise from the gravel. "If they move it again, we bail."
+
+* * *
+
+They did not go home. Gerry tried to send Dee home at one, and at two, and she said that she had no power at home either and no pump now, and a cold kitchen was a cold kitchen whichever building it was in, and this one had a camping stove. So they sat in the hall kitchen and listened.
+
+You could hear the pump from upstairs if you were quiet. It came up through the floor and the old radiators, a thin high whine and a rush, two minutes, three, and then the silence of the cellar, and then the whine again. Gerry found he was counting the silences, and that every silence felt longer than the one before, and that it was not true.
+
+At about three he asked Tally whether it minded having been wrong. He did not know why he asked; it was three in the morning, and the candle had burned down to the saucer, and Dee had dozed off in the folding chair with her hands in the pockets of Roger's waders.
+
+"I can tell you what I can check," said Tally. "The June figure was wrong, and the error was mine: I used the label's number at a rate it was not measured at, and I did not say that I had assumed it. The figure went into a report that eleven people received, and none of them was asked to check it, because it came from me. Tonight Dee checked it in about four minutes. I have added a note to the June report, and I have written down what I should have asked: at what rate. Whether I mind, I can't tell you. I don't want to give you a feeling I can't check."
+
+Gerry thought about that for a while.
+
+"My father used to say the worst thing about a mistake was nobody seeing it," he said. "He was a plumber. Said you could live with any leak you could see."
+
+"Then this one could be lived with," said Tally. "Dee saw it."
+
+* * *
+
+At six o'clock they went down to the cellar together.
+
+There was no need to; Tally had the controller's log and would have said. But it was the hour, and they both knew it was the hour, and Dee put her waders back on and Gerry took the torch and they stood on the bottom step at a minute to six and waited for the water to rise.
+
+The little window at the top of the cellar wall, at ground level, had gone from black to the colour of slate. It was not light yet. The rain had eased in the night to a steady soft fall, and the gutters outside had stopped roaring. The water came up in the pit, an inch, two inches, smooth and dark, with a few bits of leaf turning on it.
+
+The float lifted. The controller clicked.
+
+The pump started with its high whine, and the water went down, and stopped, and the pump stopped, and there was the gulp of the check valve, and silence.
+
+"That's where it would have quit," said Gerry.
+
+"About there," said Dee. "Give or take." She clamped the meter on the lead to the first battery, just to see. "She's still giving her half. Tired, but giving. Mine's doing the heavy lifting now."
+
+Gerry looked at the two black boxes on the shelf, side by side, joined by Dee's red and black cable with the fuse in it.
+
+"Your Roger," he said.
+
+"He'd be insufferable," said Dee. "Come on. I want to see if Father's opened up."
+
+* * *
+
+Father Adjei had. He said the eight o'clock Mass by the light of the windows in the church, which in late September was enough if you knew the words, to eleven people, two of whom were Dee and Gerry in the back pew, Dee with her waders still on under her coat because she could not be bothered to take them off and put them on again. At the sign of peace she shook hands with a man in front of her who looked at the waders and said nothing, and she was grateful to him.
+
+Afterwards Father Adjei came down the cellar steps in his black clerical shirt and a pair of rubber boots borrowed from the youth group's cupboard, and looked at the pit, and the pump, and the two batteries on the shelf, and listened while Gerry told him about the eleven hours and the eight hours and fifty minutes and the float and the feeder on the Diamond Hill road.
+
+"So the report was wrong," he said.
+
+"The report was wrong," said Gerry. "And I signed it, and you read it, and nobody asked."
+
+"Nobody asked because it had a number in it," said Father Adjei. He looked at Dee. "And you asked because it had a number in it."
+
+"I asked because it had the wrong number in it," said Dee. "Eighty-nine's a slow number. You only get eighty-nine if you're patient."
+
+Father Adjei smiled at that, and then he did not smile, and looked at the shelf.
+
+"And your own cellar, Mrs. Pelletier?"
+
+"Is dry, Father, and at the top of a hill, and has been for fifty years. I'll have it back by tonight."
+
+"I'll carry it up," said Gerry, before she could say anything.
+
+"You'll carry it up," she agreed.
+
+* * *
+
+The power came back at twenty to twelve.
+
+Dee and Gerry were in the hall kitchen, where Gerry had been making soup on the camping stove for the people from the pantry committee who had started to drift in to check on the stock, and it came back the way power does after a long outage, all at once and slightly too loud: the fridge shuddering into life, the fluorescent tubes over the counter flickering and catching, the boiler in the cellar beginning its long low rumble, the radio on the windowsill that somebody had left switched on in the spring coming in halfway through a song.
+
+Somebody cheered. Somebody turned the radio off.
+
+Dee went down to the cellar on her own. She did not need the torch now. The light over the stairs was on, and the light over the pit, and the pit was doing what it had done all summer: the water rising quietly out of the gravel, and the main pump on the hall's power taking it with a deep, unhurried hum, much lower than the little pump's whine, and going quiet again. On the shelf above it the backup pump sat still, with its float hanging in the air above the water.
+
+She stood and listened. Under the hum of the boiler and the main pump there was another sound, very small, from the plastic box on the shelf: the charger on the hall's battery waking up, a faint electrical tick, and then a steady, almost inaudible buzz, as it began, slowly, at a few amps, to give back everything the night had taken.
+
+Slowly was the right way. She had told the young fellows that for thirty-six years. It was the same law, going the other way.
+
+She stood there with her hand on the cold rail of the cellar stairs until the main pump had come on and gone off twice more, and then she went up to tell Gerry that he could take her battery home now, and to have some of his soup first.
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. Saint Claude's parish and hall, the assistant Tally, Delphine (Dee) and Roger Pelletier, Gerry Lussier, Father Emmanuel Adjei and everyone in the story are invented, and the story is fiction; so are the storm of September 2049, the outage and the utility's estimates. Woonsocket, the Blackstone River, Cumberland Hill, Diamond Hill and Bellingham, Massachusetts are real places. Nothing in the story is electrical advice: connecting batteries in parallel, working with a battery bank in a wet cellar and carrying a battery are real hazards, and a real installation follows its manufacturer's instructions and local code.*
+
+*What is real: a lead-acid battery delivers fewer amp-hours the faster it is discharged, and Peukert's law (W. Peukert, 1897) is the usual empirical description of it, written t = H (C / (I H))^k for a battery rated C amp-hours at H hours, discharged at current I, with an exponent k of about 1.1 to 1.3 for lead-acid. The battery in the story is a real model, used here only as data: dealer listings of the Trojan 27-AGM (sold now as the 27-AES), a 12 V Group 27 AGM battery, give its capacity as 77 Ah at the 5-hour rate, 82 at the 10-hour, 89 at the 20-hour and 99 at the 100-hour, and its reserve capacity as 158 minutes at 25 A; Trojan rates its capacities at 80 °F (27 °C). Lower temperatures reduce a lead-acid battery's capacity, and rest periods between discharges let it recover a little, as Dee says; neither is put into numbers in the story. A battery backup sump pump with a charger, a float switch and an automatic changeover works as described, and a DC clamp meter measures the current in a lead without breaking the circuit.*
+
+*The numbers, worked out before writing: rated currents 99/100 = 0.99 A, 89/20 = 4.45 A, 82/10 = 8.2 A, 77/5 = 15.4 A, and 25 A for 2.633 h (65.8 Ah). Between neighbouring points the local exponent is 1.07, 1.13, 1.10 and 1.32; a least-squares fit through all five gives 1.12. Times at other currents are interpolated in a straight line between neighbouring points on log-log axes, not from one exponent: at 20 A, between 15.4 A (5 h) and 25 A (2.633 h), about 3.54 h, 70.8 Ah; at 10 A, between 8.2 A (10 h) and 15.4 A (5 h), about 8.04 h, 80.4 Ah. Duty cycle 40% (44 minutes of running in the first 110 minutes; after the float is moved, 11.5 minutes in 29). Tally's June figure: 20 A × 0.4 = 8 A, 89 / 8 = 11.1 h, from 21:10 to about 08:15 (08:17). With one battery, modelled conservatively as discharging at 20 A whenever the pump runs: 3.54 / 0.4 = 8.84 h, empty at 06:01 on Sunday. Two full batteries at 10 A each: 8.04 / 0.4 = 20.1 h, 2.27 times one. Second battery connected at 00:30: 3 h 20 min of wall time, 1 h 20 min of running, 1.333 / 3.54 = 37.7% of the first battery used, 62.3% left; the bank, taken as one pool at 10 A a battery, has (0.623 + 1) / 2 × 8.04 = 6.52 h of running left, 16.3 h of wall time, empty at about 16:50. Power back at 11:40 leaves about a third of the bank's capacity unused. The settling current between the two batteries is not modelled. Ages: Dee born 1975 (74), at Bellingham 2001 to 2037; Roger died 2044 (widowed five years); house bought 1999; backup at the house fitted 2041, its battery and the hall's bought together in 2047; Gerry born 1991 (58), chair of the buildings committee from 2049; the hall's sump and backup fitted in 2047. Sunrise at Woonsocket on Sunday 19 September 2049 is about 06:29 EDT and civil dawn about 06:01, so the cellar window is grey but it is not light at 06:00. Weekdays checked: Friday 4 June, Monday 14 June, Saturday 18 September and Sunday 19 September 2049.*

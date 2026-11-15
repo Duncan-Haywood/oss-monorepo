@@ -20,6 +20,10 @@ WHEEL_RAMP_MAX_RPM_S = 1500.0
 # brakes harder than the ramp asks. Fit the Schottky across the contactor (hardware/electronics.md) either way.
 WHEEL_BRAKE = True
 REGEN_BRAKE_MAX_MV = 27600
+# Once braking has stopped on a high reading it starts again only under REGEN_BRAKE_MAX_MV - REGEN_BRAKE_HYST_MV (cad:
+# Feeder.regen_guard): braking lifts the reading about 260 mV and the ADC adds noise, so one threshold flipped brake and
+# coast every tick for a pack resting near it. At least 600 mV with the assumed figures; widen it if your reading is noisier.
+REGEN_BRAKE_HYST_MV = 700
 AZ_MICROSTEPS = 4               # azimuth driver's microstep setting (match its MS pins)
 AZ_RATIO = 10.0                 # 150-tooth sector over the 15-tooth pinion
 AZ_VMAX_DEG_S = 60.0            # peak turntable speed: 30 deg in 1 s, triangular (cad: Feeder.azimuth_drive)

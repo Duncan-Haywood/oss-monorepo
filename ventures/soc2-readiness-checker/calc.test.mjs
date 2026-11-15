@@ -91,3 +91,11 @@ test("csv export has one row per gap and quotes titles", () => {
   assert.equal(lines.length, r.gaps.length + 1);
   assert.match(lines[1], /^1,"/);
 });
+
+test("the Type II report date clamps a month-end start instead of rolling into the next month", () => {
+  // Every control done: Type I is ready on the start date, so the report is start + window.
+  const r = assess(all("yes"), { start: "2026-08-31", windowMonths: 6 });
+  assert.equal(r.summary.typeIIReport, "2027-02-28"); // was 2027-03-03
+  assert.equal(assess(all("yes"), { start: "2027-08-31", windowMonths: 6 }).summary.typeIIReport, "2028-02-29");
+  assert.equal(assess(all("yes"), { start: "2026-01-15", windowMonths: 3 }).summary.typeIIReport, "2026-04-15");
+});

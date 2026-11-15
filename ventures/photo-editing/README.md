@@ -79,8 +79,8 @@ TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no emb
 gets its proxy and its scores from a half-size development instead of failing. Since
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
-2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2 and a Samsung SRW the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2" and "Samsung SRW" below). Other RAW formats (CR3, RAF, ...) are still scored from their preview but stop at the grade
+2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below). Other RAW formats (CR3, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -916,7 +916,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2 and Samsung SRW with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2 and SRW since 2026-11-14, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2" and "Samsung SRW" below; convert CR3 with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF" and "Fujifilm RAF" below; convert CR3 with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1134,7 +1134,97 @@ Not done: colour is only as good as the profile you supply (no profile ships her
 (DSLR-A100) and SR2/SRF are refused; the older bodies' masked right-hand columns are not trimmed
 (LibRaw trims 8-32 columns by a per-model table; with no tag naming them they are developed);
 Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion parameters) are not
-applied, and Sony's lens name in the maker note is not read yet.
+applied. Since the same day the maker note's LensSpec names the lens for lensfun (see "Sony and Samsung:
+lenses named from the maker note" below).
+
+## Fujifilm RAF (2026-11-14)
+
+Fujifilm raw files no longer need Adobe's DNG Converter, and that includes X-Trans, the 6x6 colour
+layout most Fujifilm X bodies use instead of a Bayer pattern. `shootflow develop DSCF0001.RAF --dcp
+PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for the other raw formats) reads the RAF itself,
+and the pipeline's grade stage develops RAF stills with the workspace's `color/camera-profiles/`
+(`src/shootflow/raf.py`).
+
+What it reads: the RAF's own header (not a TIFF), its header records and the CFA block, which on
+X-Trans bodies is a small TIFF of Fujifilm tags (size, bits, data offset, 36 black levels, balance)
+and on older Bayer bodies is the sensor data itself. Uncompressed 16-bit words and 12-bit packing.
+The X-Trans layout comes from header record 0x0131, which is stored backwards. The crop is the
+camera's picture area from the header (0x0110, 0x0111): on all three files it is centred on the
+camera's embedded JPEG, which drops a further 8 px a side on the X-Trans bodies
+(`eval/raf_jpeg_alignment.py`).
+
+The developer now demosaics 6x6 patterns: the bilinear demosaic takes the CFA's period as a
+parameter (every 3x3 X-Trans window holds all three colours), an edge sensel with no in-image
+neighbour of a colour borrows the reflected ones on both engines, and half size on X-Trans averages
+2x2 blocks of a full-size demosaic. The pure-Python and numpy engines still give identical bytes.
+
+How it was checked (`tools/raf_libraw_check.py`, `eval/fujifilm-raf-reader-2026-11-14.md`): the
+three RAFs in the public metadata-extractor-images collection, an X-E1 (12-bit packed), an X-E2
+(14-bit) and a FinePix S5500 (Bayer). Against LibRaw 0.22 through rawpy, every sensel is equal on
+all three (37.3 M in all), and so are the as-shot white balance, the black level at each of the 36
+(or 4) CFA positions, the white level and the CFA layout. 0.01-0.33 s to read; 7 s to develop a
+16 MP X-Trans frame with numpy. `tests/test_raf.py` (14 tests) writes RAFs of each layout, checks
+the sensels exactly, keeps flat fields flat through the X-Trans demosaic, compares the two engines
+byte for byte and runs a synthetic RAF through the profile chooser and the CLI.
+
+Not done: Fujifilm's lossless-compressed RAFs (X-T2 era
+and later), SuperCCD and GFX files are refused or unchecked (none at hand); colour is only as good
+as the profile you supply (no real Fujifilm `.dcp` was at hand).
+
+## Directional X-Trans demosaic (2026-11-14)
+
+X-Trans files are now demosaiced directionally by default (with numpy): green is built four times,
+each time interpolated along one direction only (across, down, both diagonals), red and blue follow
+from each, and every pixel keeps the direction whose result is most even in L\*a\*b\*, with a 3x3
+median of the colour differences after. The bilinear demosaic averaged across edges and left coloured
+fringes on them. `shootflow develop X.RAF --demosaic auto|bilinear|directional` (auto, the default, is
+directional on X-Trans with numpy and bilinear otherwise; the pure-Python engine keeps bilinear and
+says so). The code is the repository's own, from the published idea, not dcraw's or LibRaw's source
+(`src/shootflow/xtrans_demosaic.py`).
+
+How it was checked (`tools/xtrans_demosaic_check.py`, `eval/xtrans-directional-demosaic-2026-11-14.md`):
+known-truth pictures mosaicked with the real X-E1 and X-E2 layouts and demosaiced by ours and by LibRaw
+itself (the mosaic written into the RAF's sensor data, so LibRaw runs its own linear and Markesteijn
+X-Trans methods). Colour PSNR against bilinear: 36.6 against 34.8 dB on the X-E1 frame (binned 4x4 as
+truth), 47.9 against 42.0 on the held-out X-E2 frame, 33.5 against 20.3 on a synthetic zone plate and
+colour-edge sheet; 99th-percentile false colour down 27-75%. That beats LibRaw's one-pass Markesteijn on
+two of the three (X-E2 46.5, sheet 25.9; X-E1 37.5) and trails its three-pass method by 2-6 dB. 7-8.5 s
+for a 16 MP frame on four cores (bilinear 0.9 s; LibRaw's three-pass 1.7 s in C). Not done: a C path,
+LibRaw's three-pass quality, a noisy known truth (on real sensor data our luminance is further from
+LibRaw's render than bilinear's is, unexplained), Bayer files (they keep bilinear).
+
+## Pentax PEF (2026-11-14)
+
+Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:
+before this, `.pef` was in none of the ingest, catalogue or preview extension lists, so a Pentax
+card's raws were not even copied. `shootflow develop IMGP0001.PEF --dcp PROFILE.dcp` (or `--dcp
+FOLDER`, chosen per camera as for the other raw formats) reads the PEF itself, and the pipeline's
+grade stage develops PEF stills with the workspace's `color/camera-profiles/`
+(`src/shootflow/pef.py`).
+
+What it reads: Pentax's compression 65535, a stream of Huffman-coded differences whose code table
+the camera stores in its maker note (tag 0x0220), predicted from two columns left (the first two
+columns from two rows up). Black level (0x0200) and as-shot balance (0x0201) come from the maker
+note, the CFA from EXIF CFAPattern, white level from the bit depth. The crop is the camera's own
+picture area: on the K-1 Mark II the embedded 7360 x 4912 JPEG sits at (14, 28) of the stored
+7392 x 4950 frame, measured by sliding the JPEG over the raw (the same shift in all four corners,
+`eval/pef_jpeg_alignment.py`); other bodies get the JPEG's size centred, with a note. The decode
+runs in C through the same optional ctypes library as the other readers (0.5 s for 36.6 MP), with a
+pure-Python reference that gives the same sensels (32 s).
+
+How it was checked (`tools/pef_libraw_check.py`, `eval/pentax-pef-reader-2026-11-14.md`): the
+K-1 Mark II PEF in the public metadata-extractor-images collection, the only PEF there. Against
+LibRaw 0.22 through rawpy, every one of 36.6 M sensels is equal on both decoders, and so are the
+as-shot white balance, the black level at each CFA position, the white level and the CFA. The
+masked rows and columns average 1,026, next to the maker note's black of 1,024. `tests/test_pef.py`
+(13 tests) writes PEFs with an encoder and a Huffman table of its own, in both byte orders, checks
+that the C and Python decoders agree on random streams, and runs a synthetic PEF through the
+profile chooser and the CLI.
+
+Not done: one real body only (older bodies' tables are read by the same rule, but no K10D or
+K-5 PEF was at hand); colour is only as good as the profile you supply (no real Pentax `.dcp` was
+at hand); uncompressed PEFs and Pixel Shift's four frames are refused with a message to convert
+to DNG; the measured crop exists for the K-1 Mark II alone.
 
 ## Samsung SRW (2026-11-14)
 
@@ -1167,7 +1257,8 @@ encoder of its own, checks that the C and Python decoders agree on random stream
 synthetic SRW through the profile chooser and the CLI.
 
 Not done: colour is only as good as the profile you supply (no real Samsung `.dcp` was at hand);
-the lens name in the maker note is not read for lensfun yet; uncompressed and 32769 SRWs are
+the lens is named from the maker note's LensType since the same day (see "Sony and Samsung: lenses
+named from the maker note"); uncompressed and 32769 SRWs are
 refused for want of a test file.
 
 ## Panasonic RW2 (2026-11-14)
@@ -2036,6 +2127,33 @@ On 18 real ORFs and four Olympus JPEGs, eight frames from seven bodies that gave
 identified, and every pick is the lens metadata-extractor's independent decoder names for the same file.
 Develop still takes DNG or CR2, so this reaches ORF and JPEG shot facts and a future ORF developer.
 Details: `eval/olympus-equipment-2026-11-14.md`.
+
+### Sony and Samsung: lenses named from the maker note (2026-11-14)
+
+The Sony DSLR-A500 and Samsung's Galaxy NX and NX20 write no EXIF lens name or LensSpecification, and E-mount
+bodies that do write LensSpecification often fit several lensfun lenses with it (three 24 mm f/1.8 lenses,
+four 24-70 mm f/2.8). Sony's maker note keeps LensSpec (tag 0xB02A): the range, the f-numbers and the
+feature letters of Sony's lens names (DT, FE, E, PZ, ZA, G, SAM, SSM, OSS, II ...), so ShootFlow rebuilds
+"DT 18-55mm F3.5-5.6 SAM" from it. Samsung's keeps the lens's number in its NX list (tag 0xA003), named from
+metadata-extractor's Apache-licensed list. The range picks the lens when one fits, and the name breaks the
+tie when several do, also beside a file's own LensSpecification.
+
+On the ten real ARW and SRW files at hand, every frame now picks the lens its own EXIF name (or, for the
+A500, ExifTool's reading of its lens number) gives, from maker-note and tag data alone; before, three gave
+no hint and three were refused as ties. Details: `eval/sony-samsung-lens-2026-11-14.md`.
+
+### Sony ARW: the lens's own correction tables (2026-11-15)
+
+Sony E-mount bodies write the lens's distortion, lateral-colour and vignetting curves into every ARW (tags
+0x7037, 0x7035, 0x7032 of the raw IFD), the curves the camera uses for its JPEGs. `shootflow develop` and the
+grade stage now apply the distortion and lateral colour from them when no lensfun correction runs, so an A7
+frame is corrected with no lens database at all (`--no-in-file-lens` to skip; a `--lens-db` match still wins).
+
+Checked against lensfun's own calibration of the same lens at the same focal length on three real frames
+(A5000 16 mm, A7 III 24 mm, A7 IV 42 mm): the distortion curves agree within 9 px on corrections of 84-411 px
+at 6000 px wide; reading the knots on the raw radius instead fits worse on all three. Lateral colour agrees on
+two of three. The vignetting table lifts the corners by 0.6-1.0 stops where lensfun lifts 2.6, so it is read
+but not applied. Details: `eval/sony-in-file-corrections-2026-11-15.md`.
 
 ### Converted DNGs: the camera's maker note from DNGPrivateData (2026-11-14)
 

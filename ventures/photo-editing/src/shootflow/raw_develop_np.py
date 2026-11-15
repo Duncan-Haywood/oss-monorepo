@@ -14,7 +14,11 @@ Where the order matters, it is kept:
   ``(((v - black) - dv) - dh) * scale`` otherwise, as ``norm_row`` does;
 * bilinear: each missing colour sums its same-colour neighbours in the
   3x3 offset order, starting from 0.0 (an out-of-image neighbour adds +0.0,
-  which leaves any sum unchanged), then divides by the count;
+  which leaves any sum unchanged), then divides by the count; the CFA's period
+  is 2 (Bayer) or 6 (X-Trans), and an X-Trans edge sensel with no in-image
+  neighbour of a colour borrows the reflected ones, as the pure path does;
+* half size on X-Trans: full-size bilinear, clipped, then each 2x2 block
+  summed in row order from 0.0 and divided by 4;
 * half size: the 2x2 block's samples are added in row order from 0.0;
 * the colour matrix row is ``(m0*r + m1*g) + m2*b``;
 * a profile's hue/saturation map and look table (``apply_look``) repeat
@@ -100,7 +104,7 @@ def _normalised_plane(
 
     def finish(y0, y1):
         o = out[y0:y1]
-        caps = cap_rows[np.arange(y0, y1) % 2]  # caplines: one row of caps per row phase
+        caps = cap_rows[np.arange(y0, y1) % len(cap_rows)]  # caplines: one row of caps per row phase
         counts[y0] = int(np.count_nonzero(o >= caps))
         o[...] = np.where(o < 0.0, 0.0, np.where(o > caps, caps, o))
 
@@ -163,36 +167,36 @@ def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=None, t
     inside[1:-1, 1:-1] = 1
     out = np.empty((h, w, 3), dtype=np.uint16) if sink is None else None
 
+    from shootflow.raw_develop import cfa_offsets, cfa_period
+
+    p = cfa_period(pat)
+    offsets = cfa_offsets(pat)
+
     def band(y0, y1):
         bh = y1 - y0
         chans = [np.empty((bh, w), dtype=np.float64) for _ in range(3)]
-        for py in (0, 1):
-            # band rows with this row parity
-            ry0 = y0 + ((py - y0) % 2)
+        for py in range(p):
+            # band rows with this row phase
+            ry0 = y0 + ((py - y0) % p)
             if ry0 >= y1:
                 continue
-            for px in (0, 1):
+            for px in range(p):
                 if px >= w:
                     continue
-                own = pat[py * 2 + px]
-                rows = slice(ry0, y1, 2)
-                cols = slice(px, w, 2)
-                lr, lc = slice(ry0 - y0, bh, 2), cols
+                own = pat[py * p + px]
+                rows = slice(ry0, y1, p)
+                cols = slice(px, w, p)
+                lr, lc = slice(ry0 - y0, bh, p), cols
                 for colour in (0, 1, 2):
                     if colour == own:
                         chans[colour][lr, lc] = norm[rows, cols]
                         continue
-                    offs = [
-                        (dy, dx)
-                        for dy in (-1, 0, 1)
-                        for dx in (-1, 0, 1)
-                        if pat[((py + dy) % 2) * 2 + (px + dx) % 2] == colour
-                    ]
+                    offs = offsets[(py, px, colour)]
                     total = None
                     count = None
                     for dy, dx in offs:
-                        prow = slice(ry0 + 1 + dy, y1 + 1 + dy, 2)
-                        pcol = slice(px + 1 + dx, w + 1 + dx, 2)
+                        prow = slice(ry0 + 1 + dy, y1 + 1 + dy, p)
+                        pcol = slice(px + 1 + dx, w + 1 + dx, p)
                         v = pad[prow, pcol]
                         k = inside[prow, pcol]
                         if total is None:
@@ -201,7 +205,19 @@ def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=None, t
                         else:
                             total = total + v
                             count = count + k
-                    chans[colour][lr, lc] = total / count
+                    with np.errstate(invalid="ignore", divide="ignore"):
+                        val = total / count
+                    bad = count == 0
+                    if bad.any():
+                        # An X-Trans edge sensel whose in-image neighbours lack this colour: borrow the reflected
+                        # neighbours, as the pure path does (never on Bayer, whose clipped 2x3 windows hold all three).
+                        for i, j in zip(*np.nonzero(bad)):
+                            y, x = ry0 + int(i) * p, px + int(j) * p
+                            t = 0.0
+                            for dy, dx in offs:
+                                t += norm[min(max(y - dy, 0), h - 1), min(max(x - dx, 0), w - 1)]
+                            val[i, j] = t / len(offs)
+                    chans[colour][lr, lc] = val
         if sink is not None:
             for i in range(3):
                 sink[y0:y1, :, i] = _clip(chans[i] * mults[i], hi)
@@ -244,8 +260,38 @@ def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
     return out
 
 
-def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None):
+def _directional(norm, w, h, pat, mults, hi):
+    """The directional X-Trans demosaic (``xtrans_demosaic``) on the white-balanced plane, clipped as
+    ``_encode`` clips: the same (h, w, 3) linear image the bilinear path's ``sink`` receives."""
+
+    from shootflow.xtrans_demosaic import colour_map, directional
+
+    gains = np.asarray(mults, dtype=np.float64)[colour_map(pat, h, w)]
+    return _clip(directional(np.asarray(norm).reshape(h, w) * gains, pat, scale=hi), hi)
+
+
+def _half_linear(norm, w, h, pat, mults, hi, threads=None, demosaic="bilinear"):
+    """Half size for an X-Trans CFA (``raw_develop._half_from_full``): full-size demosaic, clipped and
+    white-balanced, then each 2x2 block summed in row order from 0.0 and divided by 4."""
+
     ow, oh = w // 2, h // 2
+    if demosaic == "directional":
+        full = _directional(norm, w, h, pat, mults, hi)
+    else:
+        full = np.empty((h, w, 3), dtype=np.float64)
+        _bilinear(norm, w, h, pat, mults, hi, None, None, None, None, sink=full, threads=threads)
+    t = 0.0 + full[0 : 2 * oh : 2, 0 : 2 * ow : 2]
+    t = t + full[0 : 2 * oh : 2, 1 : 2 * ow : 2]
+    t = t + full[1 : 2 * oh : 2, 0 : 2 * ow : 2]
+    t = t + full[1 : 2 * oh : 2, 1 : 2 * ow : 2]
+    return t / 4.0
+
+
+def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None, demosaic="bilinear"):
+    ow, oh = w // 2, h // 2
+    if len(pat) != 4:
+        lin = _half_linear(norm, w, h, pat, mults, hi, threads, demosaic)
+        return _encode_image(lin, hi, m, curve, lut_size, look, threads=threads)
     out = np.empty((oh, ow, 3), dtype=np.uint16)
 
     def band(y0, y1):
@@ -268,12 +314,13 @@ def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None):
 def render(
     *, vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines,
     linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(), warps=(), warp_kernel="bilinear",
-    threads=None,
+    threads=None, demosaic="bilinear",
 ):
     """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``.
 
     Demosaic and encode run in bands on ``threads`` threads (``SHOOTFLOW_THREADS`` or every CPU when None), as
-    the warp does; the thread count never changes the output.
+    the warp does; the thread count never changes the output. ``demosaic`` is "bilinear" (the pure path's
+    method, byte for byte) or "directional" (``xtrans_demosaic``; numpy only, X-Trans).
     """
 
     norm, clipped = _normalised_plane(
@@ -285,6 +332,9 @@ def render(
             img = norm.reshape(h, w, 3)
             lin = np.stack([_clip(img[..., i] * mults[i], hi) for i in range(3)], axis=-1)
             ow, oh = w, h
+        elif half and len(pat) != 4:
+            ow, oh = w // 2, h // 2
+            lin = _half_linear(norm, w, h, pat, mults, hi, threads, demosaic)
         elif half:
             ow, oh = w // 2, h // 2
             acc = [np.zeros((oh, ow), dtype=np.float64) for _ in range(3)]
@@ -295,6 +345,9 @@ def render(
                     acc[c] = acc[c] + norm[dy : 2 * oh : 2, dx : 2 * ow : 2]
                     cnt[c] += 1
             lin = np.stack([_clip(acc[i] / cnt[i] * mults[i], hi) for i in range(3)], axis=-1)
+        elif demosaic == "directional":
+            ow, oh = w, h
+            lin = _directional(norm, w, h, pat, mults, hi)
         else:
             ow, oh = w, h
             lin = np.empty((h, w, 3), dtype=np.float64)
@@ -305,8 +358,12 @@ def render(
         out = _encode_image(norm.reshape(h, w, 3), hi, m, curve, lut_size, look, mults=mults, threads=threads)
         return out, w, h, clipped
     if half:
-        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads)
+        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads, demosaic=demosaic)
         return out, w // 2, h // 2, clipped
+    if demosaic == "directional":
+        lin = _directional(norm, w, h, pat, mults, hi)
+        del norm
+        return _encode_image(lin, hi, m, curve, lut_size, look, threads=threads), w, h, clipped
     return _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads), w, h, clipped
 
 

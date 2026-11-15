@@ -522,6 +522,11 @@ export function sniffBank(rows) {
     // Aggregator exports (headers from memory): Mint writes Description (cleaned), Original Description, unsigned Amount and a debit/credit Transaction Type; Monarch writes Merchant, Original Statement and a signed Amount.
     if (/^date\|description\|original description\|amount\|transaction type\|category\|account name/.test(h)) return "mint";
     if (/^date\|merchant\|category\|account\|original statement\|notes\|amount/.test(h)) return "monarch";
+    // Rocket Money (formerly Truebill) writes every account in one file, money out as a positive Amount and
+    // refunds and deposits as negative, on cards and checking alike (a real business Amex export read
+    // 2026-11-14, eval/aggregator-exports.mjs: 944 of 958 lines positive, the 14 negative ones airline and
+    // hotel refunds; two other projects' test files agree). Before, a card's spend was booked as income.
+    if (/^date\|original date\|account type\|account name\|account number\|institution name\|name\|custom name\|amount\|description\|category/.test(h)) return "rocket-money";
     if (/^date\|description\|type\|amount\|current balance\|status/.test(h)) return "sofi";
     if (/^transferwise id\|date\|(date time\|)?amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
@@ -1056,6 +1061,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // RBC puts a US-dollar movement in its own USD$ column and leaves CAD$ blank.
   const rbcUsd = bank === "rbc" ? hdr.indexOf("usd$") : -1;
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
+  // Monarch: the bank's own text ("Original Statement") is read, not Monarch's cleaned Merchant, which
+  // folds "KROGER FUEL #3532" and "KROGER #532" into one "Kroger" and "EXXON 7-ELEVEN" into "7-Eleven".
+  // On a real 2025 Monarch export (eval/aggregator-exports.mjs, 502 scored lines) the learning loop went
+  // 88.2% to 91.0% right and 10.2% to 6.8% wrong. A row with no statement text keeps the Merchant.
+  const monarchMerchant = bank === "monarch" && hdr.indexOf("original statement") !== -1 ? columns.desc : -1;
+  if (monarchMerchant !== -1) columns.desc = hdr.indexOf("original statement");
   // Cash App: the fee sits in its own column, so the net amount is what moved.
   // The payee column beats the free-text note.
   // PayPal activity: the Net column is what moved the balance (Gross less Fee); only Completed rows count.
@@ -1073,10 +1084,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     columns.desc = hdr.indexOf("notes");
   }
   if (bank === "cash-app") { columns.amount = hdr.indexOf("net amount"); columns.desc = hdr.indexOf("notes"); }
-  // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.
+  // Mercury lists Pending, Failed and Cancelled rows beside Sent ones (on one real LLC download, 197
+  // of 372 rows were Failed card charges that never moved money). "Received" is read as booked: an
+  // onboarding sample in Mercury's layout marks every deposit that way.
   // Venmo lists Pending and Cancelled payments, and its balance rows have no date.
   const stateCol = bank === "revolut" ? hdr.indexOf("state") : bank === "mercury" || bank === "paypal" || bank === "venmo" || bank === "cash-app" || bank === "sofi" || bank === "usaa" ? hdr.indexOf("status") : -1;
-  const okState = bank === "mercury" ? /^(sent|completed)$/i : bank === "cash-app" ? /^complete$/i : bank === "sofi" || bank === "usaa" ? /^posted$/i : bank === "venmo" ? /^(complete|issued)$/i : bank === "paypal" ? /^completed$/i : /^completed$/i;
+  const okState = bank === "mercury" ? /^(sent|completed|received)$/i : bank === "cash-app" ? /^complete$/i : bank === "sofi" || bank === "usaa" ? /^posted$/i : bank === "venmo" ? /^(complete|issued)$/i : bank === "paypal" ? /^completed$/i : /^completed$/i;
   // Any other export with a Status or State column (Chime, Brex, Bluevine and the like): skip
   // rows whose status is plainly not a booked transaction. Only that vocabulary is skipped, so
   // an unknown label such as "Settled" or "Cleared" keeps the row.
@@ -1099,11 +1112,18 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Deutsche Bank style: one column for each side; the other party is the payee on money out, the payer on money in.
   const payeeOut = hdr.findIndex((x) => /^(beg(ue|ü)nstigter|zahlungsempf(ä|ae)nger\*in)$/.test(x)), payerIn = hdr.findIndex((x) => /^zahlungspflichtige(r|\*r)$/.test(x));
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
-  const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
+  // Mercury's download does the same in "Source Account": one file can hold the checking account, a
+  // second checking account and the Mercury Credit card, whose autopay shows on both sides (two real
+  // LLC downloads, 2026-11-14), so it is split the same way.
+  const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname|source account)$/.test(x));
   const accountNames = new Set();
   const memoCols = hdr.map((x, ix) => (/^(memo|notes?|comments?|remarks)$/.test(x) && ix !== columns.desc ? ix : -1)).filter((ix) => ix !== -1);
   const labelCols = ["reporting category", "category", "category name", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
   const catCol = hdr.indexOf("category") !== -1 && hdr.indexOf("category") !== columns.desc ? hdr.indexOf("category") : -1;
+  // Mercury writes the owner's own category in "Category" and its merchant category in "Mercury
+  // Category" (Software, Restaurants, FinancialInstitutionsAndFees...). The owner's label wins; the
+  // merchant one is read only where the owner left the line blank.
+  const catCol2 = hdr.indexOf("mercury category");
   // The card network's merchant category: a four-digit code (Tinkoff's MCC, purchasing-card files) or its name.
   // The City of Toronto's PCard report calls them "Merchant Type" (the code) and "Merchant Type Description".
   // A code column wins over a name column; a "merchant category" column is read only when it is not the description.
@@ -1114,7 +1134,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Which card on a business account made the charge: Chase's business card writes the last four
   // digits of each employee's card in a "Card" column, Brex "Card Last Four". Only the last four
   // digits are kept, never a full number or a name.
-  const cardCol = hdr.findIndex((x, ix) => ix !== columns.desc && ix !== columns.amount && /^(card|card last four|card last 4|card last 4 digits|last 4 digits|card no\.?|card number)$/.test(x));
+  const cardCol = hdr.findIndex((x, ix) => ix !== columns.desc && ix !== columns.amount && /^(card|card last four|card last 4|card last 4 digits|last 4 digits|last four digits|card no\.?|card number)$/.test(x));
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
   // ICICI credit-card CSV: every amount is unsigned and BillingAmountSign says "CR" on a credit; blank is a charge.
   const billSignCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("billingamountsign") : -1;
@@ -1213,6 +1233,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     }
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
     let desc = String(r[columns.desc] ?? "").trim().replace(/\s+/g, " ");
+    if (!desc && monarchMerchant !== -1) desc = String(r[monarchMerchant] ?? "").trim().replace(/\s+/g, " ");
     if (hdr.includes("wallet txn id") && columns.desc === hdr.indexOf("activity")) desc = [desc, String(r[hdr.indexOf("comment")] ?? "").trim()].filter(Boolean).join(" ").replace(/\s+/g, " ");
     if (bank === "cash-app") {
       const who = String(r[hdr.indexOf("name of sender/receiver")] ?? "").trim();
@@ -1257,7 +1278,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       else if (m === "from") cents = Math.abs(cents);
     }
     // The bank's or app's own category label (Chase, Capital One, Mint, Maybe): kept as a weak hint for the categorizer.
-    const bankCat = catCol === -1 ? "" : String(r[catCol] ?? "").trim().slice(0, 60);
+    const bankCat = ((catCol === -1 ? "" : String(r[catCol] ?? "").trim()) || (catCol2 === -1 ? "" : String(r[catCol2] ?? "").trim())).slice(0, 60);
     let mcc = mccCol === -1 ? "" : String(r[mccCol] ?? "").trim().slice(0, 60);
     // US Bank's card export has no MCC column but writes it into the memo after the
     // reference number: "24269794038500527407893; 05411; ; ; ;" (a real download read
@@ -1279,8 +1300,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1 && drcrCol === -1 && !sidesAgree(out, sides)) {
     // Discover's header is distinctive and its export always lists charges as positive, so a
     // file with no recognisable payment row (a month of purchases only) still flips.
-    const pos = chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null);
-    if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
+    const pos = bank === "rocket-money" || (chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null));
+    if (pos) { flip = true; inferred = bank === "rocket-money" ? "Rocket Money lists money out as positive amounts and refunds and deposits as negative, so signs were flipped." : "Charges were positive (the payment rows are negative), so signs were flipped."; }
     // A merchant category column means a card file, and a purchasing-card report (Toronto's PCard
     // report, Durham's procurement-card file) lists charges as positive and refunds as negative, with
     // no payment rows for the test above to find. Before this, a month of card spend was booked as income.

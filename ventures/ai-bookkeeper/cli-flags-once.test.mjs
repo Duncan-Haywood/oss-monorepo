@@ -64,3 +64,26 @@ test("schedulec --meals 100 deducts all of the meals line (was read as 0%)", () 
   assert.equal(meals([]), 5000);
   assert.equal(meals(["--meals", "100"]), 10000);
 });
+
+// 2026-11-14 (fifth batch): Indiana's allowance band and due day come from the book's own past "IN state" tax.
+test("salestax return --state IN works out the allowance and due day from the book, and --discount still wins", () => {
+  const rows = ["type,number,date,due,party,amount,account,description"];
+  for (let i = 0; i < 20; i++) {
+    const y = 2025 + Math.floor(i / 12), m = String((i % 12) + 1).padStart(2, "0");
+    rows.push(`invoice,${i + 1},${y}-${m}-10,,A Co,30000.00,4000,Goods`, `invoice,${i + 1},${y}-${m}-10,,A Co,2100.00,2100,IN state`);
+  }
+  const dir = mkdtempSync(join(tmpdir(), "flags-"));
+  const b = join(dir, "b.json");
+  writeFileSync(join(dir, "s.csv"), "Date,Description,Amount\n2024-07-01,Opening,1.00\n");
+  run(["--books", b, "import", join(dir, "s.csv"), "--account", "1000"]);
+  writeFileSync(join(dir, "d.csv"), rows.join("\n") + "\n");
+  run(["--books", b, "documents", join(dir, "d.csv")]);
+  const t = JSON.parse(run(["--books", b, "salestax", "return", "--state", "IN", "--freq", "monthly", "--from", "2026-01-01", "--json"]));
+  const feb = t.periods.find((p) => p.period === "2026-02").rows[0];
+  // Jul 2024-Jun 2025 holds Jan-Jun 2025 only ($12,600, the book starts July 2024): 0.73%; 2025 averaged $2,100 a month: the 20th
+  assert.equal(feb.discount, 1533);      // 0.73% of $2,100 = $15.33
+  assert.equal(feb.due, "2026-03-20");
+  assert.ok(t.warnings.some((w) => /0\.73% collection allowance, from \$12,600\.00/.test(w)));
+  const own = JSON.parse(run(["--books", b, "salestax", "return", "--state", "IN", "--freq", "monthly", "--from", "2026-01-01", "--discount", "IN state=0.53", "--json"]));
+  assert.equal(own.periods.find((p) => p.period === "2026-02").rows[0].discount, 1113); // 0.53% of $2,100
+});

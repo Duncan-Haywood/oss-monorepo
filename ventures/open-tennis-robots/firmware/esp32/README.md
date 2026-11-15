@@ -155,6 +155,15 @@ lifts a cell to the BMS's cut, after which the energy has nowhere to go but
 the bus. Set the ESCs' brake at zero throttle off; a stop and an e-stop
 coast. Numbers: `cad/README.md`, "Regenerative braking".
 
+**Brakes in a row (2026-11-14).** The guard is `controller.BrakeGuard`, with a
+band: once a reading passes `REGEN_BRAKE_MAX_MV` braking stays off until the
+pack reads under that less `REGEN_BRAKE_HYST_MV` (700 mV). Braking lifts the
+reading it is judged by (about 260 mV of charge current across the pack-side
+resistance), so the first, single-threshold guard flipped between braking and
+coasting on every 10 ms tick, about 126 times in one slow-down, for any pack
+resting between about 27.2 and 27.8 V. Numbers: `cad/README.md`, "Brakes and
+bounces in a row".
+
 Whatever the mode, the feed gate now waits for the aim: a ball is released only
 when the wheels are within 5% of their speeds **and** both the elevation and
 the azimuth have arrived. Telemetry sets `FLAG_AIM_SETTLING` (128) while either

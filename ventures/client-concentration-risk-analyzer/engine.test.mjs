@@ -65,3 +65,10 @@ test("empty and junk input summarise as none", () => {
   assert.equal(summarize(analyze(parseInvoices(""))).status, "none");
   assert.equal(summarize(analyze(parseInvoices("junk"))).status, "none");
 });
+
+test("a window ending on a month's last day starts the day after the clamped date", () => {
+  // One-month window ending 31 March: 1 March onward counts ("31 February" used to roll to 3 March).
+  const r = analyze(parseInvoices("Client,Date,Amount\nA,2026-02-28,999\nA,2026-03-01,100\nB,2026-03-02,50\nC,2026-03-31,50"), { windowMonths: 1 });
+  assert.equal(r.count, 3);
+  assert.equal(r.total, 200);
+});

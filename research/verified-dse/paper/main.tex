@@ -1054,6 +1054,27 @@ for random routing (better in 23, worse in 1; design-bootstrap interval
 ratio of 2.6 against 3.8 at 128 bits, under the switch's cost threshold,
 so whether the cut scales with width is still open.
 
+\textbf{The gate-depth guard fails a second blind test (milestone 125;
+flow run).} We registered SWG(32) and ran eight shifters from four more
+new families, 1,920 flow runs: a narrow product (28 and 36 gates), a
+three-operand sum (31 and 35), a 64-bit compare selecting the amount
+(33), all in front of a 128-bit shifter, and two or four lanes of a
+64-bit shifter sharing a saturating-add amount (25 and 48 gates). Four
+of eight predictions held. The clipped ladder reaches 0.00\% at both
+clocks at 28, 31, 33 and 35 gates (random routing 2.40\% to 12.44\%), so
+SWG(32) routes two winning designs randomly, and it has 21\% to 25\% at
+36 gates on the 4-bit product (random about 4\%). On the 16 blind cells
+the unguarded ladder has 3.56\%, random routing 5.69\% and SWG(32)
+6.79\%. The same family winning at 28 gates and losing at 36 rules out
+gate depth as the separating variable; three structural guards in a row
+(shift operator, word-level depth, gate depth) were placed on seen data
+and failed or moved on the next blind set. Width does not block the
+ladder: four lanes lift a 64-bit shifter's routed-to-mapped cost ratio
+from 3.4 to 5.6, and on the 48-gate lane cells the ladder has 1.20\%
+against 3.84\%. Over the 66 blind cells of milestones 121 to 125 SWG(32)
+still has 3.17\% against 5.25\% for random routing (better in 35, worse
+in 3), but that edge now comes from blind sets it was fitted after.
+
 \hypertarget{limitations-and-threats}{%
 \subsection{5 Limitations and threats}\label{limitations-and-threats}}
 
@@ -1153,11 +1174,13 @@ and page limit still need checking against the call for papers.
 \setcounter{enumi}{5}
 \tightlist
 \item
-  The gate-depth cut and shift width. Milestone 124 placed the cut in
-  (31, 33{]} at 128 bits, blind, below the registered 36. A threshold of
-  32 should be fixed and tested blind on new families at 29 to 35 gates,
-  and the width question needs 64-bit shifters dear enough to reach the
-  ladder branch.
+  Which shifters the ladder ranks. Milestone 125 refuted gate depth in
+  front of the amount as the deciding feature (the same family wins at
+  28 gates and loses at 36), after shift-operator and word-level-depth
+  guards had also moved on blind data. The next guard should be measured
+  rather than structural: route a few pilot points and check whether the
+  mapped rung's order holds on them, priced against equal-cost random
+  routing by replay on milestones 119 to 125 before a blind test.
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point

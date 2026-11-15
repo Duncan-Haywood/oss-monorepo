@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers,
   decisionFit, overallOrder, nextQuestion, decisionTable, decisionDone, decisionMax, decisionCsv, combineDecisions, bestPerCriterion,
+  whatWouldChange, DECIDE_MARGIN,
 } from "./decide-core.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -69,6 +70,55 @@ test("with no answers nothing is settled and the stop rule waits for both kinds 
   assert.equal(decisionMax(5, 3), 41);
   // One answer on a criterion is not a clear best there (the page would have named one before the bar).
   assert.deepEqual(bestPerCriterion(decisionFit(4, 3, { crit: [], opt: [[1, 2, 0, false]] })), [-1, -1, -1]);
+});
+
+test("the winner stop: a settled leader ends the questions even while the order below it is not", () => {
+  // Both kinds answered; the order is far from settled but nothing threatens the leader.
+  const both = { crit: [[0, 1, false]], opt: [[0, 0, 1, false]] };
+  assert.equal(decisionDone({ confidence: 0.5, safe: 0.95 }, both), true);
+  assert.equal(decisionDone({ confidence: 0.5, safe: 0.95 }, both, { rule: "order" }), false);
+  assert.equal(decisionDone({ confidence: 0.5, safe: 0.85 }, both), false);
+  // An option far ahead on every criterion: the leader is safe long before the rest is ordered.
+  const answers = { crit: [[0, 1, true], [1, 2, true]], opt: [] };
+  for (let c = 0; c < 3; c++) for (let k = 0; k < 5; k++) for (let x = 1; x < 4; x++) answers.opt.push([c, 0, x, false]);
+  const t = decisionTable(decisionFit(4, 3, answers), { draws: 600 });
+  assert.equal(t.rows[0].item, 0);
+  assert.ok(t.safe >= 0.9, `safe ${t.safe}`);
+  assert.ok(t.confidence < 0.9, `the order below is not settled (${t.confidence})`);
+  assert.ok(decisionDone(t, answers));
+  // With no answers anyone could be ahead: the read must be low, not a default 1.
+  assert.ok(decisionTable(decisionFit(4, 3, { crit: [], opt: [] }), { draws: 400 }).safe < 0.5);
+  // A wider margin can only read safer.
+  const df = decisionFit(4, 3, { crit: [[0, 1, false]], opt: [[0, 0, 1, false], [1, 1, 0, false]] });
+  assert.ok(decisionTable(df, { draws: 400, margin: 0.4 }).safe >= decisionTable(df, { draws: 400, margin: 0.1 }).safe);
+  assert.equal(DECIDE_MARGIN, 0.25);
+});
+
+test("whatWouldChange: at the weight it names, the named rival really overtakes", () => {
+  // Option 0 best on Rent, option 2 best on Space, Rent weighted higher.
+  const answers = { crit: [], opt: [] };
+  for (let k = 0; k < 3; k++) {
+    answers.crit.push([0, 2, false], [0, 1, false], [2, 1, false]);
+    answers.opt.push([0, 0, 1, false], [0, 0, 2, false], [0, 1, 2, false], [2, 2, 1, false], [2, 2, 0, false], [2, 1, 0, false], [1, 1, 0, false]);
+  }
+  const df = decisionFit(3, 3, answers);
+  const leader = overallOrder(df)[0];
+  assert.equal(leader, 0);
+  const ch = whatWouldChange(df);
+  assert.equal(ch.length, 3);
+  const at = (c, x) => {
+    const w = df.weights.map((wk, k) => (k === c.item ? x : (wk * (1 - x)) / (1 - c.weight)));
+    return (o) => w.reduce((acc, wk, k) => acc + wk * df.centred[k][o], 0);
+  };
+  // More weight on Space (where option 0 is worst) is what could unseat it.
+  const space = ch[2];
+  assert.ok(space.rival !== null && space.rival !== leader && space.needed > space.weight, JSON.stringify(ch));
+  for (const c of ch.filter((x) => x.needed !== null)) {
+    const dir = c.needed > c.weight ? 1 : -1;
+    const before = at(c, c.needed - dir * 1e-4), after = at(c, c.needed + dir * 1e-4);
+    assert.ok(before(leader) > before(c.rival), "the leader still leads just short of the named weight");
+    assert.ok(after(c.rival) > after(leader), "the rival leads just past it");
+  }
 });
 
 test("the picker never repeats the last question and asks about criteria once options have spread", () => {

@@ -151,6 +151,20 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   spaces, from an unlabelled histogram) reads such a piece at its left end. Over the 74 piece checks, differences fell
   from 88 to 73, with none added and no note lost (not held out: one condition was added after the first full run).
 
+- 2026-11-14, latest: a C clef printed inside a staff (`findClefChanges` in `scan.mjs`, `clef-change.test.mjs`, 3 tests,
+  `eval/clef-change-check.md`): two blocks either side of a line joined on their left. GregoBase 3437's 16 differences were
+  this; over the 74 piece checks differences 73 to 57, none worse, 11 of 11 clefs found real. Held out (14 pieces listed
+  before download, `eval/clef-change-fresh-pages.json`): differences 129 to 13, 12 of 12 clefs real and on the right
+  line. GregoBase 3775's *et confirmásti* was f f f f, printed h h h h: corrected (second reader wanted).
+
+- 2026-11-14, latest: a staff that slopes on a flat page (`staffSkew` in `scan.mjs`, 2 tests in `scan.test.mjs`,
+  `eval/staff-curl-check.md`): a leaf that curls at its head tilts its top staves 9-11 px while the page stays under the
+  straightening threshold; each staff's own slope is now measured and taken. The nine differences left on the clef-change
+  fresh list were all looked at: 3 GregoBase slips corrected (3461, 3500, 3706), 4 were the curl, 2 are reader faults
+  (left-stemmed cephalicus, a porrectus top). 88 earlier checks: agree 17,205 to 17,272, differ 66 to 63. Held out
+  (10 pieces chosen by page geometry before reading, `eval/staff-curl-fresh-pages.json`): agree 1,611 to 1,688,
+  differ 28 to 21, not read 78 to 41, none worse.
+
 ## Next
 
 1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni

@@ -974,7 +974,8 @@ class RawImage:
     ifd0: Ifd
     # "dng", "cr2" for a Canon CR2 read by ``shootflow.cr2``, "arw" for a Sony ARW read by ``shootflow.arw`` or
     # "nef" for a Nikon NEF read by ``shootflow.nef``, "orf" for an Olympus ORF read by ``shootflow.orf``, "rw2" for a
-    # Panasonic RW2 read by ``shootflow.rw2`` or "srw" for a Samsung SRW read by ``shootflow.srw``
+    # Panasonic RW2 read by ``shootflow.rw2``, "srw" for a Samsung SRW read by ``shootflow.srw`` or "pef" for a
+    # Pentax PEF read by ``shootflow.pef``, "raf" for a Fujifilm RAF read by ``shootflow.raf``
     # (DNG-equivalent tags, no colour matrix).
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
@@ -1081,10 +1082,12 @@ def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
 
 
 def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
-    """A DNG's (or a Canon CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's or Samsung SRW's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+    """A DNG's (or a Canon CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's or Fujifilm RAF's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
 
-    from shootflow import arw, cr2, nef, orf, rw2, srw
+    from shootflow import arw, cr2, nef, orf, pef, raf, rw2, srw
 
+    if raf.is_raf(data):
+        return raf.parse_raf(data)
     if cr2.is_cr2(data):
         return cr2.parse_cr2(data, cfa=cfa)
     if arw.is_arw(data):
@@ -1095,6 +1098,8 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
         return orf.parse_orf(data)
     if rw2.is_rw2(data):
         return rw2.parse_rw2(data)
+    if pef.is_pef(data):  # before SRW: a Samsung K-mount body's PEF says SAMSUNG too
+        return pef.parse_pef(data)
     if srw.is_srw(data):
         return srw.parse_srw(data)
     reader = _Reader(data)
@@ -1310,6 +1315,11 @@ class DevelopSettings:
     # Cubic is the default since 2026-11-13 (eval/warp-kernel-fast-cubic-2026-11-13.md): with the
     # padded-plane taps and threaded bands it costs less than bilinear did before.
     warp_kernel: str = "cubic"
+    # How a CFA is demosaiced: "bilinear" (the 3x3 average; both engines, byte for byte), "directional"
+    # (``xtrans_demosaic``: four directional greens, the most homogeneous kept; X-Trans only, numpy engine)
+    # or "auto" (directional on X-Trans when the numpy engine runs, else bilinear). Measured against known
+    # truth and LibRaw in eval/xtrans-directional-demosaic-2026-11-14.md.
+    demosaic: str = "auto"
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
     lens_db: "LensDb | None" = None
@@ -1328,6 +1338,10 @@ class DevelopSettings:
     # lens number gets that lens; with lens_name given, its lens is remembered under the frame's key (this dict is
     # updated in place, and the caller saves it).
     lens_memory: dict | None = None
+    # A Sony ARW's own lens tables (0x7037 distortion, 0x7035 lateral colour; ``sony_corrections``): applied when
+    # the file carries them and no lens database correction ran. Checked against lensfun in
+    # eval/sony-in-file-corrections-2026-11-15.md.
+    lens_in_file: bool = True
 
 
 @dataclass
@@ -1352,19 +1366,49 @@ class DevelopReport:
     lens: str | None = None
     lens_notes: list[str] = field(default_factory=list)
     lens_key: str | None = None  # the body's number for the lens (lens_profiles.lens_key), when it gives one
+    demosaic: str | None = None  # "bilinear" or "directional" for a CFA; None for LinearRaw
 
 
-def _cfa_pattern(ifd: Ifd) -> tuple[int, int, int, int]:
-    dims = ifd.get(TAG_CFA_REPEAT, (2, 2))
+CFA_PERIODS = (2, 6)  # Bayer 2x2 and Fujifilm X-Trans 6x6
+
+
+def _cfa_pattern(ifd: Ifd) -> tuple[int, ...]:
+    """The CFA as ``period * period`` colours, row-major; ``cfa_period`` gives the period back."""
+
+    dims = tuple(int(d) for d in ifd.get(TAG_CFA_REPEAT, (2, 2)))
     pattern = ifd.get(TAG_CFA_PATTERN)
     if pattern is None:
         raise DevelopError("CFA raw has no CFAPattern")
-    if tuple(dims) != (2, 2) or len(pattern) < 4:
-        raise DevelopError(f"only 2x2 CFA patterns are supported (found {tuple(dims)})")
-    pat = tuple(int(p) for p in pattern[:4])
+    if len(dims) != 2 or dims[0] != dims[1] or dims[0] not in CFA_PERIODS or len(pattern) < dims[0] * dims[1]:
+        raise DevelopError(f"only 2x2 (Bayer) and 6x6 (X-Trans) CFA patterns are supported (found {dims})")
+    pat = tuple(int(p) for p in pattern[: dims[0] * dims[1]])
     if sorted(set(pat)) != [0, 1, 2]:
         raise DevelopError(f"only three-colour (R, G, B) CFAs are supported (pattern {pat})")
-    return pat  # type: ignore[return-value]
+    return pat
+
+
+def cfa_period(pat) -> int:
+    """2 for a 4-entry (Bayer) pattern, 6 for a 36-entry (X-Trans) one."""
+
+    return 6 if len(pat) == 36 else 2
+
+
+def cfa_offsets(pat) -> dict[tuple[int, int, int], list[tuple[int, int]]]:
+    """For each phase (row, column modulo the period) and colour, the 3x3 offsets holding that colour, in
+    row order. Every 3x3 window of a Bayer or an X-Trans layout holds all three colours."""
+
+    p = cfa_period(pat)
+    return {
+        (py, px, colour): [
+            (dy, dx)
+            for dy in (-1, 0, 1)
+            for dx in (-1, 0, 1)
+            if pat[((py + dy) % p) * p + (px + dx) % p] == colour
+        ]
+        for py in range(p)
+        for px in range(p)
+        for colour in (0, 1, 2)
+    }
 
 
 def _colour_matrix(ifd0: Ifd, ifd: Ifd, notes: list[str]):
@@ -1737,7 +1781,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
     if settings.dcp is not None and profile is None:
         raise DevelopError("the camera profile has no ColorMatrix1")
-    if raw.source in ("cr2", "arw", "nef", "orf", "rw2", "srw") and profile is None:
+    if raw.source in ("cr2", "arw", "nef", "orf", "rw2", "srw", "pef", "raf") and profile is None:
         example = {
             "cr2": "Canon EOS 5D Mark II",
             "arw": "Sony ILCE-7M3",
@@ -1745,6 +1789,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             "orf": "Olympus E-M10",
             "rw2": "Panasonic DMC-GF7",
             "srw": "Samsung NX1",
+            "pef": "Pentax K-1 Mark II",
+            "raf": "Fujifilm X-E1",
         }[raw.source]
         raise DevelopError(
             f"a{'n' if raw.source in ('arw', 'nef', 'orf', 'rw2', 'srw') else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
@@ -1853,6 +1899,24 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                     memory[corr.lens_key] = corr.lens.name
                     lens_notes.append(f"lens memory: {corr.lens_key} is now {corr.lens.name}")
         notes.extend(lens_notes)
+    if settings.lens_in_file and raw.source == "arw" and lens_used is None and \
+            not any(isinstance(op, dng_opcodes.WARP_TYPES) for op in warps):
+        from shootflow import sony_corrections
+
+        own = sony_corrections.from_ifd(ifd)
+        if own is not None and own.distortion:
+            try:
+                crop = ifd.get(0xC620)  # DefaultCropSize
+                picture = (int(crop[0]), int(crop[1])) if crop and len(crop) == 2 else None
+                warp, _zoom, own_notes = sony_corrections.build_warp(own, w, h, fill=settings.lens_fill,
+                                                                     tca=settings.lens_tca, picture=picture)
+            except (ValueError, ArithmeticError) as exc:
+                own_notes = [f"Sony in-file lens tables not used: {exc}"]
+            else:
+                warps = list(warps) + [warp]
+                lens_used = "Sony in-file corrections"
+            lens_notes.extend(own_notes)
+            notes.extend(own_notes)
     # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
     half_f = 0.5 if (settings.half and not linear_raw) else 1.0
     stage3_w, stage3_h = (w // 2, h // 2) if half_f != 1.0 else (w, h)
@@ -1882,7 +1946,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if pat is None:
         caplines = [[lo_wb / wb[s % 3] for s in range(w * spp)]] * 2
     else:
-        caplines = [[lo_wb / wb[pat[py * 2 + (x % 2)]] for x in range(w)] for py in (0, 1)]
+        period = cfa_period(pat)
+        caplines = [[lo_wb / wb[pat[py * period + (x % period)]] for x in range(w)] for py in range(period)]
 
     def norm_row(y: int) -> list[float]:
         start = ((top + y) * rw + left) * spp
@@ -1893,7 +1958,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         b = black[y % rr]
         sp = span[y % rr]
         dvy = float(dv[y]) if y < len(dv) else 0.0
-        caps = caplines[y % 2]
+        caps = caplines[y % len(caplines)]
         if spp == 1 and rc == 1 and not dh:
             off = b[0][0] + dvy
             sc = scale[0]
@@ -1960,6 +2025,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     np_engine = _numpy_engine(settings.engine) if (w >= 2 and h >= 2) else None
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
+    demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes)
     if np_engine is not None:
         nw, nh, npx, report = _develop_numpy(
             np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
@@ -1968,8 +2034,10 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
             look=look, gain_maps=gain_maps, warps=warps, trim=trim, warp_kernel=settings.warp_kernel,
+            demosaic=demosaic or "bilinear",
         )
         report.lens, report.lens_notes, report.lens_key = lens_used, lens_notes, lens_key
+        report.demosaic = demosaic
         return nw, nh, npx, report
 
     out = array("H")
@@ -1983,7 +2051,10 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         assert pat is not None
         # Pattern phase is relative to the active area (DNG spec, ActiveArea).
         mults = (wbr, wbg, wbb)
-        if settings.half:
+        if settings.half and cfa_period(pat) != 2:
+            ow, oh = w // 2, h // 2
+            _half_from_full(norm_row, w, h, pat, mults, hi, emit, out)
+        elif settings.half:
             ow, oh = w // 2, h // 2
             for by in range(oh):
                 r0 = norm_row(2 * by)
@@ -2038,8 +2109,40 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         lens=lens_used,
         lens_key=lens_key,
         lens_notes=lens_notes,
+        demosaic=demosaic,
     )
     return report_w, report_h, out, report
+
+
+DEMOSAICS = ("auto", "bilinear", "directional")
+
+
+def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
+    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional on
+    X-Trans with numpy, full and half size (X-Trans half size demosaics at full size, then averages; the
+    directional demosaic gains as much there: eval/xtrans-directional-demosaic-2026-11-14.md)."""
+
+    if choice not in DEMOSAICS:
+        raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")
+    if pat is None:
+        return None
+    xtrans = cfa_period(pat) == 6
+    if choice == "bilinear":
+        return "bilinear"
+    if choice == "directional":
+        if not xtrans:
+            raise DevelopError("the directional demosaic is for X-Trans (6x6) CFAs; Bayer files use bilinear")
+        if not numpy_engine:
+            raise DevelopError("the directional demosaic needs the numpy engine (numpy installed)")
+        if w < 6 or h < 6:
+            raise DevelopError("the directional demosaic needs at least 6 x 6 sensels")
+        return "directional"
+    # auto
+    if xtrans and w >= 6 and h >= 6:
+        if numpy_engine:
+            return "directional"
+        notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
+    return "bilinear"
 
 
 def _numpy_engine(engine: str):
@@ -2095,18 +2198,9 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
 def _bilinear(norm_row, w, h, pat, mults, encode, out) -> None:
     """Bilinear demosaic, three rows in memory at a time."""
 
-    # For each phase (row parity, column parity) and colour, the 3x3 offsets
-    # holding that colour.
-    offsets: dict[tuple[int, int, int], list[tuple[int, int]]] = {}
-    for py in (0, 1):
-        for px in (0, 1):
-            for colour in (0, 1, 2):
-                offsets[(py, px, colour)] = [
-                    (dy, dx)
-                    for dy in (-1, 0, 1)
-                    for dx in (-1, 0, 1)
-                    if pat[((py + dy) % 2) * 2 + (px + dx) % 2] == colour
-                ]
+    # For each phase (row, column modulo the CFA period) and colour, the 3x3 offsets holding that colour.
+    offsets = cfa_offsets(pat)
+    p = cfa_period(pat)
     rows = {0: norm_row(0)}
     if h > 1:
         rows[1] = norm_row(1)
@@ -2114,10 +2208,10 @@ def _bilinear(norm_row, w, h, pat, mults, encode, out) -> None:
         if y + 1 < h and (y + 1) not in rows:
             rows[y + 1] = norm_row(y + 1)
         rows.pop(y - 2, None)
-        py = y % 2
+        py = y % p
         for x in range(w):
-            px = x % 2
-            own = pat[py * 2 + px]
+            px = x % p
+            own = pat[py * p + px]
             rgb = [0.0, 0.0, 0.0]
             for colour in (0, 1, 2):
                 if colour == own:
@@ -2137,6 +2231,35 @@ def _bilinear(norm_row, w, h, pat, mults, encode, out) -> None:
                         n += 1
                 rgb[colour] = total / n if n else 0.0
             encode(rgb[0] * mults[0], rgb[1] * mults[1], rgb[2] * mults[2], out)
+
+
+def _half_from_full(norm_row, w, h, pat, mults, hi, emit, out) -> None:
+    """Half size for a CFA whose 2x2 blocks do not each hold R, G and B (X-Trans): demosaic at full size,
+    clip each white-balanced pixel as ``encode`` does, then average each 2x2 block, summed in row order from
+    0.0, and divide by 4. The odd last row and column are dropped, as the Bayer half path drops them."""
+
+    ow, oh = w // 2, h // 2
+    full = array("d")
+
+    def keep(r: float, g: float, b: float, _out) -> None:
+        full.append(hi if r > hi else (0.0 if r < 0 else r))
+        full.append(hi if g > hi else (0.0 if g < 0 else g))
+        full.append(hi if b > hi else (0.0 if b < 0 else b))
+
+    _bilinear(norm_row, w, h, pat, (mults[0], mults[1], mults[2]), keep, None)
+    for by in range(oh):
+        r0 = 2 * by * w * 3
+        r1 = r0 + w * 3
+        for bx in range(ow):
+            a, b = r0 + 6 * bx, r1 + 6 * bx
+            px = []
+            for s in range(3):
+                t = 0.0 + full[a + s]
+                t = t + full[a + 3 + s]
+                t = t + full[b + s]
+                t = t + full[b + 3 + s]
+                px.append(t / 4.0)
+            emit(px[0], px[1], px[2], out)
 
 
 def _trim_and_crop(pixels, ow, oh, trim, ifd, settings, linear_raw, notes, crop):

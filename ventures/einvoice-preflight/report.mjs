@@ -15,6 +15,7 @@ import { checkNfeEvent, looksLikeNfeEvent } from "./nfe-event.mjs";
 import { checkNfse, looksLikeNfse } from "./nfse.mjs";
 import { checkAbrasf, looksLikeAbrasf } from "./abrasf.mjs";
 import { checkDsf, looksLikeDsf } from "./dsf.mjs";
+import { checkZatcaStamp, checkZatcaChain, looksLikeZatca } from "./zatca-stamp.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -72,6 +73,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
     };
   }
 
+  const zatcaStamps = []; // { file, meta } for the PIH chain across the batch
   const fa3Seen = new Map(); // KSeF duplicate key (seller NIP, RodzajFaktury, P_2) -> first file name
   for (const input of inputs) {
     const name = input.name || "invoice.json";
@@ -170,6 +172,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       const aside = steppedAside(invoice);
       const errors = checkInvoice(invoice).filter((e) => !aside.has(e.rule));
       errors.push(...pdfFindings);
+      // A ZATCA invoice's cryptographic stamp against the file itself (hash, signature,
+      // QR fields, XAdES digests): BR-KSA rules check only that the stamp is present.
+      if (xml && looksLikeZatca(xml)) {
+        const stamp = checkZatcaStamp(xml);
+        errors.push(...stamp.findings);
+        zatcaStamps.push({ file: name, meta: stamp.meta });
+      }
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
       if (profile === "france") errors.push(...inspectFrenchProfile(invoice));
@@ -262,6 +271,11 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         path: "/invoice_number",
       });
     }
+  }
+
+  const chain = checkZatcaChain(zatcaStamps);
+  for (const report of reports) {
+    if (chain.has(report.file)) report.errors.push(...chain.get(report.file));
   }
 
   const links = inspectCreditLinks(parsed);

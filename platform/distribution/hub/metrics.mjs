@@ -23,13 +23,16 @@ import { THREADS, GRAPH } from './adapters.mjs';
 export const PRIOR_POSTS = 5;
 export const MIN_POSTS = 5;
 
-const URL_RE = /https?:\/\/duncan-haywood\.github\.io\/oss-monorepo\/[^\s)"']*/;
+// Posts made before 2026-11-14 link to the retired github.io host; read both and
+// file them under the served page, so one tool's readings stay together.
+const URL_RE = /https?:\/\/(?:marisstella\.app|duncan-haywood\.github\.io\/oss-monorepo)\/[^\s)"']*/;
+const OLD_HOST_RE = /^https?:\/\/duncan-haywood\.github\.io\/oss-monorepo\//;
 const sum = (o) => Object.values(o).reduce((a, n) => a + (Number.isFinite(n) ? n : 0), 0);
 
 /** A normalised post reading. `metrics.views` is kept out of `engagement` because not every platform reports it. */
 export function reading(platform, { id, text, date, metrics }) {
   const { views, ...interactions } = metrics;
-  const page = (String(text || '').match(URL_RE)?.[0] || '').replace(/[?#].*$/, '') || null;
+  const page = (String(text || '').match(URL_RE)?.[0] || '').replace(/[?#].*$/, '').replace(OLD_HOST_RE, 'https://marisstella.app/') || null;
   return { platform, id: String(id), date: date ? String(date).slice(0, 10) : null, page, template: templateOf(text), views: Number.isFinite(views) ? views : null, metrics: interactions, engagement: sum(interactions) };
 }
 

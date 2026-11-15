@@ -92,27 +92,26 @@ flagships:
       new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint
       exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC
       (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to
-      88% (Durham, held out); wanted: a firm's own labelled bank books; (1) AI layer
-      on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140,
-      14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model);
-      split-category plurality measured, off; next: a hosted model (needs a key),
-      real bank text; (2) bank readers: 63 public US exports, Chase business cards,
-      glued payees, scanned PDFs by OCR (README); open: other banks' business files,
-      a real bank scan; (3) Adyen's sample read (README); open: a real merchant's
-      payout export, a real 1099-K; (4) a real supplier's terms letter checked
-      against the fee and discount rules, and one named lender's own schedule
-      against the loan register (`loan check`); (5) receipts through real OCR (page
-      SROIE 83.4%, CORD 50.5%, US 68.4%; CLI 4-pass 80.5%, 66.8%; next: curled
-      slips, full-size photos); (6) payroll (README; journal layout 11-14): a real
-      Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
-      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: 38 states' pages, discounts for 22 (MD, UT statutes; CO's ended 2026,
-      README); open: IN's day and allowance, NJ, AR, RI, ME, MA; a real return
-      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
-      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
-      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
-      2,000 characters.
+      88% (Durham, held out); LLC labels: Mercury 90%, Rocket Money Amex 94%
+      (README); (1) AI layer on real lines (README "A year of Toronto"): local Qwen
+      7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess
+      (48 either model); split-category plurality measured, off; next: a hosted
+      model (needs a key), real bank text; (2) bank readers: 63 US exports, Mercury,
+      Monarch, Bluevine lines, card payments, scans (README); open: Relay, a bank
+      scan; (3) Adyen's sample read (README); open: a real merchant's payout export,
+      a real 1099-K; (4) a real supplier's terms letter checked against the fee and
+      discount rules, and one named lender's own schedule against the loan register
+      (`loan check`); (5) receipts through real OCR (page SROIE 83.4%, CORD 50.5%,
+      US 68.4%; CLI 4-pass 80.5%, 66.8%; next: curled slips, full-size photos); (6)
+      payroll (README; journal layout 11-14): a real Gusto or ADP report; (7) IRIS
+      NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real
+      upload, TY2026 template; (8) `salestax return`: the last six listed states
+      read (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from
+      the book (README); open: AR statutes, a real return layout; (8b) `annualized`
+      (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
+      once the 2026 instructions print; (9) EITC: 2025 EIC Table matched on all
+      10,992 cells (HISTORY); open: the 2026 table once printed. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -157,20 +156,19 @@ flagships:
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped
       / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: (w) watch
       (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
-      box and "Wandering level" (drift) shipped; Rounds 10-12 (NAB; SKAB, 33 pump
-      faults, 8 sensors): every rule failed; 8 SKAB columns sent 8.5 false lines per
-      100 checks on a normal run; Rounds 13-15 (agreement; floors) failed: 14 kept
-      28/33 at 2.27 false/100, 15 (spread-relative) 1.40 false but 27/33
-      (thermocouple set k); next k without the loudest column; a real deployer's
-      repository on GitHub Actions (the emulated run is in the README); (a) ar1 +
-      floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a
-      season and a trend term per column (README "Wide sets in print"); (b) sticky
-      series on a drifting level: four repeat treatments failed the frozen-juice
-      bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky),
-      test it on fresh labelled data; update-rate check: date a documented
-      collection change. One-tick stale feeds (README): next its power in n, or a
-      rounded-walk likelihood. Next: apple's volume in several-columns mode; joint
-      drift (measured, not offered) and its 2x penalty on fresh multi-column
+      box and "Wandering level" (drift) shipped; Rounds 10-17 (NAB; SKAB, 33 pump
+      faults, 8 sensors) failed; floors bracket the bar (28/33 at 2.27 false/100; 27
+      at 1.40; 30 at 2.47; rolling 5-min 32 at 4.67, README Round 17): no more floor
+      shapes on SKAB; next a fresh labelled multi-sensor set or per-group floors; a
+      real deployer's repository on GitHub Actions (the emulated run is in the
+      README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on
+      TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in
+      print"); (b) sticky series on a drifting level: four repeat treatments failed
+      the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the
+      34 non-sticky), test it on fresh labelled data; update-rate check: date a
+      documented collection change. One-tick stale feeds (README): next its power in
+      n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode;
+      joint drift (measured, not offered) and its 2x penalty on fresh multi-column
       labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: t-walk increments, biweight on fresh data, why it
       absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks:
@@ -187,79 +185,78 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: Peppol BIS 3.0.22, 1,048/1,048 unit asserts).
-      Open: ZATCA rules on a real sandbox invoice and credit or debit note;
-      FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
-      eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
-      Croatia HR-CIUS landed (README): open: a real HR invoice, HRFISK20Data in the
-      creator; CIUS-PT: which validator does AT run (AA/RED codes)?; Poland's FA(3):
-      receipt checks landed (README); open: a real KSeF rejection, a real
-      correction, advance or settlement file; repair keeps PDF/A (veraPDF 155/155),
-      PDF/A-3b writer passes Mustang; PINT JP/MY/AE/OM rules and repair landed
-      (README); open: a real business's PINT file; open: RO_CIUS on a real ANAF
-      file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP payload;
-      mandate texts read (README); open: IL (gov.il 403), ES, SK (hosts blocked
-      2026-11-14), NRS notice (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI
-      4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww
-      blocked), a real payroll or export file, a PAC rejection compared; postal
-      codes (MX-080) landed (README); Brazil NF-e 4.00, PL_010 reform sums and the
-      cClassTrib table (BR-053..057, NFSE-034..036, 2026-11-13) landed (README);
-      cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110,
-      12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged
-      (README): open: a real event; a real reform NF-e from a SEFAZ test
-      environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed:
-      open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04
-      landed (README): open: ISS retained on a real file, city provider schemas,
-      1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README):
-      open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh the
-      Bulgaria page when its draft passes. A run that lands a slice replaces its
-      item here; keep this under 2,000 characters.
+      History: README and git (latest: HR creator). Open: ZATCA stamp check landed
+      (README): a real taxpayer's KSA note; FatturaPA tolerances and SdI codes read
+      from spec 1.9 (2026-11-13, eval/sdi-error-codes-2026-11-13.md); open: a real
+      SdI rejection receipt; HR-CIUS checker+creator landed, 8 official samples
+      16/16 vs XSLT (README): open: a real HR invoice, cash accounting; CIUS-PT:
+      which validator does AT run (AA/RED codes)?; Poland's FA(3): receipt checks
+      landed (README); open: a real KSeF rejection, a real correction, advance or
+      settlement file; repair keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes
+      Mustang; PINT JP/MY/AE/OM rules and repair landed (README); open: a real
+      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
+      Dutch file; India's INV-01 check on a real IRP payload; mandate texts read
+      (README); open: IL (gov.il 403), ES, SK (hosts blocked 2026-11-14), NRS notice
+      (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed: open: SAT's
+      CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
+      payroll or export file, a PAC rejection compared; postal codes (MX-080) landed
+      (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
+      (BR-053..057, NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and
+      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
+      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
+      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
+      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
+      compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS
+      retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file
+      1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a
+      real Ginfes, Betha or DSF reply; refresh the Bulgaria page when its draft
+      passes. A run that lands a slice replaces its item here; keep this under 2,000
+      characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*. Exact side:
-      branch-and-price and column generation prove 20-80 person weeks; the exact
-      check is on by default at every size. Forecast side (--from-sales, eight real
-      files incl. real Square and Toast exports, 2026-11-13:
-      eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
-      cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
-      weeks: reissues hold started and posted shifts (README "Is 91 the least?" to
-      "Giving up two clashing shifts"); a whole week at the Deputy file's rates
-      (README "A whole week of call-outs at a real roster's rates", 2026-11-13):
-      kept reissues cut changes 56-66%, open hours path-dependent both ways. Next:
-      whether a real manager would set keepShift above 1; close the 100-person gaps
-      (tree, not bound: README same section); day sweeps LP-guided, by the
-      open-hours LP when the pay floor is skipped (README "A guide when the pay
-      floor is skipped"); warm start landed (README 2026-11-14), next a warm-sized
-      gate; re-run the keep-usual-shifts sweep on real dated leave records; a
-      manager's read on whether the steadier plan is the one they would post; a real
-      7shifts account through --import-7shifts (README "Reading 7shifts directly");
-      a real When I Work account or response through --import-wheniwork (README
-      "Reading When I Work directly"); Homebase (docs need an account);
-      --cover-price moves two shifts together (README "Moving two shifts together":
-      20-person week exposure 113 to 68 h for $35.27); second call-outs priced
-      (README "A second call-out in the same week", off by default); next: fewer
-      capped pairs, pair price past 120 copies; a real two-site export and staff
-      list (README "Staff shared between sites"); own and site rates read from staff
-      CSVs and 7shifts (README "Per-location pay from an export"); next a real wages
-      export, real trip times; whether the priced cut's r = 1 default suits a real
-      manager; a manager's real task list for the fixed minutes.
+      Landed work and measurements: README and eval/*. Exact side: branch-and-price
+      and column generation prove 20-80 person weeks; the exact check is on by
+      default at every size. Forecast side (--from-sales, eight real files incl.
+      real Square and Toast exports, 2026-11-13: eval/real-pos-exports.mjs):
+      backtest, closure score, half-life auto, priced cut, tickets, labour standard,
+      shut-door work, multi-file pastes. Posted weeks: reissues hold started and
+      posted shifts (README "Is 91 the least?" to "Giving up two clashing shifts");
+      a whole week at the Deputy file's rates (README "A whole week of call-outs at
+      a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open
+      hours path-dependent both ways. Next: whether a real manager would set
+      keepShift above 1; 350+ copies: clique LP vs cover passes (README "keeps to
+      its share"); day sweeps LP-guided, by the open-hours LP when the pay floor is
+      skipped (README "A guide when the pay floor is skipped"); warm start landed
+      (README 2026-11-14), next a warm-sized gate; re-run the keep-usual-shifts
+      sweep on real dated leave records; a manager's read on whether the steadier
+      plan is the one they would post; a real 7shifts account through
+      --import-7shifts (README "Reading 7shifts directly"); a real When I Work
+      account or response through --import-wheniwork (README "Reading When I Work
+      directly"); Homebase (docs need an account); --cover-price moves two shifts
+      together (README "Moving two shifts together": 20-person week exposure 113 to
+      68 h for $35.27); second call-outs priced (README "A second call-out in the
+      same week", off by default); next: fewer capped pairs, pair price past 120
+      copies; a real two-site export and staff list (README "Staff shared between
+      sites"); own and site rates read from staff CSVs and 7shifts (README
+      "Per-location pay from an export"); next a real wages export, real trip times;
+      whether the priced cut's r = 1 default suits a real manager; a manager's real
+      task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
       Public samples, no key: the proxy serves
-      github.com/drewnoakes/metadata-extractor-images (a sparse checkout gave the
-      ARW, NEF, ORF, RW2 and SRW bodies, eval/*-reader-2026-11-14.md; it also holds
-      pef/ 1 file (K-1 Mark II) and raf/ 3 (X-E1 and EX-2 X-Trans, S5500)). Read
-      Pentax PEF or Fujifilm RAF directly, sensel for sensel against LibRaw; Samsung
-      SRW lens name (maker note 0xA003) for lensfun; Sony maker-note lens names,
-      from those same files. The DNG 1.7.1.0 spec PDF is reachable (URL in
-      eval/opcode-spec-audit-2026-11-12.md): read it, not memory.
+      github.com/drewnoakes/metadata-extractor-images (sparse checkout; ARW, NEF,
+      ORF, RW2, SRW, PEF and RAF read, eval/*-reader-2026-11-14.md). X-Trans
+      demosaic toward LibRaw's three-pass (2-6 dB short; a noisy known truth for the
+      real-frame luma gap; a C path;
+      eval/xtrans-directional-demosaic-2026-11-14.md). DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -269,23 +266,22 @@ flagships:
       profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
       eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
-      NEF, ORF, RW2, SRW read directly since 2026-11-14
-      (eval/*-reader-2026-11-14.md); RW2 lens from its JPEG's maker note
-      (eval/panasonic-rw2-lens-2026-11-14.md). Next, most valuable first: a real NEF
-      with a split row; Sony maker-note lens name and in-file lens corrections; a
-      real DNG and a vignetting-calibrated lens through the pipeline's lens stage; a
-      real evenly lit frame shot wide open (corners level after lensfun's
-      vignetting?); a second maker-against-lensfun DNG pair (a zoom at several focal
-      lengths); a real DNG carrying any opcode run only on synthetic files so far,
-      or the SDK to check them; lateral colour measured on a real frame with sharp
-      corner edges; a real Adobe `.dcp` through the profile chooser; newer CR2s
-      (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that collection under their
-      plain names); the DJI Phantom 4 DNG's vignette lift against DJI's own render
-      (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
-      set; a phone DNG with its own JPEG of the frame (corrected corners); a
-      tungsten-lit colour chart to say which colour model is closer (the 70D frame,
-      4,700 K and green-tinted, is where they part most; the Nexus 5X carries
-      ForwardMatrix); an Adobe render of a known frame (settles
+      NEF, ORF, RW2, SRW, PEF, RAF (X-Trans, directional) read directly since
+      2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from maker notes
+      (eval/*-lens-2026-11-14.md). Next: a compressed RAF (X-T2 or later); a real
+      NEF split row; Sony's vignetting table vs an evenly lit frame; a real DNG and
+      a vignetting-calibrated lens through the pipeline's lens stage; a real evenly
+      lit frame shot wide open (corners level after lensfun's vignetting?); a second
+      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
+      synthetic files so far, or the SDK to check them; lateral colour measured on a
+      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
+      chooser; newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
+      collection under their plain names); the DJI Phantom 4 DNG's vignette lift
+      against DJI's own render (eval/opcode-quality-flag-2026-11-13.md); a real DNG
+      with opcode flag bit 1 set; a phone DNG with its own JPEG of the frame
+      (corrected corners); a tungsten-lit colour chart to say which colour model is
+      closer (the 70D frame, 4,700 K and green-tinted, is where they part most; the
+      Nexus 5X carries ForwardMatrix); an Adobe render of a known frame (settles
       `--default-tone-curve always`); a trained blink model and a real shoot with a
       photographer's picks; photos with a real horizon and human tilt labels.
 
@@ -300,28 +296,27 @@ flagships:
       default, pooled prior, f, g, b, d, d3-d7, d9, panel and later-pass curves) are
       written up there. d10 (slot run cut from a fast turn):
       docs/slot-turn-back-2026-11-14.jsonl. site/decide.html (2026-11-14,
-      docs/DECIDE-PAGE.md) weighs criteria by pairwise picks: adaptive beats random
-      by 0.11-0.26 Spearman at the cap; option scores are the bottleneck (true ones
-      lift 0.70 to 0.90). site/rank.html ranks a list in the browser on the same
-      refit, with team codes; its stop rule rechecks at the person's own EB prior
-      (docs/RANK-PAGE.md "Noisy answerers"). Team combine: 90% rank ranges for this
-      group and wider ("Team ranges"); a top-k link leads with the team top k,
-      chances and a show of hands (k3: model 338/432 right, tally 311). "Find my top
-      k" mode since 2026-11-14 (RANK-PAGE.md "Find my top k"): exact shortlist 54/96
-      vs 25/96 (ordinary, 15-30 options, 1.6x picks); since 2026-11-14 (k2) a link
-      carries the mode and k (RANK-PAGE.md "Shortlist links"), the picks page tables
-      it, 3 ready lists link top 3. Next, most valuable first: (m) graded option
-      answers on decide.html (DECIDE-PAGE.md "Open"); (r) get the rank page seen: 10
-      ready lists + hub landed (RANK-PAGE.md "Six more"); next, read which draw
-      visits, then (c) the first real survey's answers: msToAnswer against the
-      answer-time model, panelWalkRatio on real times, whether times depend on which
-      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
-      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
-      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the
-      d10 turn's split search; (d8) a stronger pick signal under wander (staged
-      pairs are near 50/50 late in a session; anchor pairs?); (h) share-drop beat
-      both pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a real
-      panel's times.
+      docs/DECIDE-PAGE.md) weighs criteria by pairwise picks; winner-focused picker
+      and stop (true best 35/60 vs 31; "The winner stop"). site/rank.html ranks a
+      list in the browser on the same refit, with team codes; its stop rule rechecks
+      at the person's own EB prior (docs/RANK-PAGE.md "Noisy answerers"). Team
+      combine: 90% rank ranges for this group and wider ("Team ranges"); a top-k
+      link leads with the team top k, chances and a show of hands (k3: model 338/432
+      right, tally 311). "Find my top k" mode since 2026-11-14 (RANK-PAGE.md "Find
+      my top k"): exact shortlist 54/96 vs 25/96 (ordinary, 15-30 options, 1.6x
+      picks); since 2026-11-14 (k2) a link carries the mode and k (RANK-PAGE.md
+      "Shortlist links"), the picks page tables it, 3 ready lists link top 3. Graded
+      answers: DECIDE-PAGE.md "Graded answers". Next, most valuable first: (m2)
+      larger decide cap ("Open" 0-1); (r) get the rank page seen: 10 ready lists +
+      hub landed (RANK-PAGE.md "Six more"); next, read which draw visits, then (c)
+      the first real survey's answers: msToAnswer against the answer-time model,
+      panelWalkRatio on real times, whether times depend on which slot is clicked
+      (the d9 bound assumes not), whether real people have warm-ups, blocks, slot
+      runs or spread-out carelessness, and how noisy real pairwise answers are
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the d10 turn's
+      split search; (d8) a stronger pick signal under wander (staged pairs are near
+      50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at
+      q = 1 but taxes a camp by up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
@@ -356,9 +351,7 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the bus with several ESC brakes and bounces in a row
-      (regen model: cad/README.md "Regenerative braking"); several bounces in a row
-      on the contactor; the lift flight as a printed part and the top pulley's
+      venv, about 2 min): the lift flight as a printed part and the top pulley's
       tensioner if PR 15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -383,15 +376,14 @@ flagships:
       through the actuator's travel. Stepper ENABLE on GPIO 5 after an opto on the
       contactor's coil (GPIO 15) landed 2026-11-14: contactor makes 12-29 A in the
       sweep, a 10 ms bounce re-closes at 5-21 A; scope a real contactor's pull-in
-      and bounce. Regenerative braking landed 2026-11-14 (cad/README.md
-      "Regenerative braking"): a Schottky across the contactor, the firmware coasts
-      above a 27.6 V pack; scope the bus on a 20% slow-down and log how hard a real
-      ESC brakes. Buildable: the flight as a printed part and the tensioner (PR
-      15456). Pot pickup from the PWM landed 2026-11-14 (1 uF on GPIO 39, trimmed
-      reads): scope GPIO 39 at part duty. Actuator's lead landed 2026-11-14
-      (cad/README.md "The elevation actuator's lead"): cut 220 mm, 209-231 fits;
-      find where a real actuator's cable leaves its housing and bend a built lead
-      through the travel.
+      and bounce. Regen, then brakes and bounces in a row (700 mV guard band),
+      landed 2026-11-14 (cad/README.md): scope the bus on a 20% slow-down; log a
+      real ESC braking and the battery reading noise. Buildable: the flight as a
+      printed part and the tensioner (PR 15456). Pot pickup from the PWM landed
+      2026-11-14 (1 uF on GPIO 39, trimmed reads): scope GPIO 39 at part duty.
+      Actuator's lead landed 2026-11-14 (cad/README.md "The elevation actuator's
+      lead"): cut 220 mm, 209-231 fits; find where a real actuator's cable leaves
+      its housing and bend a built lead through the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
@@ -406,26 +398,26 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-14
-      latest: porrectus tops read at their top, 88 to 73 differences; 3912 corrected
-      (eval/porrectus-top-check.md)). Open checks that need a person: listen to the
+      latest: C clefs inside a staff, held out 129 to 13 differences; 3775 corrected
+      (eval/clef-change-check.md)). Open checks that need a person: listen to the
       studio page, the options (--stretch, --halftime, --fills, --limit pumping,
       stems, sections, breakdown, riser, the a cappella verse and whether the key
       lift sounds like a lift); --lrc in a real player and --markers/--stems in a
       DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range
       with real singers; the release kit against a distributor's real form; the Te
-      Deum and GregoBase 3427 corrections (eval/scan-check-verdicts.md). master-cli
-      passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs (403),
-      Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas, liquescents,
-      lines at true thickness; tilted pages straightened, 2 of 185 real pages
-      (eval/deskew-check.md); next: a fresh worn-page set (new GABC needed), mottled
-      squares, a liquescent hook ending on a line (held-out misses), broken-up
-      strokes (3403, 3408); --split-voices (by phrase or at a word, --split-words,
-      eval/word-split-report.md) and --overlap (both sections sing the seam note at
-      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
-      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
-      overlap against a clean handoff; --baritones, --entrance-cost N and
-      --second-tenors (TTBB; README) need the same check. --choir presets, --singers
-      (a choir's range test CSV) and --sit-out N (README "Letting a singer sit a
-      note out") landed. Next: a real choir's range test via --singers; a director
-      on --sit-out N and the --musicxml parts (music21 reads all 97,705 notes back;
-      open in MuseScore).
+      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
+      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
+      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
+      thickness; tilted pages, curled staves straightened
+      (eval/staff-curl-check.md); next: left-stem cephalicus (3506), worn pages (new
+      GABC needed), mottled squares, a liquescent hook ending on a line (held-out
+      misses), broken-up strokes (3403, 3408); --split-voices (by phrase or at a
+      word, --split-words, eval/word-split-report.md) and --overlap (both sections
+      sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
+      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
+      and of a one-note overlap against a clean handoff; --baritones,
+      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
+      --choir presets, --singers (a choir's range test CSV) and --sit-out N (README
+      "Letting a singer sit a note out") landed. Next: a real choir's range test via
+      --singers; a director on --sit-out N and the --musicxml parts (music21 reads
+      all 97,705 notes back; open in MuseScore).

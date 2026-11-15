@@ -565,6 +565,44 @@ export function findClef(bin, staff) {
   return { pos, x0: x, x1 };
 }
 
+// A C clef printed inside a staff, where a verse or a new piece changes the
+// clef (`(z0::c3)` in GABC, after a double bar). findClef only looks at the
+// staff's start, so before 2026-11-14 such a clef's two blocks were read as
+// a podatus and every note after it was read against the old clef, two or
+// more steps out (GregoBase 3437, *Adhaesi*: 16 of its 17 differences,
+// eval/clef-change-check.md). The 1908 type's C clef is two blocks a third
+// apart, one in each space either side of its line, joined by a curve on
+// their LEFT; a podatus's two heads are joined by a stem on their RIGHT. So
+// a pair of heads one above the other (centres within 0.3 spaces
+// across), two steps apart, sitting in spaces (odd positions), with ink
+// running unbroken from one block to the other at their left edge and not
+// at their right edge, is a clef on the line between them. F clefs inside a
+// staff are not read.
+export function findClefChanges(bin, staff, heads) {
+  const { width, ink } = bin;
+  const s = staff.space;
+  const joined = (x, a, b) => {
+    if (x < 0 || x >= width) return false;
+    for (let y = Math.round(a); y <= Math.round(b); y++) if (!ink[y * width + x]) return false;
+    return true;
+  };
+  const out = [];
+  for (const L of heads) {
+    if (L.pos % 2 === 0 || L.liquescent) continue;
+    for (const U of heads) {
+      if (U === L || U.pos - L.pos !== 2 || Math.abs(U.x - L.x) > 0.3 * s) continue;
+      const a = U.y + 0.2 * s, b = L.y - 0.2 * s; // over the gap between the blocks
+      const x0 = Math.min(U.x0, L.x0), x1 = Math.max(U.x1, L.x1);
+      const e = Math.round(0.25 * s);
+      let left = false, right = false;
+      for (let x = x0 - 3; x <= x0 + e && !left; x++) left = joined(x, a, b);
+      for (let x = x1 - e; x <= x1 + 3 && !right; x++) right = joined(x, a, b);
+      if (left && !right) out.push({ x0, x1, pos: L.pos + 1, blocks: [L, U] });
+    }
+  }
+  return out.sort((p, q) => p.x0 - q.x0);
+}
+
 // A page photographed or scanned a little turned prints its staff lines
 // at a slope. findStaves takes a line as rows that each hold a fifth of the
 // page width in ink, so a line that drifts several of its own thicknesses
@@ -644,18 +682,66 @@ export function shearColumns(bin, t) {
 
 // Scan values relative to the clef line, staff by staff. A trailing custos
 // (the small guide note at the right end) is dropped.
+// A staff that slopes on a page that does not. Scanned books curl near the
+// spine and at the head and foot of a leaf, so one or two staves can drift
+// 10-12 px across while the rest of the page lies flat: on leaf 764 of the
+// 1908 Graduale staff 1 falls 11 px from left to right, staff 2 9 px, staff
+// 5 none, and estimateSkew, which scores the whole page, finds no slope.
+// The tilted staff's lines are then measured as bands 11-16 px thick, and
+// readStaff, which drops line rows unless ink crosses them, wipes out the
+// heads sitting on them (eight notes of *sunt reliquiae* lost,
+// eval/staff-curl-check.md). So each staff's own rows, from half a space
+// above its top line to half a space below its bottom line, are scored the
+// same way, and a slope that moves a line DESKEW_MIN_DRIFT px or more across
+// the page is returned, to be added to the page's.
+export function staffSkew(bin, staff, { minDrift = DESKEW_MIN_DRIFT } = {}) {
+  const { width, height, ink } = bin;
+  const ya = Math.max(0, Math.floor(staff.top - 0.5 * staff.space));
+  const yb = Math.min(height - 1, Math.ceil(staff.bottom + 0.5 * staff.space));
+  const band = { width, height: yb - ya + 1, ink: ink.subarray(ya * width, (yb + 1) * width) };
+  return estimateSkew(band, { minDrift });
+}
+
 export function readPage(img, opts = {}) {
   const raw = binarize(img);
   // a tilted page is straightened first (estimateSkew, shearColumns); y
   // values are given back on the page as scanned
-  const t = opts.deskew === false ? 0 : estimateSkew(raw);
-  const bin = t ? shearColumns(raw, t) : raw;
-  const back = (x, y) => y + shiftOf(x, t, raw.width);
-  const staves = findStaves(bin, opts);
-  return staves.map((staff, k) => {
+  const t0 = opts.deskew === false ? 0 : estimateSkew(raw);
+  const bin0 = t0 ? shearColumns(raw, t0) : raw;
+  const staves = findStaves(bin0, opts);
+  return staves.map((staff0, k) => {
+    // a staff tilted on its own (the page curls near its top or bottom
+    // edge, so the whole-page slope stays under the threshold) is
+    // straightened by its own slope and read from that shear
+    // (staffSkew; eval/staff-curl-check.md)
+    let staff = staff0, bin = bin0, t = t0;
+    if (opts.deskew !== false && opts.staffDeskew !== false) {
+      const r = staffSkew(bin0, staff0);
+      if (r) {
+        const b2 = shearColumns(raw, t0 + r);
+        const mid = (staff0.top + staff0.bottom) / 2;
+        const near = findStaves(b2, opts).filter((q) => Math.abs((q.top + q.bottom) / 2 - mid) < staff0.space && Math.abs(q.space - staff0.space) < 0.15 * staff0.space);
+        if (near.length) { staff = near[0]; bin = b2; t = t0 + r; }
+      }
+    }
+    const back = (x, y) => y + shiftOf(x, t, raw.width);
     const heads = readStaff(bin, staff, opts);
     const clef = findClef(bin, staff);
     let notes = clef ? heads.filter((h) => h.x0 > clef.x1) : heads;
+    // a clef printed inside the staff: its blocks are not notes, and the
+    // notes after it are read against it (findClefChanges)
+    const changes = clef && opts.clefChange !== false ? findClefChanges(bin, staff, notes) : [];
+    if (changes.length) {
+      const blocks = new Set(changes.flatMap((c) => c.blocks));
+      notes = notes.filter((h) => !blocks.has(h));
+    }
+    const clefAt = (x) => { let p = clef ? clef.pos : null; for (const c of changes) if (x > c.x1) p = c.pos; return p; };
+    // the custos before a clef change shows the next note in the new clef
+    for (const c of changes) {
+      const before = notes.filter((h) => h.x1 < c.x0);
+      const cu = before[before.length - 1];
+      if (cu && c.x0 - cu.x1 < 2.5 * staff.space && cu.x1 - cu.x0 < 0.45 * staff.space) notes = notes.filter((h) => h !== cu);
+    }
     const last = notes[notes.length - 1];
     if (last && last.x1 > staff.right - 0.9 * staff.space) notes = notes.slice(0, -1);
     // a liquescent's small note is read straight after its head
@@ -666,7 +752,8 @@ export function readPage(img, opts = {}) {
       space: staff.space,
       skew: t ? Math.round(Math.atan(t) * 18000 / Math.PI) / 100 : 0,
       clefPos: clef ? clef.pos : null,
-      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(back(h.x, h.y)), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
+      ...(changes.length ? { clefChanges: changes.map((c) => ({ x: Math.round((c.x0 + c.x1) / 2), pos: c.pos })) } : {}),
+      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(back(h.x, h.y)), rel: clef ? h.pos - clefAt(h.x0) : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
     };
   });
 }
@@ -700,7 +787,7 @@ export function gabcSteps(src) {
       // skip letters that are not pitches: custos (x+), accidentals (fx fy f#)
       if (g[i + 1] === '+') continue;
       if (g[i + 1] && 'xy#'.includes(g[i + 1])) { i++; continue; }
-      const note = { rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2], shape: gabcShape(g, i) };
+      const note = { rel: 'abcdefghijklm'.indexOf(lower) - clefLine, clefLine, text, group: m[2], shape: gabcShape(g, i) };
       out.push(note);
       // gvv / gvvv / gss / gsss: a bivirga, trivirga, distropha or tristropha
       // prints one head per shape letter, so each further letter is a note
