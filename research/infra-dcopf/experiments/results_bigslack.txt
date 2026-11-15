@@ -1,0 +1,23 @@
+The frozen 20-round J-m-a from the DC start's full-load power flow, reference at the largest live unit
+(plan in LOG.md 2026-11-15). Cell: branches over 100 %, worst loading, slack MW outside limits, angle
+violations, buses out of V band, units outside Q limits; cost against PGLib's published AC objective.
+
+case           kind    mu* what   nOv  maxLd%   slkMW nAng    V    Q        cost
+case1888_rte   typ   1.000 start   24  203.54     0.0    0  293   49     -2.203%
+                           J no     0   99.97     0.0    0    1    0     -0.653%
+                           J+R    reactive stage: no IPOPT solution             
+case1888_rte   api   1.000 start   90  228.71   226.7    0   43    6     -1.247%
+                           J @13    0   99.94     0.0    0    0    0     +0.617%
+case1888_rte   sad   1.000 start   24  203.32     0.0    0  293   49     -2.955%
+                           J no     0   99.97     0.0    0    1    0     -1.448%
+                           J+R    reactive stage: no IPOPT solution             
+case1951_rte   typ   1.000 start   12  191.49  1657.5    0  252   86     -1.168%
+                           J @17    0   99.90     0.0    0    0    0     +0.019%
+case1951_rte   sad   1.000 start   12  191.49  1657.5   14  252   86     -1.489%
+                           J @20    0   99.90     0.0    0    0    0     +0.050%
+
+Cases with a full-load power flow: 5 of 5
+B1 J fully clean within 20 rounds on >= 2 of 5: 3 -> HELD
+B2 J or J+R fully clean on >= 3 of 5: 3 -> HELD
+B3 every clean point within +1 %: +0.617%, +0.019%, +0.050% -> HELD
+Wall time (s): case1888_rte/typ 391, case1888_rte/api 82, case1888_rte/sad 353, case1951_rte/typ 184, case1951_rte/sad 231
