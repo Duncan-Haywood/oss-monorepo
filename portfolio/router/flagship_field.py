@@ -194,6 +194,20 @@ def hyphen_folds(text: str) -> list[int]:
     return [text.count("\n", 0, m.start()) + 1 for m in HYPHEN_FOLD.finditer(text)]
 
 
+def other_fields_hint(text: str, venture: str, field: str, old: str) -> str:
+    """Name the other fields of this flagship that hold `old`.
+
+    --replace defaults to `next:`, so text living in `buildable:` answered a
+    bare 'not found' (run-record doc friction, 2026-11-15)."""
+    for entry in _entries(yaml.safe_load(text)):
+        if entry.get("venture") == venture:
+            hits = [k for k, v in entry.items()
+                    if k != field and isinstance(v, str) and old in " ".join(v.split())]
+            if hits:
+                return "; it is in " + ", ".join(f"`{k}:` (pass --field {k})" for k in hits)
+    return ""
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("venture", nargs="?")
@@ -242,7 +256,8 @@ def main(argv: list[str] | None = None) -> int:
             new = current or ""
         for old, rep in args.replace or []:
             if old not in new:
-                print(f"not found in {args.venture}.{args.field}: {old!r}", file=sys.stderr)
+                print(f"not found in {args.venture}.{args.field}: {old!r}"
+                      + other_fields_hint(text, args.venture, args.field, old), file=sys.stderr)
                 return 1
             new = new.replace(old, rep, 1)
         out = set_value(text, args.venture, args.field, new)

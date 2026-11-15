@@ -76,6 +76,16 @@ def test_cli_replace_on_a_copy(tmp_path, capsys):
     assert ff.main(["--check", "--file", str(p)]) == 1
 
 
+def test_not_found_names_the_field_that_holds_the_text(tmp_path, capsys):
+    p = tmp_path / "f.yaml"
+    p.write_text(DOC)
+    assert ff.main(["a", "--file", str(p), "--replace", "Something", "x"]) == 1
+    assert "it is in `buildable:` (pass --field buildable)" in capsys.readouterr().err
+    assert ff.main(["a", "--file", str(p), "--replace", "nowhere", "x"]) == 1
+    assert "it is in" not in capsys.readouterr().err
+    assert p.read_text() == DOC
+
+
 def test_real_file_is_clean():
     assert ff.hyphen_folds(ff.FLAGSHIPS_PATH.read_text()) == []
 

@@ -222,7 +222,7 @@ def main(argv=None):
     if args.limits:
         print(limits_line())
         return 0
-    bad, own = 0, False
+    bad, own, first = 0, False, None
     texts = {f.name: f.read_text(encoding="utf-8") for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md"))}
     named, reports = set(), []
     for p in args.posts:
@@ -241,6 +241,7 @@ def main(argv=None):
             continue
         for p in problems(name, text):
             print(f"{name}: {p}")
+            first = first or f"{name}: {p}"
             bad += 1
             own = True
     own_tags = set()
@@ -266,6 +267,10 @@ def main(argv=None):
         bad += 1
     if own:  # a post's own field failed: show every cap, so one rewrite fixes them all
         print(limits_line())
+        # The caps line alone was last, so `| tail -1` showed the limits but
+        # not which field failed (run-record doc friction, 2026-11-15: two
+        # fix-and-rerun rounds). End on the count and the first problem.
+        print(f"FAIL: {bad} problem(s); first: {first}")
     if not bad:
         # A clean pass printed nothing, so in a tail it looked like a run that
         # never started (run-record doc friction, 2026-11-14; one re-run).
