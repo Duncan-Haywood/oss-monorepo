@@ -129,16 +129,20 @@ export function parseWhen(v, dmy = false) {
   return new Date(t).getUTCDate() === d ? { t, hasTime } : null;
 }
 
-// Day-first only when unambiguous: some first part above 12, no second above 12.
+// Day-first when some first part is above 12, or the dates use dots
+// ("03.06.2026", the European convention; no locale writes month.day.year),
+// and no second part is above 12. Slashes with every part 12 or under stay
+// month-first (US).
 export function detectDmy(values) {
-  let first = false, second = false;
+  let first = false, second = false, dotted = false;
   for (const v of values) {
-    const m = String(v ?? "").trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}/);
+    const m = String(v ?? "").trim().match(/^(\d{1,2})([/.-])(\d{1,2})\2\d{2,4}/);
     if (!m) continue;
     if (+m[1] > 12) first = true;
-    if (+m[2] > 12) second = true;
+    if (+m[3] > 12) second = true;
+    if (m[2] === ".") dotted = true;
   }
-  return first && !second;
+  return (first || dotted) && !second;
 }
 
 
@@ -227,7 +231,7 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
       f[k] = r.v;
     }
     if (bad) { skipped.push({ line: lineNo, reason: "amount not a number" }); continue; }
-    if (f.gross === null && f.commission === null && f.errors === null) { skipped.push({ line: lineNo, reason: "no amount" }); continue; }
+    if (f.gross === null && CHARGE_FIELDS.every((k) => f[k] === null)) { skipped.push({ line: lineNo, reason: "no amount" }); continue; }
     const status = get(line, "status");
     const cancelled = /cancel|declin|reject|expire|void|fail|refund(ed)?\b/i.test(status) && !/^\s*$/.test(status);
     if (cancelled) cancelledCount += 1;
