@@ -54,8 +54,8 @@ const DATE_RES = [
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
-const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|tl)\b/i;
-const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items?|qty|quantity|pcs|tax|points|sv|gv|ev|qu)\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
+const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|tota[il1]?|t0tal|[il]otal|netto|jumlah|due|tl)\b/i;
+const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?tota|zwischensumme|sous-total|(?:total|tota[il1]?|t0tal|[il]otal)\s+(?:savings|discount|items?|qty|quantity|pcs|tax|points|sv|gv|ev|qu)\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
 // "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
 const TAX_TOTAL_RE = /tax\s+total|total\s+tax/i;
@@ -89,7 +89,7 @@ export function splitReceipts(text) {
 }
 
 // Lines that carry an amount but are not things bought.
-const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?total|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
+const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?tota|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
 const TIP_RE = /\b(tip|gratuity)\b/i;
 
 // Item lines: words, then a price (the last amount on the line; "2 x 3.00  6.00"
@@ -203,6 +203,30 @@ function crossCheckTotal(checks, cents) {
   const [[v, why]] = agreed;
   return { cents: v, why: [...why].join(" and ") };
 }
+
+// A total's first digit read as a letter glued to the rest ("Balance Due A7.90" for
+// 47.90, SRD 1177): the money pattern takes "7.90" and drops the letter. cleanOcr
+// already maps S, B, O, l, I and Z inside digit tokens; these shapes it leaves
+// alone because they are as often a real letter. So the letter read as a digit is
+// only a candidate, taken when one of the receipt's own sums (subtotal plus tax,
+// the items, cash less change) or another total line ("Total 47.90" above it)
+// gives exactly that amount, and none gives the amount as read (parseReceipt).
+const GLUED = { A: "4", G: "6", b: "6", T: "7", g: "9", q: "9" };
+function gluedLookalike(line, comma) {
+  if (comma === "whole") return null;
+  const ms = [...line.matchAll(moneyRe(comma))];
+  const m = ms[ms.length - 1];
+  if (!m || m[0] !== m[1]) return null; // a currency sign before it: nothing glued
+  const c = line[m.index - 1], before = line[m.index - 2] ?? " ";
+  if (!(c in GLUED) || /\p{L}|\d/u.test(before)) return null;
+  const cents = parseCents(GLUED[c] + m[1], comma);
+  return Number.isInteger(cents) ? { cents, was: c + m[1] } : null;
+}
+
+// A card tender line: what the card was charged. Tip, change, cash-back and
+// balance lines carry other amounts.
+const CARD_RE = /\b(?:visa|master\s*card|mc|amex|american\s+express|discover|debit|credit(?:\s*car[de])?|card)\b/i;
+const NOT_CARD_RE = /\b(?:tip|gratuity|change|cash\s*back|balance|points|rewards?|savings?|limit)\b/i;
 
 // Whole-unit amounts OCR split at the group separator: "25 000", "308. 000",
 // "304 ,326" (CORD's phone photos through tesseract.js, eval/cord-receipts.mjs
@@ -367,12 +391,29 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     const t = totalCashChange(lines, comma);
     if (t !== null) { cents = t; notes.push("no total line; three amounts read as total, cash and change (cash less change is the total)"); }
   }
+  if (cents === null && comma !== "whole") {
+    // no total line: the card the slip was paid with, "VISA 6.56", "MASTERCARD ##4617 $52.47"
+    // (README, "No total line: the card line"); the last such line with an amount. Not on a
+    // whole-unit slip: "[1] BCA DEBIT -259,000" reads as 1 there (CORD train-178)
+    for (let i = lines.length - 1; i >= 0 && cents === null; i--) {
+      if (!CARD_RE.test(lines[i]) || NOT_CARD_RE.test(lines[i])) continue;
+      const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]);
+      if (a.length && a[a.length - 1] > 0) { cents = a[a.length - 1]; notes.push("no total line; took the amount on the card line"); }
+    }
+  }
   if (cents === null) {
     const all = lines.flatMap((l) => amountsIn(l, comma));
     if (all.length) { cents = Math.max(...all); notes.push("no total line; took the largest amount"); }
   }
   if (cents === null) notes.push("no amount found");
   const checks = totalChecks(lines, comma, at, bare);
+  if (cents !== null && at >= 0) {
+    const alt = gluedLookalike(amountsIn(lines[at], comma).length ? lines[at] : lines[at + 1] ?? "", comma);
+    if (alt !== null && alt.cents !== cents && !checks.some(([v]) => v === cents) && checks.some(([v]) => v === alt.cents)) {
+      notes.push(`total line read "${alt.was}" as ${(cents / 100).toFixed(2)}; the receipt's arithmetic gives ${(alt.cents / 100).toFixed(2)}, the letter read as a digit: used that, check the total`);
+      cents = alt.cents;
+    }
+  }
   if (cents !== null) {
     const fix = crossCheckTotal(checks, cents);
     if (fix) { notes.push(`total read as ${(cents / 100).toFixed(2)}; ${fix.why} give ${(fix.cents / 100).toFixed(2)}, one digit apart: used that, check the total`); cents = fix.cents; }

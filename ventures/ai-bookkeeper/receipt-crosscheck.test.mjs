@@ -131,6 +131,58 @@ test("readings that only guessed the largest amount count half in the vote", () 
   assert.equal(parseReceiptPasses(["Total 13.00", read, "Total 13.00", guess]).cents, 1300);
 });
 
+test("a total's first digit read as a glued letter is repaired only when the receipt's sums give it", () => {
+  const body = "JOES DINER\n01/02/2020\nBurger 30.15\nFries 15.00\nSubtotal 45.15\nTax 2.75\n";
+  // "Balance Due A7.90": the money pattern takes 7.90; subtotal plus tax and the items give 47.90
+  const r = parseReceipt(body + "Balance Due A7.90");
+  assert.equal(r.cents, 4790);
+  assert.match(r.notes.join(";"), /read "A7\.90" as 7\.90.*47\.90.*check the total/);
+  assert.equal(r.itemsOk, true);
+  for (const [c, d] of [["G", 6], ["T", 7], ["g", 9]]) {
+    const t = `SHOP\nSubtotal ${d}5.15\nTax 2.75\nTotal ${c}7.90`;
+    assert.equal(parseReceipt(t).cents, d * 1000 + 790, c);
+  }
+  // no sum gives the repaired amount: the total stays as read
+  assert.equal(parseReceipt(body + "Balance Due A8.90").cents, 890);
+  // a sum gives the amount as read: the letter is a real letter
+  assert.equal(parseReceipt("SHOP\nSubtotal 7.10\nTax 0.80\nTotal A7.90").cents, 790);
+  // a letter inside a word ("TA7.90"), a currency sign or a space before the amount: untouched
+  assert.equal(parseReceipt("SHOP\nSubtotal 45.15\nTax 2.75\nTotal TA7.90").cents, 790);
+  assert.equal(parseReceipt("SHOP\nSubtotal 45.15\nTax 2.75\nTotal A $7.90").cents, 790);
+  assert.equal(parseReceipt("SHOP\nSubtotal 45.15\nTax 2.75\nTotal A 7.90").cents, 790);
+  // another total line gives it ("Total 47.90" above "Balance Due A7 .90", SRD 1177, the tax misread)
+  assert.equal(parseReceipt("SHOP\nSubtotal 45.15\nTax 2.18\nTotal 47.90\nBalance Due A7 .90").cents, 4790);
+  // another total line gives the amount as read: left alone
+  assert.equal(parseReceipt("SHOP\nTotal 7.90\nAmount Due A7.90").cents, 790);
+  // the four readings: two that read the glued letter now agree with the clean one
+  const clean = body + "Balance Due 47.90";
+  assert.equal(parseReceiptPasses([body + "Balance Due A7.90", "JOES DINER\nBalance Due A7.90", clean, "JOES DINER\nBalance Due A7.90"]).cents, 4790);
+});
+
+test("no total line: the card line's amount, before the largest amount on the page", () => {
+  // SRD 1082: "VISA 6.56" with a phone number and a 19.07 lower down
+  const r = parseReceipt("TACO SPOT\n562-860-2310\nTaco 3.28\nTaco 3.28\nVISA 6.56\nPoints 19.07");
+  assert.equal(r.cents, 656);
+  assert.match(r.notes.join(";"), /took the amount on the card line/);
+  assert.equal(parseReceipt("DINER\nMASTERCARD ##4617 $52.47\nTip ____\nCash 60.00").cents, 5247);
+  assert.equal(parseReceipt("DINER\nCredit Card\n13.22").cents, 1322); // amount on the next line
+  // tip, change and balance lines on a card are not the charge
+  assert.equal(parseReceipt("DINER\nCard balance 80.00\nItem 5.00").cents, 8000); // falls back on the largest
+  assert.match(parseReceipt("DINER\nCard balance 80.00\nItem 5.00").notes.join(";"), /largest amount/);
+  // a printed total line still wins over the card line
+  assert.equal(parseReceipt("DINER\nTotal 12.00\nVISA 14.40").cents, 1200);
+  // whole-unit slips keep the old fallback: "[1] BCA DEBIT -259,000" reads as 1 there (CORD train-178)
+  assert.equal(parseReceipt("GARISH PC 259.000\n259.000\nTotal Rp\n[1] BCA DEBIT -259,000\nTotal Qty 2").cents, 25900000);
+});
+
+test("a TOTAL with its last letter clipped or misread is still a total line, and still not a quantity", () => {
+  assert.equal(parseReceipt("DINER\nBurger 9.80\nFries 8.00\nTota 17.80\nCash 20.00").cents, 1780); // SRD 1038
+  assert.equal(parseReceipt("DINER\nTOTAI 17.80\nCash 20.00").cents, 1780);
+  assert.equal(parseReceipt("DINER\nSub Tota 15.00\nTax 1.00\nTotal 16.00").cents, 1600);
+  // "TOTAI QTY 1" counts items (CORD train-286)
+  assert.equal(parseReceipt("1 Hokkaido 14,000\nSUBTOTAL 14.000\nDUE 14,000\nBCA: 14,000\nTOTAI QTY 1").cents, 1400000);
+});
+
 // --four-pass (CLI): the photo twice and an ImageMagick grey copy at 2,000 px twice.
 test("--four-pass reads a small photo four times (enlarged copy last), a big one four times (shrunk copy first), and skips the copy without ImageMagick", async () => {
   const { receiptPassesFromFile } = await import("./ocr.mjs");
