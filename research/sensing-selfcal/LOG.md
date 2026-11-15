@@ -1,5 +1,18 @@
 # sensing-selfcal research log
 
+## 2026-11-15 · Milestone 4o planned: with the lens the Kinect needs (k1 + k2), does the twin still rank updates, and does waiting for the best new set add to the doubling?
+
+Written before any milestone-4o quantity was computed. Milestone 4n found that fitting k1 + k2 on the Kinect (fr1) doubles the 7 + 6 update test's power for a ±2% focal change, and milestone 4m that, with the old calibration held fixed, picking the candidate new set the twin rates highest gains ×1.33 on the TUM units (k1). The paper's open question (`paper/draft.md`, conclusion) is whether those two gains compound. No new solve: milestone 4n's k1 + k2 solves (5, 6, 7 and 13 views per unit) cover 7 + 6 and 6 + 6, so milestone 4l's predicted power (`rig_modules`, `sigma_hat`, `predict`, imported unchanged; σ̂ counts the extra lens parameter) and milestone 4m's choice rule (`groups`, `choose`, `design_stats`, imported unchanged) are run with a k1 + k2 twin beside a k1 arm on 4j's stored solves (same 10,000 resid draws per unit, seed 20261114). The k1 arm must reproduce milestones 4l and 4m's TUM figures (fr1 7 + 6 AUC 0.749, mean π / real 1.34; 6 + 6 chosen 9.73% against 7.33% blind) before anything is scored.
+
+- **H86 (the twin still ranks on the Kinect).** k1 + k2, 7 + 6: AUC of π<sub>s</sub> for the real ±2% detection at least 0.70 on each TUM unit (k1: 0.749, 0.748). Refuted below on either.
+- **H87 (the twin's level is closer on the Kinect).** k1 + k2, fr1, 7 + 6: mean π over the real ±2% rate nearer 1 than k1's 1.34 (|log ratio| smaller). Refuted if not.
+- **H88 (testing the top quarter still pays).** k1 + k2, 7 + 6, TUM pooled: the real ±2% rate in the top quarter of each unit's splits by π is at least 1.5× the rate over all splits. Refuted below.
+- **H89 (waiting still pays).** k1 + k2, 6 + 6, TUM pooled: the chosen rate is at least 1.2× the blind rate (k1: ×1.33). Refuted below.
+- **H90 (and the gains compound).** k1 + k2, 6 + 6, TUM pooled: the chosen rate is at least 1.3× the k1 chosen rate (9.73%). Refuted below.
+- **H91 (without false alarms).** k1 + k2: S0 false alarms at most 2.5% on each unit for the top quarter at 7 + 6 and for the chosen splits at 6 + 6. Refuted above on either.
+- **Reported, unscored.** The 6 + 6 blind rates and S0 false alarms under k1 + k2 (milestone 4n scored 7 + 6 only); ceilings; within-old-set AUC; the sd rule; ±1% and ±4%; the twin's predicted gain against the real one.
+- **Caveat set in advance.** The same 13 views per unit; splits and candidates share views, so no interval. 5 + 6 (28 candidates) cannot be run: its 5-view sets need 4-view delete-one solves that milestone 4n did not compute.
+
 ## 2026-11-15 · Milestone 4n result: fitting the Kinect's lens with k1 + k2 doubles the update test's power for a 2% focal change (9.8% to 19.3% of 7 + 6 splits) at unchanged false alarms; on the undistorted Xtion it changes nothing
 
 - **Runs.** 9,440 k1 + k2 solves (`experiments/m4n_k2/run.py`, 5-, 6-, 7- and 13-view sets of both units, about 2 h on 4 cores, most of it fr1); `analyse.py` (about 4 min) builds a k1 and a k1 + k2 twin per unit from the same 10,000 resid draws and scores every 7 + 6 split under both. The k1 arm reproduces milestone 4j's 7 + 6 figures exactly (S0 0.763% / 0.058%, ±2% 10.03%, median per-split threshold 9.52 / 10.84, 8 far 6-view solves), which was checked before the k1 + k2 solves finished. `tests/test_m4n.py` checked first that the k1 + k2 twin reproduces the k1 + k2 solver's 13-view solve and a small nonlinear perturbation, that each private module keeps its own lens model, and that the restricted `twin_sets` matches milestone 4i's.
