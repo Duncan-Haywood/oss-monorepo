@@ -2,7 +2,7 @@
 title: "Robust PCA found the day the clocks changed without being told"
 seo_title: "Robust PCA online: low-rank plus sparse on a year of hourly load"
 date: 2026-11-15
-description: "A free robust PCA tool (principal component pursuit, Candès et al. 2011) on 365 days × 24 hours of AEP load: the spring clock change ranks second, holidays barely register, and the paper's step size stopped short."
+description: "Free robust PCA (principal component pursuit) on a year of hourly AEP load: the spring clock change ranks second and holidays barely register."
 tags: [research-algorithms, robust-pca, anomaly-detection, energy]
 ---
 
