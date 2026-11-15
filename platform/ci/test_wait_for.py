@@ -13,6 +13,36 @@ class WaitFor(unittest.TestCase):
             self.assertTrue(ok)
             self.assertEqual(lines[-1], "DONE")
 
+    def test_earlier_phase_marker_in_a_held_log_is_stale(self):
+        # friction 2026-11-15: phase two appended to phase one's log; the old DONE ended both waits at once
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("phase 1\nDONE\nphase 2 running\n")
+            t = [0.0]
+            ok, _ = wait(p, timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s),
+                         held=lambda: [(1, "bash")])
+            self.assertFalse(ok)
+            # the writer has closed it: the job ended, so the marker stands
+            self.assertTrue(wait(p, timeout=1, held=lambda: [])[0])
+            self.assertTrue(wait(p, timeout=1, held=lambda: None)[0])
+            # a second marker ending the log ends the wait even while held
+            open(p, "a").write("DONE\n")
+            self.assertTrue(wait(p, timeout=1, held=lambda: [(1, "bash")])[0])
+
+    def test_real_holder_keeps_stale_marker_waiting(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("DONE\nphase 2\n")
+            proc = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"],
+                                    stdout=open(p, "a"))
+            try:
+                t = [0.0]
+                ok, _ = wait(p, timeout=2, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))
+                self.assertFalse(ok)
+            finally:
+                proc.kill(); proc.wait()
+            self.assertTrue(wait(p, timeout=1)[0])
+
     def test_marker_must_be_whole_line(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
