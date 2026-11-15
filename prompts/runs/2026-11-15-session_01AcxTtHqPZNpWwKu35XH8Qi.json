@@ -39,6 +39,10 @@
     {
       "file": "ventures/hearth-and-horizon/BIBLE.md",
       "issue": "The For Other Minds proposal specified a 'six-week reading log' as the second look; in the story's timeline (letters 2 Oct, half-term, second look to 11 Dec) a fixed six weeks did not fit, so the story uses the term-long reading record instead."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs before drafting and found none on the screener proposal, but another session (PR #16360) opened and merged it while this run drafted; a bible proposal has no claim marker, so two sessions can pick the same 'next up' entry within an hour. A claim line in BIBLE.md (or a draft PR opened before drafting) would prevent it."
     }
   ],
   "deviations": [
@@ -47,13 +51,19 @@
       "why": "Its 'then:' fallback listed saints-by-candlelight first, but For Other Minds had the highest draw weight (35%) and a fully specified bible proposal, while Saints had just landed episode 125 an hour earlier.",
       "did": "Wrote the For Other Minds proposal instead of a Saints episode.",
       "result": "Story landed with numbers checked; no open PR overlapped."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "After the merge conflict showed #16360 had landed the same proposal, merging a second story on the same premise would have duplicated the shelf.",
+      "did": "Dropped 'Nine Letters Home' before merging and wrote 'Ninety-Seven Visits' (Goodhart's law) from the For Other Minds proposal this run had added to the bible.",
+      "result": "Second story landed; the first draft cost about a story's worth of tokens and is not in the tree."
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-15-nine-letters-home-screener-cut-off.md"
+    "docs/posts/2026-11-15-ninety-seven-visits-goodharts-law.md"
   ],
   "goal": null,
-  "notes": "Project: Hearth & Horizon, For Other Minds shelf. Piece: nine-letters-home (screener positive predictive value, cut-off trade-off, two-step second look, letter wording). Text only (audio 474 MB > 400 MB cap). node --test 17/17 in ventures/hearth-and-horizon. Added a new For Other Minds bible proposal (Goodhart's law) since the shelf's Next up was emptied.",
+  "notes": "Project: Hearth & Horizon, For Other Minds shelf. Piece: ninety-seven-visits (Goodhart's law: visits target, then minutes target, then four figures plus notes). A first draft, nine-letters-home (reading screener), was dropped unmerged because PR #16360 merged the same bible proposal meanwhile. Text only (audio 474 MB > 400 MB cap). node --test 17/17; run_workflow_locally --for-changes 12/12 on the first draft's diff.",
   "corrections": [],
   "redteam": null,
   "usage": {

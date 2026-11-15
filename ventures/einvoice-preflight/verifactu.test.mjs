@@ -17,13 +17,14 @@ function alta(o = {}) {
 }
 const one = (xml) => readVerifactu(xml)[0];
 // AEAT's worked examples are dated 01-01-2024, before the earliest issue date AEAT
-// accepts (VF-029); that rule has its own test, so the shared helper leaves it out.
-const rules = (xml) => recordFindings(one(xml)).map((f) => f.rule).filter((r) => r !== "VF-029");
+// accepts (VF-029), and their line is taxed at 11.12%, no Spanish VAT rate (VF-045, a
+// warning); both rules have their own tests, so the shared helper leaves them out.
+const rules = (xml) => recordFindings(one(xml)).map((f) => f.rule).filter((r) => r !== "VF-029" && r !== "VF-045");
 
 test("AEAT's two worked examples (huella specification v0.1.2) reproduce", () => {
   assert.equal(huellaOf("IDEmisorFactura=89890001K&NumSerieFactura=12345678/G33&FechaExpedicionFactura=01-01-2024&TipoFactura=F1&CuotaTotal=12.35&ImporteTotal=123.45&Huella=&FechaHoraHusoGenRegistro=2024-01-01T19:20:30+01:00"), "3C464DAF61ACB827C65FDA19F352A4E3BDC2C640E9E9FC4CC058073F38F12F60");
   const first = one(alta());
-  assert.deepEqual(recordFindings(first).map((f) => f.rule), ["VF-029"]);
+  assert.deepEqual(recordFindings(first).map((f) => f.rule), ["VF-029", "VF-045"]);
   assert.equal(first.expectedHuella, "3C464DAF61ACB827C65FDA19F352A4E3BDC2C640E9E9FC4CC058073F38F12F60");
   const second = one(alta({ number: "12345679/G34", prev: first.huella, prevNumber: "12345678/G33", generated: "2024-01-01T19:20:35+01:00" }));
   assert.equal(second.expectedHuella, "F7B94CFD8924EDFF273501B01EE5153E4CE8F259766F88CF6ACB8935802A2B97");
@@ -196,4 +197,81 @@ test("AEAT's newer codes: 1287 characters, 1286 and 1293 regimes, 1289 E5 buyer,
   const ipsi = recordFindings(one(rec({ line: { tax: "02", regime: null } }))).filter((f) => f.rule === "VF-038");
   assert.equal(ipsi.length, 1);
   assert.equal(ipsi[0].severity, "warning");
+});
+
+// VF-043 to VF-047: the code lists of AEAT's schema, dates against its clock, the VAT
+// rate list by date, NIF-IVA prefixes around Brexit and the Generador block.
+const buyer = (country, type, id) => `<sum1:Destinatarios><sum1:IDDestinatario><sum1:NombreRazon>B</sum1:NombreRazon><sum1:IDOtro>${country ? `<sum1:CodigoPais>${country}</sum1:CodigoPais>` : ""}<sum1:IDType>${type}</sum1:IDType><sum1:ID>${id}</sum1:ID></sum1:IDOtro></sum1:IDDestinatario></sum1:Destinatarios>`;
+const NOW = new Date("2026-11-15T12:00:00Z");
+const at = (xml) => recordFindings(one(xml), { now: NOW }).map((f) => f.rule);
+const dated = (date, line, extra = "") => rec({ date, generated: `${date.split("-").reverse().join("-")}T10:00:00+01:00`, cuota: line.cuota, importe: (100 + Number(line.cuota)).toFixed(2), line, extra });
+
+test("VF-043: values outside the schema's code lists (AEAT 1101, 1111, 1218, 1246, 1212)", () => {
+  assert.deepEqual(at(rec({ dest: buyer("FR", "02", "FR12345678901") })), []);
+  assert.deepEqual(at(rec({ dest: buyer("US", "04", "123") })), []);
+  assert.deepEqual(at(rec({ dest: buyer(null, "02", "FR12345678901") })), []);
+  assert.ok(at(rec({ dest: buyer("UK", "04", "123") })).includes("VF-043"), "UK is not ISO 3166 (GB is)");
+  assert.ok(at(rec({ dest: buyer("EL", "04", "123") })).includes("VF-043"), "Greece is GR in the list");
+  assert.ok(at(rec({ dest: buyer(null, "04", "123") })).includes("VF-043"), "1111: only IDType 02 may omit CodigoPais");
+  assert.ok(at(rec({ dest: buyer("US", "08", "123") })).includes("VF-043"));
+  assert.ok(at(rec({ line: { tax: "04" } })).includes("VF-043"));
+  assert.ok(at(rec({ line: { regime: "12" } })).includes("VF-043"));
+  assert.ok(!at(rec({ line: { regime: "17" } })).includes("VF-043"));
+  assert.ok(at(rec({ extra: "<sum1:SistemaInformatico><sum1:NIF>A39200019</sum1:NIF><sum1:IndicadorMultiplesOT>X</sum1:IndicadorMultiplesOT></sum1:SistemaInformatico>" })).includes("VF-043"));
+});
+
+test("VF-044: dates against the AEAT's clock (1133, 1134, 1146, 1173)", () => {
+  assert.ok(at(rec({ extra: "<sum1:FechaOperacion>01-03-2006</sum1:FechaOperacion>" })).includes("VF-044"), "1134: over twenty years old");
+  assert.ok(!at(rec({ extra: "<sum1:FechaOperacion>01-03-2025</sum1:FechaOperacion>" })).includes("VF-044"));
+  assert.ok(at(rec({ extra: "<sum1:FechaOperacion>10-04-2025</sum1:FechaOperacion>" })).includes("VF-044"), "1146: operation after issue");
+  assert.ok(!at(rec({ line: { regime: "15" }, extra: "<sum1:FechaOperacion>10-04-2025</sum1:FechaOperacion>" })).includes("VF-044"), "regime 15 may invoice ahead");
+  const future = at(rec({ line: { regime: "14" }, extra: "<sum1:FechaOperacion>10-01-2027</sum1:FechaOperacion>" }));
+  assert.ok(!future.includes("VF-044"), "1173: regime 14 may carry a future date");
+  assert.equal(at(rec({ extra: "<sum1:FechaOperacion>10-01-2027</sum1:FechaOperacion>" })).filter((r) => r === "VF-044").length, 2, "1146 and 1173 both");
+  // The default clock is the real one: a record dated far ahead still trips 1173 today.
+  assert.ok(recordFindings(one(rec({ extra: "<sum1:FechaOperacion>10-01-2999</sum1:FechaOperacion>" }))).some((f) => f.rule === "VF-044"));
+});
+
+test("VF-045: VAT rates by date (1124, 1194, 1235, 1236, 1132)", () => {
+  assert.deepEqual(at(dated("15-11-2024", { rate: "2.00", cuota: "2.00" })), []);
+  assert.deepEqual(at(dated("15-11-2024", { rate: "7.5", cuota: "7.50" })), []);
+  assert.deepEqual(at(dated("02-04-2025", { rate: "10.00", cuota: "10.00" })), []);
+  assert.ok(at(dated("02-04-2025", { rate: "2.00", cuota: "2.00" })).includes("VF-045"), "2% ended with 2024");
+  assert.ok(at(dated("02-04-2025", { rate: "7.50", cuota: "7.50" })).includes("VF-045"));
+  assert.ok(at(dated("02-04-2025", { rate: "5.00", cuota: "5.00" })).includes("VF-045"), "5% ended 30-09-2024 (1194)");
+  assert.ok(at(dated("02-04-2025", { rate: "18.00", cuota: "18.00" })).includes("VF-045"), "18% up to 2012 only (1132)");
+  const odd = recordFindings(one(dated("02-04-2025", { rate: "11.00", cuota: "11.00" })), { now: NOW }).find((f) => f.rule === "VF-045");
+  assert.equal(odd.severity, "warning", "1124: a rate outside the named ones is a warning");
+  assert.ok(!at(dated("02-04-2025", { tax: "03", rate: "7.00", cuota: "7.00" })).includes("VF-045"), "IGIC rates are not checked");
+  // FechaOperacion, when given, decides: a 2% operation in December 2024 invoiced in January 2025.
+  assert.ok(!at(dated("10-01-2025", { rate: "2.00", cuota: "2.00" }, "<sum1:FechaOperacion>20-12-2024</sum1:FechaOperacion>")).includes("VF-045"));
+});
+
+test("VF-046: GB and XI VAT numbers around Brexit (1254, 1255)", () => {
+  assert.ok(at(rec({ dest: buyer("GB", "02", "GB123456789") })).includes("VF-046"));
+  assert.ok(!at(rec({ dest: buyer("GB", "04", "GB123456789") })).includes("VF-046"));
+  assert.ok(!at(rec({ dest: buyer(null, "02", "XI123456789") })).includes("VF-046"));
+});
+
+const anul = (inner) => `<sum1:RegistroAnulacion xmlns:sum1="${NS}"><sum1:IDVersion>1.0</sum1:IDVersion><sum1:IDFactura><sum1:IDEmisorFacturaAnulada>89890001K</sum1:IDEmisorFacturaAnulada><sum1:NumSerieFacturaAnulada>A1</sum1:NumSerieFacturaAnulada><sum1:FechaExpedicionFacturaAnulada>02-04-2025</sum1:FechaExpedicionFacturaAnulada></sum1:IDFactura>${inner}<sum1:Encadenamiento><sum1:PrimerRegistro>S</sum1:PrimerRegistro></sum1:Encadenamiento><sum1:FechaHoraHusoGenRegistro>2025-04-03T10:00:00+02:00</sum1:FechaHoraHusoGenRegistro><sum1:TipoHuella>01</sum1:TipoHuella><sum1:Huella>${"A".repeat(64)}</sum1:Huella></sum1:RegistroAnulacion>`;
+const gen = (by, ids) => `${by ? `<sum1:GeneradoPor>${by}</sum1:GeneradoPor>` : ""}${ids === null ? "" : `<sum1:Generador><sum1:NombreRazon>G</sum1:NombreRazon>${ids}</sum1:Generador>`}`;
+const codes47 = (xml) => recordFindings(one(xml), { now: NOW }).filter((f) => f.rule === "VF-047").map((f) => f.fix.match(/AEAT code (\d+)/)[1]);
+
+test("VF-047: the Generador block of a cancellation (1224-1231, 1258, 1259)", () => {
+  const nif = "<sum1:NIF>A39200019</sum1:NIF>";
+  const otro = (c, t) => `<sum1:IDOtro><sum1:CodigoPais>${c}</sum1:CodigoPais><sum1:IDType>${t}</sum1:IDType><sum1:ID>X1</sum1:ID></sum1:IDOtro>`;
+  assert.deepEqual(codes47(anul("")), []);
+  assert.deepEqual(codes47(anul(gen("T", nif))), []);
+  assert.deepEqual(codes47(anul(gen("E", "<sum1:NIF>89890001K</sum1:NIF>"))), []);
+  assert.deepEqual(codes47(anul(gen("D", otro("ES", "03")))), []);
+  assert.deepEqual(codes47(anul(gen("T", null))), ["1224"]);
+  assert.deepEqual(codes47(anul(gen(null, nif))), ["1224"]);
+  assert.deepEqual(codes47(anul(gen("X", nif))), ["1225"]);
+  assert.deepEqual(codes47(anul(gen("E", otro("FR", "02")))), ["1227"]);
+  assert.deepEqual(codes47(anul(gen("T", nif + otro("FR", "02")))), ["1228"]);
+  assert.deepEqual(codes47(anul(gen("T", otro("ES", "07")))), ["1229"]);
+  assert.deepEqual(codes47(anul(gen("D", otro("ES", "06")))), ["1230"]);
+  assert.deepEqual(codes47(anul(gen("T", "<sum1:NIF>89890001K</sum1:NIF>"))), ["1259"]);
+  assert.deepEqual(codes47(anul(gen("T", "<sum1:NIF>A3920001</sum1:NIF>"))), ["1258"]);
+  assert.ok(recordFindings(one(anul(gen("T", otro("FR", "09")))), { now: NOW }).some((f) => f.rule === "VF-043" && /1231/.test(f.fix)));
 });

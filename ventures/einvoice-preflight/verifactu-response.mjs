@@ -6,7 +6,7 @@
 //
 // Every code is looked up in the AEAT's own list (errores.properties, 247 codes, read
 // from prewww2.aeat.es on 2026-11-15; verifactu-errors-data.mjs) and mapped to the
-// rules of this tool (verifactu.mjs, VF-001 to VF-042) that catch the same fault before
+// rules of this tool (verifactu.mjs, VF-001 to VF-047) that catch the same fault before
 // sending, or to the reason no file-only check can (the AEAT census, its own records,
 // its clock, the certificate). When the records sent are in the same batch, each
 // response line is paired with its record by IDFactura (issuer, number, date) and the
@@ -161,6 +161,33 @@ export const AEAT_CODE_RULES = {
   "1291": M(["VF-002"], "yes", "The previous record's fingerprint is not alphanumeric."),
   "1292": M(["VF-002"], "yes", "The fingerprint is not alphanumeric."),
   "1293": M(["VF-038"], "yes", "Regime 20 lines carry N2."),
+  "1101": M(["VF-043"], "yes", "CodigoPais is not in the AEAT's country list."),
+  "1111": M(["VF-043"], "yes", "CodigoPais is required unless IDType is 02 (VAT number)."),
+  "1124": M(["VF-045"], "partly", "TipoImpositivo is not in the list of allowed rates.", "the rates checked are the Spanish VAT rates the AEAT's own codes name, as a warning; IGIC and IPSI rates are not checked"),
+  "1132": M(["VF-045"], "yes", "This VAT rate (7, 8, 16 or 18%) is allowed only for dates up to 2012."),
+  "1133": M(["VF-044", "VF-029"], "yes", "FechaExpedicionFactura is more than twenty years old."),
+  "1134": M(["VF-044"], "yes", "FechaOperacion is more than twenty years old."),
+  "1146": M(["VF-044"], "partly", "The issue date may precede the operation date only on ClaveRegimen 14 or 15 lines (VAT, IGIC or empty).", "the rule lets the record pass when any line is under 14 or 15; the AEAT may require every line to be"),
+  "1173": M(["VF-044"], "partly", "A future FechaOperacion only on ClaveRegimen 14 or 15 lines (VAT, IGIC or empty).", "today is this tool's clock, not the AEAT's, and any 14 or 15 line lets the record pass"),
+  "1194": M(["VF-045"], "partly", "This rate is allowed only from 1 July 2022 to 30 September 2024.", "the AEAT's text does not name the rate; the rule takes it as 5%, whose surcharge codes 1167 and 1168 cover the same dates"),
+  "1212": M(["VF-043"], "yes", "TipoUsoPosibleSoloVerifactu takes S or N."),
+  "1213": M(["VF-043"], "yes", "TipoUsoPosibleMultiOT takes S or N."),
+  "1218": M(["VF-043"], "yes", "Impuesto is not 01, 02, 03 or 05."),
+  "1224": M(["VF-047"], "yes", "GeneradoPor and the Generador block go together."),
+  "1225": M(["VF-047"], "yes", "GeneradoPor is not E, D or T."),
+  "1226": M(["VF-043"], "yes", "IndicadorMultiplesOT takes S or N."),
+  "1227": M(["VF-047"], "yes", "GeneradoPor E needs the Generador's NIF."),
+  "1228": M(["VF-047"], "yes", "The Generador carries NIF or IDOtro, exactly one."),
+  "1229": M(["VF-047"], "yes", "GeneradoPor T: the Generador cannot be IDType 07."),
+  "1230": M(["VF-047"], "yes", "GeneradoPor D with CodigoPais ES: the Generador is IDType 03 or 07."),
+  "1231": M(["VF-043"], "yes", "The Generador's IDType is wrong."),
+  "1235": M(["VF-045"], "partly", "This rate is allowed only from 1 October to 31 December 2024.", "the AEAT's text does not name the rate; the rule takes 1235 and 1236 as 2% and 7.5%, whose surcharge codes 1166 and 1169 cover the same dates"),
+  "1236": M(["VF-045"], "partly", "This rate is allowed only from 1 October to 31 December 2024.", "the AEAT's text does not name the rate; the rule takes 1235 and 1236 as 2% and 7.5%, whose surcharge codes 1166 and 1169 cover the same dates"),
+  "1246": M(["VF-043"], "yes", "ClaveRegimen is not in the AEAT's list."),
+  "1254": M(["VF-046"], "yes", "An XI VAT number is not allowed for operations before 1 January 2021."),
+  "1255": M(["VF-046"], "yes", "A GB VAT number is not allowed for operations from 1 February 2021."),
+  "1258": M(["VF-047"], "partly", "The Generador's NIF is wrong.", "this tool checks its shape and check character only"),
+  "1259": M(["VF-047"], "partly", "The Generador's NIF must be in the census and differ from the issuer's.", CENSUS),
   "2000": M(["VF-001"], "yes", "The fingerprint does not match the record (accepted, to be corrected)."),
   "2001": M(["VF-019"], "partly", "A buyer's NIF is not in the census (accepted, to be corrected).", CENSUS),
   "2002": M(["VF-002"], "yes", "The previous record's fingerprint has the wrong length (accepted, to be corrected)."),

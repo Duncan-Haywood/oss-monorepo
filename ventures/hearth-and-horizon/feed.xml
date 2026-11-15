@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>A Reason for a Second Look</title>
+      <link>https://example.invalid/hearth-and-horizon/a-reason-for-a-second-look.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/a-reason-for-a-second-look.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A primary school's learning-support agent sends the screener vendor's letter, &quot;at risk of dyslexia&quot;, to the parents of nine Year 1 children, and one mother pays £640 for a private assessment of a boy who is simply the youngest in his class. Four years of records say the screener catches 12 of 13 children who need help and flags one sound reader in ten, so two letters in three go to children who are fine. Raising the cut-off would stop the false alarms and keep only the children the teachers had already found. A story about where to draw a line, a teacher's six-week reading log, and a letter rewritten in a playground voice. Setting: St Winefride's Catholic Primary School (invented), Hollinsford (invented), a market town in Staffordshire, Friday 10 October 2042 to Friday 16 January 2043. Read the full text at https://example.invalid/hearth-and-horizon/a-reason-for-a-second-look.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A primary school's learning-support agent sends the screener vendor's letter, &quot;at risk of dyslexia&quot;, to the parents of nine Year 1 children, and one mother pays £640 for a private assessment of a boy who is simply the youngest in his class. Four years of records say the screener catches 12 of 13 children who need help and flags one sound reader in ten, so two letters in three go to children who are fine. Raising the cut-off would stop the false alarms and keep only the children the teachers had already found. A story about where to draw a line, a teacher's six-week reading log, and a letter rewritten in a playground voice.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Aloysius and the Man in the Street</title>
       <link>https://example.invalid/hearth-and-horizon/aloysius-and-the-man-in-the-street.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/aloysius-and-the-man-in-the-street.html</guid>
@@ -66,12 +76,12 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
-      <title>Nine Letters Home</title>
-      <link>https://example.invalid/hearth-and-horizon/nine-letters-home.html</link>
-      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/nine-letters-home.html</guid>
+      <title>Ninety-Seven Visits</title>
+      <link>https://example.invalid/hearth-and-horizon/ninety-seven-visits.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/ninety-seven-visits.html</guid>
       <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
-      <description>A Catholic primary school's learning-support agent runs a reading screener on 61 Year 1 children and sends nine families a letter saying their child is at risk of dyslexia. The screener is good, but in four earlier years only 11 of its 34 flags were children who went on to need specialist help, and one family pays £540 for an assessment their bilingual six-year-old did not need. A story about positive predictive value, the stricter cut-off that would have missed a girl who now reads to the Reception class, and a letter rewritten as a reason for a second look. Setting: Our Lady of Walsingham Catholic Primary School (invented), Leicester, England, Friday 2 October to Friday 11 December 2037. Read the full text at https://example.invalid/hearth-and-horizon/nine-letters-home.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
-      <itunes:summary>A Catholic primary school's learning-support agent runs a reading screener on 61 Year 1 children and sends nine families a letter saying their child is at risk of dyslexia. The screener is good, but in four earlier years only 11 of its 34 flags were children who went on to need specialist help, and one family pays £540 for an assessment their bilingual six-year-old did not need. A story about positive predictive value, the stricter cut-off that would have missed a girl who now reads to the Reception class, and a letter rewritten as a reason for a second look.</itunes:summary>
+      <description>A parish's pastoral-care agent reports one number to the council each month, visits made to forty housebound parishioners. The council sets a target of a hundred, the agent posts each volunteer's count, and visits rise from 64 to 97 while the minutes fall from 3,330 to 1,840. Then a minutes target leaves a widow on a farm 31 km out unvisited for 36 days. A story about Goodhart's law, why each replacement figure can be gamed in its own way, and the notes nobody counted. Setting: Our Lady of the Plains parish (invented), Waimate, South Canterbury, New Zealand, Tuesday 9 April to Tuesday 10 September 2041. Read the full text at https://example.invalid/hearth-and-horizon/ninety-seven-visits.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish's pastoral-care agent reports one number to the council each month, visits made to forty housebound parishioners. The council sets a target of a hundred, the agent posts each volunteer's count, and visits rise from 64 to 97 while the minutes fall from 3,330 to 1,840. Then a minutes target leaves a widow on a farm 31 km out unvisited for 36 days. A story about Goodhart's law, why each replacement figure can be gamed in its own way, and the notes nobody counted.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>
@@ -182,6 +192,16 @@
       <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
       <description>A Woonsocket parish hall's cellar pump runs on its backup battery through a storm night, and the hall's assistant promised eleven hours by dividing the label's 89 amp-hours by the pump's average current. But the label is the 20-hour rate, and at the twenty amps the pump pulls when it runs, the battery's own published rates give about 71 amp-hours: eight hours and fifty minutes, gone at first light. A retired forklift-battery technician with a clamp meter, a float switch moved for nothing, a utility estimate that slips to one in the afternoon, and her own battery carried down the hill, because two in parallel give more than twice as long. A story about Peukert's law and asking slowly. Setting: Saint Claude's parish hall (invented), Woonsocket, Rhode Island, Monday 14 June and the night of Saturday 18 to Sunday 19 September 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-short-night-on-the-backup-battery.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>A Woonsocket parish hall's cellar pump runs on its backup battery through a storm night, and the hall's assistant promised eleven hours by dividing the label's 89 amp-hours by the pump's average current. But the label is the 20-hour rate, and at the twenty amps the pump pulls when it runs, the battery's own published rates give about 71 amp-hours: eight hours and fifty minutes, gone at first light. A retired forklift-battery technician with a clamp meter, a float switch moved for nothing, a utility estimate that slips to one in the afternoon, and her own battery carried down the hill, because two in parallel give more than twice as long. A story about Peukert's law and asking slowly.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>The Wall Down the Middle</title>
+      <link>https://example.invalid/hearth-and-horizon/the-wall-down-the-middle.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-wall-down-the-middle.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A 1956 parish hall in County Clare gets a new timber floor, eight metres of glulam joists spanning clear across a dug-out crawl space, and the diocese's buildings assistant passes it for set dancing by the load table and by the floor's own natural frequency. At the reopening céilí the floor is strong and lively: sixty-four dancers in step put their weight on it, the tea urn walks along the trestle, and asking the band to play slower makes it worse. A story about static load and dynamic load, joist frequency with and without the dancers' mass, harmonics of a stamping heel, an extra joist that would only move the bounce onto the polkas, and the wall the old builders had put under the middle. Setting: St Michael's Hall, Kilcarrig (invented), County Clare, Ireland, Saturday 4 February to Saturday 30 September 2051. Read the full text at https://example.invalid/hearth-and-horizon/the-wall-down-the-middle.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A 1956 parish hall in County Clare gets a new timber floor, eight metres of glulam joists spanning clear across a dug-out crawl space, and the diocese's buildings assistant passes it for set dancing by the load table and by the floor's own natural frequency. At the reopening céilí the floor is strong and lively: sixty-four dancers in step put their weight on it, the tea urn walks along the trestle, and asking the band to play slower makes it worse. A story about static load and dynamic load, joist frequency with and without the dancers' mass, harmonics of a stamping heel, an extra joist that would only move the bounce onto the polkas, and the wall the old builders had put under the middle.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>
