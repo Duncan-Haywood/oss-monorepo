@@ -4,6 +4,8 @@ export const DEFAULTS = {
 };
 
 const number = (value, label) => {
+  // Number('') is 0: a cleared field would silently cost that line at zero.
+  if (value === '' || value === null || value === undefined) throw new Error(`${label} is required.`);
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed < 0) throw new Error(`${label} must be zero or greater.`);
   return parsed;
