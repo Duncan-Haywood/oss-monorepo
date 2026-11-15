@@ -1286,51 +1286,121 @@ function openHoursFloor(ctx) {
 // released shifts plus the open ones exactly for fewest open hours with everyone else fixed (depth-first, longest shift first,
 // pruned on the open hours so far). A walk of single moves cannot reach a gain that needs three people to change at once; this
 // can, inside the neighbourhood. Time-limited; returns the owner array and the open hours (never worse than the input).
-function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000, shiftWeight = 1e-6 } = {}) {
+// LP-guided neighbourhoods (2026-11-15, README "The clique LP picks the repair's people"; opt-in, `repairGuide: true`, because on
+// 24 fixed starts of the 80-100 person bench weeks it cut no more than random people, 11 better and 9 worse, eval/repair-alone.out.txt):
+// with `guide` (the open-hours clique
+// LP's person-shift values, person-major), a round, with probability guideProb, builds its k people as a chain the LP suggests
+// instead of k at random: an open shift i, a person the LP puts on i (drawn by value), then a shift j that person holds which the
+// LP gives mostly to someone else, and that someone (drawn by value), and so on; a chain that runs dry is filled at random. The
+// exact search inside the neighbourhood is unchanged, so the guide only chooses where to look and can never make a roster worse
+// or invalid. Returns `guidedRounds` and `gains` (rounds that cut open hours, guided ones counted in `guidedGains`).
+function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000, shiftWeight = 1e-6, guide = null, guideProb = 0.5 } = {}) {
   const { P, S, slots, elig } = ctx;
   const rng = mulberry32(seed);
   const hrs = (i) => (slots[i].end - slots[i].start) / 60;
   const owner = owner0.slice();
+  // Per shift: the people the LP puts on it (eligible, value above 1e-6) with cumulative values, for weighted draws.
+  let gPeople = null, gCum = null;
+  if (guide && guideProb > 0) {
+    gPeople = new Array(S); gCum = new Array(S);
+    for (let i = 0; i < S; i++) {
+      const ps = [], cs = [];
+      let t = 0;
+      for (let q = 0; q < P; q++) { const v = guide[q * S + i]; if (v > 1e-6 && elig[q][i]) { t += v; ps.push(q); cs.push(t); } }
+      gPeople[i] = ps; gCum[i] = cs;
+    }
+  }
+  const draw = (i, skip) => {
+    const ps = gPeople[i], cs = gCum[i];
+    if (!ps.length) return -1;
+    for (let tries = 0; tries < 4; tries++) {
+      const u = rng() * cs[cs.length - 1];
+      let lo = 0, hi = cs.length - 1;
+      while (lo < hi) { const m = (lo + hi) >> 1; if (cs[m] < u) lo = m + 1; else hi = m; }
+      if (!skip.has(ps[lo])) return ps[lo];
+    }
+    return -1;
+  };
+  const guidedPick = (kk) => {
+    const open = [];
+    for (let i = 0; i < S; i++) if (owner[i] < 0 && gPeople[i].length) open.push(i);
+    if (!open.length) return null;
+    const pick = new Set();
+    let at = draw(open[Math.floor(rng() * open.length)], pick);
+    while (at >= 0 && pick.size < kk) {
+      pick.add(at);
+      // The shifts `at` holds that the LP mostly gives to someone else: the next link of the chain takes one of them.
+      const away = [];
+      for (let j = 0; j < S; j++) if (owner[j] === at && guide[at * S + j] < 0.5 && gPeople[j].length) away.push(j);
+      at = away.length ? draw(away[Math.floor(rng() * away.length)], pick) : -1;
+    }
+    return pick;
+  };
+  let guidedRounds = 0, gains = 0, guidedGains = 0;
   const TIE = shiftWeight; // hours-equivalent cost of one open shift; the default is a count term far below one minute (fewest open shifts at equal open hours)
   const openOf = (o) => o.reduce((t, p, i) => t + (p < 0 ? hrs(i) + TIE : 0), 0);
   let open = openOf(owner);
   const t0 = Date.now();
   let spent = 0; // a node budget, not the clock, ends the search, so the same input gives the same roster on any machine
   for (let r = 0; r < rounds && open > 0 && spent < totalNodes && Date.now() - t0 < timeLimitMs; r++) {
-    const pick = new Set();
+    const guided = gPeople && rng() < guideProb ? guidedPick(Math.min(k, P)) : null;
+    const pick = guided || new Set();
+    if (guided) guidedRounds++;
     while (pick.size < Math.min(k, P)) pick.add(Math.floor(rng() * P));
     const people = [...pick];
     const free = [];
-    owner.forEach((p, i) => { if (p < 0 || pick.has(p)) free.push(i); });
+    // Shifts no chosen person may take stay open whatever the search does: counted once in `fixed`, not branched on.
+    let fixed = 0;
+    owner.forEach((p, i) => {
+      if (p < 0 || pick.has(p)) {
+        if (people.some((q) => elig[q][i])) free.push(i); else fixed += hrs(i) + TIE;
+      }
+    });
     free.sort((a, b) => hrs(b) - hrs(a));
     const lists = Array.from({ length: P }, () => []);
     owner.forEach((p, i) => { if (p >= 0 && !pick.has(p)) lists[p] = insertSorted(ctx, lists[p], i); });
-    let best = Infinity, bestAssign = null, nodes = 0;
+    // The neighbourhood's own value now: the search must beat it (2026-11-15). Before, each round started from no bound, and on
+    // 350-400 copy weeks (68 open shifts in a 3-person neighbourhood) every round hit its node cap before it even found the roster
+    // it started from (README "The clique LP picks the repair's people").
+    const curVal = free.reduce((t, i) => t + (owner[i] < 0 ? hrs(i) + TIE : 0), 0);
+    // A bound from the chosen people's weekly hours: the free hours still to place, less what those people can still absorb,
+    // must stay open. Every rule only relaxes, so the bound never prunes a better assignment.
+    const tail = new Float64Array(free.length + 1);
+    for (let d = free.length - 1; d >= 0; d--) tail[d] = tail[d + 1] + hrs(free[d]);
+    const room = new Map(people.map((q) => [q, ctx.staff[q].maxHours - lists[q].reduce((t, j) => t + hrs(j), 0)]));
+    let roomLeft = 0;
+    for (const v of room.values()) roomLeft += Math.max(0, v);
+    let best = curVal, bestAssign = null, nodes = 0;
     const cur = new Array(free.length).fill(-1);
     const dfs = (d, o) => {
-      if (o >= best - 1e-9 || nodes++ > nodeLimit) return;
+      if (o + Math.max(0, tail[d] - roomLeft) >= best - 1e-9 || nodes++ > nodeLimit) return;
       if (d === free.length) { best = o; bestAssign = cur.slice(); return; }
-      const i = free[d];
+      const i = free[d], h = hrs(i);
       for (const q of people) {
         if (!elig[q][i]) continue;
         if (!validWith(ctx, q, lists[q], i)) continue;
         const nl = insertSorted(ctx, lists[q], i);
-        const old = lists[q]; lists[q] = nl; cur[d] = q;
+        const old = lists[q], r0 = room.get(q);
+        lists[q] = nl; cur[d] = q; room.set(q, r0 - h);
+        roomLeft += Math.max(0, r0 - h) - Math.max(0, r0);
         dfs(d + 1, o);
-        lists[q] = old;
+        roomLeft -= Math.max(0, r0 - h) - Math.max(0, r0);
+        lists[q] = old; room.set(q, r0);
       }
       cur[d] = -1;
-      dfs(d + 1, o + hrs(i) + TIE);
+      dfs(d + 1, o + h + TIE);
     };
     dfs(0, 0);
     spent += nodes;
-    if (bestAssign && best < open - 1e-9) {
+    if (bestAssign && best < curVal - 1e-9) {
       free.forEach((i, d) => { owner[i] = bestAssign[d]; });
-      open = best;
+      open += best - curVal;
+      gains++;
+      if (guided) guidedGains++;
     }
   }
   const shifts = owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
-  return { owner, open: open - TIE * shifts, openShifts: shifts };
+  return { owner, open: open - TIE * shifts, openShifts: shifts, guidedRounds, gains, guidedGains };
 }
 
 // A starting roster from the keep map (2026-11-12): in start order, each shift goes to someone who held it before when the hard
@@ -3622,11 +3692,15 @@ function buildRosterOnce(staff, slots, options = {}) {
   mark("eject");
   // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
   // `coverGuided` says whether the cover passes ran and drew from the clique LP's values (reported as optimality.coverGuided).
-  let coverGuided = null;
+  let coverGuided = null, repairStats = null;
   const coverPasses = () => {
     if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
       coverGuided = o.coverGuide !== false && !!clique?.xs;
-      for (let k = 0; k < (o.coverPassRuns ?? 12) && !over(); k++) {
+      // `coverRepairReserveMs` (README "The clique LP picks the repair's people"): under a time budget, stop starting plateau walks
+      // once only that much is left, so the repair below still runs; on 350-400 copy weeks the walks otherwise take all of it.
+      const reserve = budgetMs > 0 ? o.coverRepairReserveMs ?? 0 : 0;
+      const leftMs = () => budgetMs - (Date.now() - tStart);
+      for (let k = 0; k < (o.coverPassRuns ?? 12) && !over() && !(reserve > 0 && k > 0 && leftMs() < reserve); k++) {
         const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4), { guide: o.coverGuide === false ? null : clique?.xs ?? null, guideProb: o.coverGuideProb ?? 0.5 });
         if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
         const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
@@ -3635,7 +3709,8 @@ function buildRosterOnce(staff, slots, options = {}) {
       }
       mark("coverPass");
       if ((o.coverRepair ?? (exactOn || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
-        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
+        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: Math.min(o.coverRepairMs ?? 60000, budgetMs > 0 ? Math.max(200, budgetMs - (Date.now() - tStart)) : Infinity), shiftWeight: o.openShiftWeight ?? 1e-6, guide: o.repairGuide === true ? clique?.xs ?? null : null, guideProb: o.repairGuideProb ?? 0.5 });
+        repairStats = { guided: rp.guidedRounds > 0, guidedRounds: rp.guidedRounds, gains: rp.gains, guidedGains: rp.guidedGains };
         const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
         const w = o.openShiftWeight ?? 1e-6;
         const curObj = scoreOwner(ctx, best.owner).unfilled + w * cur;
@@ -3845,6 +3920,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, warm: priced.warm, tried: !!pricedTried, ms: priced.ms } : null,
       scoreFloorTried: pricedTried,
       coverGuided,
+      coverRepair: repairStats,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }
@@ -5489,7 +5565,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 

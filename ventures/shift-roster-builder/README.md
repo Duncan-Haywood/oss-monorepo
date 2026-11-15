@@ -2825,3 +2825,56 @@ gives the unguided pass's roster exactly; buildRoster reports `coverGuided` true
 time. The time-bound passes move a few hours run to run (README "Room for the clique LP"), which is why the claim rests on the
 paired same-run comparison. Next: the same guide for `coverRepair`'s choice of people, and for `ejectPass`, which run before the
 LP today.
+
+## The clique LP picks the repair's people (2026-11-15 later)
+
+"The clique LP steers the cover passes" ended on a next step: give the same LP guide to `coverRepair`, the exact repair that
+releases k people's shifts and re-solves them plus every open shift. Looking first at what the repair does on the 350-400 copy
+weeks changed the question. On most of those builds it got **0 ms**: the plateau walks run until the 20 s budget is gone
+(`eval/clique-guide-ab.jsonl`). And when it was given time (`coverRepairReserveMs`), it ended on its node budget after about 15 of
+its 60 rounds, because **every round hit its 200,000-node cap**. A three-person neighbourhood there holds about 68 open shifts, and
+the depth-first search began each round with no bound, so it often never even found the roster it started from (361 open hours
+found, 356 held, on 90 x 252 week 0).
+
+**What landed:**
+
+- **Each round starts from its own value.** The search must beat the neighbourhood as it stands, so it prunes from the first node.
+  Shifts no chosen person may take are counted once and not branched on, and a second bound prunes on the chosen people's weekly
+  hours: hours still to place, less what those people can still take, must stay open. Both only relax the rules, and a new test
+  checks the repair over everyone against a brute-force search on 60 tiny weeks: the same least open hours on all 60
+  (`repair-guide.test.mjs`).
+- **An LP-guided choice of people, opt-in** (`repairGuide: true`, `repairGuideProb`, default share 0.5). A guided round builds its
+  people as a chain the LP suggests: an open shift, a person the LP puts on it (drawn by value), a shift that person holds which the
+  LP gives mostly to someone else, that someone, and so on.
+- **A reserve for the repair, off by default** (`coverRepairReserveMs`): under a time budget the plateau walks stop starting once
+  only that much is left. The repair's own time is now capped at what the budget has left (at least 0.2 s).
+- `optimality.coverRepair` reports `guided`, `guidedRounds`, `gains` and `guidedGains` when the repair ran.
+
+**Measured on the repair alone** (`node eval/repair-alone.mjs P S week startSeed`, `eval/repair-alone.out.txt`): the eight
+80-100 person bench weeks, three fixed starts each (a guided plateau walk of 400,000 steps from an empty roster), then the
+repair under the same node budget:
+
+| 24 starts, k = 3 people, 60 rounds | total open h | cut from the start | paired against the unguided new repair |
+|---|---|---|---|
+| main's repair (b92b1c892) | 8,455 | 206 h | fewer open on 1, more on 8 (p = 0.039) |
+| this repair, unguided (the default) | **8,444** | **217 h** | |
+| this repair, guided half the rounds | 8,443 | 218 h | fewer on 11, more on 9, tied 4 (p = 0.82) |
+| this repair, guided every round | 8,481 | 180 h | fewer on 9, more on 13 (p = 0.52) |
+
+Five-person neighbourhoods (first start of each week) left more open than three on 6 of 8 weeks unguided and 6 of 8 guided, fewer on 1 (they hit the node cap sooner). So the bound is a small, real gain
+and the guide is not one: the LP's people are no better places to look than random ones, and guiding every round narrows the
+search and loses. That is why the guide is opt-in.
+
+**End to end** (`node eval/repair-guide.mjs P S week config seed`, `eval/repair-guide.out.txt`, same eight weeks, search seeds 4-6,
+default 20 s budget, two builds at a time): main 7,631 open hours in all, this change 7,631, the guided repair 7,635, a 500 ms
+reserve 7,639 guided and 7,632 unguided, each at the proven floor on 13 of 24 builds (12 for the guided reserve). The differences
+are the time-bound passes' run-to-run noise. On 40 small seeded weeks with no budget (`eval/repair-small.out.txt`) open hours and
+score are identical to main on all 40.
+
+**What this says:** the repair is not where the 350-400 copy weeks lose hours. Even with time and a bound it closes about 9 of the
+46 open hours (24-81) a start leaves above the floor, because a depth-first search over 50-80 shifts does not finish inside its node
+cap. A neighbourhood solved by something other than depth-first search (the flow bound of `openHoursFloor` or the clique LP
+restricted to the chosen people, then rounded) is the next thing to try; more of the same search, or a better choice of people,
+is not.
+
+Not claimed: generated weeks only, three starts or three search seeds each, one cloud machine.
