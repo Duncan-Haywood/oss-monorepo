@@ -1482,6 +1482,7 @@ In the learning loop (books filed a day at a time, first-seen merchants right / 
 | Durham Adult and Health Services | 306 | 52.6% / 36.9% | 52.6% / 36.9% | 75.8% / 20.6% | 75.8% / 20.6% |
 | Durham Dedicated Schools Grant | 285 | 62.8% / 32.6% | 62.8% / 33.3% | 70.2% / 27.7% | 70.2% / 28.4% |
 | Durham Transformation and Partnerships | 92 | 62.0% / 23.9% | 62.0% / 23.9% | 75.0% / 18.5% | 75.0% / 18.5% |
+| Scottish Government, lines over £500 | 3,156 | 42.8% / 45.4% | 42.8% / 45.4% | (not run) | |
 | Mint, six held-out files | 403 | 69.2% / 15.4% | 69.7% / 15.4% | | |
 | YNAB, three households (`eval/ynab-registers.mjs`) | 219 | 74.9% / 11.9% | 74.4% / 12.3% | | |
 
