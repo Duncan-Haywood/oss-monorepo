@@ -1,5 +1,24 @@
 # buildbot-sheathing research log
 
+## 2026-11-15 · Milestone 26 result: every experiment now reproduces; the last ten re-runs found one more drifted table (m6), two rounding or bookkeeping lines, and a Drake upgrade that breaks m6
+
+`reproduce.py` (m6's per-seat timing column masked, `wall time N s` lines skipped, Drake 1.51.1 named for m6), `tests/test_reproduce.py` (5 tests, was 4), `src/buildbot_sheathing/drake_seat.py` (docstring), `experiments/m6_drake` and `m9_straighten` (re-run), `experiments/m21_degrading/check_diag.txt`, `paper/draft.md`, `paper/check_numbers.py` (194 of 194), README, PROPOSAL and project card.
+
+- **What was run.** `reproduce.py --check` on the ten experiments milestone 25 left: m3, m3b, m6, m6b, m9 (MuJoCo 4.0.1; Drake 1.58.0, then 1.51.1 for m6) and m15, m16, m19, m20, m21 (numpy 2.5.3, scipy 1.18.1). Four groups ran side by side on four CPUs, about 2 h 20 min wall clock; m20 alone took 8,397 s under that load, against 2,099 s committed.
+- **Reproduce exactly (timing lines aside):** m3 (133 lines), m3b (151), m6b (157), m15 (65), m16 (57), m19 (76), m20 (71) and m21 (52 in `results.txt`).
+- **m6 failed on the current Drake.** Drake 1.58.0 rejects `discrete_contact_approximation="tamsi"`, which section D's solver comparison uses. It was committed under 1.51.1 (its `results.json` records the version); in a separate venv with `drake==1.51.1` it runs. The Drake tests and m6b do not use TAMSI and pass on 1.58.
+- **m6 drifted, for milestone 25's reason.** Section F2 re-runs milestone 5's 24 ledger pipelines with each engine's seated residual. Its "no residual" column now equals m5's refreshed table line for line (0.4170, 0.5814, 0.2434, 0.9404, …), so the drift is milestone 9's reordered tilt draws, already traced in milestone 25; the MuJoCo and Drake columns moved with it. The worst |Drake − MuJoCo| over the 24 pipelines is now **0.05 points (was 0.06)**; H35 (bar 10) still holds by the same margin. Re-run in place on an otherwise idle machine: Drake 0.080 s and MuJoCo 0.020 s a seat (were 0.114 and 0.025). Sections A–E and G are unchanged.
+- **m9: one value at a rounding edge.** "2x, three, nails fixed" missed nails 0.48 → 0.47. `results.json` shows the committed mean was 0.47500000000000164, floating-point error from milestone 14's old (1 − mean hit) × 62 formula; the per-sheet sum gives exactly 0.475, which prints as 0.47. Same cause as m12's third-decimal drift. The paper does not quote it.
+- **m21: a stray line.** The committed `check_diag.txt` ended in `DONE`, a wait marker a session's shell had echoed into the file; `check_diag.py` does not print it. Replaced with the re-run, otherwise identical.
+- **What the check needed.** m6 ends two rows with seconds a seat and m6, m6b, m9 end with `wall time N s`; neither matched milestone 25's timing patterns, so both are now masked (tests added). Diffs print up to 80 lines (40 cut off m6's).
+- **Paper.** One number moved: section 5.6's 0.06 points is now 0.05. `check_numbers.py` 194 of 194.
+- **Still open before submission:** authorship and affiliations; the NDS and SDPWS editions; a tested 16d end-nail ultimate. Drake 1.51.1 should be named in the paper's data-availability statement.
+
+## 2026-11-15 · Milestone 26 planned: re-run the experiments milestone 25 left unchecked
+
+- **Why.** Milestone 25 checked twelve experiments under `reproduce.py --check`; m15, m16, m19, m20, m21 (the long scipy ones, ~150 min on four CPUs together) and the MuJoCo/Drake ones (m3, m3b, m6, m6b, m9) were not. The paper quotes numbers from all of them, so a drifted one would put a stale number in the submission.
+- **Plan.** Install `mujoco` and `drake` in this session, run `reproduce.py --check` on each remaining experiment in background jobs, and for any that differ, bisect the cause as milestone 25 did, refresh the results and update `paper/draft.md` and `paper/check_numbers.py`. No new hypotheses.
+
 ## 2026-11-15 · Milestone 25 result: two experiments no longer reproduced their committed numbers; both drifted from later edits to shared code, now refreshed, no verdict changed
 
 `reproduce.py` (new: one command per experiment; `--check` re-runs in a temporary copy and diffs each `results.txt`, wall-clock timings masked), `tests/test_reproduce.py` (4 tests), `experiments/m5_cycle`, `m7_cost`, `m12_remedies`, `m13_price` (results and figures re-run), `paper/draft.md` and `paper/check_numbers.py` (moved numbers updated; 194 of 194, was 190).

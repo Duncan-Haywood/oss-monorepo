@@ -102,8 +102,8 @@ flagships:
       sample read (README); open: a real merchant's payout export, a real 1099-K;
       (4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round
       up`; open: a lender's full table, a supplier's terms letter; (5) receipts OCR
-      (page SROIE 84.6%, US 79.6%; CLI US 75.0%; lost decimal point fixed; next:
-      CORD); (6) payroll (README): two journal layouts read; open: a real Gusto or
+      (page SROIE 84.6%, US totals 79.6%, tax 73.5%; CLI 75.0%; open: lost 2nd tax
+      lines); (6) payroll (README): two journal layouts read; open: a real Gusto or
       ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
       (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
       last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
@@ -338,21 +338,24 @@ flagships:
       slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6, 12 on 2x9 UNSAT. Odd leagues
       (eval/odd-night-sat.py, odd-designs.mjs): 11-25 teams 0 waits on 6 slots; on 9
       slots 11, 13 teams on 2 courts, 17 on 3; proved impossible: 7, 9 on 2x6; 5, 7
-      on 1x9; 7 on 2x9. Next, most valuable first: odd 9-slot designs for 19 (3
-      courts), 21-25 (4), 27-29 (5), and 27 on 7x6; 3-session designs at 14, 38, 40,
-      46 (SAT timed out at 300 s); the rest of the 20-team gap (40 to 44 still
-      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 29-30 teams in the page (15
-      matches: profile 30 first; 27 teams add nothing on seed 1, README "Starting
-      under the gap"); the walk's last heavy tail (22 teams: 20 of 280 walks out of
-      budget either way, eval/walk-guide.txt); home-and-away breaks exact since
-      2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
-      home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
-      below 132, or 124-130 ruled out; 18 and 24 teams: 318 and 570 are the least
-      starters (eval/starter-exhaust.txt), so lower needs non-starter moves; 32-40
-      exhaustive needs a tighter bound (30 teams took 24 min); a real league's
-      travel and blackout list; printed sheets on a real printer and paper.
+      on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py, rotational round
+      robins): 21, 23 on 4x9, 27 on 5x9 and 7x6 0 waits; fails when fully booked
+      (eval/odd-cyclic.txt). Next, most valuable first: fully booked odd nights, 19
+      on 3x9, 25 on 4x9 (one 19-team night exists: multiplier-invariant starters, or
+      extend it); 29 on 5x9; 3-session designs at 14, 38, 40, 46 (SAT timed out at
+      300 s); the rest of the 20-team gap (40 to 44 still ~444-550: four-round
+      re-deals or a longer run, now ~4x cheaper; or a starter family climbed with
+      the floor as its score); 29-30 teams in the page (15 matches: profile 30
+      first; 27 teams add nothing on seed 1, README "Starting under the gap"); the
+      walk's last heavy tail (22 teams: 20 of 280 walks out of budget either way,
+      eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
+      (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
+      search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12
+      teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
+      out; 18 and 24 teams: 318 and 570 are the least starters
+      (eval/starter-exhaust.txt), so lower needs non-starter moves; 32-40 exhaustive
+      needs a tighter bound (30 teams took 24 min); a real league's travel and
+      blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

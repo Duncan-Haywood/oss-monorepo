@@ -43,6 +43,20 @@ origin/main as well as HEAD, so a fix that landed after the session started
 counts too. Measured that day: `--live --ungated` hid 0 clusters before the
 fetch and 68 after.
 
+A touch only counts when the fix edits a code file the reports name, so a
+fix that lands somewhere else never hides its cluster: on 2026-11-15 a
+process run checked the top five live ungated rows and all five were done
+(saints-by-candlelight's episode list fixed by a new list_done.mjs, the
+hearth-and-horizon Wet Bulb proposal gone from BIBLE.md, the flagships.yaml
+`next:` cap answered by validate.py's message and flagship_field.py) or by
+design, about 30 minutes for nothing a later run could see. So a run that
+settles a cluster records it in `friction_verdicts.json` beside this file
+(`--record-verdict FILE --match REGEX --verdict fixed|by-design --by WHAT
+--note WHY`). A verdict answers every cluster in that file whose reports
+match the regex and whose last report is no newer than the verdict; `--live`
+hides those, and a report filed after the verdict brings the cluster back
+with the old verdict shown, so a fix that did not hold is not buried.
+
 Software for the routine (prompts/goals.md): the counting is done here, so a
 run spends its time on the fix, not on grepping 4,000 records.
 """
@@ -57,6 +71,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNS = ROOT / "prompts" / "runs"
+VERDICTS = Path(__file__).resolve().parent / "friction_verdicts.json"
+VERDICT_KINDS = ("fixed", "by-design")
 
 STOP = set("""a an the and or of to in on for is are was were be been it its this that
 with as at by from not no but so if then than into out up has have had do does did
@@ -140,6 +156,7 @@ def cluster(entries):
             "last_at": c["last_at"],
             "names": sorted(named(c["file"], [i for _, _, i in c["items"]])),
             "example": max((i for _, _, i in c["items"]), key=len)[:240],
+            "issues": [i for _, _, i in c["items"]],
         })
     out.sort(key=lambda c: (c["sessions"], c["last"]), reverse=True)
     return out
@@ -259,6 +276,64 @@ def annotate(ranked, commits, edge=None, counts=None):
                 c["touched"] = (when[:10], sha, subj, hit)
                 break
     return ranked
+
+
+def load_verdicts(path=VERDICTS):
+    """The recorded verdicts, each with a compiled `re`; a malformed entry is skipped
+    (test_friction_rank checks the real file has none)."""
+    try:
+        raw = json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return []
+    out = []
+    for v in (raw.get("verdicts") if isinstance(raw, dict) else None) or []:
+        try:
+            out.append({**v, "file": norm_file(v["file"]), "re": re.compile(v["match"], re.I),
+                        "at": utc(str(v["at"]))})
+        except (KeyError, TypeError, re.error):
+            continue
+    return out
+
+
+def apply_verdicts(ranked, verdicts):
+    """Set c["verdict"] to the newest verdict that answers the cluster (same file,
+    the regex matches one of its reports, recorded no earlier than its last
+    report), else c["reopened"] to a matching verdict a later report outdated."""
+    for c in ranked:
+        c["verdict"] = c["reopened"] = None
+        hits = [v for v in verdicts if v["file"] == c["file"]
+                and any(v["re"].search(i) for i in c.get("issues") or [])]
+        for v in sorted(hits, key=lambda v: v["at"], reverse=True):
+            if v["at"] >= utc(c["last_at"]):
+                c["verdict"] = v
+                break
+            c["reopened"] = c["reopened"] or v
+    return ranked
+
+
+def record_verdict(file, match, verdict, by, note, path=VERDICTS, runs=RUNS, now=None):
+    """Append one verdict to `path`. Refuses a regex that matches no recorded
+    report for that file, so a typo cannot silently answer nothing."""
+    if verdict not in VERDICT_KINDS:
+        return f"--verdict must be one of {', '.join(VERDICT_KINDS)}"
+    try:
+        rx = re.compile(match, re.I)
+    except re.error as e:
+        return f"--match is not a valid regex: {e}"
+    f = norm_file(file)
+    n = sum(1 for _, _, ff, issue, _ in load(runs) if ff == f and rx.search(issue))
+    if not n:
+        return f"--match matches no recorded report for {f}; check the file name and the regex"
+    try:
+        raw = json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        raw = {"verdicts": []}
+    now = now or dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    raw.setdefault("verdicts", []).append(
+        {"file": f, "match": match, "verdict": verdict, "by": by, "at": now, "note": note})
+    Path(path).write_text(json.dumps(raw, indent=1, ensure_ascii=False) + "\n")
+    print(f"recorded: {verdict} for {f} (matches {n} report(s)); commit {Path(path).name} with your PR")
+    return None
 
 
 CODEOWNERS = ROOT / ".github" / "CODEOWNERS"
@@ -391,7 +466,23 @@ def main(argv=None):
     ap.add_argument("--ungated", action="store_true",
                     help="hide clusters whose file is owner-gated in .github/CODEOWNERS")
     ap.add_argument("--no-prs", action="store_true", help="skip the open-PR read (network)")
+    ap.add_argument("--verdicts", default=str(VERDICTS), help=argparse.SUPPRESS)
+    ap.add_argument("--record-verdict", metavar="FILE",
+                    help="record that FILE's clusters matching --match are settled, then exit")
+    ap.add_argument("--match", help="with --record-verdict: a regex one of the cluster's reports matches")
+    ap.add_argument("--verdict", choices=VERDICT_KINDS, help="with --record-verdict")
+    ap.add_argument("--by", help="with --record-verdict: the PR, commit or file that settles it")
+    ap.add_argument("--note", default="", help="with --record-verdict: one line on why")
     a = ap.parse_args(argv)
+    if a.record_verdict:
+        if not (a.match and a.verdict and a.by):
+            ap.error("--record-verdict needs --match, --verdict and --by")
+        err = record_verdict(a.record_verdict, a.match, a.verdict, a.by, a.note,
+                             path=a.verdicts, runs=a.runs)
+        if err:
+            print(err, file=sys.stderr)
+            return 2
+        return 0
     ranked = rank(load(a.runs), days=a.days or None, min_sessions=a.min)
     edge = None
     if ranked and not a.no_git:
@@ -404,19 +495,28 @@ def main(argv=None):
         annotate(ranked, commits, edge, basename_counts())
     prs = None if a.no_prs or not ranked else open_prs()
     claims(ranked, prs, codeowner_rules())
+    apply_verdicts(ranked, load_verdicts(a.verdicts))
     if a.ungated:
         ranked = [c for c in ranked if not c.get("gated")]
-    hidden = 0
+    hidden = settled = 0
     if a.live:
         hidden = sum(1 for c in ranked if c.get("touched"))
-        ranked = [c for c in ranked if not c.get("touched")]
+        settled = sum(1 for c in ranked if c.get("verdict") and not c.get("touched"))
+        ranked = [c for c in ranked if not c.get("touched") and not c.get("verdict")]
     ranked = ranked[: a.top]
+    for c in ranked:
+        c.pop("issues", None)
+        for k in ("verdict", "reopened"):
+            if c.get(k):
+                c[k] = {x: y for x, y in c[k].items() if x != "re"}
     if a.json:
         json.dump(ranked, sys.stdout, indent=2)
         print()
         return 0
     if not ranked:
-        print("No friction reported by more than one session in that window.")
+        print("No friction reported by more than one session in that window"
+              + (f" that --live leaves ({hidden} touched since, {settled} settled in "
+                 f"{Path(a.verdicts).name})." if a.live and (hidden or settled) else "."))
         return 0
     print(f"Repeated doc friction, last {a.days or 'all'} days (distinct sessions, first..last report):\n")
     for i, c in enumerate(ranked, 1):
@@ -431,8 +531,21 @@ def main(argv=None):
             print(f"       touched since: {t[3]} {t[0]} {t[1]} {t[2][:90]}")
         elif c.get("shallow"):
             print("       (last report predates the fetched history: touched-since unknown)")
+        v = c.get("verdict")
+        if v:
+            print(f"       verdict {v['at'][:10]}: {v['verdict']} ({v['by']}) {v.get('note', '')[:120]}")
+        r = c.get("reopened")
+        if r:
+            print(f"       reported again after a {r['at'][:10]} verdict ({r['verdict']}, {r['by']}): "
+                  "the fix may not have held")
     if hidden:
         print(f"\n({hidden} cluster(s) hidden by --live: a file they name changed after their last report)")
+    if settled:
+        print(f"({settled} cluster(s) hidden by --live: settled in {Path(a.verdicts).name}; "
+              "settle one you check with --record-verdict)")
+    elif a.live:
+        print("\n(Checked a row and found it already fixed or by design? Record it so the next "
+              "run skips it: --record-verdict FILE --match REGEX --verdict fixed|by-design --by WHAT)")
     if prs is None and not a.no_prs:
         print("\n(open PRs could not be read: search titles by hand before taking a row)")
     if edge:

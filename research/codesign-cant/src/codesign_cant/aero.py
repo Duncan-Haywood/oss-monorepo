@@ -24,6 +24,15 @@ REF_DEG = (15.0, 15.0, 30.0)
 ALPHA_MAX = np.deg2rad(35.0)
 
 
+# Frame (airframe structure) mass law, kg: FRAME0 + FRAME_K * L, inherited and ASSUMED (0.05 + 0.8 L). Milestone 7p fits it to listed
+# commercial frames (data/frames/) and swaps it by setting these two module constants; the defaults keep every earlier result.
+FRAME0, FRAME_K = 0.05, 0.8
+
+
+def frame_mass(L):
+    return FRAME0 + FRAME_K * L
+
+
 TWR_RANGE = (1.5, 4.0)   # thrust-to-weight range when motor headroom is a design variable (the fixed value elsewhere is TWR)
 
 
@@ -37,14 +46,14 @@ def size(L, D, alpha=0.0, tilt_loss=0.0, kappa_per_d=None, twr=None, actuator="p
         wh = P * ENDURANCE_MIN / 60 / DOD
         Tmax = twr * T_hover
         m_motor = 0.045 * (Tmax / 9.0) ** 1.2
-        m_new = PAYLOAD + ELEC + wh / WH_KG + (0.05 + 0.8 * L) + 4 * m_motor
+        m_new = PAYLOAD + ELEC + wh / WH_KG + frame_mass(L) + 4 * m_motor
         m = np.minimum(0.5 * m + 0.5 * m_new, 20.0)
     T_hover = m * G / (4 * ca)
     Tmax = twr * T_hover
     m_motor = 0.045 * (Tmax / 9.0) ** 1.2
     r = L / np.sqrt(2)
     kappa = KAPPA if kappa_per_d is None else kappa_per_d * D   # Q/T = (Cp/Ct) D / (2 pi): reaction torque per newton grows with the propeller diameter
-    inertia = 4 * m_motor * r ** 2 + (0.05 + 0.8 * L) * L ** 2 / 3 + (m - 4 * m_motor) * 0.04 ** 2
+    inertia = 4 * m_motor * r ** 2 + frame_mass(L) * L ** 2 / 3 + (m - 4 * m_motor) * 0.04 ** 2
     tau_max = 4 * (Tmax - T_hover) * r * ca
     tau_yaw = 2 * (Tmax - T_hover) * (kappa * ca + r * sa)
     if actuator != "prior":   # per-axis limits from the full four-rotor allocation (allocation.closed_form; checked against a linear programme in tests)
@@ -52,7 +61,7 @@ def size(L, D, alpha=0.0, tilt_loss=0.0, kappa_per_d=None, twr=None, actuator="p
         tau_max, tau_yaw, _ = closed_form(alpha, L, kappa, T_hover, Tmax, actuator)
     P_hover = 4 * T_hover ** 1.5 / np.sqrt(2 * RHO * np.pi * D ** 2 / 4) / (FM * ETA * (1 - tilt_loss * sa ** 2))   # electrical hover power, W (milestone 2 prices it)
     lag = 0.015 * (D / 0.127) ** 1.5
-    cost = 4 * 12.0 * (Tmax / 9.0) ** 1.1 + 0.35 * wh + 60 * (0.05 + 0.8 * L) + 25.0
+    cost = 4 * 12.0 * (Tmax / 9.0) ** 1.1 + 0.35 * wh + 60 * frame_mass(L) + 25.0
     area = 0.02 + 0.5 * L ** 2
     feasible = (np.sqrt(2) * L >= 1.05 * D) & (cost <= COST_CAP)
     return dict(mass=m, wh=wh, inertia=inertia, tau_max=tau_max, tau_yaw=tau_yaw, alpha=alpha, lag=lag, cost=cost,

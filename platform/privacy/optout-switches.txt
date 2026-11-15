@@ -592,6 +592,7 @@ ventures/installment-sale-tax-calculator/usage.mjs
 ventures/insurance-agency-book-valuation-calculator/usage.mjs
 ventures/insurance-commission-reconciler/usage.mjs
 ventures/insurance-denial-appeal-builder/usage.mjs
+ventures/inter-rater-agreement/usage.mjs
 ventures/interior-design-fee-calculator/usage.mjs
 ventures/interior-door-bid-calculator/usage.mjs
 ventures/internal-link-planner/usage.mjs

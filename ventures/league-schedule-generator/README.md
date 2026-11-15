@@ -365,7 +365,56 @@ Two bugs found on the way, both fixed with a test:
 Open (updated below): three-session designs for 14, 38, 40 and 46 (longer solver runs, or a
 symmetry such as a cyclic group acting on the teams).
 
-### Odd leagues at 9 time slots: fewer courts, and three more proofs (2026-11-15, latest)
+### Odd leagues one night at a time: 21 and 23 teams on 4 x 9, 27 on 5 x 9 and 7 x 6 (2026-11-15, latest)
+
+The whole-season model above timed out on every odd size from 19 teams up at 9 slots. Those runs
+ask for the round robin and all of its nights at once. `eval/odd-cyclic.py` fixes the round robin
+instead, so it only has to solve one night.
+
+**Why one night is enough.** In a 1-rotational round robin of n odd teams (a *starter*: the nonzero
+residues mod n in pairs, using each difference +-d once; round r is the starter plus r, and team r
+sits out), adding 1 to every team maps round r to round r + 1. So the night made of rounds
+{s, s + a, s + b} is the night {0, a, b} with its teams relabelled. If one night's layout exists,
+every translate of it has the same layout. The script:
+
+1. asks a small SAT model (about 3n matches, each given a time row; at most `courts` a row; no team
+   twice in a row; each team's rows consecutive) for the layout of each pattern {0, a, b};
+2. covers Z_n with disjoint translates of the patterns that pass, leaving n mod 3 rounds for the
+   short last night (depth-first search);
+3. orders the rounds night by night, re-checks the season with `odd-night-sat.py`'s own `check`,
+   and prints the same JSON, so `eval/write-odd-designs.mjs` stores it unchanged.
+
+It tries the patterned starter (the circle method's {-k, k}) first, then random starters
+(`--starters`, `--seed`).
+
+| Teams | Courts x 9 | Courts at 6 slots | Starter | Solve (s) | Waits before (3 seeds) | Waits now |
+|---|---|---|---|---|---|---|
+| 21 | 4 | 5 | patterned, pattern {0,1,2} | 0.2 | 102 | 0 |
+| 23 | 4 | 6 | 5th tried (random, seed 1) | 26 (221 in all) | 184 | 0 |
+| 27 | 5 | none stored | patterned, {0,1,2} | 0.3 | 231 | 0 |
+
+At 6 slots it also found **27 teams on 7 courts** (39 matches a night in 42 slots; the whole-season
+model passed 40 minutes): the 10th starter tried has one pattern, {0, 4, 14}, whose nine translates
+cover all 27 rounds (56 s on that starter, 849 s in all). Waits over three seeds 201 to 0.
+
+It also found the stored 15 and 17 on 3 x 9 again in 0.1 s and 22 s, where the whole-season model
+took 51 s and 245 s.
+
+**Where it fails: fully booked nights.** At 13 teams on 3 x 6, 17 on 4 x 6, 13 on 2 x 9, 19 on 3 x 9
+and 25 on 4 x 9 every slot of the night is used. No pattern of any starter tried laid out (42
+starters x 51 patterns at 19 teams), while the whole-season model solves the 6-slot ones in seconds.
+One 19-team night on 3 x 9 does exist (`odd-night-sat.py ... --nights 1`, SAT in 33 s), so 19 on
+3 x 9 is still open. Only the translation structure has been ruled out, for the starters tried.
+Measurements: `eval/odd-cyclic.txt`. `node eval/odd-cyclic-check.mjs 23:4:9` reruns the tool's
+before and after.
+
+`doubleheader.test.mjs` builds 21 and 23 teams on 4 x 9, 27 on 5 x 9 (with waits when the search is
+off) and 27 on 7 x 6 wait-free. The stored-designs test re-checks the solver's rows for all 21 designs.
+
+Open: 19 on 3 x 9 and 25 on 4 x 9 (fully booked: a starter with a multiplier automorphism, or the
+one-night solution extended night by night), and 29 on 5 x 9 (see `eval/odd-cyclic.txt`).
+
+### Odd leagues at 9 time slots: fewer courts, and three more proofs (2026-11-15, later)
 
 The odd designs above were all solved at 6 time slots. A league with 9 slots (three sessions a
 night) could use them, but only on the 6-slot court count, and on the courts the count bound asks

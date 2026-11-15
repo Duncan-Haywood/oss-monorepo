@@ -10,6 +10,7 @@ import {
   MAX_EMBED_HEIGHT,
   MIN_EMBED_HEIGHT,
   embedSnippet,
+  hasOwnControls,
   injectEmbedWidget,
   renderEmbedHostModule,
   renderEmbedModule,
@@ -24,7 +25,7 @@ const TITLE = 'Roofing Bid Calculator';
 // depends on. Shaped like the real thing (see `injectChrome`'s `footer` const)
 // rather than simplified, so a change to that shape that this pass would miss
 // fails here instead of only on a full build.
-const chromedPage = (body = '<main><h1>Roofing Bid Calculator</h1></main>') => `<!doctype html>
+const chromedPage = (body = '<main><h1>Roofing Bid Calculator</h1><label>Squares <input type="number" id="sq"></label></main>') => `<!doctype html>
 <html><head><title>t</title></head>
 <body>
 <nav class="pf-chrome pf-chrome-top" aria-label="Site"><a href="../">← All 170 free tools</a></nav>
@@ -131,6 +132,25 @@ test('injectEmbedWidget is a no-op without isEntry, canonical, or title', () => 
     injectEmbedWidget(page, { slug: 's', toRoot: '../', canonical: CANONICAL, isEntry: true }),
     page,
   );
+});
+
+test('injectEmbedWidget skips a page with no control of its own (a docs or product page)', () => {
+  // The ShootFlow docs index, the Garmin watch face and the self-hosted stack
+  // list were offered as "Embed this tool" with nothing on them to embed.
+  const brochure = chromedPage('<main><h1>ShootFlow</h1><p>Safe ingest for photographers.</p></main>');
+  assert.equal(
+    injectEmbedWidget(brochure, { slug: 's', toRoot: '../', canonical: CANONICAL, title: TITLE, isEntry: true }),
+    brochure,
+  );
+});
+
+test('hasOwnControls looks past the site search form, the embed box and tags quoted in JSON-LD', () => {
+  const ld = '<script type="application/ld+json">{"text":"press <button>Go</button>"}</script>';
+  const search = '<form class="pfs-search" action="/search/"><input name="q"><button>Search</button></form>';
+  assert.equal(hasOwnControls(chromedPage(`${ld}${search}<main><p>docs</p></main>`)), false);
+  assert.equal(hasOwnControls(chromedPage()), true);
+  assert.equal(hasOwnControls(chromedPage('<main><canvas id="plot"></canvas></main>')), true);
+  assert.equal(hasOwnControls(chromedPage('<main><select><option>a</option></select></main>')), true);
 });
 
 test('injectEmbedWidget is a no-op on a page with no footer chrome to attach to', () => {
@@ -280,7 +300,7 @@ test('every control this widget injects is inside .pf-chrome, so the sweep does 
   });
 
   // Everything this pass added, which is everything not in the page before it.
-  const added = out.replace(chromedPage(), '');
+  const added = out.replace(/<main>[\s\S]*?<\/main>/, '');
   const controls = added.match(/<(?:input|select|textarea|button)\b/gi) ?? [];
   assert.ok(controls.length > 0, 'the widget injects no controls at all — has its markup changed?');
 

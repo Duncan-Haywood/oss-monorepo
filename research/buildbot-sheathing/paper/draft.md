@@ -376,7 +376,7 @@ on two 2x. On two 2x a lift that hangs and tacks the sheet to 0.25° and 5 mm ne
 
 Drake leaves a seated residual of 0.00142° (1σ; 0.00466° at most) over 2,000 random seats, against
 MuJoCo's 0.00001°. Both are far under the 0.03° single-2x joints allow, and the worst difference
-in clean-sheet rate between the engines over the 24 ledger pipelines is **0.06 points** (bar 10).
+in clean-sheet rate between the engines over the 24 ledger pipelines is **0.05 points** (bar 10).
 **H-E held.** Drake's press thresholds are 0.965–0.998 of the closed form on corner contacts,
 MuJoCo's 0.872–0.987: MuJoCo lets wall friction hold the sheet from a little less press, the
 cautious side for a press limit. The tipping height matches W / (2 μ_l) within 0.7% in Drake.
@@ -667,8 +667,11 @@ ultimate for a 16d end-nailed joint, and a mock-up to check the whole chain.
 ## Data and code availability
 
 All code, results files and figures are MIT licensed in this directory: `src/buildbot_sheathing/`
-(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (135 test functions), and
-`README.md`, "Reproduce". MuJoCo 4.0.1 and Drake 1.51.1 produced the simulated results.
+(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (142 test functions), and
+`README.md`, "Reproduce". MuJoCo 4.0.1 and Drake 1.51.1 produced the simulated results. `reproduce.py --check`
+re-runs each of the 22 experiments in a scratch copy and compares its results file with the committed
+one; all 22 reproduce, wall-clock timings aside. Drake releases from 1.58 no longer provide the TAMSI
+solver that one comparison in section 5.6 uses.
 
 ## Declaration of generative AI use
 
