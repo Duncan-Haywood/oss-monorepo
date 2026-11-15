@@ -78,7 +78,9 @@ Options:
   --second-callout-seconds <s>  time limit on the --second-callout-price search (default 10); it keeps the moves made
   --second-callout-rank         walk each round's candidates largest room first (opt-in; mixed on seeded weeks, README)
   --second-callout-order-free   count a pair of call-outs as covered when some set of hand-overs covers both, whatever order
-                                they are handed out in (opt-in; one swap per person, README "An order-free pair check")
+                                they are handed out in (opt-in; up to two give-ups per person, README "An order-free pair
+                                check"; played, it opened no fewer hours than the default check, README "The order-free
+                                pass played")
   --no-cover-pairs    with --cover-price, try only moves of the at-risk person's own shifts (no relief, trade or relay)
   --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
