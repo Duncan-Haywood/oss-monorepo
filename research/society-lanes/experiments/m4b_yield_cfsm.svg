@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 470" font-family="sans-serif" font-size="12">
+<rect width="700" height="470" fill="#fff"/>
+<text x="64" y="22" font-size="13">Held-out assigned-exit runs: a keep-right bias that yields to the exit goal</text>
+<line x1="64" x2="450" y1="414.0" y2="414.0" stroke="#eee"/>
+<line x1="64.0" x2="64.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="418.0" text-anchor="end">0.4</text>
+<text x="64.0" y="432" text-anchor="middle">0.4</text>
+<line x1="64" x2="450" y1="351.7" y2="351.7" stroke="#eee"/>
+<line x1="128.3" x2="128.3" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="355.7" text-anchor="end">0.5</text>
+<text x="128.3" y="432" text-anchor="middle">0.5</text>
+<line x1="64" x2="450" y1="289.3" y2="289.3" stroke="#eee"/>
+<line x1="192.7" x2="192.7" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="293.3" text-anchor="end">0.6</text>
+<text x="192.7" y="432" text-anchor="middle">0.6</text>
+<line x1="64" x2="450" y1="227.0" y2="227.0" stroke="#eee"/>
+<line x1="257.0" x2="257.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="231.0" text-anchor="end">0.7</text>
+<text x="257.0" y="432" text-anchor="middle">0.7</text>
+<line x1="64" x2="450" y1="164.7" y2="164.7" stroke="#eee"/>
+<line x1="321.3" x2="321.3" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="168.7" text-anchor="end">0.8</text>
+<text x="321.3" y="432" text-anchor="middle">0.8</text>
+<line x1="64" x2="450" y1="102.3" y2="102.3" stroke="#eee"/>
+<line x1="385.7" x2="385.7" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="106.3" text-anchor="end">0.9</text>
+<text x="385.7" y="432" text-anchor="middle">0.9</text>
+<line x1="64" x2="450" y1="40.0" y2="40.0" stroke="#eee"/>
+<line x1="450.0" x2="450.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="44.0" text-anchor="end">1.0</text>
+<text x="450.0" y="432" text-anchor="middle">1.0</text>
+<line x1="64.0" y1="414.0" x2="450.0" y2="40.0" stroke="#555" stroke-dasharray="4 3"/>
+<text x="257.0" y="456" text-anchor="middle">observed share on own right (people)</text>
+<text transform="translate(18 227.0) rotate(-90)" text-anchor="middle">simulated share (mean of 20 seeds)</text>
+<circle cx="182.8" cy="178.9" r="4.5" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="222.1" cy="196.6" r="4.5" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="216.3" cy="192.1" r="4.5" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="127.3" cy="168.3" r="4.5" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="156.0" cy="168.3" r="4.5" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="109.4" cy="186.7" r="4.5" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="142.9" cy="166.8" r="4.5" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="158.0" cy="170.8" r="4.5" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="287.9" y="145.4" width="8" height="8" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="244.6" y="148.4" width="8" height="8" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="144.9" y="153.4" width="8" height="8" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="184.6" y="159.5" width="8" height="8" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="181.2" y="128.6" width="8" height="8" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="127.6" y="212.2" width="8" height="8" fill="none" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="182.8" cy="291.6" r="4.5" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="222.1" cy="284.1" r="4.5" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="216.3" cy="314.4" r="4.5" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="127.3" cy="281.5" r="4.5" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="156.0" cy="281.5" r="4.5" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="109.4" cy="292.6" r="4.5" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="142.9" cy="262.5" r="4.5" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="158.0" cy="270.8" r="4.5" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="287.9" y="275.9" width="8" height="8" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="244.6" y="234.1" width="8" height="8" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="144.9" y="255.2" width="8" height="8" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="184.6" y="237.6" width="8" height="8" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="181.2" y="259.6" width="8" height="8" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<rect x="127.6" y="300.2" width="8" height="8" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+<circle cx="182.8" cy="46.9" r="4.5" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="222.1" cy="43.6" r="4.5" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="216.3" cy="46.2" r="4.5" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="127.3" cy="42.1" r="4.5" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="156.0" cy="40.9" r="4.5" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="109.4" cy="41.3" r="4.5" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="142.9" cy="40.8" r="4.5" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="158.0" cy="40.5" r="4.5" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="287.9" y="54.9" width="8" height="8" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="244.6" y="37.8" width="8" height="8" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="144.9" y="41.4" width="8" height="8" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="184.6" y="46.8" width="8" height="8" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="181.2" y="57.9" width="8" height="8" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="127.6" y="181.0" width="8" height="8" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="182.8" cy="116.5" r="4.5" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="222.1" cy="90.7" r="4.5" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="216.3" cy="107.1" r="4.5" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="127.3" cy="96.2" r="4.5" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="156.0" cy="96.5" r="4.5" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="109.4" cy="136.6" r="4.5" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="142.9" cy="176.8" r="4.5" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="158.0" cy="88.6" r="4.5" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="287.9" y="177.1" width="8" height="8" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="244.6" y="84.6" width="8" height="8" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="144.9" y="95.7" width="8" height="8" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="184.6" y="190.5" width="8" height="8" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="181.2" y="208.4" width="8" height="8" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<rect x="127.6" y="273.5" width="8" height="8" fill="#6c3483" stroke="#6c3483" stroke-width="1.5"/>
+<circle cx="182.8" cy="93.5" r="4.5" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="222.1" cy="97.0" r="4.5" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="216.3" cy="96.5" r="4.5" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="127.3" cy="81.5" r="4.5" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="156.0" cy="69.5" r="4.5" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="109.4" cy="77.4" r="4.5" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="142.9" cy="88.8" r="4.5" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="158.0" cy="75.2" r="4.5" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="287.9" y="57.8" width="8" height="8" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="244.6" y="62.0" width="8" height="8" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="144.9" y="67.9" width="8" height="8" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="184.6" y="63.9" width="8" height="8" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="181.2" y="80.8" width="8" height="8" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="127.6" y="119.5" width="8" height="8" fill="none" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="182.8" cy="341.3" r="4.5" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="222.1" cy="342.4" r="4.5" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="216.3" cy="328.9" r="4.5" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="127.3" cy="309.9" r="4.5" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="156.0" cy="274.7" r="4.5" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="109.4" cy="236.2" r="4.5" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="142.9" cy="222.7" r="4.5" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="158.0" cy="236.0" r="4.5" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="287.9" y="217.4" width="8" height="8" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="244.6" y="216.5" width="8" height="8" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="144.9" y="217.2" width="8" height="8" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="184.6" y="214.5" width="8" height="8" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="181.2" y="208.0" width="8" height="8" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<rect x="127.6" y="244.6" width="8" height="8" fill="#1f78b4" stroke="#1f78b4" stroke-width="1.5"/>
+<circle cx="466" cy="60" r="4.5" fill="#c0392b"/><text x="476" y="64" font-size="11">social force</text>
+<circle cx="466" cy="80" r="4.5" fill="#6c3483"/><text x="476" y="84" font-size="11">anticipation velocity</text>
+<circle cx="466" cy="100" r="4.5" fill="#1f78b4"/><text x="476" y="104" font-size="11">collision-free speed</text>
+<circle cx="466" cy="130" r="4.5" fill="#777"/><text x="476" y="134" font-size="11">filled: bias yields to the goal</text>
+<circle cx="466" cy="150" r="4.5" fill="none" stroke="#777" stroke-width="1.5"/><text x="476" y="154" font-size="11">hollow: bias always on</text>
+<circle cx="466" cy="170" r="4.5" fill="#777"/><text x="476" y="174" font-size="11">HERMES 2009</text>
+<rect x="462" y="186" width="8" height="8" fill="#777"/><text x="476" y="194" font-size="11">BaSiGo 2013</text>
+<text x="462" y="224" font-size="11">dashed: perfect twin; above it,</text>
+<text x="462" y="238" font-size="11">the model keeps right more</text>
+<text x="462" y="252" font-size="11">than the people did</text>
+</svg>

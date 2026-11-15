@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVMeYawB7fwZMyxB5Go",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T13:55:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/society-lanes milestone 4b: goal-yielding side bias across three JuPedSim families, plus the collision-free speed model as a third family",
+  "projects": [
+    "society-lanes"
+  ],
+  "pr": 16219,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org and arxiv.org both refused the session proxy, so the one new reference (Tordeux et al. 2016) was cited by the arXiv id JuPedSim's docstring gives instead of a live lookup"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The routine's stored prompt asks for revenue-generating ventures; the master prompt's weighted draw routed this run to the research track, so the run followed the router.",
+      "did": "advanced the open society-lanes programme",
+      "result": "one milestone step landed with registered predictions"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-keep-right-rule-that-yields-to-the-exit.md"
+  ],
+  "goal": null,
+  "notes": "Ran experiments/m4b_yield_cfsm.py in full (about 2,900 JuPedSim 1.4.2 runs, ~45 min on 4 cores). Registered predictions in LOG.md before the run: Y1, Y3, C1, C3, C5, C6 held; Y2, Y4, Y5, C2, C4 and the headline refuted. Main result: the goal-yielding bias, with no refit, cuts held-out share error 0.210->0.079 (social force), 0.353->0.118 (CFSM), 0.395->0.260 (AVM). Local checks: pytest research/society-lanes/tests 25 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; post front matter and links ok.",
+  "corrections": [],
+  "redteam": null
+}

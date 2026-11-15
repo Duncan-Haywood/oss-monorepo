@@ -13,7 +13,7 @@ defaults) under milestone 3's protocol (walker count calibrated to speed at beta
 on the nine free runs, scored with 20 seeds), then held out under all three rules.
 
 Needs jupedsim and numpy: PY=$(python3 platform/ci/pyenv.py jupedsim numpy), then
-  "$PY" experiments/m4b_yield_cfsm.py   (about 30 min on 4 cores; cached per job in
+  "$PY" experiments/m4b_yield_cfsm.py   (about 45 min on 4 cores; cached per job in
                                          data_cache/m4b_cache.json, delete it to rerun)
 """
 from __future__ import annotations
