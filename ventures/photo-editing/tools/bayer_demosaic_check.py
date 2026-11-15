@@ -151,6 +151,8 @@ def variants_for(names: list[str] | None):
     allv = {
         "bilinear": ("ours bilinear", ours_bilinear),
         "default": ("ours directional (default)", lambda c, p: directional(c, p)),
+        "laplace-quarter": ("ours directional, Hamilton-Adams 1/4 (2026-11-15 first)", lambda c, p: directional(c, p, laplace=0.25)),
+        "laplace-eighth": ("ours directional, Laplacian 1/8", lambda c, p: directional(c, p, laplace=0.125)),
         "simple-rb": ("ours directional, simple red/blue", lambda c, p: directional(c, p, rb="simple")),
         "median": ("ours directional, one median", lambda c, p: directional(c, p, median_passes=1)),
         "power1": ("ours directional, power 1", lambda c, p: directional(c, p, power=1.0)),

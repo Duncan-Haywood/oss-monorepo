@@ -563,7 +563,7 @@
       1.0,
       2.0
     ],
-    "lift_jam_belt_n": 89.0,
+    "lift_jam_belt_n": 100.0,
     "lift_tooth_fuspec_n_mm": 3.6,
     "lift_tooth_fuspec_1200_n_mm": 2.478,
     "lift_tooth_mesh_max": 12,

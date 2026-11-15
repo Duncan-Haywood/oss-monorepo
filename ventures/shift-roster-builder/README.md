@@ -34,7 +34,7 @@ zero dependencies, one JSON file on a disk you own.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Honour system: no geofence or PIN. Details in "Time clock and timesheets" below.
-- **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Section "Overtime, meal periods and rounding" below.
+- **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
 - **Shift trades:** staff pick their shift and a colleague's on the team page ("Want to trade shifts?"). `/admin` shows each request with the same check as the browser tool's trade checker (rest gaps, hour limits, availability, payroll change) and enables **Approve** only when both weeks stay inside the rules. Approving swaps the two people on the published schedule; declining changes nothing. Nobody is notified automatically (the "Tell the team" links give you the text to send).
@@ -121,8 +121,8 @@ now does it, read on the timesheet page and in the CSV.
   week. Stretches less than 2 hours apart are one work period (so a 3-hour gap is a split shift); a meal break is any
   clock-out of 30 minutes or more. Paid rest breaks are not punched and not checked. Not in the estimate: tips, bonuses,
   commissions and shift differentials (which belong in the regular rate), city minimum wages, predictive-scheduling pay,
-  split-shift premiums, union rules, and every other state. Nevada's daily overtime depends on the wage against the minimum
-  and is left out rather than guessed.
+  split-shift premiums, union rules, and every state not listed (Nevada and 13 meal-period states were added later the same
+  day, next section).
 - **Checked:** `payrules.test.mjs` (eight tests, every expected figure worked by hand in the test's comments): five 9-hour days
   federal (40 + 5) and California with and without lunch (one extra hour a day without); a 13-hour California day (8 + 4 +
   1 at 2x, two missed meals, one premium); a seventh consecutive day (8 at 1.5x, 2 at 2x) with waivable six-hour periods;
@@ -131,6 +131,62 @@ now does it, read on the timesheet page and in the CSV.
   California rules; a blended regular rate (30 h at $10 and 20 h at $20: $14, $770); and the hub's page and CSV end to end.
   Not claimed: no payroll provider has read the CSV, no real team's punches have been through it, and none of this is legal
   advice: it is an estimate to check before you pay.
+
+## Nevada, and meal periods in 13 more states (2026-11-15 later)
+
+`PAY_RULES` covered four rule sets, and the README said "Nevada's daily overtime depends on the wage against the minimum and
+is left out rather than guessed". A café in Las Vegas, Seattle or Portland got federal overtime and no break check. Both gaps
+are now filled from text read this session, not from memory:
+
+- **`PAY_RULES=nevada`** (`nv`), from the statute (leg.state.nv.us, NRS chapter 608, read 2026-11-15):
+  - NRS 608.018(1): 1.5x over 8 hours in a workday and over 40 in a week for anyone paid less than 1.5 times the NRS 608.250
+    minimum; 608.018(2): only over 40 a week at or above it. The minimum is $12.00 (the US DOL state minimum-wage table, read
+    the same day), so the line is $18.00 an hour; `MIN_WAGE` changes it. A person's blended rate for the week decides which
+    side they are on; with no wage on the staff list the daily rule is applied and the row says so.
+  - NRS 608.0126: the **workday is 24 hours from when the employee begins work**, not the calendar day. This is the part a
+    spreadsheet gets wrong: a close Monday 14:00-22:00 and an open Tuesday 06:00-14:00 are 8 hours on each calendar day but
+    16 hours in one Nevada workday, so 8 hours of overtime (`rollingWorkdays` in `payrules.mjs`; the Alaska rules on the same
+    punches give none).
+  - The mutually agreed four 10-hour days of 608.018(1)(b): set `NV_FOUR_TENS=1` and the daily rule is off (an agreement the
+    tool cannot see, so it is a setting, not a guess).
+  - NRS 608.019(1): a 30-minute meal period in any continuous 8 hours; a break under 30 minutes does not interrupt the
+    continuous period. Flagged, with no premium (the section sets none). The paid 10-minute rest periods of 608.019(2) are not
+    punched, so they are a note.
+- **Meal-period flags for 13 states** from the US Department of Labor's "Minimum Length of Meal Period Required under State
+  Law" table (dol.gov/agencies/whd/state/meal-breaks, revised 2023-01-01, read 2026-11-15): `washington`, `oregon`,
+  `connecticut`, `delaware`, `illinois`, `kentucky`, `maine`, `massachusetts`, `minnesota`, `new-hampshire`,
+  `rhode-island`, `tennessee`, `west-virginia` (names in any case, spaces or underscores, or two-letter codes). Each is a
+  small rule in `MEAL_RULES`: how long the work period must be, how long a clock-out counts as a break, and the window it must
+  start in (Washington between 2 and 5 hours from the start; Connecticut and Delaware after the first 2 hours and before the
+  last 2 of a 7.5-hour period; Illinois 20 minutes within 5 hours; Oregon's two windows for 6-7 and over 7 hours; Rhode
+  Island's 20 minutes at 6 hours and 30 at 8; Tennessee not in the first hour; and so on). Overtime in these states stays
+  federal, with one exception: the DOL's state minimum-wage table (read the same day) lists general daily overtime only for
+  Alaska, California, Colorado and Nevada among the states, but also Kentucky's **seventh-day rule** (1.5x for the hours on the
+  seventh day when all seven days of the workweek are worked; not when the employee is not permitted over 40 in the week), so
+  `PAY_RULES=kentucky` pays the seventh day at 1.5x in a week over 40 and then regular hours past 40, never an hour twice. The
+  same table's narrower premiums are printed as notes, not applied: Oregon's 10-hour day in mills, factories and canneries,
+  Connecticut restaurants' seventh consecutive day, Rhode Island's Sunday and holiday pay in retail, and Minnesota's own
+  48-hour line (federal 40 is used, since it covers most employers). The meal-period table lists premium pay for a missed
+  break only in California and Puerto Rico, so these are flags, not money, and each state's
+  exceptions the punches cannot show (eating while working in New Hampshire and West Virginia, fewer than three on duty in
+  Maine, written waivers) are printed as a note under the row.
+- **Where the table's words leave room** ("between 3rd and 5th hour"), the window is read on the wide side, so a flag means the
+  punches plainly miss it. New York's noonday rules, North Dakota's "if desired" and Vermont's "reasonable opportunities" are
+  not checked; nor is any city ordinance.
+- **On one invented week** (`node eval/pay-rules-by-state.mjs`, `eval/pay-rules-by-state.out.txt`: four people, an opener with
+  lunch at 4 hours, a closer with a clopen and 20-minute breaks, a $24 lead on four 10s with lunch at 6 hours, a part-timer on
+  6.5-hour shifts with no break): overtime is 9 hours federally and in the 13 meal-period states, 17 in California, Alaska and
+  Nevada (by different routes: Nevada's 8 are the closer's clopen, Alaska's the lead's 10-hour days, which Nevada leaves to the
+  weekly rule at $24), and meal flags run from 0 (federal) and 2 (Minnesota, where any clock-out to eat counts) to 12
+  (Washington, Kentucky, New Hampshire, California).
+- **Checked:** seven new tests in `payrules.test.mjs`, each figure worked by hand in the test: Nevada daily overtime at $15 against
+  weekly-only at $20, a lower `MIN_WAGE`, `NV_FOUR_TENS`, no wage; the 24-hour workday on the clopen and across its boundary;
+  the meal period with a 20- and a 30-minute break; Washington, Connecticut, Delaware, Illinois, Oregon, Rhode Island,
+  Massachusetts, Minnesota and Tennessee windows on both sides of each line; Kentucky's seventh day (50 h: 8 + 2; 42 h: 6 against 2 federally;
+  35 h: none); the name and code parsing; and the hub page and
+  CSV end to end under Nevada rules ($712.50 for five 9-hour days at $15). Not claimed: no Nevada or other-state employer has
+  read it, no labour office or lawyer has checked the readings, the DOL table is a summary that says to consult the state, and
+  none of this is legal advice.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 
@@ -2769,3 +2825,112 @@ seeds at 8.4% took 88 minutes for three rosters in the earlier study). The defau
 both studies, but its changes and premiums differ slightly from "The pair price in played weeks" (187 and $3,239 here, 183 and
 $3,177 there), because the reissues inside each play are time-gated and the machine was busier. Every other cell for the
 cover and default rosters matches that study exactly.
+
+## The clique LP steers the cover passes (2026-11-15 later)
+
+"Column generation keeps to its share" left a question for 350-400 copy weeks: the open-hours clique LP takes 5-11 s there and
+buys a much tighter bound, while the cover passes turn the same seconds into filled shifts, and in single runs neither won every
+week. **Measured first** (`node eval/clique-vs-cover.mjs P S week config seed`, `eval/clique-vs-cover.out.txt`): each of the five
+350-400 copy bench weeks built three times (search seeds 1-3) with the clique LP on and off, at the default 20 s budget.
+
+| open hours, mean of 3 seeds | clique LP off | clique LP on (unguided cover passes, as before) | on, cover passes guided (now) | bound the clique LP proves |
+|---|---|---|---|---|
+| 90 x 252 week 0 (348 copies) | 356.7 | 356.7 | **353.7** | 352 |
+| 90 x 252 week 1 (352) | 224.0 | 229.3 | **220.7** | 219 |
+| 90 x 252 week 2 (363) | 376.3 | 374.7 | **374.0** (proven on all 3) | 374 |
+| 100 x 280 week 0 (400) | 387.0 | 377.7 | **374.3** | 358 |
+| 100 x 280 week 1 (400) | 353.3 | **350.0** | 350.7 | 344 |
+
+So the clique LP paid for itself on four of five weeks even before this change: on the 400-copy weeks by 9.3 and 3.3 hours on
+every seed. Without it the only bound left is column generation's root (288-294 h on those weeks), so the page could not tell a
+manager that 344-358 of the hours are unavoidable. The one loss was 90 x 252 week 1, where the cover passes got about 2.5 s less
+and the roster left 5 more hours open.
+
+**What landed:** the LP's answer is now used twice. It already guided the day sweeps (README "A guide when the pay floor is
+skipped"); now it guides the cover passes too. When a cover-pass step tries to fill an open shift, it picks the person to try in
+proportion to their value on that shift in the LP's solution half the time, and picks uniformly the other half, as before
+(`coverPass`'s `guide`). It only changes which move is proposed. Every move is still checked by the same rules and accepted by
+the same test, so the guide cannot make a roster invalid, and a week whose LP gives nobody to a shift is proposed as before.
+`coverGuide: false` turns it off, `coverGuideProb` sets the share (0.9 was tried: no better than 0.5, worse on two weeks), and
+`optimality.coverGuided` says whether the cover passes used it.
+
+The before/after columns above come from two separate runs. So the change was checked again in **one run, on fresh search seeds
+4-6 and ten bench weeks** (60 to 100 people), guided against `coverGuide: false`, paired by week and seed:
+
+| same run, seeds 4-6 (`eval/clique-guide-ab.jsonl`) | unguided: open h | guided: open h |
+|---|---|---|
+| 80 x 224 weeks 0-2 | 260/259/259, 331/331/334, 284/282/282 | **257/259/257, 331/331/331, 281/281/281** |
+| 90 x 252 weeks 0-2 | 354/355/359, 221/222/224, 374 x 3 | **352/354/359, 220/226/219**, 374 x 3 |
+| 100 x 280 weeks 0-1 | 381/373/381, 346/349/348 | **372/377/374, 351/344/347** |
+| 60 x 168 weeks 0-1 | 300 x 3, 308 x 3 | 300 x 3, 308 x 3 (no change: proven or nothing to cover) |
+
+Guided builds left fewer open hours on **14 of 30, more on 3**, and tied on 13 (two-sided sign test p = 0.013): 9,450 hours in all
+against 9,481. Of the 24 builds above 60 people, **14 guided rosters reached the clique LP's bound**, so their open hours are
+proven least, against 5 unguided. They include all three seeds of 80 x 224 weeks 1 and 2, 90 x 252 week 1 seed 6 (219) and
+100 x 280 week 1 seed 5 (344). Because the plateau walk stops at the bound,
+those builds also spent less time in the cover passes (0.5-1.9 s instead of 3.3-5.9 s on 80 x 224 weeks 1 and 2). On weeks of
+up to about 245 copies the clique LP proves the posted roster's open hours before the cover passes start, so nothing changes there.
+
+**What this says** about the question it started from: on 350-400 copies the clique LP is worth its seconds, so its gate stays
+as it is. The way to stop it costing the cover passes is to let the cover passes use what it found, not to skip it.
+
+Tests: `cover-guide.test.mjs` (on 80 seeded small weeks a guided pass from an empty roster, at guide shares 0.5 and 1, keeps every
+rule, reports its own open hours, never ends above where it started and never below the clique LP's floor; an all-zero guide
+gives the unguided pass's roster exactly; buildRoster reports `coverGuided` true when the clique LP ran and false with
+`coverGuide: false`). Not claimed: generated weeks only, three or six search seeds each, one cloud machine with two builds at a
+time. The time-bound passes move a few hours run to run (README "Room for the clique LP"), which is why the claim rests on the
+paired same-run comparison. Next: the same guide for `coverRepair`'s choice of people, and for `ejectPass`, which run before the
+LP today.
+
+## The clique LP picks the repair's people (2026-11-15 later)
+
+"The clique LP steers the cover passes" ended on a next step: give the same LP guide to `coverRepair`, the exact repair that
+releases k people's shifts and re-solves them plus every open shift. Looking first at what the repair does on the 350-400 copy
+weeks changed the question. On most of those builds it got **0 ms**: the plateau walks run until the 20 s budget is gone
+(`eval/clique-guide-ab.jsonl`). And when it was given time (`coverRepairReserveMs`), it ended on its node budget after about 15 of
+its 60 rounds, because **every round hit its 200,000-node cap**. A three-person neighbourhood there holds about 68 open shifts, and
+the depth-first search began each round with no bound, so it often never even found the roster it started from (361 open hours
+found, 356 held, on 90 x 252 week 0).
+
+**What landed:**
+
+- **Each round starts from its own value.** The search must beat the neighbourhood as it stands, so it prunes from the first node.
+  Shifts no chosen person may take are counted once and not branched on, and a second bound prunes on the chosen people's weekly
+  hours: hours still to place, less what those people can still take, must stay open. Both only relax the rules, and a new test
+  checks the repair over everyone against a brute-force search on 60 tiny weeks: the same least open hours on all 60
+  (`repair-guide.test.mjs`).
+- **An LP-guided choice of people, opt-in** (`repairGuide: true`, `repairGuideProb`, default share 0.5). A guided round builds its
+  people as a chain the LP suggests: an open shift, a person the LP puts on it (drawn by value), a shift that person holds which the
+  LP gives mostly to someone else, that someone, and so on.
+- **A reserve for the repair, off by default** (`coverRepairReserveMs`): under a time budget the plateau walks stop starting once
+  only that much is left. The repair's own time is now capped at what the budget has left (at least 0.2 s).
+- `optimality.coverRepair` reports `guided`, `guidedRounds`, `gains` and `guidedGains` when the repair ran.
+
+**Measured on the repair alone** (`node eval/repair-alone.mjs P S week startSeed`, `eval/repair-alone.out.txt`): the eight
+80-100 person bench weeks, three fixed starts each (a guided plateau walk of 400,000 steps from an empty roster), then the
+repair under the same node budget:
+
+| 24 starts, k = 3 people, 60 rounds | total open h | cut from the start | paired against the unguided new repair |
+|---|---|---|---|
+| main's repair (b92b1c892) | 8,455 | 206 h | fewer open on 1, more on 8 (p = 0.039) |
+| this repair, unguided (the default) | **8,444** | **217 h** | |
+| this repair, guided half the rounds | 8,443 | 218 h | fewer on 11, more on 9, tied 4 (p = 0.82) |
+| this repair, guided every round | 8,481 | 180 h | fewer on 9, more on 13 (p = 0.52) |
+
+Five-person neighbourhoods (first start of each week) left more open than three on 6 of 8 weeks unguided and 6 of 8 guided, fewer on 1 (they hit the node cap sooner). So the bound is a small, real gain
+and the guide is not one: the LP's people are no better places to look than random ones, and guiding every round narrows the
+search and loses. That is why the guide is opt-in.
+
+**End to end** (`node eval/repair-guide.mjs P S week config seed`, `eval/repair-guide.out.txt`, same eight weeks, search seeds 4-6,
+default 20 s budget, two builds at a time): main 7,631 open hours in all, this change 7,631, the guided repair 7,635, a 500 ms
+reserve 7,639 guided and 7,632 unguided, each at the proven floor on 13 of 24 builds (12 for the guided reserve). The differences
+are the time-bound passes' run-to-run noise. On 40 small seeded weeks with no budget (`eval/repair-small.out.txt`) open hours and
+score are identical to main on all 40.
+
+**What this says:** the repair is not where the 350-400 copy weeks lose hours. Even with time and a bound it closes about 9 of the
+46 open hours (24-81) a start leaves above the floor, because a depth-first search over 50-80 shifts does not finish inside its node
+cap. A neighbourhood solved by something other than depth-first search (the flow bound of `openHoursFloor` or the clique LP
+restricted to the chosen people, then rounded) is the next thing to try; more of the same search, or a better choice of people,
+is not.
+
+Not claimed: generated weeks only, three starts or three search seeds each, one cloud machine.

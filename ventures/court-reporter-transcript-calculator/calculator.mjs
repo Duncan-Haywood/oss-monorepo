@@ -208,7 +208,7 @@ export function computeAgencyOfferCheck({
       id: "below-target",
       severity: SEVERITY.HIGH,
       title: "This offer pays below your target hourly rate",
-      detail: `At ${hours} hour${hours === 1 ? "" : "s"} for $${agencyTotalPay.toFixed(2)}, the effective rate is $${effectiveHourlyRate.toFixed(2)}/hr, ${hourlyShortfall.toFixed(2)} below your $${target.toFixed(2)}/hr target.`,
+      detail: `At ${hours} hour${hours === 1 ? "" : "s"} for $${agencyTotalPay.toFixed(2)}, the effective rate is $${effectiveHourlyRate.toFixed(2)}/hr, $${hourlyShortfall.toFixed(2)}/hr below your $${target.toFixed(2)}/hr target.`,
     });
   } else if (meetsTarget === true) {
     findings.push({

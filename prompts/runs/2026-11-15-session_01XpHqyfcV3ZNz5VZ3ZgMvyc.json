@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyfcV3ZNz5VZ3ZgMvyc",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T20:39:08Z",
+  "ended": "2026-11-15T20:47:06Z",
+  "wall_minutes": 12.42,
+  "tokens_in": 3867240,
+  "tokens_out": 19877,
+  "cost_usd": 1.7686,
+  "tool_calls": 47,
+  "task": "polish: footer lead line 'like this one, runs in your browser' only on pages that are or belong to a browser tool",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16336",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First rule decided from the tool's entry page only; measuring the build showed it would drop the line from 12 real calculators inside the quick-pick-survey and ai-engineering-academy hubs",
+      "fix": "browserTool = entry has a control OR this page has one; test covers it"
+    },
+    {
+      "what": "New post's description was 220 characters (limit 160); 6 site-build tests failed on it",
+      "fix": "shortened; the 7 affected test files re-run: 109 pass"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-15-embed-gate.md",
+      "issue": "Listed quick-pick-survey and ai-engineering-academy as 'not tools'; both are hubs with calculator pages inside, so a fix keyed only on the entry page would have been wrong"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-the-footer-said-like-this-one-under-a-watch-face.md",
+    "docs/reports/polish-2026-11-15-footer-lead.md"
+  ],
+  "goal": "honest marketing: no claim a page can't back",
+  "notes": "Two full builds (before: main; after: branch). Pages saying 'like this one' 3,563 -> 3,535; wrong ones 28 -> 0; 12 hub calculators keep it. check.mjs: 10,294 pages, no dead links. node --test 'platform/pages/*.test.mjs': 1,709 tests, 1,677 pass, 6 fail, all six from the post description length (fixed, then those files re-run: 109/109 pass). Screenshots at 390 px, no sideways scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1336b5ec-d140-56ac-a12f-9888910b8085",
+    "transcripts": 1,
+    "first": "2026-11-15T20:39:08Z",
+    "last": "2026-11-15T20:51:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 87,
+        "output": 19877,
+        "thinking": 2974,
+        "cache_read": 3790582,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76571,
+        "api_equivalent_usd": 1.7686,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 87,
+      "output": 19877,
+      "thinking": 2974,
+      "cache_read": 3790582,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76571,
+      "api_equivalent_usd": 1.7686,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.42,
+      "active_minutes": 12.42,
+      "model_minutes": 3.39,
+      "tool_minutes": 9.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior front-end dev: find the chrome code, rule, test, two builds, measure, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 169.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

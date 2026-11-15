@@ -3,7 +3,7 @@
 // scans through tesseract (eval/sroie-receipts.mjs --ocr); receipt text below is made up.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseReceipt, parseReceiptPasses, oneDigitApart, GUESS_VOTE } from "./receipts.mjs";
+import { parseReceipt, parseReceiptPasses, oneDigitApart, GUESS_VOTE, splitDecimal } from "./receipts.mjs";
 
 test("one digit apart: same length, exactly one digit differs", () => {
   assert.equal(oneDigitApart(900, 960), true);
@@ -268,4 +268,25 @@ test("--two-pass and --four-pass read an unevenly lit photo the second time with
   assert.deepEqual(e.ocr(), ["--psm 6", "--psm 4", "--psm 6", "--psm 4"]);
   // a thumbnail of the wrong size (a failed or odd ImageMagick) is no measurement
   assert.equal(photoSpread("slip.jpg", mk(Buffer.alloc(10, 9)).run), null);
+});
+
+// SRD photos 1018, 1080, 1112, 1157 (eval/split-decimal-2026-11-15.md): the total line's
+// decimal point lost or read as a space, comma or colon. Text below is made up.
+test("a total line with its decimal point lost reads dollars and cents, says so, and leaves everything else alone", () => {
+  assert.deepEqual(splitDecimal("TOTAL 184 47)"), { cents: 18447, was: "184 47" });
+  assert.equal(splitDecimal("esl TOTAL : 92:22").cents, 9222);
+  assert.equal(splitDecimal("dount Due 9, 70").cents, 970);
+  assert.equal(splitDecimal("Amount Due $2 17").cents, 217);
+  assert.equal(splitDecimal("Total due 10:45 PM"), null);          // a time
+  assert.equal(splitDecimal("Table 12 Guests 2 17"), null);        // no total word
+  assert.equal(splitDecimal("Total 2 175"), null);                 // three digits after the gap
+  const r = parseReceipt("CORNER DINER\n05/02/2026\nBurger 12.00\nFries 4.00\nTax 1.36\nTOTAL 17 36)\nThank you");
+  assert.equal(r.cents, 1736);
+  assert.match(r.notes.join("; "), /decimal point lost: took 17\.36, check the total/);
+  // an amount that reads normally on the line is never re-read
+  const plain = parseReceipt("CORNER DINER\n05/02/2026\nTOTAL 17.36 2 05");
+  assert.equal(plain.cents, 1736);
+  assert.doesNotMatch(plain.notes.join("; "), /decimal point lost/);
+  // a decimal-comma receipt keeps its own reading: "Summe 9, 70" is 9,70 already
+  assert.equal(parseReceipt("CAFE MITTE\n05.02.2026\nKaffee 4,50\nKuchen 5,20\nSumme 9,70").cents, 970);
 });

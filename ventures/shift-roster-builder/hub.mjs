@@ -4,7 +4,7 @@
 // Node-style (req, res) pair; hub-worker.mjs adapts a fetch Request to that shape.
 import { parseStaff, parseShifts, buildRoster, rosterFromOwner, rosterIcs, rosterFeedIcs, rosterMessages, coverOptions, checkTrade, parseAvailabilityReply, mergeAvailabilityReplies, parseTimeOffRequest, addTimeOff, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
 import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zoneOf, localParts, clock } from "./timeclock.mjs";
-import { readPayEnv, payForTimesheet } from "./payrules.mjs";
+import { readPayEnv, payForTimesheet, MEAL_RULES } from "./payrules.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -286,13 +286,16 @@ export function wagesOf(state) {
   try { for (const p of parseStaff(text || "").staff || []) if (Number.isFinite(Number(p.wage)) && Number(p.wage) > 0) m.set(p.name, Number(p.wage)); } catch { /* no wages */ }
   return m;
 }
-const RULE_NAME = { federal: "federal (over 40 a week)", california: "California (daily, double time, seventh day, meal periods)", alaska: "Alaska (over 8 a day or 40 a week)", colorado: "Colorado (over 12 a day, 12 in a row or 40 a week)" };
+const RULE_NAME = { federal: "federal (over 40 a week)", california: "California (daily, double time, seventh day, meal periods)", alaska: "Alaska (over 8 a day or 40 a week)", colorado: "Colorado (over 12 a day, 12 in a row or 40 a week)",
+  nevada: "Nevada (over 8 in a 24-hour workday under 1.5x the minimum wage, or 40 a week; meal period)" };
+RULE_NAME.kentucky = "Kentucky (over 40 a week, the seventh day at 1.5x; meal-period check from the US DOL state table)";
+for (const [k, v] of Object.entries(MEAL_RULES)) if (!Object.hasOwn(RULE_NAME, k)) RULE_NAME[k] = `${v.name} (over 40 a week; meal-period check from the US DOL state table)`;
 const cents = (x) => "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 export function payTable(rows, pay) {
   const h = (x) => x.toFixed(2);
   const body = rows.map((r) => `<tr><td><strong>${esc(r.name)}</strong></td><td>${h(r.regularH)}</td><td>${h(r.overtimeH)}</td><td>${h(r.doubleH)}</td><td>${r.mealPremiumDays || ""}</td><td>${r.regularRate == null ? "" : esc(cents(r.regularRate))}</td><td>${r.gross == null ? "" : esc(cents(r.gross))}</td><td>${esc([...r.flags, ...r.notes, pay.roundMin && r.roundNetMin ? `rounding ${r.roundNetMin > 0 ? "+" : ""}${Math.round(r.roundNetMin)} min` : ""].filter(Boolean).join("; "))}</td></tr>`).join("");
   const tot = rows.reduce((t, r) => t + (r.gross || 0), 0);
-  return `<h2>Pay estimate: ${esc(Object.hasOwn(RULE_NAME, pay.rules) ? RULE_NAME[pay.rules] : pay.rules)}</h2><p class="note">Set PAY_RULES to federal, california, alaska or colorado${pay.rules === "california" ? "" : `, PUNCH_ROUND_MIN to 5, 6 or 15 to round punches (now ${pay.roundMin || "off"})`}. ${pay.notes.map(esc).join(" ")} Wages from the published staff list; overtime at the regular rate's 1.5x, double time 2x${pay.rules === "california" ? ", one extra hour for a day with a missed meal break (a break is a clock-out of 30 min or more)" : ""}. An estimate to check before payroll: tips, bonuses, differentials, local ordinances and union rules are not in it.</p>
+  return `<h2>Pay estimate: ${esc(Object.hasOwn(RULE_NAME, pay.rules) ? RULE_NAME[pay.rules] : pay.rules)}</h2><p class="note">Set PAY_RULES to federal, california, alaska, colorado, nevada or a state with a meal-period law (washington, oregon, connecticut, delaware, illinois, kentucky, maine, massachusetts, minnesota, new-hampshire, rhode-island, tennessee, west-virginia; two-letter codes work)${pay.rules === "nevada" ? `, MIN_WAGE (now ${esc(cents(pay.minWage ?? 12))}) and NV_FOUR_TENS=1 for an agreed four 10s` : ""}${pay.rules === "california" ? "" : `, PUNCH_ROUND_MIN to 5, 6 or 15 to round punches (now ${pay.roundMin || "off"})`}. ${pay.notes.map(esc).join(" ")} Wages from the published staff list; overtime at the regular rate's 1.5x, double time 2x${pay.rules === "california" ? ", one extra hour for a day with a missed meal break (a break is a clock-out of 30 min or more)" : Object.hasOwn(MEAL_RULES, pay.rules) ? "; meal-period flags carry no premium in this state's table, but a missed break can still be a violation" : ""}. An estimate to check before payroll: tips, bonuses, differentials, local ordinances and union rules are not in it.</p>
 <table><thead><tr><th>Person</th><th>Regular h</th><th>Overtime h (1.5x)</th><th>Double h (2x)</th><th>Meal premium days</th><th>Regular rate</th><th>Est. gross</th><th>Check</th></tr></thead><tbody>${body || `<tr><td colspan="8">No closed stretches this week.</td></tr>`}</tbody><tfoot><tr><td colspan="6">Total</td><td>${esc(cents(tot))}</td><td></td></tr></tfoot></table>`;
 }
 function timesheetPage(state, key, tc, weekStart, note = "") {

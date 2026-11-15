@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtJDeXDTMB1gU6xub7d",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T21:06:41Z",
+  "ended": "2026-11-15T21:23:42Z",
+  "wall_minutes": 26.16,
+  "tokens_in": 8580683,
+  "tokens_out": 39784,
+  "cost_usd": 3.5651,
+  "tool_calls": 71,
+  "task": "Deepen flagship 4 (changepoint-detector): the shape-repeat check named in its next: after the count guard failed",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16341",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first venture-preflight failed on a .ppt in the git-ignored utsa-data/ download",
+      "fix": "moved eval data dirs to the scratchpad; second preflight clean"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "file": "ventures/changepoint-detector/eval/repeat-guard.mjs",
+      "issue": "read consensus().repeatWarning, which consensus() no longer sets (the guard was reverted to measured-not-offered), so a rerun printed G2 MET where the committed output says NOT MET; fixed to call repeatGuard itself. The committed output was right."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagship next: was at 1999 of 2000 characters, so any replacement longer than the item it replaces needs a --park first; the hint says so, which helped, but every run on this flagship now pays this step."
+    },
+    {
+      "file": "ventures/changepoint-detector/.gitignore",
+      "issue": "has-data/ (the HAS 2023 fetch dir named by eval/has-fetch.sh, CC BY-NC-SA, must never be committed) was not ignored; a git add -A in the venture would have committed 1.9 M points of non-redistributable data. Added has-data/ and utsa-data/."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The preflight's build copies git-ignored local data dirs (here utsa-data/, a fetched eval set) into the site and failed on a .ppt inside it; CI never sees those dirs. Moving the eval data out of the venture fixed it. Eval fetch scripts that default to a dir inside the venture (tssb-data, has-data, utsa-data) will keep tripping this; the build could skip ignored paths."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-changepoint-shape-check-safe-but-timid.md",
+    "ventures/changepoint-detector/README.md (section: Agreed changes that are the same waveform repeated)"
+  ],
+  "goal": "Pre-registered round on a fresh labelled set (UTSA, 32 series) for a guard that reads segment shapes between agreed changes",
+  "notes": "Pre-registration committed (a3082f74d) before any computation; code committed before the run. Result: S1 NOT MET (TSSB 0.365 vs 0.381), S2-S4 MET (fresh UTSA +0.064 covering, better on 5 of 5 touched; worse on no series of TSSB/HAS/UTSA). Not offered, as pre-registered. Reproduced eval/tssb.out.txt and eval/repeat-guard.out.txt before the round (identical apart from timings and the G2 bug above). Post checks: check_post_frontmatter, check_post_links, post_similarity all clean. Venture tests: run_venture_tests.py changepoint-detector 748 tests, 0 failed; touched tests rerun after the last edits, 39 pass. venture-preflight: clean (second run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5a37398e-b8c0-5bdb-9f78-6c82e541307f",
+    "transcripts": 1,
+    "first": "2026-11-15T21:06:41Z",
+    "last": "2026-11-15T21:32:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 158,
+        "output": 39784,
+        "thinking": 9114,
+        "cache_read": 8445564,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134961,
+        "api_equivalent_usd": 3.5651,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 158,
+      "output": 39784,
+      "thinking": 9114,
+      "cache_read": 8445564,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134961,
+      "api_equivalent_usd": 3.5651,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 61,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.16,
+      "active_minutes": 10.86,
+      "model_minutes": 8.31,
+      "tool_minutes": 2.55,
+      "waiting_on_human_minutes": 15.3,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, pre-registering and running one benchmark round on four sets and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 280.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

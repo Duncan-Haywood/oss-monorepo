@@ -1,0 +1,40 @@
+brand,model,family,prop_in,class,wheelbase_mm,weight_g,arm_mm,weight_scope,use,quote,url
+iFlight,AOS 3.5 V5,iflight-aos-v5,3.5,open,162,68,4,as listed,fit,"Frame wheelbase: 162mm | Arm Thickness: 4mm | Weight: 68g",https://www.hobbyrc.co.uk/aos-35-v5-frame-kit
+iFlight,AOS 5 V5,iflight-aos-v5,5,open,228,150,6,as listed,fit,"Frame wheelbase: 228mm | Frame weight: 150g | Arm thickness: 6mm",https://www.hobbyrc.co.uk/aos-5-v5-frame-kit
+iFlight,AOS 6 V5.1,iflight-aos-v5,6,open,228,259,6,as listed,excluded: listed wheelbase equals the 5-inch frame's (likely a copy error),"Propeller size: 6inch | Frame wheelbase: 228mm | Arm Thickness: 6mm | Weight: 259g",https://www.hobbyrc.co.uk/aos-6-v51-frame-kit
+iFlight,AOS 7 V5,iflight-aos-v5,7,open,313,325,,as listed,fit,"Frame wheelbase: 313mm | Weight: 325g",https://www.hobbyrc.co.uk/iflight-aos-7-v5-frame-kit
+iFlight,AOS UL7 V5,iflight-aos-ul,7,open,312,230,3,as listed,fit,"Frame wheelbase: 312mm | Arm Thickness: 3mm | Weight: 230g",https://www.hobbyrc.co.uk/iflight-aos-ul7-v5-fpv-7-frame-kit
+iFlight,AOS HS5,iflight-aos-hs,5,open,233,226,,as listed,fit,"Wheelbase: 233mm | Weight: 226g",https://www.hobbyrc.co.uk/aos-hs5-frame-kit
+iFlight,XL10,iflight-xl,10,open,420,276.7,,approx,fit,"Frame weight:276.7g approx | Wheelbase: 420mm",https://www.hobbyrc.co.uk/iflight-xl10-10-fpv-frame
+Armattan,Bobcat 4 HD (True X),armattan-bobcat,4,open,200,57,3,as listed,fit,"Frame Weight: 57 grams | Motor to Motor: 182mm (Compressed X), 200mm (True X) | Arm Thickness: 3mm",https://www.hobbyrc.co.uk/armattan-bobcat-5-hd-fpv-frame
+DeepSpace,Raven5,deepspace-raven,5,open,190,56.6,5,excl. TPU,fit,"Wheelbase: 190mm | Arm thickness: 5mm | Weight: 56.6g, excluding TPU parts",https://www.hobbyrc.co.uk/deepspace-raven5-racing-fpv-frame-kit
+DeepSpace,ROC 7 DC,deepspace-roc,7,open,322,300,6,approx,fit,"Wheelbase: 322mm | Weight: Approximately 300g | Arm thickness: 6mm",https://www.hobbyrc.co.uk/deepspace-roc-7-frame
+Foxeer,Aura V2 Pro DC 5,foxeer-aura-v2-pro,5,open,235,119,,excl. TPU,fit,"Wheelbase 235mm | Weight Weight 119g (excluded TPU Kit)",https://www.hobbyrc.co.uk/foxeer-5-aura-pro-deadcat-frame
+Foxeer,Aura V2 Pro DC 6,foxeer-aura-v2-pro,6,open,265,124,,excl. TPU,fit,"Wheelbase 265mm | Weight Weight 124g (excluded TPU Kit)",https://www.hobbyrc.co.uk/foxeer-6-aura-pro-deadcat-frame
+Foxeer,Aura V3 LR 7,foxeer-aura-v3,7,open,300,183.5,,excl. TPU,fit,"Wheelbase 300mm | Weight Weight 183.5g (excluded TPU Kit)",https://www.hobbyrc.co.uk/foxeer-7-aura-long-range-frame
+Foxeer,Caesar Pro 5,foxeer-caesar,5,open,200,69.8,,excl. TPU,fit,"Wheelbase 200mm | Weight Weight 69.8g (excluded TPU Kit)",https://www.hobbyrc.co.uk/foxeer-5-caesar-pro-racing-frame
+Foxeer,Caesar 5,foxeer-caesar,5,open,200,68,,excl. TPU,fit,"Wheelbase 200mm | Weight Weight 68g (excluded TPU Kit)",https://www.hobbyrc.co.uk/foxeer-5-caesar-racing-frame
+Foxeer,Mega DC 7,foxeer-mega,7,open,305,221,,excl. TPU,fit,"Wheelbase: 305mm | Weight: 221g (Excluded TPU)",https://www.hobbyrc.co.uk/foxeer-mega-dc-7-frame
+GEPRC,Mark4 5,geprc-mark4,5,open,225,102,5,as listed,fit,"Motor to motor：225mm | Weight：102g | Arms plate : 5mm",https://www.hobbyrc.co.uk/geprc-mark4-frame-5678-inch
+GEPRC,Mark4 6,geprc-mark4,6,open,260,111,5,as listed,fit,"Motor to motor：260mm | Weight：111g | Arms plate : 5mm",https://www.hobbyrc.co.uk/geprc-mark4-frame-5678-inch
+GEPRC,Mark4 7,geprc-mark4,7,open,295,121,5,as listed,fit,"Wheelbase: 295mm | Weight:121g | Arm thickness: 5mm",https://www.hobbyrc.co.uk/geprc-mark4-frame-5678-inch
+GEPRC,Mark4 8,geprc-mark4,8,open,338,162.4,6,as listed,fit,"Wheelbase:338mm | Weight:162.4g | Arm thickness: 6mm",https://www.hobbyrc.co.uk/geprc-mark4-frame-5678-inch
+GEPRC,Mark4 10,geprc-mark4-10,10,open,428,270,7,as listed,fit,"Wheelbase: 428mm | Arm Thickness: 7mm | Weight: 270g",https://www.hobbyrc.co.uk/geprc-mark4-10-long-range-drone-frame
+GEPRC,MK5 O4 Pro Wide X,geprc-mk5,5,open,225,165.1,5,as listed,fit,"Wheelbase: 225mm (Wide X), 230mm (DC) | Frame weight: 165.1g (Wide X), 197.0g (DC) | Arm thickness 5mm",https://www.hobbyrc.co.uk/geprc-gep-mk5-o4-pro-dcx-frame-orange
+GEPRC,MK5 O4 Pro DC,geprc-mk5,5,open,230,197.0,5,as listed,fit,"Wheelbase: 225mm (Wide X), 230mm (DC) | Frame weight: 165.1g (Wide X), 197.0g (DC) | Arm thickness 5mm",https://www.hobbyrc.co.uk/geprc-gep-mk5-o4-pro-dcx-frame-orange
+GEPRC,MK5 Pro,geprc-mk5,5,open,225,130.0,,as listed,fit,"Motor to motor: 225mm | Suitable propeller size: 5″propeller | Weight: 130.0g",https://www.hobbyrc.co.uk/geprc-mk5-mark-5-pro-5-frame
+GEPRC,Vapor X5,geprc-vapor,5,open,230,185.6,5,as listed,fit,"Wheelbase: 230mm | Arm Thickness: 5.0mm | Weight: 185.6g",https://www.hobbyrc.co.uk/geprc-gep-vapor-x5-5-frame
+GEPRC,LC75 V3 7,geprc-lc75,7,open,342,266,,as listed,fit,"Wheelbase: 342mm | Recommended propeller size: 7-7.5inch | Weight: 266g",https://www.hobbyrc.co.uk/geprc-lc75-v3-7-frame
+GEPRC,MOZ7 V2,geprc-moz7,7,open,336,270,6,approx,fit,"Weight: ~270g | Wheelbase: 336mm | Arm Thickness: 6mm",https://www.hobbyrc.co.uk/geprc-moz7-v2-frame
+GEPRC,EF10,geprc-ef10,10,open,430,366,7,without pads,fit,"Motor-to-motor distance: 430mm | Weight: 366g (without pads) | Arm thickness: 7mm",https://www.hobbyrc.co.uk/geprc-ef-10-10-frame
+GEPRC,Pulsar LR9,geprc-pulsar,9,open,385,563.4,,as listed,fit,"Wheelbase: 385mm | Weight: 563.4g ± 5g",https://www.hobbyrc.co.uk/geprc-pulsar-lr9-9-frame
+GEPRC,Pulsar LR10,geprc-pulsar,10,open,435,576.3,,as listed,fit,"Wheelbase: 435mm | Weight: 576.3g ± 5g",https://www.hobbyrc.co.uk/geprc-pulsar-lr10-10-frame
+GEPRC,Pulsar LR11,geprc-pulsar,11,open,473,587.2,,as listed,fit,"Wheelbase: 473mm | Weight: 587.2g ± 5g",https://www.hobbyrc.co.uk/geprc-pulsar-lr11-11-frame
+SpeedyBee,Mario 5 XH O4,speedybee-mario,5,open,226,126,6,excl. 3D printed parts,fit,"Wheelbase: 226mm | Weight (3D Printed Parts Excluded): 126~5g | Arm Thickness: 6mm",https://www.hobbyrc.co.uk/mario-5-xh-o4-frame-kit
+SpeedyBee,Mario 5 DC O4,speedybee-mario,5,open,227,129,6,excl. 3D printed parts,fit,"Wheelbase: 227mm | Weight (3D Printed Parts Excluded): 129~5g | Arm Thickness: 6mm",https://www.hobbyrc.co.uk/speedybee-mario-5-dc-o4-frame-kit
+SpeedyBee,Mario 5 DC,speedybee-mario,5,open,227,129,6,excl. 3D printed parts,excluded: same frame as Mario 5 DC O4 (duplicate listing),"Mario 5 DC Wheelbase 227mm | Mario 5 DC Weight 129 ±5g (3D Printed Parts Excluded) | Arm Thickness 6mm(T300 3K)",https://www.hobbyrc.co.uk/speedybee-mario-5-frame
+SpeedyBee,Master3X,speedybee-master,3,open,171,87,4,without head module,fit,"Wheelbase: 171 mm | Weight: ~87g (without head module) | Arm thickness: 4 mm",https://www.hobbyrc.co.uk/speedybee-master3x-frame
+TBS,Source One V5 5,tbs-source-one-v5,5,open,226,123.5,6,as listed,fit,"Wheelbase 5"": 226 | Arm thickness 5"": 6mm | Weight 5"": *123.5g",https://www.hobbyrc.co.uk/tbs-source-one-5-frame
+TBS,Source One V5 7 DC,tbs-source-one-v5,7,open,320,143.5,6,as listed,excluded: weight labelled 5-inch on the 7-inch page (ambiguous),"Wheelbase 7"": 320mm | Arm thickness 5"": 6mm | Weight 5"": *143.5g",https://www.hobbyrc.co.uk/tbs-source-one-v5-7-dc-frame
+TBS,Source One V6 5,tbs-source-one-v6,5,open,240,136.5,6,as listed,fit,"Wheelbase: 240mm (5 inch frame class) | Arm thickness: 6mm carbon (for 5 inch size) | Frame weight: 136.5g",https://www.hobbyrc.co.uk/tbs-source-one-v6
+TBS,Source V 5,tbs-source-v,5,open,220,63,2x12,as listed,fit,"Wheelbase 5"": 220mm | Arm thickness 5"": 2x12mm | Weight 5"": 63g",https://www.hobbyrc.co.uk/tbs-source-v-5-frame

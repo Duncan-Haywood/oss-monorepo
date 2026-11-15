@@ -4,7 +4,9 @@ Track 20, robots on the residential building site (`PROJECTS.md`, "Next steps" o
 
 **Live page:** https://marisstella.app/research/buildbot-grounded/
 
-**Headline.** At a $37.86 loaded hour and 0.3 supervision, an H1 breaks even at **1.07 robot-hours per replaced crew-hour** and a G1 at **2.42**. The simulated carry slowdown of the **H1 against a labourer who carries one stud a trip is 0.41 to 1.70 (median 0.85)**: it pays in 72% of the 36 cells of the grid. **Against a labourer who carries a bundle of four it is 1.63 to 6.82 (median 3.38) and never pays.** The G1 (one stud only, 3.8 kg) is 0.90 to 1.64 against the one-stud labourer (always below its 2.42) and 3.59 to 6.57 against the bundle (never below 2.42 at 0.3 supervision). So **whether a stock humanoid pays for carrying depends on how the crew carries**, not on the robot: the simulation cannot settle it, and the taskbook's own carry rate (3.3 pieces a minute) sits between the two labourers. Whatever the answer, the dollars are small: the H1's whole framing-carry task is 1.05 crew-hours, a **$40 ceiling (0.006% of an average price)**, and nailing a sheet's reachable 58% (H1) or 29% (G1) of its 62 nails caps at $31 to $73 (H1) and $15 to $36 (G1) per house. Nothing is tested on hardware.
+**Headline.** At a $37.86 loaded hour and 0.3 supervision, an H1 breaks even at **1.07 robot-hours per replaced crew-hour** and a G1 at **2.42**. The simulated carry slowdown of the **H1 against a labourer who carries one stud a trip is 0.41 to 1.70 (median 0.85)**: it pays in 72% of the 36 cells of the grid. **Against a labourer who carries a bundle of four it is 1.63 to 6.82 (median 3.38) and never pays.** The G1 (one stud only, 3.8 kg) is 0.98 to 1.81 against the one-stud labourer (always below its 2.42) and 3.92 to 7.23 against the bundle (never below 2.42 at 0.3 supervision). So **whether a stock humanoid pays for carrying depends on how the crew carries**, not on the robot: the simulation cannot settle it, and the taskbook's own carry rate (3.3 pieces a minute) sits between the two labourers. Whatever the answer, the dollars are small: the H1's whole framing-carry task is 1.05 crew-hours, a **$40 ceiling (0.006% of an average price)**, and nailing a sheet's reachable 58% (H1) or 29% (G1) of its 62 nails caps at $31 to $73 (H1) and $15 to $36 (G1) per house. Nothing is tested on hardware.
+
+Re-run 2026-11-15: the G1 carry figures had gone stale after `buildbot-carry`'s re-run (PR #14807; they read 0.90 to 1.64 and 3.59 to 6.57), and `buildbot-fasten` gained a wall in its push model, which cuts the G1's 100 N nail share from 13% to 3% (the 20 N shares above are unchanged).
 
 ![Simulated carry slowdown against break-even](experiments/figure.png)
 
@@ -20,7 +22,7 @@ Track 20, robots on the residential building site (`PROJECTS.md`, "Next steps" o
 | robot | s* at supervision 0.1 / 0.3 / 0.5 | slowdown vs one-stud labourer (min / median / max) | share of cells below s* | slowdown vs four-stud labourer | share below s* |
 |---|---|---|---|---|---|
 | H1 | 1.36 / 1.07 / 0.88 | 0.41 / 0.85 / 1.70 | 92 / 72 / 58% | 1.63 / 3.38 / 6.82 | 0 / 0 / 0% |
-| G1 | 4.70 / 2.42 / 1.63 | 0.90 / 1.08 / 1.64 | 100 / 100 / 97% | 3.59 / 4.34 / 6.57 | 64 / 0 / 0% |
+| G1 | 4.70 / 2.42 / 1.63 | 0.98 / 1.16 / 1.81 | 100 / 100 / 92% | 3.92 / 4.65 / 7.23 | 53 / 0 / 0% |
 
 Per house, taskbook scenario A, supervision 0.3 (dollars; ceiling is a free instant robot on the reachable hours):
 

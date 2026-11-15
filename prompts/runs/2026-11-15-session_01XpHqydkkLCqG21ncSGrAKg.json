@@ -1,0 +1,398 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqydkkLCqG21ncSGrAKg",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T20:39:03Z",
+  "ended": "2026-11-15T20:41:23Z",
+  "wall_minutes": 27.22,
+  "tokens_in": 6775408,
+  "tokens_out": 39183,
+  "cost_usd": 3.0727,
+  "tool_calls": 70,
+  "task": "redteam: seed and hunt ai-bookkeeper/receipts.mjs and chant-forge/onsets.mjs",
+  "projects": [
+    "ventures/ai-bookkeeper",
+    "ventures/chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16340",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets` printed only 21 files although the help says ~3,500 are guarded, and listed neither receipts.mjs nor onsets.mjs, so `targets --probe 20 | grep` for a recently changed file found nothing; went with --target and timed the suites by hand."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0 lists 8 open defects that are all control-plane and owner-gated; the step reads as if a run should fix them, which it cannot. A filter (e.g. `open --actionable`) would save each run re-reading them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0: fix open defects first; all 8 are control-plane (prompts/, .github/workflows, control_plane_guard.py) waiting on owner approval in existing follow-up PRs",
+      "did": "left them open, seeded and hunted instead",
+      "result": "two real defects found and patched in venture code"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-redteam-receipt-group-split.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: receipts.mjs (seed 873415135, baseline 28 s) 3/8 caught, onsets.mjs (seed 187405240, 18 s) 3/8 caught; after gap tests rerun 15/15 non-equivalent caught (0.40 -> 1.00). onsets.mjs line 291 mutant never changed the voicing verdict on synthetic closures, only the reported bar (-236.6 vs -108.5 dB), so the test pins the bar. Seen, not fixed: parseItems turns 'Hinge 110.12.25 3.50' into desc 'Hinge .25' (money regex eats 110.12); cosmetic, price right, fixing it touches the OCR corpus regexes. Guard (4b): no new lint; the cwd-relative test pattern was searched across venture tests (readFileSync/existsSync literals and top-level relative path constants) and found only in the one fixed file. Verification: run_venture_tests.py ai-bookkeeper chant-forge ok (3254, 256 tests); node --test from repo root 0 fail.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ai-bookkeeper/receipts.mjs",
+        "test": "node --test ventures/ai-bookkeeper/**/*.test.mjs  (in .)",
+        "seed": 873415135,
+        "commit": "844ee4cee",
+        "sites": 1057,
+        "baseline_seconds": 28.1,
+        "mutants": [
+          {
+            "file": "ventures/ai-bookkeeper/receipts.mjs",
+            "line": 22,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "const MONEY_C = /(?:[$\u00a3\u20ac]\\s*)?(\\d{1,3}(?:\\.\\d{3})+,\\d{2}|\\d+,\\d{2})(?!\\d)/g;",
+            "after": "const MONEY_C = /(?:[$\u00a3\u20ac]\\s*)?(\\d{1,3}(?:\\.\\d{4})+,\\d{2}|\\d+,\\d{2})(?!\\d)/g;",
+            "line_text": "const MONEY_C = /(?:[$\u00a3\u20ac]\\s*)?(\\d{1,3}(?:\\.\\d{3})+,\\d{2}|\\d+,\\d{2})(?!\\d)/g;",
+            "caught": true,
+            "seconds": 27.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/receipts.mjs",
+            "line": 52,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "/\\b(\\d{1,2}\\.\\d{1,2}\\.(?:\\d{4}|\\d{2}))\\b/,",
+            "after": "/\\b(\\d{1,3}\\.\\d{1,2}\\.(?:\\d{4}|\\d{2}))\\b/,",
+            "line_text": "  /\\b(\\d{1,2}\\.\\d{1,2}\\.(?:\\d{4}|\\d{2}))\\b/,",
+            "caught": false,
+            "seconds": 27.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: a dotted part number with three leading digits read as a date dropped the item row; test pins the row as an item"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/receipts.mjs",
+            "line": 324,
+            "col": 141,
+            "operator": "neq-flip",
+            "before": "if (d) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\\bdate\\b/i.test(l) ? 0 : 2) + (/\\d{4}/.test(m[1].replace(/^\\d{4}(?=[-/])/, \"\")) || /^\\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\\]\\\\]/g, \"\\\\$&\") + \"\\\\s*\\\\d{1,2}:\\\\d{2}\").test(l) ? 0.5 : 0), i }); break; }",
+            "after": "if (d) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] === +f[1], rank: (/\\bdate\\b/i.test(l) ? 0 : 2) + (/\\d{4}/.test(m[1].replace(/^\\d{4}(?=[-/])/, \"\")) || /^\\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\\]\\\\]/g, \"\\\\$&\") + \"\\\\s*\\\\d{1,2}:\\\\d{2}\").test(l) ? 0.5 : 0), i }); break; }",
+            "line_text": "      if (d) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\\bdate\\b/i.test(l) ? 0 : 2) + (/\\d{4}/.test(m[1].replace(/^\\d{4}(?=[-/])/, \"\")) || /^\\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\\]\\\\]/g, \"\\\\$&\") + \"\\\\s*\\\\d{1,2}:\\\\d{2}\").test(l) ? 0.5 : 0), i }); break; }",
+            "caught": true,
+            "seconds": 28.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/receipts.mjs",
+            "line": 352,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if (eligible.length > 1 && /^[a-z]+(?:\\s+[a-z]+){0,3}$/.test(eligible[0].trim()) && /[A-Z]{3}/.test(eligible[1])) merchantLine = eligible[1];",
+            "after": "if (eligible.length > 1 || /^[a-z]+(?:\\s+[a-z]+){0,3}$/.test(eligible[0].trim()) && /[A-Z]{3}/.test(eligible[1])) merchantLine = eligible[1];",
+            "line_text": "  if (eligible.length > 1 && /^[a-z]+(?:\\s+[a-z]+){0,3}$/.test(eligible[0].trim()) && /[A-Z]{3}/.test(eligible[1])) merchantLine = eligible[1];",
+            "caught": true,
+            "seconds": 28.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/receipts.mjs",
+            "line": 393,
+            "col": 82,
+            "operator": "le-to-lt",
+            "before": "if (n > 0 && [0.06, 0.08].some((r) => Math.abs(cents - Math.round(n * r)) <= 1) && cents > 1) { cents = n + cents; notes.push(\"total line shows an amount and its tax: added\"); }",
+            "after": "if (n > 0 && [0.06, 0.08].some((r) => Math.abs(cents - Math.round(n * r)) < 1) && cents > 1) { cents = n + cents; notes.push(\"total line shows an amount and its tax: added\"); }",
+            "line_text": "        if (n > 0 && [0.06, 0.08].some((r) => Math.abs(cents - Math.round(n * r)) <= 1) && cents > 1) { cents = n + cents; notes.push(\"total line shows an amount and its tax: added\"); }",
+            "caught": false,
+            "seconds": 28.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: a GST column one cent off 6% of the base; test pins the total as base plus tax"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/receipts.mjs",
+            "line": 426,
+            "col": 98,
+            "operator": "const-plus-one",
+            "before": "const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]);",
+            "after": "const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 2]);",
+            "line_text": "        const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]);",
+            "caught": false,
+            "seconds": 28.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: total paid with change, the earlier total line's amount on the next line; test added"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/receipts.mjs",
+            "line": 457,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "for (let i = lines.length - 1; i >= 0 && cents === null; i--) {",
+            "after": "for (let i = lines.length - 2; i >= 0 && cents === null; i--) {",
+            "line_text": "    for (let i = lines.length - 1; i >= 0 && cents === null; i--) {",
+            "caught": false,
+            "seconds": 28.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: card line as the slip's last line, no total line; test added"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/receipts.mjs",
+            "line": 704,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "if (cands.length < 2 || cands.length > 12) continue;",
+            "after": "if (cands.length < 3 || cands.length > 12) continue;",
+            "line_text": "    if (cands.length < 2 || cands.length > 12) continue;",
+            "caught": false,
+            "seconds": 29.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test grouped exactly two receipts; the new grouped-split test does"
+          }
+        ]
+      },
+      {
+        "target": "ventures/chant-forge/onsets.mjs",
+        "test": "node --test ventures/chant-forge/**/*.test.mjs  (in .)",
+        "seed": 187405240,
+        "commit": "844ee4cee",
+        "sites": 841,
+        "baseline_seconds": 18.0,
+        "mutants": [
+          {
+            "file": "ventures/chant-forge/onsets.mjs",
+            "line": 35,
+            "col": 86,
+            "operator": "plus-to-minus",
+            "before": "re[i + k] = ur + vr; im[i + k] = ui + vi; re[i + k + len / 2] = ur - vr; im[i + k + len / 2] = ui - vi;",
+            "after": "re[i + k] = ur + vr; im[i + k] = ui + vi; re[i + k + len / 2] = ur - vr; im[i - k + len / 2] = ui - vi;",
+            "line_text": "        re[i + k] = ur + vr; im[i + k] = ui + vi; re[i + k + len / 2] = ur - vr; im[i + k + len / 2] = ui - vi;",
+            "caught": true,
+            "seconds": 17.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/chant-forge/onsets.mjs",
+            "line": 66,
+            "col": 59,
+            "operator": "div-to-times",
+            "before": "if (f >= 1000 && f < 5000) bands[Math.floor((f - 1000) / 500)] += p;",
+            "after": "if (f >= 1000 && f < 5000) bands[Math.floor((f - 1000) * 500)] += p;",
+            "line_text": "    if (f >= 1000 && f < 5000) bands[Math.floor((f - 1000) / 500)] += p;",
+            "caught": true,
+            "seconds": 18.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/chant-forge/onsets.mjs",
+            "line": 119,
+            "col": 38,
+            "operator": "and-to-or",
+            "before": "let s0 = mk, s1 = mk; while (s0 > 0 && fr[s0 - 1].lvl < floor + 6) s0--; while (s1 < fr.length - 1 && fr[s1 + 1].lvl < floor + 6) s1++;",
+            "after": "let s0 = mk, s1 = mk; while (s0 > 0 || fr[s0 - 1].lvl < floor + 6) s0--; while (s1 < fr.length - 1 && fr[s1 + 1].lvl < floor + 6) s1++;",
+            "line_text": "  let s0 = mk, s1 = mk; while (s0 > 0 && fr[s0 - 1].lvl < floor + 6) s0--; while (s1 < fr.length - 1 && fr[s1 + 1].lvl < floor + 6) s1++;",
+            "caught": true,
+            "seconds": 17.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/chant-forge/onsets.mjs",
+            "line": 120,
+            "col": 33,
+            "operator": "gt-to-ge",
+            "before": "const dip = floor <= -12 && s0 > 0 && s1 < fr.length - 1 && msOf([s0, s1]) < 30",
+            "after": "const dip = floor <= -12 && s0 >= 0 && s1 < fr.length - 1 && msOf([s0, s1]) < 30",
+            "line_text": "  const dip = floor <= -12 && s0 > 0 && s1 < fr.length - 1 && msOf([s0, s1]) < 30",
+            "caught": false,
+            "seconds": 17.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "s0 >= 0 only differs when s0 == 0, and then fr.slice(0, 0) is empty, Math.max() is -Infinity and the next clause makes dip false either way"
+          },
+          {
+            "file": "ventures/chant-forge/onsets.mjs",
+            "line": 121,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "&& Math.max(...fr.slice(0, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 1).map((f) => f.lvl)) >= floor + 10;",
+            "after": "&& Math.max(...fr.slice(1, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 1).map((f) => f.lvl)) >= floor + 10;",
+            "line_text": "    && Math.max(...fr.slice(0, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 1).map((f) => f.lvl)) >= floor + 10;",
+            "caught": false,
+            "seconds": 18.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a tap with exactly one louder frame before/after it at the window's edges; test added in sing.test.mjs"
+          },
+          {
+            "file": "ventures/chant-forge/onsets.mjs",
+            "line": 121,
+            "col": 97,
+            "operator": "const-plus-one",
+            "before": "&& Math.max(...fr.slice(0, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 1).map((f) => f.lvl)) >= floor + 10;",
+            "after": "&& Math.max(...fr.slice(0, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 2).map((f) => f.lvl)) >= floor + 10;",
+            "line_text": "    && Math.max(...fr.slice(0, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 1).map((f) => f.lvl)) >= floor + 10;",
+            "caught": false,
+            "seconds": 17.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a tap with exactly one louder frame before/after it at the window's edges; test added in sing.test.mjs"
+          },
+          {
+            "file": "ventures/chant-forge/onsets.mjs",
+            "line": 201,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const msOf = ([s, e]) => (e - s) * 5 + 20;",
+            "after": "const msOf = ([s, e]) => (e - s) * 6 + 20;",
+            "line_text": "  const msOf = ([s, e]) => (e - s) * 5 + 20;",
+            "caught": false,
+            "seconds": 17.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "readCoda's closureMs was never checked against a known closure; test with 40/60/100 ms synthetic closures"
+          },
+          {
+            "file": "ventures/chant-forge/onsets.mjs",
+            "line": 291,
+            "col": 71,
+            "operator": "plus-to-minus",
+            "before": "const rel = burstAfter(r), shut = seg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);",
+            "after": "const rel = burstAfter(r), shut = seg.filter((f) => a + f.t * rate - 0.02 * rate <= rel);",
+            "line_text": "    const rel = burstAfter(r), shut = seg.filter((f) => a + f.t * rate + 0.02 * rate <= rel);",
+            "caught": false,
+            "seconds": 16.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the voicing verdict survives the mutant on every synthetic closure tried (35-100 ms, bursts 0.002-0.3); the reported bar does not: a silent 35 ms closure before a low-thump release reads -236.6 dB, -108.5 with the mutant. Test pins bar < -200"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ai-bookkeeper/receipts.mjs",
+        "issue": "planReceiptSplit on a receipt matched as a group (one bank line for 2-4 receipts) split by that receipt's items only and posted the other receipts' totals as a 'tip' on the biggest account; the page offers it as a one-click button. Fixed: split by every receipt on the line, refuse when one has no item lines.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16340"
+      },
+      {
+        "file": "ventures/chant-forge/autofinal.test.mjs",
+        "issue": "read corpus/dies-irae.gabc relative to cwd, so the suite was red (2 fails) from the repository root, where redteam.py and CLAUDE.md's checklist run node --test; CI runs from the venture dir and stayed green. Fixed: path from import.meta.url.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16340"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3a5142cc-d943-5a9e-9a81-884e833b795d",
+    "transcripts": 1,
+    "first": "2026-11-15T20:39:03Z",
+    "last": "2026-11-15T21:06:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 133,
+        "output": 39183,
+        "thinking": 13356,
+        "cache_read": 6655601,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119674,
+        "api_equivalent_usd": 3.0727,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 133,
+      "output": 39183,
+      "thinking": 13356,
+      "cache_read": 6655601,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119674,
+      "api_equivalent_usd": 3.0727,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 67,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.22,
+      "active_minutes": 27.22,
+      "model_minutes": 6.95,
+      "tool_minutes": 20.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: read two modules, triage 16 mutants, write synthetic DSP tests, fix grouped split",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 130.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

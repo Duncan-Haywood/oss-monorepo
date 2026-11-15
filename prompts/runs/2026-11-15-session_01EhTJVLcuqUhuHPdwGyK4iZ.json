@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLcuqUhuHPdwGyK4iZ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (prompt.md routine)",
+  "input_sha256": "5917871d22ef800fef39b4b2445eaeb5f398220a652fb5c9e8e5f52c9306747d",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T21:18:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10) open-tennis-robots: rerun the lift jam sweep on the distributed belt",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16337",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/cad/otr_cad/params.py",
+      "issue": "lift_jam_belt_n (89 N) was measured before 'Lift duty follows the battery' changed the duty and hub; nothing flagged the stale constant, the --belt rerun gives 100 N. Constants copied from sweeps have no check tying them to a rerun."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-the-tennis-lifts-belt-as-a-chain-of-masses.md",
+    "ventures/open-tennis-robots/eval/lift-belt-chain-2026-11-15.txt"
+  ],
+  "goal": "Check the lift's jam cutoff on a belt modelled with its mass where it rides (stuck mode 34-41 Hz, not the lumped 38).",
+  "notes": "Added Feeder.lift_belt_chain (shared by lift_belt_axial_modes, identical modes) and Plant(chain=) in tests/lift_jam_sweep.py, --chain report (11m57s). Checks: 2-node/pitch chain within 0.3% of 8-node solver on first three stuck modes at every c_spec and spacing; time-domain ring 44.17 vs 44.26 Hz held; rest holds to 1e-15 m/s. Results: 48 jams all cut <=89 ms, give up <=2.5 s, flight peak 89-97 N (plate 156 N); net pull at drive pulley 93-94 N = slip hub cap 94 N (lumped overshoots to 100); starts never trip or slip the hub but up strand goes locally slack 38-108 ms switched. lift_jam_belt_n 89 -> 100, tooth eval rerun (strength 6.8x, ratchet 2.54x unchanged). Verification: cad tests 138 OK (build123d venv); tests/test_host.py 45 OK; run_venture_tests.py open-tennis-robots see PR.",
+  "corrections": [],
+  "redteam": null
+}

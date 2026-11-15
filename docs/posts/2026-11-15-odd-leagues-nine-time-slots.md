@@ -44,4 +44,4 @@ nine-slot design when it actually saves a court.
 
 Still open: 19 teams on three courts (every slot booked), 21 to 25 teams on four,
 27 and 29 on five, and 27 teams at six slots. The details are in the
-[README](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#odd-leagues-at-9-time-slots-fewer-courts-and-three-more-proofs-2026-11-15-latest).
+[README](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#odd-leagues-at-9-time-slots-fewer-courts-and-three-more-proofs-2026-11-15-later).

@@ -1347,6 +1347,15 @@ above the output is equal to numpy's bit for bit, and it runs 4.2-4.9x faster on
 A7 III frame in 0.44 s (numpy 2.13 s; LibRaw's single-threaded AHD `postprocess` 0.99 s), a 36 MP D810
 or K-1 II in 0.6-0.7 s. The median clean-up stays numpy-only; `SHOOTFLOW_NATIVE=0` turns it off.
 
+**Less Laplacian, 2026-11-15** (`eval/bayer-laplace-weight-2026-11-15.md`). The row and column greens
+now carry 3/16 of the sensel's own second difference instead of Hamilton and Adams' quarter (an eighth
+is what a smooth green gives; the quarter assumes a linear colour difference, which fine aliased texture
+is not). Picked on the tuning truths only, then run once on the held-out frames: luma on the A7 III
+goes from 0.99 dB behind bilinear to 0.08 behind, on the K-1 II from 0.77 behind VNG to 0.17 behind;
+colour PSNR rises on all six truths (+0.10 to +4.28 dB), so ours now has the highest colour PSNR of
+LibRaw's seven methods and bilinear on all six; the sheet goes from 35.59 to 39.87 dB with false colour
+119 to 42, without the median. `directional(..., laplace=0.25)` gives the earlier output.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:

@@ -16,12 +16,32 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>A Reason for a Second Look</title>
+      <link>https://example.invalid/hearth-and-horizon/a-reason-for-a-second-look.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/a-reason-for-a-second-look.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A primary school's learning-support agent sends the screener vendor's letter, &quot;at risk of dyslexia&quot;, to the parents of nine Year 1 children, and one mother pays £640 for a private assessment of a boy who is simply the youngest in his class. Four years of records say the screener catches 12 of 13 children who need help and flags one sound reader in ten, so two letters in three go to children who are fine. Raising the cut-off would stop the false alarms and keep only the children the teachers had already found. A story about where to draw a line, a teacher's six-week reading log, and a letter rewritten in a playground voice. Setting: St Winefride's Catholic Primary School (invented), Hollinsford (invented), a market town in Staffordshire, Friday 10 October 2042 to Friday 16 January 2043. Read the full text at https://example.invalid/hearth-and-horizon/a-reason-for-a-second-look.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A primary school's learning-support agent sends the screener vendor's letter, &quot;at risk of dyslexia&quot;, to the parents of nine Year 1 children, and one mother pays £640 for a private assessment of a boy who is simply the youngest in his class. Four years of records say the screener catches 12 of 13 children who need help and flags one sound reader in ten, so two letters in three go to children who are fine. Raising the cut-off would stop the false alarms and keep only the children the teachers had already found. A story about where to draw a line, a teacher's six-week reading log, and a letter rewritten in a playground voice.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>How Many People Is That?</title>
       <link>https://example.invalid/hearth-and-horizon/how-many-people-is-that.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/how-many-people-is-that.html</guid>
       <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
       <description>A parish newsletter agent writes that the free flu-jab clinic in the hall halved hospital admissions among the parish's over-75s, and a retired pharmacist asks how many people that is. The figure was the health department's, not the parish's, and it was about the people who had the jab, not all of them. The agent's first correction gives only the absolute number, one admission prevented for every hundred and forty people jabbed, and bookings stall. The second gives both, counted in people. A story about relative and absolute risk, the number needed to vaccinate, and a correction that was true and still did harm. Setting: Saint Brigid's parish (invented), Wandoo Creek (invented), Great Southern region of Western Australia, Sunday 13 April to Saturday 26 July 2053. Read the full text at https://example.invalid/hearth-and-horizon/how-many-people-is-that.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>A parish newsletter agent writes that the free flu-jab clinic in the hall halved hospital admissions among the parish's over-75s, and a retired pharmacist asks how many people that is. The figure was the health department's, not the parish's, and it was about the people who had the jab, not all of them. The agent's first correction gives only the absolute number, one admission prevented for every hundred and forty people jabbed, and bookings stall. The second gives both, counted in people. A story about relative and absolute risk, the number needed to vaccinate, and a correction that was true and still did harm.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>Ninety-Seven Visits</title>
+      <link>https://example.invalid/hearth-and-horizon/ninety-seven-visits.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/ninety-seven-visits.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish's pastoral-care agent reports one number to the council each month, visits made to forty housebound parishioners. The council sets a target of a hundred, the agent posts each volunteer's count, and visits rise from 64 to 97 while the minutes fall from 3,330 to 1,840. Then a minutes target leaves a widow on a farm 31 km out unvisited for 36 days. A story about Goodhart's law, why each replacement figure can be gamed in its own way, and the notes nobody counted. Setting: Our Lady of the Plains parish (invented), Waimate, South Canterbury, New Zealand, Tuesday 9 April to Tuesday 10 September 2041. Read the full text at https://example.invalid/hearth-and-horizon/ninety-seven-visits.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish's pastoral-care agent reports one number to the council each month, visits made to forty housebound parishioners. The council sets a target of a hundred, the agent posts each volunteer's count, and visits rise from 64 to 97 while the minutes fall from 3,330 to 1,840. Then a minutes target leaves a widow on a farm 31 km out unvisited for 36 days. A story about Goodhart's law, why each replacement figure can be gamed in its own way, and the notes nobody counted.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>

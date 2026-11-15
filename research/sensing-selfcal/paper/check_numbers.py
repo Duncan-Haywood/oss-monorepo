@@ -261,6 +261,21 @@ CHECKS = [
     ("json", "m4m_wait/summary.json", 'units/fr1/6+6/ceiling_pm2', 19.2, 1, pct, '19.2–55.1% of old sets'),
     ("json", "m4m_wait/summary.json", 'units/left/6+6/ceiling_pm2', 55.1, 1, pct, '19.2–55.1% of old sets'),
     ("log", "within 0.11 on 7 of 8 unit-designs", "within\n0.11 on 7 of 8 unit-designs"),
+    # Section 7, milestone 4n (k1 + k2)
+    ("json", "m4n_k2/summary.json", "hypotheses/H85/k1", 10.0, 1, pct, "raised the pooled ±2% detection from 10.0% to 14.8%"),
+    ("json", "m4n_k2/summary.json", "hypotheses/H85/k2", 14.8, 1, pct, "raised the pooled ±2% detection from 10.0% to 14.8%"),
+    ("json", "m4n_k2/summary.json", "table/6/k2_fr1", 21.9, 1, pct, "(fr1: 21.9% and 16.6% at −2% and +2%"),
+    ("json", "m4n_k2/summary.json", "table/21/k2_fr1", 16.6, 1, pct, "(fr1: 21.9% and 16.6% at −2% and +2%"),
+    ("json", "m4n_k2/summary.json", "table/6/k1_fr1", 11.0, 1, pct, "against 11.0% and 8.6%)"),
+    ("json", "m4n_k2/summary.json", "table/21/k1_fr1", 8.6, 1, pct, "against 11.0% and 8.6%)"),
+    ("json", "m4n_k2/summary.json", "hypotheses/H84/fr1", 0.59, 2, pct, "false alarms at 0.59%"),
+    ("json", "m4n_k2/summary.json", "hypotheses/H82/fr1", 0.81, 2, None, "(robust spread ×0.81)"),
+    ("json", "m4n_k2/summary.json", "hypotheses/H82/fr3", 0.97, 2, None, "(spread ×0.97)"),
+    ("json", "m4n_k2/summary.json", "swap/k2/fr1", 16.3, 1, pct, "caught in 16.3% and 17.0% of splits"),
+    ("json", "m4n_k2/summary.json", "swap/k2/fr3", 17.0, 1, pct, "caught in 16.3% and 17.0% of splits"),
+    ("json", "m4n_k2/summary.json", "swap/k1/fr1", 6.3, 1, pct, "against 6.3% and 7.9%"),
+    ("json", "m4n_k2/summary.json", "anchors/k2/fr1/rel_tum", 1.60, 2, pct, "stays +1.60% above TUM's"),
+    ("log", "518.28, 517.39 (+0.75%, +0.27%, +0.09%)", "falls to +0.09% once k<sub>2</sub> and k<sub>3</sub>"),
 ]
 
 

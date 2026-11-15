@@ -1,0 +1,19 @@
+rules             OT h  2x h      gross  flags   flagged
+federal           9.00  0.00   $2802.00      0   
+california       17.00  0.00   $3119.00     12   Ben 5, Cleo 4, Dev 3
+alaska           17.00  0.00   $2898.00      0   
+colorado          9.00  0.00   $2802.00      0   
+washington        9.00  0.00   $2802.00     12   Ben 5, Cleo 4, Dev 3
+oregon            9.00  0.00   $2802.00      8   Ben 5, Dev 3
+nevada           17.00  0.00   $2866.00      5   Ben 5
+connecticut       9.00  0.00   $2802.00      5   Ben 5
+delaware          9.00  0.00   $2802.00      5   Ben 5
+illinois          9.00  0.00   $2802.00      6   Ben 2, Cleo 4
+kentucky          9.00  0.00   $2802.00     12   Ben 5, Cleo 4, Dev 3
+maine             9.00  0.00   $2802.00      8   Ben 5, Dev 3
+massachusetts     9.00  0.00   $2802.00      8   Ben 5, Dev 3
+minnesota         9.00  0.00   $2802.00      2   Ben 2
+new-hampshire     9.00  0.00   $2802.00     12   Ben 5, Cleo 4, Dev 3
+rhode-island      9.00  0.00   $2802.00      8   Ben 5, Dev 3
+tennessee         9.00  0.00   $2802.00      8   Ben 5, Dev 3
+west-virginia     9.00  0.00   $2802.00      5   Ben 2, Dev 3

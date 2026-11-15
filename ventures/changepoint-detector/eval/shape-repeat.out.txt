@@ -1,0 +1,54 @@
+Shape-repeat check (consensus.mjs shapeRepeats: 32-point z-normalised segment shapes; match = lengths within 1.5x and correlation >= 0.8; a segment repeats with 2+ matches; an agreed change drops when both its segments repeat).
+Pre-registered in eval/shape-repeat-prereg-2026-11-15.md. Covering is one-annotator (TSSB, HAS, UTSA) or TCPD's all-annotator form.
+
+TSSB (seen for counts; the shape never computed): 75 series, 359497 points.
+  the filter drops 113 of 579 agreed changes, on 11 series; the count guard fires on 14
+  covering: every-setting 0.344, shape-filtered 0.365, shape-filtered where the count guard fires 0.365, zero 0.401
+  shape-filtered minus every-setting: mean +0.021 [95% 0.008, 0.037]; better on 11, worse on 0, sign test p 0.001
+  secondary arm (only where the count guard fires) minus every-setting: mean +0.021 [95% 0.008, 0.036]; better on 11, worse on 0, sign test p 0.001
+    drops: DodgerLoopDay                      n  3456  labels  0  agreed  23, dropped   1 (count guard fires)  cover 0.091 -> 0.138 (zero 1.000)
+    drops: EOGHorizontalSignal                n  5155  labels  3  agreed  48, dropped   2 (count guard fires)  cover 0.107 -> 0.126 (zero 0.256)
+    drops: EOGVerticalSignal                  n  8014  labels  5  agreed  48, dropped   1 (count guard fires)  cover 0.144 -> 0.160 (zero 0.170)
+    drops: FreezerRegularTrain                n 11286  labels  3  agreed  50, dropped  14 (count guard fires)  cover 0.091 -> 0.278 (zero 0.260)
+    drops: GunPoint                           n  1875  labels  1  agreed  45, dropped  22 (count guard fires)  cover 0.060 -> 0.356 (zero 0.501)
+    drops: Lightning7                         n  6539  labels  4  agreed  44, dropped   3 (count guard fires)  cover 0.147 -> 0.195 (zero 0.215)
+    drops: MedicalImages                      n  2474  labels  1  agreed  45, dropped   5 (count guard fires)  cover 0.087 -> 0.119 (zero 0.580)
+    drops: OliveOil                           n  7410  labels  2  agreed  49, dropped  22 (count guard fires)  cover 0.075 -> 0.317 (zero 0.382)
+    drops: Symbols                            n  1889  labels  3  agreed  24, dropped  12 (count guard fires)  cover 0.190 -> 0.451 (zero 0.297)
+    drops: Trace                              n  5086  labels  2  agreed  45, dropped  18 (count guard fires)  cover 0.083 -> 0.338 (zero 0.344)
+    drops: UMD                                n  1800  labels  0  agreed  31, dropped  13 (count guard fires)  cover 0.057 -> 0.211 (zero 1.000)
+
+TCPD: 38 univariate series; the filter drops 9 of 84 agreed changes, on 2: bank (8 of 30; F1 0.063 -> 0.083), bitcoin (1 of 12; F1 0.570 -> 0.521).
+  F1 every-setting 0.704, shape-filtered 0.703; covering 0.653, shape-filtered 0.656
+
+HAS 2023 (seen for counts; the shape never computed): 250 series, 1929951 points.
+  the filter drops 21 of 2220 agreed changes, on 7 series; the count guard fires on 31
+  covering: every-setting 0.619, shape-filtered 0.620, shape-filtered where the count guard fires 0.619, zero 0.444
+  shape-filtered minus every-setting: mean +0.001 [95% 0.000, 0.001]; better on 6, worse on 0, sign test p 0.031
+  secondary arm (only where the count guard fires) minus every-setting: mean +0.000 [95% 0.000, 0.001]; better on 5, worse on 0, sign test p 0.063
+    drops: has-24                             n  3241  labels  4  agreed  10, dropped   4  cover 0.413 -> 0.467 (zero 0.213)
+    drops: has-115                            n  7700  labels  2  agreed  39, dropped   4 (count guard fires)  cover 0.201 -> 0.218 (zero 0.394)
+    drops: has-116                            n 10149  labels  2  agreed  40, dropped   4 (count guard fires)  cover 0.229 -> 0.248 (zero 0.646)
+    drops: has-123                            n  2905  labels  3  agreed  37, dropped   2 (count guard fires)  cover 0.280 -> 0.302 (zero 0.252)
+    drops: has-189                            n  5170  labels  3  agreed  31, dropped   2 (count guard fires)  cover 0.369 -> 0.405 (zero 0.253)
+    drops: has-199                            n  1705  labels  1  agreed  33, dropped   2 (count guard fires)  cover 0.215 -> 0.225 (zero 0.714)
+    drops: has-203                            n  2820  labels  1  agreed  31, dropped   3 (count guard fires)  cover 0.227 -> 0.227 (zero 0.502)
+
+UTSA (fresh): 32 series, 422320 points.
+  the filter drops 176 of 301 agreed changes, on 5 series; the count guard fires on 6
+  covering: every-setting 0.458, shape-filtered 0.522, shape-filtered where the count guard fires 0.522, zero 0.512
+  shape-filtered minus every-setting: mean +0.064 [95% 0.015, 0.124]; better on 5, worse on 0, sign test p 0.063
+  secondary arm (only where the count guard fires) minus every-setting: mean +0.064 [95% 0.015, 0.123]; better on 5, worse on 0, sign test p 0.063
+    drops: NogunGun_150_3000                  n  7383  labels  1  agreed  49, dropped  47 (count guard fires)  cover 0.047 -> 0.514 (zero 0.518)
+    drops: PigInternalBleedingDatasetAirwayPressure_400_7501 n 14973  labels  1  agreed  34, dropped  26 (count guard fires)  cover 0.117 -> 0.670 (zero 0.500)
+    drops: PigInternalBleedingDatasetArtPressureFluidFilled_100_7501 n 14973  labels  1  agreed  50, dropped  47 (count guard fires)  cover 0.043 -> 0.492 (zero 0.500)
+    drops: TiltABP_210_25000                  n 40000  labels  1  agreed  50, dropped  33 (count guard fires)  cover 0.041 -> 0.442 (zero 0.531)
+    drops: TiltECG_200_25000                  n 40000  labels  1  agreed  49, dropped  23 (count guard fires)  cover 0.062 -> 0.241 (zero 0.531)
+  UTSA every-setting minus zero: mean -0.054 [95% -0.136, 0.026]; better on 6, worse on 10, sign test p 0.454
+  UTSA agreed changes within the file's window of a labelled change: 6 of 301
+
+Pre-registered lines:
+  S1 TSSB shape-filtered covering 0.365 >= zero 0.401 - 0.02 = 0.381: NOT MET
+  S2 TCPD F1 0.703 >= 0.699 and covering 0.656 >= 0.648: MET
+  S3 HAS shape-filtered minus every-setting mean +0.001 (bar -0.005): MET
+  S4 UTSA shape-filtered minus every-setting mean +0.064 (bar 0); where it drops (5): better on 5, worse on 0: MET

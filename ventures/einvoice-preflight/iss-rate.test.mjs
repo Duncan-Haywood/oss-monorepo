@@ -99,3 +99,17 @@ test("NFSE-024: a municipal benefit that takes the burden under 2%", () => {
   assert.ok(under);
   assert.match(under.message, /effective 0\.83%/);
 });
+
+test("lcSubitem: a municipal breakdown after the subitem is dropped; a 5-digit city code is not an LC item", () => {
+  // Some cities append their own breakdown to the subitem ("14.0101"); the LC subitem is 14.01.
+  assert.equal(lcSubitem("14.0101"), "14.01");
+  assert.equal(lcSubitem("7.021"), "7.02");
+  // São Paulo's own 5-digit service code ("02919") and other city codes are not LC 116 items.
+  for (const c of ["02919", "14010", "123456"]) assert.equal(lcSubitem(c), null, c);
+});
+
+test("issBurdenProblem: not judged from 2033 (no band), nor on a zero or negative base", () => {
+  assert.equal(issBurdenProblem({ issCents: 100, grossBaseCents: 100000, item: "1.07", year: 2033 }), null);
+  assert.equal(issBurdenProblem({ issCents: 100, grossBaseCents: 0, item: "1.07", year: 2026 }), null);
+  assert.equal(issBurdenProblem({ issCents: 100, grossBaseCents: -100000, item: "1.07", year: 2026 }), null);
+});

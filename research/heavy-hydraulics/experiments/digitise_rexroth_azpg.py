@@ -46,6 +46,11 @@ URL = "https://hydraulicsonline.com/wp-content/uploads/2019/03/Bosch-Rexroth-AZP
 SHA256 = "a84807e15dc552307b3283d25a257b2c363f872ae1d5cdd9bdda47e6aecf2d3b"
 OUT = os.path.join(HERE, "data", "rexroth_azpg_curves.csv")
 BLACK = "rgb(0%, 0%, 0%)"
+GREY = "rgb(86"                                               # grid-line stroke colour prefix
+PERF_MAX_WIDTH = 180.0                                         # performance frames are narrower than this (pt)
+NAME = "AZPG"                                                  # family name in the log lines
+FLOW_POLYLINE = False      # 6y (AZPN): sample the drawn flow polyline itself instead of its least-squares line
+PX_FROM_GRID = False       # 6y (AZPN): map speed to page x through the grid-fitted speed axis, not the frame edges
 
 SIZES = (22, 25, 28, 32, 36, 40, 45, 50, 56, 63)               # catalogue size
 DISPLACEMENT = {22: 22.5, 25: 25.0, 28: 28.0, 32: 32.0, 36: 36.0, 40: 40.0, 45: 45.0, 50: 50.0, 56: 56.0,
@@ -107,7 +112,7 @@ def grid(svg, fr):
     vx, hy = [], []
     for attrs in re.findall(r"<path ([^>]*)/>", body):
         st = re.search(r'stroke="([^"]*)"', attrs)
-        if not st or st.group(1) in (BLACK, "none") or not st.group(1).startswith("rgb(86"):
+        if not st or st.group(1) in (BLACK, "none") or not st.group(1).startswith(GREY):
             continue
         for _, pts in svg_paths("</defs><path " + attrs + "/>"):
             x0, x1, y0, y1 = span(pts)
@@ -149,6 +154,12 @@ def axes(ws, svg, fr, what):
     to_v = lambda y: a + b * y  # noqa: E731
     miss_v = max(abs(to_v(y) - v) for y, v in pts)
     return to_n, to_v, top, step, len(vx), len(hy), miss_n, miss_v
+
+
+def inverse(to_n):
+    """Page x of a speed, for a linear speed axis to_n."""
+    a, b = to_n(0.0), to_n(100.0)
+    return lambda n: (n - a) * 100.0 / (b - a)
 
 
 def line(pts):
@@ -203,7 +214,7 @@ def read(pdf, log=print):
         dashed = join_collinear([sorted(p) for sw, da, p in ins if da is not None])
         if len(solid) != len(SIZES) or len(dashed) != len(SIZES):
             raise SystemExit(f"flow chart: {len(solid)} solid and {len(dashed)} dashed lines, expected {len(SIZES)}")
-        to_px = lambda n: fr[0] + n * (fr[1] - fr[0]) / 3000.0  # noqa: E731
+        to_px = inverse(to_n) if PX_FROM_GRID else (lambda n: fr[0] + n * (fr[1] - fr[0]) / 3000.0)  # noqa: E731
         for kind_p, lines in (("lo", solid), ("hi", dashed)):
             lines.sort(key=lambda c: line(c)[1], reverse=True)       # y falls with flow: steepest last
             for size, c in zip(SIZES, lines):
@@ -212,34 +223,39 @@ def read(pdf, log=print):
                 lo_n, hi_n = to_n(c[0][0]), to_n(c[-1][0])
                 straight = max(abs(cc + m * x - y) for x, y in c)
                 for n in range(int(-(-lo_n // 100) * 100), int(hi_n) + 1, 100):
-                    rows.append((size, "flow", pr, n, round(to_q(cc + m * to_px(n)), 3)))
-                rows.append((size, "flow_ends", pr, round(lo_n, 1), round(to_q(cc + m * c[0][0]), 3)))
-                rows.append((size, "flow_ends", pr, round(hi_n, 1), round(to_q(cc + m * c[-1][0]), 3)))
-                if straight > 0.6:
+                    y = interp_y(c, to_px(n)) if FLOW_POLYLINE else cc + m * to_px(n)
+                    rows.append((size, "flow", pr, n, round(to_q(y), 3)))
+                ends = (c[0][1], c[-1][1]) if FLOW_POLYLINE else (cc + m * c[0][0], cc + m * c[-1][0])
+                rows.append((size, "flow_ends", pr, round(lo_n, 1), round(to_q(ends[0]), 3)))
+                rows.append((size, "flow_ends", pr, round(hi_n, 1), round(to_q(ends[1]), 3)))
+                if FLOW_POLYLINE:
+                    log(f"  flow {size} at {pr} bar: polyline, largest departure from a straight line {straight:.2f} pt")
+                elif straight > 0.6:
                     raise SystemExit(f"flow line size {size} at {pr} bar is not straight ({straight:.2f} pt)")
         # performance charts
         for pg, sizes in POWER_PAGES.items():
             svg = page_svg(pdf, pg, tmp)
             paths = strokes(svg)
             ws = words(pdf, pg, tmp)
-            frs = [f for f in frames_of(paths) if f[1] - f[0] < 180]
+            frs = [f for f in frames_of(paths) if f[1] - f[0] < PERF_MAX_WIDTH]
             if len(frs) != len(sizes):
                 raise SystemExit(f"page {pg}: {len(frs)} performance chart frames, expected {len(sizes)}")
             for size, f in zip(sizes, frs):
-                to_n, to_p, top, step, nv, nh, mn, mv = axes(ws, svg, f, f"AZPG {size}")
+                to_n, to_p, top, step, nv, nh, mn, mv = axes(ws, svg, f, f"{NAME} {size}")
                 cur = [sorted(p) for sw, da, p in paths if sw == 1.2 and da is None and len(p) >= 2 and
                        all(f[0] - 1 <= x <= f[1] + 1 and f[3] - 1 <= y <= f[2] + 1 for x, y in p)]
                 # power rises with speed; a torque line (nearly flat) drawn with a solid piece is dropped
                 cur = [c for c in cur if c[0][1] - c[-1][1] > 0.08 * (f[2] - f[3])]
                 if len(cur) != len(PRESS[size]):
-                    raise SystemExit(f"AZPG {size}: {len(cur)} power curves, expected {len(PRESS[size])}")
+                    raise SystemExit(f"{NAME} {size}: {len(cur)} power curves, expected {len(PRESS[size])}")
                 xm = min(c[-1][0] for c in cur)
                 cur.sort(key=lambda c: interp_y(c, xm))               # smallest y = most power = highest p
-                log(f"  AZPG {size}: frame x {f[0]:.1f}-{f[1]:.1f}; power 0 to {top:.0f} kW; grid {nv} vertical "
+                log(f"  {NAME} {size}: frame x {f[0]:.1f}-{f[1]:.1f}; power 0 to {top:.0f} kW; grid {nv} vertical "
                     f"(frame edges miss 0 and 3000 by {mn:.1f} r/min), {nh} horizontal (largest miss {mv:.3f} kW); {len(cur)} curves, "
                     f"top one {to_n(cur[0][0][0]):.0f} to {to_n(cur[0][-1][0]):.0f} r/min")
                 for pr, c in zip(PRESS[size], cur):
-                    for n, v in sample(c, lambda n, f=f: f[0] + n * (f[1] - f[0]) / 3000.0, to_p,
+                    px = inverse(to_n) if PX_FROM_GRID else (lambda n, f=f: f[0] + n * (f[1] - f[0]) / 3000.0)
+                    for n, v in sample(c, px, to_p,
                                        to_n(c[0][0]), to_n(c[-1][0])):
                         rows.append((size, "power", pr, n, round(v, 3)))
     return rows
