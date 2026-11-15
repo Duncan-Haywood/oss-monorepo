@@ -1,9 +1,9 @@
 ---
 title: "The pairs it gave up on: when a search budget counts as a finding"
-seo_title: "Second call-out risk in staff scheduling: a capped search overstated it 5x"
+seo_title: "Second call-out risk in scheduling: a capped search overstated it 5x"
 date: 2026-11-15
 tags: [scheduling, shift-roster-builder, search, operations-research]
-description: "The Shift Roster Builder's two-call-out check gave up after 500 steps and called the pair a clash. Run to the end, most weren't. The priced pass now checks its moves."
+description: "A two-call-out check gave up after 500 steps and called the pair a clash. Run to the end, most were not. The priced pass now checks its moves."
 ---
 
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) has an option,
@@ -30,7 +30,7 @@ to clear pairs that were never really at risk.
 
 On the 20-person week, 262 of the 485 given-up pairs could in fact be covered.
 On one 40-person week the capped count was 5.6 times the real one. A full walk
-of every pair took at most 231 ms on any of the 22 rosters. The budget was
+of every pair took at most a quarter of a second on any of the 22 rosters. The budget was
 there to keep the priced pass fast, since the pass re-runs the walk for every
 candidate move.
 

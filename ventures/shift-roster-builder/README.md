@@ -2194,13 +2194,13 @@ search steps and counts a pair it gives up on as clashing. The section above end
 
 | roster | given up at 500 | pair hours at 500 | pair hours, walk run to the end | full walk time |
 |---|---|---|---|---|
-| 20 x 56 week 2, priced | 485 of 780 pairs | 3,119 h | **1,696 h** (262 of the 485 were coverable) | 231 ms |
+| 20 x 56 week 2, priced | 485 of 780 pairs | 3,119 h | **1,696 h** (262 of the 485 were coverable) | 231-242 ms |
 | 40 x 112 week 0, default | 308 | 1,832 h | **327 h** | 184 ms |
 | 40 x 112 week 0, priced | 13 | 123 h | 51 h | 9 ms |
 | 40 x 112 week 2, default | 24 | 131 h | **0 h** | 34 ms |
 | templates | 0-22 | the same as the full walk | | 0-6 ms |
 
-At 1,000,000 steps a pair no pair of the 22 rosters was given up on, and the whole walk took at most 231 ms. So the budgeted
+At 1,000,000 steps a pair no pair of the 22 rosters was given up on, and the whole walk took at most 231-242 ms (two runs). So the budgeted
 count overstated pair hours by up to 5.6 times on the big weeks, and the slack line printed that count.
 
 **What landed.** The priced pass now treats pair hours as it already treated single-call-out risk: the budgeted walk screens a
