@@ -3,7 +3,7 @@ title: "Don't pull a polar solar boat toward its neighbours: pooling a seasonal 
 seo_title: "Solar USV forecast correction: pooling the seasonal cosine by fleet"
 date: 2026-11-15
 tags: [research, marine-hull]
-description: "Pooling a solar boat fleet's one-season sun correction toward a hemisphere-aligned latitude-band mean scored 127 of 168 cases; trusting each boat's own fit more scored 140."
+description: "Pooling a solar boat fleet's one-season sun correction toward a hemisphere-aligned band mean scored 127 of 168; trusting each boat's own fit, 140."
 ---
 
 A solar boat plans its battery use from a sun climatology that is wrong in a seasonal way. The programme learns that error from one season of the boat's own log as a yearly cosine. The [last step](2026-11-15-marine-hull-solar-boat-latitude-prior.md) shrank the cosine's swing toward zero, with a prior pooled within latitude bands. It helped on ordinary water but still lost near the poles, where the seasonal error is large.
