@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 15,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "venture-preflight.mjs: 218/222 checks passed; failures were the new build script's file:// entry guard (check_cli_entry) and the post's description/seo_title length (front matter, already fixed)",
       "fix": "pathToFileURL guard; reran check_cli_entry.py, test_check_cli_entry.py, check_post_frontmatter.py and promptctl validate: all exit 0"
+    },
+    {
+      "what": "CI validate job: favicons.py found the new sdi-error-codes.html missing a tab icon (venture-preflight did not run favicons.py)",
+      "fix": "generator writes the venture's icon link; favicons.py 0 missing"
     }
   ],
   "integrity_issues": [],
