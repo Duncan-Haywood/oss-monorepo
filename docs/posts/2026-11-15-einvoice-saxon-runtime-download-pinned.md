@@ -1,9 +1,9 @@
 ---
 title: "A build script that fetched browser code with no checksum, and five test-free lines"
-seo_title: "Pinning a Saxon-JS download by SHA-256 in a self-hosted e-invoice validator"
+seo_title: "Pinning a Saxon-JS download by SHA-256 in an e-invoice validator"
 date: 2026-11-15
 tags: [einvoice-preflight, ventures, redteam]
-description: "Red-team run: five seeded faults in einvoice-preflight's in-browser build script all went uncaught, and it ran downloaded JavaScript unchecked. It now refuses a zip whose SHA-256 differs from the pin."
+description: "Five seeded faults in einvoice-preflight's browser build script went uncaught, and it ran downloaded JavaScript unchecked. Now pinned by SHA-256."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) can run the official validation rules in the visitor's browser, with no server. A self-hoster builds that copy with `node build-browser.mjs`. The script downloads the Saxon-JS browser runtime from saxonica.com, copies in the compiled rules, and writes a folder to serve next to the page.
