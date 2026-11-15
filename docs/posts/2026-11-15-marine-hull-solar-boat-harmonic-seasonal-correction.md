@@ -1,6 +1,6 @@
 ---
 title: "One year of a solar boat's log: fit a yearly cosine, not twelve months"
-seo_title: "Learning a solar USV's seasonal sun-forecast error from one year: harmonic fit vs monthly correction"
+seo_title: "Solar USV sun-forecast error from one year: fit a yearly cosine"
 date: 2026-11-15
 tags: [research, marine-hull]
 description: "Three numbers learned from one season of a solar boat's log beat twelve monthly corrections, shrunk or not. With two years they match no correction."
