@@ -10,8 +10,20 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (185 of 185,
-revised with milestones 4e–4k) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (202 of 202,
+revised with milestones 4e–4l) and a list of what a submission still needs.
+
+**Milestone 4l headline** (can the unit's own twin say in advance which updates can catch a 2% focal
+change? no new solve): **yes, as a ranking, not as a promise.** For every split of old and new views the
+linearised twin's draws give a predicted power; against the real detections it ranks the splits with
+AUC 0.66–0.75 on four cameras. **Testing only the quarter of updates the twin rates highest doubles the
+TUM cameras' power at ±2%, 10.0% to 21.5%, at 0–2.3% false alarms** (OpenCV's: 33% to 48–50%), and every
+split holding one of milestone 4j's far solves lands in the quarter it rates lowest. The twin's predicted
+sd of the focal difference ranks just as well, so no threshold draws are needed to choose. Its absolute
+power is 1.2–1.9× too high, and at 4 new views the ranking fails (AUC 0.42 on the Kinect). Three of four
+pre-registered predictions held (H73, AUC ≥ 0.70 on every unit, missed on OpenCV's cameras).
+
+![left: real detection rate against the twin's predicted power, by decile, on four cameras; right: real ±2% detection rate over all splits and over the quarter the twin rates highest, with false alarms](experiments/m4l_predict/power.png)
 
 **Milestone 4k headline** (do the TUM cameras' far subset solves come from the cold start? 11,442
 solves re-run from the fleet's spec focal length): **no. They are real minima, and dropping them makes
@@ -816,6 +828,9 @@ OMP_NUM_THREADS=1 python3 experiments/m4j_tum/check.py      # ~8 min; check.json
 OMP_NUM_THREADS=1 python3 experiments/m4k_warm/run.py       # milestone 4k: ~85 min on 4 cores; results.json.gz (stored)
 python3 experiments/m4k_warm/analyse.py                     # ~10 min; summary.json, arms/*/summary.json, power.png
 python3 experiments/m4k_warm/compare.py                     # seconds; compare.json (warm against cold, per subset)
+python3 experiments/m4l_predict/analyse.py --rig opencv     # milestone 4l: ~5 min; rig_opencv.npz/.json (npz not stored)
+python3 experiments/m4l_predict/analyse.py --rig tum        # ~5 min; rig_tum.npz/.json
+python3 experiments/m4l_predict/score.py                    # seconds; summary.json, power.png (H73-H76)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json

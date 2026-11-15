@@ -324,6 +324,18 @@ basin check that drops any solve more than 10% from the spec raised the false al
 needs when a set is near-degenerate; the power at ±2% stayed at 10.6%. The TUM cameras' lower power is a
 property of their views, not of the solver.
 
+**Which updates can see a change (milestone 4l, pre-registered).** The twin that gives each split its
+threshold also gives its power: the same draws, scaled to the unit's residual σ with the degrees-of-freedom
+correction and with a focal change added to the new set, say how often the test would fire. Scored
+against the real detections at ±2% and 7 + 6 views, this predicted power ranks the splits with AUC 0.659,
+0.693, 0.749 and 0.748 (OpenCV left and right, TUM fr1 and fr3). Testing only the quarter of splits it
+rates highest lifts the TUM cameras' detection from 10.0% to 21.5% (OpenCV's: about 33% to 48.3% and
+50.0%) at 0.70%, 0.00%, 2.35% and 0.00% false alarms, and every split holding one of the far solves falls
+in the quarter it rates lowest. The twin's sd of f<sub>new</sub> − f<sub>old</sub> alone ranks as well
+(AUC 0.660–0.752). The level is not right: the twin's mean power is 1.19–1.89× the real rate, and at 4 new
+views the ranking fails on the Kinect (AUC 0.42). A unit can therefore use its twin to choose when to test,
+not to promise a detection rate.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -352,6 +364,10 @@ property of their views, not of the solver.
    twin reference over-alarms (3.3–4.7% on the TUM cameras). Keep the lowest-cost solve over several
    starts, but never clip f to a window around the spec: far solves of near-degenerate sets are true
    minima, and dropping them pushed false alarms at 4 new views to 20% on one TUM camera.
+6. **Let the twin choose when to test.** Rank candidate updates by the twin's predicted sd of the focal
+   difference and test the best-conditioned ones: the top quarter doubled the TUM cameras' power at ±2%
+   (10.0% to 21.5%) without raising false alarms above 2.35%. Read the twin's power as a ranking only; it
+   overstates the real rate 1.2–1.9×.
 
 ## 9. Limitations
 
@@ -374,7 +390,8 @@ were found after a pre-registered prediction failed and are labelled so in the l
   calibration of the same camera.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
-  Still needed: choosing or weighting view sets by how well they pin f (the twin's gain norm), and a twin that models the right camera's extra spread (a per-view offset
+  Choosing view sets by the twin's predicted power works as a ranking (milestone 4l); still needed: the
+  gain for a robot that holds one old set and waits for new views (more than 13 views per unit), and a twin that models the right camera's extra spread (a per-view offset
   term fitted to the unit's own jackknife) to bring that camera up to 1%.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
   the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%
