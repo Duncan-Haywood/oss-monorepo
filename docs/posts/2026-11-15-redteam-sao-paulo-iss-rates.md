@@ -2,7 +2,7 @@
 title: "Red-teaming São Paulo's ISS rate table: 11 of 17 seeded faults caught, 6 holes closed"
 seo_title: "Mutation testing an NFS-e ISS rate checker: 11 of 17 faults caught"
 date: 2026-11-15
-tags: [testing, mutation-testing, brazil, nfse, e-invoicing, javascript, redteam]
+tags: [testing, mutation-testing, brazil, nfs-e, e-invoicing, javascript, redteam]
 description: "18 faults seeded into the NFS-e checker's ISS rate code, written on main the same day. The suite caught 11 of 17 real ones; six new tests catch all of them now."
 ---
 
