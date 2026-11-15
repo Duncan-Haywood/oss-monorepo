@@ -79,5 +79,11 @@ const OUT = new URL('./eval/watch-smd.out.txt', import.meta.url);
 test('the committed output, when present: four arms scored and T14 judged for R, S and K', { skip: !existsSync(OUT) }, () => {
   const txt = readFileSync(OUT, 'utf8');
   assert.match(txt, /Round 18: label-free floors on SMD, 28 servers/);
-  for (const a of ['R', 'S', 'K']) assert.match(txt, new RegExp(`T14 ${a} vs Q: .*(PASSES|FAILS)\\.`));
+  for (const a of ['R', 'S', 'K']) assert.match(txt, new RegExp(`T14 ${a} vs Q: .*FAILS\\.`));
+  assert.match(txt, /Q  Quiet, no floor .* 290\/309 .* 75\.79/);
+  assert.match(txt, /K  rolling move floor, k read \(round 17\) .* 42\/309 .* 1\.24/);
+  const help = readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8');
+  assert.match(help, /README "Round 18"/);
+  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /README, "Round 18"/);
+  assert.match(readFileSync(new URL('./llms.txt', import.meta.url), 'utf8'), /README "Round 18"/);
 });
