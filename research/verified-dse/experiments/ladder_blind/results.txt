@@ -1,0 +1,16 @@
+# Milestone 133: SWC, SWG(32) and SWP(32) tested blind on seven 128-bit left shifters probed for the ladder branch (flow run)
+
+theta = 3, alpha = 1.25; 200 draws per cell for SWP and SWPF; design bootstrap 2000 resamples, seed 133.
+
+## Blind designs' features and cost probe (computed before the flow run)
+
+design | shift_width | amount_depth | amount_gate_depth | amount_gates | mux_share | probe routed/r2 | SWG(32) flags
+crc16 | 128 | 31 | 18 | 120 | 0.813 | 3.78 | True
+bcd2 | 128 | 2 | 20 | 41 | 0.806 | 5.41 | True
+cmp16 | 128 | 2 | 28 | 97 | 0.774 | 6.42 | True
+bcd3 | 128 | 4 | 30 | 91 | 0.674 | 5.26 | True
+cmp48 | 128 | 2 | 40 | 266 | 0.674 | 5.87 | False
+fib12 | 128 | 1 | 51 | 252 | 0.614 | 3.58 | False
+fib14 | 128 | 1 | 58 | 374 | 0.639 | 4.23 | False
+
+## Blind test: no table yet

@@ -35,7 +35,7 @@ CAND = {
     "cmp16": ("cmpsel_w", "cmpsel_w", {"W": 128, "SW": 7, "NP": 16}, ""),
     "cmp48": ("cmpsel_w", "cmpsel_w", {"W": 128, "SW": 7, "NP": 48}, ""),
 }
-KEEP = []  # filled from probe.txt by the selection rule in probe.py
+KEEP = ["fib14", "fib12", "cmp48", "bcd3", "cmp16", "crc16", "bcd2"]  # probe.txt: routed/r2 > 3.3; crc32 (3.05), fib10 (3.21) dropped; largest first
 NEW = {k: CAND[k] for k in KEEP}
 FACTORS = {"tight": 1.0, "relaxed": 1.5}
 ORDER = list(KEEP)
