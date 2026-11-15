@@ -203,6 +203,25 @@ class Report(unittest.TestCase):
         table = rvt.slowest_table({"a": 1.0, "b": 9.5, "c": 3.25}, 2)
         self.assertEqual(table.splitlines()[2:], ["| b | 9.5 |", "| c | 3.2 |"])
 
+    def test_times_file_full_run_replaces_and_named_run_updates(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "times.json"
+            rvt.write_times({"a": 1.04, "b": 9.0, "c": 2.0}, ["c"], 4, path, full=True)
+            data = rvt.load_times(path)
+            self.assertEqual(list(data["seconds"]), ["b", "c", "a"])  # slowest first
+            self.assertEqual(data["seconds"]["a"], 1.0)
+            self.assertEqual(data["failed"], ["c"])
+            # A named run keeps the other rows and clears a fixed suite's failure.
+            rvt.write_times({"c": 30.0}, [], 4, path)
+            data = rvt.load_times(path)
+            self.assertEqual(data["seconds"], {"c": 30.0, "b": 9.0, "a": 1.0})
+            self.assertEqual(data["failed"], [])
+            rvt.write_times({"z": 0.5}, [], 4, path, full=True)
+            self.assertEqual(rvt.load_times(path)["seconds"], {"z": 0.5})
+
+    def test_missing_times_file_reads_empty(self):
+        self.assertEqual(rvt.load_times(Path("/nonexistent/times.json")), {"seconds": {}})
+
 class Selection(unittest.TestCase):
     def test_slugs_come_from_paths_under_a_venture(self):
         self.assertEqual(
