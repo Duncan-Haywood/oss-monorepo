@@ -1158,6 +1158,21 @@ class Feeder:
     lift_shaft_E_mpa: float = 193000.0  # stainless steel
     lift_shaft_defl_mm: float = 0.05  # largest sag at the pulley under the worst belt load
     lift_spacer_end: float = 4.0      # printed spacer: the gearmotor end's thickness (the motor's M3s seat on it)
+    # Bearing fit in printed PETG (2026-11-15): a printed hole comes out under its drawn size by an amount that depends on
+    # the printer, the slicer and the walls, so the F626 pockets' allowance is read off a printed test ring first
+    # (`bearing_fit_ring_design`, feeder part `lift_bearing_fit_ring`; cad/README.md "Bearing fit test ring").
+    lift_bearing_fit_mm: float = 0.05  # radial allowance the boot's two F626 pockets are cut over the bearing's OD: set it
+                                      # to the test ring step that pressed in right on your printer
+    bearing_ring_steps: tuple = (0.0, 0.025, 0.05, 0.075, 0.10, 0.125, 0.15)   # radial allowance of each test pocket
+    bearing_ring_od: float = 40.0     # each test disc: the 10 mm of wall the boot's 40 mm motor recess leaves round the
+                                      # near pocket, so a disc is about as stiff round the bearing as the boot is
+    print_hole_under_mm: float = 0.15  # how far under its drawn diameter a printed 19 mm hole comes out (assumption: FDM
+                                      # holes commonly print 0.1-0.3 mm small; the ring measures yours)
+    petg_hoop_e_mpa: float = 2000.0   # PETG modulus in the layer plane, round a vertical bore (assumption; 1.9-2.1 GPa
+                                      # moulded; petg_e_mpa above is the bending modulus across layers)
+    petg_nu: float = 0.38
+    petg_yield_mpa: float = 45.0      # printed PETG, along the layers (assumption; 50 moulded)
+    petg_steel_mu: float = 0.3        # steel ring on printed PETG, dry (assumption)
 
     # Hopper agitator (2026-11-13): balls piled over a 75 mm outlet for 67 mm balls bridge it (two or three on the floor
     # round the hole, each held in by the others), and the feed column then runs dry. A printed two-arm stirrer turns
@@ -1643,6 +1658,7 @@ class Feeder:
         bad += self.check_lift_jam()
         bad += self.check_lift_slip()
         bad += self.check_lift_shaft()
+        bad += self.check_bearing_fit_ring()
         bad += self.check_agitator()
         return bad
 
@@ -4229,6 +4245,57 @@ class Feeder:
             "shaft_y": (sh0, sh1), "shaft_mm": sh1 - sh0, "near_web_mm": yn - B / 2 - pocket,
             "far_web_mm": -pocket - (yf + B / 2),
         }
+
+    def bearing_fit_ring_design(self) -> dict:
+        """The F626 fit test ring (2026-11-15): one PETG disc per radial allowance in `bearing_ring_steps`, each a bore
+        and flange counterbore as the boot's pockets are cut. For each step, with a printed hole `print_hole_under_mm`
+        under its drawn diameter (an assumption: the ring is printed to measure it), the radial interference on the
+        bearing's steel ring (rigid beside PETG: 200 GPa against 2), the contact pressure from Lame's thick cylinder
+        (p = d E / (b ((c^2 + b^2) / (c^2 - b^2) + nu)), b the bore radius, c the disc's), the hoop stress at the bore
+        (p (c^2 + b^2) / (c^2 - b^2)) and the push to seat it (mu p 2 pi b L). Also the range of printer undersizes the
+        steps bracket: a step s is a press fit on a printer whose holes print more than 2 s under, so the ring finds the
+        zero-interference step for undersizes from 2 x the smallest step to 2 x the largest."""
+        b = self.lift_bearing_od / 2
+        c = self.bearing_ring_od / 2
+        k = (c * c + b * b) / (c * c - b * b)
+        L = self.lift_bearing_w - self.lift_bearing_flange_t     # the bore's length below the flange counterbore
+        rows = []
+        for s in self.bearing_ring_steps:
+            drawn = self.lift_bearing_od + 2 * s
+            delta = max(0.0, self.print_hole_under_mm / 2 - s)    # radial interference on the bearing
+            p = delta * self.petg_hoop_e_mpa / (b * (k + self.petg_nu))
+            rows.append({"step_mm": s, "drawn_bore_mm": drawn, "printed_bore_mm": drawn - self.print_hole_under_mm,
+                         "interference_mm": delta, "pressure_mpa": p, "hoop_mpa": p * k,
+                         "push_n": self.petg_steel_mu * p * 2 * math.pi * b * L})
+        return {"rows": rows, "k": k, "bore_len_mm": L, "under_lo_mm": 2 * min(self.bearing_ring_steps),
+                "under_hi_mm": 2 * max(self.bearing_ring_steps),
+                "first_clear_step_mm": next((r["step_mm"] for r in rows if r["interference_mm"] == 0), None),
+                "fit_hoop_mpa": next((r["hoop_mpa"] for r in rows if abs(r["step_mm"] - self.lift_bearing_fit_mm) < 1e-9), None)}
+
+    def check_bearing_fit_ring(self) -> list[str]:
+        bad = []
+        steps = list(self.bearing_ring_steps)
+        if steps != sorted(steps) or len(set(steps)) != len(steps) or min(steps) < 0:
+            bad.append("bearing_ring_steps must be distinct, rising and not negative")
+            return bad
+        d = self.bearing_fit_ring_design()
+        if not (d["under_lo_mm"] <= self.print_hole_under_mm <= d["under_hi_mm"]):
+            bad.append(f"bearing test ring's steps ({steps[0]:g}-{steps[-1]:g} mm a side) bracket printed-hole undersizes "
+                       f"of {d['under_lo_mm']:.2f}-{d['under_hi_mm']:.2f} mm only, not the assumed "
+                       f"{self.print_hole_under_mm:g}: widen the steps")
+        if self.lift_bearing_fit_mm < 0 or self.lift_bearing_fit_mm > max(steps) + 0.1:
+            bad.append(f"lift_bearing_fit_mm {self.lift_bearing_fit_mm:g} is outside the test ring's steps "
+                       f"({steps[0]:g}-{steps[-1]:g}): print the ring and set it to the step that fitted")
+        flange_r = self.lift_bearing_flange_d / 2 + 0.2
+        if self.bearing_ring_od / 2 - flange_r < 3.0:
+            bad.append(f"bearing test disc leaves {self.bearing_ring_od / 2 - flange_r:.1f} mm outside the flange "
+                       f"counterbore (3 mm wanted)")
+        worst = max(r["hoop_mpa"] for r in d["rows"])
+        if worst > self.petg_yield_mpa:
+            bad.append(f"bearing test ring's tightest step reaches {worst:.0f} MPa hoop stress at the assumed printed "
+                       f"undersize, over PETG's {self.petg_yield_mpa:g} MPa: the disc would split before it fits; start "
+                       f"the steps further over")
+        return bad
 
     def check_lift_shaft(self) -> list[str]:
         bad = []
