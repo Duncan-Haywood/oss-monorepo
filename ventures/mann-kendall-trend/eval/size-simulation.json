@@ -1,0 +1,162 @@
+{
+ "alpha": 0.05,
+ "note": "Share of trend-free AR(1) series of length n with lag-1 coefficient phi that each test calls a trend. A test that holds its size scores about 0.05.",
+ "rows": [
+  {
+   "phi": 0,
+   "n": 50,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.049,
+    "yue-wang": 0.069,
+    "hamed-rao": 0.091,
+    "hamed-rao-3": 0.066,
+    "tfpw": 0.053,
+    "yue-wang-all-lags": 0.483
+   }
+  },
+  {
+   "phi": 0,
+   "n": 100,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.051,
+    "yue-wang": 0.054,
+    "hamed-rao": 0.088,
+    "hamed-rao-3": 0.059,
+    "tfpw": 0.048,
+    "yue-wang-all-lags": 0.447
+   }
+  },
+  {
+   "phi": 0,
+   "n": 200,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.044,
+    "yue-wang": 0.051,
+    "hamed-rao": 0.097,
+    "hamed-rao-3": 0.047,
+    "tfpw": 0.052,
+    "yue-wang-all-lags": 0.474
+   }
+  },
+  {
+   "phi": 0.3,
+   "n": 50,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.131,
+    "yue-wang": 0.069,
+    "hamed-rao": 0.133,
+    "hamed-rao-3": 0.109,
+    "tfpw": 0.152,
+    "yue-wang-all-lags": 0.492
+   }
+  },
+  {
+   "phi": 0.3,
+   "n": 100,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.147,
+    "yue-wang": 0.062,
+    "hamed-rao": 0.15,
+    "hamed-rao-3": 0.104,
+    "tfpw": 0.171,
+    "yue-wang-all-lags": 0.49
+   }
+  },
+  {
+   "phi": 0.3,
+   "n": 200,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.145,
+    "yue-wang": 0.053,
+    "hamed-rao": 0.125,
+    "hamed-rao-3": 0.071,
+    "tfpw": 0.172,
+    "yue-wang-all-lags": 0.487
+   }
+  },
+  {
+   "phi": 0.6,
+   "n": 50,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.294,
+    "yue-wang": 0.085,
+    "hamed-rao": 0.203,
+    "hamed-rao-3": 0.143,
+    "tfpw": 0.387,
+    "yue-wang-all-lags": 0.513
+   }
+  },
+  {
+   "phi": 0.6,
+   "n": 100,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.303,
+    "yue-wang": 0.064,
+    "hamed-rao": 0.185,
+    "hamed-rao-3": 0.106,
+    "tfpw": 0.397,
+    "yue-wang-all-lags": 0.506
+   }
+  },
+  {
+   "phi": 0.6,
+   "n": 200,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.303,
+    "yue-wang": 0.052,
+    "hamed-rao": 0.156,
+    "hamed-rao-3": 0.086,
+    "tfpw": 0.417,
+    "yue-wang-all-lags": 0.508
+   }
+  },
+  {
+   "phi": 0.8,
+   "n": 50,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.499,
+    "yue-wang": 0.125,
+    "hamed-rao": 0.32,
+    "hamed-rao-3": 0.228,
+    "tfpw": 0.625,
+    "yue-wang-all-lags": 0.578
+   }
+  },
+  {
+   "phi": 0.8,
+   "n": 100,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.48,
+    "yue-wang": 0.083,
+    "hamed-rao": 0.267,
+    "hamed-rao-3": 0.175,
+    "tfpw": 0.639,
+    "yue-wang-all-lags": 0.509
+   }
+  },
+  {
+   "phi": 0.8,
+   "n": 200,
+   "reps": 1000,
+   "rejectionRate": {
+    "none": 0.5,
+    "yue-wang": 0.064,
+    "hamed-rao": 0.237,
+    "hamed-rao-3": 0.157,
+    "tfpw": 0.685,
+    "yue-wang-all-lags": 0.509
+   }
+  }
+ ]
+}

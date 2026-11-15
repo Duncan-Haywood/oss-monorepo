@@ -90,6 +90,7 @@ for the browser-extension, iOS and Android packagers.
 | [`job-shop-scheduler`](../../ventures/job-shop-scheduler/) | Nowicki & Smutnicki 1996; Taillard 1994; Giffler & Thompson 1960; Carlier 1982 | Which order should each machine run its jobs in so the last one finishes soonest, and how far from the best possible is that schedule? |
 | [`robust-pca`](../../ventures/robust-pca/) | Candès, Li, Ma & Wright 2011; Lin, Chen & Ma 2010; Hestenes 1958 | Which cells of this table break the pattern the rows share, by how much, what should the empty cells be, and how close to optimal is that split? |
 | [`lomb-scargle-periodogram`](../../ventures/lomb-scargle-periodogram/) | Lomb 1976; Scargle 1982; Zechmeister & Kürster 2009; Baluev 2008; VanderPlas 2018 | Which periods are in these unevenly spaced measurements, could the strongest be noise, is there another once it is removed, and is any of them an alias of the sampling? |
+| [`mann-kendall-trend`](../../ventures/mann-kendall-trend/) | Mann 1945; Kendall 1975; Sen 1968; Hamed & Rao 1998; Yue & Wang 2004; Yue, Pilon, Phinney & Cavadias 2002; Hirsch, Slack & Smith 1982; Hirsch & Slack 1984; van Belle & Hughes 1984 | Is this series going up or down, by how much per year with what interval, does that survive the correlation between readings, and with a seasonal cycle, do all the seasons share the trend? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
