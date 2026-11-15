@@ -159,6 +159,15 @@ function metaMatcher(attr, key) {
   return test;
 }
 
+// Where a tag may start (`META`'s own opening), and `META` anchored at one place.
+const META_START = /<meta\b/i;
+const META_AT = new RegExp(META.source, 'iy');
+
+function reparsesAs(html, at, tag) {
+  META_AT.lastIndex = at;
+  return META_AT.exec(html)?.[0] === tag;
+}
+
 function metaContent(html, attr, key) {
   if (metaTagsFor !== html) {
     metaTagsOf = html.match(META) ?? [];
@@ -252,12 +261,33 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
   // The first matching tag's content, set in place. Stops at that tag: a
   // `replace` over every tag scanned the rest of the page for nothing and
   // compiled the matcher once per tag.
+  //
+  // When `metaContent`'s memo holds this page's tags, the edited tag is
+  // swapped into it rather than the memo dropped: the next read would
+  // otherwise rescan the whole page for its tags, two or three times a page
+  // (about 2 s a build). The swap is exactly what a rescan would find when
+  // every `<meta` before the tag began a matched tag (so no earlier attempt
+  // that failed could now run on into the edit) and the new tag still parses
+  // as one tag from the same place (the text after it is unchanged, so the
+  // scan resumes as before). Otherwise the memo is dropped, as it always was
+  // (docs/history/pages-build-perf-2026-11-15-share-memo-swap.md).
   const setContent = (attr, key, value) => {
     const test = metaMatcher(attr, key);
+    let i = 0;
+    let gapEnd = 0;
+    let clean = true;
     for (const m of next.matchAll(META)) {
-      if (!test.test(m[0])) continue;
+      if (clean && m.index > gapEnd && META_START.test(next.slice(gapEnd, m.index))) clean = false;
+      gapEnd = m.index + m[0].length;
+      if (!test.test(m[0])) { i += 1; continue; }
       const tag = m[0].replace(META_CONTENT, () => `content="${escapeAttr(value)}"`);
-      next = next.slice(0, m.index) + tag + next.slice(m.index + m[0].length);
+      const memo = metaTagsFor === next && metaTagsOf[i] === m[0];
+      next = next.slice(0, m.index) + tag + next.slice(gapEnd);
+      if (memo && clean && reparsesAs(next, m.index, tag)) {
+        metaTagsOf = metaTagsOf.slice();
+        metaTagsOf[i] = tag;
+        metaTagsFor = next;
+      }
       return true;
     }
     return false;

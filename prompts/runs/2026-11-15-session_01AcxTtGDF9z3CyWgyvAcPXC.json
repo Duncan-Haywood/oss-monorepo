@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtGDF9z3CyWgyvAcPXC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T19:06:48Z",
+  "ended": "2026-11-15T19:18:12Z",
+  "wall_minutes": 11.89,
+  "tokens_in": 7477131,
+  "tokens_out": 37017,
+  "cost_usd": 3.3875,
+  "tool_calls": 65,
+  "task": "einvoice-preflight flagship slice: Rio de Janeiro's own ISS rate table (Lei 691/1984 art. 33) in ABR-025/NFSE-037",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16313",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First blob download via `gh api repos/<other>/git/blobs` was denied (repo scope); raw.githubusercontent.com by ref worked (48 of 49).",
+    "A cleanup `rm` of a scratch glob after `cd` was refused by the safety check; downloaded into a fresh directory instead (the stale 3-file dir is left in the scratchpad)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: lists 'Rio, BH, Curitiba rate tables' with no source hint; Rio's consolidated CTM is on legisweb.com.br (200 from the proxy) and the city's own table on carioca.rio, while leismunicipais.com.br, curitiba.pr.gov.br and dom-web.pbh.gov.br answer 403. Recorded the reachable sources in the eval note."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-rio-iss-rates-on-an-nfs-e.md",
+    "ventures/einvoice-preflight/eval/iss-city-rates-rio-2026-11-15.md"
+  ],
+  "goal": "Deepen flagship 5 (einvoice-preflight): a second city's own ISS rate per service",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; router drew ventures; allocate.py picked row 3 einvoice-preflight; claim_check HOLD. Built Rio's art. 33 table (Lei 8.467/2024 caput, legisweb consolidated text cross-checked against carioca.rio Aliquotas-de-ISS-atualizado2025.pdf). Rio's list matched to LC 116 by difflib: same four shifted runs as Sao Paulo. Corpus: 48 public files, 42 naming 3304557, 0 Rio false positives. Verification: run_venture_tests.py einvoice-preflight: ok, 2540 tests, 0 failed; check_post_frontmatter ok; check_post_links 0 broken; post_similarity 0 pairs >= 0.25; portfolio/router/validate.py all valid. venture-preflight.mjs einvoice-preflight: preflight clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7761f925-d3b0-5c36-bb17-5ae63ddd6ab8",
+    "transcripts": 1,
+    "first": "2026-11-15T19:06:48Z",
+    "last": "2026-11-15T19:18:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 118,
+        "output": 37017,
+        "thinking": 10510,
+        "cache_read": 7329415,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147598,
+        "api_equivalent_usd": 3.3875,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 118,
+      "output": 37017,
+      "thinking": 10510,
+      "cache_read": 7329415,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147598,
+      "api_equivalent_usd": 3.3875,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 57,
+      "WebSearch": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.89,
+      "active_minutes": 11.89,
+      "model_minutes": 7.84,
+      "tool_minutes": 4.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a Brazilian tax-tech engineer reading the CTM art. 33, mapping it to LC 116 subitems, verifying the renumbering, collecting a corpus and writing tests/docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 295.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -16,6 +16,40 @@
 //    nasals fall, the rule stays off for openings.
 //    Result (one run): A 183 to 174 of 210, B 743 to 728 of 934, B's nasals 96 to 64 of 149 (the vowel-only
 //    control's false nasals 123 to 23). B's nasals fell, so it stays off (readOnset `murmurTilt: 0`).
+// Openings on the coda murmur (2026-11-15, README "Openings on the coda murmur"). Pre-registered here and
+//    committed before the first run with the change. The change: (a) sing.mjs sings an opening nasal with
+//    the coda's murmur (gain per note, NASAL_DB 7 under the vowel it goes to; antiformant; broad low
+//    resonance) instead of ONSET_NASAL_GAIN's fixed gain; measured with one voice and no vibrato, outside
+//    this script and before any read, the old murmur sat 6.2 to 16.5 dB under its vowel (m and n, five
+//    vowels, E2-E4) and the new one 7.6 to 7.8 dB, its energy above 1 kHz 42-51 dB under its band under
+//    500 Hz. (b) readOnset's nasal rule: the level bar moves from 7 dB under the vowel to 5 (the coda
+//    reader's; the old bar sat on the new murmur's own level), and the murmur-tilt rule (MURMUR_TILT,
+//    28 dB) is turned on, as the fourth coda round's registration allowed once the opening murmur changed.
+//    Both numbers come from those measurements, not from any part below.
+//    New part G: the 60 Graduale pieces of corpus/gregobase-1908, whose openings no run had scored, fixed
+//    and scored on main with its misses hidden: 1833 of 2349 (78.0%), nasals 278 of 404, the vowel-only
+//    control's false nasals 287 of 2349. Predictions: (1) G's total no lower than 1833; (2) G's nasals
+//    read exactly on 278 or more; (3) G's control false nasals 144 or fewer (half); (4) B's total no lower
+//    than 742 of 934, its nasals 96 or more of 149, its control false nasals 62 or fewer (half of 123);
+//    (5) A no lower than 183 of 210, its control 210 of 210; (6) eval/coda-check.mjs: every part's total
+//    within 2 of before; (7) eval/vowel-check.mjs: within 2 notes of before.
+//    Result, first registration (one run each): (1) G 1825 of 2349: fails; (2) G's nasals 212 of 404: fails;
+//    (3) G's control false nasals 71: holds; (4) B 720 of 934, nasals 60: fail; its control false nasals 38:
+//    holds; (5) A 172 of 210: fails, control 210: holds; (6) coda check every line identical: holds; (7) vowel
+//    check identical: holds. Ablation, the new murmur with the old reader (--reader-first): A 179, B 724
+//    (nasals 78), G 1790 (nasals 235). Read on A only (the tuning set): every A nasal miss is the murmur-tilt
+//    rule. The nasal run found by the level rule runs on into the vowel's quiet attack (lvl under -5 dB,
+//    tilt -27 to -8 dB), so its median tilt sat near -22 although its middle reaches -46.
+//    Second registration, written and committed before its first run: as above, but the tilt is taken over
+//    the run's darkest stretch of three frames (`tiltSpan: 3`, the median of each three-frame stretch, the
+//    lowest of them). Chosen on A alone: there it reads 188 of 210 (span 5: 185; a trimmed median, two or
+//    three frames off each end: 173), with no A syllable read as a nasal that is not one. Same predictions
+//    (1)-(5); (6) and (7) carry over unchanged, as readCoda and the synthesis are untouched by it. G is
+//    printed for the third time, its misses still hidden.
+//    Result, second registration (one run): (1) G 1869 of 2349 (79.6%): holds; (2) G's nasals 278 of 404:
+//    holds (no gain); (3) G's control false nasals 135: holds; (4) B 753 of 934: holds, but its nasals 95 of
+//    149 (one short) and its control false nasals 73 (not 62 or fewer): fail; (5) A 188 of 210, control 210:
+//    holds; (6), (7): hold. Kept, with (4)'s two lines failed: README "Openings on the coda murmur".
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -25,6 +59,11 @@ import { readOnset, expectedRead } from '../onsets.mjs';
 
 const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./consonant-check-report.md', import.meta.url);
+// --parts ABGC (default all): which parts to run; --hide-misses G: print a part's score without its misses
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABGC';
+const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
+// --reader-first: the opening reader before the "openings on the coda murmur" round (an ablation)
+const READER = args.includes('--reader-first') ? { murmurTilt: 0, nasalBar: 7 } : args.includes('--tilt-span') ? { tiltSpan: +args[args.indexOf('--tilt-span') + 1] } : {};
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -48,7 +87,7 @@ const readAt = (x, n, on, prevT0 = -1, prev = null) => {
   let from = Math.max(n.t0 - 0.15, prevT0 >= 0 ? (prevT0 + n.t0) / 2 : 0); const dur = n.t1 - n.t0;
   if (prev && prev.syl !== n.syl && latinCoda(prev.lyric).length) from = Math.max(from, n.t0 - (on.length ? Math.min(onsetLength(on), 0.5 * (prev.t1 - prev.t0) + Math.max(0, n.t0 - prev.t1)) : 0));
   const spill = on.length ? Math.max(0, Math.min(onsetLength(on), 0.15 + 0.3 * dur) - 0.15) : 0;
-  return readOnset(x, rate, from, n.t0 + spill + 0.06, { window: 1 });
+  return readOnset(x, rate, from, n.t0 + spill + 0.06, { window: 1, ...READER });
 };
 
 lines.push('# Does the singing choir sing the consonants?', '', 'Written by `node eval/consonant-check.mjs`. Each syllable\'s first note is read from the rendered choir stem by',
@@ -58,6 +97,7 @@ lines.push('# Does the singing choir sing the consonants?', '', 'Written by `nod
   'murmur (a nasal), one brief contact (a tap). /l/, /j/, /w/ and a bare vowel should read as none.', '');
 
 // ---- A ----
+if (PARTS.includes('A')) {
 const SY = ['pa', 'ba', 'ta', 'da', 'ka', 'ga', 'ki', 'ci', 'ge', 'sa', 'sce', 'fa', 'va', 'za', 'ma', 'na', 'gna', 'la', 'ra', 'ia', 'qua', 'a', 'i', 'u', 'tri', 'spi', 'stu', 'mo', 'nu', 'lo', 're', 'pe', 'to', 'bi', 'du'];
 const PITCHES = [['E2', 40], ['A2', 45], ['D3', 50], ['G3', 55], ['C4', 60], ['E4', 64]];
 const aRows = [], aScore = { true: [0, 0, 0], vowels: [0, 0, 0] }, misses = [];
@@ -84,14 +124,18 @@ lines.push('## A. Vowel-consonant-vowel pairs (the set the reader was tuned on)'
   `All pitches: ${pct(aScore.true[0], aScore.true[1])} read exactly (class, voicing, place); ${pct(aScore.true[2], aScore.true[1])} by class alone. `
   + `The vowel-only choir on the same syllables reads as no consonant ${pct(aScore.vowels[0], aScore.vowels[1])}: how often the reader finds a consonant where none is sung.`, '', 'Misses:', '', ...misses.map((m) => `- ${m}`), '');
 
-// ---- B ----
-const PIECES = ['dies-irae', 'pange-lingua', 'veni-creator', 'te-deum', 'salve-regina'];
+}
+
+// ---- B and G ----
 const CLS = ['stop', 'affricate', 'fricative', 'nasal', 'tap', 'none'];
-const byClass = new Map(), conf = new Map();
+// Score the first note of each syllable over a list of corpus files (paths under corpus/, no .gabc).
+// hide: print the score without the misses (a held-out set scored before a round's change).
+function scoreOpenings(list, hide = false) {
+const byClass = new Map(), conf = new Map(), miss = [];
 let bAll = [0, 0], bManner = 0, ctl = [0, 0], bare = [0, 0], ctlExact = 0;
 const ctlConf = new Map();
 const bRows = [];
-for (const p of PIECES) {
+for (const p of list) {
   const src = parseGabc(readFileSync(new URL(`${p}.gabc`, corpus), 'utf8'));
   const mid = eventsToMidi(fitToBars(transposeToFinal(src.events, 50), 8), { bpm: 124, title: p });
   const sungR = choir(mid, true), ctlR = choir(mid, 'vowels');
@@ -106,7 +150,7 @@ for (const p of PIECES) {
     if (!on.length) { bare[1]++; if (got.cls === 'none') bare[0]++; return; }
     all++; cAll++;
     const ok = match(want, got);
-    if (ok) right++;
+    if (ok) right++; else miss.push(`${p} *${n.lyric}* (${label(want)}) read as ${label(got)}`);
     if (mannerOk(want, got)) bManner++;
     if (gotC.cls === 'none') cRight++;
     if (match(want, gotC)) ctlExact++;
@@ -118,17 +162,30 @@ for (const p of PIECES) {
   bAll = [bAll[0] + right, bAll[1] + all]; ctl = [ctl[0] + cRight, ctl[1] + cAll];
   bRows.push(`| ${p} | ${all} | ${pct(right, all)} | ${pct(cRight, cAll)} |`);
 }
-lines.push('## B. The corpus pieces (held out: final D3, fitted to 4/4 at 124 BPM)', '',
-  'The first note of every syllable that opens on a consonant, 0.2 s or more, after another note. The vowel-only control column is the same notes from the choir with no consonants: how often the reader (rightly) finds none.', '',
+return [
   '| piece | syllables | singing: read exactly as written | vowel-only control: read as none |', '|---|---|---|---|', ...bRows,
   `| all | ${bAll[1]} | ${pct(...bAll)} | ${pct(...ctl)} |`, '',
   `By class alone: ${pct(bManner, bAll[1])}. The vowel-only control "reads" the written consonant exactly on ${pct(ctlExact, bAll[1])} of the same notes (the chance level: what a pitch step or a vowel change at the beat looks like to the reader); its reads: ${CLS.map((c) => `${c} ${ctlConf.get(c) || 0}`).join(', ')}. Syllables that open on their vowel (after another note): ${pct(...bare)} read as no consonant.`, '',
   'By written consonant:', '', '| written | read exactly |', '|---|---|',
   ...[...byClass].sort((a, b) => b[1][1] - a[1][1]).map(([k, [r, n]]) => `| ${k} | ${pct(r, n)} |`), '',
   'Class written (rows) against class read (columns):', '', `| written | ${CLS.join(' | ')} |`, '|---|' + CLS.map(() => '---').join('|') + '|',
-  ...CLS.filter((c) => conf.has(c)).map((c) => `| ${c} | ${CLS.map((d) => conf.get(c).get(d) || 0).join(' | ')} |`), '');
+  ...CLS.filter((c) => conf.has(c)).map((c) => `| ${c} | ${CLS.map((d) => conf.get(c).get(d) || 0).join(' | ')} |`), '',
+  ...(hide ? [`Misses: ${miss.length}, not printed (held out).`, ''] : [])];
+}
+const PIECES = ['dies-irae', 'pange-lingua', 'veni-creator', 'te-deum', 'salve-regina'];
+if (PARTS.includes('B')) lines.push('## B. The corpus pieces (held out: final D3, fitted to 4/4 at 124 BPM)', '',
+  'The first note of every syllable that opens on a consonant, 0.2 s or more, after another note. The vowel-only control column is the same notes from the choir with no consonants: how often the reader (rightly) finds none.', '',
+  ...scoreOpenings(PIECES, HIDE.includes('B')));
+// G (2026-11-15, openings on the coda murmur): the 60 Graduale pieces of corpus/gregobase-1908, whose openings
+// no run had scored (the coda check reads only their final consonants). Fixed and scored with its misses
+// hidden (--hide-misses G) on main before the round's change, then once after it.
+const GRAD = readdirSync(new URL('gregobase-1908/', corpus)).filter((f) => f.endsWith('.gabc')).sort().map((f) => `gregobase-1908/${f.slice(0, -5)}`);
+if (PARTS.includes('G')) lines.push('## G. Held out: the 60 Graduale pieces of corpus/gregobase-1908', '',
+  'Same settings and rules as B. Their openings had never been scored; fixed before the "openings on the coda murmur" round (README) and scored on main with the misses hidden, then once after the change.', '',
+  ...scoreOpenings(GRAD, HIDE.includes('G')));
 
 // ---- C ----
+if (PARTS.includes('C')) {
 const files = [];
 for (const d of ['', ...readdirSync(corpus, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => `${e.name}/`)])
   for (const f of readdirSync(new URL(d, corpus))) if (f.endsWith('.gabc')) files.push(`${d}${f}`);
@@ -140,5 +197,6 @@ for (const f of files) for (const e of parseGabc(readFileSync(new URL(f, corpus)
   if (on.length) { opens++; if (on.length > 1) clusters++; count.set(on[0], (count.get(on[0]) || 0) + 1); }
 }
 lines.push('## C. Opening consonants in the corpus', '', `${files.length} GABC files, ${syl} sung syllables; ${pct(opens, syl)} open on a consonant, ${clusters} on a cluster. First phone: ${[...count].sort((a, b) => b[1] - a[1]).map(([p, c]) => `${p} ${c}`).join(', ')}.`, '');
+}
 writeFileSync(outFile, lines.join('\n') + '\n');
 console.log(lines.join('\n'));

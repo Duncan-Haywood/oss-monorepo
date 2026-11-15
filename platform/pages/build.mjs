@@ -53,7 +53,7 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
-import { cardTitle, drawPlannedCards, mapLimit, renderCards, shareTagsFor, siteAddress } from './share.mjs';
+import { cardKey, cardTitle, drawPlannedCards, mapLimit, renderCards, shareTagsFor, siteAddress } from './share.mjs';
 import {
   MARK_GEOMETRY,
   renderSiteCard,
@@ -107,6 +107,7 @@ import {
   EMBED_MODULE_FILE,
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
+  SITE_OWNED_CONTROLS_RE,
   injectEmbedWidget,
   maskScriptAndStyleBodies,
   renderEmbedHostModule,
@@ -4249,6 +4250,11 @@ export async function finishPagesInOneWalk(outDir, { baseUrl, siteName, siteCard
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
 const NOSCRIPT_CONTROL_RE = /<(?:input|select|button|textarea)\b/i;
 const BODY_OPEN_RE = /<body\b[^>]*>/i;
+// The site's own controls (the embed box, the chrome's search form) are not the
+// page's: `SITE_OWNED_CONTROLS_RE` in embed.mjs. Measured 2026-11-15: five
+// venture pages with no script and no field of their own told visitors "This
+// tool needs JavaScript to calculate" because the embed box's textarea and copy
+// button counted as the page's controls.
 export const NOSCRIPT_NOTICE =
   '<noscript><p role="note" style="margin:0;padding:12px 16px;background:#fff4d6;color:#4a3300;'
   + 'border-bottom:1px solid #d9b45a;font:600 15px/1.4 system-ui,sans-serif">'
@@ -4267,7 +4273,7 @@ export const NOSCRIPT_NOTICE =
  */
 export function addNoscriptNotice(html) {
   if (/<noscript\b/i.test(html)) return html;
-  if (!NOSCRIPT_SCRIPT_RE.test(html) || !NOSCRIPT_CONTROL_RE.test(html)) return html;
+  if (!NOSCRIPT_SCRIPT_RE.test(html) || !NOSCRIPT_CONTROL_RE.test(html.replace(SITE_OWNED_CONTROLS_RE, ''))) return html;
   const body = BODY_OPEN_RE.exec(html);
   if (!body) return html;
   const at = body.index + body[0].length;
@@ -11515,7 +11521,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
       const withRates = injectShopRates(withEmbed, surface.slug, toRoot);
-      if (withRates !== withCard) rated.push(relative);
+      if (withRates !== withEmbed) rated.push(relative);
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
       // one adds.
@@ -12266,6 +12272,38 @@ export async function offlineCacheName(outDir, codeVersion, digests) {
 }
 
 /**
+ * An app icon, copied from the share-card cache (`PAGES_CARD_CACHE`) when an
+ * earlier build drew it. Drawing the four icons was about 1.1 s of every
+ * build's main thread, in CI and in each test file that builds the site,
+ * though their pixels change only with `sharecard.mjs`. The key is the card
+ * key (the renderer, its fonts, the options), which a card's options can never
+ * equal, so a renderer change misses the cache as a card would; hits are
+ * touched like cards, so the workflow's prune keeps them. The bytes are the
+ * ones `renderIcon` returns
+ * (docs/history/pages-build-perf-2026-11-15-share-memo-swap.md).
+ */
+export async function cachedIcon(options, { cacheDir = process.env.PAGES_CARD_CACHE || '' } = {}) {
+  if (!cacheDir) return renderIcon(options);
+  const file = path.join(cacheDir, `icon-${cardKey({ appIcon: options })}.png`);
+  try {
+    const png = await fs.readFile(file);
+    const now = new Date();
+    await fs.utimes(file, now, now);
+    return png;
+  } catch {
+    // Not cached yet: drawn below.
+  }
+  const png = renderIcon(options);
+  // Written aside and renamed, so a test file building at the same moment
+  // never reads half an icon.
+  await fs.mkdir(cacheDir, { recursive: true });
+  const part = `${file}.${process.pid}.part`;
+  await fs.writeFile(part, png);
+  await fs.rename(part, file);
+  return png;
+}
+
+/**
  * Emits the worker, the manifest, the icons and the offline fallback, then
  * wires every published page to them.
  *
@@ -12299,7 +12337,7 @@ export async function addOfflineSupport({
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
-      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
+      await cachedIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
     );
   }
   await fs.writeFile(

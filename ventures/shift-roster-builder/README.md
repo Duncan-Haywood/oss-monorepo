@@ -2769,3 +2769,59 @@ seeds at 8.4% took 88 minutes for three rosters in the earlier study). The defau
 both studies, but its changes and premiums differ slightly from "The pair price in played weeks" (187 and $3,239 here, 183 and
 $3,177 there), because the reissues inside each play are time-gated and the machine was busier. Every other cell for the
 cover and default rosters matches that study exactly.
+
+## The clique LP steers the cover passes (2026-11-15 later)
+
+"Column generation keeps to its share" left a question for 350-400 copy weeks: the open-hours clique LP takes 5-11 s there and
+buys a much tighter bound, while the cover passes turn the same seconds into filled shifts, and in single runs neither won every
+week. **Measured first** (`node eval/clique-vs-cover.mjs P S week config seed`, `eval/clique-vs-cover.out.txt`): each of the five
+350-400 copy bench weeks built three times (search seeds 1-3) with the clique LP on and off, at the default 20 s budget.
+
+| open hours, mean of 3 seeds | clique LP off | clique LP on (unguided cover passes, as before) | on, cover passes guided (now) | bound the clique LP proves |
+|---|---|---|---|---|
+| 90 x 252 week 0 (348 copies) | 356.7 | 356.7 | **353.7** | 352 |
+| 90 x 252 week 1 (352) | 224.0 | 229.3 | **220.7** | 219 |
+| 90 x 252 week 2 (363) | 376.3 | 374.7 | **374.0** (proven on all 3) | 374 |
+| 100 x 280 week 0 (400) | 387.0 | 377.7 | **374.3** | 358 |
+| 100 x 280 week 1 (400) | 353.3 | **350.0** | 350.7 | 344 |
+
+So the clique LP paid for itself on four of five weeks even before this change: on the 400-copy weeks by 9.3 and 3.3 hours on
+every seed. Without it the only bound left is column generation's root (288-294 h on those weeks), so the page could not tell a
+manager that 344-358 of the hours are unavoidable. The one loss was 90 x 252 week 1, where the cover passes got about 2.5 s less
+and the roster left 5 more hours open.
+
+**What landed:** the LP's answer is now used twice. It already guided the day sweeps (README "A guide when the pay floor is
+skipped"); now it guides the cover passes too. When a cover-pass step tries to fill an open shift, it picks the person to try in
+proportion to their value on that shift in the LP's solution half the time, and picks uniformly the other half, as before
+(`coverPass`'s `guide`). It only changes which move is proposed. Every move is still checked by the same rules and accepted by
+the same test, so the guide cannot make a roster invalid, and a week whose LP gives nobody to a shift is proposed as before.
+`coverGuide: false` turns it off, `coverGuideProb` sets the share (0.9 was tried: no better than 0.5, worse on two weeks), and
+`optimality.coverGuided` says whether the cover passes used it.
+
+The before/after columns above come from two separate runs. So the change was checked again in **one run, on fresh search seeds
+4-6 and ten bench weeks** (60 to 100 people), guided against `coverGuide: false`, paired by week and seed:
+
+| same run, seeds 4-6 (`eval/clique-guide-ab.jsonl`) | unguided: open h | guided: open h |
+|---|---|---|
+| 80 x 224 weeks 0-2 | 260/259/259, 331/331/334, 284/282/282 | **257/259/257, 331/331/331, 281/281/281** |
+| 90 x 252 weeks 0-2 | 354/355/359, 221/222/224, 374 x 3 | **352/354/359, 220/226/219**, 374 x 3 |
+| 100 x 280 weeks 0-1 | 381/373/381, 346/349/348 | **372/377/374, 351/344/347** |
+| 60 x 168 weeks 0-1 | 300 x 3, 308 x 3 | 300 x 3, 308 x 3 (no change: proven or nothing to cover) |
+
+Guided builds left fewer open hours on **14 of 30, more on 3**, and tied on 13 (two-sided sign test p = 0.013): 9,450 hours in all
+against 9,481. Of the 24 builds above 60 people, **14 guided rosters reached the clique LP's bound**, so their open hours are
+proven least, against 5 unguided. They include all three seeds of 80 x 224 weeks 1 and 2, 90 x 252 week 1 seed 6 (219) and
+100 x 280 week 1 seed 5 (344). Because the plateau walk stops at the bound,
+those builds also spent less time in the cover passes (0.5-1.9 s instead of 3.3-5.9 s on 80 x 224 weeks 1 and 2). On weeks of
+up to about 245 copies the clique LP proves the posted roster's open hours before the cover passes start, so nothing changes there.
+
+**What this says** about the question it started from: on 350-400 copies the clique LP is worth its seconds, so its gate stays
+as it is. The way to stop it costing the cover passes is to let the cover passes use what it found, not to skip it.
+
+Tests: `cover-guide.test.mjs` (on 80 seeded small weeks a guided pass from an empty roster, at guide shares 0.5 and 1, keeps every
+rule, reports its own open hours, never ends above where it started and never below the clique LP's floor; an all-zero guide
+gives the unguided pass's roster exactly; buildRoster reports `coverGuided` true when the clique LP ran and false with
+`coverGuide: false`). Not claimed: generated weeks only, three or six search seeds each, one cloud machine with two builds at a
+time. The time-bound passes move a few hours run to run (README "Room for the clique LP"), which is why the claim rests on the
+paired same-run comparison. Next: the same guide for `coverRepair`'s choice of people, and for `ejectPass`, which run before the
+LP today.

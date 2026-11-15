@@ -1,0 +1,120 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyemy2HY3R3wbDTHrhq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T18:38:30Z",
+  "ended": "2026-11-15T18:43:55Z",
+  "wall_minutes": 5.53,
+  "tokens_in": 3742608,
+  "tokens_out": 24095,
+  "cost_usd": 2.0834,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16307",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/theism-formal-evidence/PROPOSAL.md",
+      "issue": "The McGrews' draft link it gives (lydiaswebpage blog -> lydiamcgrew.com PDF) is dead (404); a working copy was found by web search on a pages.dev mirror carrying the authors' 2025 addenda."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-mcgrew-10-44-resurrection-bayes-factor-checked.md",
+    "research/theism-formal-evidence/LOG.md (E26 entry)"
+  ],
+  "goal": null,
+  "notes": "Research draw: theism-formal-evidence. E26: McGrews' 10^44 transcribed from the authors' draft (10^2 x 10^39 x 10^3), reproduced exactly; mixture bound BF_D <= 1/q shows the 10^39 needs a group-level shared-explanation probability <= 1e-39. Prediction committed before code; all six parts held. Local checks: test_theism.py 35 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post frontmatter/links/similarity ok. No new agent doc: the LOG entry carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e6bb7ef5-98cf-5b03-8666-33848a4123ff",
+    "transcripts": 1,
+    "first": "2026-11-15T18:38:30Z",
+    "last": "2026-11-15T18:44:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 24095,
+        "thinking": 5455,
+        "cache_read": 3633216,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109318,
+        "api_equivalent_usd": 2.0834,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 24095,
+      "thinking": 5455,
+      "cache_read": 3633216,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109318,
+      "api_equivalent_usd": 2.0834,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.53,
+      "active_minutes": 5.53,
+      "model_minutes": 3.96,
+      "tool_minutes": 1.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

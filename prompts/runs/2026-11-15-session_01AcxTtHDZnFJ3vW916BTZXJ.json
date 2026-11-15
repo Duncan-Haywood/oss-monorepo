@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtHDZnFJ3vW916BTZXJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T18:06:49Z",
+  "ended": "2026-11-15T18:36:21Z",
+  "wall_minutes": 29.77,
+  "tokens_in": 13883592,
+  "tokens_out": 56537,
+  "cost_usd": 5.4315,
+  "tool_calls": 97,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16297",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first regex in the new test read the one-number prediction instead of the two-number one; fixed before commit.",
+    "The first digitiser fit axes on tick-label centres (residuals up to 34 r/min); replaced by grid-line anchoring before any break-even ran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Its 'next step' points at README 'Next steps' and the shallow-clone caveat; the open next steps (a, c, e) all needed a host or a person, so finding a doable step (a held-out fifth maker) took a search the tool could hint at: list 'held-out data' as a generic next step when the named ones are blocked."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The pyenv.py note is accurate; python3.13 already had numpy/h5py/pytest, so the background install returned at once. No friction beyond reading the long paragraph."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md (6w method)",
+      "why": "The registered method said axes would be calibrated on label rows; the labels are not centred on their grid lines.",
+      "did": "Anchored the speed axis on the 1000/2000 r/min grid lines and the value axis on frame edges plus horizontal grid lines, before any break-even ran; recorded in the outcome.",
+      "result": "Largest axis residual 0.12 kW and 0.22 L/min; the digitiser rebuilds the CSV exactly (tested)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-fifth-gear-pump-maker-tests-the-two-number-rule.md",
+    "research/heavy-hydraulics/LOG.md (Milestone 6w)"
+  ],
+  "goal": null,
+  "notes": "Research track, programme heavy-hydraulics (track 25). Milestone 6w: Bosch Rexroth AZPG (RE 10093) digitised from vector curves as a fifth gear-pump family no fit had seen. E50 0.8040; two-number rule (6v) predicts 0.8091 (error 0.0052), one-number rule 0.8212 (error 0.0172, outside the 0.015 band the manuscript claimed). Swap diagnostics put the miss in drag (AZPG shape + Casappa drag 0.8207; Casappa shape + AZPG drag 0.8108). Predictions RX1-RX6 registered in a first commit before digitising: 4 held, 2 refuted. Manuscript sections 3.5, 4, 5, 6 and abstract updated; check_numbers 54 claims 0 missing 0 orphans; build_tex 0 problems; 97 tests pass; rerun byte-identical; homepage build ok; run_workflow_locally --for-changes DONE exit 0 (agent-cross-review and portfolio-pages deploy jobs not runnable locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2d14ab1b-473c-505e-93ae-e7b487167bf6",
+    "transcripts": 1,
+    "first": "2026-11-15T18:06:49Z",
+    "last": "2026-11-15T18:36:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 177,
+        "output": 56537,
+        "thinking": 12254,
+        "cache_read": 13688116,
+        "cache_write_5m": 0,
+        "cache_write_1h": 195299,
+        "api_equivalent_usd": 5.4315,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 177,
+      "output": 56537,
+      "thinking": 12254,
+      "cache_read": 13688116,
+      "cache_write_5m": 0,
+      "cache_write_1h": 195299,
+      "api_equivalent_usd": 5.4315,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 82,
+      "Read": 6,
+      "Write": 4,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.77,
+      "active_minutes": 29.77,
+      "model_minutes": 11.42,
+      "tool_minutes": 18.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "digitising a 10-size vector catalogue with grid-checked axes, a pre-registered break-even sweep over 384 geometries, tests, manuscript and post: about two working days for a research engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 294.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

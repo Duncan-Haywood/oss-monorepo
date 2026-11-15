@@ -459,7 +459,7 @@ function itOk(digits) {
   return (10 - (total % 10)) % 10 === Number(digits[10]);
 }
 
-function esOk(body) {
+export function esOk(body) {
   const letters = "TRWAGMYFPDXBNJZSQVHLCKE";
   if (/^\d/.test(body[0]) && /[A-Z]/.test(body[8])) {
     return body[8] === letters[Number(body.slice(0, 8)) % 23];

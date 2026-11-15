@@ -543,7 +543,7 @@ enter the murmur through a 40 ms formant transition rather than a step and still
 39), and *-unt*/*-unc* still read on their stop. Nobody has listened to it, so the blip fix is the part of
 this round most worth an ear: a final *-um* should now hum without a click.
 
-#### Final consonants, fourth round: a final /l/ is not a nasal (2026-11-15, latest)
+#### Final consonants, fourth round: a final /l/ is not a nasal (2026-11-15)
 
 After the third round every final *al* in part A of `eval/coda-check-report.md` still read as a nasal (6 of
 6 pitches), and *el* on 4 of 6. Both nasal rules in `readCoda` compare the coda with its vowel: a murmur is
@@ -595,6 +595,170 @@ it changes what both readers see, so it is the next round's change, made against
 than the reader. `sing.test.mjs` gains a test (15 in all): the tilt of *al*, *el*, *am* and *um* on A2, D3
 and C4 at least 3 dB to the right side of the threshold, their reads, and *al* read as a nasal with the
 rule off. Nobody has listened to it.
+
+#### Final consonants, fifth round: the final r (2026-11-15)
+
+After the third round (and in parallel with the fourth, above) the final r was the weakest coda: 4 of 11 on held-out set E, 7 of 9 on D, 9 of 14
+on the five pieces, and every miss on a short note (0.24 s) and nearly all read as nothing. Before
+changing anything a third held-out set was fixed (part H of `eval/coda-check-report.md`: files 1 and 4 of
+every six in `corpus/gregobase-1908`, twenty Graduale pieces, none in D or E) and scored with its misses
+hidden (`--hide-misses H`): 117 of 134 closings, r 3 of 7. A development set was named at the same time
+(part I, the other twenty pieces) to read misses on alongside B.
+
+- **What the reader saw** (I's *tur* and *tor.*, frame by frame): the r was sung like an opening's tap,
+  45 ms with its contact in the middle, on the note's last 45 ms. Its contact then sat 15-25 ms from the
+  next sound, and the next sound starts where the reader's window ends, so there was no voice after the
+  contact inside the note: to the reader the r was the note simply stopping. And where the next syllable
+  cut the note (*tur re*), the r was shortened to 34 ms and its 9 ms contact, smeared by 20 ms frames,
+  came out only 7-9 dB under the vowel.
+- **The synthesis** (`CODA_TAP`, `codaPlan` in `sing.mjs`): a final r is now its contact and then the
+  voice open again for a moment, 45 ms of contact (the opening tap's length) and 35 ms of voice with the
+  r's formants (floors 40 and 30 ms), so the tongue's flick sits inside the note with sound after it.
+  The tail's length is an assumption, not fitted to recordings of singers. An r inside a cluster (*r k*)
+  keeps its plain tap.
+- **The reader** (`readCoda` in `onsets.mjs`): after /u/ and /o/ the r's own voice either side of the
+  contact is up to 7 dB louder than the vowel, so a contact 13-17 dB under its neighbours sat only
+  9-12 dB under the vowel, and the reader asked for 12. A dip 6 dB under the vowel now counts when frames
+  12 dB louder than it stand on both sides (the old rule, 12 under the vowel with 10 either side, stays).
+  And after /a/ the r's voice, darker than /a/ (F1 450 against 730 Hz), met the murmur rule and read as
+  a nasal; a murmur that runs into or through a tap's contact is now taken as the r (no Latin coda puts
+  a nasal next to an r). That second rule came from the new unit test (*ar* on a 0.197 s note), not from
+  any part of the report.
+
+Results, measured before the fourth round's /l/ rule landed on main (`eval/coda-check-report.md`; vowel-only controls and bare-vowel syllables unchanged in every part):
+
+| set | before | first version | final | first synthesis alone | dip rule alone |
+|---|---|---|---|---|---|
+| H, held out, fixed this round (20 Graduale pieces) | 117 of 134 (87.3%) | 119 | 120 of 134 (89.6%) | - | - |
+| H: r | 3 of 7 | 5 | 6 of 7 | - | - |
+| E, held out in round 3 (misses not read since) | 75 of 86; r 4 of 11 | 80; r 9 | 81 of 86 (94.2%); r 10 of 11 | - | - |
+| D, held out in round 2 | 66 of 70; r 7 of 9 | 68; r 9 | 68 of 70 (97.1%); r 9 of 9 | - | - |
+| B, the five pieces (misses read) | 142 of 162; r 9 of 14 | 147; r 14 | 147 of 162 (90.7%); r 14 of 14 | 146; r 13 | 142; r 9 |
+| I, development set (misses read) | 130 of 142; r 5 of 9 | 134; r 9 | 134 of 142 (94.4%); r 9 of 9 | 131; r 6 | 130; r 5 |
+| A, syllables before a rest (tuning set) | 137 of 180 | 138 | 138 of 180 | 138 | 137 |
+
+Across the three held-out sets (D, E, H), final r went from 14 of 27 to 25 of 27. The "first version" is the
+synthesis with a 30 ms contact plus the reader's dip rule; the two ablations were run on the sets whose
+misses were read. The two changes help each other (B: 9 with neither, 13 and 9 alone, 14 together). The unit test then showed *ur* on a
+0.24 s note still reading as nothing (the 30 ms contact too shallow in 20 ms frames) and *ar* reading as a
+nasal, which led to the 45 ms contact and the murmur-into-tap rule. H was printed three times (before,
+after the first version, after the final one); its misses were never read, and nothing was changed on its
+numbers. The numbers on H are small: 7 r in twenty pieces long enough to read.
+
+Openings are unchanged (742 of 934, `eval/consonant-check-report.md`). Vowels measured before each final
+consonant hold at 97.3% (696 of 715, `eval/vowel-check-report.md`); over the whole note, a window that
+runs on into the coda, 874 to 865 of 920, because the final r now takes 60-80 ms of a note instead of
+35-45. The vowel check also had the coda's position slightly wrong on a note the next consonant cuts
+(it planned the coda on the uncut note); fixed, which adds one note to the 715. `sing.test.mjs` gains a
+test (15 in all): a final r leaves 25 ms or more of voice after its contact on 0.197-0.5 s notes, and
+*ur*, *or*, *er*, *ar* on D3 read as a tap up to the note's end on 0.197 and 0.242 s notes (it fails on
+the old code). Nobody has listened to it: whether the r's tail sounds like a flicked r or like an extra
+little vowel is the question for an ear.
+
+**After merging the fourth round.** The final-/l/ round above (`MURMUR_TILT`) landed on main while this
+one was being measured; the two touch the same nasal rule in `readCoda` and were merged with both
+conditions kept (a murmur must be dark in itself and must not run into a tap). Measured again on the merged
+code against main with only the /l/ rule (H printed for main with its misses hidden):
+
+| set | main (with the /l/ rule) | merged |
+|---|---|---|
+| H, held out | 118 of 134 (88.1%); r 4 of 7 | 121 of 134 (90.3%); r 7 of 7 |
+| E | 76 of 86; r 5 of 11 | 81 of 86 (94.2%); r 10 of 11 |
+| D | 66 of 70; r 7 of 9 | 68 of 70 (97.1%); r 9 of 9 |
+| B | 142 of 162; r 9 of 14 | 147 of 162 (90.7%); r 14 of 14 |
+| I, development | 132 of 142; r 5 of 9 | 136 of 142 (95.8%); r 9 of 9 |
+| A, tuning set | 157 of 180 | 157 of 180 |
+
+Final r across the three held-out sets: 16 of 27 to 26 of 27. The fourth round's part F (final /l/ and the
+nasals in the other gregobase-1908-* folders) is unchanged (l none 4 of 4, nasals 96 of 137).
+
+#### Final consonants, sixth round: a final /l/ quieter than its vowel (2026-11-15)
+
+The fourth round found the sung /l/ louder than the vowel it closes: `PHONES.l`'s fixed voicing gain of 1.4
+put its steady part -1 to +8 dB against the vowel, loudest after /e/, /i/ and /u/, whose energy the /l/'s
+F1 (400 Hz) and F2 (1250 Hz) pass better than their own resonances do. A listener would hear a swell on
+every final *-l*.
+
+- **The change** (`lateralGain`, `LATERAL_DB` in `sing.mjs`): a coda /l/'s voicing gain is worked out per
+  note, as `nasalGain` does for the murmur. It is the harmonics' power through the vowel's five resonators
+  against their power through the /l/'s, set so the /l/ sits 4 dB under the vowel. The 4 dB is an assumption,
+  not fitted to recordings of singers: a liquid is quieter than a vowel and louder than a nasal (set 7 dB
+  under). The opening /l/ keeps its fixed gain, because the opening reader's thresholds were set on it.
+  `lateralLevel: false` brings back the fixed gain for comparison.
+- **Pre-registered** in the header of `eval/lateral-level-check.mjs`, committed before the first run with the
+  change, with four predictions. Prediction (2) was reworded after the baseline run on main and before any run
+  with the change: as first written it already failed on main (the /l/'s tilt is 26.7 dB at A2).
+
+| prediction | result |
+|---|---|
+| (1) one seed: every /l/ (5 vowels x 6 pitches, E2-E4) 1 to 7 dB under its vowel | 20 of 30 (fixed gain: 9 of 30): **fails** |
+| (2) the /l/'s own spectral tilt unchanged | 30 of 30: holds |
+| (3) `eval/coda-check.mjs` parts A, B, D, E, F, H, I and controls no lower | every line identical: holds |
+| (4) `eval/consonant-check.mjs` openings unchanged | 743 to 742 of 934: **fails by one read** (Dies irae: a written-no-consonant opening now reads as a nasal) |
+
+**Why (1) failed.** The middle half of the /l/ is 25 ms long, and in that span the five detuned voices beat, so
+one seed's level moves about 5 dB either way from note to note (G3 sat 5-7 dB under, E4 up to 2 dB over).
+Not registered, measured afterwards: with power summed over twelve seeds, the fixed gain put the /l/ -5.4 to
++8.6 dB against its vowel (14 of 30 in the window) and the per-note gain -5.0 to -2.4 dB (mean -3.7; 30 of 30).
+With one voice and no vibrato (the new test in `sing.test.mjs`) it is -4.0 to -3.8 dB at four pitches after
+every vowel, where the fixed gain put it over the vowel on 11 of 20. A second version that summed the gain over
+the detuned voices and the vibrato moved no cell by more than 0.2 dB and was dropped.
+Report: `eval/lateral-level-check.md`. Nobody has listened to it.
+
+#### Openings on the coda murmur (2026-11-15, latest)
+
+Since the second coda round a syllable's final nasal and its opening nasal were two different sounds. The
+coda's murmur has its gain worked out per note (7 dB under its vowel, the middle of Fujimura's 5-10 dB), an
+antiformant and a broad low resonance; the opening kept the first version's fixed gain. Measured with one
+voice and no vibrato (m and n, five vowels, E2-E4), the old opening murmur sat 6.2 to 16.5 dB under the
+vowel it leads into, deepest before /a/ and /o/. The second round had tried the coda murmur on openings and
+dropped it, because the opening reader's thresholds were set on the old one (openings 742 to 724 of 934).
+
+- **The synthesis** (`sing.mjs`): an opening nasal now sings the coda's murmur, its gain set against the
+  vowel it goes to: 7.6 to 7.8 dB under it after every vowel at every pitch (one voice), its energy above
+  1 kHz 42-51 dB under its band under 500 Hz. `onsetMurmur: 'first'` brings the old one back.
+- **The reader** (`readOnset` in `onsets.mjs`): a nasal's level bar moves from 7 dB under the vowel to 5
+  (`nasalBar`; the old bar sat right on the new murmur's level), and the murmur-tilt rule that keeps a final
+  /l/ from reading as a nasal (`MURMUR_TILT`, fourth coda round) now applies to openings. It is taken over
+  the nasal run's darkest stretch of three 5 ms-hop frames (`tiltSpan`), not over the whole run (why below).
+- **A new held-out set, G:** the openings of the 60 Graduale pieces in `corpus/gregobase-1908`, which no
+  run had scored (the coda check reads only their final consonants). Fixed and scored on main with its
+  misses hidden before any change; its misses have still not been printed.
+
+Pre-registered twice in the header of `eval/consonant-check.mjs`, each time committed before its first run.
+The first registration took the tilt over the whole run and failed five of its nine lines: every nasal
+opening in part A read as nothing. Read on A only (the tuning set): the run the level rule finds goes on
+into the vowel's quiet attack, so its median tilt sat near -22 dB although its middle reaches -46. The second
+registration takes the darkest three frames (chosen on A: 188 of 210; five frames 185; trimming the run's
+ends 173).
+
+| set | main | first registration | second (kept) | prediction (second) |
+|---|---|---|---|---|
+| G, held out: openings read exactly | 1833 of 2349 (78.0%) | 1825 | 1869 of 2349 (79.6%) | no lower: holds |
+| G: nasals read exactly | 278 of 404 | 212 | 278 of 404 | no fewer: holds (no gain) |
+| G: vowel-only control read as a nasal | 287 of 2349 | 71 | 135 | half or fewer (144): holds |
+| B, the five pieces | 742 of 934 (79.4%) | 720 | 753 of 934 (80.6%) | no lower: holds |
+| B: nasals read exactly | 96 of 149 | 60 | 95 of 149 | no fewer: **fails by one** |
+| B: vowel-only control read as a nasal | 123 of 934 | 38 | 73 | half or fewer (62): **fails** |
+| A, the tuning set | 183 of 210 | 172 | 188 of 210 | no lower: holds |
+| coda check, every part | | identical | identical | within 2: holds |
+| vowel check | | identical | identical | within 2 notes: holds |
+
+The ablation, new murmur with the old reader: A 179, B 724 (nasals 78), G 1790 (nasals 235); the old reader
+was set on the old murmur. Kept although two of B's lines fail: on the held-out set every line holds, the
+murmur now meets the same level target in both positions, and the reader finds a nasal where none is sung
+about half as often. What it does not do is find more of the nasals that are sung: a third of G's (118 of
+404 read as nothing) and of B's still go unread, the next thing to look at. Nobody has listened to it: an
+opening *m* or *n* is now louder before /a/ and /o/ (by up to 9 dB), which is the change most worth an ear.
+
+**Found on the way, not changed: a short final *-um* is quiet or loud by chance.** The open item from the
+third round was *-num* and *-rum* on short notes reading as nothing. With one voice the coda murmur sits
+7.0 dB under its vowel at every pitch; with the choir's five detuned voices it sat anywhere from 5.7 dB over
+to 20.1 dB under the vowel measured 0.3 s earlier (0.6 s notes, eight seeds, /a e o u/, E2-C4), the same
+seed loud or quiet after every vowel. The voices' low harmonics, which are all a murmur passes, beat
+against each other (at roughly 0.2-4 Hz, from the detunes of -12 to +13 cents), so the murmur's level against the vowel depends on where in the beat it
+falls. A real section beats too; whether this much is natural, and whether the reader should compare a coda
+with the vowel just before it rather than at the note's start, is the next round's question.
 
 #### Formant tuning on high notes (2026-11-15)
 

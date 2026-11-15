@@ -16,7 +16,9 @@
 //      ValorLiquidoNfse = ValorServicos - PIS - COFINS - INSS - IR - CSLL - OutrasRetencoes
 //      - ISS retained (IssRetido 1) - DescontoIncondicionado - DescontoCondicionado;
 //      deductions plus the unconditional discount no more than ValorServicos;
-//   4. the rate (ABR-024): Aliquota within LC 116's national 2% to 5% band (iss-rate.mjs).
+//   4. the rate (ABR-024): Aliquota within LC 116's national 2% to 5% band (iss-rate.mjs);
+//      ABR-025: where the ISS is due in a city whose own rate table is read (São Paulo, Rio de Janeiro),
+//      Aliquota against that city's rate for the service (iss-city-rates.mjs).
 //      The ABRASF manual itself was not reachable from the build host; the formulas are as
 //      quoted from integration manuals that reproduce it (see README) and were then measured
 //      on the real files described there, which is where the tolerance rules come from.
@@ -25,6 +27,7 @@
 import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider, providerSameAs, providerBase, providerMulti, multiFor, rootNamespace, CITY_COUNT } from "./abrasf-xsd.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { issRateProblem, lcSubitem } from "./iss-rate.mjs";
+import { cityRateProblem, CITIES } from "./iss-city-rates.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { UF_CODE } from "./nfe.mjs";
 import { GAPS, CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
@@ -263,7 +266,16 @@ function checkIssRate(root, n, parent, tot, servico, p, out, notes) {
   for (const [m] of walk(root, "")) if (m === decl || (m.name === "InfNfse" && [...walk(m, "")].some(([x]) => x === n))) { dateNode = m; }
   const year = Number((txt(decl, "Competencia") || txt(decl, "DataEmissao") || txt(dateNode, "Competencia") || txt(dateNode, "DataEmissao")).slice(0, 4));
   const prob = issRateProblem({ rate: aliq, item, year });
-  if (!prob) return;
+  if (!prob) {
+    // ABR-025: the city's own rate. The city is MunicipioIncidencia (2.x) where the file names
+    // one, else the city whose system issued the file.
+    if (why) return;
+    const city = txt(parent, "MunicipioIncidencia") || issuerCity(root)?.code || "";
+    const c = cityRateProblem({ city, rate: aliq, item, year });
+    if (c) out.push(finding("ABR-025", c.message, c.fix, `${p}/Aliquota`));
+    else if (CITIES[city] && item && !(year >= CITIES[city].years[0] && year <= CITIES[city].years[1])) notes.add(`Aliquota ${aliq}: ${CITIES[city].name}'s own rate table is read for ${CITIES[city].years.join("-")} competences only; not compared`);
+    return;
+  }
   if (why && prob.kind === "low") { notes.add(`Aliquota ${aliq}: below the national 2% minimum, from ${why}; not judged (the band applies to the municipal rate, not this regime)`); return; }
   out.push(finding("ABR-024", prob.message, prob.fix, `${p}/Aliquota`));
 }

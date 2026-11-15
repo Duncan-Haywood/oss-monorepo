@@ -2006,12 +2006,13 @@ def lift_tensioner_parts(p: Feeder) -> list[Part]:
     screw = (Cylinder(4.0, k).moved(Location((0, 0, k / 2)))
              + Cylinder(2.5, shank_top - zc - k).moved(Location((0, 0, k + (shank_top - zc - k) / 2))))
     t = p.lift_tension_design()
+    pl = p.lift_pluck_design()
     return [Part("lift_jack_screw", "cots", "", 2, screw,
                  [Location((p.lift_x_pulley, p.lift_y + s * p.lift_jack_y, zc)) for s in (1, -1)],
                  spec="M5 x 25 hex bolt + M5 nut (captive in the head) + M5 jam nut: the top pulley's jack screws",
                  notes=f"Stand on the top rod clip; turning them out raises the head. Set {t['t0_n']:.0f} N at the drive "
-                       f"pulley: a strand plucked at mid-height swings about {t['ring_hz']:.1f} times a second, or a 1 N push "
-                       f"there moves it about {t['push_1n_mm']:.0f} mm. Then tighten the four side M5s and lock each jack "
+                       f"pulley, belt stopped and empty: a plucked strand swings about {pl['pluck_hz']:.1f} times a second, or a 1 N push at mid-height "
+                       f"moves it about {t['push_1n_mm']:.0f} mm. Then tighten the four side M5s and lock each jack "
                        f"with its jam nut up against the head.")]
 
 
@@ -2339,7 +2340,7 @@ COTS_EXTRA = [
     ("4.7k resistor", 1, "stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"),
     ("Current-sense resistor 0.05 ohm 3 W 1% (2512 or through-hole)", 1, "lift jam cutoff: between the lift MOSFET module's source and ground (manifest lift jam line)"),
     ("LM393 dual comparator (DIP-8 or SOIC on an adapter) + 100 nF decoupling", 1, "lift jam cutoff: shunt to its - input through 10k with 100 nF to ground, open-collector output to ESP32 GPIO 0 (hardware/electronics.md \"Lift jam cutoff\")"),
-    ("Resistors 1%: 100k, 2.7k, two 10k; capacitor 100 nF", 1, "lift jam cutoff: reference divider from 3.3 V, input filter, output pull-up (most dev boards already pull GPIO 0 up)"),
+    ("Resistors 1%: 100k, 2.4k, two 10k; capacitor 100 nF", 1, "lift jam cutoff: reference divider from 3.3 V, input filter, output pull-up (most dev boards already pull GPIO 0 up)"),
     ("Schottky diode, 45 V 20 A or more (TO-220 class)", 1, "regen return across the contactor and precharge relay: anode on the switched bus, cathode between the main fuse and the contactor (manifest regen line)"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
     ("5 V 5 A buck converter", 1, "Pi supply"),
@@ -2405,8 +2406,8 @@ def lift_line(p: Feeder) -> str:
 def _tension_text(p: Feeder) -> str:
     t = p.lift_tension_design()
     return (f"two jack screws raise the head {t['travel_mm']:.1f} mm on the spine to tension the belt to {t['t0_n']:.0f} N "
-            f"at the drive pulley (slack strand {t['slack_n']:.1f} N; a strand plucked at mid-height swings "
-            f"{t['ring_hz']:.1f} times a second)")
+            f"at the drive pulley (slack strand {t['slack_n']:.1f} N; stopped and empty, a plucked strand swings "
+            f"{p.lift_pluck_design()['pluck_hz']:.1f} times a second, flights' mass included)")
 
 
 def lift_jam_line(p: Feeder) -> str:
@@ -2417,7 +2418,9 @@ def lift_jam_line(p: Feeder) -> str:
             f"({c['trip_lo_a']:.2f}-{c['trip_hi_a']:.2f} A over the parts' tolerances); a full belt runs at "
             f"{c['run_a']:.2f} A, so the lowest trip leaves {c['trip_nm_lo']:.2f} N m ({c['trip_factor']:.1f}x the "
             f"belt's need), and a hot stall at {p.battery_v_min:g} V draws {c['stall_hot_a']:.2f} A "
-            f"({c['stall_margin']:.2f}x the highest trip; {c['fuse_ratio']:.2f}x the {c['fuse_a']:g} A fuse, which may "
+            f"({c['stall_margin_lo_v']:.2f}x the highest trip; at the {c['duty_hi_v']:.2f} duty a {p.battery_v_max:g} V pack "
+            f"gets, the trip rises to {c['trip_hi_a_full_pack']:.2f} A at most and a hot stall is "
+            f"{c['stall_margin_hi_v']:.2f}x it; {c['fuse_ratio']:.2f}x the {c['fuse_a']:g} A fuse, which may "
             f"never open). Firmware ignores it {p.lift_jam_blank_ms:g} ms after each start (a start stays over it about "
             f"{c['start_over_s'] * 1000:.0f} ms: mechanical time constant {m['tau_m_s'] * 1000:.0f} ms), cuts on "
             f"{p.lift_jam_trip_ms:g} ms over, rests {p.lift_jam_rest_ms / 1000:g} s, retries {p.lift_jam_retries}x, "

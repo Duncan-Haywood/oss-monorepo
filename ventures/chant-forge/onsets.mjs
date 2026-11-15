@@ -10,8 +10,8 @@
 // - a fricative is 30 ms or more of noise, most of its energy above 2.5 kHz; its centroid
 //   (1-11 kHz) splits /s/ (above 4.8 kHz) from /ʃ/ (2.2-4.8 kHz), and a weak, flat one is /f/.
 //   A closure straight before it makes it an affricate.
-// - a nasal is 30 ms or more 7 to 25 dB below the vowel, its low band near the vowel's and its
-//   energy above 1 kHz down at least 5 dB more (a murmur).
+// - a nasal is 30 ms or more 5 to 25 dB below the vowel, its low band near the vowel's and its
+//   energy above 1 kHz down at least 5 dB more, and dark in itself (MURMUR_TILT; a murmur).
 // - a tap is one brief contact: the level's floor, 12 dB or more under the vowel, lasts under 30 ms.
 // Anything else (l, the glides, a bare vowel) reads as no consonant.
 // Known limits: the thresholds were set on held syllables at D3 (eval/consonant-check.mjs part
@@ -86,11 +86,13 @@ const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length 
 // 'stop', 'affricate', 'fricative', 'nasal', 'tap', 'none'; stops add voiced and place
 // ('lab', 'alv', 'vel'), affricates voiced, fricatives place ('s', 'S', 'f', 'voiced').
 // The earliest cue wins, so "spi" reads as its /s/ and "tri" as its /t/.
-// murmurTilt (readCoda's rule) is off for openings: tried 2026-11-15 as pre-registered in
-// eval/consonant-check.mjs, it cut the vowel-only control's false nasals from 123 to 23 of 934 but read
-// B's sung nasal openings 64 of 149 instead of 96 (openings keep the first, brighter murmur, sing.mjs
-// ONSET_NASAL_GAIN), so by the registration it stays off until the opening murmur changes.
-export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = 0 } = {}) {
+// murmurTilt (readCoda's rule): first tried on openings 2026-11-15 (eval/consonant-check.mjs), it cut the
+// vowel-only control's false nasals from 123 to 23 of 934 but read B's sung nasal openings 64 of 149
+// instead of 96, as openings still sang the first murmur. Since openings sing the coda's murmur (sing.mjs,
+// README "Openings on the coda murmur") it is on, and a nasal's level bar is the coda reader's: 5 dB under
+// the vowel (`nasalBar`), not 7, which sat on the new murmur's own level (7 dB under). `murmurTilt: 0,
+// nasalBar: 7` is the reader before that round.
+export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = MURMUR_TILT, nasalBar = 5, tiltSpan = 3 } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round(t0 * rate), z = Math.round(Math.min(vowelAt, t0 + window) * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < Math.round((vowelAt + 0.06) * rate); i += hop) ref.push(frameFeatures(x, i, rate));
@@ -109,7 +111,7 @@ export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = 0 }
   const noisy = (f) => f.hiR > Math.max(0.5, 3 * vHi) && f.lvl > -45;
   const vnoisy = (f) => !noisy(f) && f.hiR > Math.max(0.12, 3 * vHi) && f.lowR > 0.2 && f.hiRel > -20 && f.lvl > -35 && f.lvl < -3;
   const closed = (f) => f.lvl < -22 && f.loRel < -12 && !noisy(f) && !vnoisy(f);
-  const nasal = (f) => f.loRel >= -15 && f.lvl < -7 && f.lvl > -25 && f.hiRel < f.loRel - 5;
+  const nasal = (f) => f.loRel >= -15 && f.lvl < -nasalBar && f.lvl > -25 && f.hiRel < f.loRel - 5;
   // a tap: one brief contact, the level's deepest part (within 6 dB of its floor, 12 dB or more
   // under the vowel) shorter than 30 ms, with louder frames on both sides
   let mk = 0; fr.forEach((f, k) => { if (f.lvl < fr[mk].lvl) mk = k; });
@@ -118,11 +120,13 @@ export function readOnset(x, rate, t0, vowelAt, { window = 0.2, murmurTilt = 0 }
   const dip = floor <= -12 && s0 > 0 && s1 < fr.length - 1 && msOf([s0, s1]) < 30
     && Math.max(...fr.slice(0, s0).map((f) => f.lvl)) >= floor + 10 && Math.max(...fr.slice(s1 + 1).map((f) => f.lvl)) >= floor + 10;
   if (dip && !fr.some((f) => noisy(f) || vnoisy(f))) return { cls: 'tap', floor }; // voiced throughout: no hiss before or after
+  // the murmur's tilt: the run's median, or with tiltSpan k its darkest stretch of k frames (its median)
+  const darkest = (r) => { const t = fr.slice(r[0], r[1] + 1).map((f) => db(f.hi1, f.low)); if (!tiltSpan || t.length <= tiltSpan) return median(t); let best = Infinity; for (let j = 0; j + tiltSpan <= t.length; j++) best = Math.min(best, median(t.slice(j, j + tiltSpan))); return best; };
   const cands = [
     ['closure', runs(closed, 35).filter((r) => r[1] < fr.length - 1)[0]],
     ['fricative', runs(noisy, 30)[0]],
     ['vfricative', runs(vnoisy, 30)[0]],
-    ['nasal', runs(nasal, 30).find((r) => !murmurTilt || median(fr.slice(r[0], r[1] + 1).map((f) => db(f.hi1, f.low))) <= -murmurTilt)],
+    ['nasal', runs(nasal, 30).find((r) => !murmurTilt || darkest(r) <= -murmurTilt)],
   ].filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
   if (cands.length) {
     const [kind, r] = cands[0];
@@ -209,14 +213,17 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT } = 
   const nasal = (f) => f.loRel >= -15 && f.lvl < -5 && f.lvl > -25 && f.hiRel < f.loRel - 15;
   // a tap: a brief dip, 12 dB or more under the vowel and under 30 ms at its deepest, with frames
   // 10 dB louder within 40 ms on both sides (a final r hums on after it). Searched locally: the
-  // quietest frame of the window is the release's fade.
+  // quietest frame of the window is the release's fade. After a dark vowel (/u/, /o/) the r's own
+  // voice on either side of its contact is up to 7 dB louder than the vowel, so a contact 13-17 dB
+  // under its neighbours sat only 9-12 dB under the vowel (README "Final consonants, fifth round"):
+  // a dip 6 dB under the vowel counts when frames 12 dB louder than it stand on both sides.
   let tapRun = null;
   for (let k = 1; k < fr.length - 1 && !tapRun; k++) {
     const fl = fr[k].lvl;
-    if (fl > -12 || fr[k - 1].lvl < fl || fr[k + 1].lvl < fl) continue;
+    if (fl > -6 || fr[k - 1].lvl < fl || fr[k + 1].lvl < fl) continue;
     let p0 = k, p1 = k; while (p0 > 0 && fr[p0 - 1].lvl < fl + 6) p0--; while (p1 < fr.length - 1 && fr[p1 + 1].lvl < fl + 6) p1++;
     if (p0 === 0 || p1 === fr.length - 1 || msOf([p0, p1]) >= 30) continue;
-    const side = (lo, hi) => fr.slice(Math.max(0, lo), Math.max(0, hi)).some((f) => f.lvl >= fl + 10);
+    const rise = fl > -12 ? 12 : 10, side = (lo, hi) => fr.slice(Math.max(0, lo), Math.max(0, hi)).some((f) => f.lvl >= fl + rise);
     if (side(p0 - 8, p0) && side(p1 + 1, p1 + 9)) tapRun = [p0, p1];
   }
   const floor = tapRun ? fr[tapRun[0]].lvl : null, dip = !!tapRun, s0 = tapRun?.[0], s1 = tapRun?.[1];
@@ -268,8 +275,12 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT } = 
   };
   const murmur = (r) => !murmurTilt || median(fr.slice(r[0], r[1] + 1).map((f) => db(f.hi1, f.low))) <= -murmurTilt;
   const step = runs(darkish, 45).find((r) => stepped(r) && !vowelAgain(r) && murmur(r));
+  // A murmur that runs into a tap's contact or through it is the r's own voice around the contact: its
+  // formants (F1 450 Hz) are darker than /a/'s, so after /a/ it met the murmur rule for 30 ms and more, and
+  // no Latin coda puts a nasal next to an r (README "Final consonants, fifth round").
+  const intoTap = (r) => tap && r[0] <= tap[1] && r[1] >= tap[0] - 2;
   const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step]
-    .filter(Boolean).sort((p, q) => p[0] - q[0])[0];
+    .filter((r) => r && !intoTap(r)).sort((p, q) => p[0] - q[0])[0];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
   if (!cands.length) return { cls: 'none' };

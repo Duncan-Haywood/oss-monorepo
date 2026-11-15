@@ -251,6 +251,62 @@ function totalCashChange(lines, comma) {
   return null;
 }
 
+// A total line whose decimal point OCR lost or misread: "TOTAL 184 47)", "esl TOTAL : 92:22",
+// "dount Due 9, 70", "mount Due $2 17" (SRD photos, eval/split-decimal-2026-11-15.md). Only on a
+// receipt written 12.50, only after the total word, only where no amount reads on the line, and
+// only as the line's last number: dollars, then a space, comma or colon, then exactly two digits.
+const SPLIT_DEC = /(?:\$\s*)?(?<![\d.,:])(\d{1,4})(?:\s+|\s*[,:]\s*)(\d{2})(?![\d%]|[.,:]\d)[^\d]*$/;
+export function splitDecimal(line) {
+  const m = line.match(TOTAL_RE);
+  if (!m || /€/.test(line)) return null; // a euro amount's comma is its decimal point ("TOTALE € 3,00")
+  const s = line.slice(m.index + m[0].length).match(SPLIT_DEC);
+  if (!s || /\d{1,2}:\d{2}\s*(?:[ap]\.?m\b)/i.test(s[0])) return null; // a time, "10:45 PM"
+  const cents = Number(s[1]) * 100 + Number(s[2]);
+  return cents > 0 ? { cents, was: s[0].replace(/[^\d$.,: ]+$/, "").trim() } : null;
+}
+
+// The tax on a receipt (README, "Tax on receipt photos"). Every tax line is read, not
+// only the last: a rate printed beside it ("Tax 8.75% 1.11") is not the amount, a line
+// whose amount is the total or more is the subtotal with tax ("Sbt1 w/Tax: $10.70"), and
+// "Taxable", "w/Tax", "incl. tax" and "Tax ID" lines are not the tax. A printed "Total
+// Tax" line wins; two or more tax lines (state and city, food and drink) are added when
+// the subtotal plus their sum is exactly the total; otherwise the last one stands. On a
+// receipt written 12.50, a tax line with no amount is read again for "12,94" or "2:29"
+// (the decimal point lost) and for a bare ".75". The subtotals read are returned too, so
+// that several OCR readings of one photo can check a tax against them.
+const TAX_LINE_RE = /\b(sales\s+t[ae]x|tax(?:es)?|t[ae]x|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?|txtl|get)\b/i;
+const NOT_TAX_LINE_RE = /taxable|w\/\s*tax|with\s+tax|excl|before\s+(?:gst|tax)|(?:tax|gst|vat)\s*(?:id\b|invoice|no\b|reg|#)|sub\s*-?\s*total|\bsbt|summary|dasar\s+pengenaan|\bdpp\b/i;
+const PCT_RE = /\(?\d{1,2}(?:[.,]\d{1,4})?\s*%\)?/g;
+const SUB_RE = /sub\s*-?\s*total|\bsbtl?\b|\bsubttl\b|before\s+(?:gst|tax)|\bnet\b/i;
+export function readTax(lines, comma, cents) {
+  const amt = (l) => { const a = amountsIn(l, comma); return a.length ? a[a.length - 1] : null; };
+  const cands = [], subtotals = [];
+  let note = null;
+  lines.forEach((l) => {
+    if (SUB_RE.test(l) && !/w\/\s*tax|with\s+tax/i.test(l) && !TOTAL_RE.test(l.replace(/sub\s*-?\s*total/i, ""))) { const v = amt(l); if (v !== null && v > 0) subtotals.push(v); }
+    if (!TAX_LINE_RE.test(l) || NOT_TAX_LINE_RE.test(l)) return;
+    if (TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l) && !/total\s+taxes/i.test(l)) return;
+    const bare = l.replace(PCT_RE, " ");
+    let v = amt(bare), lost = null;
+    if (v === null && comma === false) {
+      const m = bare.match(/(?<![\d.,:])(\d{1,3})\s?[,:]\s?(\d{2})(?![\d:])[^\d]*$/) ?? bare.match(/(?<![\d.,])\.(\d{2})(?!\d)[^\d]*$/);
+      if (m) { v = m.length === 3 ? Number(m[1]) * 100 + Number(m[2]) : Number(m[1]); lost = m[0].trim(); }
+    }
+    if (v === null || (cents !== null && v >= cents)) return;
+    cands.push({ v, total: TAX_TOTAL_RE.test(l) || /total\s+taxes/i.test(l), lost, line: l });
+  });
+  if (!cands.length) return { cents: null, subtotals, note, line: null };
+  const printed = cands.filter((c) => c.total);
+  let pick = printed.length ? printed[printed.length - 1] : cands[cands.length - 1];
+  let v = pick.v;
+  if (!printed.length && cands.length >= 2 && cents !== null) {
+    const sum = cands.reduce((a, c) => a + c.v, 0);
+    if (sum !== v && subtotals.some((s) => s + sum === cents) && !subtotals.some((s) => s + v === cents)) { v = sum; note = `${cands.length} tax lines added (the subtotal plus their sum is the total)`; pick = null; }
+  }
+  if (pick?.lost) note = `tax line read "${pick.lost}" with its decimal point lost: took ${(v / 100).toFixed(2)}, check the tax`;
+  return { cents: v, subtotals, note, line: pick?.line ?? null };
+}
+
 export function parseReceipt(block, { dayFirst = null } = {}) {
   let lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
@@ -322,9 +378,12 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   lines.forEach((l, i) => {
     if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) {
       if (cents !== null && summaryAt >= 0 && i >= summaryAt) return;
-      const a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
+      let a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
+      let split = null;
+      if (!a.length && comma === false && (split = splitDecimal(l))) a = [split.cents];
       if (a.length && a[a.length - 1] > 0) {
         cents = a[a.length - 1]; from = l; at = i;
+        if (split) notes.push(`total line read "${split.was}" with its decimal point lost: took ${(split.cents / 100).toFixed(2)}, check the total`);
         // "Total : 140.00 8.40": a before-tax column and a tax column, the total
         // of the last column cut off or missing. When the last amount is exactly
         // 6% or 8% (Malaysian GST and SST) of the one before it to within a cent,
@@ -420,8 +479,9 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   }
 
   let taxCents = null;
-  for (const l of lines) if (TAX_RE.test(l) && (!TOTAL_RE.test(l) || TAX_TOTAL_RE.test(l)) && !/subtotal/i.test(l) && !NOT_TAX_RE.test(l)) { const a = amountsIn(l, comma); if (a.length) taxCents = a[a.length - 1]; }
-  if (taxCents !== null && cents !== null && taxCents >= cents) taxCents = null;
+  const taxRead = readTax(lines, comma, cents);
+  taxCents = taxRead.cents;
+  if (taxRead.note) notes.push(taxRead.note);
   // line items, kept only if they add up to the printed total (with the tax and
   // any tip, or already including tax); the merchant line is not an item
   let tipCents = null;
@@ -438,6 +498,8 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   const out = { date, merchant, currency, cents, taxCents, tipCents, items: itemsOk ? items : [], itemsOk: !!itemsOk, taxIncluded: itemsOk === "tax included", ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
   // the arithmetic checks, kept off the enumerable fields so results compare as before
   Object.defineProperty(out, "checks", { value: checks, enumerable: false });
+  Object.defineProperty(out, "subtotals", { value: taxRead.subtotals, enumerable: false });
+  Object.defineProperty(out, "taxLine", { value: taxRead.line, enumerable: false });
   return out;
 }
 
@@ -471,6 +533,41 @@ function voteTotal(ps, support) {
   return win ? ps[win.first] : null;
 }
 
+// The tax when OCR read one photo several times (README, "Tax on receipt photos"):
+// each reading's tax scores one point per reading that read it, and two more when a
+// subtotal read in any reading plus that tax is the settled total. A tax over 22% of
+// the total is not one, and a tax one digit away from the total less a subtotal is
+// taken as that difference. A tie keeps the reading the total came from, then the first.
+// On the 200 ExpressExpense photos the readings that found a tax disagreed on 21, and
+// the first reading had none on 41 where another did.
+export function voteTax(ps, out, pick) {
+  const subs = ps.flatMap((p) => p.subtotals ?? []);
+  const votes = new Map();
+  ps.forEach((p, i) => {
+    const t = p.taxCents;
+    // over 22% of the settled total is not a tax (Hungary's 27% VAT is 21.3% of a total
+    // that includes it); one reading's total can be misread, so this is not applied there
+    if (t === null || (out.cents !== null && t > out.cents * 0.22)) return;
+    const v = votes.get(t) ?? { score: out.cents !== null && subs.some((s) => s + t === out.cents) ? 2 : 0, first: p === pick ? -1 : i };
+    v.score += 1;
+    votes.set(t, v);
+  });
+  let win = null;
+  for (const [t, v] of votes) if (!win || v.score > win.score || (v.score === win.score && v.first < win.first)) win = { t, ...v };
+  const t = win ? win.t : out.taxCents;
+  // a tax one digit away from the settled total less a subtotal ("Tax: 8.21" where
+  // 42.16 less 38.95 is 3.21) was misread: the receipt's own arithmetic wins
+  if (t !== null && out.cents !== null && !subs.some((s) => s + t === out.cents)) {
+    const near = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && oneDigitApart(d, t));
+    if (near.length === 1) return near[0];
+  }
+  if (t === null && out.cents !== null) {
+    const d = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && d <= (out.cents - d) * 0.15);
+    if (d.length === 1) return d[0];
+  }
+  return t;
+}
+
 // One receipt read by OCR more than once (two page-segmentation modes, or two
 // engines): the first reading is the default; a field the readings disagree on
 // takes the reading the receipt's own arithmetic confirms. A total confirmed by
@@ -494,6 +591,11 @@ export function parseReceiptPasses(texts, opts = {}) {
   if (pick !== best) {
     Object.assign(out, { cents: pick.cents, taxCents: pick.taxCents, tipCents: pick.tipCents, items: pick.items, itemsOk: pick.itemsOk, taxIncluded: pick.taxIncluded, totalLine: pick.totalLine });
     out.notes = [...best.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); took ${(pick.cents / 100).toFixed(2)}, which the receipt's arithmetic confirms`];
+  }
+  const tax = voteTax(ps, out, pick);
+  if (tax !== out.taxCents) {
+    out.notes = [...out.notes, `OCR readings disagree on the tax (${ps.map((p) => p.taxCents === null ? "none" : (p.taxCents / 100).toFixed(2)).join(" vs ")}); took ${(tax / 100).toFixed(2)}`];
+    out.taxCents = tax;
   }
   if (!out.merchant && (out.merchant = ps.find((p) => p.merchant)?.merchant ?? null)) out.notes = out.notes.filter((n) => n !== "no merchant found");
   // a date only the second reading found is not taken: on SROIE that filled 18

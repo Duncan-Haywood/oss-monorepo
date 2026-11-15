@@ -289,3 +289,37 @@ test("a Defaults binding made of commas does not backtrack exponentially (ReDoS)
   scan(`Defaults:${",".repeat(40)}\nDefaults:alice,bob env_reset\n`);
   assert.ok(performance.now() - t0 < 1000, "scan took over a second");
 });
+
+test("Defaults:ALIAS !authenticate expands the User_Alias, so its members' rules are passwordless", () => {
+  // Real defect (red team 2026-11-15): the binding was compared as the literal word ADMINS, so
+  // `ADMINS ALL=(ALL) ALL` was reported as asking for a password and nopasswd-all never fired.
+  const r = scan("User_Alias ADMINS = alice, bob\nDefaults:ADMINS !authenticate\nADMINS ALL=(ALL) ALL\n");
+  assert.ok(types(r).includes("nopasswd-all"));
+  assert.deepEqual(r.rootPaths.map((p) => [p.who, p.password]), [["alice, bob", false]]);
+  // A negated member is excluded from the binding.
+  const ex = scan("User_Alias ADMINS = alice, bob\nDefaults:ADMINS,!bob !authenticate\nbob ALL=(ALL) ALL\nalice ALL=(ALL) ALL\n");
+  assert.deepEqual(ex.rootPaths.map((p) => [p.who, p.password]), [["bob", true], ["alice", false]]);
+});
+
+test("a global Defaults !authenticate makes every rule passwordless, and a plain authenticate does not", () => {
+  assert.deepEqual(scan("Defaults !authenticate\ndave ALL=(ALL) ALL\n").rootPaths.map((p) => [p.who, p.password]), [["dave", false]]);
+  assert.deepEqual(scan("Defaults authenticate\ndave ALL=(ALL) ALL\n").rootPaths.map((p) => [p.who, p.password]), [["dave", true]]);
+});
+
+test("an @include names one file: another pasted file is not taken for it", () => {
+  const r = scanFiles([
+    { name: "/etc/sudoers", text: "@include /etc/sudoers.local\n" },
+    { name: "/etc/other", text: "bob ALL=(ALL) NOPASSWD: ALL\n" },
+  ]);
+  assert.ok(r.notes.some((n) => n.includes("/etc/sudoers.local was not pasted")));
+  assert.ok(r.notes.some((n) => n.includes("/etc/other is not included from /etc/sudoers")));
+});
+
+test("env_keep wildcards match by their own prefix only", () => {
+  assert.ok(!types(scan('Defaults env_keep += "HOME_*"\n')).includes("env-keep-dangerous"));
+  assert.ok(types(scan('Defaults env_keep += "LD_*"\n')).includes("env-keep-dangerous"));
+});
+
+test("negated-command-bypass names the subtracted commands", () => {
+  assert.match(one(scan("carol ALL=(ALL) ALL, !/usr/bin/su -\n"), "negated-command-bypass").detail, /ALL with !\/usr\/bin\/su - for carol/);
+});

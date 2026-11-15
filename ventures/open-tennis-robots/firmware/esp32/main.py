@@ -197,7 +197,8 @@ class FeederHw:
         self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0),
                                        getattr(config, "LIFT_JAM_BLANK_MS", 400), getattr(config, "LIFT_JAM_TRIP_MS", 10),
                                        getattr(config, "LIFT_JAM_REST_MS", 2000), getattr(config, "LIFT_JAM_RETRIES", 1),
-                                       getattr(config, "LIFT_RAMP_MS", 0))
+                                       getattr(config, "LIFT_RAMP_MS", 0), getattr(config, "LIFT_V_REF_MV", 0),
+                                       getattr(config, "LIFT_DUTY_MIN", 0.0), getattr(config, "LIFT_BUS_TAU_MS", 500))
         self.lift_sense = Pin(LIFT_SENSE_PIN, Pin.IN, Pin.PULL_UP)
         # Hopper agitator (cad/README.md, "Hopper agitator"): a gearmotor on a MOSFET (GPIO 2, PWM) stirs the tub's
         # outlet while balls are being fed, so a bridge of balls over it cannot leave the column empty.
@@ -372,7 +373,7 @@ class FeederHw:
         elif self.gate_rest_at is not None and now >= self.gate_rest_at:
             self.gate.pwm.duty_u16(0)     # back at the dead centre: rest unpowered
             self.gate_rest_at = None
-        self.lift_pwm.duty_u16(int(self.lift.update(now, self.lift_sense.value() == 0) * 65535))
+        self.lift_pwm.duty_u16(int(self.lift.update(now, self.lift_sense.value() == 0, self.battery_mv()) * 65535))
         self.agit_pwm.duty_u16(int(self.agit.update(now, self.feeding > 0 or self.gate_out) * 65535))
 
 

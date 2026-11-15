@@ -413,3 +413,23 @@ def test_swinburne_reproduced_exactly():
     assert e25.posterior(F(1), th["P(c|k)"], x["p_f_given_c"], x["p_f_given_not_c"]) == F(1, 2)
     assert e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], th["P(f|c&k)"], x["p_f_given_not_c"]) == F(1, 2)
     assert e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], x["p_f_given_c"], th["P(f|~c&k)"]) == F(1, 2)
+
+
+def test_mcgrew_reproduced_and_mixture_bound():
+    """E26: the McGrews' factors multiply to 10^44, and a shared explanation caps the disciples' factor at 1/q."""
+    import importlib.util
+    from fractions import Fraction as F
+    spec = importlib.util.spec_from_file_location(
+        "e26", Path(__file__).resolve().parent / "experiments" / "e26_mcgrew" / "run.py")
+    e26 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(e26)
+    assert e26.W * e26.PER_DISCIPLE ** e26.N_DISCIPLES * e26.PAUL == F(10) ** 44
+    assert e26.post(e26.PRIOR_R, F(10) ** 44) > F(9999, 10000)
+    for q in (F(1, 10), F(1, 1000), F(1, 10**20)):
+        bd = e26.bf_disciples_mixture(q)
+        assert bd <= 1 / q and bd > (1 / q) * F(99, 100)
+    assert e26.bf_disciples_mixture(F(0)) == F(10) ** 39
+    # 12 independent disciples reach 1/2 at the 1e-40 prior, 11 do not
+    assert e26.post(e26.PRIOR_R, e26.W * e26.PER_DISCIPLE ** 12 * e26.PAUL) > F(1, 2)
+    assert e26.post(e26.PRIOR_R, e26.W * e26.PER_DISCIPLE ** 11 * e26.PAUL) < F(1, 2)
+    assert e26.post(F(1, 4), F(50)) == F(50, 53)

@@ -348,13 +348,40 @@ test("11 teams, 3 games on 3 courts x 6 times: 22 waits to 0 from a stored odd d
 });
 
 test("odd leagues of 13 to 25 teams, 3 games on the least courts x 6 times: wait-free from stored designs (25 teams through the stored rows)", () => {
-  for (const [n, c] of [[13, 3], [15, 4], [17, 4], [19, 5], [21, 5], [25, 6]]) {
+  for (const [n, c] of [[13, 3], [15, 4], [17, 4], [19, 5], [21, 5], [25, 6], [27, 7]]) {
     if (!ODD_DESIGNS.some((d) => d.n === n)) continue;
     const s = build(n, c, 6, 3);
     assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
     perNight(s);
     assert.equal(nightWaits(s).idle, 0, `${n} teams on ${c} x 6`);
   }
+});
+
+test("odd leagues at 9 times: stored 9-slot designs on fewer courts than the 6-slot ones, wait-free", () => {
+  const nine = ODD_DESIGNS.filter((d) => d.times === 9);
+  assert.ok(nine.length >= 3);
+  for (const d of nine) {
+    // a 9-slot design is kept only when it saves courts over the 6-slot one
+    const six = ODD_DESIGNS.find((e) => e.n === d.n && e.times === 6);
+    if (six) assert.ok(d.courts < six.courts, `${d.n}: ${d.courts} x 9 beats ${six.courts} x 6`);
+  }
+  // 21 and 23 on 4, 27 on 5: 1-rotational round robins (eval/odd-cyclic.py), one night's layout shifted
+  for (const [n, c] of [[11, 2], [13, 2], [21, 4], [23, 4], [27, 5]]) {
+    const s = build(n, c, 9, 3);
+    assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
+    perNight(s);
+    assert.equal(nightWaits(s).idle, 0, `${n} teams on ${c} x 9`);
+    assert.ok(nightWaits(build(n, c, 9, 3, { waitFree: false })).idle > 0, `${n}: the plain layout keeps waits`);
+  }
+  // a 6-slot design still serves a league with 9 slots and its courts
+  assert.equal(nightWaits(build(11, 3, 9, 3)).idle, 0);
+});
+
+test("5 and 7 teams on 1 court and 7 on 2 courts x 9 times: proved to keep a wait", () => {
+  for (const [n, c] of [[5, 1], [7, 1], [7, 2]]) assert.equal(waitFreeProvedImpossible(n, 3, c, 9), true);
+  assert.equal(waitFreeProvedImpossible(9, 3, 2, 9), false);
+  const s = build(7, 2, 9, 3);
+  assert.ok(s.notices.some((x) => x.includes("need at least 3 courts") && x.includes("checked for every possible 7-team season on 2 courts")), s.notices.join(" | "));
 });
 
 test("7, 8 and 9 teams, 3 games on 2 courts x 6 times: proved to keep a wait, and the hint asks for 3 courts", () => {

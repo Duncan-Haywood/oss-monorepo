@@ -17,6 +17,10 @@ Usage (from ``ventures/photo-editing``)::
     python3 -m venv /tmp/v && /tmp/v/bin/pip install rawpy numpy
     PYTHONPATH=src /tmp/v/bin/python tools/nef_libraw_check.py FILE.NEF [...] [--engines native,python]
 
+Rows LibRaw leaves undecoded under the bottom of its per-model height are left out of the sensel and visible-height gates and
+reported as ``rows_libraw_leaves_undecoded`` (the Nikon 1 J5: 2 rows, which
+carry picture; ``eval/nikon-nef-split-row-2026-11-15.md``).
+
 Prints one JSON line per file and exits 1 if any sensel, the balance, the
 black level, the CFA or the visible area differs (the white level is reported, not gated: LibRaw
 takes some bodies' from a per-model table). Real files used on 2026-11-14: the
@@ -45,7 +49,15 @@ def check(path: Path, engines: list[str]) -> dict:
 
     data = path.read_bytes()
     lib = rawpy.imread(str(path))
-    ref = lib.raw_image
+    ref = lib.raw_image.copy()
+    sz = lib.sizes
+    # LibRaw's Nikon loader decodes rows 0..height-1 only (its per-model height) and never writes the
+    # rows under them (the Nikon 1 J5: 3,726 stored rows, 3,724 decoded; the rest is 0 in a fresh
+    # process and leftover memory after other files). Those rows are left out of the sensel gate
+    # and reported.
+    skipped = max(0, ref.shape[0] - int(sz.top_margin) - int(sz.height))
+    decoded = ref.shape[0] - skipped
+    out_skip = skipped
     out: dict = {"file": path.name, "camera": nef.camera_model(data)}
     for engine in engines:
         t = time.perf_counter()
@@ -53,7 +65,9 @@ def check(path: Path, engines: list[str]) -> dict:
         out[f"read_s_{engine}"] = round(time.perf_counter() - t, 2)
         ours = np.frombuffer(raw.values, dtype=np.uint16).reshape(raw.height, raw.width)
         same_shape = ours.shape == ref.shape
-        out[f"sensels_differing_{engine}"] = int((ours != ref).sum()) if same_shape else "shape differs"
+        out[f"sensels_differing_{engine}"] = (
+            int((ours[:decoded] != ref[:decoded]).sum()) if same_shape else "shape differs"
+        )
     out["sensels"] = int(ref.size)
     out["storage"] = raw.notes[0] if raw.notes else ""
     e = raw.ifd.entries
@@ -68,16 +82,17 @@ def check(path: Path, engines: list[str]) -> dict:
     out["cfa_ours"] = "".join(CFA_NAMES[p] for p in pat)
     out["cfa_libraw"] = "".join(CFA_NAMES[int(p)] for p in lib.raw_pattern.ravel())
     top, left, bottom, right = (int(v) for v in e[rd.TAG_ACTIVE_AREA])
-    sz = lib.sizes
     out["visible_ours"] = [left, right - left, bottom - top]
     out["visible_libraw"] = [int(sz.left_margin), int(sz.width), int(sz.height)]
+    out["rows_libraw_leaves_undecoded"] = out_skip
+    vis_lib = [int(sz.left_margin), int(sz.width), int(sz.height) + out_skip]
     out["white_ours"], out["white_libraw"] = int(e[rd.TAG_WHITE_LEVEL][0]), int(lib.white_level)
     out["ok"] = (
         all(out[f"sensels_differing_{en}"] == 0 for en in engines)
         and ours_wb == lib_wb
         and out["black_ours"] == out["black_libraw"]
         and out["cfa_ours"] == out["cfa_libraw"]
-        and out["visible_ours"] == out["visible_libraw"]
+        and out["visible_ours"] == vis_lib
     )
     return out
 

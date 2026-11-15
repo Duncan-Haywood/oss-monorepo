@@ -2486,11 +2486,70 @@ Rules, not fitted weights, so there is no tuning half to report (the SRD gain is
 even photos, +2 on the odd). Fixed 1002, 1073, 1082, 1177; broken 1134 (its card line
 reads 21.13 for 21.73). Wrong totals with no warning stay at 3 of 196. The CLI's
 `--four-pass` was not re-measured (no tesseract binary in this session). Still in the gap:
-"mount Due $2 17" (an amount split by a space), "Total before tip: $58.30", and photos where
+"mount Due $2 17" (an amount split by a space; read since, next section), "Total before tip: $58.30", and photos where
 no reading has any line with the amount. Per-photo readings, the SROIE OCR check and
 commands: [`eval/total-line-gaps-2026-11-15.md`](eval/total-line-gaps-2026-11-15.md).
 Tests: `receipt-crosscheck.test.mjs` ("no total line: the card line's amount", "a total's
 first digit read as a glued letter").
+
+### A total line with its decimal point lost (2026-11-15, later)
+
+Flagship item (5), "split amounts ($2 17)". On four SRD photos the only total line holding the
+right amount had lost its point: "TOTAL 184 47)" (in three readings of one photo), "esl TOTAL :
+92:22", "dount Due 9, 70", "mount Due $2 17". The reader saw no amount on those lines and fell
+back on a guess. Now, on a receipt written 12.50, a total line where no amount reads is read
+again for dollars, a space, comma or colon, and exactly two cents digits, as the line's last
+number after the total word (`splitDecimal` in `receipts.mjs`); a time, three digits after the
+gap or a euro sign is left alone, and the note asks for a check.
+
+| totals right | before | now |
+|---|---|---|
+| page, SRD US photos, 196 | 153 (78.1%) | **156 (79.6%)** |
+| SROIE OCR, 625 scans, two photo readings (held out) | 506 | 506 (one fixed, one broken) |
+| SROIE and CORD, the datasets' own text | 611; 749 / 96 / 92 | unchanged |
+
+Fixed 1018, 1080, 1112, 1157; broken 1182, whose first total (43.60, before a printed 18% tip)
+now reads and wins the vote over the last printed one (50.80). Wrong totals with no warning stay
+at 3 of 196. Written looking at all SRD photos; SROIE's OCR is the held-out check. CLI
+`--four-pass` not re-measured (no tesseract binary here). Per-photo lines and commands:
+[`eval/split-decimal-2026-11-15.md`](eval/split-decimal-2026-11-15.md). Test:
+`receipt-crosscheck.test.mjs` ("a total line with its decimal point lost ...").
+
+### Tax on receipt photos (2026-11-15)
+
+Flagship item (5). Earlier runs only measured the total. On the same 185 SRD photos that
+carry a tax, the page read **78 taxes right (42.2%)** and left 92 empty. Of the misses,
+31 had the right tax in another of the four readings, which the page never used, and 33
+had it in the text with nothing able to read it: `Taxes: 3.85`, `Tax 8.75% 1.11`,
+`TXTL .75`, `Tax 12,94`, and `Tax:: $0.70` overwritten by `Sbt1 w/Tax: $10.70` and then
+dropped.
+
+- **One text** (`readTax`): a rate beside the tax is not the amount, "Taxable" and
+  "w/Tax" lines are not tax lines, a printed "Total Tax" wins, and two tax lines (state
+  and resort, food and drink) are added when the subtotal plus their sum is the total.
+  A tax line that lost its decimal point is read with a note.
+- **Four readings** (`voteTax`): each reading's tax gets a vote, plus two when a subtotal
+  plus that tax is the total. A tax one digit off the total less the subtotal takes the
+  difference. A tax over 22% of the total is dropped. With no tax read anywhere, the
+  total less the subtotal is used when it is under 15% of the subtotal.
+- **The page** (`settleTax` in `photoocr.mjs`) writes the voted tax into the receipts
+  box as a `Tax` line and says so in the photo's status line.
+
+| SRD, 185 photos with a tax | before | now |
+|---|---|---|
+| page, tax right | 78 (42.2%) | **130 (70.3%)** |
+| page, tax wrong | 15 | 13 |
+| even / odd photos right | 40 / 38 | 63 / 67 |
+| page totals, SRD 196 (unchanged by construction) | 156 | 156 |
+| CORD tax, dataset's own text (train / validation / test) | 316 / 46 / 37 | 316 / 46 / 37 |
+
+The odd half is not a clean held-out test: the first listing of misses showed both halves.
+CORD's 404 labelled taxes did not move, and that set is a different country and layout.
+SROIE has no tax labels. The CLI's `--four-pass` takes the same path but was not
+re-measured (no tesseract binary here). Left: 28 photos with the tax nowhere in any
+reading, and receipts with two or three tax lines where OCR lost one. Details and
+commands: [`eval/receipt-tax-2026-11-15.md`](eval/receipt-tax-2026-11-15.md). Tests:
+`receipt-tax.test.mjs` (11).
 
 ## Budget against actual
 

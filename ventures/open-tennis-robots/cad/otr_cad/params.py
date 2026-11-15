@@ -301,6 +301,86 @@ def _seg_dist_2d(q: tuple, a: tuple, b: tuple) -> float:
     return math.hypot(q[0] - a[0] - t * vx, q[1] - a[1] - t * vz)
 
 
+def _count_below(rows: list, mass: list, lam: float) -> int:
+    """Eigenvalues of K x = lam M x below `lam` (Sylvester's inertia: the negative pivots of an LDL^T of K - lam M).
+
+    K is symmetric, given as its lower triangle in profile form: rows[i] = (first column j0, [K[i][j0], ..., K[i][i]]);
+    M is diagonal. Fill stays inside each row's profile, so a banded matrix with a few dense border rows (the lift
+    belt's loop, both of whose ends sit on the drive pulley) costs little. No pivoting: a zero pivot is nudged
+    (2026-11-15, `Feeder.lift_strand_modes`)."""
+    n = len(rows)
+    first = [r[0] for r in rows]
+    lrow: list = [None] * n
+    d = [0.0] * n
+    neg = 0
+    for i in range(n):
+        j0, vals = rows[i]
+        li = list(vals)
+        li[-1] -= lam * mass[i]
+        for j in range(j0, i):
+            lj, fj = lrow[j], first[j]
+            s = li[j - j0]
+            for k in range(max(j0, fj), j):
+                s -= li[k - j0] * d[k] * lj[k - fj]
+            li[j - j0] = s / d[j]
+        s = li[-1]
+        for k in range(j0, i):
+            s -= li[k - j0] * li[k - j0] * d[k]
+        if s == 0.0:
+            s = -1e-300
+        d[i] = s
+        lrow[i] = li
+        neg += s < 0.0
+    return neg
+
+
+def _modes_below(rows: list, mass: list, f_max_hz: float, tol: float = 1e-5) -> list:
+    """Every natural frequency (Hz) of K x = lam M x under `f_max_hz`, by bisection on `_count_below`."""
+    lam_max = (2 * math.pi * f_max_hz) ** 2
+    n = _count_below(rows, mass, lam_max)
+    out = []
+    lo = 0.0
+    for idx in range(n):
+        a, b = lo, lam_max
+        while b - a > tol * max(b, 1e-9):
+            c = 0.5 * (a + b)
+            if _count_below(rows, mass, c) > idx:
+                b = c
+            else:
+                a = c
+        lam = 0.5 * (a + b)
+        out.append(math.sqrt(max(lam, 0.0)) / (2 * math.pi))
+        lo = a
+    return out
+
+
+def _string_beam_rows(h: float, tension: list, ei: float) -> list:
+    """Finite-difference stiffness of a pinned-pinned tensioned beam on N + 1 nodes h metres apart, unknowns the N - 1
+    interior deflections: -(T w')' + EI w'''' with tension[i] the tension between node i and i + 1, and w = w'' = 0 at
+    both ends (a ghost node w_-1 = -w_1). Each row is times h, so the masses are node masses in kg."""
+    n = len(tension) - 1
+    b = ei / h ** 3
+    rows = []
+    for i in range(n):                                 # interior node i + 1
+        t_l, t_r = tension[i], tension[i + 1]
+        diag = (t_l + t_r) / h + 6 * b
+        if i == 0:
+            diag -= b                                  # pinned end's ghost node
+        if i == n - 1:
+            diag -= b
+        j0 = max(0, i - 2)
+        vals = []
+        for j in range(j0, i + 1):
+            if j == i - 2:
+                vals.append(b)
+            elif j == i - 1:
+                vals.append(-t_l / h - 4 * b)
+            else:
+                vals.append(diag)
+        rows.append((j0, vals))
+    return rows
+
+
 @functools.lru_cache(maxsize=4096)
 def _lead_range(f: tuple, df: tuple, e: tuple, de: tuple, keep_out: tuple, r_min: float, rb: float,
                 step: float = 5.0, hmax: float = 220.0, n: int = 40, target: float | None = None) -> tuple | None:
@@ -1082,7 +1162,8 @@ class Feeder:
     lift_shunt_ohm: float = 0.05      # low-side shunt between the MOSFET module's source and ground (3 W, 1%)
     lift_shunt_w: float = 3.0
     lift_sense_r1: float = 100e3      # comparator's reference divider from 3.3 V: top (1%)
-    lift_sense_r2: float = 2.7e3      # and bottom (1%): 3.9k before the slip coupling (2026-11-15), now under its slide
+    lift_sense_r2: float = 2.4e3      # and bottom (1%): 3.9k before the slip coupling, 2.7k until the duty followed the
+                                      # battery (2026-11-15): the trip rises 1/duty on a full pack and must stay under the slide
     lift_sense_rc_s: float = 1.0e-3   # 10k + 100 nF from the shunt to the comparator: averages the 20 kHz PWM
     lift_sense_offset_v: float = 0.009  # LM393 input offset over temperature, worst case (datasheet: 9 mV)
     lift_rail_tol: float = 0.03       # 3.3 V rail
@@ -1096,6 +1177,10 @@ class Feeder:
     lift_blank_factor: float = 3.0    # blanking over the longest a normal start stays over the trip current
     lift_ramp_ms: float = 100.0       # config LIFT_RAMP_MS: each start ramps the duty up this long (2026-11-15, the jaw
                                       # coupling's play rang a switched start to 2.3x its torque; tests/lift_jam_sweep.py)
+    lift_v_ref: float = 24.0          # config LIFT_V_REF_MV / 1000: over it the duty is lift_duty x lift_v_ref / battery, so the
+                                      # belt keeps its 24 V speed to 29.2 V (2026-11-15, "Lift duty follows the battery"); 0: fixed
+    lift_duty_min: float = 0.82       # config LIFT_DUTY_MIN: the regulated duty's floor (24 / 29.2 = 0.822); the jam rules are
+                                      # taken at it, so a reading over the charger's voltage cannot lift the trip further
     ball_k_n_m: float = 14300.0       # a ball's stiffness: ITF forward deformation 5.6-7.4 mm under 8.165 kg; the stiff end
     # Lift slip coupling (2026-11-15, `lift_slip_design`, `check_lift_slip`; cad `lift_slip_hub`; tests/lift_jam_sweep.py).
     # The cutoff stops a held stall, but the gearmotor's rotor (18 kg at the belt through 30:1) met a jammed ball within
@@ -1103,7 +1188,8 @@ class Feeder:
     # between the gearmotor's shaft and the drive pulley lets the rotor run on while the belt stops: the cap then sees
     # the hub's slip torque plus the belt's own 1.4 kg, and the motor's current while it slides is over the cutoff's
     # trip, so the cutoff still cuts and latches. Friction figures are assumptions; the slip torque is set on the bench.
-    lift_slip_nm: float = 0.9         # slip torque the hub is set to (bench: a belt strip round the pulley, 71 N on a scale)
+    lift_slip_nm: float = 1.0         # slip torque the hub is set to (bench: a belt strip round the pulley, 79 N on a scale;
+                                      # 0.9 N m, 71 N, until the duty followed the battery, 2026-11-15)
     lift_slip_tol: float = 0.2        # +- on it: setting, wear, damp, temperature (assumption)
     lift_slip_kinetic: float = 0.8    # sliding over sticking friction of the facing on aluminium (assumption)
     lift_slip_mu: float = 0.3         # facing on the pulley's face, sliding (assumption: a fibre or cork-composite washer)
@@ -1192,6 +1278,8 @@ class Feeder:
     lift_tooth_g_mpa: float = 15.0    # PU's shear modulus (92 Shore A class; assumption): sets the tooth's stiffness
     lift_tooth_g_sweep: tuple = (8.0, 15.0, 40.0)
     lift_tooth_jump_factor: float = 1.5   # wrap's hold over the flanks' push-out at the nominal figures
+    # Strands as strings (2026-11-15; cad/README.md "Lift strand modes"; `lift_strand_modes`, tests/lift_strand_sweep.py)
+    lift_flight_kg: float = 0.005     # a welded cleat and its printed cap (as `lift_motor_model` counts them; weigh one)
     lift_coupler_hub_l: float = 10.5  # each aluminium hub's length (the bore length above)
     lift_shaft_clear: float = 1.5     # coupling to the bearing's flange, and to the gearmotor's face at least
     lift_shaft_allow_mpa: float = 80.0  # stainless D shaft in rotating bending at the running load (fatigue; assumption)
@@ -1685,6 +1773,7 @@ class Feeder:
         bad += self.check_lift_jam()
         bad += self.check_lift_slip()
         bad += self.check_lift_tooth()
+        bad += self.check_lift_strand()
         bad += self.check_lift_shaft()
         bad += self.check_bearing_fit_ring()
         bad += self.check_agitator()
@@ -3797,8 +3886,9 @@ class Feeder:
     def lift_tension_design(self) -> dict:
         """Tension, take-up travel and setting figures for the top pulley.
 
-        Tension: the bottom pulley drives, so the down strand is the slack one there. With a static tension T0 at the
-        drive pulley the strands carry T0 +- pull / 2; `lift_tension_factor` = 1 keeps half the pull in the slack strand
+        Tension: the bottom pulley drives and pulls in the down strand, so running, the down strand is the tight one
+        there and the up strand, which it pays out, the slack one (until 2026-11-15 this said the reverse; the figures
+        are symmetric, so none changed). With a static tension T0 at the drive pulley the strands carry T0 +- pull / 2; `lift_tension_factor` = 1 keeps half the pull in the slack strand
         (a 16-tooth pulley has only 8 teeth in mesh, so it must not go slack). Each strand also hangs its own weight from
         the top pulley, so the top pulley carries 2 (T0 + strand weight).
 
@@ -3807,8 +3897,9 @@ class Feeder:
         adds half that to the centre distance. The head must come down to the shortest belt's free centre less
         `lift_install_mm` (the belt slips on with the head there) and up to the longest belt's tensioned centre.
 
-        Setting it: a strand of length L, mass m per metre and tension T rings at f = sqrt(T / m) / (2 L); pushed
-        sideways at mid-span with a force P it moves P L / (4 T).
+        Setting it: a bare strand of length L, mass m per metre and tension T rings at f = sqrt(T / m) / (2 L)
+        (`ring_hz`); with the flights' mass it rings lower, `lift_pluck_design`, which is the figure a builder counts.
+        Pushed sideways at mid-span with a force P it moves P L / (4 T), whatever its mass.
         """
         d = self.lift_design()
         g = 9.81
@@ -3972,6 +4063,13 @@ class Feeder:
                 "m_eff_kg": j / (r * r), "l_h": self.lift_motor_mh / 1000,
                 "tau_e_s": self.lift_motor_mh / 1000 / rw, "tau_m_s": j * rw / (kt * ke)}
 
+    def lift_duty_at(self, volts: float) -> float:
+        """The lift's running duty on a battery at `volts` (firmware `LiftRun.run_duty`): `lift_duty`, scaled by
+        `lift_v_ref` / volts above `lift_v_ref`, never under `lift_duty_min`; `lift_v_ref` 0 keeps it fixed."""
+        if not self.lift_v_ref:
+            return self.lift_duty
+        return self.lift_duty * max(self.lift_duty_min, min(1.0, self.lift_v_ref / volts))
+
     def lift_jam_cutoff(self) -> dict:
         """Trip current, its spread, and what it does to a start and to a jam (2026-11-15).
 
@@ -3987,7 +4085,13 @@ class Feeder:
         same on the real firmware with the electrical lag and the filter.
 
         Stall: with the cutoff a stalled motor is cut after at most blank + trip + one 10 ms tick (+ the filter), and
-        retried `lift_jam_retries` times; without it the stall holds for the run-on (and again after every ball fed)."""
+        retried `lift_jam_retries` times; without it the stall holds for the run-on (and again after every ball fed).
+
+        Duty (2026-11-15, "Lift duty follows the battery"): the shunt sees current only while the MOSFET conducts, so
+        the trip in motor amps is the reference over duty x R_shunt, and a duty held down on a full pack raises it. The
+        motor's mean voltage is duty x V less I x (winding + lead) less duty x I x R_shunt. So every rule is taken at
+        both packs at its own duty (`lift_duty_at`): the stall margin at the worse of the hot 24 V and hot 29.2 V
+        stalls, the start at the worse of the two cold starts. `trip_*_a` stay the full-duty figures (at the cut)."""
         m = self.lift_motor_model()
         g = lambda tol: 3.3 * (1 + tol * self.lift_rail_tol)          # noqa: E731
         def vref(sign):
@@ -3995,17 +4099,31 @@ class Feeder:
             r2 = self.lift_sense_r2 * (1 + sign * self.lift_res_tol)
             return g(sign) * r2 / (r1 + r2) + sign * self.lift_sense_offset_v
         v_nom = 3.3 * self.lift_sense_r2 / (self.lift_sense_r1 + self.lift_sense_r2)
-        to_a = 1 / (self.lift_shunt_ohm * self.lift_duty)
+        # the lowest duty the firmware can drive is the floor, which the full pack's duty sits at or over
+        d_lo = self.lift_duty_at(self.battery_v_min)
+        d_hi = self.lift_duty * self.lift_duty_min if self.lift_v_ref else self.lift_duty
+        to_a = 1 / (self.lift_shunt_ohm * d_lo)
         i_nom, i_lo, i_hi = v_nom * to_a, vref(-1) * to_a, vref(1) * to_a
         d = self.lift_design()
         i_run = self.lift_motor_noload_a + d["torque_nm"] / m["kt"]
         trip_nm_lo = m["kt"] * (i_lo - self.lift_motor_noload_a)
         hot_ohm = m["winding_ohm"] * (1 + 0.00393 * self.lift_hot_rise_k)
-        series = m["lead_ohm"] + self.lift_shunt_ohm
-        i_stall_hot = self.battery_v_min / (hot_ohm + series)
-        i_stall_cold = self.battery_v_max / (m["winding_ohm"] + series)
-        start_over_s = (m["tau_m_s"] * math.log((i_stall_cold - i_run) / (i_lo - i_run))
-                        if i_lo > i_run and i_stall_cold > i_lo else math.inf)
+
+        def stall(v, duty, ohm):
+            return duty * v / (ohm + m["lead_ohm"] + duty * self.lift_shunt_ohm)
+
+        def over_s(i_stall, i_trip):
+            if not (i_trip > i_run and i_stall > i_trip):
+                return math.inf if i_trip <= i_run else 0.0
+            return m["tau_m_s"] * math.log((i_stall - i_run) / (i_trip - i_run))
+
+        packs = ((self.battery_v_min, d_lo), (self.battery_v_max, d_hi))
+        margins = [stall(v, du, hot_ohm) / (i_hi * d_lo / du) for v, du in packs]
+        starts = [over_s(stall(v, du, m["winding_ohm"]), i_lo * d_lo / du) for v, du in packs]
+        i_stall_hot = stall(self.battery_v_min, d_lo, hot_ohm)
+        i_stall_cold = max(stall(v, du, m["winding_ohm"]) for v, du in packs)
+        start_over_s = max(starts)
+        i_unreg = stall(self.battery_v_max, self.lift_duty, m["winding_ohm"])   # no good battery reading: fixed duty
         dwell_s = (self.lift_jam_blank_ms + self.lift_jam_trip_ms + 10.0) / 1000 + 3 * self.lift_sense_rc_s
         stall_w = i_stall_cold ** 2 * m["winding_ohm"]
         run_on_s = d["run_on_s"]
@@ -4016,12 +4134,14 @@ class Feeder:
         return {
             "vref_v": v_nom, "trip_a": i_nom, "trip_lo_a": i_lo, "trip_hi_a": i_hi, "run_a": i_run,
             "trip_nm_lo": trip_nm_lo, "trip_factor": trip_nm_lo / d["torque_nm"],
-            "stall_hot_a": i_stall_hot, "stall_cold_a": i_stall_cold, "stall_margin": i_stall_hot / i_hi,
+            "stall_hot_a": i_stall_hot, "stall_cold_a": i_stall_cold, "stall_margin": min(margins),
+            "stall_margin_lo_v": margins[0], "stall_margin_hi_v": margins[1], "duty_lo_v": d_lo, "duty_hi_v": d_hi,
+            "trip_hi_a_full_pack": i_hi * d_lo / d_hi, "start_over_lo_v_s": starts[0], "start_over_hi_v_s": starts[1],
             "start_over_s": start_over_s, "blank_s": self.lift_jam_blank_ms / 1000, "dwell_s": dwell_s,
             "stall_w": stall_w, "attempt_j": stall_w * dwell_s, "cutoff_j": stall_w * dwell_s * (1 + self.lift_jam_retries),
             "uncut_j": stall_w * run_on_s, "run_on_s": run_on_s, "fuse_a": fuse, "fuse_ratio": i_stall_hot / fuse,
-            "shunt_stall_w": i_stall_cold ** 2 * self.lift_shunt_ohm, "shunt_run_w": i_run ** 2 * self.lift_shunt_ohm,
-            "shunt_drop_v": i_stall_cold * self.lift_shunt_ohm, "plate_allow_n": plate_n, "weld_allow_n": weld_n,
+            "shunt_stall_w": i_unreg ** 2 * self.lift_shunt_ohm, "stall_unregulated_a": i_unreg, "shunt_run_w": i_run ** 2 * self.lift_shunt_ohm,
+            "shunt_drop_v": i_unreg * self.lift_shunt_ohm, "plate_allow_n": plate_n, "weld_allow_n": weld_n,
             "motor": m,
         }
 
@@ -4032,8 +4152,9 @@ class Feeder:
             bad.append(f"lift jam cutoff can trip at {c['trip_lo_a']:.2f} A ({c['trip_nm_lo']:.2f} N m), under "
                        f"{self.lift_torque_factor:g}x the full belt's torque: raise lift_sense_r2")
         if c["stall_margin"] < self.lift_stall_trip_margin:
-            bad.append(f"lift jam cutoff may never trip: a hot stall at {self.battery_v_min:g} V draws {c['stall_hot_a']:.2f} A, "
-                       f"{c['stall_margin']:.2f}x the highest trip ({c['trip_hi_a']:.2f} A); "
+            v = self.battery_v_min if c["stall_margin_lo_v"] <= c["stall_margin_hi_v"] else self.battery_v_max
+            bad.append(f"lift jam cutoff may never trip: a hot stall at {v:g} V, at its duty, is only "
+                       f"{c['stall_margin']:.2f}x the highest trip there; "
                        f"{self.lift_stall_trip_margin:g}x wanted: lower lift_sense_r2 or raise lift_shunt_ohm")
         if not math.isfinite(c["start_over_s"]):
             bad.append("lift jam cutoff's trip is under the full belt's running current: every run would trip")
@@ -4101,7 +4222,7 @@ class Feeder:
         return {
             "j_motor": j_m, "j_belt": j_b, "belt_share": share, "start_nm": t_start, "stick_lo_nm": lo,
             "stick_hi_nm": hi, "slide_lo_nm": slide_lo, "slide_hi_nm": slide_hi, "start_factor": lo / t_start,
-            "belt_factor": lo / t_belt, "slide_lo_a": i_slide_lo, "trip_margin": i_slide_lo / c["trip_hi_a"],
+            "belt_factor": lo / t_belt, "slide_lo_a": i_slide_lo, "trip_margin": i_slide_lo / c["trip_hi_a_full_pack"],
             "peak_n": peak, "plate_allow_n": c["plate_allow_n"],
             "plate_margin": c["plate_allow_n"] / peak, "set_n": self.lift_slip_nm / r, "set_lo_n": lo / r,
             "set_hi_n": hi / r, "r_eff_mm": r_eff * 1000, "spring_n": spring_n, "slide_w": slide_w,
@@ -4122,7 +4243,8 @@ class Feeder:
                        f"belt's torque: raise lift_slip_nm")
         if s["trip_margin"] < self.lift_slip_trip_margin:
             bad.append(f"lift slip hub sliding at {s['slide_lo_nm']:.2f} N m draws {s['slide_lo_a']:.2f} A, "
-                       f"{s['trip_margin']:.2f}x the cutoff's highest trip ({self.lift_slip_trip_margin:g}x wanted): "
+                       f"{s['trip_margin']:.2f}x the cutoff's highest trip at the lowest duty "
+                       f"({self.lift_slip_trip_margin:g}x wanted): "
                        f"a jam would slide unseen; lower lift_sense_r2 or raise lift_slip_nm")
         if s["peak_n"] > s["plate_allow_n"]:
             bad.append(f"lift slip hub lets a jam put {s['peak_n']:.0f} N on a flight cap, over its plate's "
@@ -4253,8 +4375,9 @@ class Feeder:
     def lift_belt_model(self, cspec_factor: float = 1.0) -> dict:
         """The belt's stretch as a fourth inertia (2026-11-15; cad/README.md "Lift belt stretch"; tests/lift_jam_sweep.py).
 
-        The belt loop leaves the drive pulley on the up (tight) strand and comes back to it on the down (slack) strand,
-        so the drive pulley holds both ends. Each strand, `centre_mm` long, is c_spec / centre stiff along its length.
+        The belt loop leaves the drive pulley on the up strand and comes back to it on the down strand, so the drive
+        pulley holds both ends. The pulley pulls the down strand in, so that is the tight one and the up strand, paid
+        out, the slack one (until 2026-11-15 this said the reverse; the model is symmetric, so no figure changed). Each strand, `centre_mm` long, is c_spec / centre stiff along its length.
         Turning the pulley by x (at its pitch radius) against the rest of the loop pulls the tight strand by x and pays
         the slack one out by x: tensions T0 + k x and T0 - k x, each floored at zero (the slack strand goes slack once
         k x passes T0, and then only the tight one holds). T0 is the static tension `lift_tension_design` sets.
@@ -4365,6 +4488,234 @@ class Feeder:
                        f"against the flanks' {d['push_n']:.0f} N push-out ({d['jump_margin']:.2f}x, "
                        f"{self.lift_tooth_jump_factor:g}x wanted)")
         return bad
+
+    # ---- lift strands' sideways modes and the loop's axial modes (2026-11-15; cad/README.md "Lift strand modes") ----
+    def lift_strand_tension(self, strand: str, loaded_every: int = 1, t0_factor: float = 1.0,
+                            running: bool = True) -> dict:
+        """Tension along one strand, bottom (drive pulley) to top, at h = flight pitch / `LIFT_FD_PER_PITCH` spacing.
+
+        The drive pulley is at the bottom and turns so the up strand leaves it: the belt it pulls in is the down strand,
+        so running, the down strand is the tight one at the drive pulley (T0 + P / 2) and the up strand the slack one
+        (T0 - P / 2), P the loaded flights' pull (`lift_design` per ball: weight, rod and strip friction). Going up,
+        each strand adds its own belt and flight weight, and the up strand each loaded flight's pull too, so both meet
+        the top pulley at T0 + P / 2 + their weight. Flights sit half a pitch off each pulley's tangent point, a ball on
+        every `loaded_every`-th flight of the up strand (0: none). Stopped, P is 0 and the friction goes."""
+        d = self.lift_design()
+        g = 9.81
+        span = d["centre_mm"] / 1000
+        pitch = d["flight_pitch_mm"] / 1000
+        npp = self.LIFT_FD_PER_PITCH
+        h = pitch / npp
+        n = max(4, round(span / h))
+        h = span / n
+        fl_nodes = [i for i in range(1, n) if (i - npp // 2) % npp == 0]
+        up_loaded = set(fl_nodes[::loaded_every]) if loaded_every else set()     # the up strand's, either way
+        loaded = up_loaded if strand == "up" else set()
+        per_ball = d["per_ball_n"] if running else self.ball_g / 1000 * g
+        pull = per_ball * len(up_loaded)
+        t0 = self.lift_tension_factor * d["pull_n"] * t0_factor     # as `lift_tension_design` sets it
+        t = t0 + (pull / 2 if strand == "down" else -pull / 2)
+        w = self.lift_belt_kg_m * g * h
+        tension = []
+        for i in range(n):                             # segment from node i to node i + 1
+            if i > 0 and i in fl_nodes:
+                t += self.lift_flight_kg * g
+                if i in loaded:
+                    t += per_ball
+            tension.append(t + w * (i + 0.5))
+        return {"h_m": h, "n": n, "span_m": span, "tension": tension, "flight_nodes": fl_nodes, "loaded_nodes": sorted(loaded),
+                "pull_n": pull, "t_bottom_n": tension[0], "t_top_n": tension[-1], "t_min_n": min(tension)}
+
+    LIFT_FD_PER_PITCH = 16              # finite-difference nodes per flight pitch (9.4 mm): mode 40 within about 1%
+
+    def lift_strand_modes(self, strand: str = "down", axis: str = "flat", loaded_every: int = 1,
+                          t0_factor: float = 1.0, edge_ei_factor: float = 1.0, ball_moves: bool = True,
+                          pin_loaded: bool = False, running: bool = True, f_max_hz: float = 100.0) -> dict:
+        """Sideways (string) modes of one strand between the pulleys' tangent points, pinned there.
+
+        `axis` "flat" moves the belt off its face (toward the balls or the spine), "edge" across its width. The strand
+        is a tensioned beam: tension from `lift_strand_tension`, the belt's mass per metre, each flight's 5 g, and on
+        the up strand a ball on each loaded flight when `ball_moves` (across the width a ball sits on the finger and is
+        free in the channel's 3 mm, so it goes with the belt or, sliding, does not: both are run). Bending stiffness:
+        flat, polyurethane alone (E = 3 G, the tooth's shear modulus) over the belt's thickness; edge, the steel cords
+        spread across the width, c_spec w^2 / 12, times `edge_ei_factor` (the cords' real spread is unread; PU alone,
+        E t w^3 / 12, is the floor). `pin_loaded`: the loaded up strand off its face, where each loaded flight's pad is
+        pressed onto the spine's strip by its ball's moment and the ball is held by the front rod, so those flights
+        are nodes (a penalty spring) and the spans between them ring on their own."""
+        tp = self.lift_strand_tension(strand, loaded_every, t0_factor, running)
+        h, n = tp["h_m"], tp["n"]
+        w_m, t_m = self.lift_belt_w / 1000, self.lift_belt_t / 1000
+        e_pu = 3 * self.lift_tooth_g_mpa * 1e6
+        if axis == "flat":
+            ei = e_pu * w_m * t_m ** 3 / 12
+        else:
+            ei_cord = self.lift_belt_cspec_n * w_m ** 2 / 12
+            ei = max(e_pu * t_m * w_m ** 3 / 12, ei_cord * edge_ei_factor)
+        rows = _string_beam_rows(h, tp["tension"], ei)
+        mass = [self.lift_belt_kg_m * h] * (n - 1)
+        for i in tp["flight_nodes"]:
+            mass[i - 1] += self.lift_flight_kg
+            if i in tp["loaded_nodes"] and ball_moves and not pin_loaded:
+                mass[i - 1] += self.ball_g / 1000
+        if pin_loaded:
+            for i in tp["loaded_nodes"]:
+                j0, vals = rows[i - 1]
+                rows[i - 1] = (j0, vals[:-1] + [vals[-1] + 1e9])
+        modes = _modes_below(rows, mass, f_max_hz) if tp["t_min_n"] > 0 else []
+        c = math.sqrt(min(tp["tension"]) / self.lift_belt_kg_m) if tp["t_min_n"] > 0 else 0.0
+        return {"modes_hz": modes, "ei_nm2": ei, "t_bottom_n": tp["t_bottom_n"], "t_top_n": tp["t_top_n"],
+                "t_min_n": tp["t_min_n"], "pull_n": tp["pull_n"], "loaded": len(tp["loaded_nodes"]),
+                "wave_m_s": c, "slack": tp["t_min_n"] <= 0}
+
+    def lift_pluck_design(self) -> dict:
+        """The tension-setting figure (2026-11-15): the stopped, empty strand's fundamental from `lift_strand_modes`,
+        with the flights' mass and the strand's own weight in the tension. The bare formula sqrt(T0 / m) / 2L that
+        `lift_tension_design` gives (`ring_hz`) leaves out the 32 flights' 5 g each, 0.033 kg/m on top of the belt's
+        0.085, so it reads high; a builder who tensions to it sets (bare / real)^2 times T0. A mode's frequency is the
+        same wherever the strand is plucked."""
+        t = self.lift_tension_design()
+        f = self.lift_strand_modes("down", "flat", loaded_every=0, running=False, f_max_hz=6.0)["modes_hz"]
+        return {"pluck_hz": f[0], "second_hz": f[1], "bare_hz": t["ring_hz"],
+                "over_tension": (t["ring_hz"] / f[0]) ** 2, "t0_n": t["t0_n"]}
+
+    def lift_speed_range(self) -> dict:
+        """The belt's speed as a share of nominal (`lift_motor_rpm`), lowest at the 24 V cut with every flight loaded
+        (the motor's resistance and its lead's drop under the full belt's current), highest on the charger's 29.2 V
+        with an empty belt (no-load current), each at its duty (`lift_duty_at`). At a fixed duty (`lift_v_ref` 0) the
+        speed followed the battery, 0.91 to 1.23; held to `lift_v_ref` it spans only the load and the IR drop
+        (2026-11-15, "Lift duty follows the battery"). `fixed_lo`/`fixed_hi` are the fixed duty's figures."""
+        m = self.lift_motor_model()
+        d = self.lift_design()
+        r = m["winding_ohm"] + m["lead_ohm"]
+        w0 = m["noload_rad_s"]
+        i_full = self.lift_motor_noload_a + d["torque_nm"] / m["kt"]
+
+        def speed(v, duty, i):
+            return (v * duty - i * (r + duty * self.lift_shunt_ohm)) / m["ke"] / w0
+        lo = speed(self.supply_v, self.lift_duty_at(self.supply_v), i_full)
+        hi = speed(self.battery_v_max, self.lift_duty_at(self.battery_v_max), self.lift_motor_noload_a)
+        f_lo = speed(self.supply_v, self.lift_duty, i_full)
+        f_hi = speed(self.battery_v_max, self.lift_duty, self.lift_motor_noload_a)
+        return {"lo": lo, "hi": hi, "i_full_a": i_full, "fixed_lo": f_lo, "fixed_hi": f_hi}
+
+    def lift_strand_excitations(self, speed_factor: float = 1.0) -> dict:
+        """What shakes a strand, Hz, at `speed_factor` x the belt's nominal speed. Direct: flights passing a point
+        (each one bumps onto and off the pulleys, and every loaded one onto the strip) and their 2nd and 3rd
+        harmonics, balls at the inlet's highest rate, a pulley's turn (run-out), the teeth meshing and twice that.
+        Tension: the drive's torsional modes with the hub stuck (`lift_belt_model`, 38 and 78 Hz) shake both strands'
+        tension, which drives a string mode at half the shaking frequency hardest (principal parametric resonance)
+        and at the same frequency next; and the loaded flights reaching the top shake it at the ball rate."""
+        d = self.lift_design()
+        v = d["speed_m_s"] * speed_factor
+        f_fl = v / (d["flight_pitch_mm"] / 1000)
+        b = self.lift_belt_model()
+        return {"flight": f_fl, "flight_x2": 2 * f_fl, "flight_x3": 3 * f_fl, "ball": f_fl / d["flights_per_ball"],
+                "pulley_rev": v / (math.pi * self.lift_pd / 1000), "mesh": v / (self.lift_belt_pitch / 1000),
+                "mesh_x2": 2 * v / (self.lift_belt_pitch / 1000),
+                "drive_half": b["f_stuck_hz"] / 2, "drive": b["f_stuck_hz"],
+                "drive_upper_half": b["f_upper_hz"] / 2, "drive_upper": b["f_upper_hz"]}
+
+    def lift_belt_axial_modes(self, loaded_every: int = 1, cspec_factor: float = 1.0, stuck: bool = True,
+                              balls_on_up: bool = True, f_max_hz: float = 150.0) -> dict:
+        """The belt loop's stretch modes with its mass where it really is (the open item after "Lift belt stretch").
+
+        The loop runs from the drive pulley up the up strand, over the top pulley (half a wrap, free to turn: its own
+        inertia is left out, as in `lift_belt_model`) and down the down strand back to the drive pulley, as a bar of
+        c_spec on nodes h apart, flights' 5 g every pitch all round, a ball on every `loaded_every`-th flight of the up
+        strand (or, `balls_on_up` False, the same balls spread evenly round the loop, which is what the lumped model
+        assumes). Both ends sit on the drive pulley (at its pitch radius), which with the shaft side and the half wrap
+        on it is one mass; `stuck` couples it through the jaw coupling to the rotor (the hub stuck), else the pulley is
+        held. The first held mode is what `lift_belt_model`'s `f_belt_hz` lumps; stuck, the first two are its
+        `f_stuck_hz` and `f_upper_hz`."""
+        d = self.lift_design()
+        cm = self.lift_coupler_model()
+        r = self.lift_pd / 2000
+        span = d["centre_mm"] / 1000
+        wrap = math.pi * r
+        total = 2 * span + wrap
+        pitch = d["flight_pitch_mm"] / 1000
+        npp = self.LIFT_FD_PER_PITCH // 2
+        n = max(8, round(total / (pitch / npp)))
+        h = total / n
+        ea = self.lift_belt_cspec_n * cspec_factor
+        mass = [self.lift_belt_kg_m * h] * (n - 1)     # interior nodes 1 .. n - 1 (s = i h from the pulley, up strand first)
+        n_fl = d["flights"]
+        fl_s = [(k + 0.5) * pitch for k in range(n_fl) if (k + 0.5) * pitch < total]
+        up_fl = [s for s in fl_s if s < span]
+        loaded = up_fl[::loaded_every] if loaded_every else []
+        ball_kg = self.ball_g / 1000
+        for s in fl_s:
+            mass[min(n - 2, max(0, round(s / h) - 1))] += self.lift_flight_kg
+        if balls_on_up:
+            for s in loaded:
+                mass[min(n - 2, max(0, round(s / h) - 1))] += ball_kg
+        else:
+            spread = ball_kg * len(loaded) / (n - 1)
+            mass = [m + spread for m in mass]
+        k = ea / h
+        rows = []
+        for i in range(n - 1):
+            j0 = max(0, i - 1)
+            rows.append((j0, [-k, 2 * k] if i > 0 else [2 * k]))
+        # the pulley: both ends of the loop on it, the shaft side and the belt on its half wrap
+        m_p = cm["j_shaft"] / r ** 2 + self.lift_belt_kg_m * wrap
+        p_row = [0.0] * (n - 1) + [2 * k]
+        p_row[0] -= k
+        p_row[n - 2] -= k
+        if stuck:
+            kc = cm["k_nm_rad"] / r ** 2
+            rows.append((0, p_row[:-1] + [p_row[-1] + kc]))
+            rows.append((n - 1, [-kc, kc]))
+            mass += [m_p, cm["j_motor"] / r ** 2]
+        else:
+            pass                                        # pulley held: the ends are fixed
+        modes = _modes_below(rows, mass, f_max_hz)
+        return {"modes_hz": modes, "balls": len(loaded), "nodes": n, "moving_kg": sum(mass[:n - 1]) + self.lift_belt_kg_m * wrap}
+
+    def lift_strand_cases(self) -> list:
+        """The strands and axes `tests/lift_strand_sweep.py` runs, as keyword sets for `lift_strand_modes`."""
+        return [
+            {"name": "down, off its face", "strand": "down", "axis": "flat"},
+            {"name": "down, across", "strand": "down", "axis": "edge"},
+            {"name": "up empty, off its face", "strand": "up", "axis": "flat", "loaded_every": 0},
+            {"name": "up empty, across", "strand": "up", "axis": "edge", "loaded_every": 0},
+            {"name": "up loaded, across, balls go with it", "strand": "up", "axis": "edge"},
+            {"name": "up loaded, across, balls slide", "strand": "up", "axis": "edge", "ball_moves": False},
+            {"name": "up loaded, off its face, pinned at the pads", "strand": "up", "axis": "flat", "pin_loaded": True},
+        ]
+
+    def check_lift_strand(self) -> list[str]:
+        bad = []
+        for le in (1, 2):
+            t = self.lift_strand_tension("up", le)
+            if t["t_min_n"] <= 0:
+                bad.append(f"lift's up strand goes slack running with a ball on every {le} flight(s) "
+                           f"({t['t_min_n']:.1f} N at the drive pulley): raise lift_tension_factor")
+        pl = self.lift_pluck_design()
+        if not 0.0 < pl["pluck_hz"] < pl["bare_hz"]:
+            bad.append(f"lift tension-setting figure {pl['pluck_hz']:.2f} Hz is not under the bare belt's {pl['bare_hz']:.2f} Hz")
+        r = self.lift_run_on_resonance()
+        if r["hits"]:
+            bad.append(f"lift's empty belt (the run-on after each ball) rings at {', '.join(r['hits'])} inside the flights' "
+                       f"passing band ({r['flight_lo_hz']:.2f}-{r['flight_hi_hz']:.2f} Hz, x1-3, +-{r['band']:.0%}): hold the "
+                       f"belt's speed (lift_v_ref) or move lift_tension_factor")
+        return bad
+
+    def lift_run_on_resonance(self, band: float = 0.05) -> dict:
+        """The empty belt's first three string modes (both strands at T0: the run-on after each ball, `lift_strand_modes`
+        down, off its face) against the flights' passing rate and its 2nd and 3rd harmonics over the belt's speed range
+        (`lift_speed_range`), each band widened by `band` (2026-11-15, "Lift duty follows the battery"). `hits` names
+        every mode inside a band; at a fixed duty the 2.12 Hz fundamental sat in the x1 band."""
+        s = self.lift_speed_range()
+        lo, hi = self.lift_strand_excitations(s["lo"]), self.lift_strand_excitations(s["hi"])
+        modes = self.lift_strand_modes("down", "flat", loaded_every=0)["modes_hz"][:3]
+        hits = []
+        for i, f in enumerate(modes):
+            for k in ("flight", "flight_x2", "flight_x3"):
+                if lo[k] * (1 - band) <= f <= hi[k] * (1 + band):
+                    hits.append(f"n{i + 1} {f:.2f} Hz ({k})")
+        return {"modes_hz": modes, "hits": hits, "flight_lo_hz": lo["flight"], "flight_hi_hz": hi["flight"], "band": band,
+                "clearance": modes[0] / (hi["flight"] * (1 + band))}
 
     def lift_shaft_geometry(self) -> dict:
         """Positions along y for `lift_shaft_design` (geometry only, so the cable route can use it without the motor

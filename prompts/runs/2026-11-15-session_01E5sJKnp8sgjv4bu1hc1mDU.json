@@ -1,0 +1,415 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKnp8sgjv4bu1hc1mDU",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T19:09:25Z",
+  "ended": "2026-11-15T19:10:19Z",
+  "wall_minutes": 23.61,
+  "tokens_in": 4257859,
+  "tokens_out": 18033,
+  "cost_usd": 1.924,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16318",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Started a campaign on ventures/league-schedule-generator/nights.mjs with --target without probing first; baseline was 250.6 s (33 min for 8 mutants), stopped after mutant 1 (caught). The tool restored the file; no campaign entry was written."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets --probe 20` with no --under/--limit printed nothing within 300 s for me; the probe on every listed file is too slow to use as a pre-check for one target. A `--probe` that accepts a single path would help."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 8 open defects are control-plane fixes that already have open PRs waiting for owner approval; re-fixing them would only duplicate those PRs.",
+      "did": "Checked that each fix is still absent from main and that its PR is open, then left the entries as they are.",
+      "result": "No duplicate PRs."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (an automated guard): the escapes were per-function boundary gaps with no shared cause across files, so no lint fits the class.",
+      "did": "Added targeted tests instead.",
+      "result": "17/17 caught after the fix."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-redteam-sao-paulo-iss-rates.md"
+  ],
+  "goal": null,
+  "notes": "Verified: run_venture_tests.py einvoice-preflight: ok (2541 tests, 0 failed). Rerun: catch_rate 0.647 -> 1.0.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/iss-city-rates.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 2105465,
+        "commit": "465ef78a8",
+        "sites": 127,
+        "baseline_seconds": 14.9,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/iss-city-rates.mjs",
+            "line": 41,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b <= 20 ? 2 : 0;",
+            "after": "const shift = (a === 3 && b >= 2 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b <= 20 ? 2 : 0;",
+            "line_text": "  const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b <= 20 ? 2 : 0;",
+            "caught": true,
+            "seconds": 15.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-city-rates.mjs",
+            "line": 41,
+            "col": 134,
+            "operator": "ge-to-gt",
+            "before": "const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b <= 20 ? 2 : 0;",
+            "after": "const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b > 14 && b <= 20 ? 2 : 0;",
+            "line_text": "  const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b <= 20 ? 2 : 0;",
+            "caught": true,
+            "seconds": 14.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-city-rates.mjs",
+            "line": 41,
+            "col": 145,
+            "operator": "le-to-lt",
+            "before": "const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b <= 20 ? 2 : 0;",
+            "after": "const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b < 20 ? 2 : 0;",
+            "line_text": "  const shift = (a === 3 && b >= 1 && b <= 4) || (a === 13 && b >= 1 && b <= 4) || (a === 17 && b >= 7 && b <= 24) ? 1 : a === 7 && b >= 14 && b <= 20 ? 2 : 0;",
+            "caught": true,
+            "seconds": 15.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-city-rates.mjs",
+            "line": 119,
+            "col": 94,
+            "operator": "times-to-div",
+            "before": "const readings = fraction === true ? [a * 100] : fraction === false || a >= 1 ? [a] : [a, a * 100];",
+            "after": "const readings = fraction === true ? [a * 100] : fraction === false || a >= 1 ? [a] : [a, a / 100];",
+            "line_text": "  const readings = fraction === true ? [a * 100] : fraction === false || a >= 1 ? [a] : [a, a * 100];",
+            "caught": true,
+            "seconds": 17.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-city-rates.mjs",
+            "line": 121,
+            "col": 73,
+            "operator": "const-plus-one",
+            "before": "if (readings.some((p) => allowed.some((r) => Math.abs(p - r.rate) < 1e-6))) return null;",
+            "after": "if (readings.some((p) => allowed.some((r) => Math.abs(p - r.rate) < 1e-7))) return null;",
+            "line_text": "  if (readings.some((p) => allowed.some((r) => Math.abs(p - r.rate) < 1e-6))) return null;",
+            "caught": false,
+            "seconds": 16.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Tolerance 1e-6 vs 1e-7: the only float error in play is a*100 on a fraction (e.g. 0.029*100 = 2.9000000000000004, off by ~4e-16); a rate written with up to 6 decimals differs from a table rate (one decimal) by 0 or >= 1e-6, so no realistic Aliquota/pAliq changes outcome. A 7-decimal rate like 2.9000005 would, but no NFS-e schema allows it."
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-city-rates.mjs",
+            "line": 136,
+            "col": 39,
+            "operator": "le-to-lt",
+            "before": "const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b >= 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "after": "const back = (a === 3 && b >= 2 && b < 5) || (a === 13 && b >= 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "line_text": "  const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b >= 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "caught": false,
+            "seconds": 15.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "spToLcNote's run boundaries were tested only at 17.25; new test 'the S\u00e3o Paulo number in the message is the inverse of spToLc at every run's ends' checks each run's first and last LC subitem round-trips through spToLc and the neighbours get no note."
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-city-rates.mjs",
+            "line": 136,
+            "col": 63,
+            "operator": "ge-to-gt",
+            "before": "const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b >= 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "after": "const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b > 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "line_text": "  const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b >= 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "caught": false,
+            "seconds": 15.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "spToLcNote's run boundaries were tested only at 17.25; new test 'the S\u00e3o Paulo number in the message is the inverse of spToLc at every run's ends' checks each run's first and last LC subitem round-trips through spToLc and the neighbours get no note."
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-city-rates.mjs",
+            "line": 136,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b >= 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "after": "const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b >= 3 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "line_text": "  const back = (a === 3 && b >= 2 && b <= 5) || (a === 13 && b >= 2 && b <= 5) || (a === 17 && b >= 8 && b <= 25) ? 1 : a === 7 && b >= 16 && b <= 22 ? 2 : 0;",
+            "caught": false,
+            "seconds": 15.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "spToLcNote's run boundaries were tested only at 17.25; new test 'the S\u00e3o Paulo number in the message is the inverse of spToLc at every run's ends' checks each run's first and last LC subitem round-trips through spToLc and the neighbours get no note."
+          }
+        ]
+      },
+      {
+        "target": "ventures/einvoice-preflight/iss-rate.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 912352174,
+        "commit": "465ef78a8",
+        "sites": 76,
+        "baseline_seconds": 16.1,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 23,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "const CUT = { 2029: 0.1, 2030: 0.2, 2031: 0.3, 2032: 0.4 };",
+            "after": "const CUT = { 2029: 0.1, 2030: 0.2, 2031: 0.3, 2033: 0.4 };",
+            "line_text": "const CUT = { 2029: 0.1, 2030: 0.2, 2031: 0.3, 2032: 0.4 };",
+            "caught": true,
+            "seconds": 15.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 34,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "let m = /^(\\d{1,2})\\.(\\d{1,2})/.exec(s);",
+            "after": "let m = /^(\\d{1,2})\\.(\\d{1,3})/.exec(s);",
+            "line_text": "  let m = /^(\\d{1,2})\\.(\\d{1,2})/.exec(s);",
+            "caught": false,
+            "seconds": 15.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "lcSubitem's subitem group {1,2} was never tested against a trailing municipal breakdown; new test reads '14.0101' and '7.021' as 14.01 / 7.02."
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 36,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "m = /^(\\d{3,4})$/.exec(s);",
+            "after": "m = /^(\\d{3,5})$/.exec(s);",
+            "line_text": "  m = /^(\\d{3,4})$/.exec(s);",
+            "caught": false,
+            "seconds": 15.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test said a 5-digit code is not an LC item; S\u00e3o Paulo's own 5-digit service codes (02919) would read as '2.919'. New test: 02919, 14010, 123456 give null."
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 37,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "if (m) { const d = m[1].padStart(4, \"0\"); return `${Number(d.slice(0, 2))}.${d.slice(2)}`; }",
+            "after": "if (m) { const d = m[1].padStart(5, \"0\"); return `${Number(d.slice(0, 2))}.${d.slice(2)}`; }",
+            "line_text": "  if (m) { const d = m[1].padStart(4, \"0\"); return `${Number(d.slice(0, 2))}.${d.slice(2)}`; }",
+            "caught": true,
+            "seconds": 14.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 46,
+            "col": 32,
+            "operator": "times-to-div",
+            "before": "const r = (x) => Math.round(x * f * 1000) / 1000;",
+            "after": "const r = (x) => Math.round(x / f * 1000) / 1000;",
+            "line_text": "  const r = (x) => Math.round(x * f * 1000) / 1000;",
+            "caught": true,
+            "seconds": 15.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 46,
+            "col": 36,
+            "operator": "times-to-div",
+            "before": "const r = (x) => Math.round(x * f * 1000) / 1000;",
+            "after": "const r = (x) => Math.round(x * f / 1000) / 1000;",
+            "line_text": "  const r = (x) => Math.round(x * f * 1000) / 1000;",
+            "caught": true,
+            "seconds": 15.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 65,
+            "col": 28,
+            "operator": "eq-flip",
+            "before": "const readings = fraction === true ? [a * 100] : fraction === false || a >= 1 ? [a] : [a, a * 100];",
+            "after": "const readings = fraction !== true ? [a * 100] : fraction === false || a >= 1 ? [a] : [a, a * 100];",
+            "line_text": "  const readings = fraction === true ? [a * 100] : fraction === false || a >= 1 ? [a] : [a, a * 100];",
+            "caught": true,
+            "seconds": 14.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 82,
+            "col": 12,
+            "operator": "or-to-and",
+            "before": "if (!band || !(grossBaseCents > 0) || !Number.isFinite(issCents) || issCents <= 0) return null;",
+            "after": "if (!band && !(grossBaseCents > 0) || !Number.isFinite(issCents) || issCents <= 0) return null;",
+            "line_text": "  if (!band || !(grossBaseCents > 0) || !Number.isFinite(issCents) || issCents <= 0) return null;",
+            "caught": false,
+            "seconds": 15.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "issBurdenProblem's guards were never hit with no band (2033+) or a non-positive base; with && the 2033 case throws on band.min and a negative base reports a benefit. New test covers all three."
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 84,
+            "col": 42,
+            "operator": "times-to-div",
+            "before": "const eff = (issCents / grossBaseCents) * 100;",
+            "after": "const eff = (issCents / grossBaseCents) / 100;",
+            "line_text": "  const eff = (issCents / grossBaseCents) * 100;",
+            "caught": true,
+            "seconds": 15.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/iss-rate.mjs",
+            "line": 84,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "const eff = (issCents / grossBaseCents) * 100;",
+            "after": "const eff = (issCents / grossBaseCents) * 101;",
+            "line_text": "  const eff = (issCents / grossBaseCents) * 100;",
+            "caught": true,
+            "seconds": 15.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "de80f9f1-c497-58cd-8ad0-5e69eeefbdf7",
+    "transcripts": 1,
+    "first": "2026-11-15T19:09:25Z",
+    "last": "2026-11-15T19:33:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 93,
+        "output": 18033,
+        "thinking": 6171,
+        "cache_read": 4166553,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91213,
+        "api_equivalent_usd": 1.924,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 93,
+      "output": 18033,
+      "thinking": 6171,
+      "cache_read": 4166553,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91213,
+      "api_equivalent_usd": 1.924,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 3,
+      "TaskStop": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.61,
+      "active_minutes": 23.61,
+      "model_minutes": 4.71,
+      "tool_minutes": 18.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "two mutation campaigns, triage and six targeted tests plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 155.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

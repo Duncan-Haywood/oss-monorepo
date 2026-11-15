@@ -586,12 +586,26 @@ class LiftRun:
     duty up over `ramp_ms` instead of switching straight to `duty`. The jaw coupling between the gearmotor and the
     drive shaft is a spring with free play: a switched start lets the rotor cross the play at speed and ring the
     coupling's mode, putting up to 2.3 times the soft start's torque on the slip hub, and with a hard, worn spider an
-    empty belt's start slips the hub. The ramp sits inside the jam blanking, so the cutoff is unchanged. 0 switches straight to `duty`."""
+    empty belt's start slips the hub. The ramp sits inside the jam blanking, so the cutoff is unchanged. 0 switches straight to `duty`.
 
-    def __init__(self, run_on_ms, duty=1.0, blank_ms=400, trip_ms=10, rest_ms=2000, retries=1, ramp_ms=0):
+    Speed held over the battery (2026-11-15, cad/README.md "Lift duty follows the battery"): at a fixed duty the belt
+    ran 0.91 to 1.23 times its nominal speed between the 24 V cut and the charger's 29.2 V, and that band swept the
+    flight rate across the empty belt's lowest string mode (2.12 Hz). With `v_ref_mv` set, the duty is
+    `duty` x min(1, v_ref_mv / bus) on the battery reading passed to `update`, smoothed over `bus_tau_ms` (the reading's
+    noise and the 260 mV a braking wheel adds must not wobble the belt), never under `duty_min`. A reading outside
+    `BUS_VALID_MV` (a loose divider, an ADC fault) is ignored: with no good reading yet the duty is `duty`, as before.
+    0 keeps the fixed duty."""
+
+    BUS_VALID_MV = (10000, 40000)
+
+    def __init__(self, run_on_ms, duty=1.0, blank_ms=400, trip_ms=10, rest_ms=2000, retries=1, ramp_ms=0,
+                 v_ref_mv=0, duty_min=0.0, bus_tau_ms=500):
         self.run_on_ms = run_on_ms
         self.duty = duty
         self.ramp_ms = ramp_ms
+        self.v_ref_mv, self.duty_min, self.bus_tau_ms = v_ref_mv, duty_min, bus_tau_ms
+        self.bus_mv = None            # smoothed battery reading
+        self._bus_at = None
         self.blank_ms, self.trip_ms, self.rest_ms, self.retries = blank_ms, trip_ms, rest_ms, retries
         self.until = None
         self.on_since = None          # when the motor was last switched on
@@ -617,7 +631,25 @@ class LiftRun:
         self.on_since = self.over_since = None
         return 0.0
 
-    def update(self, now_ms, over=False):
+    def _track_bus(self, now_ms, bus_mv):
+        lo, hi = self.BUS_VALID_MV
+        if bus_mv is None or not lo <= bus_mv <= hi:
+            return
+        if self.bus_mv is None or self.bus_tau_ms <= 0:
+            self.bus_mv = float(bus_mv)
+        else:
+            dt = max(0, now_ms - self._bus_at)
+            self.bus_mv += (bus_mv - self.bus_mv) * min(1.0, dt / self.bus_tau_ms)
+        self._bus_at = now_ms
+
+    def run_duty(self):
+        """The duty a running belt gets: `duty`, scaled down on a battery over `v_ref_mv`."""
+        if not self.v_ref_mv or self.bus_mv is None:
+            return self.duty
+        return self.duty * max(self.duty_min, min(1.0, self.v_ref_mv / self.bus_mv))
+
+    def update(self, now_ms, over=False, bus_mv=None):
+        self._track_bus(now_ms, bus_mv)
         if self.until is None or self.jammed:
             return self._off()
         if self.rest_until is not None:
@@ -645,9 +677,10 @@ class LiftRun:
                 return 0.0
         else:
             self.over_since = None
+        d = self.run_duty()
         if self.ramp_ms > 0:
-            return self.duty * min(1.0, (now_ms - self.on_since + 10) / self.ramp_ms)
-        return self.duty
+            return d * min(1.0, (now_ms - self.on_since + 10) / self.ramp_ms)
+        return d
 
 
 class AgitatorRun:

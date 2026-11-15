@@ -11,6 +11,7 @@ import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 import { checkFacturae, looksLikeFacturae } from "./facturae.mjs";
 import { budapestToday, checkNavInvoice, looksLikeNavInvoice } from "./hungary-nav.mjs";
 import { checkNavChains } from "./hungary-nav-chain.mjs";
+import { looksLikeVerifactu, readVerifactu, verifactuReport } from "./verifactu.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -86,6 +87,20 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
     const bytes = typeof s === "string" ? s.length : s.length;
     return bytes <= maxBytes && !looksLikePdf(o.name || "", s) && looksLikeNavInvoice(typeof s === "string" ? s.slice(0, 4096) : new TextDecoder().decode(s.slice(0, 4096)));
   });
+  // Spanish VERI*FACTU records: the fingerprint chain runs across every file in the batch.
+  const vfBatch = [];
+  const vfByFile = new Map();
+  for (const o of inputs) {
+    const s = o.source ?? "";
+    if ((typeof s === "string" ? s.length : s.length) > maxBytes || looksLikePdf(o.name || "", s)) continue;
+    const text = typeof s === "string" ? s : new TextDecoder().decode(s);
+    if (!looksLikeVerifactu(text)) continue;
+    try {
+      const records = readVerifactu(text);
+      vfByFile.set(o, records);
+      for (const record of records) vfBatch.push({ record, file: o.name || "records.xml" });
+    } catch { /* reported in the loop */ }
+  }
   const navChain = navInputs.length > 1 ? checkNavChains(navInputs.map((o) => ({ name: o.name || "invoice.json", source: o.source }))) : null;
   for (const input of inputs) {
     const name = input.name || "invoice.json";
@@ -109,6 +124,10 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         } catch (e) {
           readErrors.push({ file: name, error: ISDOC_MESSAGE + " (best-effort read failed: " + e.message + ")" });
         }
+        continue;
+      }
+      if (vfByFile.has(input)) {
+        reports.push(verifactuReport(name, vfByFile.get(input), vfBatch));
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeSdiReceipt(peek)) {

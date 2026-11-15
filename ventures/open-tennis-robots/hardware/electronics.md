@@ -80,11 +80,15 @@ Wiring:
   only while the MOSFET conducts (the flyback diode's current bypasses it);
 - 10k from the shunt's top to an LM393's `-` input, 100 nF from that input to
   ground (1 ms: it averages the 20 kHz PWM and brush spikes);
-- 100k from 3.3 V to the `+` input and 2.7k from it to ground (0.087 V: a trip
-  at 1.74 A, 1.47 to 2.00 A over the rail, resistor and offset tolerances;
-  3.9k and 2.48 A until the drive pulley's slip hub, 2026-11-15: the trip must
-  sit under the 2.3 A the motor draws while the hub slides, so a jam is still
-  cut and flagged);
+- 100k from 3.3 V to the `+` input and 2.4k from it to ground (0.077 V: a trip
+  at 1.55 A at full duty, 1.29 to 1.81 A over the rail, resistor and offset
+  tolerances). The shunt sees current only while the MOSFET conducts, so the
+  trip in motor amps is this over the duty: on a full 29.2 V pack the firmware
+  holds the duty to 0.82 (`LIFT_V_REF_MV`, below) and the trip rises to 2.20 A
+  at most, still 1.14 times under the 2.52 A the motor draws while the slip hub
+  (set to 1.0 N m) slides, so a jam is cut and flagged. History: 3.9k and 2.48 A
+  until the slip hub, 2.7k and 1.74 A until the duty followed the battery
+  (both 2026-11-15);
 - the LM393 powered from 3.3 V, its open-collector output to GPIO 0 with a 10k
   pull-up to 3.3 V (most dev boards already carry one for their BOOT button);
   the unused half's inputs to ground and 3.3 V.
@@ -92,7 +96,10 @@ Wiring:
 The firmware (`controller.LiftRun`) ignores the comparator for 400 ms after
 each start, cuts the motor when it reads low on two ticks 10 ms apart, rests
 2 s, tries once more, and then leaves the lift off with `FLAG_LIFT_JAM` set
-until the e-stop is pressed and released (the bus dropping clears it). The
+until the e-stop is pressed and released (the bus dropping clears it). Above
+24 V on the battery reading (GPIO 36) it runs the lift at 24 V / reading
+(smoothed over 0.5 s, never under 0.82), so the belt keeps its 24 V speed on a
+full pack (cad/README.md "Lift duty follows the battery"). The
 drill runner logs the flag once and carries on: the hopper still holds balls.
 Numbers and their assumptions: the manifest's "lift jam" line and
 `tests/lift_jam_sweep.py`.

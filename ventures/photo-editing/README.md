@@ -1310,6 +1310,15 @@ ahead. Still open: the sheet's 4.4 dB gap to LibRaw's three passes (fine rings n
 whether the median should leave green alone (+0.4 dB on the frames, -2.4 on the sheet; needs a real
 noisy frame with a known answer), a C path, Bayer.
 
+**In C since 2026-11-15** (`src/shootflow/xtrans_native.py`, `eval/xtrans-native-2026-11-15.md`). The
+whole X-Trans demosaic (estimates, four clamped directional greens, red and blue, the gradient blend,
+passes and median) in one C function per band, built with the system compiler on first use and loaded
+through `ctypes`; numpy stays the reference and the fallback. On the real X-E1 and X-E2 frames the output
+is equal to numpy's bit for bit, and a 16 MP frame takes 1.3 s on four cores (numpy 5.0 s; LibRaw's
+single-threaded three-pass `postprocess` 2.5 s). To make that exact on every machine the blend's
+`** 4` became two squarings: numpy's float32 power follows the CPU's SIMD library and differed from libm
+on a fifth of values here (output moved by at most 0.02 of a 16-bit step). `SHOOTFLOW_NATIVE=0` turns it off.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
@@ -1330,6 +1339,13 @@ III, 0.07 dB behind VNG) and the least false colour on five of six. Not better e
 finest, most aliased frames (A7 III, K-1 II) its luma trails bilinear, DCB or VNG by 0.8-1 dB, and with
 heavy noise (SNR 25) a plain average has the higher colour PSNR on two frames while leaving 1.2-1.9x the
 false colour. A 24 MP frame takes 1.8 s on four cores (bilinear 0.6 s, LibRaw's AHD 1.0 s).
+
+**In C since 2026-11-15** (`src/shootflow/bayer_native.py`, `eval/bayer-native-2026-11-15.md`). The same
+steps in one C function per band, built with the system compiler on first use and loaded through
+`ctypes` like the raw decoders; numpy stays the reference and the fallback. On the five real frames
+above the output is equal to numpy's bit for bit, and it runs 4.2-4.9x faster on four cores: a 24 MP
+A7 III frame in 0.44 s (numpy 2.13 s; LibRaw's single-threaded AHD `postprocess` 0.99 s), a 36 MP D810
+or K-1 II in 0.6-0.7 s. The median clean-up stays numpy-only; `SHOOTFLOW_NATIVE=0` turns it off.
 
 ## Pentax PEF (2026-11-14)
 
@@ -1571,10 +1587,22 @@ values the camera stored). `tests/test_nef.py` (11 tests) writes NEFs with an en
 every storage, including a split row coded with the scaling table, and runs the profile chooser,
 the CLI and both decoders.
 
-Not done: colour is only as good as the profile you supply (no profile ships here); none of the
-seven real files has a non-zero split row, so the after-split tables are checked on synthetic files
-only; Nikon's high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to
-convert to DNG.
+Not done: colour is only as good as the profile you supply (no profile ships here); Nikon's
+high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to convert to DNG.
+
+### Real split rows, the Z 6II's lossy curve and 12-bit black levels (2026-11-15)
+
+Eleven more NEFs from raw.pixls.us (CC0), found by probing all 235 for a non-zero split row in the
+maker note: 1 J5, D3400, D5000, D5200, D5500, D5600 x2, D5, D7000 and two Z 6II frames. The split
+rows were already right (every sensel equal to LibRaw's on all nine 0x44 0x20 files). Three other
+faults were not: the Z 6II's lossy form (0x44 0x40, a curve with its step and range quartered) fell
+to the full-curve branch and got 99.3% of sensels wrong; a 12-bit file's black level was read 4x too
+high (tag 0x003D is on a 14-bit scale), which put 82-95% of a frame's sensels at or under black, so
+every 12-bit NEF from a 2014-on body developed nearly black; and the edge-column rule cut two picture
+columns from busy D3400 and D5600 frames (its correlation bar is now 0.5, not 0.8, after measuring
+every masked column on 18 bodies). All three fixed: 18 of 18 real NEFs now equal LibRaw in every
+decoded sensel, black level, balance, CFA and visible area (the J5 keeps 2 picture rows LibRaw does
+not decode). `eval/nikon-nef-split-row-2026-11-15.md`, `tests/test_nef.py` (21 tests).
 
 ### The edge columns that hold no picture (2026-11-15)
 
@@ -1583,8 +1611,8 @@ sensels, then padding of one value (D800E: 46 of 7,424, ending in a column of 16
 1). Developed whole, a D800E came out with a grey band, a white line and fifteen black columns down
 its right side. Nothing in a NEF marks the edge, and dcraw and LibRaw trim by a per-model table, so
 `nef.masked_margins` reads it from the sensels: a picture column varies as much as a tenth of the
-middle of the frame and moves with its same-colour neighbour two columns in (correlation 0.8 or
-more); a masked or padding column does neither. The result becomes the ActiveArea, and the report's
+middle of the frame and moves with its same-colour neighbour two columns in (correlation 0.5 or
+more since 2026-11-15; it was 0.8, which cut two picture columns of busy lossy frames); a masked or padding column does neither. The result becomes the ActiveArea, and the report's
 notes say how many columns were left out. Against LibRaw's table: seven of seven bodies equal
 (D800E 46, D300 32, D5100 44, D90 42, D70 1, D200 2 left and 3 right, D810 none). Run on the picture
 alone at 0, 3 and 6 stops under, it cut nothing in 21 of 21 cases; on a very dark frame it keeps a

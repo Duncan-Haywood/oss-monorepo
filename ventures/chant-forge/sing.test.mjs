@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { tuneF1, latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, singNote, FORMANTS } from './sing.mjs';
+import { tuneF1, latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, onsetPlan, singNote, FORMANTS } from './sing.mjs';
 import { readOnset, readCoda } from './onsets.mjs';
 import { estimateFormants, nearestVowel, polyRoots } from './formants.mjs';
 import { eventsToMidi } from './midi.mjs';
@@ -195,6 +195,20 @@ test('a final nasal hums about 7 dB under its vowel at any pitch (one voice), an
   }
 });
 
+test('a final l sits about 4 dB under its vowel at any pitch and after any vowel (one voice); the fixed gain did not', () => {
+  const rms = (x, a, b) => { let q = 0; for (let i = Math.round(a * rate); i < Math.round(b * rate); i++) q += x[i] * x[i]; return Math.sqrt(q / ((b - a) * rate)); };
+  const dur = 0.6, sg = codaPlan(['l'], dur, dur).segs[0], q = (sg.t1 - sg.t0) / 4;
+  const one = { coda: ['l'], detunes: [0], vibratoCents: 0, breath: 0 };
+  let over = 0;
+  for (const midi of [40, 50, 57, 64]) for (const vowel of ['a', 'e', 'i', 'o', 'u']) {
+    const f = 440 * 2 ** ((midi - 69) / 12), lvl = (o) => { const w = singNote(f, dur, rate, { vowel, ...one, ...o }); return 20 * Math.log10(rms(w, sg.t0 + q, sg.t1 - q) / rms(w, 0.2, 0.35)); };
+    const d = lvl({});
+    assert.ok(d < -3 && d > -5, `${vowel}l on ${midi}: /l/ ${d.toFixed(1)} dB against its vowel`);
+    if (lvl({ lateralLevel: false }) > 0) over++;
+  }
+  assert.ok(over >= 8, `the fixed gain put the /l/ over its vowel on ${over} of 20`);
+});
+
 test('a final nasal hums on through the nose with no blip of bare vowel, and -um after a dark vowel reads as its murmur', async () => {
   const { frameFeatures } = await import('./onsets.mjs');
   // one voice, so the voices' beating does not hide it: before the fix the low-pass lifted for 10 ms between
@@ -234,6 +248,22 @@ test('high /i/ and /u/ keep their level: F1 raised to 1.1 x f0 (tuneF1)', () => 
   }
 });
 
+test('a final r taps and then opens again before the note ends, and reads as a tap right up to the next sound', () => {
+  // README "Final consonants, fifth round": sung on the note's last 45 ms, the contact sat 15-25 ms from
+  // the next sound with no voice after it inside the note, and after /u/ and /o/ it read as nothing
+  for (const dur of [0.197, 0.242, 0.5]) {
+    const [r] = codaPlan(['r'], dur, dur).segs, contactEnd = r.t0 + (r.t1 - r.t0) * r.cw;
+    assert.ok(dur - contactEnd >= 0.025 - 1e-9, `${dur} s: ${((dur - contactEnd) * 1000).toFixed(1)} ms of voice after the contact`);
+  }
+  assert.equal(codaPlan(['r', 'k'], 0.3, 0.3).segs[0].at, undefined, 'an r inside a cluster keeps its plain tap');
+  for (const vowel of ['u', 'o', 'e', 'a']) for (const dur of [0.197, 0.242]) {
+    // the window ends where the note's sound does, as before the next syllable's consonant
+    const w = singNote(146.83, dur, rate, { vowel, coda: ['r'], release: 0.015 });
+    const got = readCoda(w, rate, 0.05, dur);
+    assert.equal(got.cls, 'tap', `${vowel}r at ${dur} s: ${JSON.stringify(got)}`);
+  }
+});
+
 test('a final l is not a murmur: al and el read as no consonant, am and um as nasals, and the tilt separates them', async () => {
   const { frameFeatures, MURMUR_TILT } = await import('./onsets.mjs');
   const dur = 0.5, tilt = (w) => { // energy above 1 kHz against the band under 500 Hz, over the coda's steady part
@@ -251,4 +281,20 @@ test('a final l is not a murmur: al and el read as no consonant, am and um as na
       if (syl === 'al') assert.equal(readCoda(w, rate, 0.1, dur + 0.25, { murmurTilt: 0 }).cls, 'nasal', `al on ${f} Hz, rule off`);
     }
   }
+});
+
+test('an opening nasal hums about 7 dB under the vowel it goes to at any pitch and before any vowel (one voice); the first murmur did not', () => {
+  const rms = (x, a, b) => { let q = 0; for (let i = Math.round(a * rate); i < Math.round(b * rate); i++) q += x[i] * x[i]; return Math.sqrt(q / ((b - a) * rate)); };
+  const dur = 0.6, one = { detunes: [0], vibratoCents: 0, breath: 0 };
+  let spread = [99, -99];
+  for (const ph of ['m', 'n']) {
+    const sg = onsetPlan([ph], dur).segs[0], q = (sg.t1 - sg.t0) / 4;
+    for (const midi of [40, 50, 57, 64]) for (const vowel of ['a', 'e', 'i', 'o', 'u']) {
+      const f = 440 * 2 ** ((midi - 69) / 12), lvl = (o) => { const w = singNote(f, dur, rate, { vowel, onset: [ph], ...one, ...o }); return 20 * Math.log10(rms(w, sg.t0 + q, sg.t1 - q) / rms(w, 0.3, 0.45)); };
+      const d = lvl({});
+      assert.ok(d < -6 && d > -9, `${ph}${vowel} on ${midi}: murmur ${d.toFixed(1)} dB against its vowel`);
+      const old = lvl({ onsetMurmur: 'first' }); spread = [Math.min(spread[0], old), Math.max(spread[1], old)];
+    }
+  }
+  assert.ok(spread[1] - spread[0] > 8, `the first murmur's level spread ${(spread[1] - spread[0]).toFixed(1)} dB`);
 });

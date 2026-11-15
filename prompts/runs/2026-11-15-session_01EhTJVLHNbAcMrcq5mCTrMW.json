@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLHNbAcMrcq5mCTrMW",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "3bacb6da1d6597aa438387432ba02aaf5ca117fccd8dc4fb52cfe978038d7aa0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T19:02:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Polish: false noscript notice on 79 no-tool pages; ShootFlow camera RAW support page",
+  "projects": [
+    "photo-editing",
+    "platform/pages"
+  ],
+  "pr": 16310,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "platform/pages/contrast.mjs imports bare 'playwright', which fails in the cloud container (the prompt notes the /opt/node-tools path only for ad-hoc scripts); contrast not measured this run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-79-pages-that-said-they-needed-javascript.md",
+    "docs/reports/polish-2026-11-15-false-noscript-and-raw-page.md"
+  ],
+  "goal": null,
+  "notes": "Full local build twice (~10 min each). Before: 2,335 built pages carried NOSCRIPT_NOTICE; 79 had no control of their own. After rebuild: 2,256 (as predicted); check.mjs: 10,268 pages, no dead links. node --test noscript-notice, embed, clauses, venture-sitemap-coverage pass; clauses.mjs photo-editing: 2 pages carry clauses. Guide page 390 px scrollWidth 390, light and dark screenshots in docs/reports/img. Full platform/pages test suite run in background before merge.",
+  "corrections": [],
+  "redteam": null
+}

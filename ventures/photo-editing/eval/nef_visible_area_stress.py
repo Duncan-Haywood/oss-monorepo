@@ -1,6 +1,8 @@
 """Stress masked_margins on picture-only crops and darkened copies (eval/nikon-nef-visible-area-2026-11-15.md).
 
-Usage: PYTHONPATH=src python eval/nef_visible_area_stress.py DIR  (DIR holds mei/nef/Nikon*.nef; needs numpy)
+Usage: PYTHONPATH=src python eval/nef_visible_area_stress.py DIR [MORE.NEF ...]
+(DIR holds mei/nef/Nikon*.nef; needs numpy; further files from raw.pixls.us were added on 2026-11-15,
+eval/nikon-nef-split-row-2026-11-15.md)
 """
 
 import glob
@@ -14,7 +16,7 @@ from shootflow import raw_develop as rd
 
 root = sys.argv[1]
 print("file | crop | stops under | found (left, right)")
-for path in sorted(glob.glob(root + "/mei/nef/Nikon*.nef")):
+for path in sorted(glob.glob(root + "/mei/nef/Nikon*.nef")) + sys.argv[2:]:
     raw = nef.parse_nef(open(path, "rb").read())
     _, left, _, right = raw.ifd.entries[rd.TAG_ACTIVE_AREA]
     full = np.frombuffer(raw.values, dtype=np.uint16).reshape(raw.height, raw.width)

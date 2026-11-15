@@ -72,7 +72,7 @@ Twenty-seven teams is the one gap: its solver run passed 25 minutes, where 23 an
 took five and six. A build with a stored schedule takes 0.1 to 1 second.
 
 The details, the encoding and every timing are in the
-[README](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#odd-leagues-three-games-a-night-solved-with-the-layout-and-two-proofs-2026-11-15-latest).
+[README](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#odd-leagues-three-games-a-night-solved-with-the-layout-and-two-proofs-2026-11-15-later).
 Still open: odd leagues with three sessions a night (nine slots), and whether the
 forced shape can be turned into a construction for every size, with no solver run
 at all.

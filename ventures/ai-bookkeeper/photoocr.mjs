@@ -137,7 +137,7 @@ const tidy = (raw) => cleanOcr(String(raw || "")).split(/\r?\n/).map((l) => l.tr
 // replaces the first reading's, and the result is checked to read that total.
 // `note` says what changed, for the status line.
 export function settleReadings(readings) {
-  const out = settleTotals(readings);
+  const out = settleTax(settleTotals(readings), readings);
   const guess = out.text ? guessedTotal(out.text) : null;
   return guess ? { ...out, note: out.note ? `${out.note}; ${guess}` : guess } : out;
 }
@@ -151,6 +151,30 @@ export function guessedTotal(text) {
   if (p.cents === null) return "no total found in the photo: type it in";
   if (p.notes.some((n) => /took the largest amount/.test(n))) return `no total line found in the photo; ${(p.cents / 100).toFixed(2)} is only the largest amount on it: check the total`;
   return null;
+}
+
+// The receipts box is parsed again from the settled text, so a tax the readings agree
+// on (receipts.mjs voteTax) goes into it as a line: the first reading's own tax line is
+// swapped for it, or a "Tax" line goes in just above the total line. Left alone when
+// the text would not then read that tax (README, "Tax on receipt photos").
+function settleTax(settled, readings) {
+  const t = readings.map(tidy).filter(Boolean);
+  if (t.length < 2 || !settled.text) return settled;
+  const both = parseReceiptPasses(t), now = parseReceipt(settled.text);
+  if (both.taxCents === null || both.taxCents === now.taxCents || now.cents !== both.cents) return settled;
+  const line = `Tax ${(both.taxCents / 100).toFixed(2)}`;
+  const lines = settled.text.split("\n");
+  let at = now.taxLine ? lines.findLastIndex((l) => l.trim() === now.taxLine.trim()) : -1;
+  let out;
+  if (at >= 0) out = [...lines.slice(0, at), line, ...lines.slice(at + 1)];
+  else {
+    at = now.totalLine ? lines.findLastIndex((l) => l.trim() === now.totalLine.trim()) : -1;
+    out = at >= 0 ? [...lines.slice(0, at), line, ...lines.slice(at)] : [...lines, line];
+  }
+  const text = out.join("\n");
+  const back = parseReceipt(text);
+  if (back.taxCents !== both.taxCents || back.cents !== now.cents) return settled;
+  return { ...settled, text, taxNote: `tax read as ${now.taxCents === null ? "none" : (now.taxCents / 100).toFixed(2)} first; kept ${(both.taxCents / 100).toFixed(2)}, which the other readings or the receipt's own sums support: check it` };
 }
 
 function settleTotals(readings) {
@@ -209,8 +233,8 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, onProgr
         readings.unshift(...first);
       }
       catch (e) { skipped.push({ name: f.name, why: `could not be read (${String(e?.message ?? e).replace(/^Error: /, "")})` }); continue; }
-      const { text, note } = settleReadings(readings);
-      if (text) { blocks.push(text); if (note) notes.push({ name: f.name, note }); }
+      const { text, note, taxNote } = settleReadings(readings);
+      if (text) { blocks.push(text); if (note) notes.push({ name: f.name, note }); if (taxNote) notes.push({ name: f.name, note: taxNote }); }
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
   } finally { await engine.close?.(); }
