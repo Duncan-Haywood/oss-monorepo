@@ -949,8 +949,9 @@ to 0.91 claim in both arms; gumbel close calls at 15, pairs 0.83 and screens
 0.88 under a 0.90 claim. Long close-call lists overclaim in both arms (the
 "Open" item on noisy answerers stands).
 
-**Not measured: time.** A screen of four takes longer to read than a pair,
-and taps are a stand-in for effort. The page counts `screen` events and
+**Not simulated: time.** A screen of four takes longer to read than a pair,
+and taps are a stand-in for effort. Since 2026-11-15 the page measures it on
+real people instead ("Answer times" below). The page counts `screen` events and
 `mode:screens` starts locally; real codes now show which kind of answer a
 person gave. The status line quotes the gumbel screens to the stop (13 / 21
 at 8 options, 27 / 47 at 15, 65 / 102 at 30, ordinary / close calls).
@@ -966,3 +967,63 @@ the disclaimer. Browser, Playwright at 390 px: example list in screens mode,
 four options as a 2 by 2 grid, "Most" marked on the first tap, 24 screens to
 the cap answering at random, results, a `QP1.` code with screens, the share
 note names the mode, combine with that code works, no console errors.
+
+## Answer times (2026-11-15)
+
+The simulations above count taps, and a tap on a screen of four is not a tap
+on a pair: reading four options and choosing twice takes longer. Whether
+screens are quicker overall turns on one number, seconds per screen over
+seconds per pick. A screen replaces about pairs-to-stop / screens-to-stop
+picks (40 / 13 = 3.1 at 8 options, 73 / 27 = 2.7 at 15, 146 / 65 = 2.2 at
+30, ordinary answerers), so screens save time while a screen takes less than
+that many picks' time. No simulation can supply the ratio, so the page now
+measures it on the people who use it.
+
+**What is recorded** (`site/answer-time.mjs`). From the moment a pair or a
+screen is shown to the answer (for a screen, the second tap), in whole tenths
+of a second. A question during which the page was hidden at any point
+(another tab, a locked phone) gets no time, as does one over ten minutes or
+one whose clock ran backwards: unknown, not a wrong number. Undo drops the
+time with the answer; times are saved with the answers on the device, and an
+older save without them reads as unknown.
+
+**Codes.** A result code carries the times as `t`, one base-36 token per
+answer (`-` for unknown), only when they line up one-to-one with the answers.
+A `t` of the wrong length, a token outside base 36 or over the cap is
+refused as damaged rather than half-read, since a time pinned to the wrong
+answer could pass a pair's time off as a screen's. A box under the code,
+ticked by default, leaves the times out ("Include how long each answer
+took"). Codes made before this read as before.
+
+**What a person and a team see.** Results show the person's own median
+seconds per pick and per screen. A team combine gives, for each kind, the
+median over people of their own median (people with at least 3 timed answers
+of that kind), so one slow person with many answers does not set it. When
+both kinds are present it gives the ratio and the time to a settled order
+for the list: real median seconds times the simulated typical answers to the
+stop (`picksGuide(n).ordinary` picks; the nearest measured screens row; the
+best-worst simulation's own pair arm needed 38, 70 and 150 picks where the
+picks table says 40, 73 and 146, so the two tables agree within 6%), and
+says whether screens save or cost time for this team. The counts are
+simulated and the times are the team's own, and the page says so.
+
+**Not yet.** No real times exist yet; the codes now carry them. Once a few
+teams have combined, the ratio decides whether the best-worst landing page
+should say screens are quicker, and the same times give the first real
+check of the answer-time model the survey app's pace tools assume (flagship
+item c).
+
+**Checks.** `node --test site/answer-time.test.mjs` (7 tests): times in
+tenths with none for a hidden page, a backward clock or over the cap; codes
+round-trip times across mixed pairs and screens; misaligned or all-unknown
+times are not sent and old codes still read; seven kinds of damaged `t` are
+refused (the test fails with the decode check removed); a person's pace
+splits pairs (ties included) from screens by the median; a team's pace is
+the median of medians over people with 3 or more timed answers, and the time
+to the stop is computed from it; the page starts a clock for pairs and
+screens, records both, drops times on both undos, and passes times into the
+code and the combine. Browser, Playwright at 390 px: 6 pairs at about 0.4 s
+and 6 screens at about 0.9 s read back as 0.4 s per pick and 1.0 s per
+screen; a combine of the screens person with two pairs codes gave "A screen
+took 2.5 times as long as a pick ... about 16 s with picks against 13 s with
+screens"; unticking the box shortens the code; no console errors.

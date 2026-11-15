@@ -192,6 +192,8 @@
     <h3>Your result code</h3>
     <label for="name" class="muted">Your name, so the person combining knows whose code it is (optional)</label>
     <input type="text" id="name" maxlength="60">
+    <label class="inline muted"><input type="checkbox" id="send-times" checked> Include how long each answer took (seconds only; it shows whether pairs or screens of four are quicker for your team)</label>
+    <p id="my-pace" class="muted"></p>
     <code class="share" id="code"></code>
     <div class="row"><button class="secondary" id="copy-code">Copy result code</button></div>
   </section>
@@ -241,6 +243,7 @@
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   import { imageList, matchImages, itemKey, UNDRAWABLE_EXT, pairLayout, zoomOrigin } from "./image-items.mjs";
   import { nextScreen, BW_SET_SIZE } from "./best-worst.mjs";
+  import { answerTime, pace, teamPace, timeToStop } from "./answer-time.mjs";
 
   const $ = (s) => document.querySelector(s);
   const show = (id, on = true) => $(id).classList.toggle("hidden", !on);
@@ -255,6 +258,12 @@
   const myPiles = () => (Array.isArray(state.piles) ? state.piles : undefined);
   const fitNow = () => fit(state.items.length, state.answers, myPiles());
   let current = null, f = null, lastSettled = false;
+  // Answer times (docs/RANK-PAGE.md "Answer times"): from the moment a pair or screen is shown to the answer.
+  // A question during which the page was hidden (another tab, a locked phone) gets no time rather than a wrong one.
+  let shownAt = NaN, hiddenMeanwhile = false;
+  const startClock = () => { shownAt = performance.now(); hiddenMeanwhile = document.hidden; };
+  const stopClock = () => answerTime(shownAt, performance.now(), hiddenMeanwhile);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) hiddenMeanwhile = true; });
 
   // Pictures: item key -> object URL of a file on this device. Nothing here is uploaded or stored.
   const pictures = new Map();
@@ -279,7 +288,7 @@
   }
 
   const storeKey = (items) => `quick-pick-rank:${listId(items)}`;
-  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, mode: state.mode, k: state.k, piles: state.piles ?? null, pilesDecided: state.piles !== undefined, pileAt: state.pileAt ?? null })); } catch {} };
+  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, times: state.times, mode: state.mode, k: state.k, piles: state.piles ?? null, pilesDecided: state.piles !== undefined, pileAt: state.pileAt ?? null })); } catch {} };
   const load = (items) => { try { return JSON.parse(localStorage.getItem(storeKey(items)) || "null"); } catch { return null; } };
 
   // The shortlist size: a whole number from 2 to one less than the list, else null (the mode needs options left out).
@@ -288,6 +297,8 @@
   function begin(title, items, mode, fromLink = false, k = 3, note = "", images = false) {
     const saved = load(items);
     state = { title, items, images, mode: saved?.mode || mode, k: shortlistSize(saved?.k, items.length) ?? shortlistSize(k, items.length) ?? Math.min(3, items.length - 1), answers: Array.isArray(saved?.answers) ? saved.answers : [], seed: (Math.random() * 1e9) >>> 0 };
+    // Answer times from an earlier visit only if one per answer (older saves have none): unknown, not guessed.
+    state.times = Array.isArray(saved?.times) && saved.times.length === state.answers.length ? saved.times.map((t) => (Number.isInteger(t) ? t : null)) : state.answers.map(() => null);
     // Piles from an earlier visit are kept only if they still fit the list; anything else is read as not sorted.
     const sp = saved?.piles;
     state.pileAt = Array.isArray(sp) && Number.isInteger(saved?.pileAt) ? saved.pileAt : undefined;
@@ -359,6 +370,7 @@
     $("#status").textContent = `${state.answers.length} answered${sc ? `; ${what} ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc.phi !== null && !sc.done ? (sc.tau > PILE_NOISE ? `; some picks disagree with your piles, so it leans on the picks and checks the ${what} more strictly` : `; many of your picks are close calls, so it checks the ${what} more strictly`) : ""}` : ""}. ${state.mode === "top" ? topPicksLine(n, state.k) : picksLine(n)}${myPiles() ? " (without a sort first)" : ""}; stop whenever you like.`;
     $("#undo").disabled = state.answers.length === 0;
     show("#ask");
+    startClock();
     $("#left").focus({ preventScroll: true });
   }
 
@@ -384,6 +396,7 @@
     $("#screen-bar").style.width = `${Math.round(Math.max(0, Math.min(1, p / STOP_CONFIDENCE)) * 100)}%`;
     $("#screen-status").textContent = `${state.answers.length} screens answered; order ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc.phi !== null && !sc.done ? "; many of your answers are close calls, so it checks the order more strictly" : ""}. ${screensLine(n)}; stop whenever you like.`;
     show("#ask", false); show("#screen");
+    startClock();
     box.firstChild?.focus({ preventScroll: true });
   }
   function renderScreenStep() {
@@ -397,6 +410,7 @@
     if (screenPick === null) { screenPick = i; return renderScreenStep(); }
     if (screenPick === i) { screenPick = null; return renderScreenStep(); }
     state.answers.push({ set: current.slice(), best: screenPick, worst: i });
+    state.times.push(stopClock());
     record("screen");
     save(); ask();
   }
@@ -476,6 +490,7 @@
     if (!current || $("#ask").classList.contains("hidden")) return;
     const [a, b] = current;
     state.answers.push(kind === "right" ? [b, a, false] : [a, b, kind === "tie"]);
+    state.times.push(stopClock());
     record("pick");
     save(); ask();
   }
@@ -501,7 +516,29 @@
     if (!quiet) record("results_shown");
   }
 
-  function refreshCode() { $("#code").textContent = encodeAnswers({ items: state.items, answers: state.answers, name: $("#name").value, piles: myPiles() }); }
+  function refreshCode() {
+    $("#code").textContent = encodeAnswers({ items: state.items, answers: state.answers, name: $("#name").value, piles: myPiles(), times: $("#send-times").checked ? state.times : null });
+    const me = pace(state.answers, state.times);
+    const line = (x, what) => (x.timed ? `${secs(x.median)} per ${what} (${x.timed} timed)` : "");
+    const parts = [line(me.pairs, "pick"), line(me.screens, "screen")].filter(Boolean);
+    $("#my-pace").textContent = parts.length ? `Your typical answer took ${parts.join("; ")}.` : "No answer times on this device for this list (answers from before times were kept, or the page was in the background).";
+  }
+  const secs = (x) => `${x < 10 ? x.toFixed(1) : Math.round(x)} s`;
+  // A team's real answer times against the simulated answers to the stop: does a screen of four cost more time than the picks it saves?
+  function paceHtml(people) {
+    const tp = teamPace(people);
+    if (!tp.pairs.people && !tp.screens.people) return "";
+    const kind = (x, what) => (x.people ? `${secs(x.median)} per ${what} (${x.people} ${x.people === 1 ? "person" : "people"})` : `no one with ${what}s timed`);
+    let html = `<p><strong>Answer times</strong>, the middle of each person's typical time: ${kind(tp.pairs, "pick")}; ${kind(tp.screens, "screen")}.`;
+    if (tp.pairs.people && tp.screens.people) {
+      const n = state.items.length;
+      const pairCount = picksGuide(n).ordinary;
+      const g = SCREENS_MEASURED.reduce((a, b) => (Math.abs(b.n - n) < Math.abs(a.n - n) ? b : a));
+      const t = timeToStop(tp, pairCount, g.ordinary);
+      html += ` A screen took ${t.screenRatio.toFixed(1)} times as long as a pick. A typical simulated person needs about ${pairCount} picks or ${g.ordinary} screens to settle ${n} options${g.n !== n ? ` (screens: ${g.n} options, the nearest measured)` : ""}, so at these times about ${secs(t.pairs)} with picks against ${secs(t.screens)} with screens: screens ${t.screenRatio < t.breakEven ? "save" : "cost"} time while a screen takes under ${t.breakEven.toFixed(1)} picks' time.`;
+    }
+    return html + `</p><p class="muted">Times come from the codes of people who left "include answer times" on; a question answered while the page was in the background has no time. The counts to the stop are from simulations (docs/RANK-PAGE.md "Best and worst of four"); the times are these people's own.</p>`;
+  }
 
   async function copy(text, button, event) {
     try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; } catch { button.textContent = "Select and copy the text above"; }
@@ -548,8 +585,8 @@
   $("#left").addEventListener("click", () => answer("left"));
   $("#right").addEventListener("click", () => answer("right"));
   $("#tie").addEventListener("click", () => answer("tie"));
-  $("#undo").addEventListener("click", () => { state.answers.pop(); save(); ask(); });
-  $("#screen-undo").addEventListener("click", () => { if (screenPick !== null) { screenPick = null; return renderScreenStep(); } state.answers.pop(); save(); ask(); });
+  $("#undo").addEventListener("click", () => { state.answers.pop(); state.times.pop(); save(); ask(); });
+  $("#screen-undo").addEventListener("click", () => { if (screenPick !== null) { screenPick = null; return renderScreenStep(); } state.answers.pop(); state.times.pop(); save(); ask(); });
   $("#screen-finish").addEventListener("click", () => results(false));
   $("#finish").addEventListener("click", () => results(false));
   // "Answer more" asks one more round of n questions in full-order mode, whatever the stop rule says.
@@ -561,15 +598,16 @@
     a.click(); URL.revokeObjectURL(a.href); record("csv_downloaded");
   });
   $("#name").addEventListener("input", refreshCode);
+  $("#send-times").addEventListener("change", refreshCode);
   $("#copy-link").addEventListener("click", (e) => copy(location.href, e.target, "link_copied"));
   $("#copy-code").addEventListener("click", (e) => copy($("#code").textContent, e.target, "code_copied"));
   $("#combine").addEventListener("click", () => {
-    const people = [{ name: $("#name").value || "You", answers: state.answers, piles: myPiles() }];
+    const people = [{ name: $("#name").value || "You", answers: state.answers, piles: myPiles(), times: state.times }];
     const errors = [];
     $("#codes").value.split(/\s+/).filter(Boolean).forEach((code, k) => {
       const d = decodeAnswers(code, state.items);
       if (d.error) errors.push(`Code ${k + 1}: ${d.error}.`);
-      else if (d.answers.length || d.piles) people.push({ name: d.name || `Person ${people.length + 1}`, answers: d.answers, piles: d.piles });
+      else if (d.answers.length || d.piles) people.push({ name: d.name || `Person ${people.length + 1}`, answers: d.answers, piles: d.piles, times: d.times });
     });
     $("#team-err").textContent = errors.join(" ");
     if (people.length < 2) { $("#team-out").innerHTML = "<p>Paste at least one other person's code.</p>"; return; }
@@ -592,7 +630,7 @@
       <div class="scroll-x"><table><thead><tr><th class="num">#</th><th>Option</th><th class="num" title="People who ranked it first">1st</th><th class="num" title="Best to worst place across people">Places</th><th class="num" title="90% rank range for this group">Group</th><th class="num" title="90% rank range for people like you">Wider</th></tr></thead><tbody>${
       c.order.map((r) => { const x = tr.get(r.item); return `<tr><td class="num">${r.rank}</td><td>${optionCell(r.item)}</td><td class="num">${r.firsts}</td><td class="num">${r.best}&ndash;${r.worst}</td><td class="num">${range(x.low, x.high)}</td><td class="num">${range(x.popLow, x.popHigh)}</td></tr>`; }).join("")}</tbody></table></div>
       <p class="muted"><strong>1st</strong>: people who ranked it first. <strong>Places</strong>: its best to worst place across people; a wide spread marks an option the team splits on, worth a conversation before a vote.</p>
-      <p class="muted"><strong>Group</strong> (90% rank range, this group): where the option sits in these ${c.people} people's average order, allowing only for each person having answered a limited number of pairs. <strong>Wider</strong> (90% rank range, people like you): if these ${c.people} stand for a wider group (customers, a department), where it would sit for that group; this one widens when people disagree, because a few more people could have tipped it.</p>`;
+      <p class="muted"><strong>Group</strong> (90% rank range, this group): where the option sits in these ${c.people} people's average order, allowing only for each person having answered a limited number of pairs. <strong>Wider</strong> (90% rank range, people like you): if these ${c.people} stand for a wider group (customers, a department), where it would sit for that group; this one widens when people disagree, because a few more people could have tipped it.</p>${paceHtml(people)}`;
     record("team_combined");
   });
   document.addEventListener("keydown", (e) => {
