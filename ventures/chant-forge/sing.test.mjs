@@ -319,3 +319,42 @@ test('an opening nasal hums about 7 dB under the vowel it goes to at any pitch a
   }
   assert.ok(spread[1] - spread[0] > 8, `the first murmur's level spread ${(spread[1] - spread[0]).toFixed(1)} dB`);
 });
+
+// Red team 2026-11-15: synthetic signals at the readers' edges, each pinning a mutant the suite let through.
+const harmonic = (t) => { let v = 0; for (let h = 1; h * 150 < 3000; h++) v += Math.sin(2 * Math.PI * 150 * h * t) / h; return v; };
+
+test('readOnset: a tap with one loud frame either side, at the very edges of the window', () => {
+  // a 25 ms dip 40 dB down at 0.100 s; t0 0.095 and a 17 ms window leave exactly one louder frame before
+  // the dip (the first) and one after it (the last), and both must count
+  const x = new Float64Array(Math.round(0.4 * rate));
+  for (let i = 0; i < x.length; i++) { const t = i / rate; x[i] = 0.2 * (t >= 0.1 && t < 0.125 ? 0.01 : 1) * harmonic(t); }
+  assert.equal(readOnset(x, rate, 0.095, 0.25, { window: 0.017 }).cls, 'tap');
+  assert.equal(readOnset(x, rate, 0, 0.25).cls, 'tap', 'and with the whole dip inside the window');
+});
+
+test('readCoda: a final stop reports its closure length and its voicing', () => {
+  let seed = 1; const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+  const make = (closeMs, bar) => {
+    const relAt = 0.3 + closeMs / 1000, x = new Float64Array(Math.round(0.6 * rate));
+    for (let i = 0; i < x.length; i++) { const t = i / rate; x[i] = t < 0.3 ? 0.2 * harmonic(t) : t < relAt ? (bar ? 0.004 * Math.sin(2 * Math.PI * 150 * t) : 0) : t < relAt + 0.01 ? 0.3 * rnd() : 0; }
+    return x;
+  };
+  for (const ms of [40, 60, 100]) for (const bar of [false, true]) {
+    const got = readCoda(make(ms, bar), rate, 0.1, 0.5);
+    assert.equal(got.cls, 'stop', `${ms} ms ${bar ? 'voiced' : 'voiceless'}`);
+    assert.ok(Math.abs(got.closureMs - ms) <= 5, `${ms} ms closure read as ${got.closureMs} ms`);
+    assert.equal(got.voiced, bar, `${ms} ms closure: voice bar ${bar}, read ${got.voiced} (bar ${got.bar.toFixed(1)} dB)`);
+  }
+});
+
+test('readCoda: the voice bar is read from the closure only, never from the release burst', () => {
+  // a silent 35 ms closure, then a 30 ms release (a low thump under some hiss): frames whose 20 ms
+  // window reaches the release must stay out of the bar, which then sits at the silence floor
+  let seed = 1; const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) * 2 - 1;
+  const relAt = 0.335, x = new Float64Array(Math.round(0.6 * rate));
+  for (let i = 0; i < x.length; i++) { const t = i / rate; x[i] = t < 0.3 ? 0.2 * harmonic(t) : t < relAt ? 0 : t < relAt + 0.03 ? 0.005 * Math.sin(2 * Math.PI * 200 * t) + 0.02 * rnd() : 0; }
+  const got = readCoda(x, rate, 0.1, 0.5);
+  assert.equal(got.cls, 'stop');
+  assert.equal(got.voiced, false);
+  assert.ok(got.bar < -200, `bar ${got.bar.toFixed(1)} dB: the burst leaked into the closure`);
+});
