@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Other RAW formats (a CR3 stored in several tiles, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Other RAW formats (a C-RAW CR3 stored in several tiles, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -1170,8 +1170,27 @@ deepest low band is coded like a lossless band and the others with a zero-run Ri
 predict values. On all three files every one of 25.5-25.7 M sensels equals LibRaw 0.22's with both
 decoders, and the white balance, CFA and white level match; 0.6-0.7 s per file with the C decoder
 (each plane on its own thread), 25-28 s in pure Python. The R3 frame develops to a median 0.24 of an
-8-bit step from LibRaw's render (`eval/canon-cr3-craw-2026-11-15.md`). Sensors stored in several tiles
-are still refused with a pointer to the DNG Converter (no test file).
+8-bit step from LibRaw's render (`eval/canon-cr3-craw-2026-11-15.md`).
+
+**Sensors stored in several tiles (later on 2026-11-15).** Canon's widest sensors (the R5 class) can
+store a frame as tiles side by side, and those files were refused. A full-quality CR3 in tiles is now
+read: CMP1's tile size cuts each plane into a grid (every tile that size except the last of each row and
+column, which takes the rest, at least 22 plane sensels, as LibRaw requires); the sample header lists each
+tile's header (0xFF01, carrying its index) and its four planes' headers in turn, and the data follows tile
+after tile, each tile's plane an independent band at the tile's width. The C decoder writes each tile
+straight into its place in the frame, so speed is unchanged (0.53 s for 25.5 M sensels in two tiles).
+
+No public tiled CR3 could be fetched (raw.pixls.us refuses this container's proxy; every CR3 in the
+metadata-extractor-images collection is one tile). So `tools/cr3_tiled_libraw_check.py` makes them: it
+re-stores a real one-tile EOS R8 frame as tiles with the repository's own CRX encoder, splices the sample
+into a copy of the real file, and asks LibRaw 0.22 to read it. LibRaw is an independent reader: it gave back
+every original sensel on six such files (two real R8 frames, each as two tiles across in two splits
+and as a 4 x 3 grid whose last column is 22 plane sensels, the narrowest LibRaw allows), and so did both of
+our engines. A deliberately wrong layout (the same tiles written column by column) comes back from LibRaw
+with 21.4 M of 25.5 M sensels wrong and is refused by ours, so the check can fail. What it cannot prove: the layout comes from this
+repository's reading of LibRaw, not from a Canon body, so a real R5 file is still the stronger test
+(`eval/canon-cr3-tiled-2026-11-15.md`). C-RAW in tiles (edge coefficients where tiles meet) is still
+refused with a pointer to the DNG Converter.
 
 ## Fujifilm RAF (2026-11-14)
 
