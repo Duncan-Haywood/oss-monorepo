@@ -1,6 +1,6 @@
 // The exact repair (calc.mjs coverRepair, README "The clique LP picks the repair's people"): each round now starts from the
 // neighbourhood's own value and prunes on the chosen people's weekly hours, and with the clique LP's values it may choose its
-// people as a chain the LP suggests. None of that may make a roster invalid, leave more hours open, or miss the best roster
+// people as a chain the LP suggests (opt-in: it measured no better than random people). None of that may make a roster invalid, leave more hours open, or miss the best roster
 // when the neighbourhood is everyone.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -76,10 +76,10 @@ test("guided and unguided repairs keep every rule, report their open hours and n
   assert.ok(guidedRounds >= 200 && gains >= 30, `${guidedRounds} guided rounds, ${gains} gains`);
 });
 
-test("buildRoster reports the repair and turns its guide off with repairGuide: false", () => {
+test("buildRoster reports the repair, unguided unless repairGuide: true", () => {
   const { staff, slots } = seededWeek(7, 6, 22);
-  const on = buildRoster(staff, slots, { exact: true, deferCover: false });
-  const off = buildRoster(staff, slots, { exact: true, deferCover: false, repairGuide: false });
+  const on = buildRoster(staff, slots, { exact: true, deferCover: false, repairGuide: true });
+  const off = buildRoster(staff, slots, { exact: true, deferCover: false });
   assert.equal(on.optimality.coverRepair.guided, true);
   assert.ok(on.optimality.coverRepair.guidedRounds > 0);
   assert.equal(off.optimality.coverRepair.guided, false);

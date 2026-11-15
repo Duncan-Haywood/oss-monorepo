@@ -1286,7 +1286,9 @@ function openHoursFloor(ctx) {
 // released shifts plus the open ones exactly for fewest open hours with everyone else fixed (depth-first, longest shift first,
 // pruned on the open hours so far). A walk of single moves cannot reach a gain that needs three people to change at once; this
 // can, inside the neighbourhood. Time-limited; returns the owner array and the open hours (never worse than the input).
-// LP-guided neighbourhoods (2026-11-15, README "The clique LP picks the repair's people"): with `guide` (the open-hours clique
+// LP-guided neighbourhoods (2026-11-15, README "The clique LP picks the repair's people"; opt-in, `repairGuide: true`, because on
+// 24 fixed starts of the 80-100 person bench weeks it cut no more than random people, 11 better and 9 worse, eval/repair-alone.out.txt):
+// with `guide` (the open-hours clique
 // LP's person-shift values, person-major), a round, with probability guideProb, builds its k people as a chain the LP suggests
 // instead of k at random: an open shift i, a person the LP puts on i (drawn by value), then a shift j that person holds which the
 // LP gives mostly to someone else, and that someone (drawn by value), and so on; a chain that runs dry is filled at random. The
@@ -3707,7 +3709,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       }
       mark("coverPass");
       if ((o.coverRepair ?? (exactOn || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
-        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: Math.min(o.coverRepairMs ?? 60000, budgetMs > 0 ? Math.max(200, budgetMs - (Date.now() - tStart)) : Infinity), shiftWeight: o.openShiftWeight ?? 1e-6, guide: o.repairGuide === false ? null : clique?.xs ?? null, guideProb: o.repairGuideProb ?? 0.5 });
+        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: Math.min(o.coverRepairMs ?? 60000, budgetMs > 0 ? Math.max(200, budgetMs - (Date.now() - tStart)) : Infinity), shiftWeight: o.openShiftWeight ?? 1e-6, guide: o.repairGuide === true ? clique?.xs ?? null : null, guideProb: o.repairGuideProb ?? 0.5 });
         repairStats = { guided: rp.guidedRounds > 0, guidedRounds: rp.guidedRounds, gains: rp.gains, guidedGains: rp.guidedGains };
         const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
         const w = o.openShiftWeight ?? 1e-6;

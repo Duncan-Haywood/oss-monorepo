@@ -2,15 +2,15 @@
 // Builds the end-to-end generator's weeks (same generator and seed rule as eval/clique-vs-cover.mjs) at the default 20 s budget,
 // once per (configuration, search seed), and prints one JSON line per build.
 //   node eval/repair-guide.mjs P S week config seed
-//   config: default | unguided (repairGuide: false) | reserve<ms> | reserve<ms>u (unguided) | JSON options
+//   config: default (the guide on, as it was while measured) | unguided (repairGuide: false) | guided (repairGuide: true) | reserve<ms> | reserve<ms>u (unguided) | JSON options
 // Results: eval/repair-guide.jsonl, eval/repair-guide.out.txt, README "The clique LP picks the repair's people".
-const { parseStaff, parseShifts, buildRoster } = await import(process.env.ENGINE === "main" ? "../calc-main.mjs" : "../calc.mjs"); // ENGINE=main: a copy of main's engine before this change, for the baseline
+const { parseStaff, parseShifts, buildRoster } = await import(process.env.ENGINE === "main" ? "../calc-main.mjs" : "../calc.mjs"); // ENGINE=main: git show b92b1c892:ventures/shift-roster-builder/calc.mjs, for the baseline
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const [P, S, week] = [2, 3, 4].map((i) => Number(process.argv[i]));
 const cfg = process.argv[5] || "default", runSeed = Number(process.argv[6] || 1);
 const m = /^reserve(\d+)(u?)$/.exec(cfg);
-const extra = cfg === "default" ? {} : cfg === "unguided" ? { repairGuide: false }
-  : m ? { coverRepairReserveMs: Number(m[1]), ...(m[2] ? { repairGuide: false } : {}) } : JSON.parse(cfg);
+const extra = cfg === "default" ? { repairGuide: true } : cfg === "unguided" ? { repairGuide: false } : cfg === "guided" ? { repairGuide: true }
+  : m ? { coverRepairReserveMs: Number(m[1]), repairGuide: !m[2] } : JSON.parse(cfg);
 let seed = Number(process.env.SEED || 20261022) + P * 100 + S;
 const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
 for (let c = 0; c <= week; c++) {

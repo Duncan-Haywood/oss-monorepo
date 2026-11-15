@@ -1,5 +1,5 @@
 // Small seeded weeks (6-10 people, 22-40 shifts, no time budget, so every build is deterministic), built by main's engine before
-// this change (ENGINE=main: ../calc-main.mjs, a copy kept only while measuring), by this engine and by it with repairGuide: false.
+// this change (ENGINE=main: ../calc-main.mjs, git show b92b1c892:ventures/shift-roster-builder/calc.mjs, kept only while measuring), by this engine and by it with repairGuide: false.
 // One JSON line per week: open hours and score for each. Results: eval/repair-small.out.txt.
 const eng = process.env.ENGINE === "main" ? "../calc-main.mjs" : "../calc.mjs";
 const { parseStaff, parseShifts, buildRoster } = await import(eng);
