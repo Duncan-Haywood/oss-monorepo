@@ -176,6 +176,13 @@ class Misc(unittest.TestCase):
         for x in f:
             self.assertNotIn("a-long-literal-key", x["detail"])
 
+    def test_backslash_run_in_key_does_not_backtrack(self):
+        # ReDoS: the old string-literal pattern split a backslash run 2^n ways.
+        import time
+        t0 = time.perf_counter()
+        check.scan_text('jwt.verify(token, "' + "\\" * 40 + '"x)\n', "a.js")
+        self.assertLess(time.perf_counter() - t0, 1.0)
+
     def test_empty_and_plain_text(self):
         self.assertEqual(check.scan_text("", "a.js"), [])
         self.assertEqual(check.scan_text("hello world\n", "notes.txt"), [])

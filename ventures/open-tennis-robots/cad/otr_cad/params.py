@@ -1175,6 +1175,23 @@ class Feeder:
     # stiff, the two in parallel while the slack strand keeps tension; part of the belt's mass rides on that spring.
     lift_belt_zeta: float = 0.05      # the belt mode's damping ratio (PU on steel cords, small; assumption)
     lift_belt_cspec_sweep: tuple = (0.5, 1.0, 2.0)   # c_spec as a share of `lift_belt_cspec_n`: the sheet's figure is unread
+    # Tooth jump at the drive pulley (2026-11-15; cad/README.md "Lift tooth jump"; `lift_tooth_jump_design`). A hood
+    # jam slackens the down strand, so the 16-tooth drive pulley holds the whole pull on its 8 teeth in mesh with
+    # nothing on the slack side. Two checks: tooth strength against the catalogue's specific tooth force, and
+    # ratcheting (the belt climbing out over the teeth), which no catalogue figure covers. Figures are assumptions.
+    lift_jam_belt_n: float = 89.0     # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt, every c_spec)
+    lift_tooth_fuspec_n_mm: float = 3.6   # AT5 specific tooth force per mm of width at 0 rpm (Optibelt ALPHA LINEAR and
+                                      # Ammeraal PU AT5 sheets, as quoted in search results: 3.6 and 3.64; sheets unread)
+    lift_tooth_fuspec_1200_n_mm: float = 2.478  # the same at 1200 rpm (Optibelt, as quoted; straight line between)
+    lift_tooth_mesh_max: int = 12     # catalogues count at most 12 teeth in mesh
+    lift_tooth_flank_deg: float = 25.0  # AT flank half-angle (a 50 deg trapezoid; assumption: read your profile)
+    lift_tooth_flank_sweep: tuple = (25.0, 30.0, 35.0)   # 30 and 35: a loaded tooth bends and meets the flank steeper
+    lift_tooth_mu: float = 0.0        # PU flank on aluminium; 0 is the worst case for climbing
+    lift_tooth_mu_sweep: tuple = (0.0, 0.15, 0.3)
+    lift_tooth_root_mm: float = 2.5   # AT5 tooth's width at its root along the belt (assumption)
+    lift_tooth_g_mpa: float = 15.0    # PU's shear modulus (92 Shore A class; assumption): sets the tooth's stiffness
+    lift_tooth_g_sweep: tuple = (8.0, 15.0, 40.0)
+    lift_tooth_jump_factor: float = 1.5   # wrap's hold over the flanks' push-out at the nominal figures
     lift_coupler_hub_l: float = 10.5  # each aluminium hub's length (the bore length above)
     lift_shaft_clear: float = 1.5     # coupling to the bearing's flange, and to the gearmotor's face at least
     lift_shaft_allow_mpa: float = 80.0  # stainless D shaft in rotating bending at the running load (fatigue; assumption)
@@ -1667,6 +1684,7 @@ class Feeder:
         bad += self.check_lift()
         bad += self.check_lift_jam()
         bad += self.check_lift_slip()
+        bad += self.check_lift_tooth()
         bad += self.check_lift_shaft()
         bad += self.check_bearing_fit_ring()
         bad += self.check_agitator()
@@ -4273,6 +4291,80 @@ class Feeder:
                 "f_belt_hz": math.sqrt(k_t / j_mass) / (2 * math.pi),
                 "f_stuck_hz": math.sqrt(lo) / (2 * math.pi), "f_upper_hz": math.sqrt(hi) / (2 * math.pi),
                 "f_rigid_hz": cm["f_stuck_hz"]}
+
+    def lift_tooth_jump_design(self, cspec_factor: float = 1.0, g_mpa: float | None = None,
+                               flank_deg: float | None = None, mu: float | None = None, slack_n: float = 0.0,
+                               pulley_teeth: int | None = None, pull_n: float | None = None) -> dict:
+        """Will a jam's pull jump a tooth on the drive pulley? (2026-11-15; cad/README.md "Lift tooth jump").
+
+        Strength: the catalogue's specific tooth force F_Uspec (N per mm of width per tooth in mesh, falling with the
+        pulley's speed) x width x teeth in mesh (at most `lift_tooth_mesh_max`) is the pull the teeth carry.
+
+        Ratcheting: a tooth pushed along by a force Q on a flank inclined `flank_deg` to the radius, sliding against
+        friction mu, pushes the belt outward with Q tan(flank - atan mu). The wrap holds the belt down with its tension:
+        per unit length T / r, so the whole wrap holds (1 / r) x the integral of T along it. The belt jumps when the
+        teeth's summed push-out passes that hold (one tooth climbing alone hands its load on to the next).
+        How the pull spreads over the wrap is a shear-lag problem: each tooth is a spring k_t (PU in shear over its root,
+        G x root x width / height) between the pulley and the belt, and the belt between teeth stretches by T p / EA,
+        EA = c_spec. So T'' = T / L^2 with L = sqrt(EA p / k_t), T = T1 at the tight strand's entry and T2 at the slack
+        exit. Integral of T over the wrap's length l = L (T1 + T2) tanh(l / 2 L); push-out = (T1 - T2) tan(flank - atan mu).
+        With T2 = 0 the margin does not depend on the pull at all: stiff teeth crowd the load onto the first teeth,
+        where little tension is left behind them to hold the belt down. A soft tooth (L >> l) gives back the even
+        share (T1 + T2) x wrap angle / 2."""
+        z = pulley_teeth or self.lift_pulley_teeth
+        g = self.lift_tooth_g_mpa if g_mpa is None else g_mpa
+        flank = self.lift_tooth_flank_deg if flank_deg is None else flank_deg
+        mu = self.lift_tooth_mu if mu is None else mu
+        pull = self.lift_jam_belt_n if pull_n is None else pull_n
+        p = self.lift_belt_pitch / 1000
+        r = p * z / (2 * math.pi)
+        wrap = math.pi                                   # equal pulleys: half a turn each
+        l = wrap * r
+        mesh = int(z * wrap / (2 * math.pi))
+        rpm = self.lift_motor_rpm
+        f0, f1 = self.lift_tooth_fuspec_n_mm, self.lift_tooth_fuspec_1200_n_mm
+        fuspec = f0 + (f1 - f0) * min(rpm, 1200.0) / 1200.0
+        allow = fuspec * self.lift_belt_w * min(mesh, self.lift_tooth_mesh_max)
+        k_t = g * self.lift_tooth_root_mm * self.lift_belt_w / self.lift_tooth_h * 1000   # N/m per tooth
+        ea = self.lift_belt_cspec_n * cspec_factor
+        lam = math.sqrt(ea * p / k_t)
+        t2 = slack_n
+        t1 = pull + t2
+        hold = lam * (t1 + t2) * math.tanh(l / (2 * lam)) / r
+        push = (t1 - t2) * math.tan(math.radians(flank) - math.atan(mu))
+        # slack-side tension that brings this case's margin up to the factor (both strands taut: T1 + T2 = pull + 2 T2)
+        ratio = lam * math.tanh(l / (2 * lam)) / r / max(1e-9, math.tan(math.radians(flank) - math.atan(mu)))
+        t2_need = max(0.0, (self.lift_tooth_jump_factor / ratio - 1) * pull / 2)
+        return {"teeth": z, "mesh": mesh, "r_mm": r * 1000, "rpm": rpm, "fuspec_n_mm": fuspec, "allow_n": allow,
+                "pull_n": pull, "strength_margin": allow / pull, "k_tooth_n_m": k_t, "lambda_teeth": lam / p,
+                "hold_n": hold, "push_n": push, "jump_margin": hold / push if push > 0 else float("inf"),
+                "first_tooth_share": 1 - math.sinh((l - p) / lam) / math.sinh(l / lam) if t2 == 0 else None,
+                "slack_need_n": t2_need, "t0_need_n": t2_need + pull / 2 if t2_need > 0 else 0.0}
+
+    def lift_tooth_jump_sweep(self, pulley_teeth: int | None = None) -> dict:
+        """Every corner of c_spec x tooth stiffness x flank x friction with the slack strand at zero."""
+        rows = []
+        for cs in self.lift_belt_cspec_sweep:
+            for g in self.lift_tooth_g_sweep:
+                for fl in self.lift_tooth_flank_sweep:
+                    for mu in self.lift_tooth_mu_sweep:
+                        d = self.lift_tooth_jump_design(cs, g, fl, mu, pulley_teeth=pulley_teeth)
+                        rows.append({"cspec": cs, "g_mpa": g, "flank": fl, "mu": mu, "margin": d["jump_margin"],
+                                     "lambda_teeth": d["lambda_teeth"], "t0_need_n": d["t0_need_n"]})
+        rows.sort(key=lambda x: x["margin"])
+        return {"rows": rows, "worst": rows[0], "fail": [x for x in rows if x["margin"] < 1.0]}
+
+    def check_lift_tooth(self) -> list[str]:
+        bad = []
+        d = self.lift_tooth_jump_design()
+        if d["strength_margin"] < 1.0:
+            bad.append(f"lift drive pulley's {d['mesh']} teeth in mesh carry {d['allow_n']:.0f} N, under a jam's "
+                       f"{d['pull_n']:.0f} N: a wider belt or more teeth")
+        if d["jump_margin"] < self.lift_tooth_jump_factor:
+            bad.append(f"lift belt may jump a tooth on the drive pulley at a jam: the wrap holds {d['hold_n']:.0f} N "
+                       f"against the flanks' {d['push_n']:.0f} N push-out ({d['jump_margin']:.2f}x, "
+                       f"{self.lift_tooth_jump_factor:g}x wanted)")
+        return bad
 
     def lift_shaft_geometry(self) -> dict:
         """Positions along y for `lift_shaft_design` (geometry only, so the cable route can use it without the motor

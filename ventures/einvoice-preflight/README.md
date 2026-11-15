@@ -1855,7 +1855,8 @@ The SHA3-512 is plain JavaScript (`sha3.mjs`, compared with node:crypto in the
 test), so the page checks the hash in the browser too.
 
 Not checked (listed under `skipped`): what NAV checks against its own records
-(unique numbers, the base invoice of a modification, registered tax numbers),
+(unique numbers, registered tax numbers; the base invoice of a modification only when it is
+not among the files: see "the NAV chain" below),
 gzip-compressed operations, product fee lines against a summary when there are
 two (REFUND and DEPOSIT). Not done: a real business's report with NAV's response
 to compare verdicts.
@@ -1899,7 +1900,40 @@ business checks on a summary row with an empty `vatRate`, now fixed.
 
 Tests: `hu-xsd.test.mjs` (10).
 
-### Header and line-data warnings: Annex I I.1 and I.2 (2026-11-15, latest)
+### Corrections checked against their invoice: the NAV chain (2026-11-15, latest)
+
+A modifying or cancelling NAV report is checked by NAV against the invoice it refers to and the
+corrections already received: does a cancellation bring the invoice back to zero, is the
+modification number new, does a created line reuse a number. One file cannot show that, so
+every single-file run listed those warnings as skipped. Dropped together, a base invoice and
+its modifications now are checked as a chain (`hungary-nav-chain.mjs`, wired into the batch
+report, so the page does it when the files are dropped together):
+
+| Rule | NAV code | What it checks |
+| --- | --- | --- |
+| HU-036 | INVOICE_TYPE_MISMATCH (3.3.2 code 6) | invoiceCategory kept from the base invoice |
+| HU-036 | INVOICE_LINE_ALREADY_EXISTS (7) | a created line's lineNumberReference is not already in the chain |
+| HU-036 | MODIFICATION_INDEX_NOT_UNIQUE (16) | modificationIndex not reused |
+| HU-036 | MODIFY_WITHOUT_MASTER_MISMATCH (20) | modifyWithoutMaster true while the base invoice is among the files |
+| HU-037 | 342, 11400, 11401 (Annex I.1) | issued before the base invoice; delivery date moved to the correction's own issue date (another month for MODIFY, another day for STORNO) |
+| HU-037 | 632, 1030 (I.2) | mergedItemIndicator back to false; a MODIFY line that is not in the chain |
+| HU-037 | 1140, 1200, 1210, 1220, 1230 (I.5) | a document after a cancellation; a cancellation's net, simplified gross, VAT and HUF VAT against the chain so far (1 unit; 1 HUF or 0.01 of the currency for HUF VAT), only on a complete chain |
+| HU-037 (information) | 11250, 10082 (Annex II) | a gap in the modificationIndex series; a different customer tax number |
+
+"Received earlier" means earlier in modificationIndex order among the files given, and the
+messages say so. A bare InvoiceData file does not say whether it goes as MODIFY or STORNO
+(the manageInvoice request does), so it is checked as MODIFY and the cancellation sums are
+listed as skipped; drop the request to get them. Legal-predecessor chains are not followed.
+
+On NAV's own samples (`eval/nav-chain-mutations.mjs`, `eval/nav-chain-2026-11-15.md`): the six
+chains NAV publishes (five on base invoice ZZZ000001, one batch modification of three
+invoices) give no finding, and the "modification and cancellation" pair sums to exactly zero
+when its second document is read as STORNO. 58 seeded faults of 8 kinds into those chains:
+58 caught by the expected code; a cancellation short by 1 HUF passes, by 2 HUF is flagged.
+Also new: Annex II INFO 10311, a new invoice reported more than 10 days after issue, as
+information on HU-034. Tests: `hungary-nav-chain.test.mjs` (18).
+
+### Header and line-data warnings: Annex I I.1 and I.2 (2026-11-15)
 
 The earlier passes read Annex I's calculation, summary and product fee warnings. Sections I.1
 (invoice header) and I.2 (line data) were still unread: of I.1's 34 active warnings, none was

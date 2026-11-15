@@ -466,6 +466,13 @@ def main(argv: list[str] | None = None) -> int:
     qu.add_argument("--no-prs", action="store_true", help="skip the open-PR search that marks rows another PR already names")
     qu.add_argument("--no-fetch", action="store_true",
                     help="in a shallow clone, do not fetch main back to the oldest shown audit (the check may say unknown)")
+    mf = sub.add_parser("mark-fixed", help="record a fix PR on an audit's defects, editing the file in place (no reformat)")
+    mf.add_argument("file", help="audit file (path, or a name in portfolio/quality/audits/)")
+    mf.add_argument("defects", nargs="*", type=int, help="defect indices, from 0 as validate numbers them")
+    mf.add_argument("--pr", required=True, help="the fix PR's URL")
+    mf.add_argument("--all", action="store_true", help="every defect that has no fixed_by yet")
+    mf.add_argument("--force", action="store_true", help="replace a different fixed_by")
+    mf.add_argument("--dry-run", action="store_true")
     mo = sub.add_parser("mode", help="which mode today's quality session runs")
     mo.add_argument("--date", default=dt.date.today().isoformat())
     mo.add_argument("--seed", default=None)
@@ -501,6 +508,12 @@ def main(argv: list[str] | None = None) -> int:
                     days = FLAGSHIP_REAUDIT_DAYS if st == "flagship" else SKIP_DAYS
                     print(f"  {st:<9} none drawn: every subject was audited in the last {days} days (or none exist)")
         return 0
+    if args.cmd == "mark-fixed":
+        if not args.defects and not args.all:
+            ap.error("mark-fixed: name defect indices or pass --all")
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_mark_fixed
+        return quality_mark_fixed.run(args.file, args.defects, args.pr, args.all, args.force, args.dry_run, validate_audit)
     audits = load_audits()
     if args.cmd == "census" and not args.seed:
         # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).

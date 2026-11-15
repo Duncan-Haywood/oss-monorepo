@@ -2416,6 +2416,46 @@ the threshold is set on every reading), `receipt-crosscheck.test.mjs` (the CLI's
 reading by lighting, with and without `--four-pass`); `node eval/photo-ocr-browser.mjs`:
 6/6 in headless Chromium.
 
+### A guessed total counts half in the vote (2026-11-15)
+
+Flagship item (5), "vote picks 145 of 169". A reading that finds no total line falls
+back on the largest amount on the page, and on a phone photo that is usually the cash
+handed over, a card number or noise. The four readings come from one photo, so they
+tend to guess the same wrong amount: three readings guessing 19.75 scored 3 in the vote
+and beat the one reading that printed "Total 21.76" (2). Five SRD misses looked like that.
+
+**Now:** a reading whose total is only the largest-amount fallback counts half
+(`GUESS_VOTE` = 0.5 in `receipts.mjs`). Nothing else in the vote changed, and with two
+readings there is no vote, so `--two-pass` is untouched.
+
+| totals right | before | now |
+|---|---|---|
+| page, SRD US photos, 196 | 145 (74.0%) | **150 (76.5%)** |
+| page, SRD odd half (held out) | 73 of 97 | **77** |
+| page, SROIE scans, 625 | 529 (84.6%) | 529 (84.6%) |
+| CLI `--four-pass`, SRD 196 | 146 (74.5%) | 147 (75.0%) |
+| CLI `--four-pass`, SRD odd half (held out) | 72 of 97 | 71 |
+| CLI `--four-pass`, SROIE 625 | 514 (82.2%) | **516 (82.6%)** |
+
+Chosen on the even-numbered SRD photos with the page's readings: guess weights 0.75, 0.5
+and 0.25 tie at 73 of 99 (72 before), and the middle one was taken; the same grid printed
+the odd half, which every tied setting improves (74 to 78 against 73). On the page five
+photos were fixed and none broken; wrong totals with no warning stay at 3 of 196. The CLI's
+tesseract binary reads differently, and on SRD the change is mixed there: two photos fixed, one
+broken (a garbled "AROUNT Due" line beat a right guess). On SROIE's scans, never looked at
+while choosing, the CLI gains 2 (514 to 516; merchant and date unchanged), so it was kept
+for both and not re-tuned on the binary.
+
+The page's four readings can now be rebuilt from OCR folders without the browser:
+`eval/canvas-shading.mjs` measures each photo as the page does (lightSpread of the canvas
+thumbnail, and its size), and `eval/page-readings.mjs` lays out the four readings the page
+would make in the page's order for `--settled` scoring. This run's OCR reproduced the
+earlier page figures exactly (SRD 145, SROIE 529). Left in the gap: 17 SRD photos with the
+right total in the text, most with no total line in any reading, two with letter swaps on
+the total line ("Balance Due A7.90"). Grid, per-photo readings and commands:
+[`eval/guess-vote-2026-11-15.md`](eval/guess-vote-2026-11-15.md). Test:
+`receipt-crosscheck.test.mjs` ("readings that only guessed the largest amount count half").
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

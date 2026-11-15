@@ -102,17 +102,17 @@ flagships:
       sample read (README); open: a real merchant's payout export, a real 1099-K;
       (4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round
       up`; open: a lender's full table, a supplier's terms letter; (5) receipts OCR
-      (page SROIE 84.6%, US 74.0%; CLI US 74.5%; shaded: Sauvola; next: CORD, vote
-      picks 145 of 169); (6) payroll (README): two journal layouts read; open: a
-      real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
-      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
-      discounts, IN's band and day from the book (README); open: AR statutes, a real
-      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
-      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
-      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
-      once printed. A run that lands a slice replaces its item here; keep this under
-      2,000 characters.
+      (page SROIE 84.6%, US 76.5%; CLI US 75.0%; guesses vote half; next: total-line
+      letter swaps (A7.90), CORD); (6) payroll (README): two journal layouts read;
+      open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS
+      TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
+      `salestax return`: the last six listed states read
+      (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
+      book (README); open: AR statutes, a real return layout; (8b) `annualized`
+      (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
+      once the 2026 instructions print; (9) EITC: 2025 EIC Table matched on all
+      10,992 cells (HISTORY); open: the 2026 table once printed. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -186,15 +186,15 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: NAV Annex I I.1/I.2 header and line warnings
-      HU-034/035, 172 of 172 mutants, eval/nav-annex1-head-lines-2026-11-15.md).
+      History: README and git (latest: NAV chain, a base invoice and its corrections
+      checked together, HU-036/037, 58 of 58 mutants, eval/nav-chain-2026-11-15.md).
       Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: Annex I I.5 re-read; a real signed Facturae
-      file or FACe rejection; ZATCA: a real KSA note; SdI receipt reader landed
-      (NS/RC/MC/NE/DT/AT explained and paired with the file; a real 00305
-      reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection
-      with its file; HR: a real HR invoice, cash accounting; CIUS-PT: which
-      validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
+      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
+      signed Facturae file or FACe rejection; ZATCA: a real KSA note; SdI receipt
+      reader landed (NS/RC/MC/NE/DT/AT explained and paired with the file; a real
+      00305 reproduced, eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA
+      rejection with its file; HR: a real HR invoice, cash accounting; CIUS-PT:
+      which validator does AT run (AA/RED codes)?; FA(3) KOR/ZAL/ROZ totals landed
       (README): open: a real KSeF rejection, a business's real KOR/ZAL file; repair
       keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang; open: a real
       business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
@@ -334,20 +334,21 @@ flagships:
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections). 2026-11-15 latest: 3-game nights
-      (eval/three-game-nights.txt): designed round robins (halves + cyclic cross at
-      12k teams, XOR at 2^k): 12-48 teams on 6 slots to 0 waits; 8 on 2x6 impossible
-      (full grid); 28 teams in the floor-priced step (eval/under-start.txt). Before:
-      every starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
+      (eval/three-game-nights.txt): SAT-found session designs
+      (eval/session-design-sat.txt, session-designs.mjs): every even 10-48 teams on
+      6 slots to 0 waits, 16 of 19 sizes on 9 slots; 8 on 2x6 and 12 on 2x9 UNSAT;
+      28 teams in the floor-priced step (eval/under-start.txt). Before: every
+      starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
       carry-over 94 at 10 teams, at 12 none below 124; refill search in C: 14 teams
-      210, stored. Next, most valuable first: 6-slot 3-game nights at 14, 18, 20, 28
-      teams (20 on 5x6: two closed tens a night; annealing stops at 2 crossing),
-      3-session designs, and odd leagues by groups; the rest of the 20-team gap (40
-      to 44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or
-      a starter family climbed with the floor as its score); 29-30 teams in the page
-      (15 matches: profile 30 first; 27 teams add nothing on seed 1, README
-      "Starting under the gap"); the walk's last heavy tail (22 teams: 20 of 280
-      walks out of budget either way, eval/walk-guide.txt); home-and-away breaks
-      exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
+      210, stored. Next, most valuable first: 3-game nights for odd leagues by
+      groups (7-13 teams on 6 slots keep waits), 3-session designs at 14, 38, 40, 46
+      (SAT timed out at 300 s); the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 29-30 teams in the page (15
+      matches: profile 30 first; 27 teams add nothing on seed 1, README "Starting
+      under the gap"); the walk's last heavy tail (22 teams: 20 of 280 walks out of
+      budget either way, eval/walk-guide.txt); home-and-away breaks exact since
+      2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
       home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
       PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
       below 132, or 124-130 ruled out; 18 and 24 teams: 318 and 570 are the least
@@ -357,12 +358,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): belt stretch landed 2026-11-15 (cad/README.md "Lift belt
-      stretch"): every hood jam slackens the down strand for 0.34-0.6 s with the
-      tight strand at 89 N on 8 teeth in mesh. Next: a tooth-jump check for that jam
-      on the 16-tooth drive pulley (an AT5 per-tooth allowance from a public
-      catalogue, else assumed and swept), and if it fails, a faster hood cut or a
-      20-tooth pulley.
+      venv, about 2 min): tooth jump landed 2026-11-15 (cad/README.md "Lift tooth
+      jump"): 2.54x nominal, 1 of 81 corners under 1; a 20-tooth pulley does worse.
+      Next: the strands' sideways (string) modes against the flights' passing rate
+      and the 38/78 Hz drive modes, with the balls on the up strand only (the lumped
+      model spreads them round the loop).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

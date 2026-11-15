@@ -282,3 +282,10 @@ test("fixtures are accepted by the original sudo's visudo where it is installed"
     execFileSync("visudo", ["-c", "-q", "-f", path.join(here, "fixtures", f)], { stdio: "pipe" });
   }
 });
+
+test("a Defaults binding made of commas does not backtrack exponentially (ReDoS)", () => {
+  // `Defaults:` followed by commas and no space used to split 2^n ways: 32 commas took over 20 s.
+  const t0 = performance.now();
+  scan(`Defaults:${",".repeat(40)}\nDefaults:alice,bob env_reset\n`);
+  assert.ok(performance.now() - t0 < 1000, "scan took over a second");
+});

@@ -463,7 +463,10 @@ function parseStatements(ordered, notes) {
   for (const stmt of ordered) {
     const t = stmt.text;
     let m;
-    if ((m = t.match(/^Defaults(?:([@:!>])\s*((?:\\.|[^\s\\]|,\s*)+))?\s+([\s\S]+)$/))) {
+    // The binding is escapes or non-space characters. An earlier `|,\s*` branch never changed
+    // a match (a comma already matched [^\s\\]) but let a run of commas split 2^n ways: 28 commas
+    // with no space after took 1.4 s and 32 took over 20 s (ReDoS). scan.test.mjs pins this.
+    if ((m = t.match(/^Defaults(?:([@:!>])\s*((?:\\.|[^\s\\])+))?\s+([\s\S]+)$/))) {
       defaults.push(parseDefaults(stmt, m));
       continue;
     }
