@@ -9,6 +9,11 @@
 // B. The five corpus pieces at final D3, 124 BPM: the first note of every syllable of 0.2 s or more,
 //    read against latinOnset()'s first phone. Not used to set anything; the held-out score.
 // C. Every syllable in the corpus: how often each opening consonant occurs.
+// Fourth coda round (2026-11-15): readCoda's murmur-tilt rule (a murmur's energy above 1 kHz a median
+//    28 dB or more under its band under 500 Hz; eval/coda-check.mjs header) applied unchanged to
+//    readOnset's nasal, pre-registered before the first run: A's l and j openings read as a nasal less
+//    often, A's and B's nasal openings no fewer, totals and the vowel-only control no lower. If B's
+//    nasals fall, the rule stays off for openings.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';

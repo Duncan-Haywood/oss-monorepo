@@ -173,7 +173,13 @@ export function expectedRead(ph) {
 //   into silence has no burst, and the next vowel does not fall); place from the burst as before.
 // - a fricative, a nasal and a tap as for an opening.
 // The earliest cue wins, so "nunc" reads as its /n/ and "post" as its /s/.
-export function readCoda(x, rate, vowelAt, tEnd) {
+// A murmur is dark in itself, not only against its vowel: the nose passes little above a few hundred
+// hertz, so a nasal's energy above 1 kHz sits far under its own band under 500 Hz, while a lateral (/l/)
+// keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
+// /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
+// 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
+export const MURMUR_TILT = 28;
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -255,8 +261,9 @@ export function readCoda(x, rate, vowelAt, tEnd) {
     const before = fr.slice(Math.max(0, r[0] - 4), r[0]).map((f) => f.loRel);
     return before.length > 0 && Math.max(...before) >= median(held) + 5;
   };
-  const step = runs(darkish, 45).find((r) => stepped(r) && !vowelAgain(r));
-  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r)), step]
+  const murmur = (r) => !murmurTilt || median(fr.slice(r[0], r[1] + 1).map((f) => db(f.hi1, f.low))) <= -murmurTilt;
+  const step = runs(darkish, 45).find((r) => stepped(r) && !vowelAgain(r) && murmur(r));
+  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step]
     .filter(Boolean).sort((p, q) => p[0] - q[0])[0];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
