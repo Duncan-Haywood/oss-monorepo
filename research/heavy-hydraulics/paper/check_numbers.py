@@ -435,6 +435,17 @@ MANUSCRIPT_CHECKS = [
     ('does not help a left-out family (RMS 0.0046)', "gear_pump_five_results.txt", 'three-number 0.0046'),
     ('by at most 0.0202 from the pooled 0.8212', "gear_pump_five_results.txt", "largest distance from 6r's pooled 0.8212: 0.0202"),
     ('predicts every family left out of the fit within 0.0042', "gear_pump_five_results.txt", 'rexroth          0.8040      -0.0166     -0.0042'),
+    # milestone 6y: the sixth family (Rexroth AZPN)
+    ("Its largest size gives 75.58 L/min", "gear_pump_six_results.txt", "largest size gives 75.58 L/min"),
+    ("its idle power at 85 L/min is 2.49 kW", "gear_pump_six_results.txt", "azpn       0.9587       -0.0352     2.49"),
+    ("to 85 L/min (0.9587), it crosses at 0.8342", "gear_pump_six_results.txt", "E50 (own shape, own drag) 0.8342"),
+    ("misses it by +0.0293, worse than a constant (+0.0170)", "gear_pump_six_results.txt", "one-number 0.8172; error +0.0170"),
+    ("past it (0.9250)", "gear_pump_six_results.txt", "the model's own efficiency there 0.9250"),
+    ("(0.9648 against 0.9650)", "gear_pump_six_results.txt", "ratio of the indices 0.9648, crossings 0.9650"),
+    ("the AZPN crosses at 0.8050 and the rule as committed predicts 0.8049", "gear_pump_six_results.txt", "6x's two-number rule 0.8049: error +0.0001"),
+    ("E<sub>50</sub> = 0.8245 + 0.0183 (kW &minus; 3.57)", "gear_pump_six_results.txt", "E50 = 0.8245 + 0.0183 (kW - 3.57)"),
+    ("an RMS of 0.0023 against 0.0120 for a constant", "gear_pump_six_results.txt", "one-number 0.0120, two-number 0.0023"),
+    ("the registered test fails by 0.0293;", "gear_pump_six_results.txt", "error +0.0293"),
 ]
 
 
