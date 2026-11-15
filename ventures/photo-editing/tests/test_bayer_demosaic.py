@@ -100,6 +100,32 @@ class DirectionalTests(unittest.TestCase):
             bil = float(np.mean((_bilinear(c, pat)[inner] - truth[inner]) ** 2))
             self.assertLess(ours, bil / 4, pat)  # over 6 dB better on this picture
 
+    def test_laplace_weight(self):
+        """3/16 (the default since eval/bayer-laplace-weight-2026-11-15.md) against Hamilton and Adams' 1/4:
+        on the tuning sheet (zone plate, discs, slanted colour edge) luma is over 3 dB nearer the truth on
+        every phase; any weight keeps flat fields flat and each sensel's own value."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        from xtrans_demosaic_check import synthetic_sheet
+
+        from shootflow.bayer_demosaic import directional
+
+        truth = synthetic_sheet(192)
+        lum = lambda a: 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]  # noqa: E731
+        inner = (slice(12, -12), slice(12, -12))
+        for pat in PHASES:
+            c, _ = _mosaic(truth, pat)
+            err = {lap: float(np.mean((lum(directional(c, pat, laplace=lap))[inner] - lum(truth)[inner]) ** 2))
+                   for lap in (0.25, 0.1875)}
+            self.assertLess(err[0.1875], err[0.25] / 2, pat)
+            self.assertTrue(np.array_equal(directional(c, pat), directional(c, pat, laplace=0.1875)))
+        flat = np.ones((20, 26, 3)) * np.array([0.6, 0.4, 0.25])
+        for lap in (0.0, 0.125, 0.3):
+            c, _ = _mosaic(flat, (0, 1, 1, 2))
+            self.assertLess(float(np.max(np.abs(directional(c, (0, 1, 1, 2), laplace=lap) - flat))), 1e-6, lap)
+
     def test_bands_equal_one_piece(self):
         import numpy as np
 
