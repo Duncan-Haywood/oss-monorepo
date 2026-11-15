@@ -46,17 +46,22 @@ test('LR: near 0 on a rounded walk, large on the same walk carried forward', () 
   assert.equal(staleLikelihoodRatio(walk.slice(0, 10)), null);
 });
 
-test('shipped setting is off: the likelihood runs only when asked', () => {
+test('round three (Gaussian, whole stretch) still reproduces when asked; round four is the default', () => {
   assert.equal(CATCHUP.ratio, Infinity);
-  assert.equal(CATCHUP.method, undefined);
+  assert.equal(CATCHUP.method, 'lr');
   const rows = read('./data/frozen-juice.csv').trim().split('\n').slice(1).map((l) => l.split(','));
   const ppi = rows.map((r) => Number(r[2]));
-  const off = updateRateChanges(ppi);
+  // the ratio-only base, as before round four: no likelihood
+  const off = updateRateChanges(ppi, { catchUp: { method: null } });
   assert.equal(off.changes[0].staleLR, undefined);
-  // asked for: the rounded index stays rounding (descriptive, README)
+  // round three asked for: the rounded index stays rounding (descriptive, README)
   const on = updateRateChanges(ppi, { catchUp: { method: 'lr', lr: 5.41, test: staleTest } });
   assert.equal(on.changes[0].rounding, true);
   assert.ok(on.changes[0].staleLR < 5.41);
+  // the default (round four): still rounding
+  const now = updateRateChanges(ppi);
+  assert.equal(now.changes[0].rounding, true);
+  assert.ok(now.changes[0].staleLR < 5.41, `ppi LR ${now.changes[0].staleLR}`);
 });
 
 test('round three fails as committed', () => {

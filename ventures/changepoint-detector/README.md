@@ -3379,6 +3379,53 @@ needs a heavy-tailed M0 (a t or a mixture of two step sizes) as well as the trim
 On the juice file (descriptive): `ppi`, the rounded index, has LR 1.26 (p 0.05): rounding, as the
 catch-up ratio also said. `price` is not one-tick, so the test does not run on it. Test: `rounded-walk.test.mjs`.
 
+### One-tick stale feeds: a heavy-tailed walk (2026-11-15, pre-registered round four; ships)
+
+Round three's post hoc named two causes of its false calls, and this round changes exactly those two:
+
+1. **The stretch.** The update-rate partition's cut lands a few steps late, so the "sticky" stretch ends
+   with the fast regime's moves. Now the likelihood sees the stretch only inside its cuts' date ranges
+   (`cutRanges`, the shipped slack 6): it starts after the latest date its left cut could have and ends
+   before the earliest its right cut could have (`trim: 'range'` in `update-rate.mjs`). Not the post
+   hoc's 15 steps, a number seen on the data.
+2. **The walk.** Both models now have Student t steps (`rounded-walk.mjs` `staleTestHeavy`), with the
+   degrees of freedom profiled over {2, 4, 10, Infinity}; Infinity is round three's Gaussian, so the old
+   M0 is inside the new one. M0 can now explain a rare big jump by a heavy tail; M1 has to win on
+   catch-ups whose size grows with the run of repeats before them. The grid was written down before any
+   run and does not contain X1's own 3. The threshold stays 5.41 (theory; the degrees of freedom are a
+   nuisance shared by both models).
+
+Pre-registered in `eval/update-rate-stale-lr-4.mjs` (committed in 3b049bf88 before the confirmation ran,
+with a 20-series smoke run on seed 6 in its commit message, used to choose nothing). Same cells and K1-K3
+as rounds one to three, round three's X1 and X2, and **K4 now binding**: a check that calls a jumpy slow
+series stale would mislead on real prices. One new cell reported, not judged: X3, X1's heavy-tailed walk
+carried forward 60% of steps. Fresh seed 20261216, 200 series a cell, run once (551 s on four threads):
+
+| seed 20261216, change nearest step 150 | called stale among one-tick series | rule |
+|---|---|---|
+| R1 / R2 / R3, rounded walks | 0.0% / 0.0% / 0.0% | <= 5% each: pass (round three 7.0-11.5%) |
+| T1 / T2 / T3, one-tick stale feeds | 98.0% / 96.9% / 81.3% | >= 80% each: pass |
+| F1-F3, rounding <= 5% | 0 / 0 / 0 | pass |
+| X1 heavy-tailed walk / X2 mean-reverting | 3.0% / 0.5% | <= 10% each: pass (round three 61.5% / 9.5%) |
+| X3 heavy-tailed walk carried forward (not judged) | 81.9% | power on a jumpy stale feed |
+
+**Verdict: ships.** `CATCHUP` is now `{ method: 'lr', test: staleTestHeavy, trim: 'range', lr: 5.41 }`:
+a one-tick sticky stretch where the likelihood ratio clears 5.41 is flagged `catchUp` instead of
+`rounding`, and the update-rate line says so ("the moves that end runs of repeats grow with the run, as a
+stale figure catching up would (a rounded walk carried forward on about N% of steps fits it better than
+the same walk only rounded, even allowing heavy-tailed jumps (likelihood ratio X, against 5.4 at the 1%
+level))"). Passing any `catchUp` option replaces the default whole over the ratio-only base, so rounds one
+to three still reproduce their files; `catchUp: { method: null }` is the median-move test alone.
+
+What it costs: T3, the clumped stale feed, is the weak cell (81.3%, just over the bar): long clumps look
+like a slow walk to both models. The heavy test takes about 0.5 s on a 150-step stretch (four model
+fits per side), and runs only on stretches that already pass the one-tick test. On the juice file,
+`ppi` (the rounded index) now has LR 0.0 (round three's Gaussian test gave 1.26): rounding, as before.
+
+Still open: a real series with documented carry-forward to check a call against (all the evidence here
+is simulated); clumped carry-forward (T3) is the cell to improve. Tests: `rounded-walk-heavy.test.mjs`,
+`rounded-walk.test.mjs`, `update-rate-catchup.test.mjs`.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
