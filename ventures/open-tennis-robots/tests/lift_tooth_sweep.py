@@ -3,7 +3,8 @@
     python3 tests/lift_tooth_sweep.py
 
 A hood jam slackens the up strand (tests/lift_jam_sweep.py --belt: 0.34-0.60 s at zero tension) while the tight
-strand pulls up to 89 N on the 16-tooth drive pulley. This prints the two checks in `Feeder.lift_tooth_jump_design`
+strand pulls up to 100 N on the 16-tooth drive pulley (89 N until the duty was held to the battery; --chain agrees).
+This prints the two checks in `Feeder.lift_tooth_jump_design`
 (tooth strength against the catalogue's specific tooth force; ratcheting, the wrap's hold against the flanks'
 push-out) over every corner of belt stiffness, tooth stiffness, flank angle and flank friction, for the 16-tooth
 pulley and the 20-tooth one the open item proposed. Every figure is an assumption (cad params).
@@ -20,7 +21,7 @@ def main() -> None:
     p = Feeder()
     print("# python3 tests/lift_tooth_sweep.py  (2026-11-15; cad/README.md \"Lift tooth jump\")")
     hub_n = p.lift_slip_design()["stick_hi_nm"] / (p.lift_pd / 2000)
-    print(f"Jam pull: {p.lift_jam_belt_n:g} N net (tests/lift_jam_sweep.py --belt; the hub's highest sticking torque "
+    print(f"Jam pull: {p.lift_jam_belt_n:g} N net (tests/lift_jam_sweep.py --belt and --chain; the hub's highest sticking torque "
           f"over the pitch radius alone is {hub_n:.0f} N), slack strand at 0 N")
     for z in (p.lift_pulley_teeth, 20):
         pull = p.lift_jam_belt_n * p.lift_pulley_teeth / z      # the hub caps torque, so a bigger pulley pulls less

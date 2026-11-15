@@ -31,10 +31,6 @@ SHEET = (48 * IN, 96 * IN)           # 4 x 8 ft: width (y), height (z)
 SPACING = 16 * IN                    # stud spacing on centre
 
 
-def _bid(model, name):
-    return mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, name)
-
-
 def ground_wrench(robot, qpos, ext, grip="palm"):
     """Joint torques and ground wrench holding the robot still with a force `ext` (N, 3-vector)
     split equally between its two hand points, on top of gravity. Returns (Static-like tuple)."""
@@ -56,8 +52,35 @@ def ground_wrench(robot, qpos, ext, grip="palm"):
     return tau, ratio, f
 
 
-def check_push(robot, d0, hand_xz, tool_kg, force, mu, grip="palm", q_init=None):
-    """(feasible, qpos, ratio) for pressing `force` N horizontally into a wall with the tool."""
+def wall_clearance(robot, qpos, gap, grip="palm"):
+    """Smallest distance (m) from any collision geom to a wall `gap` m ahead (+x) of the hands.
+
+    Each collision geom is bounded by its axis-aligned box (MuJoCo's `geom_aabb`) carried into
+    the world frame, so the front of the body is over-estimated, never under-estimated. The wall
+    is the plane x = (mean x of the two hand points) + gap: the nailer's nose sits `gap` ahead of
+    the grip and touches the wall. A negative value means some part of the robot is through it.
+    """
+    m = robot.model
+    d = mujoco.MjData(m)
+    d.qpos[:] = qpos
+    mujoco.mj_kinematics(m, d)
+    wall = np.mean([P._point(d, P._bid(m, b), p)[0] for b, p in robot.hands[grip]]) + gap
+    front = -np.inf
+    for g in range(m.ngeom):
+        if m.geom_contype[g] == 0 and m.geom_conaffinity[g] == 0:
+            continue                                         # visual-only mesh
+        rot = d.geom_xmat[g].reshape(3, 3)
+        c, h = m.geom_aabb[g][:3], m.geom_aabb[g][3:]
+        front = max(front, (d.geom_xpos[g] + rot @ c)[0] + np.abs(rot[0]) @ h)
+    return float(wall - front)
+
+
+def check_push(robot, d0, hand_xz, tool_kg, force, mu, grip="palm", q_init=None, wall=None):
+    """(feasible, qpos, why) for pressing `force` N horizontally into a wall with the tool.
+
+    `wall` is the distance (m) from the hands to the wall (the tool's nose ahead of its grip);
+    with a value, the pose is infeasible ("wall") if any collision geom crosses the wall plane.
+    None leaves the wall out (the model before the 2026-11-15 quality audit)."""
     m = robot.model
     weight = (float(m.body_subtreemass[1]) + tool_kg) * G
     z = hand_xz[1]
@@ -69,22 +92,25 @@ def check_push(robot, d0, hand_xz, tool_kg, force, mu, grip="palm", q_init=None)
     fz = f[2] + f[8]
     fx = f[0] + f[6]
     slip_ok = fz > 0 and abs(fx) <= mu * fz
-    ok = p.ok and float(ratio.max()) <= 1.0 and min(f[2], f[8]) > 0 and slip_ok
+    wall_ok = wall is None or not p.ok or wall_clearance(robot, p.qpos, wall, grip) >= 0
+    ok = p.ok and wall_ok and float(ratio.max()) <= 1.0 and min(f[2], f[8]) > 0 and slip_ok
     k = int(np.argmax(ratio))
     jid = int(np.flatnonzero(m.jnt_dofadr == k)[0])
-    why = "reach" if not p.ok else ("slip" if not slip_ok else mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_JOINT, jid))
+    why = ("reach" if not p.ok else "wall" if not wall_ok else "slip" if not slip_ok
+           else mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_JOINT, jid))
     return ok, p.qpos, why
 
 
-def push_limit(robot, d0, hand_xz, tool_kg, mu, grip="palm", hi=400.0, tol=1.0):
-    """Largest horizontal push (N, both hands together) at hand_xz; (None, why) if even 0 N fails."""
-    ok, q, why = check_push(robot, d0, hand_xz, tool_kg, 0.0, mu, grip)
+def push_limit(robot, d0, hand_xz, tool_kg, mu, grip="palm", hi=400.0, tol=1.0, wall=None):
+    """Largest horizontal push (N, both hands together) at hand_xz; (None, why) if even 0 N fails.
+    `wall`: see `check_push`."""
+    ok, q, why = check_push(robot, d0, hand_xz, tool_kg, 0.0, mu, grip, wall=wall)
     if not ok:
         return None, why
     lo = 0.0
     while hi - lo > tol:
         mid = (lo + hi) / 2
-        ok, q2, w2 = check_push(robot, d0, hand_xz, tool_kg, mid, mu, grip, q)
+        ok, q2, w2 = check_push(robot, d0, hand_xz, tool_kg, mid, mu, grip, q, wall=wall)
         if ok:
             lo, q = mid, q2
         else:
