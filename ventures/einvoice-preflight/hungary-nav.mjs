@@ -56,11 +56,31 @@ const raw = (node, ...names) => {
   return n ? n.text : "";
 };
 const txt = (node, ...names) => raw(node, ...names).trim();
+// xs:decimal's lexical form; Number() alone would also take "0x10FE", "1e3", "Infinity" and " ".
+const DECIMAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;
 const num = (value) => {
-  if (value === "" || value === undefined) return null;
+  if (value === "" || value === undefined || !DECIMAL.test(value)) return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 };
+// The decimal-typed leaves of invoiceData.xsd that this module reads (amounts, prices, quantities, rates).
+const DECIMAL_LEAVES = new Set(["quantity", "unitPrice", "unitPriceHUF", "vatPercentage", "vatContent", "vatRate", "discountValue", "discountRate"]);
+const decimalLeaf = (node) => !node.children.length && (DECIMAL_LEAVES.has(node.name) || /(?:Amount|AmountHUF|ExchangeRate|exchangeRate)$/.test(node.name));
+/** Every decimal-typed leaf under `node` whose text is not an xs:decimal, with its path. */
+function badDecimals(node, path, found = []) {
+  const counts = {};
+  for (const c of node.children) counts[c.name] = (counts[c.name] || 0) + 1;
+  const seen = {};
+  for (const c of node.children) {
+    seen[c.name] = (seen[c.name] || 0) + 1;
+    const p = `${path}/${c.name}${counts[c.name] > 1 ? `[${seen[c.name]}]` : ""}`;
+    if (decimalLeaf(c)) {
+      const t = c.text.trim();
+      if (t !== "" && num(t) === null) found.push([p, t]);
+    } else badDecimals(c, p, found);
+  }
+  return found;
+}
 const fmt = (n) => (Math.round(n * 100) / 100).toFixed(2);
 
 // NAV section 3.3.3: rounding is tolerated up to 1% of the amount, never less than one unit.
@@ -174,13 +194,16 @@ function checkInvoice(inv, ctx, out, skipped) {
   const category = txt(detail, "invoiceCategory");
   const simplified = category === "SIMPLIFIED";
   const currency = txt(detail, "currencyCode");
-  const rate = num(txt(detail, "exchangeRate"));
+  const statedRate = num(txt(detail, "exchangeRate"));
+  // ExchangeRateType is minExclusive 0 (the schema gate names it); forint conversions at 0 or below would only repeat it.
+  const rate = statedRate !== null && statedRate > 0 ? statedRate : null;
+  const firstFinding = out.length;
   const deliveryDate = txt(detail, "invoiceDeliveryDate") || txt(detail, "invoiceDeliveryPeriodEnd");
   const issueDate = ctx.issueDate;
   const vatStatus = txt(customer, "customerVatStatus");
 
   // --- Header: currency and exchange rate (codes 77, 78).
-  if (currency === "HUF" && rate !== null && rate !== 1) {
+  if (currency === "HUF" && statedRate !== null && statedRate !== 1) {
     out.push(finding("HU-012", `The invoice is in HUF but exchangeRate is ${txt(detail, "exchangeRate")} (NAV INCORRECT_HEAD_DATA_CURRENCY_CODE_HUF).`,
       "A forint invoice takes exchangeRate 1.", `${base}/invoiceHead/invoiceDetail/exchangeRate`));
   }
@@ -644,6 +667,13 @@ function checkInvoice(inv, ctx, out, skipped) {
     }
   }
   if (ctx.merged && lines.length) skipped.push({ rule: "HU-020/HU-024/HU-026", path: `${base}/invoiceLines`, reason: "mergedItemIndicator is true (lines are merged), so line-to-summary sums were not compared." });
+  // An amount that is not an xs:decimal fails NAV's schema check (HU-030 names it) before any
+  // arithmetic, and a sum built around an unreadable amount names a wrong total; drop the sums.
+  const bad = badDecimals(inv, base);
+  if (bad.length) {
+    for (let i = out.length - 1; i >= firstFinding; i--) if (/^HU-02[0-6]$/.test(out[i].rule)) out.splice(i, 1);
+    skipped.push({ rule: "HU-020..026", path: base, reason: `${bad.length} amount${bad.length === 1 ? " is" : "s are"} not a decimal number (${bad.slice(0, 3).map(([p]) => p.split("/").pop()).join(", ")}), so the line and summary arithmetic was not checked.` });
+  }
 }
 
 /** Check one InvoiceData document (the decoded XML). `operation` is the request's invoiceOperation when known. */
