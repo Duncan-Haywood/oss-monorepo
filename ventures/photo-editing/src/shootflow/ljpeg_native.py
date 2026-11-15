@@ -26,7 +26,8 @@ Panasonic RW2 decode of ``shootflow.rw2`` (``tests/test_rw2.py`` runs both), and
 decoders of ``shootflow.srw`` (``shootflow_samsung_rows_run``, ``_huffman_run``, ``_blocks_run``;
 ``tests/test_srw.py`` runs both), and ``shootflow_pentax_run``, the Pentax PEF decode of
 ``shootflow.pef`` (``tests/test_pef.py`` runs both), and ``shootflow_fuji_strip``, one strip of a
-Fujifilm lossless compressed RAF (``shootflow.raf_compressed``; ``tests/test_raf_compressed.py`` runs both).
+Fujifilm lossless compressed RAF (``shootflow.raf_compressed``; ``tests/test_raf_compressed.py`` runs both),
+and ``shootflow_crx_band``, one band of a Canon CR3 (``shootflow.cr3``; ``tests/test_cr3.py`` runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -831,6 +832,142 @@ done:
     free(mains); free(buf);
     return result;
 }
+
+/* Canon CR3 (CRX) band at imageLevels 0, the twin of shootflow.cr3.decode_band:
+   median edge predictor, adaptive Rice code and JPEG-LS run mode. Each value, clamped to the
+   signed bits range plus 2^(bits-1), goes to out[line * stride + 2 * x] (one 2x2 position of the
+   sensor). Returns 0, or -1 on an invalid stream. */
+typedef struct { const uint8_t *d; long len, pos; uint64_t acc; int n; } crx_bits;
+static void crx_fill(crx_bits *b) {
+    while (b->n <= 56) { uint64_t v = b->pos < b->len ? b->d[b->pos] : 0; b->pos++; b->acc |= v << (56 - b->n); b->n += 8; }
+}
+static inline uint32_t crx_get(crx_bits *b, int k) {
+    if (!k) return 0;
+    if (b->n < k) crx_fill(b);
+    uint32_t v = (uint32_t)(b->acc >> (64 - k)); b->acc <<= k; b->n -= k; return v;
+}
+static inline long crx_zeros(crx_bits *b) {
+    long count = 0;
+    for (;;) {
+        if (b->n < 33) crx_fill(b);
+        if (b->acc) {
+            int z = __builtin_clzll(b->acc);
+            if (z < b->n) { count += z; b->acc <<= z; b->acc <<= 1; b->n -= z + 1; return count; }
+        }
+        count += b->n; b->acc = 0; b->n = 0;
+        if (b->pos > b->len + 16) return -1;
+    }
+}
+static const int crx_J[32] = {0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,5,5,6,6,7,7,8,9,10,11,12,13,14,15};
+static inline int crx_next_k(int k, uint32_t code) {
+    int nk = k - (code < (uint32_t)((1 << k) >> 1)) + ((code >> k) > 2) + ((code >> k) > 5);
+    return nk < 15 ? nk : 15;
+}
+static inline long crx_error(crx_bits *b, int k) {
+    long code = crx_zeros(b);
+    if (code < 0) return -1;
+    if (code >= 41) return crx_get(b, 21);
+    if (k) return (long)crx_get(b, k) | (code << k);
+    return code;
+}
+static inline long crx_run(crx_bits *b, int *s, long length) {
+    if (!crx_get(b, 1)) return 0;
+    long n = 1;
+    while (crx_get(b, 1)) {
+        n += 1L << crx_J[*s];
+        if (n > length) { n = length; break; }
+        if (*s < 31) ++*s;
+        if (n == length) break;
+    }
+    if (n < length) {
+        if (crx_J[*s]) n += crx_get(b, crx_J[*s]);
+        if (*s > 0) --*s;
+        if (n > length) return -1;
+    }
+    return n;
+}
+static void crx_store(const int32_t *line, long width, int bits, uint16_t *out)
+{
+    int32_t lo = -(1 << (bits - 1)), hi = (1 << (bits - 1)) - 1, mid = 1 << (bits - 1);
+    for (long x = 0; x < width; x++) {
+        int32_t v = line[x];
+        out[2 * x] = (uint16_t)((v < lo ? lo : (v > hi ? hi : v)) + mid);
+    }
+}
+long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int bits, uint16_t *out, long stride)
+{
+    crx_bits b = {d, len, 0, 0, 0};
+    int32_t *bufs = (int32_t *)calloc((size_t)(2 * (width + 2)), sizeof(int32_t));
+    if (!bufs) return -1;
+    int32_t *cur = bufs, *prev = bufs + width + 2;
+    int s = 0, k = 0;
+    long i = 0, length = width, code, n;
+    cur[0] = 0;
+    while (length > 1) {
+        if (cur[i]) cur[i + 1] = cur[i];
+        else {
+            n = crx_run(&b, &s, length);
+            if (n < 0) goto bad;
+            if (n) {
+                length -= n;
+                while (n-- > 0) { cur[i + 1] = cur[i]; i++; }
+                if (length <= 0) break;
+            }
+            cur[i + 1] = 0;
+        }
+        if ((code = crx_error(&b, k)) < 0) goto bad;
+        cur[i + 1] += -(int32_t)(code & 1) ^ (int32_t)(code >> 1);
+        k = crx_next_k(k, (uint32_t)code); i++; length--;
+    }
+    if (length == 1) {
+        cur[i + 1] = cur[i];
+        if ((code = crx_error(&b, k)) < 0) goto bad;
+        cur[i + 1] += -(int32_t)(code & 1) ^ (int32_t)(code >> 1);
+        k = crx_next_k(k, (uint32_t)code); i++;
+    }
+    cur[i + 1] = cur[i] + 1;
+    crx_store(cur + 1, width, bits, out);
+    for (long line = 1; line < height; line++) {
+        int32_t *t = prev; prev = cur; cur = t;
+        cur[0] = prev[1];
+        long j = 0; i = 0; length = width;
+        while (length > 0) {
+            int median = 1;
+            if (length > 1 && cur[i] == prev[j + 1] && cur[i] == prev[j + 2]) {
+                n = crx_run(&b, &s, length);
+                if (n < 0) goto bad;
+                if (n) {
+                    length -= n; j += n;
+                    while (n-- > 0) { cur[i + 1] = cur[i]; i++; }
+                    if (length <= 0) break;
+                }
+                median = 0;
+            }
+            int32_t a = cur[i], bb = prev[j + 1], value;
+            if (median) {
+                int32_t c = prev[j], delta = bb - c;
+                int neg = delta < 0;
+                int pick = (((c < a) ^ neg) << 1) + ((a < bb) ^ neg);
+                value = pick < 2 ? delta + a : (pick == 2 ? a : bb);
+            } else value = bb;
+            if ((code = crx_error(&b, k)) < 0) goto bad;
+            cur[i + 1] = value + (-(int32_t)(code & 1) ^ (int32_t)(code >> 1));
+            if (length > 1) {
+                int32_t nd = (prev[j + 2] - prev[j + 1]) * 2;
+                code = (code + (nd < 0 ? -nd : nd)) >> 1;
+                j++;
+            }
+            k = crx_next_k(k, (uint32_t)code); i++; length--;
+        }
+        cur[i + 1] = cur[i] + 1;
+        crx_store(cur + 1, width, bits, out + line * stride);
+    }
+    free(bufs);
+    return 0;
+bad:
+    free(bufs);
+    return -1;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -959,6 +1096,10 @@ def _load():
     fuji.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_int, ctypes.c_long,
                      ctypes.c_int, ctypes.c_int, ctypes.c_long, ctypes.c_void_p, ctypes.c_char_p]
     _STATE["fuji_strip"] = fuji
+    crx = lib.shootflow_crx_band
+    crx.restype = ctypes.c_long
+    crx.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_void_p, ctypes.c_long]
+    _STATE["crx"] = crx
     return fn
 
 
@@ -1251,3 +1392,9 @@ def fuji_strip_function():
     """``shootflow_fuji_strip`` (one strip of a compressed RAF, ``shootflow.raf_compressed``), or None."""
 
     return _STATE.get("fuji_strip") if reader() is not None else None
+
+
+def crx_function():
+    """``shootflow_crx_band`` (one band of a Canon CR3, ``shootflow.cr3``), or None."""
+
+    return _STATE.get("crx") if reader() is not None else None

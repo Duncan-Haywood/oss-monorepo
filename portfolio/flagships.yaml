@@ -250,10 +250,11 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      Public samples, no key: raw.pixls.us (CC0, most bodies; answers since
-      2026-11-15) and github.com/drewnoakes/metadata-extractor-images (sparse
-      checkout; ARW, NEF, ORF, RW2, SRW, PEF and RAF read,
-      eval/*-reader-2026-11-14.md). X-Trans demosaic toward LibRaw's three-pass (2-6
+      Public samples, no key: github.com/drewnoakes/metadata-extractor-images
+      (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3
+      read, eval/*-reader-*.md; raw.pixls.us answered 403 here on 2026-11-15).
+      CR3 C-RAW: three real C-RAW files in its cr3/ (3-level 5/3 wavelet,
+      quantised subbands; eval/canon-cr3-reader-2026-11-15.md). X-Trans demosaic toward LibRaw's three-pass (2-6
       dB short; a noisy known truth for the real-frame luma gap; a C path;
       eval/xtrans-directional-demosaic-2026-11-14.md). DNG 1.7.1.0 spec PDF: URL in
       eval/opcode-spec-audit-2026-11-12.md.
@@ -275,9 +276,9 @@ flagships:
       (corners level after lensfun's vignetting?); a second maker-against-lensfun
       DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
       or the SDK to check them; lateral colour measured on a real frame with sharp
-      corner edges; a real Adobe `.dcp` through the profile chooser; newer CR2s
-      (ColorData8-11: 5D Mark IV, 80D, 90D; raw.pixls.us answers since 2026-11-15);
-      the DJI Phantom 4 DNG's vignette lift against DJI's own render
+      corner edges; a real Adobe `.dcp` through the profile chooser; CR3 C-RAW and
+      tiled CR3 (eval/canon-cr3-reader-2026-11-15.md); the DJI Phantom 4 DNG's
+      vignette lift against DJI's own render
       (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
       set; a phone DNG with its own JPEG of the frame (corrected corners); a
       tungsten-lit colour chart to say which colour model is closer (the 70D frame,
