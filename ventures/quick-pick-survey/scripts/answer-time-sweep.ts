@@ -90,8 +90,10 @@
  *   shift-drop-nNN `--net-share 0.NN`: the shipped reading whose split must also leave a step net of the person's own line (stepNetOfTrend) of at least 0.NN x the gap threshold
  *   (since 2026-11-14 shift-drop includes the wander test, FAST_BLOCK_WALK_Q; the qNN, tfNN, lNN and nNN schemes run without it, so their rows reproduce)
  *   shift-drop-wQQ-fFF[-eEEE] `--walk 0.QQ:FF[:engage]`: the shipped reading whose split must also reach the 0.QQ quantile (at least FF) of the panel's slow-turn stepOverWalk scores
- *   shift-drop-azZZ[-only] `--agree z[:only]`: the shipped reading given the picks too, with agreeZ z (z = 2.5 is the default
- *     since 2026-11-14, so shift-drop-az25 is what the ranking route does; shift-drop itself passes times only)
+ *   shift-drop-azZZ[-only][-lw] `--agree z[:only][:lapse]`: the shipped reading given the picks too, with agreeZ z (flat z = 2.5
+ *     was the default from 2026-11-14; since 2026-11-15 it is z = 3 with the lapse weighting, so shift-drop-az30-lw is what the
+ *     ranking route does; shift-drop itself passes times only)
+ *   `--anchors N`: every N-th answer a check pair (the most lopsided by the person's own ratings); 0 by default
  *   `--person-walk sd`: each person's pace also wanders as a random walk, N(0, sd) log per answer
  *
  * `--onset-spread s` (2026-11-13): each careless person's onset is drawn

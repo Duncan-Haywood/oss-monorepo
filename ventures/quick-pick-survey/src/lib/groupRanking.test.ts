@@ -737,6 +737,9 @@ describe("fastBlockStarts", () => {
     expect(keys(fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, undefined, undefined, undefined, 0))).toEqual(["p2"]);
     expect(keys(fastBlockStarts(answers))).toEqual(["p1", "p2"]);
     expect(fastBlockStarts(answers).get("p1")).toBeGreaterThanOrEqual(22);
+    // The rule before 2026-11-15 (flat weighting at 2.5) agrees here; the lapse default is its own reading, not a copy.
+    expect(keys(fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, undefined, undefined, undefined, 2.5, "or", "flat"))).toEqual(["p1", "p2"]);
+    expect(() => fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, undefined, undefined, undefined, 3, "or", "even" as "flat")).toThrow();
     expect(() => fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, undefined, undefined, undefined, -1)).toThrow();
     expect(() => fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, undefined, undefined, undefined, 2, "and" as "or")).toThrow();
   });

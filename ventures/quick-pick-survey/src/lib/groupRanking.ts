@@ -752,8 +752,17 @@ export const FAST_BLOCK_WALK_ENGAGE = 0.008;
  * 0.0018); at walk 0.04, 51% against 46%; where nobody wanders, no change (docs/INFORMATION-GAIN-SELECTOR.md, "A block's
  * picks as well as its times", 2026-11-14). 2.0 and 1.5 found more and flagged more honest people. Needs the answers'
  * items and results; answers given as times only skip it.
+ *
+ * Since 2026-11-15 (flagship item d8) the default is 3.0 with the "lapse" weighting (FAST_BLOCK_AGREE_WEIGHTING), which
+ * counts a disagreement on a clear pair more than one on a close pair. Under walk 0.08 it found 0.27 of the careless
+ * against 0.24 (seed set 2: 0.26 against 0.23) for honest flags of 3.8% against 3.9% (3.4% both); at walk 0.04 and
+ * with nobody careless, level. Check pairs (an easy pair every 5 or 10 answers) were measured too and did not help: they
+ * cost ranking accuracy and found fewer blocks (docs/INFORMATION-GAIN-SELECTOR.md, "Check pairs for the pick test").
  */
-export const FAST_BLOCK_AGREE_Z = 2.5;
+export const FAST_BLOCK_AGREE_Z = 3;
+
+/** How fastBlockStarts' pick test weighs answers by default (blockAgreementDrop's `weighting`; 2026-11-15, see FAST_BLOCK_AGREE_Z). */
+export const FAST_BLOCK_AGREE_WEIGHTING: "flat" | "lapse" = "lapse";
 
 /**
  * How much less a person's picks from answer `at` on agree with the panel than their picks before it did, in standard
@@ -764,7 +773,7 @@ export const FAST_BLOCK_AGREE_Z = 2.5;
  * residuals are compared with the binomial variances of those chances. Ties (EQUAL) and pairs the panel rates level are
  * skipped. 0 when either side has fewer than FAST_BLOCK_MIN_SEG scored answers.
  *
- * `weighting` "lapse" (2026-11-15, flagship item d8; measured, not the default) reads each side as a lapse estimate
+ * `weighting` "lapse" (2026-11-15, flagship item d8; fastBlockStarts' default since) reads each side as a lapse estimate
  * instead of a mean: a careless pick moves an answer's chance of agreeing from p to p - e (p - 1/2), so a clear pair
  * carries more about e than a close one. Each residual is weighted by w = 2p - 1, each side's e is -2 sum(w r) / sum(w^2)
  * with variance 4 sum(w^2 p (1 - p)) / sum(w^2)^2, and the result is the later side's e minus the earlier side's over
@@ -1122,17 +1131,18 @@ export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q
  * `agreeZ` (FAST_BLOCK_AGREE_Z) standard errors less than before it (blockAgreementDrop; `agreeMode` "only" drops the
  * wander bar for the pick test, which was measured and found weaker). Under a 0.08 walk the careless found rose from
  * 0.18 to 0.24 for honest flags of 3.9% against 3.4%.
- * `agreeWeighting` "lapse" reads the pick test as a lapse estimate that counts clear pairs more (blockAgreementDrop;
- * measured 2026-11-15 with and without check pairs, not the default).
+ * Since 2026-11-15 the pick test reads as a lapse estimate that counts clear pairs more (`agreeWeighting`,
+ * FAST_BLOCK_AGREE_WEIGHTING "lapse", blockAgreementDrop) at agreeZ 3.0; "flat" at 2.5 was the rule before.
  *
  * Needs AGREEMENT_MIN_RESPONDENTS respondents with timed answers; otherwise
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: (AnswerTime & Partial<Omit<ReplayAnswer, "participantId" | "ms">>)[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q, netShare = FAST_BLOCK_NET_SHARE, walkQ = FAST_BLOCK_WALK_Q, walkFloor = FAST_BLOCK_WALK_FLOOR, walkEngage = FAST_BLOCK_WALK_ENGAGE, agreeZ = FAST_BLOCK_AGREE_Z, agreeMode: "or" | "only" = "or", agreeWeighting: "flat" | "lapse" = "flat"): Map<string, number> {
+export function fastBlockStarts(answers: (AnswerTime & Partial<Omit<ReplayAnswer, "participantId" | "ms">>)[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q, netShare = FAST_BLOCK_NET_SHARE, walkQ = FAST_BLOCK_WALK_Q, walkFloor = FAST_BLOCK_WALK_FLOOR, walkEngage = FAST_BLOCK_WALK_ENGAGE, agreeZ = FAST_BLOCK_AGREE_Z, agreeMode: "or" | "only" = "or", agreeWeighting: "flat" | "lapse" = FAST_BLOCK_AGREE_WEIGHTING): Map<string, number> {
   if (!(walkQ >= 0 && walkQ <= 1)) throw new Error(`walkQ must be between 0 and 1, got ${walkQ}`);
   if (!(agreeZ >= 0)) throw new Error(`agreeZ must be 0 or more, got ${agreeZ}`);
   if (agreeMode !== "or" && agreeMode !== "only") throw new Error(`agreeMode must be "or" or "only", got ${JSON.stringify(agreeMode)}`);
+  if (agreeWeighting !== "flat" && agreeWeighting !== "lapse") throw new Error(`agreeWeighting must be "flat" or "lapse", got ${JSON.stringify(agreeWeighting)}`);
   // The pick test needs every answer's items and result; a list of times alone skips it.
   const withPicks = agreeZ > 0 && answers.length > 0 && answers.every((a) => typeof a.itemAId === "string" && typeof a.itemBId === "string" && typeof a.result === "string");
   const replayable = withPicks ? (answers as ReplayAnswer[]) : [];
