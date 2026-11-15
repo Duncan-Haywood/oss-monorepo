@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtHQX6Wyff9rSnbJTrL",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T15:06:42Z",
+  "ended": "2026-11-15T15:28:48Z",
+  "wall_minutes": 22.41,
+  "tokens_in": 5753877,
+  "tokens_out": 35631,
+  "cost_usd": 2.8724,
+  "tool_calls": 52,
+  "task": "codesign-cant milestone 7o: arm sweep on fixed tunes (drawn by pick_track.py)",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16252",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First full run's own-L counts were off by 1-2 flights against 7m/7n: the script rounded each design's L to 6 decimals before re-encoding, and that flipped a marginal flight. Found by comparing with the earlier results, confirmed with a single-design check, fixed (own coordinate untouched) and rerun; both runs are disclosed in LOG.md."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to update the README bullet by editing the lede and running research_live_links.py --write; it was actually build.py that printed 'generated lists regenerated' for research/README.md. Worked, but which command regenerates the bullet is unclear."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing step 2 (land open research PRs first) has no quick way to tell an in-flight sibling claim from a stalled one; I used the PR creation time (<2 h) and left the three open research PRs alone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Output standards ask to compare against the strongest published methods; this milestone is an internal sensitivity sweep of the programme's own designs, so the baselines are the programme's earlier design sets, not external methods.",
+      "did": "Used 7e/7l/7m/7n designs as the comparison sets.",
+      "result": "Fine for a mechanism step; the paper still needs the external comparisons already listed in PROPOSAL.md."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-how-long-should-a-drones-arms-be.md",
+    "research/codesign-cant/LOG.md (7o entry)",
+    "research/codesign-cant/README.md (7o section)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered O1-O7 committed (746a7e213) before the full run. Verification run locally: codesign-cant tests 47 passed 1 skipped; paper/check_numbers.py 35/35; research/_homepage/build.py ok; research_live_links.py --write and check_md_links.py ok; check_post_frontmatter.py ok. Sweep: 48 designs x 12 L x 2 modes x 4 conditions, 347 s on 4 cores. No agent doc in docs/reports: LOG.md's next steps carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8c1b380a-c47a-570e-a935-43c958075647",
+    "transcripts": 1,
+    "first": "2026-11-15T15:06:42Z",
+    "last": "2026-11-15T15:29:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 35631,
+        "thinking": 7508,
+        "cache_read": 5624472,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129307,
+        "api_equivalent_usd": 2.8724,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 35631,
+      "thinking": 7508,
+      "cache_read": 5624472,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129307,
+      "api_equivalent_usd": 2.8724,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.41,
+      "active_minutes": 22.41,
+      "model_minutes": 6.99,
+      "tool_minutes": 15.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a research engineer writing, running and writing up a pre-registered sensitivity sweep on an existing simulator",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 348.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
