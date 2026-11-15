@@ -2,7 +2,7 @@
 title: "Retuning a drone at a 45° tilt limit bought nothing; a wider gain box bought a lighter, fragile one"
 date: 2026-11-15
 tags: [codesign-cant, quadrotor, PX4, flight-control, co-design, research]
-description: Retrained at PX4's 45° tilt limit, co-designed quadrotors matched their 20° tune. Given a wider gain box, the optimiser built a lighter drone that needs its cap.
+description: Retrained at 45° tilt limit, co-designed quadrotors matched their 20° tune. Given a wider gain box, the optimiser built a lighter drone that needs its cap.
 seo_title: "Should you retune a quadrotor for a 45° tilt limit? Simulated test"
 ---
 
