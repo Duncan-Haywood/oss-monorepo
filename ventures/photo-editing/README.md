@@ -964,7 +964,8 @@ How it was checked:
   This checks the levels, white balance, matrix, demosaic and curve on real sensor data. It
   does not check our reading of a DNG written by a camera or Adobe's converter (the DNGs here
   are written by our tool), and no camera-written lossless-JPEG DNG was available (raw.pixls.us
-  and rawsamples.ch answer 403 from the build sandbox).
+  and rawsamples.ch answer 403 from the build sandbox; on 2026-11-15 raw.pixls.us answered and served
+  real Fujifilm files, `eval/fujifilm-compressed-raf-2026-11-15.md`).
 - In the pipeline (`eval/pipeline-dng-grade-2026-11-10.md`): `run-local-pipeline` on a card
   holding the Nikon's sensor data as a DNG (no embedded preview) and one clip rendered every
   deliverable with nothing for review in 75 s. The graded master is 4284x2844 rgb48le and
@@ -1167,9 +1168,28 @@ all three (37.3 M in all), and so are the as-shot white balance, the black level
 the sensels exactly, keeps flat fields flat through the X-Trans demosaic, compares the two engines
 byte for byte and runs a synthetic RAF through the profile chooser and the CLI.
 
-Not done: Fujifilm's lossless-compressed RAFs (X-T2 era
-and later), SuperCCD and GFX files are refused or unchecked (none at hand); colour is only as good
-as the profile you supply (no real Fujifilm `.dcp` was at hand).
+Not done: SuperCCD files are refused (none at hand); colour is only as good as the profile you
+supply (no real Fujifilm `.dcp` was at hand). Lossless compressed RAFs: see the next section.
+
+## Fujifilm lossless compressed RAF (2026-11-15)
+
+Fujifilm's "lossless compressed" raw, offered from the X-Pro2 and X-T2 on and about half the size of
+an uncompressed RAF, is now read directly too, X-Trans and Bayer (GFX): `shootflow develop
+DSCF0001.RAF --dcp PROFILE.dcp` and the grade stage take it like any other RAF
+(`src/shootflow/raf_compressed.py`; the strip decoder also in C in the optional `ljpeg_native`
+library, strips in parallel; the pure-Python decoder is the reference and runs with no compiler).
+The lossy compressed mode (header version 0) is refused with the reason.
+
+How it was checked (`tools/raf_libraw_check.py`, `eval/fujifilm-compressed-raf-2026-11-15.md`, rows
+in `eval/fujifilm-compressed-raf-libraw-2026-11-15.jsonl`): five real lossless compressed RAFs from
+raw.pixls.us (CC0), an X-T2, X-H1, X-T3 and X-S10 (X-Trans) and a GFX 50S (Bayer, 51 MP). Against
+LibRaw 0.22 every one of 159.5 M sensels is equal, and so are the balance, the black levels, the
+white level and the CFA layout. 0.5-1.0 s to read a file with the C decoder on four cores (1.6 s on
+one); 48-56 s in pure Python, which also matches on every sensel. 24 s to develop the 26 MP X-T3
+frame end to end. A Bayer RAF with a Fujifilm sub-IFD now takes the 0x3E00 white level the older
+Bayer bodies use (LibRaw's value for the GFX 50S; that frame has no clipped highlights to confirm
+it). `tests/test_raf_compressed.py` (10 tests) encodes known sensels with a test-only encoder and
+decodes them on both paths. Not done: the lossy mode (two real files are named in the eval for it).
 
 ## Directional X-Trans demosaic (2026-11-14)
 

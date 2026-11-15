@@ -170,7 +170,7 @@ class ReadTests(unittest.TestCase):
         self.assertEqual(raf.camera_model(data), "Fujifilm FinePix S5500")
 
     def test_refusals(self):
-        with self.assertRaisesRegex(rd.DevelopError, "lossless compression is not supported"):
+        with self.assertRaisesRegex(rd.DevelopError, "not an uncompressed layout"):
             raf.parse_raf(make_raf("xtrans_short")[0])
         with self.assertRaisesRegex(rd.DevelopError, "SuperCCD"):
             raf.parse_raf(make_raf("bayer", layout=b"\x80\x00\x00\x00")[0])
