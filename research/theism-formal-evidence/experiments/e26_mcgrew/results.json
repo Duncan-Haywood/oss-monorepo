@@ -1,0 +1,140 @@
+{
+ "inputs": {
+  "women": "100",
+  "per_disciple": "1000",
+  "n_disciples": 13,
+  "paul": "1000",
+  "illustrative_prior": "1e-40"
+ },
+ "log10_bf": {
+  "women": 2.0,
+  "disciples": 39.0,
+  "paul": 3.0,
+  "total": 44.0
+ },
+ "reproduces_1e44": true,
+ "posterior_at_1e_40": 0.9999000099990001,
+ "odds_at_1e_40": 10000.0,
+ "exceeds_9999": true,
+ "margin_over_9999": 9.999000099990002e-09,
+ "log10_prior_for_half": -44.0,
+ "log_shares": {
+  "women": 0.045454545454545456,
+  "disciples": 0.8863636363636364,
+  "paul": 0.06818181818181818
+ },
+ "mixture": [
+  {
+   "q": "1e-1",
+   "log10_bf_d": 1.0,
+   "log10_total": 6.0,
+   "log10_posterior_at_1e_40": -34.0,
+   "log10_prior_for_half": -6.0000004342942646,
+   "bound_1_over_q": 1.0
+  },
+  {
+   "q": "1e-3",
+   "log10_bf_d": 3.0,
+   "log10_total": 8.0,
+   "log10_posterior_at_1e_40": -32.0,
+   "log10_prior_for_half": -8.000000004342946,
+   "bound_1_over_q": 3.0
+  },
+  {
+   "q": "1e-6",
+   "log10_bf_d": 6.0,
+   "log10_total": 11.0,
+   "log10_posterior_at_1e_40": -29.0,
+   "log10_prior_for_half": -11.000000000004343,
+   "bound_1_over_q": 6.0
+  },
+  {
+   "q": "1e-10",
+   "log10_bf_d": 10.0,
+   "log10_total": 15.0,
+   "log10_posterior_at_1e_40": -25.0,
+   "log10_prior_for_half": -15.0,
+   "bound_1_over_q": 10.0
+  },
+  {
+   "q": "1e-20",
+   "log10_bf_d": 20.0,
+   "log10_total": 25.0,
+   "log10_posterior_at_1e_40": -15.0,
+   "log10_prior_for_half": -25.0,
+   "bound_1_over_q": 20.0
+  },
+  {
+   "q": "1e-30",
+   "log10_bf_d": 29.999999999565706,
+   "log10_total": 34.9999999995657,
+   "log10_posterior_at_1e_40": -5.000004343357395,
+   "log10_prior_for_half": -34.9999999995657,
+   "bound_1_over_q": 30.0
+  },
+  {
+   "q": "1e-39",
+   "log10_bf_d": 38.69897000433602,
+   "log10_total": 43.69897000433602,
+   "log10_posterior_at_1e_40": -8.685021164894786e-05,
+   "log10_prior_for_half": -43.69897000433602,
+   "bound_1_over_q": 39.0
+  },
+  {
+   "q": "0",
+   "log10_bf_d": 39.0,
+   "log10_total": 44.0,
+   "log10_posterior_at_1e_40": -4.342727686267685e-05,
+   "log10_prior_for_half": -44.0,
+   "bound_1_over_q": null
+  }
+ ],
+ "independence": {
+  "log10_bf_d_needed": 35.0,
+  "per_disciple_needed": 492.3882631706742,
+  "n_needed": 11.666666666666666,
+  "posterior_by_n": [
+   [
+    10,
+    9.99990000099999e-06
+   ],
+   [
+    11,
+    0.009900990099009901
+   ],
+   [
+    12,
+    0.9090909090909091
+   ],
+   [
+    13,
+    0.9999000099990001
+   ]
+  ],
+  "log10_total_by_f": [
+   [
+    30,
+    24.20257631135561
+   ],
+   [
+    100,
+    31.0
+   ],
+   [
+    300,
+    37.202576311355614
+   ],
+   [
+    492,
+    39.99554633597568
+   ],
+   [
+    1000,
+    44.0
+   ]
+  ]
+ },
+ "q_for_e2_bar": 0.136986301369863,
+ "martin_in_swinburne": "50/53",
+ "martin_in_swinburne_float": 0.9433962264150944
+}
