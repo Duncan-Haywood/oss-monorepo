@@ -348,7 +348,7 @@ test("11 teams, 3 games on 3 courts x 6 times: 22 waits to 0 from a stored odd d
 });
 
 test("odd leagues of 13 to 25 teams, 3 games on the least courts x 6 times: wait-free from stored designs (25 teams through the stored rows)", () => {
-  for (const [n, c] of [[13, 3], [15, 4], [17, 4], [19, 5], [21, 5], [25, 6]]) {
+  for (const [n, c] of [[13, 3], [15, 4], [17, 4], [19, 5], [21, 5], [25, 6], [27, 7]]) {
     if (!ODD_DESIGNS.some((d) => d.n === n)) continue;
     const s = build(n, c, 6, 3);
     assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
@@ -365,7 +365,8 @@ test("odd leagues at 9 times: stored 9-slot designs on fewer courts than the 6-s
     const six = ODD_DESIGNS.find((e) => e.n === d.n && e.times === 6);
     if (six) assert.ok(d.courts < six.courts, `${d.n}: ${d.courts} x 9 beats ${six.courts} x 6`);
   }
-  for (const [n, c] of [[11, 2], [13, 2]]) {
+  // 21 and 23 on 4, 27 on 5: 1-rotational round robins (eval/odd-cyclic.py), one night's layout shifted
+  for (const [n, c] of [[11, 2], [13, 2], [21, 4], [23, 4], [27, 5]]) {
     const s = build(n, c, 9, 3);
     assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
     perNight(s);
