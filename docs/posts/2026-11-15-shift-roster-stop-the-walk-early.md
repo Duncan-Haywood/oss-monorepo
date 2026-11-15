@@ -3,7 +3,7 @@ title: "Stop the walk when the answer is already no"
 seo_title: "Faster call-out risk checks in a shift scheduler: exact early stopping"
 date: 2026-11-15
 tags: [scheduling, shift-roster-builder, search, performance]
-description: "The second-call-out price spent its time proving moves it would refuse. Two exact cuts made it 2-4x faster on 40-person weeks. An exact cache that looked clever lost."
+description: "The second-call-out price spent its time proving moves it would refuse. Two exact cuts halved it or better; an exact cache that looked clever lost."
 ---
 
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) has a priced
@@ -15,7 +15,7 @@ thousand on a 40-person week, and runs a small search on each to see whether
 both callers' shifts can be handed out at once.
 
 That made the option slow. A seeded 40-person week took 32 seconds where the
-pass without it took about 2.5. So the option was capped at 120 shift
+pass without it took 2. So the option was capped at 120 shift
 copies (shift slots in the week).
 
 **Where the time went.** Most candidate moves that reach the pair walk are
@@ -41,12 +41,15 @@ moves, which the eval checks.
 
 | week | before | now | pairs searched |
 |---|---|---|---|
-| 20-person week 2 | 2.5 s | 1.4 s | 118,227 → 36,864 |
-| 40-person week 0 | 32.2 s | 15.7 s | 1,156,395 → 283,507 |
-| 40-person week 1 | 6.7 s | 2.9 s | 484,380 → 25,262 |
-| 40-person week 2 | 5.3 s | 1.3 s | 556,072 → 89,442 |
+| 20-person week 2 | 2.7 s | 1.65 s | 118,227 → 36,864 |
+| 40-person week 0 | 32.3 s | 16.1 s | 1,156,395 → 283,507 |
+| 40-person week 1 | 6.8 s | 2.6 s | 484,380 → 25,262 |
+| 60-person week 0 | 89.7 s | 46.8 s | 4,229,868 → 1,818,194 |
 
-BIGPARA
+That is real progress, but not enough to lift the cap. The pass without the
+pair price takes 1.7 s on the 60-person week, so 47 s is still far too slow
+to switch on by default. The cap stays at 120 copies. The next step is to make
+each walk cheaper, not just to run fewer of them.
 
 ## The clever idea that lost
 

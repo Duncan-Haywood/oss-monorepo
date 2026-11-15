@@ -2264,15 +2264,21 @@ walk is skipped. `coverPairStop: false` turns all three off. `coverSlack` now re
 the 40-person week 2's build is time-gated, and two `buildRoster` calls with different options started the pass from different
 rosters (scores 28,112,519.55 and 28,112,521.01), which first looked like the cuts changing the result.
 
-| week | no pair price | pair price, cuts off | pair price, cuts on | pairs searched, off → on | same roster |
+| week (copies) | no pair price | pair price, cuts off | pair price, cuts on | pairs searched, off → on | same roster |
 |---|---|---|---|---|---|
-| spare café, retail, café | | 434, 17, 84 ms | 415, 17, 92 ms | 8,862 → 6,775 (spare) | yes |
-| 20 x 56 weeks 0-1 | | 117, 331 ms | 130, 363 ms | 306, 6 (no move to test) | yes |
-| 20 x 56 week 2 (4 moves) | | 2.5 s | **1.4 s** | 118,227 → 36,864 | yes |
-| 40 x 112 week 0 (11 moves) | | 32.2 s | **15.7 s** | 1,156,395 → 283,507 | yes |
-| 40 x 112 week 1 | | 6.7 s | **2.9 s** | 484,380 → 25,262 | yes |
-| 40 x 112 week 2 | | 5.3 s | **1.3 s** | 556,072 → 89,442 | yes |
-BIGROWS
+| spare café, retail, café (20-32) | 64, 2, 9 ms | 446, 15, 56 ms | 480, 17, 60 ms | 8,862 → 6,775 (spare) | yes |
+| 20 x 56 weeks 0-1 (76, 82) | 143, 343 ms | 126, 344 ms | 132, 360 ms | 306, 6 (no move to test) | yes |
+| 20 x 56 week 2 (75; 4 moves) | 196 ms | 2.7 s | **1.65 s** | 118,227 → 36,864 | yes |
+| 40 x 112 week 0 (149; 11 moves) | 2.0 s | 32.3 s | **16.1 s** | 1,156,395 → 283,507 | yes |
+| 40 x 112 week 1 (148) | 1.8 s | 6.8 s | **2.6 s** | 484,380 → 25,262 | yes |
+| 40 x 112 week 2 (162) | 249 ms | 293 ms | 302 ms | 7,832 both | yes |
+| 60 x 168 week 0 (245; `eval/pair-stop-60.out.txt`) | 1.7 s | 89.7 s | **46.8 s** | 4,229,868 → 1,818,194 | yes |
+
+The cuts cost nothing where no move is tested (up to 10% on the millisecond weeks, within run-to-run noise) and halve or better
+the pass where moves are tested and refused. On an earlier run of the same eval the 40 x 112 week 2 started from another,
+time-gated roster that tested 124 moves: 5.3 s → 1.3 s. **The 120-copy cap stays.** On the 40-person weeks the pair price is now
+1.4-8x the pass without it instead of 3.7-16x, and on the 60-person week it is still 28x (46.8 s against 1.7 s), too slow to
+switch on by default inside a 20 s build. The run on the 80 x 224 weeks was stopped unfinished.
 
 **Tried and dropped: reusing verdicts the move cannot change.** A pair's search is deterministic, and its only inputs are the
 starting lists of the people it looks at (the two callers and each stand-in it tries). So a pair whose search never looked at

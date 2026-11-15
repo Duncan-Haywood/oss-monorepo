@@ -1460,6 +1460,8 @@ const COVER_PAIRS_SLOTS = 200;
 // Largest week (shift copies) --second-callout-price runs on by default (eval/cover-pair-cost.mjs, 2026-11-14): the pass
 // re-walks every pair of safe person-days for each candidate that passes the single-risk test, so it went from 0.4 s to
 // 4.3 s on a seeded 20-person week (75 copies) and from 3.1 s to 43.6 s on a 40-person week (149 copies, 29 moves).
+// 2026-11-15 (README "Only the walks a move can pass", eval/pair-stop.mjs): walks cut off once a move cannot pay halved that
+// (40-person week 0 32.3 s -> 16.1 s), but the 60-person week still takes 46.8 s against 1.7 s without the price, so the cap stays.
 // `coverPairPriceSlots` moves the cap; above it the price is ignored and the slack line says so.
 const COVER_PAIR_PRICE_SLOTS = 120;
 // Checks per pair for the confirming pair walk in the priced pass (2026-11-15, eval/cover-pair-capped.mjs): at 200,000 no pair
