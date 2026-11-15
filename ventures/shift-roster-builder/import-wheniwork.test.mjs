@@ -30,7 +30,14 @@ test("summer offset and winter offset give the same wall clock", () => {
   // 6 Jul 2026 is a Monday in CDT (-0500); the digits are the clock, so it is the same 7am shift.
   const r = importWhenIWork([shifts(sh(1, "Mon, 06 Jul 2026 07:00:00 -0500", "Mon, 06 Jul 2026 15:00:00 -0500"), sh(2, MON("07"), MON("15"))), positions]);
   assert.match(r.shiftsText, /Mon, 7:00, 15:00, 1, , server/);
-  assert.match(r.notes.join(" "), /offsets -0500, -0600/);
+  assert.match(r.notes.join(" "), /offsets -0600, -0500/);
+});
+
+test("the offsets note lists offsets west to east, not in string order", () => {
+  // A plain .sort() gave "+0100, +1000, -0500" (found by platform/ci/check_numeric_sort.mjs).
+  const at = (off) => [`Mon, 02 Nov 2026 07:00:00 ${off}`, `Mon, 02 Nov 2026 15:00:00 ${off}`];
+  const r = importWhenIWork([shifts(sh(1, ...at("+1000")), sh(2, ...at("-0500")), sh(3, ...at("+0100"))), positions]);
+  assert.match(r.notes.join(" "), /offsets -0500, \+0100, \+1000/);
 });
 
 test("an overnight shift keeps its start day; the length uses the offsets", () => {
