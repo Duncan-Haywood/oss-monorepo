@@ -165,6 +165,12 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   (10 pieces chosen by page geometry before reading, `eval/staff-curl-fresh-pages.json`): agree 1,611 to 1,688,
   differ 28 to 21, not read 78 to 41, none worse.
 
+- 2026-11-15: the clef-change list's last two reader faults (`eval/broken-stroke-check.md`). A liquescent's small note
+  after a mid-staff clef was read against the staff's first clef (it had no `x0` for the lookup; 3506); a porrectus
+  stroke broken near its top is read at its top (`BROKEN_STROKE`, 3679, and 3403 on the first list). 98 earlier
+  checks: differ 81 to 78, none worse. Held out (15 porrectus pieces listed before reading,
+  `eval/broken-stroke-fresh-pages.json`): identical both ways, 2,869 agree, 2 differ. 2 tests.
+
 ## Next
 
 1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni
