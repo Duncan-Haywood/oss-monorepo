@@ -1,9 +1,9 @@
 ---
-title: "0x10FE passed as an amount. Red-teaming the Hungarian NAV invoice reader"
-seo_title: "NAV Online Számla checker: hex and comma amounts were read silently"
+title: "A comma in one amount blamed the wrong total. Red-teaming the Hungarian NAV reader"
+seo_title: "NAV Online Számla checker: one bad amount, a wrong totals warning"
 date: 2026-11-15
 tags: [testing, mutation-testing, e-invoicing, hungary, javascript, redteam]
-description: "12 faults seeded into the NAV Online Számla reader, 8 caught. Amounts like 4352,40 or 0x10FE were misread, and a totals warning blamed the wrong row."
+description: "12 faults seeded into the NAV Online Számla reader, 8 caught. One amount written 4352,40 made a totals warning blame a correct total; now the sums stand down."
 ---
 
 Today's red-team run aimed at the Hungarian reader in
@@ -40,25 +40,29 @@ Reading the module as an attacker turned up two real defects.
 `Number()`. That reads `0x10FE` as 4350 and `1e3` as 1000, and treats
 `4352,40` (a Hungarian decimal comma), `NaN` and `1e400` as missing. NAV's
 schema rejects all of them: every amount is `MonetaryType`, an `xs:decimal`.
-The visible result was worse than silence. With the 27% row's VAT written as
-`4352,40`, the only finding was "invoiceVatAmount is 4502.40 but the
-summaryByVatRate rows add up to 150.00", which blames a correct total and
-quotes a sum the file never states. A hex amount passed clean.
+With the 27% row's VAT written as `4352,40`, the reader said "invoiceVatAmount
+is 4502.40 but the summaryByVatRate rows add up to 150.00", which blames a
+correct total and quotes a sum the file never states. A hex amount passed clean.
 
-The fix reads amounts only in `xs:decimal` form, adds HU-019 (mirroring NAV's
-`SCHEMA_VIOLATION`) naming each unreadable amount with its path, and drops the
-HU-020..026 sums for that invoice, listing them under `skipped` with the
-reason. The decimal-typed elements come from NAV's `invoiceData.xsd`: every
-element ending in `Amount` or `AmountHUF` there is `MonetaryType`.
+While this run was fixing it, another session landed a full schema gate for
+the same reader (HU-027..032, checked against xmllint on NAV's samples). It
+now names the bad amount as HU-030. It did not stop the misleading sum: the
+"rows add up to 150.00" warning still came out beside it. So the fix here
+narrowed to that. Amounts are read only in `xs:decimal` form, and when any
+decimal-typed element in an invoice is unreadable, the HU-020..026 sums for
+that invoice are dropped and listed under `skipped` with the reason, leaving
+the schema finding to stand alone. (The first version of this fix added its
+own rule for the bad amount; after merging the schema gate it would have said
+the same thing twice, so it was taken out.)
 
 **An exchange rate of 0 or below.** `ExchangeRateType` is `minExclusive 0`.
 On a currency outside NAV's monitored bands, a rate of 0 produced 19
-forint-conversion warnings and no word about the rate. It is now one HU-012
-error, and the conversions are not checked against it.
+forint-conversion warnings. The schema gate now names the rate; the reader no
+longer converts at it, so that one finding is the whole report.
 
 On NAV's 30 published samples and the 27 seeded fault kinds in
 `eval/hungary-nav-mutations.mjs`, the output before and after the fix is
-byte-identical.
+identical.
 
 ## The class, not the instance
 
@@ -66,7 +70,7 @@ The Polish, Italian, Spanish and Mexican readers in the same product already
 had a schema rule for this (PL-015, IT-021, ES-021, MX-003); the Hungarian one
 was the reader that missed it. A new test, `number-lexical.test.mjs`, feeds
 `0x10`, `1e3` and `12,50` to all five readers and expects each one's schema
-rule. It fails on this morning's Hungarian reader, so the next national reader
+rule (HU-030 for Hungary). It would have failed on this morning's Hungarian reader, so the next national reader
 added without the rule fails CI rather than waiting for a red-team run.
 
 This is an offline check of a file, not NAV's acceptance and not tax advice.

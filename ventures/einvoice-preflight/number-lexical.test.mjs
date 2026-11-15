@@ -1,7 +1,7 @@
 // One guard over every national reader: an amount written as hex, with an exponent or with a decimal
 // comma is not a schema decimal, and each reader must say so under its own schema rule. Number() takes
 // "0x10" as 16 and "1e3" as 1000, so a reader that only calls Number() reads them silently; the
-// Hungarian reader did until 2026-11-15 (redteam record of that day). A new reader goes in this table.
+// Hungarian reader did until its schema gate (HU-030) landed on 2026-11-15. A new reader goes in this table.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -13,7 +13,7 @@ import { checkCfdi } from "./cfdi.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const READERS = [
-  ["Hungary NAV", checkNavInvoice, read("./fixtures/hungary-nav/foreign-currency.xml"), /<invoiceVatAmount>[^<]+</, (v) => `<invoiceVatAmount>${v}<`, "HU-019"],
+  ["Hungary NAV", checkNavInvoice, read("./fixtures/hungary-nav/foreign-currency.xml"), /<invoiceVatAmount>[^<]+</, (v) => `<invoiceVatAmount>${v}<`, "HU-030"],
   ["Poland FA(3)", checkFa3, read("./examples/fa3-invoice.xml"), /<P_15>[^<]+</, (v) => `<P_15>${v}<`, "PL-015"],
   ["Italy FatturaPA", checkFatturaPa, read("./examples/fatturapa-invoice.xml"), /<ImportoTotaleDocumento>[^<]+</, (v) => `<ImportoTotaleDocumento>${v}<`, "IT-021"],
   ["Spain Facturae", checkFacturae, read("./fixtures/facturae/valid-322.xml"), /<TotalGrossAmount>[^<]+</, (v) => `<TotalGrossAmount>${v}<`, "ES-021"],

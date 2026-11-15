@@ -31,13 +31,18 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The duplicate-PR search found #16157 as an empty claim PR with no files, so its scope overlap (schema gate covering non-decimal amounts) was invisible until it merged mid-run; a claim PR listing intended rule ranges would have avoided writing HU-019 twice."
+    }
+  ],
   "deviations": [],
   "writeups": [
     "docs/posts/2026-11-15-hungary-nav-hex-amounts-redteam.md"
   ],
   "goal": null,
-  "notes": "Step 0: all 8 open entries are control-plane fixes needing their own owner-approved PRs; none touched. Campaign: 12 mutants, 8 caught; gaps at 66 (1e-9 slack: 6702x310x1.01 lands 1.9e-10 past 1%), 520, 547 guarded; 506 equivalent. rerun: 3/3 caught_after_fix. Guard added (4b): ventures/einvoice-preflight/number-lexical.test.mjs runs 0x10/1e3/12,50 through HU/PL/IT/ES/MX readers expecting HU-019/PL-015/IT-021/ES-021/MX-003; fails on the pre-fix hungary-nav.mjs (checked by restoring HEAD's copy), passes on the others, which already had a schema rule. Verification: node --test in ventures/einvoice-preflight 1919 pass 0 fail 106 skipped (16 s); eval/hungary-nav-mutations.mjs on NAV's 30 samples (sparse clone of nav-gov-hu/Online-Invoice sample/) byte-identical before and after. XSD facts read from nav-gov-hu/Online-Invoice invoiceData.xsd: all 20 *Amount/*AmountHUF elements are base:MonetaryType, ExchangeRateType minExclusive 0; SCHEMA_VIOLATION is a ValidatorFaultType in validations_en_public.properties. Siblings fa3/fatturapa still emit a follow-on sum warning quoting Number('0x10')=16 next to their schema finding (minor, not fixed). Open claim PR #16157 plans a full Hungary XSD pass that may subsume HU-019.",
+  "notes": "Step 0: all 8 open entries are control-plane fixes needing their own owner-approved PRs; none touched. Campaign: 12 mutants, 8 caught; gaps at 66 (1e-9 slack: 6702x310x1.01 lands 1.9e-10 past 1%), 520, 547 guarded; 506 equivalent. rerun: 3/3 caught_after_fix. Guard added (4b): ventures/einvoice-preflight/number-lexical.test.mjs runs 0x10/1e3/12,50 through HU/PL/IT/ES/MX readers expecting HU-030/PL-015/IT-021/ES-021/MX-003; it failed on the pre-run hungary-nav.mjs (checked by restoring that copy) and passes on every reader now. Verification: node --test in ventures/einvoice-preflight 1919 pass 0 fail 106 skipped (16 s); eval/hungary-nav-mutations.mjs on NAV's 30 samples (sparse clone of nav-gov-hu/Online-Invoice sample/) byte-identical before and after. XSD facts read from nav-gov-hu/Online-Invoice invoiceData.xsd: all 20 *Amount/*AmountHUF elements are base:MonetaryType, ExchangeRateType minExclusive 0; SCHEMA_VIOLATION is a ValidatorFaultType in validations_en_public.properties. Siblings fa3/fatturapa still emit a follow-on sum warning quoting Number('0x10')=16 next to their schema finding (minor, not fixed). Mid-run, PR #16157 (Hungary XSD gate, HU-027..032) merged and covered the reporting half of both defects; after merging main, HU-019 and the extra HU-012 were removed as duplicates, keeping the sum suppression and the rate<=0 conversion skip. After the merge: einvoice-preflight node --test 1934 pass 0 fail 106 skipped; rerun still 3/3 gaps caught; NAV 30-sample eval identical to main's.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -223,13 +228,13 @@
     "real_defects": [
       {
         "file": "ventures/einvoice-preflight/hungary-nav.mjs",
-        "issue": "num() used Number(): 0x10FE and 1e3 read as numbers, 4352,40 / NaN / 1e400 read as missing; a comma-decimal row VAT gave 'rows add up to 150.00' (wrong sum blamed on a correct total) and a hex amount passed clean, though NAV's XSD (MonetaryType, xs:decimal) rejects all of them. Fixed: xs:decimal-only parse, HU-019 per unreadable decimal leaf, HU-020..026 dropped and listed in skipped.",
+        "issue": "num() used Number(): 0x10FE and 1e3 read as numbers, 4352,40 / NaN / 1e400 read as missing; a comma-decimal row VAT gave 'rows add up to 150.00' (a wrong sum blamed on a correct total) and a hex amount passed clean, though NAV's XSD (MonetaryType, xs:decimal) rejects all of them. PR #16157's schema gate (merged mid-run) now reports the amount as HU-030 but still emitted the misleading HU-025 beside it. Fixed here: xs:decimal-only parse; when any decimal leaf is unreadable, HU-020..026 are dropped for that invoice and listed in skipped. The HU-019 rule first written for it was removed after merging main, as a duplicate of HU-030.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16159"
       },
       {
         "file": "ventures/einvoice-preflight/hungary-nav.mjs",
-        "issue": "exchangeRate 0 or negative (XSD ExchangeRateType minExclusive 0) on a currency outside RATE_LIMITS gave 19 HU-023 conversion warnings and no finding on the rate. Fixed: one HU-012 error, conversions skipped.",
+        "issue": "exchangeRate 0 or negative (XSD ExchangeRateType minExclusive 0) on a currency outside RATE_LIMITS gave 19 HU-023 conversion warnings. The schema gate from PR #16157 now names the rate; fixed here: conversions are not checked at a rate <= 0, so that one finding is the report.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16159"
       }

@@ -185,12 +185,12 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: NAV Online Számla 3.0 reader HU-001..026,
-      NAV's 30 samples: 27 clean, 5 real faults,
-      eval/hungary-nav-samples-2026-11-15.md). Open: a real HU report with NAV's
-      businessValidationMessages, the XSD pass (NTCA common 1.0), product-fee
-      totals; a real signed Facturae file or FACe rejection; ZATCA stamp check
-      landed (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
+      History: README and git (latest: NAV 3.0 schema gate HU-027..032 with NTCA
+      common 1.0, 5,776 of 5,776 mutants agree with xmllint,
+      eval/hungary-nav-xsd-2026-11-15.md). Open: a real HU report with NAV's
+      businessValidationMessages or SCHEMA_VIOLATION text, product-fee totals; a
+      real signed Facturae file or FACe rejection; ZATCA stamp check landed
+      (README): a real KSA note; SdI receipt reader landed (NS/RC/MC/NE/DT/AT
       explained and paired with the file; a real 00305 reproduced,
       eval/sdi-receipts-2026-11-15.md): open: a real FatturaPA rejection with its
       file; HR: a real HR invoice, cash accounting; CIUS-PT: which validator does AT
@@ -335,22 +335,24 @@ flagships:
       timetable-bound, exact break floor, three-round re-deals, balanced least
       priced, faster break floor, exact home-and-away breaks, backward table,
       blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-14 sections).
-      2026-11-15 latest: whole-break tables as int16 SIMD in the module (same
-      seasons, 189 s to 115 s over 8 page runs, eval/int16-step.txt), so 26 teams
-      join the floor-priced step (19-34 s, 1-2 seasons a seed); 28 teams 94 s,
-      nothing added; least carry-over 94 at 10 teams, at 12 none below 124; refill
-      search in C: 14 teams 210, stored. Next, most valuable first: the rest of the
-      20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now
-      ~4x cheaper; or a starter family climbed with the floor as its score); 27 to
-      30 teams in the page (14-15 matches; 28 teams 94 s: profile it first; or
-      narrower moves, which span 15 of 23 rounds); home-and-away breaks exact since
-      2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
-      home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
-      below 132, or 124-130 ruled out; 18 teams: refill from the climbed starter
-      (356 from circle, starter 318); close 24-40 (tabu, the literature's starters);
-      a real league's travel and blackout list; printed sheets on a real printer and
-      paper.
+      2026-11-15 latest: every starter enumerated (eval/starter-exhaust.c): 26 teams
+      716 to 670, 28 828 to 778, 30 948 to 894, stored as starts. Before:
+      whole-break tables as int16 SIMD in the module (same seasons, 189 s to 115 s
+      over 8 page runs, eval/int16-step.txt), so 26 teams join the floor-priced step
+      (19-34 s, 1-2 seasons a seed); 28 teams 94 s, nothing added; least carry-over
+      94 at 10 teams, at 12 none below 124; refill search in C: 14 teams 210,
+      stored. Next, most valuable first: the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 27 to 30 teams in the page (14-15
+      matches; 28 teams 94 s: profile it first; or narrower moves, which span 15 of
+      23 rounds); home-and-away breaks exact since 2026-11-13 (pairLeastBreaks,
+      eval/pair-exact.txt): a floor-priced home-and-away timetable search on it, and
+      its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12 teams 124-132 open
+      (132 by eval/window-refill.c): below 132, or 124-130 ruled out; 18 and 24
+      teams: 318 and 570 are the least starters (eval/starter-exhaust.txt), so lower
+      needs non-starter moves; 32-40 exhaustive needs a tighter bound (30 teams took
+      24 min); a real league's travel and blackout list; printed sheets on a real
+      printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

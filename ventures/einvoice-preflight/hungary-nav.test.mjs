@@ -104,7 +104,13 @@ test("NAV's manageInvoice sample: three Base64 operations, electronicInvoiceHash
   assert.equal(r.meta.operations, 3);
   assert.ok(!r.findings.some((f) => f.rule === "HU-016"));
   // The sample's placeholder data uses 0.25 on a 2020 delivery: NAV's current list refuses it.
-  assert.ok(r.findings.every((f) => f.rule === "HU-005"));
+  // And each operation still carries 2.0's privatePersonIndicator where 3.0 wants customerVatStatus
+  // (xmllint on NAV's XSD agrees: "privatePersonIndicator: This element is not expected").
+  assert.ok(r.findings.every((f) => ["HU-005", "HU-027", "HU-029"].includes(f.rule)));
+  const schemaFaults = r.findings.filter((f) => f.rule !== "HU-005");
+  assert.equal(schemaFaults.length, 6);
+  assert.ok(schemaFaults.filter((f) => f.rule === "HU-027").every((f) => /privatePersonIndicator/.test(f.message) && /customerVatStatus/.test(f.fix)));
+  assert.ok(schemaFaults.filter((f) => f.rule === "HU-029").every((f) => /customerVatStatus is required in customerInfo/.test(f.message)));
   const tampered = request.replace(/(<electronicInvoiceHash cryptoType="SHA3-512">)0/, "$11");
   assert.ok(checkNavInvoice(tampered).findings.some((f) => f.rule === "HU-016" && /does not match/.test(f.message)));
   const lower = request.replace(/(<electronicInvoiceHash cryptoType="SHA3-512">)([0-9A-F]+)/, (m, a, h) => a + h.toLowerCase());
@@ -148,13 +154,10 @@ test("an amount exactly 1% off sits inside NAV's tolerance, float noise included
   assert.ok(checkNavInvoice(beyond).findings.some((x) => x.rule === "HU-023" && x.path.endsWith("summaryByVatRate[1]/vatRateNetData/vatRateNetAmountHUF")));
 });
 
-test("an amount that is not an xs:decimal is reported, not read as missing or as hex", () => {
+test("an amount that is not an xs:decimal is the schema finding alone, with no sums built around it", () => {
   for (const bad of ["4352,40", "NaN", "Infinity", "1e400", "0x10FE", "4 352.40"]) {
     const r = checkNavInvoice(foreign.replace("<vatRateVatAmount>4352.40<", `<vatRateVatAmount>${bad}<`));
-    const hu019 = r.findings.filter((f) => f.rule === "HU-019");
-    assert.equal(hu019.length, 1, `${bad}: ${JSON.stringify(r.findings.map((f) => f.message))}`);
-    assert.ok(hu019[0].path.endsWith("summaryByVatRate[2]/vatRateVatData/vatRateVatAmount"), hu019[0].path);
-    assert.ok(hu019[0].message.includes(bad));
+    assert.ok(r.findings.some((f) => f.rule === "HU-030" && /vatRateVatAmount/.test(f.message)), `${bad}: ${JSON.stringify(r.findings.map((f) => f.message))}`);
     // No sum built from a half-read file: the "rows add up to 150.00" warning was wrong, not just noisy.
     assert.ok(!r.findings.some((f) => /^HU-02[0-6]$/.test(f.rule)), `${bad}: ${JSON.stringify(r.findings.map((f) => f.message))}`);
     assert.ok(r.skipped.some((s) => /HU-020/.test(s.rule) && /not a decimal/.test(s.reason)));
@@ -163,14 +166,14 @@ test("an amount that is not an xs:decimal is reported, not read as missing or as
   for (const ok of ["+4352.40", " 4352.40 ", "4352.4", "4352."]) {
     assert.deepEqual(checkNavInvoice(foreign.replace("<vatRateVatAmount>4352.40<", `<vatRateVatAmount>${ok}<`)).findings, [], ok);
   }
-  assert.ok(rules(foreign.replace(/<quantity>[^<]+</, "<quantity>abc<")).includes("HU-019"));
+  assert.ok(!rules(foreign.replace(/<quantity>[^<]+</, "<quantity>abc<")).some((r) => /^HU-02[0-6]$/.test(r)));
 });
 
 test("an exchange rate of 0 or below is the one finding, not a cascade of forint warnings", () => {
   for (const r of ["0", "-310"]) {
     const xml = foreign.replace(/<currencyCode>[^<]+</, "<currencyCode>XYZ<").replace(/<exchangeRate>[^<]+</, `<exchangeRate>${r}<`);
     const f = checkNavInvoice(xml).findings;
-    assert.deepEqual(f.map((x) => x.rule), ["HU-012"], JSON.stringify(f.map((x) => x.message)));
-    assert.match(f[0].message, /greater than 0/);
+    assert.equal(f.length, 1, JSON.stringify(f.map((x) => x.message)));
+    assert.match(f[0].message, /exchangeRate must be above 0/);
   }
 });

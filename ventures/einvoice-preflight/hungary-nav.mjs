@@ -12,7 +12,8 @@
 //     3.3.3 "Warnings", which sets the arithmetic tolerance used here: "The
 //     greatest deviation thus 'tolerated' is 1% of the net price, but no less
 //     than 1 unit."
-//   - invoiceData.xsd / invoiceBase.xsd 3.0 for element names and nesting;
+//   - invoiceData.xsd / invoiceBase.xsd 3.0 for element names and nesting (the full
+//     schema gate, with NTCA common 1.0, is hu-xsd.mjs: HU-027..HU-032);
 //   - the 29 InvoiceData files in sample/Data sample, which all pass (see
 //     eval/hungary-nav-samples-2026-11-15.md).
 // Blocking codes come out as errors; the arithmetic checks mirror NAV's WARN
@@ -29,6 +30,7 @@
 import { base64Bytes, sha3_512Hex } from "./sha3.mjs";
 import { parseXmlTree } from "./ubl.mjs";
 import { wellFormed } from "./fatturapa-xsd.mjs";
+import { checkAgainstNavSchema } from "./hu-xsd.mjs";
 
 export const NAV_DATA_NS = "http://schemas.nav.gov.hu/OSA/3.0/data";
 export const NAV_API_NS = "http://schemas.nav.gov.hu/OSA/3.0/api";
@@ -121,7 +123,8 @@ function rateKey(vatRate) {
   if (txt(vatRate, "noVatCharge") === "true") return "novat";
   return null;
 }
-const keyLabel = (key) => key.startsWith("pct:") ? `${fmt(Number(key.slice(4)) * 100).replace(/\.00$/, "")}%` : key.startsWith("content:") ? `VAT content ${key.slice(8)}` : key;
+// A row whose vatRate is empty or missing (a schema fault, reported as HU-029/HU-030) has no key.
+const keyLabel = (key) => !key ? "unnamed VAT rate" : key.startsWith("pct:") ? `${fmt(Number(key.slice(4)) * 100).replace(/\.00$/, "")}%` : key.startsWith("content:") ? `VAT content ${key.slice(8)}` : key;
 const ratePercent = (key) => (key && key.startsWith("pct:") ? Number(key.slice(4)) : null);
 
 /** The VAT-rate code list checks (codes 14, 31-37, 41-44, 48, 49) for one vatRate / lineVatRate node. */
@@ -192,7 +195,7 @@ function checkInvoice(inv, ctx, out, skipped) {
   const simplified = category === "SIMPLIFIED";
   const currency = txt(detail, "currencyCode");
   const statedRate = num(txt(detail, "exchangeRate"));
-  // ExchangeRateType is minExclusive 0; forint conversions at 0 or below would only repeat this finding.
+  // ExchangeRateType is minExclusive 0 (the schema gate names it); forint conversions at 0 or below would only repeat it.
   const rate = statedRate !== null && statedRate > 0 ? statedRate : null;
   const firstFinding = out.length;
   const deliveryDate = txt(detail, "invoiceDeliveryDate") || txt(detail, "invoiceDeliveryPeriodEnd");
@@ -203,10 +206,6 @@ function checkInvoice(inv, ctx, out, skipped) {
   if (currency === "HUF" && statedRate !== null && statedRate !== 1) {
     out.push(finding("HU-012", `The invoice is in HUF but exchangeRate is ${txt(detail, "exchangeRate")} (NAV INCORRECT_HEAD_DATA_CURRENCY_CODE_HUF).`,
       "A forint invoice takes exchangeRate 1.", `${base}/invoiceHead/invoiceDetail/exchangeRate`));
-  }
-  if (statedRate !== null && statedRate <= 0) {
-    out.push(finding("HU-012", `exchangeRate is ${txt(detail, "exchangeRate")}; NAV's ExchangeRateType must be greater than 0.`,
-      `Give the forint value of one unit of ${currency || "the invoice currency"} (1 for HUF).`, `${base}/invoiceHead/invoiceDetail/exchangeRate`));
   }
   if (RATE_LIMITS[currency] && rate !== null) {
     const [lo, hi] = RATE_LIMITS[currency];
@@ -668,16 +667,12 @@ function checkInvoice(inv, ctx, out, skipped) {
     }
   }
   if (ctx.merged && lines.length) skipped.push({ rule: "HU-020/HU-024/HU-026", path: `${base}/invoiceLines`, reason: "mergedItemIndicator is true (lines are merged), so line-to-summary sums were not compared." });
-  // An amount that is not an xs:decimal fails NAV's schema check before any arithmetic, and a sum
-  // built around an unreadable amount names a wrong total; report the amount and drop the sums.
+  // An amount that is not an xs:decimal fails NAV's schema check (HU-030 names it) before any
+  // arithmetic, and a sum built around an unreadable amount names a wrong total; drop the sums.
   const bad = badDecimals(inv, base);
   if (bad.length) {
     for (let i = out.length - 1; i >= firstFinding; i--) if (/^HU-02[0-6]$/.test(out[i].rule)) out.splice(i, 1);
-    for (const [p, t] of bad) {
-      out.push(finding("HU-019", `${p.split("/").pop().replace(/\[\d+\]$/, "")} is "${t}", which is not a decimal number; NAV's schema check rejects the file (NAV SCHEMA_VIOLATION).`,
-        "Write amounts with digits and a dot as the decimal separator, no spaces, thousands separators or exponents (for example 4352.40).", p));
-    }
-    skipped.push({ rule: "HU-020..026", path: base, reason: `${bad.length} amount${bad.length === 1 ? " is" : "s are"} not a decimal number, so the line and summary arithmetic was not checked.` });
+    skipped.push({ rule: "HU-020..026", path: base, reason: `${bad.length} amount${bad.length === 1 ? " is" : "s are"} not a decimal number (${bad.slice(0, 3).map(([p]) => p.split("/").pop()).join(", ")}), so the line and summary arithmetic was not checked.` });
   }
 }
 
@@ -692,6 +687,9 @@ export function checkNavInvoiceData(source, { operation = null, electronicInvoic
   const tree = parseXmlTree(text);
   const root = tree.children.find((c) => c.name === "InvoiceData");
   if (!root) return { findings: [finding("HU-001", "No InvoiceData root element was found.", "Check the file is a NAV Online Számla 3.0 invoice data report.", "/")], skipped, meta: {} };
+  // The schema gate first (HU-027..HU-032, hu-xsd.mjs): NAV aborts a report that breaks
+  // invoiceData.xsd before any business rule, so these are listed ahead of the rest.
+  findings.push(...checkAgainstNavSchema(root, pathPrefix, text));
   const invoiceNumberRaw = raw(root, "invoiceNumber");
   const invoiceNumber = invoiceNumberRaw.trim();
   const issueDate = txt(root, "invoiceIssueDate");
@@ -793,7 +791,7 @@ export function checkNavInvoice(source) {
     try { bytes = base64Bytes(b64); } catch { /* reported below */ }
     if (compressed) {
       // gzip cannot be undone synchronously in a browser without a library; name it instead of guessing.
-      skipped.push({ rule: "HU-001..026", path: prefix, reason: "compressedContent is true (gzip); compressed operations are not read by this checker. Paste the uncompressed InvoiceData XML instead." });
+      skipped.push({ rule: "HU-001..032", path: prefix, reason: "compressedContent is true (gzip); compressed operations are not read by this checker. Paste the uncompressed InvoiceData XML instead." });
       return;
     }
     const decoded = new TextDecoder().decode(bytes);
