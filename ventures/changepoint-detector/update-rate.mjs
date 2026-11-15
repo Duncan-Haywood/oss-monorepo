@@ -14,6 +14,8 @@
 //                updated)), so long flat runs inside a stretch are not read as a change of rate.
 // Both are profiled -2 log likelihoods; a cut costs `penalty` (default mult x 2 log n).
 
+import { staleLikelihoodRatio, toTicks, STALE_LR } from './rounded-walk.mjs';
+
 /** 0/1 per step t = 1..n-1: 1 when values[t] === values[t - 1]. Non-finite values never repeat. */
 export function repeatIndicators(values) {
   const x = Array.from(values, Number), z = [];
@@ -197,7 +199,7 @@ export function updateRateChanges(values, opts = {}) {
       // README "Repeats from rounding": in the stickier stretch, at least half the moves are one tick,
       // unless the move after a run of repeats grows with the run, as a stale feed's catch-up does
       // (README "One-tick stale feeds: the catch-up check").
-      ...roundingVerdict(sticky, cu), tick: sticky.tick,
+      ...roundingVerdict(sticky, cu, values), tick: sticky.tick,
     };
   });
   return { changes, stretches, repeats: total, steps: z.length, penalty, setting: o };
@@ -264,9 +266,18 @@ export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, 
   if (nAfter < minMoves || nPlain < minMoves) return { ratio: null, after: nAfter, plain: nPlain };
   return { ratio: (after / nAfter) / (plain / nPlain), after: nAfter, plain: nPlain };
 }
-function roundingVerdict(sticky, cu = CATCHUP) {
+// The likelihood route (README "One-tick stale feeds: a likelihood"; rounded-walk.mjs): with
+// `method: 'lr'`, a one-tick sticky stretch is called a catch-up when a rounded Gaussian walk carried
+// forward beats the same walk merely rounded by LR >= `lr` (5.41, the 1% point of the boundary
+// chi-square mix). It runs only on stretches that already pass the one-tick test.
+function roundingVerdict(sticky, cu = CATCHUP, values = null) {
   const oneTick = sticky.medianMoveTicks != null && sticky.medianMoveTicks <= ROUNDING_TICKS;
   const r = sticky.catchUp && sticky.catchUp.ratio;
+  if (cu.method === 'lr') {
+    const t = oneTick && values ? staleLikelihoodRatio(toTicks(values, sticky.from - 1, sticky.to, sticky.tick)) : null;
+    const catchUp = !!(t && t.lr >= (cu.lr ?? STALE_LR.threshold));
+    return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null, staleLR: t ? t.lr : null, staleP: t ? t.p : null };
+  }
   const catchUp = oneTick && r != null && r >= cu.ratio;
   return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null };
 }
