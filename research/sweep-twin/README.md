@@ -13,3 +13,7 @@ PYTHONPATH=src python3 experiments/run.py                 # a few seconds; outpu
 **Builds on.** The sensor-simulation and sim-to-real-for-perception direction of ARPG (<https://arpg.colorado.edu/>; radar/lidar simulation and mapping) and the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>; field and aerial vehicles moving at speed); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Motion distortion and continuous-time compensation in lidar odometry are established (Zhang & Singh 2014, LOAM; Bosse & Zlot 2009). Companion to `shutter-twin` (the rolling-shutter camera analogue), `odometry-twin` and `doppler-twin` in this repository.
 
 Stylised: simulated "real" sensor, no measured scans. MIT.
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-sweep-twin.json)): the yaw path of `scan()` is untested (removing yaw leaves every test green), as is the speed-inversion constant; the nearest prior work (VICP, Hong, Ko & Kim 2010; Al-Nuaimi et al. 2016 on scan skew; CT-ICP 2022; Ait-Aider et al. 2006 on rolling-shutter pose and velocity) is not yet cited or compared; the deskew result is exact by construction.
