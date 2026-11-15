@@ -190,7 +190,7 @@ to DONE.md (`node --test` fails while one is left here):
 Audio: 19 of 125 episodes, numbers 1 to 19 (27 to 53 minutes each). Text only: episodes 20 to 125.
 <!-- /audio-status -->
 
-New episodes stay text only while the audio folders sit near the creative prompt's 400 MB line (run its `du` for the current figure). The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+The creative prompt's 400 MB line was written for GitHub Pages; audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the only cost left is git history ([`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md)). Voicing the backlog in episode order, about 60 MB a run, is a good run on its own (episodes 20 to 24 took 8 to 9 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
 
 ## Publishing
 
