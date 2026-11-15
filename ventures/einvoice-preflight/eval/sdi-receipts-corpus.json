@@ -1,0 +1,230 @@
+[
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_11111_AT_001.xml",
+  "sha256": "5c22fcc34b6a0646d08b1425d3e902f4497df7edbc632b998fe7f616a2d01cfe",
+  "name": "IT01234567890_11111_AT_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_11111_DT_001.xml",
+  "sha256": "332aa277f3643c0a5ff5c2e03d125a00de37da10fd456adf385553f8cb182eb9",
+  "name": "IT01234567890_11111_DT_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_11111_MC_001.xml",
+  "sha256": "0db43b558e387e4c33268c0937ef2fc36af91d1b0c633c3b4ddd98128b15465e",
+  "name": "IT01234567890_11111_MC_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_11111_NE_001.xml",
+  "sha256": "d570d36949e24f3da5b9d439a34a7619ecc71bafc248d7105773ad68111d63ac",
+  "name": "IT01234567890_11111_NE_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_11111_NS_001.xml",
+  "sha256": "6a5d34dca37b0861bc586cd3202d2a6c83123a54b2c3f126f6a8b95ce02fc57f",
+  "name": "IT01234567890_11111_NS_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_11111_RC_001.xml",
+  "sha256": "ee2cdab2c7ad0e5dc4c0af8c767713c74917388ba4a44441c70a03d08e3408cb",
+  "name": "IT01234567890_11111_RC_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_41111_DT_001.xml",
+  "sha256": "17238f0bcac6cb89e37a1c39743af881ddbc351c2363870f82d6f03acadd5002",
+  "name": "IT01234567890_41111_DT_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_41111_MC_001.xml",
+  "sha256": "8540f3b32a39d77383fde47c111046f4bcd6050bdff839186770d7a5d224f952",
+  "name": "IT01234567890_41111_MC_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_41111_NE_001.xml",
+  "sha256": "92ac933fe8d41671cf77a6d869b3cd882da8878f7ec0da2e25f0178981d14712",
+  "name": "IT01234567890_41111_NE_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_41111_NS_001.xml",
+  "sha256": "a7332f16b7e9b50c8ab6334398fbdb20173f94a2bee44c84dfb5ddeee19a516c",
+  "name": "IT01234567890_41111_NS_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggi/IT01234567890_41111_RC_001.xml",
+  "sha256": "9f19d62adb2187d55767ffdd168ebfbd98767fecfc2fc5ca49173c07e3bd471a",
+  "name": "IT01234567890_41111_RC_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggiB2B/ITHVQWPH73P42H501Y_00022_MC_001.xml",
+  "sha256": "6fcdb1a96ce0d367aec491c74f303dba441eda513c832294cebd3fc7a6279860",
+  "name": "ITHVQWPH73P42H501Y_00022_MC_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggiB2B/ITHVQWPH73P42H501Y_00022_NS_001.xml",
+  "sha256": "3a02bfe55e60911232148fcd524d37f1bd8714e707ac1f183e8cf7c6beb247ce",
+  "name": "ITHVQWPH73P42H501Y_00022_NS_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggiB2B/ITHVQWPH73P42H501Y_00022_RC_001.xml",
+  "sha256": "3a1f4e503985eeb32a93d2667fe386aefadf0d43228df0e1469efc89e977332a",
+  "name": "ITHVQWPH73P42H501Y_00022_RC_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggiB2B/ITHVQWPH73P42H501Y_40022_MC_001.xml",
+  "sha256": "f2dffcb112f629d9270d856d9bbe8b8c10482bc454161a314d1c21d5b7322dda",
+  "name": "ITHVQWPH73P42H501Y_40022_MC_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggiB2B/ITHVQWPH73P42H501Y_40022_NS_001.xml",
+  "sha256": "dc7b71325ec0a201adcdf7a432084083569a585137e12cb11a150f28243b9c35",
+  "name": "ITHVQWPH73P42H501Y_40022_NS_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/link-it/govway/master/protocolli/sdi/example/client/TrasmissioneFatture_v1.0/sdiFiles/esempiMessaggiB2B/ITHVQWPH73P42H501Y_40022_RC_001.xml",
+  "sha256": "92d7a374d705bb75b51db419faede9d88f70bdcf744ca0cce12de3ddfd843f06",
+  "name": "ITHVQWPH73P42H501Y_40022_RC_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_5/annexes/Test_EeISI%20_1_Delivery%20receipt_STEP_1_OUT_FatturaPA.xml",
+  "sha256": "33a1cc3df3d42d13f1ab43ef765a888cb33961d6be018031943c296f3b6ac5f8",
+  "name": "_1_Delivery_receipt_STEP_1_OUT_FatturaPA.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_5/annexes/Test_EeISI%20_2_%20Rejection%20_STEP_1_OUT_FatturaPA.xml",
+  "sha256": "d9be743615a51719508d91ed1ccec972cc1e3d6559b06a61a132d82b74b3d61c",
+  "name": "_2_Rejection_STEP_1_OUT_FatturaPA.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_5/annexes/Test_EeISI%20_3_%20Delivery%20failure%20notification%20_STEP_1_OUT_FatturaPA.xml",
+  "sha256": "db557b26c9ccded676dedd977e8444ae84899991ebc6a7be0749b94a35c13c0a",
+  "name": "_3_Delivery_failure_notification_STEP_1_OUT_FatturaPA.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_5/annexes/Test_EeISI%20_4_%20Outcome%20Notification%20Approved%20_STEP_1_OUT_FatturaPA.xml",
+  "sha256": "607bdc40ffadd55bc7d4e95ad09789cf05f37214945192f9afa50abf7ddb3136",
+  "name": "_4_Outcome_Notification_Approved_STEP_1_OUT_FatturaPA.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_5/annexes/Test_EeISI%20_5_%20Outcome%20Notification%20Rejected_STEP_1_OUT_FatturaPA.xml",
+  "sha256": "3a4df38d71026577a69c1f69764294aa27b294f1fbbfb9e77335a4649523e5ba",
+  "name": "_5_Outcome_Notification_Rejected_STEP_1_OUT_FatturaPA.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_5/annexes/Test_EeISI%20_6_%20Deadline%20terms%20_STEP_1_OUT_FatturaPA.xml",
+  "sha256": "696fe7d8981429696921308621b90e0940ee5b05683dfdcbae455b271f4e5860",
+  "name": "_6_Deadline_terms_STEP_1_OUT_FatturaPA.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_5/annexes/Test_EeISI%20_7_%20Impossibility%20on%20delivery%20_STEP_1_OUT_FatturaPA.xml",
+  "sha256": "b6126bfc0e5ce2310a75417dd90b0d8e47dd52cfc67baf255cf3a60023f32d1e",
+  "name": "_7_Impossibility_on_delivery_STEP_1_OUT_FatturaPA.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/B2G-C_01_1/B2G-C_01_1_STEP_H.1.2_IN.xml",
+  "sha256": "fa75e931de9dcfaa26efd98f2ddd0850d2e7d29f577330c3f35be87cc6eb304c",
+  "name": "B2G-C_01_1_STEP_H.1.2_IN.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/B2G-C_01_1/B2G-C_01_1_STEP_H.1.5_IN.xml",
+  "sha256": "6e56aaefa21b30f0aba85e054710b2a32a6e29f62bea0eef6c7e4444bea8e7b3",
+  "name": "B2G-C_01_1_STEP_H.1.5_IN.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/B2G-C_01_1/B2G-C_01_1_STEP_H.1.7_IN_02.xml",
+  "sha256": "3e8f7612d5552a1edff6b37bc4fdca44e56689f8f1a169913d7b942a13779dca",
+  "name": "B2G-C_01_1_STEP_H.1.7_IN_02.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/B2G-C_01_1/B2G-C_01_1_STEP_H.2.2_IN.xml",
+  "sha256": "429daa225eae2ff005e10688eb32e7929f7aa7063ac1841d37ab5a7ca58d2266",
+  "name": "UB78432912341_00G41_NS_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/B2G-C_01_1/B2G-C_01_1_STEP_F_IN_RE_02.xml",
+  "sha256": "91f9caf273513c72a2222ef63ede72f39c82f8899b92b6995586e2d1a39a2829",
+  "name": "UB78432912341_00G41.xml",
+  "role": "invoice"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/B2G-D_01/B2G-D_01_STEP_C_OUT_04_SDI_notification.xml",
+  "sha256": "68d3aae117db039a77e4a073f8875ba3b881f513dd6548a654917eaefba0a403",
+  "name": "B2G-D_01_STEP_C_OUT_04_SDI_notification.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/ZIP-T_01/DK01234567890_00001.xml",
+  "sha256": "8f9574d7e48bcac2f615a78f2911408126eb70e41c0aa506dad3ca2b40b960f5",
+  "name": "DK01234567890_00001.xml",
+  "role": "invoice"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/ZIP-T_01/DK01234567890_00001_NS_001.xml",
+  "sha256": "1a4efd5f8d6f61c783157ac663fc4c28b98c452dd13d4311efde8020a5889d7b",
+  "name": "DK01234567890_00001_NS_001.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/ZIP-T_01/II99999999999_00002.xml",
+  "sha256": "0054e1e181ddab6ec158140a5dde530998bcad4e7c814567bb688b22b660b7c6",
+  "name": "II99999999999_00002.xml",
+  "role": "invoice"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/ZIP-T_01/II99999999999_00002_RC_002.xml",
+  "sha256": "68c5a241611180fc28b7a242857193126e07cbd904a53b5465b88f435c7ef2ed",
+  "name": "II99999999999_00002_RC_002.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/ZIP-T_01/UB12345678901_00001.xml",
+  "sha256": "580a799ecc2812a018b436a0813f7f1a4761d786f6cf6ea1b24115803d9b683c",
+  "name": "UB12345678901_00001.xml",
+  "role": "invoice"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/ZIP-T_01/UB12345678901_00001_RC_002.xml",
+  "sha256": "a87210b4f382b6c184735c2eb1293b9a9519a35338b6e793c4b9a3b593599e47",
+  "name": "UB12345678901_00001_RC_002.xml",
+  "role": "receipt"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/B2G-D_02/II99999999999_00001.xml",
+  "sha256": "947bc4d66433c0272c51c65c623b5c42c3bcfdec7c95bb0f2b06ef640230983c",
+  "name": "II99999999999_00001.xml",
+  "role": "invoice"
+ },
+ {
+  "url": "https://raw.githubusercontent.com/AgID/EeISI/master/deliverables/D5_2/evidences/B2G-D_02/II99999999999_00001_RC_002.xml",
+  "sha256": "a9607fc4038962fba3a0e4e44fe9023ff5e2913011708c37ccd141ea88c51328",
+  "name": "II99999999999_00001_RC_002.xml",
+  "role": "receipt"
+ }
+]

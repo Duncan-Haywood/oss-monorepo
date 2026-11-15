@@ -178,6 +178,7 @@ import {
   siteStructuredData,
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
+import { acquireBuildLock } from './build-lock.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const gzipAsync = promisify(zlib.gzip);
@@ -12903,10 +12904,22 @@ export function buildVersion(env = process.env, now = new Date()) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const argBase = process.argv.find((a) => a.startsWith('--base='))?.slice('--base='.length);
   const argOut = process.argv.find((a) => a.startsWith('--out='))?.slice('--out='.length);
+  const cliOutDir = argOut ? path.resolve(argOut) : path.join(REPO_ROOT, 'platform', 'pages', 'dist');
+  // A second build into the same dir deletes the first one's pages (build-lock.mjs).
+  let releaseLock;
+  try {
+    releaseLock = acquireBuildLock(cliOutDir);
+  } catch (err) {
+    if (err.code !== 'BUILD_LOCKED') throw err;
+    console.error(`build.mjs: ${err.message}`);
+    process.exit(75);
+  }
+  process.on('exit', releaseLock);
+  for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { releaseLock(); process.exit(130); });
 
   const result = await buildSite({
     baseUrl: argBase || process.env.PAGES_BASE_URL || DEFAULT_BASE_URL,
-    outDir: argOut ? path.resolve(argOut) : undefined,
+    outDir: cliOutDir,
     disableWorker: process.env.PAGES_DISABLE_SW === '1',
     counterUrl: process.argv.find((a) => a.startsWith('--counter-url='))?.slice('--counter-url='.length)
       ?? process.env.PAGES_COUNTER_URL

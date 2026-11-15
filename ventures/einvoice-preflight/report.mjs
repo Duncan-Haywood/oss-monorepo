@@ -8,6 +8,7 @@ import { checkPdfEnvelope } from "./pdf-envelope.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
+import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
 import { checkNfe, looksLikeNfe } from "./nfe.mjs";
@@ -97,6 +98,27 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         } catch (e) {
           readErrors.push({ file: name, error: ISDOC_MESSAGE + " (best-effort read failed: " + e.message + ")" });
         }
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeSdiReceipt(peek)) {
+        // A receipt or notice SdI sent back for a FatturaPA file (NS, RC, MC, NE, DT, AT, ...):
+        // each rejection code explained, and checked against the invoice when it is in the batch.
+        const receipt = readSdiReceipt(peek);
+        const decode = (o) => (typeof o.source === "string" ? o.source : new TextDecoder().decode(o.source));
+        // SdI carries FatturaPA and, for public bodies, EN 16931 UBL or CII files (names UB... and II...).
+        const found = pairReceipt(receipt, inputs.filter((o) => o !== input), (o) => !looksLikePdf(o.name, o.source) && !looksLikeSdiReceipt(decode(o)) && (looksLikeFatturaPa(decode(o)) || looksLikeXml(o.name || "", decode(o)) || looksLikeCii(decode(o))));
+        let pair = null;
+        if (found) {
+          const text = decode(found.input);
+          let findings = [];
+          let format = "FatturaPA";
+          try {
+            if (looksLikeFatturaPa(text)) findings = checkFatturaPa(text).findings;
+            else { format = "EN 16931"; findings = checkInvoice((await inspectInvoiceSource(found.input.name, found.input.source)).invoice); }
+          } catch { format = "unreadable"; }
+          pair = { name: found.input.name, by: found.by, digest: found.digest, format, findings };
+        }
+        reports.push({ file: name, errors: receiptFindings(receipt, pair), envelope: receiptEnvelope(receipt, pair), receipt: { type: receipt.type, identificativoSdI: receipt.identificativoSdI, fileName: receipt.fileName, codes: receipt.errors.map((e) => e.code), ...(receipt.outcome ? { outcome: receipt.outcome } : {}), ...(pair ? { pairedWith: pair.name, pairedBy: pair.by } : {}) } });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {
