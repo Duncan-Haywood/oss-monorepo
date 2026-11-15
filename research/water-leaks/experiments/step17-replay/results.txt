@@ -1,0 +1,64 @@
+# water-leaks step 17: per-leak oracle residual. L-TOWN_Real.inp with every leak pipe split at its midpoint
+# drawing its published 5-minute leak flow; restarted per 24 h window at the published T1 level and PUMP_1 status;
+# O-one = published - run with the target leak left out, mean over [t, t + 24); argmax Pearson; rule 300 m
+
+gate: all leaks replayed (rounded 0.01 m) against published, median |diff| per window: localisation max 0.0000 (median 0.0000), pre-onset max 0.0000 (median 0.0000) m; 32 of 32 leaks pass both (< 0.01 m): PASS
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m (P(chance >=); median error m)
+  R real-day signatures, O-one       27 of 32 (0.0000;    56); abrupt 13 of 15, incipient 14 of 17
+  R real-day signatures, O-one-b     27 of 32 (0.0000;    34); abrupt 13 of 15, incipient 14 of 17
+  A nominal q = 5, O-one             28 of 32 (0.0000;    67); abrupt 13 of 15, incipient 15 of 17
+  M most-affected sensor, O-one      20 of 32 (0.0000;   228); abrupt 11 of 15, incipient 9 of 17
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  R only 9, M only 2: P = 0.065
+  R only 0, A only 1: P = 1.000
+  R on O-one only 14, R on O-inc (step 16) only 2: P = 0.004
+
+## descriptive
+  best Pearson score of R on O-one: median 0.9986 (range 0.9899 to 0.9999)
+  leak pipe's better end node ranked first: 16 of 32; top 10: 28; median rank 2
+  junctions over 300 m away within 0.001 of the best: median 0 (range 0 to 17); none for 21
+  Pearson r of O-one with step 15's O-inc: median 0.802 (range 0.051 to 1.000)
+
+  pipe  kind       t                 q m3/h | R err | Rb err | A err | M err | best r | rank | ties | r(O-inc) | min O-one | gate loc/pre
+   p232 incipient  2018-02-02T15      18.7 |    37 |     37 |   246 |   404 | 0.9998 |    1 |    0 |    0.999 |    -0.273 | 0.0000/0.0000
+   p673 abrupt     2018-03-05T16      28.4 |   156 |     22 |   200 |    66 | 0.9992 |    3 |    0 |    0.972 |    -1.169 | 0.0000/0.0000
+   p461 incipient  2018-03-09T04      15.5 |    20 |     20 |    20 |   154 | 0.9991 |    1 |    0 |    0.374 |    -0.291 | 0.0000/0.0000
+   p427 incipient  2018-04-18T21       2.6 |    25 |     25 |    25 |   436 | 0.9997 |    1 |    0 |    0.051 |    -0.046 | 0.0000/0.0000
+   p628 incipient  2018-05-12T08      19.5 |    28 |     28 |    28 |   399 | 0.9999 |    1 |    2 |    0.994 |    -0.346 | 0.0000/0.0000
+   p538 abrupt     2018-05-18T09      32.4 |    20 |     20 |    59 |   364 | 0.9984 |    1 |    0 |    0.993 |    -0.496 | 0.0000/0.0000
+   p866 abrupt     2018-06-01T09      20.3 |    19 |     19 |    19 |   198 | 0.9985 |    1 |    0 |    0.995 |    -0.438 | 0.0000/0.0000
+    p31 incipient  2018-07-23T18       8.4 |   399 |    399 |   507 |   666 | 0.9939 |   68 |    3 |    0.823 |    -0.189 | 0.0000/0.0000
+   p183 abrupt     2018-08-07T03      16.3 |    78 |     78 |    31 |   128 | 0.9989 |    2 |    4 |    0.782 |    -0.380 | 0.0000/0.0000
+   p654 incipient  2018-08-26T14       2.8 |   171 |    171 |   125 |   171 | 0.9966 |    4 |    0 |    0.466 |    -0.058 | 0.0000/0.0000
+   p810 incipient  2018-10-05T14       3.5 |   109 |    147 |   125 |   378 | 0.9996 |    4 |    0 |    0.590 |    -0.064 | 0.0000/0.0000
+   p158 abrupt     2018-10-06T03      24.5 |    31 |     31 |   136 |    83 | 0.9991 |    1 |    0 |    0.994 |    -0.549 | 0.0000/0.0000
+   p369 abrupt     2018-10-26T02      20.5 |    25 |     25 |   299 |   435 | 0.9997 |    1 |    0 |    0.996 |    -0.557 | 0.0000/0.0000
+   p523 abrupt     2019-01-15T23      28.2 |   226 |    226 |    76 |    86 | 0.9993 |    2 |    0 |    0.990 |    -0.440 | 0.0000/0.0000
+   p827 abrupt     2019-01-24T19      26.2 |    25 |     25 |   280 |   229 | 0.9992 |    1 |    0 |    0.963 |    -0.588 | 0.0000/0.0000
+   p280 abrupt     2019-02-10T13       5.2 |   381 |    434 |   381 |   381 | 0.9966 |  346 |    3 |    1.000 |    -0.346 | 0.0000/0.0000
+   p710 abrupt     2019-03-24T14       5.5 |   205 |     28 |    28 |   141 | 0.9987 |    2 |    1 |    0.925 |    -0.117 | 0.0000/0.0000
+   p514 abrupt     2019-04-02T21      15.5 |    26 |     26 |    26 |    77 | 0.9984 |    1 |    0 |    0.967 |    -0.228 | 0.0000/0.0000
+   p653 incipient  2019-04-07T12       9.4 |   325 |    325 |    28 |   227 | 0.9998 |   13 |   17 |    0.967 |    -0.223 | 0.0000/0.0000
+   p331 abrupt     2019-04-20T10      10.5 |   420 |    420 |   360 |   277 | 0.9996 |    5 |    1 |    0.961 |    -0.419 | 0.0000/0.0000
+   p142 abrupt     2019-06-12T20      26.6 |   113 |    113 |    79 |   281 | 0.9991 |    5 |    1 |    0.399 |    -0.594 | 0.0000/0.0000
+   p193 incipient  2019-07-05T22       5.3 |    31 |     31 |    31 |   312 | 0.9978 |    1 |    0 |    0.396 |    -0.133 | 0.0000/0.0000
+   p680 abrupt     2019-07-10T09       5.4 |    75 |     75 |    47 |   109 | 0.9938 |    4 |    0 |    0.424 |    -0.212 | 0.0000/0.0000
+   p277 incipient  2019-07-21T22       3.8 |   964 |    461 |   407 |   407 | 0.9908 |  478 |   17 |    0.864 |    -0.424 | 0.0000/0.0000
+   p586 incipient  2019-08-18T21      10.7 |    27 |    107 |   107 |   193 | 0.9968 |    1 |    0 |    0.774 |    -0.263 | 0.0000/0.0000
+   p800 incipient  2019-09-01T10      11.7 |    30 |     30 |    30 |    97 | 0.9996 |    1 |    0 |    0.558 |    -0.312 | 0.0000/0.0000
+   p721 incipient  2019-09-08T03       6.7 |   117 |    117 |   117 |   320 | 0.9973 |    4 |    1 |    0.697 |    -0.179 | 0.0000/0.0000
+   p426 abrupt     2019-10-25T13      13.0 |    74 |     74 |    25 |   387 | 0.9899 |    3 |    0 |    0.210 |    -0.337 | 0.0000/0.0000
+   p123 incipient  2019-11-07T22       4.7 |   182 |    182 |   182 |   182 | 0.9943 |    9 |    0 |    0.733 |    -0.124 | 0.0000/0.0000
+   p762 incipient  2019-11-17T03       8.0 |    24 |     24 |    49 |   245 | 0.9974 |    1 |    1 |    0.553 |    -0.209 | 0.0000/0.0000
+   p455 incipient  2019-11-24T22       5.6 |    23 |     23 |    23 |   137 | 0.9964 |    1 |    0 |    0.233 |    -0.155 | 0.0000/0.0000
+   p879 incipient  2019-12-19T21       5.7 |    25 |     25 |    25 |   178 | 0.9978 |    1 |    0 |    0.532 |    -0.118 | 0.0000/0.0000
+
+## pre-registered predictions (LOG.md, step 17 plan)
+  (a) R on O-one puts more than 15 of 32 within 300 m: 27: HELD
+  (b) R on O-one puts more than 4 of 17 incipient leaks within 300 m: 14: HELD
+  (c) R on O-one puts at least 20 of 32 within 300 m: 27: HELD
+  (d) median best Pearson score of R on O-one >= 0.99: 0.9986: HELD
+  (e) R beats M on O-one at P < 0.05: R only 9, M only 2, P = 0.065: FAILED
