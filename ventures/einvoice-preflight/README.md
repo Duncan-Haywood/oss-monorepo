@@ -1829,13 +1829,14 @@ taken from the English interface specification, 2026-02-12 edition, section 3.3.
 | HU-009 | ..._VAT_STATUS_VAT_DATA_MISMATCH_KBAET/KBAUK/EUFAD37/EUFADE, ..._DOMESTIC_REVERSE_CHARGE, DOMESTIC_TAXNUMBER_EXPECTED_REVERSE_CHARGE | exemption and reverse-charge codes against the buyer's VAT status |
 | HU-010 | INCORRECT_LINE/SUMMARY_DATA_VAT_EXEMPTION/OUT_OF_SCOPE_NORMAL | no VAT amount on exempt or out-of-scope lines and rows |
 | HU-011 | INCORRECT_LINE_DATA_AGGREGATE_INV_LINE_DATA_MANDATORY | aggregate invoice lines carry their own rate and date |
-| HU-012 | INCORRECT_HEAD_DATA_CURRENCY_CODE_HUF, _EXCHANGERATE_EXTREME | HUF takes rate 1; EUR, USD, GBP and 10 more inside NAV's bands |
+| HU-012 | INCORRECT_HEAD_DATA_CURRENCY_CODE_HUF, _EXCHANGERATE_EXTREME | HUF takes rate 1; EUR, USD, GBP and 10 more inside NAV's bands; any rate above 0 (ExchangeRateType minExclusive 0) |
 | HU-013 | INVALID_(ORIGINAL_)INVOICE_NUMBER, _MOD_REF_INVOICE_NUMBER, _MODIFICATIONINDEX_UNREAL | whitespace around numbers, a modification numbered like its base, index over 1000 |
 | HU-014 | INCORRECT_DATE_INVOICE_DELIVERY_TO_FROM, INVOICE_DELIVERY_DATE_LATE | period order; delivery over five years after issue |
 | HU-015 | INCORRECT_LINE_DATA_UOM_INCOMPLETE | OWN unit has unitOfMeasureOwn; units from the XSD list |
 | HU-016 | ELECTRONIC_INVOICE_HASH_EXPECTED, INVALID_INVOICE_HASH(_CRYPTO), INVOICE_APPEARANCE_MISMATCH, INVOICE_COMPLETENESS_* | a report that is the e-invoice itself: SHA3-512 hash recomputed, ELECTRONIC appearance, no private person, no merged lines |
 | HU-017 | INVOICE_REFERENCE_(NOT_)EXPECTED, LINE_MODIFICATION_(NOT_)EXPECTED, INVALID_LINE_OPERATION, LINE_NUMBER_REFERENCE_NOT_UNIQUE, SUPPLIER/CUSTOMER_NOT_IDENTICAL | modification structure, and the request's operation against it |
 | HU-018 | (register) | tax-number check digit (9-7-3-1) on supplier, customer and group members |
+| HU-019 | SCHEMA_VIOLATION | every amount, price, quantity and rate an xs:decimal (no comma decimals, spaces, exponents or hex); when one is not, the HU-020..026 sums are skipped, not built around it |
 | HU-020..026 (warnings) | INCORRECT_LINE_CALCULATION_*, INCORRECT_SUMMARY_CALCULATION_*, INCORRECT_SUMMARY_DATA_* | quantity x price, VAT from net, gross, every HUF conversion, each VAT-rate row against its lines, invoice totals against the rows, simplified gross by VAT content; NAV's tolerance, 1% and at least one unit |
 
 **Measured on NAV's own samples** (`eval/hungary-nav-samples-2026-11-15.md`): of
