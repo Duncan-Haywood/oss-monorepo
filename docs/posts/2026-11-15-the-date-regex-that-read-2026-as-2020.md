@@ -1,8 +1,8 @@
 ---
 title: "The date regex that read 2026 as 2020"
 date: 2026-11-15
-tags: [red-team, testing, open-source, ventures]
-description: "A shift importer read every slash date as 2020, and 37 parsers read 2025-03-091 as 9 March. One missing (?!\\d) in 178 regexes, now fixed and linted."
+tags: [redteam, testing, open-source, ventures]
+description: "A shift importer read 01/05/2026 as 2020, and 37 parsers read 2025-03-091 as 9 March. One missing (?!\\d) in 178 regexes, now fixed and linted."
 ---
 
 Today's red-team run seeded 16 faults into two tools that people paste broker
