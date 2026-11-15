@@ -33,6 +33,19 @@
 //    than 742 of 934, its nasals 96 or more of 149, its control false nasals 62 or fewer (half of 123);
 //    (5) A no lower than 183 of 210, its control 210 of 210; (6) eval/coda-check.mjs: every part's total
 //    within 2 of before; (7) eval/vowel-check.mjs: within 2 notes of before.
+//    Result, first registration (one run each): (1) G 1825 of 2349: fails; (2) G's nasals 212 of 404: fails;
+//    (3) G's control false nasals 71: holds; (4) B 720 of 934, nasals 60: fail; its control false nasals 38:
+//    holds; (5) A 172 of 210: fails, control 210: holds; (6) coda check every line identical: holds; (7) vowel
+//    check identical: holds. Ablation, the new murmur with the old reader (--reader-first): A 179, B 724
+//    (nasals 78), G 1790 (nasals 235). Read on A only (the tuning set): every A nasal miss is the murmur-tilt
+//    rule. The nasal run found by the level rule runs on into the vowel's quiet attack (lvl under -5 dB,
+//    tilt -27 to -8 dB), so its median tilt sat near -22 although its middle reaches -46.
+//    Second registration, written and committed before its first run: as above, but the tilt is taken over
+//    the run's darkest stretch of three frames (`tiltSpan: 3`, the median of each three-frame stretch, the
+//    lowest of them). Chosen on A alone: there it reads 188 of 210 (span 5: 185; a trimmed median, two or
+//    three frames off each end: 173), with no A syllable read as a nasal that is not one. Same predictions
+//    (1)-(5); (6) and (7) carry over unchanged, as readCoda and the synthesis are untouched by it. G is
+//    printed for the third time, its misses still hidden.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -45,6 +58,8 @@ const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new U
 // --parts ABGC (default all): which parts to run; --hide-misses G: print a part's score without its misses
 const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABGC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
+// --reader-first: the opening reader before the "openings on the coda murmur" round (an ablation)
+const READER = args.includes('--reader-first') ? { murmurTilt: 0, nasalBar: 7 } : args.includes('--tilt-span') ? { tiltSpan: +args[args.indexOf('--tilt-span') + 1] } : {};
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -68,7 +83,7 @@ const readAt = (x, n, on, prevT0 = -1, prev = null) => {
   let from = Math.max(n.t0 - 0.15, prevT0 >= 0 ? (prevT0 + n.t0) / 2 : 0); const dur = n.t1 - n.t0;
   if (prev && prev.syl !== n.syl && latinCoda(prev.lyric).length) from = Math.max(from, n.t0 - (on.length ? Math.min(onsetLength(on), 0.5 * (prev.t1 - prev.t0) + Math.max(0, n.t0 - prev.t1)) : 0));
   const spill = on.length ? Math.max(0, Math.min(onsetLength(on), 0.15 + 0.3 * dur) - 0.15) : 0;
-  return readOnset(x, rate, from, n.t0 + spill + 0.06, { window: 1 });
+  return readOnset(x, rate, from, n.t0 + spill + 0.06, { window: 1, ...READER });
 };
 
 lines.push('# Does the singing choir sing the consonants?', '', 'Written by `node eval/consonant-check.mjs`. Each syllable\'s first note is read from the rendered choir stem by',

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { tuneF1, latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, singNote, FORMANTS } from './sing.mjs';
+import { tuneF1, latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, onsetPlan, singNote, FORMANTS } from './sing.mjs';
 import { readOnset, readCoda } from './onsets.mjs';
 import { estimateFormants, nearestVowel, polyRoots } from './formants.mjs';
 import { eventsToMidi } from './midi.mjs';
@@ -281,4 +281,20 @@ test('a final l is not a murmur: al and el read as no consonant, am and um as na
       if (syl === 'al') assert.equal(readCoda(w, rate, 0.1, dur + 0.25, { murmurTilt: 0 }).cls, 'nasal', `al on ${f} Hz, rule off`);
     }
   }
+});
+
+test('an opening nasal hums about 7 dB under the vowel it goes to at any pitch and before any vowel (one voice); the first murmur did not', () => {
+  const rms = (x, a, b) => { let q = 0; for (let i = Math.round(a * rate); i < Math.round(b * rate); i++) q += x[i] * x[i]; return Math.sqrt(q / ((b - a) * rate)); };
+  const dur = 0.6, one = { detunes: [0], vibratoCents: 0, breath: 0 };
+  let spread = [99, -99];
+  for (const ph of ['m', 'n']) {
+    const sg = onsetPlan([ph], dur).segs[0], q = (sg.t1 - sg.t0) / 4;
+    for (const midi of [40, 50, 57, 64]) for (const vowel of ['a', 'e', 'i', 'o', 'u']) {
+      const f = 440 * 2 ** ((midi - 69) / 12), lvl = (o) => { const w = singNote(f, dur, rate, { vowel, onset: [ph], ...one, ...o }); return 20 * Math.log10(rms(w, sg.t0 + q, sg.t1 - q) / rms(w, 0.3, 0.45)); };
+      const d = lvl({});
+      assert.ok(d < -6 && d > -9, `${ph}${vowel} on ${midi}: murmur ${d.toFixed(1)} dB against its vowel`);
+      const old = lvl({ onsetMurmur: 'first' }); spread = [Math.min(spread[0], old), Math.max(spread[1], old)];
+    }
+  }
+  assert.ok(spread[1] - spread[0] > 8, `the first murmur's level spread ${(spread[1] - spread[0]).toFixed(1)} dB`);
 });
