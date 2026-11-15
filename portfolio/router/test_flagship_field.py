@@ -78,3 +78,42 @@ def test_cli_replace_on_a_copy(tmp_path, capsys):
 
 def test_real_file_is_clean():
     assert ff.hyphen_folds(ff.FLAGSHIPS_PATH.read_text()) == []
+
+
+LANDED_NEXT = (
+    "History: README (latest: Y). Open: X stamp check landed (README): a real note; "
+    "Brazil NF-e landed (README); Mexico CFDI landed: open: the SAT matrix, a PAC rejection; "
+    "warm start landed (README 2026-11-14), next a warm-sized gate; "
+    "A landed (README): open: x, y, B landed (README): open: z; a plain open item.")
+
+
+def test_landed_clauses_keep_the_open_part():
+    found = dict(ff.landed_clauses(LANDED_NEXT))
+    assert found["Brazil NF-e landed (README);"] == ""
+    assert found["Mexico CFDI landed: open: the SAT matrix, a PAC rejection;"] == \
+        "open: the SAT matrix, a PAC rejection;"
+    assert found["warm start landed (README 2026-11-14), next a warm-sized gate;"] == \
+        "next a warm-sized gate;"
+    assert found["Open: X stamp check landed (README): a real note;"] == "a real note;"
+    # Interleaved landed and open items have no safe split.
+    assert found["A landed (README): open: x, y, B landed (README): open: z;"] is None
+    assert "a plain open item." not in found
+    assert not any(c.startswith("History") for c in found)
+
+
+def test_cap_refusal_names_the_landed_clauses():
+    value = LANDED_NEXT + " pad" * 470
+    with pytest.raises(ValueError) as e:
+        ff.set_value(DOC, "b", "next", value)
+    msg = str(e.value)
+    assert "of 2000" in msg and "Brazil NF-e landed" in msg and "keep: next a warm-sized gate;" in msg
+    assert "needed" in msg
+
+
+def test_cli_landed(tmp_path, capsys):
+    p = tmp_path / "f.yaml"
+    p.write_text(DOC.replace("Only b.", LANDED_NEXT))
+    assert ff.main(["b", "--file", str(p), "--landed"]) == 0
+    out, err = capsys.readouterr()
+    assert "keep: (nothing; cut the clause)" in out and "landed clause(s)" in err
+    assert p.read_text() == DOC.replace("Only b.", LANDED_NEXT)  # read-only

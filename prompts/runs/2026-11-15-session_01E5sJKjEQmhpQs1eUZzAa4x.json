@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjEQmhpQs1eUZzAa4x",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T01:09:05Z",
+  "ended": "2026-11-15T01:32:28Z",
+  "wall_minutes": 23.91,
+  "tokens_in": 11731980,
+  "tokens_out": 53161,
+  "cost_usd": 4.6266,
+  "tool_calls": 97,
+  "task": "perf: slowest venture suite (league-schedule-generator), floor-priced test file",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16047",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Kept a per-file timing loop running while benchmarking, so the first eleven file times and the first tracker benchmark were taken under CPU contention; re-measured the decision numbers with nothing else running.",
+    "Ran `pkill -f` without bracketing the first letter; the hook refused it (CLAUDE.md warns about this). Used TaskStop instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/ci-perf-2026-11-11-league-schedule-coe-scratch.md",
+      "issue": "Ranked 'an incremental delta for the three move types' as the next large step; measured here, it is slower at 10 to 30 teams, because the 4e7/N^2 iteration budget already keeps each recount tiny. The new note records the negative result so later runs skip it."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Where to look' item 3 (a venture's test suite) gives no per-file timing recipe; a one-line `for f in *.test.mjs; do time node --test $f; done` with a warning to run nothing else meanwhile would have saved a contended first reading."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Verify-and-merge suggests `run_workflow_locally.py --for-changes`; it lists 140 steps in 9 workflows for a test-only and docs change.",
+      "did": "Relied on PR CI for the workflow checks, and ran the one changed test file (18/18 pass) myself before and after.",
+      "result": "see PR checks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-same-search-four-times.md",
+    "docs/history/ci-perf-2026-11-15-floor-priced-shared-tries.md"
+  ],
+  "goal": "Cut the critical path of the slowest venture test suite without changing any answer",
+  "notes": "Metric: wall of `node --test --test-reporter=tap floor-priced.test.mjs` (the suite's longest file), same 4-core container, nothing else running, bash `time`. Before (main a09f3ce3e) 132.5 s wall / 128.8 s user; after 103.1 s / 99.6 s (-22%); 18 pass 0 fail both. Suite context: 24 files sum about 456 s, so this file was the longest and set the floor on wall time with 3 files at once. Negative result, not landed: an exact incremental carry-over tracker in anneal produced hash-identical output (sha256 of 16 carryOverTry + 6 bestCarryOverRounds results matched main) but was slower: 33.5 s vs 25.0 s on the mixed benchmark; lowCarryOverRounds at 10/14/22/30 teams 449/463/359/534 ms vs 339/282/408/552 ms. A round-major coeOf was neutral (53.1 s vs 52.9 s on 30 tries).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a71fce07-b50a-5a62-be3d-7dd5d221c1ae",
+    "transcripts": 1,
+    "first": "2026-11-15T01:09:05Z",
+    "last": "2026-11-15T01:32:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 178,
+        "output": 53161,
+        "thinking": 19750,
+        "cache_read": 11575868,
+        "cache_write_5m": 0,
+        "cache_write_1h": 155934,
+        "api_equivalent_usd": 4.6266,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 178,
+      "output": 53161,
+      "thinking": 19750,
+      "cache_read": 11575868,
+      "cache_write_5m": 0,
+      "cache_write_1h": 155934,
+      "api_equivalent_usd": 4.6266,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 76,
+      "Monitor": 8,
+      "TaskStop": 8,
+      "ToolSearch": 3,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.91,
+      "active_minutes": 23.91,
+      "model_minutes": 10.77,
+      "tool_minutes": 13.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profiling a test suite, building and benchmarking one algorithmic change, landing a test refactor and two write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 86.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

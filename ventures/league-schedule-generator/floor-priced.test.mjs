@@ -3,8 +3,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { floorTable, leastBreaks, countBreaks } from "./orient.mjs";
-import { floorPricedSingleRounds, threeRoundDeals, carryOverTry, carryOver, circleOpp } from "./carryover.mjs";
+import { floorPricedSingleRounds, threeRoundDeals, carryOverTry as searchTry, carryOver, circleOpp } from "./carryover.mjs";
 import { mulberry32 } from "./calc.mjs";
+
+// The tests here start from searched seasons and ask the same seeded search for the same season
+// again and again (12 teams, try 0: four tests; 9 and 13 teams, try 0: three each; 12 teams, tries 1
+// to 5: two), about 30 s of this file's searching. carryOverTry is a pure function of its arguments,
+// so each distinct call runs once and every test gets its own copy, as it would from a fresh search.
+// That the search is seeded is tested where the search is the subject (best-of-k.test.mjs).
+const searched = new Map();
+function carryOverTry(n, i, opts) {
+  const key = JSON.stringify([n, i, opts]);
+  if (!searched.has(key)) searched.set(key, searchTry(n, i, opts));
+  return structuredClone(searched.get(key));
+}
 
 const coeOf = (rounds, n) => carryOver({ teams: Array.from({ length: n }, (_, i) => i), rounds }).value;
 function oppOf(rounds, n) {
