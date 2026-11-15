@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-15 · Milestone 7m: the wide position-gain box and the proportional-request cap under the lever-aware objective: does the stiffness still buy a lighter airframe? (predictions written and committed before `experiments/m7m_aware_wide/run.py` was run at full budget; outcome below)
+
+- Why: milestone 7l's first next step. 7l found that with |kp e| capped at 3.5 m/s² and the position-kp box widened to 31.6 s⁻², a lever-1 tuner raises kp to about 27 s⁻² and converts it into a 19% (`above`) and 11% (`below`) lighter airframe, which then crashes more at lever 2 even with the cap (73 and 105 of 384 at 45° against 7e's 12 and 52). 7i found the opposite pull: a lever-aware objective (levers 0-2 in the training score) makes the tuner buy mass, which on this sizing model is torque authority against a mass-independent gust torque (`below` 1.23 -> 1.49 kg, lever-2 crashes 45 -> 20 at 20°). Which wins when both are present?
+- Plan (`experiments/m7m_aware_wide/run.py`): 7i's lever-aware training score (mean of `poshold.score` at levers 0, 1, 2, 6 episodes each) with 7l's cap arms' setting (tilt-command limit 45°, cap A_P = 3.5 m/s² as a per-design position-error clip A_P / kp). Arms: `aware cap` (kp box 0.1-10 s⁻²) and `aware cap wide` (0.1-31.6 s⁻²). Otherwise 7e's training (integrator feed-forward, ki <= ceiling / 1.25 as a constraint, thrust-to-weight 2, 3200 CMA-ES evaluations, 6 seeds, 2 starts, both rigid geometries). Baselines re-scored by the same function: 7e, 7i `aware TWR=2.0` (`7i aware`), 7l `t45 cap wide`. Held-out: 7l's 22 conditions plus lever 3 (outside all training) at 20° and 45°, without and with the cap (64 episodes, seed 9999). New in the summary: torque limit and torque per newton of weight, frame arm and propeller diameter.
+- Looked at before writing these: one smoke run (64 evaluations, 2 seeds, 2 episodes per lever, scored on seed 4242, not the held-out seed; 230 s). Its designs are unconverged (0.8 kg, kp 0.5-1.9) and say nothing about the questions; it checked the pipeline end to end.
+- Predictions (counts are diverged held-out flights of 384 per arm and geometry; "with the cap" = evaluated with the cap):
+  - M1 (prior 90%): the three baselines reproduce their milestones' counts (7e lever 2, 20°: 4 and 45; 7i aware 7 and 20; 7l `t45 cap wide` lever 2, 45°, cap: 73 and 105).
+  - M2 (prior 70%): `aware cap wide` picks a mean position kp above 15 s⁻² in both geometries (the lever-aware objective does not undo 7l's stiffness).
+  - M3 (prior 60%): `aware cap wide` is heavier than 7l `t45 cap wide` in both geometries (1.29 and 1.10 kg).
+  - M4 (prior 45%): `aware cap wide` is at least as heavy as 7e in both geometries (1.61 and 1.23 kg): the lever-aware pull wins outright.
+  - M5 (prior 65%): at lever 2, 45°, with the cap, `aware cap wide` crashes on fewer flights than 7l `t45 cap wide` in both geometries.
+  - M6 (prior 50%): at lever 2, 20°, with the cap, `aware cap wide` crashes on no more flights than `7i aware` in `below` (20), i.e. the extra stiffness costs nothing at the lever it was trained on.
+  - M7 (prior 55%): `aware cap` (inherited box) keeps kp at 9.9-10 s⁻² in every seed of both geometries, as every earlier arm did.
+- Analysis: counts per arm, geometry and condition; paired dC per seed against 7e; mass, hover power, torque limit, torque per weight and the chosen gains. No test beyond counts: six seeds, one held-out set.
+
 ## 2026-11-15 · Milestone 7l: retrain at the tilt limit you fly, with and without the proportional-request cap (predictions written and committed before `experiments/m7l_train45/run.py` was run at full budget; outcome below)
 
 - Why: milestones 7j and 7k's first next step. 7j advised "tune at the limit you fly" for the 45° opening-transient crash; 7k found a controller-side fix (bound the proportional position request at the lean the tune saw) and noted that every design sits at the 10 s⁻² top of the position-kp box. Does training at 45° remove the crash by itself, and at what price? With the cap in the loop during training, does the tuner keep (or, with a wider box, raise) kp, since the cap removes the transient a high kp causes?
