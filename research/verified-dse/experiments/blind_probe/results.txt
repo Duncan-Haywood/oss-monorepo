@@ -1,0 +1,15 @@
+# Milestone 132: SWP(32) and SWG(32) tested blind on six new 128-bit shifters (flow run)
+
+theta = 3, alpha = 1.25; 200 draws per cell for SWP; design bootstrap 2000 resamples, seed 132.
+
+## Blind designs' features (computed before the flow run)
+
+design | shift_width | amount_depth | amount_gate_depth | amount_gates | mux_share | SWG(32) flags
+gray0 | 128 | 6 | 24 | 18 | 0.828 | True
+mod8 | 128 | 1 | 27 | 51 | 0.783 | True
+gray1 | 128 | 7 | 43 | 83 | 0.757 | False
+lut1 | 128 | 3 | 51 | 1948 | 0.811 | False
+mod10 | 128 | 1 | 55 | 99 | 0.642 | False
+mod12 | 128 | 1 | 80 | 170 | 0.539 | False
+
+## Blind test: no table yet
