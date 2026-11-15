@@ -113,7 +113,7 @@ export function parseDate(v) {
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   let y, mo, d;
   if (m) [, y, mo, d] = m;
-  else if ((m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})/))) [, d, mo, y] = m;
+  else if ((m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})(?!\d)/))) [, d, mo, y] = m;
   else return null;
   const iso = `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   const t = new Date(`${iso}T00:00:00Z`);

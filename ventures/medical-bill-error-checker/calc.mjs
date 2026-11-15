@@ -144,7 +144,7 @@ export const DISTINCT_MODIFIERS = ["59", "XE", "XS", "XP", "XU", "91"];
 // 2026-03-04 are the same day. Unparsed text is kept as it is.
 export function dayKey(text) {
   const s = String(text ?? "").trim();
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
   m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/);
   if (m) {

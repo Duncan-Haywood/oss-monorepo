@@ -38,7 +38,7 @@ const realUtc = (y, mo, d, h = 0, mi = 0) => {
 };
 export function parseDate(s) {
   const t = String(s).trim();
-  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   if (m) return realUtc(+m[1], +m[2], +m[3]);
   m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (m) return realUtc(+m[3], +m[1], +m[2]);

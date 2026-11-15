@@ -21,7 +21,7 @@ const toAmount = (s) => {
 };
 const toDate = (s) => {
   const t = String(s ?? "").trim();
-  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(t);
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/.exec(t);
   let y, mo, d;
   if (m) [y, mo, d] = [+m[1], +m[2], +m[3]];
   else if ((m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(t))) [y, mo, d] = [+m[3], +m[1], +m[2]];

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, parseNumber, parseWhen, detectDelimiter, decodeBuffer, normalizeRows, parseHoursList, analyze, sampleCsv } from "./calc.mjs";
+import { parseCsv, parseNumber, parseWhen, detectDmy, detectDelimiter, decodeBuffer, normalizeRows, parseHoursList, analyze, sampleCsv } from "./calc.mjs";
 
 const HEAD = "Date,Order ID,Type,Status,Product,Buyer,Amount,Service Fee,Net\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
@@ -215,4 +215,44 @@ test("with no fee in the file the default is Gumroad's direct schedule, not a fl
   near(analyze(n.rows).summary.fee, 13.7);
   const z = load("2026-06-01,A1,Order,Cleared,Logo,amy,0\n", "Date,Order ID,Type,Status,Product,Buyer,Amount\n");
   near(analyze(z.rows).summary.fee, 0);
+});
+
+// Red team 2026-11-15 (second campaign): five mutants escaped this suite.
+test("a month above 12 is refused, not rolled into next year", () => {
+  assert.equal(parseWhen("2026-13-05"), null);
+  assert.equal(parseWhen("13/05/2026"), null);
+  assert.equal(parseWhen("00/05/2026"), null);
+});
+
+test("a slash date with a first part above 12 is day-first even without dots", () => {
+  assert.equal(detectDmy(["25/03/2026", "04/03/2026"]), true);
+  assert.equal(detectDmy(["03/25/2026"]), false);
+  assert.equal(detectDmy(["04.03.2026"]), true);
+});
+
+test("a lone amount line above the header is not taken as the header", () => {
+  const n = normalizeRows(parseCsv("Total amount,180\n" + HEAD + "2026-06-01,1,Order,Cleared,Logo,amy,100,20,80\n"));
+  assert.equal(n.error, undefined);
+  assert.equal(n.rows.length, 1);
+  assert.equal(n.rows[0].net, 80);
+});
+
+test("a refund lands on its own product, and the repeat share is a share of buyers", () => {
+  const n = load([
+    "2026-06-01,1,Order,Cleared,Logo,amy,100,20,80",
+    "2026-06-02,2,Order,Cleared,Logo,amy,100,20,80",
+    "2026-06-03,3,Order,Cleared,Blog,bob,50,10,40",
+    "2026-06-04,1-R,Refund,Completed,Logo,amy,-100,-20,-80",
+  ].join("\n") + "\n");
+  const r = analyze(n.rows);
+  assert.equal(r.byProduct.find((g) => g.label === "Logo").refundNet, 80);
+  assert.equal(r.byProduct.find((g) => g.label === "Blog").refundNet, 0);
+  assert.equal(r.byProduct.some((g) => g.label === "all products"), false);
+  near(r.repeat.shareOfBuyers, 0.5);
+});
+
+test("a date with a stray digit is refused, not read as a nearby day (red team 2026-11-15)", () => {
+  assert.equal(parseWhen("2026-06-031"), null);
+  assert.equal(parseWhen("06/03/20261"), null);
+  assert.deepEqual(parseWhen("06/03/2026 10:00"), { t: Date.UTC(2026, 5, 3, 10, 0), hasTime: true });
 });

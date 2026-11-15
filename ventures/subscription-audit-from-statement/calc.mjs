@@ -128,7 +128,7 @@ export function guessDateOrder(samples, fallback = "mdy") {
   let firstOver12 = false, secondOver12 = false, dots = false;
   for (const s of samples) {
     if (/^\d{1,2}\.\d{1,2}\.\d{2,4}/.test(String(s).trim())) dots = true;
-    const a = String(s).trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
+    const a = String(s).trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?!\d)/);
     if (!a) continue;
     if (+a[1] > 12) firstOver12 = true;
     if (+a[2] > 12) secondOver12 = true;

@@ -92,8 +92,8 @@ export function parseDate(s, order = "dmy") {
   if (!t) return null;
   let y, m, d, x;
   if ((x = t.match(/^(\d{4})-(\d{2})-(\d{2})/))) [y, m, d] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})[.-](\d{1,2})[.-](\d{4})/))) [d, m, y] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
+  else if ((x = t.match(/^(\d{1,2})[.-](\d{1,2})[.-](\d{4})(?!\d)/))) [d, m, y] = [x[1], x[2], x[3]];
+  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?!\d)/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
   else if ((x = t.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?,?\s+(\d{4})/))) { const mi = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(x[2].toLowerCase()); if (mi < 0) return null; [d, m, y] = [x[1], mi + 1, x[3]]; }
   else return null;
   const dt = new Date(Date.UTC(+y, +m - 1, +d));
