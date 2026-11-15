@@ -1,8 +1,8 @@
 ---
 title: "Shrinking a receipt photo before OCR read more totals right"
-seo_title: "Receipt OCR on full-size phone photos and scans: shrink to 2,000 px first"
+seo_title: "Receipt OCR on full-size photos and scans: shrink to 2,000 px first"
 date: 2026-11-15
-description: "ai-bookkeeper's receipt reader got more totals right on large scans when tesseract read a grey copy shrunk to 2,000 px first: 144 to 155 of 189 on the CLI, 151 to 160 in the browser."
+description: "Reading a grey copy shrunk to 2,000 px first took ai-bookkeeper's receipt OCR from 144 to 155 right of 189 large scans (CLI), 151 to 160 in the browser."
 tags: [ai-bookkeeper, receipts, ocr, evaluation]
 ---
 
