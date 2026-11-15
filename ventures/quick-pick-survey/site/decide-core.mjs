@@ -445,25 +445,35 @@ export function longRunLevel(nOptions, nCriteria, answerCount, { longRun = "leve
  * check passes, the answers are refit at GUARD_TAU, a reading in which "much"
  * counts for little and "a bit" for close to a tie, and the page stops only
  * if that refit passes too (the list ranker's second check, the same shape).
- * With guardTau "auto" (the default) the guard reads at the lower of GUARD_TAU
- * and the person's own estimateTau. Ungraded answers skip the second fit. Returns { done, table } with the
- * table the decision rests on (the guard's, when it ran).
+ * With guardTau "auto" the guard reads at the lower of GUARD_TAU and the
+ * person's own estimateTau. Ungraded answers skip the second fit. Returns
+ * { done, table } with the table the decision rests on (the guard's, when it
+ * ran).
+ *
+ * guardTau "switch" (the default since 2026-11-15, latest): when the person's
+ * estimateTau is below PLAIN_GUARD_BELOW the guard ignores the grades and
+ * reads the picks alone, otherwise it is "auto". estimateTau reads about a
+ * quarter high (tau 0.5, 1 and 2 at medians 0.7-0.8, 1.2-1.3 and 2.5 at the
+ * checkpoint), and a person at tau 0.5 kept the promise in only 193 of 225
+ * self-stops (0.858) at 3 x the checkpoint under "auto". Reading their guard
+ * at a scaled-down tau did not reach 0.9 (0.878 at 0.6 x the estimate); the
+ * plain picks did. With the switch below 1.25 they keep it in 138 of 152
+ * (0.908); tau 2, 3 and the inconsistent person stop exactly as before
+ * (docs/DECIDE-PAGE.md "People who say much for most picks"). guardScale
+ * multiplies the estimate under "auto" (measured, not shipped); "plain" always
+ * ignores the grades (measured).
  */
 export const GUARD_TAU = 1;
-export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule = "winner", guardTau = "auto", guardScale = 1, draws = 400, longRun = "level", power = LONG_RUN_POWER } = {}) {
+export const PLAIN_GUARD_BELOW = 1.25;
+export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule = "winner", guardTau = "switch", switchBelow = PLAIN_GUARD_BELOW, guardScale = 1, draws = 400, longRun = "level", power = LONG_RUN_POWER } = {}) {
   const t = answers.crit.length + answers.opt.length;
   const level = longRunLevel(nOptions, nCriteria, t, { longRun, power });
   if (!decisionDone(table, answers, { rule, level })) return { done: false, table };
   const graded = [...answers.crit, ...answers.opt.map(([, x, y, t, g]) => [x, y, t, g])];
   if (!hasGrades(graded)) return { done: true, table };
-  // A person who says "much" for most picks can sit below GUARD_TAU too, so the guard
-  // reads at their own estimated tau when that is lower (estimateTau tracked tau 1,
-  // 2 and 3 at 1.2, 2.3 and 3.4 on simulated people).
   const lists = [[nCriteria, answers.crit], ...Array.from({ length: nCriteria }, (_, c) => [nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t, g]) => [x, y, t, g])])];
-  // guardScale (measured): the estimate is divided out by a bias factor before the min.
-  // guardTau "plain" (measured): the guard reads the picks with every grade ignored.
   const estimate = guardTau === "switch" || guardTau === "auto" ? estimateTau(lists) : null;
-  if (guardTau === "plain" || (guardTau === "switch" && estimate * guardScale < GUARD_TAU)) {
+  if (guardTau === "plain" || (guardTau === "switch" && estimate < switchBelow)) {
     const guard = decisionTable(decisionFit(nOptions, nCriteria, answers, { grades: "ignore" }), { draws });
     return { done: decisionDone(guard, answers, { rule, level }), table: guard };
   }
