@@ -38,7 +38,7 @@ def main():
     series = [("Monte Carlo median", xs, [float(m.group(2)) for m in rows]),
               ("effective-medium", xs, [float(m.group(3)) for m in rows])]
     lines("Garment optics: sheet resistance of a broken yarn grid",
-          "Log-scale line plot of effective sheet resistance against yarn break fraction: it rises from 1 to about 27 times one segment by 50 percent breakage, tracking the effective-medium estimate below 30 percent",
+          "Log-scale line plot of effective sheet resistance against yarn break fraction: it rises from 1 to about 6 times one segment by 40 percent breakage (at 50 percent most draws have no conducting path), tracking the effective-medium estimate below 30 percent",
           "break fraction", "Rs (units of one segment)", series, "breakage.svg", logy=True)
 
 
