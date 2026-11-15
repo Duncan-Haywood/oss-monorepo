@@ -1,0 +1,20 @@
+{
+ "case": "case2000_goc",
+ "kind": "sad",
+ "JR": {
+  "n_over": 0,
+  "max_load": 0.8341739365829899,
+  "slack_out_mw": 0.0,
+  "n_ang": 0,
+  "ang_exc_deg": 0.0,
+  "vviol": 0,
+  "v_exc_pu": 0.0,
+  "qviol": 0,
+  "q_exc_mvar": 2.5129509854275505e-08,
+  "cost": 995538.9358430895,
+  "losses": 720.7789845638836,
+  "p_clean": true,
+  "clean": true
+ },
+ "secs": 116.07649326324463
+}

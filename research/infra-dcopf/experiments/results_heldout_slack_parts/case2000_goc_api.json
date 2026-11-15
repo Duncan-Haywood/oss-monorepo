@@ -1,0 +1,14 @@
+{
+ "case": "case2000_goc",
+ "kind": "api",
+ "nbus": 2000,
+ "old_ref": 551,
+ "slack_bus": 1457,
+ "slack_unit": 251,
+ "moved": true,
+ "ac": 1483900.0,
+ "ref": "PGLib",
+ "start_rule": null,
+ "stop": "no DC start",
+ "secs": 4.526114463806152
+}
