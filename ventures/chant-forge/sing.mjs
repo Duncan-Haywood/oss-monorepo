@@ -274,7 +274,9 @@ function paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas) {
     } else { // sonorants: the voices go on, quieter, with the consonant's own formants
       for (let i = i0; i < i1; i++) {
         const u = (i - i0) / Math.max(1, i1 - i0);
-        av[i] = sg.kind === 'tap' ? 1 - (1 - sg.av) * Math.min(1, Math.max(0, 1.6 - Math.abs(u - 0.5) / 0.25)) : sg.av; // a tap: one brief contact
+        // a tap: one brief contact, in the middle of the phone or, for a final r with its voiced tail (codaPlan),
+        // centred at sg.at over the sg.cw of the phone it takes
+        av[i] = sg.kind === 'tap' ? 1 - (1 - sg.av) * Math.min(1, Math.max(0, 1.6 - Math.abs(u - (sg.at ?? 0.5)) / (0.25 * (sg.cw ?? 1)))) : sg.av;
       }
       if (sg.bw) for (let i = i0; i < i1; i++) bwm[i] = sg.bw; // a nasal's damped upper formants (the side branch's losses)
       // and its murmur: the sound leaves by the nose, which passes little above a few hundred hertz,
@@ -317,17 +319,23 @@ function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room) {
 // up to CLUSTER_SHARE of the note; only past that is everything shortened in proportion.
 export const CODA_FLOOR = { closure: 0.045, burst: 0.01, fricative: 0.035, nasal: 0.06, other: 0.03 };
 const CLUSTER_SHARE = 0.5;
-function phoneParts(ph) { // [floor, full] for each part of a phone: a stop or affricate has a closure and a release
+// A final r is its contact and then the voice open again for a moment, [floor, full] seconds each: sung on
+// the note's last 45 ms, as an opening's tap is, its contact sat 15-25 ms from the next sound, with no
+// voice after it inside the note to tell a tap from the sound simply stopping (README "Final consonants,
+// fifth round"). The tail's length is an assumption, not fitted to recordings of singers.
+export const CODA_TAP = { contact: [0.04, 0.045], tail: [0.03, 0.035] };
+function phoneParts(ph, last = false) { // [floor, full] for each part of a phone: a stop or affricate has a closure and a release
   const c = PHONES[ph], F = CODA_FLOOR;
+  if (c.kind === 'tap' && last) return [CODA_TAP.contact, CODA_TAP.tail];
   if (c.kind === 'stop') return [[F.closure, c.closure], [F.burst, c.blen || 0.012]];
   if (c.kind === 'affricate') return [[F.closure, c.closure], [F.fricative, c.len]];
   const full = c.len || 0, fl = c.kind === 'fricative' ? F.fricative : c.kind === 'nasal' ? F.nasal : F.other;
   return [[Math.min(fl, full), full]];
 }
 export function codaPlan(coda, dur, end, share = SING_DEFAULTS.codaShare) {
-  const want = onsetLength(coda);
+  const want = coda.reduce((a, ph, j) => a + phoneParts(ph, j === coda.length - 1).reduce((q, [, full]) => q + full, 0), 0);
   if (!want) return { segs: [], codaAt: end, scale: 1 };
-  const parts = coda.map(phoneParts), floors = parts.flat().reduce((a, [f]) => a + f, 0);
+  const parts = coda.map((ph, j) => phoneParts(ph, j === coda.length - 1)), floors = parts.flat().reduce((a, [f]) => a + f, 0);
   const room = (sh) => Math.min(want, (sh * dur * want) / (want + TRANSITION));
   let T = room(share);
   if (T < floors) T = Math.min(floors, room(Math.max(share, CLUSTER_SHARE)));
@@ -338,7 +346,8 @@ export function codaPlan(coda, dur, end, share = SING_DEFAULTS.codaShare) {
   coda.forEach((ph, j) => {
     const ls = parts[j].map(len), L = ls.reduce((a, b) => a + b, 0), c = PHONES[ph];
     // paintSeg ends a closure at closure * k: k is set so it ends where this plan puts it
-    segs.push({ ph, ...c, t0: t, t1: t + L, k: c.closure ? ls[0] / c.closure : L / Math.max(1e-9, phoneLen(ph)) });
+    const tail = c.kind === 'tap' && ls.length > 1 ? { at: ls[0] / 2 / L, cw: ls[0] / L } : {};
+    segs.push({ ph, ...c, ...tail, t0: t, t1: t + L, k: c.closure ? ls[0] / c.closure : L / Math.max(1e-9, phoneLen(ph)) });
     t += L;
   });
   return { segs, codaAt, scale: T / want };

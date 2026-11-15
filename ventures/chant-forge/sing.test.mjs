@@ -234,6 +234,22 @@ test('high /i/ and /u/ keep their level: F1 raised to 1.1 x f0 (tuneF1)', () => 
   }
 });
 
+test('a final r taps and then opens again before the note ends, and reads as a tap right up to the next sound', () => {
+  // README "Final consonants, fifth round": sung on the note's last 45 ms, the contact sat 15-25 ms from
+  // the next sound with no voice after it inside the note, and after /u/ and /o/ it read as nothing
+  for (const dur of [0.197, 0.242, 0.5]) {
+    const [r] = codaPlan(['r'], dur, dur).segs, contactEnd = r.t0 + (r.t1 - r.t0) * r.cw;
+    assert.ok(dur - contactEnd >= 0.025 - 1e-9, `${dur} s: ${((dur - contactEnd) * 1000).toFixed(1)} ms of voice after the contact`);
+  }
+  assert.equal(codaPlan(['r', 'k'], 0.3, 0.3).segs[0].at, undefined, 'an r inside a cluster keeps its plain tap');
+  for (const vowel of ['u', 'o', 'e', 'a']) for (const dur of [0.197, 0.242]) {
+    // the window ends where the note's sound does, as before the next syllable's consonant
+    const w = singNote(146.83, dur, rate, { vowel, coda: ['r'], release: 0.015 });
+    const got = readCoda(w, rate, 0.05, dur);
+    assert.equal(got.cls, 'tap', `${vowel}r at ${dur} s: ${JSON.stringify(got)}`);
+  }
+});
+
 test('a final l is not a murmur: al and el read as no consonant, am and um as nasals, and the tilt separates them', async () => {
   const { frameFeatures, MURMUR_TILT } = await import('./onsets.mjs');
   const dur = 0.5, tilt = (w) => { // energy above 1 kHz against the band under 500 Hz, over the coda's steady part
