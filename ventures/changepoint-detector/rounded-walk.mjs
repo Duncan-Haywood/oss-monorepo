@@ -128,3 +128,6 @@ export function staleLikelihoodRatio(k, opts = {}) {
   }
   return { lr: Math.max(0, 2 * (l1 - m0.f)), s0: Math.exp(m0.x), s1: s, p, l0: m0.f, l1, steps: k.length - 1 };
 }
+
+/** The test on a stretch of values (value indexes from..to), for update-rate.mjs `catchUp.test`. */
+export function staleTest(values, from, to, tick, opts = {}) { return staleLikelihoodRatio(toTicks(values, from, to, tick), opts); }

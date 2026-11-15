@@ -6,13 +6,13 @@
 import { CELLS } from './update-rate-stale-lr.mjs';
 import { makeRng } from './update-rate-sim.mjs';
 import { updateRateChanges, smallestStep } from '../update-rate.mjs';
-import { toTicks, staleLikelihoodRatio } from '../rounded-walk.mjs';
+import { toTicks, staleLikelihoodRatio, staleTest } from '../rounded-walk.mjs';
 const rnd = makeRng(5);
 for (const name of ['R1','R2','R3','X1']) {
   let n=0, cut=0, pure=0, trim=0, overlap=0;
   for (let i = 0; i < 80; i++) {
     const v = CELLS[name](rnd);
-    const u = updateRateChanges(v, { catchUp: { method: 'lr', lr: 5.41 } });
+    const u = updateRateChanges(v, { catchUp: { method: 'lr', lr: 5.41, test: staleTest } });
     if (!u.changes.length) continue;
     const c = u.changes.reduce((a, z) => (Math.abs(z.index - 150) < Math.abs(a.index - 150) ? z : a));
     if (!(c.rounding || c.catchUp)) continue; n++;

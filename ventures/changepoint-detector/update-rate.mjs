@@ -14,8 +14,6 @@
 //                updated)), so long flat runs inside a stretch are not read as a change of rate.
 // Both are profiled -2 log likelihoods; a cut costs `penalty` (default mult x 2 log n).
 
-import { staleLikelihoodRatio, toTicks, STALE_LR } from './rounded-walk.mjs';
-
 /** 0/1 per step t = 1..n-1: 1 when values[t] === values[t - 1]. Non-finite values never repeat. */
 export function repeatIndicators(values) {
   const x = Array.from(values, Number), z = [];
@@ -269,13 +267,15 @@ export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, 
 // The likelihood route (README "One-tick stale feeds: a likelihood"; rounded-walk.mjs): with
 // `method: 'lr'`, a one-tick sticky stretch is called a catch-up when a rounded Gaussian walk carried
 // forward beats the same walk merely rounded by LR >= `lr` (5.41, the 1% point of the boundary
-// chi-square mix). It runs only on stretches that already pass the one-tick test.
+// chi-square mix). It runs only on stretches that already pass the one-tick test. Not offered (round
+// three failed K1, eval/update-rate-stale-lr.out.txt), so the test is passed in as `cu.test` (rounded-walk.mjs
+// `staleTest`) and this file keeps no imports: the page and its worker load it on its own.
 function roundingVerdict(sticky, cu = CATCHUP, values = null) {
   const oneTick = sticky.medianMoveTicks != null && sticky.medianMoveTicks <= ROUNDING_TICKS;
   const r = sticky.catchUp && sticky.catchUp.ratio;
   if (cu.method === 'lr') {
-    const t = oneTick && values ? staleLikelihoodRatio(toTicks(values, sticky.from - 1, sticky.to, sticky.tick)) : null;
-    const catchUp = !!(t && t.lr >= (cu.lr ?? STALE_LR.threshold));
+    const t = oneTick && values && cu.test ? cu.test(values, sticky.from - 1, sticky.to, sticky.tick) : null;
+    const catchUp = !!(t && t.lr >= (cu.lr ?? 5.41));
     return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null, staleLR: t ? t.lr : null, staleP: t ? t.p : null };
   }
   const catchUp = oneTick && r != null && r >= cu.ratio;

@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { roundedWalkLogLik, staleLikelihoodRatio, toTicks, STALE_LR } from './rounded-walk.mjs';
+import { roundedWalkLogLik, staleLikelihoodRatio, toTicks, STALE_LR, staleTest } from './rounded-walk.mjs';
 import { updateRateChanges, CATCHUP } from './update-rate.mjs';
 import { makeRng } from './eval/update-rate-sim.mjs';
 
@@ -54,7 +54,7 @@ test('shipped setting is off: the likelihood runs only when asked', () => {
   const off = updateRateChanges(ppi);
   assert.equal(off.changes[0].staleLR, undefined);
   // asked for: the rounded index stays rounding (descriptive, README)
-  const on = updateRateChanges(ppi, { catchUp: { method: 'lr', lr: 5.41 } });
+  const on = updateRateChanges(ppi, { catchUp: { method: 'lr', lr: 5.41, test: staleTest } });
   assert.equal(on.changes[0].rounding, true);
   assert.ok(on.changes[0].staleLR < 5.41);
 });

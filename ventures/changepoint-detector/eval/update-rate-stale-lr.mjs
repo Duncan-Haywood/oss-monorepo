@@ -34,10 +34,11 @@
 import { updateRateChanges } from '../update-rate.mjs';
 import { makeRng } from './update-rate-sim.mjs';
 import { CELLS as BASE, N, AT } from './update-rate-catchup.mjs';
+import { staleTest } from '../rounded-walk.mjs';
 import { pathToFileURL } from 'node:url';
 
 export const CONFIRMATION_SEED = 20261215, REPS = 200;
-export const LR_RULE = { method: 'lr', lr: 5.41 };
+export const LR_RULE = { method: 'lr', lr: 5.41, test: staleTest };
 const gauss = (rnd) => { let u = 0; while (u === 0) u = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rnd()); };
 const round = (v) => Math.round(v * 10) / 10;
 function student3(rnd) { let c = 0; for (let i = 0; i < 3; i++) c += gauss(rnd) ** 2; return gauss(rnd) / Math.sqrt(c / 3); }

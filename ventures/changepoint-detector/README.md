@@ -3360,7 +3360,7 @@ degrees of freedom; X2, mean-reverting, rho 0.95).
 | X1 heavy-tailed walk / X2 mean-reverting | **61.5%** / 9.5% | <= 10% each (wording only): fails on X1 |
 
 **Verdict: not offered.** `method: 'lr'` stays an opt-in (`updateRateChanges(values, { catchUp: { method:
-'lr' } })` returns `staleLR` and `staleP`); `CATCHUP` and every sentence are as before.
+'lr', test: staleTest } })`, with `staleTest` from `rounded-walk.mjs`, returns `staleLR` and `staleP`); `CATCHUP` and every sentence are as before.
 
 **Why the rounded walks failed** (`eval/update-rate-stale-lr-why.mjs`, `.out.txt`; post hoc, fresh seed 5,
 80 series a cell, descriptive). On the true slow half the test is calibrated: 1, 0 and 1 of 80 rounded
