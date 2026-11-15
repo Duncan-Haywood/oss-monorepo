@@ -1,5 +1,14 @@
 # Research log
 
+## 2026-11-15 · Milestone 6 under one protocol: outcome. 10 of 24 fully feasible within 20 rounds, 12 of 24 with the IPOPT reactive stage, none lost against the earlier protocol
+- Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-15); numbers in `research/infra-dcopf/experiments/results_heldout_slack.txt`.
+- One protocol on all 24 held-out cases: reference at the largest live unit, DC start, continuation to the full-load power flow, frozen 20-round J-m-a, IPOPT reactive stage, cost against PGLib's published objective. Controls: identical statuses on the 6 cases whose reference does not move, and on the 5 RTE cases of the previous step.
+- **R1 to R4 and R6 held, R5 refuted.** Scored 19 of 24 (5 have no DC OPF solution: SNEM x3, case1951 API, case2000 API). J fully feasible on **10 of 24**, J or J+R on **12 of 24** (DC dispatch: 0); paired on the 19 the earlier protocol scored, 3 gained and 0 lost. Clean points +0.01 to +2.12 %, mean +0.50 %; only case588 TYP above +1 %. H2 as written stays refuted (1 of 24 within 10 rounds).
+- Next: why the DC OPF has no solution on five cases; the post-feasibility cost phase; the restated convergence theorem.
+
+## 2026-11-15 · Milestone 6 under one protocol (plan): all 24 held-out cases with the slack at the largest unit and the PGLib/IPOPT reference
+- Plan and predictions R1 to R6 with controls C0, C1: `research/infra-dcopf/LOG.md` (2026-11-15, "Held-out cases under one protocol"); script `research/infra-dcopf/experiments/run_heldout_slack.py`.
+
 ## 2026-11-14 · Milestone 6 Next (1) and (2): the stall is a fold on all six; repair-and-continue clears case300 TYP only
 - Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-14, "Past the loading limit"); numbers in `research/infra-dcopf/experiments/results_fold.txt` and `results_fold_fallback.txt`; figure `fold_sigma.svg`.
 - **Fold test, F1 to F3 held:** the Newton Jacobian's smallest singular value falls to 5 to 9 % of its no-load value at every stall, &sigma;<sub>min</sub><sup>2</sup> is linear in load near it (R<sup>2</sup> &ge; 0.996) with the fitted fold 0.001 to 0.004 past the stall, and the AC-optimum control keeps 84 % at full load. The DC dispatch at the file's voltage setpoints is past the loading limit on all six.

@@ -6862,7 +6862,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
 
   const renderCard = (entry) => `          <li class="card">
             <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
-              <h3>${escapeHtml(entry.title)}</h3>
+              <h3>${escapeHtml(cardName(entry.title))}</h3>
             </a>
             <p>${escapeHtml(truncate(entry.description, 120))}</p>
           </li>`;
@@ -6886,7 +6886,7 @@ ${group.items.map(renderCard).join('\n')}
   const singleItems = singles
     .map((group) => {
       const entry = group.items[0];
-      return `        <li><strong>${escapeHtml(group.subject)}</strong><a href="${escapeHtml(entryHref(entry))}" data-pf-to="${escapeHtml(entry.slug)}">${escapeHtml(entry.title)}</a></li>`;
+      return `        <li><strong>${escapeHtml(group.subject)}</strong><a href="${escapeHtml(entryHref(entry))}" data-pf-to="${escapeHtml(entry.slug)}">${escapeHtml(cardName(entry.title))}</a></li>`;
     })
     .join('\n');
 
@@ -7088,7 +7088,7 @@ export function renderCompareProductPage({
       // Lighthouse's heading-order audit on all 45 pages until 2026-11-11).
       (entry) => `          <li class="card">
             <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
-              <h2>${escapeHtml(entry.title)}</h2>
+              <h2>${escapeHtml(cardName(entry.title))}</h2>
             </a>
             <p>${escapeHtml(truncate(entry.description, 120))}</p>
           </li>`,
@@ -7347,7 +7347,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
   const entryHref = (item) => `${toRoot}${item.slug}/${item.file}`;
 
   const renderTool = (group) => `        <div class="tool" style="${escapeHtml(guideBlockStyle(group.title, group.items))}">
-          <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(group.title)}</a></h3>
+          <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(cardName(group.title))}</a></h3>
           <p class="note">${escapeHtml(
             `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the tool`,
           )}</p>
@@ -11361,16 +11361,27 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   // Sixteen tools at a time: each tool's pages are independent of every other
   // tool's, and one at a time the pass mostly waited on the disk. Results are
   // gathered per tool and joined in catalogue order, so the output is the same.
+  // Each tool's short name, read once from its entry page (`toolName`), so the
+  // trail, the related-tool links in every other tool's footer and the embed
+  // offer all call a tool the same thing. Until 2026-11-15 only the trail did;
+  // the footer links and the embed iframe's title used the search-result
+  // `<title>`, so a roofer saw "Wall Framing Takeoff — free, private, in your
+  // browser" as a link label, and the embed's title said "free" twice.
+  const names = new Map(await mapLimit(surfaces, 16, async (surface) => {
+    const entryFile = path.join(outDir, surface.slug, 'index.html');
+    const entry = (await exists(entryFile)) ? await fs.readFile(entryFile, 'utf8') : '';
+    return [surface.slug, toolName(entry, surface.title)];
+  }));
+  const named = (surface) => ({ ...surface, title: names.get(surface.slug) || surface.title });
+
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
     const dir = path.join(outDir, surface.slug);
     if (!(await exists(dir))) return found;
-    const related = relatedTools(surfaces, surface.slug);
-    // The trail's tool name, read once from the entry page so every page in
-    // the tool shows the same one (`toolName`).
-    const entryFile = path.join(dir, 'index.html');
-    const crumbName = toolName((await exists(entryFile)) ? await fs.readFile(entryFile, 'utf8') : '', surface.title);
+    const related = relatedTools(surfaces, surface.slug).map(named);
+    // The trail's tool name, the same on every page in the tool (`names` above).
+    const crumbName = named(surface).title;
     // Read once per venture; several pages in a directory load the same script.
     const scriptCache = new Map();
 
@@ -11420,7 +11431,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         slug: surface.slug,
         toRoot,
         canonical,
-        title: surface.title,
+        title: crumbName,
         isEntry: url === `${surface.slug}/index.html`,
       });
       if (withEmbed !== withCard) embedded.push(relative);

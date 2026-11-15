@@ -9,8 +9,9 @@
 // the syllable's last note. The syllable's opening consonants (latinOnset) are made on the
 // same source and filter: stops as a closure and a burst, fricatives as band-limited noise,
 // nasals, l, r and the glides as voiced spans with their own formants (PHONES), sung before
-// the beat by render.mjs so the vowel lands on it. Final consonants are not sung. It is not a
-// singer. No dependencies, deterministic (seeded noise).
+// the beat by render.mjs so the vowel lands on it. Its final consonants (latinCoda) close the
+// syllable's last note on the same recipes, as late as they fit, so the vowel is held to them
+// (codaPlan). It is not a singer. No dependencies, deterministic (seeded noise).
 //
 // Formant targets are the men's averages of Peterson & Barney (1952), "Control methods
 // used in a study of the vowels", JASA 24(2), Table II: ecclesiastical Latin's five
@@ -59,7 +60,7 @@ function readSyl(syllable) {
     else if (pair === 'au' || pair === 'eu') r = { vowel: c, glide: 'u' };
     else if (pair === 'ei' || pair === 'ui') r = { vowel: c, glide: 'i' };
     else r = { vowel: c, glide: null };
-    return { ...r, s, at: k };
+    return { ...r, s, at: k, len: pair === 'ae' || pair === 'oe' || r.glide ? 2 : 1 };
   }
   return null;
 }
@@ -97,6 +98,28 @@ export function latinOnset(syllable) {
   return out;
 }
 
+// The consonants that close one syllable, sung at the end of its last note: the letters after
+// the vowel (or diphthong), or after the last vowel letter when a syllable holds two (tu-ae read as
+// one), as phones (latinOnset's names). In a coda c and g are hard (no vowel follows); ch is k,
+// ph is f, th is t; h is silent; x is ks. "Dies" ends on s, "Sanc" on n k, "lux" on k s.
+export function latinCoda(syllable) {
+  const r = readSyl(syllable);
+  if (!r) return [];
+  let rest = r.s.slice(r.at + r.len);
+  const lastV = Math.max(...[...'aeiou'].map((v) => rest.lastIndexOf(v)));
+  if (lastV >= 0) rest = rest.slice(lastV + 1);
+  const out = [];
+  for (let k = 0; k < rest.length; k++) {
+    const c = rest[k], nx = rest[k + 1] || '';
+    if (c === 'h') continue;
+    if ((c === 'c' || c === 'p' || c === 't') && nx === 'h') { out.push(c === 'p' ? 'f' : c === 'c' ? 'k' : 't'); k++; continue; }
+    if (c === 'c' || c === 'q') { out.push('k'); continue; }
+    if (c === 'x') { out.push('k', 's'); continue; }
+    if ('pbtdgfvszmnlr'.includes(c)) out.push(c);
+  }
+  return out;
+}
+
 // Klatt resonator coefficients: y[n] = A x[n] + B y[n-1] + C y[n-2], unity gain at 0 Hz.
 function reson(f, bw, rate) {
   const C = -Math.exp((-2 * Math.PI * bw) / rate);
@@ -113,7 +136,7 @@ function blep(t, dt) {
   return 0;
 }
 
-export const SING_DEFAULTS = { detunes: [-12, -4, 0, 5, 13], vibratoCents: 14, attack: 0.08, release: 0.25, breath: 0.03, glideFrom: 0.6, onsetShare: 0.4 };
+export const SING_DEFAULTS = { detunes: [-12, -4, 0, 5, 13], vibratoCents: 14, attack: 0.08, release: 0.25, breath: 0.03, glideFrom: 0.6, onsetShare: 0.4, codaShare: 0.35 };
 
 // How each consonant is made. A source-filter recipe, not a recording: each phone is a span of
 // time with a voicing gain (0 = the voices stop, as in a voiceless closure), a formant target,
@@ -148,6 +171,7 @@ export const PHONES = {
 };
 const VOICE_BAR = 0.08; // voicing left in a voiced closure or under a voiced fricative's noise: a low murmur
 const VOICED_FRIC = 0.3;
+const NASAL_GAIN = 1.2; // the low-passed murmur sits about 5 dB under the vowel on /a/ at D3 (Fujimura 1962: murmurs run 5-10 dB down)
 const TRANSITION = 0.045; // formants move from the consonant to the vowel over this long
 
 function phoneLen(ph) { const c = PHONES[ph]; return (c.closure || 0) + (c.len || 0) + (c.burst ? c.blen || 0.012 : 0); }
@@ -199,12 +223,9 @@ function noiseSpan(n, fc, bw, rms, rate, rand, env) {
 
 const edge = (u, a) => Math.min(1, u / a, (1 - u) / a); // linear ramps at both ends, a = share of the span
 
-// Per-sample voicing gain, frication noise and formant targets for a note's onset.
-function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room) {
-  const plan = onsetPlan(onset, dur, share, room);
-  const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
-  const keys = []; // [t, F] formant keypoints before the vowel
-  for (const sg of plan.segs) {
+// Paint one consonant span into the voicing gain `av`, the noise `fr`, the bandwidth scale `bwm`
+// and the formant keypoints `keys`, against the vowel `V` beside it.
+function paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas) {
     const i0 = Math.round(sg.t0 * rate), i1 = Math.round(sg.t1 * rate);
     if (sg.kind === 'stop' || sg.kind === 'affricate') {
       const ic = Math.round((sg.t0 + sg.closure * sg.k) * rate);
@@ -233,9 +254,20 @@ function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room) {
         av[i] = sg.kind === 'tap' ? 1 - (1 - sg.av) * Math.min(1, Math.max(0, 1.6 - Math.abs(u - 0.5) / 0.25)) : sg.av; // a tap: one brief contact
       }
       if (sg.bw) for (let i = i0; i < i1; i++) bwm[i] = sg.bw; // a nasal's damped upper formants (the side branch's losses)
+      // and its murmur: the sound leaves by the nose, which passes little above a few hundred hertz,
+      // so the source is low-passed in (10 ms ramps); without it /m/ after /u/ was the vowel 4 dB down
+      if (sg.kind === 'nasal' && nas) { const r = Math.max(1, Math.round(0.01 * rate)); for (let i = i0; i < i1 && i < total; i++) nas[i] = Math.max(nas[i], Math.min(1, (i - i0) / r, (i1 - i) / r)); }
       keys.push([sg.t0, sg.F], [sg.t1, sg.F]);
     }
-  }
+}
+
+// Per-sample voicing gain, frication noise and formant targets for a note's onset.
+function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room) {
+  const plan = onsetPlan(onset, dur, share, room);
+  const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
+  const keys = []; // [t, F] formant keypoints before the vowel
+  const nas = new Float64Array(total);
+  for (const sg of plan.segs) paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas);
   // voicing ramps back in over 10 ms after an obstruent instead of switching on
   const ramp = Math.round(0.01 * rate), iv = Math.round(plan.vowelAt * rate);
   for (let i = iv; i < Math.min(total, iv + ramp); i++) av[i] = Math.min(av[i], av[iv - 1 >= 0 ? iv - 1 : 0] + (1 - av[iv - 1 >= 0 ? iv - 1 : 0]) * ((i - iv) / ramp));
@@ -247,7 +279,45 @@ function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room) {
     const u = tb > ta ? Math.min(1, Math.max(0, (t - ta) / (tb - ta))) : 1;
     return Fa.map((x, q) => x + (Fb[q] - x) * u);
   };
-  return { av, fr, bwm, formantsAt, plan };
+  return { av, fr, bwm, nas, formantsAt, plan };
+}
+
+// Lay a coda out in time, ending at `end` (seconds from the wave's start): the consonants take their
+// own length where `share` of the note (with the formant transition into them) allows, shortened in
+// proportion when it does not. Choirs hold the vowel and close it late, so the coda sits at the end.
+export function codaPlan(coda, dur, end, share = SING_DEFAULTS.codaShare) {
+  const want = onsetLength(coda);
+  if (!want) return { segs: [], codaAt: end, scale: 1 };
+  const k = Math.min(1, (share * dur) / (want + TRANSITION));
+  let t = end - want * k; const codaAt = t, segs = [];
+  for (const ph of coda) { const L = phoneLen(ph) * k; segs.push({ ph, ...PHONES[ph], t0: t, t1: t + L, k }); t += L; }
+  return { segs, codaAt, scale: k };
+}
+
+// Per-sample tracks for a coda (see onsetTracks). The vowel's formants move to the first
+// consonant's over the transition before it; after a final obstruent the voices stay silent
+// through the release, after a final nasal, l or r they hum on with its formants as they fade.
+function codaTracks(coda, dur, end, total, rate, V, rand, refRms, share) {
+  const plan = codaPlan(coda, dur, end, share);
+  const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
+  const keys = [[plan.codaAt - TRANSITION * plan.scale, V]], nas = new Float64Array(total);
+  for (const sg of plan.segs) paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas);
+  const first = plan.segs[0], last = plan.segs[plan.segs.length - 1];
+  // the voices fade out over 10 ms into an obstruent rather than switching off
+  const ramp = Math.round(0.01 * rate), ic = Math.round(first.t0 * rate);
+  if (first.F === undefined) for (let i = Math.max(0, ic - ramp); i < ic; i++) av[i] = Math.min(av[i], 1 - (1 - av[ic]) * ((i - (ic - ramp)) / ramp));
+  const ie = Math.round(last.t1 * rate);
+  const after = last.F === undefined ? 0 : last.kind === 'tap' ? 0.6 : last.av;
+  for (let i = ie; i < total; i++) { av[i] = after; if (last.bw) bwm[i] = last.bw; if (last.kind === 'nasal') nas[i] = 1; }
+  const formantsAt = (t) => {
+    if (t < keys[0][0]) return null;
+    if (t >= keys[keys.length - 1][0]) return keys[keys.length - 1][1];
+    let j = 0; while (j < keys.length - 1 && keys[j + 1][0] <= t) j++;
+    const [ta, Fa] = keys[j], [tb, Fb] = keys[j + 1];
+    const u = tb > ta ? Math.min(1, Math.max(0, (t - ta) / (tb - ta))) : 1;
+    return Fa.map((x, q) => x + (Fb[q] - x) * u);
+  };
+  return { av, fr, bwm, nas, formantsAt, plan };
 }
 
 function rawSing(f, dur, rate, vowel, glide, opts, seed) {
@@ -279,25 +349,33 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   for (let i = 0; i < total; i++) src[i] = src[i] / nv + o.breath * rand();
   // formant track: the vowel, gliding to `glide` from glideFrom of the sung length
   const from = FORMANTS[vowel] || FORMANTS.a, to = glide ? FORMANTS[glide] : from;
-  const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.round((lead + dur) * rate);
   const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room) : null;
+  const coda = o.coda || [];
+  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare) : null;
+  // a diphthong reaches its second vowel by the coda (or the note's end)
+  const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.max(g0 + 1, Math.round((cd ? cd.plan.codaAt - TRANSITION * cd.plan.scale : lead + dur) * rate));
   const st = new Float64Array(10); // two state values per resonator
-  let co = null;
+  let co = null, lp = 0, lp2 = 0;
+  const NASAL_LP = 1 - Math.exp((-2 * Math.PI * 400) / rate); // two one-pole low-passes at 400 Hz
   for (let i = 0; i < total; i++) {
     if ((i & 63) === 0) {
       const u = glide ? Math.min(1, Math.max(0, (i - g0) / Math.max(1, g1 - g0))) : 0;
       const w = u * u * (3 - 2 * u); // smoothstep
-      const c = on && on.formantsAt(i / rate);
+      const c = (cd && cd.formantsAt(i / rate)) || (on && on.formantsAt(i / rate));
       const fs = [...(c || from.map((x, k) => x + (to[k] - x) * w)), ...F45];
-      co = fs.map((fk, k) => reson(fk, BW[k] * (on && k > 0 ? on.bwm[i] : 1), rate));
+      const bm = (on ? on.bwm[i] : 1) * (cd ? cd.bwm[i] : 1);
+      co = fs.map((fk, k) => reson(fk, BW[k] * (k > 0 ? bm : 1), rate));
     }
-    let x = on ? src[i] * on.av[i] : src[i];
+    let x = src[i] * (on ? on.av[i] : 1) * (cd ? cd.av[i] : 1);
+    const nz = Math.max(on ? on.nas[i] : 0, cd ? cd.nas[i] : 0);
+    lp += NASAL_LP * (x - lp); lp2 += NASAL_LP * (lp - lp2);
+    if (nz) x = x * (1 - nz) + lp2 * nz * NASAL_GAIN;
     for (let k = 0; k < 5; k++) {
       const [A, B, C] = co[k];
       const y = A * x + B * st[2 * k] + C * st[2 * k + 1];
       st[2 * k + 1] = st[2 * k]; st[2 * k] = y; x = y;
     }
-    out[i] = on ? x + on.fr[i] : x;
+    out[i] = x + (on ? on.fr[i] : 0) + (cd ? cd.fr[i] : 0);
   }
   // with a consonant first, it shapes the start itself: the voices still take 30 ms to swell
   const aN = Math.max(1, Math.round((on ? Math.min(o.attack, 0.03) : o.attack) * rate)), dN = Math.round((lead + dur) * rate), rN = Math.max(1, Math.round(o.release * rate));
@@ -327,7 +405,8 @@ const scaleFor = (rate, level) => level / rawRms(rate);
 // f: Hz; dur: s; returns Float64Array of lead + dur + release seconds. `onset`: the syllable's
 // consonants (latinOnset), sung before the vowel: by default inside the note, or with `lead`
 // (seconds) and `onsetLen` (seconds) starting `lead` before the beat and taking `onsetLen` in all,
-// so the vowel lands `onsetLen - lead` after the beat.
+// so the vowel lands `onsetLen - lead` after the beat. `coda`: the syllable's final consonants
+// (latinCoda), sung at the end of the note (codaPlan) so they finish as it does.
 export function singNote(f, dur, rate, { vowel = 'a', glide = null, level = 0.25, seed = 1, ...opts } = {}) {
   const w = rawSing(f, dur, rate, vowel, glide, opts, seed);
   const k = scaleFor(rate, level);

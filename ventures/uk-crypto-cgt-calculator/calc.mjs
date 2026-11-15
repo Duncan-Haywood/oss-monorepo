@@ -145,7 +145,7 @@ export function parseTransactions(text) {
   const heads = rows[0].map(norm);
   const col = {};
   for (const [key, names] of Object.entries(ALIASES)) {
-    const i = heads.findIndex((h) => names.includes(h));
+    const i = (names.map((n) => heads.indexOf(n)).find((i) => i >= 0) ?? -1);
     if (i >= 0) col[key] = i;
   }
   for (const need of ["date", "type", "asset", "quantity", "value"]) {

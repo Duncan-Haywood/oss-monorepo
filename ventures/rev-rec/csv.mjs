@@ -34,7 +34,7 @@ export function linesFromCsv(text) {
   const rows = parseCsv(text);
   if (rows.length < 2) return { lines: [], skipped: [], missing: ["header and at least one row"] };
   const head = rows[0].map(norm), col = {};
-  for (const [k, names] of Object.entries(ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const missing = ["amount", "billed", "start"].filter((k) => col[k] < 0);
   if (missing.length) return { lines: [], skipped: [], missing };
   const lines = [], skipped = [];

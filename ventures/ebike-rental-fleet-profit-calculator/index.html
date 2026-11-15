@@ -174,7 +174,9 @@
     const A = {"bikes":"f_bikes","bikeCost":"f_bikeCost","resalePct":"f_resalePct","lifeSeasons":"f_lifeSeasons","startupCapex":"f_startupCapex","peakDays":"f_peakDays","peakUtil":"f_peakUtil","offDays":"f_offDays","offPeakUtil":"f_offPeakUtil","halfPrice":"f_halfPrice","fullPrice":"f_fullPrice","fullShare":"f_fullShare","addOn":"f_addOn","lossPct":"f_lossPct","cardPct":"f_cardPct","staff":"f_staff","hoursOpen":"f_hoursOpen","wage":"f_wage","burdenPct":"f_burdenPct","rentMonthly":"f_rentMonthly","rentMonths":"f_rentMonths","insurance":"f_insurance","marketing":"f_marketing","otherAnnual":"f_otherAnnual","wearPerSlot":"f_wearPerSlot","batteryCost":"f_batteryCost","batteryLife":"f_batteryLife","financedPct":"f_financedPct","aprPct":"f_aprPct","termMonths":"f_termMonths","targetPaybackYears":"f_targetPaybackYears","targetMarginPct":"f_targetMarginPct"};
     const B = {"bikes":"b_bikes","peakUtil":"b_peakUtil","offPeakUtil":"b_offPeakUtil","halfPrice":"b_halfPrice","fullPrice":"b_fullPrice"};
     let R = null;
-    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, $("#" + id).value.trim() === "" ? NaN : Number($("#" + id).value)]));
+    // "1,200" and "12,345.67" read as numbers; anything else (e.g. "1,5") is left for the parser to reject.
+    const ungroup = (s) => (/^\s*[+-]?\d{1,3}(,\d{3})+(\.\d*)?\s*$/.test(s) ? s.replace(/,/g, "") : s);
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, $("#" + id).value.trim() === "" ? NaN : Number(ungroup($("#" + id).value))]));
     const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
     const row = (a, b) => "<tr><td>" + a + '</td><td class="num">' + b + "</td></tr>";
     const never = (v, f) => (v === null ? "never" : f(v));

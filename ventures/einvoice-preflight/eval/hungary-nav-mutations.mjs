@@ -54,6 +54,14 @@ const MUTATIONS = [
   { name: "aggregate line loses aggregateInvoiceLineData", rules: ["HU-011"], apply: (t) => t.includes("<aggregateInvoiceLineData>") ? t.replace(/<aggregateInvoiceLineData>[\s\S]*?<\/aggregateInvoiceLineData>/, "") : null },
   { name: "exempt line given VAT", rules: ["HU-010"], apply: first(/<vatExemption>(?:(?!<line>)[\s\S])*?<\/lineVatRate>\s*<lineVatData>\s*<lineVatAmount>([-\d.]+)</, () => "100.00") },
   { name: "file cut off half-way", rules: ["HU-001"], apply: (t) => t.slice(0, Math.floor(t.length / 2)) },
+  // Added 2026-11-15 with the Annex I re-read (eval/nav-annex1-calculations-2026-11-15.md): faults
+  // only the new or corrected warnings see.
+  { name: "line gross HUF +10% (754)", rules: ["HU-022"], apply: first(/<lineGrossAmountNormalHUF>([-\d.]+)</, bump()) },
+  { name: "rate row VAT HUF +10% (891)", rules: ["HU-025"], apply: first(/<vatRateVatAmountHUF>([-\d.]+)</, bump()) },
+  { name: "simplified line gross HUF +10% (901/921)", rules: ["HU-026"], apply: first(/<lineGrossAmountSimplifiedHUF>([-\d.]+)</, bump()) },
+  { name: "discountRate 0.1 added, net unchanged (740)", rules: ["HU-020"], apply: (t) => /<lineDiscountData>/.test(t) ? null : first(/<unitPriceHUF>[^<]*<\/unitPriceHUF>(\s*)<lineAmountsNormal>/, () => "<lineDiscountData><discountRate>0.1</discountRate></lineDiscountData>")(t) },
+  { name: "summary row at a rate no line uses (680)", rules: ["HU-024"], apply: (t) => { const m = /<summaryByVatRate>\s*<vatRate>\s*<vatPercentage>0\.27<\/vatPercentage>[\s\S]*?<\/summaryByVatRate>/.exec(t); if (!m || /<vatPercentage>0\.18</.test(t)) return null; return t.replace(m[0], m[0] + m[0].replace("0.27", "0.18").replace(/(Amount(?:HUF)?>)[-\d.]+</g, "$10.00<")); } },
+  { name: "new invoice net total negated (1090)", rules: ["HU-025"], apply: (t) => /<invoiceReference>/.test(t) ? null : first(/<invoiceNetAmount>([\d.]+)</, (v) => Number(v) === 0 ? v : `-${v}`)(t) },
 ];
 
 const key = (f) => `${f.rule}|${f.path}|${f.message}`;

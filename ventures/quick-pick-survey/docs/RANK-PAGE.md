@@ -125,6 +125,90 @@ still close" on the results. Pinned by three tests in
 `site/rank-core.test.mjs`. The last one fails if `stopCheck` returns the
 fixed read alone (checked).
 
+## Honest results for close calls (2026-11-15)
+
+The stop rule rechecks at the person's own prior (above), but the results
+table did not: its 90% rank ranges and "chance of being the true favourite"
+were still drawn from the fixed-prior fit (sd 2.01 logits). For a person
+whose picks are close calls that prior reads answer noise as real
+separation, so the table was too sure exactly where it matters.
+
+**Measured** (`node scripts/rank-range-coverage.mjs`: simulated
+respondents through the page's own picker and stop rule, scored at the
+moment the page shows results; seeds from 2000, 12 per row, and from 3000,
+24 per row, in `docs/rank-range-coverage-2026-11-15.jsonl` and
+`docs/rank-range-coverage-seed3000-2026-11-15.jsonl`). Coverage is the
+share of options whose true rank sits inside its 90% range; "favourite"
+is the mean chance the table gives its top option against how often that
+option really is the favourite. Fixed prior (before) / own prior (now):
+
+| options | spread | picks (runs at cap) | 90% coverage | mean range width | favourite said / right (fixed) -> said (own) |
+|---|---|---|---|---|---|
+| 8 | 100 | 25.5 (0 of 12), seeds 2000 | 1.00 / 1.00 | 4.1 / 4.1 | 0.75 / 1.00 -> 0.75 |
+| 8 | 100 | 26 (0 of 24), seeds 3000 | 1.00 / 1.00 | 4.1 / 4.1 | 0.77 / 1.00 -> 0.77 |
+| 8 | 6 | 34.8 (1 of 12), seeds 2000 | 1.00 / 1.00 | 3.9 / 4.0 | 0.71 / 0.83 -> 0.71 |
+| 8 | 6 | 38.5 (4 of 24), seeds 3000 | 1.00 / 1.00 | 3.8 / 3.9 | 0.73 / 0.83 -> 0.72 |
+| 8 | 3 | 44.7 (9 of 12), seeds 2000 | 1.00 / 1.00 | 4.1 / 4.5 | 0.64 / 0.58 -> 0.60 |
+| 8 | 3 | 44.8 (17 of 24), seeds 3000 | 0.96 / 0.97 | 4.2 / 4.9 | 0.66 / 0.67 -> 0.59 |
+| 8 | 1.5 | 46.8 (11 of 12), seeds 2000 | 0.80 / 0.90 | 4.9 / 5.9 | 0.60 / 0.25 -> 0.49 |
+| 8 | 1.5 | 47.2 (23 of 24), seeds 3000 | 0.92 / 0.98 | 5.2 / 6.5 | 0.62 / 0.50 -> 0.46 |
+| 15 | 100 | 51.3 (0 of 12), seeds 2000 | 1.00 / 1.00 | 6.9 / 6.9 | 0.65 / 1.00 -> 0.65 |
+| 15 | 100 | 51.3 (0 of 24), seeds 3000 | 1.00 / 1.00 | 6.9 / 6.9 | 0.63 / 1.00 -> 0.63 |
+| 15 | 6 | 75.4 (0 of 12), seeds 2000 | 0.98 / 0.99 | 6.4 / 6.6 | 0.58 / 0.58 -> 0.57 |
+| 15 | 6 | 75.3 (2 of 24), seeds 3000 | 0.99 / 0.99 | 6.5 / 6.7 | 0.63 / 0.46 -> 0.62 |
+| 15 | 3 | 101.6 (7 of 12), seeds 2000 | 0.89 / 0.92 | 6.5 / 7.7 | 0.54 / 0.50 -> 0.49 |
+| 15 | 3 | 110.1 (16 of 24), seeds 3000 | 0.92 / 0.96 | 6.5 / 7.9 | 0.60 / 0.33 -> 0.53 |
+| 15 | 1.5 | 118 (12 of 12), seeds 2000 | 0.80 / 0.96 | 7.8 / 10.7 | 0.60 / 0.17 -> 0.40 |
+| 15 | 1.5 | 108 (19 of 24), seeds 3000 | 0.81 / 0.89 | 7.6 / 9.8 | 0.56 / 0.29 -> 0.40 |
+| 25 | 100 | 91 (0 of 12), seeds 2000 | 1.00 / 1.00 | 10.8 / 10.8 | 0.58 / 1.00 -> 0.58 |
+| 25 | 6 | 116.8 (0 of 12), seeds 2000 | 0.96 / 0.97 | 10.3 / 10.6 | 0.58 / 0.50 -> 0.57 |
+| 25 | 3 | 191.3 (5 of 12), seeds 2000 | 0.85 / 0.89 | 9.6 / 11.4 | 0.51 / 0.42 -> 0.44 |
+| 25 | 1.5 | 202.6 (8 of 12), seeds 2000 | 0.70 / 0.83 | 10.9 / 15.3 | 0.56 / 0.00 -> 0.37 |
+
+Consistent answerers (spread 100) get exactly the same table: their own
+prior sits at the ceiling, so nothing is refit (pinned by a test). For
+near-coin-flip answerers the ranges now hold the true rank about as often
+as they claim (80-81% to 89-96% at 15 options), and the favourite chance comes
+down towards how often it is right. At 25 options and spread 1.5 the ranges
+still fall short (0.70 to 0.83). **Not fixed:** the favourite chance
+still overclaims for ordinary answerers on 15 options on one seed set (63%
+said, 46% right on the 3000 seeds; 58% / 58% on the 2000 seeds), where the own prior barely differs from the fixed one;
+the likeliest cause is the Gaussian (Laplace) posterior's tails rather than
+the prior (untested; a sampled posterior is the next read to try). Consistent answerers are
+told 58-77% when the favourite is always right: the model allows for
+lapses, the same conservatism as the stop rule's.
+
+**What changed** (`resultsTable` in `site/rank-core.mjs`): the results
+table, the verdict's favourite chance and the CSV are drawn from the
+answers refit at the person's own prior sd and pile noise (the stop rule's
+second read, `ownPrior`), with the rows kept in the fixed fit's order (the
+order the stop rule measured; the two can differ by a swap of near-ties).
+When the own prior is narrower than the fixed one the verdict adds "Many of
+your picks were close calls, so the ranges and chances below allow for
+that." The search costs one empirical-Bayes fit when results are shown (64
+to 330 ms, "Noisy answerers"). The shortlist percentages in top-k mode and
+the favourite mode's own stop (`favourite >= 0.9` at the fixed prior) are
+unchanged and unmeasured here.
+
+**Rejected: averaging over the prior sd.** Weighing a grid of six prior sds
+by the answers' evidence (`scripts/phi-mixture.mjs`) widened the ranges
+further, but for consistent answerers too (25 options, never wrong: mean
+width 10.8 to 17.8 places, favourite said 40% when right 100%). As a stop
+rule it cost consistent answerers 20-40% more picks (8 options: 25.7 to
+31.3; 25 options, spread 6: 110 to 170) for a smaller overclaim at 15 x 1.5
+(0.17 to 0.11): `docs/rank-stop-mixture-2026-11-15.jsonl`, 10 of the 12
+cells (the 25 x 3 and 25 x 1.5 cells were stopped unfinished).
+
+**Checks.** Two tests in `site/rank-core.test.mjs`: a consistent chain's
+results table equals the fixed-prior table; a simulated near-coin-flip
+respondent (15 options, spread 1.5, 118 picks) gets wider ranges and a
+lower favourite chance with rows in the fixed order (fails with
+`resultsFit` returning the fixed fit, checked). Browser (Playwright,
+390 px, 8 options): a consistent respondent finished in 25 picks with "75%
+chance" and no note; a coin-flipping one ran to the 48-pick cap and read
+"26% chance ... Many of your picks were close calls", ranges 1-7 and 1-8;
+no console errors.
+
 ## Favourite mode: more questions, not fewer
 
 The page first offered "Just find the favourite (fewer questions)". Measured
@@ -163,9 +247,10 @@ top pick's chance.
 - A real person's answers: none yet. The page counts anonymous local events
   only (`site/usage.mjs`); site page views come from the shared beacon.
 - Team combine's tau read low until the Laplace fix; see "Team ranges", "Laplace, not PQL".
-- `orderConfidence` overstates certainty for very noisy respondents on short
-  lists (table above); a lapse-aware prior or the app's `lapseEstimate` could
-  correct it.
+- `orderConfidence` overstated certainty for very noisy respondents; the
+  stop rule's second check ("Noisy answerers") and the own-prior results
+  table ("Honest results for close calls") correct most of it. The
+  favourite chance still overclaims for ordinary answerers on 15 options.
 
 ## Team ranges (2026-11-14)
 
@@ -865,3 +950,165 @@ carries its piles, so the first real team codes will show how often picks
 contradict piles). 40 and 60 options were not run (a 40-option close-call
 person takes over 10 minutes a run here). The favourite and top-k modes use
 the piles too, unmeasured.
+
+## Best and worst of four (2026-11-15)
+
+A fourth mode on the ranker, "Best and worst of four" (`rank.html?mode=screens`,
+landing page `site/maxdiff-best-worst.html`). Each screen shows four options;
+the person taps the one they like most, then the one they like least (keys 1
+to 4; tapping the "most" again changes it; Undo takes back a whole screen).
+It is the MaxDiff / best-worst scaling question, which survey platforms sell
+as a paid module, and the one the customer-pain-points ready list already
+named as its alternative.
+
+**Model** (`site/best-worst.mjs`). The sequential best-worst model on the
+refit's own Bradley-Terry scale: P(best = b | S) = e^{s_b} / sum_S e^{s},
+then P(worst = w | S \ b) = e^{-s_w} / sum_{S \ b} e^{-s}. On a screen of
+two it is exactly one pick (`best-worst.test.mjs` checks mode and covariance
+to 1e-6), so pairs and screens share one likelihood: `fitAt` in
+`rank-core.mjs` hands any answer list that contains a screen to `setFitAt`
+(Newton on the concave log posterior, Laplace covariance, the same prior and
+pile prior options), and lists of pairs alone still go to the engine's refit
+unchanged. `linearize` adds a screen's exact terms (observed information), so
+both team reads and `combine` take codes made of screens; `ownPrior` finds a
+screen-answerer's own prior sd by golden section on the Laplace evidence
+(`setPriorPhi`), so the stop rule's second check works as for pairs.
+
+**Why not implied pairs.** Best A and worst D of {A, B, C, D} implies five
+wins (A over B, C, D; B and C over D). Read as five independent picks they
+overstate two taps: a test shows one screen read exactly leaves a larger
+Var(s_A - s_D) and a smaller gap than its five implied picks. Overstated
+evidence means narrow ranges and a stop that fires early, the failure this
+page's stop rule was built to avoid ("Noisy answerers").
+
+**The next screen** (`nextScreen`). Greedy on the expected information gain
+(1/2) log det(I + I_S Cov_SS), with I_S the screen's expected Fisher
+information at the current mode (best term plus the worst term averaged over
+which option is best). On a pair it is (1/2) log(1 + p(1 - p) Var), the pair
+picker's score made monotone (tested). Start from the best pair, add the
+option that raises the gain most up to four; the same set is never asked
+twice in a row, and options are shown shuffled. Piles are not offered in this
+mode (the pile prior was measured with pairs only), and lists of 3 or 4 show
+every option on each screen.
+
+**Codes and links.** A screen travels in the result code as `s` + best,
+worst, rest in base 36 (`s4.0.3.1`); a code that repeats an option, names
+one outside the list or has best = worst is refused as damaged. A list link
+carries `m: "screens"`, so a team answers the same question. The screen cap
+is half the pair cap (`suggestedMax`) in screens, the same taps.
+
+**Measured** (`node scripts/best-worst-sim.mjs`, rows in
+`docs/best-worst-gumbel-2026-11-15.jsonl.gz` and
+`docs/best-worst-probit-2026-11-15.jsonl.gz`, each with the true Spearman
+after every tap). The page's own loop twice per simulated person, pairs then
+screens, same true scores (evenly spaced over `spread` logits, shuffled);
+stopCheck at 0.9 in both arms. 48 people per cell at 8 and 15 options, 12 at
+30 (a 30-option close-call cell runs about 25 minutes per 6 people on one
+core). "gumbel" answers as the model assumes (logistic pairs, Gumbel-max
+screens); "probit" is off-model: each option seen with N(0, 1.6^2) noise,
+highest best, lowest worst, which is also noisier on a pair (difference sd
+2.26) than the logistic answerer.
+
+| answerer | spread | n | pairs: picks | rho | screens: screens | taps | rho | rho at 2n taps, pairs / screens |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| gumbel | 6 | 8 | 37.8 | 0.960 | 13.0 | 25.9 | 0.958 | 0.889 / 0.923 |
+| gumbel | 6 | 15 | 69.8 | 0.934 | 27.2 | 54.3 | 0.943 | 0.828 / 0.903 |
+| gumbel | 6 | 30 | 149.6 | 0.930 | 64.8 | 129.7 | 0.951 | 0.809 / 0.889 |
+| gumbel | 3 | 8 | 46.3 | 0.871 | 21.1 | 42.2 | 0.903 | 0.742 / 0.783 |
+| gumbel | 3 | 15 | 109.1 | 0.862 | 47.2 | 94.4 | 0.901 | 0.631 / 0.754 |
+| gumbel | 3 | 30 | 228.3 | 0.844 | 101.8 | 203.7 | 0.865 | 0.549 / 0.653 |
+| probit | 6 | 8 | 42.7 | 0.927 | 16.0 | 32.1 | 0.947 | 0.803 / 0.887 |
+| probit | 6 | 15 | 86.8 | 0.913 | 33.1 | 66.1 | 0.927 | 0.756 / 0.854 |
+| probit | 6 | 30 | 152.4 | 0.881 | 62.5 | 125.0 | 0.920 | 0.755 / 0.856 |
+| probit | 3 | 8 | 46.9 | 0.824 | 21.7 | 43.5 | 0.862 | 0.599 / 0.669 |
+| probit | 3 | 15 | 114.2 | 0.816 | 53.6 | 107.3 | 0.851 | 0.479 / 0.639 |
+| probit | 3 | 30 | 202.0 | 0.730 | 125.0 | 250.0 | 0.834 | 0.479 / 0.577 |
+
+rho is the true Spearman of the order shown at the stop (or the cap). At equal
+taps screens lead in every cell; to the stop they take fewer taps in 11 of 12.
+The exception, probit close calls at 30, is the stop rule's: pairs that
+stopped on their own (8 of 12) claimed 0.90 for orders that were truly 0.68,
+screens that stopped (6 of 12) 0.81 under the same claim. Calibration of the
+self-stopped runs elsewhere: ordinary people 0.92 to 0.96 true under a 0.90
+to 0.91 claim in both arms; gumbel close calls at 15, pairs 0.83 and screens
+0.88 under a 0.90 claim. Long close-call lists overclaim in both arms (the
+"Open" item on noisy answerers stands).
+
+**Not simulated: time.** A screen of four takes longer to read than a pair,
+and taps are a stand-in for effort. Since 2026-11-15 the page measures it on
+real people instead ("Answer times" below). The page counts `screen` events and
+`mode:screens` starts locally; real codes now show which kind of answer a
+person gave. The status line quotes the gumbel screens to the stop (13 / 21
+at 8 options, 27 / 47 at 15, 65 / 102 at 30, ordinary / close calls).
+
+**Checks.** `node --test site/best-worst.test.mjs` (9 tests): a two-option
+screen equals one pick; gradient and information match finite differences;
+one screen is weaker than its implied pairs; screenGain on a pair matches the
+pair score; nextScreen shows distinct options and never repeats a set; screens
+recover a simulated order (Spearman over 0.85 in 25 screens of 10 options);
+codes round-trip mixed screens and picks and refuse damaged screens; both team
+reads take screen codes; the page, link mode and landing page are wired, with
+the disclaimer. Browser, Playwright at 390 px: example list in screens mode,
+four options as a 2 by 2 grid, "Most" marked on the first tap, 24 screens to
+the cap answering at random, results, a `QP1.` code with screens, the share
+note names the mode, combine with that code works, no console errors.
+
+## Answer times (2026-11-15)
+
+The simulations above count taps, and a tap on a screen of four is not a tap
+on a pair: reading four options and choosing twice takes longer. Whether
+screens are quicker overall turns on one number, seconds per screen over
+seconds per pick. A screen replaces about pairs-to-stop / screens-to-stop
+picks (40 / 13 = 3.1 at 8 options, 73 / 27 = 2.7 at 15, 146 / 65 = 2.2 at
+30, ordinary answerers), so screens save time while a screen takes less than
+that many picks' time. No simulation can supply the ratio, so the page now
+measures it on the people who use it.
+
+**What is recorded** (`site/answer-time.mjs`). From the moment a pair or a
+screen is shown to the answer (for a screen, the second tap), in whole tenths
+of a second. A question during which the page was hidden at any point
+(another tab, a locked phone) gets no time, as does one over ten minutes or
+one whose clock ran backwards: unknown, not a wrong number. Undo drops the
+time with the answer; times are saved with the answers on the device, and an
+older save without them reads as unknown.
+
+**Codes.** A result code carries the times as `t`, one base-36 token per
+answer (`-` for unknown), only when they line up one-to-one with the answers.
+A `t` of the wrong length, a token outside base 36 or over the cap is
+refused as damaged rather than half-read, since a time pinned to the wrong
+answer could pass a pair's time off as a screen's. A box under the code,
+ticked by default, leaves the times out ("Include how long each answer
+took"). Codes made before this read as before.
+
+**What a person and a team see.** Results show the person's own median
+seconds per pick and per screen. A team combine gives, for each kind, the
+median over people of their own median (people with at least 3 timed answers
+of that kind), so one slow person with many answers does not set it. When
+both kinds are present it gives the ratio and the time to a settled order
+for the list: real median seconds times the simulated typical answers to the
+stop (`picksGuide(n).ordinary` picks; the nearest measured screens row; the
+best-worst simulation's own pair arm needed 38, 70 and 150 picks where the
+picks table says 40, 73 and 146, so the two tables agree within 6%), and
+says whether screens save or cost time for this team. The counts are
+simulated and the times are the team's own, and the page says so.
+
+**Not yet.** No real times exist yet; the codes now carry them. Once a few
+teams have combined, the ratio decides whether the best-worst landing page
+should say screens are quicker, and the same times give the first real
+check of the answer-time model the survey app's pace tools assume (flagship
+item c).
+
+**Checks.** `node --test site/answer-time.test.mjs` (7 tests): times in
+tenths with none for a hidden page, a backward clock or over the cap; codes
+round-trip times across mixed pairs and screens; misaligned or all-unknown
+times are not sent and old codes still read; seven kinds of damaged `t` are
+refused (the test fails with the decode check removed); a person's pace
+splits pairs (ties included) from screens by the median; a team's pace is
+the median of medians over people with 3 or more timed answers, and the time
+to the stop is computed from it; the page starts a clock for pairs and
+screens, records both, drops times on both undos, and passes times into the
+code and the combine. Browser, Playwright at 390 px: 6 pairs at about 0.4 s
+and 6 screens at about 0.9 s read back as 0.4 s per pick and 1.0 s per
+screen; a combine of the screens person with two pairs codes gave "A screen
+took 2.5 times as long as a pick ... about 16 s with picks against 13 s with
+screens"; unticking the box shortens the code; no console errors.

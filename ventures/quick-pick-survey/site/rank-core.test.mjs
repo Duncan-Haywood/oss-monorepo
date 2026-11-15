@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import {
   parseList, listId, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, order,
   topKChances, topSetConfidence, topStopCheck, topK,
-  nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, stopCheck, STOP_CONFIDENCE, MAX_ITEMS,
+  nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, stopCheck, STOP_CONFIDENCE, MAX_ITEMS, resultsTable,
   personInfo, groupFit, populationFit, populationAt, teamRanges, linearize, teamShortlist, approvalShortlist,
 } from "./rank-core.mjs";
 import { buildEngineFile, ENGINE_FILES } from "../scripts/build-rank-engine.mjs";
@@ -376,6 +376,29 @@ test("stopCheck holds back a near-coin-flip respondent the fixed prior would hav
   const s = stopCheck(n, history[k]);
   assert.ok(s.phi < 2, `own prior sd ${s.phi} is narrower than the fixed 2.01`);
   assert.equal(s.done, false, `held back at pick ${k + 1} (confidence ${s.confidence.toFixed(3)})`);
+});
+
+// Honest results for close calls (docs/RANK-PAGE.md).
+test("results table: a consistent respondent's table is the fixed-prior table", () => {
+  const chain = [];
+  for (let r = 0; r < 6; r++) chain.push([0, 1, false], [1, 2, false], [2, 3, false], [0, 2, false], [1, 3, false]);
+  const f = fit(4, chain);
+  const r = resultsTable(4, chain, { fixedFit: f });
+  assert.ok(r.phi >= 2, `own prior sd ${r.phi} at the ceiling`);
+  assert.deepEqual(r.table, rankTable(f));
+});
+
+test("results table: a near-coin-flip respondent gets wider ranges and a lower favourite chance, in the order shown", () => {
+  const n = 15;
+  const answers = simulateHistory(n, 1.5, 7, 118).at(-1);
+  const f = fit(n, answers);
+  const fixed = rankTable(f);
+  const r = resultsTable(n, answers, { fixedFit: f });
+  assert.ok(r.phi < 1.5, `own prior sd ${r.phi}`);
+  assert.deepEqual(r.table.map((x) => x.item), order(f), "rows stay in the order the page shows");
+  const width = (t) => t.reduce((s, x) => s + x.high - x.low, 0);
+  assert.ok(width(r.table) > width(fixed), `ranges ${width(r.table)} vs fixed ${width(fixed)}`);
+  assert.ok(r.table[0].favourite < fixed[0].favourite - 0.03, `favourite ${r.table[0].favourite} vs fixed ${fixed[0].favourite}`);
 });
 
 // Team ranges (docs/RANK-PAGE.md, "Team ranges").

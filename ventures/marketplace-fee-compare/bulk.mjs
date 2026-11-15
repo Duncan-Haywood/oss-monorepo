@@ -78,7 +78,7 @@ export function parseCatalog(text) {
   const header = splitLine(lines[0], delimiter).map(norm);
   const column = {};
   for (const [field, names] of Object.entries(ALIASES)) {
-    const at = header.findIndex((h) => names.includes(h));
+    const at = (names.map((n) => header.indexOf(n)).find((i) => i >= 0) ?? -1);
     if (at !== -1) column[field] = at;
   }
   if (column.price === undefined || column.itemCost === undefined) {

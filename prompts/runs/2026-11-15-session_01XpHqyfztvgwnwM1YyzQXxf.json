@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyfztvgwnwM1YyzQXxf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T10:39:14Z",
+  "ended": "2026-11-15T11:00:16Z",
+  "wall_minutes": 21.38,
+  "tokens_in": 11604211,
+  "tokens_out": 71511,
+  "cost_usd": 5.2861,
+  "tool_calls": 80,
+  "task": "Deepen flagship chant-forge: --sing final consonants (flagships.yaml next item)",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16185",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First corpus run of eval/coda-check read 60.5%: readCoda's window stopped 20 ms before the next sound and cut off final bursts; fixed.",
+    "Singing codas made the opening reader (window from 150 ms before the beat) read the previous syllable's coda: openings fell 74.7% to 66.4% until its window was moved after the coda."
+  ],
+  "integrity_issues": [
+    "eval/coda-check part B (corpus) is not a clean held-out score: its first run's misses were read and led to two fixes, and one looser nasal rule was tried against it (84.0%) and dropped for false alarms on part A. Stated in the report, README, post and PR.",
+    "The opening score rose 74.7% to 79.8% mostly because the eval window changed (80.9% with codas off), not because of better singing; README states all three numbers."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Picked quick-pick-survey (row 6) though every item in its next: needs a real survey's answers or search-traffic data; it had no inputs_only marker, so I added one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Its pick (quick-pick-survey) had no item buildable without real survey data or search analytics",
+      "did": "Took chant-forge (row 9, its next: named final consonants as buildable) and marked quick-pick-survey inputs_only in flagships.yaml",
+      "result": "A working slice landed on chant-forge; later runs are no longer sent to quick-pick-survey without inputs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-synthetic-choir-learns-to-end-its-words.md",
+    "ventures/chant-forge/README.md (Final consonants)",
+    "ventures/chant-forge/eval/coda-check-report.md"
+  ],
+  "goal": "Deepen a flagship venture with a measured slice",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok (246 tests); node eval/browser-e2e.mjs -> all 115 checks passed; eval/coda-check, consonant-check, vowel-check re-run and reports committed; check_post_frontmatter/links/similarity clean; portfolio/router/validate.py valid. node platform/pages/venture-preflight.mjs chant-forge -> preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bc36748b-70a9-5088-b9f0-f1ed60b07b62",
+    "transcripts": 1,
+    "first": "2026-11-15T10:39:14Z",
+    "last": "2026-11-15T11:00:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 143,
+        "output": 71511,
+        "thinking": 27505,
+        "cache_read": 11407340,
+        "cache_write_5m": 0,
+        "cache_write_1h": 196728,
+        "api_equivalent_usd": 5.2861,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 143,
+      "output": 71511,
+      "thinking": 27505,
+      "cache_read": 11407340,
+      "cache_write_5m": 0,
+      "cache_write_1h": 196728,
+      "api_equivalent_usd": 5.2861,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.38,
+      "active_minutes": 21.38,
+      "model_minutes": 11.63,
+      "tool_minutes": 9.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a DSP engineer adding coda synthesis, an acoustic reader and three evals to an existing formant synth",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 302.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

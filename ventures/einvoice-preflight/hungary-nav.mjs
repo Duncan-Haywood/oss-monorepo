@@ -23,9 +23,10 @@
 // with a warning, so they come out with severity "warning". What NAV checks
 // against its own records (unique invoice numbers, the referenced base invoice,
 // the technical user's customers, the taxpayer register) cannot be checked from
-// the file and is listed in `skipped`. The VAT WARN arithmetic (HU-020..026) was
-// written from the code names and the tolerance sentence above; Annex I, which the
-// 2026.02.12 English PDF does carry, was read for the product fee family (HU-033).
+// the file and is listed in `skipped`. The VAT WARN arithmetic (HU-020..026) follows
+// Annex I of the same PDF warning by warning (re-read 2026-11-15: formulas, "only runs if"
+// conditions, the per-warning tolerance reference; eval/nav-annex1-calculations-2026-11-15.md);
+// each finding's `nav` field names the warning, or is null for this tool's own extra checks.
 // This is an offline observation, not NAV's acceptance and not tax advice.
 // Findings never repeat a tax number.
 
@@ -85,9 +86,28 @@ function badDecimals(node, path, found = []) {
 }
 const fmt = (n) => (Math.round(n * 100) / 100).toFixed(2);
 
-// NAV section 3.3.3: rounding is tolerated up to 1% of the amount, never less than one unit.
-const tolerance = (reference) => Math.max(1, Math.abs(reference) * 0.01);
-const off = (stated, computed) => Math.abs(stated - computed) > tolerance(computed) + 1e-9;
+// Annex I (2026.02.12), every calculation warning: "1% of the [reference] value expressed in
+// HUF, but at least 1 HUF or 0.01 units of the invoice currency, whichever is greater". In the
+// invoice currency 1 HUF is 1/r units; in forints 0.01 units is 0.01 x r HUF (r, the exchange
+// rate, is 1 for a forint invoice, which leaves the floor at one unit). The reference is the
+// computed value unless the warning names the stated one (`ref`).
+const tolerance = (reference, { huf = false, r = 1 } = {}) =>
+  Math.max(Math.abs(reference) * 0.01, huf ? Math.max(1, 0.01 * r) : Math.max(0.01, 1 / r));
+const off = (stated, computed, opts = {}) => Math.abs(stated - computed) > tolerance(opts.ref ?? computed, opts) + 1e-9;
+// Each HU-020..026 finding carries `nav`: the Annex I warning code it mirrors, or null when
+// NAV has no such warning and the check is this tool's own (the message then says so).
+const navWarn = (code) => ({ severity: "warning", nav: code });
+const OWN = " (this tool's own check: NAV's Annex I has no warning for it, so NAV accepts it silently)";
+// A line's net (or simplified gross) before VAT by Annex I 740 and 750: quantity x unit price,
+// less discountValue, or less quantity x unit price x discountRate.
+function lineBase(qty, price, line) {
+  const d = child(line, "lineDiscountData");
+  const value = num(txt(d, "discountValue"));
+  const pct = num(txt(d, "discountRate"));
+  if (value !== null) return qty * price - value;
+  if (pct !== null) return qty * price * (1 - pct);
+  return qty * price;
+}
 
 // Section 3.3.2, code 14 (INVALID_VAT_DATA).
 const NORMAL_RATES = new Map([["0.05", null], ["0.07", null], ["0.12", null], ["0.18", null], ["0.27", null], ["0.2", "old"], ["0.25", "old"], ["0", "2024"]]);
@@ -127,6 +147,11 @@ function rateKey(vatRate) {
 }
 // A row whose vatRate is empty or missing (a schema fault, reported as HU-029/HU-030) has no key.
 const keyLabel = (key) => !key ? "unnamed VAT rate" : key.startsWith("pct:") ? `${fmt(Number(key.slice(4)) * 100).replace(/\.00$/, "")}%` : key.startsWith("content:") ? `VAT content ${key.slice(8)}` : key;
+// Annex I: the summary markers no line carries, normal (680, 710, 720, 733) and simplified (910-916).
+const SUMMARY_MARKER_CODE = [["pct:", "INCORRECT_SUMMARY_DATA_VAT_PERCENTAGE"], ["reverse", "INCORRECT_SUMMARY_DATA_VAT_DOMESTIC_REVERSE_CHARGE"], ["margin:", "INCORRECT_SUMMARY_DATA_MARGIN_SCHEME_INDICATOR"], ["mismatch:", "INCORRECT_SUMMARY_DATA_VAT_AMOUNT_MISMATCH_NORMAL"]];
+const SIMPLIFIED_MARKER_CODE = [["content:", "INCORRECT_SUMMARY_CALCULATION_VAT_CONTENT_SUMMARY_SIMPLIFIED"], ["exempt:", "INCORRECT_SUMMARY_CALCULATION_VAT_EXEMPTION_SUMMARY_SIMPLIFIED"], ["oos:", "INCORRECT_SUMMARY_CALCULATION_VAT_OUT_OF_SCOPE_SUMMARY_SIMPLIFIED"], ["reverse", "INCORRECT_SUMMARY_CALCULATION_VAT_DOMESTIC_REVERSE_CHARGE_SUMMARY_SIMPLIFIED"], ["margin:", "INCORRECT_SUMMARY_DATA_MARGIN_SCHEME_INDICATOR_SUMMARY_SIMPLIFIED"], ["mismatch:", "INCORRECT_SUMMARY_CALCULATION_VAT_AMOUNT_MISMATCH_SUMMARY_SIMPLIFIED"]];
+// Every line with that amounts node names a VAT rate (an unnamed one is a schema fault, and would make a marker look unused).
+const allKeyed = (lines, node) => lines.every((line) => !child(line, node) || rateKey(child(child(line, node), "lineVatRate")) !== null);
 const ratePercent = (key) => (key && key.startsWith("pct:") ? Number(key.slice(4)) : null);
 
 /** The VAT-rate code list checks (codes 14, 31-37, 41-44, 48, 49) for one vatRate / lineVatRate node. */
@@ -199,6 +224,7 @@ function checkInvoice(inv, ctx, out, skipped) {
   const statedRate = num(txt(detail, "exchangeRate"));
   // ExchangeRateType is minExclusive 0 (the schema gate names it); forint conversions at 0 or below would only repeat it.
   const rate = statedRate !== null && statedRate > 0 ? statedRate : null;
+  const r = rate || 1;
   const firstFinding = out.length;
   const deliveryDate = txt(detail, "invoiceDeliveryDate") || txt(detail, "invoiceDeliveryPeriodEnd");
   const issueDate = ctx.issueDate;
@@ -334,6 +360,8 @@ function checkInvoice(inv, ctx, out, skipped) {
   let reverseCharge = false;
   const byKey = new Map(); // rate key -> {net, netHUF, vat, vatHUF, gross, grossHUF, n}
   const lineRate = ctx.aggregate ? null : rate;
+  // Whole-invoice line sums for Annex I 941 (forint nets) and 900/901 (simplified gross).
+  const lt = { nNormal: 0, netHUF: 0, netHUFok: true, nSimple: 0, gross: 0, grossOk: true, grossHUF: 0, grossHUFok: true };
   lines.forEach((line, i) => {
     const p = lp(i);
     const mod = child(line, "lineModificationReference");
@@ -378,6 +406,9 @@ function checkInvoice(inv, ctx, out, skipped) {
         "Give each line of an aggregate invoice its own lineExchangeRate and lineDeliveryDate.", `${p}/aggregateInvoiceLineData`));
     }
     const lr = ctx.aggregate ? num(txt(line, "aggregateInvoiceLineData", "lineExchangeRate")) : lineRate;
+    const lr1 = lr || 1;
+    // Annex I 740 and 750 run on a modification's lineOperation CREATE lines only.
+    const created = !modifying || txt(line, "lineModificationReference", "lineOperation") !== "MODIFY";
     const lDelivery = ctx.aggregate ? txt(line, "aggregateInvoiceLineData", "lineDeliveryDate") || deliveryDate : deliveryDate;
     const normal = child(line, "lineAmountsNormal");
     const simple = child(line, "lineAmountsSimplified");
@@ -393,9 +424,10 @@ function checkInvoice(inv, ctx, out, skipped) {
     const qty = num(txt(line, "quantity"));
     const price = num(txt(line, "unitPrice"));
     const priceHUF = num(txt(line, "unitPriceHUF"));
-    if (price !== null && priceHUF !== null && lr !== null && off(priceHUF, price * lr)) {
-      out.push(finding("HU-023", `Line ${i + 1}: unitPriceHUF is ${fmt(priceHUF)} but unitPrice x exchange rate is ${fmt(price * lr)} (NAV INCORRECT_LINE_CALCULATION_${ctx.aggregate ? "AGGREGATE_" : ""}LINE_UNIT_PRICE_HUF).`,
-        "Convert the unit price at the invoice's (or the line's) exchange rate.", `${p}/unitPriceHUF`, warn));
+    if (price !== null && priceHUF !== null && lr !== null && off(priceHUF, price * lr, { huf: true, r: lr1 })) {
+      const code = `INCORRECT_LINE_CALCULATION_${ctx.aggregate ? "AGGREGATE_" : ""}LINE_UNIT_PRICE_HUF`;
+      out.push(finding("HU-023", `Line ${i + 1}: unitPriceHUF is ${fmt(priceHUF)} but unitPrice x exchange rate is ${fmt(price * lr)} (NAV ${code}).`,
+        "Convert the unit price at the invoice's (or the line's) exchange rate.", `${p}/unitPriceHUF`, navWarn(code)));
     }
     if (normal) {
       const vr = child(normal, "lineVatRate");
@@ -409,6 +441,8 @@ function checkInvoice(inv, ctx, out, skipped) {
       const gross = num(txt(normal, "lineGrossAmountData", "lineGrossAmountNormal"));
       const grossHUF = num(txt(normal, "lineGrossAmountData", "lineGrossAmountNormalHUF"));
       if (txt(vr, "vatDomesticReverseCharge") === "true") reverseCharge = true;
+      lt.nNormal += 1;
+      if (netHUF === null) lt.netHUFok = false; else lt.netHUF += netHUF;
       // Codes 71, 72.
       if (vatNode && ((vat !== null && vat !== 0) || (vatHUF !== null && vatHUF !== 0))) {
         if (child(vr, "vatExemption")) {
@@ -436,30 +470,38 @@ function checkInvoice(inv, ctx, out, skipped) {
           `${oos} goes only to a buyer outside Hungary (customerVatStatus OTHER).`, `${p}/lineAmountsNormal/lineVatRate/vatOutOfScope/case`));
       }
       // Arithmetic (NAV WARN family).
-      if (!ctx.merged && qty !== null && price !== null && net !== null && !child(line, "lineDiscountData") && off(net, qty * price)) {
-        out.push(finding("HU-020", `Line ${i + 1}: lineNetAmount is ${fmt(net)} but quantity x unitPrice is ${fmt(qty * price)} (NAV INCORRECT_LINE_CALCULATION_NET_AMOUNT).`,
-          "Make the net amount the quantity times the unit price, or report the discount in lineDiscountData.", `${p}/lineAmountsNormal/lineNetAmountData/lineNetAmount`, warn));
+      const calcNet = qty !== null && price !== null ? lineBase(qty, price, line) : null;
+      if (!ctx.merged && created && calcNet !== null && net !== null && off(net, calcNet, { r: lr1 })) {
+        const less = child(line, "lineDiscountData") && calcNet !== qty * price ? " less the discount" : "";
+        out.push(finding("HU-020", `Line ${i + 1}: lineNetAmount is ${fmt(net)} but quantity x unitPrice${less} is ${fmt(calcNet)} (NAV INCORRECT_LINE_CALCULATION_NET_AMOUNT).`,
+          "Make the net amount the quantity times the unit price, less any discount reported in lineDiscountData (discountValue, or discountRate as a fraction).", `${p}/lineAmountsNormal/lineNetAmountData/lineNetAmount`, navWarn("INCORRECT_LINE_CALCULATION_NET_AMOUNT")));
       }
       const pctRate = ratePercent(key);
-      if (pctRate !== null && net !== null && vat !== null && off(vat, net * pctRate)) {
-        out.push(finding("HU-021", `Line ${i + 1}: lineVatAmount is ${fmt(vat)} but ${keyLabel(key)} of the net ${fmt(net)} is ${fmt(net * pctRate)} (NAV INCORRECT_LINE_CALCULATION_VAT_AMOUNT).`,
-          "Compute the VAT from the net amount at the line's rate.", `${p}/lineAmountsNormal/lineVatData/lineVatAmount`, warn));
+      if (pctRate !== null && net !== null && vat !== null && off(vat, net * pctRate, { r: lr1 })) {
+        out.push(finding("HU-021", `Line ${i + 1}: lineVatAmount is ${fmt(vat)} but ${keyLabel(key)} of the net ${fmt(net)} is ${fmt(net * pctRate)}${OWN}; the VAT-rate summary row is (INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT_SUMMARY).`,
+          "Compute the VAT from the net amount at the line's rate.", `${p}/lineAmountsNormal/lineVatData/lineVatAmount`, navWarn(null)));
       }
-      if (net !== null && gross !== null && off(gross, net + (vat || 0))) {
-        out.push(finding("HU-022", `Line ${i + 1}: lineGrossAmountNormal is ${fmt(gross)} but net plus VAT is ${fmt(net + (vat || 0))} (NAV INCORRECT_LINE_CALCULATION_GROSS_AMOUNT).`,
-          "Make the gross amount the net plus the VAT.", `${p}/lineAmountsNormal/lineGrossAmountData/lineGrossAmountNormal`, warn));
+      if (net !== null && gross !== null && off(gross, net + (vat || 0), { r: lr1 })) {
+        out.push(finding("HU-022", `Line ${i + 1}: lineGrossAmountNormal is ${fmt(gross)} but net plus VAT is ${fmt(net + (vat || 0))}${OWN}; NAV checks the forint amounts (INCORRECT_LINE_CALCULATION_LINE_GROSS_AMOUNT_NORMAL_SUM).`,
+          "Make the gross amount the net plus the VAT.", `${p}/lineAmountsNormal/lineGrossAmountData/lineGrossAmountNormal`, navWarn(null)));
+      }
+      // Annex I 754: the forint gross against the forint net plus VAT; NORMAL and AGGREGATE, all three filled.
+      if (netHUF !== null && vatHUF !== null && grossHUF !== null && off(grossHUF, netHUF + vatHUF, { huf: true, r: lr1, ref: grossHUF })) {
+        out.push(finding("HU-022", `Line ${i + 1}: lineGrossAmountNormalHUF is ${fmt(grossHUF)} but lineNetAmountHUF plus lineVatAmountHUF is ${fmt(netHUF + vatHUF)} (NAV INCORRECT_LINE_CALCULATION_LINE_GROSS_AMOUNT_NORMAL_SUM).`,
+          "Make the forint gross the forint net plus the forint VAT.", `${p}/lineAmountsNormal/lineGrossAmountData/lineGrossAmountNormalHUF`, navWarn("INCORRECT_LINE_CALCULATION_LINE_GROSS_AMOUNT_NORMAL_SUM")));
       }
       const huf = (name, value, valueHUF, element, code) => {
-        if (lr !== null && value !== null && valueHUF !== null && off(valueHUF, value * lr)) {
-          out.push(finding("HU-023", `Line ${i + 1}: ${element} is ${fmt(valueHUF)} but ${name} x exchange rate ${lr} is ${fmt(value * lr)} (NAV INCORRECT_LINE_CALCULATION_${ctx.aggregate ? "AGGREGATE_" : ""}${code}).`,
-            "Convert every line amount to forints at the same exchange rate.", `${p}/lineAmountsNormal/${element === "lineNetAmountHUF" ? "lineNetAmountData" : element === "lineVatAmountHUF" ? "lineVatData" : "lineGrossAmountData"}/${element}`, warn));
+        if (lr !== null && value !== null && valueHUF !== null && off(valueHUF, value * lr, { huf: true, r: lr1 })) {
+          const navCode = `INCORRECT_LINE_CALCULATION_${ctx.aggregate ? "AGGREGATE_" : ""}${code}`;
+          out.push(finding("HU-023", `Line ${i + 1}: ${element} is ${fmt(valueHUF)} but ${name} x exchange rate ${lr} is ${fmt(value * lr)} (NAV ${navCode}).`,
+            "Convert every line amount to forints at the same exchange rate.", `${p}/lineAmountsNormal/${element === "lineNetAmountHUF" ? "lineNetAmountData" : element === "lineVatAmountHUF" ? "lineVatData" : "lineGrossAmountData"}/${element}`, navWarn(navCode)));
         }
       };
       huf("the net", net, netHUF, "lineNetAmountHUF", "LINE_NET_AMOUNT_HUF");
       huf("the VAT", vat, vatHUF, "lineVatAmountHUF", "LINE_VAT_AMOUNT_HUF");
       huf("the gross", gross, grossHUF, "lineGrossAmountNormalHUF", "LINE_GROSS_AMOUNT_NORMAL_HUF");
       if (key) {
-        const b = byKey.get(key) || { net: 0, netHUF: 0, vat: 0, vatHUF: 0, gross: 0, grossHUF: 0, n: 0, ok: true, vatOk: true };
+        const b = byKey.get(key) || { net: 0, netHUF: 0, vat: 0, vatHUF: 0, gross: 0, grossHUF: 0, n: 0, ok: true, vatOk: true, kind: "normal" };
         b.n += 1;
         if (net === null || netHUF === null) b.ok = false;
         // lineVatData is optional (an advance deduction line often has none): VAT sums need it on every line.
@@ -475,18 +517,24 @@ function checkInvoice(inv, ctx, out, skipped) {
       const key = rateKey(vr);
       const gross = num(txt(simple, "lineGrossAmountSimplified"));
       const grossHUF = num(txt(simple, "lineGrossAmountSimplifiedHUF"));
-      if (lr !== null && gross !== null && grossHUF !== null && off(grossHUF, gross * lr)) {
+      lt.nSimple += 1;
+      if (gross === null) lt.grossOk = false; else lt.gross += gross;
+      if (grossHUF === null) lt.grossHUFok = false; else lt.grossHUF += grossHUF;
+      if (lr !== null && gross !== null && grossHUF !== null && off(grossHUF, gross * lr, { huf: true, r: lr1 })) {
         out.push(finding("HU-023", `Line ${i + 1}: lineGrossAmountSimplifiedHUF is ${fmt(grossHUF)} but the gross x exchange rate is ${fmt(gross * lr)} (NAV INCORRECT_LINE_CALCULATION_LINE_GROSS_AMOUNT_SIMPLIFIED_HUF).`,
-          "Convert the line's gross amount to forints at the invoice's exchange rate.", `${p}/lineAmountsSimplified/lineGrossAmountSimplifiedHUF`, warn));
+          "Convert the line's gross amount to forints at the invoice's exchange rate.", `${p}/lineAmountsSimplified/lineGrossAmountSimplifiedHUF`, navWarn("INCORRECT_LINE_CALCULATION_LINE_GROSS_AMOUNT_SIMPLIFIED_HUF")));
       }
-      if (!ctx.merged && qty !== null && price !== null && gross !== null && !child(line, "lineDiscountData") && off(gross, qty * price)) {
-        out.push(finding("HU-020", `Line ${i + 1}: lineGrossAmountSimplified is ${fmt(gross)} but quantity x unitPrice is ${fmt(qty * price)} (on a simplified invoice the unit price includes VAT).`,
-          "Make the gross amount the quantity times the gross unit price, or report the discount in lineDiscountData.", `${p}/lineAmountsSimplified/lineGrossAmountSimplified`, warn));
+      const calcGross = qty !== null && price !== null ? lineBase(qty, price, line) : null;
+      if (!ctx.merged && created && calcGross !== null && gross !== null && off(gross, calcGross, { r: lr1 })) {
+        const less = child(line, "lineDiscountData") && calcGross !== qty * price ? " less the discount" : "";
+        out.push(finding("HU-020", `Line ${i + 1}: lineGrossAmountSimplified is ${fmt(gross)} but quantity x unitPrice${less} is ${fmt(calcGross)}; on a simplified invoice the unit price includes VAT (NAV INCORRECT_LINE_CALCULATION_GROSS_AMOUNT).`,
+          "Make the gross amount the quantity times the gross unit price, less any discount reported in lineDiscountData.", `${p}/lineAmountsSimplified/lineGrossAmountSimplified`, navWarn("INCORRECT_LINE_CALCULATION_GROSS_AMOUNT")));
       }
       if (key) {
-        const b = byKey.get(key) || { gross: 0, grossHUF: 0, n: 0, ok: true };
+        const b = byKey.get(key) || { gross: 0, grossHUF: 0, n: 0, ok: true, hufOk: true, kind: "simplified" };
         b.n += 1;
         if (gross === null) b.ok = false;
+        if (grossHUF === null) b.hufOk = false;
         b.gross += gross || 0; b.grossHUF += grossHUF || 0;
         byKey.set(key, b);
       }
@@ -508,6 +556,7 @@ function checkInvoice(inv, ctx, out, skipped) {
   const sNormal = child(summary, "summaryNormal");
   const sSimple = kids(summary, "summarySimplified");
   const sp = `${base}/invoiceSummary`;
+  const gInvoice = num(txt(summary, "summaryGrossData", "invoiceGrossAmount"));
   if (simplified && sNormal) {
     out.push(finding("HU-006", "A SIMPLIFIED invoice has a summaryNormal (NAV LINE_SUMMARY_TYPE_MISMATCH_SUMMARY_NORMAL).", "Summarise a simplified invoice in summarySimplified, by VAT content.", `${sp}/summaryNormal`));
   }
@@ -540,49 +589,75 @@ function checkInvoice(inv, ctx, out, skipped) {
         out.push(finding("HU-010", `The ${keyLabel(key)} summary row is tax-exempt but carries a VAT amount (NAV INCORRECT_SUMMARY_DATA_VAT_EXEMPTION_NORMAL).`, "An exempt summary row's VAT amounts must be 0.", `${rp}/vatRateVatData`));
       }
     }
+    // Annex I 711 and 731 (warnings): a reverse-charge or margin-scheme row with non-zero VAT.
+    // 731's text says it skips "utilitySettlementIndicator values <> TRAVEL_AGENCY"; TRAVEL_AGENCY
+    // is a marginSchemeIndicator value, so that is the field read here.
+    if (vatData && ((vat || 0) !== 0 || (vatHUF || 0) !== 0)) {
+      if (txt(vr, "vatDomesticReverseCharge") === "true") {
+        out.push(finding("HU-010", `The domestic reverse-charge summary row carries a VAT amount (NAV INCORRECT_SUMMARY_DATA_VAT_DOMESTIC_REVERSE_CHARGE_NORMAL).`, "Under domestic reverse charge the buyer accounts for the VAT: the row's VAT amounts are 0.", `${rp}/vatRateVatData`, navWarn("INCORRECT_SUMMARY_DATA_VAT_DOMESTIC_REVERSE_CHARGE_NORMAL")));
+      }
+      const margin = txt(vr, "marginSchemeIndicator");
+      if (margin && margin !== "TRAVEL_AGENCY") {
+        out.push(finding("HU-010", `The margin-scheme summary row (${margin}) carries a VAT amount (NAV INCORRECT_SUMMARY_DATA_MARGIN_SCHEME_INDICATOR_NORMAL).`, "A margin-scheme invoice shows no VAT: the row's VAT amounts are 0.", `${rp}/vatRateVatData`, navWarn("INCORRECT_SUMMARY_DATA_MARGIN_SCHEME_INDICATOR_NORMAL")));
+      }
+    }
     if (key && seenKeys.has(key)) {
-      out.push(finding("HU-024", `Two summaryByVatRate rows are for ${keyLabel(key)}.`, "Give each VAT rate one summary row.", `${rp}/vatRate`, warn));
+      out.push(finding("HU-024", `Two summaryByVatRate rows are for ${keyLabel(key)}.`, "Give each VAT rate one summary row.", `${rp}/vatRate`, navWarn(null)));
     }
     if (key) seenKeys.add(key);
     const pctRate = ratePercent(key);
-    if (pctRate !== null && net !== null && vat !== null && off(vat, net * pctRate)) {
-      out.push(finding("HU-025", `The ${keyLabel(key)} summary row: vatRateVatAmount is ${fmt(vat)} but ${keyLabel(key)} of ${fmt(net)} is ${fmt(net * pctRate)} (NAV INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT).`,
-        "Compute the row's VAT from its net amount.", `${rp}/vatRateVatData/vatRateVatAmount`, warn));
+    // Annex I 890 and 891: only when the base is not zero; the reference is the stated VAT.
+    if (pctRate !== null && net !== null && net !== 0 && vat !== null && off(vat, net * pctRate, { r, ref: vat })) {
+      out.push(finding("HU-025", `The ${keyLabel(key)} summary row: vatRateVatAmount is ${fmt(vat)} but ${keyLabel(key)} of ${fmt(net)} is ${fmt(net * pctRate)} (NAV INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT_SUMMARY).`,
+        "Compute the row's VAT from its net amount.", `${rp}/vatRateVatData/vatRateVatAmount`, navWarn("INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT_SUMMARY")));
     }
-    if (gross !== null && net !== null && off(gross, net + (vat || 0))) {
-      out.push(finding("HU-025", `The ${keyLabel(key)} summary row: vatRateGrossAmount is ${fmt(gross)} but net plus VAT is ${fmt(net + (vat || 0))} (NAV INCORRECT_SUMMARY_CALCULATION_VAT_RATE_GROSS_AMOUNT).`,
-        "Make the row's gross the net plus the VAT.", `${rp}/vatRateGrossData/vatRateGrossAmount`, warn));
+    if (pctRate !== null && netHUF !== null && netHUF !== 0 && vatHUF !== null && off(vatHUF, netHUF * pctRate, { huf: true, r, ref: vatHUF })) {
+      out.push(finding("HU-025", `The ${keyLabel(key)} summary row: vatRateVatAmountHUF is ${fmt(vatHUF)} but ${keyLabel(key)} of ${fmt(netHUF)} HUF is ${fmt(netHUF * pctRate)} (NAV INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT_HUF_SUMMARY).`,
+        "Compute the row's forint VAT from its forint net amount.", `${rp}/vatRateVatData/vatRateVatAmountHUF`, navWarn("INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT_HUF_SUMMARY")));
+    }
+    if (gross !== null && net !== null && off(gross, net + (vat || 0), { r })) {
+      out.push(finding("HU-025", `The ${keyLabel(key)} summary row: vatRateGrossAmount is ${fmt(gross)} but net plus VAT is ${fmt(net + (vat || 0))}${OWN}.`,
+        "Make the row's gross the net plus the VAT.", `${rp}/vatRateGrossData/vatRateGrossAmount`, navWarn(null)));
     }
     if (rate !== null && !ctx.aggregate) {
-      for (const [v, h, el, code] of [[net, netHUF, "vatRateNetAmountHUF", "VAT_RATE_NET_AMOUNT_HUF"], [vat, vatHUF, "vatRateVatAmountHUF", "VAT_RATE_VAT_AMOUNT_HUF"], [gross, grossHUF, "vatRateGrossAmountHUF", "VAT_RATE_GROSS_AMOUNT_HUF"]]) {
-        if (v !== null && h !== null && off(h, v * rate)) {
-          out.push(finding("HU-023", `The ${keyLabel(key)} summary row: ${el} is ${fmt(h)} but the amount x exchange rate ${rate} is ${fmt(v * rate)} (NAV INCORRECT_SUMMARY_DATA_INVOICE_${code}).`,
-            "Convert the summary to forints at the invoice's exchange rate.", `${rp}/${el.startsWith("vatRateNet") ? "vatRateNetData" : el.startsWith("vatRateVat") ? "vatRateVatData" : "vatRateGrossData"}/${el}`, warn));
+      // Annex I 1074 and 1075; the row's forint gross has no NAV warning.
+      for (const [v, h, el, code] of [[net, netHUF, "vatRateNetAmountHUF", "INCORRECT_SUMMARY_DATA_INVOICE_VAT_RATE_NET_AMOUNT_HUF"], [vat, vatHUF, "vatRateVatAmountHUF", "INCORRECT_SUMMARY_DATA_INVOICE_VAT_RATE_VAT_AMOUNT_HUF"], [gross, grossHUF, "vatRateGrossAmountHUF", null]]) {
+        if (v !== null && h !== null && off(h, v * rate, { huf: true, r })) {
+          out.push(finding("HU-023", `The ${keyLabel(key)} summary row: ${el} is ${fmt(h)} but the amount x exchange rate ${rate} is ${fmt(v * rate)}${code ? ` (NAV ${code})` : OWN}.`,
+            "Convert the summary to forints at the invoice's exchange rate.", `${rp}/${el.startsWith("vatRateNet") ? "vatRateNetData" : el.startsWith("vatRateVat") ? "vatRateVatData" : "vatRateGrossData"}/${el}`, navWarn(code)));
         }
       }
     }
     // Each row against its lines (INCORRECT_SUMMARY_CALCULATION_VAT_RATE_*_LINE).
     const b = key && byKey.get(key);
     if (lines.length && !ctx.merged && b && b.ok) {
-      if (net !== null && off(net, b.net)) {
+      // Annex I 820 and 821: only when the row's base is not zero; the reference is the row's.
+      if (net !== null && net !== 0 && off(net, b.net, { r, ref: net })) {
         out.push(finding("HU-024", `The ${keyLabel(key)} summary row says net ${fmt(net)} but its ${b.n} line${b.n === 1 ? " adds" : "s add"} up to ${fmt(b.net)} (NAV INCORRECT_SUMMARY_CALCULATION_VAT_RATE_NET_AMOUNT_LINE).`,
-          "Make each rate's summary the sum of the lines at that rate.", `${rp}/vatRateNetData/vatRateNetAmount`, warn));
+          "Make each rate's summary the sum of the lines at that rate.", `${rp}/vatRateNetData/vatRateNetAmount`, navWarn("INCORRECT_SUMMARY_CALCULATION_VAT_RATE_NET_AMOUNT_LINE")));
       }
-      if (netHUF !== null && off(netHUF, b.netHUF)) {
+      if (netHUF !== null && netHUF !== 0 && off(netHUF, b.netHUF, { huf: true, r, ref: netHUF })) {
         out.push(finding("HU-024", `The ${keyLabel(key)} summary row says net ${fmt(netHUF)} HUF but its lines add up to ${fmt(b.netHUF)} HUF (NAV INCORRECT_SUMMARY_CALCULATION_VAT_RATE_NET_AMOUNT_HUF_LINE).`,
-          "Make each rate's forint summary the sum of the lines' forint amounts.", `${rp}/vatRateNetData/vatRateNetAmountHUF`, warn));
+          "Make each rate's forint summary the sum of the lines' forint amounts.", `${rp}/vatRateNetData/vatRateNetAmountHUF`, navWarn("INCORRECT_SUMMARY_CALCULATION_VAT_RATE_NET_AMOUNT_HUF_LINE")));
       }
-      if (vat !== null && b.vatOk && off(vat, b.vat)) {
-        out.push(finding("HU-024", `The ${keyLabel(key)} summary row says VAT ${fmt(vat)} but its lines add up to ${fmt(b.vat)} (NAV INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT_LINE).`,
-          "Make each rate's VAT the sum of the lines' VAT at that rate.", `${rp}/vatRateVatData/vatRateVatAmount`, warn));
+      if (vat !== null && b.vatOk && off(vat, b.vat, { r })) {
+        out.push(finding("HU-024", `The ${keyLabel(key)} summary row says VAT ${fmt(vat)} but its lines add up to ${fmt(b.vat)}${OWN}.`,
+          "Make each rate's VAT the sum of the lines' VAT at that rate.", `${rp}/vatRateVatData/vatRateVatAmount`, navWarn(null)));
       }
+    }
+    // Annex I 680, 710, 720 and 733: a marker in the summary that no line carries (690 and 700,
+    // the exemption and out-of-scope versions, are marked inactive).
+    const markerCode = key && SUMMARY_MARKER_CODE.find(([prefix]) => key.startsWith(prefix));
+    if (lines.length && !ctx.merged && markerCode && lt.nNormal && allKeyed(lines, "lineAmountsNormal") && ![...byKey.keys()].includes(key)) {
+      out.push(finding("HU-024", `The summary has a ${keyLabel(key)} row but no line is at ${keyLabel(key)} (NAV ${markerCode[1]}).`,
+        "Give the summary only the VAT rates and markers its lines use.", `${rp}/vatRate`, navWarn(markerCode[1])));
     }
   });
   if (lines.length && !ctx.merged && sNormal) {
     for (const [key, b] of byKey) {
-      if (!seenKeys.has(key) && b.ok && (b.net !== 0 || b.vat !== 0)) {
-        out.push(finding("HU-024", `${b.n} line${b.n === 1 ? " is" : "s are"} at ${keyLabel(key)} (net ${fmt(b.net)}) but no summaryByVatRate row is.`,
-          "Add a summary row for every VAT rate the lines use.", `${sp}/summaryNormal`, warn));
+      if (b.kind === "normal" && !seenKeys.has(key) && b.ok && (b.net !== 0 || b.vat !== 0)) {
+        out.push(finding("HU-024", `${b.n} line${b.n === 1 ? " is" : "s are"} at ${keyLabel(key)} (net ${fmt(b.net)}) but no summaryByVatRate row is (NAV INCORRECT_SUMMARY_DATA_BY_VATRATE).`,
+          "Add a summary row for every VAT rate the lines use.", `${sp}/summaryNormal`, navWarn("INCORRECT_SUMMARY_DATA_BY_VATRATE")));
       }
     }
   }
@@ -596,32 +671,48 @@ function checkInvoice(inv, ctx, out, skipped) {
     const tVat = num(txt(sNormal, "invoiceVatAmount"));
     const tVatHUF = num(txt(sNormal, "invoiceVatAmountHUF"));
     if (rows.length && rowsComplete) {
-      const cmp = (stated, computed, el, code, what) => {
-        if (stated !== null && off(stated, computed)) {
+      // Annex I 840, 841, 850, 860; the reference is the stated total.
+      const cmp = (stated, computed, el, code, what, huf) => {
+        if (stated !== null && off(stated, computed, { huf, r, ref: stated })) {
           out.push(finding("HU-025", `${el} is ${fmt(stated)} but the summaryByVatRate rows add up to ${fmt(computed)} (NAV ${code}).`,
-            `Make the invoice ${what} the sum of the VAT-rate rows.`, `${sp}/summaryNormal/${el}`, warn));
+            `Make the invoice ${what} the sum of the VAT-rate rows.`, `${sp}/summaryNormal/${el}`, navWarn(code)));
         }
       };
-      cmp(tNet, summed.net, "invoiceNetAmount", "INCORRECT_SUMMARY_CALCULATION_INVOICE_NET_AMOUNT", "net");
-      cmp(tNetHUF, summed.netHUF, "invoiceNetAmountHUF", "INCORRECT_SUMMARY_CALCULATION_INVOICE_NET_AMOUNT_HUF", "forint net");
-      cmp(tVat, summed.vat, "invoiceVatAmount", "INCORRECT_SUMMARY_CALCULATION_INVOICE_VAT_AMOUNT_SUMMARY", "VAT");
-      cmp(tVatHUF, summed.vatHUF, "invoiceVatAmountHUF", "INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT_HUF_SUMMARY", "forint VAT");
+      cmp(tNet, summed.net, "invoiceNetAmount", "INCORRECT_SUMMARY_CALCULATION_INVOICE_NET_AMOUNT", "net", false);
+      cmp(tNetHUF, summed.netHUF, "invoiceNetAmountHUF", "INCORRECT_SUMMARY_CALCULATION_INVOICE_NET_AMOUNT_HUF", "forint net", true);
+      cmp(tVat, summed.vat, "invoiceVatAmount", "INCORRECT_SUMMARY_CALCULATION_INVOICE_VAT_AMOUNT_SUMMARY", "VAT", false);
+      // 860 runs only when the rows give vatRateVatAmountHUF.
+      if (rows.some((row) => txt(row, "vatRateVatData", "vatRateVatAmountHUF"))) {
+        cmp(tVatHUF, summed.vatHUF, "invoiceVatAmountHUF", "INCORRECT_SUMMARY_CALCULATION_INVOICE_VAT_AMOUNT_HUF_SUMMARY", "forint VAT", true);
+      }
+    }
+    // Annex I 941: the lines' forint nets against the forint net total.
+    if (lines.length && !ctx.merged && lt.nNormal === lines.length && lt.netHUFok && tNetHUF !== null && off(tNetHUF, lt.netHUF, { huf: true, r, ref: tNetHUF })) {
+      out.push(finding("HU-025", `invoiceNetAmountHUF is ${fmt(tNetHUF)} but the lines' lineNetAmountHUF add up to ${fmt(lt.netHUF)} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_NET_AMOUNT_LINE_HUF).`,
+        "Make the forint net total the sum of the lines' forint nets.", `${sp}/summaryNormal/invoiceNetAmountHUF`, navWarn("INCORRECT_SUMMARY_CALCULATION_INVOICE_NET_AMOUNT_LINE_HUF")));
+    }
+    // Annex I 1090: a new (CREATE) normal or aggregate invoice with a negative net total.
+    if (!modifying && tNet !== null && tNet < 0) {
+      out.push(finding("HU-025", `invoiceNetAmount is ${fmt(tNet)} on a new invoice; NAV warns that an original (CREATE) invoice's net total cannot be negative (NAV INCORRECT_SUMMARY_DATA_INVOICE_NET_AMOUNT).`,
+        "Report a reduction as a modification (invoiceReference to the base invoice), or check the signs.", `${sp}/summaryNormal/invoiceNetAmount`, navWarn("INCORRECT_SUMMARY_DATA_INVOICE_NET_AMOUNT")));
     }
     const g = num(txt(summary, "summaryGrossData", "invoiceGrossAmount"));
     const gHUF = num(txt(summary, "summaryGrossData", "invoiceGrossAmountHUF"));
-    if (g !== null && tNet !== null && off(g, tNet + (tVat || 0))) {
-      out.push(finding("HU-025", `invoiceGrossAmount is ${fmt(g)} but invoiceNetAmount plus invoiceVatAmount is ${fmt(tNet + (tVat || 0))} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT).`,
-        "Make the gross total the net total plus the VAT total.", `${sp}/summaryGrossData/invoiceGrossAmount`, warn));
+    // Annex I 880 and 881; the reference is the stated gross.
+    if (g !== null && tNet !== null && off(g, tNet + (tVat || 0), { r, ref: g })) {
+      out.push(finding("HU-025", `invoiceGrossAmount is ${fmt(g)} but invoiceNetAmount plus invoiceVatAmount is ${fmt(tNet + (tVat || 0))} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_SUMMARY).`,
+        "Make the gross total the net total plus the VAT total.", `${sp}/summaryGrossData/invoiceGrossAmount`, navWarn("INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_SUMMARY")));
     }
-    if (gHUF !== null && tNetHUF !== null && off(gHUF, tNetHUF + (tVatHUF || 0))) {
-      out.push(finding("HU-025", `invoiceGrossAmountHUF is ${fmt(gHUF)} but the forint net plus VAT is ${fmt(tNetHUF + (tVatHUF || 0))} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_HUF).`,
-        "Make the forint gross total the forint net plus the forint VAT.", `${sp}/summaryGrossData/invoiceGrossAmountHUF`, warn));
+    if (gHUF !== null && tNetHUF !== null && off(gHUF, tNetHUF + (tVatHUF || 0), { huf: true, r, ref: gHUF })) {
+      out.push(finding("HU-025", `invoiceGrossAmountHUF is ${fmt(gHUF)} but the forint net plus VAT is ${fmt(tNetHUF + (tVatHUF || 0))} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_HUF_SUMMARY).`,
+        "Make the forint gross total the forint net plus the forint VAT.", `${sp}/summaryGrossData/invoiceGrossAmountHUF`, navWarn("INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_HUF_SUMMARY")));
     }
     if (rate !== null && !ctx.aggregate) {
-      for (const [v, h, el, code] of [[tNet, tNetHUF, "invoiceNetAmountHUF", "INVOICE_NET_AMOUNT_HUF"], [tVat, tVatHUF, "invoiceVatAmountHUF", "INVOICE_VAT_AMOUNT_HUF"]]) {
-        if (v !== null && h !== null && off(h, v * rate)) {
-          out.push(finding("HU-023", `${el} is ${fmt(h)} but the amount x exchange rate ${rate} is ${fmt(v * rate)} (NAV INCORRECT_SUMMARY_DATA_${code}).`,
-            "Convert the totals to forints at the invoice's exchange rate.", `${sp}/summaryNormal/${el}`, warn));
+      // Annex I 1071, 1070 and 1073 (1073 also runs on simplified invoices, below).
+      for (const [v, h, el, code, path] of [[tNet, tNetHUF, "invoiceNetAmountHUF", "INCORRECT_SUMMARY_DATA_INVOICE_NET_AMOUNT_HUF", "summaryNormal"], [tVat, tVatHUF, "invoiceVatAmountHUF", "INCORRECT_SUMMARY_DATA_INVOICE_VAT_AMOUNT_HUF", "summaryNormal"], [g, gHUF, "invoiceGrossAmountHUF", "INCORRECT_SUMMARY_DATA_INVOICE_GROSS_AMOUNT_HUF", "summaryGrossData"]]) {
+        if (v !== null && h !== null && off(h, v * rate, { huf: true, r })) {
+          out.push(finding("HU-023", `${el} is ${fmt(h)} but the amount x exchange rate ${rate} is ${fmt(v * rate)} (NAV ${code}).`,
+            "Convert the totals to forints at the invoice's exchange rate.", `${sp}/${path}/${el}`, navWarn(code)));
         }
       }
     }
@@ -639,33 +730,70 @@ function checkInvoice(inv, ctx, out, skipped) {
       const grossHUF = num(txt(row, "vatContentGrossAmountHUF"));
       total += gross || 0; totalHUF += grossHUF || 0;
       if (key) seen.add(key);
-      if (rate !== null && gross !== null && grossHUF !== null && off(grossHUF, gross * rate)) {
-        out.push(finding("HU-023", `The ${keyLabel(key)} simplified summary: vatContentGrossAmountHUF is ${fmt(grossHUF)} but the amount x exchange rate is ${fmt(gross * rate)}.`,
-          "Convert the summary to forints at the invoice's exchange rate.", `${rp}/vatContentGrossAmountHUF`, warn));
+      if (rate !== null && gross !== null && grossHUF !== null && off(grossHUF, gross * rate, { huf: true, r })) {
+        out.push(finding("HU-023", `The ${keyLabel(key)} simplified summary: vatContentGrossAmountHUF is ${fmt(grossHUF)} but the amount x exchange rate is ${fmt(gross * rate)} (NAV INCORRECT_SUMMARY_DATA_INVOICE_VAT_CONTENT_GROSS_AMOUNT_HUF).`,
+          "Convert the summary to forints at the invoice's exchange rate.", `${rp}/vatContentGrossAmountHUF`, navWarn("INCORRECT_SUMMARY_DATA_INVOICE_VAT_CONTENT_GROSS_AMOUNT_HUF")));
       }
       const b = key && byKey.get(key);
-      if (lines.length && !ctx.merged && b && b.ok && gross !== null && off(gross, b.gross)) {
+      // Annex I 920 (reference: the invoice's gross) and 921 (reference: the row's forint gross).
+      if (lines.length && !ctx.merged && b && b.ok && gross !== null && off(gross, b.gross, { r, ref: gInvoice ?? b.gross })) {
         out.push(finding("HU-026", `The ${keyLabel(key)} simplified summary says ${fmt(gross)} but its ${b.n} line${b.n === 1 ? " adds" : "s add"} up to ${fmt(b.gross)} (NAV INCORRECT_SUMMARY_CALCULATION_VAT_CONTENT_GROSS_AMOUNT_SUMMARY_SIMPLIFIED).`,
-          "Make each VAT content's summary the sum of the lines with that content.", `${rp}/vatContentGrossAmount`, warn));
+          "Make each VAT content's summary the sum of the lines with that content.", `${rp}/vatContentGrossAmount`, navWarn("INCORRECT_SUMMARY_CALCULATION_VAT_CONTENT_GROSS_AMOUNT_SUMMARY_SIMPLIFIED")));
+      }
+      if (lines.length && !ctx.merged && b && b.hufOk && grossHUF !== null && off(grossHUF, b.grossHUF, { huf: true, r, ref: grossHUF })) {
+        out.push(finding("HU-026", `The ${keyLabel(key)} simplified summary says ${fmt(grossHUF)} HUF but its lines' lineGrossAmountSimplifiedHUF add up to ${fmt(b.grossHUF)} (NAV INCORRECT_SUMMARY_CALCULATION_VAT_CONTENT_GROSS_AMOUNT_HUF_SUMMARY_SIMPLIFIED).`,
+          "Make each VAT content's forint summary the sum of the lines' forint gross amounts.", `${rp}/vatContentGrossAmountHUF`, navWarn("INCORRECT_SUMMARY_CALCULATION_VAT_CONTENT_GROSS_AMOUNT_HUF_SUMMARY_SIMPLIFIED")));
+      }
+      // Annex I 910-916: a VAT content or marker in the summary that no line carries.
+      const markerCode = key && SIMPLIFIED_MARKER_CODE.find(([prefix]) => key.startsWith(prefix));
+      if (lines.length && !ctx.merged && markerCode && lt.nSimple && allKeyed(lines, "lineAmountsSimplified") && !byKey.has(key)) {
+        out.push(finding("HU-026", `The simplified summary has a ${keyLabel(key)} row but no line is at ${keyLabel(key)} (NAV ${markerCode[1]}).`,
+          "Give the summary only the VAT contents and markers its lines use.", `${rp}/vatRate`, navWarn(markerCode[1])));
       }
     });
     if (lines.length && !ctx.merged) {
       for (const [key, b] of byKey) {
-        if (!seen.has(key) && b.ok && b.gross !== 0) {
-          out.push(finding("HU-026", `${b.n} line${b.n === 1 ? " is" : "s are"} at ${keyLabel(key)} (gross ${fmt(b.gross)}) but no summarySimplified row is.`,
-            "Add a simplified summary row for every VAT content the lines use.", `${sp}`, warn));
+        if (b.kind === "simplified" && !seen.has(key) && b.ok && b.gross !== 0) {
+          out.push(finding("HU-026", `${b.n} line${b.n === 1 ? " is" : "s are"} at ${keyLabel(key)} (gross ${fmt(b.gross)}) but no summarySimplified row is (NAV INCORRECT_SUMMARY_DATA_BY_VATRATE).`,
+            "Add a simplified summary row for every VAT content the lines use.", `${sp}`, navWarn("INCORRECT_SUMMARY_DATA_BY_VATRATE")));
         }
       }
     }
-    const g = num(txt(summary, "summaryGrossData", "invoiceGrossAmount"));
-    if (g !== null && off(g, total)) {
-      out.push(finding("HU-026", `invoiceGrossAmount is ${fmt(g)} but the simplified summary rows add up to ${fmt(total)} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT).`,
-        "Make the gross total the sum of the simplified summary rows.", `${sp}/summaryGrossData/invoiceGrossAmount`, warn));
+    const g = gInvoice;
+    // Annex I 930 and 931 (NAV's names say VAT_AMOUNT; the checks are on the gross).
+    if (g !== null && off(g, total, { r, ref: g })) {
+      out.push(finding("HU-026", `invoiceGrossAmount is ${fmt(g)} but the simplified summary rows add up to ${fmt(total)} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_VAT_AMOUNT).`,
+        "Make the gross total the sum of the simplified summary rows.", `${sp}/summaryGrossData/invoiceGrossAmount`, navWarn("INCORRECT_SUMMARY_CALCULATION_INVOICE_VAT_AMOUNT")));
     }
     const gHUF = num(txt(summary, "summaryGrossData", "invoiceGrossAmountHUF"));
-    if (gHUF !== null && off(gHUF, totalHUF)) {
-      out.push(finding("HU-026", `invoiceGrossAmountHUF is ${fmt(gHUF)} but the simplified summary rows add up to ${fmt(totalHUF)} HUF.`,
-        "Make the forint gross total the sum of the simplified summary rows.", `${sp}/summaryGrossData/invoiceGrossAmountHUF`, warn));
+    if (gHUF !== null && off(gHUF, totalHUF, { huf: true, r, ref: gHUF })) {
+      out.push(finding("HU-026", `invoiceGrossAmountHUF is ${fmt(gHUF)} but the simplified summary rows add up to ${fmt(totalHUF)} HUF (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_VAT_AMOUNT_HUF).`,
+        "Make the forint gross total the sum of the simplified summary rows.", `${sp}/summaryGrossData/invoiceGrossAmountHUF`, navWarn("INCORRECT_SUMMARY_CALCULATION_INVOICE_VAT_AMOUNT_HUF")));
+    }
+  }
+  if (simplified) {
+    const g = gInvoice;
+    const gHUF = num(txt(summary, "summaryGrossData", "invoiceGrossAmountHUF"));
+    // Annex I 900 and 901: the lines' gross against the invoice's gross, straight from the lines.
+    if (lines.length && !ctx.merged && lt.nSimple === lines.length) {
+      if (lt.grossOk && g !== null && off(g, lt.gross, { r, ref: g })) {
+        out.push(finding("HU-026", `invoiceGrossAmount is ${fmt(g)} but the lines' lineGrossAmountSimplified add up to ${fmt(lt.gross)} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_LINE).`,
+          "Make the gross total the sum of the lines' gross amounts.", `${sp}/summaryGrossData/invoiceGrossAmount`, navWarn("INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_LINE")));
+      }
+      if (lt.grossHUFok && gHUF !== null && off(gHUF, lt.grossHUF, { huf: true, r, ref: gHUF })) {
+        out.push(finding("HU-026", `invoiceGrossAmountHUF is ${fmt(gHUF)} but the lines' lineGrossAmountSimplifiedHUF add up to ${fmt(lt.grossHUF)} (NAV INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_HUF_LINE).`,
+          "Make the forint gross total the sum of the lines' forint gross amounts.", `${sp}/summaryGrossData/invoiceGrossAmountHUF`, navWarn("INCORRECT_SUMMARY_CALCULATION_INVOICE_GROSS_AMOUNT_HUF_LINE")));
+      }
+    }
+    // Annex I 1073 on a simplified invoice.
+    if (rate !== null && g !== null && gHUF !== null && off(gHUF, g * rate, { huf: true, r })) {
+      out.push(finding("HU-023", `invoiceGrossAmountHUF is ${fmt(gHUF)} but the amount x exchange rate ${rate} is ${fmt(g * rate)} (NAV INCORRECT_SUMMARY_DATA_INVOICE_GROSS_AMOUNT_HUF).`,
+        "Convert the gross total to forints at the invoice's exchange rate.", `${sp}/summaryGrossData/invoiceGrossAmountHUF`, navWarn("INCORRECT_SUMMARY_DATA_INVOICE_GROSS_AMOUNT_HUF")));
+    }
+    // Annex I 1100: a new (CREATE) simplified invoice with a negative gross total.
+    if (!modifying && g !== null && g < 0) {
+      out.push(finding("HU-026", `invoiceGrossAmount is ${fmt(g)} on a new simplified invoice; NAV warns that an original (CREATE) invoice's gross total cannot be negative (NAV INCORRECT_SUMMARY_DATA_INVOICE_GROSS_AMOUNT).`,
+        "Report a reduction as a modification (invoiceReference to the base invoice), or check the signs.", `${sp}/summaryGrossData/invoiceGrossAmount`, navWarn("INCORRECT_SUMMARY_DATA_INVOICE_GROSS_AMOUNT")));
     }
   }
   checkProductFee(inv, lines, { base, modifying, rate }, out, skipped);

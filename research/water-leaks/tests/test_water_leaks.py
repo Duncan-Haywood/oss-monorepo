@@ -499,3 +499,27 @@ def test_replay_splits_the_pipe_and_draws_the_flow_at_its_midpoint(tmp_path):
     assert abs(out[200, 1] - (103 - 1.5 * hl)) < 0.01
     none = replay.Replay(inp, ["J1", "J2"], []).run(0, 3.0, False, np.zeros((realsig.DAY_STEPS, 0)))
     assert np.allclose(none, 103.0, atol=1e-3)
+
+
+def test_fetch_uses_a_per_process_temp_file(tmp_path, monkeypatch):
+    """A second job's half-written <name>.part must not be renamed into place (doc_friction
+    2026-11-15: two processes fetching one file shared the .part path)."""
+    import hashlib
+    import io
+    import os
+
+    body = b"Timestamp;n1\n2018-01-01 00:00;1,0\n"
+    monkeypatch.setenv("WATER_LEAKS_CACHE", str(tmp_path))
+    monkeypatch.setitem(data.SHA256, "fake.csv", hashlib.sha256(body).hexdigest())
+    (tmp_path / "fake.csv.part").write_bytes(b"half")  # the other job's partial file
+    seen = []
+
+    def fake_urlopen(url, timeout):
+        seen.append(url)
+        return io.BytesIO(body)
+
+    monkeypatch.setattr(data.urllib.request, "urlopen", fake_urlopen)
+    assert data.fetch("fake.csv").read_bytes() == body
+    assert len(seen) == 1
+    assert (tmp_path / "fake.csv.part").read_bytes() == b"half"
+    assert not (tmp_path / f"fake.csv.{os.getpid()}.part").exists()

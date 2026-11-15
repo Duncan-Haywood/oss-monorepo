@@ -228,6 +228,49 @@ test("the walk's kept predecessor lists change nothing: same least, proof, steps
   assert.ok(walked > 1000, `the walks did some work (${walked} steps)`);
 });
 
+test("the balance-guided walk: the old order's least and proof whenever both finish, balanced hosts with that many breaks", async () => {
+  // README "Starting under the gap": balancedWalk first tries a round's equally cheap host choices in
+  // order of how even they leave home and away (half the budget), then the old seeded order on the
+  // rest from the first unfinished level. A finished walk's least is order-free, so when both finish
+  // they agree; WALK_UNGUIDED = 1 loads the old order alone.
+  process.env.WALK_UNGUIDED = "1";
+  const old = await import("./orient.mjs?unguided");
+  delete process.env.WALK_UNGUIDED;
+  const rand = mulberry32(2027);
+  const shuffled = (n) => {
+    const N = n % 2 ? n + 1 : n, perm = [...Array(N).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+    const opp = circleOpp(N).map((o) => { const q = new Int16Array(N); for (let t = 0; t < N; t++) q[perm[t]] = perm[o[t]]; return q; });
+    for (let i = opp.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [opp[i], opp[j]] = [opp[j], opp[i]]; }
+    return opp;
+  };
+  let both = 0, fewer = 0;
+  for (const n of [7, 9, 10, 13, 14, 16]) for (let i = 0; i < 4; i++) {
+    const opp = shuffled(n);
+    for (const span of [opp.length, Math.ceil(opp.length / 2)]) {
+      const opts = { seed: 3 + i, budget: 40000, span };
+      const a = old.leastBreaks(opp, n, opts), b = leastBreaks(opp, n, opts);
+      assert.equal(b.floor, a.floor);
+      if (b.least != null) {
+        assert.equal(countBreaks(b.venues, opp, n), b.least, `${n}/${i}/${span} breaks`);
+        assert.ok(balanced(b.venues, opp, n, span), `${n}/${i}/${span} balanced`);
+      }
+      if (a.proved && b.proved) { assert.equal(b.least, a.least, `${n}/${i}/${span} least`); both++; }
+      if (a.least != null && b.least != null) assert.equal(b.least, a.least, `${n}/${i}/${span} found`);
+      if (b.steps < a.steps) fewer++;
+    }
+  }
+  assert.ok(both >= 24, `both proved in ${both} of 48`);
+  assert.ok(fewer >= 24, `the guided walk took fewer steps in ${fewer} of 48`);
+  // a budget the guided half cannot finish in: the old order runs on, and a proof still means the least
+  const opp = shuffled(14), full = old.leastBreaks(opp, 14, { seed: 1, budget: 200000 });
+  for (const budget of [30, 60, 200, 2000]) {
+    const b = leastBreaks(opp, 14, { seed: 1, budget });
+    assert.ok(b.steps <= budget, `${b.steps} steps on ${budget}`);
+    if (b.proved) assert.equal(b.least, full.least);
+  }
+});
+
 // every pair-host choice of a small home-and-away timetable, counted: the pair keeps one host (at
 // home in its first game, away in its return), balance over leg one
 function brutePairs(opp, n) {

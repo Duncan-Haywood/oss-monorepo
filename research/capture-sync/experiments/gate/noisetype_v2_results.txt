@@ -1,0 +1,786 @@
+capture-sync step 3c: gates under unseen kinds of real noise (MS-SNSD speech and noise, statistical rooms;
+LTT alpha 1% failure among accepted, delta 0.1; calibrate on sessions 0-4, test on sessions 5-9)
+windows: 186000; types: white, AirConditioner, AirportAnnouncements, Babble, CopyMachine, Munching, Neighbor, ShuttingDoor, Typing, VacuumCleaner; levels: none, [10.0, 0.0, -10.0] dB
+
+== Raw failure share by type and level (both sessions halves), gamma 1 / gamma 0.25 ==
+  RT60 0.2 s, 1 s windows: none 0.001/0.004
+    white                 +10 dB 0.001/0.004   +0 dB 0.027/0.007  -10 dB 0.559/0.043
+    AirConditioner        +10 dB 0.001/0.004   +0 dB 0.002/0.008  -10 dB 0.148/0.436
+    AirportAnnouncements  +10 dB 0.001/0.004   +0 dB 0.003/0.007  -10 dB 0.292/0.629
+    Babble                +10 dB 0.001/0.004   +0 dB 0.016/0.013  -10 dB 0.701/0.867
+    CopyMachine           +10 dB 0.001/0.004   +0 dB 0.104/0.006  -10 dB 0.953/0.853
+    Munching              +10 dB 0.007/0.005   +0 dB 0.227/0.009  -10 dB 0.865/0.552
+    Neighbor              +10 dB 0.001/0.004   +0 dB 0.018/0.022  -10 dB 0.565/0.898
+    ShuttingDoor          +10 dB 0.001/0.004   +0 dB 0.111/0.006  -10 dB 0.549/0.410
+    Typing                +10 dB 0.044/0.004   +0 dB 0.527/0.018  -10 dB 0.920/0.857
+    VacuumCleaner         +10 dB 0.001/0.004   +0 dB 0.007/0.008  -10 dB 0.346/0.173
+  RT60 0.2 s, 2 s windows: none 0.000/0.000
+    white                 +10 dB 0.000/0.000   +0 dB 0.001/0.002  -10 dB 0.166/0.002
+    AirConditioner        +10 dB 0.000/0.001   +0 dB 0.000/0.001  -10 dB 0.036/0.123
+    AirportAnnouncements  +10 dB 0.000/0.001   +0 dB 0.001/0.002  -10 dB 0.069/0.230
+    Babble                +10 dB 0.000/0.001   +0 dB 0.001/0.002  -10 dB 0.453/0.613
+    CopyMachine           +10 dB 0.000/0.000   +0 dB 0.007/0.002  -10 dB 0.864/0.344
+    Munching              +10 dB 0.000/0.000   +0 dB 0.053/0.002  -10 dB 0.674/0.314
+    Neighbor              +10 dB 0.001/0.001   +0 dB 0.008/0.007  -10 dB 0.265/0.703
+    ShuttingDoor          +10 dB 0.000/0.000   +0 dB 0.015/0.002  -10 dB 0.357/0.237
+    Typing                +10 dB 0.004/0.001   +0 dB 0.376/0.001  -10 dB 0.913/0.779
+    VacuumCleaner         +10 dB 0.000/0.000   +0 dB 0.000/0.002  -10 dB 0.065/0.021
+  RT60 0.2 s, 4 s windows: none 0.000/0.000
+    white                 +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.008/0.000
+    AirConditioner        +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.002/0.019
+    AirportAnnouncements  +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.005/0.028
+    Babble                +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.164/0.223
+    CopyMachine           +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.548/0.045
+    Munching              +10 dB 0.000/0.000   +0 dB 0.004/0.000  -10 dB 0.426/0.121
+    Neighbor              +10 dB 0.000/0.000   +0 dB 0.006/0.006  -10 dB 0.094/0.321
+    ShuttingDoor          +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.210/0.083
+    Typing                +10 dB 0.000/0.000   +0 dB 0.157/0.000  -10 dB 0.943/0.534
+    VacuumCleaner         +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.001/0.000
+  RT60 0.8 s, 1 s windows: none 0.001/0.005
+    white                 +10 dB 0.002/0.005   +0 dB 0.026/0.005  -10 dB 0.646/0.078
+    AirConditioner        +10 dB 0.001/0.005   +0 dB 0.003/0.007  -10 dB 0.168/0.515
+    AirportAnnouncements  +10 dB 0.001/0.004   +0 dB 0.004/0.004  -10 dB 0.294/0.685
+    Babble                +10 dB 0.001/0.005   +0 dB 0.013/0.016  -10 dB 0.742/0.907
+    CopyMachine           +10 dB 0.001/0.005   +0 dB 0.111/0.012  -10 dB 0.953/0.896
+    Munching              +10 dB 0.004/0.005   +0 dB 0.218/0.011  -10 dB 0.862/0.586
+    Neighbor              +10 dB 0.002/0.004   +0 dB 0.020/0.014  -10 dB 0.616/0.921
+    ShuttingDoor          +10 dB 0.003/0.005   +0 dB 0.111/0.006  -10 dB 0.535/0.416
+    Typing                +10 dB 0.050/0.006   +0 dB 0.565/0.016  -10 dB 0.924/0.864
+    VacuumCleaner         +10 dB 0.001/0.004   +0 dB 0.009/0.006  -10 dB 0.390/0.220
+  RT60 0.8 s, 2 s windows: none 0.000/0.000
+    white                 +10 dB 0.000/0.000   +0 dB 0.001/0.000  -10 dB 0.217/0.007
+    AirConditioner        +10 dB 0.000/0.000   +0 dB 0.000/0.001  -10 dB 0.027/0.193
+    AirportAnnouncements  +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.066/0.290
+    Babble                +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.482/0.696
+    CopyMachine           +10 dB 0.000/0.000   +0 dB 0.005/0.000  -10 dB 0.880/0.418
+    Munching              +10 dB 0.001/0.000   +0 dB 0.058/0.000  -10 dB 0.701/0.321
+    Neighbor              +10 dB 0.001/0.000   +0 dB 0.004/0.005  -10 dB 0.289/0.764
+    ShuttingDoor          +10 dB 0.000/0.000   +0 dB 0.015/0.001  -10 dB 0.341/0.245
+    Typing                +10 dB 0.004/0.000   +0 dB 0.376/0.001  -10 dB 0.926/0.808
+    VacuumCleaner         +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.066/0.036
+  RT60 0.8 s, 4 s windows: none 0.000/0.000
+    white                 +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.014/0.002
+    AirConditioner        +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.000/0.031
+    AirportAnnouncements  +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.004/0.033
+    Babble                +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.135/0.251
+    CopyMachine           +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.548/0.041
+    Munching              +10 dB 0.000/0.000   +0 dB 0.010/0.000  -10 dB 0.448/0.131
+    Neighbor              +10 dB 0.000/0.000   +0 dB 0.004/0.004  -10 dB 0.057/0.347
+    ShuttingDoor          +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.190/0.093
+    Typing                +10 dB 0.000/0.000   +0 dB 0.114/0.000  -10 dB 0.944/0.532
+    VacuumCleaner         +10 dB 0.000/0.000   +0 dB 0.000/0.000  -10 dB 0.001/0.004
+
+== Blind SNR estimate by type and level, 2 s windows, both rooms (median [5th, 95th pct], dB) ==
+  none                   22.0 [ 11.5, 45.8]
+  white                 +10 dB  13.0 [  9.4, 15.0]    +0 dB   5.2 [  3.7,  6.3]   -10 dB   1.1 [  0.9,  1.5]
+  AirConditioner        +10 dB  13.1 [  9.5, 15.5]    +0 dB   6.1 [  4.6,  7.5]   -10 dB   3.3 [  2.3,  4.4]
+  AirportAnnouncements  +10 dB  13.3 [  9.5, 16.5]    +0 dB   7.2 [  5.4,  9.5]   -10 dB   5.2 [  3.5,  7.8]
+  Babble                +10 dB  13.6 [  9.7, 17.2]    +0 dB   7.6 [  5.6, 11.3]   -10 dB   5.6 [  4.1, 10.8]
+  CopyMachine           +10 dB  14.0 [  9.6, 17.4]    +0 dB   7.6 [  5.8, 11.4]   -10 dB   5.3 [  3.9, 10.0]
+  Munching              +10 dB  15.7 [ 10.2, 22.8]    +0 dB  12.1 [  8.4, 18.7]   -10 dB  11.7 [  6.6, 19.4]
+  Neighbor              +10 dB  14.6 [  9.6, 21.1]    +0 dB  11.6 [  8.0, 16.7]   -10 dB  12.9 [  9.0, 17.3]
+  ShuttingDoor          +10 dB  16.6 [ 10.4, 26.7]    +0 dB  14.4 [  9.5, 22.2]   -10 dB  16.7 [  9.3, 22.3]
+  Typing                +10 dB  15.9 [ 10.5, 22.8]    +0 dB  12.4 [  8.6, 18.1]   -10 dB  12.6 [  8.9, 18.2]
+  VacuumCleaner         +10 dB  13.0 [  9.5, 15.7]    +0 dB   6.1 [  4.3,  7.8]   -10 dB   3.3 [  2.3,  4.5]
+
+== T0 in distribution: white (none, +10, 0, -10 dB) -> white, held-out sessions ==
+  0.2|1.0|1.0   : (all 0.150, n 2000, in support 0.99) pooled kept 0.77 fail|kept 0.0058 | mondrian kept 0.73 fail|kept 0.0034
+  0.2|1.0|0.25  : (all 0.014, n 2000, in support 0.99) pooled kept 0.96 fail|kept 0.0052 | mondrian kept 0.73 fail|kept 0.0027 | agree kept 0.85 fail|kept 0.0047
+  0.2|2.0|1.0   : (all 0.046, n 2000, in support 0.99) pooled kept 0.92 fail|kept 0.0055 | mondrian kept 0.75 fail|kept 0.0000
+  0.2|2.0|0.25  : (all 0.001, n 2000, in support 0.99) pooled kept 1.00 fail|kept 0.0010 | mondrian kept 0.99 fail|kept 0.0010 | agree kept 0.95 fail|kept 0.0000
+  0.2|4.0|1.0   : (all 0.003, n 2000, in support 0.99) pooled kept 1.00 fail|kept 0.0030 | mondrian kept 0.99 fail|kept 0.0005
+  0.2|4.0|0.25  : (all 0.000, n 2000, in support 0.99) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 0.99 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  0.8|1.0|1.0   : (all 0.167, n 2000, in support 0.99) pooled kept 0.76 fail|kept 0.0052 | mondrian kept 0.68 fail|kept 0.0015
+  0.8|1.0|0.25  : (all 0.021, n 2000, in support 0.99) pooled kept 0.94 fail|kept 0.0064 | mondrian kept 0.74 fail|kept 0.0007 | agree kept 0.83 fail|kept 0.0030
+  0.8|2.0|1.0   : (all 0.059, n 2000, in support 0.99) pooled kept 0.89 fail|kept 0.0028 | mondrian kept 0.75 fail|kept 0.0000
+  0.8|2.0|0.25  : (all 0.003, n 2000, in support 0.99) pooled kept 1.00 fail|kept 0.0025 | mondrian kept 0.99 fail|kept 0.0015 | agree kept 0.94 fail|kept 0.0000
+  0.8|4.0|1.0   : (all 0.005, n 2000, in support 0.99) pooled kept 1.00 fail|kept 0.0050 | mondrian kept 0.97 fail|kept 0.0005
+  0.8|4.0|0.25  : (all 0.001, n 2000, in support 0.99) pooled kept 1.00 fail|kept 0.0010 | mondrian kept 0.99 fail|kept 0.0010 | agree kept 0.99 fail|kept 0.0000
+
+== T1 white -> real type (step 3b's rule): calibrate none + white at all levels; test type x level ==
+  RT60 0.2 1 s g  1.0 AirConditioner        +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 AirConditioner         +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 AirConditioner        -10 dB: (all 0.156, n 500, in support 1.00) pooled kept 0.78 fail|kept 0.0255 | mondrian kept 0.76 fail|kept 0.0132
+  RT60 0.2 1 s g  1.0 AirportAnnouncements  +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 AirportAnnouncements   +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0040
+  RT60 0.2 1 s g  1.0 AirportAnnouncements  -10 dB: (all 0.310, n 500, in support 1.00) pooled kept 0.66 fail|kept 0.1006 | mondrian kept 0.67 fail|kept 0.1228
+  RT60 0.2 1 s g  1.0 Babble                +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 Babble                 +0 dB: (all 0.014, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0101 | mondrian kept 1.00 fail|kept 0.0100
+  RT60 0.2 1 s g  1.0 Babble                -10 dB: (all 0.706, n 500, in support 1.00) pooled kept 0.44 fail|kept 0.5229 | mondrian kept 0.48 fail|kept 0.5583
+  RT60 0.2 1 s g  1.0 CopyMachine           +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 CopyMachine            +0 dB: (all 0.108, n 500, in support 1.00) pooled kept 0.98 fail|kept 0.0920 | mondrian kept 0.99 fail|kept 0.1032
+  RT60 0.2 1 s g  1.0 CopyMachine           -10 dB: (all 0.952, n 500, in support 1.00) pooled kept 0.77 fail|kept 0.9558 | mondrian kept 0.71 fail|kept 0.9579
+  RT60 0.2 1 s g  1.0 Munching              +10 dB: (all 0.008, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0080 | mondrian kept 1.00 fail|kept 0.0080
+  RT60 0.2 1 s g  1.0 Munching               +0 dB: (all 0.236, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2329 | mondrian kept 1.00 fail|kept 0.2360
+  RT60 0.2 1 s g  1.0 Munching              -10 dB: (all 0.860, n 500, in support 1.00) pooled kept 0.98 fail|kept 0.8569 | mondrian kept 1.00 fail|kept 0.8597
+  RT60 0.2 1 s g  1.0 Neighbor              +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 Neighbor               +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0140 | mondrian kept 1.00 fail|kept 0.0160
+  RT60 0.2 1 s g  1.0 Neighbor              -10 dB: (all 0.578, n 500, in support 1.00) pooled kept 0.75 fail|kept 0.5053 | mondrian kept 0.99 fail|kept 0.5769
+  RT60 0.2 1 s g  1.0 ShuttingDoor          +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 ShuttingDoor           +0 dB: (all 0.116, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1160 | mondrian kept 1.00 fail|kept 0.1160
+  RT60 0.2 1 s g  1.0 ShuttingDoor          -10 dB: (all 0.550, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.5464 | mondrian kept 1.00 fail|kept 0.5491
+  RT60 0.2 1 s g  1.0 Typing                +10 dB: (all 0.052, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0520 | mondrian kept 1.00 fail|kept 0.0520
+  RT60 0.2 1 s g  1.0 Typing                 +0 dB: (all 0.526, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.5271 | mondrian kept 1.00 fail|kept 0.5271
+  RT60 0.2 1 s g  1.0 Typing                -10 dB: (all 0.924, n 500, in support 1.00) pooled kept 0.96 fail|kept 0.9253 | mondrian kept 0.97 fail|kept 0.9256
+  RT60 0.2 1 s g  1.0 VacuumCleaner         +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 VacuumCleaner          +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g  1.0 VacuumCleaner         -10 dB: (all 0.342, n 500, in support 1.00) pooled kept 0.53 fail|kept 0.0795 | mondrian kept 0.48 fail|kept 0.0661
+  RT60 0.2 1 s g 0.25 AirConditioner        +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 AirConditioner         +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 0.91 fail|kept 0.0022 | agree kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g 0.25 AirConditioner        -10 dB: (all 0.448, n 500, in support 1.00) pooled kept 0.19 fail|kept 0.0323 | mondrian kept 0.01 fail|kept 0.0000 | agree kept 0.48 fail|kept 0.0126
+  RT60 0.2 1 s g 0.25 AirportAnnouncements  +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 AirportAnnouncements   +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0020 | mondrian kept 0.94 fail|kept 0.0021 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 AirportAnnouncements  -10 dB: (all 0.628, n 500, in support 1.00) pooled kept 0.25 fail|kept 0.5118 | mondrian kept 0.00 fail|kept 1.0000 | agree kept 0.32 fail|kept 0.0633
+  RT60 0.2 1 s g 0.25 Babble                +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 Babble                 +0 dB: (all 0.012, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0080 | mondrian kept 0.89 fail|kept 0.0067 | agree kept 0.98 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 Babble                -10 dB: (all 0.868, n 500, in support 1.00) pooled kept 0.23 fail|kept 0.8938 | mondrian kept 0.04 fail|kept 1.0000 | agree kept 0.10 fail|kept 0.4600
+  RT60 0.2 1 s g 0.25 CopyMachine           +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0040 | agree kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g 0.25 CopyMachine            +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.97 fail|kept 0.0000 | agree kept 0.89 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 CopyMachine           -10 dB: (all 0.856, n 500, in support 1.00) pooled kept 0.53 fail|kept 0.8213 | mondrian kept 0.07 fail|kept 0.8611 | agree kept 0.27 fail|kept 0.9111
+  RT60 0.2 1 s g 0.25 Munching              +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0040 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 Munching               +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.76 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 Munching              -10 dB: (all 0.540, n 500, in support 1.00) pooled kept 0.97 fail|kept 0.5298 | mondrian kept 0.85 fail|kept 0.5271 | agree kept 0.46 fail|kept 0.7000
+  RT60 0.2 1 s g 0.25 Neighbor              +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 Neighbor               +0 dB: (all 0.024, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0161 | mondrian kept 0.96 fail|kept 0.0104 | agree kept 0.98 fail|kept 0.0082
+  RT60 0.2 1 s g 0.25 Neighbor              -10 dB: (all 0.886, n 500, in support 1.00) pooled kept 0.58 fail|kept 0.9110 | mondrian kept 0.22 fail|kept 0.9464 | agree kept 0.13 fail|kept 0.5821
+  RT60 0.2 1 s g 0.25 ShuttingDoor          +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0040 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 ShuttingDoor           +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0040 | agree kept 0.88 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 ShuttingDoor          -10 dB: (all 0.408, n 500, in support 1.00) pooled kept 0.97 fail|kept 0.4045 | mondrian kept 0.85 fail|kept 0.3817 | agree kept 0.56 fail|kept 0.2698
+  RT60 0.2 1 s g 0.25 Typing                +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 0.95 fail|kept 0.0000
+  RT60 0.2 1 s g 0.25 Typing                 +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0140 | mondrian kept 0.99 fail|kept 0.0141 | agree kept 0.48 fail|kept 0.0210
+  RT60 0.2 1 s g 0.25 Typing                -10 dB: (all 0.852, n 500, in support 1.00) pooled kept 0.98 fail|kept 0.8537 | mondrian kept 0.94 fail|kept 0.8769 | agree kept 0.60 fail|kept 0.9130
+  RT60 0.2 1 s g 0.25 VacuumCleaner         +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0040 | agree kept 1.00 fail|kept 0.0020
+  RT60 0.2 1 s g 0.25 VacuumCleaner          +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 0.96 fail|kept 0.0000 | agree kept 0.99 fail|kept 0.0020
+  RT60 0.2 1 s g 0.25 VacuumCleaner         -10 dB: (all 0.176, n 500, in support 1.00) pooled kept 0.48 fail|kept 0.0252 | mondrian kept 0.06 fail|kept 0.0000 | agree kept 0.58 fail|kept 0.0103
+  RT60 0.2 2 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 AirConditioner        -10 dB: (all 0.042, n 500, in support 1.00) pooled kept 0.96 fail|kept 0.0126 | mondrian kept 0.99 fail|kept 0.0406
+  RT60 0.2 2 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 AirportAnnouncements  -10 dB: (all 0.052, n 500, in support 1.00) pooled kept 0.92 fail|kept 0.0108 | mondrian kept 1.00 fail|kept 0.0520
+  RT60 0.2 2 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Babble                -10 dB: (all 0.464, n 500, in support 1.00) pooled kept 0.66 fail|kept 0.2952 | mondrian kept 1.00 fail|kept 0.4640
+  RT60 0.2 2 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 CopyMachine            +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 1.00 fail|kept 0.0060
+  RT60 0.2 2 s g  1.0 CopyMachine           -10 dB: (all 0.874, n 500, in support 1.00) pooled kept 0.60 fail|kept 0.8400 | mondrian kept 1.00 fail|kept 0.8740
+  RT60 0.2 2 s g  1.0 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Munching               +0 dB: (all 0.058, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0580 | mondrian kept 1.00 fail|kept 0.0580
+  RT60 0.2 2 s g  1.0 Munching              -10 dB: (all 0.670, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.6687 | mondrian kept 1.00 fail|kept 0.6700
+  RT60 0.2 2 s g  1.0 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Neighbor               +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 1.00 fail|kept 0.0060
+  RT60 0.2 2 s g  1.0 Neighbor              -10 dB: (all 0.244, n 500, in support 1.00) pooled kept 0.91 fail|kept 0.1938 | mondrian kept 1.00 fail|kept 0.2440
+  RT60 0.2 2 s g  1.0 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 ShuttingDoor           +0 dB: (all 0.022, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0220 | mondrian kept 1.00 fail|kept 0.0220
+  RT60 0.2 2 s g  1.0 ShuttingDoor          -10 dB: (all 0.368, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3680 | mondrian kept 1.00 fail|kept 0.3680
+  RT60 0.2 2 s g  1.0 Typing                +10 dB: (all 0.008, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0080 | mondrian kept 1.00 fail|kept 0.0080
+  RT60 0.2 2 s g  1.0 Typing                 +0 dB: (all 0.418, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.4180 | mondrian kept 1.00 fail|kept 0.4180
+  RT60 0.2 2 s g  1.0 Typing                -10 dB: (all 0.912, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.9118 | mondrian kept 1.00 fail|kept 0.9137
+  RT60 0.2 2 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 VacuumCleaner         -10 dB: (all 0.062, n 500, in support 1.00) pooled kept 0.91 fail|kept 0.0155 | mondrian kept 0.99 fail|kept 0.0626
+  RT60 0.2 2 s g 0.25 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 AirConditioner        -10 dB: (all 0.106, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1060 | mondrian kept 1.00 fail|kept 0.1060 | agree kept 0.87 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 AirportAnnouncements   +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 AirportAnnouncements  -10 dB: (all 0.252, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2520 | mondrian kept 1.00 fail|kept 0.2520 | agree kept 0.73 fail|kept 0.0055
+  RT60 0.2 2 s g 0.25 Babble                +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 Babble                 +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 Babble                -10 dB: (all 0.636, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.6360 | mondrian kept 1.00 fail|kept 0.6360 | agree kept 0.27 fail|kept 0.1504
+  RT60 0.2 2 s g 0.25 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 CopyMachine            +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 CopyMachine           -10 dB: (all 0.358, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3580 | mondrian kept 1.00 fail|kept 0.3580 | agree kept 0.23 fail|kept 0.4957
+  RT60 0.2 2 s g 0.25 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 Munching               +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 0.94 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 Munching              -10 dB: (all 0.306, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3060 | mondrian kept 1.00 fail|kept 0.3060 | agree kept 0.53 fail|kept 0.3925
+  RT60 0.2 2 s g 0.25 Neighbor              +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 Neighbor               +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 1.00 fail|kept 0.0060 | agree kept 1.00 fail|kept 0.0060
+  RT60 0.2 2 s g 0.25 Neighbor              -10 dB: (all 0.676, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.6760 | mondrian kept 1.00 fail|kept 0.6760 | agree kept 0.30 fail|kept 0.1067
+  RT60 0.2 2 s g 0.25 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 ShuttingDoor           +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 0.98 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 ShuttingDoor          -10 dB: (all 0.238, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2380 | mondrian kept 1.00 fail|kept 0.2380 | agree kept 0.67 fail|kept 0.1171
+  RT60 0.2 2 s g 0.25 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 Typing                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.58 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 Typing                -10 dB: (all 0.790, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.7900 | mondrian kept 1.00 fail|kept 0.7900 | agree kept 0.61 fail|kept 0.8656
+  RT60 0.2 2 s g 0.25 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 VacuumCleaner          +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 2 s g 0.25 VacuumCleaner         -10 dB: (all 0.020, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0200 | mondrian kept 1.00 fail|kept 0.0200 | agree kept 0.92 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirConditioner        -10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirportAnnouncements  -10 dB: (all 0.008, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0080 | mondrian kept 1.00 fail|kept 0.0080
+  RT60 0.2 4 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 Babble                -10 dB: (all 0.196, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1960 | mondrian kept 1.00 fail|kept 0.1960
+  RT60 0.2 4 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 CopyMachine           -10 dB: (all 0.552, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.5520 | mondrian kept 1.00 fail|kept 0.5520
+  RT60 0.2 4 s g  1.0 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 Munching               +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0040
+  RT60 0.2 4 s g  1.0 Munching              -10 dB: (all 0.452, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.4520 | mondrian kept 1.00 fail|kept 0.4520
+  RT60 0.2 4 s g  1.0 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 Neighbor               +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0080 | mondrian kept 1.00 fail|kept 0.0080
+  RT60 0.2 4 s g  1.0 Neighbor              -10 dB: (all 0.120, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1200 | mondrian kept 1.00 fail|kept 0.1200
+  RT60 0.2 4 s g  1.0 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 ShuttingDoor           +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 ShuttingDoor          -10 dB: (all 0.244, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2440 | mondrian kept 1.00 fail|kept 0.2440
+  RT60 0.2 4 s g  1.0 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 Typing                 +0 dB: (all 0.172, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1720 | mondrian kept 1.00 fail|kept 0.1720
+  RT60 0.2 4 s g  1.0 Typing                -10 dB: (all 0.944, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.9440 | mondrian kept 1.00 fail|kept 0.9440
+  RT60 0.2 4 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 VacuumCleaner         -10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.2 4 s g 0.25 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 AirConditioner        -10 dB: (all 0.020, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0200 | mondrian kept 1.00 fail|kept 0.0200 | agree kept 0.98 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 AirportAnnouncements  -10 dB: (all 0.028, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0280 | mondrian kept 1.00 fail|kept 0.0280 | agree kept 0.96 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Babble                -10 dB: (all 0.248, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2480 | mondrian kept 1.00 fail|kept 0.2480 | agree kept 0.66 fail|kept 0.0152
+  RT60 0.2 4 s g 0.25 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 CopyMachine           -10 dB: (all 0.040, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0400 | mondrian kept 1.00 fail|kept 0.0400 | agree kept 0.46 fail|kept 0.0388
+  RT60 0.2 4 s g 0.25 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Munching               +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Munching              -10 dB: (all 0.142, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1420 | mondrian kept 1.00 fail|kept 0.1420 | agree kept 0.67 fail|kept 0.1826
+  RT60 0.2 4 s g 0.25 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Neighbor               +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0080 | mondrian kept 1.00 fail|kept 0.0080 | agree kept 1.00 fail|kept 0.0080
+  RT60 0.2 4 s g 0.25 Neighbor              -10 dB: (all 0.336, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3360 | mondrian kept 1.00 fail|kept 0.3360 | agree kept 0.60 fail|kept 0.0133
+  RT60 0.2 4 s g 0.25 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 ShuttingDoor           +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 ShuttingDoor          -10 dB: (all 0.094, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0940 | mondrian kept 1.00 fail|kept 0.0940 | agree kept 0.77 fail|kept 0.0439
+  RT60 0.2 4 s g 0.25 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Typing                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.83 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Typing                -10 dB: (all 0.522, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.5220 | mondrian kept 1.00 fail|kept 0.5220 | agree kept 0.47 fail|kept 0.8841
+  RT60 0.2 4 s g 0.25 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 VacuumCleaner         -10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g  1.0 AirConditioner         +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 0.99 fail|kept 0.0020
+  RT60 0.8 1 s g  1.0 AirConditioner        -10 dB: (all 0.190, n 500, in support 1.00) pooled kept 0.76 fail|kept 0.0185 | mondrian kept 0.46 fail|kept 0.0000
+  RT60 0.8 1 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g  1.0 AirportAnnouncements   +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 0.98 fail|kept 0.0020
+  RT60 0.8 1 s g  1.0 AirportAnnouncements  -10 dB: (all 0.326, n 500, in support 1.00) pooled kept 0.66 fail|kept 0.1057 | mondrian kept 0.42 fail|kept 0.1571
+  RT60 0.8 1 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g  1.0 Babble                 +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 0.98 fail|kept 0.0082 | mondrian kept 0.95 fail|kept 0.0168
+  RT60 0.8 1 s g  1.0 Babble                -10 dB: (all 0.762, n 500, in support 1.00) pooled kept 0.44 fail|kept 0.6045 | mondrian kept 0.33 fail|kept 0.6946
+  RT60 0.8 1 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g  1.0 CopyMachine            +0 dB: (all 0.128, n 500, in support 1.00) pooled kept 0.97 fail|kept 0.1093 | mondrian kept 0.89 fail|kept 0.1076
+  RT60 0.8 1 s g  1.0 CopyMachine           -10 dB: (all 0.952, n 500, in support 1.00) pooled kept 0.76 fail|kept 0.9423 | mondrian kept 0.23 fail|kept 0.9646
+  RT60 0.8 1 s g  1.0 Munching              +10 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 1.00 fail|kept 0.0060
+  RT60 0.8 1 s g  1.0 Munching               +0 dB: (all 0.222, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2220 | mondrian kept 1.00 fail|kept 0.2209
+  RT60 0.8 1 s g  1.0 Munching              -10 dB: (all 0.876, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.8783 | mondrian kept 0.98 fail|kept 0.8760
+  RT60 0.8 1 s g  1.0 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g  1.0 Neighbor               +0 dB: (all 0.026, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0222 | mondrian kept 1.00 fail|kept 0.0240
+  RT60 0.8 1 s g  1.0 Neighbor              -10 dB: (all 0.630, n 500, in support 1.00) pooled kept 0.74 fail|kept 0.5571 | mondrian kept 0.98 fail|kept 0.6273
+  RT60 0.8 1 s g  1.0 ShuttingDoor          +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.8 1 s g  1.0 ShuttingDoor           +0 dB: (all 0.124, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1240 | mondrian kept 1.00 fail|kept 0.1240
+  RT60 0.8 1 s g  1.0 ShuttingDoor          -10 dB: (all 0.540, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.5382 | mondrian kept 0.99 fail|kept 0.5375
+  RT60 0.8 1 s g  1.0 Typing                +10 dB: (all 0.060, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0600 | mondrian kept 1.00 fail|kept 0.0600
+  RT60 0.8 1 s g  1.0 Typing                 +0 dB: (all 0.580, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.5815 | mondrian kept 1.00 fail|kept 0.5823
+  RT60 0.8 1 s g  1.0 Typing                -10 dB: (all 0.932, n 500, in support 1.00) pooled kept 0.95 fail|kept 0.9392 | mondrian kept 0.94 fail|kept 0.9404
+  RT60 0.8 1 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g  1.0 VacuumCleaner          +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0040 | mondrian kept 0.96 fail|kept 0.0062
+  RT60 0.8 1 s g  1.0 VacuumCleaner         -10 dB: (all 0.402, n 500, in support 1.00) pooled kept 0.46 fail|kept 0.1223 | mondrian kept 0.07 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 AirConditioner        +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 AirConditioner         +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0041 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 AirConditioner        -10 dB: (all 0.518, n 500, in support 1.00) pooled kept 0.16 fail|kept 0.0125 | mondrian kept 0.08 fail|kept 0.0000 | agree kept 0.29 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 AirportAnnouncements  +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 AirportAnnouncements   +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0060 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 AirportAnnouncements  -10 dB: (all 0.698, n 500, in support 1.00) pooled kept 0.20 fail|kept 0.5306 | mondrian kept 0.23 fail|kept 0.7018 | agree kept 0.20 fail|kept 0.0490
+  RT60 0.8 1 s g 0.25 Babble                +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 Babble                 +0 dB: (all 0.010, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0080 | agree kept 0.97 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 Babble                -10 dB: (all 0.906, n 500, in support 1.00) pooled kept 0.20 fail|kept 0.8990 | mondrian kept 0.33 fail|kept 0.8788 | agree kept 0.08 fail|kept 0.7895
+  RT60 0.8 1 s g 0.25 CopyMachine           +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 CopyMachine            +0 dB: (all 0.014, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0100 | mondrian kept 1.00 fail|kept 0.0100 | agree kept 0.87 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 CopyMachine           -10 dB: (all 0.898, n 500, in support 1.00) pooled kept 0.44 fail|kept 0.8959 | mondrian kept 0.34 fail|kept 0.9012 | agree kept 0.26 fail|kept 0.9167
+  RT60 0.8 1 s g 0.25 Munching              +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0020 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 Munching               +0 dB: (all 0.014, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0120 | mondrian kept 0.99 fail|kept 0.0081 | agree kept 0.78 fail|kept 0.0077
+  RT60 0.8 1 s g 0.25 Munching              -10 dB: (all 0.584, n 500, in support 1.00) pooled kept 0.95 fail|kept 0.5807 | mondrian kept 0.87 fail|kept 0.5774 | agree kept 0.42 fail|kept 0.7406
+  RT60 0.8 1 s g 0.25 Neighbor              +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 Neighbor               +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0121 | mondrian kept 0.97 fail|kept 0.0144 | agree kept 0.97 fail|kept 0.0062
+  RT60 0.8 1 s g 0.25 Neighbor              -10 dB: (all 0.924, n 500, in support 1.00) pooled kept 0.54 fail|kept 0.9446 | mondrian kept 0.49 fail|kept 0.9190 | agree kept 0.11 fail|kept 0.6786
+  RT60 0.8 1 s g 0.25 ShuttingDoor          +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0000 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 ShuttingDoor           +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0061 | agree kept 0.87 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 ShuttingDoor          -10 dB: (all 0.402, n 500, in support 1.00) pooled kept 0.95 fail|kept 0.4076 | mondrian kept 0.78 fail|kept 0.4051 | agree kept 0.57 fail|kept 0.2544
+  RT60 0.8 1 s g 0.25 Typing                +10 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 0.99 fail|kept 0.0020 | agree kept 0.93 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 Typing                 +0 dB: (all 0.020, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.0181 | mondrian kept 0.99 fail|kept 0.0162 | agree kept 0.43 fail|kept 0.0279
+  RT60 0.8 1 s g 0.25 Typing                -10 dB: (all 0.862, n 500, in support 1.00) pooled kept 0.97 fail|kept 0.8663 | mondrian kept 0.92 fail|kept 0.8821 | agree kept 0.55 fail|kept 0.9130
+  RT60 0.8 1 s g 0.25 VacuumCleaner         +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 0.99 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 VacuumCleaner          +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0060 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.8 1 s g 0.25 VacuumCleaner         -10 dB: (all 0.198, n 500, in support 1.00) pooled kept 0.42 fail|kept 0.0240 | mondrian kept 0.31 fail|kept 0.0194 | agree kept 0.46 fail|kept 0.0351
+  RT60 0.8 2 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 AirConditioner        -10 dB: (all 0.028, n 500, in support 1.00) pooled kept 0.95 fail|kept 0.0000 | mondrian kept 0.94 fail|kept 0.0297
+  RT60 0.8 2 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 AirportAnnouncements  -10 dB: (all 0.082, n 500, in support 1.00) pooled kept 0.91 fail|kept 0.0219 | mondrian kept 1.00 fail|kept 0.0820
+  RT60 0.8 2 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 Babble                -10 dB: (all 0.494, n 500, in support 1.00) pooled kept 0.62 fail|kept 0.2830 | mondrian kept 1.00 fail|kept 0.4940
+  RT60 0.8 2 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 CopyMachine            +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0060
+  RT60 0.8 2 s g  1.0 CopyMachine           -10 dB: (all 0.888, n 500, in support 1.00) pooled kept 0.53 fail|kept 0.8604 | mondrian kept 1.00 fail|kept 0.8880
+  RT60 0.8 2 s g  1.0 Munching              +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.8 2 s g  1.0 Munching               +0 dB: (all 0.060, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0601 | mondrian kept 1.00 fail|kept 0.0600
+  RT60 0.8 2 s g  1.0 Munching              -10 dB: (all 0.702, n 500, in support 1.00) pooled kept 0.99 fail|kept 0.7024 | mondrian kept 1.00 fail|kept 0.7020
+  RT60 0.8 2 s g  1.0 Neighbor              +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.8 2 s g  1.0 Neighbor               +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0040 | mondrian kept 1.00 fail|kept 0.0040
+  RT60 0.8 2 s g  1.0 Neighbor              -10 dB: (all 0.294, n 500, in support 1.00) pooled kept 0.87 fail|kept 0.2171 | mondrian kept 1.00 fail|kept 0.2940
+  RT60 0.8 2 s g  1.0 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 ShuttingDoor           +0 dB: (all 0.010, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0100 | mondrian kept 1.00 fail|kept 0.0100
+  RT60 0.8 2 s g  1.0 ShuttingDoor          -10 dB: (all 0.354, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3540 | mondrian kept 1.00 fail|kept 0.3540
+  RT60 0.8 2 s g  1.0 Typing                +10 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 1.00 fail|kept 0.0060
+  RT60 0.8 2 s g  1.0 Typing                 +0 dB: (all 0.362, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3620 | mondrian kept 1.00 fail|kept 0.3620
+  RT60 0.8 2 s g  1.0 Typing                -10 dB: (all 0.938, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.9379 | mondrian kept 1.00 fail|kept 0.9399
+  RT60 0.8 2 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 VacuumCleaner         -10 dB: (all 0.066, n 500, in support 1.00) pooled kept 0.89 fail|kept 0.0224 | mondrian kept 0.95 fail|kept 0.0629
+  RT60 0.8 2 s g 0.25 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 AirConditioner         +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 AirConditioner        -10 dB: (all 0.192, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1920 | mondrian kept 0.99 fail|kept 0.1923 | agree kept 0.79 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 AirportAnnouncements  -10 dB: (all 0.314, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3140 | mondrian kept 1.00 fail|kept 0.3140 | agree kept 0.67 fail|kept 0.0089
+  RT60 0.8 2 s g 0.25 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 Babble                -10 dB: (all 0.726, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.7260 | mondrian kept 1.00 fail|kept 0.7260 | agree kept 0.19 fail|kept 0.1771
+  RT60 0.8 2 s g 0.25 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 CopyMachine           -10 dB: (all 0.426, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.4260 | mondrian kept 1.00 fail|kept 0.4260 | agree kept 0.22 fail|kept 0.5315
+  RT60 0.8 2 s g 0.25 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 Munching               +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.94 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 Munching              -10 dB: (all 0.340, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3400 | mondrian kept 1.00 fail|kept 0.3400 | agree kept 0.50 fail|kept 0.4303
+  RT60 0.8 2 s g 0.25 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 Neighbor               +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 1.00 fail|kept 0.0060 | agree kept 1.00 fail|kept 0.0040
+  RT60 0.8 2 s g 0.25 Neighbor              -10 dB: (all 0.770, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.7700 | mondrian kept 1.00 fail|kept 0.7700 | agree kept 0.22 fail|kept 0.1651
+  RT60 0.8 2 s g 0.25 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 ShuttingDoor           +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 ShuttingDoor          -10 dB: (all 0.256, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2560 | mondrian kept 1.00 fail|kept 0.2560 | agree kept 0.69 fail|kept 0.1470
+  RT60 0.8 2 s g 0.25 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.99 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 Typing                 +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 0.64 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 Typing                -10 dB: (all 0.818, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.8180 | mondrian kept 1.00 fail|kept 0.8180 | agree kept 0.59 fail|kept 0.9122
+  RT60 0.8 2 s g 0.25 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 2 s g 0.25 VacuumCleaner         -10 dB: (all 0.044, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0440 | mondrian kept 1.00 fail|kept 0.0442 | agree kept 0.90 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirConditioner        -10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirportAnnouncements  -10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.8 4 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 Babble                -10 dB: (all 0.144, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1440 | mondrian kept 1.00 fail|kept 0.1440
+  RT60 0.8 4 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 CopyMachine           -10 dB: (all 0.554, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.5540 | mondrian kept 1.00 fail|kept 0.5540
+  RT60 0.8 4 s g  1.0 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 Munching               +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0160 | mondrian kept 1.00 fail|kept 0.0160
+  RT60 0.8 4 s g  1.0 Munching              -10 dB: (all 0.446, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.4460 | mondrian kept 1.00 fail|kept 0.4460
+  RT60 0.8 4 s g  1.0 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 Neighbor               +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.8 4 s g  1.0 Neighbor              -10 dB: (all 0.062, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0620 | mondrian kept 1.00 fail|kept 0.0620
+  RT60 0.8 4 s g  1.0 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 ShuttingDoor           +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 ShuttingDoor          -10 dB: (all 0.200, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2000 | mondrian kept 1.00 fail|kept 0.2000
+  RT60 0.8 4 s g  1.0 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 Typing                 +0 dB: (all 0.102, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1020 | mondrian kept 1.00 fail|kept 0.1020
+  RT60 0.8 4 s g  1.0 Typing                -10 dB: (all 0.948, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.9480 | mondrian kept 1.00 fail|kept 0.9480
+  RT60 0.8 4 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 VacuumCleaner         -10 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020
+  RT60 0.8 4 s g 0.25 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 AirConditioner        -10 dB: (all 0.028, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0280 | mondrian kept 1.00 fail|kept 0.0280 | agree kept 0.97 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 AirportAnnouncements  -10 dB: (all 0.036, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0360 | mondrian kept 1.00 fail|kept 0.0360 | agree kept 0.96 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Babble                -10 dB: (all 0.268, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.2680 | mondrian kept 1.00 fail|kept 0.2680 | agree kept 0.64 fail|kept 0.0093
+  RT60 0.8 4 s g 0.25 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 CopyMachine           -10 dB: (all 0.036, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0360 | mondrian kept 1.00 fail|kept 0.0360 | agree kept 0.46 fail|kept 0.0263
+  RT60 0.8 4 s g 0.25 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Munching               +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.98 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Munching              -10 dB: (all 0.140, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1400 | mondrian kept 1.00 fail|kept 0.1400 | agree kept 0.63 fail|kept 0.1451
+  RT60 0.8 4 s g 0.25 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Neighbor               +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0020 | mondrian kept 1.00 fail|kept 0.0020 | agree kept 1.00 fail|kept 0.0020
+  RT60 0.8 4 s g 0.25 Neighbor              -10 dB: (all 0.350, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.3500 | mondrian kept 1.00 fail|kept 0.3500 | agree kept 0.63 fail|kept 0.0095
+  RT60 0.8 4 s g 0.25 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 ShuttingDoor           +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 ShuttingDoor          -10 dB: (all 0.108, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.1080 | mondrian kept 1.00 fail|kept 0.1080 | agree kept 0.83 fail|kept 0.0506
+  RT60 0.8 4 s g 0.25 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Typing                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.90 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Typing                -10 dB: (all 0.530, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.5300 | mondrian kept 1.00 fail|kept 0.5300 | agree kept 0.47 fail|kept 0.9056
+  RT60 0.8 4 s g 0.25 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000 | agree kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 VacuumCleaner         -10 dB: (all 0.006, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0060 | mondrian kept 1.00 fail|kept 0.0060 | agree kept 0.99 fail|kept 0.0000
+
+== T2 leave one type out: calibrate none + the other 9 types at all levels; test held-out type x level ==
+  RT60 0.2 1 s g  1.0 white                 +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 white                  +0 dB: (all 0.026, n 500, in support 0.97) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 white                 -10 dB: (all 0.570, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 AirConditioner        +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 AirConditioner         +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 AirConditioner        -10 dB: (all 0.156, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 AirportAnnouncements  +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 AirportAnnouncements   +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 AirportAnnouncements  -10 dB: (all 0.310, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Babble                +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Babble                 +0 dB: (all 0.014, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Babble                -10 dB: (all 0.706, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 CopyMachine           +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 CopyMachine            +0 dB: (all 0.108, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 CopyMachine           -10 dB: (all 0.952, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Munching              +10 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Munching               +0 dB: (all 0.236, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Munching              -10 dB: (all 0.860, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Neighbor              +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Neighbor               +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Neighbor              -10 dB: (all 0.578, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 ShuttingDoor          +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 ShuttingDoor           +0 dB: (all 0.116, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 ShuttingDoor          -10 dB: (all 0.550, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Typing                +10 dB: (all 0.052, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Typing                 +0 dB: (all 0.526, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 Typing                -10 dB: (all 0.924, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 VacuumCleaner         +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 VacuumCleaner          +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g  1.0 VacuumCleaner         -10 dB: (all 0.342, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 white                 +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 white                  +0 dB: (all 0.008, n 500, in support 0.97) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 white                 -10 dB: (all 0.040, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 AirConditioner        +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 AirConditioner         +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 AirConditioner        -10 dB: (all 0.448, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 AirportAnnouncements  +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 AirportAnnouncements   +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 AirportAnnouncements  -10 dB: (all 0.628, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Babble                +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Babble                 +0 dB: (all 0.012, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Babble                -10 dB: (all 0.868, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 CopyMachine           +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 CopyMachine            +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 CopyMachine           -10 dB: (all 0.856, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Munching              +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Munching               +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Munching              -10 dB: (all 0.540, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Neighbor              +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Neighbor               +0 dB: (all 0.024, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Neighbor              -10 dB: (all 0.886, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 ShuttingDoor          +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 ShuttingDoor           +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 ShuttingDoor          -10 dB: (all 0.408, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Typing                +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.06 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Typing                 +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 Typing                -10 dB: (all 0.852, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 1.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 VacuumCleaner         +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 VacuumCleaner          +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 1 s g 0.25 VacuumCleaner         -10 dB: (all 0.176, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g  1.0 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g  1.0 white                  +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g  1.0 white                 -10 dB: (all 0.184, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.03 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g  1.0 AirConditioner        -10 dB: (all 0.042, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.04 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g  1.0 AirportAnnouncements  -10 dB: (all 0.052, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.07 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.10 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Babble                -10 dB: (all 0.464, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 CopyMachine            +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.09 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 CopyMachine           -10 dB: (all 0.874, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 1.0000
+  RT60 0.2 2 s g  1.0 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.36 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Munching               +0 dB: (all 0.058, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Munching              -10 dB: (all 0.670, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.03 fail|kept 0.8000
+  RT60 0.2 2 s g  1.0 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.83 fail|kept 0.0000 | mondrian kept 0.33 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Neighbor               +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.07 fail|kept 0.0833 | mondrian kept 0.01 fail|kept 1.0000
+  RT60 0.2 2 s g  1.0 Neighbor              -10 dB: (all 0.244, n 500, in support 1.00) pooled kept 0.01 fail|kept 1.0000 | mondrian kept 0.00 fail|kept 1.0000
+  RT60 0.2 2 s g  1.0 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.25 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 ShuttingDoor           +0 dB: (all 0.022, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 ShuttingDoor          -10 dB: (all 0.368, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 Typing                +10 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.79 fail|kept 0.0102
+  RT60 0.2 2 s g  1.0 Typing                 +0 dB: (all 0.418, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.21 fail|kept 0.4952
+  RT60 0.2 2 s g  1.0 Typing                -10 dB: (all 0.912, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.13 fail|kept 0.9524
+  RT60 0.2 2 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.04 fail|kept 0.0000
+  RT60 0.2 2 s g  1.0 VacuumCleaner         -10 dB: (all 0.062, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 white                  +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 white                 -10 dB: (all 0.002, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 AirConditioner        -10 dB: (all 0.106, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 AirportAnnouncements   +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 AirportAnnouncements  -10 dB: (all 0.252, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Babble                +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Babble                 +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.11 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Babble                -10 dB: (all 0.636, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.3333 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 CopyMachine            +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.13 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 CopyMachine           -10 dB: (all 0.358, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.20 fail|kept 0.1531 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Munching               +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Munching              -10 dB: (all 0.306, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.03 fail|kept 0.3125 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Neighbor              +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Neighbor               +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Neighbor              -10 dB: (all 0.676, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 ShuttingDoor           +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 ShuttingDoor          -10 dB: (all 0.238, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.77 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Typing                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.28 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 Typing                -10 dB: (all 0.790, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.15 fail|kept 0.7532 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 VacuumCleaner          +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 2 s g 0.25 VacuumCleaner         -10 dB: (all 0.020, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 white                  +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 white                 -10 dB: (all 0.012, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.92 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirConditioner        -10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.99 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.18 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 AirportAnnouncements  -10 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.80 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.11 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 Babble                -10 dB: (all 0.196, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.45 fail|kept 0.0264
+  RT60 0.2 4 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.11 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 CopyMachine           -10 dB: (all 0.552, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.37 fail|kept 0.2432
+  RT60 0.2 4 s g  1.0 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 Munching               +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 Munching              -10 dB: (all 0.452, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 0.4000
+  RT60 0.2 4 s g  1.0 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 Neighbor               +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.74 fail|kept 0.0108 | mondrian kept 0.59 fail|kept 0.0135
+  RT60 0.2 4 s g  1.0 Neighbor              -10 dB: (all 0.120, n 500, in support 1.00) pooled kept 0.00 fail|kept 1.0000 | mondrian kept 0.00 fail|kept 1.0000
+  RT60 0.2 4 s g  1.0 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 ShuttingDoor           +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 ShuttingDoor          -10 dB: (all 0.244, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 Typing                 +0 dB: (all 0.172, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 Typing                -10 dB: (all 0.944, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g  1.0 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.76 fail|kept 0.0000
+  RT60 0.2 4 s g  1.0 VacuumCleaner         -10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.99 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 white                  +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 white                 -10 dB: (all 0.000, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.92 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 AirConditioner        -10 dB: (all 0.020, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.92 fail|kept 0.0043 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.18 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 AirportAnnouncements  -10 dB: (all 0.028, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.78 fail|kept 0.0052 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.11 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Babble                -10 dB: (all 0.248, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.63 fail|kept 0.1943 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.11 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 CopyMachine           -10 dB: (all 0.040, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.67 fail|kept 0.0178 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Munching               +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Munching              -10 dB: (all 0.142, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.96 fail|kept 0.0000 | mondrian kept 0.96 fail|kept 0.0000 | agree kept 0.96 fail|kept 0.0000
+  RT60 0.2 4 s g 0.25 Neighbor               +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.80 fail|kept 0.0100 | mondrian kept 0.42 fail|kept 0.0190 | agree kept 0.83 fail|kept 0.0097
+  RT60 0.2 4 s g 0.25 Neighbor              -10 dB: (all 0.336, n 500, in support 1.00) pooled kept 0.00 fail|kept 1.0000 | mondrian kept 0.00 fail|kept 1.0000 | agree kept 0.00 fail|kept 1.0000
+  RT60 0.2 4 s g 0.25 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 ShuttingDoor           +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 ShuttingDoor          -10 dB: (all 0.094, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Typing                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 Typing                -10 dB: (all 0.522, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.76 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.2 4 s g 0.25 VacuumCleaner         -10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.99 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 white                  +0 dB: (all 0.028, n 500, in support 0.98) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 white                 -10 dB: (all 0.640, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 AirConditioner         +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 AirConditioner        -10 dB: (all 0.190, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 AirportAnnouncements   +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 AirportAnnouncements  -10 dB: (all 0.326, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Babble                 +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Babble                -10 dB: (all 0.762, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 CopyMachine            +0 dB: (all 0.128, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 CopyMachine           -10 dB: (all 0.952, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Munching              +10 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Munching               +0 dB: (all 0.222, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Munching              -10 dB: (all 0.876, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Neighbor               +0 dB: (all 0.026, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Neighbor              -10 dB: (all 0.630, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 ShuttingDoor          +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 ShuttingDoor           +0 dB: (all 0.124, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 ShuttingDoor          -10 dB: (all 0.540, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 Typing                +10 dB: (all 0.060, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.05 fail|kept 0.0769
+  RT60 0.8 1 s g  1.0 Typing                 +0 dB: (all 0.580, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 0.8182
+  RT60 0.8 1 s g  1.0 Typing                -10 dB: (all 0.932, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 1.0000
+  RT60 0.8 1 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 VacuumCleaner          +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g  1.0 VacuumCleaner         -10 dB: (all 0.402, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 white                 +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 white                  +0 dB: (all 0.004, n 500, in support 0.98) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 white                 -10 dB: (all 0.070, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 AirConditioner        +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 AirConditioner         +0 dB: (all 0.008, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 AirConditioner        -10 dB: (all 0.518, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 AirportAnnouncements  +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 AirportAnnouncements   +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 AirportAnnouncements  -10 dB: (all 0.698, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Babble                +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Babble                 +0 dB: (all 0.010, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Babble                -10 dB: (all 0.906, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 CopyMachine           +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 CopyMachine            +0 dB: (all 0.014, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 CopyMachine           -10 dB: (all 0.898, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Munching              +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Munching               +0 dB: (all 0.014, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Munching              -10 dB: (all 0.584, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.04 fail|kept 0.8500 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Neighbor              +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Neighbor               +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Neighbor              -10 dB: (all 0.924, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 ShuttingDoor          +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 ShuttingDoor           +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 ShuttingDoor          -10 dB: (all 0.402, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Typing                +10 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Typing                 +0 dB: (all 0.020, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 Typing                -10 dB: (all 0.862, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 VacuumCleaner         +10 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 VacuumCleaner          +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 1 s g 0.25 VacuumCleaner         -10 dB: (all 0.198, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 white                  +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 white                 -10 dB: (all 0.234, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.14 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 AirConditioner        -10 dB: (all 0.028, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.16 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 AirportAnnouncements  -10 dB: (all 0.082, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.12 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 Babble                -10 dB: (all 0.494, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.04 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 CopyMachine            +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 CopyMachine           -10 dB: (all 0.888, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 Munching              +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.02 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 Munching               +0 dB: (all 0.060, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 Munching              -10 dB: (all 0.702, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.04 fail|kept 0.6190
+  RT60 0.8 2 s g  1.0 Neighbor              +10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.77 fail|kept 0.0026 | mondrian kept 0.14 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 Neighbor               +0 dB: (all 0.004, n 500, in support 1.00) pooled kept 0.04 fail|kept 0.0952 | mondrian kept 0.00 fail|kept 1.0000
+  RT60 0.8 2 s g  1.0 Neighbor              -10 dB: (all 0.294, n 500, in support 1.00) pooled kept 0.00 fail|kept 1.0000 | mondrian kept 0.00 fail|kept 1.0000
+  RT60 0.8 2 s g  1.0 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.03 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 ShuttingDoor           +0 dB: (all 0.010, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 ShuttingDoor          -10 dB: (all 0.354, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 Typing                +10 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 Typing                 +0 dB: (all 0.362, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 Typing                -10 dB: (all 0.938, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept 1.0000
+  RT60 0.8 2 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.13 fail|kept 0.0000
+  RT60 0.8 2 s g  1.0 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g  1.0 VacuumCleaner         -10 dB: (all 0.066, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 white                  +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 white                 -10 dB: (all 0.010, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 AirConditioner         +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 AirConditioner        -10 dB: (all 0.192, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 AirportAnnouncements  -10 dB: (all 0.314, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Babble                -10 dB: (all 0.726, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 CopyMachine           -10 dB: (all 0.426, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Munching               +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Munching              -10 dB: (all 0.340, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.04 fail|kept 0.3636 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Neighbor               +0 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Neighbor              -10 dB: (all 0.770, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 ShuttingDoor           +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 ShuttingDoor          -10 dB: (all 0.256, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Typing                 +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 Typing                -10 dB: (all 0.818, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 2 s g 0.25 VacuumCleaner         -10 dB: (all 0.044, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 white                  +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 white                 -10 dB: (all 0.020, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.83 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirConditioner        -10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.24 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 AirportAnnouncements  -10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.69 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.09 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 Babble                -10 dB: (all 0.144, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.45 fail|kept 0.0223
+  RT60 0.8 4 s g  1.0 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.15 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 CopyMachine           -10 dB: (all 0.554, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.30 fail|kept 0.2416
+  RT60 0.8 4 s g  1.0 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 Munching               +0 dB: (all 0.016, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 Munching              -10 dB: (all 0.446, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.4286
+  RT60 0.8 4 s g  1.0 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 1.00 fail|kept 0.0000 | mondrian kept 1.00 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 Neighbor               +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.78 fail|kept 0.0026 | mondrian kept 0.67 fail|kept 0.0030
+  RT60 0.8 4 s g  1.0 Neighbor              -10 dB: (all 0.062, n 500, in support 1.00) pooled kept 0.00 fail|kept 1.0000 | mondrian kept 0.00 fail|kept 1.0000
+  RT60 0.8 4 s g  1.0 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 ShuttingDoor           +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 ShuttingDoor          -10 dB: (all 0.200, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 Typing                 +0 dB: (all 0.102, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 Typing                -10 dB: (all 0.948, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g  1.0 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.81 fail|kept 0.0000
+  RT60 0.8 4 s g  1.0 VacuumCleaner         -10 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.99 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 white                 +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 white                  +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 1.00 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 white                 -10 dB: (all 0.004, n 500, in support 0.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 AirConditioner        +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 AirConditioner         +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.94 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 AirConditioner        -10 dB: (all 0.028, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.89 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 AirportAnnouncements  +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 AirportAnnouncements   +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.24 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 AirportAnnouncements  -10 dB: (all 0.036, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.65 fail|kept 0.0031 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Babble                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Babble                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.09 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Babble                -10 dB: (all 0.268, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.46 fail|kept 0.1130 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 CopyMachine           +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 CopyMachine            +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.15 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 CopyMachine           -10 dB: (all 0.036, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.62 fail|kept 0.0129 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Munching              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Munching               +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Munching              -10 dB: (all 0.140, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.01 fail|kept 0.2857 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Neighbor              +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.96 fail|kept 0.0000 | mondrian kept 0.88 fail|kept 0.0000 | agree kept 0.98 fail|kept 0.0000
+  RT60 0.8 4 s g 0.25 Neighbor               +0 dB: (all 0.002, n 500, in support 1.00) pooled kept 0.77 fail|kept 0.0026 | mondrian kept 0.33 fail|kept 0.0061 | agree kept 0.87 fail|kept 0.0023
+  RT60 0.8 4 s g 0.25 Neighbor              -10 dB: (all 0.350, n 500, in support 1.00) pooled kept 0.00 fail|kept 1.0000 | mondrian kept 0.00 fail|kept 1.0000 | agree kept 0.00 fail|kept 1.0000
+  RT60 0.8 4 s g 0.25 ShuttingDoor          +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 ShuttingDoor           +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 ShuttingDoor          -10 dB: (all 0.108, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Typing                +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Typing                 +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 Typing                -10 dB: (all 0.530, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 VacuumCleaner         +10 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.00 fail|kept   -    | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 VacuumCleaner          +0 dB: (all 0.000, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.81 fail|kept 0.0000 | agree kept 0.00 fail|kept   -   
+  RT60 0.8 4 s g 0.25 VacuumCleaner         -10 dB: (all 0.006, n 500, in support 1.00) pooled kept 0.00 fail|kept   -    | mondrian kept 0.98 fail|kept 0.0020 | agree kept 0.00 fail|kept   -   

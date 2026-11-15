@@ -115,6 +115,7 @@
       <div><label for="hire">Court hire per hour, optional (to price a team fee)</label><input id="hire" inputmode="decimal" placeholder="40"></div>
       <div><label for="courts">Courts or tables (comma or line separated, blank = automatic)</label><input id="courts" placeholder="Court 1, Court 2"></div>
       <div><label for="times">Time slots each night (blank = one)</label><input id="times" placeholder="18:00, 19:00"></div>
+      <div><label for="gamesPerNight">Games per team per night (2 = doubleheaders)</label><select id="gamesPerNight"><option value="1" selected>1</option><option value="2">2, back to back</option><option value="3">3, back to back</option><option value="4">4, back to back</option></select></div>
     </div>
 
     <h2 style="margin-top:18px">4. Play-offs (optional)</h2>
@@ -417,6 +418,7 @@
       $("#minutes").value = f.minutes;
       $("#seed").value = f.seed;
       $("#rounds").value = f.rounds || "";
+      $("#gamesPerNight").value = f.gamesPerNight || "1";
       for (let i = 0; i < 7; i++) $("#wd" + i).checked = f.weekdays.includes(WEEKDAYS[i]);
       $("#skip").value = f.skip;
       $("#blackouts").value = f.blackouts;
@@ -449,7 +451,7 @@
       return {
         teams: $("#teams").value, double: $("#double").checked, carryOver: $("#carryOver").checked, carryOverPick: $("#carryOverPick").value, carryOverKeep: $("#carryOverKeep").value, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
-        seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value,
+        seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value, gamesPerNight: $("#gamesPerNight").value === "1" ? "" : $("#gamesPerNight").value,
         results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, finishBy: $("#finishBy").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
         duties: $("#duties").value, sheetTitle: $("#sheetTitle").value, sheetContact: $("#sheetContact").value,
       };

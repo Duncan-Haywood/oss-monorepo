@@ -23,6 +23,18 @@ after an ordinary one and 120 after a careless one, against 93 picks, for
 about the same order (docs/RANK-PAGE.md, "Sort into piles first"). Nothing is
 uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
 
+**Used to MaxDiff?** [Rank by best and worst of four](https://marisstella.app/quick-pick-survey/maxdiff-best-worst.html)
+(since 2026-11-15): a mode of the ranker where each screen shows four options
+and you tap the one you like most, then the least. Each screen is scored with
+the exact best-worst model (not split into implied pairs, which overstates
+two taps as five answers), and the next four are the ones expected to tell
+the most. On simulated people, 15 options took 27 screens (54 taps) against
+70 pair picks for an order about as good. Time per screen is not simulated:
+since 2026-11-15 the page times each answer on the device, codes carry the
+times, and a team combine says whether screens or pairs reached the stop
+sooner for that team (docs/RANK-PAGE.md, "Answer times"). Links, codes and team combine work as for pairs. How it works and the
+tables: [docs/RANK-PAGE.md](docs/RANK-PAGE.md), "Best and worst of four".
+
 **Ranking pictures?** [Pick the best photo or logo by comparing pairs](https://marisstella.app/quick-pick-survey/pick-the-best-photo.html)
 (since 2026-11-15): select 3 to 60 image files on the ranker and pick between
 two pictures at a time; the files are opened in the browser and never

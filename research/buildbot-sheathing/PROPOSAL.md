@@ -23,7 +23,7 @@ It is open because the pieces have been studied apart. Mobile construction robot
 localised to a few millimetres (Sandy et al. 2016; Lachmayer et al. 2022), factory and
 multi-robot timber assembly correct their paths from measurement (Willmann et al. 2016; Adel et
 al. 2024), a humanoid has screwed plasterboard to a wall (Kumagai et al. 2019), and stud pose
-has been estimated from images (Construction Robotics 2024). Our own 26 `buildbot-*` projects
+has been estimated from images (Cote et al. 2024). Our own 26 `buildbot-*` projects
 priced reach, push, recoil, stud sensing and cost one at a time. What no work we found does is
 carry every error source through to the outcome a builder inspects, the share of sheets with
 every nail inside its window, on the geometry a real wall has (panel gaps, sheets that are not
@@ -309,6 +309,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
 22. **The paper's capacity half** (done 2026-11-15, `paper/draft.md` sections 4.9–4.10 and 5.13–5.14): milestones
    14–21 written into the draft, with a table of the five decayed-wall models and 60 more numbers tied to their
    results files (190 checks).
+23. **The submission source** (done 2026-11-15, `paper/build_latex.py`): the draft built into Elsevier's
+   `elsarticle` class with natbib citations keyed to `references.bib` (23 works cited, 4 standards listed),
+   checked for unconverted citations, missing keys, section/table/figure numbering and Elsevier's highlight
+   limits; compiles to 27 pages with no undefined citation. Sections 4.7 and 4.8 were out of order and the
+   eight highlights all ran past 85 characters (now five). Cote et al. (2024) and Lachmayer et al. (2022)
+   completed from catalogue records. Still open: authorship, the abstract's length (469 words), the NDS and
+   SDPWS editions.
 
 
 ## Target venue

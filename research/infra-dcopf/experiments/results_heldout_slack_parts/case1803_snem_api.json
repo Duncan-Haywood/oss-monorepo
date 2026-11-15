@@ -1,0 +1,14 @@
+{
+ "case": "case1803_snem",
+ "kind": "api",
+ "nbus": 1803,
+ "old_ref": 3,
+ "slack_bus": 1566,
+ "slack_unit": 200,
+ "moved": true,
+ "ac": 80240.0,
+ "ref": "PGLib",
+ "start_rule": null,
+ "stop": "no DC start",
+ "secs": 3.3649234771728516
+}

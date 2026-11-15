@@ -268,6 +268,14 @@ Milestone 6's next step in [`grid-linopf`](../grid-linopf/PROPOSAL.md), pre-regi
 - **The frozen repair from there (`results_bigslack.txt`, pre-registered B1 to B3, all held):** fully feasible on **3 of 5** RTE cases, at +0.62 % (case1888 API), +0.02 % (case1951 TYP) and +0.05 % (case1951 SAD) over PGLib's optimum, from starts with up to 90 overloads and 293 voltage violations. The two case1888 TYP/SAD runs end with one bus out of voltage band. With case300's earlier result, 4 of the 6 cases that had no power flow now reach a feasible point.
 - **Reading:** the slack rule is part of the method. One slack unit takes all of the network's losses at one bus, and a small one collapses it.
 
+## Milestone 6 under one protocol (added 2026-11-15, `experiments/run_heldout_slack.py`, `results_heldout_slack.txt`)
+The 24 held-out cases of [`grid-linopf`](../grid-linopf/PROPOSAL.md)'s milestone 6, rerun under one protocol (pre-registered in `LOG.md`, 2026-11-15): reference at the bus of the largest live unit, DC start, the fold step's continuation to the full-load power flow, the frozen 20-round J-m-a warm there, the reactive stage on IPOPT, cost against PGLib's published objective.
+
+- **10 of 24 fully feasible within 20 rounds, 12 of 24 with the reactive stage** (DC dispatch: 0 of 24). Scored 19: the three SNEM networks, case1951_rte API and case2000_goc API have no DC OPF solution even without angle limits.
+- **Nothing lost:** paired on the 19 cases the earlier protocol scored, 3 gained (the RTE cases) and 0 lost. Where the reference does not move, the round-by-round statuses are identical to the earlier run (6 of 6).
+- **Cost:** clean points +0.01 to +2.12 % over PGLib's objective, mean +0.50 %, median +0.26 %; case588 TYP is the one above +1 % (pre-registered bar refuted).
+- **Misses:** case1354 (1 to 4 overloads at 112 to 120 %), case1888 TYP and SAD (one bus out of voltage band), case500 SAD (2 angle limits) and case588 SAD; IPOPT's reactive stage finds no solution on any of them.
+
 ## Analytic sensitivities from the power-flow Jacobian (added 2026-11-13, `experiments/check_sens.py`, `results_sens.txt`, `run_vlin.py --margin --analytic`, `results_vlin_margin_analytic.txt`)
 Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens` takes every sensitivity J-m uses (slack P, |S| at both branch ends, angle differences, PQ-bus voltages, unit Q; with respect to unit P and generator voltage setpoints) from the Newton Jacobian at the base power flow, by the implicit function theorem: one sparse LU and one solve per round, instead of n_gen + n_vbus extra power flows. Plan and predictions logged before the run.
 
@@ -416,6 +424,7 @@ PYTHONPATH=src python experiments/run_outage.py 1.0   # about 9 min; writes resu
 OMP_NUM_THREADS=1 python experiments/run_lpac.py  # LPAC one-shot baseline and LPAC-started repair, about 5 min; needs pypower, clarabel, scs; writes results_lpac.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_perturb.py  # milestone 5, 360 load-perturbed copies, about 12 min on 4 processes; results_perturb.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_heldout.py  # milestone 6, the 24 held-out 500 to 2,000-bus cases, about 20 min on 4 processes; results_heldout.txt/.json (--noref: the cases PIPS cannot solve, results_heldout_noref.txt)
+OMP_NUM_THREADS=1 python experiments/run_heldout_slack.py J <case/kind ...>  # milestone 6 under one protocol (largest-unit slack); then `R <case/kind ...>` (IPOPT reactive stage, needs cyipopt) on the unfinished ones and `--merge`; about 23 min (J) and 30 min (R) summed over cases; results_heldout_slack.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic --screen --clarabel  # milestone 6 gate: screened Clarabel against full Clarabel on the 34 development cases, about 1 min
 OMP_NUM_THREADS=1 python experiments/run_converge.py  # milestone 7, traced repair with a 30-round budget, about 3 min on 4 processes; results_converge.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_perturb.py --noref  # the arms on copies with no AC optimum, about 5 min; results_perturb_noref.txt/.json

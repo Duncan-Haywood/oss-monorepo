@@ -7,7 +7,7 @@
 // voices are recorded singers (RECORDING-GUIDE.md). Deterministic: a seeded noise
 // source, so the same MIDI gives the same bytes.
 import { readWav, integratedLufs, truePeak } from './master.mjs';
-import { singNote, latinVowel, latinOnset, onsetLength, PHONES } from './sing.mjs';
+import { singNote, latinVowel, latinOnset, latinCoda, onsetLength, PHONES } from './sing.mjs';
 export { readWav };
 
 // ---- MIDI reading (format 0/1, running status, tempo map, channel programs) ----
@@ -214,7 +214,8 @@ export function limiterCurve(L, R, rate, ceil, ms = 5, scratch = null) {
 export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null, sing = false } = {}) {
   const m = parseMidi(midiBytes);
   // sing: the choir sings each note's Latin syllable (sing.mjs) instead of the pad's fixed "ah":
-  // its consonants on the syllable's first note, then its vowel ('vowels': the vowel alone); a diphthong glides on the syllable's last note, found as the last note on that
+  // its consonants on the syllable's first note, then its vowel, then its final consonants at the end of
+  // its last note ('vowels': the vowel alone); a diphthong glides on the syllable's last note, found as the last note on that
   // channel carrying the syllable's lyric event
   const lastOfSyl = new Set(), firstOfSyl = new Set();
   const nextOn = new Map(); // note -> start tick of the next note on its channel (legato release)
@@ -235,6 +236,8 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
   }
   // the consonants a note opens with: the syllable's onset on its first note, none on a melisma's later notes
   const onsetOf = (n) => (sing === true && firstOfSyl.has(n) ? latinOnset(n.lyric) : []);
+  // and the consonants it closes with: the syllable's coda at the end of its last note
+  const codaOf = (n) => (sing === true && lastOfSyl.has(n) ? latinCoda(n.lyric) : []);
   // Choirs sing the consonant before the beat so the vowel lands on it. A note's consonant takes its
   // full length where it can: up to half the previous note (and any rest before it) goes to it, and
   // what does not fit spills into the note itself, at most 30% of it, shortened in proportion when
@@ -287,10 +290,10 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       // the gap to the next sound: the next note's start, or where its consonant starts before the beat
       const nxl = nx && leadOf.get(nx) ? leadOf.get(nx).lead : 0;
       const release = sung ? (nextOn.has(n) ? Math.min(0.25, Math.max(overlap, sec(nextOn.get(n)) - nxl - (sec(n.end) - cut) + overlap)) : 0.25) : 0;
-      const onset = sung ? onsetOf(n) : [];
+      const onset = sung ? onsetOf(n) : [], coda = sung ? codaOf(n) : [];
       const leadMs = Math.round(ld.lead * 1000), lenMs = ld.len === null ? -1 : Math.round(ld.len * 1000);
-      const key = `${v}:${n.note}:${Math.round(dur * 1000)}${sung ? `:${sung.vowel}${glide || ''}:${Math.round(release * 1000)}:${onset.join('.')}:${leadMs}:${lenMs}` : ''}`;
-      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, onset, lead: leadMs / 1000, onsetLen: lenMs < 0 ? null : lenMs / 1000, seed: n.note * 7919 + Math.round(dur * 1000) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
+      const key = `${v}:${n.note}:${Math.round(dur * 1000)}${sung ? `:${sung.vowel}${glide || ''}:${Math.round(release * 1000)}:${onset.join('.')}:${leadMs}:${lenMs}:${coda.join('.')}` : ''}`;
+      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, onset, coda, lead: leadMs / 1000, onsetLen: lenMs < 0 ? null : lenMs / 1000, seed: n.note * 7919 + Math.round(dur * 1000) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
       wave = waveCache.get(key);
     }
     let g = (n.vel / 127) * gain[v], p = pan[v];

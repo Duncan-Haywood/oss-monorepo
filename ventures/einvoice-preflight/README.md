@@ -1838,7 +1838,7 @@ taken from the English interface specification, 2026-02-12 edition, section 3.3.
 | HU-018 | (register) | tax-number check digit (9-7-3-1) on supplier, customer and group members |
 | HU-027..032 | SCHEMA_VIOLATION | the schema gate (`hu-xsd.mjs`): an element not allowed or repeated (027), out of order (028), missing (029), a value outside its length, pattern, range, digits or code list (030), an attribute (031), an element in the wrong namespace, e.g. `taxpayerId` without `base:` (032) |
 | HU-033 (warnings) | INCORRECT_PRODUCT_CODE_FEE_*, MISSING_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_CALCULATION_* | product fee (termékdíj, Annex I ids 270-810): CSK/KT code types, the obligated flag against line content, line content against the summary, quantity and unit by code, quantity x rate, amounts by code and productChargeSum; Annex I's tolerance (1% of the HUF value, at least 1 HUF or 0.01 of the currency) |
-| HU-020..026 (warnings) | INCORRECT_LINE_CALCULATION_*, INCORRECT_SUMMARY_CALCULATION_*, INCORRECT_SUMMARY_DATA_* | quantity x price, VAT from net, gross, every HUF conversion, each VAT-rate row against its lines, invoice totals against the rows, simplified gross by VAT content; NAV's tolerance, 1% and at least one unit |
+| HU-020..026 (warnings) | INCORRECT_LINE_CALCULATION_*, INCORRECT_SUMMARY_CALCULATION_*, INCORRECT_SUMMARY_DATA_* | all 54 active Annex I calculation and summary warnings (re-read 2026-11-15): quantity x price less any discount, every HUF conversion, forint gross = net + VAT, rows against lines and rates, totals against rows and lines, simplified gross by VAT content, summary markers no line carries, negative CREATE totals; Annex I's tolerance (1% of the named reference, at least 1 HUF or 0.01 of the invoice currency). Each finding's `nav` names the warning; five extra checks NAV does not make (line VAT from rate, gross in the invoice currency, ...) say so and carry `nav: null` |
 
 **Measured on NAV's own samples** (`eval/hungary-nav-samples-2026-11-15.md`): of
 the 30 InvoiceData samples NAV publishes, 27 get no finding; the other 3 get five,
@@ -1896,3 +1896,24 @@ the finding's fix names the replacement. The fuzzing also found a crash in the
 business checks on a summary row with an empty `vatRate`, now fixed.
 
 Tests: `hu-xsd.test.mjs` (10).
+
+### The VAT arithmetic against Annex I (2026-11-15, latest)
+
+HU-020..026 were first written from NAV's warning code names. Annex I of the 2026.02.12
+specification defines each warning: its formula, when it runs, and what its 1% is 1% of.
+Read warning by warning (`eval/nav-annex1-calculations-2026-11-15.md`), the old code cited
+five codes NAV does not have (NAV never checks a line's VAT against its rate, nor a gross in
+the invoice currency) and six renamed ones, used a one-unit floor where NAV's is 0.01 of the
+currency (1.00 EUR became 0.01 EUR), skipped lines with a discount that NAV checks with the
+discount taken off, and summed zero rows NAV skips. All 54 active warnings in these families
+are now in, 21 of them new (forint gross sums, forint row VAT, line forint nets against the
+total, gross conversion, negative CREATE totals, simplified line sums, summary rates and
+markers no line carries, reverse-charge and margin rows with VAT). Every finding names its
+Annex I code in `nav`, or `null` for the five checks that are this tool's own, and says so:
+a bookkeeper can tell what NAV will warn about from what it will accept silently.
+
+NAV's 30 samples are unchanged (27 clean, same 5 findings). 633 seeded faults: 624 caught by
+the expected rule; 8 of the 9 others are where Annex I says the warning does not run, and the
+ninth is the earlier tax-number mutant, missed before this change too.
+Tests: `hungary-nav-annex1.test.mjs` (18), which also fails if the module cites a
+calculation code Annex I does not list.

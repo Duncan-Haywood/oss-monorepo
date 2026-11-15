@@ -413,6 +413,83 @@ long shootflow_panasonic_run(const uint8_t *d, long len, long width, long height
     return 0;
 }
 
+/* Panasonic RW2 RawFormat 5 and 7 (shootflow.rw2._packed_python): each 16-byte line, as a
+   little-endian 128-bit number, holds 128 / bits sensels from its lowest bit up. d is already in
+   reading order (RawFormat 5's blocks rotated). Returns 0, or -1 when d is short. */
+long shootflow_panasonic_packed_run(const uint8_t *d, long len, long width, long height, int bits, uint16_t *out)
+{
+    int per = 128 / bits;
+    long lines = width / per;
+    if (len < lines * 16 * height) return -1;
+    uint32_t mask = (1u << bits) - 1;
+    for (long row = 0; row < height; row++) {
+        uint16_t *o = out + row * width;
+        for (long l = 0; l < lines; l++, d += 16) {
+            uint64_t lo = 0, hi = 0;
+            for (int b = 7; b >= 0; b--) { lo = lo << 8 | d[b]; hi = hi << 8 | d[8 + b]; }
+            for (int i = 0; i < per; i++) {
+                int at = i * bits;
+                uint64_t v;
+                if (at >= 64) v = hi >> (at - 64);
+                else if (at + bits <= 64) v = lo >> at;
+                else v = (lo >> at) | (hi << (64 - at));
+                *o++ = (uint16_t)(v & mask);
+            }
+        }
+    }
+    return 0;
+}
+
+/* Panasonic RW2 RawFormat 6 (shootflow.rw2._c6_python): 11 sensels a 16-byte line, fields read
+   from the top bit down. Returns 0, or -1 when d is short. */
+long shootflow_panasonic_c6_run(const uint8_t *d, long len, long width, long height, uint16_t *out)
+{
+    static const int widths[14] = {14, 14, 2, 10, 10, 10, 2, 10, 10, 10, 2, 10, 10, 10};
+    long lines = width / 11;
+    if (len < lines * 16 * height) return -1;
+    for (long row = 0; row < height; row++) {
+        uint16_t *o = out + row * width;
+        for (long l = 0; l < lines; l++, d += 16) {
+            uint64_t lo = 0, hi = 0;
+            for (int b = 7; b >= 0; b--) { lo = lo << 8 | d[b]; hi = hi << 8 | d[8 + b]; }
+            uint32_t vals[14];
+            int pos = 128;
+            for (int f = 0; f < 14; f++) {
+                int w = widths[f];
+                pos -= w;
+                uint64_t v;
+                if (pos >= 64) v = hi >> (pos - 64);
+                else if (pos + w <= 64) v = lo >> pos;
+                else v = (lo >> pos) | (hi << (64 - pos));
+                vals[f] = (uint32_t)(v & ((1u << w) - 1));
+            }
+            int k = 0;
+            int64_t first[2] = {0, 0}, prev[2] = {0, 0}, mul = 0, base = 0;
+            for (int pix = 0; pix < 11; pix++) {
+                if (pix % 3 == 2) {
+                    int code = (int)vals[k++];
+                    if (code == 3) code = 4;
+                    mul = (int64_t)1 << code;
+                    base = (int64_t)0x200 << code;
+                }
+                int64_t e = vals[k++];
+                int p = pix & 1;
+                if (first[p]) {
+                    e *= mul;
+                    if (base < 0x2000 && prev[p] > base) e += prev[p] - base;
+                    prev[p] = e;
+                } else {
+                    first[p] = e;
+                    if (e) prev[p] = e; else e = prev[p];
+                }
+                e -= 15;
+                *o++ = (uint16_t)(e < 0 ? 0 : (e <= 0xFFFF ? e : 0x3FFF));
+            }
+        }
+    }
+    return 0;
+}
+
 /* Samsung SRW readers of shootflow.srw (the Python decoders there are the reference).
    PH1 bits: MSB first from 32-bit little-endian words; past len, zeros. */
 typedef struct { const uint8_t *d; long len; long p; uint64_t buf; int vbits; } srw_bits;
@@ -1303,6 +1380,14 @@ def _load():
     panasonic.restype = ctypes.c_long
     panasonic.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
     _STATE["panasonic"] = panasonic
+    packed = lib.shootflow_panasonic_packed_run
+    packed.restype = ctypes.c_long
+    packed.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_void_p]
+    _STATE["panasonic_packed"] = packed
+    c6 = lib.shootflow_panasonic_c6_run
+    c6.restype = ctypes.c_long
+    c6.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
+    _STATE["panasonic_c6"] = c6
     for name, args in (
         ("samsung_rows", [ctypes.c_char_p] + [ctypes.c_long] * 5 + [ctypes.c_void_p]),
         ("samsung_huffman", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]),
@@ -1538,6 +1623,39 @@ def panasonic_run(data: bytes, width: int, height: int) -> array | None:
     fn(data, len(data), width, height, out.buffer_info()[0])
     if width * height == 0:
         del out[:]
+    return out
+
+
+def panasonic_packed_run(data: bytes, width: int, height: int, bits: int) -> array | None:
+    """``shootflow.rw2._packed_python`` (RawFormat 5 and 7) in C: an ``array('H')``, or None without the
+    native library."""
+
+    fn: Any = _STATE.get("panasonic_packed") if reader() is not None else None
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    out = array("H", [0]) * max(1, width * height)
+    if fn(data, len(data), width, height, bits, out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("RW2: the sensor data is cut short")
+    del out[width * height :]
+    return out
+
+
+def panasonic_c6_run(data: bytes, width: int, height: int) -> array | None:
+    """``shootflow.rw2._c6_python`` (RawFormat 6) in C: an ``array('H')``, or None without the native library."""
+
+    fn: Any = _STATE.get("panasonic_c6") if reader() is not None else None
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    out = array("H", [0]) * max(1, width * height)
+    if fn(data, len(data), width, height, out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("RW2: the sensor data is cut short")
+    del out[width * height :]
     return out
 
 
