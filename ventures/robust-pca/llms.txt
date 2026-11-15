@@ -1,0 +1,26 @@
+# Robust PCA: split a table into its shared pattern and the cells that break it
+
+> Free online robust PCA by principal component pursuit (Candes, Li, Ma & Wright 2011, J. ACM): paste a numeric table (days by hours, stores by weeks, sensors by readings) and it finds the split M = L + S minimising ||L||_* + lambda ||S||_1 with lambda = 1/sqrt(max(rows, columns)), solved by the inexact augmented Lagrange multiplier method (Lin, Chen & Ma 2010) with a Jacobi SVD. It lists the rows and cells that break the low-rank pattern, fills empty cells from L, and certifies the split with a duality gap. Recovers the paper's Section 4.1 experiment exactly; matches TensorLy 0.10.0's robust_pca. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A flagged cell is unusual against the table's pattern, not proof of an error.
+
+## Pages
+
+- [The tool](https://marisstella.app/robust-pca/)
+
+## Use it from code
+
+- `node cli.mjs table.csv [--label date] [--columns a,b,c] [--fold 24] [--scale none|robust] [--sensitivity 1] [--top 25] [--csv|--json]`
+- `node platform/agents/tools.mjs call robust-pca analyze --input '{"csv":"day,h1,h2,h3\nmon,10,20,15\ntue,11,22,16\n..."}'`
+- From JavaScript: `pcp(M, m, n, {lambda, observed})` on a row-major Float64Array returns `L`, `S`, `rank`, `objective`, `dualBound` and `gap`; `svd(A, m, n)` is the one-sided Jacobi SVD.
+
+## What it answers
+
+- Which cells of this table do not fit the pattern the rows share, and by how much?
+- Which rows (days, stores, units) break the pattern most?
+- What is the low-rank structure: how many shared shapes, and how much each holds?
+- What should the empty cells be, given the rest of the table?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/robust-pca): MIT licensed.

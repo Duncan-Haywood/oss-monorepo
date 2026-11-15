@@ -88,6 +88,7 @@ for the browser-extension, iOS and Android packagers.
 | [`ranked-ballot-counter`](../../ventures/ranked-ballot-counter/) | Schulze 2011; Droop 1881 | Who won our ranked-choice vote: by instant runoff, by STV for several seats, and by Schulze, and is there a candidate who beats every other head to head? |
 | [`assembly-line-balancer`](../../ventures/assembly-line-balancer/) | Sewell & Jacobson 2012; Scholl & Klein 1997; Jackson 1956; Helgeson & Birnie 1961 | How few stations can this line run on at takt (or how short a cycle on the stations I have), and is that proved optimal or only the best found? |
 | [`job-shop-scheduler`](../../ventures/job-shop-scheduler/) | Nowicki & Smutnicki 1996; Taillard 1994; Giffler & Thompson 1960; Carlier 1982 | Which order should each machine run its jobs in so the last one finishes soonest, and how far from the best possible is that schedule? |
+| [`robust-pca`](../../ventures/robust-pca/) | Candès, Li, Ma & Wright 2011; Lin, Chen & Ma 2010; Hestenes 1958 | Which cells of this table break the pattern the rows share, by how much, what should the empty cells be, and how close to optimal is that split? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -102,7 +103,6 @@ with automatic relevance determination, and a forecast-calibrated mean, as
 modes of `gaussian-process-regression`;
 the debiased Sinkhorn divergence (Genevay, Peyré & Cuturi 2018) and unbalanced
 transport as modes of `wasserstein-distance`;
-robust PCA by principal component
-pursuit (Candès et al. 2011); online FDR control (Javanmard & Montanari 2018) for tests that arrive over time;
+stable PCP with an explicit noise level (Zhou, Li, Wright, Candès & Ma 2010) as a mode of `robust-pca`; online FDR control (Javanmard & Montanari 2018) for tests that arrive over time;
 p-to-e calibrators (Vovk & Wang 2021) so e-BH in `fdr-multiple-testing` can take p-values;
 the extended isolation forest's random-hyperplane cuts (Hariri, Carrasco Kind & Brunner 2021) as a mode of `isolation-forest`.

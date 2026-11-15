@@ -934,6 +934,7 @@ ventures/review-reply-desk/usage.mjs
 ventures/revolut-business-statement-to-journal/usage.mjs
 ventures/rfp-compliance-matrix/usage.mjs
 ventures/rmd-calculator/usage.mjs
+ventures/robust-pca/usage.mjs
 ventures/roofing-bid-calculator/usage.mjs
 ventures/roofing-insurance-supplement-finder/usage.mjs
 ventures/roommate-rent-splitter/usage.mjs
