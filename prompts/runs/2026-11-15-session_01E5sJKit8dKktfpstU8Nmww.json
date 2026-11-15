@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKit8dKktfpstU8Nmww",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T20:18:26Z",
+  "ended": "2026-11-15T20:26:23Z",
+  "wall_minutes": 8.11,
+  "tokens_in": 5196791,
+  "tokens_out": 27865,
+  "cost_usd": 2.5818,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16332",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "--live hid only clusters whose named code file changed; the top five live ungated rows were all fixed elsewhere or by design (~30 min of re-verification). Fixed in this PR with friction_verdicts.json and --record-verdict."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Critique mode points at measure's doc-friction table; it could name friction_rank.py --live --ungated and --record-verdict so runs record what they checked (prompts/ is owner-gated, so not edited here)."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "Running it while promptctl measure deepens the clone in parallel makes its own fetch fail silently on shallow.lock, so every row reads 'touched-since unknown'; run them one after the other."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-a-place-to-write-already-fixed.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned open items (P056 blocked; rest owner). main_health.py 231/231 green. Verified friction clusters already fixed: run_workflow_locally portfolio-pages budget (pooled budget, 2026-11-15), venture-preflight unfilled record (#16071), cite_check (#16199/#16255), quality mark-fixed (exists), saints PRODUCTION.md (#16132), hearth BIBLE.md (3573ba55d), docs/posts caps (0dfa820ed); flagships.yaml cap is by design. Tests: python3 -m pytest platform/ci/test_friction_rank.py -> 21 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "15d98f5b-71bd-5523-9a85-d5cf9661e884",
+    "transcripts": 1,
+    "first": "2026-11-15T20:18:26Z",
+    "last": "2026-11-15T20:26:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 95,
+        "output": 27865,
+        "thinking": 9322,
+        "cache_read": 5070441,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126255,
+        "api_equivalent_usd": 2.5818,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 95,
+      "output": 27865,
+      "thinking": 9322,
+      "cache_read": 5070441,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126255,
+      "api_equivalent_usd": 2.5818,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.11,
+      "active_minutes": 8.11,
+      "model_minutes": 5.39,
+      "tool_minutes": 2.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "an engineer triaging five reported doc issues and adding a verdict store with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 116.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

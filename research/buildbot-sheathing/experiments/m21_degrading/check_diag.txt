@@ -3,4 +3,3 @@ H99 with the clamp: largest |F - s E(d)| on the envelope 4.4e-16 FU; largest |s 
 6.0 True {'reversed': 203, 'springs': 218, 's_min': 0.834160048116336, 'peak': 14.70183900316864}
 3.0 False {'reversed': 381, 'springs': 454, 's_min': 0.7816872018609419, 'peak': 36.47768479169669}
 3.0 True {'reversed': 356, 'springs': 362, 's_min': 0.6893872139731109, 'peak': 25.720798252302874}
-DONE
