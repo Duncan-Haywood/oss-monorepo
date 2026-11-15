@@ -1,0 +1,71 @@
+Milestone 6u: is index 2 (efficiency at 150 bar) enough? Moving shape x idle drag, four gear-pump families
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps: Casappa KAPPA K 05 T A (6k), Danfoss SNP3 (6m), Marzocchi ALP3 (6o), Frosina, Senatore, Rigosi 2017 bench KP30 (6p, 6q))
+
+Family shapes at 2100 r/min (index 2 = eta_t(150 bar) at 85 L/min of 20 bar flow):
+  family     index 2  eta(100)/E  eta(200)/E  tilt per 100 bar  eta(q 50)/E  eta(q 150)/E  idle kW at 85 L/min
+  casappa    0.7590      0.9993      1.0093           +0.0100       0.9395        1.0334                 3.57
+  danfoss    0.8481      0.9754      1.0197           +0.0443       1.0031        0.9717                 3.64
+  marzocchi  0.8975      0.9651      1.0045           +0.0394       0.9925        0.9128                 3.32
+  bench      0.9130      0.9871      1.0029           +0.0159       1.0000        1.0000                 2.85
+  load-sensing standby power 2.96 kW; index point: 85 L/min, 150 bar
+  fixed-pump outlet pressure p + m* over all geometries and sizes: 129.6 to 675.0 bar (median 198.4; m* is 6c's equivalent surplus pressure, so large pumps read far up the map)
+  central geometry at q_p 85 L/min: p + m* = 136.2 bar
+
+50% crossing E50 of the share beating 3.986 L/h at S = 0.38 (rows: moving shape; columns: idle drag):
+  shape \ idle    casappa    danfoss  marzocchi      bench   row mean
+  casappa          0.8277     0.8283     0.8300     0.8172     0.8258
+  danfoss          0.8217     0.8297     0.8217     0.8100     0.8208
+  marzocchi        0.8175     0.8214     0.8193     0.8069     0.8163
+  bench            0.8216     0.8214     0.8231     0.8116     0.8194
+  column mean      0.8221     0.8252     0.8235     0.8114
+  shape main effect (range of row means) 0.0095; drag main effect (range of column means) 0.0138; all 16 cells 0.8069 to 0.8300, largest distance from 6r's pooled 0.8212: 0.0143
+  interaction (cell minus row and column effects): largest 0.0043
+  column means against idle kW at 85 L/min: slope +0.0162 E50 per kW (4 points)
+
+Check: diagonal cells against the committed crossings (6q, 6n, 6o; E step 0.0025 here):
+  casappa   0.8277 (committed 0.8284; -0.0007)
+  danfoss   0.8297 (committed 0.8309; -0.0012)
+  marzocchi 0.8193 (committed 0.8188; +0.0005)
+  bench    0.8116 (no committed sweep; 6q's bench family sits at E 0.9130)
+
+Share (%) by E, diagonal cells and the Casappa shape with each idle:
+     E  cas/cas  dan/dan  mar/mar  ben/ben  cas/dan  cas/mar  cas/ben
+  0.740     3.1     13.3     13.0     16.4      4.9      3.4      6.0
+  0.750     7.3     16.4     16.9     20.8      6.8      6.2      9.4
+  0.760    10.4     19.0     21.6     24.7      9.9      8.9     13.5
+  0.770    14.1     22.1     27.1     29.7     13.3     13.5     17.7
+  0.780    18.2     24.5     31.0     33.1     18.2     17.7     24.2
+  0.790    25.8     28.6     34.6     38.0     22.9     23.7     29.9
+  0.800    31.0     30.7     39.3     43.5     32.3     29.2     37.8
+  0.810    38.3     38.0     46.4     48.7     37.0     37.2     45.3
+  0.820    45.6     41.9     50.5     55.5     43.0     45.1     52.6
+  0.830    52.6     50.3     58.3     65.6     52.3     50.0     59.6
+  0.840    58.6     59.4     69.8     78.6     63.8     58.1     75.3
+  0.850    72.9     73.7     79.7     88.5     75.3     72.1     88.3
+  0.860    85.7     85.4     87.5     93.0     85.9     85.7     94.8
+  0.870    94.5     90.4     90.9     96.1     92.2     92.4     96.6
+  0.880    96.6     97.1     93.8     99.0     98.2     96.4     99.5
+  0.890    99.2     99.7     97.1    100.0     99.5     99.0    100.0
+  0.900   100.0    100.0     99.7    100.0     99.5    100.0    100.0
+  0.910   100.0    100.0    100.0    100.0    100.0    100.0    100.0
+  0.920   100.0    100.0    100.0    100.0    100.0    100.0    100.0
+  0.930   100.0    100.0    100.0    100.0    100.0    100.0    100.0
+  0.940   100.0    100.0    100.0    100.0    100.0    100.0    100.0
+  0.950   100.0    100.0    100.0    100.0    100.0    100.0    100.0
+  0.960   100.0    100.0    100.0    100.0    100.0    100.0    100.0
+
+Synthetic shapes on the Casappa cell (shape and idle Casappa), E unchanged at the index point:
+  pressure tilt t -0.05 per 100 bar: E50 0.8285 (+0.0008)
+  pressure tilt t +0.05 per 100 bar: E50 0.8264 (-0.0013)
+  pressure tilt t +0.10 per 100 bar: E50 0.8253 (-0.0024)
+  size slope k -0.10 per 85 L/min: E50 0.8192 (-0.0086)
+  size slope k +0.10 per 85 L/min: E50 0.8337 (+0.0060)
+
+Predictions (LOG.md 6u):
+  SH1 Casappa idle, four shapes span <= 0.010: refuted (0.0102)
+  SH2 Casappa shape, four idles span >= 0.010: held (0.0128)
+  SH3 all 16 cells within 0.015 of 0.8212: held (0.0143)
+  SH4 tilts +-0.05 move E50 by <= 0.005: held (0.0013)
+  SH5 size slopes +-0.10 move E50 by <= 0.010: held (0.0086)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0); Casappa KAPPA K 05 T A (2012); Danfoss SNP3 technical information; Marzocchi Pompe SERIE ALP catalogue; Frosina, Senatore, Rigosi 2017, doi:10.3390/en10081113 (CC BY 4.0); PVG 32 neutral curve; Moore 2020 (idle share).

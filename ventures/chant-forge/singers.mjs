@@ -86,7 +86,7 @@ export function parseSingers(text) {
   const sep = head.includes('\t') ? '\t' : head.includes(';') && !head.includes(',') ? ';' : ',';
   const cols = splitRow(head, sep).map((h) => h.toLowerCase().replace(/[\s_\-]/g, ''));
   const at = {};
-  for (const [k, names] of Object.entries(COLUMNS)) at[k] = cols.findIndex((c) => names.includes(c));
+  for (const [k, names] of Object.entries(COLUMNS)) at[k] = (names.map((n) => cols.indexOf(n)).find((i) => i >= 0) ?? -1);
   if (at.low < 0 || at.high < 0) throw new Error('singers file: the header row needs a "low" and a "high" column (also optional "name" and "section")');
   const singers = [];
   for (const { l, row } of lines.slice(1)) {

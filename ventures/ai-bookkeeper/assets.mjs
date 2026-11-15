@@ -144,7 +144,7 @@ export function addAssetsCsv(booksIn, text, opts = {}) {
   const problems = [];
   if (rows.length < 2) return { books: booksIn, added: 0, problems: ["No asset rows found. Expected a header: name,date,cost,life_months[,salvage,method]."] };
   const head = rows[0].map((h) => h.trim().toLowerCase());
-  const col = (...n) => head.findIndex((h) => n.includes(h));
+  const col = (...n) => (n.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const c = { name: col("name", "asset"), date: col("date", "in service", "placed in service"), cost: col("cost", "amount"), life: col("life_months", "life", "months"), salvage: col("salvage"), method: col("method") };
   for (const k of ["name", "date", "cost"]) if (c[k] === -1) problems.push(`Missing column "${k}".`);
   if (problems.length) return { books: booksIn, added: 0, problems };

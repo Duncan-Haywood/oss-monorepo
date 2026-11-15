@@ -23,6 +23,17 @@ class SizingTests(unittest.TestCase):
         self.assertTrue(np.isfinite(s["mass"]) and not bool(s["feasible"]))
 
 
+    def test_cost_cap_binds_on_small_props(self):
+        L, D = np.meshgrid(np.linspace(*A.L_RANGE, 40), np.linspace(*A.D_RANGE, 40))
+        s = A.size(L, D)
+        overlap_ok = np.sqrt(2) * L >= 1.05 * D
+        self.assertGreater(int((overlap_ok & (s["cost"] > A.COST_CAP)).sum()), 0)
+
+    @unittest.expectedFailure
+    def test_unclosed_mass_is_infeasible(self):
+        # Known defect (quality census 2026-11-15): no mass closes at the reported optimum, yet it is scored feasible.
+        self.assertFalse(bool(A.size(0.146, 0.097)["feasible"]))
+
 class RolloutTests(unittest.TestCase):
     def test_deterministic(self):
         x, g = np.array([[0.4, 0.4]]), np.array([[0.5, 0.5, 0.5]])

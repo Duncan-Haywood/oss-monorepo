@@ -2400,3 +2400,64 @@ keeps) depend on the machine. A capped result is therefore not reproducible acro
 `pairTimedOut` marks it. Next: make the pass find its gain sooner. On the 40-person week 0 the best moves came last and the
 first 80 s of the 30-person week went to moves that were refused, so trying first the candidates whose screen clears the
 most pair hours would let a short cap keep more of the gain.
+
+## The pair price's best moves first, and where its time goes (2026-11-15 later)
+
+"A time cap on the pair price" ended on one next step: make the pass find its gain sooner, by trying first the candidates
+whose cheap tests leave the most room. **That landed as an opt-in (`coverPairRank`, CLI `--second-callout-rank`) and stays
+off, because it did not help on the measured weeks.** Two things were measured along the way that the next attempt should
+start from.
+
+**What landed.** The pass is first-improvement: it takes the first candidate that pays, and with a pair price each
+candidate's pair walks are the cost. With the rank on, a round first runs every candidate through the cheap tests (score and
+the budgeted single risk), sets it aside with the room those leave for clashing pairs, then walks them largest room first and
+takes the first that pays. Every move is confirmed by the same walks, so the pass is never worse than its start. It walks a
+different path, so its end can differ.
+
+`node eval/pair-rank.mjs` (`eval/pair-rank.out.txt`), $25 an hour at risk and $1 a pair hour, uncapped, from each week's plain
+roster:
+
+| week (copies) | rank off: moves, time, gain | rank on: moves, time, gain | gain kept at 10 / 20 s, off → on |
+|---|---|---|---|
+| 20 x 56 week 2 (75) | 4 moves, 1.5 s, $1,315.15 | 1 move, 0.7 s, **$1,120.98** | 100% / 100% → 85% / 85% |
+| 40 x 112 week 0 (149) | 11 moves, **16.0 s**, $508.85 | 12 moves, 28.3 s, $508.85 | 40% / 100% → 14% / 41% |
+| 30 x 84 week 0 (121) | 6 moves, 202 s, $1,629.16 | 6 moves, **160 s**, $1,629.16 | 0% → 0% (first move 57 s → 42 s) |
+
+On the 20-person week the largest-room first move led to a local optimum that keeps 85% of the gain. On the 40-person week the
+same end cost 2.8 times the candidates (48,374 against 17,344), because every candidate of every round is now screened, and
+the gain arrived later. On the 30-person week it was 21% faster to the same end, but its first move still came at 42 s. The
+30-person runs overlapped other jobs on the machine for part of their time, so those times are rough. Room is also not the
+gain: on the 20-person week the move with the most room was not the move that lowered the objective most, because the room is
+measured before the pair hours come off it.
+
+**Where the pass's time goes.** A CPU profile of the uncapped pass on the 40 x 112 week 0 (15.7 s): 11.2 s of it is
+`validWith`'s own time, called from the pair walks' cover searches (`coverGroupsJoint`, 9.8 s) and the single-risk checks
+(`coverDayJoint`, 5.1 s). By kind of check:
+
+| check | calls | time |
+|---|---|---|
+| 500-step pair walks cut off (move refused) | 1,379 | **5.9 s** |
+| budgeted single-risk screens (`coverRisk`) | 1,514 | 2.8 s |
+| 200,000-step confirming walks cut off | 83 | 1.9 s |
+| unbudgeted single-risk checks | 116 | 1.9 s |
+| 500-step pair walks run to the end | 117 | 1.3 s |
+| 200,000-step confirming walks run to the end | 12 | 1.0 s |
+
+So the biggest cost is the screen refusing moves, and each refusal costs about 4.3 ms. The starting roster carries 314
+clashing pairs at 500 steps (308 of them given up on at the budget), the walk must count nearly all of their hours before it
+reaches the hours that would reject a move, and each given-up pair costs its full 500 steps. A cheaper screen for those pairs
+is the next thing to try. `validWith` itself is already tight (typed arrays, no allocation, lists of a few shifts), so the
+saving has to come from fewer calls, not cheaper ones.
+
+**Tried and dropped: skipping the joint search when two covers do not meet.** If one call-out's own cover and the other's
+change no one in common, the callers included, then both covers applied together are valid, because every rule is checked one
+person at a time. Such a pair needs no joint search. That is exact, and it was built. It applied to 0 of 435 pairs on the
+20-person week 2, 0 of 703 on the 40-person week 0 and 85 of 1,035 on the 40-person week 1 (where no move is tested): the
+depth-first search hands every cover to the same first eligible person with slack, so almost every two covers meet. It also
+saves only pairs that are cheap to search already. The cost is in the clashing pairs, whose search must fail every branch.
+
+Tests (`pair-rank.test.mjs`): the ranked pass takes only moves that lower the objective, ends below its start, and confirms its
+pair hours; with no pair price it is the unranked pass; and `buildRoster` passes `coverPairRank` through.
+
+Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine; three weeks are three rosters, not a
+population. Next: a cheaper screen for the pairs the last roster gave up on (they set the screen's cost on the big weeks).

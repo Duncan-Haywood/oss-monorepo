@@ -56,7 +56,7 @@ export function parseFeed(text, brand) {
   const rows = parseCsv(text);
   if (rows.length < 2) return { ok: false, error: "Paste a header row and at least one product row.", brand: name, products: [], warnings: [] };
   const head = rows[0].map(norm), col = {};
-  for (const [k, names] of Object.entries(ALIASES)) col[k] = head.findIndex(h => names.includes(h));
+  for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   if (col.name < 0 || col.price < 0) return { ok: false, error: "The header needs a name (or title) column and a price column.", brand: name, products: [], warnings: [] };
   if (rows.length - 1 > MAX_ROWS) return { ok: false, error: `A feed holds up to ${MAX_ROWS} products.`, brand: name, products: [], warnings: [] };
   const warnings = [], products = [], seen = new Set();

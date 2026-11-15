@@ -68,7 +68,7 @@ export function normalizeRows(rows) {
   if (!rows.length) return { error: "No rows found. Paste the CSV including its header line.", statements: [], skipped: [] };
   const header = rows[0].map((h) => h.trim().toLowerCase());
   const col = {};
-  for (const [key, names] of Object.entries(ALIASES)) col[key] = header.findIndex((h) => names.includes(h));
+  for (const [key, names] of Object.entries(ALIASES)) col[key] = (names.map((n) => header.indexOf(n)).find((i) => i >= 0) ?? -1);
   const missing = ["query", "calls"].filter((k) => col[k] < 0);
   if (col.total < 0 && col.mean < 0) missing.push("total_exec_time");
   if (missing.length) {

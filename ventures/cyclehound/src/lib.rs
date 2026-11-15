@@ -1052,5 +1052,8 @@ pub fn cycles_json(
     s
 }
 
+pub mod exports;
+pub use exports::{extract_shape, unused_exports, Export, ModImport, Shape, Unused, Uses};
+
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;

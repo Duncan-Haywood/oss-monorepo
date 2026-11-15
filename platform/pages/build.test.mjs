@@ -130,6 +130,7 @@ import {
   kindPageGroups,
   SEARCH_INDEX_FILE,
   renderSearchIndex,
+  isNodeOnlyScript,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
 import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
@@ -3583,6 +3584,20 @@ test("a category's offline bundle stays small enough to fetch on mobile data", a
       `gzipped offline bundle for category ${category.id} is ${(bytes / 1e6).toFixed(1)} MB`,
     );
   }
+});
+
+test('the offline bundle leaves out Node-only eval/ and build-*.mjs scripts, keeps browser modules', async () => {
+  assert.equal(isNodeOnlyScript('eval/nav-xsd-diff.mjs'), true);
+  assert.equal(isNodeOnlyScript('eval/sub/x.js'), true);
+  assert.equal(isNodeOnlyScript('build-nav-schema.mjs'), true);
+  assert.equal(isNodeOnlyScript('nav-xsd.mjs'), false);
+  assert.equal(isNodeOnlyScript('src/build-x.mjs'), false);
+  assert.equal(isNodeOnlyScript('builder.mjs'), false);
+  assert.equal(isNodeOnlyScript('eval/data.json'), false);
+  const { offline } = await site();
+  const all = offline.categories.flatMap((c) => c.assets);
+  assert.ok(!all.some((a) => /^[^/]+\/(eval\/.*|build-[^/]+)\.m?js$/.test(a)), 'a Node-only script is in an offline bundle');
+  assert.ok(all.includes('einvoice-preflight/hu-xsd.mjs'), 'a browser module went missing from the offline bundle');
 });
 
 test('the hub tells a visitor the real offline size per category, not a stale guess', async () => {

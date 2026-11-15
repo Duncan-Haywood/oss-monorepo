@@ -151,7 +151,7 @@ export function parseInvoiceCsv(text) {
   if (head.some((h) => HEADER_ALIASES.description.includes(h)) && head.some((h, i) => i > 0 && [...HEADER_ALIASES.qty, ...HEADER_ALIASES.rate, ...HEADER_ALIASES.amount].includes(h))) {
     map = {};
     for (const [key, names] of Object.entries(HEADER_ALIASES)) {
-      const idx = head.findIndex((h) => names.includes(h));
+      const idx = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
       if (idx >= 0) map[key] = idx;
     }
     if (map.description === undefined || map.amount === undefined) throw new Error('The header row needs at least description and amount columns.');

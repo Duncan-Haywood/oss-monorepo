@@ -7,6 +7,7 @@
 // independent validator that re-checks the finished schedule from its output alone.
 
 import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, carryOverKeepIndex, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
+import { waitFreeNights, seasonLayout, waitFreePossible } from "./nights.mjs";
 
 export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -335,10 +336,16 @@ export function readSpec(f) {
     else if (full && r < full) rounds = r;
     else if (full && r > full) errors.push(`${t.teams.length} teams have only ${full} round(s) in a ${f.double ? "double" : "single"} round robin; leave rounds blank or enter ${full} or fewer.`);
   }
+  let gamesPerNight = 1;
+  if (f.gamesPerNight !== undefined && String(f.gamesPerNight).trim() !== "") {
+    const g = Number(f.gamesPerNight);
+    if (!Number.isInteger(g) || g < 1 || g > MAX_GAMES_PER_NIGHT) errors.push(`Games per team per night must be a whole number from 1 to ${MAX_GAMES_PER_NIGHT}.`);
+    else gamesPerNight = g;
+  }
   return {
     errors,
     spec: {
-      rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, ...(f.carryOverKeep ? { carryOverKeep: String(f.carryOverKeep) } : {}), start, weekdays: w.weekdays, skipDays: skip.days,
+      ...(gamesPerNight > 1 ? { gamesPerNight } : {}), rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, ...(f.carryOverKeep ? { carryOverKeep: String(f.carryOverKeep) } : {}), start, weekdays: w.weekdays, skipDays: skip.days,
       blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courtClosures: cc.closures, courts: courtNames, times: times.times, seed, minutes,
     },
   };
@@ -510,6 +517,9 @@ export function mulberry32(seed) {
 // ---------------------------------------------------------------- slot assignment
 
 const LIMIT_PENALTY = 1000;
+const NIGHT_GAP_PENALTY = 200;
+/** Most games one team plays on one night (a doubleheader is 2). */
+export const MAX_GAMES_PER_NIGHT = 4;
 
 function sumSq(arr) {
   let s = 0;
@@ -527,7 +537,7 @@ function sumSq(arr) {
  * `closedByRound[i]` (optional) is a Set of slot indexes round i may not use (a closed court).
  * Mutates match.slot; returns the final cost (sum over teams of squared usage counts).
  */
-export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, banned = null, bannedCourts = null, closedByRound = null) {
+export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, banned = null, bannedCourts = null, closedByRound = null, night = null) {
   const cap = courtCount * timeCount;
   const cc = Array.from({ length: nTeams }, () => Array(courtCount).fill(0));
   const tc = Array.from({ length: nTeams }, () => Array(timeCount).fill(0));
@@ -535,7 +545,21 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
   const openOf = rounds.map((_, ri) => (closedByRound && closedByRound[ri] && closedByRound[ri].size ? allSlots.filter((k) => !closedByRound[ri].has(k)) : allSlots));
   const occ = rounds.map((r, ri) => {
     const o = Array(cap).fill(-1);
-    r.matches.forEach((m, i) => { m.slot = openOf[ri][i]; o[m.slot] = i; });
+    const rows = night && night.rows ? night.rows[ri] : null;
+    if (rows) {
+      // a doubleheader layout (nights.mjs nightLayout): each match starts in its row's first open slot
+      const open = new Set(openOf[ri]);
+      const later = [];
+      r.matches.forEach((m, i) => {
+        const k = rows[i] >= 0 ? openOf[ri].find((x) => open.has(x) && Math.floor(x / courtCount) === rows[i]) : undefined;
+        if (k === undefined) { later.push(i); return; }
+        m.slot = k; open.delete(k); o[k] = i;
+      });
+      const rest = openOf[ri].filter((x) => open.has(x));
+      later.forEach((i, j) => { r.matches[i].slot = rest[j]; o[rest[j]] = i; });
+    } else {
+      r.matches.forEach((m, i) => { m.slot = openOf[ri][i]; o[m.slot] = i; });
+    }
     return o;
   });
   const bump = (m, slot, sign) => {
@@ -552,6 +576,25 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
   for (const r of rounds) for (const m of r.matches) bump(m, m.slot, 1);
   let cost = 0;
   for (let x = 0; x < nTeams; x++) cost += teamCost(x);
+  // Several games a night (`night.games` > 1): a team may not be in two places at one time
+  // (LIMIT_PENALTY per clash) and should play its games back to back (NIGHT_GAP_PENALTY per idle
+  // time slot between its first and last game of the night).
+  const multi = Boolean(night && night.games > 1);
+  const teamIn = multi ? rounds.map((r) => {
+    const map = new Map();
+    r.matches.forEach((m, i) => { for (const x of [m.home, m.away]) { if (!map.has(x)) map.set(x, []); map.get(x).push(i); } });
+    return map;
+  }) : null;
+  const nightCost = (ri, x) => {
+    const idxs = teamIn[ri].get(x);
+    if (!idxs || idxs.length < 2) return 0;
+    const ts = idxs.map((i) => Math.floor(rounds[ri].matches[i].slot / courtCount)).sort((a, b) => a - b);
+    let clash = 0;
+    for (let k = 1; k < ts.length; k++) if (ts[k] === ts[k - 1]) clash++;
+    const idle = Math.max(0, ts[ts.length - 1] - ts[0] - (ts.length - 1 - clash));
+    return clash * LIMIT_PENALTY + idle * NIGHT_GAP_PENALTY;
+  };
+  if (multi) rounds.forEach((r, ri) => { for (const x of teamIn[ri].keys()) cost += nightCost(ri, x); });
   if (cap <= 1) return cost;
 
   const movable = rounds.map((r, i) => (r.matches.length && openOf[i].length > 1 ? i : -1)).filter((i) => i >= 0);
@@ -577,13 +620,17 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
     const affected = new Set([mi.home, mi.away]);
     if (mj) { affected.add(mj.home); affected.add(mj.away); }
     let before = 0;
-    for (const x of affected) before += teamCost(x);
+    for (const x of affected) before += teamCost(x) + (multi ? nightCost(ri, x) : 0);
     bump(mi, s1, -1);
     if (mj) bump(mj, s2, -1);
     bump(mi, s2, 1);
     if (mj) bump(mj, s1, 1);
+    mi.slot = s2;
+    if (mj) mj.slot = s1;
     let after = 0;
-    for (const x of affected) after += teamCost(x);
+    for (const x of affected) after += teamCost(x) + (multi ? nightCost(ri, x) : 0);
+    mi.slot = s1;
+    if (mj) mj.slot = s2;
     const delta = after - before;
     if (delta <= 0 || rand() < Math.exp(-delta / temp)) {
       mi.slot = s2;
@@ -652,7 +699,7 @@ export function placeRounds(plan, { start, weekdaySet, skipSet, isBlocked, capac
       continue;
     }
     for (const [h, a] of best.matches) if (isBlocked(h, day) || isBlocked(a, day)) pool.push([h, a]);
-    placed.push({ day, leg: best.leg, bye: best.bye, matches: playable.map(([h, a]) => ({ home: h, away: a })), makeup: false });
+    placed.push({ day, leg: best.leg, bye: best.bye, ...(best.sitOut ? { sitOut: best.sitOut } : {}), matches: playable.map(([h, a, sub]) => (sub === undefined ? { home: h, away: a } : { home: h, away: a, sub })), makeup: false });
     remaining.splice(remaining.indexOf(best), 1);
     day++;
   }
@@ -679,9 +726,55 @@ export function placeRounds(plan, { start, weekdaySet, skipSet, isBlocked, capac
   return { placed, notices, displaced, lastDay };
 }
 
+/**
+ * Several games a night (doubleheaders and tripleheaders): `games` consecutive rounds of the plan
+ * become one night, within a leg (a double round robin never mixes its two halves on one night).
+ * Each match keeps the index of the round it came from as a third element ([home, away, sub]), so
+ * home/away breaks and carry-over are still read in round order. In an odd league each team sits
+ * out at most one game a night (the circle method gives a different team the bye in each round), so
+ * the night's `bye` is null and `sitOut` lists the teams playing one game fewer. games 1 returns
+ * the plan unchanged.
+ */
+export function nightsOf(plan, games = 1) {
+  if (!Number.isInteger(games) || games <= 1) return plan;
+  const out = [];
+  let sub = 0;
+  for (let i = 0; i < plan.length;) {
+    const leg = plan[i].leg;
+    const group = [];
+    while (i < plan.length && plan[i].leg === leg && group.length < games) group.push(plan[i++]);
+    const sitOut = group.map((r) => r.bye).filter((b) => b !== null && b !== undefined);
+    out.push({
+      leg, bye: null, ...(sitOut.length ? { sitOut } : {}),
+      matches: group.flatMap((r) => { const k = sub++; return r.matches.map(([h, a]) => [h, a, k]); }),
+    });
+  }
+  return out;
+}
+
+/**
+ * A night-by-night schedule split back into its rounds (one game per team each), in the order the
+ * plan played them: matches carrying `sub` go to their round, anything else (a makeup, a moved
+ * match) stays a round of its own. Used to count breaks and carry-over on doubleheader seasons.
+ */
+export function expandNights(schedule) {
+  if (!((schedule.config && schedule.config.gamesPerNight) > 1)) return schedule;
+  const rounds = [];
+  for (const r of schedule.rounds) {
+    const bySub = new Map();
+    const rest = [];
+    for (const m of r.matches) {
+      if (Number.isInteger(m.sub)) { if (!bySub.has(m.sub)) bySub.set(m.sub, []); bySub.get(m.sub).push(m); } else rest.push(m);
+    }
+    for (const k of [...bySub.keys()].sort((a, b) => a - b)) rounds.push({ ...r, matches: bySub.get(k) });
+    if (rest.length) rounds.push({ ...r, matches: rest });
+  }
+  return { ...schedule, rounds };
+}
+
 /** The plan with team t renamed perm[t] everywhere (pairings, venues and byes); an isomorphic round robin. */
 export function relabelPlan(plan, perm) {
-  return plan.map((r) => ({ ...r, matches: r.matches.map(([h, a]) => [perm[h], perm[a]]), bye: r.bye === null || r.bye === undefined ? r.bye : perm[r.bye] }));
+  return plan.map((r) => ({ ...r, matches: r.matches.map(([h, a, ...rest]) => [perm[h], perm[a], ...rest]), bye: r.bye === null || r.bye === undefined ? r.bye : perm[r.bye], ...(r.sitOut ? { sitOut: r.sitOut.map((t) => perm[t]) } : {}) }));
 }
 
 /**
@@ -768,12 +861,17 @@ export function buildSchedule(spec) {
   const blackSet = Array.from({ length: n }, (_, i) => new Set((spec.blackouts || {})[i] || []));
   const notices = [];
 
-  const perRound = Math.floor(n / 2);
+  const games = spec.gamesPerNight === undefined || spec.gamesPerNight === null ? 1 : spec.gamesPerNight;
+  if (!Number.isInteger(games) || games < 1 || games > MAX_GAMES_PER_NIGHT) throw new Error(`Games per team per night must be a whole number from 1 to ${MAX_GAMES_PER_NIGHT}.`);
+  const perRound = Math.floor(n / 2) * games;
   const times = spec.times && spec.times.length ? spec.times : [""];
+  if (games > 1 && times.length < games) {
+    throw new Error(`${games} games a night need at least ${games} time slots (a team cannot play two games at once). Add time slots, like 18:00, 19:00${games > 2 ? ", 20:00" : ""}.`);
+  }
   let courts = spec.courts && spec.courts.length ? spec.courts : null;
   if (!courts) courts = Array.from({ length: Math.ceil(perRound / times.length) }, (_, i) => `Court ${i + 1}`);
   if (courts.length * times.length < perRound) {
-    throw new Error(`${n} teams play ${perRound} matches a round, but ${courts.length} court(s) x ${times.length} time slot(s) only fit ${courts.length * times.length}. Add courts or time slots.`);
+    throw new Error(`${n} teams play ${perRound} matches a ${games > 1 ? "night" : "round"}, but ${courts.length} court(s) x ${times.length} time slot(s) only fit ${courts.length * times.length}. Add courts or time slots.`);
   }
 
   const closures = {};
@@ -825,6 +923,25 @@ export function buildSchedule(spec) {
     plan = plan.slice(0, spec.rounds);
     notices.push(`Shorter season: ${spec.rounds} of ${roundRobin(n, { double: Boolean(spec.double) }).length} rounds, so each team plays ${n % 2 ? `${spec.rounds - 1}-${spec.rounds}` : spec.rounds} game(s) and not every pair meets.`);
   }
+  let waitFree = null;
+  if (games > 1 && !spec.carryOver && !partial && spec.waitFree !== false && n >= 4) {
+    // Rearrange the round robin so each night's games can sit back to back (nights.mjs). A double
+    // round robin searches the first leg and plays it again with every venue reversed.
+    const leg0 = spec.double ? plan.filter((r) => r.leg === 0) : plan;
+    const wf = waitFreeNights(leg0, n, games, courts.length, times.length, {
+      seed: spec.seed ?? 1, evals: spec.waitFreeEvals,
+      starts: [() => lowCarryOverRounds(n, { seed: spec.seed ?? 1, effort: 0.25, breakWeight: 10 }).rounds],
+    });
+    if (wf.after === 0 && wf.before > 0) {
+      plan = spec.double ? [...wf.rounds, ...wf.rounds.map((r) => ({ leg: 1, matches: r.matches.map(([h, a]) => [a, h]), bye: r.bye }))] : wf.rounds;
+      waitFree = { before: wf.before, after: wf.after };
+    }
+  }
+  if (games > 1) {
+    const nRounds = plan.length;
+    plan = nightsOf(plan, games);
+    notices.push(`${games} games a night: ${nRounds} round(s) are played over ${plan.length} night(s), each team's games back to back where the courts allow${n % 2 ? "; in an odd league a team sits out one of the night's games now and then" : ""}.`);
+  }
   const isBlocked = (t, day) => blackSet[t].has(day);
   // Blackout fit (2026-11-13): which team takes which position of the round-robin plan is free, and
   // home/away breaks, carry-over and every pairing's leg are unchanged by it, so search the relabellings
@@ -850,7 +967,7 @@ export function buildSchedule(spec) {
   let makeupN = 0;
   const rounds = placed.map((p) => {
     const label = p.makeup ? `Makeup ${++makeupN}` : `Round ${++regular}`;
-    return { number: p.makeup ? null : regular, label, makeup: p.makeup, day: p.day, bye: p.bye, matches: p.matches };
+    return { number: p.makeup ? null : regular, label, makeup: p.makeup, day: p.day, bye: p.bye, ...(p.sitOut ? { sitOut: p.sitOut } : {}), matches: p.matches };
   });
   const displaced = rounds.filter((r) => r.makeup).reduce((s, r) => s + r.matches.length, 0);
   if (displaced) notices.push(`${displaced} match(es) moved to makeup rounds because a team could not play on its scheduled date.`);
@@ -874,7 +991,7 @@ export function buildSchedule(spec) {
     for (const ci of closedCourtsOn(r.day)) for (let t = 0; t < times.length; t++) set.add(t * courts.length + ci);
     return set;
   });
-  const cost = assignSlots(rounds, n, courts.length, times.length, spec.seed ?? 1, Object.keys(banned).length ? banned : null, Object.keys(bannedCourts).length ? bannedCourts : null, Object.keys(closures).length ? closedByRound : null);
+  const cost = assignSlots(rounds, n, courts.length, times.length, spec.seed ?? 1, Object.keys(banned).length ? banned : null, Object.keys(bannedCourts).length ? bannedCourts : null, Object.keys(closures).length ? closedByRound : null, games > 1 ? { games, rows: seasonLayout(rounds.map((r) => (r.makeup ? null : r.matches.map((m) => [m.home, m.away, m.sub ?? 0]).map(([h, a, k], _, all) => [h, a, k - Math.min(...all.map((x) => x[2]))]))), n, games, courts.length, times.length) } : null);
   for (const r of rounds) {
     for (const m of r.matches) {
       m.court = courts[m.slot % courts.length];
@@ -893,17 +1010,56 @@ export function buildSchedule(spec) {
       timeLimits, courtLimits, courtClosures: closures,
       double: Boolean(spec.double), partial, carryOver: Boolean(spec.carryOver && n >= 4), start: spec.start, weekdays: [...weekdaySet].sort(), skipDays: [...skipSet].sort((a, b) => a - b),
       blackouts: Object.fromEntries(blackSet.map((s, i) => [i, [...s].sort((a, b) => a - b)]).filter(([, d]) => d.length)),
-      courts, times, seed: spec.seed ?? 1, minutes: spec.minutes ?? 60,
+      courts, times, seed: spec.seed ?? 1, minutes: spec.minutes ?? 60, ...(games > 1 ? { gamesPerNight: games } : {}),
     },
     rounds,
     notices,
     slotCost: cost,
   };
   if (carryOverSearch) schedule.carryOverSearch = carryOverSearch;
+  if (waitFree) schedule.waitFree = waitFree;
   if (blackoutFit) schedule.blackoutFit = blackoutFit;
-  for (const e of validateSchedule(schedule).errors) if (e.includes("only plays at") || e.includes("only plays on")) notices.push(e.replace(/^Round \d+: |^Makeup \d+: /, ""));
+  for (const e of validateSchedule(schedule).errors) if (e.includes("only plays at") || e.includes("only plays on") || e.includes("two games at")) notices.push(e.replace(/^Round \d+: |^Makeup \d+: /, ""));
+  if (games > 1) {
+    const w = nightWaits(schedule);
+    if (w.idle) {
+      const full = n % 2 ? Math.max(0, n - games) : n;
+      let need = courts.length;
+      while (need < courts.length + 64 && !waitFreePossible(full, games, need, times.length)) need++;
+      const hint = need > courts.length
+        ? ` Back-to-back games for every team need at least ${need} courts at these ${times.length} times (a team's games fill ${games} slots in a row, and each time slot holds two teams per court).`
+        : " More courts or fewer time slots close them.";
+      notices.push(`${w.idle} wait(s) of a time slot or more between a team's games on the same night (${w.nights} team-night(s)).${hint}`);
+    } else if (schedule.waitFree) notices.push(`Back-to-back nights: the round robin was rearranged so every team plays its ${games} games in a row each night (the plain order would leave ${schedule.waitFree.before} match(es) that cannot sit back to back).`);
+  }
   schedule.stats = scheduleStats(schedule);
   return schedule;
+}
+
+/**
+ * Waiting between games on doubleheader nights: for each team and night with two or more games,
+ * the time slots between its first and last game that it does not play in. Returns
+ * { idle (total empty slots), nights (team-nights with any wait), worst: { team, label, slots } | null }.
+ */
+export function nightWaits(schedule) {
+  const times = schedule.config.times;
+  let idle = 0;
+  let nights = 0;
+  let worst = null;
+  for (const r of schedule.rounds) {
+    const at = new Map();
+    for (const m of r.matches) for (const x of [m.home, m.away]) { if (!at.has(x)) at.set(x, new Set()); at.get(x).add(times.indexOf(m.time)); }
+    for (const [x, set] of at) {
+      if (set.size < 2) continue;
+      const ts = [...set];
+      const gap = Math.max(...ts) - Math.min(...ts) + 1 - ts.length;
+      if (gap > 0) {
+        idle += gap; nights++;
+        if (!worst || gap > worst.slots) worst = { team: schedule.teams[x], label: r.label, slots: gap };
+      }
+    }
+  }
+  return { idle, nights, worst };
 }
 
 export function scheduleStats(schedule) {
@@ -921,8 +1077,9 @@ export function scheduleStats(schedule) {
       for (const x of [m.home, m.away]) { byCourt[x][m.court]++; byTime[x][m.time]++; }
     }
   }
-  const breaks = countBreaks(schedule);
-  const co = carryOver(schedule);
+  const flat = expandNights(schedule);
+  const breaks = countBreaks(flat);
+  const co = carryOver(flat);
   const spread = (rec) => Math.max(0, ...rec.map((o) => { const v = Object.values(o); return v.length ? Math.max(...v) - Math.min(...v) : 0; }));
   return {
     matches, home, away, breaks, totalBreaks: breaks.reduce((a, b) => a + b, 0), byCourt, byTime,
@@ -1008,7 +1165,8 @@ export function restReport(schedule) {
   for (const r of schedule.rounds) for (const m of r.matches) { days[m.home].push(r.day); days[m.away].push(r.day); }
   let shortest = null, longest = null, backToBack = 0;
   const rows = schedule.teams.map((team, i) => {
-    const d = days[i].slice().sort((a, b) => a - b);
+    // several games on one night (doubleheaders) are one night: rest is counted between nights
+    const d = [...new Set(days[i])].sort((a, b) => a - b);
     let lo = null, hi = null;
     for (let k = 1; k < d.length; k++) {
       const gap = d[k] - d[k - 1];
@@ -1018,7 +1176,7 @@ export function restReport(schedule) {
     }
     if (lo !== null && (shortest === null || lo < shortest)) shortest = lo;
     if (hi !== null && (longest === null || hi > longest)) longest = hi;
-    return { team, games: d.length, shortest: lo, longest: hi };
+    return { team, games: days[i].length, shortest: lo, longest: hi };
   });
   return { rows, shortest, longest, back_to_back: backToBack };
 }
@@ -1147,14 +1305,21 @@ export function validateSchedule(schedule) {
     prevDay = round.day;
     if (!round.chosenDay && !cfg.weekdays.includes(new Date(round.day * 86400000).getUTCDay())) errors.push(`${round.label}: ${dayIso(round.day)} is not a chosen weekday.`);
     if (!round.chosenDay && cfg.skipDays.includes(round.day)) errors.push(`${round.label}: ${dayIso(round.day)} is a skip date.`);
-    const inRound = new Set();
+    const inRound = new Map();
+    const atTime = new Set();
+    const perNight = cfg.gamesPerNight > 1 ? cfg.gamesPerNight : 1;
     const cells = new Set();
     for (const m of round.matches) {
       const { home, away } = m;
       if (![home, away].every((t) => Number.isInteger(t) && t >= 0 && t < n) || home === away) { errors.push(`${round.label}: bad match ${home} v ${away}.`); continue; }
       for (const t of [home, away]) {
-        if (inRound.has(t)) errors.push(`${round.label}: ${schedule.teams[t]} plays twice.`);
-        inRound.add(t);
+        const c = (inRound.get(t) || 0) + 1;
+        inRound.set(t, c);
+        if (c === perNight + 1) errors.push(`${round.label}: ${schedule.teams[t]} plays ${perNight === 1 ? "twice" : `more than ${perNight} games`}.`);
+        if (perNight > 1) {
+          if (atTime.has(`${t}|${m.time}`)) errors.push(`${round.label}: ${schedule.teams[t]} has two games at ${m.time || "the one time slot"}.`);
+          atTime.add(`${t}|${m.time}`);
+        }
         if ((cfg.blackouts[t] || []).includes(round.day)) errors.push(`${round.label}: ${schedule.teams[t]} cannot play on ${dayIso(round.day)}.`);
       }
       const key = `${Math.min(home, away)}-${Math.max(home, away)}`;
@@ -1771,11 +1936,13 @@ export function validateOfficials(schedule, officials) {
 export function teamSchedule(schedule, teamIdx) {
   const rows = [];
   for (const r of schedule.rounds) {
-    const m = r.matches.find((x) => x.home === teamIdx || x.away === teamIdx);
-    if (m) {
+    const mine = r.matches.filter((x) => x.home === teamIdx || x.away === teamIdx);
+    for (const m of mine) {
       const home = m.home === teamIdx;
       rows.push({ round: r.label, day: r.day, time: m.time, court: m.court, opponent: schedule.teams[home ? m.away : m.home], venue: home ? "Home" : "Away", bye: false });
-    } else if (r.bye === teamIdx) {
+    }
+    if (mine.length) continue;
+    if (r.bye === teamIdx) {
       rows.push({ round: r.label, day: r.day, time: "", court: "", opponent: "", venue: "", bye: true });
     }
   }
@@ -1946,8 +2113,8 @@ export function seasonGrid(schedule) {
   const header = ["Team", ...schedule.rounds.map((r) => `${r.label} ${dayIso(r.day)}`)];
   const rows = schedule.teams.map((name, i) => {
     const cells = schedule.rounds.map((r) => {
-      const m = r.matches.find((x) => x.home === i || x.away === i);
-      if (m) return m.home === i ? `v ${m.awayName}` : `@ ${m.homeName}`;
+      const ms = r.matches.filter((x) => x.home === i || x.away === i);
+      if (ms.length) return ms.map((m) => (m.home === i ? `v ${m.awayName}` : `@ ${m.homeName}`)).join(" / ");
       return r.bye === i ? "BYE" : "";
     });
     return [name, ...cells];
@@ -1967,6 +2134,7 @@ export function scheduleText(schedule, bracket = null) {
     lines.push(`${r.label} - ${dayLabel(r.day)}`);
     for (const m of r.matches) lines.push(`  ${m.time ? m.time + " " : ""}${m.court}: ${m.homeName} (home) vs ${m.awayName}${m.official ? " [official: " + m.official + "]" : ""}`);
     if (r.bye !== null && r.bye !== undefined) lines.push(`  Bye: ${schedule.teams[r.bye]}`);
+    if (r.sitOut && r.sitOut.length) lines.push(`  One game fewer tonight: ${r.sitOut.map((t) => schedule.teams[t]).join(", ")}`);
     lines.push("");
   }
   if (bracket) lines.push(bracketText(bracket));
@@ -2811,7 +2979,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact"];
+const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -2839,6 +3007,7 @@ export function decodeFields(text) {
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4),
+      gamesPerNight: /^[1-4]$/.test(String(o.gamesPerNight ?? "")) ? String(o.gamesPerNight) : "",
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
       pins: str(o.pins), rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), lateTeams: str(o.lateTeams), finishBy: /^\d{4}-\d{2}-\d{2}$/.test(str(o.finishBy)) ? o.finishBy : "", officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),

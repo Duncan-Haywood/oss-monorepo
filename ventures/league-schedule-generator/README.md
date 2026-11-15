@@ -51,6 +51,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Named make-up date: end a rainout line with `-> 2026-10-16` (or `→`) to put the match on a day you already agreed, even outside the league weekday; it is refused with the reason if either team is blacked out or already playing, or no court and slot is free (`applyRainouts`).
 - Dates (2026-11-05): `YYYY-MM-DD`, `M/D/YYYY`, `25/12/2026` (day first only when the first number is over 12; `5/6/2026` stays month first), `25.12.2026`, `25 Dec 2026` and `Dec 25, 2026` are read (`parseDate`; unit-tested).
 - Shorter season (`Rounds to play`): a 12-team league that only has time for 8 games a team plays the first 8 rounds of the circle method, so every team meets 8 different opponents, home and away stay within one game of even (two in a double round robin), the page says not every pair meets, and the validator checks it (`spec.rounds` in `buildSchedule`; the test suite validates every length for 3 to 14 teams). Standings then compare teams that did not play identical opponents; the points table is the organiser's call.
+- Doubleheaders (`Games per team per night`, 2 to 4): consecutive rounds share a night and the round robin is rearranged so each team plays its games back to back where the courts allow (README "Doubleheader nights").
 - Per-team time limits (`Team: 17:00`): a youth team that can only play early is only given those slots, rainout moves respect them, and the validator flags any breach; an unsatisfiable limit is reported, never hidden.
 - Per-team court limits (`Team: Field 2`): a team that can only use one pitch (a youth side on the small field) is only given those courts, rainout moves respect them, and the validator flags any breach (`parseCourtLimits`, `courtLimits` in `calc.mjs`).
 - Fill partial nights (`splitRounds`, the "Fill every slot" box on `multi-division-league-schedule.html`, `"split": "1"` in a CLI spec): when a division's round does not fit the court slots left tonight, part of it is played now and the rest comes first on that division's next night, so each team still plays once a night and rounds stay in order (rounds read "Round 3 (part 1)"). Measured on the example league with 3 courts x 2 times: 17 nights -> 13 and slot use 72% -> 94%, same 0 link clashes, `validateDivisions` clean; a round larger than all the slots, refused before, now spreads over nights. Tests in `divisions.test.mjs`.
@@ -186,6 +187,45 @@ MIT licence, see `LICENSE`.
 **A message per team.** "Download a message per team" writes one ready-to-paste note for each team ("Hi Hawks, your fixtures: ...") with only that team's dates, venues, opponents and byes, so a coordinator can message each team instead of forwarding the whole league (`teamMessages` in `calc.mjs`).
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
+
+## Doubleheader nights: every team's games back to back (2026-11-15)
+
+Many rec leagues play two games a night (adult softball doubleheaders, volleyball and cornhole nights, darts with
+two matches each). Set **Games per team per night** to 2, 3 or 4 (`gamesPerNight` in a spec; it rides in the share
+link). Consecutive rounds of the round robin share a night, inside a leg, so every team meets two different
+opponents and a double round robin never mixes its halves. The validator allows that many games a night and refuses
+a team booked twice at one time; breaks and carry-over are still counted round by round (`expandNights`), and rest
+between nights ignores the second game of a night (`restReport`). Rainouts, late teams and blackouts work as before
+(a moved match only goes to a night where neither team plays).
+
+**What people use today:** a spreadsheet grid filled by hand, or a league platform (TeamSnap, LeagueApps) whose
+generators treat a doubleheader as two separate rounds, so a team can finish at 18:00 and play again at 21:00. The
+common complaint is the wait, not the opponent.
+
+**The wait is in the timetable, not the slots.** Put a night's matches on a graph (teams are nodes, each match an
+edge labelled by its round). Each connected component can sit on its own run of consecutive time slots, so its
+teams play back to back; the night is wait-free when the components pack into the time rows with at most one match
+per court per row (`nights.mjs` `nightLayout`). With two games a night the components are cycles that alternate the
+two rounds, and the circle method's consecutive rounds join all eight teams of an 8-team league in one 8-cycle: on 2
+courts and 4 times it cannot be laid out wait-free at all. `waitFreeNights` searches the round robin itself (partial
+round swaps and round swaps between nights, from the circle method and then from a carry-over timetable) for a
+plan whose nights all pack, then sets home and away with `assignVenues`; the slot search starts from that layout
+(`seasonLayout`, which also evens out who plays early) and adds a penalty per empty slot between a team's games.
+`waitFreePossible` is the counting bound that comes first: a team's games fill g rows in a row and a row holds two
+teams per court, so for example 10 teams cannot all play two in a row on 4 courts and 3 times (every window covers
+the middle row, which holds 8). When the bound fails, the page says how many courts back-to-back nights need.
+
+Measured (`node eval/doubleheader.mjs`, `eval/doubleheader.txt`; 60 settings of 6 to 24 teams, 2 or 3 games, 3 to
+5 times, the fewest courts that fit, seeds 1 to 3): all 162 seasons valid. Over the 18 two-game settings where the
+bound allows a wait-free night, total waits fell from 458 to 10 and 17 of 18 are now wait-free on every seed (5
+before), for example 8 teams on 2 courts x 4 times 18 to 0, 16 teams on 4 x 4 62 to 0, 20 teams on 5 x 4 100 to 0,
+24 teams on 6 x 4 156 to 0; 12 teams on 3 x 4 went 30 to 10. The search takes 0.1 to 1.7 s. The cost: the time-row
+spread (most minus least games a team plays in one time slot) rises, for example 20 teams from 2 to 5 a season,
+because a wait-free night fixes blocks of teams to early or late pairs of slots; `seasonLayout` rotates the blocks
+night by night but does not close it. Three games a night is not improved yet (7 of 7 three-game settings that pass
+the bound keep their waits), and 41 of the 60 settings cannot be wait-free at all with the fewest courts, which the
+notice now says. `waitFree: false` turns the search off; it is also off with carry-over spreading or a shorter
+season (they choose the timetable themselves).
 
 ## Even carry-over (2026-11-11)
 
