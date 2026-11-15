@@ -596,7 +596,7 @@ than the reader. `sing.test.mjs` gains a test (15 in all): the tilt of *al*, *el
 and C4 at least 3 dB to the right side of the threshold, their reads, and *al* read as a nasal with the
 rule off. Nobody has listened to it.
 
-#### Final consonants, fifth round: the final r (2026-11-15, latest)
+#### Final consonants, fifth round: the final r (2026-11-15)
 
 After the third round (and in parallel with the fourth, above) the final r was the weakest coda: 4 of 11 on held-out set E, 7 of 9 on D, 9 of 14
 on the five pieces, and every miss on a short note (0.24 s) and nearly all read as nothing. Before
@@ -671,6 +671,39 @@ code against main with only the /l/ rule (H printed for main with its misses hid
 
 Final r across the three held-out sets: 16 of 27 to 26 of 27. The fourth round's part F (final /l/ and the
 nasals in the other gregobase-1908-* folders) is unchanged (l none 4 of 4, nasals 96 of 137).
+
+#### Final consonants, sixth round: a final /l/ quieter than its vowel (2026-11-15, latest)
+
+The fourth round found the sung /l/ louder than the vowel it closes: `PHONES.l`'s fixed voicing gain of 1.4
+put its steady part -1 to +8 dB against the vowel, loudest after /e/, /i/ and /u/, whose energy the /l/'s
+F1 (400 Hz) and F2 (1250 Hz) pass better than their own resonances do. A listener would hear a swell on
+every final *-l*.
+
+- **The change** (`lateralGain`, `LATERAL_DB` in `sing.mjs`): a coda /l/'s voicing gain is worked out per
+  note, as `nasalGain` does for the murmur. It is the harmonics' power through the vowel's five resonators
+  against their power through the /l/'s, set so the /l/ sits 4 dB under the vowel. The 4 dB is an assumption,
+  not fitted to recordings of singers: a liquid is quieter than a vowel and louder than a nasal (set 7 dB
+  under). The opening /l/ keeps its fixed gain, because the opening reader's thresholds were set on it.
+  `lateralLevel: false` brings back the fixed gain for comparison.
+- **Pre-registered** in the header of `eval/lateral-level-check.mjs`, committed before the first run with the
+  change, with four predictions. Prediction (2) was reworded after the baseline run on main and before any run
+  with the change: as first written it already failed on main (the /l/'s tilt is 26.7 dB at A2).
+
+| prediction | result |
+|---|---|
+| (1) one seed: every /l/ (5 vowels x 6 pitches, E2-E4) 1 to 7 dB under its vowel | 20 of 30 (fixed gain: 9 of 30): **fails** |
+| (2) the /l/'s own spectral tilt unchanged | 30 of 30: holds |
+| (3) `eval/coda-check.mjs` parts A, B, D, E, F, H, I and controls no lower | every line identical: holds |
+| (4) `eval/consonant-check.mjs` openings unchanged | 743 to 742 of 934: **fails by one read** (Dies irae: a written-no-consonant opening now reads as a nasal) |
+
+**Why (1) failed.** The middle half of the /l/ is 25 ms long, and in that span the five detuned voices beat, so
+one seed's level moves about 5 dB either way from note to note (G3 sat 5-7 dB under, E4 up to 2 dB over).
+Not registered, measured afterwards: with power summed over twelve seeds, the fixed gain put the /l/ -5.4 to
++8.6 dB against its vowel (14 of 30 in the window) and the per-note gain -5.0 to -2.4 dB (mean -3.7; 30 of 30).
+With one voice and no vibrato (the new test in `sing.test.mjs`) it is -4.0 to -3.8 dB at four pitches after
+every vowel, where the fixed gain put it over the vowel on 11 of 20. A second version that summed the gain over
+the detuned voices and the vibrato moved no cell by more than 0.2 dB and was dropped.
+Report: `eval/lateral-level-check.md`. Nobody has listened to it.
 
 #### Formant tuning on high notes (2026-11-15)
 

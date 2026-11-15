@@ -57,14 +57,14 @@ The first note of every syllable that opens on a consonant, 0.2 s or more, after
 
 | piece | syllables | singing: read exactly as written | vowel-only control: read as none |
 |---|---|---|---|
-| dies-irae | 387 | 301 of 387 (77.8%) | 290 of 387 (74.9%) |
+| dies-irae | 387 | 300 of 387 (77.5%) | 290 of 387 (74.9%) |
 | pange-lingua | 37 | 27 of 37 (73.0%) | 32 of 37 (86.5%) |
 | veni-creator | 26 | 21 of 26 (80.8%) | 21 of 26 (80.8%) |
 | te-deum | 391 | 312 of 391 (79.8%) | 276 of 391 (70.6%) |
 | salve-regina | 93 | 82 of 93 (88.2%) | 80 of 93 (86.0%) |
-| all | 934 | 743 of 934 (79.6%) | 699 of 934 (74.8%) |
+| all | 934 | 742 of 934 (79.4%) | 699 of 934 (74.8%) |
 
-By class alone: 776 of 934 (83.1%). The vowel-only control "reads" the written consonant exactly on 64 of 934 (6.9%) of the same notes (the chance level: what a pitch step or a vowel change at the beat looks like to the reader); its reads: stop 58, affricate 0, fricative 44, nasal 123, tap 10, none 699. Syllables that open on their vowel (after another note): 140 of 186 (75.3%) read as no consonant.
+By class alone: 775 of 934 (83.0%). The vowel-only control "reads" the written consonant exactly on 64 of 934 (6.9%) of the same notes (the chance level: what a pitch step or a vowel change at the beat looks like to the reader); its reads: stop 58, affricate 0, fricative 44, nasal 123, tap 10, none 699. Syllables that open on their vowel (after another note): 140 of 186 (75.3%) read as no consonant.
 
 By written consonant:
 
@@ -76,7 +76,7 @@ By written consonant:
 | voiceless vel stop | 94 of 103 (91.3%) |
 | tap | 61 of 95 (64.2%) |
 | voiced alv stop | 49 of 82 (59.8%) |
-| none | 51 of 61 (83.6%) |
+| none | 50 of 61 (82.0%) |
 | voiceless lab stop | 44 of 49 (89.8%) |
 | fricative voiced | 32 of 37 (86.5%) |
 | voiced lab stop | 17 of 27 (63.0%) |
@@ -95,7 +95,7 @@ Class written (rows) against class read (columns):
 | fricative | 2 | 2 | 174 | 4 | 0 | 3 |
 | nasal | 2 | 0 | 4 | 96 | 0 | 47 |
 | tap | 0 | 0 | 1 | 11 | 61 | 22 |
-| none | 2 | 0 | 2 | 6 | 0 | 51 |
+| none | 2 | 0 | 2 | 7 | 0 | 50 |
 
 ## C. Opening consonants in the corpus
 
