@@ -53,7 +53,10 @@ Options:
                             in units of each column's spread over the 5 minutes before the move cut false lines to 1.4
                             per 100 checks, but lost 6 of 33 faults (README "Round 15"; not offered) Giving the loudest
                             column its own k caught 30 of 33 but let 2.5 false lines per 100 checks through, mostly a
-                            slowly drifting temperature (README "Round 16"; not offered). Set --min-spread by hand.
+                            slowly drifting temperature (README "Round 16"; not offered). A floor re-read from the
+                            column's own last 5 minutes (alert only on a move bigger than any it made there) caught 32
+                            of 33 but let 4.7 false lines per 100 checks through (README "Round 17"; not offered). Set
+                            --min-spread by hand.
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
