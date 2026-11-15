@@ -238,12 +238,13 @@ flagships:
       directly"); Homebase (docs need an account); --cover-price moves two shifts
       together (README "Moving two shifts together": 20-person week exposure 113 to
       68 h for $35.27); second call-outs priced (README "A second call-out in the
-      same week", off by default); next: pair confirm on only the pairs a move
-      touches, to run past 120 copies; a real two-site export and staff list (README
-      "Staff shared between sites"); own and site rates read from staff CSVs and
-      7shifts (README "Per-location pay from an export"); next a real wages export,
-      real trip times; whether the priced cut's r = 1 default suits a real manager;
-      a manager's real task list for the fixed minutes.
+      same week", off by default); next: a cheaper pair walk to lift the 120-copy
+      cap (README "Only the walks a move can pass": 60-person 47 s); a real two-site
+      export and staff list (README "Staff shared between sites"); own and site
+      rates read from staff CSVs and 7shifts (README "Per-location pay from an
+      export"); next a real wages export, real trip times; whether the priced cut's
+      r = 1 default suits a real manager; a manager's real task list for the fixed
+      minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
