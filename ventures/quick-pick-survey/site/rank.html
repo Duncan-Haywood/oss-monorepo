@@ -247,7 +247,7 @@
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const RANK_SHORTLIST_DRAWS = 1500;
   // scripts/best-worst-sim.mjs, model-consistent answerers (docs/best-worst-gumbel-2026-11-15.jsonl.gz): mean screens to the stop, spread 6 (ordinary) and 3 (close calls).
-  const SCREENS_MEASURED = __SCREENS__;
+  const SCREENS_MEASURED = [{ n: 8, ordinary: 13, close: 21 }, { n: 15, ordinary: 27, close: 47 }, { n: 30, ordinary: 65, close: 102 }];
   const EXAMPLE = { title: "Which feature should we build next?", items: ["Dark mode", "CSV export", "Faster search", "Mobile app", "Team accounts", "Calendar sync", "Offline mode", "Single sign-on"] };
 
   let state = null; // { title, items, mode, k, answers, seed, piles }

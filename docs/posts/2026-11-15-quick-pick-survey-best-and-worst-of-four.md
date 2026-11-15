@@ -1,8 +1,8 @@
 ---
 title: "Best and worst of four: a free MaxDiff mode, and why we didn't split it into pairs"
-seo_title: "Free MaxDiff (best-worst scaling) in the browser, measured against pairwise comparison"
+seo_title: "Free MaxDiff (best-worst scaling) in the browser, measured vs pairs"
 date: 2026-11-15
-description: "Quick Pick's ranker now asks the MaxDiff question: of these four, which do you like most and least? Scored with the exact best-worst model, it needed fewer taps than pairs for most simulated people, but not for every one."
+description: "A free MaxDiff mode for Quick Pick: best and worst of four, scored exactly. Fewer taps than pairs in 11 of 12 simulated cases; the exception says more."
 tags: [quick-pick-survey, maxdiff, best-worst-scaling, pairwise-comparison, simulation, product]
 ---
 
@@ -57,11 +57,21 @@ a pair as one.
 | 15 | ordinary | 70 | 0.93 | 27 (54) | 0.94 |
 | 30 | ordinary | 150 | 0.93 | 65 (130) | 0.95 |
 | 15 | close calls | 109 | 0.86 | 47 (94) | 0.90 |
+| 30 | close calls | 228 | 0.84 | 102 (204) | 0.87 |
 
 "True order" is the Spearman correlation between the order shown at the stop
-and the person's real order. These people answer the way the model assumes.
+and the person's real order, averaged over 48 simulated people per row (12
+at 30 options). These people answer the way the model assumes.
 
-<!--CLOSE30-->
+Across 12 cases (8, 15 and 30 options; ordinary and close-call people; one
+set answering as the model assumes and one that doesn't), screens took fewer
+taps than pairs in 11. The exception is worth showing. People with close
+calls at 30 options, answering off-model, took 250 taps on screens against
+202 on pairs. The pairs were not really winning, though. When they stopped on
+their own they claimed 90% but the true order matched at only 0.68, while the
+screens that stopped matched at 0.81. Pairs stopped sooner by claiming more
+than they had. Screens overclaimed too, but by less (0.81 against the same
+90% claim). Long lists of close calls are still the ranker's weak spot.
 
 ## What we don't know
 

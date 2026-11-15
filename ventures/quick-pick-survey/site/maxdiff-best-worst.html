@@ -50,7 +50,7 @@
 
   <section>
     <h2>Measured against plain pairs</h2>
-    <p>Simulated people with known true preferences ran the page's own loop twice: pairs ("which of these two?") and best-worst screens of four. Each screen is two taps, a pair is one. Mean over 48 people per row; "true order" is the Spearman correlation between the order shown when it stopped and the person's real order (1 is exact).</p>
+    <p>Simulated people with known true preferences ran the page's own loop twice: pairs ("which of these two?") and best-worst screens of four. Each screen is two taps, a pair is one. Mean over 48 people per row (12 at 30 options); "true order" is the Spearman correlation between the order shown when it stopped and the person's real order (1 is exact).</p>
     <div class="scroll-x"><table>
       <thead><tr><th>Options</th><th>Person</th><th class="num">Pairs: picks</th><th class="num">true order</th><th class="num">Screens: screens</th><th class="num">taps</th><th class="num">true order</th></tr></thead>
       <tbody>
@@ -58,10 +58,11 @@
         <tr><td>15</td><td>ordinary</td><td class="num">70</td><td class="num">0.93</td><td class="num">27</td><td class="num">54</td><td class="num">0.94</td></tr>
         <tr><td>8</td><td>close calls</td><td class="num">46</td><td class="num">0.87</td><td class="num">21</td><td class="num">42</td><td class="num">0.90</td></tr>
         <tr><td>15</td><td>close calls</td><td class="num">109</td><td class="num">0.86</td><td class="num">47</td><td class="num">94</td><td class="num">0.90</td></tr>
-        <!--N30-->
+        <tr><td>30</td><td>ordinary</td><td class="num">150</td><td class="num">0.93</td><td class="num">65</td><td class="num">130</td><td class="num">0.95</td></tr>
+        <tr><td>30</td><td>close calls</td><td class="num">228</td><td class="num">0.84</td><td class="num">102</td><td class="num">204</td><td class="num">0.87</td></tr>
       </tbody>
     </table></div>
-    <p class="muted">"Ordinary": true likes spread over 6 logits; "close calls": over 3. These people answer the way the model assumes. A second set answers off-model (each option seen with Gaussian noise, highest is best, lowest is worst, and noisier than the first set) and screens still took fewer taps for an order as good or better: 15 ordinary options in 66 taps against 87 picks. What is not measured: a screen of four takes longer to read than a pair of two, and how much longer needs real people. Full tables, method and the raw rows: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/quick-pick-survey/docs/RANK-PAGE.md">RANK-PAGE.md, "Best and worst of four"</a>.</p>
+    <p class="muted">"Ordinary": true likes spread over 6 logits; "close calls": over 3. These people answer the way the model assumes. A second set answers off-model (each option seen with Gaussian noise, highest is best, lowest is worst, and noisier than the first set). Screens still took fewer taps for an order as good or better in 5 of those 6 cases (15 ordinary options: 66 taps against 87 picks). The exception was close calls at 30 options: screens took 250 taps against 202 picks, though the pairs stopped on orders much worse than they claimed (a true 0.68 where the stop claimed 0.90) and the screens on better ones (0.81). What is not measured: a screen of four takes longer to read than a pair of two, and how much longer needs real people. Full tables, method and the raw rows: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/quick-pick-survey/docs/RANK-PAGE.md">RANK-PAGE.md, "Best and worst of four"</a>.</p>
   </section>
 
   <section>
@@ -74,7 +75,7 @@
     <ul>
       <li><strong>MaxDiff in a paid survey platform</strong>: built for panels of hundreds, with segments and dashboards, priced to match. Use one of those for a market study. This is for a person or a team deciding something, free.</li>
       <li><strong>Rating each option 1 to 5</strong>: quick, but everything comes back a 4. Best and worst forces the trade-off.</li>
-      <li><strong><a href="rank.html">Plain pairs</a></strong>: simpler to answer, and the better choice on a small screen or for pictures that need a close look. Screens needed fewer taps in every simulation above.</li>
+      <li><strong><a href="rank.html">Plain pairs</a></strong>: simpler to answer, and the better choice on a small screen or for pictures that need a close look. Screens needed fewer taps in 11 of the 12 simulated cases.</li>
     </ul>
     <p class="muted">Lists to start from: <a href="use-feature-backlog.html">a feature backlog</a>, <a href="use-customer-pain-points.html">customer pain points</a>, <a href="use-personal-values.html">personal values</a>, <a href="ready-lists.html">all ready lists</a>. Weighing options on several criteria? <a href="decide.html">Weigh criteria by picking pairs</a>.</p>
   </section>
