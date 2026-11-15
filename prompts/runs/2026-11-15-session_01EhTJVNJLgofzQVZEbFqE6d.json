@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNJLgofzQVZEbFqE6d",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T22:14:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship 7: Bayer luma on fine aliased texture",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 16354,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "flagship next: field at its 2000-char cap; landed note went to README/eval instead of next:"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing next: is at 1987/2000 chars, so a landed item cannot be noted there without parking another; the buildable field carries the change."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-bayer-demosaic-the-quarter-was-too-much.md",
+    "ventures/photo-editing/eval/bayer-laplace-weight-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Hamilton-Adams green Laplacian weight 1/4 -> 3/16 (parameter `laplace`, numpy and C, bit-identical). Tuned on 70D, D810, sheet; held out A7 III, E-M10, K-1 II run once. Luma gap: A7 III -0.99 -> -0.08 dB vs bilinear; K-1 II -0.77 -> -0.17 vs VNG. Colour PSNR up on all six truths. LibRaw 0.21.3 via rawpy 0.25 (prior note 0.22.2; rows agree to 0.01 dB). Local checks: tests/test_bayer_demosaic.py + test_bayer_native.py 17 passed; run_venture_tests.py photo-editing: 1205 tests, 0 failed, 8 skipped.",
+  "corrections": [],
+  "redteam": null
+}
