@@ -188,21 +188,24 @@
    "what": "Push envelope has no wall/environment constraint: the CoM lean F*z/W is reached by putting the body through the wall. At the headline H1 276 N cell (x 0.3, z 1.2) the torso geom centre is 0.76 m past the hand (wall) plane and the CoM 0.64 m ahead of the feet; 29/33 H1 and 6/10 G1 feasible cells put a torso/shoulder/hip geom past it. The 82-276 N and 8-142 N ranges and the coverage counts built on them are not realisable pushes",
    "where": "research/buildbot-fasten/src/buildbot_fasten/model.py:65",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"
   },
   {
    "severity": "medium",
    "what": "No test pins any push value, torque-limited cell, plate window or committed result: removing the lean, loosening torque limits 50%, swapping the scatter row, or dropping plate edge distance all leave 7/7 green (4 of 6 mutants survive)",
    "where": "research/buildbot-fasten/tests/test_model.py:13",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"
   },
   {
    "severity": "medium",
    "what": "'18 of 62 / 36 of 62 nails from one stance' counts nails by height only; the hands are fixed at y=+-0.18/0.22 m and the 1.22 m sheet width is never reached laterally",
    "where": "research/buildbot-fasten/experiments/run.py:118",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"
   },
   {
    "severity": "medium",
@@ -230,7 +233,8 @@
    "what": "README headline says 1 degree of joint error scatters the tip '10 to 24 mm' while the table minimum is 9.4 mm (H1, '9 to 19' in the body); 'feasible' in 'elbows limiting (27 of the 28 feasible cells)' silently excludes 5 reach-limited cells that do carry a push value (33 in all)",
    "where": "research/buildbot-fasten/README.md:23",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"
   },
   {
    "severity": "low",
@@ -240,6 +244,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"],
  "verdict": "A tidy, reproducible static study whose placement arithmetic is right and whose force headline is not physical. run.py reproduces results.txt byte for byte, 7 tests pass, and the nail windows, the 1.24 mm whole-sheet budget, the 4.82 mm no-edge-band figure and the 11-bit quantisation numbers all recompute independently (NormalDist, Monte Carlo, step/sqrt(12)). But push_limit never models the wall: the CoM lean that the bisection rewards is bought by driving the torso through the wall plane (0.76 m through it at the H1's 276 N headline cell; 29 of 33 H1 and 6 of 10 G1 feasible cells put a body geom past it), so the 8-142 N and 82-276 N ranges and the nail-coverage counts are not what a robot facing a wall can push. 4 of 6 seeded mutants survive because no test pins a push value or a plate window; coverage counts nails by height only; the tool length (a ~50-70% larger scatter) and APA's panel gap are left out; no prior work (HRP-5P plasterboard installation, whole-body pushing) is cited. It does not meet the research bar."
 }
