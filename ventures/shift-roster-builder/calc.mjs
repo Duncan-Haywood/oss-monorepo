@@ -1143,8 +1143,22 @@ function ejectPass(ctx, owner0, seed, iterations) {
 // The walk stops once its best roster leaves only openHoursFloor(ctx) open: no later step can beat a proven floor, so the answer is
 // the same. Before 2026-11-12 it stopped only at 0 open, so on a week where some hours must stay open (the café sample: 15 h) all
 // twelve runs went the full 512,000 steps, about 1 s of every 1.4 s build, which the guide pages' studies repeat ~30 times each.
-function coverPass(ctx, owner0, seed, iterations) {
+function coverPass(ctx, owner0, seed, iterations, { guide = null, guideProb = 0.5 } = {}) {
   const { P, S, slots, elig } = ctx;
+  // LP-guided proposals (2026-11-15, README "The clique LP steers the cover passes"): with a guide (the open-hours clique LP's
+  // person-shift values, person-major), a step that tries to fill open shift i draws the person from those the LP puts on i,
+  // in proportion to their value, with probability guideProb; otherwise uniformly, as before. Proposals only: every move is
+  // still checked by the same rules and accepted by the same test, so the guide cannot make a roster invalid.
+  let gPeople = null, gCum = null;
+  if (guide && guideProb > 0) {
+    gPeople = new Array(S); gCum = new Array(S);
+    for (let i = 0; i < S; i++) {
+      const ps = [], cs = [];
+      let t = 0;
+      for (let q = 0; q < P; q++) { const v = guide[q * S + i]; if (v > 1e-6 && elig[q][i]) { t += v; ps.push(q); cs.push(t); } }
+      gPeople[i] = ps; gCum[i] = cs;
+    }
+  }
   const floor = (ctx.openFloor ??= openHoursFloor(ctx)) + 1e-6;
   const rng = mulberry32(seed);
   const owner = owner0.slice();
@@ -1180,7 +1194,13 @@ function coverPass(ctx, owner0, seed, iterations) {
       if (openStale) { openIdx.length = 0; for (let x = 0; x < S; x++) if (owner[x] < 0) openIdx.push(x); openStale = false; }
       if (!openIdx.length) break;
       const i = openIdx[Math.floor(rng() * openIdx.length)];
-      const q = Math.floor(rng() * P);
+      let q;
+      if (gPeople && gPeople[i].length && rng() < guideProb) {
+        const cs = gCum[i], u = rng() * cs[cs.length - 1];
+        let lo = 0, hi = cs.length - 1;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (cs[m] < u) lo = m + 1; else hi = m; }
+        q = gPeople[i][lo];
+      } else q = Math.floor(rng() * P);
       if (!elig[q][i]) continue;
       // Moves are checked with validWith and the new lists built only for a move that is taken.
       let j = -1, nr = false, r = -1;
@@ -3601,10 +3621,13 @@ function buildRosterOnce(staff, slots, options = {}) {
   }
   mark("eject");
   // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
+  // `coverGuided` says whether the cover passes ran and drew from the clique LP's values (reported as optimality.coverGuided).
+  let coverGuided = null;
   const coverPasses = () => {
     if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
+      coverGuided = o.coverGuide !== false && !!clique?.xs;
       for (let k = 0; k < (o.coverPassRuns ?? 12) && !over(); k++) {
-        const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4));
+        const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4), { guide: o.coverGuide === false ? null : clique?.xs ?? null, guideProb: o.coverGuideProb ?? 0.5 });
         if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
         const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
         const ps = scoreOwner(ctx, po).total;
@@ -3821,6 +3844,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       dayLNS,
       scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, warm: priced.warm, tried: !!pricedTried, ms: priced.ms } : null,
       scoreFloorTried: pricedTried,
+      coverGuided,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }
@@ -5465,7 +5489,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
