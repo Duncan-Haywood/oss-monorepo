@@ -817,6 +817,15 @@ describe('the editor in a real browser', { concurrency: CONCURRENCY }, () => {
     assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
   });
 
+  test('3D model downloads a glTF binary of the current design', { skip }, async (t) => {
+    const { page } = await open(t);
+    const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#save-model')]);
+    assert.match(dl.suggestedFilename(), /\.glb$/);
+    const bytes = readFileSync(/** @type {string} */ (await dl.path()));
+    assert.equal(bytes.subarray(0, 4).toString('latin1'), 'glTF');
+    assert.equal(bytes.readUInt32LE(8), bytes.length, 'the header carries the file length');
+  });
+
   test('a first-time visitor opens on a gallery design (the balanced one, unless it costs more than the 8x12) with nothing to check', { skip }, async (t) => {
     const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
     t.after(() => ctx.close());
