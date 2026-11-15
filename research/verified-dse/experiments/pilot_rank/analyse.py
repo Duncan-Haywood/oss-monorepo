@@ -97,6 +97,9 @@ def cells():
     for c in rows:
         rs = raw[(c["clock"], c["design"], c["table"])]
         c["v"], c["vfell"] = {}, {}
+        c["tau_all"] = rule.stats.kendall_tau_b([score.r2c(r, ALPHA) for r in rs], [rule.flow.scores(r)["r4"] for r in rs])
+        top = sorted(range(len(rs)), key=lambda i: score.r2c(rs[i], ALPHA))[:16]
+        c["tau_top"] = rule.stats.kendall_tau_b([score.r2c(rs[i], ALPHA) for i in top], [rule.flow.scores(rs[i])["r4"] for i in top])
         for p, t in GRID:
             c["v"][(p, t)], c["vfell"][(p, t)] = vet_regret(rs, c["k"], p, t, f"m126{c['table']}{c['clock']}{c['design']}{p}{t}")
     return rows
@@ -157,6 +160,12 @@ def main(dst):
             f"(5) ladder branch SWCV(4,0) below SWCV(4,-1): {mean(lad, swcv) < mean(lad, lambda c: swcv(c, P, -1))} "
             f"({mean(lad, swcv):.2f}% against {mean(lad, lambda c: swcv(c, P, -1)):.2f}%)",
             f"(6) design-bootstrap 95% interval of mean (SWCV(4,0) - random) below 0: {hi < 0} ({lo:+.2f} to {hi:+.2f} points)"]
+    tm = lambda cs, k: statistics.mean(c[k] or 0.0 for c in cs)
+    out += ["", "post hoc (added after the table above was read): Kendall tau-b of r2c(1.25) against the routed score, over every point "
+            "of a cell and over the clipped ladder's own top 16, averaged",
+            f"post hoc: cells where SWC loses by > 1 point ({len(bad)}): all points {tm(bad, 'tau_all'):+.2f}, top 16 "
+            f"{tm(bad, 'tau_top'):+.2f}",
+            f"post hoc: cells where SWC <= 0.5% ({len(good)}): all points {tm(good, 'tau_all'):+.2f}, top 16 {tm(good, 'tau_top'):+.2f}"]
     Path(dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
 
