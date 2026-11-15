@@ -220,6 +220,39 @@ class T(unittest.TestCase):
                                           "  `benchmarks` is on 3 posts; change the other spelling in: "
                                           "2026-10-24-new.md\n"))
 
+    def test_fix_respells_a_named_posts_tags_the_house_way(self):
+        with tempfile.TemporaryDirectory() as d:
+            posts = Path(d) / "docs" / "posts"
+            posts.mkdir(parents=True)
+            for i in range(3):
+                (posts / f"2026-10-24-x{i}.md").write_text(
+                    GOOD.replace("[a, b]", "[benchmarks, ArduPilot]").replace('"DDD', f'"D{i}D'))
+            (posts / "2026-10-24-y.md").write_text(GOOD.replace("[a, b]", "[ardupilot]").replace('"DDD', '"YYY'))
+            new = posts / "2026-10-24-new.md"
+            new.write_text(GOOD.replace("[a, b]", "[benchmark, ardupilot, Benchmarks, fresh]").replace('"DDD', '"NNN'))
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d, str(new)]), 1)
+            self.assertIn("`--fix <post>`", out.getvalue())
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                code = main(["--root", d, "--fix", str(new)])
+            # ArduPilot is on 3 posts, ardupilot on 1: house spelling wins; fresh is new and stays
+            self.assertIn("tags: [benchmarks, ArduPilot, fresh]", new.read_text())
+            self.assertIn("benchmark -> benchmarks", out.getvalue())
+            # y.md still spells it the minority way, so the group is still reported, naming y.md
+            self.assertEqual(code, 1)
+            self.assertIn("2026-10-24-y.md", out.getvalue())
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["--root", d, "--fix", str(posts / "2026-10-24-x0.md")]), 1)
+            (posts / "2026-10-24-y.md").unlink()
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["--root", d, "--fix", str(new)]), 0)
+
+    def test_fix_needs_named_posts(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            main(["--fix"])
+
     def test_three_letter_s_is_not_a_plural(self):
         code, out = self._run({"2026-10-24-x.md": GOOD.replace("[a, b]", "[gas]"), "2026-10-24-y.md": GOOD.replace("[a, b]", "[ga]")})
         self.assertEqual(code, 0)

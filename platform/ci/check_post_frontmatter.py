@@ -12,6 +12,7 @@ false `datePublished`) and that `tags` is a non-empty list.
     python3 platform/ci/check_post_frontmatter.py docs/posts/NEW.md   # just these
     python3 platform/ci/check_post_frontmatter.py --limits   # the caps, before you write
     python3 platform/ci/check_post_frontmatter.py --landed-since 2026-11-10   # posts that reached main broken
+    python3 platform/ci/check_post_frontmatter.py --fix docs/posts/NEW.md   # house tag spellings, then check
 
 Named posts are checked alone, and the cross-post checks (tag spellings,
 shared descriptions) report only groups that include one of them. Runs kept
@@ -149,6 +150,35 @@ def tag_fix(spellings, limit=5):
             f"{', '.join(edit[:limit])}{more}")
 
 
+def house_tags(text, others):
+    """(new text, [(old, new)]): the post's tags respelled the way the other posts spell them.
+
+    A tag's spelling can only be learned from the 4,900 posts already there,
+    so it was the one front-matter problem a run could not avoid by reading
+    the caps first: 14 run records in three days (friction_rank.py, 2026-11-15)
+    met "tag spelled 2 ways" and edited by hand. A tag nobody else uses, or
+    one whose spellings tie, is left alone.
+    """
+    m = re.search(r"^tags:\s*\[(.*?)\]", text, re.M)
+    if not m:
+        return text, []
+    uses = tag_uses(others)
+    tags, changed = [], []
+    for raw in m.group(1).split(","):
+        t = raw.strip().strip("\"'")
+        if not t:
+            continue
+        counts = sorted(((len(v), s) for s, v in uses.get(tag_key(t), {}).items()), reverse=True)
+        if counts and (len(counts) == 1 or counts[0][0] > counts[1][0]) and counts[0][1] != t:
+            changed.append((t, counts[0][1]))
+            t = counts[0][1]
+        if t not in tags:
+            tags.append(t)
+    if not changed:
+        return text, []
+    return text[:m.start(1)] + ", ".join(tags) + text[m.end(1):], changed
+
+
 def duplicate_descriptions(texts):
     """Groups of posts sharing one description ({name: post text}); search results show them as copies."""
     seen = {}
@@ -212,7 +242,11 @@ def main(argv=None):
     ap.add_argument("--limits", action="store_true", help="print the front-matter limits and exit")
     ap.add_argument("--landed-since", metavar="DATE",
                     help="list posts that failed this check in the main commit that added them (exit 0: a report)")
+    ap.add_argument("--fix", action="store_true",
+                    help="respell the named posts' tags the way other posts spell them, then check")
     args = ap.parse_args(argv)
+    if args.fix and not args.posts:
+        ap.error("--fix rewrites only the posts you name")
     if args.landed_since:
         found = landed_broken(args.landed_since, root=args.root)
         for commit, name, ps in found:
@@ -236,6 +270,17 @@ def main(argv=None):
             continue
         texts[f.name] = f.read_text(encoding="utf-8")
         named.add(f.name)
+    if args.fix:
+        others = {n: t for n, t in texts.items() if n not in named}
+        for p in args.posts:
+            f = Path(p)
+            if f.name not in named:
+                continue
+            new, changed = house_tags(texts[f.name], others)
+            if changed:
+                f.write_text(new, encoding="utf-8")
+                texts[f.name] = new
+                print(f"{f.name}: tags respelled " + ", ".join(f"{a} -> {b}" for a, b in changed))
     for name, text in texts.items():
         if args.posts and name not in named:
             continue
@@ -256,6 +301,8 @@ def main(argv=None):
         fix = tag_fix(spellings)
         if fix:
             print(fix)
+        if args.posts and not args.fix:
+            print("  `--fix <post>` respells a named post's tags the way the other posts do")
         bad += 1
     for group in duplicate_descriptions(texts):
         if args.posts and not named & set(group):
