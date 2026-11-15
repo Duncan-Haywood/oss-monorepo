@@ -1,7 +1,7 @@
 ---
 title: "Unused exports in a third of a second, and where two tools disagree"
 date: 2026-11-15
-tags: [cyclehound, rust, dev-tools, javascript, benchmark]
+tags: [cyclehound, rust, dev-tools, javascript, benchmarks]
 description: cyclehound now finds exports nobody imports. On 11,736 files it took 0.3 s against ts-unused-exports' 11 s, and every disagreement was checked.
 ---
 
