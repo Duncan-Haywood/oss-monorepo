@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Made up for the tests: an ABRASF 2.04 RPS sent for conversion. Every amount worked by hand:
-     base 1000.00 - 100.00 deductions - 50.00 unconditional discount = 850.00; ISS 5% = 42.50. -->
+     base 1000.00 - 100.00 deductions - 50.00 unconditional discount = 850.00; ISS 2.90% = 24.65 (São Paulo's rate for item 1). -->
 <GerarNfseEnvio xmlns="http://www.abrasf.org.br/nfse.xsd">
   <Rps>
     <InfDeclaracaoPrestacaoServico Id="RPS123">
@@ -16,8 +16,8 @@
           <ValorDeducoes>100.00</ValorDeducoes>
           <ValorPis>6.50</ValorPis>
           <ValorCofins>30.00</ValorCofins>
-          <ValorIss>42.50</ValorIss>
-          <Aliquota>5.00</Aliquota>
+          <ValorIss>24.65</ValorIss>
+          <Aliquota>2.90</Aliquota>
           <DescontoIncondicionado>50.00</DescontoIncondicionado>
           <DescontoCondicionado>0.00</DescontoCondicionado>
         </Valores>
