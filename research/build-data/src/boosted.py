@@ -22,12 +22,16 @@ TAUS = harness.TAUS
 CATS = ["permit_type", "work_class", "area"]
 
 
-def load_frame(path, target):
+def load_frame(path, target, keep_open=False):
+    """Session 91: keep_open=True also keeps rows with a start date and no end date (permits never completed
+    by the pull), labelled y = +inf, so completed_by() drops them and cpin.censor() makes them open rows."""
     a, b = ("applied", "issued") if target == "a2i" else ("issued", "completed")
     df = pd.read_csv(path, dtype=str, keep_default_na=False)
-    df = df[(df[a] != "") & (df[b] != "")].copy()
+    df = df[(df[a] != "") & ((df[b] != "") | keep_open)].copy()
     s, e = pd.to_datetime(df[a], errors="coerce"), pd.to_datetime(df[b], errors="coerce")
-    df["y"] = (e - s).dt.days
+    df["y"] = (e - s).dt.days.astype(float)
+    if keep_open:
+        df.loc[(df[b] == "").to_numpy(), "y"] = np.inf
     neg = int((df["y"] < 0).sum())
     ok = df["y"].notna() & (df["y"] >= 0) & s.notna()
     df, s = df[ok].copy(), s[ok]

@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 91, 2026-11-15: never-completed permits as open rows (in progress)
+
+Why: session 90's censored pinball loss closed two-thirds of the deployable model's tail gap, but its frame still dropped every permit never completed by the pull, so "open at D" meant "open at D and completed later": the model was told, in hindsight, which open permits would finish. Its "Next" asked to put them back as open rows, since a deployment on D sees them open too.
+- Method: `boosted.load_frame(keep_open=True)` keeps rows with an issue date and no completion date, labelled y = +inf; `cpin.censor` makes each an open row with window c = D - issue day. Variants (`src/rounds.py`): `cpin_es3` (session 90, rerun on this pull as the comparator), `cpin_es3_nc` (the never-completed source permits added as open rows to training and to the Y-3 early-stopping set), `cpin_es3_nc5` (as nc, with a staleness rule a deployment can apply: any source permit open at D for more than 5 years (1,826 days) is dropped as presumed abandoned). The test year is scored as before on its completed rows (pinball, against session 88's `full`), and also by a censored test loss over all its rows, its never-completed permits entering with their window at the pull date.
+Design (fixed before any run): cascade2 class; H = sf, seattle; Y = 2021, 2022; 3 seeds; fresh pull 2026-11-15; `rounds.py DIR --score --keep-open --variants cpin_es3 cpin_es3_nc cpin_es3_nc5 --held sf seattle --out-name rounds_score_nc_i2c.json`; Austin held out after if time allows (reported, not tested).
+Predictions (written before any run; q0.9 = cascade2's mean pinball loss on completed test-year rows, 3 seeds):
+- (N1) cpin_es3_nc's q0.9 loss is above cpin_es3's in at least 3 of the 4 SF and Seattle city-years (many never-completed permits are abandoned rather than long, and the completed-row score cannot reward a longer tail).
+- (N2) cpin_es3_nc5's SF and Seattle q0.9 mean loss is within 1 day of cpin_es3's.
+- (N3) On the censored test loss over all test-year rows, cpin_es3_nc's q0.9 is below cpin_es3's in at least 3 of the 4.
+- (N4) cpin_es3_nc's SF and Seattle q0.5 mean loss is at most 1 day above cpin_es3's.
+- (N5, check) the cpin_es3 rerun's q0.9 test loss is within 0.3 days of session 90's in all 4 cells.
+Refuted if any part fails.
+
 ## Session 90, 2026-11-15: a censored pinball objective for LightGBM lets the deployable borrowed model use the open permits: q0.9 +1.63 days against the complete-label model in SF and Seattle (IPCW +2.53, unweighted +4.74; better than IPCW in 4 of 4), and with complete-label early stopping it recovers 47 to 89% of what dropping them costs; 6 of 7 predictions held, P3 refuted (q0.9 predictions above 3,650 days in 3 of 24 cell-seeds, on at most 3 test rows)
 
 Why: session 89 found Portnoy pseudo-rows wreck LightGBM's quantile tail because leaf renewal snaps leaves onto the pseudo-rows' far-right labels. Its "Next" asked for a loss that charges an open permit only while the prediction is below its window and never sets a leaf from a stand-in label.
