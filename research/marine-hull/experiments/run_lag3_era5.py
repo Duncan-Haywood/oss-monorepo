@@ -186,6 +186,23 @@ def main():
             print(f"  {p:15s} {hn} " + " ".join(parts))
     print(f"  sign agreement where NASA |e| >= 0.05 and w >= 1/24: {agree} of {n}")
 
+    print("\nPost hoc (added after the predictions were scored, not a test): unweighted mean |e| over all months, and "
+          "over the dark months only (w_m < 1/24 at that point), 9 points x 2 halves")
+    print("  lag | NASA all | ERA5 all | NASA dark | ERA5 dark | n dark")
+    for g in LAGS:
+        out = []
+        for S in ("NASA", "ERA5"):
+            al, dk = [], []
+            for p in HI:
+                an, _, _ = P[S][p]
+                w = P["NASA"][p][1]
+                for hn in HALVES:
+                    e = lag_error(an, hn, g)
+                    al += [abs(x) for x in e]
+                    dk += [abs(x) for x, wi in zip(e, w) if wi < 1 / 24]
+            out.append((st.fmean(al), st.fmean(dk), len(dk)))
+        print(f"  {g:3d} | {out[0][0]:.4f}   | {out[1][0]:.4f}   | {out[0][1]:.4f}    | {out[1][1]:.4f}    | {out[0][2]}")
+
     v = lambda ok: "held" if ok else "refuted"  # noqa: E731
     top_e = max(LAGS, key=lambda g: wabs["ERA5"][g])
     top_n = max(LAGS, key=lambda g: wabs["NASA"][g])
