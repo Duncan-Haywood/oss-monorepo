@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
   "errors": [
     "First coupled start sweep put a loaded belt's coupling on the far face, so the belt rolled back through the gap and slipped the hub; a soft start then looked useless. Fixed the initial condition (loaded belt rests on the drive face, empty on the far face) before drawing conclusions.",
-    "Post description was 173 characters; venture preflight's front-matter check caught it (160 max)."
+    "Post description was 173 characters; venture preflight's front-matter check caught it (160 max).",
+    "CI cad job failed test_committed_package_is_current: the new params (lift_ramp_ms, coupler fields) changed manufacturing/feeder/manifest.json, which only a build123d run regenerates; local runs had skipped those tests. Installed build123d in a venv, regenerated the feeder package, cad suite 130/130 OK."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "prompts/ventures/prompt-1.md",
       "issue": "venture-preflight runs front-matter and run-record checks that fail on an unfilled record by design; running it before filling the record costs one rerun. Saying 'fill the run record first' would save a pass."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/README.md",
+      "issue": "Any new Feeder field changes the committed manifest's params; run_venture_tests skips the build123d tests that catch it, so a params-only change looks green locally. Worth a line: 'changed params.py? regenerate manufacturing/feeder'."
     }
   ],
   "deviations": [
@@ -60,7 +65,7 @@
     "ventures/open-tennis-robots/eval/lift-coupling-sweep-2026-11-15.txt"
   ],
   "goal": "Deepen a flagship (owner 2026-10-20)",
-  "notes": "Three-inertia lift plant (rotor - jaw coupling spring with gap and damping - shaft side 1.24e-6 kg m^2 - slip hub - belt), mechanics at 12.5 us. Switched starts ring the 49 Hz mode: loaded 0.43-0.61 N m through the hub vs 0.26 assumed; empty with stiff worn spider slips the hub. Firmware LIFT_RAMP_MS=100 soft start restores 0.24-0.26 N m loaded and no slips except 5 deg at 80 N m/rad (1/6). Jams unchanged: coupling capped at hub's 1.08 N m (rated 2.0), flights 46-90 N. Verification: run_venture_tests.py open-tennis-robots: 268 tests, 0 failed, 53 skipped (build123d); page.test.mjs pass; venture-preflight first run failed only on post description length and the unfilled record, rerun after fixes.",
+  "notes": "Three-inertia lift plant (rotor - jaw coupling spring with gap and damping - shaft side 1.24e-6 kg m^2 - slip hub - belt), mechanics at 12.5 us. Switched starts ring the 49 Hz mode: loaded 0.43-0.61 N m through the hub vs 0.26 assumed; empty with stiff worn spider slips the hub. Firmware LIFT_RAMP_MS=100 soft start restores 0.24-0.26 N m loaded and no slips except 5 deg at 80 N m/rad (1/6). Jams unchanged: coupling capped at hub's 1.08 N m (rated 2.0), flights 46-90 N. Verification: run_venture_tests.py open-tennis-robots: 268 tests, 0 failed, 53 skipped (build123d); page.test.mjs pass; venture-preflight first run failed only on post description length and the unfilled record, rerun after fixes. cad CI failed once on the stale committed manifest; regenerated with build123d 0.13.0 in a venv (feeder only changed manifest.json + zip), cad unittest 130 OK locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
