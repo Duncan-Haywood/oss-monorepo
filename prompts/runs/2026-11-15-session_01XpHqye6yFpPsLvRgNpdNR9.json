@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqye6yFpPsLvRgNpdNR9",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T04:38:54Z",
+  "ended": "2026-11-15T05:09:37Z",
+  "wall_minutes": 30.99,
+  "tokens_in": 6453363,
+  "tokens_out": 42013,
+  "cost_usd": 3.2818,
+  "tool_calls": 58,
+  "task": "water-leaks step 16 (milestone 3, H3): leak signatures from L-TOWN_Real.inp restarted on each leak's day",
+  "projects": [
+    "research/water-leaks"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16095",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Its EPANET note covers only wntr run_sim temp-file collisions; nothing says that for thousands of runs on a large .inp the EPANET 2.2 project API through wntr.epanet.toolkit (ENlib + _project: EN_adddemand/EN_setbasedemand) avoids rewriting the file, nor that the legacy ENadddemand returns error 102 on a file wntr opened with the project API. Documented in research/water-leaks/src/water_leaks/realsig.py."
+    },
+    {
+      "file": "platform/ci/check_md_links.py",
+      "issue": "A README heading with two code spans gives a GitHub anchor that is easy to get wrong; the link checker caught it, fine, but cost one round."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 (land open research PRs before building): two open research drafts (#16073 hanger-codesign, #16057 build-data) were updated within the last 3 hours, so they looked like live sibling runs; left them alone rather than touching in-flight work.",
+      "did": "Proceeded with the drawn programme.",
+      "result": "No conflict."
+    },
+    {
+      "file": "research/water-leaks/experiments/step16-realday/run.py",
+      "why": "After all five pre-registered predictions failed, added a post-hoc abrupt/incipient and other-leak-change breakdown to the same script, labelled as post hoc in results.txt, LOG.md, README and the post.",
+      "did": "Reran from cache; the pre-registered numbers did not move.",
+      "result": "Located the loss (incipient leaks, contaminated residual) and corrected step 15's interpretation."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-exact-model-did-not-find-more-leaks.md",
+    "research/water-leaks/LOG.md (step 16 plan and outcome)",
+    "research/water-leaks/README.md (step 16 section)"
+  ],
+  "goal": null,
+  "notes": "Routed research by draw; pick_track drew water-leaks. Step 15 rerun from a cold cache reproduced its results.txt byte for byte. Step 16: 25,056 EPANET day runs (17 min on 4 cores); gate exact (0.00000 m). Result: 15 of 32 within 300 m vs 16 nominal and 14 most-affected sensor; all five predictions failed. Post hoc: abrupt 11/15, incipient 4/17; Fisher P = 0.004 on the other-leak-change split. Tests: 39 passed locally (pytest, /usr/bin/python3.13 with wntr 1.5.0). research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter, links and similarity ok; cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "034b75fe-2d2f-5cc7-bc79-563c081e363a",
+    "transcripts": 1,
+    "first": "2026-11-15T04:38:54Z",
+    "last": "2026-11-15T05:09:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 102,
+        "output": 42013,
+        "thinking": 11181,
+        "cache_read": 6305762,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147499,
+        "api_equivalent_usd": 3.2818,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 102,
+      "output": 42013,
+      "thinking": 11181,
+      "cache_read": 6305762,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147499,
+      "api_equivalent_usd": 3.2818,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 53,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.99,
+      "active_minutes": 30.99,
+      "model_minutes": 6.83,
+      "tool_minutes": 24.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a water-network researcher writing the toolkit restart, 25k-run sweep, analysis and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 487.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
