@@ -581,6 +581,43 @@ class LiftJamTest(unittest.TestCase):
                 self.assertIsNotNone(r["cut_ms"], (k, where))
                 self.assertLess(r["cut_ms"], 200, (k, where))
 
+    def test_belt_stretch_modes(self):
+        # 2026-11-15, cad/README.md "Lift belt stretch": the belt mass on its strands rings near the coupling's 49 Hz
+        # mode, so the two split; an ever stiffer belt gives back the three-inertia plant's stuck mode, and the lumped
+        # belt keeps the belt side's whole inertia
+        p = _feeder()
+        cm = p.lift_coupler_model()
+        bm = p.lift_belt_model()
+        self.assertAlmostEqual(bm["j_mass"] + bm["j_pulley"], cm["j_belt"])
+        self.assertLess(bm["f_stuck_hz"], cm["f_stuck_hz"])
+        self.assertGreater(bm["f_upper_hz"], max(cm["f_stuck_hz"], bm["f_belt_hz"]))
+        stiff = p.lift_belt_model(1e4)
+        self.assertAlmostEqual(stiff["f_stuck_hz"], cm["f_stuck_hz"], delta=0.1)
+        self.assertAlmostEqual(bm["slack_at_n"], 2 * p.lift_tension_design()["t0_n"])
+
+    def test_belt_stretch_jams_and_starts(self):
+        # with the belt's stretch in the plant a hood jam slackens the down strand at the drive pulley, the flight's
+        # peak still stays under the cap plate and the cutoff still trips; and the soft start's one slipping corner on
+        # the rigid belt (80 N m/rad, 5 deg, empty, lightest rotor, full pack) no longer slips
+        import lift_jam_sweep as sweep
+        p = _feeder()
+        allow = p.lift_jam_cutoff()["plate_allow_n"]
+        for b in (min(p.lift_belt_cspec_sweep), max(p.lift_belt_cspec_sweep)):
+            r = sweep.jam(29.2, 0.0, 1.0, "lo", "hood", slip="hi", belt=b)
+            self.assertLess(r["peak_n"], allow, b)
+            self.assertGreater(r["slack_ms"], 0.0, b)
+            self.assertIsNotNone(r["jammed_ms"], b)
+            r = sweep.jam(24.0, 80.0, 1.0, "hi", "boot", slip="lo", belt=b)
+            self.assertIsNotNone(r["cut_ms"], b)
+            self.assertLess(r["cut_ms"], 200, b)
+            self.assertEqual(r["slack_ms"], 0.0, b)        # at the boot the ball stops the pulley, not the belt's mass
+        corner = dict(loaded=False, slip="lo", coupler=(max(p.lift_coupler_k_sweep), 5.0))
+        sweep.start(29.2, 0.0, 0.5, "lo", **corner)
+        self.assertGreater(sweep.start.plant.slid_ms, 0.0)
+        tripped, _, _ = sweep.start(29.2, 0.0, 0.5, "lo", belt=1.0, **corner)
+        self.assertFalse(tripped)
+        self.assertEqual(sweep.start.plant.slid_ms, 0.0)
+
     def test_coupling_model_parts_and_modes(self):
         p = _feeder()
         cm = p.lift_coupler_model()

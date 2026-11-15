@@ -357,12 +357,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the F626 fit test ring landed 2026-11-15 (cad/README.md
-      "Bearing fit test ring": prints standing so its bores are sideways like the
-      boot's; six bores -0.03 to 0.12 cover printers 0-0.35 mm small; `python -m
-      otr_cad fit-ring` picks lift_bearing_fit_mm). Next: belt stretch as a fourth
-      inertia in tests/lift_jam_sweep.py (the belt's span stiffness from its
-      modulus, assumed; does the 49 Hz stuck mode or a jam's flight load move?).
+      venv, about 2 min): belt stretch landed 2026-11-15 (cad/README.md "Lift belt
+      stretch"): every hood jam slackens the down strand for 0.34-0.6 s with the
+      tight strand at 89 N on 8 teeth in mesh. Next: a tooth-jump check for that jam
+      on the 16-tooth drive pulley (an AT5 per-tooth allowance from a public
+      catalogue, else assumed and swept), and if it fails, a faster hood cut or a
+      20-tooth pulley.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
