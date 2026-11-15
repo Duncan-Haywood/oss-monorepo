@@ -56,6 +56,7 @@ export async function sendMail({ host, port = 587, secure = false, starttls = tr
     say("EHLO sales-agent.local"); let caps = (await expect(["250"], "EHLO")).join(" ");
     if (!secure && starttls && /STARTTLS/i.test(caps)) {
       say("STARTTLS"); await expect(["220"], "STARTTLS");
+      if (buf) throw new Error("SMTP server sent data after its STARTTLS reply and before TLS began (possible injection, CVE-2011-0411 class); refusing");
       sock.removeAllListeners("data"); sock = tls.connect({ socket: sock, ...tlsOpts }); attach(); sock.on("error", (e) => failer.reject(e));
       say("EHLO sales-agent.local"); caps = (await expect(["250"], "EHLO")).join(" ");
     } else if (!secure && user && !/^(127\.|localhost$)/.test(host)) throw new Error("refusing to send a password without TLS (server offers no STARTTLS)");

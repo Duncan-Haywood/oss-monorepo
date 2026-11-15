@@ -60,13 +60,22 @@ await c.logout();
 const flags = doveadm("fetch", "-u", PAT, "flags", "mailbox", "INBOX", "ALL");
 check("  read-only: the message is still unread (no \\Seen) after the agent's fetch", !/\\Seen/.test(flags), flags.trim().replace(/\s+/g, " "));
 
-// 6. Plain IMAP port: the agent has no STARTTLS for IMAP, so IMAP_SECURE=false on a non-local host would be plaintext.
-// Dovecot refuses LOGIN in plaintext from anywhere but localhost; here we just record that the agent's plain mode
-// talks to 10143 only because 127.0.0.1 counts as secure to Dovecot.
-const p = new Imap({ host: "127.0.0.1", port: 10143, secure: false });
-r = await attempt(async () => { await p.connect(); await p.login(PAT, PASS); return "ok"; });
-check("IMAP plain (10143) from 127.0.0.1: Dovecot allows it (loopback counts as secure)", r.ok, r.error || "");
+// 6. Plain IMAP port 10143 with STARTTLS (the port-143 setup). loopbackIsSafe: false makes the client treat Dovecot as
+// a remote server, so it must upgrade before LOGIN, as it would against imap.example.com:143.
+const p = new Imap({ host: H, port: 10143, secure: false, ca, loopbackIsSafe: false });
+r = await attempt(async () => { await p.connect(); const pre = p.encrypted; await p.login(PAT, PASS); await p.examine(); return { pre, n: (await p.search("ALL")).length, caps: p.caps.join(" ") }; });
+check("IMAP STARTTLS (10143): Dovecot upgrades, LOGIN after TLS, EXAMINE and SEARCH work", r.ok && r.value.pre && r.value.n >= 1, r.error || `encrypted before LOGIN, ${r.value.n} message(s), caps: ${r.value.caps.slice(0, 80)}`);
+check("  post-TLS capabilities were asked again (no STARTTLS in them, AUTH= present)", r.ok && !/\bSTARTTLS\b/.test(r.value.caps) && /AUTH=/.test(r.value.caps), r.value?.caps.slice(0, 120));
 await p.logout();
+const dBefore = readFileSync(join(DIR, "dovecot.log"), "utf8").length;
+r = await attempt(async () => { const u = new Imap({ host: H, port: 10143, secure: false, loopbackIsSafe: false }); await u.connect(); await u.login(PAT, PASS); });
+await sleep(300);
+check("IMAP STARTTLS without the CA: refused on the certificate before LOGIN", !r.ok && /self.signed|unable to verify|certificate/i.test(r.error), r.error || "logged in anyway");
+const dlog = readFileSync(join(DIR, "dovecot.log"), "utf8").slice(dBefore);
+check("  ... and Dovecot logged no login or auth attempt for it (the password never left)", !/Login: user=|auth failed|user=<pat/i.test(dlog), dlog.trim().split("\n").slice(-1)[0]?.slice(0, 200));
+// With starttls off, the client must not log in to a remote host over plain text, whatever the server allows.
+r = await attempt(async () => { const u = new Imap({ host: H, port: 10143, secure: false, starttls: false, loopbackIsSafe: false }); await u.connect(); await u.login(PAT, PASS); });
+check("IMAP plain with starttls off to a 'remote' host: refused, no plain-text password", !r.ok && /plain-text IMAP|without TLS/.test(r.error), r.error || "logged in over plain text");
 
 // 7. The whole agent: Pat and Lee reply, the agent polls Me's mailbox, triages, a person approves, the agent sends.
 const patReply = buildMessage({ from: `Pat Rivera <${PAT}>`, to: ME, subject: "Re: Route planning for your crews", body: "This sounds interesting. Could you send over a few times next week for a quick call?\n\nPat", inReplyTo: outbound.id });
@@ -79,11 +88,11 @@ for (const [u, m] of [[PAT, patReply], [LEE, leeReply]]) {
   check(`${u} replies through Postfix`, r.ok, r.error || "");
 }
 check("both replies and Postfix's bounce delivered to Me's INBOX", await waitFor(ME, 3), `${count(ME)} messages`);
-const env = { ADMIN_TOKEN: "t".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-real-")), IMAP_HOST: H, IMAP_PORT: "10993", IMAP_USER: ME, IMAP_PASS: PASS, TLS_CA_FILE: CA_FILE,
+const env = { ADMIN_TOKEN: "t".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-real-")), IMAP_HOST: H, IMAP_PORT: process.env.AGENT_IMAP_PORT || "10993", ...(process.env.AGENT_IMAP_PORT === "10143" ? { IMAP_SECURE: "false" } : {}), IMAP_USER: ME, IMAP_PASS: PASS, TLS_CA_FILE: CA_FILE,
   SMTP_HOST: H, SMTP_PORT: "10587", SMTP_USER: ME, SMTP_PASS: PASS, SENT_BOX: "auto" };
 const agent = createAgent(env);
 const n = await agent.poll();
-check("agent poll over IMAPS read both replies and the bounce", n === 3, `ingested ${n}${agent.state.lastError ? ", error: " + agent.state.lastError : ""}`);
+check(`agent poll over ${env.IMAP_PORT === "10143" ? "IMAP STARTTLS (10143)" : "IMAPS (10993)"} read both replies and the bounce`, n === 3, `ingested ${n}${agent.state.lastError ? ", error: " + agent.state.lastError : ""}`);
 check("agent found Dovecot's \\Sent folder", agent.state.sentBox?.name === "Sent", agent.state.sentError || agent.state.sentBox?.name || "none");
 const pat = agent.state.items.find((x) => x.from.includes(PAT)), lee = agent.state.items.find((x) => x.from.includes(LEE));
 check("Lee's opt-out: triaged as unsubscribe and suppressed, no draft", lee?.triage.category === "unsubscribe" && !lee.draft && agent.state.suppression.some((s) => s.email === LEE), lee?.triage.category);
