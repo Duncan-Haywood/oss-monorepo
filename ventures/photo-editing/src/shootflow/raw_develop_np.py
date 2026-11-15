@@ -261,13 +261,21 @@ def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
 
 
 def _directional(norm, w, h, pat, mults, hi):
-    """The directional X-Trans demosaic (``xtrans_demosaic``) on the white-balanced plane, clipped as
-    ``_encode`` clips: the same (h, w, 3) linear image the bilinear path's ``sink`` receives."""
+    """The directional demosaic on the white-balanced plane, clipped as ``_encode`` clips: the same
+    (h, w, 3) linear image the bilinear path's ``sink`` receives. X-Trans goes to ``xtrans_demosaic``,
+    a 2x2 Bayer CFA to ``bayer_demosaic`` (2026-11-15)."""
 
-    from shootflow.xtrans_demosaic import colour_map, directional
+    from shootflow.xtrans_demosaic import colour_map
 
     gains = np.asarray(mults, dtype=np.float64)[colour_map(pat, h, w)]
-    return _clip(directional(np.asarray(norm).reshape(h, w) * gains, pat, scale=hi), hi)
+    plane = np.asarray(norm).reshape(h, w) * gains
+    if len(pat) == 4:
+        from shootflow.bayer_demosaic import directional as bayer
+
+        return _clip(bayer(plane, pat), hi)
+    from shootflow.xtrans_demosaic import directional
+
+    return _clip(directional(plane, pat, scale=hi), hi)
 
 
 def _half_linear(norm, w, h, pat, mults, hi, threads=None, demosaic="bilinear"):
@@ -320,7 +328,7 @@ def render(
 
     Demosaic and encode run in bands on ``threads`` threads (``SHOOTFLOW_THREADS`` or every CPU when None), as
     the warp does; the thread count never changes the output. ``demosaic`` is "bilinear" (the pure path's
-    method, byte for byte) or "directional" (``xtrans_demosaic``; numpy only, X-Trans).
+    method, byte for byte) or "directional" (``xtrans_demosaic`` on X-Trans, ``bayer_demosaic`` on Bayer; numpy only).
     """
 
     norm, clipped = _normalised_plane(
