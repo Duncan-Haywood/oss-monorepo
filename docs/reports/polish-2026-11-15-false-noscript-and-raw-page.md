@@ -1,3 +1,7 @@
+---
+kind: polish
+date: 2026-11-15
+---
 # Polish 2026-11-15: false "needs JavaScript" notice on 79 pages; ShootFlow RAW support page
 
 **Why.** `surface-budget.mjs --for` over the flagships showed `photo-editing` (ShootFlow) as the
@@ -35,3 +39,10 @@ the "This tool needs JavaScript to calculate" `<noscript>` bar on a page with no
    control of their own, using the same test.
 3. Carried over: `.pager` defined twice in the writing STYLE; research index card ledes; topic-page
    titles four lines on phones; the ticker's third line at 320 px.
+
+## After (rebuilt site)
+
+Full rebuild with the change: 2,256 pages carry the notice (predicted 2,256); photo-editing,
+compare/jobber and the new guide carry none; `check.mjs`: 10,268 pages, no dead links. The guide at
+390 px: scrollWidth 390 (no sideways scroll), light and dark
+(`img/polish-2026-11-15-raw-formats-phone.png`, `-phone-dark.png`, `-desktop.png`).

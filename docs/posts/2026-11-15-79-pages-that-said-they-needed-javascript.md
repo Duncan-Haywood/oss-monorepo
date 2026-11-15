@@ -1,9 +1,9 @@
 ---
 title: "79 pages told visitors they needed JavaScript to calculate. They had nothing to calculate."
-seo_title: "A false 'needs JavaScript' notice on 79 pages, and a camera RAW support page for ShootFlow"
+seo_title: "A false 'needs JavaScript' banner on 79 pages, and how it was fixed"
 date: 2026-11-15
 tags: [polish, site-build, accessibility, photo-editing, shootflow, camera-raw]
-description: "The site's own embed box and search form made 79 no-tool pages show a 'this tool needs JavaScript to calculate' banner. Fixed in the build; plus a format-by-format RAW support page for ShootFlow."
+description: "The build's own embed box and search form put a false 'needs JavaScript' banner on 79 pages. Fixed, plus a RAW support page for ShootFlow."
 ---
 
 Since 2026-11-09 the site build adds a small banner to any page that has both a script and a form control: "This tool needs JavaScript to calculate. Turn it on for this page and reload." It exists because 1,932 calculators used to show dead fields to anyone with scripts off.
