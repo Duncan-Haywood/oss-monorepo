@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjiavggWhm6jsSLqjE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T11:41:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 6 (shift-roster-builder): an order-free pair check",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16196",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First order-free design (final-state check with relaxed pruning) took ~2 s a walk and still gave up on pairs; replaced.",
+    "First exact rule (one give-up per person) over-flagged retail 82 vs 55 pairs, none of the extra opening when played; replaced with two give-ups per person taken with the first take."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A foreground 'sleep 90' was blocked by a hook; the note to use Monitor/run_in_background is in the tool docs, not the repo's cloud-session guide."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-a-check-that-should-not-care-about-order.md",
+    "ventures/shift-roster-builder/README.md (An order-free pair check)"
+  ],
+  "goal": null,
+  "notes": "Order-free pair check (coverGroupsFree, opt-in coverPairOrderFree / --second-callout-order-free). Full counts by hand-out order: 20x56 wk2 old 179/187/187 h, new 148 in every order; 40x112 wk0 old 327/313/355 h, new 99 in every order. Exact against an independent oracle on 5 small seeded weeks. Template played pairs: precision 59.4% vs 58.1%, recall 90.7% vs 91.5%. Priced pass mixed (more score, slower), so it stays off by default. Verification: pair-order-free.test.mjs 5/5; full venture suite and preflight: see the final commit.",
+  "corrections": [],
+  "redteam": null
+}
