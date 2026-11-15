@@ -1291,6 +1291,27 @@ ahead. Still open: the sheet's 4.4 dB gap to LibRaw's three passes (fine rings n
 whether the median should leave green alone (+0.4 dB on the frames, -2.4 on the sheet; needs a real
 noisy frame with a known answer), a C path, Bayer.
 
+## A directional demosaic for Bayer files (2026-11-15)
+
+Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
+CR3, NEF, ARW, ORF, RW2, SRW, PEF, the GFX's RAF) was demosaiced bilinearly, which leaves zipper
+patterns and false colour along every sharp line. `src/shootflow/bayer_demosaic.py` builds green along
+the row and the column (Hamilton-Adams), decides which way each edge runs from how fast the colour
+difference changes along each (the test Menon, Andriani and Calvagno published in 2007) and blends the
+two, then fills red and blue as weighted colour differences. It is the default with numpy installed
+(`--demosaic auto`); `--demosaic bilinear` gives the old bytes on both engines.
+
+Checked with `tools/bayer_demosaic_check.py` against known truth (five real frames binned 4x4, and a
+synthetic zone plate and colour-edge sheet) and against LibRaw's own seven Bayer methods run on the same
+mosaics (`eval/bayer-directional-demosaic-2026-11-15.md`). Tuned on a Canon 70D, a Nikon D810 and the
+sheet; a Sony A7 III, an Olympus E-M10 and a Pentax K-1 Mark II were held out. Against bilinear: +0.25
+to +14 dB colour PSNR and 9-78% less false colour (99th percentile) on every truth. Against LibRaw's
+VNG, PPG, AHD, DCB, DHT and AAHD: the highest colour PSNR on five of the six truths (second on the A7
+III, 0.07 dB behind VNG) and the least false colour on five of six. Not better everywhere: on the two
+finest, most aliased frames (A7 III, K-1 II) its luma trails bilinear, DCB or VNG by 0.8-1 dB, and with
+heavy noise (SNR 25) a plain average has the higher colour PSNR on two frames while leaving 1.2-1.9x the
+false colour. A 24 MP frame takes 1.8 s on four cores (bilinear 0.6 s, LibRaw's AHD 1.0 s).
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:

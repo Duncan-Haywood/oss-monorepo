@@ -252,8 +252,8 @@ flagships:
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0) serves files with `curl -L`. CR3 C-RAW
-      read 2026-11-15 (eval/canon-cr3-craw-2026-11-15.md); a tiled CR3 (R5-class
-      bodies) needs a public file. X-Trans demosaic: real frames 0.5-0.7 dB short of
+      read 2026-11-15 (eval/canon-cr3-craw-2026-11-15.md); Bayer demosaic: aliased
+      luma, noise (eval/bayer-*). X-Trans demosaic: real frames 0.5-0.7 dB short of
       LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings; median
       and green; C path; eval/xtrans-clamp-gradient-2026-11-15.md). DNG 1.7.1.0 spec
       PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
@@ -262,24 +262,24 @@ flagships:
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
       DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with the 1.7.1.0
       text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear matches the Leica
-      T's preview to 0.18 px; WarpRectilinear2: on 5,411 rectilinear lensfun
-      profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
+      T's preview to 0.18 px; WarpRectilinear2,
       eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans, directional; lossless and lossy
       compressed 2026-11-15, eval/fujifilm-*-raf-2026-11-15.md) read directly since
       2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from maker notes
-      (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-7 2026-11-15. Next: RW2 RawFormat 8 (GH6 era;
-      files on raw.pixls.us); a real NEF split row; Sony's vignetting
-      table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
-      through the pipeline's lens stage; a real evenly lit frame shot wide open
-      (corners level after lensfun's vignetting?); a second maker-against-lensfun
-      DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
-      or the SDK to check them; lateral colour measured on a real frame with sharp
-      corner edges; a real Adobe `.dcp` through the profile chooser; a tiled CR3; the
-      DJI Phantom 4 DNG's vignette lift against DJI's own render
-      (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
-      set; a phone DNG with its own JPEG of the frame (corrected corners); a
+      (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-7 2026-11-15. Bayer demosaic
+      directional 2026-11-15 (eval/bayer-directional-*). Next: RW2 RawFormat 8
+      (raw.pixls.us, proxy-refused 2026-11-15); a real NEF split row; Sony's
+      vignetting table vs an evenly lit frame; a real DNG and a
+      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
+      lit frame shot wide open (corners level after lensfun's vignetting?); a second
+      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
+      synthetic files so far, or the SDK to check them; lateral colour measured on a
+      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
+      chooser; a tiled CR3; the DJI Phantom 4 DNG's vignette lift against DJI's own
+      render (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag
+      bit 1 set; a phone DNG with its own JPEG of the frame (corrected corners); a
       tungsten-lit colour chart to say which colour model is closer (the 70D frame,
       4,700 K and green-tinted, is where they part most; the Nexus 5X carries
       ForwardMatrix); an Adobe render of a known frame (settles
