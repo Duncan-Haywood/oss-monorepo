@@ -2645,3 +2645,44 @@ Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud ma
 templates, not a population. Next: play the order-free pass's rosters through seeded weeks of call-outs (as "The pair price
 in played weeks" did) to see whether its lower count opens fewer hours; a cheaper 500-check screen for the order-free check
 (its give-ups set the pass's cost on the 40- and 60-person weeks).
+
+## The order-free pass played (2026-11-15 later)
+
+"An order-free pair check" made the second-call-out check's answer a fact about the roster (`--second-callout-order-free`) and
+left one question: does the priced pass built on it leave rosters that open fewer hours when call-outs really happen? **Measured**
+with `node eval/pair-order-free-played.mjs` (`eval/pair-order-free-played.out.txt`): the same seeded weeks, seeds, call-out draw
+and rates as "The pair price in played weeks". From each week's plain roster three passes run: `--cover-price 25`; that plus
+`--second-callout-price 1` with the default check (confirmed at 200,000 checks); and the same with the order-free check
+(confirmed at 2,000,000). Each roster is played through the same weeks of call-outs (5pm notice, started shifts pinned, kept
+reissues). Of the 15 seeded weeks built (20 x 56 weeks 0-7, 30 x 84 weeks 0-3, 40 x 112 weeks 0-2), the order-free pass gave a
+roster of its own on three; on 20 x 56 week 5 it made the default pass's one move, and on the other eleven no pass moved anyone.
+
+| week, rate (disrupted weeks) | open hours added: cover / default pair / **order-free** | order-free vs default: fewer / more weeks | changes to others, premiums: default / order-free |
+|---|---|---|---|
+| 20 x 56 week 2, 1.0% (143) | 230 / 216 / **218** | 2 / 2 (p 1.0) | 310, $5,510 / 366, $5,953 |
+| 20 x 56 week 2, 8.4% (200) | 2,697 / 2,610 / **2,614** | 37 / 43 (p 0.58) | 1,918, $32,631 / 2,049, $33,149 |
+| 30 x 84 week 0, 1.0% (84) | 197 / 176 / **201** | 3 / 6 (p 0.51) | 187, $3,239 / 201, $3,420 |
+| 40 x 112 week 0, 1.0% (94) | 396 / 396 / **392** | 1 / 0 (p 1.0) | 117, $2,144 / 135, $2,360 |
+| 40 x 112 week 0, 8.4% (100) | 2,751 / 2,765 / **2,731** | 11 / 6 (p 0.33) | 1,159, $19,781 / 1,187, $19,727 |
+
+What each pass paid, from the same plain roster: on the 20-person week the default pair pass made 4 moves for $25.85 of score
+and the order-free one 3 for $35.70 ($18 more payroll); on the 40-person week 11 moves for $10.15 against 7 for $17.91 ($14 more
+payroll). On the 30-person week the order-free pass made 2 moves at no score cost that raised the single-call-out risk from 261 h
+to 269 h (the default pass cut it to 208 h) to buy 238 order-free pair hours; played, its roster opened what the plain roster
+did (201 h) where the default pair roster opened 176 h. That pass also took **1,295 s**, against 298 s for the default check's,
+on a 121-copy week.
+
+**What this says.** The order-free count is lower and does not depend on the order the search hands out shifts, but the
+rosters priced on it opened no fewer hours than the default check's: within noise on all five comparisons (no sign test below
+p 0.33), fewer hours on the two 40-person comparisons and more on the other three. They moved more people in all five and
+owed more premium in four of five, cost more score on both weeks where the two passes made a real trade, and took up to 4.4 times as long. So the
+default check stays the default, `--second-callout-order-free` stays opt-in for anyone who wants an answer that does not
+depend on search order, and the "cheaper 500-check screen for the order-free check" is not worth building: it would make a
+pass faster that does not pay for itself in played weeks.
+
+Not claimed: invented teams and seeded weeks, single runs on one 4-core cloud machine with up to three processes at once;
+three rosters, not a population; the 30-person week was played at 1.0% only (its two builds take about 30 minutes, and 100
+seeds at 8.4% took 88 minutes for three rosters in the earlier study). The default pair roster on that week opened 176 h in
+both studies, but its changes and premiums differ slightly from "The pair price in played weeks" (187 and $3,239 here, 183 and
+$3,177 there), because the reissues inside each play are time-gated and the machine was busier. Every other cell for the
+cover and default rosters matches that study exactly.
