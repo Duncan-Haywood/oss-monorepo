@@ -1464,6 +1464,8 @@ const COVER_PAIRS_SLOTS = 200;
 // (40-person week 0 32.3 s -> 16.1 s), but the 60-person week still takes 46.8 s against 1.7 s without the price, so the cap stays.
 // `coverPairPriceSlots` moves the cap; above it the price is ignored and the slack line says so.
 const COVER_PAIR_PRICE_SLOTS = 120;
+// Time cap on the pair-priced pass (coverPairMs; CLI --second-callout-seconds). Set from eval/pair-timecap.mjs, see README.
+const COVER_PAIR_MS = 10000;
 // Checks per pair for the confirming pair walk in the priced pass (2026-11-15, eval/cover-pair-capped.mjs): at 200,000 no pair
 // of the 22 bench rosters (five templates and six seeded 20-40 person weeks, default and priced) was given up on.
 const PAIR_CONFIRM_BUDGET = 200000;
@@ -1589,7 +1591,7 @@ function coverDayJoint(ctx, lists, p, day, mine, chain, budget = Infinity, calle
 // returns { stopped: true, hours } with the hours counted so far (a lower bound): a caller that would reject the roster at
 // that many hours needs no more. A walk that ends below it is the whole walk. `first`, a list of earlier `cases`, walks
 // those pairs before the rest: each pair's verdict is its own, so the order changes only how soon `stopAt` is reached.
-export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, callerTakes = true, single = null, maxPairs = Infinity, keep = false, stopAt = Infinity, first = null } = {}) {
+export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, callerTakes = true, single = null, maxPairs = Infinity, keep = false, stopAt = Infinity, first = null, deadline = Infinity } = {}) {
   const lists = Array.from({ length: ctx.P }, () => []);
   owner.forEach((p, i) => { if (p >= 0) lists[p].push(i); });
   lists.forEach((l) => l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b));
@@ -1627,6 +1629,8 @@ export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, bu
     else if (n > 0 && ++b >= days.length) { a++; b = a + 1; }
     {
       if (pairs >= maxPairs) break outer;
+      // Out of time (the priced pass's cap): the count is partial, so the caller must not use it.
+      if (deadline !== Infinity && (pairs & 15) === 0 && Date.now() > deadline) return { stopped: true, timedOut: true, pairs, clashing: cases.length, hours, cases, capped, safeDays: days.length, checked };
       const A = days[a], B = days[b];
       if (A.person === B.person && A.day === B.day) continue;
       pairs++;
@@ -1709,7 +1713,15 @@ function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTa
 // shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
 // Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
 // one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
-export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET, pairStop = true }) {
+export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0, pairConfirm = PAIR_CONFIRM_BUDGET, pairStop = true, pairMs = Infinity, onMove = null }) {
+  // A time cap on the pair-priced pass (2026-11-15, README "A time cap on the pair price"). Every move the pass takes is a
+  // confirmed gain on its own, so stopping between moves posts a roster no worse than the one it started from and keeps
+  // every move made so far. Once `pairMs` has passed since the pass began, the pass takes no new move and ends; a walk under way is
+  // cut off (coverPairRisk's `deadline`) and its move refused. `pairTimedOut` says so; with no pair price there is no cap.
+  // The clock starts after the starting roster's own walks, so the pair hours reported before the pass are always whole.
+  let pairDeadline = Infinity;
+  let pairTimedOut = false;
+  const outOfTime = () => pairTimedOut || (pairDeadline !== Infinity && Date.now() > pairDeadline && (pairTimedOut = true));
   let owner = owner0.slice();
   let score = scoreOwner(ctx, owner).total;
   let risk = coverRisk(ctx, owner, { fromDay, chain, budget, callerTakes });
@@ -1725,8 +1737,9 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   const pairWalk = (own, single, b, limit) => {
     pairWalks++;
     const stopAt = pairStop && Number.isFinite(limit) ? Math.max(0, limit) : Infinity;
-    const r = coverPairRisk(ctx, own, { fromDay, chain, budget: b, callerTakes, single, stopAt, first: pairStop ? casesOf.get(b) : null });
+    const r = coverPairRisk(ctx, own, { fromDay, chain, budget: b, callerTakes, single, stopAt, first: pairStop ? casesOf.get(b) : null, deadline: pairDeadline });
     pairsSearched += r.pairs;
+    if (r.timedOut) { pairTimedOut = true; return Infinity; } // its cases are partial: keep the last full walk's
     lastCases.set(b, r.cases);
     if (r.stopped) { pairStops++; return Infinity; }
     return r.hours;
@@ -1755,8 +1768,10 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   keepCases();
   const pairBefore = pairF ?? pairBefore0;
   let moves = 0, tried = 0, pairMoves = 0, relieves = 0, trades = 0, pairTried = 0;
+  if (pairPrice > 0 && Number.isFinite(pairMs)) pairDeadline = Date.now() + Math.max(0, pairMs);
   const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
   const take = (cand, needLess = false) => {
+    if (outOfTime()) throw COVER_STOP;
     tried++;
     if (!ownerValid(ctx, cand)) return false;
     const s2 = scoreOwner(ctx, cand).total;
@@ -1781,10 +1796,11 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     }
     if (pf2 != null && s2 + price * (f2 || r2).hours + pairPrice * pf2 >= score + price * (strict || risk).hours + pairPrice * pairF - 1e-9) return false;
     owner = cand; score = s2; risk = r2; strict = f2; pairH = p2; pairF = pf2; moves++;
+    if (onMove) onMove({ moves, score, riskHours: (strict || risk).hours, pairHours: pairF ?? pairH, owner: owner.slice() });
     keepCases(); // both walks just ran on `cand` to their end (a cut-off walk returns Infinity and the move is refused)
     return true;
   };
-  for (let round = 0; round < rounds; round++) {
+  try { for (let round = 0; round < rounds; round++) {
     let improved = false;
     for (const c of risk.cases.slice()) {
       if (owner[c.slots[0]] !== c.person) continue; // this case has already been changed by an earlier move
@@ -1840,6 +1856,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
         if (seen.has(key)) return false;
         seen.add(key);
         if (--budgetLeft < 0) throw COVER_STOP;
+        if (outOfTime()) throw COVER_STOP; // the screen below can be the slow part on a big week
         pairTried++;
         if (!ownerValid(ctx, cand) || !coversSome(cand, movers)) return false;
         // A two-shift move must clear risk, not only score: on the spare-part-timer team a relief that left risk at 194 h
@@ -1878,11 +1895,11 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
             }
           }
         }
-      } catch (e) { if (e !== COVER_STOP) throw e; }
+      } catch (e) { if (e !== COVER_STOP || pairTimedOut) throw e; }
     }
     if (!improved) break;
-  }
-  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched };
+  } } catch (e) { if (e !== COVER_STOP || !pairTimedOut) throw e; }
+  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? (pairF ?? pairH) : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null, pairHoursScreen: pairPrice > 0 ? pairH : null, pairConfirmed: pairF != null, pairWalks, pairStops, pairSkips, pairsSearched, pairTimedOut };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -3564,7 +3581,7 @@ function buildRosterOnce(staff, slots, options = {}) {
   if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
     const chain = o.coverChain ?? COVER_CHAIN, budget = o.coverBudget ?? COVER_BUDGET;
     const pairOn = o.coverPairPrice > 0 && ctx.S <= (o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS);
-    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? PAIR_CONFIRM_BUDGET), pairStop: o.coverPairStop !== false });
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0, pairConfirm: o.coverPairConfirm === false ? 0 : (o.coverPairConfirmBudget ?? PAIR_CONFIRM_BUDGET), pairStop: o.coverPairStop !== false, pairMs: o.coverPairMs ?? COVER_PAIR_MS });
     const before = out.before;
     coverSlack = {
       price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
@@ -3573,6 +3590,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       pairMoves: out.pairMoves, relieves: out.relieves, trades: out.trades,
       pairPrice: pairOn ? o.coverPairPrice : 0, pairHoursBefore: out.pairHoursBefore, pairHours: out.pairHours, pairHoursScreen: out.pairHoursScreen, pairConfirmed: out.pairConfirmed,
       pairWalks: out.pairWalks, pairStops: out.pairStops, pairSkips: out.pairSkips, pairsSearched: out.pairsSearched,
+      pairTimedOut: out.pairTimedOut, pairMs: pairOn ? (o.coverPairMs ?? COVER_PAIR_MS) : null,
       pairSkipped: o.coverPairPrice > 0 && !pairOn ? { slots: ctx.S, cap: o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS } : null,
       cases: out.risk.cases.map((c) => ({ person: c.person, day: c.day, hours: c.hours })),
     };
@@ -5371,7 +5389,8 @@ function pairText(cs) {
   if (cs.pairSkipped) return ` Second call-outs were not priced: the week has ${cs.pairSkipped.slots} shift copies, over the ${cs.pairSkipped.cap} the pair check runs on.`;
   if (!(cs.pairPrice > 0) || cs.pairHours == null) return "";
   const moved = cs.pairHoursBefore !== cs.pairHours ? `from ${num(cs.pairHoursBefore)} to ${num(cs.pairHours)}` : `${num(cs.pairHours)}`;
-  return ` Second call-outs (priced at ${money2(cs.pairPrice)} an hour): pairs of call-outs that are each covered alone but not together carry ${moved} h.`;
+  const capped = cs.pairTimedOut ? ` The search for these moves stopped at its ${num(cs.pairMs / 1000)} s limit and kept the moves it had made; a longer limit may find more.` : "";
+  return ` Second call-outs (priced at ${money2(cs.pairPrice)} an hour): pairs of call-outs that are each covered alone but not together carry ${moved} h.${capped}`;
 }
 
 // The call-out check in words (CLI --steady and the page).
