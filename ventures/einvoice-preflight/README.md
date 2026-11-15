@@ -356,7 +356,7 @@ Read and left alone, because they are faults in the examples, not in the checks:
 
 Drop the RegistroAlta and RegistroAnulacion XML a billing system (SIF) keeps under
 Real Decreto 1007/2023, alone, batched (RegFactuSistemaFacturacion) or in the SOAP
-envelope sent to the AEAT, one file or many (`verifactu.mjs`, rules VF-001 to VF-028):
+envelope sent to the AEAT, one file or many (`verifactu.mjs`, rules VF-001 to VF-047; VF-029 onward in the two sections below):
 
 - **Fingerprint (VF-001 to VF-003).** The SHA-256 Huella is recomputed over the
   AEAT's field string with the values exactly as written. On a mismatch the checker
@@ -424,8 +424,43 @@ the one real AEAT reply found (code 1123 on NIF "AAAA") is explained and, with t
 record rebuilt, reproduced by VF-019. The mapping is the AEAT's text read against the
 rules, not AEAT replies to every code. Two MIT libraries' copies of the list are stale
 (1278-1280 kept, 1285-1293, 2009 and 4141 missing). Open: a production system's
-replies; 80 unmapped record codes, several checkable offline (1101, 1111, 1124 the VAT
-rate list, 1133/1134, 1156, 1218, 1246, 1254/1255, the Generador block 1224-1231).
+replies; the offline-checkable codes listed here then landed as VF-043 to VF-047 (next
+section).
+
+## VERI*FACTU: code lists, dates, VAT rates by date, Generador (2026-11-15, latest)
+
+Five rules for 27 more AEAT codes, so 140 of the 203 record codes now map to a rule (120
+fully, 20 in part; was 113, 101 and 12). Measured in
+eval/verifactu-offline-codes-2026-11-15.md.
+
+- **VF-043, the schema's code lists** (`verifactu-lists.mjs`): CodigoPais against the
+  245 codes of CountryType2 (1101; "UK" and "EL" are not in it), CodigoPais required
+  unless IDType 02 (1111), Impuesto 01/02/03/05 (1218), ClaveRegimen against its 17
+  keys (1246), IDType 02-07 (1231 on the Generador), and SistemaInformatico's S/N
+  flags (1212, 1213, 1226). The lists come from SuministroInformacion.xsd as kept by
+  three MIT projects, byte-identical (SHA-256 ebba5565...38ea); the AEAT's own copy
+  refused the proxy this time.
+- **VF-044, dates against the clock**: issue or operation date more than twenty years
+  before today (1133, 1134); FechaOperacion after the issue date (1146) or in the
+  future (1173) with no breakdown line under ClaveRegimen 14 or 15. "Today" is this
+  tool's clock (`recordFindings(r, { now })`), not the AEAT's.
+- **VF-045, VAT rates by date**: 5% only from 1 July 2022 to 30 September 2024 (1194),
+  2% and 7.5% only October to December 2024 (1235, 1236), 7, 8, 16 and 18% only up to
+  2012 (1132), on FechaOperacion when given, else the issue date. The AEAT's text for
+  1194/1235/1236 does not name the rate; the rule infers it from the surcharge codes
+  that cover the same windows (1166-1169). A rate outside 0, 2, 4, 5, 7.5, 10, 21 is a
+  warning (1124), since the AEAT's list itself is in its validation PDF, which this
+  session could not fetch. IGIC and IPSI rates are not checked.
+- **VF-046, Brexit prefixes**: a VAT number (IDType 02) starting XI on an operation
+  before 2021 (1254) or GB from 1 February 2021 (1255).
+- **VF-047, the Generador block** of a cancellation: GeneradoPor and Generador together
+  (1224), E/D/T (1225), E needs a NIF (1227), NIF or IDOtro, exactly one (1228), T not
+  IDType 07 (1229), D from Spain only 03 or 07 (1230), the NIF's shape and check
+  character (1258, in part) and not the issuer's own unless E (1259, in part).
+
+Not done: 1156 (which invoice types a NIF-IVA buyer allows) and 1146's exact reading
+(the rule lets a record pass when any line is under 14 or 15; the AEAT may require
+every line); no AEAT reply for any of these codes has been seen.
 
 ## Mandate calendar (shipped 2026-11-02)
 

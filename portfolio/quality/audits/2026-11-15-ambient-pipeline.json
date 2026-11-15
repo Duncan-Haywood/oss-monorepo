@@ -1,0 +1,241 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/ambient-pipeline",
+ "stratum": "research",
+ "seed": "2026-11-15-8ced",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior speech-systems / on-device voice-agent performance engineer (the reviewer of an Interspeech or ICASSP systems paper on cascaded VAD-ASR-LLM-TTS latency). They would check first whether each stage was timed cold or with warm caches, whether ASR ran on the VAD's own segments rather than oracle boundaries, whether the reply latency is an end-to-end measurement or a sum of separately timed stages, and how endpoint delay and early cut-offs were scored",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every derived number recomputes from the committed raw data with my own script (jiwer, numpy, statistics; nothing imported from ambient_pipeline): mean WER 0.0098 on clean and 20 dB (only 'summarise'->'summarize', 1/17 words) = README 0.010; per-utterance reply latency hangover+VAD+ASR+LLM+TTS gives medians 937.6/1033.6/1257.6/1545.6 ms and ranges 786-1058, 882-1154, 1106-1378, 1394-1666 = README within 1 ms rounding; required_speedup by the formula compute/(target-hangover) gives 2.7/0.89, 4.44/1.02, inf/1.56, inf/4.83 = README; ASR RTF median 0.110 from per-utterance ms over padded audio = 0.11; the 20 dB noise formula gives 20.01 dB on a test signal. Capped at 2 because the measured LLM stage is biased low: llama-cpp-python's Llama.generate reuses the KV cache for any matching token prefix (llama.py:882-893 in the 0.3.16 sdist I downloaded), and run.py:212 times three identical calls per prompt after a warm-up with the same system prompt, so the median is a cached run. The fingerprint is in results.json: median TTFT 23 ms at 4 threads vs one decode step 1000/47.6 = 21.0 ms, and 66 ms vs 1000/14.8 = 67.6 ms at 1 thread, i.e. no prompt evaluation of the user turn was timed. I could not rerun run.py (no models in the container; outbound model hosts not tried), so the raw timings are taken as given.",
+  "completeness": "README promises: 7 unit tests with no models (7 passed in 0.02 s), run.py producing results.json (not rerunnable here: needs downloaded models; read in full), summarise.py regenerating results.txt (rerun in a scratch copy: byte-identical), figure.py regenerating memory.png from results.json only (rerun with matplotlib in a scratch copy: pixel-identical, max abs diff 0.0), every table number traceable to results.json (yes). Live page https://marisstella.app/research/ambient-pipeline/ could not be loaded: the session proxy refused marisstella.app (403 connect_rejected). Streaming ASR, phone runs and real recordings are honestly listed as next/owner steps, not done.",
+  "verification": "`cd research/ambient-pipeline && PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests`: 7 passed in 0.02 s. Five mutants via platform/ci/quality_mutate.py: 2 caught (quiet >= hang -> >, WER denominator len(r) -> max(len(r),len(h))), 3 survived: hangover frames int(round(h/32)) -> floor (changes the 500 ms hangover from 16 to 15 frames, 512 -> 480 ms; every test uses exact multiples of FRAME_MS), required_speedup's room <= 0 -> < 0 (target equal to hangover then divides by zero; untested boundary), and dropping first_sentence's i > 0 guard (near-equivalent). run.py's budget assembly, segment-to-truth matching, split and spurious counting have no test, and nothing pins results.json.",
+  "craft": "Read src/ambient_pipeline/budget.py (93 lines), tests/test_budget.py, experiments/run.py (279 lines), summarise.py, figure.py. budget.py is small, pure and documented. run.py is one 215-line main() with nested closures; json.dump(open(...)) leaves the file unclosed (run.py:274); a '# sanity: median delay should sit near the hangover' comment (run.py:137) has no check behind it; run.py mutates sys.path to import the package; pyproject declares numpy as the only runtime dependency though budget.py and the tests use none. No silent fallbacks in the core; first_sentence's fallback to total time when no sentence end is seen is recorded (sent_seen) but not reported.",
+  "claims": "Checked against results.json/results.txt: per-stage table, peak RSS 1105 MB, 6/6 found, splits, WER 0.010 with its explanation, the reply-latency table and speed-ups, 'refused or deflected two of six' (replies 1 and 6 in results.json), first-sentence range 129-375 ms: all backed. Wrong or unbacked: (1) README:45 '30.6 s stream' vs results.json stream_s 28.9; (2) README:78 'endpoint fires 50 to 63 ms later than the nominal hangover' vs observed 51-75 ms clean and 46-70 ms noisy (500 ms is 75 because round(500/32)=16 frames = 512 ms); (3) README:51 'Each closed segment ... is transcribed' while run.py:161 transcribes the ground-truth span sig[s-pad:e+pad], not the VAD segment; (4) README:57 'measured endpoint delay ... per utterance' while run.py:253 uses one median delay for all six; (5) the latency claims do not say the LLM time excludes prompt evaluation (cache reuse, see correctness), which bears directly on README:95 'missed by 34 ms at 300 ms'. Simulation disclaimer, licence note (piper-tts GPL) and consent note are clear and correct.",
+  "fitness": "Job: a researcher planning an on-device voice assistant who wants a per-stage CPU latency/memory budget to reason from (research/ambient-speculate already builds on these stage times). The committed raw JSON, scripts and honest limits make it usable as a rough engineering baseline. It is not a research result: n = 6 synthetic sentences from the same TTS voice that is then timed, oracle ASR boundaries, a cached LLM prompt, one host, one run, stage times summed rather than an end-to-end pipelined measurement. Nearest prior work, none cited: end-of-turn/end-of-query detection and its latency-vs-cutoff trade-off (Shannon et al. 2017, 'Improved end-of-query detection for streaming speech recognition', Interspeech; Skantze 2021, 'Turn-taking in conversational systems and human-robot interaction: a review', CSL), streaming Whisper latency (Machacek et al. 2023, Whispering in real time), and end-to-end speech LLMs that report against cascaded latency (Defossez et al. 2024 Moshi, ~200 ms; Fang et al. 2024 LLaMA-Omni). Against those the finding that a CPU cascade lands near 1 s is expected, not new. Not in research/PROGRAMMES.md; well short of the PhD bar the research brief sets.",
+  "domain": "Against standard speech-system benchmarking practice: endpointing is scored with found/split/spurious and delay distributions (good, matching end-of-query evaluation practice), and the hangover-vs-cutoff trade-off is stated. Departures a practitioner would reject: LLM timed with a warm KV-cache prefix (TTFT = one decode step); ASR fed oracle segment boundaries plus padding rather than the VAD's segments, so the 200 ms hangover's split utterance is timed and transcribed as if whole, and the reply it would actually trigger (an early answer to half an utterance) is not counted; reply latency is a sum of separately timed medians (sum of medians 1012.6 ms vs median of sums 1033.6 ms at 300 ms, so the speed-up column and the latency column disagree by ~21 ms); the recogniser is tested on audio from the same Piper voice that later serves as TTS, which makes the WER uninformative (disclosed)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "mean WER on clean and 20 dB audio",
+   "method": "jiwer 4.0 wer with lower-case, punctuation-strip transforms on refs from run.py UTTS and hyps from results.json",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "0.010 (one spelling variant)",
+   "observed": "0.0098 on both; only utterance 6 (1/17 = 0.0588)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "reply-latency median and range per hangover",
+   "method": "auditor's own sum of hangover_measured + VAD frame + per-utterance ASR, LLM first sentence and TTS first chunk from results.json",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "938/1034/1258/1546 ms, ranges 786-1059, 882-1155, 1106-1379, 1394-1667",
+   "observed": "937.6/1033.6/1257.6/1545.6, ranges 786-1058, 882-1154, 1106-1378, 1394-1666 (per-utterance inputs are rounded)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "required compute speed-up for 0.5/1/2 s",
+   "method": "formula compute / (target - hangover), compute = sum of per-stage medians",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "2.7/0.89/0.38, 4.44/1.02/0.4, inf/1.56/0.46, inf/4.83/0.58",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "LLM time to first token includes prompt evaluation",
+   "method": "compare TTFT with one decode step (1000 / tokens_per_s) from results.json; llama-cpp-python 0.3.16 sdist llama.py:882-893 prefix-match KV reuse",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "TTFT well above one decode step (cold evaluation of the ~20-token user turn)",
+   "observed": "4 threads 23 ms vs 21.0 ms; 1 thread 66 ms vs 67.6 ms: the user turn's prompt evaluation was not timed",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "20 dB SNR noise construction",
+   "method": "apply run.py's formula sd = sqrt(P/10^(20/10)) to a known signal and measure 10 log10(P/Pn)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "20 dB",
+   "observed": "20.01 dB",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ASR real-time factor",
+   "method": "per-utterance ms / (true-end length + 2 x 200 ms padding), median",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "0.11",
+   "observed": "0.110",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "summarise.py and figure.py reproduce committed outputs",
+   "method": "rerun in a scratch copy and diff (matplotlib installed to scratch)",
+   "command": "cp -r research/ambient-pipeline/experiments /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/copy/ && cd /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/copy/experiments && python3.13 summarise.py && diff results.txt <repo>/experiments/results.txt; PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/mpl python3.13 figure.py and compare pixels",
+   "expected": "identical",
+   "observed": "results.txt byte-identical; memory.png pixel-identical (max diff 0.0)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run them",
+   "command": "cd research/ambient-pipeline && env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "7 pass",
+   "observed": "7 passed in 0.02s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/ambient-pipeline/",
+   "expected": "200",
+   "observed": "CONNECT tunnel failed 403 (session proxy refuses marisstella.app); not checked",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:45 stream length 30.6 s",
+   "method": "read results.json stream_s",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "30.6",
+   "observed": "28.9",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:78 endpoint fires 50 to 63 ms after the nominal hangover",
+   "method": "median_detect_after_true_end_ms minus hangover, both conditions",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "50-63 ms",
+   "observed": "clean 55/51/75/63, noisy 50/46/70/58 (range 46-75); 500 ms quantises to 16 frames = 512 ms",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:51 ASR transcribes each closed (VAD) segment",
+   "method": "read run.py:158-167",
+   "command": "sed -n 158,167p research/ambient-pipeline/experiments/run.py",
+   "expected": "VAD segment boundaries",
+   "observed": "ground-truth span sig[max(0, s - pad):e + pad]; VAD segments never reach ASR",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "latency columns are internally consistent",
+   "method": "sum of per-stage medians vs median of per-utterance sums",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/indep.py /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline /home/user/oss-monorepo (jiwer 4.0 in /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/ambient-pipeline/pylib; imports nothing from ambient_pipeline)",
+   "expected": "same basis",
+   "observed": "300 ms: 1012.6 (speed-up 1.02x basis) vs 1033.6 (the '34 ms' miss); ~21 ms gap at every hangover",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/ambient_pipeline/budget.py:21",
+   "change": "hang = max(1, int(round(hangover_ms / frame_ms))) -> int(hangover_ms / frame_ms) (floor; 500 ms becomes 15 frames)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_pipeline/budget.py:93",
+   "change": "if room <= 0 else -> if room < 0 else (target == hangover divides by zero)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_pipeline/budget.py:30",
+   "change": "if quiet >= hang: -> if quiet > hang:",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_pipeline/budget.py:61",
+   "change": "drop 'and i > 0' guard in first_sentence (near-equivalent)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_pipeline/budget.py:55",
+   "change": "return d[len(h)] / len(r) -> / max(len(r), len(h))",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "LLM stage timed with a warm KV cache: run.py repeats each identical prompt 3 times (after a warm-up sharing the system prompt) and llama-cpp-python reuses the matching prefix, so the median TTFT equals one decode step (23 vs 21.0 ms at 4 threads, 66 vs 67.6 ms at 1 thread) and the user turn's prompt evaluation is missing from every reply-latency figure, biasing them low by an unmeasured amount (the '1 s missed by 34 ms' margin depends on it). Not disclosed; ambient-speculate inherits the numbers",
+   "where": "research/ambient-pipeline/experiments/run.py:212",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "ASR runs on ground-truth utterance boundaries plus padding, not on the VAD's closed segments as README:51 says, so a split (200 ms hangover) is timed and transcribed as one whole utterance and the premature reply it would trigger is not counted in the latency table",
+   "where": "research/ambient-pipeline/experiments/run.py:161",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not pin the hangover quantisation or the speed-up boundary: int(round(h/32)) -> floor (500 ms: 512 -> 480 ms) and room <= 0 -> < 0 both survive; run.py's budget, matching, split and spurious counting are untested and nothing pins results.json",
+   "where": "research/ambient-pipeline/tests/test_budget.py:12",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README says the stream is 30.6 s; results.json stream_s is 28.9",
+   "where": "research/ambient-pipeline/README.md:45",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  },
+  {
+   "severity": "low",
+   "what": "README says the endpoint fires 50 to 63 ms after the nominal hangover; results give 51-75 ms clean and 46-70 ms noisy (500 ms rounds to 16 frames = 512 ms)",
+   "where": "research/ambient-pipeline/README.md:78",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  },
+  {
+   "severity": "low",
+   "what": "Reply latency described as using the measured endpoint delay per utterance, but one median delay is applied to all six; and the speed-up column uses a sum of stage medians (1012.6 ms at 300 ms) while the latency column uses the median of sums (1033.6 ms)",
+   "where": "research/ambient-pipeline/experiments/run.py:253",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No prior work on end-of-turn detection, streaming ASR latency or end-to-end speech LLM latency is cited (Shannon et al. 2017; Skantze 2021; Machacek et al. 2023; Defossez et al. 2024 Moshi; Fang et al. 2024 LLaMA-Omni), so the ~1 s cascade figure is not placed against known results",
+   "where": "research/ambient-pipeline/README.md:22",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "run.py: 215-line main(), results.json written via an unclosed open(), a 'sanity' comment with no check behind it, sys.path mutation; pyproject lists numpy as the only runtime dependency though the package uses none",
+   "where": "research/ambient-pipeline/experiments/run.py:137",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"],
+ "verdict": "A tidy, honestly disclaimed engineering measurement whose arithmetic is right and whose measurement method has two flaws a speech-systems reviewer would catch first. Every derived figure recomputes independently (WER 0.0098 with jiwer, the reply-latency medians and ranges, every speed-up, the ASR RTF, the 20 dB noise level), summarise.py and figure.py reproduce their committed outputs exactly, and 7 tests pass. But the LLM stage was timed with llama.cpp's prefix KV cache warm, so time to first token equals a single decode step (23 vs 21 ms) and the user turn's prompt evaluation is missing from every latency figure; ASR is fed ground-truth boundaries rather than the VAD's segments the README describes; and three of five seeded mutants survive, including the hangover-to-frame rounding. Two README numbers (30.6 s stream, '50 to 63 ms' endpoint excess) do not match the results. With n = 6 synthetic sentences, one run and no cited prior work on endpointing or speech-LLM latency, it is a useful rough baseline, not a research result, and misses the bar on correctness, claims and verification."
+}

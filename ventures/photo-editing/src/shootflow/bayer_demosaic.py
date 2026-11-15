@@ -6,9 +6,13 @@ which shows as zipper patterns and false colour along every sharp line. This mod
 colour from published ideas, in this repository's own code (not taken from dcraw, LibRaw or
 RawTherapee):
 
-1. **Two greens per red or blue sensel** (Hamilton and Adams, 1997): along the row, the mean of the
-   two neighbouring greens plus a quarter of the sensel's own second difference (its colour, two
-   sensels either side), which carries the sensel's detail into green; the same down the column.
+1. **Two greens per red or blue sensel** (after Hamilton and Adams, 1997): along the row, the mean of
+   the two neighbouring greens plus ``laplace`` times the sensel's own second difference (its colour,
+   two sensels either side), which carries the sensel's detail into green; the same down the column.
+   Hamilton and Adams use a quarter, which is exact when the colour difference is locally linear; a
+   Taylor expansion of a smooth green gives an eighth. The default, 3/16, sits between them: the
+   quarter overshoots on fine, aliased texture (luma 0.8-1 dB behind bilinear on the A7 III and
+   K-1 II), measured in ``eval/bayer-laplace-weight-2026-11-15.md``.
 2. **Which way the edge runs** (the colour-difference test Menon, Andriani and Calvagno published in
    2007 for their directional filtering): along each row, the colour difference green minus
    red-or-blue is formed at every sensel (at a green sensel from the missing colour's own
@@ -93,7 +97,8 @@ def _median9(a: np.ndarray) -> np.ndarray:
     return np.median(stack, axis=0).astype(a.dtype)
 
 
-def _piece(c: np.ndarray, masks, window: int, power: float, rb: str, median_passes: int, eps) -> np.ndarray:
+def _piece(c: np.ndarray, masks, window: int, power: float, rb: str, median_passes: int, eps,
+           laplace: float = 0.1875) -> np.ndarray:
     is_r, is_g, is_b = masks
     h, w = c.shape
 
@@ -105,8 +110,9 @@ def _piece(c: np.ndarray, masks, window: int, power: float, rb: str, median_pass
     # Step 1: row and column estimates of the missing colour at every sensel. At a red or blue sensel this
     # is green; at a green sensel it is the row's (or column's) other colour. Both carry the sensel's own
     # second difference.
-    est_h = (left + right) / 2 + (2 * c - left2 - right2) / 4
-    est_v = (up + down) / 2 + (2 * c - up2 - down2) / 4
+    lap = WORK(laplace)
+    est_h = (left + right) / 2 + (2 * c - left2 - right2) * lap
+    est_v = (up + down) / 2 + (2 * c - up2 - down2) * lap
 
     # Step 2: colour difference green minus other along each line, and how fast it changes.
     sign = np.where(is_g, WORK(1), WORK(-1))
@@ -172,6 +178,7 @@ def directional(
     *,
     window: int = 2,
     power: float = 2.0,
+    laplace: float = 0.1875,
     rb: str = "weighted",
     median_passes: int = 0,
     band: int | None = None,
@@ -179,7 +186,8 @@ def directional(
     native: bool | None = None,
 ) -> np.ndarray:
     """Demosaic the (h, w) Bayer plane ``c`` (pattern ``pat``: 4 colours, 0 R, 1 G, 2 B, row-major over
-    the top-left 2x2) to (h, w, 3) float32. See the module docstring for the steps and options.
+    the top-left 2x2) to (h, w, 3) float32. See the module docstring for the steps and options;
+    ``laplace=0.25`` is the 2026-11-15 first version (Hamilton and Adams' weight).
 
     ``native``: None (default) runs the C path of ``shootflow.bayer_native`` when it builds and
     ``median_passes`` is 0, else numpy; True requires it (RuntimeError if unavailable); False is numpy
@@ -221,10 +229,10 @@ def directional(
         if use_c:
             from shootflow import bayer_native
 
-            bayer_native.piece(big[a:b], cm, window, power, rb == "simple", eps, pad, pad, out[y0:y1])
+            bayer_native.piece(big[a:b], cm, window, power, rb == "simple", eps, pad, pad, out[y0:y1], laplace)
             return
         masks = (cm == 0, cm == 1, cm == 2)
-        piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps)
+        piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps, laplace)
         out[y0:y1] = piece[pad : pad + (y1 - y0), pad : pad + w]
 
     # Bands are independent (each reads its own overlap, writes its own rows), and numpy releases the GIL in

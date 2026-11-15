@@ -70,7 +70,10 @@ into the tub, about 53 a minute on paper, and the firmware runs it for 16 s
 after each ball fed ([`cad/README.md`](cad/README.md), "Ball lift"); since
 2026-11-15 a shunt and comparator on GPIO 0 let it cut a jammed lift within
 about 30-90 ms, retry once and then report `FLAG_LIFT_JAM`
-([`cad/README.md`](cad/README.md), "Lift jam cutoff"), and a friction slip hub
+([`cad/README.md`](cad/README.md), "Lift jam cutoff"; its shunt sits inside the
+motor-diode loop behind an INA186-class amplifier, so the trip, 1.51-1.77 A,
+no longer rises when the firmware turns the duty down on a full pack: "Lift
+current sense inside the diode loop"), and a friction slip hub
 on the drive pulley keeps the jam's first impact on a flight to 51-88 N on the
 simulated feeder, against 98-214 N with the pulley keyed to the shaft
 ([`cad/README.md`](cad/README.md), "Lift slip coupling"). Hopper

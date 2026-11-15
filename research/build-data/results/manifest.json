@@ -5,15 +5,15 @@
   "chicago": {
    "dataset": "ydr8-5enu",
    "host": "data.cityofchicago.org",
-   "rows": 852814,
-   "applied": 852465,
-   "issued": 852814,
+   "rows": 853103,
+   "applied": 852754,
+   "issued": 853103,
    "completed": 0,
-   "cost": 814219,
-   "both_applied_issued": 852465,
+   "cost": 814479,
+   "both_applied_issued": 852754,
    "negative_issue_lag": 81,
    "negative_build_time": 0,
-   "pulled": "2026-11-12"
+   "pulled": "2026-11-15"
   },
   "sf": {
    "dataset": "i98e-djp9",

@@ -32,6 +32,8 @@ candidate) under the variants that early-stop, and records the round each quanti
   cpin_es3_nc5 cpin_es3_nc with a staleness rule a deployment can apply: any source permit open at D for more
                than STALE_DAYS (5 years) is presumed abandoned and dropped (session 91)
   cpin_es3_nc2, _nc3, _nc8  the same rule at 2, 3 and 8 years (session 92's sweep, STALE)
+  cpin_es3_ncq the same rule with a threshold per source city: its own 0.99 quantile of build days over its
+               years <= Y-2 completed by D (session 93, q_threshold)
 Session 92: every _nc variant is also scored on a selection set a deployment has on D, the same for every
 threshold: all the sources' Y-3 permits (never-completed ones included, none dropped), open ones with their
 window at D, by the censored loss (sel_closs). sweep_summary picks the threshold with the lowest q0.9 sel_closs
@@ -55,10 +57,20 @@ import boosted, transfer  # noqa: E402
 
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
-            "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8")
+            "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
 # session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
 STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922}
+STALE_Q = 0.99  # session 93, cpin_es3_ncq: a source's threshold = this quantile of its builds completed by D
+
+
+def q_threshold(d, decision, q=STALE_Q):
+    """Session 93 (cpin_es3_ncq): the q-quantile of issue-to-completion days over d's rows completed by
+    `decision`; a deployment on that date can compute it from the source's own records."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    y = d.y.to_numpy(float)
+    return float(np.quantile(y[y <= win], q))
 
 
 def stale_drop(d, decision, days=STALE_DAYS):
@@ -118,6 +130,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     frames = {c: (d if nc and c != held else d[np.isfinite(d.y.to_numpy(float))]) for c, d in frames.items()}
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
+    thresholds = None
     if variant == "cpin_cut":
         tr, ca = cat(lambda d: d.year <= Y - 2), cat(lambda d: d.year == Y - 1)
         ytr, otr = cpin.censor(tr, D)
@@ -129,6 +142,13 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         sel = ca  # session 92: the common selection set, before any staleness drop
         if variant in STALE:
             tr, ca = stale_drop(tr, D, STALE[variant]), stale_drop(ca, D, STALE[variant])
+        if variant == "cpin_es3_ncq":
+            # session 93: a cut per source city, from its own builds of years <= Y-2 completed by D
+            thresholds = {c: q_threshold(frames[c][(frames[c].year <= Y - 2) & np.isfinite(frames[c].y)], D)
+                          for c in src}
+            tr = pd.concat([stale_drop(frames[c][(frames[c].year <= Y - 4) | (frames[c].year == Y - 2)], D,
+                                       thresholds[c]) for c in src])
+            ca = pd.concat([stale_drop(frames[c][frames[c].year == Y - 3], D, thresholds[c]) for c in src])
         ytr, otr = cpin.censor(tr, D)
         yca, oca = cpin.censor(ca, D)
         ysel, osel = cpin.censor(sel, D)
@@ -165,6 +185,8 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
     res["n_train_never_completed"] = int(np.isinf(tr.y.to_numpy(float)).sum())
     res["n_es_never_completed"] = int(np.isinf(ca.y.to_numpy(float)).sum())
+    if thresholds is not None:
+        res["stale_threshold_days"] = thresholds
     if nc:
         res["n_sel"], res["n_sel_open"] = len(sel), int(osel.sum())
         res["sel_closs"] = {str(t): sum(v) / len(v) for t, v in sel_loss.items()}
@@ -476,6 +498,51 @@ def sweep_summary(path, base_path, s91_path, held=("sf", "seattle"), years=(2021
                 held=verdict)
 
 
+def ncq_summary(path, sweep_path, nc_path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 93: the per-source threshold (cpin_es3_ncq, this file) beside session 92's fixed thresholds
+    (sweep_path) and session 91's cpin_es3 and cpin_es3_nc5 (nc_path), against session 88's full (base_path).
+    This file also holds an independent rerun of nc2, nc3 and nc8 (same pull date); `replication` is its largest
+    q0.9 test-loss difference from session 92's. Predictions S1 to S5 as committed before the run."""
+    B, R, W, N = (json.load(open(p)) for p in (base_path, path, sweep_path, nc_path))
+    vs = ("cpin_es3", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc5", "cpin_es3_nc8", "cpin_es3_ncq")
+    cells, rep = [], []
+    for h in held:
+        for Y in years:
+            k = lambda v: f"{h} {Y} {v}"  # noqa: E731
+            got = {v: (R.get(k(v)) if v == "cpin_es3_ncq" else W.get(k(v)) or N.get(k(v))) for v in vs}
+            if not all(got.values()):
+                continue
+            for v in ("cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8"):
+                if k(v) in R and k(v) in W:
+                    rep.append(abs(R[k(v)]["test_loss"]["0.9"] - W[k(v)]["test_loss"]["0.9"]))
+            f = B[k("full")]["test_loss"]
+            row = dict(held=h, year=Y, change={}, closs_all={}, q90_seed_range={},
+                       ncq_threshold_days=got["cpin_es3_ncq"]["stale_threshold_days"],
+                       ncq_train_open=got["cpin_es3_ncq"]["n_train_open"])
+            for v, r in got.items():
+                row["change"][v] = {t: r["test_loss"][t] - f[t] for t in ("0.5", "0.9")}
+                row["closs_all"][v] = (r.get("test_closs_all") or {}).get("0.9")
+                ps = r.get("test_loss_per_seed", {}).get("0.9")
+                row["q90_seed_range"][v] = (max(ps) - min(ps)) if ps else None
+            cells.append(row)
+    mean = {v: {t: float(np.mean([c["change"][v][t] for c in cells])) for t in ("0.5", "0.9")} for v in vs}
+    C = lambda c, v: c["change"][v]["0.9"]  # noqa: E731
+    fixed = ("cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc5", "cpin_es3_nc8")
+    best = [min(fixed, key=lambda v: C(c, v)) for c in cells]
+    sf_mean = lambda v: float(np.mean([C(c, v) for c in cells if c["held"] == "sf"]))  # noqa: E731
+    thr = [x for c in cells for x in c["ncq_threshold_days"].values()]
+    verdict = dict(S1=mean["cpin_es3_nc8"]["0.9"] > mean["cpin_es3_nc5"]["0.9"] + 5,
+                   S2=sf_mean("cpin_es3_nc2") < sf_mean("cpin_es3_nc5"),
+                   S3=all(730 <= x <= 1826 for x in thr) and mean["cpin_es3_ncq"]["0.9"] <= mean["cpin_es3_nc5"]["0.9"] + 0.5,
+                   S4=len(set(best)) > 1)
+    return dict(note="cascade2 transfer model; change = mean pinball loss on completed test-year rows minus session "
+                     "88's full, days, negative = better; closs_all = q0.9 censored pinball loss over all test-year "
+                     "rows; fixed thresholds from session 92, cpin_es3 from session 91; 3 seeds",
+                cells=cells, n_cells=len(cells), mean_change=mean, best_fixed_q90=best,
+                sf_q90_mean={v: sf_mean(v) for v in vs}, ncq_thresholds_days=thr,
+                replication_max_abs_q90_diff=max(rep) if rep else None, n_replicated=len(rep), held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -496,8 +563,18 @@ if __name__ == "__main__":
     ap.add_argument("--pulled", default=datetime.date.today().isoformat(), help="pull date (censored test windows)")
     ap.add_argument("--summarise-nc", help="session 91: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-sweep", help="session 92: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-ncq", help="session 93: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_ncq:
+        s = ncq_summary(a.summarise_ncq, os.path.join(res_dir, "rounds_score_sweep_i2c.json"),
+                        os.path.join(res_dir, "rounds_score_nc_i2c.json"),
+                        os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
+        json.dump(s, open(a.summarise_ncq.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean_change"], sf=s["sf_q90_mean"], best=s["best_fixed_q90"],
+                              thr=s["ncq_thresholds_days"], rep=s["replication_max_abs_q90_diff"],
+                              n_rep=s["n_replicated"], held=s["held"]), indent=1))
+        sys.exit()
     if a.summarise_sweep:
         s = sweep_summary(a.summarise_sweep, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"),
                           os.path.join(res_dir, "rounds_score_nc_i2c.json"))

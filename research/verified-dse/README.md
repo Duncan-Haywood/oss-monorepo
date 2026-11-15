@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 132 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 133 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -143,6 +143,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   random point carries little evidence. A relative margin of 0.5% to 5% on y[u] - y[t] is flat (4.38% to 4.42%). Two of six
   predictions refuted; the subset test with random probes looks exhausted, and SWG(32) (3.91%) stays ahead:
   [`experiments/confirm_probe/`](experiments/confirm_probe/results.txt).
+- **On a blind set probed so every cell reaches the ladder branch, the unguarded ladder beats random routing and every guard
+  loses to it (milestone 133, flow run).** Seven new 128-bit left shifters (a CRC-7, BCD-to-binary, compare-select and
+  multiplicative-hash amount; 18 to 58 gates) were kept from nine by a one-point routing-cost probe written before it ran, and
+  nine predictions were fixed before a 1,680-point flow run. All 14 cells are on the ladder branch. Blind mean regret: unguarded
+  clipped ladder SWC 2.70%, the 32-gate rule SWG(32) 3.09%, the pilot-probe guard SWP(32) 3.35%, random 5.57%; SWC is perfect on
+  11 cells and fails on crc7s16 relaxed and bcd3. Routing fresh points on distrust (SWPF) is 0.12 points better than SWP, all of
+  it where the ladder was right. Pooled over all 42 blind cells (milestones 125, 132, 133): SWC 3.30%, SWG(32) 4.26%, random
+  4.65%; SWC better than random on 28 cells, worse on 8: [`experiments/ladder_blind/`](experiments/ladder_blind/results.txt).
 - **Tested blind on six new 128-bit shifters, neither guard beats random routing (milestone 132, flow run).** SWP(32), the
   pilot-probe guard, and SWG(32), the 32-gate rule, were registered side by side with eight predictions before a 1,440-point flow
   run on three new families: Gray decode (gray0, 24 gates in front of the amount; gray1, 43), a value mod 97 (mod8, mod10, mod12;

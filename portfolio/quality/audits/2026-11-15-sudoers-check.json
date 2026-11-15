@@ -1,0 +1,215 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/sudoers-check",
+ "stratum": "venture",
+ "seed": "2026-11-15-8ced",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior Linux sysadmin / security engineer who reviews sudoers policy for fleets. They would check first that the tool parses sudoers exactly as sudo does (aliases, tag and runas inheritance, include order and the includedir skip rule), that its 'who can become root' list matches what sudo actually permits, including last-match semantics and Defaults scoping, and that it never under-reports a passwordless root path",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed against sudo 1.9.15p5 itself (installed here: visudo, cvtsudoers, sudo). (a) 22 new grammar cases the author did not write (negated runas first, IP/netmask hosts, %#gid and %:nonunix, escaped space in path, list, INTERCEPT/FOLLOW, negated User_Alias, runas group alias, continuation with trailing space, NOTBEFORE, two-hash digest, regex command path, !!cmd, quoted user, negated Host_Alias ...) through visudo -c and cvtsudoers -e -f json vs policyEntries: 19 identical, 1 differs only because parity-gen.mjs's principal() does not know cvtsudoers' 'usergid' key, 2 rejected by visudo. (b) Real sudo decisions in a private mount namespace (unshare -m, bind-mount a test file over /etc/sudoers, runuser -u <user> -- sudo -n ...): NOPASSWD override by a later ALL rule (sudo asks for a password; tool reports nopasswd-overridden), /usr/bin/cat /var/log/* reaching /var/log/../../etc/shadow (sudo prints shadow; tool reports reads-any-file), runas_default=nobody before and after the rule (sudo -u root refused; tool demotes to medium), @includedir skipping b.conf and c~ (visudo -c parses exactly 10-a, 20_x, README; tool flags exactly b.conf and c~). (c) Two semantic misses: 'nobody ALL = (!root, ALL) NOPASSWD: ALL' and a Runas_Alias '!root, ALL' give passwordless root under real sudo (id -u prints 0, sudo's runas list is last-match) but the tool reports medium 'the users in (!root, ALL)' and lists no root path (scan.mjs:450 treats any negated root as excluding root regardless of order); 'Defaults>root !authenticate' lets daemon run sudo -n as root with no password but the root-path summary says password:true (scan.mjs:548 applies only global/@ and :user Defaults to the password decision). Not 4: the who-can-become-root list, the product's headline, is wrong on an uncommon but real runas ordering.",
+  "completeness": "Checked each README feature: all 23 finding types fire on fixtures/risky (node check.mjs fixtures/risky: 16 findings, 12 high), ubuntu stock fixture clean, --format json, --fail-on-risk exit 2 (observed rc=2), bad path and bad --format exit 1, browser page imports the same scan.mjs and usage.mjs, guide page present, llms.txt present. Gap: run on a repository copy (node check.mjs fixtures/risky) the stock '@includedir /etc/sudoers.d' is not matched to DIR/sudoers.d, so sudoers.d/ivan.conf, which sudo never reads, is 'checked on its own' as if live and includedir-file-ignored is not reported; the same tree copied to a directory named etc/ reports it correctly. The README sells this check ('a drop-in named deploy.conf that sudo never reads') for teams that keep drop-ins in config management. Served page not loaded: marisstella.app does not resolve from this session (proxy 403 / ENOTFOUND), so no URL defect is filed.",
+  "verification": "`cd ventures/sudoers-check && node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs`: 98 tests, 97 pass, 1 skipped (the CWD= case cvtsudoers cannot print), 0 fail; the live cvtsudoers re-generation test ran because cvtsudoers is installed. 4 seeded mutants via quality_mutate.py: 3 caught (includedir skip rule drops the '.' check; timestamp_timeout threshold 60 -> 600; non-root runas forced to root), 1 survived (deleting the runas-root guard in the nopasswd-overridden loop, scan.mjs:689). No test covers a negated runas before ALL, or runas/command-scoped Defaults in the password decision. The parity design (recorded cvtsudoers output plus live regeneration) is better than most tools of this kind.",
+  "craft": "Read scan.mjs (880 lines), check.mjs, parity-gen.mjs, parity.test.mjs, parity-cases.mjs. Zero-dependency, one module shared by CLI and page, careful splitTop/indexTop handling of quotes and escapes, a pinned ReDoS fix with a comment. Defects: analyse() is one ~170-line function mixing Defaults, rules and ordering; runasInfo splits runas text on ':' without regard to quoting; parity-gen principal() checks 'groupid' where cvtsudoers emits 'usergid', so a %#gid user prints as raw JSON; a '#1' argument (which visudo rejects) is silently kept as an argument with no note.",
+  "claims": "Checked: '41 cases match cvtsudoers' (parity.test.mjs, 41 pass + 1 skip, live regeneration agrees); 'manual EXAMPLES, 49 entries, all matching' (whole-file parity test passes); 'follows include order, skips names with . or ~' (matches visudo -c on a real tree, but not for the CLI on a repo copy, see completeness); disclaimer and 'not a security audit, not visudo -c, a clean scan is not proof' on page, README and llms.txt; 'nothing uploaded' (page imports only local modules; usage.mjs is the local counter). The 'who can become root and how' report is the one claim that fails on inputs (negated runas first; runas-scoped !authenticate shown as 'with a password').",
+  "fitness": "Job: an admin pastes /etc/sudoers and drop-ins, or CI runs check.mjs --fail-on-risk on a config-management tree, and they learn which rules are root. On the stock and risky fixtures and the manual's examples the report is accurate, file:line precise and the fixes are the ones a sysadmin would give (sudoedit, pin args, root-owned wrapper, rename the dotted drop-in). The CI use on a repo tree loses the includedir-skip check unless the directory is named etc; the runas ordering miss would let a deliberately odd rule pass as medium. Nearest tools: visudo -c (syntax only), GTFOBins (catalogue, not a policy reader), lynis/linpeas (heuristic greps): none reads a whole policy with sudo-verified parsing in a browser.",
+  "domain": "Against sudoers(5) 1.9.15 and observed sudo behaviour: tag/runas inheritance, alias expansion, last-match between user specs, env_keep/env_reset, secure_path, timestamp, use_pty and the includedir skip rule are all right and verified. Departures: within a Runas_List sudo also takes the last matching item, so '(!root, ALL)' includes root (the tool reads any '!root' as exclusion); Defaults>runas and Defaults!cmnd authenticate scoping are reported as authenticate-off but ignored when deciding whether a rule needs a password; nopasswd-overridden only considers a later ALL rule (stated in the README). A senior reviewer would sign off with these noted."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "22 new grammar cases parsed vs sudo's own parser",
+   "method": "visudo -c -q -f then cvtsudoers -e -f json (sudo 1.9.15p5) vs scan.mjs policyEntries",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sudoers-check/par.mjs /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sudoers-check",
+   "expected": "identical entries",
+   "observed": "19 identical, 1 representation-only (parity-gen principal lacks usergid), 2 rejected by visudo",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "@includedir skip rule on a real tree (10-a, b.conf, c~, 20_x, README)",
+   "method": "visudo -c -f on the tree lists parsed files",
+   "command": "visudo -c -f /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sudoers-check/inc/sudoers; node /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sudoers-check/files.mjs /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sudoers-check",
+   "expected": "visudo parses 10-a, 20_x, README only",
+   "observed": "tool flags exactly b.conf and c~ as ignored and the other three as live",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "NOPASSWD rule overridden by a later ALL rule for the same user",
+   "method": "real sudo in a private mount namespace: runuser -u daemon -- sudo -n /usr/bin/id",
+   "command": "unshare -m sh -c 'mount --bind cur /etc/sudoers && runuser -u daemon -- sudo -n /usr/bin/id -u'",
+   "expected": "sudo: a password is required",
+   "observed": "sudo asks for a password; tool reports nopasswd-overridden at line 2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cat /var/log/* reaches /etc/shadow via ../",
+   "method": "real sudo: sudo -n /usr/bin/cat /var/log/../../etc/shadow",
+   "command": "unshare -m ... runuser -u daemon -- sudo -n /usr/bin/cat /var/log/../../etc/shadow",
+   "expected": "allowed; tool flags reads-any-file",
+   "observed": "shadow printed; tool medium reads-any-file",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "runas_default=nobody (before and after the rule) with NOPASSWD: ALL",
+   "method": "real sudo: sudo -n -u root id",
+   "command": "unshare -m ... runuser -u daemon -- sudo -n -u root id -u",
+   "expected": "root refused; tool not high",
+   "observed": "password required for root; tool medium, runas (nobody)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "negated root first in runas list: nobody ALL = (!root, ALL) NOPASSWD: ALL",
+   "method": "real sudo, last-match runas list",
+   "command": "printf 'root ALL=(ALL:ALL) ALL\\nnobody ALL = (!root, ALL) NOPASSWD: ALL\\n' > $S/cur; unshare -m sh -c \"mount --bind $S/cur /etc/sudoers && runuser -u nobody -- sudo -n -u root id -u\"; node /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/sudoers-check/probe.mjs 'nobody ALL = (!root, ALL) NOPASSWD: ALL\\n'",
+   "expected": "id -u 0 => high nopasswd-all, root path listed",
+   "observed": "sudo prints 0 (passwordless root); tool: medium nopasswd-all 'as the users in (!root, ALL)', no root path",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Defaults>root !authenticate then daemon ALL=(ALL) ALL",
+   "method": "real sudo: sudo -n -u root id",
+   "command": "unshare -m ... runuser -u daemon -- sudo -n -u root id -u",
+   "expected": "no password; root path password:false",
+   "observed": "sudo prints 0 without a password; tool reports authenticate-off but root path says password:true",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/sudoers-check && node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs",
+   "expected": "all pass",
+   "observed": "98 tests, 97 pass, 1 skip, 0 fail (live cvtsudoers test ran)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI on a repo copy reports the dotted drop-in sudo skips",
+   "method": "compare fixtures/risky with the same tree copied to etc/",
+   "command": "cd ventures/sudoers-check && node check.mjs fixtures/risky | grep ivan; cp -r fixtures/risky/* $S/etc/ && node check.mjs $S/etc | grep ivan",
+   "expected": "includedir-file-ignored for sudoers.d/ivan.conf in both",
+   "observed": "fixtures/risky: 'ivan.conf is not included ... checked on its own'; etc/: includedir-file-ignored",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI flags and exit codes",
+   "method": "run them",
+   "command": "node check.mjs fixtures/risky --fail-on-risk; node check.mjs /nonexistent; node check.mjs fixtures/risky --format xml",
+   "expected": "2, 1, 1",
+   "observed": "2, 1, 1",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "41 cvtsudoers parity cases and 49-entry manual example",
+   "method": "parity.test.mjs run with live cvtsudoers",
+   "command": "node --test parity.test.mjs",
+   "expected": "all match",
+   "observed": "41 pass, 1 skip (CWD=), whole file pass, live regeneration agrees",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "fixtures accepted by sudo",
+   "method": "visudo -c -f",
+   "command": "for f in fixtures/*/sudoers; do visudo -c -f $f; done",
+   "expected": "parsed OK",
+   "observed": "all three parsed OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and no-upload statement on the page",
+   "method": "read index.html",
+   "command": "grep -n 'not a security audit\\|No warranty\\|scan.mjs' ventures/sudoers-check/index.html",
+   "expected": "present; page uses shipped scan.mjs",
+   "observed": "present (lines 62, 130); imports ./scan.mjs and ./usage.mjs",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "scan.mjs:259",
+   "change": "return b.endsWith(\"~\") || b.includes(\".\"); -> return b.endsWith(\"~\");",
+   "caught": true,
+   "test_cmd": "node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "scan.mjs:689",
+   "change": "if (a.runas.root && !b.runas.root) continue; -> (deleted)",
+   "caught": false,
+   "test_cmd": "node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "scan.mjs:611",
+   "change": "Number(p.value) > 60 -> Number(p.value) > 600",
+   "caught": true,
+   "test_cmd": "node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "scan.mjs:455",
+   "change": "root -> root: true in runasInfo return",
+   "caught": true,
+   "test_cmd": "node --test scan.test.mjs parity.test.mjs page.test.mjs usage.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Runas lists are read as 'any !root excludes root', but sudo takes the last matching item: 'nobody ALL = (!root, ALL) NOPASSWD: ALL' (or a Runas_Alias '!root, ALL') gives passwordless root under sudo 1.9.15p5 (id -u prints 0), while the tool reports medium 'as the users in (!root, ALL)' and leaves it out of who-can-become-root",
+   "where": "ventures/sudoers-check/scan.mjs:450",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  },
+  {
+   "severity": "medium",
+   "what": "CLI on a directory that is not named etc (a repo copy, the stated config-management/CI use) does not map '@includedir /etc/sudoers.d' to DIR/sudoers.d: a dotted drop-in sudo skips (fixtures/risky/sudoers.d/ivan.conf) is checked as live and includedir-file-ignored is not reported",
+   "where": "ventures/sudoers-check/scan.mjs:238",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Defaults>runas and Defaults!cmnd scoped !authenticate are ignored when deciding whether a rule needs a password, so the root-path summary says 'with a password' for a rule sudo runs without one (Defaults>root !authenticate + daemon ALL=(ALL) ALL)",
+   "where": "ventures/sudoers-check/scan.mjs:548",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No test covers runas-list order or the runas-root guard in the nopasswd-overridden loop: deleting it leaves all 98 tests green",
+   "where": "ventures/sudoers-check/scan.mjs:689",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  },
+  {
+   "severity": "low",
+   "what": "parity-gen principal() checks 'groupid' but cvtsudoers emits 'usergid' for %#gid users, so such a user would print as raw JSON and a parity case with %#gid would fail spuriously",
+   "where": "ventures/sudoers-check/parity-gen.mjs:26",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"],
+ "verdict": "A careful, well-verified sudoers reader: its parser agrees with sudo's own cvtsudoers on the author's 41 cases and on 19 of 19 new cases I wrote (one more differs only in the generator's mapping), its includedir skip matches visudo -c on a real tree, and five policy decisions checked against real sudo in a private mount namespace (NOPASSWD override, wildcard ../ reaching /etc/shadow, runas_default, dotted drop-ins) come out right. It meets the bar with one high defect: a runas list with !root before ALL is passwordless root under real sudo but is reported as medium and missing from who-can-become-root, because the tool ignores sudo's last-match rule inside runas lists. The CLI on a repo copy also loses the 'sudo never reads deploy.conf' check unless the directory is named etc, and runas- or command-scoped !authenticate is shown as 'with a password'. 3 of 4 seeded mutants were caught."
+}

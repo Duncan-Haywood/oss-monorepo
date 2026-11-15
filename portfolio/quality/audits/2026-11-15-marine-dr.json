@@ -1,0 +1,234 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/marine-dr",
+ "stratum": "research",
+ "seed": "2026-11-15-8ced",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior AUV navigation engineer (the kind who specifies DVL-aided INS for survey AUVs and reviews IEEE JOE / OCEANS navigation papers). They would check first that the drift-per-distance error budget is right, that the DVL and heading figures come from real specs, whether surface fixes are used to calibrate scale and heading bias (as any navigation filter does) rather than only to reset position, and whether the Monte Carlo numbers carry their sampling uncertainty",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Ran everything. `PYTHONPATH=src python3 experiments/run.py` (16.8 s) is byte-identical to experiments/results.txt. Independent numpy script (indep.py, law-of-cosines end error |L(1+s)e^{ib} - L|, its own vectorised Monte Carlo on numpy's RNG): 1 deg + 0.2% gives 1.758% (README 1.75%), ratio 8.79x vs DVL (8.7x), break-even bias 2*asin(0.001) = 0.1146 deg (0.115), distance to 10 m 3.766/1.116/0.569 km (3.8/1.1/0.57), gyro RW 5e-5 rad/sqrt(s) = 0.172 deg/sqrt(h) (0.17). The analytic formula is first-order, not exact as dr.py:14 says: exact rate is sqrt(s^2 + (1+s)(2 sin(b/2))^2), the stated one is low by 0.01-0.19% over the table (inside the claimed 1%). The Monte Carlo headline is not right as a statement about the model: the 'no fix median worst error 64 m' is one low 200-run draw. The author's own run_straight with run.py's outer draws and only the per-run seed offset changed gives 72.5, 76.9, 73.2, 71.7, 70.1 m; my independent 2000-run numpy MC gives a median 76.6 m, and a 200-run median falls at or below 64.4 m with probability 0.002 (bootstrap; 95% range 67.7 to 84.3 m). Fix rows recompute within MC noise (1 km 11.5 vs 11.0; 0.5 km 10.3 vs 9.6). Not 3: the headline Monte Carlo number is ~15% low and reported without an interval.",
+  "completeness": "README promises: 5 tests (`PYTHONPATH=src python3 -m pytest tests -q`: 5 passed in 0.04 s), run.py regenerates results.txt (byte-identical), analytic table, distance table, Monte Carlo (present), LOG with pre-registered hypotheses H1-H3 and an honestly recorded H3 arithmetic error and discarded first MC (present). Live page https://marisstella.app/research/marine-dr/ could not be checked: the session proxy refused marisstella.app (CONNECT 403), so it is unverified, not missing. Blog post docs/posts/2026-11-02-dead-reckoning-heading-beats-dvl.md exists. Turns, USBL and surfacing energy are listed as Next, not claimed.",
+  "verification": "Test suite: 5 passed. Five mutants via platform/ci/quality_mutate.py: 1 caught (analytic_rate hypot -> plain sum, dr.py:16), 4 survived: fix reset leaves y_est (cross-track) unreset (dr.py:44), since_fix never reset so every step after the first km is a fix (dr.py:45), velocity noise x10 (dr.py:37), and chord 2 sin(b/2) -> sin(b) at dr.py:16 (near-equivalent numerically, so weak evidence). The only fix test (test_dr.py:23) uses scale error alone with zero fix noise, so cross-track reset, fix scheduling and noise paths are untested; nothing pins the Monte Carlo rows, which carry the headline result.",
+  "craft": "Read src/marine_dr/dr.py (53 lines), tests/test_dr.py, experiments/run.py. Stdlib, small, readable, seeded. Defects: run.py:25-26 shares one rng across fix levels, so each fix-interval row simulates a different set of 200 vehicles (no common random numbers), which adds noise to exactly the comparison the README draws; mid-file `import random` in run.py; dr.py docstring calls a first-order formula exact; vel_sigma docstring says noise is 'averaged over dt by the caller' but the code applies a per-step sd regardless of dt. Acceptable for a scratch study.",
+  "claims": "Checked: drift formula and 'within 1%' (backed by tests and indep.py); 1.75%, 8.7x, 0.115 deg, 3.8/1.1/0.57 km (backed by results.txt and recomputed); gyro conversion 0.17 deg/sqrt(h) (correct); 'taken as a 1-sigma scale error' (disclosed assumption); DVL spec read from a search excerpt, PDF not opened (disclosed; I could not open it either, bodc.ac.uk 403 via proxy). Not backed: 'no fix gives a median worst error of 64 m' (README:19, project.json lede, research/README.md:1042, blog post) is a seed-favourable draw of a quantity whose model median is about 75 m, with no interval; dr.py:14 'exact for the end point' is false. 'more frequent fixes buy nothing' (README:20) holds only for the max-over-run metric, which itself grows with the number of fixes (pure 3 m fix noise alone: median max 8.5 m over 40 fixes, 10.1 m over 200), so the 'floor' is partly a metric artifact.",
+  "fitness": "Job: a researcher or AUV planner wanting to know how often to surface. The study gives a first-order straight-line error budget, which is textbook material: heading error x distance as the dominant DVL dead-reckoning term is standard (Groves, Principles of GNSS, Inertial and Multisensor Integrated Navigation, 2nd ed. 2013; Kinsey, Eustice & Whitcomb 2006 survey of underwater vehicle navigation; Paull et al. 2014, IEEE JOE AUV navigation review; Kinsey & Whitcomb 2004 on DVL/heading alignment calibration; Jalving et al. 2004 HUGIN DVL-aided INS at roughly 0.1-0.3% of distance). None is cited, and nothing here is new. The surfacing-interval answer is not usable: surface fixes only reset position and never estimate the scale or heading bias, which any real navigator (an EKF over successive fixes) would do, so the required fix interval is overstated; straight track only, so heading bias never averages out over a lawnmower survey. A researcher could reuse the 50-line simulator, little more.",
+  "domain": "Against DVL-aided navigation practice (Groves 2013 ch. 14/16; Kinsey et al. 2006): no navigation filter, no bias/scale estimation from fixes, no DVL-to-heading mounting misalignment term (the classic dominant error, calibrated in practice), heading modelled as constant bias plus unbounded random walk rather than a gyrocompassing INS whose heading error is bounded and latitude-dependent, no current or water-track mode, worst-error metric only (no CEP/RMS, which is how DVL-INS drift is specified), Monte Carlo without sampling intervals. Datasheet accuracy treated as 1-sigma without checking Teledyne's definition. A navigation engineer would accept the arithmetic and reject the surfacing guidance as a method."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "drift rate at 1 deg bias, 0.2% scale, and ratio to DVL alone",
+   "method": "exact law-of-cosines end error |L(1+s)e^{ib}-L|/L, auditor's numpy script",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/indep.py (numpy only; imports nothing from marine_dr)",
+   "expected": "1.75%, 8.7x",
+   "observed": "1.7585%, 8.79x (stated formula 1.7567%, low by 0.1%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even heading bias where chord equals 0.2% scale",
+   "method": "solve 2 sin(b/2)=0.002 by hand: b = 2 asin(0.001)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/indep.py (numpy only; imports nothing from marine_dr)",
+   "expected": "0.115 deg",
+   "observed": "0.1146 deg",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "distance to a 10 m error at 0.2% scale and 0.1/0.5/1.0 deg",
+   "method": "10 / exact rate, auditor's script",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/indep.py (numpy only; imports nothing from marine_dr)",
+   "expected": "3.8, 1.1, 0.57 km",
+   "observed": "3.766, 1.116, 0.569 km",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "gyro random walk unit conversion",
+   "method": "by hand: 5e-5 rad/sqrt(s) x 57.296 deg/rad x 60 sqrt(s)/sqrt(h)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/indep.py (numpy only; imports nothing from marine_dr)",
+   "expected": "about 0.17 deg/sqrt(h)",
+   "observed": "0.1719 deg/sqrt(h)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Monte Carlo no-fix median worst error over 20 km",
+   "method": "independent numpy vectorised MC, 2000 runs, plus bootstrap of 200-run medians; and the author's run_straight with only the per-run seed offset changed",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/nofix.py (numpy only; imports nothing from marine_dr) ; /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/seedvar2.py /home/user/oss-monorepo/research/marine-dr/src (author's run_straight, run.py's outer rng, only the per-run seed offset changed)",
+   "expected": "64 m (95th 178 m)",
+   "observed": "numpy 2000-run median 76.6 m (95th 182 m); 200-run median 95% range 67.7-84.3 m, P(<=64.4)=0.002; author's code at seed offsets 1000/2000/3000/5000/7000: 72.5/76.9/73.2/71.7/70.1 m",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Monte Carlo with fixes every 1 km and 0.5 km",
+   "method": "independent numpy MC, 400 runs",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/indep.py (numpy only; imports nothing from marine_dr)",
+   "expected": "11 m, 9.6 m",
+   "observed": "11.5 m, 10.3 m",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results",
+   "method": "rerun and diff",
+   "command": "cd research/marine-dr && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py > $S/results.txt && diff $S/results.txt experiments/results.txt",
+   "expected": "no diff",
+   "observed": "identical (16.8 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/marine-dr && env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q",
+   "expected": "5 tests pass",
+   "observed": "5 passed in 0.04s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/marine-dr/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403 (host not allowed in this session); unverified",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "dr.py:14 analytic formula is exact for the end point",
+   "method": "law of cosines: |err|^2/L^2 = s^2 + (1+s)(2 sin(b/2))^2",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/indep.py (numpy only; imports nothing from marine_dr)",
+   "expected": "exact",
+   "observed": "first-order; stated formula low by 0.01% to 0.19% over the table",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:20 0.5 km fixes reach the fix-noise floor so more frequent fixes buy nothing",
+   "method": "auditor MC at 0.25 and 0.1 km, and max over N pure Rayleigh(3 m) fix errors",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/marine-dr/indep.py (numpy only; imports nothing from marine_dr)",
+   "expected": "no gain below 0.5 km",
+   "observed": "10.3/10.3/10.7 m at 0.5/0.25/0.1 km; pure fix noise max rises 8.5 -> 10.1 m from 40 to 200 fixes, so the floor is set by the max-over-run metric",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "surface fixes used to calibrate DVL scale and heading bias",
+   "method": "compare with DVL-aided INS practice (Groves 2013; Kinsey & Whitcomb 2004)",
+   "command": "sed -n 43,46p research/marine-dr/src/marine_dr/dr.py",
+   "expected": "fixes feed a bias/scale estimate",
+   "observed": "fix resets position only; bias and scale persist unchanged",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited and novelty stated",
+   "method": "search README/LOG for citations",
+   "command": "grep -niE 'kinsey|groves|paull|jalving|whitcomb' research/marine-dr/*.md",
+   "expected": "prior error-budget work cited",
+   "observed": "no matches; only the Teledyne datasheet excerpt",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/marine_dr/dr.py:44",
+   "change": "fix resets y_est (cross-track) -> pass (cross-track error survives the fix)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q"
+  },
+  {
+   "where": "src/marine_dr/dr.py:45",
+   "change": "since_fix = 0.0 -> pass (every step after the first km is a fix)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q"
+  },
+  {
+   "where": "src/marine_dr/dr.py:37",
+   "change": "rng.gauss(0.0, vel_sigma) -> rng.gauss(0.0, 10 * vel_sigma)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q"
+  },
+  {
+   "where": "src/marine_dr/dr.py:16",
+   "change": "2.0 * math.sin(bias_rad / 2.0) -> math.sin(bias_rad) (near-equivalent, O(b^3))",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q"
+  },
+  {
+   "where": "src/marine_dr/dr.py:16",
+   "change": "math.hypot(scale, chord) -> scale + chord",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline Monte Carlo 'no fix median worst error 64 m' is one seed-favourable 200-run draw: the author's own code with only the per-run seed offset changed gives 70-77 m, an independent 2000-run MC gives 76.6 m, and a 200-run median at or below 64.4 m has probability 0.002. Reported with no interval in README, project.json lede, research index and blog post",
+   "where": "research/marine-dr/README.md:19",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  },
+  {
+   "severity": "medium",
+   "what": "Surface fixes only reset position; scale error and heading bias are never estimated from successive fixes as any navigation filter would, so the 'fix every 1-2 km' guidance overstates the required surfacing rate; no misalignment term, heading as unbounded random walk rather than gyrocompassing INS, worst-error metric only (no CEP/RMS)",
+   "where": "research/marine-dr/src/marine_dr/dr.py:43",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not cover the fix logic or noise paths: dropping the cross-track reset, never resetting since_fix, or multiplying velocity noise by 10 all leave every test green; nothing pins the Monte Carlo rows that carry the headline",
+   "where": "research/marine-dr/tests/test_dr.py:23",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Nearest prior work not cited (Groves 2013; Kinsey, Eustice & Whitcomb 2006; Paull et al. 2014; Kinsey & Whitcomb 2004; Jalving et al. 2004); the heading-dominates-DVL result is a textbook first-order error budget, not a new finding",
+   "where": "research/marine-dr/README.md:38",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "run.py shares one rng across fix levels, so each fix-interval row uses a different set of 200 vehicles (no common random numbers) in the very comparison the README draws",
+   "where": "research/marine-dr/experiments/run.py:25",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Docstring says the analytic rate is exact for the end point; exact is sqrt(s^2 + (1+s)(2 sin(b/2))^2), the stated formula is first-order (low by up to 0.19% over the table)",
+   "where": "research/marine-dr/src/marine_dr/dr.py:14",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  },
+  {
+   "severity": "low",
+   "what": "'more frequent fixes buy nothing' rests on a max-over-run metric that itself rises with the number of fixes (pure 3 m fix noise: 8.5 m max over 40 fixes, 10.1 m over 200), so the floor is partly a metric artifact",
+   "where": "research/marine-dr/README.md:20",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"],
+ "verdict": "A tidy, honest, reproducible 50-line straight-line dead-reckoning simulator whose deterministic numbers are right and whose Monte Carlo headline is not. run.py reproduces results.txt byte for byte, and an independent numpy check confirms 1.75% drift at 1 degree, 8.7x the DVL, break-even 0.115 degree, 3.8/1.1/0.57 km to 10 m and the gyro unit conversion. But the 'no fix median worst error 64 m' is a lucky 200-run draw of a quantity whose model median is about 75-77 m (P = 0.002 for a draw that low), reported without an interval; 4 of 5 seeded mutants survive because the fix and noise paths are untested; fixes reset position without calibrating scale or bias, which no navigation engineer would accept for surfacing guidance; and the result is a textbook error budget with no prior work cited. It misses the bar on correctness, claims and verification, and is well short of the research programme's bar."
+}

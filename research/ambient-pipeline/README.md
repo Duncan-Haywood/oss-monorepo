@@ -42,13 +42,13 @@ It builds on none of the research groups listed in `prompt.md`; there is no lab 
 
 1. **Recordings.** Six sentences (1.8 to 5.2 s of speech) are synthesised with Piper
    (noise_scale and noise_w_scale set to 0 so the audio is identical on every run), resampled to
-   16 kHz and placed in a 30.6 s stream with 1.5 s gaps. A second copy has white noise added at
+   16 kHz and placed in a 28.9 s stream with 1.5 s gaps. A second copy has white noise added at
    20 dB SNR. "True end of speech" is the last 10 ms window above 2% of the clip's peak RMS.
 2. **VAD.** Silero processes the stream in 512-sample (32 ms) frames; each call is timed. A
    segment opens at p >= 0.5 and closes after a hangover of consecutive sub-threshold frames
    (200, 300, 500, 800 ms; `budget.endpoint`). I report how many utterances are found, split
    in two, or spurious, and how long after the true end the endpoint fires.
-3. **ASR.** Each closed segment (plus 200 ms padding) is transcribed greedily; median of 3 runs
+3. **ASR.** Each true utterance span (plus 200 ms padding; not the VAD's segments) is transcribed greedily; median of 3 runs
    after a warm-up, with 1 and 4 threads. WER is against the text that was synthesised.
 4. **LLM.** The ASR transcript goes to the model with a one-line system prompt, temperature 0,
    at most 60 tokens, streamed. I time the first token and the first complete sentence
@@ -74,8 +74,8 @@ for the 1-thread comparison, so it is an upper bound for the 4-thread configurat
 
 **Endpointing.** All 6 utterances were found at every hangover in both conditions, and none was
 spurious. A 200 ms hangover split one utterance in two in both conditions, and 300 ms split
-one in the noisy condition only. The endpoint fires 50 to 63 ms later than the nominal hangover
-(frame quantisation plus the tail of the energy-based "true end").
+one in the noisy condition only. The endpoint fires a median 46 to 75 ms (at most 82 ms) later than the nominal hangover
+(32 ms frame quantisation, a 500 ms hangover rounds up to 512 ms, plus the tail of the energy-based "true end").
 
 **Recognition.** Mean WER is 0.010 on both clean and 20 dB audio: the one difference is
 "summarise" transcribed as "summarize", a spelling variant, not a recognition error.
@@ -157,3 +157,7 @@ elsewhere and are downloaded from Hugging Face, PyPI and GitHub releases; this p
 train or recreate them. Everything else is in this directory.
 
 **Figure.** `python experiments/figure.py` (needs matplotlib) redraws `experiments/memory.png`, memory added by each stage, from the committed `experiments/results.json` only; it runs nothing new.
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-ambient-pipeline.json)): each LLM prompt is timed three times with identical input, and llama-cpp-python reuses the KV cache for a matching prefix, so the reported time to first token (23 ms at 4 threads, about one decode step of 21 ms) leaves out prompt processing; every reply-latency figure built on it, including those `ambient-speculate` uses, is a lower bound until the runs are repeated with the cache reset between them. ASR is fed the true utterance spans rather than the VAD's segments, so VAD errors do not reach the WER.

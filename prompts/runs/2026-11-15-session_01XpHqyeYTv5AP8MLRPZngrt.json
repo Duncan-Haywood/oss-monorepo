@@ -1,0 +1,119 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyeYTv5AP8MLRPZngrt",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T22:38:15Z",
+  "ended": "2026-11-15T22:44:14Z",
+  "wall_minutes": 6.1,
+  "tokens_in": 2790289,
+  "tokens_out": 31624,
+  "cost_usd": 1.9583,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16365",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says to pick the project longest without a piece via git log; README and creative_due.py give a weighted draw instead, and on this day every shelf had a piece dated today, so the git-log rule could not separate them. Pointing the prompt at creative_due.py would save a step."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-saints-by-candlelight-126-titus-elders-crete.md"
+  ],
+  "goal": null,
+  "notes": "Saints by Candlelight, episode 126, slug titus-and-the-elders-in-every-town (Letter to Titus, companion to episode 125). Text only: audio folders at 474 MB, over the 400 MB cap. Checks: generate.mjs --check-script ok (6941 words); node --test 18/18 pass; check_post_frontmatter, check_post_links, post_similarity all pass. The adversarial re-read fixed six things: the Callimachus and Epimenides intervals, who ignored Paul at Fair Havens (the centurion, Acts 27:11), an unsupported claim that Titus carried the tearful letter, the Galatians 2 meeting hedged, and Titus's age dropped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "04d31a11-cc1a-5871-b687-ad53fdd1766a",
+    "transcripts": 1,
+    "first": "2026-11-15T22:38:15Z",
+    "last": "2026-11-15T22:44:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 31624,
+        "thinking": 9499,
+        "cache_read": 2691828,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98402,
+        "api_equivalent_usd": 1.9583,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 31624,
+      "thinking": 9499,
+      "cache_read": 2691828,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98402,
+      "api_equivalent_usd": 1.9583,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 26,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.1,
+      "active_minutes": 6.1,
+      "model_minutes": 5.64,
+      "tool_minutes": 0.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

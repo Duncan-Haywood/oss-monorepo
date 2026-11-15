@@ -61,6 +61,14 @@ class NativeBayer(unittest.TestCase):
                     b = self.d(c, (0, 1, 1, 2), window=window, native=True)
                     self.assertTrue(np.array_equal(a, b))
 
+    def test_laplace_weights_bit_identical(self):
+        c = _scene(83, 101)
+        for lap in (0.25, 0.125, 0.2):
+            with self.subTest(laplace=lap):
+                a = self.d(c, (0, 1, 1, 2), laplace=lap, native=False)
+                b = self.d(c, (0, 1, 1, 2), laplace=lap, native=True)
+                self.assertTrue(np.array_equal(a, b), float(np.max(np.abs(a - b))))
+
     def test_other_powers_agree_to_rounding(self):
         c = _scene(70, 90)
         for power in (1.0, 3.5):

@@ -3,14 +3,16 @@
     PYTHONPATH=src python3 tests/lift_jam_sweep.py           # everything
     PYTHONPATH=src python3 tests/lift_jam_sweep.py --belt    # belt stretch only
     PYTHONPATH=src python3 tests/lift_jam_sweep.py --duty    # duty held to the battery against the fixed duty
+    PYTHONPATH=src python3 tests/lift_jam_sweep.py --sense   # high-side sense against the low-side shunt it replaced
     PYTHONPATH=src python3 tests/lift_jam_sweep.py --chain   # the belt as a chain of masses against lumped and rigid
 
 The real firmware (main.py's FeederHw and controller.LiftRun, through tests/feeder_sim.py) drives the lift's MOSFET
 and reads the comparator on GPIO 0 every 10 ms tick. Between its 1 ms steps this file integrates the plant at 0.1 ms:
 the gearmotor as a DC motor at its output shaft (cad `Feeder.lift_motor_model`: winding resistance, inductance,
 torque and back-EMF constants, the rotor's inertia through the gearbox plus the belt, caps and balls), the belt's
-load (every flight loaded, or an empty belt), the flyback diode when the MOSFET is off, the 0.05 ohm shunt (it sees
-current only while the MOSFET conducts), the 1 ms RC filter and the comparator at a trip current. With the MOSFET off, the diode also brakes the belt when its
+load (every flight loaded, or an empty belt), the flyback diode when the MOSFET is off, the shunt (high side since
+2026-11-15, inside the diode's loop, so it sees the motor's current all cycle; `--sense` compares the low-side shunt
+in the MOSFET's source, which sees it only while the MOSFET conducts), the 1 ms RC filter and the comparator at a trip current. With the MOSFET off, the diode also brakes the belt when its
 loaded strand's weight drives the motor backwards.
 
 A jam is a ball caught between a flight and the boot (at the drive pulley: the ball's own stiffness, from the ITF's
@@ -60,6 +62,8 @@ CORNERS = (("29.2 V cold", 29.2, 0.0), ("24 V hot", 24.0, 80.0))
 INERTIAS = (0.5, 1.0, 2.0)
 TRIPS = ("lo", "hi")
 WHERE = ("boot", "hood")
+FEEDER_KW = {}               # Feeder overrides for `start` and `jam` (`sense_report` swaps in the low-side sense)
+LOW_SIDE = {"lift_sense_side": "low", "lift_shunt_ohm": 0.05, "lift_sense_r2": 2.4e3, "lift_shunt_w": 3.0}
 
 
 class Plant:
@@ -236,7 +240,8 @@ class Plant:
         else:
             # the flyback diode across the motor: it carries the winding's current down to zero after a cut, and it
             # conducts again when the belt drives the motor backwards (the loaded strand's weight), which brakes it
-            r_loop = self.r - self.p.lift_shunt_ohm
+            # (high side the shunt is inside that loop; low side, in the MOSFET's source, it is not)
+            r_loop = self.r - (0.0 if self.p.lift_sense_side == "high" else self.p.lift_shunt_ohm)
             self.i = max(0.0, (self.i + DT / self.l * (-DIODE_V - self.ke * self.w)) / (1 + DT * r_loop / self.l))
         self.winding_j += self.i * self.i * self.r_w * DT
         f = 0.0
@@ -278,7 +283,10 @@ class Plant:
                 self.locked = True
         if not self.coupled:
             self.s += self.wb * self.rp * DT
-        shunt = self.i * self.p.lift_shunt_ohm * duty if on else 0.0
+        if self.p.lift_sense_side == "high":       # inside the diode loop: the motor's current, on or freewheeling
+            shunt = self.i * self.p.lift_shunt_ohm
+        else:                                      # in the MOSFET's source: only while it conducts
+            shunt = self.i * self.p.lift_shunt_ohm * duty if on else 0.0
         self.vf += (shunt - self.vf) * DT / self.rc
         return self.vf > self.trip_v
 
@@ -426,7 +434,7 @@ def _run(sim, plant, ms, on_ms=None):
 def start(volts, rise_k, j_factor, trip, loaded=True, slip="lo", coupler="nom", belt=None, chain=None):
     """Kick the lift from rest. (tripped, ms the comparator was on, speed reached as a share of no-load); the plant's
     `slid_ms` says whether the hub slipped."""
-    p = Feeder()
+    p = Feeder(**FEEDER_KW)
     sim, plant = _sim(volts), Plant(p, volts, rise_k, j_factor, trip, loaded, slip, coupler, belt, chain)
     start.plant = plant
     sim.hw.lift.kick(sim.us // 1000)
@@ -439,7 +447,7 @@ def jam(volts, rise_k, j_factor, trip, where, cutoff=True, after_ms=6000, slip="
         chain=None):
     """Run 1 s, then a ball jams. Returns a dict: ms from contact to the first cut (None: never), peak force on the
     flight before that cut and over the whole run, joules in the winding after contact, ms to FLAG_LIFT_JAM."""
-    p = Feeder()
+    p = Feeder(**FEEDER_KW)
     sim, plant = _sim(volts), Plant(p, volts, rise_k, j_factor, trip, slip=slip, coupler=coupler, belt=belt, chain=chain)
     hw = sim.hw
     if not cutoff:
@@ -672,7 +680,8 @@ def duty_report():
     p = Feeder()
     c = p.lift_jam_cutoff()
     print(f"Duty held to {p.lift_v_ref:g} V / battery: {c['duty_lo_v']:.2f} at {p.battery_v_min:g} V, {c['duty_hi_v']:.2f} at "
-          f"{p.battery_v_max:g} V; the trip in motor amps rises to {c['trip_hi_a_full_pack']:.2f} A at most on a full pack, "
+          f"{p.battery_v_max:g} V; the trip in motor amps on a full pack is {c['trip_hi_a_full_pack']:.2f} A at most "
+          f"({'the same as at the cut: high-side sense' if c['sense'] == 'high' else 'raised 1/duty: low-side shunt'}), "
           f"a hot stall there {c['stall_margin_hi_v']:.2f}x it (at {p.battery_v_min:g} V {c['stall_margin_lo_v']:.2f}x)")
     print(f"{'duty':6} {'corner':12} {'pwm':>5} {'speed':>6} {'starts tripped':>15} {'max over ms':>12} | jams: "
           f"{'slowest cut':>11} {'peak N':>7} {'latest give-up':>15} {'winding J':>10}")
@@ -700,6 +709,45 @@ def duty_report():
                       f"{gave:>15g} {wj:10.0f}")
     finally:
         _sim = _sim0
+
+
+def sense_report():
+    """The shunt inside the diode loop with an INA186-class amplifier (2026-11-15; cad/README.md "Lift current sense
+    inside the diode loop") against the low-side shunt in the MOSFET's source as landed before it (0.05 ohm, 2.4k),
+    duty held to the battery: the trip in motor amps at each pack's duty, starts (every flight loaded, hub lo, trip
+    lo, rotor 0.5-2x) and jams (rotor 1x, boot and hood, hub lo/trip hi and hub hi/trip lo). Printed alone by
+    `--sense`."""
+    global FEEDER_KW
+    print(f"{'sense':5} {'corner':12} {'pwm':>5} {'trip A':>11} {'slide A':>7} {'starts tripped':>15} {'max over ms':>12} | "
+          f"jams: {'slowest cut':>11} {'peak N':>7} {'latest give-up':>15} {'winding J':>10}")
+    try:
+        for label, kw in (("high", {}), ("low", LOW_SIDE)):
+            FEEDER_KW = kw
+            p = Feeder(**kw)
+            c, h = p.lift_jam_cutoff(), p.lift_slip_design()
+            for name, v, rise in CORNERS:
+                duty = p.lift_duty_at(v)
+                scale = 1.0 if p.lift_sense_side == "high" else c["duty_lo_v"] / duty
+                tripped = over_ms = 0
+                pwm = None
+                for jf in INERTIAS:
+                    t, over, _ = start(v, rise, jf, "lo")
+                    tripped += t
+                    over_ms = max(over_ms, over)
+                    if jf == 1.0:
+                        pwm = start.plant.last_duty
+                cut = peak = gave = wj = 0
+                for where in WHERE:
+                    for _, slip, trip in CASES[:2]:
+                        r = jam(v, rise, 1.0, trip, where, slip=slip)
+                        cut = max(cut, r["cut_ms"] if r["cut_ms"] is not None else math.inf)
+                        gave = max(gave, r["jammed_ms"] if r["jammed_ms"] is not None else math.inf)
+                        peak, wj = max(peak, r["peak_n"]), max(wj, r["winding_j"])
+                trips = f"{c['trip_lo_a'] * scale:.2f}-{c['trip_hi_a'] * scale:.2f}"
+                print(f"{label:5} {name:12} {pwm:5.2f} {trips:>11} {h['slide_lo_a']:7.2f} {tripped:>12d}/3 {over_ms:12d} | "
+                      f"{cut:>11g} {peak:7.0f} {gave:>15g} {wj:10.0f}")
+    finally:
+        FEEDER_KW = {}
 
 
 def main():
@@ -762,6 +810,8 @@ def main():
     belt_report()
     print()
     duty_report()
+    print()
+    sense_report()
 
 
 if __name__ == "__main__":
@@ -769,6 +819,8 @@ if __name__ == "__main__":
         belt_report()
     elif "--duty" in sys.argv[1:]:
         duty_report()
+    elif "--sense" in sys.argv[1:]:
+        sense_report()
     elif "--chain" in sys.argv[1:]:
         chain_report()
     else:
