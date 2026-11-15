@@ -504,6 +504,13 @@ python3 make_covers.py                  # redraw the podcast covers
 python3 shelf_stats.py                  # compare the two science fiction shelves (counts behind the 2026-10-24 blog post)
 ```
 
+Choosing which creative project a run writes for? `python3
+platform/creative/due.py` (from the repository root) lists every shelf here,
+Saints by Candlelight and the writing podcast by their newest `published:`
+date, names the one that is due, and runs the 400 MB audio check. It reads
+front matter, so it works on a shallow clone where `git log` shows 3 to 5
+commits.
+
 Writing the next story? Read [`BIBLE.md`](BIBLE.md) first: tone, worldview and
 science-honesty rules, the setting timeline and a "next up" list.
 
