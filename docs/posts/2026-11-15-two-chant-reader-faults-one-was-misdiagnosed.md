@@ -1,6 +1,6 @@
 ---
 title: "Two chant-scan reader faults, and the one we had misdiagnosed"
-seo_title: "Reading Gregorian chant scans: a clef lookup bug and broken porrectus strokes"
+seo_title: "Gregorian chant scan reader: a clef bug and broken porrectus strokes"
 date: 2026-11-15
 tags: [chant-forge, music, ocr, optical-music-recognition]
 description: "Chant Forge's scan reader checks GregoBase transcriptions against the 1908 Vatican Graduale. Fixing its last two known faults turned up a wrong diagnosis."
