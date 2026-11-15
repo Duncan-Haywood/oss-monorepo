@@ -32,11 +32,13 @@ for (const w of want) {
   const full = coverSlackPass(ctx, start, { price, pairPrice: pair, onMove: (m) => curve.push({ ...m, t: performance.now() - t0 }) });
   const tFull = performance.now() - t0;
   // The starting objective: rebuild it from the pass with no move allowed (rounds 0) so it uses the same walks.
+  let tn = performance.now();
   const none = coverSlackPass(ctx, start, { price, pairPrice: pair, rounds: 0 });
+  tn = performance.now() - tn; // the starting roster's own walks, which run before the cap's clock starts
   const J0 = J(none.score, none.risk.hours, none.pairHours), Jf = J(full.score, full.risk.hours, full.pairHours);
   const gain = J0 - Jf;
   const pct = (j) => (gain > 1e-9 ? (100 * (J0 - j) / gain).toFixed(1) + "%" : "n/a");
-  console.log(`WEEK ${size} week ${wk} (${slots.length} copies): uncapped ${full.moves} moves in ${(tFull / 1000).toFixed(1)} s, objective ${J0.toFixed(2)} -> ${Jf.toFixed(2)} (gain ${gain.toFixed(2)}), risk ${none.risk.hours} -> ${full.risk.hours} h, pair hours ${none.pairHours} -> ${full.pairHours}`);
+  console.log(`WEEK ${size} week ${wk} (${slots.length} copies): uncapped ${full.moves} moves in ${(tFull / 1000).toFixed(1)} s, objective ${J0.toFixed(2)} -> ${Jf.toFixed(2)} (gain ${gain.toFixed(2)}), starting walks ${(tn / 1000).toFixed(1)} s (before the cap's clock), risk ${none.risk.hours} -> ${full.risk.hours} h, pair hours ${none.pairHours} -> ${full.pairHours}`);
   for (const m of curve) console.log(`  move ${m.moves} at ${(m.t / 1000).toFixed(2)} s: gain kept ${pct(J(m.score, m.riskHours, m.pairHours))}, risk ${m.riskHours} h, pair hours ${m.pairHours}`);
   for (const cap of caps) {
     t0 = performance.now();
