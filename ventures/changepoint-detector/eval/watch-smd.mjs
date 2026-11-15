@@ -149,12 +149,13 @@ export function varying(rows, h) {
   return out;
 }
 
-/** One machine in hourly buckets: the watched columns of each half, the half point, and the scored segment windows. */
-export function machineFrom({ name, train, test, label, interp }) {
+/** One machine in hourly buckets (or `BUCKET_`-minute buckets with a baseline of `from` points, round 19): the watched columns of each half, the half point, and the scored segment windows. */
+export function machineFrom({ name, train, test, label, interp }, BUCKET_ = BUCKET, from = FROM) {
+  const BUCKET = BUCKET_, FROM = from;
   const half = Math.floor(Math.floor(train.length / BUCKET) / 2);
   const cols = varying(train, half * BUCKET);
-  const tr = cols.map((c) => buckets(train.map((r) => r[c])));
-  const te = cols.map((c) => buckets(test.map((r) => r[c])));
+  const tr = cols.map((c) => buckets(train.map((r) => r[c]), BUCKET));
+  const te = cols.map((c) => buckets(test.map((r) => r[c]), BUCKET));
   const n = te[0].length;
   const segs = segments(label);
   const wins = segs.map(([s, e]) => {
@@ -163,7 +164,7 @@ export function machineFrom({ name, train, test, label, interp }) {
   }).filter((w) => w.b < n);
   let covered = 0;
   for (let i = FROM; i < n; i++) if (wins.some((w) => i >= w.lo && i <= w.hi)) covered++;
-  return { name, cols, tr, te, half, nTrain: tr[0].length, n, wins, covered, scored: n - FROM };
+  return { name, cols, tr, te, half, nTrain: tr[0].length, n, wins, covered, scored: n - FROM, from: FROM };
 }
 
 export function loadSmd(dir) {
@@ -186,7 +187,7 @@ export function score(machines, linesOf) {
     t.alerts += lines.length; t.checks += m.scored;
     t.atMark += lines.filter((a) => m.wins.some((w) => inWin(w, a.index))).length;
     for (const w of m.wins) {
-      if (w.b < FROM) continue;
+      if (w.b < (m.from ?? FROM)) continue;
       t.segs++;
       if (w.minutes < 60) t.short++;
       const hit = lines.filter((a) => inWin(w, a.index));
