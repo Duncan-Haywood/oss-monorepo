@@ -276,6 +276,20 @@ CHECKS = [
     ("json", "m4n_k2/summary.json", "swap/k1/fr1", 6.3, 1, pct, "against 6.3% and 7.9%"),
     ("json", "m4n_k2/summary.json", "anchors/k2/fr1/rel_tum", 1.60, 2, pct, "stays +1.60% above TUM's"),
     ("log", "518.28, 517.39 (+0.75%, +0.27%, +0.09%)", "falls to +0.09% once k<sub>2</sub> and k<sub>3</sub>"),
+    # Section 7, milestone 4o (k1 + k2 ranking and waiting)
+    ("json", "m4o_k2wait/summary.json", "hypotheses/H87/k2", 0.995, 3, None, "(mean π over real 0.995, against\n1.34 with"),
+    ("json", "m4o_k2wait/summary.json", "hypotheses/H87/k1", 1.34, 2, None, "(mean π over real 0.995, against\n1.34 with"),
+    ("json", "m4o_k2wait/summary.json", "hypotheses/H86/fr1", 0.775, 3, None, "(AUC 0.775 against 0.749)"),
+    ("json", "m4o_k2wait/summary.json", "k1/predict/fr1/auc_pm2", 0.749, 3, None, "(AUC 0.775 against 0.749)"),
+    ("json", "m4o_k2wait/summary.json", "k2/predict/fr1/tq/real_pm2", 38.9, 1, pct, "catches 38.9% (k<sub>1</sub>: 20.3%)"),
+    ("json", "m4o_k2wait/summary.json", "k1/predict/fr1/tq/real_pm2", 20.3, 1, pct, "catches 38.9% (k<sub>1</sub>: 20.3%)"),
+    ("json", "m4o_k2wait/summary.json", "hypotheses/H89/chosen", 15.2, 1, pct, "catches ±2% in 15.2% of old sets"),
+    ("json", "m4o_k2wait/summary.json", "hypotheses/H89/random", 11.3, 1, pct, "against 11.3% blind (×1.35)"),
+    ("json", "m4o_k2wait/summary.json", "hypotheses/H89/ratio", 1.35, 2, None, "against 11.3% blind (×1.35)"),
+    ("json", "m4o_k2wait/summary.json", "k1/wait/fr1/random_pm2", 6.2, 1, pct, "6.2% blind with k<sub>1</sub> becomes 17.9% chosen"),
+    ("json", "m4o_k2wait/summary.json", "k2/wait/fr1/pi/chosen_pm2", 17.9, 1, pct, "6.2% blind with k<sub>1</sub> becomes 17.9% chosen"),
+    ("json", "m4o_k2wait/summary.json", "k2/wait/fr1/pi/fa", 0.59, 2, pct, "at 0.59% false\nalarms"),
+    ("json", "m4o_k2wait/summary.json", "k2/predict/fr3/ratio", 1.96, 2, None, "still overstates its power 1.96×"),
 ]
 
 
