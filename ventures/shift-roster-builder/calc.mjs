@@ -1011,6 +1011,20 @@ export function rosterScoreUnder(staff, slots, options, roster) {
   return { valid: true, score: scoreOwner(ctx, owner).total };
 }
 
+// A roster from an owner array built elsewhere (the manager's browser, 2026-11-15): owner[i] is the index into `staff` of
+// the person on slots[i], or -1 for open. Checked against every hard rule (availability, roles, rest, hours, days in a
+// row) and priced with the same payroll as buildRoster, with no search, so a host with a tight CPU limit (a free
+// Cloudflare Worker) can publish a week it could not afford to build. { error } when the owner does not fit the lists.
+export function rosterFromOwner(staff, slots, owner, options = {}) {
+  if (!Array.isArray(owner) || owner.length !== slots.length) return { error: "The roster does not match the shift list; build it again." };
+  if (owner.some((p) => !Number.isInteger(p) || p < -1 || p >= staff.length)) return { error: "The roster names someone who is not on the staff list; build it again." };
+  const ctx = buildContext(staff, slots, options);
+  if (!ownerValid(ctx, owner)) return { error: "The roster breaks a rule for the current staff list (availability, rest, hours or days in a row); build it again." };
+  const res = summarise(ctx, owner);
+  const assignments = slots.map((s, i) => ({ slot: s, person: owner[i] >= 0 ? staff[owner[i]].name : null }));
+  return { ok: true, options: ctx.o, owner: owner.slice(), cost: res.cost, unfilledHours: res.unfilledHours, unfilledSlots: res.unfilled.length, people: res.people, assignments };
+}
+
 function anneal(ctx, seed, iterations, jitter) {
   const { P, S, slots, elig } = ctx;
   const rng = mulberry32(seed);
