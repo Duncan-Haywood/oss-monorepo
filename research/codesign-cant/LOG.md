@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-15 · Milestone 7l: retrain at the tilt limit you fly, with and without the proportional-request cap (predictions written and committed before `experiments/m7l_train45/run.py` was run at full budget; outcome below)
+
+- Why: milestones 7j and 7k's first next step. 7j advised "tune at the limit you fly" for the 45° opening-transient crash; 7k found a controller-side fix (bound the proportional position request at the lean the tune saw) and noted that every design sits at the 10 s⁻² top of the position-kp box. Does training at 45° remove the crash by itself, and at what price? With the cap in the loop during training, does the tuner keep (or, with a wider box, raise) kp, since the cap removes the transient a high kp causes?
+- Plan (`experiments/m7l_train45/run.py`): milestone 7e's training exactly (lever-1 objective, 16 episodes, integrator feed-forward, ki <= ceiling / 1.25 as a constraint, thrust-to-weight 2, 3200 CMA-ES evaluations, 6 seeds, 2 starts, both rigid geometries) with the tilt-command limit at 45° (PX4's `MPC_TILTMAX_AIR` default). Arms: `t45` (no cap), `t45 cap` (|kp e| <= A_P = 3.5 m/s², 7k's 0.35 m × 10 s⁻², about the 20° lean g tan 20° = 3.57 m/s², applied as a per-design position-error clip A_P / kp so the bound is an acceleration whatever kp the tuner picks), `t45 cap wide` (the same cap, kp box widened from 0.1-10 to 0.1-31.6 s⁻²; the CMA-ES start then maps to kp 1.78 instead of 1.0). Baseline: 7e's constrained designs (trained at 20°), re-scored by the same function. Held-out: 64 episodes (seed 9999), levers 0-2, tilt limits 20°, 30°, 45°, each without and with the A_P cap at evaluation; 45° at a 1.0 m start offset, levers 0 and 1. `poshold.score` gains a `perr_max` passthrough, inert at None and tested with a per-design clip (`tests/test_poshold.py`).
+- Looked at before writing these: one smoke run (64 evaluations, 2 seeds, 4 training episodes, scored on seed 4242, not the held-out seed; 117 s). Its designs are far from converged (held-out C 6-12 against 7e's 1.5) and say nothing about the questions; it checked the pipeline and timed it (full run estimated near 100 minutes on 4 cores).
+- Predictions (counts are diverged held-out flights out of 384 per arm and geometry, 0.5 m offset unless stated):
+  - L1 (prior 90%): 7e reproduces the earlier counts: lever 0, 45°, no cap: `above` 0, `below` 1; lever 2, 20°: 4 and 45; lever 2, 45°: 12 and 55.
+  - L2 (prior 65%): `t45` crashes on 0 flights at 45° at levers 0 and 1 in both geometries (tuning at the limit removes the transient crash by itself).
+  - L3 (prior 55%): `t45`'s mean position kp is below 7e's in both geometries (without the cap, the tuner pays for the transient by backing off kp).
+  - L4 (prior 55%): `t45 cap`'s mean position kp is at least 9 s⁻² in both geometries (with the cap, high kp costs nothing in the transient).
+  - L5 (prior 45%): `t45 cap wide`'s mean position kp is above 12 s⁻² in both geometries (off the old box edge).
+  - L6 (prior 55%): at 45°, lever 1, `t45 cap wide` (evaluated with its cap) has a lower mean held-out C than `t45` (no cap) in both geometries.
+  - L7 (prior 60%): at a 1.0 m offset, 45°, levers 0 and 1, both cap arms evaluated with their cap crash 0 flights in both geometries, and `t45` without a cap crashes at least 1 in at least one geometry.
+  - L8 (prior 55%): no 45°-trained arm cuts the `below` lever-2, 45° count to less than half of 7e's (7g: those tip-overs are torque authority, not the tune).
+  - L9 (prior 60%): flown at 20° (lever 1, no cap), every 45°-trained arm costs more than 7e (mean paired dC > 0) in both geometries.
+- Analysis: counts per arm, geometry and condition; paired dC per seed against 7e (mean, se, how many worse); the chosen gains. No test beyond counts: six seeds, one held-out set.
+
 ## 2026-11-15 · Milestone 7k: can a builder remove the 45° crash in the controller, without retuning? (predictions written and committed before `experiments/m7k_fixes/run.py` was run on the held-out seed; outcome below)
 
 - Why: milestone 7j's second next step. 7j traced the retrained `above` designs' lever-0 crashes at a 45° tilt-command limit to the opening transient (a 0.5 m start offset times position kp 10 s⁻² asks a ~27° lean per axis that the 20° training limit had clipped), and its advice was "tune at the limit you fly". A builder with an existing tune would rather fix the controller. Which controller-side change removes the crash, and what does it cost where the designs were trained?
