@@ -1265,7 +1265,8 @@ class Feeder:
     # jam slackens the down strand, so the 16-tooth drive pulley holds the whole pull on its 8 teeth in mesh with
     # nothing on the slack side. Two checks: tooth strength against the catalogue's specific tooth force, and
     # ratcheting (the belt climbing out over the teeth), which no catalogue figure covers. Figures are assumptions.
-    lift_jam_belt_n: float = 89.0     # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt, every c_spec)
+    lift_jam_belt_n: float = 100.0    # largest net belt pull at a hood jam (tests/lift_jam_sweep.py --belt and --chain, every
+                                      # c_spec; 89 until the duty was held to the battery, eval/lift-belt-chain-2026-11-15.txt)
     lift_tooth_fuspec_n_mm: float = 3.6   # AT5 specific tooth force per mm of width at 0 rpm (Optibelt ALPHA LINEAR and
                                       # Ammeraal PU AT5 sheets, as quoted in search results: 3.6 and 3.64; sheets unread)
     lift_tooth_fuspec_1200_n_mm: float = 2.478  # the same at 1200 rpm (Optibelt, as quoted; straight line between)
