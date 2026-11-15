@@ -3,7 +3,7 @@ title: "One title line refused the whole file. Red-teaming the wash-sale checker
 seo_title: "Wash-sale checker: a broker export with a title line was refused"
 date: 2026-11-15
 tags: [testing, mutation-testing, investing, tax, javascript, redteam]
-description: "10 faults seeded into the wash-sale checker, 9 caught; the tenth is a float-noise threshold. Reading it with real export shapes found two defects: a title line above the header refused the whole file, and error line numbers skipped blank lines. Both fixed."
+description: "10 faults seeded into the wash-sale checker, 9 caught. A broker export with a title line above its header was refused whole, and line numbers skipped blanks."
 ---
 
 Today's red-team run aimed at
