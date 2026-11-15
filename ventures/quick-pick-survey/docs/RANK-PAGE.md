@@ -600,3 +600,58 @@ Limits: simulated people with evenly spaced scores, no ties or fatigue; k = 3
 only in the sweep; a full-order or favourite link still combines as before
 (no shortlist), and a person who ranked in another mode is combined the same
 way.
+
+## Pictures (2026-11-15)
+
+The ranker now ranks pictures as well as words: "Or rank pictures" on
+`rank.html` takes 3 to 60 image files (photos to cull, logo drafts, design
+options), and each pair shows the two pictures with their names. Landing page:
+`site/pick-the-best-photo.html`.
+
+**Why.** Choosing the best of a set of pictures is a very common "this or
+that" there is, and the usual tools rate each picture alone (stars and flags
+in a photo manager or design review tool, which can drift over a long
+session) or send the pictures to strangers (paid panel polls, which answer a
+different question: what a market likes, not what you and your team like).
+Pairwise picks keep the judgement relative, and the page already had the
+picker, stop rule, rank ranges and team combine.
+
+**How it stays upload-free.** A picture list *is* a list of file names
+(`site/image-items.mjs`). The names go through the same `parseList`
+normalising as a typed line and are sorted, so the order a file picker returns
+them in never changes `listId`, and links, result codes and the team combine
+work unchanged. The pictures themselves are object URLs of the person's own
+files, held in memory only. A shared link carries the names and a flag
+(`g: 1` in the fragment, `encodeList({ images: true })`); whoever opens it is
+asked to select the same files (a shared drive folder works), which are
+matched back by name, case-blind (`matchImages`), and any picture not yet
+attached shows as its name. A reload keeps the answers (local storage, as
+before) and asks for the pictures again. Non-images, a second file whose name
+normalises to one already taken, and names past the 60 cap are listed back
+rather than dropped silently. HEIC is accepted and named (Safari draws it,
+other browsers do not; the page says so).
+
+**What it does not do.** It does not look at the pictures: there is no
+quality scoring, only the person's preferences. The order is an estimate from
+a limited number of picks, as for any list.
+
+**Checks.** `node --test site/image-items.test.mjs` (7 tests): picker order
+does not change the list or its fingerprint; non-images, case repeats and the
+cap are reported; MIME type counts with an odd extension; names survive the
+link round trip and stay `parseList`-idempotent; a typed list's link carries
+no picture flag; attached files match by name with gaps and extras named; the
+landing page carries disclaimer, canonical and usage counter and is linked
+from the ranker and the landing page. Browser, Playwright at 390 px: five
+PNGs and a `.txt` selected (the `.txt` named as left out), 15 picks to a
+result with five thumbnails and no horizontal scroll; a second person in a
+fresh browser opens the link, sees names until they attach 3 of 5 files ("2
+of 5 are not attached yet", naming them), then the rest; their opposite picks
+and the first person's code combine to agreement -1.00 with thumbnails in the
+team table; a reload asks for the pictures again; no console errors.
+
+**Open.** Whether people use it (`pictures_loaded`, `picture_list_started`,
+`pictures_attached`, `photo_page_viewed`, `photo_page_start` count locally);
+a larger side-by-side view on a phone; whether picture comparisons are
+noisier than word comparisons (more "about equal"), which a real session's
+answers would show.
+
