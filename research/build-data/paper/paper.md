@@ -428,6 +428,31 @@ worst, Austin's median in both years, where even the hindsight choice is wrong),
 hindsight choice under the same model. The early-stopping cut is the larger cost: the best candidate's
 test loss rises by 1.29 days on average over the 12 cells, up to 6.9 days in Austin's 0.9 quantile, because
 a validation set without long builds stops the tail model too early.
+Sessions 86 to 88 (`../src/rounds.py`; `../results/rounds_summary.json`, `../results/rounds_score_i2c.json`,
+`../results/rounds_score_ipcw_i2c_summary.json`, `../results/ipcw_reach_i2c.json`; predictions written before
+each run) took that explanation apart. A borrowed model built only from what was known on 1 January (source
+training rows completed by then, round counts fixed from older years) recovers Austin's tail but costs
+Seattle 2021 10.9 days at q0.9. Early-stopping it on the sources' year Y-3 instead still stops the q0.9 model
+after 8 to 17 rounds in 5 of 6 city-years, yet over 18 model-cells the round count does not track the tail
+loss (Spearman 0.02). What does is the training cut: dropping only the 0.45 to 0.56% of source permits still
+open on 1 January, with complete-label early stopping, costs San Francisco and Seattle 1.0 to 5.1 days at
+q0.9, while Austin, whose borrowed tail is too long, gains 2.3 and 5.7. Inverse-probability-of-censoring
+weights on the completed rows (G per source city-year from its issue days) halve the deployable model's
+q0.9 cost in San Francisco and Seattle (+2.53 days against +4.74, better in 4 of 4) but give back only 18
+to 33% of the cut alone, because 55 to 65% of the dropped permits outlast the longest window any permit of
+their city-year has: G is zero there, and no reweighting of finished permits can stand for them.
+Session 89 (`../src/cens_reach.py`; `../results/rounds_score_cens_i2c_summary.json`, `../results/cens_reach_i2c.json`;
+five predictions written before the run, six more for a post hoc variant) kept the open permits as lower bounds
+instead, with Portnoy's (2003) redistribution: each open permit's quantile level tau_i comes from a Kaplan-Meier
+fit (Kaplan and Meier 1958) over its source city and class, and for a quantile tau above tau_i its mass is split
+between its window and +infinity. In linear quantile regression only the sign of a residual enters, so the
++infinity label is harmless. In gradient-boosted trees it is not, because LightGBM resets each quantile leaf to
+the weighted percentile of its residuals, so a leaf where open permits hold more than 1 - tau of the weight lands
+on their far-right label. The q0.9 cost in San Francisco and Seattle rose to +36.4 days with complete-label early
+stopping and +84.9 in the deployable model (IPCW: +2.53). Putting the upper pseudo-row at the stratum's longest
+completed build instead roughly halves that (+21.8, +14.5), but the feeds record completed builds of 12 to 60
+years, and q0.9 predictions still reach 25,600 days. Censored rows can enter a boosted quantile model only
+through a loss that never sets a leaf from their position: a censored-pinball objective without leaf renewal.
 
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
@@ -552,5 +577,5 @@ too early (1.3 days of mean loss, session 85).
 4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2022 to 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
 6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4. Code in place (session 70: `src/classmap.py` cascade, the loader's `desc_class`, `transfer.py --classes cascade`, with a prediction in `../LOG.md`). Validated in session 71 (4.4b): the session 70 rules agree with hand labels on 60% (Chicago) and 78% (Seattle) of held-out rows, the revised rules (`desc_class_v2`, `--classes cascade2`) on 85% and 95%.
-7. Score issue-to-completion with a censoring-aware evaluation: done for the demolition fold in session 78 (4.4b; IPCW cannot reach q0.9 on a two-year window, so tails are scored on mature cohorts). Session 79 reran cascade2 against type on mature cohorts and held out SF and Austin (2021): the tail effect is city-specific (4.4b). Sessions 80 to 84 ran SF and Austin in 2020 to 2022, split Austin's cost by class, and chose the class per target city from its own earlier years, on deployment-time labels too (4.4b). Still to do: a three-year-old selection year with the sources' early stopping also truncated, an issue-month-conditional G for Austin, and a censored-quantile model that trains on incomplete permits.
+7. Score issue-to-completion with a censoring-aware evaluation: done for the demolition fold in session 78 (4.4b; IPCW cannot reach q0.9 on a two-year window, so tails are scored on mature cohorts). Session 79 reran cascade2 against type on mature cohorts and held out SF and Austin (2021): the tail effect is city-specific (4.4b). Sessions 80 to 84 ran SF and Austin in 2020 to 2022, split Austin's cost by class, and chose the class per target city from its own earlier years, on deployment-time labels too (4.4b). Still to do: a three-year-old selection year with the sources' early stopping also truncated, an issue-month-conditional G for Austin, and a censored-quantile model that trains on incomplete permits (session 89: Portnoy-style pseudo-rows fail in boosted trees through leaf renewal; next, a custom censored-pinball objective).
 8. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.

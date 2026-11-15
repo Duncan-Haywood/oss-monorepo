@@ -58,11 +58,16 @@ def fit_predict(Xtr, ytr, Xca, yca, Xte, seed, n_max=300, fixed=None, classifier
     """Early-stopped LightGBM quantile models (and the zero-lag classifier). Session 86: with
     fixed={tau: rounds} no validation set is read (Xca, yca may be None) and each quantile model is
     trained for exactly that many rounds; classifier=False skips the zero-lag model (returns pz None).
-    Session 88: w / wca are optional per-row weights for the training and early-stopping rows (IPCW)."""
+    Session 88: w / wca are optional per-row weights for the training and early-stopping rows (IPCW).
+    Session 89: w / wca may also be dicts {tau: weights}, one weight vector per quantile model (censored
+    pseudo-rows, transfer.censored_pseudo)."""
     base = dict(learning_rate=0.15, num_leaves=63, min_data_in_leaf=100, feature_fraction=0.8,
                 bagging_fraction=0.8, bagging_freq=1, seed=seed, verbose=-1, num_threads=4)
     preds, rounds = {}, {}
+    W, WCA = w, wca
     for t in TAUS:
+        w = W[t] if isinstance(W, dict) else W
+        wca = WCA[t] if isinstance(WCA, dict) else WCA
         p = dict(base, objective="quantile", alpha=t, metric="quantile")
         if fixed is not None:
             m = lgb.train(p, lgb.Dataset(Xtr, ytr, weight=w), max(int(fixed[t]), 1))
@@ -75,6 +80,8 @@ def fit_predict(Xtr, ytr, Xca, yca, Xte, seed, n_max=300, fixed=None, classifier
         rounds[t] = m.best_iteration
     if fixed is not None or not classifier:
         return preds, None, rounds, None
+    if isinstance(W, dict) or isinstance(WCA, dict):
+        raise ValueError("per-quantile weights need classifier=False")
     p = dict(base, objective="binary", metric="binary_logloss")
     c = lgb.train(p, lgb.Dataset(Xtr, (ytr == 0).astype(int)), n_max,
                   valid_sets=[lgb.Dataset(Xca, (yca == 0).astype(int))],
