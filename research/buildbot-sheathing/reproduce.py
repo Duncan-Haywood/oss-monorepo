@@ -57,7 +57,7 @@ QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
 # (``303.4 s``) or the closing ``(run time ...; python ...)`` line is skipped; a timing in parentheses
 # inside a result line (``cyclic runs 72 (2099 s); largest residual ...``) is masked, so the rest of
 # that line is still compared. Every other character must match.
-SKIP = re.compile(r"^\(?\d+(\.\d+)? s\)?$|\brun ?time\b|\belapsed\b", re.IGNORECASE)
+SKIP = re.compile(r"^\(?\d+(\.\d+)? s\)?$|\brun ?time\b|\belapsed\b|^wall time \d+ s\b", re.IGNORECASE)
 MASK = re.compile(r"\(\d+(\.\d+)? s\)")
 # m6_drake section F ends each simulator's row with its wall-clock seconds a seat
 # (``drake  +0.00002  0.00142  0.00325  0.00466  0.114``): mask that last column only.

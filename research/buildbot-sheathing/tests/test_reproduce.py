@@ -17,7 +17,7 @@ def test_every_experiment_directory_is_listed():
 
 
 def test_only_timings_are_left_out():
-    keep = RP.stable(["(run time 2099 s; 4 CPUs; python 3.13.18, numpy 2.5.3, scipy 1.18.1)", "545.2 s",
+    keep = RP.stable(["(run time 2099 s; 4 CPUs; python 3.13.18, numpy 2.5.3, scipy 1.18.1)", "545.2 s", "wall time 1354 s on 4 CPUs",
                       "all 108 cells: min 17.9 s, median 35.8 s, max 65.5 s",
                       "cyclic runs 72 (2099 s); largest residual 1.0e-07 FU",
                       "single 2x three 131 s (24 s rework)"])
