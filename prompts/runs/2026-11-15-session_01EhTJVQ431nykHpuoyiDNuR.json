@@ -54,7 +54,7 @@
     "ventures/quick-pick-survey/docs/RANK-PAGE.md (Pictures)"
   ],
   "goal": "Widen what the free rank page can rank to pictures (photo culling, logo/design review) without any upload, as a new use case and landing page",
-  "notes": "Checks run here: node --test site/*.test.mjs (91 pass, 7 new in image-items.test.mjs); run_venture_tests.py quick-pick-survey ok; Playwright at 390 px through select 5 PNG + 1 txt, 15 picks, thumbnails, second person in a fresh context attaches 3 then 2 files, opposite picks combine to agreement -1.00, reload asks for pictures again, no console errors, scrollWidth 390. post front matter/links/similarity clean; validate.py ok. venture-preflight result recorded below when it finished.",
+  "notes": "Checks run here: node --test site/*.test.mjs (91 pass, 7 new in image-items.test.mjs); run_venture_tests.py quick-pick-survey ok; Playwright at 390 px through select 5 PNG + 1 txt, 15 picks, thumbnails, second person in a fresh context attaches 3 then 2 files, opposite picks combine to agreement -1.00, reload asks for pictures again, no console errors, scrollWidth 390. post front matter/links/similarity clean; validate.py ok. venture-preflight: first run failed on &darr; missing from the shared entity table (fixed with &#8595;); rerun clean (exit 0).",
   "corrections": [],
   "redteam": null
 }
