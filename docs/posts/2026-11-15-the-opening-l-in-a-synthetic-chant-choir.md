@@ -3,7 +3,7 @@ title: "The opening l in a synthetic chant choir: a 12.5 dB swing cut to 0.7, an
 seo_title: "Synthetic choir: levelling the opening l, pre-registered"
 date: 2026-11-15
 tags: [chant-forge, music, speech-synthesis, pre-registration]
-description: "Chant Forge's choir sang an opening l anywhere from 7.7 dB under to 4.8 dB over its vowel. A per-note gain fixed it; the consonant reader's report didn't change."
+description: "Chant Forge's choir sang an opening l from 7.7 dB under to 4.8 dB over its vowel. A per-note gain fixed it; the consonant reader's report did not change."
 ---
 
 Chant Forge turns Gregorian chant written as GABC text into MIDI, cue sheets
