@@ -410,9 +410,9 @@ flagships:
       Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
       Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
       levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; tilted pages straightened, 2 of 185 real pages
-      (eval/deskew-check.md); next: 9 fresh-list diffs, a worn-page set (new GABC
-      needed), mottled squares, a liquescent hook ending on a line (held-out
+      thickness; tilted pages, curled staves straightened
+      (eval/staff-curl-check.md); next: left-stem cephalicus (3506), worn pages (new
+      GABC needed), mottled squares, a liquescent hook ending on a line (held-out
       misses), broken-up strokes (3403, 3408); --split-voices (by phrase or at a
       word, --split-words, eval/word-split-report.md) and --overlap (both sections
       sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a

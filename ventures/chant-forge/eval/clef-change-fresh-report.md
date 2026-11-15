@@ -15,19 +15,19 @@ check would catch.
 
 | piece | book | pages | notes read | agree | differ | GABC only | scan only | agreement | one-step errors caught |
 |---|---|---|---|---|---|---|---|---|---|
-| GregoBase 3461 (Quemadmodum) | Graduale Romanum, Vatican 1908 | leaf 469, leaf 470, 445, leaf 472 | 1032 | 224 | 1 | 0 | 1 | 99.6% of 225 GABC notes | 200 of 200 |
-| GregoBase 3500 (Qui operatus est) | Graduale Romanum, Vatican 1908 | leaf 392, leaf 393, 368, leaf 395 | 985 | 309 | 1 | 2 | 0 | 99.0% of 312 GABC notes | 200 of 200 |
+| GregoBase 3461 (Quemadmodum) | Graduale Romanum, Vatican 1908 | leaf 469, leaf 470, 445, leaf 472 | 1032 | 225 | 0 | 0 | 1 | 100.0% of 225 GABC notes | 200 of 200 |
+| GregoBase 3500 (Qui operatus est) | Graduale Romanum, Vatican 1908 | leaf 392, leaf 393, 368, leaf 395 | 985 | 310 | 0 | 2 | 0 | 99.4% of 312 GABC notes | 200 of 200 |
 | GregoBase 3506 (Suscepimus Deus) | Graduale Romanum, Vatican 1908 | leaf 402, leaf 403, 378, leaf 405 | 1136 | 238 | 1 | 2 | 0 | 98.8% of 241 GABC notes | 200 of 200 |
 | GregoBase 3522 (Gloria et honore) | Graduale Romanum, Vatican 1908 | leaf 589, leaf 590, [6], leaf 592 | 1223 | 200 | 0 | 5 | 1 | 97.6% of 205 GABC notes | 198 of 200 |
-| GregoBase 3524 (Gloriosus Deus) | Graduale Romanum, Vatican 1908 | leaf 603, leaf 604, [20], leaf 606 | 1254 | 352 | 0 | 16 | 1 | 95.7% of 368 GABC notes | 196 of 200 |
+| GregoBase 3524 (Gloriosus Deus) | Graduale Romanum, Vatican 1908 | leaf 603, leaf 604, [20], leaf 606 | 1262 | 359 | 0 | 9 | 2 | 97.6% of 368 GABC notes | 199 of 200 |
 | GregoBase 3551 (Electi mei) | Graduale Romanum, Vatican 1908 | leaf 408, leaf 409, 384, leaf 411 | 930 | 237 | 0 | 5 | 0 | 97.9% of 242 GABC notes | 200 of 200 |
 | GregoBase 3562 (Unam petii... Ut... visitem) | Graduale Romanum, Vatican 1908 | leaf 700, leaf 701, [117], leaf 703 | 593 | 191 | 0 | 0 | 1 | 100.0% of 191 GABC notes | 197 of 200 |
 | GregoBase 3566 (Angelus Domini Raphael (Grad.)) | Graduale Romanum, Vatican 1908 | leaf 777, leaf 778, [194], leaf 780 | 1112 | 158 | 0 | 1 | 1 | 99.4% of 159 GABC notes | 199 of 200 |
 | GregoBase 3567 (Dabo te) | Graduale Romanum, Vatican 1908 | leaf 722, leaf 723, [139], leaf 725 | 1079 | 246 | 0 | 17 | 2 | 93.5% of 263 GABC notes | 193 of 200 |
 | GregoBase 3619 (Benedicta es tu (Grad.)) | Graduale Romanum, Vatican 1908 | leaf 371, leaf 372, 347, leaf 374 | 1262 | 228 | 0 | 8 | 0 | 96.6% of 236 GABC notes | 199 of 200 |
 | GregoBase 3679 (Repleta est) | Graduale Romanum, Vatican 1908 | leaf 719, leaf 720, [136], leaf 722 | 1099 | 236 | 1 | 4 | 0 | 97.9% of 241 GABC notes | 200 of 200 |
-| GregoBase 3706 (Propter fratres meos) | Graduale Romanum, Vatican 1908 | leaf 761, leaf 762, [178], leaf 764 | 949 | 171 | 5 | 15 | 3 | 89.5% of 191 GABC notes | 193 of 200 |
-| GregoBase 3762 (Beatus vir cujus) | Graduale Romanum, Vatican 1908 | leaf 736, leaf 737, [153], leaf 739 | 1163 | 234 | 0 | 5 | 0 | 97.9% of 239 GABC notes | 199 of 200 |
+| GregoBase 3706 (Propter fratres meos) | Graduale Romanum, Vatican 1908 | leaf 761, leaf 762, [178], leaf 764 | 980 | 212 | 0 | 3 | 0 | 98.6% of 215 GABC notes | 197 of 200 |
+| GregoBase 3762 (Beatus vir cujus) | Graduale Romanum, Vatican 1908 | leaf 736, leaf 737, [153], leaf 739 | 1171 | 234 | 0 | 5 | 0 | 97.9% of 239 GABC notes | 199 of 200 |
 | GregoBase 3775 (Domine spes mea) | Graduale Romanum, Vatican 1908 | leaf 483, leaf 484, 459, leaf 486 | 913 | 232 | 0 | 0 | 0 | 100.0% of 232 GABC notes | 200 of 200 |
 
 ## GregoBase 3461 (Quemadmodum)
@@ -38,7 +38,6 @@ Ending, GABC/scan (· = not read or not on these pages): h/h f/f e/e g/g f/f d/d
 
 | syllable | GABC group | GABC note | scan | where |
 |---|---|---|---|---|
-| rum: | i | i | j | p. leaf 470 (leaf 470), staff 4, x 1036 |
 | vum. |  | - | i | p. leaf 470 (leaf 470), staff 8, x 480 |
 
 ## GregoBase 3500 (Qui operatus est)
@@ -49,7 +48,6 @@ Ending, GABC/scan (· = not read or not on these pages): f/f e/e f/f e/e e/e d/d
 
 | syllable | GABC group | GABC note | scan | where |
 |---|---|---|---|---|
-| mi | jhk | h | i | p. leaf 393 (leaf 393), staff 2, x 1455 |
 | De | jj/kj//lvKJ/jvIH | i | - | not read; near p. leaf 393 (leaf 393), staff 4, x 531 |
 | De | ih/ghf//hiHG//hiFD , f!hh/ih/ghf//hiHG//hiFD , gxfge!fwg/hf//hg/hvFD , fdfED//fd/ef!hhhf//hi!kkkJIHi | d | - | not read; near p. leaf 393 (leaf 393), staff 5, x 1775 |
 
@@ -93,15 +91,9 @@ Ending, GABC/scan (· = not read or not on these pages): f/f e/e d/d e/e f/f d/d
 | mi | f!gw!hi | h | - | not read; near p. [20] (leaf 605), staff 6, x 919 |
 | ? |  | - | k | p. [20] (leaf 605), staff 8, x 803 |
 | vir | ghg~ | h | - | not read; near p. [20] (leaf 605), staff 9, x 1738 |
-| tú | hf/gh!jv//ijh,ixjjvHG/hiGF//ghFD/fv//e!gwhgh | h | - | not read; near p. leaf 606 (leaf 606), staff 1, x 194 |
-| tú | hf/gh!jv//ijh,ixjjvHG/hiGF//ghFD/fv//e!gwhgh | j | - | not read; near p. leaf 606 (leaf 606), staff 1, x 251 |
-| tú | hf/gh!jv//ijh,ixjjvHG/hiGF//ghFD/fv//e!gwhgh | j | - | not read; near p. leaf 606 (leaf 606), staff 1, x 251 |
-| tú | hf/gh!jv//ijh,ixjjvHG/hiGF//ghFD/fv//e!gwhgh | g | - | not read; near p. leaf 606 (leaf 606), staff 1, x 478 |
-| tú | hf/gh!jv//ijh,ixjjvHG/hiGF//ghFD/fv//e!gwhgh | f | - | not read; near p. leaf 606 (leaf 606), staff 1, x 553 |
-| tú | hf/gh!jv//ijh,ixjjvHG/hiGF//ghFD/fv//e!gwhgh | h | - | not read; near p. leaf 606 (leaf 606), staff 1, x 610 |
+| tú |  | - | h | p. [20] (leaf 605), staff 9, x 1757 |
+| tú | hf/gh!jv//ijh,ixjjvHG/hiGF//ghFD/fv//e!gwhgh | g | - | not read; near p. leaf 606 (leaf 606), staff 1, x 477 |
 | tú | hf/gh!jv//ijh,ixjjvHG/hiGF//ghFD/fv//e!gwhgh | g | - | not read; near p. leaf 606 (leaf 606), staff 1, x 731 |
-| déx | hj | h | - | not read; near p. leaf 606 (leaf 606), staff 1, x 1075 |
-| má | f | f | - | not read; near p. leaf 606 (leaf 606), staff 1, x 1391 |
 | tú | hf/gh!jv//ijh,ixjjvHGhiGF,hf/gh!jjvHGh | h | - | not read; near p. leaf 606 (leaf 606), staff 1, x 1562 |
 | tú | hf/gh!jv//ijh,ixjjvHGhiGF,hf/gh!jjvHGh | h | - | not read; near p. leaf 606 (leaf 606), staff 2, x 196 |
 | tú | hf/gh!jv//ijh,ixjjvHGhiGF,hf/gh!jjvHGh | g | - | not read; near p. leaf 606 (leaf 606), staff 2, x 544 |
@@ -204,33 +196,13 @@ Ending, GABC/scan (· = not read or not on these pages): g/g f/f f/f d/d e/e d/d
 
 corpus/gregobase-1908-clef/3706.gabc, 215 GABC notes; scan of Graduale Romanum, Vatican 1908 (archive.org item `gradualesacrosan0000cath`).
 
-Ending, GABC/scan (· = not read or not on these pages): h/· f/· e/· g/· f/· d/·; GABC notes covered 1-191 of 215.
+Ending, GABC/scan (· = not read or not on these pages): h/h f/f e/e g/g f/f d/d; GABC notes covered 1-215 of 215.
 
 | syllable | GABC group | GABC note | scan | where |
 |---|---|---|---|---|
-| me | hf/gvFED//gd/fg | d | e | p. [178] (leaf 763), staff 6, x 1003 |
 | me | h!iwj | i | - | not read; near p. [178] (leaf 763), staff 6, x 1664 |
 | ? | hg/ijh jvIHjvIH//hvGF | g | - | not read; near p. [178] (leaf 763), staff 8, x 1501 |
-| am | fh | h | - | not read; near p. [178] (leaf 763), staff 9, x 1735 |
-| sunt | h | h | - | not read; near p. [178] (leaf 763), staff 9, x 1735 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | h | - | not read; near p. leaf 764 (leaf 764), staff 1, x 319 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | g | - | not read; near p. leaf 764 (leaf 764), staff 1, x 319 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | h | - | not read; near p. leaf 764 (leaf 764), staff 1, x 377 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | f | - | not read; near p. leaf 764 (leaf 764), staff 1, x 377 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | h | - | not read; near p. leaf 764 (leaf 764), staff 1, x 461 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | h | - | not read; near p. leaf 764 (leaf 764), staff 1, x 461 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | h | - | not read; near p. leaf 764 (leaf 764), staff 1, x 604 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | h | - | not read; near p. leaf 764 (leaf 764), staff 1, x 604 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | h | - | not read; near p. leaf 764 (leaf 764), staff 1, x 699 |
-| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | h | - | not read; near p. leaf 764 (leaf 764), staff 1, x 774 |
-| hó |  | - | i | p. leaf 764 (leaf 764), staff 1, x 1435 |
-| hó |  | - | i | p. leaf 764 (leaf 764), staff 1, x 1587 |
-| hó |  | - | j | p. leaf 764 (leaf 764), staff 1, x 1588 |
-| hó | hh | h | g | p. leaf 764 (leaf 764), staff 2, x 169 |
-| cí | ihhf/hh/ij | i | - | not read; near p. leaf 764 (leaf 764), staff 2, x 466 |
-| cí | ihhf/hh/ij | h | d | p. leaf 764 (leaf 764), staff 2, x 579 |
-| cí | ihhf/hh/ij | h | e | p. leaf 764 (leaf 764), staff 2, x 579 |
-| cí | ihhf/hh/ij | j | i | p. leaf 764 (leaf 764), staff 2, x 708 |
+| lí | ih//ghGF//ih//hhhvFE/fe/f!hh/ivHGh | g | - | not read; near p. leaf 764 (leaf 764), staff 1, x 377 |
 
 ## GregoBase 3762 (Beatus vir cujus)
 
