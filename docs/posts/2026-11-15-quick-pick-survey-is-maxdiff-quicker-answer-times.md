@@ -2,7 +2,7 @@
 title: "Is MaxDiff quicker than pairwise? Fewer taps, but the stopwatch decides"
 seo_title: "MaxDiff vs pairwise comparison: which takes less time?"
 date: 2026-11-15
-description: "Best-worst screens of four needed fewer taps than pairs in 11 of 12 simulations. Taps are not seconds, so the ranker now times real answers and lets a team compare."
+description: "Best-worst screens of four took fewer taps than pairs in 11 of 12 simulations. Taps are not seconds, so the ranker now times real answers for a team."
 tags: [quick-pick-survey, maxdiff, best-worst-scaling, pairwise-comparison, ranking, product]
 ---
 
