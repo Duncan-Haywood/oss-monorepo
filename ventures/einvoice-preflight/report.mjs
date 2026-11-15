@@ -131,7 +131,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       if (!looksLikePdf(name, source) && looksLikeFacturae(peek)) {
         // Spain's Facturae (3.2.1, 3.2.2) is its own schema, not EN 16931: own rules, no UBL/CII reading.
         const spanish = checkFacturae(peek);
-        reports.push({ file: name, errors: spanish.findings, envelope: `Read as Spanish Facturae ${spanish.version || ""} (FACe), not EN 16931; the XAdES signature is not checked`.replace("  ", " "), ...(spanish.skipped.length ? { skipped: spanish.skipped } : {}) });
+        reports.push({ file: name, errors: spanish.findings, envelope: `Read as Spanish Facturae ${spanish.version || ""} (FACe), not EN 16931; ${spanish.signature ? `XAdES signature checked (${spanish.signature.signatureValid === true ? "SignatureValue verifies" : spanish.signature.signatureValid === false ? "SignatureValue does not verify" : "SignatureValue not verified"}; certificate chain not checked)` : "unsigned"}`.replace("  ", " "), ...(spanish.skipped.length ? { skipped: spanish.skipped } : {}), ...(spanish.signature ? { signature: spanish.signature } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFa3(peek)) {

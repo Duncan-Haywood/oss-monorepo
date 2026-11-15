@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKnqFbx6xVjbFRb1ecm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T06:18:34Z",
+  "ended": "2026-11-15T06:53:16Z",
+  "wall_minutes": 35.08,
+  "tokens_in": 19601063,
+  "tokens_out": 86152,
+  "cost_usd": 7.2857,
+  "tool_calls": 128,
+  "task": "quick-pick-survey flagship (allocate.py row 6): sort into piles first on the list ranker",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16119",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "Engine edit first placed `const itemPrior` above `const prior` (TDZ ReferenceError); caught by the first sim run.",
+    "First full simulation ran single-threaded with stderr discarded and n=40 close calls; killed after ~25 min and rerun as 4 shards with n=40 dropped (time), then rerun again after two model fixes.",
+    "A `ps | xargs kill` pipeline returned exit 144 and the shard-launch command chained after it did not run; relaunched separately."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook refusing `pkill -f` also refuses a bracketed pattern when the same word appears elsewhere in the command line (e.g. in a later `--sizes` argument); `ps | awk | xargs kill` was the workaround."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The flagship's first open item (r, distribution: get the rank page seen) needs visitor data no session can read; item (c) needs a real survey's answers. I took a product slice the brief's depth rule favours instead: a new step that cuts the main cost of the ranker (picks on long lists), measured by simulation.",
+      "did": "Built and measured 'sort into piles first'; added it to next: as a landed item.",
+      "result": "Shipped with tests; the measured win is conditional on how carefully people sort, which only real sessions can settle."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quick-pick-survey-sort-into-piles-first.md",
+    "ventures/quick-pick-survey/docs/RANK-PAGE.md (section 'Sort into piles first')"
+  ],
+  "goal": "Deepen the quick-pick-survey flagship with a feature that reduces the number of pairwise picks a long list needs, without making the stop rule claim more than it delivers.",
+  "notes": "Simulation (scripts/pile-first.mjs, page's own loop, same people and coins both arms): ordinary answerers at 20 options: no sort 93 actions (Spearman 0.933), careful sort 64 (0.929), ordinary 87 (0.937), careless 120 (0.933). Close calls careful sort: 86 vs 135 (20 options), 96 vs 253 (30). Two fixes found by the simulation before shipping: pile-aware own-prior check (with the old check, half of perfect-pile runs hit the cap) and check pairs every 4th pick (without them, close-call people's stop claimed 0.90 for true 0.79). Checks: node --test site/*.test.mjs 103 pass; vitest 575 pass; tsc clean; eslint 0 errors; Playwright at 390 px clean. run_venture_tests.py quick-pick-survey: ok. venture-preflight: first run failed on my own post front matter (seo_title 73, description 162) and the new script's CLI entry check (file:// string); both fixed, second run 'preflight clean for quick-pick-survey'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5379782f-2d81-503b-af03-e08ee90276a7",
+    "transcripts": 1,
+    "first": "2026-11-15T06:18:34Z",
+    "last": "2026-11-15T06:53:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 120,
+        "input": 236,
+        "output": 86152,
+        "thinking": 25124,
+        "cache_read": 19390373,
+        "cache_write_5m": 0,
+        "cache_write_1h": 210454,
+        "api_equivalent_usd": 7.2857,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 120,
+      "input": 236,
+      "output": 86152,
+      "thinking": 25124,
+      "cache_read": 19390373,
+      "cache_write_5m": 0,
+      "cache_write_1h": 210454,
+      "api_equivalent_usd": 7.2857,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 128,
+    "tools": {
+      "Bash": 114,
+      "ToolSearch": 3,
+      "TaskStop": 3,
+      "Monitor": 2,
+      "ReadNotifications": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.08,
+      "active_minutes": 35.08,
+      "model_minutes": 14.75,
+      "tool_minutes": 20.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a senior engineer with Bayesian stats: model derivation, engine change, UI step, team-model pseudo-likelihood, simulation harness and two debugging rounds, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 329.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

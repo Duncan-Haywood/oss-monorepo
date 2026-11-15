@@ -100,3 +100,20 @@ test('the footer links its sibling Catholic Shorts', async () => {
   const { renderIndex } = await import('./episodes.mjs');
   assert.match(renderIndex([], {}), /href="\.\.\/catholic-shorts\/"/);
 });
+
+test('PRODUCTION.md holds no Done entries (run node list_done.mjs)', async () => {
+  const { split } = await import('./list_done.mjs');
+  const { moved } = split(readFileSync(path.join(ROOT, 'PRODUCTION.md'), 'utf8'));
+  assert.deepEqual(moved.map((e) => e[0].slice(0, 80)), []);
+});
+
+test('list_done moves a Done entry with its continuation lines and keeps quoted markers', async () => {
+  const { split, appendDone, DONE_HEAD } = await import('./list_done.mjs');
+  const text = 'Mark one `- *(Done: episode N, Title.)*`:\n\n- *(Done: episode 9, A.)* x\n  more\n- open idea\n';
+  const { production, moved } = split(text);
+  assert.equal(production, 'Mark one `- *(Done: episode N, Title.)*`:\n\n- open idea\n');
+  assert.deepEqual(moved, [['- *(Done: episode 9, A.)* x', '  more']]);
+  const once = appendDone('', moved);
+  assert.ok(once.startsWith(DONE_HEAD) && once.endsWith('\n\n- *(Done: episode 9, A.)* x\n  more\n'));
+  assert.ok(appendDone(once, [['- *(Done: episode 10, B.)*']]).endsWith('  more\n- *(Done: episode 10, B.)*\n'));
+});
