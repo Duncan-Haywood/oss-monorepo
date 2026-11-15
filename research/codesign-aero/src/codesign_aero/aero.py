@@ -15,7 +15,7 @@ L_RANGE, D_RANGE = (0.08, 0.30), (0.08, 0.25)
 GAIN_LO, GAIN_HI = np.array([0.0, -2.0, -1.0]), np.array([2.7, 1.0, 2.0])   # log10 kp, kd, ki
 
 
-CLOSURE_ITERS, CLOSURE_TOL, M_CAP = 200, 1e-4, 20.0   # damped fixed-point iterations; relative residual; kg
+CLOSURE_ITERS, CLOSURE_TOL, M_CAP = 1000, 1e-4, 20.0  # damped iterations (200 left 4 slow near-fold designs short); relative residual; kg
 
 
 def _mass_update(m, L, D):
