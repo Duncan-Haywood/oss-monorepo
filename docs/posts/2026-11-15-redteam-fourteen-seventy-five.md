@@ -1,9 +1,9 @@
 ---
 title: "14:75 is not quarter past three. Red-teaming the service load check"
-seo_title: "Date.UTC rolls 14:75 into 15:15: validating clock times in JavaScript parsers"
+seo_title: "Date.UTC rolls 14:75 into 15:15: validating clock times in JavaScript"
 date: 2026-11-15
 tags: [testing, mutation-testing, dates, javascript, redteam]
-description: "16 faults seeded into the service load check's interval reader, 11 caught, 2 equivalent. Three tools read an impossible clock time as a real one; a new CI check now imports every exported time parser and tries."
+description: "16 faults seeded into the service load check, 11 caught. Three tools read an impossible clock time like 14:75 as a real one; a new CI check now tries them all."
 ---
 
 Today's red-team run seeded 16 faults into
