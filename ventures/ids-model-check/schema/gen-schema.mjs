@@ -10,6 +10,7 @@
 // The EXPRESS schemas are (c) buildingSMART International Limited; their notice
 // allows use in software development with full attribution (see README, "Sources").
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 
 export function parseExpress(text) {
   const src = text.replace(/\(\*[\s\S]*?\*\)/g, " ");
@@ -37,19 +38,12 @@ export function parseExpress(text) {
     const head = body.slice(0, headEnd);
     const sup = (head.match(/SUBTYPE\s+OF\s*\(\s*(\w+)\s*\)/) || [])[1];
     const abstract = /\bABSTRACT\b/.test(head);
-    let rest = body.slice(headEnd + 1);
+    const rest = body.slice(headEnd + 1);
     const sections = { explicit: rest, derive: "", inverse: "" };
-    const cut = (kw) => {
-      const re = new RegExp(`\\b${kw}\\b`);
-      const i = sections.explicit.search(re);
-      return i;
-    };
-    // Split on the first section keyword.
-    const kwRe = /^\s*(DERIVE|INVERSE|WHERE|UNIQUE)\b/m;
+    // Split on the section keywords.
     const parts = rest.split(/^\s*(DERIVE|INVERSE|WHERE|UNIQUE)\b/m);
     sections.explicit = parts[0];
     for (let i = 1; i < parts.length; i += 2) sections[parts[i].toLowerCase()] = parts[i + 1];
-    void cut; void kwRe;
     const attrs = [];
     for (const line of sections.explicit.split(";")) {
       const a = line.match(/^\s*(\w+)\s*:\s*(OPTIONAL\s+)?([\s\S]+?)\s*$/);
@@ -70,7 +64,7 @@ export function parseExpress(text) {
   return { schema, types, entities };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const s = parseExpress(readFileSync(process.argv[2], "utf8"));
   process.stdout.write(JSON.stringify(s) + "\n");
 }
