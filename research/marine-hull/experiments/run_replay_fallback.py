@@ -65,8 +65,10 @@ RULES = ("AT_90",) + tuple(f"{t}_{g}" for t in TAGS + ("BG",) for g in LAGS)
 
 
 def margin(t):
-    """Replay km margin of AT_90 against B in one cell result: (AT km - B km) / B km."""
-    return (t["AT_90"][0] - t[BASE][0]) / t[BASE][0]
+    """Replay km margin of AT_90 against B in one cell result: (AT km - B km) / B km; 0 when B covers no km (AT_90
+    cannot then be short, so the gate weight is 0, matching the replay side)."""
+    b = t[BASE][0]
+    return (t["AT_90"][0] - b) / b if b > 0 else 0.0
 
 
 def weight(m, s):

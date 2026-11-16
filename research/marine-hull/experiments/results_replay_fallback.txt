@@ -1,0 +1,73 @@
+Milestone 6zzt: replay-gated fallback to no correction and a continuous gate on the replay's km margin, all 30 points and the five single-year lags, 2005 to 2014 (50 W)
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+Checks (6zzj, 6zzp, 6zzs): LC and DG per lag, AT_90 on the four counts, OG all168 / hi168 127.2 / 85.8 (127.2 / 85.8), OM all168 131.6 (131.6)  ok
+
+Per rule and lag: dominance counts
+  rule    |  all168 |   real8 |   hi168 |   pp240
+  AT_90   |     139 |       8 |      25 |     126
+  OA_1    |     106 |       6 |      67 |     125
+  OA_2    |     132 |       7 |     152 |     134
+  OA_3    |     148 |       8 |      41 |     125
+  OA_4    |     137 |       8 |     118 |     134
+  OA_5    |     121 |       7 |      47 |     128
+  OL_1    |     113 |       6 |      60 |     124
+  OL_2    |     137 |       7 |     152 |     132
+  OL_3    |     148 |       8 |      20 |     121
+  OL_4    |     146 |       7 |     116 |     135
+  OL_5    |     131 |       8 |      46 |     126
+  CS01_1  |     108 |       6 |      67 |     125
+  CS01_2  |     133 |       7 |     151 |     134
+  CS01_3  |     148 |       8 |      40 |     125
+  CS01_4  |     139 |       8 |     118 |     134
+  CS01_5  |     122 |       7 |      50 |     128
+  CS03_1  |     110 |       6 |      67 |     126
+  CS03_2  |     133 |       7 |     151 |     134
+  CS03_3  |     149 |       8 |      40 |     125
+  CS03_4  |     140 |       8 |     116 |     135
+  CS03_5  |     128 |       7 |      50 |     129
+  CS10_1  |     122 |       7 |      56 |     125
+  CS10_2  |     135 |       7 |     144 |     137
+  CS10_3  |     149 |       8 |      36 |     125
+  CS10_4  |     146 |       8 |     110 |     133
+  CS10_5  |     134 |       8 |      50 |     131
+
+Per rule over the five lags: mean [min, max]  (AT_90: all168 139, real8 8, hi168 25, pp240 126)
+  LC   |  121.8 [ 97,152] |    6.8 [  4,  8] |   81.0 [  1,153] |  114.0 [105,131]
+  DG   |  106.0 [ 69,136] |    5.4 [  3,  7] |  109.2 [ 74,152] |  119.2 [109,133]
+  OG   |  127.2 [103,154] |    6.8 [  5,  8] |   85.8 [ 18,152] |  115.6 [107,130]
+  OM   |  131.6 [111,156] |    7.0 [  6,  8] |   85.8 [ 18,152] |  115.8 [107,128]
+  OA   |  128.8 [106,148] |    7.2 [  6,  8] |   85.0 [ 41,152] |  129.2 [125,134]
+  OL   |  135.0 [113,148] |    7.2 [  6,  8] |   78.8 [ 20,152] |  127.6 [121,135]
+  CS01 |  130.0 [108,148] |    7.2 [  6,  8] |   85.2 [ 40,151] |  129.2 [125,134]
+  CS03 |  132.0 [110,149] |    7.2 [  6,  8] |   84.8 [ 40,151] |  129.8 [125,135]
+  CS10 |  137.2 [122,149] |    7.6 [  7,  8] |   79.2 [ 36,144] |  130.2 [125,137]
+
+Failing all168 cells by mode (km only / dark only / both)
+  OM: lag 1 6/51/0; lag 2 0/41/0; lag 3 0/17/0; lag 4 1/11/0; lag 5 2/53/0
+  OA: lag 1 1/61/0; lag 2 0/36/0; lag 3 0/20/0; lag 4 0/31/0; lag 5 0/47/0
+  OL: lag 1 4/51/0; lag 2 0/31/0; lag 3 5/15/0; lag 4 0/22/0; lag 5 0/37/0
+  CS01: lag 1 1/59/0; lag 2 0/35/0; lag 3 0/20/0; lag 4 0/29/0; lag 5 0/46/0
+  CS03: lag 1 1/57/0; lag 2 0/35/0; lag 3 0/19/0; lag 4 0/28/0; lag 5 0/40/0
+  CS10: lag 1 2/44/0; lag 2 0/33/0; lag 3 1/18/0; lag 4 0/22/0; lag 5 1/33/0
+
+Failing hi168 cells by mode (km only / dark only / both)
+  OM: lag 1 82/2/0; lag 2 1/15/0; lag 3 150/0/0; lag 4 44/0/0; lag 5 117/0/0
+  OA: lag 1 99/2/0; lag 2 1/15/0; lag 3 127/0/0; lag 4 50/0/0; lag 5 121/0/0
+  OL: lag 1 106/2/0; lag 2 1/15/0; lag 3 148/0/0; lag 4 52/0/0; lag 5 122/0/0
+  CS01: lag 1 99/2/0; lag 2 2/15/0; lag 3 128/0/0; lag 4 50/0/0; lag 5 118/0/0
+  CS03: lag 1 99/2/0; lag 2 2/15/0; lag 3 128/0/0; lag 4 52/0/0; lag 5 118/0/0
+  CS10: lag 1 110/2/0; lag 2 9/15/0; lag 3 132/0/0; lag 4 58/0/0; lag 5 118/0/0
+
+Short replays whose continuous weight is strictly between 0 and 1 (cell x lag, all 30 points)
+  s = 1%: 1490 of 30955 (0.048)
+  s = 3%: 3950 of 30955 (0.128)
+  s = 10%: 9575 of 30955 (0.309)
+
+Predictions
+R1 OA mean all168 >= 139: refuted (128.8)
+R2 OA mean all168 > 131.6 (OM): refuted (128.8)
+R3 OA mean hi168 < 85.8 (OG): held (85.0)
+R4 OA mean all168 > OL mean all168: refuted (128.8 vs 135.0)
+R5 some s gives CS mean all168 > OA's: held (best CS10 137.2)
+R6 CS mean all168 monotone in s: held (CS01 130.0, CS03 132.0, CS10 137.2)
+R7 OA worst lag all168 >= 139: refuted (106)
