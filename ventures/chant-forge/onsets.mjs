@@ -227,12 +227,15 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   for (let i = a; i <= z; i += hop) fr.push({ t: (i - a) / rate, ...frameFeatures(x, i, rate) });
   if (fr.length < 3) return { cls: 'none' };
   for (const f of fr) { f.lvl = db(f.tot, vTot); f.loRel = db(f.low, vLow); f.hiRel = db(f.hi1, vHi1); }
-  // Against the vowel just before (2026-11-16, README "A voice bar through the walls"): on a high note five
-  // beating voices swing the vowel's level by 15-20 dB, and the 60 ms reference can fall in a trough, so a
-  // closure 25 dB under the vowel before it read 13 dB under the reference (D4 *ib*, *eb*), past the closure
-  // rule and into the nasal one. So the closure's and the nasal's levels are read against the louder of the
-  // reference and the vowel before the frame: the loudest median of five frames from localRef.from to
-  // localRef.to frames back, capped at localRef.cap dB over the reference. `localRef: false` is the reader before.
+  // Against the vowel just before (2026-11-16, README "A closure against the vowel before it"): on a high note
+  // five beating voices swing the vowel's level by 15-20 dB, and the 60 ms reference can fall in a trough, so a
+  // closure 25 dB under the vowel before it read 13 dB under the reference (D4 *ib*, *eb*) and missed the
+  // closure rule. So the closure's level is read against the louder of the reference and the vowel before the
+  // frame: the loudest median of five frames from localRef.from to localRef.to frames back (30-120 ms), capped
+  // at localRef.cap dB over the reference. The nasal rule keeps the reference (localRef.nasal false): read
+  // against the vowel before, a vowel-only release fading through -5 to -25 dB of it read as a murmur (the
+  // vowel-only controls of J, K, L, M and N lost 33 cells). A closure needs a burst after it, which a fade
+  // never has. `localRef: false` is the reader before.
   if (localRef) {
     const LR = localRef === true ? LOCAL_REF : localRef, sm = fr.map((_, k) => median(fr.slice(Math.max(0, k - 2), k + 3).map((f) => f.lvl)));
     fr.forEach((f, k) => {

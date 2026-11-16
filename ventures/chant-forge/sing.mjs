@@ -186,14 +186,16 @@ const VOICED_FRIC = 0.3;
 // where the fixed gain left it on the notes it read right, not fitted to recordings. `voiceBarLevel: false`
 // (a singNote option) keeps the fixed gain, to compare.
 export const VOICE_BAR_DB = 28;
-// Through the walls (2026-11-16, README "A voice bar through the walls"): with the mouth shut, the voicing
+// Through the walls (2026-11-16, README "A closure against the vowel before it"; tried, off by default): with the mouth shut, the voicing
 // of a b, d or g is heard through the cheeks and throat, which pass little above a few hundred hertz, so a
 // voice bar is a low band (Stevens 1998, Acoustic Phonetics, ch. 7). Sung through the closure's formants
 // alone, its harmonics above 600 Hz came up with the per-note gain on D4-E4, where the fundamental is far
 // from the closure's 180 Hz F1, and buried the release burst: on D#4 and E4 *nab*/*gab* the burst stood 9
 // dB over the bar above 600 Hz, under the reader's 12. So the bar is also low-passed (the two one-pole 400
-// Hz low-passes the nasal murmur uses), and voiceBarGain takes that into account. `voiceBarWall: false`
-// (a singNote option; `renderMidi(..., { voiceBarWall: false })`) is the bar before.
+// Hz low-passes the nasal murmur uses), and voiceBarGain takes that into account. Tried, not shipped: it
+// read 7 more of part N's voiced stops but cost part A and part P, and the openings (consonant-check A 195 to
+// 192, B 812 to 808), so it is off by default: `voiceBarWall: true` (a singNote option; `renderMidi(..., {
+// voiceBarWall: true })`) turns it on.
 const WALL_HZ = 400;
 function wallPow(hz, rate) {
   const a = 1 - Math.exp((-2 * Math.PI * WALL_HZ) / rate), w = (2 * Math.PI * hz) / rate;
@@ -459,9 +461,9 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   for (let i = 0; i < total; i++) src[i] = src[i] / nv + o.breath * rand();
   // formant track: the vowel, gliding to `glide` from glideFrom of the sung length
   const from = tuneF1(FORMANTS[vowel] || FORMANTS.a, f, o.f1Tune), to = glide ? tuneF1(FORMANTS[glide], f, o.f1Tune) : from;
-  const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room, o.lateralLevel === false || o.onsetLateral === 'first' ? null : (c) => lateralGain(f, rate, from, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, from, c, VOICE_BAR_DB, o.voiceBarWall !== false), o.voiceBarWall !== false) : null;
+  const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room, o.lateralLevel === false || o.onsetLateral === 'first' ? null : (c) => lateralGain(f, rate, from, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, from, c, VOICE_BAR_DB, o.voiceBarWall === true), o.voiceBarWall === true) : null;
   const coda = o.coda || [];
-  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare, o.lateralLevel === false ? null : (c) => lateralGain(f, rate, to, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, to, c, VOICE_BAR_DB, o.voiceBarWall !== false), o.voiceBarWall !== false) : null;
+  const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare, o.lateralLevel === false ? null : (c) => lateralGain(f, rate, to, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, to, c, VOICE_BAR_DB, o.voiceBarWall === true), o.voiceBarWall === true) : null;
   // a diphthong reaches its second vowel by the coda (or the note's end)
   const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.max(g0 + 1, Math.round((cd ? cd.plan.codaAt - TRANSITION * cd.plan.scale : lead + dur) * rate));
   const st = new Float64Array(10); // two state values per resonator
