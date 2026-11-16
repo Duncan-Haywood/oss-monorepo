@@ -17,7 +17,7 @@
 //! A name used only inside its own file is still an unused export: the
 //! `export` keyword is what is unused.
 
-use super::{clause_from, resolve_in, tokenize, type_only, Files, Graph, Kind, Resolve, Tok};
+use super::{clause_from, resolve_with, tokenize, type_only, Files, Graph, Kind, Resolve, Tok};
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -502,7 +502,7 @@ pub fn unused_exports(
             let to = sh
                 .imports
                 .iter()
-                .map(|im| match resolve_in(fs, p, &im.spec, exts) {
+                .map(|im| match resolve_with(fs, &g.configs, p, &im.spec, exts) {
                     Resolve::File(q) => index.get(q.as_path()).copied(),
                     _ => None,
                 })
