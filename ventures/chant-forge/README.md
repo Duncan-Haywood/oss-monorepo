@@ -1142,7 +1142,7 @@ That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
-#### A voice bar read as a murmur (2026-11-16, latest; failed its registration, opt-in)
+#### A voice bar read as a murmur (2026-11-16; failed its registration, opt-in)
 
 The round before left T's voiced stops read as a nasal (*tag*, *pob*, *hag*, *vob*, 11 of 22 misses). Read frame by
 frame (`eval/vstop-diag.mjs T`, which now names the nasal rule that fired and where a stop's closure starts), all 10
@@ -1178,6 +1178,44 @@ fewer, nothing lost), but one of the two came back as the wrong stop. Read after
 the voiced stops still read as a nasal on C#4-E4 (*bob*, *lag*, *pob*, *hag*) have no burst found at all, so no
 closure for the rule to see. The next faults are the burst's place for g on F#3-A#3 (read as b) and the burst
 search on C#4-E4, not the murmur rule. Reader only; nothing in the synthesis changed. Not listened to.
+
+#### A g's burst read as a b (2026-11-16, latest; failed its registration, opt-in)
+
+The round before left voiced g codas on F#3-A#3 read as a b (*tag*, *hag* in T, *dag*, *lag* in U). Read burst by
+burst (`eval/vstop-diag.mjs`, which now prints each stop's burst centroid, share of energy above 1 kHz and sliding
+500 Hz compactness), every velar read as labial on K, N, T and U had a compact burst, 0.68 to 0.83 of its 1-11 kHz
+energy in one 500 Hz band centred at 1.9 to 2.8 kHz, but only 32 to 50% of its energy above 1 kHz. readCoda's place
+test asks "is most of the energy under 1 kHz?" before it asks "is it compact?", and the voice bar's low harmonics,
+still running under a voiced g's burst on these pitches, answer the first question for it.
+
+- **The rule** (`readCoda`'s `compactVelar`, `COMPACT_VELAR` = 0.65 compact at 1.65 kHz or above; opt-in; `--velar on`
+  in `eval/coda-check.mjs`): a burst that compact, that high, is velar before the low test. On K, N, T and U, labial
+  bursts as compact as that all peaked at the 1.25 kHz floor, and those peaking at 1.5 kHz or above were 0.58 compact
+  or less.
+- **Development** (A-U): +7 cells, nothing lost: K, N, O and P's others +1 each, T's voiced stops 122 to 123, U's 127
+  to 129 (with `barLead: 8`, 128 to 131). Every vowel-only control and the corpus parts identical.
+- **Pre-registered on a new part V** (`eval/coda-check.mjs` header, eighteenth round, committed before V ran):
+  16 velar codas (10 g, 6 c), 9 labial, 5 alveolar and 5 others, none sung before, at G2, F3, G3, A3, B3 and D4, 114 BPM.
+
+| V, against the default | default | `compactVelar` | wanted |
+|---|---|---|---|
+| velar codas read exactly (of 192) | 175 | 176 | 3 or more better: **fails** |
+| velars read as a labial stop | 1 | 0 | 3 or more fewer: **fails** |
+| labial codas read exactly (of 108) | 86 | 86 | no fewer: holds |
+| labials read as a velar stop | 14 | 14 | at most 1 more: holds |
+| alveolar (of 60), others (of 60), vowel-only control (of 420) | 57, 59, 420 | 57, 59, 420 | identical: holds |
+
+So `compactVelar` stays opt-in and the default reader did not change. The rule did what it was written to do: V's
+one velar read as a labial (*sog*) came back, and nothing else moved. But V had only one such cell to fix. The fault
+was common on the development cells that had been read (T and U on F#3-A#3), and the registration took that rate for
+the rate everywhere. `compact-velar.test.mjs` (2 tests) keeps U's *lag* on A#3 and checks no other coda in that cell
+moves.
+
+V found a larger fault the other way round: 14 of its 108 labial codas read as a velar stop, 12 of them a voiceless
+p on A3 and B3 (*lap*, *rup*, *sep*, *fip*, *mop*, *dap*). `sing.mjs` sings p's burst in a band at 500 Hz, yet on those
+cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its energy above 1 kHz; the same syllables
+on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
+into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
 #### The wall in codas only (2026-11-16; failed its registration, both stay opt-in)
 

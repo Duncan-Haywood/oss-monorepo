@@ -492,6 +492,92 @@ def _noise_model(level: np.ndarray, spread: np.ndarray) -> tuple[float, float]:
     return float(g), float(r)
 
 
+def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
+    """Per BLOCK x BLOCK block of the mosaic ``c``: its mean level and its noise spread, the median of each
+    sensel's leave-one-out residual against its same-colour neighbours (5 x 5, triangle-weighted) as a sigma."""
+
+    c = np.asarray(c, dtype=np.float64)
+    h, w = c.shape
+    level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
+    cmap = colour_map(pat, h, w)
+    pred = np.zeros_like(c)
+    for k in range(3):
+        m = (cmap == k).astype(np.float64)
+        s = _box3(_box3(c * m)) - 9.0 * c * m
+        n = _box3(_box3(m)) - 9.0 * m
+        pred += np.where(m > 0, s / np.maximum(n, 1e-9), 0.0)
+    resid = np.abs(c - pred) * 1.4826 * 0.85  # MAD to sigma; 0.85 removes the neighbours' own share
+    spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
+    return level, spread
+
+
+def estimate_noise(c, pat) -> tuple[float, float]:
+    """The sensor's (shot, read) model, variance = shot * level + read, fitted from the mosaic ``c`` alone: the
+    quietest blocks' spread at each brightness (``_block_spread``, ``_noise_model``). Texture only adds to the
+    spread, so on a detailed frame this reads high; on a smooth one it reads about 0.8 of the true sigma
+    (eval/noise-profile-real-dngs-2026-11-16.md)."""
+
+    return _noise_model(*_block_spread(c, pat))
+
+
+# The profile guard (2026-11-16, eval/noise-profile-real-dngs-2026-11-16.md). Blocks are put in eight brightness
+# bins, as ``_noise_model`` does; in each, the 15th percentile of the blocks' spread reads 0.80 of the true sigma
+# on a smooth synthetic field (both CFAs) and more where texture fills the bin. So the profile's sigma at the
+# bin's level over ESTIMATE_BIAS x that spread, in the cleanest bin, reads how far the profile overstates the
+# noise (0.95-1.02 for an honest synthetic profile, k for one k times too high); texture can only make it read
+# low. On 83 real CFA DNGs from 80 bodies (raw.pixls.us, 2026-11-16) Adobe-written profiles read 0.94-1.20 and
+# 43 of 83 read over PROFILE_CAP: 25 over 2x, 11 over 5x, up to 77x (three iPhone apps 14-32x). Past the cap the
+# profile is scaled down to it: overstating the noise by about 1.5x or more costs dB in the blend, understating
+# it only moves the blend toward the directional default.
+ESTIMATE_BIAS = 1.25
+PROFILE_CAP = 1.25
+
+
+def profile_ratio(c, pat, noise: tuple[float, float], *, spread: tuple[np.ndarray, np.ndarray] | None = None) -> float:
+    """How many times the noise a profile ``noise`` (shot, read on ``c``'s scale) states exceeds what the mosaic
+    shows: the largest, over brightness bins clear of the black clip, of the profile's sigma at the bin's median
+    level over ESTIMATE_BIAS x the bin's 15th-percentile block spread, blocks that reach the frame's top value
+    (clipped) left out. NaN when no bin qualifies."""
+
+    c = np.asarray(c, dtype=np.float64)
+    level, sp = _block_spread(c, pat) if spread is None else spread
+    # Blocks holding a sensel at the frame's top value are clipped (white or the white-balanced plane's cap),
+    # and their spread reads near 0: a real Huawei VTR-L09 frame's top bin read 4e-16 and the ratio 3.5e13.
+    top = float(c.max())
+    unclipped = (_block_stat(c, lambda t: t.max(axis=-1)) < top * (1.0 - 1e-9)).ravel()
+    lv, sv = level.ravel()[unclipped], sp.ravel()[unclipped]
+    shot, read = float(noise[0]), float(noise[1])
+    if lv.size < 8:
+        return float("nan")
+    edges = np.quantile(lv, np.linspace(0, 1, 9))
+    best = float("nan")
+    for i in range(8):
+        sel = (lv >= edges[i]) & (lv <= edges[i + 1])
+        if sel.sum() < 3:
+            continue
+        x = float(np.median(lv[sel]))
+        q = ESTIMATE_BIAS * float(np.percentile(sv[sel], 15))
+        sig = float(np.sqrt(max(shot * x + read, 0.0)))
+        if q <= 0.0 or sig <= 0.0 or x < 3.0 * q:  # near black the clip at 0 hides noise
+            continue
+        r = sig / q
+        best = r if not best == best or r > best else best
+    return best
+
+
+def guard_profile(c, pat, noise: tuple[float, float], *, cap: float = PROFILE_CAP) -> tuple[tuple[float, float], float]:
+    """``noise`` checked against the mosaic: the (shot, read) to use and ``profile_ratio``. Past ``cap`` both terms
+    are scaled by the same factor, so the profile keeps its shot/read shape and states ``cap`` x what the
+    cleanest bin shows."""
+
+    shot, read = float(noise[0]), float(noise[1])
+    ratio = profile_ratio(c, pat, (shot, read))
+    if not ratio == ratio or ratio <= cap:
+        return (shot, read), ratio
+    k = (cap / ratio) ** 2
+    return (shot * k, read * k), ratio
+
+
 def frame_measures(
     c, pat, bilinear: np.ndarray, directional_out: np.ndarray, *, noise: tuple[float, float] | None = None,
     blocks: bool = False,
@@ -507,19 +593,9 @@ def frame_measures(
     """
 
     c = np.asarray(c, dtype=np.float64)
-    h, w = c.shape
     level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
     if noise is None:
-        cmap = colour_map(pat, h, w)
-        pred = np.zeros_like(c)
-        for k in range(3):
-            m = (cmap == k).astype(np.float64)
-            s = _box3(_box3(c * m)) - 9.0 * c * m
-            n = _box3(_box3(m)) - 9.0 * m
-            pred += np.where(m > 0, s / np.maximum(n, 1e-9), 0.0)
-        resid = np.abs(c - pred) * 1.4826 * 0.85  # MAD to sigma; 0.85 removes the neighbours' own share
-        spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
-        g, r = _noise_model(level, spread)
+        g, r = estimate_noise(c, pat)
     else:
         g, r = float(noise[0]), float(noise[1])
     diff = np.asarray(directional_out, dtype=np.float64) - np.asarray(bilinear, dtype=np.float64)

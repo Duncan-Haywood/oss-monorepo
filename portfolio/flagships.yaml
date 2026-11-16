@@ -124,10 +124,10 @@ flagships:
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
       (eval/cord_images.py; huggingface.co answered 2026-11-16 late) read by
       `apt-get install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD
-      totals 153 of 196, tax 134 of 185; CORD validation totals 66 of 98, tax 23 of
-      47; test 53 of 95, tax 16 of 41 (eval/cord-dash-section-sign-2026-11-16.md:
-      dash and § read). Next, from validation misses only: the 21 tax "none"s; total
-      lost with subtotal and tax split across readings. CORD test stays held out.
+      totals 153 of 196, tax 134 of 185; CORD validation totals 66 of 98, tax 25 of
+      47; test 53 of 95, tax 16 of 41 (eval/cord-tax-split-2026-11-16.md: 21 tax
+      misses sorted, total split at 10%). Next, from validation: a service charge in
+      the tax vote; the 5 wrong totals with a tax line. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -254,8 +254,8 @@ flagships:
       LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
       when the pay floor is skipped"); pay floor tries past a spent budget, 4 s
       (README "The pay floor once the budget is spent"); cover walk stops at the
-      budget (README "Where the time past the budget goes"); next the repair's 200
-      ms minimum near the budget's end; re-run the keep-usual-shifts sweep on real
+      budget (README "Where the time past the budget goes"); repair now stops at it
+      too; next the pay polish after it; re-run the keep-usual-shifts sweep on real
       dated leave records; a manager's read on whether the steadier plan is the one
       they would post; a real 7shifts account through --import-7shifts (README
       "Reading 7shifts directly"); a real When I Work account or response through
@@ -274,8 +274,8 @@ flagships:
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
       III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware demosaic
-      (opt-in, 2026-11-16): check more real DNG NoiseProfiles against the in-frame
-      estimate (eval/xtrans-noise-aware-blend-2026-11-16.md); score its luma. DNG
+      (opt-in): profiles checked and guarded 2026-11-16
+      (eval/noise-profile-real-dngs-*); score its luma; per-plane profiles. DNG
       1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
@@ -430,9 +430,9 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-16 latest: barLead (a voice bar read as a murmur) failed on held-out
-      U, 127 to 128 of 144, +2 wanted; opt-in; next: g bursts read as b on F#3-A#3,
-      no burst on C#4-E4, L's cum). Open checks that need a person: listen to the
+      2026-11-16 latest: compactVelar (g's burst read as b) failed on held-out V,
+      175 to 176 of 192, +3 wanted; opt-in; next: p's burst read as k on A3-B3, no
+      burst on C#4-E4, L's cum). Open checks that need a person: listen to the
       studio page, --sing, the options (--stretch, --halftime, --fills, --limit
       pumping, stems, sections, breakdown, riser, the a cappella verse and whether
       the key lift sounds like a lift); --lrc in a real player and --markers/--stems
@@ -466,9 +466,10 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html, landed 2026-11-16,
-      eval/editor-2026-11-16.md): open an existing IDS into it, and offer the
-      classes and sets a dropped model has.
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html; opens an IDS,
+      eval/editor-open-2026-11-16.md): custom property-set rows, several classes per
+      spec, applicability facets beyond the class; offer the classes and sets a
+      dropped model has.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -478,7 +479,10 @@ flagships:
       2026-11-16 (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433
       offered specs audit clean, 15,102 valid in ids.xsd; found voids/fills token
       pair and classification-system gaps, eval/editor-2026-11-16.md); an MEP and an
-      IFC4X3 infrastructure model through the IfcTester cross-check; editor: open an
-      existing IDS, offer the classes and sets a loaded model has; a GitHub Action
-      wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
-      (needs a person).
+      IFC4X3 infrastructure model through the IfcTester cross-check; editor (opens
+      an IDS since 2026-11-16, eval/editor-open-2026-11-16.md: 64 of 64 public files
+      write back the same, 75% of facets editable): custom property sets as editable
+      rows (110 kept facets), several classes per spec, applicability
+      property/attribute facets (85); offer the classes and sets a loaded model has;
+      a GitHub Action wrapper; heap use on a 200 MB model; a BIM coordinator's real
+      IDS and model (needs a person).
