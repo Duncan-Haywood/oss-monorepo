@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtLNmWPneFnTR35j7La",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T03:07:26Z",
+  "ended": "2026-11-16T03:18:26Z",
+  "wall_minutes": 11.26,
+  "tokens_in": 6738156,
+  "tokens_out": 31161,
+  "cost_usd": 2.9815,
+  "tool_calls": 69,
+  "task": "Deepen (flagship 2) ai-bookkeeper, BUILDABLE HERE: re-measure the CLI's --four-pass on SRD photos; photo 1173's refused item split",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16431",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "A first version of the items-above-the-subtotal retry kept a split against a largest-amount guess (SRD 1160) and took OCR's 'Subtota]' as an item (SRD 1060); both caught by reading the new splits by eye and fixed before CORD was scored.",
+    "One foreground tesseract run on a single photo outlasted the 120 s tool timeout and moved to the background."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/cord-receipts.mjs",
+      "issue": "--misses lists only total misses, not tax misses, and nothing scores item splits; a short scratch script was needed for both."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/cord/README.md",
+      "issue": "The committed CORD files drop the upstream item labels, so item splits can only be checked against the labelled total, not item by item."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-receipt-items-under-the-total.md",
+    "ventures/ai-bookkeeper/eval/receipt-cli-four-pass-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "Installed tesseract 5.3.4 (apt). CLI --four-pass on 200 SRD photos (4 shards, ~25 min): totals 150/196 (last 147), tax 126/185 (first CLI figure; page 138). Change: tax-block lines excluded from items; retry on lines above the first subtotal/total line, only against a total read from a total line; 'Subtota' not an item. Item splits kept: SRD 42->48 (in-sample, all 6 read by eye), CORD train/val/test 342/51/49 -> 436/62/60 (held out; 115 of 116 new close the labelled total, 1 has none). Totals and tax unchanged on SRD CLI and CORD. Venture suite: ok ai-bookkeeper (3270 tests). Page item splits not re-measured (tesseract.js readings not rebuilt).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "05574853-9a5e-520d-85ea-bf8b13cdb2bc",
+    "transcripts": 1,
+    "first": "2026-11-16T03:07:26Z",
+    "last": "2026-11-16T03:18:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 118,
+        "output": 31161,
+        "thinking": 5329,
+        "cache_read": 6608523,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129515,
+        "api_equivalent_usd": 2.9815,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 118,
+      "output": 31161,
+      "thinking": 5329,
+      "cache_read": 6608523,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129515,
+      "api_equivalent_usd": 2.9815,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.26,
+      "active_minutes": 11.26,
+      "model_minutes": 7.01,
+      "tool_minutes": 4.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "install OCR, read 200 photos four ways, score, write and check a parser rule on 1,200 receipts, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 201.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -89,7 +89,7 @@ export function splitReceipts(text) {
 }
 
 // Lines that carry an amount but are not things bought.
-const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?total|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
+const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?\s*tota\b|sub\s*-?total|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
 const TIP_RE = /\b(tip|gratuity)\b/i;
 
 // Item lines: words, then a price (the last amount on the line; "2 x 3.00  6.00"
@@ -305,7 +305,7 @@ function taxBlock(lines, comma, cands, cents, subtotals, ends) {
   const items = parseItems(lines.slice(0, lo), comma).reduce((a, i) => a + i.cents, 0);
   const base = [...subtotals, ...(items > 0 ? [items] : [])].find((b) => ends.has(b + sum) && sum <= b * 0.15);
   if (base === undefined || sum <= 0 || cands.every((c) => c.v === sum)) return null;
-  return { cents: sum, note: `${hi - lo + 1} lines beside the tax line added as taxes (${lines.slice(lo, hi + 1).map((l) => `"${l}"`).join(", ")}): the ${subtotals.includes(base) ? "subtotal" : "items"} plus their sum is the total, check the tax` };
+  return { cents: sum, lines: lines.slice(lo, hi + 1), note: `${hi - lo + 1} lines beside the tax line added as taxes (${lines.slice(lo, hi + 1).map((l) => `"${l}"`).join(", ")}): the ${subtotals.includes(base) ? "subtotal" : "items"} plus their sum is the total, check the tax` };
 }
 
 export function readTax(lines, comma, cents) {
@@ -360,6 +360,7 @@ export function readTax(lines, comma, cents) {
   // the tax lines and before a printed tip ("Total: 43.60", 18% tip, "Total 50.80")
   const lastTax = Math.max(...cands.map((c) => lines.indexOf(c.line)));
   const ends = new Set(cents === null ? [] : [cents]);
+  let taxLines = null; // the lines a tax block took as taxes, so they are not read as items
   lines.forEach((l, i) => { if (i > lastTax && TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) { const t = amt(l); if (t !== null && cents !== null && t < cents && subtotals.some((s) => t > s)) ends.add(t); } });
   let pick = printed.length ? printed[printed.length - 1] : cands[cands.length - 1];
   let v = pick.v;
@@ -369,12 +370,12 @@ export function readTax(lines, comma, cents) {
   }
   if (!printed.length && cents !== null && pick && !subtotals.some((s) => ends.has(s + v))) {
     const block = taxBlock(lines, comma, cands, cents, subtotals, ends);
-    if (block) { v = block.cents; note = block.note; pick = null; }
+    if (block) { v = block.cents; note = block.note; pick = null; taxLines = block.lines; }
   }
   if (pick?.lost) note = `tax line read "${pick.lost}" with its decimal point lost: took ${(v / 100).toFixed(2)}, check the tax`;
   // every tax line added, for another reading's subtotal to check (receipts.mjs voteTax)
   const sum = cands.length >= 2 && !printed.length ? cands.reduce((a, c) => a + c.v, 0) : null;
-  return { cents: v, subtotals, note, line: pick?.line ?? null, sum };
+  return { cents: v, subtotals, note, line: pick?.line ?? null, sum, taxLines };
 }
 
 export function parseReceipt(block, { dayFirst = null } = {}) {
@@ -556,12 +557,21 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   // any tip, or already including tax); the merchant line is not an item
   let tipCents = null;
   for (const l of lines) if (TIP_RE.test(l) && !TOTAL_RE.test(l)) { const a = amountsIn(l, comma); if (a.length) tipCents = a[a.length - 1]; }
-  const items = parseItems(lines, comma);
+  // lines taken as taxes because they close the sum ("IL Sales $1.52") are not things bought
+  const items = parseItems(taxRead.taxLines ? lines.filter((l) => !taxRead.taxLines.includes(l)) : lines, comma);
   let itemsOk = false;
+  // "Food: $12.40", "Beverage: $2.45" printed under the total sum the items again by kind:
+  // when every line fails the check, the lines above the first subtotal or total line are
+  // tried alone, and kept only if they close the total too
+  const firstSum = lines.findIndex((l) => SUB_RE.test(l) || (TOTAL_RE.test(l) && amountsIn(l, comma).length));
+  // only against a total read from a total line: a guessed largest amount is often the subtotal itself
+  const aboveItems = firstSum > 0 && at >= firstSum ? parseItems(lines.slice(0, firstSum).filter((l) => !taxRead.taxLines?.includes(l)), comma) : [];
+  const above = aboveItems.length && aboveItems.length < items.length ? { items: aboveItems, sum: aboveItems.reduce((a, i) => a + i.cents, 0) } : null;
   if (items.length && cents !== null) {
     const sum = items.reduce((a, i) => a + i.cents, 0);
     if (sum + (taxCents ?? 0) + (tipCents ?? 0) === cents) itemsOk = true;
     else if (sum + (tipCents ?? 0) === cents && taxCents !== null) itemsOk = "tax included";
+    else if (above && above.sum + (taxCents ?? 0) + (tipCents ?? 0) === cents) { itemsOk = true; items.splice(0, items.length, ...above.items); }
     else notes.push(`items add to ${(sum / 100).toFixed(2)} but the total is ${(cents / 100).toFixed(2)}${taxCents !== null ? " with tax" : ""}: not used for a split`);
   }
   const currency = detectCurrency(lines);

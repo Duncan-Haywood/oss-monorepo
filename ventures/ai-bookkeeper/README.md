@@ -2653,6 +2653,35 @@ those words are excluded and CORD is back where it was. 1142 and 1198 are OCR-bo
 Details: [`eval/receipt-tax-lines-2026-11-15.md`](eval/receipt-tax-lines-2026-11-15.md).
 Tests: `receipt-tax.test.mjs` (21).
 
+### The CLI re-measured; item splits under the total (2026-11-16)
+
+`receipts photo.jpg --four-pass` (tesseract 5.3.4) re-read on the 200 SRD photos for the
+first time since the tax work: **totals 150 of 196 (76.5%)**, up from 147 when last
+measured, and **tax 126 of 185 (68.1%)**, measured for the first time on the CLI (the page
+reads 138). The CLI's 14 wrong and 45 missing taxes are listed in the eval file.
+
+The item split (each line bought, kept only when the items close the total) was refused on
+receipts that print something with an amount under the total: Food and Beverage summaries,
+a suggested-gratuity table, "ITEMS 1.00", "DPP", "NET SALES", "TOTAL QTY 2". It was also
+refused where the tax block's unlabelled tax lines ("IL Sales $1.52") were counted as items.
+Now those tax lines are left out. When the whole list fails, the lines above the first
+subtotal or total line are tried alone, under the same exact check. That retry runs only
+against a total read from a total line, never a largest-amount guess, which on SRD 1160 was
+the subtotal itself. OCR's "Subtota" is no longer an item.
+
+| item split kept | before | now |
+|---|---|---|
+| SRD, CLI `--four-pass` (200) | 42 | **48** |
+| CORD train / validation / test, dataset text (held out) | 342 / 51 / 49 | **436 / 62 / 60** |
+| totals and tax, SRD CLI and CORD | 150, 126; 749 / 96 / 92, 322 / 46 / 41 | unchanged |
+
+None lost. The six SRD gains were read by eye. Of CORD's 116, 115 close the labelled total
+and one has no labelled total. CORD's committed files hold no item labels, so splits are
+not scored item by item. The page shares `parseReceipt`, but its readings were not rebuilt
+this run. Details, per-photo lists and commands:
+[`eval/receipt-cli-four-pass-2026-11-16.md`](eval/receipt-cli-four-pass-2026-11-16.md).
+Tests: `receipt-tax.test.mjs` (23).
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
