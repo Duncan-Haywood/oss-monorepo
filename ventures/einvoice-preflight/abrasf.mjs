@@ -18,7 +18,10 @@
 //      deductions plus the unconditional discount no more than ValorServicos;
 //   4. the rate (ABR-024): Aliquota within LC 116's national 2% to 5% band (iss-rate.mjs);
 //      ABR-025: where the ISS is due in a city whose own rate table is read (São Paulo, Rio de Janeiro),
-//      Aliquota against that city's rate for the service (iss-city-rates.mjs).
+//      Aliquota against that city's rate for the service (iss-city-rates.mjs);
+//   5. the city's own service code (ABR-026): on a file issued by Rio de Janeiro's system,
+//      CodigoTributacaoMunicipio against Rio's Tabela de Códigos de Serviços on the file's date
+//      and against ItemListaServico (rio-service-codes.mjs).
 //      The ABRASF manual itself was not reachable from the build host; the formulas are as
 //      quoted from integration manuals that reproduce it (see README) and were then measured
 //      on the real files described there, which is where the tolerance rules come from.
@@ -28,6 +31,7 @@ import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider,
 import { checkBrazilId } from "./brazil.mjs";
 import { issRateProblem, lcSubitem } from "./iss-rate.mjs";
 import { cityRateProblem, CITIES } from "./iss-city-rates.mjs";
+import { rioCodeProblem, RIO } from "./rio-service-codes.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { UF_CODE } from "./nfe.mjs";
 import { GAPS, CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
@@ -235,6 +239,7 @@ function checkValues(root, base, out, notes) {
       if (want.length && !want.some((w) => Math.abs(w - cents(iss)) <= 1)) out.push(finding("ABR-021", `ValorIss is ${iss}, but BaseCalculo ${money(node === servico && node !== tot ? wantBase : baseC)} x Aliquota ${aliq}% = ${money(want[0])}.`, "Recompute the ISS from the base and the rate (Aliquota is a percentage in layouts 2.x: 5.00 for 5%).", `${where}/ValorIss`));
     }
     checkIssRate(root, n, parent, tot, servico, txt(tot, "Aliquota") ? totPath : p, out, notes);
+    if (parent) checkCityCode(root, n, parent, p, out, notes);
     const liqTxt = tot ? txt(tot, "ValorLiquidoNfse") : txt(n, "ValorLiquidoNfse");
     if (liqTxt && Number.isFinite(cents(liqTxt))) {
       const fed = ["ValorPis", "ValorCofins", "ValorInss", "ValorIr", "ValorCsll", "OutrasRetencoes"].map((k) => amt(n, k));
@@ -262,9 +267,7 @@ function checkIssRate(root, n, parent, tot, servico, p, out, notes) {
   const why = sn ? "a Simples Nacional provider" : ["1", "3", "5", "6"].includes(reg) ? `RegimeEspecialTributacao ${reg}` : exig && exig !== "1" ? `ExigibilidadeISS ${exig}` : ["3", "4", "5", "6"].includes(nat) ? `NaturezaOperacao ${nat}` : "";
   const item = lcSubitem(txt(parent, "ItemListaServico"));
   // The competence month (2.x Competencia; 1.00 DataEmissao), for the 2029-2032 cuts.
-  let dateNode = null;
-  for (const [m] of walk(root, "")) if (m === decl || (m.name === "InfNfse" && [...walk(m, "")].some(([x]) => x === n))) { dateNode = m; }
-  const year = Number((txt(decl, "Competencia") || txt(decl, "DataEmissao") || txt(dateNode, "Competencia") || txt(dateNode, "DataEmissao")).slice(0, 4));
+  const year = Number(rawDay(root, n).slice(0, 4));
   const prob = issRateProblem({ rate: aliq, item, year });
   if (!prob) {
     // ABR-025: the city's own rate. The city is MunicipioIncidencia (2.x) where the file names
@@ -278,6 +281,32 @@ function checkIssRate(root, n, parent, tot, servico, p, out, notes) {
   }
   if (why && prob.kind === "low") { notes.add(`Aliquota ${aliq}: below the national 2% minimum, from ${why}; not judged (the band applies to the municipal rate, not this regime)`); return; }
   out.push(finding("ABR-024", prob.message, prob.fix, `${p}/Aliquota`));
+}
+
+// The file's competence date as written (2.x Competencia; 1.00 DataEmissao).
+function rawDay(root, n) {
+  const decl = declaracao(n, root);
+  let dateNode = null;
+  for (const [m] of walk(root, "")) if (m === decl || (m.name === "InfNfse" && [...walk(m, "")].some(([x]) => x === n))) { dateNode = m; }
+  return txt(decl, "Competencia") || txt(decl, "DataEmissao") || txt(dateNode, "Competencia") || txt(dateNode, "DataEmissao");
+}
+// The same as YYYY-MM-DD (a month alone is read as its first day), or "".
+function fileDay(root, n) {
+  const d = rawDay(root, n).slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : /^\d{4}-\d{2}$/.test(d.slice(0, 7)) ? `${d.slice(0, 7)}-01` : "";
+}
+
+// ABR-026: Rio de Janeiro's own service code. CodigoTributacaoMunicipio is the issuing city's
+// code, so it is read where Rio's system issues the file (OrgaoGerador, the provider's address
+// or, on an RPS, the service's city), not where the ISS is due.
+function checkCityCode(root, n, parent, p, out, notes) {
+  const raw = txt(parent, "CodigoTributacaoMunicipio");
+  if (!raw || issuerCity(root)?.code !== RIO) return;
+  const item = lcSubitem(txt(parent, "ItemListaServico"));
+  const r = rioCodeProblem({ code: raw, item, day: fileDay(root, n) });
+  const at = `${p.slice(0, p.lastIndexOf("/"))}/CodigoTributacaoMunicipio`;
+  if (r?.message) out.push(finding("ABR-026", r.message, r.fix, at));
+  else if (r?.note) notes.add(r.note);
 }
 
 // ---------- entry ----------
@@ -402,6 +431,6 @@ export function checkAbrasf(text) {
   if (wrapped) skipped.push(`wrapper: the ABRASF element ${root.name} sits inside ${escaped ? "escaped text (a SOAP parameter)" : `${doc.name}`}; only ${root.name} is checked`);
   if ([...walk(root, "")].some(([n]) => n.name === "Signature")) skipped.push("signature: ds:Signature is present and not verified here");
   const kinds = new Set([...walk(root, "")].map(([n]) => n.name));
-  const meta = { root: root.name, version: version || stated, stated, issued: kinds.has("InfNfse"), rps: kinds.has("InfDeclaracaoPrestacaoServico") || kinds.has("InfRps"), source: SOURCE };
+  const meta = { root: root.name, issuer: issuerCity(root)?.code ?? "", version: version || stated, stated, issued: kinds.has("InfNfse"), rps: kinds.has("InfDeclaracaoPrestacaoServico") || kinds.has("InfRps"), source: SOURCE };
   return { findings, skipped, meta };
 }
