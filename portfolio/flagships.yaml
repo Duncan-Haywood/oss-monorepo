@@ -120,6 +120,14 @@ flagships:
       EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
       printed. A run that lands a slice replaces its item here; keep this under
       2,000 characters.
+    buildable: >-
+      Receipts, item (5), on the public SRD photos (eval/srd-fetch.mjs,
+      raw.githubusercontent.com): re-measure the CLI's `--four-pass`, not run since
+      the tax-lines change (eval/receipt-tax-lines-2026-11-15.md had no binary;
+      `apt-get update && apt-get install -y tesseract-ocr` gives tesseract 5.3.4 in
+      about a minute); photo 1173 counts its unlabelled tax and Food / Beverage
+      summary lines as items, so its item split is refused; 38 photos read no tax.
+      CORD stays the held-out check.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
