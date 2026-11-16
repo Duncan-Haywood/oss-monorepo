@@ -529,7 +529,7 @@ def prs_naming(subject: str, prs: list[tuple[int, str]]) -> list[tuple[int, str]
 MODES = {
     "sample": "the stratified random round (quality_audit.py sample): the unbiased share meeting the bar",
     "census": "the full-repository sweep (census): never-audited subjects first",
-    "fix": "fix the open-defect queue (queue), with a regression test per fix, then re-audit",
+    "fix": "fix the open-defect queue (queue), with a regression test per fix; a later round re-audits (not this one)",
     "reflect": "read the corpus (metrics) and the process, write a reflection with process fixes",
 }
 MODE_WEIGHTS = {"sample": 0.35, "census": 0.30, "fix": 0.25, "reflect": 0.10}

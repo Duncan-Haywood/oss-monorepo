@@ -5856,6 +5856,12 @@ export function clampMetaDescription(html, max = META_DESCRIPTION_MAX) {
   );
 }
 
+/** Whether `copyTree` descends into a directory of this name (venture-preflight reuses the rule). */
+export function copiesDir(name) {
+  if (EXCLUDED_DIRS.has(name)) return false;
+  return !name.startsWith('.') || PUBLISHABLE_DOT_DIRS.has(name);
+}
+
 export async function copyTree(from, to, baseUrl) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
@@ -5866,8 +5872,7 @@ export async function copyTree(from, to, baseUrl) {
     const dest = path.join(to, entry.name);
 
     if (entry.isDirectory()) {
-      if (EXCLUDED_DIRS.has(entry.name)) continue;
-      if (entry.name.startsWith('.') && !PUBLISHABLE_DOT_DIRS.has(entry.name)) continue;
+      if (!copiesDir(entry.name)) continue;
       const nested = await copyTree(src, dest, baseUrl);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });

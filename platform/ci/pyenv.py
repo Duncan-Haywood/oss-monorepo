@@ -539,8 +539,11 @@ def report(py, command=None, execv=os.execv):
     if default and os.path.realpath(default) == os.path.realpath(py):
         print(f"pyenv: interpreter {py} (also the default python3, so plain python3 imports them too); "
               "stdout carries this path, capture it with PY=$(...)", file=sys.stderr)
-    print("pyenv: shell variables not kept between commands? add `-- <args>` to run "
-          "them with this interpreter in the same call", file=sys.stderr)
+    # Worded as a tip after an "ok": the old question ("shell variables not kept
+    # between commands?") read like an error on every successful PY=$(...) call
+    # (doc_friction 2026-11-15, four run records).
+    print(f"pyenv: ok, {py} on stdout. Tip: if $PY will not survive to your next call, "
+          "add `-- <args>` to run them with it in this one", file=sys.stderr)
     print(py)
     return 0
 
