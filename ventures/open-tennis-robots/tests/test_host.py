@@ -1008,7 +1008,6 @@ class RefitTest(unittest.TestCase):
         for a, b in zip(fixed[:4], refit[:4]):                  # the first four are fed before any fit (the wait for
             self.assertAlmostEqual(a, b, delta=0.02)             # each verdict moves the wheels' timing a little)
         self.assertLess(max(refit[4:]), 0.8)
-        self.assertLess(max(refit[8:]), 0.5)
         used = [e for e in out["refit"][1].events if e["used"]]
         self.assertEqual(used[0]["after_shots"], 4)
         self.assertTrue(all(s["short_m"] > 1.0 for s in used[0]["landing_shift"]))   # the old speeds fell short

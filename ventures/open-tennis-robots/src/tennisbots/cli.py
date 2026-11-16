@@ -256,7 +256,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--shot-log", help="append each stroke's wheel speed drops to this JSON-lines file (fit-launcher)")
     s.add_argument("--refit-after", type=int, metavar="N",
                    help="after every N shots, fit the launcher's efficiencies to this run's wheel speed drops and "
-                        "re-plan the remaining shots' wheel speeds when they moved more than 2%%")
+                        "re-plan the remaining shots' wheel speeds when they moved more than the fit's own "
+                        "error (5%% speed, 15%% spin)")
     s.add_argument("--recovery-s", type=float,
                    help="the tach's recovery time for --refit-after (default: fitted from the --shot-log file)")
     s.add_argument("--inertia", type=float, default=launcher.WHEEL_INERTIA_KGM2,

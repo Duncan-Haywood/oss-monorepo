@@ -217,8 +217,8 @@ class Refitter:
 
     `run_drill(..., replan=Refitter(spec, ...))` calls it before each shot with the run's launch records so far. After
     `after` launched shots, and again after each further `after`, it fits `launcher.fit_from_drops` to this run's
-    records and, when the fit moves the speed or spin efficiency more than `min_change` (relative) from the one being
-    planned with, returns the remaining shots' new wheel speeds. Each such event is kept in `events`: the fit, and how
+    records and, when the fit moves the speed efficiency more than `speed_tol` or the spin efficiency more than
+    `spin_tol` (relative, about the fit's own error) from the one being planned with, changes that one and returns the remaining shots' new wheel speeds. Each such event is kept in `events`: the fit, and how
     far each remaining shot would have landed from its target on the old wheel speeds if the fit is right (the landing
     shift).
 
@@ -229,13 +229,15 @@ class Refitter:
     SANE = {"speed_efficiency": (0.3, 1.0), "spin_efficiency": (0.05, 1.0)}
 
     def __init__(self, spec: dict, *, after: int = 4, recovery_s: float | None = None,
-                 inertia: float = launcher.WHEEL_INERTIA_KGM2, min_change: float = 0.02, log=None):
+                 inertia: float = launcher.WHEEL_INERTIA_KGM2, speed_tol: float = 0.05, spin_tol: float = 0.15,
+                 log=None):
         if after < 2:
             raise ValueError("refit after at least 2 shots: one shot's drops cannot separate speed from spin")
         m = spec.get("machine", {})
         self.origin = launcher.default_origin(m.get("y", 0.0), m.get("height", 1.0))
         self.wheels = launcher.WheelLauncher(**spec.get("launcher", {}))
-        self.after, self.recovery_s, self.inertia, self.min_change, self.log = after, recovery_s, inertia, min_change, log
+        self.after, self.recovery_s, self.inertia, self.log = after, recovery_s, inertia, log
+        self.speed_tol, self.spin_tol = speed_tol, spin_tol
         self.events: list = []
         self._next = after
 
@@ -248,17 +250,23 @@ class Refitter:
             fit = launcher.fit_from_drops(went, inertia=self.inertia, base=self.wheels, recovery_s=self.recovery_s)
         except ValueError as exc:
             return self._skip(len(went), f"no fit: {exc}")
-        new = fit.launcher(self.wheels)
         for name, (lo, hi) in self.SANE.items():
             v = getattr(fit, name)
             if v is not None and not lo <= v <= hi:
                 return self._skip(len(went), f"fit refused: {name} {v:.3f} is outside {lo}..{hi} (a wheel inertia far "
                                              "off, or a stuck tach?)")
-        moved = max(abs(new.speed_efficiency / self.wheels.speed_efficiency - 1),
-                    abs(new.spin_efficiency / self.wheels.spin_efficiency - 1))
-        if moved <= self.min_change:
-            return self._skip(len(went), f"fit within {self.min_change:.0%} of the plan's launcher: no change",
-                              fit=fit)
+        # Each efficiency is changed only when the fit moved it further than the fit's own error (README "Shot log":
+        # 3.9% speed, 11.7% spin over 18 simulated builds): a 3% correction from a 4-shot fit was as likely to be noise,
+        # and on builds the planner already had nearly right it moved the landings 0.6 m further off.
+        se, sp = self.wheels.speed_efficiency, self.wheels.spin_efficiency
+        if abs(fit.speed_efficiency / se - 1) > self.speed_tol:
+            se = fit.speed_efficiency
+        if fit.spin_efficiency is not None and abs(fit.spin_efficiency / sp - 1) > self.spin_tol:
+            sp = fit.spin_efficiency
+        if (se, sp) == (self.wheels.speed_efficiency, self.wheels.spin_efficiency):
+            return self._skip(len(went), f"fit within {self.speed_tol:.0%} (speed) and {self.spin_tol:.0%} (spin) of "
+                                         "the plan's launcher, inside its own error: no change", fit=fit)
+        new = replace(self.wheels, speed_efficiency=se, spin_efficiency=sp)
         out, problems = rewheel(remaining, new, self.origin)
         if all(o is p for o, p in zip(out, remaining)):
             return self._skip(len(went), f"fit not used: the fitted launcher can make none of the shots left "
