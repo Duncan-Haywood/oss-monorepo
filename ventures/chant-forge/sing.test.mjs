@@ -457,3 +457,26 @@ test('/i/ is not read as a voiced fricative where its low band beats down, and z
   }
   assert.ok(score.off >= 4, `the test should guard a real fault: ${JSON.stringify(score)}`);
 });
+
+test('a deep murmur on an E4 eighth note reads as its nasal, and a low voice bar still reads as its stop', () => {
+  // README "E4 eighth notes: a murmur read as a closure": the n of *nunc*, *tunc*, *mens* and *sunt* on E4
+  // eighths sits 18-33 dB under its vowel, past every nasal rule, and read as a stop (onsets.mjs DEEP). Sung in
+  // eval/coda-check.mjs part J's order (the beat's phase at each note depends on where it starts).
+  const SY = ['unt', 'ant', 'ent', 'int', 'sunt', 'nunc', 'tunc', 'ens', 'mens', 'ans', 'ont', 'at', 'et', 'it', 'ut', 'ot', 'ost', 'ust', 'ad', 'ud', 'ab', 'ub', 'ac', 'uc', 'ap', 'up', 'as', 'us', 'os', 'es', 'ax', 'ux', 'um', 'am', 'un', 'em', 'a', 'u', 'o'];
+  const POS = ['sunt', 'nunc', 'tunc', 'mens'], VST = ['ad', 'ud', 'ab', 'ub'], score = { on: 0, off: 0 };
+  for (const midi of [40, 45, 64]) {
+    const ev = [];
+    for (const s of SY) ev.push({ type: 'note', midi, pulses: 2, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+    const mid = eventsToMidi(ev, { bpm: 120 });
+    const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+    const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+    const x = renderMidi(mid, { stems: true, sing: true }).stems.choir.channels[0];
+    SY.forEach((s, j) => {
+      if (!POS.includes(s) && !VST.includes(s)) return;
+      const read = (deepMurmur) => readCoda(x, rate, sec(notes[j].tick) + 0.045, Math.min(sec(notes[j].end) + 0.25, sec(notes[j + 1]?.tick ?? 1e9)), { deepMurmur }).cls;
+      if (POS.includes(s) && midi === 64) { if (read(true) === 'nasal') score.on++; if (read(false) === 'nasal') score.off++; }
+      if (VST.includes(s) && midi < 64) assert.equal(read(true), 'stop', `${s} on ${midi} eighth`);
+    });
+  }
+  assert.ok(score.on === POS.length && score.on >= score.off + 3, JSON.stringify(score));
+});

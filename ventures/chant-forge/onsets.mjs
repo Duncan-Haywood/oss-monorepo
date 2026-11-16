@@ -92,8 +92,8 @@ export const AGAIN = { gap: 5, frames: 2 };
 // readCoda's voiced fricative: how much more energy above 5 kHz than the vowel's a frame must carry (see its
 // note); chosen on synthetic syllables at part K's pitches (eval/coda-check.mjs header, tenth round)
 export const VFRIC_HI5 = 12;
-// readCoda's deep murmur on a high short note before an obstruent (see its note); chosen on eval/coda-check.mjs J only
-export const DEEP = { lo: -35, hi: -12, minMs: 50, fall: 18, gap: 5, tilt: 15 };
+// readCoda's deep murmur on a high short note before an obstruent (see its note); chosen on eval/coda-check.mjs J and N
+export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
@@ -384,16 +384,20 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   // 15-30 dB dark in itself, short of murmurTilt (one harmonic of a 330 Hz voice passes under 500 Hz), so no rule
   // above saw it, and the beat's dips inside it met the closure rule, with the murmur's swell back read as the
   // burst: a voiced labial stop. What it does that nothing else does is hold, then end in an obstruent: a run
-  // of DEEP.minMs or more at DEEP.lo to DEEP.hi dB of the vowel, a median DEEP.tilt dB dark in itself, that runs
-  // into frication outlasting it, or within DEEP.gap frames into a closure holding a frame DEEP.fall dB under the
-  // run and ending in a burst. A voiced stop's voice bar (-24 to -43 dB on J) runs on up to its burst; a vowel
-  // falling into a voiceless closure passes through the band in 15-35 ms. `deepMurmur: false` is the reader before.
+  // of DEEP.minMs or more at DEEP.lo to DEEP.hi dB of the vowel (the louder of the reference and the vowel's
+  // peak in the 50 ms before the run: on an eighth note the reference is still in the attack), a median DEEP.tilt
+  // dB dark in itself, that runs into frication outlasting it, or within DEEP.gap frames into a closure that
+  // reaches silence (a frame at DEEP.silent dB of the vowel or lower) and ends in a burst. A voiced stop's voice
+  // bar (-24 to -43 dB) holds up to its burst; a vowel falling into a voiceless closure passes through the band
+  // in 15-35 ms. Second registration (eval/coda-check.mjs header): the first, with a fall of 18 dB under the run
+  // in place of silence and no peak, read voice bars as murmurs. `deepMurmur: false` is the reader before.
   const DP = { ...DEEP, ...deepOpts };
   const deepRun = () => {
     if (!deepMurmur) return null;
     if (!stopRun && !fric) return null;
-    const inBand = (f) => f.lvl >= DP.lo && f.lvl <= DP.hi;
     for (let k = 1; k < fr.length; k++) {
+      const base = DP.peak ? Math.max(0, ...fr.slice(Math.max(0, k - 10), k).map((f) => f.lvl)) : 0;
+      const inBand = (f) => f.lvl - base >= DP.lo && f.lvl - base <= DP.hi;
       if (!inBand(fr[k]) || inBand(fr[k - 1])) continue;
       let e = k; while (e < fr.length && inBand(fr[e])) e++;
       const r = [k, e - 1];
@@ -405,7 +409,7 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
       // or into a silent closure that ends in a burst: a voice bar instead runs on up to its burst, and
       // the beat's dips inside a murmur are not silent
       const intoSilence = closures.some((c) => c[0] >= r[1] - 2 && c[0] - r[1] <= DP.gap && burstAfter(c) >= 0
-        && fr.slice(c[0], c[1] + 1).some((f) => f.lvl <= ml - DP.fall));
+        && fr.slice(c[0], c[1] + 1).some((f) => f.lvl <= DP.silent));
       if (intoFric || intoSilence) return r;
     }
     return null;

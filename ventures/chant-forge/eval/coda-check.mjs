@@ -93,6 +93,24 @@
 //    identical (the rule needs a closure with a burst or a fricative, which a vowel-only "none" never has);
 //    (4) A, B, D, E, H, I, F, K, L and M totals each no lower, nasals no fewer, vowel-only controls identical;
 //    (5) eval/vowel-check.mjs and eval/consonant-check.mjs cannot move (readOnset and the synthesis untouched).
+//    Outcome of that registration (run 2026-11-16): it failed. (1) N's cluster nasals 116 to 114 off, but its D#4
+//    and E4 eighths were already 19 of 20 either way (at 108 BPM an eighth is 0.28 s, not J's 0.25); (2) N's other
+//    syllables 212 against 215, voiced stops read as a nasal 5 against 1; (4) K's others 198 to 197, L's /i/ 153
+//    to 152, M's others 106 to 105; (3) and (5) held, and A, B, D, E, H, I and F were byte-identical. Read frame
+//    by frame, two faults: on an eighth note the reference vowel (45 ms in) is still in its attack, so a *lud*
+//    voice bar on D#4 sat only 24 dB under it; and after a dark vowel's tail (*rud* on A#3, -15 dB) a voice bar
+//    at -36 to -41 was "18 dB under the run". Second registration, set on J and N (now a development set: its
+//    misses have been read): a run's level is taken against the louder of the reference and the vowel's peak in
+//    the 50 ms before it (`peak`), it must last 60 ms, and the closure must reach silence, a frame at -50 dB of the
+//    vowel or lower (`silent`; a voice bar holds at -24 to -43). J 887 to 891 of 936, N 689 to 691 of 720 (*fans*
+//    and *font* on D#4 quarter notes), no syllable on either read worse. Pre-registered here and committed before
+//    part O or any other part was run with it. Part O is new: 10 cluster syllables and 20 others sung in no other
+//    part, at F2 (in no other part), E3, A3, D4, D#4 and E4, 126 BPM (an eighth of 0.24 s, shorter than any
+//    other part's), quarter and eighth notes. Against `deepMurmur: false`: (1) O's cluster nasals no fewer, and at
+//    least 2 more on D4-E4 eighth notes; (2) O's other syllables read exactly within 1, its voiced stops read as a
+//    nasal no more often; (3) O's vowel-only control read as none identical; (4) A, B, D, E, H, I, F, J, K, L, M
+//    and N totals each no lower, nasals no fewer, vowel-only controls identical; (5) eval/vowel-check.mjs and
+//    eval/consonant-check.mjs cannot move.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -104,7 +122,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
@@ -479,7 +497,7 @@ for (const pulses of [4, 2]) for (const midi of [42, 49, 54, 58, 63, 64]) {
   }
 }
 const cell = (k) => pct(...(tally[k] || [0, 0]));
-lines.push('## N. Held-out deep murmurs (eleventh round, pre-registered)', '', `Clusters: ${POS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarter and eighth notes at 108 BPM, each followed by a rest, F#2, C#3, F#3, A#3, D#4, E4.`, '',
+lines.push('## N. Deep murmurs (eleventh round; held out for the first registration, a development set for the second)', '', `Clusters: ${POS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarter and eighth notes at 108 BPM, each followed by a rest, F#2, C#3, F#3, A#3, D#4, E4.`, '',
   '| | with the deep-murmur rule | without (`deepMurmur: false`) |', '|---|---|---|',
   `| cluster syllables read exactly (on their nasal) | ${cell('cluster on')} | ${cell('cluster off')} |`,
   `| of them, eighth notes on D#4 and E4 | ${cell('high on')} | ${cell('high off')} |`,
@@ -487,6 +505,45 @@ lines.push('## N. Held-out deep murmurs (eleventh round, pre-registered)', '', `
   `| voiced stops read as a nasal | ${nVst.on || 0} | ${nVst.off || 0} |`,
   `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '',
   'Misses with the rule (count over the twelve pitch and length cells):', '', HIDE.includes('N') ? '- hidden' : [...nMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- O ----
+// The eleventh round's second held-out set (DEEP's second registration, in the header): 10 cluster syllables and 20
+// others sung in no other part, at F2, E3, A3, D4, D#4 and E4, 126 BPM, quarter and eighth notes, each followed by a rest.
+if (PARTS.includes('O')) {
+const POS = ['mant', 'rint', 'bant', 'tunt', 'vens', 'pens', 'lans', 'ment', 'punc', 'sons'];
+const VST = ['mad', 'red', 'bod', 'dig', 'lab', 'nod', 'tud', 'reg'];
+const NEG = [...VST, 'mat', 'bec', 'rap', 'nit', 'doc', 'lum', 'men', 'tam', 'mos', 'nes', 'so', 'fe'];
+const SY = [...POS, ...NEG], tally = {}, oMiss = new Map(), oVst = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+for (const pulses of [4, 2]) for (const midi of [41, 52, 57, 62, 63, 64]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 126, title: 'held-out deep murmurs 2' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
+      for (const [mode, o] of [['on', RC], ['off', { ...RC, deepMurmur: false }]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'cluster' && pulses === 2 && midi >= 62) bump(`high ${mode}`, ok);
+        if (grp === 'other' && VST.includes(s) && got.cls === 'nasal') oVst[mode] = (oVst[mode] || 0) + 1;
+        if (mode === 'on' && !ok && !HIDE.includes('O')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; oMiss.set(key, (oMiss.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## O. Held-out deep murmurs, second registration (eleventh round)', '', `Clusters: ${POS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarter and eighth notes at 126 BPM, each followed by a rest, F2, E3, A3, D4, D#4, E4.`, '',
+  '| | with the deep-murmur rule | without (`deepMurmur: false`) |', '|---|---|---|',
+  `| cluster syllables read exactly (on their nasal) | ${cell('cluster on')} | ${cell('cluster off')} |`,
+  `| of them, eighth notes on D4, D#4 and E4 | ${cell('high on')} | ${cell('high off')} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
+  `| voiced stops read as a nasal | ${oVst.on || 0} | ${oVst.off || 0} |`,
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '',
+  'Misses with the rule (count over the twelve pitch and length cells):', '', HIDE.includes('O') ? '- hidden' : [...oMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
 }
 
 // ---- C ----
