@@ -214,6 +214,28 @@
 //    P's others 214 to 216 and clusters 114 to 115, Q's voiced stops 106 to 105, S's others 127 to 128; A, B, D, E, H,
 //    I, F, J, L and M byte-identical, every control identical. Not registered: with closeAnchor, R's wall column read
 //    107 of 120 (103 with localRef).
+// Sixteenth round (2026-11-16): closeAnchor with the wall in codas (README "The wall in codas only"). The fifteenth
+//    round saw, unregistered, R's voiced stops read 107 of 120 with closeAnchor and the wall, against 103. The wall
+//    had cost the openings (consonant-check A 195 to 192, B 812 to 808), so it now has a coda-only form, sing.mjs
+//    `voiceBarWall: 'coda'` (`--wall coda`): a closing b, d or g is low-passed, an opening one is sung as before.
+//    Candidate: closeAnchor (localRef off) read on the choir with the coda wall, against the default (localRef, no
+//    wall). On A-S (development; R and S now included, their misses have been read), against the default: A 177 to
+//    176 (E2), K's others 193 both but read as a nasal 7 to 9, N's others 220 to 226 (voiced stops as a nasal 6 to 4,
+//    clusters 115 to 116 in its second column), O's others 222 to 224 (as a nasal 4 to 5), P's others 214 to 216,
+//    clusters 114 to 115 but voiced stops as a nasal 7 to 11, Q's voiced stops 106 to 105 (as nothing 6 to 3) and
+//    others 75 to 76, R's voiced stops 103 to 107, S's 108 to 113; B, D, E, H, I, F, J, L and M identical, every
+//    vowel-only control identical. Each alone: closeAnchor gains no voiced stop on R (100) or Q (105); the coda wall
+//    alone costs A 2 and J 1 and reads P's voiced stops as a nasal 12 times. Pre-registered here and committed before
+//    part T or any other new part was run with it. Part T is new: 12 voiced-stop codas (*lub tag pob sug cad mub fod
+//    rib vob tid hag peg*), 4 nasal codas (*fun ram lim ben*) and 8 others (*lut mic hep gos rax lunc hel fa*), none
+//    sung in any other part, at B2, F#3, B3, D4, D#4 and E4, 118 BPM (in no other part), pulse-4 and pulse-2 notes,
+//    sung and vowel-only. Against the default (T's first column), the candidate (its fourth): (1) T's voiced stops
+//    read exactly at least 4 more of 144; (2) T's voiced stops read as a nasal no more than 3 more often; (3) T's
+//    nasal codas no fewer (of 48); (4) T's others within 2 (of 96); (5) T's vowel-only control identical (of 288);
+//    (6) eval/consonant-check.mjs with `--wall coda` byte-identical to the default (the openings are untouched);
+//    (7) A-S as listed above. If all seven hold, the candidate becomes the default (readCoda `closeAnchor: true,
+//    localRef: false`; render.mjs `voiceBarWall: 'coda'`); otherwise both stay opt-in, reported. The two single
+//    columns are printed but decide nothing.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -225,11 +247,13 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
 // --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
-const WALL = args.includes('--wall') && args[args.indexOf('--wall') + 1] === 'on';
+// --wall coda: the codas' voice bars only (`voiceBarWall: 'coda'`, the sixteenth round); openings sung as before
+const WALLARG = args.includes('--wall') ? args[args.indexOf('--wall') + 1] : '';
+const WALL = WALLARG === 'on' ? true : WALLARG === 'coda' ? 'coda' : false;
 // --local off: readCoda's closure and nasal levels against the reference alone (`localRef: false`, before the fourteenth round)
 const LOCALARG = args.includes('--local') ? args[args.indexOf('--local') + 1] : '';
 // --anchor on: the closure rule against the last vowel-like frames, band by band (`closeAnchor: true`, the parallel rule)
@@ -812,6 +836,50 @@ lines.push('## S. Held out: the parallel rule\'s own set (fifteenth round)', '',
   ...[['voiced-stop codas read exactly', 'vst'], ['other syllables read exactly', 'other'], ['vowel-only control read as none', 'control']].map(([t, g]) => `| ${t} | ${cell(`${g} local`)} | ${cell(`${g} anchor`)} | ${cell(`${g} off`)} |`),
   `| other syllables read as a stop where none is written | ${sStop.local || 0} | ${sStop.anchor || 0} | ${sStop.off || 0} |`, '',
   'Misses with the default (count over the ten pitch and length cells):', '', HIDE.includes('S') ? '- hidden' : [...sMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- T ----
+// The sixteenth round's held-out set (closeAnchor with the voice-bar wall in codas, pre-registered in the header):
+// voiced-stop codas, nasal codas and others sung in no other part, at B2, F#3, B3, D4, D#4 and E4, 118 BPM (in no
+// other part), pulse-4 and pulse-2 notes, each followed by a rest, sung and vowel-only. Four columns on two choirs:
+// the default (localRef, no wall), closeAnchor alone, the coda wall alone, and closeAnchor with the coda wall.
+if (PARTS.includes('T')) {
+const VST = ['lub', 'tag', 'pob', 'sug', 'cad', 'mub', 'fod', 'rib', 'vob', 'tid', 'hag', 'peg'];
+const NAS = ['fun', 'ram', 'lim', 'ben'];
+const NEG = [...NAS, 'lut', 'mic', 'hep', 'gos', 'rax', 'lunc', 'hel', 'fa'];
+const SY = [...VST, ...NEG], tally = {}, tMiss = new Map(), tNone = {}, tNas = {}, tMissC = new Map();
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const ANC = { ...RC, localRef: false, closeAnchor: true }, DEF = { ...RC, closeAnchor: false };
+for (const pulses of [4, 2]) for (const midi of [47, 54, 59, 62, 63, 64]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 118, title: 'held-out walls' });
+  for (const sing of [true, 'vowels']) for (const wall of [false, 'coda']) {
+    const { x, notes } = choir(mid, sing, VOICEBAR, wall);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (VST.includes(s) ? 'vst' : NAS.includes(s) ? 'nasal' : 'other') : 'control';
+      const modes = wall ? [['wall', DEF], ['both', ANC]] : [['def', DEF], ['anchor', ANC]];
+      for (const [mode, o] of modes) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'vst' && got.cls === 'none') tNone[mode] = (tNone[mode] || 0) + 1;
+        if (grp === 'vst' && got.cls === 'nasal') tNas[mode] = (tNas[mode] || 0) + 1;
+        if (!ok && !HIDE.includes('T') && (mode === 'def' || mode === 'both')) { const m = mode === 'def' ? tMiss : tMissC, key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; m.set(key, (m.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${['def', 'anchor', 'wall', 'both'].map((m) => cell(`${g} ${m}`)).join(' | ')} |`;
+const cnt = (t, o) => `| ${t} | ${['def', 'anchor', 'wall', 'both'].map((m) => o[m] || 0).join(' | ')} |`;
+const list = (m) => HIDE.includes('T') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+lines.push('## T. Held out: closeAnchor with the wall in codas (sixteenth round)', '', `Voiced stops: ${VST.map((s) => `*${s}*`).join(', ')}; nasals: ${NAS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.filter((s) => !NAS.includes(s)).map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 118 BPM, each followed by a rest, B2, F#3, B3, D4, D#4, E4.`, '',
+  '| | default (`localRef`, no wall) | `closeAnchor` | coda wall | `closeAnchor` + coda wall |', '|---|---|---|---|---|',
+  row('voiced-stop codas read exactly', 'vst'), cnt('voiced-stop codas read as nothing', tNone), cnt('voiced-stop codas read as a nasal', tNas),
+  row('nasal codas read exactly', 'nasal'), row('other syllables read exactly', 'other'), row('vowel-only control read as none', 'control'), '',
+  'Misses with the default (count over the twelve pitch and length cells):', '', list(tMiss), '',
+  'Misses with `closeAnchor` + coda wall:', '', list(tMissC), '');
 }
 
 // ---- C ----
