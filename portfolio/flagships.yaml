@@ -191,10 +191,11 @@ flagships:
       (size ok at n 40), try 2 hinges; step/bend bootstrap tests (README "Step or
       bend, as two tests") fail: walks called bend, use the cut guard; nulls rho
       low; a second hinge; a real step inside a cycle, a cycle check not tied to
-      rho, real documented ramps and close steps; (2) clumpy counts: NB1 cost
-      shipped; next a real series that clumps with its level; (3) `--garch`: t-GARCH
-      failed one pre-registered line (README "Heavy tails in the GARCH search"):
-      re-test scoring breaks with false alarms, new seeds; More open items: NEXT.md.
+      rho, real documented ramps and close steps; (2) clumpy counts: NB1 shipped;
+      real calls: Poisson, wandering rate; next real batch counts; (3) `--garch`:
+      t-GARCH failed one pre-registered line (README "Heavy tails in the GARCH
+      search"): re-test scoring breaks with false alarms, new seeds; More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
