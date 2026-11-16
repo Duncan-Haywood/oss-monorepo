@@ -307,7 +307,8 @@ LOOP_PENDING = 32     # LAUNCH flags bit 5: the loop-command fit of this record 
 # drop has a standard error over this share of itself, from the fit's own misses. A jittery tach or an ESC with a lag
 # of its own leaves misses the first-order model cannot absorb. On tests/loop_residual_sweep.py's single wheels 67 of
 # the 72 drops more than 2% off had a larger standard error; in whole drills (tests/plant_drill_sweep.py) no wheel of
-# the first-order plant was marked and 30-96% of every other plant's were. The Pi warns on them; it does not drop them.
+# the first-order plant was marked and 30-96% of every other plant's were (every jittery drill, but only 9-12 of 18
+# drills with an ESC lag). The Pi warns on them; it does not drop them.
 LOOP_SE_MAX = 0.01
 LOOP_UNSURE = 64
 TICK_LOG = 160        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115

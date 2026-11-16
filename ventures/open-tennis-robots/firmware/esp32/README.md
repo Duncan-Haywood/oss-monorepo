@@ -841,13 +841,28 @@ timing and the ESC's own lag do.
 **A whole drill** (`tests/plant_drill_sweep.py`, the calibration drill through
 the whole Pi path on the 18 design builds; eval/plant-drill-sweep-2026-11-16.txt):
 
-PLANT_TABLE
+| plant | spin efficiency error, worst / mean | wheels marked (fewest-most a drill) | drills warned | marked drops set aside instead: spin worst / mean |
+| --- | --- | --- | --- | --- |
+| first-order (the model) | 1.6% / 0.4% | 0 of 432 (0-0) | 0 of 18 | 1.6% / 0.4% |
+| tach jitter 5 us | 5.3% / 2.0% | 180 of 432 (5-17) | 18 of 18 | 7.2% / 2.7% |
+| tach jitter 10 us | 16.0% / 5.4% | 341 of 432 (15-22) | 18 of 18 | 89% / 23% |
+| tach jitter 20 us | 22.1% / 8.4% | 416 of 432 (20-24) | 18 of 18 | 13 drills left nothing to fit |
+| ESC lag 30 ms | 23.8% / 5.5% | 149 of 432 (0-23) | 9 of 18 | 100% / 12.5%, 2 drills nothing to fit |
+| ESC lag 80 ms | 19.9% / 6.6% | 129 of 432 (0-18) | 12 of 18 | 12.2% / 3.8% |
+
+Speed efficiency stayed within 1.8% on the jitter plants and 4.2% on the ESC
+plants. The jitter is caught in every drill. The ESC lag is not: some drills
+marked none of their wheels and still read the spin badly, so the warning
+fired on 9 and 12 of 18 drills. The standard error sees noise well and a
+smooth shape the model lacks less well, since a second lag can be partly
+absorbed by a longer tau.
 
 So the marks are a detector, not a filter. Setting the marked drops aside was
 the first policy tried, and it did not help: with 5 us of jitter it made the
 spin error worse (5.3% to 7.2% worst), because a noisy drop is still an
-unbiased one and removing it only loses data, and on the other plants so many
-wheels were marked that nothing useful was left. The Pi warns; it fits with
+unbiased one and removing it only loses data. At 10-20 us and with a 30 ms ESC
+lag so many wheels were marked that little or nothing was left. It helped on
+one plant only (80 ms ESC lag, 19.9% to 12.2%). The Pi warns; it fits with
 every drop.
 
 **The tach interrupt is now hard.** `main.py`'s `Tach` registered a soft

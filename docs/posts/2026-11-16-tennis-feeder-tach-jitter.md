@@ -3,7 +3,7 @@ title: "Five microseconds of sensor jitter would triple our tennis feeder's spin
 seo_title: "Hall sensor jitter and a ball machine's spin calibration"
 date: 2026-11-16
 tags: [open-tennis-robots, firmware, simulation, calibration]
-description: "Our feeder reads its own spin from wheel-speed drops. On the simulator 5 us of tach jitter takes that from 1.6% to 5.3% off, so the board now flags fits it can't vouch for."
+description: "Our feeder reads spin from wheel-speed drops. Simulated, 5 us of tach jitter takes it from 1.6% to 5.3% off, so the board now flags fits it cannot vouch for."
 ---
 
 # Five microseconds of sensor jitter would triple our tennis feeder's spin error
@@ -69,14 +69,18 @@ sends the Pi.
 On single wheels, 67 of the 72 drops that were more than 2% off got the bit,
 and 14 of the 152 good ones did. Across whole drills, the true-model plant
 never had a single wheel marked (0 of 432). Every broken plant had 30% to 96%
-of its wheels marked, and every drill on a broken plant marked at least five.
+of its wheels marked. Jitter got caught in every drill. ESC lag didn't:
+some drills on those plants marked no wheels at all and still read the spin
+badly, so the warning fired in only 9 and 12 of 18 drills. A second lag is a
+smooth shape, and a longer time constant can partly absorb it, so the
+residual stays small.
 
 ## Throwing the unsure drops away made things worse
 
 The obvious move is to leave the marked drops out of the launcher fit. We
 tried that first. With 5 µs of jitter it raised the worst spin error from
 5.3% to 7.2%. With 10 µs it went to 89%, because almost nothing was left to
-fit. A noisy drop is still an unbiased one, so throwing it away only loses
+fit. It helped on just one plant (the 80 ms ESC lag, 19.9% to 12.2%). A noisy drop is still an unbiased one, so throwing it away only loses
 data. The marks work as a detector, not as a filter. So the Pi now fits with
 every drop and warns when a tenth or more of them are marked. The warning
 says to check the tach (sensor gap, magnet, interrupt) and whether the ESC is
