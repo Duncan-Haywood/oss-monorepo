@@ -559,6 +559,64 @@ printer's index print. Whether 0.3 mm single dots hold on their mesh, how dot
 gain darkens the result, and registration on a dark garment's underbase are
 all for a proof.
 
+### Inks from the printer's stock (2026-11-16)
+
+Every ink "Chosen for the dots" picks is a custom mix, and a shop charges to
+match each colour to a sample. Most shops that print index separations have a
+shelf of ready-made inks instead. `stockinks.mjs`, the choices "From the
+printer's stock, seen from 1 m / 3 m" on the studio page, picks as many inks
+as the separation has screens from a pasted stock list (one ink per line, a
+name and `#RRGGBB` or three numbers 0-255), so nothing has to be mixed.
+
+- **Score.** The colours dots can reach are the convex hull of the inks and
+  the bare garment in linear RGB, so a subset is scored by `mixCost` from
+  `inkfit.mjs` (mean Lab distance from sampled painting colours to what the
+  dots can mix, plus the grain term for that viewing distance).
+- **Search.** Two starts, each improved by swap descent (replace one chosen
+  ink with one unchosen while the score falls): each flat ink's nearest stock
+  ink, and greedy forward selection. The chosen inks go on the screens by the
+  assignment closest in Lab to the flat inks, so print order holds.
+- **Check.** The nearest-ink pick (what a person matching by eye would do)
+  and both searched sets are dotted with the real index separation and scored
+  by the eye model; the closest wins, so it is never worse than the pick by
+  eye on that measure. The brief lists screen, stock ink name and colour.
+- **The starter shelf** filled in on the page (`STARTER_STOCK`, 25 inks) is
+  made up: common colour names with approximate colours, not any ink maker's
+  swatches. A printer's own list is what to use.
+
+Measured (`eval/index-stock.mjs`, the nine paintings at 640 px, 28 cm, the
+starter shelf; mean delta E after the eye blur; full output
+`eval/index-stock-2026-11-16.md`):
+
+| Garment, inks | Seen from | Dots, flat (custom) inks | Nearest stock ink each | Chosen from stock | Freely mixed (`inkfit.mjs`) | Chosen closer than nearest |
+|---|---|---|---|---|---|---|
+| white, 3 | 1 m | 12.14 | 15.32 | 13.62 | 10.95 | 7 of 9 |
+| white, 3 | 3 m | 9.79 | 12.24 | 7.65 | 6.31 | 9 of 9 |
+| white, 4 | 1 m | 10.64 | 14.07 | 12.25 | 9.55 | 7 of 9 |
+| white, 4 | 3 m | 8.34 | 10.94 | 5.93 | 4.51 | 8 of 9 |
+| white, 6 | 1 m | 8.94 | 11.89 | 10.95 | 7.85 | 7 of 9 |
+| white, 6 | 3 m | 6.68 | 8.17 | 4.85 | 3.78 | 8 of 9 |
+| near-black, 4 | 1 m | 11.04 | 14.18 | 11.51 | 9.20 | 9 of 9 |
+| near-black, 4 | 3 m | 8.78 | 11.36 | 5.17 | 4.37 | 9 of 9 |
+
+- Matching each flat ink to its nearest shelf ink costs 1.5 to 3.4 delta E
+  against the custom flat inks. The search wins back 0.9 to 2.7 of that at
+  1 m and all of it and more at 3 m, where the chosen stock set beats the
+  custom flat inks in 32 of 36 runs (12 of 36 at 1 m).
+- What custom mixing still buys over the chosen stock set: 0.8 to 1.4 delta E
+  at 3 m, 2.3 to 3.1 at 1 m. So for a print seen across a room, stock inks
+  come close to custom ones; for a print seen up close, mixing is worth its fee
+  on this measure.
+- The search picks far-apart inks (Starry Night on white, 3 inks: lemon
+  yellow, cyan, black) where the eye would pick look-alikes (nearest 12.41, chosen 7.51 at
+  3 m). Swap descent from the nearest inks won 25 of 36 runs at 1 m and 30 at
+  3 m, greedy selection 5 and 4, and the nearest inks were kept 6 and 2 times.
+- A choice takes 0.3 to 5.5 s on one CPU at 640 px (more inks, longer).
+
+Not checked: a real printer's shelf (real inks are not the starter colours)
+and a real proof. The eye model is the same rough blur as above; dot gain and
+the single-dot cleanup run after the choice, not inside it.
+
 ### Inks chosen for the dots (2026-11-14)
 
 The flat separation picks its inks as cluster centres: each ink is the
