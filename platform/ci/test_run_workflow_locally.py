@@ -962,6 +962,30 @@ class Selects(unittest.TestCase):
     def test_a_list_form_trigger_has_no_path_filter(self):
         self.assertTrue(self.selects("on: [push, pull_request]\n", ["anything"]))
 
+    def test_a_pull_request_filter_wins_over_a_post_merge_push(self):
+        # portfolio-pages.yml's shape: `push` to main with no path filter
+        # (every merge redeploys), `pull_request` with one. The PR runs only
+        # the filtered trigger, so a change outside it selects nothing.
+        body = """
+            on:
+              push:
+                branches: [main]
+              pull_request:
+                paths: ["ventures/**"]
+        """
+        self.assertFalse(self.selects(body, ["research/x/README.md"]))
+        self.assertTrue(self.selects(body, ["ventures/a/index.html"]))
+
+    def test_a_push_only_workflow_still_reads_its_push_filter(self):
+        body = """
+            on:
+              push:
+                branches: [main]
+                paths: ["edge/**"]
+        """
+        self.assertTrue(self.selects(body, ["edge/worker.js"]))
+        self.assertFalse(self.selects(body, ["research/x/README.md"]))
+
 
 class ReadOnlyJobs(unittest.TestCase):
     def read_only(self, body):
@@ -1219,6 +1243,16 @@ class ForChanges(unittest.TestCase):
     def test_a_venture_change_does_not_select_an_unrelated_venture(self):
         names = self.selected(["ventures/cloud-egress-calculator/index.html"])
         self.assertNotIn("no-show-fee-calculator-ci.yml", names)
+
+    def test_a_research_readme_does_not_select_the_site_build(self):
+        # portfolio-pages.yml's pull_request filter names research/_homepage,
+        # research/README.md and research/*/app only; its path-less push to
+        # main used to select it for every research diff anyway.
+        names = self.selected(["research/_audit/README.md"])
+        self.assertNotIn("portfolio-pages.yml", names)
+        self.assertIn("research-ci.yml", names)
+        # A post is a site input (loadPosts throws on a malformed one).
+        self.assertIn("portfolio-pages.yml", self.selected(["docs/posts/x.md"]))
 
 
 class LocalContext(unittest.TestCase):

@@ -24,6 +24,9 @@ test('UNGROUPED_COUNT finds the counts the site writes, not years or form number
   assert.deepEqual(found('Search 1,338 tools and 1,073 research projects'), []);
   assert.deepEqual(found('the 2026 calculator'), []);
   assert.deepEqual(found('Form 1099 contractor, Form 8949 rows, $5000 tools'), []);
+  // A hex commit sha ending in digits, then a title: not a count.
+  assert.deepEqual(found('ab386540 post front matter'), []);
+  assert.deepEqual(found('e1234567 tests: fix'), []);
 });
 
 test('ungroupedCounts reads visible text, title and description, not scripts', async () => {
