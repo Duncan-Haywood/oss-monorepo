@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -116,4 +116,35 @@ test('the published manifest has a still for every preferred hero tool', async (
   const manifest = JSON.parse(await fs.readFile(new URL('./showcase/manifest.json', import.meta.url), 'utf8'));
   const slugs = new Set(manifest.shots.map((s) => s.slug));
   assert.deepEqual(HERO_TOOLS.filter((slug) => !slugs.has(slug)), []);
+});
+
+test("the hero uses a still's close crop when it has one, publishes it, and falls back to the full still", async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'showcase-hero-'));
+  for (const f of ['a.webp', 'a-hero.webp', 'b.webp']) writeFileSync(path.join(dir, f), 'x');
+  writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({
+    shots: [
+      { slug: 'a', file: 'a.webp', caption: 'A', hero: 'a-hero.webp' },
+      { slug: 'b', file: 'b.webp', caption: 'B', hero: 'b-hero-never-captured.webp' },
+    ],
+  }));
+  const showcase = loadShowcase(['a', 'b'], dir);
+  assert.equal(showcase.shots[0].hero, 'a-hero.webp');
+  assert.equal('hero' in showcase.shots[1], false, 'a crop missing on disk drops out');
+  const html = renderHeroArt(showcase.shots, (slug) => slug, ['a', 'b']);
+  assert.match(html, /src="showcase\/a-hero\.webp" width="600" height="375"/);
+  assert.match(html, /src="showcase\/b\.webp" width="960" height="600"/);
+  // The gallery further down keeps the full still.
+  assert.doesNotMatch(renderShowcaseSection(showcase), /a-hero\.webp/);
+  const out = mkdtempSync(path.join(os.tmpdir(), 'showcase-hero-out-'));
+  assert.equal(await copyShowcase(out, showcase, dir), 3);
+  assert.deepEqual((await fs.readdir(path.join(out, SHOWCASE_DIR))).sort(), ['a-hero.webp', 'a.webp', 'b.webp']);
+});
+
+test('every preferred hero tool has a close crop on disk (polish-2026-11-16-hero-crops.md)', async () => {
+  const manifest = JSON.parse(await fs.readFile(new URL('./showcase/manifest.json', import.meta.url), 'utf8'));
+  const missing = HERO_TOOLS.filter((slug) => {
+    const hero = manifest.shots.find((s) => s.slug === slug)?.hero;
+    return !hero || !existsSync(new URL(`./showcase/${hero}`, import.meta.url));
+  });
+  assert.deepEqual(missing, []);
 });
