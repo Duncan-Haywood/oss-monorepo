@@ -2,7 +2,7 @@
 title: "Ten taps get barely twice what one tap gets: a gravity-pipe story, and the sum behind it"
 seo_title: "Gravity water pipe friction: why ten taps trickle at peak demand"
 date: 2026-11-16
-description: "A new Hearth & Horizon story: a 32 mm gravity pipe carries 0.48 L/s with the whole drop, but ten taps open leave 1 m of head and 0.047 L/s a tap. A day tank fixes noon."
+description: "A Hearth & Horizon story: a 32 mm gravity pipe carries 0.48 L/s with the whole drop, but ten open taps leave 1 m of head, 0.047 L/s each. A day tank fixes it."
 tags: [hearth-and-horizon, fiction, physics, water]
 ---
 
