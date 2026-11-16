@@ -11,6 +11,12 @@ what each shot needs and the ESP32 firmware obeyed single commands. This module 
    queued ball to the wrong place;
 5. re-aim for the next shot straight away, but feed no sooner than the drill's interval after the last release.
 
+Since 2026-11-16 the firmware judges every feed stroke by the launcher wheels' speed drop (a ball takes its momentum
+from them; firmware `controller.LaunchCheck`) and sets `FLAG_HOPPER_EMPTY` when a stroke put no ball through. The
+runner stops there and reports the shot that went dry and how many flew, instead of carrying on with an empty pocket
+(it used to count the stroke as a shot) or ending on a release timeout. After the last shot it waits for that shot's
+verdict before reporting the drill done.
+
 Heartbeats go out every 100 ms throughout (the firmware stops everything after 300 ms of silence). Any fault flag
 (e-stop, watchdog, elevation fault), a lost link or a step that overruns its time limit aborts the drill: the runner
 sends `ESTOP`, which also drops any ball still queued, and reports why.
@@ -44,6 +50,17 @@ WARN_FLAGS = {P.FLAG_LIFT_JAM: "ball lift jammed and off after its retry: balls 
              P.FLAG_LIFT_HUB_DUE: "lift slip hub due a re-set (LIFT_SLIP_JAMS jams since its last set, or the count in "
                                   "flash was lost): check its slip on the scale and set it again (cad/README.md \"Slip "
                                   "hub wear\"), then run `tennisbots lift-hub-reset`"}
+
+
+# The firmware's verdict on a stroke lands LAUNCH_CHECK_MS (250 ms) after the stroke's end, which is when the release
+# is counted; frames this long after the release carry it.
+VERDICT_S = 0.25 + FRESH_S
+HOPPER_EMPTY = ("hopper empty: the feed stroke put no ball through the wheels (the launcher wheels did not slow); "
+                "refill the tub, or check the outlet for a bridge of balls and the hose for a stuck one")
+
+
+class HopperEmpty(Exception):
+    pass
 
 
 @dataclass
@@ -82,6 +99,7 @@ class DrillResult:
     aborted: str | None = None
     link_errors: int = 0
     warnings: list = field(default_factory=list)
+    dry_shot: int | None = None    # index of the shot whose stroke carried no ball (FLAG_HOPPER_EMPTY), if any
 
     @property
     def ok(self) -> bool:
@@ -160,6 +178,8 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
     """Run planned shots on the feeder. The first shot gets longer to be ready: the axes home at power-up."""
     res = DrillResult()
     clock = link.clock
+    fed_at = None                 # FLAG_HOPPER_EMPTY speaks for this run only in frames sent after its first FEED
+                                  # (a FEED clears it; an older frame may still carry the last run's verdict)
 
     def wait(until, timeout, what, ignore=0):
         start = clock()
@@ -172,6 +192,8 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                         res.warnings.append(text)
                         if log:
                             log(f"warning: {text}")
+                if fed_at is not None and t.t >= fed_at + FRESH_S and t.flags & P.FLAG_HOPPER_EMPTY:
+                    raise HopperEmpty()
                 bad = _faults(t, ignore)
                 if bad:
                     raise Abort(f"{what}: firmware reports {bad}")
@@ -207,6 +229,8 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                 ready = wait(lambda t: clock() >= due and _wheels_ok(t, shot), shot.interval_s + ready_timeout_s,
                              f"{label} interval")
             link.send(P.FEED, 1)
+            if fed_at is None:
+                fed_at = clock()
             fed = (fed + 1) & 0xFF
             gone = wait(lambda t: t.balls_fed == fed, release_timeout_s, f"{label} release")
             last_release = gone.t
@@ -214,6 +238,15 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
             if log:
                 log(f"{label}: ready in {ready_s:.2f} s, released at {gone.t:.2f} s")
         link.send(P.SET_WHEELS, 0, 0)
+        if last_release is not None:  # the last stroke's verdict (the stop above freezes it, it cannot fake a ball)
+            wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0, "last shot's launch check")
+    except HopperEmpty:
+        # Not a fault: nothing is queued (one FEED at a time) and nothing is wrong with the machine, so the wheels are
+        # stopped without latching the e-stop; refill and run the drill again.
+        link.send(P.SET_WHEELS, 0, 0)
+        dry = res.shots.pop() if res.shots else None
+        res.dry_shot = dry.index if dry else None
+        res.aborted = (f"shot {dry.index}: " if dry else "") + HOPPER_EMPTY + f" ({len(res.shots)} shot{'' if len(res.shots) == 1 else 's'} flew)"
     except Abort as exc:
         link.send(P.ESTOP)            # halts the wheels and drops any queued ball
         res.aborted = str(exc)

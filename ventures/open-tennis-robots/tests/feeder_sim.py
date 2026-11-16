@@ -7,7 +7,11 @@ turntable follows the step pulses exactly (no lost steps), and the elevation act
 (timed) or reports its true stroke through the pot (pot). The feed shuttle moves toward the end its servo pulse
 asks for at the CAD's loaded stroke times (`SHUTTLE_OUT_S`, `SHUTTLE_BACK_S`, from cad `Feeder.shuttle_drive`), and a
 ball is released when it reaches the wheels with a ball in its pocket; the pocket refills after it has sat under the
-column for `SHUTTLE_DROP_S`. The serial line is two byte queues. The contactor's coil (sensed on GPIO 15 since
+column for `SHUTTLE_DROP_S`, while balls remain (`balls`: None is a bottomless hopper, an int is how many wait
+behind the pocket's). A released ball takes its momentum from the wheels (2026-11-16): each wheel's speed drops by
+J R / I at that instant, J from the ball's exit speed and spin in `tennisbots.launcher.WheelLauncher` (its own copy of
+the model, so the firmware's `launch_dips` is checked against it) and I = `wheel_inertia` (the CAD's 0.00155 kg m^2
+by default). The serial line is two byte queues. The contactor's coil (sensed on GPIO 15 since
 2026-11-14) is on unless the wired e-stop is pressed or the wireless fob has cut it (`fob_cut`).
 """
 
@@ -19,7 +23,7 @@ import tempfile
 import types
 import weakref
 
-from tennisbots import protocol
+from tennisbots import ballistics, launcher, protocol
 
 FW = os.path.join(os.path.dirname(__file__), "..", "firmware", "esp32")
 sys.path.insert(0, FW)
@@ -35,7 +39,7 @@ SHUTTLE_DROP_S = 0.14
 
 class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
-                 rpm_full=None, jam_log=None):
+                 rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
@@ -153,6 +157,9 @@ class SimFeeder:
         self.released = []             # (time s, elevation deg, azimuth deg, rpm top, rpm bottom, target) as each ball
         self.shuttle = 0.0             # reaches the wheels; shuttle position, 0 retracted .. 1 at the wheels
         self.loaded = True             # a ball sits in the pocket
+        self.balls = balls             # balls behind the pocket's (column, hose and tub); None never runs out
+        self.wheel_inertia = wheel_inertia
+        self.launch_eff = launch_eff   # scales the ball's take from the wheels (a ball that slips through, 0..1)
         self._under_col_ms = 0
         self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
         self.ctl = controller.Controller(hw, controller.ROLE_FEEDER, self.us // 1000)
@@ -215,11 +222,26 @@ class SimFeeder:
                     stroke = self.elev_true + self.cfg.ELEV_CLOSED_MM
                     self.released.append((self.clock(), hw.elev.geom.elev(stroke), self.az_true,
                                           self.wheel[0], self.wheel[1], tuple(hw.target_rpm)))
+                    self._take_momentum()
             else:
                 self.shuttle = max(0.0, self.shuttle - 0.001 / self.shuttle_back_s)
             if self.shuttle <= 0.0 and not self.loaded:
                 self._under_col_ms += 1
-                if self._under_col_ms >= SHUTTLE_DROP_S * 1000:
+                if self._under_col_ms >= SHUTTLE_DROP_S * 1000 and (self.balls is None or self.balls > 0):
                     self.loaded, self._under_col_ms = True, 0
+                    if self.balls is not None:
+                        self.balls -= 1
             else:
                 self._under_col_ms = 0
+
+    def _take_momentum(self):
+        """The ball leaves with the launcher model's speed and spin for the wheels' speeds now; the wheels lose the
+        momentum it carries (a thin shell: I_b = 2/3 m r^2), split by the spin."""
+        lm = launcher.WheelLauncher()
+        ball = ballistics.DEFAULT_BALL
+        v, spin = lm.exit(max(self.wheel[0], 0.0), max(self.wheel[1], 0.0))
+        lin = ball.mass * v
+        rot = 2.0 / 3.0 * ball.mass * ball.radius * spin
+        for i, j in enumerate(((lin + rot) / 2, (lin - rot) / 2)):
+            dw = self.launch_eff * j * lm.wheel_radius / self.wheel_inertia * 30 / 3.141592653589793
+            self.wheel[i] = max(0.0, self.wheel[i] - dw)

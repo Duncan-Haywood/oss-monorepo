@@ -379,11 +379,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Slip hub wear (cad/README.md) and its jam count in flash
-      (FLAG_LIFT_HUB_DUE, `tennisbots lift-hub-reset`, firmware/esp32/README.md)
-      landed 2026-11-16. Next: FLAG_HOPPER_EMPTY (8) is defined but nothing sets
-      it, so an empty tub ends a drill on a release timeout: sense it (a
-      break-beam over the column, CAD and firmware) and have the runner report it.
+      venv, about 2 min). Empty hopper landed 2026-11-16 (firmware/esp32/README.md
+      "Empty hopper": no GPIO is free for a beam, so each stroke is judged by the
+      wheels' speed drop; FLAG_HOPPER_EMPTY, runner exits 3). Next: the drop is the
+      ball's momentum, so log it per shot (telemetry or a Pi-side record) and fit
+      the launcher's speed efficiency from it (launcher.calibrate takes a radar gun
+      today), on the simulated feeder first.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
