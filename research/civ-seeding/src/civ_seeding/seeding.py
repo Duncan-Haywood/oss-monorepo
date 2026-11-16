@@ -381,3 +381,77 @@ COMPLEX_RULES = {
     "cc-hood-abs2": lambda v, b, rng=None: rule_complex_hood(v, b, absolute=2),
     "cc-spread-frac": lambda v, b, rng=None: rule_complex_spread(v, b, theta=0.5),
 }
+
+
+# ---- milestone 9: adaptive survey designs ----
+
+SURVEY_DESIGNS = ("uniform", "adaptive", "walk")
+
+
+def survey_design(v, f, rng, design: str = "uniform"):
+    """Survey k = round(f n) households under a design; each surveyed household reports all its
+    ties. uniform: k random households (milestone 5's `survey`, same draws). adaptive: k1 = k // 2
+    random, then the k - k1 unsurveyed households named by the most stage-1 households (ties
+    broken at random). walk: k1 random, then repeatedly a random stage-1 household names a
+    uniform random tie, surveyed if not yet, until k (stops early only if no stage-1 household
+    can name anyone new). Returns (surveyed mask, estimated degree, seen adjacency). Estimated
+    degree: exact if surveyed; otherwise stage-1 neighbours / (k1 / n), unbiased for a stage-1
+    uniform sample (uniform: all surveyed neighbours / (k / n), as milestone 5)."""
+    if design == "uniform":
+        return survey(v, f, rng)
+    n = v.n
+    k = max(1, int(round(f * n)))
+    if k >= n:
+        s = np.ones(n, bool)
+        return s, v.deg.astype(float), v.A.copy()
+    k1 = max(1, k // 2)
+    s1 = np.zeros(n, bool)
+    s1[rng.choice(n, k1, replace=False)] = True
+    s = s1.copy()
+    named = v.A[:, s1].sum(1)
+    if design == "adaptive":
+        cand = np.flatnonzero(~s)
+        tie = rng.random(len(cand))
+        order = cand[np.lexsort((tie, -named[cand]))]
+        s[order[: k - k1]] = True
+    elif design == "walk":
+        st1 = np.flatnonzero(s1)
+        nbrs = {int(i): np.flatnonzero(v.A[i]) for i in st1}
+        reachable = (named > 0) & ~s
+        while s.sum() < k and (reachable & ~s).any():
+            i = int(rng.choice(st1))
+            if len(nbrs[i]):
+                s[int(rng.choice(nbrs[i]))] = True
+        if s.sum() < k:  # stage-1 ties exhausted: fill at random
+            rest = np.flatnonzero(~s)
+            s[rng.choice(rest, k - int(s.sum()), replace=False)] = True
+    else:
+        raise ValueError(design)
+    seen = v.A * (s[:, None] | s[None, :])
+    est = np.where(s, v.deg, named / (k1 / n))
+    return s, est.astype(float), seen
+
+
+def _dd_pick(est, seen, b, p: float = 0.05):
+    """DegreeDiscountIC on an estimated degree and the ties a survey saw."""
+    n = len(est)
+    m = np.zeros(n, bool)
+    t = np.zeros(n)
+    d = np.asarray(est, float)
+    for _ in range(b):
+        dd = d - 2 * t - (d - t) * t * p
+        sc = np.where(m, -np.inf, dd)
+        i = int(np.lexsort((np.arange(n), -sc))[0])
+        m[i] = True
+        t += seen[:, i]
+    return m
+
+
+def rule_design_degree(v, b, rng, f: float, design: str = "uniform"):
+    _, est, _ = survey_design(v, f, rng, design)
+    return _top(est, b)
+
+
+def rule_design_dd(v, b, rng, f: float, design: str = "uniform", p: float = 0.05):
+    _, est, seen = survey_design(v, f, rng, design)
+    return _dd_pick(est, seen, b, p)

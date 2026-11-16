@@ -251,3 +251,60 @@ def test_complex_spread_no_adjacent_seeds(setup):
         b = int(v.leader.sum())
         m = sd.COMPLEX_RULES["cc-spread-frac"](v, b)
         assert v.A[np.ix_(m, m)].sum() == 0
+
+
+# ---- milestone 9 ----
+
+def _m9_village():
+    from civ_seeding import bcdj
+    return bcdj.load()[0]
+
+
+def test_m9_designs_budget_and_full_survey():
+    v = _m9_village()
+    b = int(v.leader.sum())
+    for design in sd.SURVEY_DESIGNS:
+        for f in (0.1, 0.25, 0.5):
+            s, est, seen = sd.survey_design(v, f, np.random.default_rng(1), design)
+            assert s.sum() == max(1, int(round(f * v.n)))
+            assert np.all(est[s] == v.deg[s])
+            assert np.all(seen == seen.T)
+            assert sd.rule_design_degree(v, b, np.random.default_rng(2), f, design).sum() == b
+            assert sd.rule_design_dd(v, b, np.random.default_rng(2), f, design).sum() == b
+        assert np.array_equal(sd.rule_design_degree(v, b, np.random.default_rng(3), 1.0, design),
+                              sd.rule_degree(v, b))
+        assert np.array_equal(sd.rule_design_dd(v, b, np.random.default_rng(3), 1.0, design),
+                              sd.rule_degree_discount(v, b))
+
+
+def test_m9_uniform_matches_milestone5_survey():
+    v = _m9_village()
+    a = sd.survey(v, 0.25, np.random.default_rng(7))
+    c = sd.survey_design(v, 0.25, np.random.default_rng(7), "uniform")
+    assert all(np.array_equal(x, y) for x, y in zip(a, c))
+
+
+def test_m9_adaptive_takes_most_named():
+    v = _m9_village()
+    rng = np.random.default_rng(4)
+    s, est, _ = sd.survey_design(v, 0.25, rng, "adaptive")
+    # replay stage 1 to check stage 2 took the most-named households
+    rng = np.random.default_rng(4)
+    k = int(round(0.25 * v.n)); k1 = k // 2
+    s1 = np.zeros(v.n, bool); s1[rng.choice(v.n, k1, replace=False)] = True
+    named = v.A[:, s1].sum(1)
+    s2 = s & ~s1
+    assert s2.sum() == k - k1
+    assert named[s2].min() >= named[~s].max()
+    assert np.allclose(est[~s], named[~s] / (k1 / v.n))
+
+
+def test_m9_walk_surveys_named_households():
+    v = _m9_village()
+    rng = np.random.default_rng(5)
+    s, _, _ = sd.survey_design(v, 0.25, rng, "walk")
+    rng = np.random.default_rng(5)
+    k1 = int(round(0.25 * v.n)) // 2
+    s1 = np.zeros(v.n, bool); s1[rng.choice(v.n, k1, replace=False)] = True
+    s2 = s & ~s1
+    assert (v.A[s2][:, s1].sum(1) > 0).all()  # every stage-2 household was named by stage 1
