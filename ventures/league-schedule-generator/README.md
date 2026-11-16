@@ -440,8 +440,8 @@ the three k-cycles: no group of order k works, for any 3k + 2 with k odd (17, 23
   night (its fixed night has no layout, 0.9 s), so it is not a route to those sizes either; 17 and
   23 are solved already by other scripts.
 
-Open: 29 on 5 x 9 by a longer run of `eval/odd-triple.py` (a second run of 90 minutes is noted in
-`eval/odd-triple.txt`), by sessions (the one-night shape above as a template the season repeats),
+Open: 29 on 5 x 9 by a longer run of `eval/odd-triple.py` (hours, not minutes; a second pair of
+runs was stopped at 29 minutes with no answer), by sessions (the one-night shape above as a template the season repeats),
 or by an order-2 rename (an involution fixing two points: the proof above does not reach it).
 
 ### Odd leagues one night at a time: 21 and 23 teams on 4 x 9, 27 on 5 x 9 and 7 x 6 (2026-11-15, latest)

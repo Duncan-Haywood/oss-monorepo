@@ -28,3 +28,4 @@ Order-3 rename with fixed nights (eval/odd-triple.py, new):
 29 --courts 5 --turned 2 (cd19)  no answer at 3000 s
 29 --courts 5 --turned 5 (cd15)  no answer at 3000 s
 29 --courts 5 --turned 8 (cd15)  no answer at 3000 s
+second runs (turned 2 cd15, turned 8 cd15) stopped at 29 min with no answer, to land the run
