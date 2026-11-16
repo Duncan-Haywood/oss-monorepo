@@ -3,6 +3,6 @@
 // opened in Excel or Sheets. So it gets a leading apostrophe (OWASP's CSV-injection advice), then the usual quoting.
 export const q = (s) => {
   let t = String(s ?? "");
-  if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
+  if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = "'" + t;
   return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 };

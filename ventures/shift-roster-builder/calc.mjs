@@ -4486,7 +4486,7 @@ export function absencePlan(staff, slots, roster, name, days = null, options = {
 // opened in a spreadsheet, so it gets a leading apostrophe; parseRosterCsv strips that again on the way back in.
 export function csvCell(v) {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 const unDefuse = (t) => (/^'[=+\-@\t\r]/.test(t) ? t.slice(1) : t);

@@ -60,7 +60,7 @@ function adminPage(state, env, q, now, note = "", prefill = null) {
 }
 
 export const csvOf = (state) => {
-  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
+  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
   return [["reference", "customer", "job", "price", "deposit_percent", "status", "created", "accepted_by", "accepted_at"].join(","),
     ...state.proposals.map((r) => [r.proposal.reference, r.proposal.client.name, r.proposal.job.title, r.proposal.pricing.price, r.proposal.pricing.depositPercent, r.status, r.createdAt, r.acceptedBy || "", r.acceptedAt || ""].map(cell).join(","))].join("\r\n") + "\r\n";
 };

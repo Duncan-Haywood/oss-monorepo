@@ -145,6 +145,19 @@ test("the report totals, and the CSV cannot carry a formula", () => {
   assert.match(csv, /\n2026-11-20T15:00:00\.000Z,2026-11-23,'=Ana,cancelled,Mon 09:00-17:00,,republish,no,66,8\.00,0\.00,4\.00,80\.00,seattle,/);
 });
 
+// Red team 2026-11-16: a shift cut short after it started has negative notice hours, and the formula guard turned
+// "-1" into the text "'-1", so a payroll sheet could not sum or sort the column. Plain numbers are not formulas; "-1+2"
+// and "-cmd" still are.
+test("the CSV keeps negative notice hours a number, and still defuses formulas that start with a minus", () => {
+  const state = { changeLog: [] };
+  logChanges(state, [{ person: "-Ana", kind: "moved", from: S(0, 9, 17), to: S(0, 9, 13) }], { at: at("2026-11-23T10:00:00Z"), weekStart: WS, cause: "republish" });
+  const csv = noticeCsv(noticeReport(state, FWW_PRESETS.seattle, { wages: new Map([["-Ana", 20]]) }), { ...FWW_PRESETS.seattle, name: "seattle" });
+  assert.match(csv, /\n2026-11-23T10:00:00\.000Z,2026-11-23,'-Ana,moved,Mon 09:00-17:00,Mon 09:00-13:00,republish,no,-1,4\.00,0\.00,2\.00,40\.00,seattle,/);
+  const st2 = { changeLog: [] };
+  logChanges(st2, [{ person: "-1+2", kind: "cancelled", from: S(0, 9, 17), to: null }], { at: at("2026-11-20T15:00:00Z"), weekStart: WS, cause: "republish" });
+  assert.match(noticeCsv(noticeReport(st2, FWW_PRESETS.seattle, {}), { ...FWW_PRESETS.seattle, name: "seattle" }), /,'-1\+2,cancelled,/);
+});
+
 test("the hub logs a republished week, a cover and the posting time, and prices them on the changes page", async () => {
   const state = emptyState();
   state.weekStart = WS;

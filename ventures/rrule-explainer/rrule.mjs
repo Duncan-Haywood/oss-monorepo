@@ -884,7 +884,7 @@ const sortFindings = (fs) => fs.slice().sort((a, b) => rank(a.level) - rank(b.le
 
 /** Spreadsheet formula-injection guard: a cell starting =, +, -, @, tab or CR (an offset like -05:00 included) gets an apostrophe. */
 export function csvSafe(s) {
-  return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+  return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s;
 }
 
 /** CSV of the listed occurrences. */

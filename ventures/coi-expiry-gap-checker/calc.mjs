@@ -257,7 +257,7 @@ export function check(text, req = {}, asOf) {
 
 const csvCell = (v) => {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; // spreadsheet formula injection
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; // spreadsheet formula injection
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 const csv = (rows) => rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";

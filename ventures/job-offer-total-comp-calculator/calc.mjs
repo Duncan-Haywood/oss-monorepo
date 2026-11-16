@@ -125,7 +125,7 @@ export function sampleInput() {
   ] };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const rows = [["Offer", "Year 1 total", "Four-year average", "Four-year total", "Four-year after tax", "True hourly rate"]];
   for (const r of a.results) rows.push([r.offer.label, round2(r.year1), round2(r.avg), round2(r.total4), round2(r.afterTax4), round2(r.hourly)]);

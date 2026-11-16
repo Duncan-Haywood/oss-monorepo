@@ -41,7 +41,7 @@ export function buildPlan(f) {
 }
 
 const mealOptions = (f) => [...new Set(String(f.meals ?? "").split(/[,\n]/).map((m) => m.trim().slice(0, 40)).filter(Boolean))].slice(0, 12);
-const csvCell = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+const csvCell = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = "'" + t; return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
 export function mealCsv(state) {
   const rows = ["Name,Table,Meal"];
   for (const t of state.plan?.tables ?? []) for (const n of t.guests) rows.push([n, t.number, state.choices?.[n] ?? ""].map(csvCell).join(","));

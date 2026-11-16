@@ -150,7 +150,7 @@ export function summaryText(r) {
   return L.join("\n");
 }
 
-const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
 export function monthsCsv(r) {
   const head = ["month", "days_open", "customers_per_day", "revenue", "product_cost", "card_fees", "labor", "utilities", "fixed", "profit", "break_even_customers_per_day", "verdict"];
   const lines = [head.join(",")];

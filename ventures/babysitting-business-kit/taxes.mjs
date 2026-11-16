@@ -210,7 +210,7 @@ function expenseDetail(desk, year) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-const csvCell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export const toCSV = (rows) => rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
 
 // One CSV a tax preparer can open: the Schedule C lines, then each receipt and miles entry.

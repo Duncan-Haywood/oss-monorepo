@@ -146,7 +146,7 @@ export function sampleInput() {
     refiLtv: "75", refiRate: "7", refiTerm: "30", refiClosingPct: "2.5", targetDscr: "1.1", otherIncome: "0", vacancy: "5", propertyTax: "2800", insurance: "1500", hoa: "0", utilities: "0", management: "8", maintenance: "6" };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const b = a.base;
   const rows = [["Item", "Amount"], ["Purchase price", round2(a.p.price)], ["Rehab", round2(a.p.rehab)], ["Closing costs at purchase", round2(b.buyClosing)], ["Hard-money points", round2(b.points)],
