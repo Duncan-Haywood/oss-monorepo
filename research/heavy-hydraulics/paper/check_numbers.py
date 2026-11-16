@@ -471,6 +471,10 @@ MANUSCRIPT_CHECKS = [
     ("now predicts 0.8135, an error of &minus;0.0060", "gear_pump_spin_results.txt", "(Z) 6z rule at 2.99 kW: 0.8135, error -0.0060"),
     ("E<sub>50</sub> = 0.8230 + 0.0181 (kW &minus; 3.57)", "gear_pump_spin_results.txt", "E50 = 0.8230 + 0.0181 (kW - 3.57)"),
     ("the left-out RMS 0.0035 against 0.0115 for a constant", "gear_pump_spin_results.txt", "diagonal RMS: one-number 0.0115, two-number 0.0035"),
+    ("it adds 0.14 kW of idle power to the AZPF", "gear_pump_stepup_results.txt", "(+0.140 kW)"),
+    ("moves its crossing to 0.8094, so the rule's error is &minus;0.0066", "gear_pump_stepup_results.txt", "azpf    0.9934  0.650  0.8971     3.13  0.8094  +0.0019      0.8160  -0.0066"),
+    ("the AZPN's crossing falls to 0.7988 and the rule misses it by &minus;0.0101", "gear_pump_stepup_results.txt", "azpn    0.9934  0.650  0.9129     2.73  0.7988  -0.0044      0.8089  -0.0101"),
+    ("the left-out RMS is 0.0051 against 0.0121 for a constant", "gear_pump_stepup_results.txt", "diagonal RMS: one-number 0.0121, two-number 0.0051"),
 ]
 
 
