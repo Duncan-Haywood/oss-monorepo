@@ -293,6 +293,11 @@ class DirectionalTests(unittest.TestCase):
         self.assertTrue(np.allclose(only0, t.fit(frames[:1], pairs=False, ridge=1e-3)))
         self.assertFalse(np.allclose(base, only0))
 
+        # grouped cross-validation: a held-out real frame takes every copy with it; synthetic frames always train
+        tags = [("a", False), ("a", False), ("a", False), ("b", False), ("b", False), ("s", True), ("s", True)]
+        folds = list(t.cv_folds([{"group": g, "synthetic": syn} for g, syn in tags]))
+        self.assertEqual(folds, [([0, 1, 2], [3, 4, 5, 6]), ([3, 4], [0, 1, 2, 5, 6])])
+
 
 class DeveloperChoiceTests(unittest.TestCase):
     def raw(self):

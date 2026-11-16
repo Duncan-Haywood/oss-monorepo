@@ -222,6 +222,16 @@ def load(paths: list[str], cache: str | None, per_frame: int, snrs=(), synthetic
     return frames
 
 
+def cv_folds(frames: list[dict]):
+    """(held-out indices, training indices) per real source frame: a real frame is held out with every one of
+    its copies (noisy ones too), and synthetic frames are never held out, so they train every fold."""
+
+    groups = list(dict.fromkeys(f["group"] for f in frames if not f["synthetic"]))
+    for g in groups:
+        held = [i for i, f in enumerate(frames) if f["group"] == g]
+        yield held, [i for i, f in enumerate(frames) if f["group"] != g]
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--train", nargs="+", required=True)
@@ -241,12 +251,10 @@ def main(argv=None) -> int:
                   args.synthetic_weight, args.noise_weight)
     if args.cv:
         stats = [normal_equations(f, args.pairs) for f in frames]
-        groups = list(dict.fromkeys(f["group"] for f in frames if not f["synthetic"]))
-        for g in groups:
-            coef = solve([s for s, f in zip(stats, frames) if f["group"] != g], args.ridge)
-            for f in frames:
-                if f["group"] == g:
-                    print(json.dumps({"cv_frame": f["name"], "pairs": args.pairs, "ridge": args.ridge,
+        for held, train in cv_folds(frames):
+            coef = solve([stats[i] for i in train], args.ridge)
+            for f in (frames[i] for i in held):
+                print(json.dumps({"cv_frame": f["name"], "pairs": args.pairs, "ridge": args.ridge,
                                       "noise_snr": args.noise_snr, "synthetic": args.synthetic,
                                       "synthetic_weight": args.synthetic_weight,
                                       **green_mse(f, coef, args.pairs)}), flush=True)

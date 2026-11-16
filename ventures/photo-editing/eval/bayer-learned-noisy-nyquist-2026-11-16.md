@@ -62,7 +62,7 @@ SNR 25. Rows: `eval/bayer-learned-noisy-nyquist-cv-2026-11-16.jsonl`.
 | **B: + noisy copies (chosen)** | +0.318 (33) | +0.390 (35) | **+0.446 (39)** | **+0.386 (32)** |
 | C: B + 16 synthetic, weight 1 | +0.161 (23) | +0.264 (28) | +0.389 (33) | +0.329 (33) |
 | D: B + 16 synthetic, weight 0.25 | +0.260 (31) | +0.346 (33) | +0.436 (38) | +0.377 (33) |
-| E: A + 16 synthetic (and their noisy copies) | +0.189 (27) | +0.267 (31) | +0.357 (34) | +0.297 (28) |
+| E: A + 16 clean synthetic frames (their noisy copies loaded at weight 0) | +0.189 (27) | +0.267 (31) | +0.357 (34) | +0.297 (28) |
 | F: D at ridge 1e-4 | +0.221 (28) | +0.314 (33) | +0.418 (35) | +0.358 (34) |
 
 The synthetic frames cost real photographs accuracy at every weight tried. Noise costs a little
