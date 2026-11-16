@@ -10,7 +10,8 @@ owner: duncan
 # purgecss dead css rust"`: top score 0.11 (agent-workroom, unrelated); nothing
 # in the portfolio finds unused CSS. crates.io has css-purify 0.0.15, a
 # purifycss-style crate; no Rust port of PurgeCSS's rules was found.
-# PurgeCSS itself is not yet measured against it (BENCHMARK.md says why).
+# Measured against PurgeCSS 9.1.0 on 2026-11-16: same 15,632 rejected
+# selectors on 3,923 pages, no difference (BENCHMARK.md).
 hypotheses:
   - claim: >-
       A developer with a multi-page static site, or a docs site of many

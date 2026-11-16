@@ -417,6 +417,21 @@ ground-reaction split, which sets the hip-yaw and waist torques.
 
 ![Clean sheets of the 12-bit G1 and H1 best single-2x stack with 5 arcmin backlash against hand height, three shifts along the wall, calibrated per pose and once](experiments/m31_pose_range/figure.png)
 
+**Milestone 32: through real soles, the robot must lean into the wall.** Milestones 30–31 let each foot apply any wrench
+at one point. With each sole pushing only through its contact points (the Menagerie model's collision spheres and capsules,
+friction cones at mu 0.5), the upright poses balance a press of at most **39 N at 0.8 m, 31 N at 1.0 m and 26 N at 1.2 m**
+(G1; H1 25 N at 1.6 m): above chest height the 50 N press tips the robot onto its heels. Leaning the centre of mass
+0.04–0.12 m towards the wall restores the 25–50 N range at all 36 poses. On those leaned poses **neither hip yaw nor the
+waist roll flips** under any ground-reaction model (H118 refuted); waist and arm torques are the same under every model,
+since no foot is in their subtree, and the only G1 joint that flips is the right wrist pitch. Holding all 12 leg joints one
+way is infeasible everywhere (H119 refuted, so H120 is not testable). Holding only the hip rolls, hip yaws and ankle rolls
+(added after the first run) is feasible at every pose and cuts the worst per-pose 5-arcmin loss from 8.6 to **3.7 points**,
+but one calibration still leaves **1.4 mm** (1.1 mm at the best calibration pose; least-norm 2.0, torque-minimising 2.6).
+A controller makes the press possible; it does not replace compensating backlash pose by pose. Statics only, contact points
+from the model's geoms, mu swept 0.3–0.8.
+
+![Press the G1 and H1 soles can balance, upright and leaned into the wall, against hand height; the G1's nail offset along the wall after one calibration under four ground-reaction models](experiments/m32_grf_qp/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

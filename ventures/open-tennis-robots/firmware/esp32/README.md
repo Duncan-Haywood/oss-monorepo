@@ -1020,6 +1020,41 @@ by least residual, and the edge form's residual ranks them differently. The
 option stays, off by default, for anyone who wants to try it with a real tach's
 edges.
 
+**The whole drill, and why (a second session, same day).** The single-wheel
+spread above could still have hidden a gain where it counts: the drill's
+fitted spin. `tests/edge_fit_drill.py` runs the calibration drill's whole Pi
+path on the 18 design builds x 3 seeds, with the board's fit swapped for the
+edge form (`--edges`; eval/edge-fit-drill-2026-11-16.txt). Spin efficiency
+error over 54 drills, rms / worst / bias, %:
+
+| plant | periods | edges |
+| --- | --- | --- |
+| first-order | 0.62 / 1.62 / -0.16 | 0.58 / 1.22 / -0.03 |
+| tach jitter 5 us | 2.20 / 5.31 / +0.53 | 2.97 / 11.50 / -0.31 |
+| tach jitter 10 us | 6.55 / 22.89 / -0.94 | 9.07 / 30.01 / -3.39 |
+| ESC lag 80 ms | 8.67 / 19.87 / +6.55 | 9.06 / 22.39 / +6.59 |
+
+So the drill loses too. Checks on the cause (scratch scripts, not committed):
+
+- The noise model is right: added edge noise gives the period rows' misses a
+  lag-1 correlation of -0.498 (the model's -0.5).
+- The gain is small even in theory. In a linear toy (13 rows: a constant, a
+  decaying term and a step, noise differenced from iid edge errors) the step's
+  error is 1.29 on the running sums against 1.35 on the rows, 4%. A step is a
+  high-frequency feature, where differenced noise is strongest anyway.
+- With the wheel's lag fixed at its true value and the edge errors added after
+  the run (so the loop never saw them), the sums still read worse (median 1.37%
+  against 0.86% at 10 us). That leaves t0, as the paragraph above suspects.
+- Weighting each revolution by its own span before summing (as the shipped
+  option does) puts the edge errors into the constant column too; summing the
+  rows unweighted measured the same, so that is not the cause.
+
+On single wheels the edge form does remove the period fit's rare wild
+readings (a wrong t0 at 5,000-6,000 rpm: worst 63% to 5% at 10 us over 144
+balls, measured with the unweighted variant), but the launcher fit already trims wild rows, so the typical error is
+what reaches the drill. If a real tach shows 10 us or more, the thing to try
+is t0 chosen on the sums and the drop estimated on the rows at that t0.
+
 ## One wheel's misses outvoted the drill (2026-11-16, after the survey)
 
 **The item.** The survey above missed one build: the jittery 100 ms ESC at a

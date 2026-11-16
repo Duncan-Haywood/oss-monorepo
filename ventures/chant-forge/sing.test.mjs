@@ -481,3 +481,21 @@ test('deepMurmur: true reads a deep murmur on an E4 eighth note as its nasal, an
   }
   assert.ok(score.on === POS.length && score.on >= score.off + 3, JSON.stringify(score));
 });
+
+test('a cluster murmur louder than the dip before it reads as its nasal on D#4 (punc, tunt, sons); voiced stops do not', () => {
+  // README "A murmur louder than the dip before it": on D4-E4 the vowel dips 7-16 dB as it darkens into the n,
+  // and the murmur swells back 5-12 dB over that dip, past the cluster rule's old ceiling (PRE.hi 4, now 12)
+  const POS = ['punc', 'tunt', 'sons'], NEG = ['mad', 'bod', 'nod', 'reg'], score = { on: 0, off: 0 };
+  const ev = [];
+  for (const s of [...POS, ...NEG]) ev.push({ type: 'note', midi: 63, pulses: 2, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 126 });
+  const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+  const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+  const x = renderMidi(mid, { stems: true, sing: true }).stems.choir.channels[0];
+  [...POS, ...NEG].forEach((s, j) => {
+    const read = (hi) => readCoda(x, rate, sec(notes[j].tick) + 0.045, Math.min(sec(notes[j].end) + 0.25, sec(notes[j + 1]?.tick ?? 1e9)), hi ? { preOpts: { hi } } : {}).cls;
+    if (POS.includes(s)) { if (read() === 'nasal') score.on++; if (read(4) === 'nasal') score.off++; }
+    else if (read() === 'nasal') assert.equal(read(4), 'nasal', `${s} on D#4: the change added a nasal`);
+  });
+  assert.ok(score.on === POS.length && score.on >= score.off + 2, JSON.stringify(score));
+});

@@ -6,24 +6,14 @@ cloud container (Linux), with csshound 0.1.0 built by
 [`tests/bench/measure.py`](tests/bench/measure.py), which runs a command and
 reads the child's wall time and `ru_maxrss`. File caches were warm.
 
-## Not measured yet: PurgeCSS
+## Against PurgeCSS 9.1.0
 
-The dev-tools direction asks for the original tool's numbers first
-(`portfolio/opinions/2026-10-29-dev-tools-in-rust.md`). This run installed
-PurgeCSS 9.1.0 from npm and wrote the harness that runs it page by page
-([`tests/bench/purgecss_pages.mjs`](tests/bench/purgecss_pages.mjs)), but the
-session's permission layer refused to execute the package twice, so there is
-**no PurgeCSS time, memory or agreement figure here**. None is estimated.
-What stands in for it until a run can measure:
-
-- csshound's decision rules were written from PurgeCSS 9.1.0's source
-  (`lib/purgecss.js`: `defaultExtractor`, `shouldKeepSelector`,
-  `isAttributeFound`, `evaluateRule`, the ignore annotations), and
-  [`tests/rules.rs`](tests/rules.rs) pins each rule with the function it
-  comes from.
-- `csshound --purgecss` gives PurgeCSS's input (the page's `<style>` blocks
-  and linked local stylesheets against the page plus the local scripts it
-  loads) and rules, so the comparison is three commands:
+Measured 2026-11-16 at commit `274116c7b` (3,923 pages carrying CSS by then:
+99,713 rules, 8,119,357 bytes), same container, Node 22.23.4, PurgeCSS 9.1.0
+from npm. Each tool got the same input, prepared by
+[`tests/bench/purgecss_pages.mjs`](tests/bench/purgecss_pages.mjs) for
+PurgeCSS and by `csshound --purgecss` for csshound; PurgeCSS ran with its
+defaults and `rejected: true`, one page at a time.
 
 ```
 node tests/bench/purgecss_pages.mjs <dir holding node_modules/purgecss> ventures > purge.jsonl
@@ -31,8 +21,31 @@ csshound --purgecss --json ventures > hound.jsonl
 python3 tests/bench/compare_rejected.py purge.jsonl hound.jsonl
 ```
 
-The next run that can execute npm packages should run them and replace this
-section with the result, differences and all.
+**Agreement: exact.** On all 3,923 pages both rejected the same 15,632
+selectors; none was rejected by only one of them.
+
+| Run (3 each, warm caches) | Time | Peak memory |
+| --- | --- | --- |
+| PurgeCSS 9.1.0 (`purgecss_pages.mjs`, one Node process) | 4.64 to 4.86 s | 123 to 126 MB |
+| `csshound --purgecss` (4 threads) | 0.31 to 0.36 s | 10 MB |
+| `csshound --purgecss --jobs 1` | 1.11 to 1.16 s | 10 MB |
+
+So csshound is about 4x faster on one thread and 14x on four, in a twelfth of
+the memory. That is a modest win, not a rescue: PurgeCSS handled the whole
+tree in under five seconds (the first, cold run took 9.2 s), unlike jscpd or
+dependency-cruiser for the sibling tools. What csshound adds is mostly the
+rest of its default mode: following each page's imports, which removes a third
+of PurgeCSS's findings on this tree, and the browser build.
+
+**The first run found a bug in both preparers.** PurgeCSS failed on one page,
+`csshound/index.html` (`Unknown word ]`), and csshound reported five nonsense
+"selectors" there, such as `catch (e)`. The page's script builds an example
+page in a string that contains `<style>`, and both the harness's regex and
+`split_styles` took that as a style block. An HTML parser does not: script
+and comment contents are text. Both now skip `<style>` inside `<script>` and
+`<!-- -->` (`src/page.rs`, with a unit test and a browser-build test); the
+fix changed the findings on that one page only (5 rules), and the run above is
+after it. Before it, the other 3,922 pages already agreed exactly.
 
 ## The input
 
