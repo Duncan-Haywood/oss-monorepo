@@ -154,6 +154,34 @@ balls fed do not restart it. The drill runner logs the flag once and carries
 on. Wiring: `hardware/electronics.md`, "Lift jam cutoff"; numbers:
 `cad/README.md`, "Lift jam cutoff", and `tests/lift_jam_sweep.py`.
 
+**Slip hub jam count, kept in flash (2026-11-16).** Every cut is a jam the
+lift's slip hub slid through, and each slide wears its facings a little
+(`cad/README.md`, "Slip hub wear": the disc stack keeps the hub in its band
+for 300 jams after a bench set). A drill session holds a handful of jams at
+most, so a count in RAM would restart at every power-up and never get there.
+`controller.JamLog` keeps the count in a small file on the board's flash
+(`LIFT_JAM_LOG`, default `lift_jams.json`): every cut, a retry's second cut
+included, adds one, written to a `.tmp` file and renamed over the old one so
+a power cut mid-write leaves the old count or the new one. Once
+`LIFT_SLIP_JAMS` (300, the CAD's `lift_slip_jams`; a test fails if they
+differ) cuts have passed since the last set, telemetry sets
+`FLAG_LIFT_HUB_DUE` (4096). The lift still runs; the drill runner logs the
+warning once. A file the board cannot read also sets the flag, since a lost
+count must not hide a worn hub; a missing file is a new board and starts at 0.
+
+After the hub is checked on the scale and set again, tell the board:
+
+```
+tennisbots lift-hub-reset --port /dev/ttyAMA0
+```
+
+It sends `RESET_LIFT_HUB` (0x14) with a fixed key (`RESET_LIFT_HUB_KEY`, so
+a stray frame cannot zero the count), waits for a fresh telemetry frame with
+the flag clear, and refuses while the e-stop is pressed. The reset zeroes the
+count since the set and keeps the lifetime total. Tested on the simulated
+board (`tests/test_host.py`, `LiftJamTest`), including a power cycle between
+two boards sharing one flash file; not yet run on an ESP32.
+
 **Lift soft start (2026-11-15).** Every lift start, the first and each retry
 after a trip, ramps the duty from 10% to `LIFT_DUTY` over `LIFT_RAMP_MS`
 (100 ms) in 10 ms ticks, inside the 400 ms jam blanking. The jaw coupling

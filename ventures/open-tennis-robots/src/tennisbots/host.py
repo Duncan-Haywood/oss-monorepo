@@ -40,7 +40,10 @@ FAULT_FLAGS = {P.FLAG_ESTOP: "e-stop", P.FLAG_WATCHDOG: "watchdog (heartbeats mi
                P.FLAG_BUS_OFF: "switched bus off (contactor open: wireless e-stop, its coil wire or the timer)"}
 # Reported once and the drill goes on: the hopper still holds balls, only their return has stopped (2026-11-15).
 WARN_FLAGS = {P.FLAG_LIFT_JAM: "ball lift jammed and off after its retry: balls stop returning to the hopper; clear the "
-                               "jam, then press and release the e-stop"}
+                               "jam, then press and release the e-stop",
+             P.FLAG_LIFT_HUB_DUE: "lift slip hub due a re-set (LIFT_SLIP_JAMS jams since its last set, or the count in "
+                                  "flash was lost): check its slip on the scale and set it again (cad/README.md \"Slip "
+                                  "hub wear\"), then run `tennisbots lift-hub-reset`"}
 
 
 @dataclass
@@ -230,6 +233,36 @@ class SerialPort:
 
     def read(self):
         return self.s.read(256)
+
+
+def reset_lift_hub(link: FeederLink, sleep, *, timeout_s=2.0, tick_s=0.01) -> str | None:
+    """Tell the feeder the lift's slip hub was re-set on the bench, so its jam count in flash starts again
+    (RESET_LIFT_HUB, 2026-11-16). Returns None once a fresh telemetry frame shows FLAG_LIFT_HUB_DUE clear, else why not."""
+    clock = link.clock
+    start = clock()
+    t = None
+    while clock() - start < timeout_s:              # heartbeats first: the watchdog drops commands until they arrive
+        t = link.poll()
+        if t is not None and t.t >= start + FRESH_S and not t.flags & P.FLAG_WATCHDOG:
+            break
+        sleep(tick_s)
+    else:
+        return "no telemetry from the feeder (wrong port, baud rate or role?)"
+    if t.flags & (P.FLAG_ESTOP | P.FLAG_BUS_OFF):
+        return "the e-stop is pressed or the bus is off: release it, then try again"
+    link.send(P.RESET_LIFT_HUB, P.RESET_LIFT_HUB_KEY)
+    sent = clock()
+    while clock() - sent < timeout_s:
+        t = link.poll()
+        if t is not None and t.t >= sent + FRESH_S:
+            if not t.flags & P.FLAG_LIFT_HUB_DUE:
+                return None
+        sleep(tick_s)
+    return "the feeder still reports the hub due (firmware older than 2026-11-16, or its flash will not take a write)"
+
+
+def reset_lift_hub_port(device) -> str | None:
+    return reset_lift_hub(FeederLink(SerialPort(device), time.monotonic), time.sleep)
 
 
 def run_file(path, device, log=print) -> DrillResult:

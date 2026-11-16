@@ -371,11 +371,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): slip hub wear 2026-11-16 (cad/README.md "Slip hub wear":
-      the single disc spring lost 61% of the torque at 40 um of facing loss and left
-      a jam uncut; four B discs in series keep 95%, budget 53 um, re-set after 300
-      jams). Next: count jams in the firmware (flash, survives power-off) and flag a
-      hub re-set at lift_slip_jams.
+      venv, about 2 min). Slip hub wear (cad/README.md) and its jam count in flash
+      (FLAG_LIFT_HUB_DUE, `tennisbots lift-hub-reset`, firmware/esp32/README.md)
+      landed 2026-11-16. Next: FLAG_HOPPER_EMPTY (8) is defined but nothing sets
+      it, so an empty tub ends a drill on a release timeout: sense it (a
+      break-beam over the column, CAD and firmware) and have the runner report it.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

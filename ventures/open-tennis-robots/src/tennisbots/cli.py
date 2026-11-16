@@ -85,6 +85,24 @@ def cmd_run(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_lift_hub_reset(a: argparse.Namespace) -> int:
+    """After re-setting the lift's slip hub on the bench: restart the feeder's jam count (cad/README.md "Slip hub wear")."""
+    from . import host
+    try:
+        why = host.reset_lift_hub_port(a.port)
+    except ImportError:
+        print("not sent: needs pyserial (pip install 'tennisbots[serial]')", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"not sent: {exc}", file=sys.stderr)
+        return 2
+    if why:
+        print(f"not reset: {why}", file=sys.stderr)
+        return 1
+    print("lift slip hub's jam count restarted; the feeder no longer reports it due")
+    return 0
+
+
 def cmd_catch_study(a: argparse.Namespace) -> int:
     widths = a.net_width or [3.0]
     speeds = a.base_speed or [2.5]
@@ -192,6 +210,11 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("file")
     s.add_argument("--port", default="/dev/ttyAMA0", help="serial device wired to the ESP32 (default /dev/ttyAMA0)")
     s.set_defaults(func=cmd_run)
+
+    s = sub.add_parser("lift-hub-reset", help="after re-setting the lift's slip hub on the bench, restart the "
+                                              "feeder's jam count (clears FLAG_LIFT_HUB_DUE)")
+    s.add_argument("--port", default="/dev/ttyAMA0", help="serial device wired to the ESP32 (default /dev/ttyAMA0)")
+    s.set_defaults(func=cmd_lift_hub_reset)
 
     s = sub.add_parser("catch-study", help="simulate how many returns a moving catch net would catch")
     s.add_argument("--n", type=int, default=200)

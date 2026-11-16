@@ -195,11 +195,15 @@ class FeederHw:
         self.gate_homed = False       # a back stroke has run since power-up or the last stop
         # Ball lift (cad/README.md, "Ball lift"): a gearmotor on a MOSFET (GPIO 12, PWM) runs on after each ball fed.
         self.lift_pwm = PWM(Pin(LIFT_PIN), freq=20000, duty_u16=0)
+        # Every jam cut slides the slip hub; the count lives in flash and flags a bench re-set (cad/README.md "Slip hub wear").
+        self.lift_jams = controller.JamLog(getattr(config, "LIFT_JAM_LOG", "lift_jams.json"),
+                                           getattr(config, "LIFT_SLIP_JAMS", 300))
         self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0),
                                        getattr(config, "LIFT_JAM_BLANK_MS", 400), getattr(config, "LIFT_JAM_TRIP_MS", 10),
                                        getattr(config, "LIFT_JAM_REST_MS", 2000), getattr(config, "LIFT_JAM_RETRIES", 1),
                                        getattr(config, "LIFT_RAMP_MS", 0), getattr(config, "LIFT_V_REF_MV", 0),
-                                       getattr(config, "LIFT_DUTY_MIN", 0.0), getattr(config, "LIFT_BUS_TAU_MS", 500))
+                                       getattr(config, "LIFT_DUTY_MIN", 0.0), getattr(config, "LIFT_BUS_TAU_MS", 500),
+                                       on_trip=self.lift_jams.add)
         self.lift_sense = Pin(LIFT_SENSE_PIN, Pin.IN, Pin.PULL_UP)
         # Hopper agitator (cad/README.md, "Hopper agitator"): a gearmotor on a MOSFET (GPIO 2, PWM) stirs the tub's
         # outlet while balls are being fed, so a bridge of balls over it cannot leave the column empty.
@@ -294,7 +298,13 @@ class FeederHw:
             f |= protocol.FLAG_BUS_OFF
         if self.lift.jammed:
             f |= protocol.FLAG_LIFT_JAM
+        if self.lift_jams.due:
+            f |= protocol.FLAG_LIFT_HUB_DUE
         return f
+
+    def lift_hub_reset(self):
+        """RESET_LIFT_HUB: the slip hub has been re-set on the bench (cad/README.md "Slip hub wear")."""
+        self.lift_jams.reset()
 
     def balls_fed(self):
         return self.fed

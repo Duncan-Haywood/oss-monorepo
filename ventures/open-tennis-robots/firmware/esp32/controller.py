@@ -20,11 +20,14 @@ with a fake hardware object), so it touches hardware only through `hw`.
     balls_fed() -> int               feeder only: balls released through the gate since power-up (sent mod 256)
 
 and may provide:
+    lift_hub_reset()                 feeder: RESET_LIFT_HUB arrived with its key: the slip hub was re-set on the bench
     bus_tick(now_ms) -> bool         feeder: read the contactor's coil sense; True on the tick the switched bus is lost
                                      (an e-stop the board did not see, such as the wireless fob): the controller halts
 """
 
+import json
 import math
+import os
 
 import protocol as P
 
@@ -34,7 +37,7 @@ TELEMETRY_MS = 100
 ROLE_FEEDER = "feeder"
 ROLE_COLLECTOR = "collector"
 
-FEEDER_CMDS = (P.SET_WHEELS, P.SET_AIM, P.FEED, P.SET_BASE)
+FEEDER_CMDS = (P.SET_WHEELS, P.SET_AIM, P.FEED, P.SET_BASE, P.RESET_LIFT_HUB)
 COLLECTOR_CMDS = (P.DRIVE, P.PICKUP)
 
 MAX_RPM = 7000
@@ -599,7 +602,8 @@ class LiftRun:
     BUS_VALID_MV = (10000, 40000)
 
     def __init__(self, run_on_ms, duty=1.0, blank_ms=400, trip_ms=10, rest_ms=2000, retries=1, ramp_ms=0,
-                 v_ref_mv=0, duty_min=0.0, bus_tau_ms=500):
+                 v_ref_mv=0, duty_min=0.0, bus_tau_ms=500, on_trip=None):
+        self.on_trip = on_trip        # called once per cut (a stall the slip hub slid through): JamLog.add
         self.run_on_ms = run_on_ms
         self.duty = duty
         self.ramp_ms = ramp_ms
@@ -668,6 +672,8 @@ class LiftRun:
             if now_ms - self.over_since >= self.trip_ms:
                 self.trips += 1
                 self._off()
+                if self.on_trip is not None:
+                    self.on_trip()
                 if self.trips > self.retries:
                     self.jammed = True
                     self.until = None
@@ -681,6 +687,69 @@ class LiftRun:
         if self.ramp_ms > 0:
             return d * min(1.0, (now_ms - self.on_since + 10) / self.ramp_ms)
         return d
+
+
+class JamLog:
+    """The lift's jam count, kept in flash so it survives power-off (2026-11-16, cad/README.md "Slip hub wear").
+
+    Every cut is a stall the slip hub slid through until the cutoff tripped, and each slide wears its facings (the CAD
+    assumes 0.083 um a jam). The disc stack keeps the hub in the jam sweep's band for `lift_slip_jams` (300) jams after a
+    bench set, so the hub needs re-setting after that many, a retry's second cut included. A drill session is far
+    shorter than 300 jams, so a count in RAM would restart at every power-up and never reach it.
+
+    The file holds {"jams": all cuts ever, "since_set": cuts since the hub was last set}. It is written once per cut
+    (rare: a few a session at most, well inside the flash's wear levelling), to `path + ".tmp"` and then renamed over
+    `path`, so a power cut mid-write leaves the old count or the new one. A missing file is a new board: 0. A file
+    that cannot be read is treated as due (`unreadable`): a lost count must not hide a worn hub. `due` drives
+    FLAG_LIFT_HUB_DUE; `reset()` (RESET_LIFT_HUB, after the bench re-set) zeroes `since_set` and keeps `jams`.
+    A write that fails (flash full, read-only) sets `write_failed` and keeps counting in RAM. `due_at` 0 never flags."""
+
+    def __init__(self, path, due_at):
+        self.path, self.due_at = path, due_at
+        self.jams = self.since_set = 0
+        self.unreadable = False
+        self.write_failed = False
+        try:
+            f = open(path)
+        except OSError:
+            return                    # no file yet: a new board, or never jammed
+        try:
+            with f:
+                d = json.loads(f.read())
+            jams, since = d["jams"], d["since_set"]
+            if not (isinstance(jams, int) and isinstance(since, int) and 0 <= since <= jams):
+                raise ValueError("bad counts")
+            self.jams, self.since_set = jams, since
+        except (ValueError, KeyError, TypeError, OSError):
+            self.unreadable = True
+
+    @property
+    def due(self):
+        return self.unreadable or (self.due_at > 0 and self.since_set >= self.due_at)
+
+    def add(self):
+        self.jams += 1
+        self.since_set += 1
+        self._save()
+
+    def reset(self):
+        self.since_set = 0
+        self.unreadable = False
+        self._save()
+
+    def _save(self):
+        tmp = self.path + ".tmp"
+        try:
+            with open(tmp, "w") as f:
+                f.write(json.dumps({"jams": self.jams, "since_set": self.since_set}))
+            try:
+                os.rename(tmp, self.path)
+            except OSError:
+                os.remove(self.path)  # a filesystem whose rename will not replace a file: the brief gap is the cost
+                os.rename(tmp, self.path)
+            self.write_failed = False
+        except OSError:
+            self.write_failed = True
 
 
 class AgitatorRun:
@@ -813,6 +882,12 @@ class Controller:
             hw.drive(left, right)
         elif cmd == P.PICKUP:
             hw.pickup(bool(values[0]))
+        elif cmd == P.RESET_LIFT_HUB:
+            reset = getattr(hw, "lift_hub_reset", None)
+            if values[0] == P.RESET_LIFT_HUB_KEY and reset is not None:
+                reset()
+            else:
+                self.rejected += 1
 
     def tick(self, rx_bytes, now_ms):
         """Process received bytes and safety checks; returns bytes to transmit (maybe empty)."""

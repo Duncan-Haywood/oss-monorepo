@@ -66,6 +66,12 @@ LIFT_JAM_BLANK_MS = 400
 LIFT_JAM_TRIP_MS = 10
 LIFT_JAM_REST_MS = 2000
 LIFT_JAM_RETRIES = 1
+# Slip hub wear (cad: Feeder.lift_slip_jams, lift_slip_wear; cad/README.md "Slip hub wear"). Every cut is a jam the hub
+# slid through, and its facings wear a little each time. The count is kept in flash (LIFT_JAM_LOG, survives power-off);
+# after LIFT_SLIP_JAMS cuts since the last bench set, telemetry sets FLAG_LIFT_HUB_DUE: check the hub's slip on the
+# scale, set it again, then run `tennisbots lift-hub-reset`. 0 never flags. A test fails if it and the CAD disagree.
+LIFT_SLIP_JAMS = 300
+LIFT_JAM_LOG = "lift_jams.json"
 # Lift soft start (cad: Feeder.lift_ramp_ms; cad/README.md "Lift coupling dynamics"): each start ramps the duty up over
 # this long, so the rotor does not cross the jaw coupling's free play at speed and ring the drive into the slip hub.
 # It must end well inside LIFT_JAM_BLANK_MS; 0 switches straight to LIFT_DUTY.
