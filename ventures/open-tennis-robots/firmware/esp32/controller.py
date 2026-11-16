@@ -321,7 +321,9 @@ ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
 # A wheel whose best fit over the grid misses by more than this many times the median wheel's best is left out of the
 # sums (2026-11-16, README "One wheel's misses outvoted the drill"): with tach jitter one wheel in 56 could fit 30 times
 # worse than the rest, and its square alone set the pick (0 instead of 100 ms on 6 of 102 simulated builds). 3 / 5 / 10
-# scored 101 / 100 / 100 of the 102 within 10% (tests/esc_survey_weight.py); the plain sum, 93.
+# scored 101 / 100 / 100 of the 102 within 10% (tests/esc_survey_weight.py); the plain sum, 93. The cause was found
+# later (README "The outlier wheel was anchored past its ball", ANCHOR_BACK): with it no simulated wheel crosses the
+# trim and the plain sum scores 102; the trim stays as a guard for shapes the simulator lacks.
 SURVEY_TRIM = 5.0
 SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (24 bytes each); the oldest goes first
 
@@ -389,11 +391,12 @@ def _cmd_columns(T, j0, j1, segs, tau):
 
 # The anchor's walk back (2026-11-16, README "The outlier wheel was anchored past its ball"): the fit anchors on the
 # longest period, k, and searches the ball's time only from the start of k - 1 to the end of k + 1. Behind a slow
-# recovery (a 100 ms ESC lag on a 0.8 s wheel) the revolutions after the ball are nearly level, about 10 us apart at
-# 5,500 rpm, and 5 us of tach jitter could make the second one after the ball the longest: the ball then fell outside
-# the search and that wheel missed by 8-22 x the median wheel's rms (all 3 such wheels of 112 on that build pair, none
-# of the other 109). k steps back while the period before it already holds over this share of k's rise above the
-# periods before the ball (at most 2 steps); 0 keeps the plain longest period.
+# recovery (a 40-100 ms ESC lag on a 0.4-0.8 s wheel) the revolutions after the ball are nearly level, about 10 us apart
+# at 5,500 rpm, and 5 us of tach jitter could make the second one after the ball the longest: the ball then fell outside
+# the search and that wheel missed by 7-35 x the median wheel's rms. On 144 jittery builds (8,064 wheels) all 21 wheels
+# over SURVEY_TRIM were this; with the walk back none were (tests/survey_outlier_cause.py). k steps back while the
+# period before it already holds over this share of k's rise above the periods before the ball (at most 2 steps); 0
+# keeps the plain longest period.
 ANCHOR_BACK = 0.9
 
 

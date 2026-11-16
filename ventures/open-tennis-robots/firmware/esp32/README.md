@@ -1107,3 +1107,62 @@ draw landing where the ball meets the wheel, but this run did not check that.
 Physics and plants are the simulator's assumptions. The heap cost of 128 kept
 wheels (about 3 KB as float arrays) and the report's sort are counted, not
 measured on an ESP32.
+
+## The outlier wheel was anchored past its ball (2026-11-16, after the trim)
+
+**The item.** "One wheel's misses outvoted the drill" left open why one surveyed wheel in about 56 misses the
+loop-command fit by 10 to 60 times more than the rest, and guessed at a jitter draw near the ball.
+
+**The cause.** It is where the fit looks for the ball. `drop_from_commands_steps` anchors on the longest period in the
+snapshot, k, and searches the ball's time only from the start of k - 1 to the end of k + 1. Behind a slow recovery
+(a 40-100 ms ESC lag on a 0.4-0.8 s wheel) the revolutions after the ball are nearly level: at 5,479 rpm the first
+two after it were 11,475 and 11,489 us. Tach jitter (period noise about 7 us at 5 us an edge) decides which is longer. When the
+second one wins, k is two revolutions past the ball, the ball is outside the search, and the fit has to bend every
+other term to explain a drop that came too early. `tests/survey_outlier_cause.py` records each wheel's true ball
+revolution from the simulator and compares it with k. On the four jittery plants, wheel lags 0.2 / 0.4 / 0.8 s, both
+true launchers and seeds 7-12 (144 builds, 8,064 wheels):
+
+| | wheels over 5 x the median rms | of them, k two past the ball | other wheels with k two past |
+| --- | --- | --- | --- |
+| before | 21 | 21 | 6 |
+| with the walk back | 0 | 0 | 0 |
+
+Every outlier was this, and nothing else was an outlier. The jitter was a cause only through the anchor.
+
+**The change.** `controller._anchor`: k steps back (at most twice) while the period before it already holds over
+`ANCHOR_BACK` (0.9) of k's rise above the periods before the ball (their median, leaving out the two just before k).
+A ball partway through its revolution leaves that revolution well under 0.9 of the rise, so the usual anchor (the
+first full revolution after the ball) stays. 0.9 was set on the one build that first failed (seed 7); the rest ran
+after it.
+
+**What it does to the survey** (`tests/esc_survey_weight.py`, refined pick within 10% of the true lag):
+
+| builds | plain sum before | trim 5 before | plain sum now | trim 5 now |
+| --- | --- | --- | --- | --- |
+| seeds 7-9, all plants (102) | 93, 5 ESC builds at 0 | 100 | 102 | 102 |
+| seeds 10-12, jitter plants (72) | 67, 4 at 0 | 70 | 70 | 70 |
+
+The plain sum no longer needs the trim: no wheel crosses `SURVEY_TRIM` on these builds. The trim stays as a guard for
+shapes the simulator does not have (a real tach's dropout, a bump).
+
+**What it does to the drill** (`tests/plant_drill_sweep.py --back 0` against the default; calibration drill, 18
+builds; launcher fit's speed / spin efficiency error, worst and mean spin):
+
+| plant | before | now |
+| --- | --- | --- |
+| first-order | 0.2%, 1.6% / 0.4% | 0.2%, 1.6% / 0.5% |
+| tach 5 us | 0.5%, 5.3% / 2.0% | 0.4%, 5.3% / 2.0% |
+| tach 10 us | 1.1%, 16.0% / 5.4% | 1.0%, 7.2% / 3.2% |
+| tach 20 us | 1.8%, 22.1% / 8.4% | 2.3%, 15.8% / 5.6% |
+| ESC 30 ms, board lag 0 | 4.2%, 23.8% / 5.5% | 4.2%, 23.6% / 5.5% |
+| ESC 80 ms, board lag 0 | 3.6%, 19.9% / 6.6% | 3.7%, 23.4% / 6.8% |
+| ESC 30 ms, board lag 30 ms | 0.1%, 1.4% / 0.5% | 0.1%, 1.7% / 0.4% |
+| ESC 80 ms, board lag 80 ms | 0.2%, 1.8% / 0.7% | 0.2%, 1.2% / 0.6% |
+
+The jittery tachs gain the most (10 us: worst spin 16% to 7%). On an ESC lag the board does not model, one build's
+spin got worse (19.9% to 23.4% worst, mean 6.6% to 6.8%); with the lag set, as the survey advises, both forms read
+within 2%. The 5 us row is unchanged because its remaining error is the jitter on every revolution, not the anchor.
+
+**Not known.** All of it is on the simulator. A real tach's noise may not be Gaussian, and a real ball's contact may
+spread over more than one revolution; both would change where the level run starts. Raw output:
+eval/survey-outlier-anchor-2026-11-16.txt.

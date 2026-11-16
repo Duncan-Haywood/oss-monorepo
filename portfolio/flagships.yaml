@@ -383,8 +383,8 @@ flagships:
       unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
       or a 30 ms ESC lag puts the drill's spin 5-24% off. ESC lag surveyed on the
       board (README "The ESC lag surveyed on the board"): ESC_SURVEY frame, pick
-      within 10% on 29 of 30 ESC builds; edge-time fit tried, worse, off. Next:
-      retest MIN_FIT_RPM; why one jittery wheel fits 10-60x worse (trimmed).
+      within 10% on 29 of 30 ESC builds; edge-time fit tried, worse, off. Outlier
+      wheel solved (ANCHOR_BACK). Next: retest MIN_FIT_RPM.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
