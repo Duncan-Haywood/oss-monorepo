@@ -3755,6 +3755,11 @@ function memoKey(value) {
   });
   return ok ? key : null;
 }
+// The cover repair's time reserve (see coverPasses in buildRoster): an explicit value wins; otherwise 2 s, at most a tenth of
+// the budget, on weeks of 300 or more copies, and none below or without a budget. A pure function so the rule is tested
+// without a build, whose reserve is only recorded once the cover passes start (a loaded CI runner can run out of time first).
+export const repairReserveFor = (copies, budgetMs, explicit) => (budgetMs > 0 ? explicit ?? (copies >= 300 ? Math.min(2000, budgetMs / 10) : 0) : 0);
+
 export function buildRoster(staff, slots, options = {}) {
   const key = options?.memo === false ? null : memoKey([staff, slots, options]);
   if (key !== null && rosterMemo.has(key)) {
@@ -3841,7 +3846,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       // copies, where a pre-registered test on 48 fresh builds found fewer open hours on 22 and more on 10; none below 300.
       // A 4 s reserve was worse (README "A 4 s repair reserve: measured and refused"): the repair stops on its node budget at
       // about 1.2 s, so the extra time only takes plateau walks away.
-      const reserve = budgetMs > 0 ? o.coverRepairReserveMs ?? (ctx.S >= 300 ? Math.min(2000, budgetMs / 10) : 0) : 0;
+      const reserve = repairReserveFor(ctx.S, budgetMs, o.coverRepairReserveMs);
       repairReserveMs = reserve;
       const leftMs = () => budgetMs - (Date.now() - tStart);
       for (let k = 0; k < (o.coverPassRuns ?? 12) && !over() && !(reserve > 0 && k > 0 && leftMs() < reserve); k++) {
