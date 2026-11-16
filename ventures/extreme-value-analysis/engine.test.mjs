@@ -173,3 +173,21 @@ test("return periods: a thousands comma is not a separator", () => {
   assert.deepEqual(parseNumberList("5 50; 500"), [5, 50, 500]);
   assert.deepEqual(analyze({ ...sampleInput(), returnPeriods: "10, 1,000" }).block.returnLevels.map((r) => r.T), [10, 1000]);
 });
+
+test("an unquoted thousands comma is refused, a quoted one is read whole", () => {
+  assert.throws(() => readSeries("year,peak\n2001,1,200\n2002,900"), /row 2 has 3 fields but the header has 2/);
+  assert.deepEqual(readSeries('year,peak\n2001,"1,200"\n2002,900').obs.map((o) => o.value), [1200, 900]);
+});
+
+test("dates with an extra digit are not read as dates", () => {
+  const good = "2025-03-10,5\n2025-03-11,5\n2025-03-12,5\n2025-03-13,5\n2025-03-14,5\n";
+  assert.deepEqual(readSeries(`when,v\n${good}2025-03-091,4`).obs.map((o) => Boolean(o.date)), [true, true, true, true, true, false]);
+  assert.equal(readSeries("when,v\n1/5/2026,4\n1/6/20261,5\n1/7/2026,5\n1/8/2026,5\n1/9/2026,5").obs[1].date, undefined);
+});
+
+test("a long series (200,000 rows) does not overflow the stack", () => {
+  const rows = ["date,v"];
+  for (let i = 0; i < 200000; i++) rows.push(`${new Date(Date.UTC(1500, 0, 1 + i)).toISOString().slice(0, 10)},${(i * 7919) % 10007}`);
+  const r = analyze({ csv: rows.join("\n"), method: "pot", profile: false, trend: false, returnPeriods: [100] });
+  assert.ok(r.pot.nYears > 547 && r.pot.nYears < 548);
+});

@@ -654,8 +654,8 @@ export function parseCsv(text) {
 
 const NUM = /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/;
 const toNum = (c) => { const t = String(c).replace(/,/g, "").trim(); return NUM.test(t) ? Number(t) : NaN; };
-const DATE = /^(\d{4})-(\d{1,2})-(\d{1,2})/;
-const DATE_US = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+const DATE = /^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/;
+const DATE_US = /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?!\d)/;
 
 function parseDate(c) {
   let m = String(c).match(DATE);
@@ -680,6 +680,9 @@ export function readSeries(csv, opts = {}) {
   let di = idx(opts.date, "the date");
   let yi = idx(opts.year, "the year");
   let vi = idx(opts.value, "the value");
+  // An unquoted 1,200 in a comma-separated file splits into two fields; refuse it rather than read 1.
+  const wide = body.findIndex((r) => r.length > header.length);
+  if (wide >= 0) throw new Error(`row ${wide + 2} has ${body[wide].length} fields but the header has ${header.length}: put numbers with thousands commas in quotes ("1,200") or drop the commas`);
   const sample = body.slice(0, 50);
   if (di < 0 && !opts.date) di = header.findIndex((_, j) => sample.filter((r) => parseDate(r[j] ?? "")).length >= Math.max(1, sample.length * 0.8));
   if (yi < 0 && !opts.year) yi = header.findIndex((h, j) => /year/i.test(h) && j !== di && sample.every((r) => /^\d{4}$/.test(r[j] ?? "")));
@@ -716,7 +719,7 @@ export function parseNumberList(text) {
     const t = tok.trim();
     if (!t) continue;
     if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) out.push(Number(t.replace(/,/g, "")));
-    else for (const part of t.split(",")) if (part.trim()) out.push(Number(part));
+    else for (const part of t.match(/[^,]+/g) || []) out.push(Number(part));
   }
   return out;
 }
@@ -816,8 +819,8 @@ export function analyze(input = {}) {
     const dated = series.obs.every((ob) => ob.date);
     if (dated) {
       const days = series.obs.map((ob) => dayNumber(ob.date));
-      nYears = (Math.max(...days) - Math.min(...days) + 1) / 365.25;
       for (let i = 1; i < days.length; i++) if (days[i] < days[i - 1]) throw new Error("the dates must be in time order for peaks over a threshold");
+      nYears = (days[days.length - 1] - days[0] + 1) / 365.25; // in order, so no spread over every row
     } else if (o.perYear) nYears = vals.length / Number(o.perYear);
     else if (hasYears) nYears = counts.size;
     else throw new Error("peaks over a threshold need dates, a year column or perYear (observations a year)");
