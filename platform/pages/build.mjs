@@ -515,7 +515,7 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother'];
 
 const CATEGORY_RULES = [
   {
