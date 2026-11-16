@@ -93,8 +93,28 @@ test("the flow-bounded repair keeps every rule, never opens more, and skips roun
 
 test("buildRoster reports the floor's skips; coverRepairBound: 'dfs' keeps the old search", () => {
   const { staff, slots } = seededWeek(7, 6, 22);
-  const on = buildRoster(staff, slots, { exact: true, deferCover: false });
-  const off = buildRoster(staff, slots, { exact: true, deferCover: false, coverRepairBound: "dfs" });
+  const on = buildRoster(staff, slots, { exact: true, deferCover: false, coverRepairAtFloor: true });
+  const off = buildRoster(staff, slots, { exact: true, deferCover: false, coverRepairBound: "dfs", coverRepairAtFloor: true });
   assert.equal(typeof on.optimality.coverRepair.floorSkipped, "number");
   assert.equal(off.optimality.coverRepair.floorSkipped, 0);
+});
+
+test("the repair is skipped when the roster's open hours already equal the proven floor (README \"The repair reserve at 30-60 people\")", () => {
+  let skips = 0;
+  for (let seed = 1; seed <= 12; seed++) {
+    const { staff, slots } = seededWeek(seed, 6, 22);
+    const r = buildRoster(staff, slots, { exact: true, deferCover: false });
+    const forced = buildRoster(staff, slots, { exact: true, deferCover: false, coverRepairAtFloor: true });
+    const cr = r.optimality.coverRepair;
+    if (cr?.skippedAtFloor) {
+      skips++;
+      // A skip happens only at a proven floor, so running the repair anyway cannot cover more.
+      assert.ok(Math.abs(r.unfilledHours - r.optimality.forcedOpenHours) < 1e-6, `seed ${seed}: ${r.unfilledHours} vs floor ${r.optimality.forcedOpenHours}`);
+      assert.ok(forced.unfilledHours >= r.unfilledHours - 1e-9, `seed ${seed}`);
+    }
+    // Asked for explicitly, it always runs.
+    const on = buildRoster(staff, slots, { exact: true, deferCover: false, coverRepair: true });
+    assert.notEqual(on.optimality.coverRepair?.skippedAtFloor, true, `seed ${seed}`);
+  }
+  assert.ok(skips > 0, "no seeded week reached its floor before the repair");
 });
