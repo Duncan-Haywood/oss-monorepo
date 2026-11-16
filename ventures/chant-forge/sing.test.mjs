@@ -436,3 +436,24 @@ test('a cluster murmur on C4 is not thrown out by the obstruent after it (nunc, 
   });
   assert.ok(score.on === POS.length && score.on >= score.off + 2, JSON.stringify(score));
 });
+
+test('/i/ is not read as a voiced fricative where its low band beats down, and z and v still are', () => {
+  // README "/i/ is not a voiced fricative": where the five voices' fundamentals beat out of phase, /i/ loses
+  // most of its energy and looked voiced and noisy; frication now needs energy above 5 kHz (onsets.mjs VFRIC_HI5)
+  const I = ['i', 'ip', 'im', 'in'], ZV = ['az', 'oz', 'ev'], score = { off: 0 };
+  for (const midi of [53, 57]) {
+    const ev = [];
+    for (const s of [...I, ...ZV]) ev.push({ type: 'note', midi, pulses: 4, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+    const mid = eventsToMidi(ev, { bpm: 104 });
+    const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+    const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+    const x = renderMidi(mid, { stems: true, sing: true }).stems.choir.channels[0];
+    [...I, ...ZV].forEach((s, j) => {
+      const read = (vfricHi5) => readCoda(x, rate, sec(notes[j].tick) + 0.1, Math.min(sec(notes[j].end) + 0.25, sec(notes[j + 1]?.tick ?? 1e9)), vfricHi5 === false ? { vfricHi5 } : {});
+      const on = read(), voiced = (r) => r.cls === 'fricative' && r.place === 'voiced';
+      if (I.includes(s)) { assert.ok(!voiced(on), `${s} on ${midi} read as a voiced fricative`); if (voiced(read(false))) score.off++; }
+      else assert.ok(voiced(on), `${s} on ${midi} read as ${on.cls} ${on.place || ''}`);
+    });
+  }
+  assert.ok(score.off >= 4, `the test should guard a real fault: ${JSON.stringify(score)}`);
+});

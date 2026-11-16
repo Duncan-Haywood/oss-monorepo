@@ -432,26 +432,25 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-16
-      latest: a cluster murmur kept before its obstruent (AGAIN; new held-out part
-      K, pre-registered: clusters 121 to 127 of 140); next: E4 eighth-note murmurs
-      read as a closure, /i/ as a voiced fricative (83 of K's 119 misses), G control
-      nasals 44). Open checks that need a person: listen to the studio page, --sing,
-      the options (--stretch, --halftime, --fills, --limit pumping, stems, sections,
-      breakdown, riser, the a cappella verse and whether the key lift sounds like a
-      lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its
-      section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the
-      release kit against a distributor's real form; the Te Deum/3427/3912/3775
-      fixes (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from
-      their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs
-      reads rhombi, quilismas, liquescents, lines at true thickness; tilted pages,
-      curled staves straightened (eval/staff-curl-check.md); 3506/3679 fixed
-      2026-11-15 (eval/broken-stroke-check.md); next: worn pages (new GABC needed),
-      mottled squares, a liquescent hook ending on a line (held-out misses), 3408's
-      strokes, 3464's cephalicus; --split-voices (by phrase or at a word,
-      --split-words, eval/word-split-report.md) and --overlap (both sections sing
-      the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
-      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
-      and of a one-note overlap against a clean handoff; --baritones,
-      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
-      Next: a real choir's range test; a director on --sit-out N, the --musicxml
-      parts and the --learn tracks.
+      latest: /i/ no longer read as a voiced fricative (VFRIC_HI5; new held-out part
+      L, pre-registered: /i/ 110 to 153 of 160); next: E4 eighth-note murmurs read
+      as a closure, L's sub/cum as nothing, G control nasals 44). Open checks that
+      need a person: listen to the studio page, --sing, the options (--stretch,
+      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
+      cappella verse and whether the key lift sounds like a lift); --lrc in a real
+      player and --markers/--stems in a DAW; --cues (and its section lines),
+      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
+      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
+      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
+      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
+      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
+      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
+      squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
+      3464's cephalicus; --split-voices (by phrase or at a word, --split-words,
+      eval/word-split-report.md) and --overlap (both sections sing the seam note at
+      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
+      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
+      overlap against a clean handoff; --baritones, --entrance-cost N and
+      --second-tenors (TTBB; README) need the same check. Next: a real choir's range
+      test; a director on --sit-out N, the --musicxml parts and the --learn tracks.
