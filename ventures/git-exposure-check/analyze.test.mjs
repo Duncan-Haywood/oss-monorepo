@@ -26,6 +26,13 @@ test('looksLikeGitHead accepts a detached-HEAD 40-hex-char SHA', () => {
   assert.equal(looksLikeGitHead('da39a3ee5e6b4b0d3255bfef95601890afd80709\n'), true);
 });
 
+test('looksLikeGitHead accepts a detached HEAD from a SHA-256 repository (64 hex)', () => {
+  // git init --object-format=sha256 writes 64-hex object ids, HEAD included.
+  assert.equal(looksLikeGitHead('a'.repeat(64) + '\n'), true);
+  assert.equal(looksLikeGitHead('a'.repeat(41)), false);
+  assert.equal(looksLikeGitHead('a'.repeat(65)), false);
+});
+
 test('looksLikeGitHead rejects an HTML error page even when it returns 200', () => {
   assert.equal(looksLikeGitHead('<html><body>404 Not Found</body></html>'), false);
 });
