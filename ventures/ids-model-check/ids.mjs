@@ -1,6 +1,6 @@
 // IDS 1.0 checker: does an IFC model meet an Information Delivery Specification?
 //
-// checkIds(idsText, ifcText, { schemas, typeMap, measureUnits }) -> report
+// checkIds(idsText, ifcText, { schemas, typeMap, measureUnits, psets }) -> report
 //
 // Runs in Node and in the browser (no imports beyond the two readers). The
 // schema facts (entities, attributes, defined types) come from schema/*.json,
@@ -14,6 +14,8 @@ import { parseStep } from "./step.mjs";
 import { parseIfcXml, ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 import { parseXml, kids, kid } from "./xml.mjs";
 import { auditIds } from "./audit.mjs";
+import { temporalKind, temporalKey } from "./temporal.mjs";
+export { temporalKind, temporalKey };
 
 // ---------------------------------------------------------------- schema ----
 
@@ -271,6 +273,18 @@ function simpleMatch(text, v, prim) {
   return s === text;
 }
 
+function lensOk(r, sv) {
+  const lens = [r.length, r.minLength, r.maxLength];
+  if (lens.some((b) => b !== undefined)) {
+    if (typeof sv !== "string") return false;
+    const n = [...sv].length;
+    if (r.length !== undefined && n !== Number(r.length)) return false;
+    if (r.minLength !== undefined && n < Number(r.minLength)) return false;
+    if (r.maxLength !== undefined && n > Number(r.maxLength)) return false;
+  }
+  return true;
+}
+
 export class IdsValue {
   constructor(node) {
     this.simple = undefined;
@@ -322,26 +336,32 @@ export class IdsValue {
     const isNum = prim === "double" || prim === "integer";
     const sv = v && v.enum ? v.enum : v;
     if (r.pattern.length) {
-      if (typeof sv !== "string" || isNum) return false;
-      if (!r.regexes.some((re) => re && re.test(sv))) return false;
+      // A boolean is matched by its lexical form, true or false.
+      const text = typeof sv === "boolean" ? String(sv) : sv;
+      if (typeof text !== "string" || isNum) return false;
+      if (!r.regexes.some((re) => re && re.test(text))) return false;
     }
     const bounds = [r.minInclusive, r.maxInclusive, r.minExclusive, r.maxExclusive];
     if (bounds.some((b) => b !== undefined)) {
+      // Dates, times and durations: both sides in the same ISO form.
+      if (typeof v === "string" && !isNum) {
+        const kind = temporalKind(v);
+        const key = temporalKey(v);
+        if (!kind || key === null || Number.isNaN(key)) return false;
+        const bk = (b) => (temporalKind(b) === kind ? temporalKey(b) : NaN);
+        if (r.minInclusive !== undefined && !(key >= bk(r.minInclusive))) return false;
+        if (r.maxInclusive !== undefined && !(key <= bk(r.maxInclusive))) return false;
+        if (r.minExclusive !== undefined && !(key > bk(r.minExclusive))) return false;
+        if (r.maxExclusive !== undefined && !(key < bk(r.maxExclusive))) return false;
+        return lensOk(r, sv);
+      }
       if (typeof v !== "number") return false;
       if (r.minInclusive !== undefined && !(v >= Number(r.minInclusive))) return false;
       if (r.maxInclusive !== undefined && !(v <= Number(r.maxInclusive))) return false;
       if (r.minExclusive !== undefined && !(v > Number(r.minExclusive))) return false;
       if (r.maxExclusive !== undefined && !(v < Number(r.maxExclusive))) return false;
     }
-    const lens = [r.length, r.minLength, r.maxLength];
-    if (lens.some((b) => b !== undefined)) {
-      if (typeof sv !== "string") return false;
-      const n = [...sv].length;
-      if (r.length !== undefined && n !== Number(r.length)) return false;
-      if (r.minLength !== undefined && n < Number(r.minLength)) return false;
-      if (r.maxLength !== undefined && n > Number(r.maxLength)) return false;
-    }
-    return true;
+    return lensOk(r, sv);
   }
 }
 
@@ -841,16 +861,24 @@ export function checkIds(idsText, ifcText, opts = {}) {
   model.measureUnits = opts.measureUnits || null;
   const ctx = { typeMap: opts.typeMap || null };
   // The IDS audit (audit.mjs): a specification with an error is reported as
-  // invalid and not run. opts.audit === false turns it off.
-  const audit = opts.audit === false ? [] : auditIds(ids, { schemas: opts.auditSchemas || opts.schemas, typeMap: ctx.typeMap });
+  // invalid and not run (template errors excepted, below). opts.audit === false
+  // turns it off.
+  const audit = opts.audit === false ? [] : auditIds(ids, { schemas: opts.auditSchemas || opts.schemas, typeMap: ctx.typeMap, psets: opts.psets });
   const specs = [];
   for (const [si, spec] of ids.specs.entries()) {
     const s = { name: spec.name, description: spec.description, optionality: spec.optionality, ifcVersion: spec.ifcVersion, applicability: spec.applicability.map((f) => f.describe()), requirements: spec.requirements.map((f) => (f.kind === "entity" ? "" : f.cardinality + " ") + f.describe()), applicable: 0, passed: 0, failed: [], status: "pass", note: null };
     // The IDS test suite treats ifcVersion as metadata: the check still runs.
     if (!versionMatches(spec, model)) s.warning = `written for ${spec.ifcVersion.join(", ")}; the model is ${model.schemaRaw}`;
     const mine = audit.filter((x) => x.spec === si);
-    if (mine.some((x) => x.level === "warning")) s.auditWarnings = mine.filter((x) => x.level === "warning").map((x) => x.message);
-    const errors = mine.filter((x) => x.level === "error");
+    // Property set template errors (pset-*: a non-standard Pset_ name or
+    // property, a data type the template does not give) make the IDS invalid by
+    // the standard, but a project's model can still carry exactly what it asks
+    // (national requirement sets extend Pset_DoorCommon and the like), so the
+    // specification runs and the finding is shown as a warning.
+    const templateOnly = (x) => x.level === "error" && x.code.startsWith("pset-");
+    const warns = mine.filter((x) => x.level === "warning" || templateOnly(x)).map((x) => (templateOnly(x) ? "not standard IFC (an IDS audit rejects this): " : "") + x.message);
+    if (warns.length) s.auditWarnings = warns;
+    const errors = mine.filter((x) => x.level === "error" && !templateOnly(x));
     if (errors.length) {
       s.status = "invalid";
       s.invalid = errors.map((x) => x.message);

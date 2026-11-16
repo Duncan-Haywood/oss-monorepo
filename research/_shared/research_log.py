@@ -5,6 +5,7 @@
     python3 research/_shared/research_log.py latest marine-hull -n 3   # the newest three
     python3 research/_shared/research_log.py labels marine-hull        # last label, next free one, reuses
     python3 research/_shared/research_log.py labels marine-hull --ref origin/main   # also count main's
+    python3 research/_shared/research_log.py labels marine-hull --ref origin/main --prs   # and open PRs'
 
 A project is a slug under research/ or a path to a LOG.md. Entries are the `## ` headings
 (research/CLAUDE.md: `## <date> · <title>`, newest first).
@@ -27,6 +28,14 @@ milestone; a label that comes back after other labels, on dates more than `--gap
 aerolog-scaling 7, heavy-hydraulics 1, llm-coding-inference 1), each read by hand: two
 different studies under one label. Reuses are reported, not failed (renaming old entries
 would break the references to them); always exits 0 when the LOG.md exists.
+
+`labels` also prints the next free hypothesis number (H1, H2, ...), and `--prs` counts
+labels and hypotheses in the LOG.md of every open same-repo PR titled research/<slug>.
+Why: nothing allocated hypothesis numbers, so two parallel runs of one programme
+pre-registered the same ones and the later lander renumbered them at merge, which rewrites
+a pre-registration after the fact: sensing-selfcal's 3b and 4s both planned H104-H107
+(renumbered H108-H112, 2026-11-16), a heavy-hydraulics-style 5g renumbered H51-H55
+(2026-11-13); main alone could not show either, since the sibling had not merged yet.
 """
 import argparse
 import re
@@ -38,6 +47,12 @@ from pathlib import Path
 RESEARCH = Path(__file__).resolve().parents[1]
 DATE = re.compile(r"\b(20\d\d-\d\d-\d\d)\b")
 LABEL = re.compile(r"\b(Milestone|Session|Batch|Step|M)\s?(\d+[a-z]*)\b(?![-\d])")
+# A hypothesis id: H then digits (H12-i counts as H12), not H5d-i (milestone 5d's own
+# numbering), H2O or "H100 GPU".
+HYP = re.compile(r"(?<![\w/-])H(\d{1,4})(?!\w)(?!\s*(?:GPU|SXM|PCIe|NVL)s?\b)")
+# Only lines that read as a hypothesis: a list item opening with it, or hypothesis wording.
+HYP_LINE = re.compile(r"^\s*[-*]\s*(\*\*)?H\d|hypothes|\b(held|refuted|supported|"
+                      r"pre-?regist|prediction|bar)\b", re.I)
 
 
 def log_path(project):
@@ -137,6 +152,63 @@ def ref_text(path, ref):
     return r.stdout if r.returncode == 0 else ""
 
 
+def hypotheses(text):
+    """{number: first line naming it} for hypothesis ids on hypothesis-like lines."""
+    out = {}
+    for line in text.splitlines():
+        if "H" in line and HYP_LINE.search(line):
+            for m in HYP.finditer(line):
+                out.setdefault(int(m.group(1)), line.strip())
+    return out
+
+
+def open_pr_logs(slug, fetch=None):
+    """[(pr number, LOG.md text)] for open same-repo PRs titled research/<slug>..., except
+    this run's own. Best effort: [] when the API or raw host does not answer."""
+    import pick_track as pt
+    titles = pt._open_pr_titles("duncan-haywood/oss-monorepo", 100) or []
+    fetch = fetch or _raw_log
+    out = []
+    for n, title in titles:
+        if not re.match(rf"research/{re.escape(slug)}(?![\w-])", title) or pt.is_own_pr(n):
+            continue
+        if pt._FORK.get(n):  # a fork's text is not ours to plan from (CLAUDE.md, "Public repository")
+            continue
+        text = fetch(pt._HEADS.get(n, ""), slug)
+        if text:
+            out.append((n, text))
+    return out
+
+
+def _raw_log(branch, slug):
+    import urllib.parse
+    import urllib.request
+    if not branch:
+        return ""
+    url = ("https://raw.githubusercontent.com/duncan-haywood/oss-monorepo/"
+           f"{urllib.parse.quote(branch)}/research/{slug}/LOG.md")
+    try:
+        with urllib.request.urlopen(url, timeout=20) as r:
+            return r.read().decode("utf-8", "replace")
+    except Exception:
+        return ""
+
+
+def pr_lines(prs, base):
+    """One line per open PR: the labels and hypotheses it adds over `base`."""
+    used = {label(e[1])[1] for e in entries(base) if label(e[1])}
+    have = set(hypotheses(base))
+    lines = []
+    for n, text in prs:
+        labs = sorted({label(e[1])[1] for e in entries(text) if label(e[1])} - used)
+        hyps = sorted(set(hypotheses(text)) - have)
+        if labs or hyps:
+            lines.append(f"open PR #{n}: " + ", ".join(
+                ([f"labels {' '.join(labs)}"] if labs else [])
+                + ([f"H{hyps[0]}-H{hyps[-1]}" if len(hyps) > 1 else f"H{hyps[0]}"] if hyps else [])))
+    return lines
+
+
 def labels_report(text, extra="", gap=2):
     heads = [e[1] for e in entries(text)]
     extra_heads = [e[1] for e in entries(extra)] if extra else []
@@ -152,6 +224,11 @@ def labels_report(text, extra="", gap=2):
         lines.append(f"next free:    {kind}{next_free(lab, used)}")
     for lab, ds in sorted(reuses(heads + extra_heads, gap).items()):
         lines.append(f"reused:       {lab} on {', '.join(ds)}")
+    hyps = hypotheses(text + "\n" + extra)
+    if hyps:
+        top = max(hyps)
+        lines.append(f"hypotheses:   highest H{top} ({hyps[top][:70]})")
+        lines.append(f"next free:    H{top + 1} (when this LOG numbers hypotheses across milestones)")
     return lines
 
 
@@ -165,6 +242,8 @@ def main(argv=None):
     b = sub.add_parser("labels", help="newest label, next free label, reused labels")
     b.add_argument("project")
     b.add_argument("--ref", help="also count labels on this git ref, e.g. origin/main")
+    b.add_argument("--prs", action="store_true",
+                   help="also count labels and hypotheses in open research/<slug> PRs' LOG.md")
     b.add_argument("--gap", type=int, default=2)
     args = ap.parse_args(argv)
     path = log_path(args.project)
@@ -182,7 +261,17 @@ def main(argv=None):
     if args.ref and not extra:
         print(f"note: {args.ref} has no {path.name} for this project (or the ref is not fetched)",
               file=sys.stderr)
+    prs = []
+    if args.prs:
+        slug = path.resolve().parent.name
+        prs = open_pr_logs(slug)
+        extra += "".join("\n" + t for _, t in prs)
     print("\n".join(labels_report(text, extra, args.gap)))
+    if args.prs:
+        base = text + "\n" + (ref_text(path, args.ref) if args.ref else "")
+        found = pr_lines(prs, base)
+        print("\n".join(found) if found else
+              "open PRs:     none adds a label or hypothesis (or the API did not answer)")
     return 0
 
 

@@ -377,3 +377,24 @@ test("a tax tie goes to the amount more readings print on a tax line", () => {
   // with no third reading the tie keeps the reading the total came from, as before
   assert.equal(parseReceiptPasses([a, b, "WARUNG", "WARUNG"]).taxCents, 426400);
 });
+
+// The largest-amount fallback reads through the dash OCR prints before a whole-unit amount
+// ("AIR MINERAL -7,000": CORD validation-66's psm6 and g6 readings lost 7,000 that way and
+// kept a stray "1088"), as the cash and change lines already did. Receipt text made up, same shape.
+test("the largest-amount fallback reads a dash-prefixed whole amount", () => {
+  const stray = "SHOP\nHehe 1088 ee\nWATER -7,000\nCASH -7,000";
+  const p = parseReceipt(stray);
+  assert.equal(p.cents, 700000);
+  // printed on the cash line too, so it says so; the item line keeps its vote across readings
+  assert.ok(p.notes.some((n) => /printed on the cash line/.test(n)));
+  assert.equal(parseReceiptPasses([stray, stray, "SHOP", "SHOP\nHehe 1088 ee"]).cents, 700000);
+});
+
+// tesseract reads a leading 5 as "§" on a whole-unit slip ("TOTAL SALES §2,000" for 52,000:
+// CORD validation-84). Only glued to a grouped amount. Receipt text made up, same shape.
+test("a section sign glued to a grouped whole amount reads as 5", () => {
+  const p = parseReceipt("TEA SHOP\n1 x CHOCO MT 24,000\nPEARL 4,000\n1 x CHOCO MT 24,000\nSUB TOTAL §2,000\nTOTAL SALES §2,000");
+  assert.equal(p.cents, 5200000);
+  // a loose section sign is left alone
+  assert.equal(parseReceipt("TEA SHOP\nTOTAL § 2,000").cents, 200000);
+});

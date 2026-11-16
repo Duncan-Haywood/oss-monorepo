@@ -3614,3 +3614,39 @@ normal reserve), the skip reasons and `scoreFloorSpent: false`.
 Not claimed: generated weeks, one cloud machine; the spent weeks are almost all 70 x 196, so 80-100 person weeks are untested here.
 Next: why the stages before the pay floor run past the budget at all (6-680 ms on these weeks), which is time no reserve should
 need to cover.
+
+## Where the time past the budget goes (2026-11-16 later)
+
+"The pay floor once the budget is spent" ended on a question: why do the stages before the pay floor run past the 20 s time
+budget at all? A new field answers it for any build: `timeline`, each stage's end in order, in ms since the build started
+(beside the summed `timings`).
+
+**Measured first** (`eval/stage-overrun.mjs`, `eval/stage-overrun.jsonl`: seeds 18-29, 60 x 168 and 70 x 196, weeks 0-1, the
+generator of the pay-floor tests). 27 of 48 builds reached the pay floor with the budget spent. On 17 the stage that crossed it was
+the cover walk (88-729 ms over), on 9 the cover repair (41-126 ms over). The walk read the clock only between walks, and one walk
+on these weeks is 3.1M steps, most of a second. So a walk started at 19.4 s finished at 20.2 s, and the repair after it was skipped
+anyway.
+
+**What landed:** `coverPass` takes a `deadline`, read every 1,024 steps, and returns its best roster so far when it passes;
+`buildRoster` gives each walk the budget's end (less the repair reserve after the first walk, so the reserve on 300+ copy weeks
+is kept). `coverPassDeadline: false` keeps the old between-walks check alone.
+
+**Pre-registered** (`eval/stage-overrun-prereg.md`, committed before the run): seeds 42-53, the same four weeks, each built twice,
+new and `coverPassDeadline: false` (`sh eval/stage-overrun-ab.sh`, scored by `eval/stage-overrun-summary.py`,
+`eval/stage-overrun-ab.out.txt`).
+
+| 48 fresh weeks | old | new |
+|---|---|---|
+| reached the pay floor more than 50 ms past the budget | 15 (52-770 ms) | **5** (65-249 ms) |
+| open hours, all 48 | 11,180 | 11,180 (two weeks -1, one +2: the builds' timing noise) |
+| mean build / slowest | 22.18 s / 28.1 s | 22.17 s / 28.1 s |
+| proven | 5 | 5 |
+
+All three clauses passed (late builds at least halved, open hours not more than 2 higher, mean build time not higher), so it is
+on by default. The walk now ends at 20,001 ms when it is the stage that reaches the budget. The five builds still late are all
+the cover repair, which starts with whatever is left and gets at least 200 ms (`Math.max(200, ...)` on its time limit), then
+polishes pay. Tests: `stage-overrun.test.mjs` (the timeline's order and total, a walk past its deadline stops at once and is no
+worse than its start, an infinite deadline changes nothing).
+
+Not claimed: generated weeks, one cloud machine, two builds at a time; no gain in open hours or pay is claimed, only that the
+walk no longer eats the pay floor's time. Next: the repair's 200 ms minimum when it starts within 200 ms of the budget's end.

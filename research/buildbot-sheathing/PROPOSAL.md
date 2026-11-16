@@ -375,6 +375,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    suffices). The mean windup is a pose bias a model removes; an unmodelled magazine droops the servo by 32–51 mm under
    Unitree's gains, which the joint encoders see. Still open: the paper's headline for a tool-point spec, the hose as
    a force, and the nailer's recoil.
+35. **The air hose as a force** (done 2026-11-16, `experiments/m35_hose/`): a 3/8 in hose (listed 0.152–0.274 kg/m)
+   hanging as a catenary from the grip and dragged along the floor (tension swept 0–20 N, eight directions). At k_t 1e4 a
+   5 N pull winds the G1's free nose up 1.25 mm (worst towards the wall, where it acts like a change of press) and leaves
+   milestone 33's matched compensator 1.0 mm along the wall; even the hanging hose leaves 0.47 mm. With the tension
+   uniform over 0–5 N the worst pose loses 2.2 points, over 0–10 N 21 points. Take the hose off the tool, measure the
+   tool's wrench, or keep the drag under a few newtons. Still open: the paper's headline for a tool-point spec, a wrist
+   force-torque sensor, and the nailer's recoil.
 
 ## Target venue
 

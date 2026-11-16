@@ -10,8 +10,8 @@
 
 - Browser: drop a model (.ifc, .ifcxml or .ifczip) and a .ids, read each specification's result and the failing elements, download BCF/CSV/JSON.
 - CLI: `node cli.mjs model.ifc|.ifcxml|.ifczip spec.ids [--json] [--bcf out.bcfzip]`; exit 0 all pass, 1 a specification fails or is invalid, 2 error.
-- IDS audit with no model: `node cli.mjs --audit spec.ids` (or "Audit the IDS only" on the page) reports specifications that are invalid against the IFC schema: unknown or lower-case classes, attributes a class lacks or has only as derived/inverse, values compared with lists/objects/selects, malformed numbers, integers and booleans, patterns on numbers, unknown dataTypes, prohibited specifications with requirements. Flags 26 of buildingSMART's 27 invalid IDS test files and none of the 307 valid ones.
-- Library: `checkIds(idsText, ifcText, {schemas, typeMap, measureUnits})` in ids.mjs; `check(idsText, ifcText)` in node.mjs.
+- IDS audit with no model: `node cli.mjs --audit spec.ids` (or "Audit the IDS only" on the page) reports specifications that are invalid against the IFC schema: unknown or lower-case classes, attributes a class lacks or has only as derived/inverse, values compared with lists/objects/selects, malformed numbers, integers and booleans, patterns on numbers, unknown dataTypes, prohibited specifications with requirements; standard property and quantity sets against buildingSMART's templates for IFC2X3, IFC4 and IFC4X3 ADD2 (Pset_/Qto_ names and properties the standard lacks, with the nearest standard name; a dataType the template does not give; a set the selected classes cannot carry), as buildingSMART's IDS-Audit-tool does. Flags 26 of buildingSMART's 27 invalid IDS test files and none of the 307 valid ones, and all 5 property set files in the IDS-Audit-tool's invalid set. A model check still runs a specification whose only fault is a property set template one, with a warning.
+- Library: `checkIds(idsText, ifcText, {schemas, typeMap, measureUnits, psets})` in ids.mjs; `check(idsText, ifcText)` in node.mjs.
 
 ## Covers
 
@@ -22,6 +22,6 @@
 
 ## Not covered
 
-- ifcJSON input; property set template checks in the audit; geometry or clash checks (IDS does not specify them).
+- ifcJSON input; validation of the IDS file against the IDS XML schema; geometry or clash checks (IDS does not specify them).
 
 Results are a reading of the model against the IDS, not a design review or professional advice.

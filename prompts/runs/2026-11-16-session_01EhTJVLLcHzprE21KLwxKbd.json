@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVLLcHzprE21KLwxKbd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T21:11:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 12): ids-model-check BUILDABLE item, IDS audit against Pset_/Qto_ templates",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": 16699,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/README.md",
+      "issue": "buildingSMART/IFC4.3.x-development reference_schemas/psd is the IFC4x3 RC4 draft, not ADD2 (IfcSolidStratum, missing ElevationOfFFLRelative); a first pass on it produced a false alarm on buildingSMART's own OMA example. Use IfcOpenShell's Pset_IFC4X3.ifc (FILE_SCHEMA IFC4X3_ADD2) for 4.3 templates."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The weighted draw routed to research; the scheduled message asks for revenue products, so I routed with --task as prompt.md says for a starting message with its own task.",
+      "did": "route --task <message> -> ventures/1",
+      "result": "ventures work on flagship 12 landed"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate picked row 7 (open-tennis-robots, landed minutes earlier); ids-model-check row 9 had a named BUILDABLE item with clearer user/revenue value (B2B BIM tooling) and no open PR.",
+      "did": "took ids-model-check",
+      "result": "item landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-lenght-and-akousticrating-in-published-ids-files.md"
+  ],
+  "goal": "Ship a deeper IDS audit (standard property set templates) to the live IDS checker, measured on reference and real-world IDS files.",
+  "notes": "Template audit: 5/5 IDS-Audit-tool pset files INVALID, 8/9 valid clean (aachen lowercase 'name' kept as invalid deliberately); suite 334/334, strict 333/334 unchanged, 0/307 valid flagged; 12 buildingSMART examples 0 errors 0 warnings; 64 public IDS (507 specs) -> template faults in 21, each read by hand. Model check runs template-only faults as warnings (product choice: national ILS extend standard sets). Fixed date/time/duration bounds (were INVALID, checker never matched) and boolean patterns. Verified: node --test 55/55; run_venture_tests ok; Playwright end-to-end on page via worker, no console errors; run_workflow_locally --for-changes run in session (see PR).",
+  "corrections": [],
+  "redteam": null
+}

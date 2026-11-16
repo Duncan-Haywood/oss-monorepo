@@ -34,6 +34,14 @@ function idsSchemas(idsText) {
   return out;
 }
 
+// Standard property set templates (schema/psets-*.json), only when the IDS
+// names a Pset_ or Qto_ set: the audit checks names and data types against them.
+async function loadPsets(idsText, ids) {
+  if (!/(Pset|Qto)_/.test(idsText)) return null;
+  const entries = await Promise.all([...ids].map(async (id) => [id, await json("psets-" + id.toLowerCase() + ".json")]));
+  return Object.fromEntries(entries);
+}
+
 async function loadSchemas(ids) {
   const entries = await Promise.all([...ids].map(async (id) => [id, new Schema(await json(id.toLowerCase() + ".json"))]));
   return Object.fromEntries(entries);
@@ -46,8 +54,9 @@ self.onmessage = async (ev) => {
     if (auditOnly) {
       const parsed = parseIds(ids);
       const named = idsSchemas(ids);
-      const [schemas, typeMap] = await Promise.all([loadSchemas(named.size ? named : new Set(["IFC2X3", "IFC4", "IFC4X3"])), json("ifc2x3-type-map.json")]);
-      const audit = auditIds(parsed, { schemas, typeMap });
+      const which = named.size ? named : new Set(["IFC2X3", "IFC4", "IFC4X3"]);
+      const [schemas, typeMap, psets] = await Promise.all([loadSchemas(which), json("ifc2x3-type-map.json"), loadPsets(ids, which)]);
+      const audit = auditIds(parsed, { schemas, typeMap, psets });
       self.postMessage({ audit: { title: parsed.title, specs: parsed.specs.map((s) => ({ name: s.name, ifcVersion: s.ifcVersion })), issues: audit, seconds: (performance.now() - t0) / 1000 } });
       return;
     }
@@ -55,8 +64,8 @@ self.onmessage = async (ev) => {
     if (!id) throw new Error("the model's schema (FILE_SCHEMA, or the ifcXML namespace) is not IFC2X3, IFC4 or IFC4X3");
     const want = idsSchemas(ids);
     want.add(id);
-    const [schemas, typeMap, measureUnits] = await Promise.all([loadSchemas(want), json("ifc2x3-type-map.json"), json("measure-units.json")]);
-    const report = checkIds(ids, ifc, { schemas: { [id]: schemas[id] }, auditSchemas: schemas, typeMap, measureUnits });
+    const [schemas, typeMap, measureUnits, psets] = await Promise.all([loadSchemas(want), json("ifc2x3-type-map.json"), json("measure-units.json"), loadPsets(ids, want)]);
+    const report = checkIds(ids, ifc, { schemas: { [id]: schemas[id] }, auditSchemas: schemas, typeMap, measureUnits, psets });
     report.seconds = (performance.now() - t0) / 1000;
     self.postMessage({ report });
   } catch (e) {

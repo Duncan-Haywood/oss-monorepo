@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   analyze, readStudies, fitModel, estimateTau2, remlLogLik, eggerTest, binaryEffect, continuousEffect,
   parseCsv, toNumber, detectLayout, tCdf, tQuantile, chi2Quantile, chi2Sf, normQuantile, normCdf, betaInc,
-  PAPERS, DEFAULTS, fmt, formatP, pEq,
+  PAPERS, DEFAULTS, fmt, formatP, pEq, LAYOUTS,
 } from "./engine.mjs";
 
 const file = (f) => readFileSync(new URL(f, import.meta.url), "utf8");
@@ -254,4 +254,53 @@ test("summary in words, constants, and formatting", () => {
   assert.equal(formatP(0.00001), "< 0.0001");
   assert.equal(pEq(0.2), "p = 0.200");
   assert.doesNotThrow(() => JSON.stringify(r));
+});
+
+test("metafor's own column names (ai, n1i, ci, n2i and m1i, sd1i, n1i, m2i, sd2i, n2i) are recognised", () => {
+  // The error message tells people to name their columns this way, so those names must work.
+  const tot = analyze({ csv: "study,ai,n1i,ci,n2i\nA,4,123,11,139\nB,6,306,29,303\nC,3,231,11,220\n", leaveOneOut: false });
+  assert.equal(tot.input.layout, "totals");
+  const cont = analyze({ csv: "study,m1i,sd1i,n1i,m2i,sd2i,n2i\nA,1,1.2,12,2,1,10\nB,1.5,1,10,2,1.1,10\nC,1,1,10,3,1,10\n", leaveOneOut: false });
+  assert.equal(cont.input.layout, "continuous");
+  assert.equal(cont.k, 3);
+  for (const lay of ["cells", "totals", "continuous", "generic-se", "generic-var", "generic-ci"]) {
+    assert.equal(detectLayout(LAYOUTS[lay], "auto").layout, lay, `${LAYOUTS[lay].join(",")} reads as ${lay}`);
+  }
+});
+
+test("a column named or/rr/hr stays a ratio when one interval has a non-positive bound", () => {
+  // A lower limit rounded to 0.00 used to switch every study to the raw scale, silently.
+  const r = analyze({ csv: "study,or,lower,upper\nA,1.5,0.00,2.0\nB,1.3,1.0,1.7\nC,0.8,0.5,1.2\n", leaveOneOut: false });
+  assert.equal(r.input.ratio, true);
+  assert.equal(r.k, 2);
+  assert.match(r.warnings.join(" "), /Left out: A \(a ratio and its limits must be positive\)/);
+  // An unnamed estimate column with a negative value is still read on the raw scale.
+  const raw = analyze({ csv: "study,estimate,lower,upper\nA,-0.2,-0.5,0.1\nB,0.3,0.1,0.5\nC,0.1,-0.1,0.3\n", leaveOneOut: false });
+  assert.equal(raw.input.ratio, false);
+});
+
+test("normal quantiles in both tails and at the ends", () => {
+  assert.equal(normQuantile(1), Infinity);
+  assert.equal(normQuantile(0), -Infinity);
+  assert.ok(Number.isNaN(normQuantile(1.5)));
+  // scipy.stats.norm.ppf
+  for (const [p, x] of [[1e-10, -6.361340902404056], [1e-6, -4.753424308822899], [0.001, -3.090232306167813], [0.01, -2.3263478740408408]]) {
+    close(normQuantile(p), x, 1e-12, `z ${p}`);
+    // 1 - p is not exact in floating point; the tolerance allows for the rounding of p itself.
+    close(normQuantile(1 - p), -x, p < 1e-8 ? 1e-7 : 1e-9, `z ${1 - p}`);
+  }
+});
+
+test("meta-regression QM is the square of the slope's z, with the same p", () => {
+  const g = analyze({ csv: BCG, moderator: "ablat" }).regression;
+  close(g.QM.stat, g.slope.z ** 2, 1e-12, "QM stat");
+  close(g.QM.p, g.slope.p, 1e-9, "QM p");
+  assert.equal(g.QM.df, 1);
+});
+
+test("non-iterative estimators report zero iterations", () => {
+  const { studies } = readStudies({ csv: BCG });
+  const y = studies.map((s) => s.yi), v = studies.map((s) => s.vi), X = y.map(() => [1]);
+  for (const m of ["FE", "DL", "PM"]) assert.equal(estimateTau2(y, v, X, m).iterations, 0, m);
+  assert.ok(estimateTau2(y, v, X, "REML").iterations > 0);
 });
