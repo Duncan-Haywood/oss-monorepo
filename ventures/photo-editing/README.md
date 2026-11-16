@@ -1205,7 +1205,11 @@ neighbour flags, and the C decoder (`shootflow_craw_plane`) does the same per ti
 No public tiled C-RAW exists to test with, so `tools/cr3_craw_tiled_libraw_check.py` makes them from real
 one-tile files: each tile's decomposition is computed from the real sensels around it
 (`tests/craw_tiled.py`), the sample is spliced into a copy of the real file, and LibRaw 0.22 reads it.
-TABLE_PLACEHOLDER
+On all 20 side-by-side layouts tried (two R8 frames and an R3 frame, two to five tiles across, plane tiles
+from 22 sensels, the narrowest LibRaw allows, to 2,048, and an odd 619), LibRaw and both of our engines return
+the same sensels: equal to the original when every step is 1, and equal to each other when the file's own
+steps are used (`eval/canon-cr3-craw-tiled-libraw-2026-11-16.jsonl`). Reading a tiled file takes as long as a
+one-tile one, 0.6-0.9 s with the C decoder.
 
 **Where LibRaw and ShootFlow part: tiles stacked one above another.** A grid with more than one row of
 tiles does not come back from LibRaw: on the same R8 frame cut 1 x 2 it returns 160,305 of 25.5 M sensels
