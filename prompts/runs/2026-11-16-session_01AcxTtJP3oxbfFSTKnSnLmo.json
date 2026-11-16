@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtJP3oxbfFSTKnSnLmo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T15:07:06Z",
+  "ended": "2026-11-16T15:28:28Z",
+  "wall_minutes": 23.32,
+  "tokens_in": 9293989,
+  "tokens_out": 36413,
+  "cost_usd": 3.7387,
+  "tool_calls": 71,
+  "task": "open-tennis-robots (flagship 10): why one jittery wheel fits 10-60x worse, the buildable item named by allocate.py",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16613",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "survey_outlier_cause.py first read hw.tach_top.edges; the Tach wrapper keeps the count on .core",
+      "fix": "read hw.tach_top.core.edges"
+    },
+    {
+      "what": "the first venture preflight ran while a merge of main was mid-conflict and failed check_conflict_markers.py",
+      "fix": "resolved the conflicts (README sections both kept, flagships buildable rewritten on main's version) and reran it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml (open-tennis-robots buildable)",
+      "issue": "at 582 of 600 characters a one-line replacement of the landed item overflowed the cap on the first try; had to shorten the replacement"
+    },
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "issue": "PR #16601 on the same flagship merged while this run worked; both appended to the same README and the same buildable field, so a conflict was certain. Not a doc error, but allocate.py could say when the open PR touches the same field"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (LLM docs and a marketing page)",
+      "why": "a firmware fit change with no user-facing surface; llms.txt and index.html describe the machine, not this loop detail",
+      "did": "left llms.txt and index.html unchanged",
+      "result": "none to measure"
+    },
+    {
+      "file": "firmware/esp32/controller.py SURVEY_TRIM",
+      "why": "the cause was fixed, so the trim no longer fires on any simulated build; removing it would lose a guard against shapes the simulator lacks",
+      "did": "kept the trim and documented it as a guard",
+      "result": "plain sum and trim 5 both 102/102 and 70/72"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-the-tennis-feeders-worst-wheel-was-looking-in-the-wrong-place.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (The outlier wheel was anchored past its ball)",
+    "ventures/open-tennis-robots/eval/survey-outlier-anchor-2026-11-16.txt"
+  ],
+  "goal": "deepen flagship 10 (open-tennis-robots) with a measured firmware slice",
+  "notes": "Cause: drop_from_commands_steps anchored on the longest period; behind slow recoveries the post-ball revolutions are level and tach jitter could make the second one longest, putting the ball outside the t0 search. tests/survey_outlier_cause.py on 144 jittery builds (8,064 wheels, seeds 7-12): before, 21 of 21 outliers (>5x median rms) had the anchor two past the ball (and 6 non-outliers); after controller._anchor (ANCHOR_BACK 0.9, set on one build), 0 and 0. Survey plain sum 93->102 of 102 (seeds 7-9), 67->70 of 72 held out; trim5 100->102, 70->70. plant_drill_sweep spin worst: hall 10us 16.0->7.2%, 20us 22.1->15.8%, 5us 5.3 unchanged; esc 80ms with board lag 0 19.9->23.4% (worse), with lag set 1.8->1.2%; esc 30 lag set 1.4->1.7%. Verification: python3 platform/ci/run_venture_tests.py open-tennis-robots: ok, 338 tests (58 skipped, build123d), after merging main. venture-preflight rerun after the merge (see PR). Simulator only.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0192a08a-c0f2-5194-8df8-2dff0f02988c",
+    "transcripts": 1,
+    "first": "2026-11-16T15:07:06Z",
+    "last": "2026-11-16T15:30:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 133,
+        "output": 36413,
+        "thinking": 9799,
+        "cache_read": 9146271,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147585,
+        "api_equivalent_usd": 3.7387,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 133,
+      "output": 36413,
+      "thinking": 9799,
+      "cache_read": 9146271,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147585,
+      "api_equivalent_usd": 3.7387,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.32,
+      "active_minutes": 23.32,
+      "model_minutes": 8.07,
+      "tool_minutes": 15.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an embedded engineer instrumenting the simulator to find the ball revolution, diagnosing the anchor, fixing it, sweeping before/after on three scripts and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 160.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
