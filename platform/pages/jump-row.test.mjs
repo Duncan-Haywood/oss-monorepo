@@ -8,6 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { JUMP_ROW_CSS } from './jump-row.mjs';
 import { renderChromeStyle } from './build.mjs';
+import { unitlessLengths } from './css-lint.mjs';
 
 const VENTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'ventures');
 
@@ -57,4 +58,13 @@ test('pf-jump-main is only used inside a pf-jump row', () => {
     }
   }
   assert.deepEqual(bad, []);
+});
+
+// Red team 2026-11-16: `margin:0 0 4px` -> `1 0 4px`, `padding:0` -> `1` and the row's
+// `var(--jump-margin,8px 0 0)` fallback -> `8px 1 0` all passed this suite. A bare number is
+// dropped by the browser (or, as a var() fallback, computes to 0) without a word.
+test('the jump row CSS gives no length a bare number, var() fallbacks included', () => {
+  assert.deepEqual(unitlessLengths(JUMP_ROW_CSS), []);
+  assert.match(JUMP_ROW_CSS, /margin:var\(--jump-margin,8px 0 0\)/);
+  assert.match(JUMP_ROW_CSS, /\.pf-guide-list li\{margin:0 0 4px;/);
 });

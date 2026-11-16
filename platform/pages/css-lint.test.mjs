@@ -21,12 +21,21 @@ test('flags a bare non-zero number on a length property', () => {
   assert.deepEqual(unitlessLengths('a{gap:4px 8}').map((h) => h.token), ['8']);
 });
 
+test('checks a var() fallback, which the browser uses as the length when the variable is unset', () => {
+  assert.deepEqual(unitlessLengths('a{margin:var(--m, 4)}').map((h) => h.token), ['4']);
+  assert.deepEqual(unitlessLengths('a{margin:var(--jump-margin,8px 1 0)}').map((h) => h.token), ['1']);
+  assert.deepEqual(unitlessLengths('a{padding:var(--a,var(--b,2px 3))}').map((h) => h.token), ['3']);
+  assert.deepEqual(unitlessLengths('a{line-height:var(--lh, 1.4)}'), []);
+});
+
 test('leaves zero, units, unitless properties and function arguments alone', () => {
   for (const css of [
     'a{margin:0;padding:0 auto}',
     'a{margin:4px auto;padding:1em 2rem;width:100%}',
     'a{line-height:1.4;flex:1 1 auto;font-weight:400;z-index:2;opacity:.5}',
-    'a{width:calc(100% / 3);margin:var(--m, 4)}',
+    'a{width:calc(100% / 3);margin:var(--m, 4px)}',
+    'a{margin:var(--m);padding:var(--p, 0 auto);gap:var(--g, calc(1 * 4px))}',
+    'a{margin:var(--a, var(--b, 2px 3em))}',
     'a{grid-template-columns:repeat(3,1fr)}',
     '/* margin:1 */ a{margin:0}',
     'a{--pad:4}',

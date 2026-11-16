@@ -113,6 +113,34 @@ class FindingsIn(unittest.TestCase):
         self.write("a.env", f"STRIPE_KEY_{LIVE}\n")
         self.assertEqual(self.kinds(), ["live Stripe key"])
 
+    # Red team 2026-11-16: three ways to wire one account into every copy passed.
+    def test_live_publishable_key_fails(self):
+        # Client-only Checkout (redirectToCheckout with a price id) charges the
+        # account a publishable key names, so a hardcoded pk_live_ is an account too.
+        self.write("index.html", '<script>const s = Stripe("pk_' + 'live_' + 'a1B2c3D4e5F6g7H8i9J0");</script>\n')
+        self.write("btn.html", '<stripe-buy-button publishable-key="pk_' + 'live_' + 'Zz9Yy8Xx7Ww6Vv5Uu4"></stripe-buy-button>\n')
+        self.assertEqual(self.kinds(), ["live Stripe key", "live Stripe key"])
+
+    def test_test_mode_publishable_key_passes(self):
+        self.write("index.html", 'Stripe("pk_test_a1B2c3D4e5F6g7H8i9J0"); Stripe(process.env.PK);\n')
+        self.assertEqual(self.kinds(), [])
+
+    def test_paypal_payment_link_fails(self):
+        # PayPal's no-code checkout links are its Payment Links: one account each.
+        self.write("index.html", '<a href="https://www.PayPal.com/ncp/payment/ABCD1234EFGH5">Buy</a>\n')
+        self.assertEqual(self.kinds(), ["PayPal payment link"])
+
+    def test_paypal_button_id_with_value_before_name_fails(self):
+        self.write("form.html", '<input type="hidden" value="ABCD1234EF" name="hosted_button_id">\n')
+        self.write("form2.html", "<input value='ABCD1234EF'\n  name='hosted_button_id' />\n")
+        self.assertEqual(self.kinds(), ["PayPal hosted button", "PayPal hosted button"])
+
+    def test_paypal_donation_profile_and_empty_value_first_input_pass(self):
+        # Donate-to-the-creator links stay allowed (goals.md, the owner's priorities).
+        self.write("a.html", '<a href="https://paypal.me/someone">tip</a> <a href="https://www.paypal.com/ncp/">x</a>\n')
+        self.write("b.html", '<input value="" name="hosted_button_id">\n')
+        self.assertEqual(self.kinds(), [])
+
     def test_lockfiles_and_node_modules_skipped(self):
         self.write("package-lock.json", '"funding": "https://buy.stripe.com/aBcDeF123456"\n')
         self.write("node_modules/x/index.js", f'"{LIVE}"\n')
