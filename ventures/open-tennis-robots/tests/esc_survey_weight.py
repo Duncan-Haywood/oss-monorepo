@@ -22,6 +22,7 @@ compares the picks under three rules:
 the simulator's assumptions, not measurements.
 """
 
+import json
 import math
 import sys
 
@@ -72,8 +73,17 @@ def wheels(kw, tau_s, se, sp, seed):
     return out
 
 
+RULES = ("sum", "log", "rel", "trim3", "trim5", "trim10")
+
+
 def sums(ws, rule):
     s = [0.0] * len(GRID)
+    if rule.startswith("trim"):            # the plain sum without wheels whose best rms is over f x the median wheel's
+        f = float(rule[4:])
+        best = sorted(min(r2) for _, r2 in ws)
+        med = best[len(best) // 2] if best else 0.0
+        ws = [w for w in ws if min(w[1]) <= f * f * med]
+        rule = "sum"
     for _, r2 in ws:
         lo = min(r2)
         for i, v in enumerate(r2):
@@ -98,14 +108,24 @@ def pick(ws, rule):
 def main():
     taus = (0.2, 0.4, 0.8) if "--all" in sys.argv else (0.4,)
     seeds = [int(x) for x in ess_arg("--seeds", "7").split(",")]
-    rules = ("sum", "log", "rel")
+    rules = RULES
+    kinds = [int(i) for i in ess_arg("--kinds", "").split(",") if i] or range(len(PLANTS))
+    dump = ess_arg("--dump", None)
+    store = []
     print("plant | wheel lag s | true se/sp | seed | wheels | " + " | ".join(f"{r}: least / refined ms" for r in rules))
-    for name, kw in PLANTS:
+    for name, kw in [PLANTS[i] for i in kinds]:
         true_ms = 1000 * kw.get("esc_tau_s", 0.0)
         for tau_s in taus:
             for se, sp in ess.TRUE:
                 for seed in seeds:
+                    if seed != seeds[0] and not kw.get("tach_jitter_us"):
+                        continue               # only the tach jitter is random: other plants repeat exactly
                     ws = wheels(kw, tau_s, se, sp, seed)
+                    store.append({"plant": name, "true_ms": true_ms, "tau_s": tau_s, "se": se, "sp": sp,
+                                  "seed": seed, "wheels": ws})
+                    if dump:
+                        with open(dump, "w") as f:
+                            json.dump(store, f)
                     ps = [pick(ws, r) for r in rules]
                     print(f"{name} | {tau_s} | {se}/{sp} | {seed} | {len(ws)} | "
                           + " | ".join(f"{a:g} / {b:.0f}" for a, b in ps) + f" | true {true_ms:g}", flush=True)
