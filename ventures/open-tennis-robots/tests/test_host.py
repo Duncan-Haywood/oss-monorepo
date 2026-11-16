@@ -4,6 +4,7 @@ pieces it leans on: the period tachometer, the wheel speed loop and the steady-w
 import json
 import math
 import os
+import tempfile
 import unittest
 
 from feeder_sim import SimFeeder, controller
@@ -503,6 +504,78 @@ class LiftJamTest(unittest.TestCase):
         self.assertEqual(len(res.shots), 4)
         self.assertEqual(len(res.warnings), 1)
         self.assertEqual(sum("lift jammed" in line for line in logs), 1)
+
+    def _stall(self, sim):
+        """A ball wedged in the boot: the lift cuts, rests, retries and cuts again (two slides of the hub)."""
+        sim.hw.lift.kick(sim.us // 1000)
+        sim.lift_over = True
+        self._beat(sim, 3000)
+        sim.lift_over = False
+
+    def test_jams_counted_in_flash_survive_a_power_cycle(self):
+        # 2026-11-16, cad/README.md "Slip hub wear": every cut slides the hub, so every cut is counted, and the count
+        # outlives the session: a board power-cycled between drills is the same hub.
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "lift_jams.json")
+            sim = SimFeeder(jam_log=path)
+            self._beat(sim, 400)
+            self._stall(sim)
+            self.assertTrue(sim.hw.lift.jammed)
+            self.assertEqual((sim.hw.lift_jams.jams, sim.hw.lift_jams.since_set), (2, 2))
+            again = SimFeeder(jam_log=path)                   # power off and on
+            self.assertEqual((again.hw.lift_jams.jams, again.hw.lift_jams.since_set), (2, 2))
+            self.assertFalse(again.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self.assertFalse(again.hw.lift.jammed)            # the jam itself is not remembered: the e-stop cleared it
+
+    def test_hub_due_at_the_cads_count_then_reset_over_the_link(self):
+        p = _feeder()
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "lift_jams.json")
+            with open(path, "w") as f:
+                json.dump({"jams": 1000, "since_set": p.lift_slip_jams - 1}, f)
+            sim = SimFeeder(jam_log=path)
+            self._beat(sim, 400)
+            self.assertFalse(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self._stall(sim)
+            self.assertTrue(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self.assertEqual(sim.hw.lift_jams.since_set, p.lift_slip_jams + 1)
+            # The drill still runs: the warning is reported once, the lift is not stopped for it.
+            sim.estop_button = True
+            self._beat(sim, 200)
+            sim.estop_button = False
+            sim.write(P.encode(P.CLEAR_ESTOP))
+            self._beat(sim, 600)
+            logs = []
+            res, link = run(sim, drill(), log=logs.append)
+            self.assertTrue(res.ok, res.aborted)
+            self.assertEqual(sum("slip hub due" in line for line in logs), 1)
+            # A wrong key is dropped; the right one, after the bench set, clears it and keeps the lifetime count.
+            sim.write(P.encode(P.RESET_LIFT_HUB, 0))
+            self._beat(sim, 200)
+            self.assertTrue(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self.assertIsNone(host.reset_lift_hub(link, sim.sleep))
+            self.assertFalse(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            again = SimFeeder(jam_log=path)
+            self.assertEqual((again.hw.lift_jams.jams, again.hw.lift_jams.since_set), (1002, 0))
+
+    def test_lost_count_flags_the_hub(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "lift_jams.json")
+            with open(path, "w") as f:
+                f.write('{"jams": 4, "since_se')                # a write cut short by a power loss on an old firmware
+            sim = SimFeeder(jam_log=path)
+            self.assertTrue(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self._beat(sim, 400)
+            self.assertIsNone(host.reset_lift_hub(host.FeederLink(sim, sim.clock), sim.sleep))
+            self.assertEqual(SimFeeder(jam_log=path).hw.lift_jams.since_set, 0)
+
+    def test_reset_refused_while_the_estop_is_down(self):
+        sim = SimFeeder()
+        sim.hw.lift_jams.unreadable = True
+        sim.estop_button = True
+        why = host.reset_lift_hub(host.FeederLink(sim, sim.clock), sim.sleep)
+        self.assertIn("e-stop", why)
+        self.assertTrue(sim.hw.lift_jams.due)
 
     def test_starts_never_trip_and_jams_are_cut(self):
         import lift_jam_sweep as sweep

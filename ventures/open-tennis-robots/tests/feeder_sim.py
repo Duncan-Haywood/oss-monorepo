@@ -13,8 +13,11 @@ column for `SHUTTLE_DROP_S`. The serial line is two byte queues. The contactor's
 
 import importlib.util
 import os
+import shutil
 import sys
+import tempfile
 import types
+import weakref
 
 from tennisbots import protocol
 
@@ -32,7 +35,7 @@ SHUTTLE_DROP_S = 0.14
 
 class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
-                 rpm_full=None):
+                 rpm_full=None, jam_log=None):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
@@ -107,6 +110,13 @@ class SimFeeder:
         self.cfg.ELEV_MODE = elev_mode
         if rpm_full is not None:
             self.cfg.WHEEL_RPM_FULL = rpm_full
+        # The board's flash: the lift's jam count (LIFT_JAM_LOG). Each sim gets its own file unless a test passes one,
+        # which is how a test power-cycles the board: a second SimFeeder on the same path.
+        if jam_log is None:
+            flash = tempfile.mkdtemp(prefix="otr-flash-")
+            weakref.finalize(self, shutil.rmtree, flash, True)
+            jam_log = os.path.join(flash, "lift_jams.json")
+        self.cfg.LIFT_JAM_LOG = jam_log
         with open(os.path.join(FW, "main.py")) as f:
             src = f.read().rstrip()
         src = src[:-len("run()")]
