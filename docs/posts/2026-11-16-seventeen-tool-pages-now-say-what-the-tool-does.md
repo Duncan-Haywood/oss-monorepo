@@ -3,7 +3,7 @@ title: "Seventeen tool pages on the blog now say what the tool does"
 date: 2026-11-16
 tags: [site, seo, aeo, llms-txt, polish, writing]
 seo_title: "Tool project pages lead with each tool's llms.txt summary"
-description: "Every tool project page on the blog opened with the same generic sentence. Each now leads with the summary line of that tool's llms.txt, and so does its meta description."
+description: "All 17 tool project pages on the blog opened with one generic sentence. Each now leads with its llms.txt summary, and so does its meta description."
 ---
 
 The blog groups its "Tools and projects" posts by tool: Wall Framing Takeoff has 477 posts, AI Bookkeeper 423, and 15 more tools have at least three. Each group has its own page, for example `writing/topic/tools/wall-framing-takeoff/`. Until today, all 17 of those pages opened the same way: "Every blog post about Wall Framing Takeoff: what was built, what was measured and what changed." That sentence also served as the meta description. A reader arriving from a search learned the tool's name and nothing about what it does.

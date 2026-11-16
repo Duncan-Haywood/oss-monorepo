@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo, design]
+date: 2026-11-16
+---
 # Polish 2026-11-16: tool project pages lead with their llms.txt summary
 
 Track: polish/0. Picked item 3 of "Still weakest" in `polish-2026-11-16-project-pages.md`
