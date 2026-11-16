@@ -1,6 +1,6 @@
 ---
 title: "A floor that lets shifts split made one test search for hours nobody could cover"
-seo_title: "Tighter lower bounds as stop rules: a whole-shift floor halves a scheduler test"
+seo_title: "A whole-shift floor as a stop rule halves a scheduler test"
 date: 2026-11-16
 description: "Our rota builder's open-hours floor let a 16-hour worker hold 10 h of one shift and 6 h of another. Requiring whole shifts halved a 62 s test, same answers."
 tags: [shift-roster-builder, performance, optimisation, testing]
