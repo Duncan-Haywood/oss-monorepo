@@ -1062,13 +1062,25 @@ def _any_match(patterns, paths) -> bool:
 
 
 def selects(workflow: dict, changed: list[str]) -> bool:
-    """Would a push or pull_request touching `changed` start this workflow?
+    """Would the pull request carrying `changed` start this workflow?
 
     Mirrors the filter Actions applies: with `paths`, at least one changed
     file must match; with `paths-ignore`, at least one must *not* match; with
     neither, any change starts it.
+
+    A workflow with a `pull_request` trigger is judged by that block alone:
+    it is what the PR's CI runs. Its `push` block (here always `branches:
+    [main]`) fires after the merge, not on the diff under review. Reading it
+    too made `portfolio-pages.yml`, whose `push` has no path filter, answer to
+    every diff, so a research-only change sat through the site build and the
+    site-builder suite that its PR never runs (15 doc-friction reports,
+    2026-11-10..16). A push-only workflow still counts its `push` block.
     """
-    for block in triggers(workflow):
+    on = workflow.get("on", workflow.get(True))
+    blocks = triggers(workflow)
+    if isinstance(on, dict) and "pull_request" in on:
+        blocks = [on["pull_request"] or {}]
+    for block in blocks:
         include = block.get("paths")
         exclude = block.get("paths-ignore")
         if include and not _any_match(include, changed):

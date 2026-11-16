@@ -47,6 +47,14 @@
    "by": "0dfa820ed (allocate.py, pick_track.py and creative_due.py print the post front-matter caps)",
    "at": "2026-11-15T20:24:46Z",
    "note": "Every venture, research and creative brief now prints title <= 110, description 60-160, seo_title <= 70 before the first draft."
+  },
+  {
+   "file": "platform/ci/run_workflow_locally.py",
+   "match": "research-only|research \\+ docs/posts",
+   "verdict": "fixed",
+   "by": "PR #16456",
+   "at": "2026-11-16T04:46:10Z",
+   "note": "selects() reads only the pull_request block when one exists; post diffs still select portfolio-pages as PR CI does"
   }
  ]
 }

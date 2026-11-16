@@ -30,10 +30,14 @@ export function formatCount(value) {
  * kind of word the site counts ("1338 tools", "All 3591"). Used by
  * `count-format-check.mjs` over the built pages. Years ("2026 calculator"),
  * form numbers ("Form 1099") and codes are not counts, so the pattern only
- * fires on the nouns the site's own templates count.
+ * fires on the nouns the site's own templates count. The digits must start a
+ * word: the engineering page prints an eight-character commit sha just
+ * before its title, so a sha ending `…86540` beside a title starting "post"
+ * read as "86540 post" once tags were stripped, a red that came and went with
+ * which commits a clone had (doc friction, 2026-11-16).
  */
 export const UNGROUPED_COUNT =
-  /(?<![\d,.$£€#\/:\-])(?!(?:19|20)\d\d\b)\d{4,}(?![\d,.%:\-])\s*(?:free |reproducible |research |open-source |plain-English )?(?:tools?|projects?|posts?|pages?|sessions?|stories|calculators?|tests?)\b|\bAll \d{4,}\b/g;
+  /(?<![\w,.$£€#\/:\-])(?!(?:19|20)\d\d\b)\d{4,}(?![\d,.%:\-])\s*(?:free |reproducible |research |open-source |plain-English )?(?:tools?|projects?|posts?|pages?|sessions?|stories|calculators?|tests?)\b|\bAll \d{4,}\b/g;
 
 /**
  * The ungrouped counts in a page's visible text and its title and meta
