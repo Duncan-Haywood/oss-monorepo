@@ -27,7 +27,7 @@ With the CoP p(t) = c0 + (c1 − c0) t/T the linear inverted pendulum (Kajita et
 ```bash
 pip install mujoco numpy matplotlib pytest
 cd research/buildbot-carryramp
-python -m pytest -q tests          # 7 tests: orbit endpoints, equation of motion, equality with carryphase and carrycop orbits
+python -m pytest -q tests          # 14 tests: orbit endpoints, equation of motion, equality with carryphase and carrycop orbits, that score() hands carryphase the sweep in heel-to-toe order, and four stored G1 4 kg rows re-scored (about 12 s; the MuJoCo rows skip offline)
 python experiments/run.py          # 1,680 cases, about 35 minutes on 4 CPUs, deterministic; writes results.json, results.txt
 python experiments/figure.py
 ```

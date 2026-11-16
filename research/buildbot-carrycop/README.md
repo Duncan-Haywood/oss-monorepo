@@ -27,7 +27,7 @@ With the CoP held at offset c from the stance sole point, the pendulum obeys x''
 ```bash
 pip install mujoco numpy matplotlib pytest
 cd research/buildbot-carrycop
-python -m pytest -q tests          # 6 tests: the orbit's endpoints, its equation of motion, and that offset 0 equals carryphase's
+python -m pytest -q tests          # 16 tests: the orbit's endpoints, its equation of motion, that offset 0 equals carryphase's, that score() hands carryphase the offset orbit, and three stored G1 4 kg rows re-scored (about 10 s with the Menagerie models; the MuJoCo rows skip offline)
 python experiments/run.py          # 1,944 cases, about 40 minutes on 4 CPUs, deterministic; writes results.json, results.txt
 python experiments/figure.py
 ```
