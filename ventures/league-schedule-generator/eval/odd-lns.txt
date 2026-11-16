@@ -64,3 +64,39 @@ Earlier runs on the way (not stored):
   - Small checks (3 nights freed): 15 on 3 x 9 in 13 s and 21 on 4 x 9 in 18 s (no short night, so the
     bug above did not touch them), 17 on 3 x 9 (a short night) in 27 s after the fix. All three are
     stored already from other scripts; not re-stored.
+
+35 teams on 6 courts x 9 slots, same script, 2026-11-16 (later; two seeds alongside two 41-team runs, then alone):
+  python3 eval/odd-lns.py 35 --courts 6 --times 9 --seed S --step 150
+Seed 1 reached 12 of 12 at 4,724.1 s (39 steps) and was stored; seed 2 was at 10 of 12 (3,860 s) when stopped.
+--- seed 1
+[  205.3s] start 1 of 12 nights good
+[  386.8s] step 2: freed [0, 9], better: 2 of 12 good
+[  475.7s] step 3: freed [8, 11], better: 3 of 12 good
+[  731.3s] step 5: freed [5, 3], better: 4 of 12 good
+[  764.0s] step 6: freed [3, 10], better: 5 of 12 good
+[ 1079.1s] step 9: freed [7, 3], better: 6 of 12 good
+[ 1159.3s] step 10: freed [6, 0], better: 7 of 12 good
+[ 1215.4s] step 11: freed [2, 3], better: 8 of 12 good
+[ 1393.9s] step 13: freed [1, 6], better: 9 of 12 good
+[ 2358.6s] step 20: freed [1, 10], sideways: 9 of 12 good
+[ 2412.8s] step 21: freed [2, 4], better: 10 of 12 good
+[ 3353.9s] step 28: freed [1, 4], sideways: 10 of 12 good
+[ 3408.0s] step 29: freed [1, 11], better: 11 of 12 good
+[ 4409.2s] step 36: freed [4, 5], sideways: 11 of 12 good
+[ 4724.1s] step 39: freed [5, 11], better: 12 of 12 good
+--- seed 2
+[  220.6s] start 1 of 12 nights good
+[  476.3s] step 2: freed [5, 7], better: 2 of 12 good
+[  661.2s] step 4: freed [2, 0], better: 3 of 12 good
+[  760.1s] step 5: freed [5, 3], better: 4 of 12 good
+[ 1280.5s] step 9: freed [5, 4], better: 5 of 12 good
+[ 1647.4s] step 12: freed [0, 4], better: 6 of 12 good
+[ 1813.9s] step 14: freed [9, 11], better: 7 of 12 good
+[ 2201.1s] step 17: freed [6, 8], better: 8 of 12 good
+[ 2861.7s] step 22: freed [8, 10], better: 9 of 12 good
+[ 2920.3s] step 23: freed [0, 1], better: 10 of 12 good
+[ 3860.3s] step 30: freed [8, 7], sideways: 10 of 12 good
+Through the tool (node eval/odd-cyclic-check.mjs 35:6:9, seeds 1 to 3):
+  before: 35 teams on 6 x 9: waits 505 -> 505 (seeds 1-3), 3784 ms a build
+  now:    35 teams on 6 x 9: waits 505 -> 0 (seeds 1-3), 1458 ms a build
+41 teams on 7 x 9 (seeds 1, 2, --step 150): 1 of 14 nights good at 262 s, no step landed before they were stopped (to free cores).

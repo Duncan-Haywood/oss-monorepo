@@ -490,11 +490,12 @@ Solved since by a different route, the next section (`eval/odd-lns.py`, no group
 was not needed: worked through, an involution fixing two points forces one round (every swapped pair
 plus the two fixed points) and leaves six of the ten nights to lay out, about what odd-triple.py had.
 
-### 29 teams on 5 x 9, solved: two nights re-dealt at a time (2026-11-16, latest)
+### 29 and 35 teams, solved: two nights re-dealt at a time (2026-11-16, latest)
 
 The open size above now has a wait-free season, stored like the others: over seeds 1 to 3 the tool
 goes from 334 waits to **0**, and a build from 3.6 s to 1.1 s (`node eval/odd-cyclic-check.mjs
-29:5:9`). It came from `eval/odd-lns.py` (new), which uses no group at all.
+29:5:9`). The next size of the same class followed: 35 teams on 6 x 9, 505 waits to **0**, 3.8 s to
+1.5 s a build. Both came from `eval/odd-lns.py` (new), which uses no group at all.
 
 **The search.** The state is a whole round robin (29 rounds of K_30, the bye as team 29) in the
 tool's night order: nine nights of three rounds and a last night of two. A night is good when its
@@ -514,6 +515,9 @@ than the betweenness clauses (row a and row c imply every row between).
 | seed 6 | 1 at 29 s, 5 at 123 s, 8 at 1,018 s, 10 at 1,186 s | stored |
 | seeds 3, 5 | 9 of 10 at 991 s and 1,046 s | stopped when seed 6 finished |
 | seed 4 | 8 of 10 at 1,049 s | stopped |
+| 35 teams, seed 1 | 1 of 12 at 205 s, 5 at 764 s, 10 at 2,413 s, 12 at 4,724 s | stored |
+| 35 teams, seed 2 | 10 of 12 at 2,920 s | stopped |
+| 41 teams, seeds 1, 2 | 1 of 14 at 262 s, no step landed | stopped to free cores |
 
 What did not work on the way (`eval/odd-lns.txt`): Glucose 4 with the betweenness clauses sat at
 1 of 10 nights for 10 minutes; three nights freed a step climbed more slowly than two (6 of 10 at
@@ -521,12 +525,13 @@ What did not work on the way (`eval/odd-lns.txt`): Glucose 4 with the betweennes
 never meet, and stalled at 9 of 10 for 112 steps; windows now follow the night's round count.
 
 `doubleheader.test.mjs` builds 29 on 5 x 9 wait-free (and with waits when the search is off), and
-the stored-designs test re-checks the solver's rows for all 32 designs. `eval/write-odd-designs.mjs`
+the stored-designs test re-checks the solver's rows for all 33 designs (35 on 6 x 9 is built the same way). `eval/write-odd-designs.mjs`
 gained `--append` (keep the stored designs, add new ones), since the earlier solver output is not
 kept in the tree; a plain run with no files rewrites the file unchanged.
 
-Open: the same class at 35 on 6 x 9, 41 on 7 x 9 and 47 on 8 x 9 (3 spare slots a night, no group
-of order k), and the fully booked 43 on 7 x 9 and 49 on 8 x 9, by the same script.
+Open: the same class at 41 on 7 x 9 and 47 on 8 x 9 (3 spare slots a night, no group of order k;
+41 needs a longer run than this session's, the 35-team run took 79 minutes), and the fully booked
+43 on 7 x 9 and 49 on 8 x 9, by the same script.
 
 ### Three sessions at 40 and 46 teams: one night turned by a group, solved in 0.1 s (2026-11-16)
 

@@ -379,9 +379,9 @@ test("odd leagues at 9 times: stored 9-slot designs on fewer courts than the 6-s
   // 19 on 3, 25 on 4, 31 on 5 and 37 on 6 (fully booked): one night turned by three k-cycles (eval/odd-orbit.py);
   // 33 on 6, 39 on 7, 45 on 8 and 51 on 9 (2026-11-16): the patterned 1-rotational starter, pattern
   // {0, 1, 2}; 57 on 10 and 63 on 11 are stored the same way (checked row by row above, built in the eval);
-  // 29 on 5 (n = 3k + 2, where no group of order k works): a large-neighbourhood search that re-deals
+  // 29 on 5 and 35 on 6 (n = 3k + 2, where no group of order k works): a large-neighbourhood search that re-deals
   // two nights' pairs at a time with SAT (eval/odd-lns.py, 2026-11-16)
-  for (const [n, c] of [[11, 2], [13, 2], [19, 3], [21, 4], [23, 4], [25, 4], [27, 5], [29, 5], [31, 5], [33, 6], [37, 6], [39, 7], [45, 8], [51, 9]]) {
+  for (const [n, c] of [[11, 2], [13, 2], [19, 3], [21, 4], [23, 4], [25, 4], [27, 5], [29, 5], [31, 5], [35, 6], [33, 6], [37, 6], [39, 7], [45, 8], [51, 9]]) {
     const s = build(n, c, 9, 3);
     assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
     perNight(s);

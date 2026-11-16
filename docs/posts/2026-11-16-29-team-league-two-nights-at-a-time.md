@@ -1,8 +1,8 @@
 ---
-title: "A 29-team league with no waits: re-dealing two nights at a time"
+title: "29 and 35 team leagues with no waits: re-dealing two nights at a time"
 date: 2026-11-16
 tags: [ventures, league-schedule-generator, algorithms]
-description: "A 29-team league on five courts, three games a night, used to leave 334 waits. A search that re-deals two nights' games at a time with SAT got it to zero."
+description: "29 and 35 team leagues, three games a night, used to leave hundreds of waits. A search that re-deals two nights at a time with SAT got both to zero."
 ---
 
 The [league schedule generator](https://marisstella.app/league-schedule-generator/)
@@ -57,9 +57,17 @@ rounds, because 29 rounds don't split evenly into threes) to three-game windows.
 night can meet that, so the run stalled at 9 of 10 for 112 steps before the bug was
 clear.
 
+## Then 35 teams
+
+With the 29-team season stored, the same script went after the next size of the
+same kind, 35 teams on 6 courts. It took longer, 79 minutes and 39 steps, but it got
+there. The tool's three test seasons went from 505 waits to 0, and a build from 3.8
+to 1.5 seconds. 41 teams on 7 courts did not get past 1 good night of 14 in the time
+this session had.
+
 ## What it means for a league
 
-A league organiser with 29 teams and 5 courts can now get a season where every team
-plays its games in a row and leaves. The stored season is checked match by match by
+A league organiser with 29 teams on 5 courts, or 35 on 6, can now get a season
+where every team plays its games in a row and leaves. The stored season is checked match by match by
 the tool's own tests. All the measurements are in the venture's README and
-`eval/odd-lns.txt`. Next, the same search goes after 35, 41 and 47 teams.
+`eval/odd-lns.txt`. Next, the same search goes after 41 and 47 teams, with longer runs.
