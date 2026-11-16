@@ -313,10 +313,13 @@ LOOP_SE_MAX = 0.01
 LOOP_UNSURE = 64
 TICK_LOG = 160        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115
 # The ESC-lag survey (2026-11-16, README "The ESC lag surveyed on the board"): after each launched stroke's record, every
-# turning wheel's snapshot is refitted with the commands through each of these ESC lags (esc_lagged_ticks) and the fit's
-# squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
-# ESC_SURVEY frame, so `ESC_TAU_US` can be set from a real drill. tests/esc_lag_pick.py's grid.
+# turning wheel's snapshot is refitted with the commands through each of these ESC lags (esc_lagged_ticks) and the log
+# of the fit's squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the
+# sums from the ESC_SURVEY frame, so `ESC_TAU_US` can be set from a real drill. tests/esc_lag_pick.py's grid. The log
+# (2026-11-16, README "Each wheel its own noise"): each wheel has its own noise level, so a plain sum of squares let
+# one badly fitted wheel, with misses 30 times the others', decide the lag alone.
 ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
+SURVEY_FLOOR = 1e-24   # a squared rms below this counts as this in the log (a noise-free simulated fit can reach 0)
 
 
 def survey_pick(grid, sums):
@@ -1502,8 +1505,9 @@ class LaunchCheck:
             self.surveying = self._survey(snap, ticks, edges0, targets)
 
     def _survey(self, snap, ticks, edges0, targets):
-        """Each turning wheel refitted at every lag on `survey`, one step a tick; a wheel's squared residuals are added
-        once every lag fitted it (as tests/esc_lag_pick.py's pick)."""
+        """Each turning wheel refitted at every lag on `survey`, one step a tick; the logs of a wheel's squared
+        residuals are added once every lag fitted it. The log is the likelihood with each wheel's noise its own
+        (README "Each wheel its own noise"): a wheel votes with how much better one lag fits it, not with its size."""
         for k in (0, 1):
             if targets[k] <= 0:
                 continue
@@ -1521,17 +1525,21 @@ class LaunchCheck:
                     break
                 got.append(fit[4] * fit[4])
             if len(got) == len(self.survey):
-                for i in range(len(got)):
-                    self.survey_sums[i] += got[i]
-                self.survey_n += 1
+                self.survey_add(got)
+
+    def survey_add(self, got):
+        """One wheel's squared residual rms at every lag on `survey` into the sums, as logs."""
+        for i in range(len(got)):
+            self.survey_sums[i] += math.log(got[i] if got[i] > SURVEY_FLOOR else SURVEY_FLOOR)
+        self.survey_n += 1
 
     def survey_report(self):
-        """(wheels summed, the least sum's lag in ms, the refined lag in ms, each lag's mean rms in 1e-6 of the pre-ball
-        speed) for the ESC_SURVEY frame, or None before the first wheel."""
+        """(wheels summed, the least sum's lag in ms, the refined lag in ms, each lag's geometric mean rms in 1e-6 of
+        the pre-ball speed) for the ESC_SURVEY frame, or None before the first wheel."""
         if not self.survey or self.survey_n == 0:
             return None
         i, ref = survey_pick(self.survey, self.survey_sums)
-        rms = [min(65535, int(round(1e6 * math.sqrt(v / self.survey_n)))) for v in self.survey_sums]
+        rms = [min(65535, int(round(1e6 * math.exp(v / (2 * self.survey_n))))) for v in self.survey_sums]
         return (min(255, self.survey_n), self.survey[i] // 1000, int(round(ref / 1000)), rms)
 
     def step(self):

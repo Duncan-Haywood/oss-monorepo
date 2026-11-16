@@ -1258,6 +1258,24 @@ class EscSurveyTest(unittest.TestCase):
         (cmd, vals), = list(P.Decoder().feed(frame))
         self.assertEqual((cmd, vals[:3]), (P.ESC_SURVEY, (30, 100, 79)))
 
+    def test_one_badly_fitted_wheel_does_not_outvote_the_rest(self):
+        # README "Each wheel its own noise": eight wheels fit 100 ms best by 20-30%; one with misses 30 times theirs
+        # fits 0 best by 5%. A plain sum of squares followed the one; the sum of logs follows the eight.
+        lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5)
+        good = [r * 1e-8 for r in (1.6, 1.4, 1.25, 1.0, 1.3, 1.5)]
+        bad = [r * 9e-6 for r in (1.0, 1.01, 1.02, 1.05, 1.06, 1.07)]
+        for _ in range(8):
+            lc.survey_add(good)
+        lc.survey_add(bad)
+        plain = [8 * g + b for g, b in zip(good, bad)]
+        self.assertEqual(controller.survey_pick(lc.survey, plain)[0], 0)
+        n, least, refined, rms = lc.survey_report()
+        self.assertEqual((n, least), (9, 100))
+        self.assertTrue(80 <= refined <= 125, refined)
+        self.assertEqual(rms[3], round(1e6 * math.exp((8 * math.log(1e-8) + math.log(1.05 * 9e-6)) / 18)))
+        lc.survey_add([0.0] * 6)                  # a perfect fit (noise-free simulator) is floored, not log(0)
+        self.assertEqual(lc.survey_n, 10)
+
     def test_survey_off_sends_nothing(self):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, survey=())
         self.assertIsNone(lc.survey_report())
