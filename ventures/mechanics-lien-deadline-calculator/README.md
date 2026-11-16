@@ -40,7 +40,7 @@ day, and click **Check deadlines**.
 
 All in [`calc.mjs`](calc.mjs), pure functions, no dependencies:
 
-- **`lienDeadlines`** — both dates, the rule used, weekend flag with the last
+- **`lienDeadlines`** — both dates (and, for Texas, `noticeSchedule`: one notice date per month of work), the rule used, weekend flag with the last
   business day before it as the safe date, days remaining against `today`,
   and findings.
 - **`formatDate`, `parseDate`, `daysBetween`** — helpers.
@@ -48,7 +48,7 @@ All in [`calc.mjs`](calc.mjs), pure functions, no dependencies:
 ## What this does not cover
 
 - Not legal advice; lien rights are lost by missing a deadline.
-- First-tier claimants only; second-tier clocks differ.
+- First- and second-tier claimants (added 2026-11-16): the tier changes the result only in Georgia, where a Notice to Contractor is owed only by claimants without a contract with the general contractor. Texas lists one notice date per month of unpaid work and applies the post-2022 (HB 2237) rules, the same for every tier; projects whose original contract predates 2022-01-01 follow older rules this tool does not model. Third-tier claimants, laborers' special rules and Texas retainage notices are not modelled. The 2026-11-16 additions come from agreeing secondary sources found by search; the statute hosts were not reachable from the session.
 - Seven states only (California, Texas, Florida, Arizona, Washington, Georgia, Colorado). Colorado added 2026-11-10 from law-firm and lien-service explainers that agree on 4 months and a 10-day notice of intent (statute text not opened; its residential and extension wrinkles are flagged in the result). Nevada and Oregon were searched the same day and left out: sources conflict on notice-of-completion and notice timing.
 - No public-project bond claims, no holidays, no notice content or delivery
   rules, no foreclosure deadlines.

@@ -122,12 +122,13 @@ flagships:
       2,000 characters.
     buildable: >-
       Receipts, item (5), on the public SRD photos (eval/srd-fetch.mjs,
-      raw.githubusercontent.com): re-measure the CLI's `--four-pass`, not run since
-      the tax-lines change (eval/receipt-tax-lines-2026-11-15.md had no binary;
-      `apt-get update && apt-get install -y tesseract-ocr` gives tesseract 5.3.4 in
-      about a minute); photo 1173 counts its unlabelled tax and Food / Beverage
-      summary lines as items, so its item split is refused; 38 photos read no tax.
-      CORD stays the held-out check.
+      raw.githubusercontent.com; `apt-get update && apt-get install -y
+      tesseract-ocr` gives tesseract 5.3.4 in about a minute): the CLI's
+      `--four-pass` reads tax 126 of 185 against the page's 138, with 45 photos
+      reading no tax and 14 wrong, mostly one digit off on the tax line (lists in
+      eval/receipt-cli-four-pass-2026-11-16.md); rebuild the page's readings
+      (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item splits
+      after the 2026-11-16 change. CORD stays the held-out check.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -187,10 +188,10 @@ flagships:
       penalty on fresh multi-column labelled data; TSSB/HAS/UTSA (README): count,
       shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
       model: t-walk increments, biweight on fresh data, why it absorbs seat belts
-      and quality control 4, its AR(1) term; (1) slope breaks: hinge test: logs fail
-      (size ok at n 40), try 2 hinges; step/bend bootstrap tests (README "Step or
-      bend, as two tests") fail: walks called bend, use the cut guard; nulls rho
-      low; a second hinge; a real step inside a cycle, a cycle check not tied to
+      and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
+      (refuse short sticky series), next a given knot; step/bend bootstrap tests
+      (README "Step or bend, as two tests") fail: walks called bend, use the cut
+      guard; nulls rho low; a real step inside a cycle, a cycle check not tied to
       rho, real documented ramps and close steps; (2) clumpy counts: NB1 shipped;
       real calls: Poisson, wandering rate; next real batch counts; (3) `--garch`:
       t-GARCH failed one pre-registered line (README "Heavy tails in the GARCH
@@ -380,12 +381,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Empty hopper landed 2026-11-16 (firmware/esp32/README.md
-      "Empty hopper": no GPIO is free for a beam, so each stroke is judged by the
-      wheels' speed drop; FLAG_HOPPER_EMPTY, runner exits 3). Next: the drop is the
-      ball's momentum, so log it per shot (telemetry or a Pi-side record) and fit
-      the launcher's speed efficiency from it (launcher.calibrate takes a radar gun
-      today), on the simulated feeder first.
+      venv, about 2 min). Shot log landed 2026-11-16 (firmware/esp32/README.md "Shot
+      log": LAUNCH frame, run --shot-log, fit-launcher; simulated speed efficiency
+      within 3.9%, spin 11.7%). Next: feed the fit back into the drill runner
+      (re-plan with the fitted efficiencies after N shots and report the landing
+      shift), and let the empty-hopper verdict use the pre-ball speed too (resweep
+      tests/launch_check_sweep.py).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

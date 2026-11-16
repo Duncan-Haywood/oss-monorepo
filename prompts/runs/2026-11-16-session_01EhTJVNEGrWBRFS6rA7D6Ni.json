@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVNEGrWBRFS6rA7D6Ni",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (ventures brief)",
+  "input_sha256": "f295deebe25520aebfdb3a2dd2007380a626adf38c909b5e9c83900b10aad0d9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T03:06:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship buildable item: per-shot wheel-drop log and launcher efficiency fit",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16428",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "firmware/esp32/README.md",
+      "why": "The buildable item said to log the drop as the firmware already measured it (from the target). The simulator showed that reading off by up to 30%, so the record measures from the wheel's own pre-ball speed; the empty-hopper verdict was left on the target to keep its swept margins.",
+      "did": "record uses a 2.5-revolution time window before the largest fall",
+      "result": "speed efficiency within 3.9% over 18 simulated builds (naive 10.9%)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-the-tennis-feeders-wheels-double-as-a-radar-gun.md"
+  ],
+  "goal": null,
+  "notes": "Firmware LaunchCheck.record + LAUNCH frame (0x81) repeated after each telemetry frame; host collects DrillResult.launches, run --shot-log, fit-launcher CLI; launcher.fit_from_drops (linear LS in speed/spin eff, recovery time on a grid, one trim pass) and inertia_from_radar. tests/launch_fit_sweep.py: worst over 18 builds speed eff 3.9%, spin 11.7%, naive 10.9%. Pi path on drill.calibration.json: +2.3/+4.4/+3.7% speed. Verification: run_venture_tests.py open-tennis-robots ok (157 s, 306 tests, 58 skipped for build123d); venture-preflight.mjs open-tennis-robots clean. Simulated only, no real wheel.",
+  "corrections": [],
+  "redteam": null
+}

@@ -174,6 +174,29 @@ class NeverCompleted(unittest.TestCase):
         self.assertEqual(rounds.q_threshold(d, D, q=0.5), 200.0)
         self.assertIn("cpin_es3_ncq", rounds.VARIANTS)
 
+    def test_dead_drop_and_attach_status(self):
+        """Session 95: a dead close-out is dropped only when its completion date is known by D; a dead permit
+        completed after D stays (as an open row on D), and the join is on permit id and completion day."""
+        import datetime, os, tempfile, rounds
+        import pandas as pd
+        D = datetime.date(2020, 1, 1)
+        d = pd.DataFrame(dict(permit_id=["a", "b", "c", "d", "e"],
+                              start=["2015-01-01", "2015-01-01", "2019-06-01", "2016-01-01", "2015-01-01"],
+                              completed=["2015-05-01", "2016-01-01", "2020-03-01", "", "2015-05-01"],
+                              y=[120.0, 365.0, 274.0, np.inf, 120.0]))
+        with tempfile.TemporaryDirectory() as tmp:
+            p = os.path.join(tmp, "x_status.csv")
+            pd.DataFrame(dict(permit_id=["a", "b", "c", "e"], completed=["2015-05-01", "2016-01-01", "2020-03-01",
+                                                                          "2015-05-02"],
+                              status=["Withdrawn", "Final", "Expired", "Void"], cai=["0", "0", "0", "0"],
+                              group=["dead", "done", "dead", "dead"])).to_csv(p, index=False)
+            m = rounds.attach_status(d, p)
+        self.assertEqual(m["dead"].tolist(), [True, False, True, False, False])  # e: another completion day
+        kept = rounds.dead_drop(m, D)
+        self.assertEqual(kept.permit_id.tolist(), ["b", "c", "d", "e"])  # c closes after D: still open on D
+        self.assertIn("cpin_es3_nc5_clean", rounds.VARIANTS)
+        self.assertEqual(rounds.STALE["cpin_es3_nc5_clean"], rounds.STALE["cpin_es3_nc5"])
+
 
 if __name__ == "__main__":
     unittest.main()

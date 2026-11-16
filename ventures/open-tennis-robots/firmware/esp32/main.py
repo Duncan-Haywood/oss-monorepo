@@ -228,6 +228,10 @@ class FeederHw:
         self.launches = 0             # strokes judged to have launched a ball since power-up
         self.arm()
 
+    def launch_record(self):
+        """The last judged stroke's record for the LAUNCH frame (controller.LaunchCheck.record), or None."""
+        return self.launch.record if self.launch is not None else None
+
     def arm(self):
         self.esc_top.frac(0)
         self.esc_bottom.frac(0)

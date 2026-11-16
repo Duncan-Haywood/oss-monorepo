@@ -1,0 +1,38 @@
+Milestone 7q verdicts (pre-registered in LOG.md; L2-45 = diverged flights at lever 2, 45 deg, cap, of 64 per design).
+
+Q1: inh60 against 7p inh, all conditions, own L and grid: 0 of 2880 counts differ. Own-L L2-45: above 7e 12; above 7l t45 cap wide 73; above aware cap wide 53; above aware cap wide fixL 39; below 7e 52; below 7l t45 cap wide 105; below aware cap wide 52; below aware cap wide fixL 46
+Q2: 7l below under inh (exact), 6 valid: L2-45 106 (inh60 105); within 5: True
+Q3: mot against inh60, own L, paired over designs valid under both: higher in 8 of 8 eligible set-geometries
+    above 7e: n 6, inh60 12 -> mot 124 (per design [17, 19, 20, 18, 19, 19])
+    above 7l t45 cap wide: n 6, inh60 73 -> mot 160 (per design [14, 8, 15, 14, 18, 18])
+    above aware cap wide: n 5, inh60 53 -> mot 124 (per design [13, 13, 15, 15, 15])
+    above aware cap wide fixL: n 6, inh60 39 -> mot 121 (per design [16, 13, 15, 18, 15, 5])
+    below 7e: n 6, inh60 52 -> mot 107 (per design [11, 9, 9, 5, 8, 13])
+    below 7l t45 cap wide: n 6, inh60 105 -> mot 150 (per design [6, 4, 7, 9, 10, 9])
+    below aware cap wide: n 5, inh60 52 -> mot 112 (per design [8, 10, 10, 15, 17])
+    below aware cap wide fixL: n 5, inh60 46 -> mot 116 (per design [16, 6, 14, 17, 17])
+Q4: src_li against inh60, own L, paired over designs valid under both: higher in 5 of 5 eligible set-geometries
+    above 7e: n 0, inh60 0 -> src_li 0 (per design [])
+    above 7l t45 cap wide: n 0, inh60 0 -> src_li 0 (per design [])
+    above aware cap wide: n 0, inh60 0 -> src_li 0 (per design [])
+    above aware cap wide fixL: n 2, inh60 8 -> src_li 61 (per design [33, 20])
+    below 7e: n 5, inh60 45 -> src_li 189 (per design [31, 29, 29, 28, 27])
+    below 7l t45 cap wide: n 5, inh60 81 -> src_li 215 (per design [29, 26, 26, 26, 27])
+    below aware cap wide: n 3, inh60 37 -> src_li 118 (per design [28, 25, 28])
+    below aware cap wide fixL: n 3, inh60 26 -> src_li 115 (per design [25, 33, 31])
+Q5: src_li grid, 7l below, largest rise between consecutive points over seeds valid at both: 0 (held if <= 2)
+    0.085: 0 ok, 0; 0.090: 0 ok, 0; 0.095: 0 ok, 0; 0.100: 3 ok, 130; 0.105: 5 ok, 210; 0.110: 5 ok, 199; 0.115: 5 ok, 191; 0.120: 5 ok, 187; 0.125: 5 ok, 176; 0.130: 5 ok, 169; 0.135: 5 ok, 166; 0.140: 5 ok, 157; 0.145: 5 ok, 157; 0.150: 3 ok, 92
+Q6: 7l above, lever-1 45 deg median J: inh60 -1.551, mot -2.350, |diff| 0.799 (held if <= 0.10)
+Q6: 7l below, lever-1 45 deg median J: inh60 -1.502, mot -2.091, |diff| 0.589 (held if <= 0.10)
+
+Post hoc: designs with a fixed point under inh (exact), against the same designs under inh60 (mass kg, L2-45):
+  above 7e: n 0; 
+  above 7l t45 cap wide: n 2; s1 1.189->1.198 kg, 18->15, s3 1.258->1.300 kg, 13->11
+  above aware cap wide: n 1; s0 1.283->1.331 kg, 13->11
+  above aware cap wide fixL: n 1; s1 1.265->1.317 kg, 12->11
+  below 7e: n 5; s0 1.259->1.303 kg, 9->7, s1 1.192->1.204 kg, 11->9, s2 1.224->1.243 kg, 8->8, s3 1.141->1.144 kg, 10->10, s4 1.250->1.285 kg, 7->4
+  below 7l t45 cap wide: n 6; s0 1.129->1.132 kg, 17->17, s1 1.055->1.055 kg, 24->24, s2 1.090->1.091 kg, 19->19, s3 1.069->1.070 kg, 14->14, s4 1.035->1.035 kg, 17->17, s5 1.232->1.255 kg, 14->15
+  below aware cap wide: n 3; s0 1.241->1.266 kg, 11->11, s1 1.152->1.157 kg, 17->15, s2 1.301->1.384 kg, 9->8
+  below aware cap wide fixL: n 2; s0 1.237->1.263 kg, 11->9, s1 1.124->1.127 kg, 15->14
+  no fixed point at 15 min: 28 of 48; their inh60 masses 1.291-2.012 kg (median 1.395); designs with a fixed point: inh60 median 1.208 kg
+  heavy-basin designs (inh60 mass >= 1.7 kg): 6, of which with a fixed point: 0

@@ -1,0 +1,13 @@
+freshlaw  Ai2020@0.3x          n 53  |ln err| 5y 0.082 kinetic 0.028  signed 5y +0.082 kinetic -0.008  wins 53/53
+freshlaw  Ai2020@0.4x          n 60  |ln err| 5y 0.080 kinetic 0.031  signed 5y +0.080 kinetic +0.001  wins 60/60
+freshlaw  Ai2020@0.5x          n 64  |ln err| 5y 0.089 kinetic 0.027  signed 5y +0.089 kinetic +0.026  wins 64/64
+freshlaw  NCA_Kim2011@0.625x   n 64  |ln err| 5y 0.056 kinetic 0.017  signed 5y -0.056 kinetic +0.002  wins 55/64
+calmap    Ai2020@0.35x         n 62  |ln err| 5y 0.081 kinetic 0.032  signed 5y +0.081 kinetic -0.014  wins 61/62
+calmap    Ai2020@0.45x         n 63  |ln err| 5y 0.083 kinetic 0.029  signed 5y +0.083 kinetic -0.001  wins 62/63
+calmap    Ai2020@0.6x          n 64  |ln err| 5y 0.105 kinetic 0.033  signed 5y +0.105 kinetic +0.032  wins 64/64
+crossset  NCA_Kim2011@0.875x   n 64  |ln err| 5y 0.031 kinetic 0.043  signed 5y -0.025 kinetic +0.043  wins 25/64
+crossset  Chen2020@1.5x        n 64  |ln err| 5y 0.358 kinetic 0.305  signed 5y +0.356 kinetic +0.303  wins 59/64
+crossset  OKane2022@1.5x       n 64  |ln err| 5y 0.351 kinetic 0.256  signed 5y +0.350 kinetic +0.255  wins 60/64
+rlaw      Ai2020@0.55x         n 64  |ln err| 5y 0.102 kinetic 0.026  signed 5y +0.102 kinetic +0.023  wins 64/64
+rlaw      NCA_Kim2011@0.75x    n 64  |ln err| 5y 0.038 kinetic 0.022  signed 5y -0.038 kinetic +0.021  wins 34/64
+rlaw      NCA_Kim2011@1x       n 64  |ln err| 5y 0.024 kinetic 0.059  signed 5y -0.015 kinetic +0.059  wins 14/64

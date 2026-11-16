@@ -1,0 +1,339 @@
+{
+ "battery": {
+  "lipo": {
+   "n": 140,
+   "median": 132.3,
+   "q1": 123.64999999999999,
+   "q3": 143.4,
+   "ci": [
+    128.7,
+    134.25
+   ]
+  },
+  "lihv": {
+   "n": 31,
+   "median": 156.2,
+   "q1": 148.1,
+   "q3": 177.5,
+   "ci": [
+    150.8,
+    161.7
+   ]
+  },
+  "liion": {
+   "n": 24,
+   "median": 209.89999999999998,
+   "q1": 202.9,
+   "q3": 244.275,
+   "ci": [
+    205.5,
+    222.7
+   ]
+  }
+ },
+ "motor": {
+  "n": 33,
+  "k": 0.02901786459925004,
+  "exp": 1.0407311079513712,
+  "k_ci": [
+   0.02415068004643559,
+   0.03328194069683389
+  ],
+  "exp_ci": [
+   0.9524963294782384,
+   1.1641059680956238
+  ],
+  "resid_sd_log": 0.2724191689826613,
+  "inherited_over_listed_median": 1.7198798738992618,
+  "motors": [
+   {
+    "name": "SunnySky X Series V3 X2212 V3 Long Shaft Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 57.0,
+    "tmax_g": 1440.0
+   },
+   {
+    "name": "SunnySky X Series V3 X2216 V3 Brushless Motors Long Shaft Version",
+    "src": "sunnysky bench",
+    "weight_g": 67.5,
+    "tmax_g": 1860.0
+   },
+   {
+    "name": "SunnySky R2205 FPV Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 31.0,
+    "tmax_g": 1386.0
+   },
+   {
+    "name": "SunnySky R2204 FPV Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 27.0,
+    "tmax_g": 1030.0
+   },
+   {
+    "name": "SunnySky Edge Racing R2207 FPV Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 36.8,
+    "tmax_g": 1980.0
+   },
+   {
+    "name": "SunnySky X Series V3 X4125 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 351.0,
+    "tmax_g": 8100.0
+   },
+   {
+    "name": "SunnySky X Series V3 X4120 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 292.0,
+    "tmax_g": 8150.0
+   },
+   {
+    "name": "SunnySky X Series V3 X2305 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 25.0,
+    "tmax_g": 830.0
+   },
+   {
+    "name": "SunnySky X Series V3 X2304 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 20.2,
+    "tmax_g": 628.0
+   },
+   {
+    "name": "SunnySky X Series V3 X2302 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 15.7,
+    "tmax_g": 349.0
+   },
+   {
+    "name": "SunnySky X Series V3 X3520 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 219.0,
+    "tmax_g": 5012.0
+   },
+   {
+    "name": "SunnySky X Series V3 X3126 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 197.0,
+    "tmax_g": 4600.0
+   },
+   {
+    "name": "SunnySky X Series V3 X3120 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 159.0,
+    "tmax_g": 5040.0
+   },
+   {
+    "name": "SunnySky X Series V3 X2820 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 143.0,
+    "tmax_g": 3441.0
+   },
+   {
+    "name": "SunnySky X Series V3 X2814 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 108.0,
+    "tmax_g": 2650.0
+   },
+   {
+    "name": "SunnySky X Series V3 X2220 V3 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 85.0,
+    "tmax_g": 2130.0
+   },
+   {
+    "name": "SunnySky V5210 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 200.0,
+    "tmax_g": 5623.0
+   },
+   {
+    "name": "SunnySky V4014 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 166.0,
+    "tmax_g": 3900.0
+   },
+   {
+    "name": "SunnySky V5208 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 175.0,
+    "tmax_g": 4710.0
+   },
+   {
+    "name": "SunnySky V4008 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 105.0,
+    "tmax_g": 2651.0
+   },
+   {
+    "name": "SunnySky V4006 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 66.0,
+    "tmax_g": 2620.0
+   },
+   {
+    "name": "SunnySky V4004 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 51.0,
+    "tmax_g": 1600.0
+   },
+   {
+    "name": "SunnySky V3508 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 97.0,
+    "tmax_g": 2247.0
+   },
+   {
+    "name": "SunnySky V3506 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 84.0,
+    "tmax_g": 1720.0
+   },
+   {
+    "name": "SunnySky V2806 High Efficiency Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 47.0,
+    "tmax_g": 1260.0
+   },
+   {
+    "name": "SunnySky M8 Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 230.0,
+    "tmax_g": 8300.0
+   },
+   {
+    "name": "SunnySky M8 Pro Brushless Motors",
+    "src": "sunnysky bench",
+    "weight_g": 247.0,
+    "tmax_g": 8300.0
+   },
+   {
+    "name": "Axisflying AF2406-X Modular Motor - 1860KV/2080KV",
+    "src": "FPV listing",
+    "weight_g": 35.1,
+    "tmax_g": 1826.0
+   },
+   {
+    "name": "Lumenier TOURQ 3120 FPV Motor - 500KV",
+    "src": "FPV listing",
+    "weight_g": 143.0,
+    "tmax_g": 5824.0
+   },
+   {
+    "name": "AxisFlying x SupaflyFPV x SyncFPV 2207.5 1860Kv Motor",
+    "src": "FPV listing",
+    "weight_g": 35.8,
+    "tmax_g": 1711.0
+   },
+   {
+    "name": "AxisFlying x SupaflyFPV x SyncFPV 2207.5 1960Kv Motor",
+    "src": "FPV listing",
+    "weight_g": 35.5,
+    "tmax_g": 1819.0
+   },
+   {
+    "name": "BrotherHobby R3.5 2205 2140Kv Motor",
+    "src": "FPV listing",
+    "weight_g": 27.18,
+    "tmax_g": 811.0
+   },
+   {
+    "name": "RCINPOWER AOS Supernova 4220 415KV Brushless FPV Drone Motor",
+    "src": "FPV listing",
+    "weight_g": 330.0,
+    "tmax_g": 8434.0
+   }
+  ],
+  "excluded": [
+   [
+    "T-Motor Pacer V4 P2406 Juicy 2406 Motor - 2060KV",
+    "weight field caught the thrust figure; the listed weight is a packing weight"
+   ],
+   [
+    "T-Motor F50 2207 5\" Racing Motor - 2150KV/2200KV",
+    "listed weight is a packing weight"
+   ],
+   [
+    "BetaFPV LAVA Series 1104 5500KV Brushless Motor with 24mm Wire with Connector for 4S 2.2\" Quads (1Pc.)",
+    "thrust stated only as a lower bound ('more than 230g')"
+   ],
+   [
+    "T-Motor V1507 1.5 4S 4100KV 1.5mm Shaft 3-4 Inch FPV Brushless Motor",
+    "'up to 200g per' is not a full-throttle thrust of this motor class (sentence truncated in the listing)"
+   ],
+   [
+    "T-Motor V1507 M5 4S 4100KV 5mm Shaft 3-4 Inch FPV Brushless Motor",
+    "'up to 200g per' is not a full-throttle thrust of this motor class (sentence truncated in the listing)"
+   ],
+   [
+    "T-Motor Pacer V4 P2406 5-6\" Juicy Sbang Acro Motor - 2060KV",
+    "listed weight is a packing weight"
+   ],
+   [
+    "T-Motor V1507 1.5 6S 2700KV 1.5mm Shaft 3-4 Inch FPV Brushless Motor",
+    "'up to 200g per' is not a full-throttle thrust of this motor class (sentence truncated in the listing)"
+   ],
+   [
+    "T-Motor V1507 M5 6S 2700KV 5mm Shaft 3-4 Inch FPV Brushless Motor",
+    "'up to 200g per' is not a full-throttle thrust of this motor class (sentence truncated in the listing)"
+   ],
+   [
+    "BetaFPV LAVA Series 1104 7200KV Brushless Motor with 80mm Wire for 3S 2.2\" Quads (1Pc.)",
+    "thrust stated only as a lower bound ('more than 230g')"
+   ]
+  ]
+ },
+ "power": {
+  "5 in (R-series FPV)": {
+   "n": 16,
+   "median": 0.4261038027480645,
+   "ci": [
+    0.4202715251904671,
+    0.43001642755742875
+   ],
+   "min": 0.4125981608552332,
+   "max": 0.4333255530503999
+  },
+  "7-10 in": {
+   "n": 178,
+   "median": 0.44414424801065666,
+   "ci": [
+    0.4304468744318607,
+    0.45191802156606037
+   ],
+   "min": 0.30468202948856243,
+   "max": 0.4982259951359155
+  },
+  "11-13 in": {
+   "n": 154,
+   "median": 0.5157493690106294,
+   "ci": [
+    0.5077987477362054,
+    0.5214184504899733
+   ],
+   "min": 0.4255202597985469,
+   "max": 0.670200732622959
+  },
+  "14-17 in": {
+   "n": 90,
+   "median": 0.5383059882244029,
+   "ci": [
+    0.5316642785627661,
+    0.5463232824204598
+   ],
+   "min": 0.41277697124331203,
+   "max": 0.6576009804879825
+  },
+  "22-29 in": {
+   "n": 64,
+   "median": 0.5554152402378741,
+   "ci": [
+    0.5509400321697844,
+    0.559079177023625
+   ],
+   "min": 0.461157085781941,
+   "max": 0.5869573053800798
+  }
+ }
+}

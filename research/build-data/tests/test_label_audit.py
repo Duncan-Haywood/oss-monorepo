@@ -43,3 +43,22 @@ class TestLabelAudit(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_stamp_check_counts_exact_label():
+    """Session 95: stamp_check counts rows exactly on the stamp per era and status group."""
+    import os, sys, tempfile
+    import pandas as pd
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+    import stamp_check
+    with tempfile.TemporaryDirectory() as tmp:
+        pd.DataFrame(dict(permit_id=["a", "b", "c", "d"], issued=["1990-01-01", "1990-01-01", "2015-01-01", "1995-03-01"],
+                          completed=["1990-06-30", "1990-03-01", "2015-02-01", ""])).to_csv(f"{tmp}/x.csv", index=False)
+        pd.DataFrame(dict(permit_id=["a", "b", "c"], completed=["1990-06-30", "1990-03-01", "2015-02-01"],
+                          status=["VOID", "Final", "Final"], cai=["0"] * 3, group=["dead", "done", "done"])
+                     ).to_csv(f"{tmp}/s.csv", index=False)
+        d = stamp_check.labels(f"{tmp}/x.csv", f"{tmp}/s.csv")
+    s = stamp_check.summarise(d)
+    assert s["n"] == 3 and s["at_stamp"] == 1  # a: 1990-01-01 to 1990-06-30 is 180 days
+    assert s["by_era"]["1900-1999 dead"]["share_at_stamp"] == 1.0
+    assert s["by_era"]["1900-1999 done"]["at_stamp"] == 0
