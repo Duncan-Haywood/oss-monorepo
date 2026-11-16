@@ -860,6 +860,7 @@ ventures/private-chef-service-price-calculator/usage.mjs
 ventures/private-pilot-training-cost-calculator/usage.mjs
 ventures/private-practice-payer-mix-calculator/usage.mjs
 ventures/private-school-tuition-discount-calculator/usage.mjs
+ventures/probability-calibration/usage.mjs
 ventures/process-server-day-picker/usage.mjs
 ventures/process-server-fee-calculator/usage.mjs
 ventures/product-analytics-pricing-calculator/usage.mjs
