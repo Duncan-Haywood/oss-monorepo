@@ -13,6 +13,18 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (239 of 239,
 revised with milestones 4e–4p) and a list of what a submission still needs.
 
+**Milestone 4q headline** (can the robot tell from the views alone when not to run the update test? no new
+solve, milestone 4p's pools): **partly.** Running the test only when the unit's twin says the old and new
+views can resolve a 2% focal change (twin sd of the difference at most 1% of f) raises the share of 2% changes
+caught from 9.1% to 15.9% of scored splits (×1.75) and scores no split that holds a far solve; on the
+Kinect's flat pool it abstains entirely instead of running a test with 2% power. It does not make the
+Xtion's flat pool safe: false alarms there rise from 4.4% to 5.9% of scored splits, so milestone 4p's
+explanation (far solves the linear twin cannot represent) is wrong, and the twin understates a per-view
+error on that unit. One of four pre-registered predictions held (H98); the gate was checked on the pools
+that suggested it, since the TUM host refused a third pool this session.
+
+![S0 false alarms per unit and pool pairing with and without the twin-sd gate, and the gate's cut-off against power, scored share and the worst cell's false alarms](experiments/m4q_gate/gate.png)
+
 **Milestone 4p headline** (does the update test hold on views it has never seen? 13 fresh views per TUM
 unit, 9,440 new solves): **its false alarms stay under the bar, but the in-sample figures were optimistic.**
 With the old views from milestone 4j's 13 and the new views from a disjoint 13 of the same sequence (and the
@@ -887,6 +899,7 @@ python3 experiments/m4p_fresh/prepare.py fr1 <dir>/rgbd_dataset_freiburg1_rgb_ca
 python3 experiments/m4p_fresh/prepare.py fr3 <dir>/rgbd_dataset_freiburg3_calibration_rgb_depth
 OMP_NUM_THREADS=1 python3 experiments/m4p_fresh/run.py      # ~40 min on 4 cores; results.json.gz (k1 + k2, fr1b / fr3b)
 python3 experiments/m4p_fresh/analyse.py                   # ~5 min; summary.json, fresh.png (H92-H95)
+OMP_NUM_THREADS=1 python3 experiments/m4q_gate/analyse.py  # ~6 min, no new solve; summary.json, gate.png (H96-H99)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -934,9 +947,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
 
 ## Next steps
 
-After milestone 4p: build the reference from the new set's own geometry (a twin of the new views, or a
-gate on their tilt relative to the old set's) and check it on a third disjoint pool of each TUM sequence,
-where the Xtion's flat pool over-alarmed at 4.4%. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
+After milestone 4p: build the reference from the new set's own geometry (done in milestone 4q as a gate on
+the twin's sd: power ×1.75, far solves gone, but the Xtion's flat pool still over-alarms at 5.9%) and check it
+on a third disjoint pool of each TUM sequence (the TUM host refused the proxy in 4m and 4q). After milestone
+4q: add a per-view error term to the twin (a random per-view offset of the board pose or of f, sized from the
+Xtion's 2.7-sd gap between its two 13-view calibrations) and see whether it brings the flat pool's false
+alarms under 2.5% while keeping the gate's power, pre-registered. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
 (does the jackknife stay honest when σ is this much smaller?); find the smooth 2-D residual
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is
