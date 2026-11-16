@@ -350,3 +350,30 @@ test("a cash-line guess the arithmetic confirms keeps its vote", () => {
   assert.ok(parseReceipt(exact).notes.some((n) => /printed on the cash line/.test(n)));
   assert.equal(parseReceiptPasses([wrong, "CAFE\nTotal", "CAFE\nCash", exact]).cents, 5206);
 });
+
+// Exact cash with one item: a cash-line guess keeps its half vote when a reading prints the
+// same amount on a line that is not the cash line ("AIR MINERAL 7000" with "CASH 7000":
+// CORD validation-66, eval/cord-cash-guess-2026-11-16.md). Receipt text made up, same shape.
+test("a cash-line guess printed on an item line too keeps its vote", () => {
+  const stray = "SHOP\nHehe 1088 ee\nWATER -7,000\nCASH -7,000";
+  const item = "SHOP\nWATER 7000\nCASH -7,000";
+  const cash = "SHOP\nWATER 27 5000\nCASH 7000";
+  assert.ok(parseReceipt(cash).notes.some((n) => /printed on the cash line/.test(n)));
+  assert.equal(parseReceiptPasses([stray, item, "SHOP", cash]).cents, 700000);
+  // the 50,000 of the bread-shop slip is on cash lines only, so that guess still gets nothing
+  const lost = "BREAD SHOP\n1 RED BEAN BREAD 9,0O0\n1 SAUSAGE l2,0O0\nT0TAI. 21,000";
+  const onCash = "BREAD SHOP\n1 RED BEAN BREAD 9,0O0\n1 SAUSAGE ROLL l2,0O0\nT0TAI. 2l,0O0\nCASH 50,000\nCHANGF 29.0O";
+  assert.equal(parseReceiptPasses([lost, onCash, onCash, "BREAD SHOP\n....."]).cents, 2100000);
+});
+
+// A 1-1 tie between two taxes goes to the one more readings print on a tax line, counting a
+// reading that lost its total and so parsed no tax (CORD validation-65: "4,264" once,
+// "4,964" twice). Receipt text made up, same shape.
+test("a tax tie goes to the amount more readings print on a tax line", () => {
+  const a = "WARUNG\nBASO 1 43,636\nTAX 16.00 4 4,264\nGRAND TOTAL 54,600";
+  const b = "WARUNG\nBASO 1 43,636\nTAX 16.00 4 4,964\nGRAND TOTAL 54,600";
+  const c = "WARUNG\nm TAX 10.00 2 4,964\nGRAND TOTAL AGO";
+  assert.equal(parseReceiptPasses([a, b, "WARUNG", c]).taxCents, 496400);
+  // with no third reading the tie keeps the reading the total came from, as before
+  assert.equal(parseReceiptPasses([a, b, "WARUNG", "WARUNG"]).taxCents, 426400);
+});

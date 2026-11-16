@@ -665,6 +665,14 @@ const guessedLargest = (p) => !p.totalLine && p.notes.some((n) => /took the larg
 // as the only candidate, with the note asking for a check.
 export const CASH_GUESS_VOTE = 0;
 const guessedCash = (p) => guessedLargest(p) && p.notes.some((n) => /printed on the cash line/.test(n));
+// Nor when a reading prints that amount on a line that is not the cash line: one item
+// "AIR MINERAL 7,000" paid with "CASH 7,000" (CORD validation-66: the rule above took it
+// from 7,000 to a stray 1,088) is exact cash, so the guess keeps its half vote. On
+// validation-30 the 50,000 appears on cash lines only (eval/cord-cash-guess-2026-11-16.md).
+const printedOffCash = (texts, c) => texts.some((t) => {
+  const ls = String(t).split(/\r?\n/).map((l) => l.trim()).filter(Boolean), style = wholeStyle(ls.join("\n")) ? "whole" : commaStyle(ls.join("\n"));
+  return ls.some((l, i) => !CASH_LINE_RE.test(l) && !/\bchange\b/i.test(l) && !(i > 0 && CASH_LINE_RE.test(ls[i - 1]) && !amountsIn(ls[i - 1], style).length) && amountsIn(l, style).includes(c));
+});
 // A total line whose dollars start with a 0 ("TOTAL: 04.78" where another reading has
 // "TOTAL: $94.78": SRD 1030) lost its first digit to OCR; no printed total reads that way.
 // That reading's total counts as a guess in the vote, with no total-line point (README,
@@ -702,7 +710,7 @@ function voteTotal(ps, support, texts = []) {
   ps.forEach((p, i) => {
     if (p.cents === null) return;
     const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
-    v.score += leadingZero(p, ps) ? GUESS_VOTE : guessedCash(p) && !support(p.cents) ? CASH_GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
+    v.score += leadingZero(p, ps) ? GUESS_VOTE : guessedCash(p) && !support(p.cents) && !printedOffCash(texts, p.cents) ? CASH_GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
     votes.set(p.cents, v);
   });
   // each reading that prints the subtotal-plus-tax amount counts once (no total-line point:
@@ -726,7 +734,17 @@ function voteTotal(ps, support, texts = []) {
 // taken as that difference. A tie keeps the reading the total came from, then the first.
 // On the 200 ExpressExpense photos the readings that found a tax disagreed on 21, and
 // the first reading had none on 41 where another did.
-export function voteTax(ps, out, pick) {
+// How many readings print an amount on a tax line, read in that reading's own style; breaks
+// a tie between taxes: CORD validation-65, "TAX 16.00 4 4,264" in one reading, "4,964" in
+// another and in a third that lost its total, so parsed no tax (eval/cord-cash-guess-2026-11-16.md)
+// (a reading too damaged to look like a whole-unit slip is also read in the style of the
+// reading the total came from: g4's "4,964" there)
+const styleOf = (x) => (wholeStyle(String(x)) ? "whole" : commaStyle(String(x)));
+const onTaxLines = (texts, t, also) => texts.filter((x) => {
+  const ls = String(x).split(/\r?\n/), style = styleOf(x);
+  return ls.some((l) => (TAX_RE.test(l) || TAX_LINE_RE.test(l)) && !NOT_TAX_RE.test(l) && (amountsIn(l, style).includes(t) || (also !== undefined && also !== style && amountsIn(l, also).includes(t))));
+}).length;
+export function voteTax(ps, out, pick, texts = []) {
   const subs = ps.flatMap((p) => p.subtotals ?? []);
   const votes = new Map();
   ps.forEach((p, i) => {
@@ -739,7 +757,8 @@ export function voteTax(ps, out, pick) {
     votes.set(t, v);
   });
   let win = null;
-  for (const [t, v] of votes) if (!win || v.score > win.score || (v.score === win.score && v.first < win.first)) win = { t, ...v };
+  if (texts.length) for (const [t, v] of votes) v.printed = onTaxLines(texts, t, texts[ps.indexOf(pick)] === undefined ? undefined : styleOf(texts[ps.indexOf(pick)]));
+  for (const [t, v] of votes) if (!win || v.score > win.score || (v.score === win.score && ((v.printed ?? 0) > (win.printed ?? 0) || ((v.printed ?? 0) === (win.printed ?? 0) && v.first < win.first)))) win = { t, ...v };
   const t = win ? win.t : out.taxCents;
   // two tax lines (sales 2.80, resort 0.80) read in one reading that had no subtotal,
   // the subtotal read in another: their sum is the tax when it closes to the total
@@ -795,7 +814,7 @@ export function parseReceiptPasses(texts, opts = {}) {
     Object.assign(out, { cents: pick.cents, taxCents: pick.taxCents, tipCents: pick.tipCents, items: pick.items, itemsOk: pick.itemsOk, taxIncluded: pick.taxIncluded, totalLine: pick.totalLine });
     out.notes = [...best.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); took ${(pick.cents / 100).toFixed(2)}, ${pick.derived ? `${pick.derived}: check the total` : "which the receipt's arithmetic confirms"}`];
   }
-  const tax = voteTax(ps, out, pick);
+  const tax = voteTax(ps, out, pick, ps.length >= 3 ? texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t))) : []);
   if (tax !== out.taxCents) {
     out.notes = [...out.notes, `OCR readings disagree on the tax (${ps.map((p) => p.taxCents === null ? "none" : (p.taxCents / 100).toFixed(2)).join(" vs ")}); took ${(tax / 100).toFixed(2)}`];
     out.taxCents = tax;
