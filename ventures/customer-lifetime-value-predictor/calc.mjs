@@ -548,6 +548,11 @@ function buildFindings({ summary, params, gg, bt, corr, newCustomer, seg }) {
 // ---------- output helpers ----------
 
 export function money(v) {
+  // The sign goes outside the symbol, and only on a nonzero amount: -$9.24, never $-9.24.
+  if (Number(v) < 0) {
+    const text = money(Math.abs(v));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  }
   if (!Number.isFinite(v)) return "n/a";
   return "$" + v.toLocaleString("en-US", { maximumFractionDigits: v < 100 ? 2 : 0, minimumFractionDigits: v < 100 ? 2 : 0 });
 }

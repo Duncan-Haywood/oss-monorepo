@@ -84,7 +84,11 @@ export const EXAMPLE = {
 };
 
 export function renderText(r) {
-  const m = (n) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const m = (n) => {
+    const format = (n) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   return [
     `Gross profit ${m(r.grossProfit)}; real net after operating expenses ${m(r.trueNet)}`,
     `Federal taxable income ${m(r.fedTaxableIncome)}, tax ${m(r.fedTax)}; state tax ${m(r.stateTax)}`,

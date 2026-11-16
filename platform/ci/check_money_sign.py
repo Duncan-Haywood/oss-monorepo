@@ -47,7 +47,16 @@ VENTURES = REPO_ROOT / "ventures"
 # Only `money`-shaped names. `signedMoney` and friends already place a sign.
 # `dollars`, `formatUsd` and `currency` were added 2026-10-15 after the first
 # red-team run found the same "$-50.00" defect under those names.
-NAME = r"(?:money|moneyLabel|fmtMoney|formatMoney|money0|money2|usd|dollars|fmtUsd|formatUsd|formatUSD|currency)"
+# `fmt`, `m`, `cad`, `cents`, `amt`, `moneyCents`, `usd3` and `$` were added
+# 2026-11-16 (red team) after 30 formatters under those names printed "$-".
+NAME = (r"(?:money|moneyLabel|moneyCents|fmtMoney|formatMoney|money0|money2|usd|usd3|dollars|fmtUsd"
+        r"|formatUsd|formatUSD|currency|fmt|m|cad|cents|amt|\$)")
+
+# The symbol, then the number: a template `` `$${ `` or a concatenation
+# `"$" + `. The concatenated spelling was invisible until 2026-11-16, when the
+# red team counted 70 copies of it, among them cannabis-280e-tax-calculator's
+# page showing a real loss as "Real profit $-200,000".
+OPENS_WITH_SYMBOL = r"(?:`\$\$\{|[\"']\$[\"']\s*\+)"
 
 # `const money = (value) => `$${...}`` and `function money(value) { return `$${...}` }`,
 # in every parameter spelling the copies drifted into.
@@ -57,8 +66,8 @@ NAME = r"(?:money|moneyLabel|fmtMoney|formatMoney|money0|money2|usd|dollars|fmtU
 # used. A line-scanning version of this check passed the repository while that
 # spelling was still in it.
 PATTERNS = (
-    re.compile(r"(?:const|let)\s+" + NAME + r"\s*=\s*\(?[A-Za-z_$][\w$]*\)?\s*=>\s*`\$\$\{"),
-    re.compile(r"function\s+" + NAME + r"\s*\(\s*[A-Za-z_$][\w$]*\s*\)\s*\{\s*return\s+`\$\$\{"),
+    re.compile(r"(?:const|let)\s+" + NAME + r"\s*=\s*\(?[A-Za-z_$][\w$]*\)?\s*=>\s*" + OPENS_WITH_SYMBOL),
+    re.compile(r"function\s+" + NAME + r"\s*\(\s*[A-Za-z_$][\w$]*\s*\)\s*\{\s*return\s+" + OPENS_WITH_SYMBOL),
 )
 
 # The two patterns above require the body to *open* with the template literal.
@@ -84,8 +93,8 @@ BODY_START = re.compile(
     r"|function\s+" + NAME + r"\s*\([^)]*\)\s*(?=\{)"
 )
 
-# A `$` immediately followed by a template interpolation, i.e. `` `$${x}` ``.
-INTERPOLATES_AFTER_SYMBOL = re.compile(r"\$\$\{")
+# A `$` immediately followed by the number: `` `$${x}` `` or `"$" + x`.
+INTERPOLATES_AFTER_SYMBOL = re.compile(OPENS_WITH_SYMBOL)
 
 # A formatter whose symbol is a parameter defaulting to "$" interpolates it as
 # `${currency}${x}` (red team 2026-10-24: `formatMoney(value, currency = '$')`

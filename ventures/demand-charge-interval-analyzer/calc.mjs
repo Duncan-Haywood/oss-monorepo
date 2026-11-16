@@ -265,7 +265,12 @@ export function analyze(rows, s) {
   return { ok: true, warnings, intervalMin, months, yearly, monthsUsed: full.length, maxPeak, hourHits, topPeaks, caps, best, ratchet, rate, readings: pts.length };
 }
 
-export const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+export const money = (n) => {
+  const format = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const kw = (n) => n.toLocaleString("en-US", { maximumFractionDigits: 1 }) + " kW";
 
 export function toCsv(a) {

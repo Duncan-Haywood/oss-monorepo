@@ -116,7 +116,12 @@ export function plan(input) {
   return out;
 }
 
-const usd = (x) => "$" + Math.round(x).toLocaleString("en-US");
+const usd = (x) => {
+  const format = (x) => "$" + Math.round(x).toLocaleString("en-US");
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 function advise(r) {
   const v = r.input;
