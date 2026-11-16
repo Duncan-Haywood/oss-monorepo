@@ -1356,6 +1356,16 @@ colour PSNR rises on all six truths (+0.10 to +4.28 dB), so ours now has the hig
 LibRaw's seven methods and bilinear on all six; the sheet goes from 35.59 to 39.87 dB with false colour
 119 to 42, without the median. `directional(..., laplace=0.25)` gives the earlier output.
 
+**Per-sensel weight, and a fresh held-out set, 2026-11-16** (`eval/bayer-adaptive-laplace-2026-11-16.md`).
+`directional(..., laplace="adaptive")` picks the weight per sensel in [1/8, 1/4] as the least-squares
+weight that makes the colour difference closest to linear over a 3 x 3 window. It is an option, not the
+default: on five frames no earlier note used (Sony A7 IV, Nikon D800E, Canon 7D, Panasonic GF7,
+Samsung NX1) it adds 0.10 dB colour PSNR on average (-0.03 to +0.37), and on the sheet false colour
+falls from 42 to 9.6, but it loses luma on the A7 III and K-1 II (-0.33, -0.24), takes about twice the
+time and runs in numpy only. The same five frames are the first independent check of the 3/16
+default: it beats all seven LibRaw methods on colour PSNR on every one, by 0.5-1.5 dB noise-free and
+0.2-1.1 dB at SNR 25.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:

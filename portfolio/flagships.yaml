@@ -264,11 +264,12 @@ flagships:
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Tiled C-RAW: re-tile a
-      real R8 for LibRaw (eval/canon-cr3-tiled-*); Bayer: per-pixel Laplacian
-      weight, noise (eval/bayer-laplace-*). X-Trans demosaic: real frames 0.5-0.7 dB
-      short of LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings;
-      median and green; eval/xtrans-clamp-gradient-2026-11-15.md). DNG 1.7.1.0 spec
-      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      real R8 for LibRaw (eval/canon-cr3-tiled-*); Bayer: learned 1/8-or-1/4
+      selector (eval/bayer-adaptive-laplace-*). X-Trans demosaic: real frames
+      0.5-0.7 dB short of LibRaw's three-pass, level under noise, sheet 4.4
+      (zone-plate rings; median and green;
+      eval/xtrans-clamp-gradient-2026-11-15.md). DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
