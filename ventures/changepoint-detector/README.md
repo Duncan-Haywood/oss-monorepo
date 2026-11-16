@@ -5522,7 +5522,7 @@ floor, or the AR(1) correction alone (best here, 0.353) on a sixth fresh multi-c
 Tests: `beedance-muted.test.mjs` (3: the rule fails with the committed numbers; white noise never flagged under the
 default or a floor of 2; bee 3 under AR(1) + floor 2 names x and y in the text and the default names nothing).
 
-## A date you name: four pre-registered rounds, not shipped (2026-11-16)
+## A date you name: five pre-registered rounds; round 5 ships as `--known-date` (2026-11-16)
 
 The question: a law, launch or price change happened on a date fixed before anyone looked at the chart; did the
 level or the slope change there? That is an interrupted time series (segmented regression; Wagner et al. 2002,
@@ -5530,9 +5530,10 @@ Bernal, Cummins and Gasparrini 2017). The module `known-date.mjs` fits a line, a
 given date (plus seasonal dummies with a period), AR(1) noise by iterated Prais-Winsten, and calibrates the joint
 F and both t statistics with a parametric bootstrap from the null fit. A 95% range for the step and the slope
 change uses the bootstrap's 97.5th percentile of |t|. The bar to ship (CLI `--known-date`, the page, the engine)
-was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. **It failed the size bar in
-every round, in short sticky series, so it is not offered.** Rounds 1-3 were too eager; round 4 (below) fixed that
-and became too cautious in one cell. The module and its tests stay for the next round.
+was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. Rounds 1-3 were too eager in
+short sticky series; round 4 fixed that and became too cautious in one cell; **round 5 (below) met every bar and
+ships in the CLI** (`--known-date <label>`, with `--period` and `--log`; the page and the engine have not followed
+yet). Series that only the random-walk cut lets through are reported as not calibrated (round 5, "after the run").
 
 | Round (pre-registration) | Generator rho; guard | Worst size cells (of series tested) | Random walks rejected (of all) | Real A-D |
 |---|---|---|---|---|
@@ -5540,6 +5541,7 @@ and became too cautious in one cell. The module and its tests stay for the next 
 | 2 (`...-round2-2026-11-16.md`) | matched by indirect inference, capped at 0.95; same | n 40 rho 0.8 date 80%: 9.2% | 5.0%, 8.7% | (not rerun) |
 | 3 (`...-round3-2026-11-16.md`) | matched; plus the hinge test's random-walk cut guard | n 40 rho 0.8 date 80%: 9.4%; n 60 rho 0.8: 8.9% | 1.3%, 1.0% | all met |
 | 4 (`...-round4-2026-11-16.md`) | round 3, plus a 90% upper bound for rho; the larger p of the two | every cell 1.1-5.9% (max n 60 rho 0.8); **n 40 rho 0.4 date 80%: 1.8%, under the 2% floor** | 0.3%, 1.0% | all met |
+| 5 (`...-round5-2026-11-16.md`) | round 4's upper bound only when the line rho is above 0.5 | every cell 1.0-5.8%; rho 0 / 0.4 cells 3.3-5.8% | 0.3%, 0.5% | all met; **ships** |
 
 400 series per cell, 199 replicates; outputs in
 `eval/known-date-sim-round1.out.txt`, `-round2`, and `eval/known-date-sim.out.txt` (round 3). Every other size cell
@@ -5591,3 +5593,49 @@ ships. **Next round** (fresh pre-registration and seeds): use the upper bound on
 is above a value fixed in advance (where round 3 failed), or a Berger-Boos p (the maximum over the bound's interval
 plus its gamma) with a narrower 1-gamma; either way state the 2% floor for every cell again. The CLI wiring
 (`--known-date <label>` with a plain-text report) was written in this session and taken out when the bar failed.
+
+### Round 5: the upper bound only where the line rho is high (2026-11-16, pre-registered; ships as `--known-date`)
+
+Round 4's two-point test spent the error budget on rho 0.4 series at 40 points, where the 90% upper bound sits far
+above the truth. Round 5 (`eval/known-date-prereg-round5-2026-11-16.md`, committed on its own before the
+confirmatory run) runs it only when the plain line's residual rho (OLS, bias corrected, the guard's own reading) is
+above **0.5**, and round 3's matched-rho bootstrap alone otherwise (`rhoGenMethod: 'gated'`). The gate was chosen on
+an exploratory run (seed base 21000, 200 series; `eval/known-date-gate-explore.mjs`, `.out.txt`) that kept each
+series' line rho and both p-values, so gates 0.3-0.7 were scored on the same series: 0.7 let n 60 rho 0.9 back to
+11.8%, 0.5 and 0.6 differed little, and 0.5 is the safer. The 2% floor stays on the eight rho 0 and 0.4 cells, not
+every cell as round 4's note suggested: where the gate fires the test takes a maximum of two p-values, the
+exploratory run showed 1.0-1.2% in two rho 0.8 cells under any gate at or below 0.6, and a floor there would be a bar
+set to fail; a power bar on the short rho 0.4 series (3b) takes its place.
+Confirmatory run on fresh seed base 25000: `node eval/known-date-sim.mjs 400 199 gated`
+(`eval/known-date-sim-round5.out.txt`), real series `node eval/known-date-real.mjs gated`
+(`eval/known-date-real-round5.out.txt`):
+
+| Bar (pre-registered) | Round 4 | Round 5 | |
+|---|---|---|---|
+| 1a. size at most 8% of tested, 12 cells + n 60 rho 0.8 | worst 5.9% | worst 5.8% (n 40 rho 0 date 50%); n 60 rho 0.8: 4.3% | holds |
+| 1b. size at least 2% in the eight rho 0 / 0.4 cells | 1.8% (n 40 rho 0.4 date 80%) | lowest 3.3% (same cell) | holds |
+| 2. random walks rejected, share of all | 0.3%, 1.0% | 0.3%, 0.5% | holds |
+| 3a. power, step 1 sd, n 120: rho 0 at least 55%, rho 0.4 at least 20% | 62.8%, 27.3% | 64.0%, 24.3% | holds |
+| 3b. power, step 1 sd, n 40, rho 0.4: at least 5% | 4.8% | 10.4% | holds |
+| 4. real series A-D | met | met: drivers step -0.237 (range -0.354 to -0.119), joint p 0.003; front -0.309, p 0.001; rear-seat control step p 0.50; Nile -289, p 0.001; placebos 0 of 3 | holds |
+
+Power on 40 points came back: a 1 sd step at rho 0 is found 20.8% of the time (round 4: 15.8%), a slope change
+9.0% (6.3%). The seat-belt series are sticky about a plain line (rho 0.62 and 0.66), so both bootstraps ran on them;
+the rear-seat control and the Nile were below the gate.
+
+**After the run: series passed only by the cut are not calibrated** (not pre-registered; a diagnosis,
+`node eval/known-date-cut-admitted.mjs`, `eval/known-date-cut-admitted.out.txt`). Reported without a bar, n 60 rho
+0.9 rejected 23.6% of the 55 series it tested (round 4: 7.3% on other seeds; 3.3% of all 400, since most are
+refused). Replaying round 5's eight sticky null cells on the same seeds and splitting tested series by how they
+passed the guard: those the line checks pass were rejected 0.7-4.9% in every cell (n 60 rho 0.9: 2 of 41); those
+passed only by the random-walk cut were rejected **17 times in 26**. The cut admits a sticky series when a step at
+the date makes its residuals much less sticky, and a spurious step that does that is just what the F test then
+finds. The pre-registered rule is unchanged, but the CLI marks these results `calibrated: false` and its text says
+"NOT A CALIBRATED TEST HERE", with the 17 of 26. None of the real series A-D took that path. **Next:** a bootstrap
+that conditions on admission (simulate the null, apply the same guard, take the p among admitted replicates), and
+the page and engine wiring.
+
+**Use it.** `node cli.mjs data.csv --column deaths --known-date 1983-02 --period 12 --log` (the label is the first
+row after the change; `--json` for the fields: `step`, `stepRange95`, `pStep`, `slopeChange`, `pSlope`, `p`,
+`pTable`, `effectAverage`, `effectAtEnd`, `gated`, `rhoGen`, `calibrated`). Tests: `known-date.test.mjs`,
+`known-date-cli.test.mjs`.

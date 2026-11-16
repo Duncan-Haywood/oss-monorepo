@@ -44,6 +44,7 @@ Options:
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
   --hinge-test              test for one change of slope on the levels, with AR(1) noise and a bootstrap p-value: far more power than --slope-breaks on a series that wanders about a trend (temperature), and refuses one whose residuals look like a unit root (GDP); 30 to 600 points
+  --known-date <label>      test for a step and a change of slope at a date you name (a law, launch or price change; the label is the first row after it), against the line before it, AR(1) noise and a bootstrap p-value; takes --period and --log; refuses a series that wanders like a random walk
   --two-hinge-test          test for two changes of slope against a straight line on the levels (speeds up then levels off; rises, holds, falls), same AR(1) noise, bootstrap and unit-root guard as --hinge-test; 30 to 300 points
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
@@ -83,7 +84,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let json = false;
   let example = false;
   let agreed = true;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
@@ -145,6 +146,12 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     const { driftText, driftResult } = await import('./drift-cli.mjs');
     const r = driftResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, penalty: opt.penalty, minSegment: opt.minSegment, slope: opt.driftSlope, noise: opt.driftNoise });
     out((json ? JSON.stringify(r, null, 2) : driftText(r)) + '\n');
+    return 0;
+  }
+  if (opt.knownDate != null) {
+    const { knownDateResult, knownDateText } = await import('./known-date-cli.mjs');
+    const r = knownDateResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, date: opt.knownDate, period: opt.period, log: opt.log });
+    out((json ? JSON.stringify(r, null, 2) : knownDateText(r)) + '\n');
     return 0;
   }
   if (opt.columns) {

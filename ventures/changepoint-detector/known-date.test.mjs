@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { knownDateTest } from './known-date.mjs';
 
-// The test at a date the user names (README "A date you name: four pre-registered rounds, not shipped";
-// eval/known-date-prereg-*.md). Rounds 1-3 failed the size bar high in one cell (n 40, rho 0.8, the date at 80%:
-// 13.6%, 9.2%, 9.4% against 8%); round 4's upper-bound generator held every cell under 8% but fell to 1.8% in one
-// (n 40, rho 0.4, date 80%) against the 2% floor. So it is not in the CLI, the engine or the page; these tests pin the
-// module's real-series behaviour (eval/known-date-real.out.txt, -round4) for the next round.
+// The test at a date the user names (README "A date you name"; eval/known-date-prereg-*.md). Rounds 1-3 failed the
+// size bar high in one cell (n 40, rho 0.8, the date at 80%: 13.6%, 9.2%, 9.4% against 8%); round 4's upper-bound
+// generator held every cell under 8% but fell to 1.8% in one against the 2% floor; round 5 (the upper bound gated on
+// the line rho) met every bar and ships in the CLI (known-date-cli.test.mjs). These tests pin the module's
+// real-series behaviour (eval/known-date-real.out.txt, -round4, -round5).
 const read = (f, name) => {
   const [h, ...rows] = readFileSync(new URL(`./data/${f}`, import.meta.url), 'utf8').trim().split('\n');
   const j = h.split(',').indexOf(name);
@@ -71,4 +71,17 @@ test('round 4 generator: the upper bound sits above the point rho on a short sti
   assert.ok(b.rhoGen[1] > b.rhoGen[0] && b.rhoGen[0] === a.rhoGen[0], JSON.stringify(b.rhoGen));
   assert.ok(b.p >= a.p && b.pStep >= a.pStep && b.pSlope >= a.pSlope);
   assert.ok(b.stepRange95[0] <= a.stepRange95[0] && b.stepRange95[1] >= a.stepRange95[1]);
+});
+
+test('round 5 generator: the upper bound runs only above the line-rho gate', () => {
+  const r = mulberry(77); let u = 0;
+  const x = Array.from({ length: 40 }, (_, t) => { u = 0.6 * u + gauss(r); return 0.05 * t + u; });
+  const hi = knownDateTest(x, 32, { reps: 49, seed: 3, rhoGenMethod: 'gated', gateRho: 0 });
+  const lo = knownDateTest(x, 32, { reps: 49, seed: 3, rhoGenMethod: 'gated', gateRho: 0.99 });
+  const up = knownDateTest(x, 32, { reps: 49, seed: 3, rhoGenMethod: 'upper' });
+  const m = knownDateTest(x, 32, { reps: 49, seed: 3 });
+  assert.equal(hi.gated, true); assert.equal(lo.gated, false);
+  assert.deepEqual(hi.rhoGen, up.rhoGen); assert.equal(hi.p, up.p);
+  assert.deepEqual(lo.rhoGen, m.rhoGen); assert.equal(lo.p, m.p);
+  assert.equal(hi.pGen.length, 2); assert.equal(hi.p, Math.max(...hi.pGen));
 });

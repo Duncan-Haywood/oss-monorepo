@@ -13,7 +13,8 @@
 // replicate re-estimating rho, so small samples and sticky noise do not inflate the size the way the F table does.
 // A 95% range for d and c is the estimate plus or minus its standard error times the bootstrap's 97.5th percentile
 // of |t|. Guard: when the full model's residuals have bias-corrected rho above 0.9 (0.7 under 100 points), the series
-// is refused as too close to a unit root. Pre-registration: eval/known-date-prereg-2026-11-16.md.
+// is refused as too close to a unit root. Pre-registration: eval/known-date-prereg-2026-11-16.md; rounds 2-5 after it.
+// Shipped settings (round 5, CLI --known-date via known-date-cli.mjs): rhoGenMethod 'gated', gateRho 0.5, guard 'cut'.
 //
 // What it does not do: control series (CausalImpact's synthetic control), covariates, non-Gaussian noise, dependence
 // beyond AR(1), or say what caused the change. A small p says the pre-date line does not carry on through the date.
