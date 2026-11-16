@@ -1,5 +1,19 @@
 # build-data log
 
+## Session 95, 2026-11-16: do administrative closures in the completion dates cost the deployable model anything? (pre-registered; outcome pending)
+
+Why: session 94 found that 0.04% (SF), 0.40% (Seattle) and 1.49% (Austin) of dated completions belong to permits the status calls dead (Austin's mostly "withdrawn"), with a long tail (Austin's dead p90 1,080 days against done's 379). Every model here reads the completion date as a build's end. Its "Next" asked to refit cpin_es3_nc5 with those rows dropped and measure what the closures cost at q0.9.
+- Method: `src/status_pull.py` pulls permit id, completion day and status (Seattle also session 94's "Closed as Incomplete" marker, computed by the API) for every permit with a completion date, to `DATA_DIR/<city>_status.csv`. `rounds.py` joins it on (permit id, completion day) (`attach_status`) and adds variant `cpin_es3_nc5_clean`: cpin_es3_nc5 with the source rows completed by D whose status is dead dropped from training and the Y-3 early-stopping set (`dead_drop`); a dead permit completed after D stays as an open row, since on D it is open. With `--status-dir` every cpin variant is also scored on the live test rows (completed test-year rows whose status is not dead) and reports its mean q0.9 prediction on completed test rows.
+- Leak disclosed: the status is the status on the pull day, not on D. For a row completed before D the close-out status is set at close-out, so it was almost surely the same on D; this is assumed, not checked (the feeds keep no status history).
+Design (fixed before any model run): cascade2 class; H = sf, seattle; Y = 2021, 2022; 3 seeds; fresh pull 2026-11-16; `rounds.py DIR --score --keep-open --status-dir DIR_STATUS --variants cpin_es3_nc5 cpin_es3_nc5_clean --held sf|seattle --out-name rounds_score_clean_i2c.json`. Both variants are refit on the same pull, so the comparison does not depend on how the feeds moved since session 91.
+Predictions (q0.9 = cascade2's mean pinball loss over 3 seeds, days):
+- (K1) In every cell the clean rule drops between 0.5% and 3% of the training plus early-stopping rows, and at least 80% of the dropped rows are Austin's.
+- (K2) clean minus nc5 at q0.9 on all completed test rows, mean over the 4 cells, lies within plus or minus 1 day.
+- (K3) clean's mean q0.9 prediction on completed test rows is lower than nc5's in all 4 cells.
+- (K4) On the live test rows, clean minus nc5 at q0.9 is no larger than the same difference on all completed test rows in at least 3 of the 4 cells.
+- (K5, check) nc5's q0.9 test loss on this pull is within 0.5 days of session 91's (`results/rounds_score_nc_i2c.json`) in all 4 cells.
+Refuted if any part fails.
+
 ## Session 94, 2026-11-16: the completion dates are builds, not closures (0.04% of dated completions in SF, 0.4% in Seattle and 1.5% in Austin belong to permits the status calls dead), but 71% of Seattle's undated "Completed" permits issued 2010 to 2022 say "Closed as Incomplete" in their description, so session 93's "about 10,000 finished builds with a missing date" is wrong: at most 1,574 remain, and nothing in the feed dates them; V2, V4 held, V1, V3, V5 refuted
 
 Why: session 93 read Seattle's permits with status "Completed" and no completion date as finished builds missing a date, and asked whether another field could date them. While listing the feed's columns this run saw three such permits (issued 2005 to 2006), and all three descriptions open "Closed as Incomplete - Expired Permit". If that is general, those permits never close, and the reverse question matters more: how many completion dates in each feed belong to permits the status calls dead (session 93's `closeout_status.json` shows Austin's dated completions 4.6% "void" and 2.5% "expired"), since that date is the issue-to-completion label every model here trains and scores on.

@@ -34,6 +34,12 @@ candidate) under the variants that early-stop, and records the round each quanti
   cpin_es3_nc2, _nc3, _nc8  the same rule at 2, 3 and 8 years (session 92's sweep, STALE)
   cpin_es3_ncq the same rule with a threshold per source city: its own 0.99 quantile of build days over its
                years <= Y-2 completed by D (session 93, q_threshold)
+  cpin_es3_nc5_clean  cpin_es3_nc5 with the source permits completed by D whose close-out status is dead (expired,
+               void, withdrawn, ... or Seattle's "Closed as Incomplete" marker; src/status_pull.py) dropped from
+               training and early stopping: their completion date is an administrative closure, not a build's
+               end (session 95). Dead permits completed after D stay, as open rows: on D nobody knows yet.
+Session 95: with --status-dir every cpin variant is also scored on the "live" test rows: completed test-year
+rows whose status is not dead (test_loss_live), and reports its mean q0.9 prediction on completed test rows.
 Session 92: every _nc variant is also scored on a selection set a deployment has on D, the same for every
 threshold: all the sources' Y-3 permits (never-completed ones included, none dropped), open ones with their
 window at D, by the censored loss (sel_closs). sweep_summary picks the threshold with the lowest q0.9 sel_closs
@@ -57,10 +63,12 @@ import boosted, transfer  # noqa: E402
 
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
-            "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq")
+            "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq",
+            "cpin_es3_nc5_clean")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
 # session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
-STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922}
+STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922,
+         "cpin_es3_nc5_clean": STALE_DAYS}
 STALE_Q = 0.99  # session 93, cpin_es3_ncq: a source's threshold = this quantile of its builds completed by D
 
 
@@ -78,6 +86,24 @@ def stale_drop(d, decision, days=STALE_DAYS):
     s = pd.to_datetime(d.start).dt.date
     win = np.array([(decision - x).days for x in s], dtype=float)
     return d[~((d.y.to_numpy(float) > win) & (win > days))]
+
+
+def dead_drop(d, decision):
+    """Session 95: drop rows of d completed by `decision` whose close-out status is dead (column `dead`, from
+    attach_status); rows completed later, open or never completed stay."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    return d[~((d.y.to_numpy(float) <= win) & d["dead"].to_numpy(bool))]
+
+
+def attach_status(df, path):
+    """Session 95: mark each completed row of df dead (bool column `dead`) when the status pull
+    (status_pull.py, DATA_DIR/<city>_status.csv) has a dead row with the same permit id and completion day."""
+    st = pd.read_csv(path, dtype=str, keep_default_na=False)
+    dead = set(zip(st.permit_id[st.group == "dead"], st.completed[st.group == "dead"]))
+    df = df.copy()
+    df["dead"] = [(p, c) in dead for p, c in zip(df.permit_id, df.completed)]
+    return df
 
 
 def splits(frames, held, Y, variant, floor=0.05):
@@ -130,7 +156,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     frames = {c: (d if nc and c != held else d[np.isfinite(d.y.to_numpy(float))]) for c, d in frames.items()}
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
-    thresholds = None
+    thresholds, n_dead_dropped = None, None
     if variant == "cpin_cut":
         tr, ca = cat(lambda d: d.year <= Y - 2), cat(lambda d: d.year == Y - 1)
         ytr, otr = cpin.censor(tr, D)
@@ -142,6 +168,10 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         sel = ca  # session 92: the common selection set, before any staleness drop
         if variant in STALE:
             tr, ca = stale_drop(tr, D, STALE[variant]), stale_drop(ca, D, STALE[variant])
+        if variant == "cpin_es3_nc5_clean":
+            n0 = len(tr) + len(ca)
+            tr, ca = dead_drop(tr, D), dead_drop(ca, D)
+            n_dead_dropped = n0 - len(tr) - len(ca)
         if variant == "cpin_es3_ncq":
             # session 93: a cut per source city, from its own builds of years <= Y-2 completed by D
             thresholds = {c: q_threshold(frames[c][(frames[c].year <= Y - 2) & np.isfinite(frames[c].y)], D)
@@ -164,6 +194,8 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         Xte = pd.concat([Xte, transfer.feats(sel)])
     sel_loss = {t: [] for t in (0.5, 0.9)}
     done_te = np.isfinite(te_all.y.to_numpy(float)) if has_open else np.ones(len(te), bool)
+    live = ~te["dead"].to_numpy(bool) if "dead" in te else None  # session 95: among completed test rows
+    loss_live = {t: [] for t in (0.5, 0.9)}
     taus = (0.5, 0.9)  # q0.1 is untouched by open permits and costs most rounds (300 in es3); skipped for time
     out, loss, preds, closs_te = {}, {t: [] for t in taus}, {}, {t: [] for t in taus}
     for s in range(seeds):
@@ -177,12 +209,24 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
             print(f"  {held} {Y} {variant} seed {s} tau {t}: {r[t]} rounds, {time.time() - t0:.0f} s", flush=True)
             if score:
                 loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr[done_te], t).mean()))
+                if live is not None:
+                    loss_live[t].append(float(boosted.pin(te.y.to_numpy(float)[live], pr[done_te][live], t).mean()))
                 if has_open:
                     closs_te[t].append(float(cpin.closs(yta, pr, ota, t).mean()))
                 if t == 0.9:
-                    preds[str(s)] = dict(max=float(pr[done_te].max()), share_above_3650=float((pr[done_te] > 3650).mean()))
+                    preds[str(s)] = dict(max=float(pr[done_te].max()), share_above_3650=float((pr[done_te] > 3650).mean()),
+                                         mean=float(pr[done_te].mean()))
         out[str(s)] = {str(t): int(v) for t, v in r.items()}
     res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
+    if n_dead_dropped is not None:
+        res["n_dead_dropped"] = n_dead_dropped
+    if "dead" in tr:
+        res["n_train_dead_by_D"] = int(len(tr) - len(dead_drop(tr, D)))
+        res["n_es_dead_by_D"] = int(len(ca) - len(dead_drop(ca, D)))
+    if score and live is not None:
+        res["n_test_dead"] = int((~live).sum())
+        res["test_loss_live"] = {str(t): sum(v) / len(v) for t, v in loss_live.items()}
+        res["test_loss_live_per_seed"] = {str(t): v for t, v in loss_live.items()}
     res["n_train_never_completed"] = int(np.isinf(tr.y.to_numpy(float)).sum())
     res["n_es_never_completed"] = int(np.isinf(ca.y.to_numpy(float)).sum())
     if thresholds is not None:
@@ -563,6 +607,8 @@ if __name__ == "__main__":
     ap.add_argument("--pulled", default=datetime.date.today().isoformat(), help="pull date (censored test windows)")
     ap.add_argument("--summarise-nc", help="session 91: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-sweep", help="session 92: write results/<name>_summary.json from this file")
+    ap.add_argument("--status-dir", help="session 95: directory of <city>_status.csv (status_pull.py)")
+    ap.add_argument("--summarise-clean", help="session 95: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-ncq", help="session 93: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
@@ -629,6 +675,10 @@ if __name__ == "__main__":
     keep_open = any(v.startswith("cpin_") for v in a.variants) and a.keep_open
     frames = {c: transfer.frame(os.path.join(a.data_dir, f"{c}.csv"), "i2c", "cascade2", keep_open=keep_open)[0]
               for c in cities}
+    if a.status_dir:
+        frames = {c: attach_status(d, os.path.join(a.status_dir, f"{c}_status.csv")) for c, d in frames.items()}
+    elif "cpin_es3_nc5_clean" in a.variants:
+        raise SystemExit("cpin_es3_nc5_clean needs --status-dir")
     pulled = datetime.date.fromisoformat(a.pulled)
     out_path = os.path.join(res_dir, a.out_name or ("rounds_score_i2c.json" if a.score else "rounds_i2c.json"))
     res = json.load(open(out_path)) if os.path.exists(out_path) else {}
