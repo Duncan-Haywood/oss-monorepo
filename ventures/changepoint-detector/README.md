@@ -62,6 +62,9 @@ where it departs from the paper.
   `--columns orders:poisson,revenue,signups:poisson`, a model per column) watches every column of one CSV, keeps a
   record per column in one state file and sends the day's new changes as one webhook message. README "Several metrics in
   one watch".
+- **Watch your Stripe account** (2026-11-16): `STRIPE_API_KEY=rk_live_... node stripe-metrics.mjs --out data/stripe.csv`
+  writes payments, revenue and failed payments per complete day from your own account; the self-deploy workflow
+  fetches and watches it when the secret `STRIPE_API_KEY` is set. README "Stripe as a source".
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
@@ -463,6 +466,9 @@ Free and open source (MIT, see `LICENSE`). Optional support:
 - **Eyeballing a chart:** fast, but cannot say whether a dip is noise or a shift, or how sure to be.
 - **Anomaly alerts in a monitoring product:** flag single odd points, not a lasting change in level.
   `watch.mjs` is the lasting-change alert, run in the user's own account (see "Watching a growing series").
+- **Stripe analytics apps (Baremetrics, ChartMogul, ProfitWell and the like):** subscription dashboards, mostly
+  paid, holding the merchant's data. `stripe-metrics.mjs` plus the watch sends one message when payments, revenue
+  or declines move to a new level, from the merchant's own GitHub account, free (see "Stripe as a source").
 
 
 **Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
@@ -3483,6 +3489,54 @@ is simulated), and a faster fit (the Markov ascent could skip the degrees of fre
 M1 already places far behind). Tests: `rounded-walk-markov.test.mjs`, `rounded-walk-heavy.test.mjs`,
 `rounded-walk.test.mjs`.
 
+## Stripe as a source (2026-11-16)
+
+Most people who want to hear "sales moved to a new level" sell through Stripe, and asking them to export a CSV every
+day is where a watch dies. `stripe-metrics.mjs` turns the deployer's own Stripe account into the daily CSV the watch
+reads, with a read-only restricted key (Charges; Customers too for `--customers`) from an environment variable:
+
+- one row per **complete** day in the deployer's `--utc-offset` (today is left out, so a half day never reads as a
+  fall), zeros on days with nothing, so a count series has no holes;
+- `payments`: succeeded charges in any currency; `revenue`: their gross amount in one currency, major units, summed
+  in minor units so it stays exact (zero- and three-decimal currencies from Stripe's currency list); `failed`:
+  charges with status `failed`; `new_customers` with `--customers`. Pending charges count once they settle; refunds
+  are not subtracted (a refund belongs to the day it was made, which a charge list does not date);
+- an existing CSV is extended: its last `--refetch` days (default 3) are fetched again for late settles, the rest
+  kept, and the currency summed is remembered beside it (`<file>.currency`) so a column never mixes two;
+- list pages followed with `starting_after`, 429 and 5xx retried with backoff (1, 2, 4, 8, 16 s), a 401 or 403
+  answered with what to fix; a publishable key is refused before any call. `STRIPE_API_BASE` (tests only) takes a
+  loopback address and nothing else, so the key cannot be pointed at another host.
+
+`deploy/watch-metric.yml` runs it before the watch when the secret `STRIPE_API_KEY` is set (options in the variable
+`STRIPE_OPTIONS`), caches `data/stripe.csv` with `actions/cache` so a run fetches days, not 400 days, and with
+`METRIC_CSV` unset watches `--columns payments:poisson,revenue,failed:poisson`. `make-watch-repo.sh` copies the
+script and writes a `.gitignore` for the CSV. The repository should be private: `watch-state.json` records the
+level around each change, which for revenue is the business's revenue.
+
+**Checked** (`stripe-metrics.test.mjs`, 10 tests, one the CSV formula guard): against a stand-in for Stripe's list API with its documented
+shape (`{object: 'list', data, has_more}`, newest first, `created[gte]`, `created[lt]`, `starting_after`, `limit`
+capped at 100): every charge read once across pages; retries and error messages; day boundaries at an offset;
+complete days only; the incremental refetch window; the currency guard; then the made repository's workflow run
+under `deploy/run-workflow.mjs` against the stand-in served over HTTP (fetch step writes 400 days, state holds the
+three columns, the CSV is not committed, the key never printed). **Not checked against a live Stripe account**: no
+session holds a key. A deployer's first run is that check; the field names used (`id`, `created`, `amount`,
+`currency`, `status`) are the stable core of the Charge object.
+
+**How the default watch behaves on it** (`eval/stripe-declines.mjs`, output `eval/stripe-declines.out.txt`;
+synthetic shops, 40 Poisson payments a day of $10-50, declines 2% of attempts, watched daily over the last 30 of
+120 days, 20 seeds per row; measured once, no setting tuned on it):
+
+| case | decline jump heard | days after the jump | payments/revenue alerts at the jump | other alert lines / 620 checks |
+|---|---|---|---|---|
+| declines 2% to 25%, 12 days before the end | 20 of 20 | 5 (all) | 12 | 0 |
+| declines 2% to 10% | 16 of 20 | median 5, 4-7 | 0 | 0 |
+| no change | - | - | - | 0 |
+
+The 12 payments/revenue alerts in the first row are true: a quarter of attempts declined takes about a quarter off
+succeeded payments. The quiet is optimistic: these shops have no weekly cycle, promotions or growth, all of which a
+real shop has and which the watch's own history replay (`--suggest`) is there to measure. Next: a real shop's
+daily Stripe series (a deployer's, or a public one) through `--suggest`, and a weekly cycle (`--period 7`) per column.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
@@ -5467,3 +5521,45 @@ published methods (bocpd, KL-CPD) were not rerun on 1 to 5. Next for (a): a per-
 floor, or the AR(1) correction alone (best here, 0.353) on a sixth fresh multi-column set before it is anything more.
 Tests: `beedance-muted.test.mjs` (3: the rule fails with the committed numbers; white noise never flagged under the
 default or a floor of 2; bee 3 under AR(1) + floor 2 names x and y in the text and the default names nothing).
+
+## A date you name: three pre-registered rounds, not shipped (2026-11-16)
+
+The question: a law, launch or price change happened on a date fixed before anyone looked at the chart; did the
+level or the slope change there? That is an interrupted time series (segmented regression; Wagner et al. 2002,
+Bernal, Cummins and Gasparrini 2017). The module `known-date.mjs` fits a line, a step and a slope change at the
+given date (plus seasonal dummies with a period), AR(1) noise by iterated Prais-Winsten, and calibrates the joint
+F and both t statistics with a parametric bootstrap from the null fit. A 95% range for the step and the slope
+change uses the bootstrap's 97.5th percentile of |t|. The bar to ship (CLI `--known-date`, the page, the engine)
+was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. **It failed the size bar in
+every round, in short sticky series, so it is not offered.** The module and its tests stay for the next round.
+
+| Round (pre-registration) | Generator rho; guard | Worst size cells (of series tested) | Random walks rejected (of all) | Real A-D |
+|---|---|---|---|---|
+| 1 (`eval/known-date-prereg-2026-11-16.md`) | Kendall-corrected, capped at the guard; full-model residuals | n 40 rho 0.8: 13.6% (date at 50%), 8.9% (80%) | 18.0% (n 40), 10.8% (n 120) | all met |
+| 2 (`...-round2-2026-11-16.md`) | matched by indirect inference, capped at 0.95; same | n 40 rho 0.8 date 80%: 9.2% | 5.0%, 8.7% | (not rerun) |
+| 3 (`...-round3-2026-11-16.md`) | matched; plus the hinge test's random-walk cut guard | n 40 rho 0.8 date 80%: 9.4%; n 60 rho 0.8: 8.9% | 1.3%, 1.0% | all met |
+
+400 series per cell, 199 replicates; outputs in
+`eval/known-date-sim-round1.out.txt`, `-round2`, and `eval/known-date-sim.out.txt` (round 3). Every other size cell
+in round 3 was 3.8-7.3%, and as a share of *all* series (refusals count as no rejection) no cell rejected more than
+7.3%: the excess is among the short sticky series the guard lets through, whose rho reads low.
+
+**Real series, 999 replicates** (`eval/known-date-real.out.txt`, round 3's code; round 1's in `-round1`):
+
+- A. UK car drivers killed or seriously injured, logs, monthly seasons, date 1983-02 (the front-seat belt law of
+  31 January 1983): step -0.237 (a 21% fall), range -0.354 to -0.119, p 0.001; slope change p 0.13. Met.
+- B. Front-seat passengers: step -0.309 (27%), p 0.001. Met.
+- C. Rear-seat passengers, whom the 1983 law did not cover (the control): step +0.043, range -0.080 to 0.165, p 0.50.
+  Met. The joint test is significant (p 0.006), because the slope after 1983 rises in all three series by the same
+  0.007 a month: whatever moved the post-law trend was not the belt law, which is why a control series matters.
+- D. Nile flow, date 1899 (after the 1898 Aswan dam): step -289, range -436 to -143, p 0.001; slope change p 0.90. Met.
+- E. Placebo dates on Nottingham temperatures (1925, 1930, 1935): p 0.30, 0.39, 0.97.
+
+**What a reader can use now.** The F table (what a regression package reports) is far too eager on autocorrelated
+data even with the AR(1) correction: on straight lines with rho 0.4 it rejected 13-15% of 40-point series at p 0.05,
+and with rho 0.8 11-30% at every length (round 3 table). The bootstrap brings every 120-point cell to 3.8-6.8%.
+
+**Next round** (needs a fresh pre-registration and fresh seeds): the bootstrap's generator for admitted short
+series at the upper end of a range for rho rather than its point estimate, or a size bar on all series
+(unconditional) stated before the run, with the conditional rate reported. Then the CLI, page and engine wiring is
+a few lines (it was written and tested in this session, then taken out when the bar failed).

@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyg2o2vpdHEACEExnzR",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T06:39:53Z",
+  "ended": "2026-11-16T06:51:31Z",
+  "wall_minutes": 11.81,
+  "tokens_in": 5194279,
+  "tokens_out": 57004,
+  "cost_usd": 3.1827,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16487",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First str.replace batch on the draft failed its uniqueness asserts twice (my search strings did not match the file's wording); fixed before writing."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The track prompt says to pick the shelf from git log, which shows 3-5 commits on a shallow clone. README's platform/ci/creative_due.py is the tool that works, but the prompt doesn't name it, so I ran it only after the physics was done."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/creative_due.py",
+      "why": "It drew little-lamps (30%). I had already chosen the Hearth & Horizon ferry proposal and worked its force model before running it. H&H is the owner's headline shelf and no open PR covered it.",
+      "did": "Wrote the H&H story anyway.",
+      "result": "Landed. Little Lamps' Vincent Ferrer proposal is still open for the next run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-ninth-of-the-river-reaction-ferry.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, piece a-ninth-of-the-river (text only; audio 577 MB, over the 400 MB cap). Force model in scratchpad Python (blunt-plate normal force + along-hull drag + 50 N fixed friction, current profile 1-s^4), and every figure in the dialogue was checked against it in a self-review that fixed four slips (years since the last Mass, battery remaining, statue timing vs when the motor came off, a vague 'ten minutes to spare'). Checks: node --test 17/17; post frontmatter, links and similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8bf463d3-b3c7-53cb-a208-5826cbc91871",
+    "transcripts": 1,
+    "first": "2026-11-16T06:39:53Z",
+    "last": "2026-11-16T06:51:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 88,
+        "output": 57004,
+        "thinking": 30839,
+        "cache_read": 5065541,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128650,
+        "api_equivalent_usd": 3.1827,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 88,
+      "output": 57004,
+      "thinking": 30839,
+      "cache_read": 5065541,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128650,
+      "api_equivalent_usd": 3.1827,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.81,
+      "active_minutes": 11.81,
+      "model_minutes": 10.79,
+      "tool_minutes": 1.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a writer with a physics background: modelling a reaction ferry, drafting 4,000 words, checking figures",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 251.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKigPSp5sj9kG6iwuwg",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T07:23:00Z",
+  "ended": "2026-11-16T07:28:59Z",
+  "wall_minutes": 6.17,
+  "tokens_in": 3959079,
+  "tokens_out": 16829,
+  "cost_usd": 1.8764,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16498",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again. friction_rank.py --live --ungated --days 2 showed flagships.yaml clusters that allocate.py host probing and flagship_field --make-room already cover. Today's records also name gated fixes (redteam.py open list, cloud-session apt note) that an ungated process run cannot land."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "A 2026-11-16 record said it printed HOLD with exit 1. The code cannot do that (exit 1 only on YIELD), so the report was probably another command's exit code. No change."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-a-research-readme-that-grew-into-one-21000-character-paragraph.md"
+  ],
+  "goal": null,
+  "notes": "Critique lens: README paragraph length, from build-data friction (2026-11-16). Scanned all research/ventures READMEs; 2 research outliers fixed text-verbatim; programme_check.py now fails >6,000-char README lines. Checks run: main_health 236/236; test_programme_check OK; programme_check ok; _homepage/build.py ok; check_md_links ok; research_live_links 0 missing. No backlog ids touched (none agent-owned open).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "41d28c4c-2203-5cb3-8621-c442ae5fdad3",
+    "transcripts": 1,
+    "first": "2026-11-16T07:23:00Z",
+    "last": "2026-11-16T07:29:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 82,
+        "output": 16829,
+        "thinking": 5069,
+        "cache_read": 3863142,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95855,
+        "api_equivalent_usd": 1.8764,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 82,
+      "output": 16829,
+      "thinking": 5069,
+      "cache_read": 3863142,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95855,
+      "api_equivalent_usd": 1.8764,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.17,
+      "active_minutes": 6.17,
+      "model_minutes": 4.38,
+      "tool_minutes": 1.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "restructure two long READMEs verbatim, write a check with tests, and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 79.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

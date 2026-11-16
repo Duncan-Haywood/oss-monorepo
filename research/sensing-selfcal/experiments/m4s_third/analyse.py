@@ -10,7 +10,7 @@ streams are 4p's, C's is unit index + 4; the jitter stream is 4r's tag 7). Arms:
 and "borrow" (A and B as in "jit"; C jittered with the mean of A's and B's fitted tau as a share of f,
 never C's own scatter). Milestone 4r's per-split threshold, milestone 4p's decide and milestone 4q's
 gate are applied unchanged to the 7 + 6 design in every pairing of the three pools. The A/B cells must
-reproduce milestone 4r first. Scores H104-H108 (LOG.md, 2026-11-16, milestone 4s planned) and writes
+reproduce milestone 4r first. Scores H108-H112 (LOG.md, 2026-11-16, milestone 4s planned) and writes
 summary.json and third.png.
 """
 import importlib.util, json, os, sys
@@ -115,12 +115,12 @@ def main():
             assert all(np.array_equal(R[(u, "borrow")]["cells"][p]["fired"][s], R[(u, "jit")]["cells"][p]["fired"][s]) for s in S_LIST)
     H = {}
     cell = lambda arm: {f"{u}/{p}": rate(R, arm, [(u, p)])[0] for u, p in C}  # noqa: E731
-    c = cell("jit"); H["H104"] = dict(cells=c, holds=bool(all(v <= 0.025 for v in c.values())))
-    r = rate(R, "jit", C)[0]; H["H105"] = dict(pooled=r, holds=bool(r <= 0.01))
-    c = cell("borrow"); H["H106"] = dict(cells=c, holds=bool(all(v <= 0.025 for v in c.values())))
-    c = cell("resid"); H["H107"] = dict(cells=c, holds=bool(any(v > 0.025 for v in c.values())))
+    c = cell("jit"); H["H108"] = dict(cells=c, holds=bool(all(v <= 0.025 for v in c.values())))
+    r = rate(R, "jit", C)[0]; H["H109"] = dict(pooled=r, holds=bool(r <= 0.01))
+    c = cell("borrow"); H["H110"] = dict(cells=c, holds=bool(all(v <= 0.025 for v in c.values())))
+    c = cell("resid"); H["H111"] = dict(cells=c, holds=bool(any(v > 0.025 for v in c.values())))
     g = {f"{u}/{k}": R[(u, "jit")]["gap"][k]["in_sd"] for u in UNITS for k in ("AC", "BC")}
-    H["H108"] = dict(gap_in_sd=g, holds=bool(all(abs(v) <= 2 for v in g.values())))
+    H["H112"] = dict(gap_in_sd=g, holds=bool(all(abs(v) <= 2 for v in g.values())))
     table = []
     for arm in ARMS:
         for u, p in [(u, p) for u in UNITS for p in PAIRS]:

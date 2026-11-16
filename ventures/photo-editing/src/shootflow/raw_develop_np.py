@@ -260,7 +260,7 @@ def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
     return out
 
 
-def _directional(norm, w, h, pat, mults, hi):
+def _directional(norm, w, h, pat, mults, hi, demosaic="directional"):
     """The directional demosaic on the white-balanced plane, clipped as ``_encode`` clips: the same
     (h, w, 3) linear image the bilinear path's ``sink`` receives. X-Trans goes to ``xtrans_demosaic``,
     a 2x2 Bayer CFA to ``bayer_demosaic`` (2026-11-15)."""
@@ -272,7 +272,8 @@ def _directional(norm, w, h, pat, mults, hi):
     if len(pat) == 4:
         from shootflow.bayer_demosaic import directional as bayer
 
-        return _clip(bayer(plane, pat), hi)
+        # "learned": the per-sensel Laplacian weight of eval/bayer-learned-laplace-2026-11-16.md (numpy only)
+        return _clip(bayer(plane, pat, laplace="learned" if demosaic == "learned" else 0.1875), hi)
     from shootflow.xtrans_demosaic import directional
 
     return _clip(directional(plane, pat, scale=hi), hi)
@@ -328,7 +329,8 @@ def render(
 
     Demosaic and encode run in bands on ``threads`` threads (``SHOOTFLOW_THREADS`` or every CPU when None), as
     the warp does; the thread count never changes the output. ``demosaic`` is "bilinear" (the pure path's
-    method, byte for byte) or "directional" (``xtrans_demosaic`` on X-Trans, ``bayer_demosaic`` on Bayer; numpy only).
+    method, byte for byte) or "directional" (``xtrans_demosaic`` on X-Trans, ``bayer_demosaic`` on Bayer; numpy only), or "learned"
+    (Bayer only: the directional demosaic with the learned per-sensel Laplacian weight).
     """
 
     norm, clipped = _normalised_plane(
@@ -353,9 +355,9 @@ def render(
                     acc[c] = acc[c] + norm[dy : 2 * oh : 2, dx : 2 * ow : 2]
                     cnt[c] += 1
             lin = np.stack([_clip(acc[i] / cnt[i] * mults[i], hi) for i in range(3)], axis=-1)
-        elif demosaic == "directional":
+        elif demosaic in ("directional", "learned"):
             ow, oh = w, h
-            lin = _directional(norm, w, h, pat, mults, hi)
+            lin = _directional(norm, w, h, pat, mults, hi, demosaic)
         else:
             ow, oh = w, h
             lin = np.empty((h, w, 3), dtype=np.float64)
@@ -368,8 +370,8 @@ def render(
     if half:
         out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads, demosaic=demosaic)
         return out, w // 2, h // 2, clipped
-    if demosaic == "directional":
-        lin = _directional(norm, w, h, pat, mults, hi)
+    if demosaic in ("directional", "learned"):
+        lin = _directional(norm, w, h, pat, mults, hi, demosaic)
         del norm
         return _encode_image(lin, hi, m, curve, lut_size, look, threads=threads), w, h, clipped
     return _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads), w, h, clipped

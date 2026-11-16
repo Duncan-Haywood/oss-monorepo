@@ -118,3 +118,28 @@ test("the repair is skipped when the roster's open hours already equal the prove
   }
   assert.ok(skips > 0, "no seeded week reached its floor before the repair");
 });
+
+// README "The repair reserve on the biggest weeks": under a time budget the reserve defaults to a tenth of the budget, at most
+// 2 s, on weeks of 300 or more copies, and to none below; an explicit coverRepairReserveMs wins either way.
+function benchWeek(P, S) {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  let seed = 20261022 + P * 100 + S;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const st = Array.from({ length: P }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`).join("\n");
+  const sh = Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
+  return { staff: parseStaff(st).staff, slots: parseShifts(sh).slots };
+}
+test("the repair reserve is on by default from 300 copies, off below, and an explicit value wins", () => {
+  const big = benchWeek(90, 252), small = benchWeek(40, 112);
+  assert.ok(big.slots.length >= 300 && small.slots.length < 300);
+  // 10 s, not 3 s: the reserve is set when the cover passes start, and on this week anneal and ejection take about 2.3 s and column
+  // generation at least 1 s before them, so at 3 s a loaded runner never reached them (reserve null; CI on PR #16481, and 4 of 4
+  // copies at once here). One cover pass and no day sweeps keep the build short; neither changes the reserve's default.
+  const rb = buildRoster(big.staff, big.slots, { exact: true, timeBudgetMs: 10000, seed: 1, coverPassRuns: 1, dayLNS: false });
+  assert.ok(rb.unfilledHours > 0);
+  assert.equal(rb.optimality.coverRepairReserveMs, 1000);
+  const rs = buildRoster(small.staff, small.slots, { exact: true, timeBudgetMs: 3000, seed: 1 });
+  assert.equal(rs.optimality.coverRepairReserveMs, 0);
+  const rx = buildRoster(small.staff, small.slots, { exact: true, timeBudgetMs: 3000, seed: 1, coverRepairReserveMs: 250 });
+  assert.equal(rx.optimality.coverRepairReserveMs, 250);
+});

@@ -60,11 +60,18 @@ def families():
             "marzocchi": Gear(marzocchi_rows(), sizes=mz.SIZES), "bench": Gear(bench_rows("fig11"))}
 
 
-def index2(g, fam):
-    """6n's index 2: eta_t(150) per size, interpolated in 20 bar flow at Q_REF (Danfoss without SNP3 090, as 6n)."""
+def index2(g, fam, hold=True):
+    """6n's index 2: eta_t(150) per size, interpolated in 20 bar flow at Q_REF (Danfoss without SNP3 090, as 6n).
+
+    hold (6z, LOG.md 6y Next h): outside the sizes' 20 bar flow range, hold the end size's value, as the model (Gear)
+    does, instead of extrapolating the size trend. Every family that reaches Q_REF gives the same index either way;
+    hold=False is 6y's registered reading (gear_pump_six.py keeps it so its results file reproduces)."""
     pairs = [(float(q), g.eta(float(q), 150.0)) for s, q in zip(g.sizes, g.qn)
              if not (fam == "danfoss" and s == dan.SIZES[-1])]
-    return interp([a for a, _ in pairs], [b for _, b in pairs], Q_REF)
+    xs, ys = [a for a, _ in pairs], [b for _, b in pairs]
+    if hold and not min(xs) <= Q_REF <= max(xs):
+        return ys[xs.index(max(xs))] if Q_REF > max(xs) else ys[xs.index(min(xs))]
+    return interp(xs, ys, Q_REF)
 
 
 def crossing(xs, ys, level=50.0):

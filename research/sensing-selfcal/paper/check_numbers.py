@@ -315,16 +315,23 @@ CHECKS = [
     ("json", "m4r_jitter/summary.json", "hypotheses/H102/resid", 9.08, 2, pct, "caught in 4.07% of\nsplits against 9.08%"),
     # Section 7, milestone 4s (third pool)
     ("json", "m4s_third/summary.json", "pooled/jit/C/ungated/max_cell_S0", 7.47, 2, pct, "up to 7.47% (CC)"),
-    ("json", "m4s_third/summary.json", "hypotheses/H104/cells/fr1/CC", 7.47, 2, pct, "up to 7.47% (CC)"),
-    ("json", "m4s_third/summary.json", "hypotheses/H106/cells/fr1/CC", 7.18, 2, pct, "leaves it at 7.18%"),
-    ("json", "m4s_third/summary.json", "hypotheses/H105/pooled", 2.60, 2, pct, "the rate is 2.60%"),
+    ("json", "m4s_third/summary.json", "hypotheses/H108/cells/fr1/CC", 7.47, 2, pct, "up to 7.47% (CC)"),
+    ("json", "m4s_third/summary.json", "hypotheses/H110/cells/fr1/CC", 7.18, 2, pct, "leaves it at 7.18%"),
+    ("json", "m4s_third/summary.json", "hypotheses/H109/pooled", 2.60, 2, pct, "the rate is 2.60%"),
     ("json", "m4s_third/summary.json", "pools/fr1/jit/C/tau_rel", 0.77, 2, pct, "(0.77% of f)"),
-    ("json", "m4s_third/summary.json", "hypotheses/H104/cells/fr3/CB", 0.53, 2, pct, "at or below 0.53% false alarms"),
-    ("json", "m4s_third/summary.json", "hypotheses/H108/gap_in_sd/fr1/AC", -1.38, 2, None, "within 1.38 of the jittered"),
+    ("json", "m4s_third/summary.json", "hypotheses/H108/cells/fr3/CB", 0.53, 2, pct, "at or below 0.53% false alarms"),
+    ("json", "m4s_third/summary.json", "hypotheses/H112/gap_in_sd/fr1/AC", -1.38, 2, None, "within 1.38 of the jittered"),
     ("json", "m4s_third/summary.json", "pools/fr1/jit/C/spread/7/far", 62, 0, None, "hold 62 far solutions"),
     ("json", "m4s_third/summary.json", "pools/fr1/jit/A/spread/7/far", 1, 0, None, "against one in the first pool"),
     ("log", "6-view sets 1.23% against 0.59% (fr1) and 1.23% against 0.50% (fr3)", "(1.23% of f against 0.59% and 0.50%)"),
     ("log", "Median tilt of the kept frames (prepare's foreshortening measure) 0.147 against 0.268 (fr1) and 0.063 against 0.101 (fr3)", "(median tilt 0.147 against 0.268 and\n0.063 against 0.101)"),
+    ("json", "m3b_natural/summary.json", "hypotheses/H105/rms_z_all", 9.31, 2, None, "rms z\nagainst the board calibration is 9.31"),
+    ("json", "m3b_natural/summary.json", "hypotheses/H106/fr1_desk", 4.20, 2, None, "4.20, 8.38 and 11.74 times"),
+    ("json", "m3b_natural/summary.json", "hypotheses/H106/fr1_xyz", 8.38, 2, None, "4.20, 8.38 and 11.74 times"),
+    ("json", "m3b_natural/summary.json", "hypotheses/H106/fr3_stf", 11.74, 2, None, "4.20, 8.38 and 11.74 times"),
+    ("json", "m3b_natural/summary.json", "per_sequence/fr1_desk/median_abs_rel", 2.80, 2, pct, "median 2.80% on the desk sweep"),
+    ("json", "m3b_natural/summary.json", "per_sequence/fr3_stf/median_abs_rel", 7.24, 2, pct, "7.24% on the sideways pass"),
+    ("json", "m3b_natural/summary.json", "hypotheses/H107/ratio_xyz_over_desk", 1.28, 2, None, "(1.28× the desk's)"),
 ]
 
 

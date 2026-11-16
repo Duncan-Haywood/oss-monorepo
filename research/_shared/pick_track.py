@@ -11,6 +11,8 @@ programmes in FOCUS are drawn first that often (owner, 2026-10-31: deep tech ind
 real estate development and construction, construction data; widened 2026-11-01 to chips and
 robot co-design; prompts/goals.md, "Direction: research at PhD+ level, aimed at deep tech").
 Pass a number to map a draw you already have: pick_track.py 0.11
+It starts with LAND FIRST: the open PRs titled research/... (older than 3 h: land,
+finish or close them first; newer: a sibling's live claim); --land prints only that list.
 With no number the first draw is saved in .git (keyed by branch, 12 h) and
 reused, so a re-run in the same session gives the same programme; --new redraws.
 It first brings origin/main up to date (ls-remote, then a fetch reaching 7 h back when
@@ -29,6 +31,7 @@ first), so the "Next steps" of the latest one is one `cat` away when the
 milestones in PROJECTS.md are all done. A stale checkout hides projects other
 runs landed: the WARNING line says when to merge origin/main.
 """
+import calendar
 import functools
 import math
 import re
@@ -239,6 +242,8 @@ def refresh_origin_main(hours=6, run=subprocess.run):
 # opening its own draft PR saw that PR as a sibling's claim: the draw skipped its programme
 # and the CLAIM CHECK named a different one (friction 2026-11-11..14, five reports).
 _HEADS = {}
+# PR number -> (created_at, draft), filled by _open_pr_titles for land_first_lines.
+_META = {}
 
 
 @functools.lru_cache(maxsize=None)
@@ -268,6 +273,7 @@ def _open_pr_titles(repo, limit, pages=10):
                 batch = json.load(r)
             found += [(p["number"], p.get("title", "")) for p in batch]
             _HEADS.update({p["number"]: (p.get("head") or {}).get("ref", "") for p in batch})
+            _META.update({p["number"]: (p.get("created_at") or "", bool(p.get("draft"))) for p in batch})
             if len(batch) < limit:
                 break
     except Exception:
@@ -282,6 +288,58 @@ def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
     programme milestone and one trained for 2 hours before the other landed (friction
     2026-10-25). Unauthenticated REST works from cloud sessions for this public repo."""
     return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t and not is_own_pr(n)]
+
+
+RESEARCH_TITLE = re.compile(r"^\s*research[/:]|\bresearch/[a-z0-9]", re.I)
+
+
+def land_first_lines(fresh_hours=3, show=8, now=None):
+    """The open PRs research/prompt-0.md "Landing work" step 2 asks a run to land first.
+
+    That step says to work through open research PRs before building, but with 100+ open
+    PRs and no path filter in the GitHub list call, runs read every title by hand (three
+    reports in three days, 2026-11-16) to find two. Titles naming `research/<slug>` are
+    the research ones (the convention step 3 asks for). Split by age: one opened in the
+    last `fresh_hours` is a sibling's live claim (step 3's three hours), leave it; an
+    older one is what step 2 means: land it, finish it, or close it as superseded."""
+    titles = _open_pr_titles("duncan-haywood/oss-monorepo", 100)
+    if titles is None:
+        return ["LAND FIRST: could not list open PRs (GitHub API unreachable); search open PR titles "
+                "for 'research/' by hand (research prompt, 'Landing work' step 2)"]
+    now = time.time() if now is None else now
+
+    def age(n):
+        stamp = _META.get(n, ("", False))[0]
+        try:
+            return (now - calendar.timegm(time.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ"))) / 3600
+        except ValueError:
+            return None
+
+    mine = [(n, t) for n, t in titles if RESEARCH_TITLE.search(t) and is_own_pr(n)]
+    ours = [(n, t, age(n)) for n, t in titles if RESEARCH_TITLE.search(t) and not is_own_pr(n)]
+    stale = sorted([x for x in ours if x[2] is None or x[2] >= fresh_hours], key=lambda x: -(x[2] or 0))
+    fresh = [x for x in ours if x[2] is not None and x[2] < fresh_hours]
+
+    def fmt(n, t, a):
+        draft = ", draft" if _META.get(n, ("", False))[1] else ""
+        when = "age ?" if a is None else (f"{a:.1f}h" if a < 48 else f"{a / 24:.0f}d")
+        return f"  #{n} ({when}{draft}) {t[:110]}"
+
+    head = f"LAND FIRST ({len(ours)} other open PR(s) of {len(titles)} title research/...; research prompt, 'Landing work' step 2):"
+    if not ours:
+        return [head[:-1] + ": none, so nothing to land first; go on to the draw"]
+    lines = [head]
+    if stale:
+        lines.append(f"  {len(stale)} older than {fresh_hours}h, oldest first: land, finish, or close as superseded "
+                     "(a run-record-only branch: leave it)")
+        lines += [fmt(*x) for x in stale[:show]]
+        if len(stale) > show:
+            lines.append(f"  ... and {len(stale) - show} more (pick_track.py --land lists all)")
+    if fresh:
+        lines.append(f"  {len(fresh)} opened in the last {fresh_hours}h: a sibling's live claim, leave it:")
+        lines += [fmt(*x) for x in fresh[:show]]
+    lines += [f"  #{n} is this branch's own PR" for n, _ in mine]
+    return lines
 
 
 def origin_main_age_hours():
@@ -554,6 +612,9 @@ def post_limits_line():
 if __name__ == "__main__":
     new = "--new" in sys.argv[1:]
     fetch = "--no-fetch" not in sys.argv[1:]
+    if "--land" in sys.argv[1:]:
+        print("\n".join(land_first_lines(show=10 ** 6)))
+        sys.exit(0)
     args = [a for a in sys.argv[1:] if a not in ("--new", "--no-fetch")]
     if args and args[0] in ("-h", "--help"):
         print(__doc__)
@@ -568,6 +629,8 @@ if __name__ == "__main__":
         problem = refresh_origin_main()
         if problem:
             print(f"note: {problem}; the commit checks below read the local origin/main")
+    for line in land_first_lines():
+        print(line)
     progs = programmes()
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has, skipped = draw_programme(r, progs)

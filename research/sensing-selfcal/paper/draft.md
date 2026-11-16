@@ -141,6 +141,16 @@ neither σ is usable as an error bar; from about 10 views the plain jackknife is
 one. On the right camera the two real references disagree (1.22–1.66 at 4–6 views), so its views do not
 add independent offsets and its figures above 6 views are less certain.
 
+**Natural features (milestone 3b, pre-registered).** Every result above uses a board's corners. On ordinary
+hand-held video with SIFT tracks (Lowe 2004) instead (three TUM RGB-D sequences, two cameras, 57 counted windows of 12
+keyframes over 1.2 s, soft-L1 loss, k<sub>1</sub> + k<sub>2</sub>), the solver's σ is far less honest: rms z
+against the board calibration is 9.31, and the scatter of f across windows is 4.20, 8.38 and 11.74 times the
+median σ (desk sweep, translation along three axes, sideways pass), so the gap is not the reference's. A single
+window's f is off by a median 2.80% on the desk sweep and 7.24% on the sideways pass, and the σ hardly reacts to
+near-critical, translation-only motion (1.28× the desk's). The median of a sequence's windows is within 1.5% of
+the board calibration on all three. Natural features turn the 2× of board corners into 4–12×, so a field robot
+should take its uncertainty from the scatter of many short solves, not from one solve's covariance.
+
 ## 5. An accept/reject test on disjoint view sets
 
 **Protocol.** For k = 3–6, 60 splits per k and camera draw an *old* set of 7 views and a disjoint
@@ -452,8 +462,9 @@ were found after a pre-registered prediction failed and are labelled so in the l
 - A second camera and board captured for this purpose (programme milestone 6, an owner step): a
   physically changed lens (zoom or refocus) for a real focal change, and enough views per unit to
   estimate each unit's own tail on views the test never touches.
-- Natural-feature correspondences (milestone 3b) on an openly licensed multi-view set with a target
-  calibration of the same camera.
+- Done for natural features on two cameras (milestone 3b, Section 4): σ is 4–12× too small per 1.2 s window.
+  Still needed: which error carries it (track-correlated SIFT noise, rolling shutter, near-critical motion), a
+  leave-one-view-out jackknife or a per-view term on these windows, and longer windows with loop closures.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
   Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set

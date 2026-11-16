@@ -362,20 +362,48 @@ Clusters: *unt*, *ant*, *ent*, *int*, *sunt*, *nunc*, *tunc*, *ens*, *mens*, *an
 
 | | with the cluster rule | without (`preObstruent: false`) |
 |---|---|---|
-| cluster syllables read exactly (on their nasal) | 124 of 132 (93.9%) | 46 of 132 (34.8%) |
+| cluster syllables read exactly (on their nasal) | 127 of 132 (96.2%) | 98 of 132 (74.2%) |
 | other syllables read exactly | 304 of 336 (90.5%) | 304 of 336 (90.5%) |
 | vowel-only control read as none | 445 of 468 (95.1%) | 445 of 468 (95.1%) |
 
 Cluster misses with the rule:
 
 - quarter 55 *int* read as fricative voiced
-- quarter 60 *nunc* read as voiceless vel stop
-- quarter 60 *tunc* read as voiceless vel stop
-- quarter 60 *mens* read as fricative s
 - eighth 64 *sunt* read as voiceless alv stop
 - eighth 64 *nunc* read as voiced lab stop
 - eighth 64 *tunc* read as voiced lab stop
 - eighth 64 *mens* read as voiced lab stop
+
+## K. Held-out cluster syllables (ninth round, pre-registered)
+
+Clusters: *fons*, *dens*, *pons*, *mons*, *gens*, *hinc*, *runt*, *bunt*, *tent*, *cant*, *frons*, *sanct*, *lunt*, *quent*; others: *ep*, *ip*, *op*, *ec*, *ic*, *oc*, *eb*, *ib*, *ob*, *ef*, *of*, *ot*, *ux*, *ix*, *ox*, *im*, *om*, *on*, *in*, *e*, *i*, *u*. Quarter and eighth notes at 104 BPM, each followed by a rest, B2, F3, A3, B3, D4.
+
+| | with the obstruent gap | without (`againGap: false`) |
+|---|---|---|
+| cluster syllables read exactly (on their nasal) | 127 of 140 (90.7%) | 121 of 140 (86.4%) |
+| other syllables read exactly | 166 of 220 (75.5%) | 166 of 220 (75.5%) |
+| other syllables read as a nasal | 6 | 6 |
+| vowel-only control read as none | 295 of 360 (81.9%) | 295 of 360 (81.9%) |
+
+Cluster misses with the rule:
+
+- quarter 53 *hinc* read as fricative voiced
+- quarter 57 *lunt* read as voiceless alv stop
+- quarter 59 *hinc* read as fricative voiced
+- eighth 47 *fons* read as none
+- eighth 53 *fons* read as none
+- eighth 53 *hinc* read as fricative voiced
+- eighth 57 *fons* read as none
+- eighth 57 *hinc* read as fricative voiced
+- eighth 59 *fons* read as none
+- eighth 62 *fons* read as none
+- eighth 62 *pons* read as fricative s
+- eighth 62 *hinc* read as voiceless vel stop
+- eighth 62 *lunt* read as voiceless alv stop
+
+Other and vowel-only misses with the rule (count over the ten pitch and length cells):
+
+i as fricative voiced 6; hinc (vowel only) as fricative voiced 6; ip (vowel only) as fricative voiced 6; ic (vowel only) as fricative voiced 6; ib (vowel only) as fricative voiced 6; ix (vowel only) as fricative voiced 6; im (vowel only) as fricative voiced 6; in (vowel only) as fricative voiced 6; i (vowel only) as fricative voiced 6; ip as fricative voiced 5; ic as fricative voiced 5; ib as fricative voiced 5; im as fricative voiced 5; in as fricative voiced 5; ix as fricative voiced 4; ep as voiceless vel stop 3; ip as voiceless vel stop 3; op as voiceless vel stop 3; ef as fricative s 3; fons (vowel only) as nasal 1; pons (vowel only) as nasal 1; mons (vowel only) as nasal 1; frons (vowel only) as nasal 1; op (vowel only) as nasal 1; oc (vowel only) as nasal 1; ob (vowel only) as nasal 1; of (vowel only) as nasal 1; ot (vowel only) as nasal 1; ox (vowel only) as nasal 1; om (vowel only) as nasal 1; on (vowel only) as nasal 1; u as nasal 1; runt (vowel only) as nasal 1; bunt (vowel only) as nasal 1; lunt (vowel only) as nasal 1; ux (vowel only) as nasal 1; u (vowel only) as nasal 1; op as nasal 1; oc as nasal 1; ob as nasal 1; of as nasal 1; ix as tap 1; ox as nasal 1
 
 ## C. Closing consonants in the corpus
 

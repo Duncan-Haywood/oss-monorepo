@@ -191,6 +191,113 @@ class StepperAxis:
         return self._emit()
 
 
+PERIOD_RING = 128     # periods each tach keeps for the drop fit: 0.39 s after a ball at 7,000 rpm is 46 revolutions
+
+
+def _solve_small(m, v):
+    """Gauss-Jordan for the 2x2 / 3x3 normal equations of `drop_from_periods`; None if singular."""
+    n = len(v)
+    a = [list(m[r]) + [v[r]] for r in range(n)]
+    for c in range(n):
+        p = c
+        for r in range(c + 1, n):
+            if abs(a[r][c]) > abs(a[p][c]):
+                p = r
+        if abs(a[p][c]) < 1e-30:
+            return None
+        a[c], a[p] = a[p], a[c]
+        for r in range(n):
+            if r != c:
+                f = a[r][c] / a[c][c]
+                for k in range(c, n + 1):
+                    a[r][k] -= f * a[c][k]
+    return [a[r][n] / a[r][r] for r in range(n)]
+
+
+def _deficit_fit(periods, w0, j0, t_start, t0, quad):
+    """Least squares of the revolutions from `j0` on (times relative to `t_start`, the start of revolution j0) for a
+    speed that is w0 before the ball at t0 and w0 - D + c (t - t0) [+ c2 (t - t0)^2] after it. Each revolution's mean
+    speed is 1 / period, so each row integrates that deficit over the revolution. Returns (sse, D) or None."""
+    k = 3 if quad else 2
+    m = [[0.0] * k for _ in range(k)]
+    v = [0.0] * k
+    rows = []
+    a = t_start
+    for p in periods[j0:]:
+        b = a + p
+        lo = a if a > t0 else t0
+        u1, u2 = lo - t0, b - t0
+        row = [(u2 - u1) / p, -(u2 * u2 - u1 * u1) / (2 * p)]
+        if quad:
+            row.append(-(u2 * u2 * u2 - u1 * u1 * u1) / (3 * p))
+        y = w0 - 1.0 / p
+        rows.append((row, y))
+        for r in range(k):
+            v[r] += row[r] * y
+            for c in range(k):
+                m[r][c] += row[r] * row[c]
+        a = b
+    x = _solve_small(m, v)
+    if x is None:
+        return None
+    sse = 0.0
+    for row, y in rows:
+        e = y
+        for r in range(k):
+            e -= row[r] * x[r]
+        sse += e * e
+    return sse, x[0]
+
+
+def drop_from_periods(periods, min_fall=0.003):
+    """A ball's whole speed drop on one wheel, from that wheel's revolution periods around it (2026-11-16, README "The
+    drop from the pulse times").
+
+    The lowest single-revolution reading shows only part of a drop: the ball lands somewhere inside a revolution, and
+    the speed loop is already pulling the wheel back by the next one, more so at low speed. Read naively, the drops
+    made a drill's fitted speed efficiency 3-6% off. Here the pulse times themselves are fitted: the wheel turns at w0
+    until the ball at an unknown moment t0 inside the first slowed revolution J, then at w0 - D, recovering along a
+    line (three revolutions from J) or a parabola (four or five), each revolution's mean speed being 1 / its period.
+    For each t0 on a grid over revolution J the model is linear in D and the recovery terms; the t0 with the least
+    residual wins. w0 is the mean of the three revolutions before the slowest one's predecessor.
+
+    `periods` are microseconds, oldest first, ending where the readings may no longer be trusted (the Pi changed the
+    targets, or the verdict). Returns (D / w0, w0 in rpm, revolutions used) or None when there are too few
+    revolutions after the ball for a line (then the caller keeps the lowest-reading drop)."""
+    n = len(periods)
+    if n < 6:
+        return None
+    k = 0
+    for j in range(1, n):
+        if periods[j] > periods[k]:
+            k = j
+    if k < 4:
+        return None
+    w0 = 3.0 / (periods[k - 4] + periods[k - 3] + periods[k - 2])
+    J = k - 1 if 1.0 / periods[k - 1] < w0 * (1.0 - min_fall) else k
+    after = n - J
+    if after < 3:
+        return None
+    quad = after >= 4
+    use = periods[:J + (5 if quad else 3)]
+    best = None
+    lo, hi = 0.0, float(use[J])
+    for _ in range(3):                   # a coarse grid over revolution J, then two finer ones around its best point
+        step = (hi - lo) / 8
+        for g in range(9):
+            t0 = lo + step * g
+            r = _deficit_fit(use, w0, J, 0.0, t0, quad)
+            if r is not None and (best is None or r[0] < best[0]):
+                best = (r[0], r[1], t0)
+        if best is None:
+            return None
+        lo, hi = max(0.0, best[2] - step), min(float(use[J]), best[2] + step)
+    drop = best[1] / w0
+    if not 0.0 < drop < 1.0:
+        return None
+    return drop, w0 * 60e6, len(use) - J
+
+
 class PeriodTach:
     """Wheel speed from the time between a once-per-revolution sensor's pulses (2026-11-11).
 
@@ -206,13 +313,18 @@ class PeriodTach:
     `stall_us` reads 0, and the first pulse after such a gap starts the average afresh. Edges closer together than `min_period_us` (above `max_rpm`) are electrical noise, ignored.
     """
 
-    def __init__(self, n=4, max_rpm=12000, stall_us=250000):
+    def __init__(self, n=4, max_rpm=12000, stall_us=250000, ring=PERIOD_RING):
         self.periods = [0] * n
         self.i = 0
         self.count = 0
         self.min_period = 60000000 // max_rpm
         self.stall_us = stall_us
         self._carry = 0
+        # Every accepted period, newest at ring[(edges - 1) % len], for LaunchCheck's per-shot drop fit (2026-11-16,
+        # README "The drop from the pulse times"). Periods, not times: they stay small ints, so the IRQ never
+        # allocates. `edges` counts accepted periods; a stall resets it to 0 with the average.
+        self.ring = [0] * ring
+        self.edges = 0
 
     def edge(self, period_us):
         if period_us > self.stall_us:
@@ -225,11 +337,20 @@ class PeriodTach:
         self._carry = 0
         self.periods[self.i] = period_us
         self.i = (self.i + 1) % len(self.periods)
+        self.ring[self.edges % len(self.ring)] = period_us
+        self.edges += 1
         if self.count < len(self.periods):
             self.count += 1
 
     def reset(self):
         self.count = self.i = self._carry = 0
+        self.edges = 0
+
+    def recent(self, n, upto=None):
+        """The last `n` periods (oldest first) up to edge count `upto` (default now), as far as the ring holds."""
+        end = self.edges if upto is None else min(upto, self.edges)
+        k = min(n, end, len(self.ring))
+        return [self.ring[j % len(self.ring)] for j in range(end - k, end)]
 
     def rpm(self, since_us):
         if self.count == 0 or since_us > self.stall_us:
@@ -820,7 +941,8 @@ class LaunchCheck:
     `start(targets, now)` when the shuttle's forward stroke begins (the wheels are held within 3% of target then, or
     the gate would not have opened); `stroke_done(now)` when it ends; `update(now, rpms)` every control tick returns
     None while it watches, then once, `check_ms` after the stroke's end, True (a ball went: the wheel with the larger
-    predicted drop fell by at least `share` of its prediction, and by `dip_min` at least) or False (it did not).
+    predicted drop fell by at least `share` of its prediction, and by `dip_min` at least, measured from its own speed just
+    before the fall, not from its target) or False (it did not).
     Wheels both at rest give no verdict (None throughout): nothing could launch a ball. `cancel()` on any stop.
     Pass the wheels' current targets to `update`: once they differ from the stroke's (the Pi re-aims as soon as it sees
     the release counted, at the stroke's end), the low readings stop being taken, so the next shot's slower speed or the
@@ -835,6 +957,7 @@ class LaunchCheck:
         self.low = [0.0, 0.0]
         self.frozen = False
         self.last_dip = None          # the measured drop of the judged wheel at the last verdict, for the README's sweep
+        self.last_dip_target = None   # the same wheel's drop below its target (the verdict before 2026-11-16 evening)
         # Every verdict, both wheels (2026-11-16, README "Shot log"): (seq mod 256, top and bottom rpm just before the
         # ball, their drops in 1/10000 of that speed, 1 if a ball went). The ball's momentum is in the drops, so the Pi
         # fits the launcher's efficiencies from them (tennisbots.launcher.fit_from_drops) without a radar gun. The drop
@@ -847,6 +970,12 @@ class LaunchCheck:
         self.seq = 0
         self.hist = [[], []]          # each wheel's (ms, reading) over the last 2.5 revolutions
         self.fall = [(0.0, 0.0), (0.0, 0.0)]   # each wheel's largest (fractional fall, speed before it) so far
+        # The pulse-time drop (2026-11-16, README "The drop from the pulse times"): each tach's edge count when this
+        # stroke's watch began, and its periods from then up to the freeze or the verdict.
+        self.edges0 = None
+        self.snap = None
+        self.last_fit = (None, None)  # each wheel's drop_from_periods result at the last verdict, for the sweeps
+        self.last_low = (None, None)
 
     def cancel(self):
         self.targets = None
@@ -859,6 +988,8 @@ class LaunchCheck:
         self.hist = [[], []]
         self.until = None
         self.frozen = False
+        self.edges0 = None
+        self.snap = None
 
     def stroke_done(self, now_ms):
         if self.targets is not None:
@@ -873,10 +1004,19 @@ class LaunchCheck:
             return None
         return i, max(self.dip_min, self.share * dips[i])
 
-    def update(self, now_ms, rpms, targets=None):
+    def _snapshot(self, tachs):
+        if tachs is not None and self.edges0 is not None and self.snap is None:
+            self.snap = [t.recent(t.edges - e0) if t.edges >= e0 else [] for t, e0 in zip(tachs, self.edges0)]
+
+    def update(self, now_ms, rpms, targets=None, tachs=None):
+        """`tachs`, the two wheels' PeriodTach objects (optional), lets the record carry the pulse-time drop."""
         if self.targets is None:
             return None
+        if tachs is not None and self.edges0 is None:
+            self.edges0 = (tachs[0].edges, tachs[1].edges)
         if targets is not None and (targets[0], targets[1]) != self.targets:
+            if not self.frozen:
+                self._snapshot(tachs)       # the periods after this are the next shot's speed change, not the ball
             self.frozen = True
         if not self.frozen:
             for i in (0, 1):
@@ -895,17 +1035,40 @@ class LaunchCheck:
         if self.until is None or now_ms < self.until:
             return None
         th = self.threshold()
-        targets, low, fall = self.targets, self.low, self.fall
+        self._snapshot(tachs)
+        targets, low, fall, snap = self.targets, self.low, self.fall, self.snap
         self.cancel()
         if th is None:
             return None
         i, need = th
-        self.last_dip = 1.0 - low[i] / targets[i]
+        # Judged on the drop from the wheel's own speed when the ball met it (2026-11-16, README "Empty hopper", "The
+        # verdict from the pre-ball speed"), not from the target: a stroke fed as the 3% gate opens after a speed change
+        # starts with the wheel still closing on its target, and against the target that offset read 27 of 486 dry
+        # strokes as balls and 2 of 486 balls as dry on the simulator (tests/launch_check_sweep.py, "fed at the gate";
+        # none either way from the pre-ball speed). `low` (the target-based drop) is kept as `last_dip_target`.
+        self.last_dip = fall[i][0]
+        self.last_dip_target = 1.0 - low[i] / targets[i]
         went = self.last_dip >= need
-        drops = [int(round(10000 * fall[k][0])) for k in (0, 1)]
+        # The record's drops (README "Shot log"): the pulse-time fit's whole drop where it could be made (bit 1 of the
+        # flags byte for the top wheel, bit 2 for the bottom), else the lowest reading's fall as before. Only for a
+        # launched stroke: a dry one has no ball moment to fit, and the Pi's fit skips it anyway.
+        speeds = [fall[k][1] for k in (0, 1)]
+        dips = [fall[k][0] for k in (0, 1)]
+        flags = 1 if went else 0
+        fits = [None, None]
+        if went and snap is not None:
+            for k in (0, 1):
+                if targets[k] > 0:
+                    fits[k] = drop_from_periods(snap[k])
+                    if fits[k] is not None:
+                        dips[k], speeds[k] = fits[k][0], fits[k][1]
+                        flags |= 2 << k
+        self.last_fit = (fits[0], fits[1])
+        self.last_low = (fall[0][0], fall[1][0])   # the lowest reading's falls, for tests/pulse_drop_sweep.py
+        drops = [int(round(10000 * dips[k])) for k in (0, 1)]
         self.seq = (self.seq + 1) & 0xFF
-        self.record = (self.seq, int(round(fall[0][1])), int(round(fall[1][1])), min(32767, drops[0]),
-                       min(32767, drops[1]), 1 if went else 0)
+        self.record = (self.seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
+                       min(32767, drops[1]), flags)
         return went
 
 

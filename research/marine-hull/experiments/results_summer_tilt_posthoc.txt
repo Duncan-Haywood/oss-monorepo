@@ -1,0 +1,10 @@
+Milestone 6zzo post hoc: lag 3's summer level repaired by sign of its error, high-amplitude points (no predictions)
+(point, half, shape) cells where lag 3's summer level is brighter than OC's: 219 of 378
+  rule        hi168  pp72   km-only  dark-only  both
+  AT_90          25    43       143          0     0
+  LC_3            1    42       167          0     0
+  R3_S           90    49        78          0     0
+  R3_L           49    45       119          0     0
+  R3_Ldn          1    42       167          0     0
+  R3_Lup         49    45       119          0     0
+  R3_LupTK       90    49        78          0     0

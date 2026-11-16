@@ -876,7 +876,7 @@ their stop, *in* read as a voiced fricative, and a few *-num*/*-lum* after a dar
 pages. Nothing in the synthesis changed, so the beat is still there: whether five real voices beat this
 much on a held *-um*, and whether a listener hears the murmur come and go, is a question for an ear.
 
-#### -unt read on its stop: the n of a cluster (2026-11-16, latest)
+#### -unt read on its stop: the n of a cluster (2026-11-16)
 
 The last round left *-unt* and *-sunt* read on their t. Part A, the set the reader was tuned on, missed *unt* at
 four of six pitches and *ant* at E2, and F's misses held eleven such clusters (*sunt*, *bunt*, *runt*, *tent*).
@@ -919,6 +919,46 @@ as nasals at E2, G3 and D3 (the step rule, not this one), and /i/ read as a voic
 `sing.test.mjs` holds the rule: 15 cluster syllables at three pitches read on their n, at least 4 more than
 without it, and no other syllable gains a nasal. Nothing in the synthesis changed. This round makes the
 check see the n that was already sung. Whether a listener hears *sunt* or *sut* is a question for an ear.
+
+#### nunc and mens on C4: the murmur thrown out by what follows it (2026-11-16, latest)
+
+The cluster round left *nunc*, *tunc* and *mens* missed on C4 quarter notes in part J. Read frame by frame, the
+murmur was there and one rule had already found it: the reading against the vowel just before it (`NEAR`) saw
+*nunc*'s n as 60 ms 8 dB or more darker than the /u/, its level and darkness both holding. It was then thrown out
+by `vowelAgain`, the check that a murmur closes the syllable and the vowel does not come back after it (a vibrato
+swing on a high note can look like a murmur for 30 ms). `vowelAgain` read every frame after the run to the end of
+the window, so it also read the obstruent: the /s/ of *mens* is bright and only 8 dB under the vowel, which
+passed for vowel. On *nunc* and *tunc* one frame did it: as the murmur hands over to the k's closure it
+brightens for 5-10 ms.
+
+- **The change** (`onsets.mjs` `AGAIN`): when a stop's closure or a fricative starts within 5 frames of the
+  run's end, `vowelAgain` reads only the frames between and needs 2 or more vowel-like ones. Elsewhere it reads
+  as before. `readCoda(..., { againGap: false })` is the reader before; `node eval/coda-check.mjs --again off`
+  prints the old report.
+- **Chosen on part J only** (cluster nasals 124 to 127 of 132, the others 304 of 336 and the vowel-only control
+  445 of 468 unchanged). Every corpus part has printed its misses, so none is clean held-out data. A new part K
+  was written for this round: 14 cluster syllables (*fons dens pons mons gens hinc runt bunt tent cant frons
+  sanct lunt quent*) and 22 others never sung in any part, at B2, F3, A3, B3 and D4 (no pitch of A or J), 104 BPM.
+  Its predictions were committed in the script's header before K or any other part was run with the change.
+
+| prediction | `--again off` | after |
+|---|---|---|
+| (1) K's cluster nasals no fewer, at least 1 more | 121 of 140 | 127 of 140 (90.7%): holds |
+| (2) K's other syllables within 1; no more read as a nasal | 166 of 220; 6 nasal | 166; 6: holds |
+| (3) K's vowel-only control identical | 295 of 360 | 295: holds |
+| (4) A, B, D, E, H, I, F totals no lower, nasals no fewer, controls identical | | every one byte-identical: holds |
+| (5) vowel and consonant checks cannot move | | readOnset and the synthesis untouched |
+
+What K found that it was not built to test: on pitches the reader was not tuned on, it reads K's other
+syllables right only 75.5% of the time and the vowel-only control as none 81.9%, against 90.5% and 95.1% on J.
+Most of the gap is one known fault: /i/ is read as a voiced fricative (83 of the 119 misses, on *i*, *ip*, *ic*,
+*ib*, *ix*, *im*, *in* and *hinc*, sung or vowel-only). The other 36: 23 syllables on /o/ and /u/ read as a nasal, once each (17 vowel-only, 6 sung), *ep*, *ip* and *op* read as a k (3 each), *ef* as an s (3) and *ix* as a tap (1).
+The cluster misses left: *fons* on every eighth note read as nothing, *hinc* as a voiced fricative (its /i/
+again), and on E4 eighth notes (J) *nunc*, *tunc*, *mens* and *sunt* read as a voiced labial stop. There the
+murmur is 18-33 dB under the vowel and only 20-30 dB dark in itself (one harmonic of a 330 Hz voice passes
+under 500 Hz), so it meets the closure rule instead of a murmur rule. That is the next item. `sing.test.mjs`
+holds this round: *nunc*, *tunc*, *mens* and *unt* on C4 all read on their n, at least 2 more than without the
+change, and none of *up uc ub us es ec* reads as a nasal. Nothing in the synthesis changed. Not listened to.
 
 #### Formant tuning on high notes (2026-11-15)
 

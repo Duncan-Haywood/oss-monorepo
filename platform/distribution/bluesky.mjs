@@ -33,7 +33,14 @@ export const MAX_PER_RUN = 3;
 export const MAX_GRAPHEMES = 300;
 const PDS = 'https://bsky.social';
 
-const decode = (s) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'");
+// One pass, so `&amp;lt;` stays the text "&lt;"; numeric references too (a
+// page's `&#x27;` went out literally before 2026-11-16). Unknown names are kept.
+const NAMED = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+const decode = (s) => s.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi, (whole, ref) => {
+  if (ref[0] !== '#') return NAMED[ref.toLowerCase()] ?? whole;
+  const code = ref[1] === 'x' || ref[1] === 'X' ? parseInt(ref.slice(2), 16) : parseInt(ref.slice(1), 10);
+  return code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff) ? String.fromCodePoint(code) : whole;
+});
 
 /** { title, description } from a page's <title> and meta description, or null. */
 export function readMeta(html) {

@@ -1,0 +1,8 @@
+Exploratory variants after the pre-registered 4 s test (eval/repair-reserve-4s.out.txt), same four weeks, seeds 25-36, each
+against flow2000 (the default) from eval/repair-reserve-4s.jsonl. Summarised by an inline script; numbers copied from its output.
+
+4 s, 3M nodes (pre-registered) vs 2 s: n=48 fewer 11 more 27 tied 10 net -64 | above floors 371 at floor 3 | repair ms 1208 build ms 22244 gains 250 | two-sided p 0.0139
+4 s, 9M nodes (repair-reserve-nodes9m.jsonl) vs 2 s: n=48 fewer 14 more 22 tied 12 net -47 | above floors 354 at floor 3 | repair ms 2286 build ms 22191 gains 342 | two-sided p 0.243
+2 s (the default): above floors 307, at floor 4, repair gains 141
+4 s, 9M nodes vs 4 s, 3M nodes: fewer 24 more 11 net +17
+4 s, 180 rounds (repair-reserve-rounds180.jsonl, first 4 builds only): identical to 4 s, 3M nodes on all 4 (open hours, gains, skipped rounds)

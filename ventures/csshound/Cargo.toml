@@ -1,0 +1,29 @@
+[package]
+name = "csshound"
+version = "0.1.0"
+edition = "2021"
+description = "Fast unused-CSS finder: PurgeCSS's selector rules in one Rust binary, run page by page over a whole site"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/duncan-haywood/oss-monorepo"
+keywords = ["css", "purgecss", "unused-css", "lint", "html"]
+categories = ["command-line-utilities", "development-tools", "web-programming"]
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "csshound"
+required-features = ["cli"]
+
+[features]
+default = ["cli"]
+# Threads for the CLI; the browser build judges one page at a time.
+cli = ["dep:rayon"]
+
+[dependencies]
+rayon = { version = "1", optional = true }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

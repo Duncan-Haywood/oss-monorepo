@@ -249,7 +249,9 @@ re-aim for the next shot, or the drill's final stop, cannot pass for a ball.
 `LAUNCH_CHECK_MS` (250 ms) after the stroke ends it judges the wheel with the
 larger predicted drop: a ball went if that wheel fell by at least
 `LAUNCH_DIP_SHARE` (0.25) of its prediction, and by `LAUNCH_DIP_MIN` (1.5%) at
-least. A dry stroke sets `FLAG_HOPPER_EMPTY` until the next `FEED`.
+least, below its own speed just before the fall (since the evening of
+2026-11-16; at first below its target, see "The verdict from the pre-ball
+speed" below). A dry stroke sets `FLAG_HOPPER_EMPTY` until the next `FEED`.
 
 **The Pi.** `run_drill` stops at the first dry stroke and reports the shot
 that went dry and how many flew; `tennisbots run` exits 3. It stops the wheels
@@ -282,6 +284,48 @@ may answer faster or slower. Before relying on it, log `hw.launch.last_dip`
 for a few dozen real shots and dry strokes on the first build and check they
 sit either side of the threshold. `LAUNCH_CHECK = False` turns the check off.
 
+### The verdict from the pre-ball speed (2026-11-16, later)
+
+The first verdict measured the drop from the wheel's target. The sweep above
+fed every stroke with the wheels already settled at the shot's speed, so the
+wheel met the ball within a fraction of a percent of its target. A drill does
+not always do that: when a shot's interval runs out before the wheels settle,
+the Pi sends `FEED` within one telemetry frame of the steady flag, and the
+stroke starts the moment the 3% gate opens, with the wheel still closing on its
+target from below or above.
+
+`tests/launch_check_sweep.py` now also feeds that way ("fed at the gate"): each
+of the six shots, set from 0.5, 0.8, 1.25 or 1.5 times its speed (within the
+planner's 500..7,000 rpm), then fed at once, one loaded and one dry stroke, on
+the same 27 builds: 486 loaded and 486 dry strokes
+(`eval/launch-check-gate-2026-11-16.txt`).
+
+| fed at the gate, 27 builds | worst loaded (must be 1 or more) | worst dry (must be under 1) | wrong verdicts of 972 |
+| --- | --- | --- | --- |
+| drop below the target (the first verdict) | 0.59 | 3.11 | **29** (27 dry strokes read as a ball, 2 balls read as dry) |
+| drop below the pre-ball speed (now) | 1.25 | 0.63 | **0** |
+
+A dry stroke misread as a ball hides an empty tub, which the check exists to
+catch. The target verdict did that once on every one of the 27 builds, each
+time at 3,000 rpm set from 1.25 times it: braking from 3,750 rpm the simulated
+wheel undershoots to 2,865 and is still about 2% under target, climbing, when
+the gate opens. The two balls read as dry (6,500 rpm set from 0.5 and 0.8
+times it, on the 1.5x wheel with a 0.8 s lag and a 60% take) would have
+stopped a drill with balls left.
+
+So the verdict now uses the drop the shot log already records: the wheel's
+largest fall of one reading below the highest reading of the 2.5 revolutions
+before it. `LaunchCheck.last_dip` is that drop and `last_dip_target` the old
+one, for comparison. On settled feeds (the first table) the loaded margin is
+unchanged (1.26); the dry margin is smaller, 0.42 of the threshold against
+0.17, because the single-revolution reading's own ripple at 1,500 rpm now
+counts as a fall (0.9%, against a 2.2% threshold). That is still 2.4 times
+clear, and it is the noise a real tach will show more of: the shot log of a
+first build should check it before anything else.
+
+**Not measured.** The same simulator caveats as above, and the Pi's feed
+timing taken at its worst (no frame of slack after the steady flag).
+
 ## Shot log (2026-11-16)
 
 The empty-hopper check reads how far the wheels slow when a ball goes through.
@@ -306,9 +350,9 @@ and `tennisbots run drill.json --shot-log shots.jsonl` appends them to a file.
   were up to 2.6% off when the ball arrived. Against an 8.8% drop that moved a
   target-based reading by up to 30%. The record now takes each wheel's largest
   fall of one reading below the highest reading of the 2.5 revolutions before
-  it, which is the speed the ball met. (The empty-hopper verdict still uses the
-  target: its margins were swept that way, and it only needs to separate 4.7%
-  from 0.4%.)
+  it, which is the speed the ball met. (The empty-hopper verdict used the
+  target at first; it reads this drop now, "The verdict from the pre-ball
+  speed" below.)
 - *That window has to be in time, not in readings.* While a slowed wheel's next
   pulse is late, `PeriodTach.rpm_last` reports the falling open revolution on
   every 10 ms tick. A history of three distinct readings filled with those and
@@ -425,6 +469,85 @@ Every build landed closer re-planned; the two builds the default nearly fitted
 went from 0.45 to 0.59 m off to 0.01 to 0.24 m. What is left (up to 1.2 m) is
 the fit's own 2-4% speed error from a drill's few speeds; a calibration drill
 first, with its `"launcher"` block in the drill file, does better.
+(Later the same day the drops were fitted from the pulse times, and the worst
+shot came down to 0.74 m: "The drop from the pulse times" below.)
 
 **Not measured.** The simulator's physics, as for the shot log, and
 landings computed from its exit speeds, not watched balls.
+
+## The drop from the pulse times (2026-11-16, later)
+
+Both fits above read each wheel's drop from the tach's lowest single
+revolution, and that shows only part of it. The ball lands somewhere inside a
+revolution, and by the next one the speed loop is already pulling the wheel
+back. The fit modelled the missing share with one recovery time,
+`((1 - e^-x) / x)^2`, but on the simulator the shape was wrong: the loop sees a
+drop late (it reads the 4-revolution mean), so the first revolutions recover
+less than the formula says and later ones more. The fitted recovery time and
+the speed efficiency traded against each other, and with a drill's few speeds
+the speed efficiency came out 3-6% off.
+
+**What changed.** `PeriodTach` now keeps its last 128 revolution periods in a
+ring (`ring`, `edges`, `recent`; periods, not times, so the interrupt never
+allocates). `LaunchCheck` takes a snapshot of each wheel's periods from the
+stroke's start up to the moment the Pi changes the targets, or the verdict,
+whichever comes first. For a launched stroke it then fits the ball's whole
+drop to them (`controller.drop_from_periods`):
+
+- the wheel turns at w0 (the mean of the three revolutions before the slow
+  ones) until the ball, at an unknown moment t0 inside the first slowed
+  revolution;
+- after t0 it turns at w0 - D and recovers along a parabola (a line when
+  only three revolutions are left before the snapshot ends);
+- each revolution's mean speed is 1 / its period, so each one integrates that
+  curve over its own span. For a fixed t0 this is linear in D and the recovery
+  terms. t0 is searched on three nested 9-point grids over the revolution,
+  and the t0 with the least residual wins. The fit uses five revolutions from
+  the first slowed one.
+
+The record carries the fitted drop and pre-ball speed. Bits 1 and 2 of its
+last byte (top and bottom wheel) say a drop is the fitted, whole one. Bit 0 is
+still "a ball went", so an older Pi reads the frame as before. The Pi's fit
+(`launcher.fit_from_drops`) gives those rows a share of 1 and fits a recovery
+time only for rows without the bit, so it can still read old logs. The
+empty-hopper verdict is unchanged: it still reads the lowest reading's fall.
+
+**How close (simulated).** `tests/pulse_drop_sweep.py` compares each wheel's
+recorded drop with the simulator's true one, over 336 launched wheels (wheel
+lag 0.2 / 0.4 / 0.8 s x two true launchers x the rally and calibration drills;
+eval/pulse-drop-sweep-2026-11-16.txt). The lowest reading showed 62% to 99.5%
+of the drop, 93% on average and 89% under 2,000 rpm. The pulse-time fit shows
+100.2% on average, sd 1.5%, range 97.4% to 108.2%, and no speed band is more
+than 0.8% off. Five revolutions tested better than four, six or seven. That
+choice was tuned on these same simulated wheels.
+
+| `tests/launch_fit_sweep.py`, worst of 18 builds | before | now |
+| --- | --- | --- |
+| speed efficiency | 3.9% | 1.9% |
+| spin efficiency | 11.7% | 6.6% |
+
+Every build now fits with no recovery time at all ("none" in the sweep's
+column). The speed efficiency reads 0.9-1.9% high on every build: that is a
+bias, not noise, and its cause is not found yet (perhaps the loop's 10 ms
+command steps, which a parabola can't follow).
+
+`tests/refit_sweep.py`, the drill re-planned from its own shots (12 builds,
+shots 5 to 16, metres from the target;
+eval/refit-sweep-pulse-drop-2026-11-16.txt):
+
+| | median, worst build | worst shot |
+| --- | --- | --- |
+| planner's default launcher all drill | 5.16 | 5.21 |
+| re-planned, lowest-reading drops (before) | 1.10 | 1.18 |
+| re-planned, pulse-time drops (now) | 0.61 | 0.74 |
+
+At the first re-plan, after four shots, the fitted speed efficiency is now
+0.9% to 1.8% high on every build. Before, it was 2.9% low to 4.0% high. The
+calibration drill's recovery time is no longer needed (`run` still reads it
+for old logs).
+
+**Not measured.** The simulator's physics, as before. On top of that, its
+tach is exact to the microsecond, and a real hall or IR sensor's jitter will
+add noise. The fit runs once per stroke at the verdict, at most 27 small
+least-squares solves per wheel; its time on a real ESP32 under MicroPython is
+not measured.

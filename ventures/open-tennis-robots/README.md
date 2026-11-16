@@ -199,8 +199,12 @@ wheel on a flat shot with the CAD's figures) and an empty pocket leaves them
 steady. A dry stroke sets `FLAG_HOPPER_EMPTY`; the runner stops there, names the
 shot that went dry and how many flew, stops the wheels without latching the
 e-stop, and exits 3. No sensor was added because the feeder's ESP32 has no pin
-left for one. Margins over 27 simulated builds and the reasoning:
-[`firmware/esp32/README.md`](firmware/esp32/README.md), "Empty hopper".
+left for one. The drop is measured from the wheel's own speed when the ball met
+it, not its target: a stroke fed as the speed gate opens starts with the wheel
+still closing on its target, and against the target 29 of 972 such simulated
+strokes were judged wrong (none now). Margins over 27 simulated builds and the
+reasoning: [`firmware/esp32/README.md`](firmware/esp32/README.md), "Empty
+hopper" and "The verdict from the pre-ball speed".
 
 **A shot log and a launcher fit without a radar gun (2026-11-16).** The same
 drop is the ball's momentum, so every judged stroke now reaches the Pi as a
@@ -210,14 +214,20 @@ drop is the ball's momentum, so every judged stroke now reaches the Pi as a
 efficiencies, the numbers the planner aims with. On 18 simulated builds the
 speed efficiency came within 3.9% (10.9% if the drops are read naively) and
 the spin efficiency within 11.7%; one radar session pins the wheel's inertia.
-[`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log".
+Later that day, the firmware began fitting each drop to the wheel's pulse times
+instead of reading only the lowest revolution, which shows 62-99.5% of the
+drop. The fit came within 1.9% (speed) and 6.6% (spin), and it no longer
+needs the speed loop's recovery time.
+[`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log" and "The
+drop from the pulse times".
 
 **A drill that re-aims itself from its own shots (2026-11-16).** `tennisbots
 run drill.json --shot-log shots.jsonl --refit-after 4` fits the launcher from
 the drill's own wheel speed drops every 4 shots and re-plans the remaining
 shots' wheel speeds, printing how far they would have landed off. On 12
 simulated builds whose launcher differed from the planner's default, shots 5
-to 16 landed up to 5.2 m off unchanged and at most 1.2 m off re-planned; the
+to 16 landed up to 5.2 m off unchanged and at most 0.74 m off re-planned
+(1.2 m before the pulse-time drops); the
 planner also now refuses a wheel under 500 rpm, where the simulated wheel
 never settled.
 [`firmware/esp32/README.md`](firmware/esp32/README.md), "Re-planning a drill from its own shots".

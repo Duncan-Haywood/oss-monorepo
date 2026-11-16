@@ -1325,7 +1325,7 @@ export function freeShippingNote(comparison) {
   };
   const signed = (value) => {
     if (Math.abs(value) <= 1e-9) return '$0.00';
-    return `${value < 0 ? '−' : '+'}$${Math.abs(value).toFixed(2)}`;
+    return `${value < 0 && Math.abs(value).toFixed(2) !== '0.00' ? '−' : '+'}$${Math.abs(value).toFixed(2)}`;
   };
   const charged = `Charging ${money(comparison.charged.shippingCharged)} shipping on a ${money(comparison.charged.price)} item leaves ${money(comparison.charged.profit)} per order.`;
   const eat = ` Free shipping at the same item price leaves ${money(comparison.eatLabel.profit)} (${signed(comparison.eatLabelDelta)}).`;

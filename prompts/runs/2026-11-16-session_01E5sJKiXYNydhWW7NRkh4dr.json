@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKiXYNydhWW7NRkh4dr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T07:12:50Z",
+  "ended": "2026-11-16T07:28:24Z",
+  "wall_minutes": 16.04,
+  "tokens_in": 6469141,
+  "tokens_out": 31539,
+  "cost_usd": 2.9214,
+  "tool_calls": 56,
+  "task": "chant-forge flagship (allocate.py row 8): nunc/tunc/mens on C4 missed by the cluster-nasal reader",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16495",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "A python edit of ROADMAP.md matched a substring at the wrong indentation and raised IndexError; redone.",
+    "The first README draft miscounted K's misses (/i/-as-fricative given as 54 of 119, really 83; the remaining 36 split wrongly); recounted from the report and corrected before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge next: said 'nunc/mens on C4-E4 with no step', but the C4 misses had nothing to do with the step: the NEAR rule already found the murmur and vowelAgain discarded it. Frame dumps, not the row's diagnosis, located it."
+    },
+    {
+      "file": "ventures/chant-forge/eval/coda-check.mjs",
+      "issue": "no part of the coda check was clean held-out data any more (every part had printed its misses), so a new synthetic part K had to be written for this round; the next round needs another fresh set."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took one half of the row's item (C4) and left E4 eighth notes, which is a different fault (the murmur reads as a voiced closure).",
+      "did": "Fixed and pre-registered the C4 case; wrote up E4 as next with its measured cause.",
+      "result": "All five predictions held on the new held-out part K."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-the-check-that-threw-out-the-n-of-nunc.md",
+    "ventures/chant-forge/README.md (nunc and mens on C4)"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok, 261 tests. eval/coda-check.mjs full run with and --again off: only parts J and K differ; A,B,D,E,F,H,I byte-identical. K (pre-registered in commit 22ae1124d before it ran): clusters 121->127 of 140, others 166/220 and 6 nasal both ways, control 295/360 both ways. Post lint: front matter, links, similarity clean. venture-preflight.mjs chant-forge: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b005a9b1-4d44-5565-8773-a05ff9d4d76b",
+    "transcripts": 1,
+    "first": "2026-11-16T07:12:50Z",
+    "last": "2026-11-16T07:28:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 104,
+        "output": 31539,
+        "thinking": 9506,
+        "cache_read": 6341290,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127747,
+        "api_equivalent_usd": 2.9214,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 104,
+      "output": 31539,
+      "thinking": 9506,
+      "cache_read": 6341290,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127747,
+      "api_equivalent_usd": 2.9214,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.04,
+      "active_minutes": 16.04,
+      "model_minutes": 7.13,
+      "tool_minutes": 8.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an audio/DSP engineer diagnosing a rule-based reader from frame dumps, writing a held-out set and a pre-registration, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 205.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

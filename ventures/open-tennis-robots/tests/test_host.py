@@ -810,11 +810,13 @@ class EmptyHopperTest(unittest.TestCase):
         _, need = chk.threshold((4000, 4000))
         self.assertAlmostEqual(need, 0.25 * 0.088, delta=0.001)
         chk.start((4000, 4000), 0)
-        self.assertIsNone(chk.update(500, (3990, 4005), (4000, 4000)))
+        for t in range(0, 1000, 10):                                     # control ticks, 10 ms apart
+            self.assertIsNone(chk.update(t, (3990, 4005), (4000, 4000)))
         chk.stroke_done(900)
-        self.assertIsNone(chk.update(1000, (3700, 3800), (4000, 4000)))  # a ball: 7.5% drop
+        self.assertIsNone(chk.update(1000, (3700, 3800), (4000, 4000)))  # a ball: 7.5% below the 4,000 target
         self.assertIs(chk.update(1150, (3950, 3960), (4000, 4000)), True)
-        self.assertAlmostEqual(chk.last_dip, 0.075)
+        self.assertAlmostEqual(chk.last_dip, 1 - 3700 / 3990)            # judged from the speed the ball met
+        self.assertAlmostEqual(chk.last_dip_target, 0.075)
         chk.start((4000, 4000), 2000)
         chk.stroke_done(2900)
         self.assertIsNone(chk.update(2950, (3990, 3995), (4000, 4000)))
@@ -826,6 +828,31 @@ class EmptyHopperTest(unittest.TestCase):
         chk.start((0, 0), 5000)
         chk.stroke_done(5900)
         self.assertIsNone(chk.update(6200, (0, 0), (0, 0)))              # wheels at rest: no verdict
+
+    def test_check_reads_the_drop_from_the_wheels_own_speed(self):
+        """A stroke fed as the gate opens after a speed change starts with the wheel up to 3% off target (2026-11-16,
+        firmware/esp32/README.md "The verdict from the pre-ball speed"): climbing from 2.9% below with no ball is no
+        launch, though it reads 2.9% below target; a ball met 2.9% above target still counts."""
+        chk = controller.LaunchCheck(*self._model())
+        _, need = chk.threshold((4000, 4000))
+        chk.start((4000, 4000), 0)
+        for t in range(0, 1150, 10):                                     # 3,884 rpm climbing to 4,000, no ball
+            rpm = 4000 - 116 * 0.995 ** t
+            self.assertIsNone(chk.update(t, (rpm, rpm), (4000, 4000)))
+            if t == 900:
+                chk.stroke_done(900)
+        self.assertIs(chk.update(1150, (4000, 4000), (4000, 4000)), False)
+        self.assertGreater(chk.last_dip_target, need)                    # against the target: 2.9%, read as a ball
+        chk.start((4000, 4000), 2000)
+        for t in range(2000, 2760, 10):
+            chk.update(t, (4116, 4116), (4000, 4000))
+        went = None
+        for t, rpm in ((2760, 3920), (2770, 3940), (2900, 4000), (3000, 4100), (3150, 4116)):
+            if t == 2900:
+                chk.stroke_done(2900)
+            went = chk.update(t, (rpm, rpm), (4000, 4000)) if went is None else went
+        self.assertIs(went, True)                                        # 4.8% from the speed it met: over `need`
+        self.assertLess(chk.last_dip_target, need)                       # against the target only 2%: read as dry
 
     def test_drill_runs_while_balls_last(self):
         sim = SimFeeder(balls=3)                       # the pocket's ball and three behind it: exactly four
@@ -942,8 +969,8 @@ class ShotLogTest(unittest.TestCase):
         self.assertEqual([r["shot"] for r in res.launches], list(range(12)))
         self.assertTrue(all(r["launched"] for r in res.launches))
         fit = launcher.fit_from_drops(res.launches)
-        self.assertLess(abs(fit.speed_efficiency / 0.78 - 1), 0.05)       # README "Shot log": within 4% swept
-        self.assertLess(abs(fit.spin_efficiency / 0.42 - 1), 0.15)
+        self.assertLess(abs(fit.speed_efficiency / 0.78 - 1), 0.03)       # README "Shot log": within 2% swept
+        self.assertLess(abs(fit.spin_efficiency / 0.42 - 1), 0.08)
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "shots.jsonl")
             self.assertEqual(host.append_shot_log(path, res, "drill.calibration.json"), 12)
@@ -962,6 +989,77 @@ class ShotLogTest(unittest.TestCase):
         self.assertLess(abs(fit.speed_efficiency * 1.3 / 0.85 - 1), 0.05)  # reads 0.85 / 1.3
         inertia = launcher.inertia_from_radar(fit, 0.85)
         self.assertLess(abs(inertia / (0.00155 * 1.3) - 1), 0.05)
+
+
+class PulseDropTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "The drop from the pulse times": controller.drop_from_periods fits a ball's
+    whole speed drop to the wheel's revolution periods, where the lowest single-revolution reading shows only part."""
+
+    @staticmethod
+    def _periods(rpm, drop, t0_us, rec_per_s, rec2_per_s2=0.0, revs=40):
+        """Revolution periods (us) of a wheel at `rpm` that loses `drop` of its speed at t0 and then recovers at
+        `rec_per_s` (+ `rec2_per_s2` t) of its speed per second, integrated in 1 us steps."""
+        w0 = rpm / 60e6                     # rev per us
+        t, ang, last, out = 0.0, 0.0, 0.0, []
+        while len(out) < revs:
+            if t < t0_us:
+                w = w0
+            else:
+                s = (t - t0_us) / 1e6
+                w = w0 * min(1.0, 1 - drop + rec_per_s * s + rec2_per_s2 * s * s)
+            ang += w
+            t += 1.0
+            if ang >= 1.0:
+                ang -= 1.0
+                out.append(round(t - last))
+                last = t
+        return out
+
+    def test_whole_drop_from_the_pulse_times(self):
+        for rpm, drop, t0 in ((1500, 0.15, 400000), (4000, 0.088, 300137), (6500, 0.07, 200050)):
+            ps = self._periods(rpm, drop, t0, 0.15, 1.5)
+            got = controller.drop_from_periods(ps)
+            self.assertIsNotNone(got, rpm)
+            self.assertAlmostEqual(got[0] / drop, 1.0, delta=0.01, msg=rpm)
+            self.assertAlmostEqual(got[1] / rpm, 1.0, delta=0.002, msg=rpm)
+            self.assertEqual(got[2], 5)
+            lowest = 1 - min(60e6 / p for p in ps) / rpm
+            self.assertLess(lowest, drop * 0.99)         # what the record carried before: only part of it
+
+    def test_too_few_revolutions_after_the_ball_is_no_fit(self):
+        ps = self._periods(2000, 0.1, 200000, 0.2)
+        k = max(range(len(ps)), key=lambda j: ps[j])
+        self.assertIsNone(controller.drop_from_periods(ps[:k + 1]))    # cut at the slowest revolution
+        self.assertIsNone(controller.drop_from_periods([30000] * 3))
+
+    def test_ring_keeps_the_last_periods(self):
+        tach = controller.PeriodTach(ring=8)
+        for p in range(10000, 10020):
+            tach.edge(p)
+        self.assertEqual(tach.recent(3), [10017, 10018, 10019])
+        self.assertEqual(tach.recent(50), list(range(10012, 10020)))
+        self.assertEqual(tach.recent(2, upto=15), [10013, 10014])
+        tach.edge(2000000)                                  # a stall restarts the count
+        self.assertEqual(tach.recent(5), [])
+
+    def test_whole_drops_need_no_recovery_time(self):
+        from tennisbots import launcher
+        recs = []
+        for top, bottom in ((4000, 4000), (4500, 3000), (3000, 4500), (2000, 2000)):
+            d = controller.launch_dips(top, bottom, 0.00155, 0.057, 0.075, 0.0335, 0.8, 0.45)
+            recs.append({"rpm_top": top, "rpm_bottom": bottom, "launched": True, "drop_top": d[0],
+                         "drop_bottom": d[1], "fit_top": True, "fit_bottom": True})
+        fit = launcher.fit_from_drops(recs)
+        self.assertAlmostEqual(fit.speed_efficiency, 0.8, places=6)
+        self.assertAlmostEqual(fit.spin_efficiency, 0.45, places=6)
+        self.assertIsNone(fit.recovery_s)
+        self.assertNotIn("one speed", fit.note)
+
+    def test_launch_flags_reach_the_pi(self):
+        sim = SimFeeder()
+        res, _ = run(sim, drill())
+        self.assertTrue(res.ok, res.aborted)
+        self.assertTrue(all(r["launched"] and r["fit_top"] and r["fit_bottom"] for r in res.launches))
 
 
 class RefitTest(unittest.TestCase):
@@ -1002,7 +1100,7 @@ class RefitTest(unittest.TestCase):
     def test_a_wrong_launcher_model_is_corrected_mid_drill(self):
         import refit_sweep as sweep
         out, recovery = sweep.run_case(0.78, 0.42, 0.4)
-        self.assertIsNotNone(recovery)
+        self.assertIsNone(recovery)            # every drop is fitted from the pulse times: no recovery time to fit
         fixed, refit = out["fixed"][0], out["refit"][0]
         self.assertTrue(all(e > 1.8 for e in fixed))             # every shot about 2 m off on the planner's default
         for a, b in zip(fixed[:4], refit[:4]):                  # the first four are fed before any fit (the wait for
