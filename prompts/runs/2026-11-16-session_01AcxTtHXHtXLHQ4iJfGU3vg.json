@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtHXHtXLHQ4iJfGU3vg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T08:07:11Z",
+  "ended": "2026-11-16T08:31:50Z",
+  "wall_minutes": 24.85,
+  "tokens_in": 8696853,
+  "tokens_out": 36324,
+  "cost_usd": 3.5559,
+  "tool_calls": 73,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16508",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/experiments/digitise_rexroth_azpn.py",
+      "issue": "Its URL (jhf.com mirror of RE 10091) now serves HTML instead of the PDF, so the AZPN's rated n_max could not be re-read; 7b capped the AZPN at its drawn 2700 r/min and disclosed it."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Listed PR #16494 as an open claim although its commit dc35c8177 was already on main (the PR still shows open on GitHub); the CLAIM CHECK line and the LAND FIRST line disagree about whether it is finished."
+    },
+    {
+      "file": "(harness)",
+      "issue": "The auto-mode classifier returned no verdict for about eight Bash calls in a row mid-run, including plain git status; splitting commands and retrying got through."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-spin-the-gear-pump-faster-instead-of-buying-a-bigger-one.md",
+    "research/heavy-hydraulics/LOG.md (7b)"
+  ],
+  "goal": null,
+  "notes": "heavy-hydraulics milestone 7b (7a Next i): SpunGear drives a family's largest size faster (AZPF to rated 3000 r/min, AZPN to drawn 2700) instead of holding it. Predictions SP1-SP6 registered and analysis code committed before the run. AZPF spun: index 0.9043, idle 2.99 kW (held 2.61), E50 0.8075 unchanged; rule (Z) error -0.0060 (held +0.0008). Eight families with both spun: E50 = 0.8230 + 0.0181 (kW - 3.57), LOFO RMS 0.0035 vs 0.0115. 4/6 predictions held (SP3 refuted at the boundary, SP6 refuted). Verification: 7a reproduced byte for byte first; heavy-hydraulics pytest 117 passed 3 skipped; check_numbers manuscript 96 claims 0 missing 0 orphans, draft 339/0; build_tex 0 problems; homepage build ok; research_live_links and check_md_links ok; run_workflow_locally --for-changes 9/9 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e626a119-d040-57ae-b1b9-c5f2a90b3154",
+    "transcripts": 1,
+    "first": "2026-11-16T08:07:11Z",
+    "last": "2026-11-16T08:32:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 130,
+        "output": 36324,
+        "thinking": 7842,
+        "cache_read": 8557041,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139682,
+        "api_equivalent_usd": 3.5559,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 130,
+      "output": 36324,
+      "thinking": 7842,
+      "cache_read": 8557041,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139682,
+      "api_equivalent_usd": 3.5559,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 59,
+      "Read": 4,
+      "Write": 3,
+      "Grep": 3,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.85,
+      "active_minutes": 24.85,
+      "model_minutes": 7.63,
+      "tool_minutes": 17.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a hydraulics researcher extending an existing pump model to a speed-dependent reading, pre-registering, running and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 168.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
