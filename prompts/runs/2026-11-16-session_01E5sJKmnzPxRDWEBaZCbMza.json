@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKmnzPxRDWEBaZCbMza",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T06:38:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: build csshound, a Rust unused-CSS finder with PurgeCSS's selector rules, and measure dead CSS on the venture pages",
+  "projects": [
+    "ventures/csshound"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16483",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 43,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "scan() in src/lib.rs decremented bracket depth before checking ')' and ']' as stop bytes, so pseudo-class arguments and attribute selectors ran to the end of the selector",
+      "fix": "check stops first at depth 0; caught by tests/rules.rs before any number was published"
+    },
+    {
+      "what": "running the installed purgecss@9.1.0 npm package (node harness) was refused twice by the session's auto-mode permission classifier ('Unauthorized Access')",
+      "fix": "did not retry or work around; shipped the harness and comparison script, and BENCHMARK.md, README, page and post say PurgeCSS is unmeasured"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The explore prompt lists the already-swept audits well, but says nothing about which tool directions are open; I found the dev-tools candidate list only through goals.md. A one-line pointer to portfolio/opinions/2026-10-29-dev-tools-in-rust.md would save a search."
+    },
+    {
+      "file": "portfolio/opinions/2026-10-29-dev-tools-in-rust.md",
+      "issue": "Step 1 of the bar (measure the original first) assumes a session can execute npm packages; this one could install but not run purgecss. The piece has no guidance for that case; I shipped with the gap stated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/opinions/2026-10-29-dev-tools-in-rust.md",
+      "why": "Its bar says to measure the original tool before writing the Rust version and to publish agreement. PurgeCSS could not be executed in this session.",
+      "did": "Ported the rules from PurgeCSS 9.1.0's source with one test per rule, shipped the harness and compare script, and stated everywhere that no PurgeCSS figure exists",
+      "result": "tool landed with its own measurements; the agreement figure is left for a later run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-almost-half-our-pages-carry-css-they-never-use.md",
+    "ventures/csshound/BENCHMARK.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: csshound, an unused-CSS finder in Rust (dev-tools-in-Rust direction, new candidate 'unused-CSS finders'). Measured on 3,915 venture pages at 321954ed9: 0.50-0.52 s, 18-21 MB; 8,815 of 99,479 rules (644,192 of 8,101,928 bytes, 8.0%) unused on 1,820 pages; with PurgeCSS's input 13,412. Spot check of 50 random findings: the 30 whose name appears in a venture script are all on pages that load no script. Wasm (97 KB) matches the CLI on 40 pages. Local checks: cargo test --release (25 pass), run_venture_tests.py csshound (18 pass), check_post_frontmatter and check_post_links clean; run_workflow_locally --for-changes results below.",
+  "corrections": [],
+  "redteam": null
+}
