@@ -7,3 +7,4 @@
 - (2026-11-16) a manager's real task list for the fixed minutes
 - (2026-11-16) whether the priced cut's r = 1 default suits a real manager
 - (2026-11-16) next a real wages export, real trip times
+- (2026-11-16) fair workweek: the mass-communication offer exception for covers, on-call shifts, and a real site's week of changes through /admin/changes

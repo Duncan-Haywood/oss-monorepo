@@ -86,7 +86,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
@@ -387,6 +387,47 @@ lines.push('## L. Held out: syllables on /i/ (tenth round, pre-registered)', '',
   `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
   `| vowel-only control on /i/ read as none | ${cell('control i on')} | ${cell('control i off')} |`,
   `| vowel-only control, the rest, read as none | ${cell('control on')} | ${cell('control off')} |`, '', 'Misses with the test (count over the ten pitch and length cells):', '', HIDE.includes('L') ? '- hidden (--hide-misses L)' : [...lMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- M ----
+// An out-of-sample check of the tenth round's VFRIC_HI5, written by a second session that fixed the same fault
+// in parallel with a different rule (energy above 2.5 kHz 6 dB over the vowel's) before it had seen VFRIC_HI5 or
+// part L. Run unchanged on main's reader, nothing tuned on it. 24 syllables, 19 of them sung in no other part
+// (li, di, iz, az and ev are in L), at G2, C3, E3, G#3, C#4 and D#4 (E3 and D#4 in no other part), 96 BPM.
+if (PARTS.includes('M')) {
+const IS = ['id', 'il', 'ir', 'if', 'ist', 'ins', 'li', 'di', 'ri', 'mi'];
+const OTH = ['ag', 'eg', 'og', 'ul', 'ol', 'ur', 'or', 'ed', 'od', 'uf'];
+const ZV = ['iz', 'az', 'iv', 'ev'];
+const SY = [...IS, ...OTH, ...ZV], tally = {}, lMiss = new Map();
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+for (const pulses of [4, 2]) for (const midi of [43, 48, 52, 56, 61, 63]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 96, title: 'held-out i' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (IS.includes(s) ? 'i' : OTH.includes(s) ? 'other' : s.endsWith('z') ? 'z' : 'v') : 'control';
+      for (const [mode, o] of [['on', RC], ['off', { ...RC, vfricHi5: false }]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'control' && got.cls === 'fricative' && got.place === 'voiced') bump(`cvf ${mode}`, true);
+        if (mode === 'on' && !ok && !HIDE.includes('M')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; lMiss.set(key, (lMiss.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## M. Out-of-sample check of the tenth round (a second session\'s /i/ set)', '', `With /i/: ${IS.map((s) => `*${s}*`).join(', ')}; others: ${OTH.map((s) => `*${s}*`).join(', ')}; synthetic z and v codas (none in the corpus): ${ZV.map((s) => `*${s}*`).join(', ')}. Quarter and eighth notes at 96 BPM, each followed by a rest, G2, C3, E3, G#3, C#4, D#4.`, '',
+  '| | with the noise-above-5-kHz test | without (`vfricHi5: false`) |', '|---|---|---|',
+  `| /i/ syllables read exactly | ${cell('i on')} | ${cell('i off')} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
+  `| z codas read as a voiced fricative | ${cell('z on')} | ${cell('z off')} |`,
+  `| v codas read as a voiced fricative | ${cell('v on')} | ${cell('v off')} |`,
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`,
+  `| vowel-only control read as a voiced fricative | ${(tally['cvf on'] || [0])[0]} | ${(tally['cvf off'] || [0])[0]} |`, '',
+  'Misses with the rule (count over the twelve pitch and length cells):', '', HIDE.includes('M') ? '- hidden' : [...lMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
 }
 
 // ---- C ----

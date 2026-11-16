@@ -34,6 +34,7 @@ zero dependencies, one JSON file on a disk you own.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
+- **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's or Chicago's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
 - **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
@@ -257,6 +258,52 @@ balance flagged; the balance cap pausing and resuming after a use; a 5 h year ca
 opening balance; a July leave year; the trim keeping the balances identical; the hub off by default, 404 on its forms
 when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
 tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
+
+## Schedule changes and fair-workweek pay (2026-11-16)
+
+Seattle, Oregon, Chicago, New York City, Philadelphia, San Francisco, Los Angeles and others make covered employers post
+schedules ahead (14 days in the three here) and pay "predictability pay" when they change a posted shift inside that window.
+The cost is invisible on the schedule: it is in the change, so a manager needs a record of what changed, when, for whom
+and at whose request. The builder's changes report (`--changes`, "Changes since you posted it") compares two rosters at
+a moment you type. The hub is where the changes really happen, days apart, so it now keeps that record itself
+(`notice.mjs`, no Node built-ins, the Node server and the Cloudflare Worker alike).
+
+- **The log (always on):** publishing a week that is already posted logs what it changed for each person (same day,
+  other hours: moved; otherwise cancelled or added, the same pairing as `scheduleChanges`); an approved trade or
+  open-shift pick-up is logged as employee-asked; a call-out given to someone logs the caller's dropped shift as
+  employee-asked and the added shift as not, because the manager picked the person. The first publish of a week is kept
+  as its posting time. The manager can flip any entry between "Employee asked" and not. The last 1,500 changes are kept
+  (Seattle asks for three years of records, so the page says to download the CSV with each payroll).
+- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|custom`):** read from the City of Seattle's Office of Labor
+  Standards "Secure Scheduling" page and Oregon BOLI's "Predictive scheduling" page on 2026-11-16, and for Chicago from
+  search summaries of the city's Fair Workweek notice and rules on chicago.gov and the ordinance's table as quoted by the
+  National Law Review (the chicago.gov pages returned 403 or 404 here, so Chicago is the least checked of the three):
+  - Seattle: an added shift, added hours or a moved shift inside 14 days owe 1 hour of pay; hours taken away owe half
+    their pay; hours worked under 10 hours after the last shift pay time and a half.
+  - Oregon: the same, except that 30 minutes or less of added work owes nothing.
+  - Chicago: an add or move owes 1 hour (moves of 15 minutes or less owe nothing); hours taken away owe half their pay
+    inside 24 hours of the shift and 1 hour of pay between 24 hours and 14 days; rest under 10 hours pays 1.25x.
+  - `custom`, or any preset with overrides: `FWW_NOTICE_DAYS`, `FWW_ADD_HOURS`, `FWW_MIN_MOVE_MIN`, `FWW_MIN_EXTEND_MIN`,
+    `FWW_CANCEL_WINDOW_HOURS`, `FWW_CANCEL_FRACTION`, `FWW_CANCEL_ELSE_HOURS`, `FWW_REST_HOURS`, `FWW_REST_MULT`.
+- **`/admin/changes`** (linked from `/admin`): every change newest first with its notice (from the change to the earliest
+  start it touches, in your `TIMEZONE`), the hours lost or gained, the premium at the person's wage from the staff list and
+  the reason in words; shifts posted under the notice window; short rests in the current week, reaching back into last
+  Sunday when last week is the one before; totals; `/admin/changes.csv` for payroll (names that start like a formula
+  are quoted). A change made after the shift ended is a record correction and owes nothing; a change during the shift
+  (sent home early) counts as hours taken away.
+- **Not modelled:** who is covered (Seattle: 500+ employees worldwide; others differ), the exceptions for emergencies,
+  offers to the whole team after an absence and standby lists, on-call shifts, the right to decline added hours, and the
+  good-faith estimate at hire. The page says it is an estimate to check before payroll.
+- **Tested** (`notice.test.mjs`, 9 tests): each preset's arithmetic on hand-made changes (Seattle half of 8 lost hours at
+  $20 = $80; Chicago 1 hour at 66 hours' notice, half at 18; Oregon 30 minutes added free, 45 not), the pairing, the
+  time-zone and overnight instants, late posting, a short rest across the week boundary, the CSV, and the hub end to end:
+  a week published, published again after a staff change (four changes logged, posting time kept), a call-out covered,
+  the page and CSV under Seattle, the manager's mark, and the page with no rule set. Not yet run against a real site's
+  week of changes or checked by an employment lawyer.
+
+The same check found a mistake in the sibling
+[fair workweek schedule checker](../fair-workweek-schedule-checker/): its Seattle preset paid short rests at 1.25x; Seattle
+pays time and a half, so the preset, its worked example ($137.50 to $148.00) and tests are corrected in the same change.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 

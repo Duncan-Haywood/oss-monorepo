@@ -6,11 +6,13 @@ const S = Number(process.argv[2]) || 400, REPS = Number(process.argv[3]) || 199;
 // capped at 0.95, fresh seed base 5000.
 // Round 3 (eval/known-date-prereg-round3-2026-11-16.md): `... 400 199 cut`, round 2 plus the random-walk cut guard, seed base 9000.
 // Round 4 (eval/known-date-prereg-round4-2026-11-16.md): `... 400 199 upper`, round 3 plus the upper-bound generator
-// (larger p of the two), seed base 13000. KD_SEED_BASE overrides the base for exploratory runs; KD_CELLS=worst runs
+// (larger p of the two), seed base 13000.
+// Round 5 (eval/known-date-prereg-round5-2026-11-16.md): `... 400 199 gated`, round 4's upper bound only when the line
+// rho is above the pre-registered gate, seed base 25000. KD_SEED_BASE overrides the base for exploratory runs; KD_CELLS=worst runs
 // only the cells that failed before.
 const MODE = process.argv[4] || 'round1', ROUND2 = MODE !== 'round1';
-const SEED_BASE = Number(process.env.KD_SEED_BASE) || { round1: 1000, matched: 5000, cut: 9000, upper: 13000 }[MODE];
-const TEST_OPT = { round1: { rhoGenMethod: 'kendall', genCap: null, guard: 'full' }, matched: { rhoGenMethod: 'matched', genCap: 0.95, guard: 'full' }, cut: { rhoGenMethod: 'matched', genCap: 0.95, guard: 'cut' }, upper: { rhoGenMethod: 'upper', genCap: 0.95, guard: 'cut' } }[MODE];
+const SEED_BASE = Number(process.env.KD_SEED_BASE) || { round1: 1000, matched: 5000, cut: 9000, upper: 13000, gated: 25000 }[MODE];
+const TEST_OPT = { round1: { rhoGenMethod: 'kendall', genCap: null, guard: 'full' }, matched: { rhoGenMethod: 'matched', genCap: 0.95, guard: 'full' }, cut: { rhoGenMethod: 'matched', genCap: 0.95, guard: 'cut' }, upper: { rhoGenMethod: 'upper', genCap: 0.95, guard: 'cut' }, gated: { rhoGenMethod: 'gated', genCap: 0.95, guard: 'cut', ...(process.env.KD_GATE ? { gateRho: Number(process.env.KD_GATE) } : {}) } }[MODE];
 function mulberry(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 const gauss = (r) => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
 function series(n, rho, r, { step = 0, slope = 0, k = 0, walk = false } = {}) {
@@ -38,7 +40,7 @@ if (process.env.KD_CELLS === 'worst') {
   cell('step 1', 40, 0.4, 0.5, { step: 1 }); cell('step 1', 120, 0.4, 0.5, { step: 1 });
   process.exit(0);
 }
-console.log(`# ${MODE === 'upper' ? 'round 4, round 3 plus an upper-bound rho generator (larger p)' : MODE === 'cut' ? 'round 3, matched rho capped at 0.95, random-walk cut guard' : ROUND2 ? 'round 2, matched rho capped at 0.95' : 'round 1, Kendall rho capped at the guard'}; ${S} series per cell, ${REPS} bootstrap replicates; rejections at p <= 0.05 among tested series`);
+console.log(`# ${MODE === 'gated' ? `round 5, round 4's upper bound gated on the line rho (gate ${TEST_OPT.gateRho ?? 'default'})` : MODE === 'upper' ? 'round 4, round 3 plus an upper-bound rho generator (larger p)' : MODE === 'cut' ? 'round 3, matched rho capped at 0.95, random-walk cut guard' : ROUND2 ? 'round 2, matched rho capped at 0.95' : 'round 1, Kendall rho capped at the guard'}; ${S} series per cell, ${REPS} bootstrap replicates; rejections at p <= 0.05 among tested series`);
 console.log('## Size (null: line + AR(1))');
 for (const n of [40, 120]) for (const rho of [0, 0.4, 0.8]) for (const frac of [0.5, 0.8]) cell('null', n, rho, frac);
 console.log('## Power (step of 1 innovation sd; slope change 0.05 per step at n 40, 0.02 at n 120)');

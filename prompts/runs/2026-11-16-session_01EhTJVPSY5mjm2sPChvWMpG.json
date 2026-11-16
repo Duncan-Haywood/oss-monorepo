@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPSY5mjm2sPChvWMpG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T08:35:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator flagship 9, top next item: 29 teams on 5 courts x 9 slots, three wait-free games a night",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 16488,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First odd-lns.py version used Glucose 4 so a timer could interrupt it, and it stalled at 1 of 10 nights; CaDiCaL in python-sat cannot be interrupted, so solves now run in a forked child killed at the step limit.",
+    "My window encoding held the 2-round last night to 3-game windows; the run stalled at 9 of 10 for 112 steps before I saw it. Fixed (windows follow the night's round count); eval/odd-lns.txt records it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pip install python-sat went to a different Python than the bare python3 on PATH (pip is 3.13's, python3 resolves to 3.11 dist-packages); `python3 -m pip install` works. The cloud-session note covers pytest/numpy via pyenv.py but not this."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Wall-clock of background processes only advances while a tool call is running in this container, so 'start a long run and do other work' gives far less solver time than the timestamps suggest; blocking until-loops are what actually let the solver run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-29-team-league-two-nights-at-a-time.md"
+  ],
+  "goal": null,
+  "notes": "29 teams on 5 x 9 (n = 3k + 2, where no group of order k works) now has a stored wait-free season from eval/odd-lns.py, a large-neighbourhood search that re-deals two nights' pairs at a time with SAT (good-night indicators, at least one more good night per step). Tool: 334 waits over seeds 1-3 to 0, 3.6 s to 1.1 s a build (node eval/odd-cyclic-check.mjs 29:5:9). Seed 6 solved in 1,186 s; seeds 3 and 5 reached 9 of 10. write-odd-designs.mjs gained --append (round-trips the stored file unchanged). Checks: node --test doubleheader.test.mjs 33/33; run_venture_tests.py league-schedule-generator ok, 556 tests; venture-preflight clean. Then 35 on 6 x 9 by the same script (seed 1, 4,724 s, 39 steps): 505 waits to 0, 3.8 s to 1.5 s a build; stored, tested (doubleheader.test.mjs 33/33 again). 41 on 7 x 9 stayed at 1 of 14 nights and was stopped; 41 and 47 are open in flagships next.",
+  "corrections": [],
+  "redteam": null
+}
