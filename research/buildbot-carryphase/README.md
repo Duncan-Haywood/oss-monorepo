@@ -39,7 +39,7 @@ Track 20, robots on the residential building site (`PROJECTS.md`, milestone 3). 
 ```bash
 pip install mujoco numpy matplotlib pytest
 cd research/buildbot-carryphase
-python -m pytest -q tests                 # 9 tests; five need the Menagerie clone (git + network)
+python -m pytest -q tests                 # 15 tests; nine need the Menagerie clone (git + network), four of them re-score stored G1 rows
 python experiments/run.py                 # 636 cases, about 12 minutes on 4 CPUs, deterministic; writes results.json/results.txt
 python experiments/figure.py
 ```

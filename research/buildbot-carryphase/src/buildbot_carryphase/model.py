@@ -228,6 +228,24 @@ class Score:
     zc: float
 
 
+def centre_of_pressure(f):
+    """(x, y) of the centre of pressure relative to the sole point, from the ground wrench there.
+
+    f = (Fx, Fy, Fz, Mx, My, Mz) at the sole point. A vertical force Fz acting at (px, py) has moment
+    r x F = (py Fz, -px Fz, 0) about the sole point, so px = -My / Fz and py = Mx / Fz."""
+    return -f[4] / f[2], f[3] / f[2]
+
+
+def sole_margin(f, box):
+    """Smallest distance (m) of the centre of pressure inside the sole box (x0, x1, y0, y1); < 0 is outside,
+    -1 when the foot carries no load."""
+    if f[2] <= 1e-6:
+        return -1.0
+    cx, cy = centre_of_pressure(f)
+    x0, x1, y0, y1 = box
+    return min(cx - x0, x1 - cx, cy - y0, y1 - cy)
+
+
 def score(su, L, T, mass, slope_deg=0.0, rise=0.0, clear=0.05, hand=(0.3, 0.6), q_start=None):
     """Torques along one single-support phase of a step of length L (m) in T (s) carrying `mass` kg."""
     m = su.robot.model
@@ -252,7 +270,6 @@ def score(su, L, T, mass, slope_deg=0.0, rise=0.0, clear=0.05, hand=(0.3, 0.6), 
             acc_hand.append((pts[0] - 2 * pts[1] + pts[2]) / h ** 2)
         ratios, taus, fz, mus, margins = [], [], [], [], []
         b, p = su.feet[su.stance]
-        x0, x1, y0, y1 = su.box
         for i in range(len(te)):
             dd.qpos[:] = qe[i]
             dd.qvel[:] = v[i]
@@ -273,11 +290,7 @@ def score(su, L, T, mass, slope_deg=0.0, rise=0.0, clear=0.05, hand=(0.3, 0.6), 
             fzi = f[2]
             fz.append(fzi)
             mus.append(float(np.hypot(f[0], f[1]) / max(fzi, 1e-9)))
-            if fzi > 1e-6:
-                cx, cy = -f[4] / fzi, f[3] / fzi  # centre of pressure from the moment about the sole point
-                margins.append(min(cx - x0, x1 - cx, cy - y0, y1 - cy))
-            else:
-                margins.append(-1.0)
+            margins.append(sole_margin(f, su.box))
         R = np.array(ratios)
         k = int(np.argmax(R.max(axis=0)))
         jid = int(np.flatnonzero(m.jnt_dofadr == k)[0])
