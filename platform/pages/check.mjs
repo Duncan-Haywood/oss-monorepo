@@ -229,6 +229,8 @@ async function readBasePath(site) {
 }
 
 /** Every `<loc>` in the sitemap tree, following the index into each sitemap. */
+const SITEMAP_STALE_SLACK_MS = 1000;
+
 async function collectSitemapUrls(site, basePath, relative, seen, out, problems) {
   if (seen.has(relative)) return;
   seen.add(relative);
@@ -1526,7 +1528,19 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
   }
 
   const listed = new Map();
-  await collectSitemapUrls(site, basePath, 'sitemap.xml', new Set(), listed, problems);
+  const sitemapsRead = new Set();
+  await collectSitemapUrls(site, basePath, 'sitemap.xml', sitemapsRead, listed, problems);
+  // Only build.mjs writes the sitemaps. A generator run on its own over an
+  // existing dist (`writing.mjs --out=dist`) adds pages no sitemap can list
+  // yet, and each used to print its own "absent" line, burying any real
+  // omission (two runs on 2026-11-16 reported it). Pages written after the
+  // newest sitemap are grouped into one line that says why.
+  let newestSitemap = 0;
+  for (const rel of sitemapsRead) {
+    const stat = await fs.stat(path.join(site, rel)).catch(() => null);
+    if (stat) newestSitemap = Math.max(newestSitemap, stat.mtimeMs);
+  }
+  const newerThanSitemaps = [];
 
   // A URL that 404s is worse than no sitemap at all: it teaches a crawler the
   // site is broken.
@@ -1555,8 +1569,20 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     if (page.endsWith('/index.html')) candidates.push(page.slice(0, -'index.html'.length));
     if (page === 'index.html') candidates.push('');
     if (!candidates.some((c) => listed.has(c))) {
-      problems.push(`${page}: served but absent from every sitemap`);
+      const stat = newestSitemap ? await fs.stat(path.join(site, page)).catch(() => null) : null;
+      // A second of slack: a full build writes pages and sitemaps in one pass.
+      if (stat && stat.mtimeMs > newestSitemap + SITEMAP_STALE_SLACK_MS) newerThanSitemaps.push(page);
+      else problems.push(`${page}: served but absent from every sitemap`);
     }
+  }
+  if (newerThanSitemaps.length) {
+    const shown = newerThanSitemaps.slice(0, 5).join(', ');
+    const more = newerThanSitemaps.length > 5 ? ` and ${newerThanSitemaps.length - 5} more` : '';
+    problems.push(
+      `${newerThanSitemaps.length} page(s) absent from every sitemap were written after the newest ` +
+        `sitemap (${shown}${more}): a generator ran on its own after build.mjs, which alone writes ` +
+        'sitemaps. Rebuild with build.mjs to tell a real omission from that.',
+    );
   }
 
   return problems;
