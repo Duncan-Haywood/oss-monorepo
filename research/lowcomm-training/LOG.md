@@ -2,6 +2,42 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-16 · Milestone 6z (H6 mechanism): where in omega does the clean-last-round trunk gain exist, and does it need rand-k? Recipe at omega 3, 15 and 31 and with shaped Gaussian noise at omega 7, H = 64, four seeds (planned before running; outcome below)
+
+- Why: 6y's "Next" (1) and (2). The recipe (rand-k keep 1/8, omega 7, for rounds 1 to 59, the last round uncompressed) ends below uncompressed at H = 64 by -0.0136 (se 0.0035) on the standard batches and -0.0141 (0.0063) on fresh ones, and no outer step from lr 0.7 to 2 or Nesterov closes it (6y). That is one omega and one noise. If the trunk gain is a property of noise in the outer step, it should appear with Gaussian noise of rand-k's per-coordinate variance (6v's *shaped*, whose fully-noised run ended at -0.0010, se 0.0053) and should vary smoothly with omega.
+- Run (`experiments/gpt_scale/recipe_6z.py`, written before the runs): the size-2 setup of `scale.py` at H = 64, seeds 0 to 3. Four noises: rand-k keep 1/4 (omega 3), 1/16 (omega 15), 1/32 (omega 31) and shaped Gaussian at omega 7. Per (noise, seed) the trunk runs rounds 1 to 59 with that noise, the whole state is forked, and the last round runs twice: *clean* (uncompressed; the recipe) and *full* (the same noise, the engine's generator continuing; the stored fully-noised run). Both are scored on the standard batches and on 6y's 64 fresh batches. Unc and the omega-7 rand-k recipe come from `tuned_6y.jsonl` (same batches). 16 runs; omega 31 last.
+- **H6z-i** (prior 95%, check): every *full* arm reproduces its stored run bit-exactly on the standard batches (`scale.jsonl` for rand-k, `noise_6v.jsonl` for shaped).
+- **H6z-ii** (prior 50%): the shaped-Gaussian recipe is below unc on the fresh batches by more than 2 se (paired by seed): the trunk gain needs noise of that per-coordinate variance, not rand-k's sparsity.
+- **H6z-iii** (prior 45%): the omega-3 recipe is below unc on the fresh batches by more than 2 se.
+- **H6z-iv** (prior 40%): the omega-15 recipe is not above unc on the fresh batches by more than 2 se (compression at 1/16 of the bytes on 59 of 60 syncs, free or better).
+- **H6z-v** (prior 85%): the last-round cost b = full - clean (standard batches, seed mean) rises with omega: b(3) < b(7) < b(15) < b(31), b(7) from 6x/6y.
+- Reported, no verdict: T = clean - unc and C = full - unc per omega, on both batch sets, and the weight norm.
+- Reading: ii holding puts the trunk gain on outer-step noise of rand-k's per-coordinate energy, and the sparsity is incidental; ii failing with iii holding says rand-k's structure matters for the gain (6v found it did not matter for the full-run cost). T falling then rising across omega 3 to 31 would make the gain a noise-level optimum, the shape a practitioner needs to pick omega.
+- Not tested: H other than 64, other widths, a held-out split, tuning the compressed run's outer step.
+
+### Outcome of 6z (`experiments/gpt_scale/recipe_6z.py`, `recipe_6z.txt`, `recipe_6z.jsonl`, `run_recipe.out`; 16 runs, 16 min each, 4 cores in parallel, torch 2.15.0+cpu)
+- **H6z-i held**: all 16 *full* arms reproduce their stored runs bit-exactly (difference 0), rand-k against `scale.jsonl` and shaped against `noise_6v.jsonl`.
+- Paired by seed against 6y's *unc* (nats, seed mean, se), standard batches: trunk T = clean - unc, full cost C = full - unc, last round b = full - clean; then T on the fresh batches:
+
+  | noise | omega | T (std) | C (std) | b (std) | T (fresh) | fresh T per seed | ||theta||^2 |
+  |---|---|---|---|---|---|---|---|
+  | rand-k keep 1/4 | 3 | **-0.0180** (0.0020) | -0.0127 (0.0027) | +0.0053 (0.0008) | **-0.0185** (0.0020) | -0.023 -0.021 -0.015 -0.015 | 14,929 |
+  | rand-k keep 1/8 (6x/6y) | 7 | -0.0136 (0.0035) | -0.0016 (0.0038) | +0.0120 (0.0004) | -0.0141 (0.0063) | -0.026 -0.022 +0.002 -0.011 | 20,571 |
+  | shaped Gaussian | 7 | **-0.0141** (0.0048) | -0.0010 (0.0053) | +0.0130 (0.0010) | **-0.0142** (0.0042) | -0.014 -0.003 -0.017 -0.023 | 20,448 |
+  | rand-k keep 1/16 | 15 | +0.0137 (0.0067) | +0.0428 (0.0064) | +0.0291 (0.0013) | +0.0113 (0.0072) | +0.031 -0.003 +0.012 +0.006 | 33,430 |
+  | rand-k keep 1/32 | 31 | +0.0845 (0.0030) | +0.1321 (0.0041) | +0.0476 (0.0027) | +0.0807 (0.0059) | +0.089 +0.067 +0.075 +0.092 | 62,777 |
+  | uncompressed | 0 | 0 | 0 | | 0 | | 11,377 |
+
+- **H6z-ii held** (-0.0142, 3.3 se, all four seeds): Gaussian noise with rand-k's per-coordinate variance and nothing dropped gives the same trunk gain as rand-k at omega 7 (-0.0141 against -0.0136 on the standard batches), and the same last-round cost (+0.013 against +0.012). Sparsity is incidental to the gain, as 6v found it was to the full-run cost.
+- **H6z-iii held** (-0.0185, 9.0 se, all four seeds): the omega-3 recipe gives the *largest* gain measured, and the fully compressed omega-3 run is below uncompressed too (C -0.0127, se 0.0027).
+- **H6z-iv held, weakly**: the omega-15 recipe is +0.0113 above unc on the fresh batches (1.6 se; three of four seeds above zero), so the test cannot call it a cost, but it is not free in any useful sense. On the standard batches it is +0.0137 (2.0 se).
+- **H6z-v held**: b rises with omega, +0.0053, +0.0120, +0.0291, +0.0476 at omega 3, 7, 15, 31, roughly 0.0015 to 0.0019 nats per unit of omega (b / omega 0.0018, 0.0017, 0.0019, 0.0015): the last round's cost is close to linear in omega.
+- Exploratory: the trunk gain is monotone in omega over this range (T -0.018, -0.014, +0.014, +0.085), with the sign change between omega 7 and 15. The weight norm grows steadily with omega (14,929 at 3 to 62,777 at 31, against 11,377 uncompressed) and the last clean step with it (squared norm 30.5 at omega 3, 33.7 at 7 (6x), 38.3 at 15, 43.3 at 31; 27.3 uncompressed in 6x), so a larger norm is not by itself a gain (it was not in 6y either).
+- **Reading.** The clean-last-round gain is a property of outer-step noise of rand-k's per-coordinate energy, not of rand-k's sparsity, and it is largest at the smallest omega tried. The expected "noise-level optimum" did not show inside omega 3 to 31: the gain is best at omega 3 and the optimum, if there is one, sits at or below it. The full-run cost C is the sum of a trunk term that turns from gain to cost between omega 7 and 15 and a last-round term linear in omega.
+- **What it means in practice.** In this setup at H = 64, compress every sync but the last with rand-k keep 1/4 (or keep 1/8) and send the last one dense: the run ends 0.018 (0.014) nats below uncompressed training on fresh batches, on every seed (three of four at 1/8), for a quarter (an eighth) of the bytes on 59 of 60 syncs. At keep 1/16 the same recipe costs about 0.01 nats, and at 1/32 about 0.08. Still one width, one H, four seeds and draws from the validation text only.
+- Limits: four seeds; H = 64 and one width only; omega below 3 untested, so the location of the best noise level is open; shaped noise only at omega 7; the fresh batches come from the same validation text, not a held-out split; the compressed run's outer step was not tuned.
+- Next: (1) the recipe at omega 1 (keep 1/2) and with shaped Gaussian noise at omega 1 and 3, to find whether the gain peaks below omega 3 or keeps rising as noise shrinks; (2) the same omega map at H = 32 and 16, where 6x found the trunk worse than uncompressed at omega 7; (3) a held-out split carved from the training text, scoring the stored-config runs on text no milestone has touched.
+
 ## 2026-11-16 · Milestone 6y (H6 mechanism): is compression's H = 64 trunk gain an under-tuned uncompressed baseline? Outer lr 1.5, 2 and Nesterov against the uncompressed-last-round recipe, four seeds, fresh validation batches (planned before running; outcome below)
 
 - Why: 6x's "Next" (3). At H = 64 a run compressed with rand-k keep 1/8 (omega 7) for every round but the last ends below uncompressed by T = -0.0136 (se 0.0035), on all four seeds. Every uncompressed baseline so far is plain outer SGD at lr 1 (plain averaging), never tuned. Compression nearly doubled the weight norm and enlarged the last outer step (6x, exploratory), so a larger or momentum outer step without noise may buy the same gain. If it does, the "recipe" of 6x is a stand-in for outer tuning, not a finding about compression.
