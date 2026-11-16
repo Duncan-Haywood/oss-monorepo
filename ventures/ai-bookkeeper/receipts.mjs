@@ -642,8 +642,14 @@ const guessedLargest = (p) => !p.totalLine && p.notes.some((n) => /took the larg
 // A total line whose dollars start with a 0 ("TOTAL: 04.78" where another reading has
 // "TOTAL: $94.78": SRD 1030) lost its first digit to OCR; no printed total reads that way.
 // That reading's total counts as a guess in the vote, with no total-line point (README,
-// "Reading the total first").
-const leadingZero = (p) => !!p.totalLine && /(?<![\d.,])0\d{1,3}[.,]\d{2}(?!\d)/.test(p.totalLine);
+// "Reading the total first"), but only when another reading holds the same digits with a
+// digit in front (94.78 for 04.78): a stray 0 before an intact total ("Grand Total 029,30",
+// SROIE 169, held out) keeps its full vote.
+const leadingZero = (p, ps) => {
+  if (!p.totalLine || !(p.cents > 0) || !/(?<![\d.,])0\d{1,3}[.,]\d{2}(?!\d)/.test(p.totalLine)) return false;
+  const m = 10 ** String(p.cents).length;
+  return ps.some((q) => q.cents > p.cents && (q.cents - p.cents) % m === 0 && q.cents < p.cents + 10 * m);
+};
 // The amount printed on the page that one reading's own subtotal plus its tax make, when no
 // reading took it as the total because OCR damaged the word "TOTAL" ("SOSTOTAL: 146.57",
 // SRD 1133: subtotal 134.46, tax 12.11). Returns [cents, reading, readings printing it].
@@ -670,7 +676,7 @@ function voteTotal(ps, support, texts = []) {
   ps.forEach((p, i) => {
     if (p.cents === null) return;
     const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
-    v.score += leadingZero(p) ? GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
+    v.score += leadingZero(p, ps) ? GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
     votes.set(p.cents, v);
   });
   // each reading that prints the subtotal-plus-tax amount counts once (no total-line point:
