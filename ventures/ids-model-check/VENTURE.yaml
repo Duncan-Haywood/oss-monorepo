@@ -38,14 +38,14 @@ hypotheses:
       back to the author is the next step after a failed check.
     status: untested
     checked: null
-    evidence: usage-counters (model_checked, model_failed, bcf_downloaded; local only)
+    evidence: customer-contact  # usage counters model_checked, model_failed, bcf_downloaded (local only)
   - claim: >-
       People without an IDS will start from the starter IDS rather than leave,
       measured as the share of model_checked events preceded by the starter
       button or the sample.
     status: untested
     checked: null
-    evidence: usage-counters (sample_loaded, model_checked; local only)
+    evidence: customer-contact  # usage counters sample_loaded, model_checked (local only)
 
 economics:
   currency: USD
