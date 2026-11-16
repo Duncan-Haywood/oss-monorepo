@@ -231,6 +231,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    - the owner opens the distributor account and uploads. Agents prepare
      everything up to that step.
 8. **First release:** an EP of three to five tracks, then a steady cadence.
+   2026-11-16: `ep-cli.mjs` builds the EP folder from a plan (`examples/first-ep.json`: four tracks, 11:40,
+   all at -14 LUFS, cover drawn from Dies irae's opening, release check clean but for artist, p/c-lines and
+   ISRCs). Next: a listening pass on the folder; per-track variation for `--repeat`; the studio page's own
+   "build release" button.
    Afterwards, use the existing `distrokid-royalty-to-journal` tool on the
    real earnings export.
 

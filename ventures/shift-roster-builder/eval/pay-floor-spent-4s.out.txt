@@ -1,0 +1,24 @@
+48 weeks with both builds
+pay floor in 'full': {'proven': 1, 'ran': 37, 'tried, spent': 10}
+pay floor in 'base': {'proven': 1, 'ran': 37, 'spent': 10}
+
+spent weeks (the 'full' build reached the pay floor with the budget spent): 10
+  seed 30 70x196 wk0: T    245 ms  L   -677 ms  base skip spent     open +0  score        +0.00  gap    126270.15 ->     99983.13  ms full 22954 base 22547
+  seed 30 70x196 wk1: T    781 ms  L   -122 ms  base skip spent     open +0  score        -0.23  gap     25215.22 ->         0.73  ms full 22932 base 22649
+  seed 31 70x196 wk0: T   2697 ms  L   -294 ms  base skip spent     open +0  score        +0.00  gap     23864.98 ->         0.92  ms full 25023 base 22038
+  seed 31 70x196 wk1: T   6216 ms  L    -47 ms  base skip spent     open +0  score       -39.55  gap    124718.88 ->     99984.58  ms full 28290 base 22067
+  seed 33 70x196 wk1: T    305 ms  L   -473 ms  base skip spent     open +0  score        +0.00  gap    324627.65 ->    299945.28  ms full 22810 base 22723
+  seed 34 70x196 wk1: T    762 ms  L   -239 ms  base skip spent     open +0  score        +0.00  gap    226023.04 ->    199978.14  ms full 23041 base 22088
+  seed 35 70x196 wk0: T   1227 ms  L    -55 ms  base skip spent     open +0  score        +0.00  gap    124902.61 ->     99984.60  ms full 23322 base 22066
+  seed 36 70x196 wk1: T   4128 ms  L    -64 ms  base skip spent     open +0  score       -10.77  gap    925182.44 ->    899863.41  ms full 26221 base 22193
+  seed 38 70x196 wk1: T    866 ms  L     -6 ms  base skip spent     open +0  score        +0.00  gap    126866.33 ->     99981.97  ms full 22901 base 22669
+  seed 40 70x196 wk0: T    661 ms  L    -68 ms  base skip spent     open +0  score        -3.14  gap    725267.10 ->    699867.54  ms full 22759 base 22149
+
+| reserve | spent tries finished | open hours | score sum - base | gap sum | mean build s | largest build s |
+|---|---|---|---|---|---|---|
+| off (today) | 0 of 10 | 12142 | +0.00 | 24,196,783.76 | 20.83 | 28.1 |
+| 1 s | 6 of 10 | 12142 | -3.37 | 24,042,271.06 | 20.96 | 28.1 |
+| 2 s | 7 of 10 | 12142 | -3.37 | 24,017,353.05 | 21.03 | 28.1 |
+| 3 s | 8 of 10 | 12142 | -3.37 | 23,993,488.99 | 21.09 | 28.1 |
+| 4 s | 8 of 10 | 12142 | -3.37 | 23,993,488.99 | 21.14 | 28.1 |
+| 6 s | 9 of 10 | 12142 | -14.14 | 23,968,169.96 | 21.18 | 28.1 |
