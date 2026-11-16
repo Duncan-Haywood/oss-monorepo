@@ -382,9 +382,9 @@ flagships:
       venv, about 2 min). Landed in firmware/esp32/README.md: unsure-drop marks, the
       ESC lag survey, its trim, and "The 1,000 rpm floor retested" (floor stays; the
       Pi holds its next speeds to the verdict after a shot with a wheel under 1,000
-      rpm, tests/min_fit_rpm_sweep.py). Next: why one jittery wheel fits 10-60x
-      worse; why a ~510 rpm wheel behind a 30 ms ESC (0.2 s wheel lag) never settles
-      in the ready gate (loop gains at low speed).
+      rpm, tests/min_fit_rpm_sweep.py). Outlier wheel: anchored past its ball, fixed
+      (ANCHOR_BACK). Next: why a ~510 rpm wheel behind a 30 ms ESC (0.2 s wheel lag)
+      never settles in the ready gate (loop gains at low speed).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

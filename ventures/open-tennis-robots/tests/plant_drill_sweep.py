@@ -13,9 +13,10 @@ and fits each drill as the Pi does. Prints the worst and mean size of the speed 
 wheel readings the firmware marked unsure (LAUNCH flags bits 6 / 7), the fewest and most in one drill, and in how many
 drills `fit_from_drops` warned. `--set-aside` also fits with the marked drops left out (the policy tried first and
 dropped: it did not help). `--esc-tau-us N` sets the board's `ESC_TAU_US` to N (2026-11-16, README "An ESC lag
-picked from the build's own balls").
+picked from the build's own balls"). `--back F` sets `controller.ANCHOR_BACK` (0: the fit's anchor before the
+2026-11-16 walk back, README "The outlier wheel was anchored past its ball").
 
-    PYTHONPATH=src:tests:firmware/esp32 python tests/plant_drill_sweep.py [plant ...] [--esc-tau-us N]
+    PYTHONPATH=src:tests:firmware/esp32 python tests/plant_drill_sweep.py [plant ...] [--esc-tau-us N] [--back F]
 
 About 20 s a plant. The plants are assumptions, not measurements of a real wheel.
 """
@@ -25,7 +26,7 @@ import os
 import statistics
 import sys
 
-from feeder_sim import SimFeeder
+from feeder_sim import SimFeeder, controller
 from tennisbots import host, launcher
 from spin_drill_sweep import DESIGN
 
@@ -70,6 +71,8 @@ def cell(es):
 
 
 def main():
+    if "--back" in sys.argv:                   # the drop fit's anchor walk back (controller.ANCHOR_BACK; 0 = before it)
+        controller.ANCHOR_BACK = float(sys.argv[sys.argv.index("--back") + 1])
     names = [a for a in sys.argv[1:] if a in PLANTS] or list(PLANTS)
     print(f"{'plant':10} | speed worst, spin worst / mean | marked (min-max a drill) | warned"
           + (" | set aside: speed, spin / mean" if "--set-aside" in sys.argv else ""))
