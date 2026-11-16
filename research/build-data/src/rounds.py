@@ -41,6 +41,12 @@ candidate) under the variants that early-stop, and records the round each quanti
   cpin_es3_nc5_stamp  cpin_es3_nc5 with only the dead rows whose completion sits exactly STAMP_DAYS (180) after
                issue dropped: Austin's expiry stamps (session 95's stamp_check), not the other closures (session 96)
   cpin_es3_nc3_clean  cpin_es3_nc5_clean's dead drop on session 92's 3-year staleness cut (session 96)
+  cpin_es3_nc5_stamp_len  cpin_es3_nc5_stamp plus, for each source city and each decile bin of the labels of its
+               non-stamp dead rows completed by D, as many randomly chosen live (not dead) rows completed by D with
+               labels in that bin dropped (len_drop, fixed rng seed LEN_SEED): the length of session 96's dropped
+               closures without their class (session 97)
+  cpin_es3_nc5_stamp_long  cpin_es3_nc5_stamp plus the non-stamp dead rows completed by D whose label exceeds
+               LONG_DAYS (365) dropped: only the long closures (session 97)
 Session 95: with --status-dir every cpin variant is also scored on the "live" test rows: completed test-year
 rows whose status is not dead (test_loss_live), and reports its mean q0.9 prediction on completed test rows.
 Session 92: every _nc variant is also scored on a selection set a deployment has on D, the same for every
@@ -67,13 +73,19 @@ import boosted, transfer  # noqa: E402
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
             "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq",
-            "cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean")
+            "cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean",
+            "cpin_es3_nc5_stamp_len", "cpin_es3_nc5_stamp_long")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
 # session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
 STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922,
-         "cpin_es3_nc5_clean": STALE_DAYS, "cpin_es3_nc5_stamp": STALE_DAYS, "cpin_es3_nc3_clean": 1095}
+         "cpin_es3_nc5_clean": STALE_DAYS, "cpin_es3_nc5_stamp": STALE_DAYS, "cpin_es3_nc3_clean": 1095,
+         "cpin_es3_nc5_stamp_len": STALE_DAYS, "cpin_es3_nc5_stamp_long": STALE_DAYS}
 STAMP_DAYS = 180  # session 96: the label 96% of Austin's pre-2000 dead completions carry (results/stamp_check.json)
-DEAD_DROP = ("cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean")
+DEAD_DROP = ("cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean", "cpin_es3_nc5_stamp_len",
+             "cpin_es3_nc5_stamp_long")
+LONG_DAYS = 365  # session 97: "long" closures (Austin's dead median 140, p90 1,080 days; label_audit.json)
+LEN_SEED = 97  # session 97: rng seed of len_drop's matched sample, fixed before any run
+LEN_BINS = 10  # session 97: decile bins of the dead rows' labels
 STALE_Q = 0.99  # session 93, cpin_es3_ncq: a source's threshold = this quantile of its builds completed by D
 
 
@@ -93,6 +105,13 @@ def stale_drop(d, decision, days=STALE_DAYS):
     return d[~((d.y.to_numpy(float) > win) & (win > days))]
 
 
+def dead_completed(d, decision):
+    """Session 97: bool mask of d's rows completed by `decision` whose status is dead."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    return (d.y.to_numpy(float) <= win) & d["dead"].to_numpy(bool)
+
+
 def dead_drop(d, decision, stamp=None):
     """Session 95: drop rows of d completed by `decision` whose close-out status is dead (column `dead`, from
     attach_status); rows completed later, open or never completed stay. Session 96: with `stamp` (days), drop
@@ -104,6 +123,39 @@ def dead_drop(d, decision, stamp=None):
     if stamp is not None:
         m &= y == stamp
     return d[~m]
+
+
+def len_drop(d, decision, seed=LEN_SEED, bins=LEN_BINS):
+    """Session 97: the length of the non-stamp dead closures without their class. For each city in d, bin the
+    labels of its dead rows completed by `decision` whose label is not STAMP_DAYS at their decile edges; drop,
+    per bin, as many live (not dead) rows completed by `decision` with labels in that bin, chosen at random
+    (np.random.default_rng(seed)). The dead rows stay. Returns (kept frame, n dropped, n short): short counts
+    dead rows a bin could not match because it had fewer live rows."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    y = d.y.to_numpy(float)
+    done, dead = y <= win, d["dead"].to_numpy(bool)
+    city = d.city.to_numpy()
+    rng = np.random.default_rng(seed)
+    drop, short = np.zeros(len(d), bool), 0
+    for c in sorted(set(city)):
+        src = done & dead & (y != STAMP_DAYS) & (city == c)
+        if not src.any():
+            continue
+        edges = np.unique(np.quantile(y[src], np.linspace(0, 1, bins + 1)))
+        if len(edges) < 2:
+            edges = np.array([y[src][0], y[src][0]])
+        b_src = np.clip(np.searchsorted(edges, y[src], side="right") - 1, 0, len(edges) - 2)
+        pool = done & ~dead & (city == c) & (y >= edges[0]) & (y <= edges[-1])
+        idx = np.flatnonzero(pool)
+        b_pool = np.clip(np.searchsorted(edges, y[idx], side="right") - 1, 0, len(edges) - 2)
+        for b in range(len(edges) - 1):
+            need, cand = int((b_src == b).sum()), idx[b_pool == b]
+            take = min(need, len(cand))
+            short += need - take
+            if take:
+                drop[rng.choice(cand, take, replace=False)] = True
+    return d[~drop], int(drop.sum()), short
 
 
 def attach_status(df, path):
@@ -166,7 +218,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     frames = {c: (d if nc and c != held else d[np.isfinite(d.y.to_numpy(float))]) for c, d in frames.items()}
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
-    thresholds, n_dead_dropped, dead_by_city = None, None, None
+    thresholds, n_dead_dropped, dead_by_city, len_matched = None, None, None, None
     if variant == "cpin_cut":
         tr, ca = cat(lambda d: d.year <= Y - 2), cat(lambda d: d.year == Y - 1)
         ytr, otr = cpin.censor(tr, D)
@@ -181,7 +233,14 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         if variant in DEAD_DROP:
             n0 = len(tr) + len(ca)
             before = pd.concat([tr, ca]).city.value_counts()
-            st = STAMP_DAYS if variant == "cpin_es3_nc5_stamp" else None
+            st = STAMP_DAYS if variant.startswith("cpin_es3_nc5_stamp") else None
+            if variant == "cpin_es3_nc5_stamp_len":  # session 97: match before the stamp drop (labels unchanged)
+                (tr, n_len_tr, sh_tr), (ca, n_len_ca, sh_ca) = len_drop(tr, D), len_drop(ca, D)
+                len_matched = dict(n_dropped=n_len_tr + n_len_ca, n_short=sh_tr + sh_ca)
+            if variant == "cpin_es3_nc5_stamp_long":
+                long_ = lambda f: f[~(dead_completed(f, D) & (f.y.to_numpy(float) != STAMP_DAYS)  # noqa: E731
+                                      & (f.y.to_numpy(float) > LONG_DAYS))]
+                tr, ca = long_(tr), long_(ca)
             tr, ca = dead_drop(tr, D, st), dead_drop(ca, D, st)
             n_dead_dropped = n0 - len(tr) - len(ca)
             dead_by_city = {c: int(before.get(c, 0) - n) for c, n in pd.concat([tr, ca]).city.value_counts().items()}
@@ -234,6 +293,8 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
     if n_dead_dropped is not None:
         res["n_dead_dropped"], res["n_dead_by_city"] = n_dead_dropped, dead_by_city
+    if len_matched is not None:
+        res["len_matched"] = len_matched
     if "dead" in tr:
         res["n_train_dead_by_D"] = int(len(tr) - len(dead_drop(tr, D)))
         res["n_es_dead_by_D"] = int(len(ca) - len(dead_drop(ca, D)))
@@ -645,6 +706,53 @@ def clean_summary(path, nc_path, held=("sf", "seattle"), years=(2021, 2022)):
                 austin_share_of_dropped=[au(c) for c in cells], held=verdict)
 
 
+def len_summary(path, clean_path, stamp96_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 97: cpin_es3_nc5_stamp (refit), _stamp_len and _stamp_long (this file) against session 95's
+    cpin_es3_nc5_clean (clean_path) and session 96's cpin_es3_nc5_stamp (stamp96_path); predictions L0 to L5."""
+    R, C, S = json.load(open(path)), json.load(open(clean_path)), json.load(open(stamp96_path))
+    q = lambda r: r["test_loss"]["0.9"]  # noqa: E731
+    pm = lambda r: float(np.mean([v["mean"] for v in r["test_pred_q90"].values()]))  # noqa: E731
+    cells = []
+    for h in held:
+        for Y in years:
+            k = lambda v: f"{h} {Y} {v}"  # noqa: E731
+            st, ln, lg = R.get(k("cpin_es3_nc5_stamp")), R.get(k("cpin_es3_nc5_stamp_len")), R.get(k("cpin_es3_nc5_stamp_long"))
+            cl, s96 = C.get(k("cpin_es3_nc5_clean")), S.get(k("cpin_es3_nc5_stamp"))
+            if None in (st, ln, lg, cl, s96):
+                continue
+            nonstamp = cl["n_dead_dropped"] - st["n_dead_dropped"]
+            ps = lambda a, b: [y - x for x, y in zip(a["test_loss_per_seed"]["0.9"], b["test_loss_per_seed"]["0.9"])]  # noqa: E731
+            cells.append(dict(
+                held=h, year=Y, n_nonstamp_dead=nonstamp, len_matched=ln["len_matched"],
+                len_short_share=ln["len_matched"]["n_short"] / nonstamp,
+                n_long_dropped=lg["n_dead_dropped"] - st["n_dead_dropped"],
+                long_share_of_nonstamp=(lg["n_dead_dropped"] - st["n_dead_dropped"]) / nonstamp,
+                q90=dict(stamp=q(st), stamp96=q(s96), clean=q(cl), stamp_len=q(ln), stamp_long=q(lg)),
+                stamp_refit_minus_s96=q(st) - q(s96),
+                len_minus_stamp=q(ln) - q(st), long_minus_stamp=q(lg) - q(st), clean_minus_stamp=q(cl) - q(st),
+                clean_minus_stamp_s96=q(cl) - q(s96),
+                len_minus_stamp_per_seed=ps(st, ln), long_minus_stamp_per_seed=ps(st, lg),
+                q90_pred_mean=dict(stamp=pm(st), clean=pm(cl), stamp_len=pm(ln), stamp_long=pm(lg)),
+                rounds={v: [x["0.9"] for x in r["rounds"].values()]
+                        for v, r in (("stamp", st), ("stamp_len", ln), ("stamp_long", lg))}))
+    sf = [c for c in cells if c["held"] == "sf"]
+    se = [c for c in cells if c["held"] == "seattle"]
+    full = len(cells) == len(held) * len(years)
+    pred = dict(
+        L0=full and all(abs(c["stamp_refit_minus_s96"]) <= 0.05 for c in cells),
+        L1=full and all(c["len_short_share"] < 0.01 for c in cells),
+        L2=full and all(c["len_minus_stamp"] >= 1.0 for c in se),
+        L3=full and float(np.mean([c["len_minus_stamp"] for c in sf])) < 0,
+        L4=full and all(c["long_minus_stamp"] >= 0.75 * c["clean_minus_stamp_s96"] for c in se),
+        L5=full and all(c["long_share_of_nonstamp"] <= 0.40 for c in cells))
+    mean = lambda f: float(np.mean([c[f] for c in cells])) if cells else None  # noqa: E731
+    return dict(note="session 97: stamp, stamp_len, stamp_long refit on the 2026-11-16 pull; clean from session 95, "
+                     "stamp96 from session 96 (same row counts); L4 uses session 96's clean minus stamp as pre-registered",
+                cells=cells, predictions=pred,
+                mean=dict(len_minus_stamp=mean("len_minus_stamp"), long_minus_stamp=mean("long_minus_stamp"),
+                          clean_minus_stamp=mean("clean_minus_stamp")))
+
+
 def stamp_summary(path, clean_path, sweep_path, held=("sf", "seattle"), years=(2021, 2022)):
     """Session 96: cpin_es3_nc5_stamp and cpin_es3_nc3_clean (this file) against session 95's cpin_es3_nc5 and
     cpin_es3_nc5_clean (clean_path) and session 92's cpin_es3_nc3 (sweep_path), all on feeds whose row counts
@@ -720,9 +828,21 @@ if __name__ == "__main__":
     ap.add_argument("--status-dir", help="session 95: directory of <city>_status.csv (status_pull.py)")
     ap.add_argument("--summarise-clean", help="session 95: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-ncq", help="session 93: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-len", help="session 97: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-stamp", help="session 96: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_len:
+        s = len_summary(a.summarise_len, os.path.join(res_dir, "rounds_score_clean_i2c.json"),
+                        os.path.join(res_dir, "rounds_score_stamp_i2c.json"))
+        json.dump(s, open(a.summarise_len.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(pred=s["predictions"], mean=s["mean"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], c["n_nonstamp_dead"], c["len_matched"], c["n_long_dropped"],
+                  {k: round(v, 2) for k, v in c["q90"].items()}, round(c["len_minus_stamp"], 2),
+                  round(c["long_minus_stamp"], 2), [round(x, 2) for x in c["len_minus_stamp_per_seed"]],
+                  [round(x, 2) for x in c["long_minus_stamp_per_seed"]])
+        sys.exit()
     if a.summarise_stamp:
         s = stamp_summary(a.summarise_stamp, os.path.join(res_dir, "rounds_score_clean_i2c.json"),
                           os.path.join(res_dir, "rounds_score_sweep_i2c.json"))
