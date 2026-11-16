@@ -167,7 +167,7 @@ export function projectName(slug, root = DEFAULT_ROOT) {
  * first: `{ slug, name, count }`. Until 2026-11-16 the topic page was one 52-page date list
  * of 2,595 posts, 84% of them about 14 ventures.
  */
-export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', names = (slug) => projectName(slug, root), questions = () => '', ledes = () => '' } = {}) {
+export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', names = (slug) => projectName(slug, root), questions = () => '', ledes = topic === 'research' ? () => '' : (slug) => ventureLede(slug, root) } = {}) {
   const counts = new Map();
   for (const p of posts) if (p.project) counts.set(p.project, (counts.get(p.project) || 0) + 1);
   return [...counts]
@@ -175,7 +175,7 @@ export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', nam
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(([slug, count]) => {
       const question = topic === 'research' ? questions(slug) : '';
-      const lede = topic === 'research' ? ledes(slug) : '';
+      const lede = ledes(slug);
       return { slug, name: topic === 'research' ? slug : names(slug), count, topic, ...(question ? { question } : {}), ...(lede ? { lede } : {}) };
     });
 }
@@ -228,6 +228,25 @@ export function researchLede(summaryHtml, max = 320, { stretch = 1.5 } = {}) {
   if (sentences[0].length <= max * stretch) return sentences[0];
   const cut = sentences[0].slice(0, max - 1);
   return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 1)).replace(/[\s,;:(–—-]+$/, '')}…`;
+}
+
+/**
+ * A venture's lede: the `> ` summary of its `llms.txt` (the line an assistant reads first, which
+ * `goals.md` asks each product to keep true), as whole sentences up to `max` characters
+ * (`researchLede`). Markdown links keep their text; code spans lose their backticks. Empty when
+ * the venture has no `llms.txt` or no summary. Until 2026-11-16 all 17 tool project pages had
+ * one generic dek ("Every blog post about X: what was built, ...").
+ */
+export function ventureLede(slug, root = DEFAULT_ROOT, max = 320) {
+  const file = path.join(root, 'ventures', slug, 'llms.txt');
+  if (!existsSync(file)) return '';
+  const lines = readFileSync(file, 'utf8').split(/\r?\n/);
+  const at = lines.findIndex((l) => /^>\s?\S/.test(l));
+  if (at < 0) return '';
+  const quote = [];
+  for (let i = at; i < lines.length && /^>/.test(lines[i]); i++) quote.push(lines[i].replace(/^>\s?/, ''));
+  const text = quote.join(' ').replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/`([^`]*)`/g, '$1').replace(/[*_]{2}([^*_]+)[*_]{2}/g, '$1');
+  return researchLede(esc(text), max);
 }
 
 /** Each research programme's lede (`researchLede` of its registry card summary), by slug. */
@@ -975,7 +994,8 @@ export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard 
     : `Every blog post about ${project.name}: what was built, what was measured and what changed.`;
   // A programme's dek says what it asks or found (its registry summary's opening sentences);
   // the generic line is the fallback. The meta row below still says what the list is.
-  const lede = research && !sub ? project.lede || '' : '';
+  // A tool's dek is its llms.txt summary (`ventureLede`), since 2026-11-16.
+  const lede = !sub ? project.lede || '' : '';
   const openLabel = research ? `Read the ${project.name} programme` : `Open ${project.name}`;
   return shell({
     title,
