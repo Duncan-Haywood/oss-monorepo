@@ -31,7 +31,7 @@
   "outcome": "success",
   "errors": [
     "A backgrounded `SP=... && (cmd) & (cmd2)` line lost $SP in the second subshell, so one development run wrote its report to /vlow.md; the figures were read from there, no harm.",
-    "CI on PR 16737: 'coverage' and one 'validate' job failed with checklist_coverage: platform/ci/*.test.mjs (added on main by PR 16739, merged in) is not named in .github/prompts/verify-and-merge.md. The same failure reproduces on origin/main; not caused by this diff. The fix touches .github/ (control plane, owner approval), so it was left out of this PR and filed in prompts/process/backlog/."
+    "CI on PR 16737: 'coverage' and one 'validate' job failed with checklist_coverage: platform/ci/*.test.mjs (added on main by PR 16739, merged in) is not named in .github/prompts/verify-and-merge.md. The same failure reproduces on origin/main; not caused by this diff. The fix touches .github/ (control plane, owner approval), so it was left out of this PR and filed as prompts/process/backlog/P068."
   ],
   "integrity_issues": [],
   "doc_friction": [
