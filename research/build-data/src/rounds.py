@@ -34,6 +34,12 @@ candidate) under the variants that early-stop, and records the round each quanti
   cpin_es3_nc2, _nc3, _nc8  the same rule at 2, 3 and 8 years (session 92's sweep, STALE)
   cpin_es3_ncq the same rule with a threshold per source city: its own 0.99 quantile of build days over its
                years <= Y-2 completed by D (session 93, q_threshold)
+  cpin_es3_nc5_clean  cpin_es3_nc5 with the source permits completed by D whose close-out status is dead (expired,
+               void, withdrawn, ... or Seattle's "Closed as Incomplete" marker; src/status_pull.py) dropped from
+               training and early stopping: their completion date is an administrative closure, not a build's
+               end (session 95). Dead permits completed after D stay, as open rows: on D nobody knows yet.
+Session 95: with --status-dir every cpin variant is also scored on the "live" test rows: completed test-year
+rows whose status is not dead (test_loss_live), and reports its mean q0.9 prediction on completed test rows.
 Session 92: every _nc variant is also scored on a selection set a deployment has on D, the same for every
 threshold: all the sources' Y-3 permits (never-completed ones included, none dropped), open ones with their
 window at D, by the censored loss (sel_closs). sweep_summary picks the threshold with the lowest q0.9 sel_closs
@@ -57,10 +63,12 @@ import boosted, transfer  # noqa: E402
 
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
-            "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq")
+            "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq",
+            "cpin_es3_nc5_clean")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
 # session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
-STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922}
+STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922,
+         "cpin_es3_nc5_clean": STALE_DAYS}
 STALE_Q = 0.99  # session 93, cpin_es3_ncq: a source's threshold = this quantile of its builds completed by D
 
 
@@ -78,6 +86,24 @@ def stale_drop(d, decision, days=STALE_DAYS):
     s = pd.to_datetime(d.start).dt.date
     win = np.array([(decision - x).days for x in s], dtype=float)
     return d[~((d.y.to_numpy(float) > win) & (win > days))]
+
+
+def dead_drop(d, decision):
+    """Session 95: drop rows of d completed by `decision` whose close-out status is dead (column `dead`, from
+    attach_status); rows completed later, open or never completed stay."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    return d[~((d.y.to_numpy(float) <= win) & d["dead"].to_numpy(bool))]
+
+
+def attach_status(df, path):
+    """Session 95: mark each completed row of df dead (bool column `dead`) when the status pull
+    (status_pull.py, DATA_DIR/<city>_status.csv) has a dead row with the same permit id and completion day."""
+    st = pd.read_csv(path, dtype=str, keep_default_na=False)
+    dead = set(zip(st.permit_id[st.group == "dead"], st.completed[st.group == "dead"]))
+    df = df.copy()
+    df["dead"] = [(p, c) in dead for p, c in zip(df.permit_id, df.completed)]
+    return df
 
 
 def splits(frames, held, Y, variant, floor=0.05):
@@ -130,7 +156,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     frames = {c: (d if nc and c != held else d[np.isfinite(d.y.to_numpy(float))]) for c, d in frames.items()}
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
-    thresholds = None
+    thresholds, n_dead_dropped, dead_by_city = None, None, None
     if variant == "cpin_cut":
         tr, ca = cat(lambda d: d.year <= Y - 2), cat(lambda d: d.year == Y - 1)
         ytr, otr = cpin.censor(tr, D)
@@ -142,6 +168,12 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         sel = ca  # session 92: the common selection set, before any staleness drop
         if variant in STALE:
             tr, ca = stale_drop(tr, D, STALE[variant]), stale_drop(ca, D, STALE[variant])
+        if variant == "cpin_es3_nc5_clean":
+            n0 = len(tr) + len(ca)
+            before = pd.concat([tr, ca]).city.value_counts()
+            tr, ca = dead_drop(tr, D), dead_drop(ca, D)
+            n_dead_dropped = n0 - len(tr) - len(ca)
+            dead_by_city = {c: int(before.get(c, 0) - n) for c, n in pd.concat([tr, ca]).city.value_counts().items()}
         if variant == "cpin_es3_ncq":
             # session 93: a cut per source city, from its own builds of years <= Y-2 completed by D
             thresholds = {c: q_threshold(frames[c][(frames[c].year <= Y - 2) & np.isfinite(frames[c].y)], D)
@@ -162,9 +194,12 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     n_te = len(Xte)
     if nc:  # session 92: predict the selection set in the same call (one model, two row sets)
         Xte = pd.concat([Xte, transfer.feats(sel)])
-    sel_loss = {t: [] for t in (0.5, 0.9)}
     done_te = np.isfinite(te_all.y.to_numpy(float)) if has_open else np.ones(len(te), bool)
+    live = ~te["dead"].to_numpy(bool) if "dead" in te else None  # session 95: among completed test rows
     taus = (0.5, 0.9)  # q0.1 is untouched by open permits and costs most rounds (300 in es3); skipped for time
+    # session 95: CPIN_TAUS=0.9 fits the tail model only (q0.5 is 85% of an SF fit's time and no prediction used it)
+    taus = tuple(float(x) for x in os.environ.get("CPIN_TAUS", "").split(",") if x) or taus
+    sel_loss, loss_live = {t: [] for t in taus}, {t: [] for t in taus}
     out, loss, preds, closs_te = {}, {t: [] for t in taus}, {}, {t: [] for t in taus}
     for s in range(seeds):
         r = {}
@@ -177,12 +212,24 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
             print(f"  {held} {Y} {variant} seed {s} tau {t}: {r[t]} rounds, {time.time() - t0:.0f} s", flush=True)
             if score:
                 loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr[done_te], t).mean()))
+                if live is not None:
+                    loss_live[t].append(float(boosted.pin(te.y.to_numpy(float)[live], pr[done_te][live], t).mean()))
                 if has_open:
                     closs_te[t].append(float(cpin.closs(yta, pr, ota, t).mean()))
                 if t == 0.9:
-                    preds[str(s)] = dict(max=float(pr[done_te].max()), share_above_3650=float((pr[done_te] > 3650).mean()))
+                    preds[str(s)] = dict(max=float(pr[done_te].max()), share_above_3650=float((pr[done_te] > 3650).mean()),
+                                         mean=float(pr[done_te].mean()))
         out[str(s)] = {str(t): int(v) for t, v in r.items()}
     res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
+    if n_dead_dropped is not None:
+        res["n_dead_dropped"], res["n_dead_by_city"] = n_dead_dropped, dead_by_city
+    if "dead" in tr:
+        res["n_train_dead_by_D"] = int(len(tr) - len(dead_drop(tr, D)))
+        res["n_es_dead_by_D"] = int(len(ca) - len(dead_drop(ca, D)))
+    if score and live is not None:
+        res["n_test_dead"] = int((~live).sum())
+        res["test_loss_live"] = {str(t): sum(v) / len(v) for t, v in loss_live.items()}
+        res["test_loss_live_per_seed"] = {str(t): v for t, v in loss_live.items()}
     res["n_train_never_completed"] = int(np.isinf(tr.y.to_numpy(float)).sum())
     res["n_es_never_completed"] = int(np.isinf(ca.y.to_numpy(float)).sum())
     if thresholds is not None:
@@ -543,6 +590,50 @@ def ncq_summary(path, sweep_path, nc_path, base_path, held=("sf", "seattle"), ye
                 replication_max_abs_q90_diff=max(rep) if rep else None, n_replicated=len(rep), held=verdict)
 
 
+def clean_summary(path, nc_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 95: cpin_es3_nc5_clean against cpin_es3_nc5 refit on the same pull (this file), per cell: q0.5 / q0.9
+    loss on all completed test rows and on the live ones (status not dead), the rows the rule drops (and how many
+    are Austin's, from n_dead_by_city), the mean q0.9 prediction, rounds; predictions K1 to K5 (K5 against session
+    91's nc5 in nc_path)."""
+    R = json.load(open(path))
+    s91 = json.load(open(nc_path))
+    cells = []
+    for h in held:
+        for Y in years:
+            a, b = R.get(f"{h} {Y} cpin_es3_nc5"), R.get(f"{h} {Y} cpin_es3_nc5_clean")
+            if not (a and b):
+                continue
+            pm = lambda r: float(np.mean([p["mean"] for p in r["test_pred_q90"].values()]))  # noqa: E731
+            n_rows = a["n_train"] + a["n_es"]
+            row = dict(held=h, year=Y, n_rows_nc5=n_rows, n_dropped=b["n_dead_dropped"],
+                       dropped_share=b["n_dead_dropped"] / n_rows, dropped_by_city=b.get("n_dead_by_city"),
+                       n_test=a["n_test"], n_test_dead=a.get("n_test_dead"),
+                       loss={v: r["test_loss"] for v, r in (("nc5", a), ("clean", b))},
+                       loss_live={v: r.get("test_loss_live") for v, r in (("nc5", a), ("clean", b))},
+                       diff={t: b["test_loss"][t] - a["test_loss"][t] for t in a["test_loss"]},
+                       diff_live={t: b["test_loss_live"][t] - a["test_loss_live"][t] for t in a["test_loss_live"]},
+                       diff_q90_per_seed=[y - x for x, y in zip(a["test_loss_per_seed"]["0.9"], b["test_loss_per_seed"]["0.9"])],
+                       q90_pred_mean={"nc5": pm(a), "clean": pm(b)},
+                       q90_rounds={v: float(np.mean([x["0.9"] for x in r["rounds"].values()])) for v, r in (("nc5", a), ("clean", b))},
+                       s91_nc5_q90=s91.get(f"{h} {Y} cpin_es3_nc5", {}).get("test_loss", {}).get("0.9"))
+            cells.append(row)
+    au = lambda c: (c["dropped_by_city"] or {}).get("austin", 0) / max(c["n_dropped"], 1)  # noqa: E731
+    ts = sorted(set.intersection(*[set(c["diff"]) for c in cells])) if cells else []
+    mean_diff = {t: float(np.mean([c["diff"][t] for c in cells])) for t in ts}
+    mean_diff_live = {t: float(np.mean([c["diff_live"][t] for c in cells])) for t in ts}
+    verdict = dict(
+        K1=len(cells) == 4 and all(0.005 <= c["dropped_share"] <= 0.03 and au(c) >= 0.8 for c in cells),
+        K2=len(cells) == 4 and abs(mean_diff["0.9"]) <= 1,
+        K3=len(cells) == 4 and all(c["q90_pred_mean"]["clean"] < c["q90_pred_mean"]["nc5"] for c in cells),
+        K4=sum(c["diff_live"]["0.9"] <= c["diff"]["0.9"] for c in cells) >= 3,
+        K5=len(cells) == 4 and all(c["s91_nc5_q90"] is not None and abs(c["loss"]["nc5"]["0.9"] - c["s91_nc5_q90"]) <= 0.5
+                                   for c in cells))
+    return dict(note="cascade2 transfer model; diff = clean minus nc5 mean pinball loss (days, negative = clean "
+                     "better), both refit on the 2026-11-16 pull; all = completed test-year rows, live = those whose "
+                     "status is not dead; 3 seeds", cells=cells, mean_diff=mean_diff, mean_diff_live=mean_diff_live,
+                austin_share_of_dropped=[au(c) for c in cells], held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -563,9 +654,21 @@ if __name__ == "__main__":
     ap.add_argument("--pulled", default=datetime.date.today().isoformat(), help="pull date (censored test windows)")
     ap.add_argument("--summarise-nc", help="session 91: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-sweep", help="session 92: write results/<name>_summary.json from this file")
+    ap.add_argument("--status-dir", help="session 95: directory of <city>_status.csv (status_pull.py)")
+    ap.add_argument("--summarise-clean", help="session 95: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-ncq", help="session 93: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_clean:
+        s = clean_summary(a.summarise_clean, os.path.join(res_dir, "rounds_score_nc_i2c.json"))
+        json.dump(s, open(a.summarise_clean.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean_diff"], live=s["mean_diff_live"], au=s["austin_share_of_dropped"],
+                              held=s["held"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], c["n_dropped"], round(c["dropped_share"], 4), c["dropped_by_city"],
+                  {k: round(v, 2) for k, v in c["diff"].items()}, {k: round(v, 2) for k, v in c["diff_live"].items()},
+                  {k: round(v, 1) for k, v in c["q90_pred_mean"].items()}, c["s91_nc5_q90"], c["loss"]["nc5"]["0.9"])
+        sys.exit()
     if a.summarise_ncq:
         s = ncq_summary(a.summarise_ncq, os.path.join(res_dir, "rounds_score_sweep_i2c.json"),
                         os.path.join(res_dir, "rounds_score_nc_i2c.json"),
@@ -629,6 +732,10 @@ if __name__ == "__main__":
     keep_open = any(v.startswith("cpin_") for v in a.variants) and a.keep_open
     frames = {c: transfer.frame(os.path.join(a.data_dir, f"{c}.csv"), "i2c", "cascade2", keep_open=keep_open)[0]
               for c in cities}
+    if a.status_dir:
+        frames = {c: attach_status(d, os.path.join(a.status_dir, f"{c}_status.csv")) for c, d in frames.items()}
+    elif "cpin_es3_nc5_clean" in a.variants:
+        raise SystemExit("cpin_es3_nc5_clean needs --status-dir")
     pulled = datetime.date.fromisoformat(a.pulled)
     out_path = os.path.join(res_dir, a.out_name or ("rounds_score_i2c.json" if a.score else "rounds_i2c.json"))
     res = json.load(open(out_path)) if os.path.exists(out_path) else {}
