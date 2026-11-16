@@ -1,8 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import {
   SYSTEMS, evaluateLayout, layoutFor, searchBest, planMode, compareLayouts, cutList, verifyLayout,
-  validateSpec, reuseTiles, tileableArea, sampleSpec, reportCsv, betterLayout, estimateCells,
+  validateSpec, reuseTiles, tileableArea, sampleSpec, reportCsv, betterLayout, estimateCells, DEFAULTS,
 } from "./calc.mjs";
 
 const base = (o = {}) => ({
@@ -233,4 +234,22 @@ test("materials: no joints means no grout", () => {
   const spec = { roomW: 1000, roomH: 1000, wallGap: 0, tileW: 500, tileH: 500, grout: 0, pattern: "grid", obstacles: [], overagePct: 0, minCut: 50 };
   const res = planMode(spec, "corner", true);
   assert.ok(materials(spec, res, {}).groutKg < 1e-9);
+});
+
+// Pinned output from before the 2026-11-16 speed-up (docs/history/ci-perf-2026-11-16-tile-layout-skip-missed-tiles.md):
+// the loops now skip tiles that miss the floor and build fewer outlines, and every
+// number and outline they report must stay the same to the last bit.
+test("layouts are byte-identical to the pinned output", () => {
+  const specs = [
+    { roomW: 3470, roomH: 2810, tileW: 300, tileH: 600, grout: 3, pattern: "diagonal", obstacles: [{ x: 400, y: 300, w: 700, h: 500 }] },
+    { roomW: 2900, roomH: 4100, tileW: 450, tileH: 450, grout: 2.5, pattern: "diagonal", wallGap: 8, obstacles: [] },
+    { roomW: 3100, roomH: 1500, tileW: 600, tileH: 300, grout: 2, pattern: "brick", brickShift: 1 / 3, obstacles: [{ x: 0, y: 0, w: 900, h: 600 }] },
+    { roomW: 2740, roomH: 2130, tileW: 300, tileH: 600, grout: 0, pattern: "grid", obstacles: [{ x: 1000, y: 0, w: 1740, h: 800 }, { x: 0, y: 1500, w: 400, h: 400 }] },
+  ];
+  const h = createHash("sha256");
+  for (const s of specs) {
+    const spec = { ...DEFAULTS, minCut: 50, overagePct: 10, tilesPerBox: 6, boxPrice: 40, ...s };
+    for (const mode of ["best", "tile-center", "joint-center", "corner-ne"]) h.update(JSON.stringify(planMode(spec, mode, true)));
+  }
+  assert.equal(h.digest("hex"), "4c3ac4aa56bd4633784b8fd0a8382c5d39eddafb5d553f25dcb39cd3d3c1299a");
 });
