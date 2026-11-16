@@ -16,6 +16,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 from llmci import audit_design as A  # noqa: E402
 A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 import h7at_weak_admit as W  # noqa: E402
 
 BAD = [("1.5B disapproval", 1000), ("lr approval", 1000), ("lr caring", 1000), ("lr annoyance", 500),

@@ -1073,7 +1073,47 @@ That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
-#### A voice bar at one level (2026-11-16, latest; shipped, two predictions failed)
+#### A closure against the vowel before it (2026-11-16, latest; shipped, pre-registration held)
+
+The round before left K's *ib*/*eb* and N's *nab*/*gab* reading as nothing or as a nasal. Read frame by frame
+(`eval/vstop-diag.mjs`), nearly all of those misses sat on D4-E4, for two reasons. (a) On D4 the five detuned voices
+swing the vowel's level by 15-20 dB through the note, and the reader's 60 ms reference fell in a trough. The *ib*
+voice bar sat 25 dB under the vowel just before it but only 13 dB under the reference, so the closure rule (22 dB
+under) did not see it. (b) On D#4 and E4 the per-note gain lifts the bar's harmonics above 600 Hz, and the release
+burst stood only 9 dB over the bar there, short of the 12 dB the burst search wants.
+
+- **The change** (`onsets.mjs` `LOCAL_REF`, readCoda's `localRef`): a frame counts as closed when it sits 22 dB under
+  the louder of the reference and the vowel before it. "The vowel before it" is the loudest five-frame median 30-120
+  ms back, capped at 20 dB over the reference. The nasal rule keeps the reference. Read against the vowel before, a
+  vowel-only release fading through -5 to -25 dB of it read as a murmur, and the vowel-only controls of J, K, L, M and
+  N lost 33 cells. A closure also needs a burst, which a fade never has. `localRef: false` (`--local off` in
+  `eval/coda-check.mjs`) is the reader before. The synthesis did not change.
+- **Tried for (b), not shipped:** the voice bar low-passed through the walls of the shut tract (`voiceBarWall: true`
+  in `sing.mjs`, `--wall on`). A closed mouth radiates voicing through the cheeks and throat, which pass little above
+  a few hundred hertz. On the development parts it read 7 more of N's syllables but cost A 2 and P's voiced stops
+  (7 to 12 read as a nasal), and the openings dropped (`eval/consonant-check.mjs` A 195 to 192, B 812 to 808). So it is
+  off by default.
+- **Pre-registered on a new part R** (in `eval/coda-check.mjs`'s header, committed before R ran). R has 10 voiced-stop
+  codas, 4 nasal codas and 6 other syllables, none sung in any other part, at A#2, G3, C#4, D4, E4 and F4, 112 BPM.
+
+| prediction (against `localRef: false`) | before | the reader | |
+|---|---|---|---|
+| (1) R's voiced stops read exactly, 4 or more of 120 better | 99 | 103 | holds, exactly at the bar |
+| (2) R's nasal codas no fewer | 48 of 48 | 48 | holds |
+| (3) R's others within 2 | 72 of 72 | 72 | holds |
+| (4) R's vowel-only control identical | 238 of 240 | 238 | holds |
+| (5) the development parts as registered | | | holds (one figure was misquoted in the registration: Q's others are 75 of 80 both ways, not 75 to 73) |
+| (6) openings (`eval/consonant-check.mjs`) cannot move | | | holds: the report is byte-identical |
+| (7) the wall: R's voiced stops read as nothing fewer, control identical | 8 (wall off) | 3 (wall on) | holds, but it gains no voiced stop (103 either way: 5 more read as a nasal), so it stays off |
+
+On the development parts, against `--local off`: J's others 318 to 321 of 336, K's 191 to 193 of 220, M 107 to 109 and
+108 to 109, N's others 212 to 220 of 240, O 217 to 222, P 209 to 214 (its clusters 116 to 114, one D4 and one F4
+pulse-2 cell), Q's voiced stops 102 to 106 of 120, H's voiced alveolar stops 1 to 2 of 2, L +1. A, B, D, E, F, I and every
+vowel-only control were identical. Shipped on. The gain is small on held-out data (+4 of 120, at the bar) and larger on
+the parts whose misses had been read. R's misses now: *nob*, *rog*, *hob* read as a nasal (7) and *dib*, *sib* read as
+nothing (8). Not yet read frame by frame; (b), which this round did not fix, is the likely cause. Reader only; not listened to.
+
+#### A voice bar at one level (2026-11-16; shipped, two predictions failed)
 
 Part L left *sub* read as nothing on 3 of its 10 cells. Read frame by frame (`eval/sub-cum-diag.mjs`), the b was
 there: a closure, a voice bar, a burst. But on the missed cells (G#3 half notes, G2 and C3 quarters) the voice bar

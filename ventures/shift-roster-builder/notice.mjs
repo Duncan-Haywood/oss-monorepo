@@ -43,6 +43,20 @@
 // mass-communication exception for hours opened by a call-out, and 9 h rest after a prior day's shift paid $40 a shift.
 // Los Angeles: 14 days, 1 h, more than 15 min of added work owes, half the lost hours, no team-offer exception (the
 // city FAQ says pay is owed when the employee volunteers), and time and a half on the whole shift after a rest under 10 h.
+//
+// New York City (2026-11-16, later; README "New York City fast food"): the fast food half of the city's Fair Workweek
+// Law (Admin. Code 20-1201 et seq.). The premium table is section 20-1222(a) as the city's labour policy office set it
+// out (CLASP 2018 slides, "Schedule Change Premiums"); the counting rules are DCWP's rules (RCNY 7-601 et seq.) as
+// proposed in January 2022 (rules.cityofnewyork.us notice of hearing, 7-607, 7-622, 7-623) with the June 2022 final
+// changes as Fisher Phillips summarised them. Unlike the other presets the premium is a flat sum, not hours of pay:
+// $10 for an added or moved shift and $20 for hours taken away at 14 to 7 days' notice, $15 / $45 at 7 days to 24 hours,
+// $15 / $75 under 24 hours. Notice counts from 12:00 a.m. on the first day of the work schedule, not from the shift
+// (7-622(a): a change made on or after the day before that first day is under 24 hours). A start and an end each moved
+// by 15 minutes or less owe nothing, not added together (final rule, de minimis). Volunteers, open-shift pick-ups and
+// fill-ins owe the premium (7-622(e)(5)-(7)), so no team-offer exception; the absent employee owes nothing (7-622(d)),
+// which the hub's call-out already marks as requested. A clopening (under 11 h between shifts on two calendar days,
+// or after a shift spanning two days) pays $100 (20-1231, rule 7-601 definition). A shift moved to another day is one
+// change (7-622(a) example 3: $10), not a cancellation plus an addition.
 import { fromLocal } from "./timeclock.mjs";
 
 export const MAX_CHANGES = 1500;
@@ -62,25 +76,34 @@ export const MAX_CHANGES = 1500;
 // restFlat: a flat sum per short rest, owed whatever the wage (Philadelphia: $40 for each such shift worked).
 // restAcross: 1 where only a shift on a later day counts (Philadelphia: rest after "the end of a prior day's shift" or a
 //   shift that spanned two days), so a same-day split shift is not a short rest.
+// flat: tiers of a flat premium per change, used instead of hours of pay: [{ fromH, add, cut }], highest fromH first;
+//   a change made at least fromH hours ahead (and under noticeDays) owes `add` when no hours are lost and `cut` when
+//   hours are taken away (New York City 20-1222(a)).
+// noticeFromWeek: 1 where notice counts from 12:00 a.m. on the week's first day, not from the shift (New York City
+//   rule 7-622(a)).
+// edgeEach: 1 where the minEdgeMin grace applies to the start and the end separately, whatever the shift's length
+//   becomes (New York City's final de minimis rule: 15 minutes before and after each shift).
+const NYC_TIERS = [{ fromH: 168, add: 10, cut: 20 }, { fromH: 24, add: 15, cut: 45 }, { fromH: -Infinity, add: 15, cut: 75 }];
 export const FWW_PRESETS = {
   seattle: { label: "Seattle Secure Scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 1, standby: 0 },
   oregon: { label: "Oregon predictive scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 30, minEdgeMin: 30, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 1, standby: 1 },
   chicago: { label: "Chicago Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 15, minExtendMin: 15, minEdgeMin: 0, cancelWindowH: 24, cancelFraction: 0.5, cancelElseHours: 1, restHours: 10, restMult: 1.25, massOffer: 0, standby: 0 },
   philadelphia: { label: "Philadelphia Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 20, minEdgeMin: 20, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 9, restMult: 1, restFlat: 40, restAcross: 1, massOffer: 1, standby: 0 },
   "los-angeles": { label: "Los Angeles Fair Work Week (city)", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 15, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, restWhole: 1, massOffer: 0, standby: 0 },
+  "new-york-city": { label: "New York City Fair Workweek (fast food)", noticeDays: 14, addHours: 0, minMoveMin: 15, minExtendMin: 15, minEdgeMin: 15, edgeEach: 1, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 0, restHours: 11, restMult: 1, restFlat: 100, restAcross: 1, massOffer: 0, standby: 0, noticeFromWeek: 1, flat: NYC_TIERS },
   custom: { label: "Custom rule set", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 0, standby: 0 },
 };
-const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer", FWW_MIN_EDGE_MIN: "minEdgeMin", FWW_STANDBY: "standby", FWW_REST_FLAT: "restFlat", FWW_REST_WHOLE_SHIFT: "restWhole", FWW_REST_ACROSS_DAYS: "restAcross" };
-const FLAGS = new Set(["massOffer", "standby", "restWhole", "restAcross"]);
-export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles or custom";
+const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer", FWW_MIN_EDGE_MIN: "minEdgeMin", FWW_STANDBY: "standby", FWW_REST_FLAT: "restFlat", FWW_REST_WHOLE_SHIFT: "restWhole", FWW_REST_ACROSS_DAYS: "restAcross", FWW_NOTICE_FROM_WEEK: "noticeFromWeek", FWW_EDGE_EACH: "edgeEach" };
+const FLAGS = new Set(["massOffer", "standby", "restWhole", "restAcross", "noticeFromWeek", "edgeEach"]);
+export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles, new-york-city or custom";
 
 // The rule set from the environment, or null when FAIR_WORKWEEK is unset (the change log is still kept).
 export function readNoticeEnv(env = {}) {
   const raw = String(env.FAIR_WORKWEEK ?? "").trim().toLowerCase().replace(/[\s_]+/g, "-");
   if (!raw || raw === "0" || raw === "off") return null;
-  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles" }[raw] || raw;
+  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles", nyc: "new-york-city", "new-york": "new-york-city", ny: "new-york-city", "nyc-fast-food": "new-york-city", "new-york-city-ny": "new-york-city" }[raw] || raw;
   if (!Object.hasOwn(FWW_PRESETS, name)) return { error: `FAIR_WORKWEEK "${String(env.FAIR_WORKWEEK).slice(0, 40)}" is not one of ${PRESET_NAMES}.` };
-  const r = { name, restFlat: 0, restWhole: 0, restAcross: 0, ...FWW_PRESETS[name], notes: [], overrides: [] };
+  const r = { name, restFlat: 0, restWhole: 0, restAcross: 0, noticeFromWeek: 0, edgeEach: 0, flat: null, ...FWW_PRESETS[name], notes: [], overrides: [] };
   for (const [k, f] of Object.entries(ENV_FIELDS)) {
     if (env[k] === undefined || String(env[k]).trim() === "") continue;
     const v = Number(String(env[k]).trim());
@@ -149,18 +172,21 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
   if (!e.weekStart) { out.why = "The week had no Monday set, so the notice cannot be counted."; return out; }
   const starts = [e.from, e.to].filter(Boolean).map((s) => slotInstant(e.weekStart, s.day, s.startMin, tz));
   const ends = [e.from, e.to].filter(Boolean).map((s) => slotInstant(e.weekStart, s.day, s.endMin, tz));
-  const touches = Math.min(...starts);
+  // New York City counts notice to 12:00 a.m. on the schedule's first day (rule 7-622(a)), the others to the shift.
+  const touches = rules && rules.noticeFromWeek ? slotInstant(e.weekStart, 0, 0, tz) : Math.min(...starts);
   out.noticeH = r2((touches - e.at) / H);
   if (Math.max(...ends) <= e.at) { out.why = "Changed after the shift ended: a record correction, no notice premium counted."; return out; }
   if (!rules) { out.why = "No rule set chosen (FAIR_WORKWEEK)."; return out; }
   if (e.requested) { out.why = "Employee-requested (a call-out, a trade or a pick-up they asked for): exempt. Keep the written request."; return out; }
-  if (out.noticeH >= rules.noticeDays * 24) { out.why = `${rules.noticeDays} or more days' notice: nothing owed.`; return out; }
+  if (out.noticeH >= rules.noticeDays * 24) { out.why = `${rules.noticeDays} or more days' notice${rules.noticeFromWeek ? " before the week's first day" : ""}: nothing owed.`; return out; }
   if (e.standby && rules.standby && lost <= 0) { out.why = `Asked from the voluntary standby list${e.coverFor ? ` to cover ${e.coverFor}` : ""} and agreed: exempt (ORS 653.432(4)). Keep the written agreement to be on the list and the acceptance.`; return out; }
   const standbyFirst = rules.standby && e.standbyOpen > 0;
   if (e.massOffer && rules.massOffer && lost <= 0 && !standbyFirst) { out.why = `Taken from the written offer to the whole team after ${e.coverFor || "a colleague"}'s absence: exempt for those hours. Keep the offer and the acceptance.`; return out; }
   let hoursOfPay = 0;
   const ds = e.from && e.to ? Math.abs(e.to.startMin - e.from.startMin) : 0, de = e.from && e.to ? Math.abs(e.to.endMin - e.from.endMin) : 0;
-  if (e.kind === "moved" && rules.minEdgeMin > 0 && ds <= rules.minEdgeMin && de <= rules.minEdgeMin && -lost * 60 <= rules.minExtendMin) { out.why = `Start or end changed by ${Math.max(ds, de)} min: at or under the ${rules.minEdgeMin} min threshold, hours lost included.`; return out; }
+  // A shift moved to another day is a date change: no minute threshold applies to it.
+  const sameDay = !(e.from && e.to) || e.from.day === e.to.day;
+  if (e.kind === "moved" && sameDay && rules.minEdgeMin > 0 && ds <= rules.minEdgeMin && de <= rules.minEdgeMin && (rules.edgeEach || -lost * 60 <= rules.minExtendMin)) { out.why = `Start or end changed by ${Math.max(ds, de)} min: at or under the ${rules.minEdgeMin} min threshold, hours lost included.`; return out; }
   if (lost > 0) {
     if (out.noticeH < rules.cancelWindowH) { hoursOfPay = rules.cancelFraction * lost; out.why = `${e.kind === "cancelled" ? "Cancelled" : "Shortened"} inside ${fmtH(rules.cancelWindowH)}: ${rules.cancelFraction} x ${r2(lost)} h not worked.`; }
     else { hoursOfPay = rules.cancelElseHours; out.why = `${e.kind === "cancelled" ? "Cancelled" : "Shortened"} with under ${rules.noticeDays} days' notice: ${rules.cancelElseHours} h of pay.`; }
@@ -169,9 +195,21 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
     hoursOfPay = rules.addHours; out.why = `Shift added with under ${rules.noticeDays} days' notice: ${rules.addHours} h of pay.`;
   } else {
     const extendOnly = e.to.startMin <= e.from.startMin && e.to.endMin >= e.from.endMin;
-    if (extendOnly && (ds + de) <= rules.minExtendMin) { out.why = `${ds + de} min added: at or under the ${rules.minExtendMin} min threshold.`; return out; }
-    if (!extendOnly && ds <= rules.minMoveMin && de <= rules.minMoveMin) { out.why = `Moved by ${Math.max(ds, de)} min: at or under the ${rules.minMoveMin} min threshold.`; return out; }
+    if (sameDay && extendOnly && (ds + de) <= rules.minExtendMin) { out.why = `${ds + de} min added: at or under the ${rules.minExtendMin} min threshold.`; return out; }
+    if (sameDay && !extendOnly && ds <= rules.minMoveMin && de <= rules.minMoveMin) { out.why = `Moved by ${Math.max(ds, de)} min: at or under the ${rules.minMoveMin} min threshold.`; return out; }
     hoursOfPay = rules.addHours; out.why = `${extendOnly ? "Time added" : "Hours moved"} with under ${rules.noticeDays} days' notice: ${rules.addHours} h of pay.`;
+  }
+  if (rules.flat) {
+    // A flat sum per change by notice tier (New York City 20-1222(a)): hours taken away pay the higher column.
+    const tier = rules.flat.find((t) => out.noticeH >= t.fromH) || rules.flat[rules.flat.length - 1];
+    const amt = lost > 0 ? tier.cut : tier.add, band = tier.fromH >= 168 ? "14 to 7 days'" : tier.fromH >= 24 ? "7 days' to 24 hours'" : "under 24 hours'";
+    const what = lost > 0 ? (e.kind === "cancelled" || !sameDay ? "Hours taken away" : "Hours cut") : e.kind === "added" ? "Shift added" : !sameDay ? "Moved to another day" : out.gainedH > 0 ? "Time added" : "Hours moved";
+    out.why = `${what} with ${band} notice${rules.noticeFromWeek ? " before the week's first day" : ""}: $${amt} flat.`;
+    if (e.massOffer) out.why += ` Volunteers and open-shift pick-ups still owe it here.`;
+    if (e.onCall && lost > 0) out.why = `On-call shift not needed: ` + out.why.charAt(0).toLowerCase() + out.why.slice(1);
+    if (e.pairedWith) out.why += ` One change with entry #${e.pairedWith.id ?? ""} (the shift moved to another day).`;
+    out.hoursOfPay = null; out.premium = amt;
+    return out;
   }
   if (e.massOffer && !rules.massOffer && hoursOfPay > 0) out.why += ` This rule set has no team-offer exception.`;
   if (e.massOffer && standbyFirst && hoursOfPay > 0) out.why += ` The team-offer exception needs everyone on the standby list asked first (ORS 653.455(3)(k)(C)); ${e.standbyOpen} on it were not.`;
@@ -248,11 +286,31 @@ export function onCallNeverCalled(week, marks, rules, { tz = "UTC", nowMs = Date
 // Everything the changes page and CSV need. weeks: newest first (current published week, then history).
 export function noticeReport(state, rules, { tz = "UTC", wages = new Map(), weeks = [], nowMs = Date.now() } = {}) {
   const priced = [...(state.changeLog || [])].reverse().map((e) => priceChange(e, rules, { tz, wage: wages.get(e.person) }));
+  if (rules && rules.flat) pairDateChanges(priced, rules, { tz, wages });
   const late = weeks.flatMap((w) => latePosting(w, (state.postedAt || {})[w.weekStart], rules, tz).map((x) => ({ ...x, weekStart: w.weekStart })));
   const rests = weeks[0] ? shortRests(weeks[0], weeks[1], rules, wages) : [];
   const sum = (xs) => r2(xs.reduce((t, x) => t + (x.premium || 0), 0));
   const never = weeks[0] && rules ? onCallNeverCalled(weeks[0], state.onCall || {}, rules, { tz, nowMs, wages }) : [];
   return { priced, late, rests, never, changeTotal: sum(priced), restTotal: sum(rests), onCallTotal: sum(never), unpriced: priced.filter((x) => x.unpriced).length + rests.filter((x) => x.premium === null).length + never.filter((x) => x.unpriced).length };
+}
+
+// Where premiums are per change (New York City), a cancellation and an addition for the same person, logged in the
+// same moment for the same week by the same cause, are one change of date (rule 7-622(a) example 3: a Thursday shift
+// moved to Friday owes $10, not $20 + $10). The pair is priced once, on the cancellation; the addition shows $0 and why.
+export function pairDateChanges(priced, rules, { tz = "UTC", wages = new Map() } = {}) {
+  const groups = new Map();
+  priced.forEach((p, i) => { if (p.kind === "cancelled" || p.kind === "added") { const k = `${p.at}|${p.weekStart}|${p.person}|${p.cause}`; (groups.get(k) || groups.set(k, []).get(k)).push(i); } });
+  for (const idx of groups.values()) {
+    const cut = idx.filter((i) => priced[i].kind === "cancelled"), add = idx.filter((i) => priced[i].kind === "added");
+    for (let j = 0; j < Math.min(cut.length, add.length); j++) {
+      const c = priced[cut[j]], a = priced[add[j]];
+      if (c.requested || a.requested || c.onCall || a.onCall || !(c.premium > 0) || !(a.premium > 0)) continue;
+      const one = priceChange({ ...c, kind: "moved", to: a.to, massOffer: c.massOffer || a.massOffer, pairedWith: { id: a.id } }, rules, { tz, wage: wages.get(c.person) });
+      priced[cut[j]] = { ...one, kind: "cancelled", from: c.from, to: null };
+      priced[add[j]] = { ...a, premium: 0, lostH: 0, gainedH: 0, why: `One change with entry #${c.id ?? ""}: the shift moved to another day, priced there.` };
+    }
+  }
+  return priced;
 }
 
 const DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

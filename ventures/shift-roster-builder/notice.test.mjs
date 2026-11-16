@@ -17,7 +17,7 @@ test("the rule set is read from FAIR_WORKWEEK, with typed overrides, and nothing
   assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "Seattle" }).restMult, 1.5);
   assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "OR" }).name, "oregon");
   assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "chicago" }).cancelWindowH, 24);
-  assert.match(readNoticeEnv({ FAIR_WORKWEEK: "nyc" }).error, /not one of/);
+  assert.match(readNoticeEnv({ FAIR_WORKWEEK: "boston" }).error, /not one of/);
   const c = readNoticeEnv({ FAIR_WORKWEEK: "custom", FWW_NOTICE_DAYS: "10", FWW_REST_MULT: "0.5", FWW_ADD_HOURS: "x" });
   assert.equal(c.noticeDays, 10);
   assert.equal(c.restMult, 1.5); // under 1 would pay less than the wage: refused
@@ -427,6 +427,7 @@ test("the hub's changes page states the Philadelphia and Los Angeles rest rules 
   for (const [name, label, rule, cell] of [
     ["philadelphia", /Philadelphia Fair Workweek/, /a shift starting under 9 h after the end of a prior day&#39;s shift pays \$40\.00 each|a shift starting under 9 h after the end of a prior day's shift pays \$40\.00 each/, /\$40\.00/],
     ["los-angeles", /Los Angeles Fair Work Week \(city\)/, /under 10 h after the last shift pays 1\.5x for the whole later shift/, /\$80\.00/],
+    ["new-york-city", /New York City Fair Workweek \(fast food\)/, /a shift starting under 11 h after the end of a prior day(&#39;|')s shift pays \$100\.00 each/, /\$100\.00/],
   ]) {
     const state = emptyState();
     state.weekStart = WS;
@@ -442,4 +443,73 @@ test("the hub's changes page states the Philadelphia and Los Angeles rest rules 
     assert.match(page, /Short rests this week/, name);
     assert.match(page, cell, name);
   }
+});
+
+test("New York City fast food: flat premiums by tier, notice to the week's first day, rule 7-622(a)'s examples", () => {
+  const r = readNoticeEnv({ FAIR_WORKWEEK: "nyc" });
+  assert.equal(r.name, "new-york-city");
+  assert.equal(readNoticeEnv({ FAIR_WORKWEEK: "New York City" }).name, "new-york-city");
+  const nyc = FWW_PRESETS["new-york-city"], thu = S(3, 9, 17);
+  // Example 1: a Thursday shift cancelled on the Sunday before the Monday the schedule starts: under 24 hours, $75,
+  // although the shift itself is four days off. Seattle, counting to the shift, would call it 4 days' notice.
+  let p = priceChange(ch("2026-11-22T09:00:00Z", "cancelled", thu, null), nyc);
+  assert.equal(p.premium, 75); assert.equal(p.noticeH, 15); assert.equal(p.hoursOfPay, null);
+  assert.match(p.why, /under 24 hours' notice before the week's first day: \$75 flat/);
+  assert.equal(priceChange(ch("2026-11-22T09:00:00Z", "cancelled", thu, null), FWW_PRESETS.seattle).noticeH, 96);
+  // Example 2: cancelled the Monday before at 5 p.m. (151 h): $45. 8 days before: $20. 14 days or more: nothing.
+  assert.equal(priceChange(ch("2026-11-16T17:00:00Z", "cancelled", thu, null), nyc).premium, 45);
+  assert.equal(priceChange(ch("2026-11-15T00:00:00Z", "cancelled", thu, null), nyc).premium, 20);
+  assert.equal(priceChange(ch("2026-11-09T00:00:00Z", "cancelled", thu, null), nyc).premium, 0);
+  // Added or moved with no hours lost: $10, $15, $15. Hours cut on the day: $75. No wage needed for any of them.
+  assert.equal(priceChange(ch("2026-11-13T00:00:00Z", "added", null, thu), nyc).premium, 10);
+  assert.equal(priceChange(ch("2026-11-20T00:00:00Z", "added", null, thu), nyc).premium, 15);
+  assert.equal(priceChange(ch("2026-11-23T08:00:00Z", "added", null, thu), nyc).premium, 15);
+  assert.equal(priceChange(ch("2026-11-23T08:00:00Z", "moved", thu, S(3, 9, 13)), nyc).premium, 75);
+  // De minimis (final rule): start and end each moved by 15 min or less owe nothing, even when both stretch the shift.
+  const m = (to) => priceChange(ch("2026-11-20T00:00:00Z", "moved", thu, to), nyc);
+  assert.equal(m({ ...thu, startMin: 9 * 60 - 15, endMin: 17 * 60 + 15 }).premium, 0);
+  assert.equal(m({ ...thu, startMin: 9 * 60 + 15, endMin: 17 * 60 - 15 }).premium, 0);
+  assert.equal(m({ ...thu, endMin: 17 * 60 + 20 }).premium, 15);
+  assert.equal(m({ ...thu, endMin: 17 * 60 - 20 }).premium, 45);
+  // Volunteers from a team offer still owe it (7-622(e)(6)); the employee's own request does not.
+  p = priceChange(ch("2026-11-20T00:00:00Z", "added", null, thu, { massOffer: true, coverFor: "Ben" }), nyc);
+  assert.equal(p.premium, 15); assert.match(p.why, /Volunteers and open-shift pick-ups still owe it/);
+  assert.equal(priceChange(ch("2026-11-20T00:00:00Z", "cancelled", thu, null, { requested: true }), nyc).premium, 0);
+});
+
+test("New York City: a shift moved to another day is one $10 change (example 3), and a clopening pays $100", () => {
+  const state = {};
+  // Posted 14 days ahead, then on Fri 13 Nov (9.5 days before) Ana's Thursday shift is moved to Friday.
+  const before = [A("Ana", S(3, 9, 17)), A("Ben", S(0, 9, 17))], after = [A("Ana", S(4, 9, 17)), A("Ben", S(0, 9, 17))];
+  logChanges(state, diffAssignments(before, after), { at: at("2026-11-13T12:00:00Z"), weekStart: WS, cause: "republish" });
+  assert.deepEqual(state.changeLog.map((e) => e.kind), ["cancelled", "added"]);
+  const rep = noticeReport(state, FWW_PRESETS["new-york-city"], {});
+  assert.equal(rep.changeTotal, 10);
+  assert.match(rep.priced.find((x) => x.kind === "cancelled").why, /Moved to another day with 14 to 7 days' notice.*\$10 flat\. One change with entry #2/);
+  assert.match(rep.priced.find((x) => x.kind === "added").why, /One change with entry #1/);
+  // Seattle keeps pricing them as two changes in hours of pay.
+  assert.equal(noticeReport(state, FWW_PRESETS.seattle, { wages: new Map([["Ana", 20]]) }).changeTotal, 100);
+  // A move to a shorter shift on another day is hours taken away: $20.
+  const s2 = {};
+  logChanges(s2, diffAssignments(before, [A("Ana", S(4, 9, 13))]), { at: at("2026-11-13T12:00:00Z"), weekStart: WS, cause: "republish" });
+  assert.equal(noticeReport(s2, FWW_PRESETS["new-york-city"], {}).priced.filter((x) => x.person === "Ana").reduce((t, x) => t + x.premium, 0), 20);
+  // CSV: the flat premium with an empty hours-of-pay cell.
+  assert.match(noticeCsv(rep, { ...FWW_PRESETS["new-york-city"], name: "new-york-city" }), /,Ana,cancelled,Thu 09:00-17:00,,republish,no,228,0\.00,0\.00,,10\.00,new-york-city,/);
+  // Clopening: under 11 h across two calendar days pays $100 with no wage; a same-day split shift is not one.
+  const week = { weekStart: WS, assignments: [A("Ana", S(0, 15, 23)), A("Ana", S(1, 9, 17)), A("Ben", S(2, 7, 11)), A("Ben", S(2, 17, 22))] };
+  const rests = shortRests(week, null, FWW_PRESETS["new-york-city"]);
+  assert.deepEqual(rests.map((x) => `${x.person} ${x.gapH} ${x.premium}`), ["Ana 10 100"]);
+});
+
+test("the hub's changes page states New York City's flat table", async () => {
+  const state = emptyState();
+  state.weekStart = WS;
+  state.staff = "name, wage, max hours, min hours, availability\nAna, 20, 40, 0, Mon-Sun 0-24";
+  state.shifts = "day, start, end, people needed, label\nMon, 9, 17, 1, day";
+  assert.ok(publish(state, at("2026-11-01T09:00:00Z")).ok);
+  const hub = handler(state, () => {}, { ADMIN_KEY: "adm", TEAM_TOKEN: "tm", TIMEZONE: "UTC", FAIR_WORKWEEK: "nyc" }, () => at("2026-11-21T12:00:00Z"), null);
+  const page = await (await serve(hub, new Request("https://hub.example/admin/changes?key=adm"))).text();
+  assert.match(page, /counted to 12:00 a\.m\. on the week(&#39;|')s first day/);
+  assert.match(page, /14 to 7 days, \$10\.00 added or moved, \$20\.00 hours taken away; 7 days to 24 h, \$15\.00 added or moved, \$45\.00 hours taken away; under 24 h, \$15\.00 added or moved, \$75\.00 hours taken away/);
+  assert.match(page, /each moved by 15 min or less owe nothing/);
 });
