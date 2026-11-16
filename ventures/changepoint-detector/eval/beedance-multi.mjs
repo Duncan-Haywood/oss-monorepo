@@ -32,6 +32,7 @@
 //
 // usage: node eval/beedance-multi.mjs > eval/beedance-multi.out.txt
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { multiPelt, columnConsensus, columnSigmas } from '../multivariate.mjs';
 import { fMeasure, covering } from './tcpd-metrics.mjs';
 import { SETTINGS } from './tcpd-multi-floor-settings.mjs';
@@ -77,7 +78,7 @@ export function decide(fresh, res) {
   return { best, c1, c2, wins, c3, confirms: c1 && c2 && c3 };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const fresh = [1, 2, 3, 4, 5].map(loadBee);
   const seen = loadBee(6);
   const res = {};
