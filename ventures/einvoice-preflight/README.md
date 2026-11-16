@@ -2140,3 +2140,13 @@ the expected rule; 8 of the 9 others are where Annex I says the warning does not
 ninth is the earlier tax-number mutant, missed before this change too.
 Tests: `hungary-nav-annex1.test.mjs` (18), which also fails if the module cites a
 calculation code Annex I does not list.
+
+## Slovakia: Act 385/2025 read from the text, and a Slovak profile (2026-11-16)
+
+The Slovakia page was written from vendor guides. It is now written from Act No. 385/2025 Z. z. as published on slov-lex.sk (rendered in Chromium; time versions 2026, 2027 and 2030) and the Financial Administration's eFaktúra material (`eval/slovakia-act-385-2025-2026-11-16.md`):
+
+- **1 January 2027** is the transitional § 85o of the VAT Act: a Slovak VAT payer supplying goods or services with a Slovak place of supply to a taxable person or non-taxable legal person established in Slovakia must issue an e-invoice (exempt supplies and simplified invoices excepted), within 15 days; supplier and Slovak payer buyer report the data by handing the invoice to a certified delivery service; fines up to EUR 10,000 (EUR 100,000 repeated); 10-year retention. Everyone invoiced that way must be able to receive through a delivery service (§ 71(5)), non-payers and municipalities included (FS manual).
+- **1 July 2030** is the general rule (§ 71(4)): every invoice an e-invoice, § 80a domestic and § 80 cross-border reporting replacing the control and recapitulative statements, a 10-day deadline. The page had 2030 as "cross-border only".
+- The format is EN 16931 in UBL 2.1 or CII D16B, over OpenPeppol (the FS names it as the § 76a European delivery standard); 100 certified providers on the 12 November 2026 list. The vendor "1 July 2027 access-point limit" is not in the Act.
+
+**Slovak profile.** Tick "Also apply the Slovak rules", or call `POST /v1/validate?profile=slovakia`: the Peppol rules (PP-001..PP-005) plus six `SK-nnn` rules from the Financial Administration's field table "Transpozície štandardu Peppol BIS" v1.13 (29 October 2026), column "Povinná náležitosť faktúry podľa SK legislatívy": SK-001/SK-002 seller and buyer street, city and postcode (optional in EN 16931, § 74(1)(a)/(b)); SK-003 (warning) a Slovak party's electronic address not under scheme 0245 = DIČ; SK-004 a 0245 id that is not 10 digits; SK-005 (warning) no supplier payment account BT-84; SK-006 (warning) seller DIČ address vs SK VAT digits. Not checked: the conditional fields (IČO or IČ DPH "if assigned", tax point date), BT-33, and the tax data document. Tests: `slovakia-profile.test.mjs` (7), two more in `slovakia-e-invoice-mandate.test.mjs`. Hub row, `mandate-dates.json`, the `.ics` feed (127 milestones, 65 countries) and the 2027 deadlines page regenerated.

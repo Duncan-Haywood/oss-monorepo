@@ -5,3 +5,4 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-16) a real Ginfes, Betha or DSF reply
+- (2026-11-16) refresh the Bulgaria page when its draft passes. A run that lands a slice replaces its item here
