@@ -95,7 +95,8 @@ const match = (want, got) => Object.entries(want).every(([k, v]) => got[k] === v
 const mannerOk = (want, got) => want.cls === got.cls;
 
 function choir(midiBytes, sing) {
-  const r = renderMidi(midiBytes, { rate, stems: true, sing, nasalCut: !args.includes('--no-nasal-cut') });
+  // --wall off: voiced closures' bars without the low-pass through the walls (before 2026-11-16's fourteenth coda round)
+  const r = renderMidi(midiBytes, { rate, stems: true, sing, nasalCut: !args.includes('--no-nasal-cut'), voiceBarWall: !(args.includes('--wall') && args[args.indexOf('--wall') + 1] === 'off') });
   const m = parseMidi(midiBytes), sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const notes = m.notes.filter((n) => n.ch !== 9 && m.programs.get(n.ch)?.[0]?.[1] === 52).map((n) => ({ ...n, t0: sec(n.tick), t1: sec(n.end) })).sort((a, b) => a.t0 - b.t0);
   return { x: r.stems.choir.channels[0], notes };

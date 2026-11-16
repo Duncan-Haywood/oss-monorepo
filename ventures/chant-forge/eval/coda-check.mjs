@@ -178,6 +178,10 @@ const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new U
 const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
+// --wall off: the voice bar without its low-pass through the walls (sing.mjs `voiceBarWall: false`, before 2026-11-16's fourteenth round)
+const WALL = !(args.includes('--wall') && args[args.indexOf('--wall') + 1] === 'off');
+// --local off: readCoda's closure and nasal levels against the reference alone (`localRef: false`, before the fourteenth round)
+const LOCALARG = args.includes('--local') ? args[args.indexOf('--local') + 1] : '';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
@@ -193,15 +197,15 @@ const VFRICARG = args.includes('--vfric') ? args[args.indexOf('--vfric') + 1] : 
 const DEEPARG = args.includes('--deep') ? args[args.indexOf('--deep') + 1] : '';
 // --pre hi=12,step=8: try other PRE settings (onsets.mjs PRE)
 const PREOPTS = PREARG && PREARG !== 'off' ? { preOpts: Object.fromEntries(PREARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
-const RC = { ...RC0, ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}) };
+const RC = { ...RC0, ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
 const label = (e) => e.cls === 'stop' ? `${e.voiced ? 'voiced' : 'voiceless'} ${e.place} stop` : e.cls === 'affricate' ? `${e.voiced ? 'voiced' : 'voiceless'} affricate` : e.cls === 'fricative' ? `fricative ${e.place}` : e.cls;
 const match = (want, got) => Object.entries(want).every(([k, v]) => got[k] === v);
 
-function choir(midiBytes, sing, voiceBar = VOICEBAR) {
-  const r = renderMidi(midiBytes, { rate, stems: true, sing, voiceBar });
+function choir(midiBytes, sing, voiceBar = VOICEBAR, voiceBarWall = WALL) {
+  const r = renderMidi(midiBytes, { rate, stems: true, sing, voiceBar, voiceBarWall });
   const m = parseMidi(midiBytes), sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const notes = m.notes.filter((n) => n.ch !== 9 && m.programs.get(n.ch)?.[0]?.[1] === 52).map((n) => ({ ...n, t0: sec(n.tick), t1: sec(n.end) })).sort((a, b) => a.t0 - b.t0);
   return { x: r.stems.choir.channels[0], notes };
