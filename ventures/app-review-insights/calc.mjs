@@ -94,7 +94,9 @@ export function parseDate(value) {
     ? s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + (s.endsWith("Z") ? "" : "Z")
     : s;
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  const ymd = iso !== s || /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?Z$/.test(s) ? s.slice(0, 10) : null;
+  return Number.isNaN(d.getTime()) || (ymd && d.toISOString().slice(0, 10) !== ymd) ? null : d;
 }
 
 export function parseRating(value) {
