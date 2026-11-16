@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPDr6M8WzFy4MZbSre",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T03:56:29Z",
+  "ended": "2026-11-16T04:07:52Z",
+  "wall_minutes": 12.99,
+  "tokens_in": 8478460,
+  "tokens_out": 39921,
+  "cost_usd": 3.6043,
+  "tool_calls": 74,
+  "task": "Deepen (flagship 4) changepoint-detector item (a): ar1 + floor 2 on fresh multi-column labelled data",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16445",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First muted-column threshold (sd > whole-series sd) fired on 151 of 300 white-noise columns; caught by a simulation before shipping, replaced by a 3x margin restricted to raised sds.",
+    "eval/muted-sim.mjs first version called analyzeMulti (runs every column's consensus panel) and outlived the 120 s timeout; switched to multiPelt."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rule says bracket the first letter, but the hook also refuses when the pattern text appears elsewhere in the same command line (e.g. a later node eval/<name>.mjs); one extra call."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org, crossref, openalex and arxiv all answered 403 through the proxy, so no DOI could be checked; the arXiv id was confirmed from the source repository's README and the IJCV DOI is marked unchecked in data/SOURCE.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The bare route drew research; the scheduled prompt is explicitly about revenue products, so routed with --task (as prompt.md allows), landing on ventures.",
+      "did": "ventures track, allocate.py row 2 changepoint-detector",
+      "result": "worked"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The scheduled prompt asks for revenue; every flagship's paid path waits on the owner's checkout link (monetization.py next), so no agent-doable revenue step existed; took the flagship's top tractable item instead.",
+      "did": "pre-registered fresh-data test plus a user-facing warning",
+      "result": "lead failed honestly; a warning that prevents a misleading option ships"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-changepoint-bee-dance-lead-fails.md",
+    "ventures/changepoint-detector/README.md section 'The AR(1)-plus-floor lead on fresh labelled data'"
+  ],
+  "goal": null,
+  "notes": "Bee dance sequences 1-5 (KL-CPD repo, BSD-3) as fresh multi-column labelled data. Pre-registered rule committed in 91aff5f8e before scoring. Result: ar1 + floor 2 mean F1 0.244 vs floor auto 0.337, 0 of 5 wins; ar1 alone best 0.353. Mechanism: stacked floor and AR(1) long-run sd push smooth columns' noise sd past their range. Shipped mutedColumns/mutedWarning in CLI text, page and report; eval/muted-sim.mjs: 0 of 1800 default columns flagged. No agent doc in docs/reports: the README section and flagships next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "83741e71-d1aa-558d-9502-4d55127ec673",
+    "transcripts": 1,
+    "first": "2026-11-16T03:56:29Z",
+    "last": "2026-11-16T04:09:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 134,
+        "output": 39921,
+        "thinking": 9379,
+        "cache_read": 8336063,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142263,
+        "api_equivalent_usd": 3.6043,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 134,
+      "output": 39921,
+      "thinking": 9379,
+      "cache_read": 8336063,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142263,
+      "api_equivalent_usd": 3.6043,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 68,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.99,
+      "active_minutes": 12.99,
+      "model_minutes": 7.79,
+      "tool_minutes": 5.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a statistician sourcing a labelled set, pre-registering, scoring, diagnosing and shipping a warning with tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 222.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
