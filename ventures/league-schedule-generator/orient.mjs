@@ -59,7 +59,7 @@ export const MINPLUS_WASM_ON = !!MP;
  * under-the-gap start (README "Starting under the gap"); leastBreaks' other callers keep 12, so their
  * cost is unchanged. */
 export const ORIENT_MAX_MATCHES = 12;
-export const FLOOR_PRICED_MAX_MATCHES = 15;
+export const FLOOR_PRICED_MAX_MATCHES = 14;
 
 /** Predecessor entries a balanced walk keeps at most (4 bytes each: 16 MB), balancedWalk nearOf. */
 const NEAR_CACHE = 4000000;
@@ -112,10 +112,10 @@ function homeMasks(ms) {
 export function minPlusStep(fr, A, B, { sym = false } = {}) {
   // `sym`: the caller promises fr[x] = fr[~x] (every whole-break table of floorTable is: flipping
   // every host of every round leaves every team's breaks as they were). Then g is symmetric too, and
-  // B's last host bit can be fixed at 0: its match's two edges become unary costs on fr's bits, the
-  // step runs on |B| - 1 bits (0.40 -> 0.23 ms at 15 matches), and the other half of g is read
-  // from the first (README "Half the table: the all-hosts-flipped symmetry"). WebAssembly only; the
-  // JS loop below ignores the flag, which gives the same table.
+  // one of B's host bits can be fixed at 0: its match's two edges become unary costs on fr's bits,
+  // the step runs on |B| - 1 bits, and the other half of g is read from the first (README "Half the
+  // table: flipping every host"). WebAssembly only; the JS loop below ignores the flag, which gives
+  // the same table.
   if (sym && MP && fr.constructor === Int32Array && B.length >= 2) {
     const r = symStep(fr, A, B);
     if (r) return r;
@@ -124,11 +124,11 @@ export function minPlusStep(fr, A, B, { sym = false } = {}) {
 }
 
 function symStep(fr, A, B) {
-  // fix the host bit whose removal leaves the smallest tables (the halving only reaches the
-  // tables after that bit is first met; on 30-team rounds the best bit cut the step's time 2.4x,
-  // the last one 1.8x)
-  let j0 = B.length - 1, best = Infinity;
-  for (let j = 0; j < B.length; j++) { const c = stepCost(A, B.filter((_, i) => i !== j)); if (c < best) { best = c; j0 = j; } }
+  // fix the first B bit the elimination meets, so every table after the first step is halved
+  // (on 30-team rounds: 0.44 -> 0.35 ms a step; always the last bit 0.39; scoring every bit by
+  // its tables' size picks better bits but costs more than it saves)
+  let j0 = B.length - 1;
+  { const { edges, order } = elimOrder(A, B); for (const i of order) if (edges[i].length) { j0 = edges[i][0][0]; break; } }
   const [c, d] = B[j0], u = [0, 0, 0, 0, j0];
   A.forEach(([a, b], i) => {
     // team t of A's match i (ra 1: the lower team there) breaks when x_i ^ y ^ (ra ^ rb) is 0, so
@@ -171,14 +171,6 @@ function elimOrder(A, B) {
   for (let i = 0; i < kA; i++) if (!seen[i] && ends(i) < 2) visit(i);
   for (let i = 0; i < kA; i++) if (!seen[i]) visit(i);
   return { edges, order };
-}
-
-/** The entries minPlusStep's tables hold over its steps: what a step costs, up to a constant. */
-function stepCost(A, B) {
-  const { edges, order } = elimOrder(A, B), yp = new Uint8Array(B.length);
-  let lx = A.length, ly = 0, c = 0;
-  for (const i of order) { for (const [j] of edges[i]) if (!yp[j]) { yp[j] = 1; ly++; } lx--; c += 2 ** (lx + ly); }
-  return c;
 }
 
 // unary: null for the plain step, or [m0, f0, m1, f1, j0] for symStep (j0: where the fixed bit
@@ -482,7 +474,7 @@ export function relaxedBreakFloor(opp, n, opts = {}) {
  * has more than `maxMatches` (ORIENT_MAX_MATCHES) matches. `opp` is read live (the caller moves it).
  */
 // floorTable's tables all start at zero and every step is symmetric under flipping all hosts, so
-// each is symmetric and its steps take minPlusStep's `sym` (README "Half the table"); FLOOR_SYM = 0
+// each is symmetric and its steps take minPlusStep's `sym` (README "Half the table: flipping every host"); FLOOR_SYM = 0
 // in the environment turns it off, for comparison
 const SYM = { sym: !(typeof process !== "undefined" && process.env && process.env.FLOOR_SYM === "0") };
 export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {

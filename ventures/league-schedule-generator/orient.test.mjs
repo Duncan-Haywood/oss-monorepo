@@ -185,6 +185,46 @@ test("minPlusStep in WebAssembly equals the JS loop, whole (int16 and int32) and
   }
 });
 
+test("minPlusStep's symmetric step (sym) equals the JS loop on every table with f[x] = f[~x]: byes, int16 and int32, 2 to 16 matches", async () => {
+  const { MINPLUS_WASM_ON } = await import("./orient.mjs");
+  process.env.MINPLUS_JS = "1";
+  const js = await import("./orient.mjs?js-only-sym");
+  delete process.env.MINPLUS_JS;
+  const rand = mulberry32(41);
+  const roundOf = (n, sitOut) => {
+    const ts = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [ts[i], ts[j]] = [ts[j], ts[i]]; }
+    const ms = [];
+    for (let i = sitOut; i + 1 < n; i += 2) ms.push([Math.min(ts[i], ts[i + 1]), Math.max(ts[i], ts[i + 1])]);
+    return ms;
+  };
+  const symOf = (k, val) => { const f = new Int32Array(1 << k); for (let x = 0; x < f.length; x++) { const y = (~x) & (f.length - 1); f[x] = x < y ? val() : f[y]; } return f; };
+  for (let it = 0; it < 240; it++) {
+    const n = it < 8 ? 32 : 4 + Math.floor(rand() * 23);
+    const A = roundOf(n, Math.floor(rand() * 3)), B = it % 9 === 0 ? A.slice() : roundOf(n, Math.floor(rand() * 3));
+    const msg = `n ${n} A ${JSON.stringify(A)} B ${JSON.stringify(B)}`;
+    for (const val of [() => Math.floor(rand() * 40), () => 29997 + Math.floor(rand() * 3), () => Math.floor(rand() * 2000000) - 1000000]) {
+      const f = symOf(A.length, val), want = js.minPlusStep(f, A, B);
+      const got = minPlusStep(f, A, B, { sym: true });
+      assert.deepEqual(got, want, msg);
+      // the output is symmetric too, so the next step may take sym as well
+      for (let y = 0; y < got.length; y++) assert.equal(got[y], got[(~y) & (got.length - 1)], msg);
+    }
+  }
+  if (!MINPLUS_WASM_ON) return;
+  // and floorTable, which steps with sym, gives the same floor and trials as with it off
+  const { floorTable } = await import("./orient.mjs");
+  process.env.FLOOR_SYM = "0";
+  const off = await import("./orient.mjs?no-sym");
+  delete process.env.FLOOR_SYM;
+  for (const n of [9, 14, 20, 24]) {
+    const opp = oppOf(carryOverTry(n, 1, { seed: 3, weighted: 8 }).rounds, n);
+    const a = floorTable(opp, n), b = off.floorTable(opp, n);
+    assert.equal(a.floor, b.floor, `${n}`);
+    for (const [lo, hi] of [[0, 2], [3, 3], [opp.length - 3, opp.length - 1], [1, opp.length - 2]]) assert.equal(a.trial(lo, hi), b.trial(lo, hi), `${n} ${lo}..${hi}`);
+  }
+});
+
 test("a 24-team break floor in seconds, not minutes (12 matches a round)", () => {
   const tries = carryOverTry(24, 0, { seed: 1, weighted: 8 });
   const t = Date.now();

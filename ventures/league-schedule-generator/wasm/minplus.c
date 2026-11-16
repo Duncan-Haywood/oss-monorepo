@@ -37,8 +37,8 @@ __attribute__((export_name("in_i32"))) void in_i32(i32 k) {
   if (narrow) for (i32 x = 0; x < 1 << k; x++) Ts[PERM(x)] = (i16)Pi[x];
   else for (i32 x = 0; x < 1 << k; x++) Ti[PERM(x)] = Pi[x];
 }
-// The symmetric step (README "Half the table: the all-hosts-flipped symmetry"): a whole-break table
-// with f[x] = f[~x] goes in with the next round's last host bit fixed at 0, so that match's two
+// The symmetric step (README "Half the table: flipping every host"): a whole-break table
+// with f[x] = f[~x] goes in with one of the next round's host bits fixed at 0, so that match's two
 // edges become unary costs on the input (m0, m1: the A host bit each of its teams meets, 0 for
 // none; the team breaks when that bit equals f0, f1), and the step runs on one fewer y bit.
 __attribute__((export_name("in_i32u"))) void in_i32u(i32 k, i32 m0, i32 f0, i32 m1, i32 f1) {
