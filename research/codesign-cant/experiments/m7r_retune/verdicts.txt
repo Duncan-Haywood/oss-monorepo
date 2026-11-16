@@ -1,0 +1,24 @@
+Milestone 7r verdicts (pre-registered in LOG.md). L2-45 = diverged flights at lever 2, 45 deg, cap, of 64 per seed.
+
+R1: retuned designs valid under src_li: 24 of 24 (held if all)
+R2: 7l src_li [src_li] above: mean mass 1.133 kg (range 1.060-1.208); in 0.65-0.90: False
+R2: 7l src_li [src_li] below: mean mass 0.989 kg (range 0.935-1.039); in 0.65-0.90: False
+R2: aware src_li [src_li] above: mean mass 1.289 kg (range 1.163-1.498); in 0.65-0.90: False
+R2: aware src_li [src_li] below: mean mass 1.224 kg (range 1.023-1.411); in 0.65-0.90: False
+R3: below, per design L2-45: retuned 7l 21.8 (131 over 6) against old 7l under src_li 43.0 (215 over 5 valid [46, 45, 40, 43, 41]); held if lower: True
+R4: above: retuned 7l 106 [13, 23, 17, 20, 20, 13] against 7l inh60 73 [9, 18, 13, 13, 11, 9]; held if more: True
+R4: below: retuned 7l 131 [22, 22, 22, 22, 21, 22] against 7l inh60 105 [17, 24, 19, 14, 17, 14]; held if more: True
+R5: above: aware src_li 54 [13, 13, 9, 3, 7, 9] against 7l src_li 106; held if fewer: True
+R5: below: aware src_li 64 [14, 17, 8, 4, 11, 10] against 7l src_li 131; held if fewer: True
+R6: above: aware src_li mass 1.289 against 7l src_li 1.133 kg (+13.7%); held if >= +5%: True
+R6: below: aware src_li mass 1.224 against 7l src_li 0.989 kg (+23.8%); held if >= +5%: True
+R7: above: lever-1 45 deg cap median J retuned 7l -1.607 against 7l inh60 -1.551; |diff| 0.057; held if <= 0.10: True
+R7: below: lever-1 45 deg cap median J retuned 7l -1.807 against 7l inh60 -1.502; |diff| 0.305; held if <= 0.10: False
+
+Other conditions, summed dead flights (label: per geometry above / below):
+  20_2_cap: 7l t45 cap wide [inh60] 30 / 64; aware cap wide [inh60] 21 / 32; 7l t45 cap wide [src_li] 209 / 233; aware cap wide [src_li] 200 / 213; 7l src_li [src_li] 47 / 80; aware src_li [src_li] 25 / 40
+  45_2_base: 7l t45 cap wide [inh60] 284 / 284; aware cap wide [inh60] 250 / 239; 7l t45 cap wide [src_li] 345 / 341; aware cap wide [src_li] 333 / 324; 7l src_li [src_li] 308 / 308; aware src_li [src_li] 250 / 268
+  20_3_cap: 7l t45 cap wide [inh60] 142 / 223; aware cap wide [inh60] 107 / 127; 7l t45 cap wide [src_li] 352 / 356; aware cap wide [src_li] 347 / 351; 7l src_li [src_li] 194 / 256; aware src_li [src_li] 115 / 150
+  45_3_cap: 7l t45 cap wide [inh60] 218 / 253; aware cap wide [inh60] 176 / 168; 7l t45 cap wide [src_li] 367 / 363; aware cap wide [src_li] 366 / 364; 7l src_li [src_li] 251 / 285; aware src_li [src_li] 190 / 192
+  45_0_cap: 7l t45 cap wide [inh60] 0 / 0; aware cap wide [inh60] 0 / 0; 7l t45 cap wide [src_li] 0 / 0; aware cap wide [src_li] 0 / 0; 7l src_li [src_li] 0 / 0; aware src_li [src_li] 0 / 0
+  45_1_cap: 7l t45 cap wide [inh60] 1 / 2; aware cap wide [inh60] 0 / 1; 7l t45 cap wide [src_li] 49 / 41; aware cap wide [src_li] 41 / 22; 7l src_li [src_li] 3 / 5; aware src_li [src_li] 0 / 2
