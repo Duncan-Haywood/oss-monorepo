@@ -32,13 +32,18 @@
   "errors": [
     "First suite probe (shift-roster-builder) took over 120 s and went to background; switched target.",
     "Wrote a wrong expected value (19.5 for 15.5) in a new test; fixed before the code change.",
-    "Post description was 200 chars; check_post_frontmatter caught it."
+    "Post description was 200 chars; check_post_frontmatter caught it.",
+    "A parallel red-team run (PR #16478) took the same target the same day and merged first; calc.test.mjs conflicted (both appended blocks), resolved by keeping both, 90/90 pass. Its fixes (cents rounding, -$0.00 sweep) do not overlap these (year-first dates, dash minus)."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Step 0 says fix the open list first, but all 9 entries are control-plane items awaiting owner approval; the list will stay open across runs until those PRs are approved, so every run re-checks them for nothing. redteam.py open could mark entries that already have a waiting control-plane PR."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Nothing stops two concurrent red-team runs from drawing or picking the same target: this run and #16478 both picked restaurant-delivery-commission-analyzer/calc.mjs on 2026-11-16. Checking open PR titles 'redteam: <target>' before a --target pick (or campaign refusing a target with an open redteam PR) would avoid it."
     }
   ],
   "deviations": [
