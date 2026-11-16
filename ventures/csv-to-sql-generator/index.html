@@ -139,7 +139,7 @@ node cli.mjs data.csv --dialect bigquery --dmy --no-header</code></pre>
 
     function run() {
       try {
-        const batch = Math.max(1, parseInt($("#batch").value, 10) || 500);
+        const batch = Math.max(1, parseInt($("#batch").value, 10) || 500); /* zero-default: a batch of 0 rows is not a batch */
         const r = convert($("#csv").value, {
           dialect: $("#dialect").value, table: $("#table").value.trim() || "imported_data", header: $("#header").checked,
           drop: $("#drop").checked, transaction: $("#tx").checked, pk: $("#pk").checked, decimal: $("#float").checked ? "float" : "numeric",
