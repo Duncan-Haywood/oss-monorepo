@@ -3402,3 +3402,33 @@ rounds. The two roughly cancel. By week the net was -4, +3, +7 and 0 hours, so n
 So the reserve's size is closed on both sides as measured: 4 s lost (64 h worse on seeds 25-36), 1.2 s ties, and 2 s stays the
 default from 300 copies. Its gain came from giving the repair its first second (README "The repair reserve on the biggest
 weeks"), and anything from about 1 s to 2 s is the same within noise. Not claimed: generated weeks only, one cloud machine.
+
+## A warm-sized gate for the pay floor (2026-11-16)
+
+The pay floor (README "A pay floor for big weeks") has started from the open-hours LP's basis since 2026-11-14, but its time gate
+was still the cold solve's: run with no deadline when the time left covers 4 s x (copies / 245)^4.5, otherwise try it warm and
+stop at the budget's end. **Measured first** (`eval/warm-gate.mjs`, `eval/warm-gate.out.jsonl`: 78 generated weeks of 148-326
+copies, the open-hours LP then the warm priced LP, one machine): the warm solve took 29 ms to 14.5 s, with no usable link to size
+(median 0.6 s at 140-180 copies, 2.8 s at 215-255, 5.6 s at 255-300, each band spanning 0.03-5.6 s) or to the open-hours LP's own
+time (ratio 0.04 to 6). It came in above the cold formula on 25 of 78 weeks, where the old gate let it run unbounded past the
+budget, and far below it on most of the rest, where the old gate skipped it or cut it at the budget's end. No formula sizes it.
+
+**What landed:** `scoreFloorPlan` (calc.mjs). With the open-hours basis in hand the pay floor always runs warm, stopped at the
+time left plus a reserve of its own (`scoreFloorReserveMs`, default 1500 ms), like the day sweeps' 2 s. With no basis, or
+`scoreFloorTry: false` / `scoreFloorWarm: false`, the cold formula alone decides as before; `scoreFloorReserveMs: 0` stops the try
+at the budget's end. `optimality.scoreFloorTried` now also reports the time `left` and the `reserve`.
+
+| 60 x 168 and 70 x 196, default 20 s budget (`eval/warm-gate-e2e.out.jsonl`, before = main's engine) | before | after |
+|---|---|---|
+| seed 2, 70 x 196 week 0 | pay floor out of time after 6.9 s; gap $23,272.35, rest $23,272.35 | finished in 7.7 s; **gap $16.90**, rest $23,269.28 |
+| seed 3, 60 x 168 week 0 | out of time after 1.4 s; gap $121,847.52, rest $21,847.52 | finished in 3.0 s; **gap $99,989.64** (the pay now bounded to within $10.36; the one open hour left is the gap), rest $21,845.73 |
+| seed 1 week 0, seed 2 week 1 (60 x 168) | skipped | tried, out of time after 2.2 and 2.7 s; same roster, 1.6-1.8 s longer |
+| ten other weeks | ran, skipped (budget spent) or proven before it | same roster and gap; within 0.5 s |
+
+So on 14 big weeks the pay floor finished on 2 more, both with a tighter proof and a slightly cheaper roster (its guide steers the
+day sweeps), and two weeks paid up to 1.8 s for a try that did not finish. Total time stays about the budget plus the two
+reserves (pay floor 1.5 s, day sweeps 2 s): at most 23.6 s here. Tests: `warm-score-floor.test.mjs` adds the plan's modes (try with the time left plus
+the reserve, bounded even with lots of time left, the reserve alone when the budget is spent, reserve 0 as the old try, no
+deadline without a budget, the cold formula without a basis). Not claimed: single runs on one cloud machine, generated weeks only;
+the 1.5 s reserve was not tuned (1 s or 2 s may do as well). Next: whether a longer reserve finishes more weeks than it costs, and
+carry the priced LP's basis into the day sweeps' guide.

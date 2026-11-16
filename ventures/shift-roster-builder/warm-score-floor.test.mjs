@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { parseStaff, parseShifts, buildRoster, _internals } from "./calc.mjs";
 
-const { buildContext, cliqueScoreFloor, cliqueOpenFloor } = _internals;
+const { buildContext, cliqueScoreFloor, cliqueOpenFloor, scoreFloorPlan } = _internals;
 
 function seededWeek(seed, P, S, { daily = false, prev = false, soft = false, tough = false, mins = false } = {}) {
   const days = ["Mon", "Tue", "Wed", "Thu", "Sat"];
@@ -83,4 +83,28 @@ test("buildRoster reports the warm start and `scoreFloorWarm: false` turns it of
     ran++;
   }
   assert.ok(ran >= 1, `the pay floor ran on only ${ran} weeks`);
+});
+
+test("the warm-sized gate: with the open-hours basis the pay floor always runs warm, stopped the reserve past the budget", () => {
+  // README "A warm-sized gate for the pay floor" (2026-11-16): the warm solve's time does not follow the cold formula, so the
+  // formula no longer decides when a basis is in hand; the solve gets the time left plus `scoreFloorReserveMs` (default 1500).
+  const big = { budgetMs: 20000, copies: 245, carry: true };
+  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 900 }), { mode: "try", reserve: 1500, untilMs: 2400 });
+  // Lots of time left: the old gate ran it with no deadline; now it is still bounded by the time left plus the reserve.
+  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 9000 }), { mode: "try", reserve: 1500, untilMs: 10500 });
+  // The budget already spent: the reserve alone.
+  assert.equal(scoreFloorPlan({}, { ...big, leftMs: -40 }).untilMs, 1500);
+  // Reserve 0 is the 2026-11-14 try (stopped at the budget's end); under 250 ms it is skipped.
+  assert.equal(scoreFloorPlan({ scoreFloorReserveMs: 0 }, { ...big, leftMs: 100 }).mode, "skip");
+  assert.deepEqual(scoreFloorPlan({ scoreFloorReserveMs: 0 }, { ...big, leftMs: 900 }), { mode: "try", reserve: 0, untilMs: 900 });
+  // No budget, or scoreFloor: true: no deadline. scoreFloor: false: never.
+  assert.equal(scoreFloorPlan({}, { ...big, budgetMs: 0, leftMs: -1 }).mode, "run");
+  assert.equal(scoreFloorPlan({ scoreFloor: true }, { ...big, leftMs: 0 }).mode, "run");
+  assert.equal(scoreFloorPlan({ scoreFloor: false }, { ...big, leftMs: 1e9 }).mode, "skip");
+  // No basis, or the try or warm start turned off: the cold formula alone (4 s x (copies / 245)^4.5).
+  for (const o of [{ scoreFloorTry: false }, { scoreFloorWarm: false }, {}]) {
+    const carry = !(Object.keys(o).length === 0);
+    assert.equal(scoreFloorPlan(o, { ...big, carry, leftMs: 4100 }).mode, "run", JSON.stringify(o));
+    assert.equal(scoreFloorPlan(o, { ...big, carry, leftMs: 3900 }).mode, "skip", JSON.stringify(o));
+  }
 });
