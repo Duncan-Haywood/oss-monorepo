@@ -1422,7 +1422,10 @@ loses on the synthetic sheet (colour -0.45 dB, false colour 42 to 59) and takes 
 `tools/bayer_laplace_train.py` refits it. Since the same day it runs in C when a compiler is present
 (`eval/bayer-learned-native-2026-11-16.md`). On seven real frames the output equals numpy's bit for
 bit. It is 1.9-2.8x faster than numpy, and 2.6-3.3x the default's time instead of 4-6x: 2.0 s for
-24 MP on four cores.
+24 MP on four cores. Later the same day its feature passes were fused into one row pipeline over 8-row
+rings and vectorized (`eval/bayer-learned-fused-2026-11-16.md`). It is still bit for bit with numpy on
+the same seven frames, 1.8-2.2x faster than the morning's C, and 1.5-2.0x the default's time: 0.73 s for
+24 MP on four cores, faster than LibRaw's AHD on every frame.
 
 ## Pentax PEF (2026-11-14)
 
