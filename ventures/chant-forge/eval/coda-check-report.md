@@ -525,6 +525,28 @@ Misses with `closeAnchor` + coda wall:
 
 hag as nasal 4; vob as nasal 3; tag as nasal 3; rib as none 3; mub as none 2; lub as nasal 2; pob as nasal 2; fun as none 2; lunc as voiceless vel stop 2; fa as voiced lab stop 1; pob (vowel only) as nasal 1; fod (vowel only) as nasal 1; vob (vowel only) as nasal 1; gos (vowel only) as nasal 1; lim as none 1; vob as none 1; hag as voiced lab stop 1; tag as voiceless vel stop 1; tid as fricative f 1
 
+## U. Held out: a voice bar read as a murmur (seventeenth round)
+
+Voiced stops: *dag*, *bob*, *mod*, *sig*, *lag*, *tib*, *ceb*, *nud*, *hod*, *fig*, *gub*, *pid*; nasals: *bam*, *sun*, *tem*, *hon*; n-clusters: *dent*, *hens*, *sonc*, *tint*; others: *dut*, *sic*, *gep*, *bos*, *lex*, *bel*, *mo*, *vit*. Pulse-4 and pulse-2 notes at 110 BPM, each followed by a rest, A2, D3, G#3, A#3, C#4, D#4.
+
+| | default | `barLead: 8` |
+|---|---|---|
+| voiced-stop codas read exactly | 127 of 144 (88.2%) | 128 of 144 (88.9%) |
+| voiced-stop codas read as nothing | 5 | 5 |
+| voiced-stop codas read as a nasal | 6 | 4 |
+| nasal codas read exactly | 46 of 48 (95.8%) | 46 of 48 (95.8%) |
+| n-cluster codas read as a nasal | 46 of 48 (95.8%) | 46 of 48 (95.8%) |
+| other syllables read exactly | 93 of 96 (96.9%) | 93 of 96 (96.9%) |
+| vowel-only control read as none | 332 of 336 (98.8%) | 332 of 336 (98.8%) |
+
+Misses with the default (count over the twelve pitch and length cells):
+
+bob as nasal 3; gub as none 3; gep as voiceless vel stop 2; lag as voiced lab stop 2; bob as none 2; lag as nasal 2; sun as none 2; nud (vowel only) as voiced lab stop 1; gub (vowel only) as voiced lab stop 1; sun (vowel only) as voiced lab stop 1; dut (vowel only) as voiced lab stop 1; pid as voiceless alv stop 1; bel as nasal 1; tib as voiceless lab stop 1; nud as voiceless alv stop 1; dent as voiceless alv stop 1; sonc as voiced lab stop 1; dag as nasal 1; lag as voiceless vel stop 1
+
+Misses with `barLead: 8`:
+
+bob as nasal 3; gub as none 3; gep as voiceless vel stop 2; lag as voiced lab stop 2; bob as none 2; sun as none 2; nud (vowel only) as voiced lab stop 1; gub (vowel only) as voiced lab stop 1; sun (vowel only) as voiced lab stop 1; dut (vowel only) as voiced lab stop 1; pid as voiceless alv stop 1; bel as nasal 1; tib as voiceless lab stop 1; nud as voiceless alv stop 1; lag as nasal 1; dent as voiceless alv stop 1; sonc as voiced lab stop 1; dag as voiced lab stop 1; lag as voiceless vel stop 1
+
 ## C. Closing consonants in the corpus
 
 146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.
