@@ -352,7 +352,7 @@ def test_buildable_refusal_gives_overrun_and_the_longest_new_that_fits(tmp_path,
     assert ff.main(["a", "--field", "buildable", "--replace", "Something here.", new,
                     "--file", str(f)]) == 1
     err = capsys.readouterr().err
-    assert f"({len(new) - ff.FLAGSHIP_BUILDABLE_MAX} over)" in err
+    assert f"({len(new) - ff.FLAGSHIP_BUILDABLE_MAX} over; the row was 15" in err
     over = len(new) - ff.FLAGSHIP_BUILDABLE_MAX
     assert f"Your NEW text is {len(new)} characters; at most {len(new) - over} fits" in err
     assert f.read_text() == DOC
@@ -380,3 +380,20 @@ def test_read_and_write_print_room_left(tmp_path, capsys):
         in capsys.readouterr().err
     assert ff.main(["b", "--replace", "Only", "Just", "--file", str(f)]) == 0
     assert f"of {ff.FLAGSHIP_NEXT_MAX} characters, {ff.FLAGSHIP_NEXT_MAX - 7} left" in capsys.readouterr().out
+
+
+def test_buildable_cap_says_overrun_and_room():
+    # "Something here." is 15 characters, so the row had MAX - 15 to spare.
+    value = "y" * (ff.FLAGSHIP_BUILDABLE_MAX + 14)
+    with pytest.raises(ValueError) as e:
+        ff.set_value(DOC, "a", "buildable", value)
+    msg = str(e.value)
+    assert "(14 over; the row was 15" in msg
+    assert f"had {ff.FLAGSHIP_BUILDABLE_MAX - 15} to spare" in msg
+
+
+def test_buildable_read_shows_cap(tmp_path, capsys):
+    f = tmp_path / "flagships.yaml"
+    f.write_text(DOC)
+    assert ff.main(["a", "--field", "buildable", "--file", str(f)]) == 0
+    assert f"-- 15 of {ff.FLAGSHIP_BUILDABLE_MAX} characters" in capsys.readouterr().err

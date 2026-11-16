@@ -290,3 +290,31 @@ test("a total line with its decimal point lost reads dollars and cents, says so,
   // a decimal-comma receipt keeps its own reading: "Summe 9, 70" is 9,70 already
   assert.equal(parseReceipt("CAFE MITTE\n05.02.2026\nKaffee 4,50\nKuchen 5,20\nSumme 9,70").cents, 970);
 });
+
+// SRD photos 1133 and 1002 (README, "Reading the total first"). Text below is made up.
+test("a subtotal plus tax printed on the page wins the vote when OCR damaged the word TOTAL", () => {
+  const sub = "HARBOR GRILL\n05/02/2026\nSUBTOTAL: 134.46\nTax(9%) 12.11\n";
+  const r = parseReceiptPasses([
+    sub + "Server: Kim 173.46",                 // no total line: largest amount guessed
+    sub + "=—STOTAL: = -:146.57\nCash 186.74",  // the total, its label damaged
+    "HARBOR GRILL\nSUBTOTAL: erer\nA TOTAL: 12.11", // the tax read as a total
+    sub + "SOSTOTAL: ~=—'146.57\nCash 170.77",
+  ]);
+  assert.equal(r.cents, 14657);
+  assert.equal(r.taxCents, 1211);
+  assert.match(r.notes.join("; "), /subtotal 134\.46 plus the tax 12\.11, printed on the page: check the total/);
+  // not printed anywhere: the readings' own totals stand
+  const q = parseReceiptPasses([sub + "Server: Kim 173.46", sub + "Server 160.00", "HARBOR GRILL\nA TOTAL: 12.11", sub + "Cash 200.00"]);
+  assert.notEqual(q.cents, 14657);
+  // a reading that read the total on a total line keeps it, even beside a printed sum
+  assert.equal(parseReceiptPasses([sub + "TOTAL 150.57", sub + "TOTAL 150.57", sub + "146.57", sub + "TOTAL 150.57"]).cents, 15057);
+});
+
+test("a total line read with a leading zero (04.78) counts as a guess in the vote", () => {
+  const r = parseReceiptPasses(["MESA CAFE\n| TOTAL: 04.78", "MESA CAFE\nTax 12\nTOTAL:", "MESA CAFE\n: TOTAL: $94.78 |", "MESA CAFE\nTOTAL: per"]);
+  assert.equal(r.cents, 9478);
+  // alone, it is still read
+  assert.equal(parseReceipt("MESA CAFE\nTOTAL: 04.78").cents, 478);
+  // "TOTAL 0.78" is not a lost digit
+  assert.equal(parseReceiptPasses(["MESA CAFE\nTOTAL 0.78", "MESA CAFE\nTOTAL 9.78", "MESA CAFE\nTOTAL 0.78", "MESA CAFE"]).cents, 78);
+});

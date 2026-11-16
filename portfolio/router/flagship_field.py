@@ -290,11 +290,17 @@ def set_value(text: str, venture: str, field: str, value: str,
                          + new_budget(keep, over)
                          + (f"\n{hint}" if hint else "") + "\n" + park_hint(value, venture, over, keep))
     if field == "buildable" and len(value) > FLAGSHIP_BUILDABLE_MAX:
+        # Say the overrun, the room the row had, the landed cuts and (with one
+        # --replace) the longest NEW that fits, so the next attempt fits first
+        # time (three runs on 2026-11-16 rewrote a replacement 14 to 47 over).
         over = len(value) - FLAGSHIP_BUILDABLE_MAX
+        before = read_value(text, venture, field)
+        room = (f"; the row was {len(before)}, so it had {FLAGSHIP_BUILDABLE_MAX - len(before)} to spare"
+                if before is not None and len(before) <= FLAGSHIP_BUILDABLE_MAX else "")
         hint = landed_hint(value, over)
         raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters "
-                         f"({over} over): name only items a session can start now; landed work goes "
-                         "in the README or eval/" + new_budget(keep, over)
+                         f"({over} over{room}): name only items a session can start now; landed work "
+                         "goes in the README or eval/" + new_budget(keep, over)
                          + (f"\n{hint}" if hint else ""))
     lines = text.splitlines(keepends=True)
     a, b = _span(lines, venture, field)

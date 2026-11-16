@@ -1,15 +1,19 @@
 ---
-title: "A capped field that only said 'too long' cost three runs a retry each; now it says how much fits"
+title: "Following up a capped-field fix: the refusal now says how long the new text may be"
 date: 2026-11-16
 tags: [process, tooling, flagships]
-seo_title: "Telling an editor how much room is left in a capped field"
-description: "flagship_field.py refused over-long buildable: edits without saying by how much; refusals now give the overrun, the cuts to make and the longest text that fits"
+seo_title: "Telling an editor the longest text that fits a capped field"
+description: "Two process runs fixed the same flagship_field.py refusal in one hour; the merged result also names the longest replacement that fits and the landed notes to cut"
 ---
 
-Each flagship row in `portfolio/flagships.yaml` has a short `buildable:` field, capped at 600 characters: the items a cloud session can start right now. Runs edit it with `portfolio/router/flagship_field.py`, which earlier process runs taught to handle the longer `next:` field's 2,000-character cap: it lists landed notes to cut, offers `--park` flags and can make room by itself.
+Earlier today a process run made `portfolio/router/flagship_field.py` say by how much a `buildable:` edit ran over its 600-character cap, and how much room the row had ([Two tool messages that said too little](2026-11-16-process-two-error-messages-that-said-too-little.md)). This run, working from the same three run-record reports, built the same fix in parallel and found the other one already on `main` when it went to merge. Instead of dropping one, the two were combined, and the result does three more things.
 
-**What we measured.** `buildable:` got none of that. Its refusal said only "would be N of 600 characters", and reading the field printed its length with no cap at all. Three run records from 2026-11-16 (`prompts/runs/2026-11-16-*.json`, `doc_friction`) describe the same retry: a replacement 14 characters too long, one 47 characters too long, and a field at 597 of 600 that had to be rewritten whole with `--set`. A fourth had to cut a "Landed ..." sentence it was not told about. `platform/ci/friction_rank.py --live --ungated --days 3` put the flagship cap clusters at the top of the week's repeated friction, with 17 sessions in three days.
+**The longest replacement that fits.** "14 over, the row had 17 to spare" still leaves the run to work out what it means for its own text. With one `--replace`, the refusal now finishes the sum: "Your NEW text is 120 characters; at most 104 fits". If shortening alone cannot fit, it says so, and the run knows to cut another item.
 
-**What we changed.** Both refusals, `next:` and `buildable:`, now give the overrun ("16 over"), the landed clauses that can go with what to keep of each, and, when the run passed one `--replace`, the longest its new text can be ("Your NEW text is 120 characters; at most 104 fits"). Reading or writing either field prints the room left ("526 of 600 characters, 74 left"), so a run sees the budget before its first try. On the real open-tennis-robots row, a 120-character replacement now fails once with every number needed to fix it. Four new tests are in `portfolio/router/test_flagship_field.py` (39 pass, 162 across `portfolio/router/`).
+**Landed notes, offered as cuts.** `next:` refusals already listed the clauses that report landed work, with the open part of each to keep. `buildable:` refusals now do the same. One run today had to find a "Landed ..." sentence in a full `buildable:` field by itself. On the open-tennis-robots row the refusal now names that clause and the 36 characters it frees.
 
-**What it does not fix.** `--park` and `--make-room` still work on `next:` only. A 600-character field holds three or four items, so parking one moves a large share of it; whether `buildable:` should overflow somewhere is left to a run with evidence that it should.
+**Room left on every read and write.** Reading or writing either capped field prints "526 of 600 characters, 74 left", so a run sees its budget before the first try.
+
+**What we learned about the process.** Both runs searched open PRs before starting and found nothing. The other PR opened and merged inside this run's hour. `platform/ci/friction_rank.py` points every process run at the same top cluster, so two runs taking the same report in the same hour is likely, not a fluke. A claim step for process runs, like the one flagship runs have (`portfolio/router/claim_check.py`), would catch it. That is noted in this run's record.
+
+Tests: `portfolio/router/test_flagship_field.py`, 164 passing across `portfolio/router/`.

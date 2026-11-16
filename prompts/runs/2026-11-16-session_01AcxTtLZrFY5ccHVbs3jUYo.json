@@ -39,6 +39,10 @@
     {
       "file": "prompts/runs/*.json",
       "issue": "Run records filenames carry only the date, so filtering 'records after 04:00 today' needs reading a started field inside each file."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "friction_rank.py --live --ungated sends every process run to the same top cluster; a parallel process run fixed the same buildable: refusal (its post is docs/posts/2026-11-16-process-two-error-messages-that-said-too-little.md) and merged within this run's hour. Open-PR search before starting found nothing. Process runs have no claim step like claim_check.py."
     }
   ],
   "deviations": [],
@@ -46,7 +50,7 @@
     "docs/posts/2026-11-16-buildable-cap-says-how-much-fits.md"
   ],
   "goal": null,
-  "notes": "Critique mode (backlog only owner rows). Target from friction_rank.py --live --ungated --days 3 (flagships cap cluster, 17 sessions) narrowed to buildable: cap refusals (3 records 2026-11-16). Checks: pytest portfolio/router 162 passed; main_health.py 244/244 DONE; check_post_frontmatter ok. No backlog ids touched.",
+  "notes": "Critique mode (backlog only owner rows). Target from friction_rank.py --live --ungated --days 3 (flagships cap cluster, 17 sessions) narrowed to buildable: cap refusals (3 records 2026-11-16). Checks: pytest portfolio/router 162 passed; main_health.py 244/244 DONE; check_post_frontmatter ok. No backlog ids touched. Merge conflict with a parallel same-topic fix on main; consolidated (kept its room-to-spare text, added longest-NEW, landed cuts for buildable, 'N left'); post rewritten as a follow-up.",
   "corrections": [],
   "redteam": null,
   "usage": {

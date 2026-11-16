@@ -2727,6 +2727,43 @@ dropped: it gained nothing (the subtotal-arithmetic rule then picks 17.35 from a
 [`eval/receipt-tax-ocr-labels-2026-11-16.md`](eval/receipt-tax-ocr-labels-2026-11-16.md).
 Tests: `receipt-tax.test.mjs` (26), `cord-receipts.test.mjs`.
 
+### Reading the total first (2026-11-16, later)
+
+Of the 41 SRD photos where the CLI's `--four-pass` read no tax, 27 had the total wrong as
+well, and the tax checks lean on the total. In each photo's four readings, two vote rules
+picked a wrong total when another reading held the right one:
+
+1. **The total's label damaged in every reading.** Photo 1133 reads "SUBTOTAL: 134.46" and
+   "Tax(9%) 12.11" in two readings, and the total as "=—STOTAL: = -:146.57" and
+   "SOSTOTAL: 146.57"; no reading took 146.57 as the total, and one read "A TOTAL: 12.11"
+   (the tax). Now a reading's own subtotal plus its own tax is put to the vote too, but only
+   when that amount is printed somewhere on the page, scoring one point per reading that
+   prints it and no total-line point. A reading that read a total on a total line keeps
+   it in a tie. The receipt notes "the subtotal 134.46 plus the tax 12.11, printed on the
+   page: check the total".
+2. **A total line with a leading zero.** "TOTAL: 04.78" (photo 1030) lost its first digit;
+   another reading has "TOTAL: $94.78". A total line whose dollars start with 0 now counts
+   as a guess (0.5) in the vote. Read alone, it is still read.
+
+| SRD, CLI `--four-pass` | before | now |
+|---|---|---|
+| totals right (196) | 151 (77.0%) | **154 (78.6%)** |
+| tax right (185) | 132 (71.4%) | **133 (71.9%)** |
+| tax wrong / none | 12 / 41 | 12 / 40 |
+| item splits kept (200) | 49 | 49 |
+
+Gains: 1002 (total 7.61: 6.98 + 0.63, printed on the card line "Visa 7.61"), 1030 (total), 1133 (total and tax). None
+lost. CORD and SROIE are scored on their dataset text, one reading each, where neither
+rule runs, so they are unchanged (CORD tax 323 / 46 / 41, totals 749 / 96 / 92) and do not
+test this. The rules were written from these photos: the SRD figure is in-sample and there
+is no held-out set of multi-reading photos here yet. A third rule, a reading's total-line
+amount counting nothing when its own cash less change disagrees, changed no photo and was
+dropped (1022's "CASH: 100,00" reads with a comma on a dot receipt, so the check never
+forms). The page's readings (tesseract.js) were not rebuilt this run, so the page's figures
+are not re-measured; the page uses the same vote. What is left:
+[`eval/receipt-total-first-2026-11-16.md`](eval/receipt-total-first-2026-11-16.md).
+Tests: `receipt-crosscheck.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

@@ -2418,11 +2418,15 @@ const EXACT_TREE_SLOTS = 60;
 // (copies / 245)^4.5) and otherwise tried it warm up to the budget's end. The warm solve does not follow that formula
 // (eval/warm-gate.out.jsonl, 78 generated weeks of 148-326 copies: 29 ms to 14.5 s, above the cold formula on 25 weeks and far
 // below it on most of the rest), so with the open-hours LP's basis in hand it now always runs warm, stopped `untilMs` from now:
-// the time left plus a reserve of its own like the day sweeps' (`scoreFloorReserveMs`, default 1500). Modes: "run" (no deadline:
+// the time left plus a reserve of its own like the day sweeps' (`scoreFloorReserveMs`). The reserve defaults to 30% of the time
+// budget, at most 6 s: 6 s at the 20 s default (README "The pay floor's reserve, sized from the full solve", 2026-11-16, pre-registered
+// in eval/pay-floor-reserve-prereg.md: on 48 fresh weeks the try finished on 19 of 19 against 13 at the old 1.5 s, for +0.25 s of
+// mean build time; 8 s finished no more). Modes: "run" (no deadline:
 // no budget or `scoreFloor: true`, or no basis and the cold formula fits), "try" (warm, stopped at untilMs, when that is over
 // 250 ms) and "skip". `scoreFloorTry: false` or `scoreFloorWarm: false` keep the cold formula alone (the 2026-11-14 skip).
+const scoreFloorReserveDefault = (budgetMs) => (budgetMs > 0 ? Math.min(6000, Math.round(0.3 * budgetMs)) : 0);
 function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
-  const reserve = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : 1500);
+  const reserve = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : scoreFloorReserveDefault(budgetMs));
   if (o.scoreFloor === false) return { mode: "skip", reserve, untilMs: 0 };
   if (o.scoreFloor === true || !(budgetMs > 0)) return { mode: "run", reserve, untilMs: Infinity };
   if (o.scoreFloorTry !== false && o.scoreFloorWarm !== false && carry) {
@@ -4021,7 +4025,7 @@ function buildRosterOnce(staff, slots, options = {}) {
     // A warm-sized gate (2026-11-16, README "A warm-sized gate for the pay floor"; scoreFloorPlan): the warm solve's time does not
     // follow the copies the way the cold one does (eval/warm-gate.out.jsonl: 29 ms to 14.5 s on 78 generated weeks of 148-326
     // copies, its ratio to the open-hours LP's own time 0.04 to 6), so no size formula sizes it. With the open-hours basis in hand
-    // it always runs warm, stopped `scoreFloorReserveMs` (default 1500) past the time budget's end.
+    // it always runs warm, stopped `scoreFloorReserveMs` (default 30% of the budget, at most 6 s) past the time budget's end.
     let priced = null, pricedTried = null;
     const pricedLeft = budgetMs - (Date.now() - tStart);
     const plan = scoreFloorPlan(o, { budgetMs, leftMs: pricedLeft, copies: ctx.S, carry: !!clique?.carry });

@@ -109,7 +109,7 @@ flagships:
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
-      totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI 77.0%, tax 71.4%; open:
+      totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI 78.6%, tax 71.9%; open:
       tax OCR-bound); (6) payroll (README): two journal layouts read; open: a real
       Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
@@ -124,10 +124,11 @@ flagships:
       Receipts, item (5), on the public SRD photos (eval/srd-fetch.mjs,
       raw.githubusercontent.com; `apt-get update && apt-get install -y
       tesseract-ocr` gives tesseract 5.3.4 in about a minute): CLI `--four-pass` tax
-      132 of 185; 27 of its 41 missing taxes have the total wrong too, so read the
-      total first (lists in eval/receipt-tax-ocr-labels-2026-11-16.md); rebuild the
-      page's readings (eval/receipt-tax-labels-2026-11-15.md) to measure the page's
-      item splits after the 2026-11-16 change. CORD stays the held-out check.
+      133 of 185, totals 154 of 196; the 26 no-tax wrong-total photos are mostly
+      OCR-bound (eval/receipt-total-first-2026-11-16.md); next: a held-out
+      multi-reading set (CORD photos via eval/cord_images.py); rebuild the page's
+      readings (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item
+      splits after the 2026-11-16 change. CORD stays the held-out check.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -252,17 +253,17 @@ flagships:
       flow-bounded, 2x alone, e2e tie (README "under a flow bound"); 2 s reserve at
       300+ copies (4 s worse, 1.2 s ties); day sweeps LP-guided, by the open-hours
       LP when the pay floor is skipped (README "A guide when the pay floor is
-      skipped"); warm gate landed (README "A warm-sized gate for the pay floor"),
-      next its reserve's size; re-run the keep-usual-shifts sweep on real dated
-      leave records; a manager's read on whether the steadier plan is the one they
-      would post; a real 7shifts account through --import-7shifts (README "Reading
-      7shifts directly"); a real When I Work account or response through
-      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); a real Square account via --import-square (README "Reading
-      Square's schedule"); --cover-price moves two shifts together (README "Moving
-      two shifts together"); second call-outs priced, off by default (README "The
-      pair price in played weeks": fewer open hours on 3 of 4 weeks). More open
-      items: NEXT.md.
+      skipped"); pay floor reserve 6 s (README "The pay floor's reserve, sized from
+      the full solve"), next a try with the budget spent; re-run the
+      keep-usual-shifts sweep on real dated leave records; a manager's read on
+      whether the steadier plan is the one they would post; a real 7shifts account
+      through --import-7shifts (README "Reading 7shifts directly"); a real When I
+      Work account or response through --import-wheniwork (README "Reading When I
+      Work directly"); Homebase (docs need an account); a real Square account via
+      --import-square (README "Reading Square's schedule"); --cover-price moves two
+      shifts together (README "Moving two shifts together"); second call-outs
+      priced, off by default (README "The pair price in played weeks": fewer open
+      hours on 3 of 4 weeks). More open items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
