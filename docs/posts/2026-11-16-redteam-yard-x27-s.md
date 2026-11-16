@@ -1,9 +1,9 @@
 ---
-title: "yard&#x27;s: red-teaming the launch feed's page reader"
+title: "One stray HTML entity: red-teaming the launch feed's page reader"
 seo_title: "Decoding HTML entities in meta tags: one pass, numeric refs too"
 date: 2026-11-16
 tags: [testing, mutation-testing, javascript, redteam, html-entities, distribution]
-description: "28 faults seeded into three files, 22 caught. Reading the launch feed as an attacker found a description that would post a literal &#x27; to 7 channels."
+description: "28 faults seeded into three files, 22 caught. Reading the launch feed as an attacker found a description that would post a raw hex entity to 7 channels."
 ---
 
 Today's red-team run seeded faults into three files: a venture's on-device
