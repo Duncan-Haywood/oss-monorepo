@@ -7,14 +7,16 @@
   "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T13:38:54Z",
   "ended": "2026-11-16T13:45:18Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 14.03,
+  "tokens_in": 5682602,
+  "tokens_out": 34217,
+  "cost_usd": 2.8437,
+  "tool_calls": 47,
   "task": "Deepen (flagship 6) shift-roster-builder: Oregon's voluntary standby list in the fair-workweek log",
   "projects": [
     "ventures/shift-roster-builder"
@@ -47,7 +49,83 @@
     "ventures/shift-roster-builder/README.md (section: Oregon's voluntary standby list, from the statute's own text)"
   ],
   "goal": null,
-  "notes": "Read ORS 653.432/653.436/653.455 (as amended 2024 c.20) from oregonlegislature.gov. Fixed: Oregon start/end changes <=30 min exempt incl. lost hours (653.455(3)(a)), previously priced; a separate added shift owes the hour at any length (653.455(2)(a)(C)), previously free under the threshold in every preset. Added the voluntary standby list (written join with the four 653.432(1) statements, leave/remove with dated record, ask on call-out, cover exempt) and the standby-first condition on Oregon's team-offer exemption (653.455(3)(k)(C)). Verification: node --test notice.test.mjs 14/14 pass; full venture suite and venture-preflight results below.",
+  "notes": "Read ORS 653.432/653.436/653.455 (as amended 2024 c.20) from oregonlegislature.gov. Fixed: Oregon start/end changes <=30 min exempt incl. lost hours (653.455(3)(a)), previously priced; a separate added shift owes the hour at any length (653.455(2)(a)(C)), previously free under the threshold in every preset. Added the voluntary standby list (written join with the four 653.432(1) statements, leave/remove with dated record, ask on call-out, cover exempt) and the standby-first condition on Oregon's team-offer exemption (653.455(3)(k)(C)). Verification: node --test notice.test.mjs 14/14 pass; run_venture_tests.py shift-roster-builder: ok, 701 tests, 0 failed (338 s); venture-preflight.mjs: clean; post front matter, links and similarity checks clean.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4ed2feec-fe4b-5a98-8d82-195ee7561d40",
+    "transcripts": 1,
+    "first": "2026-11-16T13:38:54Z",
+    "last": "2026-11-16T13:52:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 94,
+        "output": 34217,
+        "thinking": 6575,
+        "cache_read": 5551426,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131082,
+        "api_equivalent_usd": 2.8437,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 94,
+      "output": 34217,
+      "thinking": 6575,
+      "cache_read": 5551426,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131082,
+      "api_equivalent_usd": 2.8437,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.03,
+      "active_minutes": 7.37,
+      "model_minutes": 5.74,
+      "tool_minutes": 1.63,
+      "waiting_on_human_minutes": 6.66,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "read three statute sections, fix two pricing rules, build a standby-list workflow with routes, UI and end-to-end tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 211.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
