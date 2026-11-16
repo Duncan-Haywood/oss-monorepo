@@ -1,22 +1,30 @@
-"""How the board's ESC-lag survey should add up its wheels (2026-11-16, firmware/esp32/README.md "Each wheel its own
-noise").
+"""How the board's ESC-lag survey should add up its wheels (2026-11-16, firmware/esp32/README.md "One wheel's misses
+outvoted the drill").
 
 The survey (README "The ESC lag surveyed on the board") refits each launched wheel at every lag of
 `controller.ESC_SURVEY_GRID_US` and sums the squared residual rms per lag over the wheels, then refines the least
-with `controller.survey_pick`. A plain sum treats every wheel as equally noisy. Tach jitter is a fixed time error on
-each edge, so it is a larger share of a short (fast) revolution than of a long one: a fast wheel's misses are many
-times a slow one's, and its few residual points decide the sum. With a separate noise level per wheel, the joint
-likelihood of a lag is the sum over wheels of n log(rms^2), so each wheel votes with its own relative improvement.
+with `controller.survey_pick`. A plain sum lets the worst-fitted wheel weigh the most. On the jittery 100 ms ESC at a
+0.8 s wheel lag that picked 0, one wheel of 56 missed by 7,650 ppm of its speed at its best lag against 120-830 for
+the rest; its square was larger than all the others' together and it leaned (by 5%) to 0. A sum of logs gives each
+wheel its own noise level (the likelihood with a variance per wheel) and fixed that case, but on noise-free plants
+it moved the pick off (60 ms read 48-50; likely because wheels with tiny misses then get full votes). Trimming
+the outlier wheels and keeping the plain sum fixed it without that cost.
 
 This collects every launched wheel's snapshot and tick log (rally then calibration drill on one simulated board, as
 tests/esc_survey_sweep.py), refits each at the grid's lags exactly as the board's survey does (`refine=0`), and
-compares the picks under three rules:
+compares the picks under these rules:
 
   sum      sum of rms^2 (the board's rule before this change)
   log      sum of log(rms^2)
   rel      sum of rms^2 / that wheel's least rms^2 over the grid
+  trimF    sum of rms^2 over the wheels whose least rms is within F x the median wheel's (the board's rule now, F = 5,
+           controller.SURVEY_TRIM)
 
-    PYTHONPATH=src:tests:firmware/esp32 python tests/esc_survey_weight.py [--all] [--seeds 7,8,9] [--detail]
+    PYTHONPATH=src:tests:firmware/esp32 python tests/esc_survey_weight.py [--all] [--seeds 7,8,9] [--kinds 0,5,...]
+        [--dump wheels.json] [--detail]
+
+Only the plants with tach jitter run past the first seed (the rest repeat exactly). --dump writes every build's
+wheels so the rules can be compared again without the simulator.
 
 --detail prints, for each build where the rules disagree, every wheel's speed and rms per lag. Physics and plants are
 the simulator's assumptions, not measurements.
