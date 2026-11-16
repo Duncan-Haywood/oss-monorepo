@@ -66,6 +66,22 @@ paying for a phase it does not test. What shows the test is no weaker:
 About 46 s of CPU per suite run. The suite's wall time is set by its longest
 file chain on the runner's cores, so the saving on the clock is less than that.
 
+## A red test from main, fixed on the way
+
+PR #16481's first `changed-ventures` run failed on a test merged into main an
+hour earlier (PR #16466, `repair-flow.test.mjs` "the repair reserve is on by
+default from 300 copies"): `coverRepairReserveMs` was `null`, not 300. The
+reserve is only set when the cover passes start. On the 90 x 252 bench week at
+`timeBudgetMs: 3000`, anneal (about 0.3 s), ejection (about 2.0 s) and column
+generation (at least 1 s, by design) used the budget first: `timings` alone here
+were 291 + 1,959 + 1,034 ms with no `coverPass`, and 4 of 4 copies run at once
+failed. The big build now gets 10 s with one cover pass and no day sweeps
+(neither changes the default), and expects 1,000 ms (a tenth of the budget). It
+passed 4 of 4 copies at once and alone. The small week stays at 3 s: at 10 s,
+column generation sometimes proves it, and the reserve is then `null` because no
+pass runs. Cost: that test went from 5.5 s (and flaky) to 14.6 s, so the suite
+nets about -37 s of CPU, not -46 s.
+
 ## Not changed, ranked for the next run
 
 1. **calc.test.mjs (105 s).** Its slowest tests: "the exact bound sees that
