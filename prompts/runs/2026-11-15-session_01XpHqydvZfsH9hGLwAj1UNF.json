@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First post draft quoted the placeholder origin URL literally; check.mjs and the site-builder test reject any 'https://example.invalid' in the built site, including blog text. Caught by run_workflow_locally --for-changes; reworded."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "portfolio/quality/README.md",
       "issue": "'Check what ships' had no fallback for sessions where marisstella.app answers a proxy 403 (4 runs 2026-11-12..15); fixed here with platform/pages/served-copy.mjs. This session got HTTP 200 from the host, so proxy policy varies per session."
+    },
+    {
+      "file": "docs/posts/README.md",
+      "issue": "Nothing says a post must not contain the literal placeholder URL https://example.invalid; check.mjs fails the whole build on it, found only after a 7-minute local workflow run."
     }
   ],
   "deviations": [],
@@ -42,7 +48,7 @@
     "docs/posts/2026-11-15-seeing-what-ships-without-the-live-site.md"
   ],
   "goal": null,
-  "notes": "Backlog: only owner rows (no ids touched). Critique mode via friction_rank.py --live --ungated cluster 7. main_health.py 231/231 before change. node --test served-copy.test.mjs 3/3. Sweep of 1,369 products: 50 name example.invalid in source, 0 stale after rewrite.",
+  "notes": "Backlog: only owner rows (no ids touched). Critique mode via friction_rank.py --live --ungated cluster 7. main_health.py 231/231 before change. node --test served-copy.test.mjs 3/3. Sweep of 1,369 products: 50 name example.invalid in source, 0 stale after rewrite. run_workflow_locally --for-changes: portfolio-pages build+test failed on the post's literal placeholder URL (2 of 1724 tests); fixed.",
   "corrections": [],
   "redteam": null,
   "usage": {
