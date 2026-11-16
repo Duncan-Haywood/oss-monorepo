@@ -6,18 +6,24 @@
 to the last digit, so this step is expected to reproduce 3e's rows exactly (checked in run.py's report).
 """
 import importlib.util
+import sys
 import multiprocessing as mp
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 _s = importlib.util.spec_from_file_location("m3e_run", HERE.parent / "m3e_pooled" / "run.py")
 m3e = importlib.util.module_from_spec(_s)
+sys.modules["m3e_run"] = m3e                      # so pool workers can pickle its functions
 _s.loader.exec_module(m3e)
+
+
+def job(j):
+    return m3e.chain_job(j)
 
 if __name__ == "__main__":
     cache = HERE / "cache"
     cache.mkdir(exist_ok=True)
     jobs = [("A", a, s, str(cache)) for a in sorted(m3e.LATS) for s in m3e.SEEDS]
     with mp.Pool(4) as pool:
-        list(pool.imap_unordered(m3e.chain_job, jobs, chunksize=1))
+        list(pool.imap_unordered(job, jobs, chunksize=1))
     print("DONE", flush=True)
