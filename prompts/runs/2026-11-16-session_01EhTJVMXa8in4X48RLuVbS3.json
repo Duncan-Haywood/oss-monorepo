@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMXa8in4X48RLuVbS3",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T06:13:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 16476,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/showcase/capture.mjs",
+      "issue": "Destructured { chromium } from the PLAYWRIGHT_MODULE import, which fails with the cloud copy at /opt/node-tools (CJS default export only); fixed in this PR."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "--marker BUILD_EXIT timed out even though the log's last line was 'BUILD_EXIT=0'; seems to want the whole line, not a prefix. Used DONE instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Hub hero art at >=1180px. Local: build exit 0; check.mjs publishable 10548 pages no dead links; node --test platform/pages/*.test.mjs 1736/1736 pass. Post front-matter, links, similarity checks clean.",
+  "corrections": [],
+  "redteam": null
+}
