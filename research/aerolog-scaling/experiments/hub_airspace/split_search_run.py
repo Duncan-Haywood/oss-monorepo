@@ -176,7 +176,7 @@ def main():
     def summ(idx, label):
         P()
         P("## Summary, %s (%d layouts)" % (label, len(idx)))
-        P("rule      mean_D  95%% boot CI        med_D   max_D   w0.5%%  w5%%  same_split  med_rank")
+        P("rule      mean_D  95% boot CI        med_D   max_D   w0.5%  w5%  same_split  med_rank")
         for k in RULES:
             d = [LD[(k, n)] for n in idx]
             lo, hi = ss.boot_ci(d)
