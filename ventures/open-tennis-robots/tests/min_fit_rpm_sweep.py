@@ -22,6 +22,12 @@ fit gave up. `host.HOLD_RPM` (added with this sweep) makes the Pi wait for the v
 it; every build runs with it at 0 (before) and 1,000.
 
     PYTHONPATH=src:tests:firmware/esp32 python tests/min_fit_rpm_sweep.py [--quick] [--plant 0|1|2] [--hold RPM] [--lags 0.2,0.4]
+        [--extend 0,8] [--told] [--builds 0,2]
+
+--extend sets the revolutions a slow wheel is watched for past its verdict (controller.LOOP_AFTER_REVS and
+host.LOOP_AFTER_REVS; 0 is the board before 2026-11-16's "Slow wheels watched past the verdict", the default 8);
+each value runs as its own "hold" row, labelled hold/extend. --told sets the board's ESC lag to the plant's
+(LaunchCheck.esc_tau_us, as after its survey).
 
 About 15 minutes a plant (--plant runs one; --quick: one lag, the first-order plant only). Each build runs twice:
 with `host.HOLD_RPM` at 0 (the Pi before this change) and at 1,000. Physics is the simulator's assumption, not a
@@ -66,9 +72,21 @@ def slow_drill():
     return {"machine": {"y": 0.0, "height": 1.0}, "interval": 3.0, "shots": shots}
 
 
+TOLD = False
+
+
+def lab(hold):
+    """A row's label: HOLD_RPM, and /revolutions watched past the verdict when --extend set them."""
+    if "--extend" not in sys.argv:
+        return f"{hold:.0f}"
+    return f"{int(hold)}/{int(round((hold - int(hold)) * 100))}"
+
+
 def wheels(true, tau_s, spec, **plant):
     """(true drop, record drop, wheel rpm at the ball, loop fit used, record) per launched wheel, and the records."""
     sim = SimFeeder(balls=None, wheel_tau_s=tau_s, true_launcher=true, **plant)
+    if TOLD:
+        sim.hw.launch.esc_tau_us = int(round(1e6 * plant.get("esc_tau_s", 0.0)))
     balls = []
     take = sim._take_momentum
 
@@ -124,6 +142,8 @@ def fit_with_floor(records, floor, loop_only=False):
 
 
 def main():
+    global TOLD
+    TOLD = "--told" in sys.argv
     quick = "--quick" in sys.argv
     lags = (0.4,) if quick else (0.2, 0.4, 0.8)
     if "--lags" in sys.argv:
@@ -134,6 +154,11 @@ def main():
     holds = HOLDS
     if "--hold" in sys.argv:
         holds = (float(sys.argv[sys.argv.index("--hold") + 1]),)
+    builds = BUILDS
+    if "--builds" in sys.argv:
+        builds = [BUILDS[int(x)] for x in sys.argv[sys.argv.index("--builds") + 1].split(",")]
+    if "--extend" in sys.argv:          # (hold, extend) pairs: each extend value is its own row at the first hold
+        holds = tuple(holds[-1] + e / 100.0 for e in (int(x) for x in sys.argv[sys.argv.index("--extend") + 1].split(",")))
     spec = slow_drill()
     cal = rs.load("drill.calibration.json")
     ratios = collections.defaultdict(list)          # (plant, hold, band[, loop]) -> record / true
@@ -141,10 +166,12 @@ def main():
     aborted = []
     for pname, plant in plants:
         for tau in lags:
-            for se, sp in BUILDS:
+            for se, sp in builds:
                 true = launcher.WheelLauncher(speed_efficiency=se, spin_efficiency=sp)
                 for hold in holds:
-                    host.HOLD_RPM = hold
+                    host.HOLD_RPM = float(int(hold))
+                    ext = int(round((hold - int(hold)) * 100)) if "--extend" in sys.argv else controller.LOOP_AFTER_REVS
+                    controller.LOOP_AFTER_REVS = host.LOOP_AFTER_REVS = ext
                     ws, slow_log = wheels(true, tau, spec, **plant)
                     if ws is None:
                         aborted.append((pname, tau, se, sp, hold, slow_log))
@@ -158,10 +185,10 @@ def main():
                         f = fit_with_floor(cal_log + slow_log, *floor)
                         fits[(pname, hold, floor)].append((abs(f.speed_efficiency / se - 1),
                                                            abs(f.spin_efficiency / sp - 1)))
-                    print(f"  {pname} lag {tau} build {se}/{sp} hold {hold:.0f}: done", file=sys.stderr)
+                    print(f"  {pname} lag {tau} build {se}/{sp} hold {lab(hold)}: done", file=sys.stderr)
     print("Part 1. Record drop / true drop per wheel, slow drill (shots after a fast shot and after a slow one).")
     print("hold: host.HOLD_RPM (0 = the next shot's speeds sent straight after the release, as before)")
-    print(f"{'plant':12} {'hold':>5} {'rpm band':>11} {'drop from':>10} | {'wheels':>6} {'mean':>6} {'sd':>6} {'min':>6}"
+    print(f"{'plant':12} {'hold':>7} {'rpm band':>11} {'drop from':>10} | {'wheels':>6} {'mean':>6} {'sd':>6} {'min':>6}"
           f" {'max':>6} {'>2% off':>8}")
     for pname, _ in plants:
         for hold in holds:
@@ -172,11 +199,11 @@ def main():
                     if not xs:
                         continue
                     off = sum(abs(x - 1) > 0.02 for x in xs)
-                    print(f"{pname:12} {hold:5.0f} {band[0]:5d}-{band[1]:<5d} {label:>10} | {len(xs):6d} "
+                    print(f"{pname:12} {lab(hold):>7} {band[0]:5d}-{band[1]:<5d} {label:>10} | {len(xs):6d} "
                           f"{statistics.fmean(xs):6.3f} {statistics.pstdev(xs):6.3f} {min(xs):6.3f} {max(xs):6.3f} "
                           f"{off:8d}")
     print("\nPart 2. fit_from_drops on calibration + slow drill logs, by floor: efficiency error, mean / worst %")
-    print(f"{'plant':12} {'hold':>5} {'floor':>6} {'rule':>9} | {'builds':>6} {'speed mean':>10} {'worst':>6} | "
+    print(f"{'plant':12} {'hold':>7} {'floor':>6} {'rule':>9} | {'builds':>6} {'speed mean':>10} {'worst':>6} | "
           f"{'spin mean':>9} {'worst':>6}")
     for pname, _ in plants:
         for hold in holds:
@@ -185,11 +212,11 @@ def main():
                 if not e:
                     continue
                 rule = "loop only" if floor[1] else "any drop"
-                print(f"{pname:12} {hold:5.0f} {floor[0]:6.0f} {rule:>9} | {len(e):6d} "
+                print(f"{pname:12} {lab(hold):>7} {floor[0]:6.0f} {rule:>9} | {len(e):6d} "
                       f"{100 * statistics.fmean(x[0] for x in e):10.2f} {100 * max(x[0] for x in e):6.2f} | "
                       f"{100 * statistics.fmean(x[1] for x in e):9.2f} {100 * max(x[1] for x in e):6.2f}")
     for a in aborted:
-        print(f"aborted: {a[0]} lag {a[1]} build {a[2]}/{a[3]} hold {a[4]:.0f}: {a[5]}")
+        print(f"aborted: {a[0]} lag {a[1]} build {a[2]}/{a[3]} hold {lab(a[4])}: {a[5]}")
 
 
 if __name__ == "__main__":
