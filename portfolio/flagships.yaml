@@ -109,26 +109,25 @@ flagships:
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
-      totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI 75.0%; open: tax
-      OCR-bound); (6) payroll (README): two journal layouts read; open: a real Gusto
-      or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
-      (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
-      last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
-      IN's band and day from the book (README); open: AR statutes, a real return
-      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
-      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
-      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
+      totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI 77.0%, tax 71.4%; open:
+      tax OCR-bound); (6) payroll (README): two journal layouts read; open: a real
+      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
+      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
+      discounts, IN's band and day from the book (README); open: AR statutes, a real
+      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
+      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
+      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
+      once printed. A run that lands a slice replaces its item here; keep this under
       2,000 characters.
     buildable: >-
       Receipts, item (5), on the public SRD photos (eval/srd-fetch.mjs,
       raw.githubusercontent.com; `apt-get update && apt-get install -y
-      tesseract-ocr` gives tesseract 5.3.4 in about a minute): the CLI's
-      `--four-pass` reads tax 126 of 185 against the page's 138, with 45 photos
-      reading no tax and 14 wrong, mostly one digit off on the tax line (lists in
-      eval/receipt-cli-four-pass-2026-11-16.md); rebuild the page's readings
-      (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item splits
-      after the 2026-11-16 change. CORD stays the held-out check.
+      tesseract-ocr` gives tesseract 5.3.4 in about a minute): CLI `--four-pass` tax
+      132 of 185; 27 of its 41 missing taxes have the total wrong too, so read the
+      total first (lists in eval/receipt-tax-ocr-labels-2026-11-16.md); rebuild the
+      page's readings (eval/receipt-tax-labels-2026-11-15.md) to measure the page's
+      item splits after the 2026-11-16 change. CORD stays the held-out check.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -178,25 +177,23 @@ flagships:
       false/100, floors lose 63-86% of segments): no more label-free floors; next
       per-group floors named by a person (needs a set with metric names), SMD
       10-min: no rescue, delay 4h to 1h (Round 19); a real deployer's repository on
-      GitHub Actions; (a) ar1 + floor 2 on fresh multi-column labelled data (0.564
-      on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets
-      in print"); (b) sticky series on a drifting level: four repeat treatments
-      failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697
-      on the 34 non-sticky), test it on fresh labelled data; update-rate check: date
-      a documented collection change. Stale feeds: clumped LR shipped; next a real
-      documented carry-forward. joint drift (measured, not offered) and its 2x
-      penalty on fresh multi-column labelled data; TSSB/HAS/UTSA (README): count,
-      shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
-      model: t-walk increments, biweight on fresh data, why it absorbs seat belts
-      and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
-      (refuse short sticky series), next a given knot; step/bend bootstrap tests
-      (README "Step or bend, as two tests") fail: walks called bend, use the cut
-      guard; nulls rho low; a real step inside a cycle, a cycle check not tied to
-      rho, real documented ramps and close steps; (2) clumpy counts: NB1 shipped;
-      real calls: Poisson, wandering rate; next real batch counts; (3) `--garch`:
-      t-GARCH failed one pre-registered line (README "Heavy tails in the GARCH
-      search"): re-test scoring breaks with false alarms, new seeds; More open
-      items: NEXT.md.
+      GitHub Actions; (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs
+      0.337, README; muted note ships); ar1 alone led (0.353): a 6th set, a season
+      and a trend term per column (README "Wide sets in print"); (b) sticky series
+      on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log
+      n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on
+      fresh labelled data; update-rate check: date a documented collection change.
+      Stale feeds: clumped LR shipped; next a real documented carry-forward. joint
+      drift (measured, not offered) and its 2x penalty on fresh multi-column
+      labelled data; TSSB/HAS/UTSA (README): count, shape checks failed; next
+      phase-tolerant shapes, 5th set. Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; (1) slopes: logs fail, 2 hinges ship (refuse short sticky series),
+      next a given knot; step/bend bootstrap tests (README "Step or bend, as two
+      tests") fail: walks called bend, use the cut guard; nulls rho low; a real step
+      inside a cycle, a cycle check not tied to rho, real documented ramps and close
+      steps; (2) clumpy counts: NB1 shipped; real calls: Poisson, wandering rate;
+      next real batch counts; More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -210,27 +207,27 @@ flagships:
       eval/verifactu-igic-*; open: a production SIF's records and replies, doc
       v1.2.x). Open: a real HU report with NAV's businessValidationMessages or
       SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
-      signed Facturae file or FACe rejection; ZATCA: a real KSA note; SdI: open: a
-      real FatturaPA rejection with its file; HR: a real HR invoice, cash
-      accounting; CIUS-PT: which validator does AT run (AA/RED codes)?; FA(3)
-      KOR/ZAL/ROZ totals landed (README): open: a real KSeF rejection, a business's
-      real KOR/ZAL file; repair keeps PDF/A (veraPDF 155/155), PDF/A-3b writer
-      passes Mustang; open: a real business's PINT file; open: RO_CIUS on a real
-      ANAF file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP
-      payload; mandate texts: IL, ES, SK, NRS, SRO 1852, Jordan open; Mexico CFDI
-      4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww
-      blocked), a real payroll or export file, a PAC rejection compared; cCredPres
-      rules and cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others
-      incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged (README):
-      open: a real event; a real reform NF-e from a SEFAZ test environment, a real
-      SEFAZ rejection for a cClassTrib; national NFS-e landed: open: a national
-      rejection compared; ISS: SP, Rio, Curitiba own rates landed (ABR-025, README):
-      open: BH (law hosts 403), Rio's CTISS codes; ABRASF NFS-e 2.00-2.04 landed
-      (README): open: ISS retained on a real file, city provider schemas, 1.0x sets,
-      DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF
-      1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh the Bulgaria page
-      when its draft passes. A run that lands a slice replaces its item here; keep
-      this under 2,000 characters.
+      business's signed Facturae or FACe rejection (eval/facturae-gob-*); ZATCA: a
+      real KSA note; SdI: open: a real FatturaPA rejection with its file; HR: a real
+      HR invoice, cash accounting; CIUS-PT: which validator does AT run (AA/RED
+      codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real KSeF
+      rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
+      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
+      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
+      check on a real IRP payload; mandate texts: IL, ES, SK, NRS, SRO 1852, Jordan
+      open; Mexico CFDI 4.0 landed: open: SAT's CP error matrix to map MX-070..080
+      to CP codes (omawww blocked), a real payroll or export file, a PAC rejection
+      compared; cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC
+      events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in
+      v1.40) flagged (README): open: a real event; a real reform NF-e from a SEFAZ
+      test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e
+      landed: open: a national rejection compared; ISS: SP, Rio, Curitiba own rates
+      landed (ABR-025, README): open: BH (law hosts 403), Rio's CTISS codes; ABRASF
+      NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file, city
+      provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,...)
+      landed (README): open: a DSF 1.00/Abaco file; refresh the Bulgaria page when
+      its draft passes. A run that lands a slice replaces its item here. More open
+      items: NEXT.md.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,

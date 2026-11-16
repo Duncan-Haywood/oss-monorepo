@@ -38,6 +38,9 @@ candidate) under the variants that early-stop, and records the round each quanti
                void, withdrawn, ... or Seattle's "Closed as Incomplete" marker; src/status_pull.py) dropped from
                training and early stopping: their completion date is an administrative closure, not a build's
                end (session 95). Dead permits completed after D stay, as open rows: on D nobody knows yet.
+  cpin_es3_nc5_stamp  cpin_es3_nc5 with only the dead rows whose completion sits exactly STAMP_DAYS (180) after
+               issue dropped: Austin's expiry stamps (session 95's stamp_check), not the other closures (session 96)
+  cpin_es3_nc3_clean  cpin_es3_nc5_clean's dead drop on session 92's 3-year staleness cut (session 96)
 Session 95: with --status-dir every cpin variant is also scored on the "live" test rows: completed test-year
 rows whose status is not dead (test_loss_live), and reports its mean q0.9 prediction on completed test rows.
 Session 92: every _nc variant is also scored on a selection set a deployment has on D, the same for every
@@ -64,11 +67,13 @@ import boosted, transfer  # noqa: E402
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
             "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq",
-            "cpin_es3_nc5_clean")
+            "cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
 # session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
 STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922,
-         "cpin_es3_nc5_clean": STALE_DAYS}
+         "cpin_es3_nc5_clean": STALE_DAYS, "cpin_es3_nc5_stamp": STALE_DAYS, "cpin_es3_nc3_clean": 1095}
+STAMP_DAYS = 180  # session 96: the label 96% of Austin's pre-2000 dead completions carry (results/stamp_check.json)
+DEAD_DROP = ("cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean")
 STALE_Q = 0.99  # session 93, cpin_es3_ncq: a source's threshold = this quantile of its builds completed by D
 
 
@@ -88,12 +93,17 @@ def stale_drop(d, decision, days=STALE_DAYS):
     return d[~((d.y.to_numpy(float) > win) & (win > days))]
 
 
-def dead_drop(d, decision):
+def dead_drop(d, decision, stamp=None):
     """Session 95: drop rows of d completed by `decision` whose close-out status is dead (column `dead`, from
-    attach_status); rows completed later, open or never completed stay."""
+    attach_status); rows completed later, open or never completed stay. Session 96: with `stamp` (days), drop
+    only the dead rows whose label is exactly that many days."""
     s = pd.to_datetime(d.start).dt.date
     win = np.array([(decision - x).days for x in s], dtype=float)
-    return d[~((d.y.to_numpy(float) <= win) & d["dead"].to_numpy(bool))]
+    y = d.y.to_numpy(float)
+    m = (y <= win) & d["dead"].to_numpy(bool)
+    if stamp is not None:
+        m &= y == stamp
+    return d[~m]
 
 
 def attach_status(df, path):
@@ -168,10 +178,11 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         sel = ca  # session 92: the common selection set, before any staleness drop
         if variant in STALE:
             tr, ca = stale_drop(tr, D, STALE[variant]), stale_drop(ca, D, STALE[variant])
-        if variant == "cpin_es3_nc5_clean":
+        if variant in DEAD_DROP:
             n0 = len(tr) + len(ca)
             before = pd.concat([tr, ca]).city.value_counts()
-            tr, ca = dead_drop(tr, D), dead_drop(ca, D)
+            st = STAMP_DAYS if variant == "cpin_es3_nc5_stamp" else None
+            tr, ca = dead_drop(tr, D, st), dead_drop(ca, D, st)
             n_dead_dropped = n0 - len(tr) - len(ca)
             dead_by_city = {c: int(before.get(c, 0) - n) for c, n in pd.concat([tr, ca]).city.value_counts().items()}
         if variant == "cpin_es3_ncq":
@@ -634,6 +645,58 @@ def clean_summary(path, nc_path, held=("sf", "seattle"), years=(2021, 2022)):
                 austin_share_of_dropped=[au(c) for c in cells], held=verdict)
 
 
+def stamp_summary(path, clean_path, sweep_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 96: cpin_es3_nc5_stamp and cpin_es3_nc3_clean (this file) against session 95's cpin_es3_nc5 and
+    cpin_es3_nc5_clean (clean_path) and session 92's cpin_es3_nc3 (sweep_path), all on feeds whose row counts
+    match; per cell the q0.9 loss on completed test rows, the rows each rule drops, the mean q0.9 prediction,
+    rounds; predictions T1 to T3, C1, C2."""
+    R, C, W = json.load(open(path)), json.load(open(clean_path)), json.load(open(sweep_path))
+    pm = lambda r: float(np.mean([p["mean"] for p in r["test_pred_q90"].values()]))  # noqa: E731
+    q = lambda r: r["test_loss"]["0.9"]  # noqa: E731
+    cells = []
+    for h in held:
+        for Y in years:
+            k = lambda v: f"{h} {Y} {v}"  # noqa: E731
+            st, c3 = R.get(k("cpin_es3_nc5_stamp")), R.get(k("cpin_es3_nc3_clean"))
+            n5, cl, n3 = C.get(k("cpin_es3_nc5")), C.get(k("cpin_es3_nc5_clean")), W.get(k("cpin_es3_nc3"))
+            if not all((st, c3, n5, cl, n3)):
+                continue
+            cells.append(dict(
+                held=h, year=Y, n_dropped=dict(stamp=st["n_dead_dropped"], clean=cl["n_dead_dropped"],
+                                               nc3_clean=c3["n_dead_dropped"]),
+                stamp_share_of_clean=st["n_dead_dropped"] / cl["n_dead_dropped"],
+                dropped_by_city=dict(stamp=st["n_dead_by_city"], nc3_clean=c3["n_dead_by_city"]),
+                q90=dict(nc5=q(n5), clean=q(cl), stamp=q(st), nc3=q(n3), nc3_clean=q(c3)),
+                q90_live=dict(stamp=st.get("test_loss_live", {}).get("0.9"),
+                              nc3_clean=c3.get("test_loss_live", {}).get("0.9")),
+                stamp_minus_nc5=q(st) - q(n5), clean_minus_stamp=q(cl) - q(st),
+                nc3_clean_minus_nc3=q(c3) - q(n3), nc3_clean_minus_nc5_clean=q(c3) - q(cl),
+                stamp_minus_nc5_per_seed=[y - x for x, y in zip(n5["test_loss_per_seed"]["0.9"],
+                                                                 st["test_loss_per_seed"]["0.9"])],
+                nc3_clean_minus_nc3_per_seed=[y - x for x, y in zip(n3["test_loss_per_seed"]["0.9"],
+                                                                     c3["test_loss_per_seed"]["0.9"])],
+                q90_pred_mean=dict(nc5=pm(n5), clean=pm(cl), stamp=pm(st), nc3_clean=pm(c3)),
+                q90_rounds={v: float(np.mean([x["0.9"] for x in r["rounds"].values()]))
+                            for v, r in (("nc5", n5), ("clean", cl), ("stamp", st), ("nc3", n3), ("nc3_clean", c3))}))
+    se = [c for c in cells if c["held"] == "seattle"]
+    sf = [c for c in cells if c["held"] == "sf"]
+    full = len(cells) == 4
+    verdict = dict(
+        T1=full and all(0.75 <= c["stamp_share_of_clean"] <= 0.95 for c in cells),
+        T2=full and all(c["stamp_minus_nc5"] >= 1.0 for c in se),
+        T3=full and all(abs(c["clean_minus_stamp"]) < 1.0 for c in cells),
+        C1=full and all(c["nc3_clean_minus_nc5_clean"] < 0 for c in sf) and all(c["nc3_clean_minus_nc5_clean"] > 0 for c in se),
+        C2=full and abs(float(np.mean([c["nc3_clean_minus_nc3"] for c in cells]))) <= 1.5)
+    mean = lambda f: float(np.mean([c[f] for c in cells])) if cells else None  # noqa: E731
+    return dict(note="cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test-year rows (days); "
+                     "nc5 and clean from session 95, nc3 from session 92, stamp and nc3_clean refit by session 96 on "
+                     "feeds with the same row counts", cells=cells,
+                mean=dict(stamp_minus_nc5=mean("stamp_minus_nc5"), clean_minus_stamp=mean("clean_minus_stamp"),
+                          nc3_clean_minus_nc3=mean("nc3_clean_minus_nc3"),
+                          nc3_clean_minus_nc5_clean=mean("nc3_clean_minus_nc5_clean")),
+                held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -657,8 +720,18 @@ if __name__ == "__main__":
     ap.add_argument("--status-dir", help="session 95: directory of <city>_status.csv (status_pull.py)")
     ap.add_argument("--summarise-clean", help="session 95: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-ncq", help="session 93: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-stamp", help="session 96: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_stamp:
+        s = stamp_summary(a.summarise_stamp, os.path.join(res_dir, "rounds_score_clean_i2c.json"),
+                          os.path.join(res_dir, "rounds_score_sweep_i2c.json"))
+        json.dump(s, open(a.summarise_stamp.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean"], held=s["held"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], c["n_dropped"], round(c["stamp_share_of_clean"], 3),
+                  {k: round(v, 2) for k, v in c["q90"].items()}, c["q90_rounds"])
+        sys.exit(0)
     if a.summarise_clean:
         s = clean_summary(a.summarise_clean, os.path.join(res_dir, "rounds_score_nc_i2c.json"))
         json.dump(s, open(a.summarise_clean.replace(".json", "_summary.json"), "w"), indent=1)
@@ -734,8 +807,8 @@ if __name__ == "__main__":
               for c in cities}
     if a.status_dir:
         frames = {c: attach_status(d, os.path.join(a.status_dir, f"{c}_status.csv")) for c, d in frames.items()}
-    elif "cpin_es3_nc5_clean" in a.variants:
-        raise SystemExit("cpin_es3_nc5_clean needs --status-dir")
+    elif set(DEAD_DROP) & set(a.variants):
+        raise SystemExit(f"{sorted(set(DEAD_DROP) & set(a.variants))} need --status-dir")
     pulled = datetime.date.fromisoformat(a.pulled)
     out_path = os.path.join(res_dir, a.out_name or ("rounds_score_i2c.json" if a.score else "rounds_i2c.json"))
     res = json.load(open(out_path)) if os.path.exists(out_path) else {}

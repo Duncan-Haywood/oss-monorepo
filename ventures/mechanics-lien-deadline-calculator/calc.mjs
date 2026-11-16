@@ -282,7 +282,7 @@ function resolvePrelim(rule, ctx) {
       if (!ctx.lienDate) return { date: null, description: "needs your last furnishing date" };
       return {
         date: addDays(ctx.lienDate, -rule.days),
-        description: `${describeDays(rule.days)} before the lien-filing deadline`,
+        description: `${describeDays(rule.days)} before the lien-filing deadline (counted from the last business day on or before it)`,
       };
     case "days_after_first":
       return {
@@ -407,7 +407,10 @@ export function lienDeadlines({
     if (prelimRule.type === "not_required") {
       prelimNotRequired = prelimRule.reason;
     } else if (prelimRule.type === "days_before_lien") {
-      if (lien) prelim = decorate(resolvePrelim(prelimRule, { lienDate: lien.date }), now);
+      // Count back from the safe (business-day) filing date the page tells the
+      // user to file on, so serving the notice on its shown date and filing on
+      // the shown safe date still leaves the full notice period.
+      if (lien) prelim = decorate(resolvePrelim(prelimRule, { lienDate: lien.safeDate }), now);
     } else if (first) prelim = decorate(resolvePrelim(prelimRule, { first }), now);
     if (info.monthlyNotice && first && last && prelimRule.type === "month_day15") {
       noticeSchedule = monthlyNoticeSchedule(first, last, prelimRule.monthsAfter, now);
