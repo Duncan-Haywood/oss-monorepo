@@ -196,3 +196,58 @@ test("a single-month Texas job keeps the plain wording and long jobs are capped"
 test("no schedule outside Texas", () => {
   assert.equal(run({ state: "CA" }).noticeSchedule, null);
 });
+
+test("Colorado: notice of intent is 10 days before the safe filing date, not the weekend statutory date", () => {
+  // last furnishing 2026-01-09 -> lien 2026-05-09 (Sat), safe filing Fri 2026-05-08.
+  const r = lienDeadlines({ state: "CO", firstFurnishing: "2025-12-01", lastFurnishing: "2026-01-09" });
+  assert.equal(iso(r.lien.date), "2026-05-09");
+  assert.equal(iso(r.lien.safeDate), "2026-05-08");
+  // Serving on the shown notice date and filing on the shown safe date must leave 10 full days.
+  assert.equal(iso(r.prelim.safeDate), "2026-04-28");
+  assert.ok((r.lien.safeDate - r.prelim.safeDate) / 86_400_000 >= 10);
+});
+
+test("an open date far away raises no deadline-imminent finding", () => {
+  const r = run({ state: "TX", today: "2026-07-01" }); // lien open, months away
+  assert.equal(r.lien.status, "open");
+  assert.ok(!r.findings.some((f) => /lien filing date is/.test(f.title)));
+  assert.ok(!r.findings.some((f) => /days? away|is today/.test(f.title)));
+});
+
+test("Texas passed-month count counts only passed months", () => {
+  // 2026-03..2026-06 schedule; on 2026-07-20 two months passed, two open.
+  const r = run({ state: "TX", today: "2026-07-20" });
+  assert.ok(r.findings.some((f) => f.title === "2 of 4 monthly notice dates have passed"));
+  // Asymmetric case: one passed, three open.
+  const one = run({ state: "TX", today: "2026-06-20" });
+  assert.ok(one.findings.some((f) => f.title === "1 of 4 monthly notice dates have passed"));
+  // Nothing passed yet: no passed-count finding.
+  const early = run({ state: "TX", today: "2026-03-15" });
+  assert.ok(!early.findings.some((f) => /monthly notice dates have passed/.test(f.title)));
+});
+
+test("parseDate rejects non-string input instead of throwing", () => {
+  assert.equal(parseDate(20260310), null);
+  assert.equal(parseDate({}), null);
+  assert.equal(parseDate(null), null);
+});
+
+test("Texas with only a last furnishing date computes the lien without a schedule", () => {
+  const r = lienDeadlines({ state: "TX", lastFurnishing: "2026-06-20" });
+  assert.equal(r.noticeSchedule, null);
+  assert.equal(iso(r.lien.date), "2026-10-15");
+  assert.equal(r.prelim, null);
+});
+
+test("every modeled rule resolves to a real date for ordinary inputs", () => {
+  for (const state of Object.keys(STATE_RULES)) {
+    for (const projectType of ["commercial", "residential"]) {
+      for (const tier of ["first", "second"]) {
+        const r = run({ state, projectType, tier });
+        assert.ok(r.lien && r.lien.date instanceof Date, `${state} ${projectType} ${tier} lien`);
+        assert.equal(r.lien.weekend, [0, 6].includes(r.lien.date.getUTCDay()));
+        if (!r.prelimNotRequired) assert.ok(r.prelim && r.prelim.date instanceof Date, `${state} ${projectType} ${tier} prelim`);
+      }
+    }
+  }
+});
