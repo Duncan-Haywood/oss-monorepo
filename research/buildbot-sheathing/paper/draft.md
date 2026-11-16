@@ -539,6 +539,20 @@ a tool-point accuracy, not a hand-point one. An independent lean of the nail (th
 deflection in the wood) of 0.434° (1σ) costs a further 2 points. Doubled joint studs stay at 1.0000
 at every length and at a 2° lean.
 
+Gear backlash adds to quantisation only on joints that nothing holds against one side of the gap
+(milestone 30). No G1 backlash figure is published, so the total gap is swept from 0 to 25 arcmin;
+catalogue precision planetaries are rated 1–7 arcmin. With the 3.4 kg nailer and a press of
+25–50 N at the nose, 16–19 of the G1's 22 joints that move the nose keep one sign of static torque
+above 0.2 N m at every nail, so their backlash is a fixed bias that calibration removes; the two
+ankle rolls carry no torque under the least-norm ground reaction. With 12-bit joints and the
+nose 0.3 m ahead, 5 arcmin on every joint takes the best single-2x stack from 0.9344 to 0.7646;
+counting the held joints, to 0.9134; with every leg joint loose, to 0.8870; and with the ankle
+rolls biased to one side, the stack keeps 0.9344 up to 25 arcmin. Holding 0.90 then needs
+backlash below 2.67 arcmin if no joint is held and 6.24 arcmin if gravity and the press hold
+theirs. The nailer's 12-11/16 in height puts the grip 0.29–0.32 m behind the nose (11-bit stack
+0.2792 to 0.2354), and a handle 0.15 m above the drive axis costs the 11-bit G1 8.02 points
+through the hand's roll, while one below it gains 4.08.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -676,10 +690,12 @@ readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in h
   (0.2–0.6), the shim stack is placed exactly at its rounded height, the wedge's stroke and the
   pulled-off foot when backing it out are checked but not simulated, and the ledger height (0.5 m)
   that sets the G1's push is the model's, not a measured site value.
-- **The tool point.** Only joint quantisation is carried to the nailer's nose (backlash, link
-  and tool-mount deflection under the push, and calibration are not); the nose length (0.3 m) is
-  not from a maker's figure, and the 10-diameter penetration that sets the 44.4 mm depth is
-  milestone 2's band, not a code clause.
+- **The tool point.** Joint quantisation and gear backlash are carried to the nailer's nose; link
+  and tool-mount deflection under the press, and calibration, are not. The backlash is swept (no
+  G1 figure is published), which joints are held depends on the least-norm split of the ground
+  reaction rather than a balance controller's, and the handle's offset from the drive axis is
+  swept; the grip's 0.29–0.32 m behind the nose follows the nailer's published height, and the
+  10-diameter penetration that sets the 44.4 mm depth is milestone 2's band, not a code clause.
 - **Static humanoid.** No walking, balance controller or hand-off dynamics; joint gains are taken
   at face value.
 - **Strict pass/fail.** One nail outside its window fails a sheet, though a crew may accept a near
@@ -709,15 +725,18 @@ An escaped miss costs about 2% of its sheet, and with 4 in joint edges 99.98% of
 model matches intact shear walls but explains walls that have lost their bottom row only if
 end-nailed stud-to-plate joints carry a quarter of their code strength. The open terms are
 measured: stud profiles, panel squareness, stage times, the cost of a missed nail, a tested
-ultimate for a 16d end-nailed joint, and a mock-up to check the whole chain.
+ultimate for a 16d end-nailed joint, and a mock-up to check the whole chain. The tool error that reaches
+the nail is a tool-point quantity: a stock G1's 11-bit joints leave 1.3 mm at a nailer's nose, 12-bit
+joints restore 93% clean single-2x sheets, and gear backlash costs nothing more if the balance
+controller keeps the ankle-roll joints loaded one way.
 
 ## Data and code availability
 
 All code, results files and figures are MIT licensed in this directory: `src/buildbot_sheathing/`
-(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (142 test functions), and
+(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (164 test functions), and
 `README.md`, "Reproduce". MuJoCo 4.0.1 and Drake 1.51.1 produced the simulated results. `reproduce.py --check`
-re-runs each of the 22 experiments in a scratch copy and compares its results file with the committed
-one; all 22 reproduce, wall-clock timings aside. Drake releases from 1.58 no longer provide the TAMSI
+re-runs an experiment in a scratch copy and compares its results file with the committed one; it
+lists 26 experiments, and the 22 checked at milestone 25 reproduce, wall-clock timings aside. Drake releases from 1.58 no longer provide the TAMSI
 solver that one comparison in section 5.6 uses.
 
 ## Declaration of generative AI use

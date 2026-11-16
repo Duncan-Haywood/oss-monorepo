@@ -29,6 +29,7 @@ M21 = E + "m21_degrading/results.txt"
 M27 = E + "m27_slide_mech/results.txt"
 M28 = E + "m28_shim_mech/results.txt"
 M29 = E + "m29_tool_lean/results.txt"
+M30 = E + "m30_backlash/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -60,6 +61,19 @@ CHECKS = [
     (M29, "  12 | 0.656 / 0.688        | 0.9344", "gives 0.9344"),
     (M29, "lean the single-2x stack tolerates for a 2-point loss: 0.434 deg", "of 0.434° (1σ)"),
     (M29, "      2.00 |                             1.550 | 0.0430          -22.06 | 1.0000", "stay at 1.0000"),
+    # 5.11 backlash at the tool point (milestone 30)
+    (M30, "  g1    50 0.20 | 19 / 22", "16–19 of the G1's 22 joints"),
+    (M30, "  g1    25 0.20 | 16 / 22", "16–19 of the G1's 22 joints"),
+    (M30, "     5 | 0.1434 | 0.7646", "from 0.9344 to 0.7646"),
+    (M30, "     5 | 0.2351 | 0.9134", "to 0.9134"),
+    (M30, "     5 | 0.2130 | 0.8870", "to 0.8870"),
+    (M30, "    25 | 0.2636 | 0.9344", "keeps 0.9344 up to 25 arcmin"),
+    (M30, "  unpreloaded            | 12 | 2.67", "below 2.67 arcmin"),
+    (M30, "  preloaded              | 12 | 6.24", "6.24 arcmin if gravity"),
+    (M30, "  0.29 | 0.2792", "(11-bit stack\n0.2792 to 0.2354)"),
+    (M30, "  0.32 | 0.2354", "0.2792 to 0.2354"),
+    (M30, "  g1  up   0.15 | 1.401 1.456 | 0.1835 (-8.02)", "costs the 11-bit G1 8.02 points"),
+    (M30, "  g1  down 0.15 | 1.274 1.456 | 0.3044 (+4.08)", "gains 4.08"),
     # 5.14 the capacity model against Weiss's decayed walls (milestones 17 to 21)
     (M17, "control 6-12 4688, decay 6-12 2649, control 3-12 8775, decay 3-12 2974", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
     (M17, "share kept: 6-12 0.565, 3-12 0.339", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
