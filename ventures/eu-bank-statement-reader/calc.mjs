@@ -320,7 +320,7 @@ export function validate(text) {
 // ---------------------------------------------------------------- export
 const csvText = (s) => {
   let v = String(s);
-  if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+  if (/^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v)) v = "'" + v;
   return `"${v.replace(/"/g, '""')}"`;
 };
 const dec = (n, cur) => {

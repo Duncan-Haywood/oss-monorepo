@@ -129,7 +129,7 @@ export function summaryText(r) {
   return L.join("\n");
 }
 
-const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
 export function sweepCsv(r) {
   const head = ["game", "cost", "plays_per_week", "revenue_per_week", "prize_cost_per_week", "profit_per_week", "payback_months", "break_even_plays", "plays_needed_for_target", "profit_per_sqft_year", "verdict"];
   const lines = [head.join(",")];

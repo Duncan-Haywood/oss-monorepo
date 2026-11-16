@@ -136,7 +136,7 @@ export function testPlan(input) {
 
 const csvCell = s => {
   let v = String(s ?? "");
-  if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+  if (/^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v)) v = "'" + v;
   return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
 };
 

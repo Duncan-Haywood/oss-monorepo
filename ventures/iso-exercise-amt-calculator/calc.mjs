@@ -136,7 +136,7 @@ export function sampleInput() {
   return { status: "single", wages: "210000", pretax: "23500", itemized: "", salt: "", strike: "2.50", fmv: "14.00", options: "20000", amtCredit: "", salePrice: "30" };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const rows = [["Options exercised", "Exercise cost", "Spread", "AMT income", "AMT owed", "Cash needed", "Marginal AMT rate on added spread"]];
   for (const r of a.rows) rows.push([r.options, round2(r.cost), round2(r.spread), round2(r.amti), round2(r.amt), round2(r.cash), r.marginal === null ? "" : (r.marginal * 100).toFixed(1) + "%"]);

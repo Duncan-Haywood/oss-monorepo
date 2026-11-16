@@ -6,7 +6,8 @@ import { csvCell, reviewCsv, REVIEW_HEADER } from '../export.mjs';
 test('csvCell neutralises a leading formula character with an inert apostrophe', () => {
   assert.equal(csvCell('=SUM(A1:A9)'), "'=SUM(A1:A9)");
   assert.equal(csvCell('+1'), "'+1");
-  assert.equal(csvCell('-1'), "'-1");
+  assert.equal(csvCell('-1'), '-1'); // a plain number (a credit memo) is not a formula (2026-11-16)
+  assert.equal(csvCell('-1+2'), "'-1+2");
   assert.equal(csvCell('@cmd'), "'@cmd");
   assert.equal(csvCell('Acme Inc'), 'Acme Inc');
 });

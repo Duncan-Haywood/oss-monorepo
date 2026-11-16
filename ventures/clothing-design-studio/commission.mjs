@@ -116,7 +116,7 @@ export function settle(sales, terms = {}, perPartnerTerms = {}) {
   return { lines, partners, totals, problems, notes };
 }
 
-const csvCell = v => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = v => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 
 export function statementCsv(result) {
   const head = ["partner", "units", "gross", "refunded", "net_of_vat", "commission", "card_fees", "brand_owed", "shop_keeps"];

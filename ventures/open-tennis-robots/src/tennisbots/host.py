@@ -67,6 +67,12 @@ VERDICT_S = 0.25 + FRESH_S
 # The loop-command fit the board makes after a verdict, one step a control tick (about 72 ticks for both wheels), may
 # take this long before the record comes again with its drops; past it the parabola's stand.
 LOOP_FIT_S = 2.0
+# After a shot with a turning wheel slower than this, the next shot's wheel speeds wait for the verdict (2026-11-16,
+# firmware/esp32/README.md "The 1,000 rpm floor retested"): the board freezes its pulse snapshot at a speed change, so
+# a slow wheel whose next target came straight after the release had one or two revolutions after its ball, too few
+# for the loop-command fit, and its drop fell back to the parabola (0.62-0.78 of the true drop at 510-710 rpm on the
+# simulator). 0 never waits.
+HOLD_RPM = 1000.0
 HOPPER_EMPTY = ("hopper empty: the feed stroke put no ball through the wheels (the launcher wheels did not slow); "
                 "refill the tub, or check the outlet for a bridge of balls and the hose for a stuck one")
 
@@ -415,6 +421,11 @@ def _faults(t: Telemetry, ignore=0) -> str | None:
     return ", ".join(bad) or None
 
 
+def _slow_wheel(shot) -> bool:
+    """True when a turning wheel of `shot` is under HOLD_RPM: its drop needs the revolutions up to the verdict."""
+    return any(0 < w < HOLD_RPM for w in (shot.rpm_top, shot.rpm_bottom))
+
+
 def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, ready_timeout_s=10.0,
               release_timeout_s=2.0, link_timeout_s=0.5, tick_s=0.01, log=None, replan=None) -> DrillResult:
     """Run planned shots on the feeder. The first shot gets longer to be ready: the axes home at power-up.
@@ -485,6 +496,9 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                 if new is not None:
                     shots[k:] = new
             shot = shots[k]
+            if k > 0 and last_release is not None and replan is None and _slow_wheel(shots[k - 1]):
+                wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0,
+                     f"shot {shots[k - 1].index}'s launch check")
             link.send(P.SET_WHEELS, shot.rpm_top, shot.rpm_bottom)
             link.send(P.SET_AIM, shot.elevation_cdeg, shot.azimuth_cdeg)
             sent = clock()

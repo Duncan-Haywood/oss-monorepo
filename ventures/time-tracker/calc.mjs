@@ -213,7 +213,7 @@ export function warnings(entries, now = Date.now()) {
   return out;
 }
 
-const csvCell = (v) => { const s = String(v ?? ""); const safe = /^[=+\-@\t\r]/.test(s) ? "'" + s : s; return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe; };
+const csvCell = (v) => { const s = String(v ?? ""); const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s; return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe; };
 
 export function entriesToCsv(entries, projects, settings, now = Date.now()) {
   const head = ["Date", "Client", "Project", "Description", "Hours", "Billable hours", "Rate", "Amount", "Billable", "Billed"];

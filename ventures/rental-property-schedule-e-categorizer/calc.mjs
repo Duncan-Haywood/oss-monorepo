@@ -410,7 +410,7 @@ export function analyze(txns, opts = {}) {
 }
 
 const csvCell = (v) => { const s = String(v ?? ""); return /[",\n\r]/.test(s) || /^\s|\s$/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-const guard = (v) => (/^[=+\-@\t\r]/.test(String(v)) ? "'" + v : v);
+const guard = (v) => (/^[=+\-@\t\r]/.test(String(v)) && !/^-?\d+(\.\d+)?$/.test(String(v)) ? "'" + v : v);
 
 export function reportCsv(a) {
   const out = [["Date", "Description", "Amount", "Property", "Category", "Schedule E line", "Decided by", "Flags"]];

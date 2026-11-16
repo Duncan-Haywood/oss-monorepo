@@ -83,7 +83,11 @@ TRIM = 0.25                        # fit_from_drops sets aside wheel readings th
 # fit_from_drops sets aside wheels slower than this (2026-11-16, firmware/esp32/README.md "Slow wheels"): a revolution
 # over 60 ms leaves too few pulses before the verdict for the pulse-time fit (a 523 rpm wheel got 3 and showed 70-78%
 # of its drop), and a 30-40% drop on a wheel still braking to its new speed showed 54%. No simulated wheel under
-# 1,000 rpm was in the sweep that validated the pulse-time drops.
+# 1,000 rpm was in the sweep that validated the pulse-time drops. Retested on the loop-command drops (2026-11-16,
+# README "The 1,000 rpm floor retested", tests/min_fit_rpm_sweep.py): with the Pi holding its next speeds until the
+# verdict (host.HOLD_RPM), 750-1,000 rpm wheels read within 1.1% (first-order and jittery plants) but 500-750 rpm ones
+# still missed by up to 32%, and a 750 floor was no better than this one across the plants (spin worst 0.72 / 3.18 /
+# 2.29% against 0.52 / 4.16 / 2.15%), so it stays.
 MIN_FIT_RPM = 1000.0
 # The spin efficiency comes from the difference between a spin shot's two drops, a small part of each, so one wheel's
 # reading error moves it several times as far as it moves the speed fit, and the slowest wheels read worst. On the

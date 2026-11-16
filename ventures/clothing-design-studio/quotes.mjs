@@ -59,7 +59,7 @@ export function cheapestByQuantity(design, sheets, sizes = [25, 50, 100, 250, 50
 
 /** Spreadsheet-safe CSV of the comparison. */
 export function comparisonCsv(cmp) {
-  const cell = v => { const s = v == null ? "" : String(v); const safe = /^[=+\-@]/.test(s) ? `'${s}` : s; return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe; };
+  const cell = v => { const s = v == null ? "" : String(v); const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s; return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe; };
   const head = ["supplier", "currency", "landed per garment", "setup total", "cash up front", "margin %", "break-even units", "profit if sellable", "MOQ", "lead time days", "status"];
   const lines = cmp.rows.map(r => [r.name, r.currency, r.landed, r.setupTotal, r.cashUpFront, r.marginPct, r.breakEvenUnits, r.profitIfSellable, r.moq, r.leadTimeDays,
     r.ok ? (r.belowMoq ? "below MOQ" : "ok") : `missing: ${r.missing.join("; ")}`]);
