@@ -92,6 +92,8 @@ export const AGAIN = { gap: 5, frames: 2 };
 // readCoda's voiced fricative: how much more energy above 5 kHz than the vowel's a frame must carry (see its
 // note); chosen on synthetic syllables at part K's pitches (eval/coda-check.mjs header, tenth round)
 export const VFRIC_HI5 = 12;
+// readCoda's deep murmur on a high short note before an obstruent (see its note); chosen on eval/coda-check.mjs J only
+export const DEEP = { lo: -35, hi: -12, minMs: 50, fall: 18, gap: 5, tilt: 15 };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
@@ -211,7 +213,7 @@ export function expectedRead(ph) {
 // keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
 // /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
 // 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5 } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = true, deepOpts = {} } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -377,7 +379,39 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     return null;
   };
   const pre = preRun();
-  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step, near, pre]
+  // A deep murmur on a high short note (2026-11-16, README "E4 eighth notes: a murmur read as a closure"): on E4
+  // eighth notes the n of *nunc*, *tunc*, *mens* and *sunt* sits 18-33 dB under its vowel, past PRE.lo, and only
+  // 15-30 dB dark in itself, short of murmurTilt (one harmonic of a 330 Hz voice passes under 500 Hz), so no rule
+  // above saw it, and the beat's dips inside it met the closure rule, with the murmur's swell back read as the
+  // burst: a voiced labial stop. What it does that nothing else does is hold, then end in an obstruent: a run
+  // of DEEP.minMs or more at DEEP.lo to DEEP.hi dB of the vowel, a median DEEP.tilt dB dark in itself, that runs
+  // into frication outlasting it, or within DEEP.gap frames into a closure holding a frame DEEP.fall dB under the
+  // run and ending in a burst. A voiced stop's voice bar (-24 to -43 dB on J) runs on up to its burst; a vowel
+  // falling into a voiceless closure passes through the band in 15-35 ms. `deepMurmur: false` is the reader before.
+  const DP = { ...DEEP, ...deepOpts };
+  const deepRun = () => {
+    if (!deepMurmur) return null;
+    if (!stopRun && !fric) return null;
+    const inBand = (f) => f.lvl >= DP.lo && f.lvl <= DP.hi;
+    for (let k = 1; k < fr.length; k++) {
+      if (!inBand(fr[k]) || inBand(fr[k - 1])) continue;
+      let e = k; while (e < fr.length && inBand(fr[e])) e++;
+      const r = [k, e - 1];
+      if (msOf(r) < DP.minMs) continue;
+      const seg = fr.slice(k, e), ml = median(seg.map((f) => f.lvl));
+      if (median(seg.map(tiltOf)) > -DP.tilt) continue;
+      // into frication that outlasts it (a burst inside the run is a voiced stop's release, not an s)
+      const intoFric = fric && fric[0] >= r[1] - 2 && fric[1] > r[1] && fric[0] - r[1] <= DP.gap;
+      // or into a silent closure that ends in a burst: a voice bar instead runs on up to its burst, and
+      // the beat's dips inside a murmur are not silent
+      const intoSilence = closures.some((c) => c[0] >= r[1] - 2 && c[0] - r[1] <= DP.gap && burstAfter(c) >= 0
+        && fr.slice(c[0], c[1] + 1).some((f) => f.lvl <= ml - DP.fall));
+      if (intoFric || intoSilence) return r;
+    }
+    return null;
+  };
+  const deep = deepRun();
+  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step, near, pre, deep]
     .filter((r) => r && !intoTap(r)).sort((p, q) => p[0] - q[0])[0];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);

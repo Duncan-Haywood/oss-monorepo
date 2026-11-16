@@ -75,6 +75,24 @@
 //    one within 4 of 40 (a lucky read on a trough frame goes); (5) A, B, D, E, H, I, F, J and K totals each no
 //    lower, nasals no fewer, every vowel-only control no lower; K's other syllables 172 or more of 220 (166);
 //    (6) eval/vowel-check.mjs and eval/consonant-check.mjs cannot move (readOnset and the synthesis untouched).
+// Eleventh round (2026-11-16): the deep murmur on a high short note (onsets.mjs DEEP, README "E4 eighth notes: a
+//    murmur read as a closure"). On J's E4 eighth notes *nunc*, *tunc*, *mens* and *sunt* read as a stop: the n sits
+//    18-33 dB under the vowel and only 15-30 dB dark in itself (one harmonic of a 330 Hz voice under 500 Hz), too
+//    deep for every nasal rule, and the beat's dips inside it met the closure rule with the murmur's own swell back
+//    as a "burst". The change: a run of 50 ms or more at -35 to -12 dB of the vowel, a median 15 dB dark in itself,
+//    is a murmur when it runs into frication that outlasts it, or within 5 frames into a closure that holds a frame
+//    18 dB under the run and ends in a burst. A voiced stop's voice bar runs on up to its burst, so it never meets
+//    that; the beat's dips are not 18 dB deep. Chosen on part J only (cluster nasals 128 to 132 of 132, others 306
+//    to 305 of 336, control 453 unchanged; every setting from lo -30 to -40, hi -10 to -15, 40-60 ms, fall 12-24
+//    and tilt 10-20 gives 888-891 of 936 on J, against 887 off). Pre-registered here and committed before part N
+//    or any other part was run with it. Part N is new: 10 cluster syllables and 20 others sung in no other part, at
+//    F#2, C#3, F#3, A#3, D#4 and E4, 108 BPM, quarter and eighth notes, sung and vowel-only. Against
+//    `deepMurmur: false` (printed beside, or `--deep off`): (1) N's cluster nasals no fewer, and at least 3 more
+//    on D#4 and E4 eighth notes; (2) N's other syllables read exactly within 2, and its voiced stops (*nab ped lud
+//    gab rud tob vig cod*) read as a nasal no more than 2 more often; (3) N's vowel-only control read as none
+//    identical (the rule needs a closure with a burst or a fricative, which a vowel-only "none" never has);
+//    (4) A, B, D, E, H, I, F, K, L and M totals each no lower, nasals no fewer, vowel-only controls identical;
+//    (5) eval/vowel-check.mjs and eval/consonant-check.mjs cannot move (readOnset and the synthesis untouched).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -86,7 +104,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
@@ -96,9 +114,11 @@ const RC0 = NEARARG === 'off' ? { nearVowel: false } : NEARARG ? { nearOpts: Obj
 const PREARG = args.includes('--pre') ? args[args.indexOf('--pre') + 1] : '';
 // --again off: readCoda's vowelAgain reading every frame after a murmur, the obstruent's too (before 2026-11-16's ninth round)
 const AGAINARG = args.includes('--again') ? args[args.indexOf('--again') + 1] : '';
+// --deep off: readCoda without the deep-murmur rule (before 2026-11-16's eleventh round)
 // --vfric off: readCoda's voiced fricative without its noise-above-5-kHz test (before 2026-11-16's tenth round)
 const VFRICARG = args.includes('--vfric') ? args[args.indexOf('--vfric') + 1] : '';
-const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}) };
+const DEEPARG = args.includes('--deep') ? args[args.indexOf('--deep') + 1] : '';
+const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'off' ? { deepMurmur: false } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -428,6 +448,45 @@ lines.push('## M. Out-of-sample check of the tenth round (a second session\'s /i
   `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`,
   `| vowel-only control read as a voiced fricative | ${(tally['cvf on'] || [0])[0]} | ${(tally['cvf off'] || [0])[0]} |`, '',
   'Misses with the rule (count over the twelve pitch and length cells):', '', HIDE.includes('M') ? '- hidden' : [...lMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- N ----
+// The eleventh round's held-out set (DEEP, pre-registered in the header): 10 cluster syllables and 20 others sung in
+// no other part, at F#2, C#3, F#3, A#3, D#4 and E4, 108 BPM, quarter and eighth notes, each followed by a rest.
+if (PARTS.includes('N')) {
+const POS = ['dant', 'lent', 'sint', 'gunt', 'hunc', 'rens', 'tens', 'fans', 'font', 'vint'];
+const VST = ['nab', 'ped', 'lud', 'gab', 'rud', 'tob', 'vig', 'cod'];
+const NEG = [...VST, 'pet', 'lac', 'sup', 'rot', 'tac', 'dum', 'ven', 'nam', 'pes', 'vos', 'ma', 'ne'];
+const SY = [...POS, ...NEG], tally = {}, nMiss = new Map(), nVst = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+for (const pulses of [4, 2]) for (const midi of [42, 49, 54, 58, 63, 64]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 108, title: 'held-out deep murmurs' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
+      for (const [mode, o] of [['on', RC], ['off', { ...RC, deepMurmur: false }]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'cluster' && pulses === 2 && midi >= 63) bump(`high ${mode}`, ok);
+        if (grp === 'other' && VST.includes(s) && got.cls === 'nasal') nVst[mode] = (nVst[mode] || 0) + 1;
+        if (mode === 'on' && !ok && !HIDE.includes('N')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; nMiss.set(key, (nMiss.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## N. Held-out deep murmurs (eleventh round, pre-registered)', '', `Clusters: ${POS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarter and eighth notes at 108 BPM, each followed by a rest, F#2, C#3, F#3, A#3, D#4, E4.`, '',
+  '| | with the deep-murmur rule | without (`deepMurmur: false`) |', '|---|---|---|',
+  `| cluster syllables read exactly (on their nasal) | ${cell('cluster on')} | ${cell('cluster off')} |`,
+  `| of them, eighth notes on D#4 and E4 | ${cell('high on')} | ${cell('high off')} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
+  `| voiced stops read as a nasal | ${nVst.on || 0} | ${nVst.off || 0} |`,
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '',
+  'Misses with the rule (count over the twelve pitch and length cells):', '', HIDE.includes('N') ? '- hidden' : [...nMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
 }
 
 // ---- C ----
