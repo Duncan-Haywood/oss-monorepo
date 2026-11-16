@@ -136,6 +136,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Average Parish</title>
+      <link>https://example.invalid/hearth-and-horizon/the-average-parish.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-average-parish.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A deanery's finance agent writes the bishop's one-line summary of fourteen parishes' Sunday giving, &quot;the average parish is up 6% on last year&quot;, and it is true, the plain average of fourteen percentage changes. The deanery's money is down 3.1%, because eleven of thirteen small parishes grew a few hundred pounds each and the town parish, which gives nearly half, fell £17,600 after its dairy closed. The first fix, weighting by this year's giving, is turned down by the treasurer; the second is two numbers, each with the question it answers. A story about a mean of ratios against a ratio of means, and what a one-line answer owes the person who reads only that line. Setting: The deanery of Upper Hafren (invented), fourteen Catholic parishes in mid-Wales in an invented diocese, Monday 13 to Friday 31 January 2048. Read the full text at https://example.invalid/hearth-and-horizon/the-average-parish.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A deanery's finance agent writes the bishop's one-line summary of fourteen parishes' Sunday giving, &quot;the average parish is up 6% on last year&quot;, and it is true, the plain average of fourteen percentage changes. The deanery's money is down 3.1%, because eleven of thirteen small parishes grew a few hundred pounds each and the town parish, which gives nearly half, fell £17,600 after its dairy closed. The first fix, weighting by this year's giving, is turned down by the treasurer; the second is two numbers, each with the question it answers. A story about a mean of ratios against a ratio of means, and what a one-line answer owes the person who reads only that line.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Field That Held the Water Back</title>
       <link>https://example.invalid/hearth-and-horizon/the-field-that-held-the-water-back.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-field-that-held-the-water-back.html</guid>
