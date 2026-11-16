@@ -66,7 +66,7 @@ WARN_FLAGS = {P.FLAG_LIFT_JAM: "ball lift jammed and off after its retry: balls 
 VERDICT_S = 0.25 + FRESH_S
 # The loop-command fit the board makes after a verdict, one step a control tick (about 72 ticks for both wheels), may
 # take this long before the record comes again with its drops; past it the parabola's stand.
-LOOP_FIT_S = 2.0
+LOOP_FIT_S = 3.0              # 2.0 until a slow wheel's watch past the verdict (up to 1.2 s) came before the fit
 # After a shot with a turning wheel slower than this, the next shot's wheel speeds wait for the verdict (2026-11-16,
 # firmware/esp32/README.md "The 1,000 rpm floor retested"): the board freezes its pulse snapshot at a speed change, so
 # a slow wheel whose next target came straight after the release had one or two revolutions after its ball, too few
@@ -75,6 +75,13 @@ LOOP_FIT_S = 2.0
 # ends about 0.16 s after the ball, three revolutions at 1,107 rpm, and a fit on three read one wheel's drop 1.48x;
 # 3,000 rpm turns the fit's eight revolutions in that time.
 HOLD_RPM = 3000.0
+# How long after the release a held wheel's drop needs (2026-11-16, firmware/esp32/README.md "Slow wheels watched past
+# the verdict"): the ball meets the wheels BALL_LEAD_S before the release is counted, the loop fit anchors on the first
+# whole revolution after it and wants LOOP_AFTER_REVS more (the firmware's constant), and the board watches a slow wheel
+# past its verdict for them, up to its EXTEND_MS (1.2 s). Under about 1,500 rpm that is longer than the verdict.
+BALL_LEAD_S = 0.14
+LOOP_AFTER_REVS = 8
+HOLD_MAX_S = 0.25 + 1.2
 HOPPER_EMPTY = ("hopper empty: the feed stroke put no ball through the wheels (the launcher wheels did not slow); "
                 "refill the tub, or check the outlet for a bridge of balls and the hose for a stuck one")
 
@@ -428,6 +435,17 @@ def _slow_wheel(shot) -> bool:
     return any(0 < w < HOLD_RPM for w in (shot.rpm_top, shot.rpm_bottom))
 
 
+def hold_s(shot) -> float:
+    """Seconds after `shot`'s release before its wheels' targets may change: VERDICT_S for a shot with a wheel under
+    HOLD_RPM, longer while its slowest wheel's ball still lacks the loop fit's revolutions (the board watches it past
+    the verdict), at most HOLD_MAX_S + FRESH_S; 0 when no wheel needs a hold."""
+    if not _slow_wheel(shot):
+        return 0.0
+    w = min(r for r in (shot.rpm_top, shot.rpm_bottom) if r > 0)
+    revs = (LOOP_AFTER_REVS + 2) * 60.0 / w - BALL_LEAD_S
+    return max(VERDICT_S, min(revs, HOLD_MAX_S) + FRESH_S)
+
+
 def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, ready_timeout_s=10.0,
               release_timeout_s=2.0, link_timeout_s=0.5, tick_s=0.01, log=None, replan=None) -> DrillResult:
     """Run planned shots on the feeder. The first shot gets longer to be ready: the axes home at power-up.
@@ -492,15 +510,16 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
             if replan is not None and fed_at is not None:
                 # The last stroke's verdict lands VERDICT_S after its release: wait for it, so the re-planner sees every
                 # shot fed so far (half a second of the interval, which the next shot spends waiting anyway).
-                wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0, f"shot {shots[k - 1].index}'s launch check")
+                h = max(VERDICT_S, hold_s(shots[k - 1]))
+                wait(lambda t: t.t >= last_release + h, h + 1.0, f"shot {shots[k - 1].index}'s launch check")
                 loop_fits()
                 new = replan(launches(), shots[k:])
                 if new is not None:
                     shots[k:] = new
             shot = shots[k]
             if k > 0 and last_release is not None and replan is None and _slow_wheel(shots[k - 1]):
-                wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0,
-                     f"shot {shots[k - 1].index}'s launch check")
+                h = hold_s(shots[k - 1])
+                wait(lambda t: t.t >= last_release + h, h + 1.0, f"shot {shots[k - 1].index}'s launch check")
             link.send(P.SET_WHEELS, shot.rpm_top, shot.rpm_bottom)
             link.send(P.SET_AIM, shot.elevation_cdeg, shot.azimuth_cdeg)
             sent = clock()
@@ -524,6 +543,10 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
             res.shots.append(ShotResult(shot.index, ready_s, gone.t, (ready.rpm_top, ready.rpm_bottom)))
             if log:
                 log(f"{label}: ready in {ready_s:.2f} s, released at {gone.t:.2f} s")
+        if last_release is not None and res.fed and _slow_wheel(res.fed[-1]):
+            # the stop freezes the last stroke's snapshot too: a slow last wheel waits for its revolutions first
+            h = hold_s(res.fed[-1])
+            wait(lambda t: t.t >= last_release + h, h + 1.0, "last shot's launch check")
         link.send(P.SET_WHEELS, 0, 0)
         if last_release is not None:  # the last stroke's verdict (the stop above freezes it, it cannot fake a ball)
             wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0, "last shot's launch check")

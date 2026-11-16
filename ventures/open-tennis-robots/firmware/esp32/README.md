@@ -1394,3 +1394,56 @@ The gate gains are real but the fits matter more and the scaled gains already se
 stays four revolutions. Raw: eval/tach-window-drill-2026-11-16.txt.
 
 **Not known.** A real tach's dropouts and a real ESC's own speed loop, either of which might favour one side.
+
+## Slow wheels watched past the verdict (2026-11-16, last)
+
+**The item.** "The 1.48x wheel" left 500-750 rpm wheels reading 0.96-1.18 of their drop even when the Pi held the
+next speeds: the verdict comes 250 ms after the stroke, about 0.39 s after the ball, and at 520-750 rpm that is three
+or four revolutions. `drop_from_commands_steps` wants eight after its anchor. The drill's last shot was worse: the Pi
+sent the final stop straight after the release, which froze the snapshot with one or two revolutions in it.
+
+**The change.** The verdict and the record still go out 250 ms after the stroke. When a launched stroke's turning wheel
+has fewer than `controller.LOOP_AFTER_REVS` (8) revolutions after the fit's anchor and the targets have not changed,
+`LaunchCheck` keeps watching that wheel: it logs its control ticks (`TICK_LOG` is 240 now) until the tach has the
+revolutions, the targets change, a stroke starts, a stop comes or `EXTEND_MS` (1.2 s) passes, then re-takes that wheel's
+periods and runs the loop fit on them (the record says "loop fit under way" meanwhile, as before). Only wheels under
+about 1,500 rpm are ever short; a faster wheel keeps the verdict's snapshot. On the Pi, `host.hold_s(shot)` says how
+long after a release the next speeds wait: the verdict for a wheel under `HOLD_RPM`, and for a slower one
+(`LOOP_AFTER_REVS` + 2) revolutions less the 0.14 s the ball comes before the release, at most 1.45 s. The drill's
+final stop now waits the same hold, and `LOOP_FIT_S` (how long a re-plan waits for the fit) is 3 s, up from 2.
+
+**How close (simulated).** `tests/min_fit_rpm_sweep.py --hold 3000 --extend 0,8 --told`: the slow drill (slow wheels
+planned at 520-1,500 rpm) and the calibration drill, three plants, wheel lags 0.2 / 0.4 / 0.8 s, three true launchers,
+the board told its ESC lag (as after its survey). Record drop over the simulator's true drop:
+
+| 500-750 rpm wheels | >2% off | range |
+| --- | --- | --- |
+| before (verdict snapshot), all three plants | 73 of 156 | 0.631-1.840 |
+| watched past the verdict | **0 of 156** | 0.992-1.009 |
+
+Every band from 750 rpm up reads as before (0 wheels over 2% off below 2,500 rpm on any plant; the jittery tach's 34
+of 360 above it are its jitter, as before). The launcher fit, spin efficiency error mean / worst:
+
+| plant | floor 1,000 (shipped), before | now | floor 500 (none), before | now |
+| --- | --- | --- | --- | --- |
+| first-order (8 builds) | 0.43 / 1.51% | 0.28 / 1.24% | 8.53 / 18.39% | 0.32 / 0.95% |
+| tach 5 us (9) | 0.86 / 2.81% | 0.59 / 1.57% | 10.72 / 31.49% | 0.42 / 1.01% |
+| ESC 30 ms, told (9) | 0.42 / 1.74% | 0.22 / 0.67% | 12.42 / 38.03% | 0.30 / 0.73% |
+| ESC 30 ms, untold (9) | 2.22 / 8.63% | 2.77 / 8.67% | 8.94 / 33.35% | 2.07 / 3.22% |
+
+The speed efficiency stays within 0.3% told (2.6% mean untold, the untold lag's bias, as before). The 30-shot slow
+drill took 126.4 s against 124.1 s at a 0.2 s wheel lag. Raw output: eval/slow-wheel-watch-2026-11-16.txt.
+
+**The floor stays at 1,000 rpm for now.** With the watch, slow wheels read as well as fast ones, and with no floor the
+worst spin error is lower on three of the four rows. But the means are mixed (0.32 against 0.28 on the first-order
+plant) and the choice would be made on the builds it is scored on; a held-out set (other seeds, launchers and lags)
+should decide it. Untold, the ESC plant's slow wheels now read 0.96-0.98 of their drop, the same untold-lag bias the
+1,000-1,500 band always had: set `ESC_TAU_US` from the survey.
+
+**Also seen, not this change.** On the first-order plant at a 0.8 s wheel lag, build 0.95 / 0.35, the slow drill
+aborts at its third shot ("release not done in 2.0 s") with or without the watch, and on main before it.
+
+**Not known.** All of it is the simulator's first-order wheel. The extra 80 ticks of log cost about 7 KB of heap per
+stroke under MicroPython (counted, not measured on an ESP32). A slow shot now waits up to 1.45 s after its release
+before the wheels change speed; on the slow drill that cost 2.3 s over 30 shots, but against a tight interval it may
+make a shot late.
