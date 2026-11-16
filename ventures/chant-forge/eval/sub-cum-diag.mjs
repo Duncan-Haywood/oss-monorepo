@@ -1,4 +1,5 @@
-// Diagnostic: part L's sub and cum, frame by frame
+// Diagnostic (2026-11-16, thirteenth coda round): part L's syllables read back frame by frame, levels against the
+// reference vowel.   node eval/sub-cum-diag.mjs [sub,cum] [-v: frames of the misses] [-a: frames of every cell]
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
 import { latinCoda } from '../sing.mjs';

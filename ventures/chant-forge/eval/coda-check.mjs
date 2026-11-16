@@ -155,6 +155,15 @@
 //    (4) Q's vowel-only control identical (no coda, no voice bar); (5) every other part's total within 3 of
 //    `--voice-bar off`, its voiced stops (where a part prints them) no fewer, its vowel-only control identical;
 //    (6) eval/consonant-check.mjs A and B within 3 of before (openings with b, d, g change level too).
+//    Outcome (run 2026-11-16, against `--voice-bar off` on the same code): (1) Q's voiced stops 95 to 102 of 120:
+//    holds; (2) read as nothing 10 to 8: holds; (3) Q's others 75 to 75 of 80: holds; (4) control 200 of 200 both:
+//    holds; (5) fails on two parts: K's other syllables 198 to 191 of 220 (*ib* and *eb* read as nothing, *ob* as a
+//    nasal) and N's voiced stops read as a nasal 1 to 5 (*nab*, *gab*; N's others 215 to 212, within 3); A 173 to
+//    177, B 129 to 130, J's others 306 to 318, L's /i/ 153 to 157 and others 113 to 114, M 105 to 108 and 106 to
+//    107, O 210 to 217, P 202 to 209 (its voiced stops as a nasal 7 to 8), every control identical; (6) fails
+//    upward: consonant-check A 195 of 210 both, B 780 to 812 of 934 (a gain far past "within 3"), and held-out G
+//    1959 to 2055 of 2349, its voiced alveolar openings 116 to 172 of 227 and labial 65 to 98 of 115. Shipped on:
+//    README "A voice bar at one level".
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
