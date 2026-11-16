@@ -943,3 +943,79 @@ ten times as many, and the cost on an ESP32 is not measured. Next: sum the
 grid's residuals on the board across a drill and report the least (or send
 the snapshots in the shot log), with a finer grid near the winner. Then log a
 real ESC's step response and see which shape it has.
+
+## The ESC lag surveyed on the board (2026-11-16, last of the day)
+
+**The item.** The section above picked `ESC_TAU_US` from snapshots the board
+never sends, so on a real build it could only be guessed, and a wrong guess
+is worse than none. Now the board picks it.
+
+**How.** After each launched stroke's record is out (its own fit is always
+finished first), `LaunchCheck` refits each turning wheel's snapshot at the six
+lags of `ESC_SURVEY_GRID_US` (0 / 20 / 50 / 100 / 200 / 400 ms), one step a
+control tick, and adds each lag's squared residual rms to a running sum,
+counting a wheel only when every lag fitted it (the same rule as
+`tests/esc_lag_pick.py`). The survey fits without the tau golden-section
+refinement (15 steps a lag, not 36): on 112 simulated wheels per plant it
+picked the same lag as the refined fit on an 11-point grid for every plant.
+A new stroke cuts a survey short (`survey_cut`) rather than finishing it in one
+tick. `controller.survey_pick` then refines the least grid point with a
+parabola through it and its neighbours (in the lag's log, or in the lag when
+the lower neighbour is 0). The new ESC_SURVEY frame (0x82) carries the wheel
+count, the grid pick, the refined pick and each lag's mean rms;
+`host.run_drill` waits up to 4 s at a drill's end for the last ball's survey
+and keeps it in `DrillResult.esc_survey`, and `tennisbots run` prints one
+line: keep 0, run more balls (under 16 wheels), or "set ESC_TAU_US = N".
+`config.ESC_SURVEY_GRID_US = ()` turns it off.
+
+**How close (simulated).** `tests/esc_survey_sweep.py --all` runs the rally
+and calibration drills on one board (54 wheels), then the calibration drill on
+a fresh board set to the refined pick, over wheel lags 0.2 / 0.4 / 0.8 s and two
+true launchers (eval/esc-survey-sweep-2026-11-16.txt). No survey was cut.
+
+| plant | refined pick, ms | calibration spin error, ESC_TAU_US 0: worst / mean | with the pick | speed worst, 0 / pick |
+| --- | --- | --- | --- | --- |
+| first-order | 0 (all 6) | 0.5% / 0.1% | unchanged | 0.2% / 0.2% |
+| ESC lag 30 ms | 27-28 | 15.8% / 4.4% | 0.6% / 0.4% | 4.1% / 0.3% |
+| ESC lag 60 ms | 54-57 | 13.3% / 6.1% | 0.8% / 0.7% | 3.7% / 0.2% |
+| ESC lag 80 ms | 75-79 | 17.7% / 6.7% | 0.8% / 0.6% | 3.6% / 0.1% |
+| ESC lag 150 ms | 137-141 | 14.9% / 6.9% | 1.0% / 0.5% | 2.7% / 0.3% |
+| ESC lag 100 ms, 3 us jitter | 101-107, and 0 once | 15.7% / 6.3% | 4.8% / 2.0% | 3.3% / 1.1% |
+
+The parabola closes the grid's gap from the section above (30 ms read at 20
+gave 6.5%; now 0.6%). One build missed: the jittery 100 ms ESC at a 0.8 s
+wheel lag picked 0, so it stayed at 2.4% spin error; at a slow wheel the ESC's
+lag is a small share of the recovery and 3 us of jitter hides it.
+
+**Not measured.** Everything is the simulator's physics and plants. The
+survey is six more fits per wheel after every ball, about 180 control ticks
+(1.8 s) for a two-wheel shot here; its time under MicroPython on an ESP32 is
+not measured, and a drill that feeds faster than that will cut surveys (the
+count says so). Next: time a fit on a real board, and log a real ESC's step
+response to see whether a second first-order lag is its shape at all.
+
+## The drop on the edge times: tried, kept off (2026-11-16, last of the day)
+
+The section "When the wheel is not a first-order lag" asked to fit the drop on
+the edge times, since a tach's jitter moves each edge once and neighbouring
+periods share it with opposite signs. `drop_from_commands(..., edges=True)`
+does that: each row is an edge's running angle lag (the running sum of the
+revolutions' deficits times their spans) with a free offset for the window's
+first edge, so each row carries one independent error. For a linear fit that
+is the best weighting. It did not help here. `tests/edge_form_sweep.py`
+(24 single wheels x 8 jitter draws, compared on the cases both forms fit;
+eval/edge-form-sweep-2026-11-16.txt), the drop's spread:
+
+| jitter | periods | edges |
+| --- | --- | --- |
+| 0 | 0.28% | 0.26% |
+| 3 us | 0.57% | 0.68% |
+| 5 us | 0.86% | 1.03% |
+| 10 us | 2.85% | 3.25% |
+| 20 us | 5.26% | 5.59% |
+
+The edge form also gave no fit on a few more cases at 10-20 us (3 and 14 of 192
+against 1 and 9). The likely cause is the nonlinear part: t0 and tau are chosen
+by least residual, and the edge form's residual ranks them differently. The
+option stays, off by default, for anyone who wants to try it with a real tach's
+edges.
