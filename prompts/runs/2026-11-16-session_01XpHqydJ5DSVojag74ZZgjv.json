@@ -42,6 +42,10 @@
     {
       "file": "portfolio/router/claim_check.py",
       "issue": "Had no test file of its own; its tests live in test_allocate.py ClaimCheckTest, found only by grep."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes failed portfolio-pages 'Check the built artifact' with many '<venture>/llms.txt: states no date' lines unrelated to the diff; the same job passed in the PR's real CI (run 43932118719), so it looks like a shallow-clone artifact the tool does not label as such."
     }
   ],
   "deviations": [],
@@ -49,7 +53,7 @@
     "docs/posts/2026-11-16-process-the-claim-that-had-already-merged.md"
   ],
   "goal": null,
-  "notes": "Critique mode (backlog: owner rows only). Measured: of 3 duplicate pairs reported 2026-11-16, 2 had the rival PR merged 51 s and 2 min before the later claim (#16574/#16579, #16627/#16639, pulls API timestamps); claim_check read only open PRs. Fix: read closed PRs merged after the clone's origin/main commit; LANDED (exit 1) on 2 shared item words, other merges listed. The third pair (#16548/#16550) had an open older PR and is not addressed. Verification: portfolio/router python3 -m unittest test_allocate 115 OK; main_health 248/248; live run HOLD exit 0. No backlog ids touched; no agent doc needed (the post and docstring carry the reasoning).",
+  "notes": "Critique mode (backlog: owner rows only). Measured: of 3 duplicate pairs reported 2026-11-16, 2 had the rival PR merged 51 s and 2 min before the later claim (#16574/#16579, #16627/#16639, pulls API timestamps); claim_check read only open PRs. Fix: read closed PRs merged after the clone's origin/main commit; LANDED (exit 1) on 2 shared item words, other merges listed. The third pair (#16548/#16550) had an open older PR and is not addressed. Verification: portfolio/router python3 -m unittest test_allocate 115 OK; main_health 248/248; live run HOLD exit 0. No backlog ids touched; no agent doc needed (the post and docstring carry the reasoning). run_workflow_locally --for-changes: 8/9 workflows passed; portfolio-pages 'Check the built artifact' failed locally on llms.txt dates (unrelated, passed in PR CI). PR CI: all 18 check runs success or skipped.",
   "corrections": [],
   "redteam": null,
   "usage": {
