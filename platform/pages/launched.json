@@ -633,6 +633,7 @@
     "k8s-requests-rightsizer": "2026-10-02",
     "k8s-resource-limits-check": "2026-09-24",
     "k8s-rollout-safety-check": "2026-09-11",
+    "kalman-smoother": "2026-11-16",
     "kdp-royalty-calculator": "2026-09-07",
     "kdp-royalty-report-analyzer": "2026-09-29",
     "kdp-royalty-to-journal": "2026-10-06",

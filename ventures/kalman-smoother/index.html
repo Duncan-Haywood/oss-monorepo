@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2322304f'/%3E%3Cpath%20d='M4%2020%20L9%2013%20L14%2018%20L19%209%20L24%2015%20L28%2011'%20fill='none'%20stroke='%238fb3ff'%20stroke-width='1.6'/%3E%3Cpath%20d='M4%2017%20C10%2015%2014%2015%2018%2013%20S24%2012%2028%2012'%20fill='none'%20stroke='%23ffc857'%20stroke-width='2.6'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kalman Smoother Online — the trend under a noisy series, free</title>
+  <meta name="description" content="Free online Kalman filter and smoother (Durbin &amp; Koopman). Paste a time series and get its underlying level with an uncertainty band, gaps filled, a seasonal pattern, forecasts, and which points are outliers and which are real level shifts. Variances by maximum likelihood, checked against statsmodels. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Kalman smoother in your browser: what is the real level under this noisy series?">
+  <meta property="og:description" content="Local level, local linear trend and seasonal state-space models, fitted by maximum likelihood with exact diffuse initialisation. Smoothed level with bands, missing values filled, forecasts, outliers and level shifts. Checked against statsmodels and Durbin &amp; Koopman's Nile example.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Kalman smoother: the level under a noisy time series", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a time series and fit a structural state-space model (local level, local linear trend, random walk with drift, optional seasonal) by maximum likelihood. Kalman filter and smoother with exact diffuse initialisation give the underlying level with a band, fill missing values, forecast, and flag outliers and level shifts with auxiliary residuals. Runs in your browser.", "featureList": "Kalman filter online, Kalman smoother, local level model, local linear trend, structural time series, unobserved components, missing values, seasonal adjustment, forecasting with intervals, outlier detection, level shift detection, maximum likelihood, CSV upload, CSV download", "citation": ["https://doi.org/10.1093/acprof:oso/9780199641178.001.0001", "https://doi.org/10.1080/01621459.1997.10473686", "https://doi.org/10.1017/CBO9781107049994", "https://doi.org/10.1080/07350015.1992.10509913", "https://doi.org/10.1080/01621459.1998.10473731"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does the Kalman smoother do here?", "acceptedAnswer": {"@type": "Answer", "text": "It splits each value of your series into an underlying level that drifts slowly and noise around it, using every value before and after each point. How much of the movement is level and how much is noise is estimated from the data by maximum likelihood, so you do not pick a window or a smoothing constant."}}, {"@type": "Question", "name": "How is this different from a moving average?", "acceptedAnswer": {"@type": "Answer", "text": "A moving average uses a fixed window you choose, loses the ends of the series and gives no band. The smoother chooses its own amount of smoothing from the data, runs to both ends, fills gaps, and says how sure it is at every point. A local level model's smoother is in fact a weighted moving average whose weights the data choose."}}, {"@type": "Question", "name": "What is the difference between an outlier and a level shift?", "acceptedAnswer": {"@type": "Answer", "text": "An outlier is one value far from the level, after which the series returns to where it was. A level shift is the level itself moving and staying moved. The tool tests each point both ways with auxiliary residuals: the standardised smoothed irregular for outliers, and the standardised smoothed level disturbance for shifts. A t value beyond about 2.5 is worth a look."}}, {"@type": "Question", "name": "Which model should I choose?", "acceptedAnswer": {"@type": "Answer", "text": "Leave it on automatic: the tool fits a local level, a random walk with drift and a local linear trend and keeps the one with the lowest AIC, counting the diffuse starting values as Durbin and Koopman do. Add a seasonal period for monthly (12), quarterly (4) or daily data with a weekly pattern (7). Use the log option when swings grow with the level, as in sales or counts."}}, {"@type": "Question", "name": "Can my series have missing values?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Leave the cell blank or write NA. The filter skips the update at that point, and the smoother fills it from both sides with a wider band. The rows must still be one per period, equally spaced, with the gap kept as a row."}}, {"@type": "Question", "name": "How was it checked?", "acceptedAnswer": {"@type": "Answer", "text": "The filter and smoother are compared with statsmodels' UnobservedComponents with exact diffuse initialisation on five cases, including gaps at the start and a 12-month seasonal: loglikelihoods, smoothed states and variances, smoothed disturbances and one-step errors agree to a relative 1e-10 or better. On the Nile series the maximum likelihood variances are 15,098.5 and 1,469.2, against the 15,099 and 1,469.1 Durbin and Koopman report."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and fitted by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18213a; background: #f2f4f9; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4a9a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1c2a4f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1c2a4f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5268; }
+    .card { background: #fff; border: 1px solid #d7dcea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1c2a4f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #707a93; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin: 0 6px 0 0; }
+    label.inline { display: inline-flex; align-items: center; font-weight: 500; margin: 12px 14px 0 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4a9a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e8f5; color: #1c2a4f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e7eaf2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5268; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d7dcea; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    .scroll table { min-width: 460px; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #707a93; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #eef1f8; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.25rem; color: #1c2a4f; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #4a5268; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 1.4em; height: .5em; margin: 0 4px 0 10px; vertical-align: 1px; border-radius: 2px; }
+    pre { background: #f3f5fa; border: 1px solid #dde2ee; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">KALMAN FILTER AND SMOOTHER · LOCAL LEVEL, TREND AND SEASONAL MODELS · MAXIMUM LIKELIHOOD · MISSING VALUES · OUTLIERS AND LEVEL SHIFTS · RUNS IN YOUR BROWSER</p>
+    <h1>What is the real level under this noisy series, and did it shift?</h1>
+    <p>Paste a series: monthly sales, weekly sign-ups, a sensor reading, a river's yearly flow, a lab value over visits. A <strong>Kalman smoother</strong> on a structural time-series model (Durbin &amp; Koopman 2012; Harvey 1989) splits every value into an <strong>underlying level</strong> that drifts and <strong>noise</strong> around it, with a band saying how sure it is at each point. It decides from the data how much to smooth, <em>fills missing values</em>, removes a seasonal pattern if there is one, forecasts ahead, and tells apart a single <strong>outlier</strong> from a real <strong>level shift</strong>.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your series</h2>
+    <label for="csv">A CSV with a header row, one row per period in time order (comma, tab or semicolon separated)</label>
+    <textarea id="csv" spellcheck="false" placeholder="month,signups&#10;2024-01,312&#10;2024-02,&#10;2024-03,298&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: the Nile's yearly flow at Aswan, 1871-1970</button>
+    <button type="button" class="secondary" id="load-example-uk">Load example: UK drivers killed or seriously injured, monthly 1969-1984</button>
+    <p class="note" id="data-status">Blank, NA or “.” cells are missing values; keep them as rows so the periods stay equally spaced.</p>
+    <div class="grid">
+      <div><label for="column">Value column</label><select id="column"></select></div>
+      <div><label for="slope">Trend</label><select id="slope"><option value="auto" selected>Automatic (lowest AIC)</option><option value="none">Level only (no slope)</option><option value="fixed">Level with a fixed drift</option><option value="stochastic">Level and slope both drift</option></select></div>
+      <div><label for="season">Seasonal period (0 = none)</label><input id="season" inputmode="numeric" placeholder="auto"></div>
+      <div><label for="band">Band coverage</label><select id="band"><option value="0.8">80%</option><option value="0.9" selected>90%</option><option value="0.95">95%</option></select></div>
+      <div><label for="horizon">Forecast periods</label><input id="horizon" inputmode="numeric" value="0"></div>
+      <div><label for="threshold">Flag at |t| above</label><input id="threshold" inputmode="decimal" value="2.5"></div>
+    </div>
+    <label class="inline" for="log"><input type="checkbox" id="log">Model the logarithm (swings grow with the level)</label>
+    <br><button type="button" id="analyze">Smooth the series</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>The series and its smoothed level</h3>
+    <p class="note"><span class="key" style="background:#8fa3cf"></span>data <span class="key" style="background:#e0a100"></span>smoothed level <span class="key" style="background:#e0a10044"></span>band <span class="key" style="background:#c0392b"></span>outlier (ring) and level shift (dashed line) <span class="key" style="background:#2a4a9a44"></span>forecast</p>
+    <div id="chart" role="img" aria-label="Line chart of the series with its smoothed level, uncertainty band, outliers, level shifts and forecast"></div>
+    <h3>Level shifts</h3>
+    <div class="scroll">
+      <table id="shift-table">
+        <thead><tr><th>Between</th><th class="n">t</th><th class="n">Level before</th><th class="n">Level after</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>Outliers</h3>
+    <div class="scroll">
+      <table id="outlier-table">
+        <thead><tr><th>Period</th><th class="n">t</th><th class="n">Value</th><th class="n">Level</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">Each t is a standardised auxiliary residual (Harvey &amp; Koopman 1992): roughly the t statistic for a one-off outlier at that period, or for a level shift between two periods. Many periods are tested, so a few values past 2 are expected by chance; past 3 is rare.</p>
+    <div id="forecast-block" hidden>
+      <h3>Forecast</h3>
+      <div class="scroll">
+        <table id="forecast-table">
+          <thead><tr><th>Ahead</th><th class="n">Forecast</th><th class="n">Interval for a new value</th><th class="n">Level</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <h3>Model</h3>
+    <div class="scroll">
+      <table id="model-table">
+        <thead><tr><th>Quantity</th><th class="n">Value</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note" id="diag-line"></p>
+    <button type="button" class="secondary" id="download">Download every period's level, band and residuals (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>The series <code>y<sub>t</sub></code> is modelled as a level plus noise, <code>y<sub>t</sub> = μ<sub>t</sub> + γ<sub>t</sub> + ε<sub>t</sub></code>, where the level is a random walk <code>μ<sub>t+1</sub> = μ<sub>t</sub> + β<sub>t</sub> + η<sub>t</sub></code>, the slope <code>β</code> is absent, fixed (a drift) or itself a random walk (the local linear trend), and <code>γ</code> is an optional dummy seasonal whose <code>s</code> values sum to about zero over a year (Harvey 1989). Every disturbance is normal with its own variance. Written in state-space form, the <strong>Kalman filter</strong> gives each period's one-step prediction and its error variance; the <strong>smoother</strong> runs backwards to give the level at each period from <em>all</em> the data, with its variance (Durbin &amp; Koopman 2012, chapter 4).</p>
+    <p>The starting level, slope and seasonal values are unknown, so they get the <strong>exact diffuse initialisation</strong> (Koopman 1997; Durbin &amp; Koopman 2012, sections 5.2 and 5.3): the state variance is split into an infinite and a finite part, and the first observations are spent pinning the start down instead of guessing a huge prior variance. The variances are chosen by <strong>maximum likelihood</strong> on the diffuse loglikelihood with the irregular variance concentrated out, by Nelder-Mead from a grid of starts. With the trend on automatic, the three trend forms are compared by AIC with the diffuse elements counted as parameters (Durbin &amp; Koopman 2012, section 7.4). Missing values skip the filter's update step. Outliers and level shifts are read from the <strong>auxiliary residuals</strong>, the smoothed disturbances divided by their standard errors (Harvey &amp; Koopman 1992; de Jong &amp; Penzer 1998). The one-step errors are checked for autocorrelation (Ljung-Box), normality (Bowman-Shenton) and a change in noise level (the H test).</p>
+    <p>Verified by tests in the source against <strong>statsmodels 0.15.0</strong>'s <code>UnobservedComponents</code> with exact diffuse initialisation, at equal variances, on five cases: the Nile series as a local level, with drift and as a local linear trend, the Nile series with seven values removed (two at the very start), and the log of the UK driver series with a 12-month seasonal. Loglikelihoods, smoothed states and their variances, smoothed disturbances and their variances, and one-step errors all agree to a relative 1e-10 or better (the largest difference is 1.1e-11; <code>eval/agreement.mjs</code> prints them). The tool's own maximum likelihood fit is at least as high as statsmodels' in every case, and on the Nile local level model it gives variances of 15,098.5 and 1,469.2, against the 15,099 and 1,469.1 reported by Durbin &amp; Koopman (2012, chapter 2).</p>
+    <h3>BibTeX</h3>
+    <pre>@book{durbin2012time,
+  author    = {Durbin, James and Koopman, Siem Jan},
+  title     = {Time Series Analysis by State Space Methods},
+  edition   = {2},
+  publisher = {Oxford University Press}, year = {2012},
+  doi       = {10.1093/acprof:oso/9780199641178.001.0001}
+}
+@article{koopman1997exact,
+  author  = {Koopman, Siem Jan},
+  title   = {Exact Initial {K}alman Filtering and Smoothing for Nonstationary Time Series Models},
+  journal = {Journal of the American Statistical Association},
+  volume  = {92}, number = {440}, pages = {1630--1638}, year = {1997},
+  doi     = {10.1080/01621459.1997.10473686}
+}
+@book{harvey1989forecasting,
+  author    = {Harvey, Andrew C.},
+  title     = {Forecasting, Structural Time Series Models and the {K}alman Filter},
+  publisher = {Cambridge University Press}, year = {1989},
+  doi       = {10.1017/CBO9781107049994}
+}
+@article{harvey1992diagnostic,
+  author  = {Harvey, Andrew C. and Koopman, Siem Jan},
+  title   = {Diagnostic Checking of Unobserved-Components Time Series Models},
+  journal = {Journal of Business \& Economic Statistics},
+  volume  = {10}, number = {4}, pages = {377--389}, year = {1992},
+  doi     = {10.1080/07350015.1992.10509913}
+}
+@article{dejong1998diagnosing,
+  author  = {de Jong, Piet and Penzer, Jeremy},
+  title   = {Diagnosing Shocks in Time Series},
+  journal = {Journal of the American Statistical Association},
+  volume  = {93}, number = {442}, pages = {796--806}, year = {1998},
+  doi     = {10.1080/01621459.1998.10473731}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Equally spaced periods.</strong> One row per period, in order. A gap must stay as a row with a blank value; dropping the row tells the model two periods are one.</li>
+      <li><strong>A flag is a lead, not a verdict.</strong> Every period is tested, so with 100 periods a value or two past |t| 2.5 can turn up by chance; a level shift and an outlier next to each other can also share one cause. Check the dates against what you know happened.</li>
+      <li><strong>Normal noise.</strong> The bands assume normal disturbances. If the residual check says the errors are not normal, or the noise grows over time, read the bands as approximate, and try the log option.</li>
+      <li><strong>The log option reports medians.</strong> Levels and bands are turned back into your units with <code>exp</code>, which keeps the band's coverage but gives the median, not the mean.</li>
+      <li><strong>Size.</strong> Up to 20,000 periods; a long series with a long seasonal (52 weeks) takes a few seconds to fit.</li>
+      <li>Not modelled: trigonometric seasonals, cycles, several series at once, explanatory variables or intervention dummies, and non-normal (count) noise. For a dated change in the mean or variance with a posterior over when, see the <a href="../changepoint-detector/">changepoint detector</a>; for a trend test, <a href="../mann-kendall-trend/">Mann-Kendall</a>; for a seasonal split without a model, <a href="../stl-decomposition/">STL decomposition</a>.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does the Kalman smoother do here?</h3>
+    <p>It splits each value of your series into an underlying level that drifts slowly and noise around it, using every value before and after each point. How much of the movement is level and how much is noise is estimated from the data by maximum likelihood, so you do not pick a window or a smoothing constant.</p>
+    <h3>How is this different from a moving average?</h3>
+    <p>A moving average uses a fixed window you choose, loses the ends of the series and gives no band. The smoother chooses its own amount of smoothing from the data, runs to both ends, fills gaps, and says how sure it is at every point. A local level model's smoother is in fact a weighted moving average whose weights the data choose.</p>
+    <h3>What is the difference between an outlier and a level shift?</h3>
+    <p>An outlier is one value far from the level, after which the series returns to where it was. A level shift is the level itself moving and staying moved. The tool tests each point both ways with auxiliary residuals: the standardised smoothed irregular for outliers, and the standardised smoothed level disturbance for shifts. A t value beyond about 2.5 is worth a look.</p>
+    <h3>Which model should I choose?</h3>
+    <p>Leave it on automatic: the tool fits a local level, a random walk with drift and a local linear trend and keeps the one with the lowest AIC, counting the diffuse starting values as Durbin and Koopman do. Add a seasonal period for monthly (12), quarterly (4) or daily data with a weekly pattern (7). Use the log option when swings grow with the level, as in sales or counts.</p>
+    <h3>Can my series have missing values?</h3>
+    <p>Yes. Leave the cell blank or write NA. The filter skips the update at that point, and the smoother fills it from both sides with a wider band. The rows must still be one per period, equally spaced, with the gap kept as a row.</p>
+    <h3>How was it checked?</h3>
+    <p>The filter and smoother are compared with statsmodels' UnobservedComponents with exact diffuse initialisation on five cases, including gaps at the start and a 12-month seasonal: loglikelihoods, smoothed states and variances, smoothed disturbances and one-step errors agree to a relative 1e-10 or better. On the Nile series the maximum likelihood variances are 15,098.5 and 1,469.2, against the 15,099 and 1,469.1 Durbin and Koopman report.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and fitted by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">What the examples show: on the <strong>Nile</strong> (yearly flow at Aswan in 10<sup>8</sup> m³, 1871-1970, public domain; Cobb 1978, <a href="https://doi.org/10.1093/biomet/65.2.243" rel="noopener">doi:10.1093/biomet/65.2.243</a>) the largest level shift is between 1898 and 1899 (t about −3), the drop usually linked to the first Aswan dam, and 1913 is the largest outlier. On the <strong>UK driver series</strong> (car drivers killed or seriously injured per month, 1969-1984; Harvey &amp; Durbin 1986), with logs and a 12-month seasonal, the largest shift is between January and February 1983 (t about −3.8): the front-seat belt law took effect on 31 January 1983. Neither date is given to the tool.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; a smoothed level is a model's reading of the series, not a measurement, a flagged shift or outlier is not proof that anything happened, and a forecast is not a promise. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions or publishers, statsmodels, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs sales.csv --log --season 12 --horizon 12</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kalman-smoother" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../stl-decomposition/">STL decomposition</a> splits trend and season, <a href="../mann-kendall-trend/">Mann-Kendall</a> tests a trend, <a href="../lomb-scargle-periodogram/">Lomb-Scargle</a> finds periods in uneven data, <a href="../gaussian-process-regression/">Gaussian process regression</a> fits a curve with an honest band, <a href="../spc-control-charts/">control charts</a> watch a process, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> give intervals with guaranteed coverage, and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, readSeries, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLE_CSV, EXAMPLE_UK_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      const s = readSeries(text);
+      if (s.error) {
+        $("#column").innerHTML = "";
+        $("#data-status").textContent = text.trim() ? s.error : "Paste a series or load an example.";
+        return;
+      }
+      const keep = $("#column").value;
+      $("#column").innerHTML = s.header.filter((h) => h !== s.timeColumn).map((h) => `<option value="${esc(h)}"${h === s.column ? " selected" : ""}>${esc(h)}</option>`).join("");
+      if ([...$("#column").options].some((o) => o.value === keep)) $("#column").value = keep;
+      const missing = s.y.filter((v) => v == null).length;
+      $("#data-status").textContent = `${s.y.length.toLocaleString("en-US")} periods${s.timeColumn ? ` labelled by “${s.timeColumn}”` : ""}, ${missing} missing.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      const season = $("#season").value.trim();
+      return {
+        csv: $("#csv").value,
+        column: $("#column").value || undefined,
+        slope: $("#slope").value,
+        season: season === "" ? "auto" : Number(season),
+        log: $("#log").checked,
+        level: Number($("#band").value),
+        horizon: Number($("#horizon").value) || 0,
+        threshold: Number($("#threshold").value) || 2.5, // zero-default: a |t| threshold of 0 would flag every period; the engine also rejects 0
+      };
+    }
+
+    function chart(r) {
+      const W = 920, H = 400, L = 74, R = 14, T = 14, B = 46;
+      const pts = r.points;
+      const n = pts.length + r.forecast.length;
+      const vals = [];
+      for (const p of pts) { if (p.y != null) vals.push(p.y); vals.push(p.levelLo, p.levelHi); }
+      for (const f of r.forecast) vals.push(f.lo, f.hi);
+      let y0 = Math.min(...vals), y1 = Math.max(...vals);
+      if (y1 === y0) { y0 -= 1; y1 += 1; }
+      const pad = (y1 - y0) * 0.04; y0 -= pad; y1 += pad;
+      const sx = (t) => L + (n <= 1 ? 0 : (t / (n - 1)) * (W - L - R));
+      const sy = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#e1e5ef"/>`;
+      for (let k = 0; k <= 4; k++) {
+        const v = y0 + ((y1 - y0) * k) / 4;
+        out += `<line x1="${L}" x2="${W - R}" y1="${sy(v).toFixed(1)}" y2="${sy(v).toFixed(1)}" stroke="#eef1f7"/><text x="${L - 6}" y="${(sy(v) + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#4a5268">${esc(fmt(v, 3))}</text>`;
+      }
+      const ticks = Math.min(6, pts.length);
+      for (let k = 0; k < ticks; k++) {
+        const t = Math.round((k * (pts.length - 1)) / Math.max(1, ticks - 1));
+        out += `<text x="${sx(t).toFixed(1)}" y="${H - 26}" text-anchor="${k === 0 ? "start" : k === ticks - 1 ? "end" : "middle"}" font-size="11" fill="#4a5268">${esc(pts[t].label)}</text>`;
+      }
+      out += `<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="#4a5268">${esc(r.column)}${r.log ? " (fitted on logs)" : ""}</text>`;
+      // band
+      const up = pts.map((p) => `${sx(p.t).toFixed(1)},${sy(p.levelHi).toFixed(1)}`);
+      const dn = pts.map((p) => `${sx(p.t).toFixed(1)},${sy(p.levelLo).toFixed(1)}`).reverse();
+      out += `<polygon points="${up.concat(dn).join(" ")}" fill="#e0a10033" stroke="none"/>`;
+      if (r.forecast.length) {
+        const base = pts.length - 1;
+        const fu = [`${sx(base).toFixed(1)},${sy(pts[base].levelHi).toFixed(1)}`, ...r.forecast.map((f) => `${sx(base + f.h).toFixed(1)},${sy(f.hi).toFixed(1)}`)];
+        const fd = [`${sx(base).toFixed(1)},${sy(pts[base].levelLo).toFixed(1)}`, ...r.forecast.map((f) => `${sx(base + f.h).toFixed(1)},${sy(f.lo).toFixed(1)}`)].reverse();
+        out += `<polygon points="${fu.concat(fd).join(" ")}" fill="#2a4a9a22" stroke="none"/>`;
+        out += `<polyline points="${[`${sx(base).toFixed(1)},${sy(pts[base].level).toFixed(1)}`, ...r.forecast.map((f) => `${sx(base + f.h).toFixed(1)},${sy(f.mean).toFixed(1)}`)].join(" ")}" fill="none" stroke="#2a4a9a" stroke-width="2" stroke-dasharray="5 4"/>`;
+      }
+      // shifts
+      for (const s of r.shifts) {
+        const x = (sx(s.t) + sx(s.t + 1)) / 2;
+        out += `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${T}" y2="${H - B}" stroke="#c0392b" stroke-dasharray="4 4"><title>Level shift between ${esc(s.from)} and ${esc(s.to)}: t = ${s.tStat.toFixed(2)}</title></line>`;
+      }
+      // data
+      let seg = [];
+      const segs = [];
+      for (const p of pts) {
+        if (p.y == null) { if (seg.length) segs.push(seg); seg = []; continue; }
+        seg.push(`${sx(p.t).toFixed(1)},${sy(p.y).toFixed(1)}`);
+      }
+      if (seg.length) segs.push(seg);
+      for (const s of segs) out += `<polyline points="${s.join(" ")}" fill="none" stroke="#8fa3cf" stroke-width="1.2"/>`;
+      if (pts.length <= 400) for (const p of pts) if (p.y != null) out += `<circle cx="${sx(p.t).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="1.8" fill="#8fa3cf"><title>${esc(p.label)}: ${esc(fmt(p.y))}; level ${esc(fmt(p.level))}</title></circle>`;
+      out += `<polyline points="${pts.map((p) => `${sx(p.t).toFixed(1)},${sy(p.level).toFixed(1)}`).join(" ")}" fill="none" stroke="#e0a100" stroke-width="2.4"/>`;
+      for (const o of r.outliers) out += `<circle cx="${sx(o.t).toFixed(1)}" cy="${sy(o.y).toFixed(1)}" r="6" fill="none" stroke="#c0392b" stroke-width="2"><title>Outlier ${esc(o.label)}: ${esc(fmt(o.y))}, t = ${o.tStat.toFixed(2)}</title></circle>`;
+      return out + "</svg>";
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const pct = Math.round(r.level * 100);
+      const lastP = r.points[r.points.length - 1];
+      const stat = (v, l) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`;
+      $("#stats").innerHTML = stat(fmt(lastP.level), `level at ${lastP.label} (${pct}% band ${fmt(lastP.levelLo)} to ${fmt(lastP.levelHi)})`)
+        + stat(Number.isFinite(r.model.signalToNoise) ? fmt(r.model.signalToNoise, 3) : "∞", "signal-to-noise (level ÷ irregular variance)")
+        + stat(String(r.shifts.length), r.shifts.length === 1 ? "level shift flagged" : "level shifts flagged")
+        + stat(String(r.outliers.length), r.outliers.length === 1 ? "outlier flagged" : "outliers flagged");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#chart").innerHTML = chart(r);
+      $("#shift-table tbody").innerHTML = r.shifts.map((s) => `<tr><td>${esc(s.from)} → ${esc(s.to)}</td><td class="n">${s.tStat.toFixed(2)}</td><td class="n">${esc(fmt(s.before))}</td><td class="n">${esc(fmt(s.after))}</td></tr>`).join("") || `<tr><td colspan="4" class="note">None past |t| ${r.threshold}.</td></tr>`;
+      $("#outlier-table tbody").innerHTML = r.outliers.map((o) => `<tr><td>${esc(o.label)}</td><td class="n">${o.tStat.toFixed(2)}</td><td class="n">${esc(fmt(o.y))}</td><td class="n">${esc(fmt(o.level))}</td></tr>`).join("") || `<tr><td colspan="4" class="note">None past |t| ${r.threshold}.</td></tr>`;
+      $("#forecast-block").hidden = !r.forecast.length;
+      $("#forecast-table tbody").innerHTML = r.forecast.map((f) => `<tr><td>+${f.h}</td><td class="n">${esc(fmt(f.mean))}</td><td class="n">${esc(fmt(f.lo))} to ${esc(fmt(f.hi))}</td><td class="n">${esc(fmt(f.level))}</td></tr>`).join("");
+      const m = r.model;
+      const rows = [["Model", m.description + (r.log ? " (on logs)" : "")]];
+      for (const [k, v] of Object.entries(m.variances)) rows.push([`${k} variance`, fmt(v)]);
+      rows.push(["Loglikelihood (diffuse)", m.loglik.toFixed(3)], ["AIC", m.aic.toFixed(2)]);
+      if (r.candidates.length > 1) rows.push(["AIC of each trend form", r.candidates.map((c) => `${c.slope} ${c.aic.toFixed(2)}`).join(", ")]);
+      $("#model-table tbody").innerHTML = rows.map(([a, b]) => `<tr><td>${esc(a)}</td><td class="n">${esc(b)}</td></tr>`).join("");
+      const d = r.diagnostics;
+      const parts = [];
+      if (d.ljungBox) parts.push(`Ljung-Box Q(${d.ljungBox.lags}) = ${d.ljungBox.Q.toFixed(2)}, p = ${d.ljungBox.p.toFixed(3)}`);
+      if (d.normality) parts.push(`normality N = ${d.normality.N.toFixed(2)}, p = ${d.normality.p.toFixed(3)}`);
+      if (d.heteroscedasticity) parts.push(`H(${d.heteroscedasticity.h}) = ${d.heteroscedasticity.H.toFixed(2)}, p = ${d.heteroscedasticity.p.toFixed(3)}`);
+      $("#diag-line").textContent = parts.length ? `Checks on the standardised one-step errors: ${parts.join("; ")}. A small p (below 0.05) points to a model that misses something.` : "Too few periods for the residual checks.";
+    }
+
+    function run() {
+      $("#status").textContent = "Fitting…";
+      // Let the status paint before the fit starts (a few seconds for long seasonal series).
+      setTimeout(() => {
+        const r = analyze(inputs());
+        if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return; }
+        $("#status").textContent = "";
+        last = r;
+        show(r);
+        record("analysis_run");
+      }, 20);
+    }
+
+    $("#analyze").addEventListener("click", () => { refreshColumns(); run(); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      $("#log").checked = false;
+      $("#season").value = "";
+      refreshColumns();
+      record("example_loaded");
+      run();
+    });
+    $("#load-example-uk").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_UK_CSV;
+      $("#log").checked = true;
+      $("#season").value = "12";
+      refreshColumns();
+      record("example_loaded");
+      run();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "kalman-smoothed.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
