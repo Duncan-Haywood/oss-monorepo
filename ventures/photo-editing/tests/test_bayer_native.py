@@ -69,6 +69,39 @@ class NativeBayer(unittest.TestCase):
                 b = self.d(c, (0, 1, 1, 2), laplace=lap, native=True)
                 self.assertTrue(np.array_equal(a, b), float(np.max(np.abs(a - b))))
 
+    def test_learned_laplace_bit_identical(self):
+        """laplace="learned" (eval/bayer-learned-native-2026-11-16.md): the eight features and the fitted
+        per-sensel weight in C equal numpy's bit for bit on every phase, both red/blue modes, tiny frames,
+        and for a 9-weight linear model and a constant one; a weight list of another length is refused."""
+
+        from shootflow import bayer_demosaic as bd
+
+        for pat in PHASES:
+            for h, w in ((97, 131), (2, 2), (3, 5), (40, 9)):
+                c = _scene(h, w, seed=h + w)
+                for rb in ("weighted", "simple"):
+                    with self.subTest(pat=pat, h=h, w=w, rb=rb):
+                        a = self.d(c, pat, rb=rb, laplace="learned", native=False)
+                        b = self.d(c, pat, rb=rb, laplace="learned", native=True)
+                        self.assertTrue(np.array_equal(a, b), float(np.max(np.abs(a - b))))
+        c = _scene(61, 73, seed=5)
+        linear = tuple(bd.LEARNED_LAPLACE[:9])
+        for coef in (linear, (0.2,) + (0.0,) * 8):
+            a = self.d(c, (1, 0, 2, 1), laplace=coef, native=False)
+            b = self.d(c, (1, 0, 2, 1), laplace=coef, native=True)
+            self.assertTrue(np.array_equal(a, b))
+        out = np.zeros((4, 4, 3), np.float32)
+        with self.assertRaises(ValueError):
+            bayer_native.piece(np.ones((8, 8), np.float32), np.ones((8, 8), np.int8), 2, 2.0, False, 1e-6, 2, 2, out,
+                               learned=(0.1,) * 10)
+
+    def test_learned_band_and_threads_change_nothing(self):
+        c = _scene(301, 77, seed=3)
+        whole = self.d(c, (0, 1, 1, 2), laplace="learned", native=True, band=1000, threads=1)
+        for band, threads in ((16, 1), (37, 3), (128, 4)):
+            got = self.d(c, (0, 1, 1, 2), laplace="learned", native=True, band=band, threads=threads)
+            self.assertTrue(np.array_equal(got, whole), (band, threads))
+
     def test_other_powers_agree_to_rounding(self):
         c = _scene(70, 90)
         for power in (1.0, 3.5):

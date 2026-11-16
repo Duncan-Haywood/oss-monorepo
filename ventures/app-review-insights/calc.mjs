@@ -124,10 +124,10 @@ export function normalizeRows(rows) {
     const row = rows[r];
     const get = (k) => (col[k] === undefined ? "" : String(row[col[k]] ?? "").trim());
     const rating = parseRating(get("rating"));
-    if (rating === null) { skipped.push({ line: r + 1, reason: "no readable 1-5 rating" }); continue; }
+    if (rating === null) { skipped.push({ line: rows[r].line ?? r + 1, reason: "no readable 1-5 rating" }); continue; }
     const date = col.date === undefined ? null : parseDate(get("date"));
     reviews.push({
-      line: r + 1, rating, date,
+      line: rows[r].line ?? r + 1, rating, date,
       text: [get("title"), get("text")].filter(Boolean).join(". "),
       version: get("version") || "", reply: get("reply"), country: get("country"),
     });

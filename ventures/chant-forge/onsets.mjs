@@ -54,7 +54,7 @@ export function frameFeatures(x, i0, rate, len = 0.02) {
   const L = Math.round(len * rate), re = new Float64Array(N), im = new Float64Array(N);
   for (let i = 0; i < L && i < N; i++) re[i] = (x[i0 + i] || 0) * (0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (L - 1)));
   fft(re, im);
-  const df = rate / N; let tot = 0, low = 0, lowMid = 0, hi = 0, hi1 = 0, mid = 0, cw = 0, best = 0, peakHz = 0;
+  const df = rate / N; let tot = 0, low = 0, lowMid = 0, hi = 0, hi1 = 0, hi5 = 0, mid = 0, cw = 0, best = 0, peakHz = 0;
   const bands = new Float64Array(8); // 500 Hz bands from 1 to 5 kHz
   for (let k = 1; k < N / 2; k++) {
     const f = k * df, p = re[k] * re[k] + im[k] * im[k];
@@ -63,6 +63,7 @@ export function frameFeatures(x, i0, rate, len = 0.02) {
     else if (f < 1000) lowMid += p;
     if (f > 1000) hi1 += p;
     if (f > 2500) hi += p;
+    if (f > 5000) hi5 += p;
     if (f >= 1000 && f <= 11000) { mid += p; cw += p * f; }
     if (f >= 1000 && f < 5000) bands[Math.floor((f - 1000) / 500)] += p;
   }
@@ -74,7 +75,7 @@ export function frameFeatures(x, i0, rate, len = 0.02) {
     let q = 0; for (let k = k0; k < k0 + w; k++) q += re[k] * re[k] + im[k] * im[k];
     if (q > slide) { slide = q; slideHz = (k0 + w / 2) * df; }
   }
-  return { tot, low, lowMid, hi1, peakHz, lowR: tot ? low / tot : 0, hiR: tot ? hi / tot : 0, centroid: mid ? cw / mid : 0, compact: mid ? best / mid : 0, compactAny: mid ? slide / mid : 0, compactHz: slideHz };
+  return { tot, low, lowMid, hi1, hi5, peakHz, lowR: tot ? low / tot : 0, hiR: tot ? hi / tot : 0, centroid: mid ? cw / mid : 0, compact: mid ? best / mid : 0, compactAny: mid ? slide / mid : 0, compactHz: slideHz };
 }
 
 // see readCoda's note on the murmur's own tilt
@@ -88,6 +89,9 @@ export const NEAR = { dark: 8, lo: -18, hi: 0, hold: 4, tiltHold: 4 };
 export const PRE = { dark: 6, step: 8, lo: -18, hi: 4, minMs: 40, gap: 5 };
 // readCoda's vowelAgain before an obstruent (see its note); chosen on eval/coda-check.mjs J only
 export const AGAIN = { gap: 5, frames: 2 };
+// readCoda's voiced fricative: how much more energy above 5 kHz than the vowel's a frame must carry (see its
+// note); chosen on synthetic syllables at part K's pitches (eval/coda-check.mjs header, tenth round)
+export const VFRIC_HI5 = 12;
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
@@ -207,12 +211,12 @@ export function expectedRead(ph) {
 // keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
 // /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
 // 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5 } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
   const avg = (k) => ref.reduce((s, f) => s + f[k], 0) / Math.max(1, ref.length);
-  const vTot = avg('tot'), vLow = avg('low'), vHi1 = avg('hi1'), vHi = avg('hiR');
+  const vTot = avg('tot'), vLow = avg('low'), vHi1 = avg('hi1'), vHi = avg('hiR'), vHi5 = avg('hi5');
   const fr = [];
   for (let i = a; i <= z; i += hop) fr.push({ t: (i - a) / rate, ...frameFeatures(x, i, rate) });
   if (fr.length < 3) return { cls: 'none' };
@@ -224,8 +228,17 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     if (s >= 0) out.push([s, fr.length - 1]);
     return out.filter((r) => msOf(r) >= minMs);
   };
-  const noisy = (f) => f.hiR > Math.max(0.5, 3 * vHi) && f.lvl > -45;
-  const vnoisy = (f) => !noisy(f) && f.hiR > Math.max(0.12, 3 * vHi) && f.lowR > 0.2 && f.hiRel > -20 && f.lvl > -35 && f.lvl < -3;
+  // A fricative adds noise: frication high up (sing.mjs's /z/ and /s/ are centred on 6.5 kHz, /v/ and /f/
+  // on 5 kHz), so a frame of one, voiced or not, carries vfricHi5 dB or more energy above 5 kHz than the
+  // vowel (2026-11-16, README "/i/ is not a voiced fricative"). Without that test, /i/ met the voiced
+  // fricative wherever its low band sank: /i/ has almost all its energy in its lowest harmonics (F1 270 Hz),
+  // so where the five detuned voices' fundamentals beat out of phase, and in its release, the low band drops
+  // 8-18 dB, the share above 2.5 kHz rises past 0.12 (past 0.5 on a short note's attack) and the frame looked
+  // voiced and noisy. Its energy above 5 kHz stays within -13 to +3 dB of the vowel's there; sung z and v sit
+  // 66 dB and more over it. `vfricHi5: false` is the reader before.
+  const hiss = (f) => vfricHi5 === false || db(f.hi5, vHi5) >= vfricHi5;
+  const noisy = (f) => f.hiR > Math.max(0.5, 3 * vHi) && f.lvl > -45 && hiss(f);
+  const vnoisy = (f) => !noisy(f) && f.hiR > Math.max(0.12, 3 * vHi) && f.lowR > 0.2 && f.hiRel > -20 && f.lvl > -35 && f.lvl < -3 && hiss(f);
   const closed = (f) => f.lvl < -22 && f.loRel < -12 && !noisy(f) && !vnoisy(f);
   // a coda's nasal must be a deeper murmur than an opening's: a vowel fading into its release also
   // loses its upper formants first (they ring for less time), by 5 to 12 dB

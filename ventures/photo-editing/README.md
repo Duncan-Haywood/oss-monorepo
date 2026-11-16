@@ -1418,8 +1418,11 @@ local features (45 weights). It is fitted by weighted least squares on 40 sample
 frames above were never in the fit. On those ten, colour PSNR is equal or higher than the 3/16 default
 on every one (+0.01 to +0.39 dB, mean +0.14). Luma is higher on every one (+0.02 to +0.66, mean +0.29),
 and that includes the A7 III and K-1 II, where the least-squares weight lost luma. It is opt-in: it
-loses on the synthetic sheet (colour -0.45 dB, false colour 42 to 59), runs in numpy only and takes
-4-6x the default's time. `tools/bayer_laplace_train.py` refits it.
+loses on the synthetic sheet (colour -0.45 dB, false colour 42 to 59) and takes longer.
+`tools/bayer_laplace_train.py` refits it. Since the same day it runs in C when a compiler is present
+(`eval/bayer-learned-native-2026-11-16.md`). On seven real frames the output equals numpy's bit for
+bit. It is 1.9-2.8x faster than numpy, and 2.6-3.3x the default's time instead of 4-6x: 2.0 s for
+24 MP on four cores.
 
 ## Pentax PEF (2026-11-14)
 

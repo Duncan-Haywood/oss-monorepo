@@ -78,7 +78,7 @@ export function normalizeRows(rows) {
   }
   const statements = [], skipped = [];
   rows.slice(1).forEach((r, i) => {
-    const line = i + 2;
+    const line = r.line ?? i + 2;
     const query = String(r[col.query] ?? "").trim();
     const calls = num(r[col.calls]);
     if (!query) return skipped.push({ line, reason: "empty query text" });

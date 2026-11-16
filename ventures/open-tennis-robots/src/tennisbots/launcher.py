@@ -85,6 +85,12 @@ TRIM = 0.25                        # fit_from_drops sets aside wheel readings th
 # of its drop), and a 30-40% drop on a wheel still braking to its new speed showed 54%. No simulated wheel under
 # 1,000 rpm was in the sweep that validated the pulse-time drops.
 MIN_FIT_RPM = 1000.0
+# The spin efficiency comes from the difference between a spin shot's two drops, a small part of each, so one wheel's
+# reading error moves it several times as far as it moves the speed fit, and the slowest wheels read worst. On the
+# simulator's held-out builds the old calibration drill (spin shots with a wheel at 1,062-1,961 rpm) read the spin
+# efficiency up to 16.6% off; the current one (every spin-shot wheel 2,500 rpm or more) 7.8% (tests/spin_drill_sweep.py,
+# firmware/esp32/README.md "Spin from fast wheels"). A log with a spin shot below this gets a note.
+SPIN_FIT_RPM = 2000.0
 
 
 @dataclass(frozen=True)
@@ -224,8 +230,15 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
     if slow:
         notes.append(f"{slow} wheel reading{'s' if slow > 1 else ''} under {MIN_FIT_RPM:.0f} rpm set aside (too few "
                      "revolutions before the verdict to read the whole drop)")
+    slow_spin = sum(1 for r in records if r.get("launched")
+                    for wt, wb in [(float(r["rpm_top"]), float(r["rpm_bottom"]))]
+                    if abs(wt - wb) > 0.05 * (wt + wb) and MIN_FIT_RPM <= min(wt, wb) < SPIN_FIT_RPM)
     if not fit_spin:
         notes.append("flat shots only: spin efficiency not fitted")
+    elif slow_spin:
+        notes.append(f"{slow_spin} spin shot{'s' if slow_spin > 1 else ''} with a wheel under {SPIN_FIT_RPM:.0f} rpm: "
+                     "spin read from slow wheels was up to 17% off on the simulator, against 8% with both wheels at "
+                     "2,500 rpm or more (drill.calibration.json's spin shots)")
     if trimmed:
         notes.append(f"{trimmed} wheel reading{'s' if trimmed > 1 else ''} more than {TRIM:.0%} off the fit set aside "
                      "(a wheel still settling when the ball came)")

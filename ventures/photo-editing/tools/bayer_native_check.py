@@ -13,7 +13,10 @@ Usage (from ``ventures/photo-editing``)::
     python3 -m venv /tmp/v && /tmp/v/bin/pip install rawpy numpy
     PYTHONPATH=src /tmp/v/bin/python tools/bayer_native_check.py FILE.ARW [...] > rows.jsonl
 
-Results: ``eval/bayer-native-2026-11-15.md``.
+``--laplace learned`` checks the learned per-sensel weight instead (and adds the default's C time on
+every CPU, ``c_default_all``, for scale).
+
+Results: ``eval/bayer-native-2026-11-15.md``; ``--laplace learned``: ``eval/bayer-learned-native-2026-11-16.md``.
 """
 
 from __future__ import annotations
@@ -58,7 +61,9 @@ def main(argv=None) -> int:
     ap.add_argument("files", nargs="+")
     ap.add_argument("--repeat", type=int, default=2)
     ap.add_argument("--rb", default="weighted", choices=("weighted", "simple"))
+    ap.add_argument("--laplace", default="0.1875", help="a fixed weight, or 'learned'")
     args = ap.parse_args(argv)
+    lap = args.laplace if args.laplace == "learned" else float(args.laplace)
 
     import rawpy
 
@@ -70,11 +75,11 @@ def main(argv=None) -> int:
         return 2
     for path in args.files:
         raw, c, pat = plane(path)
-        row = {"file": os.path.basename(path), "size": list(c.shape), "pattern": pat, "rb": args.rb}
-        t_np1, a = best(lambda: directional(c, pat, rb=args.rb, native=False, threads=1), args.repeat)
-        t_np, a = best(lambda: directional(c, pat, rb=args.rb, native=False), args.repeat)
-        t_c1, b = best(lambda: directional(c, pat, rb=args.rb, native=True, threads=1), args.repeat)
-        t_c, b = best(lambda: directional(c, pat, rb=args.rb, native=True), args.repeat)
+        row = {"file": os.path.basename(path), "size": list(c.shape), "pattern": pat, "rb": args.rb, "laplace": args.laplace}
+        t_np1, a = best(lambda: directional(c, pat, rb=args.rb, laplace=lap, native=False, threads=1), args.repeat)
+        t_np, a = best(lambda: directional(c, pat, rb=args.rb, laplace=lap, native=False), args.repeat)
+        t_c1, b = best(lambda: directional(c, pat, rb=args.rb, laplace=lap, native=True, threads=1), args.repeat)
+        t_c, b = best(lambda: directional(c, pat, rb=args.rb, laplace=lap, native=True), args.repeat)
         row["equal"] = bool(np.array_equal(a, b))
         row["max_abs_diff"] = float(np.max(np.abs(a - b)))
         row["seconds"] = {
@@ -83,6 +88,8 @@ def main(argv=None) -> int:
             "c_1_thread": round(t_c1, 3),
             "c_all": round(t_c, 3),
         }
+        if lap == "learned":
+            row["seconds"]["c_default_all"] = round(best(lambda: directional(c, pat, rb=args.rb, native=True), args.repeat)[0], 3)
         t_ahd, _ = best(
             lambda: rawpy.imread(path).postprocess(demosaic_algorithm=rawpy.DemosaicAlgorithm.AHD, output_bps=16),
             args.repeat,

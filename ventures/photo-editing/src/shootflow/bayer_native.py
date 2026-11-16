@@ -8,7 +8,9 @@ first time it is asked for and loaded through ``ctypes`` (the build and cache ru
 ``shootflow.ljpeg_native``: ``$CC`` or ``cc``, ``$SHOOTFLOW_CACHE``, ``SHOOTFLOW_NATIVE=0`` turns it
 off). With no compiler or a failed build ``piece()`` returns ``None`` and the numpy path runs.
 
-What it covers: the default settings and ``rb="simple"``, any ``window``, ``power`` and ``laplace``. The optional
+What it covers: the default settings and ``rb="simple"``, any ``window``, ``power`` and ``laplace``, and
+``laplace="learned"`` (the eight features and the fitted weight per sensel, 2026-11-16,
+``eval/bayer-learned-native-2026-11-16.md``). The optional
 median clean-up (``median_passes > 0``) stays numpy-only. The two paths agree to float32 rounding,
 not bit for bit (the C compiler may contract ``a * b + c``; ``-ffp-contract=off`` is passed to keep
 that rare): ``tests/test_bayer_native.py`` holds them within 1e-5 of full scale on edges, gratings,
@@ -63,17 +65,120 @@ static void box_sum(const float *a, float *tmp, float *out, long R, long W, int 
 
 static inline float powr(float t, float p) { return p == 2.0f ? t * t : powf(t, p); }
 
+static inline float sqz(float r) { return r / (1.0f + r); }
+static inline float clampf(float v, float lo, float hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+/* The learned per-sensel Laplacian weight of bayer_demosaic._laplace_features and _laplace_learned, written
+   into lapw (R x W). Same float32 operations in the same order as the numpy code; every intermediate numpy
+   shifts is a stored plane read through AT, so edge reads repeat as _sh repeats them. coef: intercept, the
+   8 linear terms, then (when ncoef is 45) the 36 products f_i f_j, i <= j. Returns 0 or -1 (memory). */
+static long learned_map(const float *c, const int8_t *col, long R, long W, float e, const float *coef, int ncoef,
+                        float *lapw) {
+    size_t n = (size_t)R * W;
+    float *buf = (float *)malloc(sizeof(float) * n * 15);
+    if (!buf) return -1;
+    float *F[8], *T[6], *tmp = buf + 14 * n;
+    for (int j = 0; j < 8; j++) F[j] = buf + (size_t)j * n;
+    for (int j = 0; j < 6; j++) T[j] = buf + (size_t)(8 + j) * n;
+#define LOOP for (long y = 0; y < R; y++) for (long x = 0; x < W; x++)
+#define I ((size_t)y * W + x)
+#define MH(y, x) ((AT(c, y, x - 1) + AT(c, y, x + 1)) / 2.0f)
+#define MV(y, x) ((AT(c, y - 1, x) + AT(c, y + 1, x)) / 2.0f)
+#define LH(y, x) ((2.0f * AT(c, y, x) - AT(c, y, x - 2)) - AT(c, y, x + 2))
+#define LV(y, x) ((2.0f * AT(c, y, x) - AT(c, y - 2, x)) - AT(c, y + 2, x))
+#define SG(i) (col[i] == 1 ? 1.0f : -1.0f)
+    float *ah = T[0], *bh = T[1], *av = T[2], *bv = T[3], *num = T[4], *den = T[5];
+    LOOP {
+        size_t i = I; float s = SG(i), cc = c[i];
+        ah[i] = s * (cc - MH(y, x)); bh[i] = s * LH(y, x);
+        av[i] = s * (cc - MV(y, x)); bv[i] = s * LV(y, x);
+    }
+    LOOP {
+        size_t i = I;
+        float d2a = (2.0f * ah[i] - AT(ah, y, x + 1)) - AT(ah, y, x - 1);
+        float d2b = (2.0f * bh[i] - AT(bh, y, x + 1)) - AT(bh, y, x - 1);
+        float nu = 0.0f + d2a * d2b, de = 0.0f + d2b * d2b;
+        d2a = (2.0f * av[i] - AT(av, y + 1, x)) - AT(av, y - 1, x);
+        d2b = (2.0f * bv[i] - AT(bv, y + 1, x)) - AT(bv, y - 1, x);
+        num[i] = nu + d2a * d2b; den[i] = de + d2b * d2b;
+    }
+    box_sum(num, tmp, T[0], R, W, 1, 0.0f);
+    box_sum(den, tmp, T[1], R, W, 1, e * e);
+    for (size_t i = 0; i < n; i++) F[0][i] = clampf(T[0][i] / T[1][i], 0.0f, 0.5f);
+    float *curv = T[0], *slope = T[1], *dis = T[2];
+    LOOP {
+        size_t i = I;
+        curv[i] = fabsf(LH(y, x)) + fabsf(LV(y, x));
+        slope[i] = fabsf(AT(c, y, x + 1) - AT(c, y, x - 1)) + fabsf(AT(c, y + 1, x) - AT(c, y - 1, x));
+        dis[i] = fabsf(MH(y, x) - MV(y, x));
+    }
+    box_sum(curv, tmp, T[3], R, W, 1, 0.0f);
+    box_sum(slope, tmp, T[4], R, W, 1, e);
+    box_sum(dis, tmp, T[5], R, W, 1, 0.0f);
+    for (size_t i = 0; i < n; i++) {
+        F[1][i] = sqz(T[3][i] / T[4][i]);
+        F[2][i] = sqz(T[5][i] / (T[3][i] * 0.25f + e));
+    }
+    LOOP { size_t i = I; T[4][i] = (fabsf(c[i]) + fabsf(MH(y, x))) + fabsf(MV(y, x)); }
+    box_sum(T[4], tmp, T[5], R, W, 1, e);  /* T[5]: level */
+    for (size_t i = 0; i < n; i++) F[5][i] = sqz((4.0f * T[3][i]) / T[5][i]);
+    box_sum(curv, tmp, T[3], R, W, 2, 0.0f);
+    box_sum(slope, tmp, T[4], R, W, 2, e);
+    for (size_t i = 0; i < n; i++) F[6][i] = sqz(T[3][i] / T[4][i]);
+    box_sum(dis, tmp, T[4], R, W, 2, 0.0f);
+    for (size_t i = 0; i < n; i++) F[7][i] = sqz(T[4][i] / (T[3][i] * 0.25f + e));
+    float *dh = T[0], *dv = T[1];
+    LOOP {
+        size_t i = I; float s = SG(i), cc = c[i];
+        dh[i] = s * (cc - (MH(y, x) + 0.1875f * LH(y, x)));
+        dv[i] = s * (cc - (MV(y, x) + 0.1875f * LV(y, x)));
+    }
+    for (size_t i = 0; i < n; i++) T[2][i] = fabsf(dh[i]) + fabsf(dv[i]);
+    box_sum(T[2], tmp, T[3], R, W, 1, 0.0f);
+    for (size_t i = 0; i < n; i++) F[4][i] = sqz(T[3][i] / T[5][i]);
+    LOOP { size_t i = I; T[2][i] = fabsf(dh[i] - AT(dh, y, x + 1)) + fabsf(dh[i] - AT(dh, y, x - 1)); }
+    box_sum(T[2], tmp, T[3], R, W, 2, 0.0f);  /* gh */
+    LOOP { size_t i = I; T[2][i] = fabsf(dv[i] - AT(dv, y + 1, x)) + fabsf(dv[i] - AT(dv, y - 1, x)); }
+    box_sum(T[2], tmp, T[4], R, W, 2, 0.0f);  /* gv */
+    for (size_t i = 0; i < n; i++) F[3][i] = fabsf(T[3][i] - T[4][i]) / ((T[3][i] + T[4][i]) + e);
+    for (size_t i = 0; i < n; i++) {
+        float f[8], w = coef[0];
+        for (int j = 0; j < 8; j++) f[j] = F[j][i];
+        for (int j = 0; j < 8; j++) w += coef[1 + j] * f[j];
+        if (ncoef > 9) {
+            int t = 9;
+            for (int a = 0; a < 8; a++)
+                for (int b = a; b < 8; b++) w += coef[t++] * (f[a] * f[b]);
+        }
+        lapw[i] = clampf(w, 0.125f, 0.25f);
+    }
+#undef LOOP
+#undef I
+#undef MH
+#undef MV
+#undef LH
+#undef LV
+#undef SG
+    free(buf);
+    return 0;
+}
+
 long shootflow_bayer_piece(const float *c, const int8_t *col, long R, long W, int window, float power,
                            float lap, int simple, float eps, long oy0, long orows, long ox0, long ow,
-                           float *out, long ostride) {
+                           float *out, long ostride, const float *coef, int ncoef) {
     size_t n = (size_t)R * W;
     if (window < 0 || window > M - 4) return -2;
+    if (ncoef != 0 && ncoef != 9 && ncoef != 45) return -3;
     long *tab = (long *)malloc(sizeof(long) * (size_t)(W + R + 4 * M));
-    float *buf = (float *)malloc(sizeof(float) * n * 13);
-    if (!buf || !tab) { free(buf); free(tab); return -1; }
+    float *lapw = ncoef ? (float *)malloc(sizeof(float) * n) : 0;
+    if (!tab || (ncoef && !lapw)) { free(tab); free(lapw); return -1; }
     for (long x = -M; x < W + M; x++) tab[x + M] = x < 0 ? 0 : (x >= W ? W - 1 : x);
     for (long y = -M; y < R + M; y++) tab[W + 2 * M + y + M] = (y < 0 ? 0 : (y >= R ? R - 1 : y)) * W;
     CX = tab + M; CY = tab + W + 3 * M;
+    /* the learned weight's 15 feature planes are freed before the 13 below are taken */
+    if (ncoef && learned_map(c, col, R, W, eps, coef, ncoef, lapw) != 0) { free(tab); free(lapw); return -1; }
+    float *buf = (float *)malloc(sizeof(float) * n * 13);
+    if (!buf) { free(tab); free(lapw); return -1; }
     float *est_h = buf, *est_v = buf + n, *dh = buf + 2 * n, *dv = buf + 3 * n;
     float *gh = buf + 4 * n, *gv = buf + 5 * n, *tmp = buf + 6 * n;
     float *wh = buf + 7 * n, *wv = buf + 8 * n, *green = buf + 9 * n;
@@ -87,8 +192,9 @@ long shootflow_bayer_piece(const float *c, const int8_t *col, long R, long W, in
         for (long x = 0; x < W; x++) {
             size_t i = (size_t)y * W + x;
             float cc = c[i];
-            float eh = (AT(c, y, x - 1) + AT(c, y, x + 1)) / 2.0f + ((2.0f * cc - AT(c, y, x - 2)) - AT(c, y, x + 2)) * lap;
-            float ev = (AT(c, y - 1, x) + AT(c, y + 1, x)) / 2.0f + ((2.0f * cc - AT(c, y - 2, x)) - AT(c, y + 2, x)) * lap;
+            float L = lapw ? lapw[i] : lap;
+            float eh = (AT(c, y, x - 1) + AT(c, y, x + 1)) / 2.0f + ((2.0f * cc - AT(c, y, x - 2)) - AT(c, y, x + 2)) * L;
+            float ev = (AT(c, y - 1, x) + AT(c, y + 1, x)) / 2.0f + ((2.0f * cc - AT(c, y - 2, x)) - AT(c, y + 2, x)) * L;
             float s = col[i] == 1 ? 1.0f : -1.0f;
             est_h[i] = eh; est_v[i] = ev;
             dh[i] = s * (cc - eh); dv[i] = s * (cc - ev);
@@ -170,6 +276,7 @@ long shootflow_bayer_piece(const float *c, const int8_t *col, long R, long W, in
 done:
     for (int d = 0; d < 4; d++) free(wd[d]);
     free(buf);
+    free(lapw);
     free(tab);
     return rc;
 }
@@ -210,7 +317,8 @@ def _load():
     fn = lib.shootflow_bayer_piece
     fn.restype = ctypes.c_long
     L, P = ctypes.c_long, ctypes.c_void_p
-    fn.argtypes = [P, P, L, L, ctypes.c_int, ctypes.c_float, ctypes.c_float, ctypes.c_int, ctypes.c_float, L, L, L, L, P, L]
+    fn.argtypes = [P, P, L, L, ctypes.c_int, ctypes.c_float, ctypes.c_float, ctypes.c_int, ctypes.c_float, L, L, L, L, P, L,
+                   P, ctypes.c_int]
     return fn
 
 
@@ -229,10 +337,12 @@ def available() -> bool:
 
 
 def piece(c, colours, window: int, power: float, simple: bool, eps: float, oy0: int, ox0: int, out,
-          laplace: float = 0.1875) -> bool:
+          laplace: float = 0.1875, learned=None) -> bool:
     """Demosaic the padded band ``c`` (float32, C-contiguous, colour per sensel in ``colours``, int8) into
     ``out`` (a (rows, cols, 3) float32 view with unit column stride), whose top-left is band row ``oy0``,
-    column ``ox0``. False when the C path is unavailable (the caller runs numpy)."""
+    column ``ox0``. ``learned``: the weights of a learned per-sensel Laplacian weight (9 or 45, as
+    ``bayer_demosaic.LEARNED_LAPLACE``) in place of the fixed ``laplace``. False when the C path is
+    unavailable (the caller runs numpy)."""
 
     import numpy as np
 
@@ -245,9 +355,13 @@ def piece(c, colours, window: int, power: float, simple: bool, eps: float, oy0: 
     rows, cols, three = out.shape
     if three != 3 or out.dtype != np.float32 or out.strides[1] != 12 or out.strides[2] != 4:
         raise ValueError("out must be a float32 (rows, cols, 3) view with packed sensels")
+    coef = np.ascontiguousarray(learned if learned is not None else (), dtype=np.float32)
+    if coef.size not in (0, 9, 45):
+        raise ValueError(f"{coef.size} learned weights: the native demosaic takes 9 or 45")
     rc = fn(
         c.ctypes.data, colours.ctypes.data, R, W, int(window), float(power), float(laplace), 1 if simple else 0, float(eps),
         oy0, rows, ox0, cols, out.ctypes.data, out.strides[0] // 4,
+        coef.ctypes.data if coef.size else None, int(coef.size),
     )
     if rc == -2:
         raise ValueError("the native Bayer demosaic takes window 0 to 12")

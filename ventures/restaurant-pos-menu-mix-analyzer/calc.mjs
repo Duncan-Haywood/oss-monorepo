@@ -154,10 +154,10 @@ export function parseCostList(text, decimalComma = false) {
   const d = detectDelimiter(raw);
   const dc = decimalComma || d === ";";
   parseCsv(raw, d).forEach((row, i) => {
-    if (row.length < 2) { skipped.push({ line: i + 1, reason: "needs item and cost" }); return; }
+    if (row.length < 2) { skipped.push({ line: row.line ?? i + 1, reason: "needs item and cost" }); return; }
     const name = row.slice(0, -1).join(d).trim();
     const c = parseNumber(row[row.length - 1], dc);
-    if (!name || !Number.isFinite(c)) { if (i > 0) skipped.push({ line: i + 1, reason: "cost not readable" }); return; }
+    if (!name || !Number.isFinite(c)) { if (i > 0) skipped.push({ line: row.line ?? i + 1, reason: "cost not readable" }); return; }
     map.set(normName(name), Math.abs(c));
   });
   return { map, skipped };
