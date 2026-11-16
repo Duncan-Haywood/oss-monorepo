@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-16 · Milestone 7r: retune under the sourced, exactly solved closure, and re-ask whether training across levers buys robustness (predictions written and committed before `experiments/m7r_retune/run.py` was run at full budget; outcome below)
+
+- Why: milestone 7q's first next step. 7q found the closure the programme tuned on since milestone 0 was solved by a truncated iteration and built on constants 12-72% off listed data; with them sourced and Li-ion cells (`src_li`) every design closes at about 0.75 kg, and the old tunes crash 20-33 more flights of 64 per design at lever 2, 45°. Those gains were tuned on vehicles that do not exist. 7i's finding (a lever-aware objective buys lever-2 robustness by buying mass) and 7l's (a lever-1 tuner with the wide box trades robustness for a lighter airframe) both rest on that closure.
+- Plan (`experiments/m7r_retune/run.py`): two arms, each exactly 7l `t45 cap wide` or 7m `aware cap wide` (45° tilt limit, A_P cap, kp box 0.1-31.6 s⁻², integrator feed-forward, margin constraint, TWR 2, 3200 CMA-ES evaluations, 6 seeds × 2 starts × 2 geometries) with only the closure set to 7q's `src_li` (209.9 Wh/kg, motor 0.0290 (T/9 N)^1.041 kg, FM·η 0.426, `SIZE_SOLVE = "exact"`). A design with no fixed point sizes to the 20 kg clamp and fails the $300 cap (score −99). Held-out as 7m: 26 conditions, 64 episodes, seed 9999. The published 7l and 7m designs are re-scored under `inh60` (as published) and `src_li` (not retuned) by the same function.
+- Looked at before writing these: a smoke run (64 evaluations, 2 seeds, 4 training episodes, scored on seed 4242, not the held-out seed) to check the script runs; its designs are unconverged and say nothing about the questions.
+- Predictions (L2-45 = diverged flights at lever 2, 45°, cap, of 64 per seed, summed over 6 seeds unless stated):
+  - R1 (prior 95%): all 24 retuned designs are valid under `src_li` (close at 15 min, feasible, margin ρ < 1).
+  - R2 (prior 60%): every arm-geometry's mean retuned mass lies in 0.65-0.90 kg.
+  - R3 (prior 75%): in `below`, 7l `src_li` crashes on fewer L2-45 flights per design than the old 7l designs under `src_li` (43.0 per design over the 5 valid ones; in `above` none of the old ones is valid).
+  - R4 (prior 60%): retuned, 7l `src_li` still crashes on more L2-45 flights than 7l under `inh60` (73 and 105) in both geometries: the lighter vehicle is less robust even when tuned for.
+  - R5 (prior 55%): 7i's question: `aware src_li` crashes on fewer L2-45 flights than 7l `src_li` in both geometries.
+  - R6 (prior 50%): the lever-aware tuner still buys mass: `aware src_li`'s mean mass is at least 5% above 7l `src_li`'s in both geometries.
+  - R7 (prior 50%): 7l `src_li`'s median lever-1, 45° tracking J (cap) is within 0.10 of 7l under `inh60` (−1.551, −1.502) in both geometries.
+- Analysis: counts per arm, geometry and condition; mass, power, arm, propeller, cant, gains; validity and `emax`. No test beyond counts (six seeds, one held-out set).
+
 ## 2026-11-16 · Milestone 7q: does the sizing closure hold with component constants taken from listed data, and is it solved? (predictions written and committed before `experiments/m7q_closure/run.py` was run with flights; outcome below)
 
 - Why: milestone 7p's first next step. 7p found that the sizing closure (15 min endurance; battery 150 Wh/kg at 80% depth of discharge; motor mass 0.045 (Tmax / 9 N)^1.2 kg; propulsive efficiency FM·η = 0.65 × 0.75; all inherited and ASSUMED) multiplies a frame-mass change 6-15 times, so every mass-dependent result leans on it.
