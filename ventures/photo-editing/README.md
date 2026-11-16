@@ -1365,6 +1365,25 @@ refused: keeping green out of the median (now `directional(..., median_green=Fal
 six of seven noise-free, up to 1.4 dB, a wash at SNR 25) and a green-guided red/blue step. The default is
 unchanged.
 
+### Noise-aware demosaic: bilinear where edge-keeping only adds noise (2026-11-16)
+
+`shootflow develop FILE.dng --demosaic noise-aware` (opt-in, numpy, Bayer and X-Trans) blends the
+directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
+directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
+comes from the DNG's own NoiseProfile tag, which phones and converted DNGs write. Without the tag the
+file develops as directional, and the notes say so. On 25 held-out sample files (scenes from 41 bodies,
+noise drawn at three levels), colour PSNR rises +0.43 dB on X-Trans and +0.31 dB on Bayer over the
+directional default on average, +0.93 / +0.68 dB at SNR 12, and no tile is worse by more than 0.01 dB.
+That beats the best single blend weight per frame chosen with the truth in hand (+0.41 / +0.26). The
+answer to "which frames want less edge-keeping" is "parts of every frame".
+
+Measured, not shipped: the same blend with the noise estimated from the mosaic, which reads texture as
+noise on detailed frames and lost up to 5 dB. Also measured, not shipped: one weight per frame, worst
+-2.6 dB. It stays opt-in because a profile that overstates the noise by about 1.5x starts to cost detail,
+and only one real profile (an LG Nexus 5X's, about 20% above the in-frame estimate) has been checked.
+4.4 s against 2.0 s for 12 MP. How it was checked:
+`tools/xtrans_frame_choice.py`, `eval/xtrans-noise-aware-blend-2026-11-16.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
