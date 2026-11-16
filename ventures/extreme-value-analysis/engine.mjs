@@ -708,11 +708,24 @@ const dayNumber = ({ y, mo, d }) => Date.UTC(y, mo - 1, d) / 86400000;
 
 // ---------------------------------------------------------------- analysis
 
+// "2, 10, 100, 1,000" or "2 10 100 1000": whitespace, semicolons and ", " separate; a bare
+// comma inside 1,000 is a thousands separator when the groups after it are three digits.
+export function parseNumberList(text) {
+  const out = [];
+  for (const tok of String(text).split(/;|,\s+|\s+/)) {
+    const t = tok.trim();
+    if (!t) continue;
+    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) out.push(Number(t.replace(/,/g, "")));
+    else for (const part of t.split(",")) if (part.trim()) out.push(Number(part));
+  }
+  return out;
+}
+
 export function analyze(input = {}) {
   const o = { ...DEFAULTS, ...input };
   const conf = Number(o.confidence);
   if (!(conf > 0.5 && conf < 0.9999)) throw new Error("confidence must be between 0.5 and 0.9999");
-  const periods = (Array.isArray(o.returnPeriods) ? o.returnPeriods : String(o.returnPeriods).split(/[\s,]+/)).map(Number).filter((t) => t > 1);
+  const periods = (Array.isArray(o.returnPeriods) ? o.returnPeriods.map(Number) : parseNumberList(o.returnPeriods)).filter((t) => t > 1);
   if (!periods.length) throw new Error("give at least one return period above 1 year");
   const yearStart = Math.round(Number(o.yearStart) || 1);
   if (yearStart < 1 || yearStart > 12) throw new Error("yearStart is a month, 1 to 12");

@@ -62,7 +62,7 @@ export function parseArgs(argv) {
     o[k] = Number(o[k]);
     if (!Number.isFinite(o[k])) throw new Error(`--${k.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())} must be a number`);
   }
-  if (o.returnPeriods !== undefined) o.returnPeriods = String(o.returnPeriods).split(",").map(Number);
+  if (o.returnPeriods !== undefined) o.returnPeriods = String(o.returnPeriods).split(",").map(Number); // "2,10,100,1000": no thousands commas here
   return o;
 }
 

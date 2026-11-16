@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   analyze, fitGev, fitGumbel, fitGpd, gevNll, gpdNll, gevQuantileUpper, gevCdf, gpdCdf, gpdQuantile, potReturnLevel,
-  decluster, quantile, normQuantile, normCdf, chi2Sf1, chi2Q1, gamma, sampleLMoments, riskOverLife, periodForRisk, readSeries, parseCsv, sampleInput,
+  decluster, quantile, parseNumberList, normQuantile, normCdf, chi2Sf1, chi2Q1, gamma, sampleLMoments, riskOverLife, periodForRisk, readSeries, parseCsv, sampleInput,
 } from "./engine.mjs";
 
 const file = (f) => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
@@ -165,4 +165,11 @@ test("incomplete years are left out of the annual maxima and named", () => {
   const r = analyze({ csv: rows.join("\n"), profile: false, trend: false, method: "gev" });
   assert.equal(r.block.nYears, 9);
   assert.match(r.warnings.join(" "), /incomplete year\(s\).*2009/);
+});
+
+test("return periods: a thousands comma is not a separator", () => {
+  assert.deepEqual(parseNumberList("2, 10, 100, 1,000"), [2, 10, 100, 1000]);
+  assert.deepEqual(parseNumberList("2,10,100"), [2, 10, 100]);
+  assert.deepEqual(parseNumberList("5 50; 500"), [5, 50, 500]);
+  assert.deepEqual(analyze({ ...sampleInput(), returnPeriods: "10, 1,000" }).block.returnLevels.map((r) => r.T), [10, 1000]);
 });

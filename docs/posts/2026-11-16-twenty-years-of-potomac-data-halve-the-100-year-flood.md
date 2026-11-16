@@ -1,8 +1,8 @@
 ---
 title: "Twenty years of Potomac data halve the 100-year flood"
-seo_title: "100-year flood calculator online: GEV, Gumbel and peaks over threshold, checked against scipy"
+seo_title: "100-year flood calculator: GEV, Gumbel and peaks over threshold"
 date: 2026-11-16
-description: "A new free extreme value tool fits GEV, Gumbel and generalized Pareto models with profile-likelihood intervals. On USGS Potomac data, a 20-year record halves the 100-year flood."
+description: "A free extreme value tool with profile-likelihood intervals, checked against scipy. On USGS Potomac data, a 20-year record halves the 100-year flood."
 tags: [extreme-value-analysis, hydrology, return-levels, research-algorithms, verification]
 ---
 

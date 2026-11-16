@@ -90,7 +90,7 @@
       <div><label for="threshold">Threshold (blank: 98th percentile)</label><input id="threshold" inputmode="decimal" placeholder="e.g. 60000"></div>
       <div><label for="run-length">New event after this many readings below it</label><input id="run-length" type="number" min="1" step="1" value="3"></div>
       <div><label for="per-year">Readings a year (only if there are no dates)</label><input id="per-year" inputmode="decimal" placeholder="e.g. 365"></div>
-      <div><label for="periods">Return periods, years</label><input id="periods" value="2, 5, 10, 25, 50, 100, 200, 500"></div>
+      <div><label for="periods">Return periods, years (comma and space between)</label><input id="periods" value="2, 5, 10, 25, 50, 100, 200, 500"></div>
       <div><label for="confidence">Interval level</label><select id="confidence">
         <option value="0.95">95%</option>
         <option value="0.9">90%</option>
@@ -166,7 +166,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, readSeries, fmt, formatP, gevQuantileUpper, potReturnLevel } from "./engine.mjs";
+    import { analyze, readSeries, parseNumberList, fmt, formatP, gevQuantileUpper, potReturnLevel } from "./engine.mjs";
     import { ANNUAL_PEAKS_CSV, DAILY_FLOW_CSV } from "./example-data.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -187,7 +187,7 @@
     }
 
     function readInput() {
-      const periods = $("#periods").value.split(/[\s,]+/).map(Number).filter((t) => t > 1);
+      const periods = parseNumberList($("#periods").value).filter((t) => t > 1);
       return {
         csv: $("#csv").value, value: $("#value").value, date: $("#date").value, year: $("#year").value,
         yearStart: Number($("#year-start").value), method: $("#method").value,
