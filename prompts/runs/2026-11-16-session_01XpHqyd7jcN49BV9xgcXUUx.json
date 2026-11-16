@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyd7jcN49BV9xgcXUUx",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T15:56:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: new research-algorithm tool, Kalman smoother for structural time-series models",
+  "projects": [
+    "kalman-smoother"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16623",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 46,
+  "outcome": "success",
+  "errors": [
+    "First SOURCE.md draft carried a placeholder SHA-256 line; caught and replaced with the computed hashes before commit.",
+    "First fit of the UK series (auto trend, 13 states) took 26 s; fixed with a likelihood-only sparse filter with steady-state shortcut (2.5 s).",
+    "Loosening the Nelder-Mead stopping rule moved the Nile variance to 15,098.6; a page test pinned to 15,098.5 caught it; added a tight final polish."
+  ],
+  "integrity_issues": [
+    "The Durbin & Koopman Nile figures (15,099 and 1,469.1) are quoted as widely cited; the book was not re-read in this session. README says so."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "No pointer to portfolio/research-tools/README.md, though most recent explore runs build there; found it only by grepping run records."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-a-kalman-smoother-that-found-the-seat-belt-law.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: a Kalman smoother / structural time-series tool (ventures/kalman-smoother), since the repository had no state-space model. Exact diffuse filter and smoother (Durbin & Koopman 2012; Koopman 1997), MLE with concentrated scale, AIC with diffuse elements to choose drift/trend, dummy seasonal, missing values, forecasts, auxiliary residuals for outliers and level shifts. Verified against statsmodels 0.15.0 exact-diffuse UnobservedComponents on 5 cases at equal variances: max relative difference 1.1e-11 (eval/agreement.mjs); own MLE >= statsmodels' in all 5. Finds Nile 1898-99 and UK Jan-Feb 1983 seat-belt law unprompted. statsmodels' default exact-diffuse fit of the Nile stops short (15,067.6/1,484.8, loglik 8e-5 below optimum). No agent doc in docs/reports: the README and research-tools candidates list carry what the next run needs.",
+  "corrections": [],
+  "redteam": null
+}
