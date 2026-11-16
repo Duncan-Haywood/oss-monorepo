@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Develop CR3, ARW, NEF, RAF and RW2 raw files without Adobe DNG Converter | ShootFlow</title>
-  <meta name="description" content="Which camera RAW formats ShootFlow reads directly (DNG, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF), the real camera files each was checked on, and what is still refused. Checked sensel for sensel against LibRaw 0.22.">
+  <meta name="description" content="Which camera RAW formats ShootFlow reads directly (DNG, CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF), the real camera files each was checked on, and what is still refused. Checked sensel for sensel against LibRaw 0.22.">
   <meta name="robots" content="index,follow">
   <meta property="og:title" content="Develop camera RAW files without Adobe DNG Converter | ShootFlow">
-  <meta property="og:description" content="Ten RAW formats read directly, each checked on real camera files against LibRaw 0.22, with what is still refused.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Which camera RAW files can ShootFlow develop without Adobe DNG Converter?","dateModified":"2026-11-16","about":"Camera RAW file decoding: DNG, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF","isPartOf":{"@type":"SoftwareApplication","name":"ShootFlow","applicationCategory":"MultimediaApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}}</script>
+  <meta property="og:description" content="Eleven RAW formats read directly, each checked on real camera files against LibRaw 0.22, with what is still refused.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Which camera RAW files can ShootFlow develop without Adobe DNG Converter?","dateModified":"2026-11-16","about":"Camera RAW file decoding: DNG, CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF","isPartOf":{"@type":"SoftwareApplication","name":"ShootFlow","applicationCategory":"MultimediaApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}}</script>
   <style>
     :root{color-scheme:light dark;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;--bg:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8;--code:#fff;--ok:#2f6b3a;--chip:#efe7d8}
     @media (prefers-color-scheme:dark){:root{--bg:#16181b;--ink:#ece8df;--muted:#b3ada3;--line:#343840;--accent:#f0a487;--panel:#1e2125;--code:#121417;--ok:#8fd19e;--chip:#2a2e34}}
@@ -50,14 +50,14 @@
 </head>
 <body>
 <main>
-  <p class="kicker"><a href="./">ShootFlow</a> · camera RAW support · as of 2026-11-15</p>
+  <p class="kicker"><a href="./">ShootFlow</a> · camera RAW support · as of 2026-11-16</p>
   <h1>Which camera RAW files can ShootFlow develop without Adobe DNG Converter?</h1>
   <div class="answer">
-    <p><strong>Ten formats, read directly:</strong> DNG, Canon CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF, including X-Trans and Fujifilm's compressed modes.</p>
+    <p><strong>Eleven formats, read directly:</strong> DNG, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF, including X-Trans and Fujifilm's compressed modes.</p>
     <p>Each reader was checked on real camera files from public sample collections against LibRaw 0.22, the open-source decoder behind most raw software. For every format, every sensor value read was equal to LibRaw's, and so were the as-shot white balance and colour filter layout. Source: the project's <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/photo-editing/eval">evaluation records</a>, one per format.</p>
   </div>
   <ul class="chips" aria-label="Formats read directly">
-    <li>.DNG</li><li>.CR2</li><li>.CR3</li><li>.ARW</li><li>.NEF</li><li>.ORF</li><li>.RW2</li><li>.RWL</li><li>.SRW</li><li>.PEF</li><li>.RAF</li>
+    <li>.DNG</li><li>.CRW</li><li>.CR2</li><li>.CR3</li><li>.ARW</li><li>.NEF</li><li>.ORF</li><li>.RW2</li><li>.RWL</li><li>.SRW</li><li>.PEF</li><li>.RAF</li>
   </ul>
 
   <section aria-labelledby="table-h">
@@ -69,6 +69,7 @@
       <tbody>
         <tr><td>CR3</td><td data-label="Checked">Canon EOS R8 (full quality and C-RAW), EOS R3 (C-RAW)</td><td data-label="Result" class="ok">Every sensor value equal on all five files (25.5 M each)</td><td data-label="Refused">None known. Tiled files (R5 class), full quality and C-RAW, are read but checked only on real R8 and R3 frames re-stored as tiles; C-RAW tiles stacked one above another disagree with LibRaw at the seam rows (a LibRaw bug found, one difference still open).</td></tr>
         <tr><td>CR2</td><td data-label="Checked">Canon 350D, 600D, 70D, 7D, 5D Mark II</td><td data-label="Result" class="ok">0 sensor values different on all five; 5D Mark II render a median 0.61 of an 8-bit step from LibRaw's</td><td data-label="Refused">sRAW and mRAW</td></tr>
+        <tr><td>CRW</td><td data-label="Checked">20 real files from 15 Canon bodies of 2000-2004: EOS D30, D60, 10D, 300D (Digital Rebel); PowerShot G2, G3, G5, G6, Pro1, S30, S40, S45, S50, S60, S70</td><td data-label="Result" class="ok">Every sensor value equal on all 20 (114.0 M), and the white balance wherever the file records one</td><td data-label="Refused">The four-colour (cyan, magenta, yellow, green) PowerShot G1, Pro70 and Pro90 IS</td></tr>
         <tr><td>ARW</td><td data-label="Checked">Sony DSLR-A500, NEX-5N, NEX-7, A5000, A7 III, A7 IV (lossless)</td><td data-label="Result" class="ok">133.9 M sensor values equal</td><td data-label="Refused">ARW 1.0 (DSLR-A100), SR2 and SRF</td></tr>
         <tr><td>NEF</td><td data-label="Checked">18 real NEFs from 16 Nikon bodies, D70 to D810, D3400 to D5600, D5, 1 J5, Z 6II</td><td data-label="Result" class="ok">Every decoded sensor value equal on 18 of 18</td><td data-label="Refused">High-efficiency NEF (Z bodies) and Coolpix NEF</td></tr>
         <tr><td>RAF</td><td data-label="Checked">Fujifilm X-E1, X-E2, FinePix S5500; lossless compressed X-T2, X-H1, X-T3, X-S10, GFX 50S; lossy compressed X-S10, X-E4</td><td data-label="Result" class="ok">Every sensor value equal on all ten files, X-Trans included</td><td data-label="Refused">SuperCCD</td></tr>
@@ -109,6 +110,8 @@ PYTHONPATH=src python3 -m shootflow.cli develop DSCF0001.RAF --dcp ~/profiles --
     <p>Yes: uncompressed, lossless compressed and lossy compressed RAFs, X-Trans and GFX Bayer. On ten real files from nine bodies every sensor value matched LibRaw. X-Trans files are demosaiced with a directional method written for the 6x6 layout.</p>
     <h3>Which newer Nikon and Panasonic files does it not read yet?</h3>
     <p>Nikon's high-efficiency NEF from Z bodies, Coolpix NEFs, and Panasonic's old 16-bit RawFormat 2 and 3. Those files are refused with a message to convert to DNG first.</p>
+    <h3>Can I still develop old Canon CRW files from a 10D, 300D or PowerShot G5?</h3>
+    <p>Yes, from 2026-11-16, without converting them to DNG. On 20 real CRW files from 15 Canon bodies (EOS D30, D60, 10D, 300D and the PowerShot G2 to G6, Pro1 and S30 to S70) every sensor value matched LibRaw 0.22, and so did the as-shot white balance wherever the file records one. When a PowerShot was set to Auto white balance the file keeps no balance for the shot, so none is applied and the report says so. The four-colour G1, Pro70 and Pro90 IS are refused. A file takes 2 to 5 seconds to read. Colour needs a <code>.dcp</code> profile for the camera, such as the ones Adobe DNG Converter installs for the cameras it supports.</p>
     <h3>Does it read Leica RWL files?</h3>
     <p>Yes, from 2026-11-16. Leica's D-LUX, V-LUX and C-LUX are built by Panasonic and write the same file as a Lumix under another name. On a real D-LUX (Typ 109) and V-LUX (Typ 114) file every one of 32.7 M sensor values, the white balance, black level, colour pattern and crop matched LibRaw 0.22. Colour needs Adobe's <code>.dcp</code> for the Leica model.</p>
     <h3>Will the card copy leave behind raw files it cannot develop?</h3>
