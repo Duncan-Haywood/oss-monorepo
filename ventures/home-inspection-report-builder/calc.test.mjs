@@ -180,3 +180,36 @@ test("both reports carry a not-inspected record and the inspector's scope; saved
   assert.equal(back.header.notInspected, hdr.notInspected);
   assert.equal(back.header.scope, hdr.scope);
 });
+
+// Red team 2026-11-16: findings.map(normalise) handed normalise the array index as `issues`, so a
+// bad cost on the second or later finding threw "issues.push is not a function" from summarize,
+// toText and toHtml (the page's "Download text" button), and the first finding's was dropped silently.
+test("a bad cost on any finding never crashes a report", () => {
+  const fs = [
+    { title: "GFCI", severity: "safety" },
+    { title: "Gutter", severity: "minor", costLow: "-5", costHigh: "abc" },
+    { title: "Flashing", severity: "urgent", costHigh: 400 },
+  ];
+  assert.equal(summarize(fs).total, 3);
+  assert.match(toText({}, fs), /Gutter/);
+  assert.match(toHtml({}, fs), /Flashing/);
+  assert.doesNotThrow(() => normalise(fs[1], 1), "a non-array issues argument is ignored");
+  const issues = [];
+  normalise(fs[1], issues);
+  assert.equal(issues.length, 2);
+});
+
+test("a single cost is used for both ends, whichever end it was entered in", () => {
+  const hiOnly = normalise({ title: "Roof", severity: "major", costHigh: 300 });
+  assert.equal(hiOnly.costLow, 300); assert.equal(hiOnly.costHigh, 300);
+  assert.doesNotMatch(toText({}, [hiOnly]), /\$0 to \$300/);
+  const loOnly = normalise({ title: "Roof", severity: "major", costLow: "250" });
+  assert.equal(loOnly.costLow, 250); assert.equal(loOnly.costHigh, 250);
+});
+
+test("saved files carry format version 1; exactly 500 findings load with no cap warning", () => {
+  assert.equal(JSON.parse(exportJson({}, [])).version, 1);
+  const r = parseImport(JSON.stringify({ app: "home-inspection-report-builder", findings: Array.from({ length: 500 }, (_, i) => ({ title: "T" + i, severity: "minor" })) }));
+  assert.equal(r.findings.length, 500);
+  assert.deepEqual(r.warnings, []);
+});

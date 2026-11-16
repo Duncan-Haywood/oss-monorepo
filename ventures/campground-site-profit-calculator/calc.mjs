@@ -72,6 +72,8 @@ export function compute(raw) {
     else findings.push({ severity: "high", title: `Each occupied night brings in exactly what it costs, so no number of bookings covers the ${dollars(p.fixedYear)} of fixed costs. Rate or costs have to change before occupancy helps.` });
   }
   else if (breakEvenOcc > 100) findings.push({ severity: "high", title: `Break-even needs ${Math.round(breakEvenNights)} occupied nights but only ${Math.round(available)} exist in a season. Even full, the campground loses money at this rate.` });
+  // Below break-even the loss is already here: say how far off it is, not that a rainy month could cause one.
+  else if (p.occupancy < breakEvenOcc) findings.push({ severity: "medium", title: `Break-even is ${breakEvenOcc.toFixed(0)}% full and you run ${p.occupancy}%: you need about ${Math.ceil(breakEvenNights - nights).toLocaleString("en-US")} more occupied nights a season to cover the fixed costs.` });
   else if (p.occupancy - breakEvenOcc < 10) findings.push({ severity: "medium", title: `Break-even is ${breakEvenOcc.toFixed(0)}% full and you run ${p.occupancy}%. One rainy month can turn it into a loss.` });
   if (margin > 0) findings.push({ severity: "info", title: `Each extra occupied night adds about ${dollars(margin)}; each night a site sits empty costs you that, because fixed costs run regardless.` });
   if (p.wage > 0 && p.turnMin > 0 && p.burdenPct === 0) findings.push({ severity: "info", title: `Turnover labour is costed at the bare ${dollars(p.wage)} wage. If you pay staff, the employer's share of Social Security and Medicare alone is 7.65% (IRS Publication 15), before unemployment tax and workers' comp: enter that as the payroll burden.` });

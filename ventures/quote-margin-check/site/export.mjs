@@ -127,5 +127,5 @@ export function quoteCsv(quote, report, extras = {}) {
     rows.push(["kill_refill_adjusted", money(kill.refill_adjusted), currency]);
   }
 
-  return rows.map((row) => row.map(csvCell).join(",")).join("\n");
+  return rows.map((row) => row.map((cell) => csvCell(cell)).join(",")).join("\n");
 }
