@@ -33,6 +33,14 @@ test("html mode takes the page's <style> blocks as the CSS", () => {
   assert.deepEqual(r.rejected, [".unused"]);
 });
 
+test("a <style> inside a script or a comment is text, not CSS", () => {
+  const page =
+    "<style>.used{x:y}</style><p class=used>hi</p>" +
+    "<script>const t = `<style>.fake{}</style>`;</script><!-- <style>.gone{}</style> -->";
+  const r = wasm.analyze(page, "", { html: true });
+  assert.deepEqual(r.rejected, []);
+});
+
 test("the wasm report equals the CLI report on real pages", (t) => {
   const bin = join(root, "target", "release", "csshound");
   if (!existsSync(bin)) return t.skip("native binary not built (cargo build --release)");
