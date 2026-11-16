@@ -334,7 +334,7 @@
     {
      "slug": "sequential-slashing",
      "title": "Can you slash while watching the data stream?",
-     "summary": "Anytime-valid slashing of miscalibrated verifiers with e-processes: repeatedly re-running a z-test falsely slashes 37% of honest verifiers at nominal 5%, the likelihood-ratio e-process stays under &alpha; by Ville&rsquo;s inequality, detection delay tracks ln(1/&alpha;)/KL within 12% (logarithmic in 1/&alpha;), and not knowing the cheating rate costs a factor 1.36. Stylised."
+     "summary": "Anytime-valid slashing of miscalibrated verifiers with e-processes, an application of Ville, Wald, Robbins and the sequential forecast-calibration tests of Arnold, Henzi and Ziegel. Computed exactly (no Monte Carlo): repeatedly re-running a z-test falsely slashes 37.3% of honest verifiers at nominal 5%, while the likelihood-ratio e-process (4.3%) and a q-free mixture (3.1%) stay under &alpha;; delay is 5% above Wald&rsquo;s ln(1/&alpha;)/KL bound and not knowing the cheating rate costs a factor 1.42. At a 1% claimed fault rate a uniform bet grid detects only 26% of cheaters; a log-spaced grid detects all at 1.40&times; the oracle delay. A time-varying-claim version is included. Effect sizes and the spread of claimed rates are assumed, not measured."
     },
     {
      "slug": "forecast-duel",
