@@ -14,8 +14,10 @@ paste a page or a stylesheet and nothing is uploaded.
 
 On this repository's 3,915 venture pages (99,479 rules, 8.1 MB of CSS) it ran
 in 0.5 s and found 8,815 rules (8.0% of the bytes) no page uses
-([BENCHMARK.md](BENCHMARK.md)). PurgeCSS itself has not been timed against it
-yet; BENCHMARK.md says why and how to run the comparison.
+([BENCHMARK.md](BENCHMARK.md)). Against PurgeCSS 9.1.0 on
+the same 3,923 pages with the same input, the two reject the same 15,632
+selectors, with no difference either way; PurgeCSS took 4.6 to 4.9 s and
+123 MB, csshound 0.31 to 0.36 s (1.1 s on one thread) and 10 MB.
 
 ## Install
 

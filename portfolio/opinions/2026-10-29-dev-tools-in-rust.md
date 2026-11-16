@@ -75,8 +75,10 @@ been measured yet.
   0.0.15, purifycss-style). *First slice 2026-11-16:* `ventures/csshound`
   judges each page's own CSS by PurgeCSS 9.1.0's rules, following script
   imports: 3,915 pages in 0.5 s, 8,815 unused rules (8.0% of the CSS).
-  PurgeCSS itself is not yet measured (running the npm package was refused
-  in that session); `ventures/csshound/BENCHMARK.md` has the three commands.
+  *Measured 2026-11-16:* on the same input PurgeCSS 9.1.0 and csshound
+  reject the same 15,632 selectors on 3,923 pages; PurgeCSS took 4.7 s and
+  123 MB, csshound 0.33 s (1.1 s on one thread) and 10 MB, a modest win since
+  PurgeCSS was never slow here ([`ventures/csshound/BENCHMARK.md`](../../ventures/csshound/BENCHMARK.md)).
 - *License scanners* (licensee, scancode): scancode is thorough and slow.
   askalono is a Rust licence-text matcher already; the gap, if any, is the
   whole-tree scan and report.
