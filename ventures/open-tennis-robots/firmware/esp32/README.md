@@ -281,3 +281,86 @@ leaves in one instant; a real ball's contact is a few milliseconds and the ESC
 may answer faster or slower. Before relying on it, log `hw.launch.last_dip`
 for a few dozen real shots and dry strokes on the first build and check they
 sit either side of the threshold. `LAUNCH_CHECK = False` turns the check off.
+
+## Shot log (2026-11-16)
+
+The empty-hopper check reads how far the wheels slow when a ball goes through.
+That drop is the ball's momentum (`controller.launch_dips`), so it is also a
+free momentum meter: with the wheel's inertia known it gives the ball's exit
+speed, and so the launcher's speed efficiency, which until now only a radar gun
+could give (`launcher.calibrate`). The planner aims with that efficiency, so a
+wrong one lands every shot short or long.
+
+**The record.** At every verdict `LaunchCheck.record` holds a sequence number,
+each wheel's speed just before the ball, each wheel's drop (1/10000 of that
+speed) and whether a ball went. The board sends it as a `LAUNCH` frame (0x81)
+right after every telemetry frame until the next verdict, so a frame lost on
+the wire costs nothing; the Pi keys records by sequence number.
+`DrillResult.launches` holds the run's records with the shot each belongs to,
+and `tennisbots run drill.json --shot-log shots.jsonl` appends them to a file.
+
+**Two things the first version got wrong, both found on the simulator.**
+
+- *The drop has to be taken from the wheel's own speed, not its target.* The
+  feed gate opens once a wheel is within 3% of target, and the simulated wheels
+  were up to 2.6% off when the ball arrived. Against an 8.8% drop that moved a
+  target-based reading by up to 30%. The record now takes each wheel's largest
+  fall of one reading below the highest reading of the 2.5 revolutions before
+  it, which is the speed the ball met. (The empty-hopper verdict still uses the
+  target: its margins were swept that way, and it only needs to separate 4.7%
+  from 0.4%.)
+- *That window has to be in time, not in readings.* While a slowed wheel's next
+  pulse is late, `PeriodTach.rpm_last` reports the falling open revolution on
+  every 10 ms tick. A history of three distinct readings filled with those and
+  lost the pre-ball speed at 1,500 rpm, reading a third of the drop.
+
+**The fit.** `launcher.fit_from_drops` solves the drops for the speed and spin
+efficiencies (the model is linear in both) by least squares. The tach's lowest
+single revolution shows less than the whole drop, because the speed loop is
+already pulling the wheel back during it: on the simulator 78% of it at 1,500
+rpm with the fastest loop, 97% at 6,500. The fit models the share as
+`((1 - e^-x) / x)^2`, x = one revolution / the loop's recovery time, and fits
+the recovery time on a grid when the log spans speeds (fastest wheel at least
+1.6 times the slowest). It sets aside wheel readings more than 25% off the fit
+once (a wheel still settling when the ball came), and says when every shot was
+flat (no spin efficiency) or at one speed (no recovery fit).
+
+`drill.calibration.json` is a 12-shot drill made for it: 16 to 30 m/s, flat,
+topspin and backspin, wheels from 1,062 to 6,428 rpm, 4 s apart.
+
+    tennisbots run drill.calibration.json --port /dev/ttyAMA0 --shot-log shots.jsonl
+    tennisbots fit-launcher shots.jsonl
+
+It prints the efficiencies and the `"launcher"` block a drill file takes.
+
+**How close (simulated).** `tests/launch_fit_sweep.py` fires the calibration
+speeds on the simulated feeder, whose ball leaves with a true launcher model
+the planner does not know (speed efficiency 0.70 / 0.85 / 0.95, spin 0.35 /
+0.65) and whose wheels lag 0.2 / 0.4 / 0.8 s, with each shot fed 2 s after its
+speed is set:
+
+| | worst of 18 builds |
+| --- | --- |
+| speed efficiency, this fit | 3.9% |
+| spin efficiency, this fit | 11.7% |
+| speed efficiency, drops read as the whole momentum | 10.9% |
+
+Through the whole Pi path (`run_drill` on `drill.calibration.json`, the Pi's
+re-aim timing included) three builds read the speed efficiency 2.3%, 4.4% and
+3.7% high and the spin efficiency 7% low, 16% high and 0.5% low
+(`tests/test_host.py`, `ShotLogTest`). A radar gun does better on one session;
+the drops cost nothing and come with every drill, so they can follow the
+efficiency as the wheels' felt wears or a softer batch of balls comes in.
+
+**The wheel's inertia.** Every efficiency the drops give is right only for the
+inertia assumed (config.py's `WHEEL_INERTIA_KGM2`, the CAD's figure, not yet
+weighed): a wheel 1.3 times heavier reads every efficiency 1.3 times low. One
+radar-gun session fixes that for good: `tennisbots fit-launcher shots.jsonl
+--radar-speed-eff 0.82` prints the true inertia
+(`launcher.inertia_from_radar`; on the simulator a 1.3x wheel came back within
+5%), and the drops alone track the efficiency from then on.
+
+**Not measured.** As for the empty-hopper check: first-order simulated wheels,
+momentum leaving in one instant, a recovery model fitted to that simulator.
+A real ESC may recover in a shape the formula does not follow. The first
+build's check is a calibration drill logged beside a radar gun.

@@ -786,6 +786,7 @@ class EmptyHopperTest(unittest.TestCase):
         self.assertAlmostEqual(config.WHEEL_RADIUS_M, lm.wheel_radius)
         self.assertAlmostEqual(config.BALL_RADIUS_M, ballistics.DEFAULT_BALL.radius)
         self.assertEqual((config.LAUNCH_SPEED_EFF, config.LAUNCH_SPIN_EFF), (lm.speed_efficiency, lm.spin_efficiency))
+        self.assertEqual((config.WHEEL_INERTIA_KGM2, config.BALL_KG), (launcher.WHEEL_INERTIA_KGM2, launcher.BALL_KG))
         # the verdict must land before the back stroke ends, so it never overlaps the next forward stroke
         self.assertLess(config.LAUNCH_CHECK_MS, config.GATE_BACK_MS)
 
@@ -869,3 +870,95 @@ class EmptyHopperTest(unittest.TestCase):
         self.assertGreaterEqual(lo, 1.0)
         _, hi, _, _ = sweep.run_case(1.0, 0.6, 0.8)
         self.assertLess(hi, 0.5)
+
+
+class ShotLogTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "Shot log": every judged stroke's record (both wheels' speed before the ball
+    and their drops) reaches the Pi as a LAUNCH frame, and launcher.fit_from_drops reads the launcher's efficiencies
+    from a drill's worth of them, with no radar gun."""
+
+    MODEL = (0.00155, 0.057, 0.075, 0.0335)
+
+    def _exact(self, shots, se, sp, tau, inertia=0.00155):
+        from tennisbots import launcher
+        out = []
+        for top, bottom in shots:
+            d = controller.launch_dips(top, bottom, inertia, 0.057, 0.075, 0.0335, se, sp)
+            out.append({"rpm_top": top, "rpm_bottom": bottom, "launched": True,
+                        "drop_top": d[0] * launcher._tach_share(60 / top, tau) if top else 0.0,
+                        "drop_bottom": d[1] * launcher._tach_share(60 / bottom, tau) if bottom else 0.0})
+        return out
+
+    def test_launch_frame_round_trips(self):
+        frame = P.encode(P.LAUNCH, 7, 4000, 2500, 880, 1230, 1)
+        self.assertEqual(P.Decoder().feed(frame), [(P.LAUNCH, (7, 4000, 2500, 880, 1230, 1))])
+
+    def test_record_measures_from_the_wheels_own_speed_not_the_target(self):
+        import config
+        chk = controller.LaunchCheck(config.WHEEL_INERTIA_KGM2, config.BALL_KG, config.WHEEL_RADIUS_M,
+                                     config.BALL_RADIUS_M, config.LAUNCH_SPEED_EFF, config.LAUNCH_SPIN_EFF)
+        chk.start((4000, 4000), 0)
+        t = 0
+        for _ in range(50):                       # the wheels sit 2% over target (the gate allows 3%)
+            t += 10
+            chk.update(t, (4080, 4080), (4000, 4000))
+        chk.stroke_done(t)
+        for r in (3900, 3720, 3740, 3800, 3900):  # the ball: straddling revolution, then the low one
+            t += 10
+            chk.update(t, (r, r), (4000, 4000))
+        while chk.update(t, (4000, 4000), (4000, 4000)) is None:
+            t += 10
+        seq, top, bottom, d_top, d_bottom, went = chk.record
+        self.assertEqual((seq, top, bottom, went), (1, 4080, 4080, 1))
+        self.assertAlmostEqual(d_top / 1e4, 1 - 3720 / 4080, places=4)     # 8.8%, not the 7.0% below target
+        self.assertEqual(d_top, d_bottom)
+
+    def test_fit_recovers_exact_drops(self):
+        from tennisbots import launcher
+        import launch_fit_sweep as sweep
+        fit = launcher.fit_from_drops(self._exact(sweep.CALIBRATION, 0.78, 0.42, 0.3))
+        self.assertAlmostEqual(fit.speed_efficiency, 0.78, delta=0.01)
+        self.assertAlmostEqual(fit.spin_efficiency, 0.42, delta=0.01)
+        self.assertAlmostEqual(fit.recovery_s, 0.3, delta=0.03)
+        self.assertLess(fit.rms, 1e-3)
+        flat = launcher.fit_from_drops(self._exact([(2000, 2000), (5000, 5000)], 0.8, 0.5, None))
+        self.assertIsNone(flat.spin_efficiency)
+        self.assertIn("flat shots only", flat.note)
+        one = launcher.fit_from_drops(self._exact([(4000, 4000), (4200, 3800)], 0.8, 0.5, None))
+        self.assertIsNone(one.recovery_s)
+        self.assertIn("one speed", one.note)
+        with self.assertRaises(ValueError):
+            launcher.fit_from_drops([{"rpm_top": 3000, "rpm_bottom": 3000, "drop_top": 0.0, "drop_bottom": 0.0,
+                                      "launched": False}])
+
+    def test_drill_records_reach_the_pi_and_fit_the_true_launcher(self):
+        from tennisbots import launcher
+        true = launcher.WheelLauncher(speed_efficiency=0.78, spin_efficiency=0.42)
+        sim = SimFeeder(true_launcher=true)
+        with open(os.path.join(HERE, "..", "drill.calibration.json")) as f:
+            shots = host.plan_drill(json.load(f))
+        res, _ = run(sim, shots)
+        self.assertTrue(res.ok, res.aborted)
+        self.assertEqual([r["shot"] for r in res.launches], list(range(12)))
+        self.assertTrue(all(r["launched"] for r in res.launches))
+        fit = launcher.fit_from_drops(res.launches)
+        self.assertLess(abs(fit.speed_efficiency / 0.78 - 1), 0.05)       # README "Shot log": within 4% swept
+        self.assertLess(abs(fit.spin_efficiency / 0.42 - 1), 0.15)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "shots.jsonl")
+            self.assertEqual(host.append_shot_log(path, res, "drill.calibration.json"), 12)
+            self.assertEqual(len(host.read_shot_log(path)), 12)
+
+    def test_dry_stroke_record_says_no_ball(self):
+        sim = SimFeeder(balls=1)
+        res, _ = run(sim, drill())
+        self.assertEqual(res.dry_shot, 2)
+        self.assertEqual([(r["shot"], r["launched"]) for r in res.launches], [(0, True), (1, True), (2, False)])
+
+    def test_heavier_wheel_scales_the_fit_and_one_radar_reading_finds_it(self):
+        from tennisbots import launcher
+        import launch_fit_sweep as sweep
+        fit, _, _, _ = sweep.run_case(0.85, 0.5, 0.4, inertia_x=1.3)
+        self.assertLess(abs(fit.speed_efficiency * 1.3 / 0.85 - 1), 0.05)  # reads 0.85 / 1.3
+        inertia = launcher.inertia_from_radar(fit, 0.85)
+        self.assertLess(abs(inertia / (0.00155 * 1.3) - 1), 0.05)

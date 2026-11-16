@@ -1,4 +1,4 @@
-"""Command line: `tennisbots aim | drill | run | catch-study | collect`."""
+"""Command line: `tennisbots aim | drill | run | fit-launcher | catch-study | collect`."""
 
 from __future__ import annotations
 
@@ -71,6 +71,9 @@ def cmd_run(a: argparse.Namespace) -> int:
     print(DISCLAIMER, file=sys.stderr)
     try:
         res = host.run_file(a.file, a.port, log=print)
+        if a.shot_log:
+            n = host.append_shot_log(a.shot_log, res, os.path.basename(a.file))
+            print(f"{n} launch record{'' if n == 1 else 's'} appended to {a.shot_log}")
     except ImportError:
         print("drill not run: needs pyserial (pip install 'tennisbots[serial]')", file=sys.stderr)
         return 2
@@ -85,6 +88,32 @@ def cmd_run(a: argparse.Namespace) -> int:
               file=sys.stderr)
         return 1
     print(f"{len(res.shots)} balls fed; {res.link_errors} bad frames on the link")
+    return 0
+
+
+def cmd_fit_launcher(a: argparse.Namespace) -> int:
+    """The launcher's efficiencies from a shot log's wheel speed drops (firmware/esp32/README.md "Shot log")."""
+    from . import host
+    recs = host.read_shot_log(a.log)
+    fit = launcher.fit_from_drops(recs, inertia=a.inertia, recovery_s=a.recovery_s)
+    out = {
+        "shots": fit.shots,
+        "speed_efficiency": round(fit.speed_efficiency, 3),
+        "spin_efficiency": None if fit.spin_efficiency is None else round(fit.spin_efficiency, 3),
+        "recovery_s": None if fit.recovery_s is None else round(fit.recovery_s, 3),
+        "rms_drop": round(fit.rms, 4),
+        "inertia_assumed_kgm2": a.inertia,
+        "note": fit.note,
+    }
+    if a.radar_speed_eff:
+        inertia = launcher.inertia_from_radar(fit, a.radar_speed_eff, a.inertia)
+        out["inertia_kgm2"] = round(inertia, 6)
+        out["config_py"] = f"WHEEL_INERTIA_KGM2 = {inertia:.5f}"
+    else:
+        lm = fit.launcher()
+        out["drill_launcher_block"] = {"launcher": {"speed_efficiency": round(lm.speed_efficiency, 3),
+                                                    "spin_efficiency": round(lm.spin_efficiency, 3)}}
+    print(json.dumps(out, indent=2))
     return 0
 
 
@@ -212,7 +241,19 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("run", help="run a drill file on the feeder over serial: aim, wait for the wheels, feed")
     s.add_argument("file")
     s.add_argument("--port", default="/dev/ttyAMA0", help="serial device wired to the ESP32 (default /dev/ttyAMA0)")
+    s.add_argument("--shot-log", help="append each stroke's wheel speed drops to this JSON-lines file (fit-launcher)")
     s.set_defaults(func=cmd_run)
+
+    s = sub.add_parser("fit-launcher", help="the launcher's speed and spin efficiency from a shot log's wheel speed "
+                                            "drops, no radar gun")
+    s.add_argument("log", help="JSON-lines shot log written by `run --shot-log`")
+    s.add_argument("--inertia", type=float, default=launcher.WHEEL_INERTIA_KGM2,
+                   help="one wheel's inertia in kg m^2, as config.py's WHEEL_INERTIA_KGM2")
+    s.add_argument("--recovery-s", type=float, help="the wheel loop's recovery time constant, if known "
+                                                     "(fitted when the log spans speeds)")
+    s.add_argument("--radar-speed-eff", type=float,
+                   help="a speed efficiency measured with a radar gun: report the wheel's true inertia instead")
+    s.set_defaults(func=cmd_fit_launcher)
 
     s = sub.add_parser("lift-hub-reset", help="after re-setting the lift's slip hub on the bench, restart the "
                                               "feeder's jam count (clears FLAG_LIFT_HUB_DUE)")

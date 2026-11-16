@@ -380,12 +380,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Empty hopper landed 2026-11-16 (firmware/esp32/README.md
-      "Empty hopper": no GPIO is free for a beam, so each stroke is judged by the
-      wheels' speed drop; FLAG_HOPPER_EMPTY, runner exits 3). Next: the drop is the
-      ball's momentum, so log it per shot (telemetry or a Pi-side record) and fit
-      the launcher's speed efficiency from it (launcher.calibrate takes a radar gun
-      today), on the simulated feeder first.
+      venv, about 2 min). Shot log landed 2026-11-16 (firmware/esp32/README.md "Shot
+      log": LAUNCH frame, run --shot-log, fit-launcher; simulated speed efficiency
+      within 3.9%, spin 11.7%). Next: feed the fit back into the drill runner
+      (re-plan with the fitted efficiencies after N shots and report the landing
+      shift), and let the empty-hopper verdict use the pre-ball speed too (resweep
+      tests/launch_check_sweep.py).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

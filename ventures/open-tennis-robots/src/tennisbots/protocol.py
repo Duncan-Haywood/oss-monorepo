@@ -24,6 +24,10 @@ DRIVE = 0x20          # int16 left_mm_s, int16 right_mm_s
 PICKUP = 0x21         # uint8 on
 TELEMETRY = 0x80      # uint16 flags, int16 base_y_mm, int16 rpm_top, int16 rpm_bottom, uint16 battery_mv,
                       # uint8 balls_fed (feeder: balls released through the gate since power-up, mod 256)
+LAUNCH = 0x81         # feeder, after TELEMETRY once a stroke has been judged (2026-11-16): uint8 seq (verdicts mod 256),
+                      # int16 rpm_top, int16 rpm_bottom (each wheel's speed just before the ball), int16 drop_top,
+                      # int16 drop_bottom (the lowest single-revolution speed's fall below that, in 1/10000 of it),
+                      # uint8 launched (1: a ball went)
 
 FORMATS = {
     HEARTBEAT: "",
@@ -37,6 +41,7 @@ FORMATS = {
     DRIVE: "<hh",
     PICKUP: "<B",
     TELEMETRY: "<HhhhHB",
+    LAUNCH: "<BhhhhB",
 }
 
 # TELEMETRY flag bits

@@ -835,6 +835,18 @@ class LaunchCheck:
         self.low = [0.0, 0.0]
         self.frozen = False
         self.last_dip = None          # the measured drop of the judged wheel at the last verdict, for the README's sweep
+        # Every verdict, both wheels (2026-11-16, README "Shot log"): (seq mod 256, top and bottom rpm just before the
+        # ball, their drops in 1/10000 of that speed, 1 if a ball went). The ball's momentum is in the drops, so the Pi
+        # fits the launcher's efficiencies from them (tennisbots.launcher.fit_from_drops) without a radar gun. The drop
+        # is the largest fall of a reading below the highest reading of the 2.5 revolutions before it, so it is taken
+        # from the wheel's own speed when the ball arrived, not from the target: the gate opens anywhere within 3% of
+        # target, and on the simulator that offset alone moved a target-based drop by up to 30%. The window is in time,
+        # not readings: while a slowed wheel's next pulse is late, `PeriodTach.rpm_last` reports a falling open
+        # revolution every tick, and a three-reading history lost the pre-ball speed to them at 1,500 rpm.
+        self.record = None
+        self.seq = 0
+        self.hist = [[], []]          # each wheel's (ms, reading) over the last 2.5 revolutions
+        self.fall = [(0.0, 0.0), (0.0, 0.0)]   # each wheel's largest (fractional fall, speed before it) so far
 
     def cancel(self):
         self.targets = None
@@ -843,6 +855,8 @@ class LaunchCheck:
     def start(self, targets, now_ms):
         self.targets = (targets[0], targets[1])
         self.low = [float(targets[0]), float(targets[1])]
+        self.fall = [(0.0, float(targets[0])), (0.0, float(targets[1]))]
+        self.hist = [[], []]
         self.until = None
         self.frozen = False
 
@@ -866,18 +880,33 @@ class LaunchCheck:
             self.frozen = True
         if not self.frozen:
             for i in (0, 1):
+                h = self.hist[i]
+                if self.targets[i] > 0:
+                    window = 150000.0 / self.targets[i]          # 2.5 revolutions, ms
+                    while h and h[0][0] < now_ms - window:
+                        h.pop(0)
+                    if h:
+                        before = max(r for _, r in h)
+                        if before > 0 and 1.0 - rpms[i] / before > self.fall[i][0]:
+                            self.fall[i] = (1.0 - rpms[i] / before, before)
+                    h.append((now_ms, rpms[i]))
                 if rpms[i] < self.low[i]:
                     self.low[i] = rpms[i]
         if self.until is None or now_ms < self.until:
             return None
         th = self.threshold()
-        targets, low = self.targets, self.low
+        targets, low, fall = self.targets, self.low, self.fall
         self.cancel()
         if th is None:
             return None
         i, need = th
         self.last_dip = 1.0 - low[i] / targets[i]
-        return self.last_dip >= need
+        went = self.last_dip >= need
+        drops = [int(round(10000 * fall[k][0])) for k in (0, 1)]
+        self.seq = (self.seq + 1) & 0xFF
+        self.record = (self.seq, int(round(fall[0][1])), int(round(fall[1][1])), min(32767, drops[0]),
+                       min(32767, drops[1]), 1 if went else 0)
+        return went
 
 
 class PowerGate:
@@ -1022,6 +1051,13 @@ class Controller:
             flags |= P.FLAG_BUMPER
         top, bottom = self.hw.rpm()
         fed = self.hw.balls_fed() if self.role == ROLE_FEEDER else 0
-        return P.encode(P.TELEMETRY, flags & 0xFFFF, _clamp(self.hw.base_y_mm(), -32768, 32767),
-                        _clamp(top, -32768, 32767), _clamp(bottom, -32768, 32767),
-                        _clamp(self.hw.battery_mv(), 0, 65535), (fed or 0) & 0xFF)
+        out = P.encode(P.TELEMETRY, flags & 0xFFFF, _clamp(self.hw.base_y_mm(), -32768, 32767),
+                       _clamp(top, -32768, 32767), _clamp(bottom, -32768, 32767),
+                       _clamp(self.hw.battery_mv(), 0, 65535), (fed or 0) & 0xFF)
+        # The last stroke's verdict and both wheels' drops ride along every period (README "Shot log"), so a frame lost
+        # on the wire costs nothing: the Pi keys them by seq.
+        rec = getattr(self.hw, "launch_record", None)
+        rec = rec() if rec is not None and self.role == ROLE_FEEDER else None
+        if rec is not None:
+            out += P.encode(P.LAUNCH, *rec)
+        return out
