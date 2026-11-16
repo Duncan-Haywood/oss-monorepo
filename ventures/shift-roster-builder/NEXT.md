@@ -8,3 +8,4 @@
 - (2026-11-16) whether the priced cut's r = 1 default suits a real manager
 - (2026-11-16) next a real wages export, real trip times
 - (2026-11-16) fair workweek: the mass-communication offer exception for covers, on-call shifts, and a real site's week of changes through /admin/changes
+- (2026-11-16) own and site rates read from staff CSVs and 7shifts (README "Per-location pay from an export")
