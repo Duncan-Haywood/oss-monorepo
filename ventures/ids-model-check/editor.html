@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IDS Editor: write a buildingSMART IDS file from the standard property sets</title>
+  <meta name="description" content="Write an IDS 1.0 file in your browser by picking IFC classes, standard Pset_ and Qto_ sets and their properties, with the right data types filled in and every specification audited as you type.">
+  <link rel="canonical" href="https://marisstella.app/ids-model-check/editor.html">
+  <meta property="og:title" content="IDS Editor: build an IDS from buildingSMART's property set templates">
+  <meta property="og:description" content="Pick a class, a standard property set and a property; the editor writes the IDS with the template's data type and audits it live. Free, MIT licensed, nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IDS Editor (IDS Model Check)", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Builds buildingSMART IDS 1.0 files for IFC2X3, IFC4 and IFC4X3 ADD2 from the IFC schema and buildingSMART's standard property and quantity set templates, and audits each specification as it is written."}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); line-height: 1.2; margin: 0.4em 0 0.3em; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    p.lede { font-size: 1.05rem; color: var(--muted); max-width: 48em; }
+    label { font-size: 0.86rem; color: var(--muted); display: block; }
+    input, select, textarea { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; width: 100%; max-width: 100%; }
+    input[type=checkbox] { width: auto; }
+    button, .btn { font: inherit; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); padding: 7px 14px; border-radius: 7px; cursor: pointer; text-decoration: none; display: inline-block; }
+    button.ghost, .btn.ghost { background: transparent; color: var(--accent); }
+    button.small { padding: 2px 9px; font-size: 0.86rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    .card { border: 1px solid var(--line); border-radius: 10px; background: var(--card); padding: 14px; margin: 12px 0; }
+    .req { border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 10px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .muted { color: var(--muted); } .warn { color: var(--warn); } .err { color: var(--fail); } .ok { color: var(--pass); }
+    .tag { font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+    .enum { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.9rem; }
+    .enum label { display: inline; color: var(--fg); font-size: 0.9rem; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font-size: 0.8rem; max-height: 420px; }
+    ul.issues { padding-left: 1.2em; }
+    footer { margin-top: 3em; font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1em; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted"><a href="../">All tools</a> / <a href="./">IDS Model Check</a> / IDS Editor</p>
+  <h1>Write an IDS from the standard property sets.</h1>
+  <p class="lede">Pick an IFC class, then a standard property or quantity set that class can carry, then one of its properties. The editor fills in the data type from buildingSMART's templates, offers the enumeration values the standard lists, and audits every specification as you write it. Download the .ids, or send it straight to the checker. Nothing is uploaded.</p>
+
+  <div class="card">
+    <div class="grid">
+      <div><label for="doc-title">IDS title</label><input id="doc-title"></div>
+      <div><label for="doc-schema">IFC version the models use</label>
+        <select id="doc-schema"><option value="IFC4">IFC4</option><option value="IFC4X3">IFC4X3 ADD2</option><option value="IFC2X3">IFC2X3</option></select></div>
+      <div style="grid-column: 1 / -1"><label for="doc-desc">Description (optional)</label><input id="doc-desc"></div>
+    </div>
+  </div>
+
+  <div id="specs"><p class="muted">Loading the IFC schema and property set templates...</p></div>
+  <div class="row">
+    <button id="add-spec" type="button">Add a specification</button>
+    <button id="reset" type="button" class="ghost">Start over</button>
+  </div>
+
+  <h2>Audit</h2>
+  <div id="audit" role="status" aria-live="polite" class="muted">Nothing written yet.</div>
+
+  <h2>The IDS</h2>
+  <div class="row">
+    <button id="download" type="button">Download .ids</button>
+    <button id="to-checker" type="button" class="ghost">Check a model with it</button>
+    <button id="copy" type="button" class="ghost">Copy XML</button>
+  </div>
+  <pre id="xml" aria-label="IDS XML"></pre>
+
+  <h2>How it works</h2>
+  <p>The class list is every non-abstract class in the IFC schema you pick that can carry at least one standard set; the set list is the sets whose templates apply to that class, its ancestors, or the occurrence a type object is for (Pset_WallCommon on IFCWALL, IFCWALLSTANDARDCASE and IFCWALLTYPE); the property list and data types are the template's. IDS matches exact classes, so a specification on IFCWALL misses IFCWALLSTANDARDCASE unless both are listed: tick <em>and its subclasses</em> to list them. A property whose template gives no single data type (a bounded value, a table, a list or a reference) is checked for presence only.</p>
+  <p>Every choice the editor offers was written out and audited: for each of the three schemas, every offered class, every set it offers for that class and every property of the set, once on its own and once with a value of the right kind. That is 203,433 specifications (32,823 for IFC2X3, 46,516 for IFC4, 124,094 for IFC4X3), and the audit finds no error and no warning in any of them (<code>eval/editor-roundtrip.mjs</code>). A sample of 15,102 specifications, one per class and set plus every facet, value kind, cardinality and partOf relation the page writes, validates against buildingSMART's IDS 1.0 XML schema in IfcOpenShell's IfcTester (<code>eval/editor-xsd-check.py</code>).</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. An IDS written here asks for what you pick; whether that is the right information for a project is the judgment of the BIM manager, architect or engineer responsible, and a passing check is not a design review, a code-compliance check or professional advice. Everything on this page runs in your browser: your draft is kept only in this browser's local storage, and the page fetches only its own schema tables. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p>IFC schema facts and property set templates are derived from buildingSMART International's schemas and templates, used with attribution. IDS is a buildingSMART International standard; this tool is independent and not endorsed by buildingSMART.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+</main>
+<script type="module">
+  import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  import { Schema, parseIds } from "./ids.mjs";
+  import { auditIds } from "./audit.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, entityFacet, PARTOF_RELATIONS } from "./editor.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const DRAFT = "ids-model-check-editor-draft";
+  const HANDOFF = "ids-model-check-editor-handoff";
+  const FILES = { IFC2X3: ["ifc2x3.json", "psets-ifc2x3.json"], IFC4: ["ifc4.json", "psets-ifc4.json"], IFC4X3: ["ifc4x3.json", "psets-ifc4x3.json"] };
+  const loaded = {};
+  let typeMap = null;
+  const getJson = (name) => fetch("schema/" + name).then((r) => { if (!r.ok) throw new Error("could not load schema/" + name); return r.json(); });
+  async function load(id) {
+    if (!loaded[id]) {
+      const [s, p] = await Promise.all(FILES[id].map(getJson));
+      if (!typeMap) typeMap = await getJson("ifc2x3-type-map.json");
+      const S = new Schema(s);
+      const tm = id === "IFC2X3" ? typeMap : null;
+      loaded[id] = { S, psets: p, classes: classesWithSets(p, S, tm), all: Object.keys(S.entities).filter((c) => !S.entities[c].abstract).sort(), tm };
+    }
+    return loaded[id];
+  }
+
+  const blankReq = () => ({ kind: "property", set: "", name: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
+  const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", withSub: true, predefinedType: "", reqs: [blankReq()] });
+  const starter = () => ({ title: "Project information requirements", description: "", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls say whether they are external", cls: "IFCWALL", reqs: [{ ...blankReq(), set: "Pset_WallCommon", name: "IsExternal" }] }] });
+
+  let doc;
+  try { doc = JSON.parse(localStorage.getItem(DRAFT) || "null"); } catch { doc = null; }
+  if (!doc || !Array.isArray(doc.specs) || !Object.hasOwn(FILES, doc.schema)) doc = starter();
+  const save = () => { try { localStorage.setItem(DRAFT, JSON.stringify(doc)); } catch { /* optional */ } };
+
+  const opt = (v, label, sel) => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(label ?? v)}</option>`;
+
+  function reqHtml(L, spec, si, r, ri) {
+    const id = (k) => `r-${si}-${ri}-${k}`;
+    let h = `<div class="req"><div class="grid">`;
+    h += `<div><label for="${id("kind")}">Requirement</label><select id="${id("kind")}" data-s="${si}" data-r="${ri}" data-k="kind">${[["property", "a property or quantity"], ["attribute", "an attribute (Name, Description...)"], ["classification", "a classification"], ["material", "a material"], ["partOf", "a place (storey, group...)"]].map(([v, l]) => opt(v, l, r.kind)).join("")}</select></div>`;
+    h += `<div><label for="${id("card")}">How</label><select id="${id("card")}" data-s="${si}" data-r="${ri}" data-k="cardinality">${[["required", "must have"], ["optional", "if present, must match"], ["prohibited", "must not have"]].map(([v, l]) => opt(v, l, r.cardinality)).join("")}</select></div>`;
+    let valueKind = "text", enumVals = null, note = "";
+    if (r.kind === "property") {
+      const sets = L.S.entities[spec.cls] || (L.tm && L.tm[spec.cls]) ? setsFor(L.psets, L.S, spec.cls, L.tm) : [];
+      h += `<div><label for="${id("set")}">Standard set</label><select id="${id("set")}" data-s="${si}" data-r="${ri}" data-k="set">${opt("", sets.length ? "choose a set" : "pick a class with standard sets first", r.set)}${sets.map((s) => opt(s, s, r.set)).join("")}</select></div>`;
+      const props = r.set ? propertiesOf(L.psets, L.S, r.set) : [];
+      h += `<div><label for="${id("name")}">Property</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", props.length ? "choose a property" : "-", r.name)}${props.map((p) => opt(p.name, p.name + (p.dataType ? ` (${p.dataType.replace(/^IFC/, "").toLowerCase()})` : ""), r.name)).join("")}</select></div>`;
+      const p = props.find((x) => x.name === r.name);
+      if (p) {
+        if (!p.dataType) { valueKind = null; note = "The standard gives no single data type for this property (a bounded value, table, list or reference), so it is checked for presence only."; }
+        else {
+          const prim = L.S.prim(p.dataType);
+          valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+          enumVals = p.enum;
+          note = `dataType ${p.dataType}${p.dataTypes.length > 1 ? ` (the template also allows ${p.dataTypes.slice(1).join(", ")})` : ""}.`;
+        }
+      } else valueKind = null;
+    } else if (r.kind === "attribute") {
+      const attrs = L.S.entities[spec.cls] ? L.S.attrs(spec.cls).filter((a) => !a.derived && !a.aggregate && ["string", "double", "integer", "boolean", "logical", "enum"].includes(L.S.prim(a.type))).map((a) => a.name) : ["Name", "Description", "ObjectType", "Tag"];
+      h += `<div><label for="${id("name")}">Attribute</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", "choose", r.name)}${attrs.map((a) => opt(a, a, r.name)).join("")}</select></div>`;
+      const a = L.S.entities[spec.cls] && L.S.attrs(spec.cls).find((x) => x.name === r.name);
+      if (a && L.S.types[a.type] && L.S.types[a.type].kind === "enum") enumVals = L.S.types[a.type].values;
+    } else if (r.kind === "classification") {
+      h += `<div><label for="${id("system")}">System (IDS 1.0 requires one)</label><input id="${id("system")}" list="systems" data-s="${si}" data-r="${ri}" data-k="system" value="${esc(r.system)}" placeholder="Uniclass 2015"></div>`;
+      if (r.mode === "any" && !r.system) note = "Name the classification system; IDS 1.0 files without one are refused by tools that validate against ids.xsd.";
+    } else if (r.kind === "partOf") {
+      h += `<div><label for="${id("relation")}">Relation</label><select id="${id("relation")}" data-s="${si}" data-r="${ri}" data-k="relation">${Object.entries(PARTOF_RELATIONS).map(([v, l]) => opt(v, l, r.relation)).join("")}</select></div>`;
+      h += `<div><label for="${id("entity")}">Of class</label><input id="${id("entity")}" list="all-classes" data-s="${si}" data-r="${ri}" data-k="entity" data-change="1" value="${esc(r.entity)}"></div>`;
+      valueKind = null;
+    }
+    h += `</div>`;
+    if (valueKind && r.cardinality !== "prohibited") {
+      const modes = [["any", "any value"], ["equals", "exactly"]];
+      if (enumVals) modes.push(["oneOf", "one of"]);
+      if (valueKind === "number") modes.push(["range", "between"]);
+      if (valueKind === "text" && !enumVals) modes.push(["pattern", "matching a pattern"]);
+      if (valueKind === "bool") modes.splice(1, 1, ["true", "true"], ["false", "false"]);
+      h += `<div class="row" style="margin-top:8px"><label for="${id("mode")}" style="display:inline">Value</label><select id="${id("mode")}" style="width:auto" data-s="${si}" data-r="${ri}" data-k="mode">${modes.map(([v, l]) => opt(v, l, r.mode)).join("")}</select>`;
+      if (r.mode === "equals") h += enumVals ? `<select style="width:auto" aria-label="value" data-s="${si}" data-r="${ri}" data-k="equals">${opt("", "choose", r.equals)}${enumVals.map((v) => opt(v, v, r.equals)).join("")}</select>` : `<input style="width:14em" aria-label="value" data-s="${si}" data-r="${ri}" data-k="equals" value="${esc(r.equals)}">`;
+      if (r.mode === "range") h += `<input style="width:8em" aria-label="minimum" placeholder="min" data-s="${si}" data-r="${ri}" data-k="min" value="${esc(r.min)}"> to <input style="width:8em" aria-label="maximum" placeholder="max" data-s="${si}" data-r="${ri}" data-k="max" value="${esc(r.max)}"> <span class="muted">SI units (metres, square metres...)</span>`;
+      if (r.mode === "pattern") h += `<input style="width:14em" aria-label="pattern" placeholder="[A-Z]{2}-[0-9]+" data-s="${si}" data-r="${ri}" data-k="pattern" value="${esc(r.pattern)}">`;
+      h += `</div>`;
+      if (r.mode === "oneOf" && enumVals) h += `<div class="enum">${enumVals.map((v) => `<label><input type="checkbox" data-s="${si}" data-r="${ri}" data-k="oneOf" value="${esc(v)}"${r.oneOf.includes(v) ? " checked" : ""}> ${esc(v)}</label>`).join("")}</div>`;
+    }
+    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}</p>`;
+    h += `<button type="button" class="ghost small" data-act="del-req" data-s="${si}" data-r="${ri}" style="margin-top:6px">Remove requirement</button></div>`;
+    return h;
+  }
+
+  function specHtml(L, s, si) {
+    const known = !!(L.S.entities[s.cls] || (L.tm && L.tm[s.cls]));
+    const subs = L.S.entities[s.cls] ? subclasses(L.S, s.cls) : [];
+    const pts = L.S.entities[s.cls] ? predefinedTypes(L.S, s.cls) : [];
+    const nSets = known ? setsFor(L.psets, L.S, s.cls, L.tm).length : 0;
+    let h = `<div class="card" id="spec-${si}"><div class="grid">`;
+    h += `<div style="grid-column: 1 / -1"><label for="s-${si}-name">Specification name</label><input id="s-${si}-name" data-s="${si}" data-k="name" value="${esc(s.name)}" placeholder="Walls say whether they are external"></div>`;
+    h += `<div><label for="s-${si}-cls">Applies to class</label><input id="s-${si}-cls" list="classes" data-s="${si}" data-k="cls" data-change="1" value="${esc(s.cls)}" placeholder="IFCWALL" autocomplete="off"></div>`;
+    h += `<div><label for="s-${si}-pt">Predefined type (optional)</label><select id="s-${si}-pt" data-s="${si}" data-k="predefinedType">${opt("", "any", s.predefinedType)}${pts.map((p) => opt(p, p, s.predefinedType)).join("")}</select></div>`;
+    h += `<div><label for="s-${si}-opt">The model</label><select id="s-${si}-opt" data-s="${si}" data-k="optionality">${[["required", "must have at least one"], ["optional", "may have some"], ["prohibited", "must have none"]].map(([v, l]) => opt(v, l, s.optionality)).join("")}</select></div>`;
+    h += `</div>`;
+    if (s.cls && !known) h += `<p class="warn">${esc(s.cls)} is not a ${esc(doc.schema)} class.</p>`;
+    else if (s.cls) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
+    h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
+    if (s.optionality === "prohibited") h += `<p class="muted">A prohibited specification fails when any ${esc(s.cls || "element")} exists, so it has no requirements.</p>`;
+    else s.reqs.forEach((r, ri) => { h += reqHtml(L, s, si, r, ri); });
+    h += `<div class="row" style="margin-top:10px">${s.optionality === "prohibited" ? "" : `<button type="button" class="ghost small" data-act="add-req" data-s="${si}">Add a requirement</button>`}<button type="button" class="ghost small" data-act="del-spec" data-s="${si}">Remove specification</button></div></div>`;
+    return h;
+  }
+
+  function toIdsDoc(L) {
+    return {
+      title: doc.title, description: doc.description, schema: doc.schema,
+      specs: doc.specs.map((s) => ({
+        name: s.name || (s.cls ? `${s.cls} requirements` : "Unnamed specification"),
+        description: s.description, instructions: s.instructions, optionality: s.optionality,
+        applicability: s.cls ? [entityFacet(L.S, s.cls, { withSubclasses: s.withSub && !!L.S.entities[s.cls], predefinedType: s.predefinedType })] : [],
+        requirements: s.reqs.filter((r) => (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true)).map((r) => {
+          const p = r.kind === "property" ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
+          const value = r.cardinality === "prohibited" || (p && !p.dataType) ? null
+            : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
+            : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? { min: r.min, max: r.max } : r.mode === "pattern" ? { pattern: r.pattern } : null;
+          return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
+        }),
+      })),
+    };
+  }
+
+  let xml = "";
+  function output() {
+    const L = loaded[doc.schema];
+    xml = buildIds(toIdsDoc(L), L.S);
+    $("xml").textContent = xml;
+    let issues;
+    try { issues = auditIds(parseIds(xml), { schemas: { [doc.schema]: L.S }, typeMap, psets: { [doc.schema]: L.psets } }); }
+    catch (e) { $("audit").innerHTML = `<span class="err">Could not read the IDS back: ${esc(e.message)}</span>`; return; }
+    const errors = issues.filter((x) => x.level === "error");
+    let h = `<p><span class="tag ${errors.length ? "err" : "ok"}">${errors.length ? "INVALID" : "VALID"}</span> ${doc.specs.length} specification(s)${issues.length ? `, ${errors.length} error(s), ${issues.length - errors.length} warning(s)` : ", no problems found"}</p>`;
+    if (issues.length) h += `<ul class="issues">${issues.map((x) => `<li><span class="tag ${x.level === "error" ? "err" : "warn"}">${x.level.toUpperCase()}</span> <strong>${esc(x.specName)}</strong>: ${esc(x.message)}</li>`).join("")}</ul>`;
+    $("audit").innerHTML = h;
+    save();
+  }
+
+  async function render() {
+    const L = await load(doc.schema);
+    $("doc-title").value = doc.title;
+    $("doc-desc").value = doc.description || "";
+    $("doc-schema").value = doc.schema;
+    let h = `<datalist id="classes">${L.classes.map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="all-classes">${["IFCBUILDINGSTOREY", "IFCSPACE", "IFCBUILDING", "IFCSITE", "IFCSYSTEM", "IFCDISTRIBUTIONSYSTEM", "IFCZONE", "IFCELEMENTASSEMBLY", "IFCOPENINGELEMENT"].filter((c) => L.S.entities[c]).map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="systems"><option value="Uniclass 2015"><option value="OmniClass"><option value="NL-SfB"><option value="MasterFormat"><option value="UniFormat"></datalist>`;
+    doc.specs.forEach((s, si) => { h += specHtml(L, s, si); });
+    if (!doc.specs.length) h += `<p class="muted">No specifications yet.</p>`;
+    $("specs").innerHTML = h;
+    output();
+  }
+
+  function onField(e, structural) {
+    const t = e.target;
+    if (t.dataset.s === undefined || !t.dataset.k) return;
+    const s = doc.specs[+t.dataset.s];
+    const target = t.dataset.r !== undefined ? s.reqs[+t.dataset.r] : s;
+    const k = t.dataset.k;
+    if (k === "oneOf") target.oneOf = t.checked ? [...target.oneOf, t.value] : target.oneOf.filter((v) => v !== t.value);
+    else if (t.type === "checkbox") target[k] = t.checked;
+    else target[k] = k === "cls" || k === "entity" ? t.value.trim().toUpperCase() : t.value;
+    // A new class or set resets what depended on it.
+    if (k === "cls") { s.predefinedType = ""; for (const r of s.reqs) if (r.kind === "property") { r.set = ""; r.name = ""; } }
+    if (k === "set" || k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; }
+    if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; target.equals = ""; }
+    if (structural) render(); else output();
+  }
+  $("specs").addEventListener("input", (e) => { if (e.target.tagName === "INPUT" && e.target.type !== "checkbox" && !e.target.dataset.change) onField(e, false); });
+  $("specs").addEventListener("change", (e) => { if (e.target.tagName === "SELECT" || e.target.type === "checkbox" || e.target.dataset.change) onField(e, true); });
+  $("specs").addEventListener("click", (e) => {
+    const a = e.target.dataset && e.target.dataset.act;
+    if (!a) return;
+    const si = +e.target.dataset.s;
+    if (a === "add-req") doc.specs[si].reqs.push(blankReq());
+    if (a === "del-req") doc.specs[si].reqs.splice(+e.target.dataset.r, 1);
+    if (a === "del-spec") doc.specs.splice(si, 1);
+    render();
+  });
+  $("add-spec").addEventListener("click", () => { doc.specs.push(blankSpec()); record("editor_spec_added"); render().then(() => { const n = document.getElementById(`s-${doc.specs.length - 1}-name`); if (n) n.focus(); }); });
+  $("reset").addEventListener("click", () => { if (confirm("Discard this draft and start from the example?")) { doc = starter(); render(); } });
+  $("doc-title").addEventListener("input", (e) => { doc.title = e.target.value; output(); });
+  $("doc-desc").addEventListener("input", (e) => { doc.description = e.target.value; output(); });
+  $("doc-schema").addEventListener("change", (e) => { doc.schema = e.target.value; $("specs").innerHTML = `<p class="muted">Loading ${esc(doc.schema)}...</p>`; render(); });
+
+  const fileName = () => (doc.title || "requirements").replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) + ".ids";
+  $("download").addEventListener("click", () => {
+    record("editor_downloaded");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([xml], { type: "application/xml" }));
+    a.download = fileName();
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+  $("copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(xml); $("copy").textContent = "Copied"; } catch { $("copy").textContent = "Select the XML below to copy"; } });
+  $("to-checker").addEventListener("click", () => {
+    record("editor_to_checker");
+    try { sessionStorage.setItem(HANDOFF, JSON.stringify({ name: fileName(), xml })); location.href = "./#run"; }
+    catch { $("to-checker").textContent = "Download it, then drop it on the checker"; }
+  });
+
+  $("optout").checked = usageOptedOut();
+  $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  record("editor_view");
+  render().catch((e) => { $("specs").innerHTML = `<p class="err">Could not load the schema tables: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

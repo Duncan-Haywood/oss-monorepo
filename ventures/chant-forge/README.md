@@ -1142,7 +1142,44 @@ That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
-#### The wall in codas only (2026-11-16, latest; failed its registration, both stay opt-in)
+#### A voice bar read as a murmur (2026-11-16, latest; failed its registration, opt-in)
+
+The round before left T's voiced stops read as a nasal (*tag*, *pob*, *hag*, *vob*, 11 of 22 misses). Read frame by
+frame (`eval/vstop-diag.mjs T`, which now names the nasal rule that fired and where a stop's closure starts), all 10
+of those four syllables' nasal misses came from the plain level rule, and on 7 of them a stop's closure, burst found,
+starts 1 to 7 frames (5-35 ms) after the "murmur" run starts. *tag* on F#3, eighth note: the five voices' beat lifts
+the vowel 10 dB over the 60 ms reference just before the closure, so the voice bar sits 26 dB under that vowel, which
+the closure rule (against the vowel before it) accepts, and 16 dB under the reference, which the level rule (-5 to
+-25 dB of the reference, dark) accepts too. Both runs start on the same frames, and the nasal run sorts first.
+
+- **The rule** (`readCoda`'s `barLead: N`, opt-in; `--bar N` in `eval/coda-check.mjs` and `eval/vstop-diag.mjs`): a
+  level-rule run that a burst-ended closure starts inside of, within N frames of the run's start, is that closure's
+  voice bar and is dropped. A cluster's n is a 40-70 ms murmur before its stop's closure, so it starts earlier.
+  `readCoda` now also returns which rule read a nasal (`rule`, `at`, `ms`, `stopAt`), for diagnostics.
+- **Development** (A-T): with `barLead` 3 and 8 nothing fell anywhere. With 8: T's voiced stops 122 to 125 of 144
+  (as a nasal 11 to 6), P's others 214 to 218, J's 321 to 325, Q's voiced stops 106 to 107, A 177 to 178, L and O +1.
+- **Pre-registered on a new part U** (`eval/coda-check.mjs` header, seventeenth round, committed before U ran):
+  12 voiced-stop codas, 4 nasal codas, 4 n-clusters (the rule's risk) and 8 others, none sung before, at A2, D3,
+  G#3, A#3, C#4 and D#4, 110 BPM.
+
+| U, against the default | default | `barLead: 8` | wanted |
+|---|---|---|---|
+| voiced-stop codas read exactly (of 144) | 127 | 128 | 2 or more better: **fails** |
+| voiced stops read as a nasal | 6 | 4 | 2 or more fewer: holds |
+| nasal codas (of 48) | 46 | 46 | no fewer: holds |
+| n-clusters read as their nasal (of 48) | 46 | 46 | no fewer: holds |
+| others (of 96) | 93 | 93 | no fewer: holds |
+| vowel-only control read as none (of 336) | 332 | 332 | no fewer: holds |
+
+So `barLead` stays opt-in and the default reader did not change. The registration quoted U's control as "of 288",
+copied from T; U has 28 syllables, so 336. The rule does what it was written to do on held-out data (two nasal misses
+fewer, nothing lost), but one of the two came back as the wrong stop. Read after the run (`eval/vstop-diag.mjs U
+--bar 8`): *dag* on A#3 turned from a nasal into a voiced *labial* stop, as did *tag* and *hag* on F#3-B3 in T, and
+the voiced stops still read as a nasal on C#4-E4 (*bob*, *lag*, *pob*, *hag*) have no burst found at all, so no
+closure for the rule to see. The next faults are the burst's place for g on F#3-A#3 (read as b) and the burst
+search on C#4-E4, not the murmur rule. Reader only; nothing in the synthesis changed. Not listened to.
+
+#### The wall in codas only (2026-11-16; failed its registration, both stay opt-in)
 
 The round before left one unregistered figure: with `closeAnchor` and the voice-bar wall together, R's voiced stops
 read 107 of 120 against the default's 103. The wall had been turned down because it moved the openings, so this round

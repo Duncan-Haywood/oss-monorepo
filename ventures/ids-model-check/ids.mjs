@@ -739,18 +739,21 @@ export class MaterialFacet {
 }
 
 const PARTOF_RELS = ["IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE", "IFCRELNESTS", "IFCRELVOIDSELEMENT", "IFCRELFILLSELEMENT"];
+const VOIDS_FILLS = "IFCRELVOIDSELEMENT IFCRELFILLSELEMENT";
 
 export class PartOfFacet {
   constructor(node) {
     this.kind = "partOf";
-    this.relation = (node.attrs.relation || "").toUpperCase() || null;
+    // IDS 1.0 (ids.xsd) writes voids and fills as one token pair:
+    // "IFCRELVOIDSELEMENT IFCRELFILLSELEMENT".
+    this.relation = (node.attrs.relation || "").trim().split(/\s+/).join(" ").toUpperCase() || null;
     const en = kid(node, "entity");
     this.entity = en ? new EntityFacet(en) : null;
   }
   wholes(model, e) {
     const seen = new Set();
     const out = [];
-    const rels = this.relation ? [this.relation] : PARTOF_RELS;
+    const rels = this.relation === VOIDS_FILLS ? ["IFCRELFILLSELEMENT", "IFCRELVOIDSELEMENT"] : this.relation ? [this.relation] : PARTOF_RELS;
     const step = (x) => {
       const ps = [];
       for (const r of rels) for (const p of (model.parents[r] && model.parents[r].get(x.id)) || []) ps.push(p);
@@ -771,7 +774,11 @@ export class PartOfFacet {
     return out;
   }
   test(e, model, ctx) {
-    const ws = this.wholes(model, e);
+    let ws = this.wholes(model, e);
+    // Through an opening, the whole is the element the opening voids (a door
+    // filling an opening in a wall is part of the wall), as IfcTester reads it;
+    // the opening itself is the path, not the whole.
+    if (this.relation === VOIDS_FILLS) ws = ws.filter((w) => !model.isA(w, "IFCFEATUREELEMENTSUBTRACTION"));
     if (!ws.length) return { ok: false, absent: true, why: `is not part of anything${this.relation ? " through " + this.relation : ""}` };
     if (!this.entity) return { ok: true };
     if (ws.some((w) => this.entity.test(w, model, ctx).ok)) return { ok: true };

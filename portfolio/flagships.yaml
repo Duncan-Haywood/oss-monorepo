@@ -432,10 +432,10 @@ flagships:
       (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
-      2026-11-16 latest: localRef kept over a parallel closeAnchor head to head (R+S
-      211 vs 208 of 240); coda wall failed on T; next: T's stops read as nasals,
-      D#4-E4 bursts, L's cum, sons/rint). Open checks that need a person: listen to
-      the studio page, --sing, the options (--stretch, --halftime, --fills, --limit
+      2026-11-16 latest: barLead (a voice bar read as a murmur) failed on held-out
+      U, 127 to 128 of 144, +2 wanted; opt-in; next: g bursts read as b on F#3-A#3,
+      no burst on C#4-E4, L's cum). Open checks that need a person: listen to the
+      studio page, --sing, the options (--stretch, --halftime, --fills, --limit
       pumping, stems, sections, breakdown, riser, the a cappella verse and whether
       the key lift sounds like a lift); --lrc in a real player and --markers/--stems
       in a DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4
@@ -468,17 +468,19 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; an IDS editor that offers a standard set's
-      properties and data types from schema/psets-*.json (template audit landed
-      2026-11-16).
+      eval/crosscheck_ifctester.py; the IDS editor (editor.html, landed 2026-11-16,
+      eval/editor-2026-11-16.md): open an existing IDS into it, and offer the
+      classes and sets a dropped model has.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
       valuable first: (audit 2026-11-16: 26 of 27 invalid-* files INVALID, 0 of 307
       valid; Pset_/Qto_ template audit 2026-11-16: 5 of 5 IDS-Audit-tool pset files,
       faults in 21 of 64 public IDS, eval/audit-corpus.mjs); ifcXML and .ifczip read
-      2026-11-16 (eval/ifcxml-xbim-2026-11-16.md); an MEP and an IFC4X3
-      infrastructure model through the IfcTester cross-check; an IDS editor that
-      offers the classes and property sets the loaded model has; a GitHub Action
+      2026-11-16 (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433
+      offered specs audit clean, 15,102 valid in ids.xsd; found voids/fills token
+      pair and classification-system gaps, eval/editor-2026-11-16.md); an MEP and an
+      IFC4X3 infrastructure model through the IfcTester cross-check; editor: open an
+      existing IDS, offer the classes and sets a loaded model has; a GitHub Action
       wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
       (needs a person).
