@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-16 · Milestone 28 result: a 1/16 in shim stack leaves 0.458 mm and keeps the stack at 0.796; a stock G1 cannot drive a wedge (66 N against 119 N); H106 held, H107 and H108 refuted
+
+`src/buildbot_sheathing/shim_mech.py` (new), `src/buildbot_sheathing/ceiling.py` (a callable `shim`: a residual set by each sheet's own tilt; the old path unchanged, m12 reproduces), `experiments/m28_shim_mech/` (run, results, figure), `tests/test_shim_mech.py` (6 tests), `reproduce.py` (m28 listed; `--check m28_shim_mech` reproduces, 98 lines), `paper/draft.md` (section 5.11 paragraph, a limitations bullet), `paper/check_numbers.py` (211 of 211, was 201), README, PROPOSAL and project card.
+
+- **Sources.** Composite taper shims 8 in long, 1/16 to 5/16 in (slope 1:32), and plastic horseshoe shims at 1/16, 1/8 and 1/4 in, from supplier listings (no manufacturer spec sheet found). Face frictions swept 0.2–0.6.
+- **Lift needed:** median 0.946 mm, p99 3.018 mm (rock draws); 43% of sheets need under half a 1/16 in step.
+- **Stack:** 0.229 / 0.458 / 0.934 mm rms at 1/32, 1/16, 1/8 in. With milestone 27's 20 ms slide the best stack gives 0.8042 / 0.7964 / 0.7653, against 0.7912 with a Gaussian 0.5 mm. **H106 held** (+0.52 points).
+- **Wedge:** 108–129 N at μ 0.4 (press position swept), self-locking everywhere. Stock G1, both hands into the wall: 40.6 / 65.6 / 118.0 N at z 0.35 / 0.5 / 0.7 m; it can drive faces up to μ 0.16 / 0.25 / 0.40. H1 130–135 N. **H107 refuted** (118.5 against 65.6 N at the model's 0.5 m ledger).
+- **Wedge stick-slip:** a hand's effective mass along the push is 0.78–1.17 kg (MuJoCo, feet planted, joints free), so a tap runs 12.7 mm at 20 ms and 337 mm (past the 8 in wedge) at 100 ms. Loop rms 0.013 mm at 2 ms (70 taps), 0.041 at 10 ms, 0.132 at 20 ms. **H108 refuted** (bar 0.1 mm).
+- **What it means.** The paper's shim is a 1/16 in stack, placed, not driven: no force or timing requirement, and as good as the 0.5 mm assumed. The wedge pays a point only for a robot that pushes about 120 N low on the wall with a 10–20 ms release.
+- **Next.** Measure the composite-shim and OSB friction pairs; a shim-dispensing end effector and its cycle time in milestone 13's cost model.
+
 ## 2026-11-16 · Milestone 28 planned: the shim as a mechanism (a shim stack or a driven wedge under the low corner)
 
 - **Why.** Milestones 10, 12, 13 and 27 credit the shim (lift the sheet's low bottom corner until its edge is plumb) with a 0.5 mm corner-height residual, and milestone 27 left it as the last remedy without a mechanism. Two ways to set the height exist on a site: a stack of fixed-thickness plastic shims (1/16, 1/8 and 1/4 in horseshoe shims, supplier listings) and a tapered composite shim driven under the corner (8 in long, 1/16 to 5/16 in thick, a slope of 1:32, supplier listings).

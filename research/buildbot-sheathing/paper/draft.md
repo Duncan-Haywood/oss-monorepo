@@ -514,6 +514,18 @@ The slide's assumption therefore holds only for a controller that releases withi
 seeing the sheet move; the friction pair of OSB on lumber, which sets how far the sheet runs, is
 swept rather than measured.
 
+The shim's 0.5 mm is the same kind of assumption (milestone 28). A seated sheet is plumbed by
+lifting its low bottom corner, a median of 0.946 mm and a 99th percentile of 3.018 mm on the
+simulated rock draws. A stack of 1/16 in horseshoe shims leaves the lift rounded to a step,
+0.458 mm rms, and with the 20 ms slide above the stack gives 0.7964 against 0.7912 with a
+Gaussian 0.5 mm. A tapered composite shim (1:32) driven under the corner could set the height
+continuously, but it carries half the sheet's weight plus wall friction, so at μ 0.4 on every face
+it needs a push of 118.5 N; the stock G1 gives 65.6 N into the wall at a 0.5 m ledger (both hands,
+waist pitch limiting), enough only for faces at μ 0.252 or less, while the H1 gives 132.0 N. A
+hand's effective mass along the push is under 1 kg, so the wedge, unlike the 21.8 kg sheet, runs
+far on each stick-slip tap (12.70 mm at 20 ms) and the 1:32 slope leaves 0.132 mm rms. The
+discrete stack, which the G1 can place, is therefore the shim the paper's numbers can rest on.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -647,6 +659,10 @@ readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in h
 - **The slide's friction.** Static and kinetic coefficients of OSB on the ledger and the wall are
   swept (μ_s 0.3–0.7, μ_k/μ_s 0.5–0.9); the hand's release is instantaneous after the latency, and
   the residual enters the tolerance model as a Gaussian at its rms.
+- **The shim.** Shim sizes are from supplier listings; the wedge's face frictions are swept
+  (0.2–0.6), the shim stack is placed exactly at its rounded height, the wedge's stroke and the
+  pulled-off foot when backing it out are checked but not simulated, and the ledger height (0.5 m)
+  that sets the G1's push is the model's, not a measured site value.
 - **Static humanoid.** No walking, balance controller or hand-off dynamics; joint gains are taken
   at face value.
 - **Strict pass/fail.** One nail outside its window fails a sheet, though a crew may accept a near
