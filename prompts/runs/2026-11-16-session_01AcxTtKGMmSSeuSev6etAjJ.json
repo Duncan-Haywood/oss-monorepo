@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKGMmSSeuSev6etAjJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T02:06:55Z",
+  "ended": "2026-11-16T02:13:18Z",
+  "wall_minutes": 48.06,
+  "tokens_in": 9127348,
+  "tokens_out": 46913,
+  "cost_usd": 3.8742,
+  "tool_calls": 80,
+  "task": "research/sensing-selfcal milestone 4p: the 7 + 6 update test on 13 fresh views per TUM unit (pick_track draw)",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16415",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First version of fresh.png pooled the two within-pool arms into one line, hiding that the fresh pool is weaker; redrawn as two panels from summary.json (analyse.py --figure)."
+  ],
+  "integrity_issues": [
+    "The cold-start Zhang f of the fresh pools (fr3b +2.69% over fr3) was printed after the plan was written and before any target-free solve; disclosed in LOG.md as seen-before-solves, hypotheses left unchanged (H95 then failed narrowly on fr3)."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/README.md",
+      "issue": "The m4n_k2 run was documented as ~90 min to 2 h on 4 cores; the same 9,440-solve run on the fresh pools took ~40 min, so the estimate cost a needless long wait plan."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Stop hook asks to commit untracked files, including the half-filled run record that prompt.md says to commit last; parked it in the scratchpad until the end."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-camera-update-test-on-views-it-has-never-seen.md",
+    "research/sensing-selfcal/LOG.md (milestone 4p planned + result)",
+    "research/sensing-selfcal/paper/draft.md (Section 7 paragraph, Sections 9-10)"
+  ],
+  "goal": "Advance programme sensing-selfcal: test the update test out of sample (the draft's main stated limitation).",
+  "notes": "Re-fetched both TUM RGB-D calibration sequences (cvg.cit.tum.de reachable through the proxy, ~1.5 GB, ~1 min). prepare.py reproduced milestone 4j's 13 frames per unit exactly. Pool A reproduced milestone 4n's k1 + k2 figures exactly (asserted). Results: H92 held (fresh-view false alarms 0.91% / 1.90%), H93 refuted (1.40% pooled > 1%), H94 refuted (power 7.96% vs 14.76%, 0.54x), H95 refuted narrowly (fr3 13-view f +0.58% > 0.5%). Fresh pool is flatter (median tilt about half) and within it the Xtion over-alarms at 4.44%. Checks run: tests/test_m4n, m4o, m4p (12 passed); full sensing-selfcal suite; paper/check_numbers.py 252/252; research/_homepage/build.py ok; research_live_links; check_md_links ok; programme_check ok; cite_check ok; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5d22e714-c16d-5c5a-a291-97e50752deaf",
+    "transcripts": 1,
+    "first": "2026-11-16T02:06:55Z",
+    "last": "2026-11-16T02:54:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 146,
+        "output": 46913,
+        "thinking": 10532,
+        "cache_read": 8984907,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142295,
+        "api_equivalent_usd": 3.8742,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 146,
+      "output": 46913,
+      "thinking": 10532,
+      "cache_read": 8984907,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142295,
+      "api_equivalent_usd": 3.8742,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 70,
+      "Write": 6,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 48.06,
+      "active_minutes": 11.57,
+      "model_minutes": 9.55,
+      "tool_minutes": 2.02,
+      "waiting_on_human_minutes": 36.49,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a researcher re-selecting views, running 9,440 solves, writing the cross-pool analysis, tests, log, paper section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 309.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
