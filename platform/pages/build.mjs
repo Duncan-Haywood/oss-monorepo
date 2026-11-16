@@ -53,7 +53,7 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
-import { cardKey, cardTitle, drawPlannedCards, mapLimit, renderCards, shareTagsFor, siteAddress } from './share.mjs';
+import { cardKey, cardTitle, drawPlannedCards, mapLimit, renderCards, setCardDrawing, shareTagsFor, siteAddress } from './share.mjs';
 import {
   MARK_GEOMETRY,
   renderSiteCard,
@@ -12459,8 +12459,12 @@ export async function buildSite({
   // Link committed MP3s from jsDelivr instead of shipping them (audio-cdn.mjs).
   // The deploy turns it on with --audio-cdn; local and test builds keep the files.
   audioCdn = false,
+  // false skips drawing share cards (tags are still written): fixture builds
+  // in the tests that read markup only (setCardDrawing in share.mjs).
+  cards = true,
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  setCardDrawing(cards);
   SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
   SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
   const pending = {};
@@ -12470,6 +12474,7 @@ export async function buildSite({
     // The research builder runs beside the JS passes; when one of those throws,
     // wait for it to stop writing into outDir before the caller cleans up.
     await pending.research?.catch(() => {});
+    setCardDrawing(true);
     SITE_COUNTER_URL = '';
     SITE_FEEDBACK_URL = '';
   }

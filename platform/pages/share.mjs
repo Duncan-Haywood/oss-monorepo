@@ -410,11 +410,22 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
  * (docs/history/pages-test-perf-2026-11-16-shared-card-cache.md). Entries are
  * written to a temporary name and renamed, so a reader never copies half a PNG.
  */
+/**
+ * Off for one build: `renderCards` draws and copies nothing, so pages keep
+ * their share tags but their card files are absent. For fixture builds in the
+ * tests (`buildSite({ cards: false })`), which assert on markup only and whose
+ * own base URL gives every card a different key from the catalogue build's:
+ * the two fixture builds drew ~14,000 cards nobody read, most of a cold
+ * suite's drawing (docs/history/pages-test-perf-2026-11-16-shared-card-cache.md).
+ */
+let cardDrawing = true;
+export function setCardDrawing(on) { cardDrawing = Boolean(on); }
+
 export async function renderCards(jobs, {
   threads = Math.max(1, Math.min(8, availableParallelism())),
   cacheDir = process.env.PAGES_CARD_CACHE || '',
 } = {}) {
-  if (!jobs.length) return;
+  if (!jobs.length || !cardDrawing) return;
   if (cacheDir) await fs.mkdir(cacheDir, { recursive: true });
   const now = new Date();
   const cachedPath = (key) => path.join(cacheDir, `${key}.png`);

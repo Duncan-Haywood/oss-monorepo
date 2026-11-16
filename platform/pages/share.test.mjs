@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
 import { fillText, fitText, font, measureText, wrapText } from './fontraster.mjs';
-import { accentFor, addShareCards, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
+import { accentFor, addShareCards, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, setCardDrawing, siteAddress } from './share.mjs';
 import { CARD_HEIGHT, CARD_WIDTH, quantize, renderCard, renderMarkIcon, renderSiteCard } from './sharecard.mjs';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -300,6 +300,19 @@ test('builds sharing a cache directory at once store every card whole, under its
     assert.deepEqual(readFileSync(path.join(cacheDir, `${cardKey(o)}.png`)), want);
     for (const side of ['a', 'b']) assert.deepEqual(readFileSync(path.join(dir, side, `${i}.png`)), want);
   }
+});
+
+test('with card drawing off (a fixture build), renderCards writes no card and no cache entry', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-off-'));
+  const cacheDir = path.join(dir, 'cache');
+  setCardDrawing(false);
+  try {
+    await renderCards([{ file: path.join(dir, 'out', 'a.png'), options: { headline: 'Drawing off' } }], { cacheDir });
+  } finally {
+    setCardDrawing(true);
+  }
+  assert.equal(existsSync(path.join(dir, 'out', 'a.png')), false);
+  assert.equal(existsSync(cacheDir), false);
 });
 
 test('a card drawn earlier in the process is reused byte for byte, with no cache directory', async () => {
