@@ -43,7 +43,7 @@
 <main>
   <p class="muted"><a href="../">All tools</a> / <a href="./">IDS Model Check</a> / IDS Editor</p>
   <h1>Write an IDS from the standard property sets.</h1>
-  <p class="lede">Pick an IFC class, then a standard property or quantity set that class can carry, then one of its properties. The editor fills in the data type from buildingSMART's templates, offers the enumeration values the standard lists, and audits every specification as you write it. Download the .ids, or send it straight to the checker. Nothing is uploaded.</p>
+  <p class="lede">Pick an IFC class, then a standard property or quantity set that class can carry, then one of its properties. Or open the model you are writing for, and the editor offers the classes and sets it actually carries, your project's own sets included. The editor fills in the data type from buildingSMART's templates, offers the enumeration values the standard lists, and audits every specification as you write it. Download the .ids, or send it straight to the checker. Nothing is uploaded.</p>
 
   <div class="card">
     <div class="grid">
@@ -60,8 +60,11 @@
     <button id="reset" type="button" class="ghost">Start over</button>
     <label for="open" class="btn ghost" style="font-size:1rem;color:var(--accent)">Open an IDS file</label>
     <input id="open" type="file" accept=".ids,.xml,application/xml,text/xml" style="position:absolute;left:-9999px;width:1px">
+    <label for="open-model" class="btn ghost" style="font-size:1rem;color:var(--accent)">Open a model to write for</label>
+    <input id="open-model" type="file" accept=".ifc,.IFC,.ifcxml,.ifcXML,.ifczip,.ifcZIP,.zip,.xml" style="position:absolute;left:-9999px;width:1px">
   </div>
   <p id="open-status" role="status" aria-live="polite" class="muted"></p>
+  <div id="model" role="status" aria-live="polite"></div>
 
   <h2>Audit</h2>
   <div id="audit" role="status" aria-live="polite" class="muted">Nothing written yet.</div>
@@ -75,7 +78,8 @@
   <pre id="xml" aria-label="IDS XML"></pre>
 
   <h2>How it works</h2>
-  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a custom property set, a pattern on a name, a facet in the applicability, an exclusive bound) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
+  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a pattern on a name, a facet in the applicability, an exclusive bound, a non-standard Pset_ name) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories (79% of their facets editable, a project's own property sets included) and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
+  <p><strong>Open a model to write for</strong> reads an IFC model (.ifc, .ifcxml or .ifczip) in a background thread of this tab, with the checker's own reader, and lists what it already carries: each class with how many of it, the property and quantity sets on them (standard or the project's own, with the data type the model writes each property in) and the classification systems in use. The editor then offers those first: the model's classes in the class list, and, on each requirement, the sets the model's objects of that class carry, with how many carry them. A set of the project's own (Acme_Wall, not a Pset_ or Qto_ set) becomes a row you can edit: its name, the property and a data type from the IFC schema, filled in from the model when it has the property. The model is not uploaded or kept: close the tab and it is gone.</p>
   <p>The class list is every non-abstract class in the IFC schema you pick that can carry at least one standard set; the set list is the sets whose templates apply to that class, its ancestors, or the occurrence a type object is for (Pset_WallCommon on IFCWALL, IFCWALLSTANDARDCASE and IFCWALLTYPE); the property list and data types are the template's. IDS matches exact classes, so a specification on IFCWALL misses IFCWALLSTANDARDCASE unless both are listed: tick <em>and its subclasses</em> to list them. A property whose template gives no single data type (a bounded value, a table, a list or a reference) is checked for presence only.</p>
   <p>Every choice the editor offers was written out and audited: for each of the three schemas, every offered class, every set it offers for that class and every property of the set, once on its own and once with a value of the right kind. That is 203,433 specifications (32,823 for IFC2X3, 46,516 for IFC4, 124,094 for IFC4X3), and the audit finds no error and no warning in any of them (<code>eval/editor-roundtrip.mjs</code>). A sample of 15,102 specifications, one per class and set plus every facet, value kind, cardinality and partOf relation the page writes, validates against buildingSMART's IDS 1.0 XML schema in IfcOpenShell's IfcTester (<code>eval/editor-xsd-check.py</code>).</p>
 
@@ -89,7 +93,8 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes, modelSets, valueTypes, ownSetName } from "./editor.mjs";
+  import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -132,19 +137,54 @@
     let valueKind = "text", enumVals = null, note = "";
     if (r.kind === "property") {
       const sets = L.S.entities[spec.cls] || (L.tm && L.tm[spec.cls]) ? setsFor(L.psets, L.S, spec.cls, L.tm) : [];
-      h += `<div><label for="${id("set")}">Standard set</label><select id="${id("set")}" data-s="${si}" data-r="${ri}" data-k="set">${opt("", sets.length ? "choose a set" : "pick a class with standard sets first", r.set)}${sets.map((s) => opt(s, s, r.set)).join("")}</select></div>`;
-      const props = r.set ? propertiesOf(L.psets, L.S, r.set) : [];
-      h += `<div><label for="${id("name")}">Property</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", props.length ? "choose a property" : "-", r.name)}${props.map((p) => opt(p.name, p.name + (p.dataType ? ` (${p.dataType.replace(/^IFC/, "").toLowerCase()})` : ""), r.name)).join("")}</select></div>`;
-      const p = props.find((x) => x.name === r.name);
-      if (p) {
-        if (!p.dataType) { valueKind = null; note = "The standard gives no single data type for this property (a bounded value, table, list or reference), so it is checked for presence only."; }
+      // What the opened model's objects of this class carry (inventory.mjs).
+      const inModel = inv && spec.cls ? modelSets(inv, specClasses(L, spec), sets) : [];
+      const ofN = inModel.length ? inModel[0].of : 0;
+      const mset = inModel.find((m) => m.name === r.set);
+      const onN = (m) => (m ? ` - on ${m.count} of ${ofN} in the model` : "");
+      const own = inModel.filter((m) => !m.standard && ownSetName(m.name));
+      const setVal = !r.custom ? r.set : own.some((m) => m.name === r.set) ? "own:" + r.set : "__own";
+      let so = opt("", sets.length || own.length ? "choose a set" : "pick a class first, or write your own", setVal);
+      const carried = sets.filter((x) => inModel.some((m) => m.name === x));
+      if (carried.length) so += `<optgroup label="Standard sets the model carries">${carried.map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (sets.length) so += `<optgroup label="${carried.length ? "Other standard sets" : "Standard sets"}${spec.cls ? " for " + esc(spec.cls) : ""}">${sets.filter((x) => !carried.includes(x)).map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (own.length) so += `<optgroup label="The model's own sets">${own.map((m) => opt("own:" + m.name, m.name + onN(m), setVal)).join("")}</optgroup>`;
+      so += opt("__own", "a set of your own...", setVal);
+      h += `<div><label for="${id("set")}">Property set</label><select id="${id("set")}" data-s="${si}" data-r="${ri}" data-k="set">${so}</select></div>`;
+      if (r.custom) {
+        const mp = mset ? mset.props : [];
+        h += `<div><label for="${id("own")}">Set name</label><input id="${id("own")}" data-s="${si}" data-r="${ri}" data-k="ownSet" value="${esc(r.set)}" placeholder="Acme_Wall"></div>`;
+        h += `<div><label for="${id("name")}">Property</label><input id="${id("name")}" list="${id("props")}" data-s="${si}" data-r="${ri}" data-k="ownName" data-change="1" value="${esc(r.name)}" placeholder="FireCompartment" autocomplete="off"><datalist id="${id("props")}">${mp.map((p) => `<option value="${esc(p.name)}">${esc(p.dataType || "")}</option>`).join("")}</datalist></div>`;
+        h += `<div><label for="${id("dt")}">Data type</label><select id="${id("dt")}" data-s="${si}" data-r="${ri}" data-k="dataType">${opt("", "any (presence only)", r.dataType)}${valueTypes(L.S).map((t) => opt(t, t, r.dataType)).join("")}</select></div>`;
+        const dt = r.dataType && L.S.types[r.dataType] ? r.dataType : null;
+        if (!dt) { valueKind = null; note = "Pick a data type to ask for a value; without one the property is checked for presence."; }
         else {
-          const prim = L.S.prim(p.dataType);
+          const prim = L.S.prim(dt);
           valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
-          enumVals = p.enum;
-          note = `dataType ${p.dataType}${p.dataTypes.length > 1 ? ` (the template also allows ${p.dataTypes.slice(1).join(", ")})` : ""}.`;
+          note = `dataType ${dt}.`;
         }
-      } else valueKind = null;
+        if (r.set && !ownSetName(r.set)) note = `${r.set} uses the Pset_/Qto_ prefix buildingSMART reserves for its standard sets; the audit will reject a name the standard does not have. ` + note;
+        const mp1 = mp.find((p) => p.name === r.name);
+        if (mp1) note += ` The model has it on ${mp1.count} of ${ofN}${mp1.dataType ? `, as ${mp1.dataType}` : ""}.`;
+        else if (mset && r.name) note += ` None of the model's ${esc(spec.cls)} objects has ${r.name} in ${r.set}.`;
+      } else {
+        const props = r.set ? propertiesOf(L.psets, L.S, r.set) : [];
+        const pcount = (n) => { const q = mset && mset.props.find((x) => x.name === n); return q ? `, ${q.count} in model` : ""; };
+        h += `<div><label for="${id("name")}">Property</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", props.length ? "choose a property" : "-", r.name)}${props.map((p) => opt(p.name, p.name + (p.dataType ? ` (${p.dataType.replace(/^IFC/, "").toLowerCase()}${pcount(p.name)})` : pcount(p.name) ? ` (${pcount(p.name).slice(2)})` : ""), r.name)).join("")}</select></div>`;
+        const p = props.find((x) => x.name === r.name);
+        if (p) {
+          if (!p.dataType) { valueKind = null; note = "The standard gives no single data type for this property (a bounded value, table, list or reference), so it is checked for presence only."; }
+          else {
+            const prim = L.S.prim(p.dataType);
+            valueKind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+            enumVals = p.enum;
+            note = `dataType ${p.dataType}${p.dataTypes.length > 1 ? ` (the template also allows ${p.dataTypes.slice(1).join(", ")})` : ""}.`;
+          }
+          const q = mset && mset.props.find((x) => x.name === r.name);
+          if (q) note += ` The model has it on ${q.count} of ${ofN}${q.dataType && q.dataType !== p.dataType ? `, written as ${q.dataType}, so a check with this dataType will fail them` : ""}.`;
+          else if (inv && spec.cls && ofN) note += ` None of the model's ${ofN} ${spec.cls} object(s) has it yet.`;
+        } else valueKind = null;
+      }
     } else if (r.kind === "attribute") {
       const attrs = editableAttributes(L.S, spec.cls);
       h += `<div><label for="${id("name")}">Attribute</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", "choose", r.name)}${attrs.map((a) => opt(a, a, r.name)).join("")}</select></div>`;
@@ -177,6 +217,8 @@
     return h;
   }
 
+  // The exact classes a specification names (IDS matches exact classes).
+  const specClasses = (L, s) => (s.withSub && L.S.entities[s.cls] ? [s.cls, ...subclasses(L.S, s.cls)] : [s.cls]);
   function specHtml(L, s, si) {
     const known = !!(L.S.entities[s.cls] || (L.tm && L.tm[s.cls]));
     const subs = L.S.entities[s.cls] ? subclasses(L.S, s.cls) : [];
@@ -189,7 +231,8 @@
     h += `<div><label for="s-${si}-opt">The model</label><select id="s-${si}-opt" data-s="${si}" data-k="optionality">${[["required", "must have at least one"], ["optional", "may have some"], ["prohibited", "must have none"]].map(([v, l]) => opt(v, l, s.optionality)).join("")}</select></div>`;
     h += `</div>`;
     if (s.cls && !known) h += `<p class="warn">${esc(s.cls)} is not a ${esc(doc.schema)} class.</p>`;
-    else if (s.cls) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
+    if (inv && s.cls) { const n = inv.classes.filter((c) => specClasses(L, s).includes(c.cls)).reduce((a, c) => a + c.count, 0); h += `<p class="${n ? "muted" : "warn"}" style="font-size:0.88rem;margin-bottom:0">${n ? `The model has ${n} object(s) this applies to.` : `The model has no ${esc(s.cls)}${s.withSub ? " or subclass" : ""} objects: a required specification would fail on it.`}</p>`; }
+    if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
     h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
     if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(doc.schema)}.</p>`;
     if (s.fixedApp && s.fixedApp.length) { h += `<p class="muted" style="font-size:0.88rem;margin-bottom:0">It also applies only to elements matching:</p>`; s.fixedApp.forEach((f, i) => { h += keptHtml(L, f, false, "del-app", si, i); }); }
@@ -220,12 +263,74 @@
     $("doc-title").value = doc.title;
     $("doc-desc").value = doc.description || "";
     $("doc-schema").value = doc.schema;
-    let h = `<datalist id="classes">${L.classes.map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="all-classes">${["IFCBUILDINGSTOREY", "IFCSPACE", "IFCBUILDING", "IFCSITE", "IFCSYSTEM", "IFCDISTRIBUTIONSYSTEM", "IFCZONE", "IFCELEMENTASSEMBLY", "IFCOPENINGELEMENT"].filter((c) => L.S.entities[c]).map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="systems"><option value="Uniclass 2015"><option value="OmniClass"><option value="NL-SfB"><option value="MasterFormat"><option value="UniFormat"></datalist>`;
+    const mine = inv && inv.schema === doc.schema ? inv.classes.filter((c) => L.S.entities[c.cls]).map((c) => c.cls) : [];
+    let h = `<datalist id="classes">${mine.map((c) => `<option value="${c}">in the model</option>`).join("")}${L.classes.filter((c) => !mine.includes(c)).map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="all-classes">${["IFCBUILDINGSTOREY", "IFCSPACE", "IFCBUILDING", "IFCSITE", "IFCSYSTEM", "IFCDISTRIBUTIONSYSTEM", "IFCZONE", "IFCELEMENTASSEMBLY", "IFCOPENINGELEMENT"].filter((c) => L.S.entities[c]).map((c) => `<option value="${c}">`).join("")}</datalist><datalist id="systems">${inv ? inv.systems.map(([n]) => `<option value="${esc(n)}">in the model</option>`).join("") : ""}<option value="Uniclass 2015"><option value="OmniClass"><option value="NL-SfB"><option value="MasterFormat"><option value="UniFormat"></datalist>`;
     doc.specs.forEach((s, si) => { h += specHtml(L, s, si); });
     if (!doc.specs.length) h += `<p class="muted">No specifications yet.</p>`;
     $("specs").innerHTML = h;
+    modelHtml(L);
     output();
   }
+
+  // ---- a model to write for: what it carries (worker.mjs -> inventory.mjs)
+  let inv = null, invName = "";
+  const SPATIAL = ["IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT"];
+  function modelHtml(L) {
+    if (!inv) { $("model").innerHTML = ""; return; }
+    let h = `<div class="card"><p style="margin-top:0"><strong>${esc(invName)}</strong>: ${esc(inv.schemaRaw)} ${esc(inv.format)}, ${inv.entityCount.toLocaleString()} entities, ${inv.classes.length} object classes${inv.systems.length ? `, classified in ${inv.systems.map(([n]) => esc(n)).join(", ")}` : ""}. <button type="button" class="ghost small" data-act="model-close">Close the model</button></p>`;
+    if (inv.schema !== doc.schema) h += `<p class="warn">The model is ${esc(inv.schema)}; this IDS is written for ${esc(doc.schema)}, so its classes and sets are not offered. <button type="button" class="small" data-act="model-schema">Write for ${esc(inv.schema)}</button></p>`;
+    const rows = inv.classes.filter((c) => !SPATIAL.includes(c.cls) || c.sets.length);
+    h += `<p class="muted" style="font-size:0.88rem">Each class the model has, with the sets its objects carry (<em>own</em>: not a standard set). Add a specification for one, and its requirement rows offer these sets first.</p><div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:0.88rem;width:100%"><thead><tr><th style="text-align:left">Class</th><th style="text-align:right">Objects</th><th style="text-align:left;padding-left:10px">Sets on them (how many carry each)</th><th></th></tr></thead><tbody>`;
+    for (const c of rows.slice(0, 60)) {
+      const std = L.S.entities[c.cls] || (L.tm && L.tm[c.cls]) ? setsFor(L.psets, L.S, c.cls, L.tm) : [];
+      const sets = c.sets.slice(0, 8).map((x) => `${esc(x.name)}${std.includes(x.name) ? "" : /^(Pset|Qto)_/.test(x.name) ? ' <span class="warn">(not standard)</span>' : ' <span class="muted">(own)</span>'} ${x.count}`).join(", ") + (c.sets.length > 8 ? `, and ${c.sets.length - 8} more` : "");
+      h += `<tr style="border-top:1px solid var(--line)"><td><code>${esc(c.cls)}</code></td><td style="text-align:right">${c.count.toLocaleString()}</td><td style="padding-left:10px">${sets || '<span class="muted">none</span>'}</td><td>${inv.schema === doc.schema ? `<button type="button" class="ghost small" data-act="model-spec" data-cls="${esc(c.cls)}">Add a specification</button>` : ""}</td></tr>`;
+    }
+    h += `</tbody></table></div>${rows.length > 60 ? `<p class="muted">and ${rows.length - 60} more classes.</p>` : ""}</div>`;
+    $("model").innerHTML = h;
+  }
+  let worker = null;
+  function inventoryOf(text) {
+    if (!worker) worker = new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    return new Promise((resolve, reject) => {
+      worker.onmessage = (ev) => (ev.data.error ? reject(new Error(ev.data.error)) : resolve(ev.data.inventory));
+      worker.onerror = (ev) => reject(new Error(ev.message || "the model reader stopped"));
+      worker.postMessage({ inventory: true, ifc: text });
+    });
+  }
+  $("open-model").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    $("model").innerHTML = `<p class="muted">Reading ${esc(f.name)}...</p>`;
+    try {
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      let text, inner = null;
+      if (isZip(bytes)) { const m = await unzipModel(bytes, inflateRawStream); text = m.text; inner = m.name; }
+      else text = new TextDecoder().decode(bytes);
+      inv = await inventoryOf(text);
+      invName = f.name + (inner ? ` (${inner.split("/").pop()} inside)` : "");
+      record("editor_model_opened");
+      await render();
+    } catch (err) {
+      $("model").innerHTML = `<p class="err">Could not read ${esc(f.name)}: ${esc(err.message)}</p>`;
+    }
+  });
+  $("model").addEventListener("click", async (e) => {
+    const a = e.target.dataset && e.target.dataset.act;
+    if (a === "model-close") { inv = null; render(); }
+    if (a === "model-schema") { doc.schema = inv.schema; render(); }
+    if (a === "model-spec") {
+      const cls = e.target.dataset.cls;
+      const L = loaded[doc.schema];
+      const nice = L.S.entities[cls] ? L.S.entities[cls].name.replace(/^Ifc/, "") : cls;
+      doc.specs.push({ ...blankSpec(), name: `${nice} requirements`, cls, withSub: false });
+      record("editor_spec_added");
+      await render();
+      const n = document.getElementById(`s-${doc.specs.length - 1}-name`);
+      if (n) { n.scrollIntoView({ block: "center" }); n.focus(); }
+    }
+  });
 
   function onField(e, structural) {
     const t = e.target;
@@ -233,12 +338,33 @@
     const s = doc.specs[+t.dataset.s];
     const target = t.dataset.r !== undefined ? s.reqs[+t.dataset.r] : s;
     const k = t.dataset.k;
+    // The set picker: a standard set, one of the model's own ("own:Name"),
+    // or a set the author names ("__own").
+    if (k === "set") {
+      target.custom = t.value === "__own" || t.value.startsWith("own:");
+      target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
+      target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = [];
+      render();
+      return;
+    }
+    if (k === "ownSet") { target.set = t.value.trim(); output(); return; }
+    if (k === "ownName") {
+      target.name = t.value.trim(); target.mode = "any"; target.oneOf = []; target.equals = "";
+      // Filled in from the model when it has this property.
+      const L = loaded[doc.schema];
+      const m = inv && modelSets(inv, specClasses(L, s), []).find((x) => x.name === target.set);
+      const q = m && m.props.find((x) => x.name === target.name);
+      if (q && q.dataType && L.S.types[q.dataType]) target.dataType = q.dataType;
+      render();
+      return;
+    }
     if (k === "oneOf") target.oneOf = t.checked ? [...target.oneOf, t.value] : target.oneOf.filter((v) => v !== t.value);
     else if (t.type === "checkbox") target[k] = t.checked;
     else target[k] = k === "cls" || k === "entity" ? t.value.trim().toUpperCase() : t.value;
     // A new class or set resets what depended on it.
-    if (k === "cls") { s.predefinedType = ""; for (const r of s.reqs) if (r.kind === "property") { r.set = ""; r.name = ""; } }
-    if (k === "set" || k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; }
+    if (k === "cls") { s.predefinedType = ""; for (const r of s.reqs) if (r.kind === "property" && !r.custom) { r.set = ""; r.name = ""; } }
+    if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; target.custom = false; target.set = ""; target.dataType = ""; }
+    if (k === "dataType") { target.mode = "any"; target.oneOf = []; }
     if (k === "name" && t.dataset.r !== undefined) { target.mode = "any"; target.oneOf = []; target.equals = ""; }
     if (structural) render(); else output();
   }
@@ -269,7 +395,7 @@
     if (!doc.title) doc.title = name.replace(/\.(ids|xml)$/i, "");
     const total = r.rows + r.kept;
     let msg = `Opened ${esc(name)}: ${parsed.specs.length} specification(s) for ${esc(id)}. ${r.rows} of ${total} facet(s) are editable here`;
-    msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a custom property set, a pattern on a name, a facet in the applicability...).` : ".";
+    msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a pattern on a name, an exclusive bound, a facet in the applicability...).` : ".";
     if (r.dropped) msg += ` <span class="warn">${r.dropped} requirement(s) of prohibited specification(s) (${esc(r.droppedIn.join(", "))}) are not kept: IDS 1.0 cannot evaluate them, so move the condition into the applicability.</span>`;
     $("open-status").innerHTML = msg;
     record("editor_opened");

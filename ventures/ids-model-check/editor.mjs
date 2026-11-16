@@ -240,7 +240,7 @@ export function entityFacet(S, cls, { withSubclasses = false, predefinedType = n
 // requirement rows with a value "mode". stateToDoc() turns it into the shape
 // buildIds() writes; importIds() turns an opened IDS file into it.
 
-export const blankReq = () => ({ kind: "property", set: "", name: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
+export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
 export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", withSub: true, predefinedType: "", reqs: [blankReq()] });
 
 // Attributes the page offers for a class: stored, single, comparable by value.
@@ -249,12 +249,59 @@ export function editableAttributes(S, cls) {
   return S.attrs(cls).filter((a) => !a.derived && !a.aggregate && ["string", "double", "integer", "boolean", "logical", "enum"].includes(S.prim(a.type))).map((a) => a.name);
 }
 
+// The dataTypes a row of the author's own set can name: the schema's defined
+// types IDS can compare (text, numbers, booleans), the common ones first.
+const COMMON_TYPES = ["IFCLABEL", "IFCTEXT", "IFCIDENTIFIER", "IFCBOOLEAN", "IFCLOGICAL", "IFCINTEGER", "IFCREAL", "IFCLENGTHMEASURE", "IFCPOSITIVELENGTHMEASURE", "IFCAREAMEASURE", "IFCVOLUMEMEASURE", "IFCMASSMEASURE", "IFCCOUNTMEASURE", "IFCPOSITIVERATIOMEASURE", "IFCRATIOMEASURE", "IFCTHERMALTRANSMITTANCEMEASURE", "IFCDATE", "IFCDATETIME"];
+export function valueTypes(S) {
+  const ok = (t) => S.types[t] && S.types[t].kind === "defined" && ["string", "double", "integer", "boolean", "logical"].includes(S.prim(t));
+  const rest = Object.keys(S.types).filter((t) => ok(t) && !COMMON_TYPES.includes(t)).sort();
+  return [...COMMON_TYPES.filter(ok), ...rest];
+}
+
+// A set name the page lets an author write as their own: not a standard set
+// for the class, and not in buildingSMART's reserved Pset_/Qto_ prefixes (a
+// Pset_ name the standard lacks is the audit's pset-unknown error).
+export const ownSetName = (name) => typeof name === "string" && name.trim() !== "" && !/^(Pset|Qto)_/.test(name);
+
+// The sets a loaded model's objects of these classes carry (modelInventory()
+// in inventory.mjs), merged: [{ name, count, of, standard, props: [{ name,
+// count, dataType }] }], where `count` of the `of` objects carry the set.
+// `standard` says whether it is a template set the class can carry; the page
+// offers those as standard rows and the rest as the author's own.
+export function modelSets(inv, classes, standardSets = []) {
+  if (!inv) return [];
+  const want = new Set(classes);
+  const out = new Map();
+  let of = 0;
+  for (const c of inv.classes) {
+    if (!want.has(c.cls)) continue;
+    of += c.count;
+    for (const s of c.sets) {
+      let m = out.get(s.name);
+      if (!m) out.set(s.name, (m = { name: s.name, count: 0, props: new Map() }));
+      m.count += s.count;
+      for (const p of s.props) {
+        const q = m.props.get(p.name);
+        if (!q) m.props.set(p.name, { name: p.name, count: p.count, dataType: p.dataType });
+        else { q.count += p.count; q.dataType = q.dataType || p.dataType; }
+      }
+    }
+  }
+  return [...out.values()].map((m) => ({ name: m.name, count: m.count, of, standard: standardSets.includes(m.name), props: [...m.props.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)) }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
 // What value modes the page offers for a requirement row, and the
 // enumeration it offers them from (null when free text).
 //   L = { S, psets, tm }
 export function valueChoices(L, cls, r) {
   let kind = "text", enumVals = null, p = null;
-  if (r.kind === "property") {
+  if (r.kind === "property" && r.custom) {
+    const dt = r.dataType && L.S.types[r.dataType] ? r.dataType : null;
+    p = { name: r.name, dataType: dt, dataTypes: dt ? [dt] : [], enum: null };
+    const prim = dt ? L.S.prim(dt) : null;
+    kind = !dt ? null : prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+  } else if (r.kind === "property") {
     p = r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
     if (!p || !p.dataType) kind = null;
     else {
@@ -279,7 +326,7 @@ export function valueChoices(L, cls, r) {
 
 function reqFacet(L, r) {
   if (r.fixed) return r.fixed;
-  const p = r.kind === "property" ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
+  const p = r.kind !== "property" ? null : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
   const value = r.cardinality === "prohibited" || (p && !p.dataType) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
     : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? { min: r.min, max: r.max } : r.mode === "pattern" ? { pattern: r.pattern } : null;
@@ -331,7 +378,12 @@ function editableRow(L, cls, f) {
   if (f.kind === "property") {
     r.set = simpleOf(f.propertySet); r.name = simpleOf(f.baseName);
     if (!r.set || !r.name) return null;
-    if (!setsFor(L.psets, L.S, cls, L.tm).includes(r.set)) return null;
+    if (!setsFor(L.psets, L.S, cls, L.tm).includes(r.set)) {
+      // A set of the project's own (Acme_Wall): an editable row when its
+      // dataType, if any, is one the page offers.
+      if (!ownSetName(r.set) || (f.dataType && !valueTypes(L.S).includes(f.dataType))) return null;
+      r.custom = true; r.dataType = f.dataType || "";
+    }
   } else if (f.kind === "attribute") {
     r.name = simpleOf(f.name);
     if (!r.name || !editableAttributes(L.S, cls).includes(r.name)) return null;
@@ -422,7 +474,7 @@ export function importIds(parsed, loadFor) {
     // the file had are counted, not kept.
     if (s.optionality === "prohibited" && s.requirements.length) { dropped += s.requirements.length; droppedIn.push(s.name); }
     else for (const f of s.requirements) {
-      const row = spec.cls || f.kind !== "property" ? editableRow(L, spec.cls, f) : null;
+      const row = editableRow(L, spec.cls, f);
       // The row must write the same XML the facet had, or it is kept as written.
       if (row && facetXml(reqFacet(L, row), L.S, true) === facetXml(facetFromParsed(f), L.S, true)) { spec.reqs.push(row); rows++; }
       else { spec.reqs.push({ kind: f.kind, fixed: facetFromParsed(f) }); kept++; }

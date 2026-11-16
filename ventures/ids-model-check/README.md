@@ -48,6 +48,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   same thing, spec by spec and facet by facet; none becomes invalid against
   `ids.xsd`; 75% of the public files' facets open as editable rows.
   `eval/editor-open-2026-11-16.md`.
+  **Writes for the model you have** (2026-11-16): open an IFC model in the
+  editor and it lists each class with its object count and the sets on them,
+  offers the sets the model's objects of a class carry first ("on 112 of 112"),
+  and lets you write a project's own set (Revit's `PSet_Revit_Dimensions`,
+  `Acme_Wall`) as an editable row with the data type the model uses. On four
+  real exports, 347 of 395 (class, set) pairs were own sets the editor could not
+  offer before, and 21 of 122 standard properties were written in a data type
+  the template does not give (the row says so). Own sets also open as editable
+  rows: 79.4% of the public IDS files' facets (was 75.0%), all still writing
+  back the same. `eval/model-inventory-2026-11-16.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -341,11 +351,12 @@ faster than IfcTester; its point is needing no install.
 
 ## Next steps
 
-- The editor (open an IDS landed 2026-11-16; what stays read-only on the 64
-  public files, `eval/editor-open-2026-11-16.md`): custom property sets as an
-  editable row (110 kept facets), several classes per specification and
-  property/attribute facets in the applicability (85); offer the classes and
-  property sets a loaded model actually has, with counts.
+- The editor (own sets and a loaded model's classes and sets landed
+  2026-11-16, `eval/model-inventory-2026-11-16.md`): several classes per
+  specification and property/attribute facets in the applicability (85 kept
+  facets on the public files); offer the values a model uses for a property
+  (its labels as an enumeration); a "fix the dataType" hint built from the 21
+  of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
 - A GitHub Action wrapper for checking models on every commit.
