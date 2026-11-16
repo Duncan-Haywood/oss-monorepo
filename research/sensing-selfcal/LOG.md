@@ -1,5 +1,18 @@
 # sensing-selfcal research log
 
+## 2026-11-16 · Milestone 3e planned: does the spread of the camera's optical axes, read from the solve's own poses, mark the near-critical windows that total rotation missed?
+
+Written before `experiments/m3e_axis/run.py` was first run and before any axis-spread value was computed, after milestone 3d's results were read. Milestone 3d found that total motion-capture rotation does not pick out fr1/xyz, whose windows land a shared &minus;3% off with a jackknife sd that does not grow. Sturm (1997) lists pure translation and rotation about the optical axis among the critical motions for focal length; total rotation counts roll about the optical axis, which carries no information on f. So the candidate signal is how far the *optical axis* swings within the window, and a robot can read it from its own solved poses.
+
+- **Method** (`experiments/m3e_axis/`). Each of milestone 3c's windows is re-solved exactly as 3c did (best start from milestone 3b, OpenCV RNG seeded per window, `nfba.solve_window` unchanged); a window's f must reproduce 3c's within 0.1% or the script stops. Scored set: 3c's 57 scored windows, with 3c's f, error against milestone 4n's board reference and sd<sub>JK</sub>. **Axis spread D** = the largest angle between the optical axes of any two of the window's 12 keyframes (solver poses: x<sub>cam</sub> = R X + t, axis = third row of R), in degrees. The same D from TUM's motion capture (axis = third column of the camera-to-world rotation) is the check. Roll is excluded by construction. Also from the solve: the correlations of f with k1 and k2 in its intrinsics covariance.
+- **H135 (D marks fr1/xyz).** Median solver D on fr1/xyz &le; 0.5&times; the median on each of fr1/desk and fr3/stf. Refuted otherwise.
+- **H136 (D predicts error).** Spearman of solver D against |f &minus; f<sub>ref</sub>|/f<sub>ref</sub> over the 57 windows &le; &minus;0.3. Refuted above.
+- **H137 (a gate on D picks the right windows).** Dropping windows below the lower tercile of solver D (over all 57) removes &ge; 50% of fr1/xyz's scored windows and &le; 25% of fr1/desk's and fr3/stf's together. Refuted if either fails.
+- **H138 (the gate helps).** Median |error| of the kept windows &le; 0.75&times; that of all 57. Refuted above.
+- **H139 (the solver sees what motion capture sees).** Spearman of solver D against motion-capture D &ge; 0.8. Refuted below.
+- **Reported, unscored.** Per sequence: medians of D (solver and motion capture), total rotation and the roll share of it; Spearman of D against sd<sub>JK</sub>/f and of |corr(f, k1)|, |corr(f, k2)| against |error|; milestone 3d's random-effects K = 5 blocks on the gated windows (rms z, median |error|); gate sensitivity at the lower quartile and the median; `axis.png`.
+- **Caveat set in advance.** 57 windows in three sequences of one scene type, which share a scene and session within a sequence; the gate threshold is a tercile of this same data, not a fixed figure; D from 12 keyframes over 1.2 s is the swing of a hand-held camera, not designed motion.
+
 ## 2026-11-16 · Milestone 3d result: pool five 1.2 s windows by random effects and the sd stays honest (rms z 1.10; independence gives 2.79), but f lands a median 2.2&ndash;2.5% off; about eight windows (10 s) reach 2%, and a rotation gate does not find the near-critical case
 
 - **Run.** `experiments/m3d_pool/pool.py` (seconds; analysis only, on milestone 3c's `summary.json`), exactly as planned below; `tests/test_m3d.py` (5 tests: the pooling helpers on known cases, including about-unit rms z for DerSimonian&ndash;Laird under simulated random effects) passed before the run. Output `summary.json`, `pool.png`.
