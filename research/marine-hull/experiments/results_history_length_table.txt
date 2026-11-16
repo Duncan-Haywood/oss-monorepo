@@ -1,0 +1,36 @@
+Milestone 6zzq: history-length design table (no new runs; parsed from 6zzi, 6zzj, 6zzk, 6zzp)
+No correction AT_90: all168 139, hi168 25 (of 168)
+
+A. Raw month ratios LC by years of log k, mean [worst, best] over every subset of the five learning years
+  k  draws |  all168              vs AT_90       |  hi168               vs AT_90
+  1      5 |  121.8 [ 97,152]  below on mean  |   81.0 [  1,153]  above on mean
+  2     10 |  140.8 [116,155]  above on mean  |   92.3 [ 33,149]  never below
+  3     10 |  149.3 [123,160]  above on mean  |   95.7 [ 50,128]  never below
+  4      5 |  152.2 [143,160]  never below    |   99.8 [ 81,107]  never below
+  5      1 |  158.0 [158,158]  never below    |  105.0 [105,105]  never below
+
+B. One and two years by rule, mean [worst, best] over the years drawn
+  history  draws rule ms   |  all168              vs AT_90       |  hi168               vs AT_90
+  1 year       5 LC   6zzj |  121.8 [ 97,152]  below on mean  |   81.0 [  1,153]  above on mean
+  1 year       5 LHF  6zzj |  138.8 [126,155]  below on mean  |   74.2 [  1,140]  above on mean
+  1 year       5 LAP  6zzj |  142.2 [132,153]  above on mean  |   54.4 [  2,103]  above on mean
+  1 year       5 LB   6zzj |  143.4 [133,152]  above on mean  |   49.4 [  4, 90]  above on mean
+  1 year       5 HR   6zzj |  147.0 [140,153]  never below    |   50.2 [  9, 97]  above on mean
+  1 year       5 HX   6zzj |  146.6 [140,153]  never below    |   51.8 [  9,102]  above on mean
+  1 year       5 DG   6zzp |  106.0 [ 69,136]  below on mean  |  109.2 [ 74,152]  never below
+  1 year       5 DH   6zzp |  125.0 [ 99,156]  below on mean  |   89.8 [ 30,152]  never below
+  1 year       5 SZ   6zzp |  136.2 [120,157]  below on mean  |   52.8 [ 35, 74]  never below
+  1 year       5 TE   6zzp |  133.6 [109,158]  below on mean  |   79.8 [  2,166]  above on mean
+  2 years     10 LC   6zzk |  140.8 [116,155]  above on mean  |   92.3 [ 33,149]  never below
+  2 years     10 LHF  6zzk |  151.2 [137,163]  above on mean  |   76.6 [  9,132]  above on mean
+  2 years     10 LAP  6zzk |  151.9 [143,162]  never below    |   59.2 [ 11,105]  above on mean
+  2 years     10 LB   6zzk |  152.0 [142,159]  never below    |   56.0 [ 11, 96]  above on mean
+  2 years     10 HR   6zzk |  151.9 [145,159]  never below    |   54.0 [ 18, 80]  above on mean
+  2 years     10 HX   6zzk |  152.1 [145,159]  never below    |   56.0 [ 19, 83]  above on mean
+
+Never below no correction over all draws, all168: 1 year/HR, 1 year/HX, 2 years/LAP, 2 years/LB, 2 years/HR, 2 years/HX
+Never below no correction over all draws, hi168: 1 year/DG, 1 year/DH, 1 year/SZ, 2 years/LC
+Never below on both pools: LC k=4, LC k=5
+Best one-year mean all168: HR (6zzj) 147.0
+Best one-year mean hi168: DG (6zzp) 109.2
+Spans (best - worst) all168 / hi168: 1 year/LC 55/152, 1 year/LHF 29/139, 1 year/LAP 21/101, 1 year/LB 19/86, 1 year/HR 13/88, 1 year/HX 13/93, 1 year/DG 67/78, 1 year/DH 57/122, 1 year/SZ 37/39, 1 year/TE 49/164, 2 years/LC 39/116, 2 years/LHF 26/123, 2 years/LAP 19/94, 2 years/LB 17/85, 2 years/HR 14/62, 2 years/HX 14/64
