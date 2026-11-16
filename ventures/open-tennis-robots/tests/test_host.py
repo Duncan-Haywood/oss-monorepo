@@ -1286,6 +1286,36 @@ class EscSurveyTest(unittest.TestCase):
         self.assertIsNone(lc.survey_report())
 
 
+class AnchorTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "The outlier wheel was anchored past its ball": behind a slow recovery the
+    revolutions after the ball are nearly level, and tach jitter could make the second one the longest, putting the
+    ball outside the fit's t0 search."""
+
+    # a 5,479 rpm wheel behind a 100 ms ESC on a 0.8 s wheel, 5 us jitter (seed 7): the ball is in revolution 69
+    LEVEL = [10830, 10841, 10833, 10839, 10827, 10835, 10839, 10827, 10838, 11189, 11475, 11489, 11467, 11452, 11452,
+             11428, 11413, 11400, 11390, 11380]
+
+    def test_walks_back_over_a_level_run(self):
+        ball = 9
+        self.assertEqual(controller._anchor(self.LEVEL, 0), ball + 2)       # the longest period: past the search
+        self.assertEqual(controller._anchor(self.LEVEL), ball + 1)
+
+    def test_a_partial_ball_revolution_stays_the_one_before(self):
+        ps = [10835] * 9 + [11189, 11475, 11300, 11200, 11150, 11100, 11050, 11000, 10950, 10900]
+        self.assertEqual(controller._anchor(ps), 10)
+        self.assertEqual(controller._anchor(ps, 0), 10)
+
+    def test_no_wheel_outvotes_the_survey_on_the_build_that_failed(self):
+        import survey_outlier_cause as C
+        ws = [w for w in C.wheels({"esc_tau_s": 0.10, "tach_jitter_us": 5.0}, 0.8, 0.7, 0.35, 7) if w[3] is not None]
+        best = sorted(min(w[3]) ** 0.5 for w in ws)
+        med = best[len(best) // 2]
+        self.assertGreater(len(ws), 50)
+        self.assertLess(best[-1], controller.SURVEY_TRIM * med)
+        for _, periods, b, _ in ws:
+            self.assertIn(controller._anchor(periods) - b, (0, 1))
+
+
 class EdgeFormTest(unittest.TestCase):
     """2026-11-16, README "The drop on the edge times": the loop fit can run on the edge times (`edges=True`); it is
     off by default because at a few microseconds of jitter it spread the drop more than the period form."""

@@ -387,8 +387,38 @@ def _cmd_columns(T, j0, j1, segs, tau):
     return out
 
 
+# The anchor's walk back (2026-11-16, README "The outlier wheel was anchored past its ball"): the fit anchors on the
+# longest period, k, and searches the ball's time only from the start of k - 1 to the end of k + 1. Behind a slow
+# recovery (a 100 ms ESC lag on a 0.8 s wheel) the revolutions after the ball are nearly level, about 10 us apart at
+# 5,500 rpm, and 5 us of tach jitter could make the second one after the ball the longest: the ball then fell outside
+# the search and that wheel missed by 8-22 x the median wheel's rms (all 3 such wheels of 112 on that build pair, none
+# of the other 109). k steps back while the period before it already holds over this share of k's rise above the
+# periods before the ball (at most 2 steps); 0 keeps the plain longest period.
+ANCHOR_BACK = 0.9
+
+
+def _anchor(periods, back=None, steps=2):
+    """The revolution `drop_from_commands_steps` anchors on: the longest period, walked back over a level run
+    (`back` None reads ANCHOR_BACK)."""
+    if back is None:
+        back = ANCHOR_BACK
+    k = 0
+    for j in range(1, len(periods)):
+        if periods[j] > periods[k]:
+            k = j
+    if back <= 0 or k < 4:
+        return k
+    pb = sorted(periods[max(0, k - 8):k - 2])
+    base = pb[len(pb) // 2]
+    for _ in range(steps):
+        if k < 4 or periods[k - 1] - base <= back * (periods[k] - base):
+            break
+        k -= 1
+    return k
+
+
 def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
-                             edges=False):
+                             edges=False, back=None):
     """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
     (2026-11-16, README "A recovery shaped by the loop's own commands").
 
@@ -416,10 +446,7 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     if n < pre + 4:
         yield ("fit", None)
         return
-    k = 0
-    for j in range(1, n):
-        if periods[j] > periods[k]:
-            k = j
+    k = _anchor(periods, back)
     if k < pre + 1:
         yield ("fit", None)
         return
