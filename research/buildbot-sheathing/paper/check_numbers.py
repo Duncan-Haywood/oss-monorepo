@@ -33,6 +33,7 @@ M30 = E + "m30_backlash/results.txt"
 M31 = E + "m31_pose_range/results.txt"
 M32 = E + "m32_grf_qp/results.txt"
 M33 = E + "m33_compensate/results.txt"
+M34 = E + "m34_windup/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -114,6 +115,23 @@ CHECKS = [
     (M33, "16d 3-1/2 x 0.131 in | 6.41 | 0.410", "0.410 kg (16d)"),
     (M33, "g1 R=hold-min C=hold-min +0.4 kg g=0.2 | +0.017", "+0.4 kg leaves 0.017 mm"),
     (M33, "g1 R=hold-min C=hold-min +1.0 kg g=0.2 | -0.057", "+1.0 kg\n0.057 mm"),
+    # 5.11 windup under the press (milestone 34)
+    (M34, "g1    10000 | 3.193 / 3.417 at 1.2 +0.15", "3.193 mm at the worst G1 pose"),
+    (M34, "g1     3000 | 10.642", "(10.642 mm at 3e3"),
+    (M34, "g1   100000 | 0.319", "0.319 mm at 1e5)"),
+    (M34, "g1    10000 |   5.47 at 1.2 -0.15 |   0.00", "loses\n5.47 points"),
+    (M34, "g1 free : ", "k_t ≥ 1.78e+04 N m/rad"),
+    (M34, "-> k_t >= 1.78e+04", "k_t ≥ 1.78e+04 N m/rad"),
+    (M34, "| 7.9e-16 / 0.018 at 1.2 +0.15", "0.018 mm at the nail's tip"),
+    (M34, "g1: 0.073 | 0.383 | 0.789", "0.073 to 0.789"),
+    (M34, "mu 0.2/0.3/0.4/0.6/0.8: 4/6/10/12/15 of 15", "at mu 0.4 it sticks at 10 of 15 poses"),
+    (M34, "h1: 0.026 | 0.511 | 1.166", "(the H1 0.026 to\n1.166)"),
+    (M34, "|   1.05 at 1.2 -0.15", "loses 1.05 points at 1e4"),
+    (M34, "-> k_t >= 1.00e+04", "k_t ≥ 1.00e+04"),
+    (M34, "g1    10000 | y +1.755 at 1.2 +0.15 | z -12.436", "12.436 mm vertically"),
+    (M34, "g1: 51.30 mm at 0.4 -0.15", "51.30 mm at the worst pose"),
+    (M34, "least 32.12 mm", "(32.12 mm at the least"),
+    (M34, "h1: 22.42 mm", "H1 22.42 mm)"),
     (M33, "g1 R=torque   C=torque   +0.2 kg g=0.2 | +0.412", "+0.2 kg already leaves 0.412 mm"),
     (M33, "g1 R=torque   C=torque   +1.0 kg g=0.2 | +0.836", "+1.0 kg 0.836 mm"),
     (M33, "g1 R=hold-min C=free     +0.0 kg g=1.0 | -1.374", "guard band leaves 1.374 mm"),

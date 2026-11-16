@@ -368,6 +368,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    G1 holding its light leg joints, against 0.41–0.84 mm under the torque-minimising controller. A wrong ground-reaction
    model leaves 1.16–1.92 mm, little better than no compensation (1.40–2.63), and a guard band on predicted torque only
    adds missed joints. Still open: deflection under the press and the paper's headline for a tool-point spec.
+34. **Deflection under the press** (done 2026-11-16, `experiments/m34_windup/`): the joints' elastic windup over the
+   25–50 N press window, swept over transmission stiffness k_t (none published). A nose free to slide needs k_t ≥ 1.8e4
+   N m/rad on every joint to stay within 2 points (G1 5.5 points lost at 1e4); stuck by friction, the windup only tilts
+   the tool (0.02 mm at the nail's tip), and at mu 0.4 the G1's nose sticks at 10 of 15 poses (friction-limited, 1e4
+   suffices). The mean windup is a pose bias a model removes; an unmodelled magazine droops the servo by 32–51 mm under
+   Unitree's gains, which the joint encoders see. Still open: the paper's headline for a tool-point spec, the hose as
+   a force, and the nailer's recoil.
 
 ## Target venue
 

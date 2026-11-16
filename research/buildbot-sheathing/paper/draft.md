@@ -596,6 +596,24 @@ weighs 0.295 kg (8d common) to 0.410 kg (16d) of steel, and +0.4 kg leaves 0.017
 +0.2 kg already leaves 0.412 mm and +1.0 kg 0.836 mm. Compensating only joints whose predicted
 torque clears a 1 N m guard band leaves 1.374 mm: each joint left out costs half a gap.
 
+The joints also wind up elastically as the press grows between the nose touching the sheet and
+the shot (milestone 34). No torsional stiffness k_t is published for either robot, so it is swept
+with the same value on every joint, and the press at the shot is uniform over 25–50 N. A nose free
+to slide carries the windup into the entry point: 3.193 mm at the worst G1 pose at k_t 1e4 N m/rad
+(10.642 mm at 3e3, 0.319 mm at 1e5), and the 12-bit stack with matched backlash compensation loses
+5.47 points; within 2 points needs k_t ≥ 1.78e+04 N m/rad on both robots. A nose stuck by friction
+in the wall plane (the press direction stays force-controlled) turns the windup into a tilt about
+the nose, 0.018 mm at the nail's tip at 1e4, and costs 0.00 points. Because the sticking reaction
+does not depend on a common k_t, whether the nose sticks is set by the pose: the G1 needs a
+friction coefficient of 0.073 to 0.789, so at mu 0.4 it sticks at 10 of 15 poses (the H1 0.026 to
+1.166). Sliding friction-limited at mu 0.4, the G1 loses 1.05 points at 1e4 and the requirement
+falls to k_t ≥ 1.00e+04. The mean windup is a pose bias: one calibration leaves 12.436 mm vertically
+at 1e4, which a torque model removes up to its error in k_t. The servo is far softer than any
+plausible transmission: under Unitree's PD gains, a full magazine left out of the feedforward
+droops the G1's nose by 51.30 mm at the worst pose (32.12 mm at the least; H1 22.42 mm), mostly
+through the waist and ankle pitches. The joint encoders read that error, so re-targeting on them
+removes it.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -733,8 +751,9 @@ readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in h
   (0.2–0.6), the shim stack is placed exactly at its rounded height, the wedge's stroke and the
   pulled-off foot when backing it out are checked but not simulated, and the ledger height (0.5 m)
   that sets the G1's push is the model's, not a measured site value.
-- **The tool point.** Joint quantisation and gear backlash are carried to the nailer's nose; link
-  and tool-mount deflection under the press are not, and calibration is modelled as exact, either at
+- **The tool point.** Joint quantisation, gear backlash and joint windup under the press (milestone
+  34, transmission stiffness and nose friction swept, the same stiffness on every joint) are carried
+  to the nailer's nose; link and tool-mount deflection are not, and calibration is modelled as exact, either at
   every pose or once at one pose (milestone 31). The backlash is swept (no
   G1 figure is published), which joints are held depends on the ground-reaction split (least-norm,
   and from milestone 32 friction-cone QPs over the model's sole contact points, statics only, mu
@@ -778,14 +797,17 @@ soles, the robot must also lean into the wall to take the press above chest heig
 ground-reaction split removes that compensation (1.1–2.6 mm after one calibration). The
 compensation must be computed from the robot's own balance controller: then a full nail
 magazine left out of the model costs 0.017 mm, while a wrong ground-reaction model leaves 1.2 mm.
+Under the press the joints must be stiffer than about 1.8e4 N m/rad if the nose can slide on the
+sheet; a nose that grips it, as it does at most poses at mu 0.4, needs about 1e4, and the servo's
+own droop must be closed on the joint encoders.
 
 ## Data and code availability
 
 All code, results files and figures are MIT licensed in this directory: `src/buildbot_sheathing/`
-(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (164 test functions), and
+(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (182 test functions), and
 `README.md`, "Reproduce". MuJoCo 4.0.1 and Drake 1.51.1 produced the simulated results. `reproduce.py --check`
 re-runs an experiment in a scratch copy and compares its results file with the committed one; it
-lists 26 experiments, and the 22 checked at milestone 25 reproduce, wall-clock timings aside. Drake releases from 1.58 no longer provide the TAMSI
+lists 30 experiments, and the 22 checked at milestone 25 reproduce, wall-clock timings aside. Drake releases from 1.58 no longer provide the TAMSI
 solver that one comparison in section 5.6 uses.
 
 ## Declaration of generative AI use

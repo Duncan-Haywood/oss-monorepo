@@ -17,16 +17,18 @@ external load that the extra torque balances; the same sign convention as ``pose
 **The nose during the press.** The nailer fires when the press reaches its contact-trip force, which
 milestone 30 took as anywhere in 25-50 N. Between the nose touching the sheet and the shot, the press
 grows and the joints wind up further. A nose *free* to slide (the convention of milestones 29-33) would
-carry that windup straight into the nail's entry point. A nose *stuck* by friction cannot translate: the
-wall pushes back with a reaction ``lam`` at the nose, the joints settle to
+carry that windup straight into the nail's entry point. Along the wall normal the press is force-controlled:
+whatever the windup does along x, the controller closes it with a commanded motion along x, so x is left
+free. In the wall plane a nose *stuck* by friction cannot translate: the sheet pushes back with a
+tangential reaction ``lam`` (y, z) at the nose, the joints settle to
 
-    dq = -K^-1 dtau + K^-1 A^T lam,   with  A dq = 0   (A: the nose's 3 translation rows)
+    dq = -K^-1 dtau + K^-1 A_t^T lam,   with  A_t dq = 0   (A_t: the nose's y and z translation rows)
 
-so ``lam = (A K^-1 A^T)^-1 A K^-1 dtau``, and the windup survives only as a *rotation* of the tool about the
-nose, which moves the nail's tip at the depth point (``B dq``). The nose stays stuck while the tangential
-part of ``lam`` is within ``mu`` times the normal force. With the same ``k`` on every joint, ``lam`` does not
-depend on ``k`` at all, so whether the nose sticks is a property of the pose and the press, not of the
-gearbox. Units: metres, radians, newtons, newton metres.
+so ``lam = (A_t K^-1 A_t^T)^-1 A_t K^-1 dtau``, and the in-plane windup survives only as a *rotation* of the
+tool about the nose, which moves the nail's tip at the depth point (``B dq``). The nose stays stuck while
+|lam| is within ``mu`` times the press. With the same ``k`` on every joint, ``lam`` does not depend on ``k``
+at all, so whether the nose sticks is a property of the pose and the press, not of the gearbox. Units:
+metres, radians, newtons, newton metres.
 """
 import math
 
@@ -48,20 +50,32 @@ def nose_rows(jp, jr, L, depth=DEPTH_CHECK):
 
 
 def stuck_windup(dtau, k, A):
-    """Joint deflection with the nose pinned (A dq = 0), and the nose reaction lam (N, robot frame:
-    x into the wall, y along it, z up) that pinning takes. Returns (dq, lam)."""
+    """Joint deflection with the nose stuck in the wall plane (A[1:3] dq = 0), and the tangential
+    reaction lam (N, robot frame y along the wall, z up) the sheet supplies. Returns (dq, lam)."""
     kinv = 1.0 / np.broadcast_to(np.asarray(k, float), np.shape(dtau))
     d0 = -kinv * np.asarray(dtau, float)
-    M = (A * kinv) @ A.T
-    lam = np.linalg.solve(M, -A @ d0)
-    return d0 + kinv * (A.T @ lam), lam
+    At = A[1:3]
+    M = (At * kinv) @ At.T
+    lam = np.linalg.solve(M, -At @ d0)
+    return d0 + kinv * (At.T @ lam), lam
 
 
 def sticks(lam, f_n, mu):
-    """True if the tangential reaction (y, z) is within mu times the normal force. ``lam`` is the extra
-    force the wall applies to the nose; the press ``f_n`` acts on the robot along -x, so the normal
-    force is f_n - lam_x."""
-    return bool(math.hypot(lam[1], lam[2]) <= mu * max(0.0, f_n - lam[0]))
+    """True if the tangential reaction lam (y, z) is within mu times the press f_n."""
+    return bool(math.hypot(lam[0], lam[1]) <= mu * f_n)
+
+
+def friction_limited(dtau, k, A, mu):
+    """Joint deflection when the sheet can supply at most mu times the press. The reaction grows with the
+    press from zero at contact, as the press does, so their ratio r = |lam| / F is fixed: the nose sticks if
+    r <= mu and otherwise slides, the sheet holding back the fraction s = mu / r of the stuck reaction
+    (taken along the stuck reaction's direction). The nose then moves (1 - s) of the free windup.
+    Returns (dq, s). ``dtau`` is per newton of press."""
+    d0 = free_windup(dtau, k)
+    dq, lam = stuck_windup(dtau, k, A)
+    r = math.hypot(lam[0], lam[1])
+    s = 1.0 if r <= mu else mu / r
+    return d0 + s * (dq - d0), s
 
 
 def offsets(A, B, dq):

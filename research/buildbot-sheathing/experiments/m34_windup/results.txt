@@ -1,0 +1,57 @@
+# Milestone 34: deflection under the press (elastic windup, servo droop, a stuck nose)
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [('h1', 0.4, -0.15)])
+
+## A. Press windup over 25-50 N, worst pose per robot: k_t (N m/rad) | free nose: surface / depth (mm) | stuck nose: surface / depth (mm)
+  g1     3000 | 10.642 / 11.391 at 1.2 +0.15 | 5.1e-16 / 0.061 at 1.2 +0.15
+  g1    10000 | 3.193 / 3.417 at 1.2 +0.15 | 7.9e-16 / 0.018 at 1.2 +0.15
+  g1    30000 | 1.064 / 1.139 at 1.2 +0.15 | 9.2e-17 / 0.006 at 1.2 +0.15
+  g1   100000 | 0.319 / 0.342 at 1.2 +0.15 | 9.8e-17 / 0.002 at 1.2 +0.15
+  h1     3000 | 11.565 / 12.418 at 1.6 -0.15 | 1.1e-16 / 0.123 at 0.6 -0.15
+  h1    10000 | 3.470 / 3.725 at 1.6 -0.15 | 9.8e-17 / 0.037 at 0.6 -0.15
+  h1    30000 | 1.157 / 1.242 at 1.6 -0.15 | 1.1e-16 / 0.012 at 0.6 -0.15
+  h1   100000 | 0.347 / 0.373 at 1.6 -0.15 | 0.0e+00 / 0.004 at 0.6 -0.15
+
+## B. Friction the stuck nose needs (|lam| / F, the press grown from zero at contact), per robot: min | median | max over poses (pose of the max)
+  g1: 0.073 | 0.383 | 0.789 (at 1.2 -0.15); poses stuck at mu 0.2/0.3/0.4/0.6/0.8: 4/6/10/12/15 of 15
+  h1: 0.026 | 0.511 | 1.166 (at 1.6 -0.15); poses stuck at mu 0.2/0.3/0.4/0.6/0.8: 3/6/10/12/14 of 20
+check: sticking reaction at k_t 3e3 vs 1e5 differs by 1.8e-15 N (expect 0)
+
+## C. Stack loss from the press window (points, against the same stack with no windup), worst pose: robot | k_t | free nose | stuck nose | friction-limited at mu 0.4
+  g1     3000 |  84.47 at 0.8 -0.15 |   0.01 at 1.0 +0.00 |  19.12 at 1.2 -0.15
+  g1    10000 |   5.47 at 1.2 -0.15 |   0.00 at 0.4 -0.15 |   1.05 at 1.2 -0.15
+  g1    30000 |   0.50 at 1.2 -0.15 |   0.00 at 0.4 -0.15 |   0.11 at 1.2 -0.15
+  g1   100000 |   0.04 at 1.2 -0.15 |   0.00 at 0.4 -0.15 |   0.01 at 1.2 -0.15
+  h1     3000 |  84.05 at 1.2 -0.15 |   0.04 at 0.8 +0.15 |  39.39 at 1.6 -0.15
+  h1    10000 |   4.64 at 1.6 -0.15 |   0.01 at 0.8 +0.15 |   1.82 at 1.6 -0.15
+  h1    30000 |   0.41 at 1.4 -0.15 |   0.00 at 0.4 +0.00 |   0.16 at 1.6 -0.15
+  h1   100000 |   0.05 at 1.6 -0.15 |   0.00 at 0.4 +0.00 |   0.02 at 1.6 -0.15
+
+## C2. The k_t a spec must ask for: worst-pose loss (points) over a finer k_t grid, and the smallest grid k_t within 2 points
+  g1 free : 1e+03:96.09 2e+03:95.85 3e+03:80.49 6e+03:23.53 1e+04:5.47 2e+04:1.39 3e+04:0.44 6e+04:0.13 1e+05:0.04 2e+05:0.01 3e+05:0.01 -> k_t >= 1.78e+04
+  g1 slip : 1e+03:93.34 2e+03:64.02 3e+03:16.74 6e+03:3.79 1e+04:1.05 2e+04:0.35 3e+04:0.10 6e+04:0.04 1e+05:0.01 2e+05:0.00 3e+05:0.00 -> k_t >= 1.00e+04
+  h1 free : 1e+03:97.96 2e+03:97.77 3e+03:79.49 6e+03:22.47 1e+04:4.64 2e+04:1.19 3e+04:0.37 6e+04:0.14 1e+05:0.05 2e+05:0.02 3e+05:0.00 -> k_t >= 1.78e+04
+  h1 slip : 1e+03:96.28 2e+03:89.89 3e+03:34.65 6e+03:7.03 1e+04:1.82 2e+04:0.49 3e+04:0.16 6e+04:0.06 1e+05:0.02 2e+05:0.00 3e+05:0.00 -> k_t >= 1.00e+04
+
+## D. Mean windup at 37.5 N (free nose) as a pose bias: worst offset along the wall after one calibration at milestone 30's pose (mm); a model with k_t misjudged by 25% leaves a quarter of it
+  g1     3000 | y +5.850 at 1.2 +0.15 | z -41.452 at 0.4 -0.15
+  g1    10000 | y +1.755 at 1.2 +0.15 | z -12.436 at 0.4 -0.15
+  g1    30000 | y +0.585 at 1.2 +0.15 | z -4.145 at 0.4 -0.15
+  g1   100000 | y +0.175 at 1.2 +0.15 | z -1.244 at 0.4 -0.15
+  h1     3000 | y +5.617 at 1.6 +0.15 | z -28.116 at 0.4 +0.15
+  h1    10000 | y +1.685 at 1.6 +0.15 | z -8.435 at 0.4 +0.15
+  h1    30000 | y +0.562 at 1.6 +0.15 | z -2.812 at 0.4 +0.15
+  h1   100000 | y +0.169 at 1.6 +0.15 | z -0.843 at 0.4 +0.15
+
+## E. Servo droop: an unmodelled full magazine (+0.295 kg) under Unitree's PD gains, free nose (mm), worst pose | the joints that carry most of it
+  g1: 51.30 mm at 0.4 -0.15 (y +2.04, z -51.26); least 32.12 mm; mostly waist_pitch_joint, left_ankle_pitch_joint, right_ankle_pitch_joint
+  h1: 22.42 mm at 0.6 -0.15 (y +1.16, z -22.39); least 17.27 mm; mostly right_ankle, left_hip_pitch, right_knee
+
+## F. Hypotheses (registered in LOG.md before this run)
+H124 (the G1's nose sticks at mu 0.4): largest friction needed 0.789 at [1.2, -0.15] -> refuted
+H125 (free nose, k_t 1e4: > 2 points): 5.47 -> held
+H126 (stuck nose, k_t 1e4: <= 1 point): 0.00 -> held
+H127 (servo droop > 1 mm): 51.30 mm -> held
+
+(run time 348 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)
+DONE

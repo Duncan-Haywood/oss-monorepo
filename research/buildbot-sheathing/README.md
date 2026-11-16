@@ -444,6 +444,21 @@ computed from it. Statics only; the robot is still the model.
 
 ![Worst G1 nail offset along the wall after model-based backlash compensation against unmodelled tool mass, for each compensator model and two balance controllers, and against a guard band](experiments/m33_compensate/figure.png)
 
+**Milestone 34: how stiff must a nailing robot's joints be under the press?** Between the nose touching the sheet and
+the shot, the press grows (anywhere in 25–50 N) and every joint winds up elastically. No torsional stiffness is
+published for the G1 or H1, so it is swept. If the nose can slide on the sheet, the windup lands in the nail's entry
+point: **3.2 mm** at the worst G1 pose at k_t 1e4 N m/rad, **5.5 points** of clean sheets lost (H125 held), and staying
+within 2 points needs **k_t ≥ 1.8e4 N m/rad** on every joint. If friction holds the nose, the windup only tilts the
+tool about it, 0.02 mm at the nail's tip (H126 held). Whether it holds is a property of the pose, not of the stiffness:
+the G1 needs a friction coefficient of 0.07–0.79, so at mu 0.4 it sticks at **10 of 15 poses** (H124 refuted), and
+friction-limited sliding brings the requirement down to about 1e4. The windup's mean is a pose bias a model computes
+(12 mm vertically after one calibration at 1e4). The servo is far softer: a full magazine left out of the feedforward
+droops the G1's nose by **32–51 mm** under Unitree's PD gains (H127 held), which the joint encoders see and a re-targeting
+loop removes. The rules: grip the sheet with the nose, ask for joints stiffer than about 1e4 N m/rad behind the encoder,
+and close the loop on the encoders. Statics only; stiffness and friction swept.
+
+![Clean sheets lost to the press window against joint stiffness, the friction each leaned pose needs for the nose to stick, and the windup at the nose and the nail's tip](experiments/m34_windup/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
