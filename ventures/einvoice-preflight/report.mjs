@@ -2,7 +2,7 @@ import { parseIsdocInvoice } from "./isdoc.mjs";
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
 import { inspectCreditLinks } from "./creditlink.mjs";
 import { steppedAside } from "./aside.mjs";
-import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
+import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile, inspectSlovakProfile } from "./profile.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { checkPdfEnvelope } from "./pdf-envelope.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
@@ -261,6 +261,8 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
       if (profile === "france") errors.push(...inspectFrenchProfile(invoice));
+      // Slovak invoices travel over Peppol, so the Slovak fields come on top of the Peppol rules.
+      if (profile === "slovakia") errors.push(...inspectPeppolProfile(invoice), ...inspectSlovakProfile(invoice));
       let schematronStatus = "";
       if (schematron) {
         // The official rules, beside the built-in ones. JSON drafts have no XML to check.

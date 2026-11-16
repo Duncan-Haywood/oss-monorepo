@@ -401,3 +401,107 @@ export function inspectFrenchProfile(invoice) {
   }
   return findings;
 }
+
+// ---------------------------------------------------------------------------
+// Slovakia: domestic e-invoicing from 1 January 2027 (Act 385/2025, § 85o of the
+// VAT Act 222/2004). The format is EN 16931 over Peppol, so this profile runs the
+// Peppol rules above plus the fields the Financial Administration's table
+// "Transpozície štandardu Peppol BIS v podmienkach Slovenskej legislatívy"
+// (v1.13, 29 October 2026, column R "Povinná náležitosť faktúry podľa SK
+// legislatívy") marks required where EN 16931 leaves them optional. Rule ids are
+// SK-nnn. Offline observation, not a certified delivery service's validation and
+// not legal advice. Source and what was left out: eval/slovakia-act-385-2025-2026-11-16.md.
+
+export const SLOVAK_RULES = {
+  "SK-001": "Seller postal address lacks a street, city or postcode (BT-35, BT-37, BT-38; VAT Act § 74(1)(a)).",
+  "SK-002": "Buyer postal address lacks a street, city or postcode (BT-50, BT-52, BT-53; VAT Act § 74(1)(b)).",
+  "SK-003": "A Slovak party's electronic address uses a scheme other than 0245 (DIČ), the one the Slovak table names.",
+  "SK-004": "An electronic address with scheme 0245 is not a 10-digit DIČ.",
+  "SK-005": "No supplier payment account (BT-84); the Slovak table marks it required.",
+  "SK-006": "The seller's DIČ in its 0245 electronic address differs from the digits of its SK VAT number.",
+};
+
+function isSlovak(party) {
+  if (!isObject(party)) return false;
+  return str(party.country).toUpperCase() === "SK" || /^SK/i.test(str(party.vat_id));
+}
+
+function missingAddressParts(party) {
+  const p = isObject(party) ? party : {};
+  const out = [];
+  if (!str(p.street)) out.push("street (line 1)");
+  if (!str(p.city)) out.push("city");
+  if (!str(p.postal_code)) out.push("postcode");
+  return out;
+}
+
+export function slovakDicShapeValid(value) {
+  return /^\d{10}$/.test(digitsOnly(value));
+}
+
+export function inspectSlovakProfile(invoice) {
+  if (!isObject(invoice)) return [];
+  const findings = [];
+  const supplier = isObject(invoice.supplier) ? invoice.supplier : {};
+  const customer = isObject(invoice.customer) ? invoice.customer : {};
+
+  for (const [rule, role, party, path, para, bts] of [
+    ["SK-001", "Seller", supplier, "/supplier", "a", "BT-35, BT-37, BT-38"],
+    ["SK-002", "Buyer", customer, "/customer", "b", "BT-50, BT-52, BT-53"],
+  ]) {
+    const missing = missingAddressParts(party);
+    if (missing.length) {
+      findings.push(finding(
+        rule,
+        `${role} postal address has no ${missing.join(", ")} (${bts}). EN 16931 makes these optional; Slovak VAT Act § 74(1)(${para}) asks for the address.`,
+        `Fill ${path.slice(1)}.street, .city and .postal_code (UBL cac:PostalAddress cbc:StreetName, cbc:CityName, cbc:PostalZone).`,
+        path,
+      ));
+    }
+  }
+
+  for (const [role, party, path] of [["Seller", supplier, "/supplier/endpoint"], ["Buyer", customer, "/customer/endpoint"]]) {
+    const ep = isObject(party.endpoint) ? party.endpoint : null;
+    if (!ep || !str(ep.id)) continue; // PP-003 / PP-004 report a missing address
+    const scheme = str(ep.scheme);
+    if (scheme === "0245") {
+      if (!slovakDicShapeValid(ep.id)) {
+        findings.push(finding(
+          "SK-004",
+          `${role} electronic address has scheme 0245 (DIČ) but its id is not 10 digits.`,
+          "A Slovak DIČ is 10 digits with no SK prefix (the VAT number is SK plus the DIČ for most payers). Copy it from the tax registration.",
+          path,
+        ));
+      }
+    } else if (isSlovak(party)) {
+      findings.push({ ...finding(
+        "SK-003",
+        `${role} is Slovak but its electronic address uses scheme ${scheme || "(none)"}, not 0245 (DIČ).`,
+        "The Financial Administration's table names scheme 0245 = DIČ for Slovak parties. Check with your delivery service (digitálny poštár) which id you are registered under in the SMP.",
+        path,
+      ), severity: "warning" });
+    }
+  }
+
+  const sellerEp = isObject(supplier.endpoint) ? supplier.endpoint : {};
+  const vatDigits = /^SK/i.test(str(supplier.vat_id)) ? digitsOnly(str(supplier.vat_id).replace(/^SK/i, "")) : "";
+  if (str(sellerEp.scheme) === "0245" && slovakDicShapeValid(sellerEp.id) && /^\d{10}$/.test(vatDigits) && digitsOnly(sellerEp.id) !== vatDigits) {
+    findings.push({ ...finding(
+      "SK-006",
+      "The seller's 0245 electronic address and the digits of its SK VAT number differ.",
+      "For most payers the IČ DPH is SK followed by the DIČ. A VAT group has its own IČ DPH, so this can be right; otherwise one of the two is mistyped.",
+      "/supplier/endpoint",
+    ), severity: "warning" });
+  }
+
+  const payment = isObject(invoice.payment) ? invoice.payment : {};
+  if (!str(payment.iban) && str(invoice.document_type) !== "credit_note") {
+    findings.push({ ...finding(
+      "SK-005",
+      "No supplier payment account (BT-84) is given.",
+      "Add payment.iban (UBL cac:PayeeFinancialAccount/cbc:ID). The Slovak table marks the supplier's account as required; the VAT Act adds it to § 74(1) as letter q) from 1 July 2030.",
+      "/payment/iban",
+    ), severity: "warning" });
+  }
+  return findings;
+}

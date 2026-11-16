@@ -6,6 +6,7 @@
 //     add ?profile=xrechnung to also apply the German BR-DE rules (XR-nnn),
 //     or ?profile=peppol for the Peppol BIS Billing 3.0 rules (PP-nnn),
 //     or ?profile=france for the French SIREN and payment-mention rules (FR-nnn)
+//     or ?profile=slovakia for the Peppol rules plus the Slovak required fields (SK-nnn)
 //     add ?schematron=1 to also run the official EN 16931 Schematron (BR-xx) when
 //     build-schematron.mjs has been run; the report says "unavailable" otherwise.
 //   POST /v1/repair          JSON invoice, UBL or CII XML, Factur-X PDF -> arithmetic fixed, change log, findings left
@@ -50,7 +51,7 @@ function intEnv(env, key, fallback) {
 
 function profileFrom(url) {
   const profile = url.searchParams.get("profile");
-  return profile === "xrechnung" || profile === "peppol" || profile === "france" ? profile : "";
+  return profile === "xrechnung" || profile === "peppol" || profile === "france" || profile === "slovakia" ? profile : "";
 }
 
 export function loadConfig(env = process.env) {
