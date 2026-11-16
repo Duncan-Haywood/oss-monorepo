@@ -293,6 +293,16 @@ test("stored SAT designs: every one a round robin whose nights of three split in
   }
 });
 
+test("40 and 46 teams, 3 games on 7 and 8 courts x 9 times: wait-free from the orbit designs (794 and 1,201 waits before)", () => {
+  // eval/session-orbit.py: one night turned by v -> v + 3 (mod n - 1), every night three closed blocks
+  for (const [n, c] of [[40, 7], [46, 8]]) {
+    assert.ok(SESSION_DESIGNS.some((d) => d.n === n && d.sessions === 3), `${n}: a stored 3-session design`);
+    const s = build(n, c, 9, 3);
+    assert.ok(validateSchedule(s).ok, `${n}: valid`);
+    assert.equal(nightWaits(s).idle, 0, `${n}: no waits`);
+  }
+});
+
 test("14, 18, 20 and 28 teams, 3 games on the least courts x 6 times: wait-free from a stored design (the search stopped at 2 crossing)", () => {
   for (const [n, c] of [[14, 4], [18, 5], [20, 5], [28, 7]]) {
     assert.ok(designCandidates(n, 3).length >= 1);
