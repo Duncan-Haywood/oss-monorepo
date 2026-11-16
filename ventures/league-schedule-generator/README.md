@@ -366,7 +366,50 @@ Open (updated below): three-session designs for 14, 38, 40 and 46 (longer solver
 symmetry such as a cyclic group acting on the teams). 40 and 46 closed 2026-11-16 with a cyclic group
 (section "Three sessions at 40 and 46 teams" below); 14 and 38 reach 0 waits without a design.
 
-### Fully booked odd nights: one night turned by three k-cycles, 19, 25 and 31 teams (2026-11-15, latest)
+### Big odd leagues at 9 slots: 33 to 63 teams, one pattern laid out once (2026-11-16)
+
+`MAX_TEAMS` is 64, but before this run no odd league above 31 teams had a stored design, so every odd
+league of 33 to 63 teams at 9 time slots kept its waits on the least courts: 33 teams on 6 courts 377
+waits over seeds 1 to 3, 63 teams on 11 courts 2,643 (`node eval/odd-cyclic-check.mjs`, before).
+
+For an odd league n = 3k (33, 39, 45, 51, 57, 63) the rounds split into k nights with no short
+night, and `eval/odd-cyclic.py`'s patterned starter (the circle method as a 1-rotational round robin)
+covers Z_n with the k translates of one pattern, {0, 1, 2}. So one SAT layout of one night, about
+1.5 n matches, is the whole season. On the least courts at 9 slots these nights leave 6 slots spare
+(48 of 54 at 33 teams, 93 of 99 at 63), and the first pattern laid out every time:
+
+| Teams | Courts x 9 | Matches a night / slots | Layout solve (s) / whole script (s) | Waits before (3 seeds) | Waits now | Build (ms), before to now |
+|---|---|---|---|---|---|---|
+| 33 | 6 | 48 / 54 | 0.4 / 5 | 377 | 0 | 5,350 to 769 |
+| 39 | 7 | 57 / 63 | 0.2 / 14 | 583 | 0 | 5,283 to 849 |
+| 45 | 8 | 66 / 72 | 3.8 / 36 | 966 | 0 | 3,790 to 823 |
+| 51 | 9 | 75 / 81 | 4.1 / 55 | 1,354 | 0 | 3,601 to 1,213 |
+| 57 | 10 | 84 / 90 | 1.2 / 111 | 1,896 | 0 | 4,981 to 1,372 |
+| 63 | 11 | 93 / 99 | 7.0 / 197 | 2,643 | 0 | 7,035 to 1,884 |
+
+The builds also got 3 to 7 times faster: with a stored design the tool lays each night out from the
+stored rows instead of annealing.
+
+**Where it does not reach (measured this run).**
+
+- **n = 3k + 2 (35, 41, 47, 53, 59 teams), the same class as 29.** On the least courts these nights
+  have 3 spare slots (51 of 54 at 35 teams, 60 of 63 at 41), like 29 on 5 x 9 (42 of 45). 35 on 6 x 9
+  and 41 on 7 x 9 were stopped after 8 to 12 minutes with no pattern laid out (the runs shared 4 cores with three others). The proof in the 29-team
+  section rules out the group method for all of them, so they wait on whatever closes 29.
+- **6 time slots.** The odd leagues above 29 teams on the least courts at 6 slots are fully booked or
+  3 slots short of it (31 on 8 x 6: 45 of 48; 33 on 8 x 6: 48 of 48). No pattern laid out at 31 on 8 x 6
+  (145 patterns on each of two starters, 560 s) or 39 on 10 x 6 (307 s).
+- **37 teams on 6 x 9 is fully booked** (54 matches in 54 slots; n = 3k + 1, k = 12), so it went to
+  `eval/odd-orbit.py`, the turned-night construction of the next section: SAT in 2,783 s (111,006
+  variables; 31 teams took 626 s), waits over seeds 1 to 3 701 to 0, 1,246 ms a build. 43 on 7 x 9
+  (k = 14) ran the same script alongside and was stopped after 39 minutes with no answer; it keeps
+  1,073 waits over three seeds (`eval/odd-orbit.txt`).
+- **49 teams on 9 courts x 9** is already wait-free without a design (spare courts), so its design was
+  not stored. On the least courts, 8, it is fully booked (n = 3k + 1, k = 16), the turned-night case.
+
+(The whole script's time is mostly checking and decoding the season; up to four runs shared the 4 cores.)
+
+### Fully booked odd nights: one night turned by three k-cycles, 19, 25 and 31 teams (2026-11-15)
 
 19 teams on 3 courts x 9 slots and 25 on 4 x 9 use every slot of a three-round night (27 matches
 in 27 slots, 36 in 36). The three earlier methods all failed there: the whole-season model ran past
@@ -399,8 +442,9 @@ short orbits are a triangle, not two rounds. Measurements: `eval/odd-orbit.txt`;
 stored-designs test re-checks the solver's rows for all 24 designs. (`odd-night-sat.build` gained a
 `fix_round0` flag, on by default, so a caller with its own structure can drop the round-0 fix.)
 
-Open: 29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section); larger
-fully booked 37 on 6 x 9 by the same script (31 took 626 s; 37 is about twice the model).
+Open: 29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section). 37 on 6 x 9
+was solved by the same script on 2026-11-16 (2,783 s, section above); 43 on 7 x 9 and 49 on 8 x 9 are
+the next fully booked sizes.
 
 ### 29 teams on 5 x 9: why one turned night cannot work, and what was tried (2026-11-16)
 
