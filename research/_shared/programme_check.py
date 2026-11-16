@@ -14,13 +14,15 @@ many sessions toward a paper. A directory created after that date passes if it
 
 Directories on main before the programme bar landed (2026-10-24) are listed in legacy_projects.txt and exempt.
 It also runs src_layout.py: a src-layout project whose tests a plain `pytest` cannot import
-(`src_layout.py --fix` repairs it). Exit 1 lists each failing directory and what it lacks.
+(`src_layout.py --fix` repairs it), and reproduce_names.py: a new experiment script that no
+doc in its directory names (README.md's Reproduce section is the place). Exit 1 lists each failing directory and what it lacks.
 """
 import json
 import re
 import sys
 from pathlib import Path
 
+import reproduce_names
 import src_layout
 
 RESEARCH = Path(__file__).resolve().parents[1]
@@ -88,6 +90,13 @@ def main(root=RESEARCH):
                              " run python3 research/_shared/src_layout.py --fix"]
         if found:
             bad[d.name] = found
+    known = reproduce_names.baseline(root / "_shared" / reproduce_names.BASELINE.name)
+    for d in sorted(p for p in root.iterdir() if p.is_dir() and p.name[0] not in "_."):
+        new = [s for s in reproduce_names.unnamed(d) if s not in known]
+        if new:
+            bad.setdefault(d.name, []).append(
+                "experiment script(s) named in no *.md here: " + ", ".join(s.split("/", 2)[2] for s in new)
+                + "; add each to README.md's Reproduce section (command and what it writes)")
     for name, found in bad.items():
         for p in found:
             print(f"research/{name}: {p}")

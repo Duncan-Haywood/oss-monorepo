@@ -127,6 +127,7 @@ python3 experiments/fetch_era5_sites.py   # milestone 6x data: ERA5 at the 2024 
 python3 experiments/run_waveglider_era5_sites.py > experiments/results_waveglider_era5_sites.txt   # milestone 6x, under 1 s
 python3 experiments/figure_waveglider_era5_map.py   # milestone 6x map
 PYTHONPATH=src python3 experiments/run_flip_map.py > experiments/results_flip_map.txt   # milestone 6z, under 1 s
+PYTHONPATH=src python3 experiments/figure_flip_map.py   # milestone 6z figure (experiments/waveglider_vs_solar_flip_map.svg)
 PYTHONPATH=src python3 experiments/run_year_pack.py > experiments/results_year_pack.txt   # milestone 6zj (year-long pack, no port call), about 40 s
 python3 experiments/fetch_sun_years.py   # milestone 6zk data: NASA POWER 2015-2023 at the 25 transect points, under a minute
 PYTHONPATH=src python3 experiments/run_reserve_curve.py > experiments/results_reserve_curve.txt   # milestone 6zk (reserve curve, ten years), about 4 min
@@ -171,6 +172,7 @@ PYTHONPATH=src python3 experiments/run_solar_mass.py > experiments/results_solar
 PYTHONPATH=src python3 experiments/run_solar_sites.py > experiments/results_solar_sites.txt   # milestone 5e, 1 s
 PYTHONPATH=src python3 experiments/run_solar_policy_bound.py > experiments/results_solar_policy_bound.txt   # milestone 5h, 3 s
 PYTHONPATH=src python3 experiments/run_solar_surge_holdout.py > experiments/results_solar_surge_holdout.txt   # milestone 5i
+PYTHONPATH=src:experiments python3 experiments/run_sail_dwell.py > experiments/results_sail_dwell.txt   # wing-sail milestone 5g (minimum dwell between tacks), about 20 min
 PYTHONPATH=src:experiments python3 experiments/run_sail_hrrr_bc.py > experiments/results_sail_hrrr_bc.txt   # wing-sail milestone 5i (HRRR bias correction), 4 min
 PYTHONPATH=src:experiments python3 experiments/run_sail_hrrr_learned.py > experiments/results_sail_hrrr_learned.txt   # wing-sail milestone 5j (learned station bias), 3 min
 PYTHONPATH=src:experiments python3 experiments/run_sail_hrrr_buoy.py > experiments/results_sail_hrrr_buoy.txt   # wing-sail milestone 5k (open-water NDBC buoys; data fetched by fetch_ndbc_buoys.py), 3 min

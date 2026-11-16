@@ -398,8 +398,51 @@ short orbits are a triangle, not two rounds. Measurements: `eval/odd-orbit.txt`;
 stored-designs test re-checks the solver's rows for all 24 designs. (`odd-night-sat.build` gained a
 `fix_round0` flag, on by default, so a caller with its own structure can drop the round-0 fix.)
 
-Open: 29 on 5 x 9 (3k + 2: a group with two fixed teams, or the night-pair packing); larger
+Open: 29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section); larger
 fully booked 37 on 6 x 9 by the same script (31 took 626 s; 37 is about twice the model).
+
+### 29 teams on 5 x 9: why one turned night cannot work, and what was tried (2026-11-16)
+
+29 teams on 5 courts x 9 slots is the open size from the section above (42 matches a night in 45
+slots). The tool leaves 334 waits over seeds 1 to 3 (`node eval/odd-cyclic-check.mjs 29:5:9`,
+3.6 s a build). This run did not find a wait-free season. It found why the method that solved 19,
+25 and 31 cannot, measured three other routes, and left a script for the next run.
+
+**No group of order k can turn one night into the season (proof).** Write n = 3k + 2 (k = 9 at 29
+teams), so N = n + 1 = 3(k + 1) counting the bye. For `eval/odd-orbit.py`'s idea the k full nights
+must be one orbit of a group G of order k acting on the teams, and every element must fix the bye
+(a rename that moves the bye puts a sitting-out team on a court). Take a prime p dividing k (p is
+odd, since k is) and h in G of order p. The points h fixes number N mod p, which is 3 mod p, or 0
+when p = 3; it includes the bye, so h fixes at least 3 points. A pair of h-fixed points lies on
+some night X with hX = X, and in one regular orbit of nights no full night is fixed by h, so every
+such pair is on the short two-round night. Three h-fixed points give a triangle there, and two
+matchings cannot hold a triangle. So the "triangle, not two rounds" note above is not a quirk of
+the three k-cycles: no group of order k works, for any 3k + 2 with k odd (17, 23, 29, 35, ...).
+
+**What was tried, all on this 4-core container (`eval/odd-triple.txt`):**
+
+- **1-rotational round robins** (`eval/odd-cyclic.py --random-only`, new flag: skip the patterned
+  starter). Three more random starters (seeds 101 to 103), 126 night patterns each, 447 to 461 s a
+  starter: none lays out. With the three tried before, 756 patterns, none.
+- **One night exists.** `odd-night-sat.py 29 --courts 5 --times 9 --shape --nights 1` is SAT in
+  575 s (151,246 variables). Its layout is three near-closed sessions: 8 teams in rows 0 to 2,
+  7 in rows 3 to 5, 8 in rows 6 to 8, and six teams (the three sitting out among them) bridging
+  the sessions. A 1-rotational night spreads every team's opponents round Z_29, which is likely why
+  none of its patterns fit this shape.
+- **A rename of order 3 with fixed nights** (`eval/odd-triple.py`, new). g turns eight 3-cycles and
+  fixes six points (five teams and the bye). The five rounds g fixes hold the six fixed points'
+  15 pairs as the one 1-factorization of K6 and are the short night plus one fixed night; the other
+  24 rounds fall into eight orbits {R, gR, g^2 R}, laid out either as orbit nights (three nights,
+  one layout) or as "turned" nights {R, gR, g^2 R}. The model lays out 6 to 10 distinct nights
+  instead of 10. At 29 the fixed night alone lays out in 3 s, but the whole model (2, 5 or 8 turned
+  nights; CaDiCaL 1.5 and 1.9) gave no answer in 50 minutes each. It is UNSAT for 11 teams (two
+  3-cycles give only three g-fixed matchings, five are needed) and for 17 on 3 x 9 with one turned
+  night (its fixed night has no layout, 0.9 s), so it is not a route to those sizes either; 17 and
+  23 are solved already by other scripts.
+
+Open: 29 on 5 x 9 by a longer run of `eval/odd-triple.py` (hours, not minutes; a second pair of
+runs was stopped at 29 minutes with no answer), by sessions (the one-night shape above as a template the season repeats),
+or by an order-2 rename (an involution fixing two points: the proof above does not reach it).
 
 ### Odd leagues one night at a time: 21 and 23 teams on 4 x 9, 27 on 5 x 9 and 7 x 6 (2026-11-15, latest)
 

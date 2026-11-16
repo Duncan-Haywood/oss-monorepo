@@ -1,0 +1,7 @@
+# node eval/nb1-probe.mjs 7 (before the NB1 cost)
+NB1 phi 3 flat 20: false changes/series nb 0.07, quasi 0.97; median size 11.2, phi 3.35
+NB1 phi 3 ramp 7-700: false changes/series nb 0.38, quasi 0.57; median size 34.9, phi 4.13
+NB1 phi 3 ramp 2-200: false changes/series nb 0.68, quasi 0.47; median size 11.2, phi 3.82
+NB2 r 8 flat 20: false changes/series nb 0.10, quasi 0.88; median size 8.6, phi 3.21
+NB2 r 8 ramp 7-700: false changes/series nb 0.10, quasi 7.97; median size 8.4, phi 9.83
+NB2 r 8 ramp 2-200: false changes/series nb 0.10, quasi 4.42; median size 8.5, phi 4.08
