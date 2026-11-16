@@ -11,6 +11,8 @@
 // to the named tools and keeps every other entry in the manifest as it was.
 //
 // Needs Playwright's Chromium, ImageMagick (`convert`, for WebP) and ffmpeg.
+// In a cloud session a bare `playwright` import fails: prefix the command with
+// PLAYWRIGHT_MODULE=/opt/node-tools/node_modules/playwright/index.js.
 // Rerun it when a tool's look changes; `manifest.json` is what the hub reads,
 // and the hub drops any entry whose tool is no longer published.
 import { execFileSync } from 'node:child_process';
