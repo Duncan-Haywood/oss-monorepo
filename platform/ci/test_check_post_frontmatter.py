@@ -131,6 +131,16 @@ class T(unittest.TestCase):
         check = (ROOT / "platform" / "pages" / "check.mjs").read_text()
         self.assertIn(f"const PLACEHOLDER_ORIGIN = '{PLACEHOLDER}';", check)
 
+    def test_entity_in_title_or_top_heading_fails_like_the_site_build(self):
+        # PR #16485: a post titled "yard&#x27;s" failed check.mjs (escaped twice).
+        bad = GOOD.replace('title: "T"', 'title: "yard&#x27;s"')
+        self.assertEqual(len(problems("2026-10-24-x.md", bad)), 1)
+        self.assertIn("&#x27;", problems("2026-10-24-x.md", bad)[0])
+        self.assertEqual(len(problems("2026-10-24-x.md", GOOD.replace("body", "## a &amp; b"))), 1)
+        # Prose, code fences and h3 and below are not checked by the build.
+        for body in ("each yard&#x27;s price", "```\n# x &amp; y\n```", "### a &amp; b", "## a & b"):
+            self.assertEqual(problems("2026-10-24-x.md", GOOD.replace("body", body)), [], body)
+
     def test_missing_tags(self):
         t = GOOD.replace("tags: [a, b]\n", "")
         self.assertEqual(problems("2026-10-24-x.md", t), ["missing `tags`"])

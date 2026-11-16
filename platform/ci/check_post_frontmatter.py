@@ -60,6 +60,7 @@ REQUIRED = ("title", "date", "description", "tags")
 LIMITS = {"title": 110, "description": 160, "seo_title": 70}
 MIN_DESCRIPTION = 60
 PLACEHOLDER = "https://example.invalid"  # platform/pages/check.mjs PLACEHOLDER_ORIGIN
+ENTITY = re.compile(r"&(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);", re.I)  # entities.mjs DOUBLE_ESCAPED, unescaped
 
 
 def limits_line():
@@ -111,6 +112,22 @@ def problems(name, text, today=None):
     # holding the placeholder origin, and the build rewrites it only in venture
     # files, never in posts: one run met it after a 7-minute local workflow
     # (run record for PR #16380, 2026-11-15). Code spans and fences count too.
+    # check.mjs also fails the build on an HTML entity in a title or heading: the
+    # page escapes it, so it reads as escaped twice (a red-team post titled
+    # "yard&#x27;s" failed PR #16485's build, 2026-11-16). Prose may show one.
+    body = text[m.end():]
+    in_fence = False
+    for i, line in enumerate(body.splitlines()):
+        if line.lstrip().startswith(("```", "~~~")):
+            in_fence = not in_fence
+        heading = not in_fence and re.match(r"#{1,2}\s", line)  # check.mjs reads <title>, <h1>, <h2>
+        ent = ENTITY.search(line) if heading else None
+        if ent:
+            out.append(f"heading `{line.strip()}` holds the entity `{ent.group(0)}`, which fails the site build (check.mjs); write the character")
+    for key in ("title", "seo_title"):
+        ent = ENTITY.search(fields.get(key, ""))
+        if ent:
+            out.append(f"{key} holds the entity `{ent.group(0)}`, which fails the site build (check.mjs); write the character")
     if PLACEHOLDER in text:
         n = text[:text.index(PLACEHOLDER)].count("\n") + 1
         out.append(f"line {n} holds `{PLACEHOLDER}`, which fails the site build (check.mjs); "

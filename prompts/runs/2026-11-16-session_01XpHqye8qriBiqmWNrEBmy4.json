@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First CI build failed: the blog post title held a literal '&#x27;', which platform/pages/check.mjs flags as an entity escaped twice in a title. Retitled; check_post_frontmatter does not catch this, only the full pages build does."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Step 0's open list held 9 entries, all control-plane fixes waiting for owner approval; a run can't act on any of them, and reading the list costs a pass every red-team run. A 'blocked on owner' marker that `open` hides by default would save that read."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Passes a title containing an HTML entity that the pages build then rejects as double-escaped; the cheap local check could flag it so the failure isn't found ~5 min into CI. Fixed in this PR: check_post_frontmatter now flags an entity in title, seo_title or a #/## heading (mirrors entities.mjs DOUBLE_ESCAPED); all 5108 posts clean."
     }
   ],
   "deviations": [
