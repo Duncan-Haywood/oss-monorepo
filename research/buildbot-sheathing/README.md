@@ -396,7 +396,7 @@ swept (0–25 arcmin; catalogue precision planetaries are 1–7). A joint that g
 wall load one way at every nail sits at the same side of its gap each time, a bias that calibration removes. At the stud
 pose (MuJoCo, feet planted) 16–19 of the G1's 22 joints that move the nose are held; the two **ankle rolls** carry no torque
 under an even ground reaction. 5 arcmin on every joint takes the 12-bit G1's best single-2x stack from **0.934 to 0.765**;
-counting the held joints, 0.913; with the ankle rolls biased one way by the balance controller, 0.934 at every gap up to 25
+counting the held joints, 0.913; with the ankle rolls biased one way by the balance controller (a case added after the first run, not a registered hypothesis), 0.934 at every gap up to 25
 arcmin. The nailer's 12-11/16 in height (Metabo HPT) puts the grip 0.29–0.32 m behind the nose, so milestone 29's 0.3 m stands;
 a handle 0.15 m above the drive axis costs the 11-bit G1 8 points, below it gains 4.
 
