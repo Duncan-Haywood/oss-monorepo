@@ -3060,3 +3060,37 @@ Tests: `repair-flow.test.mjs` adds that a 348-copy bench week under a 3 s budget
 and an explicit value is kept. Not claimed: generated weeks only, single runs on one cloud machine; the reserve's size (2 s) and
 the 300-copy line were not tuned, only tested; the reserve still loses on about one differing build in three. Next: whether a
 longer reserve (4 s) or a reserve scaled by the open hours above the floor does better on the same fresh seeds.
+
+## A 4 s repair reserve: measured and refused (2026-11-16 later)
+
+"The repair reserve on the biggest weeks" left one question: would a longer reserve (4 s) do better than the new 2 s default? On
+the pre-registered seeds 13-24 the repair under the 2 s reserve ran only 0.5-1.2 s, so the guess was that the last plateau walk
+ate most of the reserve and a bigger one would give the repair the time it was meant to have. **Pre-registered**
+(`eval/repair-reserve-4s-prereg.md`, committed before the run): the same four above-floor weeks (90 x 252 and 100 x 280, weeks
+0-1), fresh seeds 25-36, 48 paired builds, `flow2000` against `flow4000` (`sh eval/repair-reserve-4s.sh`,
+`eval/repair-reserve-4s.out.txt`). The rule: raise the default only if 4 s has fewer open hours on more builds, one-sided sign
+test p < 0.05, and a net gain.
+
+| 48 fresh builds | open hours above the floors | at the floor | repair ms, mean | plateau walks ms, mean |
+|---|---|---|---|---|
+| 2 s reserve (the default) | **307** | 4 | 1,143 | about 2,900 |
+| 4 s reserve | 371 | 3 | 1,208 | about 1,300 |
+
+**Not met, by a wide margin:** 4 s had fewer open hours on 11 builds and more on 27 (10 tied), 64 hours worse in all (one-sided
+p = 0.997). The guess was wrong about why the repair is short. It is not starved: given 4 s it still ran about 1.2 s, so it stops
+on something other than the clock, and the two extra seconds come out of the plateau walks (which still find coverage on these
+weeks) and go to stages after the repair that score pay, not open hours. The default stays at 2 s.
+
+**What stops the repair.** Not its 60 rounds: with `coverRepairRounds: 180` and the 4 s reserve, the first four builds
+(`eval/repair-reserve-rounds180.jsonl`) gave the same open hours, gains and skipped rounds as the 4 s run, build for build. That
+leaves its node budget (`coverRepairNodes`, 3M nodes in all, chosen so the same input gives the same roster on any machine).
+
+**More nodes do not rescue it (exploratory, the same 48 builds; `eval/repair-reserve-variants.out.txt`).** With the 4 s reserve
+and `coverRepairNodes: 9000000` the repair ran 2.3 s instead of 1.2 s and found 342 improving rounds instead of 250 (141 under the
+2 s default), recovering 17 of the 64 hours: still 47 h behind the default (fewer open on 14 builds, more on 22). Each repair
+round does cut open hours, but a second of plateau walk covers more of them than a second of repair on these weeks. So the 2 s
+default stands, and its gain came from giving the repair its first second, not from giving it more.
+
+Not claimed: generated weeks only, one cloud machine; the 9M and 180-round runs were exploratory, not pre-registered. Next:
+whether a reserve sized to what the repair uses (about 1.1-1.2 s at 3M nodes) beats 2 s on fresh seeds, pre-registered.
+
