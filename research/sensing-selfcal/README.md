@@ -10,8 +10,20 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (262 of 262,
-revised with milestones 4e–4r) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (269 of 269,
+revised with milestones 4e–4r and 3b) and a list of what a submission still needs.
+
+**Milestone 3b headline** (natural features: does self-calibration from SIFT tracks of ordinary video, no board in
+view, still give an honest uncertainty? 65 windows of 1.2 s from three TUM RGB-D sequences, two cameras): **no.**
+A single 12-keyframe window lands a median 2.8% (hand-held desk sweep) to 7.2% (sideways pass) from the board
+calibration, and the solver's sd is 4–12× smaller than the real scatter of f across windows (rms z 9.3; 2-sd
+coverage 11–27%), so the proposal's H5 fails, worse than the 2× milestone 3 found with board corners. Nor does the
+sd grow on the near-critical, translation-only sequence (1.28× the desk's, against 2.8× the real scatter). What
+works is the scatter itself: the median of 15–24 windows is within 1.5% of the board calibration on every sequence
+(+0.7%, −1.4%, +1.5%; +0.2% against TUM's on the Xtion), with an across-window interval that covers it. All four
+pre-registered predictions (H104–H107) were refuted.
+
+![Each window's focal error against the board calibration with the solver's 2-sd bar, and the solver's sd against the rotation in the window](experiments/m3b_natural/natural.png)
 
 **Milestone 4r headline** (does a per-view error term make the twin's threshold safe? no new solve, milestone
 4p's pools): **yes, at half the power.** Letting each view have its own effective focal length (sd &tau;, fitted per
@@ -863,6 +875,9 @@ default: with the transferred factor the rule made a harmful adoption in 1.4% of
 
 ```
 pip install numpy scipy opencv-python-headless matplotlib pytest
+sh experiments/m3b_natural/fetch.sh tum   # 1.3 GB of TUM RGB-D video (CC BY 4.0)
+OMP_NUM_THREADS=1 python3 experiments/m3b_natural/run.py tum 4  # ~45 min on 4 cores; results.json
+python3 experiments/m3b_natural/analyse.py # summary.json, natural.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
