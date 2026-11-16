@@ -269,3 +269,25 @@ def nearest_onset(state, day):
     if not state:
         return None
     return min(state, key=lambda j: (abs(state[j][1] - day), -state[j][0], j))
+
+
+def steepest_dated(states, k, window=30, span=14):
+    """Step 22: among atoms active on day k with onset in [k - window, k] (window=None: any),
+    the one whose daily fitted flow over days [k - span + 1, k] (0 where inactive) has the largest
+    least-squares slope, ties by the larger flow on day k. `states` is `track`'s per-day output.
+    Falls back to `latest_onset` when no atom qualifies; None if nothing is active."""
+    st = states[k]
+    cand = [j for j in st if window is None or st[j][1] >= k - window]
+    if not cand:
+        return latest_onset(st)
+    days = np.arange(max(0, k - span + 1), k + 1)
+    xc = days - days.mean()
+    den = float(xc @ xc)
+
+    def slope(j):
+        if den == 0:
+            return 0.0
+        f = np.array([states[d][j][0] if j in states[d] else 0.0 for d in days])
+        return float(xc @ f) / den
+
+    return max(cand, key=lambda j: (slope(j), st[j][0], -j))
