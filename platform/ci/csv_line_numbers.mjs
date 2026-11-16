@@ -6,9 +6,11 @@
 // prompts/runs/2026-11-16-session_01EhTJVMmK8A31TEs5kfnuRS.json). Each copy
 // now tags a row with a non-enumerable `line`, and each loop reads it.
 //
-// This suite runs from unwired_checks.py (every platform/**/*.test.mjs no
-// workflow names), so a new copy of the parser, or a new loop that goes back
-// to `i + 1`, fails a pull request instead of waiting for a red-team run.
+// test_csv_line_numbers.py runs this file (`node csv_line_numbers.mjs`, which
+// exits 1 when a test fails), and unwired_checks.py runs that suite on every
+// pull request, so a new copy of the parser, or a new loop that goes back to
+// `i + 1`, fails CI instead of waiting for a red-team run. Not named
+// *.test.mjs: that would need a control-plane line in verify-and-merge.md.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, existsSync } from "node:fs";

@@ -30,9 +30,17 @@
   "review_findings": null,
   "tests_added": 12,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Sweep glob ventures/*/*.mjs missed reseller-books/engines/ vendored copies; caught by its drift test in the local workflow sweep and re-copied.",
+    "First guard name *.test.mjs in platform/ci tripped checklist_coverage; renamed."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 4b suggests a lint or test under platform/ci, but a new *.test.mjs there fails checklist_coverage until a control-plane line is added to verify-and-merge.md; a Python test_*.py wrapper avoids that. Worth one sentence in the prompt."
+    }
+  ],
   "deviations": [
     {
       "file": "prompts/redteam/prompt-0.md",
@@ -45,7 +53,7 @@
     "docs/posts/2026-11-16-one-blank-line-moved-every-error-message.md"
   ],
   "goal": null,
-  "notes": "Target ventures/restaurant-delivery-commission-analyzer/calc.mjs (changed twice in the last 40 commits; 0.9 s suite). Two campaigns, 24 mutants: 17 caught (70.8%), 7 gaps, all guarded (8 new tests); rerun 23/24 caught_after_fix, the 24th (line 63, final push of parseCsv) rewritten by the class fix and re-applied by hand: caught. Real defect: wrong file line numbers on skipped rows, fixed across 49 parser copies and 41 loops (34 analyzers); all 49 venture suites pass (run_venture_tests.py on the 49 slugs: 49 suites, 0 failed). Guard added (step 4b): platform/ci/csv_line_numbers.test.mjs, auto-run on every PR via unwired_checks.py (listed by --list); it imports every copy of the parser and rejects a table loop that reports i + 1. On the pre-fix tree it fails 2 of 4 tests. Two other parsers (ai-bookkeeper bank.mjs `ln`, shopify-inventory-reorder-planner own enumerable `line`) already numbered rows and are left out of the guard by design.",
+  "notes": "Target ventures/restaurant-delivery-commission-analyzer/calc.mjs (changed twice in the last 40 commits; 0.9 s suite). Two campaigns, 24 mutants: 17 caught (70.8%), 7 gaps, all guarded (8 new tests); rerun 23/24 caught_after_fix, the 24th (line 63, final push of parseCsv) rewritten by the class fix and re-applied by hand: caught. Real defect: wrong file line numbers on skipped rows, fixed across 49 parser copies and 41 loops (34 analyzers); all 49 venture suites pass (run_venture_tests.py on the 49 slugs: 49 suites, 0 failed). Guard added (step 4b): platform/ci/csv_line_numbers.mjs (run by test_csv_line_numbers.py), auto-run on every PR via unwired_checks.py (listed by --list); it imports every copy of the parser and rejects a table loop that reports i + 1. On the pre-fix tree it fails 2 of 4 tests. Two other parsers (ai-bookkeeper bank.mjs `ln`, shopify-inventory-reorder-planner own enumerable `line`) already numbered rows and are left out of the guard by design. Local workflow sweep (run_workflow_locally --for-changes) first failed on two things this run caused, both fixed: reseller-books vendors five analyzer calc.mjs files under engines/ (byte-identical test), which my ventures/*/*.mjs glob missed, so they were re-copied; and a first platform/ci/*.test.mjs tripped checklist_coverage (needs a control-plane line in verify-and-merge.md), so the guard became csv_line_numbers.mjs plus a Python wrapper that unwired_checks.py picks up.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -409,7 +417,7 @@
     "real_defects": [
       {
         "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
-        "issue": "Skipped rows reported table index + 1 as the file line, but parseCsv drops blank lines and keeps quoted line breaks, so one blank line shifted every later line number the page shows (reproduced: bad date on file line 4 reported as line 3). Same parser copied in 49 files; 41 loops in 34 analyzers had the bug. Fixed in all: each parser copy tags rows with a non-enumerable `line`, loops read `table[i].line ?? i + 1`; guard platform/ci/csv_line_numbers.test.mjs.",
+        "issue": "Skipped rows reported table index + 1 as the file line, but parseCsv drops blank lines and keeps quoted line breaks, so one blank line shifted every later line number the page shows (reproduced: bad date on file line 4 reported as line 3). Same parser copied in 49 files; 41 loops in 34 analyzers had the bug. Fixed in all: each parser copy tags rows with a non-enumerable `line`, loops read `table[i].line ?? i + 1`; guard platform/ci/csv_line_numbers.mjs (run by test_csv_line_numbers.py).",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16504"
       }
