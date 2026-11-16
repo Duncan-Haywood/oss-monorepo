@@ -1,6 +1,6 @@
 # Draft: which hull carries a small survey boat furthest per kWh, and how much of the answer is the drag model?
 
-Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr): introduction, model and results-table drafted, not submittable.** Every number below is copied from
+Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr and 6zzs): introduction, model and results-table drafted, not submittable.** Every number below is copied from
 [`../LOG.md`](../LOG.md) and the `experiments/results_*.txt` file named beside it. Nothing is new
 in this file. Target: OCEANS (IEEE/MTS), 6 to 10 pages. The hull constants are unvalidated against
 tank data (milestone 3 is open), and that gap decides what the paper can claim, as section 5 says.
@@ -178,6 +178,7 @@ What the chain established, in order:
 6. **High latitude is a different regime.** At the nine high-amplitude points the real seasonal error (4.5 to 8.5%) is larger than one year's noise. So the rules that keep the boat's own fit win more on average (LC 81.0, HX 51.8 and HR 50.2, against AT_90's 25), and shrinkage throws signal away. The cost is variance: one learning year (lag 3, meaning 2007 for the late half and 2012 for the early half) takes LC down to 1 of 168.
 7. **That bad year is real weather, and it fails through a summer level error** (6zzl to 6zzo). ERA5 reproduces NASA's month anomalies for the two years (r = +0.71) and the lag-3 errors themselves (r = +0.77). By the size of its departures, the year sits in the middle of the five learning years in both sources (6zzm). All 167 of its losing cells lose on distance. Replacing its three local-summer months with the scored years' own ratios recovers 0.87 of the gap (6zzl). A forced shift showed that a brighter learned summer makes the boat bolder, not more cautious (6zzn). Splitting the summer error into level and shape showed that the damage sits in the cells where the year learned a *darker* summer than the scored years saw: repairing the level alone recovers 0.54 of the gap, the shape alone 0.03 (6zzo).
 8. **A deployable guard moves the trade-off but does not remove it** (6zzp). The guard DG never lets a one-year summer ratio fall below the climatology's. At the high-amplitude points it lifts lag 3 from 1 to 74 and has the best one-season mean on that pool (109.2), and in no year does it fall below AT_90 there (worst 74). Over all 30 points it costs about 16 cells on average (106.0 against 121.8), and every cell it fails there fails on dark hours: away from the high-amplitude points the guard makes the boat too bold.
+9. **A guard gated on the boat's own replay repairs the cost but not the gain** (6zzs). Replaying the uncorrected plan against B over the learning year and applying DG only where it fell short on distance lifts the 30-point mean above the raw correction (127.2 against 121.8; with the mirror guard on dark-heavy years 131.6), but at the high-amplitude points 80% of learning years replay as fine, so the gated guard keeps little of DG's gain (85.8 against 109.2, lag 3 18 against 74). The high-latitude failure is a forecast error about other years that the one logged year cannot reveal.
 
 For a designer, the table gives three rules:
 
@@ -185,7 +186,7 @@ For a designer, the table gives three rules:
 2. Above about 50 degrees, treat the raw correction and the dark-summer guard as candidates only.
 3. To be safe in both pools over every year drawn, use three seasons of a fitted cosine (LHF, HR or HX) or four of any rule tested; above about 50 degrees the raw month ratios still win more cases on average at every history length (6zzr).
 
-No rule yet selects itself by site: gating the guard by latitude (|lat| >= 50, chosen after seeing DG) keeps the 30-point mean but loses the high-amplitude gain (6zzp, post hoc).
+No rule yet selects itself by site: gating the guard by latitude (|lat| >= 50, chosen after seeing DG) keeps the 30-point mean but loses the high-amplitude gain (6zzp, post hoc), and so does gating it on the replayed operating side of the learning year, fixed before the run (6zzs).
 
 Limits to carry with the section:
 
@@ -193,12 +194,12 @@ Limits to carry with the section:
 - Both the climatology and the scored years are NASA POWER. ERA5 was checked only against the lag-3 irradiance (6zzm). It was never run through the harvest model, and nothing was checked against a pyranometer.
 - The high-amplitude pool was picked with an amplitude estimate that used all ten years.
 - Five learning years give only five one-season draws and ten pairs. The brackets are the observed range over those draws, not confidence intervals, and draws within the same k share years.
-- Every rule was scored over every subset of one to five seasons (6zzj, 6zzk, 6zzr), but the three-season crossings are thin at high latitude (worst 31 for HR and HX and 34 for LHF, against 25). The guard rules of 6zzp were run only at one season.
+- Every rule was scored over every subset of one to five seasons (6zzj, 6zzk, 6zzr), but the three-season crossings are thin at high latitude (worst 31 for HR and HX and 34 for LHF, against 25). The guard rules of 6zzp and 6zzs were run only at one season.
 - Dominance counts sit near their ceiling, which compresses differences of a few cells.
 
 ## 2.4 Still to write
 
-0. **Learned seasonal correction**: drafted as section 2.7 (milestone 6zzq). Still to add there: a guard conditioned on the boat's operating side, scored with the rule fixed before the run, and the rules driven by ERA5 harvest at the nine high-amplitude points.
+0. **Learned seasonal correction**: drafted as section 2.7 (milestone 6zzq). The operating-side guard is in (6zzs). Still to add there: the rules driven by ERA5 harvest at the nine high-amplitude points.
 
 4. Sensitivity: input ranking hotel > eta_pv > derate > c_s > k_form > wave scale
    (`results_solar_sensitivity.txt`); best speed moves 0.0 to 0.2 m/s per input while km/day moves
