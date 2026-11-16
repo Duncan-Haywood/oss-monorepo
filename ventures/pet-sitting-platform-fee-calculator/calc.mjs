@@ -33,7 +33,7 @@ export const num = (s) => {
   return t === "" ? NaN : Number(t);
 };
 export const money = (x) => `${x < 0 ? "-" : ""}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
-export const money2 = (x) => `${x < 0 ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
+export const money2 = (x) => `${x < 0 && Math.abs(x).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
 export const pct = (x, d = 1) => `${(x * 100).toFixed(d)}%`;
 
 export const platformNet = (o) => o.price * (1 - o.platformFee) - o.costPerBooking;
