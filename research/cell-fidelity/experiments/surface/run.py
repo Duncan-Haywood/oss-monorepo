@@ -167,7 +167,9 @@ def tables():
 
 def bench():
     path = HERE / "bench.jsonl"
-    done = {(r["cond"], r["j"]) for r in B._load(path)} if path.exists() else set()
+    # a run the kernel killed for memory (exit -9) is retried; the report keeps the last record per design
+    done = {(r["cond"], r["j"]) for r in B._load(path)
+            if not str(r.get("error") or "").startswith("exit -9")} if path.exists() else set()
     rows = B._load(HERE / "balance.jsonl")
     _run([(r["cond"], r["j"], r["x"]) for r in rows if (r["cond"], r["j"]) not in done], path)
 
