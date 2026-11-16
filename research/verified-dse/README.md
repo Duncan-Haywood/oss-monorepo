@@ -161,6 +161,15 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **The blind evaluation, rule by rule: the unguarded ladder is the rule to report, but its edge over random routing is not yet
+  established at the design level (milestone 136, replay of the 42 blind cells, no flow run).** Each rule is scored only on the
+  cells that were out of sample for it. Over all 42 cells (21 designs) the clipped ladder SWC has 3.30% mean regret, random
+  routing 4.65%, the gate-depth guard 4.26%; no guard beats SWC on its own blind cells after a Holm correction (smallest adjusted
+  p 0.23), though SWG(32)'s flag in front of the pilot probe comes out lower on its 26 (2.85% against 3.14%, interval -2.40 to
+  +1.64 points). SWC beats random on 28 cells and loses on 8 (p = 0.001), but cells within a design move together: by design it
+  is 13 better, 5 worse (p = 0.096), and at the observed spread about 95 blind designs would be needed for a 95% interval below
+  zero. A perfect guard would sit 1.99 points below SWC, all of it on 8 cells of 5 designs. Four of six predictions held:
+  [`experiments/blind_pooled/`](experiments/blind_pooled/results.txt).
 - **On a blind set probed so every cell reaches the ladder branch, the unguarded ladder beats random routing and every guard
   loses to it (milestone 133, flow run).** Seven new 128-bit left shifters (a CRC-7, BCD-to-binary, compare-select and
   multiplicative-hash amount; 18 to 58 gates) were kept from nine by a one-point routing-cost probe written before it ran, and
