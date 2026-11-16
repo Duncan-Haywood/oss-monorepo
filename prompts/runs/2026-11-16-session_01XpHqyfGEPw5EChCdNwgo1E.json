@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyfGEPw5EChCdNwgo1E",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T13:45:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: Oregon's voluntary standby list in the fair-workweek log",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16589",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "The previous run wrote that the Oregon statutes did not answer from its session; from this one oregonlegislature.gov/bills_laws/ors/ors653.html returned 200 with the full text, and reading it found two pricing errors the search summaries hid. Probe the primary source each time rather than trusting an earlier 'unreachable'."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The git checkout -b for the session branch failed because the harness had already created it; harmless, but the land-your-work steps could say the branch may already exist."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-shift-roster-oregon-standby-list-from-the-statute.md",
+    "ventures/shift-roster-builder/README.md (section: Oregon's voluntary standby list, from the statute's own text)"
+  ],
+  "goal": null,
+  "notes": "Read ORS 653.432/653.436/653.455 (as amended 2024 c.20) from oregonlegislature.gov. Fixed: Oregon start/end changes <=30 min exempt incl. lost hours (653.455(3)(a)), previously priced; a separate added shift owes the hour at any length (653.455(2)(a)(C)), previously free under the threshold in every preset. Added the voluntary standby list (written join with the four 653.432(1) statements, leave/remove with dated record, ask on call-out, cover exempt) and the standby-first condition on Oregon's team-offer exemption (653.455(3)(k)(C)). Verification: node --test notice.test.mjs 14/14 pass; full venture suite and venture-preflight results below.",
+  "corrections": [],
+  "redteam": null
+}
