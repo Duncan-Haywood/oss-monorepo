@@ -45,6 +45,16 @@ SAY = {
     "Motovilov": "Mo-toe-vee-lov",
     "Diveyevo": "Dee-vay-ay-vo",
     "Agathia": "Ah-gah-thee-ah",
+    "Melangell": "Meh-lang-eth",
+    "Brochwel": "Brock-well",
+    "Powys": "Pow-iss",
+    "Oen": "Oyn",
+    "Hiltibod": "Hilti-bod",
+    "Culross": "Koo-ross",
+    "Thenew": "Then-yoo",
+    "Rhydderch": "Ruh-ther-k",
+    "Languoreth": "Lan-gwor-eth",
+    "Glasgu": "Glas-goo",
 }
 
 
