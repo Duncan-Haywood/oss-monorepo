@@ -810,11 +810,13 @@ class EmptyHopperTest(unittest.TestCase):
         _, need = chk.threshold((4000, 4000))
         self.assertAlmostEqual(need, 0.25 * 0.088, delta=0.001)
         chk.start((4000, 4000), 0)
-        self.assertIsNone(chk.update(500, (3990, 4005), (4000, 4000)))
+        for t in range(0, 1000, 10):                                     # control ticks, 10 ms apart
+            self.assertIsNone(chk.update(t, (3990, 4005), (4000, 4000)))
         chk.stroke_done(900)
-        self.assertIsNone(chk.update(1000, (3700, 3800), (4000, 4000)))  # a ball: 7.5% drop
+        self.assertIsNone(chk.update(1000, (3700, 3800), (4000, 4000)))  # a ball: 7.5% below the 4,000 target
         self.assertIs(chk.update(1150, (3950, 3960), (4000, 4000)), True)
-        self.assertAlmostEqual(chk.last_dip, 0.075)
+        self.assertAlmostEqual(chk.last_dip, 1 - 3700 / 3990)            # judged from the speed the ball met
+        self.assertAlmostEqual(chk.last_dip_target, 0.075)
         chk.start((4000, 4000), 2000)
         chk.stroke_done(2900)
         self.assertIsNone(chk.update(2950, (3990, 3995), (4000, 4000)))
@@ -826,6 +828,31 @@ class EmptyHopperTest(unittest.TestCase):
         chk.start((0, 0), 5000)
         chk.stroke_done(5900)
         self.assertIsNone(chk.update(6200, (0, 0), (0, 0)))              # wheels at rest: no verdict
+
+    def test_check_reads_the_drop_from_the_wheels_own_speed(self):
+        """A stroke fed as the gate opens after a speed change starts with the wheel up to 3% off target (2026-11-16,
+        firmware/esp32/README.md "The verdict from the pre-ball speed"): climbing from 2.9% below with no ball is no
+        launch, though it reads 2.9% below target; a ball met 2.9% above target still counts."""
+        chk = controller.LaunchCheck(*self._model())
+        _, need = chk.threshold((4000, 4000))
+        chk.start((4000, 4000), 0)
+        for t in range(0, 1150, 10):                                     # 3,884 rpm climbing to 4,000, no ball
+            rpm = 4000 - 116 * 0.995 ** t
+            self.assertIsNone(chk.update(t, (rpm, rpm), (4000, 4000)))
+            if t == 900:
+                chk.stroke_done(900)
+        self.assertIs(chk.update(1150, (4000, 4000), (4000, 4000)), False)
+        self.assertGreater(chk.last_dip_target, need)                    # against the target: 2.9%, read as a ball
+        chk.start((4000, 4000), 2000)
+        for t in range(2000, 2760, 10):
+            chk.update(t, (4116, 4116), (4000, 4000))
+        went = None
+        for t, rpm in ((2760, 3920), (2770, 3940), (2900, 4000), (3000, 4100), (3150, 4116)):
+            if t == 2900:
+                chk.stroke_done(2900)
+            went = chk.update(t, (rpm, rpm), (4000, 4000)) if went is None else went
+        self.assertIs(went, True)                                        # 4.8% from the speed it met: over `need`
+        self.assertLess(chk.last_dip_target, need)                       # against the target only 2%: read as dry
 
     def test_drill_runs_while_balls_last(self):
         sim = SimFeeder(balls=3)                       # the pocket's ball and three behind it: exactly four

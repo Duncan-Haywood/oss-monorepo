@@ -199,8 +199,12 @@ wheel on a flat shot with the CAD's figures) and an empty pocket leaves them
 steady. A dry stroke sets `FLAG_HOPPER_EMPTY`; the runner stops there, names the
 shot that went dry and how many flew, stops the wheels without latching the
 e-stop, and exits 3. No sensor was added because the feeder's ESP32 has no pin
-left for one. Margins over 27 simulated builds and the reasoning:
-[`firmware/esp32/README.md`](firmware/esp32/README.md), "Empty hopper".
+left for one. The drop is measured from the wheel's own speed when the ball met
+it, not its target: a stroke fed as the speed gate opens starts with the wheel
+still closing on its target, and against the target 29 of 972 such simulated
+strokes were judged wrong (none now). Margins over 27 simulated builds and the
+reasoning: [`firmware/esp32/README.md`](firmware/esp32/README.md), "Empty
+hopper" and "The verdict from the pre-ball speed".
 
 **A shot log and a launcher fit without a radar gun (2026-11-16).** The same
 drop is the ball's momentum, so every judged stroke now reaches the Pi as a

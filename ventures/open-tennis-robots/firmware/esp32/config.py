@@ -91,7 +91,8 @@ AGIT_DUTY = 1.0
 # Empty hopper (2026-11-16, firmware/esp32/README.md "Empty hopper"; controller.LaunchCheck). A ball squeezed through
 # the launcher takes its momentum from the wheels, so each feed stroke is judged by the tachometers: the wheel with the
 # larger predicted drop (8.8% on a flat shot with these numbers, at least 4.4% on the faster wheel at any spin) must
-# fall by LAUNCH_DIP_SHARE of it, and by LAUNCH_DIP_MIN at least, within LAUNCH_CHECK_MS of the stroke's end, or the
+# fall by LAUNCH_DIP_SHARE of it, and by LAUNCH_DIP_MIN at least, below its own speed just before the fall (not its
+# target: README "The verdict from the pre-ball speed"), within LAUNCH_CHECK_MS of the stroke's end, or the
 # pocket was empty: telemetry sets FLAG_HOPPER_EMPTY until the next FEED. The model's numbers are the CAD's ball mass
 # and wheel radius and the launcher's efficiencies (src/tennisbots/launcher.py); a test fails if they disagree.
 # WHEEL_INERTIA_KGM2 above is the wheel's inertia: weigh yours. LAUNCH_CHECK = False turns the check off.

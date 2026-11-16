@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKj2syjyGr59A4q8bXC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T05:18:25Z",
+  "ended": "2026-11-16T05:27:45Z",
+  "wall_minutes": 9.68,
+  "tokens_in": 6078087,
+  "tokens_out": 28667,
+  "cost_usd": 2.7931,
+  "tool_calls": 58,
+  "task": "open-tennis-robots (flagship 10) BUILDABLE item: empty-hopper verdict from the pre-ball speed, resweep launch_check_sweep.py",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16467",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'Start here' pointed at shift-roster-builder, but another session (#16466) claimed the same item one minute before this run's claim PR; claim_check caught it only after the draft PR was open. The two sessions started in the same minute, as the tool warns, so I lost one round trip."
+    },
+    {
+      "file": "ventures/open-tennis-robots/tests/launch_check_sweep.py",
+      "issue": "Its docstring still gave the pre-retune thresholds (share 0.4, min 2%) when config.py says 0.25 and 1.5%. Fixed in this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The routed flagship item (shift-roster-builder repair reserve) was already claimed by #16466, and league-schedule-generator's top item (29 teams on 5x9) needs hours of SAT time already shown to fail in 50 minutes",
+      "did": "Took open-tennis-robots' BUILDABLE item instead, reusing PR #16467 (retitled)",
+      "result": "Landed with a measured result"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-the-tennis-feeders-empty-hopper-check-stops-trusting-the-target.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (\"The verdict from the pre-ball speed\")"
+  ],
+  "goal": null,
+  "notes": "Fed at the gate (each of 6 shots set from 0.5/0.8/1.25/1.5x its speed and fed at once, 27 builds, 972 strokes), the target-based verdict made 29 wrong calls (27 empty strokes read as balls, all at 3,000 rpm braking from 3,750; 2 balls read as dry at 6,500 rpm on the 1.5x/0.6/0.8 s build). The pre-ball verdict made none. On settled feeds the ball margin is still 1.26, and the empty-stroke margin went from 0.17 to 0.42 (tach ripple). Local checks: tests/test_host.py 70 OK (74 s); run_workflow_locally --for-changes output in the PR. No agent doc in docs/reports: the firmware README section carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fbe4cac7-4849-5718-9e2a-66c3f508408e",
+    "transcripts": 1,
+    "first": "2026-11-16T05:18:25Z",
+    "last": "2026-11-16T05:28:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 104,
+        "output": 28667,
+        "thinking": 6638,
+        "cache_read": 5949292,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128691,
+        "api_equivalent_usd": 2.7931,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 104,
+      "output": 28667,
+      "thinking": 6638,
+      "cache_read": 5949292,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128691,
+      "api_equivalent_usd": 2.7931,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.68,
+      "active_minutes": 9.68,
+      "model_minutes": 5.41,
+      "tool_minutes": 4.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an embedded engineer designing the fed-at-the-gate sweep, finding the failure, changing the verdict and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 214.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
