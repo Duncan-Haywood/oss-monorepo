@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 135 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 137 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -161,6 +161,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **A confirmatory blind set at one clock per design: the clipped ladder wins on 21 of 33 blind designs and loses on 9 (sign
+  p = 0.043), but the size of its edge is not yet pinned down (milestone 137, flow run).** Twelve new 128-bit left shifters from
+  four families (integer square root, argmin index, ones'-complement checksum, nibble-match count), kept from 16 by milestone
+  133's cost probe and run at one clock each: SWC 2.91% mean regret against 4.15% for equal-cost random routing, better on 8
+  designs and worse on 4 (p = 0.39, the registered primary test refuted). Two square-root designs carry most of the loss
+  (+3.89 and +7.08 points). Pooled with the 21 earlier blind designs the design-level mean difference is -1.32 points with a 95%
+  interval of -3.26 to +0.63, so about 73 designs would be needed to put it below zero. Five of seven predictions held:
+  [`experiments/ladder_confirm/`](experiments/ladder_confirm/results.txt).
 - **The blind evaluation, rule by rule: the unguarded ladder is the rule to report, but its edge over random routing is not yet
   established at the design level (milestone 136, replay of the 42 blind cells, no flow run).** Each rule is scored only on the
   cells that were out of sample for it. Over all 42 cells (21 designs) the clipped ladder SWC has 3.30% mean regret, random
