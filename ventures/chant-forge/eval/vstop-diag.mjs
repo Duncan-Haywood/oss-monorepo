@@ -29,9 +29,9 @@ for (const pulses of [4, 2]) for (const midi of P.pitches) {
     if (!SY.includes(s)) return;
     const n = notes[j], want = expectedRead(latinCoda(s)[0]);
     const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
-    const got = readCoda(x, rate, vAt, tEnd, { barLead });
+    const got = readCoda(x, rate, vAt, tEnd, { barLead, compactVelar: process.argv.includes('--velar') });
     const ok = Object.entries(want).every(([k, v]) => got[k] === v);
-    console.log(`${s} midi ${midi} pulses ${pulses} note ${(n.t1 - n.t0).toFixed(3)}s: got ${got.cls}${got.voiced !== undefined ? ' v=' + got.voiced : ''}${got.place ? ' ' + got.place : ''} ${ok ? 'OK' : 'MISS'}${got.rule ? ` via ${got.rule} at ${got.at} for ${got.ms} ms, stop closure at ${got.stopAt}` : ''}`);
+    console.log(`${s} midi ${midi} pulses ${pulses} note ${(n.t1 - n.t0).toFixed(3)}s: got ${got.cls}${got.voiced !== undefined ? ' v=' + got.voiced : ''}${got.place ? ' ' + got.place : ''} ${ok ? 'OK' : 'MISS'}${got.cls === 'stop' ? ` [cen ${got.centroid.toFixed(0)} hi1R ${got.hi1R.toFixed(2)} cAny ${got.compactAny.toFixed(2)} @${got.compactHz.toFixed(0)}]` : ''}${got.rule ? ` via ${got.rule} at ${got.at} for ${got.ms} ms, stop closure at ${got.stopAt}` : ''}`);
     if (verbose && (!ok || every)) {
       const ref = []; for (let i = Math.round(vAt * rate); i < Math.round((vAt + 0.06) * rate); i += Math.round(0.005 * rate)) ref.push(frameFeatures(x, i, rate));
       const avg = (k) => ref.reduce((q, f) => q + f[k], 0) / ref.length;
