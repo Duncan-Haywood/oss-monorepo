@@ -50,6 +50,8 @@ def robot_targets(pos, dirs, goal_y, is_robot, policy, width, length, radius):
     pos: (n, 2) all agents; dirs: (n,); goal_y: (n,) a robot's exit for policy "goal" (nan else).
     Returns arrays over the robot rows only, in their order.
     """
+    if isinstance(policy, LearnedLateral):
+        return policy.targets(pos, dirs, is_robot, width, length, radius)
     if policy not in POLICIES:
         raise ValueError(f"policy must be one of {POLICIES}")
     r = np.nonzero(is_robot)[0]
@@ -73,6 +75,57 @@ def robot_targets(pos, dirs, goal_y, is_robot, policy, width, length, radius):
     tx = np.clip(tx, -1.4, length + 1.4)
     ty = np.clip(ty, radius + 0.05, width - radius - 0.05)
     return tx, ty
+
+
+class LearnedLateral:
+    """A parametric lateral-target policy, trained per crowd family in milestone 6b.
+
+    Features per robot, in half-widths toward the robot's own right (sftwin.right_offset; +1 is the
+    right wall, 0 the centre line): its own offset u; m_same, the mean offset of people walking its
+    way within ADAPT_RANGE ahead or behind (u when there are none); m_opp, the mean offset (in the
+    robot's frame) of oncoming people within ADAPT_RANGE ahead (0 when none); f_opp, their count / 4.
+    The target offset is OFFSET_MAX * tanh(theta . [1, m_same, m_opp, f_opp, u]); the steering
+    target sits TARGET_AHEAD ahead at that offset. The family contains "crowd" (theta = [atanh(0.5 /
+    OFFSET_MAX), 0, 0, 0, 0], a quarter-width from the right wall), "opposite" (minus that) and a
+    smooth version of "adapt" (weight on m_same), so training can recover any of them.
+    """
+    OFFSET_MAX = 0.9
+    N_PARAMS = 5
+
+    def __init__(self, theta):
+        self.theta = np.asarray(theta, dtype=float)
+        if self.theta.shape != (self.N_PARAMS,):
+            raise ValueError(f"theta needs {self.N_PARAMS} values")
+
+    @classmethod
+    def crowd(cls):
+        return cls([np.arctanh(2 * LANE_FRAC / cls.OFFSET_MAX), 0, 0, 0, 0])
+
+    def features(self, pos, dirs, is_robot, width):
+        half = width / 2.0
+        off = -dirs * (pos[:, 1] - half) / half          # each agent's offset toward its own right
+        r = np.nonzero(is_robot)[0]
+        hum = ~is_robot
+        out = np.zeros((len(r), self.N_PARAMS))
+        for k, i in enumerate(r):
+            d = dirs[i]
+            u = off[i]
+            dx = (pos[:, 0] - pos[i, 0]) * d              # ahead > 0
+            same = hum & (dirs == d) & (np.abs(dx) <= ADAPT_RANGE)
+            opp = hum & (dirs != d) & (dx > 0) & (dx <= ADAPT_RANGE)
+            m_same = off[same].mean() if same.any() else u
+            m_opp = -off[opp].mean() if opp.any() else 0.0   # their offset, seen in the robot's frame
+            out[k] = (1.0, m_same, m_opp, opp.sum() / 4.0, u)
+        return r, out
+
+    def targets(self, pos, dirs, is_robot, width, length, radius):
+        r, f = self.features(pos, dirs, is_robot, width)
+        u_star = self.OFFSET_MAX * np.tanh(f @ self.theta)
+        d = dirs[r]
+        half = width / 2.0
+        tx = np.clip(pos[r, 0] + d * TARGET_AHEAD, -1.4, length + 1.4)
+        ty = np.clip(half - d * u_star * half, radius + 0.05, width - radius - 0.05)
+        return tx, ty
 
 
 def robot_goal(rng, width):
