@@ -1,5 +1,6 @@
 ---
 title: "A card copy that only took the raws it could develop left 6 of 71 behind"
+seo_title: "A card copy that left 6 of 71 raw files behind, and the fix"
 date: 2026-11-16
 tags: [photo-editing, raw, ingest, leica]
 description: "ShootFlow's card copy skipped raw formats it could not develop. It now takes 27, lists what it leaves, and develops Leica RWL files."
