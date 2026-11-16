@@ -2854,6 +2854,21 @@ from 8,181 to 10,000 (the cash handed over, flagged as a cash-line guess). SRD p
 [`eval/cord-dash-section-sign-2026-11-16.md`](eval/cord-dash-section-sign-2026-11-16.md).
 Tests: `receipt-crosscheck.test.mjs`.
 
+### An unreadable PB1 line, read from the total (2026-11-16, late night)
+
+Of CORD validation's 21 photos with no tax found, 11 are OCR-bound, 5 have a wrong total and
+2 have the right total with a tax line no reading could read. For those, `voteTax` now splits
+a settled whole-unit total at Indonesia's 10% (or 11%) when a reading prints a tax line and a
+subtotal line shows the split's subtotal, whole or its last five digits (`SUBTOTAL 56,364`
+for 156,364): 172,000 is 156,364 plus 15,636. The receipt says it split the total. Chosen on
+validation only: tax 23 to 25 right, wrong 3, none 21 to 19; totals unchanged.
+
+Test, scored once at the end: unchanged (53 of 95, tax 16 / 2 / 23); the rule took no test
+tax. A misread-`PRI` tax line, tried too, cost test-14 its tax and was dropped (details in the
+note). SRD photos re-read through the CLI: 154 totals and 133 taxes, before and after. Details:
+[`eval/cord-tax-split-2026-11-16.md`](eval/cord-tax-split-2026-11-16.md).
+Tests: `receipt-crosscheck.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

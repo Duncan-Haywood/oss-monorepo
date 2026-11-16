@@ -797,8 +797,36 @@ export function voteTax(ps, out, pick, texts = []) {
   if (t === null && out.cents !== null) {
     const d = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && d <= (out.cents - d) * 0.15);
     if (d.length === 1) return d[0];
+    const split = splitAtRate(texts, out.cents);
+    if (split) { out.taxWhy = split.note; return split.cents; }
   }
   return t;
+}
+
+// A whole-unit slip (rupiah) whose tax line no reading could read, with the total settled:
+// Indonesia's restaurant tax (PB1) is 10% of the subtotal and its VAT (PPN) 10% or 11%, so
+// the total split at that rate is the subtotal and the tax. Taken only when a reading prints
+// a tax line, and a subtotal line in some reading shows the split's subtotal, whole or its
+// last five digits (OCR often drops the first: "SUBTOTAL 56,364" for 156,364, "15, 000").
+// CORD validation-20 and -93 (eval/cord-tax-split-2026-11-16.md).
+const SPLIT_RATES = [0.1, 0.11];
+function splitAtRate(texts, cents) {
+  if (!texts.length || cents % 100 !== 0 || !texts.some((x) => styleOf(x) === "whole")) return null;
+  const lines = texts.flatMap((x) => String(x).split(/\r?\n/));
+  if (!lines.some((l) => (TAX_LINE_RE.test(l) || TAX_RE.test(l)) && !NOT_TAX_LINE_RE.test(l))) return null;
+  const subDigits = lines.filter((l) => SUB_RE.test(l)).map((l) => l.replace(/\D/g, ""));
+  const hits = [];
+  for (const r of SPLIT_RATES) {
+    const units = cents / 100, sub = Math.round(units / (1 + r)), tax = units - sub;
+    const s = String(sub), tail = s.slice(-5);
+    if (tax <= 0 || s.length < 4 || tax !== Math.round(sub * r)) continue;
+    if (/^0+$/.test(tail.slice(1))) { if (!subDigits.some((d) => d.includes(s))) continue; }
+    else if (!subDigits.some((d) => d.includes(tail))) continue;
+    if (!hits.some((h) => h.cents === tax * 100)) hits.push({ cents: tax * 100, r, sub });
+  }
+  if (hits.length !== 1) return null;
+  const h = hits[0];
+  return { cents: h.cents, note: `no reading could read the tax line's amount: took ${h.cents / 100}, the total split at ${Math.round(h.r * 100)}% (a subtotal line shows ${h.sub}), check the tax` };
 }
 
 // One receipt read by OCR more than once (two page-segmentation modes, or two
@@ -827,9 +855,10 @@ export function parseReceiptPasses(texts, opts = {}) {
   }
   const tax = voteTax(ps, out, pick, ps.length >= 3 ? texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t))) : []);
   if (tax !== out.taxCents) {
-    out.notes = [...out.notes, `OCR readings disagree on the tax (${ps.map((p) => p.taxCents === null ? "none" : (p.taxCents / 100).toFixed(2)).join(" vs ")}); took ${(tax / 100).toFixed(2)}`];
+    out.notes = [...out.notes, out.taxWhy ?? `OCR readings disagree on the tax (${ps.map((p) => p.taxCents === null ? "none" : (p.taxCents / 100).toFixed(2)).join(" vs ")}); took ${(tax / 100).toFixed(2)}`];
     out.taxCents = tax;
   }
+  delete out.taxWhy;
   if (!out.merchant && (out.merchant = ps.find((p) => p.merchant)?.merchant ?? null)) out.notes = out.notes.filter((n) => n !== "no merchant found");
   // a date only the second reading found is not taken: on SROIE that filled 18
   // receipts, 9 right and 9 wrong, so the receipt asks instead
