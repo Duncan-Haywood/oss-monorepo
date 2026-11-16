@@ -302,9 +302,13 @@ function isA(S, cls, anc) {
 // Yes when it is one of them or a subclass, when it is the type object of one
 // (IFCWALLTYPE for IFCWALL), or, generously, when it is a superclass of one
 // (an applicability naming IFCBUILDINGELEMENT in IFC2X3 may mean any wall).
-function canCarry(S, cls, classes, typeMap) {
-  const own2x3 = own(typeMap, cls);
-  const names = own2x3 ? [cls, own2x3[0]] : [cls];
+// An occurrence also carries the sets of its type, which it inherits, so
+// <cls>TYPE is tried too; with the superclass rule that covers IFC2X3, where
+// an IfcFlowTerminal typed by IfcAirTerminalType (an IfcFlowTerminalType) has
+// Pset_AirTerminalTypeCommon. (applicableClasses has already mapped IFC2X3
+// names through the type map, so no lookup by `cls` is needed here.)
+function canCarry(S, cls, classes) {
+  const names = S.entities[cls + "TYPE"] ? [cls, cls + "TYPE"] : [cls];
   return names.some((c) => classes.some((t) => isA(S, c, t) || isA(S, t, c) || (c.endsWith("TYPE") && (isA(S, c, t + "TYPE") || isA(S, c, t.replace(/STANDARDCASE$/, "") + "TYPE"))) || (/^IFC(TYPEOBJECT|TYPEPRODUCT|ELEMENTTYPE)$/.test(t) && isA(S, c, "IFCTYPEOBJECT"))));
 }
 
@@ -341,7 +345,7 @@ function templateIssues(f, spec, ctx, where) {
       const mappedTypes = id === "IFC2X3" && ef ? (listedNames(ef.name) || []).map((n) => own(ctx.typeMap, n)).filter((m) => m && m[1]).map((m) => m[1]) : [];
       for (const [setName, set] of found) {
         const classes = applicableClasses(spec, S, ctx.typeMap, id);
-        if (classes && classes.length && set.classes.length && !classes.some((c) => canCarry(S, c, set.classes, id === "IFC2X3" ? ctx.typeMap : null)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes, null))) {
+        if (classes && classes.length && set.classes.length && !classes.some((c) => canCarry(S, c, set.classes)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes))) {
           return { error: { code: "pset-class", message: `${setName} applies to ${set.classes.slice(0, 4).join(", ")}${set.classes.length > 4 ? ", ..." : ""} in ${id}; the applicability selects ${classes.join(", ")}, which cannot carry it` } };
         }
       }
