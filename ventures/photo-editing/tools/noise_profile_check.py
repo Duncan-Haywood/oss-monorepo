@@ -115,7 +115,7 @@ def check(path: Path) -> dict:
     t0 = time.perf_counter()
     pr = xd.plane_ratios(plane, pat, per)
     row["plane_s"] = round(time.perf_counter() - t0, 2)
-    row["plane_ratios"] = [None if not v == v else round(float(v), 4) for v in pr]
+    row["plane_ratios"] = [None if np.isnan(v) else round(float(v), 4) for v in pr]
     row["plane_ratio"] = float(np.nanmax(pr)) if np.isfinite(pr).any() else None
     return row
 

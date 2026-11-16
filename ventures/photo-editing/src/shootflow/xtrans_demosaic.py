@@ -664,8 +664,8 @@ def guard_profile(c, pat, noise, *, cap: float = PROFILE_CAP):
     ratio = profile_ratio(c, pat, (shot, read))
     if not ratio == ratio or ratio <= cap:
         return (shot, read), ratio
-    k = (cap / ratio) ** 2
-    return (shot * k, read * k), ratio
+    f = (cap / ratio) ** 2
+    return (shot * f, read * f), ratio
 
 
 def frame_measures(

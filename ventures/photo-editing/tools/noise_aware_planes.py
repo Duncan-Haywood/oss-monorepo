@@ -33,14 +33,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 import time
 
 import numpy as np
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
-import xtrans_demosaic_check as chk  # noqa: E402
-from xtrans_frame_choice import _truth, split_of, tiles  # noqa: E402
+import xtrans_demosaic_check as chk
+from xtrans_frame_choice import _truth, split_of, tiles
 
 # Pixel 6 Pro (HDR+ 1.0.471358035zd, raw.pixls.us): NoiseProfile R (1.30e-5, 1.27e-7), G (7.7e-6, 5.64e-8),
 # B (1.29e-5, 1.27e-7): red and blue over green.
@@ -145,7 +146,7 @@ def main(argv=None) -> int:
                     for label, model in (("mean", mean), ("planes", planes)):
                         arms[label] = blend(b, d, frame_measures(c, pat, b, d, noise=model, blocks=True)["q_blocks"], lo, hi)
                         used, ratio = guard_profile(c, pat, model)
-                        guard[label] = round(ratio, 4) if ratio == ratio else None
+                        guard[label] = None if math.isnan(ratio) else round(ratio, 4)
                         arms[label + "+g"] = blend(b, d, frame_measures(c, pat, b, d, noise=used, blocks=True)["q_blocks"], lo, hi)
                     sc_rows = {k: chk.scores(v, truth) for k, v in arms.items()}
                     print(json.dumps({

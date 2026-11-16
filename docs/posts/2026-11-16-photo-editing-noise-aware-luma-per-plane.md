@@ -2,7 +2,7 @@
 title: "The noise-aware demosaic helps luma more than colour, and its guard now reads each colour on its own"
 seo_title: "Noise-aware demosaic: luma scored, per-plane NoiseProfile guard"
 date: 2026-11-16
-description: "Scored on luma, ShootFlow's noise-aware demosaic gains 0.6-1.8 dB with no tile worse. Its NoiseProfile check now reads each colour plane against its own sensels."
+description: "Scored on luma, ShootFlow's noise-aware demosaic gains 0.6-1.8 dB, no tile worse. Its NoiseProfile check now reads each colour plane against its own sensels."
 tags: [photo-editing, raw, dng, demosaic, research]
 ---
 

@@ -2178,10 +2178,8 @@ def noise_profile_planes(ifd, ifd0=None) -> list[tuple[float, float]] | None:
         colours = [int(x) for x in (plane_colours or (0, 1, 2))]
         if len(colours) != len(pairs) or sorted(colours) != [0, 1, 2]:
             return None
-        out = [None, None, None]
-        for col, pair in zip(colours, pairs):
-            out[col] = pair
-        return out
+        by_colour = dict(zip(colours, pairs))
+        return [by_colour[0], by_colour[1], by_colour[2]]
     return None
 
 
