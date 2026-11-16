@@ -9,9 +9,19 @@
     "seconds": 1998.8,
     "voice": "kokoro-v1.0 bm_george"
   },
+  "anthony-and-the-sermon-to-the-fishes": {
+    "bytes": 9022895,
+    "seconds": 1804.5,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "brendan-and-the-island-that-moved": {
     "bytes": 10509063,
     "seconds": 2101.7,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "brigid-and-the-cloak-that-would-not-stop": {
+    "bytes": 8471559,
+    "seconds": 1694.2,
     "voice": "kokoro-v1.0 bm_george"
   },
   "columba-and-the-beast-in-the-river-ness": {
@@ -22,6 +32,11 @@
   "cuthbert-and-the-otters": {
     "bytes": 13283519,
     "seconds": 2656.6,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "daniel-and-the-night-with-the-lions": {
+    "bytes": 10161754,
+    "seconds": 2032.3,
     "voice": "kokoro-v1.0 bm_george"
   },
   "elijah-and-the-still-small-voice": {
@@ -59,6 +74,11 @@
     "seconds": 1969.6,
     "voice": "kokoro-v1.0 bm_george"
   },
+  "jonah-and-the-city-that-listened": {
+    "bytes": 10793371,
+    "seconds": 2158.6,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "joseph-and-the-coat-with-long-sleeves": {
     "bytes": 13086831,
     "seconds": 2617.3,
@@ -92,6 +112,11 @@
   "nicholas-and-the-three-bags-of-gold": {
     "bytes": 13545800,
     "seconds": 2709.1,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "noah-and-the-boat-with-one-door": {
+    "bytes": 11266770,
+    "seconds": 2253.3,
     "voice": "kokoro-v1.0 bm_george"
   },
   "patrick-and-the-ship-that-was-ready": {
