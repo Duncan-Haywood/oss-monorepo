@@ -3,7 +3,7 @@ title: "Deciding each test as it arrives: online false discovery rate control, m
 seo_title: "Online FDR calculator: LORD++, SAFFRON and LOND compared"
 date: 2026-11-16
 tags: [fdr-multiple-testing, statistics, research-algorithms, multiple-testing]
-description: "The multiple-testing tool now decides streams of tests one at a time with LORD++, SAFFRON and LOND. A seeded simulation shows what that costs against batch BH, and when it costs nothing."
+description: "LORD++, SAFFRON and LOND now decide streams of tests one at a time. A seeded simulation shows when that costs power against batch BH, and when it does not."
 ---
 
 Benjamini-Hochberg needs the whole list of p-values before it can say
