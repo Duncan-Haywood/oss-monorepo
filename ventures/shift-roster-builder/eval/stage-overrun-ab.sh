@@ -6,6 +6,6 @@ cd "$(dirname "$0")/.."
 for s in ${SEEDS:-42 43 44 45 46 47 48 49 50 51 52 53}; do
   for w in "60 168 0" "60 168 1" "70 196 0" "70 196 1"; do
     echo "$s new $w {}"
-    echo "$s old $w {\"coverPassDeadline\":false}"
+    echo "$s old $w '{\"coverPassDeadline\":false}'"
   done
 done | xargs -P 2 -L 1 sh -c 'SEED=$0 node eval/stage-overrun.mjs $2 $3 $4 "$5" | sed "s/^{/{\"run\":\"$1\",/"'
