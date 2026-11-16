@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKkbHAeQffDymh7ENuY",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T08:20:51Z",
+  "ended": "2026-11-16T08:31:51Z",
+  "wall_minutes": 11.45,
+  "tokens_in": 3902289,
+  "tokens_out": 22585,
+  "cost_usd": 1.9725,
+  "tool_calls": 42,
+  "task": "quality track, fix mode: buildbot carry trio untested-core defects",
+  "projects": [
+    "research/buildbot-carrycop",
+    "research/buildbot-carryramp",
+    "research/buildbot-carryphase"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16513",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "'Seed one bug' does not warn about equivalent mutants: the 2026-11-07 carryphase audit counted a CoP-sign flip as an uncaught bug, but on the symmetric G1 sole (x0=-x1) it changes no output, so no output test can catch it. Suggest: a surviving mutant counts only once the stored cases under it are shown to move."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The routine names branch claude/confident-ptolemy-0biua8 and the clone is already on it; git checkout -b failed with 'already exists' (harmless, one wasted call)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-quality-fix-a-mutant-the-symmetric-sole-hid.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode, seeded draw; 0 high defects open). The sample seed printed was 2026-11-16-0c68, round 74, but it was not used because today is a fix session. Fixed defects: carrycop#0, carryramp#0, carryphase#1 (2026-11-07 audits), marked fixed_by PR 16513. Mutation results with quality_mutate.py and /usr/bin/python3.13 -m pytest (mujoco 4.0.1, Menagerie at the pinned commit): carrycop offset sign flip caught (5 failed), carryramp (c0,c0) caught (6 failed), carryramp reversed sweep caught (4 failed), carryphase ok threshold 1.0->1.3 caught (1 failed). The carryphase CoP-x sign flip SURVIVED the stored-row tests because it is an equivalent mutant: the G1 box is symmetric (-0.09, 0.09). The CoP calculation moved into centre_of_pressure/sole_margin, and the flipped sign is now caught (helper test). The refactor reproduces the stored rows (ok/ratio/zmp match results.json). Suites: carrycop 16 passed in 9.2 s, carryramp 14 passed in 12.1 s, carryphase 15 passed in 22.9 s. Share meeting the bar: not measured (fix mode, no re-audit).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "54a264c8-4911-5b65-9294-23a74a2b088f",
+    "transcripts": 1,
+    "first": "2026-11-16T08:20:51Z",
+    "last": "2026-11-16T08:32:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 78,
+        "output": 22585,
+        "thinking": 4201,
+        "cache_read": 3807335,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94876,
+        "api_equivalent_usd": 1.9725,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 78,
+      "output": 22585,
+      "thinking": 4201,
+      "cache_read": 3807335,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94876,
+      "api_equivalent_usd": 1.9725,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.45,
+      "active_minutes": 11.45,
+      "model_minutes": 4.91,
+      "tool_minutes": 6.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "writing and validating MuJoCo regression tests for three projects plus mutant checks, by a robotics grad student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 202.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

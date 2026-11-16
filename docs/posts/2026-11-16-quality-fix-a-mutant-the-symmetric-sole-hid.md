@@ -1,5 +1,6 @@
 ---
 title: "Quality fix: three robot-carry studies now test the wiring, not only the formula"
+seo_title: "Quality fix: robot-carry tests now guard the scorer wiring"
 date: 2026-11-16
 tags: [quality-audit, research, robotics]
 description: "Seeded bugs in three humanoid carry studies passed every test. New tests re-score stored rows, and one audit mutant turned out to change nothing."
