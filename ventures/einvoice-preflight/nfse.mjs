@@ -270,7 +270,7 @@ function checkIssRate(inf, infDPS, DP, out, skipped) {
     return;
   }
   // NFSE-037: the city's own rate, where the ISSQN is due (cLocIncid, only on an issued NFS-e)
-  // in a city whose rate table is read (iss-city-rates.mjs: São Paulo, Rio de Janeiro).
+  // in a city whose rate table is read (iss-city-rates.mjs: São Paulo, Rio de Janeiro, Curitiba).
   if (inf && !why && rate) {
     const c = cityRateProblem({ city: txt(inf, "cLocIncid"), rate, item, year, fraction: false });
     if (c) out.push(finding("NFSE-037", c.message, c.fix, path));

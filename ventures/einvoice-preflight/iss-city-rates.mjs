@@ -131,6 +131,59 @@ function buildRio() {
 
 const RJ = buildRio();
 
+// Curitiba (IBGE 4106902), Lei Complementar 40/2001 art. 4. Read from the city's consolidated
+// text (mid.curitiba.pr.gov.br/2020/00293800.pdf, which carries every change up to LC 112/2018)
+// and the three later laws that touch the tax code: LC 119/2020 (00348657.pdf, not art. 4),
+// LC 134/2022 (2022/00361219.pdf: adds I, n "franquia (franchising)" and revokes V, the 5% for
+// withholding) and LC 146/2025 of 9 June 2025 (legisweb.com.br id 479376: III, b now reads
+// "cooperativas de serviços de saúde"); all read 2026-11-16. No amendment to art. 4 from 2023
+// or 2024 was found, which is not proof there is none (eval/iss-city-rates-curitiba-2026-11-16.md).
+//   I   2%   a) collective transport; b) leasing; c) services for a recipient abroad (§ 2: work
+//            done in Brazil whose result is felt here, paid from abroad); d) schools; e) call
+//            centres and remote technical support (§ 1: by phone, e-mail, chat or fax);
+//            f)-m) theatre, circus, auditorium programmes, shows, fairs, animal races,
+//            competitions and event production (LC 112/2018); n) franchising (LC 134/2022);
+//   II  2.5% cleaning and upkeep, security, insurance brokerage, commercial representation,
+//            typesetting, tyre retreading;
+//   III 4%   hospitals and the like, health plans and health-service cooperatives, registries
+//            and notaries;
+//   IV  5%   every other activity;
+//   VI  2%   medicine, diagnostics, hospitals and clinics, care homes, blood and tissue banks
+//            and collection, when rendered to the SUS (LC 106/2017).
+// Art. 4-A sets a 2% floor. Curitiba's list (Anexo I) keeps LC 116's numbers and its vetoed
+// gaps (3.01, 7.14, 7.15, 13.01, 17.07 read "(VETADO)"), so no renumbering. A clause whose words
+// are the subitem's whole text sets that subitem's general rate; one that covers part of it
+// (hospitals within 4.03, insurance within 10.01) is accepted beside 5%. I, c and e name no
+// subitem, so 2% is a rate the law can set for any service, as in Rio (VI's 2% for the SUS,
+// on 4.01-4.03, 4.17, 4.19 and 4.20, is inside that). Before LC 146/2025 III, b
+// read "cooperativas de serviços", any cooperative, so for 2024 and 2025 competences 4% is
+// accepted on every subitem.
+const CWB_WHOLE = [
+  // [rate, clause, LC 116 subitems whose whole text the clause names]
+  [2, "I, a", ["16.01"]], [2, "I, b", ["15.09"]], [2, "I, d", ["8.01"]],
+  [2, "I, f", ["12.01"]], [2, "I, g", ["12.03"]], [2, "I, h", ["12.04"]], [2, "I, i", ["12.07"]],
+  [2, "I, j", ["12.08"]], [2, "I, k", ["12.10"]], [2, "I, l", ["12.11"]], [2, "I, m", ["12.13"]],
+  [2, "I, n", ["17.08"]],
+  [2.5, "II, b", ["11.02"]], [2.5, "II, e", ["13.05"]], [2.5, "II, f", ["14.04"]],
+  [4, "III, b", ["4.22", "4.23"]], [4, "III, c", ["21.01"]],
+];
+const CWB_PARTS = [
+  // [rate, clause, subitems, what]
+  [2.5, "II, a", ["7.10"], "cleaning and upkeep (limpeza e conservação)"],
+  [2.5, "II, c", ["10.01"], "insurance agency and brokerage"],
+  [2.5, "II, d", ["10.09"], "commercial representation"],
+  [4, "III, a", ["4.03"], "hospitals, sanatoriums, asylums, nursing homes and emergency rooms"],
+];
+const CWB = (() => {
+  const whole = new Map(), parts = new Map();
+  for (const [rate, clause, subs] of CWB_WHOLE) for (const s of subs) whole.set(s, { rate, clause });
+  for (const [rate, clause, subs, what] of CWB_PARTS) for (const s of subs) {
+    if (!parts.has(s)) parts.set(s, []);
+    parts.get(s).push({ rate, clause, what });
+  }
+  return { whole, parts };
+})();
+
 export const CITIES = {
   "3550308": {
     name: "São Paulo",
@@ -155,6 +208,21 @@ export const CITIES = {
       ];
     },
   },
+  "4106902": {
+    name: "Curitiba",
+    law: "Lei Complementar 40/2001 art. 4",
+    years: [2024, 2028],
+    ownNumbers: false,
+    rates(lcItem, year) {
+      const general = CWB.whole.get(lcItem) || { rate: 5, clause: "IV" };
+      const out = [general];
+      if (general.rate !== 2) out.push({ rate: 2, clause: "I, c and e", what: "a service for a recipient abroad, or a call-centre or remote technical support service" });
+      out.push(...(CWB.parts.get(lcItem) || []));
+      const coop = Number(year) <= 2025 && general.rate !== 4 && !out.some((p) => p.rate === 4);
+      if (coop) out.push({ rate: 4, clause: "III, b before LC 146/2025", what: "a services cooperative (any kind until 9 June 2025)" });
+      return out;
+    },
+  },
 };
 
 const pct = (x) => `${Number(x.toFixed(3))}%`;
@@ -175,12 +243,12 @@ export function cityRateProblem({ city, rate, item, year, fraction = "maybe" }) 
   const a = Number(String(rate ?? "").trim());
   if (!String(rate ?? "").trim() || !Number.isFinite(a) || a <= 0) return null;
   const readings = fraction === true ? [a * 100] : fraction === false || a >= 1 ? [a] : [a, a * 100];
-  const allowed = c.rates(item);
+  const allowed = c.rates(item, y);
   if (readings.some((p) => allowed.some((r) => Math.abs(p - r.rate) < 1e-6))) return null;
   const [general, ...parts] = allowed;
   const shown = readings.length > 1 ? `${rate} (read as ${pct(readings[0])} or ${pct(readings[1])})` : `${rate} (${pct(readings[0])})`;
   const partText = parts.length ? `, or ${parts.map((p) => `${pct(p.rate)} for ${p.what} (${p.clause})`).join("; ")}` : "";
-  const spNote = spToLcNote(item, c.name);
+  const spNote = c.ownNumbers === false ? "" : spToLcNote(item, c.name);
   return {
     message: `The ISS rate is ${shown}, but ${c.name}'s ${c.law} sets ${pct(general.rate)} for LC 116 subitem ${item} (${general.clause})${partText}.${spNote}`,
     fix: `Check the service item and the rate against ${c.name}'s law. A rate the city does not set for this service is usually a wrong ItemListaServico/cTribNac or a rate copied from another city; where the city is not the one where the ISS is due, check MunicipioIncidencia/cLocIncid instead. A Simples Nacional provider, a fixed-amount professional partnership and ISS not due here are not judged.`,
