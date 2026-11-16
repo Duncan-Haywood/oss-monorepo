@@ -1,0 +1,25 @@
+# IDS Model Check
+
+> Free, MIT-licensed checker for buildingSMART IDS 1.0 (Information Delivery Specification) files against IFC building models (IFC2X3, IFC4, IFC4X3). Runs in the browser with nothing uploaded, or as a dependency-free Node command line. Exports BCF 2.1 issues, CSV and JSON.
+
+- Page: https://marisstella.app/ids-model-check/
+- Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ids-model-check
+- Accuracy: 334 of 334 of buildingSMART's IDS test pairs (suite commit 870f9c4, 2026-09-25); same verdicts and failing elements as IfcTester on five real models, except multiple xs:pattern restrictions, where it follows XSD and the suite (patterns are alternatives).
+
+## Use
+
+- Browser: drop a .ifc and a .ids, read each specification's result and the failing elements, download BCF/CSV/JSON.
+- CLI: `node cli.mjs model.ifc spec.ids [--json] [--bcf out.bcfzip]`; exit 0 all pass, 1 a specification fails, 2 error.
+- Library: `checkIds(idsText, ifcText, {schemas, typeMap, measureUnits})` in ids.mjs; `check(idsText, ifcText)` in node.mjs.
+
+## Covers
+
+- Facets: entity (with predefined type), attribute, property (and quantities, material properties, predefined property sets), classification (with parent references), material (layers, profiles, constituents, lists), partOf (aggregates, groups, containment, nests, voids, fills).
+- Restrictions: enumeration, pattern (XSD, anchored), min/max inclusive/exclusive, length, minLength, maxLength.
+- IDS 1e-6 float tolerance; values converted to SI from project or property units; IFC2X3 occurrence classes via the type mapping table.
+
+## Not covered
+
+- ifcXML, ifcJSON, .ifczip input; IDS validity audit; geometry or clash checks (IDS does not specify them).
+
+Results are a reading of the model against the IDS, not a design review or professional advice.

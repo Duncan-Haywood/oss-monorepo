@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IDS Model Check: free IFC checker for buildingSMART IDS files</title>
+  <meta name="description" content="Check an IFC model against a buildingSMART IDS 1.0 file in your browser. Passes all 334 of buildingSMART's official IDS test cases. Export failures as BCF, CSV or JSON. Free, open source, nothing uploaded.">
+  <link rel="canonical" href="https://marisstella.app/ids-model-check/">
+  <meta property="og:title" content="IDS Model Check: check IFC models against IDS in your browser">
+  <meta property="og:description" content="Drop an IFC model and an IDS file, see which elements miss which requirement, export a BCF issue list. Passes buildingSMART's 334 IDS test cases. MIT licensed.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IDS Model Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks IFC2X3, IFC4 and IFC4X3 building models against buildingSMART Information Delivery Specification (IDS 1.0) files, in the browser or on the command line, and exports failures as BCF 2.1, CSV or JSON."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an IDS file?", "acceptedAnswer": {"@type": "Answer", "text": "IDS (Information Delivery Specification) is buildingSMART's XML format for saying what information a model must contain: which elements need which properties, attributes, classifications, materials and relationships. Version 1.0 was approved in 2024. A client or BIM manager writes one IDS, and every party's model can be checked against it by software instead of by eye."}}, {"@type": "Question", "name": "How do I know the results are right?", "acceptedAnswer": {"@type": "Answer", "text": "buildingSMART publishes 334 pairs of small IFC and IDS files with the expected result of each, covering every facet, restriction, tolerance and cardinality rule. This checker gets all 334 right; the script that scores it is in the repository so anyone can re-run it. Real models still contain cases those files do not cover, so treat a result as a strong first pass and check anything surprising."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model and the IDS are read by JavaScript in your browser tab. The only files the page fetches are its own schema tables from this site. You can also download the code and run it offline, or use the command line version."}}, {"@type": "Question", "name": "Why not use Solibri, BIMcollab or IfcTester?", "acceptedAnswer": {"@type": "Answer", "text": "Those are good tools. Solibri and the commercial checkers do far more (clash detection, geometry rules) and cost a seat licence. IfcTester from IfcOpenShell is free and excellent but needs Python and a command line, or a desktop BIM tool. This page needs nothing installed, opens on any computer, and turns a failing check into a BCF issue list your design tool can open."}}, {"@type": "Question", "name": "Which IFC versions work?", "acceptedAnswer": {"@type": "Answer", "text": "IFC2X3, IFC4 and IFC4X3 (ADD2) STEP files (.ifc). IFC2X3 occurrence classes are resolved through buildingSMART's type mapping table, so an IDS that asks for IFCAIRTERMINAL also finds an IfcFlowTerminal typed by an IfcAirTerminalType. ifcXML and ifcZIP are not read yet: export or unzip to .ifc first."}}]}</script>
+  <style>
+    :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.2; margin: 0.4em 0 0.3em; }
+    h2 { font-size: 1.25rem; margin-top: 2em; }
+    h3 { font-size: 1.02rem; margin-bottom: 0.2em; }
+    p.lede { font-size: 1.08rem; color: var(--muted); max-width: 46em; }
+    .drops { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 12px; }
+    @media (max-width: 640px) { .drops { grid-template-columns: 1fr; } }
+    .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 18px; background: var(--card); min-height: 116px; }
+    .drop.over { border-color: var(--accent); }
+    .drop label { font-weight: 600; display: block; margin-bottom: 6px; }
+    .drop .file { color: var(--muted); font-size: 0.92rem; margin-top: 6px; word-break: break-all; }
+    button, .btn { font: inherit; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); padding: 8px 16px; border-radius: 7px; cursor: pointer; text-decoration: none; display: inline-block; }
+    button.ghost, .btn.ghost { background: transparent; color: var(--accent); }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    #status { color: var(--muted); min-height: 1.5em; }
+    .summary { font-size: 1.15rem; font-weight: 600; margin: 18px 0 6px; }
+    .spec { border: 1px solid var(--line); border-radius: 10px; background: var(--card); margin: 10px 0; }
+    .spec > summary { list-style: none; cursor: pointer; padding: 12px 14px; display: flex; gap: 10px; align-items: baseline; }
+    .spec > summary::-webkit-details-marker { display: none; }
+    .tag { font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+    .tag.pass { color: var(--pass); } .tag.fail { color: var(--fail); }
+    .spec .body { padding: 0 14px 12px; font-size: 0.94rem; }
+    .muted { color: var(--muted); }
+    .warn { color: var(--warn); }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th, td { text-align: left; padding: 5px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+    code { font-size: 0.9em; }
+    footer { margin-top: 3em; font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1em; }
+    a.cta { display: inline-block; padding: 10px 18px; border-radius: 8px; background: var(--accent); color: var(--bg); font-weight: 700; text-decoration: none; margin: 0 8px 8px 0; }
+    a.cta.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 14px 0; }
+    .fact { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--card); }
+    .fact b { display: block; font-size: 1.3rem; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted"><a href="../">All tools</a> / IDS Model Check</p>
+  <h1>Check an IFC model against an IDS file, in your browser.</h1>
+  <p class="lede">Drop a building model (.ifc) and a buildingSMART Information Delivery Specification (.ids). You get every specification's result, each failing element with the reason, and a BCF issue list your BIM tool can open. Nothing is uploaded.</p>
+
+  <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="samples/coordination-basics.ids.xml">Get the starter IDS</a></p>
+  <div class="facts">
+    <div class="fact"><b>334 / 334</b>buildingSMART IDS test cases right (<a href="#accuracy">how it was checked</a>)</div>
+    <div class="fact"><b>under 1 s</b>for a 22 MB, 424,819-entity Revit export in Chromium (0.8 s; 1.4 s on the command line)</div>
+    <div class="fact"><b>IFC2X3 · IFC4 · IFC4X3</b>all six facets: entity, attribute, property, classification, material, part of</div>
+  </div>
+
+  <section aria-labelledby="run">
+    <h2 id="run">Run a check</h2>
+    <div class="drops">
+      <div class="drop" id="drop-ifc">
+        <label for="ifc">IFC model (.ifc)</label>
+        <input type="file" id="ifc" accept=".ifc,.IFC">
+        <div class="file" id="ifc-name">or drop the file here</div>
+      </div>
+      <div class="drop" id="drop-ids">
+        <label for="ids">IDS file (.ids or .xml)</label>
+        <input type="file" id="ids" accept=".ids,.xml">
+        <div class="file" id="ids-name">or drop it here, or <button type="button" class="ghost" id="starter" style="padding:2px 8px">use the starter IDS</button></div>
+      </div>
+    </div>
+    <div class="row">
+      <button id="go" disabled>Check the model</button>
+      <button id="sample" class="ghost" type="button">Try a tiny sample</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+    <div id="out"></div>
+  </section>
+
+  <section aria-labelledby="what">
+    <h2 id="what">What it checks</h2>
+    <p>An IDS lists <em>specifications</em>. Each says which elements it applies to (for example every <code>IFCWALL</code> with <code>Pset_WallCommon.IsExternal = true</code>) and what those elements must have (a <code>FireRating</code>, a Uniclass code, a material, a place on a storey). The checker reads both files, finds the elements each specification applies to, and tests every requirement on each, following the IDS 1.0 rules for required, optional and prohibited facets, value restrictions (enumerations, patterns, ranges, lengths), floating-point tolerance and unit conversion to SI.</p>
+    <p>Starting from scratch? The <a href="samples/coordination-basics.ids.xml">starter IDS</a> asks for what most coordinators want before a model is shared: walls marked external and load-bearing, a material on every wall, named doors and windows on a storey, named spaces, and no building element proxies. Edit it in any text editor.</p>
+  </section>
+
+  <section aria-labelledby="accuracy">
+    <h2 id="accuracy">How the results were checked</h2>
+    <p>buildingSMART maintains a suite of 334 small IFC/IDS pairs, each named with its expected result (pass, fail, or invalid, which must not pass). This checker gets all 334 right. The scoring script, <code>eval/run-testcases.mjs</code>, fetches the suite from buildingSMART's repository and re-runs it; the suite itself is not copied here because its licence (CC BY-ND 4.0) does not allow mixing it into MIT code. On one point the suite and the IDS user manual disagree (a single value against a bounded property); the checker follows the suite, and the README says where.</p>
+  </section>
+
+  <section aria-labelledby="faq">
+    <h2 id="faq">Questions</h2>
+    <h3>What is an IDS file?</h3>
+    <p>IDS (Information Delivery Specification) is buildingSMART's XML format for saying what information a model must contain: which elements need which properties, attributes, classifications, materials and relationships. Version 1.0 was approved in 2024. A client or BIM manager writes one IDS, and every party's model can be checked against it by software instead of by eye.</p>
+    <h3>How do I know the results are right?</h3>
+    <p>buildingSMART publishes 334 pairs of small IFC and IDS files with the expected result of each, covering every facet, restriction, tolerance and cardinality rule. This checker gets all 334 right; the script that scores it is in the repository so anyone can re-run it. Real models still contain cases those files do not cover, so treat a result as a strong first pass and check anything surprising.</p>
+    <h3>Is my model uploaded?</h3>
+    <p>No. The model and the IDS are read by JavaScript in your browser tab. The only files the page fetches are its own schema tables from this site. You can also download the code and run it offline, or use the command line version.</p>
+    <h3>Why not use Solibri, BIMcollab or IfcTester?</h3>
+    <p>Those are good tools. Solibri and the commercial checkers do far more (clash detection, geometry rules) and cost a seat licence. IfcTester from IfcOpenShell is free and excellent but needs Python and a command line, or a desktop BIM tool. This page needs nothing installed, opens on any computer, and turns a failing check into a BCF issue list your design tool can open.</p>
+    <h3>Which IFC versions work?</h3>
+    <p>IFC2X3, IFC4 and IFC4X3 (ADD2) STEP files (.ifc). IFC2X3 occurrence classes are resolved through buildingSMART's type mapping table, so an IDS that asks for IFCAIRTERMINAL also finds an IfcFlowTerminal typed by an IfcAirTerminalType. ifcXML and ifcZIP are not read yet: export or unzip to .ifc first.</p>
+  </section>
+
+  <section aria-labelledby="cli">
+    <h2 id="cli">Command line and CI</h2>
+    <p>Framing the same house? <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> reads the walls from the same IFC file and lays out studs, plates and a lumber order.</p>
+    <p>The same engine runs in Node 20+, with no dependencies, so a model can be checked on every export or in a CI job: <code>node cli.mjs model.ifc spec.ids --bcf issues.bcfzip</code> exits 1 when a specification fails. Source and instructions: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ids-model-check">GitHub</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. A passing check means the model meets the IDS as this software reads it; it is not a design review, a code-compliance check or professional advice, and it does not replace the judgment of the architect, engineer or BIM manager responsible for the model. Everything on this page runs in your browser: your model and IDS are not uploaded, and the page fetches only its own schema tables. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p>IFC schema facts are derived from buildingSMART International's EXPRESS schemas, used with attribution. IDS is a buildingSMART International standard; this tool is independent and not endorsed by buildingSMART.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+</main>
+<script type="module">
+  import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  import { csvReport } from "./report.mjs";
+  import { bcfZip } from "./bcf.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const state = { ifc: null, ifcName: null, ids: null, idsName: null, report: null };
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+  function ready() { $("go").disabled = !(state.ifc && state.ids); }
+  async function readFile(file, kind) {
+    $("go").disabled = true;
+    $(kind + "-name").textContent = `Reading ${file.name}...`;
+    const text = await file.text();
+    state[kind] = text;
+    state[kind + "Name"] = file.name;
+    $(kind + "-name").textContent = `${file.name} (${(file.size / 1e6).toFixed(file.size > 1e6 ? 1 : 3)} MB)`;
+    ready();
+  }
+  for (const kind of ["ifc", "ids"]) {
+    $(kind).addEventListener("change", (e) => e.target.files[0] && readFile(e.target.files[0], kind));
+    const zone = $("drop-" + kind);
+    zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("over"); });
+    zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+    zone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      zone.classList.remove("over");
+      const f = e.dataTransfer.files[0];
+      if (f) readFile(f, kind);
+    });
+  }
+  async function loadStarter() {
+    const r = await fetch("samples/coordination-basics.ids.xml");
+    state.ids = await r.text();
+    state.idsName = "coordination-basics.ids.xml";
+    $("ids-name").textContent = "coordination-basics.ids.xml (starter)";
+    ready();
+  }
+  $("starter").addEventListener("click", loadStarter);
+  $("sample").addEventListener("click", async () => {
+    const r = await fetch("samples/tiny-house.ifc");
+    state.ifc = await r.text();
+    state.ifcName = "tiny-house.ifc";
+    $("ifc-name").textContent = "tiny-house.ifc (sample)";
+    await loadStarter();
+    record("sample_loaded");
+    run();
+  });
+
+  let worker = null;
+  function run() {
+    if (!state.ifc || !state.ids) return;
+    $("go").disabled = true;
+    $("status").textContent = "Checking...";
+    $("out").innerHTML = "";
+    worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+    worker.onmessage = (ev) => {
+      $("go").disabled = false;
+      if (ev.data.error) {
+        $("status").textContent = "Could not check: " + ev.data.error;
+        record("check_error");
+        return;
+      }
+      state.report = ev.data.report;
+      $("status").textContent = `Done in ${state.report.seconds.toFixed(2)} s.`;
+      record("model_checked");
+      if (!state.report.pass) record("model_failed");
+      render(state.report);
+    };
+    worker.postMessage({ ids: state.ids, ifc: state.ifc });
+  }
+  $("go").addEventListener("click", run);
+
+  function download(name, data, type) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([data], { type }));
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+
+  function render(r) {
+    const passed = r.specs.filter((s) => s.status === "pass").length;
+    const failing = r.specs.reduce((n, s) => n + s.failed.length, 0);
+    let h = `<p class="summary"><span class="tag ${r.pass ? "pass" : "fail"}">${r.pass ? "PASS" : "FAIL"}</span> ${passed} of ${r.specs.length} specifications pass${failing ? `, ${failing.toLocaleString()} failing element results` : ""}</p>`;
+    h += `<p class="muted">${esc(r.title || state.idsName)} against ${esc(state.ifcName)}: a ${esc(r.schema)} model with ${r.entityCount.toLocaleString()} entities.</p>`;
+    if (r.parseErrors.length) h += `<p class="warn">${r.parseErrors.length} line(s) of the model could not be read, e.g. ${esc(r.parseErrors[0])}</p>`;
+    h += `<div class="row"><button class="ghost" id="dl-bcf">Download BCF issues</button><button class="ghost" id="dl-csv">Download CSV</button><button class="ghost" id="dl-json">Download JSON</button></div>`;
+    for (const s of r.specs) {
+      h += `<details class="spec"${s.status === "fail" && r.specs.length < 12 ? " open" : ""}><summary><span class="tag ${s.status}">${s.status.toUpperCase()}</span><span><strong>${esc(s.name)}</strong> <span class="muted">${s.applicable} applicable${s.failed.length ? `, ${s.failed.length} failing` : ""} (${s.optionality})</span></span></summary><div class="body">`;
+      if (s.description) h += `<p>${esc(s.description)}</p>`;
+      if (s.warning) h += `<p class="warn">${esc(s.warning)}</p>`;
+      h += `<p class="muted">Applies to: ${esc(s.applicability.join("; ") || "everything")}<br>Requires: ${esc(s.requirements.join("; ") || "nothing (prohibited specification)")}</p>`;
+      if (s.note) h += `<p>${esc(s.note)}</p>`;
+      if (s.failed.length) {
+        h += `<div class="tablewrap"><table><thead><tr><th>Element</th><th>Name</th><th>GlobalId</th><th>Why</th></tr></thead><tbody>`;
+        for (const f of s.failed.slice(0, 300)) h += `<tr><td>#${f.id} ${esc(f.type)}</td><td>${esc(f.name)}</td><td><code>${esc(f.globalId)}</code></td><td>${esc(f.reasons.join("; "))}</td></tr>`;
+        h += `</tbody></table></div>`;
+        if (s.failed.length > 300) h += `<p class="muted">Showing 300 of ${s.failed.length}; the downloads hold them all.</p>`;
+      }
+      h += `</div></details>`;
+    }
+    $("out").innerHTML = h;
+    const base = (state.ifcName || "model").replace(/\.ifc$/i, "");
+    $("dl-bcf").onclick = () => { record("bcf_downloaded"); download(base + "-ids.bcfzip", bcfZip(r, { modelName: state.ifcName }), "application/octet-stream"); };
+    $("dl-csv").onclick = () => { record("csv_downloaded"); download(base + "-ids.csv", csvReport(r), "text/csv"); };
+    $("dl-json").onclick = () => { record("json_downloaded"); download(base + "-ids.json", JSON.stringify(r, null, 2), "application/json"); };
+  }
+
+  $("optout").checked = usageOptedOut();
+  $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  record("page_view");
+</script>
+</body>
+</html>

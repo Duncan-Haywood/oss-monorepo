@@ -456,3 +456,27 @@ flagships:
       handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
       need the same check. Next: a real choir's range test. More open items:
       NEXT.md.
+  # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
+  # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
+  # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
+  - venture: ids-model-check
+    why: >-
+      Checks IFC2X3/IFC4/IFC4X3 models against IDS 1.0 in the browser with nothing
+      uploaded, or in CI; BCF 2.1, CSV and JSON exports. 334/334 on buildingSMART's
+      test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
+      IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
+    buildable: >-
+      An IDS audit pass (class and attribute names against the schema, value
+      without dataType, prohibited specification with requirements, number
+      formats) reported as invalid; .ifczip input (DecompressionStream);
+      cross-check more public models from opensourceBIM/IFC-files and
+      buildingSMART's Sample-Test-Files with eval/crosscheck_ifctester.py.
+    hosts: [https://github.com]
+    next: >-
+      History and every measurement: README ("How it was checked"). Next, most
+      valuable first: an IDS audit so invalid IDS files are reported as invalid
+      (the suite's invalid-* cases pass today only because they fail); .ifczip and
+      ifcXML input; an MEP and an IFC4X3 infrastructure model through the IfcTester
+      cross-check; an IDS editor that offers the classes and property sets the
+      loaded model has; a GitHub Action wrapper; heap use on a 200 MB model;
+      a BIM coordinator's real IDS and model (needs a person).
