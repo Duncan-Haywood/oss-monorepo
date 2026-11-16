@@ -9,11 +9,13 @@ sd 1.7% under 2,000 rpm, 0.5-1.0% above 4,000). One such wheel set most of each 
 
 This sweep runs both drills through the whole Pi path (plan_drill, run_drill, the firmware on tests/feeder_sim.py,
 fit_from_drops) on the 18 builds of tests/launch_fit_sweep.py, then on 12 held-out builds the drill was not designed
-on (other true launchers, other wheel lags), and with `--random` on 40 more. It prints each fit's spin and speed efficiency error.
+on (other true launchers, other wheel lags), and with `--random` on 40 more. It prints each fit's spin and speed
+efficiency error.
 
     PYTHONPATH=src python tests/spin_drill_sweep.py [--random]
 
-About four minutes; `--random` adds 40 builds drawn at random (about six more). Physics is the simulator's, not a measurement.
+About four minutes; `--random` adds 40 builds drawn at random (about six more). Physics is the simulator's, not a
+measurement.
 """
 
 import json
@@ -91,7 +93,8 @@ def main():
             sys.stdout.flush()
         for name in drills:
             mag = sorted(abs(e) for e in spins[name])
-            print(f"{name} drill: speed efficiency worst {worst[name][0]:.1%}; spin efficiency worst {worst[name][1]:.1%}, "
+            print(f"{name} drill: speed efficiency worst {worst[name][0]:.1%}; "
+                  f"spin efficiency worst {worst[name][1]:.1%}, "
                   f"mean {statistics.mean(spins[name]):+.1%}, mean size {statistics.mean(mag):.1%}")
 
 
