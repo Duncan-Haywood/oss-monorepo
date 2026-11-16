@@ -4,7 +4,7 @@ seo_title: "WebGL thumbnails drawn four times: counting frames per toDataURL"
 date: 2026-11-16
 topic: infrastructure
 tags: [performance, webgl, testing, playwright, shed-designer]
-description: "Opening the shed designer drew 11 WebGL frames to show 3 pictures. Off-page canvases now draw once, at the snapshot: same pixels, a quarter less GPU-process CPU in the browser tests."
+description: "The shed designer drew 11 WebGL frames for 3 pictures. Off-page canvases now draw once, at the snapshot: same pixels, a quarter less GPU CPU in tests."
 ---
 
 The [shed designer](/ventures/shed-designer/) shows a 3D view of your shed, and
