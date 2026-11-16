@@ -32,6 +32,18 @@
 //    vowel-only controls (68, 84, 131) and bare-vowel syllables read as none each within 1; (3) F's nasals
 //    104 of 137 or more (96 on main), its /l/ none on 4 of 4; (4) no other eval calls readCoda, and the
 //    synthesis is untouched, so eval/vowel-check.mjs and eval/consonant-check.mjs cannot move.
+// Eighth round (2026-11-16): the n of an n-t, n-s or n-k cluster (onsets.mjs PRE, README "-unt read on its
+//    stop"). Pre-registered here, committed before B, D, E, H, I or F was run with the rule. Settings (6 dB
+//    darker than the vowel 25-45 ms before, entered by an 8 dB step within two hops, 40 ms, ending at most 5
+//    frames before a closure or a fricative) chosen on synthetic syllables only: part J below (11 cluster
+//    syllables and 28 others, E2-E4, quarter and eighth notes, sung and vowel-only), where cluster nasals read
+//    46 to 124 of 132, the others 304 to 304 of 336 and the vowel-only control 445 to 445 of 468. Against
+//    `--pre off` (the reader on main): (1) A's *unt* and *ant* read as nasal on 10 or more of 12 (7 now), A's
+//    total 163 of 180 or more (160); (2) F's nasals 112 of 137 or more (106: 11 of its 31 misses are
+//    -unt/-sunt/-tent clusters), its /l/ none on 4 of 4; (3) B, D, E, H and I totals each no lower, and their
+//    cluster nasals together 9 of 11 or more (7); (4) every vowel-only control and every bare-vowel row
+//    identical (the rule needs an obstruent after the murmur); (5) eval/vowel-check.mjs and
+//    eval/consonant-check.mjs cannot move: readOnset and the synthesis are untouched.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -43,12 +55,15 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
 const NEARARG = args.includes('--near') ? args[args.indexOf('--near') + 1] : '';
-const RC = NEARARG === 'off' ? { nearVowel: false } : NEARARG ? { nearOpts: Object.fromEntries(NEARARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
+const RC0 = NEARARG === 'off' ? { nearVowel: false } : NEARARG ? { nearOpts: Object.fromEntries(NEARARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
+// --pre off: readCoda without the cluster-nasal rule (the reader before 2026-11-16's round)
+const PREARG = args.includes('--pre') ? args[args.indexOf('--pre') + 1] : '';
+const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -230,6 +245,40 @@ const OTHER = !PARTS.includes('F') ? [] : readdirSync(corpus).filter((d) => d.st
     `| m, n, gn (should read as nasal) | ${pct(...M.on)} | ${pct(...M.off)} |`, '',
     '/l/ not read as none (with the rule):', '', ...(lMiss.length ? lMiss.map((m) => `- ${m}`) : ['- none']), '',
     'Nasals not read as nasal (with the rule):', '', ...(nMiss.length ? nMiss.map((m) => `- ${m}`) : ['- none']), '');
+}
+
+// ---- J ----
+// The eighth round's development set (2026-11-16): cluster syllables, whose first phone is a nasal, and
+// others, quarter (0.5 s) and eighth (0.25 s) notes at 120 BPM, each followed by a rest, E2-E4; sung and
+// vowel-only. PRE's settings were chosen here, so it is a training score, printed beside `preObstruent: false`.
+if (PARTS.includes('J')) {
+const POS = ['unt', 'ant', 'ent', 'int', 'sunt', 'nunc', 'tunc', 'ens', 'mens', 'ans', 'ont'];
+const NEG = ['at', 'et', 'it', 'ut', 'ot', 'ost', 'ust', 'ad', 'ud', 'ab', 'ub', 'ac', 'uc', 'ap', 'up', 'as', 'us', 'os', 'es', 'ax', 'ux', 'um', 'am', 'un', 'em', 'a', 'u', 'o'];
+const SY = [...POS, ...NEG], tally = {}, jMiss = [];
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+for (const pulses of [4, 2]) for (const midi of [40, 45, 50, 55, 60, 64]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 120, title: 'clusters' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
+      for (const [mode, o] of [['on', RC], ['off', { ...RC, preObstruent: false }]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (mode === 'on' && !ok && grp === 'cluster') jMiss.push(`${pulses === 4 ? 'quarter' : 'eighth'} ${midi} *${s}* read as ${label(got)}`);
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## J. Cluster syllables (the set the eighth round\'s rule was tuned on)', '', `Clusters: ${POS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarter and eighth notes at 120 BPM, each followed by a rest, E2, A2, D3, G3, C4, E4.`, '',
+  '| | with the cluster rule | without (`preObstruent: false`) |', '|---|---|---|',
+  `| cluster syllables read exactly (on their nasal) | ${cell('cluster on')} | ${cell('cluster off')} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '', 'Cluster misses with the rule:', '', ...(jMiss.length ? jMiss.map((m) => `- ${m}`) : ['- none']), '');
 }
 
 // ---- C ----
