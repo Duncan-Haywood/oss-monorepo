@@ -46,9 +46,11 @@ Several tiles (later on 2026-11-15): wide sensors (the R5 class) may store the p
 which CMP1's tile size gives (every tile that size but the last of each row and column, which takes the
 rest). The sample header then holds each tile's header (0xFF01, with its index) and its planes' headers in
 turn, and the data follows tile after tile; each tile's plane is an independent band at the tile's width.
-Full-quality tiles are read; C-RAW tiles (edge coefficients where tiles meet) are refused. No public tiled
-CR3 could be fetched, so real one-tile R8 files were re-stored as tiles and LibRaw 0.22 read them back to
-the original sensels (``tools/cr3_tiled_libraw_check.py``, ``eval/canon-cr3-tiled-2026-11-15.md``).
+Full-quality tiles are read, and since 2026-11-16 C-RAW tiles too (``cr3_wavelet``: each tile its own
+wavelet decomposition plus the edge coefficients its neighbours lend). No public tiled CR3 could be fetched,
+so real one-tile R8 (and, for C-RAW, R3) files were re-stored as tiles and LibRaw 0.22 read them back to the
+original sensels (``tools/cr3_tiled_libraw_check.py``, ``eval/canon-cr3-tiled-2026-11-15.md``;
+``tools/cr3_craw_tiled_libraw_check.py``, ``eval/canon-cr3-craw-tiled-2026-11-16.md``).
 """
 
 from __future__ import annotations
@@ -465,11 +467,6 @@ def check_supported(head: Cmp1) -> None:
     if head.planes != 4 or head.enc_type != 0:
         raise rd.DevelopError(f"CR3: {head.planes} planes with encoding type {head.enc_type} is not supported (only 4-plane Bayer)")
     if head.tile_width != head.width or head.tile_height != head.height:
-        if head.levels:
-            raise rd.DevelopError(
-                "CR3: a C-RAW sensor stored in several tiles is not supported yet (no test file); convert to DNG with "
-                "Adobe's free DNG Converter"
-            )
         tile_grid(head)
 
 
@@ -605,7 +602,7 @@ def decode_sensor(data: bytes, box: Container, engine: str = "auto") -> tuple[Cm
 
 def camera_model(data: bytes, readable: bool = False) -> str:
     """The camera's name from CMT1; with ``readable``, first refuse a file whose sensor data this reader
-    cannot decode (a C-RAW stored in several tiles, an unknown codec version), so the profile chooser does not ask for a profile it could not use."""
+    cannot decode (an unknown codec version, a tile grid LibRaw would refuse), so the profile chooser does not ask for a profile it could not use."""
 
     box = Container(data)
     if readable:
@@ -652,6 +649,12 @@ def parse_cr3(data: bytes, engine: str = "auto") -> rd.RawImage:
     note_found = _tiff_ifd(box.cmt.get(b"CMT3"))
     note = note_found[1] if note_found else None
     notes: list[str] = []
+    if head.levels and head.tile_height < height:
+        notes.append(
+            "CR3: C-RAW tiles stacked one above another; the rows at each seam between them follow the seamless 5/3 "
+            "rule, which LibRaw 0.22 does not reproduce there (eval/canon-cr3-craw-tiled-2026-11-16.md); no real file "
+            "has checked them"
+        )
     sensor = note.get(cr2.CANON_SENSOR_INFO) if note is not None else None
     if sensor and len(sensor) >= 9 and 0 <= sensor[5] < sensor[7] < width and 0 <= sensor[6] < sensor[8] < height:
         left, top, right, bottom = int(sensor[5]), int(sensor[6]), int(sensor[7]) + 1, int(sensor[8]) + 1

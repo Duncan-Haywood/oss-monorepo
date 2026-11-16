@@ -33,8 +33,9 @@ waits. The tests run it against the real firmware code on a simulated board.
 from __future__ import annotations
 
 import json
+import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from . import ballistics as bl
 from . import launcher
@@ -45,6 +46,10 @@ HEARTBEAT_S = 0.1
 # so only frames received this long after a command are taken to reflect it.
 FRESH_S = 0.25
 RPM_TOL = 0.05                 # the firmware's own feed-gate tolerance
+MAX_WHEEL_RPM = 7000
+# Below this a wheel never settles or its ball goes unseen (2026-11-16, simulated feeder: 5,000 rpm over 200 or 300 rpm
+# timed out waiting for the wheels; over 400 the launch check read the ball as no ball; 500 and up ran clean).
+MIN_WHEEL_RPM = 500
 FAULT_FLAGS = {P.FLAG_ESTOP: "e-stop", P.FLAG_WATCHDOG: "watchdog (heartbeats missed)",
                P.FLAG_ELEV_FAULT: "elevation actuator fault",
                P.FLAG_BUS_OFF: "switched bus off (contactor open: wireless e-stop, its coil wire or the timer)"}
@@ -76,6 +81,9 @@ class PlannedShot:
     rpm_bottom: int
     landing: tuple
     interval_s: float
+    speed: float = 0.0             # the ball's planned exit speed (m/s) and spin: what the re-planner keeps when it
+    topspin_rpm: float = 0.0       # changes the wheel speeds (rewheel)
+    sidespin_rpm: float = 0.0
 
 
 @dataclass
@@ -106,17 +114,20 @@ class DrillResult:
     dry_shot: int | None = None    # index of the shot whose stroke carried no ball (FLAG_HOPPER_EMPTY), if any
     launches: list = field(default_factory=list)   # one dict per judged stroke of this run (LAUNCH frames), shot index
                                                     # included: the input to launcher.fit_from_drops
+    fed: list = field(default_factory=list)        # the PlannedShot each FEED was sent with (re-planned speeds included)
+    refits: list = field(default_factory=list)     # Refitter.events, when the run re-planned from its own shots
 
     @property
     def ok(self) -> bool:
         return self.aborted is None
 
 
-def plan_drill(spec: dict) -> list:
-    """Every shot of a drill file as machine settings; raises ValueError naming the first shot that cannot be made."""
+def plan_drill(spec: dict, wheels: launcher.WheelLauncher | None = None) -> list:
+    """Every shot of a drill file as machine settings; raises ValueError naming the first shot that cannot be made.
+    `wheels` overrides the drill file's "launcher" block (the re-planner passes a fitted one)."""
     m = spec.get("machine", {})
     origin = launcher.default_origin(m.get("y", 0.0), m.get("height", 1.0))
-    wheels = launcher.WheelLauncher(**spec.get("launcher", {}))
+    wheels = wheels or launcher.WheelLauncher(**spec.get("launcher", {}))
     default_gap = float(spec.get("interval", 3.0))
     out = []
     for i, s in enumerate(spec["shots"]):
@@ -129,11 +140,168 @@ def plan_drill(spec: dict) -> list:
         if not (-1500 <= elev <= 4500 and -3000 <= az <= 3000):
             raise ValueError(f"shot {i}: aim {elev / 100:.1f} deg up, {az / 100:.1f} deg across is outside the "
                              "head's range (-15..45 up, -30..30 across)")
-        if max(top, bottom) > 7000 or min(top, bottom) < 0:
-            raise ValueError(f"shot {i}: wheels {top:.0f}/{bottom:.0f} rpm are outside 0..7000 rpm")
+        _check_rpm(i, top, bottom)
         out.append(PlannedShot(i, elev, az, round(top), round(bottom), shot.landing,
-                               float(s.get("interval", default_gap))))
+                               float(s.get("interval", default_gap)), shot.speed, shot.topspin_rpm,
+                               shot.sidespin_rpm))
     return out
+
+
+def _check_rpm(i, top, bottom):
+    if max(top, bottom) > MAX_WHEEL_RPM or min(top, bottom) < MIN_WHEEL_RPM:
+        raise ValueError(f"shot {i}: wheels {top:.0f}/{bottom:.0f} rpm are outside {MIN_WHEEL_RPM}..{MAX_WHEEL_RPM} "
+                         "rpm (below it the tach cannot hold the wheel's speed or see a ball's drop; less spin, or "
+                         "more speed)")
+
+
+def rewheel(shots: list, wheels: launcher.WheelLauncher, origin=None) -> tuple:
+    """The same shots with the wheel speeds a different launcher model needs for each one's planned speed and spin.
+    The aim does not move: it depends only on the ball's speed and spin, which the drill fixes.
+
+    A shot the model can make only with a wheel outside MIN_WHEEL_RPM..MAX_WHEEL_RPM (heavy spin on a launcher whose
+    spin efficiency turned out low) keeps its speed and gets the most spin both wheels can give, re-aimed at the same
+    spot, when `origin` is given; otherwise, or if even its speed is out of reach, it keeps its old wheel speeds.
+    Returns (shots, notes), a note per shot that was not re-planned as asked."""
+    out, notes = [], []
+    for p in shots:
+        try:
+            top, bottom = wheels.wheel_rpm(p.speed, p.topspin_rpm * bl.RPM)
+            _check_rpm(p.index, top, bottom)
+            out.append(replace(p, rpm_top=round(top), rpm_bottom=round(bottom)))
+            continue
+        except ValueError as exc:
+            why = str(exc)
+        less = _most_spin(p, wheels, origin) if origin is not None else None
+        if less is None:
+            notes.append(f"shot {p.index}: kept its old wheel speeds ({why.removeprefix(f'shot {p.index}: ')})")
+            out.append(p)
+        else:
+            notes.append(f"shot {p.index}: spin cut from {p.topspin_rpm:.0f} to {less.topspin_rpm:.0f} rpm, the most "
+                         f"this launcher gives at {p.speed:.0f} m/s with both wheels in {MIN_WHEEL_RPM}..{MAX_WHEEL_RPM} "
+                         "rpm; re-aimed")
+            out.append(less)
+    return out, notes
+
+
+def _most_spin(p: PlannedShot, wheels: launcher.WheelLauncher, origin) -> PlannedShot | None:
+    per = 1 / (bl.RPM * wheels.wheel_radius)
+    total = 2 * p.speed / wheels.speed_efficiency * per            # rpm_top + rpm_bottom
+    room = 0.99 * min(total - 2 * MIN_WHEEL_RPM, 2 * MAX_WHEEL_RPM - total)
+    if room <= 0:
+        return None
+    diff = math.copysign(room, p.topspin_rpm)
+    spin_rpm = diff / per * wheels.spin_efficiency / (2 * wheels.ball_radius) / bl.RPM
+    try:
+        shot = launcher.aim(origin, p.landing, p.speed, spin_rpm, p.sidespin_rpm)
+    except ValueError:
+        return None
+    elev, az = round(shot.elevation_deg * 100), round(shot.azimuth_deg * 100)
+    if not (-1500 <= elev <= 4500 and -3000 <= az <= 3000):
+        return None
+    return replace(p, rpm_top=round((total + diff) / 2), rpm_bottom=round((total - diff) / 2), elevation_cdeg=elev,
+                   azimuth_cdeg=az, landing=shot.landing, topspin_rpm=spin_rpm)
+
+
+def landing_with(shot: PlannedShot, wheels: launcher.WheelLauncher, origin) -> tuple:
+    """Where `shot`, fed at its planned wheel speeds and aim, lands if the launcher is really `wheels`."""
+    speed, spin = wheels.exit(shot.rpm_top, shot.rpm_bottom)
+    f = launcher._fly(origin, speed, math.radians(shot.elevation_cdeg / 100), math.radians(shot.azimuth_cdeg / 100),
+                      spin, shot.sidespin_rpm * bl.RPM, bl.DEFAULT_BALL)
+    b = f.first_bounce
+    return None if f.hit_net or b is None else (b.pos[0], b.pos[1])
+
+
+class Refitter:
+    """Re-plan a drill's remaining shots from the launcher efficiencies its own shots show (2026-11-16, firmware/esp32/
+    README.md "Re-planning a drill from its own shots").
+
+    `run_drill(..., replan=Refitter(spec, ...))` calls it before each shot with the run's launch records so far. After
+    `after` launched shots, and again after each further `after`, it fits `launcher.fit_from_drops` to this run's
+    records and, when the fit moves the speed efficiency more than `speed_tol` or the spin efficiency more than
+    `spin_tol` (relative, about the fit's own error) from the one being planned with, changes that one and returns the remaining shots' new wheel speeds. Each such event is kept in `events`: the fit, and how
+    far each remaining shot would have landed from its target on the old wheel speeds if the fit is right (the landing
+    shift).
+
+    A drill's shots are usually all at a few speeds, too few to fit the tach's recovery time (`fit_from_drops`), and
+    then slow shots read low; pass `recovery_s` from a calibration drill's fit (`tennisbots run --shot-log` reads it from
+    the log). Fits outside `SANE` are refused and logged, never adopted."""
+
+    SANE = {"speed_efficiency": (0.3, 1.0), "spin_efficiency": (0.05, 1.0)}
+
+    def __init__(self, spec: dict, *, after: int = 4, recovery_s: float | None = None,
+                 inertia: float = launcher.WHEEL_INERTIA_KGM2, speed_tol: float = 0.05, spin_tol: float = 0.15,
+                 log=None):
+        if after < 2:
+            raise ValueError("refit after at least 2 shots: one shot's drops cannot separate speed from spin")
+        m = spec.get("machine", {})
+        self.origin = launcher.default_origin(m.get("y", 0.0), m.get("height", 1.0))
+        self.wheels = launcher.WheelLauncher(**spec.get("launcher", {}))
+        self.after, self.recovery_s, self.inertia, self.log = after, recovery_s, inertia, log
+        self.speed_tol, self.spin_tol = speed_tol, spin_tol
+        self.events: list = []
+        self._next = after
+
+    def __call__(self, launches: list, remaining: list) -> list | None:
+        went = [r for r in launches if r.get("launched")]
+        if len(went) < self._next or not remaining:
+            return None
+        self._next = (len(went) // self.after + 1) * self.after
+        try:
+            fit = launcher.fit_from_drops(went, inertia=self.inertia, base=self.wheels, recovery_s=self.recovery_s)
+        except ValueError as exc:
+            return self._skip(len(went), f"no fit: {exc}")
+        for name, (lo, hi) in self.SANE.items():
+            v = getattr(fit, name)
+            if v is not None and not lo <= v <= hi:
+                return self._skip(len(went), f"fit refused: {name} {v:.3f} is outside {lo}..{hi} (a wheel inertia far "
+                                             "off, or a stuck tach?)")
+        # Each efficiency is changed only when the fit moved it further than the fit's own error (README "Shot log":
+        # 3.9% speed, 11.7% spin over 18 simulated builds): a 3% correction from a 4-shot fit was as likely to be noise,
+        # and on builds the planner already had nearly right it moved the landings 0.6 m further off.
+        se, sp = self.wheels.speed_efficiency, self.wheels.spin_efficiency
+        if abs(fit.speed_efficiency / se - 1) > self.speed_tol:
+            se = fit.speed_efficiency
+        if fit.spin_efficiency is not None and abs(fit.spin_efficiency / sp - 1) > self.spin_tol:
+            sp = fit.spin_efficiency
+        if (se, sp) == (self.wheels.speed_efficiency, self.wheels.spin_efficiency):
+            return self._skip(len(went), f"fit within {self.speed_tol:.0%} (speed) and {self.spin_tol:.0%} (spin) of "
+                                         "the plan's launcher, inside its own error: no change", fit=fit)
+        new = replace(self.wheels, speed_efficiency=se, spin_efficiency=sp)
+        out, problems = rewheel(remaining, new, self.origin)
+        if all(o is p for o, p in zip(out, remaining)):
+            return self._skip(len(went), f"fit not used: the fitted launcher can make none of the shots left "
+                                         f"({problems[0]})", fit=fit)
+        shifts = []
+        for p in remaining:
+            land = landing_with(p, new, self.origin)
+            shifts.append(None if land is None else
+                          {"shot": p.index, "short_m": round(p.landing[0] - land[0], 2),
+                           "off_m": round(math.dist(land, p.landing), 2)})
+        ev = {"after_shots": len(went), "used": True, "fit": _fit_dict(fit),
+              "was": {"speed_efficiency": self.wheels.speed_efficiency, "spin_efficiency": self.wheels.spin_efficiency},
+              "landing_shift": shifts, "kept": problems}
+        self.events.append(ev)
+        self.wheels = new
+        if self.log:
+            worst = max((s["off_m"] for s in shifts if s), default=0.0)
+            self.log(f"re-planned after {len(went)} shots: speed efficiency {ev['was']['speed_efficiency']:.3f} -> "
+                     f"{new.speed_efficiency:.3f}, spin {ev['was']['spin_efficiency']:.3f} -> {new.spin_efficiency:.3f}; "
+                     f"the {len(remaining)} shots left would have landed up to {worst:.2f} m off target")
+            for why in problems:
+                self.log(f"  {why}")
+        return out
+
+    def _skip(self, n, why, fit=None):
+        self.events.append({"after_shots": n, "used": False, "why": why, "fit": fit and _fit_dict(fit)})
+        if self.log:
+            self.log(f"after {n} shots: {why}")
+        return None
+
+
+def _fit_dict(fit: launcher.DropFit) -> dict:
+    r = lambda v: None if v is None else round(v, 4)
+    return {"speed_efficiency": r(fit.speed_efficiency), "spin_efficiency": r(fit.spin_efficiency),
+            "recovery_s": r(fit.recovery_s), "rms_drop": r(fit.rms), "shots": fit.shots, "note": fit.note}
 
 
 class FeederLink:
@@ -187,13 +355,20 @@ def _faults(t: Telemetry, ignore=0) -> str | None:
 
 
 def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, ready_timeout_s=10.0,
-              release_timeout_s=2.0, link_timeout_s=0.5, tick_s=0.01, log=None) -> DrillResult:
-    """Run planned shots on the feeder. The first shot gets longer to be ready: the axes home at power-up."""
+              release_timeout_s=2.0, link_timeout_s=0.5, tick_s=0.01, log=None, replan=None) -> DrillResult:
+    """Run planned shots on the feeder. The first shot gets longer to be ready: the axes home at power-up.
+
+    `replan(launches, remaining) -> list | None` (a `Refitter`), if given, is called before each shot after the first
+    with this run's launch records so far and the shots not yet fed; a list it returns replaces them."""
     res = DrillResult()
     clock = link.clock
     fed_at = None                 # FLAG_HOPPER_EMPTY speaks for this run only in frames sent after its first FEED
                                   # (a FEED clears it; an older frame may still carry the last run's verdict)
     fed_shots = []                # shot index of each FEED, in order: the n-th LAUNCH record of the run is its verdict
+
+    def launches():
+        fresh = [rec for t, rec in link.launch_log if t >= fed_at + FRESH_S]
+        return [dict(rec, shot=fed_shots[k]) for k, rec in enumerate(fresh[:len(fed_shots)])]
 
     def wait(until, timeout, what, ignore=0):
         start = clock()
@@ -229,7 +404,16 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                   ignore=P.FLAG_WATCHDOG | P.FLAG_BUS_OFF)
         fed = t0.balls_fed
         last_release = None
-        for k, shot in enumerate(shots):
+        shots = list(shots)
+        for k in range(len(shots)):
+            if replan is not None and fed_at is not None:
+                # The last stroke's verdict lands VERDICT_S after its release: wait for it, so the re-planner sees every
+                # shot fed so far (half a second of the interval, which the next shot spends waiting anyway).
+                wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0, f"shot {shots[k - 1].index}'s launch check")
+                new = replan(launches(), shots[k:])
+                if new is not None:
+                    shots[k:] = new
+            shot = shots[k]
             link.send(P.SET_WHEELS, shot.rpm_top, shot.rpm_bottom)
             link.send(P.SET_AIM, shot.elevation_cdeg, shot.azimuth_cdeg)
             sent = clock()
@@ -244,6 +428,7 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                              f"{label} interval")
             link.send(P.FEED, 1)
             fed_shots.append(shot.index)
+            res.fed.append(shot)
             if fed_at is None:
                 fed_at = clock()
             fed = (fed + 1) & 0xFF
@@ -268,9 +453,7 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
     res.link_errors = link.errors
     if fed_at is not None:
         link.poll()
-        fresh = [rec for t, rec in link.launch_log if t >= fed_at + FRESH_S]
-        for k, rec in enumerate(fresh[:len(fed_shots)]):
-            res.launches.append(dict(rec, shot=fed_shots[k]))
+        res.launches = launches()
     return res
 
 
@@ -332,8 +515,24 @@ def read_shot_log(path) -> list:
         return [json.loads(line) for line in fh if line.strip()]
 
 
-def run_file(path, device, log=print) -> DrillResult:
+def recovery_from_log(path, inertia: float = launcher.WHEEL_INERTIA_KGM2) -> float | None:
+    """The tach's recovery time constant fitted from a shot log, if the log spans speeds enough to fit it (a
+    calibration drill's does); None if the file is missing or the fit cannot say. It is a property of the wheel's
+    speed loop, not of the felt or the balls, so an older log's figure still holds."""
+    try:
+        recs = read_shot_log(path)
+        return launcher.fit_from_drops(recs, inertia=inertia).recovery_s
+    except (OSError, ValueError):
+        return None
+
+
+def run_file(path, device, log=print, *, refit_after: int | None = None, recovery_s: float | None = None,
+             inertia: float = launcher.WHEEL_INERTIA_KGM2) -> DrillResult:
     with open(path) as fh:
-        shots = plan_drill(json.load(fh))
+        spec = json.load(fh)
+    shots = plan_drill(spec)
     link = FeederLink(SerialPort(device), time.monotonic)
-    return run_drill(link, shots, time.sleep, log=log)
+    refit = Refitter(spec, after=refit_after, recovery_s=recovery_s, inertia=inertia, log=log) if refit_after else None
+    res = run_drill(link, shots, time.sleep, log=log, replan=refit)
+    res.refits = refit.events if refit else []
+    return res
