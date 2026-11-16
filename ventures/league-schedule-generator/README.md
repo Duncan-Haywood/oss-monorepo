@@ -529,9 +529,41 @@ the stored-designs test re-checks the solver's rows for all 33 designs (35 on 6 
 gained `--append` (keep the stored designs, add new ones), since the earlier solver output is not
 kept in the tree; a plain run with no files rewrites the file unchanged.
 
-Open: the same class at 41 on 7 x 9 and 47 on 8 x 9 (3 spare slots a night, no group of order k;
-41 needs a longer run than this session's, the 35-team run took 79 minutes), and the fully booked
-43 on 7 x 9 and 49 on 8 x 9, by the same script.
+Open: the same class at 41 on 7 x 9 (13 of 14 nights, next section) and 47 on 8 x 9 (3 spare slots
+a night, no group of order k), and the fully booked 43 on 7 x 9 and 49 on 8 x 9, by the same script.
+
+### 41 teams on 7 x 9: 13 of 14 nights, and a search that survives the session (2026-11-16)
+
+41 teams on 7 courts x 9 slots (60 matches a night in 63 slots) is the next size of the 29 and 35
+class. An earlier run of `eval/odd-lns.py` sat at 1 of 14 good nights with no step accepted. This run
+did not finish the season: the best state has **13 of 14 nights** wait-free, and three resumed runs
+of 80 minutes each could not lay out the last one. The tool still anneals 41 on 7 x 9, with waits.
+What landed is the search's ability to get that far and to carry on later:
+
+- **A repair keeps its own layouts.** The solver lays out every night it marks good while it re-deals
+  the pairs; the script used to throw that away and lay each night out again under a 20 s limit,
+  rejecting the step when the second solve timed out. At 41 teams it often did. Now the repair's
+  layouts go straight into the cache (the final season is still re-checked whole before it prints).
+  With this change four fresh seeds climbed from 1 to 9, 10 and 11 of 14 in their 3.9 hours, where
+  the old code had not landed one step.
+- **`--save` and `--resume`.** The state (the round robin and the layouts of its good nights) is
+  written after every accepted step; `--resume` starts from it and re-checks each stored layout
+  match by match (`night_ok`) instead of solving it again. The first resumes had only the rounds and
+  re-checked under 20 s, so 11 good nights came back as 9 or 10; nights with no stored layout now get
+  180 s (`--resume-check`), and 12 came back as 12. Resuming a new seed on the best state is how the
+  run went from 11 to 13 (seed 4, then seed 8).
+
+| Run | Good nights over time | End |
+|---|---|---|
+| seeds 1, 3, 4 (fresh) | 1 at ~250 s; 7, 6, 7 at ~4,200 to 5,500 s | 10, 9, 11 of 14 at 14,000 s |
+| seed 8 (resumed from seed 4 at 11) | 11 at 696 s, 13 at 6,081 s | 13 of 14 at its limit |
+| seeds 11 to 13 (resumed from seed 8 at 13) | no gain in 4,800 s each | 13 of 14; the bad night moved (4, 2, 5) |
+
+The state is in the tree, `eval/lns-states/41-7x9.json`, and `lns-state.test.mjs` checks it in
+Node: a whole round robin, and each of the 13 stored nights wait-free on 7 x 9 (one row per match,
+at most 7 a row, each team's games back to back). The next run resumes from it:
+`python3 eval/odd-lns.py 41 --courts 7 --times 9 --seed S --step 150 --resume
+eval/lns-states/41-7x9.json --save /tmp/41.json`. Full log: `eval/odd-lns.txt`.
 
 ### Three sessions at 40 and 46 teams: one night turned by a group, solved in 0.1 s (2026-11-16)
 
