@@ -1412,6 +1412,15 @@ time and runs in numpy only. The same five frames are the first independent chec
 default: it beats all seven LibRaw methods on colour PSNR on every one, by 0.5-1.5 dB noise-free and
 0.2-1.1 dB at SNR 25.
 
+**A learned weight, 2026-11-16** (`eval/bayer-learned-laplace-2026-11-16.md`). `--demosaic learned`
+(`directional(..., laplace="learned")`) sets the weight per sensel from a quadratic in eight scale-free
+local features (45 weights). It is fitted by weighted least squares on 40 sample frames, and the ten
+frames above were never in the fit. On those ten, colour PSNR is equal or higher than the 3/16 default
+on every one (+0.01 to +0.39 dB, mean +0.14). Luma is higher on every one (+0.02 to +0.66, mean +0.29),
+and that includes the A7 III and K-1 II, where the least-squares weight lost luma. It is opt-in: it
+loses on the synthetic sheet (colour -0.45 dB, false colour 42 to 59), runs in numpy only and takes
+4-6x the default's time. `tools/bayer_laplace_train.py` refits it.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:

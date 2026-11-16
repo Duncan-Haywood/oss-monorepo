@@ -43,6 +43,20 @@ WORK = np.float32
 _PAD = 8  # covers the reach of every step: 2 (green) + window radius + 2 (red/blue) + 1 (median)
 # laplace="adaptive": (lowest weight, highest weight, window radius), picked on the tuning truths
 ADAPTIVE_LAPLACE = (0.125, 0.25, 1)
+# laplace="learned": a linear model on ``_laplace_features`` (weights in feature order, intercept first),
+# fitted by ``tools/bayer_laplace_train.py`` on training frames only, clipped to [1/8, 1/4]
+# (eval/bayer-learned-laplace-2026-11-16.md): intercept, 8 features, 36 pairwise products; 40 frames, ridge 1e-5.
+LEARNED_LAPLACE: tuple[float, ...] = (
+    -0.470135, 2.426672, -0.349805, 0.265092, 0.329468, 0.519358,
+    0.118583, 1.447913, -0.203315, -2.459294, -0.133075, -0.536397,
+    -1.645395, -0.501441, 3.499013, -2.507955, 0.505209, -0.885136,
+    -0.519663, 0.005069, 1.126664, -0.044066, 1.131293, 1.336742,
+    0.181405, -0.232095, -0.77143, -0.012986, 0.742217, -0.785529,
+    -0.073097, 0.202419, -0.150408, 0.065233, 0.145409, -0.495956,
+    -0.128872, -1.395797, 0.684734, -0.572733, 0.208586, -0.39256,
+    -1.202942, -1.170081, 0.473836,
+)
+_FEATURE_REACH = 5  # sensels beyond the green step's own reach that _laplace_features reads
 
 
 def _phase(pat) -> tuple[int, ...]:
@@ -124,8 +138,97 @@ def _laplace_map(c, sign, mean_h, lap_h, mean_v, lap_v, adaptive, eps) -> np.nda
     return np.clip(w, lo, hi).astype(WORK)
 
 
+def _laplace_features(c, sign, mean_h, lap_h, mean_v, lap_v, eps) -> list[np.ndarray]:
+    """Scale-free local measures of how much of the sensel's own detail its green should carry. Every one is
+    a ratio of sums over a small window, so exposure and white balance do not move it. In order:
+
+    0. the least-squares weight of ``_laplace_map`` (3 x 3 window), clipped to [0, 1/2];
+    1. curvature against slope: the sensel's own second differences against the first differences of its
+       line's neighbours (large where the detail is finer than the sensel spacing can follow);
+    2. green disagreement: the row and column means of the greens against each other, over the curvature;
+    3. edge confidence: how clearly the colour difference picks a direction (0 a tie, 1 a clean edge);
+    4. colour-difference size against level (how far the colours are from grey);
+    5. contrast at the finest scale: the summed second differences over the local level;
+    6-7. features 1 and 2 over a 5 x 5 window (texture on a wider patch).
+
+    Each ratio r enters as r / (1 + r), so a feature stays in [0, 1)."""
+
+    def sq(r):
+        return r / (1 + r)
+
+    e = eps
+    num = np.zeros_like(c)
+    den = np.zeros_like(c)
+    for mean, lap, (dy, dx) in ((mean_h, lap_h, (0, 1)), (mean_v, lap_v, (1, 0))):
+        a = sign * (c - mean)
+        b = sign * lap
+        d2a = 2 * a - _sh(a, dy, dx) - _sh(a, -dy, -dx)
+        d2b = 2 * b - _sh(b, dy, dx) - _sh(b, -dy, -dx)
+        num += d2a * d2b
+        den += d2b * d2b
+    lsq = np.clip(_box(num, 1) / (_box(den, 1) + e * e), 0.0, 0.5)
+    curv = np.abs(lap_h) + np.abs(lap_v)
+    slope = np.abs(_sh(c, 0, 1) - _sh(c, 0, -1)) + np.abs(_sh(c, 1, 0) - _sh(c, -1, 0))
+    disagree = np.abs(mean_h - mean_v)
+    est_h, est_v = mean_h + 0.1875 * lap_h, mean_v + 0.1875 * lap_v
+    dh, dv = sign * (c - est_h), sign * (c - est_v)
+    gh = _box(np.abs(dh - _sh(dh, 0, 1)) + np.abs(dh - _sh(dh, 0, -1)), 2)
+    gv = _box(np.abs(dv - _sh(dv, 1, 0)) + np.abs(dv - _sh(dv, -1, 0)), 2)
+    level = _box(np.abs(c) + np.abs(mean_h) + np.abs(mean_v), 1) + e
+    feats = [
+        lsq,
+        sq(_box(curv, 1) / (_box(slope, 1) + e)),
+        sq(_box(disagree, 1) / (_box(curv, 1) * 0.25 + e)),
+        np.abs(gh - gv) / (gh + gv + e),
+        sq(_box(np.abs(dh) + np.abs(dv), 1) / level),
+        sq(4 * _box(curv, 1) / level),
+        sq(_box(curv, 2) / (_box(slope, 2) + e)),
+        sq(_box(disagree, 2) / (_box(curv, 2) * 0.25 + e)),
+    ]
+    return [f.astype(WORK) for f in feats]
+
+
+def _laplace_learned(feats, coef) -> np.ndarray:
+    """w = intercept + linear terms (+ every pairwise product f_i f_j, i <= j, when ``coef`` is that long),
+    clipped to [1/8, 1/4]. Term order matches ``tools/bayer_laplace_train.design``."""
+
+    k = len(feats)
+    if len(coef) not in (1 + k, 1 + k + k * (k + 1) // 2):
+        raise ValueError(f"{len(coef)} learned weights do not fit {k} features")
+    w = np.full_like(feats[0], coef[0])
+    for c, f in zip(coef[1 : 1 + k], feats):
+        w += WORK(c) * f
+    if len(coef) > 1 + k:
+        terms = iter(coef[1 + k :])
+        for i in range(k):
+            for j in range(i, k):
+                w += WORK(next(terms)) * (feats[i] * feats[j])
+    return np.clip(w, 0.125, 0.25).astype(WORK)
+
+
+def laplace_features(c: np.ndarray, pat) -> np.ndarray:
+    """(k, h, w) stack of ``_laplace_features`` over the whole plane ``c`` (for fitting the learned weight)."""
+
+    p = _phase(pat)
+    c = np.asarray(c, dtype=WORK)
+    pad = _PAD + _FEATURE_REACH
+    pad += pad % 2
+    big = np.pad(c, pad, mode="reflect")
+    H, W = big.shape
+    yy, xx = (np.arange(H) - pad) % 2, (np.arange(W) - pad) % 2
+    cm = np.asarray(p, dtype=np.int8).reshape(2, 2)[yy[:, None], xx[None, :]]
+    eps = WORK(1e-6 * max(float(np.max(np.abs(c))), 1e-6))
+    sign = np.where(cm == 1, WORK(1), WORK(-1))
+    left, right, up, down = _sh(big, 0, -1), _sh(big, 0, 1), _sh(big, -1, 0), _sh(big, 1, 0)
+    mean_h, lap_h = (left + right) / 2, 2 * big - _sh(big, 0, -2) - _sh(big, 0, 2)
+    mean_v, lap_v = (up + down) / 2, 2 * big - _sh(big, -2, 0) - _sh(big, 2, 0)
+    f = _laplace_features(big, sign, mean_h, lap_h, mean_v, lap_v, eps)
+    h, w = c.shape
+    return np.stack([a[pad : pad + h, pad : pad + w] for a in f])
+
+
 def _piece(c: np.ndarray, masks, window: int, power: float, rb: str, median_passes: int, eps,
-           laplace: float = 0.1875, adaptive=None) -> np.ndarray:
+           laplace: float = 0.1875, adaptive=None, learned=None) -> np.ndarray:
     is_r, is_g, is_b = masks
     h, w = c.shape
 
@@ -141,7 +244,9 @@ def _piece(c: np.ndarray, masks, window: int, power: float, rb: str, median_pass
     mean_h, lap_h = (left + right) / 2, 2 * c - left2 - right2
     mean_v, lap_v = (up + down) / 2, 2 * c - up2 - down2
     lap: np.floating | np.ndarray
-    if adaptive is None:
+    if learned is not None:
+        lap = _laplace_learned(_laplace_features(c, sign, mean_h, lap_h, mean_v, lap_v, eps), learned)
+    elif adaptive is None:
         lap = WORK(laplace)
     else:
         lap = _laplace_map(c, sign, mean_h, lap_h, mean_v, lap_v, adaptive, eps)
@@ -230,11 +335,17 @@ def directional(
 
     if rb not in ("weighted", "simple"):
         raise ValueError(f"unknown rb {rb!r} (weighted or simple)")
-    adaptive = None
+    adaptive = learned = None
     if isinstance(laplace, str):
-        if laplace != "adaptive":
-            raise ValueError(f"unknown laplace {laplace!r} (a number or 'adaptive')")
-        adaptive, laplace = ADAPTIVE_LAPLACE, 0.1875
+        if laplace == "adaptive":
+            adaptive = ADAPTIVE_LAPLACE
+        elif laplace == "learned":
+            learned = LEARNED_LAPLACE
+        else:
+            raise ValueError(f"unknown laplace {laplace!r} (a number, 'adaptive' or 'learned')")
+        laplace = 0.1875
+    elif not isinstance(laplace, (int, float)):
+        learned, laplace = tuple(float(v) for v in laplace), 0.1875  # a model's weights (fitting runs)
     p = _phase(pat)
     c = np.asarray(c, dtype=WORK)
     h, w = c.shape
@@ -243,6 +354,10 @@ def directional(
     pad = _PAD + window
     if adaptive is not None:
         pad += adaptive[2] + 1  # the weight map reads one sensel further, plus its window
+    if learned is not None:
+        if not learned:
+            raise RuntimeError("no learned Laplacian weights are fitted")
+        pad += _FEATURE_REACH
     pad += pad % 2  # an even pad keeps the CFA phase of the padded plane
     # Mirror padding about the edge sensel (offset -k reads +k, repeated for small frames) keeps every
     # padded sensel's colour equal to the CFA's colour at that position.
@@ -255,12 +370,12 @@ def directional(
     eps = WORK(1e-6 * max(float(np.max(np.abs(c))), 1e-6))
     out = np.empty((h, w, 3), dtype=WORK)
     use_c = False
-    if native is not False and median_passes == 0 and adaptive is None:
+    if native is not False and median_passes == 0 and adaptive is None and learned is None:
         from shootflow import bayer_native
 
         use_c = 0 <= int(window) <= 12 and bayer_native.available()
     if native is True and not use_c:
-        raise RuntimeError("the native Bayer demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0, median_passes > 0, laplace='adaptive' or window over 12)")
+        raise RuntimeError("the native Bayer demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0, median_passes > 0, laplace='adaptive' or 'learned', or window over 12)")
     # The C path keeps 17 band-sized float32 planes; 128 rows keep that near 60 MB per thread at 6000 columns.
     band = max(int(band if band is not None else (128 if use_c else 512)), 16)
 
@@ -274,7 +389,7 @@ def directional(
             bayer_native.piece(big[a:b], cm, window, power, rb == "simple", eps, pad, pad, out[y0:y1], laplace)
             return
         masks = (cm == 0, cm == 1, cm == 2)
-        piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps, laplace, adaptive)
+        piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps, laplace, adaptive, learned)
         out[y0:y1] = piece[pad : pad + (y1 - y0), pad : pad + w]
 
     # Bands are independent (each reads its own overlap, writes its own rows), and numpy releases the GIL in
