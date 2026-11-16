@@ -56,7 +56,7 @@
     "ventures/shift-roster-builder/README.md (New York City fast food)"
   ],
   "goal": "Deepen a flagship: make the team hub's fair-workweek pricing cover New York City, the largest predictive-scheduling jurisdiction the README already listed but did not model.",
-  "notes": "",
+  "notes": "Verified locally: run_venture_tests.py shift-roster-builder ok (709 tests, 226 s, 0 failed); notice.test.mjs 21/21; venture-preflight.mjs 'preflight clean for shift-roster-builder'; promptctl validate ok; validate.py ok. Sources for NYC: CLASP 2018 OLPS slides (20-1222(a) table), DCWP proposed rules Jan 2022 (7-607, 7-622, 7-623, via pdftotext), Fisher Phillips summary of June 2022 final rules.",
   "corrections": [],
   "redteam": null
 }
