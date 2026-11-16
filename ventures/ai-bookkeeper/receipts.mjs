@@ -639,17 +639,52 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
 // (73 to 77 of 97); README, "A guessed total counts half in the vote".
 export const GUESS_VOTE = 0.5;
 const guessedLargest = (p) => !p.totalLine && p.notes.some((n) => /took the largest amount/.test(n));
-function voteTotal(ps, support) {
+// A total line whose dollars start with a 0 ("TOTAL: 04.78" where another reading has
+// "TOTAL: $94.78": SRD 1030) lost its first digit to OCR; no printed total reads that way.
+// That reading's total counts as a guess in the vote, with no total-line point (README,
+// "Reading the total first").
+const leadingZero = (p) => !!p.totalLine && /(?<![\d.,])0\d{1,3}[.,]\d{2}(?!\d)/.test(p.totalLine);
+// The amount printed on the page that one reading's own subtotal plus its tax make, when no
+// reading took it as the total because OCR damaged the word "TOTAL" ("SOSTOTAL: 146.57",
+// SRD 1133: subtotal 134.46, tax 12.11). Returns [cents, reading, readings printing it].
+const printedIn = (texts, c) => {
+  const s = (c / 100).toFixed(2), re = new RegExp(`(?<![\\d.,])${s.replace(".", "[.,]")}(?![\\d]|[.,]\\d)`);
+  return texts.filter((t) => re.test(t)).length;
+};
+function arithmeticTotals(ps, texts, votes) {
+  const out = new Map();
+  for (const p of ps) {
+    const t = p.taxCents;
+    if (!(t > 0)) continue;
+    for (const s of p.subtotals ?? []) {
+      const c = s + t;
+      if (t > s * 0.15 || votes.has(c) || out.has(c)) continue;
+      const n = printedIn(texts, c);
+      if (n >= 1) out.set(c, { p, n });
+    }
+  }
+  return out;
+}
+function voteTotal(ps, support, texts = []) {
   const votes = new Map();
   ps.forEach((p, i) => {
     if (p.cents === null) return;
     const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
-    v.score += (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
+    v.score += leadingZero(p) ? GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
     votes.set(p.cents, v);
   });
+  // each reading that prints the subtotal-plus-tax amount counts once (no total-line point:
+  // none read it as a total); a tie goes to the readings' own totals
+  const derived = arithmeticTotals(ps, texts, votes);
+  for (const [c, { n }] of derived) votes.set(c, { score: support(c) + n, first: ps.length });
   let win = null;
   for (const [c, v] of votes) if (!win || v.score > win.score || (v.score === win.score && v.first < win.first)) win = { cents: c, ...v };
-  return win ? ps[win.first] : null;
+  if (!win) return null;
+  if (win.first < ps.length) return ps[win.first];
+  const { p } = derived.get(win.cents);
+  const made = { ...p, cents: win.cents, items: [], itemsOk: false, taxIncluded: false, totalLine: null };
+  Object.defineProperty(made, "derived", { value: `the subtotal ${((win.cents - p.taxCents) / 100).toFixed(2)} plus the tax ${(p.taxCents / 100).toFixed(2)}, printed on the page`, enumerable: false });
+  return made;
 }
 
 // The tax when OCR read one photo several times (README, "Tax on receipt photos"):
@@ -717,12 +752,12 @@ export function parseReceiptPasses(texts, opts = {}) {
   // picked the wrong reading as often as the right one)
   const support = (c) => new Set(all.filter(([v, w]) => v === c && w !== "another total line").map(([, w]) => w.replace(" plus tax", ""))).size;
   let pick = best;
-  if (ps.length >= 3) pick = voteTotal(ps, support) ?? best;
+  if (ps.length >= 3) pick = voteTotal(ps, support, texts.filter((t) => String(t ?? "").trim()).map((t) => cleanOcr(String(t)))) ?? best;
   else for (const p of ps.slice(1)) if (p.cents !== null && p.cents !== pick.cents && (pick.cents === null || support(p.cents) > support(pick.cents))) pick = p;
   const out = { ...best };
   if (pick !== best) {
     Object.assign(out, { cents: pick.cents, taxCents: pick.taxCents, tipCents: pick.tipCents, items: pick.items, itemsOk: pick.itemsOk, taxIncluded: pick.taxIncluded, totalLine: pick.totalLine });
-    out.notes = [...best.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); took ${(pick.cents / 100).toFixed(2)}, which the receipt's arithmetic confirms`];
+    out.notes = [...best.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); took ${(pick.cents / 100).toFixed(2)}, ${pick.derived ? `${pick.derived}: check the total` : "which the receipt's arithmetic confirms"}`];
   }
   const tax = voteTax(ps, out, pick);
   if (tax !== out.taxCents) {
