@@ -12832,7 +12832,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   // Page slugs under writing/: each post, and `podcast`.
-  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [...RETIRED_BASE_URLS, DEFAULT_BASE_URL] });
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [...RETIRED_BASE_URLS, DEFAULT_BASE_URL], published: new Set(surfaces.map((s) => s.slug)) });
 
   // The fiction the creative track writes, one page linking into its ventures (see `stories.mjs`).
   await buildStories(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
