@@ -659,3 +659,52 @@ test("the example file writes amounts to the cent", () => {
   const rows = parseCsv(sampleCsv()).slice(1);
   for (const r of rows) for (const v of r.slice(4)) assert.match(v, /^-?\d+\.\d{2}$/);
 });
+
+// Red-team run 2026-11-16 (prompts/runs/2026-11-16-session_01EhTJVMmK8A31TEs5kfnuRS.json).
+test("a skipped row names its file line even after a blank line or a quoted line break", () => {
+  const n = load('A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15\n\n"B\nnote",DoorDash,2026-06-01 12:30,Delivered,20,-5,0,0,0,0,15\nC,DoorDash,not a date,Delivered,20,-5,0,0,0,0,15\n');
+  assert.deepEqual(n.skipped, [{ line: 6, reason: "date not readable" }]);
+  assert.deepEqual(n.orders.map((o) => o.line), [2, 4]);
+});
+
+test("the last row is read when the file has no trailing newline", () => {
+  assert.deepEqual(parseCsv("a,b\n1,2"), [["a", "b"], ["1", "2"]]);
+  assert.equal(load("A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15").orders.length, 1);
+});
+
+test("a lone carriage return ends a row without eating the next line's first character", () => {
+  assert.deepEqual(parseCsv("a\rb\nc"), [["a"], ["b"], ["c"]]);
+});
+
+test("one-digit month and day parts are read (6/3/2026)", () => {
+  assert.deepEqual(parseWhen("6/3/2026"), { t: Date.UTC(2026, 5, 3), hasTime: false });
+});
+
+test("the header is found as far down as the tenth row, and not past it", () => {
+  const order = "A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15\n";
+  const pre = (k) => "Report,x\n".repeat(k);
+  assert.equal(normalizeRows(parseCsv(pre(9) + HEAD + order)).orders.length, 1);
+  assert.ok(normalizeRows(parseCsv(pre(10) + HEAD + order)).error);
+});
+
+test("an order whose promotion and ad charges are equal still counts as promoted", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,30,-7.5,0,-2,-2,0,18.5\nB,DoorDash,2026-06-02 12:00,Delivered,30,-7.5,0,0,0,0,22.5\n");
+  const p = analyze(n.orders, {}).promo;
+  assert.equal(p.orders, 1);
+  assert.equal(p.plainOrders, 1);
+});
+
+test("the direct-order gain per order is the gain divided by orders", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,40,-14,0,0,0,0,26\nB,DoorDash,2026-06-02 12:00,Delivered,20,-7,0,0,0,0,13\n");
+  const d = analyze(n.orders, { directPct: 3, directFlat: 0.3 }).summary.direct;
+  near(d.gainPerOrder, d.gain / 2);
+});
+
+test("the example's error charges span the $6 to $26 range the generator draws", () => {
+  const errs = normalizeRows(parseCsv(sampleCsv())).orders.map((o) => o.errors).filter((e) => e !== 0);
+  assert.ok(errs.length > 0);
+  for (const e of errs) assert.ok(e >= 6 && e <= 26, `error charge ${e}`);
+  // Pinned like the example's sales: the same draws give the same charges.
+  assert.equal(errs.length, 11);
+  assert.equal(errs.reduce((s, e) => s + e, 0).toFixed(2), "160.87");
+});
