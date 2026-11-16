@@ -123,6 +123,17 @@ def unreachable_hosts(slug, answers=host_answers):
     return [h for h, a in zip(hosts, ok) if not a]
 
 
+def host_recheck_lines(slug):
+    """stale_hosts.recheck_lines: the hosts the programme's LOG.md or README.md call refused,
+    probed again. Seven run records (2026-11-12..16) found such a note stale at the first
+    probe; HOSTS covers only the hosts a programme listed, so prose notes were trusted."""
+    try:
+        from stale_hosts import recheck_lines
+        return recheck_lines(slug, answers=host_answers)
+    except Exception as e:  # never let the recheck break the draw
+        return [f"HOSTS RECHECK {slug}: skipped ({type(e).__name__}); python3 research/_shared/stale_hosts.py {slug}"]
+
+
 def programme_label(slug, down):
     """How the track listing names a programme: BLOCKED (its BLOCKED file), OFFLINE (a HOSTS entry did not
     answer from this session), or the bare slug.
@@ -747,6 +758,8 @@ if __name__ == "__main__":
             print(f"no proposal yet: write research/{slug}/PROPOSAL.md to the bar in PROGRAMMES.md")
         for line in claim_check(slug):
             print(line)
+        for line in host_recheck_lines(slug):
+            print(line)
         print(post_limits_line())
         sys.exit(0)
     t = pick(r)
@@ -787,6 +800,8 @@ if __name__ == "__main__":
                         print(f"  {s}: LOG.md {line}")
                     for line in claim_check(s):
                         print(f"  {s}: {line}")
+                    for line in host_recheck_lines(s):
+                        print(f"  {line}")
         else:
             print(f"no open programme in research/PROGRAMMES.md names track {t} or starts with "
                   f"`{PREFIX[t - 1]}-`: opening one (a PROPOSAL.md and a table row) is the default")

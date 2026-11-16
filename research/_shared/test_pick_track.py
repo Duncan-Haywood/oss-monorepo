@@ -607,3 +607,53 @@ class LandFirstTest(unittest.TestCase):
         lines = self._lines(prs, show=3)
         self.assertTrue(any("and 9 more" in l for l in lines))
 
+
+
+class StaleHostsTest(unittest.TestCase):
+    """stale_hosts.py lives beside pick_track.py; its tests sit here because research-ci.yml
+    runs test_pick_track by name."""
+
+    def setUp(self):
+        import tempfile, pathlib
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.tmp.name)
+        d = self.root / "prog"
+        d.mkdir()
+        (d / "LOG.md").write_text(
+            "## 2026-11-16 · newest\n"
+            "- arXiv refused earlier sessions; this session reached example.org and read it.\n"
+            "- Design: no microdata (gss.norc.org still refuses the proxy with a 403).\n"
+            "- Wrote results.json and run.py; nothing was refused.\n"
+            "## 2026-11-10 · older\n"
+            "- `L-TOWN.inp` was unreachable (zenodo.org refused by the proxy).\n"
+            "- huggingface.co refused at CONNECT.\n")
+        (d / "README.md").write_text("Data from data.sf.gov (403 through the proxy).\n")
+        (d / "HOSTS").write_text("# needed\nhttps://huggingface.co/\n")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_finds_refused_hosts_only_in_refusing_clauses(self):
+        import stale_hosts
+        got = stale_hosts.noted_hosts("prog", self.root)
+        self.assertEqual([h for h, _ in got], ["arxiv.org", "gss.norc.org", "zenodo.org", "data.sf.gov"])
+        self.assertEqual(dict(got)["zenodo.org"], "LOG.md:6")  # newest LOG entries first, README last
+
+    def test_skips_hosts_listed_in_HOSTS_and_file_names(self):
+        import stale_hosts
+        hosts = [h for h, _ in stale_hosts.noted_hosts("prog", self.root)]
+        self.assertNotIn("huggingface.co", hosts)  # the OFFLINE check already probes it
+        self.assertNotIn("example.org", hosts)  # its clause says reached, not refused
+        self.assertNotIn("results.json", hosts)
+
+    def test_recheck_splits_answering_from_refused(self):
+        import stale_hosts
+        lines = stale_hosts.recheck_lines("prog", answers=lambda u: "zenodo" in u or "arxiv" in u, root=self.root)
+        self.assertEqual(len(lines), 2)
+        self.assertIn("arxiv.org (LOG.md:2), zenodo.org (LOG.md:6)", lines[0])
+        self.assertTrue(lines[1].endswith("still refused here: gss.norc.org, data.sf.gov"))
+
+    def test_no_notes_no_lines(self):
+        import stale_hosts
+        (self.root / "empty").mkdir()
+        self.assertEqual(stale_hosts.recheck_lines("empty", answers=lambda u: True, root=self.root), [])
