@@ -392,6 +392,16 @@ at or below 0.58% false alarms (the flat Xtion pool from 4.44%; 0.37% pooled), b
 splits against 9.08% (×0.45). A per-view f offset is the most costly shape the missing error could take; the
 safe threshold with the least lost power is open.
 
+**A third pool of views (milestone 4s, pre-registered).** A third disjoint 13 views per unit, picked by the same
+rule at least 0.5 s from the first two pools' frames, tests the jitter on views that did not suggest it. On the
+Xtion every pairing that holds the third pool stays at or below 0.53% false alarms. On the Kinect the third pool
+is well tilted, fits a small jitter (0.77% of f), and over-alarms at up to 7.47% (CC); borrowing the other two
+pools' mean τ leaves it at 7.18%, and pooled over the ten pairings the rate is 2.60%. That pool's 7-view solves
+hold 62 far solutions against one in the first pool, an error the robust 6-view spread the jitter is fitted to does
+not register. The three 13-view calibrations of each unit agree within 1.38 of the jittered twin's sd. A per-view
+jitter is therefore necessary on flat pools but not sufficient: the threshold must also account for far small-set
+solves.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a

@@ -8,7 +8,8 @@ The sequences are fetched by experiments/m4j_tum/fetch.sh (TUM RGB-D benchmark, 
 time blocks and pick rule) is imported unchanged and must reproduce pool A (4j's 13 frames) and pool B
 (4p's 13 fresh frames) exactly. The only change, fixed in LOG.md (milestone 4s planned) before any
 solve: in each block the frames A and B kept, and every frame within GAP seconds of either, are removed
-before the pick. Writes corners_<unit>c.json in 4j's format.
+before the pick. GAP is 0.5 s, not 4p's 1.0 s: the blocks span about 2.1 s (fr1) and 2.3 s (fr3), and
+1.0 s around two frames left no candidate in 12 of 13 blocks on each unit (LOG.md, amendment). Writes corners_<unit>c.json in 4j's format.
 """
 import importlib.util, json, os, sys
 import numpy as np
@@ -21,7 +22,7 @@ p4p = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(p4p)
 p4j = p4p.p4j
 
-GAP = p4p.GAP   # 1.0 s either side of A's and B's kept frames
+GAP = 0.5   # s either side of A's and B's kept frames (1.0 s, as in 4p, left no frame in most blocks)
 
 
 def pick_c(block, exclude):
