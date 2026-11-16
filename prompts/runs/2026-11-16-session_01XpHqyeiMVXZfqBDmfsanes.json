@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyeiMVXZfqBDmfsanes",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T21:39:35Z",
+  "ended": "2026-11-16T21:44:48Z",
+  "wall_minutes": 5.38,
+  "tokens_in": 3893123,
+  "tokens_out": 29373,
+  "cost_usd": 2.2012,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Edited the how-to page's visible FAQ answer differently from its JSON-LD; platform/pages/faq-visible.test.mjs failed in CI (portfolio-pages test job); fixed by making the two strings identical."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "--old must be unique in the file; a common substring like 'r.keyBits < 1024)' errors out until widened. Expected, but the first attempt cost a call."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Its log showed 'build / Build the site ... [FAIL]' with no test output or failing test name; finding the actual failure (faq-visible.test.mjs) took a separate full platform/pages test run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-quality-fix-email-checker-reads-dkim-keys.md"
+  ],
+  "goal": null,
+  "notes": "Quality track, mode fix (quality_audit.py mode). Seed for sample was 2026-11-16-1b6c (not run). Subject: ventures/email-auth-check, audit 2026-11-15; fixed defects 2,4,5,6,7,9,10,11 in PR 16713 (mark-fixed applied). Verification: run_venture_tests.py email-auth-check -> 154 tests ok. Seeded mutations, all caught: totalLookups > 10 -> >= 10; near-limit >= 8 -> >= 7; redirect ignore guard removed; DKIM weak floor 1024 -> 512; pct < 100 -> < 99; base64 4n+1 guard -> false (survived until a test was added, then caught). Live: node cli.mjs hubspot.com reports google selector 1024-bit; openssl pkey -pubin on same base64 says 1024 bit. Share meeting the bar: n/a (fix session; scores unchanged until re-audit).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9d404d07-1f64-5621-aae9-3cf53613568a",
+    "transcripts": 1,
+    "first": "2026-11-16T21:39:35Z",
+    "last": "2026-11-16T21:44:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 29373,
+        "thinking": 4291,
+        "cache_read": 3786025,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107024,
+        "api_equivalent_usd": 2.2012,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 29373,
+      "thinking": 4291,
+      "cache_read": 3786025,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107024,
+      "api_equivalent_usd": 2.2012,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.38,
+      "active_minutes": 5.38,
+      "model_minutes": 4.24,
+      "tool_minutes": 1.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior dev reading three RFCs, writing a DER parser and boundary tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 227.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
