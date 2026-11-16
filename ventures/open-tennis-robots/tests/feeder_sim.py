@@ -39,7 +39,8 @@ SHUTTLE_DROP_S = 0.14
 
 class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
-                 rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0):
+                 rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0,
+                 true_launcher=None):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
@@ -160,6 +161,9 @@ class SimFeeder:
         self.balls = balls             # balls behind the pocket's (column, hose and tub); None never runs out
         self.wheel_inertia = wheel_inertia
         self.launch_eff = launch_eff   # scales the ball's take from the wheels (a ball that slips through, 0..1)
+        # the build's real efficiencies (tests/launch_fit_sweep.py); None is the planner's own WheelLauncher()
+        self.true_launcher = true_launcher or launcher.WheelLauncher()
+        self.exits = []                # (speed m/s, topspin rad/s) of each released ball: what a radar gun would read
         self._under_col_ms = 0
         self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
         self.ctl = controller.Controller(hw, controller.ROLE_FEEDER, self.us // 1000)
@@ -237,9 +241,10 @@ class SimFeeder:
     def _take_momentum(self):
         """The ball leaves with the launcher model's speed and spin for the wheels' speeds now; the wheels lose the
         momentum it carries (a thin shell: I_b = 2/3 m r^2), split by the spin."""
-        lm = launcher.WheelLauncher()
+        lm = self.true_launcher
         ball = ballistics.DEFAULT_BALL
         v, spin = lm.exit(max(self.wheel[0], 0.0), max(self.wheel[1], 0.0))
+        self.exits.append((v, spin))
         lin = ball.mass * v
         rot = 2.0 / 3.0 * ball.mass * ball.radius * spin
         for i, j in enumerate(((lin + rot) / 2, (lin - rot) / 2)):

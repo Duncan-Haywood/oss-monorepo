@@ -76,6 +76,149 @@ def calibrate(samples: list[tuple[float, float, float, float | None]],
     return WheelLauncher(base.wheel_radius, num_s / den_s, spin_eff, base.max_rpm, base.ball_radius)
 
 
+# The feeder firmware's model numbers (firmware/esp32/config.py; tests check they agree).
+WHEEL_INERTIA_KGM2 = 0.00155       # one wheel and its motor's rotor, cad Feeder.launch_wheel_kgm2
+BALL_KG = 0.057
+TRIM = 0.25                        # fit_from_drops sets aside wheel readings this far (share of the fitted drop) off
+
+
+@dataclass(frozen=True)
+class DropFit:
+    """What the wheels' speed drops say about the launcher (`fit_from_drops`)."""
+    speed_efficiency: float          # exit speed / mean wheel surface speed, if the wheel inertia is the one assumed
+    spin_efficiency: float | None    # None when every shot was flat (no spin to fit from)
+    recovery_s: float | None         # the wheel loop's recovery time constant seen by the tach; None: not fitted
+    rms: float                       # residual of the drops, as a fraction of wheel speed
+    shots: int                       # launched shots used
+    note: str = ""
+
+    def launcher(self, base: WheelLauncher = WheelLauncher()) -> WheelLauncher:
+        spin = base.spin_efficiency if self.spin_efficiency is None else self.spin_efficiency
+        return WheelLauncher(base.wheel_radius, self.speed_efficiency, spin, base.max_rpm, base.ball_radius)
+
+
+def _tach_share(rev_s: float, recovery_s: float | None) -> float:
+    """Expected share of a wheel's true speed drop that its lowest single-revolution reading shows, when the speed loop
+    pulls the wheel back with time constant `recovery_s`. The first whole revolution after the ball starts a uniformly
+    random part of a revolution later, and averages the recovering deficit over its own length: ((1 - e^-x) / x)^2,
+    x = rev_s / recovery_s. About 1 - x for a short revolution; None means no recovery (1)."""
+    if recovery_s is None:
+        return 1.0
+    x = rev_s / recovery_s
+    return ((1.0 - math.exp(-x)) / x) ** 2 if x > 1e-9 else 1.0
+
+
+def _drop_rows(records, inertia, ball_kg, wheel_radius):
+    """One row per wheel per launched record: (measured drop, revolution s, speed-eff coefficient, spin-eff
+    coefficient). Model (firmware controller.launch_dips, written to be linear in the efficiencies):
+    drop_i = m R^2 / (I w_i) [se (w_t + w_b) / 4 +/- sp (w_t - w_b) / 6], + for the top wheel."""
+    rows = []
+    for r in records:
+        if not r.get("launched"):
+            continue
+        wt, wb = float(r["rpm_top"]), float(r["rpm_bottom"])
+        for w, d, sign in ((wt, r["drop_top"], 1.0), (wb, r["drop_bottom"], -1.0)):
+            if w <= 0:
+                continue
+            k = ball_kg * wheel_radius ** 2 / (inertia * w)       # rpm cancels: the drop is a ratio
+            rows.append((float(d), 60.0 / w, k * (wt + wb) / 4, sign * k * (wt - wb) / 6))
+    return rows
+
+
+def _solve(rows, recovery_s, fit_spin):
+    sxx = sxy = syy = sxd = syd = 0.0
+    for d, rev, a, b in rows:
+        g = _tach_share(rev, recovery_s)
+        a, b = a * g, b * g
+        sxx += a * a
+        sxd += a * d
+        if fit_spin:
+            sxy += a * b
+            syy += b * b
+            syd += b * d
+    if fit_spin:
+        det = sxx * syy - sxy * sxy
+        se = (sxd * syy - syd * sxy) / det
+        sp = (syd * sxx - sxd * sxy) / det
+    else:
+        se, sp = sxd / sxx, None
+    sse = 0.0
+    for d, rev, a, b in rows:
+        pred = _tach_share(rev, recovery_s) * (a * se + (b * sp if sp is not None else 0.0))
+        sse += (d - pred) ** 2
+    return se, sp, sse
+
+
+def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: float = BALL_KG,
+                   base: WheelLauncher = WheelLauncher(), recovery_s: float | None = None) -> DropFit:
+    """Fit the launcher's efficiencies from the feeder's per-shot wheel speed drops (2026-11-16,
+    firmware/esp32/README.md "Shot log"), with no radar gun.
+
+    A ball squeezed through the wheels takes its momentum from them, so each wheel slows by J R / I, J being its share
+    of the ball's momentum and spin. The drops are therefore a momentum meter: with the wheel inertia known they give
+    the exit speed, so the speed efficiency, and with topspin or backspin shots in the log the spin efficiency too.
+
+    `records` are dicts as `host` logs them: rpm_top, rpm_bottom (targets), drop_top, drop_bottom (fractions) and
+    launched. The tach reports the lowest single-revolution speed, which shows less than the whole drop because the
+    speed loop is already pulling the wheel back during that revolution, more so at low speed. When the log spans
+    speeds (fastest wheel at least 1.6x the slowest) the recovery time constant is fitted alongside (a grid of 0.03 to
+    30 s and none); otherwise pass `recovery_s` if known, or the slow shots read low.
+
+    Efficiencies scale with inertia: the fit is right for `inertia`; a true wheel that is k times heavier means the
+    true efficiencies are k times these. `inertia_from_radar` turns one radar-gun calibration into the true inertia."""
+    rows = _drop_rows(records, inertia, ball_kg, base.wheel_radius)
+    if not rows:
+        raise ValueError("no launched shots with a turning wheel in the log")
+    fit_spin = max(abs(r[3]) for r in rows) > 0.05 * max(r[2] for r in rows)
+    revs = [r[1] for r in rows]
+    shots = sum(1 for r in records if r.get("launched"))
+    note = ""
+    if recovery_s is not None:
+        grid = [recovery_s]
+    elif max(revs) >= 1.6 * min(revs):
+        grid = [0.03 * 10 ** (k / 40) for k in range(121)] + [None]
+    else:
+        grid = [None]
+        note = ("every shot at about one speed: the tach's recovery cannot be fitted, so slow shots read low; "
+                "log shots at two or more speeds, or pass recovery_s")
+    def best_of(rows):
+        best = None
+        for tau in grid:
+            se, sp, sse = _solve(rows, tau, fit_spin)
+            if best is None or sse < best[3] - 1e-15:
+                best = (tau, se, sp, sse)
+        return best
+
+    tau, se, sp, sse = best_of(rows)
+    # One trimming pass: a wheel still settling when the ball came (braked from a faster shot, its loop pushing it back
+    # up) shows a fraction of its drop; on the simulator one such wheel in 24 read half. Rows more than TRIM off the
+    # fitted drop are set aside and the rest refitted, if enough remain.
+    keep = [r for r in rows
+            if abs(r[0] - _tach_share(r[1], tau) * (r[2] * se + (r[3] * sp if sp is not None else 0.0)))
+            <= TRIM * _tach_share(r[1], tau) * (r[2] * se + (r[3] * sp if sp is not None else 0.0))]
+    trimmed = len(rows) - len(keep)
+    if trimmed and len(keep) >= max(4, len(rows) // 2):
+        rows = keep
+        tau, se, sp, sse = best_of(rows)
+    else:
+        trimmed = 0
+    notes = [note] if note else []
+    if not fit_spin:
+        notes.append("flat shots only: spin efficiency not fitted")
+    if trimmed:
+        notes.append(f"{trimmed} wheel reading{'s' if trimmed > 1 else ''} more than {TRIM:.0%} off the fit set aside "
+                     "(a wheel still settling when the ball came)")
+    return DropFit(se, sp, tau, math.sqrt(sse / len(rows)), shots, "; ".join(notes))
+
+
+def inertia_from_radar(drop_fit: DropFit, radar_speed_efficiency: float,
+                       inertia: float = WHEEL_INERTIA_KGM2) -> float:
+    """The wheel's true inertia, from a drop fit made assuming `inertia` and a speed efficiency measured with a radar gun
+    (`calibrate`): the drops fix efficiency / inertia, the radar fixes efficiency. Put it in config.py's
+    WHEEL_INERTIA_KGM2, and from then on the drops alone track the efficiency (worn felt, a soft batch of balls)."""
+    return inertia * radar_speed_efficiency / drop_fit.speed_efficiency
+
+
 @dataclass(frozen=True)
 class Shot:
     speed: float            # m/s at the wheels

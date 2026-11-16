@@ -17,6 +17,10 @@ runner stops there and reports the shot that went dry and how many flew, instead
 (it used to count the stroke as a shot) or ending on a release timeout. After the last shot it waits for that shot's
 verdict before reporting the drill done.
 
+Every verdict also comes with a record (the LAUNCH frame, 2026-11-16, firmware/esp32/README.md "Shot log"): each
+wheel's speed just before the ball and how far it fell. `DrillResult.launches` collects them, `tennisbots run
+--shot-log` appends them to a file, and `launcher.fit_from_drops` reads the launcher's efficiencies from them.
+
 Heartbeats go out every 100 ms throughout (the firmware stops everything after 300 ms of silence). Any fault flag
 (e-stop, watchdog, elevation fault), a lost link or a step that overruns its time limit aborts the drill: the runner
 sends `ESTOP`, which also drops any ball still queued, and reports why.
@@ -100,6 +104,8 @@ class DrillResult:
     link_errors: int = 0
     warnings: list = field(default_factory=list)
     dry_shot: int | None = None    # index of the shot whose stroke carried no ball (FLAG_HOPPER_EMPTY), if any
+    launches: list = field(default_factory=list)   # one dict per judged stroke of this run (LAUNCH frames), shot index
+                                                    # included: the input to launcher.fit_from_drops
 
     @property
     def ok(self) -> bool:
@@ -138,6 +144,8 @@ class FeederLink:
         self.decoder = P.Decoder()
         self.last: Telemetry | None = None
         self._hb = -1e9
+        self.launch_log: list = []    # (clock when first seen, record dict) per new LAUNCH seq
+        self._seq = None
 
     def send(self, cmd, *values):
         self.port.write(P.encode(cmd, *values))
@@ -150,6 +158,11 @@ class FeederLink:
         for cmd, vals in self.decoder.feed(self.port.read() or b""):
             if cmd == P.TELEMETRY:
                 self.last = Telemetry(now, *vals)
+            elif cmd == P.LAUNCH and vals[0] != self._seq:     # repeated every period until the next verdict
+                self._seq = vals[0]
+                self.launch_log.append((now, {"seq": vals[0], "rpm_top": vals[1], "rpm_bottom": vals[2],
+                                              "drop_top": vals[3] / 1e4, "drop_bottom": vals[4] / 1e4,
+                                              "launched": bool(vals[5])}))
         return self.last
 
     @property
@@ -180,6 +193,7 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
     clock = link.clock
     fed_at = None                 # FLAG_HOPPER_EMPTY speaks for this run only in frames sent after its first FEED
                                   # (a FEED clears it; an older frame may still carry the last run's verdict)
+    fed_shots = []                # shot index of each FEED, in order: the n-th LAUNCH record of the run is its verdict
 
     def wait(until, timeout, what, ignore=0):
         start = clock()
@@ -229,6 +243,7 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                 ready = wait(lambda t: clock() >= due and _wheels_ok(t, shot), shot.interval_s + ready_timeout_s,
                              f"{label} interval")
             link.send(P.FEED, 1)
+            fed_shots.append(shot.index)
             if fed_at is None:
                 fed_at = clock()
             fed = (fed + 1) & 0xFF
@@ -251,6 +266,11 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
         link.send(P.ESTOP)            # halts the wheels and drops any queued ball
         res.aborted = str(exc)
     res.link_errors = link.errors
+    if fed_at is not None:
+        link.poll()
+        fresh = [rec for t, rec in link.launch_log if t >= fed_at + FRESH_S]
+        for k, rec in enumerate(fresh[:len(fed_shots)]):
+            res.launches.append(dict(rec, shot=fed_shots[k]))
     return res
 
 
@@ -296,6 +316,20 @@ def reset_lift_hub(link: FeederLink, sleep, *, timeout_s=2.0, tick_s=0.01) -> st
 
 def reset_lift_hub_port(device) -> str | None:
     return reset_lift_hub(FeederLink(SerialPort(device), time.monotonic), time.sleep)
+
+
+def append_shot_log(path, res: DrillResult, drill: str = "") -> int:
+    """Append this run's launch records to a JSON-lines file (one object per judged stroke); returns how many."""
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%S")
+    with open(path, "a") as fh:
+        for rec in res.launches:
+            fh.write(json.dumps(dict(rec, at=stamp, drill=drill)) + "\n")
+    return len(res.launches)
+
+
+def read_shot_log(path) -> list:
+    with open(path) as fh:
+        return [json.loads(line) for line in fh if line.strip()]
 
 
 def run_file(path, device, log=print) -> DrillResult:

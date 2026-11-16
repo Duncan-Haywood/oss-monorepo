@@ -202,6 +202,16 @@ e-stop, and exits 3. No sensor was added because the feeder's ESP32 has no pin
 left for one. Margins over 27 simulated builds and the reasoning:
 [`firmware/esp32/README.md`](firmware/esp32/README.md), "Empty hopper".
 
+**A shot log and a launcher fit without a radar gun (2026-11-16).** The same
+drop is the ball's momentum, so every judged stroke now reaches the Pi as a
+`LAUNCH` record (each wheel's speed before the ball and its drop).
+`tennisbots run drill.calibration.json --shot-log shots.jsonl` logs them and
+`tennisbots fit-launcher shots.jsonl` fits the launcher's speed and spin
+efficiencies, the numbers the planner aims with. On 18 simulated builds the
+speed efficiency came within 3.9% (10.9% if the drops are read naively) and
+the spin efficiency within 11.7%; one radar session pins the wheel's inertia.
+[`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log".
+
 ### Wheel speed loop (2026-11-11)
 
 Writing the runner turned up two faults in the launcher wheels' firmware:
