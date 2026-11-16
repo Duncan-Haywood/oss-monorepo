@@ -3,7 +3,7 @@ title: "The en dash that turned refunds into sales, in 45 parsers"
 seo_title: "Parsing money in CSV: treat an en dash before the number as a minus"
 date: 2026-11-16
 tags: [testing, mutation-testing, javascript, redteam, csv, restaurants, delivery]
-description: "12 faults seeded into a restaurant delivery commission analyzer, 7 caught. An attacker read found two input bugs: year-first dates refused, and an en-dash minus read as plus, the second in 45 parsers."
+description: "12 faults seeded into a restaurant delivery analyzer, 7 caught. Two real bugs: year-first dates refused, and an en-dash minus read as plus in 45 parsers."
 ---
 
 Today's red-team run went to `calc.mjs` in the
