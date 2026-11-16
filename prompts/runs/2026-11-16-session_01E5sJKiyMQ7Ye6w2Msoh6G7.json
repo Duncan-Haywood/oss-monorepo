@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Switched branches (stash) while a background site build was reading docs/posts, so the build saw the old post; rebuilt."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,13 +41,20 @@
       "issue": "polishPay was not in calc.mjs _internals, so timing it alone needed an export first; added."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged with coverage/validate red: both fail on main from PR #16739's checklist gap, fixed in control-plane PR #16742 which waits on the owner; this diff does not touch them.",
+      "did": "merged on the other checks green plus local suite and preflight",
+      "result": null
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-16-the-last-untimed-stage-in-the-roster-builder.md",
     "ventures/shift-roster-builder/README.md (The pay polish stops at the budget's end)"
   ],
   "goal": null,
-  "notes": "Pre-registered A/B (eval/polish-deadline-prereg.md, committed before the run), seeds 66-77, 48 weeks x 2 builds: late >20 ms at the pay floor 8 -> 0; open hours 11818 -> 11815 (noise); pay on 45 equal-open weeks -0.000%; mean build -0.03 s; KEEP ON. Small item (25-44 ms), chosen because it was the named next item and the other next: items need real accounts or data. stage-overrun.test.mjs 8/8 pass locally; full venture suite and venture-preflight run in background, results in the PR body. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "notes": "Pre-registered A/B (eval/polish-deadline-prereg.md, committed before the run), seeds 66-77, 48 weeks x 2 builds: late >20 ms at the pay floor 8 -> 0; open hours 11818 -> 11815 (noise); pay on 45 equal-open weeks -0.000%; mean build -0.03 s; KEEP ON. Small item (25-44 ms), chosen because it was the named next item and the other next: items need real accounts or data. stage-overrun.test.mjs 8/8 pass locally; full venture suite and venture-preflight run in background, results in the PR body. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs. Main went red mid-run from PR #16739 (redteam): its post's seo_title carried Markdown backticks (check.mjs) and platform/ci/*.test.mjs was not named in verify-and-merge.md (coverage, validate). Fixed the seo_title here (local build + check.mjs clean); the checklist line is control plane, so it went to its own PR #16742 for owner approval. This PR's coverage/validate reds are that main breakage, not this diff.",
   "corrections": [],
   "redteam": null,
   "usage": {
