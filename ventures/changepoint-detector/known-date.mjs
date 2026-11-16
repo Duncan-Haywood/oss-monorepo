@@ -189,7 +189,7 @@ function fTail2(f, m) { return Math.pow(1 + 2 * f / m, -m / 2); }
  * x: the series (evenly spaced). k: index of the first point after the change. Options: period (seasonal dummies),
  * reps (bootstrap), seed, rhoMax (guard), rhoCap. Returns { refused, reason } or the estimates and p-values.
  */
-export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, minSide = 8, rhoGenMethod = 'matched', genCap = 0.95, guard = 'cut' } = {}) {
+export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax = 0.9, rhoCap = 0.95, minSide = 8, rhoGenMethod = 'matched', genCap = 0.95, guard = 'cut', gateRho = 0.5 } = {}) {
   x = Array.from(x, Number);
   const n = x.length;
   period = period > 1 ? Math.round(period) : 0;
@@ -225,10 +225,15 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
   const clampGen = (v) => Math.max(-0.9, Math.min(genCap ?? rhoMax, v));
   const point = clampGen(rhoGenMethod === 'kendall' ? corrected(g0.rho, n) : matchedRho(g0.rho, X0, rhoCap));
   const gens = [point];
-  if (rhoGenMethod === 'upper') { const up = clampGen(upperRho(g0.rho, X0, rhoCap)); if (up > point + 1e-9) gens.push(up); }
+  // 'gated' (round 5, eval/known-date-prereg-round5-2026-11-16.md): the upper bound only when the plain line's residual
+  // rho (bias corrected, OLS; the guard's own reading) is above gateRho, fixed in advance. Round 4 took it everywhere
+  // and spent the error budget on rho 0.4 series, where 40 points put the bound far above the truth.
+  const lineRho = rhoLine ?? corrected(lag1(ols(x, X0).e), n);
+  const gated = rhoGenMethod === 'gated' && lineRho > gateRho;
+  if (rhoGenMethod === 'upper' || gated) { const up = clampGen(upperRho(g0.rho, X0, rhoCap)); if (up > point + 1e-9) gens.push(up); }
   const pOf = (arr, v) => (1 + arr.filter((w) => w >= v).length) / (1 + arr.length);
   const q975 = (arr) => { const a = [...arr].sort((p, q) => p - q); return a[Math.min(a.length - 1, Math.floor(0.95 * a.length))]; };
-  let p = 0, pStep = 0, pSlope = 0, qD = 0, qC = 0, m = Infinity;
+  let p = 0, pStep = 0, pSlope = 0, qD = 0, qC = 0, m = Infinity; const pGen = [];
   gens.forEach((rhoGen, gi) => {
     const r = mulberry(seed + 7919 * gi), fs = [], tds = [], tcs = [];
     for (let b = 0; b < reps; b++) {
@@ -239,12 +244,13 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
       fs.push(s.f); tds.push(Math.abs(s.tD)); tcs.push(Math.abs(s.tC));
     }
     m = Math.min(m, fs.length);
+    pGen.push(pOf(fs, st.f));
     p = Math.max(p, pOf(fs, st.f)); pStep = Math.max(pStep, pOf(tds, Math.abs(st.tD))); pSlope = Math.max(pSlope, pOf(tcs, Math.abs(st.tC)));
     qD = Math.max(qD, q975(tds)); qC = Math.max(qC, q975(tcs));
   });
   const post = n - k, meanAfter = (post - 1) / 2;
   return {
-    refused: false, n, k, period, rho: st.rho, rhoFull, reps: m, guard, rhoGen: gens, rhoGenMethod, ...(guard === 'cut' ? { rhoLine, admittedByCut, cutBar } : {}),
+    refused: false, n, k, period, rho: st.rho, rhoFull, reps: m, guard, rhoGen: gens, pGen, rhoGenMethod, lineRho, ...(rhoGenMethod === 'gated' ? { gateRho, gated } : {}), ...(guard === 'cut' ? { rhoLine, admittedByCut, cutBar } : {}),
     step: st.d, stepSe: st.seD, stepRange95: [st.d - qD * st.seD, st.d + qD * st.seD], pStep,
     slopeBefore: st.beta[1], slopeChange: st.c, slopeChangeSe: st.seC, slopeChangeRange95: [st.c - qC * st.seC, st.c + qC * st.seC], pSlope,
     f: st.f, p, pTable: fTail2(st.f, st.df),
