@@ -487,7 +487,7 @@ export class AttributeFacet {
 
 const fmt = (v) => (v && v.enum ? "." + v.enum + "." : JSON.stringify(v));
 
-const QUANTITY_MEASURE = {
+export const QUANTITY_MEASURE = {
   IFCQUANTITYLENGTH: ["LengthValue", "IFCLENGTHMEASURE"],
   IFCQUANTITYAREA: ["AreaValue", "IFCAREAMEASURE"],
   IFCQUANTITYVOLUME: ["VolumeValue", "IFCVOLUMEMEASURE"],
@@ -500,7 +500,7 @@ const QUANTITY_MEASURE = {
 // Property sets of an element by name: {name -> {props: Map(name -> propEntity), entity}}
 // Type psets are inherited and an occurrence's pset of the same name overrides
 // per property.
-function psetsOf(model, e) {
+export function psetsOf(model, e) {
   const out = new Map();
   const add = (pset) => {
     const name = model.attr(pset, "Name");
@@ -646,7 +646,7 @@ export class PropertyFacet {
 }
 
 // Classification references of an element: [{system, codes: [..], ref}]
-function classificationsOf(model, e) {
+export function classificationsOf(model, e) {
   const own = (id) => {
     const out = [];
     for (const c of model.classRels.get(id) || []) out.push(...describeClassification(model, c));
@@ -694,7 +694,7 @@ export class ClassificationFacet {
 }
 
 // Names and categories of every material an element uses.
-function materialNames(model, e) {
+export function materialNames(model, e) {
   let rels = model.matRels.get(e.id);
   if (!rels || !rels.length) {
     const ty = model.typeOf.get(e.id);

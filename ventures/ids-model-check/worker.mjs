@@ -1,9 +1,10 @@
 // Module worker: checks a model off the page's main thread so a 100 MB model
 // does not freeze the tab. Loads only the schema JSON the model needs, from
 // this site (the files are part of the page; nothing is uploaded).
-import { checkIds, parseIds, Schema } from "./ids.mjs";
+import { checkIds, parseIds, Schema, Model } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
+import { modelInventory } from "./inventory.mjs";
 
 const cache = {};
 async function json(name) {
@@ -48,9 +49,22 @@ async function loadSchemas(ids) {
 }
 
 self.onmessage = async (ev) => {
-  const { ids, ifc, auditOnly } = ev.data;
+  const { ids, ifc, auditOnly, inventory } = ev.data;
   try {
     const t0 = performance.now();
+    // The IDS editor's "Open a model": what the model carries, so the editor
+    // can offer its classes and sets (inventory.mjs).
+    if (inventory) {
+      const id = schemaOf(ifc);
+      if (!id) throw new Error("the model's schema (FILE_SCHEMA, or the ifcXML namespace) is not IFC2X3, IFC4 or IFC4X3");
+      const schemas = await loadSchemas([id]);
+      const model = new Model(ifc, schemas);
+      const inv = modelInventory(model);
+      inv.parseErrors = model.parseErrors.length;
+      inv.seconds = (performance.now() - t0) / 1000;
+      self.postMessage({ inventory: inv });
+      return;
+    }
     if (auditOnly) {
       const parsed = parseIds(ids);
       const named = idsSchemas(ids);
