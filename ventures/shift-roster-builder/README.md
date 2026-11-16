@@ -3650,3 +3650,36 @@ worse than its start, an infinite deadline changes nothing).
 
 Not claimed: generated weeks, one cloud machine, two builds at a time; no gain in open hours or pay is claimed, only that the
 walk no longer eats the pay floor's time. Next: the repair's 200 ms minimum when it starts within 200 ms of the budget's end.
+
+## The repair stops at the budget's end (2026-11-16 later)
+
+"Where the time past the budget goes" left five of 48 fresh builds reaching the pay floor 65-249 ms past the 20 s budget, all
+of them crossed by the cover repair. Read from the timelines, the 200 ms minimum explained only one (it started at 19,985 ms);
+the other four started 0.6-1.5 s before the end and still ran over, because the repair read the clock only between rounds
+and one round may search 200,000 nodes.
+
+**What landed:** `coverRepair` takes a `deadline` (the budget's end), read every 1,024 nodes inside a round as well as between
+rounds. A round stopped by it keeps the best assignment it had found, which already beats the round's start, so stopping never
+makes the roster worse. Under a budget the 200 ms minimum is gone. The report's repair stats gain `stoppedAtDeadline`.
+`coverRepairDeadline: false` gives back the old limit.
+
+**Pre-registered** (`eval/repair-deadline-prereg.md`, committed before the run): seeds 54-65, 60 x 168 and 70 x 196, weeks
+0-1, each built twice, new and `coverRepairDeadline: false` (`sh eval/repair-deadline-ab.sh`, scored by
+`eval/repair-deadline-summary.py`, `eval/repair-deadline-ab.out.txt`).
+
+| 48 fresh weeks | old | new |
+|---|---|---|
+| reached the pay floor more than 50 ms past the budget, repair crossing it | 6 (57-245 ms) | **0** |
+| latest arrival at the pay floor | 20,245 ms | 20,048 ms |
+| repair ran / gains / stopped at the deadline | 13 / 12 / 0 | 10 / 13 / 5 |
+| open hours, all 48 | 12,489 | 12,489 (no week moved) |
+| mean build / slowest | 21.28 s / 28.1 s | 21.28 s / 28.2 s |
+| proven | 7 | 7 |
+
+All three clauses passed, so it is on by default. The 22-48 ms still past the budget on six "new" builds is the pay polish
+that follows a repair gain, which is not timed. Tests: `stage-overrun.test.mjs` (a repair past its deadline returns its start
+untouched at once; a repair stopped mid-search keeps a valid roster no worse than its start, with its reported open hours
+matching; an infinite deadline changes nothing).
+
+Not claimed: generated weeks, one cloud machine, two builds at a time; no gain in open hours or pay, only that the repair no
+longer eats the pay floor's time. Next: time-bound the pay polish after a repair gain, or leave it (under 50 ms here).

@@ -10686,18 +10686,106 @@ export function upToRoot(relativePath) {
   return depth === 0 ? './' : '../'.repeat(depth);
 }
 
+// Words too common in these tools' names and descriptions to say two tools do
+// the same job. Generic English plus the catalogue's own boilerplate ("free",
+// "calculator", "browser"): without the second half every calculator would
+// look related to every other calculator.
+const RELATED_TOOL_STOPWORDS = new Set(
+  ('about after also and any are based before being both but can check checks does each every for free from '
+    + 'get gives has have how into its just like more most much not one only open other our out over own per '
+    + 'runs same see source than that the their them then there these they this those through tool tools '
+    + 'turn under use uses using what when where which while who will with without you your '
+    + 'browser calculator calculators estimate estimator private privately page pages online simple quick '
+    + 'data file files paste report list year years number numbers new').split(' '),
+);
+
+// Lower-case content words of one string, with a plural `s` and an `-ing` or
+// `-er` folded so "fences" and "fence" meet. Three letters or more: "tax", "vat", "csv" carry meaning.
+function relatedToolWords(text) {
+  const out = new Set();
+  for (const raw of String(text ?? '').toLowerCase().split(/[^a-z0-9]+/)) {
+    if (raw.length < 3 || /^\d+$/.test(raw) || RELATED_TOOL_STOPWORDS.has(raw)) continue;
+    let word = raw.length > 4 && raw.endsWith('s') && !raw.endsWith('ss') ? raw.slice(0, -1) : raw;
+    // "bookkeeping" and "bookkeeper", "roofing" and "roofer" meet at the stem.
+    if (word.length > 5 && word.endsWith('ing')) word = word.slice(0, -3);
+    else if (word.length > 5 && word.endsWith('er')) word = word.slice(0, -2);
+    if (!RELATED_TOOL_STOPWORDS.has(word)) out.add(word);
+  }
+  return out;
+}
+
+// One index per surfaces array: each tool's weighted words (name and slug 1,
+// description 0.5) and each word's document frequency. Built once per build
+// and reused for every tool's footer, like `writing.mjs`'s `relatedIndex`.
+const RELATED_TOOL_INDEX = new WeakMap();
+function relatedToolIndex(surfaces) {
+  const cached = RELATED_TOOL_INDEX.get(surfaces);
+  if (cached && cached.n === surfaces.length) return cached;
+  const weights = new Map();
+  const df = new Map();
+  for (const surface of surfaces) {
+    const w = new Map();
+    for (const word of relatedToolWords(surface.fullDescription ?? surface.description)) w.set(word, 0.5);
+    for (const word of relatedToolWords(`${surface.title ?? ''} ${surface.slug.replace(/-/g, ' ')}`)) w.set(word, 1);
+    weights.set(surface.slug, w);
+    for (const word of w.keys()) df.set(word, (df.get(word) ?? 0) + 1);
+  }
+  // A word in more than a fifth of the tools says little, and a word in one
+  // tool cannot connect it to another.
+  const cap = Math.max(2, Math.floor(surfaces.length / 5));
+  const idf = (word) => {
+    const n = df.get(word) ?? 0;
+    return n > 1 && n <= cap ? Math.log(surfaces.length / n) : 0;
+  };
+  const index = { n: surfaces.length, weights, idf };
+  RELATED_TOOL_INDEX.set(surfaces, index);
+  return index;
+}
+
+/**
+ * How much two tools' names and descriptions overlap: the shared content
+ * words, each weighted by its rarity across the catalogue (log N / df) and by
+ * where it appears (a word in both names counts four times one in both
+ * descriptions). 0 when they share nothing distinctive.
+ */
+export function relatedToolScore(surfaces, a, b) {
+  const { weights, idf } = relatedToolIndex(surfaces);
+  const wa = weights.get(a);
+  const wb = weights.get(b);
+  if (!wa || !wb) return 0;
+  let score = 0;
+  for (const [word, weight] of wa) {
+    const other = wb.get(word);
+    if (other) score += idf(word) * weight * other;
+  }
+  return score;
+}
+
 /**
  * Up to `limit` other tools to offer at the foot of `slug`'s pages: same
  * sub-group first, then the rest of the category, then the rest of the site.
- * Rotating each list by the tool's own position means neighbouring tools do not
- * all advertise the same four, while keeping the choice deterministic — the
- * build has to be reproducible.
  *
- * The sub-group tier matters most in `trades`, where "same category" is 110
+ * Within each tier, tools whose name and description share distinctive words
+ * with this one come first, most overlap first (`relatedToolScore`). Until
+ * 2026-11-16 each tier was only rotated by the tool's own position, and since
+ * thirteen of the sixteen categories have no sub-groups and run to 35 to 219
+ * tools, that rotation amounted to "the next four in the alphabet": Vendor
+ * Watch, a terms-change monitor, offered a VPAT generator and a Wise statement
+ * converter, and only met Vendor Change Watch because its name sorts beside it.
+ *
+ * Tools that share nothing keep the rotation as the fill, so neighbouring
+ * tools do not all advertise the same four, and the choice stays deterministic
+ * — the build has to be reproducible.
+ *
+ * The sub-group tier matters most in `trades`, where "same category" is 200
  * tools: without it a metal-roof page offers whichever four the rotation lands
  * on, and a roofer is shown a music-lesson break-even. Same sub-group means the
  * offer is another roofing, siding, or gutter bid — work the same visitor sells.
  */
+// What sharing a tier (category, then sub-group again) is worth against shared
+// words: about one rare word that both tools' names use.
+export const RELATED_TOOL_TIER_BONUS = 5;
+
 export function relatedTools(surfaces, slug, limit = 4) {
   const others = surfaces.filter((surface) => surface.slug !== slug);
   if (others.length === 0) return [];
@@ -10712,13 +10800,65 @@ export function relatedTools(surfaces, slug, limit = 4) {
   const sameCategory = others.filter((surface) => inCategory(surface) && !inSubcategory(surface));
   const rest = others.filter((surface) => !inCategory(surface));
 
-  const rotate = (list) => {
-    if (list.length === 0) return list;
-    const offset = surfaces.findIndex((surface) => surface.slug === slug) % list.length;
-    return [...list.slice(offset), ...list.slice(0, offset)];
+  const offset = Math.max(0, surfaces.findIndex((surface) => surface.slug === slug));
+  // Each tier's rotation, then one ranking over all three: overlap plus a
+  // bonus per tier, so a tie (above all a tie at no overlap) keeps the tier
+  // order, while a tool outside the category that shares a lot beats one
+  // inside it that shares little.
+  const rotate = (list, bonus) => {
+    if (list.length === 0) return [];
+    const at = offset % list.length;
+    return [...list.slice(at), ...list.slice(0, at)].map((surface) => ({ surface, bonus }));
   };
+  const BONUS = RELATED_TOOL_TIER_BONUS;
+  return [...rotate(sameSubcategory, 2 * BONUS), ...rotate(sameCategory, BONUS), ...rotate(rest, 0)]
+    .map((x, i) => ({ ...x, i, s: x.bonus + relatedToolScore(surfaces, slug, x.surface.slug) }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .slice(0, limit)
+    .map((x) => x.surface);
+}
 
-  return [...rotate(sameSubcategory), ...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
+// How far down an orphan's own ranking `relatedToolsTable` looks for a tool
+// that can link back to it.
+const RELATED_TOOL_ORPHAN_REACH = 20;
+
+/**
+ * Every tool's footer list at once: `relatedTools` for each, then balanced so
+ * that as few tools as possible are linked from no other tool's footer.
+ *
+ * Ranking by overlap alone concentrates links: a tool whose closest matches
+ * each have four closer matches of their own is offered by nobody (102 of
+ * 1,378 on 2026-11-16, against 36 under the old alphabet rotation). For each
+ * such orphan, in catalogue order, this walks the orphan's own ranking (best
+ * matches first) and takes the last, weakest, slot of the first tool that can
+ * spare it: one that does not list the orphan yet and whose last entry is
+ * linked from somewhere else too, so the swap never makes a new orphan. The
+ * same idea as the blog's related posts (`writing.mjs`, `relatedPosts`).
+ *
+ * Returns a Map from slug to its list of surfaces.
+ */
+export function relatedToolsTable(surfaces, limit = 4) {
+  const table = new Map(surfaces.map((surface) => [surface.slug, relatedTools(surfaces, surface.slug, limit)]));
+  if (limit < 1) return table;
+  const inbound = new Map();
+  for (const list of table.values()) for (const r of list) inbound.set(r.slug, (inbound.get(r.slug) ?? 0) + 1);
+  for (const orphan of surfaces) {
+    if (inbound.get(orphan.slug)) continue;
+    for (const host of relatedTools(surfaces, orphan.slug, RELATED_TOOL_ORPHAN_REACH)) {
+      const list = table.get(host.slug);
+      if (!list || list.length < limit || list.some((r) => r.slug === orphan.slug)) continue;
+      const weakest = list[list.length - 1];
+      if ((inbound.get(weakest.slug) ?? 0) < 2) continue;
+      // Only a tool that actually shares something with the orphan gives up
+      // a slot; an unrelated link is not worth the inbound one.
+      if (relatedToolScore(surfaces, host.slug, orphan.slug) === 0) continue;
+      list[list.length - 1] = orphan;
+      inbound.set(weakest.slug, inbound.get(weakest.slug) - 1);
+      inbound.set(orphan.slug, 1);
+      break;
+    }
+  }
+  return table;
 }
 
 /**
@@ -11488,12 +11628,14 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   }));
   const named = (surface) => ({ ...surface, title: names.get(surface.slug)?.name || surface.title });
 
+  // Every footer's related tools, ranked and balanced once (`relatedToolsTable`).
+  const relatedTable = relatedToolsTable(surfaces);
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
     const dir = path.join(outDir, surface.slug);
     if (!(await exists(dir))) return found;
-    const related = relatedTools(surfaces, surface.slug).map(named);
+    const related = (relatedTable.get(surface.slug) ?? relatedTools(surfaces, surface.slug)).map(named);
     // The trail's tool name, the same on every page in the tool (`names` above).
     const crumbName = named(surface).title;
     // Read once per venture; several pages in a directory load the same script.

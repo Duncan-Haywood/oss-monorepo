@@ -220,44 +220,50 @@
       "what": "A thousands comma in a roster line shifts the fields: 'Maria, 2.13, 1500, 24,000' is accepted with tips = $24 and no warning, understating the credit about 99.9%. The page label warns but the parser does not enforce it, and payroll exports commonly contain such commas.",
       "where": "calc.mjs:46",
       "category": "input-handling",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16723"
     },
     {
       "severity": "medium",
       "what": "A blank or unreadable rate, wage base, tax rate or prior-years field silently becomes the example value (184500, 25, 2) instead of an error, so a user who clears a box gets a confident number on an assumption they did not choose.",
       "where": "index.html:81",
       "category": "input-handling",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15823"
     },
     {
       "severity": "medium",
       "what": "The wage-base straddle logic (tips used as wages reduce the room under the Social Security base, and the cap on employer FICA shown beside the credit) is untested: removing either leaves all 20 tests green.",
       "where": "calc.mjs:64",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16723"
     },
     {
       "severity": "medium",
       "what": "Credit is computed on annual totals; the Form 8846 instructions as I recall them test tips against the $5.15 shortfall per pay period or month, so an employee with uneven seasonal tips gets an annual figure at or above the per-period one. Not stated in README limits.",
       "where": "calc.mjs:61",
       "category": "scope-gap",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16723"
     },
     {
       "severity": "low",
       "what": "Extra fields on a roster line, zero hours and an unrealistic edited baseline wage are accepted without comment.",
       "where": "calc.mjs:47",
       "category": "input-handling",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16723"
     },
     {
       "severity": "low",
       "what": "The years floor and the negative-tips rejection survive mutation: no test pins fractional prior years or negative tips.",
       "where": "calc.mjs:77",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16723"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15823", "https://github.com/Duncan-Haywood/oss-monorepo/pull/16723"],
   "verdict": "The arithmetic is right: six hand recomputations from the section 45B rule match to the cent, and the page carries the disclaimer, privacy and limits it claims. It does not meet the bar because verification scores 2: 4 of 7 seeded mutations survived, including the wage-base room term that decides the credit for high earners. Fitness is held to 2 by input handling that a real payroll paste would hit first: a thousands comma silently turns $24,000 of tips into $24, and blank fields silently take example values. A one-line parse fix, a straddle test and a per-period caveat would likely move it to the bar. Served page not loaded (proxy)."
 }
