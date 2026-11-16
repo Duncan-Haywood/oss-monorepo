@@ -208,6 +208,12 @@
 //    stays the default unless closeAnchor (with `--local off`) reads R's and S's voiced stops together 3 or more better
 //    than localRef, and loses nothing anywhere else: every part's total no lower, nasals no fewer, every vowel-only
 //    control identical, and consonant-check unmoved. Otherwise closeAnchor stays opt-in, reported.
+//    Outcome (run 2026-11-16): voiced stops, R: reference only 99, localRef 103, closeAnchor 100; S: 101, 108, 108;
+//    together localRef 211, closeAnchor 208 of 240: closeAnchor does not clear the bar, localRef stays the default and
+//    closeAnchor stays opt-in. Against the default, closeAnchor: K's others 193 to 195, N's 220 to 222, O's 222 to 223,
+//    P's others 214 to 216 and clusters 114 to 115, Q's voiced stops 106 to 105, S's others 127 to 128; A, B, D, E, H,
+//    I, F, J, L and M byte-identical, every control identical. Not registered: with closeAnchor, R's wall column read
+//    107 of 120 (103 with localRef).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
