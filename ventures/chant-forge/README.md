@@ -836,7 +836,7 @@ of one level across five pitches and five vowels (the fixed gain spread over 8).
 whether a 6 dB step from /l/ into the vowel sounds like a Latin *l* or like a late entry is the question for
 an ear.
 
-#### A short final -um against the vowel just before it (2026-11-15, latest)
+#### A short final -um against the vowel just before it (2026-11-15)
 
 The coda-murmur round left a question: with the choir's five detuned voices a short final *-um* sat
 anywhere from 5.7 dB over to 20.1 dB under the vowel measured at the note's start, because a murmur passes
@@ -875,6 +875,50 @@ without, and no vowel-only or bare-vowel note read as anything. Still missed: *-
 their stop, *in* read as a voiced fricative, and a few *-num*/*-lum* after a dark vowel on E4 and in F's
 pages. Nothing in the synthesis changed, so the beat is still there: whether five real voices beat this
 much on a held *-um*, and whether a listener hears the murmur come and go, is a question for an ear.
+
+#### -unt read on its stop: the n of a cluster (2026-11-16, latest)
+
+The last round left *-unt* and *-sunt* read on their t. Part A, the set the reader was tuned on, missed *unt* at
+four of six pitches and *ant* at E2, and F's misses held eleven such clusters (*sunt*, *bunt*, *runt*, *tent*).
+Read frame by frame on a synthetic set, the n is there: a murmur of 50-70 ms (`codaPlan`), 17-55 dB darker
+(energy above 1 kHz against under 500 Hz) than the vowel before it, until the t's closure. Every nasal rule
+missed it for its own reason:
+
+- the level rule wants the murmur 5 dB or more under the vowel, and with five beating voices at E2 and A2 it
+  sits only 2-4 dB under;
+- the step rule wants a drop under 500 Hz, and there is none;
+- the rule against the vowel just before it wants the darkness held within 4 dB, and it wobbles by 6.
+
+- **The change** (`onsets.mjs` `PRE`): a run also counts as a murmur when every frame is 6 dB or more darker
+  than the vowel 25-45 ms before it, at -18 to +4 dB of its level, dark in itself (`MURMUR_TILT`), 40 ms or
+  more long, entered by a step of 8 dB or more within two 5 ms hops of its start, and ending no more than 5
+  frames before a stop's closure or a fricative. The step is what tells a murmur from the vowel's own run-in
+  to a closure. A vowel darkens into a /p/, /k/ or /b/ as well, most of all /u/, whose formants move to the
+  lips' or the velum's locus, but it does that as a ramp of 2-5 dB per hop. The first draft, without the
+  step, read 14 of those (*up*, *uc*, *ub*, *ux*, *ap*) as nasals. With no obstruent after it (the
+  vowel-only choir, or a final *-m*) the rule cannot fire. `readCoda(..., { preObstruent: false })` is the
+  reader before, and `node eval/coda-check.mjs --pre off` prints the old report.
+- **Tuned on synthetic syllables only.** That is part J of `eval/coda-check.mjs`: 11 clusters (*unt ant ent int
+  sunt nunc tunc ens mens ans ont*) and 28 others, at E2-E4 in quarter and eighth notes, sung and
+  vowel-only. Cluster nasals went from 46 to 124 of 132, the others stayed at 304 of 336 and the control at
+  445 of 468. No corpus part has been clean held-out data since the last rounds printed their misses, so the
+  predictions were written into the script's header and committed before any corpus part was run with the
+  rule.
+
+| prediction | `--pre off` | after |
+|---|---|---|
+| (1) A's *unt* and *ant* nasal on 10 or more of 12; A 163 of 180 or more | 7 of 12; 160 | 12 of 12; 168 of 180 (93.3%): holds |
+| (2) F's nasals 112 of 137 or more; its /l/ none on 4 of 4 | 106 | 116 of 137 (84.7%); 4 of 4: holds |
+| (3) B, D, E, H, I totals no lower; their cluster nasals 9 of 11 or more | 155, 68, 82, 126, 138; 7 of 11 | 157, 68, 82, 128, 138; 11 of 11: holds |
+| (4) every vowel-only control and bare-vowel row identical | | identical: holds |
+| (5) vowel and consonant checks cannot move | | readOnset and the synthesis untouched |
+
+Still missed: one *sunt* in F (3550, read as a voiced t), and on J *nunc*, *tunc* and *mens* at C4 and E4,
+where the murmur comes in with no 8 dB step. A's remaining misses are the old ones: *ab*, *ad* and *ap* read
+as nasals at E2, G3 and D3 (the step rule, not this one), and /i/ read as a voiced fricative from G3 up.
+`sing.test.mjs` holds the rule: 15 cluster syllables at three pitches read on their n, at least 4 more than
+without it, and no other syllable gains a nasal. Nothing in the synthesis changed. This round makes the
+check see the n that was already sung. Whether a listener hears *sunt* or *sut* is a question for an ear.
 
 #### Formant tuning on high notes (2026-11-15)
 
