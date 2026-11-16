@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMyeHdqoPg7qhRgX2y",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "b86a522e508db7869df0cd622bb996be67bc6aebea9b4c3b6375c0f68c8136ca",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T18:10:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper flagship item (5): page receipt readings re-measured; cash-line guess vote",
+  "projects": [
+    "ventures/ai-bookkeeper"
+  ],
+  "pr": 16655,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "huggingface.co returned 403 this session, so CORD photos (validation-30) could not be re-read; the cash-guess rule is unmeasured on that receipt"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-the-largest-number-on-a-receipt-is-often-the-cash.md",
+    "ventures/ai-bookkeeper/eval/receipt-cash-guess-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "SRD 200 photos re-read with the page's tesseract.js (4 readings) and CLI tesseract 5.3.4 (--four-pass). Page: totals 156/196 at every commit since 2026-11-15, tax 138/185 (wrong 9->8 at #16642). CLI: 150 -> 153 totals with the total-first rules (one lower than the last run's readings: different build). Change: CASH_GUESS_VOTE=0 for a largest-amount guess on the cash line unless support() > 0; first version broke SRD 1108 (exact cash), exception added. Unchanged: SRD page and CLI, CORD text 749/96/92 totals and 324/46/41 tax, SROIE text 611/531/601. Venture suite: 3278 tests pass. Local CI: run_workflow_locally --for-changes, 10/10 selected workflows passed (some steps not run: uses:/non-PR).",
+  "corrections": [],
+  "redteam": null
+}
