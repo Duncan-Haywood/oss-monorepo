@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKmBK38hCGpQWueehFG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T03:26:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10) open-tennis-robots: feed the shot-log launcher fit back into the drill runner",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16435",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first sweep crashed: a re-planned wheel at 263 rpm never settled (drill timed out)",
+      "fix": "MIN_WHEEL_RPM 500 at plan time; re-planner cuts spin and re-aims"
+    },
+    {
+      "what": "first re-planner (2% threshold) made near-right builds worse (0.57 -> 0.90 m median)",
+      "fix": "per-efficiency thresholds at the fit's own error (5% speed, 15% spin)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "the venture test and preflight commands each outlast the foreground timeout; chaining them in one background job worked, but the stop hook nags about untracked files while a sweep is still writing its output"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-the-tennis-feeder-corrects-its-aim-mid-drill.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (Re-planning a drill from its own shots)"
+  ],
+  "goal": null,
+  "notes": "Simulated sweep tests/refit_sweep.py (eval/refit-sweep-2026-11-16.txt): 12 builds, shots 5-16 worst 5.21 m fixed vs 1.18 m re-planned. tests/test_host.py 72 tests pass locally. Venture tests / preflight: pending at first commit of this record.",
+  "corrections": [],
+  "redteam": null
+}
