@@ -244,3 +244,35 @@ test('valuation: released value at 60 cents/lb and the full value charge', () =>
   assert.ok(Math.abs(own.valuation.releasedLiabilityCap - 1100 * 6.5 * 0.75) < 1e-9);
   assert.equal(own.valuation.fullValueCharge, 0);
 });
+
+test('an inventory row with no clock hours adds none', () => {
+  const r = calculateBid({ ...threeBed(), inventory: [{ name: 'Boxes', cubicFeet: 100 }] });
+  assert.equal(r.inventory[0].clockHours, 0);
+  assert.equal(r.inventoryHours, 0);
+});
+
+test('hourly: a rate exactly at loaded labor with no fixed cost breaks even, it is not below labor', () => {
+  // No truck, fuel, materials or overhead, 0% margin: the suggested rate is
+  // the loaded labor rate itself, so every hour nets $0. The page used to say
+  // the rate "does not cover the crew's loaded labor", break-even "never".
+  const r = calculateBid({
+    inventory: [{ cubicFeet: 400, clockHours: 4 }],
+    crewSize: 2,
+    hourlyWage: 20,
+  });
+  const h = r.hourly;
+  assert.equal(h.rate, 40);
+  assert.equal(h.variablePerHour, 40);
+  assert.equal(h.belowLaborCost, false);
+  assert.equal(h.breakEvenHours, 0);
+  assert.equal(h.marginHours, 0);
+  assert.equal(h.minimumHours, 2);
+  for (const s of h.scenarios) assert.ok(s.profit >= 0);
+  // The same rate with a truck to pay for is still below workable: no
+  // number of hours covers a fixed cost at zero margin per hour.
+  const truck = calculateBid({ inventory: [{ cubicFeet: 400, clockHours: 4 }], crewSize: 2, hourlyWage: 20, truckCost: 100, quotedHourlyRate: 40 });
+  assert.equal(truck.hourly.breakEvenHours, null);
+  assert.equal(truck.hourly.minimumHours, null);
+  assert.equal(truck.hourly.belowLaborCost, false);
+  assert.equal(calculateBid({ ...threeBed(), quotedHourlyRate: 1 }).hourly.belowLaborCost, true);
+});
