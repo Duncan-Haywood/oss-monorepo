@@ -316,7 +316,17 @@ LOOP_PENDING = 32     # LAUNCH flags bit 5: the loop-command fit of this record 
 # drills with an ESC lag). The Pi warns on them; it does not drop them.
 LOOP_SE_MAX = 0.01
 LOOP_UNSURE = 64
-TICK_LOG = 160        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115
+TICK_LOG = 240        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115,
+                      # and a slow wheel's watch past the verdict (EXTEND_MS) up to 120 more
+# A slow wheel's watch past the verdict (2026-11-16, README "Slow wheels watched past the verdict"). The verdict comes
+# 250 ms after the stroke, about 0.39 s after the ball: three or four revolutions at 520-750 rpm, where the loop fit
+# wants `drop_from_commands_steps`' eight after its anchor. So when a launched stroke's turning wheel has fewer than
+# LOOP_AFTER_REVS after the anchor and the targets have not changed, the record goes out at the verdict as before
+# (loop fit pending) and the board keeps logging that wheel's periods and ticks until it has them, the targets change
+# or EXTEND_MS passes; then the loop fit runs on the longer snapshot. The Pi holds the next speeds that long
+# (host.hold_s). Only wheels under about 1,500 rpm are ever short; faster ones keep the verdict's snapshot.
+LOOP_AFTER_REVS = 8
+EXTEND_MS = 1200
 # The ESC-lag survey (2026-11-16, README "The ESC lag surveyed on the board"): after each launched stroke's record, every
 # turning wheel's snapshot is refitted with the commands through each of these ESC lags (esc_lagged_ticks) and the fit's
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
@@ -1435,12 +1445,19 @@ class LaunchCheck:
         self._sums_n = -1
         self.survey_cut = 0
         self.surveying = None
+        # A launched stroke whose slow wheel is still being watched past its verdict (README "Slow wheels watched past
+        # the verdict"): a dict with the wheels still short, their edge counts to reach, the deadline, the tachs, the
+        # ticks so far and what the loop fit needs; None otherwise. `extended` counts the wheels that were watched on.
+        self.ext = None
+        self.extended = 0
 
     def cancel(self):
         self.targets = None
         self.until = None
+        self._extend_end()            # a stop ends a slow wheel's watch: its periods from here on are the coast down
 
     def start(self, targets, now_ms):
+        self._extend_end()            # the last ball's slow wheel has what it has: this stroke's periods are not its
         self.finish()                 # a fit still under way is finished now: its record must not be lost
         if self.surveying is not None:
             self.surveying = None     # the survey of the last ball is not: it would hold up this stroke's control ticks
@@ -1476,6 +1493,8 @@ class LaunchCheck:
         """`tachs`, the two wheels' PeriodTach objects (optional), lets the record carry the pulse-time drop; `cmds`
         (the ESC commands this tick set) and `since` (us since each tach's last edge) with them, the loop-command drop."""
         self.step()
+        if self.ext is not None:
+            self._extend_tick(now_ms, targets, tachs, cmds, since)
         if self.targets is None:
             return None
         if tachs is not None and cmds is not None and since is not None and self.snap is None:
@@ -1508,6 +1527,7 @@ class LaunchCheck:
             return None
         th = self.threshold()
         self._snapshot(tachs)
+        targets_now = targets
         targets, low, fall, snap = self.targets, self.low, self.fall, self.snap
         self.cancel()
         if th is None:
@@ -1547,9 +1567,66 @@ class LaunchCheck:
         self.record = (self.seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
                        min(32767, drops[1]), flags)
         if went and snap is not None and self.edges0 is not None and ticks[0] and ticks[1]:
-            self.pending = self._loop_fit(snap, ticks, self.edges0, targets, speeds, dips, flags)
+            short = self._short(snap, targets, tachs, targets_now)
+            if short:
+                self.ext = {"short": short, "until": now_ms + EXTEND_MS, "tachs": tachs, "ticks": ticks,
+                            "fit": (snap, self.edges0, targets, speeds, dips, flags)}
+                self.extended += len(short)
+            else:
+                self.pending = self._loop_fit(snap, ticks, self.edges0, targets, speeds, dips, flags)
             self.record = self.record[:5] + (flags | LOOP_PENDING,)
         return went
+
+    def _short(self, snap, targets, tachs, targets_now):
+        """{wheel: edge count to reach} for the turning wheels whose snapshot holds fewer than LOOP_AFTER_REVS
+        revolutions after the loop fit's anchor, when they can still be watched on (the targets unchanged)."""
+        if tachs is None or self.frozen or LOOP_AFTER_REVS <= 0:
+            return None
+        if targets_now is not None and (targets_now[0], targets_now[1]) != targets:
+            return None
+        short = {}
+        for k in (0, 1):
+            p = snap[k]
+            if targets[k] <= 0 or len(p) < 8:
+                continue
+            a = _anchor(p)
+            if len(p) - a < LOOP_AFTER_REVS + 1:
+                short[k] = self.edges0[k] + a + LOOP_AFTER_REVS + 1
+        return short or None
+
+    def _extend_tick(self, now_ms, targets, tachs, cmds, since):
+        """One control tick of a slow wheel's watch past its verdict: log the tick, end the watch when it has its
+        revolutions, the targets change or EXTEND_MS has passed."""
+        ext = self.ext
+        fit_targets = ext["fit"][2]
+        if targets is not None and (targets[0], targets[1]) != fit_targets:
+            self._extend_end()            # the periods after this are the next shot's speed change
+            return
+        if tachs is not None and cmds is not None and since is not None:
+            for i in (0, 1):
+                log = ext["ticks"][i]
+                log.append((tachs[i].edges, since[i], cmds[i]))
+                if len(log) > TICK_LOG:
+                    log.pop(0)
+        t = ext["tachs"]
+        if now_ms >= ext["until"] or all(t[k].edges >= need for k, need in ext["short"].items()):
+            self._extend_end()
+
+    def _extend_end(self):
+        """End a slow wheel's watch: re-take the short wheels' periods and start the loop fit on them."""
+        ext = self.ext
+        if ext is None:
+            return
+        self.ext = None
+        snap, edges0, targets, speeds, dips, flags = ext["fit"]
+        snap = list(snap)
+        for k in ext["short"]:
+            t = ext["tachs"][k]
+            if t.edges >= edges0[k]:
+                snap[k] = t.recent(t.edges - edges0[k])
+        self.last_snap = snap
+        self.last_ticks = ext["ticks"]
+        self.pending = self._loop_fit(snap, ext["ticks"], edges0, targets, speeds, dips, flags)
 
     def _loop_fit(self, snap, ticks, edges0, targets, speeds, dips, flags):
         """The loop-command fit of both wheels, one step per `step()`; then the record is re-sent with its drops (same

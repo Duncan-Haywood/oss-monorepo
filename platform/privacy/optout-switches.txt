@@ -704,6 +704,7 @@ ventures/merchant-cash-advance-true-cost-calculator/usage.mjs
 ventures/merchant-feed-check/usage.mjs
 ventures/merchant-of-record-fee-calculator/usage.mjs
 ventures/meta-ads-fatigue-analyzer/usage.mjs
+ventures/meta-analysis/usage.mjs
 ventures/meta-catalog-csv-check/usage.mjs
 ventures/metal-roof-bid-calculator/usage.mjs
 ventures/meter-keeper/usage.mjs

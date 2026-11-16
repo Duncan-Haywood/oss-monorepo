@@ -1153,6 +1153,64 @@ class PulseDropTest(unittest.TestCase):
             host.HOLD_RPM = old
         self.assertEqual(got, {0.0: False, 1000.0: True})
 
+    def test_slow_wheel_is_watched_past_the_verdict(self):
+        """2026-11-16, firmware/esp32/README.md "Slow wheels watched past the verdict": a 615 rpm wheel had three or
+        four revolutions after its ball by the verdict, and the loop fit read 0.96-1.26 of its drop. The board now
+        watches it on until the fit's LOOP_AFTER_REVS, and the Pi holds the next speeds (and the drill's final stop,
+        which froze the last ball's snapshot straight after its release) until then."""
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "interval": 3.0,
+                "shots": [{"x": 9.0, "y": 0.0, "speed": 22, "topspin": 3000},
+                          {"x": 10.5, "y": 0.0, "speed": 26, "topspin": 0},
+                          {"x": 9.0, "y": 0.0, "speed": 22, "topspin": 3000}]}
+        shots = host.plan_drill(spec)
+        self.assertLess(shots[0].rpm_bottom, 650)
+        self.assertGreater(host.hold_s(shots[0]), host.VERDICT_S)
+        old = controller.LOOP_AFTER_REVS, host.LOOP_AFTER_REVS
+        got = {}
+        try:
+            for revs in (0, 8):
+                controller.LOOP_AFTER_REVS = host.LOOP_AFTER_REVS = revs
+                sim = SimFeeder(balls=None)
+                truth, after = [], []
+                take = sim._take_momentum
+
+                def taken():
+                    before = sim.wheel[1]
+                    take()
+                    truth.append(1 - sim.wheel[1] / before)
+                sim._take_momentum = taken
+                link = host.FeederLink(sim, sim.clock)
+                lc = sim.hw.launch
+                fit = lc._loop_fit
+
+                def kept(snap, *a):
+                    after.append(len(snap[1]) - controller._anchor(snap[1]))
+                    return fit(snap, *a)
+                lc._loop_fit = kept
+                res = host.run_drill(link, shots, sim.sleep)
+                self.assertTrue(res.ok, res.aborted)
+                recs = [r for r in res.launches if r["launched"]]
+                got[revs] = ([r["drop_bottom"] / t for r, t in zip(recs, truth)][0::2], after[0::2],
+                             lc.extended)
+        finally:
+            controller.LOOP_AFTER_REVS, host.LOOP_AFTER_REVS = old
+        ratios, after, extended = got[8]
+        self.assertEqual(extended, 2)                     # both slow shots, the last one too
+        self.assertTrue(all(n >= 9 for n in after), after)
+        self.assertTrue(all(abs(x - 1) < 0.01 for x in ratios), ratios)
+        self.assertTrue(all(n < 8 for n in got[0][1]), got[0][1])
+        self.assertEqual(got[0][2], 0)
+
+    def test_hold_matches_the_board(self):
+        """The Pi's hold and the board's watch past the verdict count the same revolutions over the same time."""
+        self.assertEqual(host.LOOP_AFTER_REVS, controller.LOOP_AFTER_REVS)
+        self.assertAlmostEqual(host.HOLD_MAX_S, 0.25 + controller.EXTEND_MS / 1000.0)
+        shot = lambda top, bottom: type("S", (), {"rpm_top": top, "rpm_bottom": bottom})
+        self.assertEqual(host.hold_s(shot(3500, 3500)), 0.0)
+        self.assertEqual(host.hold_s(shot(5000, 2000)), host.VERDICT_S)
+        self.assertGreater(host.hold_s(shot(5900, 600)), host.VERDICT_S)
+        self.assertLessEqual(host.hold_s(shot(5900, 500)), host.HOLD_MAX_S + host.FRESH_S)
+
     def test_launch_flags_reach_the_pi(self):
         sim = SimFeeder()
         res, _ = run(sim, drill())

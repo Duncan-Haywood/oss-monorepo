@@ -100,3 +100,35 @@ Through the tool (node eval/odd-cyclic-check.mjs 35:6:9, seeds 1 to 3):
   before: 35 teams on 6 x 9: waits 505 -> 505 (seeds 1-3), 3784 ms a build
   now:    35 teams on 6 x 9: waits 505 -> 0 (seeds 1-3), 1458 ms a build
 41 teams on 7 x 9 (seeds 1, 2, --step 150): 1 of 14 nights good at 262 s, no step landed before they were stopped (to free cores).
+
+41 teams on 7 courts x 9 slots, 2026-11-16 (a later session; 4 runs at once on the 4-core container).
+  python3 eval/odd-lns.py 41 --courts 7 --times 9 --seed S --step 150 --limit 14000 --save STATE
+The earlier 41-team attempt (two seeds sharing cores) sat at 1 of 14 nights for its whole run with no
+step accepted. Two changes to the script came first:
+  - A repair keeps the layouts the solver found for the nights it marked good. Before, each freed night
+    was solved again by night_rows under a 20 s limit, and a step was thrown away when that second solve
+    timed out; at 41 teams (60 matches a night) it often did.
+  - --save STATE writes the round robin and its good nights' layouts after every accepted step, and
+    --resume STATE starts from that file, re-checking each stored layout match by match (night_ok).
+    A night with no stored layout gets a longer first check (--resume-check, 180 s). The first resumes
+    in this session had neither (the state file then held rounds only) and re-checked nights under
+    20 s: 11 good nights came back as 9 or 10. With the 180 s check, 12 came back as 12.
+Fresh seeds (circle-method starters), good nights over time:
+  seed 1: 1 at 250 s, 4 at 2,948 s, 7 at 4,198 s, 10 at 10,581 s; 10 of 14 at the 14,000 s limit
+  seed 2: 1 at 261 s, 4 at 1,211 s, 6 at 4,604 s; stopped at 9,791 s (6 of 14), its core given to a resume
+  seed 3: 1 at 261 s, 6 at 4,649 s, 9 at 9,233 s; 9 of 14 at the limit
+  seed 4: 1 at 250 s, 5 at 3,113 s, 8 at 6,402 s, 10 at 9,853 s, 11 at 12,859 s; 11 of 14 at the limit
+Resumed runs (new seeds on a saved state):
+  seed 5 from seed 4 at 10 (re-check 20 s: start 9): 11 at 2,445 s, 12 at 6,209 s; 12 of 14 at its limit
+  seed 6, 7 from seed 5 at 11 (start 10): 11 and 10 of 14 after ~5,000 s; stopped
+  seed 8 from seed 4's final state at 11 (start 10): 11 at 696 s, 12 at 6,064 s, 13 at 6,081 s;
+       13 of 14 at its 8,000 s limit (the step running when the limit came took the rest)
+  seed 9, 10 from seed 5 at 12 (re-check 180 s: start 12 of 12): no gain in ~5,600 s; stopped
+  seed 11, 12, 13 from seed 8 at 13 (start 13 of 14 in ~293 s; the 20 s checks of its 13 nights, then
+       the 180 s check of the bad one): no gain in 4,800 s each (26 to 32 steps, every one sideways);
+       the bad night ended as night 4, 2 and 5. Stored for the next run: eval/lns-states/41-7x9.json
+       (seed 13's state, 13 of 14 nights with their layouts; lns-state.test.mjs re-checks it in Node).
+Not stored as a design: the season is not wait-free yet, so the tool still schedules 41 on 7 x 9 by
+annealing. Next: resume from the stored state for longer, or free three nights for the last step.
+  python3 eval/odd-lns.py 41 --courts 7 --times 9 --seed S --step 150 --limit 14000 \
+      --resume eval/lns-states/41-7x9.json --save /tmp/41.json
