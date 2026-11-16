@@ -29,14 +29,24 @@ CLAIM = re.compile(
     r"|\bas (seen|featured) (on|in)\b"
     r"|\b(award[- ]winning|#1 (rated|choice)|best[- ]selling)\b"
     r"|\bloved by (over |more than )?\d"
-    r"|\bjoin (the )?(hundreds|thousands|millions) of\b)", re.I)
+    r"|\bjoin (the )?(hundreds|thousands|millions) of\b"
+    # "Used by 10,000+ restaurants", "relied on by 3,000 accountants": a count
+    # of an audience (one optional word before it), so "the rates used by 2026
+    # payroll tables" is prose. Red team 2026-11-16.
+    r"|\b(used|relied on|chosen) by (over |more than )?\d[\d,]*(\.\d+)?[km]?\+? (\w+ )?"
+    r"(users|customers|clients|businesses|teams|companies|people|restaurants|shops|stores"
+    r"|firms|professionals|accountants|freelancers|creators|sellers|merchants|developers"
+    r"|owners|contractors|agencies|brands|families|members)\b"
+    # "4.9/5 from 1,200 reviews": a rating with a review tally.
+    r"|\b\d(\.\d)?\s*/\s*5 (from|across|based on) [\d,]+[km]?\+? (\w+ )?(reviews|ratings)\b)", re.I)
 # Cheap superset of CLAIM: every alternative above contains one of these
 # literals (or slash, optional space, 5), so a lowercased line without one
 # cannot match. Plain `in` tests are far faster than CLAIM, whose leading
 # `[\d,]+` alternatives cost ~9 s over the 67 MB tree (now ~1 s).
 PREFILTER_KEYS = ("trusted by", "join ", "joined ", "happy ", "satisfied ", "rated ",
                   "★", "⭐", "out of 5", "-star ", "as seen ", "as featured ",
-                  "award", "#1 ", "best-selling", "best selling", "loved by ")
+                  "award", "#1 ", "best-selling", "best selling", "loved by ",
+                  "used by ", "relied on by ", "chosen by ")
 SLASH5 = re.compile(r"/\s*5")
 
 
@@ -47,7 +57,7 @@ def maybe_claim(lowered):
 # The claim belongs to a named third party, or is a format example.
 ATTRIBUTED = re.compile(
     r"\b(says|said|claims?|claimed|advertis\w+|its own marketing|own marketing"
-    r"|marketing says|according to|e\.g\.|seen in a third)\b|<code>", re.I)
+    r"|marketing says|according to|e\.g\.|seen in a third|reports? (?:it|that))\b|<code>", re.I)
 # Words that mark a format example only when they introduce the claim
 # ("phrases such as 'trusted by'"). After it they are ordinary copy: "Trusted
 # by teams such as Acme and Globex" and "Trusted by 2,000 firms. Download a

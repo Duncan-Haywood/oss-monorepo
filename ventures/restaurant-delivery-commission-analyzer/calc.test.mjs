@@ -738,3 +738,37 @@ test("edge inputs the parsers must reject or read one way", () => {
   assert.equal(parseWhen("6/011/2026"), null);
   assert.equal(detectDmy(["13/5/2026", "5/013/2026"]), true, "a malformed second part does not veto day-first");
 });
+
+// Red team 2026-11-16: guards for two escaped mutants and one real defect.
+test("a three-decimal grouped amount votes for decimal point", () => {
+  // "1,234.500" ends in three digits, so only the "1,234." grouping pattern
+  // tells it is decimal point; without that vote a semicolon file reads it as
+  // decimal comma (1.2345).
+  assert.equal(detectDecimalComma([["1,234.500"]], ";"), false);
+  assert.equal(detectDecimalComma([["1.234,500"]], ","), true);
+});
+
+test("the worked example spans the same three months on every load", () => {
+  const r = analyze(normalizeRows(parseCsv(sampleCsv())).orders, {});
+  assert.equal(new Date(r.summary.from).toISOString().slice(0, 10), "2026-06-01");
+  assert.equal(new Date(r.summary.to).toISOString().slice(0, 10), "2026-08-29");
+  assert.deepEqual(r.byWeekday.map((d) => d.orders), [26, 38, 41, 33, 31, 41, 36]);
+});
+
+test("a partly refunded or refund-requested order still sold its food", () => {
+  // Any status containing "refund" read as cancelled, so a delivered order
+  // marked "Partially refunded" lost its food sales and kept only its charges:
+  // four $40 orders came out at $40 of sales and -$8 net cash.
+  const csv = "Order ID,Order date,Status,Subtotal,Commission,Error charges\n" +
+    "1,2026-06-01 12:00,Delivered,40.00,-10.00,0\n" +
+    "2,2026-06-01 12:30,Partially refunded,40.00,-10.00,-8.00\n" +
+    "3,2026-06-01 13:00,Refund requested,40.00,-10.00,0\n" +
+    "4,2026-06-01 13:30,Refunded,40.00,-10.00,0\n" +
+    "5,2026-06-01 14:00,Fully Refunded,40.00,-10.00,0\n";
+  const n = normalizeRows(parseCsv(csv));
+  assert.deepEqual(n.orders.map((o) => o.cancelled), [false, false, false, true, true]);
+  const r = analyze(n.orders, {});
+  assert.equal(r.summary.orders, 3);
+  assert.equal(r.summary.gross, 120);
+  assert.equal(r.summary.net, 120 - 50 - 8);
+});
