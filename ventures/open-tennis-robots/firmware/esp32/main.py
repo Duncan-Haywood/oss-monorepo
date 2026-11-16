@@ -384,7 +384,8 @@ class FeederHw:
             esc.frac(self.esc_cmd[i])
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
         if self.launch is not None:
-            went = self.launch.update(now, (self.tach_top.rpm_last, self.tach_bottom.rpm_last), self.target_rpm)
+            went = self.launch.update(now, (self.tach_top.rpm_last, self.tach_bottom.rpm_last), self.target_rpm,
+                                    (self.tach_top.core, self.tach_bottom.core))
             if went is True:
                 self.launches += 1
                 self.hopper_empty = False
