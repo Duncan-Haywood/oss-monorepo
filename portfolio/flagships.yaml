@@ -240,7 +240,7 @@ flagships:
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
       (FAIR_WORKWEEK; team-offer exception, on-call shifts, Oregon's standby list,
-      Philadelphia and LA presets; next a real site's changes): next live deploy,
+      Philadelphia, LA, NYC presets; next a real site's changes): next live deploy,
       real punches at a site. Exact side: branch-and-price and column generation
       prove 20-80 person weeks; the exact check is on by default at every size.
       Forecast side (--from-sales, eight real files, eval/real-pos-exports.mjs):
