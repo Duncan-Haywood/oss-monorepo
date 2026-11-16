@@ -2839,6 +2839,21 @@ totals and 134 taxes before and after. Details:
 [`eval/cord-cash-guess-2026-11-16.md`](eval/cord-cash-guess-2026-11-16.md). Tests:
 `receipt-crosscheck.test.mjs`.
 
+### A dash and a section sign on whole-unit slips (2026-11-16, night)
+
+Two OCR marks on CORD's rupiah photos, both changed from validation only:
+
+- **The largest-amount fallback reads through a dash before a whole amount**
+  (`AIR MINERAL -7,000`), as the cash and change lines already did; so do the cash-line
+  checks of the vote. Validation-66 was already right; its psm6 reading now agrees.
+- **A `§` glued to a grouped whole amount reads as 5** (`TOTAL SALES §2,000` for 52,000,
+  validation-84). Validation totals 65 to 66 of 98.
+
+Test, scored once at the end: 53 of 95, tax 16 of 41, unchanged; test-56's wrong total moved
+from 8,181 to 10,000 (the cash handed over, flagged as a cash-line guess). SRD_LINE Details:
+[`eval/cord-dash-section-sign-2026-11-16.md`](eval/cord-dash-section-sign-2026-11-16.md).
+Tests: `receipt-crosscheck.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
