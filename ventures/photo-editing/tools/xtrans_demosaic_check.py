@@ -31,6 +31,12 @@ Usage (from ``ventures/photo-editing``)::
     python3 -m venv /tmp/v && /tmp/v/bin/pip install rawpy numpy
     PYTHONPATH=src /tmp/v/bin/python tools/xtrans_demosaic_check.py FILE.RAF [...] > rows.jsonl
 
+**Other cameras' frames as truth** (``--truth-from FILE``, repeatable, 2026-11-16). Only two X-Trans
+frames are in the public sample set, so any LibRaw-readable raw (a Bayer frame from another camera)
+can be rendered, binned 4 x 4 the same way, cropped to ``--truth-crop`` (default 800 x 1200) and
+mosaicked with each RAF's own X-Trans layout. The scene is real; only the layout is borrowed. These
+are scored like the RAF's own binned frame, LibRaw included (the mosaic is written into the RAF).
+
 Real files used on 2026-11-14: the X-E1 and X-E2 RAFs in drewnoakes/metadata-extractor-images
 (``raf/``; the X-E2 is the file named ``FujiFilm EX-2.raf``); ``eval/xtrans-directional-demosaic-2026-11-14.md``
 and, for the clamp and the gradient choice, ``eval/xtrans-clamp-gradient-2026-11-15.md``.
@@ -261,8 +267,19 @@ def main(argv=None) -> int:
         "--noise-snr", type=float, action="append", default=[],
         help="also score each known truth with sensor-like noise of this SNR at 18%% grey (repeatable)",
     )
+    ap.add_argument(
+        "--truth-from", action="append", default=[],
+        help="also use this raw file's frame (any camera LibRaw reads), binned 4x4, as a known truth (repeatable)",
+    )
+    ap.add_argument("--truth-crop", default="800x1200", help="rows x columns kept of each --truth-from frame")
+    ap.add_argument("--skip-own", action="store_true", help="skip the RAF's own frame and the sheet")
     args = ap.parse_args(argv)
     import rawpy
+
+    crop_h, crop_w = (int(v) for v in args.truth_crop.lower().split("x"))
+    borrowed = [
+        (f"{t.rsplit('/', 1)[-1]} binned 4x4", binned_truth(t)[:crop_h, :crop_w].copy()) for t in args.truth_from
+    ]
 
     variants = [
         ("ours bilinear", ours_bilinear),
@@ -275,6 +292,7 @@ def main(argv=None) -> int:
         ("ours directional, no median", lambda c, p: ours_directional(c, p, median_passes=0)),
         ("ours directional (default: one pass, one median)", lambda c, p: ours_directional(c, p)),
         ("ours directional, three passes", lambda c, p: ours_directional(c, p, passes=3)),
+        ("ours directional, median sets red and blue only", lambda c, p: ours_directional(c, p, median_green=False)),
     ]
     for path in args.raf:
         raw = rawpy.imread(path)
@@ -284,7 +302,8 @@ def main(argv=None) -> int:
             continue
         name = path.rsplit("/", 1)[-1]
         sheet = synthetic_sheet()
-        for truth_name, truth in ((f"{name} binned 4x4", binned_truth(path)), ("synthetic sheet", sheet)):
+        own = [] if args.skip_own else [(f"{name} binned 4x4", binned_truth(path)), ("synthetic sheet", sheet)]
+        for truth_name, truth in own + [(f"{t} ({name} layout)", tr) for t, tr in borrowed]:
             for row in known_truth_rows(path, truth_name, truth, pat, variants):
                 print(json.dumps({"file": name, **row}), flush=True)
             for row in half_size_rows(truth_name, truth, pat):

@@ -35,7 +35,10 @@ Steps, on the white-balanced sensel plane ``c`` (so that the three colours are c
    within ``keep`` of the best. Measured, that rule did no better than averaging all four directions
    on a real frame (36.38 against 36.39 dB) and worse on a synthetic sheet.
 5. **Optional clean-up** (``median_passes``): a 3x3 median of R - G and B - G, rebuilt around the
-   sensels' own values, which removes isolated false colour left by step 4.
+   sensels' own values, which removes isolated false colour left by step 4. Rebuilding green this way
+   puts the sensel's own noise into green; ``median_green=False`` sets red and blue only. Measured on
+   seven held-out truths on 2026-11-16 that loses on six of them noise-free (up to 1.4 dB colour PSNR) and
+   is a wash at SNR 25, so green stays in the median by default (eval/xtrans-fresh-truths-2026-11-16.md).
 
 With a C compiler the whole piece runs in ``shootflow.xtrans_native`` instead (``native``), equal to this
 code bit for bit; this module stays the reference and the fallback.
@@ -180,6 +183,7 @@ def directional(
     passes: int = 1,
     clamp: bool = True,
     select: str = "gradient",
+    median_green: bool = True,
     band_rows: int | None = BAND_ROWS,
     threads: int | None = None,
     native: bool | None = None,
@@ -189,7 +193,8 @@ def directional(
     ``scale`` is the level treated as white for the perceptual comparison (default: the plane's 99.9th
     percentile). ``keep`` is the share below the best homogeneity score that still counts as best (0
     keeps only exact ties; ``select="homogeneity"`` only). ``clamp`` holds each directional green between the
-    two greens it was interpolated from; ``select`` is ``"gradient"`` or ``"homogeneity"`` (step 4). Returns (h, w, 3) float64. Large frames run in bands of ``band_rows`` rows
+    two greens it was interpolated from; ``select`` is ``"gradient"`` or ``"homogeneity"`` (step 4); ``median_green=False`` keeps green out of the
+    median (step 5; numpy only). Returns (h, w, 3) float64. Large frames run in bands of ``band_rows`` rows
     (None: one piece) on ``threads`` threads (``SHOOTFLOW_THREADS`` or up to 4 when None); every band reads
     ``OVERLAP * (passes + 1)`` rows past its own on each side, so the result equals the one-piece result exactly.
 
@@ -208,17 +213,17 @@ def directional(
     if scale is None:
         scale = float(np.percentile(c, 99.9)) or 1.0
     use_c = False
-    if native is not False and select == "gradient":
+    if native is not False and select == "gradient" and median_green:
         from shootflow import xtrans_native
 
         use_c = xtrans_native.available()
     if native is True and not use_c:
-        raise RuntimeError("the native X-Trans demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0 or select other than gradient)")
+        raise RuntimeError("the native X-Trans demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0, select other than gradient or median_green=False)")
 
     def piece_of(part, part_pat):
         return _directional_piece(
             part, part_pat, scale=scale, keep=keep, median_passes=median_passes, passes=passes, clamp=clamp, select=select,
-            native=use_c,
+            median_green=median_green, native=use_c,
         )
 
     overlap = OVERLAP * (passes + 1)
@@ -263,6 +268,7 @@ def _directional_piece(
     passes: int = 1,
     clamp: bool = True,
     select: str = "gradient",
+    median_green: bool = True,
     return_choice: bool = False,
     native: bool = False,
 ):
@@ -302,7 +308,10 @@ def _directional_piece(
     for _ in range(median_passes):
         rg = _median9(out[..., 0] - out[..., 1])
         bg = _median9(out[..., 2] - out[..., 1])
-        g = np.where(masks[0], c - rg, np.where(masks[2], c - bg, c))
+        if median_green:
+            g = np.where(masks[0], c - rg, np.where(masks[2], c - bg, c))
+        else:  # green as the pass left it: the median sets red and blue only
+            g = out[..., 1]
         out = np.stack(
             [np.where(masks[0], c, g + rg), g, np.where(masks[2], c, g + bg)],
             axis=-1,
