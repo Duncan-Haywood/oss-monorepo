@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtLE5NwexgDhki7211v",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T06:07:22Z",
+  "ended": "2026-11-16T06:20:48Z",
+  "wall_minutes": 17.53,
+  "tokens_in": 5102987,
+  "tokens_out": 23600,
+  "cost_usd": 2.2967,
+  "tool_calls": 59,
+  "task": "perf: slowest unworked venture suite (shift-roster-builder)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16481",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First CI run of PR #16481 red in changed-ventures: repair-flow.test.mjs 'repair reserve on by default from 300 copies' (merged from main via PR #16466) got null; budget-starved at 3 s on a loaded runner. Reproduced locally 4/4 under load; fixed forward with a 10 s budget on the big week.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Where to look' item 2 points at ci_profile.py, but platform/ci/venture_suite_times.json (per-suite times, refreshed by run_venture_tests.py --write-times) answered 'which suite' with no runner reading; worth naming there."
+    },
+    {
+      "file": "ventures/shift-roster-builder/calc.mjs",
+      "issue": "optimality.openRow.bound is reported from cgRow.floor, not cgRow.bound; my first seeded fault set the wrong field and looked like a missed catch."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "'Never drop, skip or weaken a test' read strictly would bar shortening a budget in a test. I shortened exactMs only for a phase the test does not check, and kept the checks it does make.",
+      "did": "Showed that both stopped passes still run on all 6 calls at 300 ms, added a direct assertion on the open-hours row's bound, and planted a fault in each bound to show it is still caught.",
+      "result": "Test 2 went from 59 s to 13 s and still catches both planted faults."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-test-that-waited-eight-seconds-for-nothing.md",
+    "docs/history/ci-perf-2026-11-16-shift-roster-cg-hardstop-exact-ms.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of shift-roster-builder cg-hardstop.test.mjs, from `node --test --test-reporter=tap cg-hardstop.test.mjs` run alone on 4 cores, twice each way (git stash for before). Test 2: 58.9 s and 59.5 s before, 13.1 s and 13.0 s after. Whole file: 75.8 s and 77.1 s before, 30.2 s and 29.8 s after, about 46 s of CPU saved per suite run. The per-file reading of all 70 files (4 at a time) found calc.test.mjs 105 s, cg-hardstop 81 s, open-sums 54 s, cover-guide 33 s. cover-guide test 3 was checked: its time is in coverPass/coverRepair, the subject under test, so it was left alone. Suite run: python3 platform/ci/run_venture_tests.py shift-roster-builder, ok (237.0 s, 663 tests, 0 failed) on this container, run alone. Also fixed forward main's repair-flow reserve test (5.5 s flaky to 14.6 s stable, 4/4 at 4x load), so the net is about -37 s CPU per suite run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ced9d1f0-0981-5662-8b44-e092e9ae6c56",
+    "transcripts": 1,
+    "first": "2026-11-16T06:07:22Z",
+    "last": "2026-11-16T06:24:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 109,
+        "output": 23600,
+        "thinking": 5309,
+        "cache_read": 4999845,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103033,
+        "api_equivalent_usd": 2.2967,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 109,
+      "output": 23600,
+      "thinking": 5309,
+      "cache_read": 4999845,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103033,
+      "api_equivalent_usd": 2.2967,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.53,
+      "active_minutes": 17.53,
+      "model_minutes": 4.76,
+      "tool_minutes": 12.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "an engineer timing 70 test files, profiling phases, checking budget equivalence with seeded faults, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 130.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
