@@ -239,6 +239,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    `release-core.mjs`; README "The same folder from the studio page"): a one-track single, byte-identical to
    `ep-cli.mjs`'s files but for the cover's compression (same pixels), 1.9 s in Chromium. Next: several tracks
    from the page (an EP queue), and a listen.
+   2026-11-16, latest: the EP queue on the studio page (`ep-queue.mjs`; README "Several tracks from the studio
+   page"): tracks with their own settings and ISRCs, reorderable, kept over a reload, built through the same
+   `releaseKit`; a two-track queue is byte-identical to `buildEp` on the same plan. Next: a listen, and the
+   release folder against a distributor's real form.
    Afterwards, use the existing `distrokid-royalty-to-journal` tool on the
    real earnings export.
 

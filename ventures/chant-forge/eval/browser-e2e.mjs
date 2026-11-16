@@ -301,6 +301,49 @@ await page.selectOption("#sections", "");
   await page.fill("#relartist", ""); await page.fill("#relisrc", "");
   await page.selectOption("#voice", ""); await page.selectOption("#genre", "");
 }
+// the EP queue (2026-11-16): three chants with their own settings and ISRCs, reordered, kept over a
+// reload, built into one folder release-cli.mjs passes
+{
+  const add = async (piece, genre, isrc) => {
+    await page.selectOption("#piece", piece);
+    await page.waitForFunction(() => document.querySelector("#src").value.includes("%%"));
+    await page.selectOption("#genre", genre); await page.selectOption("#voice", "sing");
+    await page.click("#go");
+    await page.fill("#relisrc", isrc);
+    await page.click("#epadd");
+  };
+  await add("Veni Creator", "deep-house", "QZ-ABC-27-00011");
+  await add("Dies irae", "metal", "QZ-ABC-27-00012");
+  await add("Pange lingua", "hard-rock", "QZ-ABC-27-00013");
+  const items = () => page.locator("#eplist li").evaluateAll((l) => l.map((x) => x.firstChild.textContent));
+  ok((await items()).length === 3 && (await page.inputValue("#relisrc")) === "", `three tracks queued, the ISRC box cleared after each: ${(await items()).join(" | ")}`);
+  await page.click('#eplist button[aria-label^="Move up Pange"]');
+  const order = await items();
+  ok(/Veni/.test(order[0]) && /Pange/.test(order[1]) && /Dies/.test(order[2]), `Up moves Pange lingua to track 2: ${order.join(" | ")}`);
+  await page.reload();
+  ok((await items()).join() === order.join() && !(await page.locator("#dlep").isDisabled()), "the queue survives a reload (localStorage)");
+  await page.fill("#relartist", "Name"); await page.fill("#reltitle", "Three");
+  const t0 = Date.now();
+  const [de] = await Promise.all([page.waitForEvent("download", { timeout: 300000 }), page.click("#dlep")]);
+  const secs = ((Date.now() - t0) / 1000).toFixed(1);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ep-"));
+  fs.writeFileSync(path.join(tmp, "ep.zip"), fs.readFileSync(await de.path()));
+  execFileSync("unzip", ["-q", path.join(tmp, "ep.zip"), "-d", path.join(tmp, "ep")]);
+  const rel = JSON.parse(fs.readFileSync(path.join(tmp, "ep", "release.json"), "utf8"));
+  ok(rel.tracks.length === 3 && rel.tracks.map((t) => t.isrc).join() === "QZ-ABC-27-00011,QZ-ABC-27-00013,QZ-ABC-27-00012"
+    && rel.tracks.map((t) => t.source.gabcFile).join() === "sources/veni-creator.gabc,sources/pange-lingua.gabc,sources/dies-irae.gabc",
+  `EP ZIP in ${secs} s: ${rel.tracks.map((t) => `${t.title} (${t.seconds} s)`).join(", ")}; each ISRC and corpus file name kept`);
+  let code = 0, text = "";
+  try { text = execFileSync(process.execPath, [path.join(root, "release-cli.mjs"), path.join(tmp, "ep", "release.json")], { encoding: "utf8" }); }
+  catch (e) { code = e.status; text = String(e.stdout); }
+  ok(code === 0 && /No owner steps left/.test(await out()), `release-cli passes the page's three-track folder (exit ${code}${code ? ": " + text.split("\n").filter((l) => /^FAIL/.test(l)).join("; ") : ""})`);
+  await page.click('#eplist button[aria-label^="Remove Dies"]');
+  ok((await items()).length === 2, "Remove drops a track");
+  await page.click("#epclear");
+  ok((await items()).length === 0 && (await page.locator("#dlep").isDisabled()), "Clear empties the queue");
+  await page.fill("#relartist", ""); await page.fill("#reltitle", "");
+  await page.selectOption("#voice", ""); await page.selectOption("#genre", "");
+}
 // errors
 await page.fill("#src", "hello");
 await page.click("#go");

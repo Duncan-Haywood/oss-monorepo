@@ -429,8 +429,8 @@ flagships:
       mastering checks and a release kit for streaming distribution.
     next: >-
       History and every measurement: README and ROADMAP.md (studio page, CLI
-      options, ep-cli.mjs and the studio page build the release folder (2026-11-16;
-      to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
+      options, ep-cli.mjs and the studio page's EP queue build the release folder
+      (to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
       sections, breakdown, riser; --a-cappella first verse and a range-checked
       --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
       2026-11-16 latest: localRef kept over a parallel closeAnchor head to head (R+S

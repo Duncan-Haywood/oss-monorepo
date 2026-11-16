@@ -118,5 +118,5 @@ test('index.html offers the release folder from ep-core.mjs', () => {
   const html = readFileSync(join(here, 'index.html'), 'utf8');
   assert.match(html, /id="dlrel"/);
   assert.match(html, /import \{ releaseKit, EP_TARGET_LUFS, slugify \} from "\.\/ep-core\.mjs"/);
-  assert.match(html, /"dllearn", "dlrel"\]/);
+  assert.match(html, /"dllearn", "dlrel", "epadd"\]/);
 });
