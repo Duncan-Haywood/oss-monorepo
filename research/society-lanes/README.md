@@ -24,6 +24,10 @@
 
 ![Held-out HERMES runs, pooled: share on own right for five crowd model families, ORCA included, under three side-bias rules, against the people's 0.541](experiments/m4d_orca.svg)
 
+**Robots in the crowd (milestone 5a, simulation).** Which passing side should a corridor robot hold? Robots the size of a person, capped at 1.2 m/s (the lower of the MiR250's two rated speeds), replaced 5, 10 or 20% of the agents in the three fitted JuPedSim crowds (social force, anticipation velocity, collision-free speed), on two HERMES corridor runs with 20 seeds per cell, under four policies: hold the crowd's side, hold the other side, follow the local majority, or head for a lateral exit. **Holding the side opposite the people's convention is the worst policy in every model and at every share**: at 20% robots it adds **3.98 s** to each person's 8 m transit in social force (2.05 s and 0.45 s in the other two), and 0.58, 0.16 and 0.63 of its passes come within 0.5 m of a person. **Holding the crowd's side is safe in all three**: close passes at 0.10 or below, and the people's side share moves by at most 0.03. But the three models rank the reasonable policies differently (Kendall τ 0.00 to 1.00 between models). The lateral-exit robot costs people 1.85 s per transit in social force and nothing in the other two. So the preview of H5 fails: a policy tuned in one crowd simulator need not keep its rank in another. Five of eight registered predictions were refuted (LOG.md). Robots use the crowd's own operational model here, so people can push them; ORCA and the power law with robots come next.
+
+![Robots as 20% of the agents in three crowd models: people's delay per transit and close-pass rate for four robot passing policies](experiments/m5_robots.svg)
+
 ![Held-out HERMES runs, pooled: share on own right for four crowd model families under three side-bias rules, against the people's 0.541](experiments/m4c_powerlaw.svg)
 
 ![Held-out assigned-exit runs: social force with two exit positions and the anticipation velocity model, against the observed share](experiments/m4_avm_exits.svg)
@@ -108,6 +112,8 @@ Reproduce: `"$PY" research/society-lanes/experiments/m4b_yield_cfsm.py` (about 4
 Reproduce: `"$PY" research/society-lanes/experiments/m4c_powerlaw.py` (numpy only; about 50 min on 4 cores, about 2,000 runs) and `python3 research/society-lanes/experiments/m4c_figure.py`.
 
 Reproduce milestone 4d: `"$PY" research/society-lanes/experiments/m4d_orca.py` (numpy, with numba for speed; about 30 min on 4 cores, about 2,000 runs; writes `experiments/m4d_orca_results.txt`, `_runs.csv`, `_fit.csv`), `M4D_EXTEND=1 "$PY" research/society-lanes/experiments/m4d_orca.py` for the unregistered β = 1.5, 2.0 extension (`experiments/m4d_orca_extended_results.txt`, `_fit.csv`), and `python3 research/society-lanes/experiments/m4d_figure.py` (writes `experiments/m4d_orca.svg`).
+
+Reproduce milestone 5a: `PY=$(python3 platform/ci/pyenv.py jupedsim numpy)`, then `"$PY" research/society-lanes/experiments/m5_robots.py` (about 25 min on 4 cores, 2,040 runs; writes `experiments/m5_robots_results.txt` and `_runs.csv`) and `python3 research/society-lanes/experiments/m5_figure.py` (writes `experiments/m5_robots.svg`).
 
 ## Results
 
