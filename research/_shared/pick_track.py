@@ -530,6 +530,15 @@ def session_draw(new=False, ttl=12 * 3600):
     return r
 
 
+def reproduce_gap_line(slug):
+    """reproduce_names.brief_line, or None if it cannot run here."""
+    try:
+        from reproduce_names import brief_line
+        return brief_line(slug)
+    except Exception:  # a brief line is a hint; never let it break the draw
+        return None
+
+
 def post_limits_line():
     """The blog post front-matter caps, printed at the end of the draw: nine research
     sessions in three days (friction_rank.py --live, 2026-11-12..15) met the 160-character
@@ -573,6 +582,9 @@ if __name__ == "__main__":
                 print(f"  {line}")
         if has:
             print(f"read research/{slug}/PROPOSAL.md and the newest research/{slug}/LOG.md entries; land the next milestone")
+            gap = reproduce_gap_line(slug)
+            if gap:
+                print(gap)
             for line in newest_log_entries(slug):
                 print(f"  LOG.md {line}")
         else:
