@@ -26,6 +26,10 @@
 
 ![Share of robot-person passes closer than 0.5 m by robot policy in five crowd models at 20% robots](experiments/m5b_robots.svg)
 
+**H5 registered on close passes (milestone 6a, simulation).** Is that agreement a seed accident? A confirmatory rerun with 20 fresh seeds per cell (3,120 runs, seven predictions registered first) says no. Social force, collision-free speed and ORCA again rank the four robot policies identically by close passes at every robot share, **Kendall &tau; = 1.00 with a 95% bootstrap interval of [1.00, 1.00]** in all 9 comparisons. The ranking also holds at half each family's fitted keep-right bias (&tau; 1.00, lower bound 0.67 in two cells at 5% robots), where the social-force crowd's own-right share falls from 0.95 to 0.80, close to the 0.65 to 0.68 seen on city pavements. Ranked by human delay per robot pass the families still disagree (&tau; 0.00 to 1.00, 2 of 9 at 0.8 or above). Halving the bias barely moved the other two crowds (0.95 and 1.00 on their right), so the weaker-convention check is strong for one family only.
+
+![Close-pass rate by robot policy at 20% robots in three crowd models, fitted and half keep-right bias, with 95% intervals over fresh seeds](experiments/m6a_h5_closepass.svg)
+
 ![Held-out HERMES runs, pooled: share on own right for five crowd model families, ORCA included, under three side-bias rules, against the people's 0.541](experiments/m4d_orca.svg)
 
 **Robots in the crowd (milestone 5a, simulation).** Which passing side should a corridor robot hold? Robots the size of a person, capped at 1.2 m/s (the lower of the MiR250's two rated speeds), replaced 5, 10 or 20% of the agents in the three fitted JuPedSim crowds (social force, anticipation velocity, collision-free speed), on two HERMES corridor runs with 20 seeds per cell, under four policies: hold the crowd's side, hold the other side, follow the local majority, or head for a lateral exit. **Holding the side opposite the people's convention is the worst policy in every model and at every share**: at 20% robots it adds **3.98 s** to each person's 8 m transit in social force (2.05 s and 0.45 s in the other two), and 0.58, 0.16 and 0.63 of its passes come within 0.5 m of a person. **Holding the crowd's side is safe in all three**: close passes at 0.10 or below, and the people's side share moves by at most 0.03. But the three models rank the reasonable policies differently (Kendall τ 0.00 to 1.00 between models). The lateral-exit robot costs people 1.85 s per transit in social force and nothing in the other two. So the preview of H5 fails: a policy tuned in one crowd simulator need not keep its rank in another. Five of eight registered predictions were refuted (LOG.md). Robots use the crowd's own operational model here, so people can push them; ORCA and the power law with robots come next.
@@ -126,6 +130,15 @@ Reproduce milestone 5a: `PY=$(python3 platform/ci/pyenv.py jupedsim numpy)`, the
 - Predictions B1 to B8 were registered in `LOG.md` before the full run, after two disclosed timing probes and with this session's independent 5a run disclosed.
 
 Reproduce milestone 5b: `"$PY" research/society-lanes/experiments/m5b_robots.py` (numpy, numba; about 12 min on 4 cores, 1,360 runs) and `python3 research/society-lanes/experiments/m5b_figure.py`.
+
+## Method (milestone 6a)
+
+- `experiments/m6a_h5_closepass.py` reuses milestone 5a/5b's simulators, measures and robot settings unchanged: two HERMES 3.6 m runs at the calibrated walker counts, four policies at 5, 10 and 20% robots, 1.2 m/s, 120 s runs whose first 40 s are warm-up.
+- Families: social force (&beta; 0.1), collision-free speed (0.2), ORCA (1.0), the three that passed the held-out share test, each at its fitted bias and at half of it. 20 fresh seeds per cell (from 20270000, disjoint from 5a and 5b).
+- &tau; interval: seeds are resampled within each family-run-policy-share cell, the pass-weighted close-pass rate is pooled over the two runs again, and Kendall &tau;-a is recomputed for every family pair (1,000 resamples, percentile interval).
+- Predictions R1 to R7 were registered in `LOG.md` before the full run, after a disclosed 2-seed smoke run whose prediction lines were read.
+
+Reproduce milestone 6a: `PY=$(python3 platform/ci/pyenv.py jupedsim numpy numba)`, then `"$PY" research/society-lanes/experiments/m6a_h5_closepass.py` (about 25 min on 4 cores, 3,120 runs) and `python3 research/society-lanes/experiments/m6a_figure.py`.
 
 ## Results
 
@@ -228,7 +241,7 @@ Registered predictions: P1 (no convention at β = 0) **held**, pooled 0.559, mea
 3. Rerun milestones 3 and 4a on the archive's real geometry once the FZJ host answers (the exit test is done: wall exits narrow the gap, they do not close it).
 4. Find why the yielding bias fails in the anticipation velocity model and the power law but works in three other families. Milestone 4d refuted the fitted-bias-strength explanation, and the families' own lane order at β = 0 does not separate them either. Try a bias that also decays inside a formed lane. And since none of five families passes H3, calibrate walker count at the fitted β rather than at β = 0.
 5. Test the *yield* rule on assigned-exit data it was not designed on, and look for a rule that reproduces the run-to-run spread (b_03 0.754 against b_08 0.505), for example one that depends on density.
-6. Milestone 6: register H5 per metric. The 5b preview has the three families that pass the held-out test ranking policies identically by close passes (&tau; 1.00) but not by human delay (1 of 9 cells at 0.8 or above). Register the close-pass ranking with fresh seeds, then add SARL trained against each family.
+6. Milestone 6 continues: H5 on close passes is registered and held (6a, fresh seeds, &tau; 1.00 with interval [1.00, 1.00] at the fitted bias). Next, train SARL against each family's crowd and score it by close passes first; and test whether crowd-side robots seed lanes in a weak-convention crowd (in the half-bias social-force crowd they cut people's transit by 1.6 s, a lead read after the run).
 7. Run the robots in the assigned-exit crowd (yielding rule), where people's convention is weak (0.54), and at a human side bias swept toward the street value 0.65 (item 2). That is where the lateral-goal robot's cost, the policy the families disagree on most, should matter.
 
 ## References
