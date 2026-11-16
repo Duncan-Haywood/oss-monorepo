@@ -44,7 +44,7 @@
     "docs/posts/2026-11-16-flip-every-host-half-the-table.md"
   ],
   "goal": null,
-  "notes": "Profiled 30 teams with the guards lifted locally: 128 s solo (vs 47-64 s at 28), +1-2 seasons near the top of a 1110/84..2542/68 gap; 29 teams added nothing (110 s). Shipped an exact symmetric minPlusStep (f[x]=f[~x]: fix one B host bit, unary costs in the WebAssembly copy-in, fold in the copy-out), used by floorTable from 13 matches up: page step 28 teams 175.5->157.3 s over 3 seeds, 26 teams 48.0->45.2 s, 30 teams 129.2->103.8 s, identical seasons in every side-by-side pair (eval/symmetric-step.txt). Not enough for 30 teams, so maxTeams stays 28 (partial). Verification: node --test orient.test.mjs floor-priced.test.mjs 37/37 pass; run_venture_tests.py league-schedule-generator and venture-preflight results in the PR body.",
+  "notes": "Profiled 30 teams with the guards lifted locally: 128 s solo (vs 47-64 s at 28), +1-2 seasons near the top of a 1110/84..2542/68 gap; 29 teams added nothing (110 s). Shipped an exact symmetric minPlusStep (f[x]=f[~x]: fix one B host bit, unary costs in the WebAssembly copy-in, fold in the copy-out), used by floorTable from 13 matches up: page step 28 teams 175.5->157.3 s over 3 seeds, 26 teams 48.0->45.2 s, 30 teams 129.2->103.8 s, identical seasons in every side-by-side pair (eval/symmetric-step.txt). Not enough for 30 teams, so maxTeams stays 28 (partial). Verification: node --test orient.test.mjs floor-priced.test.mjs 37/37 pass; run_venture_tests.py league-schedule-generator 556 tests pass (238.7 s); venture-preflight.mjs league-schedule-generator: preflight clean.",
   "corrections": [],
   "redteam": null
 }
