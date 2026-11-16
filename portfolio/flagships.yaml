@@ -124,10 +124,10 @@ flagships:
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
       (eval/cord_images.py; huggingface.co answered 2026-11-16 late) read by
       `apt-get install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD
-      totals 153 of 196, tax 134 of 185; CORD validation totals 66 of 98, tax 23 of
-      47; test 53 of 95, tax 16 of 41 (eval/cord-dash-section-sign-2026-11-16.md:
-      dash and § read). Next, from validation misses only: the 21 tax "none"s; total
-      lost with subtotal and tax split across readings. CORD test stays held out.
+      totals 153 of 196, tax 134 of 185; CORD validation totals 66 of 98, tax 25 of
+      47; test 53 of 95, tax 16 of 41 (eval/cord-tax-split-2026-11-16.md: 21 tax
+      misses sorted, total split at 10%). Next, from validation: a service charge in
+      the tax vote; the 5 wrong totals with a tax line. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -274,8 +274,8 @@ flagships:
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
       III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware demosaic
-      (opt-in, 2026-11-16): check more real DNG NoiseProfiles against the in-frame
-      estimate (eval/xtrans-noise-aware-blend-2026-11-16.md); score its luma. DNG
+      (opt-in): profiles checked and guarded 2026-11-16
+      (eval/noise-profile-real-dngs-*); score its luma; per-plane profiles. DNG
       1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
