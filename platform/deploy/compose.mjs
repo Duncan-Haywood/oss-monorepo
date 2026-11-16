@@ -86,15 +86,26 @@ const decodeB64 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 /** Link that opens Render's blueprint deploy for a repository URL. */
 export const renderDeployUrl = (repoUrl) => `https://render.com/deploy?repo=${encodeURIComponent(repoUrl)}`;
 
-function composeServerRepo({ slug, title, serverFiles }) {
+/**
+ * A server venture's files under `prefix`, the index page with the deploy
+ * footer. One copy loop for the Render, Docker and Fly bundles (three used to
+ * repeat it); every bundle needs render.yaml and the Dockerfile.
+ */
+function copyServerFiles(serverFiles, prefix, { skip } = {}) {
   if (!serverFiles || !serverFiles['render.yaml'] || !serverFiles['Dockerfile']) throw new Error('app has no server files');
   const out = {};
   for (const [rel, f] of Object.entries(serverFiles)) {
     if (rel.includes('..') || rel.startsWith('/')) throw new Error(`unsafe path: ${rel}`);
-    // render.yaml in the venture points dockerContext at ventures/<slug>, so keep that layout.
-    if (f.text !== undefined) out[`ventures/${slug}/${rel}`] = rel === 'index.html' ? withDeployFooter(f.text) : f.text;
-    else out[`ventures/${slug}/${rel}`] = decodeB64(f.b64);
+    if (rel === skip) continue;
+    if (f.text !== undefined) out[`${prefix}${rel}`] = rel === 'index.html' ? withDeployFooter(f.text) : f.text;
+    else out[`${prefix}${rel}`] = decodeB64(f.b64);
   }
+  return out;
+}
+
+function composeServerRepo({ slug, title, serverFiles }) {
+  // render.yaml in the venture points dockerContext at ventures/<slug>, so keep that layout.
+  const out = copyServerFiles(serverFiles, `ventures/${slug}/`);
   out['render.yaml'] = serverFiles['render.yaml'].text;
   out['README.md'] = `# ${title}
 
@@ -123,7 +134,6 @@ Delete the service in Render, then delete this repository.
 
 It is free. If it earns you money, [buy the creator a coffee](${DONATE_URL}).
 `;
-  out['LICENSE'] = '';
   return out;
 }
 
@@ -150,14 +160,7 @@ export function blueprintEnv(yaml) {
 const shq = (v) => `'${String(v).replace(/'/g, `'\\''`)}'`;
 
 function composeDockerBundle({ slug, title, serverFiles }) {
-  if (!serverFiles || !serverFiles['render.yaml'] || !serverFiles['Dockerfile']) throw new Error('app has no server files');
-  const out = {};
-  for (const [rel, f] of Object.entries(serverFiles)) {
-    if (rel.includes('..') || rel.startsWith('/')) throw new Error(`unsafe path: ${rel}`);
-    if (rel === 'render.yaml') continue;
-    if (f.text !== undefined) out[`app/${rel}`] = rel === 'index.html' ? withDeployFooter(f.text) : f.text;
-    else out[`app/${rel}`] = decodeB64(f.b64);
-  }
+  const out = copyServerFiles(serverFiles, 'app/', { skip: 'render.yaml' });
   const yaml = serverFiles['render.yaml'].text;
   const env = blueprintEnv(yaml);
   const port = serverFiles['Dockerfile'].text.match(/^\s*EXPOSE\s+(\d+)/m)?.[1] ?? '8080';
@@ -230,14 +233,7 @@ It is free. If it earns you money, [buy the creator a coffee](${DONATE_URL}).
 }
 
 function composeFlyBundle({ slug, title, serverFiles }) {
-  if (!serverFiles || !serverFiles['render.yaml'] || !serverFiles['Dockerfile']) throw new Error('app has no server files');
-  const out = {};
-  for (const [rel, f] of Object.entries(serverFiles)) {
-    if (rel.includes('..') || rel.startsWith('/')) throw new Error(`unsafe path: ${rel}`);
-    if (rel === 'render.yaml') continue;
-    if (f.text !== undefined) out[`app/${rel}`] = rel === 'index.html' ? withDeployFooter(f.text) : f.text;
-    else out[`app/${rel}`] = decodeB64(f.b64);
-  }
+  const out = copyServerFiles(serverFiles, 'app/', { skip: 'render.yaml' });
   const yaml = serverFiles['render.yaml'].text;
   const env = blueprintEnv(yaml);
   for (const e of env) if (!/^[A-Z][A-Z0-9_]*$/.test(e.key)) throw new Error(`unsafe env name: ${e.key}`);
@@ -316,21 +312,8 @@ It is free. If it earns you money, [buy the creator a coffee](${DONATE_URL}).
 }
 
 export function composeRepo({ slug, title, provider, appFiles, templates, serverFiles }) {
-  if (provider === 'docker') {
-    const out = composeDockerBundle({ slug, title, serverFiles });
-    out['LICENSE'] = templates?._license ?? '';
-    return out;
-  }
-  if (provider === 'fly') {
-    const out = composeFlyBundle({ slug, title, serverFiles });
-    out['LICENSE'] = templates?._license ?? '';
-    return out;
-  }
-  if (provider === 'render') {
-    const out = composeServerRepo({ slug, title, serverFiles });
-    out['LICENSE'] = templates?._license ?? '';
-    return out;
-  }
+  const server = { docker: composeDockerBundle, fly: composeFlyBundle, render: composeServerRepo }[provider];
+  if (server) return { ...server({ slug, title, serverFiles }), LICENSE: templates?._license ?? '' };
   const p = PROVIDERS[provider];
   if (!p) throw new Error(`unknown provider: ${provider}`);
   const tpl = templates[provider];
@@ -345,9 +328,7 @@ export function composeRepo({ slug, title, provider, appFiles, templates, server
   }
   if (provider === 'android') Object.assign(out, androidProject({ slug, title }));
   for (const [rel, content] of Object.entries(tpl)) {
-    if (rel.endsWith('.yml')) out[`.github/workflows/${rel}`] = content;
-    else if (rel.startsWith('tofu/')) out[rel] = content;
-    else out[rel] = content;
+    out[rel.endsWith('.yml') ? `.github/workflows/${rel}` : rel] = content;
   }
   out['README.md'] = readme({ slug, title, provider });
   out['LICENSE'] = templates._license ?? '';
