@@ -1,5 +1,20 @@
 # buildbot-sheathing research log
 
+## 2026-11-16 · Milestone 31 result: three held G1 joints flip sign along the wall, so one calibration leaves up to 3.4 mm; per pose, 5 arcmin costs up to 9.9 points at the top of the reach; H115 refuted, H116 and H117 held
+
+`src/buildbot_sheathing/pose_range.py` (new: held-joint bias, nose bias, the residual after one calibration and its Jacobian and sign-flip parts), `tool_lean.AxisError` (a fixed offset `mu_s`/`mu_d`, zero by default: the reference pose reproduces milestone 30's 0.9344 and 0.9134), `experiments/m31_pose_range/` (run, results, figure), `tests/test_pose_range.py` (5 tests), `reproduce.py` (m31 listed), `paper/draft.md` (section 5.11 paragraph, the tool-point limitation, the conclusion), `paper/check_numbers.py` (243 of 243, was 233), README, PROPOSAL and project card.
+
+- **Grid.** G1 15 poses (0.4–1.2 m, dy 0 and ±0.15 m), H1 21 (0.4–1.6 m). The plan said the H1's 0.4 m row reached at dy 0 only; the probe output in fact reached ±0.15 m there too (misread when writing the plan), so the run includes it. No hypothesis concerns the H1.
+- **Held sets.** G1 13–20 of 22 nose-moving joints held at tau_f 0.2 (the ankle rolls loose everywhere; at 1.2 m the knees, a shoulder joint and wrist joints join them). H1 12–15 of 15.
+- **Per-pose calibration (H115 refuted).** 5 arcmin at 12 bits costs the G1 0.33–9.93 points; worst at 1.2 m, dy 0: 0.9131 to 0.8138. H1 at most 1.42 points.
+- **Sign flips (H116 held).** Six G1 joints are held at every pose; three of them flip: left hip yaw (−10.63 to +3.41 N m), right hip yaw (−11.33 to +2.31), waist roll (−27.83 to +19.97). H1: right shoulder yaw.
+- **One calibration (H117 held).** At 1.0 m, dy 0, the residual is zero by construction; elsewhere the G1's nose sits up to +3.394 mm off along the wall (0.4 m, dy +0.15; stack 0.0000), the sign-flip part +3.795 mm and the Jacobian part −0.401. At dy 0 the residual is 0.11–0.44 mm from 0.4 to 0.8 m and 0.86 mm at 1.2 m; the shifted poses carry the flips. H1 up to 1.65 mm (1.6 m, dy −0.15: 0.2010).
+- **Spec (within 2 points of each pose's own stack, worst pose).** 12 bits: 2.49 arcmin calibrated per pose, 0.44 once; 13 bits: 4.13 and 0.79.
+- **tau_f sweep.** 0.05–0.5 N m: worst per-pose loss 9.93–10.04 points, worst one-calibration offset 3.39–3.68 mm. The conclusion does not depend on it.
+- **What it means.** Milestone 30's "held joints calibrate out" needs the bias known at every pose. The static torques give the side of each gap, so a model-based compensation (or a calibration per stance and height band) restores the per-pose numbers; a single tool offset does not. Near the top of the G1's reach the held set thins, so the per-pose spec tightens to 2.5 arcmin at 12 bits.
+- **Not measured.** The ground-reaction split is least-norm, and it is what sets the hip-yaw and waist torques that flip; a balance controller's split could move or remove the flips. Backlash and tau_f swept; the bias is taken as exactly half the gap (no friction or compliance inside the gap).
+- **Next.** The flips under a balance controller's ground reaction (a QP with friction cones); deflection under the press; the paper's headline for a tool-point spec.
+
 ## 2026-11-16 · Milestone 31 planned: backlash across the poses along a wall (does the held set hold, and does one calibration do)
 
 - **Why.** Milestone 30 found backlash costs only on joints nothing holds, at one pose (hand reach 0.4 m, height 1.0 m), and treated every held joint's backlash as a fixed bias a tool-point calibration removes. A robot nailing a stud works from about 0.4 m to the top of its reach, and a little to either side of its stance. Two things can change with the pose: which joints are loose (the stack's random part), and the *sign* of each held joint's torque, which sets the side of the gap it rests on. Even with no sign change, the same joint-space bias lands at a different nose offset as the Jacobian changes, so a single calibration at one pose leaves a pose-dependent bias.
