@@ -1,7 +1,7 @@
 ---
 title: "A held-out test of two receipt rules finds one stray zero"
 date: 2026-11-16
-description: "Two total-vote rules written from 200 receipt photos, tested on 625 scans they never saw: one never fires, the other broke one receipt, and a narrower version fixes it."
+description: "Two receipt-total rules written from 200 photos, tested on 625 unseen scans: one never fires, the other broke one receipt until narrowed."
 tags: [ai-bookkeeper, receipts, ocr, evaluation]
 ---
 
