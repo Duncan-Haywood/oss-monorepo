@@ -310,6 +310,40 @@
 //    vstop-diag.mjs V) 2.1-2.3 kHz centroid, 54-66% above 1 kHz, 0.50-0.68 compact at 1.6-2.1 kHz, although sing.mjs
 //    sings p's burst at 500 Hz +-750 Hz; the same syllables on G2 and F3 read 0.33-0.44 above 1 kHz. Next: where that
 //    energy above 1 kHz comes from on A3-B3 (the burst search's timing or the vowel's release), before any rule.
+// Nineteenth round (2026-11-16): a p's burst read as a k (onsets.mjs readCoda `voicelessLow`). Read first, outside
+//    this script: eval/place-sweep.mjs printed every stop coda of K, N, T, U and V with its burst's features (964 read
+//    as a stop). The energy above 1 kHz is the burst's own. sing.mjs's p burst is noise through a fourth-order band
+//    at 500 Hz, 1500 Hz wide; one 8 ms draw of it, alone and read through the same 10 ms window, puts 22-65% of its
+//    energy above 1 kHz (10th-90th percentile, 200 draws), over half on 31% of draws. In the choir, voiceless labial
+//    bursts read 0.11-0.79 above 1 kHz (median 0.39), with no trend by pitch (A3 and B3 are not special); voiceless
+//    velar bursts 0.99-1.00, alveolar 1.00 (a silent closure leaves nothing low under them). The share is set by the
+//    cell, not the syllable: 97% of its variance among the 136 p codas lies between the 58 pitch-and-length cells
+//    (render.mjs seeds a note's noise from its pitch and length), so V's 12 p misses are three cells' draws. The
+//    candidate: after a closure read as voiceless, a burst with 0.9 or less of its energy above 1 kHz is labial
+//    (midway between 0.79 and 0.99, not tuned further); a voiced one keeps the 0.5 test, where the voice bar runs on.
+//    On A-V (development), against the default: A 177 to 178 of 180 (*ap* on C4), J's others 321 to 323, K's 193 to
+//    204, N's 220 to 221, P's 214 to 215, Q's 75 to 76, U's 93 to 95, V's labial codas 86 to 98 of 108 (read as a
+//    velar 14 to 2); nothing fell; B, D, E, H, I, F, L, M, O, R, S, T and every vowel-only control identical. In
+//    cells: the K-V sweep's 26 voiceless labials read as velar sat in 10 of 58 cells, and the rule turned all 26.
+//    Pre-registered here and committed before part W was run with anything. Part W is new: 10 voiceless labial
+//    codas (*tep cap nup bip hop vep lop gap rip hup*, the target), 8 voiceless velar codas (*tic mac sec voc ric hac
+//    buc nec*, the risk), 7 voiced stops (*pab teb nog tig rug dob mug*), 2 alveolar (*fed nut*) and 3 others (*hos
+//    pum fu*), none sung in any other part, at A2, E3, G#3, A#3, B3 and C#4, 122 BPM (in no other part), pulse-4 and
+//    pulse-2 notes, sung and vowel-only. Against the default (W's first column), voicelessLow (its second): (1) W's
+//    voiceless labials read as a velar stop: at most 1 with voicelessLow; (2) voiceless labial codas read exactly
+//    (of 120): voicelessLow at least the default's count plus the default's labial-as-velar count, less 1; (3)
+//    voiceless velars read as a labial stop at most 1 more, and voiceless velar codas read exactly (of 96) at most 1
+//    fewer; (4) voiced stops (of 84), alveolar (of 24), others (of 36) and the vowel-only control (of 360) identical
+//    (the rule only moves a voiceless stop's place to labial); (5) A-V as above, re-run on the shipped code; (6)
+//    eval/consonant-check.mjs cannot move (readOnset is untouched). With the sweep's rate (10 of 58 cells), W's 12
+//    cells hold about two with a p read as a k, and none about one time in nine. If all six hold and the default
+//    reads at least one of W's voiceless labials as a velar, voicelessLow becomes readCoda's default. If the default
+//    reads none, the gain is untested on W: the rule stays opt-in, reported as such. Otherwise it stays opt-in.
+//    Outcome (run 2026-11-16, after the registration above was committed): held. (1) W's voiceless labials read as a
+//    velar 18 before, 0 with voicelessLow; (2) voiceless labial codas 100 to 118 of 120 (117 wanted); (3) velars read
+//    as a labial 0 and 0, velar codas 95 and 95 of 96; (4) voiced stops 71, alveolar 23, others 32, control 338,
+//    identical; (5) the report rebuilt on the shipped code matches the A-V figures above; (6) holds by construction.
+//    The 18 sat in two of W's 12 cells (A2 pulse-4, all 10; B3 pulse-2, 8 of 10). voicelessLow is the default.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -321,7 +355,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
 // --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
@@ -349,9 +383,11 @@ const DEEPARG = args.includes('--deep') ? args[args.indexOf('--deep') + 1] : '';
 const PREOPTS = PREARG && PREARG !== 'off' ? { preOpts: Object.fromEntries(PREARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
 // --bar N: readCoda's barLead (a level-rule murmur a burst-ended closure starts inside of within N frames is its voice bar)
 const BARARG = args.includes('--bar') ? args[args.indexOf('--bar') + 1] : '';
+// --vlow off: readCoda without the voiceless low labial test (`voicelessLow: false`, the reader before the nineteenth round)
 // --velar on: readCoda's compact velar burst before the low labial test (`compactVelar: true`, the eighteenth round)
 const VELARARG = args.includes('--velar') ? args[args.indexOf('--velar') + 1] : '';
-const RC = { ...RC0, ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
+const VLOWARG = args.includes('--vlow') ? args[args.indexOf('--vlow') + 1] : '';
+const RC = { ...RC0, ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -1043,6 +1079,49 @@ lines.push('## V. Held out: a velar burst read as labial (eighteenth round)', ''
   row('alveolar codas read exactly', 'alv'), row('other syllables read exactly', 'other'), row('vowel-only control read as none', 'control'), '',
   'Misses with the default (count over the twelve pitch and length cells):', '', list(vMiss), '',
   'Misses with `compactVelar`:', '', list(vMissC), '');
+}
+
+// The nineteenth round's held-out set (voicelessLow, pre-registered in the header): voiceless labial codas (the
+// rule's target), voiceless velar codas (its risk: a k burst with some energy under 1 kHz read as p), voiced labial
+// and velar codas, alveolar codas and others, sung in no other part, at A2, E3, G#3, A#3, B3 and C#4, 122 BPM (in no
+// other part), pulse-4 and pulse-2 notes, each followed by a rest, sung and vowel-only. Two columns: the default
+// reader and voicelessLow.
+if (PARTS.includes('W')) {
+const PL = ['tep', 'cap', 'nup', 'bip', 'hop', 'vep', 'lop', 'gap', 'rip', 'hup'], KV = ['tic', 'mac', 'sec', 'voc', 'ric', 'hac', 'buc', 'nec'];
+const VD = ['pab', 'teb', 'nog', 'tig', 'rug', 'dob', 'mug'], ALV = ['fed', 'nut'], NEG = ['hos', 'pum', 'fu'];
+const SY = [...PL, ...KV, ...VD, ...ALV, ...NEG], tally = {}, wMiss = new Map(), wMissL = new Map(), pAsK = {}, kAsP = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const VL = { ...RC, voicelessLow: true }, DEF = { ...RC, voicelessLow: false };
+for (const pulses of [4, 2]) for (const midi of [45, 52, 56, 58, 59, 61]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 122, title: 'held-out voiceless burst place' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (PL.includes(s) ? 'p' : KV.includes(s) ? 'k' : VD.includes(s) ? 'voiced' : ALV.includes(s) ? 'alv' : 'other') : 'control';
+      for (const [mode, o] of [['def', DEF], ['vl', VL]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'p' && got.cls === 'stop' && got.place === 'vel') pAsK[mode] = (pAsK[mode] || 0) + 1;
+        if (grp === 'k' && got.cls === 'stop' && got.place === 'lab') kAsP[mode] = (kAsP[mode] || 0) + 1;
+        if (!ok && !HIDE.includes('W')) { const m = mode === 'def' ? wMiss : wMissL, key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; m.set(key, (m.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${['def', 'vl'].map((m) => cell(`${g} ${m}`)).join(' | ')} |`;
+const cnt = (t, o) => `| ${t} | ${['def', 'vl'].map((m) => o[m] || 0).join(' | ')} |`;
+const list = (m) => HIDE.includes('W') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+lines.push('## W. Held out: a p\'s burst read as a k (nineteenth round)', '', `Voiceless labial: ${PL.map((s) => `*${s}*`).join(', ')}; voiceless velar: ${KV.map((s) => `*${s}*`).join(', ')}; voiced stops: ${VD.map((s) => `*${s}*`).join(', ')}; alveolar: ${ALV.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 122 BPM, each followed by a rest, A2, E3, G#3, A#3, B3, C#4.`, '',
+  '| | before (`voicelessLow: false`) | `voicelessLow` (the default since this round) |', '|---|---|---|',
+  row('voiceless labial codas read exactly', 'p'), cnt('voiceless labials read as a velar stop', pAsK),
+  row('voiceless velar codas read exactly', 'k'), cnt('voiceless velars read as a labial stop', kAsP),
+  row('voiced stop codas read exactly', 'voiced'), row('alveolar codas read exactly', 'alv'), row('other syllables read exactly', 'other'), row('vowel-only control read as none', 'control'), '',
+  'Misses before (count over the twelve pitch and length cells):', '', list(wMiss), '',
+  'Misses with `voicelessLow`:', '', list(wMissL), '');
 }
 
 // ---- C ----
