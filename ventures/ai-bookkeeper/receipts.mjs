@@ -308,6 +308,40 @@ function taxBlock(lines, comma, cands, cents, subtotals, ends) {
   return { cents: sum, lines: lines.slice(lo, hi + 1), note: `${hi - lo + 1} lines beside the tax line added as taxes (${lines.slice(lo, hi + 1).map((l) => `"${l}"`).join(", ")}): the ${subtotals.includes(base) ? "subtotal" : "items"} plus their sum is the total, check the tax` };
 }
 
+// A tax line whose amount OCR damaged past reading, on a receipt written 12.50, read from
+// the receipt's own arithmetic (README, "Tax on receipt photos"). Each is taken only when
+// the receipt closes with it, and with something the tax line itself shows:
+// - its digits with the decimal point lost ("TAX 211"), when a subtotal plus 2.11 is the
+//   total or a "Total" line (SRD 1012: subtotal 22.25, "Total 24.36", then a tip);
+// - its printed rate ("TAX 8.00% 44"): the subtotal times the rate makes the total, or,
+//   with no subtotal read, the total split at that rate gives a tax whose last digits are
+//   the ones the line shows (19.44 at 8% is 18.00 + 1.44, and the line kept "44").
+function looseTax(lines, cents, subtotals) {
+  const ends = new Set([cents]);
+  for (const l of lines) if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) for (const t of amountsIn(l)) if (t < cents) ends.add(t);
+  for (const l of lines) {
+    if (!TAX_LINE_RE.test(l) || NOT_TAX_LINE_RE.test(l) || (TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l))) continue;
+    const rate = l.match(/(\d{1,2}(?:\.\d{1,4})?)\s*%/);
+    const digits = l.replace(PCT_RE, " ").replace(/^[^\d]*?(?:tax|vat|gst|hst|pst)\s*[1-3]\s*[:;]/i, " ").match(/\d+/g) ?? [];
+    for (const d of digits) {
+      if (d.length < 3 || d.length > 4) continue;
+      const v = Number(d);
+      const base = subtotals.find((sb) => v > 0 && v <= sb * 0.15 && ends.has(sb + v));
+      if (base !== undefined) return { cents: v, note: `tax line read as "${l}" with its decimal point lost: took ${(v / 100).toFixed(2)} (the subtotal ${(base / 100).toFixed(2)} plus it is a total on the receipt), check the tax`, line: l };
+    }
+    if (!rate) continue;
+    const r = Number(rate[1]) / 100;
+    if (!(r > 0 && r <= 0.15)) continue;
+    const viaSub = subtotals.find((sb) => sb + Math.round(sb * r) === cents);
+    if (viaSub !== undefined) { const v = cents - viaSub; return { cents: v, note: `tax line read as "${l}": took ${(v / 100).toFixed(2)}, the subtotal at ${rate[1]}% (it makes the total), check the tax`, line: l }; }
+    if (subtotals.length) continue;
+    const sub = Math.round(cents / (1 + r)), v = cents - sub;
+    const tail = digits.join("");
+    if (v > 0 && Math.abs(Math.round(sub * r) - v) <= 1 && tail.length >= 2 && String(v).endsWith(tail)) return { cents: v, note: `tax line read as "${l}": took ${(v / 100).toFixed(2)}, the total split at ${rate[1]}% (the line's digits "${tail}" agree), check the tax`, line: l };
+  }
+  return null;
+}
+
 export function readTax(lines, comma, cents) {
   const amt = (l) => { const a = amountsIn(l, comma); return a.length ? a[a.length - 1] : null; };
   const cands = [], subtotals = [];
@@ -353,6 +387,10 @@ export function readTax(lines, comma, cents) {
       if (DAMAGED_TAX_RE.test(l) && (comma !== false || /\d\.\d{2}(?!\d)/.test(l)) && !/\d{3}[-. ]\d{4}/.test(l)) return { cents: a[0], subtotals, note: `tax line read as "${l}": took ${(a[0] / 100).toFixed(2)}, check the tax`, line: l };
       if (sub + a[0] === cents) return { cents: a[0], subtotals, note: `an unlabelled line "${l}" between the subtotal and the total makes them add up: took ${(a[0] / 100).toFixed(2)} as the tax, check it`, line: l };
     }
+  }
+  if (!cands.length && cents !== null && comma === false) {
+    const loose = looseTax(lines, cents, subtotals);
+    if (loose) return { ...loose, subtotals };
   }
   if (!cands.length) return { cents: null, subtotals, note, line: null };
   const printed = cands.filter((c) => c.total);
