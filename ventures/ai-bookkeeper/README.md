@@ -2850,7 +2850,7 @@ Two OCR marks on CORD's rupiah photos, both changed from validation only:
   validation-84). Validation totals 65 to 66 of 98.
 
 Test, scored once at the end: 53 of 95, tax 16 of 41, unchanged; test-56's wrong total moved
-from 8,181 to 10,000 (the cash handed over, flagged as a cash-line guess). SRD_LINE Details:
+from 8,181 to 10,000 (the cash handed over, flagged as a cash-line guess). SRD photos re-read through the CLI: 154 totals and 133 taxes, before and after. Details:
 [`eval/cord-dash-section-sign-2026-11-16.md`](eval/cord-dash-section-sign-2026-11-16.md).
 Tests: `receipt-crosscheck.test.mjs`.
 

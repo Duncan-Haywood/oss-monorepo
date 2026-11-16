@@ -51,13 +51,17 @@ totals 65 of 98, tax 23 / 3 / 21; test 53 of 95, tax 16 / 2 / 23.
 |---|---|---|
 | CORD dataset text, train / validation / test totals | 749 / 96 / 92 | same |
 | CORD dataset text, tax | 324 / 46 / 41 | same |
-| SRD photos, CLI `--four-pass` (re-read this run) | SRD_MAIN | SRD_NEW |
+| SRD photos, CLI `--four-pass` (re-read this run) | totals 154 / 196, tax 133 / 12 / 40 | same, same misses |
+
+The SRD re-read differs from the last run's (153 totals, tax 134 / 12 / 39) on main's own
+code: tesseract's readings of a few photos vary between runs. Before and after are compared
+on one set of readings.
 
 ## What is left
 
 - On test-56 every reading lost the total line and the subtotal plus tax (8,181 + 818) is
   printed in none of them as a total; the arithmetic total (`arithmeticTotals`) needs the
-  subtotal and tax in one reading. Not tuned: test is held out.
+  subtotal and tax in one reading. Not tuned: test is held out, so a fix for that shape must be found and chosen on validation.
 - Most misses stay OCR-bound (the labelled digits are in none of the four readings).
 
 ## Reproduce
