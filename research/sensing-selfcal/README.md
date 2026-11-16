@@ -13,6 +13,18 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (278 of 278,
 revised with milestones 4e–4s and 3b) and a list of what a submission still needs.
 
+**Milestone 4u headline** (if the update test centres its "too far to judge" window on the camera's own current
+calibration instead of the spec-sheet focal length, does a real change cost the same on either side? no new solves,
+18 pairings of three pools on two cameras): **yes, and it stays safe.** Rule U withholds the decision when the old
+7-view or the new 6-view focal length is more than 5% from the unit's own 13-view calibration; every pairing stays at
+or under 1.05% false alarms (pooled 0.26%), 5.4% of unchanged-camera splits are withheld, and a 4% change is now withheld
+19&ndash;22% of the time on both sides of both cameras, where the spec-sheet window withheld 11% to 71%. A &plusmn;4% change is caught
+in 14.2% of splits against 11.4% (1.25&times;; the Xtion at +4%: 11.7% against 1.4%), but &plusmn;2% power is unchanged at 0.73&times;
+the every-split-decided rate, so that loss is the far solves' spurious firing, not the window's placement. An out-of-sample anchor
+gives the same figures. Five of six pre-registered predictions held (H122, the &plusmn;2% power, did not).
+
+![Share of splits withheld against the focal change for each camera under the spec-sheet and own-calibration windows, and the firing rate against the focal change](experiments/m4u_owncal/owncal.png)
+
 **Milestone 4t headline** (can the update test simply decline to decide when one of its small-set solves is far
 from the camera's spec-sheet focal length, 527.1 px? no new solves, all 18 pairings of three pools on two cameras):
 **yes for safety, at a cost in power.** Rule W withholds the decision when the old 7-view or the new 6-view focal
@@ -959,6 +971,7 @@ python3 experiments/m4s_third/prepare.py fr3 <dir>/rgbd_dataset_freiburg3_calibr
 OMP_NUM_THREADS=1 python3 experiments/m4s_third/run.py      # ~2 h on 4 cores; results.json.gz (k1 + k2, fr1c / fr3c)
 OMP_NUM_THREADS=1 python3 experiments/m4s_third/analyse.py  # ~10 min on 3 cores; summary.json, third.png (H108-H112)
 OMP_NUM_THREADS=1 python3 experiments/m4t_withhold/analyse.py  # ~6 min on 4 cores; summary.json, withhold.png (H113-H117)
+OMP_NUM_THREADS=1 python3 experiments/m4u_owncal/analyse.py   # ~6 min on 4 cores; summary.json, owncal.png (H118-H123)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -1020,7 +1033,7 @@ milestone 4s: model the far small-set solves in the twin's threshold (a mixture 
 sets whose solve is far from the size's median) and pre-register it on all three pools of both units; a new session or sequence is
 still the test of anything fitted to these six pools. (Withholding done in milestone 4t: every cell at most 1.11% false alarms, 5.8% withheld,
 &plusmn;2% power 0.73&times;.) After milestone 4t: centre the withhold window on the unit's current calibration instead of the fleet
-prior, so a real change on either side keeps the same power, and pre-register it with the jitter on a new session. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
+prior, so a real change on either side keeps the same power, and pre-register it with the jitter on a new session. (Own-calibration window done in milestone 4u: symmetric, every cell at most 1.05%, &plusmn;4% power 1.25&times; W's, &plusmn;2% unchanged at 0.73&times;.) After milestone 4u: pre-register a 6&ndash;8% own-calibration window (post hoc on these pools: as safe, 89&ndash;93% of the ungated &plusmn;4% firing) and test U with the jitter on a new session or unit. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
 (does the jackknife stay honest when σ is this much smaller?); find the smooth 2-D residual
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is
