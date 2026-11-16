@@ -920,7 +920,56 @@ as nasals at E2, G3 and D3 (the step rule, not this one), and /i/ read as a voic
 without it, and no other syllable gains a nasal. Nothing in the synthesis changed. This round makes the
 check see the n that was already sung. Whether a listener hears *sunt* or *sut* is a question for an ear.
 
-#### nunc and mens on C4: the murmur thrown out by what follows it (2026-11-16, latest)
+#### /i/ is not a voiced fricative (2026-11-16, latest)
+
+Part K's other misses were mostly one fault: /i/ read as a voiced fricative (83 of 119), sung or vowel-only, on
+*i*, *ip*, *ic*, *im*, *in* and *hinc*. Read frame by frame, a vowel-only /i/ on A3 holds its level for 100 ms,
+then its band under 500 Hz sinks 8-18 dB for about 250 ms and comes back. That is the five detuned voices
+(`detunes: [-12, -4, 0, 5, 13]` cents) beating: their fundamentals drift out of phase and cancel. Every vowel
+does it, but /i/ keeps almost all its energy in its lowest harmonics (F1 270 Hz), so its level goes with them.
+In the trough the share of energy above 2.5 kHz rises past 0.12, which is the voiced-fricative rule, and on a
+short note's attack past 0.5, which is the fricative rule, then labelled voiced by its low band. The release of
+/i/ does the same as it fades.
+
+- **The change** (`onsets.mjs` `VFRIC_HI5`): a frame counts as frication, voiced or not, only when it carries
+  12 dB or more energy above 5 kHz than the vowel did. Frication is noise high up (sing.mjs centres /s/ and /z/
+  on 6.5 kHz, /f/ and /v/ on 5 kHz). A beating /i/ adds nothing there. `readCoda(..., { vfricHi5: false })` is the
+  reader before; `node eval/coda-check.mjs --vfric off` prints the old report.
+- **Chosen on synthetic syllables at K's pitches only**: sung *az ez iz oz uz av iv* frames sit 66 to 110 dB
+  over the vowel above 5 kHz, and the /i/ frames that misread sit -13 to +3 dB. The two groups are far
+  apart, so 12 dB was not tuned further. Every part had printed its misses, so a new part L was written: 16
+  syllables on /i/, four voiced-fricative codas (*iz az ev uv*, not Latin, there to show a real one still
+  reads) and 12 others. None had been sung in any part before. They run at G2, C3, D#3, G#3 and C#4 (no pitch of A,
+  J or K), 96 BPM, half and quarter notes. Its predictions were committed in the script's header before L or
+  any other part was run with the change.
+
+| prediction | `--vfric off` | after |
+|---|---|---|
+| (1) L's /i/ syllables, at least 8 more | 110 of 160 | 153 of 160 (95.6%): holds |
+| (2) L's vowel-only /i/ read as none, at least 8 more | 128 of 160 | 160 of 160: holds |
+| (3) L's other syllables within 2; the rest of its control no lower | 113 of 120; 158 of 160 | 113; 160: holds |
+| (4) L's voiced-fricative codas within 4 | 39 of 40 | 39 of 40: holds |
+| (5) A, B, D, E, H, I, F, J, K totals no lower, nasals no fewer, controls no lower; K's others 172 or more | | every one holds (below) |
+| (6) vowel and consonant checks cannot move | | readOnset and the synthesis untouched |
+
+Every other part rose. A went from 168 to 173 of 180, and its vowel-only control from 174 to 180, which clears
+the six "/i/ read as a voiced fricative at G3 and above" written up in the first coda round. B went from 157 to
+159 of 162, D 68 to 69, E 82 to 83, H 128 to 129, I 138 to 138, F's nasals 116 to 120 of 137, J's cluster nasals
+127 to 128 and its control 445 to 453 of 468. K's cluster nasals went from 127 to 131 of 140, its other syllables
+from 166 to 198 of 220 and its control from 295 to 343 of 360. The vowel-only control of every corpus part (B, D,
+E, H, I) now reads as none on every syllable that closes on its vowel. One line no prediction named went the
+wrong way: K's other syllables read as a nasal went from 6 to 7. L's misses left: *sub* and *cum* read as nothing (3, 2), *vir*
+as nothing (2), *fid* five ways (its d), *lu* as a nasal (2), and one *uv* as nothing. `sing.test.mjs` holds
+this round: *i*, *ip*, *im*, *in* on F3 and A3 never read as a voiced fricative (4 or more did without the
+test), and *az*, *oz*, *ev* still do.
+
+What this round found about the synthesis: the trough is in the sound, not only in the reader. Five voices whose
+fundamentals begin within half a cycle of each other and drift apart give a low-band swell of 8-18 dB on /i/
+every few hundred milliseconds. A listener may hear that as tremolo on the bass of a held /i/, or as an
+ordinary choir sound. That question is added to the listening test; random start phases or uneven detunes
+would change it. Nothing in the synthesis changed this round. Not listened to.
+
+#### nunc and mens on C4: the murmur thrown out by what follows it (2026-11-16)
 
 The cluster round left *nunc*, *tunc* and *mens* missed on C4 quarter notes in part J. Read frame by frame, the
 murmur was there and one rule had already found it: the reading against the vowel just before it (`NEAR`) saw
