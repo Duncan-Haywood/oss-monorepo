@@ -3808,6 +3808,8 @@ function buildRosterOnce(staff, slots, options = {}) {
       // once only that much is left, so the repair below still runs; on 350-400 copy weeks the walks otherwise take all of it.
       // Default (README "The repair reserve on the biggest weeks"): 2 s (at most a tenth of the budget) on weeks of 300 or more
       // copies, where a pre-registered test on 48 fresh builds found fewer open hours on 22 and more on 10; none below 300.
+      // A 4 s reserve was worse (README "A 4 s repair reserve: measured and refused"): the repair stops on its node budget at
+      // about 1.2 s, so the extra time only takes plateau walks away.
       const reserve = budgetMs > 0 ? o.coverRepairReserveMs ?? (ctx.S >= 300 ? Math.min(2000, budgetMs / 10) : 0) : 0;
       repairReserveMs = reserve;
       const leftMs = () => budgetMs - (Date.now() - tStart);

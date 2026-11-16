@@ -3084,3 +3084,13 @@ weeks) and go to stages after the repair that score pay, not open hours. The def
 **What stops the repair.** Not its 60 rounds: with `coverRepairRounds: 180` and the 4 s reserve, the first four builds
 (`eval/repair-reserve-rounds180.jsonl`) gave the same open hours, gains and skipped rounds as the 4 s run, build for build. That
 leaves its node budget (`coverRepairNodes`, 3M nodes in all, chosen so the same input gives the same roster on any machine).
+
+**More nodes do not rescue it (exploratory, the same 48 builds; `eval/repair-reserve-variants.out.txt`).** With the 4 s reserve
+and `coverRepairNodes: 9000000` the repair ran 2.3 s instead of 1.2 s and found 342 improving rounds instead of 250 (141 under the
+2 s default), recovering 17 of the 64 hours: still 47 h behind the default (fewer open on 14 builds, more on 22). Each repair
+round does cut open hours, but a second of plateau walk covers more of them than a second of repair on these weeks. So the 2 s
+default stands, and its gain came from giving the repair its first second, not from giving it more.
+
+Not claimed: generated weeks only, one cloud machine; the 9M and 180-round runs were exploratory, not pre-registered. Next:
+whether a reserve sized to what the repair uses (about 1.1-1.2 s at 3M nodes) beats 2 s on fresh seeds, pre-registered.
+
