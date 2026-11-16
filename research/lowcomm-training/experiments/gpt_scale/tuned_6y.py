@@ -16,7 +16,7 @@ seeds 0 to 3, five arms:
 Each run is scored on the standard validation batches (val_batches(32, 16), seed 12345, every earlier milestone's number)
 and on 64 fresh batches of the same validation split (seed 777), drawn for this milestone. The best tuned baseline is
 chosen by its standard-batch seed mean and scored on the fresh batches, so the choice and the test use different batches.
-Usage: python3 tuned_6y.py run | report (run appends to tuned_6y.jsonl; report scores H6y-i to iv from LOG.md)."""
+Usage: python3 tuned_6y.py run [extra] | report (extra: the exploratory sgd0.7 arm) (run appends to tuned_6y.jsonl; report scores H6y-i to iv from LOG.md)."""
 import json, os, sys, time
 from multiprocessing import Pool
 
@@ -25,9 +25,12 @@ sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 M, B, STEPS, LR, DIM, HEADS, KEEP, H = 4, 16, 3840, 2e-3, 192, 6, 0.125, 64
 PATH = os.path.join(HERE, "tuned_6y.jsonl")
 ARMS = {"unc": (False, 1.0, 0.0), "recipe": (True, 1.0, 0.0), "sgd1.5": (False, 1.5, 0.0), "sgd2": (False, 2.0, 0.0),
-        "nesterov": (False, 0.7, 0.9)}
+        "nesterov": (False, 0.7, 0.9), "sgd0.7": (False, 0.7, 0.0)}
 TUNED = ("sgd1.5", "sgd2", "nesterov")
-JOBS = [(a, s) for s in range(4) for a in ARMS]
+JOBS = [(a, s) for s in range(4) for a in ARMS if a != "sgd0.7"]
+# Exploratory, added after the seed-0 results showed all three registered tunings (each a larger outer step) worse than
+# lr 1: the one smaller outer step, SGD lr 0.7. Not part of H6y-ii or iv; reported separately.
+EXTRA = [("sgd0.7", s) for s in range(4)]
 
 
 def run(job):
@@ -86,6 +89,7 @@ def report():
     print("\nper arm, seed mean (se): standard batches, fresh batches, ||theta||^2; minutes per run")
     for a in ARMS:
         rs = [recs[(a, s)] for s in seeds if (a, s) in recs]
+        if not rs: continue
         st, fr, th = mse([r["std"] for r in rs]), mse([r["fresh"] for r in rs]), mse([r["theta2"] for r in rs])
         print(f"  {a:9s} n {len(rs)}  std {st[0]:.4f} ({st[1]:.4f})  fresh {fr[0]:.4f} ({fr[1]:.4f})  theta2 {th[0]:,.0f}  "
               f"{sum(r['secs'] for r in rs) / len(rs) / 60:.1f} min  per seed std " + " ".join(f"{r['std']:.4f}" for r in rs))
@@ -94,7 +98,7 @@ def report():
         return mse([recs[(a, s)][key] - recs[(b, s)][key] for s in seeds])
     print("\npaired by seed against unc (arm minus unc), standard / fresh:")
     for a in ARMS:
-        if a == "unc": continue
+        if a == "unc" or not all((a, s) in recs for s in seeds): continue
         p, q = paired(a, "unc", "std"), paired(a, "unc", "fresh")
         print(f"  {a:9s} {p[0]:+.4f} ({p[1]:.4f})  /  {q[0]:+.4f} ({q[1]:.4f})")
     best = min(TUNED, key=lambda a: mse([recs[(a, s)]["std"] for s in seeds])[0])
@@ -105,12 +109,18 @@ def report():
     print(f"H6y-iii (recipe below unc on fresh batches by more than 2 se): {'held' if t[0] < -2 * t[1] else 'refuted'} ({t[0]:+.4f}, se {t[1]:.4f})")
     r = paired("recipe", best, "fresh")
     print(f"H6y-iv  (recipe below the best tuned baseline on fresh batches by more than 2 se): {'held' if r[0] < -2 * r[1] else 'refuted'} ({r[0]:+.4f}, se {r[1]:.4f})")
+    ex = [s for s in seeds if ("sgd0.7", s) in recs]
+    if ex:
+        a = mse([recs[("sgd0.7", s)]["fresh"] - recs[("unc", s)]["fresh"] for s in ex])
+        b = mse([recs[("recipe", s)]["fresh"] - recs[("sgd0.7", s)]["fresh"] for s in ex])
+        print(f"exploratory, added after seed 0 (n {len(ex)}): sgd0.7 minus unc, fresh {a[0]:+.4f} ({a[1]:.4f}); recipe minus sgd0.7, fresh {b[0]:+.4f} ({b[1]:.4f})")
     print("exploratory: recipe minus each tuned arm, fresh: " + ", ".join(f"{a} {paired('recipe', a, 'fresh')[0]:+.4f} ({paired('recipe', a, 'fresh')[1]:.4f})" for a in TUNED))
 
 
 if __name__ == "__main__":
     if sys.argv[1] == "report": report(); sys.exit()
     have = {(r["arm"], r["seed"]) for r in map(json.loads, open(PATH))} if os.path.exists(PATH) else set()
+    todo = EXTRA if len(sys.argv) > 2 and sys.argv[2] == "extra" else JOBS
     with Pool(4) as p, open(PATH, "a") as f:
-        for r in p.imap_unordered(run, [j for j in JOBS if j not in have]):
+        for r in p.imap_unordered(run, [j for j in todo if j not in have]):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)
