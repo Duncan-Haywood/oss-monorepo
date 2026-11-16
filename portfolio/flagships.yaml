@@ -363,19 +363,19 @@ flagships:
       slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37
       on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0
       waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41
-      on 7x9: 13 of 14 nights (eval/lns-states/41-7x9.json, --resume). Next, most
-      valuable first: 41's last night (resume longer, or free 3 nights), then 47;
-      the rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
-      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
-      score); 30 teams in the page (README "Half the table": 104 s with the
-      symmetric step, 2x 28 teams; next: keep tables in the module, copy-in/out now
-      as large as the step; 29 adds nothing); the walk's last heavy tail (22 teams:
-      20 of 280 walks out of budget either way, eval/walk-guide.txt); home-and-away
-      breaks exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a
-      floor-priced home-and-away timetable search on it, and its cost at 18-20 teams
-      (26-76 s, PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by
-      eval/window-refill.c): below 132, or 124-130 ruled out; a real league's travel
-      and blackout list. More open items: NEXT.md.
+      on 7x9 0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with
+      the short night). Next, most valuable first: 47 on 8x9 (odd-lns.py
+      --save/--resume, --also); the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 30 teams in the page (README
+      "Half the table": 104 s with the symmetric step, 2x 28 teams; next: keep
+      tables in the module, copy-in/out now as large as the step; 29 adds nothing);
+      the walk's last heavy tail (22 teams: 20 of 280 walks out of budget either
+      way, eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
+      (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
+      search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12
+      teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
+      out. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
