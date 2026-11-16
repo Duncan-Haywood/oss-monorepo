@@ -100,6 +100,18 @@ csshound --fail site/     # CI gate: exit 1 if anything is unused</pre>
     <h3>Measured on this repository</h3>
     <p>On 3,915 HTML pages (99,479 rules, 8,101,928 bytes of CSS), on a 4-core container: <strong>0.50 to 0.52 s and 18 to 21 MB</strong>. It found <strong>8,815 rules</strong> (644,192 bytes, 8.0% of the CSS) that nothing on their page uses. With PurgeCSS's input, which does not follow imports, the count was 13,412: following imports removes a third of the findings. PurgeCSS itself has not been timed against it yet; <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/csshound/BENCHMARK.md" rel="noopener">the benchmark</a> says why and gives the three commands that will.</p>
   </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Is my code uploaded?</h3>
+    <p>No. What you paste is handed to a WebAssembly module loaded from this site and judged in this tab. The page makes no network requests of its own after it loads.</p>
+    <h3>How does it decide a rule is unused?</h3>
+    <p>The same way PurgeCSS does by default: the markup and scripts are cut into words, and a selector is unused when one of its classes, ids, tags or attributes is not one of those words. Pseudo-classes and combinators never count against a selector, and rules inside @keyframes are left alone.</p>
+    <h3>Can it be wrong?</h3>
+    <p>Yes, in the direction of calling something unused that a visitor does see: a class name your code builds with no literal prefix, markup fetched at run time, or a class set by a script from another site. It keeps classes built from a prefix such as cls-${x}. Check a finding before deleting the rule.</p>
+    <h3>How is this different from PurgeCSS?</h3>
+    <p>It uses PurgeCSS's rules but works page by page over a whole folder, follows the imports of each page's scripts, and reports instead of rewriting files. It has not yet been timed against PurgeCSS itself; the benchmark file says why.</p>
+  </section>
 </main>
 
 <footer>
