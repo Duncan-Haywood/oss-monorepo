@@ -1,0 +1,151 @@
+{"cv_copy": "Sony DSLR-A500.arw", "fold": 0, "snr": null, "cv_gain_boosted": 0.0726, "cv_gain_linear": 0.0377, "gain_B_shipped": 0.0455}
+{"cv_copy": "Sony DSLR-A500.arw.snr50", "fold": 0, "snr": 50.0, "cv_gain_boosted": 0.1306, "cv_gain_linear": 0.1011, "gain_B_shipped": 0.1087}
+{"cv_copy": "Sony DSLR-A500.arw.snr25", "fold": 0, "snr": 25.0, "cv_gain_boosted": 0.2248, "cv_gain_linear": 0.2019, "gain_B_shipped": 0.2092}
+{"cv_copy": "Canon EOS 600D.CR2", "fold": 0, "snr": null, "cv_gain_boosted": 0.7134, "cv_gain_linear": 0.3222, "gain_B_shipped": 0.4166}
+{"cv_copy": "Canon EOS 600D.CR2.snr50", "fold": 0, "snr": 50.0, "cv_gain_boosted": 0.7547, "cv_gain_linear": 0.4162, "gain_B_shipped": 0.4965}
+{"cv_copy": "Canon EOS 600D.CR2.snr25", "fold": 0, "snr": 25.0, "cv_gain_boosted": 0.8018, "cv_gain_linear": 0.5681, "gain_B_shipped": 0.6241}
+{"cv_copy": "Leica X VARIO (Typ 107).dng", "fold": 0, "snr": null, "cv_gain_boosted": 0.2992, "cv_gain_linear": 0.2232, "gain_B_shipped": 0.2436}
+{"cv_copy": "Leica X VARIO (Typ 107).dng.snr50", "fold": 0, "snr": 50.0, "cv_gain_boosted": 0.2926, "cv_gain_linear": 0.2231, "gain_B_shipped": 0.2425}
+{"cv_copy": "Leica X VARIO (Typ 107).dng.snr25", "fold": 0, "snr": 25.0, "cv_gain_boosted": 0.2689, "cv_gain_linear": 0.2182, "gain_B_shipped": 0.2347}
+{"cv_copy": "Nikon D90.nef", "fold": 0, "snr": null, "cv_gain_boosted": 0.3126, "cv_gain_linear": 0.2153, "gain_B_shipped": 0.2101}
+{"cv_copy": "Nikon D90.nef.snr50", "fold": 0, "snr": 50.0, "cv_gain_boosted": 0.4333, "cv_gain_linear": 0.3629, "gain_B_shipped": 0.3613}
+{"cv_copy": "Nikon D90.nef.snr25", "fold": 0, "snr": 25.0, "cv_gain_boosted": 0.5242, "cv_gain_linear": 0.541, "gain_B_shipped": 0.5438}
+{"cv_copy": "Olympus C8080.orf", "fold": 0, "snr": null, "cv_gain_boosted": 0.7285, "cv_gain_linear": 0.6164, "gain_B_shipped": 0.6295}
+{"cv_copy": "Olympus C8080.orf.snr50", "fold": 0, "snr": 50.0, "cv_gain_boosted": 0.7618, "cv_gain_linear": 0.6611, "gain_B_shipped": 0.6718}
+{"cv_copy": "Olympus C8080.orf.snr25", "fold": 0, "snr": 25.0, "cv_gain_boosted": 0.7849, "cv_gain_linear": 0.6197, "gain_B_shipped": 0.6231}
+{"cv_copy": "Olympus E410.orf", "fold": 0, "snr": null, "cv_gain_boosted": 0.6158, "cv_gain_linear": 0.2935, "gain_B_shipped": 0.3231}
+{"cv_copy": "Olympus E410.orf.snr50", "fold": 0, "snr": 50.0, "cv_gain_boosted": 0.6165, "cv_gain_linear": 0.2984, "gain_B_shipped": 0.328}
+{"cv_copy": "Olympus E410.orf.snr25", "fold": 0, "snr": 25.0, "cv_gain_boosted": 0.6182, "cv_gain_linear": 0.312, "gain_B_shipped": 0.3407}
+{"cv_copy": "Olympus SP500UZ.orf", "fold": 0, "snr": null, "cv_gain_boosted": 0.3178, "cv_gain_linear": 0.2811, "gain_B_shipped": 0.278}
+{"cv_copy": "Olympus SP500UZ.orf.snr50", "fold": 0, "snr": 50.0, "cv_gain_boosted": 0.4222, "cv_gain_linear": 0.3761, "gain_B_shipped": 0.3731}
+{"cv_copy": "Olympus SP500UZ.orf.snr25", "fold": 0, "snr": 25.0, "cv_gain_boosted": 0.5173, "cv_gain_linear": 0.4698, "gain_B_shipped": 0.4662}
+{"cv_copy": "Panasonic DMC-GF3.rw2", "fold": 0, "snr": null, "cv_gain_boosted": 0.4545, "cv_gain_linear": 0.2933, "gain_B_shipped": 0.3009}
+{"cv_copy": "Panasonic DMC-GF3.rw2.snr50", "fold": 0, "snr": 50.0, "cv_gain_boosted": 0.4644, "cv_gain_linear": 0.3186, "gain_B_shipped": 0.3262}
+{"cv_copy": "Panasonic DMC-GF3.rw2.snr25", "fold": 0, "snr": 25.0, "cv_gain_boosted": 0.4608, "cv_gain_linear": 0.3714, "gain_B_shipped": 0.3788}
+{"cv_copy": "Sony ILCE-5000 (A5000).arw", "fold": 1, "snr": null, "cv_gain_boosted": 0.4752, "cv_gain_linear": 0.2437, "gain_B_shipped": 0.2626}
+{"cv_copy": "Sony ILCE-5000 (A5000).arw.snr50", "fold": 1, "snr": 50.0, "cv_gain_boosted": 0.476, "cv_gain_linear": 0.252, "gain_B_shipped": 0.2708}
+{"cv_copy": "Sony ILCE-5000 (A5000).arw.snr25", "fold": 1, "snr": 25.0, "cv_gain_boosted": 0.469, "cv_gain_linear": 0.2727, "gain_B_shipped": 0.292}
+{"cv_copy": "DJI Phantom 4 (1).dng", "fold": 1, "snr": null, "cv_gain_boosted": 0.113, "cv_gain_linear": -0.01, "gain_B_shipped": -0.0092}
+{"cv_copy": "DJI Phantom 4 (1).dng.snr50", "fold": 1, "snr": 50.0, "cv_gain_boosted": 0.3995, "cv_gain_linear": 0.3129, "gain_B_shipped": 0.3153}
+{"cv_copy": "DJI Phantom 4 (1).dng.snr25", "fold": 1, "snr": 25.0, "cv_gain_boosted": 0.689, "cv_gain_linear": 0.6105, "gain_B_shipped": 0.6184}
+{"cv_copy": "Pentax QS1.dng", "fold": 1, "snr": null, "cv_gain_boosted": 0.3121, "cv_gain_linear": 0.1704, "gain_B_shipped": 0.1683}
+{"cv_copy": "Pentax QS1.dng.snr50", "fold": 1, "snr": 50.0, "cv_gain_boosted": 0.3099, "cv_gain_linear": 0.1822, "gain_B_shipped": 0.1792}
+{"cv_copy": "Pentax QS1.dng.snr25", "fold": 1, "snr": 25.0, "cv_gain_boosted": 0.2926, "cv_gain_linear": 0.2012, "gain_B_shipped": 0.1969}
+{"cv_copy": "NikonD200.nef", "fold": 1, "snr": null, "cv_gain_boosted": 0.4847, "cv_gain_linear": 0.5474, "gain_B_shipped": 0.5466}
+{"cv_copy": "NikonD200.nef.snr50", "fold": 1, "snr": 50.0, "cv_gain_boosted": 0.6061, "cv_gain_linear": 0.6431, "gain_B_shipped": 0.6442}
+{"cv_copy": "NikonD200.nef.snr25", "fold": 1, "snr": 25.0, "cv_gain_boosted": 0.7461, "cv_gain_linear": 0.7222, "gain_B_shipped": 0.7408}
+{"cv_copy": "Olympus E-M5.orf", "fold": 1, "snr": null, "cv_gain_boosted": 0.9356, "cv_gain_linear": 0.8824, "gain_B_shipped": 0.8837}
+{"cv_copy": "Olympus E-M5.orf.snr50", "fold": 1, "snr": 50.0, "cv_gain_boosted": 0.9499, "cv_gain_linear": 0.9202, "gain_B_shipped": 0.9174}
+{"cv_copy": "Olympus E-M5.orf.snr25", "fold": 1, "snr": 25.0, "cv_gain_boosted": 0.9514, "cv_gain_linear": 0.9146, "gain_B_shipped": 0.9079}
+{"cv_copy": "Olympus E600.orf", "fold": 1, "snr": null, "cv_gain_boosted": 0.4635, "cv_gain_linear": 0.4468, "gain_B_shipped": 0.4448}
+{"cv_copy": "Olympus E600.orf.snr50", "fold": 1, "snr": 50.0, "cv_gain_boosted": 0.6777, "cv_gain_linear": 0.6594, "gain_B_shipped": 0.6603}
+{"cv_copy": "Olympus E600.orf.snr25", "fold": 1, "snr": 25.0, "cv_gain_boosted": 0.8232, "cv_gain_linear": 0.7688, "gain_B_shipped": 0.7774}
+{"cv_copy": "Olympus TG-4.orf", "fold": 1, "snr": null, "cv_gain_boosted": 0.046, "cv_gain_linear": 0.063, "gain_B_shipped": 0.0741}
+{"cv_copy": "Olympus TG-4.orf.snr50", "fold": 1, "snr": 50.0, "cv_gain_boosted": 0.0418, "cv_gain_linear": 0.0597, "gain_B_shipped": 0.0711}
+{"cv_copy": "Olympus TG-4.orf.snr25", "fold": 1, "snr": 25.0, "cv_gain_boosted": 0.029, "cv_gain_linear": 0.0497, "gain_B_shipped": 0.0621}
+{"cv_copy": "Panasonic Lumix DMC-LX7.rw2", "fold": 1, "snr": null, "cv_gain_boosted": 0.2487, "cv_gain_linear": 0.4189, "gain_B_shipped": 0.4534}
+{"cv_copy": "Panasonic Lumix DMC-LX7.rw2.snr50", "fold": 1, "snr": 50.0, "cv_gain_boosted": 0.2472, "cv_gain_linear": 0.4174, "gain_B_shipped": 0.4521}
+{"cv_copy": "Panasonic Lumix DMC-LX7.rw2.snr25", "fold": 1, "snr": 25.0, "cv_gain_boosted": 0.2462, "cv_gain_linear": 0.4119, "gain_B_shipped": 0.447}
+{"cv_copy": "Sony NEX-5N.arw", "fold": 2, "snr": null, "cv_gain_boosted": 0.4686, "cv_gain_linear": 0.2222, "gain_B_shipped": 0.2824}
+{"cv_copy": "Sony NEX-5N.arw.snr50", "fold": 2, "snr": 50.0, "cv_gain_boosted": 0.4608, "cv_gain_linear": 0.2211, "gain_B_shipped": 0.2795}
+{"cv_copy": "Sony NEX-5N.arw.snr25", "fold": 2, "snr": 25.0, "cv_gain_boosted": 0.4357, "cv_gain_linear": 0.217, "gain_B_shipped": 0.2702}
+{"cv_copy": "DJI Phantom 4 (2).dng", "fold": 2, "snr": null, "cv_gain_boosted": 0.0895, "cv_gain_linear": -0.0285, "gain_B_shipped": -0.0208}
+{"cv_copy": "DJI Phantom 4 (2).dng.snr50", "fold": 2, "snr": 50.0, "cv_gain_boosted": 0.5736, "cv_gain_linear": 0.5085, "gain_B_shipped": 0.5098}
+{"cv_copy": "DJI Phantom 4 (2).dng.snr25", "fold": 2, "snr": 25.0, "cv_gain_boosted": 0.8493, "cv_gain_linear": 0.7628, "gain_B_shipped": 0.7529}
+{"cv_copy": "Nikon D300.nef", "fold": 2, "snr": null, "cv_gain_boosted": 0.0062, "cv_gain_linear": -0.1839, "gain_B_shipped": -0.1353}
+{"cv_copy": "Nikon D300.nef.snr50", "fold": 2, "snr": 50.0, "cv_gain_boosted": 0.0741, "cv_gain_linear": -0.0995, "gain_B_shipped": -0.0551}
+{"cv_copy": "Nikon D300.nef.snr25", "fold": 2, "snr": 25.0, "cv_gain_boosted": 0.209, "cv_gain_linear": 0.0876, "gain_B_shipped": 0.1203}
+{"cv_copy": "OM System TG-7.ORF", "fold": 2, "snr": null, "cv_gain_boosted": 0.9992, "cv_gain_linear": 0.9667, "gain_B_shipped": 0.9792}
+{"cv_copy": "OM System TG-7.ORF.snr50", "fold": 2, "snr": 50.0, "cv_gain_boosted": 1.0323, "cv_gain_linear": 1.0051, "gain_B_shipped": 1.0153}
+{"cv_copy": "OM System TG-7.ORF.snr25", "fold": 2, "snr": 25.0, "cv_gain_boosted": 1.0695, "cv_gain_linear": 1.0499, "gain_B_shipped": 1.0572}
+{"cv_copy": "Olympus E-PL7.orf", "fold": 2, "snr": null, "cv_gain_boosted": 0.302, "cv_gain_linear": 0.1603, "gain_B_shipped": 0.1862}
+{"cv_copy": "Olympus E-PL7.orf.snr50", "fold": 2, "snr": 50.0, "cv_gain_boosted": 0.3421, "cv_gain_linear": 0.2139, "gain_B_shipped": 0.2369}
+{"cv_copy": "Olympus E-PL7.orf.snr25", "fold": 2, "snr": 25.0, "cv_gain_boosted": 0.4098, "cv_gain_linear": 0.3168, "gain_B_shipped": 0.3283}
+{"cv_copy": "Olympus PEN E-P3.orf", "fold": 2, "snr": null, "cv_gain_boosted": 1.3856, "cv_gain_linear": 0.6604, "gain_B_shipped": 0.7726}
+{"cv_copy": "Olympus PEN E-P3.orf.snr50", "fold": 2, "snr": 50.0, "cv_gain_boosted": 1.3508, "cv_gain_linear": 0.65, "gain_B_shipped": 0.7539}
+{"cv_copy": "Olympus PEN E-P3.orf.snr25", "fold": 2, "snr": 25.0, "cv_gain_boosted": 1.2536, "cv_gain_linear": 0.6269, "gain_B_shipped": 0.7128}
+{"cv_copy": "Olympus TG-6.ORF", "fold": 2, "snr": null, "cv_gain_boosted": 0.9137, "cv_gain_linear": 0.9349, "gain_B_shipped": 0.9428}
+{"cv_copy": "Olympus TG-6.ORF.snr50", "fold": 2, "snr": 50.0, "cv_gain_boosted": 0.9258, "cv_gain_linear": 0.9557, "gain_B_shipped": 0.9628}
+{"cv_copy": "Olympus TG-6.ORF.snr25", "fold": 2, "snr": 25.0, "cv_gain_boosted": 0.94, "cv_gain_linear": 0.9916, "gain_B_shipped": 0.9989}
+{"cv_copy": "Samsung EK-GN120 (Galaxy NX).srw", "fold": 2, "snr": null, "cv_gain_boosted": 0.1626, "cv_gain_linear": -0.0874, "gain_B_shipped": -0.0507}
+{"cv_copy": "Samsung EK-GN120 (Galaxy NX).srw.snr50", "fold": 2, "snr": 50.0, "cv_gain_boosted": 0.1836, "cv_gain_linear": -0.0403, "gain_B_shipped": -0.0055}
+{"cv_copy": "Samsung EK-GN120 (Galaxy NX).srw.snr25", "fold": 2, "snr": 25.0, "cv_gain_boosted": 0.219, "cv_gain_linear": 0.063, "gain_B_shipped": 0.0904}
+{"cv_copy": "Sony NEX-7.arw", "fold": 3, "snr": null, "cv_gain_boosted": 0.7436, "cv_gain_linear": 0.7256, "gain_B_shipped": 0.742}
+{"cv_copy": "Sony NEX-7.arw.snr50", "fold": 3, "snr": 50.0, "cv_gain_boosted": 0.7659, "cv_gain_linear": 0.7463, "gain_B_shipped": 0.7706}
+{"cv_copy": "Sony NEX-7.arw.snr25", "fold": 3, "snr": 25.0, "cv_gain_boosted": 0.7486, "cv_gain_linear": 0.7459, "gain_B_shipped": 0.79}
+{"cv_copy": "LG Nexus 5X.dng", "fold": 3, "snr": null, "cv_gain_boosted": 0.6104, "cv_gain_linear": 0.5045, "gain_B_shipped": 0.5079}
+{"cv_copy": "LG Nexus 5X.dng.snr50", "fold": 3, "snr": 50.0, "cv_gain_boosted": 0.7003, "cv_gain_linear": 0.6158, "gain_B_shipped": 0.6224}
+{"cv_copy": "LG Nexus 5X.dng.snr25", "fold": 3, "snr": 25.0, "cv_gain_boosted": 0.7376, "cv_gain_linear": 0.6874, "gain_B_shipped": 0.7108}
+{"cv_copy": "Nikon D5100.nef", "fold": 3, "snr": null, "cv_gain_boosted": 0.5587, "cv_gain_linear": 0.3741, "gain_B_shipped": 0.3695}
+{"cv_copy": "Nikon D5100.nef.snr50", "fold": 3, "snr": 50.0, "cv_gain_boosted": 0.5788, "cv_gain_linear": 0.4112, "gain_B_shipped": 0.4082}
+{"cv_copy": "Nikon D5100.nef.snr25", "fold": 3, "snr": 25.0, "cv_gain_boosted": 0.6024, "cv_gain_linear": 0.4573, "gain_B_shipped": 0.4609}
+{"cv_copy": "OM Sytem OM-1.orf", "fold": 3, "snr": null, "cv_gain_boosted": 0.4906, "cv_gain_linear": 0.4567, "gain_B_shipped": 0.4488}
+{"cv_copy": "OM Sytem OM-1.orf.snr50", "fold": 3, "snr": 50.0, "cv_gain_boosted": 0.6077, "cv_gain_linear": 0.5055, "gain_B_shipped": 0.5179}
+{"cv_copy": "OM Sytem OM-1.orf.snr25", "fold": 3, "snr": 25.0, "cv_gain_boosted": 0.658, "cv_gain_linear": 0.4111, "gain_B_shipped": 0.4608}
+{"cv_copy": "Olympus E-PM1.orf", "fold": 3, "snr": null, "cv_gain_boosted": 0.6275, "cv_gain_linear": 0.4428, "gain_B_shipped": 0.4564}
+{"cv_copy": "Olympus E-PM1.orf.snr50", "fold": 3, "snr": 50.0, "cv_gain_boosted": 0.6861, "cv_gain_linear": 0.3938, "gain_B_shipped": 0.4045}
+{"cv_copy": "Olympus E-PM1.orf.snr25", "fold": 3, "snr": 25.0, "cv_gain_boosted": 0.7731, "cv_gain_linear": 0.1978, "gain_B_shipped": 0.2083}
+{"cv_copy": "Olympus Pen E-PL1.orf", "fold": 3, "snr": null, "cv_gain_boosted": 0.048, "cv_gain_linear": -0.0662, "gain_B_shipped": -0.1059}
+{"cv_copy": "Olympus Pen E-PL1.orf.snr50", "fold": 3, "snr": 50.0, "cv_gain_boosted": 0.1115, "cv_gain_linear": 0.0181, "gain_B_shipped": -0.0118}
+{"cv_copy": "Olympus Pen E-PL1.orf.snr25", "fold": 3, "snr": 25.0, "cv_gain_boosted": 0.1896, "cv_gain_linear": 0.0985, "gain_B_shipped": 0.0968}
+{"cv_copy": "Olympus XZ1.orf", "fold": 3, "snr": null, "cv_gain_boosted": -0.1624, "cv_gain_linear": -0.3275, "gain_B_shipped": -0.3291}
+{"cv_copy": "Olympus XZ1.orf.snr50", "fold": 3, "snr": 50.0, "cv_gain_boosted": -0.091, "cv_gain_linear": -0.2431, "gain_B_shipped": -0.244}
+{"cv_copy": "Olympus XZ1.orf.snr25", "fold": 3, "snr": 25.0, "cv_gain_boosted": 0.0364, "cv_gain_linear": -0.0791, "gain_B_shipped": -0.0765}
+{"cv_copy": "Samsung NX20.srw", "fold": 3, "snr": null, "cv_gain_boosted": 0.4822, "cv_gain_linear": 0.3615, "gain_B_shipped": 0.3875}
+{"cv_copy": "Samsung NX20.srw.snr50", "fold": 3, "snr": 50.0, "cv_gain_boosted": 0.7289, "cv_gain_linear": 0.6425, "gain_B_shipped": 0.6564}
+{"cv_copy": "Samsung NX20.srw.snr25", "fold": 3, "snr": 25.0, "cv_gain_boosted": 0.9096, "cv_gain_linear": 0.8092, "gain_B_shipped": 0.8239}
+{"cv_copy": "Canon EOS 350D.CR2", "fold": 4, "snr": null, "cv_gain_boosted": 0.8096, "cv_gain_linear": 0.5973, "gain_B_shipped": 0.6014}
+{"cv_copy": "Canon EOS 350D.CR2.snr50", "fold": 4, "snr": 50.0, "cv_gain_boosted": 0.7703, "cv_gain_linear": 0.6012, "gain_B_shipped": 0.6045}
+{"cv_copy": "Canon EOS 350D.CR2.snr25", "fold": 4, "snr": 25.0, "cv_gain_boosted": 0.6522, "cv_gain_linear": 0.5769, "gain_B_shipped": 0.5796}
+{"cv_copy": "Leica T (Typ 701).dng", "fold": 4, "snr": null, "cv_gain_boosted": 1.4391, "cv_gain_linear": 0.9199, "gain_B_shipped": 0.966}
+{"cv_copy": "Leica T (Typ 701).dng.snr50", "fold": 4, "snr": 50.0, "cv_gain_boosted": 1.3063, "cv_gain_linear": 0.9128, "gain_B_shipped": 0.9521}
+{"cv_copy": "Leica T (Typ 701).dng.snr25", "fold": 4, "snr": 25.0, "cv_gain_boosted": 1.1416, "cv_gain_linear": 0.6677, "gain_B_shipped": 0.7026}
+{"cv_copy": "Nikon D70.nef", "fold": 4, "snr": null, "cv_gain_boosted": 0.4387, "cv_gain_linear": 0.1102, "gain_B_shipped": 0.1449}
+{"cv_copy": "Nikon D70.nef.snr50", "fold": 4, "snr": 50.0, "cv_gain_boosted": 0.5176, "cv_gain_linear": 0.1934, "gain_B_shipped": 0.2212}
+{"cv_copy": "Nikon D70.nef.snr25", "fold": 4, "snr": 25.0, "cv_gain_boosted": 0.6027, "cv_gain_linear": 0.2929, "gain_B_shipped": 0.3041}
+{"cv_copy": "Olympus C5050Z.orf", "fold": 4, "snr": null, "cv_gain_boosted": 0.3827, "cv_gain_linear": 0.2405, "gain_B_shipped": 0.2648}
+{"cv_copy": "Olympus C5050Z.orf.snr50", "fold": 4, "snr": 50.0, "cv_gain_boosted": 0.4238, "cv_gain_linear": 0.2835, "gain_B_shipped": 0.3065}
+{"cv_copy": "Olympus C5050Z.orf.snr25", "fold": 4, "snr": 25.0, "cv_gain_boosted": 0.4928, "cv_gain_linear": 0.3734, "gain_B_shipped": 0.3944}
+{"cv_copy": "Olympus E30.orf", "fold": 4, "snr": null, "cv_gain_boosted": 0.4784, "cv_gain_linear": 0.4261, "gain_B_shipped": 0.6097}
+{"cv_copy": "Olympus E30.orf.snr50", "fold": 4, "snr": 50.0, "cv_gain_boosted": 0.4996, "cv_gain_linear": 0.4334, "gain_B_shipped": 0.6159}
+{"cv_copy": "Olympus E30.orf.snr25", "fold": 4, "snr": 25.0, "cv_gain_boosted": 0.5087, "cv_gain_linear": 0.4508, "gain_B_shipped": 0.6285}
+{"cv_copy": "Olympus SP350.orf", "fold": 4, "snr": null, "cv_gain_boosted": 0.5828, "cv_gain_linear": 0.3638, "gain_B_shipped": 0.4282}
+{"cv_copy": "Olympus SP350.orf.snr50", "fold": 4, "snr": 50.0, "cv_gain_boosted": 0.6292, "cv_gain_linear": 0.4209, "gain_B_shipped": 0.4794}
+{"cv_copy": "Olympus SP350.orf.snr25", "fold": 4, "snr": 25.0, "cv_gain_boosted": 0.698, "cv_gain_linear": 0.4923, "gain_B_shipped": 0.5398}
+{"cv_copy": "Panasonic DMC-GF1.rw2", "fold": 4, "snr": null, "cv_gain_boosted": 0.3279, "cv_gain_linear": 0.0955, "gain_B_shipped": 0.0927}
+{"cv_copy": "Panasonic DMC-GF1.rw2.snr50", "fold": 4, "snr": 50.0, "cv_gain_boosted": 0.3263, "cv_gain_linear": 0.1065, "gain_B_shipped": 0.1043}
+{"cv_copy": "Panasonic DMC-GF1.rw2.snr25", "fold": 4, "snr": 25.0, "cv_gain_boosted": 0.3131, "cv_gain_linear": 0.1329, "gain_B_shipped": 0.1323}
+{"cv_copy": "Samsung NX3000.srw", "fold": 4, "snr": null, "cv_gain_boosted": 0.0926, "cv_gain_linear": -0.087, "gain_B_shipped": -0.0773}
+{"cv_copy": "Samsung NX3000.srw.snr50", "fold": 4, "snr": 50.0, "cv_gain_boosted": 0.1429, "cv_gain_linear": -0.0045, "gain_B_shipped": 0.006}
+{"cv_copy": "Samsung NX3000.srw.snr25", "fold": 4, "snr": 25.0, "cv_gain_boosted": 0.2059, "cv_gain_linear": 0.1339, "gain_B_shipped": 0.1456}
+{"test_copy": "Canon EOS 70D.cr2", "snr": null, "sensels": 602775, "test_gain_boosted": 0.497, "test_gain_B": 0.4217}
+{"test_copy": "Canon EOS 70D.cr2.snr50", "snr": 50.0, "sensels": 602775, "test_gain_boosted": 0.6719, "test_gain_B": 0.6046}
+{"test_copy": "Canon EOS 70D.cr2.snr25", "snr": 25.0, "sensels": 602775, "test_gain_boosted": 0.7792, "test_gain_B": 0.7057}
+{"test_copy": "Nikon D810.nef", "snr": null, "sensels": 1099884, "test_gain_boosted": -0.1365, "test_gain_B": -0.131}
+{"test_copy": "Nikon D810.nef.snr50", "snr": 50.0, "sensels": 1099884, "test_gain_boosted": 0.5947, "test_gain_B": 0.4798}
+{"test_copy": "Nikon D810.nef.snr25", "snr": 25.0, "sensels": 1099884, "test_gain_boosted": 0.8852, "test_gain_B": 0.5722}
+{"test_copy": "Sony ILCE-7M3 (A7M3).arw", "snr": null, "sensels": 727662, "test_gain_boosted": 0.6677, "test_gain_B": 0.7351}
+{"test_copy": "Sony ILCE-7M3 (A7M3).arw.snr50", "snr": 50.0, "sensels": 727662, "test_gain_boosted": 0.6633, "test_gain_B": 0.7554}
+{"test_copy": "Sony ILCE-7M3 (A7M3).arw.snr25", "snr": 25.0, "sensels": 727662, "test_gain_boosted": 0.593, "test_gain_B": 0.7875}
+{"test_copy": "Olympus E-M10.orf", "snr": null, "sensels": 479392, "test_gain_boosted": 0.1072, "test_gain_B": -0.0977}
+{"test_copy": "Olympus E-M10.orf.snr50", "snr": 50.0, "sensels": 479392, "test_gain_boosted": 0.1527, "test_gain_B": -0.0241}
+{"test_copy": "Olympus E-M10.orf.snr25", "snr": 25.0, "sensels": 479392, "test_gain_boosted": 0.2261, "test_gain_B": 0.0907}
+{"test_copy": "Pentax K-1 Mark II.pef", "snr": null, "sensels": 1100190, "test_gain_boosted": -0.2068, "test_gain_B": 0.2534}
+{"test_copy": "Pentax K-1 Mark II.pef.snr50", "snr": 50.0, "sensels": 1100190, "test_gain_boosted": -0.229, "test_gain_B": 0.2493}
+{"test_copy": "Pentax K-1 Mark II.pef.snr25", "snr": 25.0, "sensels": 1100190, "test_gain_boosted": -0.2931, "test_gain_B": 0.235}
+{"test_copy": "Sony ILCE-7M4 (A7M4).ARW", "snr": null, "sensels": 994742, "test_gain_boosted": 0.2403, "test_gain_B": 0.204}
+{"test_copy": "Sony ILCE-7M4 (A7M4).ARW.snr50", "snr": 50.0, "sensels": 994742, "test_gain_boosted": 0.6565, "test_gain_B": 0.6393}
+{"test_copy": "Sony ILCE-7M4 (A7M4).ARW.snr25", "snr": 25.0, "sensels": 994742, "test_gain_boosted": 0.8854, "test_gain_B": 0.891}
+{"test_copy": "Nikon 800E.nef", "snr": null, "sensels": 1098370, "test_gain_boosted": 0.5367, "test_gain_B": 0.374}
+{"test_copy": "Nikon 800E.nef.snr50", "snr": 50.0, "sensels": 1098370, "test_gain_boosted": 0.6423, "test_gain_B": 0.4802}
+{"test_copy": "Nikon 800E.nef.snr25", "snr": 25.0, "sensels": 1098370, "test_gain_boosted": 0.7249, "test_gain_B": 0.4816}
+{"test_copy": "Canon EOS 7D.cr2", "snr": null, "sensels": 537196, "test_gain_boosted": 0.2692, "test_gain_B": 0.1305}
+{"test_copy": "Canon EOS 7D.cr2.snr50", "snr": 50.0, "sensels": 537196, "test_gain_boosted": 0.4862, "test_gain_B": 0.344}
+{"test_copy": "Canon EOS 7D.cr2.snr25", "snr": 25.0, "sensels": 537196, "test_gain_boosted": 0.7205, "test_gain_B": 0.5577}
+{"test_copy": "Panasonic DMC-GF7.rw2", "snr": null, "sensels": 474888, "test_gain_boosted": 0.4663, "test_gain_B": 0.2864}
+{"test_copy": "Panasonic DMC-GF7.rw2.snr50", "snr": 50.0, "sensels": 474888, "test_gain_boosted": 0.4649, "test_gain_B": 0.286}
+{"test_copy": "Panasonic DMC-GF7.rw2.snr25", "snr": 25.0, "sensels": 474888, "test_gain_boosted": 0.4598, "test_gain_B": 0.2829}
+{"test_copy": "Samsung NX1.srw", "snr": null, "sensels": 848000, "test_gain_boosted": 0.6146, "test_gain_B": 0.4876}
+{"test_copy": "Samsung NX1.srw.snr50", "snr": 50.0, "sensels": 848000, "test_gain_boosted": 0.6594, "test_gain_B": 0.5339}
+{"test_copy": "Samsung NX1.srw.snr25", "snr": 25.0, "sensels": 848000, "test_gain_boosted": 0.7156, "test_gain_B": 0.5699}
+{"importance_gain_share": {"f5_mean5": 0.1437, "f0": 0.1112, "f5": 0.1078, "logabsD": 0.0493, "f6_std5": 0.0427, "f1": 0.038, "f4_mean5": 0.0363, "f0_std5": 0.0332, "f4": 0.0319, "f0_mean5": 0.0305, "f6_mean5": 0.0301, "corr3": 0.0275, "f1_mean5": 0.0263, "f6": 0.0252, "f4_std5": 0.0242, "f1_std5": 0.0225, "f5_std5": 0.0224, "f2_mean5": 0.0219, "f3_mean5": 0.0215, "f2": 0.021, "f3": 0.0203, "f7_mean5": 0.0181, "f7": 0.015, "corr5": 0.014, "f7_std5": 0.0136, "f2_std5": 0.0134, "corr3sq": 0.013, "f3_std5": 0.0129, "corr5sq": 0.0126}, "note": "final model on all 120 copies (same fit as the test run; recomputed because the run printed truncated integers)"}

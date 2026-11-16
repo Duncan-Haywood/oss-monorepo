@@ -1458,6 +1458,15 @@ richer model is still worth one try, with +0.83 as its realistic ceiling against
 Fitting B's model to a 4 x 4 box-averaged target lost 0.062 dB in cross-validation, so nothing changed in
 the shipped demosaic.
 
+**Boosted trees, 2026-11-16** (`eval/bayer-boosted-weight-2026-11-16.md`, `tools/bayer_boosted_weight.py`;
+pre-registered in its own commit before any score). LightGBM on 29 features (the eight, the four
+correlation features, log|D| and the 5 x 5 mean and spread of the eight) gains +0.527 dB in five-fold CV
+against +0.386 for B's model on the same folds, better on 108 of 120 copies, and +0.451 against B's +0.406
+on the ten test frames (22 of 30 copies). Both bars passed, about 31% of the way from B to the 4 x 4
+ceiling. Not shipped: on the Pentax K-1 Mark II it falls below the 3/16 default at every noise level
+(-0.21 to -0.29 dB, where B gains +0.25), and the A7 III loses to B too. Next: a guarded variant judged
+per frame, then tree inference in numpy and C.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:
