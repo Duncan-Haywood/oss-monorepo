@@ -78,7 +78,7 @@ export function parseTraffic(text) {
   return { rows, skipped };
 }
 
-const usd = (n) => `${n < 0 ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
+const usd = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
 const svcName = (region, n) => `com.amazonaws.${region}.${n}`;
 
 /** Commands to create the endpoint(s) for a service in a VPC. */

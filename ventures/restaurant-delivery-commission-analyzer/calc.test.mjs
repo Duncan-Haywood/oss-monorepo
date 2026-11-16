@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseCsv, parseNumber, parseWhen, detectDelimiter, detectDecimalComma, decodeBuffer, normalizeRows, analyze, sampleCsv, MIN_ORDERS, DAYPARTS, detectDmy, pct } from "./calc.mjs";
+import { parseCsv, parseNumber, parseWhen, detectDelimiter, detectDecimalComma, decodeBuffer, normalizeRows, analyze, sampleCsv, MIN_ORDERS, DAYPARTS, detectDmy, pct, money } from "./calc.mjs";
 
 const HEAD = "Order ID,Platform,Order date,Status,Subtotal,Commission,Delivery fee,Marketing fees,Ad spend,Error charges,Net payout\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
@@ -561,4 +561,49 @@ test("a promotion that earns back its spend to the cent is not flagged high, wha
   const f = r.findings.find((x) => /^Promotions and ads/.test(x.title));
   assert.equal(f.severity, "info");
   assert.ok(!/cost more than/.test(f.detail));
+});
+
+// Red-team guards (2026-11-16): each pins a behaviour a seeded mutant changed
+// without any test noticing.
+test("January dates, 12 pm and three-digit day or month parts are read correctly", () => {
+  assert.equal(parseWhen("2026-01-15").t, Date.UTC(2026, 0, 15));
+  assert.equal(parseWhen("01/15/2026").t, Date.UTC(2026, 0, 15));
+  assert.deepEqual(parseWhen("06/03/2026 12:30 PM"), { t: Date.UTC(2026, 5, 3, 12, 30), hasTime: true });
+  assert.deepEqual(parseWhen("06/03/2026 12:05 am"), { t: Date.UTC(2026, 5, 3, 0, 5), hasTime: true });
+  assert.equal(parseWhen("012/04/2026"), null, "a three-digit month is a typo, not December");
+});
+
+test("decimal comma is detected from amounts that contain zeros", () => {
+  assert.equal(detectDecimalComma([["Subtotal"], ["1.000,00"], ["20,00"]]), true);
+  assert.equal(detectDecimalComma([["Subtotal"], ["1,000.00"], ["20.00"]]), false);
+});
+
+test("money signs follow the rounded cents, symmetric for losses and gains", () => {
+  assert.equal(money(0), "0.00");
+  assert.equal(money(-1.8e-15), "0.00");
+  assert.equal(money(-12.5), "-12.50");
+  assert.equal(money(0.005), "0.01");
+  // a half-cent loss printed "0.01", a gain, before 2026-11-16
+  assert.equal(money(-0.005), "-0.01");
+  assert.equal(money(-1234.5), "-1,234.50");
+});
+
+test("the per-platform payout gap is reported when every row has a payout", () => {
+  const n = load("D1,DoorDash,2026-06-01 12:00,Delivered,40,-10,0,0,0,0,27\nD2,DoorDash,2026-06-02 12:00,Delivered,20,-5,0,0,0,0,15\n");
+  const dd = analyze(n.orders, {}).byPlatform.find((b) => b.key === "doordash");
+  near(dd.payoutGap, -3); // payout 42 against net 45
+  const noPay = normalizeRows(parseCsv("Order date,Platform,Subtotal,Commission\n2026-06-01 12:00,DoorDash,40,-10\n"));
+  assert.equal(analyze(noPay.orders, {}).byPlatform[0].payoutGap, null);
+});
+
+test("the markup finding prints whole percentages", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,40,-14,0,0,0,0,26\n");
+  const f = analyze(n.orders, { foodPct: 30, packaging: 1, markupNow: 10 }).findings.find((x) => /menu prices on delivery/.test(x.title));
+  assert.match(f.title, /about 58% above in-store/);
+  assert.match(f.detail, /You entered 10% now, so about 48% more/);
+});
+
+test("the example file writes amounts to the cent", () => {
+  const rows = parseCsv(sampleCsv()).slice(1);
+  for (const r of rows) for (const v of r.slice(4)) assert.match(v, /^-?\d+\.\d{2}$/);
 });

@@ -190,7 +190,7 @@ export function deadGaps(booked, optsIn) {
   return out;
 }
 
-const money = (n) => `${n < 0 ? "-" : ""}$${Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+const money = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 export { money };
 
 function counterOffers(booked, requests, base, chosen, opts) {

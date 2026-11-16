@@ -429,8 +429,10 @@ export function analyze(orders, opts = {}) {
 }
 
 // Rounded to the cent before the sign is chosen, so float noise such as
-// -1.8e-15 prints "$0.00", not "-$0.00".
-const cents = (n) => Math.round(n * 100) / 100;
+// -1.8e-15 prints "$0.00", not "-$0.00". Halves round away from zero for both
+// signs (Math.round sends -0.5 up to -0, which printed a half-cent loss as a
+// gain), and the printed magnitude is this same rounded value.
+const cents = (n) => Math.sign(n) * Math.round(Math.abs(n) * 100) / 100;
 const usd = (n) => (cents(n) < 0 ? "-" : "") + "$" + Math.abs(cents(n)).toFixed(2);
 const p0 = (n) => (n * 100).toFixed(0) + "%";
 const p1 = (n) => (n * 100).toFixed(1) + "%";
@@ -495,7 +497,7 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   return out;
 }
 
-export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? "-" : "") + Math.abs(cents(n)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 
