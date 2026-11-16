@@ -41,6 +41,9 @@ ESC_SURVEY = 0x82     # feeder, after LAUNCH once the board has surveyed a wheel
                       # sums leave out a wheel fitting over SURVEY_TRIM (5) x worse than the median one. The grid is the
                       # firmware's ESC_SURVEY_GRID_US, 0 / 20 / 50 / 100 / 200 / 400 ms.
 ESC_SURVEY_LAGS = 6
+ESC_TAU = 0x83        # feeder, after TELEMETRY every period (2026-11-16, README "Checked before a calibration drill"):
+                      # uint16 the ESC lag the board's drop fit runs with (config ESC_TAU_US), ms, so the Pi can compare
+                      # it with the last drill's ESC_SURVEY before it feeds a ball
 
 FORMATS = {
     HEARTBEAT: "",
@@ -56,6 +59,7 @@ FORMATS = {
     TELEMETRY: "<HhhhHB",
     LAUNCH: "<BhhhhB",
     ESC_SURVEY: "<BHH" + "H" * ESC_SURVEY_LAGS,
+    ESC_TAU: "<H",
 }
 
 # TELEMETRY flag bits

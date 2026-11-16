@@ -135,6 +135,8 @@ class DrillResult:
     fed: list = field(default_factory=list)        # the PlannedShot each FEED was sent with (re-planned speeds included)
     refits: list = field(default_factory=list)     # Refitter.events, when the run re-planned from its own shots
     esc_survey: dict | None = None  # the board's ESC-lag survey at the drill's end (ESC_SURVEY frame), if it sent one
+    esc_tau_ms: int | None = None   # the ESC lag the board's drop fit ran with (ESC_TAU frame), if it reports one
+    held: bool = False              # stopped before the first ball by the ESC-lag check (`aborted` says why); no e-stop
 
     @property
     def ok(self) -> bool:
@@ -343,6 +345,34 @@ def survey(link, clock, sleep, tick_s, timeout=ESC_SURVEY_S):
         sleep(tick_s)
 
 
+def esc_tau_matches(pick_ms: float, board_ms: float) -> bool:
+    """Whether a board running with `board_ms` of ESC lag agrees with a survey's refined pick: 0 only for 0, else within
+    15% (the survey's refined lag came within 10% of the true one on the simulator, 30-150 ms)."""
+    if not pick_ms:
+        return not board_ms
+    return abs(pick_ms - board_ms) <= 0.15 * pick_ms
+
+
+def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
+    """Before a drill: why the board's ESC_TAU_US should change first, or None. `sv` is the last survey from the shot
+    log (`last_survey_from_log`), `board_ms` what the board reports now (ESC_TAU frame; None from older firmware).
+    firmware/esp32/README.md "Checked before a calibration drill" (tests/esc_lag_check_sweep.py): on the simulator an
+    untold 30-150 ms lag read the calibration drill's spin 8.7-16.1% off at worst, a first-order build told 50 ms
+    12.0%, and told the survey's pick every build came within 1.9%; the slow-wheel hold makes an untold lag worse
+    ("The 1.48x wheel")."""
+    if not sv or (sv.get("wheels") or 0) < ESC_SURVEY_MIN_WHEELS:
+        return None
+    pick = sv["refined_ms"]
+    when = f" ({sv['wheels']} wheels{', ' + sv['at'] if sv.get('at') else ''})"
+    if board_ms is None:
+        return (f"the board does not report its ESC_TAU_US (firmware older than 2026-11-16): the last survey{when} picks "
+                f"{pick} ms; check config.py says {pick * 1000}")
+    if esc_tau_matches(pick, board_ms):
+        return None
+    return (f"the board runs ESC_TAU_US = {board_ms * 1000} but the last survey{when} picks {pick} ms: set ESC_TAU_US = "
+            f"{pick * 1000} in config.py and re-flash, or this drill's drop fits read spin far off")
+
+
 def esc_survey_advice(sv: dict | None, esc_tau_ms: float = 0.0) -> str | None:
     """One line on the board's ESC-lag survey (firmware/esp32/README.md "The ESC lag surveyed on the board"): the lag
     its balls pick and whether config.ESC_TAU_US should change. None without a survey. The survey sums each wheel's
@@ -358,7 +388,7 @@ def esc_survey_advice(sv: dict | None, esc_tau_ms: float = 0.0) -> str | None:
     if pick == 0:
         return f"ESC lag survey: {n} wheels pick no ESC lag; keep ESC_TAU_US = 0" + (
             f" (the board ran with {esc_tau_ms:g} ms: set it back to 0)" if esc_tau_ms else "")
-    same = esc_tau_ms and abs(pick - esc_tau_ms) <= 0.15 * pick
+    same = esc_tau_ms and esc_tau_matches(pick, esc_tau_ms)
     return (f"ESC lag survey: {n} wheels pick {pick} ms (least on the grid {sv['least_ms']} ms)"
             + ("; ESC_TAU_US already matches" if same else f"; set ESC_TAU_US = {pick * 1000} in config.py and re-flash"))
 
@@ -376,6 +406,7 @@ class FeederLink:
         self._flags = None
         self.esc_survey: dict | None = None   # the last ESC_SURVEY frame (firmware/esp32/README.md "The ESC lag surveyed
                                               # on the board"), with the clock it came at
+        self.esc_tau_ms: int | None = None    # the board's ESC_TAU_US in ms (ESC_TAU frame); None until one arrives
 
     def send(self, cmd, *values):
         self.port.write(P.encode(cmd, *values))
@@ -388,6 +419,8 @@ class FeederLink:
         for cmd, vals in self.decoder.feed(self.port.read() or b""):
             if cmd == P.TELEMETRY:
                 self.last = Telemetry(now, *vals)
+            elif cmd == P.ESC_TAU:
+                self.esc_tau_ms = vals[0]
             elif cmd == P.ESC_SURVEY:
                 self.esc_survey = {"t": now, "wheels": vals[0], "least_ms": vals[1], "refined_ms": vals[2],
                                    "rms_ppm": [None if v == 65535 else v for v in vals[3:]]}
@@ -451,8 +484,13 @@ def hold_s(shot) -> float:
 
 
 def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, ready_timeout_s=10.0,
-              release_timeout_s=2.0, link_timeout_s=0.5, tick_s=0.01, log=None, replan=None) -> DrillResult:
+              release_timeout_s=2.0, link_timeout_s=0.5, tick_s=0.01, log=None, replan=None, prior_survey=None,
+              hold_on_esc_lag=False) -> DrillResult:
     """Run planned shots on the feeder. The first shot gets longer to be ready: the axes home at power-up.
+
+    `prior_survey` (the last ESC_SURVEY from the shot log) is checked against the lag the board reports once it is
+    connected (`esc_lag_check`): a mismatch is a warning, and with `hold_on_esc_lag` (a calibration drill) the run
+    stops before its first ball with `held` set, the wheels never spun and no e-stop sent.
 
     `replan(launches, remaining) -> list | None` (a `Refitter`), if given, is called before each shot after the first
     with this run's launch records so far and the shots not yet fed; a list it returns replaces them."""
@@ -512,6 +550,22 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
         t0 = wait(lambda t: t.t >= start + FRESH_S and not t.flags & (P.FLAG_WATCHDOG | P.FLAG_BUS_OFF), 2.0, "connect",
                   ignore=P.FLAG_WATCHDOG | P.FLAG_BUS_OFF)
         fed = t0.balls_fed
+        # The ESC_TAU frame rides with every telemetry frame; give an older board's silence three periods.
+        waited = clock()
+        while link.esc_tau_ms is None and clock() - waited < 0.35:
+            link.poll()
+            sleep(tick_s)
+        res.esc_tau_ms = link.esc_tau_ms
+        why = esc_lag_check(prior_survey, link.esc_tau_ms)
+        if why:
+            if hold_on_esc_lag and link.esc_tau_ms is not None:
+                res.held = True
+                res.aborted = f"calibration drill not started: {why} (pass --esc-lag-ok to run it anyway)"
+                res.link_errors = link.errors
+                return res
+            res.warnings.append(why)
+            if log:
+                log(f"warning: {why}")
         last_release = None
         shots = list(shots)
         for k in range(len(shots)):
@@ -628,17 +682,42 @@ def reset_lift_hub_port(device) -> str | None:
 
 
 def append_shot_log(path, res: DrillResult, drill: str = "") -> int:
-    """Append this run's launch records to a JSON-lines file (one object per judged stroke); returns how many."""
+    """Append this run's launch records to a JSON-lines file (one object per judged stroke), then the board's ESC-lag
+    survey as one line of its own (`{"esc_survey": ...}`, with the lag the board ran) when it sent one; returns how
+    many launch records."""
     stamp = time.strftime("%Y-%m-%dT%H:%M:%S")
     with open(path, "a") as fh:
         for rec in res.launches:
             fh.write(json.dumps(dict(rec, at=stamp, drill=drill)) + "\n")
+        if res.esc_survey:
+            fh.write(json.dumps({"esc_survey": res.esc_survey, "esc_tau_ms": res.esc_tau_ms, "at": stamp,
+                                 "drill": drill}) + "\n")
     return len(res.launches)
 
 
-def read_shot_log(path) -> list:
+def _read_log_lines(path) -> list:
     with open(path) as fh:
         return [json.loads(line) for line in fh if line.strip()]
+
+
+def read_shot_log(path) -> list:
+    """The launch records of a shot log (survey lines left out)."""
+    return [r for r in _read_log_lines(path) if "esc_survey" not in r]
+
+
+def last_survey_from_log(path) -> dict | None:
+    """The newest ESC-lag survey a shot log holds, as the ESC_SURVEY dict plus `at`, `drill` and the `esc_tau_ms` the
+    board ran with; None if the file is missing or holds none. The board refits from its raw commands, so the pick
+    does not depend on the lag it ran with, and the board's sums run from power-up, so the newest line holds the most
+    wheels."""
+    try:
+        lines = _read_log_lines(path)
+    except (OSError, ValueError):
+        return None
+    for r in reversed(lines):
+        if isinstance(r.get("esc_survey"), dict):
+            return dict(r["esc_survey"], at=r.get("at"), drill=r.get("drill"), esc_tau_ms=r.get("esc_tau_ms"))
+    return None
 
 
 def recovery_from_log(path, inertia: float = launcher.WHEEL_INERTIA_KGM2) -> float | None:
@@ -652,13 +731,20 @@ def recovery_from_log(path, inertia: float = launcher.WHEEL_INERTIA_KGM2) -> flo
         return None
 
 
+def is_calibration(spec: dict) -> bool:
+    """A drill whose shots feed the launcher fit (`"calibration": true`, as drill.calibration.json)."""
+    return bool(spec.get("calibration"))
+
+
 def run_file(path, device, log=print, *, refit_after: int | None = None, recovery_s: float | None = None,
-             inertia: float = launcher.WHEEL_INERTIA_KGM2) -> DrillResult:
+             inertia: float = launcher.WHEEL_INERTIA_KGM2, prior_survey: dict | None = None,
+             esc_lag_ok: bool = False) -> DrillResult:
     with open(path) as fh:
         spec = json.load(fh)
     shots = plan_drill(spec)
     link = FeederLink(SerialPort(device), time.monotonic)
     refit = Refitter(spec, after=refit_after, recovery_s=recovery_s, inertia=inertia, log=log) if refit_after else None
-    res = run_drill(link, shots, time.sleep, log=log, replan=refit)
+    res = run_drill(link, shots, time.sleep, log=log, replan=refit, prior_survey=prior_survey,
+                    hold_on_esc_lag=is_calibration(spec) and not esc_lag_ok)
     res.refits = refit.events if refit else []
     return res

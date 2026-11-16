@@ -1404,6 +1404,74 @@ class EscSurveyTest(unittest.TestCase):
         (cmd, vals), = list(P.Decoder().feed(frame))
         self.assertEqual((cmd, vals[:3]), (P.ESC_SURVEY, (30, 100, 79)))
 
+    def test_board_reports_its_lag_and_the_check_compares_it(self):
+        # README "Checked before a calibration drill": the ESC_TAU frame carries the board's ESC_TAU_US, and the
+        # check says re-flash when the last survey (enough wheels) picks another lag; 0 only matches 0.
+        frame = P.encode(P.ESC_TAU, 80)
+        (cmd, vals), = list(P.Decoder().feed(frame))
+        self.assertEqual((cmd, vals), (P.ESC_TAU, (80,)))
+        sv = {"wheels": 30, "least_ms": 100, "refined_ms": 79}
+        self.assertIsNone(host.esc_lag_check(None, 0))
+        self.assertIsNone(host.esc_lag_check(dict(sv, wheels=6), 0))           # too few wheels to advise
+        self.assertIsNone(host.esc_lag_check(sv, 80))                          # within 15%
+        self.assertIn("set ESC_TAU_US = 79000", host.esc_lag_check(sv, 0))
+        self.assertIn("set ESC_TAU_US = 0", host.esc_lag_check(dict(sv, refined_ms=0), 50))
+        self.assertIsNone(host.esc_lag_check(dict(sv, refined_ms=0), 0))
+        self.assertIn("does not report", host.esc_lag_check(sv, None))
+        self.assertIn("set ESC_TAU_US = 79000", host.esc_survey_advice(sv, 0))
+        self.assertIn("already matches", host.esc_survey_advice(sv, 80))
+
+    def test_survey_kept_in_the_shot_log_and_left_out_of_the_fit(self):
+        res = host.DrillResult(launches=[{"seq": 1, "rpm_top": 4000, "rpm_bottom": 3000, "drop_top": 0.08,
+                                          "drop_bottom": 0.09, "launched": True, "shot": 0}],
+                               esc_survey={"wheels": 30, "least_ms": 100, "refined_ms": 79, "rms_ppm": [1] * 6},
+                               esc_tau_ms=0)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "shots.jsonl")
+            self.assertIsNone(host.last_survey_from_log(path))                 # no file yet
+            self.assertEqual(host.append_shot_log(path, res, "drill.rally.json"), 1)
+            self.assertEqual(len(host.read_shot_log(path)), 1)                 # the survey line is not a record
+            sv = host.last_survey_from_log(path)
+            self.assertEqual((sv["refined_ms"], sv["esc_tau_ms"], sv["drill"]), (79, 0, "drill.rally.json"))
+            res.esc_survey = dict(res.esc_survey, wheels=60, refined_ms=81)
+            host.append_shot_log(path, res, "drill.calibration.json")
+            self.assertEqual(host.last_survey_from_log(path)["refined_ms"], 81)  # the newest
+            self.assertEqual(len(host.read_shot_log(path)), 2)
+
+    def test_calibration_drill_held_until_the_board_is_told_the_lag(self):
+        import esc_survey_sweep as S
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "shots.jsonl")
+            res = S.drill(S.sim_for({"esc_tau_s": 0.08}, 0.4, 0.95, 0.65), "drill.rally.json")
+            self.assertEqual(res.esc_tau_ms, 0)
+            host.append_shot_log(path, res, "drill.rally.json")
+            prior = host.last_survey_from_log(path)
+        cal = host.plan_drill(S.load("drill.calibration.json"))
+        self.assertTrue(host.is_calibration(S.load("drill.calibration.json")))
+        self.assertFalse(host.is_calibration(S.load("drill.rally.json")))
+        sim = S.sim_for({"esc_tau_s": 0.08}, 0.4, 0.95, 0.65)
+        held = host.run_drill(host.FeederLink(sim, sim.clock), cal, sim.sleep, prior_survey=prior, hold_on_esc_lag=True)
+        self.assertTrue(held.held)
+        self.assertEqual((held.fed, held.shots), ([], []))
+        self.assertIn(f"set ESC_TAU_US = {prior['refined_ms'] * 1000}", held.aborted)
+        self.assertFalse(sim.ctl.estop)                                         # held, not e-stopped
+        # Told the lag, the same drill runs with no warning about it.
+        sim = S.sim_for({"esc_tau_s": 0.08}, 0.4, 0.95, 0.65, prior["refined_ms"] * 1000)
+        ran = host.run_drill(host.FeederLink(sim, sim.clock), cal, sim.sleep, prior_survey=prior, hold_on_esc_lag=True)
+        self.assertTrue(ran.ok, ran.aborted)
+        self.assertEqual(ran.esc_tau_ms, prior["refined_ms"])
+        self.assertFalse(any("ESC_TAU_US" in w for w in ran.warnings))
+
+    def test_other_drills_only_warn(self):
+        import esc_survey_sweep as S
+        prior = {"wheels": 30, "least_ms": 100, "refined_ms": 79}
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        res = host.run_drill(host.FeederLink(sim, sim.clock), host.plan_drill(S.load("drill.rally.json"))[:2],
+                             sim.sleep, prior_survey=prior)
+        self.assertTrue(res.ok, res.aborted)
+        self.assertEqual(len(res.fed), 2)
+        self.assertTrue(any("set ESC_TAU_US = 79000" in w for w in res.warnings))
+
     def test_one_badly_fitted_wheel_does_not_outvote_the_rest(self):
         # README "One wheel's misses outvoted the drill": eight wheels fit 100 ms best by 20-30%; one with misses 30
         # times theirs fits 0 best by 5%. The plain sum of squares followed the one; the trimmed sum follows the eight.

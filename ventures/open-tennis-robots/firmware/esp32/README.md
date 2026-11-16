@@ -1484,3 +1484,61 @@ verdict" left this build out, so their first-order rows have 8 builds, not 9.
 **Still open.** The undershoot itself: under the speed-scaled gains a 0.8 s wheel braking to 526 rpm settles 3-4% low and
 takes about 2 s to creep back. This costs time, not accuracy, because the gate waits it out. A wheel model that is
 not first-order may undershoot differently.
+
+## Checked before a calibration drill (2026-11-16)
+
+**The item.** "The 1.48x wheel" ended on "set `ESC_TAU_US` from the survey before a calibration drill; on a laggy ESC
+the hold makes things worse without it", and "Slow wheels watched past the verdict" said the same. Nothing checked
+it. The survey line printed at a drill's end was easy to miss. The Pi did not know what the board was set to, so
+`tennisbots run` advised "set ESC_TAU_US = N" even on a board already set to N. And the next calibration drill ran
+regardless, wrote 12 strokes of skewed drops to the shot log, and `fit-launcher` turned them into efficiencies the
+planner then aimed with.
+
+**The change.**
+
+- The board reports its setting. A new ESC_TAU frame (0x83, uint16 ms) follows every telemetry frame, from
+  `FeederHw.esc_tau_ms` (the `LaunchCheck`'s `esc_tau_us`). On the Pi, `FeederLink.esc_tau_ms` holds it, and
+  `DrillResult.esc_tau_ms` keeps what the drill ran with.
+- The shot log keeps the survey. `append_shot_log` writes the drill-end ESC_SURVEY as one line of its own
+  (`{"esc_survey": ..., "esc_tau_ms": ..., "at": ..., "drill": ...}`). `read_shot_log` leaves that line out, so
+  `fit-launcher` sees only launch records. `last_survey_from_log` returns the newest survey. The board refits from
+  its raw commands, so the pick does not depend on the setting it ran with, and the newest line holds the most wheels
+  because the board's sums run from power-up.
+- The check runs before the first ball. Once `run_drill` is connected, `esc_lag_check(prior_survey, board_ms)`
+  compares the two. A mismatch needs at least 16 wheels in the survey, the same rule as the drill-end advice. Within
+  15% counts as a match, and 0 matches only 0 (`esc_tau_matches`, now shared with `esc_survey_advice`). A drill marked
+  `"calibration": true` (drill.calibration.json now is) stops before any wheel spins: `DrillResult.held` is set, no
+  e-stop is latched, and `tennisbots run` exits 4 with the value to set. `--esc-lag-ok` runs it anyway. Any other
+  drill only warns. A board that sends no ESC_TAU frame (older firmware) gets a warning only, never a stop.
+- `tennisbots esc-lag shots.jsonl` prints the shot log's last survey and its advice. config.py already referred to
+  this command, but it did not exist until now. The drill-end advice now gets the board's real setting, so it says
+  "already matches" when the setting is right.
+
+**Simulated.** `tests/esc_lag_check_sweep.py` covers six plants, wheel lags 0.2 / 0.4 / 0.8 s, two true launchers and
+two board settings: 0 (the default) and 50 ms (a guess). For each build it runs the rally drill with a shot log,
+starts the calibration drill with the check on, and runs that drill anyway to score the launcher fit it would have
+given. Every held build is then re-flashed to the survey's pick and checked again
+(eval/esc-lag-check-sweep-2026-11-16.txt). Spin efficiency error, worst / mean:
+
+| plant | board | held | if run anyway | after re-flash to the pick |
+| --- | --- | --- | --- | --- |
+| first-order | 0 | 0 of 6 | 1.9% / 0.7% (let through) | - |
+| first-order | 50 ms | 6 of 6 | 12.0% / 5.7% | 1.9% / 0.7% |
+| ESC lag 30 ms | 0 / 50 ms | 6 / 6 of 6 | 8.7% / 4.3%, 3.8% / 2.2% | 1.9% / 0.9% |
+| ESC lag 60 ms | 0 / 50 ms | 6 / 0 of 6 | 9.5% / 5.9%, 0.9% / 0.6% (let through) | 0.9% / 0.4% |
+| ESC lag 80 ms | 0 / 50 ms | 6 / 6 of 6 | 11.8% / 5.5%, 1.5% / 0.8% | 1.0% / 0.5% |
+| ESC lag 150 ms | 0 / 50 ms | 6 / 6 of 6 | 16.1% / 5.6%, 4.6% / 1.8% | 1.1% / 0.6% |
+| ESC lag 100 ms, 3 us jitter | 0 / 50 ms | 6 / 6 of 6 | 11.4% / 5.1%, 2.2% / 1.4% | 1.7% / 0.9% |
+
+No held drill fed a ball, and no build was held again after the re-flash. The two let-through groups are the right
+calls: a first-order build at 0, and a 60 ms ESC told 50 ms, which is within 15% of its 54-55 ms pick. Some holds are
+cautious: an 80 ms ESC told 50 ms would have read 1.5% at worst, against 1.0% after the re-flash. The tolerance holds
+anything over 15% off, because the cost of a wrong setting depends on the build, and a re-flash costs a minute.
+On this firmware, a first-order build told 50 ms reads 12.0% off at worst. The 41-44% in "An ESC lag picked from the
+build's own balls" was measured before the survey, the trim and the slow-wheel changes. Tests: four new ones in
+`EscSurveyTest` (tests/test_host.py).
+
+**Not known.** All of it runs on the simulator's first-order wheel and first-order ESC. Under MicroPython, the
+ESC_TAU frame adds 5 bytes per 100 ms telemetry period, which is negligible at 115,200 baud, but this has not been
+run on an ESP32. A survey logged before an ESC or its firmware was changed is stale, and the check cannot tell. In
+that case run the rally drill again, or pass `--esc-lag-ok` once.

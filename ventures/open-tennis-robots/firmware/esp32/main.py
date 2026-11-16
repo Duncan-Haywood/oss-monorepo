@@ -250,6 +250,10 @@ class FeederHw:
         """The ESC-lag survey so far for the ESC_SURVEY frame (controller.LaunchCheck.survey_report), or None."""
         return self.launch.survey_report() if self.launch is not None else None
 
+    def esc_tau_ms(self):
+        """The ESC lag the drop fit runs with (config ESC_TAU_US), ms, for the ESC_TAU frame, or None with no launch check."""
+        return int(round(self.launch.esc_tau_us / 1000)) if self.launch is not None else None
+
     def arm(self):
         self.esc_top.frac(0)
         self.esc_bottom.frac(0)

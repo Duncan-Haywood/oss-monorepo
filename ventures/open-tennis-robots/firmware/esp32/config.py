@@ -109,8 +109,10 @@ LAUNCH_CHECK_MS = 250
 # README.md "An ESC lag picked from the build's own balls"). 0 (the default) fits each ball's drop with the wheel as
 # one lag of the commands. An ESC that ramps its output adds a second lag, and the drop then reads low (1.3-4.6% on
 # average at 40-100 ms on the simulator). The board surveys it itself (README "The ESC lag surveyed on the board"):
-# after a drill, `python -m tennisbots esc-lag` on the Pi (or the drill summary) prints the lag its balls pick, from
-# the ESC_SURVEY frame; set it here and re-flash. The choices are 0, 20000, 50000, 100000, 200000 and 400000.
+# after a drill, `python -m tennisbots esc-lag shots.jsonl` on the Pi (or the drill summary) prints the lag its balls
+# pick, from the ESC_SURVEY frame; set it here and re-flash. Any value works; the survey refines between its grid's
+# lags. The board reports it (ESC_TAU frame), and `tennisbots run` stops a calibration drill before its first ball
+# when it disagrees with the shot log's last survey (README "Checked before a calibration drill").
 ESC_TAU_US = 0
 # The survey's lags (six, the ESC_SURVEY frame's slots), or () to turn the survey off: it refits each turning wheel
 # six times after its record is out, one step a control tick, and a new stroke cuts a survey short.
