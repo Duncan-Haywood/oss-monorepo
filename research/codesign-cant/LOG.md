@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-16 · Milestone 7s: does 7r's reading survive the motor-lag law it never sourced? (predictions written and committed before `experiments/m7s_lag/run.py` was run on the held-out seed; outcome below)
+
+- Why: milestone 7r's third next step. Every design since milestone 0 flies a first-order motor-propeller lag of 0.015 (D / 0.127 m)^1.5 s, inherited and ASSUMED. 7r found both tuners shrink the propeller on the sourced closure (0.130 → 0.106-0.115 m), so the law's diameter exponent now hands the retuned designs a faster actuator (about 12 ms against 15.5 ms). If the reading rests on that, it is an artefact of an unsourced exponent.
+- Sourcing attempt: the plan was to fit the lag from listed motor constants (KV, winding resistance) and propeller masses, via the small-signal time constant τ = J / (K<sub>t</sub>²/R + 2Q/ω). The six retailer catalogues 7q read refuse connections from this session (egress proxy, 2026-11-16), and the SunnySky bench rows 7q kept carry no KV or resistance. So, as `research/CLAUDE.md` asks when nothing is measured, this milestone sweeps the law instead and reports whether the conclusions survive.
+- Plan (`experiments/m7s_lag/run.py`, no training): 7r's 72 designs (published 7l `t45 cap wide` and lever-aware `aware cap wide` under `inh60`; the same designs on `src_li` not retuned; 7r's retuned `7l src_li` and `aware src_li`), each under the closure 7r scored it on, under nine laws: lag at 0.127 m K ∈ {7.5, 15, 30} ms × diameter exponent b ∈ {0, 1.5, 3}. The law sets both the vehicle and the controller's nominal model (`aero.LAG_K`, `aero.LAG_EXP`; default unchanged); the plant randomisation (lag × 1-2) stays on top. Held-out as 7r (seed 9999, 64 episodes), four capped conditions: lever 1 at 45°, lever 2 at 20° and 45°, lever 3 at 20°; margin test per law.
+- Looked at before writing these: a smoke run (8 episodes, seed 4242, 2 seeds per set, not the held-out seed), which showed the script runs, that at 30 ms almost no design passes the margin test, and that its few crashes rank sets differently at 30 ms than at 15 ms. It is too small to count from.
+- Predictions (L2-45 = diverged flights at lever 2, 45°, cap, summed over 6 seeds, of 384):
+  - S0 (prior 98%): the law (15 ms, b 1.5) reproduces 7r's counts in all four conditions for all 72 designs.
+  - S1 (prior 65%): 7i's finding survives: `aware src_li` crashes on fewer L2-45 flights than `7l src_li` in both geometries under at least 8 of the 9 laws.
+  - S2 (prior 60%): the mass-robustness relation survives: over the 24 published and retuned designs per geometry, Spearman ρ(mass, L2-45) < 0 in both geometries under every law with K ≤ 15 ms (6 laws).
+  - S3 (prior 70%): slower motors crash more: at b 1.5, L2-45 rises from 7.5 to 15 to 30 ms in at least 10 of the 12 set-geometries.
+  - S4 (prior 70%): the retuned designs lean on the exponent: going from b 1.5 to b 0 at 15 ms, `7l src_li`'s L2-45 rises by more than published 7l's (`inh60`) in both geometries.
+  - S5 (prior 50%): under b 0 at 15 ms, `7l src_li` passes the margin test in at most 8 of 12 designs (all 12 pass under the inherited law).
+- Analysis: counts per set, geometry, law and condition; margin validity; Spearman ρ per law. No test beyond counts (six seeds, one held-out set).
+
 ## 2026-11-16 · Milestone 7r: retune under the sourced, exactly solved closure, and re-ask whether training across levers buys robustness (predictions written and committed before `experiments/m7r_retune/run.py` was run at full budget; outcome below)
 
 - Why: milestone 7q's first next step. 7q found the closure the programme tuned on since milestone 0 was solved by a truncated iteration and built on constants 12-72% off listed data; with them sourced and Li-ion cells (`src_li`) every design closes at about 0.75 kg, and the old tunes crash 20-33 more flights of 64 per design at lever 2, 45°. Those gains were tuned on vehicles that do not exist. 7i's finding (a lever-aware objective buys lever-2 robustness by buying mass) and 7l's (a lever-1 tuner with the wide box trades robustness for a lighter airframe) both rest on that closure.
