@@ -1003,7 +1003,7 @@
       }
       if (tables.length) {
         parts.push(tables.map((t, i) => `${play[i].name} table\n` + t.map((r) => `  ${r.rank}. ${r.name}  ${r.points} pts  GD ${r.gd}`).join("\n")).join("\n\n"));
-        const adv = poolAdvancers(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1)));
+        const adv = poolAdvancers(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1))); /* zero-default: at least one team advances from a pool */
         parts.push("Play-off seeds\n" + adv.map((n, i) => `  ${i + 1}. ${n}`).join("\n"));
       }
       poolText = parts.join("\n\n");

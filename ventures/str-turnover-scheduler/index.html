@@ -154,7 +154,7 @@
 
     function run(text) {
       const shift = $("#shift").value.split(/[-–]/).map((x) => parseClock(x, null)); // "9am-5pm" and "9-17" both work
-      const r = analyze(text, $("#props").value, { cleaners: parseInt($("#cleaners").value, 10) || 1, shiftStart: shift[0] ?? 9, shiftEnd: shift[1] ?? 17, travelMin: parseFloat($("#travel").value) || 0, hourlyRate: parseFloat($("#rate").value) || 0, payTravel: $("#paytravel").checked });
+      const r = analyze(text, $("#props").value, { cleaners: parseInt($("#cleaners").value, 10) || 1, shiftStart: shift[0] ?? 9, shiftEnd: shift[1] ?? 17, travelMin: parseFloat($("#travel").value) || 0, hourlyRate: parseFloat($("#rate").value) || 0, payTravel: $("#paytravel").checked }); /* zero-default: 0 cleaners can clean nothing */
       last = r;
       if (!r.summary) { status.textContent = r.errors[0]; report.hidden = true; return; }
       const s = r.summary;
