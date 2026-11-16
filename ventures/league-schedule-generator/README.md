@@ -402,7 +402,8 @@ stored rows instead of annealing.
 - **37 teams on 6 x 9 is fully booked** (54 matches in 54 slots; n = 3k + 1, k = 12), so it went to
   `eval/odd-orbit.py`, the turned-night construction of the next section: SAT in 2,783 s (111,006
   variables; 31 teams took 626 s), waits over seeds 1 to 3 701 to 0, 1,246 ms a build. 43 on 7 x 9
-  (k = 14) ran the same script alongside and was stopped with no answer (see `eval/odd-orbit.txt`).
+  (k = 14) ran the same script alongside and was stopped after 39 minutes with no answer; it keeps
+  1,073 waits over three seeds (`eval/odd-orbit.txt`).
 - **49 teams on 9 courts x 9** is already wait-free without a design (spare courts), so its design was
   not stored. On the least courts, 8, it is fully booked (n = 3k + 1, k = 16), the turned-night case.
 
