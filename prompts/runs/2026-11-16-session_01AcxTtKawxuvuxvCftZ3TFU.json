@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKawxuvuxvCftZ3TFU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T09:14:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship shift-roster-builder (allocate.py row 4): paid sick leave / PTO accrual from the team hub's time-clock punches",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16522",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder's next: is almost all solver micro-tuning that recent runs closed as ties or refusals (repair reserve 1.2/2/4 s); the buildable product items (hub features a manager would pay for elsewhere) are not listed, so a run has to find them itself."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship row's buildable next items were solver tuning with closed or noise-level results (warm-sized gate, reserve size); the brief asks for features users would otherwise pay for.",
+      "did": "Built a product feature instead: paid sick leave/PTO accrual in the self-hosted hub, a feature the paid competitors sell beside their time clocks, and added it to the row's next: text.",
+      "result": "Landed with 6 new tests; no live-team reading yet."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-sick-leave-balances-from-the-time-clock.md",
+    "ventures/shift-roster-builder/README.md (section 'Paid sick leave from the time clock')"
+  ],
+  "goal": "Ship a feature small teams otherwise pay a per-seat scheduler for",
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
