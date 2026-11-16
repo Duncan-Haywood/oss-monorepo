@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqydiUQsagaWApesMd7W",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T08:39:30Z",
+  "ended": "2026-11-16T09:30:05Z",
+  "wall_minutes": 50.8,
+  "tokens_in": 4865701,
+  "tokens_out": 27038,
+  "cost_usd": 2.3288,
+  "tool_calls": 49,
+  "task": "research/aerolog-scaling milestone 11ab: out-of-sample split search on 72 fresh layouts scored on cf_D+",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16515",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A results-table header used '%%' in a print with no % formatting, so the first output printed '95%%'; fixed and re-printed from the per-layout cache (no number changed)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew track 12 then redrew to track 22 because track 12 has 40+ projects; the redraw rule is printed but not explained, so it was unclear whether to treat 12 as the draw."
+    },
+    {
+      "file": "research/aerolog-scaling/LOG.md",
+      "issue": "11y quotes cf_D+ at ~50 CPU s per layout; with four workers on 96 layouts it averaged 103 s (max 299), so a 96-layout run took 45 min, not the ~20 min the earlier figure suggested."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-aerolog-split-rules-fresh-layouts.md",
+    "research/aerolog-scaling/LOG.md (11ab entry)"
+  ],
+  "goal": "Advance the aerolog-scaling programme: test 11z's planner-rule ranking out of sample on the simulator-checked reference.",
+  "notes": "Predictions committed in 53cfe6a9c before any test layout ran. 8 of 9 held (P7 refuted narrowly: refitted gas_b beats gas_pj+ by 0.0054 > 0.005). Verification: aerolog-scaling tests 155 passed; research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; post front matter, links and similarity ok; cite_check ok. Full run 2,723 s on 4 cores.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7686fd00-7219-5079-b0e5-1fa07a7a6e25",
+    "transcripts": 1,
+    "first": "2026-11-16T08:39:30Z",
+    "last": "2026-11-16T09:30:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 94,
+        "output": 27038,
+        "thinking": 5133,
+        "cache_read": 4761177,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104430,
+        "api_equivalent_usd": 2.3288,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 94,
+      "output": 27038,
+      "thinking": 5133,
+      "cache_read": 4761177,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104430,
+      "api_equivalent_usd": 2.3288,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 50.8,
+      "active_minutes": 50.8,
+      "model_minutes": 4.68,
+      "tool_minutes": 46.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "researcher writing pre-registered predictions, a 96-layout driver, analysis and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 429.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
