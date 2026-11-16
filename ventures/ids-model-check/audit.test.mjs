@@ -157,3 +157,22 @@ test("a model check still runs a specification whose only fault is a non-standar
   // The audit on its own still calls the IDS invalid.
   assert.deepEqual(codes(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "AkousticRating", "IFCLABEL"), { version: "IFC4" })), ["pset-property"]);
 });
+
+// Red-team guards, 2026-11-16 (prompts/runs/2026-11-16-session_01EhTJVLRvnZNuoDHuaPD3KN.json).
+test("doubles written with a leading point are valid literals", () => {
+  assert.deepEqual(codes(spec(ent("IFCWALL"), prop("IFCREAL", ".5"))), []);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), prop("IFCREAL", "-.25e2"))), []);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), prop("IFCREAL", "."))), ["value-format"]);
+});
+
+test("standard sets: in IFC2X3 an occurrence can carry its type's set through the type", () => {
+  // IFC2X3 lists Pset_AirTerminalTypeCommon on IFCAIRTERMINALTYPE only; an
+  // IfcFlowTerminal (what IFC2X3 calls an air terminal) inherits it from its type,
+  // and the engine checks inherited type properties, so the spec is satisfiable.
+  const req = sprop("Pset_AirTerminalTypeCommon", "Shape", "IFCLABEL");
+  assert.deepEqual(codes(spec(ent("IFCAIRTERMINAL"), req, { version: "IFC2X3" })), []);
+  assert.deepEqual(codes(spec(ent("IFCFLOWTERMINAL"), req, { version: "IFC2X3" })), []);
+  assert.deepEqual(codes(spec(ent("IFCFURNITURE"), sprop("Pset_FurnitureTypeCommon", "Style", "IFCLABEL"), { version: "IFC2X3" })), []);
+  // Still invalid where no type of the class has the set.
+  assert.deepEqual(codes(spec(ent("IFCSLAB"), req, { version: "IFC2X3" })), ["pset-class"]);
+});
