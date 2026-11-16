@@ -1438,6 +1438,17 @@ gratings between unrelated colours 1/8 is right, while on the grey zone plate 3/
 So the weight should follow how strongly the channels' fine detail is correlated, not only how fine
 the detail is. That is the next feature to try.
 
+**Channel correlation tried, not shipped, 2026-11-16** (`eval/bayer-channel-correlation-2026-11-16.md`).
+Four correlation features (`bayer_demosaic.CORRELATION_FEATURES`: how strongly the sensel's own second
+difference and the other colour's move together over a 3 x 3 or 5 x 5 window) and synthetic frames
+matched to real photographs' correlation went through a pre-registered test. The best set gained only
++0.012 dB in cross-validation (the bar was 0.02), and the matched frames lowered that, so nothing reached
+the test frames and `LEARNED_LAPLACE` is unchanged. On real frames the hypothesis runs backwards: weakly
+correlated detail wants *more* borrowing (1/4 comes within 0.1-0.2 dB of 3/16, 1/8 stays 0.5-0.7 dB
+behind). Scored afterwards, as exploration only, the features also made the sheet worse (39.24 dB). A
+model with these features runs through `directional(..., laplace=<10-feature weights>,
+laplace_extra=(...))` in numpy. `bayer_laplace_train.py --extra` and `--synthetic-kind matched` fit one.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:

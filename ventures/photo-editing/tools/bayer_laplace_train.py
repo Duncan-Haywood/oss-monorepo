@@ -56,7 +56,7 @@ def truth_samples(truth: np.ndarray, pat, per_frame: int, seed: int, snr: float 
     g8 = bd.directional(c, pat, laplace=0.125, native=False)[..., 1]
     g4 = bd.directional(c, pat, laplace=0.25, native=False)[..., 1]
     g316 = bd.directional(c, pat, native=False)[..., 1]
-    feats = bd.laplace_features(c, pat)
+    feats = bd.laplace_features(c, pat, extra=bd.CORRELATION_FEATURES)  # all of them; --extra picks
     h, w = c.shape
     cm = np.asarray(pat).reshape(2, 2)[np.arange(h)[:, None] % 2, np.arange(w)[None, :] % 2]
     sel = np.zeros((h, w), bool)
@@ -82,10 +82,17 @@ def frame_samples(path: str, per_frame: int, seed: int, snr: float | None = None
     return truth_samples(binned_truth(path), pat, per_frame, seed, snr)
 
 
+# --synthetic-kind matched: the share of near-grey tiles and their colour spread, chosen so the synthetic
+# frames' channel correlation (corr3sq at red and blue sensels) matches the 40 real training frames'
+# (eval/bayer-channel-correlation-2026-11-16.md).
+MATCHED_GREY_SHARE = 0.8
+MATCHED_GREY_SPREAD = 0.15
+
 PATTERNS = ((0, 1, 1, 2), (2, 1, 1, 0), (1, 0, 2, 1), (1, 2, 0, 1))
 
 
-def near_nyquist_texture(seed: int, n: int = 512, tile: int = 64) -> np.ndarray:
+def near_nyquist_texture(seed: int, n: int = 512, tile: int = 64, grey_share: float = 0.3,
+                         grey_spread: float = 0.15) -> np.ndarray:
     """A synthetic training frame of fine, aliasing-prone detail, built to be unlike the test sheet
     (``synthetic_sheet``: one centred zone plate, discs, one slanted edge): a grid of ``tile``-pixel tiles,
     each a straight grating at a random angle and frequency (0.12 to 0.5 cycles per pixel, half of them
@@ -98,9 +105,9 @@ def near_nyquist_texture(seed: int, n: int = 512, tile: int = 64) -> np.ndarray:
     for ty in range(0, n, tile):
         for tx in range(0, n, tile):
             a, b = rng.uniform(0.05, 0.85, 3), rng.uniform(0.05, 0.85, 3)
-            if rng.random() < 0.3:  # keep some colour pairs near grey, as most real fine detail is
+            if rng.random() < grey_share:  # keep some colour pairs near grey, as most real fine detail is
                 m = rng.uniform(0.1, 0.8)
-                a, b = m + 0.15 * (a - a.mean()), np.full(3, rng.uniform(0.05, 0.85))
+                a, b = m + grey_spread * (a - a.mean()), np.full(3, rng.uniform(0.05, 0.85))
             kind = rng.integers(3)
             if kind < 2:
                 f = rng.uniform(0.3, 0.5) if rng.random() < 0.5 else rng.uniform(0.12, 0.3)
@@ -125,9 +132,13 @@ def near_nyquist_texture(seed: int, n: int = 512, tile: int = 64) -> np.ndarray:
     return np.clip(out, 0.05, 0.85)
 
 
-def synthetic_samples(i: int, per_frame: int, snr: float | None = None) -> dict:
+def synthetic_samples(i: int, per_frame: int, snr: float | None = None, kind: str = "nyquist") -> dict:
     pat = PATTERNS[i % 4]
-    return truth_samples(near_nyquist_texture(seed=500 + i), pat, per_frame, seed=500 + i, snr=snr)
+    if kind == "matched":
+        tex = near_nyquist_texture(seed=500 + i, grey_share=MATCHED_GREY_SHARE, grey_spread=MATCHED_GREY_SPREAD)
+    else:
+        tex = near_nyquist_texture(seed=500 + i)
+    return truth_samples(tex, pat, per_frame, seed=500 + i, snr=snr)
 
 
 def design(X: np.ndarray, pairs: bool) -> np.ndarray:
@@ -195,8 +206,21 @@ def _cached(cache: str | None, key: str, make) -> dict:
     return d
 
 
+def select_features(d: dict, extra=()) -> dict:
+    """Keep the eight base features and the named correlation features, in ``extra``'s order. A cache from
+    before the correlation features (8 columns) serves only ``extra=()``."""
+
+    from shootflow import bayer_demosaic as bd
+
+    X = d["X"]
+    if X.shape[1] == 8 and extra:
+        raise SystemExit("this cache holds 8 features only: use a new --cache for --extra")
+    cols = list(range(8)) + [8 + bd.CORRELATION_FEATURES.index(n) for n in extra]
+    return {**d, "X": X[:, cols]}
+
+
 def load(paths: list[str], cache: str | None, per_frame: int, snrs=(), synthetic: int = 0,
-         synthetic_weight: float = 1.0, noise_weight: float = 1.0) -> list[dict]:
+         synthetic_weight: float = 1.0, noise_weight: float = 1.0, extra=(), synthetic_kind: str = "nyquist") -> list[dict]:
     """Every training copy, each tagged with its ``group`` (the source frame) so cross-validation holds a
     frame out together with its noisy copies."""
 
@@ -207,14 +231,15 @@ def load(paths: list[str], cache: str | None, per_frame: int, snrs=(), synthetic
             raise SystemExit(f"{name} is a test frame (scored by earlier notes); it cannot train the model")
         for snr in (None, *snrs):
             key = name if snr is None else f"{name}.snr{snr:g}"
-            d = _cached(cache, key, lambda: frame_samples(path, per_frame, seed=i, snr=snr))
+            d = select_features(_cached(cache, key, lambda: frame_samples(path, per_frame, seed=i, snr=snr)), extra)
             d.update(name=key, group=name, weight=1.0 if snr is None else noise_weight, synthetic=False)
             frames.append(d)
             print(f"loaded {key}: {len(d['gt'])} sensels", file=sys.stderr, flush=True)
     for i in range(synthetic):
         for snr in (None, *snrs):
-            key = f"near-nyquist-{i}" + ("" if snr is None else f".snr{snr:g}")
-            d = _cached(cache, key, lambda: synthetic_samples(i, per_frame, snr))
+            stem = "near-nyquist" if synthetic_kind == "nyquist" else f"near-nyquist-{synthetic_kind}"
+            key = f"{stem}-{i}" + ("" if snr is None else f".snr{snr:g}")
+            d = select_features(_cached(cache, key, lambda: synthetic_samples(i, per_frame, snr, synthetic_kind)), extra)
             d.update(name=key, group=f"near-nyquist-{i}", synthetic=True,
                      weight=synthetic_weight * (1.0 if snr is None else noise_weight))
             frames.append(d)
@@ -244,11 +269,15 @@ def main(argv=None) -> int:
     ap.add_argument("--noise-weight", type=float, default=1.0, help="weight of each noisy copy against its clean frame")
     ap.add_argument("--synthetic", type=int, default=0, help="add this many near-Nyquist synthetic frames")
     ap.add_argument("--synthetic-weight", type=float, default=1.0)
+    ap.add_argument("--extra", action="append", default=[], choices=("corr3", "corr3sq", "corr5", "corr5sq"),
+                    help="add this correlation feature (bayer_demosaic.CORRELATION_FEATURES) to the eight")
+    ap.add_argument("--synthetic-kind", default="nyquist", choices=("nyquist", "matched"),
+                    help="matched: tile colour pairs drawn so the channels' detail correlation matches real frames")
     ap.add_argument("--cv", action="store_true",
                     help="leave-one-frame-out green error (a real frame is held out with its noisy copies)")
     args = ap.parse_args(argv)
     frames = load(args.train, args.cache, args.per_frame, args.noise_snr, args.synthetic,
-                  args.synthetic_weight, args.noise_weight)
+                  args.synthetic_weight, args.noise_weight, tuple(args.extra), args.synthetic_kind)
     if args.cv:
         stats = [normal_equations(f, args.pairs) for f in frames]
         for held, train in cv_folds(frames):
@@ -256,12 +285,13 @@ def main(argv=None) -> int:
             for f in (frames[i] for i in held):
                 print(json.dumps({"cv_frame": f["name"], "pairs": args.pairs, "ridge": args.ridge,
                                       "noise_snr": args.noise_snr, "synthetic": args.synthetic,
-                                      "synthetic_weight": args.synthetic_weight,
+                                      "synthetic_weight": args.synthetic_weight, "extra": args.extra,
                                       **green_mse(f, coef, args.pairs)}), flush=True)
     coef = solve(stats, args.ridge) if args.cv else fit(frames, args.pairs, args.ridge)
     print(json.dumps({"fit": [round(float(v), 6) for v in coef], "pairs": args.pairs, "ridge": args.ridge,
                       "noise_snr": args.noise_snr, "synthetic": args.synthetic,
                       "synthetic_weight": args.synthetic_weight, "noise_weight": args.noise_weight,
+                      "extra": args.extra, "synthetic_kind": args.synthetic_kind,
                       "frames": [f["name"] for f in frames]}))
     return 0
 
