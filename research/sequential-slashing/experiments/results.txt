@@ -1,35 +1,17 @@
 Setup: claimed fault rate p=0.2, cheater's true rate q=0.3, alpha=0.05, KL(q||p)=0.02817 nats
-E1. false slashing of HONEST verifiers within T=2000 steps (exact)
-  peeking z-test (nominal 0.05): 0.3731   LR e-process: 0.0432   mixture e-process (K=32): 0.0310   Ville bound: 0.05
-E2. detection delay of the cheater (T=3000, exact)
-  oracle LR:  mean 111.8  detected 1.000000
-  mixture:    mean 159.2  detected 1.000000
-  Wald ln(1/alpha)/KL = 106.4;  oracle overshoot ratio 1.051;  price of not knowing q: x1.425
-E3. delay scaling with alpha (oracle LR, exact)
-  alpha=0.2: mean 62.4   Wald 57.1   ratio 1.091   detected 1.000000
-  alpha=0.05: mean 111.8   Wald 106.4   ratio 1.051   detected 1.000000
-  alpha=0.01: mean 169.2   Wald 163.5   ratio 1.035   detected 1.000000
-  alpha=0.001: mean 251.0   Wald 245.2   ratio 1.023   detected 1.000000
-E4. delay scaling with effect size (alpha=0.05, oracle LR, exact)
-  q=0.25: KL=0.0074 mean 415.7 Wald 405.8   ratio 1.024   detected 0.999479
-  q=0.3: KL=0.0282 mean 111.8 Wald 106.4   ratio 1.051   detected 0.999998
-  q=0.4: KL=0.1046 mean 31.3 Wald 28.6   ratio 1.093   detected 1.000000
-  q=0.6: KL=0.3819 mean 8.9 Wald 7.8   ratio 1.131   detected 1.000000
-E5. reports that vary by round (Monte Carlo, 2000 trials, Wilson 95% intervals, K=32)
-  (a) honest, reports 0.4 for 300 rounds then 0.1 for 1700; slashed within 2000 rounds:
-      constant-p mixture at the average report 0.145: 1.0000 [0.9981, 1.0000]  mean delay 21
-      per-round mixture (one-sided):              0.0330 [0.0260, 0.0418]
-      per-round mixture (two-sided):              0.0420 [0.0341, 0.0517]
-  (b) reports i.i.d. U[0.05, 0.35] (mean 0.2), T=3000:
-      honest, per-round two-sided:                 0.0440 [0.0359, 0.0539]
-      cheater, true rate 1.5 p_t; constant-p mixture at 0.2: 1.0000 [0.9924, 1.0000]  mean delay 157
-      cheater, true rate 1.5 p_t; per-round one-sided:       1.0000 [0.9924, 1.0000]  mean delay 211
-      cheater, true rate 1.5 p_t; per-round two-sided:       1.0000 [0.9924, 1.0000]  mean delay 245
-      over-reporter, true rate 0.5 p_t; per-round one-sided: 0.0000 [0.0000, 0.0076]
-      over-reporter, true rate 0.5 p_t; per-round two-sided: 1.0000 [0.9924, 1.0000]  mean delay 116
-E6. sweep over the claimed rate p (cheater q = 1.5p, alpha=0.05, K=32, exact)
-  p=0.02: T=6000 false-slash z 0.444 mixture 0.0299 | delay LR 1357 (Wald 1352) mixture 2337 x1.72 | detected by T: LR 0.9903 mixture 0.8388
-  p=0.05: T=3000 false-slash z 0.396 mixture 0.0195 | delay LR 538 (Wald 522) mixture 1037 x1.93 | detected by T: LR 0.9971 mixture 0.9906
-  p=0.1: T=3000 false-slash z 0.399 mixture 0.0291 | delay LR 257 (Wald 245) mixture 426 x1.66 | detected by T: LR 1.0000 mixture 1.0000
-  p=0.2: T=1500 false-slash z 0.358 mixture 0.0307 | delay LR 112 (Wald 106) mixture 159 x1.42 | detected by T: LR 1.0000 mixture 1.0000
-  p=0.4: T=800 false-slash z 0.316 mixture 0.0363 | delay LR 40 (Wald 37) mixture 47 x1.16 | detected by T: LR 1.0000 mixture 1.0000
+E1. false slashing of HONEST verifiers within T=2000 steps (2000 trials)
+  peeking z-test (nominal 0.05): 0.371   LR e-process: 0.0380   mixture e-process: 0.0200   Ville bound: 0.05
+E2. detection delay of the cheater (T=3000, 600 trials)
+  oracle LR:  mean 119  median 90  detected 1.000
+  mixture:    mean 162  median 136  detected 1.000
+  Wald lower bound ln(1/alpha)/KL = 106;  oracle overshoot ratio 1.12;  price of not knowing q: x1.36
+E3. delay scaling with alpha (oracle LR, mean over 400 trials)
+  alpha=0.2: mean 59   Wald 57
+  alpha=0.05: mean 108   Wald 106
+  alpha=0.01: mean 169   Wald 163
+  alpha=0.001: mean 252   Wald 245
+E4. delay scaling with effect size (alpha=0.05, oracle LR)
+  q=0.25: KL=0.0074 mean 409 Wald 406
+  q=0.3: KL=0.0282 mean 112 Wald 106
+  q=0.4: KL=0.1046 mean 32 Wald 29
+  q=0.6: KL=0.3819 mean 9 Wald 8

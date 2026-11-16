@@ -1,23 +1,13 @@
 """Anytime-valid slashing of a verifier that reports fault probability p.
 
-H0: the verifier is calibrated, y_t ~ Bernoulli(p_t) given the past.  A slashing
-rule must not punish honest verifiers more than alpha of the time *however
-often it looks*.
-
-For a constant reported p, the LR, mixture and peeking-z statistics depend on
-the outcomes only through (t, s), the step and the number of faults so far, so
-`stopped(method, t, s, ...)` is the single decision rule: the simulators
-(`run_*`) and the exact dynamic program (`exact_stop_dist`) both call it, and
-the exact false-slash probabilities are computed from the shipped rule, not a
-copy of it.  For reports p_t that vary by round, `run_mixture_varying` is the
-e-process (one- or two-sided); it reduces to `run_mixture` when p_t is constant.
+H0: the verifier is calibrated, y_t ~ Bernoulli(p).  A slashing rule must not
+punish honest verifiers more than alpha of the time *however often it looks*.
 """
 import math, random
-from statistics import NormalDist
 
 __all__ = ["kl", "lr_step", "bet_step", "run_lr", "run_mixture", "run_ztest_peeking",
            "wald_lower", "mixture_grid", "false_slash_rate", "detection_times",
-           "frac_grid", "mixture_tv_path", "run_mixture_tv", "METHODS"]
+           "frac_grid", "scale_grid", "mixture_tv_path", "run_mixture_tv", "METHODS"]
 
 METHODS = ("lr", "mixture", "z")
 
@@ -131,7 +121,11 @@ def false_slash_rate(method, p, alpha, T, trials, seed=0, **kw):
     rng = random.Random(seed)
     hits = 0
     for _ in range(trials):
-        hits += _run(method, _draw(rng, T, p), p, alpha, **kw) is not None
+        ys = _draw(rng, T, p)
+        if method == "z": r = run_ztest_peeking(ys, p, alpha)
+        elif method == "mixture": r = run_mixture(ys, p, alpha, **kw)
+        else: r = run_lr(ys, p, kw["q"], alpha)
+        hits += r is not None
     return hits / trials
 
 
@@ -140,39 +134,11 @@ def detection_times(method, p, q, alpha, T, trials, seed=1, **kw):
     if method not in ("lr", "mixture"):
         raise ValueError(f"unknown method {method!r}; one of ('lr', 'mixture')")
     rng = random.Random(seed)
-    if method == "lr": kw = {"q": q}
-    return [_run(method, _draw(rng, T, q), p, alpha, **kw) for _ in range(trials)]
-
-
-def _first_stop_s(method, t, p, alpha, **kw):
-    """Smallest s in [0, t] at which `stopped` fires (t+1 if none). The one-sided
-    statistics are increasing in s, so the stopping set at time t is {s >= s*}."""
-    if not stopped(method, t, t, p, alpha, **kw): return t + 1
-    lo, hi = 0, t
-    while lo < hi:
-        mid = (lo + hi) // 2
-        if stopped(method, t, mid, p, alpha, **kw): hi = mid
-        else: lo = mid + 1
-    return lo
-
-
-def exact_stop_dist(method, p, alpha, T, true_rate=None, **kw):
-    """Exact P(tau = t) for t = 1..T when outcomes are i.i.d. Bernoulli(true_rate)
-    (default: p, the honest verifier).  Dynamic program over (t, s) using `stopped`."""
-    _check(method, p, alpha, **kw)
-    r = p if true_rate is None else true_rate
-    _prob("true_rate", r)
-    f = [1.0]                      # f[s]: P(not stopped, s faults) after t steps
     out = []
-    for t in range(1, T + 1):
-        g = [0.0] * (t + 1)
-        for s, v in enumerate(f):
-            if v:
-                g[s] += v * (1 - r); g[s + 1] += v * r
-        k = _first_stop_s(method, t, p, alpha, **kw)
-        out.append(sum(g[k:]))
-        for s in range(k, t + 1): g[s] = 0.0
-        f = g
+    for _ in range(trials):
+        ys = _draw(rng, T, q)
+        if method == "mixture": out.append(run_mixture(ys, p, alpha, **kw))
+        else: out.append(run_lr(ys, p, q, alpha))
     return out
 
 
@@ -182,7 +148,26 @@ def frac_grid(K=32, spacing="uniform"):
     return _fracs(K, spacing)
 
 
-def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform"):
+def scale_grid(K=32):
+    """Fault-rate ratios r for family='scale': K log-spaced up-ratios in (1, 20] and,
+    for two-sided use, K down-ratios 1/r."""
+    if not (isinstance(K, int) and K >= 1): raise ValueError(f"K must be a positive int, got {K!r}")
+    return [20 ** ((k + 0.5) / K) for k in range(K)]
+
+
+def _bet_fracs(p, cs, rs, family):
+    """Per-round up- and down-bet fractions for report p.
+    'additive': c fixed, the alternative is p + c(1 - p) (up) or p(1 - c) (down).
+    'scale': the alternative is r*p (up) or p/r (down), the likelihood ratio of a
+    verifier whose true rate is a fixed multiple of its report; the up fraction is
+    (r - 1)p/(1 - p), capped at 0.999 so the y=0 factor stays positive."""
+    if family == "additive": return cs, cs
+    up = [min((r - 1) * p / (1 - p), 0.999) for r in rs]
+    dn = [1 - 1 / r for r in rs]
+    return up, dn
+
+
+def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform", family="additive"):
     """Yield ln M_t, t = 1, 2, ..., of the time-varying mixture e-process.
 
     Under H0 (y_t ~ Bernoulli(p_t) given the past, p_t announced before y_t) each
@@ -190,25 +175,32 @@ def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform"):
     so each product is a test martingale and so is their average (Ville applies).
     With two_sided, the down-bets 1 - c (y_t - p_t) / (1 - p_t) are added and the
     two halves averaged, which also catches a verifier that over-reports faults.
+    family='additive' keeps c fixed across rounds; family='scale' sets c from p_t
+    so each component is the likelihood ratio of a true rate r * p_t (or p_t / r).
+    Both are predictable in p_t, so validity is unchanged; power depends on which
+    family matches how the cheater misreports.
     """
-    cs = frac_grid(K, spacing)
+    if family not in ("additive", "scale"): raise ValueError(f"family must be 'additive' or 'scale', got {family!r}")
+    cs = frac_grid(K, spacing) if family == "additive" else None
+    rs = scale_grid(K) if family == "scale" else None
     up = [0.0] * K
     dn = [0.0] * K
     n = 2 * K if two_sided else K
     for y, p in zip(ys, ps):
         _check_rate(p, "p_t")
-        for i, c in enumerate(cs):
-            up[i] += math.log(1 + c * (y - p) / p)
-            if two_sided: dn[i] += math.log(1 - c * (y - p) / (1 - p))
+        cu, cd = _bet_fracs(p, cs, rs, family)
+        for i in range(K):
+            up[i] += math.log(1 + cu[i] * (y - p) / p)
+            if two_sided: dn[i] += math.log(1 - cd[i] * (y - p) / (1 - p))
         ws = up + dn if two_sided else up
         m = max(ws)
         yield m + math.log(sum(math.exp(w - m) for w in ws) / n)
 
 
-def run_mixture_tv(ys, ps, alpha, K=32, two_sided=False, spacing="uniform"):
+def run_mixture_tv(ys, ps, alpha, K=32, two_sided=False, spacing="uniform", family="additive"):
     """First t with the time-varying mixture (mixture_tv_path) >= 1/alpha, else None."""
     _check_alpha(alpha)
     thr = math.log(1 / alpha)
-    for t, lm in enumerate(mixture_tv_path(ys, ps, K, two_sided, spacing), 1):
+    for t, lm in enumerate(mixture_tv_path(ys, ps, K, two_sided, spacing, family), 1):
         if lm >= thr: return t
     return None

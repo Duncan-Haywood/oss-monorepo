@@ -30,7 +30,7 @@ def block(section):
 
 
 def main():
-    rows = [re.match(r"\s*alpha=([\d.]+): mean ([\d.]+)\s+Wald ([\d.]+)", l) for l in block("E3")]
+    rows = [re.match(r"\s*alpha=([\d.]+): mean (\d+)\s+Wald (\d+)", l) for l in block("E3")]
     rows = [m for m in rows if m]
     if not rows:
         raise SystemExit("no rows parsed")
