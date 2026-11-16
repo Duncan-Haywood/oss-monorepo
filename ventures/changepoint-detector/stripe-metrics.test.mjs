@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { main, dailyRows, dayOf, dayStart, minorUnits, mainCurrency, listAll, readExisting, apiBase } from './stripe-metrics.mjs';
+import { csvCell, main, dailyRows, dayOf, dayStart, minorUnits, mainCurrency, listAll, readExisting, apiBase } from './stripe-metrics.mjs';
 import { main as watchMain } from './watch.mjs';
 
 const lcg = (seed) => { let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 4294967296; }; };
@@ -94,6 +94,13 @@ test('daily rows: zeros for empty days, failed and pending kept out of revenue, 
   assert.equal(otherCurrency, 1);
   assert.equal(mainCurrency([{ currency: 'eur' }, { currency: 'usd' }, { currency: 'usd' }]), 'usd');
   assert.equal(mainCurrency([{ currency: 'usd' }, { currency: 'eur' }]), 'eur'); // tie: alphabetical
+});
+
+test('csv cells: numbers pass, a formula-looking cell is defused', () => {
+  assert.equal(csvCell('-12.50'), '-12.50');
+  assert.equal(csvCell('=HYPERLINK(1)'), "'=HYPERLINK(1)");
+  assert.equal(csvCell('-1+cmd'), "'-1+cmd");
+  assert.equal(csvCell(7), '7');
 });
 
 test('listAll follows starting_after across pages and gets every charge once', async () => {

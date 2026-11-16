@@ -3513,7 +3513,7 @@ reads, with a read-only restricted key (Charges; Customers too for `--customers`
 script and writes a `.gitignore` for the CSV. The repository should be private: `watch-state.json` records the
 level around each change, which for revenue is the business's revenue.
 
-**Checked** (`stripe-metrics.test.mjs`, 9 tests): against a stand-in for Stripe's list API with its documented
+**Checked** (`stripe-metrics.test.mjs`, 10 tests, one the CSV formula guard): against a stand-in for Stripe's list API with its documented
 shape (`{object: 'list', data, has_more}`, newest first, `created[gte]`, `created[lt]`, `starting_after`, `limit`
 capped at 100): every charge read once across pages; retries and error messages; day boundaries at an offset;
 complete days only; the incremental refetch window; the currency guard; then the made repository's workflow run

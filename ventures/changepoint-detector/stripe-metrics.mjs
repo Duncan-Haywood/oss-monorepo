@@ -129,8 +129,11 @@ export function dailyRows({ charges, customers = null, from, to, offsetHours = 0
   return { rows: list, otherCurrency };
 }
 
+// Every cell is a date or a number we computed, but the file is opened in spreadsheets, so guard against formula
+// injection anyway: a cell starting =, +, -, @, tab or CR that is not a plain number gets an apostrophe.
+export const csvCell = (v) => { const t = String(v); return /^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t) ? `'${t}` : t; };
 export const header = (customers) => ['date', 'payments', 'revenue', 'failed', ...(customers ? ['new_customers'] : [])].join(',');
-export const toCsv = (rows, customers) => [header(customers), ...rows.map((r) => [r.date, r.payments, r.revenue, r.failed, ...(customers ? [r.new_customers] : [])].join(','))].join('\n') + '\n';
+export const toCsv = (rows, customers) => [header(customers), ...rows.map((r) => [r.date, r.payments, r.revenue, r.failed, ...(customers ? [r.new_customers] : [])].map(csvCell).join(','))].join('\n') + '\n';
 
 /** The rows of an earlier CSV this tool wrote, or null when its header is not the one wanted (then fetch afresh). */
 export function readExisting(text, customers) {

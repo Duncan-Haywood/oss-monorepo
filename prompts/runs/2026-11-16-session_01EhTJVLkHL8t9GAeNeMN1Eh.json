@@ -27,7 +27,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 9,
+  "tests_added": 10,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
