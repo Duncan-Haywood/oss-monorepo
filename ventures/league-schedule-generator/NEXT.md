@@ -4,5 +4,4 @@
 
 ## Parked from flagships.yaml `next:`
 
-- (2026-11-16) 37 on 6x9: fully booked, `eval/odd-orbit.py` as for 19, 25 and 31 (31 took 626 s; 37 is about twice the model).
 - (2026-11-16) 32-40 exhaustive needs a tighter bound (30 teams took 24 min)

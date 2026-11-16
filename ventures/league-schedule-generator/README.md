@@ -398,6 +398,10 @@ stored rows instead of annealing.
 - **6 time slots.** The odd leagues above 29 teams on the least courts at 6 slots are fully booked or
   3 slots short of it (31 on 8 x 6: 45 of 48; 33 on 8 x 6: 48 of 48). No pattern laid out at 31 on 8 x 6
   (145 patterns on each of two starters, 560 s) or 39 on 10 x 6 (307 s).
+- **37 teams on 6 x 9 is fully booked** (54 matches in 54 slots; n = 3k + 1, k = 12), so it went to
+  `eval/odd-orbit.py`, the turned-night construction of the next section: SAT in 2,783 s (111,006
+  variables; 31 teams took 626 s), waits over seeds 1 to 3 701 to 0, 1,246 ms a build. 43 on 7 x 9
+  (k = 14) ran the same script alongside and was stopped with no answer (see `eval/odd-orbit.txt`).
 - **49 teams on 9 courts x 9** is already wait-free without a design (spare courts), so its design was
   not stored. On the least courts, 8, it is fully booked (n = 3k + 1, k = 16), the turned-night case.
 
@@ -436,8 +440,9 @@ short orbits are a triangle, not two rounds. Measurements: `eval/odd-orbit.txt`;
 stored-designs test re-checks the solver's rows for all 24 designs. (`odd-night-sat.build` gained a
 `fix_round0` flag, on by default, so a caller with its own structure can drop the round-0 fix.)
 
-Open: 29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section); larger
-fully booked 37 on 6 x 9 by the same script (31 took 626 s; 37 is about twice the model).
+Open: 29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section). 37 on 6 x 9
+was solved by the same script on 2026-11-16 (2,783 s, section above); 43 on 7 x 9 and 49 on 8 x 9 are
+the next fully booked sizes.
 
 ### 29 teams on 5 x 9: why one turned night cannot work, and what was tried (2026-11-16)
 

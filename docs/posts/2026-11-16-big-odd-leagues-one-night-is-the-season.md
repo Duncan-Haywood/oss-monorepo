@@ -45,11 +45,18 @@ try every time, in 0.2 to 7 seconds:
 Builds also got 3 to 7 times faster, because the tool now reads the stored rows
 instead of annealing a layout: 63 teams went from 7.0 seconds to 1.9.
 
+One more size fell to a different trick. 37 teams on 6 courts x 9 slots is *fully
+booked*: 54 matches in 54 slots, with no spare slot to absorb a bad night. There the
+shifted-night trick has never laid out a fully booked night (13, 17, 19 and 25
+teams were tried before), so it went to the turned-night construction from the day before. It renames the teams with three rotating rings of 12. The solver took 46
+minutes, sharing the machine with other runs, against 10 minutes for 31 teams, and 37 teams went from 701
+waits to 0.
+
 ## Where it stops, and why that's the same wall as yesterday
 
 The other odd sizes don't fall to this. Leagues of 3*k* + 2 teams (35, 41, 47)
 have only three spare slots a night, and no shifted night laid out before the
-runs were stopped. That's the class of [yesterday's 29-team
+runs were stopped. That's the class of [this morning's 29-team
 post](2026-11-16-why-29-team-leagues-resist-one-turned-night.md), which proved
 that no renaming group of order *k* can build their seasons. At six time slots
 every odd size above 29 teams is fully booked or three slots short of it, and
