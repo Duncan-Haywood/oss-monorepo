@@ -4030,11 +4030,17 @@ function buildRosterOnce(staff, slots, options = {}) {
     const pricedLeft = budgetMs - (Date.now() - tStart);
     const plan = scoreFloorPlan(o, { budgetMs, leftMs: pricedLeft, copies: ctx.S, carry: !!clique?.carry });
     const pricedTry = plan.mode === "try", pricedReserve = plan.reserve;
-    if (clique && !ex.proven && o.scoreFloor !== false && !over() && plan.mode !== "skip") {
+    // The budget-spent case (2026-11-16, README "The pay floor once the budget is spent"): by default the pay floor is skipped when
+    // the earlier stages ran past the time budget. `scoreFloorSpent: true` lets it try then, warm, for its reserve alone.
+    // `optimality.scoreFloorSkip` names why it did not run: "noClique", "proven", "off", "spent", "noBasis" (no warm start and the
+    // cold formula does not fit) or null when it ran.
+    const spent = over(), spentOk = !spent || o.scoreFloorSpent === true;
+    const pricedSkip = !clique ? "noClique" : ex.proven ? "proven" : o.scoreFloor === false ? "off" : !spentOk ? "spent" : plan.mode === "skip" ? (clique.carry ? "spent" : "noBasis") : null;
+    if (clique && !ex.proven && o.scoreFloor !== false && spentOk && plan.mode !== "skip") {
       priced = cliqueScoreFloor(ctx, pricedTry
         ? { warm: clique.carry, deadline: Date.now() + plan.untilMs, coldFallback: false }
         : { warm: o.scoreFloorWarm === false ? null : clique.carry });
-      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft), left: pricedLeft, reserve: pricedReserve };
+      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft), left: pricedLeft, reserve: pricedReserve, spent };
       mark("scoreFloor");
       if (priced && priced.bound > ex.rootBound) {
         ex.rootBound = priced.bound;
@@ -4102,6 +4108,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       dayLNS,
       scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, warm: priced.warm, tried: !!pricedTried, ms: priced.ms } : null,
       scoreFloorTried: pricedTried,
+      scoreFloorSkip: pricedSkip,
       coverGuided,
       coverRepairReserveMs: repairReserveMs,
       coverRepair: repairStats,
