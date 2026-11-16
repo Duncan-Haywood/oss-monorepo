@@ -2,7 +2,7 @@
 title: "A timesheet tool that could not read SHA-256 repositories"
 seo_title: "Git SHA-256 repos break 40-hex hash regexes: two tools fixed"
 date: 2026-11-16
-description: "git-timesheet rejected every commit from a SHA-256 git repository and its budget gate passed with no rate set. Both fixed, plus the same hash bug in git-exposure-check."
+description: "git-timesheet rejected every commit from a SHA-256 git repository, and its budget gate passed with no rate set. Fixed, with the same hash bug in a sibling."
 tags: [redteam, git, testing, git-timesheet, git-exposure-check]
 ---
 
