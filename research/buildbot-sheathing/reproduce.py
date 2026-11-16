@@ -53,6 +53,8 @@ EXPERIMENTS = {
     "m28_shim_mech": ("numpy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b and m27 results.json", 1, []),
     "m29_tool_lean": ("numpy, scipy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b and m27 results.json", 1,
                       []),
+    "m30_backlash": ("numpy, scipy, mujoco, Menagerie G1/H1; reads m11 profiles.json, m6b and m27 results.json", 2.5,
+                     []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

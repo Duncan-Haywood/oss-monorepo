@@ -63,7 +63,7 @@ test('the CLI --columns and --consensus text carry it', async () => {
 });
 
 test('the page shows the per-column lines', () => {
-  assert.match(read('./index.html'), /\[r\.overcutWarning, \.\.\.\(r\.updateRateWarnings \|\| \[\]\)\]/);
+  assert.match(read('./index.html'), /\[r\.overcutWarning, r\.mutedWarning, \.\.\.\(r\.updateRateWarnings \|\| \[\]\)\]/);
 });
 
 test('tick and median move', () => {
