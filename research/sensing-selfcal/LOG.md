@@ -1,5 +1,17 @@
 # sensing-selfcal research log
 
+## 2026-11-16 · Milestone 3d result: pool five 1.2 s windows by random effects and the sd stays honest (rms z 1.10; independence gives 2.79), but f lands a median 2.2&ndash;2.5% off; about eight windows (10 s) reach 2%, and a rotation gate does not find the near-critical case
+
+- **Run.** `experiments/m3d_pool/pool.py` (seconds; analysis only, on milestone 3c's `summary.json`), exactly as planned below; `tests/test_m3d.py` (5 tests: the pooling helpers on known cases, including about-unit rms z for DerSimonian&ndash;Laird under simulated random effects) passed before the run. Output `summary.json`, `pool.png`.
+- **H130 held.** Inverse-variance pooling, which treats windows as independent, gives rms z 2.79 over 45 K = 5 blocks, and it worsens with K (2.17, 2.55, 2.79, 2.90 at K = 2, 3, 5, 8).
+- **H131 held.** DerSimonian&ndash;Laird rms z 1.10 at K = 5 (2-sd coverage 96%), and 0.89 at K = 8; per sequence 1.09, 1.39, 0.84 at K = 5.
+- **H132 refuted, on fr3/stf.** Median |error| of the median of five windows: fr1/desk 1.48%, **fr3/stf 2.29%** (bar 2%), fr1/xyz 2.98% (the predicted &gt; 2% held there).
+- **H133 refuted.** Share of K = 5 blocks with random-effects sd &le; 2% and |error| &le; 2%: fr1/desk 45%, **fr3/stf 0%** (median sd 3.48%), fr1/xyz 0%.
+- **H134 refuted.** The 5&deg; gate keeps 15 of 18 fr1/xyz windows (it was to drop at least half) and drops 13 of 24 fr3/stf windows, whose gated K = 5 error rises to 6.38%. Gated rms z stays honest (1.24). At 10&deg; it keeps 6 of 18 fr1/xyz windows and none of fr3/stf.
+- **Unscored.** Median random-effects sd and |error| by K over all blocks: K = 1 6.45% and 5.25%; 2: 4.91%, 4.67%; 3: 4.14%, 3.76%; 5: 3.31%, 2.45%; 8: 2.53%, 1.42%. At K = 8 the median of windows is 0.25%, 2.83% and 1.18% off on fr1/desk, fr1/xyz, fr3/stf; fr1/xyz is the one sequence still above 2%.
+- **Reading.** The between-window spread is real error, not noise to average away: a robot that treats its windows as independent will claim 2&ndash;3&times; too much precision, and the claim grows with every window it adds. A random-effects pool keeps the bar honest at every K tried, so the useful rule is "pool by random effects, accept when its sd reaches the target", and on this data that takes about eight windows (10 s of hand-held video) for a 2.5% sd, not one. Rotation from motion capture is not the near-criticality signal: fr1/xyz rotates as much as the others by this measure, and a rotation threshold mostly removes fr3/stf's slow, good windows. What makes fr1/xyz near-critical has to be read from the solve itself (e.g. the spread of viewing directions, which milestone 1 found predicted error on the board).
+- **Caveat.** Sliding blocks overlap and share a scene, so the 45 blocks are far from 45 independent tests; fr1/xyz's shared offset (about &minus;3%) is visible only against the board reference, which a robot does not have.
+
 ## 2026-11-16 · Milestone 3d planned: pool natural-feature windows by the keyframe-jackknife sd; how many 1.2 s windows pin f to 2%, and which pooled sd stays honest?
 
 Written before `experiments/m3d_pool/pool.py` was first run on milestone 3c's data, after 3c's results were read (its summary: a single window's sd<sub>JK</sub> is honest overall but a median 6.4% of f; an inverse-variance mean over a whole sequence was &minus;4.5% off on fr1/xyz). I had not printed the per-window rotation values before setting the gate below. Analysis only: no solve is re-run.
