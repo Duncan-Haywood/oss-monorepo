@@ -10,8 +10,19 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (278 of 278,
-revised with milestones 4e–4s and 3b) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (288 of 288,
+revised with milestones 4e–4s and 3b–3f) and a list of what a submission still needs.
+
+**Milestone 3f headline** (if a robot already knows its lens distortion from a past calibration, does pinning k<sub>1</sub> fix
+natural-feature self-calibration's focal error? first-order conditioning of milestone 3c's 57 stored TUM RGB-D window solves):
+**no; pin the whole distortion model or none of it.** A window's k<sub>1</sub> does track its focal error (Spearman +0.59),
+but conditioning f on the board's k<sub>1</sub> with k<sub>2</sub> left free raises the median error from 5.25% to 7.01%, and to
++12.4% on fr1/xyz, because the windows and the board agree on the distortion curve over the inner image (within 1% out
+to r = 0.4) and only split it differently between k<sub>1</sub> and k<sub>2</sub>. On the nearly undistorted fr3 camera it
+helps (five pooled windows 2.36% to 1.43% off). Two of four predictions held; the re-solve with both terms pinned
+waits for the TUM host.
+
+![Focal error against the window's k1 offset, and the error before and after conditioning on the board's k1](experiments/m3f_condk1/condk1.png)
 
 **Milestone 3e headline** (can a robot tell from its own solve which 1.2 s video windows are near-critical for focal
 length, by how far the camera's optical axis swings? re-solves of milestone 3c's 57 TUM RGB-D windows): **no; the swing
@@ -952,6 +963,7 @@ python3 experiments/m3c_jackknife/analyse.py # summary.json, jackknife.png
 python3 experiments/m3d_pool/pool.py         # seconds; summary.json, pool.png
 OMP_NUM_THREADS=1 python3 experiments/m3e_axis/run.py <tum dir> 4   # ~10 min; results.json
 python3 experiments/m3e_axis/analyse.py      # seconds; summary.json, axis.png
+python3 experiments/m3f_condk1/analyse.py    # seconds, no video needed; summary.json, condk1.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1054,6 +1066,11 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3f: pinning k<sub>1</sub> alone at the prior calibration makes the Kinect's windows worse (+12.4% on fr1/xyz),
+so the next step (3g) re-solves every window with k<sub>1</sub> and k<sub>2</sub> both pinned, and with the distortion curve pinned,
+once the TUM host answers; storing the full intrinsics covariance per window would let the two-term conditioning be
+checked without a re-solve.
 
 After milestone 3e: the optical-axis swing read from the solve does not predict a window's focal error (Spearman +0.08),
 so the next step fixes k1 and k2 at the camera's previous calibration and asks whether fr1/xyz's shared offset goes,
