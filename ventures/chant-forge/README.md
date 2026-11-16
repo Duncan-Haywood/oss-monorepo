@@ -1073,7 +1073,40 @@ That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
-#### A closure against the vowel before it (2026-11-16, latest; shipped, pre-registration held)
+#### Two anchors for one closure (2026-11-16, latest; head to head, the default stays)
+
+Two scheduled sessions took the same item (K's *eb*/*ib*, N's *nab*/*gab*) within the hour. Both found the same
+fault on D4. The five detuned voices beat slowly (over one held /e/ on D4 the band under 500 Hz swung 7 to 40 dB),
+so the 60 ms reference falls on a random point of the swing, while a voice bar beats in step with the vowel just
+before it. Each session wrote its own rule and pre-registered it on its own new held-out set. One merged first:
+`localRef`, the section below. The other rule is kept as an opt-in, `closeAnchor`
+(`onsets.mjs` `ANCHOR`). It reads a closure against the loudest of the last 10 vowel-like frames (within 12 dB of
+that level), the total and the band under 500 Hz each against its own anchor, with no cap. Its diagnostic is
+`eval/voice-bar-diag.mjs`.
+
+Neither rule had been run on the other's held-out set. The decision rule was committed before that cross run
+(`eval/coda-check.mjs` header, fifteenth round): `localRef` stays the default unless `closeAnchor` reads R's and S's
+voiced stops together 3 or more better and loses nothing anywhere else. Part S is the second session's set: 12
+voiced stops and 13 others at G#2, A#2, E3, C4 and F4, 112 BPM.
+
+| voiced stops read exactly | reference only | `localRef` (default) | `closeAnchor` |
+|---|---|---|---|
+| R (held out for `localRef`) | 99 of 120 | 103 | 100 |
+| S (held out for `closeAnchor`) | 101 of 120 | 108 | 108 |
+| together | 200 of 240 | **211** | 208 |
+
+`localRef` stays the default. Its gain on S, +7 on a set written without sight of it, is the strongest evidence
+for it so far. `closeAnchor` generalised less well to R (+1). Elsewhere, against the default, `closeAnchor` read
+K's others 193 to 195, N's 220 to 222 (voiced stops read as a nasal 6 to 4), O's 222 to 223, P's 214 to 216 (its
+clusters 114 to 115, voiced stops read as a nasal 7 to 8), Q's voiced stops 106 to 105 and others 75 to 76, and S's
+others 127 to 128. A, B, D, E, H, I, F, J, L and M were byte-identical, and every vowel-only control was identical.
+
+One observation not in the registration, so not acted on: with `closeAnchor`, the opt-in voice-bar wall
+(`voiceBarWall`) read R's voiced stops 107 of 120 (read as nothing 3, as a nasal 9). With `localRef` it read 103.
+The wall's burst fix and an anchor that holds its band under 500 Hz apart may need each other. That is a
+candidate for its own round with a new held-out set.
+
+#### A closure against the vowel before it (2026-11-16; shipped, pre-registration held)
 
 The round before left K's *ib*/*eb* and N's *nab*/*gab* reading as nothing or as a nasal. Read frame by frame
 (`eval/vstop-diag.mjs`), nearly all of those misses sat on D4-E4, for two reasons. (a) On D4 the five detuned voices

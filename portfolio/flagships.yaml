@@ -287,11 +287,13 @@ flagships:
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans; compressed 2026-11-15, eval/fujifilm-*)
       read directly since 2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from
-      maker notes (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15. Bayer
-      and X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*).
-      NEF edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
-      (eval/nikon-nef-*). Next: an RW2 RawFormat 8 with a tone curve (0x39/0x3A);
-      Sony's vignetting table vs an evenly lit frame; a real DNG and a
+      maker notes (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15; Leica
+      RWL, and a card copy that keeps all 27 raw formats, 2026-11-16. Bayer and
+      X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
+      edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
+      (eval/nikon-nef-*). Next: a Coolpix NRW or Canon CRW reader (copied, not
+      developed); an RW2 RawFormat 8 with a tone curve (0x39/0x3A); Sony's
+      vignetting table vs an evenly lit frame; a real DNG and a
       vignetting-calibrated lens through the pipeline's lens stage; a real evenly
       lit frame shot wide open (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
@@ -302,10 +304,8 @@ flagships:
       (eval/opcode-quality-flag-*); a real DNG with opcode flag bit 1 set; a phone
       DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
       chart to say which colour model is closer (the 70D frame, 4,700 K and
-      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
-      Adobe render of a known frame (settles `--default-tone-curve always`); a real
-      shoot's picks through the blink detector (eval/blink-*; edge half faces <100
-      px 4/22). More open items: NEXT.md.
+      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix).
+      More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -431,18 +431,18 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-16
-      latest: closures read against the vowel before them (held-out R voiced stops
-      99 to 103 of 120; low-passed bar tried, off); next: D#4-E4 bursts under the
-      bar (nab/gab), R's misses, L's cum, sons/rint). Open checks that need a
-      person: listen to the studio page, --sing, the options (--stretch, --halftime,
-      --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella
-      verse and whether the key lift sounds like a lift); --lrc in a real player and
-      --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md
-      and the E2-E4 range with real singers; the release kit against a distributor's
-      real form; the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md).
-      master-cli passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs
-      (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
-      liquescents, lines at true thickness; tilted pages, curled staves straightened
+      latest: localRef kept over a parallel closeAnchor head to head (R+S 211 vs 208
+      of 240); next: closeAnchor with the wall (R 107, unregistered), D#4-E4 bursts,
+      L's cum, sons/rint). Open checks that need a person: listen to the studio
+      page, --sing, the options (--stretch, --halftime, --fills, --limit pumping,
+      stems, sections, breakdown, riser, the a cappella verse and whether the key
+      lift sounds like a lift); --lrc in a real player and --markers/--stems in a
+      DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range
+      with real singers; the release kit against a distributor's real form; the Te
+      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
+      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
+      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
+      thickness; tilted pages, curled staves straightened
       (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84

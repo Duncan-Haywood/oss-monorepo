@@ -5,3 +5,5 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-16) photos with a real horizon and human tilt labels
+- (2026-11-16) a real shoot's picks through the blink detector (eval/blink-*; half faces at the frame edge found by mirroring since 2026-11-16, but under 100 px only 4 of 22: eval/blink-edge-mirror-2026-11-16.md)
+- (2026-11-16) an Adobe render of a known frame (settles `--default-tone-curve always`)

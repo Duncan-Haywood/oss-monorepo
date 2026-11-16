@@ -1991,6 +1991,7 @@ def _preview_ingest_json(plan: CopyPlan) -> str:
                 }
                 for item in plan.items
             ],
+            "left_on_card": _left_on_card_json(plan),
             "notes": [
                 "preview only - no files were copied",
                 "source media will not be deleted",
@@ -2002,6 +2003,13 @@ def _preview_ingest_json(plan: CopyPlan) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _left_on_card_json(plan: CopyPlan) -> list[str]:
+    """Files on the card the copy does not take (not media, not card housekeeping):
+    a format nobody listed shows up here instead of being lost when the card is formatted."""
+
+    return [path.as_posix() for path in plan.left_on_card]
 
 
 def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
@@ -2022,6 +2030,7 @@ def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
             "skipped": report.skipped,
             "item_count": len(plan.items),
             "total_bytes": total_bytes,
+            "left_on_card": _left_on_card_json(plan),
             "notes": [
                 "no source files were deleted",
                 "all copied files were verified by SHA-256 checksum",
@@ -2475,6 +2484,7 @@ def _card_dump_preview_json(report: CardDumpWorkflowReport) -> dict[str, object]
         "shoot_slug": report.preview_plan.shoot_slug,
         "item_count": len(report.preview_plan.items),
         "total_bytes": total_bytes,
+        "left_on_card": _left_on_card_json(report.preview_plan),
         "items": [
             {
                 "relative_path": item.relative_path.as_posix(),

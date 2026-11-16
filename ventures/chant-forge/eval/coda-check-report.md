@@ -489,6 +489,21 @@ Misses with the reader (count over the twelve pitch and length cells):
 
 nob as nasal 3; rog as nasal 2; hob as nasal 2; dib as none 2; sib as none 2; sib as voiceless lab stop 1; vad as fricative voiced 1; hob as none 1; nob as none 1; pug as none 1; vad as none 1; pug (vowel only) as nasal 1; tus (vowel only) as nasal 1
 
+## S. Held out: the parallel rule's own set (fifteenth round)
+
+Voiced stops: *beb*, *dib*, *gid*, *neg*, *mig*, *sab*, *feb*, *lid*, *ved*, *rag*, *heb*, *pug*; others: *dit*, *pec*, *lip*, *sut*, *min*, *fem*, *bas*, *fus*, *sent*, *punt*, *nom*, *vi*, *do*. Pulse-4 and pulse-2 notes at 112 BPM, each followed by a rest, G#2, A#2, E3, C4, F4.
+
+| | default (`localRef`) | last vowel-like frames (`closeAnchor`) | reference only |
+|---|---|---|---|
+| voiced-stop codas read exactly | 108 of 120 (90.0%) | 108 of 120 (90.0%) | 101 of 120 (84.2%) |
+| other syllables read exactly | 127 of 130 (97.7%) | 128 of 130 (98.5%) | 128 of 130 (98.5%) |
+| vowel-only control read as none | 246 of 250 (98.4%) | 246 of 250 (98.4%) | 246 of 250 (98.4%) |
+| other syllables read as a stop where none is written | 1 | 1 | 1 |
+
+Misses with the default (count over the ten pitch and length cells):
+
+dib as none 2; feb as voiceless lab stop 2; lid as voiced lab stop 1; rag as nasal 1; dib as voiceless lab stop 1; gid as voiceless alv stop 1; mig as fricative f 1; lid as none 1; rag as none 1; lip as tap 1; bas as fricative f 1; sent as voiceless alv stop 1; sab as none 1; pug (vowel only) as nasal 1; sut (vowel only) as nasal 1; fus (vowel only) as nasal 1; punt (vowel only) as nasal 1
+
 ## C. Closing consonants in the corpus
 
 146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.

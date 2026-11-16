@@ -1650,6 +1650,23 @@ values. A file with a curve is refused with the reason; shifts and starting valu
 LibRaw reads them, tested on synthetic streams only. Colour needs the camera's `.dcp`, as for every
 RW2 here.
 
+### Leica RWL, and a card copy that leaves no raw behind (2026-11-16)
+
+Leica's D-LUX, V-LUX and C-LUX are Lumix bodies, and their `.RWL` files are RW2 under another
+name. They now develop like any RW2 (`shootflow develop L1000001.RWL --dcp DIR`): on a real
+D-LUX (Typ 109) and V-LUX (Typ 114) every one of 32.7 M sensels, the white balance, black
+level, CFA, crop and white level equal LibRaw 0.22's.
+
+The card copy used to take only the ten raw formats the developer reads and say nothing about
+the rest, so a `.RWL`, `.NRW`, `.CRW` or `.X3F` stayed on the card. It now copies 27 raw
+formats, HEIF/HIF stills, MXF and M2TS video and XMP sidecars, skips the hidden `._` files a Mac
+writes on a card (which carry the raw's extension and used to be copied as photos), and lists
+every other file it leaves behind as `left_on_card` in the preview, the result and
+`ingest_manifest.json`. On the 71 camera raw files in the public metadata-extractor-images
+corpus the old copy left 6 behind; the new one leaves none. Formats with no reader are culled
+from their embedded preview and stop at the grade with the "convert to DNG" message. Details:
+`eval/leica-rwl-and-card-formats-2026-11-16.md`; tests: `tests/test_card_formats.py`.
+
 ## Olympus ORF (2026-11-14)
 
 Olympus and OM System raw files no longer need Adobe's DNG Converter. `shootflow develop
