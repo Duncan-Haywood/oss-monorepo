@@ -29,6 +29,32 @@ Checked in headless Chromium on Dies irae and Pange lingua with the metal backin
 Alternatives people use today: Gregorio plus LilyPond/MuseScore by hand (print, not MIDI with a genre backing), and
 Gregorio's own web editors (notation only). This one's niche is chant as a source for gym-genre tracks.
 
+## Build a release folder: `ep-cli.mjs` (2026-11-16)
+
+One plan file in, one folder a distributor upload can be made from out:
+
+```sh
+node ventures/chant-forge/ep-cli.mjs ventures/chant-forge/examples/first-ep.json -o lux-in-tenebris --today 2026-11-16
+```
+
+The plan (`examples/first-ep.json`) names a title, a release date and, per track, a GABC file and the `cli.mjs`
+options for it (genre, BPM, sections, key lift and so on). For each track the builder runs the converter, renders
+the singing preview choir with the limiter at -14 LUFS, and writes the MIDI, the WAV, timed lyrics (LRC) and a copy
+of the GABC source. Then it draws a 3000 x 3000 cover from the first track's own opening notes (square notation on a
+red four-line staff, no text, so nothing on it can disagree with the metadata), writes `release.json` with each
+track's source edition, year, transcriber and rights note read from the GABC header, and runs the release check
+(`release.mjs`) over the folder. `REPORT.md` lists the tracks with length, loudness and true peak, and splits the
+failing checks into **build faults** (exit 1) and **owner steps**: the artist name, p- and c-lines and ISRCs, which
+only the owner can supply (exit 0 when those are all that is left).
+
+The example plan (Dies irae as half-time metal, Pange lingua as deep house with an a cappella first verse and a key
+lift, Veni Creator as hard rock, the 1908 Te Deum as EDM) builds in 47 s here: 4 tracks, 11:40, every track
+-14.0 LUFS and -1.05 dBTP or lower, 69 checks pass, and the 7 that fail are the owner steps. A GABC file that names
+no source edition (the typed-from-memory demo in `examples/`) is a build fault, so nothing uncited reaches a release.
+The AI disclosure defaults to "assisted" and names the tools and parts; the level is the owner's call. 6 tests in
+`ep.test.mjs` (pixel checks on the cover, -14 LUFS read back from the WAV, the filled-in folder passing the check).
+Nobody has listened to the tracks; listening before upload is the first line of the report's "Before upload".
+
 ## Hear it without a DAW
 
 ```sh

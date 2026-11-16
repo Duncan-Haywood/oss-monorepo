@@ -192,6 +192,10 @@ class StepperAxis:
         return self._emit()
 
 
+# PeriodTach averages its newest periods until they span this long, at most four (README "A tach that averages a fixed
+# time"): at 40 ms, one revolution under 1,500 rpm, four from 6,000. 0 (always four revolutions) stays the default:
+# 40 ms settled the slow wheels better on the simulator but put the drop fits 3-5% low behind a 30 ms ESC lag.
+TACH_WINDOW_US = 0
 PERIOD_RING = 128     # periods each tach keeps for the drop fit: 0.39 s after a ball at 7,000 rpm is 46 revolutions
 
 
@@ -710,8 +714,11 @@ class PeriodTach:
     `stall_us` reads 0, and the first pulse after such a gap starts the average afresh. Edges closer together than `min_period_us` (above `max_rpm`) are electrical noise, ignored.
     """
 
-    def __init__(self, n=4, max_rpm=12000, stall_us=250000, ring=PERIOD_RING):
+    def __init__(self, n=4, max_rpm=12000, stall_us=250000, ring=PERIOD_RING, window_us=None):
         self.periods = [0] * n
+        # The reading averages the newest periods until they span `window_us`, at most `n` of them (2026-11-16, README
+        # "A tach that averages a fixed time"); 0 averages all `n`, as before. None reads TACH_WINDOW_US.
+        self.window_us = TACH_WINDOW_US if window_us is None else window_us
         self.i = 0
         self.count = 0
         self.min_period = 60000000 // max_rpm
@@ -753,7 +760,17 @@ class PeriodTach:
         if self.count == 0 or since_us > self.stall_us:
             return 0
         k = self.count
-        mean = sum(self.periods[:k]) / k
+        if self.window_us > 0:
+            n = len(self.periods)
+            total = j = 0
+            while j < k:
+                total += self.periods[(self.i - 1 - j) % n]
+                j += 1
+                if total >= self.window_us:
+                    break
+            mean = total / j
+        else:
+            mean = sum(self.periods[:k]) / k
         period = since_us if since_us > mean else mean
         return int(60000000 / period + 0.5)
 

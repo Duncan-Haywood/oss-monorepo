@@ -1,0 +1,74 @@
+Milestone 7e: the shape read where the fuel optimum picks its pumps (k_w, chosen-size-weighted) and the share of picks above a family's largest size (s), scored as 7d scored k_lo
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py)
+
+Picks (chosen fixed-pump flow, argmax of f_t over GRID, 384 geometries) on the six never-spun diagonals:
+  family      E read   p10    median  p90    mean   no positive f_t
+  casappa     0.8275   62.5    72.5   89.3   74.1  0
+  danfoss     0.8300   54.0    64.0   90.5   73.5  0
+  marzocchi   0.8200   60.7    71.0   80.0   71.4  0
+  bench       0.8125   59.0    71.5   84.5   72.0  0
+  rexroth     0.8050   57.5    72.5   81.5   71.8  0
+  azpu        0.8025   60.5    69.0   86.0   71.0  0
+  pooled 2304 picks: p10 58.0, median 72.0, p90 90.5, mean 72.3 L/min; 106 distinct flows
+  share by 20 L/min bin: 10-30 0.0%, 30-50 0.0%, 50-70 41.5%, 70-90 47.4%, 90-110 11.1%, 110-130 0.0%, 130-150 0.0%, 150-170 0.0%
+
+Variants (index 2; largest size's 20 bar flow at 2100 r/min; k_lo; k_w; s; idle kW at 85 L/min; diagonal E50):
+  variant        group      index 2  Q_L     k_lo     k_w      s       idle kW  E50
+  casappa        casappa    0.7590  157.3  -0.0566  -0.0181  0.0000     3.57  0.8277
+  danfoss        danfoss    0.8481  182.6  -0.0092  -0.0180  0.0000     3.64  0.8297
+  marzocchi      marzocchi  0.8975  180.5  -0.0036  +0.0034  0.0000     3.32  0.8193
+  bench          bench      0.9130  154.2  +0.0000  +0.0000  0.0000     2.85  0.8116
+  rexroth        rexroth    0.9124  133.2  -0.0040  +0.0009  0.0000     2.58  0.8040
+  azpu           azpu       0.8890  136.7  +0.0074  +0.0003  0.0000     2.45  0.8030
+  azpf           azpf       0.9103   58.9  +0.0019  +0.0004  0.8832     2.61  0.8075
+  azpf_spin      azpf       0.9043   58.9  +0.0085  +0.0037  0.8832     2.99  0.8075
+  azpf_gear      azpf       0.8971   58.9  +0.0166  +0.0046  0.8832     3.13  0.8094
+  azpf_gear98    azpf       0.8828   58.9  +0.0330  +0.0065  0.8832     3.41  0.8093
+  azpn           azpn       0.9250   75.6  -0.0020  -0.0095  0.3403     2.49  0.8050
+  azpn_spin      azpn       0.9197   75.6  +0.0037  -0.0056  0.3403     2.61  0.8031
+  azpn_gear      azpn       0.9129   75.6  +0.0111  -0.0008  0.3403     2.73  0.7988
+  azpn_gear98    azpn       0.8994   75.6  +0.0263  +0.0091  0.3403     2.98  0.7879
+
+(i) pooled fits on all 196 cells
+  one  : E50 = 0.8090; in-sample RMS 0.0087
+  two  : E50 = 0.8196 + 0.0172 (kW - 3.57); in-sample RMS 0.0055
+  lo   : E50 = 0.8200 + 0.0172 (kW - 3.57) -0.1819 lo; in-sample RMS 0.0042
+  w    : E50 = 0.8189 + 0.0172 (kW - 3.57) -0.4269 w; in-sample RMS 0.0044
+  above: E50 = 0.8206 + 0.0172 (kW - 3.57) -0.0029 above; in-sample RMS 0.0054
+
+(ii) pooled leave-one-maker-family-out (8 groups; the AZPF's and the AZPN's four readings held out together)
+  variant        diagonal      one      two       lo        w    above
+  casappa        0.8277    +0.0202  +0.0088  -0.0078  +0.0020  +0.0083
+  danfoss        0.8297    +0.0219  +0.0099  +0.0076  -0.0001  +0.0089
+  marzocchi      0.8193    +0.0110  +0.0047  +0.0035  +0.0070  +0.0034
+  bench          0.8116    +0.0027  +0.0047  +0.0042  +0.0055  +0.0037
+  rexroth        0.8040    -0.0054  +0.0016  +0.0004  +0.0028  +0.0006
+  azpu           0.8030    -0.0065  +0.0031  +0.0041  +0.0040  +0.0020
+  azpf           0.8075    -0.0015  +0.0045  +0.0055  +0.0066  +0.0161
+  azpf_spin      0.8075    -0.0015  -0.0027  -0.0003  +0.0010  +0.0088
+  azpf_gear      0.8094    +0.0004  -0.0035  +0.0006  +0.0007  +0.0080
+  azpf_gear98    0.8093    +0.0003  -0.0091  -0.0014  -0.0039  +0.0025
+  azpn           0.8050    -0.0074  +0.0016  +0.0014  -0.0007  +0.0015
+  azpn_spin      0.8031    -0.0093  -0.0021  -0.0016  -0.0032  -0.0022
+  azpn_gear      0.7988    -0.0137  -0.0085  -0.0070  -0.0082  -0.0085
+  azpn_gear98    0.7879    -0.0246  -0.0234  -0.0200  -0.0204  -0.0235
+  RMS over 14 diagonals: one 0.0120, two 0.0084, lo 0.0068, w 0.0069, above 0.0093  (check: two -0.0000, lo +0.0000 against 7d)
+  RMS over the 8 held diagonals only: one 0.0119, two 0.0056, lo 0.0050, w 0.0043, above 0.0074
+
+(iii) the 7a, 7b and 7c eight-family panels alone, leave-one-family-out (64 cells each)
+  held (7a)    diagonal RMS: one 0.0113, two 0.0022, lo 0.0022, w 0.0017, above 0.0027  (check against 7d: two +0.0000, lo -0.0000)
+    diagonal errors two / w: casappa +0.0037 / +0.0018, danfoss +0.0041 / -0.0012, marzocchi +0.0004 / +0.0023, bench +0.0006 / +0.0021, rexroth -0.0027 / -0.0010, azpu -0.0011 / +0.0003, azpf +0.0008 / +0.0024, azpn +0.0003 / -0.0009
+  spun (7b)    diagonal RMS: one 0.0115, two 0.0035, lo 0.0028, w 0.0026, above 0.0031  (check against 7d: two -0.0000, lo -0.0000)
+    diagonal errors two / w: casappa +0.0048 / +0.0029, danfoss +0.0052 / -0.0007, marzocchi +0.0014 / +0.0032, bench +0.0019 / +0.0031, rexroth -0.0012 / +0.0003, azpu +0.0006 / +0.0019, azpf_spin -0.0055 / -0.0033, azpn_spin -0.0028 / -0.0033
+  geared (7c)  diagonal RMS: one 0.0121, two 0.0051, lo 0.0040, w 0.0042, above 0.0049  (check against 7d: two +0.0000, lo -0.0000)
+    diagonal errors two / w: casappa +0.0059 / +0.0036, danfoss +0.0064 / -0.0006, marzocchi +0.0024 / +0.0045, bench +0.0030 / +0.0041, rexroth -0.0000 / +0.0015, azpu +0.0019 / +0.0032, azpf_gear -0.0054 / -0.0028, azpn_gear -0.0093 / -0.0085
+
+Predictions (LOG.md 7e):
+  WS1 pooled w-rule diagonal RMS at least 20% below two-number: refuted (0.0069 against 0.0084, -18%)
+  WS2 pooled w-rule diagonal RMS below k_lo's: refuted (0.0069 against 0.0068)
+  WS3 pooled k_w coefficient negative: held (-0.4269)
+  WS4 geared AZPN (sourced) within +-0.005 under the w rule, pooled out of sample: refuted (-0.0082; two-number -0.0085, lo -0.0070)
+  WS5 held panel w-rule diagonal RMS at most 0.0030: held (0.0017)
+  WS6 above rule does not cut the pooled diagonal RMS by 20%: held (0.0093 against 0.0084, +11%)
+
+Sources: as gear_pump_stepup.py.

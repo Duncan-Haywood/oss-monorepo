@@ -475,6 +475,11 @@ MANUSCRIPT_CHECKS = [
     ("moves its crossing to 0.8094, so the rule's error is &minus;0.0066", "gear_pump_stepup_results.txt", "azpf    0.9934  0.650  0.8971     3.13  0.8094  +0.0019      0.8160  -0.0066"),
     ("the AZPN's crossing falls to 0.7988 and the rule misses it by &minus;0.0101", "gear_pump_stepup_results.txt", "azpn    0.9934  0.650  0.9129     2.73  0.7988  -0.0044      0.8089  -0.0101"),
     ("the left-out RMS is 0.0051 against 0.0121 for a constant", "gear_pump_stepup_results.txt", "diagonal RMS: one-number 0.0121, two-number 0.0051"),
+    # milestone 7e
+    ("centre on 72.0 L/min (p10 58.0, p90 90.5)", "gear_pump_chosen_results.txt", "pooled 2304 picks: p10 58.0, median 72.0, p90 90.5"),
+    ("cuts the pooled left-out RMS to 0.0069", "gear_pump_chosen_results.txt", "RMS over 14 diagonals: one 0.0120, two 0.0084, lo 0.0068, w 0.0069, above 0.0093"),
+    ("(0.0017 against 0.0022)", "gear_pump_chosen_results.txt", "held (7a)    diagonal RMS: one 0.0113, two 0.0022, lo 0.0022, w 0.0017"),
+    ("geared AZPN below the rule (&minus;0.0082)", "gear_pump_chosen_results.txt", "WS4 geared AZPN (sourced) within +-0.005 under the w rule, pooled out of sample: refuted (-0.0082"),
 ]
 
 

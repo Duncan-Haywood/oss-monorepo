@@ -949,7 +949,19 @@ ${BAR_ALIGN_JS}
     if (!isFinite(value) || value < 0 || value > max) return null;
     return value;
   };
+  // The page's own ceiling where its input sets a lower one than the shared
+  // spec. locksmith-bid-calculator takes overhead up to 100%, not 500%, and its
+  // calculator throws above that, so a rate saved on another tool must not be
+  // written into its form. Thirteen inputs on nine tools set a lower max.
+  var ceiling = function(f){
+    var node = fieldFor(f);
+    var own = node && node.max !== undefined && node.max !== null && node.max !== '' ? Number(node.max) : NaN;
+    return isFinite(own) && own < f.max ? own : f.max;
+  };
+  // Saved fields this page carries but cannot take, named in the status.
+  var overLimit = [];
   var read = function(){
+    overLimit = [];
     if (!store) return null;
     var raw;
     try { raw = store.getItem(KEY); } catch (e) { return null; }
@@ -960,8 +972,11 @@ ${BAR_ALIGN_JS}
     var source = parsed.rates && typeof parsed.rates === 'object' ? parsed.rates : parsed;
     var out = {}, kept = 0;
     FIELDS.forEach(function(f){
-      var value = usable(source[f.id], f.max);
-      if (value === null) return;
+      var value = usable(source[f.id], ceiling(f));
+      if (value === null) {
+        if (usable(source[f.id], f.max) !== null) overLimit.push(f);
+        return;
+      }
       out[f.id] = value; kept++;
     });
     // Whatever of this page's fields is saved, not all-or-nothing. A contractor
@@ -1017,7 +1032,7 @@ ${BAR_ALIGN_JS}
   var currentFromForm = function(){
     var out = {}, kept = 0;
     FIELDS.forEach(function(f){
-      var value = usable(fieldFor(f).value, f.max);
+      var value = usable(fieldFor(f).value, ceiling(f));
       if (value === null) return;
       out[f.id] = value; kept++;
     });
@@ -1089,13 +1104,13 @@ ${BAR_ALIGN_JS}
     // alternative is a bar that says "using your shop rates" over a form where
     // one of them is still a stranger's ballpark, which is the kind of quiet
     // half-truth that makes a contractor stop trusting the number.
-    var unsaved = FIELDS.filter(function(f){ return !(f.id in rates); });
+    var unsaved = FIELDS.filter(function(f){ return !(f.id in rates) && overLimit.indexOf(f) < 0; });
+    var names = function(list){ return list.map(function(f){ return f.label; }).join(' and '); };
     status.textContent = held
       ? 'This bid came from a link, so it still shows the sender\\u2019s rates.'
-      : unsaved.length
-        ? 'Using your shop rates. ' + unsaved.map(function(f){ return f.label; }).join(' and ') +
-          ' is not saved yet.'
-        : 'Using your shop rates.';
+      : 'Using your shop rates.' +
+        (overLimit.length ? ' ' + names(overLimit) + ' is above what this tool accepts, so it keeps its own.' : '') +
+        (unsaved.length ? ' ' + names(unsaved) + ' is not saved yet.' : '');
   };
 
   var start = function(){
@@ -1129,6 +1144,7 @@ ${BAR_ALIGN_JS}
           return;
         }
         bump('shop_rates_saved');
+        overLimit = [];
         render(next, { applied: FIELDS, heldBack: [] });
         // On a page carrying fewer than the full set, "every calculator opens
         // with these" would promise more than was saved: the fields this page
