@@ -687,3 +687,31 @@ report prints when the set is wider than one page (`eval/multi-report-print.mjs`
   "Five-minute call volume handled on weekdays between 7:00am and 9:05pm, beginning 3 March 2003 for 164 days."
 - **Licence:** the fpp2 package is GPL-3; the series is published counts (facts). Not checked further.
 - **Used by:** `eval/calls-law.mjs`, `eval/calls-law-posthoc.mjs`, `calls-law.test.mjs`.
+
+# Labelled data: honeybee dance sequences 1-6
+
+`beedance-1.csv` to `beedance-6.csv`: tracked position (x, y) and heading of a
+dancing honeybee, one row per video frame (602 to 1124 frames), with `change`
+= 1 on each frame the set's own labels mark as the start of a new dance phase
+(left turn, right turn, waggle; 15 to 28 per sequence). Columns are min-max
+scaled to [0, 1] as distributed (the heading too, so it jumps at the wrap
+point). Values rounded to six decimals.
+
+- **Retrieved:** 2026-11-16 from
+  <https://github.com/OctoberChang/klcpd_code> (commit `b3a32ee`),
+  `data/beedance/beedance-{1..6}.mat` (`Y` frames x 3, `L` labels),
+  converted with scipy's `loadmat`.
+- **Licence:** the repository is BSD 3-Clause, "Copyright (c) 2019, author of
+  KLCPD paper"; redistributed here under its notice, with the original data
+  credited to Oh et al.
+- **Cite:** Oh, S. M., Rehg, J. M., Balch, T. and Dellaert, F. (2008).
+  Learning and inferring motion patterns using parametric segmental switching
+  linear dynamic systems. *International Journal of Computer Vision* 77,
+  103-124. doi:10.1007/s11263-007-0062-z (not opened from this session: the
+  DOI hosts answered 403; the title and venue are as KL-CPD and TCPD cite
+  them). Chang, W.-C., Li, C.-L., Yang, Y.
+  and Póczos, B. (2019). Kernel change-point detection with auxiliary deep
+  generative models. ICLR 2019. arXiv:1901.06077 (as the repository's README cites it).
+- **Used by:** `eval/beedance-multi.mjs`, `eval/muted-sim.mjs`,
+  `beedance-muted.test.mjs`. Sequence 6 is the dance TCPD calls
+  `bee_waggle_6` (seen data); 1 to 5 are fresh.

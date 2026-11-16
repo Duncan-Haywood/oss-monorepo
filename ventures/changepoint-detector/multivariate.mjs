@@ -232,12 +232,47 @@ export function analyzeMulti(input = {}) {
     ? `The one segmentation for all columns has ${joint.length} changes in ${n} points (more than one per ${JOINT_OVERCUT_EVERY}): it is probably cutting smooth, trending or autocorrelated columns into steps, as it did on all three labelled multi-column TCPD series (level: 95 to 132 cuts on 509 to 622 points). Read the column-by-column list instead.`
     : null;
   const flooredColumns = names.filter((_, i) => j.floored[i]);
+  const muted = mutedColumns(cols, names, j.sigmas);
+  const mutedWarning = muted.length ? mutedText(muted, ar1) : null;
   const { updateRate, updateRateWarnings } = columnUpdateRates(cols, names, labels, missing);
   return {
     n, columns: names, filled, model, penalty: j.penalty, floor, ar1, flooredColumns, joint, agreed: cc.changes, perColumn: cc.perColumn, tolerance: cc.tolerance,
     ...(overcutWarning ? { overcutWarning } : {}),
+    ...(mutedWarning ? { mutedColumns: muted, mutedWarning } : {}),
     ...(updateRateWarnings.length ? { updateRate, updateRateWarnings } : {}),
   };
+}
+
+/**
+ * Columns the joint fit cannot hear (2026-11-16, eval/beedance-multi.mjs): a column whose noise sd was raised by the
+ * floor or the AR(1) long-run correction to more than 3 times the column's own whole-series sd. (A column with no
+ * change has a plain noise sd close to its whole-series sd, so the plain sd is never flagged, and a floor of 2 on
+ * white noise lands near 2 times, the documented power cost of that option, so 3 leaves it unflagged:
+ * eval/muted-sim.mjs. The 3 was set after the bee run, not tuned on it.) Any split of such a column
+ * explains less than its noise allowance, so the joint fit reads nearly all its movement as noise and the
+ * segmentation comes from the other columns. On the five fresh bee dance sequences the AR(1) long-run sd raised a
+ * position column scaled to [0, 1] to 1.07-1.88 (rho near 1 on a smooth path) and the joint fit with AR(1) and a
+ * floor of 2 found 0 to 25 changes against 16 to 28 labelled. A description of what the fit did, not a tuned test.
+ * Returns [{ column, sigma, sd }].
+ */
+export const MUTED_RATIO = 3;
+export function mutedColumns(cols, names, sigmas) {
+  const out = [];
+  cols.forEach((c, i) => {
+    const n = c.length;
+    if (n < 3) return;
+    let m = 0; for (const v of c) m += v; m /= n;
+    let q = 0; for (const v of c) q += (v - m) ** 2;
+    const sd = Math.sqrt(q / (n - 1));
+    if (sigmas[i] > MUTED_RATIO * sd && sigmas[i] > robustSd(c) * (1 + 1e-9)) out.push({ column: names[i], sigma: sigmas[i], sd });
+  });
+  return out;
+}
+
+export function mutedText(muted, ar1) {
+  const list = muted.map((m) => `${m.column} (noise sd ${+m.sigma.toPrecision(3)} against a whole-series sd of ${+m.sd.toPrecision(3)})`).join(', ');
+  const one = muted.length === 1;
+  return `The one segmentation for all columns barely uses ${list}: ${one ? 'its' : 'their'} noise allowance was raised well past ${one ? 'its' : 'their'} whole spread, so a change in ${one ? 'it' : 'them'} has to be very large to clear the penalty and the segmentation comes mostly from the other columns${ar1 ? '. The AR(1) long-run sd grows without bound as a smooth column\'s lag-1 correlation nears 1; on five fresh labelled bee dance sequences AR(1) with a floor of 2 muted position columns this way and scored below the default on all five' : ''}. Read the column-by-column list${ar1 ? ', or drop the AR(1) correction' : ''}.`;
 }
 
 /**
@@ -281,6 +316,7 @@ export function multiText(r) {
     L.push(`  ${c.label}  ${moved.length ? moved.map((s) => `${s.column} ${s.shift >= 0 ? '+' : ''}${+s.shift.toPrecision(3)} (${s.sds.toFixed(1)} sd)`).join(', ') : 'every column moved under 1 noise sd'}`);
   }
   if (r.overcutWarning) L.push('', `Read with care: ${r.overcutWarning}`);
+  if (r.mutedWarning) L.push('', `Read with care: ${r.mutedWarning}`);
   for (const w of r.updateRateWarnings || []) L.push('', `Read with care: ${w}`);
   L.push('', `(${r.model === 'mean' && r.floor ? 'The joint fit floors the noise of columns that look smooth or trending, but still assumes independent columns' : 'The joint fit over-cuts a smooth or trending column as the level model does on one column'}; the column-by-column list inherits the consensus default measured on held-out labelled series. Estimates, not advice.)`);
   return L.join('\n');
