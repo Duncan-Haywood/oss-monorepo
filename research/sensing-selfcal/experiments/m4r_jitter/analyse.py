@@ -1,6 +1,6 @@
 """Milestone 4r: a per-view focal jitter in the twin, fitted per pool from its own 6-view solves.
 
-    OMP_NUM_THREADS=1 python3 experiments/m4r_jitter/analyse.py            # ~10-15 min on 4 cores, no new solve
+    OMP_NUM_THREADS=1 python3 experiments/m4r_jitter/analyse.py            # ~2 min on 4 cores, no new solve
     python3 experiments/m4r_jitter/analyse.py --figure                     # redraw jitter.png from summary.json
 
 Pools A (milestone 4j's views, milestone 4n's k1 + k2 solves) and B (milestone 4p's fresh views and
