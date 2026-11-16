@@ -29,7 +29,8 @@ Predictions, written here before this file's table existed (checked in main()):
  (6) Kendall tau-b of mapped area against routed delay is lower (more negative: an area-delay trade-off) on failing cells than on
      winning cells.
 Reported, not predicted: per-cell table; the routed-best point's percentile rank on the key; the unclipped key's regret (alpha =
-None) on the same cells; and, as a post-hoc reading, which per-cell statistic separates the two groups best (an AUC, not a rule).
+None) on the same cells; tau(A2, D2) (mapped area against mapped delay, the one trade-off statistic a run can see before
+routing; added after the table was first computed, so post hoc); and, as a post-hoc reading, which per-cell statistic separates the two groups best (an AUC, not a rule).
 """
 import importlib.util
 import math
@@ -113,11 +114,12 @@ def diagnose(rs, seed):
     return {
         "swc_check": 100 * reg / DRAWS, "unclipped": 100 * rr / DRAWS,
         "log_area": la, "log_delay": ld, "delay_share": (ld / tot) if tot > 1e-12 else float("nan"),
-        "clip": sum(ALPHA * x["D2"] <= x["P"] for x in q) / n,
+        "clip_share": sum(ALPHA * x["D2"] <= x["P"] for x in q) / n,
         "tauA": tau_b([x["A2"] for x in q], [x["A4"] for x in q]),
         "tauD": tau_b([x["D2"] for x in q], [x["D4"] for x in q]),
         "tauAD": tau_b([x["A2"] for x in q], [x["D4"] for x in q]),
         "tauY": tau_b(key, y),
+        "tauA2D2": tau_b([x["A2"] for x in q], [x["D2"] for x in q]),
         "best_pct": 100 * (below + ties / 2) / (n - 1),
         "spreadD": statistics.pstdev([x["D4"] for x in q]) / statistics.mean([x["D4"] for x in q]),
         "spreadA": statistics.pstdev([x["A4"] for x in q]) / statistics.mean([x["A4"] for x in q]),
@@ -145,10 +147,11 @@ def auc(pos, neg):
     return s / (len(pos) * len(neg))
 
 
-STATS = (("delay_share", "delay share of SWC's log regret"), ("clip", "clip-binding share"),
+STATS = (("delay_share", "delay share of SWC's log regret"), ("clip_share", "clip-binding share"),
          ("tauA", "tau(A2, A4)"), ("tauD", "tau(D2, D4)"), ("tauAD", "tau(A2, D4)"), ("tauY", "tau(key, y)"),
-         ("spreadD", "routed-delay CV"), ("spreadA", "routed-area CV"), ("best_pct", "routed best's key percentile"))
-PRE_ROUTE = ("clip",)  # computable from mapped points alone; the others need the routed table
+         ("spreadD", "routed-delay CV"), ("spreadA", "routed-area CV"), ("best_pct", "routed best's key percentile"),
+         ("tauA2D2", "tau(A2, D2), post hoc"))
+PRE_ROUTE = ("clip_share", "tauA2D2")  # computable from mapped points alone; the others need the routed table
 
 
 def gmean(rows, k):
@@ -171,7 +174,7 @@ def main(dst):
         out.append(f"{c['set']} | {c['clock']} | {c['design']} | {g} | {swc(c):.2f} | {rand(c):.2f} | {c['unclipped']:.2f} | "
                    f"{c['log_area']:+.4f} | {c['log_delay']:+.4f} | "
                    + ("-" if math.isnan(c["delay_share"]) else f"{c['delay_share']:.2f}")
-                   + f" | {c['clip']:.2f} | {c['tauA']:.2f} | {c['tauD']:.2f} | {c['tauAD']:+.2f} | {c['tauY']:.2f} | "
+                   + f" | {c['clip_share']:.2f} | {c['tauA']:.2f} | {c['tauD']:.2f} | {c['tauAD']:+.2f} | {c['tauY']:.2f} | "
                    f"{c['spreadD']:.3f} | {c['spreadA']:.3f} | {c['best_pct']:.0f}")
     out += ["", "## Group means", "", "statistic | failing (" + str(len(bad)) + ") | winning (" + str(len(good)) + ") | "
             "AUC (failing > winning) | needs routing"]
@@ -192,8 +195,8 @@ def main(dst):
             f"(2) failing cells, delay share of log regret > 0.5: {m(bad, 'delay_share') > 0.5} ({m(bad, 'delay_share'):.3f})",
             f"(3) tau(A2, A4) > 0.5 in both groups: {m(bad, 'tauA') > 0.5 and m(good, 'tauA') > 0.5} "
             f"(failing {m(bad, 'tauA'):.3f}, winning {m(good, 'tauA'):.3f})",
-            f"(4) clip share higher on failing cells: {m(bad, 'clip') > m(good, 'clip')} "
-            f"({m(bad, 'clip'):.3f} against {m(good, 'clip'):.3f})",
+            f"(4) clip share higher on failing cells: {m(bad, 'clip_share') > m(good, 'clip_share')} "
+            f"({m(bad, 'clip_share'):.3f} against {m(good, 'clip_share'):.3f})",
             f"(5) tau(D2, D4) lower on failing cells: {m(bad, 'tauD') < m(good, 'tauD')} "
             f"({m(bad, 'tauD'):.3f} against {m(good, 'tauD'):.3f})",
             f"(6) tau(A2, D4) lower on failing cells: {m(bad, 'tauAD') < m(good, 'tauAD')} "
