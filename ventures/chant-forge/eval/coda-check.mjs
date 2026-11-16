@@ -300,7 +300,7 @@ lines.push('## J. Cluster syllables (the set the eighth round\'s rule was tuned 
 if (PARTS.includes('K')) {
 const POS = ['fons', 'dens', 'pons', 'mons', 'gens', 'hinc', 'runt', 'bunt', 'tent', 'cant', 'frons', 'sanct', 'lunt', 'quent'];
 const NEG = ['ep', 'ip', 'op', 'ec', 'ic', 'oc', 'eb', 'ib', 'ob', 'ef', 'of', 'ot', 'ux', 'ix', 'ox', 'im', 'om', 'on', 'in', 'e', 'i', 'u'];
-const SY = [...POS, ...NEG], tally = {}, kMiss = [], kNasal = {};
+const SY = [...POS, ...NEG], tally = {}, kMiss = [], kNasal = {}, kOther = new Map();
 const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
 for (const pulses of [4, 2]) for (const midi of [47, 53, 57, 59, 62]) {
   const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
@@ -315,6 +315,7 @@ for (const pulses of [4, 2]) for (const midi of [47, 53, 57, 59, 62]) {
         const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'other' && got.cls === 'nasal' && want.cls !== 'nasal') kNasal[mode] = (kNasal[mode] || 0) + 1;
+        if (mode === 'on' && !ok && grp !== 'cluster') { const key = `${grp === 'other' ? s : `${s} (vowel only)`} as ${label(got)}`; kOther.set(key, (kOther.get(key) || 0) + 1); }
         if (mode === 'on' && !ok && grp === 'cluster' && !HIDE.includes('K')) kMiss.push(`${pulses === 4 ? 'quarter' : 'eighth'} ${midi} *${s}* read as ${label(got)}`);
       }
     });
@@ -326,7 +327,8 @@ lines.push('## K. Held-out cluster syllables (ninth round, pre-registered)', '',
   `| cluster syllables read exactly (on their nasal) | ${cell('cluster on')} | ${cell('cluster off')} |`,
   `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
   `| other syllables read as a nasal | ${kNasal.on || 0} | ${kNasal.off || 0} |`,
-  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '', 'Cluster misses with the rule:', '', ...(HIDE.includes('K') ? ['- hidden (--hide-misses K)'] : kMiss.length ? kMiss.map((m) => `- ${m}`) : ['- none']), '');
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '', 'Cluster misses with the rule:', '', ...(HIDE.includes('K') ? ['- hidden (--hide-misses K)'] : kMiss.length ? kMiss.map((m) => `- ${m}`) : ['- none']), '',
+  'Other and vowel-only misses with the rule (count over the ten pitch and length cells):', '', HIDE.includes('K') ? '- hidden' : [...kOther].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
 }
 
 // ---- C ----
