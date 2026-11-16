@@ -36,11 +36,16 @@ class Ensemble:
 def from_lightgbm_dump(dump: dict | str) -> Ensemble:
     """Flatten ``Booster.dump_model()`` (the dict, or its JSON text) into one node table."""
 
-    if isinstance(dump, str):
-        dump = json.loads(dump)
-    if dump.get("num_class", 1) != 1:
+    d: dict = json.loads(dump) if isinstance(dump, str) else dump
+    if d.get("num_class", 1) != 1:
         raise ValueError("only single-output regression ensembles are supported")
-    feat, thr, lft, rgt, val, nanl, roots = [], [], [], [], [], [], []
+    feat: list[int] = []
+    thr: list[float] = []
+    lft: list[int] = []
+    rgt: list[int] = []
+    val: list[float] = []
+    nanl: list[bool] = []
+    roots: list[int] = []
     depth = 0
 
     def add(node: dict, d: int) -> int:
@@ -69,13 +74,13 @@ def from_lightgbm_dump(dump: dict | str) -> Ensemble:
         rgt[i] = add(node["right_child"], d + 1)
         return i
 
-    for t in dump["tree_info"]:
+    for t in d["tree_info"]:
         roots.append(add(t["tree_structure"], 0))
     return Ensemble(
         feature=np.asarray(feat, np.int32), threshold=np.asarray(thr, np.float64),
         left=np.asarray(lft, np.int32), right=np.asarray(rgt, np.int32), value=np.asarray(val, np.float64),
         nan_left=np.asarray(nanl, bool), roots=np.asarray(roots, np.int32), depth=depth,
-        n_features=int(dump.get("max_feature_idx", max(feat + [0]))) + 1,
+        n_features=int(d.get("max_feature_idx", max(feat + [0]))) + 1,
     )
 
 
