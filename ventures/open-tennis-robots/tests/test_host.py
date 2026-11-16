@@ -1225,6 +1225,18 @@ class LoopFitUnsureTest(unittest.TestCase):
         self.assertGreater(abs(got[0] / 0.06 - 1), 0.05)       # the fit is badly off ...
         self.assertGreater(got[5], controller.LOOP_SE_MAX)       # ... and says so
 
+    def test_edge_time_fit_is_an_option_and_off(self):
+        # README "The drop fitted on the edge times": same drop on a clean wheel, off by default because it lost
+        import loop_residual_sweep as lr
+        self.assertFalse(controller.LOOP_FIT_EDGES)
+        ps, tk = lr.wheel(4000, 0.08, 0.4)
+        a = controller.drop_from_commands(ps, tk)
+        self.assertEqual(a, controller.drop_from_commands(ps, tk, edges=False))
+        b = controller.drop_from_commands(ps, tk, edges=True)
+        self.assertEqual(len(b), 7)
+        self.assertAlmostEqual(b[0] / 0.08, 1.0, delta=0.01)
+        self.assertAlmostEqual(a[0], b[0], delta=0.001)
+
     def test_launcher_fit_warns_on_unsure_drops(self):
         from tennisbots import launcher
         r_w = launcher.WheelLauncher().wheel_radius

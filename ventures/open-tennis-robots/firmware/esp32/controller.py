@@ -311,6 +311,10 @@ LOOP_PENDING = 32     # LAUNCH flags bit 5: the loop-command fit of this record 
 # drills with an ESC lag). The Pi warns on them; it does not drop them.
 LOOP_SE_MAX = 0.01
 LOOP_UNSURE = 64
+# Fit the running sums of the revolution rows (the edge times) instead of the periods (drop_from_commands_steps `edges`).
+# Off: on the simulator it read the drop worse at 2-10 us of tach jitter and the whole drill's spin worse
+# (tests/edge_fit_sweep.py, tests/plant_drill_sweep.py --periods; README "The drop fitted on the edge times").
+LOOP_FIT_EDGES = False
 TICK_LOG = 160        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115
 
 
@@ -351,7 +355,8 @@ def _cmd_columns(T, j0, j1, segs, tau):
     return out
 
 
-def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3):
+def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
+                             edges=None):
     """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
     (2026-11-16, README "A recovery shaped by the loop's own commands").
 
@@ -374,7 +379,17 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
 
     A generator, so the board can spread the work over its control ticks (`LaunchCheck` advances it one step a tick):
     it yields None after each t0 grid of each tau tried, about 36 steps, and its last item is ("fit", result).
-    `drop_from_commands` runs it to the end."""
+    `drop_from_commands` runs it to the end.
+
+    `edges` (2026-11-16, README "The drop fitted on the edge times"; default LOOP_FIT_EDGES, off): fit the running
+    sums of the rows rather than the rows. A tach's timing error sits on each edge, so neighbouring periods share it
+    with opposite signs; the running sums carry each edge's own error plus the first edge's, which a free offset
+    absorbs, so least squares on them is the textbook weighting for a jittery tach. On the simulator it lost: in a linear
+    toy with a step the gain is about 4%, and with the wheel's lag known the sums still read the drop worse. The rms and the
+    Durbin-Watson number stay those of the per-revolution misses; the standard error's s^2 is the fitted rows' (the
+    sums when on)."""
+    if edges is None:
+        edges = LOOP_FIT_EDGES
     n = len(periods)
     if n < pre + 4:
         yield ("fit", None)
@@ -413,19 +428,47 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     ys = [1.0 - 1.0 / (periods[j] * w0) for j in range(j0, j1)]
     t_lo, t_hi = T[k - 1], T[k + 1]
 
+    # edge-time rows (see `edges`): running sums of the per-revolution rows, plus a free offset. Each row's deficit is
+    # summed unweighted: its miss is w0 (n_j+1 - n_j) to first order, so the sums' misses are w0 n_k less the first
+    # edge's (the offset). (Weighting each row by its own period, its exact angle integral, puts the edge errors into
+    # the constant column too; it was tried first and read no better.)
+    nr = j1 - j0
+    if edges:
+        ycum = []
+        acc = 0.0
+        for idx in range(nr):
+            acc += ys[idx]
+            ycum.append(acc)
+
+    def fixed_rows(cols):
+        """The columns that do not move with t0, per row, and the rows' targets."""
+        if not edges:
+            return [(1.0, cols[i][0], cols[i][1]) for i in range(nr)], ys
+        out = []
+        e = h = 0.0
+        for i in range(nr):
+            e += cols[i][0]
+            h += cols[i][1]
+            out.append((1.0, i + 1.0, e, h))
+        return out, ycum
+
     def one(tau, out):
         cols = _cmd_columns(T, j0, j1, segs, tau)
-        nr = j1 - j0
-        # the constant, e and h columns do not move with t0: their normal-equation block is summed once per tau
-        m3 = [[0.0] * 3 for _ in range(3)]
-        v3 = [0.0] * 3
+        rows, yy = fixed_rows(cols)
+        nf = len(rows[0])
+        # the fixed columns' normal-equation block is summed once per tau
+        mf = [[0.0] * nf for _ in range(nf)]
+        vf = [0.0] * nf
         for idx in range(nr):
-            row = (1.0, cols[idx][0], cols[idx][1])
-            y = ys[idx]
-            for r in range(3):
-                v3[r] += row[r] * y
-                for q in range(r, 3):
-                    m3[r][q] += row[r] * row[q]
+            row = rows[idx]
+            y = yy[idx]
+            for r in range(nf):
+                vf[r] += row[r] * y
+                for q in range(r, nf):
+                    mf[r][q] += row[r] * row[q]
+        for r in range(nf):
+            for q in range(r):
+                mf[r][q] = mf[q][r]
         best = None
         lo, hi = t_lo, t_hi
         for _ in range(levels):
@@ -433,7 +476,9 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
             for g in range(9):
                 t0 = lo + step * g
                 ds = []
-                m30 = m31 = m32 = m33 = v4 = 0.0
+                cross = [0.0] * nf
+                mdd = vd = 0.0
+                run_d = 0.0
                 for idx in range(nr):
                     a, b = T[j0 + idx], T[j0 + idx + 1]
                     if b <= t0:
@@ -441,24 +486,29 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
                     else:
                         x = a if a > t0 else t0
                         d = tau * (math.exp(-(x - t0) / tau) - math.exp(-(b - t0) / tau)) / (b - a)
+                    if edges:
+                        run_d += d
+                        d = run_d
                     ds.append(d)
                     if d:
-                        m30 += d
-                        m31 += d * cols[idx][0]
-                        m32 += d * cols[idx][1]
-                        m33 += d * d
-                        v4 += d * ys[idx]
-                m = [[m3[0][0], m3[0][1], m3[0][2], m30], [m3[0][1], m3[1][1], m3[1][2], m31],
-                     [m3[0][2], m3[1][2], m3[2][2], m32], [m30, m31, m32, m33]]
-                x4 = _solve_small(m, [v3[0], v3[1], v3[2], v4])
-                if x4 is None:
+                        row = rows[idx]
+                        for r in range(nf):
+                            cross[r] += d * row[r]
+                        mdd += d * d
+                        vd += d * yy[idx]
+                m = [mf[r] + [cross[r]] for r in range(nf)] + [cross + [mdd]]
+                xs = _solve_small(m, vf + [vd])
+                if xs is None:
                     continue
                 sse = 0.0
                 for idx in range(nr):
-                    e = ys[idx] - x4[0] - x4[1] * cols[idx][0] - x4[2] * cols[idx][1] - x4[3] * ds[idx]
+                    e = yy[idx] - xs[nf] * ds[idx]
+                    row = rows[idx]
+                    for r in range(nf):
+                        e -= xs[r] * row[r]
                     sse += e * e
                 if best is None or sse < best[0]:
-                    best = (sse, t0, x4, m)
+                    best = (sse, t0, xs, m)
             if best is None:
                 out.append(None)
                 return
@@ -504,7 +554,8 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
         for r in (fc, fd):
             if r is not None and r[0] < best[0]:
                 best = r
-    sse, t0, (c1, A, Wn, D), tau, mn = best
+    sse, t0, xs, tau, mn = best
+    c1, A, Wn, D = xs[-4:]          # the edge fit's offset, first when there is one, is not a speed
     # the deficit just before the ball, c1 + A e(t0) + W h(t0): the drop is reported as a share of that speed
     e_t0 = math.exp(-(t0 - ts) / tau)
     h_t0 = 0.0
@@ -521,16 +572,16 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     if not 0.0 < drop < 1.0:
         yield ("fit", None)
         return
-    # rms of the fit's misses per revolution, as a share of the pre-ball speed (2026-11-16 later, README "When the wheel
-    # is not a first-order lag"): 6 fitted numbers (c, A, W, D, tau, t0)
-    nr = j1 - j0
-    s2 = sse / (nr - 6) if nr > 6 else 0.0
-    rms = math.sqrt(s2) / before
-    # the drop's standard error at this tau and t0, from the normal equations: sd(D)^2 = s^2 (M^-1)_DD
-    inv = _solve_small(mn, [0.0, 0.0, 0.0, 1.0])
-    se = math.sqrt(s2 * inv[3]) / before / drop if inv is not None and inv[3] > 0 else 1.0
-    # lag-1 structure of the misses (Durbin-Watson): white noise ~2, a tach's jitter on periods ~3, a shape the model
-    # lacks well under 2
+    # the drop's standard error at this tau and t0, from the fitted rows' own normal equations: sd(D)^2 = s^2 (M^-1)_DD,
+    # s^2 over the rows less the fitted numbers (c, A, W, D, tau, t0, and the edge fit's offset)
+    npar = len(xs) + 2
+    s2 = sse / (nr - npar) if nr > npar else 0.0
+    unit = [0.0] * (len(xs) - 1) + [1.0]
+    inv = _solve_small(mn, unit)
+    se = math.sqrt(s2 * inv[-1]) / before / drop if inv is not None and inv[-1] > 0 else 1.0
+    # the per-revolution misses (2026-11-16 later, README "When the wheel is not a first-order lag"): their rms as a
+    # share of the pre-ball speed, and their lag-1 structure (Durbin-Watson): white noise ~2, a tach's jitter on
+    # periods ~3, a shape the model lacks well under 2
     cols = _cmd_columns(T, j0, j1, segs, tau)
     es = []
     for idx in range(nr):
@@ -541,8 +592,10 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
             x = a if a > t0 else t0
             d = tau * (math.exp(-(x - t0) / tau) - math.exp(-(b - t0) / tau)) / (b - a)
         es.append(ys[idx] - c1 - A * cols[idx][0] - Wn * cols[idx][1] - D * d)
+    sse_p = sum(e * e for e in es)
+    rms = math.sqrt(sse_p / (nr - 6) if nr > 6 else 0.0) / before
     num = sum((es[i] - es[i - 1]) ** 2 for i in range(1, nr))
-    dw = num / sse if sse > 0 else 2.0
+    dw = num / sse_p if sse_p > 0 else 2.0
     yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw))
 
 

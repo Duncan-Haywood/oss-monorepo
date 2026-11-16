@@ -943,3 +943,74 @@ ten times as many, and the cost on an ESP32 is not measured. Next: sum the
 grid's residuals on the board across a drill and report the least (or send
 the snapshots in the shot log), with a finer grid near the winner. Then log a
 real ESC's step response and see which shape it has.
+
+## The drop fitted on the edge times (2026-11-16, last; refuted)
+
+**The item.** "When the wheel is not a first-order lag" ends with: fit the
+drop on the edge times instead of the periods. A tach's timing error sits on
+each edge, so two neighbouring periods share it with opposite signs, and the
+period fit treats them as independent. The textbook fix is to fit the running
+sums of the per-revolution rows: each sum's error is then one edge's own
+error plus the first edge's, which a free offset absorbs, so plain least
+squares on the sums is the right weighting.
+
+**What landed.** `drop_from_commands_steps(..., edges=True)` does exactly that
+(the board's default is `controller.LOOP_FIT_EDGES`, **off**). `tests/edge_fit_sweep.py` compares the two fits on
+`loop_residual_sweep.py`'s single wheel, 24 cases x 6 seeds a plant;
+`tests/edge_fit_drill.py` runs the calibration drill's whole Pi path on the 18
+design builds x 3 seeds (`plant_drill_sweep.py --edges` for one seed).
+
+**What it measured.** Drop error on single wheels, rms / 90th percentile /
+worst, % (eval/edge-fit-sweep-2026-11-16.txt):
+
+| plant | periods | edge times |
+| --- | --- | --- |
+| first-order | 0.31 / 0.55 / 0.72 | 0.27 / 0.48 / 0.68 |
+| tach jitter 2 us | 0.46 / 0.69 / 1.52 | 0.48 / 0.83 / 2.12 |
+| tach jitter 5 us | 0.88 / 1.46 / 3.37 | 0.98 / 1.68 / 3.24 |
+| tach jitter 10 us | 7.29 / 2.61 / 62.65 | 1.78 / 3.18 / 4.72 |
+| tach jitter 20 us | 13.23 / 8.48 / 67.97 | 5.98 / 6.72 / 44.69 |
+| ESC lag 80 ms | 4.80 / 6.28 / 16.30 | 3.92 / 6.41 / 11.62 |
+
+The sums remove the period fit's rare wild readings at 10-20 us (a wrong ball
+moment at 5,000-6,000 rpm), but their typical error is larger at 2-10 us:
+the 90th percentile grows. The launcher fit already sets
+wild rows aside (`TRIM`), so the typical error is what reaches the drill.
+Whole drill, spin efficiency error over 54 drills, rms / worst / bias, %
+(eval/edge-fit-drill-2026-11-16.txt):
+
+| plant | periods | edge times |
+| --- | --- | --- |
+| first-order | 0.62 / 1.62 / -0.16 | 0.54 / 1.23 / -0.08 |
+| tach jitter 5 us | 2.20 / 5.31 / +0.53 | 2.92 / 10.79 / -0.30 |
+| tach jitter 10 us | 6.55 / 22.89 / -0.94 | 9.02 / 29.94 / -3.36 |
+| ESC lag 80 ms | 8.67 / 19.87 / +6.55 | 9.77 / 22.99 / +7.14 |
+
+So the hypothesis is refuted on this simulator: the edge-time fit is worse
+where it was meant to help, and the board keeps the period fit.
+
+**Why, as far as checked.** Three checks, all in this session's scratch
+scripts (not committed):
+
+- The jitter really is on the edges: the period rows' misses from added edge
+  noise have lag-1 correlation -0.498 (the model's -0.5).
+- The gain is small even in theory. A linear toy (13 rows: constant, a
+  decaying term and a step, noise differenced from iid edge errors) gives the
+  step's error 1.29 on the sums against 1.35 on the rows, 4%: a step is a
+  high-frequency feature, which is where differenced noise is strongest
+  anyway.
+- With the wheel's lag fixed to its true value and the edge errors added
+  after the fact (open loop), the sums still read worse (median 1.37% vs 0.86%
+  at 10 us). What is left is the ball's moment t0, chosen by least squares on
+  the sums, where a miss early in the window is carried by every later sum.
+  This is the likely cause but it is not proven.
+
+Weighting each row by its own period (its exact angle integral) before
+summing was tried first and measured the same; it also puts the edge errors
+into the constant column, so the shipped option sums the rows unweighted.
+
+**Next.** Leave the period fit. If a real tach shows 10 us or more of jitter,
+the wild readings are the thing to fix: choose t0 on the sums and estimate the
+drop on the rows at that t0 (not tried), or a robust t0 search. The real
+jitter is still the first number to measure (scope a hall sensor's edges
+against a reference). Physics and plants are assumptions, not measurements.

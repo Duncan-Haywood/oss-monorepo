@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVNaZFPsfF7MrgNTviq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: ventures brief (prompt.md)",
+  "input_sha256": "c201ef84c333a1e33e79eb13403f1fa9b5f9d464f3e0acfa10665cac8d072753",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T13:20:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: fit the wheel drop on tach edge times (flagship buildable item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 16579,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No llms.txt or marketing page change: the work is a firmware estimator option that is off by default, nothing user-facing changed.",
+      "did": "skipped llms.txt/marketing update",
+      "result": "none needed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-open-tennis-robots-edge-time-fit-refuted.md"
+  ],
+  "goal": "Test whether fitting the loop-command drop on tach edge times (running sums) beats the period fit under tach jitter.",
+  "notes": "Edge-time fit added as controller.drop_from_commands_steps(edges=True), off by default (LOOP_FIT_EDGES False). Refuted on the simulator: single wheels (tests/edge_fit_sweep.py, 24 cases x 6 seeds) remove wild readings at 10-20 us jitter (worst 63% -> 5% at 10 us) but p90 grows at 2-10 us; whole calibration drill (tests/edge_fit_drill.py, 54 drills) spin rms 2.20 -> 2.92 at 5 us, 6.55 -> 9.02 at 10 us, 8.67 -> 9.77 at 80 ms ESC lag. Linear toy: gain for a step only 4%. Default path unchanged (loop_residual_sweep numbers reproduce exactly). Verification: test_host LoopDropTest/LoopFitUnsureTest/PulseDropTest/PeriodTachTest pass; run_venture_tests.py open-tennis-robots output in PR.",
+  "corrections": [],
+  "redteam": null
+}

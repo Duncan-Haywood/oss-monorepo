@@ -13,9 +13,10 @@ and fits each drill as the Pi does. Prints the worst and mean size of the speed 
 wheel readings the firmware marked unsure (LAUNCH flags bits 6 / 7), the fewest and most in one drill, and in how many
 drills `fit_from_drops` warned. `--set-aside` also fits with the marked drops left out (the policy tried first and
 dropped: it did not help). `--esc-tau-us N` sets the board's `ESC_TAU_US` to N (2026-11-16, README "An ESC lag
-picked from the build's own balls").
+picked from the build's own balls"). `--edges` turns on the edge-time drop fit (2026-11-16, README "The drop fitted on
+the edge times"; off on the board).
 
-    PYTHONPATH=src:tests:firmware/esp32 python tests/plant_drill_sweep.py [plant ...] [--esc-tau-us N]
+    PYTHONPATH=src:tests:firmware/esp32 python tests/plant_drill_sweep.py [plant ...] [--esc-tau-us N] [--edges]
 
 About 20 s a plant. The plants are assumptions, not measurements of a real wheel.
 """
@@ -70,6 +71,9 @@ def cell(es):
 
 
 def main():
+    if "--edges" in sys.argv:
+        from feeder_sim import controller
+        controller.LOOP_FIT_EDGES = True
     names = [a for a in sys.argv[1:] if a in PLANTS] or list(PLANTS)
     print(f"{'plant':10} | speed worst, spin worst / mean | marked (min-max a drill) | warned"
           + (" | set aside: speed, spin / mean" if "--set-aside" in sys.argv else ""))
