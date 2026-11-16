@@ -205,51 +205,58 @@
    "what": "No cached-egress line (250 GB included, $0.03/GB, independent quota): Supabase's own docs example costs $51, the tool says $106.50 if total egress is entered; the trim-egress lever tells users CDN caching removes egress when it moves it to the cheaper cached line",
    "where": "ventures/supabase-bill-estimator/engine.mjs:23",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
   },
   {
    "severity": "medium",
    "what": "Database disk quota is 8 GB per project but modelled as 8 GB total: 3 projects at 8 GB each are charged $2 that Supabase does not bill; docs disk example gives 67.25 vs 65.24",
    "where": "ventures/supabase-bill-estimator/engine.mjs:22",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
   },
   {
    "severity": "medium",
    "what": "Spend cap (on by default on Pro, covering disk, egress, MAU, storage, Edge and Realtime overage) is not modelled or explained, so a default Pro org sees overage it cannot be billed",
    "where": "ventures/supabase-bill-estimator/engine.mjs:86",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
   },
   {
    "severity": "medium",
    "what": "Rate card is undated ('2025') and storage is $0.021/GB vs published $0.0213; Realtime peak connections, image transformations, IPv4, PITR, custom domain not listed",
    "where": "ventures/supabase-bill-estimator/engine.mjs:12",
    "category": "source-data",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
   },
   {
    "severity": "low",
    "what": "Merge-orgs lever offers a $5/month saving for a single organization (20% of one org)",
    "where": "ventures/supabase-bill-estimator/engine.mjs:140",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
   },
   {
    "severity": "low",
    "what": "Shrink-database lever assumes deleting rows cuts the disk charge, but disk is billed on provisioned size and does not shrink by itself (disk-size docs point to a manual reduce step)",
    "where": "ventures/supabase-bill-estimator/engine.mjs:129",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
   },
   {
    "severity": "low",
    "what": "3 of 6 seeded mutants survive: no test pins the budget boundary, the Edge/Realtime rates or pctOfBill",
    "where": "ventures/supabase-bill-estimator/engine.test.mjs:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371", "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"],
  "verdict": "A tidy, honest-in-tone calculator that is right for the simplest case (one org, one project, uncached egress, cap off) and matches Supabase's published Pro rates on 7 of 8 lines. It misses the billing structure a Supabase FinOps engineer checks first: quotas and the compute credit per organization (two in-quota orgs estimate $409.60 instead of $50), disk quota per project, cached egress as its own cheaper meter (Supabase's own example: $106.50 vs $51), and the default spend cap. Tests pass but check only the author's arithmetic; 3 of 6 mutants survive. Does not meet the bar."
 }

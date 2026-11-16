@@ -1,6 +1,6 @@
 # What will your Supabase bill be, and what cuts it most?
 
-> Estimate a monthly Supabase Pro bill from your own usage (compute, database disk, egress, storage, monthly active users, Edge Functions, Realtime) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.
+> Estimate a monthly Supabase Pro bill from your own usage (compute, per-project database disk, uncached and cached egress, storage, monthly active users, Edge Functions, Realtime) at editable list prices, and see which changes cut it most, with a dollar saving for each. Per-organization quotas and the default Pro spend cap are modelled, and Supabase's own billing examples are pinned as tests. Free, runs in your browser, nothing is uploaded.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
