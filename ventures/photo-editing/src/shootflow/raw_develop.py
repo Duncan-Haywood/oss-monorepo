@@ -1546,7 +1546,9 @@ def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | Non
     sig_prof = bytes(tag(TAG_PROFILE_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
     if dcp is not None:
         want, have = _text(dcp.get(TAG_UNIQUE_CAMERA_MODEL)), _text(camera_tag(TAG_UNIQUE_CAMERA_MODEL))
-        if want and have and want != have:
+        # Compared as the profile chooser compares them: Leica's RWL writes its make in
+        # capitals ('LEICA D-LUX (Typ 109)'), Adobe's profile names it 'Leica D-LUX (Typ 109)'.
+        if want and have and " ".join(want.casefold().split()) != " ".join(have.casefold().split()):
             notes.append(f"camera profile is for {want!r}, the file is from {have!r}")
     hsm1, hsm2, look, hsm3 = _tables(tag, notes)
     if cm3 is None:

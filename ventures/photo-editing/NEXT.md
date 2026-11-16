@@ -5,3 +5,5 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-16) photos with a real horizon and human tilt labels
+- (2026-11-16) a real shoot's picks through the blink detector (eval/blink-landmarker-*)
+- (2026-11-16) an Adobe render of a known frame (settles `--default-tone-curve always`)
