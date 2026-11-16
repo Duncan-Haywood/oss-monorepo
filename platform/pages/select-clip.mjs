@@ -32,6 +32,7 @@
 // a dependency of this repo. It reports; it does not fail on a count, because
 // a page-level fix (a wider track, a shorter label) is a judgement per page.
 
+import { requirePlaywright } from './load-playwright.mjs';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -110,7 +111,7 @@ async function main() {
   const widths = (process.env.WIDTH || '390,1280').split(',').map(Number);
   const only = process.env.ONLY ? new Set(process.env.ONLY.split(',')) : null;
   const pages = pagesWithSelect(dist, only);
-  const { default: pw } = await import(process.env.PLAYWRIGHT || '/opt/node-tools/node_modules/playwright/index.js');
+  const pw = await requirePlaywright();
   const server = await serve(dist);
   const origin = `http://127.0.0.1:${server.address().port}`;
   const browser = await pw.chromium.launch();

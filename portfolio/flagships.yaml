@@ -99,27 +99,27 @@ flagships:
       memos, 43-65% from payees; new-payee guess (README): first-time payees 5-21%
       to 20-65% right; Mint held out 68.7% first-seen; YNAB +2 pts; Copilot
       (README): signs fixed; card MCC (README): first-seen right 41% to 66%
-      (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); LLC labels:
-      Mercury 90%, Rocket Money Amex 94% (README); (1) AI layer on real lines
-      (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24
-      (abstains 32), rules 43; fill keeps the guess (48 either model);
-      split-category plurality measured, off; next: a hosted model (needs a key),
-      real bank text; (2) bank readers: 63 US exports, Mercury, Monarch, Bluevine
-      lines, card payments, scans (README); open: Relay, a bank scan; (3) Adyen's
-      sample read (README); open: a real merchant's payout export, a real 1099-K;
-      (4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round
-      up`; open: a lender's full table, a supplier's terms letter; (5) receipts OCR
-      (page SROIE 84.6%, US totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI
-      75.0%; open: tax OCR-bound); (6) payroll (README): two journal layouts read;
-      open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS
-      TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
-      `salestax return`: the last six listed states read
-      (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
-      book (README); open: AR statutes, a real return layout; (8b) `annualized`
-      (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
-      once the 2026 instructions print; (9) EITC: 2025 EIC Table matched on all
-      10,992 cells (HISTORY); open: the 2026 table once printed. A run that lands a
-      slice replaces its item here; keep this under 2,000 characters.
+      (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); LLC labels
+      (Mercury 90%), transit names (README); (1) AI layer on real lines (README "A
+      year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32),
+      rules 43; fill keeps the guess (48 either model); split-category plurality
+      measured, off; next: a hosted model (needs a key), real bank text; (2) bank
+      readers: 63 US exports, Mercury, Monarch, Bluevine lines, card payments, scans
+      (README); open: Relay, a bank scan; (3) Adyen's sample read (README); open: a
+      real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
+      payments up (99.97% of 445k, README), `--round up`; open: a lender's full
+      table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
+      totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI 75.0%; open: tax
+      OCR-bound); (6) payroll (README): two journal layouts read; open: a real Gusto
+      or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
+      (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
+      last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
+      IN's band and day from the book (README); open: AR statutes, a real return
+      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
+      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
+      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
+      printed. A run that lands a slice replaces its item here; keep this under
+      2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -238,22 +238,22 @@ flagships:
       2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent both
       ways. Next: whether a real manager would set keepShift above 1; 350+ copies:
       cover passes LP-guided; repair flow-bounded, 2x alone, e2e tie (README "under
-      a flow bound"); next a 2 s repair reserve test; day sweeps LP-guided, by the
-      open-hours LP when the pay floor is skipped (README "A guide when the pay
-      floor is skipped"); next a warm-sized gate; re-run the keep-usual-shifts sweep
-      on real dated leave records; a manager's read on whether the steadier plan is
-      the one they would post; a real 7shifts account through --import-7shifts
-      (README "Reading 7shifts directly"); a real When I Work account or response
-      through --import-wheniwork (README "Reading When I Work directly"); Homebase
-      (docs need an account); --cover-price moves two shifts together (README
-      "Moving two shifts together"); second call-outs priced, off by default (README
-      "The pair price in played weeks": fewer open hours on 3 of 4 weeks);
-      order-free pair check played: no gain, stays opt-in (README "The order-free
-      pass played"); a real two-site export and staff list (README "Staff shared
-      between sites"); own and site rates read from staff CSVs and 7shifts (README
-      "Per-location pay from an export"); next a real wages export, real trip times;
-      whether the priced cut's r = 1 default suits a real manager; a manager's real
-      task list for the fixed minutes.
+      a flow bound"); no reserve gain at 30-60; next 350-400 seeds; day sweeps
+      LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
+      when the pay floor is skipped"); next a warm-sized gate; re-run the
+      keep-usual-shifts sweep on real dated leave records; a manager's read on
+      whether the steadier plan is the one they would post; a real 7shifts account
+      through --import-7shifts (README "Reading 7shifts directly"); a real When I
+      Work account or response through --import-wheniwork (README "Reading When I
+      Work directly"); Homebase (docs need an account); --cover-price moves two
+      shifts together (README "Moving two shifts together"); second call-outs
+      priced, off by default (README "The pair price in played weeks": fewer open
+      hours on 3 of 4 weeks); order-free pair check played: no gain, stays opt-in
+      (README "The order-free pass played"); a real two-site export and staff list
+      (README "Staff shared between sites"); own and site rates read from staff CSVs
+      and 7shifts (README "Per-location pay from an export"); next a real wages
+      export, real trip times; whether the priced cut's r = 1 default suits a real
+      manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -371,11 +371,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): sense amplifier against the 20 kHz PWM 2026-11-16
-      (cad/README.md "Sense amplifier against the PWM ripple": ripple at the
-      comparator 0.3-4.3 mA, mean unbiased, amp adds 4 us; the averaged sweep plant
-      holds). Next: the facing's friction spread with wear as a sweep axis (the
-      +-20% band is assumed).
+      venv, about 2 min): slip hub wear 2026-11-16 (cad/README.md "Slip hub wear":
+      the single disc spring lost 61% of the torque at 40 um of facing loss and left
+      a jam uncut; four B discs in series keep 95%, budget 53 um, re-set after 300
+      jams). Next: count jams in the firmware (flash, survives power-off) and flag a
+      hub re-set at lift_slip_jams.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

@@ -1,0 +1,18 @@
+cell-fidelity milestone 5za: the plating feedback read at the separator-side surface (5y's predictor with the
+surface-over-bulk offset at end of charge, from cycles 2 to 10). DFN (SEI + plating) to cycle 100, fresh Sobol
+designs (seed 19); median |ln(L_pred(99) / L_DFN(99))|
+
+condition             n drop     5y   surf  sgn 5y  sgn s  wins  rhoL s rhoL 5y   delta  dU oc   dU s  plat% |book-1|
+Chen2020@1.5x        32    0  0.351  0.231  +0.351 +0.231    20   0.959   0.987 -0.0871    0.6   18.8   99.8  0.00000
+OKane2022@1.5x       32    0  0.358  0.209  +0.358 +0.209    23   0.962   0.984 -0.1021    8.9   18.1   99.8  0.00000
+NCA_Kim2011@0.875x   32    0  0.030  0.065  -0.030 +0.054     4   0.869   0.998 +0.1907  129.9   59.1   98.9  0.00000
+Ai2020@0.45x         32    0  0.085  0.220  +0.085 +0.220     1   0.886   0.989 +0.2185   39.2   89.2   99.6  0.00000
+
+(dU: median rise of the negative OCP by cycle 99 at open circuit and at the shifted stoichiometry, mV; plat%:
+ plating's share of the cycle-99 loss with the booked mol times the parallel-electrode count; |book-1|: largest
+ |total lost / (count x booked side-reaction loss) - 1|)
+
+H143 (surface predictor beats 5y's on both LG M50 pools): supported
+H144 (surface predictor within 0.15 on both LG M50 pools): mixed
+H145 (not universal: worse than 5y by more than 0.03 on both controls): supported
+H146 (surface predictor ranks the cycle-99 loss at 0.9 or above on both LG M50 pools): supported

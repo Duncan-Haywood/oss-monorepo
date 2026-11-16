@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtJsRsrnNJR3SptxTix",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T01:05:49Z",
+  "ended": "2026-11-16T01:14:28Z",
+  "wall_minutes": 8.98,
+  "tokens_in": 4046481,
+  "tokens_out": 24239,
+  "cost_usd": 2.0444,
+  "tool_calls": 45,
+  "task": "build-data session 94: audit whether feed completion dates are builds or administrative closures, and whether Seattle's dateless Completed permits can be dated (session 93 Next (c))",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16400",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/src/permits.py",
+      "issue": "the pulled CSV keeps no status field, so any status-based label work (session 93 Next) must re-query the feeds; label_audit.py does its own minimal pull"
+    },
+    {
+      "file": "research/build-data/LOG.md",
+      "issue": "session 93 read Seattle's dateless 'Completed' permits as finished builds without checking a single description; three rows would have shown 'Closed as Incomplete'. Worth a default: look at raw rows before interpreting a status label"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "took session 93's cheapest 'Next' item (a label audit by SoQL, ~12 min) instead of the multi-hour model refit, because three raw rows suggested the previous session's interpretation was wrong and the label question comes before more model sweeps",
+      "did": "pre-registered 5 predictions, ran the audit, corrected session 93's claim in README, project card and the earlier post",
+      "result": "V2, V4 held; V1, V3, V5 refuted; a correction landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-build-data-completion-dates-are-builds-not-closures.md",
+    "research/build-data/LOG.md (session 94)",
+    "correction note in docs/posts/2026-11-15-build-data-what-never-closed-permits-are.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registration commit 8c93ade23 before the pull. Audit: SF 420,714, Seattle 88,626, Austin 836,092 permits issued 2010-2022. build-data tests 152 passed + 2 new; homepage build ok; md links ok; post checks ok. Local workflow run result appended below if available.",
+  "corrections": [
+    "session 93's 'about 10,000 finished builds with a missing date' in Seattle: 71% of those issued 2010-2022 are closed-as-incomplete"
+  ],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "94e7c855-b683-59c2-8c67-011c02949f54",
+    "transcripts": 1,
+    "first": "2026-11-16T01:05:49Z",
+    "last": "2026-11-16T01:14:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 84,
+        "output": 24239,
+        "thinking": 6920,
+        "cache_read": 3950238,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96159,
+        "api_equivalent_usd": 2.0444,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 84,
+      "output": 24239,
+      "thinking": 6920,
+      "cache_read": 3950238,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96159,
+      "api_equivalent_usd": 2.0444,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 40,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.98,
+      "active_minutes": 8.98,
+      "model_minutes": 4.66,
+      "tool_minutes": 4.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "pre-registration, SoQL audit script and tests over 3 feeds, write-up and correction: about a day for a research assistant",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 293.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

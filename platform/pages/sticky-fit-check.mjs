@@ -21,13 +21,13 @@
 // neighbouring grid cell.
 // Not part of CI: Playwright is not a dependency of this repo.
 
+import { requirePlaywright } from './load-playwright.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const loaded = await import(process.env.PLAYWRIGHT || 'playwright');
-const playwright = loaded.chromium ? loaded : loaded.default;
+const playwright = await requirePlaywright();
 const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, '');
 const DIST = process.env.DIST || path.join(HERE, 'dist');
 const HEIGHT = Number(process.env.HEIGHT || 800);

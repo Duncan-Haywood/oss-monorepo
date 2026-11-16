@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKnL4sp7xmZopTarEV",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T01:07:01Z",
+  "ended": "2026-11-16T01:11:54Z",
+  "wall_minutes": 5.19,
+  "tokens_in": 4155882,
+  "tokens_out": 17854,
+  "cost_usd": 1.9047,
+  "tool_calls": 46,
+  "task": "Critique: browser tests and scripts in platform/pages could not load Playwright in cloud sessions (ESM import ignores NODE_PATH)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16402",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "2026-11-15 report that contrast.mjs fails on bare 'playwright' in cloud was the root of a wider fault: 5 platform/pages test files skipped 19 browser tests in every cloud session; fixed in platform/pages/load-playwright.mjs, so the prompt's /opt/node-tools note for ad-hoc scripts is now only needed outside platform/pages."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "--live --ungated's top rows (ai-bookkeeper inputs, quality README 403 fallback) were already handled (inputs_only mechanism exists; served-copy.mjs landed in #16380); the playwright cluster came from measure's per-file table instead, not friction_rank."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-browser-tests-that-skipped-in-every-session.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned items (none touched). main_health.py: 231/231 pass. Before: bar-align/sticky-fit/ticker-fit/venture-chrome-early/lab tests 10 pass / 19 skip in this session; after: 29 pass / 0 skip (first run 28/1; the failure was venture-chrome-early's phone test stale since PR #16239's 16px gutter, updated). load-playwright.test.mjs 4/4. node --check on all 21 changed .mjs ok; contrast.mjs now gets past Playwright load to the axe check. checklist_coverage.py ok. GitHub runners still skip these tests (no Playwright in the site-builder job); left open in the post rather than adding ~1 min of install to CI.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "49939efe-a1c9-5b04-8db8-f5d89c2ecd72",
+    "transcripts": 1,
+    "first": "2026-11-16T01:07:01Z",
+    "last": "2026-11-16T01:12:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 85,
+        "output": 17854,
+        "thinking": 3847,
+        "cache_read": 4063981,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91816,
+        "api_equivalent_usd": 1.9047,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 85,
+      "output": 17854,
+      "thinking": 3847,
+      "cache_read": 4063981,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91816,
+      "api_equivalent_usd": 1.9047,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.19,
+      "active_minutes": 5.19,
+      "model_minutes": 3.7,
+      "tool_minutes": 1.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "find the ESM/NODE_PATH cause, write and test a loader, migrate 20 files, chase one stale test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 105.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

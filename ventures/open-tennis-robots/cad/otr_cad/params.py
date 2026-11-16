@@ -1247,12 +1247,34 @@ class Feeder:
     lift_slip_id: float = 6.5         # facing washers ride the shaft
     lift_slip_facing_t: float = 1.5   # facing washer thickness
     lift_slip_plate_t: float = 2.0    # laser-cut steel plate with a 6 mm D bore: keyed to the shaft, slides along it
-    lift_slip_spring_t: float = 0.7   # disc spring (DIN 2093 6.2 x 12.5 x 0.7 class) between plate B and collar B
+    lift_slip_spring_t: float = 0.5   # disc springs between plate B and collar B: DIN 2093 B 12.5 x 6.2 x 0.5 class, four in
+                                      # series (was one A 12.5 x 6.2 x 0.7 to 2026-11-16: cad/README.md "Slip hub wear")
     lift_slip_collar_w: float = 6.0   # 6 mm shaft collars (12 mm OD), set screw on the shaft's flat
     lift_slip_collar_d: float = 12.0
     lift_slip_start_factor: float = 1.5  # lowest sticking torque over what a cold start passes through the hub
     lift_slip_trip_margin: float = 1.1   # motor's current while the hub slides at its lowest, over the highest trip
-    lift_slip_spring_n: float = 400.0    # disc spring's flat load (6.2 x 12.5 x 0.7 class, assumption: read yours)
+    # Slip hub wear (2026-11-16, `lift_slip_spring`, `lift_slip_wear`, `check_lift_slip_wear`; tests/lift_jam_sweep.py
+    # --wear). The disc springs' load comes from their geometry (Almen-Laszlo, DIN 2093 without bearing flats), so the
+    # hub's torque after the facings lose thickness is read off the springs' curve, not assumed. One A-series disc set to
+    # the hub's 208 N sits 65 um into its 300 um stroke at about 3 N/um: 10 um of facing loss cost 15% of the torque and
+    # 40 um cost 61%. Four B-series discs in series sit 670 um in and keep 95% after 40 um.
+    lift_slip_spring_h0: float = 0.35    # cone height (free height less thickness); B 12.5: l0 0.85 (read yours)
+    lift_slip_spring_de: float = 12.5
+    lift_slip_spring_di: float = 6.2
+    lift_slip_spring_count: int = 4      # discs stacked in series, alternating: the stroke and the wear budget scale with it
+    lift_slip_spring_e_mpa: float = 206e3
+    lift_slip_spring_nu: float = 0.3
+    lift_slip_spring_flat_max: float = 0.8  # the set deflection at most this share of the stack's stroke (stay off flat)
+    lift_slip_set_tol: float = 0.05      # bench setting: the scale's reading and the set screw's shift (of lift_slip_tol)
+    lift_slip_mu_spread: float = 0.10    # facing friction over damp, heat and glaze after bedding in (of lift_slip_tol)
+    lift_slip_loss_um: float = 15.0      # facing thickness lost after the final set, both facings: compression set left
+                                         # once the hub is bedded in and set again (assumed; cork-rubber creeps most). Fresh
+                                         # facings lose more as they bed in, so the bench set is done twice (plate notes)
+    lift_slip_wear_mm3_kj: float = 5.0   # facing's specific wear by sliding (assumed: dry lining about 0.3, cork-rubber more)
+    lift_slip_jams: int = 300            # jams the hub must take before it needs a re-set on the bench
+    lift_slip_facing_cte: float = 1.5e-4  # facing's thickness per K (cork-rubber; lining about 3e-5): grows warm, shrinks cold
+    lift_slip_temp_k: tuple = (-15.0, 25.0)  # facing temperature from the bench set's: a cold court to a hot box
+    lift_slip_loss_sweep_um: tuple = (0.0, 10.0, 20.0, 40.0, 80.0, 160.0)
     # Lift drive shaft (2026-11-15, `lift_shaft_design`, `check_lift_shaft`; cad `lift_shaft_parts`, `lift_motor_spacer`).
     # The slip hub's stack needs 63 mm of 6 mm D shaft past the gearmotor's face, and a stock 37 mm gearmotor has
     # about 15. So the pulley rides a separate 6 mm D shaft carried in a flanged bearing in each of the boot's +-y walls,
@@ -4378,7 +4400,7 @@ class Feeder:
         # the stack along the shaft from the pulley's faces (the pulley is belt_w + 5 wide, centred on lift_y)
         half = (self.lift_belt_w + 5.0) / 2
         motor_side = self.lift_slip_facing_t + self.lift_slip_plate_t + self.lift_slip_collar_w
-        far_side = motor_side + self.lift_slip_spring_t
+        far_side = motor_side + self.lift_slip_spring()["stack_mm"]
         wall_in = self.lift_depth / 2
         shaft_mm = wall_in + self.lift_wall + half + far_side         # from the gearmotor's face
         rigid_shaft_mm = wall_in + self.lift_wall + half
@@ -4415,9 +4437,107 @@ class Feeder:
         if min(s["wall_gap_mm"], s["far_gap_mm"]) < 2.0:
             bad.append(f"lift slip hub's stack leaves {min(s['wall_gap_mm'], s['far_gap_mm']):.1f} mm to the boot's wall "
                        f"(2 mm wanted)")
-        if s["spring_n"] > self.lift_slip_spring_n:
-            bad.append(f"lift slip hub needs {s['spring_n']:.0f} N of spring, over the disc spring's "
-                       f"{self.lift_slip_spring_n:g} N flat: a bigger facing or a stiffer spring")
+        sp = self.lift_slip_spring()
+        if sp["set_share"] > self.lift_slip_spring_flat_max:
+            bad.append(f"lift slip hub needs {s['spring_n']:.0f} N of spring, {sp['set_share']:.0%} of the disc stack's "
+                       f"stroke ({sp['flat_n']:.0f} N flat; {self.lift_slip_spring_flat_max:.0%} wanted): a bigger facing "
+                       f"or a stiffer spring")
+        return bad + self.check_lift_slip_wear()
+
+    def disc_spring_n(self, s_mm: float, t: float = None, h0: float = None) -> float:
+        """One disc spring's load at deflection `s_mm` (Almen-Laszlo, as DIN 2093 for springs without bearing flats):
+        F = 4E/(1-nu^2) t^4/(K1 De^2) (s/t) [(h0/t - s/t)(h0/t - s/2t) + 1], K1 = (1/pi) ((d-1)/d)^2 /
+        ((d+1)/(d-1) - 2/ln d), d = De/Di. Checked against DIN 2093 A 8 (8 x 4.2 x 0.4, h0 0.2): 210 N at 0.75 h0."""
+        t = self.lift_slip_spring_t if t is None else t
+        h0 = self.lift_slip_spring_h0 if h0 is None else h0
+        de, di = self.lift_slip_spring_de, self.lift_slip_spring_di
+        d = de / di
+        k1 = ((d - 1) / d) ** 2 / ((d + 1) / (d - 1) - 2 / math.log(d)) / math.pi
+        e = self.lift_slip_spring_e_mpa / (1 - self.lift_slip_spring_nu ** 2)
+        a, b = h0 / t, s_mm / t
+        return 4 * e * t ** 4 / (k1 * de * de) * b * ((a - b) * (a - b / 2) + 1)
+
+    def lift_slip_spring(self) -> dict:
+        """The slip hub's disc stack (2026-11-16; cad/README.md "Slip hub wear"): `lift_slip_spring_count` discs in
+        series share the load and add their deflections. The set deflection is where the stack gives the hub's axial
+        force (T = mu F r_eff n); the rate there is what turns lost facing thickness into lost torque."""
+        ro, ri = self.lift_slip_od / 2000, self.lift_slip_id / 2000
+        r_eff = 2 / 3 * (ro ** 3 - ri ** 3) / (ro ** 2 - ri ** 2)
+        need = self.lift_slip_nm / (self.lift_slip_mu * r_eff * self.lift_slip_faces)
+        n, h0 = self.lift_slip_spring_count, self.lift_slip_spring_h0
+        stroke = n * h0
+
+        def load(s_total):
+            return self.disc_spring_n(min(max(s_total, 0.0), stroke) / n)
+
+        lo, hi = 0.0, stroke
+        for _ in range(60):
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if load(mid) < need else (lo, mid)
+        s_set = (lo + hi) / 2
+        rate = (load(s_set + 1e-3) - load(s_set - 1e-3)) / 2e-3 / 1000          # N per um
+        return {"need_n": need, "set_mm": s_set, "stroke_mm": stroke, "set_share": s_set / stroke,
+                "flat_n": load(stroke), "rate_n_um": rate, "stack_mm": n * (self.lift_slip_spring_t + h0) - s_set,
+                "load": load}
+
+    def lift_slip_wear(self) -> dict:
+        """The hub's torque as the facings lose thickness (2026-11-16; cad/README.md "Slip hub wear").
+
+        The bench set fixes collar B, so every micron the facings lose (bedding-in, compression set, sliding wear, a
+        cold facing shrinking) comes off the disc stack's deflection, and a warm facing growing adds to it. The torque
+        scales with the stack's load: T(L) = T_set F(s_set - L) / F(s_set). The band the jam sweep proves
+        (`lift_slip_tol` either side of `lift_slip_nm`) must hold the worn hub at its lowest setting and friction,
+        T_set (1 - set_tol)(1 - mu_spread) F(s_set - L)/F(s_set), and the new hub at its highest, warm,
+        T_set (1 + set_tol)(1 + mu_spread) F(s_set + growth)/F(s_set).
+        Loss L = `lift_slip_loss_um` (bedding and set) + the cold shrink + `lift_slip_jams` jams of sliding wear at
+        `lift_slip_wear_mm3_kj` over the facings' faces (each jam slides `lift_slip_design`'s slide_j). The budget is
+        the largest L that keeps the worn corner in the band."""
+        sp = self.lift_slip_spring()
+        d = self.lift_slip_design()
+        f0, load, s_set = sp["need_n"], sp["load"], sp["set_mm"]
+        both_t_um = 2 * self.lift_slip_facing_t * 1000
+        shrink_um = -self.lift_slip_temp_k[0] * self.lift_slip_facing_cte * both_t_um
+        grow_um = self.lift_slip_temp_k[1] * self.lift_slip_facing_cte * both_t_um
+        area = math.pi / 4 * (self.lift_slip_od ** 2 - self.lift_slip_id ** 2)          # one face, mm^2
+        jam_um = self.lift_slip_wear_mm3_kj * 1e-3 * d["slide_j"] / (self.lift_slip_faces * area) * 1000
+        loss_um = self.lift_slip_loss_um + shrink_um + self.lift_slip_jams * jam_um
+
+        def ratio(l_um):
+            return load(s_set - l_um / 1000) / f0
+
+        low_k = (1 - self.lift_slip_set_tol) * (1 - self.lift_slip_mu_spread)
+        high_k = (1 + self.lift_slip_set_tol) * (1 + self.lift_slip_mu_spread)
+        floor = 1 - self.lift_slip_tol
+        a, b = 0.0, s_set * 1000
+        if low_k * ratio(0) < floor:
+            budget = 0.0
+        else:
+            for _ in range(60):
+                m = (a + b) / 2
+                a, b = (m, b) if low_k * ratio(m) >= floor else (a, m)
+            budget = a
+        nm = self.lift_slip_nm
+        return {
+            "set_um": s_set * 1000, "rate_n_um": sp["rate_n_um"], "shrink_um": shrink_um, "grow_um": grow_um,
+            "jam_um": jam_um, "loss_um": loss_um, "budget_um": budget,
+            "jams_to_budget": max(0.0, budget - self.lift_slip_loss_um - shrink_um) / jam_um if jam_um > 0 else math.inf,
+            "lo_nm": nm * low_k * ratio(loss_um), "hi_nm": nm * high_k * ratio(-grow_um),
+            "band_lo_nm": nm * floor, "band_hi_nm": nm * (1 + self.lift_slip_tol),
+            "sweep": [(l, ratio(l), nm * low_k * ratio(l)) for l in self.lift_slip_loss_sweep_um],
+        }
+
+    def check_lift_slip_wear(self) -> list[str]:
+        w = self.lift_slip_wear()
+        bad = []
+        if w["lo_nm"] < w["band_lo_nm"]:
+            bad.append(f"lift slip hub's facings lose {w['loss_um']:.0f} um after the set (bedding, a cold shrink, "
+                       f"{self.lift_slip_jams} jams), over the disc stack's {w['budget_um']:.0f} um budget: the worn hub "
+                       f"falls to {w['lo_nm']:.2f} N m, under the {w['band_lo_nm']:.2f} N m the jam sweep proves; more "
+                       f"discs in series (lift_slip_spring_count) or thinner ones")
+        if w["hi_nm"] > w["band_hi_nm"]:
+            bad.append(f"lift slip hub's warm facings ({w['grow_um']:.0f} um of growth at {w['rate_n_um']:.2f} N/um) "
+                       f"lift it to {w['hi_nm']:.2f} N m, over the {w['band_hi_nm']:.2f} N m the jam sweep proves; more "
+                       f"discs in series or a facing that grows less")
         return bad
 
     @staticmethod
@@ -4909,8 +5029,10 @@ class Feeder:
         yn = y_out - B / 2                                   # bearing centres
         yf = y_far + B / 2
         half = (self.lift_belt_w + 5.0) / 2                  # as lift_slip_design: the pulley, then the far stack
-        far_side = self.lift_slip_facing_t + self.lift_slip_plate_t + self.lift_slip_collar_w + self.lift_slip_spring_t
-        pocket = half + far_side + 1.0                       # the boot's slip-hub pocket reaches this far each way
+        near_side = self.lift_slip_facing_t + self.lift_slip_plate_t + self.lift_slip_collar_w
+        far_side = near_side + self.lift_slip_spring()["stack_mm"]
+        pocket_near = half + near_side + 1.0                 # the boot's slip-hub pocket: the motor side's stack
+        pocket = half + far_side + 1.0                       # and the far side's, with the disc stack (2026-11-16)
         bore = (self.lift_coupler_l - self.lift_coupler_spider) / 2
         gap = max(self.lift_shaft_clear, self.gm_shaft_len - bore)
         c0 = y_out + self.lift_shaft_clear                   # coupling's near end
@@ -4920,7 +5042,7 @@ class Feeder:
         return {
             "bearing_y": (yn, yf), "coupler_y": (c0, c1), "coupler_bore_mm": bore, "motor_gap_mm": gap,
             "motor_face_y": face, "spacer_mm": face - y_out, "engage_mm": min(bore, self.gm_shaft_len - gap),
-            "shaft_y": (sh0, sh1), "shaft_mm": sh1 - sh0, "near_web_mm": yn - B / 2 - pocket,
+            "shaft_y": (sh0, sh1), "shaft_mm": sh1 - sh0, "near_web_mm": yn - B / 2 - pocket_near,
             "far_web_mm": -pocket - (yf + B / 2),
         }
 

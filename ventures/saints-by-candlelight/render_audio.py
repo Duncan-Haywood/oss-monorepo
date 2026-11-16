@@ -55,6 +55,15 @@ SAY = {
     "Rhydderch": "Ruh-ther-k",
     "Languoreth": "Lan-gwor-eth",
     "Glasgu": "Glas-goo",
+    "Forlì": "For-lee",
+    "Camposampiero": "Campo-sam-pyeh-ro",
+    "Dubthach": "Duv-thock",
+    "Bethu Brigte": "Beh-hoo Breej-deh",
+    "Cill Dara": "Kill Dar-ah",
+    "Cogitosus": "Codge-ih-toe-sus",
+    "Faughart": "Faw-hart",
+    "Amittai": "Ah-mit-eye",
+    "Sheol": "Shay-ole",
 }
 
 

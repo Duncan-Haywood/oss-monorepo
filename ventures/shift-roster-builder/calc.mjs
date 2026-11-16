@@ -3816,7 +3816,15 @@ function buildRosterOnce(staff, slots, options = {}) {
         if (ps < best.score - 1e-9) best = { owner: po, score: ps };
       }
       mark("coverPass");
-      if ((o.coverRepair ?? (exactOn || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
+      // Skip the repair when the roster's open hours already equal a proven floor (README "The repair reserve at 30-60 people"):
+      // nothing it could find covers more, and on 15 of 36 bench builds at 40-60 people it spent 0.04-1.8 s and found nothing.
+      // Only when the repair is on by default and at the default tie-break (fewest open shifts at equal hours, weight 1e-6, which
+      // found nothing on those builds either): `coverRepair: true`, a priced `openShiftWeight` or `coverRepairAtFloor: true` runs it.
+      const atFloor = o.coverRepairAtFloor !== true && o.coverRepair === undefined && o.openShiftWeight === undefined && ctx.openFloor !== undefined
+        && scoreOwner(ctx, best.owner).unfilled <= ctx.openFloor + 1e-6;
+      const repairOn = (o.coverRepair ?? (exactOn || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0;
+      if (repairOn && atFloor) repairStats = { skippedAtFloor: true };
+      else if (repairOn && !over()) {
         const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: Math.min(o.coverRepairMs ?? 60000, budgetMs > 0 ? Math.max(200, budgetMs - (Date.now() - tStart)) : Infinity), shiftWeight: o.openShiftWeight ?? 1e-6, guide: o.repairGuide === true ? clique?.xs ?? null : null, guideProb: o.repairGuideProb ?? 0.5, bound: o.coverRepairBound ?? "flow" });
         repairStats = { guided: rp.guidedRounds > 0, guidedRounds: rp.guidedRounds, gains: rp.gains, guidedGains: rp.guidedGains, floorSkipped: rp.skipped, floorReached: rp.reached };
         const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
