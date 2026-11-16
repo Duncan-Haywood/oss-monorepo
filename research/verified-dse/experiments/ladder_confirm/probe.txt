@@ -1,0 +1,19 @@
+# Milestone 137 parameter probe (one default-script point per candidate; keep if routed/r2 > 3.3)
+
+design | amount_depth | amount_gate_depth | amount_gates | mux_share | probe routed/r2 | base period ns | keep
+eqc6 | 6 | 27 | 117 | 0.845 | 3.25 | 12.01 | False
+isq8 | 11 | 29 | 58 | 0.822 | 2.41 | 20.53 | False
+eqc10 | 10 | 46 | 212 | 0.798 | 4.81 | 10.55 | True
+isq10 | 14 | 48 | 98 | 0.762 | 5.24 | 26.56 | True
+amin4 | 6 | 51 | 123 | 0.745 | 2.85 | 17.68 | False
+isq12 | 17 | 66 | 153 | 0.695 | 8.44 | 44.35 | True
+csum3 | 4 | 70 | 128 | 0.746 | 4.32 | 12.14 | True
+eqc16 | 16 | 71 | 356 | 0.722 | 3.74 | 16.93 | True
+amin6 | 10 | 86 | 217 | 0.721 | 2.96 | 14.02 | False
+isq14 | 20 | 95 | 221 | 0.625 | 34.42 | 49.82 | True
+csum4 | 6 | 103 | 192 | 0.708 | 4.87 | 14.16 | True
+eqc24 | 24 | 108 | 571 | 0.647 | 9.44 | 16.81 | True
+amin8 | 14 | 121 | 320 | 0.658 | 4.61 | 17.35 | True
+csum6 | 10 | 169 | 320 | 0.643 | 14.71 | 16.51 | True
+amin12 | 22 | 189 | 516 | 0.614 | 70.08 | 28.38 | True
+csum8 | 14 | 235 | 448 | 0.588 | 101.73 | 19.21 | True
