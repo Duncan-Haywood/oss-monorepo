@@ -2775,6 +2775,35 @@ in-sample; a held-out set with separate tax lines (the CORD photos, huggingface.
 this session) would test rule 1:
 [`eval/receipt-total-first-heldout-2026-11-16.md`](eval/receipt-total-first-heldout-2026-11-16.md).
 
+### CORD photos through the CLI's four readings (2026-11-16, night)
+
+The held-out multi-reading check the last two runs asked for. CORD's 200 validation and test
+photos went through `--four-pass` (tesseract 5.3.4), and every version of `receipts.mjs` since
+2026-11-15 was scored on the same readings. The four-reading tax vote holds up out of sample:
++3 taxes on each split. It also tripled the wrong taxes on validation (3 to 10). The SRD-written
+rules after it moved one test receipt, and the total-first rules never fire on rupiah slips.
+Four changes, written from validation misses only:
+
+- On a whole-unit slip with no total line, cash less change reads through a leading dash
+  ("CASH -50,000", "CHANGE -30,000").
+- "PBI", "PBl", "PB]", "PB!" and "P Resto" are PB1, Indonesia's restaurant tax.
+- On a whole-unit slip, a tax under 1% of the total is lost digits or noise ("TAX 5.45" on
+  172,000; "10.000%" read as 1.00). A yen receipt's ¥22 tax on ¥300 stays.
+- A whole-unit tax one unit off the arithmetic is rounding (18,181 + 1,818 printed as 20,000),
+  not a digit to repair.
+
+| CORD photos, CLI `--four-pass` | validation before | after | test before | after |
+|---|---|---|---|---|
+| totals right | 63 / 98 | **64** | 53 / 95 | 53 |
+| tax right / wrong / none | 16 / 10 / 21 | **22 / 4 / 21** | 14 / 4 / 23 | **16 / 2 / 23** |
+
+Test was scored after each change, but no test receipt was read. SRD photos (re-read) stay at
+154 totals and 133 tax, SROIE text is unchanged, and CORD's own text goes from 323 to 324 train
+taxes. Most remaining misses are OCR-bound: the total's digits are in none of the four readings
+on 23 of 34 validation misses and 27 of 42 test misses. Details:
+[`eval/cord-photos-four-pass-2026-11-16.md`](eval/cord-photos-four-pass-2026-11-16.md).
+Tests: `cord-receipts.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
