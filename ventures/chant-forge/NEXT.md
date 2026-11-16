@@ -5,3 +5,4 @@
 ## Parked from flagships.yaml `next:`
 
 - (2026-11-16) a director on --sit-out N, the --musicxml parts and the --learn tracks
+- (2026-11-16) several tracks from the studio page (an EP queue feeding the same releaseKit as the one-track button)

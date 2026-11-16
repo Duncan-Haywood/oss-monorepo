@@ -55,6 +55,28 @@ The AI disclosure defaults to "assisted" and names the tools and parts; the leve
 `ep.test.mjs` (pixel checks on the cover, -14 LUFS read back from the WAV, the filled-in folder passing the check).
 Nobody has listened to the tracks; listening before upload is the first line of the report's "Before upload".
 
+### The same folder from the studio page (2026-11-16)
+
+The studio page has a **Build the release folder (ZIP)** button under its downloads. After Convert it renders the
+track again limited to -14 LUFS, draws the 3000 px cover from the chant's opening notes, writes `release.json`
+and runs the release check, all in the browser, and hands over one ZIP with the same seven files `ep-cli.mjs`
+writes for a one-track single. Release title, artist, release date (four weeks out by default) and ISRC are boxes
+on the page; empty ones become owner steps in the ZIP's `REPORT.md`. A pasted chant whose GABC names no source
+edition is a build fault, as on the command line.
+
+To make that possible the builder's pure parts moved into `ep-core.mjs` (browser-safe: cover pixels, PNG
+assembly with a pluggable deflate, `release.json`, the owner-step split, the report) and the release rules into
+`release-core.mjs` (`checkReleaseWith`, reading files through an `io` object so the same rules run on a folder
+or on files held in memory). `ep.mjs` and `release.mjs` keep their exports and now call the cores, so the two
+paths cannot drift. `ep-page.test.mjs` (3 tests) builds Veni Creator both ways with `Buffer` deleted on the page
+side: `release.json`, the WAV, MIDI, LRC and source are byte-identical, the 31 check lines match name for name
+and level for level, the report differs only in the builder's name, and the two covers decode to the same
+27,003,000 bytes of scanlines (the browser compresses with `CompressionStream`, Node with zlib). In headless
+Chromium (`eval/browser-e2e.mjs`, 4 new checks, 119 in all) the sung Veni Creator release ZIP took 1.9 s;
+`release-cli.mjs` on the unzipped folder fails only the artist, p-line, c-line and ISRC, and passes outright once
+an artist and ISRC are typed into the page. Nobody has listened to the track or tried the ZIP in a distributor's
+upload form.
+
 ## Hear it without a DAW
 
 ```sh
