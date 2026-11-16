@@ -84,7 +84,7 @@ test("rest rule: closing then opening pays the multiplier on hours inside the wi
   const r = analyze({ postedAt: posted, rules: seattle, defaultRate: 10, changesText: "",
     scheduleText: "Cy, 2026-10-20, 18:00-23:00, 10\nCy, 2026-10-21, 06:00-12:00, 10" });
   const rest = r.findings.find((f) => f.type === "rest");
-  assert.equal(rest.premium, 7.5); // 0.25 * 3 h * $10
+  assert.equal(rest.premium, 15); // Seattle pays time and a half: 0.5 * 3 h * $10
   const ok = analyze({ postedAt: posted, rules: seattle, defaultRate: 10, changesText: "",
     scheduleText: "Cy, 2026-10-20, 18:00-23:00, 10\nCy, 2026-10-21, 09:00-12:00, 10" });
   assert.equal(ok.findings.length, 0); // exactly 10 h
