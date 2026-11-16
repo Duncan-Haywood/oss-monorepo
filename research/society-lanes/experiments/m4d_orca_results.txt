@@ -1,0 +1,97 @@
+Milestone 4d: ORCA (van den Berg et al. 2011; RVO2 via UMANS, UMANS parameters) as a fifth family
+seeds: calibration 3, fit 5, score 20; 120 s per run after 40 s warm-up; exits at 0.25 of the width from a wall
+rows for sf, avm, cfsm and pl are milestone 3, 4a, 4b and 4c results, read from their CSVs, not rerun
+
+Calibration (walker count whose beta = 0 median speed is nearest the observed):
+  bo-360-050-050     HERMES observed speed 1.48 -> N= 20, simulated 1.28 m/s at 0.32/m2 (miss 0.20; jammed 0)
+  bo-360-075-075     HERMES observed speed 1.42 -> N= 20, simulated 1.28 m/s at 0.31/m2 (miss 0.15; jammed 0)
+  bo-360-090-090     HERMES observed speed 1.25 -> N= 30, simulated 1.25 m/s at 0.44/m2 (miss 0.00; jammed 0)
+  bo-360-120-120     HERMES observed speed 0.85 -> N=160, simulated 0.88 m/s at 0.78/m2 (miss 0.03; jammed 0)
+  bo-360-160-160     HERMES observed speed 0.72 -> N= 60, simulated 0.72 m/s at 0.96/m2 (miss 0.00; jammed 0)
+  bi_corr_400_a_02   BaSiGo observed speed 0.33 -> N=160, simulated 0.47 m/s at 1.02/m2 (miss 0.14; jammed 0)
+  bi_corr_400_a_03   BaSiGo observed speed 0.31 -> N=100, simulated 0.75 m/s at 0.95/m2 (miss 0.44; jammed 0)
+  bi_corr_400_a_04   BaSiGo observed speed 0.28 -> N=130, simulated 0.30 m/s at 0.73/m2 (miss 0.02; jammed 0)
+  bi_corr_400_a_05   BaSiGo observed speed 0.28 -> N=100, simulated 0.54 m/s at 1.00/m2 (miss 0.25; jammed 0)
+Fit (milestone 3's loss over the 9 free runs, 5 seeds):
+  beta 0.0   loss     4263.9   pooled share 0.479   mean seed sd 0.180   mean lane 0.800   failed 0 jammed 0
+  beta 0.05  loss        nan   pooled share 0.724   mean seed sd 0.139   mean lane 0.787   failed 0 jammed 0
+  beta 0.1   loss      820.7   pooled share 0.821   mean seed sd 0.092   mean lane 0.876   failed 0 jammed 0
+  beta 0.2   loss      783.5   pooled share 0.846   mean seed sd 0.088   mean lane 0.922   failed 0 jammed 0
+  beta 0.35  loss      611.3   pooled share 0.893   mean seed sd 0.068   mean lane 0.951   failed 0 jammed 0
+  beta 0.5   loss      611.8   pooled share 0.916   mean seed sd 0.068   mean lane 0.983   failed 0 jammed 0
+  beta 0.75  loss      485.1   pooled share 0.931   mean seed sd 0.050   mean lane 0.989   failed 0 jammed 0
+  beta 1.0   loss      244.4   pooled share 0.945   mean seed sd 0.069   mean lane 0.982   failed 0 jammed 0
+  fitted beta = 1.0
+Free runs at beta = 1.0, 20 seeds:
+  bo-360-050-050     share sim 0.999 (sd 0.004) obs 0.975 [0.941, 1.000] in  lane sim 0.994 obs 0.996 ok  speed sim 1.27 obs 1.48  density 0.34
+  bo-360-075-075     share sim 0.998 (sd 0.004) obs 0.985 [0.963, 1.000] in  lane sim 0.994 obs 0.994 ok  speed sim 1.27 obs 1.42  density 0.35
+  bo-360-090-090     share sim 0.999 (sd 0.002) obs 1.000 [1.000, 1.000] OUT  lane sim 0.992 obs 0.996 ok  speed sim 1.26 obs 1.25  density 0.51
+  bo-360-120-120     share sim 0.700 (sd 0.206) obs 0.974 [0.954, 0.990] OUT  lane sim 0.935 obs 0.960 ok  speed sim 0.71 obs 0.85  density 1.03
+  bo-360-160-160     share sim 0.999 (sd 0.001) obs 0.822 [0.777, 0.864] OUT  lane sim 0.993 obs 0.907 ok  speed sim 1.22 obs 0.72  density 0.96
+  bi_corr_400_a_02   share sim 0.954 (sd 0.066) obs 0.979 [0.966, 0.990] OUT  lane sim 0.936 obs 0.827 MISS  speed sim 1.05 obs 0.33  density 1.33
+  bi_corr_400_a_03   share sim 1.000 (sd 0.001) obs 0.965 [0.948, 0.980] OUT  lane sim 0.998 obs 0.836 MISS  speed sim 1.26 obs 0.31  density 1.05
+  bi_corr_400_a_04   share sim 0.962 (sd 0.093) obs 0.879 [0.851, 0.906] OUT  lane sim 0.983 obs 0.771 MISS  speed sim 1.17 obs 0.28  density 1.29
+  bi_corr_400_a_05   share sim 0.983 (sd 0.038) obs 0.878 [0.850, 0.905] OUT  lane sim 0.972 obs 0.819 MISS  speed sim 1.19 obs 0.28  density 1.38
+
+Held-out assigned-exit runs: share on own right by family and bias rule (obs = people)
+  run                   obs    sf:alw    sf:yie    sf:sca   avm:alw   avm:yie   avm:sca  cfsm:alw  cfsm:yie  cfsm:sca    pl:alw    pl:yie    pl:sca  orca:alw  orca:yie  orca:sca
+  bot-360-050-050     0.585     0.777     0.596     0.661     0.989     0.877     0.954     0.914     0.517     0.571     0.979     0.506     0.600     0.909     0.492     0.810
+  bot-360-075-075     0.646     0.749     0.608     0.639     0.994     0.919     0.933     0.908     0.515     0.603     0.974     0.505     0.573     0.891     0.529     0.845
+  bot-360-090-090     0.637     0.756     0.560     0.588     0.990     0.892     0.951     0.909     0.537     0.583     0.980     0.768     0.774     0.967     0.586     0.902
+  bot-360-120-120     0.498     0.794     0.613     0.661     0.997     0.910     0.957     0.933     0.567     0.679     0.979     0.722     0.764     0.659     0.581     0.600
+  bot-360-120-120v2   0.543     0.794     0.613     0.661     0.999     0.909     0.929     0.953     0.624     0.703     0.979     0.722     0.764     0.659     0.581     0.600
+  bot-360-160-160     0.471     0.765     0.595     0.650     0.998     0.845     0.949     0.940     0.685     0.728     0.968     0.712     0.756     0.990     0.658     0.922
+  bot-360-200-200     0.523     0.796     0.643     0.616     0.999     0.781     0.818     0.922     0.707     0.725     0.965     0.716     0.784     0.961     0.558     0.817
+  bot-360-250-250     0.546     0.790     0.630     0.643     0.999     0.922     0.949     0.944     0.686     0.718     0.952     0.741     0.774     0.987     0.701     0.782
+  bi_corr_400_b_03    0.754     0.825     0.615     0.679     0.970     0.774     0.909     0.965     0.709     0.768     0.996     0.708     0.810     0.995     0.715     0.947
+  bi_corr_400_b_04    0.687     0.820     0.682     0.623     0.997     0.922     0.959     0.958     0.710     0.767     0.984     0.713     0.807     0.823     0.644     0.683
+  bi_corr_400_b_05    0.532     0.812     0.648     0.606     0.991     0.904     0.993     0.949     0.709     0.777     0.980     0.719     0.853     0.995     0.685     0.959
+  bi_corr_400_b_06    0.594     0.802     0.677     0.652     0.983     0.752     0.900     0.955     0.714     0.807     0.976     0.801     0.837     0.997     0.691     0.894
+  bi_corr_400_b_07    0.588     0.851     0.641     0.711     0.965     0.723     0.919     0.928     0.724     0.774     0.993     0.714     0.848     0.998     0.673     0.944
+  bi_corr_400_b_08    0.505     0.717     0.576     0.572     0.767     0.619     0.462     0.866     0.665     0.707     0.910     0.670     0.670     0.654     0.480     0.548
+  pooled bot-360      0.541     0.781     0.610     0.640     0.996     0.877     0.926     0.931     0.623     0.680     0.971     0.698     0.745     0.878     0.600     0.779
+Held-out lane order (obs = people):
+  bot-360-050-050     0.848     0.749     0.672     0.727     0.993     0.974     0.979     0.925     0.829     0.803     0.974     0.876     0.875     0.875     0.816     0.816
+  bot-360-075-075     0.760     0.746     0.672     0.664     0.994     0.970     0.978     0.924     0.800     0.789     0.967     0.858     0.869     0.866     0.805     0.846
+  bot-360-090-090     0.744     0.730     0.649     0.675     0.991     0.960     0.974     0.919     0.802     0.792     0.956     0.766     0.781     0.921     0.631     0.800
+  bot-360-120-120     0.733     0.640     0.551     0.576     0.995     0.942     0.969     0.912     0.739     0.769     0.946     0.632     0.684     0.919     0.718     0.804
+  bot-360-120-120v2   0.681     0.640     0.551     0.576     0.995     0.946     0.971     0.932     0.717     0.747     0.946     0.632     0.684     0.919     0.718     0.804
+  bot-360-160-160     0.672     0.617     0.502     0.505     0.995     0.909     0.952     0.914     0.677     0.726     0.931     0.625     0.683     0.967     0.554     0.793
+  bot-360-200-200     0.591     0.609     0.504     0.453     0.996     0.858     0.879     0.885     0.626     0.660     0.934     0.822     0.749     0.972     0.685     0.739
+  bot-360-250-250     0.591     0.630     0.546     0.544     0.998     0.920     0.956     0.903     0.667     0.700     0.902     0.714     0.807     0.972     0.686     0.797
+  bi_corr_400_b_03    0.840     0.708     0.536     0.537     1.000     0.873     0.960     0.954     0.708     0.764     0.987     0.636     0.768     0.990     0.621     0.875
+  bi_corr_400_b_04    0.789     0.685     0.486     0.547     0.997     0.953     0.987     0.951     0.749     0.796     0.975     0.825     0.859     0.906     0.824     0.887
+  bi_corr_400_b_05    0.756     0.700     0.523     0.521     0.998     0.971     0.991     0.937     0.728     0.783     0.973     0.806     0.841     0.991     0.672     0.898
+  bi_corr_400_b_06    0.675     0.678     0.607     0.570     0.976     0.882     0.941     0.944     0.716     0.758     0.961     0.837     0.849     0.990     0.654     0.898
+  bi_corr_400_b_07    0.626     0.720     0.498     0.551     0.968     0.811     0.934     0.914     0.725     0.769     0.979     0.668     0.759     0.995     0.631     0.887
+  bi_corr_400_b_08    0.737     0.510     0.514     0.480     0.883     0.801     0.750     0.722     0.575     0.633     0.827     0.801     0.808     0.928     0.711     0.868
+ORCA held-out calibration and speed (rule 'always'):
+  bot-360-050-050    N= 20 (speed 1.51 observed; sim 1.17 m/s, 0.33/m2) jammed 0 failed 0
+  bot-360-075-075    N= 20 (speed 1.33 observed; sim 1.17 m/s, 0.33/m2) jammed 0 failed 0
+  bot-360-090-090    N= 40 (speed 1.22 observed; sim 1.19 m/s, 0.61/m2) jammed 0 failed 0
+  bot-360-120-120    N=160 (speed 0.84 observed; sim 0.85 m/s, 0.98/m2) jammed 0 failed 0
+  bot-360-120-120v2  N=160 (speed 0.91 observed; sim 0.85 m/s, 0.98/m2) jammed 0 failed 0
+  bot-360-160-160    N= 60 (speed 0.61 observed; sim 1.21 m/s, 0.88/m2) jammed 0 failed 0
+  bot-360-200-200    N=100 (speed 0.54 observed; sim 1.12 m/s, 1.11/m2) jammed 0 failed 0
+  bot-360-250-250    N=100 (speed 0.55 observed; sim 1.19 m/s, 1.19/m2) jammed 0 failed 0
+  bi_corr_400_b_03   N=100 (density 1.01 measured; sim 1.22 m/s, 0.89/m2) jammed 0 failed 0
+  bi_corr_400_b_04   N=200 (speed 0.46 observed; sim 0.82 m/s, 1.27/m2) jammed 0 failed 0
+  bi_corr_400_b_05   N=100 (speed 0.42 observed; sim 1.23 m/s, 0.96/m2) jammed 0 failed 0
+  bi_corr_400_b_06   N=130 (speed 0.31 observed; sim 1.22 m/s, 1.16/m2) jammed 0 failed 0
+  bi_corr_400_b_07   N=100 (speed 0.29 observed; sim 1.25 m/s, 0.98/m2) jammed 0 failed 0
+  bi_corr_400_b_08   N=200 (density 3.79 measured; sim 1.11 m/s, 1.41/m2) jammed 0 failed 0
+Mean absolute share error over the 14 held-out runs: sf:always 0.210, sf:yield 0.079, sf:scaled 0.089, avm:always 0.395, avm:yield 0.260, avm:scaled 0.326, cfsm:always 0.353, cfsm:yield 0.118, cfsm:scaled 0.144, pl:always 0.393, pl:yield 0.153, pl:scaled 0.189, orca:always 0.312, orca:yield 0.086, orca:scaled 0.225
+Held-out lane order within 0.10 (of 14): sf:always 11, sf:yield 5, sf:scaled 4, avm:always 0, avm:yield 2, avm:scaled 1, cfsm:always 2, cfsm:yield 12, cfsm:scaled 11, pl:always 1, pl:yield 9, pl:scaled 9, orca:always 1, orca:yield 11, orca:scaled 6
+
+O1 (beta = 0 pooled free share in [0.40, 0.60]): held (0.512, mean seed sd 0.180)
+O2 (H3 side: share inside the 95% interval in >= 6 of 9): refuted (2 of 9)
+O3 (H3 lanes: within 0.10 in >= 6 of 9): refuted (5 of 9)
+O4 (H3 speed: b_03 and b_08 within 0.15 m/s at the calibrated count): refuted (b_03: sim 1.22 vs 1.02 m/s, density 0.89 vs 1.01/m2; b_08: sim 1.11 vs 0.24 m/s, density 1.41 vs 3.79/m2)
+O5 (always: pooled bot-360 held-out share > 0.70): held (0.878)
+O6 (yield: within 0.10 of the observed 0.541): held (0.600)
+O7 (yield closer than scaled): held (yield 0.600, scaled 0.779)
+O8 (best loss below social force's 43.2): refuted (244.4; anticipation velocity 106.8, collision-free speed 53.9, power law 82.2)
+O9 (4c's lead: yield lands within 0.10 exactly when the fitted beta <= 0.2): refuted (fitted beta 1.0, yield 0.600)
+H3 for ORCA (O2, O3 and O4 all hold): fails
+Yield within 0.10 of the HERMES pooled share: 3 of 5 families (social force, collision-free speed, ORCA)
+Fitted beta and yield error by family: social force beta 0.1 -> 0.610 (+0.069), anticipation velocity beta 0.35 -> 0.877 (+0.336), collision-free speed beta 0.2 -> 0.623 (+0.082), power law beta 0.35 -> 0.698 (+0.157), ORCA beta 1.0 -> 0.600 (+0.058)
