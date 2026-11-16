@@ -381,10 +381,10 @@ flagships:
       venv, about 2 min). Model check (firmware/esp32/README.md "When the wheel is
       not a first-order lag", 2026-11-16): the loop fit's standard error marks
       unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
-      or a 30 ms ESC lag puts the drill's spin 5-24% off. Next: fit the drop on edge
-      times (jitter is on times, not periods); ESC_TAU_US (README "An ESC lag
-      picked..."): sum its residual grid on the board over a drill, finer grid;
-      retest MIN_FIT_RPM.
+      or a 30 ms ESC lag puts the drill's spin 5-24% off. ESC lag surveyed on the
+      board (README "The ESC lag surveyed on the board"): ESC_SURVEY frame, pick
+      within 10% on 29 of 30 ESC builds; edge-time fit tried, worse, off. Next:
+      retest MIN_FIT_RPM; why a jittery slow wheel picks 0.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
