@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, seo]
+date: 2026-11-16
+---
 # Polish: E-invoice Preflight's hero, from a 250-word list to a lede
 
 Date: 2026-11-16. Track: polish/0. Not from a previous "Still weakest" list: those had moved
