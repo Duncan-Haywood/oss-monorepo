@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo, design]
+date: 2026-11-16
+---
 # Polish, 2026-11-16: a findings page per research programme
 
 Track: polish/0. Picked from item 1 of "Still weakest" in `polish-2026-11-16-project-pages.md`
