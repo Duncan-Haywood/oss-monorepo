@@ -362,6 +362,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    holding all leg joints one-signed is infeasible, holding the hip rolls, hip yaws and ankle rolls is feasible and cuts the
    worst per-pose loss to 3.7 points, but one calibration still leaves 1.1–2.6 mm. Still open: deflection under the press
    and the paper's headline for a tool-point spec.
+33. **Model-based backlash compensation** (done 2026-11-16, `experiments/m33_compensate/`): predicting each held joint's
+   side from the static torques and subtracting the bias removes the residual entirely when the compensator models the
+   robot's balance controller; then a full 64-nail magazine left out of the model costs 0.017 mm and +1 kg 0.057 mm on a
+   G1 holding its light leg joints, against 0.41–0.84 mm under the torque-minimising controller. A wrong ground-reaction
+   model leaves 1.16–1.92 mm, little better than no compensation (1.40–2.63), and a guard band on predicted torque only
+   adds missed joints. Still open: deflection under the press and the paper's headline for a tool-point spec.
 
 ## Target venue
 

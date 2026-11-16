@@ -432,6 +432,18 @@ from the model's geoms, mu swept 0.3–0.8.
 
 ![Press the G1 and H1 soles can balance, upright and leaned into the wall, against hand height; the G1's nail offset along the wall after one calibration under four ground-reaction models](experiments/m32_grf_qp/figure.png)
 
+**Milestone 33: compensate backlash with the robot's own controller model.** The remedy milestones 31–32 named, predicting
+each held joint's side from the static torques at every pose and subtracting its bias, leaves **nothing** when the
+compensator runs the robot's own balance controller. A compensator that assumes a different ground-reaction split leaves
+**1.16–1.92 mm** on the G1, little better than one calibration (1.40–2.63 mm; H121 held). With the controller modelled, a
+full 64-nail magazine left out of the model (0.30–0.41 kg of nails, computed) costs **0.017 mm** and +1 kg 0.057 mm when the
+controller holds the light leg joints, but 0.41–0.84 mm under a torque-minimising controller; H122 is refuted on its
+strict count (2 joint-pose cases mispredicted at +0.4 kg). Compensating only joints with |tau| above a guard band does not
+help: each joint left out costs half a gap (H123 refuted). The rule: pair a sign-holding controller with compensation
+computed from it. Statics only; the robot is still the model.
+
+![Worst G1 nail offset along the wall after model-based backlash compensation against unmodelled tool mass, for each compensator model and two balance controllers, and against a guard band](experiments/m33_compensate/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
