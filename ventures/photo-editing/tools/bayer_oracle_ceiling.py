@@ -45,7 +45,7 @@ def tile_weights(num: np.ndarray, den: np.ndarray, b: int) -> np.ndarray:
 
     h, w = num.shape
     H, W = -(-h // b) * b, -(-w // b) * b
-    n = np.zeros((H, W)); d = np.zeros((H, W))
+    n, d = np.zeros((H, W)), np.zeros((H, W))
     n[:h, :w], d[:h, :w] = num, den
     ns = n.reshape(H // b, b, W // b, b).sum(axis=(1, 3))
     ds = d.reshape(H // b, b, W // b, b).sum(axis=(1, 3))
