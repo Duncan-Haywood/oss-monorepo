@@ -3,7 +3,7 @@ title: "The test that ran the same 13-second search twice"
 seo_title: "Speeding up a Node test file by sharing one worker-thread run"
 date: 2026-11-16
 tags: [ventures, shed-designer, performance, testing]
-description: "One shed-designer test file took 50 s because two tests each ran the same deterministic worker-thread search. Sharing one run cut it to 37 s, with no check removed."
+description: "A shed-designer test file took 50 s because two tests ran the same deterministic worker search. Sharing one run cut it to 37 s, no check removed."
 ---
 
 The [shed designer](https://marisstella.app/shed-designer/) opens on a gallery
