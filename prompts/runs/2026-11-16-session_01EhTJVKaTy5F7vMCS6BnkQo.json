@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVKaTy5F7vMCS6BnkQo",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T23:10:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "creative track: new Hearth & Horizon story from the BIBLE's 'fans that wet the maize' proposal",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 16729,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The audio cap is exceeded (577 MB), so every creative run is text only and the podcast option is closed; the enclosure move off Pages is the unblocker and still undone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "The proposal named a humidistat as the right fix and more fans as the failed one; a 35-layer equilibrium deep-bed model worked out before drafting showed the reverse (fan only in drying air: top safe 8 Jul and bin overdried to 12.6%; twice the air continuously: 18 Jun). The story follows the sums, as the bible's science-honesty rules require.",
+      "did": "kept the humidistat as the failed first fix and made doubled continuous airflow plus coring the fix",
+      "result": "story consistent with the model; Chung-Pfost disagreement stated in-story and in the note"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-hearth-and-horizon-what-the-night-air-lends.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece what-the-night-air-lends (Hearth & Horizon shelf, text only; audio dirs 577 MB > 400 MB cap). Claimed the proposal with draft PR #16729 before drafting. Model: modified Henderson EMC (dent constants), 35x10 cm layers, energy balance per layer, 10-min steps, invented wet-May weather. Results in the story's closing note and DONE.md. Added a new H&H proposal (the digester that went sour) since the shelf's queue was empty. Verification: node --test in ventures/hearth-and-horizon 17/17 pass after node generate.mjs; post front matter, links and similarity checks clean.",
+  "corrections": [],
+  "redteam": null
+}

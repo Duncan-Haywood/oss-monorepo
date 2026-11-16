@@ -1,6 +1,6 @@
 // Diagnostic (2026-11-16, fourteenth coda round): parts K's and N's voiced-stop codas read back frame by frame, levels
 // against the reference vowel, with the burst search's verdict per closure.
-//   node eval/vstop-diag.mjs [K|N|T|U] [ib,eb] [-v: frames of the misses] [-a: every cell] [--voice-bar off] [--bar N: readCoda's barLead]
+//   node eval/vstop-diag.mjs [K|N|T|U|V] [ib,eb] [-v: frames of the misses] [-a: every cell] [--voice-bar off] [--bar N: readCoda's barLead] [--velar: compactVelar]
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
 import { latinCoda } from '../sing.mjs';
@@ -12,6 +12,7 @@ const P = {
   K: { bpm: 104, pitches: [47, 53, 57, 59, 62], all: ['fons', 'dens', 'pons', 'mons', 'gens', 'hinc', 'runt', 'bunt', 'tent', 'cant', 'frons', 'sanct', 'lunt', 'quent', 'ep', 'ip', 'op', 'ec', 'ic', 'oc', 'eb', 'ib', 'ob', 'ef', 'of', 'ot', 'ux', 'ix', 'ox', 'im', 'om', 'on', 'in', 'e', 'i', 'u'] },
   T: { bpm: 118, pitches: [47, 54, 59, 62, 63, 64], all: ['lub', 'tag', 'pob', 'sug', 'cad', 'mub', 'fod', 'rib', 'vob', 'tid', 'hag', 'peg', 'fun', 'ram', 'lim', 'ben', 'lut', 'mic', 'hep', 'gos', 'rax', 'lunc', 'hel', 'fa'] },
   U: { bpm: 110, pitches: [45, 50, 56, 58, 61, 63], all: ['dag', 'bob', 'mod', 'sig', 'lag', 'tib', 'ceb', 'nud', 'hod', 'fig', 'gub', 'pid', 'bam', 'sun', 'tem', 'hon', 'dent', 'hens', 'sonc', 'tint', 'dut', 'sic', 'gep', 'bos', 'lex', 'bel', 'mo', 'vit'] },
+  V: { bpm: 114, pitches: [43, 53, 55, 57, 59, 62], all: ['dog', 'bag', 'tog', 'gig', 'vag', 'nig', 'sog', 'leg', 'hug', 'cag', 'dac', 'roc', 'puc', 'nac', 'tuc', 'lic', 'gob', 'dab', 'rub', 'lap', 'rup', 'sep', 'fip', 'mop', 'dap', 'nid', 'led', 'sud', 'rad', 'tod', 'gum', 'ron', 'lis', 'tas', 'mu'] },
   N: { bpm: 108, pitches: [42, 49, 54, 58, 63, 64], all: ['dant', 'lent', 'sint', 'gunt', 'hunc', 'rens', 'tens', 'fans', 'font', 'vint', 'nab', 'ped', 'lud', 'gab', 'rud', 'tob', 'vig', 'cod', 'pet', 'lac', 'sup', 'rot', 'tac', 'dum', 'ven', 'nam', 'pes', 'vos', 'ma', 'ne'] },
 }[part];
 const SY = ((process.argv[3] && !process.argv[3].startsWith('-') ? process.argv[3] : '') || (part === 'K' ? 'ib,eb,ob' : part === 'T' ? 'tag,pob,hag,vob' : part === 'U' ? 'bob,lag,dag' : 'nab,gab')).split(',');
@@ -29,9 +30,9 @@ for (const pulses of [4, 2]) for (const midi of P.pitches) {
     if (!SY.includes(s)) return;
     const n = notes[j], want = expectedRead(latinCoda(s)[0]);
     const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
-    const got = readCoda(x, rate, vAt, tEnd, { barLead });
+    const got = readCoda(x, rate, vAt, tEnd, { barLead, compactVelar: process.argv.includes('--velar') });
     const ok = Object.entries(want).every(([k, v]) => got[k] === v);
-    console.log(`${s} midi ${midi} pulses ${pulses} note ${(n.t1 - n.t0).toFixed(3)}s: got ${got.cls}${got.voiced !== undefined ? ' v=' + got.voiced : ''}${got.place ? ' ' + got.place : ''} ${ok ? 'OK' : 'MISS'}${got.rule ? ` via ${got.rule} at ${got.at} for ${got.ms} ms, stop closure at ${got.stopAt}` : ''}`);
+    console.log(`${s} midi ${midi} pulses ${pulses} note ${(n.t1 - n.t0).toFixed(3)}s: got ${got.cls}${got.voiced !== undefined ? ' v=' + got.voiced : ''}${got.place ? ' ' + got.place : ''} ${ok ? 'OK' : 'MISS'}${got.cls === 'stop' ? ` [cen ${got.centroid.toFixed(0)} hi1R ${got.hi1R.toFixed(2)} cAny ${got.compactAny.toFixed(2)} @${got.compactHz.toFixed(0)}]` : ''}${got.rule ? ` via ${got.rule} at ${got.at} for ${got.ms} ms, stop closure at ${got.stopAt}` : ''}`);
     if (verbose && (!ok || every)) {
       const ref = []; for (let i = Math.round(vAt * rate); i < Math.round((vAt + 0.06) * rate); i += Math.round(0.005 * rate)) ref.push(frameFeatures(x, i, rate));
       const avg = (k) => ref.reduce((q, f) => q + f[k], 0) / ref.length;

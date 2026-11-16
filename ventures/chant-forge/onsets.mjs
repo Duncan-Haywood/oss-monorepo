@@ -94,6 +94,10 @@ export const AGAIN = { gap: 5, frames: 2 };
 // readCoda's voiced fricative: how much more energy above 5 kHz than the vowel's a frame must carry (see its
 // note); chosen on synthetic syllables at part K's pitches (eval/coda-check.mjs header, tenth round)
 export const VFRIC_HI5 = 12;
+// readCoda's compact velar burst (opt-in `compactVelar: true`; README "A g's burst read as a b"); chosen on
+// eval/coda-check.mjs K, N, T and U's stop codas read by eval/vstop-diag.mjs: labial bursts peaking at 1.5 kHz or
+// above held 0.58 or less, velars read as labial 0.68 or more at 1.9 kHz or above
+export const COMPACT_VELAR = { c: 0.65, hz: 1650 };
 // readCoda's deep murmur on a high short note before an obstruent (see its note; off by default, `deepMurmur: true`);
 // chosen on eval/coda-check.mjs J and N
 export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
@@ -223,7 +227,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -471,9 +475,13 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     const inner = shut.length >= 2 ? shut.slice(Math.floor(shut.length / 2)) : shut.length ? shut : seg;
     const bar = median(inner.map((f) => f.loRel)), voiced = bar > -40;
     const b = frameFeatures(x, rel - Math.round(0.001 * rate), rate, 0.01);
-    // with no vowel after it a labial burst is plainly low: most of its energy under 1 kHz
-    const place = b.centroid > 3400 ? 'alv' : b.hi1 < 0.5 * b.tot ? 'lab' : b.compactAny > 0.4 && b.compactHz >= 1500 ? 'vel' : 'lab';
-    return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz };
+    // with no vowel after it a labial burst is plainly low: most of its energy under 1 kHz.
+    // A compact velar burst first (opt-in `compactVelar`, README "A g's burst read as a b"): on F#3-A#3 the voice
+    // bar's harmonics under 1 kHz run on under a voiced g's burst, so the low test reads it as a b; a burst whose
+    // 500 Hz band holds `c` or more of the 1-11 kHz energy, centred at `hz` or above, is velar whatever lies under it
+    const cv = compactVelar === true ? COMPACT_VELAR : compactVelar;
+    const place = b.centroid > 3400 ? 'alv' : cv && b.compactAny >= cv.c && b.compactHz >= cv.hz ? 'vel' : b.hi1 < 0.5 * b.tot ? 'lab' : b.compactAny > 0.4 && b.compactHz >= 1500 ? 'vel' : 'lab';
+    return { cls: 'stop', voiced, place, bar, closureMs: msOf(r), centroid: b.centroid, compact: b.compact, peakHz: b.peakHz, hi1R: b.tot ? b.hi1 / b.tot : 0, compactAny: b.compactAny, compactHz: b.compactHz };
   }
   if (kind === 'fricative') {
     const cen = seg.reduce((q, f) => q + f.centroid, 0) / seg.length, l = seg.reduce((q, f) => q + f.lvl, 0) / seg.length;
