@@ -233,8 +233,11 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 8. **First release:** an EP of three to five tracks, then a steady cadence.
    2026-11-16: `ep-cli.mjs` builds the EP folder from a plan (`examples/first-ep.json`: four tracks, 11:40,
    all at -14 LUFS, cover drawn from Dies irae's opening, release check clean but for artist, p/c-lines and
-   ISRCs). Next: a listening pass on the folder; per-track variation for `--repeat`; the studio page's own
-   "build release" button.
+   ISRCs). Next: a listening pass on the folder; per-track variation for `--repeat`.
+   2026-11-16, later: the studio page's own "Build the release folder (ZIP)" button (`ep-core.mjs`,
+   `release-core.mjs`; README "The same folder from the studio page"): a one-track single, byte-identical to
+   `ep-cli.mjs`'s files but for the cover's compression (same pixels), 1.9 s in Chromium. Next: several tracks
+   from the page (an EP queue), and a listen.
    Afterwards, use the existing `distrokid-royalty-to-journal` tool on the
    real earnings export.
 

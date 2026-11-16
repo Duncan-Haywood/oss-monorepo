@@ -270,6 +270,37 @@ await page.selectOption("#sections", "");
   ok(sungWav.equals(fs.readFileSync(path.join(tmp, "sing.wav"))) && !sungWav.equals(fs.readFileSync(path.join(tmp, "pad.wav"))), `sung preview WAV equals render-cli --sing (${sungWav.length} bytes) and differs from the pad`);
   await page.selectOption("#voice", "");
 }
+// the release folder (2026-11-16): the page's ZIP unzips to a folder release-cli.mjs passes but for the owner's steps
+{
+  await page.selectOption("#piece", "Veni Creator");
+  await page.waitForFunction(() => document.querySelector("#src").value.includes("%%"));
+  await page.selectOption("#genre", "deep-house");
+  await page.selectOption("#voice", "sing");
+  await page.click("#go");
+  const t0 = Date.now();
+  const [dr] = await Promise.all([page.waitForEvent("download", { timeout: 180000 }), page.click("#dlrel")]);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "rel-"));
+  fs.writeFileSync(path.join(tmp, "rel.zip"), fs.readFileSync(await dr.path()));
+  const secs = ((Date.now() - t0) / 1000).toFixed(1);
+  execFileSync("unzip", ["-q", path.join(tmp, "rel.zip"), "-d", path.join(tmp, "rel")]);
+  const names = execFileSync("find", [path.join(tmp, "rel"), "-type", "f"], { encoding: "utf8" }).trim().split("\n").map((f) => path.relative(path.join(tmp, "rel"), f)).sort();
+  ok(names.length === 7 && names.includes("cover.png") && names.includes("release.json") && names.some((n) => /^tracks\/01-.*\.wav$/.test(n)), `release ZIP in ${secs} s: ${names.join(", ")}`);
+  let code = 0, text = "";
+  try { text = execFileSync(process.execPath, [path.join(root, "release-cli.mjs"), path.join(tmp, "rel", "release.json")], { encoding: "utf8" }); }
+  catch (e) { code = e.status; text = String(e.stdout); }
+  const fails = text.split("\n").filter((l) => /^FAIL/.test(l));
+  ok(fails.length === 4 && fails.every((l) => /artist|p-line|c-line|ISRC/.test(l)), `release-cli on the page's folder: only owner steps fail (${fails.length}: ${fails.map((l) => l.split(":")[0]).join("; ")})`);
+  ok(/No build faults/.test(await out()) && /Yours to fill in/.test(await out()), "the page reports no build faults and lists the owner steps");
+  await page.fill("#relartist", "Name"); await page.fill("#relisrc", "QZ-ABC-27-00001");
+  const [dr2] = await Promise.all([page.waitForEvent("download", { timeout: 180000 }), page.click("#dlrel")]);
+  fs.writeFileSync(path.join(tmp, "rel2.zip"), fs.readFileSync(await dr2.path()));
+  execFileSync("unzip", ["-q", path.join(tmp, "rel2.zip"), "-d", path.join(tmp, "rel2")]);
+  let code2 = 0;
+  try { execFileSync(process.execPath, [path.join(root, "release-cli.mjs"), path.join(tmp, "rel2", "release.json")], { encoding: "utf8" }); } catch (e) { code2 = e.status; }
+  ok(code2 === 0 && /No owner steps left/.test(await out()), `with an artist and ISRC typed in, release-cli passes the page's folder (exit ${code2})`);
+  await page.fill("#relartist", ""); await page.fill("#relisrc", "");
+  await page.selectOption("#voice", ""); await page.selectOption("#genre", "");
+}
 // errors
 await page.fill("#src", "hello");
 await page.click("#go");

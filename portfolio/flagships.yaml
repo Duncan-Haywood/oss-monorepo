@@ -429,22 +429,22 @@ flagships:
       mastering checks and a release kit for streaming distribution.
     next: >-
       History and every measurement: README and ROADMAP.md (studio page, CLI
-      options, ep-cli.mjs builds the EP folder (2026-11-16; next: a listen to it),
-      scan-checked corpus, 2,129 notes read by eye, hymns, song sections, breakdown,
-      riser; --a-cappella first verse and a range-checked --key-lift N,
-      eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-16
-      latest: localRef kept over a parallel closeAnchor head to head (R+S 211 vs 208
-      of 240); next: closeAnchor with the wall (R 107, unregistered), D#4-E4 bursts,
-      L's cum, sons/rint). Open checks that need a person: listen to the studio
-      page, --sing, the options (--stretch, --halftime, --fills, --limit pumping,
-      stems, sections, breakdown, riser, the a cappella verse and whether the key
-      lift sounds like a lift); --lrc in a real player and --markers/--stems in a
-      DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range
-      with real singers; the release kit against a distributor's real form; the Te
-      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
-      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
-      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; tilted pages, curled staves straightened
+      options, ep-cli.mjs and the studio page build the release folder (2026-11-16;
+      to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
+      sections, breakdown, riser; --a-cappella first verse and a range-checked
+      --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
+      2026-11-16 latest: localRef kept over a parallel closeAnchor head to head (R+S
+      211 vs 208 of 240); next: closeAnchor with the wall (R 107, unregistered),
+      D#4-E4 bursts, L's cum, sons/rint). Open checks that need a person: listen to
+      the studio page, --sing, the options (--stretch, --halftime, --fills, --limit
+      pumping, stems, sections, breakdown, riser, the a cappella verse and whether
+      the key lift sounds like a lift); --lrc in a real player and --markers/--stems
+      in a DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4
+      range with real singers; the release kit against a distributor's real form;
+      the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli
+      passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs (403),
+      Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas, liquescents,
+      lines at true thickness; tilted pages, curled staves straightened
       (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
