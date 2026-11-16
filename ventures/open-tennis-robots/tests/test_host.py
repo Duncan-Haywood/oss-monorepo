@@ -1108,18 +1108,20 @@ class LoopDropTest(unittest.TestCase):
     periods and the ESC commands the speed loop sent, with the wheel a first-order lag of unknown time constant."""
 
     @staticmethod
-    def _wheel(rpm, drop, tau_s, free_rpm, ball_ms=1500.4, total_ms=1900):
+    def _wheel(rpm, drop, tau_s, free_rpm, ball_ms=1500.4, total_ms=1900, esc_tau_s=0.0):
         """A first-order wheel (free speed `free_rpm`, the firmware told 9000) on the firmware's own PeriodTach and
         WheelLoop, 1 ms steps, the ball taking `drop` of its speed at `ball_ms`. Returns (periods, ticks) from
         200 ms before the ball, as LaunchCheck would log them."""
         tach, loop = controller.PeriodTach(), controller.WheelLoop(9000)
         loop.i = rpm / free_rpm - rpm / 9000
         w, cmd, rev, last = float(rpm), rpm / free_rpm, 0.0, 0
+        drive = float(rpm)                                   # the ESC's output, behind its own lag when esc_tau_s > 0
         periods, ticks, e0 = [], [], None
         for ms in range(total_ms):
             if ms == int(ball_ms):
                 w *= 1 - drop
-            w += (free_rpm * cmd - w) * 0.001 / tau_s
+            drive = drive + (free_rpm * cmd - drive) * 0.001 / esc_tau_s if esc_tau_s else free_rpm * cmd
+            w += (drive - w) * 0.001 / tau_s
             before = rev
             rev += w / 60000.0
             if int(rev) > int(before):
@@ -1145,6 +1147,16 @@ class LoopDropTest(unittest.TestCase):
             self.assertIsNotNone(got, rpm)
             self.assertAlmostEqual(got[0] / drop, 1.0, delta=0.006, msg=(rpm, tau_s))
             self.assertAlmostEqual(got[1] / rpm, 1.0, delta=0.003, msg=rpm)
+
+    def test_an_esc_lag_reads_low_unless_the_fit_knows_it(self):
+        # README "An ESC lag picked from the build's own balls"
+        ps, ticks = self._wheel(3000, 0.09, 0.4, 9000, esc_tau_s=0.1)
+        self.assertIs(controller.esc_lagged_ticks(ps, ticks, 0), ticks)
+        one = controller.drop_from_commands(ps, ticks)
+        two = controller.drop_from_commands(ps, controller.esc_lagged_ticks(ps, ticks, 100000))
+        self.assertLess(one[0] / 0.09, 0.99)                       # low
+        self.assertAlmostEqual(two[0] / 0.09, 1.0, delta=0.006)
+        self.assertLess(two[4], one[4])                            # and the right lag fits better
 
     def test_it_is_spread_over_ticks(self):
         ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)

@@ -105,3 +105,9 @@ LAUNCH_SPIN_EFF = 0.5
 LAUNCH_DIP_SHARE = 0.25
 LAUNCH_DIP_MIN = 0.015
 LAUNCH_CHECK_MS = 250
+# The ESC's own lag between its command and the drive it gives the motor, microseconds (2026-11-16, firmware/esp32/
+# README.md "An ESC lag picked from the build's own balls"). 0 (the default) fits each ball's drop with the wheel as
+# one lag of the commands. An ESC that ramps its output adds a second lag, and the drop then reads low (1.3-4.6% on
+# average at 40-100 ms on the simulator). Pick your build's value over a logged drill the way tests/esc_lag_pick.py
+# does; the choices are 0, 20000, 50000, 100000, 200000 and 400000.
+ESC_TAU_US = 0

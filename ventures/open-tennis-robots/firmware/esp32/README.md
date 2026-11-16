@@ -882,3 +882,64 @@ constant searched like tau) to the model for ESCs that run their own speed
 loop. Time a real wheel's edges against a scope to get the real jitter, then
 rerun these sweeps with it. Physics and plants here are assumptions, not
 measurements.
+
+## An ESC lag picked from the build's own balls (2026-11-16, last)
+
+**The item.** The section above ends by asking for an ESC lag in the model,
+because a second lag between the command and the wheel is what its standard
+error saw least well: on the calibration drill a 30 ms ESC lag left the spin
+efficiency 23.8% off at worst, an 80 ms one 19.9%, and some of those drills
+marked no wheel at all.
+
+**How.** `controller.esc_lagged_ticks` passes the logged commands through a
+lag of `ESC_TAU_US` (1 ms steps), and the same loop-command fit then fits the
+wheel's own lag on top of that drive. `config.ESC_TAU_US` (default 0, the fit
+as before) sets it on the board; `LaunchCheck` applies it to both wheels.
+
+**Picking the lag.** One ball cannot reliably tell the two lags apart.
+Picking a lag per ball by least residual removed the bias, but it widened
+the spread on first-order builds (sd 0.30% to 0.53%, worst 1.057, measured
+offline on 336 snapshots per kind). The lag is a property of the build, not
+of the ball, so `tests/esc_lag_pick.py` sums each wheel's squared residual
+rms over two drills (rally and calibration, two true launchers) for each lag
+on 0 / 20 / 50 / 100 / 200 / 400 ms and takes the least. It then reruns the
+drills with the board set to that lag and compares each record's drop with
+the simulator's true one (eval/esc-lag-pick-2026-11-16.txt):
+
+| build (wheel lags 0.2 / 0.4 / 0.8 s) | picked | drop / true, ESC_TAU_US 0: mean, worst | with the pick: mean, worst |
+| --- | --- | --- | --- |
+| first-order | 0, 0, 0 | 0.998-1.000, 0.987 | unchanged |
+| ESC lag 30 ms | 20, 20, 20 | 0.956-0.987, 0.904 | 0.990-0.997, 0.973 |
+| ESC lag 40 ms | 50, 50, 50 | 0.954-0.987, 0.894 | 1.001-1.006, 1.025 |
+| ESC lag 80 ms | 100, 100, 100 | 0.956-0.987, 0.874 | 1.000-1.001, 1.018 |
+| ESC lag 100 ms | 100, 100, 100 | 0.958-0.987, 0.880 | 0.999-1.000, 0.991 |
+| ESC lag 100 ms, jitter 3 us | 100, 100, 50 | 0.958-0.984, 0.525 | 0.993-1.000, 0.571 |
+
+**The whole drill.** `tests/plant_drill_sweep.py --esc-tau-us N` runs the
+section above's calibration drill with the board set to N
+(eval/plant-drill-esc-tau-2026-11-16.txt). Spin efficiency error, worst /
+mean, on the 18 design builds:
+
+| plant | ESC_TAU_US 0 | the picker's value | the true lag |
+| --- | --- | --- | --- |
+| ESC lag 30 ms | 23.8% / 5.5% | 6.5% / 1.6% (20 ms) | 1.4% / 0.5% |
+| ESC lag 80 ms | 19.9% / 6.6% | 3.0% / 1.0% (100 ms) | 1.8% / 0.7% |
+| first-order | 1.6% / 0.4% | 1.6% / 0.4% (0) | - |
+| first-order, set wrongly to 20 / 50 ms | - | 41.2% / 9.2%, 44.1% / 10.1% | - |
+
+Speed efficiency came within 1.1% with any ESC setting near the true lag.
+With the right lag, no wheel was marked unsure. A wrong setting is much worse
+than none: a first-order build told 20 or 50 ms reads the spin 41-44% off.
+That case does show, though, because 144 and 205 of its 432 wheels were
+marked unsure and 6 and 12 of 18 drills warned. So the setting must come from
+the build's own balls and not from a guess. On the simulator the picker
+chose 0 for every first-order build. The grid's spacing is now the limit:
+30 ms read 6.5% at the picker's 20 ms against 1.4% at the true 30 ms.
+
+**Not done.** On a real build the pick needs each ball's period snapshot and
+tick log, and the board does not send them to the Pi, so `ESC_TAU_US` can
+only be set by hand for now. The drive samples make the fit's segments about
+ten times as many, and the cost on an ESP32 is not measured. Next: sum the
+grid's residuals on the board across a drill and report the least (or send
+the snapshots in the shot log), with a finer grid near the winner. Then log a
+real ESC's step response and see which shape it has.
