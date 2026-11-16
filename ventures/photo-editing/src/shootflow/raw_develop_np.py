@@ -272,7 +272,7 @@ def _directional(norm, w, h, pat, mults, hi, demosaic="directional"):
     if len(pat) == 4:
         from shootflow.bayer_demosaic import directional as bayer
 
-        # "learned": the per-sensel Laplacian weight of eval/bayer-learned-laplace-2026-11-16.md (numpy only)
+        # "learned": the per-sensel Laplacian weight of eval/bayer-learned-laplace-2026-11-16.md (C path when it builds, eval/bayer-learned-native-2026-11-16.md)
         return _clip(bayer(plane, pat, laplace="learned" if demosaic == "learned" else 0.1875), hi)
     from shootflow.xtrans_demosaic import directional
 
