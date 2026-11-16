@@ -45,16 +45,18 @@ _PAD = 8  # covers the reach of every step: 2 (green) + window radius + 2 (red/b
 ADAPTIVE_LAPLACE = (0.125, 0.25, 1)
 # laplace="learned": a linear model on ``_laplace_features`` (weights in feature order, intercept first),
 # fitted by ``tools/bayer_laplace_train.py`` on training frames only, clipped to [1/8, 1/4]
-# (eval/bayer-learned-laplace-2026-11-16.md): intercept, 8 features, 36 pairwise products; 40 frames, ridge 1e-5.
+# (eval/bayer-learned-laplace-2026-11-16.md): intercept, 8 features, 36 pairwise products; ridge 1e-5.
+# Refitted on the same 40 frames plus a noisy copy of each at SNR 25 and 50, scored against the clean
+# green (eval/bayer-learned-noisy-nyquist-2026-11-16.md; passed its pre-registered test).
 LEARNED_LAPLACE: tuple[float, ...] = (
-    -0.470135, 2.426672, -0.349805, 0.265092, 0.329468, 0.519358,
-    0.118583, 1.447913, -0.203315, -2.459294, -0.133075, -0.536397,
-    -1.645395, -0.501441, 3.499013, -2.507955, 0.505209, -0.885136,
-    -0.519663, 0.005069, 1.126664, -0.044066, 1.131293, 1.336742,
-    0.181405, -0.232095, -0.77143, -0.012986, 0.742217, -0.785529,
-    -0.073097, 0.202419, -0.150408, 0.065233, 0.145409, -0.495956,
-    -0.128872, -1.395797, 0.684734, -0.572733, 0.208586, -0.39256,
-    -1.202942, -1.170081, 0.473836,
+    -0.458313, 1.702233, -0.389067, 0.232932, 0.266186, 0.396461,
+    0.224224, 1.494819, -0.049465, -1.566506, 0.176878, -0.667374,
+    -1.339204, -0.506379, 3.169283, -1.896472, 0.214563, -0.691283,
+    -0.361094, -0.009024, 1.067284, -0.075971, 0.780067, 1.139865,
+    0.333325, -0.307989, -0.758231, -0.023509, 0.59707, -0.86408,
+    -0.09129, 0.236086, -0.16631, 0.135082, 0.190736, -0.505608,
+    -0.040191, -1.428148, 0.816032, -0.596588, 0.269943, -0.351452,
+    -1.162829, -1.10391, 0.403026,
 )
 _FEATURE_REACH = 5  # sensels beyond the green step's own reach that _laplace_features reads
 

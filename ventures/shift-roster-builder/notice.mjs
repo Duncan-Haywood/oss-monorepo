@@ -10,8 +10,21 @@
 // The rule sets are read from the cities' and state's own pages (2026-11-16): Seattle's Office of Labor Standards
 // "Secure Scheduling" page, Oregon BOLI's "Predictive scheduling" page, and the City of Chicago's Fair Workweek
 // notice and rules. They are a starting point to check against the current text, not legal advice: which employers
-// are covered, the exceptions (emergencies, mass-communication offers, standby lists), on-call pay and the right to
-// decline added hours are not modelled. FAIR_WORKWEEK=custom with the FWW_* numbers types any other rule set.
+// are covered, the emergency and standby-list exceptions and the right to decline added hours are not modelled.
+// FAIR_WORKWEEK=custom with the FWW_* numbers types any other rule set.
+//
+// Two more pieces (2026-11-16, read from search summaries of Seattle OLS's 2023 Q&A, 2024 model policy and one-pager,
+// Oregon's ORS 653.455 and OAR 839-026, and Chicago's 2026 rules as summarised by law firms; the primary pages were
+// out of reach from here):
+// - The team offer (massOffer): a written offer of a called-out shift to the whole team, which says it is a group
+//   offer, that taking it is voluntary and that the employee may decline. Seattle and Oregon exempt the added hours
+//   when an employee accepts such an offer after another employee's absence, for that employee's hours only. No
+//   matching exception turned up for Chicago, whose FAQ says employer-asked cover after a call-off owes pay, so the
+//   Chicago preset still prices it.
+// - On-call shifts (a shift whose label says "on-call"): released, or never called in, they are hours taken away.
+//   Seattle and Oregon pay half the hours not worked; Chicago's 2026 rules treat them like other cancelled hours
+//   (half inside 24 hours, 1 hour of pay before). So the cancellation arithmetic prices them, and one never called in
+//   by its end counts as released at its start.
 import { fromLocal } from "./timeclock.mjs";
 
 export const MAX_CHANGES = 1500;
@@ -24,12 +37,12 @@ export const MAX_CHANGES = 1500;
 // cancelElseHours: hours of pay for lost hours outside that window but inside the notice window (Chicago: 1).
 // restHours / restMult: hours worked less than restHours after the previous shift ended are paid at restMult.
 export const FWW_PRESETS = {
-  seattle: { label: "Seattle Secure Scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5 },
-  oregon: { label: "Oregon predictive scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 30, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5 },
-  chicago: { label: "Chicago Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 15, minExtendMin: 15, cancelWindowH: 24, cancelFraction: 0.5, cancelElseHours: 1, restHours: 10, restMult: 1.25 },
-  custom: { label: "Custom rule set", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5 },
+  seattle: { label: "Seattle Secure Scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 1 },
+  oregon: { label: "Oregon predictive scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 30, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 1 },
+  chicago: { label: "Chicago Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 15, minExtendMin: 15, cancelWindowH: 24, cancelFraction: 0.5, cancelElseHours: 1, restHours: 10, restMult: 1.25, massOffer: 0 },
+  custom: { label: "Custom rule set", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 0 },
 };
-const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult" };
+const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer" };
 
 // The rule set from the environment, or null when FAIR_WORKWEEK is unset (the change log is still kept).
 export function readNoticeEnv(env = {}) {
@@ -41,7 +54,7 @@ export function readNoticeEnv(env = {}) {
   for (const [k, f] of Object.entries(ENV_FIELDS)) {
     if (env[k] === undefined || String(env[k]).trim() === "") continue;
     const v = Number(String(env[k]).trim());
-    if (!Number.isFinite(v) || v < 0 || (f === "restMult" && v < 1)) { r.notes.push(`${k} "${String(env[k]).slice(0, 20)}" is not a number we can use; the ${name} value ${r[f]} stays.`); continue; }
+    if (!Number.isFinite(v) || v < 0 || (f === "restMult" && v < 1) || (f === "massOffer" && v > 1)) { r.notes.push(`${k} "${String(env[k]).slice(0, 20)}" is not a number we can use; the ${name} value ${r[f]} stays.`); continue; }
     r[f] = v; r.overrides.push(`${k}=${v}`);
   }
   return r;
@@ -76,7 +89,7 @@ export function logChanges(state, changes, { at, weekStart, cause, requested = f
   if (!Array.isArray(state.changeLog)) state.changeLog = [];
   for (const c of changes) {
     state.changeSeq = (state.changeSeq || 0) + 1;
-    state.changeLog.push({ id: state.changeSeq, at, weekStart: weekStart || null, person: c.person, kind: c.kind, from: c.from, to: c.to, cause, requested: !!(c.requested ?? requested) });
+    state.changeLog.push({ id: state.changeSeq, at, weekStart: weekStart || null, person: c.person, kind: c.kind, from: c.from, to: c.to, cause, requested: !!(c.requested ?? requested), ...(c.massOffer ? { massOffer: true, coverFor: c.coverFor || "" } : {}), ...(c.onCall ? { onCall: true } : {}) });
   }
   if (state.changeLog.length > MAX_CHANGES) state.changeLog.splice(0, state.changeLog.length - MAX_CHANGES);
   return changes.length;
@@ -112,6 +125,7 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
   if (!rules) { out.why = "No rule set chosen (FAIR_WORKWEEK)."; return out; }
   if (e.requested) { out.why = "Employee-requested (a call-out, a trade or a pick-up they asked for): exempt. Keep the written request."; return out; }
   if (out.noticeH >= rules.noticeDays * 24) { out.why = `${rules.noticeDays} or more days' notice: nothing owed.`; return out; }
+  if (e.massOffer && rules.massOffer && lost <= 0) { out.why = `Taken from the written offer to the whole team after ${e.coverFor || "a colleague"}'s absence: exempt for those hours. Keep the offer and the acceptance.`; return out; }
   let hoursOfPay = 0;
   if (lost > 0) {
     if (out.noticeH < rules.cancelWindowH) { hoursOfPay = rules.cancelFraction * lost; out.why = `${e.kind === "cancelled" ? "Cancelled" : "Shortened"} inside ${fmtH(rules.cancelWindowH)}: ${rules.cancelFraction} x ${r2(lost)} h not worked.`; }
@@ -126,6 +140,8 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
     if (!extendOnly && ds <= rules.minMoveMin && de <= rules.minMoveMin) { out.why = `Moved by ${Math.max(ds, de)} min: at or under the ${rules.minMoveMin} min threshold.`; return out; }
     hoursOfPay = rules.addHours; out.why = `${extendOnly ? "Time added" : "Hours moved"} with under ${rules.noticeDays} days' notice: ${rules.addHours} h of pay.`;
   }
+  if (e.massOffer && !rules.massOffer && hoursOfPay > 0) out.why += ` This rule set has no team-offer exception.`;
+  if (e.onCall && lost > 0) out.why = `On-call shift not needed: ` + out.why.charAt(0).toLowerCase() + out.why.slice(1);
   if (!(wage > 0)) { out.unpriced = hoursOfPay > 0; out.premium = null; out.hoursOfPay = r2(hoursOfPay); return out; }
   out.hoursOfPay = r2(hoursOfPay); out.premium = r2(hoursOfPay * wage);
   return out;
@@ -168,13 +184,35 @@ export function shortRests(week, prevWeek, rules, wages = new Map()) {
   return out;
 }
 
+// On-call shifts: a shift whose label says "on-call" (or "on call", "oncall"). Each published one is waiting until the
+// manager marks it called in or not needed; one still waiting when it ends was never called in.
+export const isOnCall = (slot) => /\bon[- ]?call\b/i.test((slot && slot.label) || "");
+export const onCallKey = (weekStart, person, s) => `${weekStart || ""}|${person}|${s.day}|${s.startMin}|${s.endMin}`;
+export function onCallShifts(week, marks = {}) {
+  if (!week) return [];
+  return (week.assignments || []).filter((a) => a.person && isOnCall(a.slot)).map((a) => {
+    const key = onCallKey(week.weekStart, a.person, a.slot), m = marks[key];
+    return { key, person: a.person, slot: slotOf(a.slot), status: m ? m.status : "waiting", at: m ? m.at : null };
+  });
+}
+// Ended and never marked: priced as released at the start (no notice), under the rule set's cancellation terms.
+export function onCallNeverCalled(week, marks, rules, { tz = "UTC", nowMs = Date.now(), wages = new Map() } = {}) {
+  if (!week || !week.weekStart) return [];
+  return onCallShifts(week, marks).filter((x) => x.status === "waiting" && slotInstant(week.weekStart, x.slot.day, x.slot.endMin, tz) <= nowMs).map((x) => {
+    const e = { at: slotInstant(week.weekStart, x.slot.day, x.slot.startMin, tz), weekStart: week.weekStart, person: x.person, kind: "cancelled", from: x.slot, to: null, cause: "on-call never called", requested: false, onCall: true };
+    // priceChange counts a change after the shift ended as a record correction, so price it as made at the start.
+    return { ...priceChange(e, rules, { tz, wage: wages.get(x.person) }), key: x.key };
+  });
+}
+
 // Everything the changes page and CSV need. weeks: newest first (current published week, then history).
-export function noticeReport(state, rules, { tz = "UTC", wages = new Map(), weeks = [] } = {}) {
+export function noticeReport(state, rules, { tz = "UTC", wages = new Map(), weeks = [], nowMs = Date.now() } = {}) {
   const priced = [...(state.changeLog || [])].reverse().map((e) => priceChange(e, rules, { tz, wage: wages.get(e.person) }));
   const late = weeks.flatMap((w) => latePosting(w, (state.postedAt || {})[w.weekStart], rules, tz).map((x) => ({ ...x, weekStart: w.weekStart })));
   const rests = weeks[0] ? shortRests(weeks[0], weeks[1], rules, wages) : [];
   const sum = (xs) => r2(xs.reduce((t, x) => t + (x.premium || 0), 0));
-  return { priced, late, rests, changeTotal: sum(priced), restTotal: sum(rests), unpriced: priced.filter((x) => x.unpriced).length + rests.filter((x) => x.premium === null).length };
+  const never = weeks[0] && rules ? onCallNeverCalled(weeks[0], state.onCall || {}, rules, { tz, nowMs, wages }) : [];
+  return { priced, late, rests, never, changeTotal: sum(priced), restTotal: sum(rests), onCallTotal: sum(never), unpriced: priced.filter((x) => x.unpriced).length + rests.filter((x) => x.premium === null).length + never.filter((x) => x.unpriced).length };
 }
 
 const DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -182,9 +220,16 @@ const clk = (m) => { const x = ((m % 1440) + 1440) % 1440; return `${String(Math
 export const slotLabel = (s) => (s ? `${DAYN[s.day]} ${clk(s.startMin)}-${clk(s.endMin)}` : "");
 const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 
+// The written offer of a called-out shift to the whole team. The three things it must say come from Seattle's 2024
+// model policy (a group offer, voluntary, the right to decline); the shift is the absent employee's hours only.
+export function teamOfferText(c, weekStart = "", dayName = (d) => DAYN[d]) {
+  return `Shift offered to the whole team: ${dayName(c.day)} ${clk(c.startMin)}-${clk(c.endMin)}${weekStart ? ` (week of ${weekStart})` : ""}, because ${c.person} cannot work it. This offer goes to everyone at once. Taking it is voluntary and you may decline; no predictability pay is owed for these hours if you accept.`;
+}
+
 export function noticeCsv(rep, rules) {
   const head = "changed_at_utc,week_start,person,change,before,after,cause,employee_requested,notice_hours,hours_lost,hours_gained,hours_of_pay,premium,rule_set,reason";
   const rows = rep.priced.map((p) => [new Date(p.at).toISOString(), p.weekStart || "", p.person, p.kind, slotLabel(p.from), slotLabel(p.to), p.cause, p.requested ? "yes" : "no", p.noticeH ?? "", p.lostH.toFixed(2), p.gainedH.toFixed(2), p.hoursOfPay == null ? "" : p.hoursOfPay.toFixed(2), p.premium == null ? "" : p.premium.toFixed(2), rules ? rules.name : "", p.why].map(cell).join(","));
   const rest = rep.rests.map((x) => ["", "", x.person, "short-rest", `${x.firstLastWeek ? "last week " : ""}${slotLabel(x.first)}`, slotLabel(x.second), "posted week", "", "", "", x.insideH.toFixed(2), "", x.premium == null ? "" : x.premium.toFixed(2), rules ? rules.name : "", `${x.gapH} h between shifts; ${x.insideH} h inside the ${rules.restHours} h rest window at ${rules.restMult}x`].map(cell).join(","));
-  return [head, ...rows, ...rest].join("\n") + "\n";
+  const never = (rep.never || []).map((p) => ["", p.weekStart || "", p.person, "on-call-never-called", slotLabel(p.from), "", p.cause, "no", "", p.lostH.toFixed(2), "0.00", p.hoursOfPay == null ? "" : p.hoursOfPay.toFixed(2), p.premium == null ? "" : p.premium.toFixed(2), rules ? rules.name : "", p.why].map(cell).join(","));
+  return [head, ...rows, ...rest, ...never].join("\n") + "\n";
 }

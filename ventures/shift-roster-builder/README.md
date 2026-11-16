@@ -305,6 +305,40 @@ The same check found a mistake in the sibling
 [fair workweek schedule checker](../fair-workweek-schedule-checker/): its Seattle preset paid short rests at 1.25x; Seattle
 pays time and a half, so the preset, its worked example ($137.50 to $148.00) and tests are corrected in the same change.
 
+## A call-out offered to the whole team, and on-call shifts (2026-11-16)
+
+The fair-workweek log above priced every cover the manager handed out, and said the two cases that change the bill most
+were not modelled: the offer to the whole team after someone calls out, and on-call shifts. Both are now in the hub
+(`notice.mjs`, `hub.mjs`).
+
+- **Offer to the whole team.** Each call-out on `/admin` has an "Offer to the whole team" button. It posts the shift on
+  the staff page and to the team webhook as a written offer that says what Seattle's 2024 model policy asks it to say:
+  it goes to everyone at once, taking it is voluntary, and the employee may decline (`teamOfferText`). Staff press
+  "I'll take it"; the manager sees who said yes on the cover buttons and gives the shift to one of them, under the same
+  rule checks as before. That cover is logged with the cause "team offer", the caller's dropped shift as employee-asked
+  and the taker's added shift marked as taken from the offer.
+- **Priced per rule set** (`massOffer`, override with `FWW_MASS_OFFER=0|1`): Seattle and Oregon exempt the hours an
+  employee accepts from such an offer after another employee's absence, for that employee's hours only, so the added
+  shift owes nothing there. No matching exception turned up for Chicago, whose city FAQ says employer-asked cover after a
+  call-off owes pay, so the Chicago preset still charges the hour and says the rule set has no team-offer exception.
+  Giving the shift straight to someone, without the offer, is priced as before.
+- **On-call shifts.** A shift whose label says "on-call" (or "on call", "oncall") is listed on `/admin` as waiting until
+  the manager marks it "Called in" or "Not needed". Not needed is logged as hours taken away and priced by the rule set's
+  cancellation terms: Seattle and Oregon pay half the hours not worked; Chicago's 2026 rules treat on-call cancellations
+  like other cancelled hours (half inside 24 hours, 1 hour of pay before). One still waiting when it ends is listed on
+  `/admin/changes` as never called in and counted as released at its start (half its hours in all three), with a row
+  in the CSV. Marks for weeks that drop out of the history are pruned with the posting times.
+- **Sources and their limits.** The primary pages (seattle.gov, oregon.gov, the Oregon statutes, chicago.gov) did not
+  answer from this session, so the rules are from search summaries of Seattle OLS's 2023 Q&A, 2024 model policy and
+  one-pager; ORS 653.455, OAR 839-026 and BOLI's page; and Chicago's May 2026 rules as summarised by law firms. Check
+  them against the current text. Still not modelled: Seattle's in-person group communication for unexpected customer
+  needs, Oregon's voluntary standby list, the emergency exceptions, and the right to decline.
+- **Tested** (`notice.test.mjs`, 12 tests, 3 new): the exception in Seattle and Oregon and its absence in Chicago, the
+  override, the offer's three statements; an on-call release at 28 hours ($60 Seattle, $20 Chicago at $20/h for 6 h),
+  never called in in all three presets, the CSV row; and the hub end to end: a call-out offered, the webhook text, the
+  staff page, a refused yes from the caller, a yes, the cover logged as "team offer" and shown exempt under Seattle, an
+  on-call shift marked not needed, logged and priced, and a second mark refused. Not run against a real site's week.
+
 ## Free on Cloudflare: no server, no card (2026-11-15)
 
 The team hub ran only where a disk and a process can live: Docker on your own box, Fly, or Render's starter plan

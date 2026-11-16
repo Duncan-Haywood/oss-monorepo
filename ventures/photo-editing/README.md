@@ -1427,6 +1427,17 @@ rings and vectorized (`eval/bayer-learned-fused-2026-11-16.md`). It is still bit
 the same seven frames, 1.8-2.2x faster than the morning's C, and 1.5-2.0x the default's time: 0.73 s for
 24 MP on four cores, faster than LibRaw's AHD on every frame.
 
+**Refitted on noisy mosaics, 2026-11-16** (`eval/bayer-learned-noisy-nyquist-2026-11-16.md`). The
+weights now come from the same 40 frames plus a noisy copy of each at SNR 25 and 50, scored against
+the clean green (`bayer_laplace_train.py --noise-snr`). This passed a test written before it was run.
+At SNR 25 colour is +0.014 dB and luma +0.07 dB over the first fit, and colour beats the 3/16 default
+on all ten frames, noisy and noise-free. Noise-free colour is 0.023 dB lower. Fixed 1/8 still leads
+on three frames at SNR 25, but by 0.01-0.02 dB, down from 0.04-0.06. The model's form and speed are
+unchanged. Adding synthetic near-Nyquist gratings (`--synthetic`) made the sheet worse (38.64 dB): on
+gratings between unrelated colours 1/8 is right, while on the grey zone plate 3/16 beats it by 5 dB.
+So the weight should follow how strongly the channels' fine detail is correlated, not only how fine
+the detail is. That is the next feature to try.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:
