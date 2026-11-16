@@ -179,7 +179,12 @@ export function buildLetters(inputs, steps, payByDays = 10) {
   const consumer = inputs.clientType === "consumer";
   const f = fill(inputs);
   const pay = inputs.paymentInfo ? `\nHow to pay: ${inputs.paymentInfo}` : "";
-  const amt = (n) => "$" + money(n);
+  const amt = (n) => {
+    const format = (n) => "$" + money(n);
+    if (!(Number(n) < 0)) return format(n);
+    const text = format(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  };
   return steps.map((s, i) => {
     const a = accrual(inputs, s.date);
     const balance = a.total;

@@ -139,7 +139,12 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["expected", "dRatio", "weight", "ballast", "manualPremium", "splitPoint", "claimLimit", "era", "claims"];
-    const usd = (x) => x === null ? "—" : "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => {
+      const format = (x) => x === null ? "—" : "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (!(Number(x) < 0)) return format(x);
+      const text = format(Math.abs(x));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     let last = null;
 
     function read() {

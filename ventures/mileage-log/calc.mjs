@@ -248,7 +248,12 @@ export function sampleTrips(year = 2026) {
   return { trips, yearStartOdo: 41200, yearEndOdo: Math.round(odo) + 260 };
 }
 
-export const money = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (n) => {
+  const format = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const money0 = $;
 export const pct = P;
 

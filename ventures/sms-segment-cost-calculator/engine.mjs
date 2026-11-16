@@ -131,4 +131,9 @@ export function savingsOptions(text, volume, prices = DEFAULT_PRICES) {
   return { now, base, options: options.filter((o) => o.saving > 0).sort((a, b) => b.saving - a.saving) };
 }
 
-export const fmt = (n) => "$" + (Math.round(num(n) * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const fmt = (n) => {
+  const format = (n) => "$" + (Math.round(num(n) * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};

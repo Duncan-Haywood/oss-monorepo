@@ -95,7 +95,12 @@ curl "localhost:8080/v1/forecast?target=50000" -H "authorization: Bearer $API_KE
     const $ = (id) => document.getElementById(id);
     const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
     const pct = (x) => (x * 100).toFixed(0) + "%";
-    const money = (x) => "$" + Math.round(x).toLocaleString("en-US");
+    const money = (x) => {
+      const format = (x) => "$" + Math.round(x).toLocaleString("en-US");
+      if (!(Number(x) < 0)) return format(x);
+      const text = format(Math.abs(x));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const day = (t) => (t == null ? "-" : new Date(t).toISOString().slice(0, 10));
     function table(head, rows) {
       const t = document.createElement("table"), hr = document.createElement("tr");
