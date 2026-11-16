@@ -72,11 +72,28 @@ CAND = {
     "gtc16l": ("gtcntsh_w", "gtcntsh_w", {"W": 256, "SW": 8, "N": 16, "NB": 6, "R": 0}, ""),
     "gtc24l": ("gtcntsh_w", "gtcntsh_w", {"W": 256, "SW": 8, "N": 24, "NB": 6, "R": 0}, ""),
 }
-KEEP = []  # set from probe.txt (routed/r2 > 3.3, in CAND order) before any ABC sequence runs
+KEEP = list(CAND)  # probe.txt: all 40 candidates have routed/r2 > 3.3 (lowest gtc12r 3.61), so none is dropped
 NEW = {k: CAND[k] for k in KEEP}
 FACTORS = {"tight": 1.0, "relaxed": 1.5}
 CLOCK = {d: ("tight", "relaxed")[i % 2] for i, d in enumerate(KEEP)}
+# Run order (fixed with KEEP, before any ABC sequence runs): a seed-138 shuffle of KEEP, so families and shifters are interleaved.
+# If the flow has to stop for time, the analysed set is the longest prefix of ORDER whose designs are all complete (`complete()`),
+# a rule that depends on no result.
 ORDER = list(KEEP)
+__import__("random").Random(138).shuffle(ORDER)
+
+
+def complete(rows, n=120):
+    """The longest prefix of ORDER with n rows per design in rows (dicts with a "design" key)."""
+    cnt = {}
+    for r in rows:
+        cnt[r["design"]] = cnt.get(r["design"], 0) + 1
+    out = []
+    for d in ORDER:
+        if cnt.get(d, 0) < n:
+            break
+        out.append(d)
+    return out
 
 
 def _load(path, name):

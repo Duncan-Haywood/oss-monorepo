@@ -62,7 +62,8 @@ SHIFTER = {"r": "128-bit right", "l": "256-bit left"}
 def confirm_table():
     if not TABLE.exists():
         return []
-    raw = rule.load_table(TABLE, "ladder_confirm2")
+    keep = set(run.complete([json.loads(l) for l in TABLE.read_text().splitlines()]))  # run.py's prefix rule
+    raw = {k: v for k, v in rule.load_table(TABLE, "ladder_confirm2").items() if k[1] in keep}
     return nf.build(raw, lambda k: f"m138confirm{k[0]}{k[1]}")
 
 
