@@ -388,7 +388,7 @@ COMPLEX_RULES = {
 SURVEY_DESIGNS = ("uniform", "adaptive", "walk")
 
 
-def survey_design(v, f, rng, design: str = "uniform"):
+def survey_design(v, f, rng, design: str = "uniform", split: float | None = None):
     """Survey k = round(f n) households under a design; each surveyed household reports all its
     ties. uniform: k random households (milestone 5's `survey`, same draws). adaptive: k1 = k // 2
     random, then the k - k1 unsurveyed households named by the most stage-1 households (ties
@@ -396,7 +396,8 @@ def survey_design(v, f, rng, design: str = "uniform"):
     uniform random tie, surveyed if not yet, until k (stops early only if no stage-1 household
     can name anyone new). Returns (surveyed mask, estimated degree, seen adjacency). Estimated
     degree: exact if surveyed; otherwise stage-1 neighbours / (k1 / n), unbiased for a stage-1
-    uniform sample (uniform: all surveyed neighbours / (k / n), as milestone 5)."""
+    uniform sample (uniform: all surveyed neighbours / (k / n), as milestone 5). split (milestone
+    10): stage 1 gets round(split k) households, clamped to [1, k - 1]; None keeps k // 2."""
     if design == "uniform":
         return survey(v, f, rng)
     n = v.n
@@ -404,7 +405,7 @@ def survey_design(v, f, rng, design: str = "uniform"):
     if k >= n:
         s = np.ones(n, bool)
         return s, v.deg.astype(float), v.A.copy()
-    k1 = max(1, k // 2)
+    k1 = max(1, k // 2) if split is None else min(max(1, int(round(split * k))), max(1, k - 1))
     s1 = np.zeros(n, bool)
     s1[rng.choice(n, k1, replace=False)] = True
     s = s1.copy()
@@ -447,11 +448,12 @@ def _dd_pick(est, seen, b, p: float = 0.05):
     return m
 
 
-def rule_design_degree(v, b, rng, f: float, design: str = "uniform"):
-    _, est, _ = survey_design(v, f, rng, design)
+def rule_design_degree(v, b, rng, f: float, design: str = "uniform", split: float | None = None):
+    _, est, _ = survey_design(v, f, rng, design, split)
     return _top(est, b)
 
 
-def rule_design_dd(v, b, rng, f: float, design: str = "uniform", p: float = 0.05):
-    _, est, seen = survey_design(v, f, rng, design)
+def rule_design_dd(v, b, rng, f: float, design: str = "uniform", p: float = 0.05,
+                   split: float | None = None):
+    _, est, seen = survey_design(v, f, rng, design, split)
     return _dd_pick(est, seen, b, p)

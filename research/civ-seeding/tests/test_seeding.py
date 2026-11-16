@@ -308,3 +308,35 @@ def test_m9_walk_surveys_named_households():
     s1 = np.zeros(v.n, bool); s1[rng.choice(v.n, k1, replace=False)] = True
     s2 = s & ~s1
     assert (v.A[s2][:, s1].sum(1) > 0).all()  # every stage-2 household was named by stage 1
+
+
+# ---- milestone 10 ----
+
+def test_m10_split_sizes_and_default():
+    v = _m9_village()
+    b = int(v.leader.sum())
+    for f in (0.25, 0.5):
+        k = int(round(f * v.n))
+        # split None reproduces milestone 9's k // 2 draws exactly
+        a = sd.survey_design(v, f, np.random.default_rng(8), "adaptive")
+        c = sd.survey_design(v, f, np.random.default_rng(8), "adaptive", None)
+        assert all(np.array_equal(x, y) for x, y in zip(a, c))
+        for split in (0.25, 0.5, 0.75):
+            rng = np.random.default_rng(9)
+            s, est, _ = sd.survey_design(v, f, rng, "adaptive", split)
+            assert s.sum() == k
+            k1 = int(round(split * k))
+            rng = np.random.default_rng(9)
+            s1 = np.zeros(v.n, bool); s1[rng.choice(v.n, k1, replace=False)] = True
+            assert (s & s1).sum() == k1
+            assert np.allclose(est[~s], v.A[:, s1].sum(1)[~s] / (k1 / v.n))
+            assert sd.rule_design_dd(v, b, np.random.default_rng(2), f, "adaptive", split=split).sum() == b
+
+
+def test_m10_split_clamped():
+    v = _m9_village()
+    k = int(round(0.25 * v.n))
+    s, _, _ = sd.survey_design(v, 0.25, np.random.default_rng(1), "adaptive", 0.0)
+    assert s.sum() == k
+    s, _, _ = sd.survey_design(v, 0.25, np.random.default_rng(1), "adaptive", 1.0)
+    assert s.sum() == k
