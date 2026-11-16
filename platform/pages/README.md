@@ -279,7 +279,7 @@ node --test platform/pages/updates.test.mjs
   it, or if it names one that did not ship.
 
 - **`feed.xml`.** An Atom feed of tools as they are published, newest first,
-  capped at the 40 most recent. Every other surface here answers *what exists*;
+  capped at the 20 most recent (`FEED_MAX_ENTRIES`). Every other surface here answers *what exists*;
   this is the only one that answers *what changed*, which is the question every
   distribution channel the portfolio is allowed to use actually asks. Ad spend
   is ruled out by `portfolio/DIRECTION.md` and posting into communities
@@ -306,7 +306,11 @@ in-cluster build clones `--depth 1` (`gitops/prod/portfolio-site.yaml`), so the
 build container has one commit and no history.
 
 So the dates are derived once on a machine that has the history and committed
-to `platform/pages/launched.json`. After landing a new tool:
+to `platform/pages/launched.json`. In a shallow clone (agent sessions, CI) a
+tool whose add lies beyond the clone's horizon is dated today rather than with
+the boundary commit's date, which git would otherwise report as the add of
+every file; deepen first (`git fetch --deepen=500 origin main`) when dating
+older tools. After landing a new tool:
 
 ```
 node platform/pages/launched.mjs --write     # or without --write to preview
