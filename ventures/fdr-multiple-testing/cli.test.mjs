@@ -52,3 +52,21 @@ test("runs as a real process from a pipe", () => {
   const out = execFileSync(process.execPath, [CLI, "--method", "holm"], { input: "0.01\n0.04\n0.03\n0.005\n", encoding: "utf8" });
   assert.match(out, /Holm keeps 2/);
 });
+
+const STREAM = fileURLToPath(new URL("./data/online-stream.csv", import.meta.url));
+
+test("--online: arrival-order rules, their counts, the batch contrast and the order note", () => {
+  const r = run([STREAM, "--online"]);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /^400 tests in arrival order\. LORD\+\+ keeps \d+/);
+  assert.match(r.out, /Batch Benjamini-Hochberg \(hindsight\)/);
+  assert.match(r.out, /Note: Order matters/);
+  assert.match(run([STREAM, "--online", "--method", "saffron", "--lambda", "0.25", "--w0", "0.9"]).out, /SAFFRON keeps \d+/);
+  const csv = run([STREAM, "--online", "--csv"]).out.split("\n");
+  assert.equal(csv.length, 401);
+  assert.match(csv[0], /^t,label,p_value,lordpp_level,saffron_level/);
+  assert.equal(JSON.parse(run([STREAM, "--online", "--json"]).out).mode, "online");
+  assert.equal(run([STREAM, "--online", "--method", "nope"]).code, 1);
+  assert.equal(run([STREAM, "--online", "--kind", "e"]).code, 2);
+  assert.ok(HELP.includes("Javanmard, Andrea Montanari (2018)") && HELP.includes("SAFFRON"));
+});

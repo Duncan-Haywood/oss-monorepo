@@ -28,12 +28,14 @@
   {
    "severity": "medium",
    "what": "Conditional integration (freeze) and the twin spectral radius, both headline results, have no test: moving the freeze threshold to 2R or halving the radius passes all 8 tests",
-   "where": "research/range-twin/src/range_twin/model.py:59"
+   "where": "research/range-twin/src/range_twin/model.py:59",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"
   },
   {
    "severity": "low",
    "what": "real_steps returns wrong counts when tol >= R (9 of 24 probes, e.g. k=0.25, x0=1.6, tol=1.1: simulation 2, function 3); the comment defers to 'caller grids' but nothing enforces it",
-   "where": "research/range-twin/src/range_twin/model.py:48"
+   "where": "research/range-twin/src/range_twin/model.py:48",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"
   },
   {
    "severity": "low",
@@ -46,6 +48,6 @@
    "where": "research/range-twin/experiments/figure.py:1"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"],
  "verdict": "A small, honest, correct worked example: the exact step law, the 49-vs-4021 step headline, the 870R-vs-211R windup numbers and the 1.5q-0.5q^3 gain factor all reproduce under independent arithmetic (exact rationals, a hand-derived integral and numerical quadrature). The tests protect the step law and the fitting factor, but not conditional integration or the spectral radius, and the law is silently wrong for tol >= R. The result is a textbook-level observation about saturated feedback and attenuation bias, uncompared to its prior work and with no real sensor data, so it is not a publishable research contribution. Correct and finished within a stylised scope; not at the bar for verification, fitness or domain."
 }

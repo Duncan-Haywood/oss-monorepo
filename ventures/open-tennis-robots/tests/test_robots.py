@@ -881,7 +881,7 @@ class FirmwareTest(unittest.TestCase):
                     return 0 if self.n == 22 else self.v   # azimuth home switch closed; e-stop (4) not pressed
                 self.v = v
 
-            def irq(self, *a):
+            def irq(self, *a, **k):
                 pass
 
         class PWM:

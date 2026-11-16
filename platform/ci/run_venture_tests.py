@@ -470,6 +470,9 @@ def run(slug, elsewhere=False):
             if len(cmds) > 1:
                 name = "node --test" if argv[0] == "node" else "python3 -m unittest"
                 out = f"$ {name} (in {Path(cwd).relative_to(VENTURES / slug)})\n{out}"
+        if len(cmds) > 1 and not one_ok:
+            head, _, rest = out.partition("\n")
+            out = f"{head}{STEP_FAILED}\n{rest}"
         ok = ok and one_ok
         outs.append(out)
     return slug, ok, "\n".join(outs), time.monotonic() - start
@@ -547,19 +550,39 @@ def skip_note(slug):
     return f"skip {slug}: no tests found"
 
 
+STEP_FAILED = "  <- this step failed"
+UNITTEST_BLOCK = re.compile(r"^(?:FAIL|ERROR): ")
+
+
 def failures(out, context=30):
-    """Each `not ok` block of the TAP output, or the tail when there is none.
+    """What a reader needs to see of a red suite: each `not ok` block of the TAP
+    output and each unittest `FAIL:`/`ERROR:` block, else the tail of each step
+    that failed, else the tail.
 
     The tail alone can miss the failure entirely: a 198-test suite prints its
-    one failing test long before the last 3,000 characters.
+    one failing test long before the last 3,000 characters, and a venture with
+    two steps printed the second, green one's tail while its first step's
+    unittest failure stayed hidden (friction 2026-11-16, test_host).
     """
     lines = out.splitlines()
-    picked = [i for i, line in enumerate(lines) if line.lstrip().startswith("not ok")]
-    if not picked:
-        return out[-3000:]
-    keep = sorted({j for i in picked for j in range(i, min(i + context, len(lines)))})
-    return "\n".join(lines[j] for j in keep) + "\n" + "\n".join(
-        l for l in lines[-10:] if l.startswith("# "))
+    keep = set()
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith("not ok"):
+            keep.update(range(i, min(i + context, len(lines))))
+        elif UNITTEST_BLOCK.match(line):
+            j = i + 1
+            while j < len(lines) and j < i + 2 * context and not (
+                    lines[j].startswith("=" * 10) or lines[j].startswith("Ran ")):
+                j += 1
+            keep.update(range(i, j))
+    if keep:
+        summary = [l for l in lines[-10:] if l.startswith("# ")]
+        summary += [l for l in lines if l.startswith("FAILED (")]
+        return "\n".join(lines[j] for j in sorted(keep)) + "\n" + "\n".join(summary)
+    starts = [i for i, l in enumerate(lines) if l.startswith("$ ")] + [len(lines)]
+    red = ["\n".join(lines[a:b])[-3000:] for a, b in zip(starts, starts[1:])
+           if lines[a].endswith(STEP_FAILED)]
+    return "\n".join(red) if red else out[-3000:]
 
 
 def slowest_table(times, n):

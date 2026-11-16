@@ -413,6 +413,38 @@ Misses with the rule (count over the twelve pitch and length cells):
 
 if as fricative s 7; uf as fricative s 4; id as none 2; ed as nasal 2; ir as none 2; ur as none 2; id as nasal 1; ag as nasal 1; eg as nasal 1; og as nasal 1; od as nasal 1; id as fricative voiced 1; iv as none 1; ins as voiced lab stop 1; or as none 1; eg as none 1; il as nasal 1
 
+## N. Deep murmurs (eleventh round; held out for the first registration, a development set for the second)
+
+Clusters: *dant*, *lent*, *sint*, *gunt*, *hunc*, *rens*, *tens*, *fans*, *font*, *vint*; others: *nab*, *ped*, *lud*, *gab*, *rud*, *tob*, *vig*, *cod*, *pet*, *lac*, *sup*, *rot*, *tac*, *dum*, *ven*, *nam*, *pes*, *vos*, *ma*, *ne*. Quarter and eighth notes at 108 BPM, each followed by a rest, F#2, C#3, F#3, A#3, D#4, E4.
+
+| | with the deep-murmur rule | without (`deepMurmur: false`) |
+|---|---|---|
+| cluster syllables read exactly (on their nasal) | 116 of 120 (96.7%) | 114 of 120 (95.0%) |
+| of them, eighth notes on D#4 and E4 | 19 of 20 (95.0%) | 19 of 20 (95.0%) |
+| other syllables read exactly | 215 of 240 (89.6%) | 215 of 240 (89.6%) |
+| voiced stops read as a nasal | 1 | 1 |
+| vowel-only control read as none | 360 of 360 (100.0%) | 360 of 360 (100.0%) |
+
+Misses with the rule (count over the twelve pitch and length cells):
+
+lud as fricative voiced 3; ped as none 3; rud as voiceless alv stop 3; dum as none 3; rud as none 2; vig as none 2; vig as voiceless vel stop 2; vint as voiceless alv stop 2; lud as none 1; tob as none 1; sup as voiceless vel stop 1; tob as nasal 1; hunc as voiceless vel stop 1; lud as voiceless alv stop 1; tob as voiceless lab stop 1; vig as fricative voiced 1; gunt as voiceless alv stop 1
+
+## O. Held-out deep murmurs, second registration (eleventh round)
+
+Clusters: *mant*, *rint*, *bant*, *tunt*, *vens*, *pens*, *lans*, *ment*, *punc*, *sons*; others: *mad*, *red*, *bod*, *dig*, *lab*, *nod*, *tud*, *reg*, *mat*, *bec*, *rap*, *nit*, *doc*, *lum*, *men*, *tam*, *mos*, *nes*, *so*, *fe*. Quarter and eighth notes at 126 BPM, each followed by a rest, F2, E3, A3, D4, D#4, E4.
+
+| | with the deep-murmur rule | without (`deepMurmur: false`) |
+|---|---|---|
+| cluster syllables read exactly (on their nasal) | 113 of 120 (94.2%) | 111 of 120 (92.5%) |
+| of them, eighth notes on D4, D#4 and E4 | 25 of 30 (83.3%) | 25 of 30 (83.3%) |
+| other syllables read exactly | 210 of 240 (87.5%) | 210 of 240 (87.5%) |
+| voiced stops read as a nasal | 4 | 3 |
+| vowel-only control read as none | 356 of 360 (98.9%) | 356 of 360 (98.9%) |
+
+Misses with the rule (count over the twelve pitch and length cells):
+
+lum as none 5; tud as voiceless alv stop 3; mad as nasal 2; tud as none 2; dig as voiceless vel stop 2; mad as voiceless alv stop 2; nod as voiceless alv stop 2; punc as voiceless vel stop 2; sons as fricative s 2; so as nasal 2; dig as none 1; red as none 1; reg as none 1; ment as voiceless alv stop 1; bod as voiceless alv stop 1; dig as nasal 1; lab as voiced vel stop 1; dig as fricative voiced 1; rint as fricative f 1; red as voiceless alv stop 1; reg as voiceless vel stop 1; tunt (vowel only) as nasal 1; punc (vowel only) as nasal 1; tud (vowel only) as nasal 1; lum (vowel only) as nasal 1; tunt as voiceless alv stop 1; lab as nasal 1
+
 ## C. Closing consonants in the corpus
 
 119 GABC files, 8085 sung syllables; 3026 of 8085 (37.4%) close on a consonant, 218 on a cluster. First phone: s 802, n 601, m 528, t 362, r 343, l 134, k 130, d 63, b 26, p 21, f 13, g 3.

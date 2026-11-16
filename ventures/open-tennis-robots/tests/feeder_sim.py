@@ -17,6 +17,7 @@ by default). The serial line is two byte queues. The contactor's coil (sensed on
 
 import importlib.util
 import os
+import random
 import shutil
 import sys
 import tempfile
@@ -40,7 +41,7 @@ SHUTTLE_DROP_S = 0.14
 class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
                  rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0,
-                 true_launcher=None):
+                 true_launcher=None, tach_jitter_us=0.0, esc_tau_s=0.0, seed=0):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
@@ -74,7 +75,7 @@ class SimFeeder:
                     return self.v
                 self.v = v
 
-            def irq(self, *a):
+            def irq(self, *a, **k):
                 pass
 
         class PWM:
@@ -164,6 +165,11 @@ class SimFeeder:
         # the build's real efficiencies (tests/launch_fit_sweep.py); None is the planner's own WheelLauncher()
         self.true_launcher = true_launcher or launcher.WheelLauncher()
         self.exits = []                # (speed m/s, topspin rad/s) of each released ball: what a radar gun would read
+        # Plants that are not the first-order lag (2026-11-16, tests/loop_residual_sweep.py): each tach edge moved by a
+        # normal error of `tach_jitter_us`, and an ESC whose own speed control lags its command by `esc_tau_s`.
+        self.tach_jitter_us, self.esc_tau = tach_jitter_us, esc_tau_s
+        self._drive = [0.0, 0.0]
+        self._rng = random.Random(seed)
         self._under_col_ms = 0
         self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
         self.ctl = controller.Controller(hw, controller.ROLE_FEEDER, self.us // 1000)
@@ -196,13 +202,19 @@ class SimFeeder:
         for _ in range(ms):
             t0 = self.us
             for i, tach in enumerate((hw.tach_top, hw.tach_bottom)):
-                target = self.wheel_max * hw.esc_cmd[i]
+                if self.esc_tau:
+                    self._drive[i] += (hw.esc_cmd[i] - self._drive[i]) * 0.001 / self.esc_tau
+                else:
+                    self._drive[i] = hw.esc_cmd[i]
+                target = self.wheel_max * self._drive[i]
                 self.wheel[i] += (target - self.wheel[i]) * 0.001 / self.wheel_tau
                 before = self.rev[i]
                 self.rev[i] += self.wheel[i] / 60000.0
                 if int(self.rev[i]) > int(before):   # one pulse per revolution, timed within the millisecond
                     frac = (int(self.rev[i]) - before) / (self.rev[i] - before)
                     self.us = t0 + int(frac * 1000)
+                    if self.tach_jitter_us:
+                        self.us += int(round(self._rng.gauss(0.0, self.tach_jitter_us)))
                     tach._p(None)
             self.us = t0 + 1000
             if hw.elev.mode != controller.ELEV_RC and not self.elev_jammed:

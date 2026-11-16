@@ -17,7 +17,7 @@ space, so `ventures/wall-framing-\n takeoff` reads as
     flagship_field.py ai-bookkeeper --park ITEM [--park ITEM2]  # move open items to ventures/<v>/NEXT.md
     flagship_field.py ai-bookkeeper --replace OLD NEW --park ITEM  # both in one call, cap checked after
     flagship_field.py ai-bookkeeper --replace OLD NEW --make-room  # park from the end until it fits
-    flagship_field.py --check                       # exit 1 on a hyphen-folded break
+    flagship_field.py --check                       # exit 1 on a hyphen-folded break or a stray ';.'
 
 Edits touch only that field's lines, rewrap without breaking at hyphens or
 inside long words, re-read the file to prove the value round-trips exactly,
@@ -92,6 +92,14 @@ LANDED_SHOWN = 5
 REPO_ROOT = HERE.parents[1]
 PARK_HEADING = "## Parked from flagships.yaml `next:`"
 PARK_POINTER = "More open items: NEXT.md."
+# The row's own instruction sentence ("A run that lands a slice replaces its
+# item here", "When a slice lands, replace its item here ...", "keep this under
+# 2,000 characters"). Rows put it inside their last `; ` item, so parking that
+# item whole carried the instruction into NEXT.md and left "item;." behind
+# (einvoice-preflight run, 2026-11-16; shift-roster-builder and
+# league-schedule-generator rows read ";." on main that day). It is never parked.
+ROW_NOTE = re.compile(r"\s*\b(?:(?:A run that lands|When a slice lands)\b[^.;]*"
+                      r"|keep this under [\d,]+ characters)[.;]?", re.I)
 
 
 def _entries(doc) -> list[dict]:
@@ -218,7 +226,7 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
     freed = 0
     for i, item in enumerate(reversed(items)):
         first = i == len(items) - 1
-        body = item.replace(PARK_POINTER, "").strip().rstrip(". ")
+        body = ROW_NOTE.sub("", item.replace(PARK_POINTER, "")).strip().rstrip(". ")
         mine = any(k and (k in item or body in k) for k in keep)
         if first or mine or not body or POINTER.match(body) or len(body) < 12:
             continue
@@ -271,13 +279,20 @@ def remove_items(value: str, items: list[str]) -> str:
     """`value` with each item cut out and the separators around it tidied."""
     out = " ".join(value.split())
     for item in items:
-        want = " ".join(item.split()).strip(" ;")
+        # Only the open item moves: the row's note and the full stop that
+        # closes the sentence stay in `next:`.
+        want = ROW_NOTE.sub("", " ".join(item.split())).strip(" ;").rstrip(".")
         if not want or want not in out:
             raise ValueError(f"--park: not found in `next:`: {item!r} (copy it from "
                              "`flagship_field.py <venture>`, the unfolded value)")
         out = out.replace(want, "", 1)
     out = re.sub(r"\s*;\s*(?:;\s*)+", "; ", out)       # "a; ; b" -> "a; b"
-    out = re.sub(r"\s+([;,.:])", r"\1", out)            # "a ; b" / "a ." -> "a; b" / "a."
+    # (?=\s|$): a file extension or an ellipsis after a separator is text, not a
+    # stray ("reply sets; .eml and .mbox files" read "sets.eml and.mbox" after
+    # a park in sales-agent; "Curitiba,...)" lost its comma in einvoice-preflight).
+    out = re.sub(r"\s+([;,.:])(?=\s|$)", r"\1", out)  # "a ; b" / "a ." -> "a; b" / "a."
+    out = re.sub(r"[;,]+\.(?=\s|$)", ".", out)          # "a;. Note" -> "a. Note"
+    out = re.sub(r"[;,]\s*(?=" + re.escape(PARK_POINTER) + ")", ". ", out)  # "a; More open" -> "a. More open"
     out = re.sub(r"([:.])\s*;\s*", r"\1 ", out)        # "next: ; b" -> "next: b"
     out = re.sub(r";\s*$", ".", out.strip())
     out = re.sub(r"^[;,.]\s*", "", out)
@@ -297,7 +312,7 @@ def park_text(existing: str | None, venture: str, items: list[str], day: str) ->
         body = body.rstrip("\n") + f"\n\n{PARK_HEADING}\n\n"
     else:
         body = body.rstrip("\n") + "\n"
-    add = "".join(f"- ({day}) {' '.join(i.split()).strip(' ;')}\n" for i in items)
+    add = "".join(f"- ({day}) {ROW_NOTE.sub('', ' '.join(i.split())).strip(' ;')}\n" for i in items)
     return body + add
 
 
@@ -374,6 +389,17 @@ def hyphen_folds(text: str) -> list[int]:
     return [text.count("\n", 0, m.start()) + 1 for m in HYPHEN_FOLD.finditer(text)]
 
 
+def stray_separators(text: str) -> list[str]:
+    """`venture.field` values holding a separator left by a cut ("item;." or
+    "item; ;"), which no reader means and an old --park left on two rows."""
+    bad = []
+    for entry in _entries(yaml.safe_load(text)):
+        for key, v in entry.items():
+            if isinstance(v, str) and re.search(r"[;,]\s*\.(?:\s|$)|;\s*;", " ".join(v.split())):
+                bad.append(f"{entry.get('venture')}.{key}")
+    return bad
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("venture", nargs="?")
@@ -400,7 +426,12 @@ def main(argv: list[str] | None = None) -> int:
         for n in bad:
             print(f"{args.file}:{n}: folded line ends in a hyphen; YAML reads it as '- ' "
                   f"(fix: flagship_field.py <venture> --replace '<word>- <rest>' '<word>-<rest>')")
-        return 1 if bad else 0
+        stray = stray_separators(text)
+        for where in stray:
+            print(f"{args.file}: {where} holds a stray ';.' or '; ;' left by a cut "
+                  f"(fix: flagship_field.py {where.split('.')[0]} --field {where.split('.', 1)[1]} "
+                  "--replace ';.' '.')")
+        return 1 if bad or stray else 0
     if not args.venture:
         ap.error("name a venture (or pass --check)")
     try:

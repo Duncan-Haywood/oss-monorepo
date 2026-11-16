@@ -1,4 +1,4 @@
-Milestone 6zzq: history-length design table (no new runs; parsed from 6zzi, 6zzj, 6zzk, 6zzp)
+Milestones 6zzq / 6zzr: history-length design table (no new runs; parsed from 6zzi, 6zzj, 6zzk, 6zzp, 6zzr)
 No correction AT_90: all168 139, hi168 25 (of 168)
 
 A. Raw month ratios LC by years of log k, mean [worst, best] over every subset of the five learning years
@@ -9,7 +9,7 @@ A. Raw month ratios LC by years of log k, mean [worst, best] over every subset o
   4      5 |  152.2 [143,160]  never below    |   99.8 [ 81,107]  never below
   5      1 |  158.0 [158,158]  never below    |  105.0 [105,105]  never below
 
-B. One and two years by rule, mean [worst, best] over the years drawn
+B. One to five years by rule, mean [worst, best] over the years drawn
   history  draws rule ms   |  all168              vs AT_90       |  hi168               vs AT_90
   1 year       5 LC   6zzj |  121.8 [ 97,152]  below on mean  |   81.0 [  1,153]  above on mean
   1 year       5 LHF  6zzj |  138.8 [126,155]  below on mean  |   74.2 [  1,140]  above on mean
@@ -27,10 +27,29 @@ B. One and two years by rule, mean [worst, best] over the years drawn
   2 years     10 LB   6zzk |  152.0 [142,159]  never below    |   56.0 [ 11, 96]  above on mean
   2 years     10 HR   6zzk |  151.9 [145,159]  never below    |   54.0 [ 18, 80]  above on mean
   2 years     10 HX   6zzk |  152.1 [145,159]  never below    |   56.0 [ 19, 83]  above on mean
+  3 years     10 LC   6zzr |  149.3 [123,160]  above on mean  |   95.7 [ 50,128]  never below
+  3 years     10 LHF  6zzr |  156.5 [147,164]  never below    |   83.0 [ 34,112]  never below
+  3 years     10 LAP  6zzr |  156.4 [149,163]  never below    |   66.6 [ 21,102]  above on mean
+  3 years     10 LB   6zzr |  156.2 [149,161]  never below    |   61.1 [ 23, 90]  above on mean
+  3 years     10 HR   6zzr |  155.5 [150,161]  never below    |   56.7 [ 31, 86]  never below
+  3 years     10 HX   6zzr |  155.4 [150,161]  never below    |   58.0 [ 31, 87]  never below
+  4 years      5 LC   6zzr |  152.2 [143,160]  never below    |   99.8 [ 81,107]  never below
+  4 years      5 LHF  6zzr |  158.2 [152,166]  never below    |   89.0 [ 76,102]  never below
+  4 years      5 LAP  6zzr |  158.2 [152,163]  never below    |   76.4 [ 59, 94]  never below
+  4 years      5 LB   6zzr |  158.0 [153,162]  never below    |   70.6 [ 49, 91]  never below
+  4 years      5 HR   6zzr |  156.6 [153,161]  never below    |   69.8 [ 59, 82]  never below
+  4 years      5 HX   6zzr |  156.8 [153,161]  never below    |   70.4 [ 60, 82]  never below
+  5 years      1 LC   6zzr |  158.0 [158,158]  never below    |  105.0 [105,105]  never below
+  5 years      1 LHF  6zzr |  161.0 [161,161]  never below    |   92.0 [ 92, 92]  never below
+  5 years      1 LAP  6zzr |  161.0 [161,161]  never below    |   85.0 [ 85, 85]  never below
+  5 years      1 LB   6zzr |  162.0 [162,162]  never below    |   81.0 [ 81, 81]  never below
+  5 years      1 HR   6zzr |  160.0 [160,160]  never below    |   73.0 [ 73, 73]  never below
+  5 years      1 HX   6zzr |  160.0 [160,160]  never below    |   76.0 [ 76, 76]  never below
 
-Never below no correction over all draws, all168: 1 year/HR, 1 year/HX, 2 years/LAP, 2 years/LB, 2 years/HR, 2 years/HX
-Never below no correction over all draws, hi168: 1 year/DG, 1 year/DH, 1 year/SZ, 2 years/LC
-Never below on both pools: LC k=4, LC k=5
+Never below no correction over all draws, all168: 1 year/HR, 1 year/HX, 2 years/LAP, 2 years/LB, 2 years/HR, 2 years/HX, 3 years/LHF, 3 years/LAP, 3 years/LB, 3 years/HR, 3 years/HX, 4 years/LC, 4 years/LHF, 4 years/LAP, 4 years/LB, 4 years/HR, 4 years/HX, 5 years/LC, 5 years/LHF, 5 years/LAP, 5 years/LB, 5 years/HR, 5 years/HX
+Never below no correction over all draws, hi168: 1 year/DG, 1 year/DH, 1 year/SZ, 2 years/LC, 3 years/LC, 3 years/LHF, 3 years/HR, 3 years/HX, 4 years/LC, 4 years/LHF, 4 years/LAP, 4 years/LB, 4 years/HR, 4 years/HX, 5 years/LC, 5 years/LHF, 5 years/LAP, 5 years/LB, 5 years/HR, 5 years/HX
+Never below on both pools: 3 years/LHF, 3 years/HR, 3 years/HX, 4 years/LC, 4 years/LHF, 4 years/LAP, 4 years/LB, 4 years/HR, 4 years/HX, 5 years/LC, 5 years/LHF, 5 years/LAP, 5 years/LB, 5 years/HR, 5 years/HX
+Fewest seasons never below on both pools, per rule: LC 4 years, LHF 3 years, LAP 4 years, LB 4 years, HR 3 years, HX 3 years, DG none of those run, DH none of those run, SZ none of those run, TE none of those run
 Best one-year mean all168: HR (6zzj) 147.0
 Best one-year mean hi168: DG (6zzp) 109.2
-Spans (best - worst) all168 / hi168: 1 year/LC 55/152, 1 year/LHF 29/139, 1 year/LAP 21/101, 1 year/LB 19/86, 1 year/HR 13/88, 1 year/HX 13/93, 1 year/DG 67/78, 1 year/DH 57/122, 1 year/SZ 37/39, 1 year/TE 49/164, 2 years/LC 39/116, 2 years/LHF 26/123, 2 years/LAP 19/94, 2 years/LB 17/85, 2 years/HR 14/62, 2 years/HX 14/64
+Spans (best - worst) all168 / hi168: 1 year/LC 55/152, 1 year/LHF 29/139, 1 year/LAP 21/101, 1 year/LB 19/86, 1 year/HR 13/88, 1 year/HX 13/93, 1 year/DG 67/78, 1 year/DH 57/122, 1 year/SZ 37/39, 1 year/TE 49/164, 2 years/LC 39/116, 2 years/LHF 26/123, 2 years/LAP 19/94, 2 years/LB 17/85, 2 years/HR 14/62, 2 years/HX 14/64, 3 years/LC 37/78, 3 years/LHF 17/78, 3 years/LAP 14/81, 3 years/LB 12/67, 3 years/HR 11/55, 3 years/HX 11/56, 4 years/LC 17/26, 4 years/LHF 14/26, 4 years/LAP 11/35, 4 years/LB 9/42, 4 years/HR 8/23, 4 years/HX 8/22, 5 years/LC 0/0, 5 years/LHF 0/0, 5 years/LAP 0/0, 5 years/LB 0/0, 5 years/HR 0/0, 5 years/HX 0/0

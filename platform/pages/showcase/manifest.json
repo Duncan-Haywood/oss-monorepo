@@ -4,12 +4,14 @@
     {
       "slug": "wall-framing-takeoff",
       "file": "wall-framing-takeoff.webp",
-      "caption": "Draws every stud, header and cripple, then prices the lumber order"
+      "caption": "Draws every stud, header and cripple, then prices the lumber order",
+      "hero": "wall-framing-takeoff-hero.webp"
     },
     {
       "slug": "container-load-planner",
       "file": "container-load-planner.webp",
-      "caption": "Packs cartons and pallets into containers, drawn to scale"
+      "caption": "Packs cartons and pallets into containers, drawn to scale",
+      "hero": "container-load-planner-hero.webp"
     },
     {
       "slug": "band-tour-profit-planner",
@@ -34,7 +36,8 @@
     {
       "slug": "ebay-fee-calculator",
       "file": "ebay-fee-calculator.webp",
-      "caption": "Says what an eBay sale really leaves after fees"
+      "caption": "Says what an eBay sale really leaves after fees",
+      "hero": "ebay-fee-calculator-hero.webp"
     },
     {
       "slug": "incident-postmortem-timeline",

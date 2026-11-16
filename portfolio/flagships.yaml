@@ -262,7 +262,7 @@ flagships:
       gain, stays opt-in (README "The order-free pass played"); a real two-site
       export and staff list (README "Staff shared between sites"); own and site
       rates read from staff CSVs and 7shifts (README "Per-location pay from an
-      export");. More open items: NEXT.md.
+      export"). More open items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -271,13 +271,12 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer learned: in C
-      2026-11-16 (eval/bayer-learned-native-*), 2.6-3.3x the default's time; fuse
-      its feature passes, or noisy and near-Nyquist training
-      (eval/bayer-learned-laplace-*). X-Trans: a per-frame choice (A7 IV wants less
-      edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
-      eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer learned: fused in C
+      2026-11-16, 1.5-2.0x the default's time (eval/bayer-learned-fused-*); next
+      noisy and near-Nyquist training (eval/bayer-learned-laplace-*). X-Trans: a
+      per-frame choice (A7 IV wants less edge-keeping, GF7/NX1 a wider red/blue
+      window; --truth-from, eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0
+      spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -375,15 +374,17 @@ flagships:
       teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
       out; 18 and 24 teams: 318 and 570 are the least starters
       (eval/starter-exhaust.txt), so lower needs non-starter moves; a real league's
-      travel and blackout list;. More open items: NEXT.md.
+      travel and blackout list. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Spin fit (firmware/esp32/README.md "Spin from fast
-      wheels", 2026-11-16): faster calibration spin shots halved the error; a -1.9%
-      speed-dependent drop bias is left. Next: a recovery model with the loop's
-      shape (tach lag, then PI) in place of the parabola, tried on captured period
-      snapshots; a pulse-time fit that holds under 1,000 rpm.
+      venv, about 2 min). Model check (firmware/esp32/README.md "When the wheel is
+      not a first-order lag", 2026-11-16): the loop fit's standard error marks
+      unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
+      or a 30 ms ESC lag puts the drill's spin 5-24% off. Next: fit the drop on edge
+      times (jitter is on times, not periods); ESC_TAU_US (README "An ESC lag
+      picked..."): sum its residual grid on the board over a drill, finer grid;
+      retest MIN_FIT_RPM.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -431,10 +432,10 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-16
-      latest: /i/ no longer read as a voiced fricative (VFRIC_HI5; new held-out part
-      L, pre-registered: /i/ 110 to 153 of 160); next: E4 eighth-note murmurs read
-      as a closure, L's sub/cum as nothing, G control nasals 44). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
+      latest: E4 eighth-note murmurs (DEEP) failed two pre-registrations on new
+      held-out parts N and O, kept off as --deep on; next: O's D4-E4 eighth misses
+      with a new part P, L's sub/cum as nothing, G control nasals 44). Open checks
+      that need a person: listen to the studio page, --sing, the options (--stretch,
       --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
       cappella verse and whether the key lift sounds like a lift); --lrc in a real
       player and --markers/--stems in a DAW; --cues (and its section lines),

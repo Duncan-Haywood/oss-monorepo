@@ -13,6 +13,12 @@ from machine import ADC, PWM, UART, Pin
 
 import config
 import controller
+
+try:
+    import micropython
+    micropython.alloc_emergency_exception_buf(100)   # a fault inside the hard tach interrupt can still be reported
+except ImportError:                                    # CPython (tests/feeder_sim.py)
+    pass
 import protocol
 
 ROLE = getattr(config, "ROLE", controller.ROLE_FEEDER)
@@ -108,7 +114,13 @@ class Tach:
         self.last_us = time.ticks_us()
         self.rpm = 0
         self.rpm_last = 0
-        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
+        self.since = 0
+        # A hard interrupt (2026-11-16, README "When the wheel is not a first-order lag"): a soft one only schedules
+        # _p, so ticks_us() is read whenever the main loop next yields, up to a control tick's work later. The drop fit
+        # reads each revolution's period from these times, and on the simulator 5 us of edge jitter took the
+        # calibration drill's spin error from 1.6% to 5.3%, 10 us to 16%. _p and PeriodTach.edge allocate nothing
+        # (small ints, list stores), as a hard handler must.
+        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING, hard=True)
 
     def _p(self, _):
         now = time.ticks_us()
@@ -117,6 +129,7 @@ class Tach:
 
     def update(self, dt):
         since = time.ticks_diff(time.ticks_us(), self.last_us)
+        self.since = since                            # LaunchCheck's tick log aligns each command to the edges with it
         self.rpm = self.core.rpm(since)
         self.rpm_last = self.core.rpm_last(since)     # one revolution, unaveraged: the empty-hopper check reads it
 
@@ -222,7 +235,7 @@ class FeederHw:
                 getattr(config, "WHEEL_RADIUS_M", 0.075), getattr(config, "BALL_RADIUS_M", 0.0335),
                 getattr(config, "LAUNCH_SPEED_EFF", 0.85), getattr(config, "LAUNCH_SPIN_EFF", 0.5),
                 getattr(config, "LAUNCH_DIP_SHARE", 0.25), getattr(config, "LAUNCH_DIP_MIN", 0.015),
-                getattr(config, "LAUNCH_CHECK_MS", 250))
+                getattr(config, "LAUNCH_CHECK_MS", 250), getattr(config, "ESC_TAU_US", 0))
         self.hopper_empty = False     # the last judged stroke put no ball through the wheels; cleared by the next FEED
         self.dry_strokes = 0          # strokes judged empty since power-up
         self.launches = 0             # strokes judged to have launched a ball since power-up
@@ -385,7 +398,8 @@ class FeederHw:
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
         if self.launch is not None:
             went = self.launch.update(now, (self.tach_top.rpm_last, self.tach_bottom.rpm_last), self.target_rpm,
-                                    (self.tach_top.core, self.tach_bottom.core))
+                                    (self.tach_top.core, self.tach_bottom.core), self.esc_cmd,
+                                    (self.tach_top.since, self.tach_bottom.since))
             if went is True:
                 self.launches += 1
                 self.hopper_empty = False

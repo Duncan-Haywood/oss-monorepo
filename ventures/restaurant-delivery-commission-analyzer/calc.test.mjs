@@ -708,3 +708,33 @@ test("the example's error charges span the $6 to $26 range the generator draws",
   assert.equal(errs.length, 11);
   assert.equal(errs.reduce((s, e) => s + e, 0).toFixed(2), "160.87");
 });
+
+// Red team 2026-11-16: a cancelled order whose row still lists the subtotal
+// (no charge, nothing paid out) added its food sales to sales and net cash, so
+// one $25 cancellation turned a 20% take rate into 10.9%.
+test("a cancelled order's listed subtotal is not food sales; its charges stay as cost", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,30,-6,0,0,0,0,24\nB,DoorDash,2026-06-02 12:00,Cancelled,25,0,0,0,0,0,0\nC,DoorDash,2026-06-03 12:00,Cancelled by store,18,0,0,0,0,-5,-5\n");
+  const r = analyze(n.orders, { foodPct: 30, packaging: 1 });
+  near(r.summary.gross, 30);
+  near(r.summary.net, 30 - 6 - 5);
+  near(r.summary.takeRate, 11 / 30);
+  assert.equal(r.summary.cancelledDropped, 1, "B carries no charge, so it is dropped");
+  assert.equal(r.summary.cancelledKept, 1);
+  near(r.byPlatform[0].gross, 30);
+  near(r.summary.payoutGap, 0); // payouts 24 - 5 match the net once the cancelled subtotals are out
+  // A refunded row keeps its negative food sales: "Refunded" is a cancel word.
+  const f = load("A,DoorDash,2026-06-01 12:00,Delivered,30,-6,0,0,0,0,24\nR,DoorDash,2026-06-02 12:00,Refunded,-10,0,0,0,0,0,-10\n");
+  near(analyze(f.orders, {}).summary.gross, 20);
+});
+
+test("edge inputs the parsers must reject or read one way", () => {
+  // A UTF-8 (or Latin-1) file is never read as UTF-16 because of one byte.
+  assert.equal(decodeBuffer(new Uint8Array([0x41, 0xff, 0x42])).charAt(0), "A");
+  assert.equal(decodeBuffer(new Uint8Array([0xfe, 0x41, 0x42])).charAt(1), "A");
+  // "12.50" alone votes for a decimal point, even in a semicolon file.
+  assert.equal(detectDecimalComma([["Subtotal"], ["12.50"], ["8.25"]], ";"), false);
+  // A three-digit day or month is a typo, not day 11.
+  assert.equal(parseWhen("2026-06-011"), null);
+  assert.equal(parseWhen("6/011/2026"), null);
+  assert.equal(detectDmy(["13/5/2026", "5/013/2026"]), true, "a malformed second part does not veto day-first");
+});
