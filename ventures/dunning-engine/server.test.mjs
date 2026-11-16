@@ -4,6 +4,7 @@ import http from "node:http";
 import { handler, linkToken, customerFromToken } from "./server.mjs";
 import { signPayload } from "./stripe.mjs";
 import { newState } from "./engine.mjs";
+import { formatMoneyMap } from "./dunning.mjs";
 
 const NOW = Date.UTC(2026, 9, 13, 12);
 async function boot(over = {}) {
@@ -50,6 +51,8 @@ test("admin endpoints need the bearer key", async () => {
   await fetch(`${s.base}/webhook/stripe`, { method: "POST", body: evt, headers: signed() });
   const sum = await (await fetch(`${s.base}/v1/summary`, { headers: { authorization: "Bearer adm" } })).json();
   assert.equal(sum.open, 1); assert.equal(sum.dryRun, true);
+  assert.equal(typeof sum.atRisk, "string", "the dashboard shows only scalar fields, so the at-risk money needs a formatted one");
+  assert.equal(sum.atRisk, formatMoneyMap(sum.atRiskMinor)); assert.match(sum.atRisk, /\d/);
   const cases = await (await fetch(`${s.base}/v1/cases`, { headers: { authorization: "Bearer adm" } })).json();
   assert.equal(cases[0].invoiceId, "in_1");
   s.close();
