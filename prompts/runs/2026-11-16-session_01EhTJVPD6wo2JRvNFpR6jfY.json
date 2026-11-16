@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPD6wo2JRvNFpR6jfY",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T22:05:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: tile-layout-planner evaluateLayout skips tiles that miss the floor",
+  "projects": [
+    "tile-layout-planner"
+  ],
+  "pr": 16716,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/posts/",
+      "issue": "post description limit of 160 chars is enforced only by the push hook; caught after commit, needed a fix-up commit"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-16-tile-layout-skip-missed-tiles.md",
+    "docs/posts/2026-11-16-half-the-tiles-we-checked-were-not-on-the-floor.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of tile-layout-planner calc work. Golden set (136 random specs, all 7 planMode modes keep=true + compareLayouts, JSON hashed; node golden.mjs, 2 runs each): before 21.5/23.0 s, after 15.0/15.4 s, hash 9d363d6f... identical. node --test calc.test.mjs alone (3 runs each): before 7.5/8.1/8.5 s, after 4.9/4.7/4.5 s. Profile (node --cpu-prof self time) and a counting copy showed 43.4M of 90M visited cells were off-floor tiles; diagonal ones each built a polygon first. Pinned-output test passes on old and new calc.mjs. run_venture_tests.py tile-layout-planner ok (45 tests); pages.yml local 6/6 run steps passed (uses: steps not run).",
+  "corrections": [],
+  "redteam": null
+}
