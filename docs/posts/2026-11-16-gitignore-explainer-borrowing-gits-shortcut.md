@@ -2,7 +2,7 @@
 title: "A 4x faster .gitignore check by copying a shortcut git already takes"
 date: 2026-11-16
 tags: [ventures, gitignore-explainer, performance]
-description: "The .gitignore Explainer took 2.7 seconds on 200 rules and 20,000 paths. Git skips its pattern matcher for rules like *.log; doing the same got it to 0.7 s with identical output."
+description: "The .gitignore Explainer took 2.7 s on 200 rules and 20,000 paths. Git skips its matcher for rules like *.log; doing the same got it to 0.7 s, output unchanged."
 ---
 
 The [.gitignore Explainer](https://marisstella.app/gitignore-explainer/) takes
