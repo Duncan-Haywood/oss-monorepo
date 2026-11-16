@@ -28,7 +28,12 @@ is taken first and uses wage base first, the cautious reading. After-tax value =
 
 Defaults are placeholders. Eligibility, whether tips were properly reported, service charges,
 the general business credit limit and carryovers, wage-base changes by year and state rules are
-not modelled. Not tax advice; have a CPA check the figures before filing.
+not modelled. The credit is computed on annual totals per employee; the FLSA minimum wage that
+section 45B refers to is measured per workweek, so for an employee whose tips swing from week to
+week (seasonal work) a week-by-week calculation can give a smaller credit than this annual one.
+Roster lines with thousands commas ("24,000") are read when the separator after each field has a
+space or the line uses tabs or semicolons; a line that cannot be read unambiguously is listed as
+skipped, never read with its fields shifted. Not tax advice; have a CPA check the figures before filing.
 
 ## Tests
 
