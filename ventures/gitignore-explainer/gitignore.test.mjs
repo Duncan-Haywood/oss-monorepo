@@ -287,3 +287,34 @@ test("wildcards take one byte, as in git, so `?` does not match an accented lett
   assert.ok(wildmatch("??", "é"));
   assert.ok(wildmatch("café*", "café.txt"));
 });
+
+test("`[[:` with no `:]` is a literal `[` in a set that goes on reading", () => {
+  // checked with `git status --ignored` (git 2.43): `[[:x]b` is the set
+  // {[, :, x} then b, so it ignores xb, :b and [b but not yb
+  for (const t of ["xb", ":b", "[b"]) assert.ok(wildmatch("[[:x]b", t), t);
+  assert.ok(!wildmatch("[[:x]b", "yb"));
+});
+
+test("a global excludes file at ~/.config/git/ignore applies repository-wide", () => {
+  const r = decide("==> home/me/.config/git/ignore <==\nfoo\n", "sub/foo");
+  assert.equal(r.ignored, true);
+  assert.equal(r.rule.source, "home/me/.config/git/ignore");
+});
+
+test("an unmatched anchored rule in a nested file names that file's folder", () => {
+  const r = run("==> web/.gitignore <==\nsrc/gen\n", "web/other.txt");
+  const f = r.findings.find((x) => x.kind === "unmatched");
+  assert.match(f.detail, /only matches relative to `web\/`\. To match at any depth, write `\*\*\/src\/gen`/);
+});
+
+test("a .gitignore in a folder named global or excludesfile is a folder file, not a global excludes file", () => {
+  // the label heuristic for a pasted global file (`==> global <==`) used to
+  // match any path starting with those words, so global/.gitignore ignored
+  // paths all over the repository
+  for (const dir of ["global", "Global", "global-config", "excludesfile"]) {
+    assert.equal(decide(`==> ${dir}/.gitignore <==\nfoo\n`, "other/foo").ignored, false, dir);
+    assert.equal(decide(`==> ${dir}/.gitignore <==\nfoo\n`, `${dir}/foo`).ignored, true, dir);
+  }
+  assert.equal(decide("==> global <==\nfoo\n", "other/foo").ignored, true);
+  assert.equal(decide("==> core.excludesFile <==\nfoo\n", "a/b/foo").ignored, true);
+});

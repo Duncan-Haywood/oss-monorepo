@@ -59,6 +59,35 @@ test('git: merges per day, lead time from the oldest branch commit, reverts', ()
   assert.deepEqual(inventory(repo), { ventures: 1, research_projects: 0 });
 });
 
+// The deploy job clones 3000 commits deep, under 30 days of this repository.
+// git diffs the shallow boundary commit against nothing, so every venture in
+// the tree looked added in the window: marisstella.app/dev read "1,377
+// ventures added" in 30 days, the whole portfolio (red team, 2026-11-16).
+test('git: a shallow clone boundary does not count every venture as added', () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'devstats-shallow-'));
+  const origin = path.join(dir, 'origin');
+  mkdirSync(origin);
+  const g = (args, date) => execFileSync('git', ['-C', origin, ...args], {
+    env: { ...process.env, GIT_AUTHOR_DATE: date, GIT_COMMITTER_DATE: date, GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@t', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@t' },
+  });
+  const venture = (slug, date, msg) => {
+    mkdirSync(path.join(origin, 'ventures', slug), { recursive: true });
+    writeFileSync(path.join(origin, 'ventures', slug, 'VENTURE.yaml'), `name: ${slug}\n`);
+    g(['add', '.'], date);
+    g(['commit', '-qm', msg], date);
+  };
+  g(['init', '-q', '-b', 'main'], '2026-09-01T00:00:00Z');
+  venture('old', '2026-09-01T00:00:00Z', 'old venture, long before the window');
+  g(['commit', '-q', '--allow-empty', '-m', 'filler'], '2026-10-15T00:00:00Z');
+  venture('new', '2026-10-16T09:00:00Z', 'new venture, inside the window');
+  g(['commit', '-q', '--allow-empty', '-m', 'tip'], '2026-10-16T10:00:00Z');
+
+  assert.equal(fromGit(origin, { now: NOW, days: 3 }).ventures_added, 1);
+  const shallow = path.join(dir, 'shallow');
+  execFileSync('git', ['clone', '-q', '--depth', '3', `file://${origin}`, shallow]);
+  assert.equal(fromGit(shallow, { now: NOW, days: 3 }).ventures_added, 1);
+});
+
 test('runs: window, grouping, measured cost only from runcost blocks, bad files skipped', () => {
   const r = fromRuns(repoFixture(), { now: NOW, days: 30 });
   assert.equal(r.runs, 2);

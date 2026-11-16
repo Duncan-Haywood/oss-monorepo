@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadFiction, longDate, renderStoriesPage, STORIES_PATH } from './stories.mjs';
+import { existsSync } from 'node:fs';
+import { LISTEN, loadFiction, longDate, renderListen, renderStoriesPage, STORIES_PATH } from './stories.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadAudio as loadStoryAudio } from '../../ventures/hearth-and-horizon/generate.mjs';
@@ -92,4 +93,38 @@ test('longDate writes ISO dates long and leaves anything else alone', () => {
   assert.equal(longDate('2026-11-05'), '5 November 2026');
   assert.equal(longDate('2026-13-05'), '2026-13-05');
   assert.equal(longDate('soon'), 'soon');
+});
+
+test('each shelf with recordings has a Listen panel: its newest recorded pieces, players that download nothing until pressed', () => {
+  const shelf = {
+    id: 'demo', title: 'Demo', tagline: 't', description: 'd', audience: 'a', href: 'demo/', feed: 'demo/feed.xml',
+    count: 4, withAudio: 3,
+    items: [
+      { title: 'Unread', href: 'demo/unread.html', summary: 's', meta: 'm', published: '2026-11-16', minutes: null, audio: null },
+      { title: 'Newest heard', href: 'demo/a.html', summary: 's', meta: 'm', published: '2026-11-15', minutes: 8, audio: 'demo/audio/a.mp3' },
+      { title: 'Next heard', href: 'demo/b.html', summary: 's', meta: 'm', published: '2026-11-01', minutes: 12, audio: 'demo/audio/b.mp3' },
+      { title: 'Old heard', href: 'demo/c.html', summary: 's', meta: 'm', published: '2026-10-01', minutes: 9, audio: 'demo/audio/c.mp3' },
+    ],
+  };
+  const html = renderListen(shelf, '../');
+  assert.equal((html.match(/<audio /g) || []).length, LISTEN);
+  assert.ok(html.indexOf('Newest heard') < html.indexOf('Next heard'));
+  assert.doesNotMatch(html, /Unread|Old heard/);
+  assert.match(html, /<audio controls preload="none" src="\.\.\/demo\/audio\/a\.mp3" aria-label="Listen to Newest heard"><\/audio>/);
+  assert.match(html, /About 8 min · <time datetime="2026-11-15">15 November 2026<\/time>/);
+  const page = renderStoriesPage([shelf]);
+  assert.match(page, /<div class="shelf-head has-listen">/);
+  assert.equal(renderListen({ ...shelf, items: shelf.items.slice(0, 1) }, '../'), '', 'no panel without recordings');
+});
+
+test('every real shelf with audio gets a panel whose files are the ones its venture ships', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..', 'ventures');
+  for (const shelf of loadFiction()) {
+    const html = renderListen(shelf, '../');
+    assert.equal(Boolean(html), shelf.withAudio > 0, shelf.id);
+    for (const [, src] of html.matchAll(/<audio [^>]*src="\.\.\/([^"]+)"/g)) {
+      const [venture, , file] = src.split('/');
+      assert.ok(existsSync(path.join(root, venture, 'audio', file)), `${shelf.id}: ${src} is committed`);
+    }
+  }
 });
