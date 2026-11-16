@@ -35,13 +35,15 @@ function deployerRepo(values, history) {
   const addRow = (i) => { git(dev, 'pull', '-q', '--rebase'); appendFileSync(join(dev, 'data/metric.csv'), row(i, values[i])); git(dev, 'commit', '-qam', `data ${day(i)}`); git(dev, 'push', '-q'); };
   return { dev, remote, workflow: join(dev, '.github/workflows/watch-metric.yml'), addRow };
 }
+// Step positions in a run's results: checkout, setup-node, cache, Stripe fetch, check, save.
+const CHECK = 4, SAVE = 5;
 const stateOnRemote = (r) => { git(r.dev, 'pull', '-q', '--rebase'); return JSON.parse(readFileSync(join(r.dev, 'watch-state.json'), 'utf8')); };
 
 test('the workflow file has the steps the runner emulation expects', () => {
   const steps = parseSteps(readFileSync(new URL('./deploy/watch-metric.yml', import.meta.url), 'utf8'));
-  assert.deepEqual(steps.map((s) => s.uses || s.name), ['actions/checkout@v4', 'actions/setup-node@v4', 'Check for a new change', 'Save what was reported']);
-  assert.equal(steps[3].if, 'always()');
-  assert.match(steps[2].run, /node watch\.mjs "\$METRIC_CSV" --state watch-state\.json/);
+  assert.deepEqual(steps.map((s) => s.uses || s.name), ['actions/checkout@v4', 'actions/setup-node@v4', 'actions/cache@v4', 'Fetch Stripe metrics', 'Check for a new change', 'Save what was reported']);
+  assert.equal(steps[5].if, 'always()');
+  assert.match(steps[4].run, /node watch\.mjs "\$METRIC_CSV" --state watch-state\.json/);
 });
 
 test('without a webhook: a baseline run, quiet days, one red run for the new level, then quiet again', () => {
@@ -56,8 +58,8 @@ test('without a webhook: a baseline run, quiet days, one red run for the new lev
   for (let i = 60; i < values.length; i++) {
     r.addRow(i);
     const run = runWorkflow({ workflow: r.workflow, remote: r.remote, vars });
-    if (!run.ok) red.push({ day: i, out: run.steps[2].stdout });
-    assert.equal(run.steps[3].code, 0, `day ${i}: the state was saved even on a red run`);
+    if (!run.ok) red.push({ day: i, out: run.steps[CHECK].stdout });
+    assert.equal(run.steps[SAVE].code, 0, `day ${i}: the state was saved even on a red run`);
   }
   assert.equal(red.length, 1, JSON.stringify(red));
   // dated within --tolerance (5) of the true day 70, reported after --confirm (5) points on its far side
@@ -81,13 +83,13 @@ test('a data commit pushed while the run is in progress does not lose the state 
   // another job appends tomorrow's row between the check and the save
   const run = runWorkflow({ workflow: r.workflow, remote: r.remote, vars, beforeStep: (name) => { if (name === 'Save what was reported') r.addRow(i); } });
   assert.equal(run.ok, false, 'the new level turns the run red');
-  assert.equal(run.steps[3].code, 0, run.steps[3].stderr);
+  assert.equal(run.steps[SAVE].code, 0, run.steps[SAVE].stderr);
   const st = stateOnRemote(r);
   assert.ok(JSON.stringify(st).includes(day(70).slice(0, 7)), 'the reported change is on record at the remote');
   // so the next run does not report it a second time
   r.addRow(i + 1);
   const next = runWorkflow({ workflow: r.workflow, remote: r.remote, vars });
-  assert.ok(next.ok, next.steps[2].stdout);
+  assert.ok(next.ok, next.steps[CHECK].stdout);
 });
 
 // runWorkflow blocks this process while a run is going, so the stand-in webhook runs in a child process: it logs
@@ -117,7 +119,7 @@ test('with a webhook: alerts go to chat once and the run stays green; a failing 
       r.addRow(i);
       if (posts().length) writeFileSync(status, '200'); // the chat service recovers the day after it first failed
       const run = runWorkflow({ workflow: r.workflow, remote: r.remote, vars, secrets });
-      results.push({ day: i, ok: run.ok, err: run.steps[2].stderr });
+      results.push({ day: i, ok: run.ok, err: run.steps[CHECK].stderr });
     }
     const all = posts();
     assert.deepEqual(all.map((p) => p.status), [500, 200], 'one failed post, retried once the next day, delivered once');
@@ -134,7 +136,7 @@ test('an unset METRIC_CSV fails the first step with the instruction, and saves n
   const r = deployerRepo(series(), 60);
   const run = runWorkflow({ workflow: r.workflow, remote: r.remote });
   assert.equal(run.ok, false);
-  assert.equal(run.steps[2].code, 2);
-  assert.match(run.steps[2].stdout, /Set the METRIC_CSV variable/);
-  assert.equal(run.steps[3].code, 0);
+  assert.equal(run.steps[CHECK].code, 2);
+  assert.match(run.steps[CHECK].stdout, /Set the METRIC_CSV variable or the STRIPE_API_KEY secret/);
+  assert.equal(run.steps[SAVE].code, 0);
 });
