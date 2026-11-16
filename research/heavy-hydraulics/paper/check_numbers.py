@@ -454,6 +454,15 @@ MANUSCRIPT_CHECKS = [
     ("E<sub>50</sub> = 0.8239 + 0.0179 (kW &minus; 3.57)", "gear_pump_seven_results.txt", "E50 = 0.8239 + 0.0179 (kW - 3.57)"),
     ("an RMS of 0.0023 against 0.0120 for a constant (0.0037 against 0.0099", "gear_pump_seven_results.txt", "seven held-out diagonals: one-number 0.0120, two-number 0.0023"),
     ("(0.0037 against 0.0099 over all 91 held-out cells)", "gear_pump_seven_results.txt", "91 held-out cell predictions: one-number 0.0099, two-number 0.0037"),
+    # milestone 7a: eighth family (AZPF), largest size below the index point
+    ("whose largest size gives 58.87 L/min, so 76.6% of the fixed-pump", "gear_pump_eight_results.txt", "largest size gives 58.87 L/min of 20 bar flow, so 85 L/min lies outside the family and the hold rule prices it; 76.6%"),
+    ("its index is 0.9103 and its idle power at 85 L/min 2.61 kW", "gear_pump_eight_results.txt", "azpf       0.9103       +0.0000     2.61"),
+    ("It crosses at 0.8075; the seven-family rule predicts 0.8067, an error of +0.0008", "gear_pump_eight_results.txt", "(2.61 - 3.57) = 0.8067; error +0.0008"),
+    ("a constant misses by &minus;0.0060", "gear_pump_eight_results.txt", "(C) seven-family one-number 0.8135; error -0.0060"),
+    ("Held at size 25 instead, the error is +0.0010", "gear_pump_eight_results.txt", "rule (Z) at its kW 0.8042, error +0.0010"),
+    ("E<sub>50</sub> = 0.8238 + 0.0177 (kW &minus; 3.57)", "gear_pump_eight_results.txt", "E50 = 0.8238 + 0.0177 (kW - 3.57)"),
+    ("an RMS of 0.0022 against 0.0113 for a constant", "gear_pump_eight_results.txt", "eight held-out diagonals: one-number 0.0113, two-number 0.0022"),
+    ("lands 0.0008 from the seven-family rule", "gear_pump_eight_results.txt", "AF1 AZPF within 0.006 of rule (Z): held (+0.0008)"),
 ]
 
 
