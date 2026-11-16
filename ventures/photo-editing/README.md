@@ -1384,6 +1384,19 @@ and only one real profile (an LG Nexus 5X's, about 20% above the in-frame estima
 4.4 s against 2.0 s for 12 MP. How it was checked:
 `tools/xtrans_frame_choice.py`, `eval/xtrans-noise-aware-blend-2026-11-16.md`.
 
+**Since the same day every profile is checked against the frame before the blend uses it.** On 83 real CFA
+DNGs from 80 bodies (raw.pixls.us), 43 profiles state more than 1.25x the noise their own sensels show, 25
+more than 2x and 11 more than 5x, up to 77x (third-party iPhone apps 14-32x; Adobe-written profiles 0.94-1.20).
+The check (`xtrans_demosaic.profile_ratio`) compares the profile with the quietest blocks at each brightness.
+It reads an honest synthetic profile as 0.95-1.02 and a k-times-overstated one as k within 5%, and texture can
+only make it read low. A profile over 1.25x is scaled to 1.25x, and the develop notes say so. On a synthetic
+scene where a 4x-16x overstated profile cost 1.4-10.6 dB, the guarded blend is within 0.02 dB of the true
+profile's at every overstatement from 2x to 100x, on Bayer and X-Trans. The guard adds a median 2.7 s per file.
+The same check found that the reader refused profiles with a read-noise term of exactly 0, which DNG 1.7.1.0
+allows and 14 of the 83 files write (Samsung, OnePlus, Xiaomi, LG, asus). They are read now. The mode stays
+opt-in: its gains are still measured on synthetic noise. `tools/noise_profile_check.py`,
+`tools/noise_profile_guard_synth.py`, `eval/noise-profile-real-dngs-2026-11-16.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

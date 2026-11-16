@@ -120,7 +120,7 @@ class NoiseAwareTests(unittest.TestCase):
 
 @unittest.skipUnless(has_numpy(), "numpy not installed")
 class ProfileGuardTests(unittest.TestCase):
-    """``profile_ratio`` / ``guard_profile`` (eval/noise-profile-real-dngs-2026-11-17.md): a profile that states
+    """``profile_ratio`` / ``guard_profile`` (eval/noise-profile-real-dngs-2026-11-16.md): a profile that states
     far more noise than the mosaic shows is scaled down; an honest one is left alone."""
 
     def _scene(self, pat, shot=2e-4, read=2e-6, n=192, seed=4):

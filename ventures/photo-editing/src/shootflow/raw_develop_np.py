@@ -279,7 +279,7 @@ def _directional(norm, w, h, pat, mults, hi, demosaic="directional", noise=None,
         shot, read = noise
         plane_noise = (float(shot) * float(np.mean(g)), float(read) * float(np.mean(g * g)))
         if guard:
-            # A profile far above the noise the mosaic shows is scaled down (eval/noise-profile-real-dngs-2026-11-17.md).
+            # A profile far above the noise the mosaic shows is scaled down (eval/noise-profile-real-dngs-2026-11-16.md).
             from shootflow.xtrans_demosaic import PROFILE_CAP, guard_profile
 
             plane_noise, ratio = guard_profile(plane, pat, plane_noise)

@@ -2139,8 +2139,8 @@ def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
     normalised to 0..1 (black 0, white 1): the mean over the colour planes when it gives one pair per plane.
     None when the file has none or it is malformed: an odd count, or a pair outside the DNG 1.7.1.0 rule
     "each S_i term must be positive (S_i > 0), and each O_i term must be non-negative (O_i >= 0)". A read
-    term of exactly 0 is legal and common: 13 of 61 phone and camera profiles on raw.pixls.us write one
-    (Samsung, OnePlus, Xiaomi, asus); until 2026-11-17 they were refused (eval/noise-profile-real-dngs-2026-11-17.md)."""
+    term of exactly 0 is legal and common: 14 of the 83 CFA DNG profiles checked on raw.pixls.us write one
+    (Samsung, OnePlus, Xiaomi, LG, asus); until 2026-11-16 they were refused (eval/noise-profile-real-dngs-2026-11-16.md)."""
 
     for d in (ifd, ifd0):
         if d is None:

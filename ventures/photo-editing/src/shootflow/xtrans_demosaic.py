@@ -515,19 +515,20 @@ def estimate_noise(c, pat) -> tuple[float, float]:
     """The sensor's (shot, read) model, variance = shot * level + read, fitted from the mosaic ``c`` alone: the
     quietest blocks' spread at each brightness (``_block_spread``, ``_noise_model``). Texture only adds to the
     spread, so on a detailed frame this reads high; on a smooth one it reads about 0.8 of the true sigma
-    (eval/noise-profile-real-dngs-2026-11-17.md)."""
+    (eval/noise-profile-real-dngs-2026-11-16.md)."""
 
     return _noise_model(*_block_spread(c, pat))
 
 
-# The profile guard (2026-11-17, eval/noise-profile-real-dngs-2026-11-17.md). Blocks are put in eight brightness
+# The profile guard (2026-11-16, eval/noise-profile-real-dngs-2026-11-16.md). Blocks are put in eight brightness
 # bins, as ``_noise_model`` does; in each, the 15th percentile of the blocks' spread reads 0.80 of the true sigma
-# on a smooth synthetic field (both CFAs) and only more where texture fills the bin. So the profile's sigma at the
-# bin's level over ESTIMATE_BIAS x that spread is, in the cleanest bin, an upper bound on how far the profile
-# overstates the noise, which texture elsewhere in the frame cannot hide. Real DNGs on 2026-11-17: maker and
-# Adobe profiles read 0.6-1.2 of the frame; three iPhone apps wrote 10x-20x. Past PROFILE_CAP the profile is
-# scaled down to it: overstating the noise by about 1.5x or more costs dB in the blend, understating it only
-# moves the blend toward the directional default.
+# on a smooth synthetic field (both CFAs) and more where texture fills the bin. So the profile's sigma at the
+# bin's level over ESTIMATE_BIAS x that spread, in the cleanest bin, reads how far the profile overstates the
+# noise (0.95-1.02 for an honest synthetic profile, k for one k times too high); texture can only make it read
+# low. On 83 real CFA DNGs from 80 bodies (raw.pixls.us, 2026-11-16) Adobe-written profiles read 0.94-1.20 and
+# 43 of 83 read over PROFILE_CAP: 25 over 2x, 11 over 5x, up to 77x (three iPhone apps 14-32x). Past the cap the
+# profile is scaled down to it: overstating the noise by about 1.5x or more costs dB in the blend, understating
+# it only moves the blend toward the directional default.
 ESTIMATE_BIAS = 1.25
 PROFILE_CAP = 1.25
 

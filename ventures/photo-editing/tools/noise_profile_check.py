@@ -16,7 +16,7 @@ One JSON line per file. Usage (from ``ventures/photo-editing``, numpy installed)
 
     PYTHONPATH=src python tools/noise_profile_check.py FILE.dng ... > rows.jsonl
 
-Results: ``eval/noise-profile-real-dngs-2026-11-17.md``.
+Results: ``eval/noise-profile-real-dngs-2026-11-16.md``.
 """
 
 from __future__ import annotations
