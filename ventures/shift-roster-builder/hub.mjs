@@ -5,6 +5,7 @@
 import { parseStaff, parseShifts, buildRoster, rosterFromOwner, rosterIcs, rosterFeedIcs, rosterMessages, coverOptions, checkTrade, parseAvailabilityReply, mergeAvailabilityReplies, parseTimeOffRequest, addTimeOff, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
 import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zoneOf, localParts, clock } from "./timeclock.mjs";
 import { readPayEnv, payForTimesheet, MEAL_RULES } from "./payrules.mjs";
+import { readLeaveEnv, leaveBalances, addLeaveUse, removeLeaveUse, setLeaveOpening, leaveCsv } from "./leave.mjs";
 import { setPin, hasPin, checkPin, validPin, readGeofence, placeOf, GEO_SCRIPT } from "./clockguard.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
@@ -43,7 +44,7 @@ export function notifier(env, fetchImpl = globalThis.fetch) {
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body, head = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${head}<title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
-export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [], punches: [], punchSeq: 0 }; }
+export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [], punches: [], punchSeq: 0, leaveUses: [], leaveSeq: 0, leaveOpening: {}, leaveBank: {} }; }
 
 // What staff may see: who works when. Never wages, hour caps or the cost of the week.
 // `owner` (optional) is a roster built in the manager's browser (BUILD_IN_BROWSER): it is checked against every hard
@@ -278,7 +279,7 @@ ${claimBlock}
 ${offBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
-<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded)</p>` : ""}`);
+<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a></p>` : ""}`);
 }
 
 // The manager's timesheet for a published week (the current one or one of the last 12): worked time beside the
@@ -321,12 +322,35 @@ function timesheetPage(state, key, tc, weekStart, note = "") {
   const recent = [...(state.punches || [])].sort((a, b) => b.at - a.at).slice(0, 30).map((x) => { const t = ts.local(x.at); return `<tr><td>${esc(x.person)}</td><td>${x.kind === "in" ? "in" : "out"}</td><td>${esc(t.date)} ${esc(t.time)}</td><td>${x.by === "manager" ? "manager" : "staff"}</td><td><form method="post" action="/admin/punch-remove?key=${k}"><input type="hidden" name="id" value="${x.id}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><button>Remove</button></form></td></tr>`; }).join("");
   return page(`Timesheet, week of ${week.weekStart}`, `${note}${pick}<p class="note">Times are ${esc(ts.tz)} (set TIMEZONE to your site's zone, for example America/Chicago). Late and early flags allow ${ts.graceMin} min (TIME_GRACE_MIN). The pay estimate below applies the PAY_RULES you set; check it against your own state's rules before paying.</p>
 <table><thead><tr><th>Person</th><th>Worked h</th><th>Scheduled h</th><th>Difference</th><th>Check</th></tr></thead><tbody>${sum || `<tr><td colspan="5">No punches or shifts this week.</td></tr>`}</tbody></table>
-<p><a href="/admin/timesheet.csv?key=${k}&amp;week=${esc(week.weekStart)}">Download CSV for payroll</a> · <a href="/admin?key=${k}">Back to admin</a></p>
+<p><a href="/admin/timesheet.csv?key=${k}&amp;week=${esc(week.weekStart)}">Download CSV for payroll</a> · ${tc.leave ? `<a href="/admin/leave?key=${k}">${esc(tc.leave.name || "Leave")} balances</a> · ` : ""}<a href="/admin?key=${k}">Back to admin</a></p>
 ${tc.pay ? payTable(payForTimesheet(ts, wagesOf(state), tc.pay), tc.pay) : ""}
 <h2>Every stretch worked</h2><table><thead><tr><th>Person</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Scheduled shift</th><th>Flags</th></tr></thead><tbody>${det}</tbody></table>
 <h2>Add a missed punch</h2><form method="post" action="/admin/punch-add?key=${k}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><label>Person<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>Date<input type="date" name="date" required></label><label>Time (HH:MM, ${esc(ts.tz)})<input name="time" required placeholder="09:00" maxlength="5"></label><button name="kind" value="in">Add clock-in</button><button name="kind" value="out">Add clock-out</button></form><p class="note">Added punches are marked "added by manager" here and in the CSV, so the record shows what was typed in later.</p>
 <h2>Latest punches</h2><table><thead><tr><th>Person</th><th></th><th>When</th><th>By</th><th></th></tr></thead><tbody>${recent}</tbody></table>
 ${pinSection(state, k, week.weekStart, names, tc)}`);
+}
+
+// Accrued leave from the time clock (leave.mjs): each person's balance, the uses the manager recorded, a form to record
+// one, and opening balances carried over from another system. Off until LEAVE_ACCRUAL is set.
+function leavePage(state, key, tc, note = "") {
+  const k = esc(key), L = tc.leave;
+  if (!L) return page("Leave balances", `${note}<p>Leave tracking is off. Set LEAVE_ACCRUAL to your policy's rate, for example <code>LEAVE_ACCRUAL=1/30</code> for one hour earned per 30 hours worked, and optionally LEAVE_YEAR_CAP, LEAVE_BALANCE_CAP, LEAVE_CARRYOVER_CAP (hours) and LEAVE_YEAR_START (MM-DD, default 01-01).</p><p><a href="/admin?key=${k}">Back to admin</a></p>`);
+  if (L.error) return page("Leave balances", `${note}<p class="err">${esc(L.error)}</p><p><a href="/admin?key=${k}">Back to admin</a></p>`);
+  const rows = leaveBalances(state, L, { tz: tc.tz, nowMs: tc.now });
+  const h = (x) => x.toFixed(2);
+  const body = rows.map((r) => `<tr><td><strong>${esc(r.name)}</strong></td><td>${r.year}</td><td>${h(r.workedH)}</td><td>${h(r.earnedH)}</td><td>${h(r.usedH)}</td><td><strong>${h(r.balanceH)}</strong></td><td>${r.flags.map((f) => (/more than the balance/.test(f) ? `<span class="err">${esc(f)}</span>` : esc(f))).join("; ")}</td></tr>`).join("");
+  const names = [...new Set([...(state.published ? state.published.people.map((p) => p.name) : []), ...rows.map((r) => r.name)])].sort((a, b) => a.localeCompare(b));
+  const opt = names.map((n) => `<option>${esc(n)}</option>`).join("");
+  const uses = [...(state.leaveUses || [])].sort((a, b) => b.at - a.at).slice(0, 50).map((u) => `<tr><td>${esc(u.person)}</td><td>${esc(u.date)}</td><td>${h(u.hours)}</td><td>${esc(u.note || "")}</td><td><form method="post" action="/admin/leave-remove?key=${k}"><input type="hidden" name="id" value="${u.id}"><button>Remove</button></form></td></tr>`).join("");
+  const opening = Object.entries(state.leaveOpening || {}).map(([n, o]) => `${esc(n)} ${h(o.hours)} h`).join(", ");
+  const caps = [L.yearCap != null ? `at most ${L.yearCap} h earned per leave year` : "", L.balanceCap != null ? `a balance of at most ${L.balanceCap} h (earning pauses there)` : "", L.carryCap != null ? `at most ${L.carryCap} h carried into a new leave year` : ""].filter(Boolean);
+  return page(`${L.name} balances`, `${note}<p class="note">Policy as set on this server: ${esc(L.label)}${caps.length ? "; " + esc(caps.join("; ")) : "; no caps"}; the leave year starts ${esc(L.yearStart)} (${esc(tc.tz)}). ${L.notes.map(esc).join(" ")} Earned from closed clock-in/clock-out stretches, so hours worked off the clock are not counted. These are the numbers you typed, not any state's or city's rule: check your own law for the rate, caps, carryover, waiting period, front-loading and who is covered.</p>
+<table><thead><tr><th>Person</th><th>Leave year</th><th>Worked h</th><th>Earned h</th><th>Used h</th><th>Balance h</th><th>Check</th></tr></thead><tbody>${body || `<tr><td colspan="7">No punches or leave recorded yet.</td></tr>`}</tbody></table>
+<p><a href="/admin/leave.csv?key=${k}">Download leave CSV</a> · <a href="/admin/timesheet?key=${k}">Timesheet</a> · <a href="/admin?key=${k}">Back to admin</a></p>
+<h2>Record leave taken</h2><form method="post" action="/admin/leave-use?key=${k}"><label>Person<select name="name" required>${opt}</select></label><label>Date<input type="date" name="date" required></label><label>Hours<input name="hours" inputmode="decimal" required placeholder="8" maxlength="5"></label><label>Note<input name="note" maxlength="140"></label><button>Record</button></form>
+<table><thead><tr><th>Person</th><th>Date</th><th>Hours</th><th>Note</th><th></th></tr></thead><tbody>${uses || `<tr><td colspan="5">None recorded.</td></tr>`}</tbody></table>
+<h2>Opening balances</h2><p class="note">Moving from another system or paper? Set each person's balance as of now; hours worked from now on add to it. Leave the hours empty to clear one. ${opening ? "Set: " + opening + "." : "None set."}</p>
+<form method="post" action="/admin/leave-opening?key=${k}"><label>Person<select name="name" required>${opt}</select></label><label>Balance now (h)<input name="hours" inputmode="decimal" maxlength="7"></label><button>Set</button></form>`);
 }
 
 // Clock PINs and the geofence's settings, on the timesheet page. A PIN is shown only once, as typed; it is stored hashed.
@@ -347,7 +371,8 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
   const grace = Math.max(0, Math.min(60, Number(env.TIME_GRACE_MIN ?? 5) || 0));
   const pay = readPayEnv(env);
   const pinRequired = String(env.CLOCK_PIN || "").toLowerCase() === "required", fence = readGeofence(env);
-  const tcNow = () => ({ tz, grace, now: now(), pay, pinRequired, fence });
+  const leave = readLeaveEnv(env);
+  const tcNow = () => ({ tz, grace, now: now(), pay, pinRequired, fence, leave });
   const notify = notifier(env, fetchImpl);
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
@@ -482,6 +507,33 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       const c = tcNow();
       const tsw = timesheet(state.punches, w, { tz: c.tz, nowMs: c.now, graceMin: c.grace });
       return send(200, timesheetCsv(tsw, payForTimesheet(tsw, wagesOf(state), c.pay)), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="timesheet-${w.weekStart}.csv"` });
+    }
+    const leaveHere = `/admin/leave?key=${encodeURIComponent(adminKey)}`;
+    if (clockOn && req.method === "GET" && url.pathname === "/admin/leave") {
+      const note = url.searchParams.get("note");
+      return send(200, leavePage(state, adminKey, tcNow(), note ? `<p class="ok">${esc(note)}</p>` : ""));
+    }
+    if (clockOn && leave && !leave.error && req.method === "GET" && url.pathname === "/admin/leave.csv") {
+      const c = tcNow();
+      return send(200, leaveCsv(leaveBalances(state, leave, { tz: c.tz, nowMs: c.now }), leave, state), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="leave-balances.csv"` });
+    }
+    if (clockOn && leave && !leave.error && req.method === "POST" && url.pathname === "/admin/leave-use") {
+      const r = addLeaveUse(state, { person: String(form.get("name") || ""), date: String(form.get("date") || ""), hours: String(form.get("hours") || "").trim(), note: String(form.get("note") || "") }, tz, now());
+      if (r.error) return back(leaveHere, "Not recorded: " + r.error);
+      save();
+      return back(leaveHere, `Recorded ${r.use.hours} h for ${r.use.person} on ${r.use.date}.`);
+    }
+    if (clockOn && leave && !leave.error && req.method === "POST" && url.pathname === "/admin/leave-remove") {
+      const ok = removeLeaveUse(state, form.get("id"));
+      if (ok) save();
+      return back(leaveHere, ok ? "Leave record removed." : "That record is gone.");
+    }
+    if (clockOn && leave && !leave.error && req.method === "POST" && url.pathname === "/admin/leave-opening") {
+      const who = String(form.get("name") || ""), hrs = String(form.get("hours") || "").trim();
+      const r = setLeaveOpening(state, who, hrs, now());
+      if (r.error) return back(leaveHere, "Not set: " + r.error);
+      save();
+      return back(leaveHere, hrs === "" ? (r.cleared ? `Cleared ${who}'s opening balance.` : `${who} had no opening balance.`) : `Opening balance for ${who} set to ${hrs} h as of now.`);
     }
     const sheet = `/admin/timesheet?key=${encodeURIComponent(adminKey)}&week=${encodeURIComponent(String(form.get("week") || ""))}`;
     if (clockOn && req.method === "POST" && url.pathname === "/admin/punch-add") {

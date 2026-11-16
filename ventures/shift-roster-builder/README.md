@@ -33,7 +33,7 @@ zero dependencies, one JSON file on a disk you own.
 - **Free on Cloudflare, no server, no card (2026-11-15):** [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shift-roster-builder), or from a clone of this folder `npx wrangler deploy` then `npx wrangler secret put ADMIN_KEY` and `npx wrangler secret put TEAM_TOKEN`. Details in "Free on Cloudflare" below.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
-- **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Details in "Time clock and timesheets" below.
+- **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
 - **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
@@ -223,6 +223,40 @@ the free Cloudflare Worker alike (`clockguard.mjs`, Web Crypto, no Node built-in
   scripts, block mode, a misconfigured fence). Also run once in headless Chromium with a granted location 67 m from the site
   (recorded as `{ m: 67, acc: 20, away: false }`) and with location not granted (the punch still arrives). Not yet tried on a
   real phone at a real site.
+
+## Paid sick leave from the time clock (2026-11-16)
+
+Homebase, 7shifts, When I Work and Deputy all sell leave tracking beside the time clock, and many US states and cities
+require paid sick leave that is earned per hour worked (one hour per 30 or per 40 worked is a common form), so a small
+team's manager otherwise keeps a balance per person on paper from the payroll stubs. The hub now does it from the punches
+it already records (`leave.mjs`, no Node built-ins, the Node server and the Cloudflare Worker alike). **Off until you set
+`LEAVE_ACCRUAL`.**
+
+- **Your policy, in env vars:** `LEAVE_ACCRUAL=1/30` (hours earned per hours worked; `1 per 40`, `1:52` and `0.025`
+  also read), and optionally `LEAVE_YEAR_CAP` (most earned in a leave year), `LEAVE_BALANCE_CAP` (most held at once;
+  earning pauses at it and resumes after a use), `LEAVE_CARRYOVER_CAP` (most carried into a new leave year; the rest is
+  dropped and flagged), `LEAVE_YEAR_START=MM-DD` (default 01-01, in your `TIMEZONE`) and `LEAVE_NAME` (default "Paid
+  sick leave"; "PTO" works). **No state's or city's rule is preset**: the page says the numbers are yours. Waiting
+  periods, front-loading, who is covered and what counts as hours worked are not modelled; check your own law.
+- **Earned from closed stretches only:** each clock-in/clock-out pair earns at its clock-out, in time order with the uses,
+  so the caps bite in the order they would in a real year. Someone still on the clock earns at clock-out.
+- **`/admin/leave`** (linked from `/admin` and the timesheet): each person's leave year, hours worked in it, earned,
+  used and balance, with flags for the balance cap, the year cap, hours dropped at the carryover cap and any use that took
+  someone below zero (recorded anyway: it is your decision, but you see it). A form records leave taken (date, hours in
+  quarter hours, a note) and each record can be removed. **Opening balances:** moving from paper or another system, set a
+  person's balance as of now and hours from then on add to it. `/admin/leave.csv` downloads the balances and every use, with
+  the formula guard on names.
+- **The punch trim no longer forgets:** the clock keeps the newest 3,000 punches (1,500 on the Worker's size guard). Before
+  dropping older ones, `trimPunches` (timeclock.mjs) folds their closed stretches into `state.leaveBank` per person and
+  day, so a balance built over a year survives (tested: the balances are identical before and after a trim). A stretch whose
+  clock-in is dropped and clock-out kept is lost, as it already was for the timesheet.
+- **Staff do not see balances** on the team page: the team link is shared by everyone, and it shows nobody's hours.
+
+Tests: `leave.test.mjs` (rate parsing; one hour per 30 from 30 h worked; an open stretch earns nothing; a use below the
+balance flagged; the balance cap pausing and resuming after a use; a 5 h year cap; the carryover cap at the new year; an
+opening balance; a July leave year; the trim keeping the balances identical; the hub off by default, 404 on its forms
+when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
+tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 
