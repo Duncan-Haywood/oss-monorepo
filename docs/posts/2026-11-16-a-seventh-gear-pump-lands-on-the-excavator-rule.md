@@ -2,7 +2,7 @@
 title: "A seventh gear pump lands 0.001 from a rule written two pumps earlier"
 seo_title: "Gear pump vs load-sensing: a 7th pump family tests the rule"
 date: 2026-11-16
-tags: [heavy-hydraulics, research, gear-pumps, excavators]
+tags: [heavy-hydraulics, research, gear-pump, excavator]
 description: "Rexroth's low-noise AZPU, read off its data sheet with predictions written first, crosses at 0.8030; the excavator pump rule said 0.8041."
 ---
 
