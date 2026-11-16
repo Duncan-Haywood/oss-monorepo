@@ -61,3 +61,12 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("analysis_run");
   assert.equal(readUsage().analysis_run, 1);
 });
+
+test("a stored value that is valid JSON but not an object reads as {} and recovers", () => {
+  for (const stored of ["null", "true", "\"text\"", "[1,2]", "7"]) {
+    globalThis.localStorage.setItem("uk-gift-aid-higher-rate-relief-calculator-usage", stored);
+    assert.deepEqual(readUsage(), {}, `stored ${stored}`);
+    assert.doesNotThrow(() => record("analysis_run"), `stored ${stored}`);
+    assert.equal(readUsage().analysis_run, 1, `stored ${stored}`);
+  }
+});
