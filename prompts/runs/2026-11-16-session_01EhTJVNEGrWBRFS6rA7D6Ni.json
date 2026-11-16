@@ -44,7 +44,7 @@
     "docs/posts/2026-11-16-the-tennis-feeders-wheels-double-as-a-radar-gun.md"
   ],
   "goal": null,
-  "notes": "Firmware LaunchCheck.record + LAUNCH frame (0x81) repeated after each telemetry frame; host collects DrillResult.launches, run --shot-log, fit-launcher CLI; launcher.fit_from_drops (linear LS in speed/spin eff, recovery time on a grid, one trim pass) and inertia_from_radar. tests/launch_fit_sweep.py: worst over 18 builds speed eff 3.9%, spin 11.7%, naive 10.9%. Pi path on drill.calibration.json: +2.3/+4.4/+3.7% speed. Verification: ShotLogTest 6/6 locally; run_venture_tests.py open-tennis-robots (result in PR body). Simulated only, no real wheel.",
+  "notes": "Firmware LaunchCheck.record + LAUNCH frame (0x81) repeated after each telemetry frame; host collects DrillResult.launches, run --shot-log, fit-launcher CLI; launcher.fit_from_drops (linear LS in speed/spin eff, recovery time on a grid, one trim pass) and inertia_from_radar. tests/launch_fit_sweep.py: worst over 18 builds speed eff 3.9%, spin 11.7%, naive 10.9%. Pi path on drill.calibration.json: +2.3/+4.4/+3.7% speed. Verification: run_venture_tests.py open-tennis-robots ok (157 s, 306 tests, 58 skipped for build123d); venture-preflight.mjs open-tennis-robots clean. Simulated only, no real wheel.",
   "corrections": [],
   "redteam": null
 }
