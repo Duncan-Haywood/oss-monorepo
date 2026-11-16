@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKiYVve5a2qiQ2b7hA1",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T14:14:59Z",
+  "ended": "2026-11-16T14:22:45Z",
+  "wall_minutes": 8.06,
+  "tokens_in": 3528581,
+  "tokens_out": 20493,
+  "cost_usd": 1.7615,
+  "tool_calls": 44,
+  "task": "perf: speed up the ai-bookkeeper suite's slowest test (keyword-rule regex scan in suggest)",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16600",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "/usr/bin/time is not installed in the container; a timing loop using it failed once (date +%s%N works)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Both perf backlog items (P063, P064) are owner-gated CODEOWNERS paths; skipped a fresh ci_profile pool reading (one earlier today, docs/history/ci-perf-2026-11-16-stale-lr-memo.md, already ranked the venture-test step and checkout as the top consumers) and went straight to step 3, the slowest venture suite with fewer passes.",
+      "did": "Profiled ai-bookkeeper per test file and fixed the top self-time entry.",
+      "result": "Suite 33.0/35.3 s to 29.4/29.6 s, identical answers."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-five-hundred-keyword-rules-asked-the-same-question-every-import.md",
+    "docs/history/ci-perf-2026-11-16-bookkeeper-keyword-hits-memo.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of ai-bookkeeper tests, this container (4 cores). import-order-property.test.mjs via `node --test`, three runs each: before 3.68/3.64/3.88 s, after 1.90/1.99/1.85 s. Whole suite `run_venture_tests.py ai-bookkeeper`, alternating after/before twice: before 33.0/35.3 s, after 29.4/29.6 s; 3,273 tests pass, 1 skipped (no tesseract). Equivalence: old vs new suggest on 8,384 calls (1,048 fixture descriptions x direction x chart filter x classifier), 0 differences. Profile: node --cpu-prof, suggest self 0.78 s of 3.95 s before. Rejected: a union regex of all 499 rules, 15-40x slower per test. Local CI: run_workflow_locally.py --for-changes, 7/7 selected workflows passed (ventures-tests, pages, portfolio-pages, doc-refs, conflict-markers, control-plane-guard; agent-cross-review has no locally runnable step; deploy jobs not run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "19d1bbe0-5de2-54ed-82df-237bcc57fa8f",
+    "transcripts": 1,
+    "first": "2026-11-16T14:14:59Z",
+    "last": "2026-11-16T14:23:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 20493,
+        "thinking": 4533,
+        "cache_read": 3445735,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82765,
+        "api_equivalent_usd": 1.7615,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 20493,
+      "thinking": 4533,
+      "cache_read": 3445735,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82765,
+      "api_equivalent_usd": 1.7615,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.06,
+      "active_minutes": 8.06,
+      "model_minutes": 3.58,
+      "tool_minutes": 4.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile a JS suite, write and verify a memo with an equivalence harness, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 170.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
