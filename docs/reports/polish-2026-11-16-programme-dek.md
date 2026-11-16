@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo, design]
+date: 2026-11-16
+---
 # Polish 2026-11-16: research programme pages lead with their own summary
 
 Track: polish/0. Picked item 2 of "Still weakest" in `polish-2026-11-16-programme-pages.md`
