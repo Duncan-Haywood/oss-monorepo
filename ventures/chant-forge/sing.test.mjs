@@ -396,3 +396,24 @@ test('readCoda: the voice bar is read from the closure only, never from the rele
   assert.equal(got.voiced, false);
   assert.ok(got.bar < -200, `bar ${got.bar.toFixed(1)} dB: the burst leaked into the closure`);
 });
+
+test('the n of a cluster (-unt, -ens, nunc) reads as its murmur, not as the stop or fricative after it', () => {
+  // README "-unt read on its stop": the murmur before the obstruent sat only 2-4 dB under its vowel and its
+  // darkness wobbled, so every nasal rule missed it and the t was read; the cluster rule (onsets.mjs PRE)
+  // reads it by staying dark from an abrupt step right up to the closure
+  const POS = ['unt', 'sunt', 'ant', 'ens', 'nunc'], NEG = ['ut', 'up', 'uc', 'ab', 'at', 'us'], score = { on: 0, off: 0, all: 0 };
+  for (const midi of [40, 50, 60]) {
+    const ev = [];
+    for (const s of [...POS, ...NEG]) ev.push({ type: 'note', midi, pulses: 4, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+    const mid = eventsToMidi(ev, { bpm: 120 });
+    const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+    const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+    const x = renderMidi(mid, { stems: true, sing: true }).stems.choir.channels[0];
+    [...POS, ...NEG].forEach((s, j) => {
+      const read = (preObstruent) => readCoda(x, rate, sec(notes[j].tick) + 0.1, Math.min(sec(notes[j].end) + 0.25, sec(notes[j + 1]?.tick ?? 1e9)), { preObstruent }).cls;
+      if (POS.includes(s)) { score.all++; if (read(true) === 'nasal') score.on++; if (read(false) === 'nasal') score.off++; }
+      else if (read(true) === 'nasal') assert.equal(read(false), 'nasal', `${s} on ${midi}: the rule added a nasal`);
+    });
+  }
+  assert.ok(score.on >= score.off + 4 && score.on >= 13, JSON.stringify(score));
+});
