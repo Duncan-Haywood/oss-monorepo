@@ -6,6 +6,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7s: does a quadrotor co-design result depend on the motor lag model? The orderings survive a 4× range; the counts and the stability margins do not
+
+**Question.** Every design in this programme flies a first-order motor-propeller lag of 0.015 (D / 0.127 m)<sup>1.5</sup> s, inherited and never sourced. Milestone 7r's retuned designs shrank their propellers to 0.106-0.115 m, which under that law makes their motors 3-4 ms faster than the published designs'. Are 7r's findings an artefact of the lag law? The law could not be sourced from this session (the retailer catalogues are unreachable through its proxy), so the milestone sweeps it: lag at 5 inches K ∈ {7.5, 15, 30} ms × diameter exponent b ∈ {0, 1.5, 3}, over 7r's 72 designs, not retuned.
+
+**Headline (`experiments/m7s_lag/results.txt`, `verdicts.txt`; 72 designs × 9 laws; simulated; 6 predictions committed first, all held).**
+
+- **The orderings survive.** Lever-aware training beats lever-1 training at twice the centre-of-pressure lever under all nine laws, and heavier designs crash less under every law up to 15 ms (Spearman ρ −0.68 to −0.93).
+- **The exponent made the retuned designs look as good as the published ones.** With a 15 ms lag for every propeller, the retuned lever-aware designs crash on 85 and 92 of 384 flights against 51 and 53 for the published ones (54 and 64 under the inherited law).
+- **Each design's stability margin holds only at the lag it was tuned for.** At b 0 only 5 of the 24 retuned designs pass the margin test (24 of 24 under the inherited law); at b 3 only 4 of 12 published lever-1 designs do.
+- **The lag constant dominates.** At 30 ms at most one design of 72 passes the margin test, and at b 1.5 every set crashes on 244-378 of 384 flights; at 7.5 ms the published and retuned sets' crashes fall 26-44%.
+- **For a builder:** measure your motor-propeller step response before trusting a tuned gain set; a tuner that assumed faster motors puts you on the edge of stability. **For this programme:** report counts as orderings until K and b are sourced, and retune with the lag randomised over its plausible range.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 384 at lever 2, 45 degrees, against the motor lag each set flies under nine lag laws. Every set's crashes rise with lag, from 30-90 at 5-8 ms to 250-380 at 30-35 ms; the not-retuned sourced designs sit highest throughout; at a common 15 ms the retuned designs (blue, green) sit above the published ones (grey).](experiments/m7s_lag/m7s_lag.png)
+
 ## Milestone 7r: retuned for a sourced battery and motor model, does a quadrotor still buy gust robustness with mass? Yes: the tuner shrinks the propeller and gets heavy again
 
 **Question.** Milestone 7q found that the programme's sizing closure was solved by a truncated iteration and built on component constants 12-72% off listed data. On the sourced Li-ion closure every published design shrinks to about 0.75 kg, and on its old gains it crashes far more. Those gains were tuned for vehicles that do not exist. Retuned on the sourced, exactly solved closure, does training across centre-of-pressure levers still buy robustness (milestone 7i), and is it still bought with mass?
@@ -432,6 +446,8 @@ python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure consta
 "$PY" experiments/m7q_closure/analyse.py && "$PY" experiments/m7q_closure/verdicts.py && "$PY" experiments/m7q_closure/figure.py
 "$PY" experiments/m7r_retune/run.py           # about 2 h on 4 cores (48 CMA-ES runs, cached in .cache/; then 11 min of held-out flights)
 "$PY" experiments/m7r_retune/verdicts.py && "$PY" experiments/m7r_retune/figure.py
+"$PY" experiments/m7s_lag/run.py              # about 15 min on 4 cores (72 designs x 9 lag laws x 4 conditions; no training)
+"$PY" experiments/m7s_lag/verdicts.py && "$PY" experiments/m7s_lag/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 
