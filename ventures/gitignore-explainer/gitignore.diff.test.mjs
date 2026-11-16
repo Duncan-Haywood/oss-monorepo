@@ -156,6 +156,30 @@ test("matches git check-ignore on random repositories with UTF-8 names", { skip:
   assert.ok(compared > trials * 4);
 });
 
+// Red-team 2026-11-16: `global/.gitignore` was read as a pasted global
+// excludes file (a label heuristic) and applied to the whole repository.
+// Folder names that look like the tool's own source labels go through git too.
+const LABEL_NAMES = ["global", "excludesfile", "exclude", "info", ".config", "git", "ignore", "a"];
+
+test("matches git check-ignore when folders are named like source labels", { skip: !hasGit && "git not installed" }, (t) => {
+  const trials = Number(process.env.GITIGNORE_DIFF_TRIALS || 150);
+  const r = rng(20261117);
+  let compared = 0;
+  for (let t = 0; t < trials; t++) {
+    const repo = makeRepo(r, LABEL_NAMES);
+    const git = gitAnswers(repo);
+    const bundle = Object.entries(repo.sources).map(([p, text]) => `==> ${p} <==\n${text}`).join("\n");
+    const explain = resolver(compile(bundle, { git: GIT }));
+    for (const [path, isDir] of [...repo.files.map((f) => [f, false]), ...repo.dirs.map((d) => [d, true])]) {
+      const x = explain(path, isDir);
+      assert.equal(x.rule ? `${x.rule.source}:${x.rule.line}` : null, git.get(path), `trial ${t}, ${path}${isDir ? "/" : ""}\n${bundle}`);
+      compared++;
+    }
+  }
+  t.diagnostic(`${gitVersion}: ${trials} random repositories with label-like folder names, ${compared} paths, all agree`);
+  assert.ok(compared > trials * 4);
+});
+
 test("every suggested fix does in git what the report says it does", { skip: !hasGit && "git not installed" }, (t) => {
   const trials = Number(process.env.GITIGNORE_DIFF_TRIALS || 150) * 2;
   const r = rng(424242);

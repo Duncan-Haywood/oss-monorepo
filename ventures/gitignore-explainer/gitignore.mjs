@@ -233,8 +233,11 @@ function normalisePath(p) {
 
 // Where a file's rules apply, and its precedence group. `.git/info/exclude`
 // and a global excludes file apply repository-wide below every .gitignore.
+// A label like `global` or `core.excludesFile` marks a pasted global file,
+// but never a real `.gitignore` (a repo can have a `global/` folder).
 function classifySource(path) {
-  if (path === ".git/info/exclude" || /(^|\/)\.config\/git\/ignore$/.test(path) || /^(global|core\.excludesfile|excludesfile)\b/i.test(path)) {
+  const globalLabel = /^(global|core\.excludesfile|excludesfile)\b/i.test(path) && !/(^|\/)\.gitignore$/.test(path);
+  if (path === ".git/info/exclude" || /(^|\/)\.config\/git\/ignore$/.test(path) || globalLabel) {
     return { kind: "exclude", base: "" };
   }
   const slash = path.lastIndexOf("/");
