@@ -326,5 +326,38 @@ class Main(unittest.TestCase):
                 os.chdir(cwd)
 
 
+class RedTeam20261116(unittest.TestCase):
+    """Digest-grammar edges (three escaped mutants of _DIGEST_RE) and two real
+    false positives: case-insensitive stage names and backslash continuations."""
+
+    def test_digest_using_every_hex_digit_is_pinned(self):
+        hexd = "0123456789abcdef" * 4
+        self.assertEqual(dbc.classify_from(f"node@sha256:{hexd}", set())[0], dbc.PINNED)
+
+    def test_32_hex_digest_is_shortest_pinned(self):
+        self.assertEqual(dbc.classify_from("node@md5:" + "a" * 32, set())[0], dbc.PINNED)
+        self.assertEqual(dbc.classify_from("node@md5:" + "a" * 31, set())[0], dbc.MUTABLE)
+
+    def test_algorithm_with_separator_and_digits_is_pinned(self):
+        self.assertEqual(dbc.classify_from("node@multihash+sha256:" + "a" * 64, set())[0], dbc.PINNED)
+
+    def test_stage_name_matches_case_insensitively(self):
+        findings = dbc.scan_text("FROM node:18 AS Build\nRUN make\nFROM build\nFROM B\n")
+        self.assertEqual([f["image"] for f in findings], ["node", "B"])
+        self.assertEqual(len(dbc.scan_text("FROM node:18 AS b\nFROM B\n")), 1)
+
+    def test_backslash_continuation_is_one_instruction(self):
+        text = (
+            "FROM --platform=linux/amd64 \\\n    node:20 \\\n    AS build\nFROM build\n"
+            "FROM \\\r\n  # a comment inside the continuation\n  ubuntu@" + DIGEST + "\r\n"
+        )
+        findings = dbc.scan_text(text, filename="Dockerfile")
+        self.assertEqual(len(findings), 2)
+        f0, f1 = findings
+        self.assertEqual((f0["line"], f0["image"], f0["tag"], f0["classification"]), (1, "node", "20", dbc.MUTABLE))
+        self.assertEqual(f0["remediation"], "docker buildx imagetools inspect node:20")
+        self.assertEqual((f1["line"], f1["image"], f1["classification"]), (5, "ubuntu", dbc.PINNED))
+
+
 if __name__ == "__main__":
     unittest.main()

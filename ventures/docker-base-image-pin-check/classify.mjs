@@ -55,7 +55,9 @@ export function splitNameAndRef(ref) {
 
 /** Classify one `FROM` reference. Returns {classification, name, tag, digest}. */
 export function classifyFrom(ref, stageNames) {
-  if (stageNames.has(ref)) {
+  // BuildKit matches stage names case-insensitively; scanText stores them
+  // lowercased.
+  if (stageNames.has(ref.toLowerCase())) {
     return { classification: STAGE, name: ref, tag: null, digest: null };
   }
   if (ref.toLowerCase() === "scratch") {
@@ -86,25 +88,52 @@ export function remediationCommand(name, tag) {
   return `docker buildx imagetools inspect ${ref}`;
 }
 
+/** Join backslash-continued lines into one instruction, the way BuildKit
+ * reads them, and drop comment lines. Returns [startLineNumber, text] pairs.
+ * Comment and blank lines inside a continuation are skipped, as BuildKit does.
+ * Mirrors check.py's logical_lines. */
+export function logicalLines(text) {
+  const out = [];
+  let buffer = null;
+  let start = 0;
+  const lines = text.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const stripped = line.trim();
+    if (buffer === null) {
+      if (stripped.startsWith("#")) continue;
+      start = i + 1;
+      buffer = "";
+    } else if (stripped === "" || stripped.startsWith("#")) {
+      continue;
+    }
+    const trimmed = line.trimEnd();
+    if (trimmed.endsWith("\\")) {
+      buffer += trimmed.slice(0, -1) + " ";
+    } else {
+      out.push([start, buffer + line]);
+      buffer = null;
+    }
+  }
+  if (buffer !== null) out.push([start, buffer]);
+  return out;
+}
+
 /** Scan one Dockerfile's text. Returns a list of finding objects, in the
  * same shape check.py's --format json emits. `filename` is carried through
  * for display only. */
 export function scanText(text, filename = "<Dockerfile>") {
   const findings = [];
   const stageNames = new Set();
-  const lines = text.split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const stripped = line.trim();
-    if (stripped.startsWith("#")) continue;
+  for (const [lineNumber, line] of logicalLines(text)) {
     const match = FROM_RE.exec(line);
     if (!match) continue;
     const ref = match[1];
     const alias = match[2];
     const { classification, name, tag, digest } = classifyFrom(ref, stageNames);
-    if (alias) stageNames.add(alias);
+    if (alias) stageNames.add(alias.toLowerCase());
     if (classification !== PINNED && classification !== MUTABLE) continue;
-    const finding = { file: filename, line: i + 1, image: name, tag, digest, classification };
+    const finding = { file: filename, line: lineNumber, image: name, tag, digest, classification };
     if (classification === MUTABLE) {
       finding.remediation = remediationCommand(name, tag);
     }

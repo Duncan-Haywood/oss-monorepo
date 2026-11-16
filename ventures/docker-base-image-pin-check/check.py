@@ -133,7 +133,9 @@ def split_name_and_ref(ref):
 
 def classify_from(ref, stage_names):
     """Classify one `FROM` reference. Returns (classification, name, tag, digest)."""
-    if ref in stage_names:
+    # BuildKit matches stage names case-insensitively; scan_text stores them
+    # lowercased.
+    if ref.lower() in stage_names:
         return STAGE, ref, None, None
     if ref.lower() == "scratch":
         return SCRATCH, ref, None, None
@@ -160,14 +162,39 @@ def remediation_command(name, tag):
     return f"docker buildx imagetools inspect {ref}"
 
 
+def logical_lines(text):
+    """Join backslash-continued lines into one instruction, the way BuildKit
+    reads them, and drop comment lines. Returns (start_lineno, text) pairs.
+    Comment and blank lines inside a continuation are skipped, as BuildKit
+    does. Mirrors classify.mjs's logicalLines."""
+    out = []
+    buffer = None
+    start = 0
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if buffer is None:
+            if stripped.startswith("#"):
+                continue
+            start = lineno
+            buffer = ""
+        elif not stripped or stripped.startswith("#"):
+            continue
+        trimmed = line.rstrip()
+        if trimmed.endswith("\\"):
+            buffer += trimmed[:-1] + " "
+        else:
+            out.append((start, buffer + line))
+            buffer = None
+    if buffer is not None:
+        out.append((start, buffer))
+    return out
+
+
 def scan_text(text, filename="<Dockerfile>"):
     """Scan one Dockerfile's text. Returns a list of finding dicts."""
     findings = []
     stage_names = set()
-    for lineno, line in enumerate(text.splitlines(), start=1):
-        stripped = line.strip()
-        if stripped.startswith("#"):
-            continue
+    for lineno, line in logical_lines(text):
         match = _FROM_RE.match(line)
         if not match:
             continue
@@ -175,7 +202,7 @@ def scan_text(text, filename="<Dockerfile>"):
         alias = match.group("alias")
         classification, name, tag, digest = classify_from(ref, stage_names)
         if alias:
-            stage_names.add(alias)
+            stage_names.add(alias.lower())
         if classification not in (PINNED, MUTABLE):
             continue  # stage/scratch/variable: not a third-party pull, not this tool's concern
         finding = {
