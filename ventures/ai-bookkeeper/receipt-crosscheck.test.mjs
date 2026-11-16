@@ -377,3 +377,15 @@ test("a tax tie goes to the amount more readings print on a tax line", () => {
   // with no third reading the tie keeps the reading the total came from, as before
   assert.equal(parseReceiptPasses([a, b, "WARUNG", "WARUNG"]).taxCents, 426400);
 });
+
+// The largest-amount fallback reads through the dash OCR prints before a whole-unit amount
+// ("AIR MINERAL -7,000": CORD validation-66's psm6 and g6 readings lost 7,000 that way and
+// kept a stray "1088"), as the cash and change lines already did. Receipt text made up, same shape.
+test("the largest-amount fallback reads a dash-prefixed whole amount", () => {
+  const stray = "SHOP\nHehe 1088 ee\nWATER -7,000\nCASH -7,000";
+  const p = parseReceipt(stray);
+  assert.equal(p.cents, 700000);
+  // printed on the cash line too, so it says so; the item line keeps its vote across readings
+  assert.ok(p.notes.some((n) => /printed on the cash line/.test(n)));
+  assert.equal(parseReceiptPasses([stray, stray, "SHOP", "SHOP\nHehe 1088 ee"]).cents, 700000);
+});

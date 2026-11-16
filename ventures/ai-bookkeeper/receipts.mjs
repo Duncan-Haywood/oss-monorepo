@@ -78,6 +78,9 @@ export function detectCurrency(lines) {
 // books.currency is a code ("USD") or a symbol ("$"); compare as codes
 const bookCode = (books) => { const c = String(books.currency ?? "USD").trim(); return SYMBOL_CUR[c] ?? (c === "$" ? "USD" : c.toUpperCase()); };
 
+// On a whole-unit slip OCR often prints a dash before an amount ("CASH -50,000", "AIR
+// MINERAL -7,000": CORD photos), which WHOLE does not read through; this drops it.
+const undashWhole = (l, style) => (style === "whole" && l ? l.replace(/(^|\s)[-–—~]\s*(?=\d)/g, "$1") : l);
 const amountsIn = (line, style = false) => (style === "whole"
   ? [...line.replace(RP, " ").matchAll(WHOLE)].map((m) => Number(m[1].replace(/[.,]/g, "")) * 100).filter((c) => Number.isSafeInteger(c))
   : [...line.matchAll(moneyRe(style))].map((m) => parseCents(m[1], style)).filter((c) => Number.isInteger(c)));
@@ -560,8 +563,9 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     // no total line: what was paid is the cash handed over less the change
     // on a whole-unit slip OCR often prints a dash before these amounts ("CASH -50,000",
     // "CHANGE -30,000": CORD photos, eval/cord-photos-four-pass-2026-11-16.md), which no
-    // amount reads through; the dash is dropped on these two lines only
-    const undash = (l) => (comma === "whole" && l ? l.replace(/(^|\s)[-–—~]\s*(?=\d)/g, "$1") : l);
+    // amount reads through; the dash is dropped on these two lines (and in the
+    // largest-amount fallback below)
+    const undash = (l) => undashWhole(l, comma);
     const pick = (re) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const a = amountsIn(undash(lines[i]), comma).length ? amountsIn(undash(lines[i]), comma) : bare(undash(lines[i + 1])); return a.length ? a[a.length - 1] : null; };
     const tender = pick(/\b(?:cash|tendered|payment|paid|accepted\s+total)\b/i), change = pick(/\bchange\b/i);
     if (tender !== null && change !== null && tender > change) { cents = tender - change; notes.push("no total line; cash handed over less change"); }
@@ -581,13 +585,17 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     }
   }
   if (cents === null) {
-    const all = lines.flatMap((l) => amountsIn(l, comma));
+    // the dash OCR prints before a whole-unit amount ("AIR MINERAL -7,000": CORD
+    // validation-66) is read through here as on the cash and change lines; a refund or
+    // discount is never the largest amount on a slip with no total line
+    const all = lines.flatMap((l) => amountsIn(undashWhole(l, comma), comma));
     if (all.length) {
       cents = Math.max(...all);
       // the largest amount printed on the cash line is usually the money handed over, not
       // what was paid (CORD validation-30: "CASH 50,000" on a 21,000 slip); said in the
       // note so the vote across readings gives that guess nothing (CASH_GUESS_VOTE)
-      const onCash = lines.some((l, i) => CASH_LINE_RE.test(l) && !/cash\s*(?:bill|sale|ier|back)/i.test(l) && (amountsIn(l, comma).includes(cents) || (!amountsIn(l, comma).length && bare(lines[i + 1]).includes(cents))));
+      const ud = (l) => undashWhole(l, comma);
+      const onCash = lines.some((l, i) => CASH_LINE_RE.test(l) && !/cash\s*(?:bill|sale|ier|back)/i.test(l) && (amountsIn(ud(l), comma).includes(cents) || (!amountsIn(ud(l), comma).length && bare(ud(lines[i + 1])).includes(cents))));
       notes.push(onCash ? "no total line; took the largest amount, printed on the cash line (often the cash handed over)" : "no total line; took the largest amount");
     }
   }
@@ -671,7 +679,7 @@ const guessedCash = (p) => guessedLargest(p) && p.notes.some((n) => /printed on 
 // validation-30 the 50,000 appears on cash lines only (eval/cord-cash-guess-2026-11-16.md).
 const printedOffCash = (texts, c) => texts.some((t) => {
   const ls = String(t).split(/\r?\n/).map((l) => l.trim()).filter(Boolean), style = wholeStyle(ls.join("\n")) ? "whole" : commaStyle(ls.join("\n"));
-  return ls.some((l, i) => !CASH_LINE_RE.test(l) && !/\bchange\b/i.test(l) && !(i > 0 && CASH_LINE_RE.test(ls[i - 1]) && !amountsIn(ls[i - 1], style).length) && amountsIn(l, style).includes(c));
+  return ls.some((l, i) => !CASH_LINE_RE.test(l) && !/\bchange\b/i.test(l) && !(i > 0 && CASH_LINE_RE.test(ls[i - 1]) && !amountsIn(undashWhole(ls[i - 1], style), style).length) && amountsIn(undashWhole(l, style), style).includes(c));
 });
 // A total line whose dollars start with a 0 ("TOTAL: 04.78" where another reading has
 // "TOTAL: $94.78": SRD 1030) lost its first digit to OCR; no printed total reads that way.
