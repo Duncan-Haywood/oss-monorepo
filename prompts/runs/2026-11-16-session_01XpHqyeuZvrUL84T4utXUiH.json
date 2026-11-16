@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyeuZvrUL84T4utXUiH",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T07:39:47Z",
+  "ended": "2026-11-16T07:46:03Z",
+  "wall_minutes": 6.46,
+  "tokens_in": 4455861,
+  "tokens_out": 26821,
+  "cost_usd": 2.3472,
+  "tool_calls": 52,
+  "task": "creative: For Other Minds story on survivorship (BIBLE proposal 2026-11-16)",
+  "projects": [
+    "ventures/hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16500",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "The auto-mode classifier returned no verdict on about eight Bash calls; retrying them as they were worked."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "It says to pick the shelf from git log, but platform/ci/creative_due.py (named only in the H&H README) already draws the shelf and runs the audio check; the prompt should point to it first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-the-ones-who-stayed-survivorship.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, shelf for-other-minds, slug the-ones-who-stayed. Text only (audio 577 MB of 400 MB cap). Security queue empty; IDEAS.md and website requests empty (all requests are long-running 'building'). Verification: node --test in ventures/hearth-and-horizon 17/17 pass; check_post_frontmatter, check_post_links, post_similarity clean. Weekdays checked with Python; Fisher exact p computed with math.comb. No agent doc: nothing the next run needs beyond the BIBLE row and DONE entry.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "512fd905-6c07-5cd5-8346-f8b86b05ec68",
+    "transcripts": 1,
+    "first": "2026-11-16T07:39:47Z",
+    "last": "2026-11-16T07:46:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 26821,
+        "thinking": 8462,
+        "cache_read": 4337921,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117857,
+        "api_equivalent_usd": 2.3472,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 26821,
+      "thinking": 8462,
+      "cache_read": 4337921,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117857,
+      "api_equivalent_usd": 2.3472,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 26,
+      "Read": 9,
+      "Grep": 5,
+      "Edit": 5,
+      "Glob": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.46,
+      "active_minutes": 6.46,
+      "model_minutes": 5.01,
+      "tool_minutes": 1.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a writer drafting and fact-checking a 3,900-word story with a worked statistical model",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 255.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
