@@ -8,8 +8,8 @@ and points seen in only some views.
 Camera model as ../../src/selfcal.py: fx = fy = f, principal point (cx, cy), radial distortion
 1 + k1 r^2 + k2 r^4 on normalised coordinates. Unknowns: the 5 intrinsics, a pose per keyframe
 (Rodrigues rotation, translation) and a 3D point per track. Gauge: the first keyframe's pose is
-fixed at the identity and the scale by holding the largest translation component of the second
-keyframe at its starting value (`Problem`).
+fixed at the identity and the scale by holding the largest translation component of the keyframe
+farthest from the first (at the start) at its starting value (`Problem`).
 
 Pipeline per window of keyframes:
   features -> pairwise matches (ratio test, then a RANSAC fundamental matrix) -> tracks (union-find,
@@ -210,16 +210,18 @@ def initialise(vi, pi, uv, nv, npt, intr0):
 
 # ---------------------------------------------------------------- bundle adjustment
 # Parameters: 5 intrinsics, (rvec, tvec) of keyframes 1..nv-1, 3 per point. Keyframe 0 is the
-# identity. Scale gauge: one translation component of keyframe 1 (the largest at the start) is held
+# identity. Scale gauge: one translation component of the farthest keyframe (largest at the start) is held
 # at its starting value, so the free vector has 7 fewer entries than the full model.
 
 class Problem:
-    def __init__(self, vi, pi, uv, nv, npt, tv1):
+    def __init__(self, vi, pi, uv, nv, npt, tv):
         self.vi, self.pi, self.uv, self.nv, self.npt = vi, pi, uv, nv, npt
         self.nfull = NI + 6 * (nv - 1) + 3 * npt
-        self.jfix = NI + 3 * (nv - 1) + int(np.argmax(np.abs(tv1)))   # tv of keyframe 1
+        g = int(np.argmax(np.linalg.norm(tv, axis=1)))          # widest-baseline keyframe
+        c = int(np.argmax(np.abs(tv[g])))
+        self.jfix = NI + 3 * (nv - 1) + 3 * (g - 1) + c
         self.free = np.array([j for j in range(self.nfull) if j != self.jfix])
-        self.fixval = float(tv1[int(np.argmax(np.abs(tv1)))])
+        self.fixval = float(tv[g, c])
 
     def full(self, q):
         p = np.empty(self.nfull)
@@ -341,7 +343,7 @@ def schur_solve(U, Wp, V, gc, gp, lam):
     return dc, dp
 
 
-def bundle(prob, intr0, rv, tv, X, max_iter=200, tol=1e-10, trace=None):
+def bundle(prob, intr0, rv, tv, X, max_iter=400, tol=1e-7, trace=None):
     """Robust (soft-L1, 1 px knee) Levenberg-Marquardt with iteratively reweighted Gauss-Newton
     steps and a Schur complement on the points. Returns (info dict, (intr, rv, tv, X), q)."""
     q = prob.pack(np.asarray(intr0, float), rv, tv, X)
@@ -425,7 +427,7 @@ def solve_window(feats, size, f0, pair_gap=(1, 2, 3)):
         vi, pi, uv = vi[sel], remap[pi[sel]], uv[sel]
         X = X[good]
         npt = int(good.sum())
-    prob = Problem(vi, pi, uv, nv, npt, tv[1])
+    prob = Problem(vi, pi, uv, nv, npt, tv)
     info, (intr, rv, tv, X), q = bundle(prob, intr0, rv, tv, X)
     cov, sig, rms_in, inl = intr_cov(prob, q)
     nobs = len(vi)
