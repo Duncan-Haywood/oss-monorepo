@@ -843,6 +843,17 @@ function cycleOf(opp, r, s, t) {
  * Returns { rounds, coe, circleCoe, lowerBound, breaks, iterations }.
  */
 export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = true, carryHosts = false } = {}) {
+  const opts = { seed, effort, cyclic, breakWeight, field, fromStarter, weightedStarter, shift, shiftCapped, carryHosts };
+  if (!searchMemo) return searchRounds(n, opts);
+  // inside withSearchMemo: the same arguments give the same season (the search is seeded and
+  // keeps no state between calls), so a repeat is a copy of the first answer
+  const key = JSON.stringify([n, seed, effort, cyclic, breakWeight, field, fromStarter, weightedStarter, shift, shiftCapped, carryHosts]);
+  let hit = searchMemo.get(key);
+  if (!hit) { hit = searchRounds(n, opts); searchMemo.set(key, hit); }
+  return structuredClone(hit);
+}
+
+function searchRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = true, carryHosts = false } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   if (field && !fromStarter && !fieldApplies(N) && starterApplies(N)) {
@@ -911,6 +922,20 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
     }
   }
   return finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed, null, hosts);
+}
+
+let searchMemo = null;
+
+/**
+ * Runs fn with lowCarryOverRounds memoised on its arguments, for callers that search the same
+ * leg several times (eval/carryover-real.mjs: each double round robin re-runs the circle-start and
+ * starter-start leg ones its single round robin already searched). Off everywhere else, so tests
+ * that call the search twice to check it is seeded still run it twice.
+ */
+export function withSearchMemo(fn) {
+  const outer = searchMemo;
+  searchMemo = outer ?? new Map();
+  try { return fn(); } finally { searchMemo = outer; }
 }
 
 /**
