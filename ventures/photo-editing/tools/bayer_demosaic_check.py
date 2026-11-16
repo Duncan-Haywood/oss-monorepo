@@ -145,7 +145,7 @@ def _pattern_bayer(raw) -> tuple[int, ...]:
     return tuple(order.get(desc[v], 1) for v in colours.ravel())
 
 
-def variants_for(names: list[str] | None, candidate: tuple[float, ...] | None = None):
+def variants_for(names: list[str] | None, candidate: tuple[float, ...] | None = None, candidate_extra=()):
     from shootflow.bayer_demosaic import directional
 
     allv = {
@@ -164,7 +164,7 @@ def variants_for(names: list[str] | None, candidate: tuple[float, ...] | None = 
     }
     if candidate is not None:  # a fit not yet in LEARNED_LAPLACE (--learned-fit), scored as its own variant
         allv["laplace-candidate"] = ("ours directional, candidate learned weight (--learned-fit)",
-                                     lambda c, p: directional(c, p, laplace=candidate))
+                                     lambda c, p: directional(c, p, laplace=candidate, laplace_extra=tuple(candidate_extra)))
     keys = names or list(allv)
     return [allv[k] for k in keys]
 
@@ -186,7 +186,8 @@ def main(argv=None) -> int:
         with open(args.learned_fit) as fh:
             fits = [json.loads(line) for line in fh if line.strip().startswith("{") and '"fit"' in line]
         candidate = tuple(fits[-1]["fit"])
-    variants = variants_for(args.variant, candidate)
+        candidate_extra = tuple(fits[-1].get("extra", ()))  # correlation features the fit reads
+    variants = variants_for(args.variant, candidate, candidate_extra if candidate else ())
     for path in args.raw:
         raw = rawpy.imread(path)
         if raw.raw_pattern is None or raw.raw_pattern.shape != (2, 2):

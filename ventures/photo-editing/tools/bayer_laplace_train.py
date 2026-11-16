@@ -85,7 +85,7 @@ def frame_samples(path: str, per_frame: int, seed: int, snr: float | None = None
 # --synthetic-kind matched: the share of near-grey tiles and their colour spread, chosen so the synthetic
 # frames' channel correlation (corr3sq at red and blue sensels) matches the 40 real training frames'
 # (eval/bayer-channel-correlation-2026-11-16.md).
-MATCHED_GREY_SHARE = 0.3
+MATCHED_GREY_SHARE = 0.8
 MATCHED_GREY_SPREAD = 0.15
 
 PATTERNS = ((0, 1, 1, 2), (2, 1, 1, 0), (1, 0, 2, 1), (1, 2, 0, 1))
