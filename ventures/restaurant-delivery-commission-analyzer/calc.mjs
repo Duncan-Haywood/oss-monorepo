@@ -317,7 +317,8 @@ function markupNeeded(b, markupNow) {
 // Net cash = food sales minus commission, delivery/service, marketing/promo,
 // ad spend and error/refund charges. Net after costs also takes off food cost
 // and packaging. Cancelled orders with no charges are dropped and counted;
-// cancelled orders that carry a charge stay as cost with no food or packaging.
+// cancelled orders that carry a charge stay as cost only: no food sales (even
+// when the row lists a subtotal), food cost or packaging.
 // A loss is at least half a cent below zero: an order that breaks even to the
 // cent can come out at -1.8e-15 in floating point and is not a loss.
 const isLoss = (r) => r.counted && r.netAfter < -0.005;
@@ -334,7 +335,10 @@ export function analyze(orders, opts = {}) {
   const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));
   if (!inRange.length) return { invalid: "No orders fall inside that date range." };
   let dropped = 0;
-  const list = inRange.filter((x) => {
+  // A cancelled order sold no food: a subtotal its row still lists is not food
+  // sales (counting it added a never-paid $25 to sales and net cash). Its
+  // charges stay as cost; a refund (negative food sales) keeps its sign.
+  const list = inRange.map((x) => (x.cancelled && x.gross > 0 ? { ...x, gross: 0 } : x)).filter((x) => {
     const charged = x.commission + x.delivery + x.marketing + x.ads + x.errors;
     if (x.cancelled && !x.gross && !charged) { dropped += 1; return false; }
     return true;
@@ -499,7 +503,7 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   }
   if (s.cancelledDropped || s.cancelledKept) {
     const n = s.cancelledDropped + s.cancelledKept;
-    out.push({ severity: "info", title: `${n} cancelled order${n === 1 ? "" : "s"} found`, detail: `${s.cancelledDropped} with no amounts were left out. ${s.cancelledKept} that carried a charge stay in the totals with no food cost or packaging and are not counted as orders.` });
+    out.push({ severity: "info", title: `${n} cancelled order${n === 1 ? "" : "s"} found`, detail: `${s.cancelledDropped} with no amounts were left out. ${s.cancelledKept} that carried a charge or a refund stay in the totals as cost only (no food sales, food cost or packaging) and are not counted as orders.` });
   }
   return out;
 }
