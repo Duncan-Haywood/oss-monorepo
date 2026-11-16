@@ -256,8 +256,9 @@ test('a first-time visitor reads what the Saved bids button is for', () => {
   assert.ok(module_().includes(JSON.stringify(JOBS_FIRST_VISIT_STATUS)));
   // A visitor who has saved bids still sees the count instead.
   assert.match(module_(), /saved === 1 \? '1 saved bid\.' : saved > 1 \? saved \+ ' saved bids\.'/);
-  // It names only what the panel does, and stays one short line on a phone.
-  assert.ok(JOBS_FIRST_VISIT_STATUS.length <= 56, JOBS_FIRST_VISIT_STATUS);
+  // It names only what the panel does, and is short enough to sit beside the
+  // button at 390 px (measured: 35 characters and up wrapped on some pages).
+  assert.ok(JOBS_FIRST_VISIT_STATUS.length <= 34, JOBS_FIRST_VISIT_STATUS);
 });
 
 test('the band points at the backup panel, at the depth the page is served from', () => {
