@@ -229,7 +229,7 @@ class Refitter:
     SANE = {"speed_efficiency": (0.3, 1.0), "spin_efficiency": (0.05, 1.0)}
 
     def __init__(self, spec: dict, *, after: int = 4, recovery_s: float | None = None,
-                 inertia: float = launcher.WHEEL_INERTIA_KGM2, speed_tol: float = 0.05, spin_tol: float = 0.15,
+                 inertia: float = launcher.WHEEL_INERTIA_KGM2, speed_tol: float = 0.02, spin_tol: float = 0.15,
                  log=None):
         if after < 2:
             raise ValueError("refit after at least 2 shots: one shot's drops cannot separate speed from spin")
@@ -256,9 +256,10 @@ class Refitter:
                 return self._skip(len(went), f"fit refused: {name} {v:.3f} is outside {lo}..{hi} (a wheel inertia far "
                                              "off, or a stuck tach?)")
         # Each efficiency is changed only when the fit moved it further than the fit's own error (README "Shot log":
-        # 3.9% speed, 11.7% spin over 18 simulated builds; 1.9% and 6.6% since the pulse-time drops, README "The drop
-        # from the pulse times", the tolerances not yet re-tuned): a 3% correction from a 4-shot fit was as likely to be noise,
-        # and on builds the planner already had nearly right it moved the landings 0.6 m further off.
+        # 3.9% speed, 11.7% spin over 18 simulated builds; 1.9% and 6.6% after the pulse-time drops; 0.6% and 7.7%
+        # since the ball mass was made one, README "Slow wheels and one ball mass", 2026-11-16): speed_tol went from
+        # 5% to 2%, which re-planned builds 2.4-3.5% off from about 1 m off target to 0.11 m or less and left a build
+        # already right alone. When the fit's error was 3.9%, a 3% correction from a 4-shot fit was as likely noise.
         se, sp = self.wheels.speed_efficiency, self.wheels.spin_efficiency
         if abs(fit.speed_efficiency / se - 1) > self.speed_tol:
             se = fit.speed_efficiency

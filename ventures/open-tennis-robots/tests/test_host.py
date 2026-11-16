@@ -787,6 +787,9 @@ class EmptyHopperTest(unittest.TestCase):
         self.assertAlmostEqual(config.BALL_RADIUS_M, ballistics.DEFAULT_BALL.radius)
         self.assertEqual((config.LAUNCH_SPEED_EFF, config.LAUNCH_SPIN_EFF), (lm.speed_efficiency, lm.spin_efficiency))
         self.assertEqual((config.WHEEL_INERTIA_KGM2, config.BALL_KG), (launcher.WHEEL_INERTIA_KGM2, launcher.BALL_KG))
+        # one ball across the project: the drop fit's mass is the flight model's (2026-11-16: 57.0 g against the
+        # simulator's 57.7 g read every speed efficiency 0.9-1.9% high, firmware/esp32/README.md)
+        self.assertAlmostEqual(config.BALL_KG, ballistics.DEFAULT_BALL.mass)
         # the verdict must land before the back stroke ends, so it never overlaps the next forward stroke
         self.assertLess(config.LAUNCH_CHECK_MS, config.GATE_BACK_MS)
 
@@ -904,13 +907,13 @@ class ShotLogTest(unittest.TestCase):
     and their drops) reaches the Pi as a LAUNCH frame, and launcher.fit_from_drops reads the launcher's efficiencies
     from a drill's worth of them, with no radar gun."""
 
-    MODEL = (0.00155, 0.057, 0.075, 0.0335)
+    MODEL = (0.00155, 0.0577, 0.075, 0.0335)
 
     def _exact(self, shots, se, sp, tau, inertia=0.00155):
         from tennisbots import launcher
         out = []
         for top, bottom in shots:
-            d = controller.launch_dips(top, bottom, inertia, 0.057, 0.075, 0.0335, se, sp)
+            d = controller.launch_dips(top, bottom, inertia, 0.0577, 0.075, 0.0335, se, sp)
             out.append({"rpm_top": top, "rpm_bottom": bottom, "launched": True,
                         "drop_top": d[0] * launcher._tach_share(60 / top, tau) if top else 0.0,
                         "drop_bottom": d[1] * launcher._tach_share(60 / bottom, tau) if bottom else 0.0})
@@ -1046,7 +1049,7 @@ class PulseDropTest(unittest.TestCase):
         from tennisbots import launcher
         recs = []
         for top, bottom in ((4000, 4000), (4500, 3000), (3000, 4500), (2000, 2000)):
-            d = controller.launch_dips(top, bottom, 0.00155, 0.057, 0.075, 0.0335, 0.8, 0.45)
+            d = controller.launch_dips(top, bottom, 0.00155, 0.0577, 0.075, 0.0335, 0.8, 0.45)
             recs.append({"rpm_top": top, "rpm_bottom": bottom, "launched": True, "drop_top": d[0],
                          "drop_bottom": d[1], "fit_top": True, "fit_bottom": True})
         fit = launcher.fit_from_drops(recs)
@@ -1054,6 +1057,24 @@ class PulseDropTest(unittest.TestCase):
         self.assertAlmostEqual(fit.spin_efficiency, 0.45, places=6)
         self.assertIsNone(fit.recovery_s)
         self.assertNotIn("one speed", fit.note)
+
+    def test_slow_wheels_are_set_aside(self):
+        """2026-11-16, firmware/esp32/README.md "Slow wheels": a wheel under launcher.MIN_FIT_RPM gets too few
+        revolutions before the verdict for its whole drop; its reading (here a third short) must not move the fit."""
+        from tennisbots import launcher
+        recs = []
+        for top, bottom in ((4000, 4000), (4500, 3000), (3000, 4500), (2000, 2000), (5000, 600), (5000, 520)):
+            d = controller.launch_dips(top, bottom, 0.00155, 0.0577, 0.075, 0.0335, 0.8, 0.45)
+            short = 0.7 if bottom < launcher.MIN_FIT_RPM else 1.0
+            recs.append({"rpm_top": top, "rpm_bottom": bottom, "launched": True, "drop_top": d[0],
+                         "drop_bottom": d[1] * short, "fit_top": True, "fit_bottom": True})
+        fit = launcher.fit_from_drops(recs)
+        self.assertAlmostEqual(fit.speed_efficiency, 0.8, places=6)
+        self.assertAlmostEqual(fit.spin_efficiency, 0.45, places=6)
+        self.assertIn("2 wheel readings under 1000 rpm set aside", fit.note)
+        with self.assertRaises(ValueError):
+            launcher.fit_from_drops([{"rpm_top": 800, "rpm_bottom": 700, "launched": True, "drop_top": 0.3,
+                                      "drop_bottom": 0.3}])
 
     def test_launch_flags_reach_the_pi(self):
         sim = SimFeeder()

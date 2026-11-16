@@ -107,7 +107,7 @@ def cmd_fit_launcher(a: argparse.Namespace) -> int:
     """The launcher's efficiencies from a shot log's wheel speed drops (firmware/esp32/README.md "Shot log")."""
     from . import host
     recs = host.read_shot_log(a.log)
-    fit = launcher.fit_from_drops(recs, inertia=a.inertia, recovery_s=a.recovery_s)
+    fit = launcher.fit_from_drops(recs, inertia=a.inertia, ball_kg=a.ball_kg, recovery_s=a.recovery_s)
     out = {
         "shots": fit.shots,
         "speed_efficiency": round(fit.speed_efficiency, 3),
@@ -115,6 +115,7 @@ def cmd_fit_launcher(a: argparse.Namespace) -> int:
         "recovery_s": None if fit.recovery_s is None else round(fit.recovery_s, 3),
         "rms_drop": round(fit.rms, 4),
         "inertia_assumed_kgm2": a.inertia,
+        "ball_kg_assumed": a.ball_kg,
         "note": fit.note,
     }
     if a.radar_speed_eff:
@@ -269,6 +270,9 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("log", help="JSON-lines shot log written by `run --shot-log`")
     s.add_argument("--inertia", type=float, default=launcher.WHEEL_INERTIA_KGM2,
                    help="one wheel's inertia in kg m^2, as config.py's WHEEL_INERTIA_KGM2")
+    s.add_argument("--ball-kg", type=float, default=launcher.BALL_KG,
+                   help="one ball's mass in kg (weigh a few of yours: the fitted efficiencies scale with it; "
+                        "ITF balls are 0.056 to 0.0594)")
     s.add_argument("--recovery-s", type=float, help="the wheel loop's recovery time constant, if known "
                                                      "(fitted when the log spans speeds)")
     s.add_argument("--radar-speed-eff", type=float,
