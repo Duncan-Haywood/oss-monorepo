@@ -332,10 +332,10 @@ class TiledCrawTests(unittest.TestCase):
 
     def test_a_left_neighbour_lends_one_high_coefficient(self):
         alone, left = cw.tile_geometry(1548, 2060, 3, 0), cw.tile_geometry(1548, 2060, 3, cw.LEFT)
-        for b, (a, l) in enumerate(zip(alone, left)):
+        for b, (own, lent) in enumerate(zip(alone, left)):
             high_across = b and (b - 1) % 3 != 1  # HL and HH
-            self.assertEqual(l[0], a[0] + (1 if high_across else 0))
-            self.assertEqual(l[2], 1 if high_across else 0)
+            self.assertEqual(lent[0], own[0] + (1 if high_across else 0))
+            self.assertEqual(lent[2], 1 if high_across else 0)
 
     def test_inverse_runs_across_a_seam(self):
         import craw_tiled as ct
