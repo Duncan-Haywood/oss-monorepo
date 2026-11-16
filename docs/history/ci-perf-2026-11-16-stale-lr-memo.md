@@ -83,6 +83,16 @@ The fit itself moved unchanged into `staleLRMarkovFit`.
   tick, and `nus: [Infinity]` against the default grid, are fitted afresh;
   too-short stretches stay `null`.
 
+## Suite times file
+
+`run_venture_tests.py --write-times changepoint-detector wall-framing-takeoff`
+refreshed two rows of `platform/ci/venture_suite_times.json`: changepoint
+569.1 to 152.9 s, and wall-framing 90.0 to 38.7 s. Most of the changepoint drop
+is the old figure having been taken with 4 suites sharing 4 cores, not this
+change (this change is about 11 s of wall time on its own; see above). The
+file's `taken` stamp now reads 2026-11-16, but only those two rows were re-timed:
+league, shift-roster and shed are still the 2026-11-15 contended figures.
+
 ## Not changed, ranked for the next run
 
 1. **changepoint-detector per file** (two at a time): engine 33.8 s,
