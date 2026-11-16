@@ -245,21 +245,46 @@ def check_round_robin(n, rounds):
     assert len(seen) == N * (N - 1) // 2
 
 
-def save_state(path, n, courts, times, seed, rounds, good, total):
+def night_ok(n, courts, times, matches, rows, g):
+    """True when rows (pair -> row) lay this night's matches out wait-free: every real match one row,
+    at most `courts` a row, each team's rows one unbroken window of g rows (g - 1 when it sits out)."""
+    real = [e for e in matches if e[1] < n]
+    sits = {e[0] for e in matches if e[1] == n}
+    if set(rows) != set(real) or any(not 0 <= rows[e] < times for e in real):
+        return False
+    per = {}
+    for e in real:
+        per[rows[e]] = per.get(rows[e], 0) + 1
+    if any(c > courts for c in per.values()):
+        return False
+    for v in {x for e in matches for x in e if x < n}:
+        hs = sorted(rows[e] for e in real if v in e)
+        want = g - 1 if v in sits else g
+        if len(hs) != want or hs != list(range(hs[0], hs[0] + want)):
+            return False
+    return True
+
+
+def save_state(path, n, courts, times, seed, rounds, good, total, layouts=None):
+    """layouts: night index -> {pair: row} for the good nights, so a resume need not re-solve them
+    (a re-solve under night_rows' 20 s limit lost 1 to 2 good nights of 11 at 41 teams)."""
     tmp = path + ".tmp"
+    lay = {str(t): [[a, b, h] for (a, b), h in sorted(r.items())] for t, r in (layouts or {}).items()}
     with open(tmp, "w") as f:
         json.dump({"n": n, "courts": courts, "times": times, "seed": seed, "good": good, "nights": total,
-                   "rounds": [[list(e) for e in r] for r in rounds]}, f, separators=(",", ":"))
+                   "rounds": [[list(e) for e in r] for r in rounds], "layouts": lay}, f, separators=(",", ":"))
     os.replace(tmp, path)
 
 
 def load_state(path, n, courts, times):
+    """(rounds, layouts): the round robin and the stored layouts of its good nights (unchecked)."""
     with open(path) as f:
         st = json.load(f)
     assert (st["n"], st["courts"], st["times"]) == (n, courts, times), "state is for another league"
     rounds = [sorted(key(a, b) for a, b in r) for r in st["rounds"]]
     check_round_robin(n, rounds)
-    return rounds
+    lay = {int(t): {key(a, b): h for a, b, h in r} for t, r in st.get("layouts", {}).items()}
+    return rounds, lay
 
 
 def main():
@@ -273,24 +298,30 @@ def main():
     ap.add_argument("--limit", type=float, default=3600, help="seconds in all")
     ap.add_argument("--save", help="write the state here after every accepted step")
     ap.add_argument("--resume", help="start from a state file written by --save")
+    ap.add_argument("--resume-check", type=float, default=180, help="seconds to re-check a resumed night with no stored layout")
     args = ap.parse_args()
     n, courts, times = args.n, args.courts, args.times
     assert n % 2 == 1
     rng = random.Random(args.seed)
     t0 = time.time()
     rounds = circle(n, rng)
-    if args.resume:
-        rounds = load_state(args.resume, n, courts, times)
     nights = [list(range(s, min(s + 3, n))) for s in range(0, n, 3)]
     cache = {}
+    if args.resume:
+        rounds, stored = load_state(args.resume, n, courts, times)
+        for t, r in stored.items():
+            k = frozenset(e for rr in nights[t] for e in rounds[rr])
+            if night_ok(n, courts, times, k, r, len(nights[t])):
+                cache[k] = r
 
-    def good(t):
+    def good(t, seconds=20):
         k = frozenset(e for r in nights[t] for e in rounds[r])
         if k not in cache:
-            cache[k] = night_rows(n, courts, times, k, len(nights[t]))
+            cache[k] = night_rows(n, courts, times, k, len(nights[t]), seconds)
         return cache[k] is not None
 
-    status = [good(t) for t in range(len(nights))]
+    # a resumed night with no stored layout gets a longer first check (--resume-check seconds)
+    status = [good(t, args.resume_check if args.resume else 20) for t in range(len(nights))]
     steps = fails = 0
     log = lambda *a: print(f"[{time.time() - t0:7.1f}s]", *a, file=sys.stderr, flush=True)
     log("start", sum(status), "of", len(nights), "nights good")
@@ -321,7 +352,8 @@ def main():
         status = st
         fails = 0 if not sideways else 0
         if args.save:
-            save_state(args.save, n, courts, times, args.seed, rounds, sum(status), len(nights))
+            lay = {t: cache[frozenset(e for r in nights[t] for e in rounds[r])] for t in range(len(nights)) if status[t]}
+            save_state(args.save, n, courts, times, args.seed, rounds, sum(status), len(nights), lay)
         log(f"step {steps}: freed {freed}, {'sideways' if sideways else 'better'}: {sum(status)} of {len(nights)} good")
     head = {"n": n, "courts": courts, "times": times, "method": "lns", "seed": args.seed, "free": args.free, "steps": steps}
     head["seconds"] = round(time.time() - t0, 1)
