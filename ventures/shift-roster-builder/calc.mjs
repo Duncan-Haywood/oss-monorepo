@@ -2435,6 +2435,18 @@ function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
   }
   return leftMs >= 4000 * Math.pow(copies / 245, 4.5) ? { mode: "run", reserve, untilMs: Infinity } : { mode: "skip", reserve, untilMs: 0 };
 }
+// Why buildRoster does not run the pay floor, or null when it does: "noClique" (the clique LP did not run), "proven" (nothing left
+// to bound), "off" (`scoreFloor: false`), "spent" (the earlier stages ran past the time budget, or the try would get under 250 ms)
+// or "noBasis" (no warm start and the cold formula does not fit). A spent budget skips it unless `scoreFloorSpent: true`, which
+// tries it warm for its reserve alone (README "The pay floor once the budget is spent", 2026-11-16).
+function scoreFloorSkip(o, { clique, proven, spent, plan }) {
+  if (!clique) return "noClique";
+  if (proven) return "proven";
+  if (o.scoreFloor === false) return "off";
+  if (spent && o.scoreFloorSpent !== true) return "spent";
+  if (plan.mode === "skip") return clique.carry ? "spent" : "noBasis";
+  return null;
+}
 // Expected time of the open-hours clique LP (cliqueOpenFloor) on a week of S shift copies: 1.6 s x (S / 245)^4.5, fitted to one
 // machine's 1.2-1.7 s at 238-245 copies, 4.5-6.3 s at 304-326 and 13-15 s at 400 (eval/clique-floor.out.txt).
 const cliqueCostMs = (S) => 1600 * Math.pow(S / 245, 4.5);
@@ -4034,9 +4046,9 @@ function buildRosterOnce(staff, slots, options = {}) {
     // the earlier stages ran past the time budget. `scoreFloorSpent: true` lets it try then, warm, for its reserve alone.
     // `optimality.scoreFloorSkip` names why it did not run: "noClique", "proven", "off", "spent", "noBasis" (no warm start and the
     // cold formula does not fit) or null when it ran.
-    const spent = over(), spentOk = !spent || o.scoreFloorSpent === true;
-    const pricedSkip = !clique ? "noClique" : ex.proven ? "proven" : o.scoreFloor === false ? "off" : !spentOk ? "spent" : plan.mode === "skip" ? (clique.carry ? "spent" : "noBasis") : null;
-    if (clique && !ex.proven && o.scoreFloor !== false && spentOk && plan.mode !== "skip") {
+    const spent = over();
+    const pricedSkip = scoreFloorSkip(o, { clique, proven: ex.proven, spent, plan });
+    if (!pricedSkip) {
       priced = cliqueScoreFloor(ctx, pricedTry
         ? { warm: clique.carry, deadline: Date.now() + plan.untilMs, coldFallback: false }
         : { warm: o.scoreFloorWarm === false ? null : clique.carry });
@@ -5756,7 +5768,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, scoreFloorSkip, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
