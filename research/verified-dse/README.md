@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 134 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 135 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -153,6 +153,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   14.3%). The trade-off appears only after routing: mapped area and mapped delay rise together on every cell (tau 0.47 against
   0.37, AUC 0.68, post hoc), so no mapped-rung statistic seen so far flags these cells. Five of six predictions held:
   [`experiments/ladder_diagnosis/`](experiments/ladder_diagnosis/results.txt).
+- **Checking routed delay inside the ladder's own top 3 does not find its failures (milestone 135, replay of the 90 seen cells,
+  no flow run, negative).** The guard SWX(3, 0.02) routes the clipped ladder's top 3 (points it routes anyway) and, if the
+  smallest-area one routes more than 2% slower than the fastest, spends the other 5 routes in the larger-area band. It alarms on
+  45% of failing cells and 47% of winning ones: a smaller netlist routing slower than a slightly larger one is the common case
+  near the top, not a failure sign. Mean regret 5.01% against 4.77% for the unguarded SWC and 3.91% for SWG(32); it saves 1 point
+  where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
+  probe-guard search for this rule closes here:
+  [`experiments/delay_check/`](experiments/delay_check/results.txt).
 - **On a blind set probed so every cell reaches the ladder branch, the unguarded ladder beats random routing and every guard
   loses to it (milestone 133, flow run).** Seven new 128-bit left shifters (a CRC-7, BCD-to-binary, compare-select and
   multiplicative-hash amount; 18 to 58 gates) were kept from nine by a one-point routing-cost probe written before it ran, and

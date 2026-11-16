@@ -3130,3 +3130,25 @@ default stands, and its gain came from giving the repair its first second, not f
 Not claimed: generated weeks only, one cloud machine; the 9M and 180-round runs were exploratory, not pre-registered. Next:
 whether a reserve sized to what the repair uses (about 1.1-1.2 s at 3M nodes) beats 2 s on fresh seeds, pre-registered.
 
+
+## A 1.2 s repair reserve: a tie, so 2 s stays (2026-11-16 later)
+
+"A 4 s repair reserve: measured and refused" showed the repair stops on its 3M-node budget after about 1.1-1.2 s, so the question
+left was the other side: would a reserve sized to what the repair uses (1.2 s) hand the unused ~0.8 s back to the plateau walks
+and cover more? **Pre-registered** (`eval/repair-reserve-1200-prereg.md`, committed before the run): the same four above-floor
+weeks (90 x 252 and 100 x 280, weeks 0-1), fresh seeds 37-48, 48 paired builds, `flow2000` against `flow1200`
+(`sh eval/repair-reserve-1200.sh`, `eval/repair-reserve-1200.out.txt`). Same rule as before: change the default only on more
+wins than losses, one-sided sign test p < 0.05, and a net gain.
+
+| 48 fresh builds | open hours above the floors | at the floor | repair ms, mean | repair gains, total | cover-pass ms, mean |
+|---|---|---|---|---|---|
+| 2 s reserve (the default) | 294 | 4 | 1,171 | 148 | 3,156 |
+| 1.2 s reserve | **288** | 5 | 914 | 110 | 3,861 |
+
+**Not met:** 1.2 s had fewer open hours on 7 builds, more on 8, tied on 33; 6 hours ahead in all (one-sided p = 0.70). The
+mechanism did what was guessed: the plateau walks got about 0.7 s more and the repair about 0.26 s less, with 38 fewer improving
+rounds. The two roughly cancel. By week the net was -4, +3, +7 and 0 hours, so no week size favours either side.
+
+So the reserve's size is closed on both sides as measured: 4 s lost (64 h worse on seeds 25-36), 1.2 s ties, and 2 s stays the
+default from 300 copies. Its gain came from giving the repair its first second (README "The repair reserve on the biggest
+weeks"), and anything from about 1 s to 2 s is the same within noise. Not claimed: generated weeks only, one cloud machine.
