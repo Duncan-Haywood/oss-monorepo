@@ -1,0 +1,378 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyeCxfadksrJXaRzimw",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T04:39:16Z",
+  "ended": "2026-11-16T04:39:39Z",
+  "wall_minutes": 4.35,
+  "tokens_in": 2983740,
+  "tokens_out": 18223,
+  "cost_usd": 1.5156,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16454",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "suite_for ran only jump-row.test.mjs for a platform/pages target, but CI also runs css-lint.test.mjs over every platform/pages module, so 3 of 8 mutants read escaped though CI rejects them (same class as the open usage-contract entry of 2026-11-15)."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests git log --since=3.days on origin/main to aim at recent changes, but the clone is shallow (depth 1), so it prints nothing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 9 open entries are control-plane fixes needing their own owner-approved PR; this session can push only its branch.",
+      "did": "Re-checked each still reproduces on main (grep), left them open.",
+      "result": "No step-0 progress; time went to two campaigns and four patched defects."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-the-fallback-nobody-linted.md"
+  ],
+  "goal": null,
+  "notes": "Guards tightened: css-lint var() fallbacks (runs in platform/pages node tests); check_payment_keys pk_live_/PayPal ncp/value-first input (portfolio-validate). Both clean on the tree on first run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/jump-row.mjs",
+        "test": "node --test platform/pages/jump-row.test.mjs  (in .)",
+        "seed": 888173637,
+        "commit": "6f9cc5041",
+        "sites": 13,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "platform/pages/jump-row.mjs",
+            "line": 48,
+            "col": 78,
+            "operator": "const-plus-one",
+            "before": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 0);padding:0;list-style:none}",
+            "after": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 1 0);padding:0;list-style:none}",
+            "line_text": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 0);padding:0;list-style:none}",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Unitless length. css-lint.test.mjs already catches the bare margin/padding ones in CI (redteam.py measures only the sibling suite); the var() fallback ones escaped the lint too (real defect #0, fixed). New jump-row.test.mjs test lints JUMP_ROW_CSS with var() fallbacks."
+          },
+          {
+            "file": "platform/pages/jump-row.mjs",
+            "line": 48,
+            "col": 80,
+            "operator": "const-plus-one",
+            "before": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 0);padding:0;list-style:none}",
+            "after": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 1);padding:0;list-style:none}",
+            "line_text": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 0);padding:0;list-style:none}",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Unitless length. css-lint.test.mjs already catches the bare margin/padding ones in CI (redteam.py measures only the sibling suite); the var() fallback ones escaped the lint too (real defect #0, fixed). New jump-row.test.mjs test lints JUMP_ROW_CSS with var() fallbacks."
+          },
+          {
+            "file": "platform/pages/jump-row.mjs",
+            "line": 48,
+            "col": 91,
+            "operator": "const-plus-one",
+            "before": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 0);padding:0;list-style:none}",
+            "after": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 0);padding:1;list-style:none}",
+            "line_text": ".pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 0);padding:0;list-style:none}",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Unitless length. css-lint.test.mjs already catches the bare margin/padding ones in CI (redteam.py measures only the sibling suite); the var() fallback ones escaped the lint too (real defect #0, fixed). New jump-row.test.mjs test lints JUMP_ROW_CSS with var() fallbacks."
+          },
+          {
+            "file": "platform/pages/jump-row.mjs",
+            "line": 50,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "border:1px solid rgba(128,128,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "after": "border:1px solid rgba(129,128,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "line_text": "  border:1px solid rgba(128,128,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "One channel of the fallback border colour moves 128 -> 129 (1/255): not a visible change; and the next declaration (border-color:var(--jump-line,color-mix(...))) overrides it wherever color-mix is supported."
+          },
+          {
+            "file": "platform/pages/jump-row.mjs",
+            "line": 50,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "border:1px solid rgba(128,128,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "after": "border:1px solid rgba(128,129,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "line_text": "  border:1px solid rgba(128,128,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "One channel of the fallback border colour moves 128 -> 129 (1/255): not a visible change; and the next declaration (border-color:var(--jump-line,color-mix(...))) overrides it wherever color-mix is supported."
+          },
+          {
+            "file": "platform/pages/jump-row.mjs",
+            "line": 50,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "border:1px solid rgba(128,128,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "after": "border:1px solid rgba(128,128,129,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "line_text": "  border:1px solid rgba(128,128,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "One channel of the fallback border colour moves 128 -> 129 (1/255): not a visible change; and the next declaration (border-color:var(--jump-line,color-mix(...))) overrides it wherever color-mix is supported."
+          },
+          {
+            "file": "platform/pages/jump-row.mjs",
+            "line": 57,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": ".pf-guide-list li{margin:0 0 4px;break-inside:avoid}",
+            "after": ".pf-guide-list li{margin:1 0 4px;break-inside:avoid}",
+            "line_text": ".pf-guide-list li{margin:0 0 4px;break-inside:avoid}",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Unitless length. css-lint.test.mjs already catches the bare margin/padding ones in CI (redteam.py measures only the sibling suite); the var() fallback ones escaped the lint too (real defect #0, fixed). New jump-row.test.mjs test lints JUMP_ROW_CSS with var() fallbacks."
+          },
+          {
+            "file": "platform/pages/jump-row.mjs",
+            "line": 57,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": ".pf-guide-list li{margin:0 0 4px;break-inside:avoid}",
+            "after": ".pf-guide-list li{margin:0 1 4px;break-inside:avoid}",
+            "line_text": ".pf-guide-list li{margin:0 0 4px;break-inside:avoid}",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Unitless length. css-lint.test.mjs already catches the bare margin/padding ones in CI (redteam.py measures only the sibling suite); the var() fallback ones escaped the lint too (real defect #0, fixed). New jump-row.test.mjs test lints JUMP_ROW_CSS with var() fallbacks."
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_payment_keys.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_payment_keys  (in platform/ci)",
+        "seed": 199872307,
+        "commit": "6f9cc5041",
+        "sites": 6,
+        "baseline_seconds": 2.8,
+        "mutants": [
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 32,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "REPO_ROOT = Path(__file__).resolve().parents[2]",
+            "after": "REPO_ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "REPO_ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 33,
+            "col": 21,
+            "operator": "div-to-times",
+            "before": "VENTURES = REPO_ROOT / \"ventures\"",
+            "after": "VENTURES = REPO_ROOT * \"ventures\"",
+            "line_text": "VENTURES = REPO_ROOT / \"ventures\"",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 60,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "if not path.is_file() or path.name in SKIP_NAMES:",
+            "after": "if not path.is_file() and path.name in SKIP_NAMES:",
+            "line_text": "        if not path.is_file() or path.name in SKIP_NAMES:",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 70,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "if b\"\\0\" in data[:8192]:",
+            "after": "if b\"\\0\" in data[:8193]:",
+            "line_text": "        if b\"\\0\" in data[:8192]:",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 99,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "        return 0",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 110,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1",
+            "after": "return 2",
+            "line_text": "    return 1",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/pages/css-lint.mjs",
+        "issue": "unitlessLengths skipped every parenthesised token, var() included, so a bare number in a var() fallback on a length property (margin:var(--jump-margin,8px 1 0)) passed; its own test listed margin:var(--m, 4) as clean. The browser uses the fallback when the variable is unset, finds it invalid at computed-value time and the margin becomes 0. Fixed: varFallback() reads the fallback (nested too) as a length; tree still clean.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16454"
+      },
+      {
+        "file": "platform/ci/check_payment_keys.py",
+        "issue": "Matched only sk_live_/rk_live_, so a hardcoded pk_live_ publishable key (client-only Checkout charges that account) passed.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16454"
+      },
+      {
+        "file": "platform/ci/check_payment_keys.py",
+        "issue": "PayPal Payment Links (paypal.com/ncp/payment/<id>), PayPal's equivalent of a Stripe Payment Link, were not checked.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16454"
+      },
+      {
+        "file": "platform/ci/check_payment_keys.py",
+        "issue": "The hosted_button_id form-input pattern needed name= before value=; <input value=\"ID\" name=\"hosted_button_id\"> passed.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16454"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f1555a08-c38b-56a4-b73b-b30553dd5d74",
+    "transcripts": 1,
+    "first": "2026-11-16T04:39:16Z",
+    "last": "2026-11-16T04:43:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 18223,
+        "thinking": 4354,
+        "cache_read": 2912630,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71034,
+        "api_equivalent_usd": 1.5156,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 18223,
+      "thinking": 4354,
+      "cache_read": 2912630,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71034,
+      "api_equivalent_usd": 1.5156,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.35,
+      "active_minutes": 4.35,
+      "model_minutes": 3.02,
+      "tool_minutes": 1.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "two mutation campaigns, a lint extension and three payment-check patterns with tests, plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 263.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
