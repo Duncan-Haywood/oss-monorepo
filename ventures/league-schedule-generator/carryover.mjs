@@ -2343,7 +2343,7 @@ export function threeRoundDeals(opp, rs, cap = 20000) {
  * when no balanced choice was found for any kept timetable.
  */
 export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = CARRY_OVER_DEALS, dealFloors = 3, balanced = true, balancedBudget = 50000 } = {}) {
-  if (!Number.isInteger(n) || n < 4 || n > 28) throw new Error("A floor-priced season needs 4 to 28 teams.");
+  if (!Number.isInteger(n) || n < 4 || n > 30) throw new Error("A floor-priced season needs 4 to 30 teams.");
   if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   if (!start || !Array.isArray(start.rounds) || start.rounds.length !== R) throw new Error("start must be a single round robin for this many teams.");

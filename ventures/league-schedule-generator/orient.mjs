@@ -59,7 +59,7 @@ export const MINPLUS_WASM_ON = !!MP;
  * under-the-gap start (README "Starting under the gap"); leastBreaks' other callers keep 12, so their
  * cost is unchanged. */
 export const ORIENT_MAX_MATCHES = 12;
-export const FLOOR_PRICED_MAX_MATCHES = 14;
+export const FLOOR_PRICED_MAX_MATCHES = 15;
 
 /** Predecessor entries a balanced walk keeps at most (4 bytes each: 16 MB), balancedWalk nearOf. */
 const NEAR_CACHE = 4000000;
