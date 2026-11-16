@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T13:25:52Z",
   "ended": "2026-11-16T13:40:31Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 22.6,
+  "tokens_in": 9918522,
+  "tokens_out": 36933,
+  "cost_usd": 4.0743,
+  "tool_calls": 74,
   "task": "chant-forge flagship: O's D4-E4 pulse-2 coda misses read frame by frame, with a new held-out part P",
   "projects": [
     "chant-forge"
@@ -61,5 +63,83 @@
   "goal": null,
   "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok, 265 tests, 0 failed. coda-check --parts ABDEHIFKLM with and without --pre hi=4: byte-identical except K clusters +1. Part P: clusters 115->116 of 120, high 29->29 of 30, others 202/202, voiced-stop nasals 7/7, control 360/360. Also fixed stale studio-page copy (final consonants).",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ea1cd170-7f82-50df-b32e-df63f954f8da",
+    "transcripts": 1,
+    "first": "2026-11-16T13:25:52Z",
+    "last": "2026-11-16T13:48:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 134,
+        "output": 36933,
+        "thinking": 11789,
+        "cache_read": 9745134,
+        "cache_write_5m": 0,
+        "cache_write_1h": 173254,
+        "api_equivalent_usd": 4.0743,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 134,
+      "output": 36933,
+      "thinking": 11789,
+      "cache_read": 9745134,
+      "cache_write_5m": 0,
+      "cache_write_1h": 173254,
+      "api_equivalent_usd": 4.0743,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.6,
+      "active_minutes": 22.6,
+      "model_minutes": 6.81,
+      "tool_minutes": 15.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "frame-by-frame acoustic diagnosis, a parameter sweep on three dev sets, a pre-registered held-out set, docs and post: about a working day for a speech-DSP engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 147.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
