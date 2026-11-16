@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight 127: Egeria and the Mountain Climbed Like a Wall"
-seo_title: "Egeria at Mount Sinai: a bedtime story from a fourth-century pilgrim's letter"
+seo_title: "Egeria at Mount Sinai: a bedtime story from a pilgrim's letter"
 date: 2026-11-16
 tags: [fiction, saints-by-candlelight, bedtime-story, saints, egeria, sinai]
 description: "Episode 127 of the bedtime saints podcast: Egeria climbs Sinai straight up in the dark, hears Exodus read at the top, and finds the bush still growing."
