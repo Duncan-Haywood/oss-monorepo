@@ -115,24 +115,26 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^﻿/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -200,7 +202,7 @@ export function normalizeBank(table, { decimalComma = false, invertSign = false,
   for (const [f, at] of Object.entries(cols)) columns[f] = table[h][at].trim();
   const txns = [], skipped = [];
   for (let i = h + 1; i < table.length; i++) {
-    const line = table[i], lineNo = i + 1;
+    const line = table[i], lineNo = table[i].line ?? i + 1;
     const desc = get(line, "desc").replace(/\s+/g, " ");
     if (isTotal(desc) || isTotal(get(line, "date"))) { skipped.push({ line: lineNo, reason: "total or balance row" }); continue; }
     const date = parseDate(get(line, "date"), dayFirst);
