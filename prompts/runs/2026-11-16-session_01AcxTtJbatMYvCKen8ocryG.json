@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 9,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "strip_query cut '#lib/x' at the leading '#', so a #-prefixed alias resolved to nothing",
       "fix": "a leading '#' is kept as part of the name; caught by tests/aliases.rs"
+    },
+    {
+      "what": "A page-copy replace put <code>paths</code> into the FAQPage JSON-LD too, so portfolio-pages faq-visible.test.mjs failed on CI (JSON-LD and visible answer diverged)",
+      "fix": "JSON-LD answer uses plain text; test reran green locally and on CI"
     }
   ],
   "integrity_issues": [],
@@ -54,7 +58,7 @@
     "ventures/cyclehound/BENCHMARK.md (Path aliases section)"
   ],
   "goal": null,
-  "notes": "Explore idea: the README-named next slice of cyclehound (Rust import-graph tool, dev-tools-in-Rust direction): tsconfig/jsconfig paths+baseUrl+extends by TypeScript's rules. Reference was TypeScript 5.9.3's resolveModuleName (tests/bench/ts_alias_edges.cjs): 1436 alias edges each side, 1436 common, over 16 configs and 2502 bare imports in ventures/. ventures/ edges 11560 -> 12996, no new cycles, unused-export findings 5648 -> 5540, time unchanged (0.25-0.28 s). Local checks: cargo test --release 26 pass, clippy -D warnings clean, node --test (cyclehound) 16 pass, run_venture_tests.py cyclehound ok; run_workflow_locally --for-changes results in the PR.",
+  "notes": "Explore idea: the README-named next slice of cyclehound (Rust import-graph tool, dev-tools-in-Rust direction): tsconfig/jsconfig paths+baseUrl+extends by TypeScript's rules. Reference was TypeScript 5.9.3's resolveModuleName (tests/bench/ts_alias_edges.cjs): 1436 alias edges each side, 1436 common, over 16 configs and 2502 bare imports in ventures/. ventures/ edges 11560 -> 12996, no new cycles, unused-export findings 5648 -> 5540, time unchanged (0.25-0.28 s). Local checks: cargo test --release 26 pass, clippy -D warnings clean, node --test (cyclehound) 16 pass, run_venture_tests.py cyclehound ok; run_workflow_locally --for-changes results in the PR. CI: first push had 1 red (portfolio-pages test: faq-visible), fixed in a follow-up commit; platform/pages build.test.mjs hangs past 150 s locally in this container, so CI was the check for it.",
   "corrections": [],
   "redteam": null,
   "usage": {
