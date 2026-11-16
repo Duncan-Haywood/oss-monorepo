@@ -28,11 +28,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "portfolio-pages test red: platform/pages/rates-coverage.test.mjs flagged campground-site-profit-calculator once it asked for wage + burden (2 of the 4 shop-rate quantities); added a REVIEWED_NOT_CARRIED entry in platform/pages/rates.mjs. I ran only the venture's own tests locally, not the pages suite."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -42,6 +44,10 @@
     {
       "file": ".github/prompts/cloud-session.md / CLAUDE.md",
       "issue": "gh api search/issues returned empty output with no error (unauthenticated?), so duplicate-PR search fell back to list_pull_requests via MCP."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Fix mode says to add a regression test per fix but not that a new input on a venture page can trip platform/pages suites (rates-coverage); run_venture_tests.py passing is not enough for page-field changes."
     }
   ],
   "deviations": [],
