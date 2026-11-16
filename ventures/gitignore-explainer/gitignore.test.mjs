@@ -173,6 +173,25 @@ test("a large list stays fast", () => {
   assert.ok(performance.now() - t0 < 15000, `took ${Math.round(performance.now() - t0)} ms`);
 });
 
+// Perf 2026-11-16: unanchored `name` and `*suffix` rules skip wildmatch, as
+// git's match_basename does. Pin the shortcut to the full matcher.
+test("the literal and *suffix shortcuts agree with wildmatch", () => {
+  const patterns = ["*", "?", "?log", "[ab]", "\\*x", "*.log", "*log", "*.tar.gz", "*~", "*.", "a", "a.log", "log", ".env", "a b", "*.ext5", "*.ext50"];
+  const names = ["", "a", "a.log", "b.log", "log", ".log", "x.tar.gz", "tar.gz", "f~", "f.", ".env", ".envrc", "#x", "a b", "f.ext5", "f.ext50", "f.ext500", "alog"];
+  for (const pattern of patterns) {
+    for (const name of names) {
+      for (const dir of ["", "sub/", "a/b.log/"]) {
+        if (!name) continue;
+        const path = dir + name;
+        const want = wildmatch(pattern, name, { pathname: false });
+        // `own` is the path's own match, whatever its folders do
+        assert.equal(!!decide(pattern, path).own, want, `${pattern} on ${path}`);
+        assert.equal(!!decide(`${pattern}/`, path, true).own, want, `${pattern}/ on ${path}/`);
+      }
+    }
+  }
+});
+
 test("a negated folder inside an ignored folder is blocked too, and its contents come back with the fix", () => {
   const r = run("build/\n!build/keep.txt\n!build/assets/", "build/keep.txt\nbuild/assets/logo.svg\nbuild/app.js");
   const blocked = r.findings.filter((f) => f.kind === "negation-blocked");
