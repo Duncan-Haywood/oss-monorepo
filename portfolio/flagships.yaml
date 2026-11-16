@@ -379,12 +379,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed 2026-11-16: shot log, fit-launcher, mid-drill
-      re-plan, pulse-time drops, one 57.7 g ball mass (the 1-2% speed bias), wheels
-      under 1,000 rpm set aside, speed_tol 2% (firmware/esp32/README.md "Slow wheels
-      and one ball mass": speed 0.6% worst, re-plan worst shot 0.74 to 0.34 m).
-      Next: spin efficiency still 7.7% worst over 18 builds, not a scale: find why
-      (tests/launch_fit_sweep.py); a pulse-time fit that holds under 1,000 rpm.
+      venv, about 2 min). Spin fit (firmware/esp32/README.md "Spin from fast
+      wheels", 2026-11-16): faster calibration spin shots halved the error; a -1.9%
+      speed-dependent drop bias is left. Next: a recovery model with the loop's
+      shape (tach lag, then PI) in place of the parabola, tried on captured period
+      snapshots; a pulse-time fit that holds under 1,000 rpm.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
