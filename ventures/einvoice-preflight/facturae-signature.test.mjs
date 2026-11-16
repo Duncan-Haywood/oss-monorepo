@@ -10,7 +10,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import crypto from "node:crypto";
-import { checkFacturaeSignature, FACTURAE_POLICY } from "./facturae-signature.mjs";
+import { checkFacturaeSignature, FACTURAE_POLICY, FACTURAE_POLICY_V30 } from "./facturae-signature.mjs";
 import { sha1, sha384, sha512, verifyRsaPkcs1, parseDnString, sameDn, readX509 } from "./xmldsig.mjs";
 import { parseXmlDom, canonicalize, childElements } from "./c14n.mjs";
 import { checkFacturae } from "./facturae.mjs";
@@ -65,7 +65,7 @@ function c14nOf(el, { exclusive = false } = {}) {
 /**
  * Sign a Facturae file. Options break one part each:
  *  alg, docC14n ("c14n" | "exc" | "xpath"), keys (signing key), cert (embedded cert), certDigestOf,
- *  serial, issuerName, policy (false drops it), policyUrl, policyHash, signingTime, role,
+ *  serial, issuerName, policy (false drops it), policyUrl, policyHash, policyHashAlg, signingTime, role,
  *  noSignedPropsRef, noDocRef, undeclaredExc (digest the SignedProperties exclusively, declare nothing).
  */
 function sign(xml, o = {}) {
@@ -75,7 +75,7 @@ function sign(xml, o = {}) {
   const certB64 = cert.toString("base64");
   const certDigest = crypto.createHash(ALG.sha512.node).update(o.certDigestOf || cert).digest("base64");
   const policy = o.policy === false ? "" :
-    `<xades:SignaturePolicyIdentifier><xades:SignaturePolicyId><xades:SigPolicyId><xades:Identifier>${o.policyUrl || FACTURAE_POLICY.url}</xades:Identifier><xades:Description>Política de Firma FacturaE v3.1</xades:Description></xades:SigPolicyId><xades:SigPolicyHash><ds:DigestMethod Algorithm="${ALG.sha1.digest}"></ds:DigestMethod><ds:DigestValue>${o.policyHash || FACTURAE_POLICY.sha1}</ds:DigestValue></xades:SigPolicyHash></xades:SignaturePolicyId></xades:SignaturePolicyIdentifier>`;
+    `<xades:SignaturePolicyIdentifier><xades:SignaturePolicyId><xades:SigPolicyId><xades:Identifier>${o.policyUrl || FACTURAE_POLICY.url}</xades:Identifier><xades:Description>Política de Firma FacturaE v3.1</xades:Description></xades:SigPolicyId><xades:SigPolicyHash><ds:DigestMethod Algorithm="${o.policyHashAlg || ALG.sha1.digest}"></ds:DigestMethod><ds:DigestValue>${o.policyHash || FACTURAE_POLICY.sha1}</ds:DigestValue></xades:SigPolicyHash></xades:SignaturePolicyId></xades:SignaturePolicyIdentifier>`;
   const sp = `<xades:SignedProperties Id="Sig-SP"><xades:SignedSignatureProperties><xades:SigningTime>${o.signingTime || "2026-11-15T10:00:00+01:00"}</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="${ALG.sha512.digest}"></ds:DigestMethod><ds:DigestValue>${certDigest}</ds:DigestValue></xades:CertDigest><xades:IssuerSerial><ds:X509IssuerName>${o.issuerName || "CN=AC Test Usuarios, OU=Ceres, O=FNMT-RCM test, C=ES"}</ds:X509IssuerName><ds:X509SerialNumber>${o.serial || KEYS.serialDec}</ds:X509SerialNumber></xades:IssuerSerial></xades:Cert></xades:SigningCertificate>${policy}<xades:SignerRole><xades:ClaimedRoles><xades:ClaimedRole>${o.role || "emisor"}</xades:ClaimedRole></xades:ClaimedRoles></xades:SignerRole></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#Ref-Doc"><xades:Description>Factura electrónica</xades:Description><xades:MimeType>text/xml</xades:MimeType></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties>`;
   const docTransforms = o.docC14n === "exc" ? `<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></ds:Transform><ds:Transform Algorithm="${EXC}"></ds:Transform>`
     : o.docC14n === "xpath" ? `<ds:Transform Algorithm="http://www.w3.org/TR/1999/REC-xpath-19991116"><ds:XPath>${o.xpath || "not(ancestor-or-self::ds:Signature)"}</ds:XPath></ds:Transform>`
@@ -179,7 +179,34 @@ test("no policy is ES-SIG-10 (XAdES-BES); a wrong policy hash ES-SIG-11; another
   assert.deepEqual(rules(checkFacturaeSignature(sign(VALID, { policyHash: "AAAAAAAAAAAAAAAAAAAAAAAAAAA=" }))), ["ES-SIG-11"]);
   const v30 = checkFacturaeSignature(sign(VALID, { policyUrl: "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_0.pdf" }));
   assert.deepEqual(rules(v30, "warning"), ["ES-SIG-10"]);
+  // v3.0 URL with v3.1's hash: the v3.0 digest is known, so the hash is wrong for it
+  assert.deepEqual(rules(v30), ["ES-SIG-11"]);
+  assert.match(v30.findings.find((f) => f.rule === "ES-SIG-11").message, /SHA-1 of the v3\.1 policy, not the v3\.0/);
+  for (const url of FACTURAE_POLICY_V30.urls) {
+    const ok = checkFacturaeSignature(sign(VALID, { policyUrl: url, policyHash: FACTURAE_POLICY_V30.digests["http://www.w3.org/2000/09/xmldsig#sha1"] }));
+    assert.deepEqual(rules(ok), [], url);
+    assert.deepEqual(rules(ok, "warning"), ["ES-SIG-10"], url);
+    assert.match(ok.findings[0].message, /superseded Facturae v3\.0/);
+  }
   assert.deepEqual(rules(checkFacturaeSignature(sign(VALID, { policyUrl: "urn:oid:2.16.724.1.3.1.1.2.1.9" }))), ["ES-SIG-10"]);
+});
+
+test("the policy hash: the 2008 revision's digest under any XML-DSig algorithm; today's whole file and the policy's example named", () => {
+  for (const [uri, value] of Object.entries(FACTURAE_POLICY.digests)) {
+    assert.deepEqual(checkFacturaeSignature(sign(VALID, { policyHashAlg: uri, policyHash: value })).findings, [], uri);
+    assert.deepEqual(rules(checkFacturaeSignature(sign(VALID, { policyHashAlg: uri, policyHash: FACTURAE_POLICY.sha1 === value ? "AAAAAAAAAAAAAAAAAAAAAAAAAAA=" : FACTURAE_POLICY.sha1 }))), ["ES-SIG-11"], uri);
+  }
+  const served = checkFacturaeSignature(sign(VALID, { policyHash: "f/LPQFpMc/ha+1dJ+Y5y11OPVnM=" }));
+  assert.deepEqual(rules(served), ["ES-SIG-11"]);
+  assert.match(served.findings[0].message, /whole PDF as facturae\.gob\.es serves it since its 2014-03-28/);
+  const example = checkFacturaeSignature(sign(VALID, { policyHash: "xmfh8D/Ec/hHeE1IB4zPd61zHIY=" }));
+  assert.match(example.findings[0].message, /example value printed in the policy/);
+  const sha256 = checkFacturaeSignature(sign(VALID, { policyHashAlg: "http://www.w3.org/2001/04/xmlenc#sha256", policyHash: "11I1LxBkDvUpLwZqf2PHDmlQRM2vpf3t2Bg0kKODA8c=" }));
+  assert.match(sha256.findings[0].message, /SHA-256 of the whole PDF/);
+  assert.match(sha256.findings[0].fix, /a\/vDoueJq9zxWGCFwdsXdlXtkFSEek4XVtmlQCEDaE8= with SHA-256/);
+  const md5 = checkFacturaeSignature(sign(VALID, { policyHashAlg: "http://www.w3.org/2001/04/xmldsig-more#md5", policyHash: "AAAAAAAAAAAAAAAAAAAAAA==" }));
+  assert.deepEqual(rules(md5), []);
+  assert.ok(md5.skipped.some((x) => x.rule === "ES-SIG-11"));
 });
 
 test("a signing time outside the certificate's dates and an unknown role are warnings", () => {

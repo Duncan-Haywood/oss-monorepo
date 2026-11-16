@@ -363,7 +363,8 @@ Two bugs found on the way, both fixed with a test:
   with the search off.
 
 Open (updated below): three-session designs for 14, 38, 40 and 46 (longer solver runs, or a
-symmetry such as a cyclic group acting on the teams).
+symmetry such as a cyclic group acting on the teams). 40 and 46 closed 2026-11-16 with a cyclic group
+(section "Three sessions at 40 and 46 teams" below); 14 and 38 reach 0 waits without a design.
 
 ### Big odd leagues at 9 slots: 33 to 63 teams, one pattern laid out once (2026-11-16)
 
@@ -486,6 +487,43 @@ the three k-cycles: no group of order k works, for any 3k + 2 with k odd (17, 23
 Open: 29 on 5 x 9 by a longer run of `eval/odd-triple.py` (hours, not minutes; a second pair of
 runs was stopped at 29 minutes with no answer), by sessions (the one-night shape above as a template the season repeats),
 or by an order-2 rename (an involution fixing two points: the proof above does not reach it).
+
+### Three sessions at 40 and 46 teams: one night turned by a group, solved in 0.1 s (2026-11-16)
+
+40 teams on 7 courts x 9 slots and 46 on 8 x 9 were the two even sizes left with waits at three
+sessions a night (Part 5 of `eval/three-game-nights.txt`: 794 and 1,201 waits over seeds 1 to 3,
+and 18.5 s and 11.8 s a build spent searching). The whole-season SAT model
+(`eval/session-design-sat.py`) ran out of its 300 s on both. `eval/session-orbit.py` (new) asks
+for one night instead, the idea `eval/odd-orbit.py` used for fully booked odd leagues.
+
+**The construction.** Write n = 3k + 1 with k odd (40 = 3 x 13 + 1, 46 = 3 x 15 + 1). Let g add 3
+(mod 3k) to every team but the last, which it fixes. Then g has order k, and because 3k is odd no
+power of g except the identity fixes a pair, so every pair's orbit has exactly k pairs: there are
+n(n - 1) / 2k = 3n / 2 orbits, exactly the number of matches in a night of three rounds. A night H
+that is three perfect matchings, takes one pair from every orbit, and splits into three closed
+blocks of at most 2 x courts teams gives the season: H, gH, ..., g^(k-1) H are k nights of three
+rounds (all 3k = n - 1 rounds), every pair meets once, and each night is H with its teams renamed,
+so its blocks have the same sizes. Unlike the odd case nothing is left over for a short night.
+The SAT model is one night: 3 x n(n - 1)/2 pair-and-round variables plus block membership.
+
+| Teams | Courts x 9 | k | Model (vars / clauses) | Solve | Blocks | Waits before (3 seeds) | Waits now | Build before / now |
+|---|---|---|---|---|---|---|---|---|
+| 40 | 7 | 13 | 10,472 / 37,022 | 0.1 s | 14 + 14 + 12 | 794 | 0 | 18.5 s / 1.5 s |
+| 46 | 8 | 15 | 13,883 / 49,154 | 0.1 s | 16 + 16 + 14 | 1,201 | 0 | 11.8 s / 2.1 s |
+
+(Solve times repeated three times each, same answer; 4-core container, CaDiCaL 1.5 via
+python-sat 1.9.dev22.) The two designs are stored in `session-designs.mjs` like the others
+(`node eval/write-session-designs.mjs --append out/40-3x9.json out/46-3x9.json`; `--append` is
+new, because the earlier solver output is not kept in the tree and a full rewrite would drop the
+32 stored designs). `doubleheader.test.mjs` re-checks both codes and builds both leagues wait-free.
+With them every even size of 14 to 48 teams has 0 waits at 9 slots on the least courts; only 12
+teams on 2 courts keeps its 78 (proved impossible above).
+
+The same script also solves 22, 28 and 34 teams (k = 7, 9, 11; already stored from the whole-season
+model) and 52, 58 and 64 teams (k = 17, 19, 21; 0.3 s each, blocks 18 + 18 + 16, 20 + 20 + 18,
+22 + 22 + 20). Those three are not stored: the eval and the stored designs stop at 48 teams, and
+the one-character code covers 64 teams at most. n = 3k + 1 with k even (14, 26, 38) is not
+covered: there the half-turn pairs in each ring have orbits of k / 2.
 
 ### Odd leagues one night at a time: 21 and 23 teams on 4 x 9, 27 on 5 x 9 and 7 x 6 (2026-11-15, latest)
 

@@ -289,3 +289,95 @@ def kendall_tau(x, y):
     tx, ty = (dx == 0).sum(), (dy == 0).sum()
     den = np.sqrt((n0 - tx) * (n0 - ty))
     return nc / den if den else 0.0
+
+
+# ---- milestone 7: complex centrality (after Guilbeault and Centola 2021) ----
+
+def complex_paths(A, theta: float = 0.5, absolute: int | None = None, max_steps: int | None = None):
+    """Complex path lengths from every household's seed neighbourhood (after Guilbeault and
+    Centola 2021, Nature Communications 12:4430). Column i starts with i and all its neighbours
+    active; a deterministic threshold contagion then runs on the graph: an inactive household
+    activates when the share of its neighbours that are active is at least theta (or, with
+    `absolute`, when at least that many are). Returns L, an n x n float matrix with L[j, i] the
+    step at which j activates from i's neighbourhood (0 for the neighbourhood itself, inf if
+    never)."""
+    A = np.asarray(A, float)
+    n = A.shape[0]
+    deg = np.maximum(A.sum(1), 1)[:, None]
+    act = (A + np.eye(n)) > 0
+    L = np.where(act, 0.0, np.inf)
+    for t in range(1, (max_steps or n) + 1):
+        k = A @ act
+        new = ~act & ((k >= absolute) if absolute is not None else (k / deg >= theta - 1e-12))
+        if not new.any():
+            break
+        L[new] = t
+        act |= new
+    return L
+
+
+def complex_centrality(A, theta: float = 0.5, absolute: int | None = None):
+    """Per household: (reach, mean complex path length to the households reached outside its
+    neighbourhood). Reach is the share of the village its seed neighbourhood activates; a
+    household whose neighbourhood reaches nobody beyond itself gets mean length inf. Guilbeault
+    and Centola rank by the average complex path length; with fractional thresholds on these
+    villages most cascades stop early, so we rank by reach first and break ties by shorter
+    mean length (our choice, stated in LOG.md before the run)."""
+    L = complex_paths(A, theta, absolute)
+    fin = np.isfinite(L)
+    reach = fin.mean(0)
+    out = fin & (L > 0)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        mlen = np.where(out.sum(0) > 0, np.where(out, L, 0).sum(0) / out.sum(0), np.inf)
+    return reach, mlen
+
+
+def _cc_order(v, theta, absolute):
+    reach, mlen = complex_centrality(v.A, theta, absolute)
+    # reach desc, then mean length asc, then degree desc, then index
+    return np.lexsort((np.arange(v.n), -v.deg, mlen, -reach)), reach
+
+
+def rule_complex(v, b, rng=None, theta: float = 0.5, absolute: int | None = None):
+    """Top-b households by complex centrality (single households, not neighbourhoods)."""
+    order, _ = _cc_order(v, theta, absolute)
+    m = np.zeros(v.n, bool)
+    m[order[:b]] = True
+    return m
+
+
+def rule_complex_hood(v, b, rng=None, theta: float = 0.5, absolute: int | None = None):
+    """Seed neighbourhoods, as Guilbeault and Centola's measure assumes: take the most central
+    household not yet seeded, seed it and then its unseeded neighbours in degree order, until
+    b seeds; repeat."""
+    order, _ = _cc_order(v, theta, absolute)
+    m = np.zeros(v.n, bool)
+    for c in order:
+        if m.sum() >= b:
+            break
+        if m[c]:
+            continue
+        m[c] = True
+        nb = np.flatnonzero((v.A[c] > 0) & ~m)
+        nb = nb[np.lexsort((nb, -v.deg[nb]))]
+        m[nb[: b - int(m.sum())]] = True
+    return m
+
+
+def rule_complex_spread(v, b, rng=None, theta: float = 0.5, absolute: int | None = None):
+    """Complex centrality order, no two seeds adjacent while possible (spread degree's rule
+    with complex centrality as the score)."""
+    order, _ = _cc_order(v, theta, absolute)
+    score = np.empty(v.n)
+    score[order] = -np.arange(v.n)
+    return _spread_pick(score, v.A, b)
+
+
+COMPLEX_RULES = {
+    "cc-frac": lambda v, b, rng=None: rule_complex(v, b, theta=0.5),
+    "cc-frac25": lambda v, b, rng=None: rule_complex(v, b, theta=0.25),
+    "cc-abs2": lambda v, b, rng=None: rule_complex(v, b, absolute=2),
+    "cc-hood-frac": lambda v, b, rng=None: rule_complex_hood(v, b, theta=0.5),
+    "cc-hood-abs2": lambda v, b, rng=None: rule_complex_hood(v, b, absolute=2),
+    "cc-spread-frac": lambda v, b, rng=None: rule_complex_spread(v, b, theta=0.5),
+}

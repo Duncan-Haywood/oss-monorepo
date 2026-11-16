@@ -1,0 +1,22 @@
+{
+  "machine": {"y": 0.0, "height": 1.0},
+  "interval": 3.0,
+  "shots": [
+    {"x": 9.5, "y": -2.5, "speed": 22, "topspin": 1500},
+    {"x": 9.5, "y": 2.5, "speed": 22, "topspin": 1500},
+    {"x": 8.5, "y": -3.0, "speed": 21, "topspin": 1800},
+    {"x": 8.5, "y": 3.0, "speed": 21, "topspin": 1800},
+    {"x": 10.0, "y": 0.0, "speed": 24, "topspin": 1200},
+    {"x": 7.0, "y": -1.5, "speed": 18, "topspin": -600},
+    {"x": 9.5, "y": -2.5, "speed": 22, "topspin": 1500},
+    {"x": 9.5, "y": 2.5, "speed": 22, "topspin": 1500},
+    {"x": 8.5, "y": -3.0, "speed": 21, "topspin": 1800},
+    {"x": 8.5, "y": 3.0, "speed": 21, "topspin": 1800},
+    {"x": 10.0, "y": 0.0, "speed": 24, "topspin": 1200},
+    {"x": 7.0, "y": 1.5, "speed": 18, "topspin": -600},
+    {"x": 9.5, "y": -2.5, "speed": 22, "topspin": 1500},
+    {"x": 9.5, "y": 2.5, "speed": 22, "topspin": 1500},
+    {"x": 10.5, "y": -3.0, "speed": 25, "topspin": 2000},
+    {"x": 10.5, "y": 3.0, "speed": 25, "topspin": 2000}
+  ]
+}

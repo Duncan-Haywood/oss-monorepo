@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Other RAW formats (a C-RAW CR3 stored in several tiles, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Since 2026-11-16 a C-RAW CR3 stored in several tiles too ("C-RAW in tiles" below). Other RAW formats (a CR3 with an unknown codec version, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -1189,8 +1189,41 @@ and as a 4 x 3 grid whose last column is 22 plane sensels, the narrowest LibRaw 
 our engines. A deliberately wrong layout (the same tiles written column by column) comes back from LibRaw
 with 21.4 M of 25.5 M sensels wrong and is refused by ours, so the check can fail. What it cannot prove: the layout comes from this
 repository's reading of LibRaw, not from a Canon body, so a real R5 file is still the stronger test
-(`eval/canon-cr3-tiled-2026-11-15.md`). C-RAW in tiles (edge coefficients where tiles meet) is still
-refused with a pointer to the DNG Converter.
+(`eval/canon-cr3-tiled-2026-11-15.md`). C-RAW in tiles is read since 2026-11-16 (next section).
+
+**C-RAW in tiles (2026-11-16).** The smaller C-RAW quality in tiles was the last CR3 layout ShootFlow
+refused. It is harder than full quality: a C-RAW tile is not an independent picture but a wavelet
+decomposition, and the 5/3 filter reaches across the seam. Each tile is coded as its own three-level
+decomposition (its first sample even at every level), and its subbands carry a few coefficients lent by
+its neighbours: one more high-pass coefficient before a left (or top) neighbour, and after a right (or
+bottom) one 0-2 per band and level, as LibRaw's `exCoefNumTbl` gives them for the tile's size mod 8. With
+them the inverse runs straight across the seam, and each level rebuilds the next level's low band with its
+own borrowed edge. Each tile has its own QP grid; a borrowed coefficient takes the step of the nearest own
+column. `cr3_wavelet.tile_geometry` sizes the bands, `inverse_53` and `inverse_level` take the
+neighbour flags, and the C decoder (`shootflow_craw_plane`) does the same per tile and plane.
+
+No public tiled C-RAW exists to test with, so `tools/cr3_craw_tiled_libraw_check.py` makes them from real
+one-tile files: each tile's decomposition is computed from the real sensels around it
+(`tests/craw_tiled.py`), the sample is spliced into a copy of the real file, and LibRaw 0.22 reads it.
+On all 20 side-by-side layouts tried (two R8 frames and an R3 frame, two to five tiles across, plane tiles
+from 22 sensels, the narrowest LibRaw allows, to 2,048, and an odd 619), LibRaw and both of our engines return
+the same sensels: equal to the original when every step is 1, and equal to each other when the file's own
+steps are used (`eval/canon-cr3-craw-tiled-libraw-2026-11-16.jsonl`). Reading a tiled file takes as long as a
+one-tile one, 0.6-0.9 s with the C decoder.
+
+**Where LibRaw and ShootFlow part: tiles stacked one above another.** A grid with more than one row of
+tiles does not come back from LibRaw: on the same R8 frame cut 1 x 2 it returns 160,305 of 25.5 M sensels
+different from the original (rows next to the seam only), 1 x 3 gives 370,013, and the 4 x 3 grid fails to
+decode at all. Our reader returns every original sensel on all three. Reading LibRaw's `crx.cpp` shows one
+cause: in `crxIdwt53FilterTransform` the test for a tile below is nested inside the end-of-tile test, so a
+tile with a neighbour below never computes its last rows (and the branch written for that case is dead
+code; `crxIdwt53FilterDecode` uses the combined test). Rebuilt with the two tests combined, LibRaw gives the
+upper tile back exactly, but the first 8 rows of the lower tile still differ, and this run could not trace
+that second difference. So side-by-side tiles (the layout of the wide R5-class sensors) are checked by an
+independent reader; stacked tiles are read by the same seamless rule, which nothing independent confirms
+yet, and a developed frame carries a note saying so. The QP row rule LibRaw uses for borrowed rows (row
+minus the bottom count, where columns subtract the left count) is followed but likewise unconfirmed
+(`eval/canon-cr3-craw-tiled-2026-11-16.md`).
 
 ## Fujifilm RAF (2026-11-14)
 

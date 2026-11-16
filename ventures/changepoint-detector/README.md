@@ -2285,7 +2285,7 @@ What it says:
 
 - **The rule is met, so `auto` is the default.** Mean F1 0.172 to 0.286, cuts down by a third to four fifths, and no cost on white noise. Over-cut columns: both apple columns, all four bee columns, two of four occupancy sensors (the output lists the sd each got).
 - **`auto` is still below the column-by-column reading (0.521) and "no change" (0.621).** The page keeps leading with the agreed changes, and the over-cut warning still fires on occupancy (89 cuts in 509 points).
-- **AR(1) plus floor 2 on every column scored best here (0.564), above the consensus.** It was listed in advance but is not the primary, so that is a lead, not a finding: three series is a panel, and in simulation it gives up most of the power on smooth columns. It ships as a page and CLI option ("Autocorrelation and a floor on every column (fewest cuts)", `--joint-floor 2 --joint-ar1`), to be tested on fresh multi-column data before it is anything more.
+- **AR(1) plus floor 2 on every column scored best here (0.564), above the consensus.** It was listed in advance but is not the primary, so that is a lead, not a finding: three series is a panel, and in simulation it gives up most of the power on smooth columns. It ships as a page and CLI option ("Autocorrelation and a floor on every column (fewest cuts)", `--joint-floor 2 --joint-ar1`), to be tested on fresh multi-column data before it is anything more. **Tested 2026-11-16 on five fresh bee dance sequences and failed** (see "The AR(1)-plus-floor lead on fresh labelled data" below).
 - **A real pair checked after the rule was applied:** German unemployment, unadjusted and adjusted, quarterly 1962-1991 (`data/german-unemployment.csv`). Plain joint fit: 22 changes and the over-cut warning. With `auto` (both columns floored): 1974Q4 (+3.4 points, the first oil shock's recession), 1982Q1 (+4.3, the early-1980s recession) and 1989Q2 (-1.8), no warning. With AR(1) as well: one change, 1981Q3. Pinned in `multi-view.test.mjs`.
 
 **What shipped.** `columnSigmas` and the `floor`/`ar1` options of `multiPelt`; `analyzeMulti` defaults to `floor: 'auto'` for the level model and reports `floor`, `ar1` and `flooredColumns`; the text output and the page summary name the floored columns; CLI `--joint-floor auto|off|k` and `--joint-ar1`; a page select, "One segmentation for all columns: noise per column". `eval/tcpd-multi.mjs` and `eval/multi-sim.mjs` call `multiPelt` with no floor, so their figures above are unchanged. Tests: `multivariate.test.mjs` (auto floors a random walk and leaves white noise alone, the shared step survives, the pre-registered figures and the white-noise equality from the output files) and `multi-view.test.mjs` (German unemployment both ways).
@@ -5412,3 +5412,58 @@ in `clumpingLaw` was changed (decided in advance: one series does not retune it)
 clump in batches (insurance claims per event, orders per basket), and, for wandering rates on counts, a drift model
 like "Wandering level" (the mean model has one) for the Poisson cost. Test: `calls-law.test.mjs` (2: the reference
 reads `nb1` by the pre-registered rule; the check says `either` on all 164 days and a week run warns nothing).
+
+
+## The AR(1)-plus-floor lead on fresh labelled data: five bee dance sequences (2026-11-16, pre-registered; fails, a muted-column note ships)
+
+On TCPD's three multi-column series the joint level fit with an AR(1) long-run sd and a floor of 2 on every column
+scored best (mean F1 0.564), but it was not the primary there, so it was recorded as a lead to test on fresh
+multi-column labelled data. The bee dance set (Oh et al. 2008, via KL-CPD's BSD-3 repository; `data/SOURCE.md`) is
+that: six tracked dances, three columns each (x, y, heading), 602 to 1124 frames, with 15 to 28 labelled switches
+between left-turn, right-turn and waggle phases. Sequence 6 is TCPD's `bee_waggle_6` (seen, and TCPD's annotators
+marked 2 changes where this set marks 15), so only 1 to 5 enter the rule. The settings (the six of
+`eval/tcpd-multi-floor.mjs`, now shared through `eval/tcpd-multi-floor-settings.mjs`), the primary and the rule were
+committed in `eval/beedance-multi.mjs` before any score: the lead confirms if (1) it has the best mean F1 of the six,
+(2) it beats the column consensus and (3) it beats `floor auto` on at least 4 of the 5. `node eval/beedance-multi.mjs`
+(output `eval/beedance-multi.out.txt`), F1 at margin 5, TCPDBench definitions:
+
+| joint level fit | bee 1 | bee 2 | bee 3 | bee 4 | bee 5 | mean F1 | cover | cuts | bee 6 (seen) |
+|---|---|---|---|---|---|---|---|---|---|
+| plain | 0.204 | 0.242 | 0.248 | 0.283 | 0.319 | 0.259 | 0.242 | 101-165 | 0.281 |
+| floor auto (default) | 0.354 | 0.306 | 0.340 | 0.357 | 0.328 | 0.337 | 0.443 | 35-61 | 0.231 |
+| floor 2, every column | 0.354 | 0.310 | 0.340 | 0.357 | 0.328 | 0.338 | 0.447 | 35-60 | 0.231 |
+| floor 1, every column | 0.279 | 0.299 | 0.376 | 0.262 | 0.436 | 0.330 | 0.343 | 65-103 | 0.342 |
+| ar1 per column | 0.296 | 0.316 | 0.400 | 0.308 | 0.446 | **0.353** | 0.480 | 7-91 | 0.337 |
+| **ar1 + floor 2 (primary)** | 0.273 | 0.245 | 0.111 | 0.267 | 0.327 | 0.244 | 0.446 | 0-25 | 0.150 |
+| columns: every setting (consensus) | 0.375 | 0.217 | 0.111 | 0.250 | 0.255 | 0.242 | 0.469 | 0-27 | 0.324 |
+| zero (no changes) | 0.095 | 0.083 | 0.111 | 0.105 | 0.067 | 0.092 | 0.056 | 0 | 0.118 |
+
+- **The lead fails.** (1) not met: plain AR(1) has the best mean F1 (0.353); (2) met, by 0.002 over the consensus;
+  (3) not met: it beats `floor auto` on 0 of 5. It is the worst joint setting here bar none, and on bee 3 it reports no
+  change at all against 16 labelled.
+- **Why: the two corrections stack until a column goes silent.** The floor already raises a smooth column's sd, and the
+  AR(1) long-run sd multiplies it again by sqrt((1+rho)/(1-rho)), which grows without bound as rho nears 1. A bee's
+  position is a smooth path (rho near 1), so a column scaled to [0, 1] got a noise sd of 1.07 to 1.88: no move inside
+  its own range can pay the penalty, and the segmentation came from the remaining columns or from none.
+- **No setting does well on this set.** Every joint fit cuts 35 to 165 times except the two with AR(1) + floor; the best
+  mean F1 is 0.353 against 16 to 28 labels. Unlike TCPD's three series, where "no change" scored 0.621,
+  this set labels many changes, so "zero" scores 0.092 and every method clears it. Published methods were not rerun.
+- **Nothing in the defaults changes.** The joint default stays `floor auto` whatever this showed (decided in advance:
+  a floor on every column costs most of the power on small shared steps in white noise, `eval/multi-floor-sim.mjs`).
+
+**What ships: a muted-column note.** `mutedColumns` in `multivariate.mjs` names any column whose noise sd the floor
+or the AR(1) correction raised to more than 3 times the column's own whole-series sd, and `analyzeMulti` returns it
+as `mutedWarning` ("Read with care") in the CLI text, the page and the branded report. The plain sd is never flagged
+(a column with no change has a plain sd close to its whole-series sd). The 3 was set after this run and checked on
+simulations, not tuned on the bees (`node eval/muted-sim.mjs`, output `eval/muted-sim.out.txt`, 300 columns per
+cell): under the default it fires on no column of white noise, AR(1) at rho 0.5 or 0.9, random walks or smooth sines;
+under AR(1) + floor 2 it fires on no white-noise column, but on 282 to 296 of 300 autocorrelated or random-walk columns,
+which is what that option does to them. On the bees it names x on 1 and 2, x and y on 3, y on 4, nothing on 5, and
+nothing under the default. The page's option now reads "fewest cuts; can mute autocorrelated columns".
+
+Not done: the heading column wraps at the scale's edge and was left in as distributed (it is noisy enough that no
+setting mutes it); TCPD's three series were not rerun for the note (the TCPD files are fetched, not committed);
+published methods (bocpd, KL-CPD) were not rerun on 1 to 5. Next for (a): a per-column trend term instead of a blunt
+floor, or the AR(1) correction alone (best here, 0.353) on a sixth fresh multi-column set before it is anything more.
+Tests: `beedance-muted.test.mjs` (3: the rule fails with the committed numbers; white noise never flagged under the
+default or a floor of 2; bee 3 under AR(1) + floor 2 names x and y in the text and the default names nothing).

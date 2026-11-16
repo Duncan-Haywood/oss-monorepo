@@ -2682,6 +2682,51 @@ this run. Details, per-photo lists and commands:
 [`eval/receipt-cli-four-pass-2026-11-16.md`](eval/receipt-cli-four-pass-2026-11-16.md).
 Tests: `receipt-tax.test.mjs` (23).
 
+### Tax on receipt photos: misspelt labels and damaged tax lines (2026-11-16)
+
+The CLI's `--four-pass` read SRD tax on 126 of 185 photos, 45 with no tax at all. Its
+readings (tesseract 5.3.4, re-read this run and matching the last run's figures exactly)
+showed three kinds of fixable miss:
+
+1. **The subtotal's label misspelt.** "Suototal 24.08", "Subtota | $20.00", "Sudtotal",
+   "ubtotal": the subtotal was never read, so the tax could not be checked against it.
+   `cleanOcr` now writes any word one letter from "subtotal" or "subtota" (seven letters
+   or more) as "Subtotal". Two letters is not taken: photo 1133's total line reads
+   "SOSTOTAL". "Tota]" and "Subtota|" become "Total" and "Subtotal", and a doubled decimal
+   point ("146..57") is one.
+2. **A tax line's decimal point lost with no separator left.** "TAX 211": the digits are
+   taken as 2.11 only when a subtotal read on the receipt plus 2.11 is the total or a
+   "Total" line (photo 1012: 22.25, "Total 24.36", then a tip).
+3. **A tax line whose amount is gone but whose rate is printed.** "TAX 8.00% 44": the
+   subtotal times the rate must make the total; with no subtotal read, the total split at
+   the rate must give a tax whose last digits are the ones the line still shows (19.44 at
+   8% is 18.00 + 1.44, the line kept "44"). With no digits to agree with (photo 1018,
+   "TAX 8.25% *="), nothing is taken. Each fallback adds a "check the tax" note.
+
+| SRD, CLI `--four-pass` | before | now |
+|---|---|---|
+| tax right (185) | 126 (68.1%) | **132 (71.4%)** |
+| tax wrong / none | 14 / 45 | 12 / 41 |
+| tax read where none labelled | 1 | 1 |
+| totals right (196) | 150 | **151** |
+| item splits kept (200) | 48 | **49** |
+
+| held out, dataset text | before | now |
+|---|---|---|
+| CORD train tax (352) | 322 | **323** |
+| CORD validation / test tax, all totals | 46 / 41; 749 / 96 / 92 | unchanged |
+| SROIE merchant / date / total (626) | 531 / 601 / 611 | unchanged |
+
+The six SRD gains are 1009, 1012, 1061, 1064, 1076 and 1153; two wrong taxes became right
+(1061, 1153) and four missing ones were filled. The rules were written from these photos,
+so the SRD figure is in-sample. CORD and SROIE were scored once after. Most CORD receipts
+are decimal-comma or whole-unit, which rules 2 and 3 never touch, so they test mainly
+rule 1. A leading-digit rule ("Tax » 415.35" read as 15.35, photo 1184) was tried and
+dropped: it gained nothing (the subtotal-arithmetic rule then picks 17.35 from a misread
+"176.00") and turned one missing tax wrong. Remaining misses:
+[`eval/receipt-tax-ocr-labels-2026-11-16.md`](eval/receipt-tax-ocr-labels-2026-11-16.md).
+Tests: `receipt-tax.test.mjs` (26), `cord-receipts.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

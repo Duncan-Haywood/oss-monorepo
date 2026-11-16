@@ -70,7 +70,19 @@ def cmd_run(a: argparse.Namespace) -> int:
     from . import host
     print(DISCLAIMER, file=sys.stderr)
     try:
-        res = host.run_file(a.file, a.port, log=print)
+        recovery = a.recovery_s
+        if a.refit_after and recovery is None and a.shot_log:
+            recovery = host.recovery_from_log(a.shot_log, a.inertia)
+            if recovery is not None:
+                print(f"tach recovery {recovery:.3f} s, from the calibration shots in {a.shot_log}")
+        if a.refit_after and recovery is None:
+            print("note: no tach recovery time (pass --recovery-s, or --shot-log a log holding a calibration drill): "
+                  "a refit from shots at one speed reads slow shots low", file=sys.stderr)
+        res = host.run_file(a.file, a.port, log=print, refit_after=a.refit_after, recovery_s=recovery,
+                            inertia=a.inertia)
+        for ev in res.refits:
+            if ev["used"]:
+                print(json.dumps({"refit": ev}))
         if a.shot_log:
             n = host.append_shot_log(a.shot_log, res, os.path.basename(a.file))
             print(f"{n} launch record{'' if n == 1 else 's'} appended to {a.shot_log}")
@@ -242,6 +254,14 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("file")
     s.add_argument("--port", default="/dev/ttyAMA0", help="serial device wired to the ESP32 (default /dev/ttyAMA0)")
     s.add_argument("--shot-log", help="append each stroke's wheel speed drops to this JSON-lines file (fit-launcher)")
+    s.add_argument("--refit-after", type=int, metavar="N",
+                   help="after every N shots, fit the launcher's efficiencies to this run's wheel speed drops and "
+                        "re-plan the remaining shots' wheel speeds when they moved more than the fit's own "
+                        "error (5%% speed, 15%% spin)")
+    s.add_argument("--recovery-s", type=float,
+                   help="the tach's recovery time for --refit-after (default: fitted from the --shot-log file)")
+    s.add_argument("--inertia", type=float, default=launcher.WHEEL_INERTIA_KGM2,
+                   help="one wheel's inertia in kg m^2, as config.py's WHEEL_INERTIA_KGM2 (for --refit-after)")
     s.set_defaults(func=cmd_run)
 
     s = sub.add_parser("fit-launcher", help="the launcher's speed and spin efficiency from a shot log's wheel speed "

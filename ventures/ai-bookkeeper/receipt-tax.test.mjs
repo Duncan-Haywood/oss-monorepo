@@ -11,8 +11,12 @@ const R = (body) => `CORNER DINER\nDate: 03/14/2024\n${body}`;
 test("a rate printed beside the tax is not the amount", () => {
   assert.equal(parseReceipt(R("Burger 12.67\nTax 8.75% 1.11\nTotal 13.78")).taxCents, 111);
   assert.equal(parseReceipt(R("Sales Tex (10.25%) 1.23\nTotal 13.22")).taxCents, 123);
-  // a rate alone, the amount unreadable: no tax rather than 8.75
-  assert.equal(parseReceipt(R("Tax 8.75% 1.1\nTotal 13.78")).taxCents, null);
+  // a rate alone, the amount unreadable: never 8.75; the total split at 8.75% is 12.67 +
+  // 1.11, and the line's digits "1.1" agree, so 1.11 with a note (2026-11-16)
+  const r = parseReceipt(R("Tax 8.75% 1.1\nTotal 13.78"));
+  assert.equal(r.taxCents, 111);
+  assert.ok(r.notes.some((n) => /split at 8.75%/.test(n)));
+  assert.equal(parseReceipt(R("Tax 8.75% 2.1\nTotal 13.78")).taxCents, null);
 });
 
 test("Taxes, TXTL and Hawaii's GET are tax lines; Taxable and w/Tax are not", () => {
@@ -178,4 +182,35 @@ test("the lines above the subtotal are not tried against a guessed total", () =>
   const r = parseReceipt(R("1 Sprite 2.55\n1 Chicken Caesar Salad 8.95\n1 Chefs Special 19.95\nFood Subtotal: 31.45\nSoup 0.00 extra 4.00"));
   assert.ok(r.notes.some((n) => /largest amount/.test(n)));
   assert.equal(r.itemsOk, false);
+});
+
+test("a tax line's amount with the decimal point lost is read when a subtotal plus it is a total", () => {
+  // SRD photo 1012: "TAX 211", then a Total before the tip
+  const r = parseReceipt(R("Subtotal 22.25\nTAX 211\nTotal 24.36\nTip 8.90\nTotal $33.26"));
+  assert.equal(r.taxCents, 211);
+  assert.ok(r.notes.some((n) => /decimal point lost/.test(n)));
+  // nothing closes: no tax is guessed from the digits
+  assert.equal(parseReceipt(R("Subtotal 22.25\nTAX 211\nTotal $33.26")).taxCents, null);
+});
+
+test("a tax line's printed rate gives the tax when the receipt closes with it", () => {
+  // the subtotal at the printed rate makes the total
+  assert.equal(parseReceipt(R("Subtotal 18.00\nTAX 8.00% a)\nTotal 19.44")).taxCents, 144);
+  // SRD photo 1064: no subtotal read; 19.44 at 8% splits 18.00 + 1.44 and the line kept "44"
+  assert.equal(parseReceipt(R("Burger 18.00\nTAX 8.00% 44\nTotal 19.44")).taxCents, 144);
+  // the line's digits disagree with the split: no tax
+  assert.equal(parseReceipt(R("Burger 18.00\nTAX 8.00% 57\nTotal 19.44")).taxCents, null);
+  // no digits to agree with (SRD photo 1018): no tax
+  assert.equal(parseReceipt(R("Taco 2.00\nTAX 8.25% *=\nTotal 2.17")).taxCents, null);
+});
+
+test("OCR's misspelt Subtotal and Total are read (Suototal, Subtota |, Tota], 146..57)", () => {
+  // SRD photo 1061: "Suototal" kept the subtotal from the tax's own check
+  const p = parseReceiptPasses([R("Suototal 24.08\nTotal Tax 2.25\nTotal 26.37"), R("Suctotal 24.08\nTotal Tax pg)\nTotal a7"), R("Suototal 24.08\nTotal Tax 2.239\nTotal 2.37")]);
+  assert.equal(p.taxCents, 229);
+  // SRD photo 1076: "Grand Tota] $25.78" is the total
+  const r = parseReceipt(R("Subtota | $20.00\nTotal Taxes $2.18\nGrand Tota] $25.78"));
+  assert.equal(r.cents, 2578);
+  assert.equal(r.taxCents, 218);
+  assert.equal(parseReceipt(R("SUBTOTAL: 134.46\nTax(9%) 12.11\nTOTAL: 146..57")).cents, 14657);
 });

@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 133 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 134 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -143,6 +143,16 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   random point carries little evidence. A relative margin of 0.5% to 5% on y[u] - y[t] is flat (4.38% to 4.42%). Two of six
   predictions refuted; the subset test with random probes looks exhausted, and SWG(32) (3.91%) stays ahead:
   [`experiments/confirm_probe/`](experiments/confirm_probe/results.txt).
+- **Why the clipped ladder fails where it fails: the delay half, not the area half (milestone 134, replay, no flow run).** On the
+  36 blind ladder-branch cells of milestones 125, 132 and 133, mapped area ranks routed area almost exactly in both groups (Kendall
+  tau-b 0.95 on the 8 failing cells, 0.93 on the 26 winning ones). On the failing cells the ladder's best routed pick is 0.4% to
+  16% *smaller* than the routed optimum but 3% to 27% *slower*, so delay carries 149% of its log regret. Mapped delay says
+  nothing about routed delay there (tau 0.00, against 0.13 where the ladder wins), and among the mapped points smaller area means
+  slower routing (tau of mapped area against routed delay -0.15 against +0.10; AUC 0.06). The clip is not the cause: it binds on
+  fewer points where the ladder fails (0.42 against 0.55; prediction refuted), and the unclipped key does worse (16.9% against
+  14.3%). The trade-off appears only after routing: mapped area and mapped delay rise together on every cell (tau 0.47 against
+  0.37, AUC 0.68, post hoc), so no mapped-rung statistic seen so far flags these cells. Five of six predictions held:
+  [`experiments/ladder_diagnosis/`](experiments/ladder_diagnosis/results.txt).
 - **On a blind set probed so every cell reaches the ladder branch, the unguarded ladder beats random routing and every guard
   loses to it (milestone 133, flow run).** Seven new 128-bit left shifters (a CRC-7, BCD-to-binary, compare-select and
   multiplicative-hash amount; 18 to 58 gates) were kept from nine by a one-point routing-cost probe written before it ran, and

@@ -1,0 +1,16 @@
+Columns flagged as muted, of 300 (100 series x 3 columns, 300 points each).
+columns                                           default (floor auto)         ar1 + floor 2
+white noise, no change                                               0                     0
+white noise, 1 sd step at 150                                        0                     0
+AR(1) rho 0.5, no change                                             0                   291
+AR(1) rho 0.9, 3 sd step at 150                                      0                   296
+random walk, no change                                               0                   282
+smooth path (sine, period 120, sd 0.05 noise)                        0                     2
+
+Bee dance sequences (x, y, heading), muted columns:
+  bee 1: default (floor auto): none; ar1 + floor 2: x
+  bee 2: default (floor auto): none; ar1 + floor 2: x
+  bee 3: default (floor auto): none; ar1 + floor 2: x, y
+  bee 4: default (floor auto): none; ar1 + floor 2: y
+  bee 5: default (floor auto): none; ar1 + floor 2: none
+  bee 6 (seen): default (floor auto): none; ar1 + floor 2: none
