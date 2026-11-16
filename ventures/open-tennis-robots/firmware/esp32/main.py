@@ -235,7 +235,7 @@ class FeederHw:
                 getattr(config, "WHEEL_RADIUS_M", 0.075), getattr(config, "BALL_RADIUS_M", 0.0335),
                 getattr(config, "LAUNCH_SPEED_EFF", 0.85), getattr(config, "LAUNCH_SPIN_EFF", 0.5),
                 getattr(config, "LAUNCH_DIP_SHARE", 0.25), getattr(config, "LAUNCH_DIP_MIN", 0.015),
-                getattr(config, "LAUNCH_CHECK_MS", 250))
+                getattr(config, "LAUNCH_CHECK_MS", 250), getattr(config, "ESC_TAU_US", 0))
         self.hopper_empty = False     # the last judged stroke put no ball through the wheels; cleared by the next FEED
         self.dry_strokes = 0          # strokes judged empty since power-up
         self.launches = 0             # strokes judged to have launched a ball since power-up
