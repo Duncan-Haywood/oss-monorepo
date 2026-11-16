@@ -53,3 +53,27 @@ Fresh seeds, 100 series of 200 counts per cell, run once. `eval/nb1.mjs 9701 970
 6. Every existing test passes (nothing changes unless `nb1` is asked for).
 
 If any bar fails, `nb1` does not ship as an option; the functions stay in `eval/` with the result written down.
+
+## Changes made on development seeds before the run (seeds 11 to 14, never the ones above)
+
+- The rate inside each segment: the moment estimate S / E was not the NB1 maximum once exposures differ, so it is
+  polished by one Newton step per call on the exact score (digamma and trigamma), warm-started along t, with the
+  second-order correction ll - g^2 / (2 h). A brute-force grid agrees to 1e-3 (`nb1.test.mjs`).
+- A bug in the wiring, not a tuning: `poissonTrend` subtracted sum x log(exposure) from the NB1 fit's cost, a term
+  only the Poisson cost leaves out. It made a bend win on every straight ramp (8 of 8; 1.1 false changes per series).
+  Fixed by treating NB1 like NB2 there (and in the quick knot scan and the range temper).
+- Nothing in the bars changed. On development seeds bar 1's 2-to-200 cell read 0.30, over the 0.2 bar; it was left as
+  written and the run below decided.
+
+## Result (2026-11-16, run once): all six bars hold; `nb1` ships as an option
+
+`eval/nb1.out.txt`.
+
+1. Holds. NB1 ramps, false changes per series: 7 to 700, `nb` 0.45, `nb1` 0.19; 2 to 200, `nb` 0.47, `nb1` 0.15
+   (both under half and under 0.2; the 7-to-700 cell by 0.01).
+2. Holds. NB2 ramps: the law check says "nb2" on 100 of 100 in both. `nb1` on NB2 counts gives 3.50 and 2.67 false
+   changes per series (against 0.15 and 0.12 for `nb`): the wrong law costs more in this direction.
+3. Holds. NB1 ramps: "nb1" on 94 of 100 in each, "either" on the other 6, never "nb2".
+4. Holds. The x1.6 step is found within 5 points on 100 of 100 by both; other changes per series 0.50 (`nb`), 0.47 (`nb1`).
+5. Holds. Median phi 2.91 (flat 20) and 3.00 (ramp), true 3; Poisson ramps read phi 1 on 97 of 100.
+6. Holds. The full venture suite passes; one page test was updated for the new option (it pinned the select's text).

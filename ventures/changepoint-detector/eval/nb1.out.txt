@@ -1,0 +1,19 @@
+# node eval/nb1.mjs 9701 9702 9703 9704 100 <bar> (bars run as four parallel processes; pre-registered seeds, run once)
+bar 1, NB1 phi 3 ramp 7 to 700: false changes per series nb 0.45, nb1 0.19
+bar 3, NB1 phi 3 ramp 7 to 700: law nb1 94, either 6, nb2 0 of 100
+bar 1, NB1 phi 3 ramp 2 to 200: false changes per series nb 0.47, nb1 0.15
+bar 3, NB1 phi 3 ramp 2 to 200: law nb1 94, either 6, nb2 0 of 100
+bar 2, NB2 r 8 ramp 7 to 700: law nb2 100, either 0, nb1 0 of 100; false changes per series nb 0.15, nb1 3.50 (reported, no bar)
+bar 2, NB2 r 8 ramp 2 to 200: law nb2 100, either 0, nb1 0 of 100; false changes per series nb 0.12, nb1 2.67 (reported, no bar)
+bar 4, NB1 phi 3 ramp 7 to 700, step x1.6: found within 5 points nb 100, nb1 100 of 100; other changes per series nb 0.50, nb1 0.47
+bar 5, NB1 phi 3 flat 20: median nb1Dispersion 2.911
+bar 5, NB1 phi 3 ramp 7 to 700: median nb1Dispersion 3.000
+bar 5, Poisson ramp 7 to 700: phi 1 on 97 of 100
+# development seeds (node eval/nb1.mjs 11 12 13 14 20), before the run above:
+bar 1, NB1 phi 3 ramp 7 to 700: false changes per series nb 0.40, nb1 0.20
+bar 3, NB1 phi 3 ramp 7 to 700: law nb1 20, either 0, nb2 0 of 20
+bar 1, NB1 phi 3 ramp 2 to 200: false changes per series nb 0.80, nb1 0.30
+bar 3, NB1 phi 3 ramp 2 to 200: law nb1 17, either 3, nb2 0 of 20
+bar 2, NB2 r 8 ramp 7 to 700: law nb2 20, either 0, nb1 0 of 20; false changes per series nb 0.25, nb1 4.50 (reported, no bar)
+bar 2, NB2 r 8 ramp 2 to 200: law nb2 20, either 0, nb1 0 of 20; false changes per series nb 0.25, nb1 1.80 (reported, no bar)
+bar 4, NB1 phi 3 ramp 7 to 700, step x1.6: found within 5 points nb 20, nb1 20 of 20; other changes per series nb 0.40, nb1 0.55
