@@ -1238,3 +1238,65 @@ within 2%. The 5 us row is unchanged because its remaining error is the jitter o
 **Not known.** All of it is on the simulator. A real tach's noise may not be Gaussian, and a real ball's contact may
 spread over more than one revolution; both would change where the level run starts. Raw output:
 eval/survey-outlier-anchor-2026-11-16.txt.
+
+## Slow wheels need slower gains (2026-11-16, after the anchor)
+
+**The item.** "The 1,000 rpm floor retested" saw every build on a 30 ms ESC lag with a 0.2 s wheel abort at its
+first slow shot: the speed loop never held a ~510 rpm wheel inside the ready gate in 10 s. Why, and what fixes it?
+
+**The cause: the tachometer's delay grows as the wheel slows, and the gains did not.** `PeriodTach` reads the mean of
+the last four revolutions, and its reading changes once a revolution, so it trails the wheel by about 2.5
+revolutions: 43 ms at 3,500 rpm, 0.29 s at 510 rpm. `WheelLoop`'s gains were fixed, set on wheels at 1,500-6,500 rpm.
+On the simulator the 510 rpm wheel swung 460-564 rpm for ever. A linear model of the loop (PI, the wheel's lag, the
+ESC's lag, that delay; `tests/low_speed_loop_sweep.py --margins`) gives the phase margin:
+
+| ESC lag, wheel lag | 510 rpm | 750 | 1,000 | 1,500 | 3,500 |
+| --- | --- | --- | --- | --- | --- |
+| none, 0.2 s | -39 | 5 | 29 | 52 | 79 |
+| 30 ms, 0.2 s | **-48** | -5 | 18 | 41 | 66 |
+| 30 ms, 0.4 s | -3 | 23 | 36 | 49 | 65 |
+| 80 ms, 0.2 s | -46 | -8 | 12 | 31 | 54 |
+| same, gains scaled under 1,500 rpm (30 ms, 0.2 s) | 63 | 59 | 53 | 41 | 66 |
+
+A negative margin rings for ever; the first-order plant at 0.4 s and above sits just over zero, which is why only the
+fast-wheel, laggy-ESC builds aborted.
+
+**A second fault the sweep found: the gate passed slow wheels off their speed.** `SteadyGate` wants 150 ms inside
+3%. At 510 rpm that is one or two tach readings of a four-revolution average, so a wheel still closing on its target
+could pass while 13% off its true speed.
+
+**The change.** `controller.LOOP_LOW_RPM` (1,500): under it, `WheelLoop` scales both gains by target / 1,500, which
+holds the crossover a fixed share of the delay. `controller.GATE_HOLD_REVS` (6): the gate's hold is at least six
+revolutions of the slowest turning wheel (0.71 s at 510 rpm; 150 ms still governs from 2,400 rpm up).
+`tests/low_speed_loop_sweep.py` sets one wheel at 510-2,000 rpm and the other at 3,500, from rest and from 5,000 rpm
+on both, on four plants (first-order, 5 us tach jitter, 30 and 80 ms ESC lag), wheel lags 0.2 / 0.4 / 0.8 s and free
+speeds 7,000 and 11,000 rpm while the firmware is told 9,000: 336 cases. The true error is the worse wheel's when the
+gate first passes, which is when a ball would go:
+
+| firmware | never steady in 12 s | passed over 3% off | worst at the gate | median time to steady |
+| --- | --- | --- | --- | --- |
+| before | 20 | 165 | 12.8% | 3.59 s |
+| scaled gains only | 0 | 100 | 9.9% | 3.55 s |
+| 4-revolution hold only | 26 | 54 | 6.6% | 3.70 s |
+| scaled gains, 4 revolutions | 0 | 40 | 6.3% | 3.61 s |
+| scaled gains, 6 revolutions (now) | 0 | 14 | 7.0% | 3.76 s |
+
+The longer hold alone makes the never-steady count worse (a ringing wheel rarely stays inside for longer); the
+scaled gains alone settle every case but still let balls go off speed. Both together do what neither does. Of the
+14 left over 3%, five are at 1,250-2,000 rpm, where neither change acts much; that remainder is the gate's
+tolerance against a tach that trails the wheel at every speed, not a slow-wheel effect. `tests/wheel_loop_sweep.py`
+(the drill's wheel pairs, 36 cases) still has every case steady, slowest 5.03 s as before, worst error at the gate
+2.6% (4.1% before; its old note said 2.8%, measured before the spin-up ramp).
+
+**The drill that aborted.** EOF_PLACEHOLDER
+
+**How the numbers were picked.** 1,500 came from the margin model (at 1,000 the worst plant keeps only 12-18
+degrees) and agreed with a grid of 1,000 / 1,500 knees and 3 / 4 / 6 revolutions
+(eval/low-speed-loop-grid-2026-11-16.txt; the 1,000 knee let one 600 rpm case go 13.9% off). Six revolutions was
+the best of the three on these same cases, so it is fitted to them. Raw output:
+eval/low-speed-loop-gains-2026-11-16.txt, eval/low-speed-loop-margins-2026-11-16.txt.
+
+**Not known.** All of it is on the simulator with its first-order wheel; a real ESC's own speed control, a real
+tach's dropouts and the four-period average are the assumptions the margin rests on. A slow shot now waits up to
+0.7 s longer for the gate. A tach that averaged a fixed time rather than four revolutions would shrink the delay
+itself; not tried.
