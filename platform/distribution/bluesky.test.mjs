@@ -90,3 +90,33 @@ test('posting needs the enabling variable set to "true" plus both credentials', 
   await run({ env: full, fetchImpl, log: () => {} });
   assert.deepEqual(calls.slice(0, 2), ['createSession', 'getAuthorFeed']);
 });
+
+test('readMeta decodes numeric entities and decodes each entity exactly once', () => {
+  // 2026-11-16 red team: scrap-metal-yard-payout-calculator's description holds
+  // `yard&#x27;s`, which went out literally to every channel built on readMeta.
+  const page = (d) => `<title>T — x</title><meta name="description" content="${d}">`;
+  assert.equal(readMeta(page('each yard&#x27;s price &#8212; &#39;net&#39;')).description, "each yard's price — 'net'");
+  // `&amp;lt;` is the HTML for the literal text "&lt;", not for "<".
+  assert.equal(readMeta(page('type &amp;lt;b&amp;gt; &amp;amp; go')).description, 'type &lt;b&gt; &amp; go');
+  assert.equal(readMeta(page('a&nbsp;b &apos;c&apos; &bogus; &#xZZ;')).description, "a b 'c' &bogus; &#xZZ;");
+});
+
+test("every venture page's title and description decode to plain text through readMeta", async () => {
+  // Class guard for the `&#x27;` slip above: an entity readMeta does not know
+  // would reach Bluesky, dev.to, the hub and the store listings as literal text.
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'ventures');
+  const bad = [];
+  for (const slug of fs.readdirSync(root)) {
+    let html;
+    try { html = fs.readFileSync(path.join(root, slug, 'index.html'), 'utf8'); } catch { continue; }
+    const meta = readMeta(html);
+    if (!meta) continue;
+    for (const [field, text] of Object.entries(meta)) {
+      const left = /&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/i.exec(text);
+      if (left) bad.push(`${slug} ${field}: ${left[0]}`);
+    }
+  }
+  assert.deepEqual(bad, []);
+});
