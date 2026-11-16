@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, staffSkew, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H, STROKE_TOP_FALL } from './scan.mjs';
+import { readPgm, readPage, readStaff, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, staffSkew, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H, STROKE_TOP_FALL } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -236,6 +236,32 @@ test('a small note on a short thick stem is a liquescent, read after its head at
   const [st] = readPage(readPgm(toPgm(img)));
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 3, 4, 3, 4, 2, 4, 3]);
   assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'liquescent', 'square', 'liquescent', 'square', 'square', 'square', 'square']);
+});
+
+// A liquescent whose small note sits on a staff line (GregoBase 3464, leaf
+// 604: a cephalicus `fd~` whose hook straddles the bottom line). On a line
+// crowded with heads the line is measured thicker than its ink, and its rows
+// count as ink only where ink runs out past them, so the hook was traced only
+// to the line's near edge and read a step too close to its head. LIQ.onLine
+// moves the end to the line's far edge when the small note's ink crosses the
+// line further than the line's own ink beside it; a small note in the space
+// that only touches the line is left alone (eval/hook-on-line-check.md).
+test('a liquescent whose small note straddles a staff line is read on that line; one that only touches it is not moved', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, [[300, 4], [900, 4]]);
+  // cephalicus: the hook runs down from the head on the third line (pos 4) to 4 px past the second (pos 2)
+  rect(img, 300 + 14, cy(4), 8, cy(2) - cy(4) + 6);
+  // cephalicus whose hook only touches the second line from above (small note in the space, pos 3)
+  rect(img, 900 + 14, cy(4), 8, cy(2) - cy(4) - 1);
+  const bin = binarize(readPgm(toPgm(img)));
+  const [staff] = findStaves(bin);
+  // the second line measured 6 px thicker than its ink, on the side away from the heads
+  staff.lines[2] = { ...staff.lines[2], bottom: staff.lines[2].bottom + 6 };
+  const read = (o) => readStaff(bin, staff, o).filter((h) => h.liq).map((h) => h.liq.pos);
+  assert.deepEqual(read(), [2, 3]);
+  assert.deepEqual(read({ hookOnLine: false }), [3, 3]);
 });
 
 // turn a drawn page by `deg` degrees about its centre (bilinear, as a
