@@ -338,6 +338,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    stack at 0.796 (0.791 with the assumed 0.5 mm). A 1:32 composite wedge needs a 118.5 N push at μ 0.4, against the
    stock G1's 65.6 N at a 0.5 m ledger (H1 132 N), and, because a hand weighs under 1 kg along the push, leaves 0.132 mm
    at a 20 ms release. Still open: the shim and OSB friction pairs measured, and a shim-placing end effector.
+29. **The nailer's length and the nail's lean** (done 2026-11-16, `experiments/m29_tool_lean/`): the 0.9 mm tool scatter
+   was the hand point. Carried to a nose 0.3 m ahead and to the shank 44.4 mm deep, the G1's 11-bit error is 1.31/1.38 mm
+   and the best single-2x stack falls from 0.796 to 0.264 (H1 0.571); 12-bit joints restore 0.934. An independent lean
+   of 0.43° (1σ) costs 2 points more. Doubled joints stay at 1.000. Still open: backlash and deflection at the tool
+   point, a measured nose length, and the paper's headline restated for a tool-point spec.
 
 ## Target venue
 

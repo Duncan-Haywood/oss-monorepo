@@ -1,5 +1,27 @@
 # buildbot-sheathing research log
 
+## 2026-11-16 · Milestone 29 result: carried to a 0.3 m nailer nose and 44 mm into the stud, the G1's 11-bit error is 1.31 mm and the best single-2x stack falls from 0.796 to 0.264; 12-bit joints restore 0.934; H109, H110 and H111 held
+
+`src/buildbot_sheathing/tool_lean.py` (new), `tack.py` and `ceiling.py` (a `tool=` error pair; the old path unchanged, 0.7964 reproduces), `experiments/m29_tool_lean/` (run, results, figure), `tests/test_tool_lean.py` (6 tests), `reproduce.py` (m29 listed), `paper/draft.md` (section 5.11 paragraph, a limitations bullet), `paper/check_numbers.py` (221 of 221, was 211), README, PROPOSAL and project card.
+
+- **Checks.** L 0 reproduces `buildbot-fasten`'s 0.93/0.87 mm; one-nail Monte Carlo matches the bivariate normal to 0.0016; the 0.9 mm point model through the new path gives 0.7969 (old 0.7964).
+- **The robots.** 11-bit hand rotation about the vertical: G1 0.095°, H1 0.080° (1σ). Along-wall scatter at a 0.3 m nose: G1 1.312 mm (surface) / 1.375 mm (44.4 mm deep), H1 1.064 / 1.122.
+- **The stack.** G1 0.7346 / 0.5118 / 0.2637 / 0.0993 at L 0 / 0.15 / 0.3 / 0.45 m; H1 0.9117 / 0.7830 / 0.5706 / 0.3247. The point model alone is as steep (0.9595 at 0.6 mm, 0.3152 at 1.3). **H109 held** (−53.3 points).
+- **Resolution.** G1 at 0.3 m: 12 bits 0.9344, 13 bits 0.9910, 14 bits 0.9966.
+- **Lean.** 1° (1σ) on top costs 9.28 points (**H110 held**); the stack tolerates 0.434° for 2 points. Doubled joints 1.0000 at 2° (**H111 held**), 0.9998 at 3°; at four times the quantisation and L 0.3 they drop to 0.3952.
+- **What it means.** The single-2x numbers in the paper need the tool point, not the hand, held to about 0.9 mm: a stock G1 with a nailer misses that by half. The tool spec, not any placement remedy, now decides the single-2x case.
+- **Next.** Backlash, link and mount deflection under the push carried to the nose (they only add); a measured nose length; restate the paper's abstract and conclusions for a tool-point spec.
+
+## 2026-11-16 · Milestone 29 planned: the nailer's length and the nail's lean (what the 0.9 mm tool scatter leaves out)
+
+- **Why.** Every clean-sheet figure since milestone 1 takes the tool error as `buildbot-fasten`'s 0.9 mm: the G1's 11-bit joint quantisation carried to the *hand point*, with the nailer's length ignored (an open gap in that project's audit), and the nail treated as a point on the sheathing surface. A nailer's nose sits about 0.3 m ahead of the grip (`buildbot-fasten`'s wall distance, not sourced), so the hand's rotation error moves the nose; and the nail must stay inside the stud for 10 diameters past the sheathing (milestone 2's band), 44 mm below the surface, so a leaning nail leaves the stud even when its head is in its window. Milestone 10 found the tool carries 45–47% of the single-2x misses, so the tool model matters more than any remedy.
+- **Plan.** `src/buildbot_sheathing/tool_lean.py`: (A) the G1 and H1 hand's translation and rotation Jacobians (feet planted, MuJoCo Menagerie, `buildbot-fasten`'s pose), carried to the nose at a tool length L (0, 0.15, 0.3, 0.45 m) and to the shank 44.4 mm (7/16 in OSB plus 10 nail diameters) into the wall, giving a correlated pair (surface, depth) per nail and axis; (B) `tack.simulate` takes that pair: the panel-edge bound sees the surface point and the stud or plate bounds see the depth point (the old path unchanged when it is not given); a one-nail Monte Carlo is checked against the bivariate normal; (C) the best single-2x stack (measured studs, per-nail reads, mid push, milestone 27's 20 ms slide, milestone 28's 1/16 in shim stack: 0.7964) and the doubled-joint pipeline re-run with the robot's tool error at each L and joint error 1, 2 and 4 times the 11-bit quantisation; (D) an independent nail lean (the tool's own aim, a nail deflecting in the wood) swept 0–3° (1σ), and the lean the stack tolerates for a 2-point loss (bisection).
+- **Disclosed before registering.** A probe of (A) at the G1's stud-height pose ran first: the hand rotates about 0.1° (1σ) from quantisation, and at L 0.3 m the nose's along-wall scatter is 1.31 mm against the hand's 0.93. No clean-sheet number had been computed.
+- **Hypotheses, registered before the run.**
+  - **H109 (the nailer's length matters).** With the G1's 11-bit error carried to a 0.3 m nose and the 44 mm depth, the best single-2x stack loses more than 2 points against the 0.9 mm hand-point model. Refuted if it loses 2 points or less.
+  - **H110 (a 1° lean breaks the stack).** An independent nail lean of 1° (1σ, both axes) on top of the robot's error costs the best stack more than 5 points. Refuted if it costs 5 or less.
+  - **H111 (doubled joints shrug it off).** The doubled-joint pipeline stays at or above 0.99 clean at a 2° lean. Refuted if below.
+
 ## 2026-11-16 · Milestone 28 result: a 1/16 in shim stack leaves 0.458 mm and keeps the stack at 0.796; a stock G1 cannot drive a wedge (66 N against 119 N); H106 held, H107 and H108 refuted
 
 `src/buildbot_sheathing/shim_mech.py` (new), `src/buildbot_sheathing/ceiling.py` (a callable `shim`: a residual set by each sheet's own tilt; the old path unchanged, m12 reproduces), `experiments/m28_shim_mech/` (run, results, figure), `tests/test_shim_mech.py` (6 tests), `reproduce.py` (m28 listed; `--check m28_shim_mech` reproduces, 98 lines), `paper/draft.md` (section 5.11 paragraph, a limitations bullet), `paper/check_numbers.py` (211 of 211, was 201), README, PROPOSAL and project card.
