@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqybjUdDFWge68czKNH4",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T21:39:44Z",
+  "ended": "2026-11-16T21:43:57Z",
+  "wall_minutes": 4.34,
+  "tokens_in": 1841079,
+  "tokens_out": 9524,
+  "cost_usd": 0.964,
+  "tool_calls": 27,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16712",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '4015/40 runs toward the next review' yet did not pick review; the counter looks miscounted or the threshold stale."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are owner-gated CODEOWNERS paths again; the prompt already warns, so went straight to step 3."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-seven-browser-tests-that-shared-nothing.md",
+    "docs/history/ci-perf-2026-11-16-babysitting-e2e-concurrent.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `node --test e2e.test.mjs` in ventures/babysitting-business-kit, 5 runs each, 4-core sandbox. Before median 4.93 s (4838,4825,4926,4926,5067 ms); after 2.94 s (3002,2891,2882,3093,2936 ms). Whole venture suite 6.6 s -> 4.8 s, 333/333 pass; run_venture_tests.py ok 5.1 s. 15 repeat runs 0 failures; deliberate broken assertion -> 1 fail. CI unaffected (file skips without a browser).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a54a4510-79d5-5b72-afcd-811521b2c2e2",
+    "transcripts": 1,
+    "first": "2026-11-16T21:39:44Z",
+    "last": "2026-11-16T21:44:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 55,
+        "output": 9524,
+        "thinking": 1579,
+        "cache_read": 1789095,
+        "cache_write_5m": 0,
+        "cache_write_1h": 51929,
+        "api_equivalent_usd": 0.964,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 55,
+      "output": 9524,
+      "thinking": 1579,
+      "cache_read": 1789095,
+      "cache_write_5m": 0,
+      "cache_write_1h": 51929,
+      "api_equivalent_usd": 0.964,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.34,
+      "active_minutes": 4.34,
+      "model_minutes": 1.68,
+      "tool_minutes": 2.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "profile a suite, one-line concurrency change, verify, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 103.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
