@@ -279,8 +279,9 @@ def _directional(norm, w, h, pat, mults, hi, demosaic="directional", noise=None,
         raw = as_planes(noise)  # (shot, read) per colour on the normalised scale: one pair, or the DNG's per plane
         if guard:
             # A profile far above the noise the mosaic shows is scaled down (eval/noise-profile-real-dngs-2026-11-16.md),
-            # plane by plane, each carried by its own gain: honest profiles read 0.80-0.87 at the median and at most
-            # 1.03-1.04 at the 95th percentile where the one-gain carry read up to 1.28 (eval/noise-aware-planes-luma-2026-11-16.md).
+            # plane by plane, each carried by its own gain. With noise drawn before white balance, as a sensor draws
+            # it, an honest profile read 1.03 at the 95th percentile this way and 1.16-1.35 through the one-gain carry,
+            # which trimmed honest profiles on up to 33 of 174 tiles (eval/noise-aware-planes-luma-2026-11-16.md).
             from shootflow.xtrans_demosaic import PROFILE_CAP, guard_profile
 
             per = np.stack([raw[:, 0] * g, raw[:, 1] * g * g], axis=1)
@@ -291,7 +292,8 @@ def _directional(norm, w, h, pat, mults, hi, demosaic="directional", noise=None,
                     f"NoiseProfile states {ratio:.1f}x the noise in the frame: scaled to {PROFILE_CAP:g}x for the noise-aware blend"
                 )
         # The blend itself takes the one-gain carry it was tuned with (shot x mean gain, read x mean gain^2 of the
-        # planes' mean pair): a per-colour carry scored +0.02 dB colour and -0.1 dB luma against it.
+        # planes' mean pair): on 25 held-out files a per-colour carry scored +0.01-0.05 dB colour and -0.05-0.07 dB
+        # luma against it (eval/noise-aware-planes-luma-2026-11-16.md).
         shot, read = raw.mean(axis=0)
         plane_noise = (float(shot) * float(np.mean(g)), float(read) * float(np.mean(g * g)))
         if len(pat) == 4:

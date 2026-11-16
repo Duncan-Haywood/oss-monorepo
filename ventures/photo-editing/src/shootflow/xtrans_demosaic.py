@@ -519,7 +519,7 @@ def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
     return level, spread
 
 
-def _colour_block_spread(c, pat, k: int) -> tuple[np.ndarray, np.ndarray]:
+def _colour_block_spread(c, pat, k: int, resid: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
     """``_block_spread`` over colour ``k``'s sensels only (0 R, 1 G, 2 B): each block's mean level of that
     colour and the median of that colour's residuals. NaN in a block that holds no sensel of it."""
 
@@ -527,7 +527,7 @@ def _colour_block_spread(c, pat, k: int) -> tuple[np.ndarray, np.ndarray]:
     h, w = c.shape
     m = colour_map(pat, h, w) == k
     lv = np.where(m, np.clip(c, 0.0, None), np.nan)
-    rs = np.where(m, _residual(c, pat), np.nan)
+    rs = np.where(m, _residual(c, pat) if resid is None else resid, np.nan)
     with warnings.catch_warnings():  # an all-NaN block (no sensel of k) is meant to read NaN
         warnings.simplefilter("ignore", RuntimeWarning)
         level = _block_stat(lv, lambda t: np.nanmean(t, axis=-1))
@@ -637,9 +637,10 @@ def plane_ratios(c, pat, noise) -> np.ndarray:
     c = np.asarray(c, dtype=np.float64)
     p = as_planes(noise)
     keep = _unclipped(c)
+    resid = _residual(c, pat)
     out = np.full(3, np.nan)
     for k in range(3):
-        level, sp = _colour_block_spread(c, pat, k)
+        level, sp = _colour_block_spread(c, pat, k, resid)
         s, r = float(p[k, 0]), float(p[k, 1])
         out[k] = _bin_ratio(level.ravel()[keep], sp.ravel()[keep], lambda x, s=s, r=r: np.sqrt(max(s * x + r, 0.0)))
     return out
