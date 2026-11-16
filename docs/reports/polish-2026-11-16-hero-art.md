@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-16
+---
 # Polish: the hub hero's empty right half gets three real tool stills (2026-11-16)
 
 Track: polish/0. Picked the item carried over five polish reports today
