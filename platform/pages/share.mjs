@@ -396,6 +396,19 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
  * touched, so the workflow can prune what no build has used lately. Cards
  * drawn earlier in this process are also kept in memory, which is what makes
  * the test suite's repeat builds cheap without any cache directory.
+ *
+ * Several builds can share one cache directory at once: the site-builder suite
+ * runs four (two full catalogue builds and two fixture builds, which still
+ * card every post and research page) in separate processes. Until 2026-11-16
+ * each looked in the directory only before it started drawing and stored its
+ * cards only after it finished, so on a cold cache all four drew the same
+ * ~6,500 cards side by side, and a fresh cloud container (always cold) spent
+ * most of the suite's 340-410 s on that. Now a card is stored the moment it is
+ * drawn, each build draws its misses in its own shuffled order, and the
+ * directory is checked again just before each draw, so the builds split the
+ * work instead of repeating it
+ * (docs/history/pages-test-perf-2026-11-16-shared-card-cache.md). Entries are
+ * written to a temporary name and renamed, so a reader never copies half a PNG.
  */
 export async function renderCards(jobs, {
   threads = Math.max(1, Math.min(8, availableParallelism())),
@@ -404,6 +417,17 @@ export async function renderCards(jobs, {
   if (!jobs.length) return;
   if (cacheDir) await fs.mkdir(cacheDir, { recursive: true });
   const now = new Date();
+  const cachedPath = (key) => path.join(cacheDir, `${key}.png`);
+  const copyCached = async (job, key) => {
+    if (!cacheDir) return false;
+    try {
+      await fs.copyFile(cachedPath(key), job.file);
+      await fs.utimes(cachedPath(key), now, now);
+      return true;
+    } catch {
+      return false; // not cached (yet): drawn
+    }
+  };
   const todo = [];
   await mapLimit(jobs, 32, async (job) => {
     const key = cardKey(job.options);
@@ -412,25 +436,32 @@ export async function renderCards(jobs, {
     // times in one process (docs/history/pages-test-perf-2026-10-24.md).
     const png = drawnCards.get(key);
     if (png) return fs.writeFile(job.file, png);
-    if (cacheDir) {
-      const cached = path.join(cacheDir, `${key}.png`);
-      try {
-        await fs.copyFile(cached, job.file);
-        await fs.utimes(cached, now, now);
-        return undefined;
-      } catch {
-        // Not cached yet: drawn below.
-      }
-    }
+    if (await copyCached(job, key)) return undefined;
     todo.push({ job, key });
     return undefined;
   });
-  await drawCards(todo.map((t) => t.job), threads);
-  await mapLimit(todo, 32, async ({ job, key }) => {
-    const png = await fs.readFile(job.file);
-    drawnCards.set(key, png);
-    if (cacheDir) await fs.writeFile(path.join(cacheDir, `${key}.png`), png);
+  if (cacheDir) shuffle(todo);
+  await drawCards(todo, threads, {
+    // Another build sharing the directory may have drawn it since the pass above.
+    skip: ({ job, key }) => copyCached(job, key),
+    drawn: async ({ job, key }) => {
+      const png = await fs.readFile(job.file);
+      drawnCards.set(key, png);
+      if (!cacheDir) return;
+      const tmp = `${cachedPath(key)}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
+      await fs.writeFile(tmp, png);
+      await fs.rename(tmp, cachedPath(key));
+    },
   });
+}
+
+/** Fisher-Yates, in place. Only the order cards are drawn in depends on it. */
+function shuffle(items) {
+  for (let i = items.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return items;
 }
 
 const drawnCards = new Map();
@@ -451,30 +482,45 @@ function rendererVersion() {
 export const cardKey = (options) =>
   createHash('sha256').update(rendererVersion()).update(JSON.stringify(options ?? {})).digest('hex');
 
-async function drawCards(jobs, threads) {
-  if (!jobs.length) return;
-  if (jobs.length < 16 || threads === 1) {
-    for (const job of jobs) {
-      await fs.mkdir(path.dirname(job.file), { recursive: true });
-      await fs.writeFile(job.file, renderCard(job.options));
+/**
+ * Draw `entries` ({ job, key }) on a pool of workers. `skip(entry)` runs just
+ * before an entry is drawn and returns true when it no longer needs drawing;
+ * `drawn(entry)` runs as soon as its card is on disk.
+ */
+async function drawCards(entries, threads, { skip = async () => false, drawn = async () => {} } = {}) {
+  if (!entries.length) return;
+  if (entries.length < 16 || threads === 1) {
+    for (const entry of entries) {
+      if (await skip(entry)) continue;
+      await fs.mkdir(path.dirname(entry.job.file), { recursive: true });
+      await fs.writeFile(entry.job.file, renderCard(entry.job.options));
+      await drawn(entry);
     }
     return;
   }
-  const queue = [...jobs];
+  const queue = [...entries];
   const workerUrl = new URL('./share-worker.mjs', import.meta.url);
-  await Promise.all(Array.from({ length: Math.min(threads, jobs.length) }, () => new Promise((resolve, reject) => {
+  await Promise.all(Array.from({ length: Math.min(threads, entries.length) }, () => new Promise((resolve, reject) => {
     // `execArgv: []`: a worker inherits the parent's flags, and a build started
     // as `node --input-type=module -e ...` (gitops/tests) would pass a flag a
     // file-backed worker refuses.
     const worker = new Worker(workerUrl, { execArgv: [] });
-    const next = () => {
-      const job = queue.shift();
-      if (!job) { worker.terminate().then(() => resolve()); return; }
-      worker.postMessage(job);
+    let current = null;
+    const fail = (error) => { worker.terminate(); reject(error); };
+    const next = async () => {
+      for (;;) {
+        current = queue.shift();
+        if (!current) { worker.terminate().then(() => resolve()); return; }
+        if (!(await skip(current))) break;
+      }
+      worker.postMessage(current.job);
     };
-    worker.on('message', (msg) => (msg?.error ? (worker.terminate(), reject(new Error(msg.error))) : next()));
+    worker.on('message', (msg) => {
+      if (msg?.error) { fail(new Error(msg.error)); return; }
+      drawn(current).then(next).catch(fail);
+    });
     worker.on('error', reject);
-    next();
+    next().catch(fail);
   })));
 }
 

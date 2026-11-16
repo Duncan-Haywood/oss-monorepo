@@ -285,6 +285,23 @@ test('the card cache copies an unchanged card and draws a changed one', async ()
   assert.notEqual(cardKey({ headline: 'Cache A' }), cardKey({ headline: 'Cache B' }));
 });
 
+test('builds sharing a cache directory at once store every card whole, under its key', async () => {
+  // Two concurrent renders over the same cards, as the site-builder suite's
+  // parallel builds are: each takes cards the other stored mid-run, and no
+  // temporary file or half-written entry is left in the directory.
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-shared-'));
+  const cacheDir = path.join(dir, 'cache');
+  const options = Array.from({ length: 20 }, (_, i) => ({ headline: `Shared cache card ${i}` }));
+  const jobs = (side) => options.map((o, i) => ({ file: path.join(dir, side, `${i}.png`), options: o }));
+  await Promise.all([renderCards(jobs('a'), { cacheDir, threads: 2 }), renderCards(jobs('b'), { cacheDir, threads: 2 })]);
+  assert.deepEqual(readdirSync(cacheDir).sort(), options.map((o) => `${cardKey(o)}.png`).sort());
+  for (const [i, o] of options.entries()) {
+    const want = renderCard(o);
+    assert.deepEqual(readFileSync(path.join(cacheDir, `${cardKey(o)}.png`)), want);
+    for (const side of ['a', 'b']) assert.deepEqual(readFileSync(path.join(dir, side, `${i}.png`)), want);
+  }
+});
+
 test('a card drawn earlier in the process is reused byte for byte, with no cache directory', async () => {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-mem-'));
   const options = { headline: 'Gutter guard bid calculator', kicker: 'Trades', address: 'example.test/gutter/' };
