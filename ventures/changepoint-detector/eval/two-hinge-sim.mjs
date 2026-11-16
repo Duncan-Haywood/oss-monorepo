@@ -1,8 +1,9 @@
 // Size, unit-root and power cells of eval/two-hinge-prereg-2026-11-16.md, seeds from 64,000,000 (a block of 100,000 per
-// cell). usage: node eval/two-hinge-sim.mjs [series per cell=300] [bootstrap reps=99] [part=all|size|power]
+// cell). usage: node eval/two-hinge-sim.mjs [series per cell=300] [bootstrap reps=99] [part=all|size|power] [only n]
+// The optional n runs only that length's size cells (same seeds: the cell numbering is unchanged), to split across cores.
 import { twoHingeTest } from '../two-hinge.mjs';
 import { hingeTest } from '../hinge-test.mjs';
-const [N = 300, REPS = 99] = process.argv.slice(2, 4).map(Number), part = process.argv[4] || 'all';
+const [N = 300, REPS = 99] = process.argv.slice(2, 4).map(Number), part = process.argv[4] || 'all', onlyN = Number(process.argv[5]) || 0;
 function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function series(n, rho, mean, seed) {
   const r = rng(seed), g = () => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
@@ -18,6 +19,7 @@ let cell = 0;
 const seedOf = (i) => 64e6 + cell * 1e5 + i;
 if (part !== 'power') {
   for (const n of [40, 60, 95]) for (const [bar, rho] of [['S1', 0], ['S1', 0.3], ['S1', 0.6], ['S1', 0.8], ['S2', 0.9], ['S2', 0.95], ['S2', 1]]) {
+    if (onlyN && n !== onlyN) { cell++; continue; }
     let rej = 0, ref = 0, cut = 0;
     for (let i = 0; i < N; i++) {
       const h = twoHingeTest(series(n, rho, line, seedOf(i)), { reps: REPS, seed: i + 1 });
