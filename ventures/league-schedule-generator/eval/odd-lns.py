@@ -25,6 +25,10 @@ eval/write-odd-designs.mjs stores it unchanged.
 
 It only finds designs. Needs python-sat (pip install python-sat; MIT), for this eval script only.
   python3 eval/odd-lns.py 29 --courts 5 --times 9 [--seed 1] [--free 2] [--limit 3600]
+
+Long sizes (41 teams and up) can outlast one session: --save FILE writes the current round robin
+(and its good-night count) after every accepted step, and --resume FILE starts from such a file
+instead of a fresh circle-method season, so a later run carries on where the last one stopped.
 """
 import argparse
 import importlib.util
@@ -195,6 +199,7 @@ def repair(n, courts, times, rounds, nights, freed, need, seconds, rng):
         for v in range(N):
             m.card([x[r, e] for e in inc[v]], 1, "eq")
     oks = []
+    lay = {}
     for t in freed:
         ok = m.v("ok", t)
         oks.append(ok)
@@ -206,7 +211,8 @@ def repair(n, courts, times, rounds, nights, freed, need, seconds, rng):
             for l in lits:
                 m.cnf.append([-l, y])
             m.cnf.append([-y] + lits)
-        m.layout(t, n, courts, times, lambda e, ys=ys: ys[e], U, ok, lambda v, ys=ys: ys.get((v, n), False), len(nights[t]))
+        p = m.layout(t, n, courts, times, lambda e, ys=ys: ys[e], U, ok, lambda v, ys=ys: ys.get((v, n), False), len(nights[t]))
+        lay[t] = (ok, ys, p)
     m.card(oks, need, "ge")
     # random phases so sideways steps wander instead of returning the same deal
     phases = [(1 if rng.random() < 0.5 else -1) * x[k] for k in rng.sample(list(x), len(x) // 3)]
@@ -216,7 +222,44 @@ def repair(n, courts, times, rounds, nights, freed, need, seconds, rng):
     out = [list(r) for r in rounds]
     for r in rs:
         out[r] = sorted(e for e in U if x[r, e] in model)
-    return out
+    # the layouts the solver found for the nights it marked good: no second solve needed (a second
+    # solve under night_rows' short limit could time out and reject a good repair)
+    rows = {}
+    for t, (ok, ys, p) in lay.items():
+        if ok in model:
+            rows[t] = {e: h for e in U if e[1] < n and ys[e] in model for h in range(times) if p[e, h] in model}
+    return out, rows
+
+
+def check_round_robin(n, rounds):
+    """Raise unless rounds are n perfect matchings of K_(n+1) using every pair once."""
+    N = n + 1
+    assert len(rounds) == n, "need n rounds"
+    seen = set()
+    for r in rounds:
+        teams = [v for e in r for v in e]
+        assert sorted(teams) == list(range(N)), "a round must hold every team once"
+        for e in r:
+            assert e not in seen, f"pair {e} twice"
+            seen.add(e)
+    assert len(seen) == N * (N - 1) // 2
+
+
+def save_state(path, n, courts, times, seed, rounds, good, total):
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump({"n": n, "courts": courts, "times": times, "seed": seed, "good": good, "nights": total,
+                   "rounds": [[list(e) for e in r] for r in rounds]}, f, separators=(",", ":"))
+    os.replace(tmp, path)
+
+
+def load_state(path, n, courts, times):
+    with open(path) as f:
+        st = json.load(f)
+    assert (st["n"], st["courts"], st["times"]) == (n, courts, times), "state is for another league"
+    rounds = [sorted(key(a, b) for a, b in r) for r in st["rounds"]]
+    check_round_robin(n, rounds)
+    return rounds
 
 
 def main():
@@ -228,12 +271,16 @@ def main():
     ap.add_argument("--free", type=int, default=2, help="nights freed a step")
     ap.add_argument("--step", type=float, default=60, help="seconds a repair may take")
     ap.add_argument("--limit", type=float, default=3600, help="seconds in all")
+    ap.add_argument("--save", help="write the state here after every accepted step")
+    ap.add_argument("--resume", help="start from a state file written by --save")
     args = ap.parse_args()
     n, courts, times = args.n, args.courts, args.times
     assert n % 2 == 1
     rng = random.Random(args.seed)
     t0 = time.time()
     rounds = circle(n, rng)
+    if args.resume:
+        rounds = load_state(args.resume, n, courts, times)
     nights = [list(range(s, min(s + 3, n))) for s in range(0, n, 3)]
     cache = {}
 
@@ -263,7 +310,9 @@ def main():
             fails += 1
             continue
         old_rounds = rounds
-        rounds = new
+        rounds, laid = new
+        for t, r in laid.items():
+            cache[frozenset(e for rr in nights[t] for e in rounds[rr])] = r
         st = [good(t) if t in freed else status[t] for t in range(len(nights))]
         if sum(st) < sum(status):  # a layout the night check could not confirm in its time
             rounds = old_rounds
@@ -271,6 +320,8 @@ def main():
             continue
         status = st
         fails = 0 if not sideways else 0
+        if args.save:
+            save_state(args.save, n, courts, times, args.seed, rounds, sum(status), len(nights))
         log(f"step {steps}: freed {freed}, {'sideways' if sideways else 'better'}: {sum(status)} of {len(nights)} good")
     head = {"n": n, "courts": courts, "times": times, "method": "lns", "seed": args.seed, "free": args.free, "steps": steps}
     head["seconds"] = round(time.time() - t0, 1)
