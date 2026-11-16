@@ -1,0 +1,64 @@
+name: hdbscan-clustering
+description: >-
+  Free browser tool, CLI and agent call for analysts, researchers, marketers
+  and students: paste a CSV with numeric columns and cluster its rows with
+  HDBSCAN (Campello, Moulavi & Sander 2013). Finds the number of clusters
+  itself, leaves stray rows as noise, gives each row a membership strength
+  and a GLOSH outlier score, and describes what sets each cluster apart.
+  Labels checked row for row against scikit-learn. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-16 on an explore run, as a new tool of "research algorithms
+# as tools" (portfolio/research-tools/README.md). No density-based
+# clustering existed in the repository (no DBSCAN, HDBSCAN or mixture model;
+# isolation-forest ranks outliers but does not group rows). Implemented from
+# the papers; no third-party code was ported. scikit-learn 1.9.1 and the
+# hdbscan package 0.8.44 (both BSD-3) were used only to produce
+# eval/reference.json, which the tests check against.
+# Example data: Palmer penguins (CC0); data/SOURCE.md.
+#
+# First visitor: searches such as "hdbscan online", "cluster csv online",
+# "clustering tool without python", "find groups in data excel", "customer
+# segmentation tool free", "dbscan online"; analysts, marketers segmenting
+# customers, field and lab researchers, students. Volume not measured with an
+# external tool.
+#
+# Alternatives: scikit-learn's HDBSCAN and the hdbscan package (Python),
+# R's dbscan::hdbscan (need an environment and code); k-means in
+# spreadsheets and online k-means pages (need k, force every row into a
+# cluster). Differentiators here: no install, no k to choose, noise and
+# outlier scores, a profile of each cluster including how text columns split
+# across clusters, labels pinned to scikit-learn's.
+#
+# Liability: statistical output from supplied data, not financial, legal or
+# professional advice; the page says a cluster is not proof of a real
+# category and a high outlier score is not proof of an error. Data never
+# leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and researchers who want to find groups in a table without
+      Python or choosing k will use a no-install HDBSCAN that describes each
+      cluster in words.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports labels that disagree with scikit-learn's HDBSCAN on the same data beyond edge-weight tie order, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/hdbscan-clustering/
+  analytics: null
