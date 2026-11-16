@@ -767,3 +767,34 @@ test('Research findings: a programme with three posts gets a page that leads wit
   const t1 = await fs.readFile(path.join(out, 'writing/t1/index.html'), 'utf8');
   assert.match(t1, /<a href="\.\.\/topic\/tools\/framer\/">More on Framer Pro<\/a>/);
 });
+
+test('researchLede: whole sentences from the registry summary, boilerplate opener skipped', async () => {
+  const { researchLede } = await import('./writing.mjs');
+  assert.equal(
+    researchLede('An open research programme rather than a finished project. A twin is biased; real trials are scarce. More.', 40),
+    'A twin is biased; real trials are scarce.',
+  );
+  assert.equal(researchLede('Speed falls as n<sup>1.5</sup>, at 200&nbsp;kg (Smith et al. 2022). Next.', 200), 'Speed falls as n^1.5, at 200 kg (Smith et al. 2022). Next.', 'tags out, entities decoded, "et al." is no stop');
+  assert.equal(researchLede('One sentence of forty-two characters here.', 30), 'One sentence of forty-two characters here.', 'kept whole up to 1.5 times the budget');
+  assert.equal(researchLede('One sentence of forty-two characters here.', 30, { stretch: 1 }), 'One sentence of forty-two…', 'a meta description clips at the budget');
+  assert.equal(researchLede('A very long first sentence that runs well past the budget given.', 20), 'A very long first…');
+  assert.equal(researchLede('', 160), '');
+  assert.equal(researchLede('An open research programme. Only this.', 160), 'Only this.');
+});
+
+test('Research findings: a programme with a registry summary gets it as the dek and meta description', async () => {
+  const tagged = (slug, date) => [`${date}-${slug}.md`, post(slug, date).replace(/^tags:.*$/m, 'tags: [hull-study]')];
+  const root = repoWith(Object.fromEntries([tagged('r1', '2026-10-01'), tagged('r2', '2026-10-02'), tagged('r3', '2026-10-03')]));
+  mkdirSync(path.join(root, 'research', 'hull-study'), { recursive: true });
+  writeFileSync(path.join(root, 'research', 'hull-study', 'README.md'), '# hull-study\n');
+  mkdirSync(path.join(root, 'research', '_homepage'), { recursive: true });
+  const summary = 'An open research programme. A catamaran carries 200&nbsp;kg <em>furthest</em> per kWh at 2 m/s. Milestone 2 adds drag uncertainty.';
+  writeFileSync(path.join(root, 'research', '_homepage', 'projects.json'), JSON.stringify({ themes: [{ id: 'm', projects: [{ slug: 'hull-study', title: 'Which hull?', summary }] }] }));
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
+  await buildWriting(out, BASE, { root });
+  const page = await fs.readFile(path.join(out, 'writing/topic/research/hull-study/index.html'), 'utf8');
+  assert.match(page, /<p class="dek">A catamaran carries 200 kg furthest per kWh at 2 m\/s\. Milestone 2 adds drag uncertainty\.<\/p>\n<p class="meta">3 posts, newest first\./);
+  assert.ok(!page.includes('class="dek">Every blog post'), 'the generic line gives way');
+  assert.match(page, /<meta name="description" content="A catamaran carries 200 kg furthest per kWh at 2 m\/s\. Milestone 2 adds drag uncertainty\.">/);
+  assert.match(page, /"@type":"CollectionPage","name":"[^"]*","description":"A catamaran carries/);
+});
