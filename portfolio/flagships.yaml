@@ -238,11 +238,12 @@ flagships:
     next: >-
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
-      (FAIR_WORKWEEK; next a real site's changes): next live deploy, real punches at
-      a site. Exact side: branch-and-price and column generation prove 20-80 person
-      weeks; the exact check is on by default at every size. Forecast side
-      (--from-sales, eight real files, eval/real-pos-exports.mjs): backtest, closure
-      score, half-life auto, priced cut, tickets, labour standard, shut-door work,
+      (FAIR_WORKWEEK; team-offer exception, on-call shifts; next a real site's
+      changes, Oregon's standby list): next live deploy, real punches at a site.
+      Exact side: branch-and-price and column generation prove 20-80 person weeks;
+      the exact check is on by default at every size. Forecast side (--from-sales,
+      eight real files, eval/real-pos-exports.mjs): backtest, closure score,
+      half-life auto, priced cut, tickets, labour standard, shut-door work,
       multi-file pastes. Posted weeks: reissues hold started and posted shifts; a
       whole week at the Deputy file's rates (README "A whole week of call-outs at a
       real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open
@@ -260,8 +261,7 @@ flagships:
       --cover-price moves two shifts together (README "Moving two shifts together");
       second call-outs priced, off by default (README "The pair price in played
       weeks": fewer open hours on 3 of 4 weeks); order-free pair check played: no
-      gain, stays opt-in (README "The order-free pass played"); a real two-site
-      export and staff list (README "Staff shared between sites"). More open items:
+      gain, stays opt-in (README "The order-free pass played"). More open items:
       NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
