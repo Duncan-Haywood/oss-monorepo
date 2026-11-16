@@ -110,6 +110,16 @@ class MainTest(Fixture):
                             "--json", "--", "cd", "ventures/a", "&&", sys.executable, "-m", "unittest", "-q"])
         self.assertEqual(code, 0, out.getvalue())
 
+    def test_env_prefix_runs_through_a_shell(self):
+        # `PYTHONPATH=src cmd` exec'd without a shell is "no such program" (doc_friction 2026-11-16)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                            "--json", "--", "MUTATE_PROBE=1", sys.executable, "-m", "unittest", "-q"])
+        self.assertEqual(code, 0, out.getvalue())
+        self.assertTrue(qm.is_shell(["PYTHONPATH=src", "python3"]))
+        self.assertFalse(qm.is_shell(["python3", "-m", "pytest", "--x=1"]))
+
     def test_red_baseline_is_not_a_catch(self):
         (self.repo / "ventures/b/helper.py").write_text("def k():\n    return 8\n")
         code, _ = self.mutate("--old", "x > 100", "--new", "x >= 100")

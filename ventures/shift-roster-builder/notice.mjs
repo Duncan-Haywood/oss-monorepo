@@ -57,6 +57,22 @@
 // which the hub's call-out already marks as requested. A clopening (under 11 h between shifts on two calendar days,
 // or after a shift spanning two days) pays $100 (20-1231, rule 7-601 definition). A shift moved to another day is one
 // change (7-622(a) example 3: $10), not a cancellation plus an addition.
+//
+// San Francisco and Emeryville (2026-11-16, later; README "San Francisco and Emeryville"), the first two read from the
+// cities' own documents, fetched from this session:
+// - San Francisco, the Formula Retail Employee Rights Ordinances: Ordinance 117-15 (sfbos.org, Police Code 3300G.4,
+//   now Labor and Employment Code 42.4) and OLSE's FAQ of 2025-08-08. Schedules posted two weeks ahead, but the
+//   premium window is seven days: under 7 days and 24 h or more, 1 h of pay per changed shift; under 24 h, 2 h for a
+//   shift of four hours or less and 4 h for a longer one (the 2025 FAQ: "the number of hours added or subtracted").
+//   Flat hours per change, not a share of lost hours. On-call shifts are out of that table (3300G.4(c)(2)): one not
+//   called in, or released with under 24 h notice, pays 2 h (4 h or less) or 4 h (longer). Exception (e)(4): the
+//   employee who covers a colleague's illness, vacation or time off owes nothing when the employer had under seven
+//   days' notice of the absence, team offer or not. No rest rule.
+// - Emeryville, the Fair Workweek Ordinance (Municipal Code 5-39): the city's official notice and its "Predictability
+//   Pay Structure" sheet (emeryville.org). 14 days; under 14 days and 24 h or more, 1 h of pay; under 24 h, hours
+//   taken away pay the lesser of the scheduled shift's hours and 4 h, any other change 1 h. Additions and subtractions
+//   of 10 minutes or less at a shift's start and end are free. Finding another employee to cover owes pay (no
+//   team-offer exception). Hours worked under 11 h after the previous day's shift: time and a half.
 import { fromLocal } from "./timeclock.mjs";
 
 export const MAX_CHANGES = 1500;
@@ -83,6 +99,18 @@ export const MAX_CHANGES = 1500;
 //   rule 7-622(a)).
 // edgeEach: 1 where the minEdgeMin grace applies to the start and the end separately, whatever the shift's length
 //   becomes (New York City's final de minimis rule: 15 minutes before and after each shift).
+// tiers: hours of pay per change by notice, used instead of addHours / cancelFraction (San Francisco, Emeryville):
+//   [{ fromH, add, cut, overH, over, cutShiftCap }], highest fromH first. A change at least fromH hours ahead (and
+//   under noticeDays) owes `add` h when no hours are lost and `cut` h when hours are taken away; `over` h instead when
+//   the hours changed exceed overH (San Francisco: 4 h for more than four hours); cutShiftCap pays hours taken away
+//   at the lesser of the scheduled shift's hours and this cap (Emeryville: 4).
+// onCallPay: on-call shifts priced on their own table (San Francisco 3300G.4(d)): released with at least windowH
+//   hours' notice owes nothing, otherwise `small` h for a shift of overH hours or less and `big` h for a longer one.
+// coverAbsenceDays: the employee covering a colleague's absence owes nothing when the absence was reported under this
+//   many days before the shift (San Francisco 3300G.4(e)(4): 7).
+// postDays: how far ahead the week must be posted, when it differs from the premium window (San Francisco: 14 vs 7).
+const SF_TIERS = [{ fromH: 24, add: 1, cut: 1 }, { fromH: -Infinity, add: 2, cut: 2, overH: 4, over: 4 }];
+const EMERYVILLE_TIERS = [{ fromH: 24, add: 1, cut: 1 }, { fromH: -Infinity, add: 1, cut: 4, cutShiftCap: 4 }];
 const NYC_TIERS = [{ fromH: 168, add: 10, cut: 20 }, { fromH: 24, add: 15, cut: 45 }, { fromH: -Infinity, add: 15, cut: 75 }];
 export const FWW_PRESETS = {
   seattle: { label: "Seattle Secure Scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 1, standby: 0 },
@@ -91,19 +119,21 @@ export const FWW_PRESETS = {
   philadelphia: { label: "Philadelphia Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 20, minEdgeMin: 20, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 9, restMult: 1, restFlat: 40, restAcross: 1, massOffer: 1, standby: 0 },
   "los-angeles": { label: "Los Angeles Fair Work Week (city)", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 15, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, restWhole: 1, massOffer: 0, standby: 0 },
   "new-york-city": { label: "New York City Fair Workweek (fast food)", noticeDays: 14, addHours: 0, minMoveMin: 15, minExtendMin: 15, minEdgeMin: 15, edgeEach: 1, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 0, restHours: 11, restMult: 1, restFlat: 100, restAcross: 1, massOffer: 0, standby: 0, noticeFromWeek: 1, flat: NYC_TIERS },
+  "san-francisco": { label: "San Francisco Formula Retail Employee Rights", noticeDays: 7, postDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 168, cancelFraction: 0, cancelElseHours: 1, restHours: 0, restMult: 1, massOffer: 0, standby: 0, tiers: SF_TIERS, onCallPay: { windowH: 24, overH: 4, small: 2, big: 4 }, coverAbsenceDays: 7 },
+  emeryville: { label: "Emeryville Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 10, minExtendMin: 10, minEdgeMin: 10, edgeEach: 1, cancelWindowH: 336, cancelFraction: 0, cancelElseHours: 1, restHours: 11, restMult: 1.5, restAcross: 1, massOffer: 0, standby: 0, tiers: EMERYVILLE_TIERS },
   custom: { label: "Custom rule set", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 0, standby: 0 },
 };
 const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer", FWW_MIN_EDGE_MIN: "minEdgeMin", FWW_STANDBY: "standby", FWW_REST_FLAT: "restFlat", FWW_REST_WHOLE_SHIFT: "restWhole", FWW_REST_ACROSS_DAYS: "restAcross", FWW_NOTICE_FROM_WEEK: "noticeFromWeek", FWW_EDGE_EACH: "edgeEach" };
 const FLAGS = new Set(["massOffer", "standby", "restWhole", "restAcross", "noticeFromWeek", "edgeEach"]);
-export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles, new-york-city or custom";
+export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles, new-york-city, san-francisco, emeryville or custom";
 
 // The rule set from the environment, or null when FAIR_WORKWEEK is unset (the change log is still kept).
 export function readNoticeEnv(env = {}) {
   const raw = String(env.FAIR_WORKWEEK ?? "").trim().toLowerCase().replace(/[\s_]+/g, "-");
   if (!raw || raw === "0" || raw === "off") return null;
-  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles", nyc: "new-york-city", "new-york": "new-york-city", ny: "new-york-city", "nyc-fast-food": "new-york-city", "new-york-city-ny": "new-york-city" }[raw] || raw;
+  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles", nyc: "new-york-city", "new-york": "new-york-city", ny: "new-york-city", "nyc-fast-food": "new-york-city", "new-york-city-ny": "new-york-city", sf: "san-francisco", sanfrancisco: "san-francisco", "san-francisco-ca": "san-francisco", "sf-formula-retail": "san-francisco", "emeryville-ca": "emeryville" }[raw] || raw;
   if (!Object.hasOwn(FWW_PRESETS, name)) return { error: `FAIR_WORKWEEK "${String(env.FAIR_WORKWEEK).slice(0, 40)}" is not one of ${PRESET_NAMES}.` };
-  const r = { name, restFlat: 0, restWhole: 0, restAcross: 0, noticeFromWeek: 0, edgeEach: 0, flat: null, ...FWW_PRESETS[name], notes: [], overrides: [] };
+  const r = { name, restFlat: 0, restWhole: 0, restAcross: 0, noticeFromWeek: 0, edgeEach: 0, flat: null, tiers: null, onCallPay: null, coverAbsenceDays: 0, ...FWW_PRESETS[name], notes: [], overrides: [] };
   for (const [k, f] of Object.entries(ENV_FIELDS)) {
     if (env[k] === undefined || String(env[k]).trim() === "") continue;
     const v = Number(String(env[k]).trim());
@@ -142,7 +172,7 @@ export function logChanges(state, changes, { at, weekStart, cause, requested = f
   if (!Array.isArray(state.changeLog)) state.changeLog = [];
   for (const c of changes) {
     state.changeSeq = (state.changeSeq || 0) + 1;
-    state.changeLog.push({ id: state.changeSeq, at, weekStart: weekStart || null, person: c.person, kind: c.kind, from: c.from, to: c.to, cause, requested: !!(c.requested ?? requested), ...(c.massOffer ? { massOffer: true, coverFor: c.coverFor || "" } : {}), ...(c.standby ? { standby: true, coverFor: c.coverFor || "" } : {}), ...(c.standbyOpen > 0 ? { standbyOpen: c.standbyOpen } : {}), ...(c.onCall ? { onCall: true } : {}) });
+    state.changeLog.push({ id: state.changeSeq, at, weekStart: weekStart || null, person: c.person, kind: c.kind, from: c.from, to: c.to, cause, requested: !!(c.requested ?? requested), ...(c.massOffer ? { massOffer: true, coverFor: c.coverFor || "" } : {}), ...(c.standby ? { standby: true, coverFor: c.coverFor || "" } : {}), ...(c.standbyOpen > 0 ? { standbyOpen: c.standbyOpen } : {}), ...(c.onCall ? { onCall: true } : {}), ...(c.coverFor && !c.massOffer && !c.standby ? { coverFor: c.coverFor } : {}), ...(Number.isFinite(c.absenceAt) ? { absenceAt: c.absenceAt } : {}) });
   }
   if (state.changeLog.length > MAX_CHANGES) state.changeLog.splice(0, state.changeLog.length - MAX_CHANGES);
   return changes.length;
@@ -180,6 +210,10 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
   if (e.requested) { out.why = "Employee-requested (a call-out, a trade or a pick-up they asked for): exempt. Keep the written request."; return out; }
   if (out.noticeH >= rules.noticeDays * 24) { out.why = `${rules.noticeDays} or more days' notice${rules.noticeFromWeek ? " before the week's first day" : ""}: nothing owed.`; return out; }
   if (e.standby && rules.standby && lost <= 0) { out.why = `Asked from the voluntary standby list${e.coverFor ? ` to cover ${e.coverFor}` : ""} and agreed: exempt (ORS 653.432(4)). Keep the written agreement to be on the list and the acceptance.`; return out; }
+  if (rules.coverAbsenceDays > 0 && e.coverFor && lost <= 0 && Number.isFinite(e.absenceAt)) {
+    const absenceH = (Math.min(...starts) - e.absenceAt) / H;
+    if (absenceH < rules.coverAbsenceDays * 24) { out.why = `Covering ${e.coverFor}'s absence, reported ${absenceH >= 48 ? `${r2(absenceH / 24)} days` : `${r2(absenceH)} h`} before the shift (under ${rules.coverAbsenceDays} days): exempt. Keep the call-out record.`; return out; }
+  }
   const standbyFirst = rules.standby && e.standbyOpen > 0;
   if (e.massOffer && rules.massOffer && lost <= 0 && !standbyFirst) { out.why = `Taken from the written offer to the whole team after ${e.coverFor || "a colleague"}'s absence: exempt for those hours. Keep the offer and the acceptance.`; return out; }
   let hoursOfPay = 0;
@@ -199,6 +233,23 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
     if (sameDay && !extendOnly && ds <= rules.minMoveMin && de <= rules.minMoveMin) { out.why = `Moved by ${Math.max(ds, de)} min: at or under the ${rules.minMoveMin} min threshold.`; return out; }
     hoursOfPay = rules.addHours; out.why = `${extendOnly ? "Time added" : "Hours moved"} with under ${rules.noticeDays} days' notice: ${rules.addHours} h of pay.`;
   }
+  if (e.onCall && lost > 0 && rules.onCallPay) {
+    // San Francisco 3300G.4(d): an on-call shift's own table; the change table does not apply to it.
+    const oc = rules.onCallPay, len = hrs(e.from);
+    if (out.noticeH >= oc.windowH) { out.why = `On-call shift released ${fmtH(r2(out.noticeH))} ahead (${oc.windowH} h or more): nothing owed.`; return out; }
+    hoursOfPay = len > oc.overH ? oc.big : oc.small;
+    out.why = `On-call shift not called in (or released under ${oc.windowH} h ahead): ${hoursOfPay} h of pay for a shift ${len > oc.overH ? `over ${oc.overH}` : `of ${oc.overH} h or less`}.`;
+  } else if (rules.tiers) {
+    // Hours of pay per change by notice tier (San Francisco 3300G.4(c)(2), Emeryville's pay structure sheet).
+    const tier = rules.tiers.find((t) => out.noticeH >= t.fromH) || rules.tiers[rules.tiers.length - 1];
+    const changedH = lost > 0 ? lost : out.gainedH > 0 ? out.gainedH : hrs(e.to || e.from);
+    const band = tier.fromH >= 24 ? `under ${rules.noticeDays} days' and ${tier.fromH} h or more` : `under ${rules.tiers[rules.tiers.indexOf(tier) - 1]?.fromH ?? 24} hours'`;
+    const what = lost > 0 ? (e.kind === "cancelled" ? "Cancelled" : "Hours cut") : e.kind === "added" ? "Shift added" : out.gainedH > 0 ? "Time added" : "Hours moved";
+    if (lost > 0 && tier.cutShiftCap) { const sh = hrs(e.from); hoursOfPay = Math.min(sh, tier.cutShiftCap); out.why = `${what} with ${band} notice: the lesser of the ${r2(sh)} h shift and ${tier.cutShiftCap} h, ${r2(hoursOfPay)} h of pay.`; }
+    else if (tier.overH != null && changedH > tier.overH) { hoursOfPay = tier.over; out.why = `${what} with ${band} notice, ${r2(changedH)} h changed (over ${tier.overH}): ${tier.over} h of pay.`; }
+    else { hoursOfPay = lost > 0 ? tier.cut : tier.add; out.why = `${what} with ${band} notice${tier.overH != null ? `, ${r2(changedH)} h changed (${tier.overH} or less)` : ""}: ${hoursOfPay} h of pay.`; }
+    if (e.coverFor && rules.coverAbsenceDays > 0 && lost <= 0) out.why += ` Cover for ${e.coverFor}, but the absence was reported ${Number.isFinite(e.absenceAt) ? `${rules.coverAbsenceDays} or more days ahead` : "at an unknown time"}, so the exception does not apply.`;
+  }
   if (rules.flat) {
     // A flat sum per change by notice tier (New York City 20-1222(a)): hours taken away pay the higher column.
     const tier = rules.flat.find((t) => out.noticeH >= t.fromH) || rules.flat[rules.flat.length - 1];
@@ -214,7 +265,7 @@ export function priceChange(e, rules, { tz = "UTC", wage = null } = {}) {
   if (e.massOffer && !rules.massOffer && hoursOfPay > 0) out.why += ` This rule set has no team-offer exception.`;
   if (e.massOffer && standbyFirst && hoursOfPay > 0) out.why += ` The team-offer exception needs everyone on the standby list asked first (ORS 653.455(3)(k)(C)); ${e.standbyOpen} on it were not.`;
   if (e.standby && !rules.standby && hoursOfPay > 0) out.why += ` This rule set has no standby-list exception.`;
-  if (e.onCall && lost > 0) out.why = `On-call shift not needed: ` + out.why.charAt(0).toLowerCase() + out.why.slice(1);
+  if (e.onCall && lost > 0 && !rules.onCallPay) out.why = `On-call shift not needed: ` + out.why.charAt(0).toLowerCase() + out.why.slice(1);
   if (!(wage > 0)) { out.unpriced = hoursOfPay > 0; out.premium = null; out.hoursOfPay = r2(hoursOfPay); return out; }
   out.hoursOfPay = r2(hoursOfPay); out.premium = r2(hoursOfPay * wage);
   return out;
@@ -229,7 +280,7 @@ export function latePosting(week, postedAt, rules, tz = "UTC") {
   for (const a of week.assignments || []) {
     if (!a.person) continue;
     const t = slotInstant(week.weekStart, a.slot.day, a.slot.startMin, tz), n = (t - postedAt) / H;
-    if (n < rules.noticeDays * 24) out.push({ person: a.person, slot: a.slot, noticeH: r2(n) });
+    if (n < (rules.postDays || rules.noticeDays) * 24) out.push({ person: a.person, slot: a.slot, noticeH: r2(n) });
   }
   return out;
 }

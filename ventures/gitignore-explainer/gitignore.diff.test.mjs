@@ -26,10 +26,14 @@ function rng(seed) {
   };
 }
 
-const NAMES = ["a", "b", "ab", "ba", "a.c", "b.c", "x"];
-const SEGMENTS = ["a", "b", "ab", "*", "?", "a*", "*b", "*.c", "[ab]", "[!a]", "[^b]", "[a-b]*", "**", "***", "a**", "**b", "*a*", "\\a", "\\*", "[[:alpha:]]", "[[:digit:]]", "[]a]", "[a-]", "?.c", "b?", "a.c", "[ab", "*\\"];
+const ASCII_NAMES = ["a", "b", "ab", "ba", "a.c", "b.c", "x"];
+const ASCII_SEGMENTS = ["a", "b", "ab", "*", "?", "a*", "*b", "*.c", "[ab]", "[!a]", "[^b]", "[a-b]*", "**", "***", "a**", "**b", "*a*", "\\a", "\\*", "[[:alpha:]]", "[[:digit:]]", "[]a]", "[a-]", "?.c", "b?", "a.c", "[ab", "*\\"];
+// UTF-8 names: git's wildmatch works on bytes, so `?` and `[...]` take one
+// byte of a two-byte é
+const UTF8_NAMES = ["é", "aé", "éb", "a", "b.c", "日"];
+const UTF8_SEGMENTS = ["é", "?", "??", "?é", "a?", "*é", "é*", "[é]", "[!a]", "[!a]?", "[[:alpha:]]*", "*", "**", "a*", "[a-é]", "日", "???"];
 
-function makeRepo(r) {
+function makeRepo(r, NAMES = ASCII_NAMES, SEGMENTS = ASCII_SEGMENTS) {
   const pick = (arr) => arr[Math.floor(r() * arr.length)];
   const files = new Set();
   const nFiles = 4 + Math.floor(r() * 10);
@@ -76,7 +80,7 @@ function gitAnswers(repo) {
     const query = [...repo.files, ...repo.dirs];
     let out;
     try {
-      out = execFileSync("git", ["-c", "core.excludesFile=/dev/null", "check-ignore", "--no-index", "-v", "-n", "--stdin"], {
+      out = execFileSync("git", ["-c", "core.excludesFile=/dev/null", "-c", "core.quotePath=false", "check-ignore", "--no-index", "-v", "-n", "--stdin"], {
         cwd: root, input: query.join("\n") + "\n", encoding: "utf8", stdio: ["pipe", "pipe", "pipe"],
       });
     } catch (e) {
@@ -130,6 +134,25 @@ test("matches git check-ignore on random repositories", { skip: !hasGit && "git 
     }
   }
   t.diagnostic(`${gitVersion} (${GIT} mode): ${trials} random repositories, ${compared} paths, all agree`);
+  assert.ok(compared > trials * 4);
+});
+
+test("matches git check-ignore on random repositories with UTF-8 names", { skip: !hasGit && "git not installed" }, (t) => {
+  const trials = Number(process.env.GITIGNORE_DIFF_TRIALS || 150);
+  const r = rng(20261116);
+  let compared = 0;
+  for (let t = 0; t < trials; t++) {
+    const repo = makeRepo(r, UTF8_NAMES, UTF8_SEGMENTS);
+    const git = gitAnswers(repo);
+    const bundle = Object.entries(repo.sources).map(([p, text]) => `==> ${p} <==\n${text}`).join("\n");
+    const explain = resolver(compile(bundle, { git: GIT }));
+    for (const [path, isDir] of [...repo.files.map((f) => [f, false]), ...repo.dirs.map((d) => [d, true])]) {
+      const x = explain(path, isDir);
+      assert.equal(x.rule ? `${x.rule.source}:${x.rule.line}` : null, git.get(path), `trial ${t}, ${path}${isDir ? "/" : ""}\n${bundle}`);
+      compared++;
+    }
+  }
+  t.diagnostic(`${gitVersion}: ${trials} random UTF-8 repositories, ${compared} paths, all agree`);
   assert.ok(compared > trials * 4);
 });
 
