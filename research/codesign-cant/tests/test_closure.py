@@ -65,3 +65,15 @@ def test_component_rows_are_sourced_and_consistent():
         assert 3 <= int(r["cells"]) <= 6 and 1000 <= int(r["mah"]) <= 10000
     mot = list(csv.DictReader(open(os.path.join(DATA, "motors_bench_sunnysky.csv"))))
     assert len({r["motor"] for r in mot}) >= 25 and all(float(r["thrust_gf"]) > 0 and float(r["watts"]) > 0 for r in mot)
+
+
+def test_lag_law_default_and_override():
+    """Milestone 7s: the lag law is aero.LAG_K (D / LAG_D0)^LAG_EXP; the default is the inherited 0.015 (D / 0.127)^1.5."""
+    assert (aero.LAG_K, aero.LAG_D0, aero.LAG_EXP) == (0.015, 0.127, 1.5)
+    assert np.isclose(float(aero.size(0.10, 0.127)["lag"]), 0.015)
+    keep = aero.LAG_EXP
+    try:
+        aero.LAG_EXP = 0.0
+        assert np.isclose(float(aero.size(0.10, 0.10)["lag"]), 0.015)
+    finally:
+        aero.LAG_EXP = keep
