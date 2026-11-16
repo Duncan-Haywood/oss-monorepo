@@ -297,3 +297,33 @@ test('dohQueryCount: empty answer and NXDOMAIN are count 0, transport failure is
   assert.deepEqual(await dohQueryCount('x.example', 'MX', { fetchImpl: mk({ Status: 0, Answer: [{ type: 15, data: '10 m.example.' }] }) }), { ok: true, count: 1, error: null });
   assert.equal((await dohQueryCount('x.example', 'A', { fetchImpl: mk({}, false) })).ok, false);
 });
+
+test('resolveSpfChain stops at exactly maxFetches DNS queries and reports the rest unresolved', async () => {
+  const seen = [];
+  const fetchTxt = async (name) => {
+    seen.push(name);
+    const map = {
+      'example.com': ['v=spf1 include:one.example.net include:two.example.net include:three.example.net -all'],
+      'one.example.net': ['v=spf1 -all'],
+      'two.example.net': ['v=spf1 -all'],
+      'three.example.net': ['v=spf1 -all'],
+    };
+    return { ok: true, records: map[name] ?? [], error: null };
+  };
+  const { walk } = await resolveSpfChain('example.com', { fetchTxt, queryCount: async () => ({ ok: true, count: 1 }), maxFetches: 3 });
+  assert.deepEqual(seen, ['example.com', 'one.example.net', 'two.example.net']);
+  assert.equal(walk.truncated, true);
+  assert.deepEqual(walk.unresolved, ['three.example.net']);
+});
+
+test('resolveSpfChain does not fetch an include placed after "all" (never evaluated)', async () => {
+  const seen = [];
+  const fetchTxt = async (name) => {
+    seen.push(name);
+    return { ok: true, records: name === 'example.com' ? ['v=spf1 -all include:late.example.net'] : [], error: null };
+  };
+  const { walk } = await resolveSpfChain('example.com', { fetchTxt, queryCount: async () => ({ ok: true, count: 1 }) });
+  assert.deepEqual(seen, ['example.com']);
+  assert.equal(walk.totalLookups, 0);
+  assert.equal(walk.truncated, false);
+});

@@ -431,3 +431,74 @@ test('BIMI-absent finding does not promise a logo from DMARC alone (Gmail needs 
   const f = report.findings.find((x) => x.id.startsWith('bimi-') && /VMC|Verified Mark/.test(x.detail ?? x.message ?? JSON.stringify(x)));
   assert.ok(f, JSON.stringify(report.findings.filter((x) => x.id.startsWith('bimi'))));
 });
+
+// ---------------------------------------------------------------------------
+// Red-team 2026-11-16: modifiers after "all", unevaluated mechanisms, budget
+// ---------------------------------------------------------------------------
+
+test('parseSpfMechanisms: a modifier after "all" (exp=, redirect=, unknown) is not an unreachable term', () => {
+  // RFC 7208 s4.6.3/s6: modifiers may appear anywhere; only *mechanisms*
+  // after "all" are never tested (s5.1).
+  assert.equal(parseSpfMechanisms('v=spf1 ip4:192.0.2.1 -all exp=explain._spf.example.com').allNotLast, false);
+  assert.equal(parseSpfMechanisms('v=spf1 -all foo=bar').allNotLast, false);
+  assert.equal(parseSpfMechanisms('v=spf1 -all ip4:192.0.2.1').allNotLast, true);
+});
+
+test('buildReport: "-all exp=..." raises no spf-all-not-last notice', () => {
+  const spfWalk = walkSpfChain('exp.example', { 'exp.example': ['v=spf1 ip4:192.0.2.1 -all exp=explain._spf.exp.example'] });
+  const report = buildReport('exp.example', { spfWalk, dkim: analyzeDkim([]), dmarc: analyzeDmarc([]), bimi: analyzeBimi([], analyzeDmarc([])) });
+  assert.equal(report.findings.some((f) => f.id === 'spf-all-not-last'), false);
+});
+
+test('walkSpfChain: mechanisms after "all" are never evaluated, so they cost no lookup and are not fetched', () => {
+  const walk = walkSpfChain('late.example', {
+    'late.example': ['v=spf1 include:a.example.net -all include:never.example.net mx a'],
+    'a.example.net': ['v=spf1 -all'],
+  });
+  assert.equal(walk.totalLookups, 1);
+  assert.equal(walk.root.lookupsHere, 1);
+  assert.equal(walk.truncated, false, 'the never-evaluated include target must not be reported as unresolved');
+  assert.equal(walk.root.allNotLast, true);
+});
+
+test('walkSpfChain: lookupsHere is the per-record count, and include/redirect each cost one', () => {
+  const walk = walkSpfChain('per.example', {
+    'per.example': ['v=spf1 a mx include:x.example.net redirect=y.example.net'],
+    'x.example.net': ['v=spf1 ip4:192.0.2.1 ~all'],
+    'y.example.net': ['v=spf1 exists:%{i}.z.example ~all'],
+  });
+  assert.deepEqual(walk.chain.map((c) => [c.domain, c.lookupsHere]), [
+    ['per.example', 4], ['x.example.net', 0], ['y.example.net', 1],
+  ]);
+  assert.equal(walk.totalLookups, 5);
+});
+
+test('walkSpfChain: past the visit budget the walk is truncated, with the skipped domain unresolved', () => {
+  const walk = walkSpfChain('deep.example', {
+    'deep.example': ['v=spf1 include:one.example include:two.example -all'],
+    'one.example': ['v=spf1 -all'],
+    'two.example': ['v=spf1 -all'],
+  }, { maxVisits: 2 });
+  assert.equal(walk.truncated, true);
+  assert.deepEqual(walk.unresolved, ['two.example']);
+  assert.equal(walk.chain.at(-1).note, 'budget-exceeded');
+});
+
+test('buildReport: BIMI notice with DMARC pct omitted states the default pct=100', () => {
+  const dmarc = analyzeDmarc(['v=DMARC1; p=none']);
+  const report = buildReport('brand.example', {
+    spfWalk: walkSpfChain('brand.example', { 'brand.example': ['v=spf1 -all'] }),
+    dkim: analyzeDkim([]), dmarc, bimi: analyzeBimi(['v=BIMI1; l=https://brand.example/logo.svg'], dmarc),
+  });
+  const f = report.findings.find((x) => x.id === 'bimi-present-not-honored');
+  assert.match(f.detail, /Current DMARC here is p=none pct=100\./);
+});
+
+test('parseSpfMechanisms: with two "all" terms the first decides, and the record is valid syntax', () => {
+  // RFC 7208's ABNF allows any number of directives; evaluation stops at the
+  // first "all" (s5.1), so "~all -all" is a softfail record, not a PermError.
+  const parsed = parseSpfMechanisms('v=spf1 ip4:192.0.2.1 ~all -all');
+  assert.equal(parsed.allQualifier, '~');
+  assert.deepEqual(parsed.malformed, []);
+  assert.equal(parsed.allNotLast, true);
+});
