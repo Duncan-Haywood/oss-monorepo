@@ -3077,6 +3077,10 @@ test p < 0.05, and a net gain.
 | 4 s reserve | 371 | 3 | 1,208 | about 1,300 |
 
 **Not met, by a wide margin:** 4 s had fewer open hours on 11 builds and more on 27 (10 tied), 64 hours worse in all (one-sided
-p = 0.997). The guess was wrong about why the repair is short. It is not starved: given 4 s it still ran about 1.2 s, because it
-stops on its own 60 rounds (`coverRepairRounds`), not on the clock. So the two extra seconds come out of the plateau walks, which
-still find coverage on these weeks, and go to stages after the repair that score pay, not open hours. The default stays at 2 s.
+p = 0.997). The guess was wrong about why the repair is short. It is not starved: given 4 s it still ran about 1.2 s, so it stops
+on something other than the clock, and the two extra seconds come out of the plateau walks (which still find coverage on these
+weeks) and go to stages after the repair that score pay, not open hours. The default stays at 2 s.
+
+**What stops the repair.** Not its 60 rounds: with `coverRepairRounds: 180` and the 4 s reserve, the first four builds
+(`eval/repair-reserve-rounds180.jsonl`) gave the same open hours, gains and skipped rounds as the 4 s run, build for build. That
+leaves its node budget (`coverRepairNodes`, 3M nodes in all, chosen so the same input gives the same roster on any machine).
