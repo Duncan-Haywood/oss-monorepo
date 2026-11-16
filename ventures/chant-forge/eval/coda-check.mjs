@@ -339,6 +339,11 @@
 //    cells hold about two with a p read as a k, and none about one time in nine. If all six hold and the default
 //    reads at least one of W's voiceless labials as a velar, voicelessLow becomes readCoda's default. If the default
 //    reads none, the gain is untested on W: the rule stays opt-in, reported as such. Otherwise it stays opt-in.
+//    Outcome (run 2026-11-16, after the registration above was committed): held. (1) W's voiceless labials read as a
+//    velar 18 before, 0 with voicelessLow; (2) voiceless labial codas 100 to 118 of 120 (117 wanted); (3) velars read
+//    as a labial 0 and 0, velar codas 95 and 95 of 96; (4) voiced stops 71, alveolar 23, others 32, control 338,
+//    identical; (5) the report rebuilt on the shipped code matches the A-V figures above; (6) holds by construction.
+//    The 18 sat in two of W's 12 cells (A2 pulse-4, all 10; B3 pulse-2, 8 of 10). voicelessLow is the default.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -378,11 +383,11 @@ const DEEPARG = args.includes('--deep') ? args[args.indexOf('--deep') + 1] : '';
 const PREOPTS = PREARG && PREARG !== 'off' ? { preOpts: Object.fromEntries(PREARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
 // --bar N: readCoda's barLead (a level-rule murmur a burst-ended closure starts inside of within N frames is its voice bar)
 const BARARG = args.includes('--bar') ? args[args.indexOf('--bar') + 1] : '';
-// --vlow on: readCoda's voiceless low labial test (`voicelessLow: true`, the nineteenth round)
+// --vlow off: readCoda without the voiceless low labial test (`voicelessLow: false`, the reader before the nineteenth round)
 // --velar on: readCoda's compact velar burst before the low labial test (`compactVelar: true`, the eighteenth round)
 const VELARARG = args.includes('--velar') ? args[args.indexOf('--velar') + 1] : '';
 const VLOWARG = args.includes('--vlow') ? args[args.indexOf('--vlow') + 1] : '';
-const RC = { ...RC0, ...(VLOWARG === 'on' ? { voicelessLow: true } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
+const RC = { ...RC0, ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -1111,11 +1116,11 @@ const row = (t, g) => `| ${t} | ${['def', 'vl'].map((m) => cell(`${g} ${m}`)).jo
 const cnt = (t, o) => `| ${t} | ${['def', 'vl'].map((m) => o[m] || 0).join(' | ')} |`;
 const list = (m) => HIDE.includes('W') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
 lines.push('## W. Held out: a p\'s burst read as a k (nineteenth round)', '', `Voiceless labial: ${PL.map((s) => `*${s}*`).join(', ')}; voiceless velar: ${KV.map((s) => `*${s}*`).join(', ')}; voiced stops: ${VD.map((s) => `*${s}*`).join(', ')}; alveolar: ${ALV.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 122 BPM, each followed by a rest, A2, E3, G#3, A#3, B3, C#4.`, '',
-  '| | default | `voicelessLow` |', '|---|---|---|',
+  '| | before (`voicelessLow: false`) | `voicelessLow` (the default since this round) |', '|---|---|---|',
   row('voiceless labial codas read exactly', 'p'), cnt('voiceless labials read as a velar stop', pAsK),
   row('voiceless velar codas read exactly', 'k'), cnt('voiceless velars read as a labial stop', kAsP),
   row('voiced stop codas read exactly', 'voiced'), row('alveolar codas read exactly', 'alv'), row('other syllables read exactly', 'other'), row('vowel-only control read as none', 'control'), '',
-  'Misses with the default (count over the twelve pitch and length cells):', '', list(wMiss), '',
+  'Misses before (count over the twelve pitch and length cells):', '', list(wMiss), '',
   'Misses with `voicelessLow`:', '', list(wMissL), '');
 }
 

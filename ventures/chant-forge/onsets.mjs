@@ -230,7 +230,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = false } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false, compactVelar = false, voicelessLow = VOICELESS_LOW } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -483,7 +483,8 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     // bar's harmonics under 1 kHz run on under a voiced g's burst, so the low test reads it as a b; a burst whose
     // 500 Hz band holds `c` or more of the 1-11 kHz energy, centred at `hz` or above, is velar whatever lies under it
     const cv = compactVelar === true ? COMPACT_VELAR : compactVelar;
-    // A p's burst read as a k (opt-in `voicelessLow`, README "A p's burst read as a k"): sing.mjs's labial burst is
+    // A p's burst read as a k (`voicelessLow`, default since its registration held on part W; README "A p's burst
+    // read as a k"; `voicelessLow: false` is the reader before): sing.mjs's labial burst is
     // noise through a wide band at 500 Hz, and one 8 ms draw of it holds 11-79% of its energy above 1 kHz (median 0.39
     // on K, N, T, U and V), so "most of it under 1 kHz" misses a third of them. With no voice bar under it nothing else
     // sounds low: every voiceless velar and alveolar burst there held 99% or more above 1 kHz. So a burst after a

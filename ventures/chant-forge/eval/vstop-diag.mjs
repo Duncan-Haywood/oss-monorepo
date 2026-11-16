@@ -1,6 +1,6 @@
 // Diagnostic (2026-11-16, fourteenth coda round): parts K's and N's voiced-stop codas read back frame by frame, levels
 // against the reference vowel, with the burst search's verdict per closure.
-//   node eval/vstop-diag.mjs [K|N|T|U|V] [ib,eb] [-v: frames of the misses] [-a: every cell] [--voice-bar off] [--bar N: readCoda's barLead] [--velar: compactVelar]
+//   node eval/vstop-diag.mjs [K|N|T|U|V|W] [ib,eb] [-v: frames of the misses] [-a: every cell] [--voice-bar off] [--bar N: readCoda's barLead] [--velar: compactVelar]
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
 import { latinCoda } from '../sing.mjs';
