@@ -212,6 +212,49 @@ class NeverCompleted(unittest.TestCase):
         self.assertEqual(rounds.STALE["cpin_es3_nc5_stamp"], rounds.STALE["cpin_es3_nc5"])
         self.assertTrue({"cpin_es3_nc5_stamp", "cpin_es3_nc3_clean"} <= set(rounds.VARIANTS))
 
+    def test_len_drop_matches_dead_lengths_per_city(self):
+        """Session 97: len_drop removes, per city and per decile bin of the non-stamp dead labels completed by D,
+        as many live completed rows with labels in that bin; dead rows, stamps, open rows and other cities' rows
+        beyond the matched count stay, and the draw is fixed by its seed."""
+        import datetime, rounds
+        import pandas as pd
+        D = datetime.date(2020, 1, 1)
+        rng = np.random.default_rng(1)
+        n = 400
+        y = np.round(rng.uniform(1, 1500, n))
+        dead = np.zeros(n, bool)
+        dead[:20] = True
+        y[20:30] = rounds.STAMP_DAYS  # live 180-day builds
+        dead[30:35], y[30:35] = True, rounds.STAMP_DAYS  # dead stamps: not matched
+        y = np.append(y, np.inf)
+        dead = np.append(dead, False)
+        city = np.where(np.arange(n + 1) < 300, "austin", "seattle")
+        d = pd.DataFrame(dict(permit_id=[str(i) for i in range(n + 1)], start="2010-01-01", y=y, dead=dead,
+                              city=city))
+        kept, n_drop, short = rounds.len_drop(d, D)
+        self.assertEqual((n_drop, short), (20, 0))  # all 20 non-stamp dead rows are Austin's
+        gone = d[~d.permit_id.isin(kept.permit_id)]
+        self.assertFalse(gone.dead.any())
+        self.assertTrue((gone.city == "austin").all())
+        self.assertTrue(np.isfinite(kept.y).sum() == n - 20)
+        lo, hi = d.y[:20].min(), d.y[:20].max()
+        self.assertTrue(((gone.y >= lo) & (gone.y <= hi)).all())
+        e = np.quantile(d.y[:20], np.linspace(0, 1, 11))
+        b = lambda v: np.clip(np.searchsorted(e, v, side="right") - 1, 0, 9)  # noqa: E731
+        self.assertEqual(sorted(b(gone.y.to_numpy())), sorted(b(d.y[:20].to_numpy())))
+        self.assertEqual(rounds.len_drop(d, D)[0].permit_id.tolist(), kept.permit_id.tolist())
+        self.assertTrue({"cpin_es3_nc5_stamp_len", "cpin_es3_nc5_stamp_long"} <= set(rounds.DEAD_DROP))
+        self.assertEqual(rounds.STALE["cpin_es3_nc5_stamp_len"], rounds.STALE["cpin_es3_nc5"])
+
+    def test_dead_completed_mask(self):
+        """Session 97: dead_completed marks dead rows completed by D only (the long-closure drop builds on it)."""
+        import datetime, rounds
+        import pandas as pd
+        D = datetime.date(2020, 1, 1)
+        d = pd.DataFrame(dict(start=["2010-01-01", "2010-01-01", "2019-08-01", "2010-01-01"],
+                              y=[400.0, 400.0, 400.0, np.inf], dead=[True, False, True, True]))
+        self.assertEqual(rounds.dead_completed(d, D).tolist(), [True, False, False, False])
+
 
 if __name__ == "__main__":
     unittest.main()

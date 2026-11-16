@@ -1,5 +1,19 @@
 # build-data log
 
+## Session 97, 2026-11-16: length or class? (pre-registered; outcome pending)
+
+Why: session 96 found that dropping the non-stamp dead close-outs (mostly Austin's withdrawn permits, long tail: dead p90 1,080 days against done's 379) costs Seattle +1.75 and +2.52 days at q0.9 (worse in 6 of 6 seeds) and helps SF (better in 5 of 6), and read that post hoc as "long rows look like Seattle's own tail". Its "Next" asked whether the closures matter for their length or their class. This run tests that with a length-matched placebo: drop the same number of live (not dead) completed rows with the same label distribution. If length is what matters, the placebo costs Seattle as much as the closures did; if class, it costs nothing. A second variant drops only the long closures (label over 365 days) to see whether they carry the cost.
+- Method: `rounds.py` gains `len_drop` and two variants on top of session 96's stamp rule (the recommended practical rule): `cpin_es3_nc5_stamp_len` (stamp drop plus, per source city and per decile bin of its non-stamp dead labels completed by D, as many randomly chosen live rows completed by D in that bin; rng seed 97, fixed before any run; dead rows kept) and `cpin_es3_nc5_stamp_long` (stamp drop plus the non-stamp dead rows completed by D with label over 365 days). Both apply to the training and Y-3 early-stopping sets separately, as `dead_drop` does.
+Design (fixed before any model run): cascade2 class; H = sf, seattle; Y = 2021, 2022; 3 seeds; q0.9 only (`CPIN_TAUS=0.9`); fresh pull 2026-11-16; `rounds.py DIR --score --keep-open --status-dir DIR_STATUS --variants cpin_es3_nc5_stamp cpin_es3_nc5_stamp_len cpin_es3_nc5_stamp_long --held sf|seattle --out-name rounds_score_len_i2c.json`, one process per cell at 1 thread. stamp is refit as a check; clean (session 95, `results/rounds_score_clean_i2c.json`) is reused if the pull's row counts (SF 1,298,381, Seattle 194,311, Austin 2,385,435) and dead completion counts (3,130, 423, 172,473) equal session 95's, else refit in this run.
+Predictions (q0.9 = cascade2's mean pinball loss over 3 seeds on completed test rows, days):
+- (L0, check) The stamp refit equals session 96's q0.9 within 0.05 days in all 4 cells.
+- (L1) len_drop matches at least 99% of the non-stamp dead rows (shortfall under 1%) in every cell.
+- (L2, length) In Seattle, stamp_len minus stamp is at least +1.0 day in both years.
+- (L3) In SF, stamp_len minus stamp, mean over 2021 and 2022, is below 0.
+- (L4) In Seattle, stamp_long minus stamp is at least 75% of clean minus stamp (session 96: +2.52 in 2021, +1.75 in 2022) in both years.
+- (L5) stamp_long drops at most 40% of the non-stamp dead rows in every cell.
+Refuted if any part fails.
+
 ## Session 96, 2026-11-16: the 180-day stamps are 82 to 83% of the dead rows but not what costs Seattle: dropping only them moves q0.9 by +0.64 days on average, while the other 17% of closures (mostly Austin's withdrawn permits) carry Seattle's cost (+1.75 and +2.52 days, worse in 6 of 6 seeds) and help SF (better in 5 of 6); the city pattern of the staleness cut survives cleaning (3 years in SF, 5 in Seattle), and on the 3-year cut cleaning costs 0.68 days, worse in 11 of 12 seeds; T1, C1, C2 held, T2, T3 refuted
 
 Why: session 95 dropped every dead permit's completion date from the borrowed model's training and found the rule removes 6.5 to 8.6% of rows, nearly all of them Austin's pre-2000 void and expired permits stamped exactly 180 days after issue, and that the drop costs Seattle 1.8 to 3.5 days at q0.9. Its "Next" asked to separate the stamp from the other closures, and to check whether the staleness cut tuned on stamped data (session 92: 3 years best in SF, 5 in Seattle) still holds once the sources are clean.
