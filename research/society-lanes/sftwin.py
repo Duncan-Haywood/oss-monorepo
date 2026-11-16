@@ -25,6 +25,16 @@ adds a third, JuPedSim's CollisionFreeSpeedModel (`model="cfsm"`, Tordeux, Chrai
 weighted by (1 + r) / 2, r the goal's offset toward the walker's right in half-widths). Walkers
 without a lateral goal get the full bias under every rule, so the free-choice fit is unchanged.
 
+Milestone 5 adds robots (`robot_n`, `robot_policy`, `robot_speed`): agents of the same model and
+body radius that never take the side bias, walk at a fixed desired speed and steer by one of the
+policies in `ROBOT_POLICIES` ("crowd": hold the quarter-width lane on their own right, the crowd's
+convention; "opposite": the quarter-width lane on their own left; "adapt": the lane on whichever
+side most same-direction walkers within ADAPT_RANGE take, re-read every steering step; "goal": a
+lateral exit at 0.25 or 0.75 of the width, drawn 50/50 at entry, approached like an assigned
+walker's). A robot that leaves re-enters as a robot. Robots are excluded from every human
+statistic; `measure` adds robot passes and close passes (centre distance under CLOSE_PASS between
+a human and a robot, each pair counted once). With robot_n = 0 the run is unchanged, draw for draw.
+
 Needs numpy and jupedsim (`python3 platform/ci/pyenv.py jupedsim numpy`).
 """
 from __future__ import annotations
@@ -50,6 +60,11 @@ CFSM_RADIUS = 0.2    # m: JuPedSim 1.4.2 default for the collision-free speed mo
 CFSM_TIME_GAP = 1.0  # s: JuPedSim 1.4.2 default
 MODELS = ("sf", "avm", "cfsm")
 RULES = ("always", "yield", "scaled")
+ROBOT_POLICIES = ("crowd", "opposite", "adapt", "goal")
+ROBOT_MERGE = 4.0    # m: a lane-holding robot closes on its lane over this distance ahead
+ADAPT_RANGE = 5.0    # m: "adapt" reads same-direction walkers within this distance along x
+CLOSE_PASS = 0.5     # m: centre distance counted as a close pass (proposal, Evaluation)
+NEAR_PASS = 1.0      # m: a wider reading, inside Hall's (1966) 0.45-1.2 m personal distance
 
 
 def desired_speeds(rng, n, mean=1.34, sd=0.26, lo=0.6, hi=2.0):
@@ -71,7 +86,7 @@ def bias_weight(dirs, goal_y, width, rule="always"):
     return np.where(has_goal, np.clip((1.0 + r) / 2.0, 0.0, 1.0), w)
 
 
-def steer_targets(pos, dirs, goal_y, beta, width, length, radius=RADIUS, rule="always"):
+def steer_targets(pos, dirs, goal_y, beta, width, length, radius=RADIUS, rule="always", robot=None):
     """Steering target per walker (vectorised).
 
     pos: (n, 2); dirs: (n,) +1 heading +x, -1 heading -x; goal_y: (n,) lateral goal or nan.
@@ -94,10 +109,41 @@ def steer_targets(pos, dirs, goal_y, beta, width, length, radius=RADIUS, rule="a
         opp = dirs[None, :] != dirs[:, None]
         oncoming = (opp & (dx > 0) & (dx <= LOOK_AHEAD) & (dy < LATERAL_GAP)).any(axis=1)
         w = bias_weight(dirs, goal_y, width, rule)
+        if robot is not None:
+            w = np.where(robot, 0.0, w)   # robots never take the human side bias
         ty = ty + np.where(oncoming, -dirs * beta * w * TARGET_AHEAD, 0.0)
     tx = np.clip(tx, -1.4, length + 1.4)
     ty = np.clip(ty, radius + 0.05, width - radius - 0.05)
     return tx, ty
+
+
+def lane_y(d, side, width):
+    """Centre of the quarter-width lane on a walker's own right (side=+1) or left (side=-1)."""
+    return width / 2.0 - d * side * width / 4.0
+
+
+def adapt_sides(pos, dirs, robot, width, current):
+    """Per robot: +1 (right) or -1 (left), the side most same-direction humans nearby walk on.
+
+    Humans of the robot's own direction within ADAPT_RANGE along x vote with the sign of their
+    offset toward their own right; a tie or no humans keeps `current`.
+    """
+    out = np.array(current, dtype=float)
+    hum = ~robot
+    for k in np.nonzero(robot)[0]:
+        near = hum & (dirs == dirs[k]) & (np.abs(pos[:, 0] - pos[k, 0]) <= ADAPT_RANGE)
+        if near.any():
+            v = np.sign(right_offset(pos[near, 1], dirs[k], width)).sum()
+            if v != 0:
+                out[k] = np.sign(v)
+    return out
+
+
+def robot_targets(pos, dirs, goal_y, length):
+    """Lane-holding robots close on goal_y over ROBOT_MERGE metres rather than the whole corridor."""
+    end = np.where(dirs > 0, length, 0.0)
+    dist = np.clip((end - pos[:, 0]) * dirs, TARGET_AHEAD, ROBOT_MERGE)
+    return pos[:, 1] + (goal_y - pos[:, 1]) * TARGET_AHEAD / dist
 
 
 def right_offset(y, d, width):
@@ -108,7 +154,8 @@ def right_offset(y, d, width):
 
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
              warmup=40.0, duration=160.0, dt=0.01, steer_every=0.1, record_every=0.1,
-             model="sf", exit_frac=0.25, rule="always"):
+             model="sf", exit_frac=0.25, rule="always", robot_n=0, robot_policy="crowd",
+             robot_speed=0.9, track_close=False):
     """Run one closed-loop corridor. Returns per-run statistics (dict).
 
     model: "sf" (JuPedSim SocialForceModel, Helbing et al. 2000 defaults, radius 0.25 m) or
@@ -122,6 +169,8 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         raise ValueError(f"model must be one of {MODELS}")
     if rule not in RULES:
         raise ValueError(f"rule must be one of {RULES}")
+    if robot_n and robot_policy not in ROBOT_POLICIES:
+        raise ValueError(f"robot_policy must be one of {ROBOT_POLICIES}")
     radius = {"sf": RADIUS, "avm": AVM_RADIUS, "cfsm": CFSM_RADIUS}[model]
     rng = np.random.default_rng(seed)
     # walkable area runs 1.5 m past each end so leaving walkers are not held by an end wall
@@ -135,14 +184,23 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
     sim = jps.Simulation(model=op, geometry=area, dt=dt)
     stage = sim.add_direct_steering_stage()
     journey = sim.add_journey(jps.JourneyDescription([stage]))
-    agents = {}  # id -> [dir, goal_y, born_after_start]
+    agents = {}  # id -> [dir, goal_y, born_after_start, is_robot]
 
     def goal_for(d):
         if not goals:
             return math.nan
         return width * (exit_frac if rng.random() < 0.5 else 1.0 - exit_frac)
 
-    def add(x, y, d, v0, new):
+    def robot_goal(d):
+        if robot_policy == "goal":
+            return width * (0.25 if rng.random() < 0.5 else 0.75)
+        if robot_policy == "opposite":
+            return lane_y(d, -1, width)
+        return lane_y(d, 1, width)   # crowd; adapt starts on the crowd's side
+
+    def add(x, y, d, v0, new, bot=False):
+        if bot:
+            v0 = robot_speed
         if model == "sf":
             par = jps.SocialForceModelAgentParameters(
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
@@ -156,7 +214,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
                 desired_speed=float(v0), radius=radius)
         aid = sim.add_agent(par)
-        agents[aid] = [d, goal_for(d), new]
+        agents[aid] = [d, robot_goal(d) if bot else goal_for(d), new, bot]
 
     # initial placement: a jittered lattice over the whole corridor, half each way
     cols = max(1, int(round(math.sqrt(n_walkers * length / width))))
@@ -171,13 +229,14 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         y = min(max((j + 0.5) * gy + rng.uniform(-jy, jy), radius + 0.05), width - radius - 0.05)
         placed.append((x, y))
     v0s = desired_speeds(rng, len(placed))
-    queue = {1: 0, -1: 0}
+    queue = {1: [], -1: []}   # per direction, the kinds waiting to enter (True: robot), in order
     for k, p in enumerate(placed):
         d0 = 1 if k % 2 == 0 else -1
+        bot = k < robot_n     # robots alternate direction like everyone else
         try:
-            add(p[0], p[1], d0, v0s[k], False)
+            add(p[0], p[1], d0, v0s[k], False, bot)
         except RuntimeError:  # AVM/CFSM refuse overlapping placement: the walker enters later instead
-            queue[d0] += 1
+            queue[d0].append(bot)
     e_lo = max(radius + 0.05, width / 2 - entrance / 2)
     e_hi = min(width - radius - 0.05, width / 2 + entrance / 2)
     steer_n = max(1, round(steer_every / dt))
@@ -185,6 +244,11 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
     lo_x, hi_x = length / 2 - SECTION_HALF, length / 2 + SECTION_HALF
     samples = {}   # aid -> list of (t, x, y)
     dirs_of = {}
+    rob_samples = {}   # robot aid -> list of (t, x, y), in the section after warm-up
+    close = set()      # (human aid, robot aid) pairs that came within CLOSE_PASS
+    near = set()       # (human aid, robot aid) pairs that came within NEAR_PASS
+    close_hh = set()   # human-human pairs within CLOSE_PASS (the reference rate), if tracked
+    track = bool(robot_n) or track_close
     steps = round(duration / dt)
     for it in range(steps + 1):
         t = it * dt
@@ -194,49 +258,114 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
             if ids:
                 d = np.array([agents[a][0] for a in ids], dtype=float)
                 g = np.array([agents[a][1] for a in ids], dtype=float)
+                rb = np.array([agents[a][3] for a in ids], dtype=bool)
                 # leave at the far end, re-enter at own entrance
                 leaving = np.where(d > 0, pos[:, 0] >= length, pos[:, 0] <= 0.0)
                 for k in np.nonzero(leaving)[0]:
                     sim.mark_agent_for_removal(ids[k])
-                    queue[int(d[k])] += 1
+                    queue[int(d[k])].append(bool(rb[k]))
                     del agents[ids[k]]
                 keep = ~leaving
                 ids = [a for a, kk in zip(ids, keep) if kk]
-                pos, d, g = pos[keep], d[keep], g[keep]
-                tx, ty = steer_targets(pos, d, g, beta, width, length, radius, rule)
+                pos, d, g, rb = pos[keep], d[keep], g[keep], rb[keep]
+                if rb.any() and robot_policy == "adapt":
+                    side = np.sign(right_offset(np.nan_to_num(g, nan=width / 2), d, width))
+                    side = adapt_sides(pos, d, rb, width, np.where(side == 0, 1.0, side))
+                    g = np.where(rb, lane_y(d, side, width), g)
+                    for a, gg, r_ in zip(ids, g, rb):
+                        if r_:
+                            agents[a][1] = float(gg)
+                tx, ty = steer_targets(pos, d, g, beta, width, length, radius, rule,
+                                       robot=rb if rb.any() else None)
+                if rb.any() and robot_policy != "goal":
+                    ty = np.where(rb, np.clip(robot_targets(pos, d, g, length), radius + 0.05,
+                                              width - radius - 0.05), ty)
                 for a, xx, yy in zip(ids, tx, ty):
                     sim.agent(a).target = (float(xx), float(yy))
             for dd in (1, -1):
-                for _ in range(queue[dd]):
+                while queue[dd]:
                     x0 = 0.35 if dd > 0 else length - 0.35
                     y0 = rng.uniform(e_lo, e_hi) if e_hi > e_lo else width / 2
                     if len(pos) and np.min((pos[:, 0] - x0) ** 2 + (pos[:, 1] - y0) ** 2) < CLEARANCE ** 2:
                         break
                     try:
-                        add(x0, y0, dd, desired_speeds(rng, 1)[0], True)
+                        add(x0, y0, dd, desired_speeds(rng, 1)[0], True, queue[dd][0])
                     except RuntimeError:
                         # AVM/CFSM check contact on entry; a walker marked for removal is still
                         # present until the next step, so wait for room (SF never raises here)
                         break
-                    queue[dd] -= 1
+                    queue[dd].pop(0)
                     pos = np.vstack([pos, [x0, y0]]) if len(pos) else np.array([[x0, y0]])
         if it % rec_n == 0 and t >= warmup:
-            for a, (d, _, new) in agents.items():
-                if not new:
+            hum_now, rob_now = [], []
+            for a, (d, _, new, bot) in agents.items():
+                if not (new or bot):
                     continue
                 x, y = sim.agent(a).position
                 if lo_x <= x <= hi_x:
+                    if bot:
+                        rob_samples.setdefault(a, []).append((round(t / record_every), x, y))
+                        rob_now.append((a, x, y))
+                        continue
                     samples.setdefault(a, []).append((round(t / record_every), x, y))
                     dirs_of[a] = d
+                    hum_now.append((a, x, y))
+            if track and len(hum_now) > 1:
+                hp = np.array([[x, y] for _, x, y in hum_now])
+                d2 = ((hp[:, None, :] - hp[None, :, :]) ** 2).sum(-1)
+                ii, jj = np.nonzero(np.triu(d2 < CLOSE_PASS ** 2, 1))
+                for i_, j_ in zip(ii, jj):
+                    close_hh.add((hum_now[i_][0], hum_now[j_][0]))
+            for rid, rx, ry in rob_now:
+                for hid, hx, hy in hum_now:
+                    d2r = (hx - rx) ** 2 + (hy - ry) ** 2
+                    if d2r < NEAR_PASS ** 2:
+                        near.add((hid, rid))
+                        if d2r < CLOSE_PASS ** 2:
+                            close.add((hid, rid))
         try:
             sim.iterate()
         except RuntimeError:  # a walker pushed through a wall at high density: count it, drop the run
             out = measure({}, {}, width, record_every)
             out["failed"] = 1
+            if track:
+                out.update(robot_measure({}, set(), set(), record_every))
+                out.update(human_transit({}, record_every))
+                out["close_hh"] = 0
             return out
     out = measure(samples, dirs_of, width, record_every)
     out["failed"] = 0
+    if track:
+        out.update(robot_measure(rob_samples, close, near, record_every))
+        out.update(human_transit(samples, record_every))
+        out["close_hh"] = len(close_hh)
     return out
+
+
+def human_transit(samples, record_every):
+    """Mean human walking speed through the section: x travelled over time, walkers as in measure."""
+    v = []
+    for s in samples.values():
+        if len(s) < 10 or abs(s[-1][1] - s[0][1]) < 2.0:
+            continue
+        dt = (s[-1][0] - s[0][0]) * record_every
+        if dt > 0:
+            v.append(abs(s[-1][1] - s[0][1]) / dt)
+    return dict(human_vbar=(sum(v) / len(v)) if v else float("nan"))
+
+
+def robot_measure(rob_samples, close, near, record_every):
+    """Robot passes (section crossings of at least 2 m) and close passes with humans."""
+    passes, v = 0, []
+    for s in rob_samples.values():
+        if len(s) < 10 or abs(s[-1][1] - s[0][1]) < 2.0:
+            continue
+        passes += 1
+        dt = (s[-1][0] - s[0][0]) * record_every
+        if dt > 0:
+            v.append(abs(s[-1][1] - s[0][1]) / dt)
+    return dict(robot_passes=passes, close_passes=len(close), near_passes=len(near),
+                robot_vbar=(sum(v) / len(v)) if v else float("nan"))
 
 
 def measure(samples, dirs_of, width, record_every):
