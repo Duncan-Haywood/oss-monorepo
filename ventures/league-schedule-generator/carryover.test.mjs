@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost, PROVEN_LEAST, bestCarryOverRounds, carryOverPure, carryOverTry, combineCarryOverTries } from "./carryover.mjs";
+import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost, PROVEN_LEAST, bestCarryOverRounds, carryOverPure, carryOverTry, combineCarryOverTries, withSearchMemo } from "./carryover.mjs";
 import { roundRobin, buildSchedule, validateSchedule, countBreaks, readSpec, encodeFields, decodeFields } from "./calc.mjs";
 
 const teams = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
@@ -343,4 +343,17 @@ test("the carry-over-only season: 'the most even carry-over' reaches the proved 
   }
   // nothing new: an earlier season at or under the pure one's carry-over means no extra season
   assert.deepEqual(carryOverPure(10, [{ ...fair, pure: undefined, index: 0 }]), []);
+});
+
+test("withSearchMemo: a repeated search is a fresh copy of the unmemoised answer", () => {
+  const opts = { effort: 0.05, breakWeight: 10 };
+  const plain = lowCarryOverRounds(6, opts);
+  const [a, b, c] = withSearchMemo(() => {
+    const first = lowCarryOverRounds(6, opts);
+    first.rounds[0].matches[0][0] = -1; // a caller changing its copy does not reach the memo
+    return [first, lowCarryOverRounds(6, opts), lowCarryOverRounds(6, { ...opts, seed: 2 })];
+  });
+  assert.equal(a.rounds[0].matches[0][0], -1);
+  assert.deepEqual(b, plain);
+  assert.deepEqual(c, lowCarryOverRounds(6, { ...opts, seed: 2 }));
 });
