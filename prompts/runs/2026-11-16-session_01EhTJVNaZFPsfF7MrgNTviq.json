@@ -15,7 +15,7 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": "open-tennis-robots: fit the wheel drop on tach edge times (flagship buildable item)",
+  "task": "open-tennis-robots: edge-time drop fit, whole-drill check (flagship buildable item)",
   "projects": [
     "open-tennis-robots"
   ],
@@ -27,11 +27,16 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 1,
+  "tests_added": 0,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions took the same buildable item (edge-time fit) within the hour: claim_check works per flagship and item, but #16574 had bundled the item into an ESC-survey PR whose title named the ESC survey first, so the claim read as free."
+    }
+  ],
   "deviations": [
     {
       "file": "CLAUDE.md",
@@ -44,7 +49,7 @@
     "docs/posts/2026-11-16-open-tennis-robots-edge-time-fit-refuted.md"
   ],
   "goal": "Test whether fitting the loop-command drop on tach edge times (running sums) beats the period fit under tach jitter.",
-  "notes": "Edge-time fit added as controller.drop_from_commands_steps(edges=True), off by default (LOOP_FIT_EDGES False). Refuted on the simulator: single wheels (tests/edge_fit_sweep.py, 24 cases x 6 seeds) remove wild readings at 10-20 us jitter (worst 63% -> 5% at 10 us) but p90 grows at 2-10 us; whole calibration drill (tests/edge_fit_drill.py, 54 drills) spin rms 2.20 -> 2.92 at 5 us, 6.55 -> 9.02 at 10 us, 8.67 -> 9.77 at 80 ms ESC lag. Linear toy: gain for a step only 4%. Default path unchanged (loop_residual_sweep numbers reproduce exactly). Verification: test_host LoopDropTest/LoopFitUnsureTest/PulseDropTest/PeriodTachTest pass; run_venture_tests.py open-tennis-robots output in PR.",
+  "notes": "Duplicate work: PR #16574 landed the same edge-time option (off) while this session built its own. On merging main this session took main's controller and kept only what was new: tests/edge_fit_drill.py (calibration drill, 18 builds x 3 seeds, swaps the board's fit for the edge form) and a README addendum. Whole drill spin rms periods -> edges: 2.20 -> 2.97% at 5 us jitter, 6.55 -> 9.07% at 10 us, 8.67 -> 9.06% at 80 ms ESC lag, 0.62 -> 0.58% first-order. Cause checks: period-row noise lag-1 corr -0.498; linear toy gain 4%; with the lag fixed and the noise added open loop the sums still read worse, which points at t0. Verification: run_venture_tests.py open-tennis-robots ok (328 tests, 0 failed) and venture-preflight clean, both before the merge with main; after the merge only docs, an eval file and a standalone sweep script differ from main.",
   "corrections": [],
   "redteam": null
 }

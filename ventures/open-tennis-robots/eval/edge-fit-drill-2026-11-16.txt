@@ -1,10 +1,10 @@
 # tests/edge_fit_drill.py, calibration drill, 18 design builds x 3 seeds (54 drills) a row; spin / speed efficiency error %
-# periods = LOOP_FIT_EDGES False (the shipped fit); edges = --edges. Simulated plants, not a real wheel.
+# periods = the board's default; edges = --edges (main's edge form, PR #16574). Simulated plants, not a real wheel.
 first      periods drills 54: spin rms  0.62 mean size  0.43 worst   1.62 bias -0.16 | speed rms 0.11 worst 0.20
-first      edges   drills 54: spin rms  0.54 mean size  0.41 worst   1.23 bias -0.08 | speed rms 0.08 worst 0.18
+first      edges   drills 54: spin rms  0.58 mean size  0.46 worst   1.22 bias -0.03 | speed rms 0.08 worst 0.18
 hall 5us   periods drills 54: spin rms  2.20 mean size  1.72 worst   5.31 bias +0.53 | speed rms 0.18 worst 0.53
-hall 5us   edges   drills 54: spin rms  2.92 mean size  2.05 worst  10.79 bias -0.30 | speed rms 0.22 worst 0.75
+hall 5us   edges   drills 54: spin rms  2.97 mean size  2.07 worst  11.50 bias -0.31 | speed rms 0.21 worst 0.74
 hall 10us  periods drills 54: spin rms  6.55 mean size  4.80 worst  22.89 bias -0.94 | speed rms 0.58 worst 1.50
-hall 10us  edges   drills 54: spin rms  9.02 mean size  6.33 worst  29.94 bias -3.36 | speed rms 0.77 worst 2.40
+hall 10us  edges   drills 54: spin rms  9.07 mean size  6.36 worst  30.01 bias -3.39 | speed rms 0.77 worst 2.39
 esc 80ms   periods drills 54: spin rms  8.67 mean size  6.55 worst  19.87 bias +6.55 | speed rms 2.42 worst 3.59
-esc 80ms   edges   drills 54: spin rms  9.77 mean size  7.21 worst  22.99 bias +7.14 | speed rms 2.62 worst 3.93
+esc 80ms   edges   drills 54: spin rms  9.06 mean size  6.65 worst  22.39 bias +6.59 | speed rms 2.56 worst 3.86

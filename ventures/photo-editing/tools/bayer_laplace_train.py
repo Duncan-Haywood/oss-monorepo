@@ -40,16 +40,19 @@ TEST_FRAMES = (
 BORDER = 12
 
 
-def frame_samples(path: str, per_frame: int, seed: int) -> dict:
-    from bayer_demosaic_check import _pattern_bayer, binned_truth
-    from xtrans_demosaic_check import mosaic
+def truth_samples(truth: np.ndarray, pat, per_frame: int, seed: int, snr: float | None = None) -> dict:
+    """Sampled features and 1/8, 1/4 and 3/16 greens at red and blue sensels of ``truth``'s mosaic. With
+    ``snr`` the mosaic gets Poisson-Gaussian noise first (``add_noise``, a seed of its own) while the target
+    stays the clean truth's green, so the fit learns what weight a noisy mosaic should get."""
 
-    import rawpy
+    from xtrans_demosaic_check import add_noise, mosaic
+
     from shootflow import bayer_demosaic as bd
 
-    pat = _pattern_bayer(rawpy.imread(path))
-    truth = binned_truth(path).astype(np.float32)
+    truth = np.asarray(truth, np.float32)
     c = mosaic(truth, pat).astype(np.float32)
+    if snr:
+        c = add_noise(c, snr, seed=10_000 + seed).astype(np.float32)
     g8 = bd.directional(c, pat, laplace=0.125, native=False)[..., 1]
     g4 = bd.directional(c, pat, laplace=0.25, native=False)[..., 1]
     g316 = bd.directional(c, pat, native=False)[..., 1]
@@ -70,6 +73,63 @@ def frame_samples(path: str, per_frame: int, seed: int) -> dict:
     }
 
 
+def frame_samples(path: str, per_frame: int, seed: int, snr: float | None = None) -> dict:
+    from bayer_demosaic_check import _pattern_bayer, binned_truth
+
+    import rawpy
+
+    pat = _pattern_bayer(rawpy.imread(path))
+    return truth_samples(binned_truth(path), pat, per_frame, seed, snr)
+
+
+PATTERNS = ((0, 1, 1, 2), (2, 1, 1, 0), (1, 0, 2, 1), (1, 2, 0, 1))
+
+
+def near_nyquist_texture(seed: int, n: int = 512, tile: int = 64) -> np.ndarray:
+    """A synthetic training frame of fine, aliasing-prone detail, built to be unlike the test sheet
+    (``synthetic_sheet``: one centred zone plate, discs, one slanted edge): a grid of ``tile``-pixel tiles,
+    each a straight grating at a random angle and frequency (0.12 to 0.5 cycles per pixel, half of them
+    above 0.3) between two random colours, a woven pair of crossed gratings, or random thin strokes
+    and dots like small print. Values stay in 0.05..0.85."""
+
+    rng = np.random.default_rng(seed)
+    y, x = np.mgrid[0:tile, 0:tile].astype(np.float64)
+    out = np.empty((n, n, 3))
+    for ty in range(0, n, tile):
+        for tx in range(0, n, tile):
+            a, b = rng.uniform(0.05, 0.85, 3), rng.uniform(0.05, 0.85, 3)
+            if rng.random() < 0.3:  # keep some colour pairs near grey, as most real fine detail is
+                m = rng.uniform(0.1, 0.8)
+                a, b = m + 0.15 * (a - a.mean()), np.full(3, rng.uniform(0.05, 0.85))
+            kind = rng.integers(3)
+            if kind < 2:
+                f = rng.uniform(0.3, 0.5) if rng.random() < 0.5 else rng.uniform(0.12, 0.3)
+                th = rng.uniform(0, np.pi)
+                t = 0.5 + 0.5 * np.cos(2 * np.pi * f * (x * np.cos(th) + y * np.sin(th)) + rng.uniform(0, 2 * np.pi))
+                if kind == 1:  # weave: a second grating at a near-right angle
+                    f2, th2 = rng.uniform(0.12, 0.5), th + np.pi / 2 + rng.uniform(-0.3, 0.3)
+                    t = 0.5 * t + 0.25 + 0.25 * np.cos(2 * np.pi * f2 * (x * np.cos(th2) + y * np.sin(th2)))
+            else:
+                t = np.zeros((tile, tile))
+                for _ in range(rng.integers(8, 30)):
+                    r0, c0 = rng.integers(0, tile, 2)
+                    if rng.random() < 0.6:
+                        L, wd = rng.integers(3, 20), rng.integers(1, 3)
+                        if rng.random() < 0.5:
+                            t[r0 : r0 + wd, c0 : c0 + L] = 1.0
+                        else:
+                            t[r0 : r0 + L, c0 : c0 + wd] = 1.0
+                    else:
+                        t[r0 : r0 + 2, c0 : c0 + 2] = 1.0
+            out[ty : ty + tile, tx : tx + tile] = a + (b - a) * t[..., None]
+    return np.clip(out, 0.05, 0.85)
+
+
+def synthetic_samples(i: int, per_frame: int, snr: float | None = None) -> dict:
+    pat = PATTERNS[i % 4]
+    return truth_samples(near_nyquist_texture(seed=500 + i), pat, per_frame, seed=500 + i, snr=snr)
+
+
 def design(X: np.ndarray, pairs: bool) -> np.ndarray:
     """Intercept, features, then (with ``pairs``) f_i f_j for i <= j: ``bayer_demosaic._laplace_learned``'s order."""
 
@@ -80,23 +140,30 @@ def design(X: np.ndarray, pairs: bool) -> np.ndarray:
     return np.stack(cols, axis=1)
 
 
-def fit(frames: list[dict], pairs: bool, ridge: float) -> np.ndarray:
-    A: np.ndarray | None = None
-    B: np.ndarray | None = None
-    for f in frames:
-        D = 8.0 * (f["g4"].astype(np.float64) - f["g8"])
-        ok = np.abs(D) > 1e-9
-        Z = design(f["X"][ok], pairs)
-        wstar = 0.125 - (f["g8"][ok] - f["gt"][ok]) / D[ok]
-        wt = D[ok] ** 2 / max(float(np.sum(D[ok] ** 2)), 1e-30)  # each frame counts equally
-        ZtW = Z.T * wt
-        a, b = ZtW @ Z, ZtW @ wstar
-        A = a if A is None else A + a
-        B = b if B is None else B + b
-    assert A is not None and B is not None, "no training frames"
+def normal_equations(f: dict, pairs: bool) -> tuple[np.ndarray, np.ndarray]:
+    """One frame's weighted Z'WZ and Z'Ww*, each frame normalised to count once (times its ``weight``)."""
+
+    D = 8.0 * (f["g4"].astype(np.float64) - f["g8"])
+    ok = np.abs(D) > 1e-9
+    Z = design(f["X"][ok], pairs)
+    wstar = 0.125 - (f["g8"][ok] - f["gt"][ok]) / D[ok]
+    # each frame counts equally (times its own weight: --synthetic-weight, --noise-weight)
+    wt = float(f.get("weight", 1.0)) * D[ok] ** 2 / max(float(np.sum(D[ok] ** 2)), 1e-30)
+    ZtW = Z.T * wt
+    return ZtW @ Z, ZtW @ wstar
+
+
+def solve(stats: list[tuple[np.ndarray, np.ndarray]], ridge: float) -> np.ndarray:
+    assert stats, "no training frames"
+    A = sum(s[0] for s in stats)
+    B = sum(s[1] for s in stats)
     reg = ridge * np.eye(A.shape[0]) * np.trace(A) / A.shape[0]
     reg[0, 0] = 0.0
     return np.linalg.solve(A + reg, B)
+
+
+def fit(frames: list[dict], pairs: bool, ridge: float) -> np.ndarray:
+    return solve([normal_equations(f, pairs) for f in frames], ridge)
 
 
 def green_mse(f: dict, coef: np.ndarray | None, pairs: bool) -> dict:
@@ -117,24 +184,52 @@ def green_mse(f: dict, coef: np.ndarray | None, pairs: bool) -> dict:
     return out
 
 
-def load(paths: list[str], cache: str | None, per_frame: int) -> list[dict]:
+def _cached(cache: str | None, key: str, make) -> dict:
+    cp = os.path.join(cache, key + ".npz") if cache else None
+    if cp and os.path.exists(cp):
+        return dict(np.load(cp))
+    d = make()
+    if cp:
+        os.makedirs(cache, exist_ok=True)
+        np.savez(cp, **d)
+    return d
+
+
+def load(paths: list[str], cache: str | None, per_frame: int, snrs=(), synthetic: int = 0,
+         synthetic_weight: float = 1.0, noise_weight: float = 1.0) -> list[dict]:
+    """Every training copy, each tagged with its ``group`` (the source frame) so cross-validation holds a
+    frame out together with its noisy copies."""
+
     frames = []
     for i, path in enumerate(paths):
         name = os.path.basename(path)
         if any(t in name for t in TEST_FRAMES):
             raise SystemExit(f"{name} is a test frame (scored by earlier notes); it cannot train the model")
-        cp = os.path.join(cache, name + ".npz") if cache else None
-        if cp and os.path.exists(cp):
-            d = dict(np.load(cp))
-        else:
-            d = frame_samples(path, per_frame, seed=i)
-            if cp:
-                os.makedirs(cache, exist_ok=True)
-                np.savez(cp, **d)
-        d["name"] = name
-        frames.append(d)
-        print(f"loaded {name}: {len(d['gt'])} sensels", file=sys.stderr, flush=True)
+        for snr in (None, *snrs):
+            key = name if snr is None else f"{name}.snr{snr:g}"
+            d = _cached(cache, key, lambda: frame_samples(path, per_frame, seed=i, snr=snr))
+            d.update(name=key, group=name, weight=1.0 if snr is None else noise_weight, synthetic=False)
+            frames.append(d)
+            print(f"loaded {key}: {len(d['gt'])} sensels", file=sys.stderr, flush=True)
+    for i in range(synthetic):
+        for snr in (None, *snrs):
+            key = f"near-nyquist-{i}" + ("" if snr is None else f".snr{snr:g}")
+            d = _cached(cache, key, lambda: synthetic_samples(i, per_frame, snr))
+            d.update(name=key, group=f"near-nyquist-{i}", synthetic=True,
+                     weight=synthetic_weight * (1.0 if snr is None else noise_weight))
+            frames.append(d)
+            print(f"loaded {key}: {len(d['gt'])} sensels", file=sys.stderr, flush=True)
     return frames
+
+
+def cv_folds(frames: list[dict]):
+    """(held-out indices, training indices) per real source frame: a real frame is held out with every one of
+    its copies (noisy ones too), and synthetic frames are never held out, so they train every fold."""
+
+    groups = list(dict.fromkeys(f["group"] for f in frames if not f["synthetic"]))
+    for g in groups:
+        held = [i for i, f in enumerate(frames) if f["group"] == g]
+        yield held, [i for i, f in enumerate(frames) if f["group"] != g]
 
 
 def main(argv=None) -> int:
@@ -144,16 +239,29 @@ def main(argv=None) -> int:
     ap.add_argument("--per-frame", type=int, default=200_000)
     ap.add_argument("--pairs", action="store_true", help="add pairwise products of the features")
     ap.add_argument("--ridge", type=float, default=1e-3)
-    ap.add_argument("--cv", action="store_true", help="leave-one-frame-out green error")
+    ap.add_argument("--noise-snr", type=float, action="append", default=[],
+                    help="also train on a noisy copy of every frame at this SNR (target: the clean green)")
+    ap.add_argument("--noise-weight", type=float, default=1.0, help="weight of each noisy copy against its clean frame")
+    ap.add_argument("--synthetic", type=int, default=0, help="add this many near-Nyquist synthetic frames")
+    ap.add_argument("--synthetic-weight", type=float, default=1.0)
+    ap.add_argument("--cv", action="store_true",
+                    help="leave-one-frame-out green error (a real frame is held out with its noisy copies)")
     args = ap.parse_args(argv)
-    frames = load(args.train, args.cache, args.per_frame)
+    frames = load(args.train, args.cache, args.per_frame, args.noise_snr, args.synthetic,
+                  args.synthetic_weight, args.noise_weight)
     if args.cv:
-        for i, f in enumerate(frames):
-            coef = fit(frames[:i] + frames[i + 1 :], args.pairs, args.ridge)
-            print(json.dumps({"cv_frame": f["name"], "pairs": args.pairs, "ridge": args.ridge,
-                              **green_mse(f, coef, args.pairs)}), flush=True)
-    coef = fit(frames, args.pairs, args.ridge)
+        stats = [normal_equations(f, args.pairs) for f in frames]
+        for held, train in cv_folds(frames):
+            coef = solve([stats[i] for i in train], args.ridge)
+            for f in (frames[i] for i in held):
+                print(json.dumps({"cv_frame": f["name"], "pairs": args.pairs, "ridge": args.ridge,
+                                      "noise_snr": args.noise_snr, "synthetic": args.synthetic,
+                                      "synthetic_weight": args.synthetic_weight,
+                                      **green_mse(f, coef, args.pairs)}), flush=True)
+    coef = solve(stats, args.ridge) if args.cv else fit(frames, args.pairs, args.ridge)
     print(json.dumps({"fit": [round(float(v), 6) for v in coef], "pairs": args.pairs, "ridge": args.ridge,
+                      "noise_snr": args.noise_snr, "synthetic": args.synthetic,
+                      "synthetic_weight": args.synthetic_weight, "noise_weight": args.noise_weight,
                       "frames": [f["name"] for f in frames]}))
     return 0
 

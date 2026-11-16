@@ -256,6 +256,48 @@ class DirectionalTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             directional(c, (0, 1, 1, 2), rb="ahd")
 
+    def test_training_inputs_noise_and_near_nyquist(self):
+        """The trainer's augmentation (eval/bayer-learned-noisy-nyquist-2026-11-16.md): the near-Nyquist
+        frames are seeded, in range, not the test sheet, and carry detail near Nyquist; a noisy copy keeps the
+        clean truth as its target and moves the greens; the fit honours a frame's weight."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        import bayer_laplace_train as t
+        from xtrans_demosaic_check import synthetic_sheet
+
+        a, b = t.near_nyquist_texture(3, n=128), t.near_nyquist_texture(3, n=128)
+        self.assertTrue(np.array_equal(a, b))
+        self.assertFalse(np.array_equal(a, t.near_nyquist_texture(4, n=128)))
+        self.assertGreaterEqual(float(a.min()), 0.05)
+        self.assertLessEqual(float(a.max()), 0.85)
+        self.assertNotEqual(a.shape, synthetic_sheet(64).shape)
+        # energy above 0.3 cycles per pixel (tile-to-tile level steps hold most of the rest; a 512 x 512 crop of the
+        # binned Nikon D90 frame has 0.2% there)
+        g = a[..., 1] - a[..., 1].mean()
+        spec = np.abs(np.fft.fft2(g)) ** 2
+        fy, fx = np.meshgrid(np.fft.fftfreq(128), np.fft.fftfreq(128), indexing="ij")
+        self.assertGreater(spec[np.hypot(fy, fx) > 0.3].sum() / spec.sum(), 0.02)
+
+        clean = t.truth_samples(a, (0, 1, 1, 2), 500, seed=1)
+        noisy = t.truth_samples(a, (0, 1, 1, 2), 500, seed=1, snr=25)
+        self.assertTrue(np.array_equal(clean["gt"], noisy["gt"]))
+        self.assertFalse(np.allclose(clean["g8"], noisy["g8"]))
+        self.assertEqual(noisy["X"].shape, (500, 8))
+
+        frames = [dict(t.synthetic_samples(i, 2000), weight=1.0) for i in range(2)]
+        base = t.fit(frames, pairs=False, ridge=1e-3)
+        frames[1]["weight"] = 0.0
+        only0 = t.fit(frames, pairs=False, ridge=1e-3)
+        self.assertTrue(np.allclose(only0, t.fit(frames[:1], pairs=False, ridge=1e-3)))
+        self.assertFalse(np.allclose(base, only0))
+
+        # grouped cross-validation: a held-out real frame takes every copy with it; synthetic frames always train
+        tags = [("a", False), ("a", False), ("a", False), ("b", False), ("b", False), ("s", True), ("s", True)]
+        folds = list(t.cv_folds([{"group": g, "synthetic": syn} for g, syn in tags]))
+        self.assertEqual(folds, [([0, 1, 2], [3, 4, 5, 6]), ([3, 4], [0, 1, 2, 5, 6])])
+
 
 class DeveloperChoiceTests(unittest.TestCase):
     def raw(self):

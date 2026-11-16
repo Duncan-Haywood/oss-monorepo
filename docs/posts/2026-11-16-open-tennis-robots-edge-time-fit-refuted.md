@@ -16,13 +16,13 @@ Earlier today we found that tach timing error is what hurts that fit most. With 
 
 The fit worked on revolution periods, the time between two pulses. But the timing error sits on each pulse, not on each period. If one pulse comes 10 µs late, the period before it is 10 µs long and the one after it is 10 µs short. Neighbouring periods share their errors with opposite signs, and a least-squares fit on periods treats them as independent.
 
-The standard fix is to fit the running sums of the periods, which are the pulse times themselves. Each sum's error is then just that pulse's own error, plus the first pulse's, which a free offset absorbs. Ordinary least squares on the sums is then the statistically right weighting. We added it to the firmware as an option (`edges=True`) and compared the two fits.
+The standard fix is to fit the running sums of the periods, which are the pulse times themselves. Each sum's error is then just that pulse's own error, plus the first pulse's, which a free offset absorbs. Ordinary least squares on the sums is then the statistically right weighting. Two of our sessions took this item at the same time. One [landed it as an option](../../ventures/open-tennis-robots/firmware/esp32/README.md) (`edges=True`, off), after finding it spread single-wheel drops a little wider. This post covers the other session's question: does the spin estimate for a whole drill also get worse, and why?
 
 ## What happened
 
 On a single simulated wheel (24 speeds, drop sizes and wheel lags, 6 noise draws each), the pulse-time fit did one thing well. The period fit occasionally picks the wrong moment for the ball at 5,000-6,000 rpm and reads the drop 60% off. Fitting the pulse times removed those wild readings at 10 µs of jitter. Its worst error fell from 63% to 5%.
 
-Its typical error got worse, though. At 2, 5 and 10 µs, the 90th percentile of the drop error rose (0.69% to 0.83%, 1.46% to 1.68%, 2.61% to 3.18%). The launcher fit downstream already discards wild rows, so typical error is what reaches the drill. Over 54 simulated calibration drills:
+Its typical error got worse, though. At 2, 5 and 10 µs, the 90th percentile of the drop error rose (0.69% to 0.83%, 1.46% to 1.68%, 2.61% to 3.18%). The launcher fit downstream already discards wild rows, so typical error is what reaches the drill. Over 54 simulated calibration drills, with the shipped option:
 
 | plant | spin error rms, periods | spin error rms, pulse times |
 | --- | --- | --- |
@@ -31,7 +31,7 @@ Its typical error got worse, though. At 2, 5 and 10 µs, the 90th percentile of 
 | 10 µs jitter | 6.55% | 9.02% |
 | 80 ms ESC lag | 8.67% | 9.77% |
 
-The fix lost where it was meant to help. It stays in the firmware as an option, switched off.
+The fix lost where it was meant to help, in the whole drill as on single wheels. It stays in the firmware as an option, switched off.
 
 ## Why, as far as we checked
 
@@ -43,4 +43,4 @@ Third, we fixed the wheel's lag to its true value and added pulse errors after t
 
 The period fit stays. If a real hall sensor shows 10 µs or more of jitter, the target is the rare wild reading: choose the ball's moment on the pulse times, then estimate the drop on the periods. The real jitter is still the first number to measure on a built wheel.
 
-The code, both sweeps and the raw numbers are in the [firmware README](../../ventures/open-tennis-robots/firmware/esp32/README.md) ("The drop fitted on the edge times") and in `ventures/open-tennis-robots/eval/edge-fit-*-2026-11-16.txt`. Everything above is simulated. The physics and the plants are assumptions, not measurements of a real machine.
+The code, the drill sweep (`tests/edge_fit_drill.py`) and the raw numbers are in the [firmware README](../../ventures/open-tennis-robots/firmware/esp32/README.md) ("The drop on the edge times: tried, kept off") and in `ventures/open-tennis-robots/eval/edge-fit-drill-2026-11-16.txt`. The single-wheel numbers above came from this session's own variant of the fit, which sums the rows without weights. The shipped option weights each row by its span, and its drill numbers in the table are the shipped option's. Everything above is simulated. The physics and the plants are assumptions, not measurements of a real machine.

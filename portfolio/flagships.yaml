@@ -238,11 +238,12 @@ flagships:
     next: >-
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
-      (FAIR_WORKWEEK; next a real site's changes): next live deploy, real punches at
-      a site. Exact side: branch-and-price and column generation prove 20-80 person
-      weeks; the exact check is on by default at every size. Forecast side
-      (--from-sales, eight real files, eval/real-pos-exports.mjs): backtest, closure
-      score, half-life auto, priced cut, tickets, labour standard, shut-door work,
+      (FAIR_WORKWEEK; team-offer exception, on-call shifts; next a real site's
+      changes, Oregon's standby list): next live deploy, real punches at a site.
+      Exact side: branch-and-price and column generation prove 20-80 person weeks;
+      the exact check is on by default at every size. Forecast side (--from-sales,
+      eight real files, eval/real-pos-exports.mjs): backtest, closure score,
+      half-life auto, priced cut, tickets, labour standard, shut-door work,
       multi-file pastes. Posted weeks: reissues hold started and posted shifts; a
       whole week at the Deputy file's rates (README "A whole week of call-outs at a
       real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open
@@ -260,8 +261,7 @@ flagships:
       --cover-price moves two shifts together (README "Moving two shifts together");
       second call-outs priced, off by default (README "The pair price in played
       weeks": fewer open hours on 3 of 4 weeks); order-free pair check played: no
-      gain, stays opt-in (README "The order-free pass played"); a real two-site
-      export and staff list (README "Staff shared between sites"). More open items:
+      gain, stays opt-in (README "The order-free pass played"). More open items:
       NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
@@ -271,12 +271,12 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer learned: fused in C
-      2026-11-16, 1.5-2.0x the default's time (eval/bayer-learned-fused-*); next
-      noisy and near-Nyquist training (eval/bayer-learned-laplace-*). X-Trans: a
-      per-frame choice (A7 IV wants less edge-keeping, GF7/NX1 a wider red/blue
-      window; --truth-from, eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0
-      spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer learned: next a
+      feature for inter-channel detail correlation, then correlation-matched
+      synthetic frames (eval/bayer-learned-noisy-nyquist-*). X-Trans: a per-frame
+      choice (A7 IV wants less edge-keeping, GF7/NX1 a wider red/blue window;
+      --truth-from, eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF:
+      URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -381,10 +381,10 @@ flagships:
       venv, about 2 min). Model check (firmware/esp32/README.md "When the wheel is
       not a first-order lag", 2026-11-16): the loop fit's standard error marks
       unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
-      or a 30 ms ESC lag puts the drill's spin 5-24% off. Edge-time fit refuted
-      (README, option off); for 10+ us jitter try t0 on the sums, drop on the rows.
-      ESC_TAU_US (README "An ESC lag picked..."): sum its residual grid on the board
-      over a drill, finer grid; retest MIN_FIT_RPM.
+      or a 30 ms ESC lag puts the drill's spin 5-24% off. ESC lag surveyed on the
+      board (README "The ESC lag surveyed on the board"): ESC_SURVEY frame, pick
+      within 10% on 29 of 30 ESC builds; edge-time fit tried, worse, off. Next:
+      retest MIN_FIT_RPM; why a jittery slow wheel picks 0.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

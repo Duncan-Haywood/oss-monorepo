@@ -944,73 +944,113 @@ grid's residuals on the board across a drill and report the least (or send
 the snapshots in the shot log), with a finer grid near the winner. Then log a
 real ESC's step response and see which shape it has.
 
-## The drop fitted on the edge times (2026-11-16, last; refuted)
+## The ESC lag surveyed on the board (2026-11-16, last of the day)
 
-**The item.** "When the wheel is not a first-order lag" ends with: fit the
-drop on the edge times instead of the periods. A tach's timing error sits on
-each edge, so two neighbouring periods share it with opposite signs, and the
-period fit treats them as independent. The textbook fix is to fit the running
-sums of the per-revolution rows: each sum's error is then one edge's own
-error plus the first edge's, which a free offset absorbs, so plain least
-squares on the sums is the right weighting.
+**The item.** The section above picked `ESC_TAU_US` from snapshots the board
+never sends, so on a real build it could only be guessed, and a wrong guess
+is worse than none. Now the board picks it.
 
-**What landed.** `drop_from_commands_steps(..., edges=True)` does exactly that
-(the board's default is `controller.LOOP_FIT_EDGES`, **off**). `tests/edge_fit_sweep.py` compares the two fits on
-`loop_residual_sweep.py`'s single wheel, 24 cases x 6 seeds a plant;
-`tests/edge_fit_drill.py` runs the calibration drill's whole Pi path on the 18
-design builds x 3 seeds (`plant_drill_sweep.py --edges` for one seed).
+**How.** After each launched stroke's record is out (its own fit is always
+finished first), `LaunchCheck` refits each turning wheel's snapshot at the six
+lags of `ESC_SURVEY_GRID_US` (0 / 20 / 50 / 100 / 200 / 400 ms), one step a
+control tick, and adds each lag's squared residual rms to a running sum,
+counting a wheel only when every lag fitted it (the same rule as
+`tests/esc_lag_pick.py`). The survey fits without the tau golden-section
+refinement (15 steps a lag, not 36): on 112 simulated wheels per plant it
+picked the same lag as the refined fit on an 11-point grid for every plant.
+A new stroke cuts a survey short (`survey_cut`) rather than finishing it in one
+tick. `controller.survey_pick` then refines the least grid point with a
+parabola through it and its neighbours (in the lag's log, or in the lag when
+the lower neighbour is 0). The new ESC_SURVEY frame (0x82) carries the wheel
+count, the grid pick, the refined pick and each lag's mean rms;
+`host.run_drill` waits up to 4 s at a drill's end for the last ball's survey
+and keeps it in `DrillResult.esc_survey`, and `tennisbots run` prints one
+line: keep 0, run more balls (under 16 wheels), or "set ESC_TAU_US = N".
+`config.ESC_SURVEY_GRID_US = ()` turns it off.
 
-**What it measured.** Drop error on single wheels, rms / 90th percentile /
-worst, % (eval/edge-fit-sweep-2026-11-16.txt):
+**How close (simulated).** `tests/esc_survey_sweep.py --all` runs the rally
+and calibration drills on one board (54 wheels), then the calibration drill on
+a fresh board set to the refined pick, over wheel lags 0.2 / 0.4 / 0.8 s and two
+true launchers (eval/esc-survey-sweep-2026-11-16.txt). No survey was cut.
 
-| plant | periods | edge times |
+| plant | refined pick, ms | calibration spin error, ESC_TAU_US 0: worst / mean | with the pick | speed worst, 0 / pick |
+| --- | --- | --- | --- | --- |
+| first-order | 0 (all 6) | 0.5% / 0.1% | unchanged | 0.2% / 0.2% |
+| ESC lag 30 ms | 27-28 | 15.8% / 4.4% | 0.6% / 0.4% | 4.1% / 0.3% |
+| ESC lag 60 ms | 54-57 | 13.3% / 6.1% | 0.8% / 0.7% | 3.7% / 0.2% |
+| ESC lag 80 ms | 75-79 | 17.7% / 6.7% | 0.8% / 0.6% | 3.6% / 0.1% |
+| ESC lag 150 ms | 137-141 | 14.9% / 6.9% | 1.0% / 0.5% | 2.7% / 0.3% |
+| ESC lag 100 ms, 3 us jitter | 101-107, and 0 once | 15.7% / 6.3% | 4.8% / 2.0% | 3.3% / 1.1% |
+
+The parabola closes the grid's gap from the section above (30 ms read at 20
+gave 6.5%; now 0.6%). One build missed: the jittery 100 ms ESC at a 0.8 s
+wheel lag picked 0, so it stayed at 2.4% spin error; at a slow wheel the ESC's
+lag is a small share of the recovery and 3 us of jitter hides it.
+
+**Not measured.** Everything is the simulator's physics and plants. The
+survey is six more fits per wheel after every ball, about 180 control ticks
+(1.8 s) for a two-wheel shot here; its time under MicroPython on an ESP32 is
+not measured, and a drill that feeds faster than that will cut surveys (the
+count says so). Next: time a fit on a real board, and log a real ESC's step
+response to see whether a second first-order lag is its shape at all.
+
+## The drop on the edge times: tried, kept off (2026-11-16, last of the day)
+
+The section "When the wheel is not a first-order lag" asked to fit the drop on
+the edge times, since a tach's jitter moves each edge once and neighbouring
+periods share it with opposite signs. `drop_from_commands(..., edges=True)`
+does that: each row is an edge's running angle lag (the running sum of the
+revolutions' deficits times their spans) with a free offset for the window's
+first edge, so each row carries one independent error. For a linear fit that
+is the best weighting. It did not help here. `tests/edge_form_sweep.py`
+(24 single wheels x 8 jitter draws, compared on the cases both forms fit;
+eval/edge-form-sweep-2026-11-16.txt), the drop's spread:
+
+| jitter | periods | edges |
 | --- | --- | --- |
-| first-order | 0.31 / 0.55 / 0.72 | 0.27 / 0.48 / 0.68 |
-| tach jitter 2 us | 0.46 / 0.69 / 1.52 | 0.48 / 0.83 / 2.12 |
-| tach jitter 5 us | 0.88 / 1.46 / 3.37 | 0.98 / 1.68 / 3.24 |
-| tach jitter 10 us | 7.29 / 2.61 / 62.65 | 1.78 / 3.18 / 4.72 |
-| tach jitter 20 us | 13.23 / 8.48 / 67.97 | 5.98 / 6.72 / 44.69 |
-| ESC lag 80 ms | 4.80 / 6.28 / 16.30 | 3.92 / 6.41 / 11.62 |
+| 0 | 0.28% | 0.26% |
+| 3 us | 0.57% | 0.68% |
+| 5 us | 0.86% | 1.03% |
+| 10 us | 2.85% | 3.25% |
+| 20 us | 5.26% | 5.59% |
 
-The sums remove the period fit's rare wild readings at 10-20 us (a wrong ball
-moment at 5,000-6,000 rpm), but their typical error is larger at 2-10 us:
-the 90th percentile grows. The launcher fit already sets
-wild rows aside (`TRIM`), so the typical error is what reaches the drill.
-Whole drill, spin efficiency error over 54 drills, rms / worst / bias, %
-(eval/edge-fit-drill-2026-11-16.txt):
+The edge form also gave no fit on a few more cases at 10-20 us (3 and 14 of 192
+against 1 and 9). The likely cause is the nonlinear part: t0 and tau are chosen
+by least residual, and the edge form's residual ranks them differently. The
+option stays, off by default, for anyone who wants to try it with a real tach's
+edges.
 
-| plant | periods | edge times |
+**The whole drill, and why (a second session, same day).** The single-wheel
+spread above could still have hidden a gain where it counts: the drill's
+fitted spin. `tests/edge_fit_drill.py` runs the calibration drill's whole Pi
+path on the 18 design builds x 3 seeds, with the board's fit swapped for the
+edge form (`--edges`; eval/edge-fit-drill-2026-11-16.txt). Spin efficiency
+error over 54 drills, rms / worst / bias, %:
+
+| plant | periods | edges |
 | --- | --- | --- |
-| first-order | 0.62 / 1.62 / -0.16 | 0.54 / 1.23 / -0.08 |
-| tach jitter 5 us | 2.20 / 5.31 / +0.53 | 2.92 / 10.79 / -0.30 |
-| tach jitter 10 us | 6.55 / 22.89 / -0.94 | 9.02 / 29.94 / -3.36 |
-| ESC lag 80 ms | 8.67 / 19.87 / +6.55 | 9.77 / 22.99 / +7.14 |
+| first-order | 0.62 / 1.62 / -0.16 | 0.58 / 1.22 / -0.03 |
+| tach jitter 5 us | 2.20 / 5.31 / +0.53 | 2.97 / 11.50 / -0.31 |
+| tach jitter 10 us | 6.55 / 22.89 / -0.94 | 9.07 / 30.01 / -3.39 |
+| ESC lag 80 ms | 8.67 / 19.87 / +6.55 | 9.06 / 22.39 / +6.59 |
 
-So the hypothesis is refuted on this simulator: the edge-time fit is worse
-where it was meant to help, and the board keeps the period fit.
+So the drill loses too. Checks on the cause (scratch scripts, not committed):
 
-**Why, as far as checked.** Three checks, all in this session's scratch
-scripts (not committed):
+- The noise model is right: added edge noise gives the period rows' misses a
+  lag-1 correlation of -0.498 (the model's -0.5).
+- The gain is small even in theory. In a linear toy (13 rows: a constant, a
+  decaying term and a step, noise differenced from iid edge errors) the step's
+  error is 1.29 on the running sums against 1.35 on the rows, 4%. A step is a
+  high-frequency feature, where differenced noise is strongest anyway.
+- With the wheel's lag fixed at its true value and the edge errors added after
+  the run (so the loop never saw them), the sums still read worse (median 1.37%
+  against 0.86% at 10 us). That leaves t0, as the paragraph above suspects.
+- Weighting each revolution by its own span before summing (as the shipped
+  option does) puts the edge errors into the constant column too; summing the
+  rows unweighted measured the same, so that is not the cause.
 
-- The jitter really is on the edges: the period rows' misses from added edge
-  noise have lag-1 correlation -0.498 (the model's -0.5).
-- The gain is small even in theory. A linear toy (13 rows: constant, a
-  decaying term and a step, noise differenced from iid edge errors) gives the
-  step's error 1.29 on the sums against 1.35 on the rows, 4%: a step is a
-  high-frequency feature, which is where differenced noise is strongest
-  anyway.
-- With the wheel's lag fixed to its true value and the edge errors added
-  after the fact (open loop), the sums still read worse (median 1.37% vs 0.86%
-  at 10 us). What is left is the ball's moment t0, chosen by least squares on
-  the sums, where a miss early in the window is carried by every later sum.
-  This is the likely cause but it is not proven.
-
-Weighting each row by its own period (its exact angle integral) before
-summing was tried first and measured the same; it also puts the edge errors
-into the constant column, so the shipped option sums the rows unweighted.
-
-**Next.** Leave the period fit. If a real tach shows 10 us or more of jitter,
-the wild readings are the thing to fix: choose t0 on the sums and estimate the
-drop on the rows at that t0 (not tried), or a robust t0 search. The real
-jitter is still the first number to measure (scope a hall sensor's edges
-against a reference). Physics and plants are assumptions, not measurements.
+On single wheels the edge form does remove the period fit's rare wild
+readings (a wrong t0 at 5,000-6,000 rpm: worst 63% to 5% at 10 us over 144
+balls, measured with the unweighted variant), but the launcher fit already trims wild rows, so the typical error is
+what reaches the drill. If a real tach shows 10 us or more, the thing to try
+is t0 chosen on the sums and the drop estimated on the rows at that t0.
