@@ -39,6 +39,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "Says to search open PRs with search_pull_requests MCP tool, but the session notes say the MCP search_* tools are unavailable; gh api search/issues worked instead."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "portfolio-pages 'Check the built artifact' failed locally only because a gitignored ventures/csshound/target/ from cargo build was copied into dist; rm -rf target first (CI checkout has none and was green)."
     }
   ],
   "deviations": [],
@@ -47,7 +51,7 @@
     "ventures/csshound/BENCHMARK.md (Against PurgeCSS 9.1.0 section)"
   ],
   "goal": null,
-  "notes": "Explore idea: measure csshound against PurgeCSS 9.1.0, the gap left by PR #16483. Exact agreement, 15,632 rejected selectors on 3,923 pages; PurgeCSS 4.6-4.9 s/123 MB vs csshound 0.31-0.36 s (1.1 s single-thread)/10 MB. First run exposed a shared bug (<style> inside <script> read as CSS); fixed in src/page.rs and the harness, wasm rebuilt, tests added. Local: run_venture_tests csshound 19 ok; cargo test 26 passed; run_workflow_locally --for-changes pages.yml 6/6 run steps passed.",
+  "notes": "Explore idea: measure csshound against PurgeCSS 9.1.0, the gap left by PR #16483. Exact agreement, 15,632 rejected selectors on 3,923 pages; PurgeCSS 4.6-4.9 s/123 MB vs csshound 0.31-0.36 s (1.1 s single-thread)/10 MB. First run exposed a shared bug (<style> inside <script> read as CSS); fixed in src/page.rs and the harness, wasm rebuilt, tests added. Local: run_venture_tests csshound 19 ok; cargo test 26 passed; run_workflow_locally --for-changes pages.yml 6/6 run steps passed. PR CI green on the work commit (all 22 check runs success or skipped).",
   "corrections": [],
   "redteam": null,
   "usage": {
