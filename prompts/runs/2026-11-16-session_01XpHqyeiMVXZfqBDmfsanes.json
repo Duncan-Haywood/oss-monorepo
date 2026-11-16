@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Edited the how-to page's visible FAQ answer differently from its JSON-LD; platform/pages/faq-visible.test.mjs failed in CI (portfolio-pages test job); fixed by making the two strings identical."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/quality_mutate.py",
       "issue": "--old must be unique in the file; a common substring like 'r.keyBits < 1024)' errors out until widened. Expected, but the first attempt cost a call."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Its log showed 'build / Build the site ... [FAIL]' with no test output or failing test name; finding the actual failure (faq-visible.test.mjs) took a separate full platform/pages test run."
     }
   ],
   "deviations": [],

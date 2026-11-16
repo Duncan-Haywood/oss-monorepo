@@ -148,9 +148,8 @@
 
   <h3>What does an SPF PermError from too many DNS lookups actually break?</h3>
   <p>SPF evaluation stops and returns PermError for any message whose check reaches the 11th lookup.
-  Receivers count lookups as they evaluate, so a message that matches an early term (an ip4 range
-  near the front of the record) can still pass, but mail from senders listed late, or not at all,
-  fails. Receivers treat PermError as "this domain's SPF cannot be evaluated", so the SPF half of
+  Receivers count lookups as they evaluate, so a message that matches an early term can still pass, but mail from senders listed late, or not
+  at all, fails. Receivers treat PermError as "this domain's SPF cannot be evaluated", so the SPF half of
   DMARC alignment fails. If DKIM is signing and aligned, DMARC can still pass on DKIM alone &mdash;
   which is why a domain over the limit often keeps delivering and the bug goes unnoticed for
   months.</p>
