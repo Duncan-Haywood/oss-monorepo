@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 137 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 138 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -161,6 +161,15 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **A second confirmatory blind set, on 128-bit right and 256-bit left shifters: the clipped ladder beats equal-cost random
+  routing on 21 of 25 new designs (sign p = 0.0009), and over all 58 blind designs its mean advantage is now significant
+  (milestone 138, flow run).** Five new families (restoring division, chained clamps, max - min range, 3-bit dot product,
+  threshold count), each dial at both shifters; all 40 candidates passed the cost probe, and the flow stopped at its time
+  limit after 25 complete designs, the analysed set by a run-order rule fixed beforehand. SWC 2.45% mean regret against 6.44%
+  for random (right shifters 2.18% against 4.75%, 256-bit left 2.74% against 8.27%); its four losses are all at the tight
+  clock. Pooled with the 33 earlier blind designs: better on 42, worse on 13 (p = 0.0001), design-level mean -2.47 points
+  with a 95% interval of -3.87 to -1.06. All eight predictions held:
+  [`experiments/ladder_confirm2/`](experiments/ladder_confirm2/results.txt).
 - **A confirmatory blind set at one clock per design: the clipped ladder wins on 21 of 33 blind designs and loses on 9 (sign
   p = 0.043), but the size of its edge is not yet pinned down (milestone 137, flow run).** Twelve new 128-bit left shifters from
   four families (integer square root, argmin index, ones'-complement checksum, nibble-match count), kept from 16 by milestone

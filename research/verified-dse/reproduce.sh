@@ -60,3 +60,4 @@ $PY experiments/ladder_diagnosis/analyse.py   # milestone 134 (replay of milesto
 $PY experiments/delay_check/analyse.py   # milestone 135 (replay of milestones 119 to 125 and the blind pool; about 40 s)
 $PY experiments/blind_pooled/analyse.py   # milestone 136 (replay of the 42 blind cells; under a minute)
 $PY experiments/ladder_confirm/analyse.py   # milestone 137 (no flow; about 15 s; probe.py and check_designs.py need yosys, run.py re-runs the 1,440-point flow, about 32 min on 4 cores)
+$PY experiments/ladder_confirm2/analyse.py   # milestone 138 (no flow; about 15 s; probe.py and check_designs.py need yosys, run.py re-runs the flow, stopped at 3,026 of 4,800 points after about 2 h on 4 cores)
