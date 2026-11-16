@@ -1,0 +1,122 @@
+# Milestone 135: a delay-check guard SWX(k, f) priced by replay on milestones 119 to 125 (no flow run)
+
+theta = 3, alpha = 1.25; 200 draws per cell; design bootstrap 2000 resamples, seed 135.
+90 seen cells on 45 designs; 67 on the ladder branch; 17 failing, 40 winning. SWX's parameters were fixed before this table existed.
+SWC check (this file's tie-breaks, all 90 cells): 4.76% against SWC's 4.77%.
+
+## Per cell, ladder branch (alarm = share of draws where SWX(3, 0.02) falls back)
+
+table | clock | design | routed/r2 | random % | SWC % | SWP(32) % | SWX(3,0.02) % | SWXR(3,0.02) % | alarm
+amount_place | tight | max3b6 | 3.75 | 22.73 | 0.00 | 2.98 | 0.00 | 0.00 | 0.00
+amount_place | relaxed | max3b6 | 3.79 | 20.89 | 0.00 | 4.97 | 0.00 | 0.00 | 0.00
+amount_place | relaxed | sat2b5 | 3.53 | 13.33 | 0.00 | 0.49 | 0.00 | 12.12 | 1.00
+amount_place | tight | sat2b5 | 3.55 | 12.83 | 0.00 | 0.44 | 0.00 | 12.16 | 1.00
+amount_lanes | relaxed | pmul3 | 3.96 | 12.44 | 0.00 | 3.28 | 0.00 | 0.00 | 1.00
+shift_power | tight | lzcnorm128 | 3.41 | 11.83 | 0.00 | 1.36 | 0.00 | 0.00 | 1.00
+shift_power | relaxed | lzcnorm128 | 3.43 | 11.37 | 0.00 | 1.42 | 0.00 | 0.00 | 1.00
+amount_lanes | tight | pmul3 | 3.93 | 10.61 | 0.00 | 3.19 | 20.14 | 18.38 | 1.00
+amount_cut | relaxed | mul2w | 7.34 | 10.34 | 0.00 | 2.37 | 0.00 | 0.00 | 0.00
+amount_lanes | relaxed | avg5 | 3.79 | 10.04 | 0.00 | 2.75 | 0.00 | 0.00 | 0.00
+amount_cut | tight | mul3n | 5.89 | 9.44 | 0.00 | 1.03 | 0.00 | 0.00 | 0.00
+amount_lanes | tight | avg5 | 3.78 | 8.70 | 0.00 | 2.28 | 0.00 | 0.00 | 0.00
+amount_cut | relaxed | mul3n | 5.83 | 8.36 | 0.00 | 1.58 | 0.00 | 0.00 | 0.00
+amount_lanes | tight | lane4k1 | 5.43 | 7.72 | 0.00 | 1.96 | 0.00 | 0.00 | 0.00
+amount_cut | relaxed | wsum3w | 4.92 | 6.00 | 0.00 | 1.38 | 0.00 | 0.00 | 0.00
+amount_threshold | tight | chainsh8 | 4.09 | 5.65 | 0.00 | 1.77 | 18.63 | 14.87 | 1.00
+amount_place | tight | max3b5 | 3.97 | 5.60 | 0.00 | 1.00 | 0.00 | 0.00 | 1.00
+amount_threshold | relaxed | chainsh8 | 4.10 | 5.53 | 0.00 | 0.98 | 0.00 | 0.00 | 0.00
+amount_place | tight | sat1b9 | 4.83 | 5.17 | 0.00 | 0.26 | 0.00 | 0.00 | 1.00
+struct_guard | tight | maxtree16x16 | 4.00 | 4.95 | 0.00 | 0.71 | 0.00 | 0.00 | 0.00
+amount_place | relaxed | max3b5 | 3.95 | 4.87 | 0.00 | 0.51 | 0.00 | 0.00 | 1.00
+amount_place | relaxed | sat1b9 | 4.74 | 4.77 | 0.00 | 0.20 | 0.00 | 5.95 | 1.00
+amount_lanes | tight | lane4k2 | 5.59 | 4.75 | 0.00 | 0.60 | 0.00 | 4.78 | 1.00
+amount_place | relaxed | sad1b8 | 3.64 | 4.57 | 0.00 | 0.56 | 0.00 | 0.00 | 0.00
+amount_threshold | relaxed | chainsh2 | 3.87 | 3.43 | 0.00 | 0.72 | 0.00 | 0.00 | 0.00
+amount_cut | tight | mul2w | 8.69 | 3.25 | 0.00 | 0.70 | 0.00 | 0.00 | 0.00
+struct_guard | relaxed | maxtree32x16 | 4.16 | 3.18 | 0.00 | 0.08 | 0.00 | 0.76 | 1.00
+amount_threshold | tight | pcnsh24 | 4.10 | 3.14 | 0.00 | 0.60 | 0.00 | 7.02 | 1.00
+amount_threshold | relaxed | pcnsh24 | 4.14 | 3.11 | 0.00 | 0.53 | 0.00 | 6.82 | 1.00
+amount_lanes | tight | lane2k2 | 3.39 | 2.89 | 0.00 | 1.06 | 0.00 | 0.00 | 0.00
+amount_threshold | tight | chainsh2 | 3.83 | 2.79 | 0.00 | 0.51 | 0.00 | 0.00 | 0.00
+amount_lanes | relaxed | lane2k2 | 3.39 | 2.75 | 0.00 | 0.60 | 0.00 | 0.00 | 0.00
+amount_lanes | relaxed | sel64 | 5.07 | 2.73 | 0.00 | 0.70 | 0.00 | 0.00 | 1.00
+amount_lanes | tight | sel64 | 5.04 | 2.55 | 0.00 | 0.88 | 0.00 | 0.00 | 1.00
+amount_lanes | relaxed | avg6 | 4.35 | 2.44 | 0.00 | 0.46 | 0.00 | 0.00 | 0.00
+amount_lanes | tight | avg6 | 4.39 | 2.40 | 0.00 | 0.60 | 0.00 | 0.00 | 0.00
+amount_lanes | relaxed | lane4k1 | 5.40 | 8.15 | 5.89 | 6.25 | 5.89 | 9.45 | 1.00
+amount_place | relaxed | sad2b5 | 4.12 | 3.25 | 1.17 | 1.61 | 1.17 | 1.17 | 0.00
+amount_place | tight | sad2b5 | 4.07 | 3.48 | 1.59 | 1.93 | 1.59 | 1.59 | 0.00
+amount_depth | tight | pcsh128 | 4.87 | 1.81 | 0.00 | 0.14 | 0.00 | 0.00 | 0.00
+amount_depth | relaxed | pcsh128 | 4.94 | 1.66 | 0.00 | 0.21 | 0.00 | 0.00 | 0.00
+amount_cut | tight | wsum4n | 4.00 | 1.89 | 0.73 | 1.01 | 0.73 | 0.69 | 1.00
+amount_depth | relaxed | pcsh64 | 3.02 | 0.95 | 0.00 | 0.17 | 0.00 | 0.00 | 1.00
+struct_guard | tight | maxtree32x16 | 5.92 | 1.58 | 0.65 | 0.68 | 0.65 | 0.65 | 0.00
+amount_depth | tight | pcsh64 | 3.01 | 0.92 | 0.00 | 0.10 | 0.00 | 0.00 | 1.00
+amount_cut | relaxed | wsum4n | 3.96 | 1.46 | 0.73 | 0.92 | 0.73 | 0.67 | 1.00
+amount_lanes | relaxed | lane4k2 | 5.53 | 4.97 | 4.81 | 4.66 | 4.81 | 4.49 | 1.00
+shift_power | tight | alignsh64 | 3.22 | 13.70 | 13.77 | 14.46 | 13.77 | 13.01 | 1.00
+amount_cut | tight | xor4 | 3.67 | 0.61 | 0.76 | 0.62 | 0.55 | 0.55 | 0.15
+struct_guard | tight | rotmask64 | 3.05 | 1.02 | 1.22 | 1.25 | 1.22 | 1.22 | 0.00
+struct_guard | tight | rotmask128 | 4.75 | 7.95 | 9.37 | 9.13 | 9.37 | 9.37 | 0.00
+shift_power | tight | alignsh128 | 4.09 | 5.43 | 7.11 | 6.93 | 7.11 | 13.47 | 1.00
+amount_cut | relaxed | xor4 | 3.69 | 0.53 | 2.81 | 2.49 | 2.81 | 2.32 | 1.00
+shift_power | relaxed | alignsh128 | 4.02 | 5.32 | 9.34 | 8.11 | 9.34 | 8.35 | 1.00
+amount_depth | relaxed | addsh128 | 4.45 | 1.30 | 7.74 | 5.16 | 7.74 | 7.74 | 0.00
+amount_cut | tight | wsum3w | 4.84 | 5.52 | 12.74 | 10.10 | 12.74 | 12.74 | 0.00
+amount_depth | tight | fpalign128 | 3.62 | 8.73 | 21.03 | 17.94 | 21.03 | 21.03 | 0.00
+amount_depth | relaxed | fpalign128 | 3.71 | 8.38 | 21.30 | 18.82 | 21.30 | 17.49 | 1.00
+struct_guard | relaxed | rotmask128 | 4.05 | 9.68 | 22.94 | 19.15 | 22.94 | 26.04 | 1.00
+shift_power | tight | muxshl128 | 3.55 | 2.37 | 17.85 | 10.60 | 17.85 | 17.85 | 0.00
+shift_power | relaxed | muxshl128 | 3.52 | 2.99 | 19.68 | 12.18 | 19.68 | 19.68 | 0.00
+amount_cut | tight | xor8 | 3.56 | 0.03 | 16.88 | 10.34 | 16.93 | 12.93 | 0.30
+amount_cut | relaxed | xor8 | 3.52 | 0.02 | 16.91 | 9.51 | 16.68 | 12.98 | 0.29
+amount_lanes | tight | pmul4 | 3.43 | 3.80 | 21.43 | 12.56 | 21.43 | 21.43 | 0.00
+amount_lanes | relaxed | pmul4 | 3.42 | 4.07 | 24.78 | 14.63 | 24.92 | 19.45 | 1.00
+amount_depth | tight | addsh128 | 4.56 | 1.82 | 23.02 | 13.32 | 6.24 | 10.53 | 1.00
+amount_place | tight | sad1b8 | 3.62 | 4.32 | 27.73 | 20.08 | 27.73 | 27.73 | 0.00
+
+## Mean regret % over all 90 seen cells
+
+SWC 4.77, SWG(32) 3.91, SWP(32) 4.39, SWX(3,0.02) 5.01, SWXR(3,0.02) 5.47, random 5.44
+
+ladder-branch cells only (67): SWC 4.69, SWG(32) 3.54, SWP(32) 4.19, SWX(3,0.02) 5.01, SWXR(3,0.02) 5.63, random 5.59
+failing cells, SWC loses to random by > 1 point (17): SWC 16.63, SWG(32) 8.82, SWP(32) 11.83, SWX(3,0.02) 15.64, SWXR(3,0.02) 15.36, random 4.25
+winning cells, SWC <= 0.5% (40): SWC 0.00, SWG(32) 1.35, SWP(32) 1.15, SWX(3,0.02) 0.97, SWXR(3,0.02) 2.07, random 6.56
+
+SWX(3,0.02) vs SWC: better 3, worse 4, tied 83; sign p = 1.000; design bootstrap 95% interval of mean (SWX(3,0.02) - SWC) -0.38 to +0.90 points
+SWX(3,0.02) vs random: better 46, worse 21, tied 23; sign p = 0.003; design bootstrap 95% interval of mean (SWX(3,0.02) - random) -2.47 to +1.67 points
+SWX(3,0.02) vs SWG(32): better 7, worse 17, tied 66; sign p = 0.064; design bootstrap 95% interval of mean (SWX(3,0.02) - SWG(32)) +0.01 to +2.38 points
+SWX(3,0.02) vs SWP(32): better 48, worse 19, tied 23; sign p = 0.001; design bootstrap 95% interval of mean (SWX(3,0.02) - SWP(32)) -0.16 to +1.49 points
+
+## Grid, seen cells (descriptive; k = 3, f = 0.02 was fixed before the table)
+
+k | f | SWX mean %, all | SWXR mean %, all | SWX failing | SWXR failing | SWX winning | alarm failing | alarm winning
+2 | 0.0 | 5.00 | 6.82 | 15.61 | 15.43 | 0.97 | 0.37 | 0.47
+2 | 0.02 | 5.01 | 6.64 | 15.63 | 15.51 | 0.97 | 0.37 | 0.40
+2 | 0.05 | 5.19 | 5.33 | 16.62 | 16.28 | 0.97 | 0.32 | 0.28
+3 | 0.0 | 5.01 | 5.61 | 15.62 | 15.43 | 0.97 | 0.56 | 0.53
+3 | 0.02 | 5.01 | 5.47 | 15.64 | 15.36 | 0.97 | 0.45 | 0.47
+3 | 0.05 | 5.19 | 5.40 | 16.60 | 15.94 | 0.97 | 0.39 | 0.40
+4 | 0.0 | 5.01 | 4.89 | 15.64 | 14.09 | 0.97 | 0.82 | 0.55
+4 | 0.02 | 5.01 | 4.86 | 15.64 | 14.13 | 0.97 | 0.70 | 0.55
+4 | 0.05 | 5.19 | 4.87 | 16.62 | 14.82 | 0.97 | 0.64 | 0.47
+
+## Pooled blind cells of milestones 125, 132 and 133 (descriptive: milestone 134's diagnosis was drawn from them)
+
+42 cells on 21 designs; 36 on the ladder branch; 8 failing, 26 winning.
+
+all cells: SWC 3.30, SWX(3,0.02) 4.02, SWXR(3,0.02) 4.08, random 4.65
+failing (8): SWC 14.25, SWX(3,0.02) 14.24, SWXR(3,0.02) 13.32, random 3.79
+winning (26): SWC 0.02, SWX(3,0.02) 1.18, SWXR(3,0.02) 1.44, random 5.33
+alarm share of SWX(3,0.02): failing 0.50, winning 0.28
+SWX(3,0.02) vs SWC: better 1, worse 2, tied 39; sign p = 1.000; design bootstrap 95% interval of mean (SWX(3,0.02) - SWC) -0.00 to +1.68 points
+SWX(3,0.02) vs random: better 26, worse 10, tied 6; sign p = 0.011; design bootstrap 95% interval of mean (SWX(3,0.02) - random) -3.00 to +2.24 points
+
+## Predictions (seen cells)
+
+(1) SWX(3,0.02) below SWC: False (5.01% against 4.77%)
+(2) SWX(3,0.02) above SWG(32): True (5.01% against 3.91%)
+(3) alarm share above 0.3 on failing cells (0.45) and below 0.2 on winning cells (0.47): False
+(4) on winning cells, SWX(3,0.02) less than 0.5 point above SWC: False (0.97% against 0.00%)
+(5) on failing cells, band fall-back below random fall-back: False (15.64% against 15.36%)
+(6) design-bootstrap 95% interval of mean (SWX(3,0.02) - SWC) contains 0: True (-0.38 to +0.90 points)
