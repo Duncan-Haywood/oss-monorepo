@@ -1904,4 +1904,10 @@ class Controller:
         if sv is not None:
             rms = (list(sv[3]) + [65535] * P.ESC_SURVEY_LAGS)[:P.ESC_SURVEY_LAGS]
             out += P.encode(P.ESC_SURVEY, sv[0], min(65535, sv[1]), min(65535, sv[2]), *rms)
+        # The lag the drop fit runs with rides along too (README "Checked before a calibration drill"): the Pi compares
+        # it with the last survey before a drill's first ball, since a board told the wrong lag reads spin far off.
+        tau = getattr(self.hw, "esc_tau_ms", None)
+        tau = tau() if tau is not None and self.role == ROLE_FEEDER else None
+        if tau is not None:
+            out += P.encode(P.ESC_TAU, _clamp(tau, 0, 65535))
         return out

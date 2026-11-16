@@ -78,8 +78,15 @@ def cmd_run(a: argparse.Namespace) -> int:
         if a.refit_after and recovery is None:
             print("note: no tach recovery time (pass --recovery-s, or --shot-log a log holding a calibration drill): "
                   "a refit from shots at one speed reads slow shots low", file=sys.stderr)
+        prior = host.last_survey_from_log(a.shot_log) if a.shot_log else None
+        with open(a.file) as fh:
+            calibration = host.is_calibration(json.load(fh))
+        if calibration and prior is None:
+            print("note: no ESC lag survey in the shot log yet (pass --shot-log): this drill's own survey prints the "
+                  "lag its balls pick; if it says set ESC_TAU_US, re-flash and run the calibration again",
+                  file=sys.stderr)
         res = host.run_file(a.file, a.port, log=print, refit_after=a.refit_after, recovery_s=recovery,
-                            inertia=a.inertia)
+                            inertia=a.inertia, prior_survey=prior, esc_lag_ok=a.esc_lag_ok)
         for ev in res.refits:
             if ev["used"]:
                 print(json.dumps({"refit": ev}))
@@ -92,6 +99,9 @@ def cmd_run(a: argparse.Namespace) -> int:
     except (ValueError, OSError) as exc:
         print(f"drill not run: {exc}", file=sys.stderr)
         return 2
+    if res.held:                      # 2026-11-17: the board's ESC_TAU_US disagrees with the last survey (exit 4)
+        print(res.aborted, file=sys.stderr)
+        return 4
     if res.dry_shot is not None:      # 2026-11-16: an empty pocket, found from the wheels' speed (exit 3, not a fault)
         print(f"stopped: {res.aborted}", file=sys.stderr)
         return 3
@@ -100,9 +110,23 @@ def cmd_run(a: argparse.Namespace) -> int:
               file=sys.stderr)
         return 1
     print(f"{len(res.shots)} balls fed; {res.link_errors} bad frames on the link")
-    advice = host.esc_survey_advice(res.esc_survey)
+    advice = host.esc_survey_advice(res.esc_survey, res.esc_tau_ms or 0)
     if advice:
         print(advice)
+    return 0
+
+
+def cmd_esc_lag(a: argparse.Namespace) -> int:
+    """The ESC lag the last logged drill's balls pick (firmware/esp32/README.md "Checked before a calibration drill")."""
+    from . import host
+    sv = host.last_survey_from_log(a.log)
+    if sv is None:
+        print(f"no ESC lag survey in {a.log} (run a drill with --shot-log on firmware from 2026-11-16 or later)",
+              file=sys.stderr)
+        return 1
+    ran = sv.get("esc_tau_ms")
+    print(json.dumps({k: sv.get(k) for k in ("at", "drill", "wheels", "least_ms", "refined_ms", "esc_tau_ms")}))
+    print(host.esc_survey_advice(sv, ran or 0))
     return 0
 
 
@@ -267,7 +291,15 @@ def build_parser() -> argparse.ArgumentParser:
                    help="the tach's recovery time for --refit-after (default: fitted from the --shot-log file)")
     s.add_argument("--inertia", type=float, default=launcher.WHEEL_INERTIA_KGM2,
                    help="one wheel's inertia in kg m^2, as config.py's WHEEL_INERTIA_KGM2 (for --refit-after)")
+    s.add_argument("--esc-lag-ok", action="store_true",
+                   help="run a calibration drill even when the board's ESC_TAU_US disagrees with the shot log's last "
+                        "ESC lag survey (by default it stops before the first ball, exit 4)")
     s.set_defaults(func=cmd_run)
+
+    s = sub.add_parser("esc-lag", help="the ESC lag the shot log's last survey picks, and whether ESC_TAU_US should "
+                                       "change")
+    s.add_argument("log", help="JSON-lines shot log written by `run --shot-log`")
+    s.set_defaults(func=cmd_esc_lag)
 
     s = sub.add_parser("fit-launcher", help="the launcher's speed and spin efficiency from a shot log's wheel speed "
                                             "drops, no radar gun")
