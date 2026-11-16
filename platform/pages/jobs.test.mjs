@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   COST_STRUCTURE_SLUGS,
+  JOBS_FIRST_VISIT_STATUS,
   BID_FOLLOW_UP_HELPERS,
   BID_OUTCOMES,
   BID_AMOUNT_HELPER,
@@ -242,6 +243,21 @@ test('the bar and its script land on a page with a form', () => {
   // The page carries the tag; the code it names is one file for the whole site.
   assert.match(out, /<script type="module" src="\.\/pf-jobs\.js" data-pf-jobs-slug="roofing-bid-calculator"/);
   assert.match(module_(), new RegExp(SAVED_BIDS_KEY));
+});
+
+test('a first-time visitor reads what the Saved bids button is for', () => {
+  // The status line used to be empty until a bid was saved, so the band was a
+  // lone grey button. The sentence is in the built markup (no layout shift, and
+  // a crawler can read it) and the script writes the same words on start.
+  const out = injectSavedBids(page(inputs(6)), 'roofing-bid-calculator');
+  const status = /<span class="pf-jobs-status" id="pf-jobs-status" role="status">([^<]*)<\/span>/.exec(out);
+  assert.ok(status, 'status span present');
+  assert.equal(status[1], JOBS_FIRST_VISIT_STATUS);
+  assert.ok(module_().includes(JSON.stringify(JOBS_FIRST_VISIT_STATUS)));
+  // A visitor who has saved bids still sees the count instead.
+  assert.match(module_(), /saved === 1 \? '1 saved bid\.' : saved > 1 \? saved \+ ' saved bids\.'/);
+  // It names only what the panel does, and stays one short line on a phone.
+  assert.ok(JOBS_FIRST_VISIT_STATUS.length <= 56, JOBS_FIRST_VISIT_STATUS);
 });
 
 test('the band points at the backup panel, at the depth the page is served from', () => {
