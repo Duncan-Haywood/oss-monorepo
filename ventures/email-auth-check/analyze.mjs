@@ -107,6 +107,7 @@ export function parseSpfMechanisms(record) {
   let allIndex = -1;
   let redirect = null;
   let redirectSeen = false;
+  let mechanismAfterAll = false;
 
   rawTerms.forEach((raw, index) => {
     if (/^redirect=/i.test(raw)) {
@@ -133,21 +134,29 @@ export function parseSpfMechanisms(record) {
     const value = m[3] ?? null;
 
     if (mechanism === 'all') {
-      if (allQualifier !== null) malformed.push('More than one "all" mechanism');
+      // A second "all" is valid syntax but never reached: the first decides.
+      if (allIndex !== -1) { mechanismAfterAll = true; return; }
       allQualifier = qualifier;
       allIndex = index;
       return;
     }
+    // RFC 7208 s5.1: mechanisms after "all" are never tested. Modifiers
+    // (exp=, redirect=, unknown name=value) may sit anywhere (s6), so only a
+    // mechanism makes "all" not last.
+    if (allIndex !== -1) mechanismAfterAll = true;
     if (SPF_LOOKUP_MECHANISMS.has(mechanism)) {
       if ((mechanism === 'include' || mechanism === 'exists') && !value) {
         malformed.push(`${mechanism}: mechanism with no domain ("${raw}")`);
       }
-      lookupTerms.push({ mechanism, domain: value, qualifier, raw });
+      // A mechanism after "all" is never evaluated, so it makes no DNS
+      // query and costs nothing from the 10-lookup budget (s4.6.4 counts
+      // queries made during evaluation). Its syntax still counts (s4.6).
+      if (allIndex === -1) lookupTerms.push({ mechanism, domain: value, qualifier, raw });
     }
     // ip4 / ip6: address literals, no DNS lookup, nothing further to record.
   });
 
-  const allNotLast = allIndex !== -1 && allIndex !== rawTerms.length - 1;
+  const allNotLast = mechanismAfterAll;
 
   return { lookupTerms, allQualifier, allNotLast, redirect, malformed };
 }
