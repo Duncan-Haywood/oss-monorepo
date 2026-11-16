@@ -57,6 +57,24 @@
 //    H, I and F totals each no lower, their nasals no fewer, every vowel-only control and bare-vowel row
 //    identical; (5) eval/vowel-check.mjs and eval/consonant-check.mjs cannot move (readOnset and the synthesis are
 //    untouched).
+// Tenth round (2026-11-16): /i/ is not a voiced fricative (onsets.mjs VFRIC_HI5, README "/i/ is not a voiced
+//    fricative"). K's misses showed /i/ read as a voiced fricative on 83 of its 119 other and vowel-only misses.
+//    Read frame by frame (a vowel-only /i/ on A3): mid-note the low band sinks 8-18 dB and comes back, where the
+//    five detuned voices' fundamentals beat out of phase, and /i/ keeps almost all its energy there, so the share
+//    above 2.5 kHz passes 0.12 (the voiced-fricative rule) and on a short note's attack 0.5 (the fricative rule,
+//    then "voiced" by its low band); its release does the same. The change: a frame counts as frication, voiced
+//    or not, only with 12 dB or more energy above 5 kHz than the vowel's (`vfricHi5`). Chosen on synthetic
+//    syllables at K's pitches only (sung z and v frames 66 to 110 dB over the vowel, the /i/ frames that misread
+//    -13 to +3 dB; every /i/ syllable there then reads right, sung and vowel-only). Pre-registered here and
+//    committed before part L or any other part was run with it. Part L is new: 16 syllables on /i/, 4
+//    voiced-fricative codas (not Latin; there to show a real one still reads) and 12 others, none sung in any
+//    part before, at G2, C3, D#3, G#3 and C#4 (no pitch of A, J or K), 96 BPM, half and quarter notes. Against
+//    `vfricHi5: false` (printed beside, or `--vfric off`): (1) L's /i/ syllables read exactly no fewer, and at
+//    least 8 more of 160; (2) L's vowel-only control on /i/ read as none no fewer, at least 8 more of 160; (3) L's
+//    other syllables within 2, the rest of its vowel-only control no lower; (4) L's voiced-fricative codas read as
+//    one within 4 of 40 (a lucky read on a trough frame goes); (5) A, B, D, E, H, I, F, J and K totals each no
+//    lower, nasals no fewer, every vowel-only control no lower; K's other syllables 172 or more of 220 (166);
+//    (6) eval/vowel-check.mjs and eval/consonant-check.mjs cannot move (readOnset and the synthesis untouched).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -68,7 +86,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
@@ -78,7 +96,9 @@ const RC0 = NEARARG === 'off' ? { nearVowel: false } : NEARARG ? { nearOpts: Obj
 const PREARG = args.includes('--pre') ? args[args.indexOf('--pre') + 1] : '';
 // --again off: readCoda's vowelAgain reading every frame after a murmur, the obstruent's too (before 2026-11-16's ninth round)
 const AGAINARG = args.includes('--again') ? args[args.indexOf('--again') + 1] : '';
-const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}) };
+// --vfric off: readCoda's voiced fricative without its noise-above-5-kHz test (before 2026-11-16's tenth round)
+const VFRICARG = args.includes('--vfric') ? args[args.indexOf('--vfric') + 1] : '';
+const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -329,6 +349,44 @@ lines.push('## K. Held-out cluster syllables (ninth round, pre-registered)', '',
   `| other syllables read as a nasal | ${kNasal.on || 0} | ${kNasal.off || 0} |`,
   `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '', 'Cluster misses with the rule:', '', ...(HIDE.includes('K') ? ['- hidden (--hide-misses K)'] : kMiss.length ? kMiss.map((m) => `- ${m}`) : ['- none']), '',
   'Other and vowel-only misses with the rule (count over the ten pitch and length cells):', '', HIDE.includes('K') ? '- hidden' : [...kOther].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
+}
+
+// ---- L ----
+// Tenth round (2026-11-16): held out, never sung before this round's registration. Syllables on /i/ (the vowel
+// the voiced-fricative rule misread), others, and four voiced-fricative codas (*iz*, *az*, *ev*, *uv*: not
+// Latin, there to show a real voiced fricative still reads), at G2, C3, D#3, G#3 and C#4 (no pitch of A, J or
+// K), 96 BPM, half and quarter notes, sung and vowel-only; printed beside `vfricHi5: false` (the reader before).
+if (PARTS.includes('L')) {
+const IS = ['vis', 'sit', 'dic', 'nis', 'mil', 'vir', 'fid', 'bis', 'rit', 'tim', 'lin', 'qui', 'tri', 'pi', 'li', 'di'];
+const ZV = ['iz', 'az', 'ev', 'uv'];
+const NEG = ['das', 'nos', 'mel', 'per', 'sub', 'cum', 'tet', 'rec', 'pa', 'te', 'ro', 'lu'];
+const SY = [...IS, ...ZV, ...NEG], tally = {}, lMiss = new Map();
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+for (const pulses of [4, 2]) for (const midi of [43, 48, 51, 56, 61]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 96, title: 'held-out i' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (IS.includes(s) ? 'i' : ZV.includes(s) ? 'zv' : 'other') : IS.includes(s) ? 'control i' : 'control';
+      for (const [mode, o] of [['on', RC], ['off', { ...RC, vfricHi5: false }]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (mode === 'on' && !ok && !HIDE.includes('L')) { const key = `${sing === true ? s : `${s} (vowel only)`} as ${label(got)}`; lMiss.set(key, (lMiss.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## L. Held out: syllables on /i/ (tenth round, pre-registered)', '', `On /i/: ${IS.map((s) => `*${s}*`).join(', ')}; voiced fricatives: ${ZV.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Half and quarter notes at 96 BPM, each followed by a rest, G2, C3, D#3, G#3, C#4.`, '',
+  '| | with the noise-above-5-kHz test | without (`vfricHi5: false`) |', '|---|---|---|',
+  `| syllables on /i/ read exactly | ${cell('i on')} | ${cell('i off')} |`,
+  `| voiced-fricative codas read as one | ${cell('zv on')} | ${cell('zv off')} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
+  `| vowel-only control on /i/ read as none | ${cell('control i on')} | ${cell('control i off')} |`,
+  `| vowel-only control, the rest, read as none | ${cell('control on')} | ${cell('control off')} |`, '', 'Misses with the test (count over the ten pitch and length cells):', '', HIDE.includes('L') ? '- hidden (--hide-misses L)' : [...lMiss].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none', '');
 }
 
 // ---- C ----
