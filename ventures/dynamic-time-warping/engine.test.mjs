@@ -179,8 +179,10 @@ test("CSV reading: separators, quotes, blanks at the ends dropped and inside fil
   assert.deepEqual(smooth([1, 2, 3, 10], 1), [1.5, 2, 5, 6.5]);
   assert.deepEqual(znormalize([1, 3]), [-1, 1]);
   assert.throws(() => znormalize([2, 2]));
-  assert.equal(csvCell("=SUM(A1)"), `"'=SUM(A1)"`);
-  assert.equal(csvCell("-3.5"), `"-3.5"`);
+  assert.equal(csvCell("=SUM(A1)"), "'=SUM(A1)");
+  assert.equal(csvCell("-3.5"), "-3.5");
+  assert.equal(csvCell("-1+CMD|x"), "'-1+CMD|x");
+  assert.match(analyze({ csv: "a,b\n1,2\n3,4\n", step: "constructor" }).error, /Step pattern/);
 });
 
 test("the Central Park example: spring normals arrive earlier and autumn ones linger later in 1991-2020 than in 1871-1900", () => {

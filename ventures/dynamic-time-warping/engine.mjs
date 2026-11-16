@@ -123,7 +123,7 @@ export function dtw(x, y, opts = {}) {
   const { step = "symmetric2", windowType = "band", window = null, dist = "abs", maxCells = DEFAULTS.maxCells } = opts;
   checkSeries(x, "the first series");
   checkSeries(y, "the second series");
-  if (!STEPS[step]) throw new Error(`unknown step pattern "${step}"`);
+  if (!Object.hasOwn(STEPS, step)) throw new Error(`unknown step pattern "${step}"`);
   const n = x.length;
   const m = y.length;
   if (n * m > maxCells) throw new Error(`${n} × ${m} = ${(n * m).toLocaleString("en-US")} cells is over the limit of ${maxCells.toLocaleString("en-US")}; shorten or aggregate the series`);
@@ -183,7 +183,7 @@ export function dtw(x, y, opts = {}) {
 }
 
 export function normalize(distance, step, n, m) {
-  const norm = STEPS[step].norm;
+  const norm = Object.hasOwn(STEPS, step) ? STEPS[step].norm : null;
   if (norm === "N+M") return distance / (n + m);
   if (norm === "N") return distance / n;
   return null;
@@ -497,7 +497,7 @@ export function analyze(input = {}) {
   o.matches = Math.max(1, Math.min(50, Math.floor(Number(o.matches) || DEFAULTS.matches)));
   o.znorm = o.znorm === true || o.znorm === "true" || o.znorm === 1;
   if (!["pair", "subsequence"].includes(o.mode)) return { error: `Mode must be pair or subsequence, not "${o.mode}".` };
-  if (!STEPS[o.step]) return { error: `Step pattern must be one of ${Object.keys(STEPS).join(", ")}.` };
+  if (!Object.hasOwn(STEPS, o.step)) return { error: `Step pattern must be one of ${Object.keys(STEPS).join(", ")}.` };
   if (!["band", "itakura", "none"].includes(o.windowType)) return { error: "Window must be band, itakura or none." };
   if (!["abs", "squared"].includes(o.dist)) return { error: "Distance must be abs or squared." };
   if (o.window !== null && !(o.window >= 0)) return { error: "The band width must be a number of steps, 0 or more." };
@@ -644,7 +644,7 @@ export function analyze(input = {}) {
       names.forEach((d, q) => { if (q !== p && cells[p][q] !== null && (best === null || cells[p][q] < cells[p][best])) best = q; });
       return { column: c, nearest: best === null ? null : names[best], distance: best === null ? null : cells[p][best] };
     });
-    base.matrix = { columns: names, cells, normalized: STEPS[o.step].norm !== null, nearest };
+    base.matrix = { columns: names, cells, normalized: Object.hasOwn(STEPS, o.step) && STEPS[o.step].norm !== null, nearest };
   }
   return base;
 }
@@ -663,8 +663,10 @@ function timingText(segments, a, b) {
 }
 
 export function csvCell(c) {
-  const s = c === null || c === undefined ? "" : String(c);
-  return /[",\n\r]/.test(s) || /^[=+\-@\t\r]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s;
+  let s = c === null || c === undefined ? "" : String(c);
+  // Spreadsheet formula guard: defuse = + - @ tab CR at the start, but let a plain number through.
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 /** The alignment as a CSV: one row per path point (pair mode) or per match (subsequence mode). */
