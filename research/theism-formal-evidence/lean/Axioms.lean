@@ -86,3 +86,6 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.AndersonK.Sep.fails
 #print axioms TheismFormal.AndersonK.essential_sep_iff
 #print axioms TheismFormal.AndersonK.essential_sep_iff_III
+#print axioms TheismFormal.AndersonK.NP.sep_iff
+#print axioms TheismFormal.AndersonK.NP.serial
+#print axioms TheismFormal.AndersonK.NP.reach_ne_w
