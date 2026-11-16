@@ -189,11 +189,12 @@ flagships:
       phase-tolerant shapes, 5th set. Open: (0) drift model: t-walk increments,
       biweight on fresh data, why it absorbs seat belts and quality control 4, its
       AR(1) term; (1) slopes: logs fail, 2 hinges ship (refuse short sticky series),
-      next a given knot; step/bend bootstrap tests (README "Step or bend, as two
-      tests") fail: walks called bend, use the cut guard; nulls rho low; a real step
-      inside a cycle, a cycle check not tied to rho, real documented ramps and close
-      steps; (2) clumpy counts: NB1 shipped; real calls: Poisson, wandering rate;
-      next real batch counts; More open items: NEXT.md.
+      given date (README "A date you name"): size fails at n 40-60 rho 0.8 in 3
+      rounds; next a high-end generator rho; step/bend bootstrap tests (README "Step
+      or bend, as two tests") fail: walks called bend, use the cut guard; nulls rho
+      low; a real step inside a cycle, a cycle check not tied to rho, real
+      documented ramps and close steps; (2) clumpy counts: NB1 shipped; real calls:
+      Poisson, wandering rate; next real batch counts; More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -245,22 +246,22 @@ flagships:
       2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent both
       ways. Next: whether a real manager would set keepShift above 1; 350+ copies:
       cover passes LP-guided; repair flow-bounded, 2x alone, e2e tie (README "under
-      a flow bound"); no reserve gain at 30-60; next 350-400 seeds; day sweeps
-      LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
-      when the pay floor is skipped"); next a warm-sized gate; re-run the
-      keep-usual-shifts sweep on real dated leave records; a manager's read on
-      whether the steadier plan is the one they would post; a real 7shifts account
-      through --import-7shifts (README "Reading 7shifts directly"); a real When I
-      Work account or response through --import-wheniwork (README "Reading When I
-      Work directly"); Homebase (docs need an account); --cover-price moves two
-      shifts together (README "Moving two shifts together"); second call-outs
-      priced, off by default (README "The pair price in played weeks": fewer open
-      hours on 3 of 4 weeks); order-free pair check played: no gain, stays opt-in
-      (README "The order-free pass played"); a real two-site export and staff list
-      (README "Staff shared between sites"); own and site rates read from staff CSVs
-      and 7shifts (README "Per-location pay from an export"); next a real wages
-      export, real trip times; whether the priced cut's r = 1 default suits a real
-      manager; a manager's real task list for the fixed minutes.
+      a flow bound"); 2 s reserve at 300+ copies; next 4 s; day sweeps LP-guided, by
+      the open-hours LP when the pay floor is skipped (README "A guide when the pay
+      floor is skipped"); next a warm-sized gate; re-run the keep-usual-shifts sweep
+      on real dated leave records; a manager's read on whether the steadier plan is
+      the one they would post; a real 7shifts account through --import-7shifts
+      (README "Reading 7shifts directly"); a real When I Work account or response
+      through --import-wheniwork (README "Reading When I Work directly"); Homebase
+      (docs need an account); --cover-price moves two shifts together (README
+      "Moving two shifts together"); second call-outs priced, off by default (README
+      "The pair price in played weeks": fewer open hours on 3 of 4 weeks);
+      order-free pair check played: no gain, stays opt-in (README "The order-free
+      pass played"); a real two-site export and staff list (README "Staff shared
+      between sites"); own and site rates read from staff CSVs and 7shifts (README
+      "Per-location pay from an export"); next a real wages export, real trip times;
+      whether the priced cut's r = 1 default suits a real manager; a manager's real
+      task list for the fixed minutes.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
