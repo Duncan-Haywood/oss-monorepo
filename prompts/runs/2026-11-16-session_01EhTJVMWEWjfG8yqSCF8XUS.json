@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16520",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,19 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "targets --under ventures/shift-roster-builder probes every file at >20s, so the top flagship can never be a campaign target; worth a note to pick a faster sibling module or raise --probe for flagships."
+    }
+  ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": " Step 0: all 9 open entries are control plane, left open. Campaigns: stripe-churn-cohort-analyzer/calc.mjs (0/10 caught) and subscription-audit-from-statement/calc.mjs (4/10). The 0/10 led to a real defect: PR #16504 tagged CSV rows with file lines, but 12 analyzers never read the tag and its guard (one loop shape) passed. Guard tightened: platform/ci/csv_line_numbers.mjs any-shape check; first run flagged the 12 files on main (and 6 false positives on split-text loops, now handled). Local checks: 12 venture suites green, target suites 50/61 pass, test_csv_line_numbers.py OK, check_post_frontmatter/links clean.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -343,7 +348,7 @@
         "file": "ventures/stripe-churn-cohort-analyzer/calc.mjs",
         "issue": "PR #16504 tagged every parseCsv copy's rows with their file line but its guard only knew one loop shape (`for (let i ...) { line = i + 1`). 12 analyzers kept reporting the row index: `line: r + 1` inline (stripe-churn, stripe-failed-payment, airbnb, amazon-ppc, app-review-insights, google-ads, meta-ads, shopify-discount-leakage), `slice(1).forEach((r, n) => line = n + 2)` (oncall-load, pg-stat-statements, postgres-index-auditor) and `parseCsv(raw).forEach((row, i) => line: i + 1)` (restaurant-pos-menu-mix). One blank line before a bad row in a Stripe export reported line 3 for a row on line 5. Fixed in all 12; platform/ci/csv_line_numbers.mjs now walks every `line: v + 1|2` back to the loop that binds v (fails on main's 12 copies, passes after).",
         "patched": true,
-        "patched_in": "this PR"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16520"
       }
     ]
   }
