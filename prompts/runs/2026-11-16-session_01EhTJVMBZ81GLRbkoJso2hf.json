@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMBZ81GLRbkoJso2hf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo...)",
+  "input_sha256": "e1c1e41c32df6a83470ddc9f0fb5b93a9945772a5546800c2284944dcc52e083",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T18:03:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "chant-forge: EP builder (ep-cli.mjs): plan to a distributor-ready release folder",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": 16654,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's listed next items were sub-percent acoustic-reader tuning (D#4 bursts, R's misses) on a synthetic voice nobody has listened to; the business goal (a released EP) had no tool joining the pieces, so I built that instead.",
+      "did": "ep-cli.mjs + ep.mjs + 6 tests, example plan, README/ROADMAP/llms.txt, next: rewritten",
+      "result": "Example 4-track EP builds in 47 s: all tracks -14.0 LUFS, <= -1.05 dBTP, 69 checks pass, 7 fails are owner steps only"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-chant-forge-one-command-from-chant-to-a-release-folder.md"
+  ],
+  "goal": "Move chant-forge toward its first release (ROADMAP item 8) rather than another acoustic-reader tuning round",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok (276 tests, 35.5 s). node ep-cli.mjs examples/first-ep.json -> exit 0, REPORT.md shows no build faults. Cover viewed at 600 px: Dies irae incipit in square notation on red staff. Builder refuses the uncited demo GABC (source edition is a build fault). venture-preflight run in background; result in PR body. Nobody listened to the audio.",
+  "corrections": [],
+  "redteam": null
+}

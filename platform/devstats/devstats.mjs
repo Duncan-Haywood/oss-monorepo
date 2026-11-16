@@ -81,11 +81,27 @@ export function fromGit(repo, { days = 30, now = Date.now(), ref = 'HEAD' } = {}
   const reverts = merges.filter((m) => /^Revert\b|\brevert(s|ed)?\b.*#\d+/i.test(m.subject)).length;
   const fixForward = merges.filter((m) => /\b(fix(es)?|repair|unbreak)\b.*\bmain\b|main (is )?red/i.test(m.subject)).length;
 
+  // A shallow clone's boundary commits have no visible parent, so git diffs
+  // them against nothing and every file in the tree looks added. The deploy
+  // clones 3000 commits, less than the 30-day window, so without this the page
+  // counted the whole portfolio as added this month.
+  let shallow = new Set();
+  try {
+    const file = git(repo, ['rev-parse', '--git-path', 'shallow']).trim();
+    const abs = path.isAbsolute(file) ? file : path.join(repo, file);
+    if (existsSync(abs)) shallow = new Set(readFileSync(abs, 'utf8').split('\n').map((l) => l.trim()).filter(Boolean));
+  } catch {
+    // No shallow file: a full clone.
+  }
   const added = (glob) => {
     try {
-      return git(repo, ['log', ref, `--since=${since}`, '--diff-filter=A', '--format=', '--name-only', '--', glob])
-        .split('\n')
-        .filter(Boolean).length;
+      let count = 0;
+      let skip = false;
+      for (const line of git(repo, ['log', ref, `--since=${since}`, '--diff-filter=A', '--format=@%H', '--name-only', '--', glob]).split('\n')) {
+        if (line.startsWith('@')) skip = shallow.has(line.slice(1).trim());
+        else if (line.trim() && !skip) count += 1;
+      }
+      return count;
     } catch {
       return null;
     }

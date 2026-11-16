@@ -585,6 +585,17 @@ the 1.0 m pose still leaves 1.401 mm (least-norm 1.950, torque-minimising 2.632)
 the best calibration pose. The balance controller therefore makes the press possible above chest
 height; the pose-by-pose compensation of milestone 31 stays.
 
+That compensation works only with the right model (milestone 33). Predicting each held joint's
+side at every pose and subtracting its bias leaves 0.00e+00 mm when the compensator uses the
+robot's own balance controller. A compensator that assumes the least-norm split while the G1
+holds its light leg joints leaves 1.156 mm (17 joint-pose cases on the wrong side; assuming the
+force- or torque-minimising split, 1.450 and 1.237 mm), against 1.401 mm with no compensation. With
+the controller modelled, the mass the compensator does not know matters little: a 64-nail magazine
+weighs 0.295 kg (8d common) to 0.410 kg (16d) of steel, and +0.4 kg leaves 0.017 mm, +1.0 kg
+0.057 mm. Under the torque-minimising controller, which leaves light joints near zero torque,
++0.2 kg already leaves 0.412 mm and +1.0 kg 0.836 mm. Compensating only joints whose predicted
+torque clears a 1 N m guard band leaves 1.374 mm: each joint left out costs half a gap.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -764,7 +775,9 @@ joints restore 93% clean single-2x sheets, and gear backlash costs nothing more 
 controller keeps the ankle-roll joints loaded one way, provided the held joints' bias is compensated
 pose by pose: one calibration leaves up to 3.4 mm at the edge of the reach. Pushing through real
 soles, the robot must also lean into the wall to take the press above chest height, and no
-ground-reaction split removes that compensation (1.1–2.6 mm after one calibration).
+ground-reaction split removes that compensation (1.1–2.6 mm after one calibration). The
+compensation must be computed from the robot's own balance controller: then a full nail
+magazine left out of the model costs 0.017 mm, while a wrong ground-reaction model leaves 1.2 mm.
 
 ## Data and code availability
 

@@ -32,6 +32,7 @@ M29 = E + "m29_tool_lean/results.txt"
 M30 = E + "m30_backlash/results.txt"
 M31 = E + "m31_pose_range/results.txt"
 M32 = E + "m32_grf_qp/results.txt"
+M33 = E + "m33_compensate/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -103,6 +104,19 @@ CHECKS = [
     (M32, "| -1.401 at 1.2 -0.15", "still leaves 1.401 mm"),
     (M32, "| -2.632 at 1.2 -0.15", "torque-minimising 2.632"),
     (M32, "  hold-min | 1.401 | 1.2 +0.00: 1.094 |", "1.094 mm at"),
+    # 5.11 model-based compensation (milestone 33)
+    (M33, "check: matched model leaves +0.00e+00 mm", "leaves 0.00e+00 mm"),
+    (M33, "C=free     +0.0 kg g=0.2 | -1.156 at 0.4 +0.15 | 17/2/47", "leaves 1.156 mm (17 joint-pose"),
+    (M33, "g1 R=hold-min C=force    +0.0 kg g=0.2 | -1.450", "1.450 and 1.237 mm"),
+    (M33, "g1 R=hold-min C=torque   +0.0 kg g=0.2 | +1.237", "1.450 and 1.237 mm"),
+    (M33, "g1 R=hold-min C=none     +0.0 kg g=0.2 | -1.401", "against 1.401 mm with no compensation"),
+    (M33, "8d common 2-1/2 x 0.131 in | 4.61 | 0.295", "0.295 kg (8d common)"),
+    (M33, "16d 3-1/2 x 0.131 in | 6.41 | 0.410", "0.410 kg (16d)"),
+    (M33, "g1 R=hold-min C=hold-min +0.4 kg g=0.2 | +0.017", "+0.4 kg leaves 0.017 mm"),
+    (M33, "g1 R=hold-min C=hold-min +1.0 kg g=0.2 | -0.057", "+1.0 kg\n0.057 mm"),
+    (M33, "g1 R=torque   C=torque   +0.2 kg g=0.2 | +0.412", "+0.2 kg already leaves 0.412 mm"),
+    (M33, "g1 R=torque   C=torque   +1.0 kg g=0.2 | +0.836", "+1.0 kg 0.836 mm"),
+    (M33, "g1 R=hold-min C=free     +0.0 kg g=1.0 | -1.374", "guard band leaves 1.374 mm"),
     # 5.14 the capacity model against Weiss's decayed walls (milestones 17 to 21)
     (M17, "control 6-12 4688, decay 6-12 2649, control 3-12 8775, decay 3-12 2974", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
     (M17, "share kept: 6-12 0.565, 3-12 0.339", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),

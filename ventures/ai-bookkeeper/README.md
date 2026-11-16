@@ -2804,6 +2804,22 @@ on 23 of 34 validation misses and 27 of 42 test misses. Details:
 [`eval/cord-photos-four-pass-2026-11-16.md`](eval/cord-photos-four-pass-2026-11-16.md).
 Tests: `cord-receipts.test.mjs`.
 
+### The page re-measured; a guess of the cash handed over gets no vote (2026-11-16, evening)
+
+The page's own tesseract.js readings of the 200 SRD photos were rebuilt after the day's
+changes: totals 156 of 196 and tax 138 of 185, the same totals as before the changes (the
+total-first rules fire on CLI readings only, +3 there) and one wrong page tax turned to none.
+
+When a reading finds no total line, it falls back on the largest amount on the page, and
+on a cash slip that is often the cash handed over ("CASH 50,000" on a 21,000 bill, CORD
+validation-30). Such a guess, printed on the cash line, now counts nothing in the vote
+across readings (`CASH_GUESS_VOTE`), unless the receipt's arithmetic gives the same amount:
+exact cash is the total (SRD 1108: "Tendered $52.06", subtotal plus tax 52.06). SRD page
+and CLI readings, CORD and SROIE dataset text: unchanged. Not yet scored on CORD's photos
+(huggingface.co refused this session). Details:
+[`eval/receipt-cash-guess-2026-11-16.md`](eval/receipt-cash-guess-2026-11-16.md). Tests:
+`receipt-crosscheck.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

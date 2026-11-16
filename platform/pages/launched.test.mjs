@@ -81,6 +81,13 @@ test('loadLaunchDates tolerates a missing or malformed file rather than failing 
 test('firstCommitDate reads the add of a venture, not its latest edit', async () => {
   const slug = 'where-to-sell-calculator';
   const derived = await firstCommitDate(slug, { cwd: REPO_ROOT });
+  if (derived === null) {
+    // A shallow checkout (CI, agent sessions) may not reach the add at all;
+    // that is the only case in which null is the right answer.
+    const { stdout } = await execFileAsync('git', ['rev-parse', '--is-shallow-repository'], { cwd: REPO_ROOT });
+    assert.equal(stdout.trim(), 'true', 'null from a full clone means the add was not found');
+    return;
+  }
   assert.ok(isIsoDate(derived), `expected an ISO date, got ${derived}`);
 
   const { stdout } = await execFileAsync(
@@ -95,6 +102,36 @@ test('firstCommitDate reads the add of a venture, not its latest edit', async ()
 test('firstCommitDate returns null rather than throwing outside a repository', async () => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'not-a-repo-'));
   assert.equal(await firstCommitDate('anything', { cwd: dir }), null);
+});
+
+// Agent sessions and CI check out shallow clones. There `git log
+// --diff-filter=A` reports the shallow boundary commit as adding every file,
+// so without a guard a tool launched months ago would be dated the day of the
+// clone and announced in the feed as new (red team, 2026-11-16).
+test('firstCommitDate returns null when the add is only the shallow boundary of a clone', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'launched-shallow-'));
+  const origin = path.join(dir, 'origin');
+  const git = (cwd, args, env = {}) => execFileAsync('git', args, { cwd, env: { ...process.env, ...env } });
+  const at = (iso) => ({
+    GIT_AUTHOR_DATE: iso, GIT_COMMITTER_DATE: iso,
+    GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@example.invalid',
+    GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@example.invalid',
+  });
+  await fs.mkdir(path.join(origin, 'ventures', 'old-tool'), { recursive: true });
+  await git(origin, ['init', '-q']);
+  await fs.writeFile(path.join(origin, 'ventures', 'old-tool', 'index.html'), 'v1');
+  await git(origin, ['add', '.']);
+  await git(origin, ['commit', '-q', '-m', 'launch'], at('2026-01-02T12:00:00Z'));
+  await fs.writeFile(path.join(origin, 'other.txt'), 'later');
+  await git(origin, ['add', '.']);
+  await git(origin, ['commit', '-q', '-m', 'later'], at('2026-06-07T12:00:00Z'));
+
+  // The full history still answers with the real launch date.
+  assert.equal(await firstCommitDate('old-tool', { cwd: origin }), '2026-01-02');
+
+  const shallow = path.join(dir, 'shallow');
+  await git(dir, ['clone', '-q', '--depth', '1', `file://${origin}`, shallow]);
+  assert.equal(await firstCommitDate('old-tool', { cwd: shallow }), null);
 });
 
 test('refresh only adds — an existing date is never rewritten', async () => {
@@ -192,6 +229,15 @@ test('entry ids are tag URIs keyed on the slug, so moving host does not re-notif
 test('published and updated are equal, so an edit does not republish the entry', () => {
   const xml = renderFeed([surface('alpha-calculator')], BASE, { 'alpha-calculator': '2026-08-01' });
   assert.match(xml, /<published>2026-08-01T00:00:00Z<\/published>\s*\n\s*<updated>2026-08-01T00:00:00Z<\/updated>/);
+});
+
+test('the README states the feed cap the code applies', async () => {
+  // The README said "capped at the 40 most recent" for six weeks after the
+  // cap went 40 -> 30 -> 20 (red team, 2026-11-16).
+  const readme = await fs.readFile(path.join(import.meta.dirname, 'README.md'), 'utf8');
+  const stated = readme.match(/capped at the (\d+) most recent/);
+  assert.ok(stated, 'README.md should say how many entries feed.xml carries');
+  assert.equal(Number(stated[1]), FEED_MAX_ENTRIES);
 });
 
 test('the feed is capped, and carries the newest entries rather than an arbitrary slice', () => {

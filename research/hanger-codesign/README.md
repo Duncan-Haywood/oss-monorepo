@@ -31,12 +31,55 @@ for the 3 cm arm: with the shear spring set to measured G, stretch still moves t
 across 40 to 800 N/m, but from 800 N/m up, including the stiffness the same table's tensile LT and WT
 imply, all four fabrics pick +1.0 cm, the 2D chain's answer, with certified margins. The tier
 disagreement belongs to soft cloth, and only the cotton jersey and the shirting, whose low-load
-stiffness lands in the band where the choice flips, still need a measured tensile toe. Milestone 5 proves the margin bound the proposal planned (regret is at most the spread of the paired tier error, not its size) and tests it on those 50 tier pairs: the bound certifies no 2D-chain choice (the paired error still spreads 0.6 to 1.3 cm across widths, against margins of 0.05 to 0.25 cm), though the 2D choice's realised regret is small (mean 0.03 cm); it certifies only a stretch-stiffness guess near the KES-sourced one, so a cheap tier can screen widths but not judge them. Milestone 5b keeps the cheap tier's own penalty term the first bound dropped: the regret is at most max over d of K|d − d^| minus the cheap tier's penalty at d, with K the slope of the paired error around the choice, 2.8 times tighter on the 2D chain (median realised share of the bound 34% against 12%). Used as a loop (three reference runs around the cheap choice, estimate K, run what the bound cannot rule out), it finds the reference optimum in 48 of 50 tier pairs with 3.9 of 7 reference runs on average; the two misses are the softest cloth (EA 40 N/m), whose optimum sits two grid steps away. Milestone 3a builds ARCSim's element model (constant-strain triangles with measured shear, discrete-shell hinges) with a Newton solver: it matches the exact cantilever elastica to within 0.9% of the overhang after extrapolation and ignores stretch stiffness there, but fails the Cusick acceptance test: on the suiting the drape coefficient still climbs 0.016 per mesh refinement and 0.034 from EA 800 to 3200 N/m (40% less than the spring sheet), and on the soft jersey it converges only at EA 150 N/m, near the jersey's sourced tangent stiffness, and locks above it. Milestone 3b shows that jersey result was mostly a solver that never arrived: started from the soft equilibrium and stepped up in stretch stiffness, all 40 cases converge, and at the jersey's own sourced stiffness (254 and 369 N/m) the drape coefficient moves by only 0.008 to 0.011 from 3.75 to 2.5 mm and by 0.003 from 150 to 369 N/m, so the element passes the acceptance test there; the suiting misses the 0.03 mesh bar by 0.004 to 0.006 through a change in fold count, and the same case can settle in fold patterns whose drape coefficients differ by up to 0.32, so a calibration will need the measured node count too. Milestone 3c runs seven seeds per case: the suiting lands in 6 to 10 folds, its seed-mean drape coefficient still rises 0.030 to 0.033 from 3.75 to 2.5 mm (the revised acceptance fails by 0.0025), but in every discordant case the lower-drape fold pattern is lower in energy, and the lowest-energy seed's drape coefficient moves only 0.001 to 0.009 with the mesh on both fabrics: the mesh dependence is finer meshes trapping starts in stiffer, higher-energy fold patterns. Milestone 3d makes the solver 3 times faster with an element-local Hessian and adds a 1.875 mm lattice: registered in advance, that lowest-energy rule fails on the suiting (+0.021; no seed found the 7-fold pattern), the seed mean converges on both fabrics (under 0.008 from 2.5 to 1.875 mm), and a Hessian that differs by under one part in a billion sends 13 of 14 chains to different fold states, so the seed mean, not the lowest of a few seeds, is what to calibrate against a measured drape. Milestone 3e pools the search: each lattice also starts from the fold patterns every other lattice found, all on one solver. The registered lowest-energy rule then passes, moving under 0.008 from 2.5 to 1.875 mm on both fabrics, and the suiting's 7-fold pattern is the lowest state on all three lattices. The seed mean also converges, but it sits 0.026 above that pattern on the suiting, so a measured node count is what will say which one a real drape test matches.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
+stiffness lands in the band where the choice flips, still need a measured tensile toe. Milestone 5 proves the margin bound the proposal planned (regret is at most the spread of the paired tier error, not its size) and tests it on those 50 tier pairs: the bound certifies no 2D-chain choice (the paired error still spreads 0.6 to 1.3 cm across widths, against margins of 0.05 to 0.25 cm), though the 2D choice's realised regret is small (mean 0.03 cm); it certifies only a stretch-stiffness guess near the KES-sourced one, so a cheap tier can screen widths but not judge them. Milestone 5b keeps the cheap tier's own penalty term the first bound dropped: the regret is at most max over d of K|d − d^| minus the cheap tier's penalty at d, with K the slope of the paired error around the choice, 2.8 times tighter on the 2D chain (median realised share of the bound 34% against 12%). Used as a loop (three reference runs around the cheap choice, estimate K, run what the bound cannot rule out), it finds the reference optimum in 48 of 50 tier pairs with 3.9 of 7 reference runs on average; the two misses are the softest cloth (EA 40 N/m), whose optimum sits two grid steps away. Milestone 3a builds ARCSim's element model (constant-strain triangles with measured shear, discrete-shell hinges) with a Newton solver: it matches the exact cantilever elastica to within 0.9% of the overhang after extrapolation and ignores stretch stiffness there, but fails the Cusick acceptance test: on the suiting the drape coefficient still climbs 0.016 per mesh refinement and 0.034 from EA 800 to 3200 N/m (40% less than the spring sheet), and on the soft jersey it converges only at EA 150 N/m, near the jersey's sourced tangent stiffness, and locks above it. Milestone 3b shows that jersey result was mostly a solver that never arrived: started from the soft equilibrium and stepped up in stretch stiffness, all 40 cases converge, and at the jersey's own sourced stiffness (254 and 369 N/m) the drape coefficient moves by only 0.008 to 0.011 from 3.75 to 2.5 mm and by 0.003 from 150 to 369 N/m, so the element passes the acceptance test there; the suiting misses the 0.03 mesh bar by 0.004 to 0.006 through a change in fold count, and the same case can settle in fold patterns whose drape coefficients differ by up to 0.32, so a calibration will need the measured node count too. Milestone 3c runs seven seeds per case: the suiting lands in 6 to 10 folds, its seed-mean drape coefficient still rises 0.030 to 0.033 from 3.75 to 2.5 mm (the revised acceptance fails by 0.0025), but in every discordant case the lower-drape fold pattern is lower in energy, and the lowest-energy seed's drape coefficient moves only 0.001 to 0.009 with the mesh on both fabrics: the mesh dependence is finer meshes trapping starts in stiffer, higher-energy fold patterns. Milestone 3d makes the solver 3 times faster with an element-local Hessian and adds a 1.875 mm lattice: registered in advance, that lowest-energy rule fails on the suiting (+0.021; no seed found the 7-fold pattern), the seed mean converges on both fabrics (under 0.008 from 2.5 to 1.875 mm), and a Hessian that differs by under one part in a billion sends 13 of 14 chains to different fold states, so the seed mean, not the lowest of a few seeds, is what to calibrate against a measured drape. Milestone 3e pools the search: each lattice also starts from the fold patterns every other lattice found, all on one solver. The registered lowest-energy rule then passes, moving under 0.008 from 2.5 to 1.875 mm on both fabrics, and the suiting's 7-fold pattern is the lowest state on all three lattices. The seed mean also converges, but it sits 0.026 above that pattern on the suiting, so a measured node count is what will say which one a real drape test matches. Milestone 3f finds that 3e's high-energy jersey transfers came from how the transfer filled the cloth's rim, not from real fold patterns: continuing the rim along the cloth's own tangent plane puts 41 of 42 transfers inside the target mesh's own energy band (worst 2.3e-5 J above it, against 6.4e-4 J), and the pooled drape coefficient moves by at most 0.002, though one transfer stops at the step cap and the jersey's mesh margin shrinks to 0.0005 under the bar.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 3f: the jersey's high-energy transfers were the rim fill, not the fold patterns
+
+`experiments/m3f_transfer/` (`run.py` with predictions P1 to P7 in its docstring, committed and pushed
+before any transfer solve; `chains.py`; `results.txt`, `results.json`, `starts.json`, `run_log.txt`,
+`transfer_excess_energy.svg`; 3 tests in `tests/test_m3f.py`). About 11.6 core-hours on 4 cores.
+
+**Question.** Milestone 3e's pooled rule passed its mesh test, but 19 of its 42 jersey transfers ended
+well above the target lattice's own seeds (up to 6.4e-4 J, against a seed band of about 2e-5 J) or hit
+the step cap. Was that the cross-lattice transfer, or real high-energy fold patterns? Each lattice is cut
+at R_SPEC + a/2, so a coarser target reaches past a finer source, and 3e filled those rim nodes with the
+nearest source node's displacement, about a/2 horizontally out from a rim that hangs nearly vertical.
+
+**Method.** The jersey's 21 garment-load end states were rebuilt with 3e's code (bit-identical energies).
+Each of 3e's 42 jersey transfers was rerun with one change, the affine transfer: a target node inside a
+source element is interpolated as before; any other node takes the affine extension of the best source
+element at its nearest source node, so the rim continues in the cloth's own deformed tangent plane.
+
+**Results.**
+
+| prediction | result |
+|---|---|
+| P1 rebuilt states match 3e | held, 21 of 21, energy difference 0 |
+| P2 (acceptance) no transfer at the 400-step cap (3e: 7 of 42) | **refuted narrowly:** 1 of 42, residual 1.13e-5 against a 1e-5 tolerance, energy already inside the band |
+| P3 (acceptance) ≥ 15 of 3e's 19 flagged transfers land in the target's own band + 1e-5 J | held, 18 of 19 (the 19th is the capped one) |
+| P4 affine start energy lower in all 28 transfers from 2.5 and 1.875 mm | held, 28 of 28 (+2.5e-3 to +1.4e-2 J down to −1.0e-3 to +3.6e-4 J) |
+| P5 ≥ 12 of 14 transfers from 3.75 mm unchanged | refuted, 9 of 14 |
+| P6 pooled DC within 0.005 of 3e, still < 0.01 from 2.5 to 1.875 mm | held: moves −0.002, −0.002, 0; mesh change +0.0095 (3e: +0.0074) |
+| P7 median Newton steps fall ≥ 20% | refuted, −16% (−37% from the finer sources) |
+
+The worst affine end state is 2.3e-5 J above the target's lowest own seed, against 6.4e-4 J in 3e, and
+37 of 42 keep their source fold count (3e: 30).
+
+![Jersey transfers: end energy above the target's lowest own seed, nearest-node fill against affine rim extension](experiments/m3f_transfer/transfer_excess_energy.svg)
+
+**Reading.** 3e's suspicion holds: the nearest-node rim fill, not real fold patterns, made the high-energy
+and capped transfers. The pooled rule's answer barely moves, so 3e's acceptance was not an artefact of bad
+transfers, but its jersey margin shrinks from 0.0026 to 0.0005 under the 0.01 bar. Which near-degenerate
+state is lowest (spread about 1e-5 J) still shifts with the start, and moves the DC by about 0.002; that is
+the floor on how precisely a single lowest-energy state reports the jersey's DC.
+
+**Limits.** Jersey only; one transfer rule; the capped transfer was left capped (registered cap); each
+band comes from seven seeds.
 
 ## Milestone 3e: a pooled cross-mesh lowest-energy rule passes the registered mesh test on both fabrics
 
@@ -754,7 +797,7 @@ no validated solver yet (the continued triangle element passes the Cusick accept
    within 0.008 of the next refinement at 2.5 mm on both fabrics (3e, registered); the plain lowest of
    seven seeds is not (3d). Next: calibrate against a measured DC and node count (milestone 4), using
    the fold count to tell the two summaries apart (suiting: 7 nodes for the lowest pattern, 8 to 10
-   for the typical solve); check the high-energy transferred jersey states (rim interpolation); a randomised-solver ensemble to put an interval on the mean; a damped dynamic drop as
+   for the typical solve); done in 3f: they were the rim fill, and an affine rim transfer lands 41 of 42 in the target's own band; carry that transfer to the suiting's transfers, and report the pooled DC as an interval over states inside the seed band (the jersey's near-degenerate states move it by about 0.002); a randomised-solver ensemble to put an interval on the mean; a damped dynamic drop as
    the other selection rule; a nonconforming (edge-midpoint) membrane for the high-EA regime.
 2. Place the cotton jersey and the shirting: a published low-load load-extension curve for a
    comparable cotton jersey and shirting, or an owner measurement (a strip, a spring scale, a
@@ -808,5 +851,10 @@ python3 experiments/m3e_pooled/run.py --phase chains    # milestone 3e, 38 seed 
 python3 experiments/m3e_pooled/run.py --phase transfer  # 70 cross-lattice transfers, about 13 core-hours (resumable)
 python3 experiments/m3e_pooled/run.py --phase report    # seconds
 python3 experiments/m3e_pooled/figure.py                # stdlib only
+python3 experiments/m3f_transfer/chains.py              # milestone 3f, the jersey's 21 source states, about 5.5 core-hours (resumable)
+python3 experiments/m3f_transfer/run.py --phase starts  # start energies, both transfers, seconds
+python3 experiments/m3f_transfer/run.py --phase transfer # 42 affine transfers, about 6 core-hours (resumable)
+python3 experiments/m3f_transfer/run.py --phase report  # seconds
+python3 experiments/m3f_transfer/figure.py              # stdlib only
 python3 experiments/m3_fem_tier/figure.py                  # stdlib only
 ```

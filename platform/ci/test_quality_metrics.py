@@ -112,6 +112,26 @@ class SignalsTest(unittest.TestCase):
         self.assertEqual([r["what"] for r in rows], ["wrong Section 179 cap"])
         self.assertEqual(len(m.queue([a], "low")), 2)
 
+    def test_queue_seed_spreads_parallel_sessions(self):
+        # Two fix sessions took the same top row the same minute (doc_friction 2026-11-16T16:41).
+        subs = [audit(subject=f"ventures/s{i}", _file=f"2026-11-0{i}-s{i}.json",
+                      defects=[{"severity": "medium", "what": f"s{i} first"}, {"severity": "medium", "what": f"s{i} second"}])
+                for i in range(1, 9)]
+        subs.append(audit(subject="ventures/hi", _file="2026-11-09-hi.json",
+                          defects=[{"severity": "high", "what": "hi"}]))
+        fixed = [r["subject"] for r in m.queue(subs, "medium")]
+        self.assertEqual(fixed[:3], ["ventures/hi", "ventures/s1", "ventures/s1"])
+        tops = {m.queue(subs, "medium", seed=f"2026-11-16-{t}")[1]["subject"] for t in ("aa", "bb", "cc", "dd", "ee")}
+        self.assertGreater(len(tops), 1)  # different seeds lead with different medium subjects
+        for seed in ("x", "y"):
+            rows = m.queue(subs, "medium", seed=seed)
+            self.assertEqual(rows, m.queue(subs, "medium", seed=seed))  # a seed repeats its order
+            self.assertEqual(rows[0]["subject"], "ventures/hi")  # severity still comes first
+            self.assertEqual(sorted(map(str, rows), key=str), sorted(map(str, m.queue(subs, "medium")), key=str))
+            for i in range(1, len(rows)):  # a subject's defects stay together, in index order
+                if rows[i]["subject"] == rows[i - 1]["subject"]:
+                    self.assertEqual(rows[i]["index"], rows[i - 1]["index"] + 1)
+
     def test_queue_reads_fixed_by_per_defect(self):
         url = "https://example.test/pull/1"
         a = audit(fix_prs=[url], defects=[{"severity": "medium", "what": "fixed one", "fixed_by": url},
