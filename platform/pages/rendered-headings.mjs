@@ -18,6 +18,7 @@
 //
 // Not in CI: it needs a build and a browser. Exit 1 when any page skips.
 // Why: docs/reports/polish-2026-11-12-finding-headings.md (270 pages fixed).
+import { requirePlaywright } from './load-playwright.mjs';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -79,7 +80,7 @@ async function varyStates({ run, max }) {
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
 if (invokedDirectly) {
-  const { default: pw } = await import('/opt/node-tools/node_modules/playwright/index.js');
+  const pw = await requirePlaywright();
   const vary = !process.argv.includes('--no-vary');
   const slugs = arg('slugs')?.split(',').filter(Boolean) ?? defaultSlugs();
   const srv = http.createServer((q, r) => {

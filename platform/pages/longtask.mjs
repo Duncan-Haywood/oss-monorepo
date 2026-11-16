@@ -17,6 +17,7 @@
 //
 // To A/B a change without rebuilding, copy the page next to itself in dist
 // (index-b.html) and edit the copy: relative module paths stay valid.
+import { requirePlaywright } from './load-playwright.mjs';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -54,7 +55,7 @@ async function main() {
   const pages = args.pages.split(',');
   const RUNS = Number(args.runs || 6), CPU = Number(args.cpu || 4), WAIT = Number(args.wait || 4000);
   const W = Number(args.width || 412), H = Number(args.height || 860), PORT = Number(process.env.PORT || 8797);
-  const { default: pw } = await import('/opt/node-tools/node_modules/playwright/index.js');
+  const pw = await requirePlaywright();
   const server = serve(DIST, PORT);
   const browser = await pw.chromium.launch();
   const res = Object.fromEntries(pages.map((p) => [p, []]));

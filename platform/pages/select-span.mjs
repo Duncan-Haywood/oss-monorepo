@@ -51,6 +51,7 @@
 // block (and removes it when nothing needs a span any more). Not part of CI:
 // it needs Playwright, which is not a dependency of this repo.
 
+import { requirePlaywright } from './load-playwright.mjs';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -213,7 +214,7 @@ async function main() {
       return fs.existsSync(f) && fs.readFileSync(f, 'utf8').includes('<select');
     }).sort();
   }
-  const { default: pw } = await import(process.env.PLAYWRIGHT || '/opt/node-tools/node_modules/playwright/index.js');
+  const pw = await requirePlaywright();
   const server = await serve(VENTURES);
   const origin = `http://127.0.0.1:${server.address().port}`;
   const browser = await pw.chromium.launch();
