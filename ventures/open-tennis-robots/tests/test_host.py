@@ -1258,6 +1258,29 @@ class EscSurveyTest(unittest.TestCase):
         (cmd, vals), = list(P.Decoder().feed(frame))
         self.assertEqual((cmd, vals[:3]), (P.ESC_SURVEY, (30, 100, 79)))
 
+    def test_one_badly_fitted_wheel_does_not_outvote_the_rest(self):
+        # README "One wheel's misses outvoted the drill": eight wheels fit 100 ms best by 20-30%; one with misses 30
+        # times theirs fits 0 best by 5%. The plain sum of squares followed the one; the trimmed sum follows the eight.
+        lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5)
+        good = [r * 1e-8 for r in (1.6, 1.4, 1.25, 1.0, 1.3, 1.5)]
+        bad = [r * 9e-6 for r in (1.0, 1.01, 1.02, 1.05, 1.06, 1.07)]
+        for _ in range(8):
+            lc.survey_add(good)
+        lc.survey_add(bad)
+        plain = [8 * g + b for g, b in zip(good, bad)]
+        self.assertEqual(controller.survey_pick(lc.survey, plain)[0], 0)
+        n, least, refined, rms = lc.survey_report()
+        self.assertEqual((n, least, lc.survey_trimmed), (9, 100, 1))
+        self.assertTrue(80 <= refined <= 125, refined)
+        self.assertEqual(rms[3], 100)                       # the kept wheels' rms, 1e-4 of the speed
+        for _ in range(4):                                 # wheels within 5x of the median stay in
+            lc.survey_add([4 * v for v in good])
+        lc.survey_report()
+        self.assertEqual(lc.survey_trimmed, 1)
+        for _ in range(controller.SURVEY_KEEP):            # only the last SURVEY_KEEP are kept
+            lc.survey_add(good)
+        self.assertEqual((len(lc.survey_wheels), lc.survey_n), (controller.SURVEY_KEEP, 13 + controller.SURVEY_KEEP))
+
     def test_survey_off_sends_nothing(self):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, survey=())
         self.assertIsNone(lc.survey_report())

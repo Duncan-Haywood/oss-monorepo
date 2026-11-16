@@ -27,6 +27,7 @@ and may provide:
 
 import json
 import math
+from array import array
 import os
 
 import protocol as P
@@ -317,6 +318,12 @@ TICK_LOG = 160        # control ticks LaunchCheck keeps per wheel for it: a 0.9 
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
 # ESC_SURVEY frame, so `ESC_TAU_US` can be set from a real drill. tests/esc_lag_pick.py's grid.
 ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
+# A wheel whose best fit over the grid misses by more than this many times the median wheel's best is left out of the
+# sums (2026-11-16, README "One wheel's misses outvoted the drill"): with tach jitter one wheel in 56 could fit 30 times
+# worse than the rest, and its square alone set the pick (0 instead of 100 ms on 6 of 102 simulated builds). 3 / 5 / 10
+# scored 101 / 100 / 100 of the 102 within 10% (tests/esc_survey_weight.py); the plain sum, 93.
+SURVEY_TRIM = 5.0
+SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (24 bytes each); the oldest goes first
 
 
 def survey_pick(grid, sums):
@@ -1352,6 +1359,9 @@ class LaunchCheck:
         self.survey = tuple(survey or ())
         self.survey_sums = [0.0] * len(self.survey)
         self.survey_n = 0
+        self.survey_wheels = []       # each surveyed wheel's squared rms per lag (the last SURVEY_KEEP), for the trim
+        self.survey_trimmed = 0       # wheels the trim left out of `survey_sums` at the last report
+        self._sums_n = -1
         self.survey_cut = 0
         self.surveying = None
 
@@ -1521,17 +1531,41 @@ class LaunchCheck:
                     break
                 got.append(fit[4] * fit[4])
             if len(got) == len(self.survey):
-                for i in range(len(got)):
-                    self.survey_sums[i] += got[i]
-                self.survey_n += 1
+                self.survey_add(got)
+
+    def survey_add(self, got):
+        """One wheel's squared residual rms at every lag on `survey`."""
+        self.survey_wheels.append(array("f", got))
+        if len(self.survey_wheels) > SURVEY_KEEP:
+            self.survey_wheels.pop(0)
+        self.survey_n += 1
+
+    def _survey_sums(self):
+        """`survey_sums` over the kept wheels, less those whose best fit is over SURVEY_TRIM times the median wheel's
+        (README "One wheel's misses outvoted the drill"); recomputed only after a new wheel."""
+        if self._sums_n == self.survey_n:
+            return
+        ws = self.survey_wheels
+        best = sorted(min(w) for w in ws)
+        cap = SURVEY_TRIM * SURVEY_TRIM * best[len(best) // 2] if best else 0.0
+        sums = [0.0] * len(self.survey)
+        kept = 0
+        for w in ws:
+            if min(w) <= cap:
+                kept += 1
+                for i in range(len(sums)):
+                    sums[i] += w[i]
+        self.survey_sums, self.survey_trimmed, self._sums_n = sums, len(ws) - kept, self.survey_n
+        self._kept = kept
 
     def survey_report(self):
-        """(wheels summed, the least sum's lag in ms, the refined lag in ms, each lag's mean rms in 1e-6 of the pre-ball
-        speed) for the ESC_SURVEY frame, or None before the first wheel."""
+        """(wheels surveyed, the least sum's lag in ms, the refined lag in ms, each lag's mean rms over the wheels the
+        trim kept, in 1e-6 of the pre-ball speed) for the ESC_SURVEY frame, or None before the first wheel."""
         if not self.survey or self.survey_n == 0:
             return None
+        self._survey_sums()
         i, ref = survey_pick(self.survey, self.survey_sums)
-        rms = [min(65535, int(round(1e6 * math.sqrt(v / self.survey_n)))) for v in self.survey_sums]
+        rms = [min(65535, int(round(1e6 * math.sqrt(v / self._kept)))) for v in self.survey_sums]
         return (min(255, self.survey_n), self.survey[i] // 1000, int(round(ref / 1000)), rms)
 
     def step(self):

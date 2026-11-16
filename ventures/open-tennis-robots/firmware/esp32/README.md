@@ -1054,3 +1054,56 @@ readings (a wrong t0 at 5,000-6,000 rpm: worst 63% to 5% at 10 us over 144
 balls, measured with the unweighted variant), but the launcher fit already trims wild rows, so the typical error is
 what reaches the drill. If a real tach shows 10 us or more, the thing to try
 is t0 chosen on the sums and the drop estimated on the rows at that t0.
+
+## One wheel's misses outvoted the drill (2026-11-16, after the survey)
+
+**The item.** The survey above missed one build: the jittery 100 ms ESC at a
+0.8 s wheel lag picked 0 and stayed at 2.4% spin error. Why?
+
+**The cause.** `tests/esc_survey_weight.py` keeps every surveyed wheel's
+squared residual at each grid lag (`--dump`), so the summing rule can be
+changed without rerunning the simulator. In that build, one wheel of 56
+(5,479 rpm) missed by 7,650 ppm of its speed at its best lag, against 120 to
+830 for every other wheel. Its square was larger than all the others put
+together, and it fitted 0 slightly better (by 5%). A plain sum of squares
+gives the worst-fitted wheel the most weight, so that one wheel set the pick.
+It is not a trend with speed: wheels at 4,500-6,300 rpm fitted as well as the
+slow ones.
+
+**Rules tried** (refined pick within 10% of the true lag; 102 builds, the 9
+plants at wheel lags 0.2 / 0.4 / 0.8 s, two true launchers, the jittery plants
+on seeds 7 / 8 / 9; eval/esc-survey-weight-2026-11-16.txt):
+
+| rule | within 10% | ESC builds that picked 0 |
+| --- | --- | --- |
+| sum of rms^2 (the board until now) | 93 | 5 |
+| sum of log(rms^2), each wheel its own noise | 90 | 0 |
+| sum of rms^2 / the wheel's own least | 98 | 0 |
+| sum of rms^2 without wheels over 3 / 5 / 10 x the median wheel's best rms | 101 / 100 / 100 | 0 |
+
+The log is the textbook answer (one noise level per wheel), and it did fix
+every jittery build, but it pulled the clean plants off: 60 ms read 48-50 and
+150 ms read 119-136. The likely reason is that on a noise-free wheel the tiny
+model misses then get a full vote. Trimming only the outliers keeps the plain
+sum's precision. The factor hardly matters (3, 5 and 10 differ by one build).
+
+**On the board.** `LaunchCheck` now keeps each surveyed wheel's six squared
+residuals (`survey_wheels`, the last `SURVEY_KEEP` = 128, 24 bytes each) and,
+when it reports, sums them without the wheels whose best rms is over
+`SURVEY_TRIM` (5) times the median wheel's. `survey_trimmed` counts those
+left out. The ESC_SURVEY frame is unchanged; its wheel count is still every
+surveyed wheel, and its per-lag rms is over the wheels kept.
+
+**Held out** (seeds 10 / 11 / 12 on the four jittery plants, run after the
+factor was set; 72 builds): trim 5 had 70 within 10% and no zero picks; the plain
+sum had 67, with 4 builds at 0. The two trim misses read 90 and 111 ms for 100
+(5 us of jitter). End to end through the board and the Pi, the build that
+failed now picks 99 ms (one wheel trimmed), and the calibration fit's spin
+error falls from +2.4% to +0.8% (speed -1.1% to -0.2%).
+
+**Not known.** The outlier's own fit is the open question: why one wheel in
+56 misses 10 to 60 times more than the rest. The likely answer is a jitter
+draw landing where the ball meets the wheel, but this run did not check that.
+Physics and plants are the simulator's assumptions. The heap cost of 128 kept
+wheels (about 3 KB as float arrays) and the report's sort are counted, not
+measured on an ESP32.
