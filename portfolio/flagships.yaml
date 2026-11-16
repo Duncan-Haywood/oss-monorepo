@@ -124,11 +124,11 @@ flagships:
       Receipts, item (5), on the public SRD photos (eval/srd-fetch.mjs,
       raw.githubusercontent.com; `apt-get update && apt-get install -y
       tesseract-ocr` gives tesseract 5.3.4 in about a minute): CLI `--four-pass` tax
-      133 of 185, totals 154 of 196; the 26 no-tax wrong-total photos are mostly
-      OCR-bound (eval/receipt-total-first-2026-11-16.md); next: a held-out
-      multi-reading set (CORD photos via eval/cord_images.py); rebuild the page's
-      readings (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item
-      splits after the 2026-11-16 change. CORD stays the held-out check.
+      133 of 185, totals 154 of 196; held out (SROIE 625) the rules gain and lose 0
+      (eval/receipt-total-first-heldout-2026-11-16.md); next: CORD photos
+      (eval/cord_images.py; huggingface.co 403'd here); rebuild the page's readings
+      (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item splits
+      after the 2026-11-16 change. CORD stays the held-out check.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
