@@ -614,6 +614,17 @@ droops the G1's nose by 51.30 mm at the worst pose (32.12 mm at the least; H1 22
 through the waist and ankle pitches. The joint encoders read that error, so re-targeting on them
 removes it.
 
+The air hose is a force rather than a mass (milestone 35). A 3/8 in hose (listed weights 0.152 and
+0.274 kg/m) hangs from the grip to the floor as a catenary and, once dragged, pulls horizontally
+with whatever tension the floor holds (1.6 to 21.5 N for the rubber hose over a friction
+coefficient of 0.3 to 0.8 and 2 to 10 m dragged; swept). Neither the balance controller nor the
+compensator knows it. At k_t 1e4 N m/rad a 5 N pull in the worst direction winds the G1's free
+nose up by 1.251 mm, worst when it pulls towards the wall (along the wall at most 0.921 mm), and
+leaves the matched backlash compensator 1.001 mm along the wall after one calibration; the hanging
+hose alone leaves 0.474 mm. With the tension uniform over 0 to 5 N the worst G1 pose loses 2.17
+points of the 12-bit stack, over 0 to 10 N 20.66 points. A hose has to come off the tool, be
+measured at the wrist, or drag lightly.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
