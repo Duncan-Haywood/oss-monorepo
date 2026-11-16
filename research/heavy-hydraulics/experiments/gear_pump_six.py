@@ -80,7 +80,7 @@ def main(cache):
     gears = gs.families()
     gears["rexroth"] = Gear(gr.rexroth_rows(), sizes=rx.SIZES)
     gears["azpn"] = Gear(azpn_rows(), sizes=rn.SIZES)
-    E = {f: gs.index2(g, f) for f, g in gears.items()}
+    E = {f: gs.index2(g, f, hold=False) for f, g in gears.items()}   # 6y's registered reading (6z made hold the default)
     rows, coef = gs.geometry_rows(cache, gears)
     idle = {f: gear_powers(g, coef, *CENTRAL) for f, g in gears.items()}
     k85 = int(round((Q85 - GRID[0]) / 0.5))

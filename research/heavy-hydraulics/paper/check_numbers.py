@@ -446,6 +446,14 @@ MANUSCRIPT_CHECKS = [
     ("E<sub>50</sub> = 0.8245 + 0.0183 (kW &minus; 3.57)", "gear_pump_six_results.txt", "E50 = 0.8245 + 0.0183 (kW - 3.57)"),
     ("an RMS of 0.0023 against 0.0120 for a constant", "gear_pump_six_results.txt", "one-number 0.0120, two-number 0.0023"),
     ("the registered test fails by 0.0293;", "gear_pump_six_results.txt", "error +0.0293"),
+    # milestone 6z: seventh family (AZPU) under the fixed index
+    ("lands 0.0011 from the committed rule, against 0.0142 for a constant", "gear_pump_seven_results.txt", "(C) one-number 0.8172; error -0.0142"),
+    ("the largest giving 136.73 L/min", "gear_pump_seven_results.txt", "largest size gives 136.73 L/min"),
+    ("Its index is 0.8890 and its idle power at 85 L/min 2.45 kW", "gear_pump_seven_results.txt", "azpu       0.8890       -0.0016     2.45"),
+    ("It crosses at 0.8030; the rule as committed predicts 0.8041, an error of &minus;0.0011", "gear_pump_seven_results.txt", "(A) 6x as committed 0.8241 + 0.0179 (2.45 - 3.57) = 0.8041; error -0.0011"),
+    ("E<sub>50</sub> = 0.8239 + 0.0179 (kW &minus; 3.57)", "gear_pump_seven_results.txt", "E50 = 0.8239 + 0.0179 (kW - 3.57)"),
+    ("an RMS of 0.0023 against 0.0120 for a constant (0.0037 against 0.0099", "gear_pump_seven_results.txt", "seven held-out diagonals: one-number 0.0120, two-number 0.0023"),
+    ("(0.0037 against 0.0099 over all 91 held-out cells)", "gear_pump_seven_results.txt", "91 held-out cell predictions: one-number 0.0099, two-number 0.0037"),
 ]
 
 

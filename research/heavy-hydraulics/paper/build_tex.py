@@ -83,6 +83,7 @@ CITES: list[tuple[str, str]] = [
     (r"Marzocchi's ALP catalogue \(\"Serie ALP\", printed pages 38 and 43 to 46\)", "Marzocchi's ALP catalogue (printed pages 38 and 43 to 46)\x02" + C("marzocchi_alp")),
     (r"its data sheet \(RE 10093\)", "its data sheet\x02" + C("rexroth_azpg")),
     (r"AZPN \(RE 10091; ", "AZPN\x02" + C("rexroth_azpn") + " ("),
+    (r"AZPU \(RE 10 098; ", "AZPU\x02" + C("rexroth_azpu") + " ("),
 ]
 
 TOKEN = re.compile(r"(?:doi:|arXiv:)\S+")
