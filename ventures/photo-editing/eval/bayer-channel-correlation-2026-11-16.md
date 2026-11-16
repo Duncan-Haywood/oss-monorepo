@@ -121,7 +121,7 @@ the share of sensels where 1/8 is nearer the truth than 1/4.
 
     git clone --depth 1 --filter=blob:none --sparse https://github.com/drewnoakes/metadata-extractor-images.git mei
     (cd mei && git sparse-checkout set arw cr2 dng nef orf pef rw2 srw)
-    # the same 40 training files as eval/bayer-learned-noisy-nyquist-2026-11-16.md; a new cache (12 feature columns)
+    # the same 40 training files (listed in eval/bayer-learned-train-frames.txt); a new cache (12 feature columns)
     PYTHONPATH=src:tools python tools/bayer_laplace_train.py --train <40 files> --cache NEWCACHE \
         --pairs --ridge 1e-5 --noise-snr 25 --noise-snr 50 --cv [--extra corr3sq --extra corr5sq] > G.jsonl
     # M: add --synthetic 16 --synthetic-kind matched --synthetic-weight 0.25
