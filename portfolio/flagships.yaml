@@ -271,11 +271,10 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer boosted trees beat B
-      on test (+0.451 vs +0.406 dB) but K-1 II falls below 3/16
-      (eval/bayer-boosted-weight-*); next a guarded variant, then numpy tree
-      inference. X-Trans: a per-frame choice (A7 IV wants less edge-keeping, GF7/NX1
-      a wider red/blue window; --truth-from,
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer trees parked: a
+      range guard passes 6 fresh cameras, misses K-1 II/A7 III; no fresh frames left
+      (eval/bayer-boosted-guard-*). X-Trans: a per-frame choice (A7 IV wants less
+      edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
       eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
       eval/opcode-spec-audit-2026-11-12.md.
     next: >-

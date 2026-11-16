@@ -3,8 +3,8 @@
 The boosted Bayer weight (``eval/bayer-boosted-weight-2026-11-16.md``) is 400 trees of up to 63 leaves.
 A raw developer should not need lightgbm to apply it, so ``from_lightgbm_dump`` flattens a model's
 ``dump_model()`` JSON into five arrays (feature, threshold, left, right, value per node, every tree's
-nodes in one table, leaves pointing at themselves) and ``predict`` walks all samples down one tree at a
-time, a level per step, with array indexing. ``save``/``load`` keep the arrays in an ``.npz``.
+nodes in one table, leaves pointing at themselves) and ``predict`` walks the samples down one tree at a
+time, a level per step, with array indexing, carrying only the rows not yet at a leaf. ``save``/``load`` keep the arrays in an ``.npz``.
 
 Supported: numerical splits with ``decision_type`` ``<=`` and ``missing_type`` ``None`` (NaN is read as
 0, LightGBM's own rule for that type) or ``NaN`` (NaN goes the ``default_left`` way); ``Zero`` missing
@@ -86,21 +86,23 @@ def predict(model: Ensemble, X: np.ndarray, chunk: int = 1 << 18) -> np.ndarray:
     if X.ndim != 2 or X.shape[1] < model.n_features:
         raise ValueError(f"X must be (n, >= {model.n_features}), got {X.shape}")
     out = np.zeros(X.shape[0], np.float64)
-    feat = np.maximum(model.feature, 0)  # leaves read column 0 and stay put either way
+    is_leaf = model.feature < 0
     for s in range(0, X.shape[0], chunk):
         x = X[s : s + chunk].astype(np.float64)
-        rows = np.arange(x.shape[0])
         acc = np.zeros(x.shape[0], np.float64)
         for root in model.roots:
             node = np.full(x.shape[0], root, np.int32)
-            for _ in range(model.depth):
-                v = x[rows, feat[node]]
-                go_left = np.where(np.isnan(v), model.nan_left[node], v <= model.threshold[node])
-                node = np.where(go_left, model.left[node], model.right[node])
+            live = np.arange(x.shape[0])  # rows not yet at a leaf
+            while live.size:
+                n = node[live]
+                v = x[live, model.feature[n]]
+                go_left = np.where(np.isnan(v), model.nan_left[n], v <= model.threshold[n])
+                n = np.where(go_left, model.left[n], model.right[n])
+                node[live] = n
+                live = live[~is_leaf[n]]
             acc += model.value[node]
         out[s : s + chunk] = acc
     return out
-
 
 def save(model: Ensemble, path) -> None:
     np.savez_compressed(path, feature=model.feature, threshold=model.threshold, left=model.left,
