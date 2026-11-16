@@ -83,3 +83,19 @@ test("the wasm report equals the CLI report", (t) => {
     assert.deepEqual(got, JSON.parse(cli), dir);
   }
 });
+
+test("tsconfig paths resolve in the browser build too", () => {
+  const files = [
+    { path: "tsconfig.json", text: '{\n  // Next.js style\n  "compilerOptions": { "paths": { "@/*": ["./src/*"] }, },\n}\n' },
+    { path: "src/a.ts", text: "import { b } from '@/b';\nexport const a = 1;\n" },
+    { path: "src/b.ts", text: "import { a } from '@/a';\nimport x from '@/gone';\nexport const b = 2;\n" },
+  ];
+  const r = wasm.analyze(files);
+  assert.equal(r.components.length, 1);
+  assert.deepEqual(r.components[0].files, ["src/a.ts", "src/b.ts"]);
+  assert.deepEqual(r.unresolved.map((u) => u.spec), ["@/gone"]);
+  // Without the config the aliases are packages: no cycle, nothing missing.
+  const bare = wasm.analyze(files.slice(1));
+  assert.equal(bare.components.length, 0);
+  assert.equal(bare.unresolved.length, 0);
+});
