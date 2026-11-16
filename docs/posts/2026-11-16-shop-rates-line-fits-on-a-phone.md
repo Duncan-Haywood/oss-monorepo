@@ -2,7 +2,7 @@
 title: "Fifty-five characters was too many: the shop-rates line on a phone"
 seo_title: "Shop rates bar on a phone: fitting a bid calculator line"
 date: 2026-11-16
-description: "On 118 trade bid calculators the two bars above the form took 132 px on a phone. A 30-character sentence, chosen by a fit test across every page, brings it to 85 px."
+description: "On 118 bid calculators, two bars above the form took 132 px on a phone. A 30-character sentence, picked by a fit test on every page, cuts it to 85 px."
 tags: [site, polish]
 ---
 
