@@ -116,7 +116,11 @@ export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.en
   const REF = /(["'(=\s])([^"'()\s<>]*?\.mp3)(?=[?#]?[^"'()\s<>]*["')\s<>])/g;
   const texts = files.filter((f) => TEXT_EXTS.has(path.extname(f)));
   const unreferenced = new Set(target.keys());
-  await Promise.all(texts.map(async (file) => {
+  // A fixed pool of readers, not one promise per page: with ~20k text files the
+  // unbounded Promise.all opened them all at once and hit EMFILE where the
+  // open-file limit is 20,000 (a local workflow run, 2026-11-16). Each file is
+  // independent, so the result does not depend on the order they finish in.
+  const rewrite = async (file) => {
     const src = await fs.readFile(file, 'utf8');
     if (!src.includes('.mp3')) return;
     const from = urlOf(file);
@@ -135,7 +139,12 @@ export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.en
       return `${lead}${hit.cdn}`;
     });
     if (changed) await fs.writeFile(file, out);
-  }));
+  };
+  let next = 0;
+  const worker = async () => {
+    while (next < texts.length) await rewrite(texts[next++]);
+  };
+  await Promise.all(Array.from({ length: Math.min(64, texts.length) }, worker));
 
   for (const [url, { file, bytes }] of target) {
     // An MP3 nothing links is still a published URL (a feed reader may hold

@@ -87,3 +87,17 @@ arrive sooner there too.
    current first-smallest rule.
 4. youth-lineup-rotator (calc.test 7.4 s) and tile-layout-optimizer (calc.test
    5.1 s) have no perf history either.
+
+## Also: the site build hit the open-file limit
+
+`run_workflow_locally.py --for-changes` failed portfolio-pages' "Build the
+site" step with `EMFILE` (errno −24) in `moveAudioToCdn`
+(`platform/pages/audio-cdn.mjs`). It read and rewrote every text file of the
+built site through one unbounded `Promise.all`, and the trace shows index
+19,980 of it. This container's `ulimit -n` is 20,000. GitHub runners allow
+more, so CI is not red yet, but the site grows by hundreds of pages a day.
+The step now uses a fixed pool of 64 workers. Each file is read, rewritten
+and written independently, and the shared `unreferenced` set only shrinks, so
+the output does not depend on the order. `audio-cdn.test.mjs` passes (4/4).
+A full local `build.mjs --out` completed after the change (see the run
+record).
