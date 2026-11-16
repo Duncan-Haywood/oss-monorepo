@@ -706,6 +706,53 @@ def clean_summary(path, nc_path, held=("sf", "seattle"), years=(2021, 2022)):
                 austin_share_of_dropped=[au(c) for c in cells], held=verdict)
 
 
+def len_summary(path, clean_path, stamp96_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 97: cpin_es3_nc5_stamp (refit), _stamp_len and _stamp_long (this file) against session 95's
+    cpin_es3_nc5_clean (clean_path) and session 96's cpin_es3_nc5_stamp (stamp96_path); predictions L0 to L5."""
+    R, C, S = json.load(open(path)), json.load(open(clean_path)), json.load(open(stamp96_path))
+    q = lambda r: r["test_loss"]["0.9"]  # noqa: E731
+    pm = lambda r: float(np.mean([v["mean"] for v in r["test_pred_q90"].values()]))  # noqa: E731
+    cells = []
+    for h in held:
+        for Y in years:
+            k = lambda v: f"{h} {Y} {v}"  # noqa: E731
+            st, ln, lg = R.get(k("cpin_es3_nc5_stamp")), R.get(k("cpin_es3_nc5_stamp_len")), R.get(k("cpin_es3_nc5_stamp_long"))
+            cl, s96 = C.get(k("cpin_es3_nc5_clean")), S.get(k("cpin_es3_nc5_stamp"))
+            if None in (st, ln, lg, cl, s96):
+                continue
+            nonstamp = cl["n_dead_dropped"] - st["n_dead_dropped"]
+            ps = lambda a, b: [y - x for x, y in zip(a["test_loss_per_seed"]["0.9"], b["test_loss_per_seed"]["0.9"])]  # noqa: E731
+            cells.append(dict(
+                held=h, year=Y, n_nonstamp_dead=nonstamp, len_matched=ln["len_matched"],
+                len_short_share=ln["len_matched"]["n_short"] / nonstamp,
+                n_long_dropped=lg["n_dead_dropped"] - st["n_dead_dropped"],
+                long_share_of_nonstamp=(lg["n_dead_dropped"] - st["n_dead_dropped"]) / nonstamp,
+                q90=dict(stamp=q(st), stamp96=q(s96), clean=q(cl), stamp_len=q(ln), stamp_long=q(lg)),
+                stamp_refit_minus_s96=q(st) - q(s96),
+                len_minus_stamp=q(ln) - q(st), long_minus_stamp=q(lg) - q(st), clean_minus_stamp=q(cl) - q(st),
+                clean_minus_stamp_s96=q(cl) - q(s96),
+                len_minus_stamp_per_seed=ps(st, ln), long_minus_stamp_per_seed=ps(st, lg),
+                q90_pred_mean=dict(stamp=pm(st), clean=pm(cl), stamp_len=pm(ln), stamp_long=pm(lg)),
+                rounds={v: [x["0.9"] for x in r["rounds"].values()]
+                        for v, r in (("stamp", st), ("stamp_len", ln), ("stamp_long", lg))}))
+    sf = [c for c in cells if c["held"] == "sf"]
+    se = [c for c in cells if c["held"] == "seattle"]
+    full = len(cells) == len(held) * len(years)
+    pred = dict(
+        L0=full and all(abs(c["stamp_refit_minus_s96"]) <= 0.05 for c in cells),
+        L1=full and all(c["len_short_share"] < 0.01 for c in cells),
+        L2=full and all(c["len_minus_stamp"] >= 1.0 for c in se),
+        L3=full and float(np.mean([c["len_minus_stamp"] for c in sf])) < 0,
+        L4=full and all(c["long_minus_stamp"] >= 0.75 * c["clean_minus_stamp_s96"] for c in se),
+        L5=full and all(c["long_share_of_nonstamp"] <= 0.40 for c in cells))
+    mean = lambda f: float(np.mean([c[f] for c in cells])) if cells else None  # noqa: E731
+    return dict(note="session 97: stamp, stamp_len, stamp_long refit on the 2026-11-16 pull; clean from session 95, "
+                     "stamp96 from session 96 (same row counts); L4 uses session 96's clean minus stamp as pre-registered",
+                cells=cells, predictions=pred,
+                mean=dict(len_minus_stamp=mean("len_minus_stamp"), long_minus_stamp=mean("long_minus_stamp"),
+                          clean_minus_stamp=mean("clean_minus_stamp")))
+
+
 def stamp_summary(path, clean_path, sweep_path, held=("sf", "seattle"), years=(2021, 2022)):
     """Session 96: cpin_es3_nc5_stamp and cpin_es3_nc3_clean (this file) against session 95's cpin_es3_nc5 and
     cpin_es3_nc5_clean (clean_path) and session 92's cpin_es3_nc3 (sweep_path), all on feeds whose row counts
@@ -781,9 +828,21 @@ if __name__ == "__main__":
     ap.add_argument("--status-dir", help="session 95: directory of <city>_status.csv (status_pull.py)")
     ap.add_argument("--summarise-clean", help="session 95: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-ncq", help="session 93: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-len", help="session 97: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-stamp", help="session 96: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_len:
+        s = len_summary(a.summarise_len, os.path.join(res_dir, "rounds_score_clean_i2c.json"),
+                        os.path.join(res_dir, "rounds_score_stamp_i2c.json"))
+        json.dump(s, open(a.summarise_len.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(pred=s["predictions"], mean=s["mean"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], c["n_nonstamp_dead"], c["len_matched"], c["n_long_dropped"],
+                  {k: round(v, 2) for k, v in c["q90"].items()}, round(c["len_minus_stamp"], 2),
+                  round(c["long_minus_stamp"], 2), [round(x, 2) for x in c["len_minus_stamp_per_seed"]],
+                  [round(x, 2) for x in c["long_minus_stamp_per_seed"]])
+        sys.exit()
     if a.summarise_stamp:
         s = stamp_summary(a.summarise_stamp, os.path.join(res_dir, "rounds_score_clean_i2c.json"),
                           os.path.join(res_dir, "rounds_score_sweep_i2c.json"))
