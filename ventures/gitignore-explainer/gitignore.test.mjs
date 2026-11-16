@@ -245,3 +245,45 @@ test("a negation in .git/info/exclude blocked by a root folder rule gets a fix",
   assert.deepEqual(r.fix.fixed, ["build/keep.txt"]);
   assert.deepEqual(r.fix.unfixed, []);
 });
+
+test("POSIX class edges: control characters and DEL", () => {
+  // git's [[:cntrl:]] is iscntrl(): bytes 0-31 and 127; [[:graph:]] stops at 126
+  assert.ok(wildmatch("[[:cntrl:]]x", "\x01x"));
+  assert.ok(wildmatch("[[:cntrl:]]x", "\x7fx"));
+  assert.ok(!wildmatch("[[:cntrl:]]x", "ax"));
+  assert.ok(!wildmatch("[[:graph:]]x", "\x7fx"));
+  assert.ok(wildmatch("[[:graph:]]x", "~x"));
+});
+
+test("a bracket range includes both of its ends", () => {
+  assert.ok(wildmatch("[a-c].log", "a.log"));
+  assert.ok(wildmatch("[a-c].log", "c.log"));
+  assert.ok(!wildmatch("[a-c].log", "d.log"));
+  assert.ok(!wildmatch("[b-c].log", "a.log"));
+});
+
+test("every C escape git uses in a quoted path decodes to its byte", () => {
+  const names = { a: 7, b: 8, t: 9, n: 10, v: 11, f: 12, r: 13 };
+  for (const [e, code] of Object.entries(names)) {
+    assert.equal(run("x", `"p\\${e}q"`).paths[0].path, `p${String.fromCharCode(code)}q`, `\\${e}`);
+  }
+});
+
+test("between two equally good fixes, the one in the negation's own file is offered", () => {
+  // the root .gitignore could carry `!/web/**/*.map` just as well, but the
+  // reader wrote the negation in web/.gitignore, so the fix stays there
+  const r = run("dist\n==> web/.gitignore <==\n!*.map", "web/dist/a.map");
+  assert.deepEqual(r.fix.patches, [{ file: "web/.gitignore", lines: ["!/dist/", "/dist/*", "!*.map"] }]);
+  assert.deepEqual(r.fix.sideEffects, []);
+});
+
+test("wildcards take one byte, as in git, so `?` does not match an accented letter", () => {
+  // checked with `git check-ignore --no-index -v` (git 2.4x): é is two UTF-8
+  // bytes, so `caf?.txt` and `n[!a]o` leave café.txt and néo alone, while `*`
+  // still spans both bytes
+  const r = run("caf?.txt\n[[:alpha:]]x\nn[!a]o\nb*z\ncaf??.md\n[é]x", "café.txt\néx\nnéo\nbé.z\ncafé.md");
+  assert.deepEqual(r.paths.map((p) => [p.path, p.ignored]), [["café.txt", false], ["éx", false], ["néo", false], ["bé.z", true], ["café.md", true]]);
+  assert.ok(!wildmatch("?", "é"));
+  assert.ok(wildmatch("??", "é"));
+  assert.ok(wildmatch("café*", "café.txt"));
+});
