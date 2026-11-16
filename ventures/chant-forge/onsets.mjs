@@ -85,8 +85,10 @@ export const DARK_BY = 10;
 // readCoda's murmur against the vowel just before it (see its note); chosen on eval/coda-check.mjs A, B and I
 export const NEAR = { dark: 8, lo: -18, hi: 0, hold: 4, tiltHold: 4 };
 // readCoda's murmur just before the obstruent of an n-t, n-s or n-k cluster (see its note); chosen on the
-// synthetic syllables of eval/coda-check.mjs A and J only
-export const PRE = { dark: 6, step: 8, lo: -18, hi: 4, minMs: 40, gap: 5 };
+// synthetic syllables of eval/coda-check.mjs A and J only. hi raised from 4 to 12 (2026-11-16, twelfth round,
+// README "A murmur louder than the dip before it"): on D4-E4 notes the n of punc, tunt and sons swells 8-12 dB
+// over the vowel's darkening dip just before it; set on J, N and O, pre-registered on part P
+export const PRE = { dark: 6, step: 8, lo: -18, hi: 12, minMs: 40, gap: 5 };
 // readCoda's vowelAgain before an obstruent (see its note); chosen on eval/coda-check.mjs J only
 export const AGAIN = { gap: 5, frames: 2 };
 // readCoda's voiced fricative: how much more energy above 5 kHz than the vowel's a frame must carry (see its
