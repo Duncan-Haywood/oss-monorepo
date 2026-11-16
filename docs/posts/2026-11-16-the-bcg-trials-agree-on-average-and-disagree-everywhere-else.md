@@ -1,8 +1,8 @@
 ---
 title: "The BCG trials agree on average and disagree everywhere else"
-seo_title: "Free meta-analysis calculator: random effects, forest plot, prediction interval"
+seo_title: "Meta-analysis calculator: random effects, forest plot, I-squared"
 date: 2026-11-16
-description: "A free meta-analysis tool, checked against statsmodels and metafor. On 13 BCG vaccine trials the pooled risk ratio is 0.49, but the prediction interval runs past 1."
+description: "A free meta-analysis tool checked against statsmodels and metafor. On 13 BCG trials the pooled risk ratio is 0.49, but the prediction interval runs past 1."
 tags: [meta-analysis, research-algorithms, statistics, verification]
 ---
 
