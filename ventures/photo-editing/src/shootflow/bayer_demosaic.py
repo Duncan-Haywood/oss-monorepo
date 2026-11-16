@@ -370,12 +370,12 @@ def directional(
     eps = WORK(1e-6 * max(float(np.max(np.abs(c))), 1e-6))
     out = np.empty((h, w, 3), dtype=WORK)
     use_c = False
-    if native is not False and median_passes == 0 and adaptive is None and learned is None:
+    if native is not False and median_passes == 0 and adaptive is None:
         from shootflow import bayer_native
 
         use_c = 0 <= int(window) <= 12 and bayer_native.available()
     if native is True and not use_c:
-        raise RuntimeError("the native Bayer demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0, median_passes > 0, laplace='adaptive' or 'learned', or window over 12)")
+        raise RuntimeError("the native Bayer demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0, median_passes > 0, laplace='adaptive', or window over 12)")
     # The C path keeps 17 band-sized float32 planes; 128 rows keep that near 60 MB per thread at 6000 columns.
     band = max(int(band if band is not None else (128 if use_c else 512)), 16)
 
@@ -386,7 +386,7 @@ def directional(
         if use_c:
             from shootflow import bayer_native
 
-            bayer_native.piece(big[a:b], cm, window, power, rb == "simple", float(eps), pad, pad, out[y0:y1], laplace)
+            bayer_native.piece(big[a:b], cm, window, power, rb == "simple", float(eps), pad, pad, out[y0:y1], laplace, learned)
             return
         masks = (cm == 0, cm == 1, cm == 2)
         piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps, laplace, adaptive, learned)

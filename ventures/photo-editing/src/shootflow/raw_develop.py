@@ -2129,7 +2129,8 @@ def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes
     since 2026-11-15 (eval/bayer-directional-demosaic-2026-11-15.md; Bayer half size bins each 2x2
     block and demosaics nothing). "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
     Laplacian weight from a fitted model, 0.01-0.39 dB colour and 0.02-0.66 dB luma above the default on
-    ten held-out frames, at 4-6x the time (eval/bayer-learned-laplace-2026-11-16.md)."""
+    ten held-out frames, at 4-6x the time (eval/bayer-learned-laplace-2026-11-16.md); in C since 2026-11-16,
+    bit-identical, 2.6-3.3x the default's time (eval/bayer-learned-native-2026-11-16.md)."""
 
     if choice not in DEMOSAICS:
         raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")

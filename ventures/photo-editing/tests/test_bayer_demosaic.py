@@ -171,8 +171,8 @@ class DirectionalTests(unittest.TestCase):
     def test_learned_laplace(self):
         """laplace="learned" (eval/bayer-learned-laplace-2026-11-16.md): 45 fitted weights (intercept, 8
         features, 36 products); features are scale-free and in range; the weight stays in [1/8, 1/4];
-        each sensel keeps its value; flat fields stay flat; the C path refuses it; a weight list of the
-        wrong length is refused."""
+        each sensel keeps its value; flat fields stay flat; the C path (2026-11-16) gives numpy's output when
+        it builds and is refused when it cannot; a weight list of the wrong length is refused."""
 
         import numpy as np
 
@@ -209,8 +209,14 @@ class DirectionalTests(unittest.TestCase):
         c, _ = _mosaic(truth, (0, 1, 1, 2))
         self.assertTrue(np.allclose(bd.directional(c, (0, 1, 1, 2), laplace=const),
                                     bd.directional(c, (0, 1, 1, 2), laplace=0.25, native=False), atol=1e-5))
-        with self.assertRaises(RuntimeError):
-            bd.directional(c, (0, 1, 1, 2), laplace="learned", native=True)
+        from shootflow import bayer_native
+
+        if bayer_native.available():
+            self.assertTrue(np.array_equal(bd.directional(c, (0, 1, 1, 2), laplace="learned", native=True),
+                                           bd.directional(c, (0, 1, 1, 2), laplace="learned", native=False)))
+        else:
+            with self.assertRaises(RuntimeError):
+                bd.directional(c, (0, 1, 1, 2), laplace="learned", native=True)
         with self.assertRaises(ValueError):
             bd.directional(c, (0, 1, 1, 2), laplace=(0.2, 0.1))
 

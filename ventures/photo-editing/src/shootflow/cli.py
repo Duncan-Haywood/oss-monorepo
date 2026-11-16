@@ -1336,8 +1336,8 @@ def _build_parser() -> argparse.ArgumentParser:
             "How the sensor's colour mosaic becomes full colour: 'auto' (default) uses the directional demosaic "
             "when numpy is installed and bilinear otherwise; 'directional' (numpy) builds green along the edges "
             "(four directions on Fujifilm X-Trans, row and column on Bayer) and follows the smoother one, which cuts "
-            "the zippering and false colour bilinear leaves on edges; 'learned' (Bayer, numpy) is directional with "
-            "a per-pixel detail weight from a fitted model: a little sharper and truer on real photos, 4-6x slower; "
+            "the zippering and false colour bilinear leaves on edges; 'learned' (Bayer, numpy; in C when a compiler is present) is directional "
+            "with a per-pixel detail weight from a fitted model: a little sharper and truer on real photos, about 3x slower; "
             "'bilinear' averages each 3x3 window (both engines, same bytes)."
         ),
     )
