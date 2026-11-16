@@ -164,6 +164,11 @@ def summary():
                f"p 0.005 cell: {'yes' if any('p0.005' in k[0] for k, _, _ in p2_fail('w5f')) else 'no'}")
     if w3ok and p4:
         out.append("Decision rule: w3 replicates; the library default stays rare_fallback=3")
+    elif w3ok:
+        # Added after the run (LOG.md 7ax): the committed text switches to w5 only when w3 fails P2 or P3; the first
+        # version of this branch also switched when w3 failed P4 alone, contradicting the text. The text governs.
+        out.append("Decision rule: w3 meets P2 and P3 but not P4; the committed text names no change for that case, "
+                   "so the default stays rare_fallback=3 and P4's failure is stated (w5 keeps less gain still)")
     elif not p2_fail("w5") and not p3_fail("w5"):
         out.append("Decision rule: w3 fails and w5 holds (and held in 7aw); the default changes to rare_fallback=5")
     else:
