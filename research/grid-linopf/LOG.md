@@ -1,5 +1,18 @@
 # Research log
 
+## 2026-11-16 · The five unscored cases with a second-solver start: outcome. 13 of 24 with the reactive stage (was 12); J alone stays at 10
+- Plan and outcome: `research/infra-dcopf/LOG.md` (2026-11-16); numbers in `research/infra-dcopf/experiments/results_dc_rescue.txt`.
+- E1 (full-load power flow on at least 3 of 5) and E2 (J clean on at least 1) refuted: 2 of 5 and 0 of 5. case2000 API ends J one Q limit short and the IPOPT reactive stage makes it **fully feasible at +0.193 %**; case1951 API ends at one 104.5 % overload and its reactive stage hit the 45-minute limit. SNEM's warm-start angles were NaN (the x = 0 ties); with them fixed (declared variant) the continuation stalls at 75 to 84 % of load.
+- Next: a certifying DC solver for every case's start, the SNEM stall, the near misses, the post-feasibility cost phase.
+
+## 2026-11-16 · Why the DC OPF has no solution on five held-out cases: outcome. On 4 of 5 the reference DC solver fails, not the network
+- Plan, outcome and the follow-up plan: `research/infra-dcopf/LOG.md` (2026-11-16); numbers in `research/infra-dcopf/experiments/results_dc_infeasible.txt`.
+- A second solver (the same B-theta DC OPF on Clarabel) agrees with PYPOWER's PIPS on all 89 problems both solve (within 1e-5) and solves **26 that PIPS reports as having no solution**. case2000_goc API is feasible under MATPOWER's own convention; the SNEM network has two x = 0 bus ties that make MATPOWER's B infinite, and with them at 1e-4 pu its DC OPF solves; case1951_rte API is the one genuine case, infeasible by 1.61 MW on one rating row under b = 1/(x tap) and feasible under PowerModels' convention.
+- D1 (PM on PIPS matches PGLib) and D2 (ratings cause it) refuted as written; D4 held on Clarabel. Next: the five cases through the unchanged repair from a second-solver start (E1 to E3).
+
+## 2026-11-16 · Why the DC OPF has no solution on five held-out cases (plan)
+- Plan and predictions D1 to D4 with control C0: `research/infra-dcopf/LOG.md` (2026-11-16); script `research/infra-dcopf/experiments/diag_dc_infeasible.py`. The five unscored cases (case1803_snem x3, case1951_rte API, case2000_goc API): data, ratings, angle limits or the DC convention?
+
 ## 2026-11-15 · Milestone 6 under one protocol: outcome. 10 of 24 fully feasible within 20 rounds, 12 of 24 with the IPOPT reactive stage, none lost against the earlier protocol
 - Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-15); numbers in `research/infra-dcopf/experiments/results_heldout_slack.txt`.
 - One protocol on all 24 held-out cases: reference at the largest live unit, DC start, continuation to the full-load power flow, frozen 20-round J-m-a, IPOPT reactive stage, cost against PGLib's published objective. Controls: identical statuses on the 6 cases whose reference does not move, and on the 5 RTE cases of the previous step.
