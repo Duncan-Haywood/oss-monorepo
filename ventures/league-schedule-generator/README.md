@@ -442,7 +442,8 @@ short orbits are a triangle, not two rounds. Measurements: `eval/odd-orbit.txt`;
 stored-designs test re-checks the solver's rows for all 24 designs. (`odd-night-sat.build` gained a
 `fix_round0` flag, on by default, so a caller with its own structure can drop the round-0 fix.)
 
-Open: 29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section). 37 on 6 x 9
+29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section) was solved by a
+neighbourhood search instead (two sections down). 37 on 6 x 9
 was solved by the same script on 2026-11-16 (2,783 s, section above); 43 on 7 x 9 and 49 on 8 x 9 are
 the next fully booked sizes.
 
@@ -485,9 +486,52 @@ the three k-cycles: no group of order k works, for any 3k + 2 with k odd (17, 23
   night (its fixed night has no layout, 0.9 s), so it is not a route to those sizes either; 17 and
   23 are solved already by other scripts.
 
-Open: 29 on 5 x 9 by a longer run of `eval/odd-triple.py` (hours, not minutes; a second pair of
-runs was stopped at 29 minutes with no answer), by sessions (the one-night shape above as a template the season repeats),
-or by an order-2 rename (an involution fixing two points: the proof above does not reach it).
+Solved since by a different route, the next section (`eval/odd-lns.py`, no group). An order-2 rename
+was not needed: worked through, an involution fixing two points forces one round (every swapped pair
+plus the two fixed points) and leaves six of the ten nights to lay out, about what odd-triple.py had.
+
+### 29 and 35 teams, solved: two nights re-dealt at a time (2026-11-16, latest)
+
+The open size above now has a wait-free season, stored like the others: over seeds 1 to 3 the tool
+goes from 334 waits to **0**, and a build from 3.6 s to 1.1 s (`node eval/odd-cyclic-check.mjs
+29:5:9`). The next size of the same class followed: 35 teams on 6 x 9, 505 waits to **0**, 3.8 s to
+1.5 s a build. Both came from `eval/odd-lns.py` (new), which uses no group at all.
+
+**The search.** The state is a whole round robin (29 rounds of K_30, the bye as team 29) in the
+tool's night order: nine nights of three rounds and a last night of two. A night is good when its
+own matches have a wait-free layout, a small SAT question (one night's 42 matches, not the 435 pairs
+the one-night model chose from, which is why that model took 575 s). A step frees two nights, at least
+one bad, and asks the solver to deal the 90 pairs they hold into the same six rounds again, each pair
+once and each team once a round, with a layout for both nights, a good-night indicator per night
+that switches its back-to-back clauses on, and "at least one more good night than before". The
+other eight nights keep their pairs, so every state is a round robin. When six steps in a row find no
+improvement inside their 120 s, it takes a sideways step (as many good nights, pairs re-dealt with
+random phases) so the bad night sees new pairs. Each team's rows are encoded as one start row and a
+window of g rows, or g - 1 for a team that sits out tonight, which the solver handles far better
+than the betweenness clauses (row a and row c imply every row between).
+
+| Run (4 at once, 4 cores) | Good nights over time | Result |
+|---|---|---|
+| seed 6 | 1 at 29 s, 5 at 123 s, 8 at 1,018 s, 10 at 1,186 s | stored |
+| seeds 3, 5 | 9 of 10 at 991 s and 1,046 s | stopped when seed 6 finished |
+| seed 4 | 8 of 10 at 1,049 s | stopped |
+| 35 teams, seed 1 | 1 of 12 at 205 s, 5 at 764 s, 10 at 2,413 s, 12 at 4,724 s | stored |
+| 35 teams, seed 2 | 10 of 12 at 2,920 s | stopped |
+| 41 teams, seeds 1, 2 | 1 of 14 at 262 s, no step landed | stopped to free cores |
+
+What did not work on the way (`eval/odd-lns.txt`): Glucose 4 with the betweenness clauses sat at
+1 of 10 nights for 10 minutes; three nights freed a step climbed more slowly than two (6 of 10 at
+2,000 s). A first version also held the two-round last night to three-game windows, which it can
+never meet, and stalled at 9 of 10 for 112 steps; windows now follow the night's round count.
+
+`doubleheader.test.mjs` builds 29 on 5 x 9 wait-free (and with waits when the search is off), and
+the stored-designs test re-checks the solver's rows for all 33 designs (35 on 6 x 9 is built the same way). `eval/write-odd-designs.mjs`
+gained `--append` (keep the stored designs, add new ones), since the earlier solver output is not
+kept in the tree; a plain run with no files rewrites the file unchanged.
+
+Open: the same class at 41 on 7 x 9 and 47 on 8 x 9 (3 spare slots a night, no group of order k;
+41 needs a longer run than this session's, the 35-team run took 79 minutes), and the fully booked
+43 on 7 x 9 and 49 on 8 x 9, by the same script.
 
 ### Three sessions at 40 and 46 teams: one night turned by a group, solved in 0.1 s (2026-11-16)
 
