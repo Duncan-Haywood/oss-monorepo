@@ -252,17 +252,17 @@ flagships:
       flow-bounded, 2x alone, e2e tie (README "under a flow bound"); 2 s reserve at
       300+ copies (4 s worse, 1.2 s ties); day sweeps LP-guided, by the open-hours
       LP when the pay floor is skipped (README "A guide when the pay floor is
-      skipped"); warm gate landed (README "A warm-sized gate for the pay floor"),
-      next its reserve's size; re-run the keep-usual-shifts sweep on real dated
-      leave records; a manager's read on whether the steadier plan is the one they
-      would post; a real 7shifts account through --import-7shifts (README "Reading
-      7shifts directly"); a real When I Work account or response through
-      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); a real Square account via --import-square (README "Reading
-      Square's schedule"); --cover-price moves two shifts together (README "Moving
-      two shifts together"); second call-outs priced, off by default (README "The
-      pair price in played weeks": fewer open hours on 3 of 4 weeks). More open
-      items: NEXT.md.
+      skipped"); pay floor reserve 6 s (README "The pay floor's reserve, sized from
+      the full solve"), next a try with the budget spent; re-run the
+      keep-usual-shifts sweep on real dated leave records; a manager's read on
+      whether the steadier plan is the one they would post; a real 7shifts account
+      through --import-7shifts (README "Reading 7shifts directly"); a real When I
+      Work account or response through --import-wheniwork (README "Reading When I
+      Work directly"); Homebase (docs need an account); a real Square account via
+      --import-square (README "Reading Square's schedule"); --cover-price moves two
+      shifts together (README "Moving two shifts together"); second call-outs
+      priced, off by default (README "The pair price in played weeks": fewer open
+      hours on 3 of 4 weeks). More open items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-

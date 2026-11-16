@@ -17,7 +17,7 @@ for (let c = 0; c <= week; c++) {
 }
 const staff = parseStaff(st).staff, slots = parseShifts(sh).slots;
 for (const run of (process.env.RUNS || "full,off").split(",")) {
-  const opts = run === "full" ? { scoreFloorReserveMs: 60000 } : run === "off" ? { scoreFloor: false } : { scoreFloorReserveMs: Number(run) };
+  const opts = run === "default" ? {} : run === "full" ? { scoreFloorReserveMs: 60000 } : run === "off" ? { scoreFloor: false } : { scoreFloorReserveMs: Number(run) };
   const t0 = Date.now();
   const r = buildRoster(staff, slots, { exact: true, timeBudgetMs: 20000, ...opts });
   const o = r.optimality, t = o.scoreFloorTried;

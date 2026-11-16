@@ -87,13 +87,18 @@ test("buildRoster reports the warm start and `scoreFloorWarm: false` turns it of
 
 test("the warm-sized gate: with the open-hours basis the pay floor always runs warm, stopped the reserve past the budget", () => {
   // README "A warm-sized gate for the pay floor" (2026-11-16): the warm solve's time does not follow the cold formula, so the
-  // formula no longer decides when a basis is in hand; the solve gets the time left plus `scoreFloorReserveMs` (default 1500).
+  // formula no longer decides when a basis is in hand; the solve gets the time left plus `scoreFloorReserveMs`. The reserve defaults to 30% of the budget, at most 6 s (README "The pay floor's
+  // reserve, sized from the full solve": 6 s at the 20 s default, pre-registered in eval/pay-floor-reserve-prereg.md).
   const big = { budgetMs: 20000, copies: 245, carry: true };
-  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 900 }), { mode: "try", reserve: 1500, untilMs: 2400 });
+  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 900 }), { mode: "try", reserve: 6000, untilMs: 6900 });
   // Lots of time left: the old gate ran it with no deadline; now it is still bounded by the time left plus the reserve.
-  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 9000 }), { mode: "try", reserve: 1500, untilMs: 10500 });
+  assert.deepEqual(scoreFloorPlan({}, { ...big, leftMs: 9000 }), { mode: "try", reserve: 6000, untilMs: 15000 });
   // The budget already spent: the reserve alone.
-  assert.equal(scoreFloorPlan({}, { ...big, leftMs: -40 }).untilMs, 1500);
+  assert.equal(scoreFloorPlan({}, { ...big, leftMs: -40 }).untilMs, 6000);
+  // A shorter budget gets a shorter reserve (30% of it), a longer one no more than 6 s; an explicit value wins.
+  assert.equal(scoreFloorPlan({}, { ...big, budgetMs: 3000, leftMs: 0 }).reserve, 900);
+  assert.equal(scoreFloorPlan({}, { ...big, budgetMs: 60000, leftMs: 0 }).reserve, 6000);
+  assert.equal(scoreFloorPlan({ scoreFloorReserveMs: 1500 }, { ...big, leftMs: 900 }).untilMs, 2400);
   // Reserve 0 is the 2026-11-14 try (stopped at the budget's end); under 250 ms it is skipped.
   assert.equal(scoreFloorPlan({ scoreFloorReserveMs: 0 }, { ...big, leftMs: 100 }).mode, "skip");
   assert.deepEqual(scoreFloorPlan({ scoreFloorReserveMs: 0 }, { ...big, leftMs: 900 }), { mode: "try", reserve: 0, untilMs: 900 });
