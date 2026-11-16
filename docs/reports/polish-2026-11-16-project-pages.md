@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, design, information-architecture]
+topics: [seo, design]
 date: 2026-11-16
 ---
 # Polish 2026-11-16: a page per project under "Tools and projects"
