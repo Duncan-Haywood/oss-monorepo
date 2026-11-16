@@ -2,7 +2,7 @@
 title: "Teaching a demosaic weight about noise worked a little; teaching it fine detail backfired"
 seo_title: "Learned Bayer demosaic: noisy training helps, fine detail backfires"
 date: 2026-11-16
-description: "ShootFlow's learned demosaic weight, refitted on noisy mosaics, gains a little under noise. Synthetic fine-detail frames made it worse, and the reason points at colour."
+description: "ShootFlow's learned demosaic weight, refit on noisy mosaics, gains a little under noise. Synthetic fine detail made it worse, for a reason about colour."
 tags: [photo-editing, raw, demosaic, machine-learning]
 ---
 
