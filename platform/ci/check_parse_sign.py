@@ -15,7 +15,13 @@ A line is flagged when it sets `neg` from a leading-minus test only (`/^[-−]/`
 anywhere before the first digit (`/^[^0-9]*[-−]/`), and the line or the
 three after it strip characters with `.replace(/[...]/` or pick the digits
 with `.match(/\\d`. A parser that refuses anything but a plain number (no
-strip) is left alone. Exit 1 lists each hit.
+strip) is left alone.
+
+The red-team run of 2026-11-16 added a second test: the before-the-first-digit
+class must hold the en and em dash too (`[-−–—]`). Formatted reports and
+pasted PDF tables write a refund as "–12.50", which `[-−]` misses and the
+strip then turns into +12.50. A `neg` line whose class is `[-−]` alone is a
+hit. Exit 1 lists each hit.
 Usage: python3 platform/ci/check_parse_sign.py [root ...]
 """
 import pathlib
@@ -25,7 +31,9 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 NEG = re.compile(r"\bneg\w*\s*=")
 LEAD = re.compile(r"/\^\[-−\]/\.test\(|/\^-/\.test\(|\.startsWith\(\s*[\"']-[\"']\s*\)|/\^\\\$\?\\s\*\[-−\]/\.test\(")
-SAFE = re.compile(r"\[\^0-9\]\*\[-−\]|\[\^\\d\]\*\[-−\]")
+SAFE = re.compile(r"\[\^0-9\]\*\[-−|\[\^\\d\]\*\[-−")
+# The before-the-first-digit class without the en and em dash.
+DASHLESS = re.compile(r"\[\^(?:0-9|\\d)\]\*\[-−\]")
 STRIP = re.compile(r"\.replace\(/\[|\.match\(/\\d")
 WINDOW = 3
 SUFFIXES = {".mjs", ".js", ".cjs", ".ts"}
@@ -43,6 +51,11 @@ def scan_text(text):
     return hits
 
 
+def scan_dashes(text):
+    """Line numbers of sign tests whose minus class misses the en and em dash."""
+    return [i for i, line in enumerate(text.splitlines(), 1) if NEG.search(line) and DASHLESS.search(line)]
+
+
 def scan(roots):
     hits = []
     for root in roots:
@@ -55,20 +68,26 @@ def scan(roots):
                 text = p.read_text(encoding="utf-8")
             except (UnicodeDecodeError, OSError):
                 continue
+            rel = p.relative_to(ROOT) if p.is_relative_to(ROOT) else p
             for n in scan_text(text):
-                hits.append(f"{p.relative_to(ROOT) if p.is_relative_to(ROOT) else p}:{n}")
+                hits.append((f"{rel}:{n}", "symbol"))
+            for n in scan_dashes(text):
+                hits.append((f"{rel}:{n}", "dash"))
     return hits
 
 
 def main(argv):
     roots = argv or [ROOT / "ventures", ROOT / "platform"]
     hits = scan(roots)
-    for h in hits:
-        print(f'{h}: this sign test reads "$-12.50" as +12.50 (the minus after the symbol is stripped); '
-              "test for a minus anywhere before the first digit: /^[^0-9]*[-−]/.test(s)")
+    for h, kind in hits:
+        if kind == "symbol":
+            print(f'{h}: this sign test reads "$-12.50" as +12.50 (the minus after the symbol is stripped); '
+                  "test for a minus anywhere before the first digit: /^[^0-9]*[-−–—]/.test(s)")
+        else:
+            print(f'{h}: this sign test reads "–12.50" (en dash) as +12.50; add the en and em dash: /^[^0-9]*[-−–—]/')
     if hits:
         return 1
-    print('check_parse_sign: no money parser reads "$-12.50" as positive')
+    print('check_parse_sign: no money parser reads "$-12.50" or "–12.50" as positive')
     return 0
 
 

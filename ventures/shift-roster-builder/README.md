@@ -3033,3 +3033,30 @@ time; on the bench builds pay was not recorded, only open hours (the repair foun
 have handed back was the one it was given). Next: the 2 s reserve test belongs to the 350-400 copy weeks, where builds end above
 the floor (README "The repair's neighbourhood under a flow bound": 6 of 8 differing builds ahead, p = 0.29); more seeds there would
 settle it.
+
+## The repair reserve on the biggest weeks (2026-11-16 later)
+
+"The repair reserve at 30-60 people" left the 2 s reserve's question on the 350-400 copy weeks, where builds end above the floor:
+seeds 4-6 had it ahead on 7 builds and behind on 3 (p = 0.34). **Measured in three steps** (`eval/repair-reserve-big.out.txt`,
+`eval/repair-reserve-big-fresh.out.txt`; the flow-bounded repair, the default 20 s budget, two builds at a time):
+
+| step | builds | 2 s reserve: fewer open / more / tied | net hours covered | sign test |
+|---|---|---|---|---|
+| the eight bench weeks, fresh seeds 7-12 (`sh eval/repair-reserve-big.sh`) | 48 | 10 / 5 / 33 | +11 | p = 0.30 |
+| pooled with seeds 4-6 | 72 | 17 / 8 / 47 | +31 of 244 above the floors | p = 0.11 |
+| no reserve run twice, the four above-floor weeks, seeds 7-12 (`sh eval/repair-reserve-big-noise.sh`) | 24 | second run against first: 1 / 1 / 22 | +1 | |
+| **pre-registered** (`eval/repair-reserve-big-prereg.md`, written before the run): four above-floor weeks, fresh seeds 13-24 (`sh eval/repair-reserve-big-fresh.sh`) | 48 | **22 / 10 / 16** | **+34 of 305**; at the floor on 11 builds against 5 | **one-sided p = 0.025** |
+
+The rerun matters: two runs of one configuration tied on 22 of 24 builds, so the builds are close to deterministic and the
+reserve's wins and losses are its own, not timing noise. The pre-registered rule (fewer open hours on more builds, one-sided
+sign test p < 0.05, a net gain, on the fresh seeds alone) was met. The 80 x 224 weeks (304 copies) mostly reach their floor either
+way, and there the reserve changed nothing in seeds 7-12; build time did not grow (mean 22.3 s to 22.2 s on the fresh test).
+
+**What landed:** under a time budget, `coverRepairReserveMs` now defaults to a tenth of the budget, at most 2 s, on weeks of 300 or
+more shift copies, and to 0 below (where every bench build already reaches its floor, README "The repair reserve at 30-60
+people"). An explicit `coverRepairReserveMs` (0 turns it off) wins; `optimality.coverRepairReserveMs` reports the reserve used.
+
+Tests: `repair-flow.test.mjs` adds that a 348-copy bench week under a 3 s budget reserves 300 ms, a 149-copy week reserves none,
+and an explicit value is kept. Not claimed: generated weeks only, single runs on one cloud machine; the reserve's size (2 s) and
+the 300-copy line were not tuned, only tested; the reserve still loses on about one differing build in three. Next: whether a
+longer reserve (4 s) or a reserve scaled by the open hours above the floor does better on the same fresh seeds.

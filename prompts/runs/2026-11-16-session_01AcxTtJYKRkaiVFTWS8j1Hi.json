@@ -1,0 +1,332 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtJYKRkaiVFTWS8j1Hi",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T06:06:25Z",
+  "ended": "2026-11-16T06:06:58Z",
+  "wall_minutes": 9.24,
+  "tokens_in": 4682130,
+  "tokens_out": 22811,
+  "cost_usd": 2.1125,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16479",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First suite probe (shift-roster-builder) took over 120 s and went to background; switched target.",
+    "Wrote a wrong expected value (19.5 for 15.5) in a new test; fixed before the code change.",
+    "Post description was 200 chars; check_post_frontmatter caught it.",
+    "A parallel red-team run (PR #16478) took the same target the same day and merged first; calc.test.mjs conflicted (both appended blocks), resolved by keeping both, 90/90 pass. Its fixes (cents rounding, -$0.00 sweep) do not overlap these (year-first dates, dash minus)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix the open list first, but all 9 entries are control-plane items awaiting owner approval; the list will stay open across runs until those PRs are approved, so every run re-checks them for nothing. redteam.py open could mark entries that already have a waiting control-plane PR."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Nothing stops two concurrent red-team runs from drawing or picking the same target: this run and #16478 both picked restaurant-delivery-commission-analyzer/calc.mjs on 2026-11-16. Checking open PR titles 'redteam: <target>' before a --target pick (or campaign refusing a target with an open redteam PR) would avoid it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: open entries all need control-plane PRs with owner approval.",
+      "did": "Checked each still reproduces on main (grep for the fix markers), left them open.",
+      "result": "No change to those entries."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-the-en-dash-that-turned-refunds-into-sales.md"
+  ],
+  "goal": null,
+  "notes": "Target: restaurant-delivery-commission-analyzer/calc.mjs (5 earlier red-team runs on it). Guard tightened: platform/ci/check_parse_sign.py flags sign tests missing the en/em dash; first run on the tree before the sweep would have flagged 45 copies. Verification: restaurant analyzer 84/84 pass; 44 swept ventures' node --test suites all 'fail 0'; platform/ci test_check_parse_sign 5 OK; check_parse_sign.py exits 0; check_post_frontmatter ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 541459593,
+        "commit": "7eef0345e",
+        "sites": 594,
+        "baseline_seconds": 1.3,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 33,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "if (u8[0] === 0xfe && u8[1] === 0xff) return new TextDecoder(\"utf-16be\").decode(u8);",
+            "after": "if (u8[0] === 0xfe && u8[2] === 0xff) return new TextDecoder(\"utf-16be\").decode(u8);",
+            "line_text": "  if (u8[0] === 0xfe && u8[1] === 0xff) return new TextDecoder(\"utf-16be\").decode(u8);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: only the UTF-16LE BOM was tested; new test 'a UTF-16 big-endian file (BOM FE FF) is decoded'"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 91,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "after": "if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{3,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "line_text": "      if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test had two-digit-year dotted dates next to decimal-comma amounts; new test 'dates with a two-digit year are not read as amounts when picking the decimal mark'"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 128,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const t = Date.UTC(y, mo - 1, d, hh, mm);",
+            "after": "const t = Date.UTC(y, mo - 2, d, hh, mm);",
+            "line_text": "  const t = Date.UTC(y, mo - 1, d, hh, mm);",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 139,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "const m = String(v ?? \"\").trim().match(/^(\\d{1,2})([/.-])(\\d{1,2})\\2\\d{2,4}/);",
+            "after": "const m = String(v ?? \"\").trim().match(/^(\\d{2,2})([/.-])(\\d{1,2})\\2\\d{2,4}/);",
+            "line_text": "    const m = String(v ?? \"\").trim().match(/^(\\d{1,2})([/.-])(\\d{1,2})\\2\\d{2,4}/);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: dotted dates were only tested with two-digit days; new test 'one-digit dotted dates are day-first'"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 319,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": "const foodPct = Number(opts.foodPct) || 0, packaging = Number(opts.packaging) || 0;",
+            "after": "const foodPct = Number(opts.foodPct) || 1, packaging = Number(opts.packaging) || 0;",
+            "line_text": "  const foodPct = Number(opts.foodPct) || 0, packaging = Number(opts.packaging) || 0;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 319,
+            "col": 80,
+            "operator": "or-to-and",
+            "before": "const foodPct = Number(opts.foodPct) || 0, packaging = Number(opts.packaging) || 0;",
+            "after": "const foodPct = Number(opts.foodPct) || 0, packaging = Number(opts.packaging) && 0;",
+            "line_text": "  const foodPct = Number(opts.foodPct) || 0, packaging = Number(opts.packaging) || 0;",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 321,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "const directPct = (opts.directPct === \"\" || opts.directPct == null ? 3 : Number(opts.directPct)) / 100;",
+            "after": "const directPct = (opts.directPct === \"\" && opts.directPct == null ? 3 : Number(opts.directPct)) / 100;",
+            "line_text": "  const directPct = (opts.directPct === \"\" || opts.directPct == null ? 3 : Number(opts.directPct)) / 100;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 322,
+            "col": 44,
+            "operator": "or-to-and",
+            "before": "const directFlat = opts.directFlat === \"\" || opts.directFlat == null ? 0.3 : Number(opts.directFlat);",
+            "after": "const directFlat = opts.directFlat === \"\" && opts.directFlat == null ? 0.3 : Number(opts.directFlat);",
+            "line_text": "  const directFlat = opts.directFlat === \"\" || opts.directFlat == null ? 0.3 : Number(opts.directFlat);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 409,
+            "col": 32,
+            "operator": "plus-to-minus",
+            "before": "profitBeforeSpend: afterP + spend,",
+            "after": "profitBeforeSpend: afterP - spend,",
+            "line_text": "      profitBeforeSpend: afterP + spend,",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 413,
+            "col": 64,
+            "operator": "plus-to-minus",
+            "before": "avgTicketWithout: plain.length ? plain.reduce((s, r) => s + r.gross, 0) / plain.length : null,",
+            "after": "avgTicketWithout: plain.length ? plain.reduce((s, r) => s - r.gross, 0) / plain.length : null,",
+            "line_text": "      avgTicketWithout: plain.length ? plain.reduce((s, r) => s + r.gross, 0) / plain.length : null,",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: promo.avgTicketWithout was never asserted (not shown on the page, but part of analyze()'s exported result); new test 'the promotion view averages the tickets of orders with no spend'"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 473,
+            "col": 95,
+            "operator": "minus-to-plus",
+            "before": "const dp = byDaypart.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);",
+            "after": "const dp = byDaypart.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder + a.netAfterPerOrder);",
+            "line_text": "  const dp = byDaypart.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 520,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "const marketing = rnd() < p.promo ? Math.round((2 + rnd() * 5) * 100) / 100 : 0;",
+            "after": "const marketing = rnd() < p.promo ? Math.round((2 + rnd() * 6) * 100) / 100 : 0;",
+            "line_text": "      const marketing = rnd() < p.promo ? Math.round((2 + rnd() * 5) * 100) / 100 : 0;",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the example's promotion range was not pinned (ads were, 2026-11-14); new test 'the example's promotions span the $2 to $7 range'"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "parseWhen rejected year-first dates with slashes or dots (2026/06/01, 2026.06.01), so a file using them was refused whole with 'No usable rows: every row was skipped.' Fixed: the year-first pattern takes -, / or . (same separator twice); test 'year-first dates with slashes or dots are read'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "parseNumber read an en or em dash minus ('\u201312.50', as formatted reports and pasted PDF tables write it) as positive, so a refund row became a $12.50 sale and an order. Fixed: the sign test accepts \u2013 and \u2014 like - and \u2212; test 'an en or em dash before an amount is a minus sign'. The same parseNumber copy lives in ~39 sibling parsers (2026-11-14 record) and was not swept here.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "63ef5e5c-3119-525c-b212-41858eb7c44c",
+    "transcripts": 1,
+    "first": "2026-11-16T06:06:25Z",
+    "last": "2026-11-16T06:15:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 97,
+        "output": 22811,
+        "thinking": 5500,
+        "cache_read": 4589791,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92242,
+        "api_equivalent_usd": 2.1125,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 97,
+      "output": 22811,
+      "thinking": 5500,
+      "cache_read": 4589791,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92242,
+      "api_equivalent_usd": 2.1125,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.24,
+      "active_minutes": 9.24,
+      "model_minutes": 4.49,
+      "tool_minutes": 4.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage, two parser fixes with tests, a 45-file sweep with suite runs, CI check change and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 189.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

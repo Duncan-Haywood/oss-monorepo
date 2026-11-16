@@ -21,7 +21,7 @@ Any CSV with an order date/time and a food sales amount (`Subtotal`, `Food sales
 `Promotions`, `Ad spend`, `Error charges` / `Refunds`, `Platform` / `Channel`, `Order
 status`, `Order ID` and a payout column (`Net total`, `Net payout`) are used when present.
 **Column names are matched by alias from memory of the three platforms' exports; no real
-export was available.** Comma/tab/semicolon files, quoted fields, US and day-first dates
+export was available.** Comma/tab/semicolon files, quoted fields, US, day-first and year-first dates
 and UTF-16 exports are read. Unreadable rows are listed with a line number and reason.
 Several files (one per platform) can be loaded together.
 
