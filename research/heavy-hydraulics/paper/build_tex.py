@@ -84,6 +84,7 @@ CITES: list[tuple[str, str]] = [
     (r"its data sheet \(RE 10093\)", "its data sheet\x02" + C("rexroth_azpg")),
     (r"AZPN \(RE 10091; ", "AZPN\x02" + C("rexroth_azpn") + " ("),
     (r"AZPU \(RE 10 098; ", "AZPU\x02" + C("rexroth_azpu") + " ("),
+    (r"Anderson and Loewenthal \[NASA TP-1622\]", "Anderson and Loewenthal\x02" + C("anderson1980")),
 ]
 
 TOKEN = re.compile(r"(?:doi:|arXiv:)\S+")
