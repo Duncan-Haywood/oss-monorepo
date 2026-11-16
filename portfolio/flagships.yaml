@@ -466,16 +466,15 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      An IDS audit pass (class and attribute names against the schema, value
-      without dataType, prohibited specification with requirements, number
-      formats) reported as invalid; .ifczip input (DecompressionStream);
-      cross-check more public models from opensourceBIM/IFC-files and
-      buildingSMART's Sample-Test-Files with eval/crosscheck_ifctester.py.
+      .ifczip input (DecompressionStream); cross-check more public models from
+      opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
+      eval/crosscheck_ifctester.py; extend the IDS audit (audit.mjs) to standard
+      property set names and data types (Pset_/Qto_ templates).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
-      valuable first: an IDS audit so invalid IDS files are reported as invalid
-      (the suite's invalid-* cases pass today only because they fail); .ifczip and
+      valuable first: (audit landed 2026-11-16: 26 of 27 invalid-* files read
+      INVALID, 0 of 307 valid ones; 12 example IDS clean); .ifczip and
       ifcXML input; an MEP and an IFC4X3 infrastructure model through the IfcTester
       cross-check; an IDS editor that offers the classes and property sets the
       loaded model has; a GitHub Action wrapper; heap use on a 200 MB model;

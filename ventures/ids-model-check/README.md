@@ -16,6 +16,12 @@ open. MIT licensed, no dependencies, nothing uploaded.
   classification, material, part of); value restrictions (enumeration, pattern,
   bounds, length); IDS float tolerance; unit conversion to SI from the project's
   units; IFC2X3 occurrence classes through buildingSMART's type mapping table.
+- **IDS audit:** before any model is read, each specification is checked
+  against the IFC schema it names, and an invalid one is reported as INVALID
+  with the reason instead of failing every element. 26 of buildingSMART's 27
+  `invalid-*` IDS files are flagged, none of the 307 valid ones, and all 12
+  example IDS files in buildingSMART's repository audit clean. Works with no
+  model: `node cli.mjs --audit spec.ids`, or "Audit the IDS only" on the page.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -51,6 +57,8 @@ Command line (Node 20+):
 node cli.mjs model.ifc spec.ids                 # text report, exit 1 on a fail
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
+node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
+node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
 ```
 
 Library: `import { check } from "./node.mjs"; check(idsText, ifcText)` in Node,
@@ -115,7 +123,37 @@ No API key, account or server is involved, so there is nothing to configure.
    expect that; IfcTester 0.9.0.post1 requires all of them to match, so it
    fails every wall there and this checker does not.
 
-3. **Unit tests** (`node --test`): STEP and XML readers, tolerance, patterns,
+3. **The IDS audit** (`audit.mjs`, 2026-11-16). The same script prints a
+   strict score: an `invalid-*` pair must come back INVALID (not merely not
+   passing), and a `pass-*` or `fail-*` pair must come back exactly pass or
+   fail, so the audit may not call a valid IDS invalid. Result: **333 / 334**;
+   26 of 27 invalid files flagged, 0 of 307 valid files flagged. What it
+   catches:
+
+   | check | suite files it flags |
+   | --- | --- |
+   | class not in the schema, or not upper case (`IFCRABBIT`, `IfcWall`) | 2 |
+   | required entity no applicable class can be (applicability `IFCSLAB`, requirement `IFCWALL`; a subclass is not its parent) | 4 |
+   | attribute the class lacks, or has only as derived or inverse (`ActingRole` on a wall, `Dim`, `EngagedIn`) | 3 |
+   | value compared with a list, an object or a select | 3 |
+   | literal IDS cannot read for the type: `42,3`, `123,4.5` for a real; `42.`, `42.0`, `42.3` for an integer; `FALSE` for a boolean; a pattern on a number | 13 |
+   | prohibited specification with requirements | 1 |
+
+   It also checks `dataType` names, `partOf` relations, `ifcVersion` values and
+   regular expressions, and warns (without changing the verdict) about a
+   predefined type outside the class's enumeration, an enumeration value no
+   member can equal, and a property value with no `dataType`. The one file it
+   does not flag, `partof/invalid-a_group_predefined_type_must_match_exactly_1_2`,
+   asks for group predefined type `BUNNARY`; the IDS alone cannot tell that
+   from the valid `BUNNY` of its sibling case, because a custom predefined type
+   is legal for USERDEFINED groups (the audit warns). A specification is
+   audited against every schema its `ifcVersion` names and is invalid only if
+   it is invalid in all of them. False-alarm check on files written by others:
+   the 12 example IDS files in buildingSMART's `Documentation/Examples` (38
+   specifications, Aedes, ArcDox, SimpleBIM, OMA, prefab pipes in IFC2X3 and
+   IFC4.3, wooden windows and others) give 0 errors and 0 warnings.
+
+4. **Unit tests** (`node --test`): STEP and XML readers, tolerance, patterns,
    unit conversion, type inheritance and overrides, cardinality, the sample
    model's known gaps, CSV formula neutralising, and BCF zip structure (and an
    `unzip` round trip when it is installed). The suite test runs when
@@ -167,18 +205,16 @@ faster than IfcTester; its point is needing no install.
 - The whole model is held in memory as text and objects: about 1 GB of heap for
   a 200 MB model. Very large federated models may need the command line with
   `--max-old-space-size`.
-- No IDS audit yet: an IDS that is not valid (a facet that the schema forbids,
-  a class name that does not exist in the model's schema) is checked as
-  written, and its specifications usually fail rather than being reported as
-  invalid.
+- The IDS audit checks names, types and literals against the IFC schema, not
+  against property set templates: a misspelt `Pset_WallComon` or a property
+  given the wrong data type for its standard set is not flagged yet.
 - Tested on five real models; every BIM authoring tool writes IFC a little
   differently, so check surprising results and report them.
 
 ## Next steps
 
-- An IDS audit pass (class names and attribute names against the schema,
-  value-without-dataType, prohibited specifications with requirements) so an
-  invalid IDS is reported as invalid.
+- Extend the IDS audit to buildingSMART's standard property and quantity set
+  templates (names and data types of `Pset_*` and `Qto_*` properties).
 - `.ifczip` and ifcXML input.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).

@@ -182,12 +182,12 @@ any already in `episodes/`). Mark one you finish `- *(Done: episode N,
 Title.)*` at the start of its line, then run `node list_done.mjs` to move it
 to DONE.md (`node --test` fails while one is left here):
 
-- Next up, suggestions: Egeria at Harran, the city of Abraham, the monks come in for the martyr's feast, and the well where Jacob met Rachel (Travels, chapters 20-21, Genesis 11-12, 24 and 29 told straight); more saints' lives (Saint Theognius or Saint John the Hesychast, Cyril's other desert lives; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
+- Next up, suggestions: Egeria in Jerusalem, Holy Week from Palm Sunday on the Mount of Olives to the Easter vigil (Travels, chapters 30-38, the Gospels' passion and resurrection told straight); more saints' lives (Saint Theognius or Saint John the Hesychast, Cyril's other desert lives; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 131 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 131.
+Audio: 29 of 132 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 132.
 <!-- /audio-status -->
 
 The creative prompt's 400 MB line was written for GitHub Pages; audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the only cost left is git history ([`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md)). Voicing the backlog in episode order, about 60 MB a run, is a good run on its own (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.

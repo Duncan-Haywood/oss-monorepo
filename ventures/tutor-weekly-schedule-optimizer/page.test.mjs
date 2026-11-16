@@ -51,3 +51,9 @@ test("a sibling page links here, so the page is not an orphan", () => {
   const sibling = readFileSync(new URL("../music-lesson-break-even/index.html", import.meta.url), "utf8");
   assert.ok(sibling.includes('href="../tutor-weekly-schedule-optimizer/"'));
 });
+
+test("links the school timetable builder sibling", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.ok(html.includes('href="../school-timetable-builder/"'));
+});

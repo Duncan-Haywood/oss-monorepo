@@ -4,12 +4,14 @@ export function textReport(r, { maxFailures = 10 } = {}) {
   const out = [];
   const passed = r.specs.filter((s) => s.status === "pass").length;
   out.push(`${r.title || "IDS"} against a ${r.schema} model (${r.entityCount.toLocaleString("en-US")} entities)${r.seconds !== undefined ? ` in ${r.seconds.toFixed(2)} s` : ""}`);
-  out.push(`${r.pass ? "PASS" : "FAIL"}: ${passed} of ${r.specs.length} specifications pass`);
+  const invalid = r.specs.filter((s) => s.status === "invalid").length;
+  out.push(`${r.pass ? "PASS" : "FAIL"}: ${passed} of ${r.specs.length} specifications pass${invalid ? `; ${invalid} invalid (the IDS needs fixing; see below)` : ""}`);
   if (r.parseErrors.length) out.push(`note: ${r.parseErrors.length} line(s) could not be read, e.g. ${r.parseErrors[0]}`);
   for (const s of r.specs) {
     out.push("");
     out.push(`[${s.status.toUpperCase()}] ${s.name} (${s.optionality})`);
     if (s.warning) out.push(`  warning: ${s.warning}`);
+    for (const w of s.auditWarnings || []) out.push(`  IDS warning: ${w}`);
     out.push(`  applies to: ${s.applicability.join("; ") || "everything"}  -> ${s.applicable} element(s)`);
     if (s.requirements.length) out.push(`  requires: ${s.requirements.join("; ")}`);
     if (s.note) out.push(`  ${s.note}`);
@@ -34,4 +36,13 @@ export function csvReport(r) {
     for (const f of s.failed) rows.push([s.name, "fail", "#" + f.id, f.type, f.globalId, f.name, f.reasons.join("; ")]);
   }
   return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
+}
+
+// The IDS audit on its own (no model): one line per issue.
+export function auditReport(title, specs, issues) {
+  const errors = issues.filter((x) => x.level === "error");
+  const bad = new Set(errors.map((x) => x.spec));
+  const out = [`${title || "IDS"}: ${errors.length ? "INVALID" : "VALID"}, ${specs.length - bad.size} of ${specs.length} specifications valid, ${errors.length} error(s), ${issues.length - errors.length} warning(s)`];
+  for (const x of issues) out.push(`[${x.level.toUpperCase()}] ${x.specName}${x.facet ? " / " + x.facet : ""}: ${x.message}`);
+  return out.join("\n");
 }
