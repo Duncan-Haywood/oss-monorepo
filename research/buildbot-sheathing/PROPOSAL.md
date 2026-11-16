@@ -333,6 +333,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    either edge leaves 0.19–0.64 mm rms if the push is dropped within 20 ms of the sheet moving and 2.5–10 mm at
    100 ms (friction swept); the best single-2x stack goes from 0.771 (0.5 mm assumed) to 0.79 at 20 ms and 0.32 at
    100 ms (μ_k/μ_s 0.8). Still open: the OSB-on-lumber friction pair, a measured release latency, and the shim.
+28. **The shim as a mechanism** (done 2026-11-16, `experiments/m28_shim_mech/`): plumbing the sheet needs a corner lift of
+   a median 0.95 mm (p99 3.0 mm). A stack of 1/16 in horseshoe shims leaves 0.458 mm rms and keeps the best single-2x
+   stack at 0.796 (0.791 with the assumed 0.5 mm). A 1:32 composite wedge needs a 118.5 N push at μ 0.4, against the
+   stock G1's 65.6 N at a 0.5 m ledger (H1 132 N), and, because a hand weighs under 1 kg along the push, leaves 0.132 mm
+   at a 20 ms release. Still open: the shim and OSB friction pairs measured, and a shim-placing end effector.
 
 ## Target venue
 

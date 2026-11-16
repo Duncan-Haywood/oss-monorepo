@@ -77,11 +77,32 @@ def cmd_run(a: argparse.Namespace) -> int:
     except (ValueError, OSError) as exc:
         print(f"drill not run: {exc}", file=sys.stderr)
         return 2
+    if res.dry_shot is not None:      # 2026-11-16: an empty pocket, found from the wheels' speed (exit 3, not a fault)
+        print(f"stopped: {res.aborted}", file=sys.stderr)
+        return 3
     if res.aborted:
         print(f"aborted (ESTOP sent; release the button and send CLEAR_ESTOP to go again): {res.aborted}",
               file=sys.stderr)
         return 1
     print(f"{len(res.shots)} balls fed; {res.link_errors} bad frames on the link")
+    return 0
+
+
+def cmd_lift_hub_reset(a: argparse.Namespace) -> int:
+    """After re-setting the lift's slip hub on the bench: restart the feeder's jam count (cad/README.md "Slip hub wear")."""
+    from . import host
+    try:
+        why = host.reset_lift_hub_port(a.port)
+    except ImportError:
+        print("not sent: needs pyserial (pip install 'tennisbots[serial]')", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"not sent: {exc}", file=sys.stderr)
+        return 2
+    if why:
+        print(f"not reset: {why}", file=sys.stderr)
+        return 1
+    print("lift slip hub's jam count restarted; the feeder no longer reports it due")
     return 0
 
 
@@ -192,6 +213,11 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("file")
     s.add_argument("--port", default="/dev/ttyAMA0", help="serial device wired to the ESP32 (default /dev/ttyAMA0)")
     s.set_defaults(func=cmd_run)
+
+    s = sub.add_parser("lift-hub-reset", help="after re-setting the lift's slip hub on the bench, restart the "
+                                              "feeder's jam count (clears FLAG_LIFT_HUB_DUE)")
+    s.add_argument("--port", default="/dev/ttyAMA0", help="serial device wired to the ESP32 (default /dev/ttyAMA0)")
+    s.set_defaults(func=cmd_lift_hub_reset)
 
     s = sub.add_parser("catch-study", help="simulate how many returns a moving catch net would catch")
     s.add_argument("--n", type=int, default=200)

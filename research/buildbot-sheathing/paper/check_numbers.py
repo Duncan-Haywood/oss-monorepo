@@ -27,6 +27,7 @@ M19 = E + "m19_wall_pushover/results.txt"
 M20 = E + "m20_cyclic/results.txt"
 M21 = E + "m21_degrading/results.txt"
 M27 = E + "m27_slide_mech/results.txt"
+M28 = E + "m28_shim_mech/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -37,6 +38,17 @@ CHECKS = [
     (M27, "  0.8     50 |         1.035 | 0.6948", "1.035 mm and 0.6948"),
     (M27, " 0.4   0.8    100 0.1 |      3.855", "at 100 ms 3.855 mm"),
     (M27, "  0.8    100 |         3.855 | 0.3167", "3.855 mm and 0.3167"),
+    # 5.11 the shim as a mechanism (milestone 28)
+    (M28, "Drake rock (m6b)    | 1.058  0.946  2.091  3.018", "median of 0.946 mm and a 99th percentile of 3.018 mm"),
+    (M28, "1/16 in (horseshoe) |    0.458", "0.458 mm rms"),
+    (M28, "stack 1/16 in (horseshoe)               | 0.7964", "gives 0.7964"),
+    (M28, "shim 0.5 mm (assumed)                   | 0.7912", "against 0.7912 with a"),
+    (M28, "0.4  0.5 |     141.7       118.5", "push of 118.5 N"),
+    (M28, "g1    0.50 |            65.6", "gives 65.6 N into the wall"),
+    (M28, "0.857 | 0.252", "μ 0.252 or less"),
+    (M28, "h1    0.50 |           132.0", "H1 gives 132.0 N"),
+    (M28, "g1     0.4   0.8     20 |               12.70", "(12.70 mm at 20 ms)"),
+    (M28, "0.397 |               0.132", "leaves 0.132 mm rms"),
     # 5.14 the capacity model against Weiss's decayed walls (milestones 17 to 21)
     (M17, "control 6-12 4688, decay 6-12 2649, control 3-12 8775, decay 3-12 2974", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
     (M17, "share kept: 6-12 0.565, 3-12 0.339", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),

@@ -369,6 +369,17 @@ slide is a 20 ms control requirement, not a free 0.5 mm. The OSB friction pair i
 
 ![Slide residual against the reaction time for four friction ratios; the best single-2x stack's clean sheets against the same](experiments/m27_slide_mech/figure.png)
 
+**Milestone 28: and the shim? A stack of 1/16 in shims is as good as assumed, and a stock G1 cannot drive a
+wedge.** Milestones 10–13 also credited the shim (lift the sheet's low bottom corner until its edge is plumb) with
+0.5 mm. The lift needed is a median 0.95 mm, a 99th percentile 3.0 mm. Stacking 1/16 in plastic horseshoe shims
+rounds it to a step: 0.458 mm rms, and the best single-2x stack gives 0.796 against 0.791 with 0.5 mm (20 ms slide).
+A tapered composite shim (1:32) driven under the corner carries half the sheet plus wall friction: at μ 0.4 it needs
+a 118.5 N push, and the stock G1 gives 65.6 N into the wall at a 0.5 m ledger (waist pitch limits it), enough only
+for faces at μ ≤ 0.25; the H1 gives 132 N. A hand weighs under 1 kg along the push, so stick-slip throws the wedge
+12.7 mm a tap at 20 ms, and the taper leaves 0.13 mm rms, not the hoped-for under 0.1 mm.
+
+![Push to drive a 1:32 wedge against the friction on its faces, with the stock G1 and H1 pushes; the corner height a wedge leaves against the reaction time, with the 1/16 in shim stack's](experiments/m28_shim_mech/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -948,6 +959,8 @@ python experiments/m21_degrading/check_diag.py --walls > experiments/m21_degradi
 python experiments/m21_degrading/figure.py
 python experiments/m27_slide_mech/run.py > experiments/m27_slide_mech/results.txt # ~1 min; mujoco, Menagerie G1/H1
 python experiments/m27_slide_mech/figure.py
+python experiments/m28_shim_mech/run.py > experiments/m28_shim_mech/results.txt   # ~30 s; mujoco, Menagerie G1/H1
+python experiments/m28_shim_mech/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 python paper/build_latex.py --pdf                            # the elsarticle manuscript in paper/latex/ (pandoc, pdflatex, bibtex, texlive-publishers)
 ```
@@ -1451,7 +1464,38 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
   human-like 100 ms loses most of what the slide was for. A grasp that can also brake, or a slower creep with
   vibration, is not modelled.
 
+## Milestone 28 results (`experiments/m28_shim_mech/results.txt`)
+
+Module `src/buildbot_sheathing/shim_mech.py`; tests `tests/test_shim_mech.py` (6). Shim sizes from supplier listings:
+composite taper shims 8 in long, 1/16 to 5/16 in thick (slope 1:32); plastic horseshoe shims 1/16, 1/8 and 1/4 in.
+H106–H108 were registered in `LOG.md` before the run.
+
+- **The lift needed** (|ledger + panel tilt| × 48 in): median 0.946 mm, p99 3.018 mm, max 4.7 mm on milestone 6b's rock
+  draws (1.215 and 4.709 mm with the PS 2 bow draw); 43% of sheets need less than half a 1/16 in step.
+- **Shim stack.** Rounding to whole steps leaves 0.229 mm rms at 1/32 in shim stock, 0.458 at 1/16 in, 0.934 at 1/8 in
+  (step/√12 to within 2%). In milestone 12's best stack with milestone 27's 20 ms slide (0.262 mm): 0.8042, 0.7964 and
+  0.7653 against 0.7912 with a Gaussian 0.5 mm and 0.8059 with a perfect shim. **H106 held** (+0.52 points).
+- **Wedge statics.** The wedge carries 112–223 N (half the sheet plus the wall friction that resists its turn) and needs
+  49–53 N at μ 0.2, 108–129 N at μ 0.4 and 217–277 N at μ 0.6 on every face; it self-locks at every μ swept, and backing
+  it out takes a 36–124 N pull. A slick ledger face (μ 0.15, others 0.4) cuts the push to 83 N.
+- **The robots** (both hands into the wall, MuJoCo Menagerie, milestone 3b's whole-body check): G1 40.6 N at 0.35 m,
+  65.6 N at 0.5 m (waist pitch), 118.0 N at 0.7 m (wrist pitch); H1 130–135 N (elbow). The largest common friction the G1
+  can drive is 0.16, 0.25 and 0.40 at those heights; the H1's 0.43–0.44. **H107 refuted**: 118.5 N needed at μ 0.4, the
+  G1 gives 65.6 N at the model's 0.5 m ledger.
+- **Stick-slip on a light mass.** One hand's effective mass along the push is 0.78–1.17 kg (G1) and 0.80–0.97 kg (H1);
+  the sheet adds 35 g. A tap therefore runs far: at μ_s 0.4, μ_k/μ_s 0.8, 0.46 mm at 2 ms, 12.7 mm at 20 ms, 76 mm at
+  50 ms, and 337 mm at 100 ms, past the wedge's 8 in. The loop leaves 0.013 mm rms at 2 ms (70 taps), 0.041 at 10 ms,
+  **0.132 at 20 ms** and 0.578 at 50 ms; across ratios 0.5–0.9 at 20 ms 0.08–0.35 mm, and across μ_s 0.2–0.6 0.06–0.29 mm.
+  **H108 refuted** (bar 0.1 mm). In the stack, a 20 ms wedge gives 0.8023, a 50 ms one 0.7872, a 100 ms one 0.6208.
+- **What it means.** The shim the paper credited is a 1/16 in stack: a pick-and-place job with no force or timing
+  requirement, which a G1 can do, and it is as good as the 0.5 mm assumed. A wedge buys about one point more only for a
+  robot that can push 120 N low on the wall (an H1) or slick shims, and with a 10–20 ms release.
+
 ## Limitations
+- **The shim (milestone 28).** Face frictions of the composite shim on OSB and lumber are swept (0.2–0.6), not
+  measured; the stack is placed at exactly its rounded height (no shim crush, no debris); the wedge's stroke is a flag,
+  not a simulated end stop; backing a wedge out pulls the sheet's foot off the wall (36–124 N), which the press is
+  assumed to resist; the 0.5 m ledger height that sets the G1's push is the model's, and lower ledgers make it weaker.
 - **The cyclic wall (milestone 20).** SAWS has no cumulative damage: the envelope a spring reaches under cycles is
   its monotonic envelope, so nail fatigue and tear-out, which Anderson et al. and Weiss saw, are outside it.
   Anderson's nails are 0.113 in, Weiss's 8d common 0.131 in (only shares are compared); the oriented pair

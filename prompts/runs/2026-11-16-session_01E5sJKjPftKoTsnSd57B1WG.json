@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKjPftKoTsnSd57B1WG",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T02:09:47Z",
+  "ended": "2026-11-16T02:15:13Z",
+  "wall_minutes": 5.69,
+  "tokens_in": 3477535,
+  "tokens_out": 20299,
+  "cost_usd": 1.78,
+  "tool_calls": 39,
+  "task": "quality fix mode: work open medium defects from 2026-11-07 audits",
+  "projects": [
+    "ventures/home-inspection-report-builder",
+    "ventures/campground-site-profit-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16417",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "portfolio-pages test red: platform/pages/rates-coverage.test.mjs flagged campground-site-profit-calculator once it asked for wage + burden (2 of the 4 shop-rate quantities); added a REVIEWED_NOT_CARRIED entry in platform/pages/rates.mjs. I ran only the venture's own tests locally, not the pages suite."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Steps describe a sample round only; fix mode (chosen by quality_audit.py mode) is described in portfolio/quality/README.md, so the track prompt's step 1 'take the draw as it comes' conflicts with the sample command's own NOTE that today is fix mode."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md / CLAUDE.md",
+      "issue": "gh api search/issues returned empty output with no error (unauthenticated?), so duplicate-PR search fell back to list_pull_requests via MCP."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Fix mode says to add a regression test per fix but not that a new input on a venture page can trip platform/pages suites (rates-coverage); run_venture_tests.py passing is not enough for page-field changes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-quality-fix-a-bad-number-should-not-look-like-a-good-one.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode; sample seed would have been 2026-11-16-2092, round 74, not run). 0 high defects open, so took medium rows no open PR named. Fixed home-inspection-report-builder defects 1,2,4,5 and campground-site-profit-calculator defect 0, all marked fixed_by PR #16417 via mark-fixed. Share meeting the bar: not measured this run (fix mode). Verification: run_venture_tests.py on both slugs, 30 and 24 tests pass; quality_mutate.py re-seeding of each original bug caught 3/3; Playwright smoke of inspection page (no console errors, import warnings shown). Post hand-check caught my own arithmetic error (2,006 nights -> 4,013) before commit. Scores not raised; later round re-audits.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "92b4ed53-2bc0-537f-b207-ed4b7214aef3",
+    "transcripts": 1,
+    "first": "2026-11-16T02:09:47Z",
+    "last": "2026-11-16T02:15:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 75,
+        "output": 20299,
+        "thinking": 2659,
+        "cache_read": 3390504,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86956,
+        "api_equivalent_usd": 1.78,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 75,
+      "output": 20299,
+      "thinking": 2659,
+      "cache_read": 3390504,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86956,
+      "api_equivalent_usd": 1.78,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.69,
+      "active_minutes": 5.69,
+      "model_minutes": 4.55,
+      "tool_minutes": 1.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "two small product fixes with tests and a post, senior dev estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 224.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

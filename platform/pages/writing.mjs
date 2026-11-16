@@ -132,6 +132,42 @@ export function topicOf(tags = [], explicit = '', projects = NO_PROJECTS) {
 }
 const NO_PROJECTS = Object.freeze({ research: new Set(), ventures: new Set() });
 
+/** The venture a "Tools and projects" post names first among its tags, or undefined. */
+export function projectOf(tags = [], topic = '', projects = NO_PROJECTS) {
+  if (topic !== 'tools') return undefined;
+  return tags.find((t) => projects.ventures.has(t) && !PROJECT_RESERVED.has(t));
+}
+// Folder names under a project's topic page that are not projects.
+const PROJECT_RESERVED = new Set(['page']);
+/** A project needs this many posts for its own page; below it, its posts stay on the topic's date list only. */
+export const PROJECT_MIN_POSTS = 3;
+
+/**
+ * A venture's display name: the first `# ` heading of its README, cut at the first ": " or
+ * " — " ("# Wall Framing Takeoff: stud layout, ..." is "Wall Framing Takeoff"). The slug when
+ * there is no README heading.
+ */
+export function projectName(slug, root = DEFAULT_ROOT) {
+  const readme = path.join(root, 'ventures', slug, 'README.md');
+  const heading = existsSync(readme) ? /^#\s+(.+)$/m.exec(readFileSync(readme, 'utf8'))?.[1] : '';
+  const name = String(heading || '').split(/: | — | – | - /)[0].replace(/[*_`]/g, '').trim();
+  return name || slug;
+}
+
+/**
+ * The projects under "Tools and projects" with at least PROJECT_MIN_POSTS posts, most posts
+ * first: `{ slug, name, count }`. Until 2026-11-16 the topic page was one 52-page date list
+ * of 2,595 posts, 84% of them about 14 ventures.
+ */
+export function projectGroups(posts, { root = DEFAULT_ROOT, names = (slug) => projectName(slug, root) } = {}) {
+  const counts = new Map();
+  for (const p of posts) if (p.project) counts.set(p.project, (counts.get(p.project) || 0) + 1);
+  return [...counts]
+    .filter(([, n]) => n >= PROJECT_MIN_POSTS)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([slug, count]) => ({ slug, name: names(slug), count }));
+}
+
 /** Project folder names under `research/` and `ventures/` (a folder with a README.md or index.html). */
 export function projectSlugs(root = DEFAULT_ROOT) {
   const list = (dir, marks) => {
@@ -281,6 +317,8 @@ function loadPost(root, POSTS_DIR, name, projects = NO_PROJECTS) {
     descriptionHtml: descriptionHtml(meta.description),
     tags,
     topic: topicOf(tags, meta.topic, projects),
+    // The venture a "Tools and projects" post is about: its first tag naming a folder in ventures/.
+    project: projectOf(tags, topicOf(tags, meta.topic, projects), projects),
     source: `${POSTS_DIR}/${name}`,
     body,
     words,
@@ -411,6 +449,17 @@ const STYLE = `
   .topic-nav a:hover, .topic-nav a:focus-visible { border-color:var(--accent); color:var(--accent); }
   .topic-nav [aria-current] { background:var(--accent); border-color:var(--accent); color:var(--bg); font-weight:600; }
   .topic-nav .n { margin-left:6px; font-weight:400; font-variant-numeric:tabular-nums; } .topic-nav a .n { color:var(--muted); }
+  /* "By project" above a topic's list: a divider below it instead of above. */
+  .topic-nav.lead { margin:0 0 1.6em; padding:0 0 1.2em; border-top:0; border-bottom:1px solid var(--line); }
+  .topic-nav.lead .meta { margin:.8em 0 0; }
+  /* On a phone the 17 projects wrapped to nine rows (545 px) above the first post: one sideways row
+     instead, bleeding into the gutter, faded at the right edge. The end padding lets the last chip
+     clear the fade once scrolled, so no script is needed to flip it. */
+  @media (max-width:639px) {
+    .topic-nav.lead ul { flex-wrap:nowrap; overflow-x:auto; margin:0 -16px; padding:4px 40px 4px 16px; scrollbar-width:thin;
+      -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image:linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+    .topic-nav.lead li { flex:none; }
+  }
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 `;
 
@@ -734,7 +783,7 @@ export function renderTopicNav(posts, { toTopics = 'topic/', current = '', headi
  * It gives each topic a URL with its own title and description for search results; the
  * blog's `?topic=` filter is a query string its script reads, which a crawler never sees.
  */
-export function renderTopicPage(allPosts, topicId, { baseUrl = '', socialCard = '', page = 1 } = {}) {
+export function renderTopicPage(allPosts, topicId, { baseUrl = '', socialCard = '', page = 1, projects = [] } = {}) {
   const topic = TOPICS.find((t) => t.id === topicId);
   if (!topic) throw new Error(`renderTopicPage: no topic "${topicId}"`);
   const mine = allPosts.filter((p) => p.topic === topicId);
@@ -786,11 +835,97 @@ export function renderTopicPage(allPosts, topicId, { baseUrl = '', socialCard = 
 <h1>${esc(topic.label)}${sub ? `, page ${page}` : ''}</h1>
 <p class="dek">${esc(topic.blurb)}</p>
 <p class="meta">${sub ? `Posts ${first} to ${first + posts.length - 1} of ${n}, newest first.` : `${n} ${mine.length === 1 ? 'post' : 'posts'}, newest first.`} <a href="${toBlog}?topic=${esc(topicId)}">Search within this topic</a> · <a href="${toBlog}">every post</a></p>`,
-    body: `<ul class="posts" id="posts">
+    body: `${sub ? '' : renderProjectNav(projects, mine.length)}<ul class="posts" id="posts">
 ${renderCards(posts, toBlog, { topicPill: false })}
 </ul>
 ${renderPager(page, count, sub ? '../../' : '')}
 ${renderTopicNav(allPosts, { toTopics: `${toBlog}topic/`, current: topicId, heading: 'Other topics' })}`,
+  });
+}
+
+/**
+ * The "By project" links at the top of a topic's first page: each project with its own page
+ * (`projectGroups`), with its post count. `toProjects` climbs from the page to the topic's folder.
+ */
+export function renderProjectNav(projects, total, { toProjects = '', current = '', heading = 'By project' } = {}) {
+  if (!projects.length) return '';
+  const grouped = projects.reduce((n, g) => n + g.count, 0);
+  const links = projects.map((g) =>
+    g.slug === current
+      ? `<li><span aria-current="page">${esc(g.name)} <span class="n">${formatCount(g.count)}</span></span></li>`
+      : `<li><a href="${toProjects}${esc(g.slug)}/">${esc(g.name)} <span class="n">${formatCount(g.count)}</span></a></li>`,
+  );
+  const note = current ? '' : `<p class="meta">${formatCount(grouped)} of ${formatCount(total)} posts are about these ${projects.length} projects; all ${formatCount(total)} are listed below, newest first.</p>`;
+  return `<nav class="topic-nav project-nav${current ? '' : ' lead'}" aria-labelledby="project-nav-h"><h2 id="project-nav-h">${esc(heading)}</h2><ul>${links.join('')}</ul>${note}</nav>\n`;
+}
+
+/**
+ * One project's posts: `writing/topic/tools/<slug>/` (newest PAGE_SIZE) and `…/page/<n>/`
+ * (noindex). A build log a reader of one tool can follow, and a page a search for
+ * "<tool> blog" or "how <tool> was built" can land on. `toolHref` (from the site root) links
+ * the tool itself when the site serves it.
+ */
+export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard = '', page = 1, projects = [], toolHref = '' } = {}) {
+  const topic = TOPICS.find((t) => t.id === 'tools');
+  const mine = allPosts.filter((p) => p.topic === 'tools' && p.project === project.slug);
+  const count = pageCount(mine);
+  const sub = page > 1;
+  const topicHere = `${TOPIC_PATH}tools/`;
+  const here = `${topicHere}${project.slug}/`;
+  const canonical = baseUrl ? `${baseUrl}${here}${sub ? `page/${page}/` : ''}` : '';
+  const toBlog = sub ? '../../../../../' : '../../../';
+  const toTopic = sub ? '../../../' : '../';
+  const toRoot = `${toBlog}../`;
+  const posts = mine.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const n = formatCount(mine.length);
+  const seo = `${project.name}: how it was built, post by post`;
+  const title = sub ? `${project.name} posts, page ${page} · ${SITE_NAME}` : postPageTitle(seo);
+  const first = (page - 1) * PAGE_SIZE + 1;
+  const blurb = `Every blog post about ${project.name}: what was built, what was measured and what changed.`;
+  return shell({
+    title,
+    description: [`${blurb} ${n} posts, newest first.`, blurb].find((d) => d.length <= 160) ?? blurb,
+    canonical,
+    socialCard,
+    toRoot,
+    robots: sub ? 'noindex' : '',
+    crumbs: `<a href="${toBlog}">Blog</a> › <a href="${toTopic}">${esc(topic.label)}</a> › ${sub ? `<a href="../../">${esc(project.name)}</a> › Page ${page}` : esc(project.name)}`,
+    feedHref: `${toBlog}feed.xml`,
+    breadcrumb: baseUrl
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { name: SITE_NAME, item: baseUrl },
+            { name: BLOG.name, item: `${baseUrl}${WRITING_PATH}` },
+            { name: topic.label, item: `${baseUrl}${topicHere}` },
+            { name: project.name, item: `${baseUrl}${here}` },
+          ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
+        }
+      : undefined,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: seo,
+      description: blurb,
+      url: canonical || undefined,
+      isPartOf: { '@type': 'Blog', name: BLOG.feedTitle, url: baseUrl ? `${baseUrl}${WRITING_PATH}` : undefined },
+      ...(toolHref && baseUrl ? { about: { '@type': 'SoftwareApplication', name: project.name, url: `${baseUrl}${toolHref}` } } : {}),
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: mine.length,
+        itemListElement: posts.map((p, i) => ({ '@type': 'ListItem', position: first + i, name: p.title, url: baseUrl ? `${baseUrl}${WRITING_PATH}${p.slug}/` : undefined })),
+      },
+    },
+    hero: `<p class="eyebrow">Project log</p>
+<h1>${esc(project.name)}${sub ? `, page ${page}` : ''}</h1>
+<p class="dek">${esc(blurb)}</p>
+<p class="meta">${sub ? `Posts ${first} to ${first + posts.length - 1} of ${n}, newest first.` : `${n} posts, newest first.`}${toolHref ? ` <a href="${toRoot}${esc(toolHref)}">Open ${esc(project.name)}</a> ·` : ''} <a href="${toTopic}">all ${esc(topic.label.toLowerCase())}</a></p>`,
+    body: `<ul class="posts" id="posts">
+${renderCards(posts, toBlog, { topicPill: false })}
+</ul>
+${renderPager(page, count, sub ? '../../' : '')}
+${renderProjectNav(projects, 0, { toProjects: `${toTopic}`, current: project.slug, heading: 'Other projects' })}`,
   });
 }
 
@@ -1016,7 +1151,7 @@ function balancedRelated(posts, n) {
   return lists;
 }
 
-function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG } = {}) {
+function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG, projects = [] } = {}) {
   const canonical = baseUrl ? `${baseUrl}${section.path}${post.slug}/` : '';
   const isAgents = section.id === 'agents';
   const toRoot = '../'.repeat(section.depth + 1);
@@ -1028,6 +1163,9 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
   // A post on the people's blog links its topic's own page; the agent blog has no topic pages.
   const topicHref = isAgents ? `../?topic=${esc(post.topic)}` : `../topic/${esc(post.topic)}/`;
   const topic = `<a class="topic" href="${topicHref}">${esc(topicLabel(post.topic))}</a>`;
+  // The post's project page, when its project has one (`projectGroups`).
+  const project = !isAgents && post.project ? projects.find((g) => g.slug === post.project) : undefined;
+  const projectLink = project ? ` · <a href="../${TOPIC_PATH.slice(WRITING_PATH.length)}tools/${esc(project.slug)}/">More on ${esc(project.name)}</a>` : '';
   const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.txt" type="text/plain">Markdown (plain text)</a>` : '';
   return shell({
     title: postPageTitle(post.seoTitle || post.title),
@@ -1075,7 +1213,7 @@ ${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSi
 ${related.length ? `<h2 id="related-h">Related posts</h2>
 <ul class="related">${related.map((p) => `<li><a href="../${esc(p.slug)}/">${esc(p.title)}</a><span class="when"><time datetime="${p.date}">${longDate(p.date)}</time> · ${esc(topicLabel(p.topic))}</span></li>`).join('')}</ul>` : ''}
 ${newer || older ? `<nav class="pager steps" aria-label="Older and newer posts">${older ? `<a href="../${esc(older.slug)}/" rel="prev"><span class="dir">← Older</span>${esc(older.title)}</a>` : '<span></span>'}${newer ? `<a href="../${esc(newer.slug)}/" rel="next" class="next"><span class="dir">Newer →</span>${esc(newer.title)}</a>` : ''}</nav>` : ''}
-<p class="all"><a href="../">All ${isAgents ? 'agent-to-agent posts' : 'writing'}</a> · <a href="${topicHref}">More in ${esc(topicLabel(post.topic))}</a> · <a href="${toRoot}">All tools and research</a></p>
+<p class="all"><a href="../">All ${isAgents ? 'agent-to-agent posts' : 'writing'}</a> · <a href="${topicHref}">More in ${esc(topicLabel(post.topic))}</a>${projectLink} · <a href="${toRoot}">All tools and research</a></p>
 </section>`,
   });
 }
@@ -1162,7 +1300,7 @@ export function renderPodcastIndex(episodes, { baseUrl = '', socialCard = '' } =
 /** The ids of the topics at least one post has, in TOPICS order. */
 export const topicIds = (posts) => TOPICS.map((t) => t.id).filter((id) => posts.some((p) => p.topic === id));
 
-async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebase, episodes = [], byPost = new Map(), agentPosts = 0 }) {
+async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebase, episodes = [], byPost = new Map(), agentPosts = 0, projects = [], published = new Set() }) {
   const dir = path.join(outDir, section.path);
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts })));
@@ -1179,11 +1317,22 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
     for (const id of topicIds(posts)) {
       const tdir = path.join(outDir, TOPIC_PATH, id);
       await fs.mkdir(tdir, { recursive: true });
-      await fs.writeFile(path.join(tdir, 'index.html'), rebase(renderTopicPage(posts, id, { baseUrl, socialCard })));
+      const groups = id === 'tools' ? projects : [];
+      await fs.writeFile(path.join(tdir, 'index.html'), rebase(renderTopicPage(posts, id, { baseUrl, socialCard, projects: groups })));
       const pages = pageCount(posts.filter((p) => p.topic === id));
       for (let n = 2; n <= pages; n++) {
         await fs.mkdir(path.join(tdir, 'page', String(n)), { recursive: true });
         await fs.writeFile(path.join(tdir, 'page', String(n), 'index.html'), rebase(renderTopicPage(posts, id, { baseUrl, socialCard, page: n })));
+      }
+    }
+    for (const g of projects) {
+      const pdir = path.join(outDir, TOPIC_PATH, 'tools', g.slug);
+      const opts = { baseUrl, socialCard, projects, toolHref: published.has(g.slug) ? `${g.slug}/` : '' };
+      await fs.mkdir(pdir, { recursive: true });
+      await fs.writeFile(path.join(pdir, 'index.html'), rebase(renderProjectPage(posts, g, opts)));
+      for (let n = 2; n <= pageCount(Array(g.count)); n++) {
+        await fs.mkdir(path.join(pdir, 'page', String(n)), { recursive: true });
+        await fs.writeFile(path.join(pdir, 'page', String(n), 'index.html'), rebase(renderProjectPage(posts, g, { ...opts, page: n })));
       }
     }
   }
@@ -1198,7 +1347,7 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
   // child process with no pipe to drain), so blocking holds nothing up.
   for (const post of posts) {
     mkdirSync(path.join(dir, post.slug), { recursive: true });
-    writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section })));
+    writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section, projects })));
   }
 }
 
@@ -1213,7 +1362,8 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
 // the address the site is actually built for, the way rewriteOrigin in
 // build.mjs treats venture pages. A relative link cannot do this: in a post,
 // relative paths are repository paths and render as GitHub links.
-export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '' } = {}) {
+// `published` holds the slugs the site serves at `<slug>/`, so a project page links its tool.
+export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '', published = new Set() } = {}) {
   const posts = loadPosts(root);
   const agentPosts = loadPosts(root, AGENT_POSTS_DIR);
   const topicByPost = new Map(posts.map((p) => [p.slug, p.topic]));
@@ -1221,7 +1371,8 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
   const byPost = new Map(episodes.map((ep) => [ep.post, ep]));
   const aliases = [].concat(originAlias || []).filter((a) => a && baseUrl && a !== baseUrl);
   const rebase = (html) => aliases.reduce((h, a) => h.split(a).join(baseUrl), html);
-  await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length });
+  const projects = projectGroups(posts.filter((p) => p.topic === 'tools'), { root });
+  await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published });
   if (agentPosts.length) {
     await writeSection(outDir, agentPosts, AGENT_BLOG, { baseUrl, socialCard, rebase });
     const dir = path.join(outDir, AGENTS_PATH);
@@ -1240,6 +1391,8 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     ...posts.map((p) => p.slug),
     // Each topic's first page; its numbered pages are noindex, like the blog's.
     ...topicIds(posts).map((id) => `topic/${id}`),
+    // Each project's first page under "Tools and projects".
+    ...projects.map((g) => `topic/tools/${g.slug}`),
     'podcast',
     ...(agentPosts.length ? ['agents', ...agentPosts.map((p) => `agents/${p.slug}`)] : []),
   ];
@@ -1249,6 +1402,8 @@ const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basenam
 if (invokedDirectly) {
   const arg = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];
   const out = arg('out') ?? path.join(HERE, 'dist');
-  const pages = await buildWriting(out, arg('base-url') ?? '');
+  // Over a full build's dist, link the tools it already holds.
+  const published = new Set(existsSync(out) ? readdirSync(out) : []);
+  const pages = await buildWriting(out, arg('base-url') ?? '', { published });
   console.log(`writing: wrote ${path.join(out, WRITING_PATH)} (${pages.length} pages)`);
 }

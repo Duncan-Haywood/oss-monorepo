@@ -4,6 +4,7 @@ pieces it leans on: the period tachometer, the wheel speed loop and the steady-w
 import json
 import math
 import os
+import tempfile
 import unittest
 
 from feeder_sim import SimFeeder, controller
@@ -504,6 +505,78 @@ class LiftJamTest(unittest.TestCase):
         self.assertEqual(len(res.warnings), 1)
         self.assertEqual(sum("lift jammed" in line for line in logs), 1)
 
+    def _stall(self, sim):
+        """A ball wedged in the boot: the lift cuts, rests, retries and cuts again (two slides of the hub)."""
+        sim.hw.lift.kick(sim.us // 1000)
+        sim.lift_over = True
+        self._beat(sim, 3000)
+        sim.lift_over = False
+
+    def test_jams_counted_in_flash_survive_a_power_cycle(self):
+        # 2026-11-16, cad/README.md "Slip hub wear": every cut slides the hub, so every cut is counted, and the count
+        # outlives the session: a board power-cycled between drills is the same hub.
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "lift_jams.json")
+            sim = SimFeeder(jam_log=path)
+            self._beat(sim, 400)
+            self._stall(sim)
+            self.assertTrue(sim.hw.lift.jammed)
+            self.assertEqual((sim.hw.lift_jams.jams, sim.hw.lift_jams.since_set), (2, 2))
+            again = SimFeeder(jam_log=path)                   # power off and on
+            self.assertEqual((again.hw.lift_jams.jams, again.hw.lift_jams.since_set), (2, 2))
+            self.assertFalse(again.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self.assertFalse(again.hw.lift.jammed)            # the jam itself is not remembered: the e-stop cleared it
+
+    def test_hub_due_at_the_cads_count_then_reset_over_the_link(self):
+        p = _feeder()
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "lift_jams.json")
+            with open(path, "w") as f:
+                json.dump({"jams": 1000, "since_set": p.lift_slip_jams - 1}, f)
+            sim = SimFeeder(jam_log=path)
+            self._beat(sim, 400)
+            self.assertFalse(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self._stall(sim)
+            self.assertTrue(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self.assertEqual(sim.hw.lift_jams.since_set, p.lift_slip_jams + 1)
+            # The drill still runs: the warning is reported once, the lift is not stopped for it.
+            sim.estop_button = True
+            self._beat(sim, 200)
+            sim.estop_button = False
+            sim.write(P.encode(P.CLEAR_ESTOP))
+            self._beat(sim, 600)
+            logs = []
+            res, link = run(sim, drill(), log=logs.append)
+            self.assertTrue(res.ok, res.aborted)
+            self.assertEqual(sum("slip hub due" in line for line in logs), 1)
+            # A wrong key is dropped; the right one, after the bench set, clears it and keeps the lifetime count.
+            sim.write(P.encode(P.RESET_LIFT_HUB, 0))
+            self._beat(sim, 200)
+            self.assertTrue(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self.assertIsNone(host.reset_lift_hub(link, sim.sleep))
+            self.assertFalse(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            again = SimFeeder(jam_log=path)
+            self.assertEqual((again.hw.lift_jams.jams, again.hw.lift_jams.since_set), (1002, 0))
+
+    def test_lost_count_flags_the_hub(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "lift_jams.json")
+            with open(path, "w") as f:
+                f.write('{"jams": 4, "since_se')                # a write cut short by a power loss on an old firmware
+            sim = SimFeeder(jam_log=path)
+            self.assertTrue(sim.hw.flags() & P.FLAG_LIFT_HUB_DUE)
+            self._beat(sim, 400)
+            self.assertIsNone(host.reset_lift_hub(host.FeederLink(sim, sim.clock), sim.sleep))
+            self.assertEqual(SimFeeder(jam_log=path).hw.lift_jams.since_set, 0)
+
+    def test_reset_refused_while_the_estop_is_down(self):
+        sim = SimFeeder()
+        sim.hw.lift_jams.unreadable = True
+        sim.estop_button = True
+        why = host.reset_lift_hub(host.FeederLink(sim, sim.clock), sim.sleep)
+        self.assertIn("e-stop", why)
+        self.assertTrue(sim.hw.lift_jams.due)
+
     def test_starts_never_trip_and_jams_are_cut(self):
         import lift_jam_sweep as sweep
         for name, v, rise in sweep.CORNERS:
@@ -691,3 +764,108 @@ class LiftJamTest(unittest.TestCase):
         self.assertGreater(cm["f_sliding_hz"], 10 * cm["f_stuck_hz"])
         stiffer = type(p)(lift_coupler_k_nm_rad=4 * p.lift_coupler_k_nm_rad).lift_coupler_model()
         self.assertAlmostEqual(stiffer["f_stuck_hz"], 2 * cm["f_stuck_hz"], places=6)
+
+
+class EmptyHopperTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "Empty hopper": a feed stroke is judged by the launcher wheels' speed drop
+    (controller.LaunchCheck), because the feeder's ESP32 has no pin left for a sensor; the runner stops on the first
+    dry stroke and names it."""
+
+    def _model(self):
+        import config
+        return (config.WHEEL_INERTIA_KGM2, config.BALL_KG, config.WHEEL_RADIUS_M, config.BALL_RADIUS_M,
+                config.LAUNCH_SPEED_EFF, config.LAUNCH_SPIN_EFF)
+
+    def test_config_matches_the_cad_and_the_launcher_model(self):
+        import config
+        from tennisbots import ballistics, launcher
+        p = _feeder()
+        lm = launcher.WheelLauncher()
+        self.assertAlmostEqual(config.BALL_KG, p.ball_g / 1000)
+        self.assertAlmostEqual(config.WHEEL_RADIUS_M, p.wheel_head_d / 2000)
+        self.assertAlmostEqual(config.WHEEL_RADIUS_M, lm.wheel_radius)
+        self.assertAlmostEqual(config.BALL_RADIUS_M, ballistics.DEFAULT_BALL.radius)
+        self.assertEqual((config.LAUNCH_SPEED_EFF, config.LAUNCH_SPIN_EFF), (lm.speed_efficiency, lm.spin_efficiency))
+        # the verdict must land before the back stroke ends, so it never overlaps the next forward stroke
+        self.assertLess(config.LAUNCH_CHECK_MS, config.GATE_BACK_MS)
+
+    def test_flat_shot_drop_and_the_faster_wheels_floor(self):
+        inertia, m, r_w = self._model()[:3]
+        eff = self._model()[4]
+        flat = m * eff * r_w ** 2 / (2 * inertia)
+        self.assertAlmostEqual(flat, 0.088, delta=0.001)              # 8.8% with the CAD's numbers
+        for rpm in (1000, 3000, 7000):
+            top, bottom = controller.launch_dips(rpm, rpm, *self._model())
+            self.assertAlmostEqual(top, flat, places=9)                 # the same fraction at any speed
+            self.assertAlmostEqual(bottom, flat, places=9)
+        for top_rpm, bottom_rpm in ((7000, 0), (6000, 1500), (1500, 6000), (4000, 3500)):
+            d = controller.launch_dips(top_rpm, bottom_rpm, *self._model())
+            fast = 0 if top_rpm >= bottom_rpm else 1
+            self.assertGreaterEqual(d[fast], flat / 2 - 1e-12)          # whatever the spin
+        self.assertEqual(controller.launch_dips(5000, 0, *self._model())[1], 0.0)
+
+    def test_check_judges_freezes_on_a_new_target_and_cancels(self):
+        chk = controller.LaunchCheck(*self._model())
+        _, need = chk.threshold((4000, 4000))
+        self.assertAlmostEqual(need, 0.25 * 0.088, delta=0.001)
+        chk.start((4000, 4000), 0)
+        self.assertIsNone(chk.update(500, (3990, 4005), (4000, 4000)))
+        chk.stroke_done(900)
+        self.assertIsNone(chk.update(1000, (3700, 3800), (4000, 4000)))  # a ball: 7.5% drop
+        self.assertIs(chk.update(1150, (3950, 3960), (4000, 4000)), True)
+        self.assertAlmostEqual(chk.last_dip, 0.075)
+        chk.start((4000, 4000), 2000)
+        chk.stroke_done(2900)
+        self.assertIsNone(chk.update(2950, (3990, 3995), (4000, 4000)))
+        self.assertIsNone(chk.update(3000, (0, 0), (0, 0)))              # the Pi's stop: not taken as a ball
+        self.assertIs(chk.update(3150, (0, 0), (0, 0)), False)
+        chk.start((4000, 4000), 4000)
+        chk.cancel()                                                     # an e-stop mid-stroke
+        self.assertIsNone(chk.update(9999, (0, 0), (4000, 4000)))
+        chk.start((0, 0), 5000)
+        chk.stroke_done(5900)
+        self.assertIsNone(chk.update(6200, (0, 0), (0, 0)))              # wheels at rest: no verdict
+
+    def test_drill_runs_while_balls_last(self):
+        sim = SimFeeder(balls=3)                       # the pocket's ball and three behind it: exactly four
+        res, _ = run(sim, drill())
+        self.assertTrue(res.ok, res.aborted)
+        self.assertEqual(len(sim.released), 4)
+        self.assertEqual((sim.hw.launches, sim.hw.dry_strokes), (4, 0))
+        self.assertFalse(sim.hw.flags() & P.FLAG_HOPPER_EMPTY)
+
+    def test_dry_stroke_stops_the_drill_and_names_the_shot(self):
+        sim = SimFeeder(balls=1)                       # two balls for a four-shot drill
+        logs = []
+        res, _ = run(sim, drill(), log=logs.append)
+        self.assertFalse(res.ok)
+        self.assertEqual(res.dry_shot, 2)
+        self.assertIn("hopper empty", res.aborted)
+        self.assertIn("(2 shots flew)", res.aborted)
+        self.assertEqual(len(res.shots), 2)            # the dry stroke is not reported as a shot
+        self.assertEqual(len(sim.released), 2)
+        self.assertEqual(sim.hw.dry_strokes, 1)        # stopped at the first dry stroke, not a release timeout later
+        sim.run_ms(50)
+        self.assertFalse(sim.ctl.estop)                # not a fault: the e-stop is not latched
+        self.assertEqual(sim.hw.target_rpm, (0, 0))
+        # refill and go again: the stale flag does not stop the next run before it feeds, and a FEED clears it
+        sim.balls = 10
+        sim.loaded = True
+        self.assertTrue(sim.hw.flags() & P.FLAG_HOPPER_EMPTY)
+        res2, _ = run(sim, drill())
+        self.assertTrue(res2.ok, res2.aborted)
+        self.assertFalse(sim.hw.flags() & P.FLAG_HOPPER_EMPTY)
+
+    def test_the_last_shot_dry_is_caught_too(self):
+        sim = SimFeeder(balls=2)
+        res, _ = run(sim, drill())
+        self.assertEqual(res.dry_shot, 3)              # caught by the wait for the last shot's verdict
+
+    def test_sweep_corners_separate(self):
+        # tests/launch_check_sweep.py's worst corners (README "Empty hopper"): a wheel 1.5x heavier than config.py's,
+        # a ball taking 60% of the modelled momentum, the fastest wheel lag; and the noisiest dry case
+        import launch_check_sweep as sweep
+        lo, _, _, _ = sweep.run_case(1.5, 0.6, 0.2)
+        self.assertGreaterEqual(lo, 1.0)
+        _, hi, _, _ = sweep.run_case(1.0, 0.6, 0.8)
+        self.assertLess(hi, 0.5)

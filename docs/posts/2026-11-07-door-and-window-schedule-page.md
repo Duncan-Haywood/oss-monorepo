@@ -1,6 +1,6 @@
 ---
 title: "A door and window schedule from typed walls, in the browser"
-seo_title: "Door and window schedule calculator: marks, rough openings, headers"
+seo_title: "Building a door and window schedule page from typed walls"
 date: 2026-11-07
 tags: [wall-framing-takeoff, construction, tools]
 description: "Type walls and openings, get D1/W1 marks, counts, rough openings, headers, sill heights and a CSV. Same engine as the whole-house framing takeoff."

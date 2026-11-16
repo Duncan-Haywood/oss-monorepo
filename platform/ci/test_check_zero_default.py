@@ -20,6 +20,13 @@ class ZeroDefault(unittest.TestCase):
             with self.subTest(read=read):
                 self.assertEqual(c.scan_text(FIELD + f"x = {read};"), [(2, "lag", read.split("|| ")[1])])
 
+    def test_a_read_on_the_first_line_is_still_flagged(self):
+        # Red-team 2026-11-16: `rfind(...) + 1` -> `- 1` sliced the line from
+        # -2 when no newline precedes the read, so the cast was never seen.
+        for read in ['x = Number($("#lag").value) || 30;', 'x = +$("lag").value || 30;']:
+            with self.subTest(read=read):
+                self.assertEqual(c.scan_text(read + "\n" + FIELD), [(1, "lag", "30")])
+
     def test_a_field_that_refuses_zero_is_fine(self):
         page = '<input type="number" id="lag" min="1" value="30">\nx = Number($("#lag").value) || 30;'
         self.assertEqual(c.scan_text(page), [])

@@ -5,7 +5,7 @@ import datetime
 import unittest
 from pathlib import Path
 
-from check_post_frontmatter import ROOT, landed_broken, main, problems, tag_key
+from check_post_frontmatter import PLACEHOLDER, ROOT, landed_broken, main, problems, tag_key
 
 GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"\ntags: [a, b]\n---\nbody\n'
 
@@ -120,6 +120,16 @@ class T(unittest.TestCase):
 
     def test_good(self):
         self.assertEqual(problems("2026-10-24-x.md", GOOD), [])
+
+    def test_placeholder_origin_fails_with_its_line(self):
+        t = GOOD.replace("body\n", "body\n\nsee `https://example.invalid/x/`\n")
+        [p] = problems("2026-10-24-x.md", t)
+        self.assertTrue(p.startswith("line 9 holds `https://example.invalid`"), p)
+        self.assertEqual(problems("2026-10-24-x.md", GOOD.replace("body", "the reserved `example.invalid` host")), [])
+
+    def test_placeholder_matches_the_site_check(self):
+        check = (ROOT / "platform" / "pages" / "check.mjs").read_text()
+        self.assertIn(f"const PLACEHOLDER_ORIGIN = '{PLACEHOLDER}';", check)
 
     def test_missing_tags(self):
         t = GOOD.replace("tags: [a, b]\n", "")

@@ -193,6 +193,15 @@ elevation, 0.05 deg of its azimuth and 3.5% of both wheel speeds, at least 3 s
 apart. E-stop pressed mid-drill, a lost `FEED` frame, a pot wire coming off and
 a silent board each abort with no further ball. No real board has run it.
 
+**An empty tub (2026-11-16).** The firmware judges every feed stroke by the
+launcher wheels' speed drop, since a ball takes its momentum from them (8.8% per
+wheel on a flat shot with the CAD's figures) and an empty pocket leaves them
+steady. A dry stroke sets `FLAG_HOPPER_EMPTY`; the runner stops there, names the
+shot that went dry and how many flew, stops the wheels without latching the
+e-stop, and exits 3. No sensor was added because the feeder's ESP32 has no pin
+left for one. Margins over 27 simulated builds and the reasoning:
+[`firmware/esp32/README.md`](firmware/esp32/README.md), "Empty hopper".
+
 ### Wheel speed loop (2026-11-11)
 
 Writing the runner turned up two faults in the launcher wheels' firmware:

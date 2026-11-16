@@ -670,3 +670,49 @@ test('a long pager shows a short row and keeps every page one click away in a cl
   assert.doesNotMatch(renderPager(2, 5, ''), /<details/);
   assert.equal(renderPager(1, 1, ''), '');
 });
+
+test('Tools and projects: a project with three posts gets its own page, linked from the topic page, its posts and the sitemap', async () => {
+  const { projectName, projectOf } = await import('./writing.mjs');
+  const tagged = (slug, date, tags) => [`${date}-${slug}.md`, post(slug, date).replace(/^tags:.*$/m, `tags: [${tags}]`)];
+  const root = repoWith(Object.fromEntries([
+    tagged('a1', '2026-10-01', 'framer'),
+    tagged('a2', '2026-10-02', 'framer, notes'),
+    tagged('a3', '2026-10-03', 'framer'),
+    tagged('b1', '2026-10-04', 'small'),
+    tagged('c1', '2026-10-05', 'tools'),
+  ]));
+  for (const [slug, readme] of [['framer', '# Framer Pro: stud layout for a house\n'], ['small', '']]) {
+    mkdirSync(path.join(root, 'ventures', slug), { recursive: true });
+    writeFileSync(path.join(root, 'ventures', slug, 'README.md'), readme);
+  }
+  assert.equal(projectName('framer', root), 'Framer Pro');
+  assert.equal(projectName('small', root), 'small', 'no heading: the slug');
+  assert.equal(projectOf(['framer'], 'research', { research: new Set(), ventures: new Set(['framer']) }), undefined, 'only Tools and projects posts group by project');
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
+  const pages = await buildWriting(out, BASE, { root, published: new Set(['framer']) });
+  assert.ok(pages.includes('topic/tools/framer'), 'the project page is in the sitemap');
+  assert.ok(!pages.some((p) => p.includes('topic/tools/small')), 'one post is not enough for a page');
+  const topic = await fs.readFile(path.join(out, 'writing/topic/tools/index.html'), 'utf8');
+  assert.match(topic, /<nav class="topic-nav project-nav lead"[^>]*><h2 id="project-nav-h">By project<\/h2><ul><li><a href="framer\/">Framer Pro <span class="n">3<\/span><\/a><\/li><\/ul>/);
+  assert.match(topic, /3 of 5 posts are about these 1 projects; all 5 are listed below/);
+  assert.ok(topic.indexOf('project-nav') < topic.indexOf('id="posts"'), 'the project links come before the date list');
+  const page = await fs.readFile(path.join(out, 'writing/topic/tools/framer/index.html'), 'utf8');
+  assert.equal((page.match(/<h1/g) || []).length, 1);
+  assert.match(page, /<title>Framer Pro: how it was built, post by post/);
+  assert.match(page, /<link rel="canonical" href="https:\/\/example\.test\/site\/writing\/topic\/tools\/framer\/">/);
+  assert.match(page, /href="\.\.\/\.\.\/\.\.\/\.\.\/framer\/">Open Framer Pro<\/a>/, 'the tool is linked from the site root');
+  for (const slug of ['a1', 'a2', 'a3']) assert.ok(page.includes(`href="../../../${slug}/"`), `${slug} is listed`);
+  assert.ok(!page.includes('href="../../../c1/"'), 'a post about no project is not');
+  assert.match(page, /"@type":"CollectionPage"/);
+  assert.match(page, /"name":"Framer Pro","item":"https:\/\/example\.test\/site\/writing\/topic\/tools\/framer\/"/);
+  const a1 = await fs.readFile(path.join(out, 'writing/a1/index.html'), 'utf8');
+  assert.match(a1, /<a href="\.\.\/topic\/tools\/framer\/">More on Framer Pro<\/a>/);
+  const b1 = await fs.readFile(path.join(out, 'writing/b1/index.html'), 'utf8');
+  assert.ok(!b1.includes('More on'), 'no link to a page that does not exist');
+});
+
+test('the phone keeps the "By project" chips to one sideways row', async () => {
+  const { renderTopicPage } = await import('./writing.mjs');
+  const html = renderTopicPage([], 'tools', { projects: [{ slug: 'x', name: 'X', count: 3 }] });
+  assert.match(html, /@media \(max-width:639px\) \{\s*\.topic-nav\.lead ul \{ flex-wrap:nowrap; overflow-x:auto;/);
+});
