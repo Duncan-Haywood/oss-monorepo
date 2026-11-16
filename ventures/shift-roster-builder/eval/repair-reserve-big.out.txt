@@ -62,3 +62,7 @@ flow: 22888 open hours in all, 244 above the proven floors, at the floor on 38, 
 flow2000: 22857 open hours in all, 213 above the proven floors, at the floor on 37, build ms mean 21415
 flow2000 vs flow: fewer open on 17, more on 8, tied 47, net +31 h covered (sign test p = 0.108)
 
+== noise floor: no reserve run twice, 24 builds on 90 x 252 and 100 x 280 weeks 0-1
+second run vs first: fewer open on 1, more on 1, tied 22, net +1 h (sign test p = 1)
+2 s reserve vs first run, same builds: fewer open on 10, more on 5, tied 9, net +11 h
+2 s reserve vs second run, same builds: fewer open on 10, more on 5, tied 9, net +10 h
