@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 96, 2026-11-16: pre-registration, the 180-day stamps alone and the 3-year cut on clean sources
+
+Why: session 95 dropped every dead permit's completion date from the borrowed model's training and found the rule removes 6.5 to 8.6% of rows, nearly all of them Austin's pre-2000 void and expired permits stamped exactly 180 days after issue, and that the drop costs Seattle 1.8 to 3.5 days at q0.9. Its "Next" asked to separate the stamp from the other closures, and to check whether the staleness cut tuned on stamped data (session 92: 3 years best in SF, 5 in Seattle) still holds once the sources are clean.
+- Method: `rounds.py` gains `cpin_es3_nc5_stamp` (cpin_es3_nc5 dropping only the dead rows completed by D whose label is exactly `STAMP_DAYS` = 180) and `cpin_es3_nc3_clean` (session 95's dead drop on session 92's 3-year cut). Summary: `rounds.py x --summarise-stamp results/rounds_score_stamp_i2c.json`, against session 95's nc5 and clean (`results/rounds_score_clean_i2c.json`) and session 92's nc3 (`results/rounds_score_sweep_i2c.json`).
+Design (fixed before any model run): cascade2 class; H = sf, seattle; Y = 2021, 2022; 3 seeds; q0.9 only (`CPIN_TAUS=0.9`, as session 95); fresh pull 2026-11-16; `rounds.py DIR --score --keep-open --status-dir DIR_STATUS --variants cpin_es3_nc5_stamp cpin_es3_nc3_clean --held sf|seattle --out-name rounds_score_stamp_i2c.json`. nc5, clean and nc3 are not refit: sessions 93 and 95 reproduced those models to every digit on feeds with the same row counts. Reuse rule: if the fresh pull's row counts (SF 1,298,381, Seattle 194,311, Austin 2,385,435) or dead completion counts (3,130, 423, 172,473) differ from session 95's, nc5 and clean are refit in this run too and the comparison uses the refits.
+Predictions (q0.9 = cascade2's mean pinball loss over 3 seeds on completed test rows, days):
+- (T1) In every cell the stamp rule drops between 75% and 95% of the rows session 95's clean rule dropped.
+- (T2) In Seattle, stamp minus nc5 is at least +1.0 day in both years (the stamps carry the cost session 95 found).
+- (T3) In every cell clean and stamp differ by less than 1 day (the non-stamp closures barely move the tail).
+- (C1) On clean sources the city pattern of the cut holds: nc3_clean beats nc5_clean in both SF cells, nc5_clean beats nc3_clean in both Seattle cells.
+- (C2) nc3_clean minus nc3, mean over the 4 cells, lies within plus or minus 1.5 days.
+Refuted if any part fails.
+
 ## Session 95, 2026-11-16: dropping the dead permits' completion dates from the borrowed model's training costs Seattle 1.8 to 3.5 days at q0.9 and leaves San Francisco unchanged (mean +1.33); the rule drops 6.5 to 8.6% of training rows, not 1.5%, because 96% of Austin's pre-2000 void and expired permits carry a completion date exactly 180 days after issue, the most common build-time label in Austin's feed (143,212 rows); K4, K5 held, K1, K2, K3 refuted
 
 Why: session 94 found that 0.04% (SF), 0.40% (Seattle) and 1.49% (Austin) of dated completions belong to permits the status calls dead (Austin's mostly "withdrawn"), with a long tail (Austin's dead p90 1,080 days against done's 379). Every model here reads the completion date as a build's end. Its "Next" asked to refit cpin_es3_nc5 with those rows dropped and measure what the closures cost at q0.9.

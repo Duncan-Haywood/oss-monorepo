@@ -197,6 +197,21 @@ class NeverCompleted(unittest.TestCase):
         self.assertIn("cpin_es3_nc5_clean", rounds.VARIANTS)
         self.assertEqual(rounds.STALE["cpin_es3_nc5_clean"], rounds.STALE["cpin_es3_nc5"])
 
+    def test_dead_drop_stamp_only(self):
+        """Session 96: with stamp=180 only dead rows completed by D exactly 180 days after issue go; other dead
+        closures, live 180-day builds and dead stamps completed after D stay."""
+        import datetime, rounds
+        import pandas as pd
+        D = datetime.date(2020, 1, 1)
+        d = pd.DataFrame(dict(permit_id=list("abcde"),
+                              start=["1995-01-01", "1995-01-01", "2010-01-01", "2019-08-01", "2016-01-01"],
+                              y=[180.0, 400.0, 180.0, 180.0, np.inf], dead=[True, True, False, True, False]))
+        self.assertEqual(rounds.dead_drop(d, D, stamp=rounds.STAMP_DAYS).permit_id.tolist(), list("bcde"))
+        self.assertEqual(rounds.dead_drop(d, D).permit_id.tolist(), list("cde"))
+        self.assertEqual(rounds.STALE["cpin_es3_nc3_clean"], rounds.STALE["cpin_es3_nc3"])
+        self.assertEqual(rounds.STALE["cpin_es3_nc5_stamp"], rounds.STALE["cpin_es3_nc5"])
+        self.assertTrue({"cpin_es3_nc5_stamp", "cpin_es3_nc3_clean"} <= set(rounds.VARIANTS))
+
 
 if __name__ == "__main__":
     unittest.main()
