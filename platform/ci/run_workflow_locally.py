@@ -727,6 +727,8 @@ class Step:
         # (count, message) for each distinct error a failed step printed; see
         # failure_causes.
         self.causes = []
+        # Repository paths a failed step's output names; see named_paths.
+        self.paths = set()
         # env: entries to add for this step. Populated only from `vars.`
         # expressions resolved to their unset value; see VARS_EXPRESSION.
         self.env = {}
@@ -1407,6 +1409,50 @@ def failure_causes(lines) -> list[tuple[int, str]]:
     return [(n, c) for c, n in sorted(counts.items(), key=lambda kv: -kv[1])]
 
 
+# Why a sweep names the changed file several failed steps share. One post
+# with a 167-character description failed check_post_frontmatter, then the
+# site-builder suite (173 tests), three more Pages steps and
+# platform/distribution/shorts.test.mjs, in different workflows; each step's
+# own cause list was right, but read one workflow at a time the five failures
+# looked like unrelated breakage (three doc-friction reports, 2026-11-15 and
+# 2026-11-16). The diff is the link: a changed path named by two or more
+# failed steps is printed once, after the pass line, as the one to fix first.
+# A bare file name counts too: check_post_frontmatter prints the post's name
+# without docs/posts/. It is matched only when no other changed file shares it.
+PATH_TOKEN = re.compile(r"(?<![\w./-])((?:/?[\w.-]+/)*[\w.-]+\.\w+)")
+
+
+def named_paths(lines, root: str = REPO) -> set:
+    """File paths and bare file names a step's output mentions (absolute paths
+    under root made relative). Matched against the diff later, so loose is
+    fine."""
+    found = set()
+    prefix = root.rstrip("/") + "/"
+    for line in lines:
+        for token in PATH_TOKEN.findall(line):
+            if token.startswith(prefix):
+                token = token[len(prefix):]
+            found.add(token[2:] if token.startswith("./") else token)
+    return found
+
+
+def shared_changed_paths(failed, changed) -> list:
+    """[(path, [labels])] for each changed path named by two or more failed
+    steps, most-named first. `failed` holds (workflow, step) pairs."""
+    names: dict[str, list[str]] = {}
+    for path in set(changed):
+        names.setdefault(os.path.basename(path), []).append(path)
+    seen: dict[str, list[str]] = {}
+    for name, step in failed:
+        hits = {p for p in changed if p in step.paths}
+        hits |= {ps[0] for base, ps in names.items()
+                 if len(ps) == 1 and base in step.paths}
+        for path in sorted(hits):
+            seen.setdefault(path, []).append(f"{name} / {step.label}")
+    shared = [(p, labels) for p, labels in seen.items() if len(labels) >= 2]
+    return sorted(shared, key=lambda kv: -len(kv[1]))
+
+
 def execute(step: Step, timeout: int) -> None:
     if step.status == "skipped":
         return
@@ -1443,6 +1489,7 @@ def execute(step: Step, timeout: int) -> None:
     output = (done.stdout + done.stderr).strip().splitlines()
     step.tail = output[-12:]
     step.causes = failure_causes(output) if done.returncode else []
+    step.paths = named_paths(output) if done.returncode else set()
     if done.returncode == 0:
         step.status = "ok"
     elif SETUP.match(step.run):
@@ -1927,7 +1974,7 @@ def run_for_changes(args) -> int:
                        args.list)
     if hint:
         print(hint, flush=True)
-    return _run_selected(args, selected, held)
+    return _run_selected(args, selected, held, changed=changed)
 
 
 # A foreground tool call in a cloud session is cut off at 600 s. Runs kept
@@ -2209,7 +2256,7 @@ def narrow(args, selected, held):
             [h for h in held if h[0] in names])
 
 
-def _run_selected(args, selected, held, absent=()) -> int:
+def _run_selected(args, selected, held, absent=(), changed=()) -> int:
     """Execute the chosen workflows' read-only steps and report."""
     selected, held = narrow(args, selected, held)
     for name, job_id, why in held:
@@ -2231,6 +2278,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
     before = checkout_fingerprint(with_untracked=True)
 
     failures, out_of_budget, after_skip, ci_only = [], [], [], []
+    failed_steps = []
     # Workflows that finished before the checkout first moved: their verdicts
     # still read one tree. Eleven run records to 2026-11-13 lost a whole sweep
     # to UNSTABLE CHECKOUT after editing the run record or committing while
@@ -2247,6 +2295,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
               + (f"; budget {budget} s" if budget and budget != per else "") + ")",
               flush=True)
         run_steps(steps, args.timeout, budget)
+        failed_steps += [(name, s) for s in steps if s.status == "failed"]
         code = report(name, steps, uses_skipped, False)
         if code == BUDGET_SPENT:
             out_of_budget.append(name)
@@ -2278,6 +2327,12 @@ def _run_selected(args, selected, held, absent=()) -> int:
              if out_of_budget else "")
           + (f"; {len(after_skip)} with no verdict after a skipped step "
              f"({', '.join(after_skip)})" if after_skip else "") + ".")
+    for path, labels in shared_changed_paths(failed_steps, changed)[:CAUSES_SHOWN]:
+        print(f"  COMMON CAUSE: {path}, in your diff, is named by {len(labels)} "
+              f"of {len(failed_steps)} failed step(s): " + "; ".join(labels[:4])
+              + ("; ..." if len(labels) > 4 else "") + ".")
+        print("    Fix it first and re-run; the other failures may only be "
+              "downstream of it.")
     if out_of_budget:
         print("  Re-run each by name (no budget), in the background: "
               + "; ".join(f"python3 platform/ci/run_workflow_locally.py {n}"
