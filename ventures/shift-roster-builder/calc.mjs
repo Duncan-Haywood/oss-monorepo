@@ -1656,7 +1656,9 @@ function ejectOpen(ctx, owner, lists, passes = 3) {
 }
 
 // Single moves and swaps that lower the score and never leave a shift open that was covered.
-function polishPay(ctx, owner0, seed, iterations) {
+// `deadline` (an absolute Date.now() time, 2026-11-16, README "The pay polish stops at the budget's end"): read every 1,024
+// moves; past it the polish returns what it has. Every move it kept lowered the score, so stopping early never adds open hours.
+function polishPay(ctx, owner0, seed, iterations, { deadline = Infinity } = {}) {
   const { P, S, elig } = ctx;
   const rng = mulberry32(seed);
   const owner = owner0.slice();
@@ -1665,6 +1667,7 @@ function polishPay(ctx, owner0, seed, iterations) {
   const pScore = lists.map((l, p) => personScore(ctx, p, l));
   const removeFrom = (list, i) => list.filter((x) => x !== i);
   for (let it = 0; it < iterations; it++) {
+    if ((it & 1023) === 1023 && Date.now() > deadline) break;
     const i = Math.floor(rng() * S), o = owner[i];
     if (o < 0) continue;
     if (rng() < 0.5) {
@@ -3910,7 +3913,9 @@ function buildRosterOnce(staff, slots, options = {}) {
         const walkDeadline = budgetMs > 0 && o.coverPassDeadline !== false ? tStart + budgetMs - (k > 0 ? reserve : 0) : Infinity;
         const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4), { guide: o.coverGuide === false ? null : clique?.xs ?? null, guideProb: o.coverGuideProb ?? 0.5, deadline: walkDeadline });
         if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
-        const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
+        // The polish after a walk stops at the walk's deadline (README "The pay polish stops at the budget's end");
+        // `payPolishDeadline: false` keeps it untimed.
+        const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000), { deadline: o.payPolishDeadline !== false ? walkDeadline : Infinity });
         const ps = scoreOwner(ctx, po).total;
         if (ps < best.score - 1e-9) best = { owner: po, score: ps };
       }
@@ -3933,7 +3938,7 @@ function buildRosterOnce(staff, slots, options = {}) {
         const w = o.openShiftWeight ?? 1e-6;
         const curObj = scoreOwner(ctx, best.owner).unfilled + w * cur;
         if (rp.open + w * rp.openShifts < curObj - 1e-9) {
-          const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));
+          const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000), { deadline: budgetMs > 0 && o.payPolishDeadline !== false ? tStart + budgetMs : Infinity });
           const ps = scoreOwner(ctx, po).total;
           if (ps < best.score - 1e-9) best = { owner: po, score: ps };
         }
@@ -5795,7 +5800,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, scoreFloorSkip, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, polishPay, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, scoreFloorSkip, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
