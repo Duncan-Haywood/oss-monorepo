@@ -264,3 +264,4 @@ export const KNOWN_DATE_PAPERS = [
   'Bernal, J. L., Cummins, S. & Gasparrini, A. (2017). Interrupted time series regression for the evaluation of public health interventions: a tutorial. Int. J. Epidemiol. 46(1), 348-355. doi:10.1093/ije/dyw098',
   'Prais, S. J. & Winsten, C. B. (1954). Trend estimators and serial correlation. Cowles Commission Discussion Paper 383.',
 ];
+

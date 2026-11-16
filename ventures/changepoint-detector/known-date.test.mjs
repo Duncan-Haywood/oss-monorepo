@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { knownDateTest } from './known-date.mjs';
 
-// The test at a date the user names (README "A date you name: three pre-registered rounds, not shipped";
-// eval/known-date-prereg-*.md). It failed its synthetic size bar in one cell in all three rounds (n 40, rho 0.8, the
-// date at 80%: 13.6%, 9.2%, 9.4% against 8%), so it is not in the CLI, the engine or the page; these tests pin the
-// module's real-series behaviour (eval/known-date-real.out.txt) for the next round.
+// The test at a date the user names (README "A date you name: four pre-registered rounds, not shipped";
+// eval/known-date-prereg-*.md). Rounds 1-3 failed the size bar high in one cell (n 40, rho 0.8, the date at 80%:
+// 13.6%, 9.2%, 9.4% against 8%); round 4's upper-bound generator held every cell under 8% but fell to 1.8% in one
+// (n 40, rho 0.4, date 80%) against the 2% floor. So it is not in the CLI, the engine or the page; these tests pin the
+// module's real-series behaviour (eval/known-date-real.out.txt, -round4) for the next round.
 const read = (f, name) => {
   const [h, ...rows] = readFileSync(new URL(`./data/${f}`, import.meta.url), 'utf8').trim().split('\n');
   const j = h.split(',').indexOf(name);
@@ -58,4 +59,16 @@ test('a planted step and slope change are recovered on AR(1) noise', () => {
   const x = Array.from({ length: 120 }, (_, t) => { u = 0.4 * u + gauss(r); return 0.02 * t + u + (t >= 60 ? 3 + 0.05 * (t - 60) : 0); });
   const h = knownDateTest(x, 60, { reps: 199 });
   assert.ok(h.p <= 0.01 && h.stepRange95[0] < 3 && 3 < h.stepRange95[1] && h.slopeChangeRange95[0] < 0.05 && 0.05 < h.slopeChangeRange95[1], JSON.stringify(h));
+});
+
+test('round 4 generator: the upper bound sits above the point rho on a short sticky series, and its p is never smaller', () => {
+  const r = mulberry(77); let u = 0;
+  const x = Array.from({ length: 40 }, (_, t) => { u = 0.6 * u + gauss(r); return 0.05 * t + u; });
+  const a = knownDateTest(x, 32, { reps: 99, seed: 3 }), b = knownDateTest(x, 32, { reps: 99, seed: 3, rhoGenMethod: 'upper' });
+  assert.equal(a.refused, false);
+  assert.equal(a.rhoGen.length, 1);
+  assert.equal(b.rhoGen.length, 2);
+  assert.ok(b.rhoGen[1] > b.rhoGen[0] && b.rhoGen[0] === a.rhoGen[0], JSON.stringify(b.rhoGen));
+  assert.ok(b.p >= a.p && b.pStep >= a.pStep && b.pSlope >= a.pSlope);
+  assert.ok(b.stepRange95[0] <= a.stepRange95[0] && b.stepRange95[1] >= a.stepRange95[1]);
 });
