@@ -53,11 +53,13 @@ def is_marker(line, marker):
     inside a line (`not DONE yet`) does not count (friction 2026-11-11: `--marker
     EXIT` waited its full 540 s timeout on a log that ended `EXIT 0`). A marker
     that ends in `=` or `:` is a prefix: `rc=` matches `rc=0` (an `echo rc=$?`
-    line; friction 2026-11-13, the same 540 s wait)."""
+    line; friction 2026-11-13, the same 540 s wait). A bare word followed by `=`
+    counts too: `--marker BUILD_EXIT` matches `BUILD_EXIT=0` (friction 2026-11-16,
+    a full timeout on a log whose last line was exactly that)."""
     s = line.strip()
     if marker[-1] in "=:" and s.startswith(marker):
         return True
-    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-")
+    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-=")
 
 
 DEFAULT_MARKERS = ("DONE", "EXIT", "[exited with code")

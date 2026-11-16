@@ -89,6 +89,13 @@ class WaitFor(unittest.TestCase):
         self.assertFalse(is_marker("the rc=0 line", "rc="))
         self.assertFalse(is_marker("rc0", "rc="))
 
+    def test_bare_marker_matches_name_equals_value(self):
+        # friction 2026-11-16: --marker BUILD_EXIT timed out on a log ending BUILD_EXIT=0
+        from wait_for import is_marker
+        self.assertTrue(is_marker("BUILD_EXIT=0", "BUILD_EXIT"))
+        self.assertFalse(is_marker("BUILD_EXIT_CODE=0", "BUILD_EXIT"))
+        self.assertFalse(is_marker("the BUILD_EXIT=0 line", "BUILD_EXIT"))
+
     def test_default_accepts_the_harness_task_file_ending_and_a_dash(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
