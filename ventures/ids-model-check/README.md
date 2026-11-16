@@ -33,6 +33,14 @@ open. MIT licensed, no dependencies, nothing uploaded.
   IDS-Audit-tool test set; on 64 IDS files from public repositories it found
   template faults in 21, among them `Lenght` in three quantity sets of buildingSMART
   Portugal's national requirements.
+- **IDS editor** (`editor.html`, 2026-11-16): pick a class, then a standard
+  set that class can carry, then a property; the editor writes the template's
+  `dataType`, offers the standard's enumeration values, lists subclasses (IDS
+  matches exact classes) and audits the IDS live. Every choice it offers was
+  written out and audited: 203,433 specifications across the three schemas,
+  none with an error or a warning; a 15,102-specification sample validates
+  against buildingSMART's `ids.xsd` in IfcTester. Hands the file straight to the
+  checker. `eval/editor-2026-11-16.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -58,7 +66,7 @@ drops into a CI job (`node cli.mjs model.ifc spec.ids` exits 1 on a fail).
 
 ## Run it
 
-Browser: open `index.html` through any static server (`npx serve .` or
+Browser: open `index.html` (the checker) or `editor.html` (the IDS editor) through any static server (`npx serve .` or
 `python3 -m http.server`), drop a model and an IDS. The page loads only its own
 `schema/*.json` tables.
 
@@ -298,7 +306,13 @@ faster than IfcTester; its point is needing no install.
   occurrence's material replaces its type's.
 - **Part of:** aggregation, grouping, containment, nesting, voids and fills,
   each followed recursively; containment also climbs the container's
-  aggregation (space, storey, building, site).
+  aggregation (space, storey, building, site). IDS 1.0 names voids and fills
+  as one relation value, the token pair `IFCRELVOIDSELEMENT IFCRELFILLSELEMENT`:
+  a door filling an opening in a wall is part of the wall (the opening is the
+  path, not the whole), as IfcTester reads it. Until 2026-11-16 this checker
+  read that value as one unknown relation and the audit called it invalid, while
+  accepting the two tokens on their own, which `ids.xsd` refuses; buildingSMART's
+  test suite has no voids/fills case, so 334 of 334 did not show it.
 - **ifcVersion** on a specification is metadata: the check runs anyway and the
   report warns.
 
@@ -320,12 +334,12 @@ faster than IfcTester; its point is needing no install.
 
 ## Next steps
 
-- An IDS editor that offers a standard set's properties and data types as the
-  author types (the templates are now in `schema/psets-*.json`).
+- The editor: open an existing IDS to edit it (parseIds output back into the
+  editor's state); offer the classes and property sets a loaded model actually
+  has, with counts; applicability on properties and classifications, not only
+  a class.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
-- An IDS editor page (build a specification from the classes and property sets
-  the loaded model actually has).
 - A GitHub Action wrapper for checking models on every commit.
 
 ## Sources

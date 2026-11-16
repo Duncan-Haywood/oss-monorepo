@@ -60,7 +60,7 @@
   <h1>Check an IFC model against an IDS file, in your browser.</h1>
   <p class="lede">Drop a building model (.ifc, .ifcxml or .ifczip) and a buildingSMART Information Delivery Specification (.ids). You get every specification's result, each failing element with the reason, and a BCF issue list your BIM tool can open. Nothing is uploaded.</p>
 
-  <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="samples/coordination-basics.ids.xml">Get the starter IDS</a></p>
+  <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="editor.html">Write an IDS</a> <a class="cta ghost" href="samples/coordination-basics.ids.xml">Get the starter IDS</a></p>
   <div class="facts">
     <div class="fact"><b>334 / 334</b>buildingSMART IDS test cases right (<a href="#accuracy">how it was checked</a>)</div>
     <div class="fact"><b>under 1 s</b>for a 22 MB, 424,819-entity Revit export in Chromium (0.8 s; 1.4 s on the command line)</div>
@@ -94,7 +94,7 @@
     <h2 id="what">What it checks</h2>
     <p>An IDS lists <em>specifications</em>. Each says which elements it applies to (for example every <code>IFCWALL</code> with <code>Pset_WallCommon.IsExternal = true</code>) and what those elements must have (a <code>FireRating</code>, a Uniclass code, a material, a place on a storey). The checker reads both files, finds the elements each specification applies to, and tests every requirement on each, following the IDS 1.0 rules for required, optional and prohibited facets, value restrictions (enumerations, patterns, ranges, lengths), floating-point tolerance and unit conversion to SI.</p>
     <p>Before any model is read, the IDS itself is audited against the IFC schema its specifications name: class names that do not exist or are not upper case, attributes a class does not have (or has only as derived or inverse attributes), values compared with lists, objects or selects, numbers written with a decimal comma, integers written as <code>42.0</code>, booleans written <code>FALSE</code>, patterns on numbers, unknown data types, and prohibited specifications that carry requirements. Such a specification is reported as <strong>INVALID</strong>, with the reason, instead of failing every element. Standard sets are checked too: <code>Pset_WallComon</code>, <code>Qto_DuctSegmentBaseQuantities.Lenght</code> or <code>IsExternal</code> typed <code>IFCTEXT</code> each get the standard name or type back. Those are still run against the model and shown as a warning, since a project's model can carry exactly what its IDS asks for. Writing an IDS? Drop it alone and press <em>Audit the IDS only</em>.</p>
-    <p>Starting from scratch? The <a href="samples/coordination-basics.ids.xml">starter IDS</a> asks for what most coordinators want before a model is shared: walls marked external and load-bearing, a material on every wall, named doors and windows on a storey, named spaces, and no building element proxies. Edit it in any text editor.</p>
+    <p>Starting from scratch? The <a href="samples/coordination-basics.ids.xml">starter IDS</a> asks for what most coordinators want before a model is shared: walls marked external and load-bearing, a material on every wall, named doors and windows on a storey, named spaces, and no building element proxies. Edit it in any text editor, or write your own in the <a href="editor.html">IDS editor</a>, which offers each class's standard property sets with their data types and audits every specification as you write it.</p>
   </section>
 
   <section aria-labelledby="accuracy">
@@ -284,6 +284,19 @@
     $("dl-csv").onclick = () => { record("csv_downloaded"); download(base + "-ids.csv", csvReport(r), "text/csv"); };
     $("dl-json").onclick = () => { record("json_downloaded"); download(base + "-ids.json", JSON.stringify(r, null, 2), "application/json"); };
   }
+
+  // An IDS sent from the editor (editor.html) arrives in this tab's session storage.
+  try {
+    const h = JSON.parse(sessionStorage.getItem("ids-model-check-editor-handoff") || "null");
+    if (h && typeof h.xml === "string") {
+      sessionStorage.removeItem("ids-model-check-editor-handoff");
+      state.ids = h.xml;
+      state.idsName = String(h.name || "editor.ids");
+      $("ids-name").textContent = `${state.idsName} (from the editor)`;
+      ready();
+      record("editor_handoff_received");
+    }
+  } catch { /* storage is optional */ }
 
   $("optout").checked = usageOptedOut();
   $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));

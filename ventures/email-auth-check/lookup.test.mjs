@@ -83,6 +83,9 @@ test('dohQueryTxt is not an error when no fetch implementation exists in this ru
   assert.match(result.error, /fetch/);
 });
 
+// A real 2048-bit RSA SubjectPublicKeyInfo, generated for these fixtures.
+const KEY_2048 = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs3RRsQ+XR0yBvYuIEVsLTafn0dS6TJNTVJm0v2RFmb5re8QfScXDWj4Qfply8QSCWlFhpurSGTlizKt4xb6xmTB4Dowfv5831ZZaegt/QzcGs1C/Z0q11Ostet1J3tfJLV2teRon2zScjMEVDuGU7INx14uieYR+12MPJSz+nTkirv30d3YWngBxGhbfrq3A89tHmL+1VaYXqa/MC+hwHOThbPylGbcLzFyfIuVXRXn/hIu3rHNfE3I+4cTAoMBEb53WzzNfqZxPJ+0bBaebFP4H8CEos46k/pOIgS0QP0nPBEC19SNLRrps9aftgubevMfrKrAW5GtyIGChZu3O7QIDAQAB';
+
 // ---------------------------------------------------------------------------
 // resolveSpfChain: BFS-fetches the whole include:/redirect= closure
 // ---------------------------------------------------------------------------
@@ -241,7 +244,7 @@ test('resolveBimi queries default._bimi.<domain>', async () => {
 test('runFullCheck assembles a full report from one injected fetchTxt', async () => {
   const map = {
     'example.com': ['v=spf1 -all'],
-    'google._domainkey.example.com': ['v=DKIM1; p=abc123'],
+    'google._domainkey.example.com': ['v=DKIM1; p=' + KEY_2048],
     '_dmarc.example.com': ['v=DMARC1; p=reject; pct=100; rua=mailto:dmarc@example.com'],
   };
   const fetchTxt = async (name) => ({ ok: true, records: map[name] ?? [], error: null });

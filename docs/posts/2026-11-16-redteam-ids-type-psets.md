@@ -45,7 +45,10 @@ saying "air terminals have `Pset_AirTerminalTypeCommon.Shape`" was reported as
 `Pset_FurnitureTypeCommon`, and for every other set IFC2X3 hangs only on a
 type.
 
-The fix lets an occurrence carry the sets of its own type class
+A parallel session fixed the IFC2X3 type-mapping names (`IFCAIRTERMINAL`)
+the same day, in PR #16710. That fix did not cover `IFCFLOWTERMINAL` named
+directly, or an occurrence whose type is its own `<class>TYPE`. The two fixes
+are now merged. Ours lets an occurrence carry the sets of its own type class
 (`IFCFLOWTERMINAL` tries `IFCFLOWTERMINALTYPE`, a superclass of
 `IFCAIRTERMINALTYPE`). A slab still cannot carry an air-terminal set. The
 conformance pairs still score 334/334, and the audit still flags 26 of the 27

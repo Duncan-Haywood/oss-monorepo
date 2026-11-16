@@ -246,7 +246,8 @@
    "what": "redirect= is counted and walked even when the record has an all mechanism; RFC 7208 s6.1 says it is then ignored, so the tool can report a false lookup-limit PermError.",
    "where": "ventures/email-auth-check/analyze.mjs:249",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
   },
   {
    "severity": "medium",
@@ -261,28 +262,32 @@
    "what": "The RFC 7208 10-lookup boundary, the redirect= count, the near-limit and pct-partial thresholds all survive seeded mutation: the only chain test uses 11 lookups.",
    "where": "ventures/email-auth-check/analyze.test.mjs:119",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
   },
   {
    "severity": "medium",
    "what": "DKIM 'valid public key' only means p= is non-empty: non-base64 p=, v=DKIM2 and k=dsa are reported valid; key length (Google bulk-sender guidance: 1024-bit minimum) is not read.",
    "where": "ventures/email-auth-check/analyze.mjs:297",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
   },
   {
    "severity": "low",
    "what": "Page and how-to say exceeding 10 lookups fails SPF 'for every message, for every receiver'; lookups are counted during evaluation, so a message matched before the 11th lookup still passes.",
    "where": "ventures/email-auth-check/index.html:147",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
   },
   {
    "severity": "low",
    "what": "SCOPE_NOTE and README claim an mx with several servers may cost more lookups than shown; RFC 7208 s4.6.4 keeps those address lookups out of the 10-term count, so the stated limitation is wrong.",
    "where": "ventures/email-auth-check/analyze.mjs:27",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
   },
   {
    "severity": "low",
@@ -297,26 +302,30 @@
    "what": "DMARC adkim/aspf/sp values are not validated (adkim=x silently relaxed, sp=bogus accepted) and pct uses parseInt so '50abc' reads as 50.",
    "where": "ventures/email-auth-check/analyze.mjs:352",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
   },
   {
    "severity": "low",
    "what": "ptr is not flagged although RFC 7208 s5.5 says SHOULD NOT (the venture's own how-to page says so); all-qualifier is read from the root only, so a redirect-only root (hubspot.com) shows no all finding.",
    "where": "ventures/email-auth-check/analyze.mjs:514",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
   },
   {
    "severity": "low",
    "what": "llms.txt carries 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice', boilerplate that does not describe a DNS-record checker.",
    "where": "ventures/email-auth-check/llms.txt:5",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
   }
  ],
  "fix_prs": [
   "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236",
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
  ],
  "verdict": "A well-structured, private, zero-dependency checker whose headline feature works: its recursive RFC 7208 lookup count matches an independent counter on 7 real domains, the 10/11 boundary, qualifiers and void-lookup limit are right, 124/124 tests pass and the served page loads with its disclaimer. It does not meet the bar. Its PASS/DANGER verdicts are not what a receiver computes: an include: to a domain with no or broken SPF (a real PermError) passes clean; a subdomain covered by its parent's p=reject (live: mail.zendesk.com) gets a DANGER 'no DMARC' and a failing exit code; redirect= is counted beside all; two DMARC records still show a policy in force; and any non-empty p= is a 'valid' DKIM key. Four of seven seeded mutants survive, including the 10-lookup boundary itself. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished (completeness 3), not at the bar."
 }

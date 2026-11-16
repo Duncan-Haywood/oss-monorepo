@@ -132,3 +132,29 @@ Not stored as a design: the season is not wait-free yet, so the tool still sched
 annealing. Next: resume from the stored state for longer, or free three nights for the last step.
   python3 eval/odd-lns.py 41 --courts 7 --times 9 --seed S --step 150 --limit 14000 \
       --resume eval/lns-states/41-7x9.json --save /tmp/41.json
+
+41 teams on 7 x 9, finished, 2026-11-16 (evening; four runs on 4 cores, all resumed from the stored 13-of-14 state):
+First, is the bad night (night 5) only slow, or impossible? eval/lns-bad-night.py solves it alone (the same
+one-night model as night_rows) with a long limit:
+  python3 eval/lns-bad-night.py eval/lns-states/41-7x9.json --seconds 7000
+  {"night": 5, "matches": 60, "clauses": 13908, "verdict": "UNSAT", "seconds": 677.4}
+So no layout of night 5's 60 pairs is wait-free: only a re-deal can fix it, and the earlier resumes'
+sideways steps were the right move, just not enough of them. (Night 5 also has no triangle among its
+pairs where most good nights have 1 to 7, but night 11 has none either and lays out, so that is not
+the reason.)
+Runs (--resume eval/lns-states/41-7x9.json --limit 9000):
+  seed 21, 22: --free 3 --step 300: one sideways step in 2,700 s between them; stopped when 23 finished
+  seed 23:     --free 2 --step 300: sideways at 2,192 s (freed [5, 6]); then freed [5, 13] at 2,736.9 s:
+               14 of 14 good (9 steps)
+  seed 24:     --free 2 --step 150: stopped after a few minutes to give its core to lns-bad-night.py
+  seed 31:     --free 2 --also 13 --step 300 (new option: always free the short last night with the
+               bad one; started after the UNSAT verdict): nothing accepted before 23 finished
+Seed 23 drew night 13 (the short last night: 2 rounds, 40 matches in 63 slots) at random; --also 13 was
+not what found it. The last step re-dealt 5 rounds' pairs (night 5's 3 and night 13's 2) and laid both
+nights out, so the short night's slack took the pairs night 5 could not place.
+The season was re-checked whole by odd-night-sat.check before it printed.
+Stored: node eval/write-odd-designs.mjs --append eval/odd-designs/41-7x9.json  (34 designs)
+Through the tool (node eval/odd-cyclic-check.mjs 41:7:9, seeds 1 to 3, waits summed):
+  before: 41 teams on 7 x 9: waits 752 -> 752 (seeds 1-3), 3361 ms a build
+  now:    41 teams on 7 x 9: waits 752 -> 0 (seeds 1-3), 2026 ms a build
+eval/lns-states/41-7x9.json now holds the finished state (14 of 14 with layouts); lns-state.test.mjs checks it.

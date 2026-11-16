@@ -395,7 +395,8 @@ stored rows instead of annealing.
 - **n = 3k + 2 (35, 41, 47, 53, 59 teams), the same class as 29.** On the least courts these nights
   have 3 spare slots (51 of 54 at 35 teams, 60 of 63 at 41), like 29 on 5 x 9 (42 of 45). 35 on 6 x 9
   and 41 on 7 x 9 were stopped after 8 to 12 minutes with no pattern laid out (the runs shared 4 cores with three others). The proof in the 29-team
-  section rules out the group method for all of them, so they wait on whatever closes 29.
+  section rules out the group method for all of them. 29, 35 and 41 were later closed by the SAT
+  neighbourhood search (`eval/odd-lns.py`, sections below); 47 and up are open.
 - **6 time slots.** The odd leagues above 29 teams on the least courts at 6 slots are fully booked or
   3 slots short of it (31 on 8 x 6: 45 of 48; 33 on 8 x 6: 48 of 48). No pattern laid out at 31 on 8 x 6
   (145 patterns on each of two starters, 560 s) or 39 on 10 x 6 (307 s).
@@ -529,8 +530,32 @@ the stored-designs test re-checks the solver's rows for all 33 designs (35 on 6 
 gained `--append` (keep the stored designs, add new ones), since the earlier solver output is not
 kept in the tree; a plain run with no files rewrites the file unchanged.
 
-Open: the same class at 41 on 7 x 9 (13 of 14 nights, next section) and 47 on 8 x 9 (3 spare slots
+Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare slots
 a night, no group of order k), and the fully booked 43 on 7 x 9 and 49 on 8 x 9, by the same script.
+
+### 41 teams on 7 x 9: the last night, and a season with no waits (2026-11-16, latest)
+
+The 13-of-14 state below is finished: **41 teams on 7 courts x 9 slots now plays three back-to-back
+games a night for every team, every night.** Through the tool, seeds 1 to 3: 752 waits to 0, and a
+build takes 2.0 s instead of 3.4 s, because it lays each night out from the stored rows instead of
+annealing.
+
+- **The bad night was impossible, not slow.** `eval/lns-bad-night.py` takes a saved state and solves
+  each night with no stored layout alone, with the same one-night model the search uses, under one
+  long limit. Night 5's 60 pairs came back UNSAT in 677 s: no layout of them is wait-free, so no
+  amount of extra solve time on that night would have helped. Only a re-deal could fix it.
+- **What fixed it.** A resumed run (`--free 2 --step 300`, seed 23) freed night 5 together with the
+  short last night (2 rounds, 40 matches in 63 slots, 23 spare) on its ninth step. The step re-dealt
+  those five rounds' pairs and laid both nights out: the short night took the pairs night 5 could not
+  place. The pick was random. A new `--also 13` option, which always frees the short night with the
+  bad one, was started after the UNSAT verdict and had not landed a step when seed 23 finished, so
+  it is untested. Two runs freeing three nights a step made one sideways step in 45 minutes.
+- **Stored and checked.** The season was re-checked whole before it printed, written to
+  `odd-designs.mjs` by `eval/write-odd-designs.mjs` (which checks it again, match by match), and
+  `eval/lns-states/41-7x9.json` now holds the finished state, which `lns-state.test.mjs` checks in Node.
+
+The n = 3k + 2 class on the least courts is now wait-free at 29, 35 and 41 teams. 47 on 8 x 9 is next;
+it has 3 spare slots a night like the others and 16 nights. Full log: `eval/odd-lns.txt`.
 
 ### 41 teams on 7 x 9: 13 of 14 nights, and a search that survives the session (2026-11-16)
 

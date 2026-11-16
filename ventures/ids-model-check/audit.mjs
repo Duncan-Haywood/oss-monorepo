@@ -34,7 +34,8 @@ const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 const DOUBLE = /^[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][-+]?[0-9]+)?$|^(NaN|INF|\+INF|-INF)$/;
 const INTEGER = /^[-+]?[0-9]+$/;
 const BOOLEAN = /^(true|false|0|1)$/;
-const PARTOF_RELS = ["IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE", "IFCRELNESTS", "IFCRELVOIDSELEMENT", "IFCRELFILLSELEMENT"];
+// The relation values ids.xsd allows; voids and fills are one value, a token pair.
+const PARTOF_RELS = ["IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE", "IFCRELNESTS", "IFCRELVOIDSELEMENT IFCRELFILLSELEMENT"];
 const VERSIONS = ["IFC2X3", "IFC4", "IFC4X3", "IFC4X3_ADD2"];
 
 const versionId = (v) => (v.startsWith("IFC4X3") ? "IFC4X3" : v === "IFC4" ? "IFC4" : v === "IFC2X3" ? "IFC2X3" : null);
@@ -337,9 +338,14 @@ function templateIssues(f, spec, ctx, where) {
     }
     // Applicability: can any class the specification selects carry the set?
     if (where === "requirements") {
+      // An IFC2X3 type-mapping name (IFCACTUATOR: an
+      // IfcDistributionControlElement typed by an IfcActuatorType) also
+      // carries its type's sets, as the property facet reads type properties.
+      const ef = spec.applicability.find((x) => x.kind === "entity");
+      const mappedTypes = id === "IFC2X3" && ef ? (listedNames(ef.name) || []).map((n) => own(ctx.typeMap, n)).filter((m) => m && m[1]).map((m) => m[1]) : [];
       for (const [setName, set] of found) {
         const classes = applicableClasses(spec, S, ctx.typeMap, id);
-        if (classes && classes.length && set.classes.length && !classes.some((c) => canCarry(S, c, set.classes))) {
+        if (classes && classes.length && set.classes.length && !classes.some((c) => canCarry(S, c, set.classes)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes))) {
           return { error: { code: "pset-class", message: `${setName} applies to ${set.classes.slice(0, 4).join(", ")}${set.classes.length > 4 ? ", ..." : ""} in ${id}; the applicability selects ${classes.join(", ")}, which cannot carry it` } };
         }
       }
@@ -421,8 +427,10 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
         }
         else if (f.kind === "attribute") issues.push(...attributeIssues(f, spec, ctx));
         else if (f.kind === "property") issues.push(...propertyIssues(f, ctx, spec, where));
+        else if (f.kind === "classification" && !f.system.present) issues.push({ level: "error", code: "classification-no-system", message: "a classification facet needs a system in IDS 1.0 (ids.xsd), and tools that validate the file refuse it without one; to accept any system, give a pattern such as .*" });
         else if (f.kind === "partOf") {
-          if (f.relation && !PARTOF_RELS.includes(f.relation)) issues.push({ level: "error", code: "relation-unknown", message: `partOf relation ${f.relation} is not one of ${PARTOF_RELS.join(", ")}` });
+          if (f.relation === "IFCRELVOIDSELEMENT" || f.relation === "IFCRELFILLSELEMENT") issues.push({ level: "error", code: "relation-voids-fills", message: `partOf relation ${f.relation} on its own is not an IDS 1.0 value, and tools that validate against ids.xsd (IfcTester among them) refuse the file; write relation="IFCRELVOIDSELEMENT IFCRELFILLSELEMENT" for an element in an opening of another` });
+          else if (f.relation && !PARTOF_RELS.includes(f.relation)) issues.push({ level: "error", code: "relation-unknown", message: `partOf relation ${f.relation} is not one of ${PARTOF_RELS.map((r) => JSON.stringify(r)).join(", ")}` });
           if (f.entity) issues.push(...entityNameIssues(f.entity, ctx, "partOf: "));
         }
         for (const x of issues) add(where + " " + f.describe(), x);
