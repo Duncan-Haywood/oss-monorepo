@@ -1,6 +1,6 @@
 ---
 title: "Eleven Degrees to the Glass: a story about frost that sits on one side of a solar roof"
-seo_title: "Why north-facing solar panels stay frosted until noon: a science fiction story"
+seo_title: "Why north-facing solar panels stay frosted till noon: a story"
 date: 2026-11-16
 tags: [fiction, hearth-and-horizon, solar, frost, radiative-cooling, church]
 description: "A new Hearth & Horizon story: both slopes of a chapel's solar roof frost on clear nights. The south clears by 9:15, the north after noon."
