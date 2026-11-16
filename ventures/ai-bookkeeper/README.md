@@ -2834,7 +2834,8 @@ from validation only:
   a reading that lost its total and so parsed no tax (validation-65: 4,964 twice, 4,264 once).
   Validation tax 22 to 23 right, 4 to 3 wrong.
 
-Test was scored once at the end: no receipt moved. Details:
+Test was scored once at the end: no receipt moved. SRD photos re-read through the CLI: 153
+totals and 134 taxes before and after. Details:
 [`eval/cord-cash-guess-2026-11-16.md`](eval/cord-cash-guess-2026-11-16.md). Tests:
 `receipt-crosscheck.test.mjs`.
 

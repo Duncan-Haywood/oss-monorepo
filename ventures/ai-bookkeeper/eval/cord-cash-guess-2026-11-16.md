@@ -53,7 +53,7 @@ moved (`--misses` lists identical, counts identical).
 
 | set | main | this run |
 |---|---|---|
-SRD_ROWS
+| SRD photos, CLI `--four-pass` (re-read this run, 200) | totals 153 / 196, tax 134 / 12 / 39 | same, same misses |
 | CORD dataset text, train / validation / test totals | 749 / 96 / 92 | same |
 | CORD dataset text, tax | 324 / 46 / 41 | same |
 
