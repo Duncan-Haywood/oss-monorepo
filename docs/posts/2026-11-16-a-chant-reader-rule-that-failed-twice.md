@@ -3,7 +3,7 @@ title: "A chant-reader fix that worked on its training set and failed two held-o
 seo_title: "A rule that passed its dev set and failed two held-out tests"
 date: 2026-11-16
 tags: [chant-forge, audio, speech-acoustics, pre-registration]
-description: "Chant Forge's consonant reader missed nasals on high short notes. A new rule fixed every training miss, then failed two pre-registered held-out sets. It ships switched off."
+description: "A chant consonant reader missed nasals on high short notes. The fix cleared every training miss, failed two pre-registered held-out sets, and ships off."
 ---
 
 Chant Forge renders Gregorian chant with a synthetic choir that sings the
