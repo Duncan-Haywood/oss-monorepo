@@ -25,6 +25,11 @@ adds a third, JuPedSim's CollisionFreeSpeedModel (`model="cfsm"`, Tordeux, Chrai
 weighted by (1 + r) / 2, r the goal's offset toward the walker's right in half-widths). Walkers
 without a lateral goal get the full bias under every rule, so the free-choice fit is unchanged.
 
+Milestone 5 adds robots (`robots`, `policy`, `robot_speed`; `robots.py`): the first `robots`
+agents placed are robots and re-enter as robots, steered by a passing-side policy instead of the
+side bias, and the run also reports passes and their clearance. With robots = 0 and passes off
+the run is unchanged, random draws included.
+
 Needs numpy and jupedsim (`python3 platform/ci/pyenv.py jupedsim numpy`).
 """
 from __future__ import annotations
@@ -42,6 +47,7 @@ SECTION_HALF = 4.0   # measured section: middle 8 m, as milestones 1 and 2
 LOOK_AHEAD = 3.0     # m: oncoming walker counts if within this distance ahead
 LATERAL_GAP = 1.0    # m: ... and within this lateral distance
 TARGET_AHEAD = 2.0   # m: steering target this far ahead
+TRANSIT_MIN = 7.5    # m: a walker whose samples span this much of the 8 m section crossed it
 CLEARANCE = 0.55     # m: free space needed to enter
 RADIUS = 0.25        # m: lower end of the 0.5-0.7 m diameters of Helbing et al. (2000); the
                      # JuPedSim default 0.3 m cannot pack to the 3.8/m2 measured in BaSiGo b_08
@@ -108,7 +114,8 @@ def right_offset(y, d, width):
 
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
              warmup=40.0, duration=160.0, dt=0.01, steer_every=0.1, record_every=0.1,
-             model="sf", exit_frac=0.25, rule="always"):
+             model="sf", exit_frac=0.25, rule="always", robots=0, policy="crowd",
+             robot_speed=None, passes=False):
     """Run one closed-loop corridor. Returns per-run statistics (dict).
 
     model: "sf" (JuPedSim SocialForceModel, Helbing et al. 2000 defaults, radius 0.25 m) or
@@ -117,6 +124,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
     of the width from the left or the right wall (50/50).
     """
     import jupedsim as jps
+    import robots as R
 
     if model not in MODELS:
         raise ValueError(f"model must be one of {MODELS}")
@@ -135,14 +143,17 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
     sim = jps.Simulation(model=op, geometry=area, dt=dt)
     stage = sim.add_direct_steering_stage()
     journey = sim.add_journey(jps.JourneyDescription([stage]))
-    agents = {}  # id -> [dir, goal_y, born_after_start]
+    agents = {}  # id -> [dir, goal_y, born_after_start, is_robot, robot_goal_y]
+    v_robot = R.ROBOT_SPEED if robot_speed is None else robot_speed
 
     def goal_for(d):
         if not goals:
             return math.nan
         return width * (exit_frac if rng.random() < 0.5 else 1.0 - exit_frac)
 
-    def add(x, y, d, v0, new):
+    def add(x, y, d, v0, new, robot=False):
+        if robot:
+            v0 = v_robot
         if model == "sf":
             par = jps.SocialForceModelAgentParameters(
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
@@ -156,7 +167,11 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
                 desired_speed=float(v0), radius=radius)
         aid = sim.add_agent(par)
-        agents[aid] = [d, goal_for(d), new]
+        if robot:
+            agents[aid] = [d, math.nan, new, True,
+                           R.robot_goal(rng, width) if policy == "goal" else math.nan]
+        else:
+            agents[aid] = [d, goal_for(d), new, False, math.nan]
 
     # initial placement: a jittered lattice over the whole corridor, half each way
     cols = max(1, int(round(math.sqrt(n_walkers * length / width))))
@@ -172,12 +187,13 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         placed.append((x, y))
     v0s = desired_speeds(rng, len(placed))
     queue = {1: 0, -1: 0}
+    rqueue = {1: 0, -1: 0}
     for k, p in enumerate(placed):
         d0 = 1 if k % 2 == 0 else -1
         try:
-            add(p[0], p[1], d0, v0s[k], False)
+            add(p[0], p[1], d0, v0s[k], False, robot=k < robots)
         except RuntimeError:  # AVM/CFSM refuse overlapping placement: the walker enters later instead
-            queue[d0] += 1
+            (rqueue if k < robots else queue)[d0] += 1
     e_lo = max(radius + 0.05, width / 2 - entrance / 2)
     e_hi = min(width - radius - 0.05, width / 2 + entrance / 2)
     steer_n = max(1, round(steer_every / dt))
@@ -185,6 +201,8 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
     lo_x, hi_x = length / 2 - SECTION_HALF, length / 2 + SECTION_HALF
     samples = {}   # aid -> list of (t, x, y)
     dirs_of = {}
+    rsamples = {}  # robots, same format
+    tracker = R.PassTracker(lo_x, hi_x, radius) if (robots or passes) else None
     steps = round(duration / dt)
     for it in range(steps + 1):
         t = it * dt
@@ -198,12 +216,19 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                 leaving = np.where(d > 0, pos[:, 0] >= length, pos[:, 0] <= 0.0)
                 for k in np.nonzero(leaving)[0]:
                     sim.mark_agent_for_removal(ids[k])
-                    queue[int(d[k])] += 1
+                    (rqueue if agents[ids[k]][3] else queue)[int(d[k])] += 1
                     del agents[ids[k]]
                 keep = ~leaving
                 ids = [a for a, kk in zip(ids, keep) if kk]
                 pos, d, g = pos[keep], d[keep], g[keep]
                 tx, ty = steer_targets(pos, d, g, beta, width, length, radius, rule)
+                if robots:
+                    isr = np.array([agents[a][3] for a in ids], dtype=bool)
+                    if isr.any():
+                        rg = np.array([agents[a][4] for a in ids], dtype=float)
+                        rtx, rty = R.robot_targets(pos, d, rg, isr, policy, width, length, radius)
+                        tx, ty = tx.copy(), ty.copy()
+                        tx[isr], ty[isr] = rtx, rty
                 for a, xx, yy in zip(ids, tx, ty):
                     sim.agent(a).target = (float(xx), float(yy))
             for dd in (1, -1):
@@ -220,12 +245,31 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                         break
                     queue[dd] -= 1
                     pos = np.vstack([pos, [x0, y0]]) if len(pos) else np.array([[x0, y0]])
+                for _ in range(rqueue[dd]):
+                    x0 = 0.35 if dd > 0 else length - 0.35
+                    y0 = rng.uniform(e_lo, e_hi) if e_hi > e_lo else width / 2
+                    if len(pos) and np.min((pos[:, 0] - x0) ** 2 + (pos[:, 1] - y0) ** 2) < CLEARANCE ** 2:
+                        break
+                    try:
+                        add(x0, y0, dd, v_robot, True, robot=True)
+                    except RuntimeError:
+                        break
+                    rqueue[dd] -= 1
+                    pos = np.vstack([pos, [x0, y0]]) if len(pos) else np.array([[x0, y0]])
         if it % rec_n == 0 and t >= warmup:
-            for a, (d, _, new) in agents.items():
+            if tracker is not None:
+                tids = list(agents)
+                tpos = np.array([sim.agent(a).position for a in tids]) if tids else np.zeros((0, 2))
+                tracker.update(tids, tpos, np.array([agents[a][0] for a in tids], dtype=float),
+                               np.array([agents[a][3] for a in tids], dtype=bool))
+            for a, (d, _, new, robot, _) in agents.items():
                 if not new:
                     continue
                 x, y = sim.agent(a).position
                 if lo_x <= x <= hi_x:
+                    if robot:
+                        rsamples.setdefault(a, []).append((round(t / record_every), x, y))
+                        continue
                     samples.setdefault(a, []).append((round(t / record_every), x, y))
                     dirs_of[a] = d
         try:
@@ -236,6 +280,12 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
             return out
     out = measure(samples, dirs_of, width, record_every)
     out["failed"] = 0
+    if tracker is not None:
+        out.update(tracker.summary())
+        rws = {a: (1, [(f, y * 100.0, x * 100.0) for f, x, y in s]) for a, s in rsamples.items()
+               if len(s) >= 10}
+        out["robot_speed"] = L.median(L.walker_speeds(rws, 1.0 / record_every, round(1.0 / record_every)))
+        out["robot_transits"] = sum(1 for s in rsamples.values() if abs(s[-1][1] - s[0][1]) >= TRANSIT_MIN)
     return out
 
 
@@ -261,6 +311,10 @@ def measure(samples, dirs_of, width, record_every):
     for d, s in walkers.values():
         for f, _, _ in s:
             n_sec[f] = n_sec.get(f, 0) + 1
+    transits = [(s[-1][0] - s[0][0]) * record_every for d, s in walkers.values()
+                if abs(s[-1][1] - s[0][1]) >= TRANSIT_MIN]
     dens = (sum(n_sec.values()) / len(n_sec) / (2 * SECTION_HALF * width)) if n_sec else float("nan")
     return dict(walkers=len(walkers), share=(sum(flags) / len(flags)) if flags else float("nan"),
-                lane=lane, lane_frames=len(frames), speed=L.median(speeds), density=dens, flags=flags)
+                lane=lane, lane_frames=len(frames), speed=L.median(speeds), density=dens, flags=flags,
+                transit=(sum(transits) / len(transits)) if transits else float("nan"),
+                transits=len(transits))
