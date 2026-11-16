@@ -81,7 +81,8 @@ export function newFinding(libId, overrides = {}) {
 // Blank or zero costs mean "no figure" and are not reported. When only one cost is usable it is
 // used for both ends, so a bad high figure never turns "$300" into "$0 to $300".
 export function normalise(f, issues) {
-  const note = (msg) => { if (issues) issues.push(`"${String(f.title || "untitled").trim() || "untitled"}": ${msg}`); };
+  // Only a real list collects issues: findings.map(normalise) would pass the array index here.
+  const note = (msg) => { if (Array.isArray(issues)) issues.push(`"${String(f.title || "untitled").trim() || "untitled"}": ${msg}`); };
   const raw = String(f.severity ?? "").trim().toLowerCase();
   const known = SEVERITIES.find((s) => s.id === raw || s.label.toLowerCase() === raw);
   const sev = known ? known.id : "info";
@@ -102,7 +103,7 @@ export function normalise(f, issues) {
 }
 
 export function summarize(findings) {
-  const list = findings.map(normalise).filter((f) => f.title);
+  const list = findings.map((f) => normalise(f)).filter((f) => f.title);
   const counts = Object.fromEntries(SEVERITIES.map((s) => [s.id, 0]));
   for (const f of list) counts[f.severity]++;
   const sorted = [...list].sort((a, b) => sevRank(a.severity) - sevRank(b.severity) || SYSTEMS.indexOf(a.system) - SYSTEMS.indexOf(b.system));

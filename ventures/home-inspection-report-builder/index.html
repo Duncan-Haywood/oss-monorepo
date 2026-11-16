@@ -168,9 +168,10 @@
       }));
     }
     function build() {
-      const clean = findings.map(normalise).filter((f) => f.title);
+      const issues = [];
+      const clean = findings.map((f) => normalise(f, issues)).filter((f) => f.title);
       if (!clean.length) { $("msg").textContent = "Add at least one finding with a title first."; return; }
-      $("msg").textContent = "";
+      $("msg").textContent = issues.length ? "Check these before you send the report: " + issues.join("; ") + "." : "";
       $("report").innerHTML = toHtml(header(), clean);
       $("out").hidden = false;
       $("out").scrollIntoView();
