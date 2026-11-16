@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKnN4VCcJV3xGdNLTvQ",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T16:20:20Z",
+  "ended": "2026-11-16T16:41:54Z",
+  "wall_minutes": 23.81,
+  "tokens_in": 4719247,
+  "tokens_out": 38279,
+  "cost_usd": 2.558,
+  "tool_calls": 49,
+  "task": "quality fix mode: research/sequential-slashing open defects from the 2026-11-07 audit; consolidated onto PR 16634 after a parallel duplicate",
+  "projects": [
+    "research/sequential-slashing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16632",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "quality_mutate.py: passed the test command as 'PYTHONPATH=src python3 ...'; it execs argv directly, so needs 'env PYTHONPATH=src ...' (FileNotFoundError). Retried with env.",
+    "First whitepaper draft stated E5(b)/E6 numbers before the experiment finished (my guess that per-round reports speed detection); the run showed the opposite (157 vs 211 rounds) and the text was rewritten from results.txt before commit.",
+    "json.dump of research/_homepage/projects.json reformatted 824 lines; reverted and edited the one summary string.",
+    "Changing results.txt number format (integers to 1 decimal) broke experiments/figure.py's regex; caught by running it, fixed.",
+    "Duplicate work: a parallel session (same routine, session_01E5sJKmE6URPvwzDgwUU3AA) took the same subject at the same time and merged PR 16634 at 16:42 UTC with an equivalent fix (exact DP, time-varying two-sided mixture, references) plus a log bet grid. My open-PR search at 16:25 found nothing because neither PR existed yet. Resolved by keeping main's version whole, dropping my rewrite/tests/post, and adding only new work on top (drift invalidity R6, bet families R7, family='scale'/'both').",
+    "Down-bet mutation in the new scale family survived the validity tests (a wrong but valid bet); added a likelihood-ratio identity test that catches it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "quality_mutate.py example does not say the test command is exec'd without a shell, so an env-var prefix (PYTHONPATH=src ...) fails; a one-line 'use env VAR=... cmd' note would save a retry."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 5 names the post for a sample round; the fix-mode naming is only in the README's mode table. The prompt could point at the mode first (it is the sample command's NOTE that tells you)."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "fix-mode `queue` lists defects but gives no claim mechanism before a PR exists: two sessions started the same minute both picked research/sequential-slashing (the first medium-severity row with no recent commits). sample/census add a random seed tail for exactly this race; queue could shuffle among equal-priority rows by session, or `queue --claim` could open the draft PR first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "Instead of closing my PR as superseded after #16634 merged, I merged main, took its version wholesale and kept the PR for the genuinely new results (R6, R7, scale/both families).",
+      "did": "git merge -X theirs then checkout origin/main for every overlapping file; new code only in model.py (family=), tests/test_drift.py, experiments/drift.py",
+      "result": "PR diff against main contains only additive work; 25 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-slashing-tests-must-bet-the-way-the-cheater-lies.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode; day seed 2026-11-16-db0c unused). Subject: research/sequential-slashing, audit 2026-11-07. A parallel session fixed defects 0,1,3-7 in PR 16634 first; this PR adds to defect 2 (scope) without closing it (composite null and confidence sequence still missing), listed in fix_prs, not fixed_by. New results: R6 pooling drifting claims slashes an honest verifier with probability 1.000000 (exact) vs 4.5% [3.7,5.6] per-round; R7 per-round additive uniform test median 1124 rounds vs scale family 328 vs both 388 against a 1.5x cheater (claims log-uniform 1-30%), while against a +0.02 cheater scale detects only 70.8% vs additive-log 98.3% and both 98.0%; honest false slash 2.0-3.7% in every cell. Mutations (quality_mutate.py): scale up fraction caught; scale down fraction caught after adding LR identity test (first survived); both reusing up bets for down caught. Earlier (dropped) duplicate also verified the auditor's independent numbers 0.3731/0.0432/111.8 by my own DP. Verification: 25 unit tests OK (19.8 s); experiments/drift.py 6m15s reproducible (rows unchanged between runs with the same seeds); research homepage build ok; research_live_links ok; check_md_links ok; writing.test.mjs 53/53; quality_audit.py validate 382/0. Share meeting the bar: n/a (fix mode).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bb0d79b0-a020-5ff8-92f0-b223412be21c",
+    "transcripts": 1,
+    "first": "2026-11-16T16:20:20Z",
+    "last": "2026-11-16T16:44:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 90,
+        "output": 38279,
+        "thinking": 8893,
+        "cache_read": 4610404,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108753,
+        "api_equivalent_usd": 2.558,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 90,
+      "output": 38279,
+      "thinking": 8893,
+      "cache_read": 4610404,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108753,
+      "api_equivalent_usd": 2.558,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 38,
+      "Write": 4,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.81,
+      "active_minutes": 23.81,
+      "model_minutes": 5.95,
+      "tool_minutes": 17.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "statistician: exact DP + tests + new experiment + whitepaper revision with references",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 390.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

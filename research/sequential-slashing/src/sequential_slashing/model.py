@@ -7,7 +7,7 @@ import math, random
 
 __all__ = ["kl", "lr_step", "bet_step", "run_lr", "run_mixture", "run_ztest_peeking",
            "wald_lower", "mixture_grid", "false_slash_rate", "detection_times",
-           "frac_grid", "mixture_tv_path", "run_mixture_tv", "METHODS"]
+           "frac_grid", "scale_grid", "mixture_tv_path", "run_mixture_tv", "METHODS"]
 
 METHODS = ("lr", "mixture", "z")
 
@@ -148,7 +148,28 @@ def frac_grid(K=32, spacing="uniform"):
     return _fracs(K, spacing)
 
 
-def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform"):
+def scale_grid(K=32):
+    """Fault-rate ratios r for family='scale': K log-spaced up-ratios in (1, 20] and,
+    for two-sided use, K down-ratios 1/r."""
+    if not (isinstance(K, int) and K >= 1): raise ValueError(f"K must be a positive int, got {K!r}")
+    return [20 ** ((k + 0.5) / K) for k in range(K)]
+
+
+def _bet_fracs(p, cs, rs, family):
+    """Per-round up- and down-bet fractions for report p.
+    'additive': c fixed, the alternative is p + c(1 - p) (up) or p(1 - c) (down).
+    'scale': the alternative is r*p (up) or p/r (down), the likelihood ratio of a
+    verifier whose true rate is a fixed multiple of its report; the up fraction is
+    (r - 1)p/(1 - p), capped at 0.999 so the y=0 factor stays positive.
+    'both': the two lists concatenated, an equal-weight mixture of both families."""
+    if family == "additive": return cs, cs
+    up = [min((r - 1) * p / (1 - p), 0.999) for r in rs]
+    dn = [1 - 1 / r for r in rs]
+    if family == "scale": return up, dn
+    return cs + up, cs + dn
+
+
+def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform", family="additive"):
     """Yield ln M_t, t = 1, 2, ..., of the time-varying mixture e-process.
 
     Under H0 (y_t ~ Bernoulli(p_t) given the past, p_t announced before y_t) each
@@ -156,25 +177,35 @@ def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform"):
     so each product is a test martingale and so is their average (Ville applies).
     With two_sided, the down-bets 1 - c (y_t - p_t) / (1 - p_t) are added and the
     two halves averaged, which also catches a verifier that over-reports faults.
+    family='additive' keeps c fixed across rounds; family='scale' sets c from p_t
+    so each component is the likelihood ratio of a true rate r * p_t (or p_t / r);
+    family='both' averages K components of each (2K in all; `spacing` applies to
+    the additive half).  All are predictable in p_t, so validity is unchanged;
+    power depends on which family matches how the cheater misreports.
     """
-    cs = frac_grid(K, spacing)
-    up = [0.0] * K
-    dn = [0.0] * K
-    n = 2 * K if two_sided else K
+    if family not in ("additive", "scale", "both"):
+        raise ValueError(f"family must be 'additive', 'scale' or 'both', got {family!r}")
+    cs = frac_grid(K, spacing) if family != "scale" else None
+    rs = scale_grid(K) if family != "additive" else None
+    k = 2 * K if family == "both" else K
+    up = [0.0] * k
+    dn = [0.0] * k
+    n = 2 * k if two_sided else k
     for y, p in zip(ys, ps):
         _check_rate(p, "p_t")
-        for i, c in enumerate(cs):
-            up[i] += math.log(1 + c * (y - p) / p)
-            if two_sided: dn[i] += math.log(1 - c * (y - p) / (1 - p))
+        cu, cd = _bet_fracs(p, cs, rs, family)
+        for i in range(k):
+            up[i] += math.log(1 + cu[i] * (y - p) / p)
+            if two_sided: dn[i] += math.log(1 - cd[i] * (y - p) / (1 - p))
         ws = up + dn if two_sided else up
         m = max(ws)
         yield m + math.log(sum(math.exp(w - m) for w in ws) / n)
 
 
-def run_mixture_tv(ys, ps, alpha, K=32, two_sided=False, spacing="uniform"):
+def run_mixture_tv(ys, ps, alpha, K=32, two_sided=False, spacing="uniform", family="additive"):
     """First t with the time-varying mixture (mixture_tv_path) >= 1/alpha, else None."""
     _check_alpha(alpha)
     thr = math.log(1 / alpha)
-    for t, lm in enumerate(mixture_tv_path(ys, ps, K, two_sided, spacing), 1):
+    for t, lm in enumerate(mixture_tv_path(ys, ps, K, two_sided, spacing, family), 1):
         if lm >= thr: return t
     return None
