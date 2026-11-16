@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKnavPcBobwiEZAFXRQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T22:22:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 6 shift-roster-builder: the cover repair's 200 ms minimum near the budget's end",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16722",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "The 'Where the time past the budget goes' section named the 200 ms minimum as the next item, but its own data showed only 1 of 5 late repairs started inside 200 ms; the real cause was the between-rounds clock check. Reading the jsonl first saved a wrong fix."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder next: was 1998/2000 characters, so the replacement text had to be squeezed to fit exactly 2000."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-the-scheduler-repair-overran-its-time-budget.md",
+    "ventures/shift-roster-builder/README.md (section 'The repair stops at the budget's end')"
+  ],
+  "goal": null,
+  "notes": "Pre-registered A/B (eval/repair-deadline-prereg.md, committed before the run): 48 fresh weeks, seeds 54-65. Repair-crossed overruns >50 ms 6 -> 0; latest pay-floor arrival 20,245 -> 20,048 ms; open hours 12,489 both, no week moved; mean build 21.28 s both; proven 7 both. Rule passed, on by default. No separate agent doc: the README section and flagship next: carry the hand-off.",
+  "corrections": [],
+  "redteam": null
+}
