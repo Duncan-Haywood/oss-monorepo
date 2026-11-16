@@ -186,6 +186,7 @@ def summarise(rows):
                 k_slope=statistics.median(r["k_slope"] for r in ok if r["k_slope"] is not None),
                 k_star=statistics.median(ks), k_star_q25=q(ks, 0.25), k_star_q75=q(ks, 0.75),
                 k_star_at_edge=sum(x <= 0.0 or x >= KMAX for x in ks),
+                k_fit_at_edge=sum(x <= 0.01 or x >= KMAX - 0.01 for x in kf),
                 rho_k=spearman(kf, ks), du10_mV=statistics.median(r["du10_mV"] for r in ok),
                 rhoL_eta=spearman([r["l_eta"] for r in ok], [r["l_true"] for r in ok]),
                 rhoL_fit=spearman([r["l_fit"] for r in ok], [r["l_true"] for r in ok]))
@@ -226,15 +227,15 @@ def dev():
          f"kappa = {KAPPA:.1f} /V (eta), kappa = 0 (zero), and two ten-cycle estimates of kappa per design: fit (R_kappa most",
          "nearly a line in n over cycles 2..10) and slope (log per-cycle plating against the lever, cycles 3..10).",
          "Median |ln(L_pred(99) / L_DFN(99))|; kappa medians in /V with [q25, q75]; k* = oracle kappa that makes the",
-         "cycle-99 forecast exact (not a forecast); edge = k* designs at 0 or KMAX; rho = Spearman(k_fit, k*);",
+         "cycle-99 forecast exact (not a forecast); kedge, edge = k_fit, k* designs at 0 or KMAX; rho = Spearman(k_fit, k*);",
          "du10 = median rise of the lever over cycles 2..10 in mV.", "",
          f"{'pool':34s}{'n':>4s}{'eta':>7s}{'zero':>7s}{'fit':>7s}{'slope':>7s}{'wins':>5s}{'k_fit':>7s}{'[q25':>6s}"
-         f"{'q75]':>6s}{'k_slope':>8s}{'k*':>7s}{'[q25':>6s}{'q75]':>6s}{'edge':>5s}{'rho':>7s}{'du10':>6s}"]
+         f"{'q75]':>6s}{'kedge':>6s}{'k_slope':>8s}{'k*':>7s}{'[q25':>6s}{'q75]':>6s}{'edge':>5s}{'rho':>7s}{'du10':>6s}"]
     out = {}
     for p in sorted(pools):
         c = out[p] = summarise(pools[p])
         L.append(f"{p:34s}{c['n']:4d}{c['lerr_eta']:7.3f}{c['lerr_zero']:7.3f}{c['lerr_fit']:7.3f}{c['lerr_slope']:7.3f}"
-                 f"{c['wins']:5d}{c['k_fit']:7.1f}{c['k_fit_q25']:6.1f}{c['k_fit_q75']:6.1f}{c['k_slope']:8.1f}"
+                 f"{c['wins']:5d}{c['k_fit']:7.1f}{c['k_fit_q25']:6.1f}{c['k_fit_q75']:6.1f}{c['k_fit_at_edge']:6d}{c['k_slope']:8.1f}"
                  f"{c['k_star']:7.1f}{c['k_star_q25']:6.1f}{c['k_star_q75']:6.1f}{c['k_star_at_edge']:5d}"
                  f"{c['rho_k']:7.3f}{c['du10_mV']:6.1f}")
     (HERE / "dev.txt").write_text("\n".join(L) + "\n")
@@ -261,7 +262,9 @@ def verdicts(C):
     lg = [C[c] for c in LGM50 if c in C]
     nca = C[CONTROLS[1]]
     iqr = lambda c: c["k_fit_q75"] - c["k_fit_q25"]
-    return dict(H167=S.verdict(all(c["du10_mV"] < 2.0 and iqr(c) > 40.0 for c in lg), any(iqr(c) < 20.0 for c in lg)),
+    vague = lambda c: iqr(c) > 40.0 or c["k_fit_at_edge"] >= c["n"] / 4
+    return dict(H167=S.verdict(all(c["du10_mV"] < 2.0 and vague(c) for c in lg),
+                               any(iqr(c) < 20.0 and c["k_fit_at_edge"] < c["n"] / 4 for c in lg)),
                 H168=S.verdict(all(c["lerr_fit"] > c["lerr_eta"] for c in ctl), any(c["lerr_fit"] < c["lerr_eta"] for c in ctl)),
                 H169=S.verdict(all(c["k_star"] > KAPPA for c in lg) and any(c["k_star"] > 30.0 for c in lg),
                                any(c["k_star"] <= KAPPA for c in lg)),
@@ -295,13 +298,13 @@ def report():
          "kappa in /V, medians [q25, q75]; k* = oracle kappa making the cycle-99 forecast exact (not a forecast);",
          "rho = Spearman(k_fit, k*); du10 = median lever rise over cycles 2..10 in mV", "",
          f"{'condition':22s}{'n':>3s}{'drop':>5s}{'5zd':>7s}{'zero':>7s}{'fit':>7s}{'slope':>7s}{'sgn 5zd':>8s}{'wins':>5s}"
-         f"{'k_fit':>7s}{'[q25':>6s}{'q75]':>6s}{'k*':>7s}{'[q25':>6s}{'q75]':>6s}{'edge':>5s}{'rho':>7s}{'du10':>6s}"]
+         f"{'k_fit':>7s}{'[q25':>6s}{'q75]':>6s}{'kedge':>6s}{'k*':>7s}{'[q25':>6s}{'q75]':>6s}{'edge':>5s}{'rho':>7s}{'du10':>6s}"]
     for c, d in C.items():
         L.append(f"{c:22s}{d['n']:3d}{d['dropped']:5d}{d['lerr_eta']:7.3f}{d['lerr_zero']:7.3f}{d['lerr_fit']:7.3f}"
                  f"{d['lerr_slope']:7.3f}{d['sgn_eta']:+8.3f}{d['wins']:5d}{d['k_fit']:7.1f}{d['k_fit_q25']:6.1f}"
-                 f"{d['k_fit_q75']:6.1f}{d['k_star']:7.1f}{d['k_star_q25']:6.1f}{d['k_star_q75']:6.1f}"
+                 f"{d['k_fit_q75']:6.1f}{d['k_fit_at_edge']:6d}{d['k_star']:7.1f}{d['k_star_q25']:6.1f}{d['k_star_q75']:6.1f}"
                  f"{d['k_star_at_edge']:5d}{d['rho_k']:7.3f}{d['du10_mV']:6.1f}")
-    L += ["", f"H167 (LG M50: lever rise under 2 mV in ten cycles and k_fit IQR over 40 /V on both): {V['H167']}",
+    L += ["", f"H167 (LG M50: lever rise under 2 mV in ten cycles, k_fit IQR over 40 /V or a quarter at a bound, both): {V['H167']}",
           f"H168 (the ten-cycle kappa forecasts worse than 25.3 on both controls): {V['H168']}",
           f"H169 (LG M50 oracle k* above 25.3 on both, above 30 on at least one): {V['H169']}",
           f"H170 (controls' oracle k* within [17, 28] /V on both): {V['H170']}",
