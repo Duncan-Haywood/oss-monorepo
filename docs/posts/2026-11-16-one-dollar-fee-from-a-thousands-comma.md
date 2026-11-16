@@ -1,9 +1,9 @@
 ---
 title: "A $1,200 fee read as $1: one comma, six calculators"
-seo_title: "CSV paste parsers misread $1,200 as $1: quote-aware split in six free calculators"
+seo_title: "CSV paste parsers read $1,200 as $1: a quote-aware fix in six tools"
 date: 2026-11-16
 tags: [testing, mutation-testing, csv, redteam, bookkeeping]
-description: "Red team: 8 faults seeded in the bookkeeping fee calculator, 3 caught, 8 after new tests. Real defect in six tools: an unquoted $1,200 in a pasted row became a $1 amount."
+description: "Red team: 8 faults seeded in a bookkeeping fee calculator, 3 caught, 8 after new tests. In six tools an unquoted $1,200 in a pasted row read as $1."
 ---
 
 Today's red-team run aimed at the
