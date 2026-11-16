@@ -1449,6 +1449,15 @@ behind). Scored afterwards, as exploration only, the features also made the shee
 model with these features runs through `directional(..., laplace=<10-feature weights>,
 laplace_extra=(...))` in numpy. `bayer_laplace_train.py --extra` and `--synthetic-kind matched` fit one.
 
+**How much is left: the oracle ceiling, 2026-11-16** (`eval/bayer-oracle-ceiling-2026-11-16.md`,
+`tools/bayer_oracle_ceiling.py`). On whole frames of the 40 training raws (clean, SNR 50, SNR 25), the
+best weight per sensel gains +1.91 dB of green over 3/16. The best single weight per 4 x 4 tile gains only
++0.83, and per 32 x 32 tile +0.41, which is what B already reaches in sample (+0.405). So more than half
+of the per-sensel oracle is choice that changes inside four sensels. Under the pre-registered rule, a
+richer model is still worth one try, with +0.83 as its realistic ceiling against B's +0.385 held out.
+Fitting B's model to a 4 x 4 box-averaged target lost 0.062 dB in cross-validation, so nothing changed in
+the shipped demosaic.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:

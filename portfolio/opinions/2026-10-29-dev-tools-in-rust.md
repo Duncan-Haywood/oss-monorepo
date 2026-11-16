@@ -65,7 +65,10 @@ been measured yet.
   *Unused exports 2026-11-15:* `cyclehound --unused-exports` took 0.3 s and
   30 MB where ts-unused-exports 11.0.1 took 11 s and 380 MB on the same
   11,736 files, agreeing on 5,419 findings with every difference explained.
-  Next: tsconfig `paths` aliases, then a CI gate.
+  *Path aliases 2026-11-16:* tsconfig and jsconfig `paths`/`baseUrl`
+  (with `extends`) resolve by TypeScript's rules; on 16 configs in
+  `ventures/` cyclehound and TypeScript 5.9.3's `resolveModuleName` agree on
+  all 1,436 alias imports, at no measurable time cost. Next: a CI gate.
 - *yamllint*: Python, run on every YAML file in a repository (this one has
   550 workflow files). *Checked 2026-11-12: taken.* `ryl` and `yamllint-rs`
   are Rust ports of yamllint on crates.io already; skip unless a measured

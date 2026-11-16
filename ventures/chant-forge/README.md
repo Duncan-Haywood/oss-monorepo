@@ -2000,6 +2000,26 @@ nothing got worse. Main already reads 22 of the 25. Two of the three misses are 
 one-step cephalicus whose head and small note the reader takes for one head at the small note's pitch:
 next. Details: `eval/hook-on-line-check.md`; run `node eval/hook-on-line-check.mjs <lists>`.
 
+### A one-step cephalicus read as one head (2026-11-16, later)
+
+Those two misses (GregoBase 3490 *con-* and 3508 *et*, both `gf~`) are a one-step cephalicus: the head
+in a space, a hairline stem down its left side, the small note on the line just below, joined under the
+head's right half. Head and small note together are about a space tall, so the reader either lost the
+small note (its run too short to be a head where it stands alone, split off too narrow where it touches)
+or split the block into two plain heads and read them bottom-up, f then g, as it reads a podatus. Now a
+head with no tail is checked for one (`oneStepCephalicus`, `ONE_STEP` in `scan.mjs`;
+`readPage(img, { oneStep: false })` reads as before): ink under the head's right half 0.55-0.85 spaces
+below its centre, wider than a stem and ending by 0.95 spaces, none under its left half, a level head,
+and a hairline stem down its left side. The small note is read one step under the head, after it.
+Set on the 128 pieces of the twelve earlier lists in three tries; the second looked clean in the counts
+but its changes, looked at, included the upper heads of quilisma podatus and a porrectus top, which the
+hairline-stem and level-head tests removed. Frozen: one-step cephalici 69 to 74 of 84, notes agreeing
++5, differing and false liquescents unchanged, all 14 places it changes looked at and true. Held out,
+twelve pieces on leaves no earlier list reads, listed and committed before their pages were downloaded
+(`eval/one-step-fresh-pages.json`): 16 to 17 of 17, agreeing +1, nothing worse; one of four predictions
+failed as worded (an overlapping column). The fault is rare: main already read most of them. Details:
+`eval/one-step-cephalicus-check.md`; run `node eval/one-step-check.mjs <lists>`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif

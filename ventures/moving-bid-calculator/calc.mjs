@@ -59,7 +59,8 @@ const RATE_STEP = 5;
 const HOURS_STEP = 0.5;
 const FLOOR_MINIMUM_HOURS = 2;
 
-const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step;
+// `+ 0` turns the -0 that Math.ceil(-1e-9) gives for a zero value into 0.
+const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step + 0;
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
@@ -187,8 +188,15 @@ export function calculateBid(input) {
   let hourly = null;
   if (quotedRate !== null) {
     const earnsPerHour = quotedRate * (1 - marginShare) - variablePerHour;
-    const breakEvenHours = quotedRate > variablePerHour ? fixedJobCost / (quotedRate - variablePerHour) : null;
-    const marginHours = earnsPerHour > 0 ? fixedJobCost / earnsPerHour : null;
+    // Hours of billing it takes to cover the fixed cost at `perHour` left over
+    // per hour. At exactly zero left over, a job with no fixed cost is covered
+    // from the first hour (0); one with a fixed cost never is (null).
+    const hoursToCover = (perHour) => {
+      if (Math.abs(perHour) < 1e-9) return fixedJobCost === 0 ? 0 : null;
+      return perHour > 0 ? fixedJobCost / perHour : null;
+    };
+    const breakEvenHours = hoursToCover(quotedRate - variablePerHour);
+    const marginHours = hoursToCover(earnsPerHour);
     const minimumHours = breakEvenHours === null ? null : Math.max(FLOOR_MINIMUM_HOURS, ceilTo(breakEvenHours, HOURS_STEP));
     const at = (hours) => {
       const billedHours = minimumHours === null ? hours : Math.max(hours, minimumHours);
@@ -206,8 +214,9 @@ export function calculateBid(input) {
       marginHours,
       minimumHours,
       // Never true for the suggested rate: below the labor cost no
-      // minimum rescues a job, every extra hour loses more.
-      belowLaborCost: quotedRate <= variablePerHour,
+      // minimum rescues a job, every extra hour loses more. A rate exactly at
+      // the labor cost is not below it (each hour nets $0).
+      belowLaborCost: quotedRate < variablePerHour - 1e-9,
       scenarios: [0.75, 1, 1.25].map((k) => ({ scale: k, ...at(clockHours * k) })),
     };
   }

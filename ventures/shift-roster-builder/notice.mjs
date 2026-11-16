@@ -36,6 +36,13 @@
 //   list owe nothing (standby). 653.455(3)(k)(C): where the employer keeps such a list, the exception for cover after
 //   an absence holds only once everyone on the list has been contacted, so a team offer made while listed people were
 //   not asked is priced (standbyOpen on the log entry).
+//
+// Philadelphia and the City of Los Angeles (2026-11-16, later; README "Philadelphia and Los Angeles"): from search
+// summaries of the cities' FAQs and regulations and of law-firm alerts, the cities' own sites being out of reach here.
+// Philadelphia: 14 days, 1 h for adds and moves, half the lost hours, a start or end moved by 20 min or less free, the
+// mass-communication exception for hours opened by a call-out, and 9 h rest after a prior day's shift paid $40 a shift.
+// Los Angeles: 14 days, 1 h, more than 15 min of added work owes, half the lost hours, no team-offer exception (the
+// city FAQ says pay is owed when the employee volunteers), and time and a half on the whole shift after a rest under 10 h.
 import { fromLocal } from "./timeclock.mjs";
 
 export const MAX_CHANGES = 1500;
@@ -50,25 +57,34 @@ export const MAX_CHANGES = 1500;
 // cancelWindowH / cancelFraction: lost hours inside this many hours of the shift are paid at this fraction.
 // cancelElseHours: hours of pay for lost hours outside that window but inside the notice window (Chicago: 1).
 // restHours / restMult: hours worked less than restHours after the previous shift ended are paid at restMult.
+// restWhole: 1 where restMult applies to the whole later shift, not only its hours inside the rest window (the City
+//   of Los Angeles: "time and a half for the Shift following the insufficient rest period").
+// restFlat: a flat sum per short rest, owed whatever the wage (Philadelphia: $40 for each such shift worked).
+// restAcross: 1 where only a shift on a later day counts (Philadelphia: rest after "the end of a prior day's shift" or a
+//   shift that spanned two days), so a same-day split shift is not a short rest.
 export const FWW_PRESETS = {
   seattle: { label: "Seattle Secure Scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 1, standby: 0 },
   oregon: { label: "Oregon predictive scheduling", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 30, minEdgeMin: 30, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 1, standby: 1 },
   chicago: { label: "Chicago Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 15, minExtendMin: 15, minEdgeMin: 0, cancelWindowH: 24, cancelFraction: 0.5, cancelElseHours: 1, restHours: 10, restMult: 1.25, massOffer: 0, standby: 0 },
+  philadelphia: { label: "Philadelphia Fair Workweek", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 20, minEdgeMin: 20, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 9, restMult: 1, restFlat: 40, restAcross: 1, massOffer: 1, standby: 0 },
+  "los-angeles": { label: "Los Angeles Fair Work Week (city)", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 15, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, restWhole: 1, massOffer: 0, standby: 0 },
   custom: { label: "Custom rule set", noticeDays: 14, addHours: 1, minMoveMin: 0, minExtendMin: 0, minEdgeMin: 0, cancelWindowH: 336, cancelFraction: 0.5, cancelElseHours: 0, restHours: 10, restMult: 1.5, massOffer: 0, standby: 0 },
 };
-const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer", FWW_MIN_EDGE_MIN: "minEdgeMin", FWW_STANDBY: "standby" };
+const ENV_FIELDS = { FWW_NOTICE_DAYS: "noticeDays", FWW_ADD_HOURS: "addHours", FWW_MIN_MOVE_MIN: "minMoveMin", FWW_MIN_EXTEND_MIN: "minExtendMin", FWW_CANCEL_WINDOW_HOURS: "cancelWindowH", FWW_CANCEL_FRACTION: "cancelFraction", FWW_CANCEL_ELSE_HOURS: "cancelElseHours", FWW_REST_HOURS: "restHours", FWW_REST_MULT: "restMult", FWW_MASS_OFFER: "massOffer", FWW_MIN_EDGE_MIN: "minEdgeMin", FWW_STANDBY: "standby", FWW_REST_FLAT: "restFlat", FWW_REST_WHOLE_SHIFT: "restWhole", FWW_REST_ACROSS_DAYS: "restAcross" };
+const FLAGS = new Set(["massOffer", "standby", "restWhole", "restAcross"]);
+export const PRESET_NAMES = "seattle, oregon, chicago, philadelphia, los-angeles or custom";
 
 // The rule set from the environment, or null when FAIR_WORKWEEK is unset (the change log is still kept).
 export function readNoticeEnv(env = {}) {
   const raw = String(env.FAIR_WORKWEEK ?? "").trim().toLowerCase().replace(/[\s_]+/g, "-");
   if (!raw || raw === "0" || raw === "off") return null;
-  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago" }[raw] || raw;
-  if (!Object.hasOwn(FWW_PRESETS, name)) return { error: `FAIR_WORKWEEK "${String(env.FAIR_WORKWEEK).slice(0, 40)}" is not one of seattle, oregon, chicago or custom.` };
-  const r = { name, ...FWW_PRESETS[name], notes: [], overrides: [] };
+  const name = { or: "oregon", wa: "seattle", "seattle-wa": "seattle", il: "chicago", "chicago-il": "chicago", philly: "philadelphia", phl: "philadelphia", "philadelphia-pa": "philadelphia", la: "los-angeles", "los-angeles-city": "los-angeles", "los-angeles-ca": "los-angeles", losangeles: "los-angeles" }[raw] || raw;
+  if (!Object.hasOwn(FWW_PRESETS, name)) return { error: `FAIR_WORKWEEK "${String(env.FAIR_WORKWEEK).slice(0, 40)}" is not one of ${PRESET_NAMES}.` };
+  const r = { name, restFlat: 0, restWhole: 0, restAcross: 0, ...FWW_PRESETS[name], notes: [], overrides: [] };
   for (const [k, f] of Object.entries(ENV_FIELDS)) {
     if (env[k] === undefined || String(env[k]).trim() === "") continue;
     const v = Number(String(env[k]).trim());
-    if (!Number.isFinite(v) || v < 0 || (f === "restMult" && v < 1) || ((f === "massOffer" || f === "standby") && v > 1)) { r.notes.push(`${k} "${String(env[k]).slice(0, 20)}" is not a number we can use; the ${name} value ${r[f]} stays.`); continue; }
+    if (!Number.isFinite(v) || v < 0 || (f === "restMult" && v < 1) || (FLAGS.has(f) && v > 1)) { r.notes.push(`${k} "${String(env[k]).slice(0, 20)}" is not a number we can use; the ${name} value ${r[f]} stays.`); continue; }
     r[f] = v; r.overrides.push(`${k}=${v}`);
   }
   return r;
@@ -195,9 +211,14 @@ export function shortRests(week, prevWeek, rules, wages = new Map()) {
       if (mine[i].s < 0) continue; // both in last week
       const gapH = (mine[i].s - mine[i - 1].e) / 60;
       if (gapH >= rules.restHours) continue;
-      const inside = Math.min((mine[i].e - mine[i].s) / 60, rules.restHours - Math.max(0, gapH));
-      const wage = wages.get(who);
-      out.push({ person: who, first: mine[i - 1].slot, firstLastWeek: mine[i - 1].s < 0, second: mine[i].slot, gapH: r2(Math.max(0, gapH)), insideH: r2(inside), premium: wage > 0 ? r2((rules.restMult - 1) * inside * wage) : null });
+      // Philadelphia counts rest after a prior day's shift (or one that ran past midnight), not a same-day split.
+      if (rules.restAcross && Math.floor(mine[i].s / 1440) === Math.floor(mine[i - 1].s / 1440) && mine[i - 1].e <= Math.floor(mine[i - 1].s / 1440) * 1440 + 1440) continue;
+      const shiftH = (mine[i].e - mine[i].s) / 60;
+      const inside = Math.min(shiftH, rules.restHours - Math.max(0, gapH));
+      const paidH = rules.restWhole ? shiftH : inside;
+      const wage = wages.get(who), flat = rules.restFlat > 0 ? rules.restFlat : 0, mult = rules.restMult > 1;
+      const premium = mult ? (wage > 0 ? r2((rules.restMult - 1) * paidH * wage + flat) : null) : r2(flat);
+      out.push({ person: who, first: mine[i - 1].slot, firstLastWeek: mine[i - 1].s < 0, second: mine[i].slot, gapH: r2(Math.max(0, gapH)), insideH: r2(inside), paidH: r2(paidH), premium });
     }
   }
   return out;
@@ -263,7 +284,7 @@ export function standbyAskText(c, weekStart = "", dayName = (d) => DAYN[d]) {
 export function noticeCsv(rep, rules) {
   const head = "changed_at_utc,week_start,person,change,before,after,cause,employee_requested,notice_hours,hours_lost,hours_gained,hours_of_pay,premium,rule_set,reason";
   const rows = rep.priced.map((p) => [new Date(p.at).toISOString(), p.weekStart || "", p.person, p.kind, slotLabel(p.from), slotLabel(p.to), p.cause, p.requested ? "yes" : "no", p.noticeH ?? "", p.lostH.toFixed(2), p.gainedH.toFixed(2), p.hoursOfPay == null ? "" : p.hoursOfPay.toFixed(2), p.premium == null ? "" : p.premium.toFixed(2), rules ? rules.name : "", p.why].map(cell).join(","));
-  const rest = rep.rests.map((x) => ["", "", x.person, "short-rest", `${x.firstLastWeek ? "last week " : ""}${slotLabel(x.first)}`, slotLabel(x.second), "posted week", "", "", "", x.insideH.toFixed(2), "", x.premium == null ? "" : x.premium.toFixed(2), rules ? rules.name : "", `${x.gapH} h between shifts; ${x.insideH} h inside the ${rules.restHours} h rest window at ${rules.restMult}x`].map(cell).join(","));
+  const rest = rep.rests.map((x) => ["", "", x.person, "short-rest", `${x.firstLastWeek ? "last week " : ""}${slotLabel(x.first)}`, slotLabel(x.second), "posted week", "", "", "", (x.paidH ?? x.insideH).toFixed(2), "", x.premium == null ? "" : x.premium.toFixed(2), rules ? rules.name : "", `${x.gapH} h between shifts; ${x.insideH} h inside the ${rules.restHours} h rest window at ${rules.restMult}x`].map(cell).join(","));
   const never = (rep.never || []).map((p) => ["", p.weekStart || "", p.person, "on-call-never-called", slotLabel(p.from), "", p.cause, "no", "", p.lostH.toFixed(2), "0.00", p.hoursOfPay == null ? "" : p.hoursOfPay.toFixed(2), p.premium == null ? "" : p.premium.toFixed(2), rules ? rules.name : "", p.why].map(cell).join(","));
   return [head, ...rows, ...rest, ...never].join("\n") + "\n";
 }

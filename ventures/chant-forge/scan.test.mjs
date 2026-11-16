@@ -264,6 +264,40 @@ test('a liquescent whose small note straddles a staff line is read on that line;
   assert.deepEqual(read({ hookOnLine: false }), [3, 3]);
 });
 
+// A one-step cephalicus (GregoBase 3490 con- and 3508 et, both gf~): the
+// head in a space, a hairline stem down its left side, and the small note on
+// the line just below, joined under the head's right half. Head and small
+// note are about a space tall together, so the reader took them for one
+// head (or two plain heads read bottom-up) and lost the liquescent.
+// oneStepCephalicus reads the small note one step under the head; two full
+// heads stacked a step apart, and the same shape with no stem, are left alone
+// (eval/one-step-cephalicus-check.md).
+test('a one-step cephalicus is read as its head and then the small note a step below', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, []);
+  const ceph = (x, stem) => {
+    rect(img, x, cy(3) - 0.38 * S, 22, 0.72 * S); // head in the space (pos 3)
+    if (stem) rect(img, x, cy(3), 3, 1.3 * S); // hairline stem down the left side
+    rect(img, x + 11, cy(3), 11, cy(2) - cy(3) + 0.2 * S); // small note on the line below, under the right half
+  };
+  ceph(300, true);
+  ceph(700, false);
+  // two full heads stacked a step apart (a podatus f-g), touching
+  rect(img, 1100, cy(3) - 0.38 * S, 22, 0.72 * S);
+  rect(img, 1100, cy(2) - 0.3 * S, 22, 0.6 * S);
+  rect(img, 1100 + 19, cy(3), 3, cy(2) - cy(3));
+  const pgm = readPgm(toPgm(img));
+  const [st] = readPage(pgm);
+  const at = (x0) => st.notes.filter((n) => n.x >= x0 - 10 && n.x <= x0 + 40).map((n) => `${n.rel + 6}${n.shape === 'liquescent' ? '~' : ''}`);
+  assert.deepEqual(at(300), ['3', '2~']);
+  assert.ok(!at(700).some((n) => n.endsWith('~')), `no stem, no liquescent: ${at(700)}`);
+  assert.ok(!at(1100).some((n) => n.endsWith('~')), `two full heads: ${at(1100)}`);
+  const [off] = readPage(pgm, { oneStep: false });
+  assert.ok(!off.notes.some((n) => n.shape === 'liquescent' && n.x < 400), 'the reader before the rule finds no liquescent there');
+});
+
 // turn a drawn page by `deg` degrees about its centre (bilinear, as a
 // scanner's slightly turned page would come out)
 function rotate(img, deg) {
