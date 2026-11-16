@@ -21,6 +21,6 @@ for (const [n, rho, frac] of [[40, 0.8, 0.5], [40, 0.8, 0.8], [60, 0.8, 0.5], [6
   }
   allCut += cut; allCutRej += cutRej;
   const pc = (a, b) => (b ? (100 * a / b).toFixed(1) : '-').padStart(5);
-  console.log(`null n ${String(n).padStart(3)} rho ${rho} date ${frac * 100}%: tested ${tested}, rejected ${pc(rej, tested)}%; passed by the line checks ${tested - cut}, rejected ${pc(rej - cutRej, tested - cut)}%; passed only by the cut ${cut}, rejected ${cutRej}`);
+  console.log(`null n ${String(n).padStart(3)} rho ${rho} date ${Math.round(frac * 100)}%: tested ${tested}, rejected ${pc(rej, tested)}%; passed by the line checks ${tested - cut}, rejected ${pc(rej - cutRej, tested - cut)}%; passed only by the cut ${cut}, rejected ${cutRej}`);
 }
 console.log(`all: ${allCutRej} of ${allCut} series passed only by the cut were rejected at p <= 0.05`);
