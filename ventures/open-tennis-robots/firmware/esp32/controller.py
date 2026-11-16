@@ -303,6 +303,13 @@ def drop_from_periods(periods, min_fall=0.003):
 # on tests/drop_snapshot_capture.py's snapshots (README "A recovery shaped by the loop's own commands").
 LOOP_TAU_GRID_US = (100000, 200000, 400000, 800000, 1600000)
 LOOP_PENDING = 32     # LAUNCH flags bit 5: the loop-command fit of this record is under way; the record comes again
+# LAUNCH flags bits 6 / 7 (2026-11-16, README "When the wheel is not a first-order lag"): the top / bottom loop fit's
+# drop has a standard error over this share of itself, from the fit's own misses. A jittery tach or an ESC with a lag
+# of its own leaves misses the first-order model cannot absorb. On tests/loop_residual_sweep.py's single wheels 67 of
+# the 72 drops more than 2% off had a larger standard error; in whole drills (tests/plant_drill_sweep.py) no wheel of
+# the first-order plant was marked and 30-96% of every other plant's were. The Pi warns on them; it does not drop them.
+LOOP_SE_MAX = 0.01
+LOOP_UNSURE = 64
 TICK_LOG = 160        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115
 
 
@@ -362,7 +369,7 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
 
     `periods` as for `drop_from_periods`. `ticks` are the control ticks over the same span: (edges into `periods`
     before the tick, us since that edge, the command the tick set). Returns (D / the speed just before the ball,
-    that speed in rpm, revolutions used, tau in us) or None (too little to fit: the caller falls back).
+    that speed in rpm, revolutions used, tau in us, the rms miss per revolution as a share of that speed) or None (too little to fit: the caller falls back).
 
     A generator, so the board can spread the work over its control ticks (`LaunchCheck` advances it one step a tick):
     it yields None after each t0 grid of each tau tried, about 36 steps, and its last item is ("fit", result).
@@ -450,13 +457,13 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
                     e = ys[idx] - x4[0] - x4[1] * cols[idx][0] - x4[2] * cols[idx][1] - x4[3] * ds[idx]
                     sse += e * e
                 if best is None or sse < best[0]:
-                    best = (sse, t0, x4)
+                    best = (sse, t0, x4, m)
             if best is None:
                 out.append(None)
                 return
             lo, hi = max(t_lo, best[1] - step), min(t_hi, best[1] + step)
             yield None
-        out.append((best[0], best[1], best[2], tau))
+        out.append((best[0], best[1], best[2], tau, best[3]))
 
     def run(tau):
         out = []
@@ -496,7 +503,7 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
         for r in (fc, fd):
             if r is not None and r[0] < best[0]:
                 best = r
-    sse, t0, (c1, A, Wn, D), tau = best
+    sse, t0, (c1, A, Wn, D), tau, mn = best
     # the deficit just before the ball, c1 + A e(t0) + W h(t0): the drop is reported as a share of that speed
     e_t0 = math.exp(-(t0 - ts) / tau)
     h_t0 = 0.0
@@ -513,11 +520,33 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     if not 0.0 < drop < 1.0:
         yield ("fit", None)
         return
-    yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau))
+    # rms of the fit's misses per revolution, as a share of the pre-ball speed (2026-11-16 later, README "When the wheel
+    # is not a first-order lag"): 6 fitted numbers (c, A, W, D, tau, t0)
+    nr = j1 - j0
+    s2 = sse / (nr - 6) if nr > 6 else 0.0
+    rms = math.sqrt(s2) / before
+    # the drop's standard error at this tau and t0, from the normal equations: sd(D)^2 = s^2 (M^-1)_DD
+    inv = _solve_small(mn, [0.0, 0.0, 0.0, 1.0])
+    se = math.sqrt(s2 * inv[3]) / before / drop if inv is not None and inv[3] > 0 else 1.0
+    # lag-1 structure of the misses (Durbin-Watson): white noise ~2, a tach's jitter on periods ~3, a shape the model
+    # lacks well under 2
+    cols = _cmd_columns(T, j0, j1, segs, tau)
+    es = []
+    for idx in range(nr):
+        a, b = T[j0 + idx], T[j0 + idx + 1]
+        if b <= t0:
+            d = 0.0
+        else:
+            x = a if a > t0 else t0
+            d = tau * (math.exp(-(x - t0) / tau) - math.exp(-(b - t0) / tau)) / (b - a)
+        es.append(ys[idx] - c1 - A * cols[idx][0] - Wn * cols[idx][1] - D * d)
+    num = sum((es[i] - es[i - 1]) ** 2 for i in range(1, nr))
+    dw = num / sse if sse > 0 else 2.0
+    yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw))
 
 
 def drop_from_commands(periods, ticks, **kw):
-    """`drop_from_commands_steps` run to the end: (drop, rpm, revolutions, tau in us) or None."""
+    """`drop_from_commands_steps` run to the end: (drop, rpm, revolutions, tau in us, residual rms) or None."""
     for step in drop_from_commands_steps(periods, ticks, **kw):
         if step is not None:
             return step[1]
@@ -1326,7 +1355,8 @@ class LaunchCheck:
     def _loop_fit(self, snap, ticks, edges0, targets, speeds, dips, flags):
         """The loop-command fit of both wheels, one step per `step()`; then the record is re-sent with its drops (same
         seq: the Pi replaces the record it holds when the flags change). Bits 3 / 4 of the flags byte: the top /
-        bottom drop came from it (bits 1 / 2 stay set, it is a whole drop too)."""
+        bottom drop came from it (bits 1 / 2 stay set, it is a whole drop too); bits 6 / 7: its standard error is over
+        LOOP_SE_MAX of it, so the Pi should not lean on it."""
         seq = self.seq
         speeds, dips = list(speeds), list(dips)
         loops = [None, None]
@@ -1343,6 +1373,8 @@ class LaunchCheck:
             if loops[k] is not None:
                 dips[k], speeds[k] = loops[k][0], loops[k][1]
                 flags |= (2 << k) | (8 << k)
+                if loops[k][5] > LOOP_SE_MAX:
+                    flags |= LOOP_UNSURE << k
         self.last_loop = (loops[0], loops[1])
         if self.record is not None and self.record[0] == seq:      # bit 5 (under way) cleared either way
             drops = [int(round(10000 * dips[k])) for k in (0, 1)]

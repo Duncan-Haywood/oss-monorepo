@@ -102,6 +102,7 @@ class DropFit:
     rms: float                       # residual of the drops, as a fraction of wheel speed
     shots: int                       # launched shots used
     note: str = ""
+    unsure: int = 0                  # wheel readings the firmware marked unsure (LAUNCH flags bits 6 / 7)
 
     def launcher(self, base: WheelLauncher = WheelLauncher()) -> WheelLauncher:
         spin = base.spin_efficiency if self.spin_efficiency is None else self.spin_efficiency
@@ -119,23 +120,31 @@ def _tach_share(rev_s: float, recovery_s: float | None) -> float:
     return ((1.0 - math.exp(-x)) / x) ** 2 if x > 1e-9 else 1.0
 
 
+# Warn when at least this share of a drill's wheel readings (and at least two) came marked unsure by the firmware
+# (2026-11-16, firmware/esp32/README.md "When the wheel is not a first-order lag").
+UNSURE_WARN = 0.1
+
+
 def _drop_rows(records, inertia, ball_kg, wheel_radius):
     """One row per wheel per launched record: (measured drop, revolution s, speed-eff coefficient, spin-eff
     coefficient, whole). Model (firmware controller.launch_dips, written to be linear in the efficiencies):
     drop_i = m R^2 / (I w_i) [se (w_t + w_b) / 4 +/- sp (w_t - w_b) / 6], + for the top wheel. `whole` is True when
     the firmware fitted the drop from the pulse times (`fit_top` / `fit_bottom`, 2026-11-16): the whole drop, so the
-    tach's recovery share does not apply to it."""
+    tach's recovery share does not apply to it. `unsure` (2026-11-16 later, firmware/esp32/README.md "When the wheel is
+    not a first-order lag"): the firmware's loop fit says its own misses leave that drop uncertain (`unsure_top` /
+    `unsure_bottom`, LAUNCH flags bits 6 / 7)."""
     rows = []
     for r in records:
         if not r.get("launched"):
             continue
         wt, wb = float(r["rpm_top"]), float(r["rpm_bottom"])
-        for w, d, sign, whole in ((wt, r["drop_top"], 1.0, r.get("fit_top", False)),
-                                  (wb, r["drop_bottom"], -1.0, r.get("fit_bottom", False))):
+        for w, d, sign, whole, unsure in ((wt, r["drop_top"], 1.0, r.get("fit_top", False), r.get("unsure_top", False)),
+                                          (wb, r["drop_bottom"], -1.0, r.get("fit_bottom", False),
+                                           r.get("unsure_bottom", False))):
             if w < MIN_FIT_RPM:
                 continue
             k = ball_kg * wheel_radius ** 2 / (inertia * w)       # rpm cancels: the drop is a ratio
-            rows.append((float(d), 60.0 / w, k * (wt + wb) / 4, sign * k * (wt - wb) / 6, bool(whole)))
+            rows.append((float(d), 60.0 / w, k * (wt + wb) / 4, sign * k * (wt - wb) / 6, bool(whole), bool(unsure)))
     return rows
 
 
@@ -189,6 +198,11 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
     rows = _drop_rows(records, inertia, ball_kg, base.wheel_radius)
     if not rows:
         raise ValueError(f"no launched shots with a wheel at {MIN_FIT_RPM:.0f} rpm or more in the log")
+    # Drops the firmware marked unsure (its loop fit's own misses give a standard error over 1% of the drop) are a
+    # warning about the build, not readings to drop: on the simulator setting them aside did not improve the fit
+    # (tests/plant_drill_sweep.py; with a 5 us tach jitter it made the spin error worse, 7.2% against 5.3%), but no
+    # wheel of the first-order plant was ever marked and every plant that broke the model marked 30-96% of its wheels.
+    unsure = sum(1 for r in rows if r[5])
     slow = sum(1 for r in records if r.get("launched")
                for w in (float(r["rpm_top"]), float(r["rpm_bottom"])) if 0 < w < MIN_FIT_RPM)
     fit_spin = max(abs(r[3]) for r in rows) > 0.05 * max(r[2] for r in rows)
@@ -239,10 +253,15 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
         notes.append(f"{slow_spin} spin shot{'s' if slow_spin > 1 else ''} with a wheel under {SPIN_FIT_RPM:.0f} rpm: "
                      "spin read from slow wheels was up to 17% off on the simulator, against 8% with both wheels at "
                      "2,500 rpm or more (drill.calibration.json's spin shots)")
+    if unsure >= max(2, UNSURE_WARN * len(rows)):
+        notes.append(f"{unsure} of {len(rows)} wheel readings marked unsure by the firmware: its model of the wheel "
+                     "(a simple lag of the ESC command, timed by the tach) does not fit this build, and on the simulator "
+                     "such builds read the spin efficiency 5-24% off. Check the tach (sensor gap, magnet, a soft "
+                     "interrupt) and the ESC's mode (a closed speed loop of its own) before trusting this fit")
     if trimmed:
         notes.append(f"{trimmed} wheel reading{'s' if trimmed > 1 else ''} more than {TRIM:.0%} off the fit set aside "
                      "(a wheel still settling when the ball came)")
-    return DropFit(se, sp, tau, math.sqrt(sse / len(rows)), shots, "; ".join(notes))
+    return DropFit(se, sp, tau, math.sqrt(sse / len(rows)), shots, "; ".join(notes), unsure)
 
 
 def inertia_from_radar(drop_fit: DropFit, radar_speed_efficiency: float,

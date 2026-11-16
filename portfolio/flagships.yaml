@@ -379,12 +379,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Drop fit (firmware/esp32/README.md "A recovery shaped by
-      the loop's own commands", 2026-11-16): logged ESC commands through a
-      first-order wheel; calibration-drill spin error 8% to 1.6-1.9% on the
-      simulator. Next: retest launcher.MIN_FIT_RPM (1,000) with it; a residual check
-      that flags a wheel the first-order model does not fit;
-      tests/drop_snapshot_capture.py with tach jitter added.
+      venv, about 2 min). Model check (firmware/esp32/README.md "When the wheel is
+      not a first-order lag", 2026-11-16): the loop fit's standard error marks
+      unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
+      or a 30 ms ESC lag puts the drill's spin 5-24% off. Next: fit the drop on edge
+      times (jitter is on times, not periods); an ESC-lag term in the model; retest
+      launcher.MIN_FIT_RPM.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

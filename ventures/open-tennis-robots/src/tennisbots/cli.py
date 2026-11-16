@@ -114,6 +114,7 @@ def cmd_fit_launcher(a: argparse.Namespace) -> int:
         "spin_efficiency": None if fit.spin_efficiency is None else round(fit.spin_efficiency, 3),
         "recovery_s": None if fit.recovery_s is None else round(fit.recovery_s, 3),
         "rms_drop": round(fit.rms, 4),
+        "unsure_readings": fit.unsure,
         "inertia_assumed_kgm2": a.inertia,
         "ball_kg_assumed": a.ball_kg,
         "note": fit.note,

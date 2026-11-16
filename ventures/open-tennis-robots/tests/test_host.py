@@ -1188,6 +1188,53 @@ class LoopDropTest(unittest.TestCase):
         port.buf += P.encode(P.LAUNCH, 5, 4000, 3000, 870, 905, 1 | 2 | 4)
         link.poll()
         self.assertEqual(len(link.launch_log), 2)
+        port.buf += P.encode(P.LAUNCH, 6, 4000, 3000, 870, 905, 1 | 2 | 4 | 8 | 16 | 128)
+        link.poll()
+        rec = link.launch_log[-1][1]
+        self.assertEqual((rec["unsure_top"], rec["unsure_bottom"]), (False, True))
+
+
+class LoopFitUnsureTest(unittest.TestCase):
+    """2026-11-16 later, firmware/esp32/README.md "When the wheel is not a first-order lag": the loop fit's standard
+    error from its own misses marks drops it cannot vouch for, and the Pi's launcher fit warns when enough are marked."""
+
+    def test_standard_error_marks_a_jittery_tach_and_a_lagging_esc_not_a_clean_wheel(self):
+        import loop_residual_sweep as lr
+        for rpm, tau in ((2500, 0.2), (4000, 0.4), (6000, 0.8)):
+            ps, tk = lr.wheel(rpm, 0.08, tau)
+            got = controller.drop_from_commands(ps, tk)
+            self.assertEqual(len(got), 7)
+            self.assertLess(got[5], controller.LOOP_SE_MAX, (rpm, tau))
+        ps, tk = lr.wheel(4000, 0.06, 0.4, jitter_us=20, seed=3)
+        got = controller.drop_from_commands(ps, tk)
+        self.assertGreater(got[5], controller.LOOP_SE_MAX)
+        ps, tk = lr.wheel(1500, 0.06, 0.2, tau_esc=0.08)
+        got = controller.drop_from_commands(ps, tk)
+        self.assertGreater(abs(got[0] / 0.06 - 1), 0.05)       # the fit is badly off ...
+        self.assertGreater(got[5], controller.LOOP_SE_MAX)       # ... and says so
+
+    def test_launcher_fit_warns_on_unsure_drops(self):
+        from tennisbots import launcher
+        r_w = launcher.WheelLauncher().wheel_radius
+        recs = []
+        for top, bot in ((3000, 3000), (4500, 3000), (3000, 4500), (5000, 5000), (6000, 4000), (4000, 6000)):
+            def drop(w, sign):          # the fit's own model with speed efficiency 0.8 and spin efficiency 0.5
+                k = launcher.BALL_KG * r_w ** 2 / (launcher.WHEEL_INERTIA_KGM2 * w)
+                return k * (0.8 * (top + bot) / 4 + sign * 0.5 * (top - bot) / 6)
+            recs.append({"launched": True, "rpm_top": top, "rpm_bottom": bot, "drop_top": drop(top, 1),
+                         "drop_bottom": drop(bot, -1), "fit_top": True, "fit_bottom": True})
+        base = launcher.fit_from_drops(recs)
+        self.assertAlmostEqual(base.speed_efficiency, 0.8, places=6)
+        bad = [dict(r) for r in recs]
+        bad[1]["unsure_top"] = True                                       # one mark: kept, counted, no warning
+        one = launcher.fit_from_drops(bad)
+        self.assertEqual(one.unsure, 1)
+        self.assertNotIn("marked unsure", one.note)
+        bad[2]["unsure_bottom"] = True                                    # two of 12: warned, still used
+        two = launcher.fit_from_drops(bad)
+        self.assertEqual(two.unsure, 2)
+        self.assertIn("2 of 12 wheel readings marked unsure", two.note)
+        self.assertAlmostEqual(two.speed_efficiency, 0.8, places=6)
 
 
 class RefitTest(unittest.TestCase):

@@ -13,6 +13,12 @@ from machine import ADC, PWM, UART, Pin
 
 import config
 import controller
+
+try:
+    import micropython
+    micropython.alloc_emergency_exception_buf(100)   # a fault inside the hard tach interrupt can still be reported
+except ImportError:                                    # CPython (tests/feeder_sim.py)
+    pass
 import protocol
 
 ROLE = getattr(config, "ROLE", controller.ROLE_FEEDER)
@@ -109,7 +115,12 @@ class Tach:
         self.rpm = 0
         self.rpm_last = 0
         self.since = 0
-        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
+        # A hard interrupt (2026-11-16, README "When the wheel is not a first-order lag"): a soft one only schedules
+        # _p, so ticks_us() is read whenever the main loop next yields, up to a control tick's work later. The drop fit
+        # reads each revolution's period from these times, and on the simulator 5 us of edge jitter took the
+        # calibration drill's spin error from 1.6% to 5.3%, 10 us to 16%. _p and PeriodTach.edge allocate nothing
+        # (small ints, list stores), as a hard handler must.
+        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING, hard=True)
 
     def _p(self, _):
         now = time.ticks_us()
