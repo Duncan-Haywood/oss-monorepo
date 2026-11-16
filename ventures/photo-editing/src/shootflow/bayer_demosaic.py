@@ -41,6 +41,8 @@ import numpy as np
 
 WORK = np.float32
 _PAD = 8  # covers the reach of every step: 2 (green) + window radius + 2 (red/blue) + 1 (median)
+# laplace="adaptive": (lowest weight, highest weight, window radius), picked on the tuning truths
+ADAPTIVE_LAPLACE = (0.125, 0.25, 1)
 
 
 def _phase(pat) -> tuple[int, ...]:
@@ -97,8 +99,33 @@ def _median9(a: np.ndarray) -> np.ndarray:
     return np.median(stack, axis=0).astype(a.dtype)
 
 
+def _laplace_map(c, sign, mean_h, lap_h, mean_v, lap_v, adaptive, eps) -> np.ndarray:
+    """Per-sensel Laplacian weight: the least-squares weight that makes the colour difference closest to
+    linear along both lines over a (2r+1) square window, clipped to [lo, hi].
+
+    With weight w the row's colour difference is ``A - w B`` (A = sign (c - mean of the two neighbours),
+    B = sign x the sensel's second difference). Its own second difference along the row is
+    ``d2A - w d2B``; the w minimising the summed square over the window, rows and columns pooled, is
+    sum(d2A d2B) / sum(d2B^2). Hamilton and Adams' quarter is exact where the colour difference is
+    linear, so this asks the data, sensel by sensel, how much of the sensel's own detail the green should
+    carry (``eval/bayer-adaptive-laplace-2026-11-16.md``)."""
+
+    lo, hi, r = adaptive
+    num = np.zeros_like(c)
+    den = np.zeros_like(c)
+    for mean, lap, (dy, dx) in ((mean_h, lap_h, (0, 1)), (mean_v, lap_v, (1, 0))):
+        a = sign * (c - mean)
+        b = sign * lap
+        d2a = 2 * a - _sh(a, dy, dx) - _sh(a, -dy, -dx)
+        d2b = 2 * b - _sh(b, dy, dx) - _sh(b, -dy, -dx)
+        num += d2a * d2b
+        den += d2b * d2b
+    w = _box(num, r) / (_box(den, r) + eps * eps)
+    return np.clip(w, lo, hi).astype(WORK)
+
+
 def _piece(c: np.ndarray, masks, window: int, power: float, rb: str, median_passes: int, eps,
-           laplace: float = 0.1875) -> np.ndarray:
+           laplace: float = 0.1875, adaptive=None) -> np.ndarray:
     is_r, is_g, is_b = masks
     h, w = c.shape
 
@@ -110,12 +137,18 @@ def _piece(c: np.ndarray, masks, window: int, power: float, rb: str, median_pass
     # Step 1: row and column estimates of the missing colour at every sensel. At a red or blue sensel this
     # is green; at a green sensel it is the row's (or column's) other colour. Both carry the sensel's own
     # second difference.
-    lap = WORK(laplace)
-    est_h = (left + right) / 2 + (2 * c - left2 - right2) * lap
-    est_v = (up + down) / 2 + (2 * c - up2 - down2) * lap
+    sign = np.where(is_g, WORK(1), WORK(-1))
+    mean_h, lap_h = (left + right) / 2, 2 * c - left2 - right2
+    mean_v, lap_v = (up + down) / 2, 2 * c - up2 - down2
+    lap: np.floating | np.ndarray
+    if adaptive is None:
+        lap = WORK(laplace)
+    else:
+        lap = _laplace_map(c, sign, mean_h, lap_h, mean_v, lap_v, adaptive, eps)
+    est_h = mean_h + lap_h * lap
+    est_v = mean_v + lap_v * lap
 
     # Step 2: colour difference green minus other along each line, and how fast it changes.
-    sign = np.where(is_g, WORK(1), WORK(-1))
     dh = sign * (c - est_h)  # = G - other everywhere on the row
     dv = sign * (c - est_v)
     grad_h = np.abs(dh - _sh(dh, 0, 1)) + np.abs(dh - _sh(dh, 0, -1))
@@ -178,7 +211,7 @@ def directional(
     *,
     window: int = 2,
     power: float = 2.0,
-    laplace: float = 0.1875,
+    laplace: float | str = 0.1875,
     rb: str = "weighted",
     median_passes: int = 0,
     band: int | None = None,
@@ -187,7 +220,9 @@ def directional(
 ) -> np.ndarray:
     """Demosaic the (h, w) Bayer plane ``c`` (pattern ``pat``: 4 colours, 0 R, 1 G, 2 B, row-major over
     the top-left 2x2) to (h, w, 3) float32. See the module docstring for the steps and options;
-    ``laplace=0.25`` is the 2026-11-15 first version (Hamilton and Adams' weight).
+    ``laplace=0.25`` is the 2026-11-15 first version (Hamilton and Adams' weight). ``laplace="adaptive"``
+    picks the weight per sensel in [1/8, 1/4] (``_laplace_map``; numpy only, opt-in: it gains on the
+    D810 and the sheet but loses luma on the A7 III and K-1 II, ``eval/bayer-adaptive-laplace-2026-11-16.md``).
 
     ``native``: None (default) runs the C path of ``shootflow.bayer_native`` when it builds and
     ``median_passes`` is 0, else numpy; True requires it (RuntimeError if unavailable); False is numpy
@@ -195,12 +230,19 @@ def directional(
 
     if rb not in ("weighted", "simple"):
         raise ValueError(f"unknown rb {rb!r} (weighted or simple)")
+    adaptive = None
+    if isinstance(laplace, str):
+        if laplace != "adaptive":
+            raise ValueError(f"unknown laplace {laplace!r} (a number or 'adaptive')")
+        adaptive, laplace = ADAPTIVE_LAPLACE, 0.1875
     p = _phase(pat)
     c = np.asarray(c, dtype=WORK)
     h, w = c.shape
     if h < 2 or w < 2:
         raise ValueError("the Bayer demosaic needs at least 2 x 2 sensels")
     pad = _PAD + window
+    if adaptive is not None:
+        pad += adaptive[2] + 1  # the weight map reads one sensel further, plus its window
     pad += pad % 2  # an even pad keeps the CFA phase of the padded plane
     # Mirror padding about the edge sensel (offset -k reads +k, repeated for small frames) keeps every
     # padded sensel's colour equal to the CFA's colour at that position.
@@ -213,12 +255,12 @@ def directional(
     eps = WORK(1e-6 * max(float(np.max(np.abs(c))), 1e-6))
     out = np.empty((h, w, 3), dtype=WORK)
     use_c = False
-    if native is not False and median_passes == 0:
+    if native is not False and median_passes == 0 and adaptive is None:
         from shootflow import bayer_native
 
         use_c = 0 <= int(window) <= 12 and bayer_native.available()
     if native is True and not use_c:
-        raise RuntimeError("the native Bayer demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0, median_passes > 0 or window over 12)")
+        raise RuntimeError("the native Bayer demosaic is unavailable (no C compiler, SHOOTFLOW_NATIVE=0, median_passes > 0, laplace='adaptive' or window over 12)")
     # The C path keeps 17 band-sized float32 planes; 128 rows keep that near 60 MB per thread at 6000 columns.
     band = max(int(band if band is not None else (128 if use_c else 512)), 16)
 
@@ -232,7 +274,7 @@ def directional(
             bayer_native.piece(big[a:b], cm, window, power, rb == "simple", eps, pad, pad, out[y0:y1], laplace)
             return
         masks = (cm == 0, cm == 1, cm == 2)
-        piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps, laplace)
+        piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps, laplace, adaptive)
         out[y0:y1] = piece[pad : pad + (y1 - y0), pad : pad + w]
 
     # Bands are independent (each reads its own overlap, writes its own rows), and numpy releases the GIL in
