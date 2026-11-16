@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVLvF84ma5Wgr8C5un7",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing ventures brief)",
+  "input_sha256": "ab838dcdaa366e9a871897ade0296bc3024049aa8fb7f554a6b72a674dcf5c17",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T00:56:15Z",
+  "ended": "2026-11-16T01:15:01Z",
+  "wall_minutes": 19.15,
+  "tokens_in": 9052718,
+  "tokens_out": 40643,
+  "cost_usd": 3.9648,
+  "tool_calls": 64,
+  "task": "Deepen (flagship 11): chant-forge, item '-unt read on its stop'",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16401",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "dev sweep with two settings in one foreground call hit the 120 s tool timeout",
+      "fix": "stopped it; ran long evals with run_in_background"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge's next named 'G control false nasals 44' as an item, but G's misses and control reads were printed when the last round was scored, so no clean held-out set is left for it; I left it in next with '(needs a fresh held-out set)'"
+    },
+    {
+      "file": "ventures/chant-forge/eval/coda-check.mjs",
+      "issue": "every corpus part (B, D, E, H, I, F) has now had its misses printed in some round, so 'held out' in its headers is historical; pre-registering predictions on all parts and tuning on synthetic syllables (part J) was the honest substitute"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "allocator's flagship pick (chant-forge) taken on a reader-accuracy item rather than a new revenue product; it is the routed default and a self-contained, measurable slice",
+      "did": "landed the cluster-nasal rule with a pre-registration",
+      "result": "all five predictions held"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-sunt-read-as-sut-a-synthetic-choir-hidden-n.md",
+    "ventures/chant-forge/README.md (section '-unt read on its stop')"
+  ],
+  "goal": "chant-forge synthetic choir: the checker reads the n of -unt/-sunt/-ens clusters",
+  "notes": "readCoda gains PRE (onsets.mjs): a dark run entered by an 8 dB tilt step, 40 ms+, ending within 5 frames of a stop closure or fricative, reads as the cluster's nasal. Tuned on synthetic part J only (cluster nasals 46->124/132; others 304/336 and control 445/468 unchanged). Registration committed (52bd21685) before corpus runs. Results vs --pre off: A 160->168/180 (unt/ant 7->12 of 12); F nasals 106->116/137, /l/ 4/4; B 155->157, D 68, E 82, H 126->128, I 138; corpus cluster nasals 7->11 of 11; controls and bare rows identical. chant-forge suite 260 tests pass (run_venture_tests.py). Post checks: front matter, links, similarity clean. Not listened to.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a967f4fe-3cb4-58ed-8f86-f9c859a9d06b",
+    "transcripts": 1,
+    "first": "2026-11-16T00:56:15Z",
+    "last": "2026-11-16T01:15:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 130,
+        "output": 40643,
+        "thinking": 13738,
+        "cache_read": 8880679,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171909,
+        "api_equivalent_usd": 3.9648,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 130,
+      "output": 40643,
+      "thinking": 13738,
+      "cache_read": 8880679,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171909,
+      "api_equivalent_usd": 3.9648,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 3,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.15,
+      "active_minutes": 17.76,
+      "model_minutes": 8.52,
+      "tool_minutes": 9.24,
+      "waiting_on_human_minutes": 1.39,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an audio DSP engineer diagnosing the cluster miss frame by frame, designing and pre-registering the rule, running the checks and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 151.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
