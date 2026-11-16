@@ -45,7 +45,7 @@ const MP = (() => {
     const ex = new WebAssembly.Instance(new WebAssembly.Module(bin), {}).exports;
     const buf = ex.memory.buffer, cap = ex.cap(), io = ex.io();
     return {
-      cap, io, lut: new Int32Array(buf, ex.lut(), 64 + 1024),
+      cap, io, lut: new Int32Array(buf, ex.lut(), 64 + 1024), inu: ex.in_i32u, outs: ex.out_i32s,
       i32: { step: ex.step_i32, inp: ex.in_i32, out: ex.out_i32, io: new Int32Array(buf, ex.pi(), io) },
       f64: { step: ex.step_f64, inp: ex.in_f64, out: ex.out_f64, io: new Float64Array(buf, ex.pf(), io) },
     };
@@ -109,7 +109,36 @@ function homeMasks(ms) {
  * 4^|A| popcounts (12 matches: some 200 thousand against 16.7 million). Same numbers exactly
  * (orient.test.mjs checks it against the double loop).
  */
-export function minPlusStep(fr, A, B) {
+export function minPlusStep(fr, A, B, { sym = false } = {}) {
+  // `sym`: the caller promises fr[x] = fr[~x] (every whole-break table of floorTable is: flipping
+  // every host of every round leaves every team's breaks as they were). Then g is symmetric too, and
+  // B's last host bit can be fixed at 0: its match's two edges become unary costs on fr's bits, the
+  // step runs on |B| - 1 bits (0.40 -> 0.23 ms at 15 matches), and the other half of g is read
+  // from the first (README "Half the table: the all-hosts-flipped symmetry"). WebAssembly only; the
+  // JS loop below ignores the flag, which gives the same table.
+  if (sym && MP && fr.constructor === Int32Array && B.length >= 2) {
+    const r = symStep(fr, A, B);
+    if (r) return r;
+  }
+  return plainStep(fr, A, B, null);
+}
+
+function symStep(fr, A, B) {
+  const [c, d] = B[B.length - 1], u = [0, 0, 0, 0];
+  A.forEach(([a, b], i) => {
+    // team t of A's match i (ra 1: the lower team there) breaks when x_i ^ y ^ (ra ^ rb) is 0, so
+    // with y fixed at 0 when x_i equals ra ^ rb (rb 1: the lower team of B's match)
+    for (const [t, ra] of [[a, 1], [b, 0]]) {
+      if (t === c) { u[0] = 1 << i; u[1] = ra ^ 1; }
+      if (t === d) { u[2] = 1 << i; u[3] = ra; }
+    }
+  });
+  return plainStep(fr, A, B.slice(0, -1), u);
+}
+
+// unary: null for the plain step, or [m0, f0, m1, f1] for symStep (WebAssembly path only: null when
+// the tables do not fit the module, and minPlusStep then runs the plain step)
+function plainStep(fr, A, B, unary) {
   const kA = A.length, kB = B.length;
   const inB = new Map();
   B.forEach(([c, d], j) => { inB.set(c, [j, 1]); inB.set(d, [j, 0]); });
@@ -164,7 +193,7 @@ export function minPlusStep(fr, A, B) {
         e.length > 1 ? yp[e[1][0]] : 0, e.length > 1 ? e[1][1] : 0, e.length > 1 ? 1 : 0]);
       lx0 = lx; ly0 = ly;
     }
-    if (fits && (1 << kA) <= MP.io && (1 << kB) <= MP.io) {
+    if (fits && (1 << kA) <= MP.io && (1 << (kB + (unary ? 1 : 0))) <= MP.io) {
       const w = Arr === Float64Array ? MP.f64 : MP.i32;
       // the permutations run in the module too, from the same two lookups perm builds
       const lut = (pos, k) => {
@@ -175,16 +204,18 @@ export function minPlusStep(fr, A, B) {
       };
       w.io.set(fr);
       lut(xPos, kA);
-      w.inp(kA);
+      if (unary) MP.inu(kA, ...unary); else w.inp(kA);
       let swap = 0;
       for (const q of plan) { w.step(swap, ...q); swap ^= 1; }
       const tm = (1 << (lx0 + ly0)) - 1; // the last table's size, as T.length - 1 below
       for (let j = 0; j < kB; j++) if (yp[j] < 0) yp[j] = ly0++;
       lut(yp, kB);
+      if (unary) { MP.outs(kB + 1, swap, tm); return w.io.slice(0, 1 << (kB + 1)); }
       w.out(kB, swap, tm);
       return w.io.slice(0, 1 << kB);
     }
   }
+  if (unary) return null;
   const xz = perm(xPos, kA);
   let T = new Arr(1 << kA);
   for (let x = 0; x < T.length; x++) T[xz(x)] = fr[x];
@@ -421,6 +452,10 @@ export function relaxedBreakFloor(opp, n, opts = {}) {
  * caller undoes a refused move instead). Same floor as leastBreaks(opp, n).floor. null when a round
  * has more than `maxMatches` (ORIENT_MAX_MATCHES) matches. `opp` is read live (the caller moves it).
  */
+// floorTable's tables all start at zero and every step is symmetric under flipping all hosts, so
+// each is symmetric and its steps take minPlusStep's `sym` (README "Half the table"); FLOOR_SYM = 0
+// in the environment turns it off, for comparison
+const SYM = { sym: !(typeof process !== "undefined" && process.env && process.env.FLOOR_SYM === "0") };
 export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
   const R = opp.length;
   if (n > 32 || roundMatches(opp, n).some((ms) => ms.length > maxMatches)) return null;
@@ -433,11 +468,11 @@ export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
   bwd[R - 1] = new Int32Array(H[R - 1].length);
   let fv = -1, bv = R - 1, pending = null;
   const forwardTo = (to) => {
-    for (let r = fv + 1; r <= to; r++) fwd[r] = r === 0 ? new Int32Array(H[0].length) : minPlusStep(fwd[r - 1], ms[r - 1], ms[r]);
+    for (let r = fv + 1; r <= to; r++) fwd[r] = r === 0 ? new Int32Array(H[0].length) : minPlusStep(fwd[r - 1], ms[r - 1], ms[r], SYM);
     if (to > fv) fv = to;
   };
   const backwardTo = (to) => {
-    for (let r = bv - 1; r >= to; r--) bwd[r] = minPlusStep(bwd[r + 1], ms[r + 1], ms[r]);
+    for (let r = bv - 1; r >= to; r--) bwd[r] = minPlusStep(bwd[r + 1], ms[r + 1], ms[r], SYM);
     if (to < bv) bv = to;
   };
   const run = (lo, hi = R - 1) => {
@@ -448,13 +483,13 @@ export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
     for (let r = lo; r <= hi; r++) {
       const i = r - lo;
       m[i] = roundMatches([opp[r]], n)[0]; h[i] = homeMasks(m[i]); p[i] = playsOf(r);
-      f[i] = r === 0 ? new Int32Array(h[0].length) : minPlusStep(i ? f[i - 1] : fwd[r - 1], i ? m[i - 1] : ms[r - 1], m[i]);
+      f[i] = r === 0 ? new Int32Array(h[0].length) : minPlusStep(i ? f[i - 1] : fwd[r - 1], i ? m[i - 1] : ms[r - 1], m[i], SYM);
     }
     let best = Infinity;
     const last = f[hi - lo];
     if (hi === R - 1) { for (const v of last) if (v < best) best = v; }
     else {
-      const g = minPlusStep(last, m[hi - lo], ms[hi + 1]), b = bwd[hi + 1];
+      const g = minPlusStep(last, m[hi - lo], ms[hi + 1], SYM), b = bwd[hi + 1];
       for (let y = 0; y < g.length; y++) if (g[y] + b[y] < best) best = g[y] + b[y];
     }
     pending = { lo, hi, m, h, p, f, full: null };
@@ -468,7 +503,7 @@ export function floorTable(opp, n, { maxMatches = ORIENT_MAX_MATCHES } = {}) {
     const { lo, hi, m, h, p, f } = pending;
     const F = fwd.slice(0, lo).concat(f), Hs = H.slice(0, lo).concat(h), P = plays.slice(0, lo).concat(p);
     for (let r = hi + 1; r < R; r++) {
-      F[r] = minPlusStep(F[r - 1], r - 1 === hi ? m[hi - lo] : ms[r - 1], ms[r]);
+      F[r] = minPlusStep(F[r - 1], r - 1 === hi ? m[hi - lo] : ms[r - 1], ms[r], SYM);
       Hs[r] = H[r]; P[r] = plays[r];
     }
     pending.full = { f: F, h: Hs, p: P };
