@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T06:06:57Z",
   "ended": "2026-11-16T06:07:30Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 9.92,
+  "tokens_in": 5704832,
+  "tokens_out": 27575,
+  "cost_usd": 2.4301,
+  "tool_calls": 63,
   "task": "redteam on restaurant-delivery-commission-analyzer/calc.mjs; -$0.00 formatter sweep",
   "projects": [
     "restaurant-delivery-commission-analyzer",
@@ -67,7 +69,7 @@
     "docs/posts/2026-11-16-half-a-cent-loss-printed-as-a-gain.md"
   ],
   "goal": null,
-  "notes": "Target: ventures/restaurant-delivery-commission-analyzer/calc.mjs (changed on main in the last 3 days, 1.5 s suite). Two campaigns, 20 mutants: 12 caught, 8 gaps, 19/20 by rerun after the guards plus the 20th re-applied by hand on its rewritten line (caught). Guard added (4b): platform/ci/money_sign.py + test_money_sign.py, a lint over every tracked venture .mjs/.js/.cjs/.html; first run found 31 sites in 27 files (30 formatter definitions; the scan counts one twice-matching file), all fixed with --fix. It runs via ventures-tests.yml's unwired platform/ci set on every venture change. Verification: restaurant suite 83/83; test_money_sign 4/4; run_venture_tests.py over the 28 touched ventures (result in VERIFY below). Limit: the lint knows one spelling; cents()/toLocaleString formatters still need reading.",
+  "notes": "Target: ventures/restaurant-delivery-commission-analyzer/calc.mjs (changed on main in the last 3 days, 1.5 s suite). Two campaigns, 20 mutants: 12 caught, 8 gaps, 19/20 by rerun after the guards plus the 20th re-applied by hand on its rewritten line (caught). Guard added (4b): platform/ci/money_sign.py + test_money_sign.py, a lint over every tracked venture .mjs/.js/.cjs/.html; first run found 31 sites in 27 files (30 formatter definitions; the scan counts one twice-matching file), all fixed with --fix. It runs via ventures-tests.yml's unwired platform/ci set on every venture change. Verification: restaurant suite 83/83; test_money_sign 4/4; run_venture_tests.py over the 28 touched ventures : 28 suites run, 0 failed (shed-designer 537 tests in 177 s, 3 skipped for missing axe-core). Limit: the lint knows one spelling; cents()/toLocaleString formatters still need reading.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -385,6 +387,83 @@
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16478"
       }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f2920c8d-af27-5ccc-b924-21a5d07a2b21",
+    "transcripts": 1,
+    "first": "2026-11-16T06:06:57Z",
+    "last": "2026-11-16T06:16:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 122,
+        "output": 27575,
+        "thinking": 4823,
+        "cache_read": 5610207,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94503,
+        "api_equivalent_usd": 2.4301,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 122,
+      "output": 27575,
+      "thinking": 4823,
+      "cache_read": 5610207,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94503,
+      "api_equivalent_usd": 2.4301,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 52,
+      "Write": 6,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.92,
+      "active_minutes": 9.31,
+      "model_minutes": 5.37,
+      "tool_minutes": 3.94,
+      "waiting_on_human_minutes": 0.6,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "mutation triage and 8 tests (~2h), defect fix (~0.5h), 30-site sweep with lint and 28 suite runs (~2h), post (~0.5h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 205.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
     ]
   }
 }
