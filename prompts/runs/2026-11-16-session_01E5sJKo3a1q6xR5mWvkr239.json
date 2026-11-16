@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A backgrounded `SP=... && (cmd) & (cmd2)` line lost $SP in the second subshell, so one development run wrote its report to /vlow.md; the figures were read from there, no harm."
+    "A backgrounded `SP=... && (cmd) & (cmd2)` line lost $SP in the second subshell, so one development run wrote its report to /vlow.md; the figures were read from there, no harm.",
+    "CI on PR 16737: 'coverage' and one 'validate' job failed with checklist_coverage: platform/ci/*.test.mjs (added on main by PR 16739, merged in) is not named in .github/prompts/verify-and-merge.md. The same failure reproduces on origin/main; not caused by this diff. The fix touches .github/ (control plane, owner approval), so it was left out of this PR and filed in prompts/process/backlog/."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,7 +46,7 @@
     "ventures/chant-forge/README.md (A p's burst read as a k)"
   ],
   "goal": null,
-  "notes": "Flagship chant-forge (allocate row 8). Diagnosed V's p-as-k misses: the energy above 1 kHz is the 8 ms noise burst's own random spectrum (alone: 22-65% above 1 kHz, 10th-90th pct), set per cell by the seed; voiceless velars read >=0.99. Rule readCoda voicelessLow (0.9 for voiceless stops), dev A-V +31 cells none lost; pre-registered (commit 718f66e99) before held-out part W ran; W: p as k 18 to 0, p exact 100 to 118 of 120, everything else identical: held, made default. Checks: node eval/coda-check.mjs full report rebuilt (9.5 min) matches the dev figures; python3 platform/ci/run_venture_tests.py chant-forge: ok, 290 tests, 0 failed; post front matter/links/similarity checks clean; portfolio/router/validate.py valid.",
+  "notes": "Flagship chant-forge (allocate row 8). Diagnosed V's p-as-k misses: the energy above 1 kHz is the 8 ms noise burst's own random spectrum (alone: 22-65% above 1 kHz, 10th-90th pct), set per cell by the seed; voiceless velars read >=0.99. Rule readCoda voicelessLow (0.9 for voiceless stops), dev A-V +31 cells none lost; pre-registered (commit 718f66e99) before held-out part W ran; W: p as k 18 to 0, p exact 100 to 118 of 120, everything else identical: held, made default. Checks: node eval/coda-check.mjs full report rebuilt (9.5 min) matches the dev figures; python3 platform/ci/run_venture_tests.py chant-forge: ok, 290 tests, 0 failed; post front matter/links/similarity checks clean; portfolio/router/validate.py valid. Merged with coverage/validate red from main's PR 16739 (checklist line for platform/ci/*.test.mjs missing); every check this diff reaches passed.",
   "corrections": [],
   "redteam": null,
   "usage": {
