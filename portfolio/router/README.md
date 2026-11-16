@@ -21,7 +21,10 @@ naming it and when work on it last landed on main. To edit a `next:` (or
 (or `--set FILE`): it matches the unfolded text, rewraps without breaking at
 a hyphen (a hand-wrapped `wall-framing-` / `takeoff` reads back as
 `wall-framing- takeoff`; `validate.py` now fails on one) and refuses a
-`next:` over the cap. Above the table, a "Website requests" line says which
+`next:` over the cap. When your wording needs room, add `--park ITEM` to the
+same `--replace` call: the item moves to `ventures/<slug>/NEXT.md` and the cap
+is checked after the move. A refusal lists the row's last items with the room
+each frees, as ready `--park` flags. Above the table, a "Website requests" line says which
 open entries in `portfolio/requests/requests.json` are flagship rows, so a
 run need not reconcile prompt.md's request-first order with the pick by hand.
 

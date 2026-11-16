@@ -183,3 +183,56 @@ def test_park_cli_moves_item_and_adds_pointer(tmp_path):
 def test_cap_refusal_names_park():
     with pytest.raises(ValueError, match="--park"):
         ff.set_value(DOC, "b", "next", "x " * 1001)
+
+
+def _full_row(n_items: int, size: int) -> str:
+    items = [f"({i}) item {i} " + "w" * (size - 12) for i in range(n_items)]
+    return "History: README and git. Next: " + "; ".join(items) + "."
+
+
+def test_park_candidates_from_the_end_until_enough():
+    v = _full_row(10, 190)
+    cands = ff.park_candidates(v, 300)
+    assert [c.split(")")[0] for c, _ in cands] == ["(9", "(8"]
+    assert sum(g for _, g in cands) >= 300
+    assert not any(c.startswith("History") for c, _ in cands)
+    # the opening history pointer is never offered, however much room is asked
+    assert all(not c.startswith("History") for c, _ in ff.park_candidates(v, 10**6))
+
+
+def test_refusal_lists_ready_park_flags():
+    v = _full_row(11, 190)
+    assert len(v) > ff.FLAGSHIP_NEXT_MAX
+    with pytest.raises(ValueError) as e:
+        ff.set_value(DOC, "b", "next", v)
+    msg = str(e.value)
+    assert "over)" in msg and "--park '(10) item 10" in msg and "this same command" in msg
+
+
+def test_replace_and_park_in_one_call(tmp_path):
+    row = _full_row(10, 195)
+    assert 1900 < len(row) <= ff.FLAGSHIP_NEXT_MAX
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    longer = "(3) item 3 landed (README); next a much longer follow-up " + "z" * 150
+    old = "(3) item 3 " + "w" * 183
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    # alone, the longer wording is refused and nothing is written
+    assert ff.main(base + ["--replace", old, longer]) == 1
+    assert f.read_text() == doc
+    item9 = "(9) item 9 " + "w" * 183
+    assert ff.main(base + ["--replace", old, longer, "--park", item9]) == 0
+    got = ff.read_value(f.read_text(), "b", "next")
+    assert longer in got and item9 not in got and got.endswith(ff.PARK_POINTER)
+    assert len(got) <= ff.FLAGSHIP_NEXT_MAX
+    assert item9 in (tmp_path / "ventures" / "b" / "NEXT.md").read_text()
+    assert ff.read_value(f.read_text(), "a", "buildable") == "Something here."
+
+
+def test_park_candidates_skip_the_runs_own_new_text():
+    v = _full_row(10, 190)
+    mine = "(9) item 9 " + "w" * 178
+    cands = ff.park_candidates(v, 100, keep=(mine,))
+    assert cands and not cands[0][0].startswith("(9)")

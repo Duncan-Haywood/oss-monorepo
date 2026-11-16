@@ -15,6 +15,7 @@ space, so `ventures/wall-framing-\n takeoff` reads as
     flagship_field.py ai-bookkeeper --set new.txt   # or --set - for stdin
     flagship_field.py ai-bookkeeper --landed        # landed-work clauses and what of each to keep
     flagship_field.py ai-bookkeeper --park ITEM [--park ITEM2]  # move open items to ventures/<v>/NEXT.md
+    flagship_field.py ai-bookkeeper --replace OLD NEW --park ITEM  # both in one call, cap checked after
     flagship_field.py --check                       # exit 1 on a hyphen-folded break
 
 Edits touch only that field's lines, rewrap without breaking at hyphens or
@@ -37,12 +38,22 @@ appends it, dated, to the venture's own `ventures/<v>/NEXT.md` under
 PARK_HEADING, so `next:` keeps the items most worth starting and nothing open
 is lost. `next:` should say the rest lives there (the tool adds that pointer
 once if it fits).
+
+Parking still cost a round trip: `--park` refused to run with `--replace`, and
+`--replace` refused while over the cap, so a run had to park, then replace,
+and guess how much room its new wording needed. By 2026-11-16 ten of the 11
+rows sat at 1,922 to 1,997 characters, and 16 sessions in two days
+(friction_rank.py --live, 2026-11-14..15) reported two or three tries per
+landing. So `--replace`/`--set` now take `--park` in the same call (the cap is
+checked after the park), and a refusal lists the row's items from the end,
+with the room each frees and the `--park` flag to add, until there is enough.
 """
 from __future__ import annotations
 
 import argparse
 import datetime
 import re
+import shlex
 import sys
 import textwrap
 from pathlib import Path
@@ -184,16 +195,54 @@ def landed_hint(value: str, over: int = 0) -> str:
     return "\n".join([head + ":"] + rows)
 
 
-def set_value(text: str, venture: str, field: str, value: str) -> str:
+def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[tuple[str, int]]:
+    """(item, room it frees) for the `; `-separated items of `value`, last first,
+    until together they free `over` characters. The history pointer that opens
+    a row, the NEXT.md pointer and any item holding text in `keep` (the NEW of
+    the run's own --replace) are never offered. Rows list their most
+    useful items first ("Next, most valuable first: ..."), so the tail is the
+    usual place to cut, but which one to park stays the run's call."""
+    items = [i for i in " ".join(value.split()).split("; ") if i]
+    out: list[tuple[str, int]] = []
+    freed = 0
+    for i, item in enumerate(reversed(items)):
+        first = i == len(items) - 1
+        body = item.replace(PARK_POINTER, "").strip().rstrip(". ")
+        mine = any(k and (k in item or body in k) for k in keep)
+        if first or mine or not body or POINTER.match(body) or len(body) < 12:
+            continue
+        gain = len(body) + 2
+        out.append((body, gain))
+        freed += gain
+        if freed >= over:
+            break
+    return out
+
+
+def park_hint(value: str, venture: str, over: int, keep: tuple[str, ...] = ()) -> str:
+    room = 0 if PARK_POINTER in value else len(PARK_POINTER) + 1
+    cands = park_candidates(value, over + room, keep)
+    if not cands:
+        return (f"To make room without losing an open item, move the least urgent one to "
+                f"ventures/{venture}/NEXT.md: add --park 'ITEM' to this same command")
+    rows = [f"  {g:4d}  --park {shlex.quote(c)}" for c, g in cands]
+    return ("To make room without losing an open item, add --park for one or more of these "
+            f"to this same command (they move to ventures/{venture}/NEXT.md; room freed, "
+            "items from the end of the row; pick the least urgent):\n"
+            + "\n".join(rows))
+
+
+def set_value(text: str, venture: str, field: str, value: str,
+              keep: tuple[str, ...] = ()) -> str:
     value = " ".join(value.split())
     if not value:
         raise ValueError("refusing to write an empty value")
     if field == "next" and len(value) > FLAGSHIP_NEXT_MAX:
-        hint = landed_hint(value, len(value) - FLAGSHIP_NEXT_MAX)
-        raise ValueError(f"`next:` would be {len(value)} of {FLAGSHIP_NEXT_MAX} characters: "
-                         "replace what you landed, don't append" + (f"\n{hint}" if hint else "")
-                         + f"\nTo make room without losing an open item, move the least urgent one to "
-                         f"ventures/{venture}/NEXT.md: flagship_field.py {venture} --park 'ITEM' (then retry)")
+        over = len(value) - FLAGSHIP_NEXT_MAX
+        hint = landed_hint(value, over)
+        raise ValueError(f"`next:` would be {len(value)} of {FLAGSHIP_NEXT_MAX} characters "
+                         f"({over} over): replace what you landed, don't append"
+                         + (f"\n{hint}" if hint else "") + "\n" + park_hint(value, venture, over, keep))
     if field == "buildable" and len(value) > FLAGSHIP_BUILDABLE_MAX:
         raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters: "
                          "name only items a session can start now; landed work goes in the README or eval/")
@@ -302,7 +351,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--landed", action="store_true",
                     help="list the clauses that report landed work, longest first (cut candidates)")
     ap.add_argument("--park", action="append", metavar="ITEM",
-                    help="move an open item out of `next:` into ventures/<v>/NEXT.md (repeatable)")
+                    help="move an open item out of `next:` into ventures/<v>/NEXT.md (repeatable; "
+                         "combines with --replace/--set, the cap is checked after parking)")
     ap.add_argument("--file", type=Path, default=FLAGSHIPS_PATH)
     ap.add_argument("--ventures-dir", type=Path, default=REPO_ROOT / "ventures", help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
@@ -318,6 +368,7 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("name a venture (or pass --check)")
     try:
         current = read_value(text, args.venture, args.field)
+        mine = tuple(" ".join(rep.split()) for _, rep in args.replace or [])
         if args.landed:
             if current is None:
                 print(f"{args.venture} has no `{args.field}:`", file=sys.stderr)
@@ -329,13 +380,21 @@ def main(argv: list[str] | None = None) -> int:
                   f"{len(current)} characters", file=sys.stderr)
             return 0
         if args.park:
-            if args.field != "next" or args.set is not None or args.replace:
-                ap.error("--park works on `next:` alone; run --replace/--set separately")
+            if args.field != "next":
+                ap.error("--park works on `next:` only")
             if current is None:
                 print(f"{args.venture} has no `next:`", file=sys.stderr)
                 return 1
-            new = with_pointer(remove_items(current, args.park))
-            out = set_value(text, args.venture, "next", new)
+            new = current
+            if args.set is not None:
+                new = sys.stdin.read() if args.set == "-" else Path(args.set).read_text()
+            for old, rep in args.replace or []:
+                if old not in new:
+                    print(not_found_hint(text, args.venture, args.field, old, new), file=sys.stderr)
+                    return 1
+                new = new.replace(old, rep, 1)
+            new = with_pointer(remove_items(new, args.park))
+            out = set_value(text, args.venture, "next", new, mine)
             dest = args.ventures_dir / args.venture / "NEXT.md"
             if not dest.parent.is_dir():
                 raise ValueError(f"no venture folder {dest.parent}")
@@ -345,6 +404,9 @@ def main(argv: list[str] | None = None) -> int:
             dest.write_text(parked)
             print(f"parked {len(args.park)} item(s) in {dest.relative_to(dest.parents[2])}; "
                   f"wrote {args.venture}.next: {len(new)} of {FLAGSHIP_NEXT_MAX} characters")
+            if PARK_POINTER not in new:
+                print(f"note: no room for the pointer {PARK_POINTER!r}; park one more item "
+                      "or shorten one so readers know NEXT.md exists", file=sys.stderr)
             return 0
         if args.set is None and not args.replace:
             if current is None:
@@ -363,7 +425,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(not_found_hint(text, args.venture, args.field, old, new), file=sys.stderr)
                 return 1
             new = new.replace(old, rep, 1)
-        out = set_value(text, args.venture, args.field, new)
+        out = set_value(text, args.venture, args.field, new, mine)
     except (KeyError, ValueError) as e:
         print(e, file=sys.stderr)
         return 1
