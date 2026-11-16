@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVNbfUJJd46GJZVt7F6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T17:07:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing (flagship 7): a trained blink model, measured on real photos",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": 16641,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing's buildable items are exhausted (no fresh raw frames reachable; raw.pixls.us refused), so the router's BUILDABLE HERE line pointed at work with nothing left to do; the blink item needed no raw files and was buildable after all"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "took a non-BUILDABLE item (trained blink model) because every listed buildable raw-format item needs frames this session cannot reach, and closed-eye culling is a user-facing feature paid culling apps sell",
+      "did": "landed tools/mediapipe_face_detector.py and a real-photo eval",
+      "result": "5/6 closed-eye photos flagged, 0/99 false flags, vs Haar 3/6 and 8/99"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-photo-editing-closed-eyes-on-real-photos.md",
+    "ventures/photo-editing/eval/blink-landmarker-2026-11-16.md"
+  ],
+  "goal": "Deepen the top unclaimed flagship with a working, measured slice",
+  "notes": "MediaPipe Face Landmarker blendshape blink scores, tiled search, per-face averaging, confidence 0.7. Set: 105 CC0 photos from andrisgauracs/eye-photo-sorter, labelled by the agent. Hosts: storage.googleapis.com and pypi answered; huggingface, wikimedia, figshare, kaggle, CEW host 403. Local checks: unittest for both detector test files (8 run, 1 skipped without cv2; 6 new pass with mediapipe venv); run_workflow_locally --for-changes output summarised in the PR.",
+  "corrections": [],
+  "redteam": null
+}
