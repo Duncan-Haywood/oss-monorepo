@@ -28,7 +28,7 @@ test("robots and sitemap let crawlers find the page", () => {
 
 test("every input and select carries a visible <label>", () => {
   const html = page("index.html");
-  for (const id of ["state", "project-type", "first-date", "last-date", "completion-date", "noc-date", "today-date"]) {
+  for (const id of ["state", "project-type", "tier", "first-date", "last-date", "completion-date", "noc-date", "today-date"]) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
     assert.match(html, new RegExp(`<label for="${id}">`), `missing <label for="${id}">`);
   }
@@ -104,4 +104,12 @@ test("the project-type note names exactly the states with a residential rule", (
   const named = Object.values(STATE_RULES).map((r) => r.name).filter((n) => note.includes(n)).sort();
   const varying = Object.values(STATE_RULES).filter((r) => JSON.stringify(r).includes('"residential":')).map((r) => r.name).sort();
   assert.deepEqual(named, varying);
+});
+
+test("the page renders the Texas monthly schedule and the tier choice", () => {
+  const html = page("index.html");
+  assert.match(html, /id="notice-schedule"/);
+  assert.match(html, /tier: els\.tier\.value/);
+  assert.doesNotMatch(html, /notice of unpaid balance/);
+  for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(m[1]);
 });

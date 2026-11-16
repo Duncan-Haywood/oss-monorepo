@@ -57,8 +57,8 @@ test("Florida: 45 days to Notice to Owner, 90 days after last furnishing to lien
   assert.ok(r.findings.some((f) => /final payment/.test(f.detail)));
 });
 
-test("Georgia: 30-day notice from first furnishing, 90 days to lien", () => {
-  const r = run({ state: "GA" });
+test("Georgia: 30-day notice from first furnishing for a second-tier claimant, 90 days to lien", () => {
+  const r = run({ state: "GA", tier: "second" });
   assert.equal(iso(r.prelim.date), "2026-04-09");
   assert.equal(iso(r.lien.date), "2026-09-18");
   assert.match(JSON.stringify(r), /Notice to Contractor/);
@@ -128,4 +128,71 @@ test("every rule carries a citation and a not-legal-advice finding is always pre
 
 test("formatDate renders a UTC date", () => {
   assert.equal(formatDate(new Date(Date.UTC(2026, 8, 18))), "Fri, Sep 18, 2026");
+});
+
+test("Georgia: a first-tier claimant owes no Notice to Contractor but keeps the lien date", () => {
+  const r = run({ state: "GA" });
+  assert.equal(r.tier, "first");
+  assert.equal(r.prelim, null);
+  assert.match(r.prelimNotRequired, /do not contract directly with the general contractor/);
+  assert.equal(iso(r.lien.date), "2026-09-18");
+  assert.ok(r.findings.some((f) => /no Notice to Contractor for a first-tier/.test(f.title)));
+  // the 30-day/notice-of-commencement caveat is only for those who owe the notice
+  assert.ok(!r.findings.some((f) => /earlier cutoff/.test(f.title)));
+});
+
+test("tier changes nothing outside Georgia", () => {
+  for (const state of ["CA", "TX", "FL", "AZ", "WA", "CO"]) {
+    for (const projectType of ["commercial", "residential"]) {
+      const a = run({ state, projectType, tier: "first" });
+      const b = run({ state, projectType, tier: "second" });
+      assert.equal(iso(a.prelim.date), iso(b.prelim.date), state);
+      assert.equal(iso(a.lien.date), iso(b.lien.date), state);
+    }
+  }
+});
+
+test("Texas commercial: one notice per month of work, 15th of the 3rd month after each", () => {
+  // Work March to June 2026: notices due Jun 15, Jul 15, Aug 15, Sep 15
+  // (Tex. Prop. Code § 53.056 as amended by HB 2237, counted by hand).
+  const r = run({ state: "TX", projectType: "commercial" });
+  assert.deepEqual(r.noticeSchedule.map((x) => x.workMonth), ["March 2026", "April 2026", "May 2026", "June 2026"]);
+  assert.deepEqual(r.noticeSchedule.map((x) => iso(x.date)), ["2026-06-15", "2026-07-15", "2026-08-15", "2026-09-15"]);
+  // Aug 15 2026 is a Saturday: safe date Friday Aug 14
+  assert.equal(iso(r.noticeSchedule[2].safeDate), "2026-08-14");
+  assert.equal(iso(r.noticeSchedule[0].date), iso(r.prelim.date));
+  assert.ok(r.findings.some((f) => /4 monthly notices/.test(f.title)));
+});
+
+test("Texas residential schedule uses the 2nd month and crosses the year end", () => {
+  const r = lienDeadlines({ state: "TX", projectType: "residential", firstFurnishing: "2026-11-05", lastFurnishing: "2027-01-02" });
+  assert.deepEqual(r.noticeSchedule.map((x) => iso(x.date)), ["2027-01-15", "2027-02-15", "2027-03-15"]);
+});
+
+test("Texas schedule reports passed months and points to the earliest open one", () => {
+  const r = run({ state: "TX", today: "2026-07-20" });
+  assert.deepEqual(r.noticeSchedule.map((x) => x.status), ["passed", "passed", "open", "open"]);
+  const f = r.findings.find((x) => /2 of 4 monthly notice dates have passed/.test(x.title));
+  assert.ok(f);
+  assert.match(f.detail, /May 2026 work/);
+  assert.ok(r.findings.some((x) => /first month's notice date has already passed/.test(x.title)));
+});
+
+test("Texas uses the current notice name and states the 2022 contract-date limit", () => {
+  const r = run({ state: "TX" });
+  assert.equal(r.prelimLabel, "notice of claim for unpaid labor or materials");
+  assert.ok(r.findings.some((f) => /1 January 2022/.test(f.title)));
+});
+
+test("a single-month Texas job keeps the plain wording and long jobs are capped", () => {
+  const one = lienDeadlines({ state: "TX", firstFurnishing: "2026-03-02", lastFurnishing: "2026-03-30" });
+  assert.equal(one.noticeSchedule.length, 1);
+  assert.ok(!one.findings.some((f) => /monthly notices/.test(f.title)));
+  const long = lienDeadlines({ state: "TX", firstFurnishing: "2020-01-01", lastFurnishing: "2026-01-01" });
+  assert.equal(long.noticeSchedule.length, 36);
+  assert.ok(long.findings.some((f) => /first 36 months/.test(f.title)));
+});
+
+test("no schedule outside Texas", () => {
+  assert.equal(run({ state: "CA" }).noticeSchedule, null);
 });

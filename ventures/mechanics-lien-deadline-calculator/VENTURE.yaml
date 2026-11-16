@@ -27,8 +27,8 @@ owner: duncan
 # is the part they gate.
 #
 # Liability: the one risk is a wrong date. Mitigations: seven states only,
-# each verified against multiple agreeing sources; first-tier claimants
-# only; unsupported states throw rather than guess; completion-based rules
+# each verified against multiple agreeing sources; first- and second-tier
+# claimants (tier matters only for Georgia's notice), Texas notices month by month; unsupported states throw rather than guess; completion-based rules
 # fall back to the cautious (earlier) date; weekend dates show the last
 # business day; the page states three times (intro, "what this does not
 # cover", footer) that it is not legal advice and that lien rights are lost
