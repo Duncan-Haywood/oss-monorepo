@@ -1,0 +1,292 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtJGGmmyAcH9SAew5zF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T09:07:18Z",
+  "ended": "2026-11-16T09:08:07Z",
+  "wall_minutes": 8.81,
+  "tokens_in": 4465404,
+  "tokens_out": 27610,
+  "cost_usd": 2.1787,
+  "tool_calls": 54,
+  "task": "redteam campaign on ventures/dunning-engine/admin.mjs (random draw), purple fixes",
+  "projects": [
+    "dunning-engine",
+    "trial-converter",
+    "cancel-flow",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16525",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Ran node --test on server.test.mjs with a failing assertion before the fix; the assertion skipped s.close(), so the open HTTP server kept the suite alive past the 120 s tool limit and it had to be killed.",
+      "cost_minutes": 3
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open defect first, but all 9 are control-plane and 6 already sit in owner-approval PRs; the open list does not show which already have a PR, so each run re-checks by hand. redteam.py open could print a linked PR if the record had one."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rejects `pkill -f '[n]ode ...'` when 'node' appears anywhere else in the same command line (here a later `node --test`), which the CLAUDE.md hint about bracketing does not mention."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: the 9 open defects are all control-plane fixes needing owner approval, 6 already in open PRs; opening duplicates would add noise.",
+      "did": "Left them open and seeded the campaign; spent the fix effort on the 4 real defects this run found.",
+      "result": "No duplicate control-plane PRs; 4 new defects patched."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-stripe-zero-decimal-currencies-100x-too-small.md"
+  ],
+  "goal": null,
+  "notes": "Campaign: admin.mjs 0/8 caught; 3 equivalent (CSS), 5 gaps closed by admin.test.mjs (fake DOM + stubbed fetch), rerun 5/5 caught_after_fix. Hunt found formatMoney zero-decimal lists short in dunning-engine (10/16), trial-converter (7/16), cancel-flow (4/16): 5000 XPF rendered 'CFPF 50'. All fixed with failing-first tests (verified failing on the stashed old code). Dashboard dropped atRiskMinor (object); summary now returns atRisk string. Guard added: platform/ci/check_stripe_zero_decimal.py + test_check_stripe_zero_decimal.py; first run on the pre-fix tree flagged all 3 lists, fixed tree clean; an earlier version without the all-codes rule false-flagged a receipt symbol map and the Facturae XSD currency enumeration, tightened. Runs via unwired_checks.py (listed by --list). Local: dunning-engine 107/107, cancel-flow 63/63, trial-converter 40/40 node tests pass; guard unittest 5 OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/dunning-engine/admin.mjs",
+        "test": "node --test ventures/dunning-engine/**/*.test.mjs  (in .)",
+        "seed": 142851037,
+        "commit": "f2b48e8b5",
+        "sites": 17,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/dunning-engine/admin.mjs",
+            "line": 11,
+            "col": 86,
+            "operator": "const-plus-one",
+            "before": "@media(prefers-color-scheme:dark){body{color:#eee;background:#111}th,td{border-color:#333!important}}",
+            "after": "@media(prefers-color-scheme:dark){body{color:#eee;background:#111}th,td{border-color:#334!important}}",
+            "line_text": "@media(prefers-color-scheme:dark){body{color:#eee;background:#111}th,td{border-color:#333!important}}",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Dark-mode table border #333 -> #334: one step of blue in a hairline border, not visible to a person; no test should pin CSS hex values."
+          },
+          {
+            "file": "ventures/dunning-engine/admin.mjs",
+            "line": 13,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": ".card{border:1px solid #8884;border-radius:8px;padding:8px 14px;min-width:110px}.card b{display:block;font-size:22px}",
+            "after": ".card{border:1px solid #8885;border-radius:8px;padding:8px 14px;min-width:110px}.card b{display:block;font-size:22px}",
+            "line_text": ".card{border:1px solid #8884;border-radius:8px;padding:8px 14px;min-width:110px}.card b{display:block;font-size:22px}",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Card border #8884 -> #8885: alpha 0x44 -> 0x55 on a 1px border, cosmetic only."
+          },
+          {
+            "file": "ventures/dunning-engine/admin.mjs",
+            "line": 15,
+            "col": 114,
+            "operator": "const-plus-one",
+            "before": "input,button{font:inherit;padding:6px 10px}.banner{padding:8px 12px;border-radius:6px;background:#fc03;margin:8px 0}",
+            "after": "input,button{font:inherit;padding:6px 10px}.banner{padding:8px 12px;border-radius:6px;background:#fc03;margin:8px 1}",
+            "line_text": "input,button{font:inherit;padding:6px 10px}.banner{padding:8px 12px;border-radius:6px;background:#fc03;margin:8px 0}",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Banner bottom margin 0 -> 1px: a one-pixel layout shift, cosmetic only."
+          },
+          {
+            "file": "ventures/dunning-engine/admin.mjs",
+            "line": 27,
+            "col": 97,
+            "operator": "const-plus-one",
+            "before": "async function get(p,k){var r=await fetch(p,{headers:{authorization:\"Bearer \"+k}});if(r.status===401)throw new Error(\"Wrong admin key\");if(!r.ok)throw new Error(\"Server error \"+r.status);return r.json()}",
+            "after": "async function get(p,k){var r=await fetch(p,{headers:{authorization:\"Bearer \"+k}});if(r.status===402)throw new Error(\"Wrong admin key\");if(!r.ok)throw new Error(\"Server error \"+r.status);return r.json()}",
+            "line_text": "async function get(p,k){var r=await fetch(p,{headers:{authorization:\"Bearer \"+k}});if(r.status===401)throw new Error(\"Wrong admin key\");if(!r.ok)throw new Error(\"Server error \"+r.status);return r.json()}",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "401 check: page now shows 'Server error 401' instead of 'Wrong admin key'. admin.test.mjs runs the inline script against a fake DOM and asserts the wrong-key message."
+          },
+          {
+            "file": "ventures/dunning-engine/admin.mjs",
+            "line": 38,
+            "col": 215,
+            "operator": "const-plus-one",
+            "before": "[[\"Treated\",f(e.treatment)],[\"Holdout\",f(e.holdout)],[\"Difference\",e.difference?(Math.round(e.difference.diff*100)+\" points, 95% interval \"+Math.round(e.difference.low*100)+\" to \"+Math.round(e.difference.high*100)):\"n/a\"],[\"Reading\",e.verdict]].forEach(function(r){var p=document.createElement(\"p\");var b=document.createElement(\"b\");b.textContent=r[0]+\": \";p.appendChild(b);p.appendChild(document.createTextNode(r[1]));x.appendChild(p)});",
+            "after": "[[\"Treated\",f(e.treatment)],[\"Holdout\",f(e.holdout)],[\"Difference\",e.difference?(Math.round(e.difference.diff*100)+\" points, 95% interval \"+Math.round(e.difference.low*100)+\" to \"+Math.round(e.difference.high*101)):\"n/a\"],[\"Reading\",e.verdict]].forEach(function(r){var p=document.createElement(\"p\");var b=document.createElement(\"b\");b.textContent=r[0]+\": \";p.appendChild(b);p.appendChild(document.createTextNode(r[1]));x.appendChild(p)});",
+            "line_text": "      [[\"Treated\",f(e.treatment)],[\"Holdout\",f(e.holdout)],[\"Difference\",e.difference?(Math.round(e.difference.diff*100)+\" points, 95% interval \"+Math.round(e.difference.low*100)+\" to \"+Math.round(e.difference.high*100)):\"n/a\"],[\"Reading\",e.verdict]].forEach(function(r){var p=document.createElement(\"p\");var b=document.createElement(\"b\");b.textContent=r[0]+\": \";p.appendChild(b);p.appendChild(document.createTextNode(r[1]));x.appendChild(p)});",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Interval high end *101: 0.5 shows 51 instead of 50. admin.test.mjs asserts the full holdout block text."
+          },
+          {
+            "file": "ventures/dunning-engine/admin.mjs",
+            "line": 42,
+            "col": 120,
+            "operator": "const-plus-one",
+            "before": "td(tr,(x.steps||[]).filter(function(t){return t.status===\"pending\"}).map(function(t){return t.kind+\" \"+t.at.slice(0,10)}).join(\", \"));",
+            "after": "td(tr,(x.steps||[]).filter(function(t){return t.status===\"pending\"}).map(function(t){return t.kind+\" \"+t.at.slice(1,10)}).join(\", \"));",
+            "line_text": "      td(tr,(x.steps||[]).filter(function(t){return t.status===\"pending\"}).map(function(t){return t.kind+\" \"+t.at.slice(0,10)}).join(\", \"));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "slice(1,10) drops the first digit of the date. admin.test.mjs asserts 'email 2026-11-20'."
+          },
+          {
+            "file": "ventures/dunning-engine/admin.mjs",
+            "line": 42,
+            "col": 122,
+            "operator": "const-plus-one",
+            "before": "td(tr,(x.steps||[]).filter(function(t){return t.status===\"pending\"}).map(function(t){return t.kind+\" \"+t.at.slice(0,10)}).join(\", \"));",
+            "after": "td(tr,(x.steps||[]).filter(function(t){return t.status===\"pending\"}).map(function(t){return t.kind+\" \"+t.at.slice(0,11)}).join(\", \"));",
+            "line_text": "      td(tr,(x.steps||[]).filter(function(t){return t.status===\"pending\"}).map(function(t){return t.kind+\" \"+t.at.slice(0,10)}).join(\", \"));",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "slice(0,11) leaves the 'T' on the date. Same assertion catches it."
+          },
+          {
+            "file": "ventures/dunning-engine/admin.mjs",
+            "line": 48,
+            "col": 18,
+            "operator": "false-to-true",
+            "before": "$(\"t\").hidden=false;",
+            "after": "$(\"t\").hidden=true;",
+            "line_text": "    $(\"t\").hidden=false;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Table never unhidden after a good load. admin.test.mjs asserts t.hidden is false."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/dunning-engine/dunning.mjs",
+        "issue": "formatMoney's zero-decimal list lacked 7 of Stripe's 16 (BIF, DJF, GNF, KMF, MGA, VUV, XPF): a 5000 XPF invoice was emailed to the customer as 'CFPF 50', 100x too small (reproduced with node -e). Fixed with the full list; test over all 16.",
+        "patched": true
+      },
+      {
+        "file": "ventures/trial-converter/trial.mjs",
+        "issue": "Same bug, 7-code list (missing BIF, DJF, GNF, KMF, MGA, PYG, RWF, VUV, XPF). Fixed; test added (failed before the fix).",
+        "patched": true
+      },
+      {
+        "file": "ventures/cancel-flow/flow.mjs",
+        "issue": "Same bug, 4-code list (jpy, krw, vnd, clp only): retention-offer amounts in 12 currencies shown 100x too small. Fixed; test added (failed before the fix).",
+        "patched": true
+      },
+      {
+        "file": "ventures/dunning-engine/admin.mjs",
+        "issue": "The /admin dashboard filters out object fields of /v1/summary, so atRiskMinor ({usd: 400}), the money still at risk, never showed. summary() now also returns atRisk, a formatted string ('$4.00 + ...'), which the cards show; server.test asserts it.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "54370acf-3c4a-57d4-96d5-34eef1e4f767",
+    "transcripts": 1,
+    "first": "2026-11-16T09:07:18Z",
+    "last": "2026-11-16T09:16:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 95,
+        "output": 27610,
+        "thinking": 5359,
+        "cache_read": 4371333,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93976,
+        "api_equivalent_usd": 2.1787,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 95,
+      "output": 27610,
+      "thinking": 5359,
+      "cache_read": 4371333,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93976,
+      "api_equivalent_usd": 2.1787,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 47,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.81,
+      "active_minutes": 8.81,
+      "model_minutes": 5.73,
+      "tool_minutes": 3.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: write fake-DOM admin tests, audit three ventures' currency handling, fix with tests, write a CI lint and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 229.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
