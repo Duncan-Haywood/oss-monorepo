@@ -32,6 +32,11 @@ citation from an unchecked one (13 run records from 2026-11-10/11 report doi.org
 arXiv refused and re-verified ids by hand). Only this script writes the file;
 a 404 removes the entry. `--no-write` leaves it untouched.
 
+A file outside any `research/<slug>/` (a blog post) writes no cache; it
+reads every project's `cite_check.json` instead, so an id a README confirmed
+prints `ok*` for the post. A directory argument checks its README, PROPOSAL and
+whitepaper (or every top-level .md when it has none of those).
+
 A file below its project root (`research/<slug>/paper/draft.md`) also reads the
 `cite_check.json` files of the directories above it, up to `research/<slug>/`,
 so ids confirmed for the README still print `ok*` for the paper (friction
@@ -144,6 +149,53 @@ def ancestor_caches(path):
         out.append(os.path.join(d, CACHE_NAME))
 
 
+def project_root(path):
+    """The `research/<slug>/` directory holding `path`, or None when it is outside one."""
+    d = os.path.dirname(os.path.abspath(path))
+    while True:
+        parent = os.path.dirname(d)
+        if parent == d:
+            return None
+        if os.path.basename(parent) == "research" and not os.path.basename(d).startswith(("_", ".")):
+            return d
+        d = parent
+
+
+def research_caches(path):
+    """Every `research/*/cite_check.json` in the checkout holding `path` (found by walking up to
+    a directory with a `research/` beside a `.git`), for a file outside any project."""
+    d = os.path.dirname(os.path.abspath(path))
+    while True:
+        if os.path.isdir(os.path.join(d, "research")) and os.path.exists(os.path.join(d, ".git")):
+            r = os.path.join(d, "research")
+            return sorted(os.path.join(r, s, CACHE_NAME) for s in os.listdir(r)
+                          if os.path.isfile(os.path.join(r, s, CACHE_NAME)))
+        parent = os.path.dirname(d)
+        if parent == d:
+            return []
+        d = parent
+
+
+DIR_FILES = ("README.md", "PROPOSAL.md", "whitepaper.md", "WHITEPAPER.md")
+
+
+def expand(paths):
+    """A directory stands for the documents a project cites from: its README, proposal and
+    whitepaper, or every top-level .md when it has none of those (friction 2026-11-16: a
+    project directory crashed with IsADirectoryError)."""
+    out = []
+    for p in paths:
+        if not os.path.isdir(p):
+            out.append(p)
+            continue
+        found = [os.path.join(p, n) for n in DIR_FILES if os.path.isfile(os.path.join(p, n))]
+        if not found:
+            found = sorted(os.path.join(p, n) for n in os.listdir(p) if n.endswith(".md"))
+        print(f"{p} is a directory: checking {', '.join(os.path.basename(f) for f in found) or 'nothing (no .md files)'}")
+        out.extend(found)
+    return out
+
+
 def load_cache(cpath):
     try:
         with open(cpath, encoding="utf-8") as f:
@@ -165,6 +217,9 @@ def record_hand(path, key, title, source, today=None):
     if kind not in ("doi", "arxiv") or i not in (dois if kind == "doi" else arxivs):
         cited = [f"doi:{d}" for d in dois] + [f"arxiv:{a}" for a in arxivs]
         return 2, f"{key} is not cited in {path}; it cites: {', '.join(cited) or 'no DOI or arXiv id'}"
+    if project_root(path) is None:
+        return 2, (f"{path} is outside research/<slug>/, so a hand check would land in an untracked cache: "
+                   "record it against the project README that cites the same id")
     if not title.strip() or not source.strip():
         return 2, "give the title (year) you saw and where you saw it (a URL or the document)"
     cpath = cache_path(path)
@@ -192,15 +247,25 @@ def main(argv):
     if not paths:
         print(__doc__)
         return 2
+    missing = [p for p in paths if not os.path.exists(p)]
+    if missing:
+        print(f"no such file: {', '.join(missing)}")
+        return 2
+    paths = expand(paths)
     bad = blocked = cached = rescued = handed = 0
     today = datetime.date.today().isoformat()
     for path in paths:
         dois, arxivs = extract(open(path, encoding="utf-8").read())
         print(f"{path}: {len(dois)} DOI(s), {len(arxivs)} arXiv id(s)")
+        in_project = project_root(path) is not None
         cpath = cache_path(path)
         cache = load_cache(cpath)
         before = json.dumps(cache, sort_keys=True)
-        inherited = [load_cache(c) for c in ancestor_caches(path)]
+        # A file outside research/<slug>/ (a blog post in docs/posts/) keeps no cache of its own:
+        # one written there was an untracked file nobody knew whether to commit (friction
+        # 2026-11-16). It reads every project's cache instead, so an id a README confirmed
+        # still prints ok* for the post.
+        inherited = [load_cache(c) for c in (ancestor_caches(path) if in_project else research_caches(path))]
         for kind, ids, fn in (("doi", dois, lookup_doi), ("arxiv", arxivs, lookup_arxiv)):
             for i in ids:
                 key = f"{kind}:{i}"
@@ -250,7 +315,10 @@ def main(argv):
                     blocked += 1
                     print(f"  SKIP {key}  host unreachable ({reason}); open the source, then record it: "
                           f"cite_check.py hand {path} {key} \"<title (year)>\" \"<where>\"")
-        if write and not offline and json.dumps(cache, sort_keys=True) != before:
+        if not in_project:
+            if not offline:
+                print("  (outside research/<slug>/: lookups not cached; nothing to commit)")
+        elif write and not offline and json.dumps(cache, sort_keys=True) != before:
             save_cache(cpath, cache)
             print(f"  (updated {os.path.relpath(cpath)}: commit it with the README)")
     if rescued:
