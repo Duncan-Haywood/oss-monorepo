@@ -396,6 +396,23 @@ Misses with the test (count over the ten pitch and length cells):
 
 sub as none 3; vir as none 2; fid as fricative voiced 2; lu as nasal 2; cum as none 2; fid as none 1; uv as none 1; fid as voiceless alv stop 1; fid as nasal 1
 
+## M. Out-of-sample check of the tenth round (a second session's /i/ set)
+
+With /i/: *id*, *il*, *ir*, *if*, *ist*, *ins*, *li*, *di*, *ri*, *mi*; others: *ag*, *eg*, *og*, *ul*, *ol*, *ur*, *or*, *ed*, *od*, *uf*; synthetic z and v codas (none in the corpus): *iz*, *az*, *iv*, *ev*. Quarter and eighth notes at 96 BPM, each followed by a rest, G2, C3, E3, G#3, C#4, D#4.
+
+| | with the noise-above-5-kHz test | without (`vfricHi5: false`) |
+|---|---|---|
+| /i/ syllables read exactly | 105 of 120 (87.5%) | 62 of 120 (51.7%) |
+| other syllables read exactly | 106 of 120 (88.3%) | 106 of 120 (88.3%) |
+| z codas read as a voiced fricative | 24 of 24 (100.0%) | 24 of 24 (100.0%) |
+| v codas read as a voiced fricative | 23 of 24 (95.8%) | 23 of 24 (95.8%) |
+| vowel-only control read as none | 288 of 288 (100.0%) | 228 of 288 (79.2%) |
+| vowel-only control read as a voiced fricative | 0 | 60 |
+
+Misses with the rule (count over the twelve pitch and length cells):
+
+if as fricative s 7; uf as fricative s 4; id as none 2; ed as nasal 2; ir as none 2; ur as none 2; id as nasal 1; ag as nasal 1; eg as nasal 1; og as nasal 1; od as nasal 1; id as fricative voiced 1; iv as none 1; ins as voiced lab stop 1; or as none 1; eg as none 1; il as nasal 1
+
 ## C. Closing consonants in the corpus
 
 119 GABC files, 8085 sung syllables; 3026 of 8085 (37.4%) close on a consonant, 218 on a cluster. First phone: s 802, n 601, m 528, t 362, r 343, l 134, k 130, d 63, b 26, p 21, f 13, g 3.
