@@ -151,6 +151,19 @@ near-critical, translation-only motion (1.28× the desk's). The median of a sequ
 the board calibration on all three. Natural features turn the 2× of board corners into 4–12×, so a field robot
 should take its uncertainty from the scatter of many short solves, not from one solve's covariance.
 
+**An honest bar for natural features, and what does not fix the bias (milestones 3c–3f, pre-registered).** A
+delete-one-keyframe jackknife (12 warm-started re-solves per window) brings rms z from 9.31 to 1.76 over the 57
+windows, while a sandwich clustered by track does not (6.63), so the missing error enters per keyframe, not per track.
+The honest bar is wide: a median 6.45% of f for one 1.2 s window. Pooling windows by DerSimonian&ndash;Laird random
+effects (DerSimonian and Laird 1986) keeps it honest (rms z 1.10 over five-window blocks), whereas treating windows as
+independent overstates precision (2.79) and grows worse with every window added; about eight windows (10 s of
+hand-held video) reach a 2.5% sd. Two candidate fixes for the bias that remains failed their predictions. The swing of
+the optical axis, which the solved poses read as well as motion capture does, does not predict a window's error
+(Spearman +0.08). And although a window's k<sub>1</sub> tracks its focal error (Spearman +0.59), conditioning f on the
+board's k<sub>1</sub> with k<sub>2</sub> free raises the median error from 5.25% to 7.01%: the windows draw nearly the board's
+distortion curve over the inner image but split it differently between k<sub>1</sub> and k<sub>2</sub>. A prior
+calibration should therefore be pinned whole, not one coefficient at a time.
+
 ## 5. An accept/reject test on disjoint view sets
 
 **Protocol.** For k = 3–6, 60 splits per k and camera draw an *old* set of 7 views and a disjoint
@@ -452,8 +465,8 @@ the update test, each one hand-held sequence of about 50 s; 13 views per camera,
 and the intervals are too narrow, and a 99th percentile from 180 statistics rests on about two of
 them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
 splits, not the reuse of views; a second pool of 13 views per TUM unit (milestone 4p) shows the in-sample false alarms understate the fresh-view rate (1.40% against 0.35%), but both pools come from one session. The focal and principal-point changes are exact model transforms; the swaps (here and between the
-two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are not yet
-tested. The renders leave out the bend, the clipboard and background clutter, vignetting and the
+two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are tested only on
+short windows of three TUM RGB-D sequences (Section 4). The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
 were found after a pre-registered prediction failed and are labelled so in the log.
 
@@ -462,9 +475,10 @@ were found after a pre-registered prediction failed and are labelled so in the l
 - A second camera and board captured for this purpose (programme milestone 6, an owner step): a
   physically changed lens (zoom or refocus) for a real focal change, and enough views per unit to
   estimate each unit's own tail on views the test never touches.
-- Done for natural features on two cameras (milestone 3b, Section 4): σ is 4–12× too small per 1.2 s window.
-  Still needed: which error carries it (track-correlated SIFT noise, rolling shutter, near-critical motion), a
-  leave-one-view-out jackknife or a per-view term on these windows, and longer windows with loop closures.
+- Done for natural features on two cameras (milestones 3b–3f, Section 4): σ is 4–12× too small per 1.2 s window,
+  a keyframe jackknife makes it honest and random-effects pooling keeps it honest across windows; neither axis swing
+  nor a one-coefficient distortion prior explains the remaining bias. Still needed: a re-solve with the whole prior
+  distortion model pinned, rolling shutter, and longer windows with loop closures.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
   Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set

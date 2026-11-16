@@ -332,6 +332,17 @@ CHECKS = [
     ("json", "m3b_natural/summary.json", "per_sequence/fr1_desk/median_abs_rel", 2.80, 2, pct, "median 2.80% on the desk sweep"),
     ("json", "m3b_natural/summary.json", "per_sequence/fr3_stf/median_abs_rel", 7.24, 2, pct, "7.24% on the sideways pass"),
     ("json", "m3b_natural/summary.json", "hypotheses/H107/ratio_xyz_over_desk", 1.28, 2, None, "(1.28× the desk's)"),
+    # Section 4, milestones 3c-3f
+    ("json", "m3c_jackknife/summary.json", "hypotheses/H124/rms_z_jk", 1.76, 2, None, "rms z from 9.31 to 1.76"),
+    ("json", "m3c_jackknife/summary.json", "hypotheses/H128/rms_z_track", 6.63, 2, None, "does not (6.63)"),
+    ("json", "m3c_jackknife/summary.json", "all/sd_jk/median_sd_rel", 6.45, 2, pct, "a median 6.45% of f"),
+    ("json", "m3d_pool/summary.json", "hypotheses/H131/rms_z_re", 1.10, 2, None, "(rms z 1.10 over five-window blocks)"),
+    ("json", "m3d_pool/summary.json", "hypotheses/H130/rms_z_ivw", 2.79, 2, None, "overstates precision (2.79)"),
+    ("log", "about eight windows (10 s of hand-held video) for a 2.5% sd", "about eight windows (10 s of\nhand-held video) reach a 2.5% sd"),
+    ("json", "m3e_axis/summary.json", "hypotheses/H136/spearman_D_err", 0.08, 2, None, "(Spearman +0.08)"),
+    ("json", "m3f_condk1/summary.json", "hypotheses/H140/spearman_dk1_e", 0.59, 2, None, "(Spearman +0.59)"),
+    ("json", "m3f_condk1/summary.json", "hypotheses/H141/median_abs_e", 5.25, 2, pct, "from 5.25% to 7.01%"),
+    ("json", "m3f_condk1/summary.json", "hypotheses/H141/median_abs_ec", 7.01, 2, pct, "from 5.25% to 7.01%"),
 ]
 
 
