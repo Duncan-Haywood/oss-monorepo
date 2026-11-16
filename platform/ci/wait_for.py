@@ -15,6 +15,7 @@ its marker), so a live job is told apart from a quiet, stuck or dead one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
 a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0.
+Given a log too, it waits for both (the condition, then the log's marker) and prints the log's tail.
 
 A job with a known pid: `--pid 12345` returns once that process has exited. Do not
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
@@ -260,16 +261,24 @@ def main(argv=None):
             return 0
         print(f"wait_for: pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
+    timeout = a.timeout
     if a.until:
-        if wait_until(a.until, a.timeout):
+        started = time.monotonic()
+        if not wait_until(a.until, a.timeout):
+            print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
+            return 1
+        if not a.log:
             print("wait_for: condition met")
             return 0
-        print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
-        return 1
+        # A log given with --until was ignored, so a wait returned "condition met" with no
+        # output before the job had written its last line (friction 2026-11-16). Both
+        # given means both: the condition, then the log's marker, in what time is left.
+        print("wait_for: condition met; now waiting for the log's marker", file=sys.stderr)
+        timeout = max(0.0, a.timeout - (time.monotonic() - started))
     if not a.log:
         ap.error("give a log file, --until or --pid")
     boot = None if a.ignore_restart else boot_time()
-    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, a.timeout, boot=boot)
+    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, timeout, boot=boot)
     if ok is None:
         last = next((l for l in reversed(lines) if l.strip()), "(empty)")[:120]
         when = time.strftime("%H:%M:%S UTC", time.gmtime(boot))
