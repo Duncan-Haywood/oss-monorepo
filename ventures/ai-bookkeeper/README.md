@@ -2764,6 +2764,17 @@ are not re-measured; the page uses the same vote. What is left:
 [`eval/receipt-total-first-2026-11-16.md`](eval/receipt-total-first-2026-11-16.md).
 Tests: `receipt-crosscheck.test.mjs`.
 
+**Held out (2026-11-16, evening).** SROIE's 625 labelled scans, read by the CLI's
+`--four-pass`, are a held-out multi-reading set. There, rule 1 never fires (GST is printed
+inside the total, and total lines survive OCR), and rule 2 cost one receipt: SROIE 169's
+"Grand Total 029,30" is a stray 0 before an intact RM29.30, and with its vote halved a 3.00
+guess won (521 to 520 of 625). A leading-zero total now counts as a guess only when another
+reading holds the same digits with a digit in front (94.78 for 04.78). SROIE is back to
+521 (83.4%), SRD keeps 154 and 133 tax, and nothing else moved. The SRD gain is still
+in-sample; a held-out set with separate tax lines (the CORD photos, huggingface.co refused
+this session) would test rule 1:
+[`eval/receipt-total-first-heldout-2026-11-16.md`](eval/receipt-total-first-heldout-2026-11-16.md).
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
