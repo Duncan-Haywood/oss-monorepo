@@ -3,7 +3,7 @@ title: "Ten of eleven flagship rows sit within 80 characters of the cap, so the 
 date: 2026-11-16
 tags: [process, tooling, flagships, router]
 seo_title: "Making room in a capped work queue in one call"
-description: "Every flagship's next: field sits near its 2,000-character cap, and runs spent two or three tries per edit; flagship_field.py --make-room parks the tail and lands the edit at once"
+description: "Every flagship next: field sits near its 2,000-character cap and edits took two or three tries; flagship_field.py --make-room lands them in one"
 ---
 
 Each flagship product in `portfolio/flagships.yaml` carries a `next:` field: the open items most worth starting, capped at 2,000 characters so the router's table stays readable. A run that lands a slice rewrites its item there with `portfolio/router/flagship_field.py`, which matches the unfolded text, rewraps it and refuses to go over the cap.
