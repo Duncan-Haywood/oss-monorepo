@@ -46,7 +46,7 @@ CAND = {
     "eqc16": ("eqcntsh_w", "eqcntsh_w", {"W": 128, "SW": 7, "K": 16}, ""),
     "eqc24": ("eqcntsh_w", "eqcntsh_w", {"W": 128, "SW": 7, "K": 24}, ""),
 }
-KEEP = []  # probe.txt: routed/r2 > 3.3, in CAND order; filled from probe.json before any sequence of this milestone is run
+KEEP = ["isq10", "isq12", "isq14", "amin8", "amin12", "csum3", "csum4", "csum6", "csum8", "eqc10", "eqc16", "eqc24"]  # probe.txt: routed/r2 > 3.3, in CAND order; isq8, amin4, amin6, eqc6 dropped (2.41 to 3.25)
 NEW = {k: CAND[k] for k in KEEP}
 FACTORS = {"tight": 1.0, "relaxed": 1.5}
 CLOCK = {d: ("tight", "relaxed")[i % 2] for i, d in enumerate(KEEP)}
