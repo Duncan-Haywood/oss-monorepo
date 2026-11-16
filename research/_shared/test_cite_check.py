@@ -88,7 +88,8 @@ class Cache(unittest.TestCase):
     def setUp(self):
         import tempfile
         self.tmp = tempfile.TemporaryDirectory()
-        self.dir = Path(self.tmp.name)
+        self.dir = Path(self.tmp.name) / "research" / "slug"  # a project: its lookups are cached
+        self.dir.mkdir(parents=True)
         (self.dir / "README.md").write_text("arXiv:1706.03762")
         self.cache = self.dir / cite_check.CACHE_NAME
 
@@ -193,6 +194,47 @@ class Cache(unittest.TestCase):
         self.assertNotIn("SKIP", out)
         self.assertFalse((paper / cite_check.CACHE_NAME).exists())  # nothing copied down
 
+    def test_directory_argument_checks_its_readme(self):
+        rc, out = self.run_dir(self.dir)
+        self.assertEqual(rc, 0)
+        self.assertIn("is a directory: checking README.md", out)
+        self.assertIn("ok   arxiv:1706.03762", out)
+
+    def test_missing_path_is_an_error_not_a_traceback(self):
+        rc, out = self.run_dir(self.dir / "nope.md")
+        self.assertEqual(rc, 2)
+        self.assertIn("no such file", out)
+
+    def run_dir(self, target):
+        import contextlib, io
+        old, cite_check._get = cite_check._get, lambda url: self.FEED
+        try:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                rc = cite_check.main([str(target)])
+            return rc, out.getvalue()
+        finally:
+            cite_check._get = old
+
+    def test_post_outside_research_writes_no_cache_but_reads_project_caches(self):
+        root = Path(self.tmp.name)
+        (root / ".git").mkdir()
+        self.run_in(self.dir, self.FEED)  # the project README confirms the id
+        posts = root / "docs" / "posts"
+        posts.mkdir(parents=True)
+        (posts / "README.md").write_text("see arXiv:1706.03762")
+        rc, out = self.run_in(posts, 403)
+        self.assertEqual(rc, 0)
+        self.assertIn("ok*  arxiv:1706.03762", out)
+        rc, out = self.run_in(posts, self.FEED)
+        self.assertIn("lookups not cached", out)
+        self.assertFalse((posts / cite_check.CACHE_NAME).exists())
+        import contextlib, io
+        with contextlib.redirect_stdout(io.StringIO()):
+            rc = cite_check.main(["hand", str(posts / "README.md"), "arxiv:1706.03762", "T (2017)", "s"])
+        self.assertEqual(rc, 2)
+        self.assertFalse((posts / cite_check.CACHE_NAME).exists())
+
     def test_ancestor_walk_stops_at_project_root(self):
         import os
         root = os.path.join(os.sep, "x", "research", "slug")
@@ -279,13 +321,15 @@ class OpenAlexFallback(unittest.TestCase):
             raise AssertionError("unexpected url " + url)
         old, cite_check._get = cite_check._get, fake
         try:
-            with tempfile.TemporaryDirectory() as d:
-                path = Path(d) / "README.md"
+            with tempfile.TemporaryDirectory() as t:
+                d = Path(t) / "research" / "slug"
+                d.mkdir(parents=True)
+                path = d / "README.md"
                 path.write_text(text)
                 out = io.StringIO()
                 with contextlib.redirect_stdout(out):
                     rc = cite_check.main([str(path)])
-                cache = (Path(d) / cite_check.CACHE_NAME)
+                cache = (d / cite_check.CACHE_NAME)
                 return rc, out.getvalue(), seen, cache.read_text() if cache.exists() else ""
         finally:
             cite_check._get = old
