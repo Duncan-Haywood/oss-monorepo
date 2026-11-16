@@ -111,6 +111,12 @@
 //    nasal no more often; (3) O's vowel-only control read as none identical; (4) A, B, D, E, H, I, F, J, K, L, M
 //    and N totals each no lower, nasals no fewer, vowel-only controls identical; (5) eval/vowel-check.mjs and
 //    eval/consonant-check.mjs cannot move.
+//    Outcome (run 2026-11-16): failed on three. (1) O's cluster nasals 111 to 113, but its D4-E4 eighths 25 of 30
+//    either way (the gains were *ment* and *pens* elsewhere); (2) its others 210 of 240 both ways, but voiced stops
+//    read as a nasal 3 to 4 (a *dig* already misread as a voiced fricative); (4) M's others 106 to 105 (*og*); J
+//    +4, N +2, K's cluster column, and (3) and (5) held; A, B, D, E, H, I, F, K, L byte-identical. As registered,
+//    readCoda keeps the rule off (`deepMurmur: false` by default); `--deep on` runs every part with it, and parts
+//    N and O print both columns.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -132,11 +138,11 @@ const RC0 = NEARARG === 'off' ? { nearVowel: false } : NEARARG ? { nearOpts: Obj
 const PREARG = args.includes('--pre') ? args[args.indexOf('--pre') + 1] : '';
 // --again off: readCoda's vowelAgain reading every frame after a murmur, the obstruent's too (before 2026-11-16's ninth round)
 const AGAINARG = args.includes('--again') ? args[args.indexOf('--again') + 1] : '';
-// --deep off: readCoda without the deep-murmur rule (before 2026-11-16's eleventh round)
+// --deep on: readCoda with the deep-murmur rule (2026-11-16's eleventh round; off by default, it failed its registrations)
 // --vfric off: readCoda's voiced fricative without its noise-above-5-kHz test (before 2026-11-16's tenth round)
 const VFRICARG = args.includes('--vfric') ? args[args.indexOf('--vfric') + 1] : '';
 const DEEPARG = args.includes('--deep') ? args[args.indexOf('--deep') + 1] : '';
-const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'off' ? { deepMurmur: false } : {}) };
+const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -486,7 +492,7 @@ for (const pulses of [4, 2]) for (const midi of [42, 49, 54, 58, 63, 64]) {
       const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
-      for (const [mode, o] of [['on', RC], ['off', { ...RC, deepMurmur: false }]]) {
+      for (const [mode, o] of [['on', { ...RC, deepMurmur: true }], ['off', { ...RC, deepMurmur: false }]]) {
         const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'cluster' && pulses === 2 && midi >= 63) bump(`high ${mode}`, ok);
@@ -525,7 +531,7 @@ for (const pulses of [4, 2]) for (const midi of [41, 52, 57, 62, 63, 64]) {
       const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
-      for (const [mode, o] of [['on', RC], ['off', { ...RC, deepMurmur: false }]]) {
+      for (const [mode, o] of [['on', { ...RC, deepMurmur: true }], ['off', { ...RC, deepMurmur: false }]]) {
         const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'cluster' && pulses === 2 && midi >= 62) bump(`high ${mode}`, ok);

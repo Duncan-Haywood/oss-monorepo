@@ -92,7 +92,8 @@ export const AGAIN = { gap: 5, frames: 2 };
 // readCoda's voiced fricative: how much more energy above 5 kHz than the vowel's a frame must carry (see its
 // note); chosen on synthetic syllables at part K's pitches (eval/coda-check.mjs header, tenth round)
 export const VFRIC_HI5 = 12;
-// readCoda's deep murmur on a high short note before an obstruent (see its note); chosen on eval/coda-check.mjs J and N
+// readCoda's deep murmur on a high short note before an obstruent (see its note; off by default, `deepMurmur: true`);
+// chosen on eval/coda-check.mjs J and N
 export const DEEP = { lo: -35, hi: -12, minMs: 60, silent: -50, gap: 5, tilt: 15, peak: true };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
@@ -213,7 +214,7 @@ export function expectedRead(ph) {
 // keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
 // /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
 // 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = true, deepOpts = {} } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {} } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -390,7 +391,9 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   // reaches silence (a frame at DEEP.silent dB of the vowel or lower) and ends in a burst. A voiced stop's voice
   // bar (-24 to -43 dB) holds up to its burst; a vowel falling into a voiceless closure passes through the band
   // in 15-35 ms. Second registration (eval/coda-check.mjs header): the first, with a fall of 18 dB under the run
-  // in place of silence and no peak, read voice bars as murmurs. `deepMurmur: false` is the reader before.
+  // in place of silence and no peak, read voice bars as murmurs. The second also failed three of its predictions on
+  // held-out part O (no gain on its D4-E4 eighths, M's others 106 to 105), so as registered it is off by default:
+  // `deepMurmur: true` turns it on.
   const DP = { ...DEEP, ...deepOpts };
   const deepRun = () => {
     if (!deepMurmur) return null;
