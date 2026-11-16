@@ -1,5 +1,14 @@
 # buildbot-sheathing research log
 
+## 2026-11-16 · Milestone 28 planned: the shim as a mechanism (a shim stack or a driven wedge under the low corner)
+
+- **Why.** Milestones 10, 12, 13 and 27 credit the shim (lift the sheet's low bottom corner until its edge is plumb) with a 0.5 mm corner-height residual, and milestone 27 left it as the last remedy without a mechanism. Two ways to set the height exist on a site: a stack of fixed-thickness plastic shims (1/16, 1/8 and 1/4 in horseshoe shims, supplier listings) and a tapered composite shim driven under the corner (8 in long, 1/16 to 5/16 in thick, a slope of 1:32, supplier listings).
+- **Plan.** `src/buildbot_sheathing/shim_mech.py`: (A) the lift each sheet needs, from milestone 5's ledger and panel tilt draws; (B) a shim stack's residual, the lift rounded to the step; (C) the quasi-static wedge: push to drive it and pull to back it out, with the sheet pivoting on its far corner (m g / 2 on the wedge plus wall friction from the press), friction on both faces swept 0.2 to 0.6, checked for self-locking and against the stock G1's largest push into the wall at the ledger height (milestone 3b's whole-body check, MuJoCo Menagerie); (D) driving the wedge as milestone 27's stick-slip tap, with the hand's effective mass along the push from MuJoCo, from either side until the height is within tolerance; (E) the residuals put back into milestone 12's best single-2x stack with milestone 27's slide residual.
+- **Hypotheses, registered before the run.**
+  - **H106 (a 1/16 in stack is as good as assumed).** With milestone 27's slide residual (20 ms, μ_k/μ_s 0.8), a 1/16 in shim stack keeps the best single-2x stack within 2 points of what it gives with a 0.5 mm shim. Refuted if it loses more than 2 points.
+  - **H107 (a stock G1 can drive the wedge).** At μ_s 0.4 on every face and the press half way along the sheet, the wedge's breakaway push is below the stock G1's largest push into the wall at the ledger height. Refuted if it is above.
+  - **H108 (the taper divides the stick-slip).** With the G1 hand's effective mass, a 20 ms release and μ_k/μ_s 0.8, the wedge loop's rms height residual is below 0.1 mm. Refuted if it is 0.1 mm or more.
+
 ## 2026-11-15 · Milestone 27 result: the slide leaves 0.19–0.64 mm if the push drops within 20 ms of the sheet moving, 2.5–10 mm at 100 ms; H103 refuted, H104 and H105 held
 
 `src/buildbot_sheathing/slide_mech.py` (new), `experiments/m27_slide_mech/` (run, results, figure), `tests/test_slide_mech.py` (5 tests), `reproduce.py` (m27 listed; `--check m27_slide_mech` reproduces, 110 lines), `paper/draft.md` (section 5.11 paragraph, a limitations bullet), `paper/check_numbers.py` (201 of 201, was 194), README, PROPOSAL and project card.
