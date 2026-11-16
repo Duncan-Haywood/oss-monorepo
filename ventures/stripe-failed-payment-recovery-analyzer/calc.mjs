@@ -105,17 +105,17 @@ export function normalizeRows(table) {
     const line = table[r];
     const get = (f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
     const at = parseDate(get("date"));
-    if (!at) { skipped.push({ line: r + 1, reason: "unreadable date" }); continue; }
+    if (!at) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable date" }); continue; }
     const amount = Number(get("amount").replace(/[$,€£\s]/g, ""));
-    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: r + 1, reason: "unreadable amount" }); continue; }
+    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount" }); continue; }
     const status = get("status").toLowerCase().replace(/\s+/g, "_");
     const ok = OK.has(status), fail = FAIL.has(status);
     if (!ok && !fail) { ignored++; continue; } // refunded, canceled, pending: not a charge outcome
     const customer = get("customer");
     const invoice = get("invoice");
     const key = invoice || customer;
-    if (!key) { skipped.push({ line: r + 1, reason: "no customer or invoice on the row" }); continue; }
-    raw.push({ line: r + 1, at, amount, ok, key, byInvoice: Boolean(invoice), customer: customer || invoice, reason: normalizeReason(get("reason")), currency: get("currency").toUpperCase() });
+    if (!key) { skipped.push({ line: table[r].line ?? r + 1, reason: "no customer or invoice on the row" }); continue; }
+    raw.push({ line: table[r].line ?? r + 1, at, amount, ok, key, byInvoice: Boolean(invoice), customer: customer || invoice, reason: normalizeReason(get("reason")), currency: get("currency").toUpperCase() });
   }
   const tally = {};
   for (const e of raw) tally[e.currency || ""] = (tally[e.currency || ""] || 0) + 1;

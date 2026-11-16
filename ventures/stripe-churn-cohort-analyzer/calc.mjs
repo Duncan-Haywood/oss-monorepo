@@ -86,19 +86,19 @@ export function normalizeRows(table) {
     const get = (f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
     const start = parseDate(get("start"));
     const amount = Number(get("amount").replace(/[$,\s]/g, ""));
-    if (!start) { skipped.push({ line: r + 1, reason: "unreadable start date" }); continue; }
-    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: r + 1, reason: "unreadable amount" }); continue; }
+    if (!start) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable start date" }); continue; }
+    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount" }); continue; }
     let end = parseDate(get("end"));
     const status = get("status").toLowerCase();
-    if (end && end < start) { skipped.push({ line: r + 1, reason: "end date before start date" }); continue; }
+    if (end && end < start) { skipped.push({ line: table[r].line ?? r + 1, reason: "end date before start date" }); continue; }
     if (!end && ["canceled", "cancelled", "incomplete_expired"].includes(status)) {
-      skipped.push({ line: r + 1, reason: `status ${status} but no end date` });
+      skipped.push({ line: table[r].line ?? r + 1, reason: `status ${status} but no end date` });
       continue;
     }
-    if (status === "incomplete_expired" || status === "incomplete") { skipped.push({ line: r + 1, reason: "never became a paid subscription" }); continue; }
+    if (status === "incomplete_expired" || status === "incomplete") { skipped.push({ line: table[r].line ?? r + 1, reason: "never became a paid subscription" }); continue; }
     const iv = get("interval").toLowerCase().replace(/ly$/, "").replace(/s$/, "");
     const per = INTERVAL_MONTHS[iv] ?? (get("interval") === "" ? 1 : null);
-    if (per === null) { skipped.push({ line: r + 1, reason: `unknown interval “${get("interval")}”` }); continue; }
+    if (per === null) { skipped.push({ line: table[r].line ?? r + 1, reason: `unknown interval “${get("interval")}”` }); continue; }
     const count = Number(get("intervalCount")) || 1;
     const qty = cols.quantity === undefined ? 1 : Number(get("quantity")) || 1;
     subs.push({

@@ -70,6 +70,58 @@ test("no row loop over the parsed table reports its index as the line number", (
   assert.deepEqual(bad, [], "use `table[i].line ?? i + 1`");
 });
 
+// The loop test above knows one shape (`for (let i ...) { line = i + 1`). The
+// 2026-11-16 follow-up red-team run found 12 copies it missed: `line: r + 1`
+// inline in a push, `table.slice(1).forEach((r, n) => { const line = n + 2`,
+// and `parseCsv(raw).forEach((row, i) => ... line: i + 1`. This one finds every
+// `line: <v> + 1|2` (or `line = `, `lineNo`) and walks back to the loop that
+// binds <v>; unless that loop runs over text split on newlines (where the index
+// is the line), the copy must read the row's tag (`… .line ?? v + 1`).
+export function indexLineReports(src) {
+  const lines = src.split("\n");
+  const out = [];
+  const use = /\b(?:line|lineNo)\s*[:=]\s*([A-Za-z_$][\w$]*) \+ [12]\b/g;
+  lines.forEach((text, n) => {
+    for (const m of text.matchAll(use)) {
+      if (/\?\?\s*$/.test(text.slice(0, m.index + m[0].indexOf(m[1])))) continue;
+      const v = m[1];
+      const binds = new RegExp(`for \\(let ${v}\\b|forEach\\(\\(([^)]*,\\s*)?${v}\\s*[,)]`);
+      let header = null;
+      for (let k = n; k >= Math.max(0, n - 40); k--) if (binds.test(lines[k])) { header = lines[k]; break; }
+      if (header && /split\(/.test(header)) continue;
+      // `const lines = String(text).split(/\r?\n/); lines.forEach((raw, idx) =>`
+      const over = header && header.match(/([A-Za-z_$][\w$]*)\.forEach\(/);
+      if (over && new RegExp(`\\b${over[1]} = [^;\\n]*\\.split\\(`).test(src)) continue;
+      out.push(`${n + 1}: ${text.trim()}`);
+    }
+  });
+  return out;
+}
+
+test("no loop over the parsed table reports an index as the line, in any shape", () => {
+  const bad = [];
+  for (const { rel, src } of found) for (const hit of indexLineReports(src)) bad.push(`${rel}:${hit}`);
+  assert.deepEqual(bad, [], "read the row's tag: `table[r].line ?? r + 1` or `r.line ?? n + 2`");
+});
+
+test("the any-shape check rejects each missed shape and accepts the fixes", () => {
+  const missed = [
+    "  for (let r = 1; r < table.length; r++) {\n    if (!x) { skipped.push({ line: r + 1, reason: \"y\" }); continue; }",
+    "  table.slice(1).forEach((r, n) => {\n    const line = n + 2;",
+    "  parseCsv(raw, d).forEach((row, i) => {\n    if (row.length < 2) { skipped.push({ line: i + 1, reason: \"y\" }); return; }",
+  ];
+  for (const s of missed) assert.equal(indexLineReports(s).length, 1, s);
+  const fixed = [
+    missed[0].replace("line: r + 1", "line: table[r].line ?? r + 1"),
+    missed[1].replace("n + 2", "r.line ?? n + 2"),
+    missed[2].replace("line: i + 1", "line: row.line ?? i + 1"),
+    // A list typed into a textarea: the index of a split line is its line.
+    '  String(text ?? "").split(/\\r?\\n/).forEach((raw, i) => {\n    if (!m) { bad.push({ line: i + 1, reason: "y" }); return; }',
+    '  const lines = String(text ?? "").split(/\\r?\\n/);\n  lines.forEach((raw, idx) => {\n    if (at <= 0) { errors.push({ line: idx + 1, reason: "y" }); return; }',
+  ];
+  for (const s of fixed) assert.deepEqual(indexLineReports(s), [], s);
+});
+
 test("the guard's loop pattern matches the shape it exists to reject", () => {
   const before = "  for (let i = h + 1; i < table.length; i++) {\n    const line = table[i];\n    const lineNo = i + 1;";
   const loop = /for \(let i = [^;]+; i < table\.length; i\+\+\) \{\n(?:[^\n]*\n)?[^\n]*\b(?:line|lineNo) = i \+ 1;/;

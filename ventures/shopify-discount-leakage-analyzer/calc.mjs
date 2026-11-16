@@ -119,7 +119,7 @@ export function normalizeOrders(table, { decimalComma = false } = {}) {
     if (!name) continue;
     let o = byName.get(name);
     if (!o) {
-      o = { name, line: r + 1, email: "", created: null, cancelled: false, status: "", subtotal: null, total: null, discount: null, refunded: null, codes: "", lines: 0, bad: "" };
+      o = { name, line: table[r].line ?? r + 1, email: "", created: null, cancelled: false, status: "", subtotal: null, total: null, discount: null, refunded: null, codes: "", lines: 0, bad: "" };
       byName.set(name, o);
     }
     const num = (f) => { const v = get(f); if (v === "") return null; const n = parseNumber(v, decimalComma); return Number.isFinite(n) ? n : NaN; };

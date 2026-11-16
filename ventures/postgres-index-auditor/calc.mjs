@@ -129,7 +129,7 @@ export function normalizeRows(rows) {
   if (missing.length) return { error: `Missing column(s): ${missing.map((k) => ALIASES[k][0]).join(", ")}. Run the query on this page and paste its output (psql: \\copy (…) TO STDOUT WITH CSV HEADER).` };
   const indexes = [], skipped = [];
   rows.slice(1).forEach((r, i) => {
-    const line = i + 2, get = (k) => (col[k] >= 0 ? r[col[k]] : undefined);
+    const line = r.line ?? i + 2, get = (k) => (col[k] >= 0 ? r[col[k]] : undefined);
     const def = parseIndexDef(get("def"));
     if (!def) { skipped.push({ line, reason: "indexdef is not a CREATE INDEX statement" }); return; }
     const scans = int(get("scans"));

@@ -155,17 +155,17 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     if (!term) { totalsRows++; continue; }
     const num = (f) => (cols[f] === undefined ? 0 : parseNumber(get(line, f), decimalComma));
     const spend = num("spend"), clicks = num("clicks"), orders = num("orders"), sales = num("sales"), impr = num("impr");
-    if (!Number.isFinite(spend) || spend < 0) { skipped.push({ line: r + 1, reason: "unreadable spend" }); continue; }
-    if (!Number.isFinite(clicks) || clicks < 0) { skipped.push({ line: r + 1, reason: "unreadable clicks" }); continue; }
-    if (!Number.isFinite(orders) || orders < 0) { skipped.push({ line: r + 1, reason: "unreadable orders" }); continue; }
-    if (!Number.isFinite(sales) || sales < 0) { skipped.push({ line: r + 1, reason: "unreadable sales" }); continue; }
+    if (!Number.isFinite(spend) || spend < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable spend" }); continue; }
+    if (!Number.isFinite(clicks) || clicks < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable clicks" }); continue; }
+    if (!Number.isFinite(orders) || orders < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable orders" }); continue; }
+    if (!Number.isFinite(sales) || sales < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable sales" }); continue; }
     const s = parseDate(get(line, "start"), dmy), e = parseDate(get(line, "end"), dmy);
     if (Number.isFinite(s)) lo = Math.min(lo, s);
     if (Number.isFinite(e)) hi = Math.max(hi, e);
     if (!currency) currency = get(line, "currency");
     const targeting = get(line, "targeting"), match = get(line, "match").toLowerCase();
     rows.push({
-      line: r + 1, campaign: get(line, "campaign"), adgroup: get(line, "adgroup"), term, targeting, match,
+      line: table[r].line ?? r + 1, campaign: get(line, "campaign"), adgroup: get(line, "adgroup"), term, targeting, match,
       auto: AUTO.test(targeting) || (!match || match === "-") && !!targeting && AUTO.test(targeting.replace(/^\*/, "")),
       impr: Number.isFinite(impr) ? impr : 0, clicks, spend, sales, orders,
     });
