@@ -133,6 +133,10 @@ test("tax lines printed together whose label OCR lost are added when the items o
   const r = parseReceipt(R("1 Bottled Water $2.45\n1 Pollo Taco $4.95\n1 Carnitas Taco $4.95\n1 Sour Cream $1.25\n1 Cheese $1.25\nCTT et otal eA\nIL Sales $1.52\nMPEA Tax $0.15\nRestaurant $0.04\nTOTAL: $16.56"));
   assert.equal(r.taxCents, 171);
   assert.ok(r.notes.some((n) => /3 lines beside the tax line/.test(n) && /check the tax/.test(n)));
+  // the lines taken as taxes are not items, so the five things bought split the receipt
+  assert.equal(r.itemsOk, true);
+  assert.deepEqual(r.items.map((i) => i.cents), [245, 495, 495, 125, 125]);
+  assert.ok(!r.notes.some((n) => /items add to/.test(n)));
   // a subtotal line closes it too
   assert.equal(parseReceipt(R("Subtotal 40.00\nSales Tax 2.80\nResort 0.80\nTotal 43.60")).taxCents, 360);
 });
@@ -154,4 +158,24 @@ test("one reading's tax lines added, checked against another reading's subtotal"
   // SRD photo 1182: the reading with both tax lines lost the subtotal line
   const p = parseReceiptPasses([R("Sales Tax 7%: 2.80\nResort Tax 2%: 0.80\nTotal: 43.60"), R("Sub-total: 40.00\nSales Tax 7%: 2.80\nResort Tax 2%: 0.60\nTotal 43.60"), R("Sub-total: 40.00\nSales Tax 7%: 2 80\nResort fax 2%: an\nTotal: 43.60")]);
   assert.equal(p.taxCents, 360);
+});
+
+test("summary lines printed under the total (Food, Beverage) do not stop the item split", () => {
+  // SRD photo 1173 as the CLI's tesseract reads it: the items again by kind, under TOTAL
+  const r = parseReceipt(R("1 Bottled Water $2.45\n1 Pollo Taco $4.95\n1 Carnitas Taco $4.95\n1 Sour Cream $1.25\n1 Cheese $1.25\nNet Total: $1485\nIL Sales $1.52\nMPEA Tax $0.15\nRestaurant $0.04\nTOTAL: $16.56\nFood: $12.40\nBeverage: $2.45"));
+  assert.equal(r.itemsOk, true);
+  assert.deepEqual(r.items.map((i) => i.cents), [245, 495, 495, 125, 125]);
+  // a suggested-gratuity table under the total (SRD 1065)
+  const g = parseReceipt(R("Chicken $15.00\nPescado $18.00\nSubtotal: $42.50\nTotal Tax: $3.29\nTotal: $36.29\nSuggested Gratuity\n18.00% of sale: $7.65 = $53.44"));
+  assert.equal(g.itemsOk, true);
+  assert.equal(g.items.length, 2);
+  // OCR's "Subtota |" is not an item (SRD 1175)
+  assert.ok(!parseReceipt(R("Whiskey 6.25\nSubtota | 6.25\nTax 1.31\nTotal 7.56")).items.some((i) => /subtota/i.test(i.desc)));
+});
+
+test("the lines above the subtotal are not tried against a guessed total", () => {
+  // SRD photo 1160: no total line read, the largest amount is the subtotal itself
+  const r = parseReceipt(R("1 Sprite 2.55\n1 Chicken Caesar Salad 8.95\n1 Chefs Special 19.95\nFood Subtotal: 31.45\nSoup 0.00 extra 4.00"));
+  assert.ok(r.notes.some((n) => /largest amount/.test(n)));
+  assert.equal(r.itemsOk, false);
 });
