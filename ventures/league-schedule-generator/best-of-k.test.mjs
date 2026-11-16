@@ -136,11 +136,19 @@ test("splitCarryOverTries hands every try to exactly one thread, round robin", (
 test("a pool of any size, finishing in any order, returns exactly the serial search", () => {
   for (const double of [false, true]) {
     // A try depends on neither the pick nor the thread that runs it, so each is searched once here,
-    // apart from the serial runs, and every pool gets its own copy, as a worker message would (this
+    // apart from one serial run, and every pool gets its own copy, as a worker message would (this
     // test used to search the same 8 tries 9 times over: 245 s of the suite's critical path).
     const searched = Array.from({ length: 8 }, (_, i) => carryOverTry(8, i, { double, seed: 4 }));
+    // The serial search's tries do not depend on the pick either; only its last step,
+    // combineCarryOverTries over tries 0 to 7 in order, does. So one serial run per season shape
+    // (pick 0 for single, 40 for home and away) checks the whole serial path, and the other picks
+    // are checked against that last step over the in-order tries (this test ran the serial search
+    // six times: docs/history/ci-perf-2026-11-16-league-serial-once.md).
+    const fullAt = double ? 40 : 0;
     for (const pick of [0, 10, 40]) {
-      const serial = bestCarryOverRounds(8, { double, seed: 4, tries: 8, pick });
+      const serial = pick === fullAt
+        ? bestCarryOverRounds(8, { double, seed: 4, tries: 8, pick })
+        : combineCarryOverTries(searched.map((t) => structuredClone(t)), pick, { among: 8 });
       for (const workers of [1, 3, 8]) {
         const done = splitCarryOverTries(8, workers).map((q) => q.map((i) => structuredClone(searched[i])));
         // threads report in reverse: the combine must not depend on arrival order
