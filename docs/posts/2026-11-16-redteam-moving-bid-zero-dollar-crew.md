@@ -3,7 +3,7 @@ title: "A $0 crew cannot lose money by the hour: red-teaming the moving bid calc
 seo_title: "Moving company hourly rate and minimum hours: edge cases we tested"
 date: 2026-11-16
 tags: [testing, mutation-testing, javascript, redteam, movers, pricing]
-description: "20 faults seeded into the moving bid calculator, 16 caught. Four gaps closed, one wrong sentence on a blank form fixed, and a new check over 47 copies of the same save code."
+description: "20 faults seeded into the moving bid calculator, 16 caught. Four gaps closed, a blank form's wrong warning fixed, and one check over 47 copies of the save code."
 ---
 
 Today's red-team run aimed at the

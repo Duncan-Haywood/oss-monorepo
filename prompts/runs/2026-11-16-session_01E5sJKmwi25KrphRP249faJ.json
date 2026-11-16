@@ -1,0 +1,461 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKmwi25KrphRP249faJ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T14:23:17Z",
+  "ended": "2026-11-16T14:23:51Z",
+  "wall_minutes": 14.53,
+  "tokens_in": 5085442,
+  "tokens_out": 26981,
+  "cost_usd": 2.2879,
+  "tool_calls": 59,
+  "task": "redteam: moving-bid-calculator calc.mjs + share.mjs",
+  "projects": [
+    "moving-bid-calculator",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16603",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First post description was 173 chars (limit 160); check_post_frontmatter failed in the local sweep and took the site build steps with it.",
+      "fixed": "shortened; check_post_frontmatter ok on 5222 posts"
+    },
+    {
+      "what": "platform/distribution/shorts.test.mjs failed once inside the parallel local ventures-tests sweep",
+      "fixed": "passes 10/10 run alone; not touched by this diff, read as load flake"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open entry first, but all 9 open entries are control-plane with owner-gated PRs already open (#14612, #15945, ...); a run can only re-confirm they reproduce. The open list could mark entries that already have a pending control-plane PR so runs skip them."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets --probe 20` with no --under probes hundreds of suites; aiming at one venture needs --under ventures/<slug>, which the prompt does not mention for --target checks."
+    },
+    {
+      "file": "docs/taxonomy.json",
+      "issue": "'ventures' is not a report topic (product-build is); doc_index check caught it, cheap but a predictable miss."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not fix the 9 open defects; each is control-plane and already has an owner-gated PR or patch, so a new PR from here would duplicate them.",
+      "did": "Checked each still reproduces on main (grep for the fix markers), left them patched:false.",
+      "result": "Run time went to a fresh target instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-moving-bid-zero-dollar-crew.md",
+    "docs/reports/redteam-2026-11-16-share-storage-contract.md"
+  ],
+  "goal": "Measure and raise the catch rate on a just-changed, user-facing pricing tool, and leave an automated guard for the shared share.mjs storage code.",
+  "notes": "Campaigns: calc.mjs 12 mutants 10 caught, share.mjs 8 mutants 6 caught; rerun after tests: 20/20 (catch_rate 0.8 -> 1.0). Real defect: zero-cost hourly 'below labor cost' warning, patched. Guard added: platform/ci/check_share_storage_contract.py (47 copies checked, 3 other-design skipped, 0 breaches, 0.6 s; runs via unwired_checks.py) with test_check_share_storage_contract.py (4 tests OK, re-applies both escaped mutants). Local verification: moving-bid-calculator node --test 143 pass 0 fail; check_share_decoders 0 crashed; doc_index ok; check_post_frontmatter ok; run_workflow_locally --for-changes: portfolio-validate 99/100 (the 1 was the long description, fixed), ventures-tests one unrelated flake (shorts.test.mjs passes alone), pages/checklist/conflict-markers green; agent-cross-review and deploy jobs not run locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/moving-bid-calculator/calc.mjs",
+        "test": "node --test ventures/moving-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 975549537,
+        "commit": "b6c5b2ac3",
+        "sites": 197,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 25,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": "{ label: '3 bedroom house', cubicFeet: 1100, clockHours: 5 },",
+            "after": "{ label: '3 bedroom house', cubicFeet: 1100, clockHours: 6 },",
+            "line_text": "  { label: '3 bedroom house', cubicFeet: 1100, clockHours: 5 },",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 28,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "{ label: 'Garage / storage unit', cubicFeet: 400, clockHours: 1.5 },",
+            "after": "{ label: 'Garage / storage unit', cubicFeet: 401, clockHours: 1.5 },",
+            "line_text": "  { label: 'Garage / storage unit', cubicFeet: 400, clockHours: 1.5 },",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Preset table was checked only for being positive; pinned value for value in calc.test.mjs (the comparison page quotes the presets)."
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 62,
+            "col": 48,
+            "operator": "div-to-times",
+            "before": "const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step;",
+            "after": "const ceilTo = (value, step) => Math.ceil(value * step - 1e-9) * step;",
+            "line_text": "const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 147,
+            "col": 61,
+            "operator": "plus-to-minus",
+            "before": "const totalCubicFeet = inventory.reduce((sum, item) => sum + item.cubicFeet, 0);",
+            "after": "const totalCubicFeet = inventory.reduce((sum, item) => sum - item.cubicFeet, 0);",
+            "line_text": "  const totalCubicFeet = inventory.reduce((sum, item) => sum + item.cubicFeet, 0);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 156,
+            "col": 46,
+            "operator": "plus-to-minus",
+            "before": "const accessHours = stairHours + carryHours + elevatorHours;",
+            "after": "const accessHours = stairHours + carryHours - elevatorHours;",
+            "line_text": "  const accessHours = stairHours + carryHours + elevatorHours;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 165,
+            "col": 26,
+            "operator": "div-to-times",
+            "before": "const price = totalCost / (1 - targetMargin / 100);",
+            "after": "const price = totalCost * (1 - targetMargin / 100);",
+            "line_text": "  const price = totalCost / (1 - targetMargin / 100);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 168,
+            "col": 74,
+            "operator": "neq-flip",
+            "before": "const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';",
+            "after": "const hasProposed = input.proposedPrice !== null && input.proposedPrice === undefined && input.proposedPrice !== '';",
+            "line_text": "  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 181,
+            "col": 35,
+            "operator": "div-to-times",
+            "before": "const marginShare = targetMargin / 100;",
+            "after": "const marginShare = targetMargin * 100;",
+            "line_text": "  const marginShare = targetMargin / 100;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 183,
+            "col": 46,
+            "operator": "plus-to-minus",
+            "before": "const fixedJobCost = (truckCost + fuelTolls + materials + otherCost) * ohFactor;",
+            "after": "const fixedJobCost = (truckCost + fuelTolls - materials + otherCost) * ohFactor;",
+            "line_text": "  const fixedJobCost = (truckCost + fuelTolls + materials + otherCost) * ohFactor;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 191,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const marginHours = earnsPerHour > 0 ? fixedJobCost / earnsPerHour : null;",
+            "after": "const marginHours = earnsPerHour > 1 ? fixedJobCost / earnsPerHour : null;",
+            "line_text": "    const marginHours = earnsPerHour > 0 ? fixedJobCost / earnsPerHour : null;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a rate earning between $0 and $1/h above the margin; marginHours went null. Test at 50 cents/h over crew cost."
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 194,
+            "col": 58,
+            "operator": "max-to-min",
+            "before": "const billedHours = minimumHours === null ? hours : Math.max(hours, minimumHours);",
+            "after": "const billedHours = minimumHours === null ? hours : Math.min(hours, minimumHours);",
+            "line_text": "      const billedHours = minimumHours === null ? hours : Math.max(hours, minimumHours);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/calc.mjs",
+            "line": 196,
+            "col": 32,
+            "operator": "plus-to-minus",
+            "before": "const cost = fixedJobCost + variablePerHour * hours;",
+            "after": "const cost = fixedJobCost - variablePerHour * hours;",
+            "line_text": "      const cost = fixedJobCost + variablePerHour * hours;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/moving-bid-calculator/share.mjs",
+        "test": "node --test ventures/moving-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 646326562,
+        "commit": "b6c5b2ac3",
+        "sites": 87,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/moving-bid-calculator/share.mjs",
+            "line": 40,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "const VERSION = 1;",
+            "after": "const VERSION = 2;",
+            "line_text": "const VERSION = 1;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/share.mjs",
+            "line": 176,
+            "col": 35,
+            "operator": "and-to-or",
+            "before": "return typeof raw === 'string' && raw.trim().length > MAX_TERM_TEXT;",
+            "after": "return typeof raw === 'string' || raw.trim().length > MAX_TERM_TEXT;",
+            "line_text": "    return typeof raw === 'string' && raw.trim().length > MAX_TERM_TEXT;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/share.mjs",
+            "line": 200,
+            "col": 18,
+            "operator": "eq-flip",
+            "before": "if (left.length === 0) return '';",
+            "after": "if (left.length !== 0) return '';",
+            "line_text": "  if (left.length === 0) return '';",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/share.mjs",
+            "line": 201,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "const named = left.length === 1",
+            "after": "const named = left.length === 2",
+            "line_text": "  const named = left.length === 1",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/share.mjs",
+            "line": 339,
+            "col": 14,
+            "operator": "neq-flip",
+            "before": "if (value !== null) values[id] = String(value);",
+            "after": "if (value === null) values[id] = String(value);",
+            "line_text": "    if (value !== null) values[id] = String(value);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/share.mjs",
+            "line": 380,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "if (!storage || !spec?.key) return false;",
+            "after": "if (!storage && !spec?.key) return false;",
+            "line_text": "  if (!storage || !spec?.key) return false;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test called saveBid with a key-less spec; it would write under the key \"undefined\". Test in share.test.mjs plus platform/ci/check_share_storage_contract.py over all 47 copies."
+          },
+          {
+            "file": "ventures/moving-bid-calculator/share.mjs",
+            "line": 398,
+            "col": 40,
+            "operator": "or-to-and",
+            "before": "if (!parsed || parsed.v !== VERSION || typeof parsed.values !== 'object') return {};",
+            "after": "if (!parsed || parsed.v !== VERSION && typeof parsed.values !== 'object') return {};",
+            "line_text": "    if (!parsed || parsed.v !== VERSION || typeof parsed.values !== 'object') return {};",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/moving-bid-calculator/share.mjs",
+            "line": 409,
+            "col": 11,
+            "operator": "true-to-false",
+            "before": "return true;",
+            "after": "return false;",
+            "line_text": "    return true;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test read clearBid's return value on a working store. Same test and contract."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/moving-bid-calculator/calc.mjs",
+        "issue": "With every cost at zero (a blank form) the suggested hourly rate came out as -0 and belowLaborCost was true, contradicting the code's own comment ('never true for the suggested rate'), so the page said 'At $0.00/h the rate does not cover the crew's loaded labor of $0.00/h, so every extra hour loses more'. Fixed: ceilTo normalises -0, belowLaborCost requires variablePerHour > 0; failing-first test in calc.test.mjs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0fc78e8c-807a-5095-be4a-600a903cdc4a",
+    "transcripts": 1,
+    "first": "2026-11-16T14:23:17Z",
+    "last": "2026-11-16T14:37:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 105,
+        "output": 26981,
+        "thinking": 5902,
+        "cache_read": 4991652,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93685,
+        "api_equivalent_usd": 2.2879,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 105,
+      "output": 26981,
+      "thinking": 5902,
+      "cache_read": 4991652,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93685,
+      "api_equivalent_usd": 2.2879,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.53,
+      "active_minutes": 14.53,
+      "model_minutes": 4.54,
+      "tool_minutes": 9.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation campaign triage, 11 tests, a fix, a cross-venture contract check and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 218.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
