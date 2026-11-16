@@ -35,3 +35,17 @@ new = load(sys.argv[1]); report("seeds 7-12 (this run)", new, rows=True)
 if len(sys.argv) > 2:
     old = load(sys.argv[2]); report("seeds 4-6 (eval/repair-flow-e2e.jsonl)", old)
     report("pooled, seeds 4-12", {**old, **new})
+if len(sys.argv) > 3:
+    # Noise floor: the same no-reserve configuration run twice (eval/repair-reserve-big-noise.sh) on the four weeks above their floors.
+    noise = {}
+    for l in open(sys.argv[3]):
+        if l.startswith("{"):
+            r = json.loads(l); noise[(r["P"], r["S"], r["week"], r["seed"])] = r
+    pairs = [(new[k][A]["open"], noise[k]["open"], new[k][B]["open"]) for k in noise if k in new]
+    w = sum(b < a for a, b, _ in pairs); l = sum(b > a for a, b, _ in pairs)
+    print(f"== noise floor: no reserve run twice, {len(pairs)} builds on 90 x 252 and 100 x 280 weeks 0-1")
+    print(f"second run vs first: fewer open on {w}, more on {l}, tied {len(pairs) - w - l}, net {sum(a - b for a, b, _ in pairs):+g} h (sign test p = {sign(w, l):.3g})")
+    w2 = sum(c < a for a, _, c in pairs); l2 = sum(c > a for a, _, c in pairs)
+    print(f"2 s reserve vs first run, same builds: fewer open on {w2}, more on {l2}, tied {len(pairs) - w2 - l2}, net {sum(a - c for a, _, c in pairs):+g} h")
+    w3 = sum(c < b for _, b, c in pairs); l3 = sum(c > b for _, b, c in pairs)
+    print(f"2 s reserve vs second run, same builds: fewer open on {w3}, more on {l3}, tied {len(pairs) - w3 - l3}, net {sum(b - c for _, b, c in pairs):+g} h")
