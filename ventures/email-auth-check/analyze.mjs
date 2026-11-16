@@ -11,24 +11,20 @@
 //
 // Scope, stated plainly rather than left to be discovered: SPF's DNS-lookup
 // budget (RFC 7208 s4.6.4) is walked recursively through `include:` and
-// `redirect=` -- the two mechanisms that themselves carry a nested SPF
-// record this tool can fetch and keep counting through. `a`, `mx`, `ptr` and
-// `exists` each still cost exactly one lookup toward the same 10-lookup
-// budget, but this tool does not perform the further A/MX/PTR resolution
-// they imply (that is a different DNS record type, not a TXT record, and
-// counting it exactly requires walking a domain's MX host list, which is
-// its own additional round trip this tool does not make). So a chain with
-// several bare `a`/`mx` mechanisms is scored as "at least N lookups", which
-// undercounts only in the case of an `mx` mechanism resolving to more than
-// one mail server -- a real but secondary contributor next to the dominant
-// real-world cause of this bug, stacking `include:` mechanisms for one ESP
-// per marketing tool. The report says so; see `SCOPE_NOTE`.
+// `redirect=` -- the two terms that carry a nested SPF record this tool can
+// fetch and keep counting through. `a`, `mx`, `ptr` and `exists` each cost
+// exactly one lookup toward the same 10-lookup budget. The further address
+// queries an `mx` or `ptr` triggers do NOT count toward the 10 (s4.6.4); they
+// have their own cap instead -- more than 10 MX hosts (or PTR names) for one
+// term is itself an error. This tool counts the 10-term budget exactly but
+// does not check that per-term cap; see `SCOPE_NOTE`.
 
 export const SCOPE_NOTE =
   'SPF lookup count includes include:/redirect= (walked recursively) plus one ' +
-  'lookup for each a/mx/ptr/exists mechanism found; it does not further resolve ' +
-  'what an a/mx/ptr mechanism itself points at, so a domain with an mx mechanism ' +
-  'pointing at several mail servers may cost slightly more than shown here.';
+  'lookup for each a/mx/ptr/exists mechanism, which is how RFC 7208 s4.6.4 ' +
+  'counts the 10-lookup budget; the address queries an mx or ptr then makes do ' +
+  'not count toward it. Not checked here: the separate per-mechanism cap of 10 ' +
+  'MX hosts (or PTR names) that s4.6.4 also sets.';
 
 // ---------------------------------------------------------------------------
 // Shared TXT presentation-format helpers
@@ -237,6 +233,10 @@ export function walkSpfChain(rootDomain, recordsByDomain, { maxVisits = 40 } = {
     entry.allQualifier = parsed.allQualifier;
     entry.allNotLast = parsed.allNotLast;
     entry.redirect = parsed.redirect;
+    // RFC 7208 s6.1: a redirect= in a record that also has an "all"
+    // mechanism is ignored -- "all" always matches first -- so it is
+    // neither fetched nor counted.
+    entry.redirectIgnored = !!parsed.redirect && parsed.allQualifier !== null;
 
     const nextPath = new Set(path);
     nextPath.add(key);
@@ -246,7 +246,7 @@ export function walkSpfChain(rootDomain, recordsByDomain, { maxVisits = 40 } = {
       entry.lookupsHere += 1;
       if (term.mechanism === 'include' && term.domain) visit(term.domain, key, nextPath);
     }
-    if (parsed.redirect) {
+    if (parsed.redirect && !entry.redirectIgnored) {
       totalLookups += 1;
       entry.lookupsHere += 1;
       visit(parsed.redirect, key, nextPath);
@@ -281,7 +281,7 @@ export function walkSpfChain(rootDomain, recordsByDomain, { maxVisits = 40 } = {
 export function analyzeDkimSelector({ selector, txtRecords }) {
   const records = (txtRecords || []).filter((r) => typeof r === 'string' && r.trim().length);
   if (records.length === 0) {
-    return { selector, found: false, record: null, hasVersionTag: false, hasPublicKey: false, revoked: false, malformed: [] };
+    return { selector, found: false, record: null, hasVersionTag: false, hasPublicKey: false, revoked: false, keyType: null, keyBits: null, malformed: [] };
   }
   // Prefer a record that actually has a p= tag if more than one TXT string
   // lives at this name (a selector name colliding with an unrelated TXT
@@ -292,12 +292,35 @@ export function analyzeDkimSelector({ selector, txtRecords }) {
   const malformed = duplicates.map((d) => `Duplicate ${d}= tag`);
 
   const hasVersionTag = (tags.get('v') || '').toUpperCase() === 'DKIM1';
+  // RFC 6376 s3.6.1: v= is optional, but when present it MUST be "DKIM1";
+  // a verifier discards a key record carrying any other version.
+  if (tags.has('p') && tags.has('v') && !hasVersionTag) malformed.push(`v= tag is "${tags.get('v')}"; RFC 6376 s3.6.1 accepts only v=DKIM1`);
   const hasPTag = tags.has('p');
-  const pValue = (tags.get('p') || '').trim();
-  const hasPublicKey = hasPTag && pValue.length > 0;
+  // Base64 in a TXT record may carry folding whitespace (RFC 6376 s3.6.1).
+  const pValue = (tags.get('p') || '').replace(/\s+/g, '');
   const revoked = hasPTag && pValue.length === 0;
 
   if (!hasPTag) malformed.push('No p= (public key) tag found -- this does not look like a DKIM key record');
+
+  // k= defaults to rsa; RFC 8463 adds ed25519. Anything else (dsa, a typo)
+  // is a key type no verifier implements, so no signature can verify.
+  const keyType = (tags.get('k') || 'rsa').trim().toLowerCase();
+  if (!['rsa', 'ed25519'].includes(keyType)) malformed.push(`k= tag is "${tags.get('k')}"; verifiers support only k=rsa (RFC 6376) and k=ed25519 (RFC 8463)`);
+
+  let keyBits = null;
+  if (hasPTag && !revoked) {
+    const bytes = decodeBase64(pValue);
+    if (!bytes) {
+      malformed.push('p= is not valid base64, so no verifier can read the key');
+    } else if (keyType === 'rsa') {
+      keyBits = rsaModulusBits(bytes);
+      if (keyBits === null) malformed.push('p= does not decode to an RSA public key (truncated or wrong key type?)');
+    } else if (keyType === 'ed25519') {
+      if (bytes.length === 32) keyBits = 256;
+      else malformed.push(`an ed25519 p= must be 32 raw key bytes (RFC 8463 s4.2); this one is ${bytes.length}`);
+    }
+  }
+  const hasPublicKey = hasPTag && !revoked && malformed.length === 0;
 
   return {
     selector,
@@ -306,8 +329,65 @@ export function analyzeDkimSelector({ selector, txtRecords }) {
     hasVersionTag,
     hasPublicKey,
     revoked,
+    keyType,
+    keyBits,
     malformed,
   };
+}
+
+/** Strict base64 (standard alphabet, optional padding) to bytes, or null. */
+export function decodeBase64(text) {
+  const s = String(text ?? '');
+  if (!s.length || !/^[A-Za-z0-9+/]+={0,2}$/.test(s) || s.replace(/=+$/, '').length % 4 === 1) return null;
+  const bin = atob(s.replace(/=+$/, '') + '='.repeat((4 - (s.replace(/=+$/, '').length % 4)) % 4));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i += 1) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// One DER tag-length-value at `off`, or null when it runs past the buffer.
+function derAt(bytes, off) {
+  if (off + 2 > bytes.length) return null;
+  const tag = bytes[off];
+  let len = bytes[off + 1];
+  let start = off + 2;
+  if (len & 0x80) {
+    const n = len & 0x7f;
+    if (n === 0 || n > 4 || start + n > bytes.length) return null;
+    len = 0;
+    for (let i = 0; i < n; i += 1) len = len * 256 + bytes[start + i];
+    start += n;
+  }
+  if (start + len > bytes.length) return null;
+  return { tag, start, end: start + len };
+}
+
+/**
+ * Bit length of the RSA modulus in a DKIM p= value: a SubjectPublicKeyInfo
+ * (what RFC 6376 s3.6.1 specifies) or a bare PKCS#1 RSAPublicKey (which some
+ * publishers use and common verifiers accept). Null if neither parses.
+ */
+export function rsaModulusBits(bytes) {
+  const outer = derAt(bytes, 0);
+  if (!outer || outer.tag !== 0x30) return null;
+  let first = derAt(bytes, outer.start);
+  if (!first) return null;
+  let modulus = null;
+  if (first.tag === 0x30) {
+    // SPKI: AlgorithmIdentifier, then BIT STRING { 0x00, RSAPublicKey }
+    const bits = derAt(bytes, first.end);
+    if (!bits || bits.tag !== 0x03 || bytes[bits.start] !== 0) return null;
+    const rsa = derAt(bytes, bits.start + 1);
+    if (!rsa || rsa.tag !== 0x30) return null;
+    modulus = derAt(bytes, rsa.start);
+  } else if (first.tag === 0x02) {
+    modulus = first;
+  }
+  if (!modulus || modulus.tag !== 0x02) return null;
+  let i = modulus.start;
+  while (i < modulus.end && bytes[i] === 0) i += 1;
+  if (i >= modulus.end) return null;
+  return (modulus.end - i - 1) * 8 + (32 - Math.clz32(bytes[i]));
 }
 
 export function analyzeDkim(selectorResults) {
@@ -315,7 +395,7 @@ export function analyzeDkim(selectorResults) {
   return {
     results,
     anyFound: results.some((r) => r.found),
-    anyValid: results.some((r) => r.found && r.hasPublicKey),
+    anyValid: results.some((r) => r.found && r.hasPublicKey && !(r.keyType === 'rsa' && r.keyBits < 1024)),
     anyRevoked: results.some((r) => r.found && r.revoked),
     checkedCount: results.length,
     foundCount: results.filter((r) => r.found).length,
@@ -358,10 +438,20 @@ export function analyzeDmarc(txtRecords, { foundAt = null, domain = null } = {})
     malformed.push(policy ? `p= tag is "${tags.get('p')}", expected none/quarantine/reject` : 'No p= (policy) tag found -- required by RFC 7489');
   }
   const subdomainPolicy = (tags.get('sp') || '').toLowerCase() || null;
+  if (tags.has('sp') && !['none', 'quarantine', 'reject'].includes(subdomainPolicy)) {
+    malformed.push(`sp= tag is "${tags.get('sp')}", expected none/quarantine/reject`);
+  }
+  const tagWarnings = [];
+  for (const t of ['adkim', 'aspf']) {
+    if (tags.has(t) && !['r', 's'].includes(tags.get(t).trim().toLowerCase())) {
+      tagWarnings.push(`${t}= tag is "${tags.get(t)}", expected r or s (RFC 7489 s6.3), so receivers fall back to relaxed`);
+    }
+  }
 
   let pct = 100;
   if (tags.has('pct')) {
-    const parsed = Number.parseInt(tags.get('pct'), 10);
+    const raw = tags.get('pct').trim();
+    const parsed = /^\d{1,3}$/.test(raw) ? Number(raw) : NaN;
     if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 100) pct = parsed;
     else malformed.push(`pct= tag is "${tags.get('pct')}", expected an integer 0-100`);
   }
@@ -369,13 +459,17 @@ export function analyzeDmarc(txtRecords, { foundAt = null, domain = null } = {})
   const rua = tags.has('rua') ? tags.get('rua').split(',').map((s) => s.trim()).filter(Boolean) : [];
   const ruf = tags.has('ruf') ? tags.get('ruf').split(',').map((s) => s.trim()).filter(Boolean) : [];
 
-  const adkim = (tags.get('adkim') || 'r').toLowerCase() === 's' ? 'strict' : 'relaxed';
-  const aspf = (tags.get('aspf') || 'r').toLowerCase() === 's' ? 'strict' : 'relaxed';
+  const adkim = (tags.get('adkim') || 'r').trim().toLowerCase() === 's' ? 'strict' : 'relaxed';
+  const aspf = (tags.get('aspf') || 'r').trim().toLowerCase() === 's' ? 'strict' : 'relaxed';
 
   const multiple = records.length > 1;
   const validPolicy = (v) => (['none', 'quarantine', 'reject'].includes(v) ? v : null);
   let appliedPolicy = validPolicy(policy);
   if (inheritedFrom && validPolicy(subdomainPolicy)) appliedPolicy = subdomainPolicy;
+  // RFC 7489 s6.6.3 step 6: an invalid sp= makes the receiver act as if
+  // the record said p=none when it has a valid rua=, else apply no DMARC.
+  const badSp = tags.has('sp') && !validPolicy(subdomainPolicy);
+  if (badSp) appliedPolicy = rua.length ? 'none' : null;
   if (multiple) appliedPolicy = null;
 
   return {
@@ -394,6 +488,7 @@ export function analyzeDmarc(txtRecords, { foundAt = null, domain = null } = {})
     adkim,
     aspf,
     malformed,
+    tagWarnings,
   };
 }
 
@@ -505,7 +600,7 @@ function spfFindings(walk, transportError) {
   if (walk.exceedsLookupLimit) {
     findings.push(finding(
       'spf-too-many-lookups', 'danger', `SPF exceeds the 10-lookup limit (${walk.totalLookups} found)`,
-      `Fully evaluating ${walk.domain}'s SPF record (following every include: and redirect= mechanism it references) requires ${walk.totalLookups} DNS lookups. RFC 7208 permits at most 10 -- exceeding it is a permanent error (PermError), which means SPF fails for EVERY message from this domain, for every receiver, regardless of whether the message is legitimate. This is the single most common real-world SPF bug, usually caused by stacking an include: for every marketing/support tool the domain uses. ${SCOPE_NOTE}`,
+      `Fully evaluating ${walk.domain}'s SPF record (following every include: and redirect= mechanism it references) requires ${walk.totalLookups} DNS lookups. RFC 7208 permits at most 10 -- a receiver that reaches the 11th lookup stops with a permanent error (PermError), and SPF fails for that message whether or not it is legitimate. Lookups are counted as evaluation goes, so a message that matches an earlier term can still pass; mail from a sender listed late in the record, or not listed at all, fails. This is the single most common real-world SPF bug, usually caused by stacking an include: for every marketing/support tool the domain uses. ${SCOPE_NOTE}`,
       `${walk.totalLookups} lookup-mechanism occurrences across ${walk.chain.filter((c) => c.found).length} SPF record(s) in the chain`,
     ));
   } else if (walk.totalLookups >= 8) {
@@ -546,31 +641,58 @@ function spfFindings(walk, transportError) {
     ));
   }
 
-  if (root.allQualifier === '+') {
+  const ptrHosts = walk.chain.filter((c) => c.found && c.record && parseSpfMechanisms(c.record).lookupTerms.some((t) => t.mechanism === 'ptr'));
+  if (ptrHosts.length) {
+    findings.push(finding(
+      'spf-ptr', 'notice', 'SPF uses the ptr mechanism, which RFC 7208 says not to publish',
+      `The ptr mechanism appears in ${ptrHosts.map((c) => c.domain).join(', ')}. RFC 7208 s5.5 says ptr SHOULD NOT be used: it is slow, unreliable, and receivers may skip it, and it still spends one of the 10 lookups. Replace it with ip4/ip6 or a/mx terms.`,
+      ptrHosts.map((c) => `TXT ${c.domain}: ${c.record}`).join('; '),
+    ));
+  }
+  if (root.redirectIgnored) {
+    findings.push(finding(
+      'spf-redirect-ignored', 'notice', 'redirect= is ignored because the record also has "all"',
+      `${walk.domain}'s SPF record has both an "all" mechanism and redirect=${root.redirect}. RFC 7208 s6.1 says redirect= is ignored when "all" is present, so receivers never follow it and it costs no lookup. Remove one of them so the record says what it does.`,
+      `TXT ${walk.domain}: ${root.record}`,
+    ));
+  }
+
+  // A record that ends in redirect= with no "all" takes its closing answer
+  // from the redirect target's record (RFC 7208 s6.1), so read "all" there.
+  let allFrom = root;
+  for (let hop = 0; allFrom && allFrom.allQualifier == null && allFrom.redirect && hop < 10; hop += 1) {
+    const target = normalizeDomainKey(allFrom.redirect);
+    allFrom = walk.chain.find((c) => c.domain === target && c.via === allFrom.domain && c.found) ?? null;
+  }
+  const allQ = allFrom ? allFrom.allQualifier ?? null : null;
+  const viaRedirect = allFrom && allFrom !== root ? ` (reached through redirect= to ${allFrom.domain})` : '';
+  const allEvidence = allFrom && allFrom !== root ? `TXT ${walk.domain}: ${root.record}; TXT ${allFrom.domain}: ${allFrom.record}` : `TXT ${walk.domain}: ${root.record}`;
+
+  if (allQ === '+') {
     findings.push(finding(
       'spf-plus-all', 'danger', 'SPF ends in +all -- authorizes any server to send as this domain',
-      `${walk.domain}'s SPF record ends in "+all" (or bare "all", which defaults to +all). This explicitly tells receivers that ANY server on the internet is authorized to send mail as this domain. It is one of the most serious SPF misconfigurations possible -- it makes the rest of the record pointless and provides zero spoofing protection.`,
-      `TXT ${walk.domain}: ${root.record}`,
+      `${walk.domain}'s SPF record ends in "+all"${viaRedirect} (or bare "all", which defaults to +all). This explicitly tells receivers that ANY server on the internet is authorized to send mail as this domain. It is one of the most serious SPF misconfigurations possible -- it makes the rest of the record pointless and provides zero spoofing protection.`,
+      allEvidence,
     ));
-  } else if (root.allQualifier === '?') {
+  } else if (allQ === '?') {
     findings.push(finding(
       'spf-neutral-all', 'notice', 'SPF ends in ?all -- neutral, provides no real protection',
-      `${walk.domain}'s SPF record ends in "?all" (neutral). Receivers are told to treat a non-matching sender as neither pass nor fail -- functionally close to having no SPF policy at all for anything not explicitly listed.`,
-      `TXT ${walk.domain}: ${root.record}`,
+      `${walk.domain}'s SPF record ends in "?all"${viaRedirect} (neutral). Receivers are told to treat a non-matching sender as neither pass nor fail -- functionally close to having no SPF policy at all for anything not explicitly listed.`,
+      allEvidence,
     ));
-  } else if (root.allQualifier === '~') {
+  } else if (allQ === '~') {
     findings.push(finding(
       'spf-softfail-all', 'notice', 'SPF ends in ~all (softfail)',
-      `${walk.domain}'s SPF record ends in "~all" (softfail). Most receivers accept a softfail message but may flag or quarantine it rather than rejecting it outright. "-all" (hardfail) is the stronger setting once every legitimate sending source is confirmed to be listed.`,
-      `TXT ${walk.domain}: ${root.record}`,
+      `${walk.domain}'s SPF record ends in "~all"${viaRedirect} (softfail). Most receivers accept a softfail message but may flag or quarantine it rather than rejecting it outright. "-all" (hardfail) is the stronger setting once every legitimate sending source is confirmed to be listed.`,
+      allEvidence,
     ));
-  } else if (root.allQualifier === '-') {
+  } else if (allQ === '-') {
     findings.push(finding(
       'spf-hardfail-all', 'info', 'SPF ends in -all (hardfail)',
-      `${walk.domain}'s SPF record ends in "-all" (hardfail), the strongest SPF setting: receivers are told to reject mail from any server not explicitly listed as an SPF source.`,
-      `TXT ${walk.domain}: ${root.record}`,
+      `${walk.domain}'s SPF record ends in "-all"${viaRedirect} (hardfail), the strongest SPF setting: receivers are told to reject mail from any server not explicitly listed as an SPF source.`,
+      allEvidence,
     ));
-  } else if (root.allQualifier === null && !root.redirect) {
+  } else if (root.allQualifier === null && !root.redirect) { // no all, no redirect
     findings.push(finding(
       'spf-no-all-no-redirect', 'notice', 'No "all" mechanism and no redirect=',
       `${walk.domain}'s SPF record has neither an "all" mechanism nor a redirect= modifier. Per RFC 7208, a sender that matches none of the listed mechanisms then evaluates to Neutral -- a similarly weak result to "?all" -- rather than the record giving a deliberate closing answer.`,
@@ -600,14 +722,24 @@ function dkimFindings(dkim, transportErrors) {
       ));
     } else if (r.malformed.length) {
       findings.push(finding(
-        'dkim-malformed', 'notice', `Selector "${r.selector}" resolved but doesn't look like a DKIM key`,
-        `${r.selector}._domainkey resolves to a TXT record, but ${r.malformed.join('; ')}. It may be an unrelated TXT record squatting at this name, or a misconfigured key.`,
+        'dkim-malformed', 'notice', `Selector "${r.selector}" resolved but doesn't hold a usable DKIM key`,
+        `${r.selector}._domainkey resolves to a TXT record, but ${r.malformed.join('; ')}. It may be an unrelated TXT record squatting at this name, or a misconfigured key; mail signed with it will not verify.`,
+        `TXT ${r.selector}._domainkey: ${r.record}`,
+      ));
+    } else if (r.hasPublicKey && r.keyType === 'rsa' && r.keyBits < 1024) {
+      findings.push(finding(
+        'dkim-weak-key', 'danger', `DKIM selector "${r.selector}" uses a ${r.keyBits}-bit RSA key (minimum is 1024)`,
+        `${r.selector}._domainkey publishes a ${r.keyBits}-bit RSA key. RFC 8301 s3.2 says verifiers MUST NOT treat signatures made with keys under 1024 bits as valid, and Gmail and Yahoo's bulk-sender rules ask for at least 1024 (2048 recommended). Mail signed with this selector fails DKIM. Rotate to a 2048-bit key.`,
         `TXT ${r.selector}._domainkey: ${r.record}`,
       ));
     } else if (r.hasPublicKey) {
+      const size = r.keyType === 'ed25519' ? 'an ed25519' : `a ${r.keyBits}-bit RSA`;
+      const short = r.keyType === 'rsa' && r.keyBits < 2048
+        ? ' It meets the 1024-bit floor (RFC 8301 s3.2) but is below the 2048 bits RFC 8301 asks signers to use; plan a rotation.'
+        : '';
       findings.push(finding(
         'dkim-valid-key', 'info', `DKIM selector "${r.selector}" has a valid public key`,
-        `${r.selector}._domainkey publishes a DKIM record with a non-empty p= tag${r.hasVersionTag ? ' and v=DKIM1' : ''} -- mail signed with this selector can be verified by receivers.`,
+        `${r.selector}._domainkey publishes ${size} public key that parses${r.hasVersionTag ? ', with v=DKIM1' : ''} -- mail signed with this selector can be verified by receivers.${short}`,
         `TXT ${r.selector}._domainkey: ${r.record}`,
       ));
     }
@@ -665,6 +797,13 @@ function dmarcFindings(domain, dmarc, transportError) {
     findings.push(finding(
       'dmarc-malformed', 'danger', 'DMARC record has invalid tags',
       `_dmarc.${at}'s DMARC record has a problem: ${dmarc.malformed.join('; ')}.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
+    ));
+  }
+  if (dmarc.tagWarnings && dmarc.tagWarnings.length) {
+    findings.push(finding(
+      'dmarc-tag-ignored', 'notice', 'DMARC record has a tag value receivers will ignore',
+      `_dmarc.${at}'s DMARC record: ${dmarc.tagWarnings.join('; ')}. The policy still applies; fix the value so the record means what it says.`,
       `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }

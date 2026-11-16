@@ -100,15 +100,20 @@ replace a qualified professional.
 
 **Scope of the SPF lookup count**, stated plainly: it counts `include:` and
 `redirect=` recursively (each fetching and walking a further SPF record) plus
-one lookup for each `a`/`mx`/`ptr`/`exists` mechanism found, but it does not
-further resolve what an `a`/`mx`/`ptr` mechanism itself points at for the
-10-lookup count. It does separately resolve the A/AAAA (or MX) target of each
-`a`/`mx`/`exists` term (up to 20 queries) to count **void lookups**, the
-RFC 7208 limit of 2 empty answers; macro targets are skipped. A
-domain whose `mx` mechanism resolves to several mail servers may cost
-slightly more than this tool shows -- a real but secondary contributor next
-to the dominant real-world cause of this bug, stacking one `include:` per
-tool.
+one lookup for each `a`/`mx`/`ptr`/`exists` mechanism found, which is how
+RFC 7208 s4.6.4 counts the 10-lookup budget; the address queries an `mx` or
+`ptr` then makes do not count toward it. A `redirect=` in a record that also
+has `all` is ignored (RFC 7208 s6.1), so it is neither counted nor followed.
+It separately resolves the A/AAAA (or MX) target of each `a`/`mx`/`exists`
+term (up to 20 queries) to count **void lookups**, the RFC 7208 limit of 2
+empty answers; macro targets are skipped. Not checked: the separate cap of 10
+MX hosts (or PTR names) per mechanism that s4.6.4 also sets.
+
+**DKIM keys are parsed, not just found.** A selector counts as a valid key
+only when `v=` (if present) is `DKIM1`, `k=` is `rsa` or `ed25519`, and `p=`
+decodes: an RSA key's modulus length is read from the DER, and a key under
+1024 bits is reported as a failure (RFC 8301 s3.2); 1024 to 2047 bits gets a
+rotation note. An ed25519 key must be 32 bytes (RFC 8463).
 
 **DKIM selector coverage is a known list, not a guarantee.** If none of the
 nine common selectors resolve, that is not proof DKIM isn't configured --

@@ -9,6 +9,9 @@ import {
   buildReport,
 } from './analyze.mjs';
 
+// A real 2048-bit RSA SubjectPublicKeyInfo, generated for these fixtures.
+const KEY_2048 = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs3RRsQ+XR0yBvYuIEVsLTafn0dS6TJNTVJm0v2RFmb5re8QfScXDWj4Qfply8QSCWlFhpurSGTlizKt4xb6xmTB4Dowfv5831ZZaegt/QzcGs1C/Z0q11Ostet1J3tfJLV2teRon2zScjMEVDuGU7INx14uieYR+12MPJSz+nTkirv30d3YWngBxGhbfrq3A89tHmL+1VaYXqa/MC+hwHOThbPylGbcLzFyfIuVXRXn/hIu3rHNfE3I+4cTAoMBEb53WzzNfqZxPJ+0bBaebFP4H8CEos46k/pOIgS0QP0nPBEC19SNLRrps9aftgubevMfrKrAW5GtyIGChZu3O7QIDAQAB';
+
 // ---------------------------------------------------------------------------
 // TXT presentation-format helpers
 // ---------------------------------------------------------------------------
@@ -155,7 +158,7 @@ test('walkSpfChain reports "found: false" for a domain with no SPF record at all
 // ---------------------------------------------------------------------------
 
 test('analyzeDkimSelector: a selector with a real public key is valid', () => {
-  const r = analyzeDkimSelector({ selector: 'google', txtRecords: ['v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA'] });
+  const r = analyzeDkimSelector({ selector: 'google', txtRecords: ['v=DKIM1; k=rsa; p='+KEY_2048] });
   assert.equal(r.found, true);
   assert.equal(r.hasPublicKey, true);
   assert.equal(r.revoked, false);
@@ -182,7 +185,7 @@ test('analyzeDkimSelector: null txtRecords (NXDOMAIN) is simply not found', () =
 
 test('analyzeDkim summarizes across every selector checked', () => {
   const dkim = analyzeDkim([
-    { selector: 'google', txtRecords: ['v=DKIM1; p=abc123'] },
+    { selector: 'google', txtRecords: ['v=DKIM1; p=' + KEY_2048] },
     { selector: 'selector1', txtRecords: null },
     { selector: 'default', txtRecords: ['v=DKIM1; p='] },
   ]);
@@ -321,7 +324,7 @@ test('buildReport is clean (ok: true, zero danger findings) for a well-configure
     '_spf.google.com': ['v=spf1 ip4:203.0.113.0/24 -all'],
   });
   const dkim = analyzeDkim([
-    { selector: 'google', txtRecords: ['v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA'] },
+    { selector: 'google', txtRecords: ['v=DKIM1; k=rsa; p='+KEY_2048] },
     { selector: 'selector1', txtRecords: null },
   ]);
   const dmarc = analyzeDmarc(['v=DMARC1; p=reject; pct=100; rua=mailto:dmarc@clean.example']);
