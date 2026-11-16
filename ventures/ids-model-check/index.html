@@ -46,6 +46,8 @@
     th, td { text-align: left; padding: 5px 8px; border-top: 1px solid var(--line); vertical-align: top; }
     code { font-size: 0.9em; }
     footer { margin-top: 3em; font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1em; }
+    a.cta { display: inline-block; padding: 10px 18px; border-radius: 8px; background: var(--accent); color: var(--bg); font-weight: 700; text-decoration: none; margin: 0 8px 8px 0; }
+    a.cta.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
     .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 14px 0; }
     .fact { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--card); }
     .fact b { display: block; font-size: 1.3rem; }
@@ -57,6 +59,7 @@
   <h1>Check an IFC model against an IDS file, in your browser.</h1>
   <p class="lede">Drop a building model (.ifc) and a buildingSMART Information Delivery Specification (.ids). You get every specification's result, each failing element with the reason, and a BCF issue list your BIM tool can open. Nothing is uploaded.</p>
 
+  <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="samples/coordination-basics.ids">Get the starter IDS</a></p>
   <div class="facts">
     <div class="fact"><b>334 / 334</b>buildingSMART IDS test cases right (<a href="#accuracy">how it was checked</a>)</div>
     <div class="fact"><b>under 1 s</b>for a 22 MB, 424,819-entity Revit export in Chromium (0.8 s; 1.4 s on the command line)</div>
@@ -112,6 +115,7 @@
 
   <section aria-labelledby="cli">
     <h2 id="cli">Command line and CI</h2>
+    <p>Framing the same house? <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> reads the walls from the same IFC file and lays out studs, plates and a lumber order.</p>
     <p>The same engine runs in Node 20+, with no dependencies, so a model can be checked on every export or in a CI job: <code>node cli.mjs model.ifc spec.ids --bcf issues.bcfzip</code> exits 1 when a specification fails. Source and instructions: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ids-model-check">GitHub</a>.</p>
   </section>
 

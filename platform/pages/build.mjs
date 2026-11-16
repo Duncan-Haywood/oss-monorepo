@@ -4973,7 +4973,8 @@ const SUBCATEGORY_RULES = {
       // `continuous-beam-calculator` joined 2026-11-12 beside it: the beam a framer sets over posts.
       // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
       // before the drywall here, and its lumber list is the same job as `cut-list`.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
+      // `ids-model-check` joined 2026-11-16 beside it: the IFC model check before the build.
+      test: (slug) => /^(ids-model-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',
