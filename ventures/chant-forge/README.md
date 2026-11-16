@@ -969,6 +969,28 @@ every few hundred milliseconds. A listener may hear that as tremolo on the bass 
 ordinary choir sound. That question is added to the listening test; random start phases or uneven detunes
 would change it. Nothing in the synthesis changed this round. Not listened to.
 
+#### /i/ checked out of sample: a second session's set, and a second rule (2026-11-16)
+
+A second session took the same item in parallel and wrote its own fix before the round above merged: a
+coda's voiced fricative needing its energy above 2.5 kHz 6 dB over the vowel's (it scored the /i/ beat at -14
+to +4 dB there, a sung z 12-51, a v 2-21), pre-registered on its own held-out set. That set is now part M of
+`eval/coda-check.mjs`: 24 syllables (*id il ir if ist ins li di ri mi*; *ag eg og ul ol ur or ed od uf*; *iz az iv
+ev*), 19 of them in no other part, at G2, C3, E3, G#3, C#4 and D#4, 96 BPM. It was written before that session
+saw `VFRIC_HI5` or part L, so it is an out-of-sample check of the rule on main. Nothing was tuned on it.
+
+| part M | reader before | `VFRIC_HI5` (main) | the 2.5 kHz rise (not merged) |
+|---|---|---|---|
+| /i/ syllables read exactly | 62 of 120 | 105 of 120 (87.5%) | 99 of 120 |
+| other syllables read exactly | 106 of 120 | 106 | 106 |
+| z codas read as a voiced fricative | 24 of 24 | 24 | 24 |
+| v codas read as a voiced fricative | 23 of 24 | 23 | 16 |
+| vowel-only control read as none | 228 of 288 | 288 of 288 | 288 |
+
+`VFRIC_HI5` holds on data it never saw, and it beats the other rule. A v puts its noise near 5 kHz, which a
+test against the vowel's 2.5 kHz band only half sees after /i/ and /e/. The other rule was not merged. M's
+misses left: *if* read as an s (7, the place rule's centroid after /i/), *uf* as an s (4), and *id*, *ir*,
+*ur* read as nothing (2 each). Reader only; not listened to.
+
 #### nunc and mens on C4: the murmur thrown out by what follows it (2026-11-16)
 
 The cluster round left *nunc*, *tunc* and *mens* missed on C4 quarter notes in part J. Read frame by frame, the

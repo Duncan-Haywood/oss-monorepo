@@ -119,7 +119,7 @@ export function normalizeOrders(table, { decimalComma = false } = {}) {
     if (!name) continue;
     let o = byName.get(name);
     if (!o) {
-      o = { name, line: table[r].line ?? r + 1, email: "", created: null, cancelled: false, status: "", subtotal: null, total: null, discount: null, refunded: null, codes: "", lines: 0, bad: "" };
+      o = { name, line: table[r].line ?? r + 1, email: "", created: null, cancelled: false, status: "", subtotal: null, total: null, discount: null, refunded: null, shipping: null, taxes: null, codes: "", lines: 0, bad: "" };
       byName.set(name, o);
     }
     const num = (f) => { const v = get(f); if (v === "") return null; const n = parseNumber(v, decimalComma); return Number.isFinite(n) ? n : NaN; };
@@ -127,7 +127,7 @@ export function normalizeOrders(table, { decimalComma = false } = {}) {
     if (!o.status) o.status = get("status").toLowerCase();
     if (get("cancelled")) o.cancelled = true;
     if (o.created === null && get("created")) { const t = Date.parse(get("created").replace(/^(\d{4}-\d{2}-\d{2}) /, "$1T").replace(/ ([+-]\d{2}):?(\d{2})$/, "$1:$2")); if (Number.isFinite(t)) o.created = t; }
-    for (const f of ["subtotal", "total", "discount", "refunded"]) {
+    for (const f of ["subtotal", "total", "discount", "refunded", "shipping", "taxes"]) {
       if (o[f] === null) { const v = num(f); if (v !== null) o[f] = v; }
     }
     if (!o.codes && get("code")) o.codes = get("code");
@@ -143,7 +143,10 @@ export function normalizeOrders(table, { decimalComma = false } = {}) {
     if (o.bad) { skipped.push({ line: o.line, reason: `unreadable ${o.bad} on ${o.name}` }); continue; }
     if (o.cancelled || /^(voided|cancelled|canceled)$/.test(o.status)) { cancelled++; continue; }
     const discount = Math.abs(o.discount ?? 0);
-    const subtotal = o.subtotal ?? (o.total !== null ? o.total : null);
+    // Total includes shipping and tax; with no Subtotal column take them back
+    // out where the export has them (red team 2026-11-16: they read as list price).
+    const extra = (f) => (Number.isFinite(o[f]) ? o[f] : 0);
+    const subtotal = o.subtotal ?? (o.total !== null ? o.total - extra("shipping") - extra("taxes") : null);
     const gross = o.subtotal !== null ? o.subtotal + discount : o.lines > 0 ? o.lines : subtotal !== null ? subtotal + discount : null;
     if (gross === null) { skipped.push({ line: o.line, reason: `no subtotal or total on ${o.name}` }); continue; }
     const codes = o.codes ? o.codes.split(/[,;]/).map((c) => c.trim().toUpperCase()).filter(Boolean) : [];
