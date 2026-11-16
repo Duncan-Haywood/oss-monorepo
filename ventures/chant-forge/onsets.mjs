@@ -86,6 +86,8 @@ export const NEAR = { dark: 8, lo: -18, hi: 0, hold: 4, tiltHold: 4 };
 // readCoda's murmur just before the obstruent of an n-t, n-s or n-k cluster (see its note); chosen on the
 // synthetic syllables of eval/coda-check.mjs A and J only
 export const PRE = { dark: 6, step: 8, lo: -18, hi: 4, minMs: 40, gap: 5 };
+// readCoda's vowelAgain before an obstruent (see its note); chosen on eval/coda-check.mjs J only
+export const AGAIN = { gap: 5, frames: 2 };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
@@ -205,7 +207,7 @@ export function expectedRead(ph) {
 // keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
 // /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
 // 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {} } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -275,7 +277,19 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   const next = [stopRun, fric, vfric, tap].filter(Boolean).map((r) => r[0]);
   // and a murmur closes the syllable: when the vowel comes back after it (a vibrato swing taking a
   // harmonic off F1 on a high note looks like one for 30 ms) it was not a nasal
-  const vowelAgain = (r) => fr.slice(r[1] + 1).some((f) => f.hiRel > -6 && f.lvl > -10);
+  // Before an obstruent (2026-11-16, README "nunc and mens on C4"): when a stop's closure or a fricative
+  // starts within AGAIN.gap frames of the run's end, only the frames between are read, and the vowel is back
+  // only when AGAIN.frames or more of them are vowel-like. What follows the obstruent's onset is the
+  // obstruent (the /s/ of *mens* is bright and loud) or the next note, and the 5-10 ms the murmur takes to
+  // hand over to a closure brightens one frame (the oral tract opens a little as the velum shuts): on C4
+  // that one frame threw out the murmur of *nunc*, *tunc* and *mens*. `againGap: false` is the reader before.
+  const obsAt = [stopRun, fric, vfric].filter(Boolean).map((q) => q[0]);
+  const vowelLike = (f) => f.hiRel > -6 && f.lvl > -10;
+  const vowelAgain = (r) => {
+    const o = againGap ? obsAt.filter((k) => k > r[1] && k - r[1] <= AGAIN.gap).sort((p, q) => p - q)[0] : undefined;
+    if (o === undefined) return fr.slice(r[1] + 1).some(vowelLike);
+    return fr.slice(r[1] + 1, o).filter(vowelLike).length >= AGAIN.frames;
+  };
   // After a dark vowel (/u/, and /o/ low down) the vowel has little above 1 kHz to lose, so its murmur is
   // only 8-12 dB darker, which a fade also reaches (README "Final consonants, third round"). What a fade
   // does not do is step under 500 Hz: the lips shut in 10 ms and the murmur, quieter than the vowel in

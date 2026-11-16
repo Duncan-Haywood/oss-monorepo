@@ -44,6 +44,19 @@
 //    cluster nasals together 9 of 11 or more (7); (4) every vowel-only control and every bare-vowel row
 //    identical (the rule needs an obstruent after the murmur); (5) eval/vowel-check.mjs and
 //    eval/consonant-check.mjs cannot move: readOnset and the synthesis are untouched.
+// Ninth round (2026-11-16): a murmur thrown out by the obstruent after it (onsets.mjs AGAIN, README "nunc and
+//    mens on C4"). readCoda's vowelAgain read every frame after a murmur, so the bright, loud /s/ of *mens* and the
+//    one frame a murmur brightens as it hands over to a closure read as the vowel coming back, and the murmur was
+//    thrown out. Now, when a closure or a fricative starts within 5 frames of the run's end, only the frames
+//    between are read, and 2 or more must be vowel-like. Chosen on part J only (cluster nasals 124 to 127 of 132,
+//    others 304 and control 445 unchanged). Pre-registered here and committed before part K or any other part
+//    was run with it. Part K is new: 14 cluster syllables and 22 others never sung in any part, at B2, F3, A3, B3
+//    and D4 (no pitch of A or J), 104 BPM, quarter and eighth notes, sung and vowel-only. Against `--again off`:
+//    (1) K's cluster nasals no fewer, and at least 1 more; (2) K's other syllables read exactly within 1, and no
+//    more of them read as a nasal than with the rule off; (3) K's vowel-only control identical; (4) A, B, D, E,
+//    H, I and F totals each no lower, their nasals no fewer, every vowel-only control and bare-vowel row
+//    identical; (5) eval/vowel-check.mjs and eval/consonant-check.mjs cannot move (readOnset and the synthesis are
+//    untouched).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -55,7 +68,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 // --near off: readCoda without its reading against the vowel just before the murmur (the reader before
 // 2026-11-15's round); --near dark=8,lo=-18: try other settings (onsets.mjs NEAR)
@@ -63,7 +76,9 @@ const NEARARG = args.includes('--near') ? args[args.indexOf('--near') + 1] : '';
 const RC0 = NEARARG === 'off' ? { nearVowel: false } : NEARARG ? { nearOpts: Object.fromEntries(NEARARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
 // --pre off: readCoda without the cluster-nasal rule (the reader before 2026-11-16's round)
 const PREARG = args.includes('--pre') ? args[args.indexOf('--pre') + 1] : '';
-const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}) };
+// --again off: readCoda's vowelAgain reading every frame after a murmur, the obstruent's too (before 2026-11-16's ninth round)
+const AGAINARG = args.includes('--again') ? args[args.indexOf('--again') + 1] : '';
+const RC = { ...RC0, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -279,6 +294,39 @@ lines.push('## J. Cluster syllables (the set the eighth round\'s rule was tuned 
   `| cluster syllables read exactly (on their nasal) | ${cell('cluster on')} | ${cell('cluster off')} |`,
   `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
   `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '', 'Cluster misses with the rule:', '', ...(jMiss.length ? jMiss.map((m) => `- ${m}`) : ['- none']), '');
+}
+
+// ---- K ----
+if (PARTS.includes('K')) {
+const POS = ['fons', 'dens', 'pons', 'mons', 'gens', 'hinc', 'runt', 'bunt', 'tent', 'cant', 'frons', 'sanct', 'lunt', 'quent'];
+const NEG = ['ep', 'ip', 'op', 'ec', 'ic', 'oc', 'eb', 'ib', 'ob', 'ef', 'of', 'ot', 'ux', 'ix', 'ox', 'im', 'om', 'on', 'in', 'e', 'i', 'u'];
+const SY = [...POS, ...NEG], tally = {}, kMiss = [], kNasal = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+for (const pulses of [4, 2]) for (const midi of [47, 53, 57, 59, 62]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 104, title: 'held-out clusters' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
+      for (const [mode, o] of [['on', RC], ['off', { ...RC, againGap: false }]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'other' && got.cls === 'nasal' && want.cls !== 'nasal') kNasal[mode] = (kNasal[mode] || 0) + 1;
+        if (mode === 'on' && !ok && grp === 'cluster' && !HIDE.includes('K')) kMiss.push(`${pulses === 4 ? 'quarter' : 'eighth'} ${midi} *${s}* read as ${label(got)}`);
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+lines.push('## K. Held-out cluster syllables (ninth round, pre-registered)', '', `Clusters: ${POS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarter and eighth notes at 104 BPM, each followed by a rest, B2, F3, A3, B3, D4.`, '',
+  '| | with the obstruent gap | without (`againGap: false`) |', '|---|---|---|',
+  `| cluster syllables read exactly (on their nasal) | ${cell('cluster on')} | ${cell('cluster off')} |`,
+  `| other syllables read exactly | ${cell('other on')} | ${cell('other off')} |`,
+  `| other syllables read as a nasal | ${kNasal.on || 0} | ${kNasal.off || 0} |`,
+  `| vowel-only control read as none | ${cell('control on')} | ${cell('control off')} |`, '', 'Cluster misses with the rule:', '', ...(HIDE.includes('K') ? ['- hidden (--hide-misses K)'] : kMiss.length ? kMiss.map((m) => `- ${m}`) : ['- none']), '');
 }
 
 // ---- C ----
