@@ -920,7 +920,7 @@ as nasals at E2, G3 and D3 (the step rule, not this one), and /i/ read as a voic
 without it, and no other syllable gains a nasal. Nothing in the synthesis changed. This round makes the
 check see the n that was already sung. Whether a listener hears *sunt* or *sut* is a question for an ear.
 
-#### /i/ is not a voiced fricative (2026-11-16, latest)
+#### /i/ is not a voiced fricative (2026-11-16)
 
 Part K's other misses were mostly one fault: /i/ read as a voiced fricative (83 of 119), sung or vowel-only, on
 *i*, *ip*, *ic*, *im*, *in* and *hinc*. Read frame by frame, a vowel-only /i/ on A3 holds its level for 100 ms,
@@ -1030,6 +1030,48 @@ murmur is 18-33 dB under the vowel and only 20-30 dB dark in itself (one harmoni
 under 500 Hz), so it meets the closure rule instead of a murmur rule. That is the next item. `sing.test.mjs`
 holds this round: *nunc*, *tunc*, *mens* and *unt* on C4 all read on their n, at least 2 more than without the
 change, and none of *up uc ub us es ec* reads as a nasal. Nothing in the synthesis changed. Not listened to.
+
+#### E4 eighth notes: a murmur read as a closure (2026-11-16, latest; a rule that failed its registration, kept off)
+
+The cluster rounds left four misses in part J, all on E4 eighth notes: *nunc*, *tunc* and *mens* read as a voiced
+labial stop, *sunt* as a voiceless t. Read frame by frame (5 ms hops, levels against the reference vowel), the n
+is there: 50-70 ms at -19 to -32 dB, 15-30 dB dark in itself, then the k or t closure falls to -100 dB and bursts,
+or the /s/ of *mens* starts. It is too deep for every nasal rule (PRE stops at -18 dB, `murmurTilt` wants 28 dB
+of darkness, and one harmonic of a 330 Hz voice under 500 Hz does not give that). Inside it, a dip of the five
+detuned voices' beat to -31 dB met the closure rule, and the murmur's swell back counted as its burst.
+
+- **The rule** (`onsets.mjs` `DEEP`, `readCoda(..., { deepMurmur: true })`): a run of 60 ms or more at -12 to
+  -35 dB of the vowel (the louder of the reference and the vowel's peak in the 50 ms before the run), a median
+  15 dB dark in itself, that runs into frication outlasting it, or within 5 frames into a closure that reaches
+  -50 dB and ends in a burst. A voiced stop's voice bar holds at -24 to -43 dB up to its burst, so it should not
+  qualify; a vowel falling into a voiceless closure passes through the band in 15-35 ms.
+- **First registration, failed.** Chosen on J alone (a fall of 18 dB under the run in place of -50 dB, 50 ms,
+  no peak), with a new part N (10 clusters, 20 others, F#2 to E4, 108 BPM) written and committed before it ran.
+  It missed three of five predictions. N's D#4 and E4 eighths were already read right 19 of 20 times without it
+  (an eighth at 108 BPM is 0.28 s, longer than J's 0.25), N's voiced stops read as a nasal 5 times against 1,
+  and K, L and M each lost a syllable. Two faults: on an eighth note the reference vowel, taken 45 ms in, is still
+  in its attack, so a *lud* voice bar on D#4 sat only 24 dB under it; and after the -15 dB tail of a dark vowel
+  (*rud* on A#3) a voice bar at -36 to -41 dB was "18 dB under the run".
+- **Second registration, failed too.** The peak, the -50 dB silence and the 60 ms were set on J and N (887 to 891
+  of 936, 689 to 691 of 720, nothing worse on either). A new part O (10 clusters and 20 others sung in no other
+  part, F2 to E4, 126 BPM, eighths of 0.24 s) was committed with its predictions before it ran.
+
+| prediction (against `deepMurmur: false`) | off | on |
+|---|---|---|
+| (1) O's cluster nasals no fewer, 2 more on D4-E4 eighths | 111 of 120; 25 of 30 | 113; 25 of 30: fails |
+| (2) O's others within 1, voiced stops read as a nasal no more | 210 of 240; 3 | 210; 4: fails |
+| (3) O's vowel-only control identical | 356 of 360 | 356: holds |
+| (4) A-N totals no lower, nasals no fewer, controls identical | | M's others 106 to 105: fails; the rest hold |
+| (5) vowel and consonant checks cannot move | | readOnset and the synthesis untouched: holds |
+
+Across every part the rule gains 8 reads (J's four, N's *fans* and *font* on D#4, O's *ment* and *pens*) and loses
+one (*og* in M), and it never moves A, B, D, E, H, I, F, K or L. But it was registered to fix short high notes
+and on O it fixed none of them, so it ships as registered: off by default. `node eval/coda-check.mjs --deep on`
+runs every part with it, and parts N and O print both columns. O's five D4-E4 eighth misses (*punc* twice as a k,
+*tunt* and *ment* as a t, *sons* as an s twice in all) were not read frame by frame, and they are the next item.
+That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the opt-in: with `deepMurmur: true`
+all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
+and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
 #### Formant tuning on high notes (2026-11-15)
 
