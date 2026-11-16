@@ -13,6 +13,19 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (278 of 278,
 revised with milestones 4e–4s and 3b) and a list of what a submission still needs.
 
+**Milestone 4t headline** (can the update test simply decline to decide when one of its small-set solves is far
+from the camera's spec-sheet focal length, 527.1 px? no new solves, all 18 pairings of three pools on two cameras):
+**yes for safety, at a cost in power.** Rule W withholds the decision when the old 7-view or the new 6-view focal
+length is more than 5% from the fleet prior; with milestone 4r's per-view jitter in the twin, every pairing falls to
+at most 1.11% false alarms (pooled 0.30%, from 1.61%; the Kinect's third pool from 7.47% to 0.32%), withholding
+5.8% of unchanged-camera splits. W agrees with milestone 4s's oracle far-solve flag on 94&ndash;100% of splits but needs only
+the robot's own two solves. It catches a &plusmn;2% focal change in 3.9% of splits against 5.3% when every split is
+decided (0.73&times;), and on the side where a unit's f already sits away from the prior it withholds most 4% changes
+(the Xtion at +4%: 71%). Three of five pre-registered predictions held (H113, H114, H116); the Kinect's AC pairing
+missed the 1% bar at 1.11%.
+
+![S0 false alarms in all 18 pairings with every split decided and under rule W, and the firing rate against the focal change](experiments/m4t_withhold/withhold.png)
+
 **Milestone 4s headline** (does milestone 4r's per-view focal jitter keep the update test safe on a third,
 disjoint pool of 13 views per camera that played no part in suggesting it? 9,440 new solves): **on the Xtion yes,
 on the Kinect no.** The Xtion's third pool stays at or below 0.53% false alarms in every pairing. The Kinect's
@@ -945,6 +958,7 @@ python3 experiments/m4s_third/prepare.py fr1 <dir>/rgbd_dataset_freiburg1_rgb_ca
 python3 experiments/m4s_third/prepare.py fr3 <dir>/rgbd_dataset_freiburg3_calibration_rgb_depth
 OMP_NUM_THREADS=1 python3 experiments/m4s_third/run.py      # ~2 h on 4 cores; results.json.gz (k1 + k2, fr1c / fr3c)
 OMP_NUM_THREADS=1 python3 experiments/m4s_third/analyse.py  # ~10 min on 3 cores; summary.json, third.png (H108-H112)
+OMP_NUM_THREADS=1 python3 experiments/m4t_withhold/analyse.py  # ~6 min on 4 cores; summary.json, withhold.png (H113-H117)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -1004,7 +1018,9 @@ term is next), fit τ on one pool and apply it to the other, and test all of it 
 in milestone 4s: the Xtion stays safe, the Kinect's third pool over-alarms at up to 7.5% whatever τ, borrowed or its own.) After
 milestone 4s: model the far small-set solves in the twin's threshold (a mixture fitted to the pool's own far-solve rate, or withholding
 sets whose solve is far from the size's median) and pre-register it on all three pools of both units; a new session or sequence is
-still the test of anything fitted to these six pools. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
+still the test of anything fitted to these six pools. (Withholding done in milestone 4t: every cell at most 1.11% false alarms, 5.8% withheld,
+&plusmn;2% power 0.73&times;.) After milestone 4t: centre the withhold window on the unit's current calibration instead of the fleet
+prior, so a real change on either side keeps the same power, and pre-register it with the jitter on a new session. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
 (does the jackknife stay honest when σ is this much smaller?); find the smooth 2-D residual
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is
