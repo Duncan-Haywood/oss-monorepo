@@ -37,7 +37,7 @@ def short_lists(text):
         codes = set(tokens)
         # Only a literal made of nothing but zero-decimal codes is such a list: a
         # symbol map ("¥": "JPY") or a full ISO enumeration (with "usd") is not.
-        if {"jpy", "krw"} <= codes and codes <= STRIPE_ZERO | EXTRA_OK:
+        if "jpy" in codes and "krw" in codes and codes <= STRIPE_ZERO | EXTRA_OK:
             missing = STRIPE_ZERO - codes
             if missing:
                 yield text.count("\n", 0, m.start()) + 1, sorted(missing)

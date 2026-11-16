@@ -30,7 +30,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 14,
   "outcome": "success",
@@ -38,6 +38,10 @@
     {
       "what": "Ran node --test on server.test.mjs with a failing assertion before the fix; the assertion skipped s.close(), so the open HTTP server kept the suite alive past the 120 s tool limit and it had to be killed.",
       "cost_minutes": 3
+    },
+    {
+      "what": "check_stripe_zero_decimal.py flagged its own {'jpy','krw'} set literal in CI (changed-ventures red). Locally it passed only because the file was still untracked and the check reads git ls-files. Rewrote the condition without a literal; unwired_checks 180/195 pass locally.",
+      "cost_minutes": 4
     }
   ],
   "integrity_issues": [],
