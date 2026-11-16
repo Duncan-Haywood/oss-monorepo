@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonHolidays, poissonTrend, countDispersion, ar1JointFit, analyze, findBursts, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, lsKnots, lineRss, penaltyValue, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, negbinSizeGlobal, poissonSeasonal, poissonHolidays, poissonTrend, countDispersion, ar1JointFit, analyze, findBursts, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, lsKnots, lineRss, penaltyValue, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -663,7 +663,7 @@ test('--overdispersion nb --trend bend ranks knots with the negative-binomial li
   assert.ok(Math.abs(a.trend.growthChangesAt - 105) <= 15, `knot ${a.trend.growthChangesAt}`);
   const fit = poissonTrend(x, { bend: true, nbSize: 3.5 });
   assert.ok(Number.isFinite(fit.g) && fit.exposure.length === n);
-  assert.match(a.trend.growthChangeRangeNote, /optimistic/);
+  assert.match(a.trend.growthChangeRangeNote, /wider than a 95% range needs/);
   assert.equal(analyze({ values: x, model: 'poisson', trend: 'bend' }).trend.growthChangeRangeNote, undefined);
 });
 
@@ -1013,11 +1013,24 @@ test('--bursts stops a spike being read as two changes', () => {
   assert.throws(() => analyze({ values: x, bursts: true }), /counts/);
 });
 
-test('negbinSize sizes a clumpy series from its first differences', () => {
+test('negbinSize sizes a clumpy series from its first differences, each against its local level', () => {
   const x = Array.from({ length: 12 }, (_, i) => (i % 2 ? 20 : 0));
   const r = negbinSize(x);
   assert.ok(Number.isFinite(r));
-  assert.ok(Math.abs(r - 100 / (400 / 0.9098 - 10)) < 1e-9);
+  // every difference is 20 at a local level near 10, capped at K = 6.635: mean min(z, K) = 0.9813 at 400 / (2 (10 + 100 c)), c ~ 1.94
+  assert.ok(Math.abs(r - 1 / ((400 / 0.9813 / 2 - 10) / 100)) < 0.03, `size ${r}`);
+});
+
+test('negbinSize reads growing clumpy counts as clumpy (the global mean read them as Poisson)', () => {
+  let s = 5;
+  const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return (s + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const pois = (l) => { if (l > 60) return Math.max(0, Math.round(l + Math.sqrt(l) * gauss())); const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
+  // rate 7 rising to about 700, each count at an independent lognormal rate (sd 0.35, true size 7.67)
+  const x = Array.from({ length: 200 }, (_, t) => pois(Math.exp(2 + 0.004 * t + 0.04 * Math.max(0, t - 100) + 0.35 * gauss() - 0.06125)));
+  assert.equal(negbinSizeGlobal(x), Infinity);
+  const r = negbinSize(x);
+  assert.ok(r > 5 && r < 12, `size ${r}`);
 });
 
 test('findBursts needs both the ratio and a Poisson-sized excess', () => {

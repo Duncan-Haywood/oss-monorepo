@@ -1693,6 +1693,7 @@ class BearingFitParamsTest(unittest.TestCase):
         self.assertEqual(bad.returncode, 2)
 
 
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class LiftCadTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -2052,6 +2053,69 @@ class BrakesAndBouncesInARowTest(unittest.TestCase):
         rp = p.precharge_ohm + d["r_ohm"]
         want = p.bus_idle_a * rp * (1 - math.exp(-0.1 / (rp * d["c_f"])))
         self.assertAlmostEqual(tr["makes"][1]["gap_v"], want, delta=0.01)
+
+    @staticmethod
+    def _reference_bounce_train(p, load_a, n, open_frac):
+        """`contactor_bounce_train` as it was before the settle phase could stop early (perf note 2026-11-15): every
+        phase stepped to its end, the same float operations in the same order."""
+        d = p.contactor_inrush()
+        r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
+        vp = p.battery_v_max
+        rp = p.precharge_ohm + r if p.precharge_ohm > 0 else math.inf
+        v = vp - (d["precharge"]["residual_v"] if d["precharge"] else vp)
+        i, win = 0.0, p.contactor_bounce_ms / 1e3
+        t_open, t_shut = open_frac * win / n, (1 - open_frac) * win / n
+        settle = 20 * max(r * c, math.sqrt(l * c))
+        h0 = min(math.sqrt(l * c), r * c, l / r) / 60
+        pre = (lambda vx: (vp - vx) / rp) if rp != math.inf else (lambda vx: 0.0)
+        makes, breaks, arc_j = [], [], 0.0
+        for k in range(n + 1):
+            dur = t_shut if k < n else settle
+            steps = max(int(math.ceil(dur / h0)), 1)
+            h, peak, gap = dur / steps, 0.0, vp - v
+            for _ in range(steps):
+                a1, b1 = (i + pre(v) - load_a) / c, (vp - r * i - v) / l
+                vv, ii = v + a1 * h / 2, i + b1 * h / 2
+                a2, b2 = (ii + pre(vv) - load_a) / c, (vp - r * ii - vv) / l
+                vv, ii = v + a2 * h / 2, i + b2 * h / 2
+                a3, b3 = (ii + pre(vv) - load_a) / c, (vp - r * ii - vv) / l
+                vv, ii = v + a3 * h, i + b3 * h
+                a4, b4 = (ii + pre(vv) - load_a) / c, (vp - r * ii - vv) / l
+                v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
+                i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
+                peak = max(peak, i)
+            makes.append({"gap_v": gap, "peak_a": peak})
+            if k == n:
+                break
+            breaks.append(i)
+            arc_j += 0.5 * l * i * i
+            i = 0.0
+            if rp == math.inf:
+                v = max(v - load_a * t_open / c, 0.0)
+            else:
+                floor = vp - load_a * rp
+                v = floor + (v - floor) * math.exp(-t_open / (rp * c))
+        return {"n": n, "open_frac": open_frac, "makes": makes, "breaks_a": breaks, "arc_j": arc_j,
+                "peak_a": max(m["peak_a"] for m in makes), "max_gap_v": max(m["gap_v"] for m in makes),
+                "break_a": max(breaks) if breaks else 0.0}
+
+    def test_settle_stops_early_with_the_same_bits(self):
+        # 2026-11-15: the settle phase stops once the energy norm proves the current cannot reach its peak again.
+        # The result must be the reference's to the last bit, with and without the precharge resistor, idle and
+        # with the stepper's load, a long and a short bounce window.
+        from otr_cad.params import _settle_contracts
+        p = Feeder()
+        d = p.contactor_inrush()
+        r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
+        h = min(math.sqrt(l * c), r * c, l / r) / 60
+        self.assertTrue(_settle_contracts(r, l, c, 1 / (p.precharge_ohm + r), h))   # the fast path is taken
+        self.assertTrue(_settle_contracts(r, l, c, 0.0, h))
+        self.assertFalse(_settle_contracts(r, l, c, 0.0, 400 * h))                   # a step too long to contract
+        for q in (p, Feeder(precharge_ohm=0.0), Feeder(contactor_bounce_ms=2.0, bus_idle_a=4.0)):
+            for load in (q.bus_idle_a, q.bus_idle_a + 6.0):
+                for n, f in ((1, 1.0), (1, 0.2), (3, 0.5), (10, 0.8)):
+                    self.assertEqual(repr(q.contactor_bounce_train(load, n, f)),
+                                     repr(self._reference_bounce_train(q, load, n, f)), (q.precharge_ohm, load, n, f))
 
     def test_several_bounces_never_make_more_than_the_first_closing(self):
         p = Feeder()

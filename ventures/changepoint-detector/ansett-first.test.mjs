@@ -12,12 +12,13 @@ const labels = rows.map((r) => r[0]), values = rows.map((r) => +r[1]);
 const STOP = labels.indexOf('1989-08-21'), RESTART = labels.indexOf('1989-10-16');
 const holds = (cps, t) => cps.some((c) => c.range95 && c.range95.fromIndex <= t && t <= c.range95.toIndex);
 
-test('real first-class series: stop found by all four setups, restart only by the count model, and 29 to 37 other changes remain', () => {
+// (2026-11-15: the clumping size is read against the local level, eval/nb-size-local-preregistration.md; the old global-mean size was too large on these series, so the NB cost cut more often)
+test('real first-class series: stop found by all four setups, restart only by the count model, and 23 to 30 other changes remain', () => {
   assert.equal(labels.length, 270);
   const counts = values.map((v) => Math.round(v * 1000));
   const setups = [
     [values, { model: 'mean', period: 52 }, 29, false], [values, { model: 'mean' }, 30, false],
-    [counts, { model: 'poisson', period: 52, overdispersion: 'nb' }, 37, true], [counts, { model: 'poisson', overdispersion: 'nb' }, 30, true],
+    [counts, { model: 'poisson', period: 52, overdispersion: 'nb' }, 23, true], [counts, { model: 'poisson', overdispersion: 'nb' }, 24, true],
   ];
   for (const [vals, opt, n, restart] of setups) {
     const cps = analyze({ values: vals, labels, ...opt }).pelt.changepoints;

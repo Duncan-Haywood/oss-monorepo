@@ -31,7 +31,7 @@ test('--ar1 drops both arrivals shocks (it reads them as autocorrelation): a cos
   assert.ok(!run('au-arrivals-us', { period: 4, ar1: true }).some((l) => l === '2000Q3' || l === '2001Q3'));
 });
 
-test('UK lung deaths, no documented step: seasonal mean cuts 5-10 times, NB counts 2-7, --ar1 1-2', () => {
+test('UK lung deaths, no documented step: seasonal mean cuts 5-10 times, NB counts 2, --ar1 1-2', () => {
   for (const f of ['uk-ldeaths', 'uk-mdeaths', 'uk-fdeaths']) {
     assert.equal(load(f).values.length, 72);
     assert.ok(run(f, { period: 12 }).includes('1976-02'), `${f} 1976-02`);
@@ -41,5 +41,5 @@ test('UK lung deaths, no documented step: seasonal mean cuts 5-10 times, NB coun
   assert.equal(run('uk-ldeaths', { period: 12 }).length, 6);
   assert.equal(run('uk-mdeaths', { period: 12 }).length, 10);
   assert.equal(run('uk-fdeaths', { period: 12 }).length, 5);
-  assert.equal(run('uk-ldeaths', { period: 12, model: 'poisson', overdispersion: 'nb' }).join(), '1976-02,1976-04,1979-10');
+  assert.equal(run('uk-ldeaths', { period: 12, model: 'poisson', overdispersion: 'nb' }).join(), '1976-02,1976-04');  // 1979-10 dropped (2026-11-15: the clumping size is read against the local level, eval/nb-size-local-preregistration.md; the old global-mean size was too large on these series, so the NB cost cut more often)
 });
