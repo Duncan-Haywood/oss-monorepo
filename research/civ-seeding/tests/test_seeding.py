@@ -174,3 +174,80 @@ def test_independent_columns_differ_and_match_for_one(setup):
     X = np.stack([v.leader] * 8, 1)
     out = sd.simulate_batch(v, beta, X, 1, np.random.default_rng(2), independent=True, **sd.MODELS["I"])
     assert len(set(out[:, 0].tolist())) > 1
+
+
+# ---- milestone 7: complex centrality ----
+
+def _path_graph(n):
+    A = np.zeros((n, n))
+    for i in range(n - 1):
+        A[i, i + 1] = A[i + 1, i] = 1
+    return A
+
+
+def test_complex_paths_on_a_path_graph():
+    # on a path every interior household has 2 neighbours, so one active neighbour is half:
+    # with theta 0.5 the cascade runs the whole line one step at a time
+    A = _path_graph(6)
+    L = sd.complex_paths(A, theta=0.5)
+    assert list(L[:, 0]) == [0, 0, 1, 2, 3, 4]
+    assert list(L[:, 3]) == [2, 1, 0, 0, 0, 1]
+    # absolute threshold 2 cannot cross a path (no one has two active neighbours)
+    L2 = sd.complex_paths(A, absolute=2)
+    assert np.isinf(L2[3:, 0]).all() and (L2[:2, 0] == 0).all()
+
+
+def test_complex_paths_wide_bridge():
+    # two 4-cliques: when households 4 and 5 each have two ties into the first clique the
+    # bridge is wide enough for an absolute-2 contagion; a single tie is not
+    def two_cliques(wide):
+        A = np.zeros((8, 8))
+        for blk in (range(4), range(4, 8)):
+            for i in blk:
+                for j in blk:
+                    if i != j:
+                        A[i, j] = 1
+        for i, j in ([(0, 4), (1, 4), (0, 5), (1, 5)] if wide else [(0, 4)]):
+            A[i, j] = A[j, i] = 1
+        return A
+    L1 = sd.complex_paths(two_cliques(False), absolute=2)
+    L2 = sd.complex_paths(two_cliques(True), absolute=2)
+    assert np.isinf(L1[4:, 2]).all()
+    assert np.isfinite(L2[:, 2]).all()
+
+
+def test_complex_centrality_reach_and_length():
+    A = _path_graph(6)
+    reach, mlen = sd.complex_centrality(A, theta=0.5)
+    assert np.allclose(reach, 1.0)
+    assert mlen[0] == pytest.approx(np.mean([1, 2, 3, 4]))
+    assert mlen[2] < mlen[0]
+
+
+@pytest.mark.parametrize("rule", list(sd.COMPLEX_RULES))
+def test_complex_rules_give_budget(setup, rule):
+    V, _ = setup
+    for v in V[:4]:
+        b = int(v.leader.sum())
+        m = sd.COMPLEX_RULES[rule](v, b)
+        assert m.dtype == bool and m.sum() == b
+
+
+def test_complex_hood_seeds_a_neighbourhood(setup):
+    V, _ = setup
+    v = V[0]
+    b = int(v.leader.sum())
+    m = sd.COMPLEX_RULES["cc-hood-abs2"](v, b)
+    order, _ = sd._cc_order(v, None, 2)
+    c = order[0]
+    assert m[c]
+    nb = np.flatnonzero(v.A[c] > 0)
+    assert m[nb].sum() == min(len(nb), b - 1)
+
+
+def test_complex_spread_no_adjacent_seeds(setup):
+    V, _ = setup
+    for v in V[:4]:
+        b = int(v.leader.sum())
+        m = sd.COMPLEX_RULES["cc-spread-frac"](v, b)
+        assert v.A[np.ix_(m, m)].sum() == 0
