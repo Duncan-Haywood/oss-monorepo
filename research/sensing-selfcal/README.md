@@ -13,6 +13,16 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (278 of 278,
 revised with milestones 4e–4s and 3b) and a list of what a submission still needs.
 
+**Milestone 3e headline** (can a robot tell from its own solve which 1.2 s video windows are near-critical for focal
+length, by how far the camera's optical axis swings? re-solves of milestone 3c's 57 TUM RGB-D windows): **no; the swing
+is measurable but it does not predict the error.** The solved poses read the axis swing as well as motion capture does
+(Spearman 0.98), but the swing is smallest on fr3/stf (4.7&deg;, a sequence that pools well), not on the biased fr1/xyz
+(8.3&deg;), and against a window's focal error its Spearman is +0.08. A gate on it drops good fr3/stf windows and leaves
+the error unchanged (5.30% against 5.25%). One of five pre-registered predictions held (H139); pooling by random effects
+(milestone 3d) remains the rule, and distortion, not motion, is the next suspect.
+
+![Focal error against optical-axis spread from the solve, and the solve's axis spread against motion capture's](experiments/m3e_axis/axis.png)
+
 **Milestone 3d headline** (how many 1.2 s natural-feature windows must a robot pool to know f to 2%, and which pooled
 error bar is honest? analysis of milestone 3c's 57 windows): **about eight windows, pooled by random effects.** Treating
 windows as independent (inverse-variance) overstates precision (rms z 2.79 over five-window blocks, worse as more are
@@ -940,6 +950,8 @@ python3 experiments/m3b_natural/analyse.py # summary.json, natural.png
 OMP_NUM_THREADS=1 python3 experiments/m3c_jackknife/run.py tum 4  # ~50 min on 4 cores, resumable; results.json
 python3 experiments/m3c_jackknife/analyse.py # summary.json, jackknife.png
 python3 experiments/m3d_pool/pool.py         # seconds; summary.json, pool.png
+OMP_NUM_THREADS=1 python3 experiments/m3e_axis/run.py <tum dir> 4   # ~10 min; results.json
+python3 experiments/m3e_axis/analyse.py      # seconds; summary.json, axis.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1042,6 +1054,10 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3e: the optical-axis swing read from the solve does not predict a window's focal error (Spearman +0.08),
+so the next step fixes k1 and k2 at the camera's previous calibration and asks whether fr1/xyz's shared offset goes,
+pre-registered; longer windows remain open.
 
 After milestone 3d: pooling by random effects keeps the bar honest and reaches a 2.5% sd in about eight windows;
 the next steps are a near-criticality signal read from the solve (viewing-direction spread), and longer windows.
