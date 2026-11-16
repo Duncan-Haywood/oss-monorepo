@@ -264,7 +264,13 @@ def set_value(text: str, venture: str, field: str, value: str,
                          f"({over} over): replace what you landed, don't append"
                          + (f"\n{hint}" if hint else "") + "\n" + park_hint(value, venture, over, keep))
     if field == "buildable" and len(value) > FLAGSHIP_BUILDABLE_MAX:
-        raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters: "
+        # Say the overrun and the room the row had, so the next attempt fits first time
+        # (three runs on 2026-11-16 rewrote a replacement that was 14 to 47 over).
+        before = read_value(text, venture, field)
+        room = (f"; the row was {len(before)}, so it had {FLAGSHIP_BUILDABLE_MAX - len(before)} to spare"
+                if before is not None and len(before) <= FLAGSHIP_BUILDABLE_MAX else "")
+        raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters "
+                         f"({len(value) - FLAGSHIP_BUILDABLE_MAX} over{room}): "
                          "name only items a session can start now; landed work goes in the README or eval/")
     lines = text.splitlines(keepends=True)
     a, b = _span(lines, venture, field)
@@ -400,6 +406,12 @@ def stray_separators(text: str) -> list[str]:
     return bad
 
 
+def cap_note(field: str) -> str:
+    """" of <cap>" for a capped field, so a read shows the room left before an edit."""
+    cap = {"next": FLAGSHIP_NEXT_MAX, "buildable": FLAGSHIP_BUILDABLE_MAX}.get(field)
+    return f" of {cap}" if cap else ""
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("venture", nargs="?")
@@ -498,8 +510,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{args.venture} has no `{args.field}:`", file=sys.stderr)
                 return 1
             print(current)
-            cap = f" of {FLAGSHIP_NEXT_MAX}" if args.field == "next" else ""
-            print(f"-- {len(current)}{cap} characters", file=sys.stderr)
+            print(f"-- {len(current)}{cap_note(args.field)} characters", file=sys.stderr)
             return 0
         if args.set is not None:
             new = sys.stdin.read() if args.set == "-" else Path(args.set).read_text()
@@ -516,8 +527,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     args.file.write_text(out)
     n = len(" ".join(new.split()))
-    cap = f" of {FLAGSHIP_NEXT_MAX}" if args.field == "next" else ""
-    print(f"wrote {args.venture}.{args.field}: {n}{cap} characters")
+    print(f"wrote {args.venture}.{args.field}: {n}{cap_note(args.field)} characters")
     return 0
 
 
