@@ -1,6 +1,7 @@
 // The clumping-law check on real call-centre counts (eval/calls-law-preregistration.md).
 // usage: node eval/calls-law.mjs [weeks]   (weeks: how many whole weeks get the analyze runs; default 5)
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { clumpingLaw, nb1Dispersion, negbinSize, analyze } from '../engine.mjs';
 
 export function loadCalls(path = new URL('../data/bank-calls-5min.csv', import.meta.url)) {
@@ -57,7 +58,7 @@ export function referenceLaw(days, E, { boot = 1000, seed = 1 } = {}) {
 
 const med = (a) => { const s = [...a].sort((p, q) => p - q); return s.length % 2 ? s[s.length >> 1] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2; };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const weeks = Number(process.argv[2] ?? 5);
   const days = loadCalls();
   const E = referenceFit(days);
