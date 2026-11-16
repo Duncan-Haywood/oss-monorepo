@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, seo, aeo]
+topics: [design, seo]
 date: 2026-11-16
 ---
 # Polish 2026-11-16: ShootFlow's landing page rebuilt around what it does
