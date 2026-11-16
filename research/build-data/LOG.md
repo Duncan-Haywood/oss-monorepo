@@ -1,5 +1,17 @@
 # build-data log
 
+## Session 94, 2026-11-16 (pre-registration): is a completion date a finished build or a closure?
+
+Why: session 93 read Seattle's permits with status "Completed" and no completion date as finished builds missing a date, and asked whether another field could date them. While listing the feed's columns this run saw three such permits (issued 2005 to 2006), and all three descriptions open "Closed as Incomplete - Expired Permit". If that is general, those permits never close, and the reverse question matters more: how many completion dates in each feed belong to permits the status calls dead (session 93's `closeout_status.json` shows Austin's dated completions 4.6% "void" and 2.5% "expired"), since that date is the issue-to-completion label every model here trains and scores on.
+- Method: `src/label_audit.py` pulls status, issue date, completion date and permit type for SF, Seattle and Austin permits issued 2010 to 2022 (Seattle also a boolean, description contains "CLOSED AS INCOMPLETE", computed by the API; no text stored). Status groups: done (complete, completed, final, inspections completed, approved to occupy), dead (expired, void, withdrawn, cancelled, revoked, aborted, disapproved, denied, rejected, or Seattle's marker), other. Writes `results/label_audit.json`.
+Predictions (written before any pull; issue years 2010 to 2022 unless said):
+- (V1) At least 80% of Seattle's undated "Completed" permits carry the closed-as-incomplete marker.
+- (V2) Fewer than 2% of Seattle's dated completions carry it.
+- (V3) In Austin, dated completions in the dead group have a median issued-to-completed time more than twice the done group's.
+- (V4) In each city the dead group is under 10% of dated completions.
+- (V5) Over issue years 2010 to 2020, the dead share differs by more than 20 points between the highest and lowest permit type with at least 1,000 permits, in both Seattle and Austin.
+Refuted if any part fails.
+
 ## Session 93, 2026-11-15: a cut per source at its own 99th-percentile build time (Austin and SF about 3.2 years, Seattle 6.4) averages +0.58 days at q0.9, between session 92's best fixed cuts (3 years in SF, 5 in Seattle) and no better than 5 years overall; an independent rerun reproduces session 92's 2-, 3- and 8-year models to the digit; Seattle's and Austin's status fields label their never-completed permits (expired, void, and in Seattle "completed" with no date) where SF's mostly read "issued"; S1, S2, S4, S5 held, S3 refuted
 
 Why: session 91's "Next" asked for a staleness sweep, a deployable way to set the cut, and the status fields of Seattle and Austin. This run and session 92 (PR #16320) started on the sweep in the same minutes; session 92 landed first. This run's design and predictions were committed before any model ran (commit e0e53171f, then labelled "session 92"), so they are reported here unchanged as session 93. What it adds over session 92: a per-source threshold rule (session 92 swept fixed ones and found a censored Y-3 score cannot pick among them), the status-field query for all three cities (session 92's "Next" (b)), and a replication.
