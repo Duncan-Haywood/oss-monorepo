@@ -1,6 +1,11 @@
 {
-  "generated": "2026-10-20",
+  "generated": "2026-11-16",
   "shots": [
+    {
+      "slug": "wall-framing-takeoff",
+      "file": "wall-framing-takeoff.webp",
+      "caption": "Draws every stud, header and cripple, then prices the lumber order"
+    },
     {
       "slug": "container-load-planner",
       "file": "container-load-planner.webp",

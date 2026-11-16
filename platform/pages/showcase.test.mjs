@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { HOME_MOTION_CSS, HOME_MOTION_SCRIPT, SHOWCASE_DIR, copyShowcase, loadShowcase, renderMarquee, renderShowcaseSection } from './showcase.mjs';
+import { HERO_TOOLS, HOME_MOTION_CSS, HOME_MOTION_SCRIPT, SHOWCASE_DIR, copyShowcase, loadShowcase, renderHeroArt, renderMarquee, renderShowcaseSection } from './showcase.mjs';
 
 function fixture() {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'showcase-test-'));
@@ -91,4 +91,29 @@ test('the hero stays cheap to draw: no blur filters, no canvas shadows, a 1x can
   const script = HOME_MOTION_SCRIPT.replace(/^\s*\/\/.*$/gm, '');
   assert.doesNotMatch(script, /shadowBlur\s*=\s*[1-9]/, 'canvas shadowBlur is a blur per draw call');
   assert.match(script, /\bdpr = 1;/, 'the decorative canvas is drawn at CSS pixels');
+});
+
+test("the hero's art shows three linked stills, preferred tools first, and is hidden where there is no column", () => {
+  const shot = (slug) => ({ slug, file: `${slug}.webp`, caption: `${slug} <caption>` });
+  const shots = ['x', HERO_TOOLS[1], 'y', HERO_TOOLS[0]].map(shot);
+  const html = renderHeroArt(shots, (slug) => slug.toUpperCase());
+  const order = [...html.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]);
+  // Two preferred tools in HERO_TOOLS order, then the first other still fills the third place.
+  assert.deepEqual(order, [HERO_TOOLS[0], HERO_TOOLS[1], 'x']);
+  assert.equal((html.match(/<img /g) || []).length, 3);
+  assert.equal((html.match(/loading="lazy"/g) || []).length, 3, 'a phone, where the art is hidden, must not fetch it');
+  assert.match(html, /&lt;caption&gt;/);
+  assert.match(html, /href="#showcase"/);
+  // Fewer than two stills: no art rather than a lone card.
+  assert.equal(renderHeroArt([shot('x')]), '');
+  // Hidden by default, shown only in the wide-screen query; card motion stops under reduced motion.
+  assert.match(HOME_MOTION_CSS, /\.hero-art \{ display: none; \}/);
+  assert.match(HOME_MOTION_CSS, /@media \(min-width: 1180px\) \{\s*\.hero-grid/);
+  assert.match(HOME_MOTION_CSS, /prefers-reduced-motion: reduce\) \{\s*\.hero-card \{ transition: none; \}/);
+});
+
+test('the published manifest has a still for every preferred hero tool', async () => {
+  const manifest = JSON.parse(await fs.readFile(new URL('./showcase/manifest.json', import.meta.url), 'utf8'));
+  const slugs = new Set(manifest.shots.map((s) => s.slug));
+  assert.deepEqual(HERO_TOOLS.filter((slug) => !slugs.has(slug)), []);
 });
