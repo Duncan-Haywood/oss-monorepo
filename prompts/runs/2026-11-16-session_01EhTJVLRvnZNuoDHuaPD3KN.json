@@ -42,7 +42,7 @@
     "docs/posts/2026-11-16-redteam-ids-type-psets.md"
   ],
   "goal": null,
-  "notes": "Three campaigns (ids.mjs 10, step.mjs 8, audit.mjs 8) caught 15 of 26 mutants. ventures/ids-model-check/eval/IDS was fetched locally (gitignored) for the conformance test. rerun was checked with it moved away, to match CI: all 9 gaps were caught. Mutant audit.mjs:306 was dead code; following it up found real defect #0, which is now fixed. Guard: committed tests now cover the engine faults that only the uncommitted conformance pairs caught before. A CI fetch step is still needed (real defect #1, control plane).",
+  "notes": "Three campaigns (ids.mjs 10, step.mjs 8, audit.mjs 8) caught 15 of 26 mutants. ventures/ids-model-check/eval/IDS was fetched locally (gitignored) for the conformance test. rerun was checked with it moved away, to match CI: all 9 gaps were caught. Mutant audit.mjs:306 was dead code; following it up found real defect #0, which is now fixed. Guard: committed tests now cover the engine faults that only the uncommitted conformance pairs caught before. A CI fetch step is still needed (real defect #1, control plane). Verification: run_venture_tests.py ids-model-check passed 61 tests; promptctl validate and the prompts unittest suite passed (136 tests). run_workflow_locally --for-changes passed 10 of 11 workflows. In portfolio-pages, 'Build the site' fails here with EMFILE (too many open files) at the container's hard limit of 20000 open files; the build had already indexed the new post. This is the environment, not the diff. No GitHub check runs had been reported on the PR at merge time.",
   "corrections": [],
   "redteam": {
     "campaigns": [
