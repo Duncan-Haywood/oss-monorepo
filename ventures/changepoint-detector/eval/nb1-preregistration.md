@@ -76,4 +76,6 @@ If any bar fails, `nb1` does not ship as an option; the functions stay in `eval/
 3. Holds. NB1 ramps: "nb1" on 94 of 100 in each, "either" on the other 6, never "nb2".
 4. Holds. The x1.6 step is found within 5 points on 100 of 100 by both; other changes per series 0.50 (`nb`), 0.47 (`nb1`).
 5. Holds. Median phi 2.91 (flat 20) and 3.00 (ramp), true 3; Poisson ramps read phi 1 on 97 of 100.
-6. Holds. The full venture suite passes; one page test was updated for the new option (it pinned the select's text).
+6. Holds. Full venture suite: 754 of 755 passed before two pinned-markup tests were updated for the new option
+   (`page.test.mjs` pinned the select's text, `update-rate-everywhere.test.mjs` the page's warning list); with those
+   updated, the touched files pass (39 of 39). No engine number on any real series moved: `nb1` is opt-in.
