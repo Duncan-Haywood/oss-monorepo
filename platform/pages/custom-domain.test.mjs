@@ -117,6 +117,9 @@ async function site() {
     baseUrl: APEX,
     log: () => {},
     disableWorker: true,
+    // Markup only: no test here reads a card, and this base URL gives every
+    // card its own key, so drawing them cost ~7,000 cold draws.
+    cards: false,
   });
   built = { outDir };
   return built;

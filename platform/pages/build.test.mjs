@@ -5857,7 +5857,7 @@ function hubFixtureSite() {
     const dist = path.join(out, 'dist');
     const code = `import { buildSite } from ${JSON.stringify(BUILD_MODULE)};
       const r = await buildSite({ venturesDir: ${JSON.stringify(ventures)}, outDir: ${JSON.stringify(dist)},
-        baseUrl: 'https://example.test/', log: () => {}, disableWorker: true });
+        baseUrl: 'https://example.test/', log: () => {}, disableWorker: true, cards: false });
       process.stdout.write(JSON.stringify({ comparisons: r.comparisons }));`;
     const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
       maxBuffer: 1 << 28,
