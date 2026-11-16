@@ -2137,7 +2137,10 @@ DEMOSAICS = ("auto", "bilinear", "directional", "learned", "noise-aware")
 def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
     """The DNG NoiseProfile (tag 51041) as one (shot, read) pair, variance = shot * x + read for a signal x
     normalised to 0..1 (black 0, white 1): the mean over the colour planes when it gives one pair per plane.
-    None when the file has none or it is malformed (a non-positive read term, an odd count)."""
+    None when the file has none or it is malformed: an odd count, or a pair outside the DNG 1.7.1.0 rule
+    "each S_i term must be positive (S_i > 0), and each O_i term must be non-negative (O_i >= 0)". A read
+    term of exactly 0 is legal and common: 13 of 61 phone and camera profiles on raw.pixls.us write one
+    (Samsung, OnePlus, Xiaomi, asus); until 2026-11-17 they were refused (eval/noise-profile-real-dngs-2026-11-17.md)."""
 
     for d in (ifd, ifd0):
         if d is None:
@@ -2146,7 +2149,7 @@ def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
         if not v or len(v) % 2:
             continue
         pairs = [(float(v[i]), float(v[i + 1])) for i in range(0, len(v), 2)]
-        if any(sh < 0 or rd <= 0 for sh, rd in pairs):
+        if any(not sh > 0 or not rd >= 0 for sh, rd in pairs):
             continue
         return sum(p[0] for p in pairs) / len(pairs), sum(p[1] for p in pairs) / len(pairs)
     return None
@@ -2210,7 +2213,7 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
 
     black_ = kw.pop("black_")
     trim = kw.pop("trim")
-    pixels, ow, oh, clipped = eng.render(black=black_, **kw)
+    pixels, ow, oh, clipped = eng.render(black=black_, notes=notes, **kw)
     linear_raw, w, h, spp = kw["linear_raw"], kw["w"], kw["h"], kw["spp"]
     pixels, report_w, report_h = _trim_and_crop(
         pixels, ow, oh, trim, ifd, settings, linear_raw, notes, lambda p, _w, cx, cy, cw, ch: eng.crop(p, cx, cy, cw, ch)
