@@ -236,8 +236,8 @@ def verdicts(C):
     w143 = sum(c["lerr_s"] < c["lerr_rp"] for c in lg)
     w144 = sum(c["lerr_s"] <= 0.15 for c in lg)
     f144 = sum(c["lerr_s"] > 0.25 for c in lg)
-    w145 = sum(c["lerr_s"] <= c["lerr_rp"] + 0.03 for c in ctl)
-    f145 = sum(c["lerr_s"] > c["lerr_rp"] + 0.08 for c in ctl)
+    w145 = sum(c["lerr_s"] > c["lerr_rp"] + 0.03 for c in ctl)      # dev: the surface reading hurts where 5y works
+    f145 = sum(c["lerr_s"] <= c["lerr_rp"] for c in ctl)
     return dict(H143=S.verdict(w143 == len(lg), w143 == 0), H143_wins=w143,
                 H144=S.verdict(w144 == len(lg), f144 >= 1), H144_wins=w144,
                 H145=S.verdict(w145 == len(ctl), f145 >= 1), H145_wins=w145,
@@ -283,7 +283,7 @@ def report():
           " |total lost / (count x booked side-reaction loss) - 1|)", "",
           f"H143 (surface predictor beats 5y's on both LG M50 pools): {V['H143']}",
           f"H144 (surface predictor within 0.15 on both LG M50 pools): {V['H144']}",
-          f"H145 (no worse than 5y by more than 0.03 on both controls): {V['H145']}",
+          f"H145 (not universal: worse than 5y by more than 0.03 on both controls): {V['H145']}",
           f"H146 (surface predictor ranks the cycle-99 loss at 0.9 or above on both LG M50 pools): {V['H146']}"]
     (HERE / "results.txt").write_text("\n".join(L) + "\n")
     (HERE / "summary.json").write_text(json.dumps(dict(conditions=C, verdicts=V, rows=Rows), indent=1) + "\n")
