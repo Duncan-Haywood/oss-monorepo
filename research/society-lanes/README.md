@@ -107,6 +107,8 @@ Reproduce: `"$PY" research/society-lanes/experiments/m4b_yield_cfsm.py` (about 4
 
 Reproduce: `"$PY" research/society-lanes/experiments/m4c_powerlaw.py` (numpy only; about 50 min on 4 cores, about 2,000 runs) and `python3 research/society-lanes/experiments/m4c_figure.py`.
 
+Reproduce milestone 4d: `"$PY" research/society-lanes/experiments/m4d_orca.py` (numpy, with numba for speed; about 30 min on 4 cores, about 2,000 runs; writes `experiments/m4d_orca_results.txt`, `_runs.csv`, `_fit.csv`), `M4D_EXTEND=1 "$PY" research/society-lanes/experiments/m4d_orca.py` for the unregistered β = 1.5, 2.0 extension (`experiments/m4d_orca_extended_results.txt`, `_fit.csv`), and `python3 research/society-lanes/experiments/m4d_figure.py` (writes `experiments/m4d_orca.svg`).
+
 ## Results
 
 | Set | Runs | Walkers | Share on own right (95% CI) | Lane order (shuffled null) |
