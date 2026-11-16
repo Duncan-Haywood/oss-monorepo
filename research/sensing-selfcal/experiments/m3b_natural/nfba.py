@@ -433,6 +433,6 @@ def solve_window(feats, size, f0, pair_gap=(1, 2, 3)):
     nobs = len(vi)
     return {"status": "ok" if info["status"] > 0 else "maxiter", "n_tracks": npt, "n_obs": nobs,
             "intr": intr.tolist(), "sd": np.sqrt(np.diag(cov)).tolist(), "cov": cov.tolist(),
-            "sigma": sig, "rms_inlier": rms_in, "inlier_frac": inl, "iters": info["iters"],
+            "sigma": sig, "rms_inlier": rms_in, "inlier_frac": inl, "iters": info["iters"], "cost": info["cost"],
             "rv": rv.tolist(), "tv": tv.tolist(),
             "data": (vi, pi, uv, X)}
