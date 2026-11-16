@@ -162,6 +162,37 @@ class NeverCompleted(unittest.TestCase):
         self.assertTrue(out["held"]["S2"] and out["held"]["S3"] and out["held"]["S4"] and out["held"]["S5"])
         self.assertFalse(out["held"]["S1"])  # Seattle: nc3 is best, so S1's Seattle half fails
 
+    def test_target_sel_summary_picks_lowest_target_loss(self):
+        import json, tempfile, os, rounds
+        def cell(test, tl, tc):
+            return dict(test_loss={"0.9": test}, test_loss_per_seed={"0.9": [test - 1, test, test + 1]},
+                        tgt_loss={"0.9": tl}, tgt_closs={"0.9": tc}, tgt_loss_per_seed={"0.9": [tl, tl, tl]},
+                        tgt_n=10, tgt_n_open=2)
+        R = {}
+        for h in ("sf", "seattle"):
+            for Y in (2021, 2022):
+                # target score ranks nc3 best in SF, stamp best in Seattle; test agrees except Seattle's oracle is nc5
+                for v, test, tl, tc in (("cpin_es3_nc3", 70 if h == "sf" else 92, 10 if h == "sf" else 30, 5),
+                                        ("cpin_es3_nc5", 72 if h == "sf" else 85, 20, 4),
+                                        ("cpin_es3_nc5_stamp", 73 if h == "sf" else 86, 21, 3),
+                                        ("cpin_es3_nc5_stamp_len", 74 if h == "sf" else 88, 22 if h == "sf" else 19, 6)):
+                    R[f"{h} {Y} {v}"] = cell(float(test), float(tl), float(tc))
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "r.json")
+            json.dump(R, open(path, "w"))
+            out = rounds.target_sel_summary(path, tmp)
+        self.assertEqual(len(out["cells"]), 4)
+        sf = [c for c in out["cells"] if c["held"] == "sf"]
+        se = [c for c in out["cells"] if c["held"] == "seattle"]
+        self.assertTrue(all(c["pick"] == c["oracle"] == "cpin_es3_nc3" and c["regret"] == 0 for c in sf))
+        self.assertTrue(all(c["pick"] == "cpin_es3_nc5_stamp_len" and c["oracle"] == "cpin_es3_nc5" for c in se))
+        self.assertAlmostEqual(out["mean_regret"], 1.5)  # (0 + 0 + 3 + 3) / 4
+        self.assertTrue(all(c["pick_closs"] == "cpin_es3_nc5_stamp" for c in out["cells"]))
+        p = out["predictions"]
+        self.assertTrue(p["G1"] and p["G4"])
+        self.assertFalse(p["G0"])  # no prior files in tmp
+        self.assertFalse(p["G3"])  # regret 1.5 > 0.5
+
     def test_q_threshold(self):
         """Session 93: the per-source cut is a quantile of builds completed by D only."""
         import datetime, rounds
