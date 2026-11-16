@@ -1,0 +1,181 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqybt1pfdYwx2U2AGHd2",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T16:39:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": null,
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/coverage-drop-check/compare.mjs",
+        "test": "node --test ventures/coverage-drop-check/**/*.test.mjs  (in .)",
+        "seed": 458639008,
+        "commit": "c49fbad12",
+        "sites": 149,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 44,
+            "col": 66,
+            "operator": "or-to-and",
+            "before": "if (whole.startsWith(\"<!--\") || whole.startsWith(\"<!DOCTYPE\") || whole.startsWith(\"<?\")) {",
+            "after": "if (whole.startsWith(\"<!--\") || whole.startsWith(\"<!DOCTYPE\") && whole.startsWith(\"<?\")) {",
+            "line_text": "    if (whole.startsWith(\"<!--\") || whole.startsWith(\"<!DOCTYPE\") || whole.startsWith(\"<?\")) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Prolog-only paste (<?xml ...?>) parsed as a tag and no longer threw 'no XML tags found'. New test: 'a paste that is only an XML declaration...'."
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 81,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "for (const child of node.children || []) {",
+            "after": "for (const child of node.children && []) {",
+            "line_text": "  for (const child of node.children || []) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 136,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (node.tag !== \"class\") return;",
+            "after": "if (node.tag === \"class\") return;",
+            "line_text": "    if (node.tag !== \"class\") return;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 143,
+            "col": 21,
+            "operator": "neq-flip",
+            "before": "if (line.tag !== \"line\") continue;",
+            "after": "if (line.tag === \"line\") continue;",
+            "line_text": "        if (line.tag !== \"line\") continue;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 145,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "if (Number(line.attrs.hits || 0) > 0) covered += 1;",
+            "after": "if (Number(line.attrs.hits || 0) > 0) covered += 2;",
+            "line_text": "        if (Number(line.attrs.hits || 0) > 0) covered += 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 206,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "if (Number(child.attrs.ci || 0) > 0) covered += 1;",
+            "after": "if (Number(child.attrs.ci && 0) > 0) covered += 1;",
+            "line_text": "        if (Number(child.attrs.ci || 0) > 0) covered += 1;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "JaCoCo per-line ci fallback (sourcefile with no LINE counter) was never exercised; every fixture had counters. New test: 'JaCoCo sourcefiles without a LINE counter...'."
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 253,
+            "col": 49,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isFinite(maxDropPct) || maxDropPct < 0) {",
+            "after": "if (!Number.isFinite(maxDropPct) || maxDropPct <= 0) {",
+            "line_text": "  if (!Number.isFinite(maxDropPct) || maxDropPct < 0) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coverage-drop-check/compare.mjs",
+            "line": 331,
+            "col": 44,
+            "operator": "times-to-div",
+            "before": "const basePct = (result.baseline.lineRate * 100).toFixed(2);",
+            "after": "const basePct = (result.baseline.lineRate / 100).toFixed(2);",
+            "line_text": "  const basePct = (result.baseline.lineRate * 100).toFixed(2);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/coverage-drop-check/check.py",
+        "issue": "compare_coverage accepted --max-drop inf (only nan and negatives were rejected), so `check.py base.xml cur.xml --max-drop inf` reported a 50-point drop as 'within the inf point allowance' and exited 0: a CI gate that silently always passes. The browser page (compare.mjs) already rejects it with Number.isFinite. Fixed with math.isfinite and test_max_drop_rejects_infinity_and_nan.",
+        "patched": true
+      },
+      {
+        "file": "ventures/agentic-trading-lab/src/tradelab/execution/safety.py",
+        "issue": "Risk guards failed open on NaN: check_orders accepted an Order with notional=nan (neither > max nor < min), check_targets returned no error for a NaN weight, and Limits(max_order_notional=nan) or `rebalance --max-order nan` / `--max-weight nan` disabled the per-order and per-symbol limits (a 1e9 order accepted). Fixed: Limits.__post_init__ rejects non-finite/negative limits, non-finite notional and weights are rejected with a reason, and the CLI flags use a finite-only argparse type. Tests: test_guards_fail_closed_on_nan_and_inf, test_rebalance_refuses_a_nan_limit_from_the_command_line.",
+        "patched": true
+      },
+      {
+        "file": "ventures/backup-verification-evidence/src/backup_evidence/report.py",
+        "issue": "classify_run read expected.max_age_hours / min_size_bytes unchecked: NaN or Infinity (which json.loads accepts, and which `record --max-age-hours nan` wrote, since record used type=float while verify already used _positive_hours) made a 4-day-old artifact classify as verified; a string threshold crashed with TypeError. Fixed: _threshold() turns a non-finite/non-number threshold into a reason (status suspicious), record uses _positive_hours. Tests: test_a_nan_or_non_number_threshold_fails_closed, test_record_refuses_a_nan_or_infinite_max_age.",
+        "patched": true
+      }
+    ]
+  }
+}
