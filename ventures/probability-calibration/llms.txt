@@ -1,0 +1,27 @@
+# Probability calibration check: reliability diagram and Brier score decomposition
+
+> Free online calibration check for yes/no probability forecasts: the CORP reliability diagram (Dimitriadis, Gneiting & Jordan 2021, isotonic regression by pool-adjacent-violators) with a resampling consistency band, the Brier and log scores split exactly into miscalibration, discrimination and uncertainty, a resampling test of calibration, the observed/expected count, Spiegelhalter's (1986) z test, Cox's (1958) calibration intercept and slope, binned expected calibration error and the Murphy (1973) decomposition, the AUC, and isotonic or Platt recalibration. Matches scikit-learn 1.9.1 and scipy 1.18.1. On 2,930 NFL games (FiveThirtyEight's Elo, 2010-2020) the curve passes the shape test (p = 0.289) while home wins fall short of the forecasts overall (56.5% against 58.4%, p = 0.025), most of it in 2019 and 2020. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A gap between forecast and outcome is not proof of an error or of a cause.
+
+## Pages
+
+- [The tool](https://marisstella.app/probability-calibration/)
+
+## Use it from code
+
+- `node cli.mjs forecasts.csv [--forecast p] [--outcome y] [--positive label] [--percent] [--bins 10] [--binning width|count] [--resamples 500] [--level 0.9] [--alpha 0.05] [--seed 1] [--csv|--json]`
+- `node platform/agents/tools.mjs call probability-calibration analyze --input '{"p":[0.1,0.3,0.5,0.7,0.9,0.2,0.4,0.6,0.8,0.95],"y":[0,0,1,1,1,0,1,0,1,1]}'` (or `{"csv":"..."}`)
+- From JavaScript: `analyze(input)`, `pav(x, y)`, `corp(p, y, "brier"|"log")`, `binned(p, y, {bins, binning})`, `spiegelhalter(p, y)`, `calibrationSlope(p, y)`, `consistency(p, y, {resamples, seed})`, `recalibrator(result, "isotonic"|"platt")`.
+
+## What it answers
+
+- When the forecast said 70%, did the event happen about 70% of the time?
+- How much of the Brier (or log) score is miscalibration that recalibrating would remove, and how much is real discrimination?
+- Is the gap more than a calibrated forecaster would show by chance with this many forecasts?
+- Are the forecasts too extreme or too timid (calibration slope), or too high or low overall?
+- What should a new forecast of 0.7 from the same source be read as?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/probability-calibration): MIT licensed.
