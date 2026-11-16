@@ -303,9 +303,9 @@ flagships:
       DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
       chart to say which colour model is closer (the 70D frame, 4,700 K and
       green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
-      Adobe render of a known frame (settles `--default-tone-curve always`); a
-      trained blink model and a real shoot with a photographer's picks; photos with
-      a real horizon and human tilt labels.
+      Adobe render of a known frame (settles `--default-tone-curve always`); a real
+      shoot's picks through the blink detector (eval/blink-landmarker-*). More open
+      items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

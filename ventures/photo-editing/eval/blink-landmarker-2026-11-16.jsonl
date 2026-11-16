@@ -1,0 +1,210 @@
+{"photo": "beach-dusk.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "beach-dusk.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "beach-rocky.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "beach-rocky.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "bicycle-park.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "bicycle-park.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "bike-brick-wall.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "bike-brick-wall.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "breakfast-in-bed.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "breakfast-in-bed.jpg", "label": "open", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00474, "eyes_open": 0.1}]}
+{"photo": "burst-beach-1.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-beach-1.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-beach-2.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-beach-2.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-beach-3.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-beach-3.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-beach-4.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-beach-4.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-dog-1.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-dog-1.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-dog-2.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-dog-2.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00197, "eyes_open": null}]}
+{"photo": "burst-dog-3.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-dog-3.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-friends-1.jpg", "label": "open", "detector": "landmarks", "faces": 3, "prominent": 2, "worst_eyes_open": 0.853, "flagged": false, "detail": [{"size": 0.01066, "eyes_open": 0.853, "blink": [0.374, 0.077], "box": [507, 260, 588, 341], "views": 2}, {"size": 0.01114, "eyes_open": 0.988, "blink": [0.167, 0.182], "box": [142, 202, 219, 290], "views": 2}, {"size": 0.00843, "eyes_open": 0.998, "blink": [0.041, 0.028], "box": [271, 295, 335, 376], "views": 3}]}
+{"photo": "burst-friends-1.jpg", "label": "open", "detector": "haar", "faces": 1, "prominent": 1, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.0126, "eyes_open": 0.1}]}
+{"photo": "burst-friends-2.jpg", "label": "open", "detector": "landmarks", "faces": 3, "prominent": 2, "worst_eyes_open": 0.777, "flagged": false, "detail": [{"size": 0.01215, "eyes_open": 0.777, "blink": [0.411, 0.076], "box": [480, 239, 561, 324], "views": 2}, {"size": 0.01205, "eyes_open": 0.98, "blink": [0.118, 0.222], "box": [111, 183, 188, 271], "views": 2}, {"size": 0.0086, "eyes_open": 0.999, "blink": [0.029, 0.023], "box": [239, 278, 304, 353], "views": 3}]}
+{"photo": "burst-friends-2.jpg", "label": "open", "detector": "haar", "faces": 1, "prominent": 1, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.01306, "eyes_open": 0.1}]}
+{"photo": "burst-friends-3.jpg", "label": "open", "detector": "landmarks", "faces": 3, "prominent": 2, "worst_eyes_open": 0.847, "flagged": false, "detail": [{"size": 0.01279, "eyes_open": 0.847, "blink": [0.378, 0.061], "box": [491, 241, 572, 327], "views": 2}, {"size": 0.01276, "eyes_open": 0.993, "blink": [0.148, 0.122], "box": [125, 176, 202, 265], "views": 1}, {"size": 0.00931, "eyes_open": 0.998, "blink": [0.05, 0.047], "box": [250, 274, 317, 349], "views": 3}]}
+{"photo": "burst-friends-3.jpg", "label": "open", "detector": "haar", "faces": 1, "prominent": 1, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.01269, "eyes_open": 0.1}]}
+{"photo": "burst-pizza-1.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-pizza-1.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00064, "eyes_open": null}]}
+{"photo": "burst-pizza-2.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-pizza-2.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-pizza-3.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "burst-pizza-3.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00064, "eyes_open": null}]}
+{"photo": "cat-brown-eyes.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "cat-brown-eyes.jpg", "label": "no_people", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00159, "eyes_open": null}, {"size": 0.00153, "eyes_open": null}]}
+{"photo": "cat-ginger.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "cat-ginger.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "cat-window.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "cat-window.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 1, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.31386, "eyes_open": 0.1}]}
+{"photo": "city-london.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "city-london.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "city-night.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "city-night.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "city-skyline-nyc.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "city-skyline-nyc.jpg", "label": "no_people", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00197, "eyes_open": null}, {"size": 0.00271, "eyes_open": null}]}
+{"photo": "coffee-flatlay.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "coffee-flatlay.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "coffee-kitchen.jpg", "label": "closed", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.109, "flagged": true, "detail": [{"size": 0.02363, "eyes_open": 0.109, "blink": [0.65, 0.301], "box": [853, 158, 1081, 381], "views": 4}]}
+{"photo": "coffee-kitchen.jpg", "label": "closed", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "concert-crowd.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "concert-crowd.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "concert-stage.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "concert-stage.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "conference-room.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "conference-room.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "desert-road.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "desert-road.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "dinner-friends-wine.jpg", "label": "open", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.999, "flagged": false, "detail": [{"size": 0.0163, "eyes_open": 0.999, "blink": [0.011, 0.003], "box": [106, 53, 199, 161], "views": 2}]}
+{"photo": "dinner-friends-wine.jpg", "label": "open", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00423, "eyes_open": null}]}
+{"photo": "doc-application-form.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-application-form.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-field-notebook.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-field-notebook.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00157, "eyes_open": null}]}
+{"photo": "doc-letter-handwritten.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-letter-handwritten.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-open-book.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-open-book.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-passport-form.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-passport-form.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-telegram-1944.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-telegram-1944.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-telegram-form.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doc-telegram-form.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "doctor-tablet.jpg", "label": "open", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.997, "flagged": false, "detail": [{"size": 0.02927, "eyes_open": 0.997, "blink": [0.044, 0.088], "box": [302, 59, 423, 208], "views": 3}]}
+{"photo": "doctor-tablet.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "dog-beach.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "dog-beach.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "dog-lake.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "dog-lake.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00297, "eyes_open": 0.1}]}
+{"photo": "dog-snow.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "dog-snow.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "family-beach-walk.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "family-beach-walk.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "family-picnic-dog.jpg", "label": "open", "detector": "landmarks", "faces": 4, "prominent": 4, "worst_eyes_open": 0.949, "flagged": false, "detail": [{"size": 0.0306, "eyes_open": 0.984, "blink": [0.184, 0.206], "box": [637, 203, 762, 353], "views": 3}, {"size": 0.02782, "eyes_open": 0.949, "blink": [0.291, 0.215], "box": [154, 188, 275, 330], "views": 3}, {"size": 0.0171, "eyes_open": 0.971, "blink": [0.249, 0.218], "box": [281, 140, 378, 248], "views": 3}, {"size": 0.01735, "eyes_open": 0.993, "blink": [0.083, 0.144], "box": [555, 120, 652, 231], "views": 3}]}
+{"photo": "family-picnic-dog.jpg", "label": "open", "detector": "haar", "faces": 4, "prominent": 4, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.02078, "eyes_open": 0.5}, {"size": 0.02462, "eyes_open": 0.95}, {"size": 0.03055, "eyes_open": 0.1}, {"size": 0.0391, "eyes_open": 0.95}]}
+{"photo": "food-breakfast-diner.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "food-breakfast-diner.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00214, "eyes_open": null}]}
+{"photo": "food-brunch.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "food-brunch.jpg", "label": "no_people", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.0045, "eyes_open": 0.1}, {"size": 0.00181, "eyes_open": null}]}
+{"photo": "food-cereal.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "food-cereal.jpg", "label": "no_people", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00044, "eyes_open": null}, {"size": 0.00301, "eyes_open": 0.1}]}
+{"photo": "food-cheeseburger.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "food-cheeseburger.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "forest-fog.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "forest-fog.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "friends-hilltop-laughing.jpg", "label": "open", "detector": "landmarks", "faces": 2, "prominent": 1, "worst_eyes_open": 0.722, "flagged": false, "detail": [{"size": 0.01115, "eyes_open": 0.722, "blink": [0.432, 0.088], "box": [405, 258, 483, 351], "views": 1}, {"size": 0.00897, "eyes_open": 0.995, "blink": [0.005, 0.115], "box": [292, 327, 368, 404], "views": 1}]}
+{"photo": "friends-hilltop-laughing.jpg", "label": "open", "detector": "haar", "faces": 1, "prominent": 1, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.01192, "eyes_open": 0.1}]}
+{"photo": "friends-sunset-rocks.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "friends-sunset-rocks.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "kitten-slipper.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "kitten-slipper.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "kitten-yawn.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "kitten-yawn.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00279, "eyes_open": null}]}
+{"photo": "lake-kayaks.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "lake-kayaks.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "lake-mountains.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "lake-mountains.jpg", "label": "no_people", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00271, "eyes_open": null}, {"size": 0.00171, "eyes_open": null}]}
+{"photo": "market-flowers.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "market-flowers.jpg", "label": "no_people", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00671, "eyes_open": 0.1}, {"size": 0.00177, "eyes_open": null}]}
+{"photo": "market-produce.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "market-produce.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "market-street.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "market-street.jpg", "label": "no_people", "detector": "haar", "faces": 3, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00263, "eyes_open": null}, {"size": 0.00197, "eyes_open": null}, {"size": 0.00304, "eyes_open": 0.1}]}
+{"photo": "matterhorn.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "matterhorn.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "mother-child-hug.jpg", "label": "open", "detector": "landmarks", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00728, "eyes_open": 0.173, "blink": [0.432, 0.612], "box": [638, 152, 703, 221], "views": 1}]}
+{"photo": "mother-child-hug.jpg", "label": "open", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00586, "eyes_open": null}, {"size": 0.0044, "eyes_open": null}]}
+{"photo": "notes-circuit-sketch.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "notes-circuit-sketch.jpg", "label": "no_people", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00284, "eyes_open": 0.1}, {"size": 0.00234, "eyes_open": null}]}
+{"photo": "office-woman-red-sweater.jpg", "label": "open", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.994, "flagged": false, "detail": [{"size": 0.01819, "eyes_open": 0.994, "blink": [0.134, 0.109], "box": [434, 182, 528, 301], "views": 5}]}
+{"photo": "office-woman-red-sweater.jpg", "label": "open", "detector": "haar", "faces": 2, "prominent": 2, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.02462, "eyes_open": 0.95}, {"size": 0.01094, "eyes_open": 0.1}]}
+{"photo": "phone-selfie.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "phone-selfie.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "portrait-closeup.jpg", "label": "closed", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.024, "flagged": true, "detail": [{"size": 0.05799, "eyes_open": 0.024, "blink": [0.763, 0.673], "box": [371, 271, 699, 643], "views": 3}]}
+{"photo": "portrait-closeup.jpg", "label": "closed", "detector": "haar", "faces": 2, "prominent": 2, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.07906, "eyes_open": 0.1}, {"size": 0.01286, "eyes_open": 0.1}]}
+{"photo": "portrait-field.jpg", "label": "closed", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.127, "flagged": true, "detail": [{"size": 0.03268, "eyes_open": 0.127, "blink": [0.633, 0.638], "box": [645, 540, 908, 808], "views": 3}]}
+{"photo": "portrait-field.jpg", "label": "closed", "detector": "haar", "faces": 1, "prominent": 1, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.04021, "eyes_open": 0.1}]}
+{"photo": "portrait-laughing.jpg", "label": "closed", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.492, "flagged": true, "detail": [{"size": 0.06225, "eyes_open": 0.492, "blink": [0.502, 0.364], "box": [694, 278, 1063, 642], "views": 4}]}
+{"photo": "portrait-laughing.jpg", "label": "closed", "detector": "haar", "faces": 2, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.0019, "eyes_open": null}, {"size": 0.00255, "eyes_open": null}]}
+{"photo": "portrait-lipstick.jpg", "label": "closed", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.089, "flagged": true, "detail": [{"size": 0.03244, "eyes_open": 0.089, "blink": [0.666, 0.579], "box": [719, 321, 974, 596], "views": 5}]}
+{"photo": "portrait-lipstick.jpg", "label": "closed", "detector": "haar", "faces": 2, "prominent": 1, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.04176, "eyes_open": 0.1}, {"size": 0.00255, "eyes_open": null}]}
+{"photo": "portrait-smiling-woman.jpg", "label": "open", "detector": "landmarks", "faces": 1, "prominent": 1, "worst_eyes_open": 0.704, "flagged": false, "detail": [{"size": 0.20465, "eyes_open": 0.704, "blink": [0.438, 0.313], "box": [117, 122, 465, 483], "views": 2}]}
+{"photo": "portrait-smiling-woman.jpg", "label": "open", "detector": "haar", "faces": 1, "prominent": 1, "worst_eyes_open": 0.1, "flagged": true, "detail": [{"size": 0.26042, "eyes_open": 0.1}]}
+{"photo": "portrait-woman-white-background.jpg", "label": "closed", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "portrait-woman-white-background.jpg", "label": "closed", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "puppy-bulldog.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "puppy-bulldog.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "puppy-running.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "puppy-running.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "puppy-toy.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "puppy-toy.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-breakfast.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-breakfast.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-cafe-01.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-cafe-01.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-creperie.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-creperie.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-dimsum.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-dimsum.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-dumplings.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-dumplings.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-handwritten.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-handwritten.jpg", "label": "no_people", "detector": "haar", "faces": 3, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.0029, "eyes_open": 0.1}, {"size": 0.00175, "eyes_open": null}, {"size": 0.00357, "eyes_open": 0.1}]}
+{"photo": "receipt-korea.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-korea.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00199, "eyes_open": null}]}
+{"photo": "receipt-pay-the-bill.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-pay-the-bill.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-pizza.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-pizza.jpg", "label": "no_people", "detector": "haar", "faces": 3, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00187, "eyes_open": null}, {"size": 0.00105, "eyes_open": null}, {"size": 0.00152, "eyes_open": null}]}
+{"photo": "receipt-restaurant-02.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-restaurant-02.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-restaurant-03.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-restaurant-03.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-supermarket-01.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-supermarket-01.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-supermarket-02.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-supermarket-02.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-sushi-bbq.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-sushi-bbq.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-wien.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "receipt-wien.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00325, "eyes_open": 0.1}]}
+{"photo": "restaurant-busy.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "restaurant-busy.jpg", "label": "open", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00232, "eyes_open": null}]}
+{"photo": "screenshot-browser-tabs.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-browser-tabs.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-commons-app.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-commons-app.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-gnome-desktop.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-gnome-desktop.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-kde-desktop.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-kde-desktop.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-pdf-viewer.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-pdf-viewer.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-phone-browser.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-phone-browser.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-spreadsheet.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-spreadsheet.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-tasks-app.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-tasks-app.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-travel-itinerary.png", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-travel-itinerary.png", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-wikipedia-app.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "screenshot-wikipedia-app.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "silhouettes-sunset.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "silhouettes-sunset.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "street-lights-evening.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "street-lights-evening.jpg", "label": "no_people", "detector": "haar", "faces": 1, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": [{"size": 0.00304, "eyes_open": 0.1}]}
+{"photo": "sunset-boats.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "sunset-boats.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "team-meeting-table.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "team-meeting-table.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "trip-planning.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "trip-planning.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "whiteboard-office.jpg", "label": "no_people", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "whiteboard-office.jpg", "label": "no_people", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "whiteboard-sticky-notes.jpg", "label": "open", "detector": "landmarks", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
+{"photo": "whiteboard-sticky-notes.jpg", "label": "open", "detector": "haar", "faces": 0, "prominent": 0, "worst_eyes_open": null, "flagged": false, "detail": []}
