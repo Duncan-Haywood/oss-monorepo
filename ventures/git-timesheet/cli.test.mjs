@@ -36,3 +36,9 @@ test("--repo reads this repository's own history", () => {
   assert.equal(r.status, 0, r.stderr);
   assert.ok(JSON.parse(r.stdout).commits > 0);
 });
+
+test("--max-amount without --rate exits 1 instead of passing silently", () => {
+  const r = run(["--max-amount", "1"], LOG);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /--rate/);
+});

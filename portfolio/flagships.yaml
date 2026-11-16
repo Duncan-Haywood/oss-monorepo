@@ -224,9 +224,9 @@ flagships:
       112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
       real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
       rejection for a cClassTrib; national NFS-e landed: open: a national rejection
-      compared; ISS: SP, Rio, Curitiba own rates landed (ABR-025, README): open: BH
-      (law hosts 403), Rio's CTISS codes; ABRASF NFS-e 2.00-2.04 landed (README):
-      open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12
+      compared; ISS: SP, Rio, Curitiba rates, Rio codes (ABR-026) landed: open: BH
+      (hosts 403), a Rio rejection; ABRASF NFS-e 2.00-2.04 landed (README): open:
+      ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12
       single-file 1.0x (Rio, BH, Curitiba,...) landed (README): open: a DSF
       1.00/Abaco file. A run that lands a slice replaces its item here. More open
       items: NEXT.md.
@@ -255,14 +255,14 @@ flagships:
       records; a manager's read on whether the steadier plan is the one they would
       post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
       directly"); a real When I Work account or response through --import-wheniwork
-      (README "Reading When I Work directly"); Homebase (docs need an account);
+      (README "Reading When I Work directly"); Homebase (docs need an account); a
+      real Square account via --import-square (README "Reading Square's schedule");
       --cover-price moves two shifts together (README "Moving two shifts together");
       second call-outs priced, off by default (README "The pair price in played
       weeks": fewer open hours on 3 of 4 weeks); order-free pair check played: no
       gain, stays opt-in (README "The order-free pass played"); a real two-site
-      export and staff list (README "Staff shared between sites"); own and site
-      rates read from staff CSVs and 7shifts (README "Per-location pay from an
-      export"). More open items: NEXT.md.
+      export and staff list (README "Staff shared between sites"). More open items:
+      NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-

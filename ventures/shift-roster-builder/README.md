@@ -1504,6 +1504,60 @@ Checked: 11 tests on invented rows in the documented shape (`import-wheniwork.te
 
 Not claimed: no When I Work account, recorded response or real company's shifts was used, unlike the 7shifts reader, which was checked against a scrubbed recorded response; the field meanings are When I Work's own words, not observed behaviour; whether `/2/shifts` also returns positions and locations beside the shifts was not assumed (the definition lists only shifts, repeating shifts and chains), so they are fetched separately; the page cannot fetch; Homebase is still unread (its API docs answered 401 without an account).
 
+## Reading Square's schedule directly (2026-11-16)
+
+Square was the next scheduler with no reader. Many of the cafes and shops this tool is for already run their tills on
+Square, whose sales exports `--from-sales` reads, and Square's team plans include a scheduler; an owner moving the week
+here had no way to bring the shifts across except by retyping them. Square publishes its whole API definition on GitHub,
+including the Labor API's scheduled shifts, so the shifts can come from there, as for 7shifts and When I Work.
+`import-square.mjs` reads Square's own responses (`POST /v2/labor/scheduled-shifts/search`, `GET /v2/team-members/jobs`,
+`GET /v2/locations`) and hands them to the same counting as `--import-shifts`. Every field it uses, with the
+definition's SHA-256, is in `eval/square-scheduled-shifts-format-2026-11-16.md`.
+
+- **Page:** the schedule-export box tells Square JSON (`scheduled_shifts`, `draft_shift_details`) from When I Work's and
+  7shifts', Square first, so the same box takes any of the three. Choose the saved shifts, jobs and locations responses
+  together; the location picker works as before. Nothing is fetched by the page.
+- **CLI:** `node cli.mjs --import-square shifts.json --import-square jobs.json --import-square locations.json` (one file
+  may hold several responses, one per line). Or fetch with your own access token:
+  `SQUARE_ACCESS_TOKEN=... node cli.mjs --fetch-square --from 2026-11-02 --to 2026-11-29 [--save week.json]`. The token
+  needs TIMECARDS_READ, EMPLOYEES_READ and MERCHANT_PROFILE_READ (the definition's permission for each call); it goes only
+  to connect.squareup.com as a bearer header and is never printed or saved. `SQUARE_VERSION` overrides the
+  `Square-Version` header (default `2026-09-16`, the definition's). `--location` (name or Square id), `--no-drafts`,
+  `--square-latest`.
+
+What it does with Square's fields, and where it differs from the other readers:
+
+- **Two versions of each shift.** A scheduled shift carries its latest draft (always) and its published details (once
+  posted). By default the published version is read, because that is the schedule staff were shown; a shift never
+  published is read from its draft as planned, unless `--no-drafts`. `--square-latest` reads every shift's latest draft
+  instead, for a manager who has edited next week in Square and not posted it. Published shifts with edits waiting are
+  counted in a note either way.
+- **Deletes.** A draft marked `is_deleted` with no published version is left out. One marked `is_deleted` over a published
+  shift is still on the posted schedule (Square deletes it when the manager publishes), so it is counted with a note,
+  and `--square-latest` leaves it out.
+- **Unassigned shifts count.** No `team_member_id` is a shift nobody is on, still needed.
+- **Times carry the location's offset** (`2026-11-02T07:00:00-06:00`), so the digits are the shop's clock and lengths come
+  from the instants (a night across the clock change is 8 hours, not 7). A time written in UTC is moved to the shift's
+  `timezone` or its location's; with neither it is read as UTC and the note says so.
+- **Paging.** The search returns at most 50 shifts a page with a `cursor`; the fetch follows it, and the jobs list too.
+  It asks by workday (`match_scheduled_shifts_by: INTERSECTION`, shifts starting on those dates in the location's own
+  zone), so no padding day is needed; the saved result is still trimmed to the dates asked for.
+- **Errors.** A saved response with Square's `errors` list instead of shifts is reported with Square's own detail; the
+  fetch names the error code and, on a 403, the permission the search needs.
+
+Checked: 10 tests on invented rows in the documented shape (`import-square.test.mjs`: names from jobs and locations,
+winter and summer offsets and the clock change, published against draft and `--square-latest`, a pending delete,
+never-published and deleted drafts, unassigned shifts, two locations by name and by id, UTC times moved or flagged, damaged
+rows and repeats, an error response, telling Square JSON from When I Work's, the fetch's body, paging and headers against a
+stub, the CLI). A headless-Chromium upload of three JSON files on the page filled the shifts box and listed both locations
+(see the PR).
+
+Not claimed: no Square account, recorded response or real business's shifts was used; the field meanings are Square's own
+words, not observed behaviour; the scheduled-shifts and jobs endpoints are marked BETA in the definition and may change;
+team members' wages (`/v2/labor/team-member-wages`, `/v2/team-members/search`) are not read yet, so staff still come in
+by CSV or by hand; Deputy's API docs were not reachable from the session, so Deputy is still read only from its CSV
+export.
+
 ## Several shops in one sales export (2026-11-13)
 
 `--from-sales` planned every row of a sales file as one shop. Square's item-sales export and Toast's ItemSelectionDetails both carry a `Location` column (all four real files in `eval/real-pos-exports.mjs` do), so an owner with two or three sites who exports them together got one blended week. The flagship's open list named it: "a real multi-location Square or Toast export (planned as one shop today)".

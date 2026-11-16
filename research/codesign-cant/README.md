@@ -6,6 +6,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7r: retuned for a sourced battery and motor model, does a quadrotor still buy gust robustness with mass? Yes: the tuner shrinks the propeller and gets heavy again
+
+**Question.** Milestone 7q found that the programme's sizing closure was solved by a truncated iteration and built on component constants 12-72% off listed data. On the sourced Li-ion closure every published design shrinks to about 0.75 kg, and on its old gains it crashes far more. Those gains were tuned for vehicles that do not exist. Retuned on the sourced, exactly solved closure, does training across centre-of-pressure levers still buy robustness (milestone 7i), and is it still bought with mass?
+
+**Headline (`experiments/m7r_retune/results.txt`, `verdicts.txt`; 48 CMA-ES runs; simulated; 7 predictions committed first).**
+
+- **The tuner buys the mass back.** None of the 24 retuned designs is the 0.75 kg vehicle 7q sized. Both objectives shrink the propeller (set means 0.129-0.134 → 0.106-0.115 m), which raises hover power (set means: lever-1 objective 313-402 W, lever-aware 455-495 W), and the closure grows the battery and motors until the vehicle weighs 0.99-1.29 kg (set means; designs 0.94-1.50 kg) and sits on the closure's edge again (longest closing endurance 15.0-16.7 min, against 19-21 min for the published designs on the same closure).
+- **Robustness still follows mass, on one curve.** At twice the centre-of-pressure lever and a 45° tilt limit, the retuned designs crash on 106 and 131 (lever-1 objective) and 54 and 64 (lever-aware) of 384 flights, against 260 and 263 for the old gains on the sourced closure. Plotted against mass, retuned and published designs fall on the same curve (figure).
+- **Training across levers still pays, at the same price.** The lever-aware designs crash on half as many flights as the lever-1 designs and are 14-24% heavier, matching the published lever-aware designs (53 and 52). Predictions R1, R3-R6 held; R2 (retuned mass 0.65-0.90 kg) was refuted, R7 held in one geometry.
+- **For a builder:** on this model a quadrotor tuned for gust robustness with a hover-power price and a fixed flight time will trade propeller size for mass; if you want the light, efficient vehicle, put a price on mass or a requirement on flight time, not only on power.
+- **For this programme:** the mass-robustness relation from 7i is not an artefact of the truncated solve; it reappears under the sourced closure. The objective's power price and the fixed endurance, both inherited, are now what set the vehicle's mass.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 64 at lever 2, 45 degrees, against sized mass for each design. Published designs (grey, 1.0 to 2.0 kg) and designs retuned on the sourced Li-ion closure (blue and green, 0.94 to 1.50 kg) fall on one falling curve from about 23 crashes at 0.95 kg to 0 at 2 kg; the published designs re-sized on the sourced closure without retuning (orange) sit apart at 0.73 to 0.80 kg and 36 to 48 crashes.](experiments/m7r_retune/m7r_retune.png)
+
 ## Milestone 7q: can a 5-inch quadrotor fly 15 minutes on LiPo? The sizing closure, checked against listed batteries and motor bench data
 
 **Question.** Every mass in this programme comes from an endurance sizing closure: the battery for 15 minutes of hover, the motors for a thrust-to-weight of 2, the frame, payload and electronics, iterated until the mass stops changing. Its three component constants (150 Wh/kg battery, motor mass 0.045 (T<sub>max</sub>/9 N)<sup>1.2</sup> kg, propulsive efficiency FM·η = 0.4875) were inherited and assumed, and milestone 7p found the closure multiplies any mass change 6-15 times. What do listed components say, and what happens to the 48 tuned designs when the closure is sourced? Data ([`data/components/`](data/components/), accessed 2026-11-16, each row with its URL): 405 battery listings from six FPV retailers (195 in class), 29 SunnySky motor pages with the manufacturer's bench tables (5,292 rows of propeller, thrust and watts), 16 FPV motor listings with a stated maximum thrust.
@@ -416,6 +430,8 @@ python3 experiments/m7q_closure/collect.py <cache>  # downloads the retailers' p
 python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure constants -> closure.json/.txt
 "$PY" experiments/m7q_closure/run.py           # about 16 minutes on 4 cores: 48 designs under seven closures (SIZING_ONLY=1: sizing and emax only, seconds)
 "$PY" experiments/m7q_closure/analyse.py && "$PY" experiments/m7q_closure/verdicts.py && "$PY" experiments/m7q_closure/figure.py
+"$PY" experiments/m7r_retune/run.py           # about 2 h on 4 cores (48 CMA-ES runs, cached in .cache/; then 11 min of held-out flights)
+"$PY" experiments/m7r_retune/verdicts.py && "$PY" experiments/m7r_retune/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 
