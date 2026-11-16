@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-16 · Why the DC OPF has no solution on five held-out cases (plan)
+- Plan and predictions D1 to D4 with control C0: `research/infra-dcopf/LOG.md` (2026-11-16); script `research/infra-dcopf/experiments/diag_dc_infeasible.py`. The five unscored cases (case1803_snem x3, case1951_rte API, case2000_goc API): data, ratings, angle limits or the DC convention?
+
 ## 2026-11-15 · Milestone 6 under one protocol: outcome. 10 of 24 fully feasible within 20 rounds, 12 of 24 with the IPOPT reactive stage, none lost against the earlier protocol
 - Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-15); numbers in `research/infra-dcopf/experiments/results_heldout_slack.txt`.
 - One protocol on all 24 held-out cases: reference at the largest live unit, DC start, continuation to the full-load power flow, frozen 20-round J-m-a, IPOPT reactive stage, cost against PGLib's published objective. Controls: identical statuses on the 6 cases whose reference does not move, and on the 5 RTE cases of the previous step.
