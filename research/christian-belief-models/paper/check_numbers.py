@@ -14,6 +14,7 @@ IN = "experiments/m6_intervals/results/summary.md"
 PR = "experiments/m6_prior/results/summary.md"
 KS = "experiments/m6_kindsel/results/summary.md"
 FR = "experiments/m6_fresh_items/results/summary.md"
+DV = "experiments/m6_design_variance/results/summary.md"
 CHECKS = [
     (SB, "241 cells", "241 source-to-target cells"),
     (SB, "| E0 transfer as is | 5.59 |", "5.59 points on average"),
@@ -86,6 +87,17 @@ CHECKS = [
     (FR, "| tradition | 84 | 1.092 (1.09&ndash;1.10) | 1.059 (0.95&ndash;1.18) | 0.768", "tradition 0.768"),
     (FR, "| primary, RULE_LR / P0 | 0.655 |", "scores 0.655"),
     (FR, "| 13 old items (in-sample), RULE_LR / P0 | 0.745 |", "0.745 on the old ones"),
+    (DV, "median deff of y: 1.058 (1.047 to 1.071)", "median 1.058 (pair-cluster bootstrap 1.047 to 1.071)"),
+    (DV, "median deff of the residual y - f: 1.024", "and 1.024 for the residual"),
+    (DV, "median target rows per PSU: 2.26", "2.26 respondents per PSU"),
+    (DV, "below 1 in 78% of cells", "smaller for the residual in 78% of cells"),
+    (DV, "design 0.811 (0.781 to 0.834)", "0.811 (0.781 to 0.834)"),
+    (DV, "| 50 | 241 | 0.015 | 0.833 | 0.834 (0.806 to 0.855) | 1.036 | 0.935 | 0.932 |", "0.834 at n = 50"),
+    (DV, "| 50 | 241 | 0.015 | 0.833 | 0.834 (0.806 to 0.855) | 1.036 | 0.935 | 0.932 |", "1.036 at n = 50"),
+    (DV, "| 400 | 217 | 0.110 | 0.830 | 0.863 (0.836 to 0.882) | 1.085 | 0.989 | 0.849 |", "0.863 at n = 400 (0.836 to 0.882)"),
+    (DV, "| 400 | 217 | 0.110 | 0.830 | 0.863 (0.836 to 0.882) | 1.085 | 0.989 | 0.849 |", "Kish variance falls to 0.849"),
+    (DV, "| 400 | period | 34 | 0.238 | 0.865 | 1.185 |", "1.17 to 1.19"),
+    (DV, "| 400 | generation | 34 | 0.227 | 0.901 | 1.165 |", "1.17 to 1.19"),
 ]
 
 
