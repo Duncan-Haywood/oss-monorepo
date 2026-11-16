@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtLuC6hYHHARwTsYRpR",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T01:07:02Z",
+  "ended": "2026-11-16T01:15:58Z",
+  "wall_minutes": 17.76,
+  "tokens_in": 5450712,
+  "tokens_out": 22098,
+  "cost_usd": 2.225,
+  "tool_calls": 72,
+  "task": "Polish: align section index pages (Stories, Updates, queue, Research) with the site bar's 1,120 px column",
+  "projects": [
+    "platform/pages",
+    "research/_homepage"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16405",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First build was started with a trailing '&' inside run_in_background; it kept running detached, so the second build refused (build lock) and I had to wait on dist.building instead of the log.",
+    "Ran 'git stash' to prove the new test fails on old code while a site build was reading the tree; checked afterwards that dist carried the new values, but it was a race.",
+    "New post's description was 190 characters; the build's 160 limit failed 175 site tests through one shared buildSite fixture. Fixed and reran.",
+    "Post seo_title was 73 characters (limit 70); caught by promptctl validate, after a second 8-minute suite run had already started with it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "The post front-matter limits (description 60-160, seo_title <= 70) are checked by `promptctl.py validate`, but no doc I read on the polish path says to run it before the site suite; a too-long description instead shows up as 175 failing site tests (every test that builds the site)."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "A full site build (~8 min here) is the only way to see a one-line CSS change in stories/updates/queue; no partial rebuild for a single site-owned page is documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-16-story-cards.md",
+      "why": "Its item 2 named Stories and Research; measured, Updates, the queue and the blog index were off too. I fixed four and left /writing/ (720 px reading column shared with every post) on purpose.",
+      "did": "Aligned four pages, documented why writing stays centred",
+      "result": "h1 matches the brand at 390/1,280/1,440 on all four"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-section-pages-now-start-where-the-logo-does.md",
+    "docs/reports/polish-2026-11-16-index-column.md"
+  ],
+  "goal": "impressive sites: consistent layout across section pages",
+  "notes": "Measured with Playwright on the built dist: h1 left edge vs .pfs-bar content edge at 1,280 / 1,440 / 390. Before 96/176/176/176/74 (hub/stories/updates/queue/research) at 1,280; after all 96. scrollWidth = viewport everywhere. node platform/pages/check.mjs: publishable, 10,376 pages, no dead links. Site test suite (node --test 'platform/pages/*.test.mjs'): 1,695 pass, 0 fail after fixing the post's description (190 chars) and seo_title (73 chars), which had failed 175 and 167 tests in the first two runs. promptctl validate ok. CI on the PR: see merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f8d92863-2285-56d5-ade0-24ad068cbed7",
+    "transcripts": 1,
+    "first": "2026-11-16T01:07:02Z",
+    "last": "2026-11-16T01:24:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 118,
+        "output": 22098,
+        "thinking": 3506,
+        "cache_read": 5361815,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88779,
+        "api_equivalent_usd": 2.225,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 118,
+      "output": 22098,
+      "thinking": 3506,
+      "cache_read": 5361815,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88779,
+      "api_equivalent_usd": 2.225,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 58,
+      "Read": 8,
+      "Write": 3,
+      "ToolSearch": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.76,
+      "active_minutes": 17.76,
+      "model_minutes": 5.49,
+      "tool_minutes": 12.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure five section pages at three widths, change four column rules, check line length and tile orphans, write a guard test, screenshots, post and report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 134.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

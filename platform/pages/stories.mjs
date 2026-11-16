@@ -108,7 +108,7 @@ const STYLE = `
     --accent:#d2a8f0; --soft:#221b2b; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width:960px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
+  .wrap { max-width:1120px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
   a { color:var(--accent); }
   h1 { font-size:clamp(2rem,4.6vw,2.8rem); line-height:1.15; margin:.3em 0 .25em; }
   h2 { font-size:1.45rem; margin:0 0 .2em; letter-spacing:-.01em; }
