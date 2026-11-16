@@ -28,7 +28,8 @@
   {
    "severity": "medium",
    "what": "Headline chain results (policy 'max' and the stroke cap) are not asserted by any test: seeded mutations that make the policy pick the smallest scale (line 221) or ignore the stroke in chain() (line 222) leave all 6 tests green. test_chain_runs_with_big_seed checks only length and non-None; results.txt is never compared.",
-   "where": "research/robofab-bootstrap/tests/test_bootstrap.py:26"
+   "where": "research/robofab-bootstrap/tests/test_bootstrap.py:26",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"
   },
   {
    "severity": "medium",
@@ -38,12 +39,14 @@
   {
    "severity": "low",
    "what": "README claims experiments/run.py takes ~2 s; measured 43.7 s because min_jaw reruns the full subset DP (about 11 bisection calls) per scale and per call, uncached.",
-   "where": "research/robofab-bootstrap/README.md:19"
+   "where": "research/robofab-bootstrap/README.md:19",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"
   },
   {
    "severity": "low",
    "what": "SVG title says a gripper copies itself 'only above scale 4' but the table (and the figure's own data) says it can at exactly 4.0.",
-   "where": "research/robofab-bootstrap/experiments/figure.py:17"
+   "where": "research/robofab-bootstrap/experiments/figure.py:17",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"
   },
   {
    "severity": "low",
@@ -51,6 +54,6 @@
    "where": "research/robofab-bootstrap/src/robofab_bootstrap/model.py:147"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"],
  "verdict": "Audited 2026-11-07 by running the code. Tests pass (6) and experiments/results.txt reproduces byte for byte (43.7 s, not the README's ~2 s). I recomputed table 1, the pad-thickness thresholds, the stroke-cap sets and all ten chains from a first-principles rule (need 30 s, opening 32 s - 2 t) without calling the search, and every number matches, so correctness and claims score 3 for the stated stylised model. It does not meet the bar: verification is 2 (6 of 8 seeded mutations caught; the two that changed the chain policy and the stroke cap passed all tests), and fitness and domain are 1 because the result is the algebra of an assumed formula, the search is vacuous for the headline (min_jaw is just 30 s, unaffected by pad thickness or arm), and the paper does not cite or compare to the self-replication closure or assembly-planning literature. The README's candour about all this is its main strength. Finished (completeness 3) but not at the level of a senior practitioner. Median 2. Suggested small fixes: add tests that pin the chain strings for w0=100 and 130 under both policies and a stroke-capped chain, correct the ~2 s claim, and fix the SVG title."
 }

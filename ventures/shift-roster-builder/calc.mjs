@@ -1159,7 +1159,12 @@ function coverPass(ctx, owner0, seed, iterations, { guide = null, guideProb = 0.
       gPeople[i] = ps; gCum[i] = cs;
     }
   }
-  const floor = (ctx.openFloor ??= openHoursFloor(ctx)) + 1e-6;
+  // The stop also reads the whole-shift floor (2026-11-16): a person's covered minutes are a sum of whole shifts, so their weekly
+  // cap is the largest such sum under their hours. It is only ever a higher valid floor, so the walk's best roster is the same; on
+  // weeks where max hours cut a shift in two in the plain flow (pinned brute-force weeks: own-site-wage.test.mjs) the walk used to
+  // run all twelve passes to the step limit chasing hours no roster can cover. ctx.openFloor itself is unchanged, so the repair
+  // skip below reads the same floor as before.
+  const floor = Math.max(ctx.openFloor ??= openHoursFloor(ctx), ctx.wholeShiftFloor ??= openHoursFloor(ctx, { wholeShifts: true })) + 1e-6;
   const rng = mulberry32(seed);
   const owner = owner0.slice();
   const lists = Array.from({ length: P }, () => []);
@@ -1232,12 +1237,37 @@ function coverPass(ctx, owner0, seed, iterations, { guide = null, guideProb = 0.
   return { owner: bestOwner, open: bestOpen };
 }
 
+// Largest sum of some of `lens` (whole minutes, each used at most once) that is at most `cap`: a subset-sum over the lengths
+// divided by their common divisor, each distinct length split into 1, 2, 4, ... copies. Returns `cap` when all of them fit.
+function wholeShiftCap(lens, cap) {
+  let total = 0, g = 0;
+  for (const l of lens) { total += l; g = gcdInt(g, l); }
+  if (total <= cap) return cap;
+  const C = Math.floor(cap / g), reach = new Uint8Array(C + 1), count = new Map();
+  for (const l of lens) count.set(l / g, (count.get(l / g) || 0) + 1);
+  reach[0] = 1;
+  for (const [l, c] of count) {
+    for (let left = c, k = 1; left > 0; k *= 2) {
+      const w = Math.min(k, left) * l;
+      left -= Math.min(k, left);
+      for (let v = C; v >= w; v--) if (!reach[v] && reach[v - w]) reach[v] = 1;
+      if (reach[C]) return C * g;
+    }
+  }
+  let v = C;
+  while (!reach[v]) v--;
+  return v * g;
+}
+const gcdInt = (a, b) => { while (b) [a, b] = [b, a % b]; return a; };
+
 // Least hours any valid roster must leave open, as a max flow: each shift's minutes go to a person-day the person is available
 // for, each person-day carries at most its longest rest-respecting chain of those shifts (weighted interval scheduling on
 // [start, end + rest)) and the daily cap, and each person at most their weekly hours. Every rule only relaxes (minutes may split
 // between people, streaks and history are ignored), so covered minutes never exceed the flow and the floor is never overstated.
 // Under 1 ms on the café sample, where it gives the proven 15 h. Non-integer minutes return 0 (no floor).
-function openHoursFloor(ctx) {
+// With `wholeShifts`, each person's weekly cap is the largest sum of whole eligible shifts' minutes within it (wholeShiftCap): a
+// roster never splits a shift, so the floor stays valid and is never lower than without it.
+function openHoursFloor(ctx, { wholeShifts = false } = {}) {
   const { P, S, slots, staff, elig, restMin, o } = ctx;
   if (slots.some((s) => !Number.isInteger(s.start) || !Number.isInteger(s.end))) return 0;
   const head = [], to = [], cap = [], next = [];
@@ -1246,7 +1276,8 @@ function openHoursFloor(ctx) {
   for (let i = 0; i < S; i++) { const m = slots[i].end - slots[i].start; total += m; add(0, 2 + i, m); }
   for (let p = 0; p < P; p++) {
     const pn = n++;
-    add(pn, 1, Math.max(0, Math.floor(staff[p].maxHours * 60 + 1e-9)));
+    const capMin = Math.max(0, Math.floor(staff[p].maxHours * 60 + 1e-9));
+    add(pn, 1, wholeShifts ? wholeShiftCap(slots.filter((_, i) => elig[p][i]).map((s) => s.end - s.start), capMin) : capMin);
     const dcap = dailyCapMin(ctx, p), byDay = new Map();
     for (let i = 0; i < S; i++) if (elig[p][i]) (byDay.get(slots[i].day) || byDay.set(slots[i].day, []).get(slots[i].day)).push(i);
     for (const list of byDay.values()) {
@@ -5687,7 +5718,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 

@@ -52,7 +52,7 @@ test("every input has a label and nothing is sent anywhere", () => {
     assert.ok(/aria-label=/.test(tag) || (id && html.includes(`<label for="${id}">`)), `unlabelled: ${tag}`);
   }
   assert.doesNotMatch(html, NETWORK);
-  for (const f of ["engine.mjs", "example-data.mjs", "usage.mjs", "cli.mjs"]) assert.doesNotMatch(page(f), NETWORK, f);
+  for (const f of ["engine.mjs", "online.mjs", "example-data.mjs", "usage.mjs", "cli.mjs"]) assert.doesNotMatch(page(f), NETWORK, f);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
   assert.doesNotMatch(html, /<(script|link|img)[^>]+(src|href)=["']https?:/);
 });
@@ -62,7 +62,8 @@ test("the module script imports only local files and parses", async () => {
   const scripts = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)];
   assert.equal(scripts.length, 1);
   assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]), ["./engine.mjs", "./example-data.mjs", "./usage.mjs"]);
-  assert.doesNotMatch(page("engine.mjs"), /^\s*import\s/m);
+  assert.deepEqual([...page("engine.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./online.mjs"]);
+  assert.doesNotMatch(page("online.mjs"), /^\s*import\s/m);
   assert.doesNotThrow(() => new Function(scripts[0][1].replace(/^\s*import .*$/gm, "")));
   for (const m of html.matchAll(/import \{([^}]+)\} from "\.\/([\w-]+\.mjs)"/g)) {
     const mod = await import(`./${m[2]}`);
@@ -101,7 +102,7 @@ test("page cites the papers with BibTeX and states its limits", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["analysis_run", "example_loaded", "report_downloaded"]) {
+  for (const e of ["analysis_run", "example_loaded", "online_run", "online_example_loaded", "report_downloaded"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }

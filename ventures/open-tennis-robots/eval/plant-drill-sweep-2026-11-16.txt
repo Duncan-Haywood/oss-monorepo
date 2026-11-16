@@ -1,0 +1,7 @@
+plant      | speed worst, spin worst / mean | marked (min-max a drill) | warned | set aside: speed, spin / mean
+first      |             0.2%   1.6% / 0.4% |   0/432  (0-0)          |  0/18 |   0.2%   1.6% / 0.4%
+hall 5us   |             0.5%   5.3% / 2.0% | 180/432  (5-17)          | 18/18 |   1.6%   7.2% / 2.7%
+hall 10us  |             1.1%  16.0% / 5.4% | 341/432  (15-22)          | 18/18 |  18.7%  89.2% / 23.4%
+hall 20us  |             1.8%  22.1% / 8.4% | 416/432  (20-24)          | 18/18 | 100.0% 715.4% / 259.2% (13 drills with every wheel marked: no fit)
+esc 30ms   |             4.2%  23.8% / 5.5% | 149/432  (0-23)          |  9/18 |  17.6% 100.0% / 12.5% (2 drills with every wheel marked: no fit)
+esc 80ms   |             3.6%  19.9% / 6.6% | 129/432  (0-18)          | 12/18 |   2.4%  12.2% / 3.8%

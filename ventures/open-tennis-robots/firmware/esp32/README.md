@@ -695,3 +695,251 @@ captured period snapshots before it goes into the firmware.
 
 **Not measured.** All of it is the simulator's physics and its exact tach; a
 real tach's jitter and a real wheel loop's recovery shape are not in it.
+
+## A recovery shaped by the loop's own commands (2026-11-16, later still)
+
+**Why a parabola was the wrong shape.** After a ball the wheel's recovery is
+the speed loop's doing: the tach's 4-revolution mean sees the drop late, the
+PI then pulls the wheel back, overshoots (the deficit goes 20-30% of the drop
+*past* zero) and the integrator lets go. A free parabola over five
+revolutions meets a different part of that curve at each speed, and that was
+the speed-dependent bias left in "Spin from fast wheels". Simulating the
+firmware's own tach and PI on a first-order wheel reproduces the captured
+periods closely, but the loop's response hangs on where its 10 ms tick falls
+against the ball: across tick phases the fitted drop moved by +/-3% at nearly
+the same residual, so a model of the loop fitted to the periods alone cannot
+pin it.
+
+**What changed.** The board knows every command it sent, so the fit no longer
+guesses the loop. `LaunchCheck` logs each control tick while it watches a
+stroke (edge count, microseconds since that edge, the ESC command the tick
+set; `TICK_LOG` = 160 ticks), and `controller.drop_from_commands` fits
+
+    w(t) = c + A e^-(t - ts)/tau + W h_tau(t) - D e^-(t - t0)/tau [t > t0]
+
+to each revolution's mean speed (1 / its period): the wheel is a first-order
+lag of the commands with one unknown time constant tau, `h_tau` is the logged
+commands' response through it, integrated exactly over each revolution, and t0
+is the ball. For a given tau and t0 it is linear in c, A, W and D. The free c
+lets an ESC whose speed is not proportional to its throttle fit too, and W
+need not equal `WHEEL_RPM_FULL`. tau is searched on 0.1-1.6 s
+(`LOOP_TAU_GRID_US`, five points a factor of 2 apart) and refined with seven
+golden-section evaluations. t0 is searched on three nested 9-point grids over the
+*two* revolutions around the slowest one's start: a ball in the last sliver of
+a revolution slows it by less than the 0.3% that marks it, and searching only
+the later revolution put the fit 1.2-3.6% low on 7 of 560 captured wheels. The
+deficits are fractions of the pre-ball speed, so MicroPython's
+single-precision floats keep their digits.
+
+It runs as a generator, one t0 grid per control tick (36 steps a wheel, 72 a
+stroke), so no tick stalls. The record goes out at the verdict with the
+parabola's drops and flags bit 5 set ("loop fit under way"). When the fit is
+done the board re-sends it under the same seq with the new drops, bits 3 / 4
+set (the top / bottom drop came from it) and bit 5 cleared. `FeederLink`
+replaces the record it holds when a frame with the same seq brings new flags,
+and `run_drill` waits for it (at most `LOOP_FIT_S`, 2 s) before each re-plan
+and at the end of a drill. An older Pi reads the first frame and keeps the
+parabola's drops, as before. `drop_from_periods` stays as the fallback when
+there is no command log or too few revolutions.
+
+**How close (simulated).** Each wheel's recorded drop over the simulator's
+true one, the 336 wheels of `tests/pulse_drop_sweep.py`
+(eval/pulse-drop-sweep-loop-2026-11-16.txt):
+
+| | mean | sd | range | worst speed band |
+| --- | --- | --- | --- | --- |
+| parabola | 1.0004 | 1.34% | 0.974-1.082 | +0.84% (1,000-2,000 rpm) |
+| loop commands | 0.9991 | 0.30% | 0.987-1.006 | -0.16% (6,000+ rpm) |
+
+On 224 wheels of four builds the design set never had (true lags 0.25 / 0.3 /
+0.6 / 1.0 s, true free speeds 7,500-11,000 rpm while the firmware is told
+9,000; `tests/drop_snapshot_capture.py --held-out`): mean 0.9995, sd 0.28%,
+range 0.989-1.006; the parabola there read mean 1.0008, sd 1.09%, range
+0.974-1.047.
+
+The fit of the launcher from a drill's drops (`launcher.fit_from_drops`), whole
+Pi path, both drills on the simulator (eval/spin-drill-sweep-loop-2026-11-16.txt,
+eval/spin-drill-random-40-loop-2026-11-16.txt, eval/launch-fit-sweep-loop-2026-11-16.txt):
+
+| spin efficiency error | parabola | loop commands |
+| --- | --- | --- |
+| calibration drill, 18 design builds, worst / mean size | 8.1% / 3.1% | 1.6% / 0.4% |
+| calibration drill, 12 held-out builds, worst / mean size | 7.8% / 3.7% | 1.9% / 0.7% |
+| calibration drill, 40 random builds, worst / mean size | 10.3% / 2.2% | 2.1% / 0.8% |
+| `launch_fit_sweep.py` stress list (2 s dwell), worst | 7.7% | 1.5% |
+| `launch_fit_sweep.py`, speed efficiency worst | 0.6% | 0.2% |
+
+The old drill, whose spin shots put a wheel at 1,062-1,961 rpm, does better
+too, but not everywhere: on the 18 design builds its worst spin error is 1.6%
+(8.3% with the parabola), yet on the 40 random builds it is still 16.3%,
+13.4% and 6.1% on three builds whose wheels lag 0.7 s. Slow wheels on a slow
+loop still give too few revolutions before the verdict, so the new drill's
+fast spin shots stay.
+
+`tests/refit_sweep.py`, the drill re-planned from its own shots (12 builds,
+shots 5 to 16, metres from the target; eval/refit-sweep-loop-2026-11-16.txt):
+
+| | median, worst build | worst shot |
+| --- | --- | --- |
+| parabola, one ball mass, slow wheels set aside | 0.31 | 0.34 |
+| loop commands | 0.07 | 0.40 |
+
+The medians fell on 11 of 12 builds. The worst single shot rose: one shot of
+the 0.70 / 0.35, 0.8 s build landed 0.40 m off (0.34 m before), so the re-plan
+is not better on every shot.
+
+**Not measured.** The simulator's wheel *is* a first-order lag of its command,
+which is exactly the model fitted here, so these numbers are the method's
+best case. A real ESC's speed control, a motor's torque limit, belt slip or
+a jittery hall sensor will each leave a shape the model does not have, and
+the residual would show it before the drop does. The time a fit step takes on
+an ESP32 under MicroPython is not measured either (on CPython a wheel's whole
+fit takes 4-5 ms, 36 steps). Next: log a real wheel's tach and commands
+around a ball and check that the first-order lag fits it; with that, the
+1,000 rpm floor (`launcher.MIN_FIT_RPM`) can be retested.
+
+## When the wheel is not a first-order lag (2026-11-16, later still)
+
+**The question.** The loop-command fit above was measured on a simulator whose
+wheel is exactly the model it fits, so every number there is a best case. A
+real build can break the model: a hall sensor whose edges arrive a few
+microseconds early or late, an ESC with a speed loop of its own (a second
+lag), a motor that runs out of current, a throttle curve, a slipping belt.
+Can the fit tell from its own misses when that has happened?
+
+**What the board now says.** `drop_from_commands` returns two more numbers:
+the rms miss per revolution as a share of the pre-ball speed, and the drop's
+standard error, s^2 (M^-1)_DD from the fit's own normal equations at the
+chosen tau and t0, as a share of the drop. When that standard error is over
+`LOOP_SE_MAX` (1%), the record goes out with LAUNCH flags bit 6 (top) or bit 7
+(bottom) set, "unsure". The Pi logs them as `unsure_top` / `unsure_bottom`;
+`launcher.fit_from_drops` counts them (`DropFit.unsure`) and, when at least
+10% of a drill's wheel readings and at least two are marked, its note says the
+fit should not be trusted and to check the tach and the ESC's mode. An older Pi
+ignores the two bits.
+
+**One wheel at a time** (`tests/loop_residual_sweep.py`, the firmware's own
+PeriodTach and WheelLoop on 24 cases per plant: 1,500-6,000 rpm, 6% and 10%
+drops, lags 0.2-0.8 s, the ball at varied tick phases;
+eval/loop-residual-sweep-2026-11-16.txt):
+
+| plant | fit error, mean / worst | marked |
+| --- | --- | --- |
+| first-order (the model) | 0.21% / 0.72% | 0 of 24 |
+| torque limit 20,000 / 8,000 / 3,000 rpm/s | 0.20-0.31% / 1.20% | 1 of 72 |
+| throttle curve (cmd^1.25) | 0.25% / 0.89% | 0 of 24 |
+| tach jitter 5 us | 0.74% / 2.27% | 11 of 24 |
+| tach jitter 20 / 50 us | 6.7% / 48% and 10.6% / 53% | all 41 fitted |
+| ESC lag 30 / 80 ms | 2.8% / 8.5% and 3.3% / 16.3% | 21 of 48 |
+| belt slip (magnet shaft 3x the ball's drop) | 106% / 141% | all 20 fitted |
+
+Of the 72 drops more than 2% off, 67 were marked; of the 152 within 1%, 14
+were. A current limit and a throttle curve do not matter (the free constant
+absorbs the curve; the drops are too small to hit the limit). The tach's
+timing and the ESC's own lag do.
+
+**A whole drill** (`tests/plant_drill_sweep.py`, the calibration drill through
+the whole Pi path on the 18 design builds; eval/plant-drill-sweep-2026-11-16.txt):
+
+| plant | spin efficiency error, worst / mean | wheels marked (fewest-most a drill) | drills warned | marked drops set aside instead: spin worst / mean |
+| --- | --- | --- | --- | --- |
+| first-order (the model) | 1.6% / 0.4% | 0 of 432 (0-0) | 0 of 18 | 1.6% / 0.4% |
+| tach jitter 5 us | 5.3% / 2.0% | 180 of 432 (5-17) | 18 of 18 | 7.2% / 2.7% |
+| tach jitter 10 us | 16.0% / 5.4% | 341 of 432 (15-22) | 18 of 18 | 89% / 23% |
+| tach jitter 20 us | 22.1% / 8.4% | 416 of 432 (20-24) | 18 of 18 | 13 drills left nothing to fit |
+| ESC lag 30 ms | 23.8% / 5.5% | 149 of 432 (0-23) | 9 of 18 | 100% / 12.5%, 2 drills nothing to fit |
+| ESC lag 80 ms | 19.9% / 6.6% | 129 of 432 (0-18) | 12 of 18 | 12.2% / 3.8% |
+
+Speed efficiency stayed within 1.8% on the jitter plants and 4.2% on the ESC
+plants. The jitter is caught in every drill. The ESC lag is not: some drills
+marked none of their wheels and still read the spin badly, so the warning
+fired on 9 and 12 of 18 drills. The standard error sees noise well and a
+smooth shape the model lacks less well, since a second lag can be partly
+absorbed by a longer tau.
+
+So the marks are a detector, not a filter. Setting the marked drops aside was
+the first policy tried, and it did not help: with 5 us of jitter it made the
+spin error worse (5.3% to 7.2% worst), because a noisy drop is still an
+unbiased one and removing it only loses data. At 10-20 us and with a 30 ms ESC
+lag so many wheels were marked that little or nothing was left. It helped on
+one plant only (80 ms ESC lag, 19.9% to 12.2%). The Pi warns; it fits with
+every drop.
+
+**The tach interrupt is now hard.** `main.py`'s `Tach` registered a soft
+interrupt, so `ticks_us()` was read when the main loop next yielded, up to a
+control tick's work after the edge. With the numbers above that is the worst
+place for timing error to come from, so the handler now runs as a hard
+interrupt (`hard=True`; `_p` and `PeriodTach.edge` allocate nothing) with an
+emergency exception buffer. The simulator calls the handler at the true edge
+time either way, so this change is not measured here; a hard interrupt's own
+latency on an ESP32 under MicroPython is still tens of microseconds at worst,
+so the board's timing remains the first thing to measure on a real wheel.
+
+**Next.** Fit the drop on the edge times rather than on periods: the jitter
+is on each time, so neighbouring periods share it with opposite signs, and the
+period fit treats them as independent. Add an ESC lag (a second, fixed time
+constant searched like tau) to the model for ESCs that run their own speed
+loop. Time a real wheel's edges against a scope to get the real jitter, then
+rerun these sweeps with it. Physics and plants here are assumptions, not
+measurements.
+
+## An ESC lag picked from the build's own balls (2026-11-16, last)
+
+**The item.** The section above ends by asking for an ESC lag in the model,
+because a second lag between the command and the wheel is what its standard
+error saw least well: on the calibration drill a 30 ms ESC lag left the spin
+efficiency 23.8% off at worst, an 80 ms one 19.9%, and some of those drills
+marked no wheel at all.
+
+**How.** `controller.esc_lagged_ticks` passes the logged commands through a
+lag of `ESC_TAU_US` (1 ms steps), and the same loop-command fit then fits the
+wheel's own lag on top of that drive. `config.ESC_TAU_US` (default 0, the fit
+as before) sets it on the board; `LaunchCheck` applies it to both wheels.
+
+**Picking the lag.** One ball cannot reliably tell the two lags apart.
+Picking a lag per ball by least residual removed the bias, but it widened
+the spread on first-order builds (sd 0.30% to 0.53%, worst 1.057, measured
+offline on 336 snapshots per kind). The lag is a property of the build, not
+of the ball, so `tests/esc_lag_pick.py` sums each wheel's squared residual
+rms over two drills (rally and calibration, two true launchers) for each lag
+on 0 / 20 / 50 / 100 / 200 / 400 ms and takes the least. It then reruns the
+drills with the board set to that lag and compares each record's drop with
+the simulator's true one (eval/esc-lag-pick-2026-11-16.txt):
+
+| build (wheel lags 0.2 / 0.4 / 0.8 s) | picked | drop / true, ESC_TAU_US 0: mean, worst | with the pick: mean, worst |
+| --- | --- | --- | --- |
+| first-order | 0, 0, 0 | 0.998-1.000, 0.987 | unchanged |
+| ESC lag 30 ms | 20, 20, 20 | 0.956-0.987, 0.904 | 0.990-0.997, 0.973 |
+| ESC lag 40 ms | 50, 50, 50 | 0.954-0.987, 0.894 | 1.001-1.006, 1.025 |
+| ESC lag 80 ms | 100, 100, 100 | 0.956-0.987, 0.874 | 1.000-1.001, 1.018 |
+| ESC lag 100 ms | 100, 100, 100 | 0.958-0.987, 0.880 | 0.999-1.000, 0.991 |
+| ESC lag 100 ms, jitter 3 us | 100, 100, 50 | 0.958-0.984, 0.525 | 0.993-1.000, 0.571 |
+
+**The whole drill.** `tests/plant_drill_sweep.py --esc-tau-us N` runs the
+section above's calibration drill with the board set to N
+(eval/plant-drill-esc-tau-2026-11-16.txt). Spin efficiency error, worst /
+mean, on the 18 design builds:
+
+| plant | ESC_TAU_US 0 | the picker's value | the true lag |
+| --- | --- | --- | --- |
+| ESC lag 30 ms | 23.8% / 5.5% | 6.5% / 1.6% (20 ms) | 1.4% / 0.5% |
+| ESC lag 80 ms | 19.9% / 6.6% | 3.0% / 1.0% (100 ms) | 1.8% / 0.7% |
+| first-order | 1.6% / 0.4% | 1.6% / 0.4% (0) | - |
+| first-order, set wrongly to 20 / 50 ms | - | 41.2% / 9.2%, 44.1% / 10.1% | - |
+
+Speed efficiency came within 1.1% with any ESC setting near the true lag.
+With the right lag, no wheel was marked unsure. A wrong setting is much worse
+than none: a first-order build told 20 or 50 ms reads the spin 41-44% off.
+That case does show, though, because 144 and 205 of its 432 wheels were
+marked unsure and 6 and 12 of 18 drills warned. So the setting must come from
+the build's own balls and not from a guess. On the simulator the picker
+chose 0 for every first-order build. The grid's spacing is now the limit:
+30 ms read 6.5% at the picker's 20 ms against 1.4% at the true 30 ms.
+
+**Not done.** On a real build the pick needs each ball's period snapshot and
+tick log, and the board does not send them to the Pi, so `ESC_TAU_US` can
+only be set by hand for now. The drive samples make the fit's segments about
+ten times as many, and the cost on an ESP32 is not measured. Next: sum the
+grid's residuals on the board across a drill and report the least (or send
+the snapshots in the shot log), with a finer grid near the winner. Then log a
+real ESC's step response and see which shape it has.

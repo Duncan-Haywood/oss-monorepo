@@ -64,11 +64,32 @@ class T(unittest.TestCase):
             self.assertAlmostEqual(x[1], 0.05, places=9)
         self.assertIsNone(a.ik(0.5, 0.0))
 
-    def test_wrist_acceleration_of_one_link_sweep(self):
-        # shoulder-only move (q2 fixed, l2 folded straight): tip acceleration = l*qdd tangentially
-        a = Arm(0.2, 0.0001, 0.1, 0.0, 0.0)
-        r = move(a, (0.0, 0.0), (0.0, 0.0), 1.0)
-        self.assertAlmostEqual(r["az_up"], 0.0, places=4)
+    def test_wrist_acceleration_and_jaw_force_on_a_circle(self):
+        # Elbow held straight (q2 = 0): the wrist rides a circle of radius L = l1 + l2 at angle q1(t), so by hand
+        #   a_r = -L (q1'' sin q1 + q1'^2 cos q1),  a_z = L (q1'' cos q1 - q1'^2 sin q1)
+        # and the per-jaw bound is m sqrt((g + a_z)^2 + a_r^2) / (2 mu). Checked at the same samples move() uses.
+        a = Arm(0.2, 0.15, 0.3, 0.2, 0.1)
+        L, q0, dq, T_, n, m, mu = 0.35, -0.3, 1.1, 0.4, 200, 0.006, 0.5
+        az_up = ar_max = force = 0.0
+        for k in range(n + 1):
+            p, v, ac = min_jerk(k / n)
+            q, qd, qdd = q0 + dq * p, dq * v / T_, dq * ac / T_ ** 2
+            ar = -L * (qdd * math.sin(q) + qd * qd * math.cos(q))
+            az = L * (qdd * math.cos(q) - qd * qd * math.sin(q))
+            az_up, ar_max = max(az_up, az), max(ar_max, abs(ar))
+            force = max(force, m * math.hypot(G + az, ar) / (2 * mu))
+        r = move(a, (q0, 0.0), (q0 + dq, 0.0), T_, n=n, mu=mu, mass=m)
+        self.assertGreater(az_up, 10)          # a real dynamic move (14 m/s^2), not a rest pose
+        self.assertAlmostEqual(r["az_up"], az_up, delta=1e-3 * az_up)
+        self.assertAlmostEqual(r["ar"], ar_max, delta=1e-3 * ar_max)
+        self.assertAlmostEqual(r["force"], force, delta=1e-3 * force)
+
+    def test_jaw_force_adds_upward_acceleration_to_gravity(self):
+        # A pure vertical lift through q1 = 0 (wrist at the circle's side, moving straight up at mid-move):
+        # accelerating upward must raise the required grip above the static m g / (2 mu).
+        a = Arm(0.2, 0.15, 0.3, 0.2, 0.1)
+        r = move(a, (-0.1, 0.0), (0.1, 0.0), 0.2, mass=0.006, mu=0.5)
+        self.assertGreater(r["force"], 0.006 * G / 1.0 * 1.5)
 
     def test_faster_move_needs_more_torque_and_grip(self):
         qa, qb = (0.2, -1.0), (0.9, -0.4)

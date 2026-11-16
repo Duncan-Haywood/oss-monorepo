@@ -77,6 +77,9 @@ python experiments/gate/noise_figure.py
 OMP_NUM_THREADS=1 python experiments/gate/noiseclass.py collect ~/ms-snsd /tmp/windows_d.npz --procs 4   # step 3d, ~4 min
 python experiments/gate/noiseclass.py score /tmp/windows_d.npz   # noiseclass_results.txt, noiseclass_summary.json
 python experiments/gate/noiseclass_figure.py
+OMP_NUM_THREADS=1 python experiments/gate/noiselevel.py collect ~/ms-snsd /tmp/windows_e.npz --procs 4   # step 3e, ~8 min
+python experiments/gate/noiselevel.py score /tmp/windows_e.npz   # noiselevel_results.txt, noiselevel_summary.json
+python experiments/gate/noiselevel_figure.py
 ```
 
 ## Results (from [`experiments/real-devices/results.txt`](experiments/real-devices/results.txt))
@@ -203,6 +206,15 @@ Prior, search and failure rule are as in step 1. A cell is scored if it has at l
 
 ![Wrong among accepted 2 s windows at -10 dB per held-out noise type, three gates](experiments/gate/noiseclass_gates.png)
 
+**Step 3e (2026-11-16): can a noise level estimated from the seconds before a window make the bound hold at the worst level? No, and the true level mostly says refuse.** Step 3c's 2 s windows replayed exactly (62,000; every failure cell identical), each now preceded by 4 s of the same speech and the same noise recording. The gate's bins come from a minimum-statistics noise floor (a simplified form of Martin 2001) tracked over those 4 s, instead of from the window alone; an oracle that knows the true level is the ceiling:
+
+- **Hearing the context does not fix it.** Calibrated on the site's own kind of noise, the context-binned gate stays at or under 2% wrong at -10 dB for 4 of 10 noise types in each room, the same as the window-only gate (4 and 4).
+- **Louder intermittent noise reads as cleaner audio.** For neighbour noise, door slams and typing, the window's own estimate rates -10 dB windows as *less* noisy than 0 dB ones (AUROC 0.36 to 0.47); the context estimate brings that only to 0.48 to 0.66. Only steady noise (white, air conditioner, vacuum) is ranked well (0.99 or more).
+- **Knowing the level, the right answer is to refuse.** With the true level as the bin, no confidence threshold certifies 1% at -10 dB for 7 of 10 noise types, so the oracle gate accepts nothing there.
+- **For an engineer:** quote a sync confidence's failure rate over the site's own mix of noise, and the absolute share of wrong windows it lets through in the worst stretch (at most 2.4% of -10 dB windows here), not a per-level rate that a single microphone cannot measure.
+
+![Wrong among accepted 2 s windows at -10 dB per noise type under site calibration, four level features](experiments/gate/noiselevel_gates.png)
+
 ## Step 3: a Learn-then-Test gate across rooms, phones and noise (`src/capture_sync/gate.py`, `experiments/gate/`)
 
 **Question.** Milestone 3: step 1's peak-to-sidelobe (PSR) gate used a plug-in threshold with no guarantee and broke at -10 dB from room to room. With a distribution-free threshold, which shifts keep the failure rate and which break it? Plan and six predictions in `LOG.md`, written before the run.
@@ -305,6 +317,30 @@ Predictions: (a) replay held; (b) kurtosis flags all three impulsive types faile
 
 **Limits of step 3d.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The features are three numbers from one 2 s window; a rig can watch the seconds before the window, which these gates do not use. The novelty threshold (1%) and the bin layout were fixed in advance and not tuned.
 
+## Step 3e: a level estimate from the seconds before the window (`experiments/gate/noiselevel.py`)
+
+**Question.** Step 3d found site calibration holds pooled over noise levels but not at -10 dB, because the window's own blind SNR estimate mixes levels in each bin. A rig has heard the seconds before the window. Does a noise floor tracked over them give bins that make the bound hold level by level? Plan and nine predictions in `LOG.md`, written before the run.
+
+**Method.** Step 3c's 2 s windows replayed exactly (the collection code is step 3c's, every draw unchanged and checked bit for bit, with four columns appended). Each window gets 4 s of context: the same session's preceding speech through the same impulse responses, and the 4 s of the same noise recording that precede the window's noise draw, at the window's own gain (white context from a separate generator). Level features, the smaller of the two devices': `ms` (`gate.min_stats_snr_db`: each band bin's periodogram smoothed recursively, alpha 0.7, its minimum over 1.5 s as the noise floor, summed over 100 Hz to 4 kHz; the window's SNR against it; Martin's (2001) optimal smoothing and bias compensation left out), `ctx` (step 3b's frame-energy spread over the 6 s) and `snr_hat` (the window alone). Gates, LTT at alpha 1%, delta 0.1: step 3b's Mondrian gate (4 quartile bins, refuse below the 1st percentile) on each feature, and an oracle with one threshold per true level. Shifts T0 to T3 as in step 3d.
+
+**Results** ([`experiments/gate/noiselevel_results.txt`](experiments/gate/noiselevel_results.txt); 2 s windows, gamma 0.25):
+
+| | 0.2 s room | 0.8 s room |
+|---|---|---|
+| T3 site calibration, -10 dB, types at or under 2%: `snr_hat` / `ctx` / `ms` / oracle | 4 / 5 / 4 / 10 of 10 | 4 / 6 / 4 / 10 of 10 |
+| ... of which the oracle accepts nothing | 7 | 7 |
+| T3, -10 dB, mean kept: `snr_hat` / `ms` / oracle | 24% / 25% / 22% | 23% / 22% / 21% |
+| T3, -10 dB, worst wrong-and-accepted share of all windows: `snr_hat` / `ms` / oracle | 2.0% / 2.4% / 0.2% | 1.2% / 2.0% / 0.8% |
+| T2 leave one type out, -10 dB, at or under 2%: `snr_hat` / `ms` | 7 / 3 of 10 | 6 / 7 of 10 |
+| T1 white to real, -10 dB, at or under 2%: `ms` / oracle | 1 / 0 of 9 | 1 / 1 of 9 |
+| T0 white: `ms` wrong among accepted (kept) | 0.10% (99%) | 0.10% (99%) |
+
+AUROC of -10 against 0 dB windows (`snr_hat` / `ms`): white 1.00 / 1.00, AirConditioner 0.99 / 1.00, VacuumCleaner 0.99 / 0.99, AirportAnnouncements 0.85 / 0.78, Babble 0.85 / 0.79, CopyMachine 0.82 / 0.82, Munching 0.55 / 0.65, Neighbor 0.36 / 0.48, ShuttingDoor 0.36 / 0.59, Typing 0.47 / 0.66.
+
+Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 types failed (2 of 9; above `snr_hat` for 7 of 9); (c) site calibration at -10 dB for 9 of 10 types failed (4 and 4); (d) the oracle ceiling held, mostly by accepting nothing; (e) `ms` beats `snr_hat` under T3 failed (a tie); (f) the level does not fix a change of kind held; (g) leave-one-out under 8 of 10 held; (h) T0 held; (i) `ctx` between the two held for 5 of 9.
+
+**Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
+
 ## Step 2b: threshold theory on the real phones (`experiments/threshold/libriwasn.py`)
 
 **Question.** H4 proper: does the gross-error model of step 2a predict how often a window misses on real devices, rooms and clocks? The harness was written in step 2a and not changed; the plan and five predictions were written to `LOG.md` before the run.
@@ -354,7 +390,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- A gate binned on a noise-class feature (spectral flatness, frame-energy kurtosis) instead of the blind SNR, which step 3c showed cannot place real noise, with the weighting chosen per window from the same feature; then shared noise heard by both devices, the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- Noise heard by both devices (shared noise), where a wrong peak at the noise's own lag is the expected failure; a confidence other than PSR (second-peak ratio, agreement of two weightings) for impulsive noise, which no level or class feature tamed in steps 3c to 3e; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 

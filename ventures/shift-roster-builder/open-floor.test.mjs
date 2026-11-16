@@ -47,3 +47,43 @@ test("the café sample's floor is the proven 15 hours", () => {
   const ctx = buildContext(parseStaff(sampleStaff()).staff, parseShifts(sampleShifts()).slots, {});
   assert.equal(openHoursFloor(ctx), 15);
 });
+
+// The whole-shift floor (`openHoursFloor(ctx, { wholeShifts: true })`, 2026-11-16) caps each person at the largest sum of whole
+// eligible shifts within their hours. The plateau walk stops on it, so it must also never overstate, and never be below the plain one.
+test("the whole-shift floor never overstates, never undercuts the plain floor, and is tighter where max hours split a shift", () => {
+  let tighter = 0, exact = 0, positive = 0;
+  for (let seed = 1; seed <= 60; seed++) {
+    const r = rng(seed), P = 2 + Math.floor(r() * 2), S = 4 + Math.floor(r() * 4);
+    const staff = ["name, wage, max hours, min hours, availability"];
+    for (let p = 0; p < P; p++) staff.push(`P${p}, 15, ${4 + Math.floor(r() * 14)}, 0, ${r() < 0.4 ? "any" : `Mon-${DAYS[1 + Math.floor(r() * 3)]} ${6 + Math.floor(r() * 4)}-${14 + Math.floor(r() * 8)}`}`);
+    const shifts = [];
+    for (let s = 0; s < S; s++) { const a = 6 + Math.floor(r() * 10); shifts.push(`${DAYS[Math.floor(r() * 4)]},${a},${a + 3 + Math.floor(r() * 5)},1`); }
+    const opts = [{}, { maxDailyHours: 6 }, { minRestHours: 10 }][seed % 3];
+    const ctx = buildContext(parseStaff(staff.join("\n")).staff, parseShifts(shifts.join("\n")).slots, opts);
+    const plain = openHoursFloor(ctx), whole = openHoursFloor(ctx, { wholeShifts: true }), least = leastOpen(ctx);
+    assert.ok(whole <= least + 1e-9, `seed ${seed}: whole-shift floor ${whole} > least open ${least}`);
+    assert.ok(whole >= plain - 1e-9, `seed ${seed}: whole-shift floor ${whole} < plain ${plain}`);
+    if (whole > plain + 1e-9) tighter++;
+    if (least > 0) { positive++; if (Math.abs(whole - least) < 1e-9) exact++; }
+  }
+  // 2026-11-16: tighter on 18 of the 60 weeks, exact on 31 of the 52 that must leave hours open (the plain floor: 16).
+  assert.ok(tighter >= 10, `the whole-shift floor was tighter on only ${tighter} weeks`);
+  assert.ok(exact >= 25, `whole-shift floor exact on only ${exact} of ${positive}`);
+  // One person, 16 h, pinned to a 10 h and a 9 h shift: the plain flow covers 16 of the 19 h (3 open); whole shifts leave 9 open.
+  const one = buildContext(parseStaff("name,wage,max,min,availability\nAna,18,16,0,any").staff, parseShifts("Mon,8,18,1\nTue,12,21,1").slots, {});
+  assert.equal(openHoursFloor(one), 3);
+  assert.equal(openHoursFloor(one, { wholeShifts: true }), 9);
+});
+
+test("wholeShiftCap is the largest subset sum within the cap", () => {
+  const { wholeShiftCap } = _internals;
+  const r = rng(7);
+  for (let t = 0; t < 300; t++) {
+    const lens = Array.from({ length: Math.floor(r() * 8) }, () => [180, 240, 270, 480, 600, 601][Math.floor(r() * 6)]);
+    const cap = Math.floor(r() * 2400);
+    let best = 0;
+    for (let m = 0; m < 1 << lens.length; m++) { let s = 0; for (let k = 0; k < lens.length; k++) if (m >> k & 1) s += lens[k]; if (s <= cap && s > best) best = s; }
+    const total = lens.reduce((a, b) => a + b, 0);
+    assert.equal(wholeShiftCap(lens, cap), total <= cap ? cap : best, `${lens} within ${cap}`);
+  }
+});

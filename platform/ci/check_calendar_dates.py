@@ -23,7 +23,15 @@ analyzer read `2026-02-30 10:00` as 2 March and a Mailchimp birthday check passe
 line or the twelve after it (four until 2026-11-14; parsers that read a time of
 day first put the round trip about ten lines down). Every month then has 31 days. The red-team run of
 2026-11-12 found it in the bank-statement converter (02/30 exported as
-2026-02-30) and five import checkers and categorizers. Exit 1 lists each hit.
+2026-02-30) and five import checkers and categorizers.
+
+The third pattern is the first one split over lines (added 2026-11-16): a
+variable set from `new Date(...)` or `Date.parse(...)` within the six lines
+before an `isNaN(var)` / `isNaN(var.getTime())` test, a date shape in those
+lines, and no round trip or calendar check from the assignment to three lines
+after the test. That run found 14 parsers of this form (grant deadlines, the
+weekly staff rota's week start, UK late-payment interest, four Stripe/review
+CSV readers) turning 30 February into 2 March. Exit 1 lists each hit.
 Usage: python3 platform/ci/check_calendar_dates.py [root ...]
 """
 import pathlib
@@ -39,6 +47,8 @@ MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b|> ?12\b|monthOk")
 CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|getUTCMonth\(\)|getMonth\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|"
                       r"realDate\(|calDate\(|validDate\(|[cC]hecked\(")
 WINDOW = 12
+SPLIT_NAN = re.compile(r"isNaN\((\w+)(?:\.getTime\(\))?\)")
+BACK = 6
 SUFFIXES = {".mjs", ".js", ".cjs", ".ts"}
 SKIP_PARTS = {"node_modules", ".next", "dist", "build", "vendor"}
 
@@ -60,10 +70,28 @@ def scan_text(text):
         if nan_file and "isNaN(" in line and SHAPE.search(line) and NAN_CHECK.search(line) \
                 and not ROUND_TRIP.search(line):
             hits.append(i)
+        elif nan_file and "isNaN(" in line and split_rollover(lines, i):
+            hits.append(i)
         elif range_file and " 31" in line and DAY_RANGE.search(line) and MONTH_RANGE.search(line) \
                 and not CALENDAR.search("\n".join(lines[i - 1:i + WINDOW])):
             hits.append(i)
     return hits
+
+
+def split_rollover(lines, i):
+    """True when line i tests isNaN on a date built a few lines up, with no round trip near it."""
+    back = lines[max(0, i - 1 - BACK):i - 1]
+    for m in SPLIT_NAN.finditer(lines[i - 1]):
+        assign = re.compile(r"\b" + re.escape(m.group(1)) + r"\s*=\s*(?:new Date\(|Date\.parse\()")
+        if not any(assign.search(b) for b in back):
+            continue
+        if not SHAPE.search("\n".join(back + [lines[i - 1]])):
+            continue
+        near = "\n".join(lines[max(0, i - 1 - BACK):i + 3])
+        if ROUND_TRIP.search(near) or CALENDAR.search(near):
+            continue
+        return True
+    return False
 
 
 def scan(roots):

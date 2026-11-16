@@ -191,6 +191,38 @@ class FakeVentures(unittest.TestCase):
 
 
 class Report(unittest.TestCase):
+    UNITTEST_RED = ("F\n" + "=" * 70 + "\nFAIL: test_host (tests.test_host.T.test_host)\n" + "-" * 70
+                    + "\nTraceback (most recent call last):\nAssertionError: 3 != 4\n\n" + "-" * 70
+                    + "\nRan 1 test in 0.001s\n\nFAILED (failures=1)\n")
+
+    def test_a_unittest_failure_is_shown_not_a_later_green_step_s_tail(self):
+        # friction 2026-11-16: the summary showed the CAD step's all-OK tail and
+        # hid the test_host failure of the step before it.
+        out = ("$ python3 -m unittest (in tests)  <- this step failed\n" + self.UNITTEST_RED
+               + "$ python3 -m unittest (in cad)\n" + "." * 200 + "\n" + "Ran 200 tests\n\nOK\n" * 300)
+        shown = rvt.failures(out)
+        self.assertIn("FAIL: test_host", shown)
+        self.assertIn("AssertionError: 3 != 4", shown)
+        self.assertIn("FAILED (failures=1)", shown)
+        self.assertNotIn("Ran 200 tests", shown)
+
+    def test_a_failed_step_without_test_blocks_shows_that_step_s_tail(self):
+        out = "$ npm test (in x, from .github/workflows/x.yml)  <- this step failed\nSyntaxError: bad\n$ node --test (in .)\n" + "ok 1\n" * 2000
+        shown = rvt.failures(out)
+        self.assertIn("SyntaxError: bad", shown)
+        self.assertNotIn("ok 1", shown)
+
+    def test_run_marks_the_step_that_failed(self):
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(rvt, "VENTURES", Path(d)), \
+                mock.patch.object(rvt, "commands", return_value=[(["node", "a"], Path(d) / "v"), (["python3", "b"], Path(d) / "v")]), \
+                mock.patch.object(rvt, "run_one", side_effect=[(False, self.UNITTEST_RED), (True, "OK\n")]):
+            (Path(d) / "v").mkdir()
+            _, ok, out, _ = rvt.run("v")
+        self.assertFalse(ok)
+        self.assertIn("$ node --test (in .)  <- this step failed", out)
+        self.assertNotIn("unittest (in .)  <-", out)
+        self.assertIn("FAIL: test_host", rvt.failures(out))
+
     def test_the_failing_test_is_shown_even_far_from_the_end(self):
         out = "\n".join(["not ok 3 - the broken one", "  error: boom"] + [f"ok {i}" for i in range(500)] + ["# fail 1"])
         shown = rvt.failures(out)

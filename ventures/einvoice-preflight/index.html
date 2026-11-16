@@ -83,6 +83,13 @@
     a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #0b5f8a; color: #fff; font-weight: 700; text-decoration: none; }
     a.cta.alt { background: #dcebf3; color: #084a6d; }
     a.cta:focus-visible { outline: 3px solid #084a6d; outline-offset: 2px; }
+    .lede { font-size: 1.08rem; max-width: 62ch; margin: 0 0 10px; }
+    details.checks, details.more-examples { margin: 0 0 4px; }
+    details.checks summary, details.more-examples summary { cursor: pointer; color: #084a6d; font-weight: 600; padding: 6px 0; }
+    details.checks summary:focus-visible, details.more-examples summary:focus-visible { outline: 3px solid #084a6d; outline-offset: 2px; border-radius: 4px; }
+    details.checks ul { margin: 6px 0 0; padding-left: 1.2em; columns: 2 22rem; column-gap: 28px; }
+    details.checks li { margin: 0 0 6px; line-height: 1.4; break-inside: avoid; }
+    details.more-examples .actions { margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -90,24 +97,30 @@
     <p class="eyebrow">FOR BOOKKEEPERS AND ERP ADAPTERS</p>
     <h1>Catch invoice defects before you submit.</h1>
     <p class="cta-row"><a class="cta" href="#drop">Check an invoice</a> <a class="cta alt" href="#drop" id="cta-example">Try a broken example</a></p>
-    <p>
-      Drop a JSON, UBL, CII, or Factur-X PDF invoice or credit note — or paste the JSON shape —
-      and get rule IDs plus a suggested fix for missing fields, totals that do
-      not add up, a credit sent as a commercial invoice, a missing original
-      invoice reference, a prepaid that does not leave the stated amount due, a
-      missing remittance on an IBAN transfer, mixed VAT rates without a
-      per-rate breakdown, a 0% line without an exemption
-      reason, a buyer electronic address that fails its GLN or EAS scheme,
-      an invoice period that is incomplete or ends before it starts,
-      a SEPA payment means without an IBAN,
-      a purchase-order field that repeats the invoice number,
-      a header discount that does not match its percent,
-      payment terms days that do not match the due date,
-      and transposed VAT, IBAN, BIC, or
-      RF values. After using this, you can now review a structured invoice in
-      the browser in seconds, which used to mean running a CLI or waiting for a
-      network rejection. Everything stays on this page.
+    <p class="lede">
+      Drop a JSON, UBL, CII or Factur-X PDF invoice or credit note, or paste the JSON shape.
+      Each fault comes back with a rule ID and the change that fixes it, and the
+      official EN 16931, XRechnung and Peppol rules can run here too.
+      Everything stays in this browser tab.
     </p>
+    <details class="checks">
+      <summary>What the built-in rules catch</summary>
+      <ul>
+        <li>Missing fields, and totals that do not add up</li>
+        <li>A credit sent as a commercial invoice, or a credit note without the original invoice reference</li>
+        <li>A prepaid amount that does not leave the stated amount due</li>
+        <li>A missing remittance on an IBAN transfer</li>
+        <li>Mixed VAT rates without a per-rate breakdown</li>
+        <li>A 0% line without an exemption reason</li>
+        <li>A buyer electronic address that fails its GLN or EAS scheme</li>
+        <li>An invoice period that is incomplete or ends before it starts</li>
+        <li>A SEPA payment means without an IBAN</li>
+        <li>A purchase-order field that repeats the invoice number</li>
+        <li>A header discount that does not match its percent</li>
+        <li>Payment terms days that do not match the due date</li>
+        <li>Transposed VAT, IBAN, BIC or RF values</li>
+      </ul>
+    </details>
   </header>
   <main class="layout">
     <section>
@@ -122,6 +135,12 @@
       <div class="actions">
         <button id="check" type="button">Check invoices</button>
         <button id="sample" class="secondary" type="button">Load a broken example</button>
+        <button id="validSample" class="secondary" type="button">Load a passing example</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL, CII or a dropped Factur-X PDF)</button>
+      </div>
+      <details class="more-examples">
+        <summary>More broken examples (9)</summary>
+        <div class="actions">
         <button id="creditSample" class="secondary" type="button">Load a credit note without a reference</button>
         <button id="zeroSample" class="secondary" type="button">Load a 0% line without a reason</button>
         <button id="mixedSample" class="secondary" type="button">Load mixed rates without a breakdown</button>
@@ -131,9 +150,8 @@
         <button id="referenceSample" class="secondary" type="button">Load a PO that repeats the invoice number</button>
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
-        <button id="validSample" class="secondary" type="button">Load a passing example</button>
-        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL, CII or a dropped Factur-X PDF)</button>
-      </div>
+        </div>
+      </details>
       <p id="inputError" class="error" role="alert"></p>
       <div id="repairLog" aria-live="polite"></div>
     </section>

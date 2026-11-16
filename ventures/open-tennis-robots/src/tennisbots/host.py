@@ -64,6 +64,9 @@ WARN_FLAGS = {P.FLAG_LIFT_JAM: "ball lift jammed and off after its retry: balls 
 # The firmware's verdict on a stroke lands LAUNCH_CHECK_MS (250 ms) after the stroke's end, which is when the release
 # is counted; frames this long after the release carry it.
 VERDICT_S = 0.25 + FRESH_S
+# The loop-command fit the board makes after a verdict, one step a control tick (about 72 ticks for both wheels), may
+# take this long before the record comes again with its drops; past it the parabola's stand.
+LOOP_FIT_S = 2.0
 HOPPER_EMPTY = ("hopper empty: the feed stroke put no ball through the wheels (the launcher wheels did not slow); "
                 "refill the tub, or check the outlet for a bridge of balls and the hose for a stuck one")
 
@@ -316,6 +319,7 @@ class FeederLink:
         self._hb = -1e9
         self.launch_log: list = []    # (clock when first seen, record dict) per new LAUNCH seq
         self._seq = None
+        self._flags = None
 
     def send(self, cmd, *values):
         self.port.write(P.encode(cmd, *values))
@@ -328,12 +332,22 @@ class FeederLink:
         for cmd, vals in self.decoder.feed(self.port.read() or b""):
             if cmd == P.TELEMETRY:
                 self.last = Telemetry(now, *vals)
-            elif cmd == P.LAUNCH and vals[0] != self._seq:     # repeated every period until the next verdict
-                self._seq = vals[0]
-                self.launch_log.append((now, {"seq": vals[0], "rpm_top": vals[1], "rpm_bottom": vals[2],
-                                              "drop_top": vals[3] / 1e4, "drop_bottom": vals[4] / 1e4,
-                                              "launched": bool(vals[5] & 1), "fit_top": bool(vals[5] & 2),
-                                              "fit_bottom": bool(vals[5] & 4)}))
+            elif cmd == P.LAUNCH and (vals[0] != self._seq or vals[5] != self._flags):
+                # Repeated every period until the next verdict. The same seq with new flags is that verdict's record
+                # with the loop-command drops the board finished fitting after it (2026-11-16, firmware/esp32/README.md
+                # "A recovery shaped by the loop's own commands"): it replaces the record in place.
+                rec = {"seq": vals[0], "rpm_top": vals[1], "rpm_bottom": vals[2],
+                       "drop_top": vals[3] / 1e4, "drop_bottom": vals[4] / 1e4,
+                       "launched": bool(vals[5] & 1), "fit_top": bool(vals[5] & 2),
+                       "fit_bottom": bool(vals[5] & 4), "loop_top": bool(vals[5] & 8),
+                       "loop_bottom": bool(vals[5] & 16), "loop_pending": bool(vals[5] & 32),
+                       "unsure_top": bool(vals[5] & 64), "unsure_bottom": bool(vals[5] & 128)}
+                if vals[0] == self._seq and self.launch_log:
+                    self.launch_log[-1][1].clear()
+                    self.launch_log[-1][1].update(rec)
+                else:
+                    self.launch_log.append((now, rec))
+                self._seq, self._flags = vals[0], vals[5]
         return self.last
 
     @property
@@ -372,6 +386,15 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
     def launches():
         fresh = [rec for t, rec in link.launch_log if t >= fed_at + FRESH_S]
         return [dict(rec, shot=fed_shots[k]) for k, rec in enumerate(fresh[:len(fed_shots)])]
+
+    def loop_fits(timeout=LOOP_FIT_S):
+        """Wait (without failing) for a loop-command fit the board is still working through to come in: the record of
+        the last verdict says so in its flags (firmware/esp32/README.md "A recovery shaped by the loop's own
+        commands"). A board that never finishes costs `timeout`, and the record keeps the parabola's drops."""
+        start = clock()
+        while link.launch_log and link.launch_log[-1][1].get("loop_pending") and clock() - start < timeout:
+            link.poll()
+            sleep(tick_s)
 
     def wait(until, timeout, what, ignore=0):
         start = clock()
@@ -413,6 +436,7 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                 # The last stroke's verdict lands VERDICT_S after its release: wait for it, so the re-planner sees every
                 # shot fed so far (half a second of the interval, which the next shot spends waiting anyway).
                 wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0, f"shot {shots[k - 1].index}'s launch check")
+                loop_fits()
                 new = replan(launches(), shots[k:])
                 if new is not None:
                     shots[k:] = new
@@ -443,6 +467,7 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
         link.send(P.SET_WHEELS, 0, 0)
         if last_release is not None:  # the last stroke's verdict (the stop above freezes it, it cannot fake a ball)
             wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0, "last shot's launch check")
+            loop_fits()
     except HopperEmpty:
         # Not a fault: nothing is queued (one FEED at a time) and nothing is wrong with the machine, so the wheels are
         # stopped without latching the e-stop; refill and run the drill again.

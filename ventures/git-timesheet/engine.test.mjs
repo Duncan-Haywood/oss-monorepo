@@ -73,3 +73,35 @@ test("toCsv defuses a commit subject that starts like a formula", () => {
   const csv = toCsv(summarize(parseLog("a1b2c3|X|2026-01-01T10:00:00Z|=cmd|' /C calc'!A0").commits));
   assert.doesNotMatch(csv, /,"=/);
 });
+
+test("parseLog accepts SHA-256 repositories (64-hex %H) and rejects longer hashes", () => {
+  const sha256 = "a".repeat(64);
+  const { commits, bad } = parseLog(`${sha256}|Ada|2026-09-01T09:00:00Z|feat: x\n${"b".repeat(65)}|Ada|2026-09-01T09:00:00Z|y`);
+  assert.equal(commits.length, 1);
+  assert.equal(commits[0].sha, sha256);
+  assert.equal(bad.length, 1);
+});
+
+test("day hours carry each day's own sessions", () => {
+  const s = summarize(parseLog(log).commits);
+  // 2026-09-01: Ada 80 + 30, Bob 30 = 140 min; 2026-09-02: Bob 30 min.
+  assert.deepEqual(s.days.map((d) => [d.day, d.hours]), [["2026-09-01", 2.33], ["2026-09-02", 0.5]]);
+});
+
+test("markdown shows the contributor table only for two or more authors", () => {
+  const one = summarize(parseLog(log).commits.filter((c) => c.author === "Ada"));
+  assert.doesNotMatch(toMarkdown(one), /\| Contributor \|/);
+});
+
+test("gate passes at exactly the cap and fails just over it", () => {
+  const s = summarize(parseLog(log).commits, { rate: 100 });
+  assert.equal(gate(s, { maxHours: s.hours }).ok, true);
+  assert.equal(gate(s, { maxAmount: s.amount }).ok, true);
+  assert.equal(gate(s, { maxHours: s.hours - 0.01 }).ok, false);
+});
+
+test("gate fails a --max-amount it cannot check because no rate was given", () => {
+  const g = gate(summarize(parseLog(log).commits), { maxAmount: 1 });
+  assert.equal(g.ok, false);
+  assert.match(g.text, /rate/);
+});

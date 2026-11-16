@@ -1,0 +1,506 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqye4Vvar6s7pvknLSyi",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T09:39:10Z",
+  "ended": "2026-11-16T09:39:38Z",
+  "wall_minutes": 18.69,
+  "tokens_in": 5950421,
+  "tokens_out": 33758,
+  "cost_usd": 2.7021,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16531",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First campaign target (shift-roster-builder/timeclock.mjs) ran the whole shift-roster venture suite per mutant and hit the 10-minute foreground limit; restarted on three fast suites (0.1-0.4 s baselines). The file was restored (git status clean)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Says `--target` skips the probe and to check with `targets --probe 20` first, but `targets` lists only a 20-file random sample, so a named file (shift-roster-builder/timeclock.mjs) never appears in it and its suite time cannot be checked that way; a 10-minute foreground timeout was the result."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "suite_for runs a venture's whole `**/*.test.mjs` for any file in it, so a 6-test module in a large venture (shift-roster-builder) costs minutes per mutant; nothing warns before the campaign starts."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-shopify-shipping-counted-as-sales.md"
+  ],
+  "goal": null,
+  "notes": "Open list: 9 entries, all control-plane, all still reproduce (grep for each fix on main found none); none touched. Guard added: platform/ci/decimal_comma_contract.mjs via check_decimal_comma_contract.py (unwired_checks runs it on every PR): 32 copies x 20 cases, green on first run; a hand-applied copy of each of the three detectDecimalComma mutants into youtube-revenue-rpm-analyzer/calc.mjs gave 1 breach each. One gap test (shopify break-even >= 0.6) was wrong the first time: rerun showed caught_after_fix false; the mutant only bites once a cost is typed, and the rewritten test catches it. Local checks: run_venture_tests.py on the three ventures (ok), test_check_decimal_comma_contract (4 OK), check_post_frontmatter, check_post_links, post_similarity.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+        "test": "node --test ventures/rent-roll-delinquency-analyzer/**/*.test.mjs  (in .)",
+        "seed": 294620857,
+        "commit": "9aaa9c5e0",
+        "sites": 492,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+            "line": 58,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "else if (c === delim) { row.push(field); field = \"\"; }",
+            "after": "else if (c !== delim) { row.push(field); field = \"\"; }",
+            "line_text": "    else if (c === delim) { row.push(field); field = \"\"; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+            "line": 87,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "after": "const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{3})?\\s*([ap]\\.?m\\.?)?/i);",
+            "line_text": "  const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'a time with seconds keeps its AM/PM'"
+          },
+          {
+            "file": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+            "line": 108,
+            "col": 29,
+            "operator": "true-to-false",
+            "before": "if (+m[3] > 12) second = true;",
+            "after": "if (+m[3] > 12) second = false;",
+            "line_text": "    if (+m[3] > 12) second = true;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'day-first is chosen only when no second part is above 12'"
+          },
+          {
+            "file": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+            "line": 150,
+            "col": 17,
+            "operator": "plus-to-minus",
+            "before": "for (let i = h + 1; i < table.length; i++) {",
+            "after": "for (let i = h - 1; i < table.length; i++) {",
+            "line_text": "  for (let i = h + 1; i < table.length; i++) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+            "line": 192,
+            "col": 95,
+            "operator": "gt-to-ge",
+            "before": "const due = rawItems.filter((x) => x.due <= asOfT).map((x) => (x.paidOn !== null && x.paidOn > asOfT ? { ...x, paid: 0, paidOn: null } : x));",
+            "after": "const due = rawItems.filter((x) => x.due <= asOfT).map((x) => (x.paidOn !== null && x.paidOn >= asOfT ? { ...x, paid: 0, paidOn: null } : x));",
+            "line_text": "  const due = rawItems.filter((x) => x.due <= asOfT).map((x) => (x.paidOn !== null && x.paidOn > asOfT ? { ...x, paid: 0, paidOn: null } : x));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'a payment dated on the as-of day had happened'"
+          },
+          {
+            "file": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+            "line": 272,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if (total.owed === 0) findings.push({ severity: \"info\", title: \"Nothing is owed as of \" + dateStr(asOfT), detail: \"Every charge that fell due on or before that date is paid in full.\" });",
+            "after": "if (total.owed === 1) findings.push({ severity: \"info\", title: \"Nothing is owed as of \" + dateStr(asOfT), detail: \"Every charge that fell due on or before that date is paid in full.\" });",
+            "line_text": "  if (total.owed === 0) findings.push({ severity: \"info\", title: \"Nothing is owed as of \" + dateStr(asOfT), detail: \"Every charge that fell due on or before that date is paid in full.\" });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+            "line": 320,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "if (last && x.style === \"ontime\" && i === 3) paid = 0;",
+            "after": "if (last && x.style === \"ontime\" && i === 4) paid = 0;",
+            "line_text": "      if (last && x.style === \"ontime\" && i === 3) paid = 0;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'the example has one on-time unit that missed its last month'"
+          },
+          {
+            "file": "ventures/rent-roll-delinquency-analyzer/calc.mjs",
+            "line": 341,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "else if (/\\.\\d{1,2}$/.test(v) || /,\\d{3}\\./.test(v)) dot += 1;",
+            "after": "else if (/\\.\\d{2,2}$/.test(v) || /,\\d{3}\\./.test(v)) dot += 1;",
+            "line_text": "      else if (/\\.\\d{1,2}$/.test(v) || /,\\d{3}\\./.test(v)) dot += 1;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'decimal point or comma is read from the amounts' + platform/ci/decimal_comma_contract.mjs over all 32 copies"
+          }
+        ]
+      },
+      {
+        "target": "ventures/postgres-index-auditor/calc.mjs",
+        "test": "node --test ventures/postgres-index-auditor/**/*.test.mjs  (in .)",
+        "seed": 449546319,
+        "commit": "9aaa9c5e0",
+        "sites": 243,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/postgres-index-auditor/calc.mjs",
+            "line": 36,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "let row = [], field = \"\", quoted = false, line = 1, start = 1;",
+            "after": "let row = [], field = \"\", quoted = false, line = 1, start = 2;",
+            "line_text": "  let row = [], field = \"\", quoted = false, line = 1, start = 1;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "parseCsv's initial start only sets the first row's line; normalizeRows always treats rows[0] as the header and never reports its line, and every later row's line comes from ++line"
+          },
+          {
+            "file": "ventures/postgres-index-auditor/calc.mjs",
+            "line": 73,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "if (open < 0) return null;",
+            "after": "if (open < 1) return null;",
+            "line_text": "  if (open < 0) return null;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "group() is only called with s starting 'create ...' or rest starting with 'include', so the '(' index is never 0; open < 0 and open < 1 agree on every reachable input"
+          },
+          {
+            "file": "ventures/postgres-index-auditor/calc.mjs",
+            "line": 86,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "const parts = []; let depth = 0, q = null, cur = \"\";",
+            "after": "const parts = []; let depth = 1, q = null, cur = \"\";",
+            "line_text": "  const parts = []; let depth = 0, q = null, cur = \"\";",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/postgres-index-auditor/calc.mjs",
+            "line": 92,
+            "col": 10,
+            "operator": "eq-flip",
+            "before": "if (c === \",\" && depth === 0) { parts.push(cur.trim()); cur = \"\"; } else cur += c;",
+            "after": "if (c !== \",\" && depth === 0) { parts.push(cur.trim()); cur = \"\"; } else cur += c;",
+            "line_text": "    if (c === \",\" && depth === 0) { parts.push(cur.trim()); cur = \"\"; } else cur += c;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/postgres-index-auditor/calc.mjs",
+            "line": 160,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const u = [\"B\", \"KB\", \"MB\", \"GB\", \"TB\"]; let i = 0, v = n;",
+            "after": "const u = [\"B\", \"KB\", \"MB\", \"GB\", \"TB\"]; let i = 1, v = n;",
+            "line_text": "  const u = [\"B\", \"KB\", \"MB\", \"GB\", \"TB\"]; let i = 0, v = n;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/postgres-index-auditor/calc.mjs",
+            "line": 187,
+            "col": 19,
+            "operator": "lt-to-le",
+            "before": "if (g.length < 2) continue;",
+            "after": "if (g.length <= 2) continue;",
+            "line_text": "      if (g.length < 2) continue;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/postgres-index-auditor/calc.mjs",
+            "line": 199,
+            "col": 58,
+            "operator": "eq-flip",
+            "before": "if (ac.length < bc.length && ac.every((c, i) => c === bc[i])) {",
+            "after": "if (ac.length < bc.length && ac.every((c, i) => c !== bc[i])) {",
+            "line_text": "        if (ac.length < bc.length && ac.every((c, i) => c === bc[i])) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/postgres-index-auditor/calc.mjs",
+            "line": 220,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "const kv = keeper && verdict.get(key(keeper));",
+            "after": "const kv = keeper || verdict.get(key(keeper));",
+            "line_text": "      const kv = keeper && verdict.get(key(keeper));",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+        "test": "node --test ventures/shopify-discount-leakage-analyzer/**/*.test.mjs  (in .)",
+        "seed": 854495200,
+        "commit": "9aaa9c5e0",
+        "sites": 363,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+            "line": 27,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (u8[0] === 0xff && u8[1] === 0xfe) return new TextDecoder(\"utf-16le\").decode(u8);",
+            "after": "if (u8[0] !== 0xff && u8[1] === 0xfe) return new TextDecoder(\"utf-16le\").decode(u8);",
+            "line_text": "  if (u8[0] === 0xff && u8[1] === 0xfe) return new TextDecoder(\"utf-16le\").decode(u8);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'a UTF-16 export ... either byte order'"
+          },
+          {
+            "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+            "line": 103,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < Math.min(table.length, 10); i++) {",
+            "after": "for (let i = 0; i < Math.min(table.length, 11); i++) {",
+            "line_text": "  for (let i = 0; i < Math.min(table.length, 10); i++) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'the header is looked for in the first ten rows only'"
+          },
+          {
+            "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+            "line": 147,
+            "col": 117,
+            "operator": "plus-to-minus",
+            "before": "const gross = o.subtotal !== null ? o.subtotal + discount : o.lines > 0 ? o.lines : subtotal !== null ? subtotal + discount : null;",
+            "after": "const gross = o.subtotal !== null ? o.subtotal + discount : o.lines > 0 ? o.lines : subtotal !== null ? subtotal - discount : null;",
+            "line_text": "    const gross = o.subtotal !== null ? o.subtotal + discount : o.lines > 0 ? o.lines : subtotal !== null ? subtotal + discount : null;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'with no Subtotal column, list price is Total less shipping and tax' (also the real defect on line 146)"
+          },
+          {
+            "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+            "line": 234,
+            "col": 49,
+            "operator": "times-to-div",
+            "before": "const c = paid - o.gross * cogsPct - (paid * feePct + fixedFee) - o.refunded;",
+            "after": "const c = paid - o.gross * cogsPct - (paid / feePct + fixedFee) - o.refunded;",
+            "line_text": "      const c = paid - o.gross * cogsPct - (paid * feePct + fixedFee) - o.refunded;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'contribution per order: paid - cost - (fee% of paid + fixed fee) - refunds'"
+          },
+          {
+            "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+            "line": 257,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "else if (c.breakEven !== null && c.breakEven >= 0.6) findings.push({ severity: \"high\", title: `${c.key} needs ${(c.breakEven * 100).toFixed(0)}% of its orders to be new sales to pay for itself`, detail: `${c.orders} orders, ${money0(c.discount)} discounted at ${(c.rate * 100).toFixed(1)}% average. If more than ${(100 - c.breakEven * 100).toFixed(0)}% of those customers would have bought anyway, this code lost money.` });",
+            "after": "else if (c.breakEven !== null || c.breakEven >= 0.6) findings.push({ severity: \"high\", title: `${c.key} needs ${(c.breakEven * 100).toFixed(0)}% of its orders to be new sales to pay for itself`, detail: `${c.orders} orders, ${money0(c.discount)} discounted at ${(c.rate * 100).toFixed(1)}% average. If more than ${(100 - c.breakEven * 100).toFixed(0)}% of those customers would have bought anyway, this code lost money.` });",
+            "line_text": "    else if (c.breakEven !== null && c.breakEven >= 0.6) findings.push({ severity: \"high\", title: `${c.key} needs ${(c.breakEven * 100).toFixed(0)}% of its orders to be new sales to pay for itself`, detail: `${c.orders} orders, ${money0(c.discount)} discounted at ${(c.rate * 100).toFixed(1)}% average. If more than ${(100 - c.breakEven * 100).toFixed(0)}% of those customers would have bought anyway, this code lost money.` });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'break-even findings: none without a cost, and only codes needing 60% or more with one'. The mutant leaves the no-cost case alone (null >= 0.6 is false) and instead flags every code once a cost is typed; the first test written checked only the no-cost case and rerun showed it still escaping."
+          },
+          {
+            "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+            "line": 314,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "if (!/\\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "after": "if (!/\\d/.test(s) && /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "line_text": "      if (!/\\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'decimal comma is read from amounts, not from text or dates' + decimal_comma_contract.mjs"
+          },
+          {
+            "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+            "line": 315,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "after": "if (/^\\d{1,4}[/.-]\\d{1,3}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "line_text": "      if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs 'decimal comma ...' (1.234.567,89 read as a date under {1,3}) + decimal_comma_contract.mjs"
+          },
+          {
+            "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+            "line": 315,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "after": "if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,5}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "line_text": "      if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "the date regex is unanchored after the year, so \\d{2,4} and \\d{2,5} match exactly the same strings as a prefix test"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/shopify-discount-leakage-analyzer/calc.mjs",
+        "issue": "With no Subtotal column (the page says Total alone is enough), gross list price was Total + discount, so shipping and tax counted as list-price sales and the discount rate and break-even read low (Total 96 with 6 shipping and a 10 discount gave gross 106, not 100). The Shipping and Taxes aliases were parsed into the column map but never used. Fixed: Total less shipping and tax where the export has them; failing-first test in calc.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16531"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "338b8e12-79d2-5d66-8302-9ddd61cd304d",
+    "transcripts": 1,
+    "first": "2026-11-16T09:39:10Z",
+    "last": "2026-11-16T09:57:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 33758,
+        "thinking": 10833,
+        "cache_read": 5843067,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107236,
+        "api_equivalent_usd": 2.7021,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 33758,
+      "thinking": 10833,
+      "cache_read": 5843067,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107236,
+      "api_equivalent_usd": 2.7021,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 59,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.69,
+      "active_minutes": 18.69,
+      "model_minutes": 5.58,
+      "tool_minutes": 13.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: three suite audits, one CSV fix, a cross-venture contract test and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 148.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

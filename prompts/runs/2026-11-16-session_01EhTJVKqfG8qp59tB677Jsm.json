@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVKqfG8qp59tB677Jsm",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production... (scheduled routine)",
+  "input_sha256": "a9439fa4f83338631677c4edfc115ca3ff22753f3bccc5fe1be2e7a88f6d99c2",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T10:00:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship_field --park follow-up on PR #16532",
+  "projects": [
+    "portfolio/router"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16534",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs only at PR time, not before starting; PR #16532 (same flagship_field fix from the same doc_friction report) opened 10 minutes into this run. Rebuilt on its branch as a follow-up instead of a duplicate."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Backlog held only owner rows; friction_rank.py --live --ungated --days 3 plus grepping today's run records for the tool name found the target, as earlier records say."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Built on another session's open PR branch (#16532) rather than waiting for it, since its remove_items cleanup would corrupt sales-agent's '; .eml' and einvoice's ',...' on the next park.",
+      "did": "branch = #16532 head + follow-up commit",
+      "result": "one PR lands both"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode (no agent-owned backlog item). Lens: friction_rank --live --ungated + 2026-11-16 flagship_field records. Parallel PR #16532 fixed park candidates and ';.'; this follow-up (built on its branch) stops the separator cleanup eating ' .eml'/',...' (would have corrupted sales-agent and einvoice-preflight rows on next park), strips the row note from explicit --park items and NEXT.md text, repairs einvoice-preflight NEXT.md, and adds a test that no NEXT.md parked line holds a row note. Verification: pytest portfolio/router/test_flagship_field.py 35 passed; flagship_field --check exit 0; script parked last candidate of all 11 real rows, each lost only the item and its separator; main_health.py 240/240 at start. Backlog ids touched: none.",
+  "corrections": [],
+  "redteam": null
+}

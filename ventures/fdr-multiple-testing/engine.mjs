@@ -7,7 +7,10 @@
 // e-values. Pure functions, no DOM, no network, no randomness. Implemented
 // from the papers' definitions; no third-party code was ported.
 // Cross-checked against statsmodels 0.15.0 and the qvalue 0.1.3 package
-// (eval/reference.py, eval/reference.json).
+// (eval/reference.py, eval/reference.json). analyzeOnline() runs the online
+// rules in online.mjs (LOND, LORD++, SAFFRON) on tests in arrival order.
+import { ONLINE_PAPERS, ONLINE_METHODS, ONLINE_DEFAULTS, runOnline } from "./online.mjs";
+export { ONLINE_PAPERS, ONLINE_METHODS, ONLINE_DEFAULTS };
 
 export const PAPERS = [
   {
@@ -291,20 +294,8 @@ export function histogram(p, bins = 20) {
   return counts;
 }
 
-/**
- * Run every method on one list.
- * input: { csv | values: number[], column, labelColumn, kind: "p"|"e", alpha, method, lambda }
- */
-export function analyze(input = {}) {
-  const alpha = input.alpha === undefined || input.alpha === "" ? DEFAULTS.alpha : Number(input.alpha);
-  if (!(alpha > 0 && alpha < 1)) return { error: "The level must be between 0 and 1 (for example 0.05)." };
-  const lambda = input.lambda === undefined || input.lambda === "" ? DEFAULTS.lambda : Number(input.lambda);
-  if (!(lambda >= 0 && lambda < 1)) return { error: "lambda for the pi0 estimate must be at least 0 and below 1 (0.5 is the usual choice)." };
-  const kind = input.kind === "e" ? "e" : "p";
-  const methodIds = kind === "e" ? ["ebh"] : METHODS.map((m) => m.id);
-  const method = kind === "e" ? "ebh" : input.method || DEFAULTS.method;
-  if (!methodIds.includes(method)) return { error: `Unknown method "${method}". Use one of: ${methodIds.join(", ")}.` };
-
+/** Read the values (and labels) from { csv | values, labels, column, labelColumn } and validate them for `kind`. */
+function readValues(input, kind) {
   let labels, rawValues, valueCol = "value", labelCol = null, dropped = 0;
   if (Array.isArray(input.values)) {
     rawValues = input.values.map(Number);
@@ -343,6 +334,27 @@ export function analyze(input = {}) {
     if (bad >= 0) return { error: `e-values must be zero or positive and finite; ${labels[bad]} is ${values[bad]}.` };
   }
 
+  return { values, labels, valueCol, labelCol, dropped };
+}
+
+/**
+ * Run every method on one list.
+ * input: { csv | values: number[], column, labelColumn, kind: "p"|"e", alpha, method, lambda }
+ */
+export function analyze(input = {}) {
+  const alpha = input.alpha === undefined || input.alpha === "" ? DEFAULTS.alpha : Number(input.alpha);
+  if (!(alpha > 0 && alpha < 1)) return { error: "The level must be between 0 and 1 (for example 0.05)." };
+  const lambda = input.lambda === undefined || input.lambda === "" ? DEFAULTS.lambda : Number(input.lambda);
+  if (!(lambda >= 0 && lambda < 1)) return { error: "lambda for the pi0 estimate must be at least 0 and below 1 (0.5 is the usual choice)." };
+  const kind = input.kind === "e" ? "e" : "p";
+  const methodIds = kind === "e" ? ["ebh"] : METHODS.map((m) => m.id);
+  const method = kind === "e" ? "ebh" : input.method || DEFAULTS.method;
+  if (!methodIds.includes(method)) return { error: `Unknown method "${method}". Use one of: ${methodIds.join(", ")}.` };
+
+  const rv = readValues(input, kind);
+  if (rv.error) return rv;
+  const { values, labels, valueCol, labelCol, dropped } = rv;
+  const m = values.length;
   const warnings = [];
   if (dropped) warnings.push(`${dropped} row${dropped === 1 ? "" : "s"} had a missing or non-numeric value and ${dropped === 1 ? "was" : "were"} left out; m = ${m} counts only the rows used. If those tests were run, leaving them out makes every correction too lenient.`);
   if (m === 1) warnings.push("Only one test: every correction leaves it unchanged.");
@@ -421,4 +433,56 @@ function sortItems(items, eKey) {
   if (eKey) items.sort((a, b) => b.value - a.value);
   else items.sort((a, b) => a.value - b.value);
   items.forEach((it, i) => (it.rank = i + 1));
+}
+
+/**
+ * Online FDR: the tests in the order they arrived (row order), each kept or
+ * dropped before the next is seen. Runs LORD++, SAFFRON, LOND and
+ * alpha-spending, and, for contrast, what batch Benjamini-Hochberg would keep
+ * with the whole list in hand.
+ * input: { csv | values: number[], labels, column, labelColumn, alpha, method, w0Share, lambda }
+ */
+export function analyzeOnline(input = {}) {
+  const num = (v, d) => (v === undefined || v === "" || v === null ? d : Number(v));
+  const alpha = num(input.alpha, ONLINE_DEFAULTS.alpha);
+  if (!(alpha > 0 && alpha < 1)) return { error: "The level must be between 0 and 1 (for example 0.05)." };
+  const w0Share = num(input.w0Share, ONLINE_DEFAULTS.w0Share);
+  if (!(w0Share > 0 && w0Share <= 1)) return { error: "The initial wealth share must be above 0 and at most 1 (0.5, half the budget up front, is the usual choice)." };
+  const lambda = num(input.lambda, ONLINE_DEFAULTS.lambda);
+  if (!(lambda > 0 && lambda < 1)) return { error: "SAFFRON's candidate threshold lambda must be between 0 and 1 (0.5 is the usual choice)." };
+  const ids = ONLINE_METHODS.map((x) => x.id);
+  // A batch method id (e.g. "bh" from DEFAULTS, merged in by the agent tools) means "no online choice made".
+  const method = !input.method || METHODS.some((x) => x.id === input.method) ? ONLINE_DEFAULTS.method : input.method;
+  if (!ids.includes(method)) return { error: `Unknown online method "${method}". Use one of: ${ids.join(", ")}.` };
+  const rv = readValues(input, "p");
+  if (rv.error) return rv;
+  const { values, labels, valueCol, labelCol, dropped } = rv;
+  const m = values.length;
+  const res = runOnline(values, { alpha, w0Share, lambda });
+  const bhRej = bh(values).map((x) => x <= alpha);
+  const methods = ONLINE_METHODS.map((d) => ({ ...d, rejections: res[d.id].reject.filter(Boolean).length }));
+  const items = values.map((v, i) => {
+    const level = {}, rejected = {};
+    for (const id of ids) { level[id] = res[id].level[i]; rejected[id] = res[id].reject[i]; }
+    return { t: i + 1, label: labels[i], value: v, level, rejected, wealth: res.lordpp.wealth[i], candidate: res.saffron.candidate[i], bh: bhRej[i] };
+  });
+  const main = methods.find((x) => x.id === method);
+  const nBH = bhRej.filter(Boolean).length;
+  const warnings = [];
+  if (dropped) warnings.push(`${dropped} row${dropped === 1 ? "" : "s"} had a missing or non-numeric value and ${dropped === 1 ? "was" : "were"} left out. In online testing a skipped test still counts: if it was run, its decision should have been made at its place in the order.`);
+  warnings.push("Order matters: the rows are read top to bottom as the order the tests arrived. Sorting the list (for example by p-value) before pasting it, or choosing the order after seeing the results, voids the guarantee.");
+  const first = items.slice(0, 10).every((it) => !it.rejected[method]) && main.rejections > 0;
+  if (first) warnings.push("No discovery among the first ten tests. LORD++ and SAFFRON earn budget back with each discovery, so a slow start means low levels for a while; tests you expect to be strong are best placed early, if that is decided before seeing their results.");
+  const nonNullShare = values.filter((x) => x <= lambda).length / m;
+  if (m >= 50 && nonNullShare < 0.6 * lambda) warnings.push(`Only ${pct(nonNullShare)} of p-values are at or below lambda = ${lambda}, fewer than the ${pct(lambda)} pure nulls would give. That points to conservative nulls (p-values that pile up near 1, as one-sided tests in the wrong direction do), where SAFFRON loses power; ADDIS (Tian & Ramdas 2019), not offered here, discards such p-values.`);
+  const parts = [];
+  parts.push(`${m} tests in arrival order. ${main.name} keeps ${main.rejections}${main.controls === "FWER" ? `, with the chance of even one false positive at most ${pct(alpha)} under any dependence` : ` at a ${pct(alpha)} false discovery rate, each decision made before the next test was seen (valid for ${main.assumption})`}.`);
+  parts.push(`For comparison: ${methods.filter((x) => x.id !== method).map((x) => `${x.name} ${x.rejections}`).join(", ")}; batch Benjamini-Hochberg, which needs the whole list first, would keep ${nBH}.`);
+  return {
+    mode: "online", m, alpha, method, w0Share, lambda,
+    w0: { lordpp: w0Share * alpha, saffron: w0Share * (1 - lambda) * alpha },
+    columns: { value: valueCol, label: labelCol }, rows: { used: m, dropped },
+    methods, batchBH: nBH, items, warnings, summary: parts.join(" "),
+    PAPERS: ONLINE_PAPERS.map((p) => `${p.authors} (${p.year})`),
+  };
 }

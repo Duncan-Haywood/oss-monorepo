@@ -988,9 +988,10 @@ class ShotLogTest(unittest.TestCase):
         self.assertTrue(all(r["launched"] for r in res.launches))
         fit = launcher.fit_from_drops(res.launches)
         self.assertLess(abs(fit.speed_efficiency / 0.78 - 1), 0.03)       # README "Shot log": within 2% swept
-        # 8.8% on this build; 10.3% worst, 2.2% mean over 40 random builds (firmware/esp32/README.md "Spin from fast
-        # wheels", tests/spin_drill_sweep.py --random): the drops' speed-dependent bias, not yet removed
-        self.assertLess(abs(fit.spin_efficiency / 0.42 - 1), 0.10)
+        # 0.4% on this build with the loop-command drops (8.8% with the parabola's; firmware/esp32/README.md "A recovery
+        # shaped by the loop's own commands"); the bound leaves room for the simulator, not for that bias
+        self.assertLess(abs(fit.spin_efficiency / 0.42 - 1), 0.03)
+        self.assertTrue(all(r["loop_top"] and r["loop_bottom"] for r in res.launches))
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "shots.jsonl")
             self.assertEqual(host.append_shot_log(path, res, "drill.calibration.json"), 12)
@@ -1098,6 +1099,154 @@ class PulseDropTest(unittest.TestCase):
         res, _ = run(sim, drill())
         self.assertTrue(res.ok, res.aborted)
         self.assertTrue(all(r["launched"] and r["fit_top"] and r["fit_bottom"] for r in res.launches))
+        # the loop-command drops replaced every record, the last shot's too (run_drill waits for its fit)
+        self.assertTrue(all(r["loop_top"] and r["loop_bottom"] and not r["loop_pending"] for r in res.launches))
+
+
+class LoopDropTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "A recovery shaped by the loop's own commands": the drop fitted from the
+    periods and the ESC commands the speed loop sent, with the wheel a first-order lag of unknown time constant."""
+
+    @staticmethod
+    def _wheel(rpm, drop, tau_s, free_rpm, ball_ms=1500.4, total_ms=1900, esc_tau_s=0.0):
+        """A first-order wheel (free speed `free_rpm`, the firmware told 9000) on the firmware's own PeriodTach and
+        WheelLoop, 1 ms steps, the ball taking `drop` of its speed at `ball_ms`. Returns (periods, ticks) from
+        200 ms before the ball, as LaunchCheck would log them."""
+        tach, loop = controller.PeriodTach(), controller.WheelLoop(9000)
+        loop.i = rpm / free_rpm - rpm / 9000
+        w, cmd, rev, last = float(rpm), rpm / free_rpm, 0.0, 0
+        drive = float(rpm)                                   # the ESC's output, behind its own lag when esc_tau_s > 0
+        periods, ticks, e0 = [], [], None
+        for ms in range(total_ms):
+            if ms == int(ball_ms):
+                w *= 1 - drop
+            drive = drive + (free_rpm * cmd - drive) * 0.001 / esc_tau_s if esc_tau_s else free_rpm * cmd
+            w += (drive - w) * 0.001 / tau_s
+            before = rev
+            rev += w / 60000.0
+            if int(rev) > int(before):
+                e = ms * 1000 + int((int(rev) - before) / (rev - before) * 1000)
+                tach.edge(e - last)
+                if e0 is not None:
+                    periods.append(e - last)
+                last = e
+            if ms % 10 == 0:
+                now = ms * 1000 + 1000
+                cmd = loop.update(rpm, tach.rpm(now - last), 10)
+                if ms >= ball_ms - 200:
+                    if e0 is None:
+                        e0 = tach.edges
+                    ticks.append((tach.edges - e0, now - last, cmd))
+        return periods, ticks
+
+    def test_whole_drop_on_a_loop_driven_wheel(self):
+        for rpm, drop, tau_s, free in ((2500, 0.10, 0.2, 9000), (5500, 0.07, 0.2, 9000), (3500, 0.09, 0.6, 10500),
+                                       (1800, 0.12, 0.3, 7500)):
+            ps, ticks = self._wheel(rpm, drop, tau_s, free)
+            got = controller.drop_from_commands(ps, ticks)
+            self.assertIsNotNone(got, rpm)
+            self.assertAlmostEqual(got[0] / drop, 1.0, delta=0.006, msg=(rpm, tau_s))
+            self.assertAlmostEqual(got[1] / rpm, 1.0, delta=0.003, msg=rpm)
+
+    def test_an_esc_lag_reads_low_unless_the_fit_knows_it(self):
+        # README "An ESC lag picked from the build's own balls"
+        ps, ticks = self._wheel(3000, 0.09, 0.4, 9000, esc_tau_s=0.1)
+        self.assertIs(controller.esc_lagged_ticks(ps, ticks, 0), ticks)
+        one = controller.drop_from_commands(ps, ticks)
+        two = controller.drop_from_commands(ps, controller.esc_lagged_ticks(ps, ticks, 100000))
+        self.assertLess(one[0] / 0.09, 0.99)                       # low
+        self.assertAlmostEqual(two[0] / 0.09, 1.0, delta=0.006)
+        self.assertLess(two[4], one[4])                            # and the right lag fits better
+
+    def test_it_is_spread_over_ticks(self):
+        ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
+        steps = list(controller.drop_from_commands_steps(ps, ticks))
+        self.assertEqual(steps[-1][0], "fit")
+        self.assertTrue(all(s is None for s in steps[:-1]))
+        self.assertLessEqual(len(steps) - 1, 40)              # 5 + 7 time constants x 3 t0 grids
+
+    def test_no_fit_without_commands_or_revolutions(self):
+        ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
+        self.assertIsNone(controller.drop_from_commands(ps, []))
+        k = max(range(len(ps)), key=lambda j: ps[j])
+        self.assertIsNone(controller.drop_from_commands(ps[:k + 2], ticks))
+
+    def test_same_seq_with_new_flags_replaces_the_record(self):
+        class Port:
+            def __init__(self):
+                self.buf = bytearray()
+
+            def write(self, data):
+                pass
+
+            def read(self):
+                out, self.buf = bytes(self.buf), bytearray()
+                return out
+        port, now = Port(), [0.0]
+        link = host.FeederLink(port, lambda: now[0])
+        port.buf += P.encode(P.LAUNCH, 4, 4000, 3000, 880, 900, 1 | 2 | 4 | 32)
+        link.poll()
+        port.buf += P.encode(P.LAUNCH, 4, 4000, 3000, 880, 900, 1 | 2 | 4 | 32)   # repeated: nothing new
+        link.poll()
+        self.assertEqual(len(link.launch_log), 1)
+        self.assertTrue(link.launch_log[0][1]["loop_pending"])
+        now[0] = 0.4
+        port.buf += P.encode(P.LAUNCH, 4, 4010, 2995, 875, 912, 1 | 2 | 4 | 8 | 16)
+        link.poll()
+        self.assertEqual(len(link.launch_log), 1)
+        t, rec = link.launch_log[0]
+        self.assertEqual(t, 0.0)                               # first seen, not replaced
+        self.assertEqual((rec["drop_bottom"], rec["loop_top"], rec["loop_pending"]), (0.0912, True, False))
+        port.buf += P.encode(P.LAUNCH, 5, 4000, 3000, 870, 905, 1 | 2 | 4)
+        link.poll()
+        self.assertEqual(len(link.launch_log), 2)
+        port.buf += P.encode(P.LAUNCH, 6, 4000, 3000, 870, 905, 1 | 2 | 4 | 8 | 16 | 128)
+        link.poll()
+        rec = link.launch_log[-1][1]
+        self.assertEqual((rec["unsure_top"], rec["unsure_bottom"]), (False, True))
+
+
+class LoopFitUnsureTest(unittest.TestCase):
+    """2026-11-16 later, firmware/esp32/README.md "When the wheel is not a first-order lag": the loop fit's standard
+    error from its own misses marks drops it cannot vouch for, and the Pi's launcher fit warns when enough are marked."""
+
+    def test_standard_error_marks_a_jittery_tach_and_a_lagging_esc_not_a_clean_wheel(self):
+        import loop_residual_sweep as lr
+        for rpm, tau in ((2500, 0.2), (4000, 0.4), (6000, 0.8)):
+            ps, tk = lr.wheel(rpm, 0.08, tau)
+            got = controller.drop_from_commands(ps, tk)
+            self.assertEqual(len(got), 7)
+            self.assertLess(got[5], controller.LOOP_SE_MAX, (rpm, tau))
+        ps, tk = lr.wheel(4000, 0.06, 0.4, jitter_us=20, seed=3)
+        got = controller.drop_from_commands(ps, tk)
+        self.assertGreater(got[5], controller.LOOP_SE_MAX)
+        ps, tk = lr.wheel(1500, 0.06, 0.2, tau_esc=0.08)
+        got = controller.drop_from_commands(ps, tk)
+        self.assertGreater(abs(got[0] / 0.06 - 1), 0.05)       # the fit is badly off ...
+        self.assertGreater(got[5], controller.LOOP_SE_MAX)       # ... and says so
+
+    def test_launcher_fit_warns_on_unsure_drops(self):
+        from tennisbots import launcher
+        r_w = launcher.WheelLauncher().wheel_radius
+        recs = []
+        for top, bot in ((3000, 3000), (4500, 3000), (3000, 4500), (5000, 5000), (6000, 4000), (4000, 6000)):
+            def drop(w, sign):          # the fit's own model with speed efficiency 0.8 and spin efficiency 0.5
+                k = launcher.BALL_KG * r_w ** 2 / (launcher.WHEEL_INERTIA_KGM2 * w)
+                return k * (0.8 * (top + bot) / 4 + sign * 0.5 * (top - bot) / 6)
+            recs.append({"launched": True, "rpm_top": top, "rpm_bottom": bot, "drop_top": drop(top, 1),
+                         "drop_bottom": drop(bot, -1), "fit_top": True, "fit_bottom": True})
+        base = launcher.fit_from_drops(recs)
+        self.assertAlmostEqual(base.speed_efficiency, 0.8, places=6)
+        bad = [dict(r) for r in recs]
+        bad[1]["unsure_top"] = True                                       # one mark: kept, counted, no warning
+        one = launcher.fit_from_drops(bad)
+        self.assertEqual(one.unsure, 1)
+        self.assertNotIn("marked unsure", one.note)
+        bad[2]["unsure_bottom"] = True                                    # two of 12: warned, still used
+        two = launcher.fit_from_drops(bad)
+        self.assertEqual(two.unsure, 2)
+        self.assertIn("2 of 12 wheel readings marked unsure", two.note)
+        self.assertAlmostEqual(two.speed_efficiency, 0.8, places=6)
 
 
 class RefitTest(unittest.TestCase):

@@ -27,6 +27,8 @@ SOURCES = [
     ("2 years", "results_pair_year_rules.txt", "6zzk", ["LC", "LHF", "LAP", "LB", "HR", "HX"], 10),
 ]
 SUBSETS = ("results_subset_years.txt", "6zzi")  # LC by k = 1..5
+MANY = ("results_many_year_rules.txt", "6zzr", ["LC", "LHF", "LAP", "LB", "HR", "HX"])  # every rule, k = 3..5
+KHEAD = re.compile(r"^\s*k = (\d) \(\s*(\d+) sets\)\s*$")
 
 ROW = re.compile(r"^\s*([A-Z]+)\s*\|\s*([\d.]+)\s*\[\s*(\d+),\s*(\d+)\]")
 KROW = re.compile(r"^\s*k=(\d)\s*\(\s*(\d+) sets\)\s*\|(.*)$")
@@ -68,6 +70,27 @@ def parse_subsets(lines):
     return out
 
 
+def parse_many(lines):
+    """The 'Per rule and k' block of 6zzr: {k: (draws, {rule: [(mean, min, max), ...]})}."""
+    out, k, started = {}, None, False
+    for line in lines:
+        if line.startswith("Per rule and k"):
+            started = True
+            continue
+        if not started:
+            continue
+        if not line.strip():
+            break
+        m = KHEAD.match(line)
+        if m:
+            k = int(m.group(1))
+            out[k] = (int(m.group(2)), {})
+        elif ROW.match(line) and k is not None:
+            rule = line.split("|")[0].strip()
+            out[k][1][rule] = [(float(a), int(b), int(c)) for a, b, c in TRIPLE.findall(line)]
+    return out
+
+
 def at90():
     for line in _read("results_single_year_rules.txt"):
         m = AT90.search(line)
@@ -88,6 +111,12 @@ def build():
         for rule in keep:
             vals = parsed[rule]
             rows.append((hist, n, rule, ms, vals[COL_ALL], vals[COL_HI]))
+    name, ms, keep = MANY
+    if os.path.exists(os.path.join(HERE, name)):
+        for k, (n, parsed) in sorted(parse_many(_read(name)).items()):
+            for rule in keep:
+                vals = parsed[rule]
+                rows.append((f"{k} years", n, rule, ms, vals[COL_ALL], vals[COL_HI]))
     sub = parse_subsets(_read(SUBSETS[0]))
     krows = []
     for k in sorted(sub):
@@ -108,7 +137,7 @@ def verdict(stat, ref):
 def render():
     (a_all, a_hi), rows, krows = build()
     out = []
-    out.append("Milestone 6zzq: history-length design table (no new runs; parsed from 6zzi, 6zzj, 6zzk, 6zzp)")
+    out.append("Milestones 6zzq / 6zzr: history-length design table (no new runs; parsed from 6zzi, 6zzj, 6zzk, 6zzp, 6zzr)")
     out.append(f"No correction AT_90: all168 {a_all}, hi168 {a_hi} (of 168)")
     out.append("")
     out.append("A. Raw month ratios LC by years of log k, mean [worst, best] over every subset of the five learning years")
@@ -119,7 +148,7 @@ def render():
             f" {s_hi[0]:6.1f} [{s_hi[1]:3d},{s_hi[2]:3d}]  {verdict(s_hi, a_hi)}"
         )
     out.append("")
-    out.append("B. One and two years by rule, mean [worst, best] over the years drawn")
+    out.append("B. One to five years by rule, mean [worst, best] over the years drawn")
     out.append("  history  draws rule ms   |  all168              vs AT_90       |  hi168               vs AT_90")
     for hist, n, rule, ms, s_all, s_hi in rows:
         out.append(
@@ -133,8 +162,16 @@ def render():
     out.append("Never below no correction over all draws, all168: " + (", ".join(never_all) or "none"))
     out.append("Never below no correction over all draws, hi168: " + (", ".join(never_hi) or "none"))
     both = [f"{h}/{r}" for h, _, r, _, s, t in rows if s[1] >= a_all and t[1] >= a_hi]
-    both += [f"LC k={k}" for k, _, s, t in krows if s[1] >= a_all and t[1] >= a_hi]
+    have = {(h, r) for h, _, r, _, _, _ in rows}
+    both += [f"LC k={k}" for k, _, s, t in krows
+             if s[1] >= a_all and t[1] >= a_hi and (f"{k} years", "LC") not in have]
     out.append("Never below on both pools: " + (", ".join(both) or "none"))
+    first = {}
+    for h, _, r, _, s, t in rows:
+        if s[1] >= a_all and t[1] >= a_hi and r not in first:
+            first[r] = h
+    out.append("Fewest seasons never below on both pools, per rule: "
+               + ", ".join(f"{r} {first.get(r, 'none of those run')}" for r in dict.fromkeys(r for _, _, r, _, _, _ in rows)))
     best_one = max((r for r in rows if r[0] == "1 year"), key=lambda r: r[4][0])
     out.append(f"Best one-year mean all168: {best_one[2]} ({best_one[3]}) {best_one[4][0]:.1f}")
     best_hi = max((r for r in rows if r[0] == "1 year"), key=lambda r: r[5][0])
