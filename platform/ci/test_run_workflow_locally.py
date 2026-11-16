@@ -881,6 +881,52 @@ class AgainstThisRepository(unittest.TestCase):
     def test_an_unlisted_workflow_is_refused_without_force(self):
         self.assertEqual(runner.main(["branch-cleanup.yml"]), 2)
 
+    def test_an_unlisted_read_only_workflow_lists_without_force(self):
+        """doc-refs-ci.yml is not in VERIFICATION_ONLY, but --for-changes
+        already runs it; naming it must not need --force."""
+        self.assertNotIn("doc-refs-ci.yml", runner.VERIFICATION_ONLY)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.main(["--list", "doc-refs-ci.yml"])
+        self.assertEqual(code, 0)
+        self.assertIn("[run", out.getvalue())
+
+    def test_a_mixed_workflow_by_name_lists_only_its_read_only_jobs(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.main(["--list", "uitest-ci.yml"])
+        self.assertEqual(code, 0)
+        self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
+        self.assertNotIn("manual /", out.getvalue().split("[held", 1)[0])
+
+    def test_only_needs_a_sweep(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            code = runner.main(["--only", "doc-refs-ci", "doc-refs-ci.yml"])
+        self.assertEqual(code, 2)
+
+
+class OnlyFilter(unittest.TestCase):
+    def test_names_take_an_optional_suffix(self):
+        self.assertEqual(runner.only_names("doc-refs-ci, prompts-ci.yml,"),
+                         {"doc-refs-ci.yml", "prompts-ci.yml"})
+        self.assertIsNone(runner.only_names(None))
+
+    def test_narrow_keeps_named_and_reports_absent(self):
+        args = argparse.Namespace(only="a,c")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            sel, held = runner.narrow(args, [("a.yml", {}, {"j"}), ("b.yml", {}, {"j"})],
+                                      [("b.yml", "k", "grants write")])
+        self.assertEqual([s[0] for s in sel], ["a.yml"])
+        self.assertEqual(held, [])
+        self.assertIn("[absent] c.yml", out.getvalue())
+
+    def test_no_only_keeps_everything(self):
+        args = argparse.Namespace(only=None)
+        sel = [("a.yml", {}, {"j"})]
+        self.assertEqual(runner.narrow(args, sel, []), (sel, []))
+
     def test_a_missing_workflow_is_reported(self):
         self.assertEqual(runner.main(["no-such-workflow.yml"]), 2)
 

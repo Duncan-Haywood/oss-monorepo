@@ -79,7 +79,8 @@ Safety. Workflow steps are not all verification: this repository also has
 workflows that delete branches and could grow ones that deploy. A local
 run must never be the thing that pushes. Steps are screened against
 `MUTATING` below and refused, and a workflow not in `VERIFICATION_ONLY`
-needs `--force` before anything runs at all. Neither check is a security
+runs by name only through the per-job read-only screen `--for-changes`
+uses (`read_only_jobs`), or with `--force`. Neither check is a security
 boundary -- it is a guard against an obvious accident, and the refusal
 names what tripped it so a real verification step is not silently dropped.
 """
@@ -1213,9 +1214,9 @@ def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:
     `deploy` job holds `pages: write`. Judging the file as a whole would hold
     back the very steps this tool exists to run.
 
-    `VERIFICATION_ONLY` stays the gate for a workflow named on the command
-    line, where a session chose it deliberately. This is for selection by
-    changed paths, which chooses on the session's behalf.
+    It is also the gate for a workflow named on the command line that is
+    not in `VERIFICATION_ONLY`: a name the sweep would run unasked runs by
+    name too, and only the held jobs need `--force`.
     """
     allowed, held = set(), []
     # A top-level secret or write grant reaches every job in the file.
@@ -2183,8 +2184,34 @@ def pooled_budget(per: int, n: int, index: int, elapsed: float) -> int:
     return max(per, int(per * n - elapsed) - per * (n - index - 1))
 
 
+def only_names(spec) -> set | None:
+    """`--only a,b.yml` as {"a.yml", "b.yml"}, or None when not given."""
+    if not spec:
+        return None
+    names = set()
+    for part in spec.split(","):
+        part = os.path.basename(part.strip())
+        if part:
+            names.add(part if part.endswith((".yml", ".yaml")) else part + ".yml")
+    return names
+
+
+def narrow(args, selected, held):
+    """Keep only the `--only` workflows; print the ones it names but missed."""
+    names = only_names(getattr(args, "only", None))
+    if names is None:
+        return selected, held
+    seen = {n for n, *_ in selected} | {n for n, *_ in held}
+    for name in sorted(names - seen):
+        print(f"  [absent] {name}: named by --only but not selected here "
+              "(run it by name to ignore the selection)")
+    return ([s for s in selected if s[0] in names],
+            [h for h in held if h[0] in names])
+
+
 def _run_selected(args, selected, held, absent=()) -> int:
     """Execute the chosen workflows' read-only steps and report."""
+    selected, held = narrow(args, selected, held)
     for name, job_id, why in held:
         print(f"  [held  ] {name} / {job_id}: {why}; run it by name with "
               "--force if you have read it")
@@ -2425,6 +2452,10 @@ def _main(argv=None) -> int:
     ap.add_argument("--list", "--dry-run", dest="list", action="store_true",
                     help="print the steps (or, with no workflow named, the "
                          "workflows --for-changes would select) and run nothing")
+    ap.add_argument("--only", metavar="NAMES",
+                    help="with --for-changes or --tree: run only these of the "
+                         "selected workflows (comma-separated file names, "
+                         ".yml optional), e.g. --only doc-refs-ci,prompts-ci")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
     ap.add_argument("--timeout", type=int, default=900,
@@ -2462,6 +2493,11 @@ def _main(argv=None) -> int:
         args.for_changes = LOCAL_BASE["ref"] = "origin/main"
         return run_for_changes(args)
 
+    if args.only:
+        print("--only narrows a sweep: pass it with --for-changes or --tree",
+              file=sys.stderr)
+        return 2
+
     if not args.workflow:
         print("name a workflow, --for-changes to select by diff, or --tree "
               "to sweep the whole checkout", file=sys.stderr)
@@ -2473,13 +2509,25 @@ def _main(argv=None) -> int:
         print(f"no such workflow: .github/workflows/{name}", file=sys.stderr)
         return 2
 
+    workflow = load_workflow(path)
+    only = None
     if name not in VERIFICATION_ONLY and not args.force:
-        print(f"{name} is not on the verification-only list, so its steps are\n"
-              "not assumed to be read-only. Re-run with --force if you have "
-              "read them.", file=sys.stderr)
-        return 2
+        # The same per-job screen `--for-changes` applies when it picks this
+        # workflow on the session's behalf. Refusing by name what a sweep
+        # already runs unasked made the cheap single checks (doc-refs-ci,
+        # control-plane-guard) the only ones that needed --force (seven
+        # doc-friction reports, 2026-11-13 to 11-16).
+        only, held = read_only_jobs(workflow if isinstance(workflow, dict) else {})
+        if not only:
+            reasons = "; ".join(f"{job} {why}" for job, why in held) or "no jobs"
+            print(f"{name} is not on the verification-only list and no job in it\n"
+                  f"passes the read-only screen ({reasons}). Re-run with --force "
+                  "if you have read it.", file=sys.stderr)
+            return 2
+        for job, why in held:
+            print(f"  [held  ] {name} / {job}: {why}; --force runs it too")
 
-    steps, uses_skipped = collect(load_workflow(path))
+    steps, uses_skipped = collect(workflow, only=only)
 
     if args.list:
         for step in steps:
