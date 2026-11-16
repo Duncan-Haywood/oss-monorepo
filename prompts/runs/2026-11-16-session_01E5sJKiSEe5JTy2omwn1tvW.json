@@ -1,0 +1,267 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKiSEe5JTy2omwn1tvW",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T09:20:22Z",
+  "ended": "2026-11-16T09:20:53Z",
+  "wall_minutes": 6.06,
+  "tokens_in": 3965195,
+  "tokens_out": 25445,
+  "cost_usd": 1.9304,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16528",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/",
+      "issue": "Trap, not a stale instruction: `python3 -m unittest platform/ci/test_x.py` from the repo root fails with \"module 'platform' has no attribute 'ci'\" (the stdlib platform module shadows the directory). Run it from platform/ci or run the file directly; no guide says this."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests targeting files changed in `git log --since=3.days origin/main`, but the clone is depth 1, so that prints nothing unless you deepen first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 9 open defects are control-plane fixes needing owner approval in separate PRs, several already written in other branches; re-doing them here would only duplicate held PRs.",
+      "did": "Checked each still reproduces on main (grep for the fix markers), left them open, spent the run on the campaign and a cross-venture fix.",
+      "result": "one real defect class fixed in 6 ventures plus a ratchet lint"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-one-dollar-fee-from-a-thousands-comma.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/test_csv_thousands_split.py (ratchet; 29 known files; first run green, detector self-test included). Local checks: node --test in all six ventures green (29/25/28/28/30/23 pass); check_post_frontmatter ok; check_post_links 0 broken. No agent doc: the lint docstring carries the next step.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+        "test": "node --test ventures/bookkeeping-client-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 339283236,
+        "commit": "0e81b3cad",
+        "sites": 207,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+            "line": 30,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "reviewMinutes: 30,",
+            "after": "reviewMinutes: 31,",
+            "line_text": "  reviewMinutes: 30,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+            "line": 61,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (t === \"\" || !/^[-+]?(\\d+\\.?\\d*|\\.\\d+)$/.test(t)) return null;",
+            "after": "if (t !== \"\" || !/^[-+]?(\\d+\\.?\\d*|\\.\\d+)$/.test(t)) return null;",
+            "line_text": "  if (t === \"\" || !/^[-+]?(\\d+\\.?\\d*|\\.\\d+)$/.test(t)) return null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+            "line": 67,
+            "col": 98,
+            "operator": "const-plus-one",
+            "before": "[\"salesTaxFilings\", 0, 100], [\"cleanupMonths\", 0, 120], [\"minClean\", 0, 600], [\"minAverage\", 0, 600], [\"minMessy\", 0, 600],",
+            "after": "[\"salesTaxFilings\", 0, 100], [\"cleanupMonths\", 0, 120], [\"minClean\", 0, 600], [\"minAverage\", 0, 601], [\"minMessy\", 0, 600],",
+            "line_text": "  [\"salesTaxFilings\", 0, 100], [\"cleanupMonths\", 0, 120], [\"minClean\", 0, 600], [\"minAverage\", 0, 600], [\"minMessy\", 0, 600],",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "bound test table in engine.test.mjs covers every FIELDS bound"
+          },
+          {
+            "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+            "line": 69,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "[\"reviewMinutes\", 0, 5000], [\"cleanupMultiplier\", 1, 20], [\"software\", 0, 1e6], [\"targetHourly\", 0.01, 1e5],",
+            "after": "[\"reviewMinutes\", 0, 5000], [\"cleanupMultiplier\", 2, 20], [\"software\", 0, 1e6], [\"targetHourly\", 0.01, 1e5],",
+            "line_text": "  [\"reviewMinutes\", 0, 5000], [\"cleanupMultiplier\", 1, 20], [\"software\", 0, 1e6], [\"targetHourly\", 0.01, 1e5],",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "bound table: cleanupMultiplier 1 accepted"
+          },
+          {
+            "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+            "line": 70,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "[\"bufferPct\", 0, 500], [\"walkAwayPct\", 0, 100],",
+            "after": "[\"bufferPct\", 1, 500], [\"walkAwayPct\", 0, 100],",
+            "line_text": "  [\"bufferPct\", 0, 500], [\"walkAwayPct\", 0, 100],",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "bound table: bufferPct 0 accepted"
+          },
+          {
+            "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+            "line": 78,
+            "col": 38,
+            "operator": "or-to-and",
+            "before": "if (v === undefined || v === null || v === \"\") continue;",
+            "after": "if (v === undefined || v === null && v === \"\") continue;",
+            "line_text": "    if (v === undefined || v === null || v === \"\") continue;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "null field falls back to default test"
+          },
+          {
+            "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+            "line": 121,
+            "col": 24,
+            "operator": "plus-to-minus",
+            "before": "const minimum = labor + o.software;",
+            "after": "const minimum = labor - o.software;",
+            "line_text": "  const minimum = labor + o.software;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+            "line": 148,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "if (o.cleanupMonths > 0) text += ` One-time cleanup of ${o.cleanupMonths} month${o.cleanupMonths === 1 ? \"\" : \"s\"}: ${money(p.cleanupQuote)}.`;",
+            "after": "if (o.cleanupMonths > 1) text += ` One-time cleanup of ${o.cleanupMonths} month${o.cleanupMonths === 1 ? \"\" : \"s\"}: ${money(p.cleanupQuote)}.`;",
+            "line_text": "  if (o.cleanupMonths > 0) text += ` One-time cleanup of ${o.cleanupMonths} month${o.cleanupMonths === 1 ? \"\" : \"s\"}: ${money(p.cleanupQuote)}.`;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "one-month cleanup summary test"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/bookkeeping-client-fee-calculator/engine.mjs",
+        "issue": "parseRoster split on every comma: the row 'Acme,$1,200,8' read as fee $1, 200 hours, $8 software with no error, a spreadsheet-quoted '\"$1,200\"' or '\"Smith, Jones\"' was rejected, and a 5-field row silently dropped the extra field. Fixed: quote-aware split, an unquoted '$d{1,3},ddd' fee is refused with a hint, rows over 4 fields are an error, an unclosed quote is an error. Same template fixed in interior-design-fee-calculator, nail-tech-booth-rent-calculator, owner-operator-load-chain-planner, snow-plow-contract-calculator (2 parsers) and thrift-haul-buy-picker.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16528"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6264a796-4449-5266-9406-17e5dedadbbf",
+    "transcripts": 1,
+    "first": "2026-11-16T09:20:22Z",
+    "last": "2026-11-16T09:26:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 25445,
+        "thinking": 6081,
+        "cache_read": 3884573,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80533,
+        "api_equivalent_usd": 1.9304,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 25445,
+      "thinking": 6081,
+      "cache_read": 3884573,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80533,
+      "api_equivalent_usd": 1.9304,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 43,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.06,
+      "active_minutes": 6.06,
+      "model_minutes": 5.3,
+      "tool_minutes": 0.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage, 6-venture parser fix with tests, lint, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 207.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

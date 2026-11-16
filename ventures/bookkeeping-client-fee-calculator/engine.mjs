@@ -153,6 +153,26 @@ export function summarizePrice(p) {
   return { status: p.competitor && p.competitor.status === "below-walk-away" ? "walk" : "ok", text };
 }
 
+/** Split one CSV line, honouring double quotes ("Smith, Jones" or "$1,200"). Null when a quote is left open. */
+function splitCsvLine(line) {
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  if (quoted) return null;
+  out.push(cur.trim());
+  return out;
+}
+
 /** Parse roster rows: client,fee,hours[,software]. Never throws; errors carry line numbers. */
 export function parseRoster(text) {
   const clients = [];
@@ -161,11 +181,18 @@ export function parseRoster(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const f = line.split(",").map((s) => s.trim());
+    const at = `Line ${i + 1}`;
+    const f = splitCsvLine(line);
+    if (f === null) { errors.push(`${at}: a double quote is never closed`); return; }
     if (!seenHeader && /^(client|name)$/i.test(f[0])) { seenHeader = true; return; }
     seenHeader = true;
-    const at = `Line ${i + 1}`;
-    if (f.length < 3) { errors.push(`${at}: expected client,fee,hours[,software]`); return; }
+    // An unquoted "$1,200" splits into "$1" and "200" and would silently read
+    // as a $1 fee; refuse it rather than guess.
+    if (f.length >= 3 && /^\$\d{1,3}$/.test(f[1]) && /^\d{3}(\.\d*)?$/.test(f[2])) {
+      errors.push(`${at}: the fee looks like it has a thousands comma (${f[1]},${f[2]}); write ${f[1]}${f[2]} or put it in double quotes`);
+      return;
+    }
+    if (f.length < 3 || f.length > 4) { errors.push(`${at}: expected client,fee,hours[,software]`); return; }
     const fee = toNumber(f[1]);
     const hours = toNumber(f[2]);
     const software = f[3] === undefined || f[3] === "" ? 0 : toNumber(f[3]);
