@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from shootflow import cr3, cr3_wavelet as cw, ljpeg_native
 from shootflow import raw_develop as rd
-from test_cr3 import MID, SENSOR_H, SENSOR_W, _emit_error, _emit_run, _Writer, _zig, encode_band, make_cr3, sensor
+from test_cr3 import MID, SENSOR_H, SENSOR_W, _emit_error, _emit_run, _Writer, _zig, busy_sensor, differing, encode_band, make_cr3, sensor
 
 
 def forward_53(x: list[int]) -> tuple[list[int], list[int]]:
@@ -263,11 +263,13 @@ class QuantisationTests(unittest.TestCase):
     def test_dequantise(self):
         band = cw.Subband(9, 0, 1, 8, 2)
         band.shift = 2
+        band.width, band.height = 5, 1
         lines = [[1, 0, -3, 2, 5]]
         cw.dequantise(lines, band, [[10, 20]])
         # base 2 + (step * 8 >> 3): 12 for columns 0-3, 22 for column 4.
         self.assertEqual(lines, [[12, 0, -36, 24, 110]])
         clamp = cw.Subband(1, 0, 1, 0, -5)
+        clamp.width = clamp.height = 1
         lines = [[7]]
         cw.dequantise(lines, clamp, [[1]])
         self.assertEqual(lines, [[7]])  # a step below 1 is held at 1
@@ -316,6 +318,98 @@ class ReadTests(unittest.TestCase):
     def test_unknown_codec_version_is_refused_naming_the_dng_route(self):
         with self.assertRaisesRegex(rd.DevelopError, "DNG Converter"):
             rd.parse_raw(make_cr3(version=0x300, levels=3))
+
+
+class TiledCrawTests(unittest.TestCase):
+    """A C-RAW CR3 whose sensor is stored in several tiles (``tests/craw_tiled.py`` codes them; real R8 and R3
+    frames re-stored this way are read back by LibRaw 0.22 in ``tools/cr3_craw_tiled_libraw_check.py``)."""
+
+    def test_one_tile_geometry_is_band_sizes(self):
+        for w, h, levels in ((3094, 2060, 3), (27, 23, 3), (60, 50, 2), (31, 22, 1)):
+            geo = cw.tile_geometry(w, h, levels, 0)
+            self.assertEqual([g[:2] for g in geo], cw.band_sizes(w, h, levels))
+            self.assertTrue(all(g[2:] == (0, 0, 0, 0) for g in geo))
+
+    def test_a_left_neighbour_lends_one_high_coefficient(self):
+        alone, left = cw.tile_geometry(1548, 2060, 3, 0), cw.tile_geometry(1548, 2060, 3, cw.LEFT)
+        for b, (own, lent) in enumerate(zip(alone, left)):
+            high_across = b and (b - 1) % 3 != 1  # HL and HH
+            self.assertEqual(lent[0], own[0] + (1 if high_across else 0))
+            self.assertEqual(lent[2], 1 if high_across else 0)
+
+    def test_inverse_runs_across_a_seam(self):
+        import craw_tiled as ct
+
+        rng = random.Random(4)
+        x = [rng.randint(-900, 900) for _ in range(120)]
+        for start, n in ((27, 29), (40, 30), (33, 22)):
+            with self.subTest(start=start, n=n):
+                region = x[start - 20 : start + n + 20]
+                low, ls, high, hs = ct.forward_1d(region, -20, False, False)
+                lo = low[-ls : -ls + (n + 1) // 2 + 2]
+                hi = high[-1 - hs : -1 - hs + n // 2 + 3]
+                self.assertEqual(cw.inverse_53(lo, hi, n, first=True, last=True), x[start : start + n])
+
+    def _file(self, size, tile, levels, **kw):
+        import craw_tiled as ct
+
+        values = busy_sensor(*size)
+        sample, header_size = ct.craw_sample(values, *size, tile, levels, MID, **kw)
+        return values, make_cr3(values=values, version=0x200, levels=levels, size=size, tile=tile, sample=sample,
+                                header_size=header_size)
+
+    def test_tiled_c_raw_reads_back_sensel_for_sensel(self):
+        engines = ["python"] + (["c"] if ljpeg_native.craw_function() else [])
+        # 2 x 2 uneven, 2 across, 2 down, odd plane tiles (29 and 27) in a 3 x 2 grid, a 3 x 3 grid; 1-3 levels.
+        cases = (((120, 100), (64, 52), 3), ((120, 100), (76, 100), 3), ((120, 100), (120, 52), 2),
+                 ((172, 108), (58, 54), 3), ((300, 220), (110, 80), 3), ((120, 100), (64, 52), 1))
+        for size, tile, levels in cases:
+            values, data = self._file(size, tile, levels)
+            for engine in engines:
+                with self.subTest(size=size, tile=tile, levels=levels, engine=engine):
+                    _head, out = cr3.decode_sensor(data, cr3.Container(data), engine=engine)
+                    self.assertEqual(differing(out, values), 0)
+
+    def test_quantised_tiles_engines_agree(self):
+        if ljpeg_native.craw_function() is None:
+            self.skipTest("no C compiler")
+        rng = random.Random(9)
+
+        def qp(_y, _x, w, h):
+            return [[rng.randint(30, 44) for _ in range((w + 7) // 8)] for _ in range((h + 1) // 2)]
+
+        mults = [(0, 1)] + [(4, 0), (4, 0), (8, 0)] * 2 + [(8, 0), (8, 0), (16, 0)]
+        values, data = self._file((172, 108), (58, 54), 3, qp=qp, mults=mults)
+        _h, py = cr3.decode_sensor(data, cr3.Container(data), engine="python")
+        _h, c = cr3.decode_sensor(data, cr3.Container(data), engine="c")
+        self.assertEqual(differing(c, py), 0)
+        self.assertGreater(differing(py, values), 0)  # the steps were applied: lossy
+        self.assertLess(max(abs(a - b) for a, b in zip(py, values)), 400)
+
+    def test_a_too_narrow_margin_is_refused_by_the_encoder(self):
+        import craw_tiled as ct
+
+        values = busy_sensor(120, 100)
+        with self.assertRaises(ct.MarginError):
+            ct.craw_sample(values, 120, 100, (64, 52), 3, MID, margin=2)
+
+    def test_a_tile_header_naming_another_tile_is_refused(self):
+        _values, data = self._file((120, 100), (64, 52), 2)
+        blob = bytearray(data)
+        at = blob.index(b"\xff\x11\x00\x10", blob.index(b"\xff\x11\x00\x10") + 4)  # the second tile's header
+        struct.pack_into(">H", blob, at + 8, 3)
+        with self.assertRaisesRegex(rd.DevelopError, "tile header 1 is not valid"):
+            rd.parse_raw(bytes(blob))
+
+    def test_parse_raw_develops_a_tiled_c_raw_frame(self):
+        values, data = self._file((120, 100), (64, 52), 3)
+        raw = rd.parse_raw(data)
+        self.assertEqual((raw.width, raw.height), (120, 100))
+        self.assertEqual(differing(raw.values, values), 0)
+        self.assertEqual(cr3.camera_model(data, readable=True), "Canon EOS R8")
+        self.assertTrue(any("stacked one above another" in n for n in raw.notes))  # a 2 x 2 grid has a row seam
+        _values, side = self._file((120, 100), (64, 100), 3)
+        self.assertFalse(any("stacked" in n for n in rd.parse_raw(side).notes))
 
 
 if __name__ == "__main__":
