@@ -382,10 +382,11 @@ flagships:
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min). Shot log landed 2026-11-16 (firmware/esp32/README.md "Shot
       log": LAUNCH frame, run --shot-log, fit-launcher; simulated speed efficiency
-      within 3.9%, spin 11.7%). Next: feed the fit back into the drill runner
-      (re-plan with the fitted efficiencies after N shots and report the landing
-      shift), and let the empty-hopper verdict use the pre-ball speed too (resweep
-      tests/launch_check_sweep.py).
+      within 3.9%, spin 11.7%). Mid-drill re-plan landed 2026-11-16 (run
+      --refit-after N; firmware/esp32/README.md "Re-planning a drill from its own
+      shots"). Next: let the empty-hopper verdict use the pre-ball speed too
+      (resweep tests/launch_check_sweep.py); fit a drill's speed efficiency closer
+      (its few speeds read 3-6% off).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

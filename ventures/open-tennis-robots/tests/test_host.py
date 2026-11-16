@@ -962,3 +962,79 @@ class ShotLogTest(unittest.TestCase):
         self.assertLess(abs(fit.speed_efficiency * 1.3 / 0.85 - 1), 0.05)  # reads 0.85 / 1.3
         inertia = launcher.inertia_from_radar(fit, 0.85)
         self.assertLess(abs(inertia / (0.00155 * 1.3) - 1), 0.05)
+
+
+class RefitTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "Re-planning a drill from its own shots": host.Refitter fits the launcher's
+    efficiencies to a drill's own wheel speed drops after N shots and re-plans the remaining shots' wheel speeds."""
+
+    def test_rewheel_keeps_the_aim_and_the_ball(self):
+        from tennisbots import launcher
+        shots = drill()
+        new, problems = host.rewheel(shots, launcher.WheelLauncher(speed_efficiency=0.75, spin_efficiency=0.4))
+        self.assertEqual(problems, [])
+        for a, b in zip(shots, new):
+            self.assertEqual((a.elevation_cdeg, a.azimuth_cdeg, a.landing), (b.elevation_cdeg, b.azimuth_cdeg, b.landing))
+            self.assertGreater(b.rpm_top + b.rpm_bottom, a.rpm_top + a.rpm_bottom)    # a weaker launcher spins faster
+        same, problems = host.rewheel(shots, launcher.WheelLauncher(speed_efficiency=0.3))   # needs > 7000 rpm
+        self.assertEqual(same, shots)
+        self.assertEqual(len(problems), len(shots))
+        self.assertTrue(problems[0].startswith("shot 0: kept"))
+
+    def test_spin_the_fitted_launcher_cannot_give_is_cut_and_re_aimed(self):
+        from tennisbots import launcher
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "shots": [{"x": 8.5, "y": -3.0, "speed": 21, "topspin": 1800}]}
+        shot = host.plan_drill(spec)[0]
+        weak = launcher.WheelLauncher(speed_efficiency=0.97, spin_efficiency=0.32)
+        origin = launcher.default_origin(0.0, 1.0)
+        (new,), (note,) = host.rewheel([shot], weak, origin)
+        self.assertIn("spin cut from 1800", note)
+        self.assertGreaterEqual(min(new.rpm_top, new.rpm_bottom), host.MIN_WHEEL_RPM)
+        self.assertLess(new.topspin_rpm, 1800)
+        self.assertLess(math.dist(host.landing_with(new, weak, origin), shot.landing), 0.15)
+
+    def test_a_wheel_too_slow_to_hold_or_judge_is_refused_at_plan_time(self):
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "launcher": {"spin_efficiency": 0.3},
+                "shots": [{"x": 8.5, "y": -3.0, "speed": 21, "topspin": 1800}]}
+        with self.assertRaisesRegex(ValueError, "shot 0: .* outside 500..7000"):
+            host.plan_drill(spec)
+
+    def test_a_wrong_launcher_model_is_corrected_mid_drill(self):
+        import refit_sweep as sweep
+        out, recovery = sweep.run_case(0.78, 0.42, 0.4)
+        self.assertIsNotNone(recovery)
+        fixed, refit = out["fixed"][0], out["refit"][0]
+        self.assertTrue(all(e > 1.8 for e in fixed))             # every shot about 2 m off on the planner's default
+        for a, b in zip(fixed[:4], refit[:4]):                  # the first four are fed before any fit (the wait for
+            self.assertAlmostEqual(a, b, delta=0.02)             # each verdict moves the wheels' timing a little)
+        self.assertLess(max(refit[4:]), 0.8)
+        self.assertLess(max(refit[8:]), 0.5)
+        used = [e for e in out["refit"][1].events if e["used"]]
+        self.assertEqual(used[0]["after_shots"], 4)
+        self.assertTrue(all(s["short_m"] > 1.0 for s in used[0]["landing_shift"]))   # the old speeds fell short
+
+    def test_a_right_model_is_left_alone_and_a_mad_fit_is_refused(self):
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "shots": [{"x": 9.0, "y": 0.0, "speed": 22, "topspin": 1500}] * 6}
+        shots = host.plan_drill(spec)
+        exact = ShotLogTest()._exact([(s.rpm_top, s.rpm_bottom) for s in shots[:4]], 0.85, 0.5, 0.3)
+        r = host.Refitter(spec, after=4, recovery_s=0.3)
+        self.assertIsNone(r(exact[:3], shots[3:]))               # not yet
+        self.assertIsNone(r(exact, shots[4:]))
+        self.assertFalse(r.events[-1]["used"])
+        self.assertIn("no change", r.events[-1]["why"])
+        mad = [dict(e, drop_top=e["drop_top"] * 3, drop_bottom=e["drop_bottom"] * 3) for e in exact]
+        r = host.Refitter(spec, after=4, recovery_s=0.3)
+        self.assertIsNone(r(mad, shots[4:]))
+        self.assertIn("refused", r.events[-1]["why"])
+        with self.assertRaises(ValueError):
+            host.Refitter(spec, after=1)
+
+    def test_recovery_comes_from_a_calibration_log(self):
+        import launch_fit_sweep as sweep
+        recs = ShotLogTest()._exact(sweep.CALIBRATION, 0.8, 0.45, 0.3)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "shots.jsonl")
+            with open(path, "w") as fh:
+                fh.writelines(json.dumps(r) + "\n" for r in recs)
+            self.assertAlmostEqual(host.recovery_from_log(path), 0.3, delta=0.03)
+            self.assertIsNone(host.recovery_from_log(os.path.join(d, "missing.jsonl")))
