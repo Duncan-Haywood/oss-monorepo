@@ -3,6 +3,7 @@ point with a joint-space min-jerk move. Report (1) the torque-limited carry time
 that move demands, and (3) the shortest carry time a given jaw force would allow."""
 import json
 import math
+from pathlib import Path
 from robofab_armaccel.geometry import GRIPPER, targets, min_link, best_base
 from robofab_armaccel.model import Arm, G, move, min_time
 
@@ -93,4 +94,5 @@ for n in ("cover", "link"):
         print(f"{n:8s} {F:8.2f} {('none' if T is None else f'{T:.2f}'):>9s} {t_tq:10.2f}")
         grip_rows.append({"part": n, "F": F, "T_grip": T, "T_torque": t_tq})
 out["rows"], out["grip"] = rows, grip_rows
-json.dump(out, open("experiments/results.json", "w"), indent=1)
+with open(Path(__file__).with_name("results.json"), "w") as fh:
+    json.dump(out, fh, indent=1)

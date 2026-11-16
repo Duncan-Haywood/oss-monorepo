@@ -321,3 +321,25 @@ def test_refusal_offers_make_room():
 def test_park_before_a_standalone_pointer_ends_the_sentence():
     v = f"History: README. Next: (a) one item; (b) a second open item; {ff.PARK_POINTER}"
     assert ff.remove_items(v, ["(b) a second open item"]) == f"History: README. Next: (a) one item. {ff.PARK_POINTER}"
+
+
+def test_explicit_park_with_the_note_attached_moves_only_the_item(tmp_path):
+    # einvoice-preflight's NEXT.md got "... A run that lands a slice replaces
+    # its item here" (2026-11-16) because --park was given the item as copied.
+    v = "History: README. Next: (a) one item; (b) refresh it. A run that lands a slice replaces its item here."
+    item = "(b) refresh it. A run that lands a slice replaces its item here"
+    assert ff.remove_items(v, [item]) == (
+        "History: README. Next: (a) one item. A run that lands a slice replaces its item here.")
+    assert ff.park_text(None, "a", [item], "2026-11-16").splitlines()[-1] == "- (2026-11-16) (b) refresh it."
+
+
+def test_remove_items_keeps_extensions_and_ellipses():
+    v = "a (x, y,...) b; nineteen sets; .eml and .mbox files; d item."
+    assert ff.remove_items(v, ["d item"]) == "a (x, y,...) b; nineteen sets; .eml and .mbox files."
+
+
+def test_real_next_md_holds_no_row_note():
+    for p in (ff.REPO_ROOT / "ventures").glob("*/NEXT.md"):
+        for line in p.read_text().splitlines():
+            if line.startswith("- ("):
+                assert not ff.ROW_NOTE.search(line), f"{p}: {line}"

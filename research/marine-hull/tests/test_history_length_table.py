@@ -32,7 +32,22 @@ class HistoryLengthTableTests(unittest.TestCase):
         self.assertEqual(ht.verdict((130.0, 120, 160), 139), "below on mean")
 
     def test_render_names_the_both_pool_rules(self):
-        self.assertIn("Never below on both pools: LC k=4, LC k=5", ht.render())
+        text = ht.render()
+        self.assertIn("Never below on both pools: 3 years/LHF, 3 years/HR, 3 years/HX, 4 years/LC", text)
+        self.assertNotIn("LC k=4", text)  # 6zzr's own LC row replaces 6zzi's
+        fewest = [ln for ln in text.splitlines() if ln.startswith("Fewest seasons")][0]
+        self.assertIn("LC 4 years", fewest)
+        self.assertIn("HR 3 years", fewest)
+        self.assertIn("LAP 4 years", fewest)
+        self.assertIn("DG none of those run", fewest)
+
+    def test_many_year_rows_reproduce_6zzr(self):
+        _, rows, _ = ht.build()
+        got = {(h, r): (a, b) for h, _, r, _, a, b in rows}
+        self.assertEqual(got[("3 years", "HR")], ((155.5, 150, 161), (56.7, 31, 86)))  # 6zzr R1, R3
+        self.assertEqual(got[("4 years", "HR")][0][1], 153)  # 6zzr R2
+        self.assertEqual(got[("3 years", "LC")][0], (149.3, 123, 160))  # 6zzi check
+        self.assertEqual(got[("5 years", "LC")], ((158.0, 158, 158), (105.0, 105, 105)))
 
 
 if __name__ == "__main__":

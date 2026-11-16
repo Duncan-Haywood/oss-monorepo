@@ -279,14 +279,19 @@ def remove_items(value: str, items: list[str]) -> str:
     """`value` with each item cut out and the separators around it tidied."""
     out = " ".join(value.split())
     for item in items:
-        want = " ".join(item.split()).strip(" ;")
+        # Only the open item moves: the row's note and the full stop that
+        # closes the sentence stay in `next:`.
+        want = ROW_NOTE.sub("", " ".join(item.split())).strip(" ;").rstrip(".")
         if not want or want not in out:
             raise ValueError(f"--park: not found in `next:`: {item!r} (copy it from "
                              "`flagship_field.py <venture>`, the unfolded value)")
         out = out.replace(want, "", 1)
     out = re.sub(r"\s*;\s*(?:;\s*)+", "; ", out)       # "a; ; b" -> "a; b"
-    out = re.sub(r"\s+([;,.:])", r"\1", out)            # "a ; b" / "a ." -> "a; b" / "a."
-    out = re.sub(r"[;,]+\.", ".", out)                  # "a;. Note" -> "a. Note"
+    # (?=\s|$): a file extension or an ellipsis after a separator is text, not a
+    # stray ("reply sets; .eml and .mbox files" read "sets.eml and.mbox" after
+    # a park in sales-agent; "Curitiba,...)" lost its comma in einvoice-preflight).
+    out = re.sub(r"\s+([;,.:])(?=\s|$)", r"\1", out)  # "a ; b" / "a ." -> "a; b" / "a."
+    out = re.sub(r"[;,]+\.(?=\s|$)", ".", out)          # "a;. Note" -> "a. Note"
     out = re.sub(r"[;,]\s*(?=" + re.escape(PARK_POINTER) + ")", ". ", out)  # "a; More open" -> "a. More open"
     out = re.sub(r"([:.])\s*;\s*", r"\1 ", out)        # "next: ; b" -> "next: b"
     out = re.sub(r";\s*$", ".", out.strip())
@@ -307,7 +312,7 @@ def park_text(existing: str | None, venture: str, items: list[str], day: str) ->
         body = body.rstrip("\n") + f"\n\n{PARK_HEADING}\n\n"
     else:
         body = body.rstrip("\n") + "\n"
-    add = "".join(f"- ({day}) {' '.join(i.split()).strip(' ;')}\n" for i in items)
+    add = "".join(f"- ({day}) {ROW_NOTE.sub('', ' '.join(i.split())).strip(' ;')}\n" for i in items)
     return body + add
 
 
