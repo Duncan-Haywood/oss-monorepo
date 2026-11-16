@@ -547,6 +547,28 @@ Misses with `barLead: 8`:
 
 bob as nasal 3; gub as none 3; gep as voiceless vel stop 2; lag as voiced lab stop 2; bob as none 2; sun as none 2; nud (vowel only) as voiced lab stop 1; gub (vowel only) as voiced lab stop 1; sun (vowel only) as voiced lab stop 1; dut (vowel only) as voiced lab stop 1; pid as voiceless alv stop 1; bel as nasal 1; tib as voiceless lab stop 1; nud as voiceless alv stop 1; lag as nasal 1; dent as voiceless alv stop 1; sonc as voiced lab stop 1; dag as voiced lab stop 1; lag as voiceless vel stop 1
 
+## V. Held out: a velar burst read as labial (eighteenth round)
+
+Velar: *dog*, *bag*, *tog*, *gig*, *vag*, *nig*, *sog*, *leg*, *hug*, *cag*, *dac*, *roc*, *puc*, *nac*, *tuc*, *lic*; labial: *gob*, *dab*, *rub*, *lap*, *rup*, *sep*, *fip*, *mop*, *dap*; alveolar: *nid*, *led*, *sud*, *rad*, *tod*; others: *gum*, *ron*, *lis*, *tas*, *mu*. Pulse-4 and pulse-2 notes at 114 BPM, each followed by a rest, G2, F3, G3, A3, B3, D4.
+
+| | default | `compactVelar` |
+|---|---|---|
+| velar codas read exactly | 175 of 192 (91.1%) | 176 of 192 (91.7%) |
+| velar codas read as a labial stop | 1 | 0 |
+| labial codas read exactly | 86 of 108 (79.6%) | 86 of 108 (79.6%) |
+| labial codas read as a velar stop | 14 | 14 |
+| alveolar codas read exactly | 57 of 60 (95.0%) | 57 of 60 (95.0%) |
+| other syllables read exactly | 59 of 60 (98.3%) | 59 of 60 (98.3%) |
+| vowel-only control read as none | 420 of 420 (100.0%) | 420 of 420 (100.0%) |
+
+Misses with the default (count over the twelve pitch and length cells):
+
+dog as nasal 3; dap as voiceless vel stop 3; tog as nasal 3; bag as nasal 2; vag as nasal 2; rad as nasal 2; rub as voiceless lab stop 2; dab as nasal 2; rup as voiceless vel stop 2; sep as voiceless vel stop 2; fip as voiceless vel stop 2; mop as voiceless vel stop 2; gob as nasal 2; cag as nasal 2; sog as none 1; rub as voiced vel stop 1; lap as nasal 1; sog as voiced lab stop 1; tod as nasal 1; roc as nasal 1; gob as voiced vel stop 1; lap as voiceless vel stop 1; cag as none 1; gig as none 1; rub as none 1; gum as none 1
+
+Misses with `compactVelar`:
+
+dog as nasal 3; dap as voiceless vel stop 3; tog as nasal 3; bag as nasal 2; vag as nasal 2; rad as nasal 2; rub as voiceless lab stop 2; dab as nasal 2; rup as voiceless vel stop 2; sep as voiceless vel stop 2; fip as voiceless vel stop 2; mop as voiceless vel stop 2; gob as nasal 2; cag as nasal 2; sog as none 1; rub as voiced vel stop 1; lap as nasal 1; tod as nasal 1; roc as nasal 1; gob as voiced vel stop 1; lap as voiceless vel stop 1; cag as none 1; gig as none 1; rub as none 1; gum as none 1
+
 ## C. Closing consonants in the corpus
 
 146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.

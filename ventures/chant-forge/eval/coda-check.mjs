@@ -300,6 +300,16 @@
 //    others and vowel-only control identical (the rule only moves a stop's place between labial and velar, after the
 //    alveolar test); (5) A-U as above, re-run on the shipped code; (6) eval/consonant-check.mjs cannot move (readOnset
 //    is untouched). If all six hold, compactVelar becomes readCoda's default; otherwise it stays opt-in, reported.
+//    Outcome (run 2026-11-16, after the registration above was committed): failed on (1) and (2). On V, velar codas
+//    read exactly: default 175, compactVelar 176 of 192 (+1 where +3 was wanted); (2) read as a labial 1 to 0 (3 fewer
+//    wanted: V's default read only one velar as a labial, *sog*, so the prediction overrated how often the fault
+//    occurs); (3) labials 86 of 108 both, read as a velar 14 both, holds; (4) alveolar 57 of 60, others 59 of 60,
+//    control 420 of 420, identical, holds; (5) holds (the A-U figures above were taken on this code); (6) holds by
+//    construction. compactVelar stays opt-in. V's larger place fault runs the other way: 14 of 108 labial codas read
+//    as a velar stop, 12 of them voiceless p on A3 and B3 (*lap rup sep fip mop dap*), whose bursts read (eval/
+//    vstop-diag.mjs V) 2.1-2.3 kHz centroid, 54-66% above 1 kHz, 0.50-0.68 compact at 1.6-2.1 kHz, although sing.mjs
+//    sings p's burst at 500 Hz +-750 Hz; the same syllables on G2 and F3 read 0.33-0.44 above 1 kHz. Next: where that
+//    energy above 1 kHz comes from on A3-B3 (the burst search's timing or the vowel's release), before any rule.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
