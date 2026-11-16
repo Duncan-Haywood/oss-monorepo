@@ -39,6 +39,13 @@ p.add_argument("--max-files")
     def test_unparseable_source_is_skipped(self):
         self.assertEqual(flags("def broken(:\n"), [])
 
+    def test_a_hit_exits_1(self):
+        # CI reads the exit status: 1 is a finding, 0 is clean.
+        from unittest import mock
+        with mock.patch.object(cft, "offending_flags", return_value=[(3, "--max-drop")]), \
+                mock.patch("sys.stdout"):
+            self.assertEqual(cft.main(), 1)
+
     def test_tree_is_clean(self):
         self.assertEqual(cft.main(), 0)
 
