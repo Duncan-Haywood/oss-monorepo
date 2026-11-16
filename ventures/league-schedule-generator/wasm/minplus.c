@@ -53,10 +53,10 @@ __attribute__((export_name("in_i32u"))) void in_i32u(i32 k, i32 m0, i32 f0, i32 
   else for (i32 x = 0; x < 1 << k; x++) Ti[PERM(x)] = Pi[x] + U(x);
 #undef U
 }
-// ...and comes out at full width: y with its top bit (k - 1) set reads ~y's entry (the table is
-// symmetric), and the step's table holds the low k - 1 bits (the lookups are built for those).
-__attribute__((export_name("out_i32s"))) void out_i32s(i32 k, i32 swap, i32 tm) {
-  const i32 full = (1 << k) - 1, half = 1 << (k - 1);
+// ...and comes out at full width: y with the fixed bit (hb) set reads ~y's entry (the table is
+// symmetric), and the step's table holds the other k - 1 bits (the lookups place those).
+__attribute__((export_name("out_i32s"))) void out_i32s(i32 k, i32 swap, i32 tm, i32 hb) {
+  const i32 full = (1 << k) - 1, half = hb;
   if (narrow) { const i16 *S = swap ? Ns : Ts; for (i32 y = 0; y < 1 << k; y++) { const i32 v = y & half ? ~y & full : y; Pi[y] = S[PERM(v) & tm]; } return; }
   const i32 *T = swap ? Ni : Ti;
   for (i32 y = 0; y < 1 << k; y++) { const i32 v = y & half ? ~y & full : y; Pi[y] = T[PERM(v) & tm]; }

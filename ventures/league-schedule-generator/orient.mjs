@@ -124,7 +124,12 @@ export function minPlusStep(fr, A, B, { sym = false } = {}) {
 }
 
 function symStep(fr, A, B) {
-  const [c, d] = B[B.length - 1], u = [0, 0, 0, 0];
+  // fix the host bit whose removal leaves the smallest tables (the halving only reaches the
+  // tables after that bit is first met; on 30-team rounds the best bit cut the step's time 2.4x,
+  // the last one 1.8x)
+  let j0 = B.length - 1, best = Infinity;
+  for (let j = 0; j < B.length; j++) { const c = stepCost(A, B.filter((_, i) => i !== j)); if (c < best) { best = c; j0 = j; } }
+  const [c, d] = B[j0], u = [0, 0, 0, 0, j0];
   A.forEach(([a, b], i) => {
     // team t of A's match i (ra 1: the lower team there) breaks when x_i ^ y ^ (ra ^ rb) is 0, so
     // with y fixed at 0 when x_i equals ra ^ rb (rb 1: the lower team of B's match)
@@ -133,12 +138,12 @@ function symStep(fr, A, B) {
       if (t === d) { u[2] = 1 << i; u[3] = ra; }
     }
   });
-  return plainStep(fr, A, B.slice(0, -1), u);
+  return plainStep(fr, A, B.filter((_, i) => i !== j0), u);
 }
 
-// unary: null for the plain step, or [m0, f0, m1, f1] for symStep (WebAssembly path only: null when
-// the tables do not fit the module, and minPlusStep then runs the plain step)
-function plainStep(fr, A, B, unary) {
+/** minPlusStep's edges (per A match, [B match, flip] for each team that plays in both rounds) and
+ * its elimination order of A's host bits. */
+function elimOrder(A, B) {
   const kA = A.length, kB = B.length;
   const inB = new Map();
   B.forEach(([c, d], j) => { inB.set(c, [j, 1]); inB.set(d, [j, 0]); });
@@ -165,6 +170,23 @@ function plainStep(fr, A, B, unary) {
   const ends = (i) => { const ys = new Set(edges[i].map((q) => q[0])); let m = 0; for (const j of ys) m += yAdj[j].length - 1; return m; };
   for (let i = 0; i < kA; i++) if (!seen[i] && ends(i) < 2) visit(i);
   for (let i = 0; i < kA; i++) if (!seen[i]) visit(i);
+  return { edges, order };
+}
+
+/** The entries minPlusStep's tables hold over its steps: what a step costs, up to a constant. */
+function stepCost(A, B) {
+  const { edges, order } = elimOrder(A, B), yp = new Uint8Array(B.length);
+  let lx = A.length, ly = 0, c = 0;
+  for (const i of order) { for (const [j] of edges[i]) if (!yp[j]) { yp[j] = 1; ly++; } lx--; c += 2 ** (lx + ly); }
+  return c;
+}
+
+// unary: null for the plain step, or [m0, f0, m1, f1, j0] for symStep (j0: where the fixed bit
+// goes back in B's order) (WebAssembly path only: null when
+// the tables do not fit the module, and minPlusStep then runs the plain step)
+function plainStep(fr, A, B, unary) {
+  const kA = A.length, kB = B.length;
+  const { edges, order } = elimOrder(A, B);
   // the table's bits, low to high: A's bits not yet eliminated (the next one at bit 0), then B's
   // bits in the order they were met
   // x's bits moved to their places in the table by two lookups of six bits each, not a loop over
@@ -204,13 +226,20 @@ function plainStep(fr, A, B, unary) {
       };
       w.io.set(fr);
       lut(xPos, kA);
-      if (unary) MP.inu(kA, ...unary); else w.inp(kA);
+      if (unary) MP.inu(kA, unary[0], unary[1], unary[2], unary[3]); else w.inp(kA);
       let swap = 0;
       for (const q of plan) { w.step(swap, ...q); swap ^= 1; }
       const tm = (1 << (lx0 + ly0)) - 1; // the last table's size, as T.length - 1 below
       for (let j = 0; j < kB; j++) if (yp[j] < 0) yp[j] = ly0++;
+      if (unary) {
+        // the fixed bit back at j0; its lookup place is never read (out_i32s clears that bit)
+        const j0 = unary[4], ys = new Int32Array(kB + 1);
+        for (let j = 0; j <= kB; j++) ys[j] = j < j0 ? yp[j] : j === j0 ? 0 : yp[j - 1];
+        lut(ys, kB + 1);
+        MP.outs(kB + 1, swap, tm, 1 << j0);
+        return w.io.slice(0, 1 << (kB + 1));
+      }
       lut(yp, kB);
-      if (unary) { MP.outs(kB + 1, swap, tm); return w.io.slice(0, 1 << (kB + 1)); }
       w.out(kB, swap, tm);
       return w.io.slice(0, 1 << kB);
     }
