@@ -1,7 +1,8 @@
 """The noise-aware blend of the directional and bilinear demosaics (``xtrans_demosaic.frame_measures``,
 ``blend``, ``noise_aware``; eval/xtrans-noise-aware-blend-2026-11-16.md).
 
-Pinned: the noise estimate tracks the noise drawn on a flat field, sensels keep their own values, a
+Pinned: the noise estimate tracks the noise drawn on a flat field, an overstated NoiseProfile is read and
+scaled down (``profile_ratio``, ``guard_profile``), sensels keep their own values, a
 flat noisy field leans to bilinear and a sharp clean edge to directional, the blend lies between its
 two inputs, and the weights follow the documented ramp.
 """
@@ -117,6 +118,108 @@ class NoiseAwareTests(unittest.TestCase):
             np.testing.assert_allclose(out, want, atol=1e-12)
 
 
+@unittest.skipUnless(has_numpy(), "numpy not installed")
+class ProfileGuardTests(unittest.TestCase):
+    """``profile_ratio`` / ``guard_profile`` (eval/noise-profile-real-dngs-2026-11-16.md): a profile that states
+    far more noise than the mosaic shows is scaled down; an honest one is left alone."""
+
+    def _scene(self, pat, shot=2e-4, read=2e-6, n=192, seed=4):
+        import numpy as np
+
+
+        rng = np.random.default_rng(seed)
+        y, x = np.mgrid[0:n, 0:n].astype(np.float64)
+        lum = np.where(x >= n // 2, 0.35 + 0.2 * np.sin(x * x / (2.2 * n) + y / 9), 0.15 + 0.35 * y / n)
+        truth = np.stack([lum, lum * 0.9, lum * 0.7], axis=-1)
+        c = _mosaic(truth, pat)
+        return truth, c + rng.normal(size=c.shape) * np.sqrt(shot * c + read)
+
+    def test_ratio_reads_the_overstatement_despite_texture(self):
+        from shootflow.xtrans_demosaic import profile_ratio
+
+        for pat in ((0, 1, 1, 2), XE1_PATTERN):
+            _, c = self._scene(pat)
+            for k in (1.0, 4.0, 16.0):
+                r = profile_ratio(c, pat, (2e-4 * k * k, 2e-6 * k * k))
+                self.assertAlmostEqual(r / k, 1.0, delta=0.2, msg=(len(pat), k))
+
+    def test_guard_scales_an_overstated_profile_and_keeps_an_honest_one(self):
+        from shootflow.xtrans_demosaic import PROFILE_CAP, guard_profile
+
+        _, c = self._scene((0, 1, 1, 2))
+        used, r = guard_profile(c, (0, 1, 1, 2), (2e-4, 2e-6))
+        self.assertEqual(used, (2e-4, 2e-6))
+        self.assertLess(r, PROFILE_CAP)
+        used, r = guard_profile(c, (0, 1, 1, 2), (2e-4 * 256, 2e-6 * 256))
+        self.assertGreater(r, 10)
+        self.assertAlmostEqual(used[0] / used[1], 100.0, places=6)  # the profile's shape is kept
+        self.assertAlmostEqual(used[0] / (2e-4 * 256), (PROFILE_CAP / r) ** 2, places=9)
+
+    def test_guarded_blend_recovers_the_honest_result(self):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import directional, guard_profile, noise_aware
+
+        for pat in ((0, 1, 1, 2), XE1_PATTERN):
+            truth, c = self._scene(pat)
+            if len(pat) == 4:
+                from shootflow.bayer_demosaic import directional as bayer
+
+                d = bayer(c, pat)
+            else:
+                d = directional(c, pat)
+            b = _bilinear(c, pat)
+            err = lambda a: float(np.mean((a[8:-8, 8:-8] - truth[8:-8, 8:-8]) ** 2))  # noqa: E731
+            honest = err(noise_aware(c, pat, bilinear=b, directional_out=d, noise=(2e-4, 2e-6)))
+            over = (2e-4 * 256, 2e-6 * 256)
+            raw = err(noise_aware(c, pat, bilinear=b, directional_out=d, noise=over))
+            guarded = err(noise_aware(c, pat, bilinear=b, directional_out=d, noise=guard_profile(c, pat, over)[0]))
+            self.assertGreater(raw, honest * 2)  # 16x the noise leans every detailed block to bilinear
+            self.assertLess(guarded, honest * 1.05)
+
+    def _plane_scene(self, pat, model, n=192, seed=6):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import variance_map
+
+        truth, _ = self._scene(pat, n=n)
+        c = _mosaic(truth, pat)
+        return truth, c + np.random.default_rng(seed).normal(size=c.shape) * np.sqrt(variance_map(c, pat, model))
+
+    def test_one_pair_per_plane_is_the_scalar_model(self):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import as_planes, directional, frame_measures
+
+        _, c = self._scene(XE1_PATTERN)
+        b, d = _bilinear(c, XE1_PATTERN), directional(c, XE1_PATTERN)
+        one = frame_measures(c, XE1_PATTERN, b, d, noise=(2e-4, 2e-6), blocks=True)
+        three = frame_measures(c, XE1_PATTERN, b, d, noise=as_planes((2e-4, 2e-6)), blocks=True)
+        np.testing.assert_allclose(three["q_blocks"], one["q_blocks"], rtol=1e-12)
+        with self.assertRaises(ValueError):
+            as_planes((1e-4, 1e-6, 1e-4))
+
+    def test_plane_ratios_name_the_overstated_plane(self):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import PROFILE_CAP, guard_profile, plane_ratios
+
+        # Noise as white balance leaves it: red 2x and blue 1.6x green's sigma.
+        true = np.array([[2e-4 * 2.0, 2e-6 * 4.0], [2e-4, 2e-6], [2e-4 * 1.6, 2e-6 * 2.56]])
+        for pat in ((0, 1, 1, 2), XE1_PATTERN):
+            _, c = self._plane_scene(pat, true)
+            np.testing.assert_allclose(plane_ratios(c, pat, true), 1.0, atol=0.2, err_msg=str(len(pat)))
+            over = true.copy()
+            over[2] *= 64.0  # blue 8x in sigma
+            r = plane_ratios(c, pat, over)
+            self.assertAlmostEqual(r[2] / 8.0, 1.0, delta=0.2, msg=str(r))
+            self.assertLess(max(r[0], r[1]), PROFILE_CAP, msg=str(r))
+            used, ratio = guard_profile(c, pat, over)
+            self.assertAlmostEqual(ratio, r[2], places=9)
+            np.testing.assert_array_equal(used[:2], over[:2])  # the honest planes are kept
+            self.assertAlmostEqual(used[2, 0] / over[2, 0], (PROFILE_CAP / r[2]) ** 2, places=9)
+
+
 class DevelopNoiseAwareTests(unittest.TestCase):
     """``--demosaic noise-aware`` in the developer: the DNG's NoiseProfile drives it; without one it falls back."""
 
@@ -149,13 +252,30 @@ class DevelopNoiseAwareTests(unittest.TestCase):
         self.assertAlmostEqual(shot, 3e-5, places=15)
         self.assertAlmostEqual(read, 2e-6, places=15)
         self.assertIsNone(rd.noise_profile({rd.TAG_NOISE_PROFILE: (2e-5,)}))
-        self.assertIsNone(rd.noise_profile({rd.TAG_NOISE_PROFILE: (2e-5, 0.0)}))
+        # DNG 1.7.1.0: S_i > 0 and O_i >= 0, so a zero read term is legal (13 real phone profiles write one).
+        self.assertEqual(rd.noise_profile({rd.TAG_NOISE_PROFILE: (2e-5, 0.0)}), (2e-5, 0.0))
+        self.assertIsNone(rd.noise_profile({rd.TAG_NOISE_PROFILE: (0.0, 1e-6)}))
+        self.assertIsNone(rd.noise_profile({rd.TAG_NOISE_PROFILE: (2e-5, -1e-9)}))
         self.assertIsNone(rd.noise_profile({}))
+
+    def test_noise_profile_planes_read(self):
+        from shootflow import raw_develop as rd
+
+        NP, PC = rd.TAG_NOISE_PROFILE, rd.TAG_CFA_PLANE_COLOR
+        self.assertEqual(rd.noise_profile_planes({NP: (2e-5, 1e-6)}), [(2e-5, 1e-6)] * 3)
+        three = (1e-5, 1e-7, 2e-5, 2e-7, 3e-5, 3e-7)
+        self.assertEqual(rd.noise_profile_planes({NP: three}), [(1e-5, 1e-7), (2e-5, 2e-7), (3e-5, 3e-7)])
+        # Pairs follow CFAPlaneColor, so a B, G, R plane order lands on R, G, B.
+        self.assertEqual(rd.noise_profile_planes({NP: three, PC: (2, 1, 0)}), [(3e-5, 3e-7), (2e-5, 2e-7), (1e-5, 1e-7)])
+        self.assertIsNone(rd.noise_profile_planes({NP: three, PC: (0, 1, 1)}))
+        self.assertIsNone(rd.noise_profile_planes({NP: (1e-5, 1e-7, 2e-5, 2e-7)}))  # two pairs, three planes
+        self.assertIsNone(rd.noise_profile_planes({NP: (1e-5, 1e-7, 0.0, 2e-7, 3e-5, 3e-7)}))
+        self.assertIsNone(rd.noise_profile_planes({}))
 
     @unittest.skipUnless(has_numpy(), "numpy not installed")
     def test_noise_aware_with_profile_differs_and_without_falls_back(self):
         sigma = 40.0 / (4095 - 256)
-        with_np = self._dng((0.0, sigma * sigma))
+        with_np = self._dng((1e-12, sigma * sigma))
         w, h, px, rep = self._develop(with_np, engine="numpy", demosaic="noise-aware")
         self.assertEqual(rep.demosaic, "noise-aware")
         _, _, dpx, drep = self._develop(with_np, engine="numpy", demosaic="directional")
@@ -168,6 +288,37 @@ class DevelopNoiseAwareTests(unittest.TestCase):
         self.assertEqual(list(fpx), list(dpx2))
         _, _, hpx, hrep = self._develop(with_np, engine="numpy", demosaic="noise-aware", half=True)
         self.assertEqual(hrep.demosaic, "noise-aware")
+        self.assertFalse(any("states" in n for n in rep.notes), rep.notes)  # an honest profile is not scaled
+
+    @unittest.skipUnless(has_numpy(), "numpy not installed")
+    def test_an_overstated_profile_is_scaled_and_noted(self):
+        sigma = 40.0 / (4095 - 256)
+        over = self._dng((1e-12, (20 * sigma) ** 2), w=192, h=144)  # 48 blocks: every brightness bin filled
+        _, _, _, rep = self._develop(over, engine="numpy", demosaic="noise-aware")
+        self.assertEqual(rep.demosaic, "noise-aware")
+        self.assertTrue(any("NoiseProfile states" in n and "scaled" in n for n in rep.notes), rep.notes)
+        _, _, _, hrep = self._develop(self._dng((1e-12, sigma * sigma), w=192, h=144), engine="numpy", demosaic="noise-aware")
+        # The honest profile reads about 1x. Until the guard went plane by plane (2026-11-16) it read 1.3x on this
+        # 48-block frame, whose planes carry unequal white-balance gains; a trim to 1.25x is harmless, so only a
+        # reading well past the cap would be wrong.
+        import re
+
+        said = [float(m.group(1)) for n in hrep.notes for m in [re.search(r"states ([0-9.]+)x", n)] if m]
+        self.assertTrue(all(v < 1.6 for v in said), hrep.notes)
+        self.assertGreater(float(re.search(r"states ([0-9.]+)x", " ".join(rep.notes)).group(1)), 10)
+        self.assertEqual(said, [])  # since the per-plane guard, not even trimmed
+
+    @unittest.skipUnless(has_numpy(), "numpy not installed")
+    def test_one_overstated_plane_is_found(self):
+        import re
+
+        sigma = 40.0 / (4095 - 256)
+        honest = (1e-12, sigma * sigma)
+        blue_over = self._dng(honest * 2 + (1e-12, (8 * sigma) ** 2), w=192, h=144)  # blue's pair 8x in sigma
+        _, _, _, rep = self._develop(blue_over, engine="numpy", demosaic="noise-aware")
+        self.assertEqual(rep.demosaic, "noise-aware")
+        said = float(re.search(r"states ([0-9.]+)x", " ".join(rep.notes)).group(1))
+        self.assertAlmostEqual(said / 8.0, 1.0, delta=0.2, msg=rep.notes)
 
 
 if __name__ == "__main__":

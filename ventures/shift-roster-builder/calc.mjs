@@ -1389,7 +1389,7 @@ function neighbourhoodFloor(ctx, people, free, lists, can) {
 // counted open at once. On 24 fixed starts of the 80-100 person weeks it closed 484 open hours against the depth-first search's 217
 // at the same node budget, fewer open on all 24 (eval/repair-flow.out.txt). bound "dfs" is the search before it. The floor skip and
 // stop compare hours only, so the open-shift count's tie-break no longer moves a roster whose hours cannot fall.
-function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000, shiftWeight = 1e-6, guide = null, guideProb = 0.5, bound = "flow", skipRounds = 4 * rounds } = {}) {
+function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000, shiftWeight = 1e-6, guide = null, guideProb = 0.5, bound = "flow", skipRounds = 4 * rounds, deadline = Infinity } = {}) {
   const { P, S, slots, elig } = ctx;
   const rng = mulberry32(seed);
   const hrs = (i) => (slots[i].end - slots[i].start) / 60;
@@ -1437,7 +1437,12 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
   let open = openOf(owner);
   const t0 = Date.now();
   let spent = 0; // a node budget, not the clock, ends the search, so the same input gives the same roster on any machine
-  for (let r = 0; r < rounds && open > 0 && spent < totalNodes && Date.now() - t0 < timeLimitMs; r++) {
+  // `deadline` (an absolute Date.now() time, 2026-11-16, README "The repair stops at the budget's end"): the clock is read every
+  // 1,024 nodes inside a round, not only between rounds, and a round that passes it keeps the best assignment it has found (any
+  // assignment it kept already beats the round's starting value, so stopping early never makes the roster worse).
+  let late = false;
+  const lateNow = () => { if (!late && Date.now() > deadline) late = true; return late; };
+  for (let r = 0; r < rounds && open > 0 && spent < totalNodes && Date.now() - t0 < timeLimitMs && !lateNow(); r++) {
     const guided = gPeople && rng() < guideProb ? guidedPick(Math.min(k, P)) : null;
     const pick = guided || new Set();
     if (guided) guidedRounds++;
@@ -1489,6 +1494,7 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
       const dfs = (d, o) => {
         if (done) return;
         if (o + deadH + TIE * deadN + Math.max(0, tail[d] - deadH - roomLeft) >= best - 1e-9 || nodes++ > nodeLimit) return;
+        if ((nodes & 1023) === 0 && lateNow()) { done = true; return; }
         if (d === F) { best = o; bestAssign = cur.slice(); if (o - TIE * cur.reduce((t, q) => t + (q < 0 ? 1 : 0), 0) <= stopAt) done = true; return; }
         const i = free[d], h = hrs(i);
         if (!cnt[d]) { deadH -= h; deadN--; dfs(d + 1, o + h + TIE); deadH += h; deadN++; return; }
@@ -1513,10 +1519,12 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
         dfs(d + 1, o + h + TIE);
       };
       dfs(0, 0);
-      if (done) reached++;
+      if (done && !late) reached++;
     } else {
     const dfs = (d, o) => {
+      if (late) return;
       if (o + Math.max(0, tail[d] - roomLeft) >= best - 1e-9 || nodes++ > nodeLimit) return;
+      if ((nodes & 1023) === 0 && lateNow()) return;
       if (d === free.length) { best = o; bestAssign = cur.slice(); return; }
       const i = free[d], h = hrs(i);
       for (const q of people) {
@@ -1544,7 +1552,7 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
     }
   }
   const shifts = owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
-  return { owner, open: open - TIE * shifts, openShifts: shifts, guidedRounds, gains, guidedGains, floors, skipped, reached };
+  return { owner, open: open - TIE * shifts, openShifts: shifts, guidedRounds, gains, guidedGains, floors, skipped, reached, late };
 }
 
 // A starting roster from the keep map (2026-11-12): in start order, each shift goes to someone who held it before when the hard
@@ -1648,7 +1656,9 @@ function ejectOpen(ctx, owner, lists, passes = 3) {
 }
 
 // Single moves and swaps that lower the score and never leave a shift open that was covered.
-function polishPay(ctx, owner0, seed, iterations) {
+// `deadline` (an absolute Date.now() time, 2026-11-16, README "The pay polish stops at the budget's end"): read every 1,024
+// moves; past it the polish returns what it has. Every move it kept lowered the score, so stopping early never adds open hours.
+function polishPay(ctx, owner0, seed, iterations, { deadline = Infinity } = {}) {
   const { P, S, elig } = ctx;
   const rng = mulberry32(seed);
   const owner = owner0.slice();
@@ -1657,6 +1667,7 @@ function polishPay(ctx, owner0, seed, iterations) {
   const pScore = lists.map((l, p) => personScore(ctx, p, l));
   const removeFrom = (list, i) => list.filter((x) => x !== i);
   for (let it = 0; it < iterations; it++) {
+    if ((it & 1023) === 1023 && Date.now() > deadline) break;
     const i = Math.floor(rng() * S), o = owner[i];
     if (o < 0) continue;
     if (rng() < 0.5) {
@@ -3902,7 +3913,9 @@ function buildRosterOnce(staff, slots, options = {}) {
         const walkDeadline = budgetMs > 0 && o.coverPassDeadline !== false ? tStart + budgetMs - (k > 0 ? reserve : 0) : Infinity;
         const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4), { guide: o.coverGuide === false ? null : clique?.xs ?? null, guideProb: o.coverGuideProb ?? 0.5, deadline: walkDeadline });
         if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
-        const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
+        // The polish after a walk stops at the walk's deadline (README "The pay polish stops at the budget's end");
+        // `payPolishDeadline: false` keeps it untimed.
+        const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000), { deadline: o.payPolishDeadline !== false ? walkDeadline : Infinity });
         const ps = scoreOwner(ctx, po).total;
         if (ps < best.score - 1e-9) best = { owner: po, score: ps };
       }
@@ -3916,13 +3929,16 @@ function buildRosterOnce(staff, slots, options = {}) {
       const repairOn = (o.coverRepair ?? (exactOn || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0;
       if (repairOn && atFloor) repairStats = { skippedAtFloor: true };
       else if (repairOn && !over()) {
-        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: Math.min(o.coverRepairMs ?? 60000, budgetMs > 0 ? Math.max(200, budgetMs - (Date.now() - tStart)) : Infinity), shiftWeight: o.openShiftWeight ?? 1e-6, guide: o.repairGuide === true ? clique?.xs ?? null : null, guideProb: o.repairGuideProb ?? 0.5, bound: o.coverRepairBound ?? "flow" });
-        repairStats = { guided: rp.guidedRounds > 0, guidedRounds: rp.guidedRounds, gains: rp.gains, guidedGains: rp.guidedGains, floorSkipped: rp.skipped, floorReached: rp.reached };
+        // Under a time budget the repair stops at the budget's end, read inside its rounds (README "The repair stops at the budget's
+        // end"); `coverRepairDeadline: false` gives back the old limit, at least 200 ms and read only between rounds.
+        const repairDeadline = budgetMs > 0 && o.coverRepairDeadline !== false;
+        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: Math.min(o.coverRepairMs ?? 60000, budgetMs > 0 && !repairDeadline ? Math.max(200, budgetMs - (Date.now() - tStart)) : Infinity), deadline: repairDeadline ? tStart + budgetMs : Infinity, shiftWeight: o.openShiftWeight ?? 1e-6, guide: o.repairGuide === true ? clique?.xs ?? null : null, guideProb: o.repairGuideProb ?? 0.5, bound: o.coverRepairBound ?? "flow" });
+        repairStats = { guided: rp.guidedRounds > 0, guidedRounds: rp.guidedRounds, gains: rp.gains, guidedGains: rp.guidedGains, floorSkipped: rp.skipped, floorReached: rp.reached, stoppedAtDeadline: rp.late };
         const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
         const w = o.openShiftWeight ?? 1e-6;
         const curObj = scoreOwner(ctx, best.owner).unfilled + w * cur;
         if (rp.open + w * rp.openShifts < curObj - 1e-9) {
-          const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));
+          const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000), { deadline: budgetMs > 0 && o.payPolishDeadline !== false ? tStart + budgetMs : Infinity });
           const ps = scoreOwner(ctx, po).total;
           if (ps < best.score - 1e-9) best = { owner: po, score: ps };
         }
@@ -5784,7 +5800,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, scoreFloorSkip, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, polishPay, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, scoreFloorSkip, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 

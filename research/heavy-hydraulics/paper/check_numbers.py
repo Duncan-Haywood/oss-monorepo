@@ -480,6 +480,11 @@ MANUSCRIPT_CHECKS = [
     ("cuts the pooled left-out RMS to 0.0069", "gear_pump_chosen_results.txt", "RMS over 14 diagonals: one 0.0120, two 0.0084, lo 0.0068, w 0.0069, above 0.0093"),
     ("(0.0017 against 0.0022)", "gear_pump_chosen_results.txt", "held (7a)    diagonal RMS: one 0.0113, two 0.0022, lo 0.0022, w 0.0017"),
     ("geared AZPN below the rule (&minus;0.0082)", "gear_pump_chosen_results.txt", "WS4 geared AZPN (sourced) within +-0.005 under the w rule, pooled out of sample: refuted (-0.0082"),
+    ("E<sub>50</sub> = 0.7598 + 0.0204 kW<sub>w</sub> &minus; 0.4269 k<sub>w</sub>", "gear_pump_pickdrag_results.txt", "dww : coefficients +0.7598, +0.0204, -0.4269"),
+    ("an RMS of 0.0059, 29% below the drag rule", "gear_pump_pickdrag_results.txt", "DP2 pooled dww diagonal RMS at least 20% below two-number: held (0.0059 against 0.0084, -29%)"),
+    ("(0.0034 against 0.0022)", "gear_pump_pickdrag_results.txt", "held (7a)    diagonal RMS: one 0.0113, two 0.0022, w 0.0017, dw 0.0034, dww 0.0034"),
+    ("(median 151 bar)", "gear_pump_pickdrag_results.txt", "p10 142, median 151, p90 171 bar"),
+    ("sits 0.0068 below it", "gear_pump_pickdrag_results.txt", "refuted (-0.0068;"),
 ]
 
 
