@@ -49,6 +49,8 @@ values on the scale of ``c``; the caller clips and encodes them as it does the b
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 
 WORK = np.float32  # working precision: ample for 16-bit output, half the memory traffic of float64
@@ -492,13 +494,11 @@ def _noise_model(level: np.ndarray, spread: np.ndarray) -> tuple[float, float]:
     return float(g), float(r)
 
 
-def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
-    """Per BLOCK x BLOCK block of the mosaic ``c``: its mean level and its noise spread, the median of each
-    sensel's leave-one-out residual against its same-colour neighbours (5 x 5, triangle-weighted) as a sigma."""
+def _residual(c, pat) -> np.ndarray:
+    """Each sensel's leave-one-out residual against its same-colour neighbours (5 x 5, triangle-weighted), as
+    a sigma (MAD to sigma; 0.85 removes the neighbours' own share)."""
 
-    c = np.asarray(c, dtype=np.float64)
     h, w = c.shape
-    level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
     cmap = colour_map(pat, h, w)
     pred = np.zeros_like(c)
     for k in range(3):
@@ -506,9 +506,55 @@ def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
         s = _box3(_box3(c * m)) - 9.0 * c * m
         n = _box3(_box3(m)) - 9.0 * m
         pred += np.where(m > 0, s / np.maximum(n, 1e-9), 0.0)
-    resid = np.abs(c - pred) * 1.4826 * 0.85  # MAD to sigma; 0.85 removes the neighbours' own share
-    spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
+    return np.abs(c - pred) * 1.4826 * 0.85
+
+
+def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
+    """Per BLOCK x BLOCK block of the mosaic ``c``: its mean level and its noise spread, the median of each
+    sensel's leave-one-out residual against its same-colour neighbours (5 x 5, triangle-weighted) as a sigma."""
+
+    c = np.asarray(c, dtype=np.float64)
+    level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
+    spread = _block_stat(_residual(c, pat), lambda t: np.median(t, axis=-1))
     return level, spread
+
+
+def _colour_block_spread(c, pat, k: int) -> tuple[np.ndarray, np.ndarray]:
+    """``_block_spread`` over colour ``k``'s sensels only (0 R, 1 G, 2 B): each block's mean level of that
+    colour and the median of that colour's residuals. NaN in a block that holds no sensel of it."""
+
+    c = np.asarray(c, dtype=np.float64)
+    h, w = c.shape
+    m = colour_map(pat, h, w) == k
+    lv = np.where(m, np.clip(c, 0.0, None), np.nan)
+    rs = np.where(m, _residual(c, pat), np.nan)
+    with warnings.catch_warnings():  # an all-NaN block (no sensel of k) is meant to read NaN
+        warnings.simplefilter("ignore", RuntimeWarning)
+        level = _block_stat(lv, lambda t: np.nanmean(t, axis=-1))
+        spread = _block_stat(rs, lambda t: np.nanmedian(t, axis=-1))
+    return level, spread
+
+
+def as_planes(noise) -> np.ndarray:
+    """A noise model as a (3, 2) array, (shot, read) per colour (rows R, G, B: ``colour_map``'s 0, 1, 2).
+    One (shot, read) pair is the same model on every colour."""
+
+    a = np.asarray(noise, dtype=np.float64)
+    if a.shape == (2,):
+        return np.tile(a, (3, 1))
+    if a.shape == (3, 2):
+        return a
+    raise ValueError(f"noise must be (shot, read) or three such pairs, got shape {a.shape}")
+
+
+def variance_map(c, pat, noise) -> np.ndarray:
+    """Each sensel's noise variance under ``noise`` (one (shot, read) pair or one per colour, ``as_planes``):
+    shot_k * max(c, 0) + read_k for the sensel's colour k."""
+
+    c = np.asarray(c, dtype=np.float64)
+    p = as_planes(noise)
+    cmap = colour_map(pat, *c.shape)
+    return p[cmap, 0] * np.clip(c, 0.0, None) + p[cmap, 1]
 
 
 def estimate_noise(c, pat) -> tuple[float, float]:
@@ -533,20 +579,13 @@ ESTIMATE_BIAS = 1.25
 PROFILE_CAP = 1.25
 
 
-def profile_ratio(c, pat, noise: tuple[float, float], *, spread: tuple[np.ndarray, np.ndarray] | None = None) -> float:
-    """How many times the noise a profile ``noise`` (shot, read on ``c``'s scale) states exceeds what the mosaic
-    shows: the largest, over brightness bins clear of the black clip, of the profile's sigma at the bin's median
-    level over ESTIMATE_BIAS x the bin's 15th-percentile block spread, blocks that reach the frame's top value
-    (clipped) left out. NaN when no bin qualifies."""
+def _bin_ratio(lv: np.ndarray, sv: np.ndarray, sig_fn) -> float:
+    """The largest, over eight brightness bins of the blocks' levels ``lv``, of the profile's sigma at the bin's
+    median level (``sig_fn``) over ESTIMATE_BIAS x the bin's 15th-percentile spread ``sv``; bins near black
+    (median level under 3 x that spread) skipped. NaN when no bin qualifies."""
 
-    c = np.asarray(c, dtype=np.float64)
-    level, sp = _block_spread(c, pat) if spread is None else spread
-    # Blocks holding a sensel at the frame's top value are clipped (white or the white-balanced plane's cap),
-    # and their spread reads near 0: a real Huawei VTR-L09 frame's top bin read 4e-16 and the ratio 3.5e13.
-    top = float(c.max())
-    unclipped = (_block_stat(c, lambda t: t.max(axis=-1)) < top * (1.0 - 1e-9)).ravel()
-    lv, sv = level.ravel()[unclipped], sp.ravel()[unclipped]
-    shot, read = float(noise[0]), float(noise[1])
+    ok = np.isfinite(lv) & np.isfinite(sv)
+    lv, sv = lv[ok], sv[ok]
     if lv.size < 8:
         return float("nan")
     edges = np.quantile(lv, np.linspace(0, 1, 9))
@@ -557,7 +596,7 @@ def profile_ratio(c, pat, noise: tuple[float, float], *, spread: tuple[np.ndarra
             continue
         x = float(np.median(lv[sel]))
         q = ESTIMATE_BIAS * float(np.percentile(sv[sel], 15))
-        sig = float(np.sqrt(max(shot * x + read, 0.0)))
+        sig = float(sig_fn(x))
         if q <= 0.0 or sig <= 0.0 or x < 3.0 * q:  # near black the clip at 0 hides noise
             continue
         r = sig / q
@@ -565,11 +604,61 @@ def profile_ratio(c, pat, noise: tuple[float, float], *, spread: tuple[np.ndarra
     return best
 
 
-def guard_profile(c, pat, noise: tuple[float, float], *, cap: float = PROFILE_CAP) -> tuple[tuple[float, float], float]:
-    """``noise`` checked against the mosaic: the (shot, read) to use and ``profile_ratio``. Past ``cap`` both terms
-    are scaled by the same factor, so the profile keeps its shot/read shape and states ``cap`` x what the
-    cleanest bin shows."""
+def _unclipped(c) -> np.ndarray:
+    # Blocks holding a sensel at the frame's top value are clipped (white or the white-balanced plane's cap),
+    # and their spread reads near 0: a real Huawei VTR-L09 frame's top bin read 4e-16 and the ratio 3.5e13.
+    top = float(c.max())
+    return (_block_stat(c, lambda t: t.max(axis=-1)) < top * (1.0 - 1e-9)).ravel()
 
+
+def profile_ratio(c, pat, noise, *, spread: tuple[np.ndarray, np.ndarray] | None = None) -> float:
+    """How many times the noise a profile ``noise`` (shot, read on ``c``'s scale) states exceeds what the mosaic
+    shows: the largest, over brightness bins clear of the black clip, of the profile's sigma at the bin's median
+    level over ESTIMATE_BIAS x the bin's 15th-percentile block spread, blocks that reach the frame's top value
+    (clipped) left out. NaN when no bin qualifies. A per-colour ``noise`` (three pairs) is read through
+    ``plane_ratios`` and the largest of the three returned."""
+
+    c = np.asarray(c, dtype=np.float64)
+    if np.asarray(noise).shape == (3, 2):
+        r = plane_ratios(c, pat, noise)
+        return float(np.nanmax(r)) if np.isfinite(r).any() else float("nan")
+    level, sp = _block_spread(c, pat) if spread is None else spread
+    keep = _unclipped(c)
+    shot, read = float(noise[0]), float(noise[1])
+    return _bin_ratio(level.ravel()[keep], sp.ravel()[keep], lambda x: np.sqrt(max(shot * x + read, 0.0)))
+
+
+def plane_ratios(c, pat, noise) -> np.ndarray:
+    """``profile_ratio`` per colour (R, G, B): each colour's own blocks' levels and spread against that
+    colour's (shot, read) from ``noise`` (``as_planes``). On the white-balanced plane the colours' noise differs
+    by the white-balance gain (red and blue often 1.5-2.5x green's sigma), so one mixed reading cannot say
+    which plane a profile overstates (eval/noise-aware-planes-luma-2026-11-16.md)."""
+
+    c = np.asarray(c, dtype=np.float64)
+    p = as_planes(noise)
+    keep = _unclipped(c)
+    out = np.full(3, np.nan)
+    for k in range(3):
+        level, sp = _colour_block_spread(c, pat, k)
+        s, r = float(p[k, 0]), float(p[k, 1])
+        out[k] = _bin_ratio(level.ravel()[keep], sp.ravel()[keep], lambda x, s=s, r=r: np.sqrt(max(s * x + r, 0.0)))
+    return out
+
+
+def guard_profile(c, pat, noise, *, cap: float = PROFILE_CAP):
+    """``noise`` checked against the mosaic: the noise model to use and ``profile_ratio``. Past ``cap`` both terms
+    are scaled by the same factor, so the profile keeps its shot/read shape and states ``cap`` x what the
+    cleanest bin shows. A per-colour ``noise`` (three pairs, ``as_planes``) is checked plane by plane
+    (``plane_ratios``): each plane over ``cap`` is scaled on its own, the others kept; the ratio returned is the
+    largest of the three, and the model returned is a (3, 2) array."""
+
+    if np.asarray(noise).shape == (3, 2):
+        p = as_planes(noise).copy()
+        r = plane_ratios(c, pat, p)
+        for k in range(3):
+            if r[k] == r[k] and r[k] > cap:
+                p[k] *= (cap / r[k]) ** 2
+        return p, (float(np.nanmax(r)) if np.isfinite(r).any() else float("nan"))
     shot, read = float(noise[0]), float(noise[1])
     ratio = profile_ratio(c, pat, (shot, read))
     if not ratio == ratio or ratio <= cap:
@@ -584,8 +673,9 @@ def frame_measures(
 ) -> dict:
     """Noise and detail of a white-balanced sensel plane, from the mosaic and its two demosaics.
 
-    ``noise``: the sensor's (shot, read) model, variance = shot * level + read on the plane's scale, when it
-    is known (a DNG NoiseProfile, a camera profile); else it is fitted to each sensel's leave-one-out
+    ``noise``: the sensor's (shot, read) model, variance = shot * level + read on the plane's scale, or one
+    such pair per colour (a (3, 2) array, ``as_planes``; each block's noise is then the mean of its sensels'
+    own variances, ``variance_map``), when it is known (a DNG NoiseProfile, a camera profile); else it is fitted to each sensel's leave-one-out
     residual against its same-colour neighbours (5 x 5, triangle-weighted) in the quietest blocks, which
     over-reads the noise where texture fills every block. ``sigma``: the model's noise at the frame's median
     level. ``detail``: the RMS of directional minus bilinear. ``q``: the median over BLOCK x BLOCK blocks of
@@ -594,13 +684,23 @@ def frame_measures(
 
     c = np.asarray(c, dtype=np.float64)
     level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
+    planes = noise is not None and np.asarray(noise).shape == (3, 2)
     if noise is None:
         g, r = estimate_noise(c, pat)
+    elif planes:
+        # One (shot, read) per colour: each block's noise is the mean of its own sensels' variances
+        # (``variance_map``), so a block's red and blue sensels count at their own white-balanced noise.
+        p = as_planes(noise)
+        frac = np.bincount(colour_map(pat, *c.shape).ravel(), minlength=3) / c.size
+        g, r = float(frac @ p[:, 0]), float(frac @ p[:, 1])
     else:
         g, r = float(noise[0]), float(noise[1])
     diff = np.asarray(directional_out, dtype=np.float64) - np.asarray(bilinear, dtype=np.float64)
     det = _block_stat(diff, lambda t: np.sqrt(np.mean(t**2, axis=-1)))
-    noise_b = np.sqrt(np.maximum(g * level + r, 1e-12))
+    if planes:
+        noise_b = np.sqrt(np.maximum(_block_stat(variance_map(c, pat, noise), lambda t: t.mean(axis=-1)), 1e-12))
+    else:
+        noise_b = np.sqrt(np.maximum(g * level + r, 1e-12))
     qb = det / noise_b
     out = {
         "sigma": float(np.sqrt(max(g * float(np.median(level)) + r, 0.0))),
