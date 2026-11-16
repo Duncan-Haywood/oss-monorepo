@@ -203,7 +203,7 @@ export function priceBook(jobs, shop = {}, tiers = DEFAULT_TIERS) {
 // A cell that starts with = + - @ is read as a formula by spreadsheets; a leading apostrophe stops that.
 const csvCell = (v) => {
   let s = String(v);
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

@@ -145,7 +145,7 @@ export function setLeaveOpening(state, person, hours, nowMs) {
   return { ok: true };
 }
 
-const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function leaveCsv(rows, policy, state) {
   const out = [["person", "leave_year", "worked_hours", "earned_hours", "used_hours", "balance_hours", "not_earned_over_caps", "checks"].join(",")];
   for (const r of rows) out.push([q(r.name), r.year, r.workedH.toFixed(2), r.earnedH.toFixed(2), r.usedH.toFixed(2), r.balanceH.toFixed(2), r.notEarnedH.toFixed(2), q(r.flags.join("; "))].join(","));

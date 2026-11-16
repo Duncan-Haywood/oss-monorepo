@@ -175,7 +175,7 @@ function cell(v) {
   let s = v === null || v === undefined ? "" : String(v);
   // A spreadsheet treats a leading = + - @ as a formula. Prefix with a quote
   // so a note someone typed cannot execute when the file is opened.
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
 

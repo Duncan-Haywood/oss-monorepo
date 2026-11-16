@@ -1251,7 +1251,7 @@ export function divisionsStandingsCsv(result) {
   for (const t of result.tables) {
     const rows = standingsCsv(t.rows).trim().split(/\r?\n/);
     if (!lines.length) lines.push(`Division,${rows[0]}`);
-    for (const r of rows.slice(1)) lines.push(`"${(/^[=+\-@\t\r]/.test(t.division) ? "'" + t.division : t.division).replace(/"/g, '""')}",${r}`);
+    for (const r of rows.slice(1)) lines.push(`"${(/^[=+\-@\t\r]/.test(t.division) && !/^-?\d+(\.\d+)?$/.test(t.division) ? "'" + t.division : t.division).replace(/"/g, '""')}",${r}`);
   }
   return lines.join("\r\n") + "\r\n";
 }
