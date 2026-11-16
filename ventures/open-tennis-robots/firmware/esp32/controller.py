@@ -239,6 +239,16 @@ class PeriodTach:
         period = since_us if since_us > mean else mean
         return int(60000000 / period + 0.5)
 
+    def rpm_last(self, since_us):
+        """The speed over the last revolution alone (or the open one, if longer), unaveraged: what `LaunchCheck` reads
+        (2026-11-16), since a ball's drop comes and goes within a few revolutions at low speed and the 4-revolution
+        mean shows only part of it before the Pi re-aims."""
+        if self.count == 0 or since_us > self.stall_us:
+            return 0
+        last = self.periods[(self.i - 1) % len(self.periods)]
+        period = since_us if since_us > last else last
+        return int(60000000 / period + 0.5)
+
 
 class SpinupRamp:
     """Moves a launcher wheel's speed target toward the asked speed at a capped shaft power (2026-11-14).
@@ -777,6 +787,97 @@ class AgitatorRun:
             self.until = None
             return 0.0
         return self.duty
+
+
+def launch_dips(top_rpm, bottom_rpm, inertia, ball_kg, wheel_r, ball_r, speed_eff, spin_eff):
+    """Each launcher wheel's expected speed drop, as a fraction of its own speed, when a ball goes through (2026-11-16).
+
+    Momentum, not energy, so slip and the felt's heat do not enter: the wheels' tangential pushes J_top + J_bottom give
+    the ball its linear momentum m v, and their difference times the ball's radius gives it its spin I_b w_b (I_b =
+    2/3 m r^2, a thin shell). Exit speed and spin come from the launcher's own model (`launcher.WheelLauncher`: v =
+    speed_eff x mean surface speed, w_b = spin_eff x (v_top - v_bottom) / 2r). Wheel i then loses J_i R / I of its
+    angular speed. For a flat shot each wheel drops m speed_eff R^2 / (2 I): 8.8% with the CAD's numbers, at any speed.
+    The faster wheel always drops at least m speed_eff R^2 / (4 I), 4.4%, whatever the spin. A wheel at rest reads 0."""
+    w_t, w_b = top_rpm * math.pi / 30, bottom_rpm * math.pi / 30
+    v = speed_eff * (w_t + w_b) * wheel_r / 2
+    spin = spin_eff * (w_t - w_b) * wheel_r / (2 * ball_r)
+    lin = ball_kg * v
+    rot = (2.0 / 3.0) * ball_kg * ball_r * spin       # I_b w_b / r_b
+    j_t, j_b = (lin + rot) / 2, (lin - rot) / 2
+    return (j_t * wheel_r / inertia / w_t if w_t > 0 else 0.0,
+            j_b * wheel_r / inertia / w_b if w_b > 0 else 0.0)
+
+
+class LaunchCheck:
+    """Did the feed stroke put a ball through the wheels? Read from the launcher wheels' own speed (2026-11-16,
+    firmware/esp32/README.md "Empty hopper").
+
+    A ball squeezed through the wheels takes its momentum from them, and the tachometers see each wheel slow by the
+    fraction `launch_dips` predicts (8.8% on a flat shot). A stroke that carries an empty pocket leaves them steady.
+    So no sensor and no pin is needed to see a dry hopper, which matters because the feeder's ESP32 has no GPIO left
+    (hardware/electronics.md: every exposed pin but UART0's is taken).
+
+    `start(targets, now)` when the shuttle's forward stroke begins (the wheels are held within 3% of target then, or
+    the gate would not have opened); `stroke_done(now)` when it ends; `update(now, rpms)` every control tick returns
+    None while it watches, then once, `check_ms` after the stroke's end, True (a ball went: the wheel with the larger
+    predicted drop fell by at least `share` of its prediction, and by `dip_min` at least) or False (it did not).
+    Wheels both at rest give no verdict (None throughout): nothing could launch a ball. `cancel()` on any stop.
+    Pass the wheels' current targets to `update`: once they differ from the stroke's (the Pi re-aims as soon as it sees
+    the release counted, at the stroke's end), the low readings stop being taken, so the next shot's slower speed or the
+    drill's final stop cannot pass for a ball. The ball meets the wheels about 0.14 s before the stroke ends (cad: 0.76
+    s of the 0.9 s GATE_OUT_MS), and the Pi's re-aim comes after the end, so the drop it makes is always in the window."""
+
+    def __init__(self, inertia, ball_kg, wheel_r, ball_r, speed_eff, spin_eff, share=0.25, dip_min=0.015, check_ms=250):
+        self.model = (inertia, ball_kg, wheel_r, ball_r, speed_eff, spin_eff)
+        self.share, self.dip_min, self.check_ms = share, dip_min, check_ms
+        self.targets = None
+        self.until = None
+        self.low = [0.0, 0.0]
+        self.frozen = False
+        self.last_dip = None          # the measured drop of the judged wheel at the last verdict, for the README's sweep
+
+    def cancel(self):
+        self.targets = None
+        self.until = None
+
+    def start(self, targets, now_ms):
+        self.targets = (targets[0], targets[1])
+        self.low = [float(targets[0]), float(targets[1])]
+        self.until = None
+        self.frozen = False
+
+    def stroke_done(self, now_ms):
+        if self.targets is not None:
+            self.until = now_ms + self.check_ms
+
+    def threshold(self, targets=None):
+        """(wheel index, smallest fractional drop that counts as a launch), or None when neither wheel turns."""
+        t = self.targets if targets is None else targets
+        dips = launch_dips(t[0], t[1], *self.model)
+        i = 0 if dips[0] >= dips[1] else 1
+        if t[i] <= 0:
+            return None
+        return i, max(self.dip_min, self.share * dips[i])
+
+    def update(self, now_ms, rpms, targets=None):
+        if self.targets is None:
+            return None
+        if targets is not None and (targets[0], targets[1]) != self.targets:
+            self.frozen = True
+        if not self.frozen:
+            for i in (0, 1):
+                if rpms[i] < self.low[i]:
+                    self.low[i] = rpms[i]
+        if self.until is None or now_ms < self.until:
+            return None
+        th = self.threshold()
+        targets, low = self.targets, self.low
+        self.cancel()
+        if th is None:
+            return None
+        i, need = th
+        self.last_dip = 1.0 - low[i] / targets[i]
+        return self.last_dip >= need
 
 
 class PowerGate:

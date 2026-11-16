@@ -4,6 +4,12 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it reports
+
+- Shadowed rules: earlier rules a later, broader rule overrides for every listed file (last match wins).
+- Unmatched rules (matched none of the listed files) and uncovered files (no rule at all).
+- Syntax errors: owners that are not @user, @org/team or an email, and the gitignore syntax GitHub says does not work in CODEOWNERS (`!` negation, `[ ]` ranges, `\#` escapes).
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/codeowners-shadow-check/)

@@ -6,7 +6,8 @@ Five posts shipped without `tags` (2026-10-24 and 2026-10-26) and nothing
 noticed, because no check read post front matter. Also checks that `date`
 matches the filename's date prefix, is not in the future (77 posts were dated
 up to three weeks ahead on 2026-10-25, so they topped the feed and carried a
-false `datePublished`) and that `tags` is a non-empty list.
+false `datePublished`), that `tags` is a non-empty list, and that the body
+never holds the literal placeholder origin the site check refuses.
 
     python3 platform/ci/check_post_frontmatter.py [--root DIR]   # exit 1 if any
     python3 platform/ci/check_post_frontmatter.py docs/posts/NEW.md   # just these
@@ -58,6 +59,7 @@ REQUIRED = ("title", "date", "description", "tags")
 # hook refused a first draft (nine run records on 2026-11-12 alone).
 LIMITS = {"title": 110, "description": 160, "seo_title": 70}
 MIN_DESCRIPTION = 60
+PLACEHOLDER = "https://example.invalid"  # platform/pages/check.mjs PLACEHOLDER_ORIGIN
 
 
 def limits_line():
@@ -105,6 +107,14 @@ def problems(name, text, today=None):
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")
+    # platform/pages/check.mjs fails the whole site build on any served file
+    # holding the placeholder origin, and the build rewrites it only in venture
+    # files, never in posts: one run met it after a 7-minute local workflow
+    # (run record for PR #16380, 2026-11-15). Code spans and fences count too.
+    if PLACEHOLDER in text:
+        n = text[:text.index(PLACEHOLDER)].count("\n") + 1
+        out.append(f"line {n} holds `{PLACEHOLDER}`, which fails the site build (check.mjs); "
+                   "write the bare host `example.invalid` or the real https://marisstella.app/")
     return out
 
 

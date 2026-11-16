@@ -19,11 +19,17 @@ export const COUNTRY_CODES = new Set([
   "SH", "LC", "ST", "SN", "RS", "SC", "SL", "SG", "SY", "SO", "LK", "SZ", "ZA", "SD", "SS", "SE", "CH", "SR", "TH", "TW", "TZ", "TJ", "PS", "TF",
   "TL", "TG", "TK", "TO", "TT", "TN", "TC", "TM", "TR", "TV", "UA", "UG", "UY", "UZ", "VU", "VA", "VE", "VN", "VG", "VI", "WF", "YE", "DJ", "ZM",
   "ZW", "QU", "XB", "XU", "XN",
+  // RE (Réunion) is in the later schema (see REGIME_CODES), after RU.
+  "RE",
 ]);
 // ImpuestoType: 01 IVA, 02 IPSI (Ceuta, Melilla), 03 IGIC (Canary Islands), 05 other.
 export const TAX_CODES = new Set(["01", "02", "03", "05"]);
 // IdOperacionesTrascendenciaTributariaType: the ClaveRegimen values.
-export const REGIME_CODES = new Set(["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "14", "15", "17", "18", "19", "20"]);
+// 21 (IGIC simplified regime) was added after tikeV1.0's first release: the AEAT's validation
+// document adds it in v1.1.2 (15 July 2025, rule 15.6.11), and the later schema (SHA-1 blob
+// 4f1dff055944561b500db64d4a31921ae15a31d4, kept by eloi24/verifactu-sdk, MIT, and five other
+// projects) lists it, with RE (Réunion) in CountryType2; no other list changed.
+export const REGIME_CODES = new Set(["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "14", "15", "17", "18", "19", "20", "21"]);
 // PersonaFisicaJuridicaIDTypeType: the IDOtro IDType values.
 export const ID_TYPES = new Set(["02", "03", "04", "05", "06", "07"]);
 // GeneradoPorType: E (the issuer), D (the recipient), T (a third party).

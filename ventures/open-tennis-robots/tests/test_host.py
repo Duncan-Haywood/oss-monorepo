@@ -764,3 +764,108 @@ class LiftJamTest(unittest.TestCase):
         self.assertGreater(cm["f_sliding_hz"], 10 * cm["f_stuck_hz"])
         stiffer = type(p)(lift_coupler_k_nm_rad=4 * p.lift_coupler_k_nm_rad).lift_coupler_model()
         self.assertAlmostEqual(stiffer["f_stuck_hz"], 2 * cm["f_stuck_hz"], places=6)
+
+
+class EmptyHopperTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "Empty hopper": a feed stroke is judged by the launcher wheels' speed drop
+    (controller.LaunchCheck), because the feeder's ESP32 has no pin left for a sensor; the runner stops on the first
+    dry stroke and names it."""
+
+    def _model(self):
+        import config
+        return (config.WHEEL_INERTIA_KGM2, config.BALL_KG, config.WHEEL_RADIUS_M, config.BALL_RADIUS_M,
+                config.LAUNCH_SPEED_EFF, config.LAUNCH_SPIN_EFF)
+
+    def test_config_matches_the_cad_and_the_launcher_model(self):
+        import config
+        from tennisbots import ballistics, launcher
+        p = _feeder()
+        lm = launcher.WheelLauncher()
+        self.assertAlmostEqual(config.BALL_KG, p.ball_g / 1000)
+        self.assertAlmostEqual(config.WHEEL_RADIUS_M, p.wheel_head_d / 2000)
+        self.assertAlmostEqual(config.WHEEL_RADIUS_M, lm.wheel_radius)
+        self.assertAlmostEqual(config.BALL_RADIUS_M, ballistics.DEFAULT_BALL.radius)
+        self.assertEqual((config.LAUNCH_SPEED_EFF, config.LAUNCH_SPIN_EFF), (lm.speed_efficiency, lm.spin_efficiency))
+        # the verdict must land before the back stroke ends, so it never overlaps the next forward stroke
+        self.assertLess(config.LAUNCH_CHECK_MS, config.GATE_BACK_MS)
+
+    def test_flat_shot_drop_and_the_faster_wheels_floor(self):
+        inertia, m, r_w = self._model()[:3]
+        eff = self._model()[4]
+        flat = m * eff * r_w ** 2 / (2 * inertia)
+        self.assertAlmostEqual(flat, 0.088, delta=0.001)              # 8.8% with the CAD's numbers
+        for rpm in (1000, 3000, 7000):
+            top, bottom = controller.launch_dips(rpm, rpm, *self._model())
+            self.assertAlmostEqual(top, flat, places=9)                 # the same fraction at any speed
+            self.assertAlmostEqual(bottom, flat, places=9)
+        for top_rpm, bottom_rpm in ((7000, 0), (6000, 1500), (1500, 6000), (4000, 3500)):
+            d = controller.launch_dips(top_rpm, bottom_rpm, *self._model())
+            fast = 0 if top_rpm >= bottom_rpm else 1
+            self.assertGreaterEqual(d[fast], flat / 2 - 1e-12)          # whatever the spin
+        self.assertEqual(controller.launch_dips(5000, 0, *self._model())[1], 0.0)
+
+    def test_check_judges_freezes_on_a_new_target_and_cancels(self):
+        chk = controller.LaunchCheck(*self._model())
+        _, need = chk.threshold((4000, 4000))
+        self.assertAlmostEqual(need, 0.25 * 0.088, delta=0.001)
+        chk.start((4000, 4000), 0)
+        self.assertIsNone(chk.update(500, (3990, 4005), (4000, 4000)))
+        chk.stroke_done(900)
+        self.assertIsNone(chk.update(1000, (3700, 3800), (4000, 4000)))  # a ball: 7.5% drop
+        self.assertIs(chk.update(1150, (3950, 3960), (4000, 4000)), True)
+        self.assertAlmostEqual(chk.last_dip, 0.075)
+        chk.start((4000, 4000), 2000)
+        chk.stroke_done(2900)
+        self.assertIsNone(chk.update(2950, (3990, 3995), (4000, 4000)))
+        self.assertIsNone(chk.update(3000, (0, 0), (0, 0)))              # the Pi's stop: not taken as a ball
+        self.assertIs(chk.update(3150, (0, 0), (0, 0)), False)
+        chk.start((4000, 4000), 4000)
+        chk.cancel()                                                     # an e-stop mid-stroke
+        self.assertIsNone(chk.update(9999, (0, 0), (4000, 4000)))
+        chk.start((0, 0), 5000)
+        chk.stroke_done(5900)
+        self.assertIsNone(chk.update(6200, (0, 0), (0, 0)))              # wheels at rest: no verdict
+
+    def test_drill_runs_while_balls_last(self):
+        sim = SimFeeder(balls=3)                       # the pocket's ball and three behind it: exactly four
+        res, _ = run(sim, drill())
+        self.assertTrue(res.ok, res.aborted)
+        self.assertEqual(len(sim.released), 4)
+        self.assertEqual((sim.hw.launches, sim.hw.dry_strokes), (4, 0))
+        self.assertFalse(sim.hw.flags() & P.FLAG_HOPPER_EMPTY)
+
+    def test_dry_stroke_stops_the_drill_and_names_the_shot(self):
+        sim = SimFeeder(balls=1)                       # two balls for a four-shot drill
+        logs = []
+        res, _ = run(sim, drill(), log=logs.append)
+        self.assertFalse(res.ok)
+        self.assertEqual(res.dry_shot, 2)
+        self.assertIn("hopper empty", res.aborted)
+        self.assertIn("(2 shots flew)", res.aborted)
+        self.assertEqual(len(res.shots), 2)            # the dry stroke is not reported as a shot
+        self.assertEqual(len(sim.released), 2)
+        self.assertEqual(sim.hw.dry_strokes, 1)        # stopped at the first dry stroke, not a release timeout later
+        sim.run_ms(50)
+        self.assertFalse(sim.ctl.estop)                # not a fault: the e-stop is not latched
+        self.assertEqual(sim.hw.target_rpm, (0, 0))
+        # refill and go again: the stale flag does not stop the next run before it feeds, and a FEED clears it
+        sim.balls = 10
+        sim.loaded = True
+        self.assertTrue(sim.hw.flags() & P.FLAG_HOPPER_EMPTY)
+        res2, _ = run(sim, drill())
+        self.assertTrue(res2.ok, res2.aborted)
+        self.assertFalse(sim.hw.flags() & P.FLAG_HOPPER_EMPTY)
+
+    def test_the_last_shot_dry_is_caught_too(self):
+        sim = SimFeeder(balls=2)
+        res, _ = run(sim, drill())
+        self.assertEqual(res.dry_shot, 3)              # caught by the wait for the last shot's verdict
+
+    def test_sweep_corners_separate(self):
+        # tests/launch_check_sweep.py's worst corners (README "Empty hopper"): a wheel 1.5x heavier than config.py's,
+        # a ball taking 60% of the modelled momentum, the fastest wheel lag; and the noisiest dry case
+        import launch_check_sweep as sweep
+        lo, _, _, _ = sweep.run_case(1.5, 0.6, 0.2)
+        self.assertGreaterEqual(lo, 1.0)
+        _, hi, _, _ = sweep.run_case(1.0, 0.6, 0.8)
+        self.assertLess(hi, 0.5)

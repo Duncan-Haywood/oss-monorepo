@@ -43,7 +43,8 @@ FORMATS = {
 FLAG_ESTOP = 1
 FLAG_WATCHDOG = 2       # stopped because heartbeats stopped
 FLAG_BUMPER = 4
-FLAG_HOPPER_EMPTY = 8
+FLAG_HOPPER_EMPTY = 8     # feeder: the last feed stroke put no ball through the wheels (their speed did not drop: an empty
+                          # pocket, so an empty tub, a bridged outlet or a stuck ball); cleared by the next FEED (2026-11-16)
 FLAG_HOPPER_FULL = 16
 FLAG_LOW_BATTERY = 32
 FLAG_AZ_UNHOMED = 64     # azimuth stepper has no position yet (homing, or lost after an abrupt stop)

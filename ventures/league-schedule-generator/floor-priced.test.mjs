@@ -183,11 +183,15 @@ test("carryOverFloorPriced runs at up to 28 teams in the page, not at 29 (README
 });
 
 test("bestCarryOverRounds keeps its choice with floor-priced seasons, and buildSchedule rebuilds a kept one", async () => {
-  const { bestCarryOverRounds, carryOverKeepText } = await import("./carryover.mjs");
+  const { bestCarryOverRounds, carryOverKeepText, combineCarryOverTries } = await import("./carryover.mjs");
   const { buildSchedule, readSpec, validateSchedule } = await import("./calc.mjs");
   const n = 10, opts = { seed: 1, tries: 4, capped: 2, gap: 2 };
-  const plain = bestCarryOverRounds(n, opts);
   const withF = bestCarryOverRounds(n, { ...opts, floorPriced: 2 });
+  // the plain search is the same 4 + 2 + 2 tries, combined among the first 4 + 2 (bestCarryOverRounds'
+  // last line at pick 10): searched once here instead of a second full run of the same eight tries
+  const searchedTries = Array.from({ length: 8 }, (_, i) => carryOverTry(n, i, { double: false, seed: 1, weights: [10, 20, 40, 80], effort: 1, weighted: 4 }));
+  const plain = combineCarryOverTries(searchedTries, 10, { among: 6 });
+  assert.deepEqual(withF.tries.slice(0, plain.tries.length), plain.tries, "floor-priced seasons come after the same tries");
   assert.equal(withF.chosen, plain.chosen);
   assert.deepEqual(withF.rounds, plain.rounds);
   assert.throws(() => bestCarryOverRounds(n, { ...opts, floorPriced: -1 }), /floorPriced/);
