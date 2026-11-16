@@ -216,7 +216,7 @@ export function expectedRead(ph) {
 // keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
 // /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
 // 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
-export const LOCAL_REF = { from: 6, to: 24, cap: 20 };
+export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
@@ -261,7 +261,8 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   const closed = (f) => f.lvl - f.up < -22 && f.loRel - f.up < -12 && !noisy(f) && !vnoisy(f);
   // a coda's nasal must be a deeper murmur than an opening's: a vowel fading into its release also
   // loses its upper formants first (they ring for less time), by 5 to 12 dB
-  const nasal = (f) => f.loRel - f.up >= -15 && f.lvl - f.up < -5 && f.lvl - f.up > -25 && f.hiRel < f.loRel - 15;
+  const nu = (f) => (localRef && (localRef === true ? LOCAL_REF : localRef).nasal ? f.up : 0);
+  const nasal = (f) => f.loRel - nu(f) >= -15 && f.lvl - nu(f) < -5 && f.lvl - nu(f) > -25 && f.hiRel < f.loRel - 15;
   // a tap: a brief dip, 12 dB or more under the vowel and under 30 ms at its deepest, with frames
   // 10 dB louder within 40 ms on both sides (a final r hums on after it). Searched locally: the
   // quietest frame of the window is the release's fade. After a dark vowel (/u/, /o/) the r's own
