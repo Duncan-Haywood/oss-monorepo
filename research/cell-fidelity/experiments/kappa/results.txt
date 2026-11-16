@@ -1,0 +1,17 @@
+cell-fidelity milestone 5zf: 5zd's eta-window law with kappa = 25.3 /V (5zd), kappa = 0 (zero), and kappa
+estimated per design from cycles 2..10 (fit: R_kappa most nearly a line in n; slope: log per-cycle plating on the
+lever). DFN (SEI + plating) to cycle 100, fresh Sobol designs (seed 24); median |ln(L_pred(99) / L_DFN(99))|;
+kappa in /V, medians [q25, q75]; k* = oracle kappa making the cycle-99 forecast exact (not a forecast);
+rho = Spearman(k_fit, k*); du10 = median lever rise over cycles 2..10 in mV
+
+condition               n drop    5zd   zero    fit  slope sgn 5zd wins  k_fit  [q25  q75] kedge     k*  [q25  q75] edge    rho  du10
+Ai2020@0.5875x         32    0  0.081  0.273  0.090  0.092  -0.059   10   21.2  19.0  26.1     3   20.4  17.3  33.3    0 -0.126   6.5
+NCA_Kim2011@0.71875x   32    0  0.019  0.386  0.054  0.054  -0.018   10   29.2  23.6  38.6     0   22.9  22.2  25.9    0  0.721  46.1
+Chen2020@1.34375x      32    0  0.099  0.258  0.127  0.127  +0.081   13  100.0  68.9 100.0    21   45.4  29.7  65.4    0  0.083   0.7
+OKane2022@1.40625x     32    0  0.059  0.251  0.122  0.090  +0.039   12   47.9  14.7  97.5    13   31.7  23.9  47.7    0  0.589   0.6
+
+H167 (LG M50: lever rise under 2 mV in ten cycles, k_fit IQR over 40 /V or a quarter at a bound, both): supported
+H168 (the ten-cycle kappa forecasts worse than 25.3 on both controls): supported
+H169 (LG M50 oracle k* above 25.3 on both, above 30 on at least one): supported
+H170 (controls' oracle k* within [17, 28] /V on both): supported
+H171 (k_fit tracks k* on NCA_Kim2011, rho >= 0.6, and not on LG M50, rho < 0.6 on both): supported

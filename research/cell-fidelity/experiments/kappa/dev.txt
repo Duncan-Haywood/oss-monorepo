@@ -1,0 +1,24 @@
+cell-fidelity milestone 5zf dev (seen): the 512 committed designs of 5zb to 5ze. 5zd's eta-window law with
+kappa = 25.3 /V (eta), kappa = 0 (zero), and two ten-cycle estimates of kappa per design: fit (R_kappa most
+nearly a line in n over cycles 2..10) and slope (log per-cycle plating against the lever, cycles 3..10).
+Median |ln(L_pred(99) / L_DFN(99))|; kappa medians in /V with [q25, q75]; k* = oracle kappa that makes the
+cycle-99 forecast exact (not a forecast); kedge, edge = k_fit, k* designs at 0 or KMAX; rho = Spearman(k_fit, k*);
+du10 = median rise of the lever over cycles 2..10 in mV.
+
+pool                                 n    eta   zero    fit  slope wins  k_fit  [q25  q75] kedge k_slope     k*  [q25  q75] edge    rho  du10
+asym/Ai2020@0.6125x                 32  0.063  0.292  0.090  0.081   10   21.0  17.3  32.8     2    20.9   23.4  17.8  30.5    0  0.163   7.1
+asym/Chen2020@1.28125x              32  0.109  0.264  0.105  0.104   17   97.7  39.6 100.0    16    95.0   57.1  39.1  68.0    0 -0.307   1.4
+asym/NCA_Kim2011@0.5625x            32  0.023  0.374  0.059  0.059    7   30.1  26.9  34.2     0    30.3   22.4  21.3  23.4    0  0.782  47.3
+asym/OKane2022@1.3125x              32  0.095  0.257  0.077  0.073   16   63.9  35.8  93.3     9    33.5   44.6  30.4  62.5    0  0.339   0.8
+consistent/Ai2020@0.575x            32  0.076  0.279  0.104  0.100    9   23.2  17.7  32.4     1    22.8   19.8  18.2  27.7    0 -0.062   6.8
+consistent/Chen2020@1.3125x         32  0.104  0.259  0.090  0.091   18   93.8  50.8 100.0    18    93.5   53.3  35.3  71.4    1  0.048   1.0
+consistent/NCA_Kim2011@0.8125x      32  0.020  0.414  0.065  0.066    4   33.4  25.0  38.6     0    34.0   24.0  22.6  25.4    0  0.850  39.1
+consistent/OKane2022@1.4375x        32  0.064  0.250  0.151  0.120   11   30.6   4.2  87.7    14    15.2   32.9  21.7  42.7    1  0.551   0.6
+kinetic/Ai2020@0.65x                32  0.065  0.279  0.088  0.083   14   19.8  16.3  23.8     2    19.2   24.9  18.1  31.1    0  0.161   7.9
+kinetic/Chen2020@1.25x              32  0.102  0.254  0.122  0.122   12   95.0  27.0 100.0    17    94.8   52.9  41.7  72.3    0 -0.149   0.7
+kinetic/NCA_Kim2011@0.5x            32  0.029  0.342  0.057  0.058    7   29.0  25.9  33.9     0    29.1   21.3  20.6  22.9    0  0.772  52.1
+kinetic/OKane2022@1.25x             32  0.097  0.251  0.077  0.082   19   53.1  37.0  93.7     9    36.1   49.0  39.6  65.8    0  0.041   1.3
+loaded/Ai2020@0.525x                32  0.065  0.280  0.135  0.144    4   26.1  19.9  36.8     2    25.7   19.9  17.1  27.8    0 -0.044   5.8
+loaded/Chen2020@1.375x              32  0.080  0.267  0.148  0.148   12  100.0  83.5 100.0    22   100.0   32.9  25.5  66.8    0  0.319   0.5
+loaded/NCA_Kim2011@0.6875x          32  0.018  0.384  0.057  0.057    8   30.3  24.3  39.7     0    30.4   23.2  22.1  25.9    0  0.721  46.2
+loaded/OKane2022@1.375x             32  0.071  0.260  0.090  0.060   15   58.4  34.0  94.6     9    25.8   29.9  25.0  54.3    0  0.528   0.7
