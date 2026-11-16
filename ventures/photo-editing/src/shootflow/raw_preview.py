@@ -25,7 +25,12 @@ import mmap
 import struct
 from pathlib import Path
 
-RAW_EXTENSIONS = frozenset({".arw", ".cr2", ".cr3", ".dng", ".nef", ".orf", ".pef", ".raf", ".rw2", ".srw"})
+# Every raw format a card holds (``ingest.RAW_PHOTO_EXTENSIONS``, kept equal by a test):
+# cull reads each one's embedded preview. Only the formats below with a reader develop.
+RAW_EXTENSIONS = frozenset(
+    {".3fr", ".arw", ".cr2", ".cr3", ".crw", ".dcr", ".dng", ".erf", ".fff", ".gpr", ".iiq", ".kdc", ".mef", ".mos",
+     ".mrw", ".nef", ".nrw", ".orf", ".pef", ".raf", ".raw", ".rw2", ".rwl", ".sr2", ".srf", ".srw", ".x3f"}
+)
 MIN_PREVIEW_PIXELS = 160 * 120
 _SOI = b"\xff\xd8\xff"
 _SOF = frozenset(set(range(0xC0, 0xD0)) - {0xC4, 0xC8, 0xCC})
@@ -67,7 +72,11 @@ def is_orf_path(path: Path) -> bool:
 
 
 def is_rw2_path(path: Path) -> bool:
-    return path.suffix.lower() == ".rw2"
+    """Panasonic RW2, and Leica's RWL: the D-LUX, V-LUX and C-LUX are Lumix bodies and
+    write the same file (two real RWLs read sensel for sensel as LibRaw does,
+    eval/leica-rwl-and-card-formats-2026-11-16.md)."""
+
+    return path.suffix.lower() in (".rw2", ".rwl")
 
 
 def is_srw_path(path: Path) -> bool:

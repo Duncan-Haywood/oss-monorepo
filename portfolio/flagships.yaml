@@ -287,11 +287,13 @@ flagships:
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans; compressed 2026-11-15, eval/fujifilm-*)
       read directly since 2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from
-      maker notes (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15. Bayer
-      and X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*).
-      NEF edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
-      (eval/nikon-nef-*). Next: an RW2 RawFormat 8 with a tone curve (0x39/0x3A);
-      Sony's vignetting table vs an evenly lit frame; a real DNG and a
+      maker notes (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15; Leica
+      RWL, and a card copy that keeps all 27 raw formats, 2026-11-16. Bayer and
+      X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
+      edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
+      (eval/nikon-nef-*). Next: a Coolpix NRW or Canon CRW reader (copied, not
+      developed); an RW2 RawFormat 8 with a tone curve (0x39/0x3A); Sony's
+      vignetting table vs an evenly lit frame; a real DNG and a
       vignetting-calibrated lens through the pipeline's lens stage; a real evenly
       lit frame shot wide open (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
@@ -302,10 +304,8 @@ flagships:
       (eval/opcode-quality-flag-*); a real DNG with opcode flag bit 1 set; a phone
       DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
       chart to say which colour model is closer (the 70D frame, 4,700 K and
-      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
-      Adobe render of a known frame (settles `--default-tone-curve always`); a real
-      shoot's picks through the blink detector (eval/blink-landmarker-*). More open
-      items: NEXT.md.
+      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix).
+      More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
