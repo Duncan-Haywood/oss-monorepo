@@ -343,6 +343,7 @@ ventures/duct-cleaning-bid-calculator/usage.mjs
 ventures/dumpster-rental-margin-calculator/usage.mjs
 ventures/dunning-engine/usage.mjs
 ventures/dupehound/usage.mjs
+ventures/dynamic-time-warping/usage.mjs
 ventures/dynamodb-capacity-mode-advisor/usage.mjs
 ventures/eaa-accessibility-act-checker/usage.mjs
 ventures/early-pay-discount-picker/usage.mjs

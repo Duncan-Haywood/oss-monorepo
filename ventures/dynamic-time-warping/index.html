@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2337306b'/%3E%3Cpath%20d='M3%2020%20Q9%204%2015%2020'%20stroke='%23fff'%20stroke-width='3'%20fill='none'/%3E%3Cpath%20d='M13%2024%20Q21%208%2029%2024'%20stroke='%23f2a93b'%20stroke-width='3'%20fill='none'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dynamic Time Warping Calculator — align two time series, free DTW online</title>
+  <meta name="description" content="Free online dynamic time warping (DTW) calculator. Paste a CSV with one series per column and get the DTW distance, the alignment path, and for every point how far one series runs ahead of or behind the other, with level differences and peaks flagged. Sakoe-Chiba band, Itakura window, three step patterns, subsequence search and a distance matrix. Checked against dtw-python. Runs in your browser.">
+  <meta property="og:title" content="Dynamic time warping in your browser: how alike are two series once timing can stretch, and where is one ahead?">
+  <meta property="og:description" content="DTW distance, alignment path and a lag profile that says which gaps are timing and which are level, plus subsequence search and a distance matrix. Checked against dtw-python on 126 cases.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Dynamic Time Warping: align two time series in a CSV", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a CSV with one series per column. Computes the dynamic time warping distance and alignment path (Sakoe & Chiba 1978) with a band or Itakura window and the symmetric1, symmetric2 or asymmetric step pattern, a lag profile that reads each point as timing, level or a hop across a peak, a distance matrix between every pair of columns, and open-begin, open-end subsequence search. Checked against dtw-python. Runs in your browser.", "featureList": "dynamic time warping calculator, DTW distance, alignment path, Sakoe-Chiba band, Itakura parallelogram, step patterns, subsequence DTW, pattern search in a time series, lag between two series, distance matrix, z-normalisation, CSV upload, CSV download", "citation": ["https://doi.org/10.1109/TASSP.1978.1163055", "https://doi.org/10.1109/TASSP.1975.1162641", "https://doi.org/10.18637/jss.v031.i07", "https://doi.org/10.1016/j.artmed.2008.11.007", "https://doi.org/10.1007/978-3-540-74048-3"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is dynamic time warping?", "acceptedAnswer": {"@type": "Answer", "text": "It is a way to compare two series that may run at different speeds. Instead of matching the first point with the first, the second with the second and so on, it lets one series stretch or squeeze in time and finds the matching of points, always moving forward, that makes the two as close as possible. The total difference along that best matching is the DTW distance."}}, {"@type": "Question", "name": "How do I read the lag?", "acceptedAnswer": {"@type": "Answer", "text": "For each point of the first series, the lag is how many rows later the second series reaches the matched value. A lag of -14 in April means the second series reaches April's value of the first series 14 rows earlier. Lags are only a delay where the tool reads the gap as timing; where it says level or turn, the lag is not a delay."}}, {"@type": "Question", "name": "What do timing, level and turn mean?", "acceptedAnswer": {"@type": "Answer", "text": "Timing means warping closes at least half of the gap at that point, so the difference there is when, not how much. Level means warping cannot close the gap, so one series is simply higher. Turn means the point sits near a peak or trough, where the same value occurs on both sides, so the warp can hop across and the lag says nothing about delay."}}, {"@type": "Question", "name": "Which window should I use?", "acceptedAnswer": {"@type": "Answer", "text": "A band around the diagonal (Sakoe and Chiba) is the usual choice: it stops the warp from matching points that are implausibly far apart in time, and it is faster. Set it to the largest shift you think is real. If the path runs along the edge of the band, the tool says so, and the band is probably too narrow. The Itakura window limits the slope instead, between one half and two."}}, {"@type": "Question", "name": "Should I z-normalise?", "acceptedAnswer": {"@type": "Answer", "text": "Yes when you care about shape and not level, for example comparing the daily pattern of two shops of different size. No when the level is part of the question, for example when one period is warmer than another and you want to know how many days earlier a temperature now arrives."}}, {"@type": "Question", "name": "How does the pattern search work?", "acceptedAnswer": {"@type": "Answer", "text": "Put the short pattern in one column and the long series in another and choose subsequence mode. The pattern may start and end anywhere in the long series, and may be stretched up to twice its length or squeezed to half. One pass finds the cheapest match ending at every point; the tool then lists the best matches that do not overlap."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and aligned by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d1b2f; background: #f3f2f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #3d3480; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2a2459; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2a2459; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #514d66; }
+    .card { background: #fff; border: 1px solid #d9d6e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2a245910; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin: 0 6px 0 0; }
+    label.check { display: inline-flex; align-items: center; font-weight: 500; margin-top: 38px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } label.check { margin-top: 12px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3d3480; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e9e6f5; color: #2a2459; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe9f3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #514d66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d6e8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f4f2fa; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #2a2459; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #514d66; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f5f4fa; border: 1px solid #e0ddec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DYNAMIC TIME WARPING · DTW DISTANCE · ALIGNMENT PATH · LAG PROFILE · PATTERN SEARCH · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How alike are these two series once timing can stretch, and where is one ahead of the other?</h1>
+    <p>Paste a table with one series per column: two seasons, two sensors, two patients' gait cycles, this year's sales curve and last year's. <strong>Dynamic time warping</strong> (Sakoe &amp; Chiba 1978) lets one series run faster or slower than the other and finds the best way to line them up. You get the DTW distance, how much of the point-for-point difference the warp removes, and for every point a <strong>lag</strong>: how far the second series runs ahead or behind. Each point is read as <em>timing</em>, <em>level</em> or a <em>hop across a peak</em>, so a lag is only called a delay where it is one. Put a short pattern in one column and a long series in another to <strong>search</strong> for where the pattern recurs.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row, one series per numeric column and one row per time step (comma, tab or semicolon separated)</label>
+    <textarea id="csv" spellcheck="false" placeholder="day,store_a,store_b&#10;Mon,120,95&#10;Tue,135,101&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: Central Park's normal daily high, 1871-1900 against 1991-2020 (NOAA)</button>
+    <p class="note" id="data-status">A text column, such as a date, names the rows. Blank cells at the ends of a column are dropped; blank cells inside it are filled by straight lines.</p>
+
+    <div class="grid">
+      <div><label for="mode">What to do</label><select id="mode"><option value="pair">Align two series</option><option value="subsequence">Find a short pattern in a long series</option></select></div>
+      <div><label for="col-a" id="label-a">First series (A)</label><select id="col-a"></select></div>
+      <div><label for="col-b" id="label-b">Second series (B)</label><select id="col-b"></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="step">Step pattern</label><select id="step"><option value="symmetric2">symmetric2: per-step distance (usual)</option><option value="symmetric1">symmetric1: plain sum</option><option value="asymmetric">asymmetric: per point of A</option></select></div>
+      <div><label for="window-type">Window</label><select id="window-type"><option value="band">Band around the diagonal</option><option value="itakura">Itakura parallelogram</option><option value="none">None (any warp)</option></select></div>
+      <div><label for="window">Band half-width in rows (blank: 10% of the length)</label><input id="window" type="number" min="0" step="1" placeholder="auto"></div>
+      <div><label for="dist">Difference between two points</label><select id="dist"><option value="abs">Absolute |a - b|</option><option value="squared">Squared (a - b)²</option></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="smooth">Smooth first: moving average over ± rows</label><input id="smooth" type="number" min="0" step="1" value="0"></div>
+      <div><label for="matches">Pattern search: matches to list</label><input id="matches" type="number" min="1" max="50" step="1" value="5"></div>
+      <div><label class="check" for="znorm"><input id="znorm" type="checkbox">Z-normalise (compare shape, not level)</label></div>
+    </div>
+    <button type="button" id="analyze">Align</button>
+    <span class="note" id="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="notes"></div>
+    <div class="stats" id="stats"></div>
+
+    <div id="pair-out">
+      <h3>The two series, with matched points joined</h3>
+      <p class="note"><span class="key" style="background:#3d3480"></span>A <span class="key" style="background:#d9822b"></span>B · grey lines join a sample of matched points.</p>
+      <div id="overlay"></div>
+
+      <h3>Lag of B against A, at each point of A</h3>
+      <p class="note">Below zero: B reaches A's value earlier. <span class="key" style="background:#2f7d4a"></span>timing <span class="key" style="background:#9a98b0"></span>turn (hop across a peak or trough) <span class="key" style="background:#c0392b"></span>level <span class="key" style="background:#d6d4e2"></span>no real gap</p>
+      <div id="lag"></div>
+
+      <h3>By stretch of A</h3>
+      <div class="scroll"><table id="segments"></table></div>
+      <p class="note">Timing lag: mean lag over the points read as timing. Gap: |A − B| at the same row. Left: what is left of it after warping.</p>
+
+      <h3>The warping path</h3>
+      <p class="note">Row of A across, row of B up. On the diagonal the two run in step; above it B is behind, below it B is ahead. Dashed lines: the window.</p>
+      <div id="path"></div>
+    </div>
+
+    <div id="sub-out" hidden>
+      <h3>Where the pattern recurs</h3>
+      <p class="note"><span class="key" style="background:#d9822b"></span>the long series <span class="key" style="background:#3d3480"></span>matches, numbered by rank (1 is closest)</p>
+      <div id="sub-chart"></div>
+      <div class="scroll"><table id="sub-table"></table></div>
+    </div>
+
+    <div id="matrix-out">
+      <h3>DTW distance between every pair of columns</h3>
+      <div class="scroll"><table id="matrix"></table></div>
+    </div>
+    <button type="button" class="secondary" id="download">Download the alignment (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Example: spring now comes earlier to Central Park, and autumn stays later</h2>
+    <p>The example is the normal daily high at New York's Central Park for each day of the year, averaged over five 30-year periods (NOAA GHCN-Daily, public domain). Aligning 1871-1900 with 1991-2020, smoothed over ± 15 days with the default band of 37 days, the warp removes 85% of the point-for-point difference. From March through June the recent curve runs ahead: the high that 1871-1900 reached in early April, 1991-2020 reaches 14 days earlier, and in March 23 days earlier. From August through November it runs behind: October's old normal now comes 7 to 8 days later. Midwinter is read as a level difference (no shift explains it) and part of July as a hop across the summer peak, so neither is called a delay. With no smoothing, or ± 7 days, April's lag stays between 14 and 16 days.</p>
+    <p class="note">This is the station's record as kept, which includes urban growth around the park and changes of instrument and site since the 1870s, not a pure measure of climate change.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is dynamic time warping?</h3>
+    <p>It is a way to compare two series that may run at different speeds. Instead of matching the first point with the first, the second with the second and so on, it lets one series stretch or squeeze in time and finds the matching of points, always moving forward, that makes the two as close as possible. The total difference along that best matching is the DTW distance.</p>
+    <h3>How do I read the lag?</h3>
+    <p>For each point of the first series, the lag is how many rows later the second series reaches the matched value. A lag of -14 in April means the second series reaches April's value of the first series 14 rows earlier. Lags are only a delay where the tool reads the gap as timing; where it says level or turn, the lag is not a delay.</p>
+    <h3>What do timing, level and turn mean?</h3>
+    <p>Timing means warping closes at least half of the gap at that point, so the difference there is when, not how much. Level means warping cannot close the gap, so one series is simply higher. Turn means the point sits near a peak or trough, where the same value occurs on both sides, so the warp can hop across and the lag says nothing about delay.</p>
+    <h3>Which window should I use?</h3>
+    <p>A band around the diagonal (Sakoe and Chiba) is the usual choice: it stops the warp from matching points that are implausibly far apart in time, and it is faster. Set it to the largest shift you think is real. If the path runs along the edge of the band, the tool says so, and the band is probably too narrow. The Itakura window limits the slope instead, between one half and two.</p>
+    <h3>Should I z-normalise?</h3>
+    <p>Yes when you care about shape and not level, for example comparing the daily pattern of two shops of different size. No when the level is part of the question, for example when one period is warmer than another and you want to know how many days earlier a temperature now arrives.</p>
+    <h3>How does the pattern search work?</h3>
+    <p>Put the short pattern in one column and the long series in another and choose subsequence mode. The pattern may start and end anywhere in the long series, and may be stretched up to twice its length or squeezed to half. One pass finds the cheapest match ending at every point; the tool then lists the best matches that do not overlap.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and aligned by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p>The tool fills the table <code>D(i, j)</code> of the cheapest way to align the first <code>i</code> points of A with the first <code>j</code> of B (Sakoe &amp; Chiba 1978). With the symmetric2 pattern, <code>D(i, j) = min(D(i−1, j−1) + 2d, D(i−1, j) + d, D(i, j−1) + d)</code> where <code>d = |a<sub>i</sub> − b<sub>j</sub>|</code>, and the distance per step is <code>D(N, M) / (N + M)</code>. symmetric1 weights every move by 1 and has no per-step form; asymmetric moves one row of A at a time and divides by N. The band keeps <code>|j − i(M−1)/(N−1)| ≤ w</code>; the Itakura window keeps slopes between 1/2 and 2 (Itakura 1975). Patterns, windows and normalisations follow Giorgino (2009), so results match the dtw package for R and Python.</p>
+    <p>The lag at point <code>i</code> of A is the mean matched row of B minus the diagonal. It is read as <em>timing</em> when the warp leaves at most half of the gap <code>|a<sub>i</sub> − b<sub>i</sub>|</code>, as <em>level</em> when it leaves more, as <em>turn</em> when A barely changes over the nearby rows or changes the opposite way from B at the matched point, and as <em>no real gap</em> when the gap is under 5% of A's standard deviation. The path is pinned to both corners, so lags in the first and last few rows are pulled toward zero.</p>
+    <p>Pattern search uses open-begin, open-end alignment with the asymmetric pattern (Tormene et al. 2009; Müller 2007): the first row of the table is free, so one pass gives the cheapest match of the whole pattern ending at every point and where it started. Matches are taken in order of cost, skipping any that overlap one already taken.</p>
+    <p>Checked against dtw-python 1.9.0 on 120 alignments (three step patterns, four windows, two point differences, five shapes), distances, per-step distances and paths all identical, and on six pattern searches; plus brute force over every path on small series. Implemented from the papers; no third-party code was ported.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical summaries of the data you enter; a lag or a distance is not proof of a cause. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, NOAA, the dtw-python project, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv --a before --b after</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dynamic-time-warping" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns within one series, the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../stl-decomposition/">STL decomposition</a> separates trend from season, the <a href="../kalman-smoother/">Kalman smoother</a> estimates the level under a noisy series, the <a href="../lomb-scargle-periodogram/">Lomb-Scargle periodogram</a> finds periods in uneven data, and the <a href="../wasserstein-distance/">Wasserstein distance</a> compares two distributions.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const COLOR = { a: "#3d3480", b: "#d9822b", timing: "#2f7d4a", turn: "#9a98b0", level: "#c0392b", same: "#d6d4e2" };
+    let last = null;
+
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) {
+        $("#col-a").innerHTML = "";
+        $("#col-b").innerHTML = "";
+        $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a table or load the example.";
+        return;
+      }
+      const prof = profileColumns(p);
+      const opts = prof.numeric.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+      $("#col-a").innerHTML = opts;
+      $("#col-b").innerHTML = opts;
+      if (prof.numeric.length > 1) $("#col-b").value = prof.numeric[1];
+      $("#data-status").textContent = `${p.rows.length} rows; ${prof.numeric.length} numeric column${prof.numeric.length === 1 ? "" : "s"}${prof.label ? `; rows named by "${prof.label}"` : ""}.`;
+    }
+
+    function refreshMode() {
+      const sub = $("#mode").value === "subsequence";
+      $("#label-a").textContent = sub ? "Short pattern (query)" : "First series (A)";
+      $("#label-b").textContent = sub ? "Long series to search" : "Second series (B)";
+      for (const id of ["#step", "#window-type", "#window"]) $(id).disabled = sub;
+      $("#matches").disabled = !sub;
+      $("#analyze").textContent = sub ? "Search" : "Align";
+    }
+
+    function inputs() {
+      const w = $("#window").value.trim();
+      return {
+        csv: $("#csv").value, a: $("#col-a").value, b: $("#col-b").value, mode: $("#mode").value,
+        step: $("#step").value, windowType: $("#window-type").value, window: w === "" ? null : Number(w),
+        dist: $("#dist").value, smooth: Number($("#smooth").value) || 0, znorm: $("#znorm").checked,
+        matches: Number($("#matches").value) || 5,
+      };
+    }
+
+    const W = 900;
+    function scaler(lo, hi, a, b) { const s = hi > lo ? (b - a) / (hi - lo) : 0; return (v) => a + (v - lo) * s; }
+    function polyline(vals, sx, sy, color, width = 2) {
+      return `<polyline fill="none" stroke="${color}" stroke-width="${width}" points="${vals.map((v, i) => `${sx(i).toFixed(1)},${sy(v).toFixed(1)}`).join(" ")}"/>`;
+    }
+    function axisLabels(labels, sx, y, n) {
+      const ticks = [0, Math.floor((n - 1) / 4), Math.floor((n - 1) / 2), Math.floor((3 * (n - 1)) / 4), n - 1];
+      return ticks.map((i) => `<text x="${sx(i).toFixed(1)}" y="${y}" font-size="12" text-anchor="middle" fill="#514d66">${esc(labels[i])}</text>`).join("");
+    }
+
+    function overlay(r) {
+      const { a, b, labelsA } = r.series;
+      const H = 300;
+      const lo = Math.min(...a, ...b);
+      const hi = Math.max(...a, ...b);
+      const sxa = scaler(0, a.length - 1, 50, W - 20);
+      const sxb = scaler(0, b.length - 1, 50, W - 20);
+      const syA = scaler(lo, hi, 125, 15);
+      const syB = scaler(lo, hi, 265, 155);
+      const every = Math.max(1, Math.round(r.pair.path.length / 70));
+      const lines = r.pair.path.filter((_, k) => k % every === 0).map(([i, j]) => `<line x1="${sxa(i).toFixed(1)}" y1="${syA(a[i]).toFixed(1)}" x2="${sxb(j).toFixed(1)}" y2="${syB(b[j]).toFixed(1)}" stroke="#b9b6cc" stroke-width="0.8"/>`).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="The two series, A above and B below, with lines joining matched points">${lines}${polyline(a, sxa, syA, COLOR.a)}${polyline(b, sxb, syB, COLOR.b)}<text x="8" y="70" font-size="13" fill="${COLOR.a}">A</text><text x="8" y="210" font-size="13" fill="${COLOR.b}">B</text>${axisLabels(labelsA, sxa, H - 6, a.length)}</svg>`;
+    }
+
+    function lagChart(r) {
+      const prof = r.pair.profile;
+      const H = 260;
+      const lags = prof.map((p) => p.lag);
+      const lim = Math.max(1, ...lags.map(Math.abs));
+      const sx = scaler(0, prof.length - 1, 50, W - 20);
+      const sy = scaler(-lim, lim, H - 30, 15);
+      const dots = prof.map((p) => `<circle cx="${sx(p.i).toFixed(1)}" cy="${sy(p.lag).toFixed(1)}" r="2.6" fill="${COLOR[p.reading]}"/>`).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Lag of B against A at each point of A, coloured by reading"><line x1="50" x2="${W - 20}" y1="${sy(0)}" y2="${sy(0)}" stroke="#514d66" stroke-width="1"/><text x="44" y="${sy(lim) + 4}" font-size="12" text-anchor="end" fill="#514d66">+${fmt(lim, 0)}</text><text x="44" y="${sy(0) + 4}" font-size="12" text-anchor="end" fill="#514d66">0</text><text x="44" y="${sy(-lim) + 4}" font-size="12" text-anchor="end" fill="#514d66">-${fmt(lim, 0)}</text>${dots}${axisLabels(r.series.labelsA, sx, H - 6, prof.length)}</svg>`;
+    }
+
+    function pathChart(r) {
+      const { n, m, path } = r.pair;
+      const S = 420;
+      const sx = scaler(0, n - 1, 40, S - 10);
+      const sy = scaler(0, m - 1, S - 30, 10);
+      let band = "";
+      if (r.settings.windowType === "band") {
+        const slope = n > 1 ? (m - 1) / (n - 1) : 0;
+        const w = r.settings.window;
+        for (const off of [-w, w]) band += `<line x1="${sx(0)}" y1="${sy(off)}" x2="${sx(n - 1)}" y2="${sy((n - 1) * slope + off)}" stroke="#7a7596" stroke-dasharray="5 4"/>`;
+      }
+      const pts = path.map(([i, j]) => `${sx(i).toFixed(1)},${sy(j).toFixed(1)}`).join(" ");
+      return `<svg viewBox="0 0 ${S} ${S}" style="max-width:${S}px" role="img" aria-label="The warping path through the grid of rows of A and rows of B"><defs><clipPath id="plot"><rect x="40" y="10" width="${S - 50}" height="${S - 40}"/></clipPath></defs><rect x="40" y="10" width="${S - 50}" height="${S - 40}" fill="#faf9fd" stroke="#d9d6e8"/><g clip-path="url(#plot)">${band}<line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(n - 1)}" y2="${sy(m - 1)}" stroke="#d9d6e8"/></g><polyline fill="none" stroke="${COLOR.a}" stroke-width="2" points="${pts}"/><text x="${S / 2}" y="${S - 8}" font-size="12" text-anchor="middle" fill="#514d66">rows of A</text><text x="14" y="${S / 2}" font-size="12" text-anchor="middle" fill="#514d66" transform="rotate(-90 14 ${S / 2})">rows of B</text></svg>`;
+    }
+
+    function subChart(r) {
+      const y = r.series.b;
+      const H = 240;
+      const sx = scaler(0, y.length - 1, 50, W - 20);
+      const sy = scaler(Math.min(...y), Math.max(...y), H - 30, 25);
+      const marks = r.subsequence.matches.map((t) => `<rect x="${sx(t.start).toFixed(1)}" y="15" width="${Math.max(2, sx(t.end) - sx(t.start)).toFixed(1)}" height="${H - 45}" fill="${COLOR.a}" opacity="0.14"/><polyline fill="none" stroke="${COLOR.a}" stroke-width="2.4" points="${y.slice(t.start, t.end + 1).map((v, k) => `${sx(t.start + k).toFixed(1)},${sy(v).toFixed(1)}`).join(" ")}"/><text x="${sx(t.start).toFixed(1)}" y="13" font-size="12" fill="${COLOR.a}">${t.rank}</text>`).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="The long series with the best matches of the pattern highlighted">${polyline(y, sx, sy, COLOR.b, 1.4)}${marks}${axisLabels(r.series.labelsB, sx, H - 6, y.length)}</svg>`;
+    }
+
+    const pct = (v) => `${Math.round(100 * v)}%`;
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#notes").innerHTML = r.notes.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      const sub = Boolean(r.subsequence);
+      $("#pair-out").hidden = sub;
+      $("#sub-out").hidden = !sub;
+      if (sub) {
+        const s = r.subsequence;
+        $("#stats").innerHTML = [
+          [fmt(s.matches[0]?.normalizedDistance), "best match, cost per pattern point"],
+          [String(s.matches.length), "non-overlapping matches listed"],
+          [`${s.n} in ${s.m}`, "pattern points in series points"],
+        ].map(([v, t]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(t)}</span></div>`).join("");
+        $("#sub-chart").innerHTML = subChart(r);
+        $("#sub-table").innerHTML = `<tr><th>Rank</th><th>From</th><th>To</th><th class="n">Length</th><th class="n">Cost per point</th></tr>` + s.matches.map((t) => `<tr><td>${t.rank}</td><td>${esc(t.from)}</td><td>${esc(t.to)}</td><td class="n">${t.length}</td><td class="n">${fmt(t.normalizedDistance)}</td></tr>`).join("");
+      } else {
+        const p = r.pair;
+        $("#stats").innerHTML = [
+          [fmt(p.normalizedDistance ?? p.distance), p.normalizedDistance === null ? "DTW distance (total)" : "DTW distance per step"],
+          [p.saved === null ? "–" : pct(p.saved), "of the point-for-point difference removed by warping"],
+          [`${p.readings.timing} / ${p.n}`, "points of A read as timing"],
+          [pct(p.diagonalShare), "of the path's moves are diagonal"],
+        ].map(([v, t]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(t)}</span></div>`).join("");
+        $("#overlay").innerHTML = overlay(r);
+        $("#lag").innerHTML = lagChart(r);
+        $("#path").innerHTML = pathChart(r);
+        $("#segments").innerHTML = `<tr><th>From</th><th>To</th><th class="n">Timing lag</th><th class="n">Timing</th><th class="n">Turn</th><th class="n">Level</th><th class="n">Gap</th><th class="n">Left</th></tr>` + p.segments.map((g) => `<tr><td>${esc(g.from)}</td><td>${esc(g.to)}</td><td class="n">${g.timingLag === null ? "–" : fmt(g.timingLag, 1)}</td><td class="n">${pct(g.timingShare)}</td><td class="n">${pct(g.turnShare)}</td><td class="n">${pct(g.levelShare)}</td><td class="n">${fmt(g.meanGap)}</td><td class="n">${fmt(g.meanResidual)}</td></tr>`).join("");
+      }
+      if (r.matrix) {
+        $("#matrix-out").hidden = false;
+        const m = r.matrix;
+        $("#matrix").innerHTML = `<tr><th></th>${m.columns.map((c) => `<th class="n">${esc(c)}</th>`).join("")}</tr>` + m.cells.map((row, i) => `<tr><th>${esc(m.columns[i])}</th>${row.map((v) => `<td class="n">${v === null ? "–" : fmt(v)}</td>`).join("")}</tr>`).join("");
+      } else $("#matrix-out").hidden = true;
+    }
+
+    function run() {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Aligning…";
+      setTimeout(() => {
+        try {
+          const r = analyze(inputs());
+          if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return; }
+          $("#status").textContent = "";
+          last = r;
+          show(r);
+          record("analysis_run");
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 30);
+    }
+
+    $("#csv").addEventListener("change", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    $("#mode").addEventListener("change", refreshMode);
+    $("#analyze").addEventListener("click", () => { if (!$("#col-a").value) refreshColumns(); run(); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#mode").value = "pair";
+      refreshMode();
+      $("#col-a").value = "tmax_1871_1900";
+      $("#col-b").value = "tmax_1991_2020";
+      $("#smooth").value = "15";
+      $("#znorm").checked = false;
+      record("example_loaded");
+      run();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = last.subsequence ? "dtw-matches.csv" : "dtw-alignment.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    refreshMode();
+  </script>
+</body>
+</html>
