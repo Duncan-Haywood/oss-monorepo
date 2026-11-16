@@ -28,7 +28,10 @@ LAUNCH = 0x81         # feeder, after TELEMETRY once a stroke has been judged (2
                       # int16 rpm_top, int16 rpm_bottom (each wheel's speed just before the ball), int16 drop_top,
                       # int16 drop_bottom (the fall below that, in 1/10000 of it), uint8 flags: bit 0 a ball went;
                       # bit 1 / bit 2 the top / bottom drop is the whole drop fitted from the pulse times, else the
-                      # lowest single-revolution reading's fall (README "The drop from the pulse times")
+                      # lowest single-revolution reading's fall (README "The drop from the pulse times"); bit 3 / bit 4
+                      # that drop came from the loop's own commands (README "A recovery shaped by the loop's own
+                      # commands"): the board re-sends the record under the same seq once that fit is done; bit 5 that
+                      # fit is still under way (the Pi waits for it before a re-plan and at a drill's end)
 
 FORMATS = {
     HEARTBEAT: "",

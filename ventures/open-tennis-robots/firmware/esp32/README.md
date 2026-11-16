@@ -695,3 +695,105 @@ captured period snapshots before it goes into the firmware.
 
 **Not measured.** All of it is the simulator's physics and its exact tach; a
 real tach's jitter and a real wheel loop's recovery shape are not in it.
+
+## A recovery shaped by the loop's own commands (2026-11-16, later still)
+
+**Why a parabola was the wrong shape.** After a ball the wheel's recovery is
+the speed loop's doing: the tach's 4-revolution mean sees the drop late, the
+PI then pulls the wheel back, overshoots (the deficit goes 20-30% of the drop
+*past* zero) and the integrator lets go. A free parabola over five
+revolutions meets a different part of that curve at each speed, and that was
+the speed-dependent bias left in "Spin from fast wheels". Simulating the
+firmware's own tach and PI on a first-order wheel reproduces the captured
+periods closely, but the loop's response hangs on where its 10 ms tick falls
+against the ball: across tick phases the fitted drop moved by +/-3% at nearly
+the same residual, so a model of the loop fitted to the periods alone cannot
+pin it.
+
+**What changed.** The board knows every command it sent, so the fit no longer
+guesses the loop. `LaunchCheck` logs each control tick while it watches a
+stroke (edge count, microseconds since that edge, the ESC command the tick
+set; `TICK_LOG` = 160 ticks), and `controller.drop_from_commands` fits
+
+    w(t) = c + A e^-(t - ts)/tau + W h_tau(t) - D e^-(t - t0)/tau [t > t0]
+
+to each revolution's mean speed (1 / its period): the wheel is a first-order
+lag of the commands with one unknown time constant tau, `h_tau` is the logged
+commands' response through it, integrated exactly over each revolution, and t0
+is the ball. For a given tau and t0 it is linear in c, A, W and D. The free c
+lets an ESC whose speed is not proportional to its throttle fit too, and W
+need not equal `WHEEL_RPM_FULL`. tau is searched on 0.1-1.6 s
+(`LOOP_TAU_GRID_US`, five points a factor of 2 apart) and refined with seven
+golden-section evaluations. t0 is searched on three nested 9-point grids over the
+*two* revolutions around the slowest one's start: a ball in the last sliver of
+a revolution slows it by less than the 0.3% that marks it, and searching only
+the later revolution put the fit 1.2-3.6% low on 7 of 560 captured wheels. The
+deficits are fractions of the pre-ball speed, so MicroPython's
+single-precision floats keep their digits.
+
+It runs as a generator, one t0 grid per control tick (36 steps a wheel, 72 a
+stroke), so no tick stalls. The record goes out at the verdict with the
+parabola's drops and flags bit 5 set ("loop fit under way"). When the fit is
+done the board re-sends it under the same seq with the new drops, bits 3 / 4
+set (the top / bottom drop came from it) and bit 5 cleared. `FeederLink`
+replaces the record it holds when a frame with the same seq brings new flags,
+and `run_drill` waits for it (at most `LOOP_FIT_S`, 2 s) before each re-plan
+and at the end of a drill. An older Pi reads the first frame and keeps the
+parabola's drops, as before. `drop_from_periods` stays as the fallback when
+there is no command log or too few revolutions.
+
+**How close (simulated).** Each wheel's recorded drop over the simulator's
+true one, the 336 wheels of `tests/pulse_drop_sweep.py`
+(eval/pulse-drop-sweep-loop-2026-11-16.txt):
+
+| | mean | sd | range | worst speed band |
+| --- | --- | --- | --- | --- |
+| parabola | 1.0004 | 1.34% | 0.974-1.082 | +0.84% (1,000-2,000 rpm) |
+| loop commands | 0.9991 | 0.30% | 0.987-1.006 | -0.16% (6,000+ rpm) |
+
+On 224 wheels of four builds the design set never had (true lags 0.25 / 0.3 /
+0.6 / 1.0 s, true free speeds 7,500-11,000 rpm while the firmware is told
+9,000; `tests/drop_snapshot_capture.py --held-out`): mean 0.9995, sd 0.28%,
+range 0.989-1.006; the parabola there read mean 1.0008, sd 1.09%, range
+0.974-1.047.
+
+The fit of the launcher from a drill's drops (`launcher.fit_from_drops`), whole
+Pi path, both drills on the simulator (eval/spin-drill-sweep-loop-2026-11-16.txt,
+eval/spin-drill-random-40-loop-2026-11-16.txt, eval/launch-fit-sweep-loop-2026-11-16.txt):
+
+| spin efficiency error | parabola | loop commands |
+| --- | --- | --- |
+| calibration drill, 18 design builds, worst / mean size | 8.1% / 3.1% | 1.6% / 0.4% |
+| calibration drill, 12 held-out builds, worst / mean size | 7.8% / 3.7% | 1.9% / 0.7% |
+| calibration drill, 40 random builds, worst / mean size | 10.3% / 2.2% | 2.1% / 0.8% |
+| `launch_fit_sweep.py` stress list (2 s dwell), worst | 7.7% | 1.5% |
+| `launch_fit_sweep.py`, speed efficiency worst | 0.6% | 0.2% |
+
+The old drill, whose spin shots put a wheel at 1,062-1,961 rpm, does better
+too, but not everywhere: on the 18 design builds its worst spin error is 1.6%
+(8.3% with the parabola), yet on the 40 random builds it is still 16.3%,
+13.4% and 6.1% on three builds whose wheels lag 0.7 s. Slow wheels on a slow
+loop still give too few revolutions before the verdict, so the new drill's
+fast spin shots stay.
+
+`tests/refit_sweep.py`, the drill re-planned from its own shots (12 builds,
+shots 5 to 16, metres from the target; eval/refit-sweep-loop-2026-11-16.txt):
+
+| | median, worst build | worst shot |
+| --- | --- | --- |
+| parabola, one ball mass, slow wheels set aside | 0.31 | 0.34 |
+| loop commands | 0.07 | 0.40 |
+
+The medians fell on 11 of 12 builds. The worst single shot rose: one shot of
+the 0.70 / 0.35, 0.8 s build landed 0.40 m off (0.34 m before), so the re-plan
+is not better on every shot.
+
+**Not measured.** The simulator's wheel *is* a first-order lag of its command,
+which is exactly the model fitted here, so these numbers are the method's
+best case. A real ESC's speed control, a motor's torque limit, belt slip or
+a jittery hall sensor will each leave a shape the model does not have, and
+the residual would show it before the drop does. The time a fit step takes on
+an ESP32 under MicroPython is not measured either (on CPython a wheel's whole
+fit takes 4-5 ms, 36 steps). Next: log a real wheel's tach and commands
+around a ball and check that the first-order lag fits it; with that, the
+1,000 rpm floor (`launcher.MIN_FIT_RPM`) can be retested.

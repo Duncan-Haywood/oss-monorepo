@@ -217,9 +217,14 @@ the spin efficiency within 11.7%; one radar session pins the wheel's inertia.
 Later that day, the firmware began fitting each drop to the wheel's pulse times
 instead of reading only the lowest revolution, which shows 62-99.5% of the
 drop. The fit came within 1.9% (speed) and 6.6% (spin), and it no longer
-needs the speed loop's recovery time.
-[`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log" and "The
-drop from the pulse times".
+needs the speed loop's recovery time. Later still, the board fits each drop
+with the speed loop's own logged ESC commands driving a first-order wheel
+instead of a free parabola: each drop within 0.3% (sd) of the simulator's,
+and the calibration drill's spin efficiency within 1.6% on 18 builds and 1.9%
+on 12 held-out ones (8.1% and 7.8% before). That is the method's best case,
+since the simulated wheel is that model; a real wheel's log is the next check.
+[`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log", "The
+drop from the pulse times" and "A recovery shaped by the loop's own commands".
 
 **A drill that re-aims itself from its own shots (2026-11-16).** `tennisbots
 run drill.json --shot-log shots.jsonl --refit-after 4` fits the launcher from
