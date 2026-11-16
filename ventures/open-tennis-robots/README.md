@@ -223,6 +223,14 @@ instead of a free parabola: each drop within 0.3% (sd) of the simulator's,
 and the calibration drill's spin efficiency within 1.6% on 18 builds and 1.9%
 on 12 held-out ones (8.1% and 7.8% before). That is the method's best case,
 since the simulated wheel is that model; a real wheel's log is the next check.
+Since 2026-11-16 the board reports the ESC lag its fit runs with, the shot log
+keeps each drill's ESC-lag survey, and `tennisbots run` stops a calibration
+drill before its first ball when the two disagree (exit 4, the value to set;
+`--esc-lag-ok` overrides it). `tennisbots esc-lag shots.jsonl` prints the last
+survey's advice. On 72 simulated builds, every board set more than 15% off its
+survey was held, and none was held after a re-flash to the pick (worst spin error
+1.9%, against up to 16.1% if run anyway): firmware/esp32/README.md, "Checked
+before a calibration drill".
 [`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log", "The
 drop from the pulse times" and "A recovery shaped by the loop's own commands".
 

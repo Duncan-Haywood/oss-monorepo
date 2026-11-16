@@ -1,4 +1,4 @@
-"""The ESC-lag check before a calibration drill, through the whole Pi path (2026-11-17, firmware/esp32/README.md
+"""The ESC-lag check before a calibration drill, through the whole Pi path (2026-11-16, firmware/esp32/README.md
 "Checked before a calibration drill").
 
 For each plant, wheel lag and true launcher, and for a board set to ESC_TAU_US 0 (the default) or 50 ms (a guess):

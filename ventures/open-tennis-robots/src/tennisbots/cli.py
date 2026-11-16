@@ -99,7 +99,7 @@ def cmd_run(a: argparse.Namespace) -> int:
     except (ValueError, OSError) as exc:
         print(f"drill not run: {exc}", file=sys.stderr)
         return 2
-    if res.held:                      # 2026-11-17: the board's ESC_TAU_US disagrees with the last survey (exit 4)
+    if res.held:                      # 2026-11-16: the board's ESC_TAU_US disagrees with the last survey (exit 4)
         print(res.aborted, file=sys.stderr)
         return 4
     if res.dry_shot is not None:      # 2026-11-16: an empty pocket, found from the wheels' speed (exit 3, not a fault)

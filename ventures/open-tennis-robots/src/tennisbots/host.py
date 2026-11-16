@@ -356,15 +356,16 @@ def esc_tau_matches(pick_ms: float, board_ms: float) -> bool:
 def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
     """Before a drill: why the board's ESC_TAU_US should change first, or None. `sv` is the last survey from the shot
     log (`last_survey_from_log`), `board_ms` what the board reports now (ESC_TAU frame; None from older firmware).
-    firmware/esp32/README.md "Checked before a calibration drill": an untold 30-150 ms lag read the calibration drill's
-    spin 13-18% off at worst, a first-order build told 20-50 ms 41-44%, and the slow-wheel hold makes an untold lag
-    worse, not better ("The 1.48x wheel")."""
+    firmware/esp32/README.md "Checked before a calibration drill" (tests/esc_lag_check_sweep.py): on the simulator an
+    untold 30-150 ms lag read the calibration drill's spin 8.7-16.1% off at worst, a first-order build told 50 ms
+    12.0%, and told the survey's pick every build came within 1.9%; the slow-wheel hold makes an untold lag worse
+    ("The 1.48x wheel")."""
     if not sv or (sv.get("wheels") or 0) < ESC_SURVEY_MIN_WHEELS:
         return None
     pick = sv["refined_ms"]
     when = f" ({sv['wheels']} wheels{', ' + sv['at'] if sv.get('at') else ''})"
     if board_ms is None:
-        return (f"the board does not report its ESC_TAU_US (firmware older than 2026-11-17): the last survey{when} picks "
+        return (f"the board does not report its ESC_TAU_US (firmware older than 2026-11-16): the last survey{when} picks "
                 f"{pick} ms; check config.py says {pick * 1000}")
     if esc_tau_matches(pick, board_ms):
         return None
