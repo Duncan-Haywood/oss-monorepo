@@ -1,0 +1,63 @@
+Milestone 7b: spin the largest size instead of holding it (Bosch Rexroth AZPF size 28 to 3000 r/min, AZPN size 36 to 2700 r/min), then the eight-family factorial with the spun families in place of the held ones
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps as gear_pump_eight.py; AZPF n_max: RE 10089/2021-11-24, page 9)
+
+Check: held diagonals against 7a's table: azpf 0.8075 (+0.0000), azpn 0.8050 (+0.0000)
+
+AZPF largest size 28 cm3/r: 58.87 L/min at 2100 r/min; spun to 3000 r/min it gives 84.38 L/min (held at that speed's per-unit values beyond)
+  q L/min  speed r/min  eta_t(100)  eta_t(150)  eta_t(200)  P(0) W per L/min   held: eta_t(150)  P(0) W per L/min
+    58.87         2100      0.9026      0.9103      0.9084               7.7             0.9103               7.7
+    65.00         2316      0.8995      0.9094      0.9081               8.8             0.9103               7.7
+    70.00         2496      0.8951      0.9069      0.9058               9.7             0.9103               7.7
+    75.00         2670      0.8926      0.9066      0.9055              10.6             0.9103               7.7
+    80.00         2846      0.8895      0.9055      0.9046              11.5             0.9103               7.7
+    85.00         3000      0.8865      0.9043      0.9037              12.3             0.9103               7.7
+   100.00         3000      0.8865      0.9043      0.9037              12.3             0.9103               7.7
+  76.6% of the size grid lies above 58.9 L/min; spinning reaches 12.2% of it, the rest is held at 3000 r/min
+
+AZPN largest size 36 cm3/r: 75.58 L/min at 2100 r/min; spun to 2700 r/min it gives 97.53 L/min (held at that speed's per-unit values beyond)
+  q L/min  speed r/min  eta_t(100)  eta_t(150)  eta_t(200)  P(0) W per L/min   held: eta_t(150)  P(0) W per L/min
+    75.58         2100      0.9171      0.9250      0.9229               6.6             0.9250               6.6
+    80.00         2222      0.9136      0.9226      0.9213               7.2             0.9250               6.6
+    85.00         2359      0.9097      0.9197      0.9194               7.9             0.9250               6.6
+   100.00         2700      0.9055      0.9168      0.9161               8.8             0.9250               6.6
+  68.5% of the size grid lies above 75.6 L/min; spinning reaches 10.5% of it, the rest is held at 2700 r/min
+
+Families (index 2 at 85 L/min and 150 bar; size slope k = eta(150 L/min)/E - 1; idle kW at 85 L/min):
+  family      index 2  size slope k  idle kW
+  azpf        0.9103       +0.0000     2.61
+  azpf_spin   0.9043       +0.0000     2.99
+  azpn        0.9250       +0.0000     2.49
+  azpn_spin   0.9197       -0.0031     2.61
+
+(i) each spun family alone (E50 with its own shape and drag):
+  AZPF spun: E50 0.8075 (held 0.8075, +0.0000)
+    (Z) 6z rule at 2.99 kW: 0.8135, error -0.0060; 7a 64-cell refit 0.8135, error -0.0060
+    swaps: spun shape with held drag 0.8047 (-0.0028 from held); held shape with spun drag 0.8113 (+0.0038 from held)
+  AZPN spun: E50 0.8031 (held 0.8050, -0.0019)
+    (Z) 6z rule at 2.61 kW: 0.8067, error -0.0036; 7a 64-cell refit 0.8068, error -0.0036
+    swaps: spun shape with held drag 0.8028 (-0.0022 from held); held shape with spun drag 0.8057 (+0.0007 from held)
+
+(ii) eight families with the AZPF and AZPN spun (64 cells): 0.7996 to 0.8300
+  shape \ idle    casappa    danfoss  marzocchi      bench    rexroth  azpn_spin       azpu  azpf_spin
+  casappa          0.8277     0.8283     0.8300     0.8172     0.8108     0.8113     0.8090     0.8172
+  danfoss          0.8217     0.8297     0.8217     0.8100     0.8042     0.8035     0.8038     0.8100
+  marzocchi        0.8175     0.8214     0.8193     0.8069     0.8010     0.8007     0.7996     0.8060
+  bench            0.8216     0.8214     0.8231     0.8116     0.8057     0.8057     0.8044     0.8111
+  rexroth          0.8207     0.8220     0.8225     0.8108     0.8040     0.8042     0.8030     0.8105
+  azpn_spin        0.8209     0.8286     0.8210     0.8105     0.8039     0.8031     0.8031     0.8104
+  azpu             0.8197     0.8191     0.8217     0.8105     0.8042     0.8050     0.8030     0.8089
+  azpf_spin        0.8200     0.8187     0.8204     0.8100     0.8039     0.8037     0.8021     0.8075
+  one-number fit: in-sample RMS 0.0085
+  two-number fit: in-sample RMS 0.0035; as E50 = 0.8230 + 0.0181 (kW - 3.57)
+  leave-one-family-out diagonal RMS: one-number 0.0115, two-number 0.0035
+  diagonal errors (two-number): casappa +0.0048, danfoss +0.0052, marzocchi +0.0014, bench +0.0019, rexroth -0.0012, azpn_spin -0.0028, azpu +0.0006, azpf_spin -0.0055
+
+Predictions (LOG.md 7b):
+  SP1 spun AZPF idle kW above the held 2.61: held (2.99 against 2.61)
+  SP2 spun AZPF index 2 within 0.010 of the held 0.9103: held (0.9043, -0.0060)
+  SP3 spun AZPF E50 within 0.006 of rule (Z): refuted (-0.00600)
+  SP4 spun AZPF E50 within 0.005 of the held 0.8075: held (+0.0000)
+  SP5 spun AZPN E50 within 0.006 of rule (Z): held (-0.0036)
+  SP6 drag swap moves E50 more than shape swap in both: refuted (azpf drag +0.0038, shape -0.0028; azpn drag +0.0007, shape -0.0022)
+
+Sources: as gear_pump_eight.py; Bosch Rexroth RE 10089/2021-11-24 page 9 (AZPF n_max).

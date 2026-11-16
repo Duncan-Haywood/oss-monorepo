@@ -206,7 +206,7 @@ def main(cache):
       f"against {kw['azpf']:.2f})")
     p(f"  SP2 spun AZPF index 2 within 0.010 of the held 0.9103: {ok(abs(E['azpf_spin'] - E['azpf']) <= 0.010)} "
       f"({E['azpf_spin']:.4f}, {E['azpf_spin'] - E['azpf']:+.4f})")
-    p(f"  SP3 spun AZPF E50 within 0.006 of rule (Z): {ok(abs(a['ez']) <= 0.006)} ({a['ez']:+.4f})")
+    p(f"  SP3 spun AZPF E50 within 0.006 of rule (Z): {ok(abs(a['ez']) <= 0.006)} ({a['ez']:+.5f})")
     p(f"  SP4 spun AZPF E50 within 0.005 of the held 0.8075: {ok(abs(a['e50'] - held['azpf']) <= 0.005)} "
       f"({a['e50'] - held['azpf']:+.4f})")
     p(f"  SP5 spun AZPN E50 within 0.006 of rule (Z): {ok(abs(res['azpn']['ez']) <= 0.006)} ({res['azpn']['ez']:+.4f})")
