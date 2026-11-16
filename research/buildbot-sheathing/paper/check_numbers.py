@@ -30,6 +30,7 @@ M27 = E + "m27_slide_mech/results.txt"
 M28 = E + "m28_shim_mech/results.txt"
 M29 = E + "m29_tool_lean/results.txt"
 M30 = E + "m30_backlash/results.txt"
+M31 = E + "m31_pose_range/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -74,6 +75,17 @@ CHECKS = [
     (M30, "  0.32 | 0.2354", "0.2792 to 0.2354"),
     (M30, "  g1  up   0.15 | 1.401 1.456 | 0.1835 (-8.02)", "costs the 11-bit G1 8.02 points"),
     (M30, "  g1  down 0.15 | 1.274 1.456 | 0.3044 (+4.08)", "gains 4.08"),
+    # 5.11 backlash across the poses (milestone 31)
+    (M31, "  g1 0.6 +0.15 | 22 | 20 |", "13–20 of the 22 joints"),
+    (M31, "  g1 0.6 -0.15 | 22 | 13 |", "13–20 of the 22 joints"),
+    (M31, "  g1 0.4 +0.15 | 0.9500 | 0.9466 (-0.33)", "between 0.33 and 9.93 points"),
+    (M31, "  g1 1.2 +0.00 | 0.9131 | 0.8138 (-9.93)", "0.9131 to 0.8138"),
+    (M31, "waist_roll (-27.83 to +19.97 N m)", "−27.83 to +19.97 N m"),
+    (M31, "| 0.0000 (-95.00) | +3.394,", "up to 3.394 mm"),
+    (M31, "12 bits, per-pose calibration: 2.49 arcmin", "tolerate 2.49 arcmin"),
+    (M31, "12 bits, one      calibration: 0.44 arcmin", "0.44 arcmin with one calibration"),
+    (M31, "13 bits, per-pose calibration: 4.13 arcmin", "(13 bits: 4.13 and 0.79)"),
+    (M31, "13 bits, one      calibration: 0.79 arcmin", "(13 bits: 4.13 and 0.79)"),
     # 5.14 the capacity model against Weiss's decayed walls (milestones 17 to 21)
     (M17, "control 6-12 4688, decay 6-12 2649, control 3-12 8775, decay 3-12 2974", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
     (M17, "share kept: 6-12 0.565, 3-12 0.339", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),

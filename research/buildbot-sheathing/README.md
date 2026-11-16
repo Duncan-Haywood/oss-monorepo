@@ -402,6 +402,21 @@ a handle 0.15 m above the drive axis costs the 11-bit G1 8 points, below it gain
 
 ![Clean sheets of the 12-bit G1's best single-2x stack against gear backlash, unpreloaded, preloaded and with the ankle rolls biased; against the handle's offset from the drive axis, G1 and H1](experiments/m30_backlash/figure.png)
 
+**Milestone 31: one calibration does not cover the wall.** Milestone 30's backlash bias was removed by a calibration at one
+pose. Over the 15 poses a stock G1 reaches from one stance (hand heights 0.4–1.2 m, shifted 0.15 m either way along the wall;
+MuJoCo, 25–50 N press, 3.4 kg nailer), 13–20 of the 22 joints that move the nose stay held, fewest at the top of the reach.
+Calibrated at every pose, 5 arcmin costs the 12-bit G1 **0.3 to 9.9 points** (H115 refuted; worst at 1.2 m, 0.913 to 0.814).
+Both **hip yaws and the waist roll** are held everywhere but **change the sign of their torque** across the grid (H116 held), so
+they rest on the other side of their gaps: one tool-frame calibration at the 1.0 m pose leaves every nail offset along the
+wall by up to **3.4 mm** (H117 held), and the single-2x stack falls to 0 at the worst pose. To stay within 2 points of each
+pose's own stack, 12-bit joints tolerate **2.5 arcmin calibrated per pose but 0.44 arcmin calibrated once** (13 bits: 4.1 and
+0.8). The H1 loses at most 1.4 points per pose, and up to 75 points with one calibration. The remedy is a bias predicted
+from the static torques at every pose (they give the side of each gap), not one tool offset. Swept, not measured: the
+backlash, the holding threshold (0.05–0.5 N m: worst losses 9.9–10.0 points, offsets 3.4–3.7 mm), and the least-norm
+ground-reaction split, which sets the hip-yaw and waist torques.
+
+![Clean sheets of the 12-bit G1 and H1 best single-2x stack with 5 arcmin backlash against hand height, three shifts along the wall, calibrated per pose and once](experiments/m31_pose_range/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
