@@ -127,6 +127,35 @@ function matchedMeans(X0, rhoCap) {
   matchCache.set(key, means);
   return means;
 }
+
+// Round 4 (eval/known-date-prereg-round4-2026-11-16.md): an upper confidence bound for rho. For each grid rho, the
+// 10th percentile of the GLS estimate over 200 simulated null series (seed 4343, cached per design); the bound is the
+// grid rho at which that percentile reaches the observed estimate, so a true rho above it would give an estimate this
+// low less than 10% of the time. Short sticky series read rho low, and a bootstrap drawn at the point estimate is
+// then too eager (round 3: n 40 rho 0.8 date 80%, 9.4%); the test takes the larger p of the two generators.
+const upperCache = new Map();
+function upperQuantiles(X0, rhoCap) {
+  const n = X0[0].length, key = `${n}|${X0.length}|${rhoCap}`;
+  if (upperCache.has(key)) return upperCache.get(key);
+  const M = 200, r = mulberry(4343), shocks = Array.from({ length: M }, () => Float64Array.from({ length: n + 1 }, () => gauss(r)));
+  const q = RHO_GRID.map((rho) => {
+    const est = shocks.map((z) => {
+      const x = new Float64Array(n); let u = z[n] / Math.sqrt(Math.max(1e-9, 1 - rho * rho));
+      for (let t = 0; t < n; t++) { if (t) u = rho * u + z[t]; x[t] = u; }
+      return gls(x, X0, rhoCap).rho;
+    }).sort((a, b) => a - b);
+    return est[Math.floor(0.1 * (M - 1))];
+  });
+  for (let i = 1; i < q.length; i++) q[i] = Math.max(q[i], q[i - 1]);
+  upperCache.set(key, q);
+  return q;
+}
+function upperRho(est, X0, rhoCap) {
+  const m = upperQuantiles(X0, rhoCap), g = RHO_GRID;
+  if (est <= m[0]) return g[0];
+  for (let i = 1; i < m.length; i++) if (est <= m[i]) return m[i] > m[i - 1] ? g[i - 1] + (g[i] - g[i - 1]) * (est - m[i - 1]) / (m[i] - m[i - 1]) : g[i];
+  return g[g.length - 1];
+}
 function matchedRho(est, X0, rhoCap) {
   const m = matchedMeans(X0, rhoCap), g = RHO_GRID;
   if (est <= m[0]) return g[0];
@@ -188,29 +217,37 @@ export function knownDateTest(x, k, { period = 0, reps = 499, seed = 1, rhoMax =
       if (!admittedByCut) return { refused: true, reason: `the residuals about a straight line have lag-1 autocorrelation ${rhoLine.toFixed(2)} (bias-corrected), above ${rhoMax}, and a step and slope change at the date cut it to ${rhoChangeOls.toFixed(2)}, ${rhoChangeOls > rhoMax ? 'still above the guard' : `a cut of ${(rhoLine - rhoChangeOls).toFixed(2)}, not more than random walks of this length cut at this date give (99th percentile ${cutBar.toFixed(2)})`}: too close to a unit root (a wander) for a level test`, rhoFull, rhoLine, cutBar, n, k };
     }
   }
-  // null generator
-  const rhoGen = Math.max(-0.9, Math.min(genCap ?? rhoMax, rhoGenMethod === 'matched' ? matchedRho(g0.rho, X0, rhoCap) : corrected(g0.rho, n)));
+  // null generator(s): round 2's matched rho; with rhoGenMethod 'upper' (round 4) also the upper bound, larger p wins
   const tr = ols(pw(x, g0.rho), X0.map((c) => pw(c, g0.rho)));
   const sdInnov = Math.sqrt(tr.rss / (n - X0.length));
   const mean0 = new Float64Array(n);
   for (let t = 0; t < n; t++) { let f = 0; for (let i = 0; i < X0.length; i++) f += g0.beta[i] * X0[i][t]; mean0[t] = f; }
-  const r = mulberry(seed), fs = [], tds = [], tcs = [];
-  for (let b = 0; b < reps; b++) {
-    const z = new Float64Array(n); let u = gauss(r) * sdInnov / Math.sqrt(Math.max(1e-9, 1 - rhoGen * rhoGen));
-    for (let t = 0; t < n; t++) { if (t) u = rhoGen * u + gauss(r) * sdInnov; z[t] = mean0[t] + u; }
-    const s = stats(z, X1, rhoCap);
-    if (!s) continue;
-    fs.push(s.f); tds.push(Math.abs(s.tD)); tcs.push(Math.abs(s.tC));
-  }
-  const m = fs.length, pOf = (arr, v) => (1 + arr.filter((w) => w >= v).length) / (1 + m);
+  const clampGen = (v) => Math.max(-0.9, Math.min(genCap ?? rhoMax, v));
+  const point = clampGen(rhoGenMethod === 'kendall' ? corrected(g0.rho, n) : matchedRho(g0.rho, X0, rhoCap));
+  const gens = [point];
+  if (rhoGenMethod === 'upper') { const up = clampGen(upperRho(g0.rho, X0, rhoCap)); if (up > point + 1e-9) gens.push(up); }
+  const pOf = (arr, v) => (1 + arr.filter((w) => w >= v).length) / (1 + arr.length);
   const q975 = (arr) => { const a = [...arr].sort((p, q) => p - q); return a[Math.min(a.length - 1, Math.floor(0.95 * a.length))]; };
-  const qD = q975(tds), qC = q975(tcs);
+  let p = 0, pStep = 0, pSlope = 0, qD = 0, qC = 0, m = Infinity;
+  gens.forEach((rhoGen, gi) => {
+    const r = mulberry(seed + 7919 * gi), fs = [], tds = [], tcs = [];
+    for (let b = 0; b < reps; b++) {
+      const z = new Float64Array(n); let u = gauss(r) * sdInnov / Math.sqrt(Math.max(1e-9, 1 - rhoGen * rhoGen));
+      for (let t = 0; t < n; t++) { if (t) u = rhoGen * u + gauss(r) * sdInnov; z[t] = mean0[t] + u; }
+      const s = stats(z, X1, rhoCap);
+      if (!s) continue;
+      fs.push(s.f); tds.push(Math.abs(s.tD)); tcs.push(Math.abs(s.tC));
+    }
+    m = Math.min(m, fs.length);
+    p = Math.max(p, pOf(fs, st.f)); pStep = Math.max(pStep, pOf(tds, Math.abs(st.tD))); pSlope = Math.max(pSlope, pOf(tcs, Math.abs(st.tC)));
+    qD = Math.max(qD, q975(tds)); qC = Math.max(qC, q975(tcs));
+  });
   const post = n - k, meanAfter = (post - 1) / 2;
   return {
-    refused: false, n, k, period, rho: st.rho, rhoFull, reps: m, guard, ...(guard === 'cut' ? { rhoLine, admittedByCut, cutBar } : {}),
-    step: st.d, stepSe: st.seD, stepRange95: [st.d - qD * st.seD, st.d + qD * st.seD], pStep: pOf(tds, Math.abs(st.tD)),
-    slopeBefore: st.beta[1], slopeChange: st.c, slopeChangeSe: st.seC, slopeChangeRange95: [st.c - qC * st.seC, st.c + qC * st.seC], pSlope: pOf(tcs, Math.abs(st.tC)),
-    f: st.f, p: pOf(fs, st.f), pTable: fTail2(st.f, st.df),
+    refused: false, n, k, period, rho: st.rho, rhoFull, reps: m, guard, rhoGen: gens, rhoGenMethod, ...(guard === 'cut' ? { rhoLine, admittedByCut, cutBar } : {}),
+    step: st.d, stepSe: st.seD, stepRange95: [st.d - qD * st.seD, st.d + qD * st.seD], pStep,
+    slopeBefore: st.beta[1], slopeChange: st.c, slopeChangeSe: st.seC, slopeChangeRange95: [st.c - qC * st.seC, st.c + qC * st.seC], pSlope,
+    f: st.f, p, pTable: fTail2(st.f, st.df),
     effectAverage: st.d + st.c * meanAfter, effectAtEnd: st.d + st.c * (post - 1),
   };
 }
