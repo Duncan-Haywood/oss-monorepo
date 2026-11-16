@@ -420,6 +420,7 @@ ventures/exemption-certificate-audit-check/usage.mjs
 ventures/expense-tracker/usage.mjs
 ventures/experience-mod-calculator/usage.mjs
 ventures/exterior-painting-bid-calculator/usage.mjs
+ventures/extreme-value-analysis/usage.mjs
 ventures/facebook-marketplace-fee-calculator/usage.mjs
 ventures/fair-workweek-schedule-checker/usage.mjs
 ventures/faire-wholesale-calculator/usage.mjs

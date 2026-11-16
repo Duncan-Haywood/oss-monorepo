@@ -95,6 +95,7 @@ for the browser-extension, iOS and Android packagers.
 | [`probability-calibration`](../../ventures/probability-calibration/) | Dimitriadis, Gneiting & Jordan 2021; Ayer et al. 1955; Brier 1950; Murphy 1973; Spiegelhalter 1986; Cox 1958; Naeini, Cooper & Hauskrecht 2015 | When these forecasts said 70%, did it happen 70% of the time: a bin-free reliability diagram, the Brier and log scores split into miscalibration, discrimination and uncertainty, and a recalibration map? |
 | [`hdbscan-clustering`](../../ventures/hdbscan-clustering/) | Campello, Moulavi & Sander 2013; Campello, Moulavi, Zimek & Sander 2015; McInnes & Healy 2017 | Which groups are in this table, how many, which rows belong to none, and what sets each group apart? |
 | [`kalman-smoother`](../../ventures/kalman-smoother/) | Durbin & Koopman 2012; Koopman 1997; Harvey 1989; Harvey & Koopman 1992; de Jong & Penzer 1998 | What is the real level under this noisy series and how sure is it, what are the missing values, where is it heading, and which points are one-off outliers and which are level shifts? |
+| [`extreme-value-analysis`](../../ventures/extreme-value-analysis/) | Coles 2001; Jenkinson 1955; Pickands 1975; Davison & Smith 1990; Hosking, Wallis & Wood 1985; Hosking 1990 | How big is the 100-year flood, gust or load, how much higher could it plausibly be, is the tail heavy or bounded, and has the level drifted over the record? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -114,4 +115,5 @@ p-to-e calibrators (Vovk & Wang 2021) so e-BH in `fdr-multiple-testing` can take
 the extended isolation forest's random-hyperplane cuts (Hariri, Carrasco Kind & Brunner 2021) as a mode of `isolation-forest`;
 multiclass and ordinal calibration, and calibration tracked over time with a monitoring chart, as modes of `probability-calibration`;
 predicting the cluster of new rows (McInnes & Healy's approximate_predict) and the DBSCAN-style `cluster_selection_epsilon` cut (Malzer & Baum 2020) as modes of `hdbscan-clustering`;
-trigonometric seasonals, a stochastic cycle, regressors with intervention dummies (the seat-belt law as a level dummy, Harvey & Durbin 1986) and simulation smoothing (Durbin & Koopman 2002) as modes of `kalman-smoother`.
+trigonometric seasonals, a stochastic cycle, regressors with intervention dummies (the seat-belt law as a level dummy, Harvey & Durbin 1986) and simulation smoothing (Durbin & Koopman 2002) as modes of `kalman-smoother`;
+historical and censored floods (Stedinger & Cohn 1986), covariates beyond the year in the GEV parameters, and the point-process likelihood (Smith 1989) as modes of `extreme-value-analysis`.

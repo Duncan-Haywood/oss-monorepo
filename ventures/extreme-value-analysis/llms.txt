@@ -1,0 +1,27 @@
+# Extreme value analysis: 100-year floods and return levels (GEV, Gumbel, peaks over threshold)
+
+> Free return level calculator. Paste annual maxima (river peaks, rainfall, wind gusts, peak loads) or a long daily or hourly series, and get the 10-, 100- or 500-year level from GEV and Gumbel fits to annual maxima and a generalized Pareto fit to declustered peaks over a threshold, with profile-likelihood and delta-method intervals, threshold stability, a trend test and design-life risk. Checked against scipy. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not engineering, legal, tax, financial or professional advice, and not a regulatory flood study (US federal flood frequency follows Bulletin 17C).
+
+## Pages
+
+- [The tool](https://marisstella.app/extreme-value-analysis/)
+
+## Use it from code
+
+- `node cli.mjs data/potomac-annual-peaks.csv [--periods 10,100,500] [--json]`
+- `node cli.mjs daily.csv --year-start 10 --run-length 7 [--threshold 60000]`
+- `node platform/agents/tools.mjs call extreme-value-analysis analyze --input '{"csv":"year,peak\n2001,812\n...","returnPeriods":[100]}'`
+
+## What it answers
+
+- How big is the T-year event: return level with a profile-likelihood interval (lopsided upward, as it should be) and the delta-method interval.
+- Is the tail heavy, Gumbel-like or bounded: the GEV or GPD shape with its interval, and a likelihood-ratio test against the Gumbel.
+- Has the level drifted over the record: a GEV with a linear trend in location, tested by likelihood ratio.
+- Which threshold, which events: runs declustering, extremal index, mean residual life and a threshold-stability table.
+- What risk over a design life: the chance of at least one exceedance in L years, and the return period a target risk needs.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/extreme-value-analysis): MIT licensed.
