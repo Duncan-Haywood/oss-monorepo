@@ -3,7 +3,7 @@ title: "A valid IFC2X3 spec our IDS checker refused to run: red-teaming ids-mode
 seo_title: "IDS audit false positive: IFC2X3 type property sets on occurrences"
 date: 2026-11-16
 tags: [testing, mutation-testing, javascript, redteam, bim, ifc, ids]
-description: "26 faults seeded into the IDS engine, STEP reader and audit; 15 caught, 24 after new tests. One escaped fault led to an audit rule that marked valid IFC2X3 specifications invalid and skipped them."
+description: "26 faults seeded into an IDS checker, 15 caught, all real gaps caught after new tests. One led to an audit rule that skipped valid IFC2X3 specs."
 ---
 
 [ids-model-check](https://marisstella.app/ids-model-check/) checks IFC building models
