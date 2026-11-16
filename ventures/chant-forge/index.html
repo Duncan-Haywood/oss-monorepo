@@ -24,6 +24,9 @@
     button, .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; border: 0; font-size: 1rem; cursor: pointer; margin: 8px 8px 0 0; }
     button:disabled { opacity: .5; cursor: default; }
     pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    fieldset { border: 1px solid #dcd7cb; border-radius: 8px; margin: 14px 0 4px; padding: 4px 12px 10px; min-width: 0; }
+    legend { font-weight: 700; padding: 0 4px; }
+    .hint { font-size: .86rem; margin: 4px 0; color: #555044; }
     footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
   </style>
   <!-- select-track:start -->
@@ -64,6 +67,16 @@
     <textarea id="singers" spellcheck="false" rows="4" placeholder="name,section,low,high&#10;Singer A,T,D3,G4&#10;Singer B,B,A2,D4"></textarea>
     <label for="sitout">With a range test: how many singers may sit out a note (so one short range does not set the whole section's limit; the result lists who sits out what)</label>
     <select id="sitout"><option value="0" selected>None: every singer reaches every note</option><option value="1">1 singer a section</option><option value="2">2 singers a section</option></select>
+    <fieldset id="relbox">
+      <legend>Release folder (optional)</legend>
+      <p class="hint">One button builds what a distributor upload is made from, the same folder as the command line's <code>ep-cli.mjs</code>: the track as a -14 LUFS WAV, its MIDI, timed lyrics, the GABC source, a 3000 px cover drawn from the chant's opening notes, <code>release.json</code> with the source edition and the AI disclosure, and a report of the release check. Rendering takes a few seconds to a minute.</p>
+      <div class="grid">
+        <div><label for="reltitle">Release title</label><input id="reltitle" type="text" placeholder="the chant's name"></div>
+        <div><label for="relartist">Artist (leave empty until you choose one)</label><input id="relartist" type="text"></div>
+        <div><label for="reldate">Release date</label><input id="reldate" type="date"></div>
+        <div><label for="relisrc">ISRC (if you have one)</label><input id="relisrc" type="text" placeholder="CC-XXX-YY-NNNNN"></div>
+      </div>
+    </fieldset>
     <button id="go" type="submit">Convert</button>
     <button id="play" type="button" disabled>Play preview</button>
     <button id="stop" type="button" disabled>Stop</button>
@@ -74,6 +87,7 @@
     <button id="dlxml" type="button" disabled>Download the score (MusicXML)</button>
     <button id="dlstems" type="button" disabled>Download stems (ZIP of WAVs)</button>
     <button id="dllearn" type="button" disabled>Download rehearsal tracks (ZIP, two per section)</button>
+    <button id="dlrel" type="button" disabled>Build the release folder (ZIP)</button>
   </form>
   <pre id="out" aria-live="polite">Press Convert.</pre>
 
@@ -88,6 +102,7 @@
     <li><strong>Cues the singers:</strong> a plain-text cue sheet with the bar, beat, time, note and syllable of every sung note, and timed lyrics (LRC) for a lyric display. With song sections on, a line above each section says what the band does under it, the first note to pitch from and how far it is from the last one, when the band comes in after an a cappella verse, and the new key's first note after a key lift. The same sheet as the command line's <code>--cues</code>.</li>
     <li><strong>Prints the parts:</strong> the score download is a MusicXML file with one part per section (tenors, second tenors, baritones, basses when the choir is split), the Latin under the notes, the same pitches and timing as the MIDI in 4/4, and the song sections as rehearsal marks. MuseScore (free), Dorico, Sibelius and Finale open it, so a director can print each section's part. The same file as the command line's <code>--musicxml</code>.</li>
     <li><strong>Teaches each section its part:</strong> the rehearsal tracks download holds two WAVs per choir section (one for a unison chant, two each for tenors, baritones and basses when it is split): a part track with that section loud on the left and the other sections 12 dB down on the right, the band 6 dB down, and a minus track with everything but that section to sing the part against. These are the learning tracks choirs usually buy per part. The same files as the command line's <code>render-cli.mjs --learn</code>.</li>
+    <li><strong>Builds the release folder:</strong> one button renders the track limited to -14 LUFS, draws a 3000 x 3000 cover from the chant's own opening notes (square notation on a red staff, no text), writes <code>release.json</code> with the source edition, year, transcriber and rights note read from the GABC header, the AI disclosure ("assisted", naming the tools and parts) and the credits, then runs the release check over all of it. The ZIP's <code>REPORT.md</code> separates build faults (a GABC with no source edition, a cover too small, loudness off) from the steps only you can take (artist name, p- and c-lines, ISRC). The same files and the same check as the command line's <code>ep-cli.mjs</code> for an EP.</li>
     <li><strong>Hands the session to a DAW:</strong> with phrase markers on, the MIDI carries a locator at the start of each phrase (and at each song section), and the stems download is one WAV per part (choir, bass, chords, drums, organ drone) in a ZIP. The stems sum to the preview mix, so they line up from one start point. The same files as the command line's <code>--markers</code> and <code>render-cli.mjs --stems</code>.</li>
   </ol>
 
@@ -119,6 +134,7 @@
     import { eventsToMusicXml } from "./musicxml.mjs";
     import { parseSingers, singersChoir, fewestSectionsForSingers, sitOutNotes, SECTION_LABEL } from "./singers.mjs";
     import { wavBytes, zipStored } from "./files.mjs";
+    import { releaseKit, EP_TARGET_LUFS, slugify } from "./ep-core.mjs";
 
     const $ = (id) => document.getElementById(id);
     const SAMPLE = `name: Dies irae (first line only);
@@ -136,7 +152,10 @@ mode: 1;
       try { $("src").value = await (await fetch(PIECES[k])).text(); } catch { $("out").textContent = "Could not load that sample here; paste GABC instead."; }
     };
 
-    let midi = null, wav = null, cues = null, lyrics = null, score = null, ctx = null, node = null;
+    let midi = null, wav = null, cues = null, lyrics = null, score = null, ctx = null, node = null, built = null;
+    // a release date four weeks out: distributors ask for lead time for playlist pitching
+    const isoDay = (d) => d.toISOString().slice(0, 10);
+    $("reldate").value = isoDay(new Date(Date.now() + 28 * 864e5));
     const download = (bytes, name, type) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([bytes], { type }));
@@ -235,6 +254,7 @@ mode: 1;
       const title = parsed.header.name || "chant";
       cues = cueSheet(events, { bpm, pulsesPerBar: 8, plan });
       lyrics = lrc(events, { bpm }, title);
+      built = { header: parsed.header, gabcText: $("src").value, warnings: sum.warnings.slice(), coverMidis: events.filter((e) => e.type === "note").map((e) => e.midi) };
       score = eventsToMusicXml(events, { title, bpm, plan });
       const guides = plan ? sectionCues(events, { bpm, pulsesPerBar: 8, plan }) : [];
       lines.unshift(`${sum.name || "Chant"}: ${sum.notes} notes, ${sum.lowest}-${sum.highest} (ambitus ${sum.ambitus} semitones), final ${sum.final}`,
@@ -248,11 +268,11 @@ mode: 1;
     }
     // the choir sings each syllable's vowel (sing.mjs) instead of the pad's fixed "ah"; as render-cli.mjs --sing
     const sung = () => $("voice").value === "sing";
-    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc", "dlxml", "dlstems", "dllearn"];
+    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc", "dlxml", "dlstems", "dllearn", "dlrel"];
     $("go").onclick = () => {
       stop();
       try { $("out").textContent = convert(); for (const id of BUTTONS) $(id).disabled = false; }
-      catch (e) { $("out").textContent = e.message; for (const id of BUTTONS) $(id).disabled = true; midi = wav = cues = lyrics = score = null; }
+      catch (e) { $("out").textContent = e.message; for (const id of BUTTONS) $(id).disabled = true; midi = wav = cues = lyrics = score = built = null; }
     };
     $("play").onclick = () => {
       if (!wav) return;
@@ -283,6 +303,35 @@ mode: 1;
     $("dllearn").onclick = () => {
       if (!midi) return;
       download(zipStored(learningTracks(midi, { sing: sung() }).map((t) => ({ name: `chant-${t.slug}-${t.mode}.wav`, bytes: wavBytes(t.wav) }))), "chant-rehearsal.zip", "application/zip");
+    };
+    // the release folder: the same release.json, cover, check and REPORT.md as `node ep-cli.mjs plan.json -o DIR`
+    // (ep-core.mjs), for this one track. The audio is rendered again, limited to -14 LUFS as ep-cli.mjs does.
+    $("dlrel").onclick = async () => {
+      if (!midi || !built) return;
+      $("dlrel").disabled = true;
+      const before = $("out").textContent;
+      $("out").textContent = "Building the release folder: rendering at -14 LUFS, drawing the cover, checking...";
+      await new Promise((r) => setTimeout(r, 30)); // let the message paint before the render holds the thread
+      try {
+        const name = (built.header.name || "Chant").replace(/\s*\(.*?\)\s*$/, "").trim();
+        const master = renderMidi(midi, { rate: 44100, targetLufs: EP_TARGET_LUFS, limit: true, sing: sung() });
+        const today = isoDay(new Date());
+        const plan = { title: $("reltitle").value.trim() || name, artist: $("relartist").value.trim(), releaseDate: $("reldate").value, type: "single" };
+        const k = await releaseKit(plan, [{ title: name, header: built.header, gabcText: built.gabcText, gabcName: `${slugify(name)}.gabc`,
+          midi, wav: master, lrc: lyrics, isrc: $("relisrc").value.trim(), warnings: built.warnings }], { today, coverMidis: built.coverMidis, wavBytes });
+        download(zipStored(k.files), `${slugify(plan.title)}-release.zip`, "application/zip");
+        const t = k.tracks[0];
+        $("out").textContent = [
+          `Release folder: ${k.files.length} files, ${t.title}, ${t.analysis.lufs.toFixed(1)} LUFS, ${t.analysis.truePeakDb.toFixed(2)} dBTP.`,
+          `Release check: ${k.check.checks.length - k.check.fail - k.check.warn} pass, ${k.check.warn} warn, ${k.check.fail} fail.`,
+          ...(k.buildFaults.length ? ["Fix before upload:", ...k.buildFaults.map((c) => `  ${c.name}: ${c.note}`)] : ["No build faults."]),
+          ...(k.ownerSteps.length ? ["Yours to fill in (release.json, or the boxes above and build again):", ...k.ownerSteps.map((c) => `  ${c.name}: ${c.note}`)] : ["No owner steps left."]),
+          ...(sung() ? [] : ["Note: the choir voice is the pad; set it to sing the Latin for a release render."]),
+          "REPORT.md in the ZIP has the full list. Listen to the track before any upload.",
+          "", before,
+        ].join("\n");
+      } catch (e) { $("out").textContent = "Release folder: " + e.message + "\n\n" + before; }
+      finally { $("dlrel").disabled = false; }
     };
   </script>
 </body>

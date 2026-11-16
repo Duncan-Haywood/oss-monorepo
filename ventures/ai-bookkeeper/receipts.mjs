@@ -89,6 +89,8 @@ export function splitReceipts(text) {
 }
 
 // Lines that carry an amount but are not things bought.
+// a line naming the cash handed over ("CASH 50,000", "Tunai 100.000", "TENDERED 20.00"), not the change
+const CASH_LINE_RE = /^(?!.*\bchange\b).*\b(?:cash|tender(?:ed)?|tunai)\b/i;
 const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?\s*tota\b|sub\s*-?total|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
 const TIP_RE = /\b(tip|gratuity)\b/i;
 
@@ -274,7 +276,9 @@ export function splitDecimal(line) {
 // receipt written 12.50, a tax line with no amount is read again for "12,94" or "2:29"
 // (the decimal point lost) and for a bare ".75". The subtotals read are returned too, so
 // that several OCR readings of one photo can check a tax against them.
-const TAX_LINE_RE = /\b(sales\s+t[ae]x|tax(?:es)?|t[ae]x|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?|txtl|get)\b/i;
+// "PB1" (Indonesia's restaurant tax) as OCR prints it on a photo: "PBI", "PBl", "PB]", "PB!";
+// "P Resto", "P-Resto" with the dot lost (CORD photos, eval/cord-photos-four-pass-2026-11-16.md)
+const TAX_LINE_RE = /\b(?:(?:sales\s+t[ae]x|tax(?:es)?|t[ae]x|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p[.\s-]\s*rest(?:o|oran)?|txtl|get)\b|pb\s*[il\]!|](?![\w]))/i;
 const NOT_TAX_LINE_RE = /taxable|w\/\s*tax|with\s+tax|excl|before\s+(?:gst|tax)|(?:tax|gst|vat)\s*(?:id\b|invoice|no\b|reg|#)|sub\s*-?\s*total|\bsbt|summary|dasar\s+pengenaan|\bdpp\b/i;
 const PCT_RE = /\(?\d{1,2}(?:[.,]\d{1,4})?\s*%\)?/g;
 const SUB_RE = /sub\s*-?\s*total|\bsbtl?\b|\bsubttl\b|\bsub\s*\/\s*tt\s*[l1i\]|]|before\s+(?:gst|tax)|\bnet\b/i;
@@ -357,6 +361,9 @@ export function readTax(lines, comma, cents) {
       if (m) { v = m.length === 3 ? Number(m[1]) * 100 + Number(m[2]) : Number(m[1]); lost = m[0].trim(); }
     }
     if (v === null || (cents !== null && v >= cents)) return;
+    // on a whole-unit slip a tax under 1% of the total is digits OCR lost ("TAX 5.45" on a
+    // 172,000 receipt is 15,455) or noise (a stray "3"); a yen receipt's "Tax ¥22" on ¥300 stays
+    if (comma === "whole" && v > 0 && cents !== null && v * 100 < cents) return;
     cands.push({ v, total: TAX_TOTAL_RE.test(l) || /total\s+taxes/i.test(l), lost, line: l });
   });
   // "Tax 1: 6.35" then "Tax 2: 0.00": a zero line is a tax that does not apply, not the tax
@@ -551,7 +558,11 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   }
   if (cents === null) {
     // no total line: what was paid is the cash handed over less the change
-    const pick = (re) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]); return a.length ? a[a.length - 1] : null; };
+    // on a whole-unit slip OCR often prints a dash before these amounts ("CASH -50,000",
+    // "CHANGE -30,000": CORD photos, eval/cord-photos-four-pass-2026-11-16.md), which no
+    // amount reads through; the dash is dropped on these two lines only
+    const undash = (l) => (comma === "whole" && l ? l.replace(/(^|\s)[-–—~]\s*(?=\d)/g, "$1") : l);
+    const pick = (re) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const a = amountsIn(undash(lines[i]), comma).length ? amountsIn(undash(lines[i]), comma) : bare(undash(lines[i + 1])); return a.length ? a[a.length - 1] : null; };
     const tender = pick(/\b(?:cash|tendered|payment|paid|accepted\s+total)\b/i), change = pick(/\bchange\b/i);
     if (tender !== null && change !== null && tender > change) { cents = tender - change; notes.push("no total line; cash handed over less change"); }
   }
@@ -571,7 +582,14 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   }
   if (cents === null) {
     const all = lines.flatMap((l) => amountsIn(l, comma));
-    if (all.length) { cents = Math.max(...all); notes.push("no total line; took the largest amount"); }
+    if (all.length) {
+      cents = Math.max(...all);
+      // the largest amount printed on the cash line is usually the money handed over, not
+      // what was paid (CORD validation-30: "CASH 50,000" on a 21,000 slip); said in the
+      // note so the vote across readings gives that guess nothing (CASH_GUESS_VOTE)
+      const onCash = lines.some((l, i) => CASH_LINE_RE.test(l) && !/cash\s*(?:bill|sale|ier|back)/i.test(l) && (amountsIn(l, comma).includes(cents) || (!amountsIn(l, comma).length && bare(lines[i + 1]).includes(cents))));
+      notes.push(onCash ? "no total line; took the largest amount, printed on the cash line (often the cash handed over)" : "no total line; took the largest amount");
+    }
   }
   if (cents === null) notes.push("no amount found");
   const checks = totalChecks(lines, comma, at, bare);
@@ -639,6 +657,14 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
 // (73 to 77 of 97); README, "A guessed total counts half in the vote".
 export const GUESS_VOTE = 0.5;
 const guessedLargest = (p) => !p.totalLine && p.notes.some((n) => /took the largest amount/.test(n));
+// A guess that is the amount on the cash line ("CASH 50,000" where TOTAL 21,000 was lost to
+// OCR) counts nothing: three readings guessing the cash handed over outvoted one that read
+// the total (CORD validation-30, eval/receipt-cash-guess-2026-11-16.md). Not when the
+// receipt's arithmetic gives the same amount: exact cash ("Tendered $52.06", "Change
+// $0.00", subtotal 48.54 plus tax 3.52: SRD 1108) is the total. Alone it still stands,
+// as the only candidate, with the note asking for a check.
+export const CASH_GUESS_VOTE = 0;
+const guessedCash = (p) => guessedLargest(p) && p.notes.some((n) => /printed on the cash line/.test(n));
 // A total line whose dollars start with a 0 ("TOTAL: 04.78" where another reading has
 // "TOTAL: $94.78": SRD 1030) lost its first digit to OCR; no printed total reads that way.
 // That reading's total counts as a guess in the vote, with no total-line point (README,
@@ -676,7 +702,7 @@ function voteTotal(ps, support, texts = []) {
   ps.forEach((p, i) => {
     if (p.cents === null) return;
     const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
-    v.score += leadingZero(p, ps) ? GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
+    v.score += leadingZero(p, ps) ? GUESS_VOTE : guessedCash(p) && !support(p.cents) ? CASH_GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
     votes.set(p.cents, v);
   });
   // each reading that prints the subtotal-plus-tax amount counts once (no total-line point:
@@ -721,9 +747,13 @@ export function voteTax(ps, out, pick) {
     const sums = [...new Set(ps.map((p) => p.taxSum).filter((x) => x != null && x !== t && subs.some((s) => s + x === out.cents)))];
     if (sums.length === 1) return sums[0];
   }
+  // a whole-unit slip rounds its tax to the unit: subtotal 18,181 plus PB1 1,818 prints a
+  // total of 20,000 (CORD validation-2, read 1,818 three times). One unit short or over
+  // is the rounding, not a misread digit, so the read tax stands
+  const rounded = t !== null && out.cents !== null && t >= 10000 && t % 100 === 0 && out.cents % 100 === 0 && subs.some((s) => s % 100 === 0 && Math.abs(out.cents - s - t) === 100);
   // a tax one digit away from the settled total less a subtotal ("Tax: 8.21" where
   // 42.16 less 38.95 is 3.21) was misread: the receipt's own arithmetic wins
-  if (t !== null && out.cents !== null && !subs.some((s) => s + t === out.cents)) {
+  if (t !== null && out.cents !== null && !rounded && !subs.some((s) => s + t === out.cents)) {
     const near = [...new Set(subs.map((s) => out.cents - s))].filter((d) => d > 0 && oneDigitApart(d, t));
     if (near.length === 1) return near[0];
     // two subtotals one digit apart ("$28.48" in three readings, "$28.47" in one): the

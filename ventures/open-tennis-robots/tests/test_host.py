@@ -190,6 +190,26 @@ class PeriodTachTest(unittest.TestCase):
         # The old count-per-10-ms tachometer could only say 0 or 6000 at this speed.
         self.assertEqual({int(n * 60000 / 10) for n in (0, 1)}, {0, 6000})
 
+    def test_window_averages_fewer_revolutions_on_a_slow_wheel(self):
+        # README "A tach that averages a fixed time": the newest periods until they span the window, at most four
+        tach = controller.PeriodTach(window_us=60000)
+        for p in (20000, 20000, 20000, 20000):
+            tach.edge(p)                     # 3000 rpm: 60 ms is three revolutions
+        tach.edge(30000)                     # the wheel slows: the newest three span 70 ms
+        self.assertEqual(tach.rpm(0), round(60e6 / (70000 / 3)))
+        slow = controller.PeriodTach(window_us=60000)
+        for p in (100000, 100000, 100000, 120000):
+            slow.edge(p)                     # under 600 rpm one revolution spans the window: it alone is read
+        self.assertEqual(slow.rpm(0), 500)
+        fast = controller.PeriodTach(window_us=60000)
+        for p in (5000, 5000, 5000, 5000, 6000):
+            fast.edge(p)                     # 12,000 rpm: four revolutions are 21 ms, under the window; four is the most
+        self.assertEqual(fast.rpm(0), round(60e6 / 5250))
+        old = controller.PeriodTach(window_us=0)
+        for p in (100000, 100000, 100000, 120000):
+            old.edge(p)
+        self.assertEqual(old.rpm(0), round(60e6 / 105000))
+
     def test_glitch_is_folded_into_its_revolution(self):
         tach = controller.PeriodTach()
         for _ in range(4):
@@ -1382,7 +1402,13 @@ class LoopFitUnsureTest(unittest.TestCase):
         ps, tk = lr.wheel(4000, 0.06, 0.4, jitter_us=20, seed=3)
         got = controller.drop_from_commands(ps, tk)
         self.assertGreater(got[5], controller.LOOP_SE_MAX)
-        ps, tk = lr.wheel(1500, 0.06, 0.2, tau_esc=0.08)
+        # The four-revolution tach (the default): with a 40 ms window (README "A tach that averages a fixed time") this
+        # loop rings less and the fit is only 2.8% off, so the badly-off case is pinned to the tach it was found on
+        old, controller.TACH_WINDOW_US = controller.TACH_WINDOW_US, 0
+        try:
+            ps, tk = lr.wheel(1500, 0.06, 0.2, tau_esc=0.08)
+        finally:
+            controller.TACH_WINDOW_US = old
         got = controller.drop_from_commands(ps, tk)
         self.assertGreater(abs(got[0] / 0.06 - 1), 0.05)       # the fit is badly off ...
         self.assertGreater(got[5], controller.LOOP_SE_MAX)       # ... and says so

@@ -30,6 +30,7 @@ Then it:
 The command runs in the subject root (or `--cwd`). One that starts with
 `cd <path> &&`, the shape audit files record as `test_cmd`, runs through bash
 from the repository root instead, so a row copied from an audit works as is.
+One led by `VAR=value` also runs through bash, so an environment prefix works.
 
 PYTHONDONTWRITEBYTECODE=1 is set, and the copy starts without `__pycache__`,
 so a stale `.pyc` cannot run the mutant or hide it (round 45).
@@ -109,9 +110,15 @@ def mutate_text(text: str, old: str, new: str, occurrence: int | None) -> tuple[
     return text[:at] + new + text[at + len(old):], text.count("\n", 0, at) + 1
 
 
+ENV_ASSIGN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
+
+
 def is_shell(cmd: list[str]) -> bool:
-    """A command written for a shell: `cd x && ...` (an audit's own `test_cmd` shape), or one quoted string."""
-    return cmd[0] == "cd" or (len(cmd) == 1 and any(c in cmd[0] for c in " &|;"))
+    """A command written for a shell: `cd x && ...` (an audit's own `test_cmd` shape), one quoted string,
+    or one led by `VAR=value` (`PYTHONPATH=src python3 -m pytest`), which exec without a shell takes for
+    the program name (two run records, 2026-11-16, each lost a retry to it)."""
+    return (cmd[0] == "cd" or bool(ENV_ASSIGN.match(cmd[0]))
+            or (len(cmd) == 1 and any(c in cmd[0] for c in " &|;")))
 
 
 def starts_with_cd(cmd: list[str]) -> bool:

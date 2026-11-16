@@ -13,6 +13,15 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (278 of 278,
 revised with milestones 4e–4s and 3b) and a list of what a submission still needs.
 
+**Milestone 3d headline** (how many 1.2 s natural-feature windows must a robot pool to know f to 2%, and which pooled
+error bar is honest? analysis of milestone 3c's 57 windows): **about eight windows, pooled by random effects.** Treating
+windows as independent (inverse-variance) overstates precision (rms z 2.79 over five-window blocks, worse as more are
+added); a DerSimonian&ndash;Laird random-effects pool stays honest (rms z 1.10 at five windows, 0.89 at eight). Five
+windows (6 s) still leave f a median 2.2&ndash;2.5% off with a 3.3% sd; eight bring it to 1.4% with a 2.5% sd, except on
+the near-critical fr1/xyz (2.8%). A gate on rotation does not pick out fr1/xyz. Two of five pre-registered predictions held.
+
+![Median focal error and random-effects sd against windows pooled, and rms z of inverse-variance and random-effects pooling per sequence](experiments/m3d_pool/pool.png)
+
 **Milestone 3c headline** (natural features again: can the robot get an *honest* error bar on f from one 1.2 s
 window of video, where milestone 3b's solver sd was 4&ndash;12&times; too small? same 65 TUM RGB-D windows): **yes, by
 re-solving with each keyframe left out, and the honest bar is wide.** A delete-one-keyframe jackknife (12 warm-started
@@ -930,6 +939,7 @@ OMP_NUM_THREADS=1 python3 experiments/m3b_natural/run.py tum 4  # ~45 min on 4 c
 python3 experiments/m3b_natural/analyse.py # summary.json, natural.png
 OMP_NUM_THREADS=1 python3 experiments/m3c_jackknife/run.py tum 4  # ~50 min on 4 cores, resumable; results.json
 python3 experiments/m3c_jackknife/analyse.py # summary.json, jackknife.png
+python3 experiments/m3d_pool/pool.py         # seconds; summary.json, pool.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1032,6 +1042,9 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3d: pooling by random effects keeps the bar honest and reaches a 2.5% sd in about eight windows;
+the next steps are a near-criticality signal read from the solve (viewing-direction spread), and longer windows.
 
 After milestone 3c: the keyframe jackknife gives each natural-feature window an honest but wide sd (median 6.4% of f), so the
 next steps are (a) pooling windows by it, pre-registered against milestone 3b's plain median (an inverse-variance mean was

@@ -109,26 +109,27 @@ flagships:
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
-      totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI 78.6%, tax 71.9%; open:
-      tax OCR-bound); (6) payroll (README): two journal layouts read; open: a real
-      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
-      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
-      discounts, IN's band and day from the book (README); open: AR statutes, a real
-      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
-      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
-      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
-      once printed. A run that lands a slice replaces its item here; keep this under
+      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos 55.8%, tax 16/41; open:
+      OCR-bound); (6) payroll (README): two journal layouts read; open: a real Gusto
+      or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
+      (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
+      last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
+      IN's band and day from the book (README); open: AR statutes, a real return
+      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
+      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
+      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
+      printed. A run that lands a slice replaces its item here; keep this under
       2,000 characters.
     buildable: >-
-      Receipts, item (5), on the public SRD photos (eval/srd-fetch.mjs,
-      raw.githubusercontent.com; `apt-get update && apt-get install -y
-      tesseract-ocr` gives tesseract 5.3.4 in about a minute): CLI `--four-pass` tax
-      133 of 185, totals 154 of 196; held out (SROIE 625) the rules gain and lose 0
-      (eval/receipt-total-first-heldout-2026-11-16.md); next: CORD photos
-      (eval/cord_images.py; huggingface.co 403'd here); rebuild the page's readings
-      (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item splits
-      after the 2026-11-16 change. CORD stays the held-out check.
+      Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
+      (eval/cord_images.py; huggingface.co answered 2026-11-16) read by `apt-get
+      install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD tax 133 of
+      185, totals 154 of 196; CORD test totals 53 of 95, tax 16 of 41
+      (eval/cord-photos-four-pass-2026-11-16.md). Page re-measured 2026-11-16:
+      156/196, tax 138/185; a cash-line guess gets no vote
+      (eval/receipt-cash-guess-2026-11-16.md). Next: score that on CORD
+      validation-30 (huggingface.co refused 2026-11-16 evening); validation-65's 1-1
+      tax tie. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -240,30 +241,29 @@ flagships:
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
       (FAIR_WORKWEEK; team-offer exception, on-call shifts, Oregon's standby list,
-      Philadelphia, LA, NYC presets; next a real site's changes): next live deploy,
-      real punches at a site. Exact side: branch-and-price and column generation
-      prove 20-80 person weeks; the exact check is on by default at every size.
-      Forecast side (--from-sales, eight real files, eval/real-pos-exports.mjs):
-      backtest, closure score, half-life auto, priced cut, tickets, labour standard,
-      shut-door work, multi-file pastes. Posted weeks: reissues hold started and
-      posted shifts; a whole week at the Deputy file's rates (README "A whole week
-      of call-outs at a real roster's rates", 2026-11-13): kept reissues cut changes
-      56-66%, open hours path-dependent both ways. Next: whether a real manager
-      would set keepShift above 1; 350+ copies: cover passes LP-guided; repair
-      flow-bounded, 2x alone, e2e tie (README "under a flow bound"); 2 s reserve at
-      300+ copies (4 s worse, 1.2 s ties); day sweeps LP-guided, by the open-hours
-      LP when the pay floor is skipped (README "A guide when the pay floor is
-      skipped"); pay floor reserve 6 s (README "The pay floor's reserve, sized from
-      the full solve"), next a try with the budget spent; re-run the
-      keep-usual-shifts sweep on real dated leave records; a manager's read on
-      whether the steadier plan is the one they would post; a real 7shifts account
-      through --import-7shifts (README "Reading 7shifts directly"); a real When I
-      Work account or response through --import-wheniwork (README "Reading When I
-      Work directly"); Homebase (docs need an account); a real Square account via
-      --import-square (README "Reading Square's schedule"); --cover-price moves two
-      shifts together (README "Moving two shifts together"); second call-outs
-      priced, off by default (README "The pair price in played weeks": fewer open
-      hours on 3 of 4 weeks). More open items: NEXT.md.
+      PHL, LA, NYC, SF, Emeryville presets; next a real site's changes): next live
+      deploy, real punches at a site. Exact side: branch-and-price and column
+      generation prove 20-80 person weeks; the exact check is on by default at every
+      size. Forecast side (--from-sales, eight real files,
+      eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
+      cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
+      weeks: reissues hold started and posted shifts; a whole week at the Deputy
+      file's rates (README "A whole week of call-outs at a real roster's rates",
+      2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent both
+      ways. Next: whether a real manager would set keepShift above 1; 350+ copies:
+      cover passes LP-guided; repair flow-bounded, 2x alone, e2e tie (README "under
+      a flow bound"); 2 s reserve at 300+ copies (4 s worse, 1.2 s ties); day sweeps
+      LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
+      when the pay floor is skipped"); pay floor tries past a spent budget, 4 s
+      (README "The pay floor once the budget is spent"); next why stages overrun;
+      re-run the keep-usual-shifts sweep on real dated leave records; a manager's
+      read on whether the steadier plan is the one they would post; a real 7shifts
+      account through --import-7shifts (README "Reading 7shifts directly"); a real
+      When I Work account or response through --import-wheniwork (README "Reading
+      When I Work directly"); Homebase (docs need an account); a real Square account
+      via --import-square (README "Reading Square's schedule"); --cover-price moves
+      two shifts together (README "Moving two shifts together"). More open items:
+      NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -272,12 +272,12 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer trees parked: a
-      range guard passes 6 fresh cameras, misses K-1 II/A7 III; no fresh frames left
-      (eval/bayer-boosted-guard-*). X-Trans: a per-frame choice (A7 IV wants less
-      edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
-      eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
+      Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
+      III; no fresh frames left (eval/bayer-boosted-guard-*). X-Trans: a per-frame
+      choice (A7 IV wants less edge-keeping, GF7/NX1 a wider red/blue window;
+      --truth-from, eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF:
+      URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -291,9 +291,9 @@ flagships:
       RWL, and a card copy that keeps all 27 raw formats, 2026-11-16. Bayer and
       X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
-      (eval/nikon-nef-*). Next: a Coolpix NRW or Canon CRW reader (copied, not
-      developed); an RW2 RawFormat 8 with a tone curve (0x39/0x3A); Sony's
-      vignetting table vs an evenly lit frame; a real DNG and a
+      (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Next: a Coolpix
+      NRW reader (no public sample yet); an RW2 RawFormat 8 with a tone curve
+      (0x39/0x3A); Sony's vignetting table vs an evenly lit frame; a real DNG and a
       vignetting-calibrated lens through the pipeline's lens stage; a real evenly
       lit frame shot wide open (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
@@ -379,11 +379,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Slow wheels
-      need slower gains" (gains scaled under 1,500 rpm, 6-revolution gate hold).
-      Next: why one 1,107 rpm wheel read 1.48x its drop through the loop fit (build
-      0.7/0.35, eval/low-speed-loop-drill-2026-11-16.txt); a tach averaging a fixed
-      time, not 4 revolutions; 14 of 336 balls still fed over 3% off.
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The 1.48x
+      wheel" (HOLD_RPM 3,000) and "A tach that averages a fixed time" (built, off:
+      it cost the drop fits). Next: wheels under 750 rpm get 3-4 revolutions before
+      the verdict (keep the snapshot past it until the targets change); warn before
+      a calibration drill when the survey sees an ESC lag ESC_TAU_US lacks (the hold
+      hurts then); does the hold make shots late?
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -428,21 +429,22 @@ flagships:
       mastering checks and a release kit for streaming distribution.
     next: >-
       History and every measurement: README and ROADMAP.md (studio page, CLI
-      options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
-      breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
-      eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-16
-      latest: localRef kept over a parallel closeAnchor head to head (R+S 211 vs 208
-      of 240); next: closeAnchor with the wall (R 107, unregistered), D#4-E4 bursts,
-      L's cum, sons/rint). Open checks that need a person: listen to the studio
-      page, --sing, the options (--stretch, --halftime, --fills, --limit pumping,
-      stems, sections, breakdown, riser, the a cappella verse and whether the key
-      lift sounds like a lift); --lrc in a real player and --markers/--stems in a
-      DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range
-      with real singers; the release kit against a distributor's real form; the Te
-      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
-      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
-      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; tilted pages, curled staves straightened
+      options, ep-cli.mjs and the studio page build the release folder (2026-11-16;
+      to listen), scan-checked corpus, 2,129 notes read by eye, hymns, song
+      sections, breakdown, riser; --a-cappella first verse and a range-checked
+      --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues;
+      2026-11-16 latest: localRef kept over a parallel closeAnchor head to head (R+S
+      211 vs 208 of 240); next: closeAnchor with the wall (R 107, unregistered),
+      D#4-E4 bursts, L's cum, sons/rint). Open checks that need a person: listen to
+      the studio page, --sing, the options (--stretch, --halftime, --fills, --limit
+      pumping, stems, sections, breakdown, riser, the a cappella verse and whether
+      the key lift sounds like a lift); --lrc in a real player and --markers/--stems
+      in a DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4
+      range with real singers; the release kit against a distributor's real form;
+      the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli
+      passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs (403),
+      Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas, liquescents,
+      lines at true thickness; tilted pages, curled staves straightened
       (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
@@ -452,5 +454,5 @@ flagships:
       eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase
       handoff against a whole phrase and of a one-note overlap against a clean
       handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
-      need the same check. Next: a real choir's range test; a director on --sit-out
-      N, the --musicxml parts and the --learn tracks.
+      need the same check. Next: a real choir's range test. More open items:
+      NEXT.md.
