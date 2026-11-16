@@ -22,7 +22,7 @@ zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** When I Work, Deputy, Homebase and 7shifts charge per user per month and hold your staff
   data. This is the same publish-and-notify loop for a single small team, on your own server, MIT-licensed. It does
-  not do payroll, geofenced or photo clock-ins, or push notifications; if you need those, use one of them. Since
+  not do payroll, photo clock-ins or push notifications; if you need those, use one of them. Since
   2026-11-15 it has a simple time clock and timesheet (section "Time clock and timesheets" below).
 - **Secrets:** `ADMIN_KEY` unlocks `/admin?key=...` (edit, build, publish, merge). `TEAM_TOKEN` is the secret in the
   staff link `/team?t=...`. The server refuses to serve without both. Wages, hour caps and payroll never appear on the
@@ -33,7 +33,7 @@ zero dependencies, one JSON file on a disk you own.
 - **Free on Cloudflare, no server, no card (2026-11-15):** [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shift-roster-builder), or from a clone of this folder `npx wrangler deploy` then `npx wrangler secret put ADMIN_KEY` and `npx wrangler secret put TEAM_TOKEN`. Details in "Free on Cloudflare" below.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
-- **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Honour system: no geofence or PIN. Details in "Time clock and timesheets" below.
+- **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Details in "Time clock and timesheets" below.
 - **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
@@ -75,9 +75,10 @@ has one, on the Node server and the free Cloudflare Worker alike (`timeclock.mjs
   and July, and a repeated 01:30).
 - **Storage:** up to 3,000 punches (about 100 days of 15 people punching twice a day), oldest dropped first; on the Worker the
   last-resort size guard keeps the newest 1,500.
-- **What it is not:** an honour system. Anyone with the team link can punch for anyone (no geofence, photo or PIN); the
-  manager's edits and the "added by manager" marks are the check, which is fine for a ten-person café and not for a site that
-  needs proof of presence. Overtime, meal premiums and rounding are in the next section (`PAY_RULES`). Keeping time records may be a legal duty where you are; this keeps them
+- **What it is not:** proof of presence. Out of the box anyone with the team link can punch for anyone; the
+  manager's edits and the "added by manager" marks are the check, which is fine for a ten-person café. Optional clock PINs
+  and a site geofence (section "Clock PINs and a site geofence") close the two commonest gaps, a colleague punching for a friend and a punch
+  from the bus; there is still no photo check. Overtime, meal premiums and rounding are in the next section (`PAY_RULES`). Keeping time records may be a legal duty where you are; this keeps them
   only as long as the 3,000-punch cap, so download the CSV each pay period.
 - **Checked:** `timeclock.test.mjs` (six tests: zone conversion across a clock change, double-tap and out-without-in refusals,
   a week with an on-time split shift, late, early, past-end, unscheduled, missing clock-out and no-show cases, a Chicago week
@@ -187,6 +188,41 @@ are now filled from text read this session, not from memory:
   CSV end to end under Nevada rules ($712.50 for five 9-hour days at $15). Not claimed: no Nevada or other-state employer has
   read it, no labour office or lawyer has checked the readings, the DOL table is a summary that says to consult the state, and
   none of this is legal advice.
+
+## Clock PINs and a site geofence (2026-11-16)
+
+Buddy punching (a colleague clocking in for a friend who is running late) and punching from the car park, or the bus, are
+the two reasons owners give for paying for Homebase's, When I Work's or 7shifts' time clock rather than using a free one.
+The hub's clock was an honour system. It now has two optional checks, both off until you turn them on, on the Node server and
+the free Cloudflare Worker alike (`clockguard.mjs`, Web Crypto, no Node built-ins).
+
+- **Clock PINs.** On `/admin/timesheet`, "Clock PINs" sets a 4 to 8 digit PIN per person (or removes one); tell them in
+  person, it is not shown again. A person with a PIN must type it on the team page to clock in or out; people without one
+  punch as before, so you can start with the one person you have doubts about. `CLOCK_PIN=required` makes everyone use one
+  (anyone without a PIN is refused and listed in red on the timesheet page). PINs are stored salted and hashed
+  (PBKDF2-SHA256, 10,000 rounds; about 3 ms per check on Node 22), never in the clear and never shown back. Five wrong PINs
+  for one person within 15 minutes lock that person's punches for 15 minutes (HTTP 429), so the team link cannot be used to
+  try the 10,000 four-digit PINs; the right PIN clears the count, and setting a new PIN clears a lock.
+- **Site geofence.** `CLOCK_GEOFENCE=lat,lon,radius_m` (radius 25 m to 5 km, for example `41.8789,-87.6359,150`). When
+  someone presses Clock in or Clock out, the team page asks the phone for its location (up to 10 s) and posts it with the
+  punch; the server works out the great-circle distance to the site and keeps **only that distance in whole metres and the
+  phone's stated accuracy**, never the coordinates. The phone's accuracy is allowed for, up to 100 m (a reading of 178 m
+  +-90 m on a 100 m fence passes; 445 m +-300 m does not). `CLOCK_GEOFENCE_MODE=flag` (the default) records every punch and
+  flags the far ones ("clock-in 890 m from site (phone accuracy 12 m)") and the ones sent with no location ("location
+  refused", "location unavailable") on the timesheet and in the payroll CSV; `=block` refuses them with a message telling the
+  person to try on site or ask you to add the punch. A malformed value is reported on the timesheet page and the fence stays
+  off rather than half-applied. The team page says, beside the buttons, that location is checked and what is kept.
+- **What it does not do.** A determined person can fake a phone's location or share a PIN; these stop the casual cases and
+  leave the decision with you, which is what the flag mode is for. There is no photo check. Location data about staff is
+  personal data in many places (GDPR in the UK and EU, notice rules in some US states): tell staff before you turn the
+  geofence on. Nothing about where anyone is goes anywhere but your own server, and even there only the distance is stored.
+- **Checked:** `clockguard.test.mjs` (five tests): PIN format, salted hashes with no PIN in the clear, the five-try lock and
+  its expiry and reset; the distance (Westminster to the Eiffel Tower within 1.5 km of 340.5 km), the accuracy allowance and
+  its cap, no coordinates kept, staff-typed reason text stripped; place flags on the timesheet and in the CSV; the hub end to
+  end for PINs (set, wrong, right, lock at 429, remove, `CLOCK_PIN=required`) and for the fence (flag mode with and without
+  scripts, block mode, a misconfigured fence). Also run once in headless Chromium with a granted location 67 m from the site
+  (recorded as `{ m: 67, acc: 20, away: false }`) and with location not granted (the punch still arrives). Not yet tried on a
+  real phone at a real site.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 

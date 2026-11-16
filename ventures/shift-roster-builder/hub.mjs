@@ -5,6 +5,7 @@
 import { parseStaff, parseShifts, buildRoster, rosterFromOwner, rosterIcs, rosterFeedIcs, rosterMessages, coverOptions, checkTrade, parseAvailabilityReply, mergeAvailabilityReplies, parseTimeOffRequest, addTimeOff, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
 import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zoneOf, localParts, clock } from "./timeclock.mjs";
 import { readPayEnv, payForTimesheet, MEAL_RULES } from "./payrules.mjs";
+import { setPin, hasPin, checkPin, validPin, readGeofence, placeOf, GEO_SCRIPT } from "./clockguard.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -86,10 +87,17 @@ e.respondWith(fetch(r).then(x=>{if(x.ok){const c=x.clone();caches.open(C).then(k
 
 // The time clock on the staff page (TIME_CLOCK, on unless set to 0): who is on the clock now, and one form to clock in
 // or out. The time recorded is the server's, shown in the site's zone (TIMEZONE, an IANA name; UTC if unset).
+// Optional checks (clockguard.mjs): a PIN box when anyone has a PIN or CLOCK_PIN=required, and with CLOCK_GEOFENCE the
+// phone's location is read when a button is pressed (only the distance from the site is kept).
 function clockSection(state, token, p, tc) {
   const on = onTheClock(state.punches, tc.now);
   const list = [...on.values()].sort((a, b) => a.person.localeCompare(b.person)).map((x) => `${esc(x.person)} since ${esc(clock(localParts(x.at, tc.tz).min))}`).join(", ");
-  return `<h2>Clock in or out</h2><p class="note">On the clock now: ${list || "nobody"}. Times are ${esc(tc.tz)}.</p><form method="post" action="/team/punch?t=${esc(token)}"><label>Who are you?<select name="name" required>${p.people.map((q) => `<option>${esc(q.name)}</option>`).join("")}</select></label><button name="kind" value="in">Clock in</button><button name="kind" value="out">Clock out</button></form><p class="note">The time is taken from the server when you press the button, not from your phone. Forgot to punch? Tell your manager; they can add it, and it is marked as added by them.</p>`;
+  const pins = tc.pinRequired || p.people.some((q) => hasPin(state, q.name));
+  const fence = tc.fence && !tc.fence.error ? tc.fence : null;
+  const pinBox = pins ? `<label>Your clock PIN${tc.pinRequired ? "" : " (if your manager gave you one)"}<input type="password" name="pin" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off"${tc.pinRequired ? " required" : ""}></label>` : "";
+  const geo = fence ? `<input type="hidden" name="kind" value=""><input type="hidden" name="lat"><input type="hidden" name="lon"><input type="hidden" name="acc"><input type="hidden" name="geoerr">` : "";
+  const geoNote = fence ? `<p class="note" data-geo-note>Your phone's location is checked when you press a button: only how far you are from the site is kept, not where you are. ${fence.mode === "block" ? `Punches from more than ${fence.radius} m away, or with location turned off, are refused.` : `Punches from more than ${fence.radius} m away, or with location turned off, are flagged for your manager.`}</p>` : "";
+  return `<h2>Clock in or out</h2><p class="note">On the clock now: ${list || "nobody"}. Times are ${esc(tc.tz)}.</p><form method="post" action="/team/punch?t=${esc(token)}"${fence ? " data-geo" : ""}>${geo}<label>Who are you?<select name="name" required>${p.people.map((q) => `<option>${esc(q.name)}</option>`).join("")}</select></label>${pinBox}<button name="kind" value="in">Clock in</button><button name="kind" value="out">Clock out</button></form>${geoNote}<p class="note">The time is taken from the server when you press the button, not from your phone. Forgot to punch? Tell your manager; they can add it, and it is marked as added by them.</p>${fence ? GEO_SCRIPT : ""}`;
 }
 
 function teamPage(state, token, tc = null) {
@@ -317,7 +325,20 @@ function timesheetPage(state, key, tc, weekStart, note = "") {
 ${tc.pay ? payTable(payForTimesheet(ts, wagesOf(state), tc.pay), tc.pay) : ""}
 <h2>Every stretch worked</h2><table><thead><tr><th>Person</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Scheduled shift</th><th>Flags</th></tr></thead><tbody>${det}</tbody></table>
 <h2>Add a missed punch</h2><form method="post" action="/admin/punch-add?key=${k}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><label>Person<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>Date<input type="date" name="date" required></label><label>Time (HH:MM, ${esc(ts.tz)})<input name="time" required placeholder="09:00" maxlength="5"></label><button name="kind" value="in">Add clock-in</button><button name="kind" value="out">Add clock-out</button></form><p class="note">Added punches are marked "added by manager" here and in the CSV, so the record shows what was typed in later.</p>
-<h2>Latest punches</h2><table><thead><tr><th>Person</th><th></th><th>When</th><th>By</th><th></th></tr></thead><tbody>${recent}</tbody></table>`);
+<h2>Latest punches</h2><table><thead><tr><th>Person</th><th></th><th>When</th><th>By</th><th></th></tr></thead><tbody>${recent}</tbody></table>
+${pinSection(state, k, week.weekStart, names, tc)}`);
+}
+
+// Clock PINs and the geofence's settings, on the timesheet page. A PIN is shown only once, as typed; it is stored hashed.
+function pinSection(state, k, weekStart, names, tc) {
+  const rows = names.map((n) => `<tr><td>${esc(n)}</td><td>${hasPin(state, n) ? "set" : tc.pinRequired ? `<span class="err">none (cannot punch)</span>` : "none"}</td></tr>`).join("");
+  const f = tc.fence;
+  const fenceNote = !f ? "Off. Set CLOCK_GEOFENCE=lat,lon,radius_m (for example 41.8789,-87.6359,150) to check how far from the site each punch is made; CLOCK_GEOFENCE_MODE=block refuses far punches instead of flagging them. Tell your staff before you turn it on."
+    : f.error ? `<span class="err">${esc(f.error)}</span>` : `On: ${f.radius} m around ${f.lat}, ${f.lon}, ${f.mode === "block" ? "far punches and punches with no location are refused" : "far punches and punches with no location are flagged above"}. Only the distance is stored, never where the phone was.`;
+  return `<h2>Clock PINs</h2><p class="note">${tc.pinRequired ? "CLOCK_PIN=required: everyone needs a PIN to punch." : "A person with a PIN must type it to punch; people without one punch as before. Set CLOCK_PIN=required to make everyone use one."} Five wrong PINs in 15 minutes lock that person's punches for 15 minutes. PINs are stored hashed; you cannot read one back, only set a new one.</p>
+<table><thead><tr><th>Person</th><th>PIN</th></tr></thead><tbody>${rows}</tbody></table>
+<form method="post" action="/admin/pin?key=${k}" autocomplete="off"><input type="hidden" name="week" value="${esc(weekStart)}"><label>Person<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>New PIN (4-8 digits)<input name="pin" inputmode="numeric" pattern="[0-9]{4,8}" maxlength="8" autocomplete="off"></label><button name="act" value="set">Set PIN</button><button name="act" value="clear">Remove PIN</button></form>
+<h2>Where punches come from</h2><p class="note">${fenceNote}</p>`;
 }
 
 export function handler(state, save, env = globalThis.process?.env ?? {}, now = Date.now, fetchImpl = globalThis.fetch) {
@@ -325,7 +346,8 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
   const clockOn = String(env.TIME_CLOCK ?? "1") !== "0", tz = zoneOf(env.TIMEZONE);
   const grace = Math.max(0, Math.min(60, Number(env.TIME_GRACE_MIN ?? 5) || 0));
   const pay = readPayEnv(env);
-  const tcNow = () => ({ tz, grace, now: now(), pay });
+  const pinRequired = String(env.CLOCK_PIN || "").toLowerCase() === "required", fence = readGeofence(env);
+  const tcNow = () => ({ tz, grace, now: now(), pay, pinRequired, fence });
   const notify = notifier(env, fetchImpl);
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
@@ -361,10 +383,18 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
         return send(200, rosterFeedIcs([...(state.history || []), { weekStart: p.weekStart, assignments: p.assignments }], person, { name: person + "'s shifts" }), "text/calendar; charset=utf-8");
       }
       if (req.method === "POST" && url.pathname === "/team/punch" && clockOn) {
-        const p = state.published, person = String(form.get("name") || ""), kind = String(form.get("kind") || "");
-        const bad = (m) => send(400, page("Could not record that", `<p class="err">${esc(m)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
+        const p = state.published, person = String(form.get("name") || ""), kind = String(form.getAll("kind").find(Boolean) || "");
+        const bad = (m, code = 400) => send(code, page("Could not record that", `<p class="err">${esc(m)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
         if (!p || !p.people.some((q) => q.name === person)) return bad("Pick your name from the list.");
-        const r = punch(state, person, kind, now(), { tz });
+        if (kind !== "in" && kind !== "out") return bad("Choose clock in or clock out.");
+        const pc = await checkPin(state, person, String(form.get("pin") || ""), now(), { required: pinRequired });
+        if (pc.error) { if (state.pinFails && state.pinFails[person]) save(); return bad(pc.error, pc.locked ? 429 : 403); }
+        let where = null;
+        if (fence && !fence.error) {
+          where = placeOf(fence, form);
+          if (fence.mode === "block" && (where.none || where.away)) return bad(where.none ? `Your manager asks for your location when you clock ${kind}, and none came through (${where.why}). Turn location on for this page and try again, or ask your manager to add the punch.` : `You look to be ${where.m} m from the site (phone accuracy ${where.acc ?? "unknown"} m), more than the ${fence.radius} m allowed. Try again on site, or ask your manager to add the punch.`, 403);
+        }
+        const r = punch(state, person, kind, now(), { tz, where });
         if (r.error) return bad(r.error);
         save();
         return send(200, page("Recorded", `<p class="ok">${esc(person)} clocked ${kind === "in" ? "in" : "out"} at ${esc(clock(localParts(r.punch.at, tz).min))} (${esc(tz)}).</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
@@ -459,6 +489,14 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       if (r.error) return back(sheet, "Not added: " + r.error);
       save();
       return back(sheet, `Added a clock-${r.punch.kind} for ${r.punch.person}.`);
+    }
+    if (clockOn && req.method === "POST" && url.pathname === "/admin/pin") {
+      const who = String(form.get("name") || ""), clear = form.get("act") === "clear", pin = String(form.get("pin") || "").trim();
+      if (!clear && !validPin(pin)) return back(sheet, "Not set: a PIN is 4 to 8 digits.");
+      const r = await setPin(state, who, clear ? "" : pin, now());
+      if (r.error) return back(sheet, "Not set: " + r.error);
+      save();
+      return back(sheet, clear ? (r.cleared ? `Removed ${who}'s PIN.` : `${who} had no PIN.`) : `PIN set for ${who}. Tell them in person; it is not shown again.`);
     }
     if (clockOn && req.method === "POST" && url.pathname === "/admin/punch-remove") {
       const ok = removePunch(state, form.get("id"));

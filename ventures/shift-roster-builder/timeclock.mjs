@@ -4,9 +4,12 @@
 // shift's end, shifts with no punch, time worked on no scheduled shift and punches left open, and can add a missed punch
 // (marked as added by the manager, kept in the CSV) or remove a wrong one.
 //
-// What it is not: no geofence, photo or PIN, so it is an honour system (anyone with the team link can punch for anyone;
-// the manager's edits and the "added by manager" marks are the check). It flags weekly hours over 40 only as a
+// Optional checks (clockguard.mjs, 2026-11-16): a per-person clock PIN and a site geofence, both off by default. With
+// neither on it is an honour system (anyone with the team link can punch for anyone; the manager's edits and the
+// "added by manager" marks are the check). It flags weekly hours over 40 only as a
 // number to look at; daily overtime, breaks and rounding rules depend on where you are and are not applied.
+
+import { placeFlag } from "./clockguard.mjs";
 
 export const MAX_PUNCHES = 3000; // about 100 days of a 15-person team punching twice a day
 const OPEN_LIMIT_MIN = 16 * 60; // an "in" with no "out" after this long is a missing clock-out, not someone still working
@@ -57,7 +60,7 @@ export function onTheClock(punches, nowMs) {
 
 // Record a punch with the server's time. Refuses a second "in" while one is open and an "out" with nothing open,
 // so a double tap cannot make a zero-length or negative shift.
-export function punch(state, person, kind, nowMs, { by = "staff", tz = "UTC" } = {}) {
+export function punch(state, person, kind, nowMs, { by = "staff", tz = "UTC", where = null } = {}) {
   if (kind !== "in" && kind !== "out") return { error: "Choose clock in or clock out." };
   state.punches = state.punches || [];
   const open = onTheClock(state.punches, nowMs).get(person);
@@ -65,6 +68,7 @@ export function punch(state, person, kind, nowMs, { by = "staff", tz = "UTC" } =
   if (by === "staff" && kind === "out" && !open) return { error: `${person} is not clocked in. Ask your manager to add a missed clock-in.` };
   state.punchSeq = (state.punchSeq || 0) + 1;
   const p = { id: state.punchSeq, person, kind, at: nowMs, by };
+  if (where) p.where = where; // distance from the site only (clockguard.mjs placeOf), never coordinates
   state.punches.push(p);
   if (state.punches.length > MAX_PUNCHES) state.punches.splice(0, state.punches.length - MAX_PUNCHES);
   return { ok: true, punch: p };
@@ -128,6 +132,7 @@ export function timesheet(punches, week, { tz = "UTC", graceMin = 5, nowMs = Dat
       if (best) best.spans.push(row); else row.flags.push("no scheduled shift");
       if (row.open) row.flags.push("on the clock now");
       if (row.byManager) row.flags.push("punch added by manager");
+      for (const f of [placeFlag(sp.in, "clock-in"), placeFlag(sp.out, "clock-out")]) if (f) row.flags.push(f);
       rows.push(row);
     }
     for (const sh of shifts) {
