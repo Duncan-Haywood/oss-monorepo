@@ -558,6 +558,9 @@ FLAGSHIP_NEXT_CHARS = 500
 # named the cap, and runs that appended to a full `next:` learned it from CI
 # (three run records on 2026-11-13).
 FLAGSHIP_NEXT_MAX = 2000
+# validate.py's FLAGSHIP_BUILDABLE_MAX, pinned the same way: a run's first
+# `buildable:` edit failed on the unstated cap (run record, 2026-11-16).
+FLAGSHIP_BUILDABLE_MAX = 600
 
 
 def next_budget(v: "Venture") -> str:
@@ -588,14 +591,16 @@ def next_task(v: Venture) -> str:
             milestone = f"BUILDABLE HERE: {v.flagship_buildable} -- Context: {milestone}"
             buildable_edit = (
                 " If you landed a BUILDABLE HERE item, rewrite it in `buildable:` instead "
-                "(same tool with `--field buildable`; drop the field when nothing buildable is left)."
+                f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
+                "drop the field when nothing buildable is left)."
             )
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
             f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
             f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
-            "`--park ITEM` moves an open item to the venture's NEXT.md when there is no room)."
+            "add `--make-room` to the same call when there is no room: it parks items from the end of "
+            "the row to the venture's NEXT.md, or `--park ITEM` to choose which)."
             + buildable_edit
         )
     if not v.measured:
