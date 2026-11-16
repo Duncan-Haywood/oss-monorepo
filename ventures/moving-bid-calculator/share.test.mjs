@@ -119,6 +119,22 @@ test('clearing removes the saved bid', () => {
   assert.equal(storage.size(), 0);
 });
 
+// Red team 2026-11-16: `!storage || !spec?.key` -> `&&` and clearBid's
+// `return true` -> `false` both passed this suite. A spec with no key would
+// save under the key "undefined", shared with any other page on the origin.
+test('save and clear report what happened, and a key-less spec writes nothing', () => {
+  const storage = fakeStorage();
+  assert.equal(saveBid(storage, SPEC, { area: '48' }), true);
+  assert.equal(clearBid(storage, SPEC), true);
+  assert.equal(storage.size(), 0);
+  const { key, ...keyless } = SPEC;
+  assert.equal(saveBid(storage, keyless, { area: '48' }), false);
+  assert.equal(storage.size(), 0);
+  assert.equal(clearBid(storage, keyless), false);
+  assert.equal(saveBid(null, SPEC, { area: '48' }), false);
+  assert.equal(clearBid(null, SPEC), false);
+});
+
 test('storage that throws never takes the page down with it', () => {
   const storage = fakeStorage({ throws: true });
   assert.equal(saveBid(storage, SPEC, { area: '48' }), false);

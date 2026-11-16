@@ -59,7 +59,8 @@ const RATE_STEP = 5;
 const HOURS_STEP = 0.5;
 const FLOOR_MINIMUM_HOURS = 2;
 
-const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step;
+// `+ 0` turns the -0 that Math.ceil(-1e-9) gives for a zero value into 0.
+const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step + 0;
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
