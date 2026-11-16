@@ -71,3 +71,9 @@ test("robots, sitemap and llms.txt exist and list the guide", () => {
   assert.match(page("sitemap.xml"), /free-school-timetable-generator\.html/);
   assert.match(page("llms.txt"), /timetable/i);
 });
+
+test("links its scheduling siblings", () => {
+  const html = page("index.html");
+  assert.ok(html.includes('href="../tutor-weekly-schedule-optimizer/"'));
+  assert.ok(html.includes('href="../league-schedule-generator/"'));
+});
