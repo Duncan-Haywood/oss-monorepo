@@ -798,3 +798,17 @@ test('Research findings: a programme with a registry summary gets it as the dek 
   assert.match(page, /<meta name="description" content="A catamaran carries 200 kg furthest per kWh at 2 m\/s\. Milestone 2 adds drag uncertainty\.">/);
   assert.match(page, /"@type":"CollectionPage","name":"[^"]*","description":"A catamaran carries/);
 });
+
+test('ventureLede: a tool project page leads with its llms.txt summary', async () => {
+  const { ventureLede, projectGroups } = await import('./writing.mjs');
+  const root = mkdtempSync(path.join(os.tmpdir(), 'venture-lede-'));
+  mkdirSync(path.join(root, 'ventures', 'demo'), { recursive: true });
+  writeFileSync(path.join(root, 'ventures', 'demo', 'llms.txt'), '# Demo\n\n> Free [checker](https://x.test/) for `a<b` files.\n> It names the rule. More text follows here.\n\n## Docs\n');
+  assert.equal(ventureLede('demo', root, 50), 'Free checker for a<b files. It names the rule.', 'links keep text, backticks go, quote lines join, whole sentences to the budget');
+  assert.equal(ventureLede('missing', root), '', 'no llms.txt, no lede');
+  const posts = [1, 2, 3].map(() => ({ project: 'demo' }));
+  const [group] = projectGroups(posts, { root, names: () => 'Demo' });
+  assert.equal(group.lede, 'Free checker for a<b files. It names the rule. More text follows here.');
+  const [plain] = projectGroups(posts, { root, names: () => 'Demo', ledes: () => '' });
+  assert.equal('lede' in plain, false, 'an empty lede leaves the generic dek');
+});
