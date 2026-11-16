@@ -1,0 +1,56 @@
+reproduction (scale.jsonl): unc/clean = (1.0, H, s), comp/draw 0 = (0.125, H, s)
+  comp H 16 seed 0: 1.5964516178 vs 1.5964516178  diff +0.00e+00  (1303 s, 2.15.0+cpu)
+  comp H 16 seed 1: 1.5896469802 vs 1.5896469802  diff +0.00e+00  (1304 s, 2.15.0+cpu)
+  comp H 16 seed 2: 1.5950424969 vs 1.5950424969  diff +0.00e+00  (1302 s, 2.15.0+cpu)
+  comp H 16 seed 3: 1.5931929797 vs 1.5931929797  diff +0.00e+00  (1314 s, 2.15.0+cpu)
+  comp H 64 seed 0: 1.5965205356 vs 1.5965205356  diff +0.00e+00  (1413 s, 2.15.0+cpu)
+  comp H 64 seed 1: 1.5952869430 vs 1.5952869430  diff +0.00e+00  (1418 s, 2.15.0+cpu)
+  comp H 64 seed 2: 1.6140056252 vs 1.6140056252  diff +0.00e+00  (1385 s, 2.15.0+cpu)
+  comp H 64 seed 3: 1.6029088572 vs 1.6029088572  diff +0.00e+00  (1396 s, 2.15.0+cpu)
+  unc  H 16 seed 0: 1.5714612976 vs 1.5714612976  diff +0.00e+00  (1288 s, 2.15.0+cpu)
+  unc  H 16 seed 1: 1.5670808926 vs 1.5670808926  diff +0.00e+00  (1289 s, 2.15.0+cpu)
+  unc  H 16 seed 2: 1.5723209083 vs 1.5723209083  diff +0.00e+00  (1294 s, 2.15.0+cpu)
+  unc  H 16 seed 3: 1.5756339207 vs 1.5756339207  diff +0.00e+00  (1294 s, 2.15.0+cpu)
+  unc  H 64 seed 0: 1.6021660194 vs 1.6021660194  diff +0.00e+00  (1401 s, 2.15.0+cpu)
+  unc  H 64 seed 1: 1.6052856296 vs 1.6052856296  diff +0.00e+00  (1411 s, 2.15.0+cpu)
+  unc  H 64 seed 2: 1.6071736887 vs 1.6071736887  diff +0.00e+00  (1395 s, 2.15.0+cpu)
+  unc  H 64 seed 3: 1.6005917042 vs 1.6005917042  diff +0.00e+00  (1383 s, 2.15.0+cpu)
+
+per run: clean loss, last-round cost (draw mean - clean) with within-run sd over 8 draws, D/||theta||^2, D/||step||^2
+  H 64 unc  seed 0: clean 1.6022  cost +0.0117 (sd 0.0021, range +0.0091 to +0.0156)  D 1.35e-02 of theta2, 5.59 x last step2
+  H 64 unc  seed 1: clean 1.6053  cost +0.0111 (sd 0.0024, range +0.0075 to +0.0153)  D 1.34e-02 of theta2, 5.67 x last step2
+  H 64 unc  seed 2: clean 1.6072  cost +0.0117 (sd 0.0023, range +0.0085 to +0.0154)  D 1.35e-02 of theta2, 5.64 x last step2
+  H 64 unc  seed 3: clean 1.6006  cost +0.0117 (sd 0.0020, range +0.0084 to +0.0150)  D 1.36e-02 of theta2, 5.60 x last step2
+  H 64 comp seed 0: clean 1.5842  cost +0.0129 (sd 0.0030, range +0.0083 to +0.0168)  D 8.78e-03 of theta2, 5.35 x last step2
+  H 64 comp seed 1: clean 1.5845  cost +0.0133 (sd 0.0020, range +0.0108 to +0.0157)  D 8.79e-03 of theta2, 5.38 x last step2
+  H 64 comp seed 2: clean 1.6015  cost +0.0113 (sd 0.0022, range +0.0072 to +0.0130)  D 8.76e-03 of theta2, 5.36 x last step2
+  H 64 comp seed 3: clean 1.5905  cost +0.0141 (sd 0.0016, range +0.0120 to +0.0163)  D 8.77e-03 of theta2, 5.33 x last step2
+  H 16 unc  seed 0: clean 1.5715  cost +0.0063 (sd 0.0020, range +0.0032 to +0.0094)  D 4.01e-03 of theta2, 5.86 x last step2
+  H 16 unc  seed 1: clean 1.5671  cost +0.0056 (sd 0.0012, range +0.0041 to +0.0076)  D 4.05e-03 of theta2, 6.00 x last step2
+  H 16 unc  seed 2: clean 1.5723  cost +0.0060 (sd 0.0017, range +0.0038 to +0.0093)  D 3.96e-03 of theta2, 5.88 x last step2
+  H 16 unc  seed 3: clean 1.5756  cost +0.0060 (sd 0.0013, range +0.0038 to +0.0079)  D 4.05e-03 of theta2, 5.93 x last step2
+  H 16 comp seed 0: clean 1.5907  cost +0.0060 (sd 0.0011, range +0.0049 to +0.0083)  D 2.29e-03 of theta2, 5.63 x last step2
+  H 16 comp seed 1: clean 1.5839  cost +0.0046 (sd 0.0013, range +0.0024 to +0.0066)  D 2.31e-03 of theta2, 5.81 x last step2
+  H 16 comp seed 2: clean 1.5882  cost +0.0048 (sd 0.0017, range +0.0018 to +0.0068)  D 2.28e-03 of theta2, 5.79 x last step2
+  H 16 comp seed 3: clean 1.5859  cost +0.0053 (sd 0.0022, range +0.0005 to +0.0075)  D 2.30e-03 of theta2, 5.76 x last step2
+
+seed mean (se) of the last-round cost, nats:
+  unc  H 64: +0.0116 (0.0001)
+  comp H 64: +0.0129 (0.0006)
+  unc  H 16: +0.0060 (0.0002)
+  comp H 16: +0.0052 (0.0003)
+
+H6x-i   (unc trunk, H 64: last-round cost above 0 by more than 2 se): held (+0.0116, se 0.0001)
+H6x-ii  (unc trunk: cost at H 64 above H 16 by more than 2 se): held (+0.0056, se 0.0002)
+H6x-iii (H 64: comp trunk's cost below unc trunk's by more than 2 se): refuted (+0.0013, se 0.0006)
+H6x-iv  (H 16: comp trunk's cost below unc trunk's by more than 2 se): held (-0.0008, se 0.0004)
+
+decomposition, seed mean (se, paired by seed): full cost C = comp/draw0 - unc/clean; trunk cost T = comp/clean - unc/clean; last-round share b = comp/draw0 - comp/clean (C = T + b); T8 uses the 8-draw mean in place of draw 0
+  H 64: C -0.0016 (0.0038)  T -0.0136 (0.0035)  b +0.0120 (0.0004)  C with 8-draw last round -0.0007 (0.0032)
+  H 16: C +0.0220 (0.0016)  T +0.0156 (0.0019)  b +0.0064 (0.0004)  C with 8-draw last round +0.0207 (0.0020)
+
+exploratory: injected energy D (8-draw mean) relative to ||theta||^2 and to the clean last step, seed mean
+  H 64 unc : D/theta2 1.35e-02  D/step2 5.62  ||last clean step||^2 27.324
+  H 64 comp: D/theta2 8.78e-03  D/step2 5.35  ||last clean step||^2 33.722
+  H 16 unc : D/theta2 4.02e-03  D/step2 5.92  ||last clean step||^2 5.962
+  H 16 comp: D/theta2 2.30e-03  D/step2 5.75  ||last clean step||^2 6.500
