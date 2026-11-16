@@ -3,7 +3,7 @@ title: "An IDS editor, tested by writing all 203,433 choices it offers, and the 
 seo_title: "A free IDS editor built from buildingSMART's property sets"
 date: 2026-11-16
 tags: [bim, ifc, ids, buildingsmart, construction, javascript]
-description: "A browser IDS editor writes the standard data type for each property. Testing every choice it offers found a voids/fills relation gap the 334 official tests miss."
+description: "A browser IDS editor writes the standard data type for each property. Testing every choice it offers found a voids/fills gap the 334 official tests miss."
 ---
 
 [IDS Model Check](https://marisstella.app/ids-model-check/) checks an IFC model
