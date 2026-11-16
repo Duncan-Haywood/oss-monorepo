@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-11-16 · Milestone 6c: do crowd-side robots seed lanes in a weak-convention crowd, or do they only thin it? (predictions written before any run)
+- Why this step: 6a read, after its run and unregistered, that in the half-bias social-force crowd crowd-side robots at 20% *cut* people's transit by 1.59 s and raised people's lane order from 0.756 to 0.873. Robots there replace people at a fixed agent count, so those cells also hold fewer people; the lead cannot tell a lane seed from a thinner crowd. If the robots do seed lanes, a fleet operator has a reason to deploy crowd-side robots beyond "they collide less" (6a). This also starts README Next steps 2 (sweep the human side bias toward the street value 0.65). Milestone 6b (SARL in each twin) is a sibling's open PR #16714; this step does not touch it.
+- Tool: `experiments/m6c_lane_seeds.py` reuses `sftwin.simulate` and `m5_robots.py`'s constants unchanged. People-only measures (robots are excluded by `sftwin.measure`).
+- Design (fixed now): social force only (JuPedSim 1.4.2, fitted &beta; 0.1), the one family in which halving the bias moved the crowd toward the street convention (6a, R7); bias multipliers 0.25, 0.5, 0.75 and 1.0; the two HERMES 3.6 m runs with milestone 3's walker counts (N 30 and 60); four conditions: *none* (N people), *control* (N &minus; k people, no robots), *crowd* (N &minus; k people + k crowd-side robots), *opposite* (N &minus; k people + k opposite-side robots), k = 10% and 20% of N as in 5a; robots 1.2 m/s; 20 **fresh** seeds per cell (SEED0 20280000); 120 s runs, first 40 s warm-up. 56 cells, 1,120 runs. Seeding effect = crowd &minus; control; density effect = control &minus; none. Cell values are seed means, pooled over the two runs by their mean; 95% percentile bootstrap over seeds within each cell (B = 2,000).
+- Disclosure: a 1-seed, 45 s run checked the script end to end; its numbers were not read before these predictions were written.
+- **Predictions:**
+  - S1 (the registered test): at 0.5 &times; and 20%, crowd-side robots shorten people's transit against the density-matched control (95% interval of crowd &minus; control below 0). Prior 40%.
+  - S2: at 0.5 &times; and 20%, they raise people's lane order against the control (interval above 0). Prior 55%.
+  - S3: at 0.5 &times; and 20%, the total change (crowd &minus; none) is a cut and the density effect is less than half of it. Prior 35% (fewer people in a 3.6 m corridor is the simpler explanation).
+  - S4: the transit seeding effect is more negative at 0.25 &times; and 0.5 &times; than at the fitted bias (both the minimum and the mean over shares). Prior 55%.
+  - S5: opposite-side robots lengthen people's transit against the control in all 8 multiplier-share cells (interval above 0). Prior 75%.
+  - S6: at 0.25 &times; with no robots, people's share on own right falls below 0.75. Prior 50%.
+
 ## 2026-11-16 · Milestone 6a: H5 registered on close passes, with fresh seeds, tau intervals and a weaker human convention (predictions written before the full run)
 - Why this step: milestone 5b's preview found the three families that passed the held-out test (social force, collision-free speed, ORCA) rank the four robot policies identically by robot-person close passes (&tau; 1.00 in 9 of 9 cells) and not by human delay. That preview reused 5a and 5b's seeds, had no interval on &tau;, and ran only at each family's fitted side bias, which overstates the convention (lab 0.94 against 0.65 on the street, milestone 7). Milestone 6 asks for H5 per metric; this step registers it on close passes as a confirmatory test. SARL is the next step.
 - Tool: `experiments/m6a_h5_closepass.py` reuses `m5_robots.py`'s measures and the simulators unchanged; a percentile bootstrap resamples seeds within each family-run-policy-share cell, re-pools the pass-weighted close-pass rate over the two runs and recomputes Kendall &tau;-a for each family pair (B = 1,000).
