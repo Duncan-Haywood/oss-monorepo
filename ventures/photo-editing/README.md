@@ -1397,6 +1397,20 @@ allows and 14 of the 83 files write (Samsung, OnePlus, Xiaomi, LG, asus). They a
 opt-in: its gains are still measured on synthetic noise. `tools/noise_profile_check.py`,
 `tools/noise_profile_guard_synth.py`, `eval/noise-profile-real-dngs-2026-11-16.md`.
 
+**Since the same day the blend's luma is scored, under noise drawn as a sensor draws it, and the guard reads each
+colour plane on its own.** On 25 held-out files the blend raises luma PSNR over the directional default by
++0.61 dB (Bayer) and +0.92 dB (X-Trans), and by +0.91 / +1.31 dB when the noise is drawn before white balance
+with each file's own gains. No tile in 522 per layout is worse in luma by more than 0.01 dB. Under that
+white-balanced noise the old guard, which carried a profile by one mean gain, read honest profiles as high as
+1.55x and trimmed them on up to 33 of 174 tiles, at a cost of up to 0.68 dB luma on a tile. The guard now carries
+each plane's pair by its own gain and checks it against that colour's sensels. Honest profiles then read at most
+1.03 at the 95th percentile in every scenario, a trim costs at most 0.12 dB, and a profile overstated on one
+plane is scaled on that plane alone. NoiseProfiles with one pair per plane are read through CFAPlaneColor.
+On 24 real DNGs only a Pixel 4 XL's green plane read differently from the old check (1.34). The blend itself
+keeps the one-gain carry it was tuned with: a per-colour noise model in the blend gained 0.01-0.05 dB colour and
+lost 0.05-0.07 dB luma. Still opt-in, still synthetic noise. `tools/noise_aware_planes.py`,
+`eval/noise-aware-planes-luma-2026-11-16.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

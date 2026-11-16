@@ -41,6 +41,13 @@ open. MIT licensed, no dependencies, nothing uploaded.
   none with an error or a warning; a 15,102-specification sample validates
   against buildingSMART's `ids.xsd` in IfcTester. Hands the file straight to the
   checker. `eval/editor-2026-11-16.md`.
+  **Opens an existing IDS** (2026-11-16): what the page can edit becomes
+  editable rows, the rest is kept as written (shown as XML, written back
+  unchanged, removable). 64 of 64 public IDS files, 12 of 12 IDS-Audit-tool
+  valid files and 187 of 187 buildingSMART pass cases write back asking the
+  same thing, spec by spec and facet by facet; none becomes invalid against
+  `ids.xsd`; 75% of the public files' facets open as editable rows.
+  `eval/editor-open-2026-11-16.md`.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -334,10 +341,11 @@ faster than IfcTester; its point is needing no install.
 
 ## Next steps
 
-- The editor: open an existing IDS to edit it (parseIds output back into the
-  editor's state); offer the classes and property sets a loaded model actually
-  has, with counts; applicability on properties and classifications, not only
-  a class.
+- The editor (open an IDS landed 2026-11-16; what stays read-only on the 64
+  public files, `eval/editor-open-2026-11-16.md`): custom property sets as an
+  editable row (110 kept facets), several classes per specification and
+  property/attribute facets in the applicability (85); offer the classes and
+  property sets a loaded model actually has, with counts.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
 - A GitHub Action wrapper for checking models on every commit.
