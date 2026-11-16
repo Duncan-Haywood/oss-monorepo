@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqydkjLK4wLyj7zkDKEg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T22:39:17Z",
+  "ended": "2026-11-16T23:49:13Z",
+  "wall_minutes": 70.13,
+  "tokens_in": 8356994,
+  "tokens_out": 48786,
+  "cost_usd": 3.8124,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16727",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run.py first crashed after 20 min of section A: a local `W = hose weight` shadowed the `shim_mech as W` module copied from milestone 35's setup; a second crash (AB undefined) was caught by an M36_SMOKE fast mode added afterwards",
+    "killing the background job with `ps | grep | xargs kill` and a `pkill -f` pattern killed the agent's own shell twice (exit 144), because the pattern also appeared in the command line"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hint ('[n]ame' bracketing) still fails when the same word appears elsewhere in the command; `ps aux | grep '[r]un.py' | xargs kill` in a command that also mentions run.py kills the calling shell. Suggest documenting `kill <pid>` from a separate call as the default."
+    },
+    {
+      "file": "research/buildbot-sheathing/experiments/m35_hose/run.py",
+      "issue": "Each milestone copies ~200 lines of setup (poses, QP torques, signs) from the previous run.py; a shared setup module would have avoided the shadowing crash and cut the ~45 min lost to reruns."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "LOG.md (registered plan)",
+      "why": "After section A's first rows showed the residual did not shrink with sensor quality, a diagnostic section A2 was added post hoc to find out why",
+      "did": "labelled A2 'post hoc, not registered' in run.py, results.txt, LOG and README; hypotheses H132-H135 are judged exactly as registered",
+      "result": "found the threshold-flip mechanism, the milestone's main finding"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-wrist-force-sensor-robot-nail-gun-hose.md",
+    "research/buildbot-sheathing/LOG.md (milestone 36 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Milestone 36 of buildbot-sheathing. No-sensor case reproduces m35's stacks to the printed digit. Local checks: tests/test_wrist_ft.py, test_reproduce.py, test_paper.py 11 passed; paper/check_numbers.py 302/302; research homepage build ok; check_md_links ok; cite_check ok; post front matter ok; run_workflow_locally --for-changes run (see PR). Run took 1451 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a84e05f8-8263-5fd4-90f2-ee10d413bc61",
+    "transcripts": 1,
+    "first": "2026-11-16T22:39:17Z",
+    "last": "2026-11-16T23:49:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 125,
+        "output": 48786,
+        "thinking": 12836,
+        "cache_read": 8207539,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149330,
+        "api_equivalent_usd": 3.8124,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 125,
+      "output": 48786,
+      "thinking": 12836,
+      "cache_read": 8207539,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149330,
+      "api_equivalent_usd": 3.8124,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 63,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 70.13,
+      "active_minutes": 70.13,
+      "model_minutes": 8.0,
+      "tool_minutes": 62.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a robotics engineer sourcing sensor specs, writing the model and sweep, and writing up one milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 314.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
