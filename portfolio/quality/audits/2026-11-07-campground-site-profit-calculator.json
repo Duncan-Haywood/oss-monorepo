@@ -4,7 +4,7 @@
   "seed": "2026-11-07-c",
   "auditor": "agent session (Claude), subagent audit",
   "status": "audited",
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16417"],
   "subject": "ventures/campground-site-profit-calculator",
   "professional": "a campground/RV-park operator or hospitality accountant who builds a park's P&L by occupied site-nights, with seasonal rate mix, lodging tax and OTA commission, checking break-even occupancy first",
   "scores": {
@@ -29,7 +29,8 @@
     {
       "severity": "medium",
       "what": "Turnover labour uses the raw wage with no payroll burden, understating variable cost per night by roughly 10-25%",
-      "where": "ventures/campground-site-profit-calculator/calc.mjs:42"
+      "where": "ventures/campground-site-profit-calculator/calc.mjs:42",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16417"
     },
     {
       "severity": "medium",
