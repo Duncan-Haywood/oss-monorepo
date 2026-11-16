@@ -171,7 +171,7 @@ export function compareCatalog(entries, baselineId = "ebay", overrides = {}) {
 // A cell starting with = + - @ is read as a formula by spreadsheet apps.
 const safeCell = (value) => {
   const text = String(value);
-  const guarded = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  const guarded = /^[=+\-@\t\r]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text) ? `'${text}` : text;
   return /[",\n]/.test(guarded) ? `"${guarded.replace(/"/g, '""')}"` : guarded;
 };
 

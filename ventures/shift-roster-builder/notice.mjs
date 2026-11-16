@@ -258,7 +258,9 @@ export function noticeReport(state, rules, { tz = "UTC", wages = new Map(), week
 const DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const clk = (m) => { const x = ((m % 1440) + 1440) % 1440; return `${String(Math.floor(x / 60)).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`; };
 export const slotLabel = (s) => (s ? `${DAYN[s.day]} ${clk(s.startMin)}-${clk(s.endMin)}` : "");
-const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+// A leading = + - @ tab or CR is defused, except a plain number: "-1" (notice hours on a change made mid-shift) is
+// not a formula, and "'-1" is text a payroll sheet cannot sum.
+const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 
 // The written offer of a called-out shift to the whole team. The three things it must say come from Seattle's 2024
 // model policy (a group offer, voluntary, the right to decline); the shift is the absent employee's hours only.

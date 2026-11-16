@@ -85,7 +85,8 @@ export function toCsv(entries) {
   const cols = ['date', 'label', 'grossPay', 'milesDriven', 'hoursActive', 'vehicleCost', 'netProfit', 'taxReserve'];
   const cell = (value) => {
     let text = String(value ?? '');
-    if (/^[=+\-@]/.test(text)) text = `'${text}`; // no spreadsheet formula injection
+    // No spreadsheet formula injection; a plain number (a losing session's -12.5) is not a formula.
+    if (/^[=+\-@\t\r]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text)) text = `'${text}`;
     return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
   };
   return [cols.join(','), ...entries.map((entry) => cols.map((col) => cell(entry[col])).join(','))].join('\n');

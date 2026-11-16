@@ -1094,6 +1094,27 @@ class PulseDropTest(unittest.TestCase):
             launcher.fit_from_drops([{"rpm_top": 800, "rpm_bottom": 700, "launched": True, "drop_top": 0.3,
                                       "drop_bottom": 0.3}])
 
+    def test_slow_wheel_keeps_its_revolutions_until_the_verdict(self):
+        """2026-11-16, firmware/esp32/README.md "The 1,000 rpm floor retested": the next shot's wheel speeds froze the
+        board's pulse snapshot straight after the release, leaving a 700 rpm wheel too few revolutions for the
+        loop-command fit. With host.HOLD_RPM the Pi waits for the verdict first, and the fit is made."""
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "interval": 3.0,
+                "shots": [{"x": 9.0, "y": 0.0, "speed": 22, "topspin": 2800},
+                          {"x": 10.5, "y": 0.0, "speed": 26, "topspin": 0}]}
+        shots = host.plan_drill(spec)
+        self.assertLess(shots[0].rpm_bottom, 800)
+        got = {}
+        old = host.HOLD_RPM
+        try:
+            for hold in (0.0, 1000.0):
+                host.HOLD_RPM = hold
+                res, _ = run(SimFeeder(), host.plan_drill(spec))
+                self.assertTrue(res.ok, res.aborted)
+                got[hold] = res.launches[0]["loop_bottom"]
+        finally:
+            host.HOLD_RPM = old
+        self.assertEqual(got, {0.0: False, 1000.0: True})
+
     def test_launch_flags_reach_the_pi(self):
         sim = SimFeeder()
         res, _ = run(sim, drill())
