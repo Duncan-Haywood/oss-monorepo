@@ -5522,7 +5522,7 @@ floor, or the AR(1) correction alone (best here, 0.353) on a sixth fresh multi-c
 Tests: `beedance-muted.test.mjs` (3: the rule fails with the committed numbers; white noise never flagged under the
 default or a floor of 2; bee 3 under AR(1) + floor 2 names x and y in the text and the default names nothing).
 
-## A date you name: three pre-registered rounds, not shipped (2026-11-16)
+## A date you name: four pre-registered rounds, not shipped (2026-11-16)
 
 The question: a law, launch or price change happened on a date fixed before anyone looked at the chart; did the
 level or the slope change there? That is an interrupted time series (segmented regression; Wagner et al. 2002,
@@ -5531,13 +5531,15 @@ given date (plus seasonal dummies with a period), AR(1) noise by iterated Prais-
 F and both t statistics with a parametric bootstrap from the null fit. A 95% range for the step and the slope
 change uses the bootstrap's 97.5th percentile of |t|. The bar to ship (CLI `--known-date`, the page, the engine)
 was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. **It failed the size bar in
-every round, in short sticky series, so it is not offered.** The module and its tests stay for the next round.
+every round, in short sticky series, so it is not offered.** Rounds 1-3 were too eager; round 4 (below) fixed that
+and became too cautious in one cell. The module and its tests stay for the next round.
 
 | Round (pre-registration) | Generator rho; guard | Worst size cells (of series tested) | Random walks rejected (of all) | Real A-D |
 |---|---|---|---|---|
 | 1 (`eval/known-date-prereg-2026-11-16.md`) | Kendall-corrected, capped at the guard; full-model residuals | n 40 rho 0.8: 13.6% (date at 50%), 8.9% (80%) | 18.0% (n 40), 10.8% (n 120) | all met |
 | 2 (`...-round2-2026-11-16.md`) | matched by indirect inference, capped at 0.95; same | n 40 rho 0.8 date 80%: 9.2% | 5.0%, 8.7% | (not rerun) |
 | 3 (`...-round3-2026-11-16.md`) | matched; plus the hinge test's random-walk cut guard | n 40 rho 0.8 date 80%: 9.4%; n 60 rho 0.8: 8.9% | 1.3%, 1.0% | all met |
+| 4 (`...-round4-2026-11-16.md`) | round 3, plus a 90% upper bound for rho; the larger p of the two | every cell 1.1-5.9% (max n 60 rho 0.8); **n 40 rho 0.4 date 80%: 1.8%, under the 2% floor** | 0.3%, 1.0% | all met |
 
 400 series per cell, 199 replicates; outputs in
 `eval/known-date-sim-round1.out.txt`, `-round2`, and `eval/known-date-sim.out.txt` (round 3). Every other size cell
@@ -5559,7 +5561,33 @@ in round 3 was 3.8-7.3%, and as a share of *all* series (refusals count as no re
 data even with the AR(1) correction: on straight lines with rho 0.4 it rejected 13-15% of 40-point series at p 0.05,
 and with rho 0.8 11-30% at every length (round 3 table). The bootstrap brings every 120-point cell to 3.8-6.8%.
 
-**Next round** (needs a fresh pre-registration and fresh seeds): the bootstrap's generator for admitted short
-series at the upper end of a range for rho rather than its point estimate, or a size bar on all series
-(unconditional) stated before the run, with the conditional rate reported. Then the CLI, page and engine wiring is
-a few lines (it was written and tested in this session, then taken out when the bar failed).
+### Round 4: an upper bound for rho fixes the eager cells and overshoots (2026-11-16, pre-registered; fails one line)
+
+Round 3's excess came from short sticky series whose rho reads low, so the bootstrap drew too-tame nulls. Round 4
+(`eval/known-date-prereg-round4-2026-11-16.md`, written after a 200-series exploratory run on seed base 333 and before
+the confirmatory run on fresh base 13000) adds one thing: a one-sided 90% upper bound for rho by test inversion (the
+grid rho whose simulated 10th-percentile estimate reaches the observed one, 200 null series per design, cached), a
+second bootstrap at that rho, and the larger p and wider range of the two: a two-point version of a maximised Monte
+Carlo test (Dufour 2006; Berger and Boos 1994). The exploratory run already showed it conservative, so before the
+confirmatory run the 2% size floor was restricted to the eight rho 0 and 0.4 cells and two power lines were added.
+`node eval/known-date-sim.mjs 400 199 upper` (`eval/known-date-sim-round4.out.txt`):
+
+| Bar (pre-registered) | Round 3 | Round 4 | |
+|---|---|---|---|
+| 1a. size at most 8% of tested, 12 cells + n 60 rho 0.8 | worst 9.4% | worst 5.9% (n 60 rho 0.8); n 40 rho 0.8 date 80%: 3.7% | holds |
+| 1b. size at least 2% in the eight rho 0 / 0.4 cells | (all met) | n 40 rho 0.4 date 80%: **1.8%** (7 of 391); date 50%: 2.3% | **fails** |
+| 2. random walks rejected, share of all | 1.3%, 1.0% | 0.3%, 1.0% | holds |
+| 3. power, step 1 sd, n 120: rho 0 at least 55%, rho 0.4 at least 20% | 64.8%, 26.0% | 62.8%, 27.3% | holds |
+| 4. real series A-D (`eval/known-date-real-round4.out.txt`) | met | met (seat belts: step -0.237, p 0.001; rear-seat control p 0.50; Nile -289, p 0.001; placebos 0 of 3) | holds |
+
+Reported without a bar: n 60 rho 0.9, 7.3% of tested (round 3: 24.5%). The price is power on short series: a step of
+1 sd at n 40 is found 15.8% of the time with white noise (round 3: 19.3%) and 4.8% with rho 0.4 (9.3%), where the
+test now rejects less often under the change than its nominal size under none. At n 120 power is near round 3's.
+
+**Reading.** The over-eager cells are gone at every length and stickiness tried, and the real predictions hold, but
+at n 40 the upper bound is far above the truth even at rho 0.4 (40 points carry little information about rho), so
+the two-point maximum spends the error budget on a worst case that rarely holds. By its own pre-registration nothing
+ships. **Next round** (fresh pre-registration and seeds): use the upper bound only when the guard's line-residual rho
+is above a value fixed in advance (where round 3 failed), or a Berger-Boos p (the maximum over the bound's interval
+plus its gamma) with a narrower 1-gamma; either way state the 2% floor for every cell again. The CLI wiring
+(`--known-date <label>` with a plain-text report) was written in this session and taken out when the bar failed.
