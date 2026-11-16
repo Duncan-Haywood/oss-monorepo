@@ -258,6 +258,8 @@ def refresh_origin_main(hours=6, run=subprocess.run):
 _HEADS = {}
 # PR number -> (created_at, draft), filled by _open_pr_titles for land_first_lines.
 _META = {}
+# PR number -> True when its head lives in a fork (research_log.py --prs skips those).
+_FORK = {}
 
 
 @functools.lru_cache(maxsize=None)
@@ -287,6 +289,8 @@ def _open_pr_titles(repo, limit, pages=10):
                 batch = json.load(r)
             found += [(p["number"], p.get("title", "")) for p in batch]
             _HEADS.update({p["number"]: (p.get("head") or {}).get("ref", "") for p in batch})
+            _FORK.update({p["number"]: ((p.get("head") or {}).get("repo") or {}).get("full_name", "").lower()
+                          != repo.lower() for p in batch})
             _META.update({p["number"]: (p.get("created_at") or "", bool(p.get("draft"))) for p in batch})
             if len(batch) < limit:
                 break

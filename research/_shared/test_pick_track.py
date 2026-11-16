@@ -217,6 +217,7 @@ class OpenPrsTest(unittest.TestCase):
         from unittest import mock
         body = json.dumps([{"number": 7, "title": "research/lowcomm-training: 3d"},
                            {"number": 8, "title": "other"}]).encode()
+        pick_track._open_pr_titles.cache_clear()  # an earlier test may have filled it
         with mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)):
             self.assertEqual(pick_track.open_prs_for("lowcomm-training"),
                              ["#7 research/lowcomm-training: 3d"])
