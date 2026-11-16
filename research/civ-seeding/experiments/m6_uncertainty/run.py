@@ -44,6 +44,9 @@ FAMS = ("I", "T", "R")
 FIDX = {f: np.array([i for i, p in enumerate(POINTS) if p[0] == f]) for f in FAMS}
 P_GRID = (0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3)
 RANDOMISED = ("random", "friend", "survey-degree-0.25", "survey-spread-0.25")
+# milestone 8 reuses this run with extra deterministic rules and its own output directory
+EXTRA_RULES = {}
+OUT_DIR = HERE
 
 _V = _BETA = None
 
@@ -184,6 +187,8 @@ def main():
                 d[f"dd-{q:g}"] = sd.rule_degree_discount(v, b, p=q)
             for f in FAMS:
                 d[f"greedy-{f}"] = greedy[(g, f)]
+            for r, fn in EXTRA_RULES.items():
+                d[r] = fn(v, b, None)
             det_sets.append(d)
         rules = list(det_sets[0]) + list(RANDOMISED)
         ks = sorted(set(point.values()) | {d[f] for d in draws for f in FAMS})
@@ -278,14 +283,16 @@ def main():
       f"gap to best {med[0.05] - min(med.values()):.4f} (best p {min(med, key=med.get):g})")
     p(f"runtime {time.time() - t0:.0f} s")
     txt = "\n".join(lines) + "\n"
-    open(os.path.join(HERE, "smoke.txt" if SMOKE else "results.txt"), "w").write(txt)
+    open(os.path.join(OUT_DIR, "smoke.txt" if SMOKE else "results.txt"), "w").write(txt)
     json.dump({"rules": rules,
                "worst_point": worst0.round(5).tolist(),
                "worst_joint_q": np.percentile(wj, [5, 50, 95], 0).round(5).tolist(),
                "worst_fixed_q": np.percentile(wf, [5, 50, 95], 0).round(5).tolist(),
                "dd_p_median": med},
-              open(os.path.join(HERE, "smoke.json" if SMOKE else "regret.json"), "w"), indent=1)
+              open(os.path.join(OUT_DIR, "smoke.json" if SMOKE else "regret.json"), "w"), indent=1)
     print(txt)
+    return dict(rules=rules, joint=joint, fixed=fixed, W=W, E=E, draws=draws, point=point,
+                det_sets=det_sets, worst0=worst0, full=full)
 
 
 if __name__ == "__main__":
