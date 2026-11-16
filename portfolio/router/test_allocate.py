@@ -944,6 +944,7 @@ class VentureReportTests(unittest.TestCase):
         import validate
         import allocate
         self.assertEqual(allocate.FLAGSHIP_NEXT_MAX, validate.FLAGSHIP_NEXT_MAX)
+        self.assertEqual(allocate.FLAGSHIP_BUILDABLE_MAX, validate.FLAGSHIP_BUILDABLE_MAX)
         deep = make("deep")
         deep.flagship_rank, deep.flagship_next = 0, "y" * 1990
         self.assertIn("1990 of 2000 characters", venture_report("deep", [deep]))

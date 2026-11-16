@@ -16,6 +16,7 @@ space, so `ventures/wall-framing-\n takeoff` reads as
     flagship_field.py ai-bookkeeper --landed        # landed-work clauses and what of each to keep
     flagship_field.py ai-bookkeeper --park ITEM [--park ITEM2]  # move open items to ventures/<v>/NEXT.md
     flagship_field.py ai-bookkeeper --replace OLD NEW --park ITEM  # both in one call, cap checked after
+    flagship_field.py ai-bookkeeper --replace OLD NEW --make-room  # park from the end until it fits
     flagship_field.py --check                       # exit 1 on a hyphen-folded break
 
 Edits touch only that field's lines, rewrap without breaking at hyphens or
@@ -47,6 +48,16 @@ rows sat at 1,922 to 1,997 characters, and 16 sessions in two days
 landing. So `--replace`/`--set` now take `--park` in the same call (the cap is
 checked after the park), and a refusal lists the row's items from the end,
 with the room each frees and the `--park` flag to add, until there is enough.
+
+That still meant a refusal, then a second call (and a third when the parks
+chosen left no room for the NEXT.md pointer): on 2026-11-16 the 11 rows sat
+at 1,611 to 1,999 characters, eight of them within 80 of the cap, and the
+three newest flagship_field.py reports (friction_rank.py, 2026-11-16) were
+all that round trip. `--make-room` parks the items the refusal would have
+listed, from the end of the row, never the run's own NEW text, the opening
+history pointer or the NEXT.md pointer, until the value and the pointer fit,
+and prints what it moved. Pass `--park` instead when the tail holds
+something more urgent than an item further up.
 """
 from __future__ import annotations
 
@@ -228,7 +239,8 @@ def park_hint(value: str, venture: str, over: int, keep: tuple[str, ...] = ()) -
     rows = [f"  {g:4d}  --park {shlex.quote(c)}" for c, g in cands]
     return ("To make room without losing an open item, add --park for one or more of these "
             f"to this same command (they move to ventures/{venture}/NEXT.md; room freed, "
-            "items from the end of the row; pick the least urgent):\n"
+            "items from the end of the row; pick the least urgent), or add --make-room to "
+            "park exactly these:\n"
             + "\n".join(rows))
 
 
@@ -287,6 +299,28 @@ def park_text(existing: str | None, venture: str, items: list[str], day: str) ->
         body = body.rstrip("\n") + "\n"
     add = "".join(f"- ({day}) {' '.join(i.split()).strip(' ;')}\n" for i in items)
     return body + add
+
+
+def make_room(value: str, keep: tuple[str, ...] = ()) -> tuple[str, list[str]]:
+    """(`value` with items parked from the end until it and the NEXT.md pointer
+    fit under the cap, the items parked). Unchanged when it already fits.
+    Raises ValueError when the parkable items cannot free enough."""
+    value = " ".join(value.split())
+    if len(value) <= FLAGSHIP_NEXT_MAX:
+        return value, []
+    parked: list[str] = []
+    for _ in range(50):
+        room = 0 if PARK_POINTER in value else len(PARK_POINTER) + 1
+        over = len(value) + room - FLAGSHIP_NEXT_MAX
+        if over <= 0:
+            return value, parked
+        cands = [c for c, _ in park_candidates(value, over, keep)]
+        if not cands:
+            break
+        value = remove_items(value, cands)
+        parked += cands
+    raise ValueError(f"--make-room: parking every item it may move still leaves `next:` at "
+                     f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text")
 
 
 def with_pointer(value: str) -> str:
@@ -353,6 +387,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--park", action="append", metavar="ITEM",
                     help="move an open item out of `next:` into ventures/<v>/NEXT.md (repeatable; "
                          "combines with --replace/--set, the cap is checked after parking)")
+    ap.add_argument("--make-room", action="store_true",
+                    help="when `next:` would pass the cap, park items from the end of the row "
+                         "(never your own NEW text) until it and the NEXT.md pointer fit")
     ap.add_argument("--file", type=Path, default=FLAGSHIPS_PATH)
     ap.add_argument("--ventures-dir", type=Path, default=REPO_ROOT / "ventures", help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
@@ -379,9 +416,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"-- {len(found)} landed clause(s); trimming them frees {_saved(found)} of "
                   f"{len(current)} characters", file=sys.stderr)
             return 0
-        if args.park:
+        if args.park or args.make_room:
             if args.field != "next":
-                ap.error("--park works on `next:` only")
+                ap.error("--park and --make-room work on `next:` only")
             if current is None:
                 print(f"{args.venture} has no `next:`", file=sys.stderr)
                 return 1
@@ -393,7 +430,24 @@ def main(argv: list[str] | None = None) -> int:
                     print(not_found_hint(text, args.venture, args.field, old, new), file=sys.stderr)
                     return 1
                 new = new.replace(old, rep, 1)
-            new = with_pointer(remove_items(new, args.park))
+            parks = list(args.park or [])
+            if parks:
+                new = remove_items(new, parks)
+            if args.make_room:
+                new, auto = make_room(new, mine)
+                for item in auto:
+                    print(f"--make-room parked ({len(item) + 2} chars): {item}", file=sys.stderr)
+                parks += auto
+            if not parks:
+                # it already fitted: an ordinary edit, no NEXT.md entry
+                new = " ".join(new.split())
+                out = set_value(text, args.venture, "next", new, mine)
+                args.file.write_text(out)
+                print(f"wrote {args.venture}.next: {len(new)} of {FLAGSHIP_NEXT_MAX} characters "
+                      "(fits; nothing parked)")
+                return 0
+            args.park = parks
+            new = with_pointer(new)
             out = set_value(text, args.venture, "next", new, mine)
             dest = args.ventures_dir / args.venture / "NEXT.md"
             if not dest.parent.is_dir():

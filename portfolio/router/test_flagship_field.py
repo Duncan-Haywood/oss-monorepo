@@ -236,3 +236,54 @@ def test_park_candidates_skip_the_runs_own_new_text():
     mine = "(9) item 9 " + "w" * 178
     cands = ff.park_candidates(v, 100, keep=(mine,))
     assert cands and not cands[0][0].startswith("(9)")
+
+
+def test_make_room_parks_from_the_end_until_value_and_pointer_fit():
+    v = _full_row(11, 190)
+    assert len(v) > ff.FLAGSHIP_NEXT_MAX
+    got, parked = ff.make_room(v)
+    assert parked and parked[0].startswith("(10)")
+    assert len(got) + len(ff.PARK_POINTER) + 1 <= ff.FLAGSHIP_NEXT_MAX
+    assert len(ff.with_pointer(got)) <= ff.FLAGSHIP_NEXT_MAX
+    assert ff.with_pointer(got).endswith(ff.PARK_POINTER)
+    assert got.startswith("History")
+    # a value that already fits is left alone
+    short = _full_row(3, 100)
+    assert ff.make_room(short) == (short, [])
+
+
+def test_make_room_never_parks_the_runs_own_text():
+    v = _full_row(11, 190)
+    mine = "(10) item 10 " + "w" * 177
+    got, parked = ff.make_room(v, keep=(mine,))
+    assert mine.split(" w")[0] in got and not any(p.startswith("(10)") for p in parked)
+
+
+def test_make_room_refuses_when_nothing_left_to_park():
+    with pytest.raises(ValueError, match="--make-room"):
+        ff.make_room("History: README. " + "x" * 2100)
+
+
+def test_cli_replace_with_make_room_lands_in_one_call(tmp_path, capsys):
+    row = _full_row(10, 195)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    old = "(3) item 3 " + "w" * 183
+    longer = "(3) item 3 landed (README); next a much longer follow-up " + "z" * 150
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    assert ff.main(base + ["--replace", old, longer, "--make-room"]) == 0
+    got = ff.read_value(f.read_text(), "b", "next")
+    assert longer in got and got.endswith(ff.PARK_POINTER) and len(got) <= ff.FLAGSHIP_NEXT_MAX
+    parked = (tmp_path / "ventures" / "b" / "NEXT.md").read_text()
+    assert "(9) item 9" in parked and "--make-room parked" in capsys.readouterr().err
+    # when the edit fits, --make-room is a plain edit: nothing parked, no pointer
+    assert ff.main(base + ["--replace", longer, "(3) short", "--make-room"]) == 0
+    assert "(9) item 9" in parked and ff.PARK_POINTER in ff.read_value(f.read_text(), "b", "next")
+    assert parked == (tmp_path / "ventures" / "b" / "NEXT.md").read_text()
+
+
+def test_refusal_offers_make_room():
+    with pytest.raises(ValueError, match="--make-room"):
+        ff.set_value(DOC, "b", "next", _full_row(11, 190))
