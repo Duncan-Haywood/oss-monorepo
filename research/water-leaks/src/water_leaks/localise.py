@@ -162,3 +162,51 @@ def lagged_change(X, t, lag, span=24):
     if t - lag < 0:
         raise ValueError(f"hour {t}: lag {lag} reaches before the data")
     return X[t:t + span].mean(axis=0) - X[t - lag:t - lag + span].mean(axis=0)
+
+
+def nn_pursuit(r, S, support=(), rel=0.05, floor=0.005, kmax=24):
+    """Step 19: non-negative greedy pursuit of r ([sensors]) over atoms S ([atoms, sensors]).
+
+    Both are centred across sensors (a common pressure shift is not fitted). Leaks lower pressure,
+    so each atom is a signature per unit flow and its flow is fitted non-negative. Starting from
+    `support` (refitted), add the atom with the largest positive normalised correlation with the
+    current residual and refit all flows by NNLS; stop when the last addition cut the RMS by less
+    than `rel` of the previous RMS (that atom is dropped), the RMS is under `floor`, or `kmax`
+    atoms are in. Returns (support list, flows array aligned with it, final RMS)."""
+    from scipy.optimize import nnls  # noqa: PLC0415
+
+    rc = r - r.mean()
+    Sc = S - S.mean(axis=1, keepdims=True)
+    nS = np.linalg.norm(Sc, axis=1)
+    nS[nS == 0] = np.inf
+
+    def fit(sup):
+        if not sup:
+            return np.zeros(0), rc.copy()
+        x, _ = nnls(Sc[sup].T, rc)
+        return x, rc - Sc[sup].T @ x
+
+    sup = list(dict.fromkeys(int(j) for j in support))
+    x, res = fit(sup)
+    rms = float(np.sqrt(np.mean(res ** 2)))
+    while len(sup) < kmax and rms >= floor:
+        c = (Sc @ res) / nS
+        c[sup] = -np.inf
+        j = int(np.argmax(c))
+        if c[j] <= 0:
+            break
+        x2, res2 = fit(sup + [j])
+        rms2 = float(np.sqrt(np.mean(res2 ** 2)))
+        if rms - rms2 < rel * rms:
+            break
+        sup, x, res, rms = sup + [j], x2, res2, rms2
+    return sup, x, rms
+
+
+def rise(sup_b, x_b, sup_t, x_t):
+    """Step 19: the atom whose fitted flow rose most from the baseline fit to the window fit."""
+    b = dict(zip(sup_b, x_b))
+    d = {j: q - b.get(j, 0.0) for j, q in zip(sup_t, x_t)}
+    for j in b:
+        d.setdefault(j, -b[j])
+    return max(d, key=d.get)
