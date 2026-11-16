@@ -270,10 +270,9 @@ flagships:
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer: learned 1/8-or-1/4
-      selector (eval/bayer-adaptive-laplace-*). X-Trans demosaic: real frames
-      0.5-0.7 dB short of LibRaw's three-pass, level under noise, sheet 4.4
-      (zone-plate rings; median and green;
-      eval/xtrans-clamp-gradient-2026-11-15.md). DNG 1.7.1.0 spec PDF: URL in
+      selector (eval/bayer-adaptive-laplace-*). X-Trans: a per-frame choice (A7 IV
+      wants less edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
+      eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
       eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
