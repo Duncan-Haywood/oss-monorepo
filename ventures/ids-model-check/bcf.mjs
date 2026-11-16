@@ -64,7 +64,7 @@ export function bcfZip(report, { modelName = "model.ifc", author = "ids-model-ch
   files.push({ name: "project.bcfp", data: `<?xml version="1.0" encoding="UTF-8"?>\n<ProjectExtension><Project ProjectId="${projectId}"><Name>${xml(report.title || "IDS check")}</Name></Project><ExtensionSchema></ExtensionSchema></ProjectExtension>\n` });
   let n = 0;
   for (const s of report.specs) {
-    const failures = s.failed.length ? s.failed : s.status === "fail" ? [{ id: null, type: null, globalId: null, name: null, reasons: [s.note || "specification failed"] }] : [];
+    const failures = s.failed.length ? s.failed : s.status === "fail" || s.status === "invalid" ? [{ id: null, type: null, globalId: null, name: null, reasons: [s.note || "specification failed"] }] : [];
     for (const f of failures) {
       if (n >= maxTopics) break;
       n++;

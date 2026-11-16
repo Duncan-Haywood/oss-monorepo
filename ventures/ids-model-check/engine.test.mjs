@@ -158,4 +158,7 @@ const SUITE = new URL("./eval/IDS/Documentation/ImplementersDocumentation/TestCa
 test("buildingSMART's IDS test pairs all score right (run eval/fetch-testcases.sh first)", { skip: !existsSync(SUITE) }, () => {
   const out = execFileSync("node", [new URL("./eval/run-testcases.mjs", import.meta.url).pathname, SUITE]).toString();
   assert.match(out, /total\s+334 \/ 334/);
+  // The IDS audit: 26 of 27 invalid-* files read INVALID (the 27th, a group
+  // predefined type BUNNARY, is only wrong given the model), no valid file does.
+  assert.match(out, /strict [^:]*: 333 \/ 334; invalid-\* not flagged: 1; valid IDS flagged invalid: 0/);
 });

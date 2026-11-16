@@ -9,7 +9,8 @@
 ## Use
 
 - Browser: drop a .ifc and a .ids, read each specification's result and the failing elements, download BCF/CSV/JSON.
-- CLI: `node cli.mjs model.ifc spec.ids [--json] [--bcf out.bcfzip]`; exit 0 all pass, 1 a specification fails, 2 error.
+- CLI: `node cli.mjs model.ifc spec.ids [--json] [--bcf out.bcfzip]`; exit 0 all pass, 1 a specification fails or is invalid, 2 error.
+- IDS audit with no model: `node cli.mjs --audit spec.ids` (or "Audit the IDS only" on the page) reports specifications that are invalid against the IFC schema: unknown or lower-case classes, attributes a class lacks or has only as derived/inverse, values compared with lists/objects/selects, malformed numbers, integers and booleans, patterns on numbers, unknown dataTypes, prohibited specifications with requirements. Flags 26 of buildingSMART's 27 invalid IDS test files and none of the 307 valid ones.
 - Library: `checkIds(idsText, ifcText, {schemas, typeMap, measureUnits})` in ids.mjs; `check(idsText, ifcText)` in node.mjs.
 
 ## Covers
@@ -20,6 +21,6 @@
 
 ## Not covered
 
-- ifcXML, ifcJSON, .ifczip input; IDS validity audit; geometry or clash checks (IDS does not specify them).
+- ifcXML, ifcJSON, .ifczip input; property set template checks in the audit; geometry or clash checks (IDS does not specify them).
 
 Results are a reading of the model against the IDS, not a design review or professional advice.
