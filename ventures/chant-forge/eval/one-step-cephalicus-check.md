@@ -82,4 +82,36 @@ to 3999 gave 12 pieces, not 15. Predictions, rule as frozen above:
 
 ## Held-out result
 
-Not yet run.
+`node eval/one-step-check.mjs --out eval/one-step-report.md eval/one-step-fresh-pages.json`, run once
+after the section above was committed (e944acb55):
+
+| | main | rule on |
+|---|---|---|
+| one-step cephalici read at their pitch (head too) | 16 (16) of 17 | 17 (17) of 17 |
+| on-line liquescents read | 10 of 11 | 10 of 11 |
+| other liquescents read | 19 of 22 | 20 of 22 |
+| false liquescents | 1 | 1 |
+| aligned notes agreeing / differing | 2,062 / 0 | 2,063 / 0 |
+| places the rule changed | | 3 |
+
+1. **Held.** One more one-step cephalicus read: GregoBase 3642 *in* `hg~` (leaf 441, staff 4), the one
+   main missed. Main split the block in two and read the small note as a plain head.
+2. **Held.** Agreeing 2,062 to 2,063, differing 0 either way.
+3. **Failed as worded.** False liquescents are unchanged, but "other liquescents read" rose 19 to 20:
+   the gained `hg~` has its small note in a space, so it counts in that column too. That was my wording
+   (the columns overlap), not a new behaviour; no other liquescent changed.
+4. **Held.** The three places changed (441:4:1684, and outside the aligned pieces 467:6:1742 and
+   500:9:207, both split lower halves relabelled at the same pitch) are each a one-step cephalicus
+   (crops looked at).
+
+So, as with the hook-on-line rule, the fault is rarer than the misses that pointed to it: main already
+reads 16 of the 17 held-out one-step cephalici, and 69 of 84 on the tuning lists. The rule stays on.
+Across the 140 pieces it reads 5 + 1 more cephalici at their pitch and their head in the right order,
+loses none and adds no false liquescent.
+
+## What is left
+
+- On the tuning lists, 10 of 84 one-step cephalici are still missed; three (`kj~`, `ih~`, `ed~`) were
+  reached by try 2 and lost when the stem had to be a hairline. Not looked at one by one.
+- The held-out miss on the on-line list (10 of 11) and the 2 other liquescents (20 of 22) were not
+  looked at.

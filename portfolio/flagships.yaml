@@ -446,10 +446,10 @@ flagships:
       liquescents, lines at true thickness; tilted pages, curled staves straightened
       (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, a one-step cephalicus read as one head (3490, 3508;
-      eval/hook-on-line-check.md), 3408's strokes, 3464's cephalicus; --split-voices
-      (by phrase or at a word, --split-words, eval/word-split-report.md) and
-      --overlap (both sections sing the seam note at a direct tenor/bass swap,
+      squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
+      tuning misses left, 3408's strokes, 3464's cephalicus; --split-voices (by
+      phrase or at a word, --split-words, eval/word-split-report.md) and --overlap
+      (both sections sing the seam note at a direct tenor/bass swap,
       eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase
       handoff against a whole phrase and of a one-note overlap against a clean
       handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
