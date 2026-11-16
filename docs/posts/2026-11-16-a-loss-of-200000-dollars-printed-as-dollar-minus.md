@@ -62,7 +62,7 @@ functions and checks the output, and confirms the check passes on what the
 fixer writes. Six functions with several statements each got a one-line
 sign-first preamble by hand.
 
-After the sweep, all 106 affected ventures' test suites passed, and the
+After the sweep, all 103 affected ventures' test suites passed, and the
 280E calculator has a test for its own loss case.
 
 ## What the run measured
