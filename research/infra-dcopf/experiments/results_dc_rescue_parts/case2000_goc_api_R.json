@@ -1,0 +1,20 @@
+{
+ "case": "case2000_goc",
+ "kind": "api",
+ "JR": {
+  "n_over": 0,
+  "max_load": 0.9999999631235339,
+  "slack_out_mw": 0.0,
+  "n_ang": 0,
+  "ang_exc_deg": 0.0,
+  "vviol": 0,
+  "v_exc_pu": 0.0,
+  "qviol": 0,
+  "q_exc_mvar": 0.0,
+  "cost": 1486763.055473497,
+  "losses": 1539.6028699521703,
+  "p_clean": true,
+  "clean": true
+ },
+ "secs": 137.18334031105042
+}

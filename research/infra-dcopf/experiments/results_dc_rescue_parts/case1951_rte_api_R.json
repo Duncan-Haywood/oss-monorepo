@@ -1,0 +1,8 @@
+{
+ "case": "case1951_rte",
+ "kind": "api",
+ "JR": null,
+ "timeout": true,
+ "secs": 2700,
+ "note": "IPOPT reactive stage killed by the shell's 45-minute wall limit (timeout 2700); counts as not clean"
+}
