@@ -269,6 +269,16 @@
 //    default column lower than with the rule off, re-run on the shipped code; (8) eval/consonant-check.mjs cannot
 //    move (it reads openings with readOnset; readCoda appears there only in comments). If all eight hold, barLead
 //    8 becomes readCoda's default; otherwise it stays opt-in, reported.
+//    Outcome (run 2026-11-16, after the registration above was committed): failed on (1). On U, voiced stops read
+//    exactly: default 127, barLead 128 of 144 (+1 where +2 was wanted); (2) read as a nasal 6 to 4, holds; (3) nasals
+//    46 of 48 both, (4) n-clusters 46 of 48 both, (5) others 93 of 96 both, (6) control 332 of 336 both (the
+//    registration said "of 288", copied from T: U has 28 syllables, so 336), hold; (7) holds (the A-T figures above
+//    were taken on this code, the default column of every part byte-identical); (8) holds by construction. barLead
+//    stays opt-in. Read frame by frame after the run (eval/vstop-diag.mjs U --bar 8): of the 2 nasals it turned back,
+//    *dag* on A#3 became a voiced *labial* stop (the burst's place), and the voiced stops still read as a nasal (*bob*
+//    on C#4, *lag* on D#4) have no burst found at all, so no closure for barLead to see. Across T and U, every
+//    voiced stop barLead rescued on F#3-A#3 that ends in g reads as a b: the next faults are a velar burst read as
+//    labial on F#3-A#3 and the burst search on C#4-E4, not the murmur rule.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -920,14 +930,14 @@ lines.push('## T. Held out: closeAnchor with the wall in codas (sixteenth round)
 // The seventeenth round's held-out set (barLead, pre-registered in the header): voiced-stop codas, nasal codas,
 // n-cluster codas (the rule's risk: a murmur that runs into its stop's closure) and others, sung in no other part,
 // at A2, D3, G#3, A#3, C#4 and D#4, 110 BPM (in no other part), pulse-4 and pulse-2 notes, each followed by a rest,
-// sung and vowel-only. Two columns: the default reader and barLead (the `--bar` setting, 3 unless given).
+// sung and vowel-only. Two columns: the default reader and barLead (the `--bar` setting, 8 unless given).
 if (PARTS.includes('U')) {
 const VST = ['dag', 'bob', 'mod', 'sig', 'lag', 'tib', 'ceb', 'nud', 'hod', 'fig', 'gub', 'pid'];
 const NAS = ['bam', 'sun', 'tem', 'hon'], CLU = ['dent', 'hens', 'sonc', 'tint'];
 const NEG = [...NAS, ...CLU, 'dut', 'sic', 'gep', 'bos', 'lex', 'bel', 'mo', 'vit'];
 const SY = [...VST, ...NEG], tally = {}, uMiss = new Map(), uMissB = new Map(), uNone = {}, uNas = {};
 const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
-const BAR = { ...RC, barLead: BARARG && BARARG !== 'off' ? Number(BARARG) : 3 }, DEF = { ...RC, barLead: false };
+const BAR = { ...RC, barLead: BARARG && BARARG !== 'off' ? Number(BARARG) : 8 }, DEF = { ...RC, barLead: false };
 for (const pulses of [4, 2]) for (const midi of [45, 50, 56, 58, 61, 63]) {
   const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
   const mid = eventsToMidi(ev, { bpm: 110, title: 'held-out voice bars' });
