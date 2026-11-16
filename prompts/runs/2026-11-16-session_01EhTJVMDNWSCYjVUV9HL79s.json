@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMDNWSCYjVUV9HL79s",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "7eab53d2d124d76d4c0792e7bcacb742bd07a4a55c29819a50a6cd23cbc24081",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T07:08:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6): shift-roster-builder",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16490",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder's next: is at the 2000-character cap and mostly optimiser micro-items on synthetic 300-person weeks; product items for the real 5-20 person customer (proof-of-presence clock, onboarding) were not listed, so allocate.py steers runs toward low-user-value perf work"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's buildable items (a 4 s repair reserve at 300+ copies, a warm-sized gate) speed up 300-person synthetic weeks for a product whose users are 5-20 person teams. Closing the time clock's honour-system gap (buddy punching, off-site punches) is a feature competitors charge for and a reason a small business would pick the hub, so it was worth more per hour.",
+      "did": "Built optional per-person clock PINs with a lockout and a distance-only site geofence instead of the listed optimiser items",
+      "result": "Landed with 5 tests and a headless-Chromium run; flagships next now lists it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-free-time-clock-with-pins-and-a-geofence-that-forgets-where-you-were.md"
+  ],
+  "goal": null,
+  "notes": "Added clockguard.mjs (PBKDF2 PIN hashing via Web Crypto so it runs on the Worker; 5-try/15-min lock with HTTP 429; haversine geofence storing only metres + phone accuracy; flag or block mode) and wired it into hub.mjs (team-page PIN box, geolocation script, /admin/pin, timesheet section) and timeclock.mjs (punch.where, place flags in timesheet and CSV). Checked: node --test clockguard.test.mjs timeclock.test.mjs pass (5 new tests); a Playwright run of the real page with a granted location 67 m from the site stored {m:67,acc:20,away:false}, and with location not granted the punch still reached the server. Full venture suite and venture-preflight results are in the PR body. Not tried on a real phone at a real site.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKnihi7ZvEC5wXxbgqV",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T06:17:55Z",
+  "ended": "2026-11-16T06:58:43Z",
+  "wall_minutes": 41.08,
+  "tokens_in": 7720651,
+  "tokens_out": 43294,
+  "cost_usd": 3.5494,
+  "tool_calls": 74,
+  "task": "photo-editing flagship 7 BUILDABLE HERE: Bayer learned 1/8-or-1/4 selector",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16480",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First scratch setup raced: mkdir ran inside a backgrounded subshell, so the sample clone's cd failed; re-ran it in the foreground, nothing landed in the tree.",
+    "A three-config CV loop overran the 600 s foreground timeout and moved to the background; results were intact.",
+    "CI lint failed: ruff F821 in tools/bayer_laplace_train.py (accumulator B undefined to static analysis); fixed. The same job's mypy step had 2 errors already on main (bayer_demosaic eps type to bayer_native.piece, dng_opcodes np = None); fixed both forward.",
+    "changed-ventures CI job failed in ventures/shift-roster-builder (not touched by this PR): 'a test failed and the suite then printed nothing for 10s'. Local run_venture_tests.py shift-roster-builder: ok, 664 tests, 0 failed; treated as flaky and merged on the checks this change reaches."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing next: is 1996 of 2000 characters, so even a one-clause history note needs --park; left next: unchanged and updated buildable: only."
+    },
+    {
+      "file": "ventures/photo-editing/llms.txt",
+      "issue": "The RAW-stills bullet is a single line of about 15,000 characters; appending a clause needs a scripted exact-match replace, and readers (human or LLM) cannot skim it."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "run_venture_tests.py says a local pass is the CI pass, but it does not run photo-editing-ci.yml's lint job (ruff 0.15.8 + mypy); a local run missed a ruff error and a pre-existing mypy failure on main."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "'rewrite that venture's next:' -- the landed item was a BUILDABLE HERE item, so per allocate.py the buildable: field was rewritten instead; next: left as is (full).",
+      "did": "flagship_field.py --field buildable --replace",
+      "result": "validate.py passes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-bayer-demosaic-learned-weight.md",
+    "ventures/photo-editing/eval/bayer-learned-laplace-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "Learned per-sensel Laplacian weight for the Bayer demosaic (quadratic in 8 scale-free features, 45 weights, weighted least squares on 40 public sample frames; test frames refused). Leave-one-frame-out CV on training frames: +0.33 dB green (37/40). Held-out ten real frames, run once: colour +0.01..+0.39 dB, luma +0.02..+0.66 over 3/16 default on all ten; loses on synthetic sheet; numpy only, 4-6x default time; shipped opt-in as --demosaic learned. Verification: tests/test_bayer_demosaic.py + test_xtrans_demosaic.py 27 passed; run_venture_tests.py photo-editing: ok, 1217 tests, 8 skipped; post front matter/links/similarity clean; venture-preflight.mjs photo-editing: clean. After CI: ruff 0.15.8 and mypy 1.19.1 clean in ventures/photo-editing; suite rerun ok (1217).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1131cd0c-fd6b-5289-b2f7-a3750c39ef73",
+    "transcripts": 1,
+    "first": "2026-11-16T06:17:55Z",
+    "last": "2026-11-16T06:59:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 43294,
+        "thinking": 8598,
+        "cache_read": 7574515,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146010,
+        "api_equivalent_usd": 3.5494,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 43294,
+      "thinking": 8598,
+      "cache_read": 7574515,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146010,
+      "api_equivalent_usd": 3.5494,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 63,
+      "Edit": 4,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.08,
+      "active_minutes": 41.08,
+      "model_minutes": 8.67,
+      "tool_minutes": 32.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an imaging engineer designing features, a fitting tool, CV and a held-out evaluation for a demosaic weight model, plus plumbing and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 338.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

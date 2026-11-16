@@ -1370,7 +1370,7 @@ class DevelopReport:
     lens: str | None = None
     lens_notes: list[str] = field(default_factory=list)
     lens_key: str | None = None  # the body's number for the lens (lens_profiles.lens_key), when it gives one
-    demosaic: str | None = None  # "bilinear" or "directional" for a CFA; None for LinearRaw
+    demosaic: str | None = None  # "bilinear", "directional" or "learned" for a CFA; None for LinearRaw
 
 
 CFA_PERIODS = (2, 6)  # Bayer 2x2 and Fujifilm X-Trans 6x6
@@ -2119,7 +2119,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     return report_w, report_h, out, report
 
 
-DEMOSAICS = ("auto", "bilinear", "directional")
+DEMOSAICS = ("auto", "bilinear", "directional", "learned")
 
 
 def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
@@ -2127,7 +2127,9 @@ def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes
     whenever the numpy engine runs: on X-Trans at full and half size (X-Trans half size demosaics at
     full size, then averages; eval/xtrans-directional-demosaic-2026-11-14.md), and on Bayer at full size
     since 2026-11-15 (eval/bayer-directional-demosaic-2026-11-15.md; Bayer half size bins each 2x2
-    block and demosaics nothing)."""
+    block and demosaics nothing). "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
+    Laplacian weight from a fitted model, 0.01-0.39 dB colour and 0.02-0.66 dB luma above the default on
+    ten held-out frames, at 4-6x the time (eval/bayer-learned-laplace-2026-11-16.md)."""
 
     if choice not in DEMOSAICS:
         raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")
@@ -2137,12 +2139,15 @@ def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes
     least = 6 if xtrans else 2
     if choice == "bilinear":
         return "bilinear"
-    if choice == "directional":
+    if choice in ("directional", "learned"):
         if not numpy_engine:
-            raise DevelopError("the directional demosaic needs the numpy engine (numpy installed)")
+            raise DevelopError(f"the {choice} demosaic needs the numpy engine (numpy installed)")
         if w < least or h < least:
-            raise DevelopError(f"the directional demosaic needs at least {least} x {least} sensels")
-        return "directional"
+            raise DevelopError(f"the {choice} demosaic needs at least {least} x {least} sensels")
+        if choice == "learned" and xtrans:
+            notes.append("learned demosaic is for Bayer sensors: X-Trans uses the directional one")
+            return "directional"
+        return choice
     # auto
     if w >= least and h >= least:
         if numpy_engine:

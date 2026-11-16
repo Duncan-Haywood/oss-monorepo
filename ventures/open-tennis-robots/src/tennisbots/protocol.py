@@ -26,8 +26,9 @@ TELEMETRY = 0x80      # uint16 flags, int16 base_y_mm, int16 rpm_top, int16 rpm_
                       # uint8 balls_fed (feeder: balls released through the gate since power-up, mod 256)
 LAUNCH = 0x81         # feeder, after TELEMETRY once a stroke has been judged (2026-11-16): uint8 seq (verdicts mod 256),
                       # int16 rpm_top, int16 rpm_bottom (each wheel's speed just before the ball), int16 drop_top,
-                      # int16 drop_bottom (the lowest single-revolution speed's fall below that, in 1/10000 of it),
-                      # uint8 launched (1: a ball went)
+                      # int16 drop_bottom (the fall below that, in 1/10000 of it), uint8 flags: bit 0 a ball went;
+                      # bit 1 / bit 2 the top / bottom drop is the whole drop fitted from the pulse times, else the
+                      # lowest single-revolution reading's fall (README "The drop from the pulse times")
 
 FORMATS = {
     HEARTBEAT: "",

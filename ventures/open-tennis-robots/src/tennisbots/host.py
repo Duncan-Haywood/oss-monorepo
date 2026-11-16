@@ -256,7 +256,8 @@ class Refitter:
                 return self._skip(len(went), f"fit refused: {name} {v:.3f} is outside {lo}..{hi} (a wheel inertia far "
                                              "off, or a stuck tach?)")
         # Each efficiency is changed only when the fit moved it further than the fit's own error (README "Shot log":
-        # 3.9% speed, 11.7% spin over 18 simulated builds): a 3% correction from a 4-shot fit was as likely to be noise,
+        # 3.9% speed, 11.7% spin over 18 simulated builds; 1.9% and 6.6% since the pulse-time drops, README "The drop
+        # from the pulse times", the tolerances not yet re-tuned): a 3% correction from a 4-shot fit was as likely to be noise,
         # and on builds the planner already had nearly right it moved the landings 0.6 m further off.
         se, sp = self.wheels.speed_efficiency, self.wheels.spin_efficiency
         if abs(fit.speed_efficiency / se - 1) > self.speed_tol:
@@ -330,7 +331,8 @@ class FeederLink:
                 self._seq = vals[0]
                 self.launch_log.append((now, {"seq": vals[0], "rpm_top": vals[1], "rpm_bottom": vals[2],
                                               "drop_top": vals[3] / 1e4, "drop_bottom": vals[4] / 1e4,
-                                              "launched": bool(vals[5])}))
+                                              "launched": bool(vals[5] & 1), "fit_top": bool(vals[5] & 2),
+                                              "fit_bottom": bool(vals[5] & 4)}))
         return self.last
 
     @property

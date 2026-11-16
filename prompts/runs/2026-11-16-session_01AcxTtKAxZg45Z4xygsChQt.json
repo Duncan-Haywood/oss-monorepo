@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKAxZg45Z4xygsChQt",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T07:59:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "build-data session 97: length-matched placebo for the dead close-outs (length or class?)",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16493",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "The auto-mode Bash safety classifier returned no verdict on 6 calls in a row mid-run (transient); waited with Read/Grep, then Bash recovered."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/src/rounds.py",
+      "issue": "All cells of a run write the same --out-name JSON, so parallel per-cell processes would race on it; this run used one out file per cell and merged them. A per-cell output or merge flag would save the next run that step."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "pyenv.py -r requirements.txt installed lightgbm into /usr/bin/python3.13 in about a minute; worked as documented."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-build-data-length-not-class.md",
+    "research/build-data/LOG.md (session 97)"
+  ],
+  "goal": null,
+  "notes": "Routed research/0 by weighted draw; pick_track drew build-data. Security queue empty, IDEAS.md and website requests empty. Pre-registration commit 6bbfc1c16 before any model run. 4 cells x 3 variants x 3 seeds, q0.9, ~40 min on 4 cores. L0, L1, L3 held; L2, L4, L5 refuted. Checks: build-data tests 157 passed, 2 skipped (/usr/bin/python3.13); research homepage build ok; check_md_links ok; research_live_links ok; post front matter, links and similarity ok. No new citations, so cite_check not rerun.",
+  "corrections": [],
+  "redteam": null
+}

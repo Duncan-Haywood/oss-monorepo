@@ -15,7 +15,8 @@ many sessions toward a paper. A directory created after that date passes if it
 Directories on main before the programme bar landed (2026-10-24) are listed in legacy_projects.txt and exempt.
 It also runs src_layout.py: a src-layout project whose tests a plain `pytest` cannot import
 (`src_layout.py --fix` repairs it), and reproduce_names.py: a new experiment script that no
-doc in its directory names (README.md's Reproduce section is the place). Exit 1 lists each failing directory and what it lacks.
+doc in its directory names (README.md's Reproduce section is the place), and a README.md
+paragraph over MAX_README_PARAGRAPH characters. Exit 1 lists each failing directory and what it lacks.
 """
 import json
 import re
@@ -29,6 +30,12 @@ RESEARCH = Path(__file__).resolve().parents[1]
 SECTIONS = ["Question", "Why it matters", "Related work", "Gap", "Hypotheses",
             "Method", "Evaluation", "Milestones", "Target venue"]
 MIN_REFS = 10
+# A README paragraph past this many characters is a log, not a summary. By
+# 2026-11-16 build-data's README was one 21,344-character paragraph that each
+# session appended a sentence to, and llm-coding-inference's held 12,857 in
+# one; two run records said finding where to add a result took a scripted
+# search. Split it into sections or one bullet per session; the detail lives in LOG.md.
+MAX_README_PARAGRAPH = 6000
 REF = re.compile(r"https?://|doi:|arXiv:", re.I)
 
 
@@ -54,6 +61,15 @@ def proposal_problems(d):
     if "related work" in secs and refs < MIN_REFS:
         problems.append(f"PROPOSAL.md 'Related work' cites {refs} works, fewer than {MIN_REFS}")
     return problems
+
+
+def long_paragraphs(d, limit=MAX_README_PARAGRAPH):
+    """(line number, length) of README.md lines longer than `limit` characters."""
+    f = d / "README.md"
+    if not f.is_file():
+        return []
+    return [(n, len(line)) for n, line in enumerate(f.read_text(errors="ignore").splitlines(), 1)
+            if len(line) > limit]
 
 
 def problems(d, legacy, root=RESEARCH):
@@ -88,6 +104,9 @@ def main(root=RESEARCH):
         if src_layout.needs_fix(d):
             found = found + ["tests import a src/ package that plain pytest cannot find;"
                              " run python3 research/_shared/src_layout.py --fix"]
+        for n, size in long_paragraphs(d):
+            found = found + [f"README.md:{n} is one {size:,}-character paragraph (over {MAX_README_PARAGRAPH:,});"
+                             " split it into sections or one bullet per session, detail in LOG.md"]
         if found:
             bad[d.name] = found
     known = reproduce_names.baseline(root / "_shared" / reproduce_names.BASELINE.name)

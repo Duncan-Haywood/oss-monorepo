@@ -417,3 +417,22 @@ test('the n of a cluster (-unt, -ens, nunc) reads as its murmur, not as the stop
   }
   assert.ok(score.on >= score.off + 4 && score.on >= 13, JSON.stringify(score));
 });
+
+test('a cluster murmur on C4 is not thrown out by the obstruent after it (nunc, tunc, mens)', () => {
+  // README "nunc and mens on C4": vowelAgain read every frame after a murmur, so the bright /s/ of *mens* and
+  // the one frame a murmur brightens handing over to its closure read as the vowel coming back; now only the
+  // frames before an obstruent that starts within AGAIN.gap frames are read (onsets.mjs AGAIN)
+  const POS = ['nunc', 'tunc', 'mens', 'unt'], NEG = ['up', 'uc', 'ub', 'us', 'es', 'ec'], score = { on: 0, off: 0 };
+  const ev = [];
+  for (const s of [...POS, ...NEG]) ev.push({ type: 'note', midi: 60, pulses: 4, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 120 });
+  const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+  const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+  const x = renderMidi(mid, { stems: true, sing: true }).stems.choir.channels[0];
+  [...POS, ...NEG].forEach((s, j) => {
+    const read = (againGap) => readCoda(x, rate, sec(notes[j].tick) + 0.1, Math.min(sec(notes[j].end) + 0.25, sec(notes[j + 1]?.tick ?? 1e9)), { againGap }).cls;
+    if (POS.includes(s)) { if (read(true) === 'nasal') score.on++; if (read(false) === 'nasal') score.off++; }
+    else assert.notEqual(read(true), 'nasal', `${s} on C4 read as a nasal`);
+  });
+  assert.ok(score.on === POS.length && score.on >= score.off + 2, JSON.stringify(score));
+});
