@@ -249,7 +249,9 @@ re-aim for the next shot, or the drill's final stop, cannot pass for a ball.
 `LAUNCH_CHECK_MS` (250 ms) after the stroke ends it judges the wheel with the
 larger predicted drop: a ball went if that wheel fell by at least
 `LAUNCH_DIP_SHARE` (0.25) of its prediction, and by `LAUNCH_DIP_MIN` (1.5%) at
-least. A dry stroke sets `FLAG_HOPPER_EMPTY` until the next `FEED`.
+least, below its own speed just before the fall (since the evening of
+2026-11-16; at first below its target, see "The verdict from the pre-ball
+speed" below). A dry stroke sets `FLAG_HOPPER_EMPTY` until the next `FEED`.
 
 **The Pi.** `run_drill` stops at the first dry stroke and reports the shot
 that went dry and how many flew; `tennisbots run` exits 3. It stops the wheels
@@ -282,6 +284,48 @@ may answer faster or slower. Before relying on it, log `hw.launch.last_dip`
 for a few dozen real shots and dry strokes on the first build and check they
 sit either side of the threshold. `LAUNCH_CHECK = False` turns the check off.
 
+### The verdict from the pre-ball speed (2026-11-16, later)
+
+The first verdict measured the drop from the wheel's target. The sweep above
+fed every stroke with the wheels already settled at the shot's speed, so the
+wheel met the ball within a fraction of a percent of its target. A drill does
+not always do that: when a shot's interval runs out before the wheels settle,
+the Pi sends `FEED` within one telemetry frame of the steady flag, and the
+stroke starts the moment the 3% gate opens, with the wheel still closing on its
+target from below or above.
+
+`tests/launch_check_sweep.py` now also feeds that way ("fed at the gate"): each
+of the six shots, set from 0.5, 0.8, 1.25 or 1.5 times its speed (within the
+planner's 500..7,000 rpm), then fed at once, one loaded and one dry stroke, on
+the same 27 builds: 486 loaded and 486 dry strokes
+(`eval/launch-check-gate-2026-11-16.txt`).
+
+| fed at the gate, 27 builds | worst loaded (must be 1 or more) | worst dry (must be under 1) | wrong verdicts of 972 |
+| --- | --- | --- | --- |
+| drop below the target (the first verdict) | 0.59 | 3.11 | **29** (27 dry strokes read as a ball, 2 balls read as dry) |
+| drop below the pre-ball speed (now) | 1.25 | 0.63 | **0** |
+
+A dry stroke misread as a ball hides an empty tub, which the check exists to
+catch. The target verdict did that once on every one of the 27 builds, each
+time at 3,000 rpm set from 1.25 times it: braking from 3,750 rpm the simulated
+wheel undershoots to 2,865 and is still about 2% under target, climbing, when
+the gate opens. The two balls read as dry (6,500 rpm set from 0.5 and 0.8
+times it, on the 1.5x wheel with a 0.8 s lag and a 60% take) would have
+stopped a drill with balls left.
+
+So the verdict now uses the drop the shot log already records: the wheel's
+largest fall of one reading below the highest reading of the 2.5 revolutions
+before it. `LaunchCheck.last_dip` is that drop and `last_dip_target` the old
+one, for comparison. On settled feeds (the first table) the loaded margin is
+unchanged (1.26); the dry margin is smaller, 0.42 of the threshold against
+0.17, because the single-revolution reading's own ripple at 1,500 rpm now
+counts as a fall (0.9%, against a 2.2% threshold). That is still 2.4 times
+clear, and it is the noise a real tach will show more of: the shot log of a
+first build should check it before anything else.
+
+**Not measured.** The same simulator caveats as above, and the Pi's feed
+timing taken at its worst (no frame of slack after the steady flag).
+
 ## Shot log (2026-11-16)
 
 The empty-hopper check reads how far the wheels slow when a ball goes through.
@@ -306,9 +350,9 @@ and `tennisbots run drill.json --shot-log shots.jsonl` appends them to a file.
   were up to 2.6% off when the ball arrived. Against an 8.8% drop that moved a
   target-based reading by up to 30%. The record now takes each wheel's largest
   fall of one reading below the highest reading of the 2.5 revolutions before
-  it, which is the speed the ball met. (The empty-hopper verdict still uses the
-  target: its margins were swept that way, and it only needs to separate 4.7%
-  from 0.4%.)
+  it, which is the speed the ball met. (The empty-hopper verdict used the
+  target at first; it reads this drop now, "The verdict from the pre-ball
+  speed" below.)
 - *That window has to be in time, not in readings.* While a slowed wheel's next
   pulse is late, `PeriodTach.rpm_last` reports the falling open revolution on
   every 10 ms tick. A history of three distinct readings filled with those and

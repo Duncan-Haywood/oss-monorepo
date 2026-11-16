@@ -375,13 +375,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Shot log landed 2026-11-16 (firmware/esp32/README.md "Shot
-      log": LAUNCH frame, run --shot-log, fit-launcher; simulated speed efficiency
-      within 3.9%, spin 11.7%). Mid-drill re-plan landed 2026-11-16 (run
-      --refit-after N; firmware/esp32/README.md "Re-planning a drill from its own
-      shots"). Next: let the empty-hopper verdict use the pre-ball speed too
-      (resweep tests/launch_check_sweep.py); fit a drill's speed efficiency closer
-      (its few speeds read 3-6% off).
+      venv, about 2 min). Landed 2026-11-16: shot log and fit-launcher, mid-drill
+      re-plan (--refit-after), and the empty-hopper verdict from the pre-ball speed
+      (firmware/esp32/README.md "The verdict from the pre-ball speed": fed at the
+      gate, 0 of 972 simulated strokes wrong, 29 before). Next: fit a drill's speed
+      efficiency closer (its few speeds read 3-6% off).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
