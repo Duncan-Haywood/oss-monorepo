@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtHt91LgaDf9P5GkP8G",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T08:06:52Z",
+  "ended": "2026-11-16T08:22:13Z",
+  "wall_minutes": 27.54,
+  "tokens_in": 18584863,
+  "tokens_out": 57264,
+  "cost_usd": 6.7675,
+  "tool_calls": 110,
+  "task": "flagship einvoice-preflight (allocate.py row 3): read Slovakia's mandate text (Act 385/2025) and ship a Slovak profile",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16506",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "The server-side auto-mode classifier returned no verdict on several Bash calls in a row (transient), blocking the shell for some minutes",
+      "handled": "Kept going with Read/Write/Grep, wrote the page with the Write tool, and retried Bash once it recovered"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--park on the last item also moved the row's trailing instruction sentence ('A run that lands a slice replaces its item here') into NEXT.md and left ';.' in next:; needed another --replace to put it back"
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes, started with run_in_background, still hands ventures-tests off to a detached process and exits 3, so a second wait is needed. The PR's own CI finished first and was the evidence used"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The flagship item was a mandate-text read (a doc page), which alone is thin product work. The Financial Administration's field table turned out to be the Slovak CIUS the page said the checker lacked",
+      "did": "Also shipped profile=slovakia (Peppol + SK-001..006) with tests, wired into the page, API and llms.txt",
+      "result": "2,579 venture tests pass; CI green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-slovakia-einvoice-act-385-read-from-the-text.md",
+    "ventures/einvoice-preflight/eval/slovakia-act-385-2025-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "Sources: slov-lex.sk Act 385/2025 (2026/2027/2030 time versions, rendered in Chromium) and the consolidated VAT Act from 2027-01-01 (385/2025 is the latest amendment; same \u00a7 85o); financnasprava.sk eFaktura page, manual (26 Aug 2026), certified-provider list (12 Nov 2026, 100 providers), field table xlsx v1.13. Key correction: 1 Jan 2027 is the transitional \u00a7 85o; the general \u00a7 71(4) e-invoice rule and \u00a7 80a reporting start 1 Jul 2030. Verification: run_venture_tests.py einvoice-preflight 2,579 tests, 0 failed; venture-preflight.mjs clean; run_workflow_locally --for-changes: every step that ran passed (agent-cross-review, control-plane, checklist, conflict-markers, doc-refs, link-contrast, readme-live-links, sibling-links, page-integrity, agent-permission-harness, pages); PR CI: all check runs success or skipped. Post front matter, links and similarity checks clean. Not tested against a real Slovak e-invoice or a delivery service's rejection.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0eb238c7-b78a-5581-bc96-be6a95bda7ec",
+    "transcripts": 1,
+    "first": "2026-11-16T08:06:52Z",
+    "last": "2026-11-16T08:34:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 102,
+        "input": 192,
+        "output": 57264,
+        "thinking": 9553,
+        "cache_read": 18340506,
+        "cache_write_5m": 0,
+        "cache_write_1h": 244165,
+        "api_equivalent_usd": 6.7675,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 102,
+      "input": 192,
+      "output": 57264,
+      "thinking": 9553,
+      "cache_read": 18340506,
+      "cache_write_5m": 0,
+      "cache_write_1h": 244165,
+      "api_equivalent_usd": 6.7675,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 110,
+    "tools": {
+      "Bash": 87,
+      "Read": 7,
+      "Write": 4,
+      "Edit": 3,
+      "ToolSearch": 2,
+      "Grep": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.54,
+      "active_minutes": 27.54,
+      "model_minutes": 10.91,
+      "tool_minutes": 16.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "reading a Slovak statute and FS guidance (~5 h), a six-rule profile with tests (~3 h), page, post and docs (~2 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 147.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
