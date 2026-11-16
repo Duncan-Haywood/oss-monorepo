@@ -92,6 +92,7 @@ for the browser-extension, iOS and Android packagers.
 | [`lomb-scargle-periodogram`](../../ventures/lomb-scargle-periodogram/) | Lomb 1976; Scargle 1982; Zechmeister & Kürster 2009; Baluev 2008; VanderPlas 2018 | Which periods are in these unevenly spaced measurements, could the strongest be noise, is there another once it is removed, and is any of them an alias of the sampling? |
 | [`mann-kendall-trend`](../../ventures/mann-kendall-trend/) | Mann 1945; Kendall 1975; Sen 1968; Hamed & Rao 1998; Yue & Wang 2004; Yue, Pilon, Phinney & Cavadias 2002; Hirsch, Slack & Smith 1982; Hirsch & Slack 1984; van Belle & Hughes 1984 | Is this series going up or down, by how much per year with what interval, does that survive the correlation between readings, and with a seasonal cycle, do all the seasons share the trend? |
 | [`inter-rater-agreement`](../../ventures/inter-rater-agreement/) | Krippendorff 2004, 2011; Hayes & Krippendorff 2007; Cohen 1960, 1968; Fleiss, Cohen & Everitt 1969; Fleiss 1971; Gwet 2008; Shrout & Fleiss 1979; McGraw & Wong 1996 | Do my raters, coders or annotators agree beyond chance, with what interval, which category and which rater pull agreement down, and for numeric scores, which intraclass correlation fits the design? |
+| [`probability-calibration`](../../ventures/probability-calibration/) | Dimitriadis, Gneiting & Jordan 2021; Ayer et al. 1955; Brier 1950; Murphy 1973; Spiegelhalter 1986; Cox 1958; Naeini, Cooper & Hauskrecht 2015 | When these forecasts said 70%, did it happen 70% of the time: a bin-free reliability diagram, the Brier and log scores split into miscalibration, discrimination and uncertainty, and a recalibration map? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -108,4 +109,5 @@ the debiased Sinkhorn divergence (Genevay, Peyré & Cuturi 2018) and unbalanced
 transport as modes of `wasserstein-distance`;
 stable PCP with an explicit noise level (Zhou, Li, Wright, Candès & Ma 2010) as a mode of `robust-pca`; online FDR control (Javanmard & Montanari 2018) for tests that arrive over time;
 p-to-e calibrators (Vovk & Wang 2021) so e-BH in `fdr-multiple-testing` can take p-values;
-the extended isolation forest's random-hyperplane cuts (Hariri, Carrasco Kind & Brunner 2021) as a mode of `isolation-forest`.
+the extended isolation forest's random-hyperplane cuts (Hariri, Carrasco Kind & Brunner 2021) as a mode of `isolation-forest`;
+multiclass and ordinal calibration, and calibration tracked over time with a monitoring chart, as modes of `probability-calibration`.
