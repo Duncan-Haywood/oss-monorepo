@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T09:07:12Z",
   "ended": "2026-11-16T09:14:15Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 14.0,
+  "tokens_in": 6096525,
+  "tokens_out": 33527,
+  "cost_usd": 2.8728,
+  "tool_calls": 52,
   "task": "Deepen flagship shift-roster-builder (allocate.py row 4): paid sick leave / PTO accrual from the team hub's time-clock punches",
   "projects": [
     "shift-roster-builder"
@@ -24,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 6,
@@ -50,7 +52,82 @@
     "ventures/shift-roster-builder/README.md (section 'Paid sick leave from the time clock')"
   ],
   "goal": "Ship a feature small teams otherwise pay a per-seat scheduler for",
-  "notes": "",
+  "notes": "Local verification: run_venture_tests.py shift-roster-builder -> ok (310.7 s, 675 tests, 0 failed); venture-preflight.mjs shift-roster-builder -> preflight clean; leave.test.mjs 6/6; check_post_frontmatter/links/similarity clean; promptctl validate ok. Feature: leave.mjs (accrual walk in time order with year, balance and carryover caps; opening balances; uses), timeclock.mjs trimPunches banks dropped stretches so balances survive the 3,000-punch trim, hub /admin/leave page, forms and CSV, off until LEAVE_ACCRUAL is set. No state rule preset.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e05928a9-4a79-555c-adb1-278324080414",
+    "transcripts": 1,
+    "first": "2026-11-16T09:07:12Z",
+    "last": "2026-11-16T09:21:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 108,
+        "output": 33527,
+        "thinking": 5025,
+        "cache_read": 5970448,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125969,
+        "api_equivalent_usd": 2.8728,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 108,
+      "output": 33527,
+      "thinking": 5025,
+      "cache_read": 5970448,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125969,
+      "api_equivalent_usd": 2.8728,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 46,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.0,
+      "active_minutes": 8.09,
+      "model_minutes": 6.6,
+      "tool_minutes": 1.49,
+      "waiting_on_human_minutes": 5.91,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design, code and tests for a leave accrual module with caps plus hub pages, by a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 348.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
