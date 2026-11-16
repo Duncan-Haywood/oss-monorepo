@@ -247,8 +247,8 @@ flagships:
       rates", 2026-11-13): kept reissues cut changes 56-66%, open hours
       path-dependent both ways. Next: whether a real manager would set keepShift
       above 1; 350+ copies: cover passes LP-guided; repair flow-bounded, 2x alone,
-      e2e tie (README "under a flow bound"); 2 s reserve at 300+ copies (4 s worse);
-      next 1.2 s; day sweeps LP-guided, by the open-hours LP when the pay floor is
+      e2e tie (README "under a flow bound"); 2 s reserve at 300+ copies (4 s worse,
+      1.2 s ties); day sweeps LP-guided, by the open-hours LP when the pay floor is
       skipped (README "A guide when the pay floor is skipped"); next a warm-sized
       gate; re-run the keep-usual-shifts sweep on real dated leave records; a
       manager's read on whether the steadier plan is the one they would post; a real
