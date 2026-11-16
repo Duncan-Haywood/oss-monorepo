@@ -99,3 +99,39 @@ def test_orca_and_powerlaw_robots_hold_their_lane(modname):
     assert r["failed"] == 0 and r["rp_passes"] > 0 and r["robot_transits"] > 0
     assert 0.8 <= r["robot_speed"] <= 1.1      # desired 1.0 m/s, not the people's speed
     assert 0.0 <= r["rp_close"] <= 1.0
+
+
+def test_learned_crowd_theta_matches_crowd_targets():
+    pos = np.array([[5.0, 2.0], [6.0, 2.0], [7.0, 1.0]])
+    d = np.array([1.0, -1.0, 1.0])
+    isr = np.array([True, True, False])
+    g = np.full(3, np.nan)
+    tx_c, ty_c = R.robot_targets(pos, d, g, isr, "crowd", 4.0, 16.0, 0.25)
+    tx_l, ty_l = R.robot_targets(pos, d, g, isr, R.LearnedLateral.crowd(), 4.0, 16.0, 0.25)
+    assert np.allclose(tx_c, tx_l) and np.allclose(ty_c, ty_l)
+
+
+def test_learned_features_in_robot_frame():
+    # robot heading +x at y=1 (right of centre for +x), oncoming person ahead at y=1 is on the
+    # robot's right, which is the oncoming person's left: m_opp is +0.5 in the robot's frame
+    pos = np.array([[5.0, 1.0], [7.0, 1.0], [6.0, 3.0]])
+    d = np.array([1.0, -1.0, 1.0])
+    isr = np.array([True, False, False])
+    r, f = R.LearnedLateral(np.zeros(5)).features(pos, d, isr, 4.0)
+    assert list(r) == [0]
+    assert f[0] == pytest.approx([1.0, -0.5, 0.5, 0.25, 0.5])
+
+
+def test_learned_rejects_wrong_theta_length():
+    with pytest.raises(ValueError):
+        R.LearnedLateral([0.0, 1.0])
+
+
+def test_learned_crowd_run_equals_crowd_run():
+    pytest.importorskip("jupedsim")
+    import sftwin as S
+    kw = dict(duration=45.0, warmup=40.0, model="sf", robots=2, robot_speed=1.2, passes=True)
+    a = S.simulate(20, 3.6, 16.0, 0.9, 0.1, 3, policy="crowd", **kw)
+    b = S.simulate(20, 3.6, 16.0, 0.9, 0.1, 3, policy=R.LearnedLateral.crowd(), **kw)
+    a.pop("flags"), b.pop("flags")
+    assert a == b or all((x == y) or (x != x and y != y) for x, y in zip(a.values(), b.values()))

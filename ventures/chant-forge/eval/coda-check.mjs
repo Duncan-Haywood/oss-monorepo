@@ -244,6 +244,41 @@
 //    (the figures above were taken on this code). Both stay opt-in. R's 107 did not generalise: across R, S and T
 //    closeAnchor alone reads 332 of 384 voiced stops against localRef's 333. T's misses with the default are mostly a
 //    voiced stop read as a nasal (11 of 22: *tag*, *pob*, *hag*, *vob*), the next item.
+// Seventeenth round (2026-11-16): a voice bar read as a murmur (onsets.mjs readCoda `barLead`, README "A voice bar
+//    read as a murmur"). T's default misses were read frame by frame (eval/vstop-diag.mjs T, which now prints the
+//    nasal rule that fired): all 10 of *tag*, *pob*, *hag* and *vob* read as a nasal came from the level rule
+//    (`nasal`), and on 7 of them a stop's closure, with its burst found, starts 1 to 7 frames after the run's own
+//    start. The vowel before swells over the 60 ms reference with the five voices' beat (tag on F#3: +10 dB), so the
+//    voice bar, 25 dB under that vowel, meets the closure rule (localRef) and, 16 dB under the reference, the
+//    level rule's -5 to -25 dB band too, from the same frames; the level rule's run starts first and wins. The
+//    candidate: a level-rule run that a burst-ended closure starts inside of, within `barLead` frames of the run's
+//    start, is that closure's voice bar and is dropped. A nasal's murmur runs 40-70 ms before a cluster's stop, so
+//    a lead of up to 8 frames should leave clusters. On A-T (development), against the default: barLead 3 and 8
+//    were run, nothing fell anywhere; with 8, A 177 to 178 (E2 *ad*), J's others 321 to 325, L's 109 to 110, O's
+//    others 222 to 223, P's 214 to 218 (voiced stops as a nasal 7 to 3), Q's voiced stops 106 to 107, T's 122 to
+//    125 (as a nasal 11 to 6), and on the opt-in columns R's wall 103 to 108, S's closeAnchor 108 to 109; B, D, E,
+//    H, I, F, K, M, N, R's and S's default columns and every vowel-only control identical. barLead 8 is the
+//    candidate. Pre-registered here and committed before part U was run with anything. Part U is new: 12
+//    voiced-stop codas (*dag bob mod sig lag tib ceb nud hod fig gub pid*), 4 nasal codas (*bam sun tem hon*), 4
+//    n-cluster codas (*dent hens sonc tint*, read as their nasal) and 8 others (*dut sic gep bos lex bel mo vit*),
+//    none sung in any other part, at A2, D3, G#3, A#3, C#4 and D#4, 110 BPM (in no other part), pulse-4 and pulse-2
+//    notes, sung and vowel-only. Against the default (U's first column), barLead 8 (`--bar 8`, its second):
+//    (1) U's voiced stops read exactly at least 2 more of 144; (2) U's voiced stops read as a nasal at least 2
+//    fewer; (3) U's nasal codas no fewer (of 48); (4) U's n-clusters read as a nasal no fewer (of 48); (5) U's
+//    others no fewer (of 96); (6) U's vowel-only control no fewer read as none (of 288); (7) A-T: no figure of the
+//    default column lower than with the rule off, re-run on the shipped code; (8) eval/consonant-check.mjs cannot
+//    move (it reads openings with readOnset; readCoda appears there only in comments). If all eight hold, barLead
+//    8 becomes readCoda's default; otherwise it stays opt-in, reported.
+//    Outcome (run 2026-11-16, after the registration above was committed): failed on (1). On U, voiced stops read
+//    exactly: default 127, barLead 128 of 144 (+1 where +2 was wanted); (2) read as a nasal 6 to 4, holds; (3) nasals
+//    46 of 48 both, (4) n-clusters 46 of 48 both, (5) others 93 of 96 both, (6) control 332 of 336 both (the
+//    registration said "of 288", copied from T: U has 28 syllables, so 336), hold; (7) holds (the A-T figures above
+//    were taken on this code, the default column of every part byte-identical); (8) holds by construction. barLead
+//    stays opt-in. Read frame by frame after the run (eval/vstop-diag.mjs U --bar 8): of the 2 nasals it turned back,
+//    *dag* on A#3 became a voiced *labial* stop (the burst's place), and the voiced stops still read as a nasal (*bob*
+//    on C#4, *lag* on D#4) have no burst found at all, so no closure for barLead to see. Across T and U, every
+//    voiced stop barLead rescued on F#3-A#3 that ends in g reads as a b: the next faults are a velar burst read as
+//    labial on F#3-A#3 and the burst search on C#4-E4, not the murmur rule.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -255,7 +290,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
 // --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
@@ -281,7 +316,9 @@ const VFRICARG = args.includes('--vfric') ? args[args.indexOf('--vfric') + 1] : 
 const DEEPARG = args.includes('--deep') ? args[args.indexOf('--deep') + 1] : '';
 // --pre hi=12,step=8: try other PRE settings (onsets.mjs PRE)
 const PREOPTS = PREARG && PREARG !== 'off' ? { preOpts: Object.fromEntries(PREARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
-const RC = { ...RC0, ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
+// --bar N: readCoda's barLead (a level-rule murmur a burst-ended closure starts inside of within N frames is its voice bar)
+const BARARG = args.includes('--bar') ? args[args.indexOf('--bar') + 1] : '';
+const RC = { ...RC0, ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -888,6 +925,48 @@ lines.push('## T. Held out: closeAnchor with the wall in codas (sixteenth round)
   row('nasal codas read exactly', 'nasal'), row('other syllables read exactly', 'other'), row('vowel-only control read as none', 'control'), '',
   'Misses with the default (count over the twelve pitch and length cells):', '', list(tMiss), '',
   'Misses with `closeAnchor` + coda wall:', '', list(tMissC), '');
+}
+
+// The seventeenth round's held-out set (barLead, pre-registered in the header): voiced-stop codas, nasal codas,
+// n-cluster codas (the rule's risk: a murmur that runs into its stop's closure) and others, sung in no other part,
+// at A2, D3, G#3, A#3, C#4 and D#4, 110 BPM (in no other part), pulse-4 and pulse-2 notes, each followed by a rest,
+// sung and vowel-only. Two columns: the default reader and barLead (the `--bar` setting, 8 unless given).
+if (PARTS.includes('U')) {
+const VST = ['dag', 'bob', 'mod', 'sig', 'lag', 'tib', 'ceb', 'nud', 'hod', 'fig', 'gub', 'pid'];
+const NAS = ['bam', 'sun', 'tem', 'hon'], CLU = ['dent', 'hens', 'sonc', 'tint'];
+const NEG = [...NAS, ...CLU, 'dut', 'sic', 'gep', 'bos', 'lex', 'bel', 'mo', 'vit'];
+const SY = [...VST, ...NEG], tally = {}, uMiss = new Map(), uMissB = new Map(), uNone = {}, uNas = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const BAR = { ...RC, barLead: BARARG && BARARG !== 'off' ? Number(BARARG) : 8 }, DEF = { ...RC, barLead: false };
+for (const pulses of [4, 2]) for (const midi of [45, 50, 56, 58, 61, 63]) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 110, title: 'held-out voice bars' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (VST.includes(s) ? 'vst' : NAS.includes(s) ? 'nasal' : CLU.includes(s) ? 'cluster' : 'other') : 'control';
+      for (const [mode, o] of [['def', DEF], ['bar', BAR]]) {
+        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'vst' && got.cls === 'none') uNone[mode] = (uNone[mode] || 0) + 1;
+        if (grp === 'vst' && got.cls === 'nasal') uNas[mode] = (uNas[mode] || 0) + 1;
+        if (!ok && !HIDE.includes('U')) { const m = mode === 'def' ? uMiss : uMissB, key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; m.set(key, (m.get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${['def', 'bar'].map((m) => cell(`${g} ${m}`)).join(' | ')} |`;
+const cnt = (t, o) => `| ${t} | ${['def', 'bar'].map((m) => o[m] || 0).join(' | ')} |`;
+const list = (m) => HIDE.includes('U') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+lines.push('## U. Held out: a voice bar read as a murmur (seventeenth round)', '', `Voiced stops: ${VST.map((s) => `*${s}*`).join(', ')}; nasals: ${NAS.map((s) => `*${s}*`).join(', ')}; n-clusters: ${CLU.map((s) => `*${s}*`).join(', ')}; others: ${NEG.filter((s) => !NAS.includes(s) && !CLU.includes(s)).map((s) => `*${s}*`).join(', ')}. Pulse-4 and pulse-2 notes at 110 BPM, each followed by a rest, A2, D3, G#3, A#3, C#4, D#4.`, '',
+  `| | default | \`barLead: ${BAR.barLead}\` |`, '|---|---|---|',
+  row('voiced-stop codas read exactly', 'vst'), cnt('voiced-stop codas read as nothing', uNone), cnt('voiced-stop codas read as a nasal', uNas),
+  row('nasal codas read exactly', 'nasal'), row('n-cluster codas read as a nasal', 'cluster'), row('other syllables read exactly', 'other'), row('vowel-only control read as none', 'control'), '',
+  'Misses with the default (count over the twelve pitch and length cells):', '', list(uMiss), '',
+  `Misses with \`barLead: ${BAR.barLead}\`:`, '', list(uMissB), '');
 }
 
 // ---- C ----

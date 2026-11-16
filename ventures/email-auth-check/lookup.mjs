@@ -129,7 +129,8 @@ export async function resolveSpfChain(domain, { fetchTxt = dohQueryTxt, queryCou
         queue.push(key);
       }
     }
-    if (parsed.redirect) {
+    // RFC 7208 s6.1: redirect= is ignored when the record has "all".
+    if (parsed.redirect && parsed.allQualifier === null) {
       const key = normalizeDomainKey(parsed.redirect);
       if (key && !queued.has(key)) {
         queued.add(key);

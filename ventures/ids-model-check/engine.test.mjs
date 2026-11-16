@@ -180,3 +180,62 @@ test("IdsValue compares dates, times and durations, and booleans against pattern
   assert.equal(p.match(true, "boolean"), true);
   assert.equal(p.match(false, "boolean"), false);
 });
+
+// Red-team guards, 2026-11-16 (prompts/runs/2026-11-16-session_01EhTJVLRvnZNuoDHuaPD3KN.json).
+test("STEP reader skips tabs and comments between values, and a file that opens with DATA;", () => {
+  const m = parseStep(ifc("IFC4", ["#1=IFCX(\t1,\t/* a comment */ 'a' , 2.5 /* x */);"]));
+  assert.deepEqual(m.entities.get(1).args, [1, "a", 2.5]);
+  assert.deepEqual(m.errors, []);
+  const bare = parseStep("DATA;\n#7=IFCY(3);\nENDSEC;\n");
+  assert.deepEqual(bare.entities.get(7).args, [3]);
+  assert.throws(() => parseStep("HEADER;\nENDSEC;\n"), /no DATA section/);
+});
+
+test("booleans: IDS false and 0 both match .F., true and 1 both match .T.", () => {
+  const model = ifc("IFC4", [
+    "#1=IFCWALL('2nJrDaLQfJ1QPhdJR0o97J',$,$,$,$,$,$,$,$);",
+    "#2=IFCPROPERTYSET('16MocU_IDOF8_x3Iqllz0d',$,'Custom_X',$,(#3,#4));",
+    "#3=IFCPROPERTYSINGLEVALUE('Off',$,IFCBOOLEAN(.F.),$);",
+    "#4=IFCPROPERTYSINGLEVALUE('On',$,IFCBOOLEAN(.T.),$);",
+    "#5=IFCRELDEFINESBYPROPERTIES('3Agm079vPIYBL4JExVrhD5',$,$,$,(#1),#2);",
+  ]);
+  const b = (n, v) => ids(spec(ent("IFCWALL"), `<property dataType="IFCBOOLEAN"><propertySet><simpleValue>Custom_X</simpleValue></propertySet><baseName><simpleValue>${n}</simpleValue></baseName><value><simpleValue>${v}</simpleValue></value></property>`));
+  for (const v of ["false", "0"]) assert.equal(check(b("Off", v), model).pass, true, `Off = ${v}`);
+  for (const v of ["true", "1"]) assert.equal(check(b("On", v), model).pass, true, `On = ${v}`);
+  for (const v of ["true", "1"]) assert.equal(check(b("Off", v), model).pass, false, `Off != ${v}`);
+  for (const v of ["false", "0"]) assert.equal(check(b("On", v), model).pass, false, `On != ${v}`);
+});
+
+test("attributes: a set attribute passes a value-less requirement; a select-typed one is never compared by value", () => {
+  const model = ifc("IFC4", [
+    "#1=IFCWALL('2nJrDaLQfJ1QPhdJR0o97J',$,'W1',$,$,$,$,$,$);",
+    "#2=IFCPROPERTYSINGLEVALUE('A',$,'x',$);",
+  ]);
+  const at = (cls, n, v) => ids(spec(ent(cls), `<attribute><name><simpleValue>${n}</simpleValue></name>${v === undefined ? "" : `<value><simpleValue>${v}</simpleValue></value>`}</attribute>`));
+  assert.equal(check(at("IFCWALL", "Name"), model).pass, true);
+  assert.equal(check(at("IFCWALL", "Description"), model).pass, false, "an unset attribute fails");
+  // NominalValue is an IfcValue select; a bare value there is not comparable.
+  // The audit rejects the specification first; with the audit off (--no-audit)
+  // the engine must still refuse rather than compare the text.
+  const sel = at("IFCPROPERTYSINGLEVALUE", "NominalValue", "x");
+  assert.equal(check(sel, model).specs[0].status, "invalid");
+  const r = check(sel, model, { audit: false });
+  assert.equal(r.pass, false);
+  assert.match(JSON.stringify(r.specs[0].failed), /cannot be compared by value/);
+});
+
+test("bounded properties: a range ignores the set point, and a missing bound is not a crash", () => {
+  const model = (lo, hi, sp) => ifc("IFC4", [
+    "#1=IFCWALL('2nJrDaLQfJ1QPhdJR0o97J',$,$,$,$,$,$,$,$);",
+    "#2=IFCPROPERTYSET('16MocU_IDOF8_x3Iqllz0d',$,'Custom_X',$,(#3));",
+    `#3=IFCPROPERTYBOUNDEDVALUE('P',$,${hi},${lo},$,${sp});`,
+    "#5=IFCRELDEFINESBYPROPERTIES('3Agm079vPIYBL4JExVrhD5',$,$,$,(#1),#2);",
+  ]);
+  const p = (val) => ids(spec(ent("IFCWALL"), `<property dataType="IFCREAL"><propertySet><simpleValue>Custom_X</simpleValue></propertySet><baseName><simpleValue>P</simpleValue></baseName><value>${val}</value></property>`));
+  const range = p(`<xs:restriction base="xs:double"><xs:minInclusive value="0"/><xs:maxInclusive value="6"/></xs:restriction>`);
+  assert.equal(check(range, model("IFCREAL(1.)", "IFCREAL(5.)", "IFCREAL(10.)")).pass, true, "set point 10 outside 0..6 does not fail the bounds");
+  assert.equal(check(range, model("IFCREAL(1.)", "IFCREAL(7.)", "$")).pass, false);
+  assert.equal(check(p(`<simpleValue>1</simpleValue>`), model("IFCREAL(1.)", "$", "$")).pass, true, "lower bound only");
+  assert.equal(check(p(`<simpleValue>5</simpleValue>`), model("$", "IFCREAL(5.)", "$")).pass, true, "upper bound only");
+  assert.equal(check(range, model("IFCREAL(1.)", "$", "$")).pass, false, "a range needs both bounds");
+});

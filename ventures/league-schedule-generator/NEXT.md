@@ -7,3 +7,4 @@
 - (2026-11-16) 32-40 exhaustive needs a tighter bound (30 teams took 24 min)
 - (2026-11-16) printed sheets on a real printer and paper
 - (2026-11-16) 18 and 24 teams: 318 and 570 are the least starters (eval/starter-exhaust.txt), so lower needs non-starter moves
+- (2026-11-16) a real league's travel and blackout list

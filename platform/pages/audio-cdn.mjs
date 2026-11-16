@@ -23,6 +23,8 @@ import path from 'node:path';
 export const CDN_ORIGIN = 'https://cdn.jsdelivr.net/gh/';
 export const CDN_MAX_BYTES = 20 * 1024 * 1024;
 const DEFAULT_REPO = 'Duncan-Haywood/oss-monorepo';
+// Text files the rewrite holds open at once (see moveAudioToCdn).
+const READ_LIMIT = 64;
 // Files whose text can name an audio URL: pages, feeds, data and scripts.
 const TEXT_EXTS = new Set(['.html', '.xml', '.json', '.js', '.mjs', '.txt', '.webmanifest']);
 
@@ -116,11 +118,14 @@ export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.en
   const REF = /(["'(=\s])([^"'()\s<>]*?\.mp3)(?=[?#]?[^"'()\s<>]*["')\s<>])/g;
   const texts = files.filter((f) => TEXT_EXTS.has(path.extname(f)));
   const unreferenced = new Set(target.keys());
-  // A fixed pool of readers, not one promise per page: with ~20k text files the
-  // unbounded Promise.all opened them all at once and hit EMFILE where the
-  // open-file limit is 20,000 (a local workflow run, 2026-11-16). Each file is
-  // independent, so the result does not depend on the order they finish in.
-  const rewrite = async (file) => {
+  // At most READ_LIMIT files open at once: the site has more text files
+  // (~21,500 on 2026-11-16) than some sandboxes allow open descriptors
+  // (ulimit -n 20000), and one Promise.all over them all failed with EMFILE.
+  let nextText = 0;
+  await Promise.all(Array.from({ length: Math.min(READ_LIMIT, texts.length) }, async () => {
+    while (nextText < texts.length) await rewrite(texts[nextText++]);
+  }));
+  async function rewrite(file) {
     const src = await fs.readFile(file, 'utf8');
     if (!src.includes('.mp3')) return;
     const from = urlOf(file);
@@ -139,12 +144,7 @@ export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.en
       return `${lead}${hit.cdn}`;
     });
     if (changed) await fs.writeFile(file, out);
-  };
-  let next = 0;
-  const worker = async () => {
-    while (next < texts.length) await rewrite(texts[next++]);
-  };
-  await Promise.all(Array.from({ length: Math.min(64, texts.length) }, worker));
+  }
 
   for (const [url, { file, bytes }] of target) {
     // An MP3 nothing links is still a published URL (a feed reader may hold

@@ -91,13 +91,8 @@ arrive sooner there too.
 ## Also: the site build hit the open-file limit
 
 `run_workflow_locally.py --for-changes` failed portfolio-pages' "Build the
-site" step with `EMFILE` (errno −24) in `moveAudioToCdn`
-(`platform/pages/audio-cdn.mjs`). It read and rewrote every text file of the
-built site through one unbounded `Promise.all`, and the trace shows index
-19,980 of it. This container's `ulimit -n` is 20,000. GitHub runners allow
-more, so CI is not red yet, but the site grows by hundreds of pages a day.
-The step now uses a fixed pool of 64 workers. Each file is read, rewritten
-and written independently, and the shared `unreferenced` set only shrinks, so
-the output does not depend on the order. `audio-cdn.test.mjs` passes (4/4).
-A full local `build.mjs --out` completed after the change (see the run
-record).
+site" step with `EMFILE` in `moveAudioToCdn` (one unbounded `Promise.all`
+over ~20k built text files, against `ulimit -n` 20,000). This run wrote a
+64-worker pool for it, but PR #16712 landed the same fix on main first
+(`READ_LIMIT`). The merge kept main's version. With the pool in place, a full
+`build.mjs --out --audio-cdn` passed here (99 MP3s moved, exit 0).

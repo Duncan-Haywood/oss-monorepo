@@ -298,6 +298,7 @@ def main():
     ap.add_argument("--limit", type=float, default=3600, help="seconds in all")
     ap.add_argument("--save", help="write the state here after every accepted step")
     ap.add_argument("--resume", help="start from a state file written by --save")
+    ap.add_argument("--also", default="", help="nights always freed with the bad one, comma-separated (e.g. the short last night, 13 at 41 teams, whose slack can take awkward pairs)")
     ap.add_argument("--resume-check", type=float, default=180, help="seconds to re-check a resumed night with no stored layout")
     args = ap.parse_args()
     n, courts, times = args.n, args.courts, args.times
@@ -306,6 +307,7 @@ def main():
     t0 = time.time()
     rounds = circle(n, rng)
     nights = [list(range(s, min(s + 3, n))) for s in range(0, n, 3)]
+    also = [int(x) for x in args.also.split(",") if x.strip()]
     cache = {}
     if args.resume:
         rounds, stored = load_state(args.resume, n, courts, times)
@@ -331,8 +333,9 @@ def main():
         goodn = [t for t in range(len(nights)) if status[t]]
         m = min(args.free, len(nights))
         freed = [rng.choice(bad)]
-        rest = [t for t in range(len(nights)) if t != freed[0]]
-        freed += rng.sample(rest, m - 1)
+        freed += [t for t in also if t not in freed][: m - 1]
+        rest = [t for t in range(len(nights)) if t not in freed]
+        freed += rng.sample(rest, m - len(freed))
         cur = sum(status[t] for t in freed)
         sideways = fails >= 6
         need = cur if sideways else cur + 1
