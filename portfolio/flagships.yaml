@@ -254,8 +254,8 @@ flagships:
       LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
       when the pay floor is skipped"); pay floor tries past a spent budget, 4 s
       (README "The pay floor once the budget is spent"); cover walk stops at the
-      budget (README "Where the time past the budget goes"); next the repair's 200
-      ms minimum near the budget's end; re-run the keep-usual-shifts sweep on real
+      budget (README "Where the time past the budget goes"); repair now stops at it
+      too; next the pay polish after it; re-run the keep-usual-shifts sweep on real
       dated leave records; a manager's read on whether the steadier plan is the one
       they would post; a real 7shifts account through --import-7shifts (README
       "Reading 7shifts directly"); a real When I Work account or response through
