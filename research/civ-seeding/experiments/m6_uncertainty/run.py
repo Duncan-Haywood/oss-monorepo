@@ -47,6 +47,12 @@ RANDOMISED = ("random", "friend", "survey-degree-0.25", "survey-spread-0.25")
 # milestone 8 reuses this run with extra deterministic rules and its own output directory
 EXTRA_RULES = {}
 OUT_DIR = HERE
+# milestone 10 adds randomised rules: name -> fn(v, b, rng), N_RAND draws each, scored like RANDOMISED
+EXTRA_RANDOMISED = {}
+
+
+def rand_names():
+    return tuple(RANDOMISED) + tuple(EXTRA_RANDOMISED)
 
 _V = _BETA = None
 
@@ -92,11 +98,13 @@ def _greedy(args):
 
 def rand_sets(v, b):
     out = {}
-    for rule in RANDOMISED:
+    for rule in rand_names():
         D = []
         for k in range(N_RAND):
             r = np.random.default_rng([EVAL_SEED, v.village, k, 7])
-            if rule == "random":
+            if rule in EXTRA_RANDOMISED:
+                D.append(EXTRA_RANDOMISED[rule](v, b, r))
+            elif rule == "random":
                 D.append(sd.rule_random(v, b, np.random.default_rng([EVAL_SEED, v.village, k])))
             elif rule == "friend":
                 D.append(sd.rule_friend(v, b, r))
@@ -116,6 +124,7 @@ def _score(args):
     rs = rand_sets(v, b)
     X = np.stack(list(det.values()), 1)
     R = np.concatenate([rs[r] for r in RANDOMISED], 1)
+    RX = np.concatenate([rs[r] for r in EXTRA_RANDOMISED], 1) if EXTRA_RANDOMISED else None
     out = {}
     for k in ks:
         mod, s = model_of(k)
@@ -125,7 +134,13 @@ def _score(args):
         zr = m3b.zdraw(EVAL_SEED + 1, v.village, R.shape[1]) * s if s else None
         er = sd.simulate_batch(v, _BETA, R, 1, np.random.default_rng([EVAL_SEED, v.village, 17]),
                                shift=zr, independent=True, **mod)[:, 0].reshape(len(RANDOMISED), N_RAND).mean(1)
-        out[k] = np.concatenate([e, er])
+        parts = [e, er]
+        if RX is not None:  # own streams, so milestone 6's rows are untouched by the extra rules
+            zx = m3b.zdraw(EVAL_SEED + 2, v.village, RX.shape[1]) * s if s else None
+            ex_ = sd.simulate_batch(v, _BETA, RX, 1, np.random.default_rng([EVAL_SEED, v.village, 19]),
+                                    shift=zx, independent=True, **mod)[:, 0]
+            parts.append(ex_.reshape(len(EXTRA_RANDOMISED), N_RAND).mean(1))
+        out[k] = np.concatenate(parts)
     return g, out
 
 
@@ -190,7 +205,7 @@ def main():
             for r, fn in EXTRA_RULES.items():
                 d[r] = fn(v, b, None)
             det_sets.append(d)
-        rules = list(det_sets[0]) + list(RANDOMISED)
+        rules = list(det_sets[0]) + list(rand_names())
         ks = sorted(set(point.values()) | {d[f] for d in draws for f in FAMS})
         p(f"scoring {len(rules)} rules under {len(ks)} distinct processes")
         E = {k: np.zeros((len(rules), G)) for k in ks}
@@ -229,7 +244,7 @@ def main():
         p(f"  {rules[k]:19s} {(wj[:, k] < wj[:, kd]).mean():.3f}  {(best == k).mean():.3f}")
 
     # added after the first full run (results_shared_runs.txt), see LOG.md: where the tail comes from
-    ndet = len(rules) - len(RANDOMISED)
+    ndet = len(rules) - len(rand_names())
     def regrets_det(pick):
         out = np.zeros((B_BOOT, len(FAMS), ndet))
         for bi in range(B_BOOT):
