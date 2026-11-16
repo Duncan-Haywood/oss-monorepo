@@ -44,7 +44,8 @@ def records(sim, dwell_ms=DWELL_MS):
         if rec is not None and rec[0] != seen:
             seen = rec[0]
             out.append({"rpm_top": rec[1], "rpm_bottom": rec[2], "drop_top": rec[3] / 1e4,
-                        "drop_bottom": rec[4] / 1e4, "launched": bool(rec[5])})
+                        "drop_bottom": rec[4] / 1e4, "launched": bool(rec[5] & 1), "fit_top": bool(rec[5] & 2),
+                        "fit_bottom": bool(rec[5] & 4)})
     return out
 
 

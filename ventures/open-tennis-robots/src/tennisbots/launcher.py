@@ -110,25 +110,33 @@ def _tach_share(rev_s: float, recovery_s: float | None) -> float:
 
 def _drop_rows(records, inertia, ball_kg, wheel_radius):
     """One row per wheel per launched record: (measured drop, revolution s, speed-eff coefficient, spin-eff
-    coefficient). Model (firmware controller.launch_dips, written to be linear in the efficiencies):
-    drop_i = m R^2 / (I w_i) [se (w_t + w_b) / 4 +/- sp (w_t - w_b) / 6], + for the top wheel."""
+    coefficient, whole). Model (firmware controller.launch_dips, written to be linear in the efficiencies):
+    drop_i = m R^2 / (I w_i) [se (w_t + w_b) / 4 +/- sp (w_t - w_b) / 6], + for the top wheel. `whole` is True when
+    the firmware fitted the drop from the pulse times (`fit_top` / `fit_bottom`, 2026-11-16): the whole drop, so the
+    tach's recovery share does not apply to it."""
     rows = []
     for r in records:
         if not r.get("launched"):
             continue
         wt, wb = float(r["rpm_top"]), float(r["rpm_bottom"])
-        for w, d, sign in ((wt, r["drop_top"], 1.0), (wb, r["drop_bottom"], -1.0)):
+        for w, d, sign, whole in ((wt, r["drop_top"], 1.0, r.get("fit_top", False)),
+                                  (wb, r["drop_bottom"], -1.0, r.get("fit_bottom", False))):
             if w <= 0:
                 continue
             k = ball_kg * wheel_radius ** 2 / (inertia * w)       # rpm cancels: the drop is a ratio
-            rows.append((float(d), 60.0 / w, k * (wt + wb) / 4, sign * k * (wt - wb) / 6))
+            rows.append((float(d), 60.0 / w, k * (wt + wb) / 4, sign * k * (wt - wb) / 6, bool(whole)))
     return rows
+
+
+def _share(row, recovery_s):
+    return 1.0 if row[4] else _tach_share(row[1], recovery_s)
 
 
 def _solve(rows, recovery_s, fit_spin):
     sxx = sxy = syy = sxd = syd = 0.0
-    for d, rev, a, b in rows:
-        g = _tach_share(rev, recovery_s)
+    for row in rows:
+        d, rev, a, b = row[:4]
+        g = _share(row, recovery_s)
         a, b = a * g, b * g
         sxx += a * a
         sxd += a * d
@@ -143,8 +151,9 @@ def _solve(rows, recovery_s, fit_spin):
     else:
         se, sp = sxd / sxx, None
     sse = 0.0
-    for d, rev, a, b in rows:
-        pred = _tach_share(rev, recovery_s) * (a * se + (b * sp if sp is not None else 0.0))
+    for row in rows:
+        d, rev, a, b = row[:4]
+        pred = _share(row, recovery_s) * (a * se + (b * sp if sp is not None else 0.0))
         sse += (d - pred) ** 2
     return se, sp, sse
 
@@ -170,10 +179,12 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
     if not rows:
         raise ValueError("no launched shots with a turning wheel in the log")
     fit_spin = max(abs(r[3]) for r in rows) > 0.05 * max(r[2] for r in rows)
-    revs = [r[1] for r in rows]
+    revs = [r[1] for r in rows if not r[4]]
     shots = sum(1 for r in records if r.get("launched"))
     note = ""
-    if recovery_s is not None:
+    if not revs:
+        grid = [None]                 # every drop is the firmware's pulse-time fit: whole drops, nothing to recover
+    elif recovery_s is not None:
         grid = [recovery_s]
     elif max(revs) >= 1.6 * min(revs):
         grid = [0.03 * 10 ** (k / 40) for k in range(121)] + [None]
@@ -194,8 +205,8 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
     # up) shows a fraction of its drop; on the simulator one such wheel in 24 read half. Rows more than TRIM off the
     # fitted drop are set aside and the rest refitted, if enough remain.
     keep = [r for r in rows
-            if abs(r[0] - _tach_share(r[1], tau) * (r[2] * se + (r[3] * sp if sp is not None else 0.0)))
-            <= TRIM * _tach_share(r[1], tau) * (r[2] * se + (r[3] * sp if sp is not None else 0.0))]
+            if abs(r[0] - _share(r, tau) * (r[2] * se + (r[3] * sp if sp is not None else 0.0)))
+            <= TRIM * _share(r, tau) * (r[2] * se + (r[3] * sp if sp is not None else 0.0))]
     trimmed = len(rows) - len(keep)
     if trimmed and len(keep) >= max(4, len(rows) // 2):
         rows = keep
