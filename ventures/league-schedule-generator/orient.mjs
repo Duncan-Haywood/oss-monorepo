@@ -109,6 +109,10 @@ function homeMasks(ms) {
  * 4^|A| popcounts (12 matches: some 200 thousand against 16.7 million). Same numbers exactly
  * (orient.test.mjs checks it against the double loop).
  */
+// below 13 matches (26 teams) the symmetric step's extra planning costs what the halved tables save
+// (uncontended, per step: 24 teams 0.055 ms both ways, 26 teams 0.11 -> 0.10, 28 teams 0.23 -> 0.19,
+// 30 teams 0.45-0.47 -> 0.38; 16 to 22 teams slower by 0.005-0.02 ms)
+const SYM_MIN_MATCHES = 13;
 export function minPlusStep(fr, A, B, { sym = false } = {}) {
   // `sym`: the caller promises fr[x] = fr[~x] (every whole-break table of floorTable is: flipping
   // every host of every round leaves every team's breaks as they were). Then g is symmetric too, and
@@ -116,7 +120,7 @@ export function minPlusStep(fr, A, B, { sym = false } = {}) {
   // the step runs on |B| - 1 bits, and the other half of g is read from the first (README "Half the
   // table: flipping every host"). WebAssembly only; the JS loop below ignores the flag, which gives
   // the same table.
-  if (sym && MP && fr.constructor === Int32Array && B.length >= 2) {
+  if (sym && MP && fr.constructor === Int32Array && A.length >= SYM_MIN_MATCHES && B.length >= 2) {
     const r = symStep(fr, A, B);
     if (r) return r;
   }
