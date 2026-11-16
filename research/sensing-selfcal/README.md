@@ -10,8 +10,21 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (269 of 269,
-revised with milestones 4e–4r and 3b) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (278 of 278,
+revised with milestones 4e–4s and 3b) and a list of what a submission still needs.
+
+**Milestone 4s headline** (does milestone 4r's per-view focal jitter keep the update test safe on a third,
+disjoint pool of 13 views per camera that played no part in suggesting it? 9,440 new solves): **on the Xtion yes,
+on the Kinect no.** The Xtion's third pool stays at or below 0.53% false alarms in every pairing. The Kinect's
+third pool, well tilted and with a small fitted jitter (0.77% of f), over-alarms at 2.9–7.5% whatever jitter the
+twin is given (borrowing A's and B's mean, 1.31%, changes it by under 0.3 points; no jitter: 3.5–7.7%). Its
+7-view solves hold 62 far solutions where pool A's hold one, an error a robust spread cannot see, so the
+one-number fix fitted to that spread cannot fix it: splits holding a far solve carry 83–97% of its false alarms,
+and without them the rate is 0.49% (a diagnostic added after scoring). Pooled over the ten pairings that hold the third pool:
+2.60% false alarms, ±2% caught in 6.4% (0.72× the twin without jitter). The three 13-view calibrations of each
+camera agree within 1.4 of the jittered twin's sd. Two of five pre-registered predictions held (H111, H112).
+
+![S0 false alarms in the ten pairings that hold the third pool, for the twin without jitter, with each pool's own jitter and with a borrowed jitter, and the firing rate against the focal change](experiments/m4s_third/third.png)
 
 **Milestone 3b headline** (natural features: does self-calibration from SIFT tracks of ordinary video, no board in
 view, still give an honest uncertainty? 65 windows of 1.2 s from three TUM RGB-D sequences, two cameras): **no.**
@@ -928,6 +941,10 @@ OMP_NUM_THREADS=1 python3 experiments/m4p_fresh/run.py      # ~40 min on 4 cores
 python3 experiments/m4p_fresh/analyse.py                   # ~5 min; summary.json, fresh.png (H92-H95)
 OMP_NUM_THREADS=1 python3 experiments/m4q_gate/analyse.py  # ~6 min, no new solve; summary.json, gate.png (H96-H99)
 OMP_NUM_THREADS=1 python3 experiments/m4r_jitter/analyse.py  # ~2 min on 4 cores, no new solve; summary.json, jitter.png (H100-H103)
+python3 experiments/m4s_third/prepare.py fr1 <dir>/rgbd_dataset_freiburg1_rgb_calibration   # milestone 4s: third 13 views
+python3 experiments/m4s_third/prepare.py fr3 <dir>/rgbd_dataset_freiburg3_calibration_rgb_depth
+OMP_NUM_THREADS=1 python3 experiments/m4s_third/run.py      # ~2 h on 4 cores; results.json.gz (k1 + k2, fr1c / fr3c)
+OMP_NUM_THREADS=1 python3 experiments/m4s_third/analyse.py  # ~10 min on 3 cores; summary.json, third.png (H108-H112)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -983,7 +1000,11 @@ Xtion's 2.7-sd gap between its two 13-view calibrations) and see whether it brin
 alarms under 2.5% while keeping the gate's power, pre-registered. (Done in milestone 4r with a per-view focal offset sized from each pool's own 6-view scatter instead:
 every cell under 0.6%, power 0.45×.) After milestone 4r: find the shape of the per-view error that costs less power
 (the f + principal-point variant kept 0.65× at 1.8% worst-cell false alarms; a per-view board pose or homography
-term is next), fit τ on one pool and apply it to the other, and test all of it on a third pool or another sequence. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
+term is next), fit τ on one pool and apply it to the other, and test all of it on a third pool or another sequence. (Third pool done
+in milestone 4s: the Xtion stays safe, the Kinect's third pool over-alarms at up to 7.5% whatever τ, borrowed or its own.) After
+milestone 4s: model the far small-set solves in the twin's threshold (a mixture fitted to the pool's own far-solve rate, or withholding
+sets whose solve is far from the size's median) and pre-register it on all three pools of both units; a new session or sequence is
+still the test of anything fitted to these six pools. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
 (does the jackknife stay honest when σ is this much smaller?); find the smooth 2-D residual
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is
