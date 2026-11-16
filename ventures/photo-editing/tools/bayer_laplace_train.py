@@ -81,7 +81,8 @@ def design(X: np.ndarray, pairs: bool) -> np.ndarray:
 
 
 def fit(frames: list[dict], pairs: bool, ridge: float) -> np.ndarray:
-    A = None
+    A: np.ndarray | None = None
+    B: np.ndarray | None = None
     for f in frames:
         D = 8.0 * (f["g4"].astype(np.float64) - f["g8"])
         ok = np.abs(D) > 1e-9
@@ -90,7 +91,9 @@ def fit(frames: list[dict], pairs: bool, ridge: float) -> np.ndarray:
         wt = D[ok] ** 2 / max(float(np.sum(D[ok] ** 2)), 1e-30)  # each frame counts equally
         ZtW = Z.T * wt
         a, b = ZtW @ Z, ZtW @ wstar
-        A, B = (a, b) if A is None else (A + a, B + b)
+        A = a if A is None else A + a
+        B = b if B is None else B + b
+    assert A is not None and B is not None, "no training frames"
     reg = ridge * np.eye(A.shape[0]) * np.trace(A) / A.shape[0]
     reg[0, 0] = 0.0
     return np.linalg.solve(A + reg, B)

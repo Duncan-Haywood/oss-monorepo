@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
   "errors": [
     "First scratch setup raced: mkdir ran inside a backgrounded subshell, so the sample clone's cd failed; re-ran it in the foreground, nothing landed in the tree.",
-    "A three-config CV loop overran the 600 s foreground timeout and moved to the background; results were intact."
+    "A three-config CV loop overran the 600 s foreground timeout and moved to the background; results were intact.",
+    "CI lint failed: ruff F821 in tools/bayer_laplace_train.py (accumulator B undefined to static analysis); fixed. The same job's mypy step had 2 errors already on main (bayer_demosaic eps type to bayer_native.piece, dng_opcodes np = None); fixed both forward."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "ventures/photo-editing/llms.txt",
       "issue": "The RAW-stills bullet is a single line of about 15,000 characters; appending a clause needs a scripted exact-match replace, and readers (human or LLM) cannot skim it."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "run_venture_tests.py says a local pass is the CI pass, but it does not run photo-editing-ci.yml's lint job (ruff 0.15.8 + mypy); a local run missed a ruff error and a pre-existing mypy failure on main."
     }
   ],
   "deviations": [
@@ -59,7 +64,7 @@
     "ventures/photo-editing/eval/bayer-learned-laplace-2026-11-16.md"
   ],
   "goal": null,
-  "notes": "Learned per-sensel Laplacian weight for the Bayer demosaic (quadratic in 8 scale-free features, 45 weights, weighted least squares on 40 public sample frames; test frames refused). Leave-one-frame-out CV on training frames: +0.33 dB green (37/40). Held-out ten real frames, run once: colour +0.01..+0.39 dB, luma +0.02..+0.66 over 3/16 default on all ten; loses on synthetic sheet; numpy only, 4-6x default time; shipped opt-in as --demosaic learned. Verification: tests/test_bayer_demosaic.py + test_xtrans_demosaic.py 27 passed; run_venture_tests.py photo-editing: ok, 1217 tests, 8 skipped; post front matter/links/similarity clean; venture-preflight.mjs photo-editing: clean.",
+  "notes": "Learned per-sensel Laplacian weight for the Bayer demosaic (quadratic in 8 scale-free features, 45 weights, weighted least squares on 40 public sample frames; test frames refused). Leave-one-frame-out CV on training frames: +0.33 dB green (37/40). Held-out ten real frames, run once: colour +0.01..+0.39 dB, luma +0.02..+0.66 over 3/16 default on all ten; loses on synthetic sheet; numpy only, 4-6x default time; shipped opt-in as --demosaic learned. Verification: tests/test_bayer_demosaic.py + test_xtrans_demosaic.py 27 passed; run_venture_tests.py photo-editing: ok, 1217 tests, 8 skipped; post front matter/links/similarity clean; venture-preflight.mjs photo-editing: clean. After CI: ruff 0.15.8 and mypy 1.19.1 clean in ventures/photo-editing; suite rerun ok (1217).",
   "corrections": [],
   "redteam": null,
   "usage": {

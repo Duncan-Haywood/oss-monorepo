@@ -386,7 +386,7 @@ def directional(
         if use_c:
             from shootflow import bayer_native
 
-            bayer_native.piece(big[a:b], cm, window, power, rb == "simple", eps, pad, pad, out[y0:y1], laplace)
+            bayer_native.piece(big[a:b], cm, window, power, rb == "simple", float(eps), pad, pad, out[y0:y1], laplace)
             return
         masks = (cm == 0, cm == 1, cm == 2)
         piece = _piece(big[a:b], masks, window, power, rb, median_passes, eps, laplace, adaptive, learned)
