@@ -125,3 +125,56 @@ test("money and pct", () => {
   assert.equal(pct(0.25), "25%");
   assert.equal(pct(null), "n/a");
 });
+
+// Every numeric field accepts its own bounds and rejects just outside them
+// (redteam 2026-11-16: bound mutants on minAverage, cleanupMultiplier and
+// bufferPct escaped because no test sat on a bound).
+const BOUNDS = {
+  transactions: [0, 1e7], accounts: [0, 1000], payrollRuns: [0, 100], arApItems: [0, 1e6],
+  salesTaxFilings: [0, 100], cleanupMonths: [0, 120], minClean: [0, 600], minAverage: [0, 600], minMessy: [0, 600],
+  reconMinutes: [0, 5000], payrollMinutes: [0, 5000], arApMinutes: [0, 1000], salesTaxMinutes: [0, 5000],
+  reviewMinutes: [0, 5000], cleanupMultiplier: [1, 20], software: [0, 1e6], targetHourly: [0.01, 1e5],
+  bufferPct: [0, 500], walkAwayPct: [0, 100],
+};
+test("every field accepts its bounds and rejects just outside", () => {
+  for (const [k, [lo, hi]] of Object.entries(BOUNDS)) {
+    assert.equal(normalizeOptions({ [k]: lo })[k], lo, `${k} lo`);
+    assert.equal(normalizeOptions({ [k]: hi })[k], hi, `${k} hi`);
+    const below = lo === 0.01 ? 0.005 : lo - 0.5;
+    assert.throws(() => normalizeOptions({ [k]: below }), new RegExp(k), `${k} below`);
+    assert.throws(() => normalizeOptions({ [k]: hi + 0.5 }), new RegExp(k), `${k} above`);
+  }
+});
+
+test("null, undefined and empty-string fields fall back to the default", () => {
+  for (const v of [null, undefined, ""]) {
+    assert.equal(normalizeOptions({ transactions: v, cleanliness: v, competitorFee: v }).transactions, 300);
+  }
+  assert.equal(price({ transactions: null }).minutes, 580);
+});
+
+test("summary names a one-month cleanup and omits a zero one", () => {
+  assert.match(summarizePrice(price({ cleanupMonths: 1 })).text, /One-time cleanup of 1 month: \$/);
+  assert.match(summarizePrice(price({ cleanupMonths: 2 })).text, /2 months:/);
+  assert.doesNotMatch(summarizePrice(price({})).text, /cleanup/);
+});
+
+// redteam 2026-11-16: "Acme,$1,200,8" read as fee $1, 200 hours, $8 software
+// with no error, and a spreadsheet-quoted "$1,200" was rejected.
+test("parseRoster reads quoted fields and refuses an unquoted thousands comma", () => {
+  const q = parseRoster('Acme,"$1,200",8\n"Smith, Jones",300,4,"$1,050.00"');
+  assert.deepEqual(q.errors, []);
+  assert.deepEqual(q.clients, [
+    { name: "Acme", fee: 1200, hours: 8, software: 0 },
+    { name: "Smith, Jones", fee: 300, hours: 4, software: 1050 },
+  ]);
+  const bare = parseRoster("Acme,$1,200,8");
+  assert.equal(bare.clients.length, 0);
+  assert.match(bare.errors[0], /^Line 1: .*thousands/);
+  const extra = parseRoster("Acme,1200,8,40,extra");
+  assert.equal(extra.clients.length, 0);
+  assert.match(extra.errors[0], /^Line 1: expected client,fee,hours\[,software\]/);
+  assert.match(parseRoster('Acme,"300,4').errors[0], /^Line 1: .*quote/);
+  // A plain 3-digit hours field after a plain fee is still fine.
+  assert.deepEqual(parseRoster("Big,9000,160").clients, [{ name: "Big", fee: 9000, hours: 160, software: 0 }]);
+});

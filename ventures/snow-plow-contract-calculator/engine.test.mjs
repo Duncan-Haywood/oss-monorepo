@@ -148,3 +148,13 @@ test("storm-time options accept 20 hours and reject anything above, for every ba
     assert.throws(() => normalizeOptions({ [k]: 20.5 }), new RegExp(`${k} must be between 0 and 20`));
   }
 });
+
+// redteam 2026-11-16: "A,flat,$1,200,40" read as $1 revenue and 200 hours.
+test("parseSites and parseSeasons read a quoted $1,200 and refuse an unquoted one", () => {
+  assert.equal(parseSeasons('A,flat,"$1,200",40').rows[0].revenue, 1200);
+  assert.equal(parseSites('A,10,"$1,200",0,0,2').sites[0].perPush, 1200);
+  const r = parseSeasons("A,flat,$1,200,40");
+  assert.equal(r.rows.length, 0);
+  assert.match(r.errors[0], /^Line 1: .*thousands comma/);
+  assert.match(parseSites("A,10,$1,200,0,0,2").errors[0], /thousands comma/);
+});

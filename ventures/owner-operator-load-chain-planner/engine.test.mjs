@@ -234,3 +234,11 @@ test("a 14-load list solves exactly and quickly", () => {
   assert.equal(r.truncated, false);
   assert.ok(Date.now() - t0 < 20000, `took ${Date.now() - t0} ms`);
 });
+
+// redteam 2026-11-16: "L1,Denver CO,Dallas TX,$1,200" read as a $1 rate and 200 miles.
+test("parseLoads reads a quoted $1,200 rate and refuses an unquoted one", () => {
+  assert.equal(parseLoads('L1,Denver CO,Dallas TX,"$1,200"').loads[0].rate, 1200);
+  const r = parseLoads("L1,Denver CO,Dallas TX,$1,200");
+  assert.equal(r.loads.length, 0);
+  assert.match(r.errors[0], /^line 1: .*thousands comma/);
+});
