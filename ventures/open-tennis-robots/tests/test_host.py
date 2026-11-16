@@ -223,11 +223,29 @@ class WheelLoopTest(unittest.TestCase):
             self.assertEqual(loop.update(8500, 0, 10), 1.0)
         self.assertEqual(loop.i, 0.0)
 
+    def test_slow_targets_scale_the_gains(self):
+        # README "Slow wheels need slower gains": under LOOP_LOW_RPM both gains shrink with the target
+        fast, slow = controller.WheelLoop(9000), controller.WheelLoop(9000)
+        g = 750 / controller.LOOP_LOW_RPM
+        self.assertAlmostEqual(fast.update(3000, 2900, 10) - 3000 / 9000, 2e-4 * 100 + 6e-7 * 100 * 10)
+        self.assertAlmostEqual(slow.update(750, 650, 10) - 750 / 9000, g * (2e-4 * 100 + 6e-7 * 100 * 10))
+        off = controller.WheelLoop(9000, low_rpm=0)
+        self.assertAlmostEqual(off.update(750, 650, 10) - 750 / 9000, 2e-4 * 100 + 6e-7 * 100 * 10)
+
     def test_gate_needs_the_speed_held(self):
         gate = controller.SteadyGate()
-        self.assertFalse(gate.update((3000, 2000), (3050, 2010), 100))
-        self.assertTrue(gate.update((3000, 2000), (3050, 2010), 60))
-        self.assertFalse(gate.update((3000, 2000), (3100, 2010), 10))    # 3.3% off: start over
+        self.assertFalse(gate.update((3000, 2500), (3050, 2510), 100))
+        self.assertTrue(gate.update((3000, 2500), (3050, 2510), 60))
+        self.assertFalse(gate.update((3000, 2500), (3100, 2510), 10))    # 3.3% off: start over
+
+    def test_gate_holds_revolutions_of_a_slow_wheel(self):
+        # README "Slow wheels need slower gains": at 500 rpm GATE_HOLD_REVS revolutions outlast the 150 ms hold
+        gate = controller.SteadyGate()
+        need = controller.GATE_HOLD_REVS * 60000 // 500
+        self.assertFalse(gate.update((3000, 500), (3000, 500), need - 10))
+        self.assertTrue(gate.update((3000, 500), (3000, 500), 10))
+        fast = controller.SteadyGate()
+        self.assertTrue(fast.update((3000, 2500), (3000, 2500), 150))     # 6 revolutions at 2,500 rpm are 144 ms
         self.assertFalse(gate.update((0, 2000), (0, 2000), 500))          # a stopped wheel is never ready
 
     def test_loop_settles_over_the_plant_grid(self):

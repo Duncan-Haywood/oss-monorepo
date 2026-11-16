@@ -836,6 +836,12 @@ class BrakeGuard:
         return self.ok
 
 
+# Under this target the wheel loop's gains shrink with the speed (WheelLoop; README "Slow wheels need slower gains").
+LOOP_LOW_RPM = 1500
+# The ready gate holds for at least this many revolutions of the slowest wheel (SteadyGate; same README section).
+GATE_HOLD_REVS = 6
+
+
 class WheelLoop:
     """One launcher wheel's ESC command from its target and measured rpm: feedforward plus PI (2026-11-11).
 
@@ -848,22 +854,32 @@ class WheelLoop:
     frozen while the command is saturated and clamped to +-`i_max` (no wind-up). Gains from tests/wheel_loop_sweep.py
     (README "Wheel speed loop"): steady within 2 s over free speeds 7000-11000 rpm and spin-up time constants
     0.2-0.8 s while the firmware is told 9000.
+
+    Below `low_rpm` both gains shrink in proportion to the target (2026-11-16, firmware/esp32/README.md "Slow wheels
+    need slower gains"). The tachometer averages its last four revolutions, so what it reads trails the wheel by about
+    2.5 revolutions: 43 ms at 3,500 rpm, 0.29 s at 510 rpm. At fixed gains that delay took the loop's phase margin
+    from about 66 degrees at 3,500 rpm to -48 at 510 rpm (a 0.2 s wheel behind a 30 ms ESC), and a ~510 rpm wheel
+    swung 460-564 rpm and never passed the ready gate. Scaling the gains with the speed keeps the crossover a fixed
+    share of the delay. 0 turns it off.
     """
 
-    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3):
+    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM):
         self.ff = 1.0 / rpm_full
         self.kp, self.ki, self.i_max = kp, ki, i_max
+        self.low = low_rpm
         self.i = 0.0
 
     def update(self, target, measured, dt_ms):
         if target <= 0:
             self.i = 0.0
             return 0.0
+        g = target / self.low if self.low and target < self.low else 1.0
+        kp, ki = self.kp * g, self.ki * g
         err = target - measured
-        raw = target * self.ff + self.kp * err + self.i
+        raw = target * self.ff + kp * err + self.i
         if 0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0):
-            self.i = _clamp(self.i + self.ki * err * dt_ms, -self.i_max, self.i_max)
-        return _clamp(target * self.ff + self.kp * err + self.i, 0.0, 1.0)
+            self.i = _clamp(self.i + ki * err * dt_ms, -self.i_max, self.i_max)
+        return _clamp(target * self.ff + kp * err + self.i, 0.0, 1.0)
 
 
 class SteadyGate:
@@ -874,20 +890,28 @@ class SteadyGate:
     averages the last revolutions, so the true speed trails what it reads; on the simulated feeder over the plant grid
     (tests/wheel_loop_sweep.py) a 5% gate let balls go at up to 6.6% true error, a 3% gate at up to 2.8%, for at most
     0.6 s more spin-up.
+
+    The hold is also at least `hold_revs` revolutions of the slowest turning wheel (2026-11-16, README "Slow wheels
+    need slower gains"). The tachometer's reading changes once a revolution, and a 510 rpm wheel turns once in 118 ms,
+    so 150 ms was one or two readings of a four-revolution average and passed slow wheels up to 13% off their true
+    speed on the simulator. 0 keeps the plain `hold_ms`.
     """
 
-    def __init__(self, tol=0.03, hold_ms=150):
-        self.tol, self.hold = tol, hold_ms
+    def __init__(self, tol=0.03, hold_ms=150, hold_revs=GATE_HOLD_REVS):
+        self.tol, self.hold, self.revs = tol, hold_ms, hold_revs
+        self.need = hold_ms
         self.ok_ms = 0
 
     def update(self, targets, measured, dt_ms):
         inside = all(t and abs(m - t) < self.tol * t for t, m in zip(targets, measured))
         self.ok_ms = self.ok_ms + dt_ms if inside else 0
+        slowest = min((t for t in targets if t > 0), default=0)
+        self.need = max(self.hold, self.revs * 60000 // slowest) if self.revs and slowest else self.hold
         return self.steady
 
     @property
     def steady(self):
-        return self.ok_ms >= self.hold
+        return self.ok_ms >= self.need
 
 
 class ElevationGeometry:
