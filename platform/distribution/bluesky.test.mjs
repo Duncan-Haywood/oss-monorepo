@@ -120,3 +120,29 @@ test("every venture page's title and description decode to plain text through re
   }
   assert.deepEqual(bad, []);
 });
+
+test("Bluesky's post limit is 300 graphemes, and composePost stays within it", () => {
+  // Pinned as a literal: the existing fit test reads MAX_GRAPHEMES, so raising
+  // the constant past the network's limit kept it green (red team 2026-11-16).
+  assert.equal(MAX_GRAPHEMES, 300);
+  const { text } = composePost({ title: 'T'.repeat(400), description: 'D'.repeat(400) }, toolUrl('a'));
+  assert.ok([...new Intl.Segmenter().segment(text)].length <= 300);
+});
+
+test('readMeta decodes hex references whose digits include 0', () => {
+  const p = '<title>T</title><meta name="description" content="&#x20AC;5 &#x0041;">';
+  assert.equal(readMeta(p).description, '€5 A');
+});
+
+test('recentLaunches breaks a same-day tie by slug, so the per-run cap picks the same tools every time', () => {
+  const l = { zeta: '2026-10-15', alpha: '2026-10-15', mid: '2026-10-15', old: '2026-10-14' };
+  assert.deepEqual(recentLaunches(l, '2026-10-15'), ['alpha', 'mid', 'zeta', 'old']);
+});
+
+test('running the file as a CLI with no credentials prints a dry run', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const { fileURLToPath } = await import('node:url');
+  const env = { PATH: process.env.PATH, HOME: process.env.HOME };
+  const out = execFileSync(process.execPath, [fileURLToPath(new URL('./bluesky.mjs', import.meta.url))], { env, encoding: 'utf8', timeout: 20000 });
+  assert.match(out, /^DRY RUN/);
+});
