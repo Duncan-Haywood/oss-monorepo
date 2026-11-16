@@ -71,8 +71,13 @@ specific rules are not checked.
 
 YAML support (see [`yaml.mjs`](yaml.mjs), adapted from
 [`actions-minutes-estimator`](../actions-minutes-estimator/workflow-yaml.mjs)'s
-parser): block mappings and sequences, flow collections, quoted and bare
-scalars, comments, and block scalars. Not supported, and refused rather than
+parser): block mappings and sequences (indented or "compact", with the
+`-` at the key's own indent), flow collections, quoted and bare scalars,
+comments, and block scalars. Bare scalars resolve the way Helm resolves
+them (sigs.k8s.io/yaml, YAML 1.1): `yes`/`on`/`TRUE` are booleans, `NULL`
+is null, `0x1F` and `1e3` are numbers and `0755` is octal 493. Before
+2026-11-16 a compact sequence silently dropped every key after it; see
+[`yaml.test.mjs`](yaml.test.mjs). Not supported, and refused rather than
 guessed: anchors/aliases and merge keys — rare in a `values.yaml`, and
 silently mis-reading one would report a field as missing or mistyped that is
 neither.
