@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyefwsq3NPCzWTvGLh4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T14:40:00Z",
+  "ended": "2026-11-16T15:13:54Z",
+  "wall_minutes": 34.06,
+  "tokens_in": 5462953,
+  "tokens_out": 30765,
+  "cost_usd": 2.5566,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16605",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Scheduled-run wait guidance: a foreground `sleep 240` to wait on a background eval is blocked by the harness; until-loops with run_in_background were needed. Not documented in cloud-session.md 'Long commands'."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes handed the venture suite off to a detached process after 100 s although run_venture_tests.py had just passed the same suite; PR CI's changed-ventures finished green first, so the local run was stopped unfinished."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The item asked for a gate 'sized for the warm solve'; measurement showed no size or time formula predicts the warm solve (29 ms to 14.5 s, ratio to the open-hours LP 0.04-6).",
+      "did": "Replaced the gate with a fixed reserve past the budget (scoreFloorPlan, scoreFloorReserveMs 1500) instead of fitting a new formula.",
+      "result": "Pay floor finished on 2 more of 14 big weeks (one gap $23,272 -> $16.90); two weeks +1.6-1.8 s, no roster worse."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-shift-roster-no-formula-sizes-the-warm-solve.md",
+    "ventures/shift-roster-builder/README.md (section 'A warm-sized gate for the pay floor')"
+  ],
+  "goal": null,
+  "notes": "Verification: run_venture_tests.py shift-roster-builder 705 tests pass (241.9 s); PR CI green incl. changed-ventures; run_workflow_locally --for-changes pages.yml 6/6 run steps passed, ventures-tests local run stopped after CI went green. No agent doc in docs/reports: README section and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b28e989f-7bcd-5921-8ebd-3590727771dc",
+    "transcripts": 1,
+    "first": "2026-11-16T14:40:00Z",
+    "last": "2026-11-16T15:14:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 103,
+        "output": 30765,
+        "thinking": 8781,
+        "cache_read": 5354088,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108762,
+        "api_equivalent_usd": 2.5566,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 103,
+      "output": 30765,
+      "thinking": 8781,
+      "cache_read": 5354088,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108762,
+      "api_equivalent_usd": 2.5566,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 2,
+      "TaskStop": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.06,
+      "active_minutes": 34.06,
+      "model_minutes": 5.33,
+      "tool_minutes": 28.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "measure warm LP times on 78 weeks, redesign gate, 28 e2e builds, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 234.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
