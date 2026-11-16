@@ -444,3 +444,169 @@ def _one_pass(c, pat, p, h, w, masks, iso, scale, keep, clamp=True, select="grad
         total += pic * chosen[d][..., None]
     out = total / chosen.sum(axis=0)[..., None]
     return out, chosen
+
+
+# --- Noise-aware blend with bilinear (2026-11-16, eval/xtrans-noise-aware-blend-2026-11-16.md) -------------
+#
+# Edge-keeping pays where a region holds detail near the sampling limit and costs where it holds little
+# but noise: the directional green follows each sensel's own noise along one line instead of averaging it
+# over the 3 x 3 window. ``frame_measures`` estimates, from the mosaic alone, how much the directional
+# result departs from the bilinear one (``detail``) against the sensor noise there (``sigma``), per
+# BLOCK x BLOCK block; ``noise_aware`` blends the two per block by that ratio.
+
+BLOCK = 24
+
+
+def _block_stat(a: np.ndarray, fn, block: int = BLOCK) -> np.ndarray:
+    h, w = a.shape[:2]
+    hb, wb = max(1, h // block), max(1, w // block)
+    a = a[: hb * block, : wb * block] if h >= block and w >= block else a
+    bh, bw = (block, block) if h >= block and w >= block else (h, w)
+    tiles = a.reshape(hb, bh, wb, bw, *a.shape[2:]).swapaxes(1, 2).reshape(hb, wb, -1)
+    return fn(tiles)
+
+
+def _noise_model(level: np.ndarray, spread: np.ndarray) -> tuple[float, float]:
+    """Fit variance = g * level + r (shot and read noise) to the quietest blocks at each brightness: the
+    blocks are put in eight brightness bins and each bin's 15th percentile of ``spread`` squared is taken,
+    so texture (which only adds spread) mostly drops out."""
+
+    lv, sp = level.ravel(), spread.ravel()
+    if lv.size < 8:
+        return 0.0, float(np.median(sp) ** 2)
+    edges = np.quantile(lv, np.linspace(0, 1, 9))
+    xs, ys = [], []
+    for i in range(8):
+        sel = (lv >= edges[i]) & (lv <= edges[i + 1])
+        if sel.sum() >= 3:
+            xs.append(float(np.median(lv[sel])))
+            ys.append(float(np.percentile(sp[sel], 15)) ** 2)
+    x, y = np.asarray(xs), np.asarray(ys)
+    if x.size < 2 or np.ptp(x) == 0:
+        return 0.0, float(np.mean(y)) if y.size else 0.0
+    g, r = np.polyfit(x, y, 1)
+    if r < 0:
+        g, r = max(0.0, float(x @ y / (x @ x))), 0.0
+    if g < 0:
+        g, r = 0.0, float(np.mean(y))
+    return float(g), float(r)
+
+
+def frame_measures(
+    c, pat, bilinear: np.ndarray, directional_out: np.ndarray, *, noise: tuple[float, float] | None = None,
+    blocks: bool = False,
+) -> dict:
+    """Noise and detail of a white-balanced sensel plane, from the mosaic and its two demosaics.
+
+    ``noise``: the sensor's (shot, read) model, variance = shot * level + read on the plane's scale, when it
+    is known (a DNG NoiseProfile, a camera profile); else it is fitted to each sensel's leave-one-out
+    residual against its same-colour neighbours (5 x 5, triangle-weighted) in the quietest blocks, which
+    over-reads the noise where texture fills every block. ``sigma``: the model's noise at the frame's median
+    level. ``detail``: the RMS of directional minus bilinear. ``q``: the median over BLOCK x BLOCK blocks of
+    block detail over the model's noise at that block's level (``q_blocks`` with ``blocks=True``).
+    """
+
+    c = np.asarray(c, dtype=np.float64)
+    h, w = c.shape
+    level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
+    if noise is None:
+        cmap = colour_map(pat, h, w)
+        pred = np.zeros_like(c)
+        for k in range(3):
+            m = (cmap == k).astype(np.float64)
+            s = _box3(_box3(c * m)) - 9.0 * c * m
+            n = _box3(_box3(m)) - 9.0 * m
+            pred += np.where(m > 0, s / np.maximum(n, 1e-9), 0.0)
+        resid = np.abs(c - pred) * 1.4826 * 0.85  # MAD to sigma; 0.85 removes the neighbours' own share
+        spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
+        g, r = _noise_model(level, spread)
+    else:
+        g, r = float(noise[0]), float(noise[1])
+    diff = np.asarray(directional_out, dtype=np.float64) - np.asarray(bilinear, dtype=np.float64)
+    det = _block_stat(diff, lambda t: np.sqrt(np.mean(t**2, axis=-1)))
+    noise_b = np.sqrt(np.maximum(g * level + r, 1e-12))
+    qb = det / noise_b
+    out = {
+        "sigma": float(np.sqrt(max(g * float(np.median(level)) + r, 0.0))),
+        "detail": float(np.sqrt(np.mean(diff**2))),
+        "q": float(np.median(qb)),
+        "q_mean": float(np.mean(np.minimum(qb, 1e3))),
+        "shot": g,
+        "read": r,
+    }
+    if blocks:
+        out["q_blocks"] = qb
+    return out
+
+
+# The ramp (q_low, q_high) per CFA, fitted on 21 "tune" files' tiles and scored on 25 held-out files'
+# (eval/xtrans-noise-aware-blend-2026-11-16.md): colour PSNR +0.43 dB (X-Trans) and +0.31 dB (Bayer) on
+# average over the directional default, no held-out tile worse by more than 0.01 dB, with the noise known.
+RAMPS = {6: (0.4, 2.0), 2: (0.4, 1.2)}
+
+
+def _interp_matrix(n: int, nb: int) -> np.ndarray:
+    """(n, nb) weights that interpolate nb block-centre values linearly to n pixel centres, held flat past
+    the first and last centre (``np.interp``'s rule)."""
+
+    centres = (np.arange(nb) + 0.5) * (n / nb)
+    x = np.clip(np.arange(n) + 0.5, centres[0], centres[-1])
+    out = np.zeros((n, nb))
+    if nb == 1:
+        out[:, 0] = 1.0
+        return out
+    j = np.clip(np.searchsorted(centres, x, side="right") - 1, 0, nb - 2)
+    t = (x - centres[j]) / (centres[j + 1] - centres[j])
+    out[np.arange(n), j] = 1.0 - t
+    out[np.arange(n), j + 1] = t
+    return out
+
+
+def blend(bilinear: np.ndarray, directional_out: np.ndarray, q_blocks: np.ndarray, q_low: float, q_high: float) -> np.ndarray:
+    """``a * directional + (1 - a) * bilinear``, ``a`` per block from its ``q`` (0 at ``q_low``, 1 at ``q_high``,
+    linear between), spread to pixels by bilinear interpolation between block centres."""
+
+    ab = np.clip((np.asarray(q_blocks, dtype=np.float64) - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0)
+    h, w = bilinear.shape[:2]
+    a = (_interp_matrix(h, ab.shape[0]) @ ab @ _interp_matrix(w, ab.shape[1]).T)[..., None]  # (h, w, 1)
+    return a * directional_out + (1.0 - a) * bilinear
+
+
+def noise_aware(
+    c, pat, *, bilinear: np.ndarray | None = None, directional_out: np.ndarray | None = None,
+    noise: tuple[float, float] | None = None, q_low: float | None = None, q_high: float | None = None,
+    per_block: bool = True,
+) -> np.ndarray:
+    """Directional where it adds detail above the noise, bilinear where it adds mostly noise.
+
+    Weights per block from ``frame_measures`` (``blend``) with the CFA's ``RAMPS`` unless ``q_low``/``q_high``
+    are given; with ``per_block=False`` the frame's median ``q`` sets one weight for the whole frame (measured
+    worse: a frame mixes smooth and detailed regions). Pass ``noise`` whenever it is known: estimated from
+    the mosaic it reads texture as noise on detailed frames and lost up to 5 dB on held-out tiles. Without
+    ``directional_out`` the CFA's own directional demosaic runs (X-Trans here, ``bayer_demosaic`` on a 2 x 2
+    pattern) at its defaults. Both inputs
+    keep each sensel's own value, so the blend does too.
+    """
+
+    ramp = RAMPS[6 if len(pat) == 36 else 2]
+    q_low = ramp[0] if q_low is None else q_low
+    q_high = ramp[1] if q_high is None else q_high
+    c = np.asarray(c, dtype=np.float64)
+    if bilinear is None:
+        from shootflow import raw_develop_np as rnp
+
+        h, w = c.shape
+        bilinear = np.empty((h, w, 3), dtype=np.float64)
+        rnp._bilinear(c, w, h, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=bilinear, threads=1)
+    if directional_out is None:
+        if len(pat) == 4:
+            from shootflow.bayer_demosaic import directional as bayer
+
+            directional_out = bayer(c, pat)
+        else:
+            directional_out = directional(c, pat)
+    m = frame_measures(c, pat, bilinear, directional_out, noise=noise, blocks=True)
+    if not per_block:
+        a = float(np.clip((m["q"] - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0))
+        return a * directional_out + (1.0 - a) * bilinear
+    return blend(bilinear, directional_out, m["q_blocks"], q_low, q_high)

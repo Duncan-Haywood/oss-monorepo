@@ -138,6 +138,7 @@ TAG_LOOK_TABLE_DIMS = 50981
 TAG_LOOK_TABLE_DATA = 50982
 TAG_HUE_SAT_MAP_ENCODING = 51107
 TAG_LOOK_TABLE_ENCODING = 51108
+TAG_NOISE_PROFILE = 51041
 TAG_BASELINE_EXPOSURE_OFFSET = 51109
 # DNG 1.6: a third calibration illuminant and custom illuminant data.
 TAG_ILLUMINANT_3 = 52529
@@ -2036,6 +2037,12 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
     demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes)
+    noise = None
+    if demosaic == "noise-aware":
+        noise = noise_profile(ifd, ifd0)
+        if noise is None:
+            notes.append("noise-aware demosaic needs the file's NoiseProfile (DNG): used the directional one")
+            demosaic = "directional"
     if np_engine is not None:
         nw, nh, npx, report = _develop_numpy(
             np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
@@ -2044,7 +2051,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
             look=look, gain_maps=gain_maps, warps=warps, trim=trim, warp_kernel=settings.warp_kernel,
-            demosaic=demosaic or "bilinear",
+            demosaic=demosaic or "bilinear", noise=noise,
         )
         report.lens, report.lens_notes, report.lens_key = lens_used, lens_notes, lens_key
         report.demosaic = demosaic
@@ -2124,7 +2131,25 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     return report_w, report_h, out, report
 
 
-DEMOSAICS = ("auto", "bilinear", "directional", "learned")
+DEMOSAICS = ("auto", "bilinear", "directional", "learned", "noise-aware")
+
+
+def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
+    """The DNG NoiseProfile (tag 51041) as one (shot, read) pair, variance = shot * x + read for a signal x
+    normalised to 0..1 (black 0, white 1): the mean over the colour planes when it gives one pair per plane.
+    None when the file has none or it is malformed (a non-positive read term, an odd count)."""
+
+    for d in (ifd, ifd0):
+        if d is None:
+            continue
+        v = d.get(TAG_NOISE_PROFILE)
+        if not v or len(v) % 2:
+            continue
+        pairs = [(float(v[i]), float(v[i + 1])) for i in range(0, len(v), 2)]
+        if any(sh < 0 or rd <= 0 for sh, rd in pairs):
+            continue
+        return sum(p[0] for p in pairs) / len(pairs), sum(p[1] for p in pairs) / len(pairs)
+    return None
 
 
 def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
@@ -2135,7 +2160,10 @@ def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes
     block and demosaics nothing). "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
     Laplacian weight from a fitted model, 0.01-0.39 dB colour and 0.02-0.66 dB luma above the default on
     ten held-out frames, at 4-6x the time (eval/bayer-learned-laplace-2026-11-16.md); in C since 2026-11-16,
-    bit-identical, 2.6-3.3x the default's time (eval/bayer-learned-native-2026-11-16.md)."""
+    bit-identical, 2.6-3.3x the default's time (eval/bayer-learned-native-2026-11-16.md). "noise-aware"
+    (opt-in, both CFAs, 2026-11-16): the directional result blended toward bilinear block by block where it
+    adds less than the sensor noise the DNG's NoiseProfile states; without one, ``develop`` falls back to
+    directional (eval/xtrans-noise-aware-blend-2026-11-16.md)."""
 
     if choice not in DEMOSAICS:
         raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")
@@ -2145,7 +2173,7 @@ def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes
     least = 6 if xtrans else 2
     if choice == "bilinear":
         return "bilinear"
-    if choice in ("directional", "learned"):
+    if choice in ("directional", "learned", "noise-aware"):
         if not numpy_engine:
             raise DevelopError(f"the {choice} demosaic needs the numpy engine (numpy installed)")
         if w < least or h < least:
