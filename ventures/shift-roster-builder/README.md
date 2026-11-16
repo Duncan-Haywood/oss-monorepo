@@ -260,6 +260,47 @@ opening balance; a July leave year; the trim keeping the balances identical; the
 when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
 tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
 
+## New York City fast food (2026-11-16, later)
+
+A sixth preset, `FAIR_WORKWEEK=new-york-city` (or `nyc`), for the fast food half of New York City's Fair Workweek Law
+(Admin. Code 20-1201 et seq.). It is the first preset that does not fit the "hours of pay" shape the other five share,
+so three new pieces carry it:
+
+| | New York City (fast food) | The other presets |
+|---|---|---|
+| Premium | a flat sum per change, by notice: 14 to 7 days $10 (added or moved) / $20 (hours taken away); 7 days to 24 h $15 / $45; under 24 h $15 / $75 | hours of pay at the person's wage |
+| Notice counted to | 12:00 a.m. on the first day of the work schedule (rule 7-622(a)) | the start of the changed shift |
+| Free changes | start and end each moved by 15 min or less, whatever the shift's length becomes (final de minimis rule) | per city |
+| A shift moved to another day | one change: $10 at 14 to 7 days (7-622(a) example 3) | a cancellation plus an addition |
+| Volunteers, open-shift pick-ups, fill-ins | priced (7-622(e)(5)-(7)); consent does not waive it (7-622(b)) | exempt in Seattle, Oregon, Philadelphia |
+| Rest | a clopening (under 11 h, across two calendar days) pays $100 (20-1231) | per city |
+
+Why the week's first day matters: a Thursday shift cancelled on the Sunday before a Monday-start week is a change with
+under 24 hours' notice in New York City ($75), though the shift is four days off. Seattle, counting to the shift, calls
+the same change 4 days' notice. `noticeFromWeek` (`FWW_NOTICE_FROM_WEEK=1`) and `edgeEach` (`FWW_EDGE_EACH=1`) are
+switches any preset or `custom` can take; the flat table itself is the preset's and is not typed from the environment.
+The changes page states the table in words, and the CSV leaves "hours of pay" empty for a flat premium.
+
+Sources, read 2026-11-16 (the city's code library returned 403 and the DCWP page 404 from this session): the premium
+table of 20-1222(a) as the city's Office of Labor Policy and Standards set it out (CLASP conference slides, 2018); DCWP's
+proposed rules (rules.cityofnewyork.us notice of hearing, January 2022: 7-601 definitions, 7-607 de minimis, 7-622
+schedule changes with its five worked examples, 7-623 clopenings); and Fisher Phillips's summary of the June 2022 final
+rules, which changed de minimis from 15 minutes in total to 15 minutes at each end, and confirmed hours (336, 168) as the
+measure of days. Check the current RCNY title 6 chapter 7 text before relying on it.
+
+Not modelled: who is covered (fast food chains with 30 or more locations nationally), the retail half of the law (72
+hours' notice, no on-call shifts, no premiums), the exception for a shortened shift that is still paid in full, the
+regular-schedule rules of 7-622(g), the good-faith estimate, access to hours (offering shifts to current staff before
+hiring), and written consent for added hours and for each clopening (the page counts the $100, it does not collect
+the consent). The absent employee owes nothing (7-622(d)); the hub already logs a call-out's dropped shift as
+employee-asked.
+
+Tested (`notice.test.mjs`, 21 tests, 3 new): the rules' examples 1 to 3 ($75 for a cancellation on the Sunday before,
+$45 at 151 hours, $10 for a Thursday shift moved to Friday at 228 hours, where Seattle prices the same pair at $100 on a
+$20 wage), each tier for adds and cuts, the de minimis edges (15 min each way free, both ends together free, 20 min priced
+$15 or $45), the team offer still priced, an employee request exempt, the $100 clopening with no wage and a same-day split
+not counted, the CSV row, and the changes page's table in words.
+
 ## Philadelphia and Los Angeles (2026-11-16, later)
 
 Two more presets for the hub's change log, so a covered shop in either city can turn the pricing on with one setting
@@ -313,8 +354,8 @@ a moment you type. The hub is where the changes really happen, days apart, so it
   employee-asked and the added shift as not, because the manager picked the person. The first publish of a week is kept
   as its posting time. The manager can flip any entry between "Employee asked" and not. The last 1,500 changes are kept
   (Seattle asks for three years of records, so the page says to download the CSV with each payroll).
-- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|custom`; the last two since
-  2026-11-16 later, see "Philadelphia and Los Angeles" below):** read from the City of Seattle's Office of Labor
+- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|new-york-city|custom`; the last three
+  since 2026-11-16 later, see "Philadelphia and Los Angeles" and "New York City fast food" above):** read from the City of Seattle's Office of Labor
   Standards "Secure Scheduling" page and Oregon BOLI's "Predictive scheduling" page on 2026-11-16, and for Chicago from
   search summaries of the city's Fair Workweek notice and rules on chicago.gov and the ordinance's table as quoted by the
   National Law Review (the chicago.gov pages returned 403 or 404 here, so Chicago is the least checked of the three):
