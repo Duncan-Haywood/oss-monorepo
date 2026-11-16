@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -171,6 +172,17 @@ def cmd_study(args) -> int:
     return 0
 
 
+def _finite_nonneg(text: str) -> float:
+    """argparse type for a risk limit: 'nan' or 'inf' would switch the guard off."""
+    try:
+        value = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a number: {text!r}")
+    if not math.isfinite(value) or value < 0:
+        raise argparse.ArgumentTypeError(f"must be a finite number >= 0, got {text!r}")
+    return value
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="tradelab", description="Backtest, research and (carefully) trade rules-based "
                                 "strategies on your own account.", epilog=DISCLAIMER,
@@ -215,11 +227,11 @@ def build_parser() -> argparse.ArgumentParser:
     rb.add_argument("--execute", action="store_true", help="send the orders (paper unless --live)")
     rb.add_argument("--live", action="store_true", help="real money; also needs TRADELAB_LIVE_CONFIRM")
     rb.add_argument("--allow-unpromoted", action="store_true")
-    rb.add_argument("--max-order", type=float, default=1000.0)
+    rb.add_argument("--max-order", type=_finite_nonneg, default=1000.0)
     rb.add_argument("--max-orders", type=int, default=20)
-    rb.add_argument("--max-weight", type=float, default=0.5)
+    rb.add_argument("--max-weight", type=_finite_nonneg, default=0.5)
     rb.add_argument("--paper-state", default="paper-state.json")
-    rb.add_argument("--paper-cash", type=float, default=10_000.0)
+    rb.add_argument("--paper-cash", type=_finite_nonneg, default=10_000.0)
     rb.add_argument("--prices", help="JSON file of symbol -> price for the paper broker")
     rb.set_defaults(fn=cmd_rebalance)
 
