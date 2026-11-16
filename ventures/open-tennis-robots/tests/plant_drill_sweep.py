@@ -12,9 +12,10 @@ fit_from_drops) on the 18 design builds of tests/spin_drill_sweep.py, for each p
 and fits each drill as the Pi does. Prints the worst and mean size of the speed and spin efficiency errors, how many
 wheel readings the firmware marked unsure (LAUNCH flags bits 6 / 7), the fewest and most in one drill, and in how many
 drills `fit_from_drops` warned. `--set-aside` also fits with the marked drops left out (the policy tried first and
-dropped: it did not help).
+dropped: it did not help). `--esc-tau-us N` sets the board's `ESC_TAU_US` to N (2026-11-16, README "An ESC lag
+picked from the build's own balls").
 
-    PYTHONPATH=src:tests:firmware/esp32 python tests/plant_drill_sweep.py [plant ...]
+    PYTHONPATH=src:tests:firmware/esp32 python tests/plant_drill_sweep.py [plant ...] [--esc-tau-us N]
 
 About 20 s a plant. The plants are assumptions, not measurements of a real wheel.
 """
@@ -41,6 +42,8 @@ def drill():
 def run(plant, se, sp, tau, seed):
     sim = SimFeeder(true_launcher=launcher.WheelLauncher(speed_efficiency=se, spin_efficiency=sp), wheel_tau_s=tau,
                     seed=seed, **PLANTS[plant])
+    if "--esc-tau-us" in sys.argv:
+        sim.hw.launch.esc_tau_us = int(sys.argv[sys.argv.index("--esc-tau-us") + 1])
     link = host.FeederLink(sim, sim.clock)
     res = host.run_drill(link, host.plan_drill(drill()), sim.sleep)
     if not res.ok:

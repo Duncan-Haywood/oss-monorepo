@@ -113,7 +113,7 @@ export function readSpec(f) {
   let weekStart = null;
   if (String(f.weekStart || "").trim()) {
     const d = new Date(`${f.weekStart.trim()}T00:00:00Z`);
-    if (Number.isNaN(d.getTime()) || !/^\d{4}-\d{2}-\d{2}$/.test(f.weekStart.trim())) errors.push("Week start must look like 2026-10-12.");
+    if (Number.isNaN(d.getTime()) || !/^\d{4}-\d{2}-\d{2}$/.test(f.weekStart.trim()) || d.toISOString().slice(0, 10) !== f.weekStart.trim()) errors.push("Week start must look like 2026-10-12.");
     else if (d.getUTCDay() !== 1) errors.push("Week start must be a Monday.");
     else weekStart = d;
   }

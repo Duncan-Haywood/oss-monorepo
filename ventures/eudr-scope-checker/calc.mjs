@@ -95,6 +95,8 @@ export function applicationDate(size, eutr) {
 export function daysUntil(date, today) {
   const t = Date.parse(`${today}T00:00:00Z`), d = Date.parse(`${date}T00:00:00Z`);
   if (Number.isNaN(t) || Number.isNaN(d)) return null;
+  // Date.parse rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  if (new Date(t).toISOString().slice(0, 10) !== today || new Date(d).toISOString().slice(0, 10) !== date) return null;
   return Math.round((d - t) / 86400000);
 }
 

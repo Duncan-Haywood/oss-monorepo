@@ -546,6 +546,35 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw))
 
 
+def esc_lagged_ticks(periods, ticks, esc_tau_us, dt_us=1000):
+    """The tick log with each command replaced by the ESC's own drive: the commands through a lag `esc_tau_us`,
+    sampled every `dt_us` (2026-11-16, README "An ESC lag picked from the build's own balls"). An ESC that ramps its
+    output puts a second lag between the command and the wheel; `drop_from_commands` on these ticks fits the wheel's
+    own lag on top of it. On the simulator a 40-100 ms ESC lag read the drop 1.3-4.6% low on average without it, and
+    within 0.6% with the build's lag picked from its own balls (tests/esc_lag_pick.py). The drive starts at the first
+    logged command. `esc_tau_us` 0 returns `ticks` unchanged."""
+    if esc_tau_us <= 0 or not ticks:
+        return ticks
+    T = [0]
+    for p in periods:
+        T.append(T[-1] + p)
+    ev = sorted((T[c] + since, u) for c, since, u in ticks if 0 <= c < len(T))
+    if not ev:
+        return ticks
+    a = 1.0 - math.exp(-dt_us / esc_tau_us)
+    t, d = ev[0][0], ev[0][1]
+    out, i, c = [], 0, 0
+    while t < T[-1]:
+        while i + 1 < len(ev) and ev[i + 1][0] <= t:
+            i += 1
+        d += (ev[i][1] - d) * a
+        t += dt_us
+        while c + 1 < len(T) and T[c + 1] <= t:
+            c += 1
+        out.append((c, t - T[c], d))
+    return out
+
+
 def drop_from_commands(periods, ticks, **kw):
     """`drop_from_commands_steps` run to the end: (drop, rpm, revolutions, tau in us, residual rms) or None."""
     for step in drop_from_commands_steps(periods, ticks, **kw):
@@ -1205,8 +1234,10 @@ class LaunchCheck:
     drill's final stop cannot pass for a ball. The ball meets the wheels about 0.14 s before the stroke ends (cad: 0.76
     s of the 0.9 s GATE_OUT_MS), and the Pi's re-aim comes after the end, so the drop it makes is always in the window."""
 
-    def __init__(self, inertia, ball_kg, wheel_r, ball_r, speed_eff, spin_eff, share=0.25, dip_min=0.015, check_ms=250):
+    def __init__(self, inertia, ball_kg, wheel_r, ball_r, speed_eff, spin_eff, share=0.25, dip_min=0.015, check_ms=250,
+                 esc_tau_us=0):
         self.model = (inertia, ball_kg, wheel_r, ball_r, speed_eff, spin_eff)
+        self.esc_tau_us = esc_tau_us  # the ESC's own lag for the drop fit (config ESC_TAU_US; 0: the wheel's lag only)
         self.share, self.dip_min, self.check_ms = share, dip_min, check_ms
         self.targets = None
         self.until = None
@@ -1365,7 +1396,7 @@ class LaunchCheck:
             if targets[k] <= 0:
                 continue
             e0 = edges0[k]
-            tk = [(c - e0, us, u) for c, us, u in ticks[k]]
+            tk = esc_lagged_ticks(snap[k], [(c - e0, us, u) for c, us, u in ticks[k]], self.esc_tau_us)
             for item in drop_from_commands_steps(snap[k], tk):
                 if item is None:
                     yield None

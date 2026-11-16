@@ -5,7 +5,8 @@ description: >-
   see which results survive multiple-testing correction, with
   Benjamini-Hochberg, Benjamini-Yekutieli, two-stage BKY, Storey q-values,
   Bonferroni, Šidák, Holm and Hochberg side by side, Storey's pi0 estimate
-  and a p-value histogram; e-values are corrected with e-BH. Checked against
+  and a p-value histogram; e-values are corrected with e-BH; tests that arrive
+  one at a time get online FDR (LORD++, SAFFRON, LOND). Checked against
   statsmodels. Nothing is uploaded.
 stage: prototype
 owner: duncan

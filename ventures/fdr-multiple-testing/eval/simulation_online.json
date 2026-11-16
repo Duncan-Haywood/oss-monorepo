@@ -1,0 +1,263 @@
+{
+  "generator": "eval/simulate_online.mjs",
+  "runs": [
+    {
+      "setting": {
+        "n": 1000,
+        "pi1": 0.1,
+        "shift": 3,
+        "order": "random",
+        "reps": 400,
+        "alpha": 0.05,
+        "seed": 20261116
+      },
+      "results": {
+        "lordpp": {
+          "fdr": 0.0114,
+          "pAnyFalse": 0.3125,
+          "power": 0.3189,
+          "meanRejections": 32.23
+        },
+        "saffron": {
+          "fdr": 0.048,
+          "pAnyFalse": 0.875,
+          "power": 0.4476,
+          "meanRejections": 47.08
+        },
+        "lond": {
+          "fdr": 0.0025,
+          "pAnyFalse": 0.045,
+          "power": 0.1829,
+          "meanRejections": 18.26
+        },
+        "spending": {
+          "fdr": 0.0015,
+          "pAnyFalse": 0.0125,
+          "power": 0.0881,
+          "meanRejections": 8.75
+        },
+        "bh_batch": {
+          "fdr": 0.0448,
+          "pAnyFalse": 0.9375,
+          "power": 0.6037,
+          "meanRejections": 62.94
+        }
+      }
+    },
+    {
+      "setting": {
+        "n": 1000,
+        "pi1": 0.3,
+        "shift": 3,
+        "order": "random",
+        "reps": 400,
+        "alpha": 0.05,
+        "seed": 20261116
+      },
+      "results": {
+        "lordpp": {
+          "fdr": 0.0094,
+          "pAnyFalse": 0.8,
+          "power": 0.5298,
+          "meanRejections": 160.6
+        },
+        "saffron": {
+          "fdr": 0.0473,
+          "pAnyFalse": 1,
+          "power": 0.7578,
+          "meanRejections": 238.91
+        },
+        "lond": {
+          "fdr": 0.0015,
+          "pAnyFalse": 0.1175,
+          "power": 0.2862,
+          "meanRejections": 86.06
+        },
+        "spending": {
+          "fdr": 0.0003,
+          "pAnyFalse": 0.0075,
+          "power": 0.0867,
+          "meanRejections": 26.02
+        },
+        "bh_batch": {
+          "fdr": 0.0348,
+          "pAnyFalse": 1,
+          "power": 0.7696,
+          "meanRejections": 239.39
+        }
+      }
+    },
+    {
+      "setting": {
+        "n": 1000,
+        "pi1": 0.5,
+        "shift": 3,
+        "order": "random",
+        "reps": 400,
+        "alpha": 0.05,
+        "seed": 20261116
+      },
+      "results": {
+        "lordpp": {
+          "fdr": 0.0067,
+          "pAnyFalse": 0.87,
+          "power": 0.6249,
+          "meanRejections": 314.73
+        },
+        "saffron": {
+          "fdr": 0.047,
+          "pAnyFalse": 1,
+          "power": 0.8754,
+          "meanRejections": 459.61
+        },
+        "lond": {
+          "fdr": 0.0012,
+          "pAnyFalse": 0.185,
+          "power": 0.3523,
+          "meanRejections": 176.46
+        },
+        "spending": {
+          "fdr": 0.0001,
+          "pAnyFalse": 0.005,
+          "power": 0.0871,
+          "meanRejections": 43.59
+        },
+        "bh_batch": {
+          "fdr": 0.0251,
+          "pAnyFalse": 1,
+          "power": 0.8346,
+          "meanRejections": 428.3
+        }
+      }
+    },
+    {
+      "setting": {
+        "n": 1000,
+        "pi1": 0.1,
+        "shift": 3,
+        "order": "effects-first",
+        "reps": 400,
+        "alpha": 0.05,
+        "seed": 20261116
+      },
+      "results": {
+        "lordpp": {
+          "fdr": 0.0073,
+          "pAnyFalse": 0.365,
+          "power": 0.6489,
+          "meanRejections": 64.91
+        },
+        "saffron": {
+          "fdr": 0.0382,
+          "pAnyFalse": 0.9425,
+          "power": 0.9787,
+          "meanRejections": 101
+        },
+        "lond": {
+          "fdr": 0.005,
+          "pAnyFalse": 0.1925,
+          "power": 0.4581,
+          "meanRejections": 45.67
+        },
+        "spending": {
+          "fdr": 0.0001,
+          "pAnyFalse": 0.0025,
+          "power": 0.1984,
+          "meanRejections": 19.63
+        },
+        "bh_batch": {
+          "fdr": 0.0443,
+          "pAnyFalse": 0.935,
+          "power": 0.5993,
+          "meanRejections": 62.42
+        }
+      }
+    },
+    {
+      "setting": {
+        "n": 1000,
+        "pi1": 0.1,
+        "shift": 3,
+        "order": "effects-last",
+        "reps": 400,
+        "alpha": 0.05,
+        "seed": 20261116
+      },
+      "results": {
+        "lordpp": {
+          "fdr": 0.0001,
+          "pAnyFalse": 0.005,
+          "power": 0.4945,
+          "meanRejections": 49.27
+        },
+        "saffron": {
+          "fdr": 0.0056,
+          "pAnyFalse": 0.03,
+          "power": 0.5942,
+          "meanRejections": 59.35
+        },
+        "lond": {
+          "fdr": 0.0012,
+          "pAnyFalse": 0.015,
+          "power": 0.0931,
+          "meanRejections": 9.31
+        },
+        "spending": {
+          "fdr": 0.0022,
+          "pAnyFalse": 0.015,
+          "power": 0.0523,
+          "meanRejections": 5.21
+        },
+        "bh_batch": {
+          "fdr": 0.0449,
+          "pAnyFalse": 0.9375,
+          "power": 0.6076,
+          "meanRejections": 63.3
+        }
+      }
+    },
+    {
+      "setting": {
+        "n": 1000,
+        "pi1": 0.02,
+        "shift": 3,
+        "order": "random",
+        "reps": 400,
+        "alpha": 0.05,
+        "seed": 20261116
+      },
+      "results": {
+        "lordpp": {
+          "fdr": 0.0071,
+          "pAnyFalse": 0.035,
+          "power": 0.1067,
+          "meanRejections": 2.24
+        },
+        "saffron": {
+          "fdr": 0.0321,
+          "pAnyFalse": 0.1225,
+          "power": 0.1061,
+          "meanRejections": 2.36
+        },
+        "lond": {
+          "fdr": 0.01,
+          "pAnyFalse": 0.02,
+          "power": 0.1104,
+          "meanRejections": 2.25
+        },
+        "spending": {
+          "fdr": 0.0101,
+          "pAnyFalse": 0.015,
+          "power": 0.086,
+          "meanRejections": 1.74
+        },
+        "bh_batch": {
+          "fdr": 0.0517,
+          "pAnyFalse": 0.3575,
+          "power": 0.3672,
+          "meanRejections": 7.99
+        }
+      }
+    }
+  ]
+}

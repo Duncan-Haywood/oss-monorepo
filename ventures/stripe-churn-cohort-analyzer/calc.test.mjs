@@ -219,3 +219,10 @@ test("sample data keeps its shape: 308 subscriptions, 153 canceled", () => {
   assert.equal(lines.length, 308);
   assert.equal(lines.filter((l) => l.includes(",canceled,")).length, 153);
 });
+
+test("parseDate refuses an impossible day instead of rolling it into the next month", () => {
+  assert.equal(parseDate("2026-02-30"), null);
+  assert.equal(parseDate("2026-04-31 10:00"), null);
+  assert.equal(parseDate("2026-02-28 23:30").toISOString(), "2026-02-28T23:30:00.000Z");
+  assert.ok(parseDate("1772409600") instanceof Date);
+});
