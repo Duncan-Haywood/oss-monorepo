@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPfpn3XATCnYTEr4Lp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T17:12:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 11): chant-forge, the voice-bar round's named losses; became a head-to-head with a parallel session's merged fix (#16627)",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 16639,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "#16627 claimed the same item (K's ib/eb, N's nab/gab) ~1 h earlier but the claim check and allocate.py both reported 0 open PRs naming chant-forge at claim time; possibly the PR was opened with a title the check missed or merged in between. Two sessions spent a full round on one item."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "A parallel session (#16627) merged the same diagnosis and an equivalent rule while this run was mid-flight; instead of landing a duplicate default or closing empty, the branch was rebuilt on main with this run's rule opt-in and both held-out sets cross-run under a decision rule committed first.",
+      "did": "head-to-head, closeAnchor opt-in, part S added",
+      "result": "localRef kept (211 vs 208 of 240); localRef +7 on S out of sample"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-two-anchors-for-one-closure-head-to-head.md",
+    "ventures/chant-forge/README.md"
+  ],
+  "goal": "Fix K's ib/eb and N's nab/gab; after finding #16627 merged the same fix, test both rules on each other's held-out set",
+  "notes": "Diagnosed (eval/voice-bar-diag.mjs) that the five detuned voices' slow beat puts the 60 ms reference's sub-500 Hz band 10-20 dB off the vowel at the closure; a synth-side cap moved nothing. Wrote closeAnchor and pre-registered it on a held-out set (now part S): 101->108 of 120. At merge, found #16627 had merged localRef for the same fault. Rebuilt the branch on main, kept closeAnchor opt-in, committed a decision rule (4423166f0) before cross runs. Result: R: none 99, localRef 103, closeAnchor 100; S: 101, 108, 108; localRef stays. Unregistered: closeAnchor + voiceBarWall read R 107. Local checks: run_venture_tests.py chant-forge (268 tests earlier on the pre-rebase branch; rerun after rebase below), venture-preflight clean before rebase, post checks, validate.py.",
+  "corrections": [],
+  "redteam": null
+}

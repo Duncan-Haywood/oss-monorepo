@@ -600,3 +600,23 @@ def test_track_rejoins_after_a_short_gap():
     R = [2.0 * S[4] + (1.5 * S[9] if k not in (3, 4) else 0) for k in range(8)]
     out, _ = localise.track(np.array(R), S, link=None)
     assert 9 not in out[3] and out[5][9][1] == 0         # back after 2 days: same track
+
+
+def test_steepest_dated_prefers_a_rising_recent_atom():
+    from water_leaks import localise
+    # atom 1: old and flat; atom 2: dated day 5, ramping; atom 3: newest (day 9), flat at 4.
+    states = []
+    for d in range(10):
+        s = {1: (6.0, 0)}
+        if d >= 5:
+            s[2] = (0.5 * (d - 4), 5)
+        if d >= 9:
+            s[3] = (4.0, 9)
+        states.append(s)
+    assert localise.latest_onset(states[9]) == 3
+    assert localise.steepest_dated(states, 9, window=30, span=14) == 2
+    # with a window that excludes 2 (onset 5 < 9 - 3), the newest atom is the only candidate
+    assert localise.steepest_dated(states, 9, window=3, span=14) == 3
+    # no candidate in the window: falls back to the latest onset
+    assert localise.steepest_dated([{1: (6.0, 0)}] * 50, 49, window=10) == 1
+    assert localise.steepest_dated([{}], 0) is None

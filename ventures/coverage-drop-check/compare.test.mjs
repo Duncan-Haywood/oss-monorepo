@@ -168,3 +168,19 @@ test("unchanged coverage summarises as ok", () => {
   assert.equal(summarizeCompare(result).status, "ok");
   assert.match(summarizeCompare(result).text, /unchanged/);
 });
+
+test("a paste that is only an XML declaration is not mistaken for a report", () => {
+  assert.throws(() => parseXml('<?xml version="1.0" encoding="UTF-8"?>'), /no XML tags found/);
+  assert.throws(() => parseCoverage('<?xml version="1.0"?>\n'), /no XML tags found/);
+});
+
+test("JaCoCo sourcefiles without a LINE counter fall back to per-line ci counts", () => {
+  const xml = `<?xml version="1.0"?>
+<report name="suite"><package name="com/example"><sourcefile name="Foo.java">
+<line nr="1" mi="0" ci="2"/><line nr="2" mi="1" ci="0"/><line nr="3" mi="0" ci="1"/><line nr="4" mi="3" ci="0"/>
+</sourcefile></package></report>`;
+  const report = parseCoverage(xml);
+  assert.equal(report.files["com/example/Foo.java"].covered, 2);
+  assert.equal(report.files["com/example/Foo.java"].valid, 4);
+  assert.equal(report.lineRate, 0.5);
+});

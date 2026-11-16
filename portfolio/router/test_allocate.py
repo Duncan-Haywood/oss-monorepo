@@ -1088,6 +1088,84 @@ class ClaimCheckTest(unittest.TestCase):
         slug_only = report(self.decide(prs, "x", mine=2), "x", self.NOW, 24)
         self.assertTrue(any("--item" in l for l in slug_only), slug_only)
 
+    @staticmethod
+    def merged_pr(n, title, created, merged, repo="duncan-haywood/oss-monorepo"):
+        return {"number": n, "title": title, "created_at": created, "merged_at": merged,
+                "head": {"ref": f"b{n}", "repo": {"full_name": repo}}}
+
+    def test_a_just_merged_pr_on_the_item_is_landed(self):
+        # 2026-11-16: #16574 merged the edge-time drop fit at 12:59; #16579 claimed it at 13:00.
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 16, 13, 5, tzinfo=timezone.utc)
+        mine = [self.pr(16579, "open-tennis-robots: edge-time drop fit on the whole drill",
+                        "2026-11-16T13:00:32Z")]
+        merged = [self.merged_pr(16574, "open-tennis-robots: the board surveys its own ESC lag "
+                                 "(ESC_SURVEY frame); edge-time drop fit tried, kept off + post",
+                                 "2026-11-16T12:41:37Z", "2026-11-16T12:59:41Z"),
+                  self.merged_pr(16467, "open-tennis-robots: empty-hopper verdict from the pre-ball speed",
+                                 "2026-11-16T05:20:03Z", "2026-11-16T05:49:39Z"),
+                  self.merged_pr(16600, "chant-forge: edge-time thing", "2026-11-16T12:00:00Z",
+                                 "2026-11-16T12:30:00Z"),
+                  {**self.merged_pr(16601, "open-tennis-robots: edge-time fit, closed unmerged",
+                                    "2026-11-16T12:00:00Z", None)}]
+        from claim_check import decide, report
+        r = decide(mine, "open-tennis-robots", mine=16579, now=now, item="edge-time drop fit",
+                   merged=merged)
+        self.assertEqual(r["verdict"], "LANDED")
+        self.assertEqual([x["number"] for x in r["landed"]], [16574])
+        self.assertEqual([x["number"] for x in r["merged"]], [16467])
+        lines = report(r, "open-tennis-robots", now, 24, "edge-time drop fit")
+        self.assertTrue(any(l.startswith("LANDED:") for l in lines), lines)
+        self.assertTrue(any("#16574 (merged 2026-11-16T12:59:41Z, 5 min ago)" in l for l in lines), lines)
+        # A merge on another item, or a slug-only check, never blocks: busy flagships land daily.
+        other = decide(mine, "open-tennis-robots", mine=16579, now=now, item="hopper refill alarm",
+                       merged=merged[:1])
+        self.assertEqual(other["verdict"], "HOLD")
+        self.assertEqual(decide(mine, "open-tennis-robots", mine=16579, now=now,
+                                merged=merged)["verdict"], "HOLD")
+
+    def test_merges_the_clone_already_holds_and_one_word_overlaps_do_not_land(self):
+        from datetime import datetime, timezone
+        from claim_check import decide, shares_item
+        now = datetime(2026, 11, 16, 18, 45, tzinfo=timezone.utc)
+        merged = [self.merged_pr(16635, "open-tennis-robots: the 1.48x wheel was a 3-revolution snapshot; "
+                                 "HOLD_RPM 3,000; fixed-time tach built, off + post",
+                                 "2026-11-16T17:00:00Z", "2026-11-16T17:42:41Z"),
+                  self.merged_pr(16574, "open-tennis-robots: edge-time drop fit tried, kept off",
+                                 "2026-11-16T12:41:37Z", "2026-11-16T12:59:41Z")]
+        # "fixed-time" shares only "time" with the item: listed, not LANDED.
+        self.assertFalse(shares_item(merged[0]["title"], "open-tennis-robots", "edge-time drop fit"))
+        self.assertTrue(shares_item("x: OCR totals", "x", "totals"))
+        clone = datetime(2026, 11, 16, 13, 30, tzinfo=timezone.utc)  # main already holds #16574
+        r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
+                   main_at=clone)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["merged"]], [16635])
+        r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
+                   main_at=datetime(2026, 11, 16, 12, 0, tzinfo=timezone.utc))
+        self.assertEqual(r["verdict"], "LANDED")
+
+    def test_merged_stale_fork_and_my_own_pr_do_not_land(self):
+        from datetime import datetime, timezone
+        from claim_check import decide
+        now = datetime(2026, 11, 16, 17, 0, tzinfo=timezone.utc)
+        merged = [self.merged_pr(1, "x: closure anchor", "2026-11-14T09:00:00Z", "2026-11-14T10:00:00Z"),
+                  self.merged_pr(2, "x: closure anchor", "2026-11-16T16:00:00Z", "2026-11-16T16:56:00Z",
+                                 repo="someone/fork"),
+                  self.merged_pr(3, "x: closure anchor", "2026-11-16T16:00:00Z", "2026-11-16T16:58:00Z")]
+        r = decide([], "x", mine=3, now=now, item="closure anchor", merged=merged)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["landed"] + r["merged"], [])
+
+    def test_an_open_older_claim_still_wins_over_landed(self):
+        from claim_check import decide
+        prs = [self.pr(1, "x: closure anchor", "2026-11-12T14:00:00Z"),
+               self.pr(2, "x: closure anchor", "2026-11-12T14:05:00Z")]
+        merged = [self.merged_pr(0, "x: closure anchor v1", "2026-11-12T13:00:00Z", "2026-11-12T13:30:00Z")]
+        r = self.decide(prs, "x", mine=2, item="closure anchor", merged=merged)
+        self.assertEqual(r["verdict"], "YIELD")
+        self.assertEqual([x["number"] for x in r["landed"]], [0])
+
 
 class RequestsLineTest(unittest.TestCase):
     """The table names which open website requests are flagship rows."""

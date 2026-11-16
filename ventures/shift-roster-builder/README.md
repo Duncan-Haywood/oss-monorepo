@@ -35,7 +35,7 @@ zero dependencies, one JSON file on a disk you own.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
 - **Oregon's voluntary standby list (2026-11-16, with `FAIR_WORKWEEK=oregon`):** staff join it in writing on their page and leave any time; a call-out can be offered to the list first, and the hours someone on it accepts owe no predictability pay (ORS 653.432). The Oregon preset was checked against the statute's text: start or end changes of 30 minutes or less are free, a separate added shift always owes the hour. Section "Oregon's voluntary standby list" below.
-- **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's or Chicago's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
+- **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's, Chicago's, Philadelphia's, Los Angeles's, New York City's, San Francisco's or Emeryville's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
 - **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
@@ -260,6 +260,60 @@ opening balance; a July leave year; the trim keeping the balances identical; the
 when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
 tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
 
+## San Francisco and Emeryville (2026-11-16, later)
+
+Two more presets for the hub's change log: `FAIR_WORKWEEK=san-francisco` (or `sf`) for San Francisco's Formula Retail
+Employee Rights Ordinances, and `FAIR_WORKWEEK=emeryville`. Unlike the six before them, both were read from the cities'
+own documents, which answered from this session:
+
+- San Francisco: Ordinance 117-15 as passed (sfbos.org, `o0117-15.pdf`, Police Code 3300G.4(c)-(e), now Labor and
+  Employment Code 42.4) and the Office of Labor Standards Enforcement's FAQ dated 2025-08-08 (`FRERO_FAQs_8.8.25.pdf`).
+- Emeryville: the city's official employee notice for the Fair Workweek Ordinance (Municipal Code Title 5, Chapter 39)
+  and its "Predictability Pay Structure" reference sheet (emeryville.org). The municipal code itself (municode) returned
+  403, so the code text was not read.
+
+| | San Francisco (formula retail) | Emeryville (retail and fast food) |
+|---|---|---|
+| Posted | 14 days ahead | 14 days ahead |
+| Premium window | under 7 days | under 14 days |
+| Under the window, 24 h or more | 1 h of pay per changed shift, added or cut | 1 h of pay |
+| Under 24 h | 2 h if 4 h or less change, 4 h if more | hours taken away: the lesser of the scheduled shift's hours and 4 h; any other change 1 h |
+| Free changes | none listed | 10 min or less added or taken at a shift's start or end |
+| Cover after a colleague's absence | exempt when the employer had under 7 days' notice of the absence (3300G.4(e)(4)), whoever was asked | priced: the sheet lists finding another employee to cover as pay due |
+| On-call shifts | their own table (3300G.4(d)): not called in, or released under 24 h ahead, 2 h (4 h or shorter) or 4 h | priced as hours taken away |
+| Rest | no premium | time and a half on hours worked under 11 h after the previous day's shift |
+
+The new shape: both pay a fixed number of hours per change by notice tier, not a share of the hours lost, so a new
+`tiers` table carries them (`[{ fromH, add, cut, overH, over, cutShiftCap }]`, highest notice first). San Francisco's
+"shift of four hours or less" is read as the hours added or subtracted, which is how OLSE's 2025 FAQ restates it
+("Number of hours added or subtracted"); for a shift moved with its length kept, the shift's own length decides. The
+FAQ's worked example (a 4 h shift made 6 h on the day, 2 h of pay) is a test. Three more fields, open to any preset:
+`postDays` (the posting window, when it differs from the premium window: San Francisco posts 14 days ahead but owes
+premiums only under 7), `onCallPay` and `coverAbsenceDays`. For the cover exception the hub now stores, on the covering
+person's added shift, whose absence it covers and when the call-out came in (`coverFor`, `absenceAt`), for a direct
+cover as well as a team offer or a standby-list pick. A cover with no call-out time on record (a call-out logged before
+this change) is priced, and the reason says so.
+
+Readings to check: Emeryville's sheet pays a cut under 24 hours by the scheduled shift's length, so taking 1 hour off
+an 8-hour shift the evening before owes 4 hours of pay; the preset follows the sheet, not a share of the cut. Its
+notice says time and a half "for any hours worked between closing and opening shifts that are separated by less than
+11 hours", which the preset reads as the hours inside the 11-hour window, after a previous day's shift.
+
+Not modelled: who is covered (San Francisco: formula retail with 40 or more establishments worldwide and 20 or more
+employees in the city; Emeryville: retail with 56 or more employees worldwide, fast food with 56 worldwide and 20 in the
+city), San Francisco's other exceptions (threats, utility failures, acts of God, mandatory overtime, a colleague late or
+sent home for discipline), Emeryville's right to decline, its offer of hours to part-timers up to 35 h, its exceptions for
+working past the end to finish a sale and for overtime pay that exceeds the premium, and the disciplinary exception the
+city's sheet and a 2017 law-firm alert disagree on. Planning aid, not legal advice: check the current text.
+
+Tested (`notice-sf-emeryville.test.mjs`, 10 tests): aliases; each San Francisco tier for adds, cuts and length changes,
+the FAQ's example, the 7-day premium window against the 14-day posting check; on-call release at 25 h, 3 days and 4 h,
+and never called in; the cover exception at 2 days' notice of the absence, through a team offer, refused at 8 days and
+with no time on record, and still priced in Seattle; Emeryville's 1 h tier, the lesser-of rule (3 h shift: 3 h; 8 h
+shift: 4 h; a 1 h cut of 8 h: 4 h), the 10-minute edges, the team offer priced, an 8 h rest after a 23:00 close priced
+at 3 h x 0.5 and a same-day split not counted; and the hub end to end (a cover posted through `/admin/cover` under
+`FAIR_WORKWEEK=sf` stored with the call-out time, exempt, and the rule set stated in words on the changes page).
+
 ## New York City fast food (2026-11-16, later)
 
 A sixth preset, `FAIR_WORKWEEK=new-york-city` (or `nyc`), for the fast food half of New York City's Fair Workweek Law
@@ -354,8 +408,8 @@ a moment you type. The hub is where the changes really happen, days apart, so it
   employee-asked and the added shift as not, because the manager picked the person. The first publish of a week is kept
   as its posting time. The manager can flip any entry between "Employee asked" and not. The last 1,500 changes are kept
   (Seattle asks for three years of records, so the page says to download the CSV with each payroll).
-- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|new-york-city|custom`; the last three
-  since 2026-11-16 later, see "Philadelphia and Los Angeles" and "New York City fast food" above):** read from the City of Seattle's Office of Labor
+- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|new-york-city|san-francisco|emeryville|custom`;
+  the later ones since 2026-11-16 later, see "San Francisco and Emeryville", "Philadelphia and Los Angeles" and "New York City fast food" above):** read from the City of Seattle's Office of Labor
   Standards "Secure Scheduling" page and Oregon BOLI's "Predictive scheduling" page on 2026-11-16, and for Chicago from
   search summaries of the city's Fair Workweek notice and rules on chicago.gov and the ordinance's table as quoted by the
   National Law Review (the chicago.gov pages returned 403 or 404 here, so Chicago is the least checked of the three):
@@ -3518,3 +3572,45 @@ floor can differ by timing (the +1 and -1 open hours on seeds 16 and 17 in the s
 scaling below a 20 s budget was not measured. Next: the budget-spent case. The plan gives a try with the budget already spent
 "the reserve alone", but `buildRoster` never reaches it (seed 9 above); whether letting it run then finishes enough weeks to pay
 for the wait, measured the same way.
+
+## The pay floor once the budget is spent (2026-11-16 later)
+
+"The pay floor's reserve, sized from the full solve" ended on one case its reserve could not reach: when the stages before the pay
+floor run past the 20 s time budget, `buildRoster` skipped it (`!over()`), so a big week was posted with a gap of $20,000-$900,000
+in score units where a second or two of warm LP would have bounded it to within dollars or whole open hours. That run took the case
+to be rare (one week, seed 9). It is not: a new field, `optimality.scoreFloorSkip`, now names why the pay floor did not run
+("noClique", "proven", "off", "spent", "noBasis", or null when it ran), and on fresh weeks about one in five ended "spent", almost
+all of them 70-person weeks whose earlier stages ran 6-680 ms over.
+
+**Two pre-registered tests.** Both build each week twice at the default 20 s budget (`eval/pay-floor-spent.mjs`): "full" (try when
+spent, with a reserve no build reaches, so it reports the warm solve's whole time T) and "base" (the old skip). On a spent week a
+reserve R finishes iff T <= R; `eval/pay-floor-spent-summary.py` scores any R from the pair.
+
+| | spent weeks of 48 | finished at 4 s | finished at 6 s | mean build, base -> 4 s / 6 s | open hours, all 48 |
+|---|---|---|---|---|---|
+| seeds 18-29 (`eval/pay-floor-spent-prereg.md`, `.out.txt`) | 10 | 9 | 9 | 20.82 -> 21.30 / **21.34 s** | 11,912 -> 11,904 |
+| seeds 30-41, fresh (`eval/pay-floor-spent-4s-prereg.md`, `-4s.out.txt`) | 10 | **8** | 9 | 20.83 -> **21.14** / 21.18 s | 12,142 -> 12,142 |
+
+The first test's rule (turn it on at the normal 6 s reserve if it finishes half the spent weeks for at most +0.5 s of mean build
+time) **failed by 0.02 s** (+0.52 s). Its table showed 4 s finishing the same 9 for +0.48 s, but picking 4 s from that table would
+be fitting to it, so a second rule for a 4 s reserve of its own was written down and tested on twelve seeds no pay-floor test had
+used. It passed every clause: 8 of 10 finished, +0.31 s mean, open hours not higher. The first test's -8 open hours are mostly the
+two builds' timing noise (seed 19 and 22 went +1), so no open-hours gain is claimed.
+
+What a finished try does: the pay gap on the week goes from $23,865-$25,215 to under $1 (seed 30 week 1, seed 31 week 0), or from
+$124,000-$126,000 to about $99,980, which is one open hour left and the pay bounded to within about $20 (four weeks). The roster is
+the same or a few dollars cheaper, because the priced LP then guides the day sweeps.
+
+**What landed:** the pay floor now tries once the budget is spent, warm, for a reserve of its own, `scoreFloorSpentReserveMs`
+(default the smaller of 4 s and the normal reserve; a caller with a 3 s budget waits at most 0.9 s). `scoreFloorSpent: false`
+keeps the old skip. With time left the normal reserve (30% of the budget, at most 6 s) is unchanged.
+
+**Checked with the default itself** (`sh eval/pay-floor-spent-confirm.sh`, `eval/pay-floor-spent-confirm.jsonl`, the ten fresh
+spent weeks, default against `scoreFloorSpent: false`): 9 of 10 finished (one more than predicted: seed 36's solve took 3.9 s this
+time against 4.1 s), same open hours on nine and one fewer on seed 40, mean build 22.21 -> 23.86 s on those weeks (+0.34 s spread
+over all 48), slowest 26.3 s. Tests: `warm-score-floor.test.mjs` checks the spent reserve (4 s, an explicit value, capped by the
+normal reserve), the skip reasons and `scoreFloorSpent: false`.
+
+Not claimed: generated weeks, one cloud machine; the spent weeks are almost all 70 x 196, so 80-100 person weeks are untested here.
+Next: why the stages before the pay floor run past the budget at all (6-680 ms on these weeks), which is time no reserve should
+need to cover.

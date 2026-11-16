@@ -18,7 +18,7 @@ questions that come next, so a session can spend its time on judgment:
     python3 platform/ci/quality_audit.py metrics [--md]
     python3 platform/ci/quality_audit.py coverage
     python3 platform/ci/quality_audit.py census [--n 6] [--seed <date>]
-    python3 platform/ci/quality_audit.py queue [--severity high] [--limit 30] [--no-git] [--no-prs]   # flags subjects changed since audit or named by an open PR
+    python3 platform/ci/quality_audit.py queue [--severity high] [--limit 30] [--no-git] [--no-prs] [--seed S | --oldest-first]   # flags subjects changed since audit or named by an open PR; shuffles subjects per session
     python3 platform/ci/quality_audit.py mode [--date <date>]
 
 Standard library only. Tests: platform/ci/test_quality_metrics.py.
@@ -318,9 +318,14 @@ def census_free(audits: list[dict], pop: dict[str, list[str]], n: int, seed: str
 SEV_RANK = {"high": 0, "medium": 1, "low": 2}
 
 
-def queue(audits: list[dict], severity: str = "medium") -> list[dict]:
+def queue(audits: list[dict], severity: str = "medium", seed: str | None = None) -> list[dict]:
     """Defects from each subject's latest audit that no fix PR is recorded against (`defect_fixed`), worst first.
-    Source-only defects (fixed by the build at deploy) are left out."""
+    Source-only defects (fixed by the build at deploy) are left out.
+
+    With `seed`, subjects within a severity come in a seeded shuffle (a subject's defects stay together, in
+    index order) instead of oldest audit first: two fix sessions that started the same minute both took the
+    top medium row, research/sequential-slashing, before either had a PR to see (run-record doc_friction on
+    quality_audit.py, 2026-11-16T16:41). sample and census already add a random seed tail for this race."""
     latest: dict[str, dict] = {}
     for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
         latest[a["subject"]] = a
@@ -334,7 +339,14 @@ def queue(audits: list[dict], severity: str = "medium") -> list[dict]:
                 continue
             out.append({"severity": d["severity"], "subject": a["subject"], "audit": a["_file"], "index": i,
                         "category": cat, "what": d.get("what", ""), "where": d.get("where", "")})
-    out.sort(key=lambda r: (SEV_RANK[r["severity"]], r["audit"], r["index"]))
+    if seed is None:
+        out.sort(key=lambda r: (SEV_RANK[r["severity"]], r["audit"], r["index"]))
+        return out
+    rng = random.Random(int(hashlib.sha256(seed.encode()).hexdigest()[:16], 16))
+    subjects = sorted({r["subject"] for r in out})
+    rng.shuffle(subjects)
+    place = {s: i for i, s in enumerate(subjects)}
+    out.sort(key=lambda r: (SEV_RANK[r["severity"]], place[r["subject"]], r["index"]))
     return out
 
 
@@ -716,7 +728,8 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
         for subject, naming in skipped:
             print(f"  skipped   {subject}: open PR " + "; ".join(f"#{n} {t[:70]}" for n, t in naming[:2]))
     elif args.cmd == "queue":
-        rows = queue(audits, args.severity)
+        seed = getattr(args, "seed", None)
+        rows = queue(audits, args.severity, seed)
         seen: dict[tuple[str, str], dict] = {}
         changed = 0
         if rows and not getattr(args, "no_git", False) and not getattr(args, "no_fetch", False):
@@ -729,6 +742,11 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             import sys
             print("(open-PR search failed: rows below may already have a PR in flight; search open PRs by subject)",
                   file=sys.stderr)
+        if prs:  # rows an open PR already names go last, so the top row is one nobody has claimed
+            rows.sort(key=lambda r: (SEV_RANK[r["severity"]], bool(prs_naming(r["subject"], prs))))
+        if seed:
+            print(f"seed {seed}  (subjects shuffled within a severity so parallel fix sessions spread out;"
+                  f" --seed {seed} repeats this order, --oldest-first gives the fixed one)")
         in_flight = 0
         for r in rows[: args.limit]:
             print(f"[{r['severity']}] {r['subject']} ({r['audit']}#{r['index']}, {r['category']}): {r['what'][:200]}")

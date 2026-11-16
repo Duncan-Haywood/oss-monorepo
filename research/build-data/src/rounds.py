@@ -47,6 +47,11 @@ candidate) under the variants that early-stop, and records the round each quanti
                closures without their class (session 97)
   cpin_es3_nc5_stamp_long  cpin_es3_nc5_stamp plus the non-stamp dead rows completed by D whose label exceeds
                LONG_DAYS (365) dropped: only the long closures (session 97)
+Session 98: with CPIN_TARGET_SEL=1 every cpin_es3* variant also predicts the held-out (target) city's own
+Y-3 permits, rows a deployment on D = 1 January Y holds: tgt_loss is the q0.9 pinball loss on those completed by D,
+tgt_closs the censored loss on all of them (open ones with their window at D). target_sel_summary picks, per cell,
+the candidate source rule with the lowest tgt_loss (and, as a second selector, tgt_closs) and scores the pick on
+the test year against each fixed rule and the per-cell oracle. The target's rows are never trained on.
 Session 95: with --status-dir every cpin variant is also scored on the "live" test rows: completed test-year
 rows whose status is not dead (test_loss_live), and reports its mean q0.9 prediction on completed test rows.
 Session 92: every _nc variant is also scored on a selection set a deployment has on D, the same for every
@@ -256,6 +261,12 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         ysel, osel = cpin.censor(sel, D)
     te = frames[held][frames[held].year == Y]
     te_all = frames_all[held][frames_all[held].year == Y]
+    tgt = None
+    if os.environ.get("CPIN_TARGET_SEL") and variant != "cpin_cut":  # session 98: the target's own Y-3 rows
+        tg = frames_all[held][frames_all[held].year == Y - 3]
+        ytg, otg = cpin.censor(tg, D)
+        ytg = np.where(np.isfinite(ytg), ytg, 0.0)  # never-completed rows are open at D (window), y unused
+        tgt = dict(n=len(tg), n_open=int(otg.sum()), loss={}, closs={})
     has_open = bool(np.isinf(te_all.y.to_numpy(float)).any())
     if score and has_open:
         yta, ota = cpin.censor(te_all, pulled)
@@ -264,6 +275,9 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     n_te = len(Xte)
     if nc:  # session 92: predict the selection set in the same call (one model, two row sets)
         Xte = pd.concat([Xte, transfer.feats(sel)])
+    n_sel_rows = len(sel) if nc else 0
+    if tgt is not None:  # session 98: and the target's own Y-3 rows
+        Xte = pd.concat([Xte, transfer.feats(tg)])
     done_te = np.isfinite(te_all.y.to_numpy(float)) if has_open else np.ones(len(te), bool)
     live = ~te["dead"].to_numpy(bool) if "dead" in te else None  # session 95: among completed test rows
     taus = (0.5, 0.9)  # q0.1 is untouched by open permits and costs most rounds (300 in es3); skipped for time
@@ -276,6 +290,12 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         for t in taus:
             t0 = time.time()
             pr, r[t] = cpin.fit_one(Xtr, ytr, otr, Xca, yca, oca, Xte, t, seed=s)
+            if tgt is not None:
+                pt = pr[n_te + n_sel_rows:]
+                tgt["loss"].setdefault(str(t), []).append(
+                    float(boosted.pin(ytg[~otg], pt[~otg], t).mean()) if (~otg).any() else None)
+                tgt["closs"].setdefault(str(t), []).append(float(cpin.closs(ytg, pt, otg, t).mean()))
+                pr = pr[:n_te + n_sel_rows]
             if nc:
                 sel_loss[t].append(float(cpin.closs(ysel, pr[n_te:], osel, t).mean()))
                 pr = pr[:n_te]
@@ -304,6 +324,11 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         res["test_loss_live_per_seed"] = {str(t): v for t, v in loss_live.items()}
     res["n_train_never_completed"] = int(np.isinf(tr.y.to_numpy(float)).sum())
     res["n_es_never_completed"] = int(np.isinf(ca.y.to_numpy(float)).sum())
+    if tgt is not None:
+        res["tgt_n"], res["tgt_n_open"] = tgt["n"], tgt["n_open"]
+        res["tgt_loss_per_seed"], res["tgt_closs_per_seed"] = tgt["loss"], tgt["closs"]
+        res["tgt_loss"] = {t: float(np.mean(v)) for t, v in tgt["loss"].items()}
+        res["tgt_closs"] = {t: float(np.mean(v)) for t, v in tgt["closs"].items()}
     if thresholds is not None:
         res["stale_threshold_days"] = thresholds
     if nc:
@@ -753,6 +778,66 @@ def len_summary(path, clean_path, stamp96_path, held=("sf", "seattle"), years=(2
                           clean_minus_stamp=mean("clean_minus_stamp")))
 
 
+TSEL = ("cpin_es3_nc3", "cpin_es3_nc5", "cpin_es3_nc5_stamp", "cpin_es3_nc5_stamp_len")
+TSEL_PRIOR = {"cpin_es3_nc3": ("rounds_score_sweep_i2c.json", "cpin_es3_nc3"),
+              "cpin_es3_nc5": ("rounds_score_clean_i2c.json", "cpin_es3_nc5"),
+              "cpin_es3_nc5_stamp": ("rounds_score_len_i2c.json", "cpin_es3_nc5_stamp"),
+              "cpin_es3_nc5_stamp_len": ("rounds_score_len_i2c.json", "cpin_es3_nc5_stamp_len")}
+
+
+def target_sel_summary(path, res_dir, held=("sf", "seattle"), years=(2021, 2022), cands=TSEL, tau="0.9"):
+    """Session 98: per cell, the candidate with the lowest target-Y-3 score (tgt_loss: completed by D; tgt_closs:
+    censored, all Y-3 rows), its test q0.9 against each fixed rule and the oracle; predictions G0 to G4."""
+    R = json.load(open(path))
+    prior = {v: json.load(open(os.path.join(res_dir, f))) for v, (f, _) in TSEL_PRIOR.items()
+             if os.path.exists(os.path.join(res_dir, f))}
+    cells = []
+    for h in held:
+        for Y in years:
+            rs = {v: R.get(f"{h} {Y} {v}") for v in cands}
+            if any(r is None or "tgt_loss" not in r for r in rs.values()):
+                continue
+            test = {v: r["test_loss"][tau] for v, r in rs.items()}
+            tl = {v: r["tgt_loss"][tau] for v, r in rs.items()}
+            tc = {v: r["tgt_closs"][tau] for v, r in rs.items()}
+            pick, pick_c = min(tl, key=tl.get), min(tc, key=tc.get)
+            oracle = min(test, key=test.get)
+            # per seed: pick by that seed's target score, score that seed's test loss
+            n_s = len(rs[cands[0]]["test_loss_per_seed"][tau])
+            ps = [min(cands, key=lambda v: rs[v]["tgt_loss_per_seed"][tau][s]) for s in range(n_s)]
+            refit = {}
+            for v, (f, key) in TSEL_PRIOR.items():
+                old = prior.get(v, {}).get(f"{h} {Y} {key}")
+                refit[v] = None if old is None else test[v] - old["test_loss"][tau]
+            cells.append(dict(held=h, year=Y, test_q90=test, tgt_loss_q90=tl, tgt_closs_q90=tc,
+                              tgt_n=rs[cands[0]]["tgt_n"], tgt_n_open=rs[cands[0]]["tgt_n_open"],
+                              pick=pick, pick_closs=pick_c, oracle=oracle,
+                              regret=test[pick] - test[oracle], regret_closs=test[pick_c] - test[oracle],
+                              pick_per_seed=ps,
+                              pick_per_seed_test=[rs[v]["test_loss_per_seed"][tau][s] for s, v in enumerate(ps)],
+                              refit_minus_prior=refit))
+    full = len(cells) == len(held) * len(years)
+    m = lambda xs: float(np.mean(xs)) if xs else None  # noqa: E731
+    fixed_mean = {v: m([c["test_q90"][v] for c in cells]) for v in cands}
+    sel_mean = m([c["test_q90"][c["pick"]] for c in cells])
+    sel_c_mean = m([c["test_q90"][c["pick_closs"]] for c in cells])
+    five = set(cands) - {"cpin_es3_nc3"}
+    sf = [c for c in cells if c["held"] == "sf"]
+    se = [c for c in cells if c["held"] == "seattle"]
+    pred = dict(
+        G0=full and all(x is not None and abs(x) <= 0.05 for c in cells for x in c["refit_minus_prior"].values()),
+        G1=full and all(c["pick"] == "cpin_es3_nc3" for c in sf) and all(c["pick"] in five for c in se),
+        G2=full and all(sel_mean < x for x in fixed_mean.values()),
+        G3=full and m([c["regret"] for c in cells]) <= 0.5,
+        G4=full and all(c["pick_closs"] in five for c in cells))
+    return dict(note="session 98: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds (days); pick = the "
+                     "candidate source rule with the lowest q0.9 pinball loss on the target city's own Y-3 permits "
+                     "completed by D = 1 January Y; pick_closs = lowest censored loss on all its Y-3 permits",
+                cands=list(cands), cells=cells, fixed_mean=fixed_mean, selected_mean=sel_mean,
+                selected_closs_mean=sel_c_mean, mean_regret=m([c["regret"] for c in cells]),
+                mean_regret_closs=m([c["regret_closs"] for c in cells]), predictions=pred)
+
+
 def stamp_summary(path, clean_path, sweep_path, held=("sf", "seattle"), years=(2021, 2022)):
     """Session 96: cpin_es3_nc5_stamp and cpin_es3_nc3_clean (this file) against session 95's cpin_es3_nc5 and
     cpin_es3_nc5_clean (clean_path) and session 92's cpin_es3_nc3 (sweep_path), all on feeds whose row counts
@@ -830,8 +915,19 @@ if __name__ == "__main__":
     ap.add_argument("--summarise-ncq", help="session 93: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-len", help="session 97: write results/<name>_summary.json from this file")
     ap.add_argument("--summarise-stamp", help="session 96: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-tsel", help="session 98: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_tsel:
+        s = target_sel_summary(a.summarise_tsel, res_dir)
+        json.dump(s, open(a.summarise_tsel.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps({k: s[k] for k in ("fixed_mean", "selected_mean", "selected_closs_mean", "mean_regret",
+                                            "mean_regret_closs", "predictions")}, indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], c["pick"], c["pick_closs"], c["oracle"], round(c["regret"], 2),
+                  {k: round(v, 2) for k, v in c["test_q90"].items()}, {k: round(v, 2) for k, v in c["tgt_loss_q90"].items()},
+                  {k: round(v, 2) for k, v in c["tgt_closs_q90"].items()}, c["pick_per_seed"], c["refit_minus_prior"])
+        sys.exit()
     if a.summarise_len:
         s = len_summary(a.summarise_len, os.path.join(res_dir, "rounds_score_clean_i2c.json"),
                         os.path.join(res_dir, "rounds_score_stamp_i2c.json"))

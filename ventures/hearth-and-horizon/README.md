@@ -402,11 +402,13 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (66 stories)
+### Little Lamps (68 stories)
 
 - [Angela and the Girls around the Kitchen Table](stories/angela-and-the-girls-around-the-kitchen-table.md) (2026-11-16; 10 min read, text only)
+- [Casimir and the Church Door at Night](stories/casimir-and-the-church-door-at-night.md) (2026-11-16; 11 min read, text only)
 - [Francis de Sales and the Letters under the Doors](stories/francis-de-sales-and-the-letters-under-the-doors.md) (2026-11-16; 11 min read, text only)
 - [John of the Cross and the Songs in the Dark](stories/john-of-the-cross-and-the-songs-in-the-dark.md) (2026-11-16; 11 min read, text only)
+- [Vincent Ferrer and the Crowd on the Road](stories/vincent-ferrer-and-the-crowd-on-the-road.md) (2026-11-16; 11 min read, text only)
 - [Aloysius and the Man in the Street](stories/aloysius-and-the-man-in-the-street.md) (2026-11-15; 11 min read, text only)
 - [Elizabeth and the Mule Between the Armies](stories/elizabeth-and-the-mule-between-the-armies.md) (2026-11-15; 9 min read, text only)
 - [John of God and the House Open to Everyone](stories/john-of-god-and-the-house-open-to-everyone.md) (2026-11-15; 12 min read, text only)

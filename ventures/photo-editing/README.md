@@ -106,7 +106,7 @@ through a detector you supply: set `SHOOTFLOW_FACE_DETECTOR` to a command that
 takes an image path and prints `{"faces": [{"size": 0.1, "eyes_open": 0.9}]}`
 (`src/shootflow/faces.py`). A prominent face (1% of the frame or more) with eyes
 open adds 0.03 to `story_score`; the least-open eye costs up to 0.25; off by
-default, run without a shell, and any failure keeps the measured score. `tools/opencv_face_detector.py` (2026-10-29) is a reference detector for that contract: OpenCV Haar
+default, run without a shell, and any failure keeps the measured score. Since 2026-11-16 the recommended detector is `tools/mediapipe_face_detector.py`: Google's MediaPipe Face Landmarker (Apache 2.0, a 3.8 MB model you download once, path in `SHOOTFLOW_FACE_LANDMARKER`; on Linux `apt-get install libegl1 libgles2`) reads each lid's blink score, searches the frame in tiles so group shots' small faces are found, and averages the score over every view of a face. On 105 real CC0 photos it flagged 5 of 6 closed-eye photos and none of the other 99; the Haar detector below flagged 3 of 6 and 8 of 99 (open eyes behind sunglasses or narrowed by a smile, a sleeping cat). The labels are an agent's, not a photographer's, and the open/shut margin was thin (blink 0.44 against 0.50): `eval/blink-landmarker-2026-11-16.md`. A face cut in half by the frame edge, which no face finder sees, is searched for in each edge's strip mirrored across the edge (later on 2026-11-16): the set's one miss is now flagged (6 of 6, still 0 of 99), and of 40 half faces cut from the set's own faces 20 are found instead of none, 19 reading the same as the whole face (16 of 18 faces over 100 px wide; `eval/blink-edge-mirror-2026-11-16.md`). `tools/opencv_face_detector.py` (2026-10-29) is the older reference detector for that contract: OpenCV Haar
 cascades (`pip install "opencv-python-headless<5"`; 5.x dropped the cascade classifier), on your machine, nothing
 uploaded. `eyes_open` is 0.95, 0.5 or 0.1 for two, one or no eyes found in the upper face, and null under 70 px wide.
 It is a classical detector, not a blink classifier: the eye cascade was trained on open eyes, so sunglasses,
@@ -1649,6 +1649,37 @@ Not done: no checked file uses a tone curve (tags 0x39/0x3A), per-symbol shifts 
 values. A file with a curve is refused with the reason; shifts and starting values are read as
 LibRaw reads them, tested on synthetic streams only. Colour needs the camera's `.dcp`, as for every
 RW2 here.
+
+### Leica RWL, and a card copy that leaves no raw behind (2026-11-16)
+
+Leica's D-LUX, V-LUX and C-LUX are Lumix bodies, and their `.RWL` files are RW2 under another
+name. They now develop like any RW2 (`shootflow develop L1000001.RWL --dcp DIR`): on a real
+D-LUX (Typ 109) and V-LUX (Typ 114) every one of 32.7 M sensels, the white balance, black
+level, CFA, crop and white level equal LibRaw 0.22's.
+
+The card copy used to take only the ten raw formats the developer reads and say nothing about
+the rest, so a `.RWL`, `.NRW`, `.CRW` or `.X3F` stayed on the card. It now copies 27 raw
+formats, HEIF/HIF stills, MXF and M2TS video and XMP sidecars, skips the hidden `._` files a Mac
+writes on a card (which carry the raw's extension and used to be copied as photos), and lists
+every other file it leaves behind as `left_on_card` in the preview, the result and
+`ingest_manifest.json`. On the 71 camera raw files in the public metadata-extractor-images
+corpus the old copy left 6 behind; the new one leaves none. Formats with no reader are culled
+from their embedded preview and stop at the grade with the "convert to DNG" message. Details:
+`eval/leica-rwl-and-card-formats-2026-11-16.md`; tests: `tests/test_card_formats.py`.
+
+### Canon CRW, the 2000-2004 bodies (2026-11-16)
+
+Canon's CIFF raw files (`.CRW`: the EOS D30, D60, 10D and 300D, the PowerShot G2 to G6, Pro1 and
+S30 to S70) now develop directly: `shootflow develop CRW_0001.CRW --dcp DIR`, and the grade stage
+takes them like any CR2 (`src/shootflow/crw.py`). It reads the CIFF heap, Canon's 64-sensel block
+coder with its three tree pairs, the 12-bit bodies' stored low bits, SensorInfo's picture area and
+masked rectangle (black level), the as-shot white balance from whichever of the three colour
+records the body writes, and the camera's rotation. On 20 real files from 15 bodies every one of
+114.0 M sensels and the CFA equal LibRaw 0.22's, the white balance too wherever the file records
+one, black within 2; 2-4 s a file in Python. A PowerShot on Auto white balance keeps no levels for
+the shot, so none is applied and the report says so. The four-colour G1, Pro70 and Pro90 IS are
+refused. Details: `eval/canon-crw-reader-2026-11-16.md`; check: `tools/crw_libraw_check.py`;
+tests: `tests/test_crw.py`.
 
 ## Olympus ORF (2026-11-14)
 

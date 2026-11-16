@@ -29,6 +29,54 @@ Checked in headless Chromium on Dies irae and Pange lingua with the metal backin
 Alternatives people use today: Gregorio plus LilyPond/MuseScore by hand (print, not MIDI with a genre backing), and
 Gregorio's own web editors (notation only). This one's niche is chant as a source for gym-genre tracks.
 
+## Build a release folder: `ep-cli.mjs` (2026-11-16)
+
+One plan file in, one folder a distributor upload can be made from out:
+
+```sh
+node ventures/chant-forge/ep-cli.mjs ventures/chant-forge/examples/first-ep.json -o lux-in-tenebris --today 2026-11-16
+```
+
+The plan (`examples/first-ep.json`) names a title, a release date and, per track, a GABC file and the `cli.mjs`
+options for it (genre, BPM, sections, key lift and so on). For each track the builder runs the converter, renders
+the singing preview choir with the limiter at -14 LUFS, and writes the MIDI, the WAV, timed lyrics (LRC) and a copy
+of the GABC source. Then it draws a 3000 x 3000 cover from the first track's own opening notes (square notation on a
+red four-line staff, no text, so nothing on it can disagree with the metadata), writes `release.json` with each
+track's source edition, year, transcriber and rights note read from the GABC header, and runs the release check
+(`release.mjs`) over the folder. `REPORT.md` lists the tracks with length, loudness and true peak, and splits the
+failing checks into **build faults** (exit 1) and **owner steps**: the artist name, p- and c-lines and ISRCs, which
+only the owner can supply (exit 0 when those are all that is left).
+
+The example plan (Dies irae as half-time metal, Pange lingua as deep house with an a cappella first verse and a key
+lift, Veni Creator as hard rock, the 1908 Te Deum as EDM) builds in 47 s here: 4 tracks, 11:40, every track
+-14.0 LUFS and -1.05 dBTP or lower, 69 checks pass, and the 7 that fail are the owner steps. A GABC file that names
+no source edition (the typed-from-memory demo in `examples/`) is a build fault, so nothing uncited reaches a release.
+The AI disclosure defaults to "assisted" and names the tools and parts; the level is the owner's call. 6 tests in
+`ep.test.mjs` (pixel checks on the cover, -14 LUFS read back from the WAV, the filled-in folder passing the check).
+Nobody has listened to the tracks; listening before upload is the first line of the report's "Before upload".
+
+### The same folder from the studio page (2026-11-16)
+
+The studio page has a **Build the release folder (ZIP)** button under its downloads. After Convert it renders the
+track again limited to -14 LUFS, draws the 3000 px cover from the chant's opening notes, writes `release.json`
+and runs the release check, all in the browser, and hands over one ZIP with the same seven files `ep-cli.mjs`
+writes for a one-track single. Release title, artist, release date (four weeks out by default) and ISRC are boxes
+on the page; empty ones become owner steps in the ZIP's `REPORT.md`. A pasted chant whose GABC names no source
+edition is a build fault, as on the command line.
+
+To make that possible the builder's pure parts moved into `ep-core.mjs` (browser-safe: cover pixels, PNG
+assembly with a pluggable deflate, `release.json`, the owner-step split, the report) and the release rules into
+`release-core.mjs` (`checkReleaseWith`, reading files through an `io` object so the same rules run on a folder
+or on files held in memory). `ep.mjs` and `release.mjs` keep their exports and now call the cores, so the two
+paths cannot drift. `ep-page.test.mjs` (3 tests) builds Veni Creator both ways with `Buffer` deleted on the page
+side: `release.json`, the WAV, MIDI, LRC and source are byte-identical, the 31 check lines match name for name
+and level for level, the report differs only in the builder's name, and the two covers decode to the same
+27,003,000 bytes of scanlines (the browser compresses with `CompressionStream`, Node with zlib). In headless
+Chromium (`eval/browser-e2e.mjs`, 4 new checks, 119 in all) the sung Veni Creator release ZIP took 1.9 s;
+`release-cli.mjs` on the unzipped folder fails only the artist, p-line, c-line and ISRC, and passes outright once
+an artist and ISRC are typed into the page. Nobody has listened to the track or tried the ZIP in a distributor's
+upload form.
+
 ## Hear it without a DAW
 
 ```sh
@@ -1073,7 +1121,73 @@ That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
-#### A closure against the vowel before it (2026-11-16, latest; shipped, pre-registration held)
+#### The wall in codas only (2026-11-16, latest; failed its registration, both stay opt-in)
+
+The round before left one unregistered figure: with `closeAnchor` and the voice-bar wall together, R's voiced stops
+read 107 of 120 against the default's 103. The wall had been turned down because it moved the openings, so this round
+gave it a coda-only form, `voiceBarWall: 'coda'` (`sing.mjs`; `--wall coda` in `eval/coda-check.mjs` and
+`eval/consonant-check.mjs`): a closing b, d or g is low-passed through the walls of the shut tract, an opening one is
+sung as before (`sing.test.mjs` checks both). The candidate, `closeAnchor` read on the choir with the coda wall, was
+measured on every development part (A to S) and then pre-registered against a new part T, committed before T ran
+(`eval/coda-check.mjs` header, sixteenth round). T has 12 voiced-stop codas, 4 nasal codas and 8 others, none sung in
+any other part, at B2, F#3, B3, D4, D#4 and E4, 118 BPM.
+
+| T, read exactly | default (`localRef`) | `closeAnchor` | coda wall | `closeAnchor` + coda wall |
+|---|---|---|---|---|
+| voiced-stop codas (of 144) | **122** | 124 | 120 | 121 |
+| voiced stops read as nothing | 8 | 7 | 9 | 6 |
+| voiced stops read as a nasal | 11 | 9 | 13 | 14 |
+| nasal codas (of 48) | 45 | 45 | 45 | 45 |
+| others (of 96) | 93 | 93 | 93 | 93 |
+| vowel-only control read as none (of 288) | 284 | 284 | 284 | 284 |
+
+The registration wanted 4 or more of 144 better; the candidate read one worse, so it failed. Openings were to stay
+byte-identical; one cell of the held-out corpus set moved (consonant-check G 2055 to 2054 of 2349, a d opening in
+3417 after a walled coda), so that failed too. Nothing else moved past its allowance. On the development parts the
+candidate had looked good (R 103 to 107, S 108 to 113, N's others 220 to 226) but it also read P's voiced stops as a
+nasal 7 to 11 times, and on T that is where it lost: it hears fewer stops as nothing and more as a nasal. R's 107 was
+a development figure, and T shows what that was worth. Across the three held-out sets for this question, `closeAnchor`
+alone reads 332 of 384 voiced stops against `localRef`'s 333: on these sets the two cannot be told apart. Both stay
+opt-in; the default reader and the default choir did not change.
+
+What T's misses say (default): half are a voiced stop read as a nasal (*tag*, *pob*, *hag*, *vob*, 11 of 22), the
+rest read as nothing. The voice bar under a closure that the reader takes for a murmur is the next fault to read frame
+by frame, on T's cells, before any rule is written. Reader and synthesis defaults unchanged; not listened to.
+
+#### Two anchors for one closure (2026-11-16, head to head, the default stays)
+
+Two scheduled sessions took the same item (K's *eb*/*ib*, N's *nab*/*gab*) within the hour. Both found the same
+fault on D4. The five detuned voices beat slowly (over one held /e/ on D4 the band under 500 Hz swung 7 to 40 dB),
+so the 60 ms reference falls on a random point of the swing, while a voice bar beats in step with the vowel just
+before it. Each session wrote its own rule and pre-registered it on its own new held-out set. One merged first:
+`localRef`, the section below. The other rule is kept as an opt-in, `closeAnchor`
+(`onsets.mjs` `ANCHOR`). It reads a closure against the loudest of the last 10 vowel-like frames (within 12 dB of
+that level), the total and the band under 500 Hz each against its own anchor, with no cap. Its diagnostic is
+`eval/voice-bar-diag.mjs`.
+
+Neither rule had been run on the other's held-out set. The decision rule was committed before that cross run
+(`eval/coda-check.mjs` header, fifteenth round): `localRef` stays the default unless `closeAnchor` reads R's and S's
+voiced stops together 3 or more better and loses nothing anywhere else. Part S is the second session's set: 12
+voiced stops and 13 others at G#2, A#2, E3, C4 and F4, 112 BPM.
+
+| voiced stops read exactly | reference only | `localRef` (default) | `closeAnchor` |
+|---|---|---|---|
+| R (held out for `localRef`) | 99 of 120 | 103 | 100 |
+| S (held out for `closeAnchor`) | 101 of 120 | 108 | 108 |
+| together | 200 of 240 | **211** | 208 |
+
+`localRef` stays the default. Its gain on S, +7 on a set written without sight of it, is the strongest evidence
+for it so far. `closeAnchor` generalised less well to R (+1). Elsewhere, against the default, `closeAnchor` read
+K's others 193 to 195, N's 220 to 222 (voiced stops read as a nasal 6 to 4), O's 222 to 223, P's 214 to 216 (its
+clusters 114 to 115, voiced stops read as a nasal 7 to 8), Q's voiced stops 106 to 105 and others 75 to 76, and S's
+others 127 to 128. A, B, D, E, H, I, F, J, L and M were byte-identical, and every vowel-only control was identical.
+
+One observation not in the registration, so not acted on: with `closeAnchor`, the opt-in voice-bar wall
+(`voiceBarWall`) read R's voiced stops 107 of 120 (read as nothing 3, as a nasal 9). With `localRef` it read 103.
+The wall's burst fix and an anchor that holds its band under 500 Hz apart may need each other. That is a
+candidate for its own round with a new held-out set.
+
+#### A closure against the vowel before it (2026-11-16; shipped, pre-registration held)
 
 The round before left K's *ib*/*eb* and N's *nab*/*gab* reading as nothing or as a nasal. Read frame by frame
 (`eval/vstop-diag.mjs`), nearly all of those misses sat on D4-E4, for two reasons. (a) On D4 the five detuned voices

@@ -71,8 +71,10 @@ LOOP_FIT_S = 2.0
 # firmware/esp32/README.md "The 1,000 rpm floor retested"): the board freezes its pulse snapshot at a speed change, so
 # a slow wheel whose next target came straight after the release had one or two revolutions after its ball, too few
 # for the loop-command fit, and its drop fell back to the parabola (0.62-0.78 of the true drop at 510-710 rpm on the
-# simulator). 0 never waits.
-HOLD_RPM = 1000.0
+# simulator). 0 never waits. Raised to 3,000 (2026-11-16 later, README "The 1.48x wheel"): with no hold the snapshot
+# ends about 0.16 s after the ball, three revolutions at 1,107 rpm, and a fit on three read one wheel's drop 1.48x;
+# 3,000 rpm turns the fit's eight revolutions in that time.
+HOLD_RPM = 3000.0
 HOPPER_EMPTY = ("hopper empty: the feed stroke put no ball through the wheels (the launcher wheels did not slow); "
                 "refill the tub, or check the outlet for a bridge of balls and the hose for a stuck one")
 

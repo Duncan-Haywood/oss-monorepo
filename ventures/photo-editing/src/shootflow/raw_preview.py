@@ -25,7 +25,12 @@ import mmap
 import struct
 from pathlib import Path
 
-RAW_EXTENSIONS = frozenset({".arw", ".cr2", ".cr3", ".dng", ".nef", ".orf", ".pef", ".raf", ".rw2", ".srw"})
+# Every raw format a card holds (``ingest.RAW_PHOTO_EXTENSIONS``, kept equal by a test):
+# cull reads each one's embedded preview. Only the formats below with a reader develop.
+RAW_EXTENSIONS = frozenset(
+    {".3fr", ".arw", ".cr2", ".cr3", ".crw", ".dcr", ".dng", ".erf", ".fff", ".gpr", ".iiq", ".kdc", ".mef", ".mos",
+     ".mrw", ".nef", ".nrw", ".orf", ".pef", ".raf", ".raw", ".rw2", ".rwl", ".sr2", ".srf", ".srw", ".x3f"}
+)
 MIN_PREVIEW_PIXELS = 160 * 120
 _SOI = b"\xff\xd8\xff"
 _SOF = frozenset(set(range(0xC0, 0xD0)) - {0xC4, 0xC8, 0xCC})
@@ -54,6 +59,12 @@ def is_cr3_path(path: Path) -> bool:
     return path.suffix.lower() == ".cr3"
 
 
+def is_crw_path(path: Path) -> bool:
+    """Canon's CIFF raw (EOS D30, D60, 10D, 300D; PowerShot G2 to G6, Pro1, S30 to S70)."""
+
+    return path.suffix.lower() == ".crw"
+
+
 def is_arw_path(path: Path) -> bool:
     return path.suffix.lower() == ".arw"
 
@@ -67,7 +78,11 @@ def is_orf_path(path: Path) -> bool:
 
 
 def is_rw2_path(path: Path) -> bool:
-    return path.suffix.lower() == ".rw2"
+    """Panasonic RW2, and Leica's RWL: the D-LUX, V-LUX and C-LUX are Lumix bodies and
+    write the same file (two real RWLs read sensel for sensel as LibRaw does,
+    eval/leica-rwl-and-card-formats-2026-11-16.md)."""
+
+    return path.suffix.lower() in (".rw2", ".rwl")
 
 
 def is_srw_path(path: Path) -> bool:
@@ -83,14 +98,14 @@ def is_raf_path(path: Path) -> bool:
 
 
 def needs_profile_path(path: Path) -> bool:
-    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF)."""
+    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF)."""
 
-    return is_cr2_path(path) or is_cr3_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path) or is_raf_path(path)
+    return is_crw_path(path) or is_cr2_path(path) or is_cr3_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path) or is_raf_path(path)
 
 
 def is_developable_path(path: Path) -> bool:
     """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
-    Canon CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF given a camera profile (``camera_profiles``)."""
+    Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF given a camera profile (``camera_profiles``)."""
 
     return is_dng_path(path) or needs_profile_path(path)
 

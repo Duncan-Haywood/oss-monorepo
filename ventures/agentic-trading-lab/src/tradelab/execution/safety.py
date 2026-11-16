@@ -14,6 +14,7 @@ operator did not ask for.
 """
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -29,6 +30,23 @@ class Limits:
     max_weight_per_symbol: float = 0.5
     min_order_notional: float = 1.0        # brokers reject dust orders
     allowed_symbols: set[str] | None = None
+
+    def __post_init__(self):
+        # Every guard below is a > or < comparison, and NaN compares False
+        # both ways, so a NaN or infinite limit would switch its guard off.
+        for name in ("max_order_notional", "max_gross_exposure", "max_weight_per_symbol", "min_order_notional"):
+            value = getattr(self, name)
+            if not _finite(value) or value < 0:
+                raise ValueError(f"{name} must be a finite number >= 0, got {value!r}")
+        if self.max_orders_per_run < 0:
+            raise ValueError(f"max_orders_per_run must be >= 0, got {self.max_orders_per_run!r}")
+
+
+def _finite(x) -> bool:
+    try:
+        return math.isfinite(x)
+    except TypeError:
+        return False
 
 
 @dataclass
@@ -76,6 +94,9 @@ def check_targets(weights: dict[str, float], limits: Limits) -> list[str]:
     if gross > limits.max_gross_exposure + 1e-9:
         errs.append(f"gross exposure {gross:.2f} exceeds limit {limits.max_gross_exposure:.2f}")
     for s, w in weights.items():
+        if not _finite(w):
+            errs.append(f"{s}: weight {w!r} is not a finite number")
+            continue
         if w < 0:
             errs.append(f"{s}: short weight {w:.3f}; cash accounts cannot short")
         if abs(w) > limits.max_weight_per_symbol + 1e-9:
@@ -90,6 +111,8 @@ def check_orders(orders: list[Order], limits: Limits) -> Verdict:
     for o in orders:
         if o.side not in ("buy", "sell"):
             v.rejected.append((o, f"bad side {o.side!r}"))
+        elif not _finite(o.notional):
+            v.rejected.append((o, f"notional {o.notional!r} is not a finite number"))
         elif o.notional > limits.max_order_notional:
             v.rejected.append((o, f"notional {o.notional:.2f} over per-order limit {limits.max_order_notional:.2f}"))
         elif o.notional < limits.min_order_notional:

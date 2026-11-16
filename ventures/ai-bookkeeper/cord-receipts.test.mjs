@@ -20,14 +20,15 @@ test("labels in rupiah style read as whole units", () => {
 // took test 90 -> 92, train 742 -> 749, validation tax 45 -> 46. 2026-11-15: tax lines
 // found by the subtotal-to-total arithmetic (written from SRD photo misses, CORD held
 // out) took tax test 37 -> 41, train 316 -> 322. 2026-11-16: misspelt "Subtotal" read
-// (Suototal, Subtota; written from SRD photos, CORD held out) took train tax 322 -> 323.
+// (Suototal, Subtota; written from SRD photos, CORD held out) took train tax 322 -> 323. 2026-11-16, later: a "10.000%" rate no longer read as a
+// 1.00 tax (under 1% of a whole-unit total) took train 323 -> 324 (train-203; train-397 now none).
 test("CORD-v2 receipts: totals and tax read as in the README", () => {
   const t = score(load("test"));
   assert.deepEqual([t.total.right, t.total.labelled, t.tax.right, t.tax.labelled], [92, 95, 41, 41]);
   const v = score(load("validation"));
   assert.deepEqual([v.total.right, v.total.labelled, v.tax.right, v.tax.labelled], [96, 98, 46, 47]);
   const tr = score(load("train"));
-  assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [749, 779, 323, 352]);
+  assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [749, 779, 324, 352]);
 });
 
 test("whole-unit receipts: yen with a symbol, and decimal receipts unchanged", () => {
@@ -64,4 +65,26 @@ test("no total line: total, cash and change read from three amounts whose sum cl
   assert.notEqual(parseReceipt("Bag 272.000\n5\n2\n3\nKembali 22.000").cents, 500);
   // no three amounts that close: the largest-amount fallback, as before
   assert.match(parseReceipt("Kopi 20,000\n50,000\n4,500").notes.join(" "), /largest amount/);
+});
+
+// CORD's photos through the CLI's four readings (eval/cord-photos-four-pass-2026-11-16.md):
+// shapes OCR printed on rupiah slips that no rule read before.
+test("rupiah slips as OCR prints them: dashes, PB1 misread, rate as tax, rounding", async () => {
+  const { parseReceiptPasses } = await import("./receipts.mjs");
+  // "CASH -50,000", "CHANGE -30,000" with the total line unreadable: cash less change
+  assert.equal(parseReceipt("1 Teh 12,000\n1 Roti 8,000\nTOTAL a0 .000\nCASH -50,000\nCHANGE -30,000").cents, 2000000);
+  // "PBI" and "PB]" are PB1; "P Resto" lost its dot
+  assert.equal(parseReceipt("Subtotal: 18,181\nPBI: 1,818\nTotal: 20,000").taxCents, 181800);
+  assert.equal(parseReceipt("SUBTTL 261,000\nSVC CHG 6% 15,660\nPB] 10% 27,666\nTOTAL 304,326").taxCents, 2766600);
+  assert.equal(parseReceipt("Subtotal 27,272\nP Resto 10% 2,700\nTotal 30,000").taxCents, 270000);
+  // "10.000%" is the rate, and 1.00 on a 188,499 total is no tax
+  assert.notEqual(parseReceipt("SUBTOTAL 171,363\nPB 1 10% 10.000%\nTOTAL 188,499").taxCents, 100);
+  // a yen tax under 100 units is still a tax
+  assert.equal(parseReceipt("Onigiri ¥150\nTea ¥128\nTax ¥22\nTotal ¥300").taxCents, 2200);
+  // three readings agree on 1,818; 18,181 + 1,818 is 19,999, printed rounded as 20,000
+  const r = "1 Ovaltine 20,000\nPBI: 1,818\nSubtotal: 18,181\nTotal: 20,000\nCash: 100,000\nCHANGE: 80,000";
+  assert.equal(parseReceiptPasses([r, r, r, r.replace("1,818", "4,818")]).taxCents, 181800);
+  // a decimal receipt one cent off is still repaired by the arithmetic (unchanged)
+  const us = "Subtotal 38.95\nTax 8.21\nTotal 42.16";
+  assert.equal(parseReceiptPasses([us, us, us]).taxCents, 321);
 });

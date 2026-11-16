@@ -13,6 +13,8 @@ lower number.
   exit 0  HOLD   your PR is the oldest fresh claim (or no one else has one)
   exit 1  YIELD  an older open PR claims it: pick a different item, or help
                  land that PR instead of building a second copy
+  exit 1  LANDED a PR merged since your clone of main names your --item:
+                 read it before building (it may already be on main)
   exit 2  the open PRs could not be read; search titles by hand
 
 Why: the open-PR checks in allocate.py and research/_shared/pick_track.py run
@@ -38,6 +40,19 @@ that shares a word of your item, or names no item at all (a bare "x: claim"),
 still blocks. Without --item the check is slug-only, as before. The words
 are matched literally, so read the SHARE titles: a judgment the tool cannot
 make (overlapping files under different names) is yours.
+
+A PR that already **merged** is no open claim, yet three of four misses
+reported on 2026-11-16 were exactly that: #16639 opened two minutes after
+#16627 merged the same chant-forge fix, #16579 one minute after #16574 merged
+the edge-time fit, and the session behind #16550 built what #16548 then
+landed (their run records' doc_friction). A session whose clone predates the
+merge reads the item as open on main and free in the PR list. So the check
+also reads PRs merged after your clone's origin/main commit (merges your clone
+already holds are on main for you to read, so they are skipped; a busy
+flagship lands a dozen slices a day and a 24 h list was noise): with --item,
+one whose title shares two words of your item (one, if the item has one) is
+LANDED (exit 1: read its diff, then take the next item or say why yours
+differs); the rest are listed so you can read their titles.
 
 Your PR is found by --pr, or else by the current git branch (the PR whose
 head is this branch). Fork PRs never count as claims and are never yours.
@@ -96,16 +111,45 @@ def overlap(title: str, keyword: str, item: str) -> str:
     return "same" if theirs & item_words(item, keyword) else "other"
 
 
+def shares_item(title: str, keyword: str, item: str) -> bool:
+    """A merged title names my item: it shares two of the item's words, or its
+    only word. One shared word was too loose for merges: a flagship's slices
+    reuse its vocabulary ("fit", "drop") all day."""
+    mine = item_words(item, keyword)
+    return bool(mine) and len(item_words(title, keyword) & mine) >= min(2, len(mine))
+
+
+def main_commit_time() -> Optional[datetime]:
+    """When the clone's origin/main tip was committed (HEAD's if no origin/main):
+    every merge up to then is already in the clone, for the session to read."""
+    for ref in ("origin/main", "HEAD"):
+        try:
+            out = subprocess.run(["git", "log", "-1", "--format=%cI", ref], cwd=REPO_ROOT,
+                                 capture_output=True, text=True, timeout=5).stdout.strip()
+            if out:
+                return datetime.fromisoformat(out).astimezone(timezone.utc)
+        except (OSError, subprocess.SubprocessError, ValueError):
+            pass
+    return None
+
+
 def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
            branch: Optional[str] = None, repo: str = REPO,
            now: Optional[datetime] = None, hours: float = FRESH_HOURS,
-           item: Optional[str] = None) -> dict:
+           item: Optional[str] = None, merged: Optional[list[dict]] = None,
+           main_at: Optional[datetime] = None) -> dict:
     """The verdict for `keyword` given open PRs as returned by the REST pulls list.
 
-    Returns {"verdict": "HOLD"|"YIELD", "mine": pr|None, "older": [...],
-    "newer": [...], "sharing": [...]}, each pr a dict with number, title,
-    created, branch. With `item`, older PRs on a different item go to
-    "sharing" and do not make the verdict YIELD."""
+    Returns {"verdict": "HOLD"|"YIELD"|"LANDED", "mine": pr|None, "older": [...],
+    "newer": [...], "sharing": [...], "landed": [...], "merged": [...]}, each pr
+    a dict with number, title, created, branch (merged ones also `merged`).
+    With `item`, older PRs on a different item go to "sharing" and do not make
+    the verdict YIELD. `merged` is closed PRs from the REST list: those merged
+    after `main_at` (the clone's origin/main commit time; else the last
+    `hours`) that name `keyword` go to "landed" when their title shares
+    enough words of `item` (`shares_item`; verdict LANDED unless an open PR
+    already makes it YIELD), else to "merged" (listed, never blocking).
+    Without `item` a merge never blocks."""
     now = now or datetime.now(timezone.utc)
     since = now - timedelta(hours=hours)
     rows = []
@@ -130,8 +174,47 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
     if item and item_words(item, keyword):
         sharing = [r for r in older if overlap(r["title"], keyword, item) == "other"]
         older = [r for r in older if r not in sharing]
-    return {"verdict": "YIELD" if older else "HOLD", "mine": me, "older": older,
-            "newer": newer, "sharing": sharing}
+    landed, others = [], []
+    for p in merged or []:
+        head = p.get("head") or {}
+        if ((head.get("repo") or {}).get("full_name") or "").lower() != repo.lower():
+            continue
+        if not p.get("merged_at") or _when(p["merged_at"]) <= max(since, main_at or since):
+            continue
+        if int(p["number"]) in {mine, me and me["number"]} or (branch and head.get("ref") == branch):
+            continue  # my own PR, merged already, is not a rival
+        title = str(p.get("title", ""))
+        if not names(title, keyword):
+            continue
+        row = {"number": int(p["number"]), "title": title, "created": str(p.get("created_at", "")),
+               "merged": p["merged_at"], "branch": head.get("ref")}
+        same = bool(item) and shares_item(title, keyword, item)
+        (landed if same else others).append(row)
+    newest = lambda r: _when(r["merged"])
+    landed.sort(key=newest, reverse=True)
+    others.sort(key=newest, reverse=True)
+    verdict = "YIELD" if older else ("LANDED" if landed else "HOLD")
+    return {"verdict": verdict, "mine": me, "older": older, "newer": newer,
+            "sharing": sharing, "landed": landed, "merged": others}
+
+
+def recently_closed(repo: str = REPO, timeout: int = 15, pages: int = 2) -> Optional[list[dict]]:
+    """The most recently updated closed PRs (merged or not), newest first, or None.
+    Two pages of 100 cover well over a day at this repository's merge rate."""
+    out: list[dict] = []
+    try:
+        for page in range(1, pages + 1):
+            url = (f"https://api.github.com/repos/{repo}/pulls?state=closed&sort=updated"
+                   f"&direction=desc&per_page=100&page={page}")
+            req = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                batch = json.load(r)
+            out += batch
+            if len(batch) < 100:
+                break
+    except Exception:
+        return None
+    return out
 
 
 def open_prs(repo: str = REPO, timeout: int = 15) -> Optional[list[dict]]:
@@ -161,9 +244,11 @@ def current_branch() -> Optional[str]:
 
 
 def _line(r: dict, now: datetime) -> str:
-    age = (now - _when(r["created"])).total_seconds() / 60
+    stamp = r.get("merged") or r["created"]
+    age = (now - _when(stamp)).total_seconds() / 60
     age_s = f"{age:.0f} min" if age < 120 else f"{age / 60:.1f} h"
-    return f"#{r['number']} (opened {r['created']}, {age_s} ago): {r['title']}"
+    verb = "merged" if r.get("merged") else "opened"
+    return f"#{r['number']} ({verb} {stamp}, {age_s} ago): {r['title']}"
 
 
 def claim_recipe(keyword: str, item: Optional[str] = None) -> str:
@@ -202,9 +287,19 @@ def report(result: dict, keyword: str, now: datetime, hours: float,
                          f"an older PR on another item then shares instead of blocking.")
         lines.append("Pick a different item, or help land that PR; if you already have work, "
                      "close yours as superseded after `portfolio/ledger/supersede_check.py`.")
+    elif result.get("landed"):
+        lines.append(f"LANDED: a PR merged since your clone of main names '{keyword}' and shares words "
+                     f"of '{item}' (not an open claim, but this may be your item, already on main):")
+        lines += ["  " + _line(r, now) for r in result["landed"]]
+        lines.append("Read its diff (`git fetch --depth=1 origin main`, then the flagship row): if it "
+                     "covers your item, take the next one; if yours is a different slice, go on and "
+                     "say why in the run record.")
     else:
-        lines.append(f"HOLD: no older open PR in the last {hours:g} h names '{keyword}'"
+        lines.append(f"HOLD (the item is yours): no older open PR in the last {hours:g} h names '{keyword}'"
                      + (f" for '{item}'." if item else "."))
+    if result.get("merged"):
+        lines.append(f"Merged since your clone of main on '{keyword}' (other items; skim the titles):")
+        lines += ["  " + _line(r, now) for r in result["merged"][:5]]
     if sharing:
         lines.append(f"SHARE: older PRs on '{keyword}' that name a different item (read the titles; "
                      f"keep out of their files):")
@@ -229,15 +324,18 @@ def main(argv: Optional[list[str]] = None) -> int:
     if prs is None:
         print(f"Could not read open PRs (GitHub API unreachable); search titles for '{args.keyword}' by hand.")
         return 2
+    closed = recently_closed()
     now = datetime.now(timezone.utc)
     result = decide(prs, args.keyword, mine=args.pr,
                     branch=None if args.pr else current_branch(), now=now, hours=args.hours,
-                    item=args.item)
+                    item=args.item, merged=closed, main_at=main_commit_time())
     if args.json:
         print(json.dumps(result, indent=2))
     else:
         print("\n".join(report(result, args.keyword, now, args.hours, args.item)))
-    return 1 if result["verdict"] == "YIELD" else 0
+        if closed is None:
+            print("(Recently merged PRs could not be read: check `git log origin/main` for the slug by hand.)")
+    return 0 if result["verdict"] == "HOLD" else 1
 
 
 if __name__ == "__main__":
