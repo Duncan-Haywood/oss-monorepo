@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- samples/tiny-house.ifc written by hand as IFC4 ifcXML, entity for entity
+     (id "iN" is STEP #N), using the layout's shortcuts: entities nested where
+     they are used, relationships nested under an inverse attribute with their
+     pointer back to the parent left out, an attribute element that is itself
+     the value (UnitsInContext; xsi:type on RelatingMaterial), and select values
+     as -wrapper elements. Part of ids-model-check, MIT licence. -->
+<ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2 http://www.buildingsmart-tech.org/ifc/IFC4/Add2/IFC4_ADD2.xsd" id="uos_1" express="http://www.buildingsmart-tech.org/ifc/IFC4/Add2/IFC4_ADD2.exp">
+  <header>
+    <name>tiny-house.ifcxml</name>
+    <author>ids-model-check</author>
+    <originating_system>hand-written test model</originating_system>
+  </header>
+  <IfcProject id="i1" GlobalId="0YvctVUKr0kugbFTf53O9L" Name="Tiny house">
+    <UnitsInContext id="i5">
+      <Units>
+        <IfcSIUnit id="i2" UnitType="lengthunit" Prefix="milli" Name="metre"/>
+        <IfcSIUnit id="i3" UnitType="areaunit" Name="square_metre"/>
+        <IfcSIUnit id="i4" UnitType="volumeunit" Name="cubic_metre"/>
+      </Units>
+    </UnitsInContext>
+    <IsDecomposedBy>
+      <IfcRelAggregates id="i13" GlobalId="3mOCdOAhTAJBVpK9lWi1Jq">
+        <RelatedObjects>
+          <IfcSite id="i10" GlobalId="1cwlDi_hLEvPsClAelBNnz" Name="Site" CompositionType="element">
+            <IsDecomposedBy>
+              <IfcRelAggregates id="i14" GlobalId="1Iw4NJm2X9nwT8wlAu3prj">
+                <RelatedObjects>
+                  <IfcBuilding id="i11" GlobalId="2FCZDorxHDT8NI01kdXi8P" Name="Tiny house" CompositionType="element">
+                    <IsDecomposedBy>
+                      <IfcRelAggregates id="i15" GlobalId="0eNE8cdaDEOw3mmmkmDvK4">
+                        <RelatedObjects>
+                          <IfcBuildingStorey id="i12" GlobalId="0QxBfDFDTA0PgE3B_ROuYR" Name="Ground floor" CompositionType="element" Elevation="0.">
+                            <IsDecomposedBy>
+                              <IfcRelAggregates id="i31" GlobalId="2Wq8Dqf2v7Fh4K1x9dSwvC">
+                                <RelatedObjects>
+                                  <IfcSpace id="i26" GlobalId="0BTBFw6f90Nfh9rP1dlXri" Name="001" CompositionType="element" PredefinedType="space"/>
+                                </RelatedObjects>
+                              </IfcRelAggregates>
+                            </IsDecomposedBy>
+                            <ContainsElements>
+                              <IfcRelContainedInSpatialStructure id="i30" GlobalId="0sNuz5nhD6vQ8S1E8fWnZr">
+                                <RelatedElements>
+                                  <IfcWall id="i20" GlobalId="3vB2YO$MX4xv5uCqZZG05x" Name="W-01" PredefinedType="solidwall">
+                                    <IsDefinedBy>
+                                      <IfcRelDefinesByProperties id="i43" GlobalId="1kH1k8oQr1ZvL2xk4yVQmB">
+                                        <RelatingPropertyDefinition>
+                                          <IfcPropertySet id="i40" GlobalId="2XtwYdQJvA_eZmLqT9e9cw" Name="Pset_WallCommon">
+                                            <HasProperties>
+                                              <IfcPropertySingleValue id="i41" Name="IsExternal">
+                                                <NominalValue><IfcBoolean-wrapper>true</IfcBoolean-wrapper></NominalValue>
+                                              </IfcPropertySingleValue>
+                                              <IfcPropertySingleValue id="i42" Name="LoadBearing">
+                                                <NominalValue><IfcBoolean-wrapper>true</IfcBoolean-wrapper></NominalValue>
+                                              </IfcPropertySingleValue>
+                                            </HasProperties>
+                                          </IfcPropertySet>
+                                        </RelatingPropertyDefinition>
+                                      </IfcRelDefinesByProperties>
+                                    </IsDefinedBy>
+                                  </IfcWall>
+                                  <IfcWall id="i21" GlobalId="1Lz5$gbjv4GQ6_kuh4Wa3J" Name="W-02" PredefinedType="solidwall">
+                                    <IsDefinedBy>
+                                      <IfcRelDefinesByProperties id="i46" GlobalId="3d4XmS0bT0n9tC2pW7rK1h">
+                                        <RelatingPropertyDefinition>
+                                          <IfcPropertySet id="i44" GlobalId="0Hc3T8vRj6Yw0Pq9xZ2eQb" Name="Pset_WallCommon">
+                                            <HasProperties>
+                                              <IfcPropertySingleValue id="i45" Name="IsExternal">
+                                                <NominalValue><IfcBoolean-wrapper>true</IfcBoolean-wrapper></NominalValue>
+                                              </IfcPropertySingleValue>
+                                              <IfcPropertySingleValue id="i47" Name="FireRating">
+                                                <NominalValue><IfcLabel-wrapper>60 min</IfcLabel-wrapper></NominalValue>
+                                              </IfcPropertySingleValue>
+                                            </HasProperties>
+                                          </IfcPropertySet>
+                                        </RelatingPropertyDefinition>
+                                      </IfcRelDefinesByProperties>
+                                    </IsDefinedBy>
+                                    <HasOpenings>
+                                      <IfcRelVoidsElement id="i32" GlobalId="0WbUE2k3T6Ou9S7rM0Fq3d">
+                                        <RelatedOpeningElement>
+                                          <IfcOpeningElement id="i25" GlobalId="1Tq1j8wW1E5wNB5u9F9K5a" Name="Opening" PredefinedType="opening">
+                                            <HasFillings>
+                                              <IfcRelFillsElement id="i33" GlobalId="3YyZq2P6n3u8rVq3M8lJcE">
+                                                <RelatedBuildingElement>
+                                                  <IfcWindow id="i24" GlobalId="3W3k8ZkmvBexEm6bTnqzhD" Name="WIN-01" OverallHeight="1200." OverallWidth="1000." PredefinedType="window" PartitioningType="single_panel"/>
+                                                </RelatedBuildingElement>
+                                              </IfcRelFillsElement>
+                                            </HasFillings>
+                                          </IfcOpeningElement>
+                                        </RelatedOpeningElement>
+                                      </IfcRelVoidsElement>
+                                    </HasOpenings>
+                                  </IfcWall>
+                                  <IfcWall id="i22" GlobalId="0Dqu2kwjbCmOwB7c2iZvUo" Name="P-01" PredefinedType="partitioning">
+                                    <IsDefinedBy>
+                                      <IfcRelDefinesByProperties id="i51" GlobalId="2Ab3Cd4Ef5Gh6Ij7Kl8Mn9">
+                                        <RelatingPropertyDefinition>
+                                          <IfcPropertySet id="i48" GlobalId="1aB2cD3eF4gH5iJ6kL7mN8" Name="Pset_WallCommon">
+                                            <HasProperties>
+                                              <IfcPropertySingleValue id="i49" Name="IsExternal">
+                                                <NominalValue><IfcBoolean-wrapper>false</IfcBoolean-wrapper></NominalValue>
+                                              </IfcPropertySingleValue>
+                                              <IfcPropertySingleValue id="i50" Name="LoadBearing">
+                                                <NominalValue><IfcBoolean-wrapper>false</IfcBoolean-wrapper></NominalValue>
+                                              </IfcPropertySingleValue>
+                                            </HasProperties>
+                                          </IfcPropertySet>
+                                        </RelatingPropertyDefinition>
+                                      </IfcRelDefinesByProperties>
+                                    </IsDefinedBy>
+                                  </IfcWall>
+                                  <IfcDoor id="i23" GlobalId="2HZIdgNmz5bROhh9k9DLyK" Name="D-01" OverallHeight="2100." OverallWidth="900." PredefinedType="door" OperationType="single_swing_left"/>
+                                  <IfcBuildingElementProxy id="i27" GlobalId="2F4Ue2JmrBXRpQhAQ0pL2v" Name="Kitchen unit"/>
+                                  <IfcSlab id="i28" GlobalId="0jvCJ6a3P7fAhZcqKfbbN8" Name="Ground slab" PredefinedType="baseslab"/>
+                                </RelatedElements>
+                              </IfcRelContainedInSpatialStructure>
+                            </ContainsElements>
+                          </IfcBuildingStorey>
+                        </RelatedObjects>
+                      </IfcRelAggregates>
+                    </IsDecomposedBy>
+                  </IfcBuilding>
+                </RelatedObjects>
+              </IfcRelAggregates>
+            </IsDecomposedBy>
+          </IfcSite>
+        </RelatedObjects>
+      </IfcRelAggregates>
+    </IsDecomposedBy>
+  </IfcProject>
+  <IfcElementQuantity id="i60" GlobalId="0Qa1Wb2Ec3Rd4Tf5Yg6Uh7" Name="Qto_WallBaseQuantities">
+    <Quantities>
+      <IfcQuantityLength id="i61" Name="Length" LengthValue="6000."/>
+    </Quantities>
+  </IfcElementQuantity>
+  <IfcRelDefinesByProperties id="i62" GlobalId="1Zx2Cv3Bn4Mq5Wr6Ty7Ui8">
+    <RelatedObjects>
+      <IfcWall ref="i20" xsi:nil="true"/>
+      <IfcWall ref="i21" xsi:nil="true"/>
+    </RelatedObjects>
+    <RelatingPropertyDefinition>
+      <IfcElementQuantity ref="i60" xsi:nil="true"/>
+    </RelatingPropertyDefinition>
+  </IfcRelDefinesByProperties>
+  <IfcRelAssociatesMaterial id="i75" GlobalId="0Pp9Oo8Ii7Uu6Yy5Tt4Rr3">
+    <RelatedObjects>
+      <IfcWall ref="i20" xsi:nil="true"/>
+      <IfcWall ref="i21" xsi:nil="true"/>
+    </RelatedObjects>
+    <RelatingMaterial xsi:type="IfcMaterialLayerSet" id="i74" LayerSetName="Timber external wall">
+      <MaterialLayers>
+        <IfcMaterialLayer id="i72" LayerThickness="12.5" Name="Lining">
+          <Material>
+            <IfcMaterial id="i71" Name="Gypsum board" Category="gypsum"/>
+          </Material>
+        </IfcMaterialLayer>
+        <IfcMaterialLayer id="i73" LayerThickness="140." Name="Studs">
+          <Material>
+            <IfcMaterial id="i70" Name="Timber frame" Category="wood"/>
+          </Material>
+        </IfcMaterialLayer>
+        <IfcMaterialLayer ref="i72" xsi:nil="true"/>
+      </MaterialLayers>
+    </RelatingMaterial>
+  </IfcRelAssociatesMaterial>
+  <IfcRelAssociatesClassification id="i83" GlobalId="3Qq1Ww2Ee3Rr4Tt5Yy6Uu7">
+    <RelatedObjects>
+      <IfcWall ref="i20" xsi:nil="true"/>
+      <IfcWall ref="i21" xsi:nil="true"/>
+    </RelatedObjects>
+    <RelatingClassification>
+      <IfcClassificationReference id="i82" Identification="EF_25_10_25" Name="External walls">
+        <ReferencedSource>
+          <IfcClassificationReference id="i81" Identification="EF_25_10" Name="Walls">
+            <ReferencedSource>
+              <IfcClassification id="i80" Source="NBS" Edition="2015" Name="Uniclass 2015"/>
+            </ReferencedSource>
+          </IfcClassificationReference>
+        </ReferencedSource>
+      </IfcClassificationReference>
+    </RelatingClassification>
+  </IfcRelAssociatesClassification>
+</ifcXML>
