@@ -130,15 +130,15 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     const cost = parseNumber(get("cost"), decimalComma);
     const clicks = parseNumber(get("clicks"), decimalComma);
     const conv = parseNumber(get("conv"), decimalComma);
-    if (!Number.isFinite(cost) || cost < 0) { skipped.push({ line: r + 1, reason: "unreadable cost" }); continue; }
-    if (!Number.isFinite(clicks) || clicks < 0) { skipped.push({ line: r + 1, reason: "unreadable clicks" }); continue; }
-    if (!Number.isFinite(conv) || conv < 0) { skipped.push({ line: r + 1, reason: "unreadable conversions" }); continue; }
+    if (!Number.isFinite(cost) || cost < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable cost" }); continue; }
+    if (!Number.isFinite(clicks) || clicks < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable clicks" }); continue; }
+    if (!Number.isFinite(conv) || conv < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable conversions" }); continue; }
     const value = cols.value === undefined ? 0 : parseNumber(get("value"), decimalComma);
     const impr = cols.impr === undefined ? 0 : parseNumber(get("impr"), decimalComma);
     const cur = get("currency").toUpperCase();
     if (cur) tally[cur] = (tally[cur] || 0) + 1;
     rows.push({
-      line: r + 1, term: term.toLowerCase().replace(/\s+/g, " "), cost, clicks, impr: Number.isFinite(impr) ? impr : 0, conv,
+      line: table[r].line ?? r + 1, term: term.toLowerCase().replace(/\s+/g, " "), cost, clicks, impr: Number.isFinite(impr) ? impr : 0, conv,
       value: Number.isFinite(value) ? value : 0, match: matchKind(get("match")), campaign: get("campaign"), adGroup: get("adGroup"),
       excluded: /exclud/i.test(get("status")),
     });

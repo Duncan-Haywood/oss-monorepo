@@ -156,17 +156,17 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     const amount = parseNumber(get(line, "amount"), decimalComma);
     const cur = get(line, "currency").toUpperCase();
     if (isAdj) {
-      if (!Number.isFinite(amount)) { skipped.push({ line: r + 1, reason: "unreadable amount" }); continue; }
-      adjustments.push({ line: r + 1, listing, amount, type: get(line, "type"), code: get(line, "code") });
+      if (!Number.isFinite(amount)) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount" }); continue; }
+      adjustments.push({ line: table[r].line ?? r + 1, listing, amount, type: get(line, "type"), code: get(line, "code") });
       if (cur) tally[cur] = (tally[cur] || 0) + 1;
       continue;
     }
     const start = parseDate(get(line, "start"), dmy);
-    if (!Number.isFinite(start)) { skipped.push({ line: r + 1, reason: "unreadable start date" }); continue; }
+    if (!Number.isFinite(start)) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable start date" }); continue; }
     let end = parseDate(get(line, "end"), dmy);
     let nights = get(line, "nights") === "" ? NaN : parseNumber(get(line, "nights"), decimalComma);
     if (!Number.isFinite(nights) || nights <= 0) nights = Number.isFinite(end) && end > start ? Math.round((end - start) / DAY) : NaN;
-    if (!Number.isFinite(nights) || nights <= 0) { skipped.push({ line: r + 1, reason: "no usable night count" }); continue; }
+    if (!Number.isFinite(nights) || nights <= 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "no usable night count" }); continue; }
     if (!Number.isFinite(end)) end = start + nights * DAY;
     const service = Math.abs(parseNumber(get(line, "service"), decimalComma)) || 0;
     const fastPay = Math.abs(parseNumber(get(line, "fastPay"), decimalComma)) || 0;
@@ -174,11 +174,11 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     const taxes = Math.abs(parseNumber(get(line, "taxes"), decimalComma)) || 0;
     let gross = get(line, "gross") === "" ? NaN : parseNumber(get(line, "gross"), decimalComma);
     let net = amount;
-    if (!Number.isFinite(gross) && !Number.isFinite(net)) { skipped.push({ line: r + 1, reason: "no gross earnings or amount" }); continue; }
+    if (!Number.isFinite(gross) && !Number.isFinite(net)) { skipped.push({ line: table[r].line ?? r + 1, reason: "no gross earnings or amount" }); continue; }
     if (!Number.isFinite(gross)) gross = net + service + fastPay;
     if (!Number.isFinite(net) || get(line, "amount") === "") net = gross - service - fastPay;
     if (cur) tally[cur] = (tally[cur] || 0) + 1;
-    stays.push({ line: r + 1, code: get(line, "code"), guest: get(line, "guest"), listing, start, end, nights, gross, service, fastPay, cleaning, taxes, net });
+    stays.push({ line: table[r].line ?? r + 1, code: get(line, "code"), guest: get(line, "guest"), listing, start, end, nights, gross, service, fastPay, cleaning, taxes, net });
   }
   const currency = Object.entries(tally).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
   return { stays, adjustments, payouts, skipped, ignored, currency, columns: cols, dmy, error: stays.length ? null : "No reservation rows with a start date and night count were found." };

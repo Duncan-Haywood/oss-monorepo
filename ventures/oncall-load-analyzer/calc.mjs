@@ -76,7 +76,7 @@ export function normalizeRows(table) {
   if (idx.person < 0) return { error: `No responder column. Expected one of: ${ALIASES.person.slice(0, 5).join(", ")}. Found: ${header.join(", ")}.`, incidents: [], skipped: [] };
   const incidents = [], skipped = [];
   table.slice(1).forEach((r, n) => {
-    const line = n + 2;
+    const line = r.line ?? n + 2;
     const t = parseTime(r[idx.time]);
     if (t === null) { skipped.push({ line, reason: "unreadable timestamp" }); return; }
     const person = String(r[idx.person] ?? "").split(/[;|]/)[0].trim();

@@ -169,9 +169,9 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
       return n;
     };
     const spend = num("spend"), impr = num("impr"), results = num("results");
-    if (!Number.isFinite(spend) || spend < 0) { skipped.push({ line: r + 1, reason: "unreadable amount spent" }); continue; }
-    if (!Number.isFinite(impr) || impr < 0) { skipped.push({ line: r + 1, reason: "unreadable impressions" }); continue; }
-    if (!Number.isFinite(results) || results < 0) { skipped.push({ line: r + 1, reason: "unreadable results" }); continue; }
+    if (!Number.isFinite(spend) || spend < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount spent" }); continue; }
+    if (!Number.isFinite(impr) || impr < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable impressions" }); continue; }
+    if (!Number.isFinite(results) || results < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable results" }); continue; }
     const clicks = num("clicks"), reach = num("reach"), freq = num("freq");
     let value = cols.value === undefined ? 0 : parseNumber(get(line, "value"), decimalComma);
     if (cols.value === undefined && cols.roas !== undefined) {
@@ -185,7 +185,7 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     if (Number.isFinite(s)) lo = Math.min(lo, s);
     if (Number.isFinite(e)) hi = Math.max(hi, e);
     rows.push({
-      line: r + 1, campaign: get(line, "campaign"), adset: get(line, "adset"), ad,
+      line: table[r].line ?? r + 1, campaign: get(line, "campaign"), adset: get(line, "adset"), ad,
       day: cols.day !== undefined && Number.isFinite(day) ? day : null,
       spend, impr, reach: Number.isFinite(reach) ? reach : 0, freq: Number.isFinite(freq) ? freq : 0,
       clicks: Number.isFinite(clicks) ? clicks : 0, results, value: Number.isFinite(value) ? value : 0,
