@@ -1,4 +1,4 @@
-# csshound
+# csshound: find the CSS each page never uses
 
 Which CSS rules does a page never use? csshound reads every HTML page under a
 folder, takes each page's own CSS (its `<style>` blocks and the local
