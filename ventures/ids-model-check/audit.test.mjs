@@ -10,7 +10,7 @@ const ids = (specs) => `<?xml version="1.0"?><ids xmlns="http://standards.buildi
 const spec = (app, req, { occurs = 'minOccurs="1" maxOccurs="unbounded"', version = "IFC2X3 IFC4" } = {}) => `<specification name="s" ifcVersion="${version}"><applicability ${occurs}>${app}</applicability><requirements>${req}</requirements></specification>`;
 const ent = (n, pt) => `<entity><name><simpleValue>${n}</simpleValue></name>${pt ? `<predefinedType><simpleValue>${pt}</simpleValue></predefinedType>` : ""}</entity>`;
 const attr = (n, v) => `<attribute><name><simpleValue>${n}</simpleValue></name>${v === undefined ? "" : `<value>${v.startsWith("<") ? v : `<simpleValue>${v}</simpleValue>`}</value>`}</attribute>`;
-const prop = (dt, v) => `<property${dt ? ` dataType="${dt}"` : ""}><propertySet><simpleValue>Pset_X</simpleValue></propertySet><baseName><simpleValue>P</simpleValue></baseName>${v === undefined ? "" : `<value><simpleValue>${v}</simpleValue></value>`}</property>`;
+const prop = (dt, v) => `<property${dt ? ` dataType="${dt}"` : ""}><propertySet><simpleValue>Custom_X</simpleValue></propertySet><baseName><simpleValue>P</simpleValue></baseName>${v === undefined ? "" : `<value><simpleValue>${v}</simpleValue></value>`}</property>`;
 const pattern = (p) => `<xs:restriction base="xs:string"><xs:pattern value="${p}"/></xs:restriction>`;
 
 const audit = (s) => auditIds(parseIds(ids(s)), resources());
@@ -92,4 +92,68 @@ test("cli --audit exits 1 on an invalid IDS and 0 on a valid one", () => {
   const cli = new URL("cli.mjs", import.meta.url).pathname;
   const ok = execFileSync(process.execPath, [cli, "--audit", new URL("samples/coordination-basics.ids.xml", import.meta.url).pathname], { encoding: "utf8" });
   assert.match(ok, /VALID, 7 of 7/);
+});
+
+// Standard property set templates (schema/psets-*.json, from buildingSMART's PSD files).
+const sprop = (set, name, dt, v) => `<property${dt ? ` dataType="${dt}"` : ""}><propertySet><simpleValue>${set}</simpleValue></propertySet><baseName><simpleValue>${name}</simpleValue></baseName>${v === undefined ? "" : `<value><simpleValue>${v}</simpleValue></value>`}</property>`;
+const messages = (s) => audit(s).map((x) => x.message).join(" | ");
+
+test("standard sets: right names and data types pass", () => {
+  assert.deepEqual(audit(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "IsExternal", "IFCBOOLEAN", "true"))), []);
+  assert.deepEqual(audit(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "FireRating", "IFCLABEL"))), []);
+  assert.deepEqual(audit(spec(ent("IFCWALL"), sprop("Qto_WallBaseQuantities", "NetVolume", "IFCVOLUMEMEASURE"), { version: "IFC4" })), []);
+  // A wall type carries its occurrence's common set.
+  assert.deepEqual(audit(spec(ent("IFCWALLTYPE"), sprop("Pset_WallCommon", "FireRating", "IFCLABEL"), { version: "IFC4" })), []);
+  // Custom sets with another prefix are not checked against templates.
+  assert.deepEqual(audit(spec(ent("IFCWALL"), sprop("ePset_Wall", "Anything", "IFCLABEL"))), []);
+});
+
+test("standard sets: a wrong data type is invalid", () => {
+  assert.deepEqual(codes(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "IsExternal", "IFCTEXT"))), ["pset-datatype"]);
+  assert.match(messages(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "IsExternal", "IFCTEXT"))), /IFCBOOLEAN/);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), sprop("Qto_WallBaseQuantities", "NetVolume", "IFCREAL"), { version: "IFC4" })), ["pset-datatype"]);
+});
+
+test("standard sets: misspelt and custom names are invalid, with a suggestion when one is near", () => {
+  assert.deepEqual(codes(spec(ent("IFCWALL"), sprop("Pset_WallComon", "FireRating", "IFCLABEL"))), ["pset-name"]);
+  assert.match(messages(spec(ent("IFCWALL"), sprop("Pset_WallComon", "FireRating", "IFCLABEL"))), /did you mean Pset_WallCommon/);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), sprop("Pset_MyCompanyWall", "FireRating", "IFCLABEL"))), ["pset-custom"]);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "FireRatng", "IFCLABEL"))), ["pset-property"]);
+  assert.match(messages(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "FireRatng", "IFCLABEL"))), /did you mean FireRating/);
+});
+
+test("standard sets: a set the applicable class cannot carry is invalid", () => {
+  assert.deepEqual(codes(spec(ent("IFCSLAB"), sprop("Pset_WallCommon", "FireRating", "IFCLABEL"))), ["pset-class"]);
+  // Patterns that name one class count as that class.
+  assert.deepEqual(codes(spec(`<entity><name>${pattern("IFCCOVERING")}</name></entity>`, sprop("Pset_WallCommon", "Reference", "IFCIDENTIFIER"), { version: "IFC2X3" })), ["pset-class"]);
+  // Valid in one named schema is enough (Pset_SoundGeneration's table types).
+  assert.deepEqual(codes(spec(ent("IFCFAN"), sprop("Pset_SoundGeneration", "SoundCurve", "IFCSOUNDPOWERMEASURE"), { version: "IFC4" })), []);
+});
+
+test("standard sets: warnings for a value outside the enumeration and a missing dataType", () => {
+  assert.deepEqual(codes(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "Status", "IFCLABEL", "BRAND_NEW"), { version: "IFC4" }), "warning"), ["value-never"]);
+  assert.match(messages(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "IsExternal", null, "true"))), /templates give IFCBOOLEAN/);
+});
+
+test("date, time and duration ranges are valid; malformed ones are not", () => {
+  const range = (k, v) => `<xs:restriction base="xs:string"><xs:${k} value="${v}"/></xs:restriction>`;
+  const rprop = (dt, r) => `<property dataType="${dt}"><propertySet><simpleValue>Custom_X</simpleValue></propertySet><baseName><simpleValue>P</simpleValue></baseName><value>${r}</value></property>`;
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCDATE", range("minInclusive", "2052-08-11")), { version: "IFC4" })), []);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCDURATION", range("maxExclusive", "PT5M30S")), { version: "IFC4" })), []);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCTIME", range("maxInclusive", "03:06:12+01:00")), { version: "IFC4" })), []);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCDURATION", range("minInclusive", "1 day")), { version: "IFC4" })), ["value-format"]);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCTIME", range("maxInclusive", "7:35 PM")), { version: "IFC4" })), ["value-format"]);
+  // A pattern on a boolean is allowed (IDS DataTypes table); one that cannot match true or false warns.
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCBOOLEAN", pattern("true|false")))), []);
+  assert.deepEqual(codes(spec(ent("IFCWALL"), rprop("IFCBOOLEAN", pattern("yes"))), "warning"), ["value-never"]);
+});
+
+test("a model check still runs a specification whose only fault is a non-standard property", () => {
+  const model = readFileSync(new URL("samples/tiny-house.ifc", import.meta.url), "utf8");
+  const r = check(ids(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "AkousticRating", "IFCLABEL"), { version: "IFC4" })), model);
+  assert.notEqual(r.specs[0].status, "invalid");
+  assert.ok(r.specs[0].applicable > 0);
+  assert.match(r.specs[0].auditWarnings.join(" "), /not standard IFC.*did you mean AcousticRating/);
+  // The audit on its own still calls the IDS invalid.
+  assert.deepEqual(codes(spec(ent("IFCWALL"), sprop("Pset_WallCommon", "AkousticRating", "IFCLABEL"), { version: "IFC4" })), ["pset-property"]);
 });
