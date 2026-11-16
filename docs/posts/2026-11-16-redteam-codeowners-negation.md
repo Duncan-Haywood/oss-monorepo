@@ -3,7 +3,7 @@ title: "A CODEOWNERS line GitHub ignores was called clean. Red-teaming three fil
 seo_title: "CODEOWNERS checker now flags ! negation, [ ] ranges and \\# escapes"
 date: 2026-11-16
 tags: [testing, mutation-testing, codeowners, github, security, redteam]
-description: "36 faults seeded across three files, 30 caught, 35 after six new tests. One real defect: the CODEOWNERS checker called `!vendor/` clean, though GitHub says negation does not work there."
+description: "36 faults seeded, 30 caught, 35 after new tests. Real defect: the CODEOWNERS checker called a `!vendor/` line clean; GitHub says negation doesn't work."
 ---
 
 Today's red-team run seeded faults into three files: one venture's on-device
