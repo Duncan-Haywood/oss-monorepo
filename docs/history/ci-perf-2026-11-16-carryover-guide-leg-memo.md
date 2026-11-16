@@ -59,8 +59,11 @@ reason the 2026-11-16 serial-once run declined a file-local memo in
 
 - `node eval/carryover-real.mjs --json` before and after: `cmp` identical.
 - `carryover.test.mjs`: 18 of 18 pass (17 old plus the new one).
-- `python3 platform/ci/run_venture_tests.py league-schedule-generator`: see the
-  run record's `notes` for the full-suite result.
+- `python3 platform/ci/run_venture_tests.py league-schedule-generator`: 554 of
+  554 pass, 203.7 s (207.6 s before; the suite's wall moves within noise, the
+  saving is CPU on one file). A first pass of it failed the 12-team proved-least
+  check: my own find-and-replace had rewritten that assertion while I sized the
+  new test. Restored; the suite caught it.
 
 ## Numbers
 
