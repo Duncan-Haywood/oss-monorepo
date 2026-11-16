@@ -865,6 +865,15 @@ ${renderTopicNav(allPosts, { toTopics: `${toBlog}topic/`, current: topicId, head
   });
 }
 
+/** `text` within TITLE_BUDGET: whole, else up to its first "?" when that fits, else cut at a word with "…". */
+export function clipTitle(text) {
+  if (text.length <= TITLE_BUDGET) return text;
+  const q = text.indexOf('?');
+  if (q > 0 && q < TITLE_BUDGET) return text.slice(0, q + 1);
+  const cut = text.slice(0, TITLE_BUDGET - 1);
+  return `${cut.slice(0, cut.lastIndexOf(' ') > 0 ? cut.lastIndexOf(' ') : cut.length).replace(/[,:;]$/, '')}…`;
+}
+
 /**
  * The "By project" links at the top of a topic's first page: each project with its own page
  * (`projectGroups`), with its post count. `toProjects` climbs from the page to the topic's folder.
@@ -907,7 +916,8 @@ export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard 
   // the words a search for the finding uses, where the slug is only a folder name.
   const question = research ? project.question || '' : '';
   const seo = research ? `${project.name} findings${question ? `: ${question}` : ', post by post'}` : `${project.name}: how it was built, post by post`;
-  const title = sub ? `${project.name} posts, page ${page} · ${SITE_NAME}` : postPageTitle(seo);
+  // Some questions run to 235 characters: the title tag keeps the first sentence, or clips at a word, to TITLE_BUDGET.
+  const title = sub ? `${project.name} posts, page ${page} · ${SITE_NAME}` : postPageTitle(clipTitle(seo));
   const first = (page - 1) * PAGE_SIZE + 1;
   const blurb = research
     ? `Every blog post from the ${project.name} research programme: each finding, with its numbers, caveats and negative results.`

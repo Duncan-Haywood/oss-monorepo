@@ -752,6 +752,11 @@ test('Research findings: a programme with three posts gets a page that leads wit
   assert.equal((page.match(/<h1/g) || []).length, 1);
   assert.match(page, /<h1>Which hull goes furthest per kWh\?<\/h1>/, 'the question, tags stripped, is the heading');
   assert.match(page, /<title>hull-study findings: Which hull goes furthest per kWh\?/);
+  const { clipTitle } = await import('./writing.mjs');
+  assert.equal(clipTitle('short'), 'short');
+  assert.equal(clipTitle(`x findings: Which one? ${'word '.repeat(20)}`), 'x findings: Which one?');
+  const clipped = clipTitle(`x findings: ${'word '.repeat(30)}`);
+  assert.ok(clipped.length <= 70 && clipped.endsWith('word…'), clipped);
   assert.match(page, /href="\.\.\/\.\.\/\.\.\/\.\.\/research\/hull-study\/">Read the hull-study programme<\/a>/);
   assert.match(page, /"about":\{"@type":"ResearchProject"/);
   assert.match(page, /<h2 id="project-nav-h">Other programmes<\/h2>/);
