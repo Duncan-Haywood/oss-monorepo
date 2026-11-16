@@ -1121,7 +1121,40 @@ That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
-#### Two anchors for one closure (2026-11-16, latest; head to head, the default stays)
+#### The wall in codas only (2026-11-16, latest; failed its registration, both stay opt-in)
+
+The round before left one unregistered figure: with `closeAnchor` and the voice-bar wall together, R's voiced stops
+read 107 of 120 against the default's 103. The wall had been turned down because it moved the openings, so this round
+gave it a coda-only form, `voiceBarWall: 'coda'` (`sing.mjs`; `--wall coda` in `eval/coda-check.mjs` and
+`eval/consonant-check.mjs`): a closing b, d or g is low-passed through the walls of the shut tract, an opening one is
+sung as before (`sing.test.mjs` checks both). The candidate, `closeAnchor` read on the choir with the coda wall, was
+measured on every development part (A to S) and then pre-registered against a new part T, committed before T ran
+(`eval/coda-check.mjs` header, sixteenth round). T has 12 voiced-stop codas, 4 nasal codas and 8 others, none sung in
+any other part, at B2, F#3, B3, D4, D#4 and E4, 118 BPM.
+
+| T, read exactly | default (`localRef`) | `closeAnchor` | coda wall | `closeAnchor` + coda wall |
+|---|---|---|---|---|
+| voiced-stop codas (of 144) | **122** | 124 | 120 | 121 |
+| voiced stops read as nothing | 8 | 7 | 9 | 6 |
+| voiced stops read as a nasal | 11 | 9 | 13 | 14 |
+| nasal codas (of 48) | 45 | 45 | 45 | 45 |
+| others (of 96) | 93 | 93 | 93 | 93 |
+| vowel-only control read as none (of 288) | 284 | 284 | 284 | 284 |
+
+The registration wanted 4 or more of 144 better; the candidate read one worse, so it failed. Openings were to stay
+byte-identical; one cell of the held-out corpus set moved (consonant-check G 2055 to 2054 of 2349, a d opening in
+3417 after a walled coda), so that failed too. Nothing else moved past its allowance. On the development parts the
+candidate had looked good (R 103 to 107, S 108 to 113, N's others 220 to 226) but it also read P's voiced stops as a
+nasal 7 to 11 times, and on T that is where it lost: it hears fewer stops as nothing and more as a nasal. R's 107 was
+a development figure, and T shows what that was worth. Across the three held-out sets for this question, `closeAnchor`
+alone reads 332 of 384 voiced stops against `localRef`'s 333: on these sets the two cannot be told apart. Both stay
+opt-in; the default reader and the default choir did not change.
+
+What T's misses say (default): half are a voiced stop read as a nasal (*tag*, *pob*, *hag*, *vob*, 11 of 22), the
+rest read as nothing. The voice bar under a closure that the reader takes for a murmur is the next fault to read frame
+by frame, on T's cells, before any rule is written. Reader and synthesis defaults unchanged; not listened to.
+
+#### Two anchors for one closure (2026-11-16, head to head, the default stays)
 
 Two scheduled sessions took the same item (K's *eb*/*ib*, N's *nab*/*gab*) within the hour. Both found the same
 fault on D4. The five detuned voices beat slowly (over one held /e/ on D4 the band under 500 Hz swung 7 to 40 dB),

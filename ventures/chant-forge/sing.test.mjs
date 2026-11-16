@@ -533,3 +533,16 @@ test('closeAnchor (opt-in) closes a voice bar against the last vowel-like frames
   }
   for (const s of ['ep', 'ec', 'ic']) assert.equal(read(SY.indexOf(s), { localRef: false, closeAnchor: true }).cls, 'stop', s);
 });
+
+test("voiceBarWall: 'coda' walls a closing voiced stop and sings an opening one as before (sixteenth coda round)", () => {
+  const rate = 22050, f = 293.66, onset = ['b'], o = { vowel: 'a', release: 0.2, lead: onsetLength(onset), onsetLen: onsetLength(onset) };
+  const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+  // an opening b: the coda-only wall leaves it as the default sings it, the full wall does not
+  const open = (w) => singNote(f, 0.5, rate, { ...o, onset, ...(w === undefined ? {} : { voiceBarWall: w }) });
+  assert.ok(same(open('coda'), open(undefined)));
+  assert.ok(!same(open(true), open(undefined)));
+  // a closing g: the coda-only wall sings it as the full wall does
+  const close = (w) => singNote(f, 0.5, rate, { vowel: 'a', release: 0.25, coda: ['g'], ...(w === undefined ? {} : { voiceBarWall: w }) });
+  assert.ok(same(close('coda'), close(true)));
+  assert.ok(!same(close('coda'), close(undefined)));
+});
