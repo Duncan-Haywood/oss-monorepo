@@ -42,3 +42,15 @@ block still fails the file. No CI time changes: the file skips on runners.
 2. packages.test.mjs here (0.9 s): the next largest file, not profiled.
 3. The two full flows still each take about 1.3 s; they are now the floor of
    the file. Splitting them would weaken the "survives a reload" check, so leave them.
+
+## Also: the site build hit EMFILE in this sandbox
+
+`run_workflow_locally.py --for-changes` failed portfolio-pages "Build the site"
+with `EMFILE` in `moveAudioToCdn` (`platform/pages/audio-cdn.mjs`): one
+`Promise.all` read all 21,546 text files in `dist/` at once, and this sandbox
+allows 20,000 open descriptors (`ulimit -n`). GitHub runners allow 65,536, so
+CI was still green, but every agent session that builds the site locally failed.
+It failed on `main` too, since this PR did not touch that code. The rewrite now holds
+at most 64 files open (same files, same rewrite, same order of results).
+`audio-cdn.test.mjs` 4/4 pass; the rerun of `--for-changes` reports 9/9
+selected workflows passed, portfolio-pages 12/12 run steps.
