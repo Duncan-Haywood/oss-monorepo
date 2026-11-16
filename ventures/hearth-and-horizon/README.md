@@ -403,9 +403,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (68 stories)
+### Little Lamps (69 stories)
 
 - [Angela and the Girls around the Kitchen Table](stories/angela-and-the-girls-around-the-kitchen-table.md) (2026-11-16; 10 min read, text only)
+- [Anthony of Egypt and the Garden in the Desert](stories/anthony-of-egypt-and-the-garden-in-the-desert.md) (2026-11-16; 10 min read, text only)
 - [Casimir and the Church Door at Night](stories/casimir-and-the-church-door-at-night.md) (2026-11-16; 11 min read, text only)
 - [Francis de Sales and the Letters under the Doors](stories/francis-de-sales-and-the-letters-under-the-doors.md) (2026-11-16; 11 min read, text only)
 - [John of the Cross and the Songs in the Dark](stories/john-of-the-cross-and-the-songs-in-the-dark.md) (2026-11-16; 11 min read, text only)
