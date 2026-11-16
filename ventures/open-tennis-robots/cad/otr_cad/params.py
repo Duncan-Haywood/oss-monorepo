@@ -717,7 +717,7 @@ class Feeder:
     retain_len: float = 32.0      # arm length from its root to the free end
     petg_e_mpa: float = 1500.0    # printed PETG bending modulus across layers (assumption)
     petg_strain_max: float = 0.02  # working strain limit for a printed arm (assumption)
-    ball_g: float = 57.0          # ITF ball mass is 56 to 59.4 g
+    ball_g: float = 57.7          # ITF ball mass is 56 to 59.4 g; the flight model's ball (ballistics.DEFAULT_BALL)
     wheel_pull_n: float = 60.0    # force the wheels put on a ball along the path (assumption: measure it)
     # Launch: top speed and spin the head must reach, and the traction the nip must give.
     launch_v_max: float = 25.0    # m/s off the muzzle (assumption: a fast practice drive)

@@ -218,7 +218,7 @@ class FeederHw:
         self.launch = None
         if getattr(config, "LAUNCH_CHECK", True):
             self.launch = controller.LaunchCheck(
-                getattr(config, "WHEEL_INERTIA_KGM2", 0.00155), getattr(config, "BALL_KG", 0.057),
+                getattr(config, "WHEEL_INERTIA_KGM2", 0.00155), getattr(config, "BALL_KG", 0.0577),
                 getattr(config, "WHEEL_RADIUS_M", 0.075), getattr(config, "BALL_RADIUS_M", 0.0335),
                 getattr(config, "LAUNCH_SPEED_EFF", 0.85), getattr(config, "LAUNCH_SPIN_EFF", 0.5),
                 getattr(config, "LAUNCH_DIP_SHARE", 0.25), getattr(config, "LAUNCH_DIP_MIN", 0.015),

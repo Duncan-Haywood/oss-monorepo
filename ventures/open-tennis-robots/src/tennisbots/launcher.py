@@ -78,8 +78,13 @@ def calibrate(samples: list[tuple[float, float, float, float | None]],
 
 # The feeder firmware's model numbers (firmware/esp32/config.py; tests check they agree).
 WHEEL_INERTIA_KGM2 = 0.00155       # one wheel and its motor's rotor, cad Feeder.launch_wheel_kgm2
-BALL_KG = 0.057
+BALL_KG = 0.0577                   # = ballistics.DEFAULT_BALL.mass; the fit's efficiencies scale with it
 TRIM = 0.25                        # fit_from_drops sets aside wheel readings this far (share of the fitted drop) off
+# fit_from_drops sets aside wheels slower than this (2026-11-16, firmware/esp32/README.md "Slow wheels"): a revolution
+# over 60 ms leaves too few pulses before the verdict for the pulse-time fit (a 523 rpm wheel got 3 and showed 70-78%
+# of its drop), and a 30-40% drop on a wheel still braking to its new speed showed 54%. No simulated wheel under
+# 1,000 rpm was in the sweep that validated the pulse-time drops.
+MIN_FIT_RPM = 1000.0
 
 
 @dataclass(frozen=True)
@@ -121,7 +126,7 @@ def _drop_rows(records, inertia, ball_kg, wheel_radius):
         wt, wb = float(r["rpm_top"]), float(r["rpm_bottom"])
         for w, d, sign, whole in ((wt, r["drop_top"], 1.0, r.get("fit_top", False)),
                                   (wb, r["drop_bottom"], -1.0, r.get("fit_bottom", False))):
-            if w <= 0:
+            if w < MIN_FIT_RPM:
                 continue
             k = ball_kg * wheel_radius ** 2 / (inertia * w)       # rpm cancels: the drop is a ratio
             rows.append((float(d), 60.0 / w, k * (wt + wb) / 4, sign * k * (wt - wb) / 6, bool(whole)))
@@ -177,7 +182,9 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
     true efficiencies are k times these. `inertia_from_radar` turns one radar-gun calibration into the true inertia."""
     rows = _drop_rows(records, inertia, ball_kg, base.wheel_radius)
     if not rows:
-        raise ValueError("no launched shots with a turning wheel in the log")
+        raise ValueError(f"no launched shots with a wheel at {MIN_FIT_RPM:.0f} rpm or more in the log")
+    slow = sum(1 for r in records if r.get("launched")
+               for w in (float(r["rpm_top"]), float(r["rpm_bottom"])) if 0 < w < MIN_FIT_RPM)
     fit_spin = max(abs(r[3]) for r in rows) > 0.05 * max(r[2] for r in rows)
     revs = [r[1] for r in rows if not r[4]]
     shots = sum(1 for r in records if r.get("launched"))
@@ -214,6 +221,9 @@ def fit_from_drops(records, *, inertia: float = WHEEL_INERTIA_KGM2, ball_kg: flo
     else:
         trimmed = 0
     notes = [note] if note else []
+    if slow:
+        notes.append(f"{slow} wheel reading{'s' if slow > 1 else ''} under {MIN_FIT_RPM:.0f} rpm set aside (too few "
+                     "revolutions before the verdict to read the whole drop)")
     if not fit_spin:
         notes.append("flat shots only: spin efficiency not fitted")
     if trimmed:

@@ -97,7 +97,7 @@ AGIT_DUTY = 1.0
 # and wheel radius and the launcher's efficiencies (src/tennisbots/launcher.py); a test fails if they disagree.
 # WHEEL_INERTIA_KGM2 above is the wheel's inertia: weigh yours. LAUNCH_CHECK = False turns the check off.
 LAUNCH_CHECK = True
-BALL_KG = 0.057
+BALL_KG = 0.0577                # the flight model's ball too (2026-11-16: 57.0 here read efficiencies 1.2% high)
 WHEEL_RADIUS_M = 0.075
 BALL_RADIUS_M = 0.0335
 LAUNCH_SPEED_EFF = 0.85

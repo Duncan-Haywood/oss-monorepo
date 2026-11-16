@@ -527,9 +527,9 @@ choice was tuned on these same simulated wheels.
 | spin efficiency | 11.7% | 6.6% |
 
 Every build now fits with no recovery time at all ("none" in the sweep's
-column). The speed efficiency reads 0.9-1.9% high on every build: that is a
-bias, not noise, and its cause is not found yet (perhaps the loop's 10 ms
-command steps, which a parabola can't follow).
+column). The speed efficiency read 0.9-1.9% high on every build; the cause
+was the ball's mass, found the same day ("Slow wheels and one ball mass"
+below).
 
 `tests/refit_sweep.py`, the drill re-planned from its own shots (12 builds,
 shots 5 to 16, metres from the target;
@@ -551,3 +551,65 @@ tach is exact to the microsecond, and a real hall or IR sensor's jitter will
 add noise. The fit runs once per stroke at the verdict, at most 27 small
 least-squares solves per wheel; its time on a real ESP32 under MicroPython is
 not measured.
+
+## Slow wheels and one ball mass (2026-11-16, later still)
+
+**The 1-2% bias was the ball, not the loop.** The drop fit and `config.py`
+assumed a 57.0 g ball (the CAD's `ball_g`); the flight model, and so the
+simulator's ball, weighs 57.7 g (`ballistics.DEFAULT_BALL`). The drops measure
+momentum, so every drop was 57.7 / 57.0 = 1.0123 of what the fit expected, and
+the speed efficiency came out about 1.2% high on every build. Each wheel's
+recorded drop divided by the model's prediction at the true efficiencies sat at
+1.004-1.015 on a flat shot, the same at every speed: a constant scale, not the
+loop's 10 ms steps. Now one mass, 57.7 g (the ITF range is 56.0-59.4 g), sits in
+`config.BALL_KG`, `launcher.BALL_KG` and the CAD's `ball_g`, and a test checks
+they equal the flight model's ball. On a real machine, weigh a few of your balls:
+`fit-launcher --ball-kg` takes the mass, and the fitted efficiencies scale with
+it just as they do with the wheel inertia (one radar reading absorbs both).
+
+| `tests/launch_fit_sweep.py`, 18 builds | before | now |
+| --- | --- | --- |
+| speed efficiency, worst | +1.9% | +0.6% |
+| speed efficiency, range | +0.9% to +1.9% | -0.4% to +0.6% |
+| spin efficiency, worst | 6.6% | 7.7% |
+
+(eval/launch-fit-sweep-one-ball-2026-11-16.txt.) The spin efficiency is no
+better and its worst case is a point worse: its errors are not a scale and
+remain the open item.
+
+**Slow wheels are set aside.** With the bias gone, the drill re-plan sweep
+showed one bad shot, 1.41 m off target: the re-planned rally drill asked one
+build (0.95 / 0.35, 0.2 s lag) for topspin that left the bottom wheel at 520 to
+840 rpm. There a revolution takes 70 to 115 ms. At 523 rpm only three
+revolutions came after the ball before the verdict, so the firmware fitted a
+line and showed 70-78% of the drop. At 836 rpm, the first shot after the wheel
+was braked down from 1,522 rpm, it showed 54%. The fit after 12 shots then read
+spin efficiency 0.73 for a true 0.35. No wheel under 1,000 rpm was in
+`tests/pulse_drop_sweep.py`, which validated the pulse-time drops (its slowest
+band is 1,000-2,000 rpm, 100.8% on average). `fit_from_drops` now sets aside
+wheel readings under `launcher.MIN_FIT_RPM` (1,000) and says how many in its
+note; it refuses a log with none left.
+
+**Refitter's speed tolerance is 2%, down from 5%.** The 5% guarded against a
+fit that was 3.9% off; at 0.6% it left builds 2-4% off uncorrected
+(`tests/refit_tol_sweep.py`, eval/refit-speed-tol-2026-11-16.txt, median / worst
+metres from the target over shots 5 to 16):
+
+| true speed efficiency (plan 0.85) | fixed plan | re-planned, 5% | re-planned, 2% |
+| --- | --- | --- | --- |
+| 0.88 | 0.97 / 1.00 | 0.97 / 0.98 | 0.01 / 0.02 |
+| 0.82 | 0.96 / 1.04 | 0.97 / 1.03 | 0.03 / 0.07 |
+| 0.87 | 0.64 / 0.75 | 0.62 / 0.75 | 0.05 / 0.11 |
+| 0.85 (right) | 0.00 / 0.01 | 0.00 / 0.02 | 0.00 / 0.02 |
+
+`tests/refit_sweep.py` with all three changes (12 builds, shots 5 to 16;
+eval/refit-sweep-one-ball-2026-11-16.txt):
+
+| | median, worst build | worst shot |
+| --- | --- | --- |
+| re-planned, pulse-time drops (earlier today) | 0.61 | 0.74 |
+| re-planned, one ball mass, slow wheels set aside | 0.31 | 0.34 |
+
+**Not measured.** All of it is on the simulator, whose ball and wheels are the
+model's own; a real ball's mass, and a real tach's jitter, are not in it. The
+1,000 rpm floor and the 2% tolerance were chosen on these same simulated builds.

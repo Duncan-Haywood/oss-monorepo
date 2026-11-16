@@ -85,7 +85,7 @@ the part you actually buy before cutting metal.
   87% of the ball (58 mm) between two 1.6 mm PETG flexure arms, each with a
   5 mm relief behind it. Checks (`Feeder.retain_*`, end-loaded cantilever
   worst case): arm strain 1.0% against a 2% limit, about 17 N to drag a ball
-  through against 0.14 N of ball weight at -15 deg, and 1.5x that must stay
+  through against 0.15 N of ball weight at -15 deg, and 1.5x that must stay
   under the wheels' assumed 60 N pull. The modulus (1.5 GPa) and the wheel pull
   are assumptions: print one and pull a ball through with a scale.
   **Known gap, found by this model:** the hose end swings about 450 mm as the

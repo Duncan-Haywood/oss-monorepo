@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVP1UCU7tK3hbYxiAB4",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell revenue-generating products); merge when done",
+  "input_sha256": "142d81377a21b54e3d1fe8affb58634866c62724931b0722c5c7d2b1454efa3a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T08:13:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship BUILDABLE: find the drop fit's 1-2% speed bias; lower Refitter speed_tol",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 16509,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/firmware/esp32/config.py",
+      "issue": "BALL_KG came from the CAD (57.0 g), while ballistics.DEFAULT_BALL is 57.7 g; the config-agreement test checked config against CAD and launcher but never against the flight model, so two ball masses lived side by side"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Free-choice slot, but every new-product idea I checked (DMARC, OpenAPI diff, SBOM, k8s, contracts) already has a venture among the 1,379. A flagship's open debugging item had more value than another small tool.",
+      "did": "took open-tennis-robots' BUILDABLE item",
+      "result": "bias found and fixed; re-plan worst shot 0.74 to 0.34 m on the simulator"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-ball-machine-bias-that-was-the-ball.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md#slow-wheels-and-one-ball-mass-2026-11-16-later-still"
+  ],
+  "goal": "deepen a flagship (explore slot spent on a flagship's open buildable item)",
+  "notes": "Idea: find a constant bias in the open-tennis-robots launch fit. Cause: two ball masses (57.0 g fit/config/CAD vs 57.7 g flight model/simulator; ratio 1.0123). Probe: measured/predicted drop 1.004-1.015 flat at every speed, so a scale factor. Fixed to one mass with a test. Then: wheels under 1,000 rpm set aside (3 revs before the verdict, 54-78% of the drop read; drove a 1.41 m outlier), Refitter speed_tol 5% to 2%. Sweeps (simulator only): speed eff worst 1.9% to 0.6%; spin worst 6.6% to 7.7% (worse, open); refit worst shot 0.74 to 0.34 m; tol sweep builds 2.4-3.5% off went from about 1 m to 0.11 m or less. Checks: run_venture_tests.py open-tennis-robots 319 ok (58 CAD tests skipped there, so I ran cad/tests in a build123d venv); check_post_links 0 broken; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
