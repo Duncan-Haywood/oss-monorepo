@@ -692,7 +692,7 @@ def native_decode(fn, sample: bytes, layout: Layout, bits: int, out, stride: int
     from concurrent.futures import ThreadPoolExecutor
 
     base_addr = out.buffer_info()[0]
-    results = []
+    results: list[int] = []
     with ThreadPoolExecutor(max_workers=4) as pool:
         for tile in layout.tiles:
             tables = tile_tables(sample, tile)
