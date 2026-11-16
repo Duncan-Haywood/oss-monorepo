@@ -304,8 +304,8 @@ flagships:
       chart to say which colour model is closer (the 70D frame, 4,700 K and
       green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
       Adobe render of a known frame (settles `--default-tone-curve always`); a real
-      shoot's picks through the blink detector (eval/blink-landmarker-*). More open
-      items: NEXT.md.
+      shoot's picks through the blink detector (eval/blink-*; edge half faces <100
+      px 4/22). More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

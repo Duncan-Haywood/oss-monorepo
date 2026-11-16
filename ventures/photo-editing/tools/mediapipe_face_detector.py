@@ -22,6 +22,14 @@ The landmarker's face finder is a short-range (selfie) model: it misses faces un
 tenth of the frame's short side. So the frame is also searched in overlapping tiles, and a face
 found twice is kept once. Faces whose landmark box is under MIN_EYE_FACE_PX wide get
 ``eyes_open: null``: too few pixels across the lids to judge.
+
+A face cut in half by the frame edge (a tight crop, a subject at the edge of a group) has no
+face for the finder to find, at any confidence. So each edge is also searched in a mirrored
+view: a strip along the edge, reflected across it and set on a plain margin, which turns half
+a face into a whole symmetric one. Only a face centred on the mirror line is kept from these
+views (anything else is a whole face the ordinary views already see, or its reflection); its
+box is clipped back to the frame and both of its "eyes" are the one visible eye.
+See eval/blink-edge-mirror-2026-11-16.md.
 """
 
 from __future__ import annotations
@@ -44,6 +52,16 @@ DUPLICATE_IOU = 0.3
 # Face-finder and landmark-fit confidence. MediaPipe's default (0.5) lets wheels, hands and
 # blurred stage lights through as faces on real photos; see the eval note.
 MIN_CONFIDENCE = 0.7
+# Edge-mirror views: strip depth as a share of the frame's side across the edge, the plain
+# margin around the mirrored strip (share of its larger side), and how far a kept face's
+# centre may sit from the mirror line (share of the face's width across the line).
+# (depth share, segments along the edge) per level. One deep strip per edge. A second level of
+# shallow strips in three segments, ((0.4, 1), (0.15, 3)), found 28 of 40 half faces instead of
+# 20 but flagged no more shut ones and cost 40% more time (eval/blink-edge-mirror-2026-11-16.md).
+EDGE_LEVELS = ((0.4, 1),)
+EDGE_MARGIN = 0.15
+EDGE_CENTRE_TOLERANCE = 0.1
+EDGE_MARGIN_GREY = 230
 
 
 def eyes_open_from_blink(blink: float) -> float:
@@ -65,6 +83,84 @@ def tiles(width: int, height: int) -> list[tuple[int, int, int, int]]:
                 left, top = round(col * step_x), round(row * step_y)
                 boxes.append((left, top, min(width, round(left + tw)), min(height, round(top + th))))
     return boxes
+
+
+def edge_views(width: int, height: int) -> list[tuple[str, int, int, int]]:
+    """(edge, strip depth, start, end) for the mirrored edge views: the start and end are the
+    strip's extent along the edge. A deep strip spans the whole edge; shallow strips are split
+    along it into overlapping segments, so a small face is not lost in a tall, thin view."""
+
+    views = []
+    for depth_share, segments in EDGE_LEVELS:
+        for edge in ("left", "right", "top", "bottom"):
+            across, along = (width, height) if edge in ("left", "right") else (height, width)
+            depth = max(1, round(depth_share * across))
+            length = along / (segments - (segments - 1) * TILE_OVERLAP)
+            step = length * (1 - TILE_OVERLAP)
+            for index in range(segments):
+                start = round(index * step)
+                views.append((edge, depth, start, min(along, round(start + length))))
+    return views
+
+
+def mirror_strip(pixels, edge: str, depth: int, start: int = 0, end: int | None = None):
+    """The strip along ``edge`` reflected across it, on a plain margin.
+
+    Returns (view, line, pad): the view, the mirror line's coordinate in it (x for left and
+    right, y for top and bottom) and the margin, so a point in the view maps back to the frame.
+    """
+
+    import numpy as np
+
+    if edge in ("left", "right"):
+        pixels = pixels[start:end]
+    else:
+        pixels = pixels[:, start:end]
+    height, width = pixels.shape[:2]
+    if edge == "right":
+        strip = pixels[:, width - depth:]
+        both, line = np.concatenate([strip, strip[:, ::-1]], axis=1), depth
+    elif edge == "left":
+        strip = pixels[:, :depth]
+        both, line = np.concatenate([strip[:, ::-1], strip], axis=1), depth
+    elif edge == "bottom":
+        strip = pixels[height - depth:]
+        both, line = np.concatenate([strip, strip[::-1]], axis=0), depth
+    else:
+        strip = pixels[:depth]
+        both, line = np.concatenate([strip[::-1], strip], axis=0), depth
+    pad = round(EDGE_MARGIN * max(both.shape[:2]))
+    view = np.pad(both, ((pad, pad), (pad, pad), (0, 0)), mode="constant", constant_values=EDGE_MARGIN_GREY)
+    return np.ascontiguousarray(view), line + pad, pad
+
+
+def edge_face_box(box: tuple[float, float, float, float], edge: str, depth: int, line: int, pad: int,
+                  frame: tuple[int, int], start: int = 0) -> tuple[float, float, float, float] | None:
+    """Map a face found in a mirrored view back to the frame, or None when it is not centred on
+    the mirror line (a whole face, or a reflection of one, which the ordinary views handle)."""
+
+    width, height = frame
+    left, top, right, bottom = box
+    across = (left, right) if edge in ("left", "right") else (top, bottom)
+    centre, span = (across[0] + across[1]) / 2, across[1] - across[0]
+    if span <= 0 or abs(centre - line) > EDGE_CENTRE_TOLERANCE * span:
+        return None
+    if edge == "right":  # the frame's side of the line is the view's left half
+        x0 = width - depth
+        mapped = (left - pad + x0, top - pad, line - pad + x0, bottom - pad)
+    elif edge == "left":
+        mapped = (0.0, top - pad, right - line, bottom - pad)
+    elif edge == "bottom":
+        y0 = height - depth
+        mapped = (left - pad, top - pad + y0, right - pad, line - pad + y0)
+    else:
+        mapped = (left - pad, 0.0, right - pad, bottom - line)
+    if edge in ("left", "right"):  # the strip's segment along the edge
+        mapped = (mapped[0], mapped[1] + start, mapped[2], mapped[3] + start)
+    else:
+        mapped = (mapped[0] + start, mapped[1], mapped[2] + start, mapped[3])
+    x0, y0, x1, y1 = (max(0.0, mapped[0]), max(0.0, mapped[1]), min(float(width), mapped[2]), min(float(height), mapped[3]))
+    return (x0, y0, x1, y1) if x1 > x0 and y1 > y0 else None
 
 
 def iou(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> float:
@@ -100,19 +196,24 @@ def merge_faces(found: list[dict]) -> list[dict]:
     return kept
 
 
-def face_entry(box: tuple[float, float, float, float], blink: tuple[float, float], frame: tuple[int, int]) -> dict:
+def face_entry(box: tuple[float, float, float, float], blink: tuple[float, float], frame: tuple[int, int],
+               lid_face_px: float | None = None) -> dict:
+    """``lid_face_px``: the face width that sets how many pixels cross each lid, when it is not
+    the box's (a half face at the edge: the box is the visible half, the eye is full size)."""
+
     width, height = frame
     face_w, face_h = box[2] - box[0], box[3] - box[1]
     worst = max(blink)
+    readable = (face_w if lid_face_px is None else lid_face_px) >= MIN_EYE_FACE_PX
     return {
         "size": round(min(1.0, (face_w * face_h) / (width * height)), 5),
-        "eyes_open": eyes_open_from_blink(worst) if face_w >= MIN_EYE_FACE_PX else None,
+        "eyes_open": eyes_open_from_blink(worst) if readable else None,
         "blink": [round(blink[0], 3), round(blink[1], 3)],
         "box": [round(v) for v in box],
     }
 
 
-def detect(path: str, model: str, min_confidence: float = MIN_CONFIDENCE) -> dict:
+def detect(path: str, model: str, min_confidence: float = MIN_CONFIDENCE, edge_mirror: bool = True) -> dict:
     import mediapipe as mp
     import numpy as np
     from mediapipe.tasks.python import BaseOptions, vision
@@ -146,6 +247,24 @@ def detect(path: str, model: str, min_confidence: float = MIN_CONFIDENCE) -> dic
                 box = (min(xs), min(ys), max(xs), max(ys))
                 blink = (scores.get("eyeBlinkLeft", 0.0), scores.get("eyeBlinkRight", 0.0))
                 found.append(face_entry(box, blink, (width, height)))
+        if edge_mirror:
+            for edge, depth, start, end in edge_views(width, height):
+                view, line, pad = mirror_strip(pixels, edge, depth, start, end)
+                result = landmarker.detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=view))
+                vh, vw = view.shape[:2]
+                for points, shapes in zip(result.face_landmarks, result.face_blendshapes):
+                    xs = [p.x * vw for p in points]
+                    ys = [p.y * vh for p in points]
+                    whole = (min(xs), min(ys), max(xs), max(ys))
+                    box = edge_face_box(whole, edge, depth, line, pad, (width, height), start)
+                    if box is None:
+                        continue
+                    whole_w = whole[2] - whole[0] if edge in ("left", "right") else box[2] - box[0]
+                    scores = {s.category_name: s.score for s in shapes}
+                    blink = (scores.get("eyeBlinkLeft", 0.0), scores.get("eyeBlinkRight", 0.0))
+                    entry = face_entry(box, blink, (width, height), lid_face_px=whole_w)
+                    entry["edge"] = edge
+                    found.append(entry)
     return {"faces": merge_faces(found)}
 
 
