@@ -568,3 +568,35 @@ def test_nn_pursuit_stops_on_kmax_and_ignores_positive_atoms():
     assert len(sup) == 4 and (x >= 0).all()
     sup0, _, _ = localise.nn_pursuit(-r, S)            # a pressure rise has no non-negative fit
     assert sup0 == []
+
+
+def test_track_dates_onsets_and_links_a_hop():
+    import numpy as np
+    from water_leaks import localise
+    rng = np.random.default_rng(2)
+    S = -np.abs(rng.normal(size=(40, 33)))
+    S[21] = S[20] + 0.2 * rng.normal(size=33)          # centred correlation 0.92 with 20
+    R = []
+    for k in range(10):
+        r = 3.0 * S[5]                                   # running from day 0
+        if k >= 4:
+            r = r + 2.0 * (S[20] if k < 7 else S[21])    # starts on day 4, hops on day 7
+        R.append(r)
+    out, rms = localise.track(np.array(R), S, link=0.9)
+    assert out[0] == {5: (out[0][5][0], 0)} and max(rms) < 0.005
+    assert out[5][20][1] == 4
+    assert 21 in out[8] and out[8][21][1] == 4           # the hop keeps day 4
+    assert localise.latest_onset(out[8]) == 21
+    assert localise.nearest_onset(out[8], 0) == 5
+    out_nl, _ = localise.track(np.array(R), S, link=None)
+    assert out_nl[8][21][1] == 7                         # without linking the hop looks new
+
+
+def test_track_rejoins_after_a_short_gap():
+    import numpy as np
+    from water_leaks import localise
+    rng = np.random.default_rng(3)
+    S = -np.abs(rng.normal(size=(30, 33)))
+    R = [2.0 * S[4] + (1.5 * S[9] if k not in (3, 4) else 0) for k in range(8)]
+    out, _ = localise.track(np.array(R), S, link=None)
+    assert 9 not in out[3] and out[5][9][1] == 0         # back after 2 days: same track
