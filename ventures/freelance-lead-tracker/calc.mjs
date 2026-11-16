@@ -216,7 +216,7 @@ export function proposalHandoffHash(lead, currency = "USD") {
 
 // CSV for a spreadsheet: one row per lead.
 export function toCsv(leads, currency = "USD") {
-  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const head = ["name", "contact", "source", "stage", `value ${currency}`, "created", "last contact", "next follow-up", "next action", "lost reason", "notes"];
   const rows = leads.map((l) => [l.name, l.contact, l.source, STAGE_LABEL[l.stage], (l.value / 100).toFixed(2), l.created, l.lastTouch, l.nextDate, l.nextAction, l.lostReason, l.notes].map(q).join(","));
   return [head.join(","), ...rows].join("\n") + "\n";

@@ -978,7 +978,7 @@ export function sampleBrokenFile(opts = {}) {
 }
 
 export function findingsCsv(result) {
-  const q = (s) => { let v = String(s ?? ""); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; };
+  const q = (s) => { let v = String(s ?? ""); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; };
   const rows = [["severity", "code", "line", "path", "title", "cause", "fix"].join(",")];
   for (const x of result.findings) rows.push([x.severity, x.code, x.line || "", q(x.path), q(x.title), q(x.cause), q(x.fix)].join(","));
   return rows.join("\n") + "\n";

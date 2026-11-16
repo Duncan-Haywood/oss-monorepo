@@ -419,7 +419,7 @@ const shiftWhen = (s) => (s.start !== null ? `${s.slot} ${timeLabel(s.start)}-${
 function csvCell(v) {
   let t = String(v ?? "");
   // A volunteer name starting with = + - @ would run as a formula in a spreadsheet.
-  if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
+  if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = "'" + t;
   return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 }
 export function rosterCsv(roster) {

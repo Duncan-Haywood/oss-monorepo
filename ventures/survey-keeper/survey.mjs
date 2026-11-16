@@ -152,7 +152,7 @@ export function summarize(survey, responses) {
   return out;
 }
 
-const csvCell = (v) => { let s = Array.isArray(v) ? v.join("; ") : v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = Array.isArray(v) ? v.join("; ") : v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function toCsv(survey, responses) {
   const head = ["submitted_at_utc", "ref", ...survey.questions.map((q) => q.label)];
   return [head, ...responses.map((r) => [new Date(r.t).toISOString(), r.ref || "", ...survey.questions.map((q) => r.a[q.id])])].map((row) => row.map(csvCell).join(",")).join("\r\n") + "\r\n";

@@ -543,7 +543,8 @@ export function allDisputeLetters(report) {
 
 const csvCell = (v) => {
   let s = v == null ? "" : String(v);
-  if (/^[=+@\t\r]/.test(s) || /^-[^\d.]/.test(s)) s = "'" + s; // keep a spreadsheet from running a typed cell
+  // Keep a spreadsheet from running a typed cell. Only a plain number may start with "-": "-1+HYPERLINK(...)" is a formula.
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 const money = (c) => (c == null ? "" : (c / 100).toFixed(2));

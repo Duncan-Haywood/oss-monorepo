@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVP5ACjuubPbG5AVG3F",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T15:12:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "chant-forge flagship: L's sub/cum codas read as nothing",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 16610,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/coda-check-report.md",
+      "issue": "The committed report on main was stale: part I's file count (66 vs 78) and J's others (306 vs 318 when run fresh) differed from a fresh run of main's code, so 'before' numbers have to come from a fresh --voice-bar off run, not the committed file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The router drew the creative track, but the scheduled prompt asks for revenue software, and the creative audio cap was already exceeded (577 MB > 400, so stories would be text only after hundreds already landed today). Took the allocator's flagship pick (chant-forge, a music-release venture) instead.",
+      "did": "chant-forge thirteenth coda round: voice bar set per note",
+      "result": "shipped; held-out part Q voiced stops 95 to 102 of 120, openings G 1959 to 2055 of 2349; two predictions failed (K's others -7, N's voiced stops as a nasal +4)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-voice-bar-at-one-level.md",
+    "ventures/chant-forge/README.md#a-voice-bar-at-one-level"
+  ],
+  "goal": null,
+  "notes": "chant-forge, item L's sub/cum. Cause of sub misses: the fixed voice-bar gain (VOICE_BAR 0.08) left the closure 17-42 dB under the vowel by pitch; reader's closure test wants 22. Fix in sing.mjs: voiceBarGain/VOICE_BAR_DB 28 (an assumption: median of the old steady-state spread), codas and openings; voiceBarLevel:false / --voice-bar off compare. Pre-registered part Q in eval/coda-check.mjs header (commit before run). Results vs --voice-bar off: Q (1)-(4) hold; (5) fails on K others 198->191, N voiced-as-nasal 1->5; (6) fails upward: consonant-check B 780->812, G 1959->2055. Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok 267 tests; post front matter, links and similarity checks clean. cum untouched (nasal, not a voice bar). Not listened to.",
+  "corrections": [],
+  "redteam": null
+}

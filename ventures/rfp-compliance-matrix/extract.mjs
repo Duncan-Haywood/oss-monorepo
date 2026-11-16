@@ -217,7 +217,7 @@ export function extract(text) {
 // executed by Excel and Sheets. Pasted solicitation text is untrusted.
 export function csvCell(value) {
   let s = String(value ?? '');
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

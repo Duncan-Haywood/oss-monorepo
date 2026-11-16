@@ -252,17 +252,17 @@ flagships:
       flow-bounded, 2x alone, e2e tie (README "under a flow bound"); 2 s reserve at
       300+ copies (4 s worse, 1.2 s ties); day sweeps LP-guided, by the open-hours
       LP when the pay floor is skipped (README "A guide when the pay floor is
-      skipped"); next a warm-sized gate; re-run the keep-usual-shifts sweep on real
-      dated leave records; a manager's read on whether the steadier plan is the one
-      they would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through
+      skipped"); warm gate landed (README "A warm-sized gate for the pay floor"),
+      next its reserve's size; re-run the keep-usual-shifts sweep on real dated
+      leave records; a manager's read on whether the steadier plan is the one they
+      would post; a real 7shifts account through --import-7shifts (README "Reading
+      7shifts directly"); a real When I Work account or response through
       --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
       need an account); a real Square account via --import-square (README "Reading
       Square's schedule"); --cover-price moves two shifts together (README "Moving
       two shifts together"); second call-outs priced, off by default (README "The
-      pair price in played weeks": fewer open hours on 3 of 4 weeks); order-free
-      pair check played: no gain, stays opt-in (README "The order-free pass
-      played"). More open items: NEXT.md.
+      pair price in played weeks": fewer open hours on 3 of 4 weeks). More open
+      items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -378,13 +378,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Model check (firmware/esp32/README.md "When the wheel is
-      not a first-order lag", 2026-11-16): the loop fit's standard error marks
-      unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
-      or a 30 ms ESC lag puts the drill's spin 5-24% off. ESC lag surveyed on the
-      board (README "The ESC lag surveyed on the board"): ESC_SURVEY frame, pick
-      within 10% on 29 of 30 ESC builds; edge-time fit tried, worse, off. Next:
-      retest MIN_FIT_RPM; why one jittery wheel fits 10-60x worse (trimmed).
+      venv, about 2 min). Landed in firmware/esp32/README.md: unsure-drop marks, the
+      ESC lag survey, its trim, and "The 1,000 rpm floor retested" (floor stays; the
+      Pi holds its next speeds to the verdict after a shot with a wheel under 1,000
+      rpm, tests/min_fit_rpm_sweep.py). Next: why one jittery wheel fits 10-60x
+      worse; why a ~510 rpm wheel behind a 30 ms ESC (0.2 s wheel lag) never settles
+      in the ready gate (loop gains at low speed).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -432,10 +431,10 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-16
-      latest: a cluster n louder than the dip before it, PRE.hi 4 to 12 (O's D4-E4
-      25 to 28 of 30; part P's prediction failed on a ceiling, none worse); next:
-      sons/rint on D4, L's sub/cum, G control nasals 44). Open checks that need a
-      person: listen to the studio page, --sing, the options (--stretch, --halftime,
+      latest: voice bar set per note, 28 dB under its vowel (held-out Q voiced stops
+      95 to 102 of 120; openings G 1959 to 2055; K's ib/eb and N's nab/gab worse);
+      next: those four, L's cum, sons/rint on D4). Open checks that need a person:
+      listen to the studio page, --sing, the options (--stretch, --halftime,
       --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella
       verse and whether the key lift sounds like a lift); --lrc in a real player and
       --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md

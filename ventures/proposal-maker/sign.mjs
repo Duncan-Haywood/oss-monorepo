@@ -86,7 +86,7 @@ export function stats(state, now) {
 }
 
 export function toCsv(state, now) {
-  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const iso = (t) => (t ? new Date(t).toISOString() : "");
   const head = "id,title,status,created,views,signed_by,signed_at";
   return [head, ...Object.values(state.docs).map((d) => summary(d, now)).map((r) => [r.id, r.title, r.status, iso(r.createdAt), r.views, r.signedBy, iso(r.signedAt)].map(q).join(","))].join("\n") + "\n";

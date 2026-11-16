@@ -1107,3 +1107,75 @@ draw landing where the ball meets the wheel, but this run did not check that.
 Physics and plants are the simulator's assumptions. The heap cost of 128 kept
 wheels (about 3 KB as float arrays) and the report's sort are counted, not
 measured on an ESP32.
+
+## The 1,000 rpm floor retested (2026-11-16, after the trim)
+
+**The item.** `launcher.fit_from_drops` sets aside every wheel under
+`MIN_FIT_RPM` (1,000 rpm). The floor was chosen when the record's drop came from
+the pulse-time parabola, which showed only 70-78% of a 523 rpm wheel's drop.
+The drop now comes from the loop-command fit, which models the recovery
+instead of reading it off a few revolutions. Is the floor still needed, and
+where should it sit? No drill in the sweeps that validated the loop fit put a
+wheel under 1,000 rpm.
+
+**The sweep.** `tests/min_fit_rpm_sweep.py` builds a slow-wheel drill: heavy
+topspin and backspin shots whose slow wheel is planned at 520-1,500 rpm (the
+planner refuses under 500). Each shot comes twice, once straight after a fast
+flat shot and once after itself. It runs on the simulated feeder with three
+plants (the first-order model, 5 us tach jitter, a 30 ms ESC lag), wheel lags
+of 0.2 / 0.4 / 0.8 s and three true launchers. Part 1 compares each wheel's
+record drop with the simulator's true drop. Part 2 fits the launcher from the
+calibration drill's log plus the slow drill's at several floors
+(eval/min-fit-rpm-retest-2026-11-16.txt).
+
+**What it found first: the Pi cut the slow wheels short.** Under 1,000 rpm,
+most bad readings were records where the loop fit never ran and the drop fell
+back to the parabola. The board freezes a stroke's pulse snapshot when the
+wheel targets change, because the pulses after that are the next shot's speed
+change, not the ball. `run_drill` sent the next shot's speeds as soon as the
+release was counted. At 5,000 rpm that still leaves plenty of revolutions. At
+550 rpm it left one or two after the ball, and the loop fit needs three. The
+same shot followed by an identical one (no target change) kept its
+revolutions up to the verdict and read within 1%.
+
+**The change.** After a shot with a turning wheel under `host.HOLD_RPM`
+(1,000), the Pi waits for the verdict (`VERDICT_S` after the release, about
+0.3 s) before sending the next shot's speeds. A re-planned drill already
+waited there. Record drop / true drop, 750-1,000 rpm wheels (54 per plant):
+
+| plant | before: >2% off, range | with the hold: >2% off, range |
+| --- | --- | --- |
+| first-order | 16, 0.695-1.531 | 0, 0.989-1.010 |
+| tach 5 us | 19, 0.838-1.085 | 0, 0.990-1.007 |
+| ESC 30 ms | 18 of 36, 0.705-1.046 | 14 of 36, 0.971-0.997 |
+
+The ESC plant's remaining misses are its bias at every speed (2,500 rpm and
+up: 0.954-1.002), not a slow-wheel effect. At the current floor the fit
+improves too (spin efficiency error, mean / worst over the builds):
+
+| plant | before | with the hold |
+| --- | --- | --- |
+| first-order (9 builds) | 0.69% / 2.39% | 0.27% / 0.52% |
+| tach 5 us (9) | 2.58% / 8.11% | 1.42% / 4.16% |
+| ESC 30 ms (6) | 1.16% / 2.00% | 0.97% / 2.15% |
+
+It costs little: the 30-shot slow drill took 124.9 s against 125.5 s at a
+0.2 s wheel lag, and 136.2 s against 133.0 s at 0.8 s. The big speed changes
+already stretch the 3 s interval.
+
+**The floor stays at 1,000 rpm.** With the hold, 500-750 rpm wheels still
+read 0.68-1.13 of their drop: the loop fit gave up on 17 and 19 of 54 (20
+of 36 behind the ESC lag), and some it did fit were up to 12% off. Floors of 0 or 500 put the spin error at 31-43%
+worst. A 750 floor was not better across the plants (spin worst 0.72 / 3.18 /
+2.29% against 0.52 / 4.16 / 2.15% at 1,000), and counting slow wheels only
+when the loop fit made their drop changed nothing at 750. Picking 750 from these
+same builds would be fitting noise.
+
+**Also seen.** On the ESC 30 ms plant with a 0.2 s wheel lag, all three
+builds aborted at the first slow shot: the speed loop never held a ~510 rpm
+wheel inside the ready gate within 10 s. Slow wheels behind a laggy ESC may
+need their own loop gains. This run did not look into it.
+
+**Not measured.** All of it is on the simulator. The hold's threshold and the
+floor were judged on these same builds, and no real wheel has run below
+1,000 rpm.

@@ -188,7 +188,7 @@ export function timesheet(punches, week, { tz = "UTC", graceMin = 5, nowMs = Dat
 }
 
 // CSV formula injection guard: a staff name typed as "=HYPERLINK(...)" must not run when payroll opens the file.
-const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 // One line per worked stretch (in the site's time zone), then each person's total: the file a bookkeeper pastes into payroll.
 // With `pay` (payrules.mjs `payForTimesheet`), a second block follows: hours by pay class and the gross estimate.
 export function timesheetCsv(ts, pay = null) {
