@@ -149,7 +149,19 @@ function dowild(p, pi, t, ti, pathname) {
   return ti < t.length ? NOMATCH : MATCH;
 }
 
+// git matches bytes, not characters: `?`, `[...]` and a range each take one
+// byte, so `caf?.txt` does not match the UTF-8 name `café.txt` (é is two
+// bytes). Non-ASCII text is matched as a string of its UTF-8 bytes.
+const NON_ASCII = /[^\x00-\x7f]/;
+const UTF8 = new TextEncoder();
+const bytes = (s) => {
+  let out = "";
+  for (const b of UTF8.encode(s)) out += String.fromCharCode(b);
+  return out;
+};
+
 export function wildmatch(pattern, text, { pathname = true } = {}) {
+  if (NON_ASCII.test(pattern) || NON_ASCII.test(text)) { pattern = bytes(pattern); text = bytes(text); }
   return dowild(pattern, 0, text, 0, pathname) === MATCH;
 }
 
@@ -289,10 +301,9 @@ function ruleMatches(rule, path, isDir) {
     return wildmatch(rule.pattern, path.slice(slash + 1), { pathname: false });
   }
   let name = path;
-  if (rule.base) {
-    if (!path.startsWith(rule.base + "/")) return false;
-    name = path.slice(rule.base.length + 1);
-  }
+  // the base check at the top of the function already returned for a path
+  // outside rule.base
+  if (rule.base) name = path.slice(rule.base.length + 1);
   // git compares the literal prefix (up to the first `*?[\\`) as plain text
   // and wildmatches the rest. Before 2.52 the rest was a pattern of its own,
   // so in `a**/x` the `**` started it and crossed directories; since 2.52 one

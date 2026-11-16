@@ -89,6 +89,8 @@ export function splitReceipts(text) {
 }
 
 // Lines that carry an amount but are not things bought.
+// a line naming the cash handed over ("CASH 50,000", "Tunai 100.000", "TENDERED 20.00"), not the change
+const CASH_LINE_RE = /^(?!.*\bchange\b).*\b(?:cash|tender(?:ed)?|tunai)\b/i;
 const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?\s*tota\b|sub\s*-?total|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
 const TIP_RE = /\b(tip|gratuity)\b/i;
 
@@ -580,7 +582,14 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   }
   if (cents === null) {
     const all = lines.flatMap((l) => amountsIn(l, comma));
-    if (all.length) { cents = Math.max(...all); notes.push("no total line; took the largest amount"); }
+    if (all.length) {
+      cents = Math.max(...all);
+      // the largest amount printed on the cash line is usually the money handed over, not
+      // what was paid (CORD validation-30: "CASH 50,000" on a 21,000 slip); said in the
+      // note so the vote across readings gives that guess nothing (CASH_GUESS_VOTE)
+      const onCash = lines.some((l, i) => CASH_LINE_RE.test(l) && !/cash\s*(?:bill|sale|ier|back)/i.test(l) && (amountsIn(l, comma).includes(cents) || (!amountsIn(l, comma).length && bare(lines[i + 1]).includes(cents))));
+      notes.push(onCash ? "no total line; took the largest amount, printed on the cash line (often the cash handed over)" : "no total line; took the largest amount");
+    }
   }
   if (cents === null) notes.push("no amount found");
   const checks = totalChecks(lines, comma, at, bare);
@@ -648,6 +657,14 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
 // (73 to 77 of 97); README, "A guessed total counts half in the vote".
 export const GUESS_VOTE = 0.5;
 const guessedLargest = (p) => !p.totalLine && p.notes.some((n) => /took the largest amount/.test(n));
+// A guess that is the amount on the cash line ("CASH 50,000" where TOTAL 21,000 was lost to
+// OCR) counts nothing: three readings guessing the cash handed over outvoted one that read
+// the total (CORD validation-30, eval/receipt-cash-guess-2026-11-16.md). Not when the
+// receipt's arithmetic gives the same amount: exact cash ("Tendered $52.06", "Change
+// $0.00", subtotal 48.54 plus tax 3.52: SRD 1108) is the total. Alone it still stands,
+// as the only candidate, with the note asking for a check.
+export const CASH_GUESS_VOTE = 0;
+const guessedCash = (p) => guessedLargest(p) && p.notes.some((n) => /printed on the cash line/.test(n));
 // A total line whose dollars start with a 0 ("TOTAL: 04.78" where another reading has
 // "TOTAL: $94.78": SRD 1030) lost its first digit to OCR; no printed total reads that way.
 // That reading's total counts as a guess in the vote, with no total-line point (README,
@@ -685,7 +702,7 @@ function voteTotal(ps, support, texts = []) {
   ps.forEach((p, i) => {
     if (p.cents === null) return;
     const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
-    v.score += leadingZero(p, ps) ? GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
+    v.score += leadingZero(p, ps) ? GUESS_VOTE : guessedCash(p) && !support(p.cents) ? CASH_GUESS_VOTE : (guessedLargest(p) ? GUESS_VOTE : 1) + (p.totalLine ? 1 : 0);
     votes.set(p.cents, v);
   });
   // each reading that prints the subtotal-plus-tax amount counts once (no total-line point:
