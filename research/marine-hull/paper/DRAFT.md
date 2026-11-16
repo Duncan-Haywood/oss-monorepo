@@ -1,6 +1,6 @@
 # Draft: which hull carries a small survey boat furthest per kWh, and how much of the answer is the drag model?
 
-Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr, 6zzs, 6zzt and 6zzu): introduction, model and results-table drafted, not submittable.** Every number below is copied from
+Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr, 6zzs, 6zzt, 6zzu and 6zzv): introduction, model and results-table drafted, not submittable.** Every number below is copied from
 [`../LOG.md`](../LOG.md) and the `experiments/results_*.txt` file named beside it. Nothing is new
 in this file. Target: OCEANS (IEEE/MTS), 6 to 10 pages. The hull constants are unvalidated against
 tank data (milestone 3 is open), and that gap decides what the paper can claim, as section 5 says.
@@ -182,6 +182,7 @@ What the chain established, in order:
 10. **On ordinary water, less one-season correction is better in every direction tried** (6zzt). Falling back to no correction where the replay is not short (OA) gives 128.8 on the 30-point pool; on short replays the raw ratios beat DG (135.0), and shrinking DG toward 1 by the replay's km shortfall rises monotonically with the shrinkage scale (130.0 to 137.2), approaching AT_90's 139 from below. The fallback rules beat AT_90 on the per-point count (129.2 to 130.2 against 126) and lift the worst high-amplitude lag to 41.
 
 11. **The high-latitude ordering survives ERA5; its size does not** (6zzu). With ERA5 sunlight in place of NASA POWER at the nine high-amplitude points (climatology, learning and scored years alike), every ordering above holds on hi168 (DG 75.6 > OG 68.2, OA 66.8 > LC 57.4 > AT_90 29; the lags rank identically, lag 3 worst at 16), but each rule's lead over no correction falls by a third to a half (LC +56 to +28, DG +84 to +47), and on the per-point real-shape count (72 cells) LC, DG and OG fall below AT_90 (36.4, 37.4, 37.0 against 38); only the fallback rules stay level (OA 38.8).
+12. **A source mismatch is a level error the learned correction catches** (6zzv). Planning on the NASA POWER climatology while sailing, logging and being scored under ERA5 at the nine points sinks no correction to 3 of 168 on hi168 (all 165 failures on distance), while LC reaches 45.2 (lead +42.2, against +28.4 with ERA5 throughout) and DG 67.4; the orderings DG > OG, OA > LC > AT_90 hold and the lags rank as on ERA5 (Spearman 0.90). 23.7% of learned real-shape month ratios sit at the 1.15 clamp (6.7% on ERA5), mean 1.044. Per point on the real shape the lead is 0.4 of a cell (35.4 against 35 of 72).
 
 For a designer, the table gives three rules:
 
@@ -194,7 +195,7 @@ No rule yet selects itself by site: gating the guard by latitude (|lat| >= 50, c
 Limits to carry with the section:
 
 - Every count comes from one boat, one 50 W payload, one set of weights and the calm-water daily model.
-- Outside the nine high-amplitude points, both the climatology and the scored years are NASA POWER. At those nine, the single-season rules were rerun on ERA5 (6zzu): the orderings hold, the magnitudes of the high-latitude leads carry a source uncertainty of about 18 to 34 of 168 cells, and the per-point gain does not survive. Nothing was checked against a pyranometer.
+- Outside the nine high-amplitude points, both the climatology and the scored years are NASA POWER. At those nine, the single-season rules were rerun on ERA5 (6zzu): the orderings hold, the magnitudes of the high-latitude leads carry a source uncertainty of about 18 to 34 of 168 cells, and the per-point gain does not survive. With NASA planning and ERA5 sailing (6zzv), the learned leads grow because the correction absorbs the source's level offset, so part of the high-latitude advantage is a level correction any product mismatch would reward, not only a seasonal one. Nothing was checked against a pyranometer.
 - The high-amplitude pool was picked with an amplitude estimate that used all ten years.
 - Five learning years give only five one-season draws and ten pairs. The brackets are the observed range over those draws, not confidence intervals, and draws within the same k share years.
 - Every rule was scored over every subset of one to five seasons (6zzj, 6zzk, 6zzr), but the three-season crossings are thin at high latitude (worst 31 for HR and HX and 34 for LHF, against 25). The guard rules of 6zzp and 6zzs were run only at one season.
