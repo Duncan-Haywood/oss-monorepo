@@ -1,0 +1,156 @@
+{
+ "base_period_ns": {
+  "isq10": 26.56,
+  "isq12": 44.35,
+  "isq14": 49.82,
+  "amin8": 17.35,
+  "amin12": 28.38,
+  "csum3": 12.14,
+  "csum4": 14.16,
+  "csum6": 16.51,
+  "csum8": 19.21,
+  "eqc10": 10.55,
+  "eqc16": 16.93,
+  "eqc24": 16.81
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "isq10": [
+   "isqrtsh_w",
+   "isqrtsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 10
+   },
+   ""
+  ],
+  "isq12": [
+   "isqrtsh_w",
+   "isqrtsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 12
+   },
+   ""
+  ],
+  "isq14": [
+   "isqrtsh_w",
+   "isqrtsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 14
+   },
+   ""
+  ],
+  "amin8": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 8,
+    "NB": 6
+   },
+   ""
+  ],
+  "amin12": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 12,
+    "NB": 6
+   },
+   ""
+  ],
+  "csum3": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 3
+   },
+   ""
+  ],
+  "csum4": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 4
+   },
+   ""
+  ],
+  "csum6": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 6
+   },
+   ""
+  ],
+  "csum8": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 8
+   },
+   ""
+  ],
+  "eqc10": [
+   "eqcntsh_w",
+   "eqcntsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 10
+   },
+   ""
+  ],
+  "eqc16": [
+   "eqcntsh_w",
+   "eqcntsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 16
+   },
+   ""
+  ],
+  "eqc24": [
+   "eqcntsh_w",
+   "eqcntsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 24
+   },
+   ""
+  ]
+ },
+ "clock": {
+  "isq10": "tight",
+  "isq12": "relaxed",
+  "isq14": "tight",
+  "amin8": "relaxed",
+  "amin12": "tight",
+  "csum3": "relaxed",
+  "csum4": "tight",
+  "csum6": "relaxed",
+  "csum8": "tight",
+  "eqc10": "relaxed",
+  "eqc16": "tight",
+  "eqc24": "relaxed"
+ }
+}

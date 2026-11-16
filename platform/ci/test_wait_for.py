@@ -121,6 +121,21 @@ class WaitFor(unittest.TestCase):
         t = [0.0]
         self.assertFalse(wait_until("false", timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s)))
 
+    def test_until_with_a_log_waits_for_its_marker_too(self):
+        # friction 2026-11-16: a log given with --until was ignored; "condition met" came before the job's last line
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("working\n")
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 1)
+            self.assertIn("no 'DONE' or 'EXIT' line", err.getvalue())
+            open(p, "a").write("timing 3.2 s\nDONE\n")
+            out = io.StringIO()
+            with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(out):
+                self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 0)
+            self.assertIn("timing 3.2 s", out.getvalue())
+
     def test_until_runs_through_a_shell(self):
         self.assertTrue(wait_until("exit 0", timeout=1))
         self.assertTrue(wait_until("false || true", timeout=1))
