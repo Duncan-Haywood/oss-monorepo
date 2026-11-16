@@ -53,3 +53,37 @@ this section was committed before the held-out run. Predictions, rule as frozen 
    of 22 missed, so a small gain, not most of the misses).
 2. No scan note that agrees with its GABC note on main disagrees with the rule on.
 3. Other liquescents read and false liquescents are unchanged.
+
+## Held-out result: the rule did not fire
+
+`node eval/hook-on-line-check.mjs --out eval/hook-on-line-report.md eval/hook-fresh-pages.json`,
+run once after the section above was committed (6b84529dc):
+
+| | main | rule on |
+|---|---|---|
+| on-line liquescents read at their pitch | 22 of 25 | 22 of 25 |
+| other liquescents read | 8 of 8 | 8 of 8 |
+| false liquescents | 1 | 1 |
+| aligned notes agreeing / differing | 2,522 / 4 | 2,522 / 4 |
+| scan notes the rule moved | | 0 |
+
+1. **Failed.** No on-line liquescent was gained; the rule moved nothing on the 60 held-out leaves.
+2. Held: no note went from agreeing to disagreeing.
+3. Held: other and false liquescents unchanged.
+
+So the rule is safe and narrow, and the fault it fixes is rare: it needs a line measured thicker
+than its ink, which happens on lines crowded with heads. Main already reads 22 of the 25 held-out
+on-line liquescents at their pitch, so the earlier "hook ending on a line" misses were mostly this
+rare case plus a different shape. The rule stays on (two notes fixed on the tuning lists, none
+lost anywhere), with this result as its record.
+
+## What the held-out misses are
+
+Two of the three are the same, and not this fault (crops looked at): GregoBase 3490 *con-* `gf~`
+(leaf 773, staff 1, x 1465) and 3508 *et* `gf~` (leaf 382, staff 9, x 1414). Both are a one-step
+cephalicus: the head in a space, a hairline stem down its left side, and the small note on the line
+just below, joined to the head. The head and small note together are about one space tall, so
+`readStaff` takes them for a single head and reads it at the small note's pitch (f for g), and the
+small note is lost; the tail is too short for `liquescentTail` (0.6 spaces at least). That is the
+next item: tell a one-space-tall head with a notch on its lower right from two touching heads. The
+third miss was not looked at.
