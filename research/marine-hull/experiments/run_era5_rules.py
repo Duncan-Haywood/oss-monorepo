@@ -26,6 +26,10 @@ Design (fixed here, before any configuration below was run on ERA5):
   DG 105/152/74/124/91, AT_90 25; OG mean 85.8, OA mean 85.0).
   The ERA5 file was opened before (6zzm compared its monthly anomalies with NASA's); no harvest, plan or count has been
   computed on it before this run.
+  Implementation fix after the first launch: the swap ran after `ls.high_amp_points()` had filled fy._sun's cache
+  with NASA values, so the "ERA5" column printed NASA's counts again, cell for cell; no ERA5 number was produced.
+  use_era5 now clears every cache and run_source checks the swapped series reached fy._sun. Design and predictions
+  unchanged.
 Predictions (priors in brackets; "mean" = mean over the five lags, on ERA5 hi168 unless stated):
   E1 The learned correction keeps its high-latitude lead: LC mean > AT_90. [70%]
   E2 The dark guard still beats the raw ratios: DG mean > LC mean. [60%]
@@ -84,6 +88,20 @@ def use_era5(points):
         if "20050101" not in s or "20241231" not in s:
             raise ValueError(f"ERA5 series at {p} does not cover 2005 to 2024")
         rc._SERIES[p] = s
+    clear_caches()
+
+
+def clear_caches():
+    """Clear every functools cache in the loaded experiment modules: `ls.high_amp_points()` (and anything else run
+    before the swap) fills fy._sun / fy._clim and the learned-ratio caches with NASA values, which would otherwise
+    survive the swap (the first launch of this script did exactly that and printed NASA's counts twice)."""
+    for mod in list(sys.modules.values()):
+        f = getattr(mod, "__file__", None) or ""
+        if not f.startswith(HERE):
+            continue
+        for obj in vars(mod).values():
+            if callable(getattr(obj, "cache_clear", None)):
+                obj.cache_clear()
 
 
 def fallback(cells, sides):
@@ -120,6 +138,10 @@ def run_source(source):
     pts = ls.high_amp_points()
     if source == "era5":
         use_era5(pts)
+        sun = fy._sun(pts[0], YEARS[0])[0]
+        want = era5_series(json.load(open(ERA5_FILE))[pts[0]])
+        if abs(sum(sun) - sum(want[d.strftime("%Y%m%d")] for d in rc.dates(YEARS[0]))) > 1e-9:
+            raise RuntimeError("ERA5 swap did not reach the cached sun series")
     elif source != "nasa":
         raise ValueError(source)
     cells, sides = evaluate(pts)
