@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKNkjDBTmWLiw1ep5G",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T21:06:02Z",
+  "ended": "2026-11-16T21:30:59Z",
+  "wall_minutes": 25.23,
+  "tokens_in": 8322407,
+  "tokens_out": 25870,
+  "cost_usd": 3.0978,
+  "tool_calls": 66,
+  "task": "Deepen flagship ai-bookkeeper, receipts item (5): dash-prefixed amounts in the largest-amount fallback and '\u00a72,000' for 52,000",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16702",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the dash test asserted a decimal '-7.00' is not read as an amount; main already reads it, so the assertion was wrong and removed",
+      "fixed": true
+    },
+    {
+      "what": "run_workflow_locally.py --for-changes: portfolio-pages.yml 'Build the site' failed with EMFILE (too many open files) in audio-cdn.mjs moveAudioToCdn, ulimit -n 20000 in this container; unrelated to the diff (receipts.mjs, a test, README, eval note, post, flagships.yaml). Every other selected workflow passed, including ventures-tests (3,282 ai-bookkeeper tests) and the post front-matter check",
+      "fixed": false
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/audio-cdn.mjs",
+      "issue": "moveAudioToCdn opens files in one Promise.all over ~20k entries and hits EMFILE in a cloud container during run_workflow_locally.py's site build; a bounded-concurrency copy would make the local check usable"
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "two --replace pairs where one targets another field fail the whole call; it says so clearly, cost one retry"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-a-section-sign-where-the-five-should-be.md",
+    "ventures/ai-bookkeeper/eval/cord-dash-section-sign-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "CORD-v2 validation+test photos and SRD photos re-read through the CLI --four-pass (tesseract 5.3.4). Main reproduces last run (CORD val 65/98, tax 23/3/21; test 53/95, 16/2/23). Dash rule: no total moved (validation-66 already right, its psm6 reading now agrees). Section-sign rule: validation totals 65->66 (validation-84). Test scored once at the end: counts unchanged, test-56 wrong 8,181 -> wrong 10,000 (cash-line guess, flagged). SRD 154/196, tax 133/12/40 before and after, identical misses (the re-read differs by one from last run's 153 on main's code: OCR variance). CORD dataset text unchanged (749/96/92, tax 324/46/41). Local: ai-bookkeeper suite 3282 tests pass; run_workflow_locally: 9 of 10 workflows pass, the site build fails on EMFILE (environment).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6b757f2c-cf9e-5be3-ab09-084a6c9d59e3",
+    "transcripts": 1,
+    "first": "2026-11-16T21:06:02Z",
+    "last": "2026-11-16T21:31:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 160,
+        "output": 25870,
+        "thinking": 3827,
+        "cache_read": 8204895,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117352,
+        "api_equivalent_usd": 3.0978,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 160,
+      "output": 25870,
+      "thinking": 3827,
+      "cache_read": 8204895,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117352,
+      "api_equivalent_usd": 3.0978,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.23,
+      "active_minutes": 9.93,
+      "model_minutes": 6.21,
+      "tool_minutes": 3.72,
+      "waiting_on_human_minutes": 15.3,
+      "human_prompts": 12,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer re-running OCR on 400 photos, diagnosing two misreads, writing rules, tests and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 129.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
