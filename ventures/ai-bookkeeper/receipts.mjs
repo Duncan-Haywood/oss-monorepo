@@ -430,7 +430,10 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   let lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
   const comma = wholeStyle(lines.join("\n")) ? "whole" : commaStyle(lines.join("\n"));
-  if (comma === "whole") lines = lines.map(joinSplitGroups);
+  // on a whole-unit slip tesseract reads a leading 5 as "§" ("TOTAL SALES §2,000" for
+  // 52,000, "GRAND TOTAL §3,000" for 53,000: CORD validation-84 and -42); only glued to a
+  // grouped amount, where no section sign is ever printed
+  if (comma === "whole") lines = lines.map((l) => joinSplitGroups(l.replace(/§(?=\d{1,2}([.,])\d{3}(?:\1\d{3})*(?![.,]?\d))/g, "5")));
   const guess = dayFirst ?? dayFirstOf(lines);
   const dmy = !!guess;
   // every dated line; the one labelled "date" wins, then a four-digit year (a

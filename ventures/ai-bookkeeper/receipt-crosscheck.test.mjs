@@ -389,3 +389,12 @@ test("the largest-amount fallback reads a dash-prefixed whole amount", () => {
   assert.ok(p.notes.some((n) => /printed on the cash line/.test(n)));
   assert.equal(parseReceiptPasses([stray, stray, "SHOP", "SHOP\nHehe 1088 ee"]).cents, 700000);
 });
+
+// tesseract reads a leading 5 as "§" on a whole-unit slip ("TOTAL SALES §2,000" for 52,000:
+// CORD validation-84). Only glued to a grouped amount. Receipt text made up, same shape.
+test("a section sign glued to a grouped whole amount reads as 5", () => {
+  const p = parseReceipt("TEA SHOP\n1 x CHOCO MT 24,000\nPEARL 4,000\n1 x CHOCO MT 24,000\nSUB TOTAL §2,000\nTOTAL SALES §2,000");
+  assert.equal(p.cents, 5200000);
+  // a loose section sign is left alone
+  assert.equal(parseReceipt("TEA SHOP\nTOTAL § 2,000").cents, 200000);
+});
