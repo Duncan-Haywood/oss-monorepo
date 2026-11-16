@@ -126,7 +126,6 @@ class ProfileGuardTests(unittest.TestCase):
     def _scene(self, pat, shot=2e-4, read=2e-6, n=192, seed=4):
         import numpy as np
 
-        from shootflow.xtrans_demosaic import colour_map
 
         rng = np.random.default_rng(seed)
         y, x = np.mgrid[0:n, 0:n].astype(np.float64)
