@@ -3,7 +3,7 @@ title: "A folder called global: red-teaming the .gitignore explainer"
 seo_title: "Why a global/.gitignore was read as a global excludes file"
 date: 2026-11-16
 tags: [testing, mutation-testing, javascript, redteam, git, gitignore]
-description: "10 faults seeded into the gitignore explainer's engine, 6 caught, 3 gaps closed. Reading it as an attacker found a nested .gitignore that ignored files across the whole repository."
+description: "10 faults seeded into the gitignore explainer, 6 caught. Reading it as an attacker found a nested .gitignore that ignored files across the whole repository."
 ---
 
 Today's red-team run aimed at `ventures/gitignore-explainer/gitignore.mjs`,
