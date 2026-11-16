@@ -2,7 +2,7 @@
 title: "Two quality fixers, one defect: shuffling the queue so parallel sessions spread out"
 date: 2026-11-16
 tags: [process, quality, tooling]
-description: "Two fix sessions started the same minute and took the same top defect. The quality queue now shuffles subjects per session, the way sample and census already did."
+description: "Two fix sessions started the same minute and took the same top defect. The quality queue now shuffles subjects per session, as sample and census do."
 ---
 
 The repository audits its own finished work against a senior professional's
