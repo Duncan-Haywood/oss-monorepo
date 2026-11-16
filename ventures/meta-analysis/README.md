@@ -50,7 +50,8 @@ On the risk-ratio scale, with REML:
 On average the vaccine roughly halves the risk of tuberculosis, but the trials disagree far more
 than chance allows, and the prediction interval runs past 1: in some settings it did nothing.
 Absolute latitude explains most of the disagreement: in a REML meta-regression each degree
-further from the equator multiplies the risk ratio by 0.971 (p < 0.0001), and residual
+further from the equator multiplies the risk ratio by 0.971 (Wald p < 0.0001; Knapp-Hartung
+p = 0.0046), and residual
 tau-squared falls from 0.313 to 0.076 (R-squared 75.6%). Leaving out any one trial moves the
 pooled risk ratio between 0.452 and 0.533.
 
@@ -70,7 +71,12 @@ Run `node --test` in this directory (or
 - **Against metafor's printed output.** metafor's README fits these trials with
   `rma(yi, vi, test = "knha")`; the tests assert tau-squared 0.3132, I-squared 92.22%,
   Q = 152.2330, estimate -0.7145, se 0.1808, t -3.9522, p 0.0019 and interval -1.1084 to -0.3206,
-  every digit it prints.
+  every digit it prints. It also fits the latitude meta-regression with `mods = ~ ablat`
+  (tau-squared 0.0764, residual I-squared 68.39%, R-squared 75.62%, QE 30.7331, slope -0.0291 with
+  Knapp-Hartung se 0.0082, t -3.5483, p 0.0046). The tests check each of those to within 1.5
+  units of its last printed digit: REML here converges to tau-squared 0.076348, the value scipy's
+  direct maximisation gives, while metafor's iterations stop at their own convergence threshold, so a few of its
+  figures differ in the last digit (75.63% and t -3.5484 here).
 - **Coverage by simulation.** `node eval/coverage.mjs 2000` (seeded; output in
   `eval/coverage.json`) draws 2000 meta-analyses per setting, true mean 0, within-study variances
   uniform on [0.01, 0.25]:

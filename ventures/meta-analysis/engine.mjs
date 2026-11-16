@@ -680,7 +680,7 @@ const pct = (x) => `${(100 * x).toFixed(1)}%`;
 export function analyze(input = {}) {
   const o = { ...DEFAULTS, ...input };
   o.method = String(o.method || "REML").toUpperCase();
-  if (!METHODS[o.method]) throw new Error(`unknown method "${o.method}" (use REML, DL, PM or FE)`);
+  if (!Object.hasOwn(METHODS, o.method)) throw new Error(`unknown method "${o.method}" (use REML, DL, PM or FE)`);
   o.confidence = Number(o.confidence);
   if (!(o.confidence > 0.5 && o.confidence < 1)) throw new Error("confidence must be between 0.5 and 1, e.g. 0.95");
   const data = readStudies(o);
@@ -772,7 +772,7 @@ export function analyze(input = {}) {
   if (o.method !== "FE" && k < 5) warnings.push(`With ${k} studies the Wald interval tends to be too narrow; the Hartung-Knapp interval is the safer reading.`);
 
   const result = {
-    input: { layout: data.layout, columns: data.map, measure, measureName: MEASURES[measure].name, ratio: MEASURES[measure].log, method: o.method, methodName: METHODS[o.method], confidence: cl, moderator: o.moderator || null, correction: o.correction },
+    input: { layout: data.layout, columns: data.map, measure, measureName: MEASURES[measure].name, ratio: MEASURES[measure].log, method: o.method, methodName: Object.hasOwn(METHODS, o.method) ? METHODS[o.method] : o.method, confidence: cl, moderator: o.moderator || null, correction: o.correction },
     k, studies: studyRows, dropped: data.dropped,
     pooled: {
       estimate: c0.estimate, se, z: c0.z, p: c0.p, lower: c0.lower, upper: c0.upper,

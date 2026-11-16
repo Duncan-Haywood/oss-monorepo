@@ -125,6 +125,19 @@ test("meta-regression on latitude: REML, DL and PM match the reference", () => {
   const g = analyze({ csv: BCG, moderator: "ablat" }).regression;
   close(g.R2, REF.regressionAblat.REML.R2, 1e-5, "R2");
   assert.ok(g.slope.p < 1e-4);
+  // metafor's README: rma(yi, vi, mods = ~ ablat, test = "knha") prints tau^2 0.0764, I^2 68.39%,
+  // R^2 75.62%, QE(11) = 30.7331, intercept 0.2515 (se 0.2839), ablat -0.0291 (se 0.0082,
+  // t -3.5483, p 0.0046, CI -0.0472 to -0.0111). tau^2 here is 0.076348, the value scipy's direct
+  // maximisation finds; metafor's REML stops at its own convergence threshold, so its tau^2 and what
+  // follows from it can differ in the last printed digit. Each figure is checked to 1.5 units of
+  // that digit.
+  const printed = [
+    [g.tau2, 0.0764, 4], [100 * g.I2residual, 68.39, 2], [100 * g.R2, 75.62, 2], [g.QE.stat, 30.7331, 4],
+    [g.intercept.estimate, 0.2515, 4], [g.intercept.hk.se, 0.2839, 4], [g.slope.estimate, -0.0291, 4],
+    [g.slope.hk.se, 0.0082, 4], [g.slope.hk.t, -3.5483, 4], [g.slope.hk.p, 0.0046, 4],
+    [g.slope.hk.lower, -0.0472, 4], [g.slope.hk.upper, -0.0111, 4],
+  ];
+  for (const [ours, theirs, dp] of printed) assert.ok(Math.abs(ours - theirs) <= 1.5 * 10 ** -dp, `${ours} vs metafor ${theirs}`);
 });
 
 test("zero cells get 0.5 in every cell; double zeros are left out with a reason", () => {
