@@ -1,4 +1,4 @@
-# A flow-equivalent-server decomposition predicts a robot-printer cell's throughput to 0.3% without enumerating its states
+# A flow-equivalent-server decomposition predicts a robot-printer cell's throughput to 0.3% at one inspector speed, from sub-chains a tenth the size
 
 *Produced with AI assistance (Claude). Stylised, simulation-only; no physical cell was built or measured.*
 
@@ -15,7 +15,7 @@ Solve the arm-and-printers subsystem exactly at each fixed population, short-cir
 4. In 5 larger cells (up to 17,919 exact states) the error is −0.09% to −0.31%. The largest subsystem chain is about a tenth the size of the full chain; at these sizes both solve in under a second.
 
 ## Limitations
-One class, one arm, exponential load, unload and inspect, unload priority, illustrative times; the reference is a single published-in-repo chain. Stylised and simulation-only.
+The 0.3% is for a 3-minute inspection only; `robofab-cell-fescsweep` finds the error peaks at 2.2% to 5.0% as the inspection time varies. The method is the standard aggregation for non-product-form networks (Marie 1979; Baynat and Dallery 1993; Jacobson and Lazowska 1982 for simultaneous resource possession; Buzacott and Shanthikumar 1993 for manufacturing cells); the contribution is a measurement on one cell, not a new method, and it is not compared with those corrections. One class, one arm, exponential load, unload and inspect, unload priority, illustrative times; the reference is a single published-in-repo chain. Stylised and simulation-only.
 
 ## References
-`refs.bib`: Reiser and Lavenberg (1980); Bolch et al. (2006); Chandy, Herzog and Woo (1975). Not re-checked online in this run.
+`refs.bib`: Reiser and Lavenberg (1980); Bolch et al. (2006); Chandy, Herzog and Woo (1975); Marie (1979); Baynat and Dallery (1993); Jacobson and Lazowska (1982); Buzacott and Shanthikumar (1993). The last four were checked by web search on 2026-11-16 (the Baynat and Dallery volume and pages were not confirmed, so only its DOI is given); the first three were not re-checked online.
