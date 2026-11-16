@@ -210,3 +210,62 @@ def rise(sup_b, x_b, sup_t, x_t):
     for j in b:
         d.setdefault(j, -b[j])
     return max(d, key=d.get)
+
+
+def track(R, S, rel=0.05, qmin=0.5, link=0.95, gap=2, floor=0.005, kmax=24):
+    """Step 20: a daily tracker. R is [days, sensors] (daily mean residuals), S [atoms, sensors].
+
+    Day 0 is fitted by `nn_pursuit` from an empty set; each later day from the previous day's
+    active atoms (flow >= qmin). Each active atom carries an onset day: kept if the atom was
+    active within the last gap + 1 days, else inherited from a track dropped within that span
+    whose centred signature correlates at least `link` with it (link=None: never), else today.
+    Returns a list, per day, of {atom: (flow, onset day)} and a list of per-day fit RMS."""
+    Sc = S - S.mean(axis=1, keepdims=True)
+    nS = np.linalg.norm(Sc, axis=1)
+    nS[nS == 0] = np.inf
+    Sn = Sc / nS[:, None]
+    out, rmss = [], []
+    prev = {}      # atom -> onset, active on the previous day
+    lost = {}      # atom -> (onset, last active day), dropped within the gap
+    for k, r in enumerate(R):
+        sup, x, rms = nn_pursuit(r, S, support=list(prev), rel=rel, floor=floor, kmax=kmax)
+        act = {j: float(q) for j, q in zip(sup, x) if q >= qmin}
+        for j, o in prev.items():
+            if j not in act:
+                lost[j] = (o, k - 1)
+        lost = {j: v for j, v in lost.items() if k - v[1] <= gap + 1}
+        cur = {}
+        for j in act:
+            if j in prev:
+                cur[j] = prev[j]
+            elif j in lost:
+                cur[j] = lost.pop(j)[0]
+        if link is not None:
+            for j in sorted((j for j in act if j not in cur), key=lambda j: (-act[j], j)):
+                best, bc = None, link
+                for i in sorted(lost):
+                    c = float(Sn[i] @ Sn[j])
+                    if c >= bc:
+                        best, bc = i, c
+                if best is not None:
+                    cur[j] = lost.pop(best)[0]
+        for j in act:
+            cur.setdefault(j, k)
+        prev = cur
+        out.append({j: (act[j], cur[j]) for j in act})
+        rmss.append(rms)
+    return out, rmss
+
+
+def latest_onset(state):
+    """Step 20: the active atom with the latest onset, ties by the larger flow (None if empty)."""
+    if not state:
+        return None
+    return max(state, key=lambda j: (state[j][1], state[j][0], -j))
+
+
+def nearest_onset(state, day):
+    """Step 20: the active atom whose onset is nearest `day`, ties by the larger flow."""
+    if not state:
+        return None
+    return min(state, key=lambda j: (abs(state[j][1] - day), -state[j][0], j))

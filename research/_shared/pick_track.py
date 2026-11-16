@@ -290,6 +290,45 @@ def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
     return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t and not is_own_pr(n)]
 
 
+LANDED_SUBJECT = re.compile(r"\(#(\d+)\)\s*$|^Merge pull request #(\d+)\b")
+
+
+@functools.lru_cache(maxsize=None)
+def _main_subjects(repo="duncan-haywood/oss-monorepo", pages=3):
+    """Subjects of main's recent commits: the local origin/main log plus up to `pages`
+    hundred from the API (the cloud clone is often depth 1). Best effort, [] on errors."""
+    out = subprocess.run(["git", "log", "origin/main", "-n", "500", "--format=%s"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    subjects = out.stdout.splitlines() if out.returncode == 0 else []
+    try:
+        for page in range(1, pages + 1):
+            url = f"https://api.github.com/repos/{repo}/commits?sha=main&per_page=100&page={page}"
+            with urllib.request.urlopen(url, timeout=15) as r:
+                batch = json.load(r)
+            subjects += [((c.get("commit") or {}).get("message") or "").split("\n")[0]
+                         for c in batch if isinstance(c, dict)]
+            if len(batch) < 100:
+                break
+    except Exception:
+        pass
+    return subjects
+
+
+def landed_on_main(numbers):
+    """The PR numbers among `numbers` whose squash or merge commit is already on main.
+
+    LAND FIRST listed #16494 as unlanded while its squash commit '(#16494)' sat on main
+    (two reports, 2026-11-16): the PR stayed open with a dirty merge state, and runs
+    tried to merge it before closing it by hand."""
+    wanted, found = set(numbers), set()
+    for subject in _main_subjects():
+        m = LANDED_SUBJECT.search(subject)
+        n = m and int(m.group(1) or m.group(2))
+        if n in wanted:
+            found.add(n)
+    return found
+
+
 RESEARCH_TITLE = re.compile(r"^\s*research[/:]|\bresearch/[a-z0-9]", re.I)
 
 
@@ -320,6 +359,9 @@ def land_first_lines(fresh_hours=3, show=8, now=None):
     stale = sorted([x for x in ours if x[2] is None or x[2] >= fresh_hours], key=lambda x: -(x[2] or 0))
     fresh = [x for x in ours if x[2] is not None and x[2] < fresh_hours]
 
+    landed = landed_on_main([x[0] for x in stale]) if stale else set()
+    stale = [x for x in stale if x[0] not in landed]
+
     def fmt(n, t, a):
         draft = ", draft" if _META.get(n, ("", False))[1] else ""
         when = "age ?" if a is None else (f"{a:.1f}h" if a < 48 else f"{a / 24:.0f}d")
@@ -335,6 +377,9 @@ def land_first_lines(fresh_hours=3, show=8, now=None):
         lines += [fmt(*x) for x in stale[:show]]
         if len(stale) > show:
             lines.append(f"  ... and {len(stale) - show} more (pick_track.py --land lists all)")
+    if landed:
+        lines.append(f"  {len(landed)} already on main (its squash or merge commit names it): close it, nothing to merge:")
+        lines += [fmt(*x) for x in ours if x[0] in landed]
     if fresh:
         lines.append(f"  {len(fresh)} opened in the last {fresh_hours}h: a sibling's live claim, leave it:")
         lines += [fmt(*x) for x in fresh[:show]]

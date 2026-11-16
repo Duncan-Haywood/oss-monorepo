@@ -1031,7 +1031,7 @@ under 500 Hz), so it meets the closure rule instead of a murmur rule. That is th
 holds this round: *nunc*, *tunc*, *mens* and *unt* on C4 all read on their n, at least 2 more than without the
 change, and none of *up uc ub us es ec* reads as a nasal. Nothing in the synthesis changed. Not listened to.
 
-#### E4 eighth notes: a murmur read as a closure (2026-11-16, latest; a rule that failed its registration, kept off)
+#### E4 eighth notes: a murmur read as a closure (2026-11-16; a rule that failed its registration, kept off)
 
 The cluster rounds left four misses in part J, all on E4 eighth notes: *nunc*, *tunc* and *mens* read as a voiced
 labial stop, *sunt* as a voiceless t. Read frame by frame (5 ms hops, levels against the reference vowel), the n
@@ -1072,6 +1072,49 @@ runs every part with it, and parts N and O print both columns. O's five D4-E4 ei
 That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the opt-in: with `deepMurmur: true`
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
+
+#### A murmur louder than the dip before it (2026-11-16, latest; shipped, one prediction failed)
+
+O's five misses on its D4-E4 pulse-2 notes, read frame by frame (5 ms hops, levels against the reference vowel):
+*punc* and *tunt* on D#4 and *sons* on D4 and D#4 each hold an n about 50 ms long, a median 37-48 dB dark in itself
+and 20 dB or more darker than the vowel just before. They were not too quiet, as the DEEP round assumed for J; they
+were too loud. As the vowel darkens into the n its level dips 7-16 dB, and the murmur then swells back to -8 to +4 dB
+of the reference (on these notes the nasal resonance sits near the fundamental). Every nasal rule caps the level:
+`nasal` at -5 dB of the reference, NEAR at 0 and the cluster rule PRE at +4 dB over the vowel 25-45 ms before it,
+which here is the dip. The murmur sat 5-12 dB over it, and the t, k or s after it was read.
+
+- **The change:** `PRE.hi` 4 to 12 in `onsets.mjs`, nothing else. PRE still needs the run entered by an 8 dB step
+  into darkness, 40 ms long, dark in itself and ending within 5 frames of a closure or a fricative, so it cannot fire
+  on the vowel-only choir or a final -m.
+- **Set on J, N and O only** (hi 4, 8, 12, 16): J 128 of 132 clusters, 306 others, 453 control every time; N
+  clusters 114, 116, 116, 116; O's D4-E4 pulse-2 clusters 25, 27, 28, 28 of 30; other syllables, voiced stops read
+  as a nasal, and controls unchanged in both. Two misses are left and are different faults: *sons* on D4 (its step
+  into the murmur is 7.9 dB of the 8 PRE wants; not moved to rescue one syllable) and *rint* on D4 (a quiet
+  -24 to -30 dB murmur that the closure rule takes as part of the closure).
+- **Pre-registered on a new part P**, committed before it ran: 10 cluster syllables and 20 others sung in no other
+  part, at G2, D3, G#3, C#4, D4 and F4 (F4 new), 116 BPM.
+
+| prediction (against `preOpts: { hi: 4 }`) | before | after |
+|---|---|---|
+| (1) P's cluster nasals no fewer, 2 more on its C#4-F4 pulse-2 notes | 115 of 120; 29 of 30 | 116; 29 of 30: fails |
+| (2) P's others within 1, voiced stops read as a nasal no more | 202 of 240; 7 | 202; 7: holds |
+| (3) P's vowel-only control identical | 360 of 360 | 360: holds |
+| (4) A, B, D, E, H, I, F, K, L, M totals no lower, nasals no fewer, controls identical | | every part byte-identical but K, whose clusters gain one (*hinc* on D4, 125 to 126 of 140 with AGAIN, 131 to 132 without): holds |
+| (5) vowel and consonant checks cannot move | | readOnset and the synthesis untouched: holds |
+
+Prediction (1) failed on a ceiling: P's high pulse-2 clusters already read 29 of 30 before the change, so there
+was no room for the 2 it promised. P's syllables at 116 BPM did not dip the way O's did at 126. Unlike DEEP, the
+change costs nothing anywhere it was measured: no syllable on any part reads worse, and it gains O's three, N's two
+and one on P. So it ships on, with its target gain resting on development parts (N, O) and one held-out syllable;
+that is a choice against the DEEP round's precedent of keeping a failed registration off, made because DEEP also
+lost a syllable and this does not. `--pre hi=4` runs every part with the old ceiling. `sing.test.mjs` holds it:
+*punc*, *tunt* and *sons* on D#4 pulse-2 notes at 126 BPM all read on their n (at least 2 more than with hi 4), and
+*mad*, *bod*, *nod*, *reg* read as a nasal only where hi 4 did too.
+
+A naming slip found on the way: parts J to O call their pulse-2 notes eighth notes, but `eventsToMidi` puts two
+pulses in a beat, so a pulse-2 note is a quarter (0.48 s at 126 BPM, not 0.24 s) and a pulse-4 note a half. The
+measurements stand; only the names are wrong. Part P's report says pulses. Reader only; nothing in the synthesis
+changed. Not listened to.
 
 #### Formant tuning on high notes (2026-11-15)
 
@@ -1939,6 +1982,23 @@ differences 81 to 78 (3506, 3679 and 3403, one each), none worse. Held out, fift
 porrectus listed before their pages were read (`eval/broken-stroke-fresh-pages.json`): identical both
 ways, 2,869 agreeing and 2 differing. The rule fires on 43 of 303 leaves; 12 crops looked at are all
 real stroke tops.
+
+### A liquescent whose small note sits on a staff line (2026-11-16)
+
+GregoBase 3464's *sanc-* `fd~` was read e for d: a cephalicus whose hook straddles a line that, crowded
+with heads, was measured 8 px thick where its ink is 3 px. The reader counts a line's rows as ink only
+where ink runs out past them, so the hook was traced only to the line's near edge and its small note
+read a step too close to the head. Now an accepted tail whose end stops at a line's near edge is moved
+to the line's far edge when the small note straddles the line (its ink crosses at least 0.08 spaces
+further than the line's own ink beside it; `LIQ.onLine`, `LIQ.straddle` in `scan.mjs`,
+`readPage(img, { hookOnLine: false })` reads as before). Set on the 113 pieces of the eleven earlier
+lists in four tries (the first three broke up to 8 small notes printed in the space beside a line);
+frozen, it moves two notes, both wrong to right, and nothing else. Held out, fifteen pieces with 25
+liquescents whose small note is on a line, listed and committed before their pages were read
+(`eval/hook-fresh-pages.json`): the registered gain **failed**, since the rule moved nothing, and
+nothing got worse. Main already reads 22 of the 25. Two of the three misses are a different shape, a
+one-step cephalicus whose head and small note the reader takes for one head at the small note's pitch:
+next. Details: `eval/hook-on-line-check.md`; run `node eval/hook-on-line-check.mjs <lists>`.
 
 ## Not checked yet
 

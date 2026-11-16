@@ -186,3 +186,61 @@ test('labor split names the parts of the day a bedroom-count quote hides', () =>
   const shares = result.split.reduce((sum, row) => sum + row.share, 0);
   assert.ok(Math.abs(shares - 100) < 1e-6);
 });
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-moving-bid-calculator.json):
+// the bid stopped at a lump sum, with no hourly rate, minimum or valuation line.
+// Figures below are worked by hand from the threeBed() job.
+test('hourly quote: suggested rate, break-even and minimum hours worked by hand', () => {
+  const r = calculateBid(threeBed());
+  const h = r.hourly;
+  // loaded wage 22 x 1.25 = 27.50; x 3 movers = 82.50; x 1.15 overhead = 94.875 per clock hour
+  assert.ok(Math.abs(h.variablePerHour - 94.875) < 1e-9);
+  // (150 + 40 + 35 + 0) x 1.15 = 258.75 fixed per job
+  assert.ok(Math.abs(h.fixedJobCost - 258.75) < 1e-9);
+  // price 1061.09 / 6.22 h = 170.59/h, posted rounded up to $175
+  assert.equal(h.rate, 175);
+  assert.equal(h.suggested, true);
+  // break-even 258.75 / (175 - 94.875) = 3.2293 h -> minimum rounds up to 3.5 h
+  assert.ok(Math.abs(h.breakEvenHours - 3.2293291731669) < 1e-9);
+  assert.equal(h.minimumHours, 3.5);
+  // margin from 258.75 / (175 x 0.8 - 94.875) = 5.7341 h
+  assert.ok(Math.abs(h.marginHours - 5.7340720221607) < 1e-9);
+  const [short, est, long] = h.scenarios;
+  assert.equal(est.billed, 175 * 6.22);
+  // a 25% overrun: hourly bills 7.775 h; the flat price keeps 1061.09 - (258.75 + 94.875 x 7.775)
+  assert.ok(Math.abs(long.flatProfit - (r.price - (258.75 + 94.875 * 7.775))) < 1e-9);
+  assert.ok(long.profit > long.flatProfit);
+  assert.ok(short.flatProfit > short.profit);
+});
+
+test('hourly quote: a short job bills the minimum, and a rate under labor cost has none', () => {
+  const tiny = calculateBid({ ...threeBed(), inventory: [{ name: 'Studio', cubicFeet: 400, clockHours: 1 }], driveHours: 0.5, quotedHourlyRate: 160 });
+  // break-even 258.75 / (160 - 94.875) = 3.973 h -> 4 h minimum; the 1.5 h job is billed 4 h
+  assert.equal(tiny.hourly.minimumHours, 4);
+  const est = tiny.hourly.scenarios[1];
+  assert.equal(est.billedHours, 4);
+  assert.equal(est.billed, 640);
+  assert.ok(est.profit > 0);
+  const low = calculateBid({ ...threeBed(), quotedHourlyRate: 90 });
+  assert.equal(low.hourly.belowLaborCost, true);
+  assert.equal(low.hourly.breakEvenHours, null);
+  assert.equal(low.hourly.minimumHours, null);
+  // a rate that covers labor but never the margin: break-even exists, margin hours do not
+  const thin = calculateBid({ ...threeBed(), quotedHourlyRate: 110 });
+  assert.ok(thin.hourly.breakEvenHours > 0);
+  assert.equal(thin.hourly.marginHours, null);
+  assert.throws(() => calculateBid({ ...threeBed(), quotedHourlyRate: 0 }), /greater than zero/);
+});
+
+test('valuation: released value at 60 cents/lb and the full value charge', () => {
+  const r = calculateBid({ ...threeBed(), declaredValue: 40000, valuationRatePer1000: 8 });
+  // 1100 cu ft x 7 lb = 7,700 lb; x $0.60 = $4,620 cap on a total loss
+  assert.equal(r.valuation.estimatedWeight, 7700);
+  assert.ok(Math.abs(r.valuation.releasedLiabilityCap - 4620) < 1e-9);
+  // $40,000 / 1,000 x $8 = $320; exposure above released value 40,000 - 4,620
+  assert.equal(r.valuation.fullValueCharge, 320);
+  assert.ok(Math.abs(r.valuation.extraExposure - 35380) < 1e-9);
+  const own = calculateBid({ ...threeBed(), lbPerCuFt: 6.5, releasedValuePerLb: 0.75 });
+  assert.ok(Math.abs(own.valuation.releasedLiabilityCap - 1100 * 6.5 * 0.75) < 1e-9);
+  assert.equal(own.valuation.fullValueCharge, 0);
+});

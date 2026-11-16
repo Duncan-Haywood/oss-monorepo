@@ -350,6 +350,18 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    NR90AES1's 12-11/16 in height puts the grip 0.29–0.32 m behind the nose; a grip 0.15 m above the drive axis costs the 11-bit
    G1 8 points, below it gains 4. Still open: deflection under the press, the pose range, and the paper's headline for a
    tool-point spec.
+31. **Backlash across the poses along a wall** (done 2026-11-16, `experiments/m31_pose_range/`): over 15 G1 poses
+   (0.4–1.2 m, ±0.15 m along the wall) 13–20 of 22 nose-moving joints stay held; per-pose calibration leaves 5 arcmin costing
+   0.3–9.9 points (worst at the top of the reach). Both hip yaws and the waist roll are held everywhere but flip sign, so one
+   tool-frame calibration leaves up to 3.4 mm along the wall: 12-bit joints tolerate 2.5 arcmin calibrated per pose, 0.44
+   calibrated once. Still open: deflection under the press, a balance controller's ground-reaction split, and the paper's
+   headline for a tool-point spec.
+32. **The ground reaction through real soles** (done 2026-11-16, `experiments/m32_grf_qp/`): with friction cones at the
+   soles' contact points, the upright poses balance only 26–39 N of press above 0.8 m (G1), so the robot must lean
+   0.04–0.12 m into the wall. On the leaned poses the hip-yaw and waist flips vanish under every ground-reaction model;
+   holding all leg joints one-signed is infeasible, holding the hip rolls, hip yaws and ankle rolls is feasible and cuts the
+   worst per-pose loss to 3.7 points, but one calibration still leaves 1.1–2.6 mm. Still open: deflection under the press
+   and the paper's headline for a tool-point spec.
 
 ## Target venue
 

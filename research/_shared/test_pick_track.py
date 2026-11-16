@@ -513,12 +513,13 @@ class LandFirstTest(unittest.TestCase):
 
     tearDown = setUp
 
-    def _lines(self, prs, branch="claude/mine", **kw):
+    def _lines(self, prs, branch="claude/mine", main=(), **kw):
         import io, json, calendar, time
         from unittest import mock
         body = json.dumps(prs).encode()
         now = calendar.timegm(time.strptime("2026-11-16T12:00:00Z", "%Y-%m-%dT%H:%M:%SZ"))
         with mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)), \
+                mock.patch.object(pick_track, "_main_subjects", return_value=list(main)), \
                 mock.patch.object(pick_track, "current_branch", return_value=branch):
             return pick_track.land_first_lines(now=now, **kw)
 
@@ -550,6 +551,28 @@ class LandFirstTest(unittest.TestCase):
         from unittest import mock
         with mock.patch("urllib.request.urlopen", side_effect=OSError):
             self.assertIn("could not list", pick_track.land_first_lines()[0])
+
+    def test_squash_landed_prs_are_told_to_close(self):
+        # 2026-11-16: #16494 was listed as unlanded while '(#16494)' was already on main
+        lines = self._lines([
+            self.pr(7, "research/a: milestone 2", "2026-11-15T12:00:00Z"),
+            self.pr(8, "research/b: milestone 5", "2026-11-15T12:00:00Z"),
+            self.pr(9, "research/c: milestone 1", "2026-11-15T12:00:00Z"),
+        ], main=["research/a: milestone 2 + post (#7)", "Merge pull request #9 from x/y", "other (#77)"])
+        text = "\n".join(lines)
+        head, _, tail = text.partition("already on main")
+        self.assertIn("1 older than 3h", head)
+        self.assertIn("#8 (24.0h)", head)
+        self.assertNotIn("#7 ", head)
+        self.assertIn("#7 (24.0h)", tail)
+        self.assertIn("#9 (24.0h)", tail)
+        self.assertIn("close it", tail.splitlines()[0])
+
+    def test_landed_on_main_matches_subjects_only(self):
+        from unittest import mock
+        with mock.patch.object(pick_track, "_main_subjects",
+                               return_value=["x (#12)", "y (#123) trailing", "Merge pull request #5 from a/b"]):
+            self.assertEqual(pick_track.landed_on_main([12, 123, 5, 1]), {12, 5})
 
     def test_caps_long_lists(self):
         prs = [self.pr(i, f"research/p{i}: s", "2026-11-01T00:00:00Z") for i in range(12)]

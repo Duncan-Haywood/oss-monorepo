@@ -119,6 +119,7 @@ class DrillResult:
                                                     # included: the input to launcher.fit_from_drops
     fed: list = field(default_factory=list)        # the PlannedShot each FEED was sent with (re-planned speeds included)
     refits: list = field(default_factory=list)     # Refitter.events, when the run re-planned from its own shots
+    esc_survey: dict | None = None  # the board's ESC-lag survey at the drill's end (ESC_SURVEY frame), if it sent one
 
     @property
     def ok(self) -> bool:
@@ -309,6 +310,44 @@ def _fit_dict(fit: launcher.DropFit) -> dict:
             "recovery_s": r(fit.recovery_s), "rms_drop": r(fit.rms), "shots": fit.shots, "note": fit.note}
 
 
+ESC_SURVEY_GRID_MS = (0, 20, 50, 100, 200, 400)   # the firmware's ESC_SURVEY_GRID_US, in ms
+ESC_SURVEY_S = 4.0            # how long the drill's end waits for the board's survey of the last ball
+ESC_SURVEY_MIN_WHEELS = 16    # fewer wheels than this and the survey's pick is reported but not advised
+
+
+def survey(link, clock, sleep, tick_s, timeout=ESC_SURVEY_S):
+    """Poll until the board's ESC_SURVEY wheel count stops rising for half a second (the last ball's survey is done
+    or there was none), or `timeout`."""
+    start = last = clock()
+    n = link.esc_survey["wheels"] if link.esc_survey else -1
+    while clock() - start < timeout and clock() - last < 0.5:
+        link.poll()
+        m = link.esc_survey["wheels"] if link.esc_survey else -1
+        if m != n:
+            n, last = m, clock()
+        sleep(tick_s)
+
+
+def esc_survey_advice(sv: dict | None, esc_tau_ms: float = 0.0) -> str | None:
+    """One line on the board's ESC-lag survey (firmware/esp32/README.md "The ESC lag surveyed on the board"): the lag
+    its balls pick and whether config.ESC_TAU_US should change. None without a survey. The survey sums each wheel's
+    fit residual at six lags; on the simulator its refined lag came within 10% of the true one (30-150 ms) and 0 on a
+    wheel with no ESC lag. `esc_tau_ms` is what the board ran with: the survey refits from the raw commands, so its
+    pick does not depend on it."""
+    if not sv or not sv.get("wheels"):
+        return None
+    n, pick = sv["wheels"], sv["refined_ms"]
+    if n < ESC_SURVEY_MIN_WHEELS:
+        return (f"ESC lag survey: {n} wheels so far pick {pick} ms; run more balls ({ESC_SURVEY_MIN_WHEELS} wheels, "
+                f"8 two-wheel shots) before setting ESC_TAU_US")
+    if pick == 0:
+        return f"ESC lag survey: {n} wheels pick no ESC lag; keep ESC_TAU_US = 0" + (
+            f" (the board ran with {esc_tau_ms:g} ms: set it back to 0)" if esc_tau_ms else "")
+    same = esc_tau_ms and abs(pick - esc_tau_ms) <= 0.15 * pick
+    return (f"ESC lag survey: {n} wheels pick {pick} ms (least on the grid {sv['least_ms']} ms)"
+            + ("; ESC_TAU_US already matches" if same else f"; set ESC_TAU_US = {pick * 1000} in config.py and re-flash"))
+
+
 class FeederLink:
     """Frames out, telemetry in, heartbeats kept up whenever `poll()` runs."""
 
@@ -320,6 +359,8 @@ class FeederLink:
         self.launch_log: list = []    # (clock when first seen, record dict) per new LAUNCH seq
         self._seq = None
         self._flags = None
+        self.esc_survey: dict | None = None   # the last ESC_SURVEY frame (firmware/esp32/README.md "The ESC lag surveyed
+                                              # on the board"), with the clock it came at
 
     def send(self, cmd, *values):
         self.port.write(P.encode(cmd, *values))
@@ -332,6 +373,9 @@ class FeederLink:
         for cmd, vals in self.decoder.feed(self.port.read() or b""):
             if cmd == P.TELEMETRY:
                 self.last = Telemetry(now, *vals)
+            elif cmd == P.ESC_SURVEY:
+                self.esc_survey = {"t": now, "wheels": vals[0], "least_ms": vals[1], "refined_ms": vals[2],
+                                   "rms_ppm": [None if v == 65535 else v for v in vals[3:]]}
             elif cmd == P.LAUNCH and (vals[0] != self._seq or vals[5] != self._flags):
                 # Repeated every period until the next verdict. The same seq with new flags is that verdict's record
                 # with the loop-command drops the board finished fitting after it (2026-11-16, firmware/esp32/README.md
@@ -468,6 +512,9 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
         if last_release is not None:  # the last stroke's verdict (the stop above freezes it, it cannot fake a ball)
             wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0, "last shot's launch check")
             loop_fits()
+            survey(link, clock, sleep, tick_s)
+            if link.esc_survey is not None and link.esc_survey["t"] >= fed_at:
+                res.esc_survey = {k: v for k, v in link.esc_survey.items() if k != "t"}
     except HopperEmpty:
         # Not a fault: nothing is queued (one FEED at a time) and nothing is wrong with the machine, so the wheels are
         # stopped without latching the e-stop; refill and run the drill again.

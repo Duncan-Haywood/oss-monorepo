@@ -256,6 +256,112 @@ class DirectionalTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             directional(c, (0, 1, 1, 2), rb="ahd")
 
+    def test_correlation_features(self):
+        """The inter-channel detail correlation features (eval/bayer-channel-correlation-2026-11-16.md): in
+        [0, 1], scale-free, high on a grey zone plate and low where the channels' detail is unrelated; a model
+        with them runs in numpy (the C path reads the eight only), keeps each sensel's value and flat fields
+        flat, and its weight count picks the feature count."""
+
+        import numpy as np
+
+        from shootflow import bayer_demosaic as bd
+
+        y, x = np.mgrid[0:96, 0:96].astype(np.float64)
+        zone = 0.5 + 0.3 * np.cos(np.pi * 0.0025 * (x * x + y * y))
+        grey = np.repeat(zone[..., None], 3, axis=2)
+        rng = np.random.default_rng(5)
+        # three channels' detail unrelated: each its own smooth random field
+        k = np.outer(np.hanning(7), np.hanning(7))
+        k /= k.sum()
+        def smooth(a):
+            f = np.fft.rfft2(a) * np.fft.rfft2(k, a.shape)
+            return np.fft.irfft2(f, a.shape)
+        mixed = np.stack([0.5 + 2.0 * (smooth(rng.random((96, 96))) - 0.5) for _ in range(3)], axis=2)
+        pat = (0, 1, 1, 2)
+        sel = (slice(10, -10, 2), slice(10, -10, 2))  # red sensels inside the border
+        means = {}
+        for name, img in (("grey", grey), ("mixed", mixed)):
+            c, _ = _mosaic(img, pat)
+            f = bd.laplace_features(c, pat, extra=bd.CORRELATION_FEATURES)
+            self.assertEqual(f.shape, (12,) + c.shape)
+            self.assertTrue(np.all(np.isfinite(f)))
+            self.assertGreaterEqual(float(f.min()), 0.0)
+            self.assertLessEqual(float(f.max()), 1.0)
+            f2 = bd.laplace_features(c * 7.5, pat, extra=bd.CORRELATION_FEATURES)
+            self.assertLess(float(np.max(np.abs(f2[8:] - f[8:]))), 1e-3)
+            means[name] = float(f[9][sel].mean())  # corr3sq
+        self.assertGreater(means["grey"], 0.5)
+        self.assertLess(means["mixed"], 0.25)
+        self.assertGreater(means["grey"], 2 * means["mixed"])
+        with self.assertRaises(ValueError):
+            bd.laplace_features(c, pat, extra=("corr7",))
+
+        self.assertEqual(bd._n_features(45), (8, True))
+        self.assertEqual(bd._n_features(66), (10, True))
+        self.assertEqual(bd._n_features(11), (10, False))
+        with self.assertRaises(ValueError):
+            bd._n_features(46)
+        model = (0.1875,) + (0.0,) * 9 + (0.05,) + (0.0,) * 55  # 66 weights: a nudge on corr5sq only
+        extra = ("corr3sq", "corr5sq")
+        c, cm = _mosaic(grey, pat)
+        out = bd.directional(c, pat, laplace=model, laplace_extra=extra)
+        own = np.take_along_axis(out, cm[..., None].astype(np.int64), axis=2)[..., 0]
+        self.assertTrue(np.allclose(own, c, atol=1e-6))
+        self.assertFalse(np.array_equal(out, bd.directional(c, pat, native=False)))
+        with self.assertRaises(RuntimeError):
+            bd.directional(c, pat, laplace=model, laplace_extra=extra, native=True)
+        with self.assertRaises(ValueError):  # 66 weights need two correlation features
+            bd.directional(c, pat, laplace=model, laplace_extra=("corr3",))
+        flat = np.ones((20, 26, 3)) * np.array([0.6, 0.4, 0.25])
+        c, _ = _mosaic(flat, pat)
+        self.assertLess(float(np.max(np.abs(bd.directional(c, pat, laplace=model, laplace_extra=extra) - flat))), 1e-6)
+
+    def test_training_inputs_noise_and_near_nyquist(self):
+        """The trainer's augmentation (eval/bayer-learned-noisy-nyquist-2026-11-16.md): the near-Nyquist
+        frames are seeded, in range, not the test sheet, and carry detail near Nyquist; a noisy copy keeps the
+        clean truth as its target and moves the greens; the fit honours a frame's weight."""
+
+        import numpy as np
+
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        import bayer_laplace_train as t
+        from xtrans_demosaic_check import synthetic_sheet
+
+        a, b = t.near_nyquist_texture(3, n=128), t.near_nyquist_texture(3, n=128)
+        self.assertTrue(np.array_equal(a, b))
+        self.assertFalse(np.array_equal(a, t.near_nyquist_texture(4, n=128)))
+        self.assertGreaterEqual(float(a.min()), 0.05)
+        self.assertLessEqual(float(a.max()), 0.85)
+        self.assertNotEqual(a.shape, synthetic_sheet(64).shape)
+        # energy above 0.3 cycles per pixel (tile-to-tile level steps hold most of the rest; a 512 x 512 crop of the
+        # binned Nikon D90 frame has 0.2% there)
+        g = a[..., 1] - a[..., 1].mean()
+        spec = np.abs(np.fft.fft2(g)) ** 2
+        fy, fx = np.meshgrid(np.fft.fftfreq(128), np.fft.fftfreq(128), indexing="ij")
+        self.assertGreater(spec[np.hypot(fy, fx) > 0.3].sum() / spec.sum(), 0.02)
+
+        clean = t.truth_samples(a, (0, 1, 1, 2), 500, seed=1)
+        noisy = t.truth_samples(a, (0, 1, 1, 2), 500, seed=1, snr=25)
+        self.assertTrue(np.array_equal(clean["gt"], noisy["gt"]))
+        self.assertFalse(np.allclose(clean["g8"], noisy["g8"]))
+        self.assertEqual(noisy["X"].shape, (500, 8 + 4))  # the eight, then every correlation feature
+        self.assertEqual(t.select_features(noisy)["X"].shape, (500, 8))
+        picked = t.select_features(noisy, ("corr5sq", "corr3"))["X"]
+        self.assertTrue(np.array_equal(picked[:, 8], noisy["X"][:, 11]))
+        self.assertTrue(np.array_equal(picked[:, 9], noisy["X"][:, 8]))
+
+        frames = [dict(t.synthetic_samples(i, 2000), weight=1.0) for i in range(2)]
+        base = t.fit(frames, pairs=False, ridge=1e-3)
+        frames[1]["weight"] = 0.0
+        only0 = t.fit(frames, pairs=False, ridge=1e-3)
+        self.assertTrue(np.allclose(only0, t.fit(frames[:1], pairs=False, ridge=1e-3)))
+        self.assertFalse(np.allclose(base, only0))
+
+        # grouped cross-validation: a held-out real frame takes every copy with it; synthetic frames always train
+        tags = [("a", False), ("a", False), ("a", False), ("b", False), ("b", False), ("s", True), ("s", True)]
+        folds = list(t.cv_folds([{"group": g, "synthetic": syn} for g, syn in tags]))
+        self.assertEqual(folds, [([0, 1, 2], [3, 4, 5, 6]), ([3, 4], [0, 1, 2, 5, 6])])
+
 
 class DeveloperChoiceTests(unittest.TestCase):
     def raw(self):

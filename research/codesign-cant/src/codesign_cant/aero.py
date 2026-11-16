@@ -59,6 +59,8 @@ def closure_root(update, shape, n=400, iters=60):
     return np.where(has, hi, M_CLAMP)
 
 
+# Motor-propeller first-order lag (s) = LAG_K (D / LAG_D0)^LAG_EXP: inherited from milestone 0 and not sourced (milestone 7s sweeps it).
+LAG_K, LAG_D0, LAG_EXP = 0.015, 0.127, 1.5
 TWR_RANGE = (1.5, 4.0)   # thrust-to-weight range when motor headroom is a design variable (the fixed value elsewhere is TWR)
 
 
@@ -93,7 +95,7 @@ def size(L, D, alpha=0.0, tilt_loss=0.0, kappa_per_d=None, twr=None, actuator="p
         from .allocation import closed_form
         tau_max, tau_yaw, _ = closed_form(alpha, L, kappa, T_hover, Tmax, actuator)
     P_hover = 4 * T_hover ** 1.5 / np.sqrt(2 * RHO * np.pi * D ** 2 / 4) / (FM * ETA * (1 - tilt_loss * sa ** 2))   # electrical hover power, W (milestone 2 prices it)
-    lag = 0.015 * (D / 0.127) ** 1.5
+    lag = LAG_K * (D / LAG_D0) ** LAG_EXP   # inherited, ASSUMED law; milestone 7s sweeps LAG_K and LAG_EXP
     cost = 4 * 12.0 * (Tmax / 9.0) ** 1.1 + 0.35 * wh + 60 * frame_mass(L) + 25.0
     area = 0.02 + 0.5 * L ** 2
     feasible = (np.sqrt(2) * L >= 1.05 * D) & (cost <= COST_CAP)

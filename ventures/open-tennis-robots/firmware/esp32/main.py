@@ -235,7 +235,8 @@ class FeederHw:
                 getattr(config, "WHEEL_RADIUS_M", 0.075), getattr(config, "BALL_RADIUS_M", 0.0335),
                 getattr(config, "LAUNCH_SPEED_EFF", 0.85), getattr(config, "LAUNCH_SPIN_EFF", 0.5),
                 getattr(config, "LAUNCH_DIP_SHARE", 0.25), getattr(config, "LAUNCH_DIP_MIN", 0.015),
-                getattr(config, "LAUNCH_CHECK_MS", 250), getattr(config, "ESC_TAU_US", 0))
+                getattr(config, "LAUNCH_CHECK_MS", 250), getattr(config, "ESC_TAU_US", 0),
+                getattr(config, "ESC_SURVEY_GRID_US", controller.ESC_SURVEY_GRID_US))
         self.hopper_empty = False     # the last judged stroke put no ball through the wheels; cleared by the next FEED
         self.dry_strokes = 0          # strokes judged empty since power-up
         self.launches = 0             # strokes judged to have launched a ball since power-up
@@ -244,6 +245,10 @@ class FeederHw:
     def launch_record(self):
         """The last judged stroke's record for the LAUNCH frame (controller.LaunchCheck.record), or None."""
         return self.launch.record if self.launch is not None else None
+
+    def esc_survey(self):
+        """The ESC-lag survey so far for the ESC_SURVEY frame (controller.LaunchCheck.survey_report), or None."""
+        return self.launch.survey_report() if self.launch is not None else None
 
     def arm(self):
         self.esc_top.frac(0)

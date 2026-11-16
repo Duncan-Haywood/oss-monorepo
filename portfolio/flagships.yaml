@@ -238,9 +238,10 @@ flagships:
     next: >-
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
-      (FAIR_WORKWEEK; next a real site's changes): next live deploy, real punches at
-      a site. Exact side: branch-and-price and column generation prove 20-80 person
-      weeks; the exact check is on by default at every size. Forecast side
+      (FAIR_WORKWEEK; team-offer exception, on-call shifts, Oregon's standby list
+      from ORS 653.432; next a real site's changes): next live deploy, real punches
+      at a site. Exact side: branch-and-price and column generation prove 20-80
+      person weeks; the exact check is on by default at every size. Forecast side
       (--from-sales, eight real files, eval/real-pos-exports.mjs): backtest, closure
       score, half-life auto, priced cut, tickets, labour standard, shut-door work,
       multi-file pastes. Posted weeks: reissues hold started and posted shifts; a
@@ -255,14 +256,13 @@ flagships:
       records; a manager's read on whether the steadier plan is the one they would
       post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
       directly"); a real When I Work account or response through --import-wheniwork
-      (README "Reading When I Work directly"); Homebase (docs need an account);
+      (README "Reading When I Work directly"); Homebase (docs need an account); a
+      real Square account via --import-square (README "Reading Square's schedule");
       --cover-price moves two shifts together (README "Moving two shifts together");
       second call-outs priced, off by default (README "The pair price in played
       weeks": fewer open hours on 3 of 4 weeks); order-free pair check played: no
-      gain, stays opt-in (README "The order-free pass played"); a real two-site
-      export and staff list (README "Staff shared between sites"); own and site
-      rates read from staff CSVs and 7shifts (README "Per-location pay from an
-      export"). More open items: NEXT.md.
+      gain, stays opt-in (README "The order-free pass played"). More open items:
+      NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -271,12 +271,12 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer learned: fused in C
-      2026-11-16, 1.5-2.0x the default's time (eval/bayer-learned-fused-*); next
-      noisy and near-Nyquist training (eval/bayer-learned-laplace-*). X-Trans: a
-      per-frame choice (A7 IV wants less edge-keeping, GF7/NX1 a wider red/blue
-      window; --truth-from, eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0
-      spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer learned: correlation
+      feature failed its CV bar (eval/bayer-channel-correlation-*); next the oracle
+      ceiling, 4x4-averaged target. X-Trans: a per-frame choice (A7 IV wants less
+      edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
+      eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -381,10 +381,10 @@ flagships:
       venv, about 2 min). Model check (firmware/esp32/README.md "When the wheel is
       not a first-order lag", 2026-11-16): the loop fit's standard error marks
       unsure drops (LAUNCH bits 6/7), no first-order wheel marked; 5 us tach jitter
-      or a 30 ms ESC lag puts the drill's spin 5-24% off. Next: fit the drop on edge
-      times (jitter is on times, not periods); ESC_TAU_US (README "An ESC lag
-      picked..."): sum its residual grid on the board over a drill, finer grid;
-      retest MIN_FIT_RPM.
+      or a 30 ms ESC lag puts the drill's spin 5-24% off. ESC lag surveyed on the
+      board (README "The ESC lag surveyed on the board"): ESC_SURVEY frame, pick
+      within 10% on 29 of 30 ESC builds; edge-time fit tried, worse, off. Next:
+      retest MIN_FIT_RPM; why one jittery wheel fits 10-60x worse (trimmed).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -432,25 +432,26 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-16
-      latest: E4 eighth-note murmurs (DEEP) failed two pre-registrations on new
-      held-out parts N and O, kept off as --deep on; next: O's D4-E4 eighth misses
-      with a new part P, L's sub/cum as nothing, G control nasals 44). Open checks
-      that need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift); --lrc in a real
-      player and --markers/--stems in a DAW; --cues (and its section lines),
-      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
-      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
-      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
-      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
-      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      latest: a cluster n louder than the dip before it, PRE.hi 4 to 12 (O's D4-E4
+      25 to 28 of 30; part P's prediction failed on a ceiling, none worse); next:
+      sons/rint on D4, L's sub/cum, G control nasals 44). Open checks that need a
+      person: listen to the studio page, --sing, the options (--stretch, --halftime,
+      --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella
+      verse and whether the key lift sounds like a lift); --lrc in a real player and
+      --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md
+      and the E2-E4 range with real singers; the release kit against a distributor's
+      real form; the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md).
+      master-cli passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs
+      (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
+      liquescents, lines at true thickness; tilted pages, curled staves straightened
+      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
-      3464's cephalicus; --split-voices (by phrase or at a word, --split-words,
-      eval/word-split-report.md) and --overlap (both sections sing the seam note at
-      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
-      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
-      overlap against a clean handoff; --baritones, --entrance-cost N and
-      --second-tenors (TTBB; README) need the same check. Next: a real choir's range
-      test; a director on --sit-out N, the --musicxml parts and the --learn tracks.
+      squares, a one-step cephalicus read as one head (3490, 3508;
+      eval/hook-on-line-check.md), 3408's strokes, 3464's cephalicus; --split-voices
+      (by phrase or at a word, --split-words, eval/word-split-report.md) and
+      --overlap (both sections sing the seam note at a direct tenor/bass swap,
+      eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase
+      handoff against a whole phrase and of a one-note overlap against a clean
+      handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
+      need the same check. Next: a real choir's range test; a director on --sit-out
+      N, the --musicxml parts and the --learn tracks.

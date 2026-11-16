@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVNaZFPsfF7MrgNTviq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: ventures brief (prompt.md)",
+  "input_sha256": "c201ef84c333a1e33e79eb13403f1fa9b5f9d464f3e0acfa10665cac8d072753",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T13:20:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: edge-time drop fit, whole-drill check (flagship buildable item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 16579,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions took the same buildable item (edge-time fit) within the hour: claim_check works per flagship and item, but #16574 had bundled the item into an ESC-survey PR whose title named the ESC survey first, so the claim read as free."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No llms.txt or marketing page change: the work is a firmware estimator option that is off by default, nothing user-facing changed.",
+      "did": "skipped llms.txt/marketing update",
+      "result": "none needed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-open-tennis-robots-edge-time-fit-refuted.md"
+  ],
+  "goal": "Test whether fitting the loop-command drop on tach edge times (running sums) beats the period fit under tach jitter.",
+  "notes": "Duplicate work: PR #16574 landed the same edge-time option (off) while this session built its own. On merging main this session took main's controller and kept only what was new: tests/edge_fit_drill.py (calibration drill, 18 builds x 3 seeds, swaps the board's fit for the edge form) and a README addendum. Whole drill spin rms periods -> edges: 2.20 -> 2.97% at 5 us jitter, 6.55 -> 9.07% at 10 us, 8.67 -> 9.06% at 80 ms ESC lag, 0.62 -> 0.58% first-order. Cause checks: period-row noise lag-1 corr -0.498; linear toy gain 4%; with the lag fixed and the noise added open loop the sums still read worse, which points at t0. Verification: run_venture_tests.py open-tennis-robots ok (328 tests, 0 failed) and venture-preflight clean, both before the merge with main; after the merge only docs, an eval file and a standalone sweep script differ from main.",
+  "corrections": [],
+  "redteam": null
+}

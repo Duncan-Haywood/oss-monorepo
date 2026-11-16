@@ -1,6 +1,6 @@
 # Draft: which hull carries a small survey boat furthest per kWh, and how much of the answer is the drag model?
 
-Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr, 6zzs and 6zzt): introduction, model and results-table drafted, not submittable.** Every number below is copied from
+Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr, 6zzs, 6zzt and 6zzu): introduction, model and results-table drafted, not submittable.** Every number below is copied from
 [`../LOG.md`](../LOG.md) and the `experiments/results_*.txt` file named beside it. Nothing is new
 in this file. Target: OCEANS (IEEE/MTS), 6 to 10 pages. The hull constants are unvalidated against
 tank data (milestone 3 is open), and that gap decides what the paper can claim, as section 5 says.
@@ -181,6 +181,8 @@ What the chain established, in order:
 9. **A guard gated on the boat's own replay repairs the cost but not the gain** (6zzs). Replaying the uncorrected plan against B over the learning year and applying DG only where it fell short on distance lifts the 30-point mean above the raw correction (127.2 against 121.8; with the mirror guard on dark-heavy years 131.6), but at the high-amplitude points 80% of learning years replay as fine, so the gated guard keeps little of DG's gain (85.8 against 109.2, lag 3 18 against 74). The high-latitude failure is a forecast error about other years that the one logged year cannot reveal.
 10. **On ordinary water, less one-season correction is better in every direction tried** (6zzt). Falling back to no correction where the replay is not short (OA) gives 128.8 on the 30-point pool; on short replays the raw ratios beat DG (135.0), and shrinking DG toward 1 by the replay's km shortfall rises monotonically with the shrinkage scale (130.0 to 137.2), approaching AT_90's 139 from below. The fallback rules beat AT_90 on the per-point count (129.2 to 130.2 against 126) and lift the worst high-amplitude lag to 41.
 
+11. **The high-latitude ordering survives ERA5; its size does not** (6zzu). With ERA5 sunlight in place of NASA POWER at the nine high-amplitude points (climatology, learning and scored years alike), every ordering above holds on hi168 (DG 75.6 > OG 68.2, OA 66.8 > LC 57.4 > AT_90 29; the lags rank identically, lag 3 worst at 16), but each rule's lead over no correction falls by a third to a half (LC +56 to +28, DG +84 to +47), and on the per-point real-shape count (72 cells) LC, DG and OG fall below AT_90 (36.4, 37.4, 37.0 against 38); only the fallback rules stay level (OA 38.8).
+
 For a designer, the table gives three rules:
 
 1. With one season of log, pool the fitted yearly cosine within a latitude band (HR) and expect 140 to 153 of 168.
@@ -192,7 +194,7 @@ No rule yet selects itself by site: gating the guard by latitude (|lat| >= 50, c
 Limits to carry with the section:
 
 - Every count comes from one boat, one 50 W payload, one set of weights and the calm-water daily model.
-- Both the climatology and the scored years are NASA POWER. ERA5 was checked only against the lag-3 irradiance (6zzm). It was never run through the harvest model, and nothing was checked against a pyranometer.
+- Outside the nine high-amplitude points, both the climatology and the scored years are NASA POWER. At those nine, the single-season rules were rerun on ERA5 (6zzu): the orderings hold, the magnitudes of the high-latitude leads carry a source uncertainty of about 18 to 34 of 168 cells, and the per-point gain does not survive. Nothing was checked against a pyranometer.
 - The high-amplitude pool was picked with an amplitude estimate that used all ten years.
 - Five learning years give only five one-season draws and ten pairs. The brackets are the observed range over those draws, not confidence intervals, and draws within the same k share years.
 - Every rule was scored over every subset of one to five seasons (6zzj, 6zzk, 6zzr), but the three-season crossings are thin at high latitude (worst 31 for HR and HX and 34 for LHF, against 25). The guard rules of 6zzp and 6zzs were run only at one season.

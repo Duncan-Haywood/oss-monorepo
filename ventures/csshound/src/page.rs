@@ -30,44 +30,69 @@ fn is_word_byte(c: u8) -> bool {
     c.is_ascii_alphanumeric() || c == b'_'
 }
 
-/// `html` with `/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi` cut out, and the
-/// bodies it matched.
+/// The end of the first `</name\s*>` at or after `from` (`name` given as
+/// `</name`), and where it starts.
+fn find_close(b: &[u8], close_tag: &[u8], from: usize) -> Option<(usize, usize)> {
+    let mut j = from;
+    while let Some(c) = find_ci(b, close_tag, j) {
+        let mut k = c + close_tag.len();
+        while k < b.len() && b[k].is_ascii_whitespace() {
+            k += 1;
+        }
+        if k < b.len() && b[k] == b'>' {
+            return Some((c, k + 1));
+        }
+        j = c + 1;
+    }
+    None
+}
+
+/// An open tag `<name\b[^>]*>` at `at`: the index just past its `>`.
+fn open_tag_end(b: &[u8], at: usize, name_len: usize) -> Option<usize> {
+    let after = at + name_len;
+    if after < b.len() && is_word_byte(b[after]) {
+        return None;
+    }
+    b[after..].iter().position(|&c| c == b'>').map(|p| after + p + 1)
+}
+
+/// `html` with its `<style>` elements cut out, and their bodies, the way the
+/// harness's `/<!--[\s\S]*?-->|<script\b[^>]*>[\s\S]*?<\/script\s*>|<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi`
+/// reads a page: a `<style>` inside a comment or a script (a string that
+/// builds markup, say) is text, not a style element, as an HTML parser has it.
 pub fn split_styles(html: &str) -> (String, Vec<String>) {
     let b = html.as_bytes();
     let mut kept = String::with_capacity(html.len());
     let mut bodies = Vec::new();
     let mut last = 0;
     let mut i = 0;
-    while let Some(at) = find_ci(b, b"<style", i) {
-        let after = at + 6;
-        if after < b.len() && is_word_byte(b[after]) {
-            i = at + 1;
-            continue;
-        }
-        let Some(gt) = b[after..].iter().position(|&c| c == b'>').map(|p| after + p) else { break };
-        let body_start = gt + 1;
-        // the first `</style\s*>` after the open tag
-        let mut j = body_start;
-        let mut close = None;
-        while let Some(c) = find_ci(b, b"</style", j) {
-            let mut k = c + 7;
-            while k < b.len() && b[k].is_ascii_whitespace() {
-                k += 1;
+    while i < b.len() {
+        let Some(at) = b[i..].iter().position(|&c| c == b'<').map(|p| i + p) else { break };
+        let rest = &b[at..];
+        if rest.starts_with(b"<!--") {
+            if let Some(p) = find_ci(b, b"-->", at + 4) {
+                i = p + 3;
+                continue;
             }
-            if k < b.len() && b[k] == b'>' {
-                close = Some((c, k + 1));
-                break;
+        } else if rest.len() >= 7 && rest[..7].eq_ignore_ascii_case(b"<script") {
+            if let Some(gt) = open_tag_end(b, at, 7) {
+                if let Some((_, end)) = find_close(b, b"</script", gt) {
+                    i = end;
+                    continue;
+                }
             }
-            j = c + 1;
+        } else if rest.len() >= 6 && rest[..6].eq_ignore_ascii_case(b"<style") {
+            if let Some(body_start) = open_tag_end(b, at, 6) {
+                if let Some((c, end)) = find_close(b, b"</style", body_start) {
+                    kept.push_str(&html[last..at]);
+                    bodies.push(html[body_start..c].to_string());
+                    last = end;
+                    i = end;
+                    continue;
+                }
+            }
         }
-        let Some((c, end)) = close else {
-            i = at + 1;
-            continue;
-        };
-        kept.push_str(&html[last..at]);
-        bodies.push(html[body_start..c].to_string());
-        last = end;
-        i = end;
+        i = at + 1;
     }
     kept.push_str(&html[last..]);
     (kept, bodies)
@@ -272,6 +297,17 @@ mod tests {
         let (kept, bodies) = split_styles("<p><STYLE media=x>.a{}</style ><styles></styles><style>.b{}</style>");
         assert_eq!(bodies, vec![".a{}", ".b{}"]);
         assert_eq!(kept, "<p><styles></styles>");
+    }
+
+    #[test]
+    fn style_text_in_scripts_and_comments_is_not_css() {
+        let page = "<script>const t = `<style>.x{}</style>`;</script><!-- <style>.y{}</style> --><style>.z{}</style>";
+        let (kept, bodies) = split_styles(page);
+        assert_eq!(bodies, vec![".z{}"]);
+        assert!(kept.contains(".x{}") && kept.contains(".y{}"));
+        // an unclosed script or comment hides nothing
+        let (_, bodies) = split_styles("<!-- <style>.a{}</style><script><style>.b{}</style>");
+        assert_eq!(bodies, vec![".a{}", ".b{}"]);
     }
 
     #[test]

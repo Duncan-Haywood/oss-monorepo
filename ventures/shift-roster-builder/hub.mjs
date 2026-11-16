@@ -7,7 +7,7 @@ import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zone
 import { readPayEnv, payForTimesheet, MEAL_RULES } from "./payrules.mjs";
 import { readLeaveEnv, leaveBalances, addLeaveUse, removeLeaveUse, setLeaveOpening, leaveCsv } from "./leave.mjs";
 import { setPin, hasPin, checkPin, validPin, readGeofence, placeOf, GEO_SCRIPT } from "./clockguard.mjs";
-import { readNoticeEnv, diffAssignments, logChanges, markRequested, noticeReport, noticeCsv, slotLabel, MAX_CHANGES } from "./notice.mjs";
+import { readNoticeEnv, diffAssignments, logChanges, markRequested, noticeReport, noticeCsv, slotLabel, teamOfferText, standbyNoticeText, standbyAskText, onCallShifts, MAX_CHANGES } from "./notice.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -45,7 +45,7 @@ export function notifier(env, fetchImpl = globalThis.fetch) {
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body, head = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${head}<title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
-export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [], punches: [], punchSeq: 0, leaveUses: [], leaveSeq: 0, leaveOpening: {}, leaveBank: {}, changeLog: [], changeSeq: 0, postedAt: {} }; }
+export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [], punches: [], punchSeq: 0, leaveUses: [], leaveSeq: 0, leaveOpening: {}, leaveBank: {}, changeLog: [], changeSeq: 0, postedAt: {}, onCall: {}, standby: [], standbyHistory: [] }; }
 
 // What staff may see: who works when. Never wages, hour caps or the cost of the week.
 // `owner` (optional) is a roster built in the manager's browser (BUILD_IN_BROWSER): it is checked against every hard
@@ -67,6 +67,7 @@ export function publish(state, now, owner = null) {
     if (!Number.isFinite(state.postedAt[ws])) state.postedAt[ws] = now;
     const keep = new Set([ws, state.published && state.published.weekStart, ...(state.history || []).map((h) => h.weekStart)]);
     for (const k of Object.keys(state.postedAt)) if (!keep.has(k)) delete state.postedAt[k];
+    if (state.onCall && typeof state.onCall === "object") for (const k of Object.keys(state.onCall)) if (!keep.has(k.split("|")[0])) delete state.onCall[k];
   }
   // Keep earlier weeks (last 12) for the calendar feed; publishing the same week again replaces it.
   if (state.published && state.published.weekStart && state.published.weekStart !== (state.weekStart || null)) {
@@ -112,7 +113,29 @@ function clockSection(state, token, p, tc) {
   return `<h2>Clock in or out</h2><p class="note">On the clock now: ${list || "nobody"}. Times are ${esc(tc.tz)}.</p><form method="post" action="/team/punch?t=${esc(token)}"${fence ? " data-geo" : ""}>${geo}<label>Who are you?<select name="name" required>${p.people.map((q) => `<option>${esc(q.name)}</option>`).join("")}</select></label>${pinBox}<button name="kind" value="in">Clock in</button><button name="kind" value="out">Clock out</button></form>${geoNote}<p class="note">The time is taken from the server when you press the button, not from your phone. Forgot to punch? Tell your manager; they can add it, and it is marked as added by them.</p>${fence ? GEO_SCRIPT : ""}`;
 }
 
-function teamPage(state, token, tc = null) {
+// The voluntary standby list (Oregon ORS 653.432; on where the rule set has standby, FWW_STANDBY=1 elsewhere): who
+// agreed in writing to be asked for extra hours, and a dated record of each join and removal.
+export const MAX_STANDBY_HISTORY = 500;
+const standbyNames = (state) => (state.standby || []).map((x) => x.person);
+function standbyLog(state, person, act, by, at) {
+  if (!Array.isArray(state.standbyHistory)) state.standbyHistory = [];
+  state.standbyHistory.push({ person, act, by, at });
+  if (state.standbyHistory.length > MAX_STANDBY_HISTORY) state.standbyHistory.splice(0, state.standbyHistory.length - MAX_STANDBY_HISTORY);
+}
+// People on the list the employer has not asked for this call-out (ORS 653.455(3)(k)(C)), leaving out the caller and
+// the person taking the shift.
+export function standbyNotAsked(state, c, taker = "") {
+  const asked = new Set(c.standbyAsked || []);
+  return standbyNames(state).filter((n) => n !== c.person && n !== taker && !asked.has(n));
+}
+
+function standbySection(state, token, p) {
+  const on = standbyNames(state), names = p.people.map((q) => q.name);
+  const asks = state.callouts.filter((c) => c.standbyAskedAt && (c.standbyAsked || []).length).map((c) => `<form method="post" action="/team/standby-take?t=${esc(token)}"><p>${esc(c.standbyText || standbyAskText(c, p.weekStart))}</p><input type="hidden" name="shift" value="${esc(c.person + "|" + c.day + "|" + c.startMin + "|" + c.endMin)}"><label>Who are you?<select name="name" required>${c.standbyAsked.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><button>I'll take it</button>${(c.standbyAccepts || []).length ? `<span class="note"> Already said yes: ${c.standbyAccepts.map((a) => esc(a.person)).join(", ")}.</span>` : ""}</form>`).join("");
+  return `<h2>Standby list (voluntary)</h2><ul>${standbyNoticeText().map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="note">On the list now: ${on.length ? on.map(esc).join(", ") : "nobody"}.</p>${asks ? `<h3>Extra hours offered to the standby list</h3>${asks}` : ""}<form method="post" action="/team/standby?t=${esc(token)}"><label>Who are you?<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label><input type="checkbox" name="agree" value="yes" required style="width:auto"> I have read the above and agree in writing to be on the standby list.</label><button name="act" value="join">Join the standby list</button></form>${on.length ? `<form method="post" action="/team/standby?t=${esc(token)}"><label>Take me off the list<select name="name" required>${on.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><button name="act" value="leave">Leave the standby list</button></form>` : ""}<p class="note">Not joining, leaving, or saying no to hours will not count against you. Your manager keeps a dated record of who joined and left.</p>`;
+}
+
+function teamPage(state, token, tc = null, fww = null) {
   const p = state.published;
   const form = `<h2>Send your availability</h2><form method="post" action="/team/reply?t=${esc(token)}"><label>One line: <code>Your name | Mon-Fri 9-17; Sat off | max: 30</code><input name="line" required maxlength="300"></label><button>Send</button></form><p class="note">Your manager sees it and decides. Nothing changes until they merge it.</p>`;
   const mine = (p ? p.assignments.filter((a) => a.person) : []).map((a, i) => ({ a, i })).sort((x, y) => x.a.person.localeCompare(y.a.person) || x.a.slot.day - y.a.slot.day || x.a.slot.startMin - y.a.slot.startMin);
@@ -125,13 +148,16 @@ function teamPage(state, token, tc = null) {
   const openSeen = new Set();
   const openUnique = (p ? p.assignments.filter((a) => !a.person) : []).filter((a) => !openSeen.has(openKey(a)) && openSeen.add(openKey(a)));
   const claim = p && openUnique.length && p.people.length ? `<h2>Open shifts you can pick up</h2><form method="post" action="/team/claim?t=${esc(token)}"><label>Shift<select name="shift" required>${openUnique.map((a) => `<option value="${esc(openKey(a))}">${esc(dl(a.slot.day))} ${esc(fmtClock(a.slot.startMin))}-${esc(fmtClock(a.slot.endMin))}${a.slot.label ? " (" + esc(a.slot.label) + ")" : ""}</option>`).join("")}</select></label><label>Who are you?<select name="name" required>${p.people.map((q) => `<option>${esc(q.name)}</option>`).join("")}</select></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Ask to take it</button></form><p class="note">This only asks. Your manager sees whether it fits your availability, rest and hour limits and decides; the shift stays open until they approve.</p>` : "";
+  const offered = p ? state.callouts.filter((c) => c.offeredAt) : [];
+  const offers = offered.length && p.people.length ? `<h2>Shifts offered to everyone</h2>${offered.map((c) => `<form method="post" action="/team/offer?t=${esc(token)}"><p>${esc(c.offerText || teamOfferText(c, p.weekStart))}</p><input type="hidden" name="shift" value="${esc(c.person + "|" + c.day + "|" + c.startMin + "|" + c.endMin)}"><label>Who are you?<select name="name" required>${p.people.filter((q) => q.name !== c.person).map((q) => `<option>${esc(q.name)}</option>`).join("")}</select></label><button>I'll take it</button>${(c.accepts || []).length ? `<span class="note"> Already said yes: ${(c.accepts || []).map((a) => esc(a.person)).join(", ")}.</span>` : ""}</form>`).join("")}<p class="note">Saying yes tells your manager; they give the shift to one person who said yes and fits the rules.</p>` : "";
   const names = p ? p.people.map((q) => q.name) : [];
   const off = names.length ? `<h2>Need days off?</h2><form method="post" action="/team/timeoff?t=${esc(token)}"><label>Who are you?<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>First day<input type="date" name="from" required></label><label>Last day (leave blank for one day)<input type="date" name="to"></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Ask my manager</button></form><p class="note">This only asks. If your manager agrees, the days come off your availability when they build that week.</p>` : "";
   if (!p) return page("Team schedule", `<p>No schedule has been published yet.</p>${form}`, teamHead(token));
   const clockBlock = tc && p.people.length ? clockSection(state, token, p, tc) : "";
+  const standbyBlock = fww && fww.standby && p.people.length ? standbySection(state, token, p) : "";
   const msgs = rosterMessages({ assignments: p.assignments, people: p.people }, p.weekStart);
   const rows = msgs.map((m) => `<tr><td><strong>${esc(m.person)}</strong></td><td>${esc(m.text.split("\n").slice(1, -1).join(" · ") || "no shifts")}</td><td>${p.weekStart && m.shifts ? `<a href="/team/ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Add to calendar</a><br><a href="/team/feed.ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Live feed</a>` : ""}</td></tr>`).join("");
-  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${clockBlock}${claim}${callout}${trade}${off}${form}<p class="note">Calendar: "Live feed" is a link to paste into your calendar app's "add calendar from URL"; it keeps past weeks and updates when your manager publishes again. Tip: add this page to your home screen to open it like an app. It keeps the last schedule your phone saw, so you can read it with no signal.</p>`, teamHead(token));
+  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${clockBlock}${offers}${standbyBlock}${claim}${callout}${trade}${off}${form}<p class="note">Calendar: "Live feed" is a link to paste into your calendar app's "add calendar from URL"; it keeps past weeks and updates when your manager publishes again. Tip: add this page to your home screen to open it like an app. It keeps the last schedule your phone saw, so you can read it with no signal.</p>`, teamHead(token));
 }
 
 // Who could take each reported shift without moving anyone else, cheapest first. Read from the published week itself
@@ -261,15 +287,23 @@ f.addEventListener("submit", async (e) => {
 });
 </script>`;
 
+function standbyAdmin(state, k) {
+  const on = state.standby || [], hist = [...(state.standbyHistory || [])].reverse().slice(0, 20);
+  return `<h2>Standby list (${on.length})</h2><p class="note">Staff join on their page by agreeing in writing to the notice ORS 653.432(1) asks for, and leave there or by asking you. Remove someone the moment they ask; coercing anyone onto the list carries a civil penalty of up to $2,000 a violation (653.432(7)). The list is not the on-call schedule and need not be posted with it (653.432(8)).</p>${on.length ? `<table><thead><tr><th>Person</th><th>Agreed</th><th></th></tr></thead><tbody>${on.map((x) => `<tr><td>${esc(x.person)}</td><td>${esc(String(x.at).slice(0, 16).replace("T", " "))} UTC</td><td><form method="post" action="/admin/standby-remove?key=${k}"><input type="hidden" name="name" value="${esc(x.person)}"><button>Remove (they asked)</button></form></td></tr>`).join("")}</tbody></table>` : ""}${hist.length ? `<p class="note">Record (latest 20 of ${(state.standbyHistory || []).length}): ${hist.map((h) => `${esc(h.person)} ${esc(h.act)} ${esc(String(h.at).slice(0, 10))}${h.by === "manager" ? " (by manager)" : ""}`).join("; ")}.</p>` : ""}`;
+}
+
 const slotText = (x) => `${esc(DAYS[x.day])} ${esc(fmtClock(x.startMin))}-${esc(fmtClock(x.endMin))}`;
 
-function adminPage(state, key, note = "", browserBuild = false, clockOn = false) {
-  const k = esc(key), p = state.published;
-  const calls = calloutRows(state).map(({ c, fits, note: n }, i) => `<tr><td><strong>${esc(c.person)}</strong> cannot make ${esc(DAYS[c.day])} ${esc(fmtClock(c.startMin))}-${esc(fmtClock(c.endMin))}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fits.length ? fits.map((f) => `${esc(f.name)} (${f.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(f.extraCost)))}${f.overtimeAfter > 0 ? ", overtime" : ""})`).join("; ") : "nobody free can take it without changing someone else's week"}</td><td>${fits && fits.length ? `<form method="post" action="/admin/cover?key=${k}"><input type="hidden" name="i" value="${i}">${fits.map((f) => `<button name="name" value="${esc(f.name)}">Give to ${esc(f.name)}</button>`).join(" ")}</form>` : ""}</td></tr>`).join("");
-  const callBlock = state.callouts.length ? `<h2>Call-outs (${state.callouts.length})</h2><table><thead><tr><th>Request</th><th>Could cover, cheapest first</th><th></th></tr></thead><tbody>${calls}</tbody></table><form method="post" action="/admin/clear-callouts?key=${k}"><button>Clear call-outs</button></form>` : "";
+function adminPage(state, key, note = "", browserBuild = false, clockOn = false, fww = null) {
+  const k = esc(key), p = state.published, sbOn = !!(fww && fww.standby);
+  const calls = calloutRows(state).map(({ c, fits, note: n }, i) => `<tr><td><strong>${esc(c.person)}</strong> cannot make ${esc(DAYS[c.day])} ${esc(fmtClock(c.startMin))}-${esc(fmtClock(c.endMin))}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fits.length ? fits.map((f) => `${esc(f.name)} (${f.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(f.extraCost)))}${f.overtimeAfter > 0 ? ", overtime" : ""})`).join("; ") : "nobody free can take it without changing someone else's week"}</td><td>${fits && fits.length ? `<form method="post" action="/admin/cover?key=${k}"><input type="hidden" name="i" value="${i}">${fits.map((f) => `<button name="name" value="${esc(f.name)}">Give to ${esc(f.name)}${(c.standbyAccepts || []).some((a) => a.person === f.name) ? " (said yes from the standby list)" : (c.accepts || []).some((a) => a.person === f.name) ? " (said yes to the team offer)" : ""}</button>`).join(" ")}</form>` : ""}${n || !sbOn ? "" : c.standbyAskedAt ? `<p class="note">Standby list asked ${esc(String(c.standbyAskedAt).slice(0, 16).replace("T", " "))} UTC (${(c.standbyAsked || []).map(esc).join(", ")}). ${(c.standbyAccepts || []).length ? `Said yes: ${c.standbyAccepts.map((a) => esc(a.person)).join(", ")}.` : "Nobody has said yes yet."}</p>` : standbyNotAsked(state, c).length ? `<form method="post" action="/admin/standby-ask?key=${k}"><input type="hidden" name="i" value="${i}"><button>Ask the standby list (${standbyNotAsked(state, c).length})</button></form>` : ""}${n ? "" : c.offeredAt ? `<p class="note">Offered to the whole team ${esc(String(c.offeredAt).slice(0, 16).replace("T", " "))} UTC. ${(c.accepts || []).length ? `Said yes: ${(c.accepts || []).map((a) => esc(a.person)).join(", ")}. Giving it to one of them logs the added shift as taken from the offer.` : "Nobody has said yes yet."}</p>` : `<form method="post" action="/admin/offer?key=${k}"><input type="hidden" name="i" value="${i}"><button>Offer to the whole team</button></form>`}</td></tr>`).join("");
+  const callBlock = state.callouts.length ? `<h2>Call-outs (${state.callouts.length})</h2><p class="note">"Offer to the whole team" posts the shift on the staff page (and to the team webhook) as a written group offer saying taking it is voluntary. Where FAIR_WORKWEEK is seattle or oregon, the hours someone takes from that offer owe no predictability pay; giving the shift straight to someone does.${sbOn ? ` In Oregon that holds only once everyone on the standby list has been asked (ORS 653.455(3)(k)(C)), so ask the standby list first; hours someone on it agrees to owe nothing (ORS 653.432(4)).` : ""}</p><table><thead><tr><th>Request</th><th>Could cover, cheapest first</th><th></th></tr></thead><tbody>${calls}</tbody></table><form method="post" action="/admin/clear-callouts?key=${k}"><button>Clear call-outs</button></form>` : "";
   const tr = tradeRows(state).map(({ t, v, note: n }, i) => `<tr><td><strong>${esc(t.a.person)}</strong> gives ${slotText(t.a)}<br><strong>${esc(t.b.person)}</strong> gives ${slotText(t.b)}${t.note ? `<br><span class="note">"${esc(t.note)}"</span>` : ""}</td><td>${n ? esc(n) : v.ok ? `<span class="ok">Keeps both weeks inside the rules</span> (payroll ${v.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(v.extraCost)))})` : `<span class="err">Blocked:</span> ${v.problems.map((x) => `${esc(x.name)} ${esc(x.reason)}`).join("; ")}`}</td><td><form method="post" action="/admin/trade?key=${k}"><input type="hidden" name="i" value="${i}"><button name="act" value="approve" ${v && v.ok ? "" : "disabled"}>Approve</button><button name="act" value="decline">Decline</button></form></td></tr>`).join("");
   const tradeBlock = state.trades.length ? `<h2>Trade requests (${state.trades.length})</h2><table><thead><tr><th>Request</th><th>Check</th><th></th></tr></thead><tbody>${tr}</tbody></table>` : "";
   const cl = claimRows(state).map(({ c, fit, blocked, note: n }, i) => `<tr><td><strong>${esc(c.person)}</strong> asks to take ${slotText(c)}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fit ? `<span class="ok">Fits inside the rules</span> (payroll ${fit.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(fit.extraCost)))}${fit.overtimeAfter > 0 ? ", overtime" : ""})` : `<span class="err">Blocked:</span> ${esc(c.person)} ${esc(blocked)}`}</td><td><form method="post" action="/admin/claim?key=${k}"><input type="hidden" name="i" value="${i}">${fit ? `<button name="act" value="approve">Approve</button>` : blocked ? `<button name="act" value="override">Approve anyway</button>` : ""}<button name="act" value="decline">Decline</button></form></td></tr>`).join("");
+  const ocs = onCallShifts(state.published, state.onCall || {});
+  const ocRow = (x) => `<tr><td><strong>${esc(x.person)}</strong></td><td>${esc(slotLabel(x.slot))}</td><td>${x.status === "waiting" ? `<form method="post" action="/admin/oncall?key=${k}"><input type="hidden" name="key" value="${esc(x.key)}"><button name="act" value="called">Called in</button><button name="act" value="released">Not needed</button></form>` : x.status === "called" ? "Called in" : "Not needed (logged on the changes page)"}</td></tr>`;
+  const onCallBlock = ocs.length ? `<h2>On-call shifts (${ocs.filter((x) => x.status === "waiting").length} waiting)</h2><p class="note">Shifts whose label says "on-call". Mark each one called in or not needed as soon as you know: "Not needed" is logged as hours taken away and priced on the <a href="/admin/changes?key=${k}">changes page</a>; one still waiting when it ends is counted there as never called in.</p><table><thead><tr><th>Person</th><th>Shift</th><th></th></tr></thead><tbody>${ocs.map(ocRow).join("")}</tbody></table>` : "";
   const claimBlock = state.claims.length ? `<h2>Open-shift requests (${state.claims.length})</h2><p class="note">A shift is open because nobody on the staff list was free for it. A request that breaks a standing rule can still be approved, as your decision, once you have agreed it with the person (they said yes to a one-off). It is the rule shown, not a check, that you are overriding.</p><table><thead><tr><th>Request</th><th>Check</th><th></th></tr></thead><tbody>${cl}</tbody></table>` : "";
   const ofs = state.offs.map((o, i) => `<tr><td><strong>${esc(o.person)}</strong> asks for ${esc(o.entry.replace("..", " to "))} off${o.note ? `<br><span class="note">"${esc(o.note)}"</span>` : ""}</td><td><form method="post" action="/admin/timeoff?key=${k}"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Add to staff list</button><button name="act" value="decline">Decline</button></form></td></tr>`).join("");
   // Nothing is sent by the server (no SMS or email bill): each link opens the manager's own messaging app with the
@@ -286,6 +320,8 @@ function adminPage(state, key, note = "", browserBuild = false, clockOn = false)
 ${tellBlock}
 ${callBlock}
 ${tradeBlock}
+${onCallBlock}
+${sbOn ? standbyAdmin(state, k) : ""}
 ${claimBlock}
 ${offBlock}
 <h2>Availability replies (${state.replies.length})</h2>
@@ -386,15 +422,17 @@ function changesPage(state, key, fww, rep, tz, note = "") {
     : `<p class="note">No rule set is chosen, so nothing is priced; the log below is kept anyway. Set FAIR_WORKWEEK to seattle, oregon or chicago (or custom with FWW_NOTICE_DAYS, FWW_ADD_HOURS, FWW_CANCEL_FRACTION, FWW_CANCEL_WINDOW_HOURS, FWW_CANCEL_ELSE_HOURS, FWW_MIN_MOVE_MIN, FWW_MIN_EXTEND_MIN, FWW_REST_HOURS, FWW_REST_MULT).</p>`;
   const when = (ms) => { try { return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms)).replace(",", ""); } catch { return new Date(ms).toISOString(); } };
   const rows = rep.priced.map((p) => `<tr><td>${esc(when(p.at))}</td><td><strong>${esc(p.person)}</strong></td><td>${esc(p.kind)}: ${esc(slotLabel(p.from))}${p.from && p.to ? " to " : ""}${esc(slotLabel(p.to))}${p.weekStart ? `<br><span class="note">week of ${esc(p.weekStart)}</span>` : ""}</td><td>${esc(p.cause)}</td><td>${p.noticeH == null ? "" : p.noticeH >= 48 ? `${(p.noticeH / 24).toFixed(1)} days` : `${p.noticeH.toFixed(1)} h`}</td><td>${p.unpriced ? `<span class="err">${p.hoursOfPay} h of pay, no wage</span>` : p.premium ? `<strong>${esc($(p.premium))}</strong>` : ""}<br><span class="note">${esc(p.why)}</span></td><td><form method="post" action="/admin/change-mark?key=${k}"><input type="hidden" name="id" value="${p.id}">${p.requested ? `<button name="requested" value="0">Not requested</button>` : `<button name="requested" value="1">Employee asked</button>`}</form></td></tr>`).join("");
+  const never = (rep.never || []).map((x) => `<tr><td><strong>${esc(x.person)}</strong></td><td>${esc(slotLabel(x.from))}</td><td>${x.lostH.toFixed(2)} h</td><td>${x.unpriced ? `<span class="err">${x.hoursOfPay} h of pay, no wage</span>` : esc($(x.premium || 0))}</td></tr>`).join("");
   const late = rep.late.map((x) => `<li>${esc(x.person)}, week of ${esc(x.weekStart)}, ${esc(slotLabel(x.slot))}: posted ${x.noticeH >= 48 ? `${(x.noticeH / 24).toFixed(1)} days` : `${x.noticeH.toFixed(1)} h`} ahead</li>`).join("");
   const rests = rep.rests.map((x) => `<tr><td><strong>${esc(x.person)}</strong></td><td>${x.firstLastWeek ? "last week's " : ""}${esc(slotLabel(x.first))} then ${esc(slotLabel(x.second))}</td><td>${x.gapH.toFixed(1)} h</td><td>${x.insideH.toFixed(2)} h</td><td>${x.premium == null ? `<span class="err">no wage</span>` : esc($(x.premium))}</td></tr>`).join("");
   return page("Schedule changes", `${note}${how}
-<p>${rep.priced.length} change(s) logged${rules ? `. Notice pay to check: <strong>${esc($(rep.changeTotal))}</strong>; short-rest pay above the regular rate this week: <strong>${esc($(rep.restTotal))}</strong>${rep.unpriced ? ` (${rep.unpriced} item(s) have no wage in the staff list)` : ""}` : ""}. <a href="/admin/changes.csv?key=${k}">Download CSV</a> · <a href="/admin?key=${k}">Back to admin</a></p>
-<p class="note">Logged by themselves: a week published again (what it changed for whom), an approved trade or open-shift pick-up (marked employee-asked), and a call-out given to someone (the caller's dropped shift marked employee-asked; the added shift is not, because you picked the person). Mark a change "Employee asked" when they asked for it in writing, and keep that request. Seattle asks for records to be kept three years: the hub keeps the last ${MAX_CHANGES} changes, so download the CSV with each payroll.</p>
+<p>${rep.priced.length} change(s) logged${rules ? `. Notice pay to check: <strong>${esc($(rep.changeTotal))}</strong>; short-rest pay above the regular rate this week: <strong>${esc($(rep.restTotal))}</strong>${rep.never && rep.never.length ? `; on-call shifts never called in: <strong>${esc($(rep.onCallTotal))}</strong>` : ""}${rep.unpriced ? ` (${rep.unpriced} item(s) have no wage in the staff list)` : ""}` : ""}. <a href="/admin/changes.csv?key=${k}">Download CSV</a> · <a href="/admin?key=${k}">Back to admin</a></p>
+<p class="note">Logged by themselves: a week published again (what it changed for whom), an approved trade or open-shift pick-up (marked employee-asked), and a call-out given to someone (the caller's dropped shift marked employee-asked; the added shift is not, because you picked the person, unless they said yes to your offer to the whole team: then it is marked "team offer"), and an on-call shift you mark not needed. Mark a change "Employee asked" when they asked for it in writing, and keep that request. Seattle asks for records to be kept three years: the hub keeps the last ${MAX_CHANGES} changes, so download the CSV with each payroll.</p>
+${rules && never ? `<h2>On-call shifts never called in</h2><p class="note">Ended without being marked called in or not needed on the admin page, so counted as released at the start: ${esc($(rep.onCallTotal))}. If the person did work it, mark it called in.</p><table><thead><tr><th>Person</th><th>Shift</th><th>Hours</th><th>Owed</th></tr></thead><tbody>${never}</tbody></table>` : ""}
 ${rules && late ? `<h2>Posted with less than ${rules.noticeDays} days' notice</h2><ul>${late}</ul>` : ""}
 ${rules && rests ? `<h2>Short rests this week</h2><table><thead><tr><th>Person</th><th>Shifts</th><th>Rest</th><th>Hours inside the window</th><th>Extra pay (${rules.restMult - 1}x)</th></tr></thead><tbody>${rests}</tbody></table>` : ""}
 <h2>Changes, newest first</h2><table><thead><tr><th>When (${esc(tz)})</th><th>Person</th><th>Change</th><th>Cause</th><th>Notice</th><th>Premium</th><th></th></tr></thead><tbody>${rows || `<tr><td colspan="7">No changes yet. Publishing a week again, or approving a trade, pick-up or cover, logs one.</td></tr>`}</tbody></table>
-<p class="note">An estimate from the published rule set's main numbers, to check before payroll. Not modelled: which employers are covered, emergency and mass-communication exceptions, on-call shifts, the right to decline added hours, and the good-faith estimate at hire.</p>`);
+<p class="note">An estimate from the published rule set's main numbers, to check before payroll. Not modelled: which employers are covered, the emergency exceptions, the right to decline added hours, and the good-faith estimate at hire. Oregon's numbers, its standby list and the standby-first condition on its team offer are from ORS 653.432 and 653.455 as published by the Oregon Legislature; Seattle's and Chicago's team-offer exception and on-call pay come from summaries of their guidance, not the code's text.</p>`);
 }
 
 export function handler(state, save, env = globalThis.process?.env ?? {}, now = Date.now, fetchImpl = globalThis.fetch) {
@@ -426,7 +464,7 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
     const back = (dest, note) => send(303, "", "text/plain", { location: dest + (note ? `&note=${encodeURIComponent(note)}` : "") });
     const t = url.searchParams.get("t");
     if (isTeam) {
-      if (req.method === "GET" && url.pathname === "/team") return send(200, teamPage(state, t, clockOn ? tcNow() : null));
+      if (req.method === "GET" && url.pathname === "/team") return send(200, teamPage(state, t, clockOn ? tcNow() : null, fww));
       if (req.method === "GET" && url.pathname === "/team/manifest.webmanifest") return send(200, manifestFor(t), "application/manifest+json");
       if (req.method === "GET" && url.pathname === "/team/icon.svg") return send(200, ICON_SVG, "image/svg+xml");
       if (req.method === "GET" && url.pathname === "/team/sw.js") return send(200, SW_JS, "text/javascript; charset=utf-8", { "service-worker-allowed": "/team" });
@@ -508,6 +546,59 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
         }
         return send(200, page("Thanks", `<p class="ok">Your manager has been asked. The shift stays open until they approve.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
       }
+      if (req.method === "POST" && url.pathname === "/team/offer") {
+        const p = state.published, [who, day, startMin, endMin] = String(form.get("shift") || "").split("|"), person = String(form.get("name") || "");
+        const bad = (m) => send(400, page("Could not read that", `<p class="err">${esc(m)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
+        const c = state.callouts.find((x) => x.offeredAt && x.person === who && String(x.day) === day && String(x.startMin) === startMin && String(x.endMin) === endMin);
+        if (!p || !c) return bad("That offer is no longer open.");
+        if (person === c.person || !p.people.some((q) => q.name === person)) return bad("Pick your name from the list.");
+        if (!Array.isArray(c.accepts)) c.accepts = [];
+        if (!c.accepts.some((a) => a.person === person)) {
+          c.accepts.push({ person, at: new Date(now()).toISOString() });
+          if (c.accepts.length > 50) c.accepts.shift();
+          notify.manager(`${person} said yes to the team offer for ${c.person}'s ${DAYS[c.day]} ${fmtClock(c.startMin)}-${fmtClock(c.endMin)} shift.`);
+          save();
+        }
+        return send(200, page("Thanks", `<p class="ok">Your manager has been told you said yes. The shift is yours once they give it to you.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
+      }
+      if (req.method === "POST" && url.pathname === "/team/standby") {
+        const p = state.published, person = String(form.get("name") || ""), act = String(form.get("act") || "");
+        const bad = (m) => send(400, page("Could not read that", `<p class="err">${esc(m)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
+        if (!fww || !fww.standby) return send(404, "not found\n", "text/plain");
+        if (!Array.isArray(state.standby)) state.standby = [];
+        const on = state.standby.some((x) => x.person === person), when = new Date(now()).toISOString();
+        if (act === "leave") {
+          if (!on) return bad("That name is not on the standby list.");
+          state.standby = state.standby.filter((x) => x.person !== person);
+          standbyLog(state, person, "left", "self", when);
+          notify.manager(`${person} left the standby list.`);
+          save();
+          return send(200, page("Done", `<p class="ok">You are off the standby list.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
+        }
+        if (act !== "join" || !p || !p.people.some((q) => q.name === person)) return bad("Pick your name from the list.");
+        if (form.get("agree") !== "yes") return bad("Joining needs your written agreement: tick the box.");
+        if (!on) {
+          state.standby.push({ person, at: when });
+          standbyLog(state, person, "joined", "self", when);
+          notify.manager(`${person} joined the standby list.`);
+          save();
+        }
+        return send(200, page("Thanks", `<p class="ok">You are on the standby list. You can leave it at any time on this page.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
+      }
+      if (req.method === "POST" && url.pathname === "/team/standby-take") {
+        const [who, day, startMin, endMin] = String(form.get("shift") || "").split("|"), person = String(form.get("name") || "");
+        const bad = (m) => send(400, page("Could not read that", `<p class="err">${esc(m)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
+        const c = state.callouts.find((x) => x.standbyAskedAt && x.person === who && String(x.day) === day && String(x.startMin) === startMin && String(x.endMin) === endMin);
+        if (!state.published || !c) return bad("Those hours are no longer offered.");
+        if (!(c.standbyAsked || []).includes(person) || !standbyNames(state).includes(person)) return bad("Only people on the standby list who were asked can take these hours.");
+        if (!Array.isArray(c.standbyAccepts)) c.standbyAccepts = [];
+        if (!c.standbyAccepts.some((a) => a.person === person)) {
+          c.standbyAccepts.push({ person, at: new Date(now()).toISOString() });
+          notify.manager(`${person} (standby list) said yes to ${c.person}'s ${DAYS[c.day]} ${fmtClock(c.startMin)}-${fmtClock(c.endMin)} shift.`);
+          save();
+        }
+        return send(200, page("Thanks", `<p class="ok">Your manager has been told you said yes. The hours are yours once they give them to you.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
+      }
       if (req.method === "POST" && url.pathname === "/team/timeoff") {
         const p = state.published, person = String(form.get("name") || "");
         const bad = (m) => send(400, page("Could not read that", `<p class="err">${esc(m)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
@@ -529,7 +620,7 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
     const snap = () => (state.published ? state.published.assignments.map((a) => ({ person: a.person, slot: { ...a.slot } })) : []);
     const logSince = (before, cause, asked) => logChanges(state, diffAssignments(before, state.published.assignments).map((c) => ({ ...c, requested: asked(c) })), { at: now(), weekStart: state.published.weekStart, cause });
     if (req.method === "GET" && (url.pathname === "/admin/changes" || url.pathname === "/admin/changes.csv")) {
-      const rep = noticeReport(state, fww && !fww.error ? fww : null, { tz, wages: wagesOf(state), weeks: weeksOf(state) });
+      const rep = noticeReport(state, fww && !fww.error ? fww : null, { tz, wages: wagesOf(state), weeks: weeksOf(state), nowMs: now() });
       if (url.pathname.endsWith(".csv")) return send(200, noticeCsv(rep, fww && !fww.error ? fww : null), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="schedule-changes.csv"` });
       return send(200, changesPage(state, adminKey, fww, rep, tz, url.searchParams.get("note") ? `<p class="ok">${esc(url.searchParams.get("note"))}</p>` : ""));
     }
@@ -540,7 +631,7 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
     }
     if (req.method === "GET" && url.pathname === "/admin") {
       const note = url.searchParams.get("note");
-      return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", browserBuild, clockOn));
+      return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", browserBuild, clockOn, fww));
     }
     if (clockOn && req.method === "GET" && url.pathname === "/admin/timesheet") {
       const note = url.searchParams.get("note");
@@ -675,14 +766,63 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       const row = calloutRows(state)[Number(form.get("i"))], name = String(form.get("name") || "");
       const before = snap();
       if (!row || !row.fits || !row.fits.some((f) => f.name === name) || !applyCover(state, row.c, name)) return back(here, "Not assigned: the shift changed or the person no longer fits.");
-      // The caller asked to drop the shift; the person given it was picked by the manager, so their added shift counts.
-      logSince(before, "cover", (c) => c.person === row.c.person);
+      // The caller asked to drop the shift. The person given it was picked by the manager, so their added shift counts,
+      // unless they said yes to the written offer to the whole team (the exception some rule sets have).
+      // Someone on the voluntary standby list who said yes when asked from it: logged as from the standby list. A team
+      // offer taken while people on the list were never asked carries how many (Oregon prices it then).
+      const viaStandby = !!row.c.standbyAskedAt && (row.c.standbyAccepts || []).some((a) => a.person === name);
+      const viaOffer = !viaStandby && !!row.c.offeredAt && (row.c.accepts || []).some((a) => a.person === name);
+      const open = viaOffer ? standbyNotAsked(state, row.c, name).length : 0;
+      if (viaStandby || viaOffer) logChanges(state, diffAssignments(before, state.published.assignments).map((c) => ({ ...c, requested: c.person === row.c.person, ...(c.person === name ? (viaStandby ? { standby: true, coverFor: row.c.person } : { massOffer: true, coverFor: row.c.person, standbyOpen: open }) : {}) })), { at: now(), weekStart: state.published.weekStart, cause: viaStandby ? "standby list" : "team offer" });
+      else logSince(before, "cover", (c) => c.person === row.c.person);
       // Asks that named this shift were checked against the old week: drop the call-out and any trade on it.
       const onIt = (x) => x.person === row.c.person && sameShift(x, row.c);
       state.callouts = state.callouts.filter((c) => !onIt(c));
       state.trades = state.trades.filter((t) => !onIt(t.a) && !onIt(t.b));
       save();
       return back(here, `Shift given to ${name}. The staff page shows it; tell them with the links below.`);
+    }
+    if (req.method === "POST" && url.pathname === "/admin/offer") {
+      const row = calloutRows(state)[Number(form.get("i"))];
+      if (!row || row.note || !state.published) return back(here, "Not offered: that call-out is gone or the shift changed.");
+      if (!row.c.offeredAt) {
+        row.c.offeredAt = new Date(now()).toISOString(); row.c.offerText = teamOfferText(row.c, state.published.weekStart); row.c.accepts = [];
+        const link = env.PUBLIC_URL ? `\nSay yes: ${String(env.PUBLIC_URL).replace(/\/+$/, "")}/team?t=${teamToken}` : "";
+        notify.team(row.c.offerText + link);
+        save();
+      }
+      return back(here, "Offered to the whole team on the staff page. Give it to someone who says yes.");
+    }
+    if (req.method === "POST" && url.pathname === "/admin/standby-ask") {
+      const row = calloutRows(state)[Number(form.get("i"))];
+      if (!fww || !fww.standby) return back(here, "The standby list is off for this rule set.");
+      if (!row || row.note || !state.published) return back(here, "Not asked: that call-out is gone or the shift changed.");
+      const names = standbyNotAsked(state, row.c);
+      if (!names.length) return back(here, "Nobody on the standby list is left to ask.");
+      row.c.standbyAskedAt = new Date(now()).toISOString(); row.c.standbyAsked = [...(row.c.standbyAsked || []), ...names]; row.c.standbyAccepts = row.c.standbyAccepts || [];
+      row.c.standbyText = standbyAskText(row.c, state.published.weekStart);
+      const link = env.PUBLIC_URL ? `\nSay yes: ${String(env.PUBLIC_URL).replace(/\/+$/, "")}/team?t=${teamToken}` : "";
+      notify.team(`${row.c.standbyText} For: ${names.join(", ")}.${link}`);
+      save();
+      return back(here, `Asked ${names.length} on the standby list. Give it to someone who says yes, or offer it to the whole team if nobody does.`);
+    }
+    if (req.method === "POST" && url.pathname === "/admin/standby-remove") {
+      if (!fww || !fww.standby) return back(here, "The standby list is off for this rule set.");
+      const name = String(form.get("name") || "");
+      if (!(state.standby || []).some((x) => x.person === name)) return back(here, "That name is not on the standby list.");
+      state.standby = state.standby.filter((x) => x.person !== name);
+      standbyLog(state, name, "removed", "manager", new Date(now()).toISOString());
+      save();
+      return back(here, `${name} is off the standby list.`);
+    }
+    if (req.method === "POST" && url.pathname === "/admin/oncall") {
+      const x = onCallShifts(state.published, state.onCall || {}).find((o) => o.key === String(form.get("key") || "")), act = String(form.get("act") || "");
+      if (!x || x.status !== "waiting" || (act !== "called" && act !== "released")) return back(here, "That on-call shift is gone or already marked.");
+      if (!state.onCall) state.onCall = {};
+      state.onCall[x.key] = { status: act, at: now() };
+      if (act === "released") logChanges(state, [{ person: x.person, kind: "cancelled", from: x.slot, to: null, onCall: true }], { at: now(), weekStart: state.published.weekStart, cause: "on-call not needed" });
+      save();
+      return back(here, act === "called" ? `${x.person} marked called in.` : `${x.person}'s on-call shift marked not needed and logged.`);
     }
     if (req.method === "POST" && url.pathname === "/admin/clear-callouts") {
       state.callouts = [];

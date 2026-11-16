@@ -34,6 +34,13 @@ LAUNCH = 0x81         # feeder, after TELEMETRY once a stroke has been judged (2
                       # fit is still under way (the Pi waits for it before a re-plan and at a drill's end); bit 6 /
                       # bit 7 the top / bottom loop fit's own misses give its drop a standard error over LOOP_SE_MAX
                       # (1%) of it (README "When the wheel is not a first-order lag")
+ESC_SURVEY = 0x82     # feeder, after LAUNCH once the board has surveyed a wheel (2026-11-16, README "The ESC lag surveyed
+                      # on the board"): uint8 wheels summed (to 255), uint16 the lag with the least summed residual, ms,
+                      # uint16 that lag refined between its neighbours, ms, then uint16 x ESC_SURVEY_LAGS: each grid lag's
+                      # mean residual rms in 1e-6 of the pre-ball speed (65535: no such lag); since 2026-11-16 the
+                      # sums leave out a wheel fitting over SURVEY_TRIM (5) x worse than the median one. The grid is the
+                      # firmware's ESC_SURVEY_GRID_US, 0 / 20 / 50 / 100 / 200 / 400 ms.
+ESC_SURVEY_LAGS = 6
 
 FORMATS = {
     HEARTBEAT: "",
@@ -48,6 +55,7 @@ FORMATS = {
     PICKUP: "<B",
     TELEMETRY: "<HhhhHB",
     LAUNCH: "<BhhhhB",
+    ESC_SURVEY: "<BHH" + "H" * ESC_SURVEY_LAGS,
 }
 
 # TELEMETRY flag bits

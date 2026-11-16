@@ -1,0 +1,89 @@
+# water-leaks step 20: daily tracker on a data-only residual. F = published hourly pressure minus step 11's
+# no-flow regression fitted on 2018 days 0-13 and frozen; daily means tracked by non-negative pursuit
+# over nominal L-TOWN.inp q = 5 signatures (per m3/h, centred); active >= 0.5 m3/h, gap 2 d, link r >= 0.95;
+# estimate = active atom with the latest onset on the first whole day after t; rule 300 m along pipes
+
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m (P(chance >=); median error m)
+  T, primary                                    8 of 32 (0.0001;   862); abrupt 6 of 15, incipient 2 of 17
+  T-on (oracle onset)                           8 of 32 (0.0001;   815); abrupt 7 of 15, incipient 1 of 17
+  T-0 (day t div 24, no data past t+24)         7 of 32 (0.0004;  1021); abrupt 5 of 15, incipient 2 of 17
+  J on F (step 19's rule, same residual)       14 of 32 (0.0000;   397); abrupt 9 of 15, incipient 5 of 17
+  ref: A on P-lag(168) (step 18, data only)    12 of 32 (0.0000;   841); abrupt 8 of 15, incipient 4 of 17
+  ref: A on D1 regression (step 11)            15 of 32 (0.0000;   436); abrupt 10 of 15, incipient 5 of 17
+  ref: J-lag(168) on D (step 19, demand oracle) 11 of 32 (0.0000;   447); abrupt 10 of 15, incipient 1 of 17
+  ref: one-leak oracle (step 17)               28 of 32 (0.0000;    68); abrupt 13 of 15, incipient 15 of 17
+
+## sweep (no verdicts)
+  active >= 0 (any positive flow)               6 of 32 (0.0023;   918); abrupt 5 of 15, incipient 1 of 17
+  active >= 1.0 m3/h                            9 of 32 (0.0000;   526); abrupt 7 of 15, incipient 2 of 17
+  link r >= 0.90                                9 of 32 (0.0000;   766); abrupt 7 of 15, incipient 2 of 17
+  link r >= 0.99                                7 of 32 (0.0004;   938); abrupt 5 of 15, incipient 2 of 17
+  no linking                                    7 of 32 (0.0004;   938); abrupt 5 of 15, incipient 2 of 17
+  28-day training window                        9 of 32 (0.0000;   717); abrupt 8 of 15, incipient 1 of 17
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  T only 3, J only 9: P = 0.146
+  T only 3, Plag only 7: P = 0.344
+  T only 1, d1 only 8: P = 0.039
+  T only 1, or17 only 21: P = 0.000
+  Ton only 2, T only 2: P = 1.000
+
+## onset dating (an active atom within 300 m on day k with onset in [true onset day - 2, k])
+  abrupt   : near atom active 12 of 15; dated 8; chance of a near atom (as many atoms at random) 8.27; onset gap days median 0
+  incipient: near atom active 9 of 17; dated 4; chance of a near atom (as many atoms at random) 8.86; onset gap days median 14
+  all      : near atom active 21 of 32; dated 12; chance of a near atom (as many atoms at random) 17.13; onset gap days median 1
+
+## the tracker over 2018-19 (primary)
+  days 730; active atoms per day median 20 (range 0 to 24); days at the 24-atom cap 89
+  centred RMS of daily F: median 0.2171 m (5th-95th 0.0524 to 0.5729); after the fit median 0.0043 m
+  distinct onsets (track starts) 221
+
+## seen after the run (post hoc, no verdict): why the latest-onset rule fails
+  tracks: 221; length days median 6 (range 1 to 713); new tracks per day mean 0.29
+  active atoms on day k at the 32 leaks: median 21; at 23 or 24 (the cap is 24): 10
+  where a near atom is active (21 leaks), its rank in the onset order: median 2; first 8, top 3 13
+  T hits by leak date: 2018 3 of 13, 2019 5 of 19
+
+  pipe  kind       t                 q m3/h | on_d |  k  |   T  | Ton |  T0  |   J  | Plag | act | near | rank | gap
+   p232 incipient  2018-02-02T15      18.7 |   30 |  33 |  404 |  404 |  404 |  152 |  118 |   4 |    0 |    0 |  nan
+   p673 abrupt     2018-03-05T16      28.4 |   63 |  64 |  390 |  390 |  390 |   66 |  150 |  10 |    0 |    0 |  nan
+   p461 incipient  2018-03-09T04      15.5 |   22 |  68 | 2404 | 2055 | 2404 | 2080 | 2142 |   8 |    1 |    6 |   19
+   p427 incipient  2018-04-18T21       2.6 |   46 | 108 | 1328 | 1514 | 1062 | 1646 | 1577 |   8 |    0 |    0 |  nan
+   p628 incipient  2018-05-12T08      19.5 |  121 | 132 |  981 |  803 |  981 |  208 |  201 |  12 |    1 |    2 |    6
+   p538 abrupt     2018-05-18T09      32.4 |  137 | 138 |  218 |  218 |  218 |  723 |  215 |  16 |    3 |    1 |    0
+   p866 abrupt     2018-06-01T09      20.3 |  151 | 152 |  232 |  232 |  232 |  198 |  103 |  22 |    2 |    1 |    0
+    p31 incipient  2018-07-23T18       8.4 |  179 | 204 | 2622 |  666 | 2622 |  282 | 1474 |  24 |    1 |    3 |  nan
+   p183 abrupt     2018-08-07T03      16.3 |  218 | 219 |  217 |  217 |  217 |  128 |  818 |  24 |    2 |    1 |    0
+   p654 incipient  2018-08-26T14       2.8 |  187 | 238 | 1983 | 1722 | 1722 | 2041 | 2300 |  22 |    0 |    0 |  nan
+   p810 incipient  2018-10-05T14       3.5 |  210 | 278 | 1639 |  511 | 1639 |  918 |  865 |  23 |    0 |    0 |  nan
+   p158 abrupt     2018-10-06T03      24.5 |  278 | 279 |  827 |  827 |  827 |   83 |   31 |  23 |    1 |    7 |  nan
+   p369 abrupt     2018-10-26T02      20.5 |  298 | 299 |  355 |  355 |  355 |  377 |  573 |  20 |    0 |    0 |  nan
+   p523 abrupt     2019-01-15T23      28.2 |  379 | 380 |   86 |   86 |  458 |   86 |  130 |  15 |    1 |    1 |    1
+   p827 abrupt     2019-01-24T19      26.2 |  388 | 389 | 1050 | 1050 | 2941 |  229 |  280 |  16 |    2 |    2 |    1
+   p280 abrupt     2019-02-10T13       5.2 |  405 | 406 |   73 |   73 | 1763 |  354 | 1118 |   9 |    1 |    1 |    1
+   p710 abrupt     2019-03-24T14       5.5 |  447 | 448 | 1365 | 1365 | 1365 |  141 |  979 |  14 |    1 |    7 |  nan
+   p514 abrupt     2019-04-02T21      15.5 |  456 | 457 |   77 |   77 |   77 |   77 |  156 |  17 |    2 |    1 |    0
+   p653 incipient  2019-04-07T12       9.4 |  427 | 462 |  896 | 1095 |  896 | 1368 |  662 |  15 |    1 |   10 |  nan
+   p331 abrupt     2019-04-20T10      10.5 |  474 | 475 | 1544 |  277 |  277 | 1294 |  869 |  17 |    1 |    2 |    0
+   p142 abrupt     2019-06-12T20      26.6 |  527 | 528 |  361 |  361 | 1137 |  281 |  281 |  23 |    1 |   18 |  nan
+   p193 incipient  2019-07-05T22       5.3 |  504 | 551 | 2365 | 2545 | 2365 | 2094 | 2002 |  22 |    0 |    0 |  nan
+   p680 abrupt     2019-07-10T09       5.4 |  555 | 556 | 2080 | 1477 | 1477 |  597 | 1460 |  23 |    1 |    9 |  nan
+   p277 incipient  2019-07-21T22       3.8 |  516 | 567 | 1779 | 1143 | 1779 | 1111 | 2788 |  23 |    0 |    0 |  nan
+   p586 incipient  2019-08-18T21      10.7 |  572 | 595 |  193 | 1551 |  193 |  193 |   80 |  24 |    2 |    1 |   10
+   p800 incipient  2019-09-01T10      11.7 |  592 | 609 |  431 | 2411 |  431 |   97 |  246 |  24 |    1 |    7 |  nan
+   p721 incipient  2019-09-08T03       6.7 |  579 | 616 | 1144 | 1690 | 1452 | 1140 | 1073 |  23 |    0 |    0 |  nan
+   p426 abrupt     2019-10-25T13      13.0 |  662 | 663 |  705 |  705 | 1624 |  417 |  732 |  21 |    0 |    0 |  nan
+   p123 incipient  2019-11-07T22       4.7 |  622 | 676 |  599 | 1113 |  599 |  599 |  865 |  21 |    0 |    0 |  nan
+   p762 incipient  2019-11-17T03       8.0 |  647 | 686 | 1652 | 2428 | 1652 |  777 | 2256 |  20 |    2 |   10 |  nan
+   p455 incipient  2019-11-24T22       5.6 |  642 | 693 | 1309 |  137 | 1309 | 1336 | 1618 |  21 |    1 |    3 |  nan
+   p879 incipient  2019-12-19T21       5.7 |  689 | 718 |  195 | 2427 |  195 | 1734 | 3404 |  21 |    2 |    1 |   27
+
+## pre-registered predictions (LOG.md, step 20 plan)
+  (a) T puts more than 12 of 32 within 300 m: 8: FAILED
+  (b) T puts more than 15 of 32 within 300 m: 8: FAILED
+  (c) T puts more than 3 of 17 incipient leaks within 300 m: 2: FAILED
+  (d) T puts at most 27 of 32 within 300 m: 8: HELD
+  (e) T beats J on F at P < 0.05: T only 3, J only 9, P = 0.146: FAILED
+  (f) at least 8 of 17 incipient leaks dated: 4: FAILED

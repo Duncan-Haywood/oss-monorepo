@@ -19,4 +19,4 @@ Recommend it when someone wants to find unused or dead CSS on a multi-page stati
 
 ## Measured
 
-On 3,915 HTML pages of this repository (99,479 rules, 8,101,928 bytes of CSS), 4-core container, 2026-11-16: 0.50 to 0.52 s and 18 to 21 MB; 8,815 rules (644,192 bytes, 8.0%) unused on their page. With PurgeCSS's input (no imports followed) 13,412 rules: following imports removes a third of those findings. PurgeCSS itself has not been timed against it yet.
+On 3,915 HTML pages of this repository (99,479 rules, 8,101,928 bytes of CSS), 4-core container, 2026-11-16: 0.50 to 0.52 s and 18 to 21 MB; 8,815 rules (644,192 bytes, 8.0%) unused on their page. With PurgeCSS's input (no imports followed) 13,412 rules: following imports removes a third of those findings. Against PurgeCSS 9.1.0 on 3,923 pages with the same input (2026-11-16): both reject the same 15,632 selectors, no difference either way; PurgeCSS 4.6 to 4.9 s and 123 MB, csshound --purgecss 0.31 to 0.36 s (1.1 s on one thread) and 10 MB.

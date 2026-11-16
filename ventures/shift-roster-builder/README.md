@@ -34,6 +34,7 @@ zero dependencies, one JSON file on a disk you own.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
 - **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
+- **Oregon's voluntary standby list (2026-11-16, with `FAIR_WORKWEEK=oregon`):** staff join it in writing on their page and leave any time; a call-out can be offered to the list first, and the hours someone on it accepts owe no predictability pay (ORS 653.432). The Oregon preset was checked against the statute's text: start or end changes of 30 minutes or less are free, a separate added shift always owes the hour. Section "Oregon's voluntary standby list" below.
 - **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's or Chicago's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
 - **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
@@ -304,6 +305,81 @@ a moment you type. The hub is where the changes really happen, days apart, so it
 The same check found a mistake in the sibling
 [fair workweek schedule checker](../fair-workweek-schedule-checker/): its Seattle preset paid short rests at 1.25x; Seattle
 pays time and a half, so the preset, its worked example ($137.50 to $148.00) and tests are corrected in the same change.
+
+## A call-out offered to the whole team, and on-call shifts (2026-11-16)
+
+The fair-workweek log above priced every cover the manager handed out, and said the two cases that change the bill most
+were not modelled: the offer to the whole team after someone calls out, and on-call shifts. Both are now in the hub
+(`notice.mjs`, `hub.mjs`).
+
+- **Offer to the whole team.** Each call-out on `/admin` has an "Offer to the whole team" button. It posts the shift on
+  the staff page and to the team webhook as a written offer that says what Seattle's 2024 model policy asks it to say:
+  it goes to everyone at once, taking it is voluntary, and the employee may decline (`teamOfferText`). Staff press
+  "I'll take it"; the manager sees who said yes on the cover buttons and gives the shift to one of them, under the same
+  rule checks as before. That cover is logged with the cause "team offer", the caller's dropped shift as employee-asked
+  and the taker's added shift marked as taken from the offer.
+- **Priced per rule set** (`massOffer`, override with `FWW_MASS_OFFER=0|1`): Seattle and Oregon exempt the hours an
+  employee accepts from such an offer after another employee's absence, for that employee's hours only, so the added
+  shift owes nothing there. No matching exception turned up for Chicago, whose city FAQ says employer-asked cover after a
+  call-off owes pay, so the Chicago preset still charges the hour and says the rule set has no team-offer exception.
+  Giving the shift straight to someone, without the offer, is priced as before.
+- **On-call shifts.** A shift whose label says "on-call" (or "on call", "oncall") is listed on `/admin` as waiting until
+  the manager marks it "Called in" or "Not needed". Not needed is logged as hours taken away and priced by the rule set's
+  cancellation terms: Seattle and Oregon pay half the hours not worked; Chicago's 2026 rules treat on-call cancellations
+  like other cancelled hours (half inside 24 hours, 1 hour of pay before). One still waiting when it ends is listed on
+  `/admin/changes` as never called in and counted as released at its start (half its hours in all three), with a row
+  in the CSV. Marks for weeks that drop out of the history are pruned with the posting times.
+- **Sources and their limits.** The primary pages (seattle.gov, oregon.gov, the Oregon statutes, chicago.gov) did not
+  answer from this session, so the rules are from search summaries of Seattle OLS's 2023 Q&A, 2024 model policy and
+  one-pager; ORS 653.455, OAR 839-026 and BOLI's page; and Chicago's May 2026 rules as summarised by law firms. Check
+  them against the current text. Still not modelled: Seattle's in-person group communication for unexpected customer
+  needs, Oregon's voluntary standby list, the emergency exceptions, and the right to decline.
+- **Tested** (`notice.test.mjs`, 12 tests, 3 new): the exception in Seattle and Oregon and its absence in Chicago, the
+  override, the offer's three statements; an on-call release at 28 hours ($60 Seattle, $20 Chicago at $20/h for 6 h),
+  never called in in all three presets, the CSV row; and the hub end to end: a call-out offered, the webhook text, the
+  staff page, a refused yes from the caller, a yes, the cover logged as "team offer" and shown exempt under Seattle, an
+  on-call shift marked not needed, logged and priced, and a second mark refused. Not run against a real site's week.
+
+## Oregon's voluntary standby list, from the statute's own text (2026-11-16)
+
+The two sections above priced Oregon from search summaries, because oregon.gov and the Oregon statutes did not answer
+from the session that wrote them. This session's request to the Oregon Legislature's published chapter 653
+(oregonlegislature.gov/bills_laws/ors/ors653.html, ORS 653.412 to 653.485 as amended by 2024 c.20) did answer, so the
+Oregon preset was checked against the statute itself. Reading it showed two pricing mistakes and one missing exception:
+
+- **A start or end changed by 30 minutes or less owes nothing, hours lost included** (ORS 653.455(3)(a)). The preset
+  charged half of the lost minutes, so a start moved 20 minutes later cost $2.50 at $15 an hour. It now owes nothing
+  (`minEdgeMin: 30`, override `FWW_MIN_EDGE_MIN`). 31 minutes is priced as before, and widening both ends by 20 minutes
+  adds 40 minutes of work, more than the 30 that (2)(a)(A) allows, so it still owes the hour. Seattle and Chicago keep
+  their old arithmetic.
+- **An additional shift owes the hour at any length** (ORS 653.455(2)(a)(C)). The 30-minute threshold is for "more than
+  30 minutes of work" added *to* a shift. The code had let a separate shift of 30 minutes or less go free, and it did
+  that in every preset. Now an added shift always owes `addHours`. The threshold still applies to time added to a shift.
+- **The voluntary standby list** (ORS 653.432, exempt under 653.455(3)(j)). An employer may keep a list of employees
+  who agreed in writing to be asked for extra hours after an unexpected absence or customer need. Hours someone on the
+  list agrees to work owe no predictability pay. With `FAIR_WORKWEEK=oregon` (or `FWW_STANDBY=1` with any rule set) the
+  hub has:
+  - **a "Standby list (voluntary)" section on the staff page.** It shows the written notice with the four statements
+    653.432(1)(a)-(d) require: the list is voluntary and how to leave it, how hours are offered and accepted, that
+    nobody has to accept, and that accepted hours earn no predictability pay. Joining needs a ticked written agreement,
+    and anyone can leave at any time (653.432(5)). The manager can also take someone off on request. Each join and
+    removal goes into a dated record (`standbyHistory`, latest 500 kept).
+  - **an "Ask the standby list (N)" button on each call-out.** It posts the hours on the staff page and to the team
+    webhook (653.432(2) allows notice by text, email or another electronic format). Only the people who were asked
+    can press "I'll take it". When the manager gives the shift to one of them, the change is logged as "standby list"
+    and priced as exempt, with a reason that cites 653.432(4).
+  - **the standby-first condition on the team offer.** Under 653.455(3)(k)(C), where an employer keeps a standby list,
+    the exception for cover after an absence applies only after everyone on the list has been contacted. A team offer
+    taken while listed people were never asked now records how many (`standbyOpen`). Oregon prices that shift and says
+    why; Seattle is unchanged. The call-out block tells the manager to ask the list first.
+- **Checked against the text, not yet in use.** `notice.test.mjs` (14 tests, 2 new and 1 corrected) covers the 20-,
+  30- and 31-minute edges, the 40-minute widening, the 30-minute added shift, the standby exemption in Oregon and its
+  absence in Seattle and Chicago, the standby-first pricing and the four statements. It also runs the hub end to end
+  under Oregon: a join refused without the box ticked, a join, the ask, a refusal for someone not asked, the yes, the
+  cover logged as exempt, a team offer before the list was asked priced at one hour, leaving, removal by the manager,
+  and the section and routes absent under Seattle. Not modelled: the 653.432(6) anti-retaliation rule and the
+  653.432(7) coercion penalty are printed as notes, not enforced. The rule texts were read, not checked by an
+  employment lawyer, and no real Oregon site has used this.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 
@@ -1503,6 +1579,60 @@ What it does with When I Work's fields, and where it differs from the 7shifts re
 Checked: 11 tests on invented rows in the documented shape (`import-wheniwork.test.mjs`: winter and summer offsets, an overnight shift and one across the clock change, open, deleted and unpublished shifts, two locations picked by name or id, damaged rows, repeats, the time reader on the definition's own examples including its single-digit `9:30:00`, telling the two vendors' JSON apart and each reader refusing the other's, the fetch's parameters and headers against a stub, the CLI). A headless-Chromium upload of three JSON files on the page filled the shifts box (`Mon, 7:00, 15:00, 2, , server` with the open shift counted), listed both locations, and kept one when picked, with no page errors.
 
 Not claimed: no When I Work account, recorded response or real company's shifts was used, unlike the 7shifts reader, which was checked against a scrubbed recorded response; the field meanings are When I Work's own words, not observed behaviour; whether `/2/shifts` also returns positions and locations beside the shifts was not assumed (the definition lists only shifts, repeating shifts and chains), so they are fetched separately; the page cannot fetch; Homebase is still unread (its API docs answered 401 without an account).
+
+## Reading Square's schedule directly (2026-11-16)
+
+Square was the next scheduler with no reader. Many of the cafes and shops this tool is for already run their tills on
+Square, whose sales exports `--from-sales` reads, and Square's team plans include a scheduler; an owner moving the week
+here had no way to bring the shifts across except by retyping them. Square publishes its whole API definition on GitHub,
+including the Labor API's scheduled shifts, so the shifts can come from there, as for 7shifts and When I Work.
+`import-square.mjs` reads Square's own responses (`POST /v2/labor/scheduled-shifts/search`, `GET /v2/team-members/jobs`,
+`GET /v2/locations`) and hands them to the same counting as `--import-shifts`. Every field it uses, with the
+definition's SHA-256, is in `eval/square-scheduled-shifts-format-2026-11-16.md`.
+
+- **Page:** the schedule-export box tells Square JSON (`scheduled_shifts`, `draft_shift_details`) from When I Work's and
+  7shifts', Square first, so the same box takes any of the three. Choose the saved shifts, jobs and locations responses
+  together; the location picker works as before. Nothing is fetched by the page.
+- **CLI:** `node cli.mjs --import-square shifts.json --import-square jobs.json --import-square locations.json` (one file
+  may hold several responses, one per line). Or fetch with your own access token:
+  `SQUARE_ACCESS_TOKEN=... node cli.mjs --fetch-square --from 2026-11-02 --to 2026-11-29 [--save week.json]`. The token
+  needs TIMECARDS_READ, EMPLOYEES_READ and MERCHANT_PROFILE_READ (the definition's permission for each call); it goes only
+  to connect.squareup.com as a bearer header and is never printed or saved. `SQUARE_VERSION` overrides the
+  `Square-Version` header (default `2026-09-16`, the definition's). `--location` (name or Square id), `--no-drafts`,
+  `--square-latest`.
+
+What it does with Square's fields, and where it differs from the other readers:
+
+- **Two versions of each shift.** A scheduled shift carries its latest draft (always) and its published details (once
+  posted). By default the published version is read, because that is the schedule staff were shown; a shift never
+  published is read from its draft as planned, unless `--no-drafts`. `--square-latest` reads every shift's latest draft
+  instead, for a manager who has edited next week in Square and not posted it. Published shifts with edits waiting are
+  counted in a note either way.
+- **Deletes.** A draft marked `is_deleted` with no published version is left out. One marked `is_deleted` over a published
+  shift is still on the posted schedule (Square deletes it when the manager publishes), so it is counted with a note,
+  and `--square-latest` leaves it out.
+- **Unassigned shifts count.** No `team_member_id` is a shift nobody is on, still needed.
+- **Times carry the location's offset** (`2026-11-02T07:00:00-06:00`), so the digits are the shop's clock and lengths come
+  from the instants (a night across the clock change is 8 hours, not 7). A time written in UTC is moved to the shift's
+  `timezone` or its location's; with neither it is read as UTC and the note says so.
+- **Paging.** The search returns at most 50 shifts a page with a `cursor`; the fetch follows it, and the jobs list too.
+  It asks by workday (`match_scheduled_shifts_by: INTERSECTION`, shifts starting on those dates in the location's own
+  zone), so no padding day is needed; the saved result is still trimmed to the dates asked for.
+- **Errors.** A saved response with Square's `errors` list instead of shifts is reported with Square's own detail; the
+  fetch names the error code and, on a 403, the permission the search needs.
+
+Checked: 10 tests on invented rows in the documented shape (`import-square.test.mjs`: names from jobs and locations,
+winter and summer offsets and the clock change, published against draft and `--square-latest`, a pending delete,
+never-published and deleted drafts, unassigned shifts, two locations by name and by id, UTC times moved or flagged, damaged
+rows and repeats, an error response, telling Square JSON from When I Work's, the fetch's body, paging and headers against a
+stub, the CLI). A headless-Chromium upload of three JSON files on the page filled the shifts box and listed both locations
+(see the PR).
+
+Not claimed: no Square account, recorded response or real business's shifts was used; the field meanings are Square's own
+words, not observed behaviour; the scheduled-shifts and jobs endpoints are marked BETA in the definition and may change;
+team members' wages (`/v2/labor/team-member-wages`, `/v2/team-members/search`) are not read yet, so staff still come in
+by CSV or by hand; Deputy's API docs were not reachable from the session, so Deputy is still read only from its CSV
+export.
 
 ## Several shops in one sales export (2026-11-13)
 

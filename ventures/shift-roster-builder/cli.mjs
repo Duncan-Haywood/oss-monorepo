@@ -24,6 +24,7 @@ import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import { import7shifts, fetch7shifts, within, import7shiftsStaff, fetch7shiftsStaff } from "./import-7shifts.mjs";
 import { importWhenIWork, fetchWhenIWork, within as withinWiw } from "./import-wheniwork.mjs";
+import { importSquare, fetchSquare, within as withinSquare } from "./import-square.mjs";
 import { demandShifts, backtestSales, parseStandard, shutMinDays, readSales } from "./demand.mjs";
 import {
   parseStaff, parseShifts, parseTravel, parseSiteWage, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, siteSplit, siteSplitText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
@@ -110,6 +111,11 @@ Options:
                       repeat the flag for more files) to shift lines; --location and --no-drafts as above (times are read on the shift's own clock)
   --fetch-wheniwork --from <YYYY-MM-DD> --to <YYYY-MM-DD>   the same, fetched from api.wheniwork.com with your own token in WHENIWORK_TOKEN
                       (and WHENIWORK_USER_ID when your login reaches several workplaces); --save <file> keeps the responses
+  --import-square <json> convert saved Square Labor API responses (POST /v2/labor/scheduled-shifts/search, plus /v2/team-members/jobs
+                      and /v2/locations for names and zones; repeat the flag for more files) to shift lines; --location and --no-drafts
+                      as above; published shifts are read as posted, --square-latest reads every shift's latest draft instead
+  --fetch-square --from <YYYY-MM-DD> --to <YYYY-MM-DD>   the same, fetched from connect.squareup.com with your own access token in
+                      SQUARE_ACCESS_TOKEN (SQUARE_VERSION overrides the API version header); --save <file> keeps the responses
   --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
                       the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
@@ -211,6 +217,9 @@ export function parseArgs(argv) {
     else if (a === "--fetch-7shifts") o.fetch7 = true;
     else if (a === "--import-wheniwork") { const f = argv[++i]; if (!f) throw new Error("--import-wheniwork needs a JSON file"); (o.importWiw ||= []).push(f); }
     else if (a === "--fetch-wheniwork") o.fetchWiw = true;
+    else if (a === "--import-square") { const f = argv[++i]; if (!f) throw new Error("--import-square needs a JSON file"); (o.importSquare ||= []).push(f); }
+    else if (a === "--fetch-square") o.fetchSquare = true;
+    else if (a === "--square-latest") o.squareLatest = true;
     else if (a === "--from") { o.from7 = argv[++i]; if (!o.from7) throw new Error("--from needs a date like 2026-11-02"); }
     else if (a === "--to") { o.to7 = argv[++i]; if (!o.to7) throw new Error("--to needs a date like 2026-11-15"); }
     else if (a === "--tz") { o.tz7 = argv[++i]; if (!o.tz7) throw new Error("--tz needs a time zone like America/Toronto"); }
@@ -707,6 +716,18 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         inputs = withinWiw(got.responses, got.from, got.to);
       } else inputs = await Promise.all(o.importWiw.map((f) => readFile(f, "utf8")));
       const r = importWhenIWork(inputs, { location: o.importLocation, drafts: o.noDrafts7 ? false : undefined });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.importSquare || o.fetchSquare) {
+      let inputs;
+      if (o.fetchSquare) {
+        const got = await fetchSquare({ token: process.env.SQUARE_ACCESS_TOKEN, version: process.env.SQUARE_VERSION || undefined, from: o.from7, to: o.to7 });
+        if (o.save7) await writeFile(o.save7, got.responses.map((x) => JSON.stringify(x)).join("\n") + "\n");
+        inputs = withinSquare(got.responses, got.from, got.to);
+      } else inputs = await Promise.all(o.importSquare.map((f) => readFile(f, "utf8")));
+      const r = importSquare(inputs, { location: o.importLocation, drafts: o.noDrafts7 ? false : undefined, latest: !!o.squareLatest });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);

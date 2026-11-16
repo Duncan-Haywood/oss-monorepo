@@ -103,3 +103,11 @@ against its page of the 1908 scan with `../eval/scan-check.mjs --manifest`: 2,03
 differ (not yet looked at). They sit in their own folder so the arrangement figures counted over
 `gregobase-1908/` (split, choir, three- and four-section reports) stay as published; a later
 session can fold them in and restate those figures together.
+
+## Liquescents on a staff line (added 2026-11-16)
+
+`gregobase-1908-hook/` holds fifteen more unmodified GregoBase downloads (ids 3463, 3484, 3488,
+3489, 3490, 3491, 3492, 3498, 3499, 3502, 3505, 3508, 3509, 3510, 3512; CC0 per the GregoBase FAQ):
+the first fifteen ids from 3463 in no earlier list that cite the 1908 Graduale and have a liquescent
+whose small note sits on a staff line, chosen by `../eval/hook-fresh.mjs` as the held-out list for
+`../eval/hook-on-line-check.md`. Kept in their own folder for the same reason as the folder above.

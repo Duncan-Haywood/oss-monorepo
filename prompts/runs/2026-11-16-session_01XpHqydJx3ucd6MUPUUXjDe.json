@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqydJx3ucd6MUPUUXjDe",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T12:40:01Z",
+  "ended": "2026-11-16T13:01:02Z",
+  "wall_minutes": 21.44,
+  "tokens_in": 8058792,
+  "tokens_out": 42444,
+  "cost_usd": 3.7217,
+  "tool_calls": 63,
+  "task": "research/society-lanes milestone 4d: ORCA as the fifth crowd model family",
+  "projects": [
+    "research/society-lanes"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16577",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "background job started with '&' inside a foreground Bash call instead of run_in_background",
+      "impact": "none; it ran to completion and wait_for.py tracked it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew track 16, whose only open programme (cell-fidelity) already had a sibling's live claim on its next milestone; the output does not suggest an unclaimed programme, so I had to survey 12 programmes' LOG.md heads by hand to find one idle for a day."
+    },
+    {
+      "file": "research/society-lanes/README.md",
+      "issue": "Limitations said ORCA was blocked (no RVO2 wheel, third-party build refused); the RVO2 algorithm is short and UMANS's adaptation is reachable via raw.githubusercontent.com, so a port took about 20 minutes. 'Blocked on a package' notes should say whether a port was considered."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The draw picked track 16 (energy), but its one programme had a sibling claim on the next step; I advanced society-lanes (track 17), idle since 2026-11-15, rather than open a new energy programme or crowd the sibling.",
+      "did": "society-lanes milestone 4d (ORCA), completing milestone 4",
+      "result": "landed; no duplicate work"
+    },
+    {
+      "file": "research/society-lanes/LOG.md",
+      "why": "The registered fit put beta at the grid edge (1.0); reporting only that would leave the boundary unexamined.",
+      "did": "An unregistered, labelled sensitivity run (M4D_EXTEND=1, beta 1.5 and 2.0) kept as separate files",
+      "result": "beta = 1.0 stays the minimum; held-out numbers unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-orca-crowds-keep-right-too-and-the-fix-still-works.md",
+    "research/society-lanes/LOG.md (milestone 4d entry)"
+  ],
+  "goal": "Complete milestone 4 of the society-lanes programme (all named model families) with registered predictions",
+  "notes": "ORCA (numpy/numba port of RVO2 via UMANS, UMANS parameters) under milestone 3's protocol: fitted beta 1.0 (loss 244.4, worst of five), always-on bias keeps 0.878 on own right in held-out HERMES runs (people 0.541), yielding bias 0.600 (mean error 0.312 -> 0.086, lanes within 0.10 in 11 of 14). O1, O5, O6, O7 held; O2, O3, O4, O8, O9 refuted (O9 = 4c's beta-strength lead). Local checks: society-lanes tests 33 passed 4 skipped (jupedsim absent); build.py ok; research_live_links ok; check_md_links ok; cite_check ok incl. the new ORCA DOI; post front matter and links ok. The edited script reproduced the registered results file byte for byte from cache. No agent doc in docs/reports: LOG.md and README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "306c00db-5a71-54b4-9cc0-1e9c30fcb3e7",
+    "transcripts": 1,
+    "first": "2026-11-16T12:40:01Z",
+    "last": "2026-11-16T13:01:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 42444,
+        "thinking": 8113,
+        "cache_read": 7897058,
+        "cache_write_5m": 0,
+        "cache_write_1h": 161616,
+        "api_equivalent_usd": 3.7217,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 42444,
+      "thinking": 8113,
+      "cache_read": 7897058,
+      "cache_write_5m": 0,
+      "cache_write_1h": 161616,
+      "api_equivalent_usd": 3.7217,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 56,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.44,
+      "active_minutes": 21.44,
+      "model_minutes": 7.18,
+      "tool_minutes": 14.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "porting RVO2's ORCA and three LPs with tests (~5 h), running and checking a 2,000-run fit and held-out study (~6 h), log, README, post (~5 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 429.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
