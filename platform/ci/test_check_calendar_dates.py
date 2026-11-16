@@ -81,6 +81,25 @@ class CalendarDates(unittest.TestCase):
         self.assertEqual(c.scan_text(inside), [])
         self.assertEqual(c.scan_text(outside), [1])
 
+    def test_flags_the_rollover_split_over_lines(self):
+        for text in [
+            'function parseDate(value) {\n  const date = new Date(`${value}T00:00:00Z`);\n  return Number.isNaN(date.getTime()) ? null : date;\n}',
+            'if (/^\\d{4}-\\d{2}-\\d{2}$/.test(s)) iso = s + "T00:00:00Z";\nconst d = new Date(iso);\nreturn Number.isNaN(d.getTime()) ? null : d;',
+            'const t = Date.parse(s + "T00:00:00Z");\nreturn Number.isNaN(t) ? null : t;',
+        ]:
+            line = next(n for n, l in enumerate(text.splitlines(), 1) if "isNaN(" in l)
+            self.assertEqual(c.scan_text(text), [line], text)
+
+    def test_accepts_the_split_form_with_a_round_trip_nearby(self):
+        for text in [
+            'const date = new Date(`${value}T00:00:00Z`);\nreturn Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value ? null : date;',
+            'const t = Date.parse(s + "T00:00:00Z");\nif (Number.isNaN(t)) return null;\nreturn new Date(t).getUTCDate() === d ? t : null;',
+            'const start = new Date(`${x}T00:00:00Z`);\nif (isNaN(start.getTime()) || !realDay(x, start)) return null;',
+            'const n = Number(raw);\nif (Number.isNaN(n)) return null;',
+            'const d = new Date(stamp * 1000);\nreturn Number.isNaN(d.getTime()) ? null : d;',
+        ]:
+            self.assertEqual(c.scan_text(text), [], text)
+
     def test_root_is_the_repository(self):
         self.assertTrue((c.ROOT / "platform" / "ci" / "check_calendar_dates.py").is_file())
 

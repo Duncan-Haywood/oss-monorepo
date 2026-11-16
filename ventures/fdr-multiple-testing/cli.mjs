@@ -2,7 +2,7 @@
 // Multiple-testing correction from the command line. Zero dependencies; same engine as the page.
 //   node cli.mjs pvalues.csv --column p_value --alpha 0.05 [--method bh] [--json]
 import { readFileSync } from "node:fs";
-import { analyze, PAPERS, METHODS, formatP } from "./engine.mjs";
+import { analyze, analyzeOnline, PAPERS, METHODS, ONLINE_PAPERS, ONLINE_METHODS, formatP } from "./engine.mjs";
 import { pathToFileURL } from "node:url";
 
 export const HELP = `fdr-multiple-testing: Benjamini-Hochberg, Holm, Bonferroni, Storey q-values and e-BH for a list of tests
@@ -20,6 +20,11 @@ Options:
   --alpha 0.05         error rate to control (FWER or FDR, by method)
   --method bh          the method the summary leads with: ${METHODS.map((m) => m.id).join(" | ")}
   --lambda 0.5         lambda in Storey's estimate of the share of true nulls, pi0
+                       (with --online: SAFFRON's candidate threshold)
+  --online             online FDR: rows are tests in arrival order, each decided before the
+                       next (LORD++, SAFFRON, LOND, alpha-spending); --method is then one of
+                       ${ONLINE_METHODS.map((m) => m.id).join(" | ")} (default lordpp)
+  --w0 0.5             online: initial wealth as a share of its maximum (0 < w0 <= 1)
   --all                list every test, not only the ones the lead method keeps
   --csv                print a CSV of every test with each method's adjusted p-value
   --json               print the full JSON result
@@ -31,20 +36,21 @@ FDR methods (Benjamini-Hochberg, Benjamini-Yekutieli, two-stage BKY, Storey)
 bound the expected share of false positives among those kept.
 
 Citations:
-${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
+${[...PAPERS, ...ONLINE_PAPERS].map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
 
 Statistical output from your data, not medical, legal or financial advice. No warranty. MIT licence.
 Web version: https://marisstella.app/fdr-multiple-testing/`;
 
-const FLAGS = { "--column": "column", "--label": "labelColumn", "--kind": "kind", "--alpha": "alpha", "--method": "method", "--lambda": "lambda" };
+const FLAGS = { "--column": "column", "--label": "labelColumn", "--kind": "kind", "--alpha": "alpha", "--method": "method", "--lambda": "lambda", "--w0": "w0Share" };
 
 export function parseArgs(argv) {
-  const o = { json: false, help: false, all: false, csv: false, file: null };
+  const o = { json: false, help: false, all: false, csv: false, online: false, file: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--json") o.json = true;
     else if (a === "--all") o.all = true;
     else if (a === "--csv") o.csv = true;
+    else if (a === "--online") o.online = true;
     else if (a === "--help" || a === "-h") o.help = true;
     else if (FLAGS[a]) {
       if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);
@@ -66,6 +72,33 @@ export function toCsv(r) {
   const lines = [head.join(",")];
   for (const it of r.items) lines.push([it.rank, q(it.label), it.value, ...ids.map((id) => it.adjusted[id]), ...rejIds.map((id) => (it.rejected[id] ? 1 : 0))].join(","));
   return lines.join("\n") + "\n";
+}
+
+export function toOnlineCsv(r) {
+  const ids = r.methods.map((m) => m.id);
+  const lines = [["t", "label", "p_value", ...ids.map((id) => `${id}_level`), ...ids.map((id) => `${id}_kept`), "lordpp_wealth", "saffron_candidate", "bh_batch_kept"].join(",")];
+  for (const it of r.items) lines.push([it.t, q(it.label), it.value, ...ids.map((id) => it.level[id]), ...ids.map((id) => (it.rejected[id] ? 1 : 0)), it.wealth, it.candidate ? 1 : 0, it.bh ? 1 : 0].join(","));
+  return lines.join("\n") + "\n";
+}
+
+export function formatOnlineText(r, { all = false } = {}) {
+  const out = [r.summary, ""];
+  out.push("method                                controls  valid under           kept");
+  for (const m of r.methods) out.push(`${m.name.padEnd(36)}  ${m.controls.padEnd(8)}  ${m.assumption.padEnd(20)}  ${String(m.rejections).padStart(5)}`);
+  out.push(`${"Batch Benjamini-Hochberg (hindsight)".padEnd(36)}  ${"FDR".padEnd(8)}  ${"needs the whole list".padEnd(20)}  ${String(r.batchBH).padStart(5)}`);
+  out.push("", `Initial wealth: LORD++ ${formatP(r.w0.lordpp)}, SAFFRON ${formatP(r.w0.saffron)} (lambda ${r.lambda}).`);
+  const lead = r.method;
+  const shown = all ? r.items : r.items.filter((it) => it.rejected[lead]);
+  if (shown.length) {
+    out.push("", all ? "All tests, in arrival order:" : `Kept by ${r.methods.find((m) => m.id === lead).name}, in arrival order:`);
+    out.push("   t  label                     p          LORD++     SAFFRON    LOND       kept by");
+    for (const it of shown) {
+      const by = r.methods.filter((m) => it.rejected[m.id]).map((m) => m.id).join(" ");
+      out.push(`${String(it.t).padStart(4)}  ${String(it.label).slice(0, 22).padEnd(22)}  ${[it.value, it.level.lordpp, it.level.saffron, it.level.lond].map((v) => formatP(v).padStart(9)).join("  ")}  ${by || "-"}`);
+    }
+  }
+  if (r.warnings.length) out.push("", ...r.warnings.map((w) => `Note: ${w}`));
+  return out.join("\n");
 }
 
 export function formatText(r, { all = false } = {}) {
@@ -99,12 +132,13 @@ export function run(argv, stdinText) {
   if (!csv || !csv.trim()) return { code: 2, out: `Error: no input given (pass a file or pipe one in).\n\n${HELP}` };
   const input = { csv };
   for (const k of ["column", "labelColumn", "kind", "method"]) if (o[k] !== undefined) input[k] = o[k];
-  for (const k of ["alpha", "lambda"]) if (o[k] !== undefined) input[k] = Number(o[k]);
-  const r = analyze(input);
+  for (const k of ["alpha", "lambda", "w0Share"]) if (o[k] !== undefined) input[k] = Number(o[k]);
+  if (o.online && input.kind === "e") return { code: 2, out: "Error: --online takes p-values, not e-values." };
+  const r = o.online ? analyzeOnline(input) : analyze(input);
   if (r.error) return { code: 1, out: `Error: ${r.error}` };
   if (o.json) return { code: 0, out: JSON.stringify(r, null, 2) };
-  if (o.csv) return { code: 0, out: toCsv(r).trimEnd() };
-  return { code: 0, out: formatText(r, { all: o.all }) };
+  if (o.csv) return { code: 0, out: (o.online ? toOnlineCsv(r) : toCsv(r)).trimEnd() };
+  return { code: 0, out: o.online ? formatOnlineText(r, { all: o.all }) : formatText(r, { all: o.all }) };
 }
 
 const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;

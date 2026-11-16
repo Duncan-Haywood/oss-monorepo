@@ -186,3 +186,8 @@ test("week start labels each day with its date", () => {
 test("expandSlots multiplies headcount by days", () => {
   assert.equal(expandSlots(parseShifts("Mon-Fri 09:00-17:00 cook x3").shifts).length, 15);
 });
+
+test("an impossible week start is refused, not rolled to the Monday after", () => {
+  // 2026-02-30 rolls to Monday 2 March in Date; it must be an error, not a rota for March.
+  assert.ok(mk({ weekStart: "2026-02-30" }).errors.some((e) => e.includes("2026-10-12")));
+});

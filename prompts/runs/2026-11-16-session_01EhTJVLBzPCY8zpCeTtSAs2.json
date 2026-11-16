@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVLBzPCY8zpCeTtSAs2",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T11:05:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "creative track: new Hearth & Horizon story from the bible's block-and-tackle proposal",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 16549,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'pick the project that has gone longest without a new piece' gives no answer when all three Hearth & Horizon shelves and Saints by Candlelight each landed pieces the same day; I fell back to the headline shelf's open bible proposal."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-six-falls-is-not-six-times.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece six-falls-and-a-sixth (Hearth & Horizon shelf, Kenya 2065, text only: the audio total is 577 MB, over the 400 MB cap). Sheave friction: six falls at 0.91 a sheave give a real advantage of 4.37 (3.98 with the snatch block), so 235 kgf instead of 156; more falls top out near 102 kgf; a chain hoist pulls about 17 kgf. A re-read caught 7 slips before commit (sun altitude at 16:00 near the equator, duplicated surname, Said's years, floor-line years, garbled note line, cope at Mass, quarter/fifth). Verification: node --test in ventures/hearth-and-horizon passes 17/17; check_post_frontmatter, check_post_links and post_similarity are clean on the post. Bible proposal moved to DONE.md with its numbers; a new proposal was added (gravity-line friction head loss).",
+  "corrections": [],
+  "redteam": null
+}

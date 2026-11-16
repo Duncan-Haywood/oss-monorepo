@@ -73,8 +73,9 @@ const addDays = (d, n) => new Date(d.getTime() + n * 86400000);
 /** Turn a due phrase into an ISO date relative to `today` (a Date or ISO string), or null. */
 export function parseDue(phrase, today) {
   if (!phrase) return null;
-  const base = new Date(`${typeof today === "string" ? today.slice(0, 10) : iso(today || new Date())}T00:00:00Z`);
-  if (Number.isNaN(base.getTime())) return null;
+  const ymd = typeof today === "string" ? today.slice(0, 10) : iso(today || new Date());
+  const base = new Date(`${ymd}T00:00:00Z`);
+  if (Number.isNaN(base.getTime()) || base.toISOString().slice(0, 10) !== ymd) return null;
   const p = phrase.toLowerCase().replace(/^(by|on|before) /, "").trim();
   if (p === "today" || p === "tonight" || p === "eod" || p === "end of day" || p === "end of the day") return iso(base);
   if (p === "tomorrow") return iso(addDays(base, 1));
