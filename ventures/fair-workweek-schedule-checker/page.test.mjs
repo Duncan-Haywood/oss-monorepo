@@ -110,10 +110,10 @@ test("the page's built-in example gives the figures the guide prints", () => {
   const r = analyze({ postedAt: parseDateTime("2026-10-05 09:00"), scheduleText: lit("schedule"), changesText: lit("changes"),
     rules: fieldsToRules(RULE_PRESETS.seattle.fields), defaultRate: 16 });
   assert.deepEqual(r.errors, []);
-  assert.equal(r.total, 137.5);
+  assert.equal(r.total, 148); // Seattle rest at time and a half (was 1.25x before 2026-11-16)
   const guide = page(GUIDE);
   for (const f of r.findings) assert.ok(guide.includes(`$${f.premium.toFixed(2)}</td>`), `${f.name} ${f.premium}`);
-  assert.ok(guide.includes("<strong>$137.50</strong>"));
+  assert.ok(guide.includes("<strong>$148.00</strong>"));
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(guide, /<link rel="canonical" href="\.\/what-is-predictive-scheduling-pay\.html">/);
 });

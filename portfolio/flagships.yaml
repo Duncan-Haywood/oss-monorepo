@@ -237,32 +237,32 @@ flagships:
       server, .ics feeds and availability intake.
     next: >-
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
-      states), leave accrual (LEAVE_ACCRUAL; next a manager's read of the policy
-      page): next live deploy, real punches at a site. Exact side: branch-and-price
-      and column generation prove 20-80 person weeks; the exact check is on by
-      default at every size. Forecast side (--from-sales, eight real files,
-      eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
-      cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
-      weeks: reissues hold started and posted shifts; a whole week at the Deputy
-      file's rates (README "A whole week of call-outs at a real roster's rates",
-      2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent both
-      ways. Next: whether a real manager would set keepShift above 1; 350+ copies:
-      cover passes LP-guided; repair flow-bounded, 2x alone, e2e tie (README "under
-      a flow bound"); 2 s reserve at 300+ copies (4 s worse, 1.2 s ties); day sweeps
-      LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
-      when the pay floor is skipped"); next a warm-sized gate; re-run the
-      keep-usual-shifts sweep on real dated leave records; a manager's read on
-      whether the steadier plan is the one they would post; a real 7shifts account
-      through --import-7shifts (README "Reading 7shifts directly"); a real When I
-      Work account or response through --import-wheniwork (README "Reading When I
-      Work directly"); Homebase (docs need an account); --cover-price moves two
-      shifts together (README "Moving two shifts together"); second call-outs
-      priced, off by default (README "The pair price in played weeks": fewer open
-      hours on 3 of 4 weeks); order-free pair check played: no gain, stays opt-in
-      (README "The order-free pass played"); a real two-site export and staff list
-      (README "Staff shared between sites"); own and site rates read from staff CSVs
-      and 7shifts (README "Per-location pay from an export");. More open items:
-      NEXT.md.
+      states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
+      (FAIR_WORKWEEK; next a real site's changes): next live deploy, real punches at
+      a site. Exact side: branch-and-price and column generation prove 20-80 person
+      weeks; the exact check is on by default at every size. Forecast side
+      (--from-sales, eight real files, eval/real-pos-exports.mjs): backtest, closure
+      score, half-life auto, priced cut, tickets, labour standard, shut-door work,
+      multi-file pastes. Posted weeks: reissues hold started and posted shifts; a
+      whole week at the Deputy file's rates (README "A whole week of call-outs at a
+      real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open
+      hours path-dependent both ways. Next: whether a real manager would set
+      keepShift above 1; 350+ copies: cover passes LP-guided; repair flow-bounded,
+      2x alone, e2e tie (README "under a flow bound"); 2 s reserve at 300+ copies (4
+      s worse, 1.2 s ties); day sweeps LP-guided, by the open-hours LP when the pay
+      floor is skipped (README "A guide when the pay floor is skipped"); next a
+      warm-sized gate; re-run the keep-usual-shifts sweep on real dated leave
+      records; a manager's read on whether the steadier plan is the one they would
+      post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
+      directly"); a real When I Work account or response through --import-wheniwork
+      (README "Reading When I Work directly"); Homebase (docs need an account);
+      --cover-price moves two shifts together (README "Moving two shifts together");
+      second call-outs priced, off by default (README "The pair price in played
+      weeks": fewer open hours on 3 of 4 weeks); order-free pair check played: no
+      gain, stays opt-in (README "The order-free pass played"); a real two-site
+      export and staff list (README "Staff shared between sites"); own and site
+      rates read from staff CSVs and 7shifts (README "Per-location pay from an
+      export"). More open items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -362,20 +362,20 @@ flagships:
       7x6; every 3k of 27-63 on the least 9-slot courts 0 waits; fails at <=3 spare
       slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37
       on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0
-      waits (eval/session-orbit.py). Next, most valuable first: 29 on 5x9 (README
-      2026-11-16; also 35, 41, 47); the rest of the 20-team gap (40 to 44 still
-      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 30 teams in the page (README
-      "Half the table": 104 s with the symmetric step, 2x 28 teams; next: keep
-      tables in the module, copy-in/out now as large as the step; 29 adds nothing);
-      the walk's last heavy tail (22 teams: 20 of 280 walks out of budget either
-      way, eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
+      waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py).
+      Next, most valuable first: 41, 47 by it; the rest of the 20-team gap (40 to 44
+      still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a
+      starter family climbed with the floor as its score); 30 teams in the page
+      (README "Half the table": 104 s with the symmetric step, 2x 28 teams; next:
+      keep tables in the module, copy-in/out now as large as the step; 29 adds
+      nothing); the walk's last heavy tail (22 teams: 20 of 280 walks out of budget
+      either way, eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
       (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
       search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12
       teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
       out; 18 and 24 teams: 318 and 570 are the least starters
       (eval/starter-exhaust.txt), so lower needs non-starter moves; a real league's
-      travel and blackout list;. More open items: NEXT.md.
+      travel and blackout list. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

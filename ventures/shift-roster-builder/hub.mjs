@@ -7,6 +7,7 @@ import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zone
 import { readPayEnv, payForTimesheet, MEAL_RULES } from "./payrules.mjs";
 import { readLeaveEnv, leaveBalances, addLeaveUse, removeLeaveUse, setLeaveOpening, leaveCsv } from "./leave.mjs";
 import { setPin, hasPin, checkPin, validPin, readGeofence, placeOf, GEO_SCRIPT } from "./clockguard.mjs";
+import { readNoticeEnv, diffAssignments, logChanges, markRequested, noticeReport, noticeCsv, slotLabel, MAX_CHANGES } from "./notice.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -44,7 +45,7 @@ export function notifier(env, fetchImpl = globalThis.fetch) {
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body, head = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${head}<title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
-export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [], punches: [], punchSeq: 0, leaveUses: [], leaveSeq: 0, leaveOpening: {}, leaveBank: {} }; }
+export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [], punches: [], punchSeq: 0, leaveUses: [], leaveSeq: 0, leaveOpening: {}, leaveBank: {}, changeLog: [], changeSeq: 0, postedAt: {} }; }
 
 // What staff may see: who works when. Never wages, hour caps or the cost of the week.
 // `owner` (optional) is a roster built in the manager's browser (BUILD_IN_BROWSER): it is checked against every hard
@@ -57,6 +58,16 @@ export function publish(state, now, owner = null) {
   if (r.error) return { error: r.error };
   const flags = state.weekStart ? scheduleFlags(r, { weekStart: state.weekStart, today: new Date(now).toISOString().slice(0, 10) }) : null;
   state.callouts = []; state.trades = []; state.claims = [];
+  // Predictive scheduling (notice.mjs): a republished week logs what it changed for whom; the first publish of a week
+  // is when it was posted.
+  const ws = state.weekStart || null, nextAs = r.assignments.map((a) => ({ person: a.person || null, slot: a.slot }));
+  if (state.published && (state.published.weekStart || null) === ws) logChanges(state, diffAssignments(state.published.assignments, nextAs), { at: now, weekStart: ws, cause: "republish" });
+  if (ws) {
+    state.postedAt = state.postedAt && typeof state.postedAt === "object" ? state.postedAt : {};
+    if (!Number.isFinite(state.postedAt[ws])) state.postedAt[ws] = now;
+    const keep = new Set([ws, state.published && state.published.weekStart, ...(state.history || []).map((h) => h.weekStart)]);
+    for (const k of Object.keys(state.postedAt)) if (!keep.has(k)) delete state.postedAt[k];
+  }
   // Keep earlier weeks (last 12) for the calendar feed; publishing the same week again replaces it.
   if (state.published && state.published.weekStart && state.published.weekStart !== (state.weekStart || null)) {
     state.history = [...(state.history || []).filter((h) => h.weekStart !== state.published.weekStart), { weekStart: state.published.weekStart, assignments: state.published.assignments }].slice(-12);
@@ -279,7 +290,7 @@ ${claimBlock}
 ${offBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
-<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a></p>` : ""}`);
+<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a></p>` : ""}`);
 }
 
 // The manager's timesheet for a published week (the current one or one of the last 12): worked time beside the
@@ -365,6 +376,27 @@ function pinSection(state, k, weekStart, names, tc) {
 <h2>Where punches come from</h2><p class="note">${fenceNote}</p>`;
 }
 
+// Predictive scheduling: every logged change to a posted week, newest first, with its notice and the premium under the
+// FAIR_WORKWEEK rule set; shifts posted with too little notice; short rests in the current week. notice.mjs.
+const $ = (x) => (x == null ? "" : "$" + x.toFixed(2));
+function changesPage(state, key, fww, rep, tz, note = "") {
+  const k = esc(key), rules = fww && !fww.error ? fww : null;
+  const how = fww && fww.error ? `<p class="err">${esc(fww.error)}</p>` : rules
+    ? `<p class="note">Rule set: <strong>${esc(rules.label)}</strong>${rules.overrides.length ? ` with ${esc(rules.overrides.join(", "))}` : ""}. Post ${rules.noticeDays} days ahead; inside that window an added or moved shift owes ${rules.addHours} h of pay${rules.minMoveMin ? ` (moves of ${rules.minMoveMin} min or less excepted)` : ""}${rules.minExtendMin ? `, added time of ${rules.minExtendMin} min or less excepted` : ""}; hours taken away owe ${rules.cancelFraction} of the lost hours' pay${rules.cancelWindowH < rules.noticeDays * 24 ? ` inside ${rules.cancelWindowH} h of the shift and ${rules.cancelElseHours} h of pay before that` : ""}; hours worked under ${rules.restHours} h after the last shift are paid at ${rules.restMult}x. ${rules.notes.map(esc).join(" ")}</p>`
+    : `<p class="note">No rule set is chosen, so nothing is priced; the log below is kept anyway. Set FAIR_WORKWEEK to seattle, oregon or chicago (or custom with FWW_NOTICE_DAYS, FWW_ADD_HOURS, FWW_CANCEL_FRACTION, FWW_CANCEL_WINDOW_HOURS, FWW_CANCEL_ELSE_HOURS, FWW_MIN_MOVE_MIN, FWW_MIN_EXTEND_MIN, FWW_REST_HOURS, FWW_REST_MULT).</p>`;
+  const when = (ms) => { try { return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms)).replace(",", ""); } catch { return new Date(ms).toISOString(); } };
+  const rows = rep.priced.map((p) => `<tr><td>${esc(when(p.at))}</td><td><strong>${esc(p.person)}</strong></td><td>${esc(p.kind)}: ${esc(slotLabel(p.from))}${p.from && p.to ? " to " : ""}${esc(slotLabel(p.to))}${p.weekStart ? `<br><span class="note">week of ${esc(p.weekStart)}</span>` : ""}</td><td>${esc(p.cause)}</td><td>${p.noticeH == null ? "" : p.noticeH >= 48 ? `${(p.noticeH / 24).toFixed(1)} days` : `${p.noticeH.toFixed(1)} h`}</td><td>${p.unpriced ? `<span class="err">${p.hoursOfPay} h of pay, no wage</span>` : p.premium ? `<strong>${esc($(p.premium))}</strong>` : ""}<br><span class="note">${esc(p.why)}</span></td><td><form method="post" action="/admin/change-mark?key=${k}"><input type="hidden" name="id" value="${p.id}">${p.requested ? `<button name="requested" value="0">Not requested</button>` : `<button name="requested" value="1">Employee asked</button>`}</form></td></tr>`).join("");
+  const late = rep.late.map((x) => `<li>${esc(x.person)}, week of ${esc(x.weekStart)}, ${esc(slotLabel(x.slot))}: posted ${x.noticeH >= 48 ? `${(x.noticeH / 24).toFixed(1)} days` : `${x.noticeH.toFixed(1)} h`} ahead</li>`).join("");
+  const rests = rep.rests.map((x) => `<tr><td><strong>${esc(x.person)}</strong></td><td>${x.firstLastWeek ? "last week's " : ""}${esc(slotLabel(x.first))} then ${esc(slotLabel(x.second))}</td><td>${x.gapH.toFixed(1)} h</td><td>${x.insideH.toFixed(2)} h</td><td>${x.premium == null ? `<span class="err">no wage</span>` : esc($(x.premium))}</td></tr>`).join("");
+  return page("Schedule changes", `${note}${how}
+<p>${rep.priced.length} change(s) logged${rules ? `. Notice pay to check: <strong>${esc($(rep.changeTotal))}</strong>; short-rest pay above the regular rate this week: <strong>${esc($(rep.restTotal))}</strong>${rep.unpriced ? ` (${rep.unpriced} item(s) have no wage in the staff list)` : ""}` : ""}. <a href="/admin/changes.csv?key=${k}">Download CSV</a> · <a href="/admin?key=${k}">Back to admin</a></p>
+<p class="note">Logged by themselves: a week published again (what it changed for whom), an approved trade or open-shift pick-up (marked employee-asked), and a call-out given to someone (the caller's dropped shift marked employee-asked; the added shift is not, because you picked the person). Mark a change "Employee asked" when they asked for it in writing, and keep that request. Seattle asks for records to be kept three years: the hub keeps the last ${MAX_CHANGES} changes, so download the CSV with each payroll.</p>
+${rules && late ? `<h2>Posted with less than ${rules.noticeDays} days' notice</h2><ul>${late}</ul>` : ""}
+${rules && rests ? `<h2>Short rests this week</h2><table><thead><tr><th>Person</th><th>Shifts</th><th>Rest</th><th>Hours inside the window</th><th>Extra pay (${rules.restMult - 1}x)</th></tr></thead><tbody>${rests}</tbody></table>` : ""}
+<h2>Changes, newest first</h2><table><thead><tr><th>When (${esc(tz)})</th><th>Person</th><th>Change</th><th>Cause</th><th>Notice</th><th>Premium</th><th></th></tr></thead><tbody>${rows || `<tr><td colspan="7">No changes yet. Publishing a week again, or approving a trade, pick-up or cover, logs one.</td></tr>`}</tbody></table>
+<p class="note">An estimate from the published rule set's main numbers, to check before payroll. Not modelled: which employers are covered, emergency and mass-communication exceptions, on-call shifts, the right to decline added hours, and the good-faith estimate at hire.</p>`);
+}
+
 export function handler(state, save, env = globalThis.process?.env ?? {}, now = Date.now, fetchImpl = globalThis.fetch) {
   const adminKey = env.ADMIN_KEY || "", teamToken = env.TEAM_TOKEN || "", browserBuild = !!env.BUILD_IN_BROWSER;
   const clockOn = String(env.TIME_CLOCK ?? "1") !== "0", tz = zoneOf(env.TIMEZONE);
@@ -372,6 +404,7 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
   const pay = readPayEnv(env);
   const pinRequired = String(env.CLOCK_PIN || "").toLowerCase() === "required", fence = readGeofence(env);
   const leave = readLeaveEnv(env);
+  const fww = readNoticeEnv(env);
   const tcNow = () => ({ tz, grace, now: now(), pay, pinRequired, fence, leave });
   const notify = notifier(env, fetchImpl);
   return async (req, res) => {
@@ -493,6 +526,18 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       return send(404, "not found\n", "text/plain");
     }
     const here = `/admin?key=${encodeURIComponent(adminKey)}`;
+    const snap = () => (state.published ? state.published.assignments.map((a) => ({ person: a.person, slot: { ...a.slot } })) : []);
+    const logSince = (before, cause, asked) => logChanges(state, diffAssignments(before, state.published.assignments).map((c) => ({ ...c, requested: asked(c) })), { at: now(), weekStart: state.published.weekStart, cause });
+    if (req.method === "GET" && (url.pathname === "/admin/changes" || url.pathname === "/admin/changes.csv")) {
+      const rep = noticeReport(state, fww && !fww.error ? fww : null, { tz, wages: wagesOf(state), weeks: weeksOf(state) });
+      if (url.pathname.endsWith(".csv")) return send(200, noticeCsv(rep, fww && !fww.error ? fww : null), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="schedule-changes.csv"` });
+      return send(200, changesPage(state, adminKey, fww, rep, tz, url.searchParams.get("note") ? `<p class="ok">${esc(url.searchParams.get("note"))}</p>` : ""));
+    }
+    if (req.method === "POST" && url.pathname === "/admin/change-mark") {
+      const ok = markRequested(state, form.get("id"), form.get("requested") === "1");
+      if (ok) save();
+      return back(`/admin/changes?key=${encodeURIComponent(adminKey)}`, ok ? "Marked." : "That change is gone.");
+    }
     if (req.method === "GET" && url.pathname === "/admin") {
       const note = url.searchParams.get("note");
       return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", browserBuild, clockOn));
@@ -582,7 +627,9 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       const i = Number(form.get("i")), row = tradeRows(state)[i];
       if (!row) return back(here, "That request is gone.");
       if (form.get("act") === "approve") {
+        const before = snap();
         if (!row.v || !row.v.ok || !applyTrade(state, row.t)) return back(here, "Not approved: the trade no longer passes the checks.");
+        logSince(before, "trade", () => true);
         state.trades.splice(i, 1);
         save();
         return back(here, "Trade approved. The staff page shows the new shifts.");
@@ -596,7 +643,9 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       if (!row) return back(here, "That request is gone.");
       const act = form.get("act");
       if (act === "approve" || act === "override") {
+        const before = snap();
         if (!(act === "approve" ? row.fit : row.blocked) || !applyClaim(state, row.c)) return back(here, "Not approved: the shift is no longer open or the check changed.");
+        logSince(before, "claim", () => true);
         // The other asks were checked against the week as it was: that person's, and any for a shift with no open copy left, must be asked again.
         const stillOpen = (c) => state.published.assignments.some((a) => !a.person && sameShift({ day: a.slot.day, startMin: a.slot.startMin, endMin: a.slot.endMin }, c));
         state.claims = state.claims.filter((c, k) => k !== i && c.person !== row.c.person && stillOpen(c));
@@ -624,7 +673,10 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
     }
     if (req.method === "POST" && url.pathname === "/admin/cover") {
       const row = calloutRows(state)[Number(form.get("i"))], name = String(form.get("name") || "");
+      const before = snap();
       if (!row || !row.fits || !row.fits.some((f) => f.name === name) || !applyCover(state, row.c, name)) return back(here, "Not assigned: the shift changed or the person no longer fits.");
+      // The caller asked to drop the shift; the person given it was picked by the manager, so their added shift counts.
+      logSince(before, "cover", (c) => c.person === row.c.person);
       // Asks that named this shift were checked against the old week: drop the call-out and any trade on it.
       const onIt = (x) => x.person === row.c.person && sameShift(x, row.c);
       state.callouts = state.callouts.filter((c) => !onIt(c));
