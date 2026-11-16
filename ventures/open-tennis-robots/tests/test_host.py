@@ -223,11 +223,29 @@ class WheelLoopTest(unittest.TestCase):
             self.assertEqual(loop.update(8500, 0, 10), 1.0)
         self.assertEqual(loop.i, 0.0)
 
+    def test_slow_targets_scale_the_gains(self):
+        # README "Slow wheels need slower gains": under LOOP_LOW_RPM both gains shrink with the target
+        fast, slow = controller.WheelLoop(9000), controller.WheelLoop(9000)
+        g = 750 / controller.LOOP_LOW_RPM
+        self.assertAlmostEqual(fast.update(3000, 2900, 10) - 3000 / 9000, 2e-4 * 100 + 6e-7 * 100 * 10)
+        self.assertAlmostEqual(slow.update(750, 650, 10) - 750 / 9000, g * (2e-4 * 100 + 6e-7 * 100 * 10))
+        off = controller.WheelLoop(9000, low_rpm=0)
+        self.assertAlmostEqual(off.update(750, 650, 10) - 750 / 9000, 2e-4 * 100 + 6e-7 * 100 * 10)
+
     def test_gate_needs_the_speed_held(self):
         gate = controller.SteadyGate()
-        self.assertFalse(gate.update((3000, 2000), (3050, 2010), 100))
-        self.assertTrue(gate.update((3000, 2000), (3050, 2010), 60))
-        self.assertFalse(gate.update((3000, 2000), (3100, 2010), 10))    # 3.3% off: start over
+        self.assertFalse(gate.update((3000, 2500), (3050, 2510), 100))
+        self.assertTrue(gate.update((3000, 2500), (3050, 2510), 60))
+        self.assertFalse(gate.update((3000, 2500), (3100, 2510), 10))    # 3.3% off: start over
+
+    def test_gate_holds_revolutions_of_a_slow_wheel(self):
+        # README "Slow wheels need slower gains": at 500 rpm GATE_HOLD_REVS revolutions outlast the 150 ms hold
+        gate = controller.SteadyGate()
+        need = controller.GATE_HOLD_REVS * 60000 // 500
+        self.assertFalse(gate.update((3000, 500), (3000, 500), need - 10))
+        self.assertTrue(gate.update((3000, 500), (3000, 500), 10))
+        fast = controller.SteadyGate()
+        self.assertTrue(fast.update((3000, 2500), (3000, 2500), 150))     # 6 revolutions at 2,500 rpm are 144 ms
         self.assertFalse(gate.update((0, 2000), (0, 2000), 500))          # a stopped wheel is never ready
 
     def test_loop_settles_over_the_plant_grid(self):
@@ -1094,6 +1112,27 @@ class PulseDropTest(unittest.TestCase):
             launcher.fit_from_drops([{"rpm_top": 800, "rpm_bottom": 700, "launched": True, "drop_top": 0.3,
                                       "drop_bottom": 0.3}])
 
+    def test_slow_wheel_keeps_its_revolutions_until_the_verdict(self):
+        """2026-11-16, firmware/esp32/README.md "The 1,000 rpm floor retested": the next shot's wheel speeds froze the
+        board's pulse snapshot straight after the release, leaving a 700 rpm wheel too few revolutions for the
+        loop-command fit. With host.HOLD_RPM the Pi waits for the verdict first, and the fit is made."""
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "interval": 3.0,
+                "shots": [{"x": 9.0, "y": 0.0, "speed": 22, "topspin": 2800},
+                          {"x": 10.5, "y": 0.0, "speed": 26, "topspin": 0}]}
+        shots = host.plan_drill(spec)
+        self.assertLess(shots[0].rpm_bottom, 800)
+        got = {}
+        old = host.HOLD_RPM
+        try:
+            for hold in (0.0, 1000.0):
+                host.HOLD_RPM = hold
+                res, _ = run(SimFeeder(), host.plan_drill(spec))
+                self.assertTrue(res.ok, res.aborted)
+                got[hold] = res.launches[0]["loop_bottom"]
+        finally:
+            host.HOLD_RPM = old
+        self.assertEqual(got, {0.0: False, 1000.0: True})
+
     def test_launch_flags_reach_the_pi(self):
         sim = SimFeeder()
         res, _ = run(sim, drill())
@@ -1284,6 +1323,36 @@ class EscSurveyTest(unittest.TestCase):
     def test_survey_off_sends_nothing(self):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, survey=())
         self.assertIsNone(lc.survey_report())
+
+
+class AnchorTest(unittest.TestCase):
+    """2026-11-16, firmware/esp32/README.md "The outlier wheel was anchored past its ball": behind a slow recovery the
+    revolutions after the ball are nearly level, and tach jitter could make the second one the longest, putting the
+    ball outside the fit's t0 search."""
+
+    # a 5,479 rpm wheel behind a 100 ms ESC on a 0.8 s wheel, 5 us jitter (seed 7): the ball is in revolution 69
+    LEVEL = [10830, 10841, 10833, 10839, 10827, 10835, 10839, 10827, 10838, 11189, 11475, 11489, 11467, 11452, 11452,
+             11428, 11413, 11400, 11390, 11380]
+
+    def test_walks_back_over_a_level_run(self):
+        ball = 9
+        self.assertEqual(controller._anchor(self.LEVEL, 0), ball + 2)       # the longest period: past the search
+        self.assertEqual(controller._anchor(self.LEVEL), ball + 1)
+
+    def test_a_partial_ball_revolution_stays_the_one_before(self):
+        ps = [10835] * 9 + [11189, 11475, 11300, 11200, 11150, 11100, 11050, 11000, 10950, 10900]
+        self.assertEqual(controller._anchor(ps), 10)
+        self.assertEqual(controller._anchor(ps, 0), 10)
+
+    def test_no_wheel_outvotes_the_survey_on_the_build_that_failed(self):
+        import survey_outlier_cause as C
+        ws = [w for w in C.wheels({"esc_tau_s": 0.10, "tach_jitter_us": 5.0}, 0.8, 0.7, 0.35, 7) if w[3] is not None]
+        best = sorted(min(w[3]) ** 0.5 for w in ws)
+        med = best[len(best) // 2]
+        self.assertGreater(len(ws), 50)
+        self.assertLess(best[-1], controller.SURVEY_TRIM * med)
+        for _, periods, b, _ in ws:
+            self.assertIn(controller._anchor(periods) - b, (0, 1))
 
 
 class EdgeFormTest(unittest.TestCase):

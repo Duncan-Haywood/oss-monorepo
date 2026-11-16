@@ -1107,3 +1107,213 @@ draw landing where the ball meets the wheel, but this run did not check that.
 Physics and plants are the simulator's assumptions. The heap cost of 128 kept
 wheels (about 3 KB as float arrays) and the report's sort are counted, not
 measured on an ESP32.
+
+## The 1,000 rpm floor retested (2026-11-16, after the trim)
+
+**The item.** `launcher.fit_from_drops` sets aside every wheel under
+`MIN_FIT_RPM` (1,000 rpm). The floor was chosen when the record's drop came from
+the pulse-time parabola, which showed only 70-78% of a 523 rpm wheel's drop.
+The drop now comes from the loop-command fit, which models the recovery
+instead of reading it off a few revolutions. Is the floor still needed, and
+where should it sit? No drill in the sweeps that validated the loop fit put a
+wheel under 1,000 rpm.
+
+**The sweep.** `tests/min_fit_rpm_sweep.py` builds a slow-wheel drill: heavy
+topspin and backspin shots whose slow wheel is planned at 520-1,500 rpm (the
+planner refuses under 500). Each shot comes twice, once straight after a fast
+flat shot and once after itself. It runs on the simulated feeder with three
+plants (the first-order model, 5 us tach jitter, a 30 ms ESC lag), wheel lags
+of 0.2 / 0.4 / 0.8 s and three true launchers. Part 1 compares each wheel's
+record drop with the simulator's true drop. Part 2 fits the launcher from the
+calibration drill's log plus the slow drill's at several floors
+(eval/min-fit-rpm-retest-2026-11-16.txt).
+
+**What it found first: the Pi cut the slow wheels short.** Under 1,000 rpm,
+most bad readings were records where the loop fit never ran and the drop fell
+back to the parabola. The board freezes a stroke's pulse snapshot when the
+wheel targets change, because the pulses after that are the next shot's speed
+change, not the ball. `run_drill` sent the next shot's speeds as soon as the
+release was counted. At 5,000 rpm that still leaves plenty of revolutions. At
+550 rpm it left one or two after the ball, and the loop fit needs three. The
+same shot followed by an identical one (no target change) kept its
+revolutions up to the verdict and read within 1%.
+
+**The change.** After a shot with a turning wheel under `host.HOLD_RPM`
+(1,000), the Pi waits for the verdict (`VERDICT_S` after the release, about
+0.3 s) before sending the next shot's speeds. A re-planned drill already
+waited there. Record drop / true drop, 750-1,000 rpm wheels (54 per plant):
+
+| plant | before: >2% off, range | with the hold: >2% off, range |
+| --- | --- | --- |
+| first-order | 16, 0.695-1.531 | 0, 0.989-1.010 |
+| tach 5 us | 19, 0.838-1.085 | 0, 0.990-1.007 |
+| ESC 30 ms | 18 of 36, 0.705-1.046 | 14 of 36, 0.971-0.997 |
+
+The ESC plant's remaining misses are its bias at every speed (2,500 rpm and
+up: 0.954-1.002), not a slow-wheel effect. At the current floor the fit
+improves too (spin efficiency error, mean / worst over the builds):
+
+| plant | before | with the hold |
+| --- | --- | --- |
+| first-order (9 builds) | 0.69% / 2.39% | 0.27% / 0.52% |
+| tach 5 us (9) | 2.58% / 8.11% | 1.42% / 4.16% |
+| ESC 30 ms (6) | 1.16% / 2.00% | 0.97% / 2.15% |
+
+It costs little: the 30-shot slow drill took 124.9 s against 125.5 s at a
+0.2 s wheel lag, and 136.2 s against 133.0 s at 0.8 s. The big speed changes
+already stretch the 3 s interval.
+
+**The floor stays at 1,000 rpm.** With the hold, 500-750 rpm wheels still
+read 0.68-1.13 of their drop: the loop fit gave up on 17 and 19 of 54 (20
+of 36 behind the ESC lag), and some it did fit were up to 12% off. Floors of 0 or 500 put the spin error at 31-43%
+worst. A 750 floor was not better across the plants (spin worst 0.72 / 3.18 /
+2.29% against 0.52 / 4.16 / 2.15% at 1,000), and counting slow wheels only
+when the loop fit made their drop changed nothing at 750. Picking 750 from these
+same builds would be fitting noise.
+
+**Also seen.** On the ESC 30 ms plant with a 0.2 s wheel lag, all three
+builds aborted at the first slow shot: the speed loop never held a ~510 rpm
+wheel inside the ready gate within 10 s. Slow wheels behind a laggy ESC may
+need their own loop gains. This run did not look into it.
+
+**Not measured.** All of it is on the simulator. The hold's threshold and the
+floor were judged on these same builds, and no real wheel has run below
+1,000 rpm.
+
+## The outlier wheel was anchored past its ball (2026-11-16, after the trim)
+
+**The item.** "One wheel's misses outvoted the drill" left open why one surveyed wheel in about 56 misses the
+loop-command fit by 10 to 60 times more than the rest, and guessed at a jitter draw near the ball.
+
+**The cause.** It is where the fit looks for the ball. `drop_from_commands_steps` anchors on the longest period in the
+snapshot, k, and searches the ball's time only from the start of k - 1 to the end of k + 1. Behind a slow recovery
+(a 40-100 ms ESC lag on a 0.4-0.8 s wheel) the revolutions after the ball are nearly level: at 5,479 rpm the first
+two after it were 11,475 and 11,489 us. Tach jitter (period noise about 7 us at 5 us an edge) decides which is longer. When the
+second one wins, k is two revolutions past the ball, the ball is outside the search, and the fit has to bend every
+other term to explain a drop that came too early. `tests/survey_outlier_cause.py` records each wheel's true ball
+revolution from the simulator and compares it with k. On the four jittery plants, wheel lags 0.2 / 0.4 / 0.8 s, both
+true launchers and seeds 7-12 (144 builds, 8,064 wheels):
+
+| | wheels over 5 x the median rms | of them, k two past the ball | other wheels with k two past |
+| --- | --- | --- | --- |
+| before | 21 | 21 | 6 |
+| with the walk back | 0 | 0 | 0 |
+
+Every outlier was this, and nothing else was an outlier. The jitter was a cause only through the anchor.
+
+**The change.** `controller._anchor`: k steps back (at most twice) while the period before it already holds over
+`ANCHOR_BACK` (0.9) of k's rise above the periods before the ball (their median, leaving out the two just before k).
+A ball partway through its revolution leaves that revolution well under 0.9 of the rise, so the usual anchor (the
+first full revolution after the ball) stays. 0.9 was set on the one build that first failed (seed 7); the rest ran
+after it.
+
+**What it does to the survey** (`tests/esc_survey_weight.py`, refined pick within 10% of the true lag):
+
+| builds | plain sum before | trim 5 before | plain sum now | trim 5 now |
+| --- | --- | --- | --- | --- |
+| seeds 7-9, all plants (102) | 93, 5 ESC builds at 0 | 100 | 102 | 102 |
+| seeds 10-12, jitter plants (72) | 67, 4 at 0 | 70 | 70 | 70 |
+
+The plain sum no longer needs the trim: no wheel crosses `SURVEY_TRIM` on these builds. The trim stays as a guard for
+shapes the simulator does not have (a real tach's dropout, a bump).
+
+**What it does to the drill** (`tests/plant_drill_sweep.py --back 0` against the default; calibration drill, 18
+builds; launcher fit's speed / spin efficiency error, worst and mean spin):
+
+| plant | before | now |
+| --- | --- | --- |
+| first-order | 0.2%, 1.6% / 0.4% | 0.2%, 1.6% / 0.5% |
+| tach 5 us | 0.5%, 5.3% / 2.0% | 0.4%, 5.3% / 2.0% |
+| tach 10 us | 1.1%, 16.0% / 5.4% | 1.0%, 7.2% / 3.2% |
+| tach 20 us | 1.8%, 22.1% / 8.4% | 2.3%, 15.8% / 5.6% |
+| ESC 30 ms, board lag 0 | 4.2%, 23.8% / 5.5% | 4.2%, 23.6% / 5.5% |
+| ESC 80 ms, board lag 0 | 3.6%, 19.9% / 6.6% | 3.7%, 23.4% / 6.8% |
+| ESC 30 ms, board lag 30 ms | 0.1%, 1.4% / 0.5% | 0.1%, 1.7% / 0.4% |
+| ESC 80 ms, board lag 80 ms | 0.2%, 1.8% / 0.7% | 0.2%, 1.2% / 0.6% |
+
+The jittery tachs gain the most (10 us: worst spin 16% to 7%). On an ESC lag the board does not model, one build's
+spin got worse (19.9% to 23.4% worst, mean 6.6% to 6.8%); with the lag set, as the survey advises, both forms read
+within 2%. The 5 us row is unchanged because its remaining error is the jitter on every revolution, not the anchor.
+
+**Not known.** All of it is on the simulator. A real tach's noise may not be Gaussian, and a real ball's contact may
+spread over more than one revolution; both would change where the level run starts. Raw output:
+eval/survey-outlier-anchor-2026-11-16.txt.
+
+## Slow wheels need slower gains (2026-11-16, after the anchor)
+
+**The item.** "The 1,000 rpm floor retested" saw every build on a 30 ms ESC lag with a 0.2 s wheel abort at its
+first slow shot: the speed loop never held a ~510 rpm wheel inside the ready gate in 10 s. Why, and what fixes it?
+
+**The cause: the tachometer's delay grows as the wheel slows, and the gains did not.** `PeriodTach` reads the mean of
+the last four revolutions, and its reading changes once a revolution, so it trails the wheel by about 2.5
+revolutions: 43 ms at 3,500 rpm, 0.29 s at 510 rpm. `WheelLoop`'s gains were fixed, set on wheels at 1,500-6,500 rpm.
+On the simulator the 510 rpm wheel swung 460-564 rpm for ever. A linear model of the loop (PI, the wheel's lag, the
+ESC's lag, that delay; `tests/low_speed_loop_sweep.py --margins`) gives the phase margin:
+
+| ESC lag, wheel lag | 510 rpm | 750 | 1,000 | 1,500 | 3,500 |
+| --- | --- | --- | --- | --- | --- |
+| none, 0.2 s | -39 | 5 | 29 | 52 | 79 |
+| 30 ms, 0.2 s | **-48** | -5 | 18 | 41 | 66 |
+| 30 ms, 0.4 s | -3 | 23 | 36 | 49 | 65 |
+| 80 ms, 0.2 s | -46 | -8 | 12 | 31 | 54 |
+| same, gains scaled under 1,500 rpm (30 ms, 0.2 s) | 63 | 59 | 53 | 41 | 66 |
+
+A negative margin rings for ever; the first-order plant at 0.4 s and above sits just over zero, which is why only the
+fast-wheel, laggy-ESC builds aborted.
+
+**A second fault the sweep found: the gate passed slow wheels off their speed.** `SteadyGate` wants 150 ms inside
+3%. At 510 rpm that is one or two tach readings of a four-revolution average, so a wheel still closing on its target
+could pass while 13% off its true speed.
+
+**The change.** `controller.LOOP_LOW_RPM` (1,500): under it, `WheelLoop` scales both gains by target / 1,500, which
+holds the crossover a fixed share of the delay. `controller.GATE_HOLD_REVS` (6): the gate's hold is at least six
+revolutions of the slowest turning wheel (0.71 s at 510 rpm; 150 ms still governs from 2,400 rpm up).
+`tests/low_speed_loop_sweep.py` sets one wheel at 510-2,000 rpm and the other at 3,500, from rest and from 5,000 rpm
+on both, on four plants (first-order, 5 us tach jitter, 30 and 80 ms ESC lag), wheel lags 0.2 / 0.4 / 0.8 s and free
+speeds 7,000 and 11,000 rpm while the firmware is told 9,000: 336 cases. The true error is the worse wheel's when the
+gate first passes, which is when a ball would go:
+
+| firmware | never steady in 12 s | passed over 3% off | worst at the gate | median time to steady |
+| --- | --- | --- | --- | --- |
+| before | 20 | 165 | 12.8% | 3.59 s |
+| scaled gains only | 0 | 100 | 9.9% | 3.55 s |
+| 4-revolution hold only | 26 | 54 | 6.6% | 3.70 s |
+| scaled gains, 4 revolutions | 0 | 40 | 6.3% | 3.61 s |
+| scaled gains, 6 revolutions (now) | 0 | 14 | 7.0% | 3.76 s |
+
+The longer hold alone makes the never-steady count worse (a ringing wheel rarely stays inside for longer); the
+scaled gains alone settle every case but still let balls go off speed. Both together do what neither does. Of the
+14 left over 3%, five are at 1,250-2,000 rpm, where neither change acts much; that remainder is the gate's
+tolerance against a tach that trails the wheel at every speed, not a slow-wheel effect. `tests/wheel_loop_sweep.py`
+(the drill's wheel pairs, 36 cases) still has every case steady, slowest 5.03 s as before, worst error at the gate
+2.6% (4.1% before; its old note said 2.8%, measured before the spin-up ramp).
+
+**The drill that aborted.** The ESC 30 ms plant of `tests/min_fit_rpm_sweep.py` (slow drill, `HOLD_RPM`
+1,000) now finishes all nine builds; the three 0.2 s builds aborted before. Those three read the launcher at 3.8% speed
+and 0.9% spin error (mean, floor 1,000). On the six builds that ran before (0.4 / 0.8 s), against
+eval/min-fit-rpm-retest-2026-11-16.txt, record drop / true drop:
+
+| band | before: >2% off, range | now: >2% off, range |
+| --- | --- | --- |
+| 500-750 rpm | 25 of 36, 0.683-1.178 | 18 of 36, 0.748-1.280 |
+| 750-1,000 | 14 of 36, 0.971-0.997 | 2 of 36, 0.970-1.008 |
+| 1,000-1,500 | 17 of 36, 0.954-1.030 | 17 of 36, 0.958-1.480 |
+| 2,500 and up | 33 of 240, 0.954-1.002 | 38 of 240, 0.952-1.002 |
+
+The launcher fit at the 1,000 floor got worse on these six: spin error mean / worst 0.97 / 2.15% before, 1.72 /
+6.65% now (speed 1.66 / 2.24% to 1.59 / 2.24%). It is one wheel: a 1,107 rpm bottom wheel on build 0.7/0.35 at
+0.4 s read 1.48 of its drop through the loop-command fit. On that build the old firmware had four wheels over 5% off
+(512-584 rpm), scaled gains alone none, the 6-revolution hold alone three and both two. So the outlier is one fit
+missing on one ball's timing, not a systematic bias, but it is not explained. Raw output:
+eval/low-speed-loop-drill-2026-11-16.txt.
+
+**How the numbers were picked.** 1,500 came from the margin model (at 1,000 the worst plant keeps only 12-18
+degrees) and agreed with a grid of 1,000 / 1,500 knees and 3 / 4 / 6 revolutions
+(eval/low-speed-loop-grid-2026-11-16.txt; the 1,000 knee let one 600 rpm case go 13.9% off). Six revolutions was
+the best of the three on these same cases, so it is fitted to them. Raw output:
+eval/low-speed-loop-gains-2026-11-16.txt, eval/low-speed-loop-margins-2026-11-16.txt.
+
+**Not known.** All of it is on the simulator with its first-order wheel; a real ESC's own speed control, a real
+tach's dropouts and the four-period average are the assumptions the margin rests on. A slow shot now waits up to
+0.7 s longer for the gate. A tach that averaged a fixed time rather than four revolutions would shrink the delay
+itself; not tried.

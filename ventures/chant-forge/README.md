@@ -1073,7 +1073,47 @@ That needs a part P, since O's misses are now printed. `sing.test.mjs` holds the
 all four of J's E4 eighths read on their n (at least 3 more than without), and *ad*, *ud*, *ab*, *ub* on E2
 and A2 eighths read as stops with it and without. Reader only; nothing in the synthesis changed. Not listened to.
 
-#### A murmur louder than the dip before it (2026-11-16, latest; shipped, one prediction failed)
+#### A voice bar at one level (2026-11-16, latest; shipped, two predictions failed)
+
+Part L left *sub* read as nothing on 3 of its 10 cells. Read frame by frame (`eval/sub-cum-diag.mjs`), the b was
+there: a closure, a voice bar, a burst. But on the missed cells (G#3 half notes, G2 and C3 quarters) the voice bar
+sat 17-20 dB under the /u/. The closure rule wants a closure 22 dB or more under the vowel. On the cells it read, the
+bar sat 23-38 dB under. The bar was a fixed gain (`VOICE_BAR` 0.08) through a 180 Hz first resonance, so its level
+swung with how close a harmonic fell to 180 Hz. Worked out in steady state over five vowels from E2 to E4, it sat
+19.7 to 42.3 dB under the vowel, median 27. This was the same fault the nasal murmur and the final /l/ had before
+their gains were set per note.
+
+- **The change** (`sing.mjs` `voiceBarGain`, `VOICE_BAR_DB`): a voiced closure's bar is set per note to sit 28 dB
+  under the vowel beside it, in codas and in openings, the same way `nasalGain` and `lateralGain` set theirs. The
+  28 dB is the median above, rounded. It is an assumption, not fitted to recordings or to any part. With one voice
+  and no vibrato the bar now sits 27.8-28.6 dB under its vowel at E2-E4 after any vowel, where the fixed gain gave
+  21.0-42.1 (`sing.test.mjs`). `voiceBarLevel: false` (a singNote option; `renderMidi(..., { voiceBar: false })`,
+  `node eval/coda-check.mjs --voice-bar off`) keeps the fixed gain. The reader did not change.
+- **Pre-registered on a new part Q** (in `eval/coda-check.mjs`'s header, committed before Q or any other part ran
+  with the change). Q has 12 voiced-stop codas, 10 of them sung in no other part, and 8 other syllables, at A2, F3,
+  A#3, C4 and D#4, 100 BPM.
+
+| prediction (against `--voice-bar off`) | fixed gain | per note |
+|---|---|---|
+| (1) Q's voiced stops read exactly, 4 or more of 120 better | 95 | 102: holds |
+| (2) Q's voiced stops read as nothing, fewer | 10 | 8: holds |
+| (3) Q's other syllables within 2 | 75 of 80 | 75: holds |
+| (4) Q's vowel-only control identical | 200 of 200 | 200: holds |
+| (5) every other coda part within 3, voiced stops no worse, controls identical | | fails on K's others (198 to 191 of 220: *ib*, *eb* read as nothing, *ob* as a nasal) and N's voiced stops read as a nasal (1 to 5: *nab*, *gab*) |
+| (6) openings (`eval/consonant-check.mjs`) A and B within 3 | A 195 of 210, B 780 of 934 | A 195; B 812: fails upward |
+
+Everywhere else the coda parts rose: A 173 to 177 of 180, B 129 to 130, J's others 306 to 318, L's /i/ syllables
+153 to 157, M 105 to 108, O 210 to 217, P 202 to 209. Every vowel-only control was identical. L's *sub* went from 3
+misses to 2 (one read as nothing, one as velar). The openings gained most, which no prediction foresaw. The held-out
+Graduale part G went from 1959 to 2055 of 2349 (83.4% to 87.5%), with voiced alveolar openings 116 to 172 of 227
+and labial 65 to 98 of 115. Before, a d or b opening's bar was often loud enough to be read as no closure at all.
+
+Shipped on. The net gain is large and mostly on held-out data (G, Q). The losses are named: K's *ib*/*eb* and N's
+*nab*/*gab*, where a quieter bar after /i/, /e/ and /a/ now reads as nothing or as a murmur. Those are the next
+items. L's *cum* (2 misses) is untouched: it is a nasal and this round changed only voiced closures. Not listened
+to. Whether a voice bar 28 dB down sounds like a b is a listening-test question.
+
+#### A murmur louder than the dip before it (2026-11-16; shipped, one prediction failed)
 
 O's five misses on its D4-E4 pulse-2 notes, read frame by frame (5 ms hops, levels against the reference vowel):
 *punc* and *tunt* on D#4 and *sons* on D4 and D#4 each hold an n about 50 ms long, a median 37-48 dB dark in itself
@@ -1999,6 +2039,26 @@ liquescents whose small note is on a line, listed and committed before their pag
 nothing got worse. Main already reads 22 of the 25. Two of the three misses are a different shape, a
 one-step cephalicus whose head and small note the reader takes for one head at the small note's pitch:
 next. Details: `eval/hook-on-line-check.md`; run `node eval/hook-on-line-check.mjs <lists>`.
+
+### A one-step cephalicus read as one head (2026-11-16, later)
+
+Those two misses (GregoBase 3490 *con-* and 3508 *et*, both `gf~`) are a one-step cephalicus: the head
+in a space, a hairline stem down its left side, the small note on the line just below, joined under the
+head's right half. Head and small note together are about a space tall, so the reader either lost the
+small note (its run too short to be a head where it stands alone, split off too narrow where it touches)
+or split the block into two plain heads and read them bottom-up, f then g, as it reads a podatus. Now a
+head with no tail is checked for one (`oneStepCephalicus`, `ONE_STEP` in `scan.mjs`;
+`readPage(img, { oneStep: false })` reads as before): ink under the head's right half 0.55-0.85 spaces
+below its centre, wider than a stem and ending by 0.95 spaces, none under its left half, a level head,
+and a hairline stem down its left side. The small note is read one step under the head, after it.
+Set on the 128 pieces of the twelve earlier lists in three tries; the second looked clean in the counts
+but its changes, looked at, included the upper heads of quilisma podatus and a porrectus top, which the
+hairline-stem and level-head tests removed. Frozen: one-step cephalici 69 to 74 of 84, notes agreeing
++5, differing and false liquescents unchanged, all 14 places it changes looked at and true. Held out,
+twelve pieces on leaves no earlier list reads, listed and committed before their pages were downloaded
+(`eval/one-step-fresh-pages.json`): 16 to 17 of 17, agreeing +1, nothing worse; one of four predictions
+failed as worded (an overlapping column). The fault is rare: main already read most of them. Details:
+`eval/one-step-cephalicus-check.md`; run `node eval/one-step-check.mjs <lists>`.
 
 ## Not checked yet
 

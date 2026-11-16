@@ -43,7 +43,14 @@ def cell_demands(types, printers, inspectors, hold_printer=False):
     occupied during its load and unload, which MVA can only represent as extra printer demand
     (it ignores the wait for the arm).
     """
+    if not types:
+        raise ValueError("types is empty")
+    for t in types:
+        if not 0.0 <= t["q"] < 1.0:
+            raise ValueError(f"failure probability q must be in [0, 1), got {t['q']}")
     w = np.array([t["weight"] for t in types], float)
+    if np.any(w < 0) or w.sum() <= 0:
+        raise ValueError("weights must be non-negative with a positive sum")
     w /= w.sum()
     def mean(f):
         return float(sum(wi * f(t) / (1 - t["q"]) for wi, t in zip(w, types)))

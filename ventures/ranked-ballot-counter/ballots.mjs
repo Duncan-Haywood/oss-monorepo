@@ -449,7 +449,7 @@ export function analyze(input = {}) {
 
 /** Round-by-round CSV of the IRV and STV counts and the pairwise matrix. */
 export function reportCsv(result) {
-  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const names = result.parsed.candidates;
   const lines = [];
   if (result.irv) {

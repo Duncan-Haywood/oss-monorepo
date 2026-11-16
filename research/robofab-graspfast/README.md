@@ -12,10 +12,10 @@ A follow-up to `research/robofab-armaccel` (track `robofab`; its "MuJoCo arm ...
 ```bash
 pip install mujoco numpy
 cd research/robofab-graspfast
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests, < 1 s
-python3 experiments/run.py                                # about 1 min; writes experiments/results.{txt,json}
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, < 1 s
+python3 experiments/run.py                                # 1 to 3 min (the model is rebuilt at every bisection step); writes experiments/results.{txt,json}
 ```
-Produced with MuJoCo 3.15.0 and Python 3.13.
+Produced with MuJoCo 3.15.0 and Python 3.13. On MuJoCo 4.0.0 the run reproduces the same pass/fail pattern, but 7 numeric lines move by one bisection step, so the Table B range becomes 0.87 to 1.01 (quality audit `portfolio/quality/audits/2026-11-07-robofab-graspfast.json`); the exact edges of the ranges are version-dependent.
 
 ## Motivation
 
@@ -39,6 +39,7 @@ See the bullets above and `experiments/results.txt` (Table A: `graspmove` settin
 - Boxes only, rigid pads, assumed density and friction (one value, 0.5), no tipping or pad compliance, a 2 mm slip criterion that is a choice, and one grasp axis per part.
 - Three of the six free parts only. The "fine" settings were chosen after Table A failed, and I did not search the settings systematically; the sweep has six points on one case.
 - Whether the remaining 1 to 2% above the bound comes from the 2% bisection tolerance, the slip criterion or contact softness is not separated here.
+- The ratio near 1.00 is partly forced by the method, so it is weak evidence on its own. A force short of the bound by a fraction f lets the part slip roughly f·a·t²/2 over an acceleration phase of length t, so the 2 mm criterion over t = 0.05 s tolerates a deficit of only about 0.2% at 800 m/s² (about 4% at 40 m/s²), and the bisection returns the upper end of a 2% bracket, a bias of 0 to +2%. At high acceleration the test can hardly return anything but a ratio of about 1.00 to 1.02 once the contact is resolved; what the experiment shows is that coarse contact settings fail, not that friction holds beyond what a Coulomb model implies.
 
 ## Next steps
 

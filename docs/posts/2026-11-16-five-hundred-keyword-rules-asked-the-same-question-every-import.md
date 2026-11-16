@@ -1,5 +1,5 @@
 ---
-title: "Five hundred keyword rules and the same forty descriptions"
+title: "Five hundred keyword rules, asked the same question on every import"
 seo_title: "Speeding up a bookkeeping app's keyword categoriser with a memo"
 date: 2026-11-16
 description: "ai-bookkeeper tested every bank line against 499 keyword regexes on every import. Remembering the matches halved its slowest test and gave identical answers."

@@ -127,7 +127,7 @@ export function assignCodes(o) {
 }
 
 export function csv(rows) {
-  const q = v => { const t = String(v ?? "").replace(/^[=+\-@\t\r]/, "'$&"); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+  const q = v => { const t = String(v ?? "").replace(/^[=+\-@\t\r]/, (c, _i, all) => (/^-?\d+(\.\d+)?$/.test(all) ? c : "'" + c)); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
   const out = [["GTIN", "SKU", "Style", "Colour", "Size"]];
   // a GTIN is digits only, so it is never a formula; keep it unquoted for importers
   for (const r of rows) out.push([r.gtin, r.sku, r.style, r.colour, r.size]);

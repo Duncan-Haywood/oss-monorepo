@@ -2413,6 +2413,28 @@ const EXACT_AUTO_SLOTS = MAX_SLOTS;
 // generation given the time proved both. Those weeks get it instead: `scoreCGMs` defaults to 4 x exactMs there. `exactTree: true`
 // keeps the tree on any week.
 const EXACT_TREE_SLOTS = 60;
+// When buildRoster runs the pay floor (cliqueScoreFloor) under a time budget (README "A warm-sized gate for the pay floor",
+// 2026-11-16). The old gate ran it with no deadline when the time left covered the cold solve's expected cost (4 s x
+// (copies / 245)^4.5) and otherwise tried it warm up to the budget's end. The warm solve does not follow that formula
+// (eval/warm-gate.out.jsonl, 78 generated weeks of 148-326 copies: 29 ms to 14.5 s, above the cold formula on 25 weeks and far
+// below it on most of the rest), so with the open-hours LP's basis in hand it now always runs warm, stopped `untilMs` from now:
+// the time left plus a reserve of its own like the day sweeps' (`scoreFloorReserveMs`). The reserve defaults to 30% of the time
+// budget, at most 6 s: 6 s at the 20 s default (README "The pay floor's reserve, sized from the full solve", 2026-11-16, pre-registered
+// in eval/pay-floor-reserve-prereg.md: on 48 fresh weeks the try finished on 19 of 19 against 13 at the old 1.5 s, for +0.25 s of
+// mean build time; 8 s finished no more). Modes: "run" (no deadline:
+// no budget or `scoreFloor: true`, or no basis and the cold formula fits), "try" (warm, stopped at untilMs, when that is over
+// 250 ms) and "skip". `scoreFloorTry: false` or `scoreFloorWarm: false` keep the cold formula alone (the 2026-11-14 skip).
+const scoreFloorReserveDefault = (budgetMs) => (budgetMs > 0 ? Math.min(6000, Math.round(0.3 * budgetMs)) : 0);
+function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
+  const reserve = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : scoreFloorReserveDefault(budgetMs));
+  if (o.scoreFloor === false) return { mode: "skip", reserve, untilMs: 0 };
+  if (o.scoreFloor === true || !(budgetMs > 0)) return { mode: "run", reserve, untilMs: Infinity };
+  if (o.scoreFloorTry !== false && o.scoreFloorWarm !== false && carry) {
+    const untilMs = Math.max(0, leftMs) + reserve;
+    return untilMs > 250 ? { mode: "try", reserve, untilMs } : { mode: "skip", reserve, untilMs: 0 };
+  }
+  return leftMs >= 4000 * Math.pow(copies / 245, 4.5) ? { mode: "run", reserve, untilMs: Infinity } : { mode: "skip", reserve, untilMs: 0 };
+}
 // Expected time of the open-hours clique LP (cliqueOpenFloor) on a week of S shift copies: 1.6 s x (S / 245)^4.5, fitted to one
 // machine's 1.2-1.7 s at 238-245 copies, 4.5-6.3 s at 304-326 and 13-15 s at 400 (eval/clique-floor.out.txt).
 const cliqueCostMs = (S) => 1600 * Math.pow(S / 245, 4.5);
@@ -3755,6 +3777,11 @@ function memoKey(value) {
   });
   return ok ? key : null;
 }
+// The cover repair's time reserve (see coverPasses in buildRoster): an explicit value wins; otherwise 2 s, at most a tenth of
+// the budget, on weeks of 300 or more copies, and none below or without a budget. A pure function so the rule is tested
+// without a build, whose reserve is only recorded once the cover passes start (a loaded CI runner can run out of time first).
+export const repairReserveFor = (copies, budgetMs, explicit) => (budgetMs > 0 ? explicit ?? (copies >= 300 ? Math.min(2000, budgetMs / 10) : 0) : 0);
+
 export function buildRoster(staff, slots, options = {}) {
   const key = options?.memo === false ? null : memoKey([staff, slots, options]);
   if (key !== null && rosterMemo.has(key)) {
@@ -3841,7 +3868,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       // copies, where a pre-registered test on 48 fresh builds found fewer open hours on 22 and more on 10; none below 300.
       // A 4 s reserve was worse (README "A 4 s repair reserve: measured and refused"): the repair stops on its node budget at
       // about 1.2 s, so the extra time only takes plateau walks away.
-      const reserve = budgetMs > 0 ? o.coverRepairReserveMs ?? (ctx.S >= 300 ? Math.min(2000, budgetMs / 10) : 0) : 0;
+      const reserve = repairReserveFor(ctx.S, budgetMs, o.coverRepairReserveMs);
       repairReserveMs = reserve;
       const leftMs = () => budgetMs - (Date.now() - tStart);
       for (let k = 0; k < (o.coverPassRuns ?? 12) && !over() && !(reserve > 0 && k > 0 && leftMs() < reserve); k++) {
@@ -3995,15 +4022,19 @@ function buildRosterOnce(staff, slots, options = {}) {
     // weeks (eval/warm-score-floor.out.txt); on the other weeks it saves a third of the pivots. Because the warm solve is usually
     // far quicker than the time gate expects, a week the gate would skip now tries it anyway, warm only, against the time budget's
     // end (the solve stops there and the pass is skipped as before): `scoreFloorTry: false` keeps the old skip.
+    // A warm-sized gate (2026-11-16, README "A warm-sized gate for the pay floor"; scoreFloorPlan): the warm solve's time does not
+    // follow the copies the way the cold one does (eval/warm-gate.out.jsonl: 29 ms to 14.5 s on 78 generated weeks of 148-326
+    // copies, its ratio to the open-hours LP's own time 0.04 to 6), so no size formula sizes it. With the open-hours basis in hand
+    // it always runs warm, stopped `scoreFloorReserveMs` (default 30% of the budget, at most 6 s) past the time budget's end.
     let priced = null, pricedTried = null;
     const pricedLeft = budgetMs - (Date.now() - tStart);
-    const pricedFits = o.scoreFloor === true || !(budgetMs > 0) || pricedLeft >= 4000 * Math.pow(ctx.S / 245, 4.5);
-    const pricedTry = !pricedFits && o.scoreFloorTry !== false && o.scoreFloorWarm !== false && !!clique?.carry && pricedLeft > 250;
-    if (clique && !ex.proven && o.scoreFloor !== false && !over() && (pricedFits || pricedTry)) {
+    const plan = scoreFloorPlan(o, { budgetMs, leftMs: pricedLeft, copies: ctx.S, carry: !!clique?.carry });
+    const pricedTry = plan.mode === "try", pricedReserve = plan.reserve;
+    if (clique && !ex.proven && o.scoreFloor !== false && !over() && plan.mode !== "skip") {
       priced = cliqueScoreFloor(ctx, pricedTry
-        ? { warm: clique.carry, deadline: tStart + budgetMs, coldFallback: false }
+        ? { warm: clique.carry, deadline: Date.now() + plan.untilMs, coldFallback: false }
         : { warm: o.scoreFloorWarm === false ? null : clique.carry });
-      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft) };
+      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft), left: pricedLeft, reserve: pricedReserve };
       mark("scoreFloor");
       if (priced && priced.bound > ex.rootBound) {
         ex.rootBound = priced.bound;
@@ -4486,7 +4517,7 @@ export function absencePlan(staff, slots, roster, name, days = null, options = {
 // opened in a spreadsheet, so it gets a leading apostrophe; parseRosterCsv strips that again on the way back in.
 export function csvCell(v) {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 const unDefuse = (t) => (/^'[=+\-@\t\r]/.test(t) ? t.slice(1) : t);
@@ -5718,7 +5749,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 

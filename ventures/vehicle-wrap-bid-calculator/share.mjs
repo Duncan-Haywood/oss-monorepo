@@ -282,8 +282,23 @@ function specRowGroups(spec) {
 
 const MAX_TEXT = 80;
 
+// A lone half of a UTF-16 surrogate pair makes encodeURIComponent throw
+// "URI malformed", which took the whole link and save down with it. Two ways
+// one appears: a name cut at MAX_TEXT code units through the middle of an
+// emoji, and pasted text that already holds one. So the cut never splits a
+// pair, and any stray half left over becomes U+FFFD.
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+
+function clipText(text) {
+  let clipped = text.slice(0, MAX_TEXT);
+  if (clipped.length === MAX_TEXT && /[\uD800-\uDBFF]$/.test(clipped) && /^[\uDC00-\uDFFF]/.test(text.slice(MAX_TEXT))) {
+    clipped = clipped.slice(0, -1);
+  }
+  return clipped.replace(LONE_SURROGATE, '\uFFFD');
+}
+
 function encodeText(value) {
-  const raw = String(value ?? '').trim().slice(0, MAX_TEXT);
+  const raw = clipText(String(value ?? '').trim());
   if (!raw) return '';
   // URI-encode so a typed name can contain ":" or "," without splitting the row.
   return encodeURIComponent(raw);
@@ -292,7 +307,7 @@ function encodeText(value) {
 function decodeText(raw) {
   if (!raw) return null;
   try {
-    const text = decodeURIComponent(raw).trim().slice(0, MAX_TEXT);
+    const text = clipText(decodeURIComponent(raw).trim());
     return text || null;
   } catch {
     return null;

@@ -321,7 +321,9 @@ ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
 # A wheel whose best fit over the grid misses by more than this many times the median wheel's best is left out of the
 # sums (2026-11-16, README "One wheel's misses outvoted the drill"): with tach jitter one wheel in 56 could fit 30 times
 # worse than the rest, and its square alone set the pick (0 instead of 100 ms on 6 of 102 simulated builds). 3 / 5 / 10
-# scored 101 / 100 / 100 of the 102 within 10% (tests/esc_survey_weight.py); the plain sum, 93.
+# scored 101 / 100 / 100 of the 102 within 10% (tests/esc_survey_weight.py); the plain sum, 93. The cause was found
+# later (README "The outlier wheel was anchored past its ball", ANCHOR_BACK): with it no simulated wheel crosses the
+# trim and the plain sum scores 102; the trim stays as a guard for shapes the simulator lacks.
 SURVEY_TRIM = 5.0
 SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (24 bytes each); the oldest goes first
 
@@ -387,8 +389,39 @@ def _cmd_columns(T, j0, j1, segs, tau):
     return out
 
 
+# The anchor's walk back (2026-11-16, README "The outlier wheel was anchored past its ball"): the fit anchors on the
+# longest period, k, and searches the ball's time only from the start of k - 1 to the end of k + 1. Behind a slow
+# recovery (a 40-100 ms ESC lag on a 0.4-0.8 s wheel) the revolutions after the ball are nearly level, about 10 us apart
+# at 5,500 rpm, and 5 us of tach jitter could make the second one after the ball the longest: the ball then fell outside
+# the search and that wheel missed by 7-35 x the median wheel's rms. On 144 jittery builds (8,064 wheels) all 21 wheels
+# over SURVEY_TRIM were this; with the walk back none were (tests/survey_outlier_cause.py). k steps back while the
+# period before it already holds over this share of k's rise above the periods before the ball (at most 2 steps); 0
+# keeps the plain longest period.
+ANCHOR_BACK = 0.9
+
+
+def _anchor(periods, back=None, steps=2):
+    """The revolution `drop_from_commands_steps` anchors on: the longest period, walked back over a level run
+    (`back` None reads ANCHOR_BACK)."""
+    if back is None:
+        back = ANCHOR_BACK
+    k = 0
+    for j in range(1, len(periods)):
+        if periods[j] > periods[k]:
+            k = j
+    if back <= 0 or k < 4:
+        return k
+    pb = sorted(periods[max(0, k - 8):k - 2])
+    base = pb[len(pb) // 2]
+    for _ in range(steps):
+        if k < 4 or periods[k - 1] - base <= back * (periods[k] - base):
+            break
+        k -= 1
+    return k
+
+
 def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
-                             edges=False):
+                             edges=False, back=None):
     """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
     (2026-11-16, README "A recovery shaped by the loop's own commands").
 
@@ -416,10 +449,7 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     if n < pre + 4:
         yield ("fit", None)
         return
-    k = 0
-    for j in range(1, n):
-        if periods[j] > periods[k]:
-            k = j
+    k = _anchor(periods, back)
     if k < pre + 1:
         yield ("fit", None)
         return
@@ -806,6 +836,12 @@ class BrakeGuard:
         return self.ok
 
 
+# Under this target the wheel loop's gains shrink with the speed (WheelLoop; README "Slow wheels need slower gains").
+LOOP_LOW_RPM = 1500
+# The ready gate holds for at least this many revolutions of the slowest wheel (SteadyGate; same README section).
+GATE_HOLD_REVS = 6
+
+
 class WheelLoop:
     """One launcher wheel's ESC command from its target and measured rpm: feedforward plus PI (2026-11-11).
 
@@ -818,22 +854,32 @@ class WheelLoop:
     frozen while the command is saturated and clamped to +-`i_max` (no wind-up). Gains from tests/wheel_loop_sweep.py
     (README "Wheel speed loop"): steady within 2 s over free speeds 7000-11000 rpm and spin-up time constants
     0.2-0.8 s while the firmware is told 9000.
+
+    Below `low_rpm` both gains shrink in proportion to the target (2026-11-16, firmware/esp32/README.md "Slow wheels
+    need slower gains"). The tachometer averages its last four revolutions, so what it reads trails the wheel by about
+    2.5 revolutions: 43 ms at 3,500 rpm, 0.29 s at 510 rpm. At fixed gains that delay took the loop's phase margin
+    from about 66 degrees at 3,500 rpm to -48 at 510 rpm (a 0.2 s wheel behind a 30 ms ESC), and a ~510 rpm wheel
+    swung 460-564 rpm and never passed the ready gate. Scaling the gains with the speed keeps the crossover a fixed
+    share of the delay. 0 turns it off.
     """
 
-    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3):
+    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM):
         self.ff = 1.0 / rpm_full
         self.kp, self.ki, self.i_max = kp, ki, i_max
+        self.low = low_rpm
         self.i = 0.0
 
     def update(self, target, measured, dt_ms):
         if target <= 0:
             self.i = 0.0
             return 0.0
+        g = target / self.low if self.low and target < self.low else 1.0
+        kp, ki = self.kp * g, self.ki * g
         err = target - measured
-        raw = target * self.ff + self.kp * err + self.i
+        raw = target * self.ff + kp * err + self.i
         if 0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0):
-            self.i = _clamp(self.i + self.ki * err * dt_ms, -self.i_max, self.i_max)
-        return _clamp(target * self.ff + self.kp * err + self.i, 0.0, 1.0)
+            self.i = _clamp(self.i + ki * err * dt_ms, -self.i_max, self.i_max)
+        return _clamp(target * self.ff + kp * err + self.i, 0.0, 1.0)
 
 
 class SteadyGate:
@@ -844,20 +890,28 @@ class SteadyGate:
     averages the last revolutions, so the true speed trails what it reads; on the simulated feeder over the plant grid
     (tests/wheel_loop_sweep.py) a 5% gate let balls go at up to 6.6% true error, a 3% gate at up to 2.8%, for at most
     0.6 s more spin-up.
+
+    The hold is also at least `hold_revs` revolutions of the slowest turning wheel (2026-11-16, README "Slow wheels
+    need slower gains"). The tachometer's reading changes once a revolution, and a 510 rpm wheel turns once in 118 ms,
+    so 150 ms was one or two readings of a four-revolution average and passed slow wheels up to 13% off their true
+    speed on the simulator. 0 keeps the plain `hold_ms`.
     """
 
-    def __init__(self, tol=0.03, hold_ms=150):
-        self.tol, self.hold = tol, hold_ms
+    def __init__(self, tol=0.03, hold_ms=150, hold_revs=GATE_HOLD_REVS):
+        self.tol, self.hold, self.revs = tol, hold_ms, hold_revs
+        self.need = hold_ms
         self.ok_ms = 0
 
     def update(self, targets, measured, dt_ms):
         inside = all(t and abs(m - t) < self.tol * t for t, m in zip(targets, measured))
         self.ok_ms = self.ok_ms + dt_ms if inside else 0
+        slowest = min((t for t in targets if t > 0), default=0)
+        self.need = max(self.hold, self.revs * 60000 // slowest) if self.revs and slowest else self.hold
         return self.steady
 
     @property
     def steady(self):
-        return self.ok_ms >= self.hold
+        return self.ok_ms >= self.need
 
 
 class ElevationGeometry:

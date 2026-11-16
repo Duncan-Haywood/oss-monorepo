@@ -217,7 +217,8 @@ test("CSV: header, quoting, formula injection guard", () => {
   assert.equal(lines[0], "date,platform,format,title,text");
   assert.ok(csv.includes('"'), "multi-line text is quoted");
   assert.equal(S.csvCell('=HYPERLINK("x")'), `"'=HYPERLINK(""x"")"`);
-  assert.equal(S.csvCell("-1"), "'-1");
+  assert.equal(S.csvCell("-1"), "-1"); // a plain number is not a formula (2026-11-16)
+  assert.equal(S.csvCell("-1+2"), "'-1+2");
   assert.equal(S.csvCell("plain"), "plain");
   // Row count: parse quoted fields properly.
   let rows = 0, inQ = false;

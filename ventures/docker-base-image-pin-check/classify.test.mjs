@@ -269,6 +269,14 @@ test("scanText: a stage named with different case is still the stage", () => {
 
 // Red-team 2026-11-16, real defect: a FROM split with a backslash continuation
 // was reported as image "\" with a nonsense remediation command.
+test("scanText: a backslash right after the tag drops only the backslash", () => {
+  // No space before the continuation: only the "\\" goes, so the tag keeps
+  // its last character (node:20, not node:2) and the alias still applies.
+  const findings = scanText("FROM node:20\\\n  AS build\nFROM build\n", "Dockerfile");
+  assert.equal(findings.length, 1);
+  assert.deepEqual([findings[0].line, findings[0].image, findings[0].tag], [1, "node", "20"]);
+});
+
 test("scanText: a FROM split across lines with a backslash is read as one instruction", () => {
   const text = `FROM --platform=linux/amd64 \\\n    node:20 \\\n    AS build\nFROM build\nFROM \\\r\n  # a comment inside the continuation\n  ubuntu@${DIGEST}\r\n`;
   const findings = scanText(text, "Dockerfile");

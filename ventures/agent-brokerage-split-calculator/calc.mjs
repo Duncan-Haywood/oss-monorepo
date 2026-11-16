@@ -160,7 +160,7 @@ export function sampleInput() {
   };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const rows = [["Brokerage", "Deals", "Commission earned", "Net to agent", "Kept percent", "Cost of brokerage", "Cap reached on deal"]];
   for (const r of a.results) rows.push([r.plan.label, r.deals, round2(r.totalGci), round2(r.net), round2(r.keptPct * 100), round2(r.brokerageCost), r.capHitDeal ?? ""]);

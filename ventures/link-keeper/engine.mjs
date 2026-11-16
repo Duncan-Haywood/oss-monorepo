@@ -168,7 +168,7 @@ export function stats(link, now, from, to) {
   return { slug: link.slug, url: link.url, from, to, ...tot, lifetimeClicks: link.clicks, referrers: top(ref), devices: top(device), browsers: top(browser), countries: top(country), byDay };
 }
 
-const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 /** CSV of every link with its totals; cells that start with =,+,-,@ are neutralised for spreadsheet import. */
 export function toCsv(state, now) {
   const rows = [["slug", "url", "title", "tags", "created", "expires", "clicks", "clicks_30d", "archived"]];

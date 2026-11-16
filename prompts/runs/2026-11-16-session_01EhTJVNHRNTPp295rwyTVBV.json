@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVNHRNTPp295rwyTVBV",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T14:56:48Z",
+  "ended": "2026-11-16T15:20:50Z",
+  "wall_minutes": 24.21,
+  "tokens_in": 4229316,
+  "tokens_out": 28602,
+  "cost_usd": 2.3754,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16609",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "The first background launch nested '&' subshells inside a backgrounded command, so the harness said it had finished while pip and the clone were still running; I had to poll for them."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--field buildable reports going over 600 characters but not how many are left before the edit, so the first replacement text was 14 characters too long and had to be rewritten."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The brief asks for revenue work; the default flagship row (photo-editing) was an ML research slice, not a sales or marketing item. I followed the flagship default because it is the owner's standing direction (deepen flagships).",
+      "did": "Pre-registered and ran the boosted-tree Bayer weight experiment",
+      "result": "Both bars passed; not shipped because of a regression on one camera, written up with the next step"
+    },
+    {
+      "file": "ventures/photo-editing/llms.txt",
+      "why": "No user-facing behaviour changed (nothing shipped), so llms.txt and the marketing page were left as they were",
+      "did": "no edit",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-boosted-trees-demosaic-weight.md",
+    "ventures/photo-editing/eval/bayer-boosted-weight-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registration was committed (c. 15:05 UTC) before any score. Five-fold CV: boosted +0.527 dB vs linear +0.386 (108/120). Test: +0.451 vs B +0.406 (22/30); K-1 II below 3/16. Local checks: pytest tests/test_bayer_demosaic.py 17 passed; validate.py all VENTURE.yaml valid; post frontmatter/links/similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7670a120-a5c6-56e0-8a7c-84082cb3b10a",
+    "transcripts": 1,
+    "first": "2026-11-16T14:56:48Z",
+    "last": "2026-11-16T15:21:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 75,
+        "output": 28602,
+        "thinking": 5195,
+        "cache_read": 4106523,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122718,
+        "api_equivalent_usd": 2.3754,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 75,
+      "output": 28602,
+      "thinking": 5195,
+      "cache_read": 4106523,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122718,
+      "api_equivalent_usd": 2.3754,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 38,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.21,
+      "active_minutes": 24.21,
+      "model_minutes": 4.84,
+      "tool_minutes": 19.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an ML engineer setting up features, CV and a held-out test on raw files",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 252.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

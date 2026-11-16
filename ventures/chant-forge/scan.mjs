@@ -224,7 +224,7 @@ export const STROKE_TOP_FALL = 0.4;
 // least minFall spaces, and the wide rest starts within join spaces of its
 // right end's height. Set from one stroke (GregoBase 3679, leaf 721).
 export const BROKEN_STROKE = { minFall: 0.15, join: 0.35 };
-export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true, hookOnLine = true } = {}) {
+export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true, hookOnLine = true, oneStep = true } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
   const y0 = Math.max(0, Math.round(staff.top - 2.1 * s));
@@ -367,6 +367,23 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = tru
   for (const o of out) {
     const t = liquescentTail(isInk, o, out, staff, y0, y1, { onLine: hookOnLine, bin });
     if (t) o.liq = t;
+  }
+  // a one-step cephalicus: its small note is joined under the head's right
+  // half, too short to be a tail and too small to be a head (oneStepCephalicus),
+  // tried only on heads liquescentTail gave no tail
+  if (oneStep) {
+    for (const o of [...out]) {
+      if (!o.feat || o.liq || o.strokeTop || o.brokenStroke || !out.includes(o)) continue;
+      const t = oneStepCephalicus(isInk, o, staff, y0, y1);
+      if (!t) continue;
+      o.liq = t;
+      o.oneStep = true;
+      // the small note (or the lower half of a run split in two) read as a head of its own
+      for (let i = out.length - 1; i >= 0; i--) {
+        const u = out[i];
+        if (u !== o && u.x1 >= t.rx0 && u.x0 <= o.x1 + 0.1 * s && u.y - o.y >= ONE_STEP.lowFrom * s && u.y - o.y <= ONE_STEP.lowTo * s) out.splice(i, 1);
+      }
+    }
   }
   // Two more things a quilisma never is (eval/quilisma-stroke-check.md):
   // the top note of a stack (a quilisma is the lowest note of its neume, so
@@ -589,6 +606,86 @@ export function liquescentTail(isInk, h, heads, staff, y0, y1, { onLine = true, 
     if (!best || len > best.len) best = { len, x: bx, y, pos: Math.round((staff.bottom - y) / (s / 2)) };
   }
   return best && { x: best.x, y: best.y, pos: best.pos };
+}
+
+// A one-step cephalicus (fe~ printed with the small note on the line or
+// in the space just below its head): the head, a hairline stem down its
+// left side, and the small note joined under the head's right half. Head
+// and small note together are about a space tall, so readStaff takes them
+// for one head (or splits the run into two plain heads), and the hook is
+// too short for liquescentTail (GregoBase 3490 con- and 3508 et, both gf~;
+// eval/one-step-cephalicus-check.md). Measured in a window ONE_STEP.from to
+// ONE_STEP.to spaces below the head's centre, where a small note one step
+// down sits and the head's own ink has ended:
+//   - the head's right part (from ONE_STEP.split of its width) has rows
+//     inked across at least half its columns, in a run noteW spaces or
+//     wider (a podatus's stem is narrower), for minRows spaces or more,
+//   - its left part (past the stem) is at most maxLeft inked, so it is not
+//     a second full head (a podatus or two touching heads),
+//   - the right part's ink stops by ONE_STEP.maxEnd spaces (not a longer
+//     tail or a stem), and
+//   - the head is level (its centre falls at most maxFall spaces across
+//     it; a porrectus stroke's top piece falls further), and
+//   - a stem at the head's left edge runs down stem spaces or more, and
+//     is a hairline (stemW spaces or less across) beside the small note:
+//     the upper head of a quilisma podatus has the quilisma there.
+// The small note is read one step under the head.
+export const ONE_STEP = { from: 0.55, to: 0.85, split: 0.45, minRows: 0.15, maxLeft: 0.3, maxEnd: 0.95, stem: 0.95, stemW: 0.2, noteW: 0.18, maxFall: 0.12, lowFrom: 0.3, lowTo: 0.9 };
+export function oneStepCephalicus(isInk, h, staff, y0, y1) {
+  const s = staff.space;
+  const c = h.y, w = h.x1 - h.x0 + 1;
+  if (w < 0.35 * s) return null;
+  // a level head: a porrectus stroke's top piece falls to its right
+  if (h.feat && Math.abs(h.feat.fall) > ONE_STEP.maxFall) return null;
+  const rx0 = Math.round(h.x0 + ONE_STEP.split * w);
+  const lx0 = Math.round(h.x0 + 0.15 * w);
+  const ya = Math.round(c + ONE_STEP.from * s), yb = Math.min(y1, Math.round(c + ONE_STEP.to * s));
+  // the longest run of ink across a row, from a little left of the right
+  // part to a little past the head (a small note is wider than a stem)
+  const runIn = (y, xa, xb) => {
+    let best = 0, run = 0;
+    for (let x = xa; x <= xb; x++) { if (isInk(x, y)) { run++; if (run > best) best = run; } else run = 0; }
+    return best;
+  };
+  const rxa = Math.round(rx0 - 0.1 * s), rxb = Math.round(h.x1 + 0.1 * s);
+  let rows = 0, left = 0, leftN = 0;
+  for (let y = ya; y <= yb; y++) {
+    let r = 0;
+    for (let x = rx0; x <= h.x1; x++) r += isInk(x, y) ? 1 : 0;
+    if (r >= 0.5 * (h.x1 - rx0 + 1) && runIn(y, rxa, rxb) >= ONE_STEP.noteW * s) rows++;
+    for (let x = lx0; x < rx0; x++) { left += isInk(x, y) ? 1 : 0; leftN++; }
+  }
+  if (rows < ONE_STEP.minRows * s || !leftN || left / leftN > ONE_STEP.maxLeft) return null;
+  // the right part's ink ends: no row inked across half of it past maxEnd
+  const yEnd = Math.round(c + ONE_STEP.maxEnd * s);
+  if (yEnd <= y1) {
+    let r = 0;
+    for (let x = rx0; x <= h.x1; x++) r += isInk(x, yEnd) ? 1 : 0;
+    if (r >= 0.5 * (h.x1 - rx0 + 1)) return null;
+  }
+  // a stem down the head's left edge (it may be outside the piece: its
+  // columns' runs are too long to be a head)
+  // and a hairline: under the head, as far down as the small note, every row's
+  // ink around it is at most ONE_STEP.stemW spaces across (a quilisma or a
+  // lower head joined there is wider)
+  let stem = false;
+  for (let x = Math.round(h.x0 - 0.3 * s); x <= lx0 && !stem; x++) {
+    let y = Math.round(c), gap = 0, end = y;
+    while (y < y1 && y - c < 2 * s) { y++; if (isInk(x, y)) { end = y; gap = 0; } else if (++gap > 0.1 * s) break; }
+    if (end - c < ONE_STEP.stem * s) continue;
+    let thin = true;
+    for (let y2 = ya; y2 <= yb && thin; y2++) {
+      if (!isInk(x, y2)) continue;
+      let a = x, b = x;
+      while (isInk(a - 1, y2) && x - a < s) a--;
+      while (isInk(b + 1, y2) && b - x < s && b + 1 < lx0) b++;
+      if (b - a + 1 > ONE_STEP.stemW * s) thin = false;
+    }
+    if (thin) stem = true;
+  }
+  if (!stem) return null;
+  const y = c + 0.5 * s;
+  return { x: Math.round((rx0 + h.x1) / 2), y, pos: h.pos - 1, rx0 };
 }
 
 // The clef is the first glyph on the staff: its two blocks sit either side

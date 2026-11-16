@@ -49,7 +49,7 @@ export function adminPage(state, bal, prog, now, { company, publicUrl, siteUrl, 
 <h2>Wire it up</h2><p>1. Add to your marketing site: <code>${snippet}</code>${siteUrl ? "" : ` (set SITE_URL so affiliates see a ready-made link)`}<br>2. Stripe Payment Links are tagged automatically. For Checkout Sessions you create, pass <code>client_reference_id: "ref_" + code</code> (the cookie is read with <code>referralKeeper.clientReferenceId()</code>).<br>3. Stripe webhook to <code>${esc(publicUrl)}/webhook/stripe</code> for <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>invoice.paid</code>, <code>charge.refunded</code>, <code>charge.dispute.created</code>, <code>charge.dispute.closed</code>.</p>`, { company, hideSponsor });
 }
 
-const csvCell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 
 // Mass-payment style sheet: one line per open payout.
 export function payoutsCsv(state, payouts) {
