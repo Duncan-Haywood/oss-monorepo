@@ -110,11 +110,17 @@ export function analyze(rows, opts = {}) {
   const pull = Math.min(1, Math.max(0, opts.pullForward ?? 0));
 
   // Conversions per day, and the cumulative curve.
-  const maxDay = Math.min(Math.max(L, ...conv), 120);
+  // A reduce, not Math.max(L, ...conv): the spread overflows past ~125k conversions.
+  const maxDay = Math.min(conv.reduce((m, x) => Math.max(m, x), L), 120);
+  // conv is sorted, so the conversions on day d are one run: count it with a cursor.
   const perDay = [];
   let cum = 0;
+  let at = 0;
+  while (at < conv.length && conv[at] < 0) at++;
   for (let d = 0; d <= maxDay; d++) {
-    const c = conv.filter((x) => x === d).length;
+    while (at < conv.length && conv[at] < d) at++;
+    let c = 0;
+    while (at < conv.length && conv[at] === d) { c++; at++; }
     cum += c;
     perDay.push({ day: d, conversions: c, cumulativeShare: cum / conv.length });
   }
@@ -134,13 +140,31 @@ export function analyze(rows, opts = {}) {
   const B = 300;
   const boot = {};
   candidates.forEach((T) => (boot[T] = []));
+  // Every candidate T is a whole day below L, and d > T exactly when
+  // ceil(d) > T, so each conversion is binned once at min(ceil(d), L) and the
+  // count after day T is a suffix sum. Same draws in the same order, same
+  // counts, same shares as filtering each resample per T (ci-perf-2026-11-16).
+  const bin = new Int32Array(n);
+  for (let i = 0; i < n; i++) {
+    const r = matured[i];
+    if (r.paid === null) { bin[i] = -1; continue; }
+    const k = Math.ceil(r.paid - r.start);
+    bin[i] = k > L ? L : k > 0 ? k : 0; // NaN and d <= 0 are never > T >= 1
+  }
+  const hist = new Int32Array(L + 1);
   for (let b = 0; b < B; b++) {
-    const sample = [];
-    for (let i = 0; i < n; i++) sample.push(matured[Math.floor(rand() * n)]);
-    const cs = sample.filter((r) => r.paid !== null).map((r) => r.paid - r.start);
-    if (!cs.length) continue;
-    const base = cs.length;
-    candidates.forEach((T) => boot[T].push(cs.filter((d) => d > T).length / base));
+    hist.fill(0);
+    let base = 0;
+    for (let i = 0; i < n; i++) {
+      const k = bin[Math.floor(rand() * n)];
+      if (k >= 0) { hist[k]++; base++; }
+    }
+    if (!base) continue;
+    let after = 0; // conversions binned above T
+    for (let T = L - 1; T >= 1; T--) {
+      after += hist[T + 1];
+      boot[T].push(after / base);
+    }
   }
 
   const scenarios = candidates.map((T) => {
