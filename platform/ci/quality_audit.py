@@ -464,6 +464,9 @@ def main(argv: list[str] | None = None) -> int:
     qu.add_argument("--limit", type=int, default=40)
     qu.add_argument("--no-git", action="store_true", help="skip the per-subject 'changed since audit' git check")
     qu.add_argument("--no-prs", action="store_true", help="skip the open-PR search that marks rows another PR already names")
+    qu.add_argument("--seed", default=None,
+                    help="default: today's date plus a random tail; subjects are shuffled by it within a severity")
+    qu.add_argument("--oldest-first", action="store_true", help="the fixed order (oldest audit first), no shuffle")
     qu.add_argument("--no-fetch", action="store_true",
                     help="in a shallow clone, do not fetch main back to the oldest shown audit (the check may say unknown)")
     mf = sub.add_parser("mark-fixed", help="record a fix PR on an audit's defects, editing the file in place (no reformat)")
@@ -518,6 +521,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "census" and not args.seed:
         # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).
         args.seed = claim_seed(dt.date.today().isoformat())
+    if args.cmd == "queue":
+        # Two fix sessions took the same top row the same minute (doc_friction, 2026-11-16T16:41).
+        args.seed = None if args.oldest_first else (args.seed or claim_seed(dt.date.today().isoformat()))
     if args.cmd in ("metrics", "coverage", "census", "queue", "mode"):
         sys.path.insert(0, str(Path(__file__).parent))
         import quality_metrics
