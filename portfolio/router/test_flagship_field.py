@@ -345,6 +345,43 @@ def test_real_next_md_holds_no_row_note():
                 assert not ff.ROW_NOTE.search(line), f"{p}: {line}"
 
 
+def test_buildable_refusal_gives_overrun_and_the_longest_new_that_fits(tmp_path, capsys):
+    f = tmp_path / "f.yaml"
+    f.write_text(DOC)
+    new = "x" * (ff.FLAGSHIP_BUILDABLE_MAX + 5)
+    assert ff.main(["a", "--field", "buildable", "--replace", "Something here.", new,
+                    "--file", str(f)]) == 1
+    err = capsys.readouterr().err
+    assert f"({len(new) - ff.FLAGSHIP_BUILDABLE_MAX} over; the row was 15" in err
+    over = len(new) - ff.FLAGSHIP_BUILDABLE_MAX
+    assert f"Your NEW text is {len(new)} characters; at most {len(new) - over} fits" in err
+    assert f.read_text() == DOC
+
+
+def test_buildable_refusal_lists_landed_clauses():
+    value = ("Landed 2026-11-16: the drop fit on edge times, a long note about what it measured "
+             "and where; " + "y" * ff.FLAGSHIP_BUILDABLE_MAX)
+    with pytest.raises(ValueError) as e:
+        ff.set_value(DOC, "a", "buildable", value)
+    assert "report landed work" in str(e.value)
+
+
+def test_new_budget_when_shortening_cannot_fit():
+    assert ff.new_budget(("abc",), 10).startswith(". Your NEW text (3 chars) cannot fit")
+    assert ff.new_budget(("a", "b"), 1) == ""
+    assert ff.new_budget(("",), 1) == ""
+
+
+def test_read_and_write_print_room_left(tmp_path, capsys):
+    f = tmp_path / "f.yaml"
+    f.write_text(DOC)
+    assert ff.main(["a", "--field", "buildable", "--file", str(f)]) == 0
+    assert f"-- 15 of {ff.FLAGSHIP_BUILDABLE_MAX} characters, {ff.FLAGSHIP_BUILDABLE_MAX - 15} left" \
+        in capsys.readouterr().err
+    assert ff.main(["b", "--replace", "Only", "Just", "--file", str(f)]) == 0
+    assert f"of {ff.FLAGSHIP_NEXT_MAX} characters, {ff.FLAGSHIP_NEXT_MAX - 7} left" in capsys.readouterr().out
+
+
 def test_buildable_cap_says_overrun_and_room():
     # "Something here." is 15 characters, so the row had MAX - 15 to spare.
     value = "y" * (ff.FLAGSHIP_BUILDABLE_MAX + 14)
