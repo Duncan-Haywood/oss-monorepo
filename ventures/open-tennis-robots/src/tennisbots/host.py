@@ -340,7 +340,8 @@ class FeederLink:
                        "drop_top": vals[3] / 1e4, "drop_bottom": vals[4] / 1e4,
                        "launched": bool(vals[5] & 1), "fit_top": bool(vals[5] & 2),
                        "fit_bottom": bool(vals[5] & 4), "loop_top": bool(vals[5] & 8),
-                       "loop_bottom": bool(vals[5] & 16), "loop_pending": bool(vals[5] & 32)}
+                       "loop_bottom": bool(vals[5] & 16), "loop_pending": bool(vals[5] & 32),
+                       "unsure_top": bool(vals[5] & 64), "unsure_bottom": bool(vals[5] & 128)}
                 if vals[0] == self._seq and self.launch_log:
                     self.launch_log[-1][1].clear()
                     self.launch_log[-1][1].update(rec)

@@ -797,3 +797,88 @@ an ESP32 under MicroPython is not measured either (on CPython a wheel's whole
 fit takes 4-5 ms, 36 steps). Next: log a real wheel's tach and commands
 around a ball and check that the first-order lag fits it; with that, the
 1,000 rpm floor (`launcher.MIN_FIT_RPM`) can be retested.
+
+## When the wheel is not a first-order lag (2026-11-16, later still)
+
+**The question.** The loop-command fit above was measured on a simulator whose
+wheel is exactly the model it fits, so every number there is a best case. A
+real build can break the model: a hall sensor whose edges arrive a few
+microseconds early or late, an ESC with a speed loop of its own (a second
+lag), a motor that runs out of current, a throttle curve, a slipping belt.
+Can the fit tell from its own misses when that has happened?
+
+**What the board now says.** `drop_from_commands` returns two more numbers:
+the rms miss per revolution as a share of the pre-ball speed, and the drop's
+standard error, s^2 (M^-1)_DD from the fit's own normal equations at the
+chosen tau and t0, as a share of the drop. When that standard error is over
+`LOOP_SE_MAX` (1%), the record goes out with LAUNCH flags bit 6 (top) or bit 7
+(bottom) set, "unsure". The Pi logs them as `unsure_top` / `unsure_bottom`;
+`launcher.fit_from_drops` counts them (`DropFit.unsure`) and, when at least
+10% of a drill's wheel readings and at least two are marked, its note says the
+fit should not be trusted and to check the tach and the ESC's mode. An older Pi
+ignores the two bits.
+
+**One wheel at a time** (`tests/loop_residual_sweep.py`, the firmware's own
+PeriodTach and WheelLoop on 24 cases per plant: 1,500-6,000 rpm, 6% and 10%
+drops, lags 0.2-0.8 s, the ball at varied tick phases;
+eval/loop-residual-sweep-2026-11-16.txt):
+
+| plant | fit error, mean / worst | marked |
+| --- | --- | --- |
+| first-order (the model) | 0.21% / 0.72% | 0 of 24 |
+| torque limit 20,000 / 8,000 / 3,000 rpm/s | 0.20-0.31% / 1.20% | 1 of 72 |
+| throttle curve (cmd^1.25) | 0.25% / 0.89% | 0 of 24 |
+| tach jitter 5 us | 0.74% / 2.27% | 11 of 24 |
+| tach jitter 20 / 50 us | 6.7% / 48% and 10.6% / 53% | all 41 fitted |
+| ESC lag 30 / 80 ms | 2.8% / 8.5% and 3.3% / 16.3% | 21 of 48 |
+| belt slip (magnet shaft 3x the ball's drop) | 106% / 141% | all 20 fitted |
+
+Of the 72 drops more than 2% off, 67 were marked; of the 152 within 1%, 14
+were. A current limit and a throttle curve do not matter (the free constant
+absorbs the curve; the drops are too small to hit the limit). The tach's
+timing and the ESC's own lag do.
+
+**A whole drill** (`tests/plant_drill_sweep.py`, the calibration drill through
+the whole Pi path on the 18 design builds; eval/plant-drill-sweep-2026-11-16.txt):
+
+| plant | spin efficiency error, worst / mean | wheels marked (fewest-most a drill) | drills warned | marked drops set aside instead: spin worst / mean |
+| --- | --- | --- | --- | --- |
+| first-order (the model) | 1.6% / 0.4% | 0 of 432 (0-0) | 0 of 18 | 1.6% / 0.4% |
+| tach jitter 5 us | 5.3% / 2.0% | 180 of 432 (5-17) | 18 of 18 | 7.2% / 2.7% |
+| tach jitter 10 us | 16.0% / 5.4% | 341 of 432 (15-22) | 18 of 18 | 89% / 23% |
+| tach jitter 20 us | 22.1% / 8.4% | 416 of 432 (20-24) | 18 of 18 | 13 drills left nothing to fit |
+| ESC lag 30 ms | 23.8% / 5.5% | 149 of 432 (0-23) | 9 of 18 | 100% / 12.5%, 2 drills nothing to fit |
+| ESC lag 80 ms | 19.9% / 6.6% | 129 of 432 (0-18) | 12 of 18 | 12.2% / 3.8% |
+
+Speed efficiency stayed within 1.8% on the jitter plants and 4.2% on the ESC
+plants. The jitter is caught in every drill. The ESC lag is not: some drills
+marked none of their wheels and still read the spin badly, so the warning
+fired on 9 and 12 of 18 drills. The standard error sees noise well and a
+smooth shape the model lacks less well, since a second lag can be partly
+absorbed by a longer tau.
+
+So the marks are a detector, not a filter. Setting the marked drops aside was
+the first policy tried, and it did not help: with 5 us of jitter it made the
+spin error worse (5.3% to 7.2% worst), because a noisy drop is still an
+unbiased one and removing it only loses data. At 10-20 us and with a 30 ms ESC
+lag so many wheels were marked that little or nothing was left. It helped on
+one plant only (80 ms ESC lag, 19.9% to 12.2%). The Pi warns; it fits with
+every drop.
+
+**The tach interrupt is now hard.** `main.py`'s `Tach` registered a soft
+interrupt, so `ticks_us()` was read when the main loop next yielded, up to a
+control tick's work after the edge. With the numbers above that is the worst
+place for timing error to come from, so the handler now runs as a hard
+interrupt (`hard=True`; `_p` and `PeriodTach.edge` allocate nothing) with an
+emergency exception buffer. The simulator calls the handler at the true edge
+time either way, so this change is not measured here; a hard interrupt's own
+latency on an ESP32 under MicroPython is still tens of microseconds at worst,
+so the board's timing remains the first thing to measure on a real wheel.
+
+**Next.** Fit the drop on the edge times rather than on periods: the jitter
+is on each time, so neighbouring periods share it with opposite signs, and the
+period fit treats them as independent. Add an ESC lag (a second, fixed time
+constant searched like tau) to the model for ESCs that run their own speed
+loop. Time a real wheel's edges against a scope to get the real jitter, then
+rerun these sweeps with it. Physics and plants here are assumptions, not
+measurements.
