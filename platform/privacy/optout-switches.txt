@@ -539,6 +539,7 @@ ventures/hard-money-loan-cost-calculator/usage.mjs
 ventures/hardwood-refinishing-bid-calculator/usage.mjs
 ventures/hay-baling-own-vs-hire-calculator/usage.mjs
 ventures/hay-sale-price-calculator/usage.mjs
+ventures/hdbscan-clustering/usage.mjs
 ventures/hearing-aid-dispensing-margin-calculator/usage.mjs
 ventures/hearth-and-horizon/usage.mjs
 ventures/heat-pump-vs-furnace-calculator/usage.mjs
