@@ -808,11 +808,17 @@ function readFacets(node) {
 
 // -------------------------------------------------------------------- IDS ----
 
+// The <info> children of IDS 1.0, in the order ids.xsd fixes.
+export const INFO_FIELDS = ["title", "copyright", "version", "description", "author", "date", "purpose", "milestone"];
+
 export function parseIds(text) {
   const root = parseXml(text);
   if (root.local !== "ids") throw new Error(`not an IDS file: root element is <${root.name}>`);
   const info = kid(root, "info");
   const title = info && kid(info, "title") ? kid(info, "title").text.trim() : null;
+  // Every info field IDS 1.0 has, as written (the editor carries them through).
+  const infoFields = {};
+  for (const k of INFO_FIELDS) { const n = info && kid(info, k); if (n && n.text.trim() !== "") infoFields[k] = n.text.trim(); }
   const specs = [];
   for (const s of kids(kid(root, "specifications"), "specification")) {
     const app = kid(s, "applicability");
@@ -834,7 +840,7 @@ export function parseIds(text) {
       requirementsDescription: req && req.attrs.description,
     });
   }
-  return { title, specs };
+  return { title, info: infoFields, specs };
 }
 
 function versionMatches(spec, model) {

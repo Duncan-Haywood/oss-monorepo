@@ -33,6 +33,7 @@
     .tag { font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
     .enum { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.9rem; }
     .enum label { display: inline; color: var(--fg); font-size: 0.9rem; }
+    .kept code { font-size: 0.78rem; word-break: break-all; color: var(--muted); }
     pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font-size: 0.8rem; max-height: 420px; }
     ul.issues { padding-left: 1.2em; }
     footer { margin-top: 3em; font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1em; }
@@ -57,7 +58,10 @@
   <div class="row">
     <button id="add-spec" type="button">Add a specification</button>
     <button id="reset" type="button" class="ghost">Start over</button>
+    <label for="open" class="btn ghost" style="font-size:1rem;color:var(--accent)">Open an IDS file</label>
+    <input id="open" type="file" accept=".ids,.xml,application/xml,text/xml" style="position:absolute;left:-9999px;width:1px">
   </div>
+  <p id="open-status" role="status" aria-live="polite" class="muted"></p>
 
   <h2>Audit</h2>
   <div id="audit" role="status" aria-live="polite" class="muted">Nothing written yet.</div>
@@ -71,6 +75,7 @@
   <pre id="xml" aria-label="IDS XML"></pre>
 
   <h2>How it works</h2>
+  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a custom property set, a pattern on a name, a facet in the applicability, an exclusive bound) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
   <p>The class list is every non-abstract class in the IFC schema you pick that can carry at least one standard set; the set list is the sets whose templates apply to that class, its ancestors, or the occurrence a type object is for (Pset_WallCommon on IFCWALL, IFCWALLSTANDARDCASE and IFCWALLTYPE); the property list and data types are the template's. IDS matches exact classes, so a specification on IFCWALL misses IFCWALLSTANDARDCASE unless both are listed: tick <em>and its subclasses</em> to list them. A property whose template gives no single data type (a bounded value, a table, a list or a reference) is checked for presence only.</p>
   <p>Every choice the editor offers was written out and audited: for each of the three schemas, every offered class, every set it offers for that class and every property of the set, once on its own and once with a value of the right kind. That is 203,433 specifications (32,823 for IFC2X3, 46,516 for IFC4, 124,094 for IFC4X3), and the audit finds no error and no warning in any of them (<code>eval/editor-roundtrip.mjs</code>). A sample of 15,102 specifications, one per class and set plus every facet, value kind, cardinality and partOf relation the page writes, validates against buildingSMART's IDS 1.0 XML schema in IfcOpenShell's IfcTester (<code>eval/editor-xsd-check.py</code>).</p>
 
@@ -84,7 +89,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, entityFacet, PARTOF_RELATIONS } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, facetXml, editableAttributes } from "./editor.mjs";
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -105,8 +110,6 @@
     return loaded[id];
   }
 
-  const blankReq = () => ({ kind: "property", set: "", name: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
-  const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", withSub: true, predefinedType: "", reqs: [blankReq()] });
   const starter = () => ({ title: "Project information requirements", description: "", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls say whether they are external", cls: "IFCWALL", reqs: [{ ...blankReq(), set: "Pset_WallCommon", name: "IsExternal" }] }] });
 
   let doc;
@@ -116,7 +119,12 @@
 
   const opt = (v, label, sel) => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(label ?? v)}</option>`;
 
+  // A facet from an opened file the page's controls cannot hold without
+  // changing it: shown as its XML, written back unchanged, removable.
+  const KIND = { entity: "class", property: "property", attribute: "attribute", classification: "classification", material: "material", partOf: "place" };
+  const keptHtml = (L, f, inReq, act, si, i) => `<div class="req kept"><p style="margin:0 0 4px"><span class="tag muted">KEPT AS WRITTEN</span> ${esc(KIND[f.kind] || f.kind)}${inReq && f.cardinality && f.cardinality !== "required" ? ` (${esc(f.cardinality)})` : ""}</p><code>${esc(facetXml(f, L.S, inReq))}</code><br><button type="button" class="ghost small" data-act="${act}" data-s="${si}" data-r="${i}" style="margin-top:6px">Remove</button></div>`;
   function reqHtml(L, spec, si, r, ri) {
+    if (r.fixed) return keptHtml(L, r.fixed, true, "del-req", si, ri);
     const id = (k) => `r-${si}-${ri}-${k}`;
     let h = `<div class="req"><div class="grid">`;
     h += `<div><label for="${id("kind")}">Requirement</label><select id="${id("kind")}" data-s="${si}" data-r="${ri}" data-k="kind">${[["property", "a property or quantity"], ["attribute", "an attribute (Name, Description...)"], ["classification", "a classification"], ["material", "a material"], ["partOf", "a place (storey, group...)"]].map(([v, l]) => opt(v, l, r.kind)).join("")}</select></div>`;
@@ -138,7 +146,7 @@
         }
       } else valueKind = null;
     } else if (r.kind === "attribute") {
-      const attrs = L.S.entities[spec.cls] ? L.S.attrs(spec.cls).filter((a) => !a.derived && !a.aggregate && ["string", "double", "integer", "boolean", "logical", "enum"].includes(L.S.prim(a.type))).map((a) => a.name) : ["Name", "Description", "ObjectType", "Tag"];
+      const attrs = editableAttributes(L.S, spec.cls);
       h += `<div><label for="${id("name")}">Attribute</label><select id="${id("name")}" data-s="${si}" data-r="${ri}" data-k="name">${opt("", "choose", r.name)}${attrs.map((a) => opt(a, a, r.name)).join("")}</select></div>`;
       const a = L.S.entities[spec.cls] && L.S.attrs(spec.cls).find((x) => x.name === r.name);
       if (a && L.S.types[a.type] && L.S.types[a.type].kind === "enum") enumVals = L.S.types[a.type].values;
@@ -183,30 +191,15 @@
     if (s.cls && !known) h += `<p class="warn">${esc(s.cls)} is not a ${esc(doc.schema)} class.</p>`;
     else if (s.cls) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
     h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
+    if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(doc.schema)}.</p>`;
+    if (s.fixedApp && s.fixedApp.length) { h += `<p class="muted" style="font-size:0.88rem;margin-bottom:0">It also applies only to elements matching:</p>`; s.fixedApp.forEach((f, i) => { h += keptHtml(L, f, false, "del-app", si, i); }); }
     if (s.optionality === "prohibited") h += `<p class="muted">A prohibited specification fails when any ${esc(s.cls || "element")} exists, so it has no requirements.</p>`;
     else s.reqs.forEach((r, ri) => { h += reqHtml(L, s, si, r, ri); });
     h += `<div class="row" style="margin-top:10px">${s.optionality === "prohibited" ? "" : `<button type="button" class="ghost small" data-act="add-req" data-s="${si}">Add a requirement</button>`}<button type="button" class="ghost small" data-act="del-spec" data-s="${si}">Remove specification</button></div></div>`;
     return h;
   }
 
-  function toIdsDoc(L) {
-    return {
-      title: doc.title, description: doc.description, schema: doc.schema,
-      specs: doc.specs.map((s) => ({
-        name: s.name || (s.cls ? `${s.cls} requirements` : "Unnamed specification"),
-        description: s.description, instructions: s.instructions, optionality: s.optionality,
-        applicability: s.cls ? [entityFacet(L.S, s.cls, { withSubclasses: s.withSub && !!L.S.entities[s.cls], predefinedType: s.predefinedType })] : [],
-        requirements: s.reqs.filter((r) => (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true)).map((r) => {
-          const p = r.kind === "property" ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
-          const value = r.cardinality === "prohibited" || (p && !p.dataType) ? null
-            : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
-            : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? { min: r.min, max: r.max } : r.mode === "pattern" ? { pattern: r.pattern } : null;
-          return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
-        }),
-      })),
-    };
-  }
-
+  const toIdsDoc = (L) => stateToDoc(doc, L);
   let xml = "";
   function output() {
     const L = loaded[doc.schema];
@@ -258,10 +251,35 @@
     if (a === "add-req") doc.specs[si].reqs.push(blankReq());
     if (a === "del-req") doc.specs[si].reqs.splice(+e.target.dataset.r, 1);
     if (a === "del-spec") doc.specs.splice(si, 1);
+    if (a === "del-app") doc.specs[si].fixedApp.splice(+e.target.dataset.r, 1);
     render();
   });
   $("add-spec").addEventListener("click", () => { doc.specs.push(blankSpec()); record("editor_spec_added"); render().then(() => { const n = document.getElementById(`s-${doc.specs.length - 1}-name`); if (n) n.focus(); }); });
   $("reset").addEventListener("click", () => { if (confirm("Discard this draft and start from the example?")) { doc = starter(); render(); } });
+  // Open an existing IDS: facets the page can edit become rows; the rest are
+  // kept as written, so saving it back asks for what the file asked.
+  async function openIds(name, text) {
+    let parsed;
+    try { parsed = parseIds(text); } catch (e) { $("open-status").innerHTML = `<span class="err">Could not read ${esc(name)}: ${esc(e.message)}</span>`; return; }
+    const id = idsSchema(parsed);
+    await load(id);
+    const r = importIds(parsed, (x) => loaded[x]);
+    if (doc.specs.length && JSON.stringify(doc) !== JSON.stringify(starter()) && !confirm(`Replace the draft with ${name}?`)) return;
+    doc = r.state;
+    if (!doc.title) doc.title = name.replace(/\.(ids|xml)$/i, "");
+    const total = r.rows + r.kept;
+    let msg = `Opened ${esc(name)}: ${parsed.specs.length} specification(s) for ${esc(id)}. ${r.rows} of ${total} facet(s) are editable here`;
+    msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a custom property set, a pattern on a name, a facet in the applicability...).` : ".";
+    if (r.dropped) msg += ` <span class="warn">${r.dropped} requirement(s) of prohibited specification(s) (${esc(r.droppedIn.join(", "))}) are not kept: IDS 1.0 cannot evaluate them, so move the condition into the applicability.</span>`;
+    $("open-status").innerHTML = msg;
+    record("editor_opened");
+    await render();
+  }
+  $("open").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) await openIds(f.name, await f.text());
+    e.target.value = "";
+  });
   $("doc-title").addEventListener("input", (e) => { doc.title = e.target.value; output(); });
   $("doc-desc").addEventListener("input", (e) => { doc.description = e.target.value; output(); });
   $("doc-schema").addEventListener("change", (e) => { doc.schema = e.target.value; $("specs").innerHTML = `<p class="muted">Loading ${esc(doc.schema)}...</p>`; render(); });
