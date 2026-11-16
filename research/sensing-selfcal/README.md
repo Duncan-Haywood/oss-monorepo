@@ -10,8 +10,20 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (239 of 239,
-revised with milestones 4e–4p) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (262 of 262,
+revised with milestones 4e–4r) and a list of what a submission still needs.
+
+**Milestone 4r headline** (does a per-view error term make the twin's threshold safe? no new solve, milestone
+4p's pools): **yes, at half the power.** Letting each view have its own effective focal length (sd &tau;, fitted per
+pool from nothing but the scatter of that pool's own 6-view solves: 0.2–0.75% of f on the tilted pools, 1.8–1.9% on
+the flat ones) brings every unit and pool pairing's false alarms under 0.6%, the flat Xtion pool from 4.4% to
+0.58%, but the test then catches a 2% focal change in 4.1% of splits instead of 9.1%. Combined with milestone 4q's
+gate, the robot tests in 15% of splits and catches 15.9% of 2% changes there at 0.3% false alarms. It also
+withdraws an earlier reading: the Xtion's two 13-view calibrations differ by 1.6 of the twin's own sd, not 2.7 (that
+figure used an iid sd). Three of four pre-registered predictions held (H100, H101, H103; H102, power, refuted); a
+consistency check on the pools that suggested it, not a test on unseen data.
+
+![S0 false alarms per unit and pool pairing for the residual-pattern twin and the twin with a fitted per-view focal jitter, and the firing rate against the focal change for each twin](experiments/m4r_jitter/jitter.png)
 
 **Milestone 4q headline** (can the robot tell from the views alone when not to run the update test? no new
 solve, milestone 4p's pools): **partly.** Running the test only when the unit's twin says the old and new
@@ -900,6 +912,7 @@ python3 experiments/m4p_fresh/prepare.py fr3 <dir>/rgbd_dataset_freiburg3_calibr
 OMP_NUM_THREADS=1 python3 experiments/m4p_fresh/run.py      # ~40 min on 4 cores; results.json.gz (k1 + k2, fr1b / fr3b)
 python3 experiments/m4p_fresh/analyse.py                   # ~5 min; summary.json, fresh.png (H92-H95)
 OMP_NUM_THREADS=1 python3 experiments/m4q_gate/analyse.py  # ~6 min, no new solve; summary.json, gate.png (H96-H99)
+OMP_NUM_THREADS=1 python3 experiments/m4r_jitter/analyse.py  # ~2 min on 4 cores, no new solve; summary.json, jitter.png (H100-H103)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -952,7 +965,10 @@ the twin's sd: power ×1.75, far solves gone, but the Xtion's flat pool still ov
 on a third disjoint pool of each TUM sequence (the TUM host refused the proxy in 4m and 4q). After milestone
 4q: add a per-view error term to the twin (a random per-view offset of the board pose or of f, sized from the
 Xtion's 2.7-sd gap between its two 13-view calibrations) and see whether it brings the flat pool's false
-alarms under 2.5% while keeping the gate's power, pre-registered. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
+alarms under 2.5% while keeping the gate's power, pre-registered. (Done in milestone 4r with a per-view focal offset sized from each pool's own 6-view scatter instead:
+every cell under 0.6%, power 0.45×.) After milestone 4r: find the shape of the per-view error that costs less power
+(the f + principal-point variant kept 0.65× at 1.8% worst-cell false alarms; a per-view board pose or homography
+term is next), fit τ on one pool and apply it to the other, and test all of it on a third pool or another sequence. After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
 (does the jackknife stay honest when σ is this much smaller?); find the smooth 2-D residual
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is

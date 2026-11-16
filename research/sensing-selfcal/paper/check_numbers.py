@@ -302,6 +302,17 @@ CHECKS = [
     ("json", "m4p_fresh/summary.json", "anchors/fr3/gap_in_twin_sd", 2.71, 2, None, "0.98 and 2.71 of the twins' sd"),
     ("json", "m4p_fresh/summary.json", "anchors/fr1/gap_in_twin_sd", 0.98, 2, None, "0.98 and 2.71 of the twins' sd"),
     ("json", "m4p_fresh/summary.json", "table/38/R_geom", 4.44, 2, pct, "the Xtion's false alarms reach 4.44%"),
+    # Section 7, milestone 4r (per-view focal jitter)
+    ("json", "m4r_jitter/summary.json", "gap/fr1/resid/in_sd", 0.29, 2, None, "the gaps are 0.29 and 1.59"),
+    ("json", "m4r_jitter/summary.json", "gap/fr3/resid/in_sd", 1.59, 2, None, "the gaps are 0.29 and 1.59"),
+    ("json", "m4r_jitter/summary.json", "pools/fr1/jit/A/tau_rel", 0.75, 2, pct, "τ of 0.75% and 0.22% of f"),
+    ("json", "m4r_jitter/summary.json", "pools/fr3/jit/A/tau_rel", 0.22, 2, pct, "τ of 0.75% and 0.22% of f"),
+    ("json", "m4r_jitter/summary.json", "pools/fr1/jit/B/tau_rel", 1.88, 2, pct, "1.88% and 1.80% on the flat ones"),
+    ("json", "m4r_jitter/summary.json", "pools/fr3/jit/B/tau_rel", 1.80, 2, pct, "1.88% and 1.80% on the flat ones"),
+    ("json", "m4r_jitter/summary.json", "hypotheses/H100/S0", 0.58, 2, pct, "at or below 0.58% false alarms"),
+    ("json", "m4r_jitter/summary.json", "pooled/jit/ungated/S0", 0.37, 2, pct, "0.37% pooled"),
+    ("json", "m4r_jitter/summary.json", "hypotheses/H102/jit", 4.07, 2, pct, "caught in 4.07% of\nsplits against 9.08%"),
+    ("json", "m4r_jitter/summary.json", "hypotheses/H102/resid", 9.08, 2, pct, "caught in 4.07% of\nsplits against 9.08%"),
     ("log", "6-view sets 1.23% against 0.59% (fr1) and 1.23% against 0.50% (fr3)", "(1.23% of f against 0.59% and 0.50%)"),
     ("log", "Median tilt of the kept frames (prepare's foreshortening measure) 0.147 against 0.268 (fr1) and 0.063 against 0.101 (fr3)", "(median tilt 0.147 against 0.268 and\n0.063 against 0.101)"),
 ]
