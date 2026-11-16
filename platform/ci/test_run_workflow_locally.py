@@ -2215,6 +2215,49 @@ class FailureCauses(unittest.TestCase):
         self.assertIn("4 error(s), 2 distinct", text)
         self.assertLess(text.index("3 x docs/posts/x.md"), text.index("# fail 4"))
 
+    def test_named_paths_reads_relative_and_absolute_paths(self):
+        lines = ["FAIL: 1 problem(s); first: docs/posts/2026-11-16-x.md: description",
+                 f"    at {runner.REPO}/platform/pages/writing.mjs:389:11",
+                 "see ./ventures/a/README.md, version 1.2"]
+        self.assertTrue({"docs/posts/2026-11-16-x.md", "platform/pages/writing.mjs",
+                         "ventures/a/README.md"} <= runner.named_paths(lines))
+
+    def test_a_bare_name_matches_only_when_the_diff_has_one_such_file(self):
+        step = runner.Step("j", "s", "true", ".")
+        step.status, step.paths = "failed", {"2026-11-16-x.md", "README.md"}
+        post = "docs/posts/2026-11-16-x.md"
+        pairs = [("a.yml", step), ("b.yml", step)]
+        self.assertEqual([p for p, _ in runner.shared_changed_paths(
+            pairs, [post, "ventures/a/README.md", "ventures/b/README.md"])], [post])
+
+    def test_a_changed_path_two_failed_steps_name_is_shared(self):
+        def failed(job, paths):
+            step = runner.Step(job, "s", "true", ".")
+            step.status, step.paths = "failed", set(paths)
+            return step
+        post = "docs/posts/2026-11-16-x.md"
+        pairs = [("posts.yml", failed("check", [post])),
+                 ("portfolio-pages.yml", failed("build", [post, "platform/pages/writing.mjs"])),
+                 ("other.yml", failed("t", ["platform/pages/writing.mjs"]))]
+        # writing.mjs is named twice but is not in the diff: not a cause.
+        self.assertEqual(runner.shared_changed_paths(pairs, [post]), [
+            (post, ["posts.yml / check / s", "portfolio-pages.yml / build / s"])])
+        self.assertEqual(runner.shared_changed_paths(pairs[:1], [post]), [])
+
+    def test_sweep_names_the_changed_file_failed_workflows_share(self):
+        post = "docs/posts/2026-11-16-x.md"
+        bad = f"echo '{post}: description is 167 characters' >&2; exit 1"
+        wfs = [(n, {"jobs": {"j": {"steps": [{"run": bad}]}}}, {"j"})
+               for n in ("a.yml", "b.yml")]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner._run_selected(
+                argparse.Namespace(list=False, timeout=30), wfs, [],
+                changed=[post, "ventures/z/x.py"])
+        self.assertEqual(code, 1)
+        self.assertIn(f"COMMON CAUSE: {post}, in your diff, is named by 2 of 2",
+                      out.getvalue())
+
     def test_a_real_failing_node_test_is_digested(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "a.test.mjs")
