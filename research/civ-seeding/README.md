@@ -4,7 +4,7 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Latest step (milestone 7): complex centrality, the seeding measure built for complex contagions, does not beat degree discount here.** Its best version (absolute threshold 2) loses up to 3.7% of adopters against the best rule (degree discount 1.4%, top degree 4.1%), and seeding whole neighbourhoods, as the measure presumes, loses 10 to 13%, about as much as random seeds. **Milestone 6: the cheap rule stays robust when the fitted models themselves are uncertain.** Refitting all three contagion models in each of 500 village bootstrap draws (the fits move a lot: 205 distinct fitted processes), degree discount loses a median 1.0% of adopters against the best rule under its worst model (5&ndash;95%: 0.3&ndash;1.6%), beats top degree in every draw, and its one rate parameter hardly matters (0.9&ndash;1.2% for any p from 0.01 to 0.15). The model-specific greedy rules get longer tails (greedy under the threshold model up to 2.4%, under the information model up to 7.3%); degree discount does not. **Milestone 5: a seeding rule that needs a list of who knows whom but no fitted model comes within 1.4% of the best rule under every model, and surveying a quarter of households costs about one more point.** Degree discount (Chen, Wang and Yang 2009), which picks well-connected households while discounting ties to households already seeded, loses at most 1.4% of adopters under the three fitted models (top degree: 4.1%; greedy under the threshold model, which also needs a fitted model: 0.5%). Simply forbidding adjacent seeds does worse (3.4%): it pushes seeds down to 13 ties each. If a rollout surveys only 25% of households, top degree on the estimated degrees loses up to 4.5%; asking random households to name a contact and seeding the named (friend nomination, no network data) loses up to 6.2%, against 12.1% for random seeds. **Milestone 4: whom to seed barely depends on which contagion model is right, and the best seeds are spread out, not clustered.** Scoring ten seeding rules under all three fitted models on the 43 real networks, one rule, greedy seeding under the threshold model, loses at most 0.5% of adopters against the best rule under every model; the structural rules rank almost the same under all three (Kendall &tau; 0.81 to 1.0). Seeding the highest-degree households loses 1.7 to 4.1%; the lender's actual leaders lose 6 to 10%; one clustered patch of neighbours loses 6 to 10.5%, even under the threshold model, where clustering was supposed to help. The greedy seeds have moderate degree (12 to 15 ties against 23 for the top-degree rule) and are rarely neighbours of each other. **Milestone 3b: the real villages cluster their adopters far more than the simple model allows, and a village random effect does not fix it; a threshold cascade model does.** Letting each village's base adoption rate vary (a random effect fitted to how much take-up varies between villages) adds nothing: the fitted spread is zero for all three models, because word of mouth alone already makes take-up vary as much between simulated villages as between real ones. The real held-out error (0.181) stays far above every synthetic dataset from the simple model (5&ndash;95%: 0.044&ndash;0.068), and 57% of it is one moment that measures adopters next to adopters' neighbours. A threshold model, where a household adopts once half its neighbours have, produces that clustering: 19% of its synthetic datasets reach the real error, and it now predicts held-out villages best (0.169 against 0.181 for the simple model and 0.210 for reinforcement). **Third step (milestone 3): the estimation cannot reliably tell the
+through village leaders. **Latest step (milestone 8): complex centrality keeps its place when the fitted models are uncertain.** Rescored over 500 village bootstrap draws that refit every model, degree discount beats every complex-centrality rule in every draw; the best one (absolute threshold 2) loses a median 3.3% of adopters under its worst model (5&ndash;95%: 2.4&ndash;5.3%) and beats top degree in 74% of draws. Under the threshold model it helps more the higher the fitted adoption threshold (it loses 4.9% at a threshold of 0.4, 2.7% at 0.6), as its theory says, but never gets down to degree discount's 1%. **Milestone 7: complex centrality, the seeding measure built for complex contagions, does not beat degree discount here.** Its best version (absolute threshold 2) loses up to 3.7% of adopters against the best rule (degree discount 1.4%, top degree 4.1%), and seeding whole neighbourhoods, as the measure presumes, loses 10 to 13%, about as much as random seeds. **Milestone 6: the cheap rule stays robust when the fitted models themselves are uncertain.** Refitting all three contagion models in each of 500 village bootstrap draws (the fits move a lot: 205 distinct fitted processes), degree discount loses a median 1.0% of adopters against the best rule under its worst model (5&ndash;95%: 0.3&ndash;1.6%), beats top degree in every draw, and its one rate parameter hardly matters (0.9&ndash;1.2% for any p from 0.01 to 0.15). The model-specific greedy rules get longer tails (greedy under the threshold model up to 2.4%, under the information model up to 7.3%); degree discount does not. **Milestone 5: a seeding rule that needs a list of who knows whom but no fitted model comes within 1.4% of the best rule under every model, and surveying a quarter of households costs about one more point.** Degree discount (Chen, Wang and Yang 2009), which picks well-connected households while discounting ties to households already seeded, loses at most 1.4% of adopters under the three fitted models (top degree: 4.1%; greedy under the threshold model, which also needs a fitted model: 0.5%). Simply forbidding adjacent seeds does worse (3.4%): it pushes seeds down to 13 ties each. If a rollout surveys only 25% of households, top degree on the estimated degrees loses up to 4.5%; asking random households to name a contact and seeding the named (friend nomination, no network data) loses up to 6.2%, against 12.1% for random seeds. **Milestone 4: whom to seed barely depends on which contagion model is right, and the best seeds are spread out, not clustered.** Scoring ten seeding rules under all three fitted models on the 43 real networks, one rule, greedy seeding under the threshold model, loses at most 0.5% of adopters against the best rule under every model; the structural rules rank almost the same under all three (Kendall &tau; 0.81 to 1.0). Seeding the highest-degree households loses 1.7 to 4.1%; the lender's actual leaders lose 6 to 10%; one clustered patch of neighbours loses 6 to 10.5%, even under the threshold model, where clustering was supposed to help. The greedy seeds have moderate degree (12 to 15 ties against 23 for the top-degree rule) and are rarely neighbours of each other. **Milestone 3b: the real villages cluster their adopters far more than the simple model allows, and a village random effect does not fix it; a threshold cascade model does.** Letting each village's base adoption rate vary (a random effect fitted to how much take-up varies between villages) adds nothing: the fitted spread is zero for all three models, because word of mouth alone already makes take-up vary as much between simulated villages as between real ones. The real held-out error (0.181) stays far above every synthetic dataset from the simple model (5&ndash;95%: 0.044&ndash;0.068), and 57% of it is one moment that measures adopters next to adopters' neighbours. A threshold model, where a household adopts once half its neighbours have, produces that clustering: 19% of its synthetic datasets reach the real error, and it now predicts held-out villages best (0.169 against 0.181 for the simple model and 0.210 for reinforcement). **Third step (milestone 3): the estimation cannot reliably tell the
 models apart, and the real villages fit none of them.** On 200 synthetic datasets per model,
 simulated on the real networks, the in-sample criterion picks the reinforcement model for 85%
 of datasets made by the simple model; leaving one village out recovers the true model 58.5%
@@ -434,6 +434,47 @@ Full table and seed-set shapes: `experiments/m7_complex/results.txt`.
 - Caveats: point fits only; reach-first ordering is our reading of the measure; the fixed leader
   budget, seeding-as-informing and no homophily, as before.
 
+## Milestone 8: complex centrality under parameter uncertainty (`experiments/m8_cc_uncertainty/`)
+
+Milestone 7 scored complex centrality at the three point fits. This step adds its six rules to
+milestone 6's joint village bootstrap (500 draws, each refitting the information, threshold and
+reinforcement models; 205 distinct fitted processes) with milestone 6's code, seeds and scoring
+unchanged, so all of milestone 6's rows reproduce exactly. Plan and hypotheses logged before the
+run.
+
+![regret with complex-centrality rules, refitted against fixed fits](experiments/m8_cc_uncertainty/regret.svg)
+
+| rule | worst case, point fits | refitted draws, median [5&ndash;95%] | beats top degree |
+|---|---|---|---|
+| degree discount (p 0.05) | 1.3% | 1.0% [0.3, 1.6] | 100% |
+| complex centrality, absolute 2 | 3.8% | 3.3% [2.4, 5.3] | 74% |
+| top degree | 4.1% | 3.9% [3.2, 4.8] | &ndash; |
+| complex centrality, &theta; 0.5, no adjacent seeds | 4.8% | 4.5% [3.6, 6.4] | 8% |
+| complex centrality, &theta; 0.5 | 5.7% | 5.5% [4.3, 7.2] | 0 |
+| complex centrality, &theta; 0.25 | 7.9% | 7.8% [5.9, 10.2] | 0 |
+| neighbourhoods, &theta; 0.5 | 10.0% | 10.0% [7.3, 13.4] | 0 |
+| neighbourhoods, absolute 2 | 12.4% | 12.6% [9.5, 16.6] | 0 |
+
+Under the threshold model, by the threshold each draw refits to (median regret):
+
+| refitted &theta; (draws) | complex centrality, absolute 2 | top degree | degree discount |
+|---|---|---|---|
+| 0.40 (86) | 4.9% | 4.2% | 0.0% |
+| 0.50 (184) | 3.7% | 4.1% | 0.5% |
+| 0.60 (218) | 2.7% | 3.6% | 0.6% |
+| 0.75 (12) | 2.4% | 3.6% | 1.0% |
+
+- **H13 held.** Degree discount has the lower worst case against every complex-centrality rule in
+  all 500 draws.
+- **H14 held.** The absolute-2 rule beats top degree in 74% of draws (89% in milestone 7's
+  village-only bootstrap).
+- **H15 held.** The higher the fitted threshold, the more the absolute-2 rule helps: behind top
+  degree at &theta; 0.4, ahead from 0.5 up. This is the direction its theory predicts. The
+  comparison is across draws, so the threshold moves together with each draw's village weights
+  and other parameters; a controlled threshold sweep is the next check.
+- No complex-centrality rule is the best worst-case rule in any draw. Full tables:
+  `experiments/m8_cc_uncertainty/results.txt` and `verdicts.txt`.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
@@ -471,6 +512,8 @@ OMP_NUM_THREADS=1 python3 experiments/m6_uncertainty/run.py  # about 10 minutes 
 python3 experiments/m6_uncertainty/figure.py
 OMP_NUM_THREADS=1 python3 experiments/m7_complex/run.py      # about 3.5 minutes on 4 cores, results.txt, regret.json
 python3 experiments/m7_complex/figure.py
+OMP_NUM_THREADS=1 python3 experiments/m8_cc_uncertainty/run.py  # about 11 minutes on 4 cores, results.txt, verdicts.txt
+python3 experiments/m8_cc_uncertainty/figure.py
 ```
 
 Needs numpy (and scipy for the data builder).
@@ -481,8 +524,8 @@ Milestone 6 finds degree discount robust to the uncertainty in the fits (median 
 95th percentile 1.6%) and insensitive to its rate. Next: survey designs closer to BCDJ's own (a
 household sample that names relationships, so nominations reach unsurveyed households) and
 adaptive ones (survey, then survey the named), since the survey rules are now at the 5% bar;
-scoring the best complex-centrality rule (milestone 7: 3.7% worst case) over milestone 6's refitted
-processes; the two checks left from milestone 3b (moments
+a controlled threshold sweep for complex centrality (milestone 8 found its loss falls as the
+refitted threshold rises, across bootstrap draws); the two checks left from milestone 3b (moments
 standardised by their synthetic SD, and a degree-band moment to separate a threshold cascade from
 homophily); then the paper draft, with milestones 4 to 6 as its seeding section.
 
