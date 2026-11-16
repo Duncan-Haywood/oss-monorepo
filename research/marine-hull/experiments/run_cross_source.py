@@ -128,10 +128,8 @@ def main():
     for w, c in CHECK.items():
         got = {"AT_90": T[w]["hi168"]["AT_90"], "LC": tuple(T[w]["hi168"][f"LC_{g}"] for g in LAGS),
                "DG": tuple(T[w]["hi168"][f"DG_{g}"] for g in LAGS)}
-        print(f"  {w}: " + "; ".join(f"{k} {got[k]}" for k in c) + ("  ok" if got == {k: (v if isinstance(v, int)
-                                                                                         else tuple(v))
-                                                                                     for k, v in c.items())
-                                                                     else "  MISMATCH"))
+        ok = got == {k: (v if isinstance(v, int) else tuple(v)) for k, v in c.items()}
+        print(f"  {w}: " + "; ".join(f"{k} {got[k]}" for k in c) + ("  ok" if ok else "  MISMATCH"))
 
     print("\nPer rule and lag: dominance counts, nasa / era5 / cross")
     print("  rule   | " + " | ".join(f"{c:>14s}" for c in COUNTS))
