@@ -381,9 +381,9 @@ flagships:
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Slow wheels
       need slower gains" (gains scaled under 1,500 rpm, 6-revolution gate hold).
-      Next: a tach that averages a fixed time, not four revolutions (shrinks the
-      loop delay itself), and the 14 of 336 sweep balls still released over 3% off,
-      mostly at 1,250-2,000 rpm (tests/low_speed_loop_sweep.py).
+      Next: why one 1,107 rpm wheel read 1.48x its drop through the loop fit (build
+      0.7/0.35, eval/low-speed-loop-drill-2026-11-16.txt); a tach averaging a fixed
+      time, not 4 revolutions; 14 of 336 balls still fed over 3% off.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

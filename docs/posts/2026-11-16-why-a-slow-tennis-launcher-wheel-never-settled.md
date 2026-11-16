@@ -49,6 +49,14 @@ Neither change works alone. The longer hold by itself makes more cases
 never settle, because a ringing wheel rarely stays inside the band for longer.
 The scaled gains alone settle everything but still feed off-speed balls.
 
+**The drill that stopped now runs.** All three builds that aborted now finish
+their slow-shot drill, and they read the launcher's spin to within 0.9% on
+average. On the six builds that already ran, one wheel at 1,107 rpm got a
+badly wrong drop reading: 1.48 times the true value. That one wheel took the
+worst build's spin error from 2.2% to 6.7%. The old firmware had four smaller
+misses on the same build, so this looks like a one-off. It is still not
+explained.
+
 **What is not known.** It is all simulation, with a first-order wheel and a
 model ESC. The six-revolution hold was picked as the best of three values on
 these same cases. The 14 balls still fed over 3% off are mostly at

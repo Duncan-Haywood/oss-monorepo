@@ -21,7 +21,7 @@ release, which freezes the board's snapshot, so a slow wheel had one or two revo
 fit gave up. `host.HOLD_RPM` (added with this sweep) makes the Pi wait for the verdict after a shot with a wheel under
 it; every build runs with it at 0 (before) and 1,000.
 
-    PYTHONPATH=src:tests:firmware/esp32 python tests/min_fit_rpm_sweep.py [--quick] [--plant 0|1|2] [--hold RPM]
+    PYTHONPATH=src:tests:firmware/esp32 python tests/min_fit_rpm_sweep.py [--quick] [--plant 0|1|2] [--hold RPM] [--lags 0.2,0.4]
 
 About 15 minutes a plant (--plant runs one; --quick: one lag, the first-order plant only). Each build runs twice:
 with `host.HOLD_RPM` at 0 (the Pi before this change) and at 1,000. Physics is the simulator's assumption, not a
@@ -126,6 +126,8 @@ def fit_with_floor(records, floor, loop_only=False):
 def main():
     quick = "--quick" in sys.argv
     lags = (0.4,) if quick else (0.2, 0.4, 0.8)
+    if "--lags" in sys.argv:
+        lags = tuple(float(x) for x in sys.argv[sys.argv.index("--lags") + 1].split(","))
     plants = PLANTS[:1] if quick else PLANTS
     if "--plant" in sys.argv:
         plants = [PLANTS[int(sys.argv[sys.argv.index("--plant") + 1])]]

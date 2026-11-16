@@ -1288,7 +1288,24 @@ tolerance against a tach that trails the wheel at every speed, not a slow-wheel 
 (the drill's wheel pairs, 36 cases) still has every case steady, slowest 5.03 s as before, worst error at the gate
 2.6% (4.1% before; its old note said 2.8%, measured before the spin-up ramp).
 
-**The drill that aborted.** EOF_PLACEHOLDER
+**The drill that aborted.** The ESC 30 ms plant of `tests/min_fit_rpm_sweep.py` (slow drill, `HOLD_RPM`
+1,000) now finishes all nine builds; the three 0.2 s builds aborted before. Those three read the launcher at 3.8% speed
+and 0.9% spin error (mean, floor 1,000). On the six builds that ran before (0.4 / 0.8 s), against
+eval/min-fit-rpm-retest-2026-11-16.txt, record drop / true drop:
+
+| band | before: >2% off, range | now: >2% off, range |
+| --- | --- | --- |
+| 500-750 rpm | 25 of 36, 0.683-1.178 | 18 of 36, 0.748-1.280 |
+| 750-1,000 | 14 of 36, 0.971-0.997 | 2 of 36, 0.970-1.008 |
+| 1,000-1,500 | 17 of 36, 0.954-1.030 | 17 of 36, 0.958-1.480 |
+| 2,500 and up | 33 of 240, 0.954-1.002 | 38 of 240, 0.952-1.002 |
+
+The launcher fit at the 1,000 floor got worse on these six: spin error mean / worst 0.97 / 2.15% before, 1.72 /
+6.65% now (speed 1.66 / 2.24% to 1.59 / 2.24%). It is one wheel: a 1,107 rpm bottom wheel on build 0.7/0.35 at
+0.4 s read 1.48 of its drop through the loop-command fit. On that build the old firmware had four wheels over 5% off
+(512-584 rpm), scaled gains alone none, the 6-revolution hold alone three and both two. So the outlier is one fit
+missing on one ball's timing, not a systematic bias, but it is not explained. Raw output:
+eval/low-speed-loop-drill-2026-11-16.txt.
 
 **How the numbers were picked.** 1,500 came from the margin model (at 1,000 the worst plant keeps only 12-18
 degrees) and agreed with a grid of 1,000 / 1,500 knees and 3 / 4 / 6 revolutions
