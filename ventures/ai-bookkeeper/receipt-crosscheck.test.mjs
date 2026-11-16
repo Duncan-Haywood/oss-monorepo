@@ -398,3 +398,26 @@ test("a section sign glued to a grouped whole amount reads as 5", () => {
   // a loose section sign is left alone
   assert.equal(parseReceipt("TEA SHOP\nTOTAL § 2,000").cents, 200000);
 });
+
+// No reading could read the tax line's amount ("TAX 15.45" on a 172,000 slip; CORD
+// validation-93), the total is settled and a subtotal line shows 156,364's last digits
+// ("SUBTOTAL 56,364"): 172,000 split at Indonesia's 10% is 156,364 plus 15,636. Receipt text
+// made up, same shape (eval/cord-tax-split-2026-11-16.md).
+test("a whole-unit slip's unreadable tax is the total split at 10% when a subtotal line agrees", () => {
+  const a = "CAFE\n1 PASTA 80,000\nSUBTOTAL 56,364\nTAX 15.45\nTOTAL 172,000";
+  const b = "CAFE\nGuRTOTAL [56,3464\nTAX 5.45";
+  const p = parseReceiptPasses([a, b, a, "CAFE"]);
+  assert.equal(p.cents, 17200000);
+  assert.equal(p.taxCents, 1563600);
+  assert.ok(p.notes.some((n) => /split at 10%/.test(n)));
+  // no subtotal line agrees with the split: no tax is guessed
+  const c = a.replace("56,364", "44,100");
+  assert.equal(parseReceiptPasses([c, "CAFE", c, "CAFE"]).taxCents, null);
+  // no tax line in any reading: no tax is guessed either
+  const d = a.replace("TAX 15.45\n", "");
+  assert.equal(parseReceiptPasses([d, "CAFE", d, "CAFE"]).taxCents, null);
+  // a decimal receipt is never split
+  const e = "CAFE\nSUBTOTAL 56.36\nTAX 1.5\nTOTAL 172.00";
+  assert.equal(parseReceiptPasses([e, "CAFE", e, "CAFE"]).taxCents, null);
+});
+
