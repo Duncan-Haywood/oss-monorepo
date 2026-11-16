@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, seo, aeo]
+topics: [design, seo]
 date: 2026-11-16
 ---
 # Polish: the five longest tool-page ledes, and a 120-word budget that keeps them short

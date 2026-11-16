@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtK2dGGfZT6J2MBGhGV",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T19:06:51Z",
+  "ended": "2026-11-16T19:24:48Z",
+  "wall_minutes": 18.1,
+  "tokens_in": 4690602,
+  "tokens_out": 23582,
+  "cost_usd": 2.0967,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16673",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Full platform/pages suite: 1753/1754; 'an identical build produces an identical cache name' failed once (hash mismatch between parallel builds) and passed when re-run alone with no other build running."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/README.md",
+      "issue": "No way to rebuild only a few venture pages for an after-measurement; a second full build (~12 min) was the only route to measure five changed index.html files."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-five-tool-pages-that-opened-with-a-wall.md",
+    "docs/reports/polish-2026-11-16-hero-walls.md"
+  ],
+  "goal": null,
+  "notes": "Five tool ledes over 120 words trimmed (179/154/134/128/121 -> 78/44/59/84/106); new platform/pages/hero-lede.mjs + test enforces 120. Venture suites pass: where-to-sell 268, ada 34, import 54, s3 63, lomb 35. hero-lede 2/2. platform/pages 1753/1754 (cache-name test flaky under parallel load; passes alone). Post front matter + links clean. ADA input 26 px lower at 1,280 (reported honestly).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "85950ee0-38b5-5f81-89bd-eab34fb4499c",
+    "transcripts": 1,
+    "first": "2026-11-16T19:06:51Z",
+    "last": "2026-11-16T19:24:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 23582,
+        "thinking": 4763,
+        "cache_read": 4602486,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88016,
+        "api_equivalent_usd": 2.0967,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 23582,
+      "thinking": 4763,
+      "cache_read": 4602486,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88016,
+      "api_equivalent_usd": 2.0967,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 52,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.1,
+      "active_minutes": 18.1,
+      "model_minutes": 5.61,
+      "tool_minutes": 12.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "rewriting five ledes, a scanner+test, two builds of measurements, report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 143.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
