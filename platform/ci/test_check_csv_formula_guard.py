@@ -7,7 +7,7 @@ from pathlib import Path
 import check_csv_formula_guard as g
 
 UNGUARDED = 'export function toCsv(r) { return r.map((c) => (/[",\\n]/.test(c) ? `"${c}"` : c)).join(","); }\n'
-GUARDED = UNGUARDED.replace("export", "const q = (s) => (/^[=+\\-@\\t\\r]/.test(s) ? \"'\" + s : s);\nexport")
+GUARDED = UNGUARDED.replace("export", "const q = (s) => (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s) ? \"'\" + s : s);\nexport")
 
 
 class CsvFormulaGuard(unittest.TestCase):
@@ -92,6 +92,47 @@ class WeakNumberExemption(unittest.TestCase):
             code = g.main(["--root", str(d), "--baseline", str(d / "base.txt")])
         self.assertEqual(code, 1)
         self.assertIn("ventures/x/calc.mjs:1", out.getvalue())
+
+
+class GuardShape(unittest.TestCase):
+    # 2026-11-16 (red team): insurance-commission-reconciler defused "-" only before a non-digit
+    # (`/^[=+@\t\r]/.test(s) || /^-[^\d.]/.test(s)`), so "-1+HYPERLINK(...)" reached the sheet raw; and about 100 guards
+    # with no number exemption wrote a negative amount or notice hours as the text "'-12.50", which a sheet cannot sum.
+    def test_a_class_without_minus_tab_or_cr_is_flagged(self):
+        for line in ('if (/^[=+@\\t\\r]/.test(s) || /^-[^\\d.]/.test(s)) s = "\'" + s;',
+                     'if (/^[=+\\-@]/.test(t) && !/^-?\\d+(\\.\\d+)?$/.test(t)) t = `\'${t}`;'):
+            self.assertTrue(any("missing" in r for r in g.guard_shape(line)), line)
+
+    def test_a_guard_with_no_number_exemption_is_flagged(self):
+        for line in ('if (/^[=+\\-@\\t\\r]/.test(s)) s = "\'" + s;',
+                     'const t = String(v ?? "").replace(/^[=+\\-@\\t\\r]/, "\'$&");'):
+            self.assertTrue(any("plain number" in r for r in g.guard_shape(line)), line)
+
+    def test_complete_guards_and_detectors_pass(self):
+        for line in ('if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s)) s = "\'" + s;',
+                     'const safe = /^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s) ? "\'" + s : s;',
+                     'const t = String(v ?? "").replace(/^[=+\\-@\\t\\r]/, (c, _i, all) => (/^-?\\d+(\\.\\d+)?$/.test(all) ? c : "\'" + c));',
+                     'if (/^[=+\\-@\\t\\r]/.test(s) && typeof v !== "number") s = "\'" + s;',
+                     # a checker that only warns about a cell, never writes one
+                     'if (/^[=@]/.test(v) || /^[+-]\\D/.test(v)) add("warning", L, "starts with a formula character");'):
+            self.assertEqual(g.guard_shape(line), [], line)
+
+    def test_main_fails_on_a_bad_guard_shape_with_no_baseline_escape(self):
+        d = Path(tempfile.mkdtemp())
+        p = d / "ventures" / "x" / "calc.mjs"
+        p.parent.mkdir(parents=True)
+        p.write_text('const cell = (s) => (/^[=+@\\t\\r]/.test(s) || /^-[^\\d.]/.test(s) ? "\'" + s : s);\n'
+                     'export function reportCsv(r) { return r.map(cell).join(","); }\n')
+        (d / "base.txt").write_text("")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = g.main(["--root", str(d), "--baseline", str(d / "base.txt")])
+        self.assertEqual(code, 1)
+        self.assertIn("ventures/x/calc.mjs:1", out.getvalue())
+
+    def test_repository_has_no_bad_guard_shapes(self):
+        self.assertEqual(g.scan_shape(g.ROOT), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -499,3 +499,17 @@ test('a cluster murmur louder than the dip before it reads as its nasal on D#4 (
   });
   assert.ok(score.on === POS.length && score.on >= score.off + 2, JSON.stringify(score));
 });
+
+test('a voiced closure\'s voice bar sits at one level under its vowel across pitch and vowel (one voice); the fixed gain swung', () => {
+  const rms = (x, a, b) => { let q = 0; for (let i = Math.round(a * rate); i < Math.round(b * rate); i++) q += x[i] * x[i]; return Math.sqrt(q / ((b - a) * rate)); };
+  const dur = 0.6, sg = codaPlan(['b'], dur, dur).segs[0], shut = sg.t0 + sg.closure * sg.k, q = (shut - sg.t0) / 4;
+  const one = { coda: ['b'], detunes: [0], vibratoCents: 0, breath: 0 };
+  const got = [], old = [];
+  for (const midi of [40, 45, 51, 56, 61, 64]) for (const vowel of ['a', 'e', 'i', 'o', 'u']) {
+    const f = 440 * 2 ** ((midi - 69) / 12), lvl = (o) => { const w = singNote(f, dur, rate, { vowel, ...one, ...o }); return 20 * Math.log10(rms(w, sg.t0 + q, shut - q) / rms(w, 0.2, 0.35)); };
+    got.push(lvl({})); old.push(lvl({ voiceBarLevel: false }));
+  }
+  const spread = (v) => Math.max(...v) - Math.min(...v);
+  assert.ok(spread(got) < 0.6 * spread(old), `spread ${spread(got).toFixed(1)} dB with the per-note gain, ${spread(old).toFixed(1)} fixed`);
+  for (const d of got) assert.ok(d < -18 && d > -40, `voice bar ${d.toFixed(1)} dB against its vowel`);
+});

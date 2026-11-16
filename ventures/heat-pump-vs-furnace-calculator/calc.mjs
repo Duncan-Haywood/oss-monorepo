@@ -125,7 +125,7 @@ export function sampleInput() {
   return { therms: "700", afue: "95", gasPrice: "1.6", gasFixedMonth: "0", elecPrice: "0.15", cop: "2.8", furnaceCost: "6500", acCost: "6500", hpCapex: "16000", incentives: "2000", extraWork: "0", coolKwh: "2000", coolSave: "10", omBase: "150", omHp: "150", gasEsc: "3", elecEsc: "3", years: "15", discount: "4" };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const rows = [["Year", "Gas system running cost", "Heat pump running cost", "Yearly difference", "Cumulative including up-front difference"]];
   for (const r of a.base.rows) rows.push([r.year, round2(r.gas), round2(r.hp), round2(r.net), round2(r.cumulative)]);

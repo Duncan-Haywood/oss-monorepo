@@ -225,7 +225,7 @@ export function summary(state, now = Date.now()) {
   return { by, overdue: sla.filter((s) => s === "overdue").length, medianFirstResponseMin: median === null ? null : Math.round(median / 60_000), csatPct: rated.length ? Math.round((100 * good) / rated.length) : null, csatCount: rated.length, slaMetPct: met + missed ? Math.round((100 * met) / (met + missed)) : null, topTags: Object.entries(tags).sort((a, b) => b[1] - a[1]).slice(0, 8) };
 }
 
-const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`; return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function toCsv(state) {
   const head = ["ticket", "subject", "requester", "status", "priority", "assignee", "tags", "mailbox", "created", "first_response_minutes", "messages", "rating"];
   const rows = Object.values(state.tickets).sort((a, b) => a.n - b.n).map((t) => [t.n, t.subject, t.requester.email, t.status, t.priority, t.assignee, t.tags.join(" "), t.mailbox, new Date(t.created).toISOString(), t.firstResponseAt ? Math.round((t.firstResponseAt - t.created) / 60_000) : "", t.messages.length, t.rating?.score || ""]);

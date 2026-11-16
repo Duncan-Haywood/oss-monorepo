@@ -308,7 +308,7 @@ export function gridRows(s) {
   });
 }
 
-const csvCell = (v) => { const t = String(v ?? ""); return /^[=+\-@\t\r]/.test(t) ? `"'${t.replace(/"/g, '""')}"` : /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+const csvCell = (v) => { const t = String(v ?? ""); return /^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t) ? `"'${t.replace(/"/g, '""')}"` : /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
 
 export function scheduleCsv(s) {
   const rows = [["Day", "Start", "End", "Role", "Person", "Hours"]];

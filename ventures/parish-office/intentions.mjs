@@ -352,7 +352,7 @@ const COLUMNS = ["id", "received", "donor", "intention", "masses", "offering", "
 function csvCell(v) {
   let s = String(v ?? "");
   // A cell a spreadsheet would run as a formula is prefixed so it stays text.
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

@@ -531,7 +531,7 @@ export function resultText(R) {
 
 function csvCell(s) {
   const t = String(s ?? "");
-  const safe = /^[=+\-@\t\r]/.test(t) ? "'" + t : t;
+  const safe = /^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t) ? "'" + t : t;
   return /[",\n]/.test(safe) ? '"' + safe.replace(/"/g, '""') + '"' : safe;
 }
 

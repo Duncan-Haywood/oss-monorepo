@@ -179,7 +179,7 @@ export function sampleInput() {
   return { price: "350000", downPct: "25", apr: "7.25", termYears: "30", closingPct: "3", rehab: "5000", rent: "2900", otherIncome: "0", vacancy: "5", propertyTax: "4200", insurance: "1800", hoa: "0", utilities: "0", management: "8", maintenance: "6", targetDscr: "1.2", rentGrowth: "3", expenseGrowth: "3", appreciation: "3", sellCost: "6", years: "10", interestOnly: "no" };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const rows = [["Year", "NOI", "Debt service", "Cash flow", "Sale proceeds after loan", "Cumulative cash"]];
   for (const r of a.long.rows) rows.push([r.year, round2(r.noi), round2(r.debt), round2(r.cashFlow), r.sale === null ? "" : round2(r.sale), round2(r.cumulative)]);

@@ -2833,6 +2833,11 @@ section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-hei
 @media screen and (scripting:enabled){.pf-jobs[hidden][data-pf-jobs-root]{display:block !important;visibility:hidden}}
 .pf-jobs-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
 .pf-jobs-status{opacity:.82}
+/* A tool with a shareable link adds "Copy link to this bid" to this row. On a
+   phone the three do not fit, and the sentence used to keep the first button
+   and push the second to a row of its own. The sentence takes the row instead,
+   so the two buttons stay together. */
+@media (max-width:600px){.pf-jobs-line:has(#pf-link-copy) .pf-jobs-status:not(:empty){flex-basis:100%}}
 .pf-jobs button{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
   border:1px solid #80808059;border-radius:7px;padding:3px 9px;cursor:pointer}
 .pf-jobs button:hover{background:#8080802e}
@@ -2933,6 +2938,24 @@ section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-hei
 `;
 
 /**
+ * What the status line says to a visitor with no saved bids.
+ *
+ * It used to say nothing, so a first-time visitor saw a lone grey "Saved bids"
+ * pill under the heading with no word about what it was for (polish reports of
+ * 2026-11-16 flagged it on Wall Framing Takeoff at 1,280 px), while the
+ * shop-rates bar beside it has always opened with a sentence. This is the same
+ * pattern: in the built markup, so the line holds its height from first paint
+ * and a crawler reads what the feature is, and written again by the script on
+ * start (the two must match; `jobs.test.mjs` asserts it). It names only what
+ * the panel actually does: save, then mark won or lost. It is short on purpose:
+ * at 390 px it fits beside the button on every band page that has no share
+ * button (135 of 168 measured), so a phone loses no height to it; a longer
+ * first draft ("Keep this bid by name, then mark it won or lost.") wrapped on
+ * all of them and pushed the form 26 px down.
+ */
+export const JOBS_FIRST_VISIT_STATUS = 'Save bids, mark them won or lost.';
+
+/**
  * The prose is rendered at build time and the script only wires it, so what a
  * visitor reads is in the HTML rather than assembled by JavaScript — and so a
  * crawler or an answer engine can see that these tools carry the feature.
@@ -2961,7 +2984,7 @@ section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-hei
  */
 const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
   <p class="pf-jobs-line">
-    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status">${JOBS_FIRST_VISIT_STATUS}</span>
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>${withPriceBand ? `
   <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
@@ -3781,7 +3804,7 @@ ${BAR_ALIGN_JS}
     pfAlignBar(root);
     render();
     var saved = mine().length;
-    if (saved > 0) say(saved === 1 ? '1 saved bid.' : saved + ' saved bids.');
+    say(saved === 1 ? '1 saved bid.' : saved > 1 ? saved + ' saved bids.' : ${JSON.stringify(JOBS_FIRST_VISIT_STATUS)});
 
     var toggle = el('pf-jobs-toggle');
     var setOpen = function(open){
