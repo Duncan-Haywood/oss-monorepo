@@ -7,14 +7,16 @@
   "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T15:38:31Z",
   "ended": "2026-11-16T15:56:49Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 24.26,
+  "tokens_in": 14090291,
+  "tokens_out": 106059,
+  "cost_usd": 6.6589,
+  "tool_calls": 87,
   "task": "explore: new research-algorithm tool, Kalman smoother for structural time-series models",
   "projects": [
     "kalman-smoother"
@@ -32,7 +34,8 @@
   "errors": [
     "First SOURCE.md draft carried a placeholder SHA-256 line; caught and replaced with the computed hashes before commit.",
     "First fit of the UK series (auto trend, 13 states) took 26 s; fixed with a likelihood-only sparse filter with steady-state shortcut (2.5 s).",
-    "Loosening the Nelder-Mead stopping rule moved the Nile variance to 15,098.6; a page test pinned to 15,098.5 caught it; added a tight final polish."
+    "Loosening the Nelder-Mead stopping rule moved the Nile variance to 15,098.6; a page test pinned to 15,098.5 caught it; added a tight final polish.",
+    "First preflight failed on 4 repository checks (CSV formula guard, zero-default, post description over 160 chars, opt-out switch list); all fixed, second preflight clean."
   ],
   "integrity_issues": [
     "The Durbin & Koopman Nile figures (15,099 and 1,469.1) are quoted as widely cited; the book was not re-read in this session. README says so."
@@ -48,7 +51,83 @@
     "docs/posts/2026-11-16-a-kalman-smoother-that-found-the-seat-belt-law.md"
   ],
   "goal": null,
-  "notes": "Explore idea: a Kalman smoother / structural time-series tool (ventures/kalman-smoother), since the repository had no state-space model. Exact diffuse filter and smoother (Durbin & Koopman 2012; Koopman 1997), MLE with concentrated scale, AIC with diffuse elements to choose drift/trend, dummy seasonal, missing values, forecasts, auxiliary residuals for outliers and level shifts. Verified against statsmodels 0.15.0 exact-diffuse UnobservedComponents on 5 cases at equal variances: max relative difference 1.1e-11 (eval/agreement.mjs); own MLE >= statsmodels' in all 5. Finds Nile 1898-99 and UK Jan-Feb 1983 seat-belt law unprompted. statsmodels' default exact-diffuse fit of the Nile stops short (15,067.6/1,484.8, loglik 8e-5 below optimum). No agent doc in docs/reports: the README and research-tools candidates list carry what the next run needs.",
+  "notes": "Explore idea: a Kalman smoother / structural time-series tool (ventures/kalman-smoother), since the repository had no state-space model. Exact diffuse filter and smoother (Durbin & Koopman 2012; Koopman 1997), MLE with concentrated scale, AIC with diffuse elements to choose drift/trend, dummy seasonal, missing values, forecasts, auxiliary residuals for outliers and level shifts. Verified against statsmodels 0.15.0 exact-diffuse UnobservedComponents on 5 cases at equal variances: max relative difference 1.1e-11 (eval/agreement.mjs); own MLE >= statsmodels' in all 5. Finds Nile 1898-99 and UK Jan-Feb 1983 seat-belt law unprompted. statsmodels' default exact-diffuse fit of the Nile stops short (15,067.6/1,484.8, loglik 8e-5 below optimum). No agent doc in docs/reports: the README and research-tools candidates list carry what the next run needs. Verification: venture-preflight.mjs kalman-smoother clean (second run, after fixing the CSV formula guard, a zero-default fallback, the post description and the opt-out switch list that the first run flagged); 47 venture tests pass.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6b2d1b0b-6f75-5067-843a-5419aeb094b5",
+    "transcripts": 1,
+    "first": "2026-11-16T15:38:31Z",
+    "last": "2026-11-16T16:02:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 163,
+        "output": 106059,
+        "thinking": 20088,
+        "cache_read": 13869738,
+        "cache_write_5m": 0,
+        "cache_write_1h": 220390,
+        "api_equivalent_usd": 6.6589,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 163,
+      "output": 106059,
+      "thinking": 20088,
+      "cache_read": 13869738,
+      "cache_write_5m": 0,
+      "cache_write_1h": 220390,
+      "api_equivalent_usd": 6.6589,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 80,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.26,
+      "active_minutes": 19.85,
+      "model_minutes": 15.62,
+      "tool_minutes": 4.23,
+      "waiting_on_human_minutes": 4.42,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a statistician implementing and verifying an exact diffuse Kalman filter/smoother with MLE, a web page, CLI and tests against statsmodels: about three working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 360.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
