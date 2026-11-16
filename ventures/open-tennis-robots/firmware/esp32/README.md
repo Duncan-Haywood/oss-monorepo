@@ -1317,3 +1317,80 @@ eval/low-speed-loop-gains-2026-11-16.txt, eval/low-speed-loop-margins-2026-11-16
 tach's dropouts and the four-period average are the assumptions the margin rests on. A slow shot now waits up to
 0.7 s longer for the gate. A tach that averaged a fixed time rather than four revolutions would shrink the delay
 itself; not tried.
+
+## The 1.48x wheel (2026-11-16, later)
+
+**The item.** "Slow wheels need slower gains" left one wheel unexplained: on build 0.7/0.35 at a 0.4 s wheel lag
+behind a 30 ms ESC, a 1,107 rpm bottom wheel read 1.48 of its true drop through the loop-command fit.
+
+**The cause: the snapshot ended three revolutions after the ball.** Rerun alone, the wheel (shot 20 of the slow
+drill) reproduced: true drop 0.170, record 0.2515. Its snapshot held 14 revolutions before the ball and three after.
+`LaunchCheck` freezes the snapshot when the wheel targets change, and the Pi sends the next shot's speeds as soon as
+it sees the release, unless a wheel is under `host.HOLD_RPM`, then 1,000. At 1,107 rpm the wheel was not held, so the
+snapshot stopped about 0.16 s after the ball. On three recovery revolutions the fit put the wheel's time constant at
+the bottom of its grid (0.1 s; the true lag is 0.4 s) and the drop 48% high. Another 1,106 rpm wheel in the same
+drill had six revolutions after its ball and read 0.1671. Of the drill's 60 loop fits, the ten with three or four
+revolutions after the ball were the unheld wheels at 1,107-1,509 rpm and held wheels under 1,000 rpm, which the
+verdict 250 ms after the stroke limits instead.
+
+**The change.** `host.HOLD_RPM` is 3,000: after a shot with a turning wheel under it, the next speeds wait for the
+verdict (0.5 s after the release). 3,000 rpm turns the fit's eight revolutions in the 0.16 s an unheld wheel gets. On
+the two builds tried first, 1,500, 2,000 and 3,000 gave identical results (eval/hold-rpm-sweep-2026-11-16.txt); 3,000
+is the one with a reason behind it.
+
+**The board must know its ESC's lag for this to pay.** On the 30 ms ESC plant with the board told no ESC lag (as in
+`tests/min_fit_rpm_sweep.py`), holding more wheels removed the outlier but the launcher fit got worse (all nine
+builds, floor 1,000: spin error mean / worst 1.46 / 6.65% to 2.10 / 8.12%). The held wheels' longer recoveries carry
+more of the untold lag's bias (the 1,000-1,500 band went from 0.984 to 0.963 of the true drop). Told the lag
+(`LaunchCheck.esc_tau_us` 30 ms, what `ESC_TAU_US` holds after the board's survey, "The ESC lag surveyed on the
+board"), record drop / true drop at a 0.4 s wheel lag, three builds:
+
+| HOLD_RPM | 1,000-1,500 rpm: mean, sd, max, >2% off | 2,500 up: mean, sd | spin error at floor 1,000, mean / worst |
+| --- | --- | --- | --- |
+| 1,000 (before) | 1.028, 0.121, **1.526**, 1 of 18 | 1.000, 0.003 | 0.26 / 0.75% |
+| 3,000 (now) | 1.001, 0.003, 1.006, 0 of 18 | 1.000, 0.003 | 0.14 / 0.22% |
+
+Over all nine builds (0.2, 0.4 and 0.8 s lags; eval/hold-rpm-told-lag-2026-11-16.txt) the spin error at floor 1,000
+went from 0.55 to 0.39% mean, worst 1.72 to 1.74%: better at 0.4 s (0.26 to 0.14%) and 0.8 s (0.83 to 0.08%),
+worse at 0.2 s (0.57 to 0.96%), where no wheel was far off before either. Speed error stayed at 0.1% or less. So set
+`ESC_TAU_US` from the survey before a calibration drill; on a laggy ESC the hold makes things worse without it.
+
+**Not known.** All of it is the simulator's first-order wheel and first-order ESC. Holding costs a shot up to 0.5 s
+before its wheels start changing speed; whether that makes any shot late against its interval was not measured. Wheels under 750 rpm still read 0.96-1.18 of their drop even
+when held: the verdict 250 ms after the stroke leaves them only three or four revolutions.
+
+## A tach that averages a fixed time (2026-11-16, later; built, off by default)
+
+**The item.** `PeriodTach` averages its last four revolutions, so its reading trails the wheel by about 2.5
+revolutions, 0.29 s at 510 rpm. "Slow wheels need slower gains" worked around that delay by cutting the loop's gains
+under 1,500 rpm. Would averaging a fixed time instead shrink the delay itself?
+
+**The change.** `PeriodTach(window_us=...)` averages the newest periods until they span the window, at most four:
+at 40 ms, one revolution under 1,500 rpm, two to 3,000, four from 6,000. `controller.TACH_WINDOW_US` sets it for the
+board's tachs; it is **0 (four revolutions, as before)**, for the reason below. `tests/low_speed_loop_sweep.py
+--window 0,40,60` runs the 336 slow-wheel cases at each window; `--margins --window` gives the linear model's margins.
+
+**It settles slow wheels better.** Phase margin, 30 ms ESC, 0.2 s wheel (eval/tach-window-margins-2026-11-16.txt):
+510 rpm -48 degrees with neither change, 32 with the window alone, 63 with the scaled gains alone, 84 with both.
+On the simulator (eval/tach-window-sweep-2026-11-16.txt; the scaled gains and 6-revolution hold on):
+
+| tach | never steady | passed over 3% off | worst at the gate | median / slowest time to steady |
+| --- | --- | --- | --- | --- |
+| four revolutions (default) | 0 | 14 | 7.0% | 3.76 / 11.62 s |
+| 40 ms | 0 | 7 | 3.3% | 3.75 / 9.12 s |
+| 60 ms | 0 | 6 | 3.4% | 3.76 / 9.11 s |
+
+With the window and no gain scaling: 3 over 3%, worst 3.5%. The drill's wheel pairs (`tests/wheel_loop_sweep.py`,
+eval/tach-window-wheel-pairs-2026-11-16.txt) are unchanged at worst: 3.3% at the gate, 6.2% over the next 2 s,
+slowest 5.12 s, with or without it. (That 3.3% is also what main reads today; the 2.6% in "Slow wheels need
+slower gains" was measured before some later change and is stale.)
+
+**It costs the drop fits.** On the slow drill (30 ms ESC plant, 0.4 s wheel, three builds, board told no ESC lag) the
+40 ms window put the record drops 3-5% low from 750 to 2,500 rpm, and the launcher's spin error at the 1,000 floor
+went from 0.55 to 5.67% mean. On the first-order plant it did no harm (0.84 to 0.37%), and with the board told the
+lag it was close to the default (0.40 / 0.59% against 0.14 / 0.22%, the 500-750 band worse: 0.955 mean against
+0.996). So the faster readings drive the loop harder inside the recovery, where an untold ESC lag shows most.
+The gate gains are real but the fits matter more and the scaled gains already settle every case, so the default
+stays four revolutions. Raw: eval/tach-window-drill-2026-11-16.txt.
+
+**Not known.** A real tach's dropouts and a real ESC's own speed loop, either of which might favour one side.
