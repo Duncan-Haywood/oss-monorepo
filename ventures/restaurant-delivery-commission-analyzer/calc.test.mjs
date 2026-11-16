@@ -563,6 +563,58 @@ test("a promotion that earns back its spend to the cent is not flagged high, wha
   assert.ok(!/cost more than/.test(f.detail));
 });
 
+// Red-team 2026-11-16: guards for escaped mutants and two real defects.
+test("a UTF-16 big-endian file (BOM FE FF) is decoded", () => {
+  const be = new Uint8Array([0xfe, 0xff, ...[..."Order date"].flatMap((c) => [0, c.charCodeAt(0)])]);
+  assert.equal(decodeBuffer(be.buffer), "Order date");
+});
+
+test("dates with a two-digit year are not read as amounts when picking the decimal mark", () => {
+  // One date and one decimal-comma amount per row: a date counted as an amount
+  // ("03.06.26" ends in .26) would tie the vote and fall back to a decimal point.
+  const t = [["Order date", "Subtotal"], ["03.06.26", "12,50"], ["04.06.26", "8,75"]];
+  assert.equal(detectDecimalComma(t, ","), true);
+});
+
+test("one-digit dotted dates are day-first", () => {
+  assert.equal(detectDmy(["3.6.2026", "4.6.2026"]), true);
+});
+
+test("the promotion view averages the tickets of orders with no spend", () => {
+  const body = "A,DoorDash,2026-06-01,Delivered,20,-5,0,-2,0,0,13\nB,DoorDash,2026-06-02,Delivered,30,-7,0,0,0,0,23\nC,DoorDash,2026-06-03,Delivered,10,-2,0,0,0,0,8\n";
+  const p = analyze(load(body).orders, {}).promo;
+  near(p.avgTicketWith, 20);
+  near(p.avgTicketWithout, 20);
+  near(p.netAfterPerOrderWithout, 15.5);
+});
+
+test("the example's promotions span the $2 to $7 range the generator draws", () => {
+  const m = normalizeRows(parseCsv(sampleCsv())).orders.map((o) => o.marketing).filter((v) => v > 0);
+  assert.ok(m.length > 10);
+  assert.ok(Math.max(...m) > 6, `largest promotion ${Math.max(...m)}`);
+  assert.ok(Math.max(...m) <= 7, `largest promotion ${Math.max(...m)}`);
+  assert.ok(Math.min(...m) >= 2);
+});
+
+test("year-first dates with slashes or dots are read (2026/06/01, 2026.06.01)", () => {
+  assert.deepEqual(parseWhen("2026/06/01 12:30"), { t: Date.UTC(2026, 5, 1, 12, 30), hasTime: true });
+  assert.deepEqual(parseWhen("2026.06.01"), { t: Date.UTC(2026, 5, 1), hasTime: false });
+  assert.equal(parseWhen("2026/02/30"), null);
+  const n = normalizeRows(parseCsv("Order date,Subtotal,Commission\n2026/06/01 12:30,20.00,-5.00\n2026/06/02 18:10,30.00,-7.50\n"), { decimalComma: "auto" });
+  assert.equal(n.error, undefined);
+  assert.equal(n.orders.length, 2);
+});
+
+test("an en or em dash before an amount is a minus sign", () => {
+  assert.equal(parseNumber("–5.00"), -5);
+  assert.equal(parseNumber("— $12.50"), -12.5);
+  assert.equal(parseNumber("–"), 0);
+  // A refund written with an en dash is a refund, not a sale.
+  const n = load("A,DoorDash,2026-06-01,Delivered,20,-5,0,0,0,0,15\nB,DoorDash,2026-06-02,Delivered,–12.50,0,0,0,0,0,–12.50\n");
+  assert.equal(n.orders[1].refund, true);
+  assert.equal(n.orders[1].gross, -12.5);
+});
+
 // Red-team guards (2026-11-16): each pins a behaviour a seeded mutant changed
 // without any test noticing.
 test("January dates, 12 pm and three-digit day or month parts are read correctly", () => {

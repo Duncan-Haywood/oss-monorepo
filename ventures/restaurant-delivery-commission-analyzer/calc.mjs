@@ -65,11 +65,14 @@ export function parseCsv(text, delim = ",") {
 }
 
 // "1,234.56", "$12", "$-12", "USD -3", "(5.00)", "-5" and blanks (0). NaN only
-// for non-numbers. A minus anywhere before the first digit makes it negative.
+// for non-numbers. A minus (or an en or em dash) anywhere before the first
+// digit makes it negative.
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
+  // En and em dashes count too: formatted reports and pasted PDF tables write
+  // "–12.50" for a refund.
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -104,8 +107,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
-  if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
+  // Year first: ISO "2026-06-01" and the "2026/06/01" or "2026.06.01" some
+  // exports and spreadsheets write.
+  let m = s.match(/^(\d{4})([-/.])(\d{1,2})\2(\d{1,2})(?!\d)(.*)$/);
+  if (m) { y = +m[1]; mo = +m[3]; d = +m[4]; rest = m[5]; }
   else {
     // Two- or four-digit years only: "1/2/123" is a typo, not the year 123.
     m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2})(?!\d)(.*)$/);
