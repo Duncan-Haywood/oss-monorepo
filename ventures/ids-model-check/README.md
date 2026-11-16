@@ -196,7 +196,8 @@ No API key, account or server is involved, so there is nothing to configure.
    `dataType` the template does not give (a table property allows its defining
    or defined type), and a required set the applicability's classes cannot
    carry (`Pset_WallCommon` on `IFCCOVERING`; a type object carries its
-   occurrence's sets) are errors. A value outside a standard enumeration is a
+   occurrence's sets, and an occurrence its type's, so IFC2X3's
+   `Pset_AirTerminalTypeCommon` on `IFCAIRTERMINAL` is valid) are errors. A value outside a standard enumeration is a
    warning. As everywhere in the audit, a specification is invalid only if it
    is invalid in every schema its `ifcVersion` names.
 

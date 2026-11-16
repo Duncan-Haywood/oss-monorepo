@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPneoeFviLiUiTNhvJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T22:16:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/society-lanes milestone 6b: a lateral-target robot policy learned by CEM in each of three crowd twins, cross-evaluated on fresh seeds",
+  "projects": [
+    "society-lanes"
+  ],
+  "pr": 16714,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Milestone 6 asks for SARL, but torch is not installed and pyenv's torch install is documented as 18-35 min; a small parametric learned policy was used as 6b and SARL left as 6c."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/society-lanes/PROPOSAL.md",
+      "why": "SARL replaced for this step by a five-parameter CEM-trained policy (disclosed in LOG, README and post as not SARL)",
+      "did": "registered L1-L6 before the full run",
+      "result": "5 of 6 predictions held; L5 refuted"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-robot-policy-learned-in-one-crowd-simulator-transfers.md"
+  ],
+  "goal": null,
+  "notes": "Stdout of tests: 57 passed (python3.13 -m pytest research/society-lanes/tests). build.py ok; check_md_links ok; cite_check: two new DOIs hand-checked via web search (doi.org refused proxy). Scheduled prompt asked for venture work; promptctl route drew the research track, followed as the repo's master prompt directs.",
+  "corrections": [],
+  "redteam": null
+}
