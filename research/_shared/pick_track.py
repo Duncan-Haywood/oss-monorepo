@@ -491,13 +491,46 @@ def track_programmes(t, text=None):
     return out
 
 
-def free_choice_lines(progs):
+def last_landed_hours(slug, now=None):
+    """Hours since origin/main's newest commit touching research/<slug>; None when none is
+    in this clone's history or it is the shallow edge (its date is the fetch's, not the work's)."""
+    out = subprocess.run(["git", "log", "origin/main", "-n1", "--format=%H %ct", "--", f":(top)research/{slug}"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    parts = out.stdout.split()
+    if out.returncode != 0 or len(parts) != 2 or parts[0] in shallow_edge():
+        return None
+    return max(0.0, ((now or time.time()) - int(parts[1])) / 3600)
+
+
+def contention_lines(slugs, show=5, prs=open_prs_for, recent=recent_programme_commits, last=last_landed_hours):
+    """The least contended open programmes first: open PRs naming it, then origin/main
+    commits touching it in the last 6 h, then the longest since anything landed.
+
+    Free choice listed 21 open programmes with no sign of which ones sibling runs were
+    on; every one had a LOG.md entry dated that day, so picking took several LOG reads
+    (doc friction 2026-11-16, research/_shared/pick_track.py)."""
+    rows = []
+    for s in slugs:
+        n_pr, n_recent, age = len(prs(s)), len(recent(s)), last(s)
+        rows.append(((n_pr, n_recent, -(age if age is not None else 1e9)), s, n_pr, n_recent, age))
+    rows.sort()
+    out = []
+    for _, s, n_pr, n_recent, age in rows[:show]:
+        since = "nothing in this clone's history" if age is None else f"last landed {age:.0f} h ago"
+        out.append(f"    {s}: {n_pr} open PR(s), {n_recent} commit(s) on main in 6 h, {since}")
+    return out
+
+
+def free_choice_lines(progs, contention=contention_lines):
     """What a free-choice draw means and where its work goes.
 
     The draw printed only "draw 0.022 -> free-choice", with no pointer to the
     rules for where free work lives (doc friction 2026-11-13,
     prompts/research/prompt-0.md)."""
     open_ = [s for s, _ in progs if not is_blocked(s)]
+    ranked = contention(open_) if open_ else []
+    if ranked and contention is contention_lines and _open_pr_titles("duncan-haywood/oss-monorepo", 100) is None:
+        ranked.append("    (the open-PR list could not be read, so the PR counts above are not a claim check)")
     return [
         "free choice (about 1 run in 20, prompts/research/prompt-0.md): work on the question you find most "
         "worth a session; the integrity rules and the bar are unchanged",
@@ -505,7 +538,8 @@ def free_choice_lines(progs):
         "programme (PROPOSAL.md + a row in research/PROGRAMMES.md), or a standalone project whose project.json "
         'says "programme": "none", "why_standalone": "<reason>" (PROGRAMMES.md, step 3; programme_check.py enforces it)',
         f"  {len(open_)} open programme(s) not BLOCKED; `--new` draws again",
-    ]
+    ] + (["  least contended first (open PRs, then commits in 6 h, then longest idle; a step of one of these "
+          "is least likely to collide with a sibling run):"] + ranked if ranked else [])
 
 
 def recent_landed(slug, n=3):

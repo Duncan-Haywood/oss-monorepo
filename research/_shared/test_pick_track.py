@@ -487,6 +487,26 @@ class FreeChoiceTest(unittest.TestCase):
         self.assertIn("PROPOSAL.md", text)
         self.assertIn("2 open programme(s)", text)
 
+    def test_least_contended_programme_comes_first(self):
+        prs = {"busy": ["#1 research/busy: m3"], "hot": [], "idle": [], "fresh": []}
+        recent = {"busy": [], "hot": ["abc 1 hour ago: research/hot: m9"], "idle": [], "fresh": []}
+        age = {"busy": 30.0, "hot": 40.0, "idle": 20.0, "fresh": 2.0}
+        lines = pick_track.contention_lines(["busy", "hot", "fresh", "idle"], prs=prs.get,
+                                            recent=recent.get, last=age.get)
+        self.assertEqual([l.split(":")[0].strip() for l in lines], ["idle", "fresh", "hot", "busy"])
+        self.assertIn("idle: 0 open PR(s), 0 commit(s) on main in 6 h, last landed 20 h ago", lines[0])
+
+    def test_unknown_age_counts_as_idlest_and_says_so(self):
+        lines = pick_track.contention_lines(["a", "b"], prs=lambda s: [], recent=lambda s: [],
+                                            last={"a": 5.0, "b": None}.get)
+        self.assertTrue(lines[0].strip().startswith("b:"))
+        self.assertIn("nothing in this clone's history", lines[0])
+
+    def test_free_choice_prints_the_ranking(self):
+        text = "\n".join(pick_track.free_choice_lines([("a-prog", True)], contention=lambda s: ["    a-prog: x"]))
+        self.assertIn("least contended first", text)
+        self.assertIn("a-prog: x", text)
+
 
 class PostLimitsTest(unittest.TestCase):
     def test_line_carries_the_checker_caps(self):
