@@ -451,7 +451,8 @@ def as_shot_levels(data: bytes, recs: list[Record], model: str) -> tuple[tuple[i
         pick = name if name in groups and n_groups >= 7 else "auto"
         levels = groups.get(pick)
         if levels:
-            return levels, f"CRW: as-shot white balance from ColorBalance (0x10A9), {pick}"
+            r, g1, g2, b = levels
+            return (r, g1, g2, b), f"CRW: as-shot white balance from ColorBalance (0x10A9), {pick}"
     info2 = _find(recs, REC_COLOR_INFO2, data, 108)
     if info2 is not None:
         kind = _u16(data, info2.offset, 1)[0]

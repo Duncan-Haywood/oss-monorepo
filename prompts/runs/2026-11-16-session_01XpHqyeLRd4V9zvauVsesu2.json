@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 16,
   "outcome": "success",
   "errors": [
     "First Python decoder used one big int for the whole stream; each bit read shifted a multi-MB integer, and the G2 decode hit the 600 s timeout. Switched to an 8-byte window per read: 2.2 s.",
     "Black level copied from the CR2 reader (median of the columns left of SensorInfo's picture) read 40-680 instead of 32-128 on the PowerShots: those columns are partly exposed. Fixed by reading SensorInfo's own masked rectangle (fields 9-12).",
-    "First drafts of the post and eval said 19 CIFF files on raw.pixls.us and 16 bodies; the count is 21 files and 15 bodies (16 model names: the Digital Rebel is the 300D). Corrected before commit."
+    "First drafts of the post and eval said 19 CIFF files on raw.pixls.us and 16 bodies; the count is 21 files and 15 bodies (16 model names: the Digital Rebel is the 300D). Corrected before commit.",
+    "run_workflow_locally --for-changes caught a mypy return-type error in crw.as_shot_levels (a tuple[int, ...] returned where tuple of four was declared); fixed, mypy and ruff clean as CI's lint job runs them (no numpy in that venv)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -60,7 +61,7 @@
     "ventures/photo-editing/eval/canon-crw-reader-2026-11-16.md"
   ],
   "goal": "Deepen flagship 7 (photo-editing): develop Canon CRW files directly instead of asking for DNG conversion.",
-  "notes": "Routed ventures/2 by weighted draw; security queue empty; IDEAS.md and website requests empty. allocate.py picked photo-editing (row 5). Took the 'Coolpix NRW or Canon CRW reader' item: no public NRW sample, while raw.pixls.us held 21 CIFF CRWs. Built src/shootflow/crw.py (CIFF heap, Canon block Huffman coder with the three tree pairs, stored low bits, SensorInfo picture area and masked rectangle, three white-balance record families, ImageSpec rotation), wired into parse_raw, the profile chooser, raw_preview's developable list and the no-matrix refusal. tools/crw_libraw_check.py on 22 CIFF files (21 raw.pixls.us + the m-e-i 10D): 20 Bayer files from 15 bodies, 114,048,448 sensels, 0 differ; CFA equal on all; white balance equal on the 11 files that record one, none on the 9 that do not (LibRaw also has none); black within 2; G1 and Pro70 refused (CMYG). Exit 0. Develop end to end on 10D, G2, S60 with stand-in profiles: upright, clean pictures. Venture tests: run_venture_tests.py photo-editing -> ok, 1254 tests, 9 skipped, 141 s. Post checks: front matter clean, 0 broken links, 0 similar pairs. Open: EOS white level (4000 clip) unmeasured for lack of a clipped frame; real Adobe .dcp; D30 preset balance; NRW.",
+  "notes": "Routed ventures/2 by weighted draw; security queue empty; IDEAS.md and website requests empty. allocate.py picked photo-editing (row 5). Took the 'Coolpix NRW or Canon CRW reader' item: no public NRW sample, while raw.pixls.us held 21 CIFF CRWs. Built src/shootflow/crw.py (CIFF heap, Canon block Huffman coder with the three tree pairs, stored low bits, SensorInfo picture area and masked rectangle, three white-balance record families, ImageSpec rotation), wired into parse_raw, the profile chooser, raw_preview's developable list and the no-matrix refusal. tools/crw_libraw_check.py on 22 CIFF files (21 raw.pixls.us + the m-e-i 10D): 20 Bayer files from 15 bodies, 114,048,448 sensels, 0 differ; CFA equal on all; white balance equal on the 11 files that record one, none on the 9 that do not (LibRaw also has none); black within 2; G1 and Pro70 refused (CMYG). Exit 0. Develop end to end on 10D, G2, S60 with stand-in profiles: upright, clean pictures. Venture tests: run_venture_tests.py photo-editing -> ok, 1254 tests, 9 skipped, 141 s. Post checks: front matter clean, 0 broken links, 0 similar pairs. Open: EOS white level (4000 clip) unmeasured for lack of a clipped frame; real Adobe .dcp; D30 preset balance; NRW. PR checks: no check runs appeared for 10+ min (starved), so verified locally: run_workflow_locally.py --for-changes 15/16 workflows passed, the one failure was the mypy error above, fixed and re-run clean (ruff + mypy); photo-editing unittest step unrun there for lack of PIL but covered by run_venture_tests (1254 ok); venture-preflight clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
