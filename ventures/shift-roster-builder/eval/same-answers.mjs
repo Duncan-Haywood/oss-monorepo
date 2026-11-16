@@ -1,4 +1,4 @@
-// Same answers, two builds of calc.mjs: the whole buildRoster result (minus timings) on the café samples and 80 seeded random
+// Same answers, two builds of calc.mjs: the whole buildRoster result (minus timings and timeline) on the café samples and 80 seeded random
 // weeks, old against new, with each side's solver time. Used by the 2026-11-12 perf pass (docs/history/ci-perf-2026-11-12-
 // shift-roster-plateau-floor.md). Run: git show <base>:ventures/shift-roster-builder/calc.mjs > calc.old.tmp.mjs (next to calc.mjs,
 // so its imports resolve), then node eval/same-answers.mjs calc.old.tmp.mjs [weeks], and delete the copy.
@@ -17,7 +17,7 @@ function week(seed) {
   const opts = [{}, { balance: 60 }, { maxDailyHours: 8, minRestHours: 10 }, { exact: false, restarts: 2 }, { seed: 7, toughBalance: 30 }][seed % 5];
   return { st: st.join("\n"), sh: sh.join("\n"), opts };
 }
-const strip = (x) => JSON.stringify(x, (k, v) => (k === "timings" || /ms$/i.test(k) ? undefined : v));
+const strip = (x) => JSON.stringify(x, (k, v) => (k === "timings" || k === "timeline" || /ms$/i.test(k) ? undefined : v));
 let same = 0, diff = 0, ta = 0, tb = 0, open = 0;
 const N = +process.argv[3] || 80;
 const cases = [{ st: A.sampleStaff(), sh: A.sampleShifts(), opts: {} }, { st: A.sampleStaff(), sh: A.sampleShifts(), opts: { balance: 50 } }, { st: A.sampleStaff() + "\nHal, 15, 24, 0, any", sh: A.sampleShifts(), opts: {} }];

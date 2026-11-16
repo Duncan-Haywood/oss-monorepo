@@ -16,7 +16,7 @@ test("the worker builds the same roster as a direct call, and says so when the b
     const direct = calc.buildRoster(st.staff, sh.slots, { exact: false });
     const out = handle({ id: 7, staff: st.staff, slots: sh.slots, options: { exact: false } });
     assert.equal(out.id, 7);
-    const untimed = (r) => ({ ...r, timings: undefined }); // wall-clock milliseconds differ run to run
+    const untimed = (r) => ({ ...r, timings: undefined, timeline: undefined }); // wall-clock milliseconds differ run to run
     assert.deepEqual(untimed(out.roster), untimed(direct), name);
   }
   const bad = handle({ id: 1, staff: null, slots: null, options: {} });
@@ -69,7 +69,7 @@ test("the planner in the worker gives the same plan as a direct call, posts one 
   const out = handlePlan({ id: 4, kind: "plan", staffText: calc.sampleStaff(), shiftsText: calc.sampleShifts(), options: opts }, (m) => progress.push(m));
   assert.equal(out.id, 4);
   assert.deepEqual(progress, [1, 2, 3].map((done) => ({ id: 4, progress: { done, of: 3 } })));
-  const untimed = (p) => JSON.stringify({ ...p, weeks: p.weeks.map((w) => ({ ...w, roster: { ...w.roster, timings: undefined } })) });
+  const untimed = (p) => JSON.stringify({ ...p, weeks: p.weeks.map((w) => ({ ...w, roster: { ...w.roster, timings: undefined, timeline: undefined } })) });
   const copy = structuredClone(out.plan);
   assert.equal(untimed(copy), untimed(direct));
   assert.equal(JSON.stringify(calc.planFairness(copy)), JSON.stringify(calc.planFairness(direct)));
