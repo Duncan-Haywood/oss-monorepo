@@ -42,6 +42,8 @@ export const STORY_VENTURES = Object.freeze({
 });
 // How many of each shelf's newest pieces the page lists; the rest are one click away.
 const NEWEST = 6;
+// How many of each shelf's newest recorded pieces its "Listen" panel plays in place.
+export const LISTEN = 2;
 
 const TITLE = `Stories · ${SITE_NAME}`;
 // Under 160 characters: check.mjs holds descriptions to what a search result shows.
@@ -76,6 +78,7 @@ export function loadFiction(root = DEFAULT_ROOT) {
         meta: s.setting,
         published: s.published,
         minutes: storyAudio[s.slug] ? Math.round(storyAudio[s.slug].seconds / 60) : null,
+        audio: storyAudio[s.slug] ? `${HEARTH}/audio/${s.slug}.mp3` : null,
       })),
     };
   });
@@ -97,6 +100,7 @@ export function loadFiction(root = DEFAULT_ROOT) {
       meta: `Episode ${e.number}`,
       published: e.published,
       minutes: episodeAudio[e.slug] ? Math.round(episodeAudio[e.slug].seconds / 60) : null,
+      audio: episodeAudio[e.slug] ? `${SAINTS}/audio/${e.slug}.mp3` : null,
     })),
   });
   return shelves;
@@ -119,8 +123,24 @@ const STYLE = `
   h2 a { color:var(--ink); text-decoration:none; }
   h2 a:hover, h2 a:focus-visible { color:var(--accent); text-decoration:underline; text-underline-offset:.18em; }
   .tagline { margin:0; color:var(--muted); font-weight:600; }
-  .shelf > p { max-width:68ch; }
-  .shelf > p.meta { max-width:none; }
+  .shelf > p, .shelf-intro > p { max-width:68ch; }
+  .shelf-intro > p.meta { max-width:none; }
+  /* "Listen": the shelf's newest recorded pieces, playable in place. Until
+     2026-11-16 the page promised audio in its lede, but none of the 24 newest
+     cards had any, and the shelf header's right ~40% was empty at 1,120 px.
+     Beside the intro on wide screens; under it, one piece only, on a phone. */
+  .listen { margin:.9em 0 0; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:var(--bg); }
+  .listen h3 { margin:0 0 .3em; font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .listen ol { list-style:none; margin:0; padding:0; display:grid; gap:12px; }
+  .listen a { font-weight:650; text-decoration:none; line-height:1.35; }
+  .listen a:hover, .listen a:focus-visible { text-decoration:underline; }
+  .listen .meta { margin:.1em 0 .35em; }
+  .listen audio { display:block; width:100%; height:40px; color-scheme:light dark; }
+  @media (max-width: 899px) { .listen li:nth-child(n+2) { display:none; } }
+  @media (min-width: 900px) {
+    .shelf-head.has-listen { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:0 28px; align-items:start; }
+    .shelf-head .listen { margin-top:4px; }
+  }
   .meta { font-size:.84rem; color:var(--muted); }
   .meta a { color:inherit; }
   .items { list-style:none; margin:.8em 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:10px; }
@@ -158,13 +178,42 @@ export function longDate(iso) {
   return `${+m[3]} ${MONTHS[+m[2] - 1]} ${m[1]}`;
 }
 
+/**
+ * A shelf's "Listen" panel: its LISTEN newest pieces that have audio, each with a player
+ * (`preload="none"`, so nothing downloads until a visitor presses play). Empty when the
+ * shelf has no recordings yet.
+ */
+export function renderListen(shelf, toRoot) {
+  const heard = shelf.items.filter((i) => i.audio).slice(0, LISTEN);
+  if (!heard.length) return '';
+  const id = `${shelf.id}-listen`;
+  return `<aside class="listen" aria-labelledby="${esc(id)}">
+<h3 id="${esc(id)}">Listen</h3>
+<ol>
+${heard
+  .map(
+    (i) => `<li><a href="${esc(toRoot + i.href)}">${esc(i.title)}</a>
+<p class="meta">About ${i.minutes} min · <time datetime="${esc(i.published)}">${esc(longDate(i.published))}</time></p>
+<audio controls preload="none" src="${esc(toRoot + i.audio)}" aria-label="${esc(`Listen to ${i.title}`)}"></audio></li>`,
+  )
+  .join('\n')}
+</ol>
+</aside>`;
+}
+
 function renderShelf(shelf, toRoot) {
   const items = shelf.items.slice(0, NEWEST);
+  const listen = renderListen(shelf, toRoot);
   return `<section class="shelf" id="${esc(shelf.id)}" aria-labelledby="${esc(shelf.id)}-h">
+<div class="shelf-head${listen ? ' has-listen' : ''}">
+<div class="shelf-intro">
 <h2 id="${esc(shelf.id)}-h"><a href="${esc(toRoot + shelf.href)}">${esc(shelf.title)}</a></h2>
 <p class="tagline">${esc(shelf.tagline)}</p>
 <p>${esc(shelf.description)}</p>
 <p class="meta">${esc(shelf.audience)} · ${plural(shelf.count, 'story', 'stories')}, ${shelf.withAudio} with audio · <a href="${esc(toRoot + shelf.feed)}">Podcast RSS feed</a></p>
+</div>
+${listen}
+</div>
 ${items.length ? `<ul class="items">
 ${items
   .map(
