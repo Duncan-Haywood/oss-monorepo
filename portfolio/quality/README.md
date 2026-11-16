@@ -185,7 +185,11 @@ easy failure is grading the README instead of the thing. So:
   defect about a URL in those files, load the served page at
   `https://marisstella.app/<slug>/`. On 2026-11-10 about 8% of all recorded
   defects were of this kind and none were on the served page (category
-  `source-only` below).
+  `source-only` below). Some cloud sessions get a proxy 403 for that host;
+  then `node platform/pages/served-copy.mjs <slug>` (under a second) writes the
+  product's files as the deploy rewrites them and lists any placeholder or
+  retired origin left in its `llms.txt`, sitemap, `robots.txt` or canonicals
+  (none of 1,369 products on 2026-11-15).
 - **Don't re-audit what nobody changed.** A re-audit is worth its cost after a
   fix or a substantial change. Before re-auditing a subject, check `git log`
   for commits under it since the last audit; with none, take the next subject.
