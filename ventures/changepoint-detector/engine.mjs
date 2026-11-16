@@ -1620,10 +1620,14 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
   const minSeg = Math.max(1, Math.floor(minSegment));
-  const sd = sigma ?? robustSd(x);
+  // The count costs (poisson, negbin, negbin1) never read sigma, so their noise sd is not estimated: robustSd's two medians
+  // were about 5% of a Poisson trend fit (docs/history/ci-perf-2026-11-16-changepoint-poisson-inline.md). 1 is a placeholder.
+  const counts = model === 'poisson' || model === 'negbin' || model === 'negbin1';
+  const sd = sigma ?? (counts ? 1 : robustSd(x));
   const mean = model === 'mean';
-  // 'mean' builds its own prefix sums below, so its closure is only needed for the short-series answer
-  const cost = mean && n >= 2 * minSeg ? null : makeCost(x, model, sd, rho, exposure, size);
+  const poisson = model === 'poisson';
+  // 'mean' and 'poisson' build their own prefix sums below, so their closures are only needed for the short-series answer
+  const cost = (mean || poisson) && n >= 2 * minSeg ? null : makeCost(x, model, sd, rho, exposure, size);
   if (n < 2 * minSeg) return { changepoints: [], cost: n ? cost(0, n) : 0, penalty: beta };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
@@ -1643,6 +1647,12 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
     for (let i = 0; i < n; i++) { S1[i + 1] = S1[i] + x[i]; S2[i + 1] = S2[i] + x[i] * x[i]; }
     s2 = sd * sd;
   }
+  let P1 = null, PE = null;
+  if (poisson) {
+    // the same prefix sums, in the same order, as makeCost's poisson branch (S1 and E)
+    P1 = new Float64Array(n + 1); PE = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) { P1[i + 1] = P1[i] + x[i]; PE[i + 1] = PE[i] + (exposure ? exposure[i] : 1); }
+  }
   let prev = Infinity; // F at the previous step, the bound the stored values are pruned against
   for (let t = minSeg; t <= n; t++) {
     let best = Infinity;
@@ -1660,6 +1670,10 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
         const m = t - s;
         const a = S1[t] - S1[s];
         c = Math.max(0, S2[t] - S2[s] - (a * a) / m) / s2;
+      } else if (poisson) {
+        const m = PE[t] - PE[s];
+        const a = P1[t] - P1[s];
+        c = a > 0 && m > 0 ? 2 * (a - a * Math.log(a / m)) : 0;
       } else c = cost(s, t);
       const v = F[s] + c + beta;
       V[k++] = v;
