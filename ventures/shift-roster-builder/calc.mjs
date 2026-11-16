@@ -3800,13 +3800,16 @@ function buildRosterOnce(staff, slots, options = {}) {
   mark("eject");
   // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
   // `coverGuided` says whether the cover passes ran and drew from the clique LP's values (reported as optimality.coverGuided).
-  let coverGuided = null, repairStats = null;
+  let coverGuided = null, repairStats = null, repairReserveMs = null;
   const coverPasses = () => {
     if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
       coverGuided = o.coverGuide !== false && !!clique?.xs;
       // `coverRepairReserveMs` (README "The clique LP picks the repair's people"): under a time budget, stop starting plateau walks
       // once only that much is left, so the repair below still runs; on 350-400 copy weeks the walks otherwise take all of it.
-      const reserve = budgetMs > 0 ? o.coverRepairReserveMs ?? 0 : 0;
+      // Default (README "The repair reserve on the biggest weeks"): 2 s (at most a tenth of the budget) on weeks of 300 or more
+      // copies, where a pre-registered test on 48 fresh builds found fewer open hours on 22 and more on 10; none below 300.
+      const reserve = budgetMs > 0 ? o.coverRepairReserveMs ?? (ctx.S >= 300 ? Math.min(2000, budgetMs / 10) : 0) : 0;
+      repairReserveMs = reserve;
       const leftMs = () => budgetMs - (Date.now() - tStart);
       for (let k = 0; k < (o.coverPassRuns ?? 12) && !over() && !(reserve > 0 && k > 0 && leftMs() < reserve); k++) {
         const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4), { guide: o.coverGuide === false ? null : clique?.xs ?? null, guideProb: o.coverGuideProb ?? 0.5 });
@@ -4036,6 +4039,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, warm: priced.warm, tried: !!pricedTried, ms: priced.ms } : null,
       scoreFloorTried: pricedTried,
       coverGuided,
+      coverRepairReserveMs: repairReserveMs,
       coverRepair: repairStats,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
