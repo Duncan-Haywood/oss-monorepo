@@ -22,6 +22,7 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "featureList": [
     "Parses CODEOWNERS syntax and flags owners that are not @user, @org/team, or an email address",
+    "Flags gitignore syntax GitHub says does not work in CODEOWNERS: ! negation, [ ] ranges and \\# escapes",
     "Implements GitHub's gitignore-style pattern matching, including anchored paths, unanchored basename matches, trailing-slash directories, and **",
     "Resolves each file to its actual owning rule under last-match-wins, the same as GitHub",
     "Flags every rule that never wins ownership of any file in your list because a later, broader rule always overrides it",

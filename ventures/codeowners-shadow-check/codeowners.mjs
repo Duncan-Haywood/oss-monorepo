@@ -39,6 +39,10 @@ export function parseCodeowners(text) {
         message: `owner(s) do not look like @user, @org/team, or an email address: ${badOwners.join(', ')}`,
       });
     }
+    const unsupported = unsupportedSyntax(pattern);
+    if (unsupported) {
+      errors.push({ line: lineNumber, raw: raw.trim(), message: unsupported });
+    }
     rules.push({
       line: lineNumber,
       raw: raw.trim(),
@@ -48,6 +52,25 @@ export function parseCodeowners(text) {
     });
   });
   return { rules, errors };
+}
+
+/** The gitignore features GitHub's CODEOWNERS docs say "doesn't work":
+ * `!` negation, `[ ]` character ranges, and `\#` to escape a leading `#`.
+ * Until 2026-11-16 these passed as clean literal patterns, so a file whose
+ * `!vendor/` line GitHub ignores was reported "no syntax errors". The docs
+ * do not say whether GitHub then skips the line or reads it literally, so
+ * resolution below still reads it literally; the error says what to fix. */
+function unsupportedSyntax(pattern) {
+  if (pattern.startsWith('!')) {
+    return `! negation does not work in CODEOWNERS (GitHub docs); list the exceptions with their own owners after the broad rule instead: ${pattern}`;
+  }
+  if (pattern.startsWith('\\#')) {
+    return `escaping a leading # with \\# does not work in CODEOWNERS (GitHub docs): ${pattern}`;
+  }
+  if (/\[[^\]]*\]/.test(pattern)) {
+    return `[ ] character ranges do not work in CODEOWNERS (GitHub docs); list each name, or use * or ?: ${pattern}`;
+  }
+  return null;
 }
 
 function stripComment(line) {
