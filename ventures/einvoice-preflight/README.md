@@ -1934,6 +1934,28 @@ Not done: a real business's signed file and a FACe verdict on it; the policy
 digest was not recomputed from the policy PDF (facturae.gob.es did not answer; it
 is the value FirmaXadesNet, Odoo, OCA and Facturae-PHP write); ECDSA keys.
 
+**The policy digest recomputed, and the Ministry's own signed files (2026-11-16).**
+facturae.gob.es answered. The v3.1 policy PDF it serves hashes to SHA-1
+`f/LPQFpMc/ha+1dJ+Y5y11OPVnM=`, not the `Ohixl6upD6av8N7pEvDABhEL6hM=` every signer
+writes: the file carries an incremental update dated 2014-03-28 (a metadata edit)
+appended to the 2008 document, and the 2008 revision, its first 40,892 bytes, hashes
+to exactly `Ohixl6up...`. The v3.0 policy is the same (first 80,176 bytes:
+`HQvPemjDslVpcNmaJPpbHzhdZ50=`). The policy's own page-4 sample prints a third value,
+`xmfh8D/...`. ES-SIG-11 now checks the 2008 revision's SHA-256/384/512 digests too
+(the policy admits every XML-DSig hash; SHA-1 is still the recommended fix), names a
+hash that is today's whole-file digest, the page-4 sample or the other version's
+digest, and checks a v3.0 signature's hash against the v3.0 digest (the v3.0 policy
+stays an ES-SIG-10 warning; both of its URL spellings are known). The two signed
+example invoices the Ministry publishes (`factura_ejemplo_31.xml`,
+`factura2_ejemplo30.xml`, MITyC test CA, RSA-SHA1), each as published and with four
+mutants (an amount edited, a re-indent, a flipped SignatureValue character, an
+edited SigningTime): **our verdict equals signxml 5.3.0's on all 10**. The 3.1 example
+was signed 25 days after its certificate expired, which ES-SIG-12 reports. Details,
+file hashes and how to rerun: `eval/facturae-gob-2026-11-16.md`
+(`eval/facturae-gob-check.mjs`, `eval/facturae-gob-signxml.py`; the Ministry's files
+are not committed). Open: a real business's signed file and a FACe verdict; whether
+FACe takes a SHA-256 policy hash; ECDSA keys.
+
 **Spanish NIE and K/L/M NIFs fixed (same day).** The party VAT check (`vat.mjs`,
 `vat.py`) refused every valid NIE (X/Y/Z) and K/L/M NIF as INV-023. Against
 python-stdnum 2.2 on 6,000 seeded numbers: 891 disagreements before (750 valid
