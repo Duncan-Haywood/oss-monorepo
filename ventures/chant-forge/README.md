@@ -77,6 +77,27 @@ Chromium (`eval/browser-e2e.mjs`, 4 new checks, 119 in all) the sung Veni Creato
 an artist and ISRC are typed into the page. Nobody has listened to the track or tried the ZIP in a distributor's
 upload form.
 
+### Several tracks from the studio page: the EP queue (2026-11-16)
+
+Under the release boxes the page has an **EP queue**. Convert a chant, press **Add this track to the EP**, change
+the chant or any setting, convert and add again. Each queued track keeps what it was converted with (its MIDI,
+timed lyrics, GABC text, choir voice and the ISRC typed for it), so Dies irae can be half-time metal and Pange
+lingua deep house in one release. Tracks move up and down and can be removed; the queue is kept in the browser's
+`localStorage` (MIDI as base64, never audio), so a reload does not lose it. **Build the EP folder (ZIP)** renders
+each track at -14 LUFS and hands the list to the same `releaseKit` as the one-track button, so the folder, the
+cover (from track 1) and the release check are the ones `ep-cli.mjs` writes. The type follows the track count as
+`releaseJson` counts it (1-3 a single, 4-6 an EP, more an album), and the page says which before anything renders.
+
+The queue logic is `ep-queue.mjs` (browser-safe). Two tracks from one chant share one file in `sources/`; two
+different texts with one name get `name.gabc` and `name-2.gabc`. `ep-queue.test.mjs` (4 tests) queues Dies irae
+and Veni Creator with different options, moves one up, round-trips the queue through its `localStorage` form and
+builds it: `release.json`, both WAVs, MIDIs and LRCs and both sources are byte-identical to `buildEp` on the same
+two-track plan, the check matches line for line and passes, and the report differs only in the builder's name.
+In headless Chromium (`eval/browser-e2e.mjs`, 7 new checks, 126 in all) three sung tracks (Veni Creator as deep house, Dies irae as
+metal, Pange lingua as hard rock, each with its own ISRC) were queued, reordered and kept over a reload; the
+three-track ZIP (3:45 of audio) took 13.1 s, kept each ISRC and corpus file name, and `release-cli.mjs` passes the
+unzipped folder (exit 0). Nobody has listened to the tracks.
+
 ## Hear it without a DAW
 
 ```sh
