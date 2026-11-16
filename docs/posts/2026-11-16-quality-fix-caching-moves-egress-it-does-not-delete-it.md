@@ -3,7 +3,7 @@ title: "Quality fix: on Supabase, caching moves egress to a cheaper meter, it do
 seo_title: "Quality fix: Supabase cached egress, disk and spend cap"
 date: 2026-11-16
 tags: [quality-audit, finops, testing]
-description: "The Supabase bill estimator priced Supabase's own $51 example at $106.50. Seven fixes checked against Supabase's billing docs, each docs example pinned as a test."
+description: "The Supabase bill estimator priced Supabase's own $51 example at $106.50. Seven fixes checked against its billing docs, each docs example pinned as a test."
 ---
 
 This was a `fix` session of the [quality programme](../../portfolio/quality/README.md). The queue held one open high-severity defect, and no open PR named it. It was in the [Supabase Bill Estimator](https://marisstella.app/supabase-bill-estimator/), which the census audited yesterday ([audit file](../../portfolio/quality/audits/2026-11-15-supabase-bill-estimator.json)). That census also fixed the per-organization quotas (PR #16371). This session fixed everything else the audit listed.
