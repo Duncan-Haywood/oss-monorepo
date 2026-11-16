@@ -567,6 +567,24 @@ calibration and 0.44 arcmin with one calibration (13 bits: 4.13 and 0.79). A sto
 humanoid therefore needs the bias predicted at every pose (from the static torques, which give
 the side of each gap) rather than one tool offset.
 
+Both milestones let each foot apply any wrench at one point, split by least squares. A sole
+pushes only through its contact patch (milestone 32): with the contact points of the Menagerie
+models' own collision geoms and friction cones at mu 0.5, the upright poses balance a press of at
+most 79.6 N at a 0.4 m hand height, 39.0 N at 0.8 m, 31.1 N at 1.0 m and 25.9 N at 1.2 m (G1;
+the H1 100.9 to 25.2 N over 0.4–1.6 m), so above about 0.8 m the 50 N press would tip the robot
+onto its heels. Leaning the centre of mass 0.040–0.124 m towards the wall puts the 25–50 N range
+inside the window at all 36 poses. Waist and arm torques are the same under every ground-reaction
+model (to 0.00e+00 N m), because no foot is in their subtree. On the leaned poses neither hip yaw
+nor the waist roll changes sign under any model, including the least-norm one (H118 refuted);
+the only G1 joint held everywhere that flips is the right wrist pitch, −6.04 to +3.00 N m. A
+controller that keeps all 12 G1 leg joints on one side by 0.2 N m is infeasible at every pose
+(worst margin −45.5 N m; H119 refuted, H120 not testable). Holding only the hip rolls, hip yaws and
+ankle rolls, a variant added after the first run, is feasible everywhere (margin 3.31 N m) and cuts
+the worst per-pose loss at 5 arcmin from 8.63 points (least-norm) to 3.74, but one calibration at
+the 1.0 m pose still leaves 1.401 mm (least-norm 1.950, torque-minimising 2.632), and 1.094 mm at
+the best calibration pose. The balance controller therefore makes the press possible above chest
+height; the pose-by-pose compensation of milestone 31 stays.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -707,9 +725,9 @@ readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in h
 - **The tool point.** Joint quantisation and gear backlash are carried to the nailer's nose; link
   and tool-mount deflection under the press are not, and calibration is modelled as exact, either at
   every pose or once at one pose (milestone 31). The backlash is swept (no
-  G1 figure is published), which joints are held depends on the least-norm split of the ground
-  reaction rather than a balance controller's, and the handle's offset from the drive axis is
-  swept; the grip's 0.29–0.32 m behind the nose follows the nailer's published height, and the
+  G1 figure is published), which joints are held depends on the ground-reaction split (least-norm,
+  and from milestone 32 friction-cone QPs over the model's sole contact points, statics only, mu
+  swept 0.3–0.8), and the handle's offset from the drive axis is swept; the grip's 0.29–0.32 m behind the nose follows the nailer's published height, and the
   10-diameter penetration that sets the 44.4 mm depth is milestone 2's band, not a code clause.
 - **Static humanoid.** No walking, balance controller or hand-off dynamics; joint gains are taken
   at face value.
@@ -744,7 +762,9 @@ ultimate for a 16d end-nailed joint, and a mock-up to check the whole chain. The
 the nail is a tool-point quantity: a stock G1's 11-bit joints leave 1.3 mm at a nailer's nose, 12-bit
 joints restore 93% clean single-2x sheets, and gear backlash costs nothing more if the balance
 controller keeps the ankle-roll joints loaded one way, provided the held joints' bias is compensated
-pose by pose: one calibration leaves up to 3.4 mm at the edge of the reach.
+pose by pose: one calibration leaves up to 3.4 mm at the edge of the reach. Pushing through real
+soles, the robot must also lean into the wall to take the press above chest height, and no
+ground-reaction split removes that compensation (1.1–2.6 mm after one calibration).
 
 ## Data and code availability
 
