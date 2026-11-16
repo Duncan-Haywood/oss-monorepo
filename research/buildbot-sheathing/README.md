@@ -380,6 +380,17 @@ for faces at μ ≤ 0.25; the H1 gives 132 N. A hand weighs under 1 kg along the
 
 ![Push to drive a 1:32 wedge against the friction on its faces, with the stock G1 and H1 pushes; the corner height a wedge leaves against the reaction time, with the 1/16 in shim stack's](experiments/m28_shim_mech/figure.png)
 
+**Milestone 29: the nailer's length decides more than any remedy.** Every figure above takes the tool error as 0.9 mm:
+the G1's 11-bit joint sensors carried to the *hand*. A nailer's nose sits ahead of the grip, so the hand's 0.1° of
+rotation error moves it, and the nail must stay in the stud 44 mm below the surface, where a leaning nail has moved
+again. With the nose 0.3 m ahead, the G1's scatter along the wall is 1.31 mm at the surface and 1.38 mm at depth, and
+the best single-2x stack falls from **0.796 to 0.264** (H1: 0.571). The stack is a knife-edge on tool scatter: 0.96 at
+0.6 mm, 0.69 at 1.0, 0.32 at 1.3. A **12-bit** joint sensor at the same nose gives 0.934, so the spec is accuracy at
+the tool point. An independent nail lean of 0.43° (1σ) costs 2 points more; doubled joint studs stay at 1.000 at every
+length and at a 2° lean.
+
+![Clean sheets of the best single-2x stack against the nailer's length for the stock G1 and H1; against an independent nail lean, single and doubled joints](experiments/m29_tool_lean/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -961,6 +972,8 @@ python experiments/m27_slide_mech/run.py > experiments/m27_slide_mech/results.tx
 python experiments/m27_slide_mech/figure.py
 python experiments/m28_shim_mech/run.py > experiments/m28_shim_mech/results.txt   # ~30 s; mujoco, Menagerie G1/H1
 python experiments/m28_shim_mech/figure.py
+python experiments/m29_tool_lean/run.py > experiments/m29_tool_lean/results.txt   # ~30 s; mujoco, Menagerie G1/H1
+python experiments/m29_tool_lean/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 python paper/build_latex.py --pdf                            # the elsarticle manuscript in paper/latex/ (pandoc, pdflatex, bibtex, texlive-publishers)
 ```
@@ -1464,6 +1477,37 @@ python paper/build_latex.py --pdf                            # the elsarticle ma
   human-like 100 ms loses most of what the slide was for. A grasp that can also brake, or a slower creep with
   vibration, is not modelled.
 
+## Milestone 29 results (`experiments/m29_tool_lean/results.txt`)
+
+Module `src/buildbot_sheathing/tool_lean.py`; tests `tests/test_tool_lean.py` (6); `tack.simulate(tool=...)` and
+`ceiling.clean(tool=...)` take a (surface, depth) error pair per nail (the old path is unchanged and reproduces 0.7964).
+H109–H111 were registered in `LOG.md` before the run; a probe of section A's G1 row ran first and is disclosed there.
+
+- **Model.** The panel-edge bound is checked where the nail enters the sheathing; the stud (or plate) bound 44.4 mm
+  deeper (7/16 in OSB plus the 10 shank diameters milestone 2's band requires inside the member). A joint error moves
+  the nose by the hand's translation plus its rotation times the tool length L, and the depth point by the rotation
+  times L + 44.4 mm, so the pair is bivariate normal and correlated (ρ ≥ 0.998 here). An independent lean adds
+  44.4 mm × tan(lean) at depth only.
+- **Checks.** At L 0 the G1's surface scatter is 0.931/0.873 mm (y/z), `buildbot-fasten`'s 0.93/0.87. One-nail Monte
+  Carlo against the bivariate normal: 0.8632/0.8633, 0.6387/0.6393, 0.7069/0.7085 (the last at ρ ≈ 1, where scipy's
+  integration is least accurate). The old 0.9 mm model through the new path gives 0.7969 (old path 0.7964, interval
+  0.7908–0.8019).
+- **The robots** (11-bit, stud-height pose, feet planted): hand rotation 0.10/0.12/0.10° (G1) and 0.07/0.09/0.08° (H1)
+  about x/y/z. Along-wall scatter at the surface: G1 0.93, 1.11, 1.31, 1.53 mm at L 0, 0.15, 0.3, 0.45 m; H1 0.70,
+  0.88, 1.06, 1.26.
+- **Best single-2x stack** (milestone 28's: measured studs, per-nail reads, mid push, 20 ms slide, 1/16 in shims):
+  G1 0.7346, 0.5118, **0.2637**, 0.0993 at those lengths; H1 0.9117, 0.7830, 0.5706, 0.3247. At twice the quantisation
+  the G1 gives 0.0119 even at L 0. Doubled joints: 1.0000 at 11 bits, 0.9997 at twice, 0.9570/0.3952 at four times
+  (L 0/0.3). **H109 held** (−53.3 points).
+- **Resolution at L 0.3 m (G1):** 11 bits 0.2637 (1.43 missed nails a sheet), 12 bits 0.9344 (0.08), 13 bits 0.9910,
+  14 bits 0.9966.
+- **Independent lean** on top of the G1 at L 0.3: 0.25° −0.6, 0.5° −2.6, 1° −9.3, 2° −22.1 points; the stack
+  tolerates **0.434°** (1σ) for 2 points. **H110 held** (1°: −9.28). Doubled joints 1.0000 up to 2°, 0.9998 at 3°.
+  **H111 held.**
+- **What it means.** The paper's single-2x numbers hold only if the tool point, not the hand, is held to about
+  0.9 mm along the wall at the stud's depth: a stock G1 with a 0.3 m nailer misses it by half, a 12-bit G1 meets it.
+  Doubled joints carry any tool the programme has modelled.
+
 ## Milestone 28 results (`experiments/m28_shim_mech/results.txt`)
 
 Module `src/buildbot_sheathing/shim_mech.py`; tests `tests/test_shim_mech.py` (6). Shim sizes from supplier listings:
@@ -1492,6 +1536,10 @@ H106–H108 were registered in `LOG.md` before the run.
   robot that can push 120 N low on the wall (an H1) or slick shims, and with a 10–20 ms release.
 
 ## Limitations
+- **The tool point (milestone 29).** Only joint quantisation is carried to the nose; backlash, link and mount
+  deflection under the push, and calibration would add to it, so the robot rows are best cases. The 0.3 m nose is
+  `buildbot-fasten`'s figure, not a maker's; the 44.4 mm depth uses milestone 2's 10-diameter penetration rule, not a
+  code clause. One pose (stud height) stands for every nail.
 - **The shim (milestone 28).** Face frictions of the composite shim on OSB and lumber are swept (0.2–0.6), not
   measured; the stack is placed at exactly its rounded height (no shim crush, no debris); the wedge's stroke is a flag,
   not a simulated end stop; backing a wedge out pulls the sheet's foot off the wall (36–124 N), which the press is

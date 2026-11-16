@@ -526,6 +526,19 @@ hand's effective mass along the push is under 1 kg, so the wedge, unlike the 21.
 far on each stick-slip tap (12.70 mm at 20 ms) and the 1:32 slope leaves 0.132 mm rms. The
 discrete stack, which the G1 can place, is therefore the shim the paper's numbers can rest on.
 
+The tool's own 0.9 mm is the largest of these assumptions (milestone 29), and the one the stack is
+most sensitive to: with the 0.9 mm point model at other scatters the stack gives 0.9595 at 0.6 mm
+and 0.3152 at 1.3 mm. The figure is the G1's 11-bit joint quantisation carried to the hand point. A
+nailer's nose sits ahead of the grip, so the hand's rotation (0.095° about the vertical, 1σ) moves
+it, and the nail must stay inside the stud for ten diameters past the sheathing, 44.4 mm below the
+surface, where a leaning nail has moved again. Carried to a nose 0.3 m ahead of the grip and that
+depth (the two offsets correlated, as the same joint errors make both), the G1's along-wall scatter
+is 1.312 mm at the surface and 1.375 mm at depth, and the best single-2x stack falls from 0.7964 to
+0.2637; the H1 gives 0.5706. A 12-bit sensor at the same length gives 0.9344, so the requirement is
+a tool-point accuracy, not a hand-point one. An independent lean of the nail (the tool's own aim,
+deflection in the wood) of 0.434° (1σ) costs a further 2 points. Doubled joint studs stay at 1.0000
+at every length and at a 2° lean.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -663,6 +676,10 @@ readings a robot's escaped misses cost about the same (2.73% and 2.67% mean in h
   (0.2–0.6), the shim stack is placed exactly at its rounded height, the wedge's stroke and the
   pulled-off foot when backing it out are checked but not simulated, and the ledger height (0.5 m)
   that sets the G1's push is the model's, not a measured site value.
+- **The tool point.** Only joint quantisation is carried to the nailer's nose (backlash, link
+  and tool-mount deflection under the push, and calibration are not); the nose length (0.3 m) is
+  not from a maker's figure, and the 10-diameter penetration that sets the 44.4 mm depth is
+  milestone 2's band, not a code clause.
 - **Static humanoid.** No walking, balance controller or hand-off dynamics; joint gains are taken
   at face value.
 - **Strict pass/fail.** One nail outside its window fails a sheet, though a crew may accept a near

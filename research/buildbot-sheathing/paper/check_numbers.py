@@ -28,6 +28,7 @@ M20 = E + "m20_cyclic/results.txt"
 M21 = E + "m21_degrading/results.txt"
 M27 = E + "m27_slide_mech/results.txt"
 M28 = E + "m28_shim_mech/results.txt"
+M29 = E + "m29_tool_lean/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -49,6 +50,16 @@ CHECKS = [
     (M28, "h1    0.50 |           132.0", "H1 gives 132.0 N"),
     (M28, "g1     0.4   0.8     20 |               12.70", "(12.70 mm at 20 ms)"),
     (M28, "0.397 |               0.132", "leaves 0.132 mm rms"),
+    (M29, "0.60 mm 0.9595, 1.00 mm 0.6887, 1.30 mm 0.3152", "gives 0.9595 at 0.6 mm"),
+    (M29, "0.60 mm 0.9595, 1.00 mm 0.6887, 1.30 mm 0.3152", "and 0.3152 at 1.3 mm"),
+    (M29, "lean a joint error gives at the nose: y g1 0.095 deg", "(0.095° about the vertical, 1σ)"),
+    (M29, "member bound checked 44.4 mm", "44.4 mm below the"),
+    (M29, "g1    | 0.101 0.118 0.095            |  0.30 |      1.312  1.375", "is 1.312 mm at the surface and 1.375 mm at depth"),
+    (M29, "g1       1  0.30 | 0.2637", "0.2637; the H1"),
+    (M29, "h1       1  0.30 | 0.5706", "the H1 gives 0.5706"),
+    (M29, "  12 | 0.656 / 0.688        | 0.9344", "gives 0.9344"),
+    (M29, "lean the single-2x stack tolerates for a 2-point loss: 0.434 deg", "of 0.434° (1σ)"),
+    (M29, "      2.00 |                             1.550 | 0.0430          -22.06 | 1.0000", "stay at 1.0000"),
     # 5.14 the capacity model against Weiss's decayed walls (milestones 17 to 21)
     (M17, "control 6-12 4688, decay 6-12 2649, control 3-12 8775, decay 3-12 2974", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
     (M17, "share kept: 6-12 0.565, 3-12 0.339", "| Weiss (2017), tested | 56.5% \\| 33.9% |"),
