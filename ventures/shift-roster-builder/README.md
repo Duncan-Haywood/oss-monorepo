@@ -3432,3 +3432,48 @@ the reserve, bounded even with lots of time left, the reserve alone when the bud
 deadline without a budget, the cold formula without a basis). Not claimed: single runs on one cloud machine, generated weeks only;
 the 1.5 s reserve was not tuned (1 s or 2 s may do as well). Next: whether a longer reserve finishes more weeks than it costs, and
 carry the priced LP's basis into the day sweeps' guide.
+
+## The pay floor's reserve, sized from the full solve (2026-11-16 later)
+
+"A warm-sized gate for the pay floor" left its 1.5 s reserve untuned. Rather than race a few reserves against each other, this
+run measured what every reserve would do at once. **Pre-registered** (`eval/pay-floor-reserve-prereg.md`, committed before the
+run): 48 fresh weeks (seeds 6-17, 60 x 168 and 70 x 196, weeks 0-1, the generator of `eval/warm-gate-e2e.mjs`), each built twice
+at the default 20 s budget (`sh eval/pay-floor-reserve.sh`): once with the pay floor given a reserve no build reaches, so it
+reports its whole warm time T and the time left L at its start, and once with `scoreFloor: false`, which is exactly the path of a
+try that runs out of time. A reserve R finishes the try iff T <= max(0, L) + R, so `eval/pay-floor-reserve-summary.py` scores
+any R from the pair (`eval/pay-floor-reserve.out.txt`). The pay floor was tried on 19 of the 48 weeks; the rest were proven
+earlier or had no basis, and are the same under any R.
+
+| reserve | tries finished (of 19) | sum of gaps | pay, against 0.5 s | mean build | slowest build |
+|---|---|---|---|---|---|
+| 0.5 s | 12 | $21.73M | - | 21.14 s | 23.1 s |
+| 1.5 s (the old default) | 13 | $21.81M | one open hour more (search noise, below) | 21.26 s | 24.1 s |
+| 3 s | 15 | $21.69M | $44 less | 21.42 s | 25.6 s |
+| 4 s | 18 | $21.62M | $64 less | 21.49 s | 26.3 s |
+| **6 s** | **19** | **$21.60M** | **$75 less** | **21.51 s** | **27.5 s** |
+| 8 s | 19 | $21.60M | $75 less | 21.51 s | 27.5 s |
+
+(Gaps are in score units, where an open hour is 100,000, so the sums are dominated by open hours the floor cannot close; per
+week the change is the point: a finished try took the 70-person weeks' gaps from $22,530-$27,131 to $5-$18.)
+
+The warm solve needed up to 5.4 s past the time left (T 1.1-12.1 s); six of the 19 weeks needed more than 1.5 s and at most 6 s.
+The rule (raise only to a reserve finishing at least 3 more builds for at most 0.5 s more mean build time; the most finished,
+ties to the smaller) picked **6 s**: 6 more finished tries for 0.25 s of mean build time. The cost is the tail: the slowest
+build went from 24.1 to 27.5 s on a 20 s budget.
+
+**Checked with the new default itself** (`sh eval/pay-floor-reserve-confirm.sh`, `eval/pay-floor-reserve-confirm.jsonl`): the six
+weeks, new default against an explicit 1.5 s. Five finished, as predicted: gaps $23,613 to $6.98 and $24,278 to $15.52 on the
+70-person weeks, $118,547-$120,385 to about $99,990 (one open hour left) on two 60-person weeks, and one week (seed 17) covered
+one more hour; pay $0.61-$17.75 lower on four. The sixth (seed 9) never tried: that build's earlier stages ran past the budget,
+and `buildRoster` skips the pay floor once the budget is spent (`!over()`), whatever the reserve. Mean build time +0.9 s on these
+six, the slowest 25.5 s.
+
+**What landed:** `scoreFloorReserveMs` now defaults to 30% of the time budget, at most 6 s: 6 s at the 20 s default for big
+weeks, which is what was tested; a caller with a 3 s budget waits at most 0.9 s more, not 6. An explicit value wins.
+`warm-score-floor.test.mjs` checks the scaled default, the 6 s cap and an explicit 1.5 s.
+
+Not claimed: generated weeks, one cloud machine; the two builds of a week are separate runs, so their rosters before the pay
+floor can differ by timing (the +1 and -1 open hours on seeds 16 and 17 in the summary are that, not the pay floor); the 30%
+scaling below a 20 s budget was not measured. Next: the budget-spent case. The plan gives a try with the budget already spent
+"the reserve alone", but `buildRoster` never reaches it (seed 9 above); whether letting it run then finishes enough weeks to pay
+for the wait, measured the same way.
