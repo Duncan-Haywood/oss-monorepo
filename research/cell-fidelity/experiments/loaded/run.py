@@ -302,10 +302,37 @@ def report():
     print("\n".join(L))
 
 
+# ---------- post hoc (after the verdicts; not counted) ----------
+
+def posthoc():
+    """Which levers make the per-cycle plating steady from cycle 2 to 99? Median over each fresh pool of
+    ln(dL_99 / dL_2), then minus the measured charge-Ah change, plus kappa times the open-circuit dU rise (5x) or the
+    measured separator-node surface OCP rise (5z). Near 0 means those levers carry the whole slowdown."""
+    bal, ocp = SF._bal(HERE)
+    L = ["cell-fidelity 5zc post hoc (after the verdicts): median ln of the per-cycle lithium loss at cycle 99 over cycle 2,",
+         "raw, then with the measured charge Ah and the open-circuit (5x) or measured separator-surface (5z) OCP rise removed", "",
+         f"{'condition':22s}{'raw':>8s}{'Qch+oc dU':>11s}{'Qch+surf dU':>13s}{'Qch only':>10s}"]
+    for c in CONDITIONS:
+        cols = [[], [], [], []]
+        for f in B._load(HERE / "bench.jsonl"):
+            if f["cond"] != c or not f.get("ok"):
+                continue
+            b = dict(bal[(c, f["j"])]) | dict(g=ocp["grid"]) | ocp["sets"][bal[(c, f["j"])]["pset"]]
+            lo, q, u = f["lost_mol"], f["q_ch"], f["u_end"]
+            raw = math.log((lo[98] - lo[97]) / (lo[1] - lo[0]))
+            qt = math.log(q[98] / q[1])
+            du_oc = SF.du_surf(lo[97], b, 0) - SF.du_surf(lo[0], b, 0)   # lithium lost before cycle 99 and cycle 2 began
+            for i, v in enumerate((raw, raw - qt + KAPPA * du_oc, raw - qt + KAPPA * (u[98] - u[1]), raw - qt)):
+                cols[i].append(v)
+        L.append(f"{c:22s}" + "".join(f"{statistics.median(v):+{w}.3f}" for v, w in zip(cols, (8, 11, 13, 10))))
+    (HERE / "posthoc.txt").write_text("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 2 and sys.argv[1] == "child":
         CYCLES = int(sys.argv[3])
         print(json.dumps(simulate(json.loads(sys.argv[2]))))
     else:
         {"dev": dev, "devreport": devreport, "tables": tables, "bench": bench,
-         "report": report}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
+         "report": report, "posthoc": posthoc}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
