@@ -503,6 +503,9 @@ const ROLE_ALIASES = {
   lower: new Set(["lower", "lo", "low", "lcl", "lci", "cilower", "lowerci", "ll", "lower95", "lb", "cil", "ci95lower"]),
   upper: new Set(["upper", "hi", "high", "ucl", "uci", "ciupper", "upperci", "ul", "upper95", "ub", "ciu", "ci95upper"]),
 };
+// metafor's own argument names (n1i, m1i, sd1i, ...) are what the error message suggests, so each
+// role always answers to its own name.
+for (const [role, set] of Object.entries(ROLE_ALIASES)) set.add(role);
 // Columns that carry the arm-1 total when the CSV gives events and totals. "n1" style names are in n1i.
 export const LAYOUTS = {
   cells: ["ai", "bi", "ci", "di"],
@@ -600,7 +603,9 @@ export function readStudies(input = {}) {
         logAsym += Math.abs(Math.log(u / e) - Math.log(e / l)) / Math.max(1e-12, Math.log(u / l));
         rawAsym += Math.abs((u - e) - (e - l)) / Math.max(1e-12, u - l);
       }
-      ratio = positive && nOk > 0 && (["or", "rr", "hr", "ratio", "irr"].includes(yCol) || logAsym < rawAsym);
+      // A column named as a ratio is one: a non-positive limit drops that study (with a reason)
+      // rather than switching every study to the raw scale.
+      ratio = ["or", "rr", "hr", "ratio", "irr"].includes(yCol) || (positive && nOk > 0 && logAsym < rawAsym);
     } else ratio = false;
     if (ratio) measure = "GENLOG";
   }
