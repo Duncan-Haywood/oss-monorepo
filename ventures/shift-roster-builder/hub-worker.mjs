@@ -8,6 +8,7 @@
 // search takes hundreds of ms, so BUILD_IN_BROWSER is always on here and the Worker only checks and prices the roster
 // the browser sends (rosterFromOwner). calc.mjs and bnp.mjs reach the browser as static assets (wrangler.jsonc).
 import { handler, emptyState } from "./hub.mjs";
+import { trimPunches } from "./timeclock.mjs";
 
 const MAX_STATE = 1_500_000; // bytes of JSON; a Durable Object value can hold about 2 MB
 
@@ -43,7 +44,7 @@ export class RosterHub {
       const save = () => {
         // Requests are already capped (64 KB, 200 replies, 100 of each request list, 12 weeks of history); this is a
         // last guard so one oversized state cannot wedge the hub.
-        if (JSON.stringify(this.state).length > MAX_STATE) { this.state.history = (this.state.history || []).slice(-4); this.state.punches = (this.state.punches || []).slice(-1500); }
+        if (JSON.stringify(this.state).length > MAX_STATE) { this.state.history = (this.state.history || []).slice(-4); trimPunches(this.state, 1500, Date.now()); }
         return this.ctx.storage.put("state", this.state);
       };
       this.hub = handler(this.state, save, { ...this.env, BUILD_IN_BROWSER: "1" });

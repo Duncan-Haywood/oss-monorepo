@@ -70,8 +70,37 @@ export function punch(state, person, kind, nowMs, { by = "staff", tz = "UTC", wh
   const p = { id: state.punchSeq, person, kind, at: nowMs, by };
   if (where) p.where = where; // distance from the site only (clockguard.mjs placeOf), never coordinates
   state.punches.push(p);
-  if (state.punches.length > MAX_PUNCHES) state.punches.splice(0, state.punches.length - MAX_PUNCHES);
+  trimPunches(state, MAX_PUNCHES, nowMs);
   return { ok: true, punch: p };
+}
+
+// Every closed worked stretch in the punches: { person, inAt, outAt }.
+export function workedSpans(punches, nowMs) {
+  const by = new Map();
+  for (const p of punches || []) { if (!by.has(p.person)) by.set(p.person, []); by.get(p.person).push(p); }
+  const out = [];
+  for (const [person, list] of by) {
+    list.sort((a, b) => a.at - b.at || a.id - b.id);
+    for (const sp of pairPunches(list, nowMs).spans) if (sp.out) out.push({ person, inAt: sp.in.at, outAt: sp.out.at });
+  }
+  return out;
+}
+
+// Keep the newest `keep` punches. The closed stretches among the dropped ones are first folded into state.leaveBank
+// (person -> UTC date of the clock-out -> { minutes, at }), so leave earned from them (leave.mjs) is not lost with them.
+// A stretch whose clock-in is dropped and clock-out kept is lost either way (it reads as a missing clock-in).
+export function trimPunches(state, keep, nowMs) {
+  const list = state.punches || [];
+  if (list.length <= keep) return 0;
+  const drop = list.slice(0, list.length - keep);
+  state.leaveBank = state.leaveBank || {};
+  for (const sp of workedSpans(drop, nowMs)) {
+    const day = new Date(sp.outAt).toISOString().slice(0, 10), mine = (state.leaveBank[sp.person] ||= {});
+    const b = (mine[day] ||= { minutes: 0, at: sp.outAt });
+    b.minutes += (sp.outAt - sp.inAt) / 60000; b.at = Math.max(b.at, sp.outAt);
+  }
+  list.splice(0, drop.length);
+  return drop.length;
 }
 
 // A manager's missed punch, typed as the site's wall-clock date and time ("2026-11-16", "09:05").

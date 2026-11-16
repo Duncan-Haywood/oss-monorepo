@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY calc.mjs bnp.mjs hub.mjs timeclock.mjs clockguard.mjs payrules.mjs server.mjs ./
+COPY calc.mjs bnp.mjs hub.mjs timeclock.mjs clockguard.mjs payrules.mjs leave.mjs server.mjs ./
 RUN mkdir /data && chown node /data
 USER node
 ENV PORT=8080 STATE=/data/state.json
