@@ -140,6 +140,7 @@ def _piece(c: np.ndarray, masks, window: int, power: float, rb: str, median_pass
     sign = np.where(is_g, WORK(1), WORK(-1))
     mean_h, lap_h = (left + right) / 2, 2 * c - left2 - right2
     mean_v, lap_v = (up + down) / 2, 2 * c - up2 - down2
+    lap: np.floating | np.ndarray
     if adaptive is None:
         lap = WORK(laplace)
     else:
