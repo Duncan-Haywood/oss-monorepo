@@ -4,7 +4,8 @@ For every CFA DNG given, the developer is run with ``--demosaic noise-aware`` up
 sensel plane the blend sees (``raw_develop_np._directional`` is intercepted there, so the plane and the
 profile carried to it are exactly what ``develop`` uses). On that plane:
 
-- ``profile``: the NoiseProfile carried to the plane (shot x mean gain, read x mean gain^2);
+- ``profile``: the NoiseProfile carried to the plane (shot x mean gain, read x mean gain^2), and since
+  2026-11-16 ``plane_ratios``, the per-plane guard's reading (each colour's pair by its own gain);
 - ``estimate``: ``xtrans_demosaic.estimate_noise`` (the in-frame fit, which reads texture as noise, so it
   errs high on detailed frames);
 - both as a noise sigma at the plane's median block level and at 18% grey of the white-balanced plane,
@@ -75,7 +76,8 @@ def check(path: Path) -> dict:
     pat, mults = seen["pat"], np.asarray(seen["mults"], dtype=np.float64)
     h, w = seen["norm"].shape
     plane = seen["norm"] * mults[xd.colour_map(pat, h, w)]
-    shot, read = seen["noise"]
+    raw_planes = xd.as_planes(seen["noise"])  # per colour since 2026-11-16 (rd.noise_profile_planes)
+    shot, read = raw_planes.mean(axis=0)
     p_shot, p_read = float(shot) * float(np.mean(mults)), float(read) * float(np.mean(mults * mults))
     t0 = time.perf_counter()
     e_shot, e_read = xd.estimate_noise(plane, pat)
@@ -107,6 +109,14 @@ def check(path: Path) -> dict:
     row["guard_s"] = round(time.perf_counter() - t0, 2)
     row["profile_ratio"] = ratio
     row["guard_scaled"] = bool(ratio == ratio and ratio > xd.PROFILE_CAP)
+    # The per-plane guard the developer runs since 2026-11-16 (eval/noise-aware-planes-luma-2026-11-16.md): each
+    # colour's pair carried by its own gain and read against that colour's sensels.
+    per = np.stack([raw_planes[:, 0] * mults, raw_planes[:, 1] * mults * mults], axis=1)
+    t0 = time.perf_counter()
+    pr = xd.plane_ratios(plane, pat, per)
+    row["plane_s"] = round(time.perf_counter() - t0, 2)
+    row["plane_ratios"] = [None if np.isnan(v) else round(float(v), 4) for v in pr]
+    row["plane_ratio"] = float(np.nanmax(pr)) if np.isfinite(pr).any() else None
     return row
 
 

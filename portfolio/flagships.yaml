@@ -274,9 +274,10 @@ flagships:
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Bayer trees parked: a range guard passes 6 fresh cameras, misses K-1 II/A7
       III; no fresh frames left (eval/bayer-boosted-guard-*). Noise-aware demosaic
-      (opt-in): profiles checked and guarded 2026-11-16
-      (eval/noise-profile-real-dngs-*); score its luma; per-plane profiles. DNG
-      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      (opt-in): luma scored and guard per plane 2026-11-16
+      (eval/noise-aware-planes-luma-*); refit its ramps on luma
+      (tools/noise_aware_planes.py rows). DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
