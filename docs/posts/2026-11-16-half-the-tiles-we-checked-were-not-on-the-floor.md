@@ -3,7 +3,7 @@ title: "Half the tiles our planner checked were not on the floor"
 seo_title: "Speeding up a tile layout search: skip tiles off the floor"
 date: 2026-11-16
 tags: [performance, tile-layout-planner, geometry, engineering]
-description: "Our tile layout planner visited 43 million off-floor tiles in a test run. Skipping only the ones it can prove miss made the search 31% faster, with byte-identical output."
+description: "Our tile planner checked 43 million off-floor tiles in one test run. Skipping only those it can prove miss made it 31% faster, with byte-identical output."
 ---
 
 The [tile layout planner](/tile-layout-planner/) finds where to start laying
