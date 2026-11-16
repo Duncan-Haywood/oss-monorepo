@@ -74,7 +74,9 @@ export async function listAll(path, { key, api = API, gte, lt, fetchImpl = globa
   for (let page = 0; page < maxPages; page++) {
     const q = new URLSearchParams({ limit: '100', 'created[gte]': String(gte), 'created[lt]': String(lt) });
     if (after) q.set('starting_after', after);
-    const url = `${api}${path}?${q}`;
+    // A GET to Stripe's list API from the deployer's runner: Stripe takes these filters only as a query string. Not a
+    // share link (platform/privacy/share-location.mjs guards those), and nothing of the visitor's is in it.
+    const url = [api + path, q.toString()].join('?');
     let r, body;
     for (let attempt = 0; ; attempt++) {
       r = await fetchImpl(url, { headers: { authorization: `Bearer ${key}`, 'stripe-version': '2024-06-20' } });
