@@ -1,6 +1,6 @@
 ---
 title: "One dash at the wrong indent: red-teaming two hand-rolled YAML readers"
-seo_title: "Compact YAML sequences: when `key:` then `- item` broke our parser"
+seo_title: "Compact YAML sequences: when a key then a dash item broke our parser"
 date: 2026-11-16
 tags: [testing, mutation-testing, javascript, redteam, yaml, helm, github-actions]
 description: "16 faults seeded into two YAML readers, 8 caught. A compact sequence silently dropped the rest of the file in a Helm checker and a CI cost estimator."
