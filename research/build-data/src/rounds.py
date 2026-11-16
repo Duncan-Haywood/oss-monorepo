@@ -156,7 +156,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     frames = {c: (d if nc and c != held else d[np.isfinite(d.y.to_numpy(float))]) for c, d in frames.items()}
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
-    thresholds, n_dead_dropped = None, None
+    thresholds, n_dead_dropped, dead_by_city = None, None, None
     if variant == "cpin_cut":
         tr, ca = cat(lambda d: d.year <= Y - 2), cat(lambda d: d.year == Y - 1)
         ytr, otr = cpin.censor(tr, D)
@@ -170,8 +170,10 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
             tr, ca = stale_drop(tr, D, STALE[variant]), stale_drop(ca, D, STALE[variant])
         if variant == "cpin_es3_nc5_clean":
             n0 = len(tr) + len(ca)
+            before = pd.concat([tr, ca]).city.value_counts()
             tr, ca = dead_drop(tr, D), dead_drop(ca, D)
             n_dead_dropped = n0 - len(tr) - len(ca)
+            dead_by_city = {c: int(before.get(c, 0) - n) for c, n in pd.concat([tr, ca]).city.value_counts().items()}
         if variant == "cpin_es3_ncq":
             # session 93: a cut per source city, from its own builds of years <= Y-2 completed by D
             thresholds = {c: q_threshold(frames[c][(frames[c].year <= Y - 2) & np.isfinite(frames[c].y)], D)
@@ -192,11 +194,12 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     n_te = len(Xte)
     if nc:  # session 92: predict the selection set in the same call (one model, two row sets)
         Xte = pd.concat([Xte, transfer.feats(sel)])
-    sel_loss = {t: [] for t in (0.5, 0.9)}
     done_te = np.isfinite(te_all.y.to_numpy(float)) if has_open else np.ones(len(te), bool)
     live = ~te["dead"].to_numpy(bool) if "dead" in te else None  # session 95: among completed test rows
-    loss_live = {t: [] for t in (0.5, 0.9)}
     taus = (0.5, 0.9)  # q0.1 is untouched by open permits and costs most rounds (300 in es3); skipped for time
+    # session 95: CPIN_TAUS=0.9 fits the tail model only (q0.5 is 85% of an SF fit's time and no prediction used it)
+    taus = tuple(float(x) for x in os.environ.get("CPIN_TAUS", "").split(",") if x) or taus
+    sel_loss, loss_live = {t: [] for t in taus}, {t: [] for t in taus}
     out, loss, preds, closs_te = {}, {t: [] for t in taus}, {}, {t: [] for t in taus}
     for s in range(seeds):
         r = {}
@@ -219,7 +222,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         out[str(s)] = {str(t): int(v) for t, v in r.items()}
     res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
     if n_dead_dropped is not None:
-        res["n_dead_dropped"] = n_dead_dropped
+        res["n_dead_dropped"], res["n_dead_by_city"] = n_dead_dropped, dead_by_city
     if "dead" in tr:
         res["n_train_dead_by_D"] = int(len(tr) - len(dead_drop(tr, D)))
         res["n_es_dead_by_D"] = int(len(ca) - len(dead_drop(ca, D)))
@@ -587,6 +590,50 @@ def ncq_summary(path, sweep_path, nc_path, base_path, held=("sf", "seattle"), ye
                 replication_max_abs_q90_diff=max(rep) if rep else None, n_replicated=len(rep), held=verdict)
 
 
+def clean_summary(path, nc_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 95: cpin_es3_nc5_clean against cpin_es3_nc5 refit on the same pull (this file), per cell: q0.5 / q0.9
+    loss on all completed test rows and on the live ones (status not dead), the rows the rule drops (and how many
+    are Austin's, from n_dead_by_city), the mean q0.9 prediction, rounds; predictions K1 to K5 (K5 against session
+    91's nc5 in nc_path)."""
+    R = json.load(open(path))
+    s91 = json.load(open(nc_path))
+    cells = []
+    for h in held:
+        for Y in years:
+            a, b = R.get(f"{h} {Y} cpin_es3_nc5"), R.get(f"{h} {Y} cpin_es3_nc5_clean")
+            if not (a and b):
+                continue
+            pm = lambda r: float(np.mean([p["mean"] for p in r["test_pred_q90"].values()]))  # noqa: E731
+            n_rows = a["n_train"] + a["n_es"]
+            row = dict(held=h, year=Y, n_rows_nc5=n_rows, n_dropped=b["n_dead_dropped"],
+                       dropped_share=b["n_dead_dropped"] / n_rows, dropped_by_city=b.get("n_dead_by_city"),
+                       n_test=a["n_test"], n_test_dead=a.get("n_test_dead"),
+                       loss={v: r["test_loss"] for v, r in (("nc5", a), ("clean", b))},
+                       loss_live={v: r.get("test_loss_live") for v, r in (("nc5", a), ("clean", b))},
+                       diff={t: b["test_loss"][t] - a["test_loss"][t] for t in a["test_loss"]},
+                       diff_live={t: b["test_loss_live"][t] - a["test_loss_live"][t] for t in a["test_loss_live"]},
+                       diff_q90_per_seed=[y - x for x, y in zip(a["test_loss_per_seed"]["0.9"], b["test_loss_per_seed"]["0.9"])],
+                       q90_pred_mean={"nc5": pm(a), "clean": pm(b)},
+                       q90_rounds={v: float(np.mean([x["0.9"] for x in r["rounds"].values()])) for v, r in (("nc5", a), ("clean", b))},
+                       s91_nc5_q90=s91.get(f"{h} {Y} cpin_es3_nc5", {}).get("test_loss", {}).get("0.9"))
+            cells.append(row)
+    au = lambda c: (c["dropped_by_city"] or {}).get("austin", 0) / max(c["n_dropped"], 1)  # noqa: E731
+    ts = sorted(set.intersection(*[set(c["diff"]) for c in cells])) if cells else []
+    mean_diff = {t: float(np.mean([c["diff"][t] for c in cells])) for t in ts}
+    mean_diff_live = {t: float(np.mean([c["diff_live"][t] for c in cells])) for t in ts}
+    verdict = dict(
+        K1=len(cells) == 4 and all(0.005 <= c["dropped_share"] <= 0.03 and au(c) >= 0.8 for c in cells),
+        K2=len(cells) == 4 and abs(mean_diff["0.9"]) <= 1,
+        K3=len(cells) == 4 and all(c["q90_pred_mean"]["clean"] < c["q90_pred_mean"]["nc5"] for c in cells),
+        K4=sum(c["diff_live"]["0.9"] <= c["diff"]["0.9"] for c in cells) >= 3,
+        K5=len(cells) == 4 and all(c["s91_nc5_q90"] is not None and abs(c["loss"]["nc5"]["0.9"] - c["s91_nc5_q90"]) <= 0.5
+                                   for c in cells))
+    return dict(note="cascade2 transfer model; diff = clean minus nc5 mean pinball loss (days, negative = clean "
+                     "better), both refit on the 2026-11-16 pull; all = completed test-year rows, live = those whose "
+                     "status is not dead; 3 seeds", cells=cells, mean_diff=mean_diff, mean_diff_live=mean_diff_live,
+                austin_share_of_dropped=[au(c) for c in cells], held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -612,6 +659,16 @@ if __name__ == "__main__":
     ap.add_argument("--summarise-ncq", help="session 93: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_clean:
+        s = clean_summary(a.summarise_clean, os.path.join(res_dir, "rounds_score_nc_i2c.json"))
+        json.dump(s, open(a.summarise_clean.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean_diff"], live=s["mean_diff_live"], au=s["austin_share_of_dropped"],
+                              held=s["held"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], c["n_dropped"], round(c["dropped_share"], 4), c["dropped_by_city"],
+                  {k: round(v, 2) for k, v in c["diff"].items()}, {k: round(v, 2) for k, v in c["diff_live"].items()},
+                  {k: round(v, 1) for k, v in c["q90_pred_mean"].items()}, c["s91_nc5_q90"], c["loss"]["nc5"]["0.9"])
+        sys.exit()
     if a.summarise_ncq:
         s = ncq_summary(a.summarise_ncq, os.path.join(res_dir, "rounds_score_sweep_i2c.json"),
                         os.path.join(res_dir, "rounds_score_nc_i2c.json"),
