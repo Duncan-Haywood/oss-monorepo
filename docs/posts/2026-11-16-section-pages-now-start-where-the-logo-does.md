@@ -1,9 +1,9 @@
 ---
 title: "Section pages now start where the logo does"
-seo_title: "Stories, Updates, Work queue and Research now share the site bar's column"
+seo_title: "Stories, Updates, Work queue and Research now line up with the logo"
 date: 2026-11-16
 tags: [polish, site-build, design, research, stories]
-description: "Moving from the home page to Stories, Updates, the work queue or Research made the page jump sideways under a nav bar that stayed still. All five now start their heading where the logo does."
+description: "Stories, Updates, the work queue and Research started their heading at a different place from the logo above it. Now all five section pages line up."
 ---
 
 Every page on this site has the same bar across the top: the logo, the

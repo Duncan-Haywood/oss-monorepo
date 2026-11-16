@@ -1,3 +1,7 @@
+---
+kind: polish
+date: 2026-11-16
+---
 # Polish 2026-11-16: section index pages share the site bar's column
 
 Picked from item 2 of `polish-2026-11-16-story-cards.md` ("Still weakest"): the Stories hero and
