@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyboMYPgADrRn9HKYaY",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T15:39:29Z",
+  "ended": "2026-11-16T15:46:58Z",
+  "wall_minutes": 7.62,
+  "tokens_in": 3416265,
+  "tokens_out": 22003,
+  "cost_usd": 1.9527,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16621",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First launch of run_cross_source.py died on a SyntaxError in the check printout before any world ran; fixed and relaunched, design unchanged (logged in LOG.md)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/README.md",
+      "issue": "The 'Method and reproduce' run-command list stops at early milestones (4f); the 6zz* scripts carry their run line only in their docstrings, so a reader of the README cannot find how to rerun the recent results."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-marine-hull-solar-boat-plan-nasa-sail-era5.md",
+    "research/marine-hull/LOG.md (milestone 6zzv)",
+    "research/marine-hull/paper/DRAFT.md section 2.7 item 12"
+  ],
+  "goal": null,
+  "notes": "Milestone 6zzv of research/marine-hull (6zzu's first Next): plan on NASA POWER climatology, sail/log/score on ERA5 at the nine high-amplitude points. 7 of 8 pre-registered predictions held; checks reproduce 6zzu's NASA and ERA5 counts exactly. AT_90 hi168 3 (all km failures), LC 45.2 (+42.2 vs +28.4 on ERA5), DG 67.4; 23.7% of learned months at the 1.15 clamp. Verification: tests/test_cross_source.py and test_era5_rules.py pass (8 tests); research/_homepage/build.py ok; research_live_links, check_md_links, post front matter, post links, post similarity all clean. Stdlib only, under 15 min on 4 cores.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "85edd7a2-d512-5f5e-9941-cc599451e2e1",
+    "transcripts": 1,
+    "first": "2026-11-16T15:39:29Z",
+    "last": "2026-11-16T15:47:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 66,
+        "output": 22003,
+        "thinking": 4025,
+        "cache_read": 3309899,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106300,
+        "api_equivalent_usd": 1.9527,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 66,
+      "output": 22003,
+      "thinking": 4025,
+      "cache_read": 3309899,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106300,
+      "api_equivalent_usd": 1.9527,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 34,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.62,
+      "active_minutes": 7.62,
+      "model_minutes": 3.54,
+      "tool_minutes": 4.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, pre-registration, a three-world simulation run, analysis and write-up of one research milestone by a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 307.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

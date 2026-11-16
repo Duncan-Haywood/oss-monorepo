@@ -79,3 +79,23 @@ def test_simulate_with_robots_reports_passes():
     r = S.simulate(16, 3.6, 16.0, 0.9, 0.1, 3, duration=50.0, warmup=20.0, robots=2, policy="opposite")
     assert r["failed"] == 0 and r["rp_passes"] > 0
     assert 0.0 < r["robot_speed"] <= 1.25
+
+
+@pytest.mark.parametrize("modname", ["orca", "plaw"])
+def test_orca_and_powerlaw_unchanged_without_robots(modname):
+    mod = pytest.importorskip(modname)
+    a = mod.simulate(30, 3.6, 16.0, 1.2, 0.35, 7, goals=True, duration=30.0, warmup=10.0, rule="yield")
+    b = mod.simulate(30, 3.6, 16.0, 1.2, 0.35, 7, goals=True, duration=30.0, warmup=10.0, rule="yield",
+                     robots=0, policy="opposite", robot_speed=2.0)
+    a.pop("flags"), b.pop("flags")
+    assert {k: str(v) for k, v in a.items()} == {k: str(v) for k, v in b.items()}
+
+
+@pytest.mark.parametrize("modname", ["orca", "plaw"])
+def test_orca_and_powerlaw_robots_hold_their_lane(modname):
+    mod = pytest.importorskip(modname)
+    r = mod.simulate(30, 3.6, 16.0, 1.6, 0.35, 3, duration=60.0, warmup=20.0, robots=4,
+                     policy="crowd", robot_speed=1.0, passes=True)
+    assert r["failed"] == 0 and r["rp_passes"] > 0 and r["robot_transits"] > 0
+    assert 0.8 <= r["robot_speed"] <= 1.1      # desired 1.0 m/s, not the people's speed
+    assert 0.0 <= r["rp_close"] <= 1.0

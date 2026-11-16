@@ -1,0 +1,130 @@
+{
+ "amin12": {
+  "amount_cells": 32,
+  "amount_depth": 22,
+  "amount_gate_depth": 189,
+  "amount_gates": 516,
+  "mux_share": 0.6137,
+  "shift_width": 128
+ },
+ "amin4": {
+  "amount_cells": 8,
+  "amount_depth": 6,
+  "amount_gate_depth": 51,
+  "amount_gates": 123,
+  "mux_share": 0.745,
+  "shift_width": 128
+ },
+ "amin6": {
+  "amount_cells": 14,
+  "amount_depth": 10,
+  "amount_gate_depth": 86,
+  "amount_gates": 217,
+  "mux_share": 0.7212,
+  "shift_width": 128
+ },
+ "amin8": {
+  "amount_cells": 20,
+  "amount_depth": 14,
+  "amount_gate_depth": 121,
+  "amount_gates": 320,
+  "mux_share": 0.6577,
+  "shift_width": 128
+ },
+ "csum3": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "amount_gate_depth": 70,
+  "amount_gates": 128,
+  "mux_share": 0.7464,
+  "shift_width": 128
+ },
+ "csum4": {
+  "amount_cells": 6,
+  "amount_depth": 6,
+  "amount_gate_depth": 103,
+  "amount_gates": 192,
+  "mux_share": 0.7082,
+  "shift_width": 128
+ },
+ "csum6": {
+  "amount_cells": 10,
+  "amount_depth": 10,
+  "amount_gate_depth": 169,
+  "amount_gates": 320,
+  "mux_share": 0.6426,
+  "shift_width": 128
+ },
+ "csum8": {
+  "amount_cells": 14,
+  "amount_depth": 14,
+  "amount_gate_depth": 235,
+  "amount_gates": 448,
+  "mux_share": 0.5881,
+  "shift_width": 128
+ },
+ "eqc10": {
+  "amount_cells": 19,
+  "amount_depth": 10,
+  "amount_gate_depth": 46,
+  "amount_gates": 212,
+  "mux_share": 0.7978,
+  "shift_width": 128
+ },
+ "eqc16": {
+  "amount_cells": 31,
+  "amount_depth": 16,
+  "amount_gate_depth": 71,
+  "amount_gates": 356,
+  "mux_share": 0.7224,
+  "shift_width": 128
+ },
+ "eqc24": {
+  "amount_cells": 47,
+  "amount_depth": 24,
+  "amount_gate_depth": 108,
+  "amount_gates": 571,
+  "mux_share": 0.6472,
+  "shift_width": 128
+ },
+ "eqc6": {
+  "amount_cells": 11,
+  "amount_depth": 6,
+  "amount_gate_depth": 27,
+  "amount_gates": 117,
+  "mux_share": 0.8453,
+  "shift_width": 128
+ },
+ "isq10": {
+  "amount_cells": 21,
+  "amount_depth": 14,
+  "amount_gate_depth": 48,
+  "amount_gates": 98,
+  "mux_share": 0.7621,
+  "shift_width": 128
+ },
+ "isq12": {
+  "amount_cells": 26,
+  "amount_depth": 17,
+  "amount_gate_depth": 66,
+  "amount_gates": 153,
+  "mux_share": 0.6952,
+  "shift_width": 128
+ },
+ "isq14": {
+  "amount_cells": 31,
+  "amount_depth": 20,
+  "amount_gate_depth": 95,
+  "amount_gates": 221,
+  "mux_share": 0.6255,
+  "shift_width": 128
+ },
+ "isq8": {
+  "amount_cells": 16,
+  "amount_depth": 11,
+  "amount_gate_depth": 29,
+  "amount_gates": 58,
+  "mux_share": 0.8217,
+  "shift_width": 128
+ }
+}

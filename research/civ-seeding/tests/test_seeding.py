@@ -340,3 +340,41 @@ def test_m10_split_clamped():
     assert s.sum() == k
     s, _, _ = sd.survey_design(v, 0.25, np.random.default_rng(1), "adaptive", 1.0)
     assert s.sum() == k
+
+
+# ---- milestone 11: tie-recall error ----
+
+def test_m11_full_recall_matches_m9_ties_and_degrees():
+    """With recall 1 the recall survey sees exactly the ties and degrees a perfect survey sees."""
+    v = _m9_village()
+    for design in ("uniform", "adaptive"):
+        for f in (0.25, 0.5, 1.0):
+            s, est, seen = sd.survey_recall(v, f, np.random.default_rng(8), design, recall=1.0)
+            assert np.array_equal(seen, v.A * (s[:, None] | s[None, :]))
+            assert np.all(est[s] == v.deg[s])
+    b = int(v.leader.sum())
+    assert np.array_equal(sd.rule_recall_dd(v, b, np.random.default_rng(3), 1.0, recall=1.0),
+                          sd.rule_degree_discount(v, b))
+    # recall = 1 through survey_design keeps milestone 9's draws
+    a = sd.survey_design(v, 0.5, np.random.default_rng(9), "adaptive", 0.75)
+    c = sd.survey_design(v, 0.5, np.random.default_rng(9), "adaptive", 0.75, recall=1.0)
+    assert all(np.array_equal(x, y) for x, y in zip(a, c))
+
+
+def test_m11_recall_thins_ties_at_the_expected_rate():
+    v = _m9_village()
+    m = int(v.A.sum()) // 2
+    for rho in (0.5, 0.85):
+        got = []
+        for seed in range(20):
+            s, est, seen = sd.survey_recall(v, 1.0, np.random.default_rng(seed), recall=rho)
+            assert s.all() and np.all(seen == seen.T) and np.all(seen <= v.A)
+            got.append(seen.sum() / 2 / m)
+        assert abs(np.mean(got) - (1 - (1 - rho) ** 2)) < 0.01
+        s, est, seen = sd.survey_recall(v, 0.5, np.random.default_rng(1), "adaptive", 0.75, rho)
+        assert s.sum() == int(round(0.5 * v.n))
+        assert np.all(est[s] == seen.sum(1)[s])
+        assert np.all(seen[~s][:, ~s] == 0)  # no tie between two unsurveyed households is seen
+        b = int(v.leader.sum())
+        assert sd.rule_recall_dd(v, b, np.random.default_rng(2), 0.5, "adaptive", 0.75, rho).sum() == b
+        assert sd.rule_recall_degree(v, b, np.random.default_rng(2), 1.0, recall=rho).sum() == b

@@ -388,7 +388,7 @@ COMPLEX_RULES = {
 SURVEY_DESIGNS = ("uniform", "adaptive", "walk")
 
 
-def survey_design(v, f, rng, design: str = "uniform", split: float | None = None):
+def survey_design(v, f, rng, design: str = "uniform", split: float | None = None, recall: float = 1.0):
     """Survey k = round(f n) households under a design; each surveyed household reports all its
     ties. uniform: k random households (milestone 5's `survey`, same draws). adaptive: k1 = k // 2
     random, then the k - k1 unsurveyed households named by the most stage-1 households (ties
@@ -397,7 +397,11 @@ def survey_design(v, f, rng, design: str = "uniform", split: float | None = None
     can name anyone new). Returns (surveyed mask, estimated degree, seen adjacency). Estimated
     degree: exact if surveyed; otherwise stage-1 neighbours / (k1 / n), unbiased for a stage-1
     uniform sample (uniform: all surveyed neighbours / (k / n), as milestone 5). split (milestone
-    10): stage 1 gets round(split k) households, clamped to [1, k - 1]; None keeps k // 2."""
+    10): stage 1 gets round(split k) households, clamped to [1, k - 1]; None keeps k // 2.
+    recall (milestone 11): below 1, each surveyed household reports each true tie independently
+    with that probability (`survey_recall`); recall = 1 keeps the draws above unchanged."""
+    if recall < 1.0:
+        return survey_recall(v, f, rng, design, split, recall)
     if design == "uniform":
         return survey(v, f, rng)
     n = v.n
@@ -431,6 +435,53 @@ def survey_design(v, f, rng, design: str = "uniform", split: float | None = None
     seen = v.A * (s[:, None] | s[None, :])
     est = np.where(s, v.deg, named / (k1 / n))
     return s, est.astype(float), seen
+
+
+def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None,
+                  recall: float = 0.85):
+    """A survey whose respondents forget ties (milestone 11). Each surveyed household i reports
+    each true tie (i, j) independently with probability `recall` (R[i, j], drawn once per survey
+    after stage 1); a tie is seen if a surveyed end reported it. uniform: k random households.
+    adaptive: k1 random, then the k - k1 unsurveyed households named in the most stage-1 reports.
+    Estimated degree: seen degree for surveyed households, reports by the random stage /
+    (k1 / n) otherwise, with no correction for recall (a field team does not know it). f = 1 is
+    a census with recall error: a tie is seen with probability 1 - (1 - recall)^2."""
+    if design not in ("uniform", "adaptive"):
+        raise ValueError(design)
+    n = v.n
+    k = min(n, max(1, int(round(f * n))))
+    if k >= n:
+        k1 = n
+    elif design == "uniform":
+        k1 = k
+    else:
+        k1 = max(1, k // 2) if split is None else min(max(1, int(round(split * k))), max(1, k - 1))
+    s1 = np.zeros(n, bool)
+    s1[rng.choice(n, k1, replace=False)] = True
+    R = (rng.random((n, n)) < recall) & (v.A > 0)        # R[i, j]: i would report its tie to j
+    named = (R[s1, :]).sum(0).astype(float)                # stage-1 reports naming each household
+    s = s1.copy()
+    if k > k1:
+        cand = np.flatnonzero(~s)
+        tie = rng.random(len(cand))
+        order = cand[np.lexsort((tie, -named[cand]))]
+        s[order[: k - k1]] = True
+    rep = R & s[:, None]
+    seen = (rep | rep.T).astype(v.A.dtype)
+    est = np.where(s, seen.sum(1), named / (k1 / n))
+    return s, est.astype(float), seen
+
+
+def rule_recall_degree(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
+                       recall: float = 0.85):
+    _, est, _ = survey_recall(v, f, rng, design, split, recall)
+    return _top(est, b)
+
+
+def rule_recall_dd(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
+                   recall: float = 0.85, p: float = 0.05):
+    _, est, seen = survey_recall(v, f, rng, design, split, recall)
+    return _dd_pick(est, seen, b, p)
 
 
 def _dd_pick(est, seen, b, p: float = 0.05):

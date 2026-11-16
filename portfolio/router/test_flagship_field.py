@@ -343,3 +343,20 @@ def test_real_next_md_holds_no_row_note():
         for line in p.read_text().splitlines():
             if line.startswith("- ("):
                 assert not ff.ROW_NOTE.search(line), f"{p}: {line}"
+
+
+def test_buildable_cap_says_overrun_and_room():
+    # "Something here." is 15 characters, so the row had MAX - 15 to spare.
+    value = "y" * (ff.FLAGSHIP_BUILDABLE_MAX + 14)
+    with pytest.raises(ValueError) as e:
+        ff.set_value(DOC, "a", "buildable", value)
+    msg = str(e.value)
+    assert "(14 over; the row was 15" in msg
+    assert f"had {ff.FLAGSHIP_BUILDABLE_MAX - 15} to spare" in msg
+
+
+def test_buildable_read_shows_cap(tmp_path, capsys):
+    f = tmp_path / "flagships.yaml"
+    f.write_text(DOC)
+    assert ff.main(["a", "--field", "buildable", "--file", str(f)]) == 0
+    assert f"-- 15 of {ff.FLAGSHIP_BUILDABLE_MAX} characters" in capsys.readouterr().err

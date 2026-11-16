@@ -51,6 +51,9 @@ POLICIES = ["crowd", "opposite", "adapt", "goal"]
 SHARES = [0.05, 0.10, 0.20]
 SPEED, SPEED_SENS = 1.2, 2.0
 BOOT = 2000
+# output names and title; milestone 5b (m5b_robots.py) reuses this script with its own
+TAG, CACHE_NAME = "m5_robots", "m5_cache.json"
+TITLE = "Milestone 5a: robots in the fitted JuPedSim 1.4.2 crowds (free choice), four policies x three shares"
 
 
 def n_robots(n, share):
@@ -113,7 +116,7 @@ def kendall(a, b):
 
 def main():
     os.makedirs(CACHE, exist_ok=True)
-    cpath = os.path.join(CACHE, "m5_cache.json")
+    cpath = os.path.join(CACHE, CACHE_NAME)
     cache = json.load(open(cpath)) if os.path.exists(cpath) else {}
     js = jobs()
     todo = [j for j in js if j[0] not in cache]
@@ -172,7 +175,7 @@ def main():
 
     out = []
     P = out.append
-    P("Milestone 5a: robots in the fitted JuPedSim 1.4.2 crowds (free choice), four policies x three shares")
+    P(TITLE)
     P(f"HERMES 3.6 m corridor, {LENGTH:.0f} m; {SEEDS} seeds per cell; {DURATION:.0f} s per run after "
       f"{WARMUP:.0f} s warm-up; robot speed {SPEED} m/s (sensitivity {SPEED_SENS} m/s at 10%)")
     P("families and fitted beta: " + ", ".join(f"{NAMES[f]} {b}" for f, b in FAMILIES.items()))
@@ -229,10 +232,10 @@ def main():
               f"{pooled(fam, pol, 0.10, SPEED_SENS, 'lane'):.3f}")
     text = "\n".join(out) + "\n"
     print(text)
-    with open(os.path.join(HERE, "m5_robots_results.txt"), "w") as f:
+    with open(os.path.join(HERE, f"{TAG}_results.txt"), "w") as f:
         f.write(text)
     fields = [k for k in rows[0] if not k.startswith("_")]
-    with open(os.path.join(HERE, "m5_robots_runs.csv"), "w", newline="") as f:
+    with open(os.path.join(HERE, f"{TAG}_runs.csv"), "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
         for r in rows:

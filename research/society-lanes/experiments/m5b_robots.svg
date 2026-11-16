@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" font-family="sans-serif" font-size="12">
+<rect width="760" height="470" fill="#fff"/>
+<text x="16" y="22" font-size="13">Share of robot-person passes closer than 0.5 m, 20% robots at 1.2 m/s, five crowd models</text>
+<line x1="200.0" x2="200.0" y1="46" y2="400" stroke="#eee"/>
+<text x="200.0" y="416" text-anchor="middle">0.0</text>
+<line x1="315.6" x2="315.6" y1="46" y2="400" stroke="#eee"/>
+<text x="315.6" y="416" text-anchor="middle">0.2</text>
+<line x1="431.1" x2="431.1" y1="46" y2="400" stroke="#eee"/>
+<text x="431.1" y="416" text-anchor="middle">0.4</text>
+<line x1="546.7" x2="546.7" y1="46" y2="400" stroke="#eee"/>
+<text x="546.7" y="416" text-anchor="middle">0.6</text>
+<line x1="662.2" x2="662.2" y1="46" y2="400" stroke="#eee"/>
+<text x="662.2" y="416" text-anchor="middle">0.8</text>
+<text x="192" y="84.2" text-anchor="end">collision-free speed *</text>
+<rect x="200.0" y="53.1" width="16.2" height="12.2" fill="#1f78b4"/>
+<text x="220.2" y="63.2" font-size="10">0.03</text>
+<rect x="200.0" y="67.2" width="27.9" height="12.2" fill="#a6cee3"/>
+<text x="231.9" y="77.4" font-size="10">0.05</text>
+<rect x="200.0" y="81.4" width="128.4" height="12.2" fill="#33a02c"/>
+<text x="332.4" y="91.6" font-size="10">0.22</text>
+<rect x="200.0" y="95.6" width="362.3" height="12.2" fill="#e31a1c"/>
+<text x="566.3" y="105.7" font-size="10">0.63</text>
+<text x="192" y="155.0" text-anchor="end">social force *</text>
+<rect x="200.0" y="123.9" width="43.4" height="12.2" fill="#1f78b4"/>
+<text x="247.4" y="134.0" font-size="10">0.08</text>
+<rect x="200.0" y="138.0" width="94.9" height="12.2" fill="#a6cee3"/>
+<text x="298.9" y="148.2" font-size="10">0.16</text>
+<rect x="200.0" y="152.2" width="211.6" height="12.2" fill="#33a02c"/>
+<text x="415.6" y="162.4" font-size="10">0.37</text>
+<rect x="200.0" y="166.4" width="334.2" height="12.2" fill="#e31a1c"/>
+<text x="538.2" y="176.5" font-size="10">0.58</text>
+<text x="192" y="225.8" text-anchor="end">ORCA *</text>
+<rect x="200.0" y="194.7" width="10.6" height="12.2" fill="#1f78b4"/>
+<text x="214.6" y="204.8" font-size="10">0.02</text>
+<rect x="200.0" y="208.8" width="54.3" height="12.2" fill="#a6cee3"/>
+<text x="258.3" y="219.0" font-size="10">0.09</text>
+<rect x="200.0" y="223.0" width="265.4" height="12.2" fill="#33a02c"/>
+<text x="469.4" y="233.2" font-size="10">0.46</text>
+<rect x="200.0" y="237.2" width="428.8" height="12.2" fill="#e31a1c"/>
+<text x="632.8" y="247.3" font-size="10">0.74</text>
+<text x="192" y="296.6" text-anchor="end">anticipation velocity</text>
+<rect x="200.0" y="265.5" width="1.2" height="12.2" fill="#1f78b4"/>
+<text x="205.2" y="275.6" font-size="10">0.00</text>
+<rect x="200.0" y="279.6" width="0.8" height="12.2" fill="#a6cee3"/>
+<text x="204.8" y="289.8" font-size="10">0.00</text>
+<rect x="200.0" y="293.8" width="1.2" height="12.2" fill="#33a02c"/>
+<text x="205.2" y="304.0" font-size="10">0.00</text>
+<rect x="200.0" y="308.0" width="94.9" height="12.2" fill="#e31a1c"/>
+<text x="298.9" y="318.1" font-size="10">0.16</text>
+<text x="192" y="367.4" text-anchor="end">power law</text>
+<rect x="200.0" y="336.3" width="21.7" height="12.2" fill="#1f78b4"/>
+<text x="225.7" y="346.4" font-size="10">0.04</text>
+<rect x="200.0" y="350.4" width="36.0" height="12.2" fill="#a6cee3"/>
+<text x="240.0" y="360.6" font-size="10">0.06</text>
+<rect x="200.0" y="364.6" width="118.9" height="12.2" fill="#33a02c"/>
+<text x="322.9" y="374.8" font-size="10">0.21</text>
+<rect x="200.0" y="378.8" width="257.2" height="12.2" fill="#e31a1c"/>
+<text x="461.2" y="388.9" font-size="10">0.45</text>
+<rect x="16" y="430" width="10" height="10" fill="#1f78b4"/><text x="30" y="439" font-size="11">crowd's side</text>
+<rect x="196" y="430" width="10" height="10" fill="#a6cee3"/><text x="210" y="439" font-size="11">adapt to majority</text>
+<rect x="376" y="430" width="10" height="10" fill="#33a02c"/><text x="390" y="439" font-size="11">lateral goal</text>
+<rect x="556" y="430" width="10" height="10" fill="#e31a1c"/><text x="570" y="439" font-size="11">opposite side</text>
+<text x="16" y="458" font-size="11">* passed the held-out share test with the yielding bias; these three rank the policies identically at every share</text>
+</svg>
