@@ -1,0 +1,65 @@
+BIM2SIM/bim2sim bim2sim/plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids
+BIM2SIM/bim2sim bim2sim/plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_hvac.ids
+BIM2SIM/bim2sim-test-resources ids/check_2LSB.ids
+BIMvoice/ifc-sheet packages/ifcsheet/src/byggesaksbim/byggesaksbim.ids
+Blue-Room-Innovation/digital-nexus-ontology BIM/Casa Martirana.ids
+CBenghi/Xbim.Xids Xbim.InformationSpecifications.NewTests/bsFiles/IDS_wooden-windows.ids
+CedricDriesen92/RulebookProcessing ids_output/section_0_2_1_shapes_ids.ids
+CedricDriesen92/RulebookProcessing ids_output/section_2_2_1_shapes_ids.ids
+DFE-EducationEstates/InformationModelAssurance Grouped/Stage_3/3_03_01-13-Building.ids
+DFE-EducationEstates/InformationModelAssurance Grouped/Stage_4/4_03_01-13-Building.ids
+DFE-EducationEstates/InformationModelAssurance Grouped/Stage_4/4_08_17-18-Object.ids
+DFE-EducationEstates/InformationModelAssurance Grouped/Stage_5/5_08_17-18-Object.ids
+GeotechnicalBIM/Fachsektionstage2025_Qualitaet_FM_Baugrund project_data/example2_ids.ids
+GeotechnicalBIM/Fachsektionstage2025_Qualitaet_FM_Baugrund project_data/example_ids.ids
+I-Sokolov/RDFApps IDSChecker/CHEK/CHEK.ids
+I-Sokolov/RDFApps IDSChecker/CHEK/CHEK_Ascoli_Piceno.ids
+I-Sokolov/RDFApps IDSChecker/CHEK/CHEK_GAIA.ids
+I-Sokolov/RDFApps IDSChecker/CHEK/CHEK_Lisbon.ids
+I-Sokolov/RDFApps IDSChecker/CHEK/CHEK_Prague.ids
+I-Sokolov/RDFApps IDSChecker/CHEK/bim2gis-limitations.ids
+Moult/ifcbasix BASIX (4).ids
+Municipality-of-Rotterdam/Vergunning-Controle-Service input/IDS Rotterdam BIM.ids
+NicolaiVoldstedlund/BIMmanager_g_01 A3/IDS.ids
+OpenAEC-Foundation/OpenAEC-BIM-validator claude-code/fixtures/NL_BIM_Basis_ILS.ids
+OpenAEC-Foundation/OpenAEC-BIM-validator ids-bestanden/NL_BIM_Basis_ILS_v2.ids
+OpenAEC-Foundation/OpenAEC-BIM-validator ids-bestanden/RVB_BIM_Norm_v1.1.ids
+OpenAEC-Foundation/open-3d-viewer assets/ids/NL_BIM_Basis_ILS_v2.ids
+OpenAEC-Foundation/open-3d-viewer assets/ids/RVB_BIM_Norm_v1.1.ids
+RickBrice/Signs Signs.ids
+SSoLDAC2024/What-the-check IDS/VTV_Accessibility_usbim.ids
+SebasTZ/bim-lab ids/LAB01-requisitos-minimos.ids
+ThatOpen/engine_components resources/specs.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPrivada IDS-EN/OBG-BSP-ZZ-ZZZ-EP-ARQ-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPrivada IDS-EN/OBG-BSP-ZZ-ZZZ-EP-EST-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPrivada IDS-EN/OBG-BSP-ZZ-ZZZ-EP-XXX-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPrivada IDS-EN/OBG-BSP-ZZ-ZZZ-EP-XXX-XX-0002.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPrivada IDS/OBG-BSP-ZZ-ZZZ-EP-ARQ-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPrivada IDS/OBG-BSP-ZZ-ZZZ-EP-EST-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPrivada IDS/OBG-BSP-ZZ-ZZZ-EP-XXX-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPrivada IDS/OBG-BSP-ZZ-ZZZ-EP-XXX-XX-0002.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPublica IDS/BCM3-MMG-ZZ-ZZZ-EP-ARQ-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPublica IDS/BCM3-MMG-ZZ-ZZZ-EP-EST-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPublica IDS/BCM3-MMG-ZZ-ZZZ-EP-XXX-XX-0001.ids
+buildingSMART-Portugal/EIR-FaseProjeto-ObraPublica IDS/BCM3-MMG-ZZ-ZZZ-EP-XXX-XX-0002.ids
+buildingSMARTSpain/ids-mei-edificacion ids/MEIE01-BSSP-ZZZ-ZZZ-EIR-MIC-001-ControlBasicoMEI-AF-0100.ids
+buildingsmart-community/Community-Sample-Test-Files IFC 2.3.0.1 (IFC 2x3)/Molio/Molio_Example.ids
+c-mellueh/bSDD-Toolkit src/bsdd_gui/resources/data/template.ids
+c-mellueh/bSDD-Toolkit src/bsdd_web/resources/template.ids
+datadrivenconstruction/cad2data-Revit-IFC-DWG integrations/qa/examples/doors_windows.ids
+dchantlos/construction-timelapse documentation/construction-timelapse.ids
+dchantlos/construction-timelapse ids/construction-timelapse.ids
+ertugangenel75/EGBIM data/validation/ids_wall_minimal.ids
+halhee/Checkers exemple_ids.ids
+imagemnl/IMAGEM-GeoBIM-IDS IDS_IBRO_FI_IMAGEM.ids
+jonatanjacobsson/ifcpipeline shared/examples/IDS-example.ids
+lvanlier/d4su-server X_BIM_FILES/IDS/IDS_wooden-windows.ids
+mehmedalipazar/ifc ifc-lite-6.1.1/packages/ids/src/audit/__fixtures__/issues/Issue 25 - Pset_ConstructionOccurence.ids
+minimum-information-models/miniGIM ILS-IDS/miniGIM_IDS.ids
+peterrdf/VNG VNGPortal/VNGPortal/SeedData/IDS/24-9.11-Buitengebied.ids
+peterrdf/VNG VNGPortal/VNGPortal/SeedData/IDS/29-9.13-Buitenruimte.ids
+red1oon/bim-ootb standards/ids/dxf2bim-evidence-1.ids
+skoglidigital/valitapp ids/renholds.ids
+sthebigai/IDS_Norma-de-Objetos-BIM NormaObjetos_Geral.ids
+vinnividivicci/ifc-ids-mcp samples/wall_fire_rating.ids
+vinnividivicci/openingbim-cicd sample_files/EN_Basic IDM Check.ids

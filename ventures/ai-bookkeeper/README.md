@@ -2820,6 +2820,40 @@ and CLI readings, CORD and SROIE dataset text: unchanged. Not yet scored on CORD
 [`eval/receipt-cash-guess-2026-11-16.md`](eval/receipt-cash-guess-2026-11-16.md). Tests:
 `receipt-crosscheck.test.mjs`.
 
+### The cash rule on CORD's photos; exact cash and tax ties (2026-11-16, late)
+
+CORD's 200 validation and test photos, read again through `--four-pass`, reproduce the last
+measurement (validation 64 of 98 totals, test 53 of 95). The cash rule above fixed
+validation-30 and broke validation-66: one bottle of water, `AIR MINERAL 7,000`, `CASH 7,000`,
+no total line. That is exact cash with no subtotal or tax to confirm it. Two changes, written
+from validation only:
+
+- **A cash-line guess keeps its half vote when a reading prints the same amount on a line
+  that is not the cash line** (an item or a total line). Validation totals 64 to 65.
+- **A tie between two taxes goes to the amount more readings print on a tax line**, counting
+  a reading that lost its total and so parsed no tax (validation-65: 4,964 twice, 4,264 once).
+  Validation tax 22 to 23 right, 4 to 3 wrong.
+
+Test was scored once at the end: no receipt moved. SRD photos re-read through the CLI: 153
+totals and 134 taxes before and after. Details:
+[`eval/cord-cash-guess-2026-11-16.md`](eval/cord-cash-guess-2026-11-16.md). Tests:
+`receipt-crosscheck.test.mjs`.
+
+### A dash and a section sign on whole-unit slips (2026-11-16, night)
+
+Two OCR marks on CORD's rupiah photos, both changed from validation only:
+
+- **The largest-amount fallback reads through a dash before a whole amount**
+  (`AIR MINERAL -7,000`), as the cash and change lines already did; so do the cash-line
+  checks of the vote. Validation-66 was already right; its psm6 reading now agrees.
+- **A `§` glued to a grouped whole amount reads as 5** (`TOTAL SALES §2,000` for 52,000,
+  validation-84). Validation totals 65 to 66 of 98.
+
+Test, scored once at the end: 53 of 95, tax 16 of 41, unchanged; test-56's wrong total moved
+from 8,181 to 10,000 (the cash handed over, flagged as a cash-line guess). SRD photos re-read through the CLI: 154 totals and 133 taxes, before and after. Details:
+[`eval/cord-dash-section-sign-2026-11-16.md`](eval/cord-dash-section-sign-2026-11-16.md).
+Tests: `receipt-crosscheck.test.mjs`.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

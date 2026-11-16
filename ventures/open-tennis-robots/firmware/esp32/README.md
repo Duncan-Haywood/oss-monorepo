@@ -1447,3 +1447,40 @@ aborts at its third shot ("release not done in 2.0 s") with or without the watch
 stroke under MicroPython (counted, not measured on an ESP32). A slow shot now waits up to 1.45 s after its release
 before the wheels change speed; on the slow drill that cost 2.3 s over 30 shots, but against a tight interval it may
 make a shot late.
+
+## The slow drill's release timeout (2026-11-16, after the watch)
+
+**The item.** "Slow wheels watched past the verdict" saw the slow drill abort at its third shot (shot 2, "release not
+done in 2.0 s") on one build, the first-order plant at a 0.8 s wheel lag, 0.95 / 0.35, with or without the watch and on
+main before it.
+
+**The cause: the gate shut again after the Pi had fed.** Shots 1 and 2 both plan 6,065 / 526 rpm. After shot 1 the
+slow wheel undershoots, as a 0.8 s wheel braking under the speed-scaled gains does: it reads 507 rpm, 3.6% low, and
+creeps back at about 10 rpm a second. The gate's band at 526 rpm is 510-542. At 25.2 s one reading of 511 rpm finished
+the gate's hold (six revolutions, 684 ms), the flag cleared, and the Pi sent FEED. The next reading was 509. The gate
+reset and the queued ball waited. The wheel crept back into the band at 25.9 s, held it for 684 ms and the stroke began
+at 26.6 s. The stroke takes `GATE_OUT_MS` (900 ms), so the release would have counted at about 27.5 s, but the Pi's
+release timeout was a flat 2.0 s from the FEED and ran out at 27.2 s. It latched the e-stop on a machine that was
+doing what it should. The trace is in eval/slow-drill-release-timeout-2026-11-16.txt (tests/release_timeout_trace.py).
+
+The firmware was right to wait: the gate holds the wheels within 3% for six revolutions because a ball fed on a slipping
+wheel flies short. The 2 s was meant for the stroke, about 0.9 s, plus margin. It was never meant to cover a gate that
+re-checks a slow wheel, and at 526 rpm the hold alone is 0.68 s.
+
+**The change (host only).** `run_drill`'s release wait now counts its 2 s from the last telemetry frame that shows the
+feed gate shut (`FLAG_WHEELS_SETTLING` or `FLAG_AIM_SETTLING`, `host.GATE_SHUT`). A shut gate can stretch the wait by
+`ready_timeout_s` (10 s) at most, so a wheel that never settles still aborts. A lost FEED frame or a shuttle that never
+strokes on an open gate still aborts 2 s after the FEED, as `test_lost_feed_frame_aborts_and_drops_the_queued_ball`
+checks. Two new tests in tests/test_host.py hold the gate shut for 1.5 s after the FEED (the drill now finishes; on
+main it aborts) and for 30 s (it aborts at the cap).
+
+**Simulated.** The build that aborted runs all 30 shots of the slow drill. Shot 2 releases at 27.5 s, 2.3 s after its
+FEED. The 30 releases ran from 12.8 s to 164.8 s. `tests/min_fit_rpm_sweep.py --plant 0 --lags 0.8 --builds 1 --hold
+3000 --extend 8 --told` now scores it: all 60 launched wheels read within 2% of the true drop (500-750 rpm: 0.996-1.001),
+and the launcher fit's spin efficiency is 0.33% off at the shipped 1,000 rpm floor (0.17% with no floor), speed 0.01%.
+Raw: eval/slow-drill-release-timeout-sweep-2026-11-16.txt. The earlier tables in "Slow wheels watched past the
+verdict" left this build out, so their first-order rows have 8 builds, not 9.
+
+**Still open.** The undershoot itself: under the speed-scaled gains a 0.8 s wheel braking to 526 rpm settles 3-4% low and
+takes about 2 s to creep back. This costs time, not accuracy, because the gate waits it out. A wheel model that is
+not first-order may undershoot differently.

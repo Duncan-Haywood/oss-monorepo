@@ -92,7 +92,7 @@ test("off, unused or empty rules leave every result byte-identical, with a warni
   const st = parseStaff("name,wage,max,min,availability\nAna,22,40,0,any\nBen,18,40,0,any").staff;
   const sl = parseShifts("Mon-Fri,9,17,1,,site: Main\nMon-Fri,9,17,1,,site: Harbour").slots;
   const base = buildRoster(st, sl, {});
-  const strip = (r) => JSON.stringify({ ...r, options: null, warnings: null, timings: null, optimality: null });
+  const strip = (r) => JSON.stringify({ ...r, options: null, warnings: null, timings: null, timeline: null, optimality: null });
   const r1 = buildRoster(st, sl, { siteWage: "Airport +2" });
   assert.equal(strip(r1), strip(base));
   assert.ok(r1.warnings.some((w) => /no shift is at a site called "Airport"/.test(w)), r1.warnings.join("|"));

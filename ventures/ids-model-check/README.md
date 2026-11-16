@@ -25,6 +25,14 @@ open. MIT licensed, no dependencies, nothing uploaded.
   `invalid-*` IDS files are flagged, none of the 307 valid ones, and all 12
   example IDS files in buildingSMART's repository audit clean. Works with no
   model: `node cli.mjs --audit spec.ids`, or "Audit the IDS only" on the page.
+- **Property set templates:** a `Pset_`/`Qto_` set or property the standard does
+  not have (`Pset_WallComon`, `AkousticRating`, with the near name when there
+  is one), a `dataType` the template does not give, and a set the selected
+  classes cannot carry, checked against buildingSMART's templates for IFC2X3,
+  IFC4 and IFC4X3 ADD2. Catches all 5 such files in buildingSMART's
+  IDS-Audit-tool test set; on 64 IDS files from public repositories it found
+  template faults in 21, among them `Lenght` in three quantity sets of buildingSMART
+  Portugal's national requirements.
 - Exports: BCF 2.1 (one topic per failing element, selected by IfcGuid), CSV,
   JSON.
 - 22 MB Revit export (Schultz Residence, 424,819 entities): 1.4 s on the command
@@ -159,13 +167,82 @@ No API key, account or server is involved, so there is nothing to configure.
    specifications, Aedes, ArcDox, SimpleBIM, OMA, prefab pipes in IFC2X3 and
    IFC4.3, wooden windows and others) give 0 errors and 0 warnings.
 
-4. **Unit tests** (`node --test`): STEP and XML readers, tolerance, patterns,
+4. **Property set templates in the audit** (2026-11-16). `schema/gen-psets.mjs`
+   reduces buildingSMART's property set definitions to `schema/psets-*.json`:
+   IFC2X3 and IFC4 from the PSD XML files in `buildingSMART/IFC4.3.x-development`
+   (`reference_schemas/psd_IFC2x3`, `psd_IFC4_ADD2_TC1`), IFC4X3 from
+   IfcOpenShell's `Pset_IFC4X3.ifc` (`FILE_SCHEMA IFC4X3_ADD2`), because that
+   repository's `psd` folder is the IFC4x3 RC4 draft (it still applies
+   `Pset_SolidStratumCapacity` to `IfcSolidStratum`, a class ADD2 renamed, and
+   lacks `Pset_BuildingStoreyCommon.ElevationOfFFLRelative`, which ADD2 has).
+   The two independent sources were compared where both exist: IFC2X3 317 of
+   317 sets, 1,832 of 1,832 properties and 1,485 of 1,485 data types agree;
+   IFC4 513 of 513 sets, 2,723 of 2,726 properties and 2,362 of 2,363 types
+   (IfcOpenShell gives `Pset_AirTerminalOccurrence.AirflowType` its enumeration
+   name instead of `IfcLabel`). IFC4X3: 760 sets, every class and type in the
+   ADD2 schema.
+
+   The rules follow buildingSMART's IDS-Audit-tool, which the user manual
+   backs ("these prefixes are prohibited for custom properties"): a `Pset_` or
+   `Qto_` set the templates lack, a property its standard set lacks, a
+   `dataType` the template does not give (a table property allows its defining
+   or defined type), and a required set the applicability's classes cannot
+   carry (`Pset_WallCommon` on `IFCCOVERING`; a type object carries its
+   occurrence's sets) are errors. A value outside a standard enumeration is a
+   warning. As everywhere in the audit, a specification is invalid only if it
+   is invalid in every schema its `ifcVersion` names.
+
+   `eval/fetch-audit-corpus.sh` then `node eval/audit-corpus.mjs`:
+
+   - **IDS-Audit-tool test files** (`buildingSMART/IDS-Audit-tool`,
+     `testing.shared`, commit `fdfc562`): all five that test property sets
+     (`InvalidCustomPsetBecauseOfPrefix`, `InvalidIfcPropertyInPset`,
+     `InvalidMeasureForStandardPsetProperty`, `InvalidIfcPropertyForType`, and
+     `InvalidIfcOccurs`, whose `Pset_WallCommon.Reference` is written
+     `IFCLABEL`, not `IFCIDENTIFIER`) read INVALID. Of its 9 valid files, 8 audit
+     clean. The ninth, `IDS_aachen_example`, asks for attribute `name` in lower
+     case; IFC attributes are `Name`, and this checker matches names exactly,
+     as buildingSMART's own test cases do, so it keeps calling it invalid. Of
+     its 34 other invalid files, 4 are refused before the audit (not XML, not
+     IDS), 12 read invalid, and most of the other 18 are invalid only by the
+     IDS XML schema (cardinality attributes, empty elements), which this audit
+     does not check.
+   - **buildingSMART's suite and examples** are unchanged: 333 / 334 strict,
+     0 of 307 valid files flagged; the 12 example IDS files still give 0 errors
+     and 0 warnings.
+   - **65 real IDS files** from public GitHub repositories, found by code
+     search on 2026-11-16 (`eval/real-ids-files.txt`: national and municipal
+     requirement sets, research projects, tool samples). 64 parse (one is not
+     well-formed XML), with 507 specifications; 21 have a template finding. Read one by one, each is a real departure from the standard:
+     typos (`Lenght` in `Qto_RailingBaseQuantities`,
+     `Qto_DuctSegmentBaseQuantities` and `Qto_CableCarrierSegmentBaseQuantities`
+     in buildingSMART Portugal's EIR files; `AkousticRating` in four sets of a
+     Rotterdam permit-check IDS; `Thermal Transmitance`); quantities typed
+     `IFCREAL` instead of their measure (buildingSMART Spain's
+     `Qto_SpaceBaseQuantities`); IFC2X3 `IfcIdentifier` properties written
+     `IFCLABEL` or `IFCTEXT`; and project properties put into standard sets
+     (`Pset_DoorCommon.Entrance`, `Pset_Condition.RenovationStatus` in the Dutch
+     BIM basis ILS) or project sets given the reserved prefix (`Pset_IBRO`).
+
+   Because a project's model can carry exactly what such an IDS asks for, a
+   **model check still runs** a specification whose only fault is a template
+   one and shows it as a warning ("not standard IFC"); the audit on its own
+   calls the IDS invalid, as the IDS-Audit-tool does.
+
+   Two fixes came out of the same files: a date, time or duration range
+   (`minInclusive="2052-08-11"`, `maxExclusive="PT5M30S"`) was called invalid
+   and could never match; both sides are now compared in ISO order
+   (`temporal.mjs`), while `1 day` or `7:35 PM` stays invalid. And a pattern on
+   a boolean, which IDS's data type table allows, is matched against `true` or
+   `false` instead of being called invalid.
+
+5. **Unit tests** (`node --test`): STEP and XML readers, tolerance, patterns,
    unit conversion, type inheritance and overrides, cardinality, the sample
    model's known gaps, CSV formula neutralising, and BCF zip structure (and an
    `unzip` round trip when it is installed). The suite test runs when
    `eval/IDS` has been fetched.
 
-5. **ifcXML and `.ifczip` on real files** (2026-11-16,
+6. **ifcXML and `.ifczip` on real files** (2026-11-16,
    `eval/ifcxml-xbim-2026-11-16.md`). `eval/fetch-xbim-samples.sh` fetches the
    ifcXML and ifcZIP test files from xBIM's XbimEssentials (CDDL, so fetched, not
    committed; commit `e3c8777`) and `node eval/ifcxml-xbim.mjs` reads all 16
@@ -232,16 +309,18 @@ faster than IfcTester; its point is needing no install.
 - The whole model is held in memory as text and objects: about 1 GB of heap for
   a 200 MB model. Very large federated models may need the command line with
   `--max-old-space-size`.
-- The IDS audit checks names, types and literals against the IFC schema, not
-  against property set templates: a misspelt `Pset_WallComon` or a property
-  given the wrong data type for its standard set is not flagged yet.
+- The IDS audit does not validate the file against the IDS XML schema
+  (cardinality attributes, element order); the IDS-Audit-tool does. Property
+  set templates are checked for names, data types and applicable classes, not
+  for predefined types (`IfcSlab/TRACKSLAB` sets are allowed on any slab) or
+  property set template types (occurrence versus type driven).
 - Tested on five real models; every BIM authoring tool writes IFC a little
   differently, so check surprising results and report them.
 
 ## Next steps
 
-- Extend the IDS audit to buildingSMART's standard property and quantity set
-  templates (names and data types of `Pset_*` and `Qto_*` properties).
+- An IDS editor that offers a standard set's properties and data types as the
+  author types (the templates are now in `schema/psets-*.json`).
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
 - An IDS editor page (build a specification from the classes and property sets
@@ -260,6 +339,16 @@ faster than IfcTester; its point is needing no install.
   table; units table).
 - IDS 1.0 user manual, implementer documentation and test cases:
   `github.com/buildingSMART/IDS` (CC BY-ND 4.0; not copied here).
+- Property set templates: buildingSMART's PSD XML files for IFC2X3 TC1 and
+  IFC4 ADD2 TC1 (`github.com/buildingSMART/IFC4.3.x-development`,
+  `reference_schemas/`, commit `c692856`) and, for IFC4X3 ADD2, IfcOpenShell's
+  `Pset_IFC4X3.ifc` template file (`src/ifcopenshell-python/ifcopenshell/util/schema/`,
+  commit `7092a6a`), whose content is buildingSMART's; (c) buildingSMART
+  International Limited, used in software development with full attribution.
+  Reduced to names, applicable classes, data types and enumeration items in
+  `schema/psets-*.json` by `schema/gen-psets.mjs`.
+- IDS-Audit-tool test files: buildingSMART, `github.com/buildingSMART/IDS-Audit-tool`
+  (MIT; fetched by `eval/fetch-audit-corpus.sh`, not copied here).
 - IfcTester: IfcOpenShell project, `pypi.org/project/ifctester`.
 - ifcXML and ifcZIP test files: xBIM Toolkit, `github.com/xBimTeam/XbimEssentials`
   (`Tests/TestFiles`, CDDL; fetched by `eval/fetch-xbim-samples.sh`, not

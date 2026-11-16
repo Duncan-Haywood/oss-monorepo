@@ -13,6 +13,7 @@ export function resources() {
     cache = {
       schemas: { IFC2X3: new Schema(load("ifc2x3.json")), IFC4: new Schema(load("ifc4.json")), IFC4X3: new Schema(load("ifc4x3.json")) },
       typeMap: load("ifc2x3-type-map.json"),
+      psets: { IFC2X3: load("psets-ifc2x3.json"), IFC4: load("psets-ifc4.json"), IFC4X3: load("psets-ifc4x3.json") },
       measureUnits: load("measure-units.json"),
     };
   }

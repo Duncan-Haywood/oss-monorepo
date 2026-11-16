@@ -109,27 +109,25 @@ flagships:
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
-      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos 55.8%, tax 16/41; open:
-      OCR-bound); (6) payroll (README): two journal layouts read; open: a real Gusto
-      or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
-      (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
-      last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
-      IN's band and day from the book (README); open: AR statutes, a real return
-      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
-      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
-      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
+      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos 67.3%/55.8%, tax 16/41;
+      open: OCR-bound); (6) payroll (README): two journal layouts read; open: a real
+      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
+      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
+      discounts, IN's band and day from the book (README); open: AR statutes, a real
+      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
+      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
+      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
+      once printed. A run that lands a slice replaces its item here; keep this under
       2,000 characters.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
-      (eval/cord_images.py; huggingface.co answered 2026-11-16) read by `apt-get
-      install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD tax 133 of
-      185, totals 154 of 196; CORD test totals 53 of 95, tax 16 of 41
-      (eval/cord-photos-four-pass-2026-11-16.md). Page re-measured 2026-11-16:
-      156/196, tax 138/185; a cash-line guess gets no vote
-      (eval/receipt-cash-guess-2026-11-16.md). Next: score that on CORD
-      validation-30 (huggingface.co refused 2026-11-16 evening); validation-65's 1-1
-      tax tie. CORD test stays held out.
+      (eval/cord_images.py; huggingface.co answered 2026-11-16 late) read by
+      `apt-get install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD
+      totals 153 of 196, tax 134 of 185; CORD validation totals 66 of 98, tax 23 of
+      47; test 53 of 95, tax 16 of 41 (eval/cord-dash-section-sign-2026-11-16.md:
+      dash and § read). Next, from validation misses only: the 21 tax "none"s; total
+      lost with subtotal and tax split across readings. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -255,15 +253,16 @@ flagships:
       a flow bound"); 2 s reserve at 300+ copies (4 s worse, 1.2 s ties); day sweeps
       LP-guided, by the open-hours LP when the pay floor is skipped (README "A guide
       when the pay floor is skipped"); pay floor tries past a spent budget, 4 s
-      (README "The pay floor once the budget is spent"); next why stages overrun;
-      re-run the keep-usual-shifts sweep on real dated leave records; a manager's
-      read on whether the steadier plan is the one they would post; a real 7shifts
-      account through --import-7shifts (README "Reading 7shifts directly"); a real
-      When I Work account or response through --import-wheniwork (README "Reading
-      When I Work directly"); Homebase (docs need an account); a real Square account
-      via --import-square (README "Reading Square's schedule"); --cover-price moves
-      two shifts together (README "Moving two shifts together"). More open items:
-      NEXT.md.
+      (README "The pay floor once the budget is spent"); cover walk stops at the
+      budget (README "Where the time past the budget goes"); next the repair's 200
+      ms minimum near the budget's end; re-run the keep-usual-shifts sweep on real
+      dated leave records; a manager's read on whether the steadier plan is the one
+      they would post; a real 7shifts account through --import-7shifts (README
+      "Reading 7shifts directly"); a real When I Work account or response through
+      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
+      need an account); a real Square account via --import-square (README "Reading
+      Square's schedule"); --cover-price moves two shifts together (README "Moving
+      two shifts together"). More open items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -379,11 +378,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Slow wheels
-      watched past the verdict". Next: set MIN_FIT_RPM (1,000; no floor looked as
-      good) on held-out builds; why the 0.8 s first-order slow drill aborts at shot
-      2 (on main too); warn before a calibration drill when the survey sees an ESC
-      lag ESC_TAU_US lacks (the hold hurts then); does the hold make shots late?
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The slow
+      drill's release timeout". Next: set MIN_FIT_RPM (1,000; no floor looked as
+      good) on held-out builds; why a 0.8 s wheel braking to 526 rpm settles 3-4%
+      low under the scaled gains (costs ~2 s a shot); warn before a calibration
+      drill when the survey sees an ESC lag ESC_TAU_US lacks (the hold hurts then);
+      does the hold make shots late?
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -468,13 +468,15 @@ flagships:
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; extend the IDS audit (audit.mjs) to standard
-      property set names and data types (Pset_/Qto_ templates).
+      eval/crosscheck_ifctester.py; an IDS editor that offers a standard set's
+      properties and data types from schema/psets-*.json (template audit landed
+      2026-11-16).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
-      valuable first: (audit landed 2026-11-16: 26 of 27 invalid-* files read
-      INVALID, 0 of 307 valid ones; 12 example IDS clean); ifcXML and .ifczip read
+      valuable first: (audit 2026-11-16: 26 of 27 invalid-* files INVALID, 0 of 307
+      valid; Pset_/Qto_ template audit 2026-11-16: 5 of 5 IDS-Audit-tool pset files,
+      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); ifcXML and .ifczip read
       2026-11-16 (eval/ifcxml-xbim-2026-11-16.md); an MEP and an IFC4X3
       infrastructure model through the IfcTester cross-check; an IDS editor that
       offers the classes and property sets the loaded model has; a GitHub Action

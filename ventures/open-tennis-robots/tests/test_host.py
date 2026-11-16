@@ -138,6 +138,35 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         self.assertIn("elevation actuator fault", res.aborted)
         self.assertEqual(len(sim.released), 1)
 
+    def _gate_shut_after_feed(self, shut_s, **kw):
+        """Run the first two shots with the board's steady gate held shut for `shut_s` after the first FEED arrives (a
+        slow wheel's reading slipping out of the 3% band once the Pi has fed: README "The slow drill's release
+        timeout")."""
+        sim = SimFeeder()
+        shots = drill()[:2]
+        link = host.FeederLink(sim, sim.clock)
+        until = []
+
+        def sleep(s):
+            if not until and sim.hw.feeding:
+                until.append(sim.clock() + shut_s)
+            if until and sim.clock() < until[0]:
+                sim.hw.wheels_steady.ok_ms = 0
+            sim.sleep(s)
+
+        return host.run_drill(link, shots, sleep, **kw), sim
+
+    def test_release_waits_while_the_gate_rechecks_the_wheels(self):
+        res, sim = self._gate_shut_after_feed(1.5)    # 1.5 s shut + the hold + a 0.9 s stroke: past a flat 2 s
+        self.assertTrue(res.ok, res.aborted)
+        self.assertEqual(len(sim.released), 2)
+
+    def test_release_wait_on_a_shut_gate_is_capped(self):
+        res, sim = self._gate_shut_after_feed(30.0, ready_timeout_s=3.0)
+        self.assertFalse(res.ok)
+        self.assertIn("shot 0 release", res.aborted)
+        self.assertEqual(sim.released, [])
+
     def test_silent_board_aborts(self):
         class Dead:
             def __init__(self):

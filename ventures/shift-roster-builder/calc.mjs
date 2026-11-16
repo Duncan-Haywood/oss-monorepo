@@ -1143,7 +1143,10 @@ function ejectPass(ctx, owner0, seed, iterations) {
 // The walk stops once its best roster leaves only openHoursFloor(ctx) open: no later step can beat a proven floor, so the answer is
 // the same. Before 2026-11-12 it stopped only at 0 open, so on a week where some hours must stay open (the café sample: 15 h) all
 // twelve runs went the full 512,000 steps, about 1 s of every 1.4 s build, which the guide pages' studies repeat ~30 times each.
-function coverPass(ctx, owner0, seed, iterations, { guide = null, guideProb = 0.5 } = {}) {
+// `deadline` (ms since the epoch; 2026-11-16, README "Where the time past the budget goes"): the walk also stops there, read every
+// 1,024 steps, and returns its best roster so far. Without it a walk of 3.1M steps on a 70 x 196 week started late in the time
+// budget ran up to 0.73 s past it, which was most of what sent big weeks into the pay floor with the budget spent.
+function coverPass(ctx, owner0, seed, iterations, { guide = null, guideProb = 0.5, deadline = Infinity } = {}) {
   const { P, S, slots, elig } = ctx;
   // LP-guided proposals (2026-11-15, README "The clique LP steers the cover passes"): with a guide (the open-hours clique LP's
   // person-shift values, person-major), a step that tries to fill open shift i draws the person from those the LP puts on i,
@@ -1194,7 +1197,9 @@ function coverPass(ctx, owner0, seed, iterations, { guide = null, guideProb = 0.
     if (pair.stamp[k] !== ver[q]) { pair.stamp[k] = ver[q]; pair.fits[k] = validWith(ctx, q, lists[q], i, j) ? 1 : 0; }
     return pair.fits[k] === 1;
   };
+  const timed = Number.isFinite(deadline);
   for (let it = 0; it < iterations && bestOpen > floor; it++) {
+    if (timed && (it & 1023) === 0 && Date.now() > deadline) break;
     if (rng() < 0.5) {
       if (openStale) { openIdx.length = 0; for (let x = 0; x < S; x++) if (owner[x] < 0) openIdx.push(x); openStale = false; }
       if (!openIdx.length) break;
@@ -3841,7 +3846,10 @@ function buildRosterOnce(staff, slots, options = {}) {
   // Milliseconds spent in each stage, returned as `timings` so a slow week says where its time went.
   const timings = {};
   let tMark = tStart;
-  const mark = (name) => { const now = Date.now(); timings[name] = (timings[name] || 0) + (now - tMark); tMark = now; };
+  // `timeline` keeps each stage's end in order (ms since the build started), so a week that runs past its budget says which stage
+  // crossed it (README "Where the time past the budget goes").
+  const timeline = [];
+  const mark = (name) => { const now = Date.now(); timings[name] = (timings[name] || 0) + (now - tMark); tMark = now; timeline.push([name, now - tStart]); };
   let best = search(ctx, o.restarts, iterations);
   // With a keep map, also start from the kept roster itself (keptStart): the annealer builds from scratch and lands far from it
   // on big weeks, and when the exact stages then run out of time, the reissue keeps that far roster (eval/reissue-scale.mjs).
@@ -3889,7 +3897,10 @@ function buildRosterOnce(staff, slots, options = {}) {
       repairReserveMs = reserve;
       const leftMs = () => budgetMs - (Date.now() - tStart);
       for (let k = 0; k < (o.coverPassRuns ?? 12) && !over() && !(reserve > 0 && k > 0 && leftMs() < reserve); k++) {
-        const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4), { guide: o.coverGuide === false ? null : clique?.xs ?? null, guideProb: o.coverGuideProb ?? 0.5 });
+        // Each walk stops at the budget's end (less the repair reserve after the first walk), not only between walks: README
+        // "Where the time past the budget goes". `coverPassDeadline: false` keeps the old between-walks check alone.
+        const walkDeadline = budgetMs > 0 && o.coverPassDeadline !== false ? tStart + budgetMs - (k > 0 ? reserve : 0) : Infinity;
+        const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4), { guide: o.coverGuide === false ? null : clique?.xs ?? null, guideProb: o.coverGuideProb ?? 0.5, deadline: walkDeadline });
         if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
         const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
         const ps = scoreOwner(ctx, po).total;
@@ -4256,7 +4267,7 @@ function buildRosterOnce(staff, slots, options = {}) {
     cost: res.cost, hours: res.hours, otHours: res.otHours, unfilledHours: res.unfilledHours, unfilledSlots: res.unfilled.length,
     people: res.people, assignments, grid, unfilled, onlyOne, critical, hireTest, warnings,
     listed: { cost: base.cost, otHours: base.otHours, unfilledHours: base.unfilledHours, unfilledSlots: base.unfilled.length },
-    savingVsListed, score: best.score, owner: res.owner, optimality, budgetHit, timings, coverSlack,
+    savingVsListed, score: best.score, owner: res.owner, optimality, budgetHit, timings, timeline, coverSlack,
     filledAll: res.unfilled.length === 0,
     ...(ctx.rates ? { siteWage: siteWageSummary(ctx, res) } : {}),
     ...(ctx.tripPay ? { travelPaid: res.people.reduce((t, p) => ({ trips: t.trips + p.trips, hours: t.hours + p.travelHours, cost: t.cost + p.travelCost }), { trips: 0, hours: 0, cost: 0 }) } : {}),

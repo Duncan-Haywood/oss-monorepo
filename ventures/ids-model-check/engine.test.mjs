@@ -162,3 +162,21 @@ test("buildingSMART's IDS test pairs all score right (run eval/fetch-testcases.s
   // predefined type BUNNARY, is only wrong given the model), no valid file does.
   assert.match(out, /strict [^:]*: 333 \/ 334; invalid-\* not flagged: 1; valid IDS flagged invalid: 0/);
 });
+
+test("IdsValue compares dates, times and durations, and booleans against patterns", async () => {
+  const { IdsValue, temporalKey } = await import("./ids.mjs");
+  const { parseXml } = await import("./xml.mjs");
+  const v = (inner) => new IdsValue(parseXml(`<value xmlns:xs="http://www.w3.org/2001/XMLSchema">${inner}</value>`));
+  const r = (k, x) => v(`<xs:restriction base="xs:string"><xs:${k} value="${x}"/></xs:restriction>`);
+  assert.equal(r("minInclusive", "2026-01-01").match("2026-11-16", "string"), true);
+  assert.equal(r("minInclusive", "2026-01-01").match("2025-12-31", "string"), false);
+  assert.equal(r("maxExclusive", "PT5M30S").match("PT5M", "string"), true);
+  assert.equal(r("maxExclusive", "PT5M30S").match("P1D", "string"), false);
+  // Different forms never compare (a date is not a duration).
+  assert.equal(r("minInclusive", "2026-01-01").match("PT5M", "string"), false);
+  assert.equal(r("maxInclusive", "12:00:00").match("11:59:59", "string"), true);
+  assert.equal(temporalKey("12:00:00+01:00") < temporalKey("12:00:00Z"), true);
+  const p = v(`<xs:restriction base="xs:boolean"><xs:pattern value="true"/></xs:restriction>`);
+  assert.equal(p.match(true, "boolean"), true);
+  assert.equal(p.match(false, "boolean"), false);
+});

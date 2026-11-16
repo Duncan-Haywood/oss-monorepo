@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyeCZbX4AS4B9s9Eqy9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T20:39:31Z",
+  "ended": "2026-11-16T21:10:43Z",
+  "wall_minutes": 44.17,
+  "tokens_in": 6890182,
+  "tokens_out": 26686,
+  "cost_usd": 2.9078,
+  "tool_calls": 61,
+  "task": "shift-roster-builder flagship: why build stages overrun the 20 s budget",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16695",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "xargs stripped the double quotes from the A/B script's JSON option on the first draft",
+      "fix": "wrapped it in single quotes before the run; caught by a dry echo, no data lost"
+    },
+    {
+      "what": "own-site-wage.test.mjs compared whole buildRoster results and the new timing-dependent `timeline` field broke it",
+      "fix": "strip `timeline` beside `timings` in that test, site-wage.test.mjs, page-worker.test.mjs and eval/same-answers.mjs"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "the claim instruction says to `git commit --allow-empty` and push, but the harness had already created the work branch, so `git checkout -b` failed harmlessly; a note that the branch may already exist would save a step"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no agent doc in docs/reports: the venture README section and the flagship next: field carry the hand-off (the repair's 200 ms minimum)",
+      "did": "README section + flagships.yaml next:",
+      "result": "next run is pointed at the remaining overrun"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-shift-roster-the-walk-that-ate-the-pay-floors-time.md",
+    "ventures/shift-roster-builder/README.md#where-the-time-past-the-budget-goes-2026-11-16-later"
+  ],
+  "goal": null,
+  "notes": "Diagnosis: new buildRoster `timeline` field; on 48 weeks (seeds 18-29) 27 reached the pay floor spent, 17 crossed by the cover walk (88-729 ms), 9 by the repair. Fix: coverPass deadline every 1,024 steps. Pre-registered A/B on seeds 42-53 (eval/stage-overrun-prereg.md committed before the run): late builds 15 -> 5, open hours 11,180 -> 11,180, mean build 22.18 -> 22.17 s; all clauses passed, on by default. Remaining late builds are the repair's 200 ms minimum. Tests: run_venture_tests.py shift-roster-builder, see PR. Verified locally: run_venture_tests.py shift-roster-builder ok (723 tests, 250 s; first run caught own-site-wage.test.mjs comparing whole results incl. the new timeline, fixed); venture-preflight.mjs shift-roster-builder clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d7ad1942-23d4-51ce-ba13-e74bef22acbc",
+    "transcripts": 1,
+    "first": "2026-11-16T20:39:31Z",
+    "last": "2026-11-16T21:23:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 112,
+        "output": 26686,
+        "thinking": 5561,
+        "cache_read": 6762429,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127641,
+        "api_equivalent_usd": 2.9078,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 112,
+      "output": 26686,
+      "thinking": 5561,
+      "cache_read": 6762429,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127641,
+      "api_equivalent_usd": 2.9078,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 44.17,
+      "active_minutes": 44.17,
+      "model_minutes": 4.52,
+      "tool_minutes": 39.65,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "profiling a solver's stage timings, a fix, a pre-registered A/B and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 206.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

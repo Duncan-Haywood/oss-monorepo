@@ -34,6 +34,7 @@ M31 = E + "m31_pose_range/results.txt"
 M32 = E + "m32_grf_qp/results.txt"
 M33 = E + "m33_compensate/results.txt"
 M34 = E + "m34_windup/results.txt"
+M35 = E + "m35_hose/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -125,6 +126,15 @@ CHECKS = [
     (M34, "| 7.9e-16 / 0.018 at 1.2 +0.15", "0.018 mm at the nail's tip"),
     (M34, "g1: 0.073 | 0.383 | 0.789", "0.073 to 0.789"),
     (M34, "mu 0.2/0.3/0.4/0.6/0.8: 4/6/10/12/15 of 15", "at mu 0.4 it sticks at 10 of 15 poses"),
+    (M35, "rubber (0.274 kg/m)", "0.274 kg/m"),
+    (M35, "0.3 2.0 m: 1.6", "1.6 to 21.5 N"),
+    (M35, "0.8 10.0 m: 21.5", "1.6 to 21.5 N"),
+    (M35, "g1 rubber   5.0 | 4.168 / 1.251", "by 1.251 mm"),
+    (M35, "270:0.921", "at most 0.921 mm"),
+    (M35, "g1 rubber   5.0 | y +1.001", "1.001 mm along the wall"),
+    (M35, "g1 rubber   0.0 | y +0.474", "leaves 0.474 mm"),
+    (M35, "g1 rubber   5.0 (phi 90) | 2.17", "loses 2.17\npoints"),
+    (M35, "g1 rubber  10.0 (phi 315) | 20.66", "20.66 points"),
     (M34, "h1: 0.026 | 0.511 | 1.166", "(the H1 0.026 to\n1.166)"),
     (M34, "|   1.05 at 1.2 -0.15", "loses 1.05 points at 1e4"),
     (M34, "-> k_t >= 1.00e+04", "k_t ≥ 1.00e+04"),

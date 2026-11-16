@@ -459,6 +459,21 @@ and close the loop on the encoders. Statics only; stiffness and friction swept.
 
 ![Clean sheets lost to the press window against joint stiffness, the friction each leaned pose needs for the nose to stick, and the windup at the nose and the nail's tip](experiments/m34_windup/figure.png)
 
+**Milestone 35: does a nail gun's air hose throw a robot off the stud?** Earlier milestones counted the hose as mass, if
+at all. A 3/8 in × 50 ft hose (listed at 5.1 lb hybrid, 9.21 lb rubber) hangs from the tool to the floor and, once the
+robot has walked along the wall, drags behind it: a downward pull of 0.6–4.3 N from the hanging length plus a horizontal
+tension of up to 1–22 N that floor friction holds (friction and dragged length swept), in whatever direction the hose
+runs. Neither the balance controller nor milestone 33's compensator knows it. At a joint stiffness of 1e4 N m/rad a
+**5 N** pull winds the G1's nose up **1.25 mm** (H130 held), worst when it pulls towards the wall, where it acts like a
+change of press (H131 refuted). It leaves the matched backlash compensator **1.0 mm** along the wall (H129 held); even
+the hanging hose leaves 0.47 mm, because its weight changes with grip height (H128 refuted). With the tension anywhere
+in 0–5 N the worst G1 pose loses **2.2 points** of clean sheets; in 0–10 N, **21 points**. Under Unitree's PD gains the
+same 5 N droops the servo by 175–205 mm, which the encoders see. The rule: take the hose off the tool (a boom or balancer
+from above), measure the tool's wrench, or keep the drag to a few newtons. Statics only; hose weights from listings,
+floor friction swept.
+
+![Nose windup and the matched compensator's residual against the hose's horizontal tension, and the stack points lost when the tension is unknown](experiments/m35_hose/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
