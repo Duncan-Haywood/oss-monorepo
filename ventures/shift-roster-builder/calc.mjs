@@ -2425,8 +2425,11 @@ const EXACT_TREE_SLOTS = 60;
 // no budget or `scoreFloor: true`, or no basis and the cold formula fits), "try" (warm, stopped at untilMs, when that is over
 // 250 ms) and "skip". `scoreFloorTry: false` or `scoreFloorWarm: false` keep the cold formula alone (the 2026-11-14 skip).
 const scoreFloorReserveDefault = (budgetMs) => (budgetMs > 0 ? Math.min(6000, Math.round(0.3 * budgetMs)) : 0);
+// Once the budget is spent the try gets a reserve of its own, `scoreFloorSpentReserveMs`, default the smaller of 4 s and the
+// normal reserve (README "The pay floor once the budget is spent", pre-registered in eval/pay-floor-spent-4s-prereg.md).
 function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
-  const reserve = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : scoreFloorReserveDefault(budgetMs));
+  const normal = Math.max(0, Number.isFinite(o.scoreFloorReserveMs) ? o.scoreFloorReserveMs : scoreFloorReserveDefault(budgetMs));
+  const reserve = budgetMs > 0 && leftMs <= 0 ? Math.max(0, Number.isFinite(o.scoreFloorSpentReserveMs) ? o.scoreFloorSpentReserveMs : Math.min(4000, normal)) : normal;
   if (o.scoreFloor === false) return { mode: "skip", reserve, untilMs: 0 };
   if (o.scoreFloor === true || !(budgetMs > 0)) return { mode: "run", reserve, untilMs: Infinity };
   if (o.scoreFloorTry !== false && o.scoreFloorWarm !== false && carry) {
@@ -2434,6 +2437,20 @@ function scoreFloorPlan(o, { budgetMs, leftMs, copies, carry }) {
     return untilMs > 250 ? { mode: "try", reserve, untilMs } : { mode: "skip", reserve, untilMs: 0 };
   }
   return leftMs >= 4000 * Math.pow(copies / 245, 4.5) ? { mode: "run", reserve, untilMs: Infinity } : { mode: "skip", reserve, untilMs: 0 };
+}
+// Why buildRoster does not run the pay floor, or null when it does: "noClique" (the clique LP did not run), "proven" (nothing left
+// to bound), "off" (`scoreFloor: false`), "spent" (the earlier stages ran past the time budget, or the try would get under 250 ms)
+// or "noBasis" (no warm start and the cold formula does not fit). A spent budget no longer skips it (2026-11-16, README "The pay
+// floor once the budget is spent": on 48 fresh weeks 10 reached it spent, a 4 s try finished 8 and took their pay gaps to within a
+// few dollars or whole open hours, for +0.31 s of mean build time); it tries warm for the spent reserve alone. `scoreFloorSpent:
+// false` keeps the old skip.
+function scoreFloorSkip(o, { clique, proven, spent, plan }) {
+  if (!clique) return "noClique";
+  if (proven) return "proven";
+  if (o.scoreFloor === false) return "off";
+  if (spent && o.scoreFloorSpent === false) return "spent";
+  if (plan.mode === "skip") return clique.carry ? "spent" : "noBasis";
+  return null;
 }
 // Expected time of the open-hours clique LP (cliqueOpenFloor) on a week of S shift copies: 1.6 s x (S / 245)^4.5, fitted to one
 // machine's 1.2-1.7 s at 238-245 copies, 4.5-6.3 s at 304-326 and 13-15 s at 400 (eval/clique-floor.out.txt).
@@ -4030,11 +4047,17 @@ function buildRosterOnce(staff, slots, options = {}) {
     const pricedLeft = budgetMs - (Date.now() - tStart);
     const plan = scoreFloorPlan(o, { budgetMs, leftMs: pricedLeft, copies: ctx.S, carry: !!clique?.carry });
     const pricedTry = plan.mode === "try", pricedReserve = plan.reserve;
-    if (clique && !ex.proven && o.scoreFloor !== false && !over() && plan.mode !== "skip") {
+    // The budget-spent case (2026-11-16, README "The pay floor once the budget is spent"): when the earlier stages ran past the time
+    // budget the pay floor still tries, warm, for its spent reserve alone (4 s at most). `scoreFloorSpent: false` skips it then.
+    // `optimality.scoreFloorSkip` names why it did not run: "noClique", "proven", "off", "spent", "noBasis" (no warm start and the
+    // cold formula does not fit) or null when it ran.
+    const spent = over();
+    const pricedSkip = scoreFloorSkip(o, { clique, proven: ex.proven, spent, plan });
+    if (!pricedSkip) {
       priced = cliqueScoreFloor(ctx, pricedTry
         ? { warm: clique.carry, deadline: Date.now() + plan.untilMs, coldFallback: false }
         : { warm: o.scoreFloorWarm === false ? null : clique.carry });
-      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft), left: pricedLeft, reserve: pricedReserve };
+      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft), left: pricedLeft, reserve: pricedReserve, spent };
       mark("scoreFloor");
       if (priced && priced.bound > ex.rootBound) {
         ex.rootBound = priced.bound;
@@ -4102,6 +4125,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       dayLNS,
       scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, warm: priced.warm, tried: !!pricedTried, ms: priced.ms } : null,
       scoreFloorTried: pricedTried,
+      scoreFloorSkip: pricedSkip,
       coverGuided,
       coverRepairReserveMs: repairReserveMs,
       coverRepair: repairStats,
@@ -5749,7 +5773,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, wholeShiftCap, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, scoreFloorPlan, scoreFloorSkip, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 

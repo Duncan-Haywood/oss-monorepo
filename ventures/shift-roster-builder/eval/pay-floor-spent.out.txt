@@ -1,0 +1,24 @@
+48 weeks with both builds
+pay floor in 'full': {'proven': 2, 'ran': 36, 'tried, spent': 10}
+pay floor in 'base': {'noClique': 1, 'proven': 2, 'ran': 36, 'spent': 9}
+
+spent weeks (the 'full' build reached the pay floor with the budget spent): 10
+  seed 18 70x196 wk0: T   3774 ms  L   -608 ms  base skip spent     open -1  score   -100012.60  gap    424363.14 ->    299952.85  ms full 26421 base 22647
+  seed 19 70x196 wk0: T   2676 ms  L    -16 ms  base skip spent     open +1  score    +99961.61  gap    625093.30 ->    699882.88  ms full 24722 base 22060
+  seed 20 60x168 wk1: T    559 ms  L   -189 ms  base skip spent     open +0  score        +0.00  gap     21069.54 ->         1.12  ms full 22774 base 22413
+  seed 20 70x196 wk0: T   3941 ms  L    -18 ms  base skip spent     open -4  score   -399965.91  gap    725392.78 ->    299950.34  ms full 25987 base 22112
+  seed 22 70x196 wk0: T  10272 ms  L    -44 ms  base skip spent     open +1  score    +99979.82  gap    724737.78 ->    799898.78  ms full 32360 base 22108
+  seed 22 70x196 wk1: T   3101 ms  L   -426 ms  base skip spent     open -1  score    -99992.16  gap   1223109.26 ->   1099794.95  ms full 25565 base 22291
+  seed 23 70x196 wk1: T    840 ms  L    -36 ms  base skip spent     open +0  score        +0.36  gap    523647.30 ->    499932.76  ms full 22907 base 22097
+  seed 26 70x196 wk1: T    967 ms  L    -51 ms  base skip spent     open +0  score        +3.19  gap    322539.06 ->    322542.25  ms full 23045 base 22052
+  seed 27 70x196 wk0: T    836 ms  L   -139 ms  base skip spent     open -3  score   -299953.77  gap    324012.99 ->         1.97  ms full 23003 base 22059
+  seed 29 60x168 wk0: T    286 ms  L    -84 ms  base skip proven    open +0  score        +0.00  gap   3099689.55 ->   3099689.55  ms full 22401 base 20093
+
+| reserve | spent tries finished | open hours | score sum - base | gap sum | mean build s | largest build s |
+|---|---|---|---|---|---|---|
+| off (today) | 0 of 10 | 11912 | +0.00 | 29,332,929.67 | 20.82 | 27.8 |
+| 1 s | 5 of 10 | 11909 | -299950.22 | 28,964,138.88 | 21.04 | 27.8 |
+| 2 s | 5 of 10 | 11909 | -299950.22 | 28,964,138.88 | 21.14 | 27.8 |
+| 3 s | 6 of 10 | 11910 | -199988.61 | 29,038,928.46 | 21.24 | 27.8 |
+| 4 s | 9 of 10 | 11904 | -799959.28 | 28,365,761.42 | 21.30 | 27.8 |
+| 6 s | 9 of 10 | 11904 | -799959.28 | 28,365,761.42 | 21.34 | 28.1 |
