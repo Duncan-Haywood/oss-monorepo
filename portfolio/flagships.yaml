@@ -109,26 +109,26 @@ flagships:
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
-      totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI 78.6%, tax 71.9%; open:
-      tax OCR-bound); (6) payroll (README): two journal layouts read; open: a real
-      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
-      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
-      discounts, IN's band and day from the book (README); open: AR statutes, a real
-      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
-      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
-      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
-      once printed. A run that lands a slice replaces its item here; keep this under
+      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos 55.8%, tax 16/41; open:
+      OCR-bound); (6) payroll (README): two journal layouts read; open: a real Gusto
+      or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
+      (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
+      last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
+      IN's band and day from the book (README); open: AR statutes, a real return
+      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
+      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
+      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
+      printed. A run that lands a slice replaces its item here; keep this under
       2,000 characters.
     buildable: >-
-      Receipts, item (5), on the public SRD photos (eval/srd-fetch.mjs,
-      raw.githubusercontent.com; `apt-get update && apt-get install -y
-      tesseract-ocr` gives tesseract 5.3.4 in about a minute): CLI `--four-pass` tax
-      133 of 185, totals 154 of 196; held out (SROIE 625) the rules gain and lose 0
-      (eval/receipt-total-first-heldout-2026-11-16.md); next: CORD photos
-      (eval/cord_images.py; huggingface.co 403'd here); rebuild the page's readings
-      (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item splits
-      after the 2026-11-16 change. CORD stays the held-out check.
+      Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
+      (eval/cord_images.py; huggingface.co answered 2026-11-16) read by `apt-get
+      install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD tax 133 of
+      185, totals 154 of 196; CORD test totals 53 of 95, tax 16 of 41
+      (eval/cord-photos-four-pass-2026-11-16.md). Next: validation-30's cash guess
+      outvoting the total; the page's tesseract.js readings rebuilt
+      (eval/receipt-tax-labels-2026-11-15.md) to measure the page after the
+      2026-11-16 changes. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
