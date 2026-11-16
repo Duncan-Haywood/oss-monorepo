@@ -2,8 +2,8 @@
 title: "The meta-analysis tool refused metafor's own column names"
 seo_title: "Red-team notes: two input bugs in a free meta-analysis tool, fixed"
 date: 2026-11-16
-tags: [meta-analysis, dynamic-time-warping, red-team, testing]
-description: "A red-team pass on two research tools shipped today: 36 seeded faults, 73.5% caught at first, 100% after new tests, and two real input bugs fixed in the meta-analysis tool."
+tags: [meta-analysis, dynamic-time-warping, redteam, testing]
+description: "A red-team pass on two new research tools: 36 seeded faults, 73.5% caught, 100% after new tests, and two input bugs fixed in meta-analysis."
 ---
 
 Two research tools landed on `main` today: a
