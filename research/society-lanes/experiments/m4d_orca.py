@@ -34,6 +34,12 @@ DURATION, WARMUP = M3.DURATION, M3.WARMUP
 FIT_SEEDS, CAL_SEEDS, SCORE_SEEDS = M3.FIT_SEEDS, M3.CAL_SEEDS, M3.SCORE_SEEDS
 RULES = ["always", "yield", "scaled"]
 BETAS = [0.0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.75, 1.0]           # milestone 4b's grid
+# Unregistered sensitivity (added after the registered run fitted beta = 1.0, the grid's edge):
+# M4D_EXTEND=1 adds beta 1.5 and 2.0 and writes m4d_orca_extended_*.{txt,csv} instead.
+EXTEND = os.environ.get("M4D_EXTEND") == "1"
+if EXTEND:
+    BETAS = BETAS + [1.5, 2.0]
+OUT = "m4d_orca_extended" if EXTEND else "m4d_orca"
 N_GRID = [20, 30, 40, 60, 80, 100, 130, 160, 200]              # milestone 4c's grid
 EXIT = 0.25
 LOSSES = {"sf": 43.2, "avm": 106.8, "cfsm": 53.9, "pl": 82.2}  # milestones 3, 4a, 4b, 4c
@@ -226,21 +232,21 @@ def main():
     fb = dict(FITTED, orca=beta)
     P("Fitted beta and yield error by family: " + ", ".join(f"{NAMES[m]} beta {fb[m]} -> {pooled(m, 'yield'):.3f} ({pooled(m, 'yield') - obs_p:+.3f})" for m in fams))
 
-    with open(os.path.join(HERE, "m4d_orca_results.txt"), "w") as f:
+    with open(os.path.join(HERE, OUT + "_results.txt"), "w") as f:
         f.write("\n".join(out) + "\n")
     rows = ["model,rule,run,experiment,N,obs_share,sim_share,obs_lane,sim_lane"]
     for ru in RULES:
         for i, r in enumerate(held):
             rows.append(f"orca,{ru},{r['run']},{r['exp']},{r['N']},{r['share']:.4f},{share('orca', ru, i):.4f},"
                         f"{r['lane']:.4f},{lane('orca', ru, i):.4f}")
-    with open(os.path.join(HERE, "m4d_orca_runs.csv"), "w") as f:
+    with open(os.path.join(HERE, OUT + "_runs.csv"), "w") as f:
         f.write("\n".join(rows) + "\n")
     fitrows = ["beta,loss,pooled_share,mean_seed_sd,mean_lane"]
     for b in BETAS:
         per = fits[b][1]
         fitrows.append(f"{b},{fits[b][0]:.2f},{mean([p['share'] for p in per]):.4f},"
                        f"{mean([p['share_sd'] for p in per]):.4f},{mean([p['lane'] for p in per]):.4f}")
-    with open(os.path.join(HERE, "m4d_orca_fit.csv"), "w") as f:
+    with open(os.path.join(HERE, OUT + "_fit.csv"), "w") as f:
         f.write("\n".join(fitrows) + "\n")
     print("\n".join(out))
 

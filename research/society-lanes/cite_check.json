@@ -1,9 +1,11 @@
 {
  "arxiv:1412.1082": {
-  "checked": "2026-11-15",
-  "source": "web search 2026-11-15: ar5iv.arxiv.org/html/1412.1082 carries this title; the DOI 10.1103/PhysRevLett.113.238701 was confirmed live 2026-11-13",
-  "title": "Universal power law governing pedestrian interactions (2014)",
-  "via": "hand"
+  "checked": "2026-11-16",
+  "title": "Universal power law governing pedestrian interactions (2014)"
+ },
+ "arxiv:1512.05597": {
+  "checked": "2026-11-16",
+  "title": "Collision-free speed model for pedestrian dynamics (2015)"
  },
  "arxiv:1809.08835": {
   "checked": "2026-11-13",
