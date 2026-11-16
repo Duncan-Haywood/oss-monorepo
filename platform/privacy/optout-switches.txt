@@ -627,6 +627,7 @@ ventures/k8s-pod-security-check/usage.mjs
 ventures/k8s-requests-rightsizer/usage.mjs
 ventures/k8s-resource-limits-check/usage.mjs
 ventures/k8s-rollout-safety-check/usage.mjs
+ventures/kalman-smoother/usage.mjs
 ventures/kdp-royalty-calculator/usage.mjs
 ventures/kdp-royalty-report-analyzer/usage.mjs
 ventures/kdp-royalty-to-journal/usage.mjs

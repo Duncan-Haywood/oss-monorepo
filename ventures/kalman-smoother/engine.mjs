@@ -1059,7 +1059,12 @@ export function toCsv(r) {
   if (hasSlope) cols.push("slope");
   if (hasSeason) cols.push("seasonal", "seasonally_adjusted");
   cols.push("one_step_std_error", "outlier_t", "shift_t");
-  const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+  // CSV formula-injection guard (CWE-1236): a label typed as =cmd, +x, -x, @x opens as a formula
+  // in a spreadsheet, so prefix it with an apostrophe unless it is a plain number.
+  const q = (s) => {
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const num = (x) => (x == null || !Number.isFinite(x) ? "" : String(Number(x.toPrecision(10))));
   const lines = [cols.join(",")];
   for (const p of r.points) {
@@ -1069,6 +1074,6 @@ export function toCsv(r) {
     row.push(num(p.stdError), num(p.outlierT), num(p.shiftT));
     lines.push(row.join(","));
   }
-  for (const f of r.forecast) lines.push([q(`+${f.h}`), "", num(f.level), num(f.levelLo), num(f.levelHi), ...(hasSlope ? [""] : []), ...(hasSeason ? ["", ""] : []), "", "", ""].join(","));
+  for (const f of r.forecast) lines.push([q(`ahead_${f.h}`), "", num(f.level), num(f.levelLo), num(f.levelHi), ...(hasSlope ? [""] : []), ...(hasSeason ? ["", ""] : []), "", "", ""].join(","));
   return lines.join("\n") + "\n";
 }

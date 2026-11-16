@@ -245,7 +245,7 @@
         log: $("#log").checked,
         level: Number($("#band").value),
         horizon: Number($("#horizon").value) || 0,
-        threshold: Number($("#threshold").value) || 2.5,
+        threshold: Number($("#threshold").value) || 2.5, // zero-default: a |t| threshold of 0 would flag every period; the engine also rejects 0
       };
     }
 

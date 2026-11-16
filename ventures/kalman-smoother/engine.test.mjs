@@ -213,3 +213,11 @@ test("result is JSON-serialisable and every paper has the documented fields", ()
   assert.doesNotThrow(() => JSON.stringify(r));
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k] != null, k);
 });
+
+test("CSV export defuses formula-looking labels but keeps plain numbers", () => {
+  const r = analyze({ csv: "t,y\n=HYPERLINK(1),5\n-3,6\n@x,5.5\n4,7\n5,6\n6,6.5\n7,7\n8,6", slope: "none" });
+  const lines = toCsv(r).trim().split("\n");
+  assert.ok(lines[1].startsWith("'=HYPERLINK(1),"));
+  assert.ok(lines[2].startsWith("-3,"));
+  assert.ok(lines[3].startsWith("'@x,"));
+});
