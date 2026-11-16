@@ -1,0 +1,28 @@
+reproduction on the standard batches: unc = scale.jsonl (1.0, 64, s); recipe = lastround_6x comp/clean
+  seed 0: unc 1.6021660194 vs 1.6021660194 (+0.0e+00); recipe 1.5842396766 vs 1.5842396766 (+0.0e+00)
+  seed 1: unc 1.6052856296 vs 1.6052856296 (+0.0e+00); recipe 1.5844638497 vs 1.5844638497 (+0.0e+00)
+  seed 2: unc 1.6071736887 vs 1.6071736887 (+0.0e+00); recipe 1.6014777124 vs 1.6014777124 (+0.0e+00)
+  seed 3: unc 1.6005917042 vs 1.6005917042 (+0.0e+00); recipe 1.5905035064 vs 1.5905035064 (+0.0e+00)
+H6y-i (both reproduce bit-exactly): held
+
+per arm, seed mean (se): standard batches, fresh batches, ||theta||^2; minutes per run
+  unc       n 4  std 1.6038 (0.0015)  fresh 1.6340 (0.0017)  theta2 11,377  17.7 min  per seed std 1.6022 1.6053 1.6072 1.6006
+  recipe    n 4  std 1.5902 (0.0040)  fresh 1.6199 (0.0060)  theta2 20,571  17.8 min  per seed std 1.5842 1.5845 1.6015 1.5905
+  sgd1.5    n 4  std 1.6399 (0.0049)  fresh 1.6703 (0.0065)  theta2 19,018  17.7 min  per seed std 1.6312 1.6466 1.6500 1.6317
+  sgd2      n 4  std 1.9765 (0.0346)  fresh 1.9951 (0.0331)  theta2 44,005  19.1 min  per seed std 1.9605 1.8978 2.0650 1.9825
+  nesterov  n 4  std 1.7657 (0.0316)  fresh 1.7954 (0.0302)  theta2 235,914  23.9 min  per seed std 1.7312 1.7370 1.8604 1.7342
+  sgd0.7    n 4  std 1.6123 (0.0040)  fresh 1.6399 (0.0037)  theta2 7,906  17.3 min  per seed std 1.6136 1.6195 1.6154 1.6009
+
+paired by seed against unc (arm minus unc), standard / fresh:
+  recipe    -0.0136 (0.0035)  /  -0.0141 (0.0063)
+  sgd1.5    +0.0361 (0.0035)  /  +0.0363 (0.0063)
+  sgd2      +0.3726 (0.0341)  /  +0.3611 (0.0334)
+  nesterov  +0.1619 (0.0304)  /  +0.1614 (0.0299)
+  sgd0.7    +0.0085 (0.0030)  /  +0.0059 (0.0025)
+
+best tuned baseline by standard-batch mean: sgd1.5
+H6y-ii  (best tuned baseline below unc on fresh batches by more than 2 se): refuted (+0.0363, se 0.0063)
+H6y-iii (recipe below unc on fresh batches by more than 2 se): held (-0.0141, se 0.0063)
+H6y-iv  (recipe below the best tuned baseline on fresh batches by more than 2 se): held (-0.0505, se 0.0055)
+exploratory, added after seed 0 (n 4): sgd0.7 minus unc, fresh +0.0059 (0.0025); recipe minus sgd0.7, fresh -0.0200 (0.0057)
+exploratory: recipe minus each tuned arm, fresh: sgd1.5 -0.0505 (0.0055), sgd2 -0.3753 (0.0280), nesterov -0.1755 (0.0243)
