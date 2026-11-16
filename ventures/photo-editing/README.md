@@ -1467,6 +1467,16 @@ ceiling. Not shipped: on the Pentax K-1 Mark II it falls below the 3/16 default 
 (-0.21 to -0.29 dB, where B gains +0.25), and the A7 III loses to B too. Next: a guarded variant judged
 per frame, then tree inference in numpy and C.
 
+**Guarded trees and numpy inference, 2026-11-16** (`eval/bayer-boosted-guard-2026-11-16.md`,
+`tools/bayer_boosted_guard.py`, `src/shootflow/tree_ensemble.py`; pre-registered in its own commit). Four
+fallbacks to B were scored in CV. The rule picked a frame guard: B for the whole frame when any of the
+eight feature means falls outside the training range. It gains +0.518 dB in CV and +0.398 against B's
++0.242 on six fresh cameras no note had used (Canon R3, R8, 10D, Kodak DCS Pro SLR/n, Leica D-LUX 109 and
+V-LUX 114). No fresh frame does worse than B, and the guard catches the R8, where unguarded trees lose
+0.65 dB to B. Still not shipped: on the ten test frames the K-1 II (-0.49) and A7 III (-0.12) look
+ordinary to the guard and stay below B. `shootflow.tree_ensemble` evaluates a LightGBM model from flattened
+arrays in numpy, matching `Booster.predict` exactly on the full model. It is a reference, not yet a developer path: 58 s against lightgbm's 3.7 s on 0.6 million sensels, so shipping one would need the walk in C.
+
 ## Pentax PEF (2026-11-14)
 
 Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:

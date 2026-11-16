@@ -17,33 +17,25 @@ from statistics import NormalDist
 
 __all__ = ["kl", "lr_step", "bet_step", "run_lr", "run_mixture", "run_ztest_peeking",
            "wald_lower", "mixture_grid", "false_slash_rate", "detection_times",
-           "log_lr", "log_mixture", "stopped", "exact_stop_dist", "exact_false_slash",
-           "exact_detection", "mixture_fractions", "run_mixture_varying",
-           "mixture_varying_factors", "wilson"]
+           "frac_grid", "mixture_tv_path", "run_mixture_tv", "METHODS"]
 
 METHODS = ("lr", "mixture", "z")
 
 
-def _prob(name, x):
-    if not (isinstance(x, (int, float)) and 0 < x < 1):
-        raise ValueError(f"{name} must be a probability strictly between 0 and 1, got {x!r}")
+def _check_rate(x, name):
+    """A Bernoulli rate the formulas can divide by: strictly inside (0, 1)."""
+    if x is None or not 0 < x < 1:
+        raise ValueError(f"{name} must be strictly between 0 and 1, got {x!r}")
 
 
-def _alpha(alpha):
-    if not (isinstance(alpha, (int, float)) and 0 < alpha < 1):
-        raise ValueError(f"alpha must be in (0, 1), got {alpha!r}")
-
-
-def _pq(p, q):
-    _prob("p", p); _prob("q", q)
-    if q <= p:
-        raise ValueError(f"the one-sided LR test needs q > p (a cheater under-reports faults); got p={p}, q={q}")
+def _check_alpha(alpha):
+    if not 0 < alpha < 1:
+        raise ValueError(f"alpha must be strictly between 0 and 1, got {alpha!r}")
 
 
 def kl(q, p):
     """Bernoulli KL(q||p) in nats."""
-    _prob("p", p)
-    if not 0 <= q <= 1: raise ValueError(f"q must be in [0, 1], got {q!r}")
+    _check_rate(p, "p")
     s = 0.0
     if q > 0: s += q * math.log(q / p)
     if q < 1: s += (1 - q) * math.log((1 - q) / (1 - p))
@@ -62,87 +54,68 @@ def bet_step(y, p, lam):
 
 
 def wald_lower(alpha, q, p):
-    """Wald's lower bound on E[tau] for any level-alpha sequential test (ignoring the
-    power term): ln(1/alpha)/KL(q||p)."""
-    _alpha(alpha)
+    """Wald's lower bound on E[tau] for any level-alpha sequential test: ln(1/alpha)/KL(q||p)."""
+    _check_alpha(alpha)
+    if q == p:
+        raise ValueError("Wald's bound is infinite at q == p")
     return math.log(1 / alpha) / kl(q, p)
 
 
-def mixture_fractions(K=64):
-    """Midpoint grid of betting fractions c in (0, 1)."""
-    if not (isinstance(K, int) and K >= 1): raise ValueError(f"K must be a positive int, got {K!r}")
-    return [(k + 0.5) / K for k in range(K)]
+def _fracs(K, spacing):
+    """K bet fractions in (0, 1). 'uniform' is the original grid (k+0.5)/K;
+    'log' spaces them geometrically from 1e-3 to 1, so small edges (a fault rate
+    of 1% misreported by half wants a fraction near 0.005) have a bet that grows."""
+    if spacing == "uniform":
+        return [(k + 0.5) / K for k in range(K)]
+    if spacing == "log":
+        return [1e-3 ** (1 - (k + 0.5) / K) for k in range(K)]
+    raise ValueError(f"spacing must be 'uniform' or 'log', got {spacing!r}")
 
 
-def mixture_grid(p, K=64):
-    """Uniform grid of positive bets lam = c/p (one-sided: verifier faults more than claimed)."""
-    _prob("p", p)
-    return [c / p for c in mixture_fractions(K)]
-
-
-def _logmeanexp(xs):
-    m = max(xs)
-    if m == -math.inf: return m
-    return m + math.log(sum(math.exp(x - m) for x in xs) / len(xs))
-
-
-def log_lr(t, s, p, q):
-    """log of the LR e-process after t outcomes with s faults."""
-    return s * math.log(q / p) + (t - s) * math.log((1 - q) / (1 - p))
-
-
-def log_mixture(t, s, p, K=64):
-    """log of the uniform mixture over bets lam in mixture_grid(p, K) after t outcomes, s faults."""
-    out = []
-    for c in mixture_fractions(K):
-        up, down = 1 + c * (1 - p) / p, 1 - c   # factors at y=1 and y=0 for lam = c/p
-        out.append(s * math.log(up) + (t - s) * math.log(down))
-    return _logmeanexp(out)
-
-
-def stopped(method, t, s, p, alpha, q=None, K=64, t0=30):
-    """The shared decision rule: does `method` slash after t outcomes with s faults?"""
-    if method == "lr":
-        return log_lr(t, s, p, q) >= math.log(1 / alpha)
-    if method == "mixture":
-        return log_mixture(t, s, p, K) >= math.log(1 / alpha)
-    if method == "z":
-        z = NormalDist().inv_cdf(1 - alpha)
-        return t >= t0 and (s - t * p) / (math.sqrt(p * (1 - p)) * math.sqrt(t)) >= z
-    raise ValueError(f"unknown method {method!r}; expected one of {METHODS}")
-
-
-def _check(method, p, alpha, q=None, **kw):
-    if method not in METHODS: raise ValueError(f"unknown method {method!r}; expected one of {METHODS}")
-    _alpha(alpha)
-    if method == "lr": _pq(p, q)
-    else: _prob("p", p)
-
-
-def _run(method, ys, p, alpha, **kw):
-    s = 0
-    for t, y in enumerate(ys, 1):
-        s += 1 if y else 0
-        if stopped(method, t, s, p, alpha, **kw): return t
-    return None
+def mixture_grid(p, K=64, spacing="uniform"):
+    """Grid of positive bets lambda in (0, 1/p) (one-sided: verifier faults more than claimed)."""
+    _check_rate(p, "p")
+    return [f / p for f in _fracs(K, spacing)]
 
 
 def run_lr(ys, p, q, alpha):
-    """Return first t with LR e-process >= 1/alpha, else None."""
-    _check("lr", p, alpha, q=q)
-    return _run("lr", ys, p, alpha, q=q)
+    """Return first t with LR e-process >= 1/alpha, else None.
+
+    q must exceed p: this is the one-sided test against under-reported faults
+    (with q < p the process grows on *fewer* faults than claimed)."""
+    _check_rate(p, "p"); _check_rate(q, "q"); _check_alpha(alpha)
+    if not q > p:
+        raise ValueError(f"run_lr tests q > p; got q={q} <= p={p}")
+    lg, thr = 0.0, math.log(1 / alpha)
+    for t, y in enumerate(ys, 1):
+        lg += math.log(lr_step(y, p, q))
+        if lg >= thr: return t
+    return None
 
 
-def run_mixture(ys, p, alpha, K=64):
-    """Uniform mixture over bet sizes: needs no knowledge of q."""
-    _check("mixture", p, alpha)
-    return _run("mixture", ys, p, alpha, K=K)
+def run_mixture(ys, p, alpha, K=64, spacing="uniform"):
+    """Equal-weight mixture over K bet sizes: needs no knowledge of q."""
+    _check_alpha(alpha)
+    lams = mixture_grid(p, K, spacing)
+    lw = [0.0] * K
+    thr = math.log(1 / alpha)
+    for t, y in enumerate(ys, 1):
+        for i, l in enumerate(lams): lw[i] += math.log(bet_step(y, p, l))
+        m = max(lw)
+        if m + math.log(sum(math.exp(w - m) for w in lw) / K) >= thr: return t
+    return None
 
 
 def run_ztest_peeking(ys, p, alpha, t0=30):
     """Fixed-sample one-sided z-test, naively re-run at every step from t0. Returns first rejection."""
-    _check("z", p, alpha)
-    return _run("z", ys, p, alpha, t0=t0)
+    from statistics import NormalDist
+    _check_rate(p, "p"); _check_alpha(alpha)
+    z = NormalDist().inv_cdf(1 - alpha)
+    s, sd = 0, math.sqrt(p * (1 - p))
+    for t, y in enumerate(ys, 1):
+        s += y
+        if t >= t0 and (s - t * p) / (sd * math.sqrt(t)) >= z: return t
+    return None
 
 
 def _draw(rng, n, q):
@@ -150,8 +123,11 @@ def _draw(rng, n, q):
 
 
 def false_slash_rate(method, p, alpha, T, trials, seed=0, **kw):
-    """Monte Carlo fraction of honest verifiers (true rate p) ever slashed within T steps."""
-    _check(method, p, alpha, **kw)
+    """Fraction of honest verifiers (true rate p) ever slashed within T steps."""
+    if method not in METHODS:
+        raise ValueError(f"unknown method {method!r}; one of {METHODS}")
+    if method == "lr" and "q" not in kw:
+        raise ValueError("method 'lr' needs q=")
     rng = random.Random(seed)
     hits = 0
     for _ in range(trials):
@@ -161,8 +137,8 @@ def false_slash_rate(method, p, alpha, T, trials, seed=0, **kw):
 
 def detection_times(method, p, q, alpha, T, trials, seed=1, **kw):
     """Stopping times (None => not slashed by T) of a verifier whose true rate is q > p."""
-    if method not in ("lr", "mixture"): raise ValueError(f"unknown method {method!r}")
-    _pq(p, q); _alpha(alpha)
+    if method not in ("lr", "mixture"):
+        raise ValueError(f"unknown method {method!r}; one of ('lr', 'mixture')")
     rng = random.Random(seed)
     if method == "lr": kw = {"q": q}
     return [_run(method, _draw(rng, T, q), p, alpha, **kw) for _ in range(trials)]
@@ -200,54 +176,39 @@ def exact_stop_dist(method, p, alpha, T, true_rate=None, **kw):
     return out
 
 
-def exact_false_slash(method, p, alpha, T, **kw):
-    """Exact probability that an honest verifier (rate p) is slashed within T steps."""
-    return sum(exact_stop_dist(method, p, alpha, T, **kw))
+def frac_grid(K=32, spacing="uniform"):
+    """Bet fractions c in (0, 1): the bet is c/p_t up, or c/(1-p_t) down, so every
+    factor stays positive whatever p_t is."""
+    return _fracs(K, spacing)
 
 
-def exact_detection(method, p, q, alpha, T, **kw):
-    """(P(slashed by T), E[tau | slashed by T]) for a cheater with true rate q, exact."""
-    if method == "lr": kw = {"q": q}
-    d = exact_stop_dist(method, p, alpha, T, true_rate=q, **kw)
-    P = sum(d)
-    return P, (sum(t * v for t, v in enumerate(d, 1)) / P if P else math.nan)
+def mixture_tv_path(ys, ps, K=32, two_sided=False, spacing="uniform"):
+    """Yield ln M_t, t = 1, 2, ..., of the time-varying mixture e-process.
+
+    Under H0 (y_t ~ Bernoulli(p_t) given the past, p_t announced before y_t) each
+    factor 1 + c (y_t - p_t) / p_t has conditional mean one and is >= 1 - c > 0,
+    so each product is a test martingale and so is their average (Ville applies).
+    With two_sided, the down-bets 1 - c (y_t - p_t) / (1 - p_t) are added and the
+    two halves averaged, which also catches a verifier that over-reports faults.
+    """
+    cs = frac_grid(K, spacing)
+    up = [0.0] * K
+    dn = [0.0] * K
+    n = 2 * K if two_sided else K
+    for y, p in zip(ys, ps):
+        _check_rate(p, "p_t")
+        for i, c in enumerate(cs):
+            up[i] += math.log(1 + c * (y - p) / p)
+            if two_sided: dn[i] += math.log(1 - c * (y - p) / (1 - p))
+        ws = up + dn if two_sided else up
+        m = max(ws)
+        yield m + math.log(sum(math.exp(w - m) for w in ws) / n)
 
 
-def mixture_varying_factors(y, p, c, side):
-    """Betting factor for fraction c in (0,1) against a report p for one outcome.
-    side 'greater' bets that faults exceed p (lam = c/p); 'less' that they fall short
-    (lam = -c/(1-p)).  Each has mean one under y ~ Bern(p)."""
-    if side == "greater": return 1 + c * (y - p) / p
-    if side == "less": return 1 - c * (y - p) / (1 - p)
-    raise ValueError(f"side must be 'greater' or 'less', got {side!r}")
-
-
-def run_mixture_varying(ys, ps, alpha, K=32, side="greater"):
-    """Mixture e-process for per-round reports ps[t] (predictable: fixed before y_t).
-    side: 'greater' (under-reported faults), 'less' (over-reported) or 'two-sided'
-    (the average of the two mixtures, still an e-process).  First t with E_t >= 1/alpha."""
-    _alpha(alpha)
-    if side not in ("greater", "less", "two-sided"): raise ValueError(f"unknown side {side!r}")
-    if len(ps) < len(ys): raise ValueError("need one report p_t per outcome")
-    cs = mixture_fractions(K)
-    sides = ("greater", "less") if side == "two-sided" else (side,)
-    lw = {sd: [0.0] * K for sd in sides}
+def run_mixture_tv(ys, ps, alpha, K=32, two_sided=False, spacing="uniform"):
+    """First t with the time-varying mixture (mixture_tv_path) >= 1/alpha, else None."""
+    _check_alpha(alpha)
     thr = math.log(1 / alpha)
-    for t, (y, p) in enumerate(zip(ys, ps), 1):
-        _prob("p_t", p)
-        for sd in sides:
-            w = lw[sd]
-            for i, c in enumerate(cs): w[i] += math.log(mixture_varying_factors(y, p, c, sd))
-        e = _logmeanexp([x for sd in sides for x in lw[sd]])
-        if e >= thr: return t
+    for t, lm in enumerate(mixture_tv_path(ys, ps, K, two_sided, spacing), 1):
+        if lm >= thr: return t
     return None
-
-
-def wilson(k, n, z=1.959964):
-    """Wilson score interval for a binomial proportion k/n."""
-    if n == 0: return (0.0, 1.0)
-    ph = k / n
-    d = 1 + z * z / n
-    c = (ph + z * z / (2 * n)) / d
-    h = z * math.sqrt(ph * (1 - ph) / n + z * z / (4 * n * n)) / d
-    return (max(0.0, c - h), min(1.0, c + h))

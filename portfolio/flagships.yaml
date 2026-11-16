@@ -253,17 +253,17 @@ flagships:
       flow-bounded, 2x alone, e2e tie (README "under a flow bound"); 2 s reserve at
       300+ copies (4 s worse, 1.2 s ties); day sweeps LP-guided, by the open-hours
       LP when the pay floor is skipped (README "A guide when the pay floor is
-      skipped"); warm gate landed (README "A warm-sized gate for the pay floor"),
-      next its reserve's size; re-run the keep-usual-shifts sweep on real dated
-      leave records; a manager's read on whether the steadier plan is the one they
-      would post; a real 7shifts account through --import-7shifts (README "Reading
-      7shifts directly"); a real When I Work account or response through
-      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); a real Square account via --import-square (README "Reading
-      Square's schedule"); --cover-price moves two shifts together (README "Moving
-      two shifts together"); second call-outs priced, off by default (README "The
-      pair price in played weeks": fewer open hours on 3 of 4 weeks). More open
-      items: NEXT.md.
+      skipped"); pay floor reserve 6 s (README "The pay floor's reserve, sized from
+      the full solve"), next a try with the budget spent; re-run the
+      keep-usual-shifts sweep on real dated leave records; a manager's read on
+      whether the steadier plan is the one they would post; a real 7shifts account
+      through --import-7shifts (README "Reading 7shifts directly"); a real When I
+      Work account or response through --import-wheniwork (README "Reading When I
+      Work directly"); Homebase (docs need an account); a real Square account via
+      --import-square (README "Reading Square's schedule"); --cover-price moves two
+      shifts together (README "Moving two shifts together"); second call-outs
+      priced, off by default (README "The pair price in played weeks": fewer open
+      hours on 3 of 4 weeks). More open items: NEXT.md.
   - venture: photo-editing
     hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
@@ -272,11 +272,10 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer boosted trees beat B
-      on test (+0.451 vs +0.406 dB) but K-1 II falls below 3/16
-      (eval/bayer-boosted-weight-*); next a guarded variant, then numpy tree
-      inference. X-Trans: a per-frame choice (A7 IV wants less edge-keeping, GF7/NX1
-      a wider red/blue window; --truth-from,
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer trees parked: a
+      range guard passes 6 fresh cameras, misses K-1 II/A7 III; no fresh frames left
+      (eval/bayer-boosted-guard-*). X-Trans: a per-frame choice (A7 IV wants less
+      edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
       eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
       eval/opcode-spec-audit-2026-11-12.md.
     next: >-
@@ -380,12 +379,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed in firmware/esp32/README.md: unsure-drop marks, the
-      ESC lag survey, its trim, and "The 1,000 rpm floor retested" (floor stays; the
-      Pi holds its next speeds to the verdict after a shot with a wheel under 1,000
-      rpm, tests/min_fit_rpm_sweep.py). Outlier wheel: anchored past its ball, fixed
-      (ANCHOR_BACK). Next: why a ~510 rpm wheel behind a 30 ms ESC (0.2 s wheel lag)
-      never settles in the ready gate (loop gains at low speed).
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Slow wheels
+      need slower gains" (gains scaled under 1,500 rpm, 6-revolution gate hold).
+      Next: why one 1,107 rpm wheel read 1.48x its drop through the loop fit (build
+      0.7/0.35, eval/low-speed-loop-drill-2026-11-16.txt); a tach averaging a fixed
+      time, not 4 revolutions; 14 of 336 balls still fed over 3% off.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

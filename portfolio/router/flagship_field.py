@@ -58,6 +58,12 @@ listed, from the end of the row, never the run's own NEW text, the opening
 history pointer or the NEXT.md pointer, until the value and the pointer fit,
 and prints what it moved. Pass `--park` instead when the tail holds
 something more urgent than an item further up.
+
+`buildable:` has its own 600-character cap, and its refusal said only that
+it was over: three runs on 2026-11-16 overran it by 14 to 47 characters and
+had to guess how much to cut. Both refusals now give the overrun, the
+landed clauses to cut and, with one --replace, the longest NEW that fits;
+reading or writing either field prints how many characters are left.
 """
 from __future__ import annotations
 
@@ -252,6 +258,25 @@ def park_hint(value: str, venture: str, over: int, keep: tuple[str, ...] = ()) -
             + "\n".join(rows))
 
 
+def new_budget(keep: tuple[str, ...], over: int) -> str:
+    """With one --replace, the longest its NEW can be, so the second try fits
+    (doc_friction 2026-11-16: three runs overran `buildable:` by 14 to 47
+    characters and could only guess how much to cut)."""
+    if len(keep) != 1 or not keep[0]:
+        return ""
+    most = len(keep[0]) - over
+    if most <= 0:
+        return (f". Your NEW text ({len(keep[0])} chars) cannot fit by shortening alone: "
+                "cut another item too")
+    return f". Your NEW text is {len(keep[0])} characters; at most {most} fits"
+
+
+def cap_note(field: str, n: int) -> str:
+    """' of CAP characters, R left' for a capped field, ' characters' otherwise."""
+    cap = {"next": FLAGSHIP_NEXT_MAX, "buildable": FLAGSHIP_BUILDABLE_MAX}.get(field)
+    return f" of {cap} characters, {cap - n} left" if cap else " characters"
+
+
 def set_value(text: str, venture: str, field: str, value: str,
               keep: tuple[str, ...] = ()) -> str:
     value = " ".join(value.split())
@@ -262,16 +287,21 @@ def set_value(text: str, venture: str, field: str, value: str,
         hint = landed_hint(value, over)
         raise ValueError(f"`next:` would be {len(value)} of {FLAGSHIP_NEXT_MAX} characters "
                          f"({over} over): replace what you landed, don't append"
+                         + new_budget(keep, over)
                          + (f"\n{hint}" if hint else "") + "\n" + park_hint(value, venture, over, keep))
     if field == "buildable" and len(value) > FLAGSHIP_BUILDABLE_MAX:
-        # Say the overrun and the room the row had, so the next attempt fits first time
-        # (three runs on 2026-11-16 rewrote a replacement that was 14 to 47 over).
+        # Say the overrun, the room the row had, the landed cuts and (with one
+        # --replace) the longest NEW that fits, so the next attempt fits first
+        # time (three runs on 2026-11-16 rewrote a replacement 14 to 47 over).
+        over = len(value) - FLAGSHIP_BUILDABLE_MAX
         before = read_value(text, venture, field)
         room = (f"; the row was {len(before)}, so it had {FLAGSHIP_BUILDABLE_MAX - len(before)} to spare"
                 if before is not None and len(before) <= FLAGSHIP_BUILDABLE_MAX else "")
+        hint = landed_hint(value, over)
         raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters "
-                         f"({len(value) - FLAGSHIP_BUILDABLE_MAX} over{room}): "
-                         "name only items a session can start now; landed work goes in the README or eval/")
+                         f"({over} over{room}): name only items a session can start now; landed work "
+                         "goes in the README or eval/" + new_budget(keep, over)
+                         + (f"\n{hint}" if hint else ""))
     lines = text.splitlines(keepends=True)
     a, b = _span(lines, venture, field)
     out = "".join(lines[:a] + wrap(field, value) + lines[b:])
@@ -406,12 +436,6 @@ def stray_separators(text: str) -> list[str]:
     return bad
 
 
-def cap_note(field: str) -> str:
-    """" of <cap>" for a capped field, so a read shows the room left before an edit."""
-    cap = {"next": FLAGSHIP_NEXT_MAX, "buildable": FLAGSHIP_BUILDABLE_MAX}.get(field)
-    return f" of {cap}" if cap else ""
-
-
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("venture", nargs="?")
@@ -510,7 +534,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{args.venture} has no `{args.field}:`", file=sys.stderr)
                 return 1
             print(current)
-            print(f"-- {len(current)}{cap_note(args.field)} characters", file=sys.stderr)
+            print(f"-- {len(current)}{cap_note(args.field, len(current))}", file=sys.stderr)
             return 0
         if args.set is not None:
             new = sys.stdin.read() if args.set == "-" else Path(args.set).read_text()
@@ -527,7 +551,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     args.file.write_text(out)
     n = len(" ".join(new.split()))
-    print(f"wrote {args.venture}.{args.field}: {n}{cap_note(args.field)} characters")
+    print(f"wrote {args.venture}.{args.field}: {n}{cap_note(args.field, n)}")
     return 0
 
 
