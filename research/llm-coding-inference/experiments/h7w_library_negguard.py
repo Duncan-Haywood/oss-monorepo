@@ -19,6 +19,7 @@ import rare_audit as R  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
 A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 SEED, N, CORPUS = 20261105, 1000, 6000
 RULES = (("pooled", 2.0, 0, 0), ("lib default", A.TAU_6AM, A.GUARD_6AM, 0), ("lib neg_guard=3", 0.0, 0, A.NEG_GUARD), ("lib default+neg3", A.TAU_6AM, A.GUARD_6AM, A.NEG_GUARD))

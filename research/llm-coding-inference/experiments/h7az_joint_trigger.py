@@ -63,6 +63,7 @@ ARGS, sys.argv = sys.argv[1:], sys.argv[:1]
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 from llmci import audit_design as A  # noqa: E402
 A.RARE_FALLBACK = None  # pinned, as 7ay: the pooled reference must replay it
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 import h7au_neg_floor as U  # noqa: E402
 import h7ay_cond_floor as Y  # noqa: E402
 import h7at_weak_admit as W  # noqa: E402

@@ -37,6 +37,7 @@ import group_shift_reddit as R  # noqa: E402
 import h6r_rare_pilot as P  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
 A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 
 def goemo_coder(cat, model):
