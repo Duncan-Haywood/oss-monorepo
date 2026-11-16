@@ -1,0 +1,208 @@
+{
+ "note": "session 98: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds (days); pick = the candidate source rule with the lowest q0.9 pinball loss on the target city's own Y-3 permits completed by D = 1 January Y; pick_closs = lowest censored loss on all its Y-3 permits",
+ "cands": [
+  "cpin_es3_nc3",
+  "cpin_es3_nc5",
+  "cpin_es3_nc5_stamp",
+  "cpin_es3_nc5_stamp_len"
+ ],
+ "cells": [
+  {
+   "held": "sf",
+   "year": 2021,
+   "test_q90": {
+    "cpin_es3_nc3": 70.79361141817806,
+    "cpin_es3_nc5": 72.35000701709188,
+    "cpin_es3_nc5_stamp": 72.77059764038795,
+    "cpin_es3_nc5_stamp_len": 72.29355266033956
+   },
+   "tgt_loss_q90": {
+    "cpin_es3_nc3": 45.11751504935595,
+    "cpin_es3_nc5": 53.669703043110566,
+    "cpin_es3_nc5_stamp": 55.06870743978942,
+    "cpin_es3_nc5_stamp_len": 53.40651161636396
+   },
+   "tgt_closs_q90": {
+    "cpin_es3_nc3": 209.59564424445452,
+    "cpin_es3_nc5": 174.13339525308425,
+    "cpin_es3_nc5_stamp": 151.29120546534693,
+    "cpin_es3_nc5_stamp_len": 164.704412190026
+   },
+   "tgt_n": 40357,
+   "tgt_n_open": 18268,
+   "pick": "cpin_es3_nc3",
+   "pick_closs": "cpin_es3_nc5_stamp",
+   "oracle": "cpin_es3_nc3",
+   "regret": 0.0,
+   "regret_closs": 1.976986222209888,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "pick_per_seed_test": [
+    70.52564573308403,
+    70.8398315609545,
+    71.01535696049565
+   ],
+   "refit_minus_prior": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2022,
+   "test_q90": {
+    "cpin_es3_nc3": 58.164812844803286,
+    "cpin_es3_nc5": 61.20789694314692,
+    "cpin_es3_nc5_stamp": 62.28085384307146,
+    "cpin_es3_nc5_stamp_len": 61.638828324608774
+   },
+   "tgt_loss_q90": {
+    "cpin_es3_nc3": 47.20389804442141,
+    "cpin_es3_nc5": 52.45700250968272,
+    "cpin_es3_nc5_stamp": 53.84400945135741,
+    "cpin_es3_nc5_stamp_len": 52.760748960096144
+   },
+   "tgt_closs_q90": {
+    "cpin_es3_nc3": 221.47804974221694,
+    "cpin_es3_nc5": 150.5763774497238,
+    "cpin_es3_nc5_stamp": 126.91750240422071,
+    "cpin_es3_nc5_stamp_len": 133.6547371234859
+   },
+   "tgt_n": 40693,
+   "tgt_n_open": 18622,
+   "pick": "cpin_es3_nc3",
+   "pick_closs": "cpin_es3_nc5_stamp",
+   "oracle": "cpin_es3_nc3",
+   "regret": 0.0,
+   "regret_closs": 4.116040998268176,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "pick_per_seed_test": [
+    58.26451214628078,
+    58.222662862364245,
+    58.00726352576482
+   ],
+   "refit_minus_prior": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2021,
+   "test_q90": {
+    "cpin_es3_nc3": 91.0691272883791,
+    "cpin_es3_nc5": 85.61259454765288,
+    "cpin_es3_nc5_stamp": 86.60159905852957,
+    "cpin_es3_nc5_stamp_len": 88.07392077481421
+   },
+   "tgt_loss_q90": {
+    "cpin_es3_nc3": 43.137842098137924,
+    "cpin_es3_nc5": 47.52358346145755,
+    "cpin_es3_nc5_stamp": 48.890720317507295,
+    "cpin_es3_nc5_stamp_len": 48.62434413531408
+   },
+   "tgt_closs_q90": {
+    "cpin_es3_nc3": 124.51765960313044,
+    "cpin_es3_nc5": 100.98304605504546,
+    "cpin_es3_nc5_stamp": 98.5761367555837,
+    "cpin_es3_nc5_stamp_len": 101.84134171701949
+   },
+   "tgt_n": 7567,
+   "tgt_n_open": 2259,
+   "pick": "cpin_es3_nc3",
+   "pick_closs": "cpin_es3_nc5_stamp",
+   "oracle": "cpin_es3_nc5",
+   "regret": 5.456532740726217,
+   "regret_closs": 0.9890045108766969,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "pick_per_seed_test": [
+    91.32140497395288,
+    91.35152873265129,
+    90.53444815853311
+   ],
+   "refit_minus_prior": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2022,
+   "test_q90": {
+    "cpin_es3_nc3": 73.85503227627184,
+    "cpin_es3_nc5": 69.90645640821818,
+    "cpin_es3_nc5_stamp": 69.99974775204431,
+    "cpin_es3_nc5_stamp_len": 70.72791792309789
+   },
+   "tgt_loss_q90": {
+    "cpin_es3_nc3": 45.89973716844193,
+    "cpin_es3_nc5": 48.52141759556579,
+    "cpin_es3_nc5_stamp": 49.5081638317582,
+    "cpin_es3_nc5_stamp_len": 49.65281179812379
+   },
+   "tgt_closs_q90": {
+    "cpin_es3_nc3": 119.80647314469765,
+    "cpin_es3_nc5": 95.24943693210783,
+    "cpin_es3_nc5_stamp": 93.92366411830388,
+    "cpin_es3_nc5_stamp_len": 96.2616991380598
+   },
+   "tgt_n": 7824,
+   "tgt_n_open": 2310,
+   "pick": "cpin_es3_nc3",
+   "pick_closs": "cpin_es3_nc5_stamp",
+   "oracle": "cpin_es3_nc5",
+   "regret": 3.9485758680536662,
+   "regret_closs": 0.09329134382613802,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "pick_per_seed_test": [
+    73.40836451771901,
+    74.0630452390605,
+    74.09368707203603
+   ],
+   "refit_minus_prior": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   }
+  }
+ ],
+ "fixed_mean": {
+  "cpin_es3_nc3": 73.47064595690807,
+  "cpin_es3_nc5": 72.26923872902746,
+  "cpin_es3_nc5_stamp": 72.91319957350832,
+  "cpin_es3_nc5_stamp_len": 73.18355492071511
+ },
+ "selected_mean": 73.47064595690807,
+ "selected_closs_mean": 72.91319957350832,
+ "mean_regret": 2.351277152194971,
+ "mean_regret_closs": 1.7938307687952246,
+ "predictions": {
+  "G0": true,
+  "G1": false,
+  "G2": false,
+  "G3": false,
+  "G4": true
+ }
+}
