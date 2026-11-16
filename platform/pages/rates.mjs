@@ -825,7 +825,15 @@ function fieldSentence(fields) {
  * held from first paint at the height it will have when shown (see the
  * scripting rule in RATES_CSS). The script still sets it; the two must match.
  */
-export const RATES_FIRST_VISIT_STATUS = 'Save your rates once \u2014 every calculator here uses them.';
+//
+// Short enough to sit beside its button on a phone. The old sentence ("Save
+// your rates once \u2014 every calculator here uses them.", 55 characters) wrapped
+// to two lines at 390 px and pushed the button onto a third, an 83 px bar above
+// the form on all 124 bar pages; this one shares the button's row on 124 of 124
+// at 390 px and 121 at 360 px (fit test, 2026-11-16, docs/reports/
+// polish-2026-11-16-rates-line.md). The panel still says the rest.
+export const RATES_FIRST_VISIT_STATUS = 'Save rates once for every bid.';
+export const RATES_FIRST_VISIT_MAX = 30;
 const RATES_FIRST_VISIT_STATUS_HTML = RATES_FIRST_VISIT_STATUS.replace('\u2014', '&mdash;');
 
 const RATES_MARKUP = (fields, note) => `<section class="pf-rates" hidden data-pf-rates-root>
