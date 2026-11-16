@@ -81,6 +81,26 @@ class SocialProof(unittest.TestCase):
         self.assertIn("Fail if visible page copy makes social-proof claims", out.getvalue())
 
 
+    def test_used_by_counts_and_review_tallies_flagged(self):
+        # Red team 2026-11-16: "Used by 10,000+ restaurants" and "4.9/5 from
+        # 1,200 reviews" are the same claims as "trusted by" and "rated 4.9/5",
+        # and both passed.
+        for line in ("<p>Used by 10,000+ restaurants</p>",
+                     "<p>Relied on by more than 3,000 accountants.</p>",
+                     "<p>Chosen by 2k shops</p>",
+                     "<p>4.9/5 from 1,200 reviews</p>",
+                     "<p>4.8 / 5 based on 310 ratings</p>"):
+            with self.subTest(line=line):
+                self.assertTrue(check(line), line)
+
+    def test_used_by_attributed_or_not_a_count_allowed(self):
+        for line in ("Public research reports it is used by more than 200,000 service professionals.",
+                     "The rates used by 2026 payroll tables.",
+                     "The method used by 3 of the 5 states."):
+            with self.subTest(line=line):
+                self.assertEqual(check(line), [], line)
+
+
 class Cli(unittest.TestCase):
     def run_main(self, files):
         with tempfile.TemporaryDirectory() as d:
@@ -181,7 +201,8 @@ class PrefilterIsSuperset(unittest.TestCase):
                  "stars", "★★★", "⭐⭐⭐", "3-star", "rating", "as seen", "AS FEATURED",
                  "on", "in", "award-winning", "Award winning", "#1 rated", "#1 choice",
                  "best-selling", "Best selling", "over", "more than", "x", " ", "<p>",
-                 "Loved by", "loved BY", "500", "thousands", "Millions", "of", "the"]
+                 "Loved by", "loved BY", "500", "Used by", "relied on by", "chosen BY",
+                 "from", "based on", "reviews", "ratings", "4.9/5", "thousands", "Millions", "of", "the"]
         rng = random.Random(7)
         for _ in range(20000):
             line = " ".join(rng.choice(frags) for _ in range(rng.randint(1, 6)))

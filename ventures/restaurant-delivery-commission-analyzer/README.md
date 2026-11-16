@@ -40,6 +40,7 @@ Open `index.html` through any static server. Tests: `node --test`.
 
 From `portfolio/quality/audits/2026-11-13-restaurant-delivery-commission-analyzer.json`:
 - ~~Every amount went through `Math.abs`~~ fixed 2026-11-14: each charge column's sign convention is read from the file (a reversal is a credit), and rows with negative food sales are refunds that reduce sales and are not orders (`calc.test.mjs`, the two tests citing this audit). A later quality round re-audits.
+- Fixed 2026-11-16 (red team): any order status containing "refund" read as cancelled, so a delivered order marked "Partially refunded" or "Refund requested" lost its food sales and kept its charges. Only a whole-status refund (`Refund`, `Refunded`, `Fully refunded`) cancels now.
 - Fee columns that match no alias are ignored without a notice, so a fee column under an unexpected name lowers the take rate silently.
 - Pickup and delivery orders are blended into one rate per platform, though DoorDash prices pickup at 6% and Uber Eats at about 7%.
 - Three seeded threshold changes survived the tests (payout-gap 1%, the end of the lunch daypart, the 30% take-rate severity boundary).

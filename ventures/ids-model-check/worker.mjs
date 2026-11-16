@@ -3,6 +3,7 @@
 // this site (the files are part of the page; nothing is uploaded).
 import { checkIds, parseIds, Schema } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
+import { ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 
 const cache = {};
 async function json(name) {
@@ -14,6 +15,7 @@ async function json(name) {
 }
 
 function schemaOf(ifcText) {
+  if (looksLikeXml(ifcText)) return ifcXmlSchemaId(ifcText);
   const m = ifcText.slice(0, 20000).match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i);
   const raw = m ? m[1].toUpperCase() : "";
   return raw.startsWith("IFC4X3") ? "IFC4X3" : raw.startsWith("IFC4") ? "IFC4" : raw.startsWith("IFC2X3") ? "IFC2X3" : null;
@@ -50,7 +52,7 @@ self.onmessage = async (ev) => {
       return;
     }
     const id = schemaOf(ifc);
-    if (!id) throw new Error("the model's FILE_SCHEMA is not IFC2X3, IFC4 or IFC4X3");
+    if (!id) throw new Error("the model's schema (FILE_SCHEMA, or the ifcXML namespace) is not IFC2X3, IFC4 or IFC4X3");
     const want = idsSchemas(ids);
     want.add(id);
     const [schemas, typeMap, measureUnits] = await Promise.all([loadSchemas(want), json("ifc2x3-type-map.json"), json("measure-units.json")]);

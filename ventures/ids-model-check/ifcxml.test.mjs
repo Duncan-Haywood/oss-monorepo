@@ -1,0 +1,210 @@
+// ifcXML and .ifczip input: the readers, and the checker's verdicts on the same
+// model in each form.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { deflateRawSync, crc32 } from "node:zlib";
+import { execFileSync } from "node:child_process";
+import { parseIfcXml, ifcXmlSchemaId } from "./ifcxml.mjs";
+import { zipEntries, unzipModel, pickModel } from "./zip.mjs";
+import { Model } from "./ids.mjs";
+import { check, resources, readModel } from "./node.mjs";
+
+const here = (p) => new URL(p, import.meta.url);
+const file = (p) => readFileSync(here(p), "utf8");
+const { schemas } = resources();
+
+// Every attribute of every entity, refs mapped back to STEP ids ("iN" is #N).
+function sameEntities(step, xml) {
+  const S = new Model(step, schemas), X = new Model(xml, schemas);
+  const toStep = new Map([...X.entities.values()].map((e) => [e.id, Number(String(e.xmlId).slice(1))]));
+  const byStep = new Map([...X.entities.values()].map((e) => [toStep.get(e.id), e]));
+  const norm = (v, x) => {
+    if (Array.isArray(v)) return v.map((y) => norm(y, x));
+    if (v && typeof v === "object" && "ref" in v) return { ref: x ? toStep.get(v.ref) : v.ref };
+    if (v && typeof v === "object" && "typed" in v) return { typed: v.typed, value: norm(v.value, x) };
+    return v;
+  };
+  let n = 0;
+  for (const e of S.entities.values()) {
+    const x = byStep.get(e.id);
+    assert.ok(x, `#${e.id} ${e.type} missing from the ifcXML`);
+    assert.equal(x.type, e.type, `#${e.id}`);
+    assert.deepEqual(norm(x.args, true), norm(e.args, false), `#${e.id} ${e.type}`);
+    n += e.args.length;
+  }
+  assert.equal(X.entities.size, S.entities.size);
+  return n;
+}
+
+// A report reduced to what a reader sees: verdicts, counts, failing elements by GlobalId.
+const verdicts = (r) => r.specs.map((s) => ({ name: s.name, status: s.status, applicable: s.applicable, passed: s.passed, failed: s.failed.map((f) => [f.globalId, f.reasons]).sort() }));
+
+test("the IFC4 ifcXML twin of the sample model reads entity for entity like the STEP file", () => {
+  const n = sameEntities(file("samples/tiny-house.ifc"), file("samples/tiny-house.ifcxml"));
+  assert.ok(n > 300, `${n} attribute values compared`);
+});
+
+test("both starter IDS files give the same verdicts on the .ifc and the .ifcxml", () => {
+  for (const f of ["samples/coordination-basics.ids.xml", "samples/quantities-and-naming.ids.xml"]) {
+    const a = check(file(f), file("samples/tiny-house.ifc"));
+    const b = check(file(f), file("samples/tiny-house.ifcxml"));
+    assert.equal(b.schema, "IFC4");
+    assert.deepEqual(verdicts(b), verdicts(a), f);
+    assert.ok(a.specs.some((s) => s.status === "fail") && a.specs.some((s) => s.status === "pass"), "the sample has passes and fails to compare");
+  }
+});
+
+test("schema detection reads the namespace, not a FILE_SCHEMA line", () => {
+  assert.equal(ifcXmlSchemaId(file("samples/tiny-house.ifcxml")), "IFC4");
+  assert.equal(ifcXmlSchemaId('<?xml version="1.0"?><ex:iso_10303_28 xmlns:ex="urn:iso.org:standard:10303:part(28):version(2):xmlschema:common"><uos xmlns="http://www.iai-tech.org/ifcXML/IFC2x3/FINAL"/></ex:iso_10303_28>'), "IFC2X3");
+  assert.equal(ifcXmlSchemaId('<ifcXML xmlns="https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/ifcXML"/>'), "IFC4X3");
+  assert.equal(ifcXmlSchemaId("ISO-10303-21;"), null);
+  assert.throws(() => new Model('<?xml version="1.0"?><root/>', schemas), /not supported/);
+});
+
+// The IFC2X3 layout (ifcXML2), as xBIM and IFC Engine write it.
+const IFC2X3_XML = `<?xml version="1.0" encoding="utf-8"?>
+<ex:iso_10303_28 version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ex="urn:iso.org:standard:10303:part(28):version(2):xmlschema:common">
+  <ex:iso_10303_28_header><ex:name>t</ex:name></ex:iso_10303_28_header>
+  <uos id="uos_1" configuration="i_ifc2x3" xmlns="http://www.iai-tech.org/ifcXML/IFC2x3/FINAL">
+    <IfcWallStandardCase id="i7">
+      <GlobalId>2O2Fr$t4X7Zf8NOew3FNr2</GlobalId>
+      <OwnerHistory><IfcOwnerHistory xsi:nil="true" ref="i1"/></OwnerHistory>
+      <Name>Basic Wall</Name>
+      <Tag>217140</Tag>
+    </IfcWallStandardCase>
+    <IfcPropertySingleValue id="i8"><Name>IsExternal</Name><NominalValue><IfcBoolean>true</IfcBoolean></NominalValue></IfcPropertySingleValue>
+    <IfcPropertySingleValue id="i9"><Name>Width</Name><NominalValue><IfcLengthMeasure-wrapper>200.</IfcLengthMeasure-wrapper></NominalValue></IfcPropertySingleValue>
+    <IfcPropertySet id="i10"><GlobalId>0aaaaaaaaaaaaaaaaaaaaa</GlobalId><Name>Pset_WallCommon</Name>
+      <HasProperties ex:cType="set"><IfcPropertySingleValue pos="0" xsi:nil="true" ref="i8"/><IfcPropertySingleValue pos="1" xsi:nil="true" ref="i9"/></HasProperties></IfcPropertySet>
+    <IfcRelDefinesByProperties id="i11"><GlobalId>0bbbbbbbbbbbbbbbbbbbbb</GlobalId>
+      <RelatedObjects ex:cType="set"><IfcWallStandardCase pos="0" xsi:nil="true" ref="i7"/></RelatedObjects>
+      <RelatingPropertyDefinition><IfcPropertySet xsi:nil="true" ref="i10"/></RelatingPropertyDefinition></IfcRelDefinesByProperties>
+    <IfcCartesianPoint id="i12"><Coordinates ex:cType="list"><IfcLengthMeasure pos="0">0.</IfcLengthMeasure><IfcLengthMeasure pos="1">1500.</IfcLengthMeasure></Coordinates></IfcCartesianPoint>
+    <IfcSite id="i13"><GlobalId>0ccccccccccccccccccccc</GlobalId><CompositionType>element</CompositionType>
+      <RefLatitude><ex:long-wrapper pos="0">51</ex:long-wrapper><ex:long-wrapper pos="1">30</ex:long-wrapper></RefLatitude></IfcSite>
+    <IfcSIUnit id="i14"><UnitType>lengthunit</UnitType><Prefix>milli</Prefix><Name>metre</Name></IfcSIUnit>
+  </uos>
+</ex:iso_10303_28>`;
+
+test("the IFC2X3 layout: attributes as child elements, nil refs, selects with and without -wrapper, lists", () => {
+  const p = parseIfcXml(IFC2X3_XML, schemas.IFC2X3);
+  const by = (x) => [...p.entities.values()].find((e) => e.xmlId === x);
+  const wall = by("i7");
+  assert.equal(wall.type, "IFCWALLSTANDARDCASE");
+  assert.equal(wall.args[0], "2O2Fr$t4X7Zf8NOew3FNr2");
+  assert.equal(wall.args[2], "Basic Wall");
+  assert.equal(wall.args[7], "217140", "Tag is a string even when it looks like a number");
+  assert.deepEqual(by("i8").args[2], { typed: "IFCBOOLEAN", value: true });
+  assert.deepEqual(by("i9").args[2], { typed: "IFCLENGTHMEASURE", value: 200 });
+  assert.deepEqual(by("i12").args[0], [0, 1500]);
+  const at = (e, n) => e.args[schemas.IFC2X3.attrs(e.type).index.get(n)];
+  assert.deepEqual(at(by("i13"), "CompositionType"), { enum: "ELEMENT" });
+  assert.deepEqual(at(by("i13"), "RefLatitude"), [51, 30]);
+  assert.deepEqual(by("i14").args[0], { derived: true }, "Dimensions is derived, as * in STEP");
+  assert.deepEqual(by("i14").args.slice(1), [{ enum: "LENGTHUNIT" }, { enum: "MILLI" }, { enum: "METRE" }]);
+  assert.deepEqual(p.errors, ['ref="i1" points at no element']);
+  // And the checker sees the property through the relationship.
+  const ids = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications><specification name="ext" ifcVersion="IFC2X3"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCWALLSTANDARDCASE</simpleValue></name></entity></applicability><requirements><property dataType="IFCBOOLEAN"><propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet><baseName><simpleValue>IsExternal</simpleValue></baseName><value><simpleValue>true</simpleValue></value></property></requirements></specification></specifications></ids>`;
+  const r = check(ids, IFC2X3_XML);
+  assert.equal(r.schema, "IFC2X3");
+  assert.equal(r.specs[0].status, "pass");
+  assert.equal(r.specs[0].applicable, 1);
+});
+
+test("IFC4 shortcuts: string ids, an attribute element carrying xsi:type and an id, a back-pointer put back", () => {
+  // The shape of xBIM's QuantityTest.ifcxml: the site is written inside RelatedObjects.
+  const xml = `<?xml version="1.0"?><ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/final" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <IfcProject id="p1" GlobalId="3W_wCy4R58hgkAO0WsiUkm" Name="P"><IsDecomposedBy><IfcRelAggregates id="r9"><RelatedObjects><IfcBuilding id="b1" Name="B"/></RelatedObjects></IfcRelAggregates></IsDecomposedBy></IfcProject>
+    <IfcQuantityArea id="x1" Name="TestArea" AreaValue="2"/>
+    <IfcElementQuantity id="x2" Name="TestQuantities"><Quantities><IfcQuantityArea ref="x1"/></Quantities></IfcElementQuantity>
+    <IfcRelDefinesByProperties id="x3">
+      <RelatedObjects xsi:type="IfcSite" id="s1" GlobalId="1lOEDpLKz62xrR7$RUqRl$" Name="Testsite">
+        <SiteAddress id="a1" xsi:type="IfcPostalAddress" Purpose="site" Town="Newcastle upon Tyne"/>
+      </RelatedObjects>
+      <RelatingPropertyDefinition><IfcElementQuantity xsi:nil="true" ref="x2"/></RelatingPropertyDefinition>
+    </IfcRelDefinesByProperties>
+    <IfcSite ref="s1" xsi:nil="true"/>
+    <IfcBuilding id="b2" Name="B2"><Decomposes><IfcRelAggregates ref="r9" xsi:nil="true"/></Decomposes></IfcBuilding>
+  </ifcXML>`;
+  const m = new Model(xml, schemas);
+  const by = (x) => [...m.entities.values()].find((e) => e.xmlId === x);
+  const site = by("s1");
+  assert.equal(site.type, "IFCSITE");
+  assert.equal(m.attr(site, "Name"), "Testsite");
+  assert.equal(m.get(m.attr(site, "SiteAddress")).type, "IFCPOSTALADDRESS");
+  assert.deepEqual(m.attr(by("x3"), "RelatedObjects"), [{ ref: site.id }]);
+  assert.equal(m.attr(by("x1"), "AreaValue"), 2);
+  // A top-level ref element is not a second definition.
+  assert.equal([...m.entities.values()].filter((e) => e.type === "IFCSITE").length, 1);
+  // Decomposes (IfcRelAggregates FOR RelatedObjects) on b2 adds b2 to r9's list.
+  const r9 = by("r9");
+  assert.deepEqual(m.attr(r9, "RelatedObjects").map((r) => m.get(r).xmlId), ["b1", "b2"]);
+  assert.deepEqual(m.attr(r9, "RelatingObject"), { ref: by("p1").id }, "IsDecomposedBy (FOR RelatingObject) points r9 back at the project");
+});
+
+// --- .ifczip ---------------------------------------------------------------
+
+// A minimal zip writer for the tests (deflate or stored; optionally the zip64
+// extra field with 0xFFFFFFFF in the 32-bit slots, as .NET writes it).
+function zip(files, { method = 8, zip64 = false } = {}) {
+  const parts = [], central = [];
+  let off = 0;
+  const le = (n, w) => { const b = Buffer.alloc(w); if (w === 8) b.writeBigUInt64LE(BigInt(n)); else b.writeUIntLE(n, 0, w); return b; };
+  for (const [name, text] of files) {
+    const data = Buffer.from(text, "utf8"), body = method === 8 ? deflateRawSync(data) : data, nm = Buffer.from(name);
+    const x64 = zip64 ? Buffer.concat([le(1, 2), le(24, 2), le(data.length, 8), le(body.length, 8), le(off, 8)]) : Buffer.alloc(0);
+    const s32 = (n) => le(zip64 ? 0xffffffff : n, 4);
+    const local = Buffer.concat([le(0x04034b50, 4), le(zip64 ? 45 : 20, 2), le(0, 2), le(method, 2), le(0, 4), le(crc32(data), 4), s32(body.length), s32(data.length), le(nm.length, 2), le(0, 2), nm]);
+    central.push(Buffer.concat([le(0x02014b50, 4), le(45, 2), le(zip64 ? 45 : 20, 2), le(0, 2), le(method, 2), le(0, 4), le(crc32(data), 4), s32(body.length), s32(data.length), le(nm.length, 2), le(x64.length, 2), le(0, 2), le(0, 2), le(0, 2), le(0, 4), s32(off), nm, x64]));
+    parts.push(local, body);
+    off += local.length + body.length;
+  }
+  const cd = Buffer.concat(central);
+  const end = Buffer.concat([le(0x06054b50, 4), le(0, 2), le(0, 2), le(files.length, 2), le(files.length, 2), le(cd.length, 4), le(off, 4), le(0, 2)]);
+  return new Uint8Array(Buffer.concat([...parts, cd, end]));
+}
+const inflate = async (b) => new Uint8Array(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
+
+test("the committed sample .ifczip (written by Python's zipfile) holds the sample .ifc", async () => {
+  const bytes = new Uint8Array(readFileSync(here("samples/tiny-house.ifczip")));
+  const m = await unzipModel(bytes, inflate);
+  assert.equal(m.name, "tiny-house.ifc");
+  assert.equal(m.text, file("samples/tiny-house.ifc"));
+  const viaNode = await readModel(here("samples/tiny-house.ifczip").pathname);
+  assert.equal(viaNode.text, m.text);
+});
+
+test("zip reader: deflate and stored entries, zip64 fields, the model picked over other files", async () => {
+  const ifcx = file("samples/tiny-house.ifcxml");
+  for (const opts of [{}, { method: 0 }, { zip64: true }, { method: 0, zip64: true }]) {
+    const bytes = zip([["__MACOSX/._tiny.ifc", "junk"], ["readme.txt", "hi"], ["model/tiny-house.ifcxml", ifcx]], opts);
+    const m = await unzipModel(bytes, inflate);
+    assert.equal(m.name, "model/tiny-house.ifcxml", JSON.stringify(opts));
+    assert.equal(m.text, ifcx, JSON.stringify(opts));
+  }
+  assert.equal(pickModel(zipEntries(zip([["a.ifcxml", "<x/>"], ["b.ifc", "ISO"]]))).name, "b.ifc", ".ifc wins over .ifcxml");
+  await assert.rejects(unzipModel(zip([["notes.txt", "x"]]), inflate), /no \.ifc or \.ifcxml file/);
+  assert.throws(() => zipEntries(new Uint8Array([1, 2, 3, 4])), /not a zip/);
+});
+
+test("the command line reads .ifcxml and .ifczip and exits as for an .ifc", () => {
+  const cli = here("cli.mjs").pathname, ids = here("samples/coordination-basics.ids.xml").pathname;
+  const dir = mkdtempSync(join(tmpdir(), "ifcz-"));
+  const z = join(dir, "house.ifczip");
+  writeFileSync(z, zip([["tiny-house.ifcxml", file("samples/tiny-house.ifcxml")]]));
+  const run = (model) => {
+    try { return { code: 0, out: execFileSync(process.execPath, [cli, model, ids, "--json"], { encoding: "utf8" }) }; }
+    catch (e) { return { code: e.status, out: e.stdout }; }
+  };
+  const a = run(here("samples/tiny-house.ifc").pathname), b = run(here("samples/tiny-house.ifcxml").pathname), c = run(z), d = run(here("samples/tiny-house.ifczip").pathname);
+  assert.equal(a.code, 1, "the sample fails some specifications");
+  for (const r of [b, c, d]) {
+    assert.equal(r.code, a.code);
+    assert.deepEqual(verdicts(JSON.parse(r.out)), verdicts(JSON.parse(a.out)));
+  }
+  assert.equal(JSON.parse(c.out).modelFile, "tiny-house.ifcxml");
+});

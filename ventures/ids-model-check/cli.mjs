@@ -4,10 +4,12 @@
 //   node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N] [--no-audit]
 //   node cli.mjs --audit SPEC.ids [--json]     # check the IDS itself, no model
 //
+// MODEL may be a STEP .ifc, an .ifcxml, or an .ifczip holding either.
+//
 // Exit 0 when every specification passes, 1 when one fails, 2 on a usage or
 // read error. Nothing leaves the machine.
 import { readFileSync, writeFileSync } from "node:fs";
-import { check, resources } from "./node.mjs";
+import { check, resources, readModel } from "./node.mjs";
 import { textReport, auditReport } from "./report.mjs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
@@ -25,7 +27,7 @@ if (flag("--audit") && files.length === 1) {
   else console.log(auditReport(ids.title, ids.specs, issues));
   process.exitCode = issues.some((x) => x.level === "error") ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
@@ -33,7 +35,9 @@ if (flag("--audit") && files.length === 1) {
   let report;
   try {
     const t0 = Date.now();
-    report = check(readFileSync(idsPath, "utf8"), readFileSync(ifcPath, "utf8"), { audit: !flag("--no-audit") });
+    const model = await readModel(ifcPath);
+    report = check(readFileSync(idsPath, "utf8"), model.text, { audit: !flag("--no-audit") });
+    if (model.name !== ifcPath) report.modelFile = model.name;
     report.seconds = (Date.now() - t0) / 1000;
   } catch (e) {
     console.error(`error: ${e.message}`);

@@ -109,27 +109,26 @@ flagships:
       real merchant's payout export, a real 1099-K; (4) loans: LendingClub rounds
       payments up (99.97% of 445k, README), `--round up`; open: a lender's full
       table, a supplier's terms letter; (5) receipts OCR (page SROIE 84.6%, US
-      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos 55.8%, tax 16/41; open:
-      OCR-bound); (6) payroll (README): two journal layouts read; open: a real Gusto
-      or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
-      (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
-      last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
-      IN's band and day from the book (README); open: AR statutes, a real return
-      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
-      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
-      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
+      79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos 66.3%/55.8%, tax 16/41;
+      open: OCR-bound); (6) payroll (README): two journal layouts read; open: a real
+      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
+      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
+      discounts, IN's band and day from the book (README); open: AR statutes, a real
+      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
+      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
+      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
+      once printed. A run that lands a slice replaces its item here; keep this under
       2,000 characters.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
-      (eval/cord_images.py; huggingface.co answered 2026-11-16) read by `apt-get
-      install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD tax 133 of
-      185, totals 154 of 196; CORD test totals 53 of 95, tax 16 of 41
-      (eval/cord-photos-four-pass-2026-11-16.md). Page re-measured 2026-11-16:
-      156/196, tax 138/185; a cash-line guess gets no vote
-      (eval/receipt-cash-guess-2026-11-16.md). Next: score that on CORD
-      validation-30 (huggingface.co refused 2026-11-16 evening); validation-65's 1-1
-      tax tie. CORD test stays held out.
+      (eval/cord_images.py; huggingface.co answered 2026-11-16 late) read by
+      `apt-get install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD
+      totals 153 of 196, tax 134 of 185; CORD validation totals 65 of 98, tax 23 of
+      47; test 53 of 95, tax 16 of 41 (eval/cord-cash-guess-2026-11-16.md: exact
+      cash, tax ties). Next: read dash-prefixed amounts in the largest-amount
+      fallback ("AIR MINERAL -7,000"); "§2,000" for 52,000 (validation-84). CORD
+      test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -362,29 +361,28 @@ flagships:
       7x6; every 3k of 27-63 on the least 9-slot courts 0 waits; fails at <=3 spare
       slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37
       on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0
-      waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py).
-      Next, most valuable first: 41, 47 by it; the rest of the 20-team gap (40 to 44
-      still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a
-      starter family climbed with the floor as its score); 30 teams in the page
-      (README "Half the table": 104 s with the symmetric step, 2x 28 teams; next:
-      keep tables in the module, copy-in/out now as large as the step; 29 adds
-      nothing); the walk's last heavy tail (22 teams: 20 of 280 walks out of budget
-      either way, eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
-      (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
-      search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12
-      teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
-      out; 18 and 24 teams: 318 and 570 are the least starters
-      (eval/starter-exhaust.txt), so lower needs non-starter moves; a real league's
-      travel and blackout list. More open items: NEXT.md.
+      waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41
+      on 7x9: 13 of 14 nights (eval/lns-states/41-7x9.json, --resume). Next, most
+      valuable first: 41's last night (resume longer, or free 3 nights), then 47;
+      the rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
+      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
+      score); 30 teams in the page (README "Half the table": 104 s with the
+      symmetric step, 2x 28 teams; next: keep tables in the module, copy-in/out now
+      as large as the step; 29 adds nothing); the walk's last heavy tail (22 teams:
+      20 of 280 walks out of budget either way, eval/walk-guide.txt); home-and-away
+      breaks exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a
+      floor-priced home-and-away timetable search on it, and its cost at 18-20 teams
+      (26-76 s, PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by
+      eval/window-refill.c): below 132, or 124-130 ruled out; a real league's travel
+      and blackout list. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The 1.48x
-      wheel" (HOLD_RPM 3,000) and "A tach that averages a fixed time" (built, off:
-      it cost the drop fits). Next: wheels under 750 rpm get 3-4 revolutions before
-      the verdict (keep the snapshot past it until the targets change); warn before
-      a calibration drill when the survey sees an ESC lag ESC_TAU_US lacks (the hold
-      hurts then); does the hold make shots late?
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "Slow wheels
+      watched past the verdict". Next: set MIN_FIT_RPM (1,000; no floor looked as
+      good) on held-out builds; why the 0.8 s first-order slow drill aborts at shot
+      2 (on main too); warn before a calibration drill when the survey sees an ESC
+      lag ESC_TAU_US lacks (the hold hurts then); does the hold make shots late?
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -466,7 +464,8 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      .ifczip input (DecompressionStream); cross-check more public models from
+      an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
+      (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
       opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
       eval/crosscheck_ifctester.py; extend the IDS audit (audit.mjs) to standard
       property set names and data types (Pset_/Qto_ templates).
@@ -474,8 +473,9 @@ flagships:
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
       valuable first: (audit landed 2026-11-16: 26 of 27 invalid-* files read
-      INVALID, 0 of 307 valid ones; 12 example IDS clean); .ifczip and
-      ifcXML input; an MEP and an IFC4X3 infrastructure model through the IfcTester
-      cross-check; an IDS editor that offers the classes and property sets the
-      loaded model has; a GitHub Action wrapper; heap use on a 200 MB model;
-      a BIM coordinator's real IDS and model (needs a person).
+      INVALID, 0 of 307 valid ones; 12 example IDS clean); ifcXML and .ifczip read
+      2026-11-16 (eval/ifcxml-xbim-2026-11-16.md); an MEP and an IFC4X3
+      infrastructure model through the IfcTester cross-check; an IDS editor that
+      offers the classes and property sets the loaded model has; a GitHub Action
+      wrapper; heap use on a 200 MB model; a BIM coordinator's real IDS and model
+      (needs a person).

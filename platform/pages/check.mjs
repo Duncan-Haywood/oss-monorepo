@@ -596,6 +596,10 @@ export const SERVED_EXTENSIONS = new Map([
   ['.eml', 'stock'],
   // wall-framing-takeoff's IFC fixtures (STEP text); same note: no location block on the retired origin.
   ['.ifc', 'stock'],
+  // ids-model-check's sample models in the other two IFC forms (2026-11-16): ifcXML text and a zip holding an .ifc. The page
+  // never fetches them; a visitor who opens one directly downloads it, which is what they want from a sample model.
+  ['.ifcxml', 'stock'],
+  ['.ifczip', 'stock'],
   // systemd-unit-hardening-check's test fixtures (fixtures/*.service, *.service.d/*.conf), plain unit-file text its page never
   // fetches. mime-db (Cloudflare's asset server) types .conf as text/plain; .service has no entry, so a visitor who opens one
   // directly downloads it rather than reading it, harmless for a fixture (added 2026-11-11 after PR #14794 broke the pages check).

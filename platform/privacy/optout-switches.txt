@@ -703,6 +703,7 @@ ventures/merchant-cash-advance-true-cost-calculator/usage.mjs
 ventures/merchant-feed-check/usage.mjs
 ventures/merchant-of-record-fee-calculator/usage.mjs
 ventures/meta-ads-fatigue-analyzer/usage.mjs
+ventures/meta-analysis/usage.mjs
 ventures/meta-catalog-csv-check/usage.mjs
 ventures/metal-roof-bid-calculator/usage.mjs
 ventures/meter-keeper/usage.mjs
@@ -985,6 +986,7 @@ ventures/sba-loan-capacity-calculator/usage.mjs
 ventures/sbir-budget-builder/usage.mjs
 ventures/sbom-diff-check/usage.mjs
 ventures/schengen-90-180-day-calculator/usage.mjs
+ventures/school-timetable-builder/usage.mjs
 ventures/scope-creep-change-order-calculator/usage.mjs
 ventures/scrap-gold-buy-price-calculator/usage.mjs
 ventures/scrap-metal-yard-payout-calculator/usage.mjs
