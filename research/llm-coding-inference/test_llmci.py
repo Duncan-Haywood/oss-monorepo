@@ -713,3 +713,42 @@ def test_rare_fallback_is_wilson_on_the_labels_and_defaults_to_three():
         else:
             assert (est, lo, hi) == base
     assert fired >= 10  # about 1.2 expected positives per audit, so the fallback is exercised
+
+
+def test_neg_floor_default_is_the_7az_joint_trigger():
+    """LOG.md 7az: plan_audit's default NEG_FLOOR = (5, 0.40, 2) marks a one-phase cells plan whose pilot holds fewer
+    than 5 coder misses and has J_hat under 0.40, and audit_interval then floors the coder-negative cell at the
+    plus-two pseudo-count variance; the result equals the experiment's p5j40 interval (`h7au_neg_floor.interval`)."""
+    import importlib.util
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    import h7au_neg_floor as U
+    # a private copy: experiment modules imported by other tests set the shared module's NEG_FLOOR to None
+    spec = importlib.util.spec_from_file_location("audit_design_7az", Path(__file__).resolve().parent / "llmci" / "audit_design.py")
+    S = importlib.util.module_from_spec(spec); spec.loader.exec_module(S)
+    assert S.NEG_FLOOR == (5, 0.40, 2)
+    rng = random.Random(11)
+    y, f = corpus(6000, 0.02, 0.7, 0.7, rng)
+    n, k, seen = 1000, 700, {"floored": 0, "cells": 0}
+    for seed in range(80):
+        aud = random.Random(seed).sample(range(6000), n)
+        pilot = {i: y[i] for i in aud[:k]}
+        plan = S.plan_audit(f, pilot, n, tau=0.10)
+        if plan["design"] != "cells":
+            assert "neg_pseudo" not in plan
+            continue
+        seen["cells"] += 1
+        py, pf = [pilot[i] for i in sorted(pilot)], [f[i] for i in sorted(pilot)]
+        on = sum(1 for a, b in zip(py, pf) if a and not b) < 5 and S.informedness(py, pf) < 0.40
+        assert ("neg_pseudo" in plan) == on
+        seen["floored"] += on
+        labels = dict(pilot)
+        sb = random.Random(1000 + seed)
+        for cell, t in zip(plan["cells"], plan["to_label"]):
+            for i in sb.sample([i for i in cell if i not in labels], t):
+                labels[i] = y[i]
+        lib = S.audit_interval(plan, f, labels)
+        mine = U.interval(plan, f, labels, ("neg", "pseudo", 2) if on else None)
+        assert max(abs(a - b) for a, b in zip(lib, mine)) < 1e-12
+        off = S.audit_interval({kk: v for kk, v in plan.items() if kk != "neg_pseudo"}, f, labels)
+        assert (off[2] - off[1]) <= (lib[2] - lib[1]) + 1e-15
+    assert seen["cells"] > 0 and 0 < seen["floored"] < seen["cells"], seen

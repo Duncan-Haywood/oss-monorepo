@@ -317,4 +317,8 @@ test("a total line read with a leading zero (04.78) counts as a guess in the vot
   assert.equal(parseReceipt("MESA CAFE\nTOTAL: 04.78").cents, 478);
   // "TOTAL 0.78" is not a lost digit
   assert.equal(parseReceiptPasses(["MESA CAFE\nTOTAL 0.78", "MESA CAFE\nTOTAL 9.78", "MESA CAFE\nTOTAL 0.78", "MESA CAFE"]).cents, 78);
+  // a stray 0 before an intact total, with no reading offering a lost first digit, keeps its
+  // full vote (SROIE 169, held out: "Grand Total 029,30" against guesses of 3.00)
+  const y = (t) => `YAM FRESH\nsHerb.J RH3.00\n${t}\nCash RM30,30`;
+  assert.equal(parseReceiptPasses([y("Grand Total VAS, x 30"), y("Grand Total 029,30"), y("Grand Total VAS) x 30"), y("Grand Total VAS) x 30")]).cents, 2930);
 });

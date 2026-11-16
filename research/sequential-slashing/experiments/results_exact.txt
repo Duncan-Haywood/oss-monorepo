@@ -1,0 +1,28 @@
+E5. exact values for the E1/E2 setting (p=0.2, q=0.3, alpha=0.05; boundary DP, src/sequential_slashing/exact.py)
+  false slash within T=2000: peeking z 0.3731   LR 0.0432   mixture(K=32) 0.0310
+  mean delay: LR 111.8  mixture 159.2  Wald 106.4  LR overshoot +5.1%  price of not knowing q x1.42
+  alpha sweep (LR, q=0.3): a=0.2: 62.4/57.1  a=0.05: 111.8/106.4  a=0.01: 169.2/163.5  a=0.001: 251.0/245.2   (exact mean / Wald)
+  q sweep (LR, alpha=0.05): q=0.25: 417.3/405.8  q=0.3: 111.8/106.4  q=0.4: 31.3/28.6  q=0.6: 8.9/7.8
+E6. sweep over the claimed rate p; cheater reports p, true rate q = 1.5p (alpha=0.05, exact)
+  T = 12 x Wald + 200. 'detected' is P(slashed by T); a mean delay is shown only when that is >= 0.99.
+  p      z false(T=2000)  LR false  uniform-grid false  log-grid false   Wald  LR delay  uniform-grid delay  log-grid delay
+  0.01   0.3551           0.0437    0.0172              0.0262           2737    2865    detects 0.26          4018 (x1.40)
+  0.05   0.3753           0.0435    0.0200              0.0253            522     547      1059 (x1.94)         764 (x1.40)
+  0.2    0.3731           0.0432    0.0307              0.0205            106     112       159 (x1.42)         159 (x1.42)
+  0.5    0.3640           0.0412    0.0346              0.0141             23      24        28 (x1.14)          37 (x1.51)
+E7. time-varying claims: p_t log-uniform on [0.01, 0.3] each round, T=1000, K=16, 400 trials (Monte Carlo; +/- is 1 SE)
+  honest:
+    z-peek: 0.345+/-0.024
+    tv one-sided: 0.028+/-0.008
+    tv two-sided: 0.022+/-0.007
+    tv two-sided log-grid: 0.005+/-0.004
+  under-reports x1.5:
+    z-peek: 1.000+/-0.000 mean t 113
+    tv one-sided: 0.537+/-0.025 mean t 526
+    tv two-sided: 0.445+/-0.025 mean t 582
+    tv two-sided log-grid: 0.542+/-0.025 mean t 544
+  over-reports x2 (true p/2):
+    z-peek: 0.005+/-0.004 mean t 30
+    tv one-sided: 0.003+/-0.002 mean t 5
+    tv two-sided: 0.998+/-0.002 mean t 281
+    tv two-sided log-grid: 0.998+/-0.002 mean t 360

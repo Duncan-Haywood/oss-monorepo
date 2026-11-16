@@ -7,6 +7,7 @@ HERE = Path(__file__).resolve().parent
 sys.argv = sys.argv[:1]; sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 from llmci import audit_design as A
 A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 import h7ao_two_phase as T
 c=next(c for c in T.cells() if c['label']=='1.5B disapproval' and c['n']==1000)
 out = []

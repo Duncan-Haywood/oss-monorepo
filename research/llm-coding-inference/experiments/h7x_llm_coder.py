@@ -17,6 +17,7 @@ import h6r_rare_pilot as P  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
 A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 SEED, N, MODEL = 20261106, 1000, "Qwen2.5-1.5B-Instruct"
 RULES = (("pooled", 2.0, 0, 0), ("old default (neg_guard 0)", A.TAU_6AM, A.GUARD_6AM, 0), ("shipped default (neg_guard 3)", A.TAU_6AM, A.GUARD_6AM, A.NEG_GUARD), ("neg_guard=3 alone", 0.0, 0, A.NEG_GUARD))

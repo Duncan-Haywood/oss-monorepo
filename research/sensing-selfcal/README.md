@@ -13,6 +13,18 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (278 of 278,
 revised with milestones 4e–4s and 3b) and a list of what a submission still needs.
 
+**Milestone 3c headline** (natural features again: can the robot get an *honest* error bar on f from one 1.2 s
+window of video, where milestone 3b's solver sd was 4&ndash;12&times; too small? same 65 TUM RGB-D windows): **yes, by
+re-solving with each keyframe left out, and the honest bar is wide.** A delete-one-keyframe jackknife (12 warm-started
+re-solves per window) gives rms z 1.76 against the board calibration over 57 windows (solver 9.31) and 89% 2-sd
+coverage (solver 18%), and its median sd matches the real scatter across windows in every sequence (0.9&ndash;1.6&times;).
+A sandwich clustered by track does not fix it (rms z 6.6) and residuals barely correlate along tracks, so the missing
+error enters per keyframe, not per feature. But the honest sd is a median 6.4% of f and only 9% of windows reach 2%, and
+on the near-critical translation-only sequence (fr1/xyz) the jackknife is still too small (rms z 2.58). Two of six
+pre-registered predictions held (H124, H126).
+
+![Focal error against each window's sd under the solver and the keyframe jackknife, and rms z per sequence for the solver, two sandwiches and the jackknife](experiments/m3c_jackknife/jackknife.png)
+
 **Milestone 4u headline** (if the update test centres its "too far to judge" window on the camera's own current
 calibration instead of the spec-sheet focal length, does a real change cost the same on either side? no new solves,
 18 pairings of three pools on two cameras): **yes, and it stays safe.** Rule U withholds the decision when the old
@@ -916,6 +928,8 @@ pip install numpy scipy opencv-python-headless matplotlib pytest
 sh experiments/m3b_natural/fetch.sh tum   # 1.3 GB of TUM RGB-D video (CC BY 4.0)
 OMP_NUM_THREADS=1 python3 experiments/m3b_natural/run.py tum 4  # ~45 min on 4 cores; results.json
 python3 experiments/m3b_natural/analyse.py # summary.json, natural.png
+OMP_NUM_THREADS=1 python3 experiments/m3c_jackknife/run.py tum 4  # ~50 min on 4 cores, resumable; results.json
+python3 experiments/m3c_jackknife/analyse.py # summary.json, jackknife.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1018,6 +1032,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3c: the keyframe jackknife gives each natural-feature window an honest but wide sd (median 6.4% of f), so the
+next steps are (a) pooling windows by it, pre-registered against milestone 3b's plain median (an inverse-variance mean was
+&minus;4.5% off on the translation-only fr1/xyz, read after scoring), (b) a motion check from the solved poses or an IMU that
+withholds near-critical windows, where the jackknife is still too small (rms z 2.58), and (c) longer windows, to see how fast
+the honest sd falls with keyframes.
 
 After milestone 4p: build the reference from the new set's own geometry (done in milestone 4q as a gate on
 the twin's sd: power ×1.75, far solves gone, but the Xtion's flat pool still over-alarms at 5.9%) and check it

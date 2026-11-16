@@ -124,11 +124,11 @@ flagships:
       Receipts, item (5), on the public SRD photos (eval/srd-fetch.mjs,
       raw.githubusercontent.com; `apt-get update && apt-get install -y
       tesseract-ocr` gives tesseract 5.3.4 in about a minute): CLI `--four-pass` tax
-      133 of 185, totals 154 of 196; the 26 no-tax wrong-total photos are mostly
-      OCR-bound (eval/receipt-total-first-2026-11-16.md); next: a held-out
-      multi-reading set (CORD photos via eval/cord_images.py); rebuild the page's
-      readings (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item
-      splits after the 2026-11-16 change. CORD stays the held-out check.
+      133 of 185, totals 154 of 196; held out (SROIE 625) the rules gain and lose 0
+      (eval/receipt-total-first-heldout-2026-11-16.md); next: CORD photos
+      (eval/cord_images.py; huggingface.co 403'd here); rebuild the page's readings
+      (eval/receipt-tax-labels-2026-11-15.md) to measure the page's item splits
+      after the 2026-11-16 change. CORD stays the held-out check.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -240,7 +240,7 @@ flagships:
       History: README, eval/*. Hub, clock (PINs, geofence), PAY_RULES (NV, 13 meal
       states), leave accrual (LEAVE_ACCRUAL), fair-workweek log and pay
       (FAIR_WORKWEEK; team-offer exception, on-call shifts, Oregon's standby list,
-      Philadelphia and LA presets; next a real site's changes): next live deploy,
+      Philadelphia, LA, NYC presets; next a real site's changes): next live deploy,
       real punches at a site. Exact side: branch-and-price and column generation
       prove 20-80 person weeks; the exact check is on by default at every size.
       Forecast side (--from-sales, eight real files, eval/real-pos-exports.mjs):
@@ -272,11 +272,10 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer boosted trees beat B
-      on test (+0.451 vs +0.406 dB) but K-1 II falls below 3/16
-      (eval/bayer-boosted-weight-*); next a guarded variant, then numpy tree
-      inference. X-Trans: a per-frame choice (A7 IV wants less edge-keeping, GF7/NX1
-      a wider red/blue window; --truth-from,
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer trees parked: a
+      range guard passes 6 fresh cameras, misses K-1 II/A7 III; no fresh frames left
+      (eval/bayer-boosted-guard-*). X-Trans: a per-frame choice (A7 IV wants less
+      edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
       eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
       eval/opcode-spec-audit-2026-11-12.md.
     next: >-
@@ -432,10 +431,10 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-16
-      latest: voice bar set per note, 28 dB under its vowel (held-out Q voiced stops
-      95 to 102 of 120; openings G 1959 to 2055; K's ib/eb and N's nab/gab worse);
-      next: those four, L's cum, sons/rint on D4). Open checks that need a person:
-      listen to the studio page, --sing, the options (--stretch, --halftime,
+      latest: closures read against the vowel before them (held-out R voiced stops
+      99 to 103 of 120; low-passed bar tried, off); next: D#4-E4 bursts under the
+      bar (nab/gab), R's misses, L's cum, sons/rint). Open checks that need a
+      person: listen to the studio page, --sing, the options (--stretch, --halftime,
       --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella
       verse and whether the key lift sounds like a lift); --lrc in a real player and
       --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md

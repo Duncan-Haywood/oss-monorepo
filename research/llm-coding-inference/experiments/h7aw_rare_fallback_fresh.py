@@ -71,6 +71,7 @@ ARGS, sys.argv = sys.argv[1:], sys.argv[:1]
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 from llmci import audit_design as A  # noqa: E402
 A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 import h7au_neg_floor as U  # noqa: E402
 import h7av_rare_fallback as V  # noqa: E402
 
