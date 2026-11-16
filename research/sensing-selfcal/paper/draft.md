@@ -377,9 +377,20 @@ per-split threshold of the two pools' twins. False alarms stay under the 2.5% ba
 in 7.96% of splits against 14.76% in-sample. The second pool is flatter (median tilt 0.147 against 0.268 and
 0.063 against 0.101), its 6-view solves scatter twice as much (1.23% of f against 0.59% and 0.50%), and
 within it alone the Xtion's false alarms reach 4.44%; the across-pool power lies between the two pools' own
-(14.8% and 5.7%). The two 13-view calibrations agree to +0.17% and +0.58%, 0.98 and 2.71 of the twins' sd.
+(14.8% and 5.7%). The two 13-view calibrations agree to +0.17% and +0.58%, 0.98 and 2.71 of the twins' sd
+taken as iid noise; with the twins' own residual-pattern sd (std over their draws) the gaps are 0.29 and 1.59
+(milestone 4r), so the two calibrations are consistent.
 The in-sample false-alarm rates of this section are therefore lower bounds, and the test's safety depends on
 the geometry of the new views as well as on the threshold.
+
+**A per-view error in the twin (milestone 4r, pre-registered).** The twin's noise resamples each view's
+residual pattern and so carries no error shared by a whole view. Giving each view its own effective focal
+length, f + δf<sub>v</sub> with δf<sub>v</sub> ~ N(0, τ²), and fitting τ per pool so that the twin's robust spread of 6-view f
+matches the real one (only the pool's own solves are used) gives τ of 0.75% and 0.22% of f on the tilted
+pools and 1.88% and 1.80% on the flat ones. With that twin's per-split threshold every unit and pairing stays
+at or below 0.58% false alarms (the flat Xtion pool from 4.44%; 0.37% pooled), but ±2% is caught in 4.07% of
+splits against 9.08% (×0.45). A per-view f offset is the most costly shape the missing error could take; the
+safe threshold with the least lost power is open.
 
 ## 8. Recommendations
 
