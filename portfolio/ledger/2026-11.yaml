@@ -134,3 +134,17 @@ entries:
         tests; driven in headless Chromium at 1280 and 390 px with no console
         errors. Not yet checked on a real EFL PDF or a real SMT download.
     mrr_end: 0
+  - venture: school-timetable-builder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/school-timetable-builder, a
+        browser and CLI school timetable generator (plain-text lessons, doubles,
+        room types, joint classes, teachers' periods off and daily max), with a
+        counting feasibility check, greedy plus simulated-annealing solver and
+        an independent validator. 21 of 21 synthetic fully booked schools (4 to
+        40 classes) solved clash-free in 0.2 to 2.3 s. 32 tests; driven in
+        headless Chromium at 1200 and 390 px with no console errors. Not yet
+        tried on a real school's timetable or the ITC 2011 archive.
+    mrr_end: 0
