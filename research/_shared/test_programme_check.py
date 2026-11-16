@@ -65,6 +65,19 @@ class ProgrammeCheckTest(unittest.TestCase):
         self.assertEqual(self.check(self.make("b", card={"programme": "none", "why_standalone": "a dataset"})), [])
 
 
+class LongParagraphTest(unittest.TestCase):
+    def test_flags_only_lines_over_the_limit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "README.md").write_text("# T\n\n" + "x" * 50 + "\n\n" + "y" * 101 + "\n")
+            self.assertEqual(pc.long_paragraphs(d, limit=100), [(5, 101)])
+            self.assertEqual(pc.long_paragraphs(d, limit=101), [])
+
+    def test_no_readme(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(pc.long_paragraphs(Path(tmp)), [])
+
+
 class SrcLayoutTest(unittest.TestCase):
     """research/_shared/src_layout.py: tests that import a src/ package need src/ on pytest's path."""
 
