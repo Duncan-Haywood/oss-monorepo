@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVP6hibMX76X7aySwPL",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T05:14:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Little Lamps story angela-and-the-girls-around-the-kitchen-table (Saint Angela Merici, 27 January), text only",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 16460,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "model field left null: the harness asks that no model identifier be committed to the repository",
+      "did": "set model to null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-little-lamps-angela-merici.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, shelf little-lamps, piece angela-and-the-girls-around-the-kitchen-table. creative_due drew little-lamps; no open PR covered it. Text only: audio at 577 MB of the 400 MB cap. Story body 1,296 words. Brudazzo vision, Crete blindness, Clement VII audience and Cremona left out and named in the note; the sister's-death comfort kept as a labelled tradition; the proposal's 'first such company' softened. BIBLE entry moved to DONE.md by bible_done.mjs; Vincent Ferrer proposed next. Verification: node --test 17/17; check_post_frontmatter ok; run_workflow_locally --for-changes 11/11 workflows passed (uses: steps and the deploy/review jobs not run; one portfolio-validate step reported pytest missing).",
+  "corrections": [],
+  "redteam": null
+}

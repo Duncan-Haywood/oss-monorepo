@@ -1352,6 +1352,19 @@ single-threaded three-pass `postprocess` 2.5 s). To make that exact on every mac
 `** 4` became two squarings: numpy's float32 power follows the CPU's SIMD library and differed from libm
 on a fifth of values here (output moved by at most 0.02 of a 16-bit step). `SHOOTFLOW_NATIVE=0` turns it off.
 
+**2026-11-16: checked on seven held-out truths; ahead of LibRaw's three passes under noise on all seven**
+(`eval/xtrans-fresh-truths-2026-11-16.md`). Only two X-Trans frames are in the public sample set, so the
+check tool now borrows scenes: `tools/xtrans_demosaic_check.py --truth-from FILE` renders any raw LibRaw
+reads (here six Bayer frames from Sony, Nikon, Canon, Panasonic, Samsung and OM System bodies), bins it
+4 x 4 and mosaics it with the RAF's own X-Trans layout, LibRaw getting the same mosaic. On those six and the
+X-E2, none used to tune it, the shipped default has higher colour PSNR than LibRaw 0.22.2's three-pass
+Markesteijn on four of seven noise-free (-0.46 to +2.41 dB) and all seven at SNR 25 (+0.07 to +2.3), higher
+luma on six of seven noise-free, and lower 99th-percentile false colour at SNR 25 on all seven. Under noise
+its luma trails by 0.01-0.6 dB on six (the median's cost). Two changes that gained on the X-E1 were
+refused: keeping green out of the median (now `directional(..., median_green=False)`, numpy only: worse on
+six of seven noise-free, up to 1.4 dB, a wash at SNR 25) and a green-guided red/blue step. The default is
+unchanged.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

@@ -42,6 +42,7 @@ import { esc, renderMarkdown } from '../devlog/markdown.mjs';
 import { formatCount } from './count.mjs';
 import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
+import { decodeEntities } from './entities.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -166,7 +167,7 @@ export function projectName(slug, root = DEFAULT_ROOT) {
  * first: `{ slug, name, count }`. Until 2026-11-16 the topic page was one 52-page date list
  * of 2,595 posts, 84% of them about 14 ventures.
  */
-export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', names = (slug) => projectName(slug, root), questions = () => '' } = {}) {
+export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', names = (slug) => projectName(slug, root), questions = () => '', ledes = () => '' } = {}) {
   const counts = new Map();
   for (const p of posts) if (p.project) counts.set(p.project, (counts.get(p.project) || 0) + 1);
   return [...counts]
@@ -174,7 +175,8 @@ export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', nam
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(([slug, count]) => {
       const question = topic === 'research' ? questions(slug) : '';
-      return { slug, name: topic === 'research' ? slug : names(slug), count, topic, ...(question ? { question } : {}) };
+      const lede = topic === 'research' ? ledes(slug) : '';
+      return { slug, name: topic === 'research' ? slug : names(slug), count, topic, ...(question ? { question } : {}), ...(lede ? { lede } : {}) };
     });
 }
 
@@ -187,6 +189,55 @@ export function researchQuestions(root = DEFAULT_ROOT) {
   const data = loadResearchRegistry(root);
   const out = new Map();
   for (const t of data?.themes ?? []) for (const p of t.projects ?? []) if (p.slug && p.title) out.set(p.slug, String(p.title).replace(/<[^>]+>/g, '').trim());
+  return out;
+}
+
+// Opening sentences that say what kind of page this is rather than what was found
+// (2026-11-16: 4 of the 24 programmes with a findings page open this way).
+const LEDE_BOILERPLATE = [/^an open research programme( rather than a finished project)?\.$/i, /^an open research programme with milestones [^;]*logged;/i];
+// "et al. 2022", "e.g. x", "vs. y": a full stop there does not end the sentence.
+const NOT_A_STOP = /(?:\bet al|\be\.g|\bi\.e|\bvs|\bcf|\bFig|\bNo|\bSec|\bEq|\bapprox|\b[A-Z])\.$/;
+
+/**
+ * A plain-text lede from a research registry card's `summary` (HTML): whole sentences, skipping
+ * a boilerplate opener, up to `max` characters (the first sentence alone when it is longer, whole up to `stretch` × `max`
+ * (1.5; 1 for a meta description, which search results cut near 160), clipped at a word with an ellipsis past that). The summaries run 180 to 30,000 characters; the page dek and
+ * meta description want the first finding, not the whole log.
+ */
+export function researchLede(summaryHtml, max = 320, { stretch = 1.5 } = {}) {
+  const text = decodeEntities(String(summaryHtml || '').replace(/<sup>([^<]*)<\/sup>/gi, '^$1').replace(/<sub>([^<]*)<\/sub>/gi, '_$1').replace(/<[^>]+>/g, '')).replace(/[ \t\r\n]+/g, ' ').trim(); // keeps a decoded &nbsp;
+  if (!text) return '';
+  const sentences = [];
+  let start = 0;
+  for (const m of text.matchAll(/[.!?](?=\s+[A-Z0-9(“"])/g)) {
+    const end = m.index + 1;
+    if (NOT_A_STOP.test(text.slice(Math.max(start, end - 8), end))) continue;
+    sentences.push(text.slice(start, end).trim());
+    start = end;
+  }
+  if (start < text.length) sentences.push(text.slice(start).trim());
+  while (sentences.length > 1 && LEDE_BOILERPLATE.some((re) => re.test(sentences[0]))) sentences.shift();
+  let out = '';
+  for (const s of sentences) {
+    const next = out ? `${out} ${s}` : s;
+    if (next.length > max) break;
+    out = next;
+  }
+  if (out) return out;
+  // A first sentence up to half again the budget reads better whole than clipped.
+  if (sentences[0].length <= max * stretch) return sentences[0];
+  const cut = sentences[0].slice(0, max - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 1)).replace(/[\s,;:(–—-]+$/, '')}…`;
+}
+
+/** Each research programme's lede (`researchLede` of its registry card summary), by slug. */
+export function researchLedes(root = DEFAULT_ROOT, max = 320) {
+  const data = loadResearchRegistry(root);
+  const out = new Map();
+  for (const t of data?.themes ?? []) for (const p of t.projects ?? []) {
+    const lede = p.slug && researchLede(p.summary, max);
+    if (lede) out.set(p.slug, lede);
+  }
   return out;
 }
 
@@ -922,10 +973,13 @@ export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard 
   const blurb = research
     ? `Every blog post from the ${project.name} research programme: each finding, with its numbers, caveats and negative results.`
     : `Every blog post about ${project.name}: what was built, what was measured and what changed.`;
+  // A programme's dek says what it asks or found (its registry summary's opening sentences);
+  // the generic line is the fallback. The meta row below still says what the list is.
+  const lede = research && !sub ? project.lede || '' : '';
   const openLabel = research ? `Read the ${project.name} programme` : `Open ${project.name}`;
   return shell({
     title,
-    description: [`${blurb} ${n} posts, newest first.`, blurb].find((d) => d.length <= 160) ?? blurb,
+    description: lede ? researchLede(lede, 160, { stretch: 1 }) : [`${blurb} ${n} posts, newest first.`, blurb].find((d) => d.length <= 160) ?? blurb,
     canonical,
     socialCard,
     toRoot,
@@ -948,7 +1002,7 @@ export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard 
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
       name: seo,
-      description: blurb,
+      description: lede || blurb,
       url: canonical || undefined,
       isPartOf: { '@type': 'Blog', name: BLOG.feedTitle, url: baseUrl ? `${baseUrl}${WRITING_PATH}` : undefined },
       ...(toolHref && baseUrl ? { about: { '@type': research ? 'ResearchProject' : 'SoftwareApplication', name: question || project.name, url: `${baseUrl}${toolHref}` } } : {}),
@@ -960,7 +1014,7 @@ export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard 
     },
     hero: `<p class="eyebrow">${research ? `Research programme · ${esc(project.name)}` : 'Project log'}</p>
 <h1>${esc(question || project.name)}${sub ? `, page ${page}` : ''}</h1>
-<p class="dek">${esc(blurb)}</p>
+<p class="dek">${esc(lede || blurb)}</p>
 <p class="meta">${sub ? `Posts ${first} to ${first + posts.length - 1} of ${n}, newest first.` : `${n} posts, newest first.`}${toolHref ? ` <a href="${toRoot}${esc(toolHref)}">${esc(openLabel)}</a> ·` : ''} <a href="${toTopic}">all ${esc(topic.label.toLowerCase())}</a></p>`,
     body: `<ul class="posts" id="posts">
 ${renderCards(posts, toBlog, { topicPill: false })}
@@ -1416,9 +1470,10 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
   const aliases = [].concat(originAlias || []).filter((a) => a && baseUrl && a !== baseUrl);
   const rebase = (html) => aliases.reduce((h, a) => h.split(a).join(baseUrl), html);
   const questions = researchQuestions(root);
+  const ledes = researchLedes(root);
   const projects = [
     ...projectGroups(posts.filter((p) => p.topic === 'tools'), { root }),
-    ...projectGroups(posts.filter((p) => p.topic === 'research'), { root, topic: 'research', questions: (slug) => questions.get(slug) || '' }),
+    ...projectGroups(posts.filter((p) => p.topic === 'research'), { root, topic: 'research', questions: (slug) => questions.get(slug) || '', ledes: (slug) => ledes.get(slug) || '' }),
   ];
   await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published });
   if (agentPosts.length) {
@@ -1446,7 +1501,9 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
   ];
 }
 
-const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
+// By resolved path: a basename suffix match ran a full blog build when any script whose
+// name `writing.mjs` ends with (`g.mjs`, `ing.mjs`) imported this module.
+const invokedDirectly = Boolean(process.argv[1]) && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (invokedDirectly) {
   const arg = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];
   const out = arg('out') ?? path.join(HERE, 'dist');

@@ -346,8 +346,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (46 stories)
+### For Other Minds (48 stories)
 
+- [Laetare with Laetare](stories/laetare-with-laetare.md) (2026-11-16; 13 min read, text only)
+- [The Break in the Line](stories/the-break-in-the-line.md) (2026-11-16; 15 min read, text only)
 - [A Reason for a Second Look](stories/a-reason-for-a-second-look.md) (2026-11-15; 14 min read, text only)
 - [How Many People Is That?](stories/how-many-people-is-that.md) (2026-11-15; 12 min read, text only)
 - [Ninety-Seven Visits](stories/ninety-seven-visits.md) (2026-11-15; 12 min read, text only)
@@ -395,8 +397,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (65 stories)
+### Little Lamps (66 stories)
 
+- [Angela and the Girls around the Kitchen Table](stories/angela-and-the-girls-around-the-kitchen-table.md) (2026-11-16; 10 min read, text only)
 - [Francis de Sales and the Letters under the Doors](stories/francis-de-sales-and-the-letters-under-the-doors.md) (2026-11-16; 11 min read, text only)
 - [John of the Cross and the Songs in the Dark](stories/john-of-the-cross-and-the-songs-in-the-dark.md) (2026-11-16; 11 min read, text only)
 - [Aloysius and the Man in the Street](stories/aloysius-and-the-man-in-the-street.md) (2026-11-15; 11 min read, text only)
