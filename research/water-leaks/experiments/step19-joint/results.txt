@@ -1,0 +1,80 @@
+# water-leaks step 19: joint multi-source fit. D = published - leak-free L-TOWN_Real.inp run (hourly);
+# baseline-window mean fitted by non-negative greedy pursuit over nominal L-TOWN.inp q = 5 signatures
+# (per m3/h, centred), window [t, t+24) refitted from the baseline's atoms; estimate = largest flow rise;
+# rule 300 m along pipes
+
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m (P(chance >=); median error m), primary J-lag(168), stop at 5% RMS gain
+  J-lag(168), primary                      11 of 32 (0.0000;   447); abrupt 10 of 15, incipient 1 of 17
+  J-on (onset baseline, oracle onset)      12 of 32 (0.0000;   502); abrupt 9 of 15, incipient 3 of 17
+  ref: A on D-lag(168) (step 18)           11 of 32 (0.0000;   742); abrupt 8 of 15, incipient 3 of 17
+  ref: A on D1 regression (step 11)        15 of 32 (0.0000;   436); abrupt 10 of 15, incipient 5 of 17
+  ref: A on O-inc (step 15)                16 of 32 (0.0000;   340); abrupt 11 of 15, incipient 5 of 17
+  ref: A on one-leak oracle (step 17)      28 of 32 (0.0000;    68); abrupt 13 of 15, incipient 15 of 17
+
+## sweep (no verdicts)
+  J-lag(24), 5%                             9 of 32 (0.0000;   669); abrupt 9 of 15, incipient 0 of 17
+  J-lag(72), 5%                             7 of 32 (0.0004;   667); abrupt 7 of 15, incipient 0 of 17
+  J-lag(168), 5%                           11 of 32 (0.0000;   447); abrupt 10 of 15, incipient 1 of 17
+  J-lag(336), 5%                           13 of 32 (0.0000;   502); abrupt 10 of 15, incipient 3 of 17
+  J-lag(168), stop at 2%                   10 of 32 (0.0000;   594); abrupt 9 of 15, incipient 1 of 17
+  J-lag(168), stop at 10%                  11 of 32 (0.0000;   390); abrupt 9 of 15, incipient 2 of 17
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  J168 only 4, Dlag only 4: P = 1.000
+  J168 only 3, d1 only 7: P = 0.344
+  J168 only 1, or17 only 18: P = 0.000
+  J168 only 2, oinc only 7: P = 0.180
+  Jon only 1, oinc only 5: P = 0.219
+
+## the window fit at t (primary)
+  atoms fitted: median 10 (range 1 to 16)
+  centred RMS of D_t: median 0.2118 m; after the fit: median 0.0124 m (range 0.0040 to 0.0724); share left median 0.046
+  leaks running (>= 1 m3/h): median 6; with a fitted atom within 300 m: median 4; pooled 147 of 250 (0.59)
+
+## seen after the run (post hoc, no verdict): is the target among the window fit's atoms at all?
+  abrupt   : an atom within 300 m of the target 11 of 15; of those, picked by the largest rise 10; chance (as many atoms drawn at random) expected 5.45, P(chance >=) 0.0030
+  incipient: an atom within 300 m of the target 10 of 17; of those, picked by the largest rise 1; chance (as many atoms drawn at random) expected 5.46, P(chance >=) 0.0155
+  all      : an atom within 300 m of the target 21 of 32; of those, picked by the largest rise 11; chance (as many atoms drawn at random) expected 10.90, P(chance >=) 0.0001
+
+  pipe  kind       t                 q m3/h | J168 | Jon | Dlag | oracle | atoms | rms m  | run | found
+   p232 incipient  2018-02-02T15      18.7 |  445 |  404 |  186 |    246 |     6 | 0.0090 |   2 |   1
+   p673 abrupt     2018-03-05T16      28.4 |  329 |   66 |   22 |    200 |     5 | 0.0366 |   3 |   2
+   p461 incipient  2018-03-09T04      15.5 | 2414 | 2414 | 2164 |     20 |     7 | 0.0389 |   3 |   3
+   p427 incipient  2018-04-18T21       2.6 | 1646 | 1431 | 1481 |     25 |     3 | 0.0044 |   2 |   1
+   p628 incipient  2018-05-12T08      19.5 |  208 |  208 |  101 |     28 |    10 | 0.0054 |   3 |   2
+   p538 abrupt     2018-05-18T09      32.4 |  449 |  218 |  215 |     59 |    11 | 0.0188 |   4 |   3
+   p866 abrupt     2018-06-01T09      20.3 |  198 |  360 |  103 |     19 |    12 | 0.0062 |   4 |   3
+    p31 incipient  2018-07-23T18       8.4 |  724 |  282 |  796 |    507 |     4 | 0.0040 |   3 |   2
+   p183 abrupt     2018-08-07T03      16.3 |   31 |  176 |  729 |     31 |     5 | 0.0154 |   5 |   3
+   p654 incipient  2018-08-26T14       2.8 | 1409 | 1965 | 2187 |    125 |    11 | 0.0042 |   4 |   3
+   p810 incipient  2018-10-05T14       3.5 |  918 |  855 |  918 |    125 |     8 | 0.0085 |   5 |   3
+   p158 abrupt     2018-10-06T03      24.5 |   83 |   83 |  136 |    136 |     9 | 0.0048 |   5 |   3
+   p369 abrupt     2018-10-26T02      20.5 |  377 |  377 |  688 |    299 |     9 | 0.0083 |   5 |   2
+   p523 abrupt     2019-01-15T23      28.2 |   86 |   86 |  129 |     76 |    13 | 0.0097 |   5 |   3
+   p827 abrupt     2019-01-24T19      26.2 |  229 |  229 |  127 |    280 |    16 | 0.0048 |   6 |   4
+   p280 abrupt     2019-02-10T13       5.2 |  381 |  354 | 1118 |    381 |     7 | 0.0083 |   5 |   2
+   p710 abrupt     2019-03-24T14       5.5 |  141 |  141 | 2027 |     28 |     9 | 0.0057 |   7 |   6
+   p514 abrupt     2019-04-02T21      15.5 |   77 |   77 |   26 |     26 |    10 | 0.0048 |   8 |   6
+   p653 incipient  2019-04-07T12       9.4 |  896 |  896 |  662 |     28 |    10 | 0.0056 |   8 |   6
+   p331 abrupt     2019-04-20T10      10.5 |  277 |  685 |  751 |    360 |     7 | 0.0294 |   9 |   4
+   p142 abrupt     2019-06-12T20      26.6 |  281 |  281 |  281 |     79 |     9 | 0.0142 |   9 |   8
+   p193 incipient  2019-07-05T22       5.3 | 1857 | 2176 | 1953 |     31 |     1 | 0.0724 |  10 |   1
+   p680 abrupt     2019-07-10T09       5.4 |  288 | 1899 | 1509 |     47 |    15 | 0.0246 |  11 |   8
+   p277 incipient  2019-07-21T22       3.8 |  380 | 2566 | 2788 |    407 |    11 | 0.0411 |  10 |   5
+   p586 incipient  2019-08-18T21      10.7 |  967 | 1033 |  237 |    107 |    13 | 0.0106 |  12 |   8
+   p800 incipient  2019-09-01T10      11.7 | 1291 | 1198 |  393 |     30 |    11 | 0.0212 |  13 |   8
+   p721 incipient  2019-09-08T03       6.7 | 1140 | 1501 | 1122 |    117 |    13 | 0.0457 |  13 |   9
+   p426 abrupt     2019-10-25T13      13.0 |  590 | 1013 |  732 |     25 |    13 | 0.0173 |  15 |   7
+   p123 incipient  2019-11-07T22       4.7 |  599 |  599 |  822 |    182 |    15 | 0.0244 |  15 |   9
+   p762 incipient  2019-11-17T03       8.0 | 1840 | 1840 | 2414 |     49 |     9 | 0.0233 |  15 |   5
+   p455 incipient  2019-11-24T22       5.6 | 1617 | 1336 | 1618 |     23 |    12 | 0.0239 |  15 |   7
+   p879 incipient  2019-12-19T21       5.7 | 1977 |  178 | 3404 |     25 |    14 | 0.0181 |  16 |  10
+
+## pre-registered predictions (LOG.md, step 19 plan)
+  (a) J-lag(168) puts more than 11 of 32 within 300 m: 11: FAILED
+  (b) J-lag(168) puts more than 15 of 32 within 300 m: 11: FAILED
+  (c) J-lag(168) puts more than 3 of 17 incipient leaks within 300 m: 1: FAILED
+  (d) J-lag(168) puts at most 27 of 32 within 300 m: 11: HELD
+  (e) J-lag(168) beats A on D-lag(168) at P < 0.05: J only 4, D-lag only 4, P = 1.000: FAILED

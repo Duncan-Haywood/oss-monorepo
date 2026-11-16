@@ -542,3 +542,29 @@ def test_lagged_change_drops_what_was_already_there():
         pass
     else:
         raise AssertionError("expected ValueError")
+
+
+def test_nn_pursuit_recovers_two_sources_and_rise():
+    import numpy as np
+    from water_leaks import localise
+    rng = np.random.default_rng(0)
+    S = -np.abs(rng.normal(size=(40, 33)))          # 40 atoms, pressure drops per unit flow
+    r_b = 2.0 * S[3]
+    r_t = 2.0 * S[3] + 1.5 * S[17] + 0.3           # a common shift is ignored by the centring
+    sb, xb, rmsb = localise.nn_pursuit(r_b, S)
+    st, xt, rmst = localise.nn_pursuit(r_t, S, support=sb)
+    assert sb == [3] and abs(xb[0] - 2.0) < 1e-9 and rmsb < 1e-9
+    assert set(st) == {3, 17} and rmst < 1e-9
+    assert localise.rise(sb, xb, st, xt) == 17
+
+
+def test_nn_pursuit_stops_on_kmax_and_ignores_positive_atoms():
+    import numpy as np
+    from water_leaks import localise
+    rng = np.random.default_rng(1)
+    S = -np.abs(rng.normal(size=(50, 33)))
+    r = S[:10].sum(axis=0)
+    sup, x, _ = localise.nn_pursuit(r, S, kmax=4)
+    assert len(sup) == 4 and (x >= 0).all()
+    sup0, _, _ = localise.nn_pursuit(-r, S)            # a pressure rise has no non-negative fit
+    assert sup0 == []
