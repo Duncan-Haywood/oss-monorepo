@@ -223,7 +223,7 @@ export const LOCAL_REF = { from: 6, to: 24, cap: 20, nasal: false };
 // No frame in a closure is vowel-like, so the anchor holds through it. Opt-in (`closeAnchor: true`); it replaces
 // localRef on the closure rule only, the nasal rule is untouched.
 export const ANCHOR = { frames: 10, drop: 12 };
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {}, preObstruent = true, preOpts = {}, againGap = true, vfricHi5 = VFRIC_HI5, deepMurmur = false, deepOpts = {}, localRef = LOCAL_REF, closeAnchor = false, barLead = false } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -452,8 +452,12 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
     return null;
   };
   const deep = deepRun();
-  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step, near, pre, deep]
-    .filter((r) => r && !intoTap(r)).sort((p, q) => p[0] - q[0])[0];
+  // A voice bar read as a murmur (opt-in `barLead: N`): a level-rule run that a stop's closure, burst found,
+  // starts inside of within N frames of the run's own start is that closure's voice bar
+  const barOf = (r) => barLead !== false && stopRun && stopRun[0] >= r[0] && stopRun[0] <= r[1] && stopRun[0] - r[0] <= barLead;
+  const nasRules = [['level', runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r) && !barOf(r))], ['step', step], ['near', near], ['pre', pre], ['deep', deep]]
+    .filter(([, r]) => r && !intoTap(r)).sort((p, q) => p[1][0] - q[1][0]);
+  const nas = nasRules[0]?.[1];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
   if (!cands.length) return { cls: 'none' };
@@ -479,5 +483,5 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nea
   }
   if (kind === 'vfricative') return { cls: 'fricative', place: 'voiced' };
   if (kind === 'tap') return { cls: 'tap', floor };
-  return { cls: 'nasal' };
+  return { cls: 'nasal', rule: nasRules[0][0], at: r[0], ms: msOf(r), stopAt: stopRun ? stopRun[0] : -1 };
 }
