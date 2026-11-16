@@ -59,7 +59,8 @@ const RATE_STEP = 5;
 const HOURS_STEP = 0.5;
 const FLOOR_MINIMUM_HOURS = 2;
 
-const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step;
+// `+ 0` turns the -0 that Math.ceil(-1e-9) gives for a zero value into 0.
+const ceilTo = (value, step) => Math.ceil(value / step - 1e-9) * step + 0;
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
@@ -206,8 +207,9 @@ export function calculateBid(input) {
       marginHours,
       minimumHours,
       // Never true for the suggested rate: below the labor cost no
-      // minimum rescues a job, every extra hour loses more.
-      belowLaborCost: quotedRate <= variablePerHour,
+      // minimum rescues a job, every extra hour loses more. A crew that costs
+      // nothing per hour (a blank form) has no labor for a rate to fall below.
+      belowLaborCost: variablePerHour > 0 && quotedRate <= variablePerHour,
       scenarios: [0.75, 1, 1.25].map((k) => ({ scale: k, ...at(clockHours * k) })),
     };
   }
