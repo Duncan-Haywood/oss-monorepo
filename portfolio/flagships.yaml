@@ -204,9 +204,9 @@ flagships:
     next: >-
       History: README and git (latest: VERI*FACTU: AEAT's 247 error codes mapped,
       VF-029..047, AEAT reply read, rate lists 1124/1127 from the validation
-      document as quoted, eval/verifactu-*-2026-11-15.md, 142/203 codes; open: a
-      production SIF's records and replies, the PDF itself, IGIC/IPSI rates, 1156).
-      Open: a real HU report with NAV's businessValidationMessages or
+      document as quoted, eval/verifactu-*-2026-11-15.md, 143/203; IGIC rules,
+      eval/verifactu-igic-*; open: a production SIF's records and replies, doc
+      v1.2.x). Open: a real HU report with NAV's businessValidationMessages or
       SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
       signed Facturae file or FACe rejection; ZATCA: a real KSA note; SdI: open: a
       real FatturaPA rejection with its file; HR: a real HR invoice, cash
