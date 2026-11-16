@@ -370,7 +370,9 @@ once (a wheel still settling when the ball came), and says when every shot was
 flat (no spin efficiency) or at one speed (no recovery fit).
 
 `drill.calibration.json` is a 12-shot drill made for it: 16 to 30 m/s, flat,
-topspin and backspin, wheels from 1,062 to 6,428 rpm, 4 s apart.
+topspin and backspin, wheels from 2,397 to 6,280 rpm, 4 s apart, and no spin
+shot with a wheel under 2,500 rpm ("Spin from fast wheels" below; before
+2026-11-16 its wheels went down to 1,062 rpm).
 
     tennisbots run drill.calibration.json --port /dev/ttyAMA0 --shot-log shots.jsonl
     tennisbots fit-launcher shots.jsonl
@@ -613,3 +615,83 @@ eval/refit-sweep-one-ball-2026-11-16.txt):
 **Not measured.** All of it is on the simulator, whose ball and wheels are the
 model's own; a real ball's mass, and a real tach's jitter, are not in it. The
 1,000 rpm floor and the 2% tolerance were chosen on these same simulated builds.
+
+## Spin from fast wheels (2026-11-16, last)
+
+**Why the spin efficiency was off by up to 8% when the speed efficiency was
+within 0.6%.** Two things add up, and neither is the model: each wheel's drop
+predicted at the true efficiencies, from the wheels' real speeds at the
+release, matches the formula the fit uses term for term, and the wheels sat on
+their targets to 0.1%.
+
+- *Leverage.* The speed efficiency comes from the sum of the two drops, but
+  the spin efficiency comes from their *difference* on spin shots, and that
+  is a small part of each drop. So one wheel's reading error moves the spin
+  fit several times as far as it moves the speed fit. At spin efficiency 0.35,
+  1.5% noise on each drop gives a 95% band of about +/-9% on the spin
+  (a Monte Carlo over the drill's rows). In four of the six worst builds, one
+  reading set most of the error: the 1,500 rpm wheel of the 3,500 / 1,500
+  topspin shot, which read 3-6.5% high and moved the fit by -4% to -7%.
+  The old calibration drill put every spin shot's slow wheel at 1,062 to
+  1,961 rpm, where the pulse-time drop is least accurate (sd 1.7% under
+  2,000 rpm against 0.5-1.0% above 4,000; `tests/pulse_drop_sweep.py`).
+- *A speed-dependent bias.* With a fast wheel loop (0.2 s lag) the pulse-time
+  drop reads about 1.5% high at 2,500 rpm and 1.2% low at 5,500, whatever the
+  drop's size (flat shots at one speed, true speed efficiency 0.4 to 1.2). On
+  a spin shot the slow wheel then reads high and the fast one low, which pulls
+  the spin efficiency down: most fits' spin errors were negative. At 0.8 s
+  lag there is no trend. A plausible cause is the fit's fixed five
+  revolutions: they cover 120 ms of the loop's recovery at 2,500 rpm and 55 ms
+  at 5,500, so the parabola meets a different part of the curve.
+
+**What changed.** The calibration drill's spin shots are faster: 24 to 30 m/s
+with 1,000 to 2,000 rpm of spin, every wheel at 2,500 rpm or more as planned,
+all landing inside the singles court. `fit_from_drops` adds a note when a
+log's spin shot has a wheel between 1,000 and 2,000 rpm
+(`launcher.SPIN_FIT_RPM`), so someone fitting their own drill knows the spin
+figure is soft. A test keeps the drill's spin-shot wheels at 2,400 rpm or more.
+
+**How close (simulated, the whole Pi path).** `tests/spin_drill_sweep.py`
+runs both drills through `plan_drill`, `run_drill`, the firmware on
+`tests/feeder_sim.py` and `fit_from_drops`
+(eval/spin-drill-sweep-2026-11-16.txt, eval/spin-drill-random-40-2026-11-16.txt):
+
+| spin efficiency error | old drill | new drill |
+| --- | --- | --- |
+| 18 design builds, worst / mean size | 10.6% / 3.2% | 8.1% / 3.1% |
+| 12 held-out builds, worst / mean size | 16.6% / 4.8% | 7.8% / 3.7% |
+| 40 random builds, worst / mean size | 15.3% / 4.1% | 10.3% / 2.2% |
+| 40 random builds, 90th percentile | 9.9% | 5.0% |
+| 40 random builds, mean (bias) | -3.8% | -1.9% |
+
+The new drill is closer on 32 of the 40 random builds; the speed efficiency
+stays within 0.53% (0.84% before). It is not better on every build: on the
+end-to-end test's build (0.78 / 0.42, 0.4 s lag) it reads 8.8% off against
+5.8%, so that test's bound is now 10%.
+
+**Tried and set aside** (all on the same simulated builds):
+
+- *Weighting each reading by its expected noise* (sd falling with speed):
+  the worst spin error on the old drill went from 7.7% to 5.0-6.2%, but the
+  weights were tuned on the builds they were scored on.
+- *A fixed time window instead of five revolutions:* at 80 ms the
+  fast wheels' bias went from -1.1% to +0.05%, but it moves 1.2% for every
+  10 ms of window, so the right window is a property of these simulated
+  wheels, not a constant a real build could share.
+- *A third fitted parameter for the speed-dependent bias:* five flat shots
+  do not pin it down; the worst spin error rose to 23.5%.
+- *Reordering the old drill* so no wheel brakes hard before a slow shot: no
+  change (7.7% worst), so braking was not the cause.
+
+`tests/launch_fit_sweep.py` keeps the old wheel list and its 2 s dwell as a
+stress test. With the new drill's wheel speeds it reads up to 17.7% off at
+0.2 s lag, because 2 s is too short for those wheel changes (up to 3,000 rpm
+between shots) to settle; at the drill file's 4 s it is 5.4%.
+
+**Open.** The speed-dependent bias is still there (the -1.9% mean). The next
+step is a recovery model with the loop's shape in it (the tach's 4-revolution
+lag, then the PI's pull) in place of the free parabola, checked on the
+captured period snapshots before it goes into the firmware.
+
+**Not measured.** All of it is the simulator's physics and its exact tach; a
+real tach's jitter and a real wheel loop's recovery shape are not in it.
