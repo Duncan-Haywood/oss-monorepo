@@ -7,7 +7,7 @@ const raw = (o = {}) => ({ ...SAMPLE, ...o });
 test("profit follows the stated rule on the sample", () => {
   const r = compute(raw());
   const nights = 40 * 6 * 30.4 * 0.55, k = 0.92;
-  const per = (48 + 6 / 2.5) * k - 4 - (15 / 60) * 16 / 2.5;
+  const per = (48 + 6 / 2.5) * k - 4 - (15 / 60) * 16 * 1.12 / 2.5;
   assert.ok(Math.abs(r.profit - (nights * per - 120000)) < 0.01);
   assert.ok(Math.abs(r.nights - nights) < 1e-9);
 });
@@ -89,4 +89,20 @@ test("a zero margin per night is not called a loss per night", () => {
   const titles = r.findings.map((f) => f.title).join("\n");
   assert.doesNotMatch(titles, /costs more than it brings in/);
   assert.match(titles, /brings in exactly what it costs/);
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-campground-site-profit-calculator.json, defect 0).
+test("turnover labour carries the payroll burden, and a bare wage is called out", () => {
+  const base = compute(raw({ burdenPct: "0" })), burd = compute(raw({ burdenPct: "20" }));
+  const nights = 40 * 6 * 30.4 * 0.55;
+  // By hand: 15 min / 60 x $16 / 2.5 nights = $1.60 a night; 20% burden adds $0.32 a night.
+  assert.ok(Math.abs(base.labour - nights * 1.6) < 0.01);
+  assert.ok(Math.abs(burd.labour - nights * 1.92) < 0.01);
+  assert.ok(Math.abs((base.profit - burd.profit) - nights * 0.32) < 0.02);
+  assert.ok(burd.breakEvenRate > base.breakEvenRate);
+  assert.ok(base.findings.some((f) => /bare \$16\.00 wage.*7\.65%/.test(f.title)));
+  assert.ok(!burd.findings.some((f) => /bare/.test(f.title)));
+  assert.ok(!compute(raw({ burdenPct: "0", turnMin: "0" })).findings.some((f) => /bare/.test(f.title)));
+  assert.match(compute(raw({ burdenPct: "-1" })).errors.join(" "), /Payroll burden must be 0 or more/);
+  assert.equal(compute(raw({ burdenPct: "" })).input.burdenPct, 0);
 });

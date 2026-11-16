@@ -60,6 +60,12 @@ button released *and* a `CLEAR_ESTOP` command.
 | 0 | Lift over-current: LM393 comparator output (open collector, 10k pull-up to 3.3 V; low = the lift draws over its trip current, about 1.6 A). High at reset because the lift is off then, so the board boots normally (cad/README.md "Lift jam cutoff") |
 | 17 / 16 | UART2 TX / RX to the Pi |
 
+No GPIO is left: on a WROOM-32 module only 1 and 3 remain, and they are UART0,
+the USB console the firmware is flashed over. That is why the empty-hopper
+check (2026-11-16) reads the launcher wheels' tachometers instead of a
+break-beam over the column (`firmware/esp32/README.md`, "Empty hopper"). A
+future sensor needs a pin freed first, or an I/O expander on two of them.
+
 Until 2026-11-14 the lift and agitator were on GPIO 16 and 17, the UART's
 own pins: the UART, opened last, took them back, so neither motor would have
 turned. `tests/test_pins.py` now loads `firmware/esp32/main.py` against a fake

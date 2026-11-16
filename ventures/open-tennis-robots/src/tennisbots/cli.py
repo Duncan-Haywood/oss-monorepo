@@ -77,6 +77,9 @@ def cmd_run(a: argparse.Namespace) -> int:
     except (ValueError, OSError) as exc:
         print(f"drill not run: {exc}", file=sys.stderr)
         return 2
+    if res.dry_shot is not None:      # 2026-11-16: an empty pocket, found from the wheels' speed (exit 3, not a fault)
+        print(f"stopped: {res.aborted}", file=sys.stderr)
+        return 3
     if res.aborted:
         print(f"aborted (ESTOP sent; release the button and send CLEAR_ESTOP to go again): {res.aborted}",
               file=sys.stderr)
