@@ -675,7 +675,10 @@ export function fmtNum(n, digits = 0) {
 }
 
 export function fmtMoney(n) {
-  return n == null ? "" : "$" + fmtNum(n, 0);
+  const format = (n) => n == null ? "" : "$" + fmtNum(n, 0);
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 export function statusText(s) {

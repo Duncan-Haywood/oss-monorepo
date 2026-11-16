@@ -631,7 +631,12 @@ export function reportCsv(result) {
   return lines.join("\n") + "\n";
 }
 
-export const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+export const money = (n) => {
+  const format = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const pct = (x, d = 0) => (x === null || x === undefined ? "–" : (x * 100).toFixed(d) + "%");
 export const num = (x, d = 0) => (x === null || x === undefined ? "–" : Number(x).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d }));
 

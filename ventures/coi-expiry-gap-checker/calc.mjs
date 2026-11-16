@@ -96,7 +96,12 @@ export function parseDate(s) {
   return Math.round(dt.getTime() / DAY);
 }
 export const isoDay = (n) => new Date(n * DAY).toISOString().slice(0, 10);
-export const money = (n) => (n == null ? "—" : "$" + Number(n).toLocaleString("en-US"));
+export const money = (n) => {
+  const format = (n) => (n == null ? "—" : "$" + Number(n).toLocaleString("en-US"));
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 function yn(s) {
   const t = norm(s);

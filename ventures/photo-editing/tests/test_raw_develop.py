@@ -163,7 +163,7 @@ def encode_lossless_jpeg(samples, width, height, nf, precision=16, predictor=1, 
 def _ifd_bytes(entries, start):
     """Serialise ``entries`` [(tag, type, values)] as an IFD at ``start``."""
 
-    fmt = {1: "B", 2: "B", 3: "H", 4: "I", 7: "B", 8: "h", 9: "i", 11: "f"}
+    fmt = {1: "B", 2: "B", 3: "H", 4: "I", 7: "B", 8: "h", 9: "i", 11: "f", 12: "d"}
     entries = sorted(entries, key=lambda e: e[0])
     head = struct.pack("<H", len(entries))
     extra = bytearray()

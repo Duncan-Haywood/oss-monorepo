@@ -87,7 +87,11 @@ export function checkAsk(input = {}, askPerGuest) {
 }
 
 export function toMarkdown(q, { client = "" } = {}) {
-  const m = (x) => `$${x.toFixed(2)}`;
+  const m = (x) => {
+    const format = (x) => `$${x.toFixed(2)}`;
+    const text = format(Math.abs(x));
+    return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const L = q.lines;
   return [
     `# Bar service quote${client ? ` for ${client}` : ""}`,

@@ -134,7 +134,12 @@ export function sampleText() {
   return { type: "saas", revenue: 240000, sde: 96000, mrr: 20000, growth: 32, monthlyChurn: 2.5, topShare: 12, ownerHours: 25, ageMonths: 40, sellingFeePct: 10 };
 }
 
-export const money = (x) => (Number.isFinite(x) ? "$" + Math.round(x).toLocaleString("en-US") : "n/a");
+export const money = (x) => {
+  const format = (x) => (Number.isFinite(x) ? "$" + Math.round(x).toLocaleString("en-US") : "n/a");
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const multiple = (x) => (Number.isFinite(x) ? x.toFixed(2) + "x" : "n/a");
 export const pct = (x, d = 1) => (Number.isFinite(x) ? (x * 100).toFixed(d) + "%" : "n/a");
 

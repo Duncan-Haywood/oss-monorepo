@@ -152,7 +152,12 @@
     const status = $("#form-status");
     const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const KEYS = Object.keys(RULE_PRESETS.custom.fields);
-    const usd = (n) => (n ? "$" + n.toFixed(2) : "");
+    const usd = (n) => {
+      const format = (n) => (n ? "$" + n.toFixed(2) : "");
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     let last = null;
 
     function loadPreset() {

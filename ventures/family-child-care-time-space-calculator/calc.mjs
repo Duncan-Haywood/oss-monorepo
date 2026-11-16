@@ -162,8 +162,18 @@ export function reportCsv(r) {
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 
-export const money = (v) => "$" + Math.round(v).toLocaleString("en-US");
-export const money2 = (v) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (v) => {
+  const format = (v) => "$" + Math.round(v).toLocaleString("en-US");
+  if (!(Number(v) < 0)) return format(v);
+  const text = format(Math.abs(v));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
+export const money2 = (v) => {
+  const format = (v) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(v) < 0)) return format(v);
+  const text = format(Math.abs(v));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
 
 // One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so

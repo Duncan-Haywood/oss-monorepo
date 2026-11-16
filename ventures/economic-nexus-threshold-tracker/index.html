@@ -135,7 +135,12 @@
   import { readOrders, analyzeOrders, toEntries, planToCsv, sampleCsv } from './orders.mjs';
   const $ = (q) => document.querySelector(q);
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const usd = (n) => '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  const usd = (n) => {
+    const format = (n) => '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    if (!(Number(n) < 0)) return format(n);
+    const text = format(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const entriesKey = 'economic-nexus-threshold-tracker-entries';
   const eventsKey = 'economic-nexus-threshold-tracker-events';
   const track = (event) => {

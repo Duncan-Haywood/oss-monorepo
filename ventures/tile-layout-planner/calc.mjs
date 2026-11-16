@@ -557,7 +557,12 @@ export function fmtNum(x, d = 0) {
   if (!Number.isFinite(x)) return "–";
   return x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 }
-export const fmtMoney = (x) => (Number.isFinite(x) ? "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const fmtMoney = (x) => {
+  const format = (x) => (Number.isFinite(x) ? "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export function lenText(sys, mm, kind = "tile") {
   if (mm === null || mm === undefined) return "–";
   if (kind === "room") return `${+(mm / sys.roomMm).toFixed(2)} ${sys.roomU}`;
