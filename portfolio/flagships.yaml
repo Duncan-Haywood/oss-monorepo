@@ -271,12 +271,12 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer learned: correlation
-      feature failed its CV bar (eval/bayer-channel-correlation-*); next the oracle
-      ceiling, 4x4-averaged target. X-Trans: a per-frame choice (A7 IV wants less
-      edge-keeping, GF7/NX1 a wider red/blue window; --truth-from,
-      eval/xtrans-fresh-truths-2026-11-16.md). DNG 1.7.1.0 spec PDF: URL in
-      eval/opcode-spec-audit-2026-11-12.md.
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer learned: 4x4 tile
+      oracle +0.83 dB vs B +0.385 held out (eval/bayer-oracle-ceiling-*); next a
+      boosted-tree weight on the cached samples, pre-registered against both.
+      X-Trans: a per-frame choice (A7 IV wants less edge-keeping, GF7/NX1 a wider
+      red/blue window; --truth-from, eval/xtrans-fresh-truths-2026-11-16.md). DNG
+      1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
