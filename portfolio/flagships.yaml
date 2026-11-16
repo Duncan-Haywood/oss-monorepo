@@ -379,11 +379,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Spin fit (firmware/esp32/README.md "Spin from fast
-      wheels", 2026-11-16): faster calibration spin shots halved the error; a -1.9%
-      speed-dependent drop bias is left. Next: a recovery model with the loop's
-      shape (tach lag, then PI) in place of the parabola, tried on captured period
-      snapshots; a pulse-time fit that holds under 1,000 rpm.
+      venv, about 2 min). Drop fit (firmware/esp32/README.md "A recovery shaped by
+      the loop's own commands", 2026-11-16): logged ESC commands through a
+      first-order wheel; calibration-drill spin error 8% to 1.6-1.9% on the
+      simulator. Next: retest launcher.MIN_FIT_RPM (1,000) with it; a residual check
+      that flags a wheel the first-order model does not fit;
+      tests/drop_snapshot_capture.py with tach jitter added.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

@@ -108,6 +108,7 @@ class Tach:
         self.last_us = time.ticks_us()
         self.rpm = 0
         self.rpm_last = 0
+        self.since = 0
         Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
 
     def _p(self, _):
@@ -117,6 +118,7 @@ class Tach:
 
     def update(self, dt):
         since = time.ticks_diff(time.ticks_us(), self.last_us)
+        self.since = since                            # LaunchCheck's tick log aligns each command to the edges with it
         self.rpm = self.core.rpm(since)
         self.rpm_last = self.core.rpm_last(since)     # one revolution, unaveraged: the empty-hopper check reads it
 
@@ -385,7 +387,8 @@ class FeederHw:
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
         if self.launch is not None:
             went = self.launch.update(now, (self.tach_top.rpm_last, self.tach_bottom.rpm_last), self.target_rpm,
-                                    (self.tach_top.core, self.tach_bottom.core))
+                                    (self.tach_top.core, self.tach_bottom.core), self.esc_cmd,
+                                    (self.tach_top.since, self.tach_bottom.since))
             if went is True:
                 self.launches += 1
                 self.hopper_empty = False

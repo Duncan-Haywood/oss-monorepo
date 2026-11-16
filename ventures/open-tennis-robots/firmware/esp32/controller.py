@@ -298,6 +298,232 @@ def drop_from_periods(periods, min_fall=0.003):
     return drop, w0 * 60e6, len(use) - J
 
 
+# The wheel lags its ESC command by one time constant, unknown on a real build: drop_from_commands searches this grid
+# (0.1-1.6 s, ratio 2), then golden-section steps between the best point's neighbours. A 9-point grid scored the same
+# on tests/drop_snapshot_capture.py's snapshots (README "A recovery shaped by the loop's own commands").
+LOOP_TAU_GRID_US = (100000, 200000, 400000, 800000, 1600000)
+LOOP_PENDING = 32     # LAUNCH flags bit 5: the loop-command fit of this record is under way; the record comes again
+TICK_LOG = 160        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115
+
+
+def _seg_int(u, hs, x, y, s, tau):
+    """Integral over [x, y] of h(t) = u + (hs - u) e^-(t - s)/tau, the command response inside one constant-command
+    segment that starts at s with h(s) = hs."""
+    return u * (y - x) + (hs - u) * tau * (math.exp(-(x - s) / tau) - math.exp(-(y - s) / tau))
+
+
+def _cmd_columns(T, j0, j1, segs, tau):
+    """Per revolution j0..j1-1: (e, h), its mean of e^-(t - T[j0])/tau and of the command response h (minus the
+    command before the window), over the revolution's span. `segs` is [(start, command)], the first at T[j0]."""
+    ts = T[j0]
+    u0 = segs[0][1]
+    # h at each segment's start; h(ts) = u0 (the free terms absorb whatever the wheel was doing before ts)
+    hs = [u0]
+    for i in range(1, len(segs)):
+        s, u = segs[i - 1]
+        hs.append(u + (hs[-1] - u) * math.exp(-(segs[i][0] - s) / tau))
+    out = []
+    si = 0
+    for j in range(j0, j1):
+        a, b = T[j], T[j + 1]
+        p = b - a
+        e = tau * (math.exp(-(a - ts) / tau) - math.exp(-(b - ts) / tau)) / p
+        while si + 1 < len(segs) and segs[si + 1][0] <= a:
+            si += 1
+        h = 0.0
+        x = a
+        i = si
+        while x < b:
+            y = segs[i + 1][0] if i + 1 < len(segs) and segs[i + 1][0] < b else b
+            s, u = segs[i]
+            h += _seg_int(u - u0, hs[i] - u0, x, y, s, tau)
+            x = y
+            i += 1
+        out.append((e, h / p))
+    return out
+
+
+def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3):
+    """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
+    (2026-11-16, README "A recovery shaped by the loop's own commands").
+
+    `drop_from_periods` lets the recovery be a free parabola, but the loop's recovery has a shape of its own: the
+    tach's 4-revolution mean sees the drop late, then the PI pulls, overshoots and its integrator lets go. Which part
+    of that the parabola meets depends on the speed, and on the simulator it read up to 1.5% high at 2,500 rpm and 1.2%
+    low at 5,500. This board knows every command it sent, so the recovery needs no shape guessed: the wheel follows
+    its command as a first-order lag (one unknown time constant tau),
+
+        w(t) = c + A e^-(t - ts)/tau + W h_tau(t) - D e^-(t - t0)/tau [t > t0]
+
+    with h_tau the commands' response through that lag and t0 the ball. Each revolution's mean speed is 1 / its period;
+    for a given tau and t0 that is linear in c, A, W and D (c is free, so an ESC whose speed is not proportional to
+    its throttle still fits). tau is searched on `taus` and refined by golden section, t0 on nested grids over the two
+    revolutions either side of the slowest one's start (a ball late in a revolution slows it by less than `min_fall`).
+
+    `periods` as for `drop_from_periods`. `ticks` are the control ticks over the same span: (edges into `periods`
+    before the tick, us since that edge, the command the tick set). Returns (D / the speed just before the ball,
+    that speed in rpm, revolutions used, tau in us) or None (too little to fit: the caller falls back).
+
+    A generator, so the board can spread the work over its control ticks (`LaunchCheck` advances it one step a tick):
+    it yields None after each t0 grid of each tau tried, about 36 steps, and its last item is ("fit", result).
+    `drop_from_commands` runs it to the end."""
+    n = len(periods)
+    if n < pre + 4:
+        yield ("fit", None)
+        return
+    k = 0
+    for j in range(1, n):
+        if periods[j] > periods[k]:
+            k = j
+    if k < pre + 1:
+        yield ("fit", None)
+        return
+    w0 = 3.0 / (periods[k - 4] + periods[k - 3] + periods[k - 2])
+    J = k - 1 if 1.0 / periods[k - 1] < w0 * (1.0 - min_fall) else k
+    j0, j1 = k - 1 - pre, min(n, J + after)
+    if j1 - k < 3:
+        yield ("fit", None)
+        return
+    T = [0.0]
+    for p in periods:
+        T.append(T[-1] + p)
+    ts, tend = T[j0], T[j1]
+    u0 = None
+    segs = []
+    for c, since, u in ticks:
+        if 0 <= c < len(T):
+            t = T[c] + since
+            if t <= ts:
+                u0 = u
+            elif t < tend:
+                segs.append((t, u))
+    if u0 is None:
+        yield ("fit", None)
+        return
+    segs.insert(0, (ts, u0))
+    # deficits below w0, as fractions of it: small numbers, so MicroPython's single-precision floats keep them
+    ys = [1.0 - 1.0 / (periods[j] * w0) for j in range(j0, j1)]
+    t_lo, t_hi = T[k - 1], T[k + 1]
+
+    def one(tau, out):
+        cols = _cmd_columns(T, j0, j1, segs, tau)
+        nr = j1 - j0
+        # the constant, e and h columns do not move with t0: their normal-equation block is summed once per tau
+        m3 = [[0.0] * 3 for _ in range(3)]
+        v3 = [0.0] * 3
+        for idx in range(nr):
+            row = (1.0, cols[idx][0], cols[idx][1])
+            y = ys[idx]
+            for r in range(3):
+                v3[r] += row[r] * y
+                for q in range(r, 3):
+                    m3[r][q] += row[r] * row[q]
+        best = None
+        lo, hi = t_lo, t_hi
+        for _ in range(levels):
+            step = (hi - lo) / 8
+            for g in range(9):
+                t0 = lo + step * g
+                ds = []
+                m30 = m31 = m32 = m33 = v4 = 0.0
+                for idx in range(nr):
+                    a, b = T[j0 + idx], T[j0 + idx + 1]
+                    if b <= t0:
+                        d = 0.0
+                    else:
+                        x = a if a > t0 else t0
+                        d = tau * (math.exp(-(x - t0) / tau) - math.exp(-(b - t0) / tau)) / (b - a)
+                    ds.append(d)
+                    if d:
+                        m30 += d
+                        m31 += d * cols[idx][0]
+                        m32 += d * cols[idx][1]
+                        m33 += d * d
+                        v4 += d * ys[idx]
+                m = [[m3[0][0], m3[0][1], m3[0][2], m30], [m3[0][1], m3[1][1], m3[1][2], m31],
+                     [m3[0][2], m3[1][2], m3[2][2], m32], [m30, m31, m32, m33]]
+                x4 = _solve_small(m, [v3[0], v3[1], v3[2], v4])
+                if x4 is None:
+                    continue
+                sse = 0.0
+                for idx in range(nr):
+                    e = ys[idx] - x4[0] - x4[1] * cols[idx][0] - x4[2] * cols[idx][1] - x4[3] * ds[idx]
+                    sse += e * e
+                if best is None or sse < best[0]:
+                    best = (sse, t0, x4)
+            if best is None:
+                out.append(None)
+                return
+            lo, hi = max(t_lo, best[1] - step), min(t_hi, best[1] + step)
+            yield None
+        out.append((best[0], best[1], best[2], tau))
+
+    def run(tau):
+        out = []
+        yield from one(tau, out)
+        return out[0] if out else None
+
+    res = []
+    for tau in taus:
+        r = yield from run(float(tau))
+        if r is not None:
+            res.append(r)
+    if not res:
+        yield ("fit", None)
+        return
+    bi = 0
+    for i in range(1, len(res)):
+        if res[i][0] < res[bi][0]:
+            bi = i
+    best = res[bi]
+    if refine and 0 < bi < len(res) - 1:
+        gr = 0.6180339887
+        lo, hi = math.log(res[bi - 1][3]), math.log(res[bi + 1][3])
+        c, d = hi - gr * (hi - lo), lo + gr * (hi - lo)
+        fc = yield from run(math.exp(c))
+        fd = yield from run(math.exp(d))
+        for _ in range(refine):
+            if fc is None or fd is None:
+                break
+            if fc[0] < fd[0]:
+                hi, d, fd = d, c, fc
+                c = hi - gr * (hi - lo)
+                fc = yield from run(math.exp(c))
+            else:
+                lo, c, fc = c, d, fd
+                d = lo + gr * (hi - lo)
+                fd = yield from run(math.exp(d))
+        for r in (fc, fd):
+            if r is not None and r[0] < best[0]:
+                best = r
+    sse, t0, (c1, A, Wn, D), tau = best
+    # the deficit just before the ball, c1 + A e(t0) + W h(t0): the drop is reported as a share of that speed
+    e_t0 = math.exp(-(t0 - ts) / tau)
+    h_t0 = 0.0
+    hcur = 0.0
+    for i in range(len(segs)):
+        s, u = segs[i]
+        nxt = segs[i + 1][0] if i + 1 < len(segs) else tend
+        if t0 < nxt or i + 1 == len(segs):
+            h_t0 = (u - u0) + (hcur - (u - u0)) * math.exp(-(t0 - s) / tau)
+            break
+        hcur = (u - u0) + (hcur - (u - u0)) * math.exp(-(nxt - s) / tau)
+    before = 1.0 - (c1 + A * e_t0 + Wn * h_t0)
+    drop = D / before if before > 0 else 0.0
+    if not 0.0 < drop < 1.0:
+        yield ("fit", None)
+        return
+    yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau))
+
+
+def drop_from_commands(periods, ticks, **kw):
+    """`drop_from_commands_steps` run to the end: (drop, rpm, revolutions, tau in us) or None."""
+    for step in drop_from_commands_steps(periods, ticks, **kw):
+        if step is not None:
+            return step[1]
+    return None
+
+
 class PeriodTach:
     """Wheel speed from the time between a once-per-revolution sensor's pulses (2026-11-11).
 
@@ -976,12 +1202,22 @@ class LaunchCheck:
         self.snap = None
         self.last_fit = (None, None)  # each wheel's drop_from_periods result at the last verdict, for the sweeps
         self.last_low = (None, None)
+        self.last_snap = None         # the periods that fit was made from, for tests/drop_snapshot_capture.py
+        # The loop-command drop (2026-11-16, README "A recovery shaped by the loop's own commands"): each wheel's control
+        # ticks while watching, (edge count, us since that edge, the ESC command the tick set), and the fit of a
+        # judged stroke still being worked through, one step a tick, after its record went out with the parabola's.
+        self.ticks = [[], []]
+        self.last_ticks = None
+        self.pending = None
+        self.last_loop = (None, None)  # each wheel's drop_from_commands result once it has finished, for the sweeps
 
     def cancel(self):
         self.targets = None
         self.until = None
 
     def start(self, targets, now_ms):
+        self.finish()                 # a fit still under way is finished now: its record must not be lost
+        self.ticks = [[], []]
         self.targets = (targets[0], targets[1])
         self.low = [float(targets[0]), float(targets[1])]
         self.fall = [(0.0, float(targets[0])), (0.0, float(targets[1]))]
@@ -1008,10 +1244,18 @@ class LaunchCheck:
         if tachs is not None and self.edges0 is not None and self.snap is None:
             self.snap = [t.recent(t.edges - e0) if t.edges >= e0 else [] for t, e0 in zip(tachs, self.edges0)]
 
-    def update(self, now_ms, rpms, targets=None, tachs=None):
-        """`tachs`, the two wheels' PeriodTach objects (optional), lets the record carry the pulse-time drop."""
+    def update(self, now_ms, rpms, targets=None, tachs=None, cmds=None, since=None):
+        """`tachs`, the two wheels' PeriodTach objects (optional), lets the record carry the pulse-time drop; `cmds`
+        (the ESC commands this tick set) and `since` (us since each tach's last edge) with them, the loop-command drop."""
+        self.step()
         if self.targets is None:
             return None
+        if tachs is not None and cmds is not None and since is not None and self.snap is None:
+            for i in (0, 1):
+                log = self.ticks[i]
+                log.append((tachs[i].edges, since[i], cmds[i]))
+                if len(log) > TICK_LOG:
+                    log.pop(0)
         if tachs is not None and self.edges0 is None:
             self.edges0 = (tachs[0].edges, tachs[1].edges)
         if targets is not None and (targets[0], targets[1]) != self.targets:
@@ -1064,12 +1308,61 @@ class LaunchCheck:
                         dips[k], speeds[k] = fits[k][0], fits[k][1]
                         flags |= 2 << k
         self.last_fit = (fits[0], fits[1])
+        self.last_snap = snap
+        self.last_loop = (None, None)
+        ticks = self.ticks
+        self.last_ticks = ticks
+        self.ticks = [[], []]
         self.last_low = (fall[0][0], fall[1][0])   # the lowest reading's falls, for tests/pulse_drop_sweep.py
         drops = [int(round(10000 * dips[k])) for k in (0, 1)]
         self.seq = (self.seq + 1) & 0xFF
         self.record = (self.seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
                        min(32767, drops[1]), flags)
+        if went and snap is not None and self.edges0 is not None and ticks[0] and ticks[1]:
+            self.pending = self._loop_fit(snap, ticks, self.edges0, targets, speeds, dips, flags)
+            self.record = self.record[:5] + (flags | LOOP_PENDING,)
         return went
+
+    def _loop_fit(self, snap, ticks, edges0, targets, speeds, dips, flags):
+        """The loop-command fit of both wheels, one step per `step()`; then the record is re-sent with its drops (same
+        seq: the Pi replaces the record it holds when the flags change). Bits 3 / 4 of the flags byte: the top /
+        bottom drop came from it (bits 1 / 2 stay set, it is a whole drop too)."""
+        seq = self.seq
+        speeds, dips = list(speeds), list(dips)
+        loops = [None, None]
+        for k in (0, 1):
+            if targets[k] <= 0:
+                continue
+            e0 = edges0[k]
+            tk = [(c - e0, us, u) for c, us, u in ticks[k]]
+            for item in drop_from_commands_steps(snap[k], tk):
+                if item is None:
+                    yield None
+                else:
+                    loops[k] = item[1]
+            if loops[k] is not None:
+                dips[k], speeds[k] = loops[k][0], loops[k][1]
+                flags |= (2 << k) | (8 << k)
+        self.last_loop = (loops[0], loops[1])
+        if self.record is not None and self.record[0] == seq:      # bit 5 (under way) cleared either way
+            drops = [int(round(10000 * dips[k])) for k in (0, 1)]
+            self.record = (seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
+                           min(32767, drops[1]), flags)
+
+    def step(self):
+        """One step of a loop-command fit under way (each control tick); True while there is more to do."""
+        if self.pending is None:
+            return False
+        try:
+            next(self.pending)
+            return True
+        except StopIteration:
+            self.pending = None
+            return False
+
+    def finish(self):
+        while self.step():
+            pass
 
 
 class PowerGate:

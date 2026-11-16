@@ -41,11 +41,17 @@ def records(sim, dwell_ms=DWELL_MS):
         _beat(sim, dwell_ms)
         stroke(sim, top, bottom, reaim=False)
         rec = sim.hw.launch_record()
+        for _ in range(20):           # the loop-command fit re-sends the record when it is done (flags bit 5 clears)
+            if rec is None or not rec[5] & 32:
+                break
+            _beat(sim, 100)
+            rec = sim.hw.launch_record()
         if rec is not None and rec[0] != seen:
             seen = rec[0]
             out.append({"rpm_top": rec[1], "rpm_bottom": rec[2], "drop_top": rec[3] / 1e4,
                         "drop_bottom": rec[4] / 1e4, "launched": bool(rec[5] & 1), "fit_top": bool(rec[5] & 2),
-                        "fit_bottom": bool(rec[5] & 4)})
+                        "fit_bottom": bool(rec[5] & 4), "loop_top": bool(rec[5] & 8),
+                        "loop_bottom": bool(rec[5] & 16)})
     return out
 
 
