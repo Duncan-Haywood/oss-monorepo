@@ -1519,9 +1519,9 @@ def lift_boot(p: Feeder) -> Part:
     blk = blk - Box(20.6, 40.6, z1 - z_sp + 1).moved(Location((p.lift_x_pulley, p.lift_y, (z_sp + z1 + 1) / 2)))
     blk = blk - Cylinder(4.0, y1 - y0 + 2).moved(Location((p.lift_x_pulley, p.lift_y, zb), (90, 0, 0)))
     hub = p.lift_slip_design()                     # the drive pulley's slip hub turns in a pocket either side of the belt
-    span = 2 * (hub["half_pulley_mm"] + hub["far_side_mm"] + 1.0)
-    blk = blk - Cylinder(max(p.lift_slip_od, p.lift_slip_collar_d) / 2 + 1.5, span).moved(
-        Location((p.lift_x_pulley, p.lift_y, zb), (90, 0, 0)))
+    near, far = hub["half_pulley_mm"] + hub["motor_side_mm"] + 1.0, hub["half_pulley_mm"] + hub["far_side_mm"] + 1.0
+    blk = blk - Cylinder(max(p.lift_slip_od, p.lift_slip_collar_d) / 2 + 1.5, near + far).moved(
+        Location((p.lift_x_pulley, p.lift_y + (near - far) / 2, zb), (90, 0, 0)))   # the disc stack is on -y
     mp = p.lift_y + dep / 2 + w
     blk = blk - Box(40.0, 2 * w, 40.0).moved(Location((p.lift_x_pulley, mp, zb))).moved(Location((0, 0, 0)))
     blk = blk - lift_bearing_pockets(p) - lift_spacer_inserts(p)
@@ -1668,7 +1668,9 @@ def lift_slip_hub(p: Feeder) -> list[Part]:
     s = p.lift_slip_design()
     x, y0, z = p.lift_x_pulley, p.lift_y, p.lift_z_bottom
     h = s["half_pulley_mm"]
-    ft, pt, st, cw = p.lift_slip_facing_t, p.lift_slip_plate_t, p.lift_slip_spring_t, p.lift_slip_collar_w
+    sp = p.lift_slip_spring()
+    ft, pt, st, cw = p.lift_slip_facing_t, p.lift_slip_plate_t, sp["stack_mm"], p.lift_slip_collar_w
+    n, dt = p.lift_slip_spring_count, st / p.lift_slip_spring_count
 
     def along(t, y_mid):
         return Location((x, y_mid, z), (90, 0, 0)), t
@@ -1681,7 +1683,8 @@ def lift_slip_hub(p: Feeder) -> list[Part]:
     # extrude runs along the face's +z, which (90, 0, 0) turns to -y: a plate placed at y covers [y - t, y]
     plates = [Location((x, y0 + h + ft + pt, z), (90, 0, 0)), Location((x, y0 - h - ft, z), (90, 0, 0))]
     facings = [Location((x, y0 + h + ft / 2, z), (90, 0, 0)), Location((x, y0 - h - ft / 2, z), (90, 0, 0))]
-    spring_y = y0 - h - ft - pt - st / 2
+    spring_y = y0 - h - ft - pt - st / 2              # the stack's middle; each disc drawn flat at its loaded height
+    springs = [Location((x, y0 - h - ft - pt - dt * (i + 0.5), z), (90, 0, 0)) for i in range(n)]
     collars = [Location((x, y0 + h + ft + pt + cw / 2, z), (90, 0, 0)),
                Location((x, y0 - h - ft - pt - st - cw / 2, z), (90, 0, 0))]
     return [
@@ -1689,13 +1692,21 @@ def lift_slip_hub(p: Feeder) -> list[Part]:
              notes=f"Slip hub's pressure plates: the D bore keys them to the gearmotor's shaft; deburr both faces flat "
                    f"(they are the friction faces against the facings). Set the hub to {p.lift_slip_nm:g} N m: on the "
                    f"bench, the shaft in a vice, wrap a strip of the belt teeth-in round the pulley and pull it with a "
-                   f"luggage scale; tighten collar B until it slips at {s['set_n']:.0f} N, then lock its set screw."),
+                   f"luggage scale; tighten collar B until it slips at {s['set_n']:.0f} N, then lock its set screw. "
+                   f"Bed the facings in: pull the strip through about 20 slips (or hold a flight and run the lift "
+                   f"for 10 s), then set it again; fresh facings lose tens of microns as they bed in, and every "
+                   f"micron lost after the set costs about {p.lift_slip_spring()['rate_n_um']:.2f} N of the hub's "
+                   f"{s['spring_n']:.0f} N. Check it with the scale again after {p.lift_slip_jams} jams or a season."),
         Part("lift_slip_facing", "cots", "", 2, disc(p.lift_slip_od / 2, p.lift_slip_id / 2, ft), facings,
              spec=f"Friction facing washer {p.lift_slip_od:g} x {p.lift_slip_id:g} x {ft:g} mm, cut from clutch or brake "
                   f"lining sheet or cork-rubber gasket sheet (oil-free; friction about {p.lift_slip_mu:g} assumed)"),
-        Part("lift_slip_spring", "cots", "", 1, disc(12.5 / 2, 6.2 / 2, st), [Location((x, spring_y, z), (90, 0, 0))],
-             spec=f"Disc spring DIN 2093 6.2 x 12.5 x {st:g} mm (flat load about {p.lift_slip_spring_n:g} N assumed; the "
-                  f"hub needs about {s['spring_n']:.0f} N)"),
+        Part("lift_slip_spring", "cots", "", n, disc(p.lift_slip_spring_de / 2, p.lift_slip_spring_di / 2, dt * 0.95),
+             springs,
+             spec=f"Disc spring DIN 2093 {p.lift_slip_spring_de:g} x {p.lift_slip_spring_di:g} x "
+                  f"{p.lift_slip_spring_t:g} mm, free height {p.lift_slip_spring_t + p.lift_slip_spring_h0:.2f} mm "
+                  f"(B series), {n} stacked in series (alternating, cone to cone): about {sp['flat_n']:.0f} N flat by "
+                  f"DIN 2093's formula; the hub needs {s['spring_n']:.0f} N at {sp['set_mm']:.2f} mm of the stack's "
+                  f"{sp['stroke_mm']:.2f} mm (cad/README.md \"Slip hub wear\")"),
         Part("lift_slip_collar", "cots", "", 2, disc(p.lift_slip_collar_d / 2, 3.0, cw), collars,
              spec=f"Shaft collar, 6 mm bore, {p.lift_slip_collar_d:g} mm OD x {cw:g} mm, M3 set screw onto the shaft's flat"),
     ]
@@ -2441,9 +2452,11 @@ def lift_jam_line(p: Feeder) -> str:
 
 def lift_slip_line(p: Feeder) -> str:
     s = p.lift_slip_design()
+    w = p.lift_slip_wear()
     c = p.lift_jam_cutoff()
     return (f"lift slip hub: the drive pulley turns on the gearmotor's shaft between two {p.lift_slip_od:g} mm facings "
-            f"and D-bore steel plates, squeezed by a disc spring (about {s['spring_n']:.0f} N at a friction of "
+            f"and D-bore steel plates, squeezed by {p.lift_slip_spring_count} disc springs in series (about "
+            f"{s['spring_n']:.0f} N at a friction of "
             f"{p.lift_slip_mu:g}), set to slip at {p.lift_slip_nm:g} N m ({s['set_n']:.0f} N on a belt strip round "
             f"the pulley; {s['stick_lo_nm']:.2f}-{s['stick_hi_nm']:.2f} N m over +-{p.lift_slip_tol:.0%}). A cold start "
             f"passes {s['start_nm']:.2f} N m through it ({s['start_factor']:.1f}x under the lowest; the belt side is "
@@ -2451,7 +2464,10 @@ def lift_slip_line(p: Feeder) -> str:
             f"{s['trip_margin']:.2f}x the cutoff's highest trip, so a jam is still cut and flagged. A jam's estimated "
             f"peak on a flight is {s['peak_n']:.0f} N against the plate's {c['plate_allow_n']:.0f} N (rigid: up to "
             f"214 N on tests/lift_jam_sweep.py, where the hub gives 51-88 N). It rides the lift's own drive shaft "
-            f"(lift shaft line), not the gearmotor's (friction and spring figures assumed; set on the bench)")
+            f"(lift shaft line), not the gearmotor's (friction and spring figures assumed; set on the bench). Wear: the "
+            f"stack loses {w['rate_n_um']:.2f} N per micron of facing lost after the set, so the band holds "
+            f"{w['budget_um']:.0f} um against {w['loss_um']:.0f} um of assumed set, cold shrink and "
+            f"{p.lift_slip_jams} jams (cad/README.md \"Slip hub wear\")")
 
 
 def bearing_fit_line(p: Feeder) -> str:

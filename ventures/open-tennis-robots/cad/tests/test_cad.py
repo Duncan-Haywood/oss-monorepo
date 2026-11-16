@@ -1391,8 +1391,37 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("slip on a start" in r for r in Feeder(lift_slip_nm=0.25).check_lift_slip()))
         self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=56e3).check_lift_slip()))
         self.assertTrue(any("flight cap" in r for r in Feeder(lift_slip_nm=1.6, lift_sense_r2=47e3).check_lift_slip()))
-        self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_n=100.0).check_lift_slip()))
+        self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_t=0.3).check_lift_slip()))
         self.assertTrue(any("boot's wall" in r for r in Feeder(lift_slip_collar_w=20.0).check_lift_slip()))
+
+    def test_lift_slip_wear_numbers_and_rules(self):
+        # 2026-11-16, cad/README.md "Slip hub wear"
+        p = Feeder()
+        # Almen-Laszlo against DIN 2093's table: A 8 x 4.2 x 0.4, h0 0.2, 210 N at 0.75 h0
+        a8 = Feeder(lift_slip_spring_de=8.0, lift_slip_spring_di=4.2)
+        self.assertAlmostEqual(a8.disc_spring_n(0.15, t=0.4, h0=0.2), 210, delta=6)
+        self.assertEqual(p.check_lift_slip_wear(), [])
+        sp, w = p.lift_slip_spring(), p.lift_slip_wear()
+        self.assertAlmostEqual(sp["load"](sp["set_mm"]), sp["need_n"], delta=0.5)
+        self.assertLess(sp["set_share"], p.lift_slip_spring_flat_max)
+        self.assertGreater(w["budget_um"], w["loss_um"])
+        self.assertGreaterEqual(w["lo_nm"], w["band_lo_nm"])
+        self.assertLessEqual(w["hi_nm"], w["band_hi_nm"])
+        ratio = {l: r for l, r, _ in w["sweep"]}
+        self.assertGreater(ratio[40.0], 0.94)
+        # the single A disc it replaced: 10 um costs 15%, 40 um 61%, and a warm facing over-torques it
+        one = Feeder(lift_slip_spring_t=0.7, lift_slip_spring_h0=0.3, lift_slip_spring_count=1)
+        r1 = {l: r for l, r, _ in one.lift_slip_wear()["sweep"]}
+        self.assertLess(r1[10.0], 0.87)
+        self.assertLess(r1[40.0], 0.45)
+        bad = one.check_lift_slip_wear()
+        self.assertTrue(any("budget" in b for b in bad) and any("warm" in b for b in bad), bad)
+        self.assertTrue(any("budget" in b for b in Feeder(lift_slip_loss_um=60.0).check_lift_slip_wear()))
+        # more discs in series, more budget; the stack still leaves the bearing pocket its web
+        self.assertGreater(Feeder(lift_slip_spring_count=6).lift_slip_wear()["budget_um"], w["budget_um"])
+        self.assertEqual(p.check_lift_shaft(), [])
+        g = p.lift_shaft_geometry()
+        self.assertGreaterEqual(min(g["near_web_mm"], g["far_web_mm"]), 1.5)
 
     def test_lift_sense_ripple_numbers_and_rules(self):
         # 2026-11-16, cad/README.md "Sense amplifier against the PWM ripple"

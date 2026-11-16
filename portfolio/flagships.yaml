@@ -371,11 +371,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): sense amplifier against the 20 kHz PWM 2026-11-16
-      (cad/README.md "Sense amplifier against the PWM ripple": ripple at the
-      comparator 0.3-4.3 mA, mean unbiased, amp adds 4 us; the averaged sweep plant
-      holds). Next: the facing's friction spread with wear as a sweep axis (the
-      +-20% band is assumed).
+      venv, about 2 min): slip hub wear 2026-11-16 (cad/README.md "Slip hub wear":
+      the single disc spring lost 61% of the torque at 40 um of facing loss and left
+      a jam uncut; four B discs in series keep 95%, budget 53 um, re-set after 300
+      jams). Next: count jams in the firmware (flash, survives power-off) and flag a
+      hub re-set at lift_slip_jams.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
