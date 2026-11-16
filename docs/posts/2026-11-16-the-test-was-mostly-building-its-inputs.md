@@ -2,7 +2,7 @@
 title: "44 of a test file's 47 seconds went to building its inputs"
 seo_title: "Profiling a slow test file: time spent building inputs, not testing"
 date: 2026-11-16
-description: "We logged every call to one search across our league scheduler's test suite. The code under test took about 3 seconds of one file's 47, and most repeated work belonged to the tests' own subjects."
+description: "Logging one search across our league scheduler's tests: the code under test took 3 of one file's 47 seconds, and most repeats were the tests' own subjects."
 tags: [league-schedule-generator, performance, testing, ci]
 ---
 
