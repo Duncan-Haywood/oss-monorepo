@@ -3,7 +3,7 @@ title: "Two Dockerfile lines the base-image pin checker misread, and the tests t
 seo_title: "Dockerfile stage name case and line continuations in a pin checker"
 date: 2026-11-16
 tags: [docker-base-image-pin-check, redteam, testing, docker]
-description: "A red-team run seeded 24 faults; tests caught 17. The hunt also turned up two false positives in the Docker pin checker: stage-name case and backslash continuations."
+description: "A red-team run seeded 24 faults and the tests caught 17. It also found two false positives in the Docker pin checker: stage-name case and line breaks."
 ---
 
 The [Docker base-image pin checker](../../ventures/docker-base-image-pin-check/)
