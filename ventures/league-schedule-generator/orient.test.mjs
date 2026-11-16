@@ -9,7 +9,17 @@ import { carryOverTry as carryOverTryNow, polishSeasonVenues, circleOpp, TIMETAB
 // timetable (TIMETABLES[14], 2026-11-14) joined the search's starts, which changed some seeded tries
 // (each to a better score on its own weight). They are rebuilt without that start so the proofs still
 // apply to the same timetables.
+//
+// The tries are only inputs here (orient.mjs is the subject), and they are about 44 of this file's
+// 47 s. Two tests share a try (14 teams try 3 double, 20 teams try 0), so each is searched once per
+// file and every caller gets its own copy (docs/history/ci-perf-2026-11-16-orient-tries-memo.md).
+const searched = new Map();
 function carryOverTry(n, i, opts) {
+  const key = `${n} ${i} ${JSON.stringify(opts)}`;
+  if (!searched.has(key)) searched.set(key, searchTry(n, i, opts));
+  return structuredClone(searched.get(key));
+}
+function searchTry(n, i, opts) {
   if (n !== 14) return carryOverTryNow(n, i, opts);
   const saved = TIMETABLES[14];
   delete TIMETABLES[14];
