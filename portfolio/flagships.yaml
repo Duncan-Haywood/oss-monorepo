@@ -125,10 +125,11 @@ flagships:
       (eval/cord_images.py; huggingface.co answered 2026-11-16) read by `apt-get
       install tesseract-ocr` and eval/srd-cli.mjs. CLI `--four-pass`: SRD tax 133 of
       185, totals 154 of 196; CORD test totals 53 of 95, tax 16 of 41
-      (eval/cord-photos-four-pass-2026-11-16.md). Next: validation-30's cash guess
-      outvoting the total; the page's tesseract.js readings rebuilt
-      (eval/receipt-tax-labels-2026-11-15.md) to measure the page after the
-      2026-11-16 changes. CORD test stays held out.
+      (eval/cord-photos-four-pass-2026-11-16.md). Page re-measured 2026-11-16:
+      156/196, tax 138/185; a cash-line guess gets no vote
+      (eval/receipt-cash-guess-2026-11-16.md). Next: score that on CORD
+      validation-30 (huggingface.co refused 2026-11-16 evening); validation-65's 1-1
+      tax tie. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.

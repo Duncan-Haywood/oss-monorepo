@@ -3,7 +3,7 @@
 // scans through tesseract (eval/sroie-receipts.mjs --ocr); receipt text below is made up.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseReceipt, parseReceiptPasses, oneDigitApart, GUESS_VOTE, splitDecimal } from "./receipts.mjs";
+import { parseReceipt, parseReceiptPasses, oneDigitApart, GUESS_VOTE, CASH_GUESS_VOTE, splitDecimal } from "./receipts.mjs";
 
 test("one digit apart: same length, exactly one digit differs", () => {
   assert.equal(oneDigitApart(900, 960), true);
@@ -321,4 +321,32 @@ test("a total line read with a leading zero (04.78) counts as a guess in the vot
   // full vote (SROIE 169, held out: "Grand Total 029,30" against guesses of 3.00)
   const y = (t) => `YAM FRESH\nsHerb.J RH3.00\n${t}\nCash RM30,30`;
   assert.equal(parseReceiptPasses([y("Grand Total VAS, x 30"), y("Grand Total 029,30"), y("Grand Total VAS) x 30"), y("Grand Total VAS) x 30")]).cents, 2930);
+});
+
+// A reading that found no total line and fell back on the largest amount, which is the
+// amount on the cash line, gets no vote (CASH_GUESS_VOTE): two such guesses of the cash
+// handed over used to outvote a reading that guessed the real total (CORD validation-30,
+// eval/receipt-cash-guess-2026-11-16.md). Receipt text made up, same shape.
+test("a largest-amount guess on the cash line gets no vote", () => {
+  assert.equal(CASH_GUESS_VOTE, 0);
+  const cash = "BREAD SHOP\n1 RED BEAN BREAD 9,0O0\n1 SAUSAGE ROLL l2,0O0\nT0TAI. 2l,0O0\nCASH 50,000\nCHANGF 29.0O";
+  const lost = "BREAD SHOP\n1 RED BEAN BREAD 9,0O0\n1 SAUSAGE l2,0O0\nT0TAI. 21,000";
+  const p = parseReceipt(cash);
+  assert.equal(p.cents, 5000000);
+  assert.ok(p.notes.some((n) => /printed on the cash line/.test(n)));
+  assert.equal(parseReceipt(lost).cents, 2100000);
+  assert.ok(!parseReceipt(lost).notes.some((n) => /cash line/.test(n)));
+  assert.equal(parseReceiptPasses([lost, cash, cash, "BREAD SHOP\n....."]).cents, 2100000);
+  // alone, the cash guess is still the only candidate and stands
+  assert.equal(parseReceiptPasses([cash, cash, cash]).cents, 5000000);
+});
+
+// Exact cash is the total: when the receipt's arithmetic gives the cash-line amount
+// (subtotal plus tax, the items plus tax), that guess keeps its half vote and beats a
+// misread "Total $5.06" (SRD 1108, page readings).
+test("a cash-line guess the arithmetic confirms keeps its vote", () => {
+  const exact = "CAFE\nPASTA 30.00\nSALAD 18.54\nSubtotal: $48.54\nCA Tax 7.25%: $3.52\nTota1 2. 0t\nCash |\nTendered: $52.06 |";
+  const wrong = "CAFE\nTotal $5.06\nTendered: $52.06";
+  assert.ok(parseReceipt(exact).notes.some((n) => /printed on the cash line/.test(n)));
+  assert.equal(parseReceiptPasses([wrong, "CAFE\nTotal", "CAFE\nCash", exact]).cents, 5206);
 });
