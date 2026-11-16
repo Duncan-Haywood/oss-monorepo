@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtJVdwq3kBGSEUiUQSS",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T14:07:26Z",
+  "ended": "2026-11-16T14:42:23Z",
+  "wall_minutes": 45.88,
+  "tokens_in": 12851192,
+  "tokens_out": 54991,
+  "cost_usd": 4.971,
+  "tool_calls": 101,
+  "task": "Flagship chant-forge (allocate.py row 8): the one-step cephalicus read as one head (GregoBase 3490, 3508), named next in eval/hook-on-line-check.md",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16595",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "The first tuning run used a version of the rule tried before liquescentTail and on porrectus tops: 12 extra false liquescents, 12 more differing notes; reordered and excluded stroke tops.",
+    "Try 2 looked clean in the counts but 6 of its 12 changes outside the aligned pieces were false (quilisma podatus upper heads, a level porrectus top, a blurred page); found only by cropping each change. Fixed with a hairline-stem, small-note-width and level-head test."
+  ],
+  "integrity_issues": [
+    "A first held-out draw (ids from 3463, as hook-fresh.mjs) shared leaves with 14 of 15 pieces already read by the tuning lists, some cropped while tuning; discarded unrun before commit, builder now skips used leaves. Disclosed in eval/one-step-cephalicus-check.md and the post.",
+    "Held-out prediction 3 failed as worded (other liquescents read 19 to 20: the gained note counts in both columns); reported as a failure, not reworded."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/hook-on-line-check.md",
+      "issue": "Its description of the two misses (read as one head at the small note's pitch, f for g) no longer matched main: 382 read g with the small note lost, 773 read two plain heads in reversed order. Cost a re-diagnosis."
+    },
+    {
+      "file": "ventures/chant-forge/eval/hook-fresh.mjs",
+      "issue": "The held-out builder pattern excludes earlier piece ids but not earlier leaves; in the dense 3463+ id range neighbouring-leaf overlap makes 'held out' pages already read. one-step-fresh.mjs now checks leaves; hook-fresh's own held-out claim may share this weakness (not checked)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-a-clean-count-hid-false-fires-in-a-chant-scan-reader.md",
+    "ventures/chant-forge/eval/one-step-cephalicus-check.md"
+  ],
+  "goal": "Deepen a flagship: chant-forge's scan reader, a real OMR fault on real public-domain scans",
+  "notes": "Rule oneStepCephalicus/ONE_STEP in scan.mjs. Tuning (12 lists, 128 pieces): one-step cephalici 69->74 of 84, agree 24359->24364, differ 82 and false liquescents 13 unchanged; all 14 changed places looked at. Held out (12 pieces on unread leaves, registered e944acb55 before download): 16->17 of 17, agree 2062->2063, differ 0/0, false 1/1, 3 changed places all true. Venture suite: run_venture_tests.py chant-forge ok, 266 tests. run_workflow_locally --for-changes: pages.yml 6/6 run steps passed (4 uses: steps not run); ventures-tests.yml local copy stopped once GitHub CI went green on 421b8ef85 (changed-ventures, pages build/test, validate, coverage, control-plane all success).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7e93650d-458a-5913-8bfa-18d80bc515d7",
+    "transcripts": 1,
+    "first": "2026-11-16T14:07:26Z",
+    "last": "2026-11-16T14:53:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 182,
+        "output": 54991,
+        "thinking": 19093,
+        "cache_read": 12684311,
+        "cache_write_5m": 0,
+        "cache_write_1h": 166699,
+        "api_equivalent_usd": 4.971,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 182,
+      "output": 54991,
+      "thinking": 19093,
+      "cache_read": 12684311,
+      "cache_write_5m": 0,
+      "cache_write_1h": 166699,
+      "api_equivalent_usd": 4.971,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 88,
+      "Read": 8,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 45.88,
+      "active_minutes": 45.88,
+      "model_minutes": 12.8,
+      "tool_minutes": 33.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an OMR engineer diagnosing two misreads, writing and tuning a rule over 128 pieces with every change inspected, building a held-out set and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 120.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
