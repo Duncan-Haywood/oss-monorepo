@@ -270,8 +270,7 @@ flagships:
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Tiled C-RAW: re-tile a
-      real R8 for LibRaw (eval/canon-cr3-tiled-*); Bayer: learned 1/8-or-1/4
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Bayer: learned 1/8-or-1/4
       selector (eval/bayer-adaptive-laplace-*). X-Trans demosaic: real frames
       0.5-0.7 dB short of LibRaw's three-pass, level under noise, sheet 4.4
       (zone-plate rings; median and green;
@@ -296,8 +295,8 @@ flagships:
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
       synthetic files so far, or the SDK to check them; lateral colour measured on a
       real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; tiled C-RAW and a real tiled CR3 (eval/canon-cr3-tiled-*); the DJI
-      Phantom 4 DNG's vignette lift against DJI's own render
+      chooser; a real tiled CR3 (C-RAW tiles 2026-11-16, eval/canon-cr3-*tiled-*);
+      the DJI Phantom 4 DNG's vignette lift against DJI's own render
       (eval/opcode-quality-flag-*); a real DNG with opcode flag bit 1 set; a phone
       DNG with its own JPEG of the frame (corrected corners); a tungsten-lit colour
       chart to say which colour model is closer (the 70D frame, 4,700 K and
@@ -360,13 +359,13 @@ flagships:
       on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py, rotational round
       robins): 21, 23 on 4x9, 27 on 5x9 and 7x6 0 waits; fails when fully booked
       (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9 0 waits
-      (eval/odd-orbit.py, 3 k-cycles). Next, most valuable first: 29 on 5x9 (README
-      2026-11-16); 3-session designs at 14, 38, 40, 46 (SAT timed out at 300 s); the
-      rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a
-      longer run, now ~4x cheaper; or a starter family climbed with the floor as its
-      score); 29-30 teams in the page (15 matches: profile 30 first; 27 teams add
-      nothing on seed 1, README "Starting under the gap"); the walk's last heavy
-      tail (22 teams: 20 of 280 walks out of budget either way,
+      (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0 waits
+      (eval/session-orbit.py). Next, most valuable first: 29 on 5x9 (README
+      2026-11-16); the rest of the 20-team gap (40 to 44 still ~444-550: four-round
+      re-deals or a longer run, now ~4x cheaper; or a starter family climbed with
+      the floor as its score); 29-30 teams in the page (15 matches: profile 30
+      first; 27 teams add nothing on seed 1, README "Starting under the gap"); the
+      walk's last heavy tail (22 teams: 20 of 280 walks out of budget either way,
       eval/walk-guide.txt); home-and-away breaks exact since 2026-11-13
       (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable
       search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12
