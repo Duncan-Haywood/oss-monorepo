@@ -5,7 +5,8 @@
 //
 // Kept facts only: entity names, supertype, abstract flag, explicit attributes in
 // order (name, type, optional, aggregate), which inherited attributes a subtype
-// derives (written `*` in a STEP file), inverse attribute names, and every defined
+// derives (written `*` in a STEP file), inverse attribute names (and, in
+// inverseFor, each one's entity and FOR attribute, for ifcXML), and every defined
 // type's underlying kind (simple base, enumeration values, select members).
 // The EXPRESS schemas are (c) buildingSMART International Limited; their notice
 // allows use in software development with full attribution (see README, "Sources").
@@ -56,10 +57,16 @@ export function parseExpress(text) {
     const derived = [];
     for (const d of (sections.derive || "").matchAll(/SELF\\(\w+)\.(\w+)\s*:/g)) derived.push(d[2]);
     const inverse = [];
+    const inverseFor = {};
     for (const d of (sections.inverse || "").matchAll(/^\s*(\w+)\s*:/gm)) inverse.push(d[1]);
+    // Name -> [entity, attribute] from "Name : SET [0:?] OF IfcRelX FOR Attr;".
+    // ifcXML nests a relationship under an object's inverse attribute and may
+    // leave out the relationship's own pointer back to that object.
+    for (const d of (sections.inverse || "").matchAll(/^\s*(\w+)\s*:[^;]*?\b(\w+)\s+FOR\s+(\w+)\s*;/gm)) inverseFor[d[1]] = [d[2].toUpperCase(), d[3]];
     const ownDerived = [];
     for (const d of (sections.derive || "").matchAll(/^\s*(\w+)\s*:/gm)) ownDerived.push(d[1]);
     entities[name] = { name: m[1], super: sup ? sup.toUpperCase() : null, abstract, attrs, derived, inverse, ownDerived };
+    if (Object.keys(inverseFor).length) entities[name].inverseFor = inverseFor;
   }
   return { schema, types, entities };
 }

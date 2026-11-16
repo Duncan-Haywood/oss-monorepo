@@ -3,10 +3,12 @@
 //
 //   node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N]
 //
+// MODEL may be a STEP .ifc, an .ifcxml, or an .ifczip holding either.
+//
 // Exit 0 when every specification passes, 1 when one fails, 2 on a usage or
 // read error. Nothing leaves the machine.
 import { readFileSync, writeFileSync } from "node:fs";
-import { check } from "./node.mjs";
+import { check, readModel } from "./node.mjs";
 import { textReport } from "./report.mjs";
 import { bcfZip } from "./bcf.mjs";
 
@@ -15,7 +17,7 @@ const flag = (n) => args.includes(n);
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
 const files = args.filter((a, i) => !a.startsWith("--") && !["--bcf", "--max-failures"].includes(args[i - 1]));
 if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--max-failures N]");
   process.exit(2);
 }
 let [ifcPath, idsPath] = files;
@@ -23,7 +25,9 @@ if (ifcPath.toLowerCase().endsWith(".ids")) [ifcPath, idsPath] = [idsPath, ifcPa
 let report;
 try {
   const t0 = Date.now();
-  report = check(readFileSync(idsPath, "utf8"), readFileSync(ifcPath, "utf8"));
+  const model = await readModel(ifcPath);
+  report = check(readFileSync(idsPath, "utf8"), model.text);
+  if (model.name !== ifcPath) report.modelFile = model.name;
   report.seconds = (Date.now() - t0) / 1000;
 } catch (e) {
   console.error(`error: ${e.message}`);

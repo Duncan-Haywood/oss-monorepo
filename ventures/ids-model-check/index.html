@@ -10,7 +10,7 @@
   <meta property="og:description" content="Drop an IFC model and an IDS file, see which elements miss which requirement, export a BCF issue list. Passes buildingSMART's 334 IDS test cases. MIT licensed.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IDS Model Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the command line", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks IFC2X3, IFC4 and IFC4X3 building models against buildingSMART Information Delivery Specification (IDS 1.0) files, in the browser or on the command line, and exports failures as BCF 2.1, CSV or JSON."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an IDS file?", "acceptedAnswer": {"@type": "Answer", "text": "IDS (Information Delivery Specification) is buildingSMART's XML format for saying what information a model must contain: which elements need which properties, attributes, classifications, materials and relationships. Version 1.0 was approved in 2024. A client or BIM manager writes one IDS, and every party's model can be checked against it by software instead of by eye."}}, {"@type": "Question", "name": "How do I know the results are right?", "acceptedAnswer": {"@type": "Answer", "text": "buildingSMART publishes 334 pairs of small IFC and IDS files with the expected result of each, covering every facet, restriction, tolerance and cardinality rule. This checker gets all 334 right; the script that scores it is in the repository so anyone can re-run it. Real models still contain cases those files do not cover, so treat a result as a strong first pass and check anything surprising."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model and the IDS are read by JavaScript in your browser tab. The only files the page fetches are its own schema tables from this site. You can also download the code and run it offline, or use the command line version."}}, {"@type": "Question", "name": "Why not use Solibri, BIMcollab or IfcTester?", "acceptedAnswer": {"@type": "Answer", "text": "Those are good tools. Solibri and the commercial checkers do far more (clash detection, geometry rules) and cost a seat licence. IfcTester from IfcOpenShell is free and excellent but needs Python and a command line, or a desktop BIM tool. This page needs nothing installed, opens on any computer, and turns a failing check into a BCF issue list your design tool can open."}}, {"@type": "Question", "name": "Which IFC versions work?", "acceptedAnswer": {"@type": "Answer", "text": "IFC2X3, IFC4 and IFC4X3 (ADD2) STEP files (.ifc). IFC2X3 occurrence classes are resolved through buildingSMART's type mapping table, so an IDS that asks for IFCAIRTERMINAL also finds an IfcFlowTerminal typed by an IfcAirTerminalType. ifcXML and ifcZIP are not read yet: export or unzip to .ifc first."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an IDS file?", "acceptedAnswer": {"@type": "Answer", "text": "IDS (Information Delivery Specification) is buildingSMART's XML format for saying what information a model must contain: which elements need which properties, attributes, classifications, materials and relationships. Version 1.0 was approved in 2024. A client or BIM manager writes one IDS, and every party's model can be checked against it by software instead of by eye."}}, {"@type": "Question", "name": "How do I know the results are right?", "acceptedAnswer": {"@type": "Answer", "text": "buildingSMART publishes 334 pairs of small IFC and IDS files with the expected result of each, covering every facet, restriction, tolerance and cardinality rule. This checker gets all 334 right; the script that scores it is in the repository so anyone can re-run it. Real models still contain cases those files do not cover, so treat a result as a strong first pass and check anything surprising."}}, {"@type": "Question", "name": "Is my model uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model and the IDS are read by JavaScript in your browser tab. The only files the page fetches are its own schema tables from this site. You can also download the code and run it offline, or use the command line version."}}, {"@type": "Question", "name": "Why not use Solibri, BIMcollab or IfcTester?", "acceptedAnswer": {"@type": "Answer", "text": "Those are good tools. Solibri and the commercial checkers do far more (clash detection, geometry rules) and cost a seat licence. IfcTester from IfcOpenShell is free and excellent but needs Python and a command line, or a desktop BIM tool. This page needs nothing installed, opens on any computer, and turns a failing check into a BCF issue list your design tool can open."}}, {"@type": "Question", "name": "Which IFC versions work?", "acceptedAnswer": {"@type": "Answer", "text": "IFC2X3, IFC4 and IFC4X3 (ADD2) models, as STEP (.ifc), ifcXML (.ifcxml) or zipped (.ifczip, holding either). IFC2X3 occurrence classes are resolved through buildingSMART's type mapping table, so an IDS that asks for IFCAIRTERMINAL also finds an IfcFlowTerminal typed by an IfcAirTerminalType."}}]}</script>
   <style>
     :root { --bg: #fbfaf7; --fg: #1d2125; --muted: #5b636b; --line: #dcd8cf; --card: #ffffff; --accent: #1f5f8b; --pass: #1e7a46; --fail: #b3261e; --warn: #8a5a00; color-scheme: light dark; }
     @media (prefers-color-scheme: dark) { :root { --bg: #15181b; --fg: #e8e6e1; --muted: #a2a9b0; --line: #30353a; --card: #1c2024; --accent: #7fb6dc; --pass: #5cc48a; --fail: #ff8a80; --warn: #e3b35b; } }
@@ -57,7 +57,7 @@
 <main>
   <p class="muted"><a href="../">All tools</a> / IDS Model Check</p>
   <h1>Check an IFC model against an IDS file, in your browser.</h1>
-  <p class="lede">Drop a building model (.ifc) and a buildingSMART Information Delivery Specification (.ids). You get every specification's result, each failing element with the reason, and a BCF issue list your BIM tool can open. Nothing is uploaded.</p>
+  <p class="lede">Drop a building model (.ifc, .ifcxml or .ifczip) and a buildingSMART Information Delivery Specification (.ids). You get every specification's result, each failing element with the reason, and a BCF issue list your BIM tool can open. Nothing is uploaded.</p>
 
   <p class="cta-row"><a class="cta" href="#run">Check a model</a> <a class="cta ghost" href="samples/coordination-basics.ids.xml">Get the starter IDS</a></p>
   <div class="facts">
@@ -70,8 +70,8 @@
     <h2 id="run">Run a check</h2>
     <div class="drops">
       <div class="drop" id="drop-ifc">
-        <label for="ifc">IFC model (.ifc)</label>
-        <input type="file" id="ifc" accept=".ifc,.IFC">
+        <label for="ifc">IFC model (.ifc, .ifcxml, .ifczip)</label>
+        <input type="file" id="ifc" accept=".ifc,.IFC,.ifcxml,.ifcXML,.ifczip,.ifcZIP,.zip,.xml">
         <div class="file" id="ifc-name">or drop the file here</div>
       </div>
       <div class="drop" id="drop-ids">
@@ -110,7 +110,7 @@
     <h3>Why not use Solibri, BIMcollab or IfcTester?</h3>
     <p>Those are good tools. Solibri and the commercial checkers do far more (clash detection, geometry rules) and cost a seat licence. IfcTester from IfcOpenShell is free and excellent but needs Python and a command line, or a desktop BIM tool. This page needs nothing installed, opens on any computer, and turns a failing check into a BCF issue list your design tool can open.</p>
     <h3>Which IFC versions work?</h3>
-    <p>IFC2X3, IFC4 and IFC4X3 (ADD2) STEP files (.ifc). IFC2X3 occurrence classes are resolved through buildingSMART's type mapping table, so an IDS that asks for IFCAIRTERMINAL also finds an IfcFlowTerminal typed by an IfcAirTerminalType. ifcXML and ifcZIP are not read yet: export or unzip to .ifc first.</p>
+    <p>IFC2X3, IFC4 and IFC4X3 (ADD2) models, as STEP (.ifc), ifcXML (.ifcxml) or zipped (.ifczip, holding either). IFC2X3 occurrence classes are resolved through buildingSMART's type mapping table, so an IDS that asks for IFCAIRTERMINAL also finds an IfcFlowTerminal typed by an IfcAirTerminalType.</p>
   </section>
 
   <section aria-labelledby="cli">
@@ -129,6 +129,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { csvReport } from "./report.mjs";
   import { bcfZip } from "./bcf.mjs";
+  import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
   const $ = (id) => document.getElementById(id);
   const state = { ifc: null, ifcName: null, ids: null, idsName: null, report: null };
@@ -138,10 +139,23 @@
   async function readFile(file, kind) {
     $("go").disabled = true;
     $(kind + "-name").textContent = `Reading ${file.name}...`;
-    const text = await file.text();
+    let text, inner = null;
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      if (kind === "ifc" && isZip(bytes)) {
+        const m = await unzipModel(bytes, inflateRawStream);
+        text = m.text;
+        inner = m.name;
+        record("ifczip_read");
+      } else text = new TextDecoder().decode(bytes);
+    } catch (e) {
+      $(kind + "-name").textContent = `Could not read ${file.name}: ${e.message}`;
+      return;
+    }
+    if (kind === "ifc" && /^\s*(\ufeff)?\s*</.test(text.slice(0, 200))) record("ifcxml_read");
     state[kind] = text;
-    state[kind + "Name"] = file.name;
-    $(kind + "-name").textContent = `${file.name} (${(file.size / 1e6).toFixed(file.size > 1e6 ? 1 : 3)} MB)`;
+    state[kind + "Name"] = inner ? inner.split("/").pop() : file.name;
+    $(kind + "-name").textContent = `${file.name}${inner ? ` (${inner} inside)` : ""} (${(file.size / 1e6).toFixed(file.size > 1e6 ? 1 : 3)} MB)`;
     ready();
   }
   for (const kind of ["ifc", "ids"]) {
@@ -228,7 +242,7 @@
       h += `</div></details>`;
     }
     $("out").innerHTML = h;
-    const base = (state.ifcName || "model").replace(/\.ifc$/i, "");
+    const base = (state.ifcName || "model").replace(/\.(ifc|ifcxml|ifczip|xml|zip)$/i, "");
     $("dl-bcf").onclick = () => { record("bcf_downloaded"); download(base + "-ids.bcfzip", bcfZip(r, { modelName: state.ifcName }), "application/octet-stream"); };
     $("dl-csv").onclick = () => { record("csv_downloaded"); download(base + "-ids.csv", csvReport(r), "text/csv"); };
     $("dl-json").onclick = () => { record("json_downloaded"); download(base + "-ids.json", JSON.stringify(r, null, 2), "application/json"); };

@@ -11,6 +11,7 @@
 // scored against buildingSMART's own IFC/IDS test pairs (eval/run-testcases.mjs).
 
 import { parseStep } from "./step.mjs";
+import { parseIfcXml, ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 import { parseXml, kids, kid } from "./xml.mjs";
 
 // ---------------------------------------------------------------- schema ----
@@ -78,7 +79,12 @@ const SI_PREFIX = { EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6, KIL
 
 export class Model {
   constructor(text, schemas) {
-    const p = parseStep(text);
+    // An ifcXML model is read by its schema's attribute order (ifcxml.mjs).
+    const xmlId = looksLikeXml(text) ? ifcXmlSchemaId(text) || "(not found in the ifcXML header)" : null;
+    const xs = xmlId && schemas[xmlId];
+    const p = xmlId ? (xs ? parseIfcXml(text, xs instanceof Schema ? xs : new Schema(xs)) : { entities: new Map(), errors: [] }) : parseStep(text);
+    if (xmlId) p.schema = xmlId;
+    this.format = xmlId ? "ifcXML" : "STEP";
     this.parseErrors = p.errors;
     this.entities = p.entities;
     const raw = (p.schema || "").toUpperCase();

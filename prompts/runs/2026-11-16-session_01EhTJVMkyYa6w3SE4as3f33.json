@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMkyYa6w3SE4as3f33",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (full stored prompt)",
+  "input_sha256": "852c501a531ffec7ea80fef1ed2ab71d5bafdea1c578b2b8f0c8756dd84162b6",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T20:13:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 12) ids-model-check: .ifczip and ifcXML input",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": 16685,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First zip reader refused xBIM's TestZip.ifczip (zip64 sizes in the extra field, as .NET writes them)",
+      "fix": "zip64 extra field and end-of-directory record read; unit test with a zip64 writer"
+    },
+    {
+      "what": "An implicit attribute element with its own id (<UnitsInContext id=..>) was read as a list, dropping the project's units",
+      "fix": "an attribute element with no xsi:type is an instance of the attribute's class; caught by the entity-by-entity twin comparison"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Routed to shift-roster-builder; its only no-input items were city fair-workweek presets whose ordinance sources (city sites, municode) are blocked by this session's proxy, so presets would have been written from memory. Took flagship 12 instead."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Another session opened PR #16684 for the same ids-model-check item 1 minute before this one; the --item flag let this run switch to the other buildable item without closing anything."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "route drew the research track; the scheduled prompt asks for revenue-generating product work, so the run took the ventures track (recorded as ventures/2, chosen by the session)",
+      "did": "venture flagship work",
+      "result": "a shipped feature on a construction-direction product"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-ids-model-check-reads-ifcxml-and-ifczip.md",
+    "ventures/ids-model-check/eval/ifcxml-xbim-2026-11-16.md"
+  ],
+  "goal": "IDS Model Check reads the other two IFC forms people are sent (ifcXML, .ifczip), proven on real files",
+  "notes": "Verification run here: node --test ventures/ids-model-check (37 tests, 0 fail); eval/run-testcases.mjs 334/334 unchanged; eval/ifcxml-xbim.mjs exit 0 on 16 xBIM files (CDDL, fetched not committed, commit e3c8777): 4walls1floorSite STEP vs ifcXML 2205/2205 attribute values identical, every zip entry identical to unzip -p; samples/tiny-house.ifcxml (hand-written IFC4 twin) 319/319; Chromium via Playwright: .ifczip, .ifcxml, .ifc give the same verdicts on the page. Schema JSON regenerated from ThatOpen's .exp copies: existing fields byte-identical, inverseFor added. platform/pages/check.mjs: .ifcxml and .ifczip added to SERVED_EXTENSIONS for the samples.",
+  "corrections": [],
+  "redteam": null
+}

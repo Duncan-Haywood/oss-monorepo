@@ -12,6 +12,9 @@ open. MIT licensed, no dependencies, nothing uploaded.
 - **Same answers as IfcTester** on five real models and two IDS files, element by
   element, except where IfcTester 0.9.0.post1 disagrees with the XSD standard
   and buildingSMART's suite (multiple `xs:pattern`s; below).
+- STEP `.ifc`, ifcXML (`.ifcxml`, both the IFC2X3 and IFC4 layouts) and `.ifczip`
+  (either one zipped), read into the same entities: xBIM's ifcXML export of a
+  Revit model agrees with its STEP file on 2,205 of 2,205 attribute values.
 - IFC2X3, IFC4 and IFC4X3 (ADD2); all six facets (entity, attribute, property,
   classification, material, part of); value restrictions (enumeration, pattern,
   bounds, length); IDS float tolerance; unit conversion to SI from the project's
@@ -49,6 +52,7 @@ Command line (Node 20+):
 
 ```
 node cli.mjs model.ifc spec.ids                 # text report, exit 1 on a fail
+node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the same way
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 ```
@@ -63,7 +67,9 @@ doors and windows on a storey, named spaces, no proxies) and
 `quantities-and-naming.ids.xml` (door heights in metres, wall length quantities,
 naming patterns, storeys in a building, classification, slab types, fire-rating
 format). `samples/tiny-house.ifc` is a hand-written IFC4 model with deliberate
-gaps for both.
+gaps for both; `samples/tiny-house.ifcxml` is the same model written as IFC4
+ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
+`.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
 
@@ -121,6 +127,25 @@ No API key, account or server is involved, so there is nothing to configure.
    `unzip` round trip when it is installed). The suite test runs when
    `eval/IDS` has been fetched.
 
+4. **ifcXML and `.ifczip` on real files** (2026-11-16,
+   `eval/ifcxml-xbim-2026-11-16.md`). `eval/fetch-xbim-samples.sh` fetches the
+   ifcXML and ifcZIP test files from xBIM's XbimEssentials (CDDL, so fetched, not
+   committed; commit `e3c8777`) and `node eval/ifcxml-xbim.mjs` reads all 16
+   files with no reader errors beyond one `ref` the file itself leaves
+   dangling. They hold 9 distinct ifcXML documents: IFC2X3 from Revit through
+   xBIM, from IFC Engine DLL and one of unstated origin; IFC4 from xBIM,
+   Constructivity, eTASK's CAFM API, a hand-edited CEN TC 442 sample and two
+   small hand-written ones, between them using the IFC4 layout's shortcuts
+   (nesting, attribute elements with `xsi:type`, implicit classes, string ids).
+   The 7 zips' entries are byte-identical to `unzip -p`, one with zip64
+   size fields. The one pair that exists, the Revit model
+   `4walls1floorSite` as STEP and as xBIM's ifcXML export, reads to the same
+   579 entities with 2,205 of 2,205 attribute values identical, and the starter
+   IDS gives the same verdicts on both. Unit tests add the IFC4 twin of the
+   sample (319 of 319 values, same verdicts for both starter IDS files) and
+   zips written stored, deflated and zip64. In Chromium the page reads the
+   `.ifczip` with `DecompressionStream` and gives the `.ifc`'s verdicts.
+
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
 faster than IfcTester; its point is needing no install.
@@ -163,7 +188,9 @@ faster than IfcTester; its point is needing no install.
 
 ## Limitations
 
-- STEP `.ifc` only; ifcXML, ifcJSON and `.ifczip` are not read.
+- ifcJSON is not read. ifcXML is checked on 9 real documents from about
+  seven exporters, not on every tool's output; the ifcXML reader holds the whole
+  XML tree in memory, a few times the heap of the same model as STEP.
 - The whole model is held in memory as text and objects: about 1 GB of heap for
   a 200 MB model. Very large federated models may need the command line with
   `--max-old-space-size`.
@@ -179,7 +206,6 @@ faster than IfcTester; its point is needing no install.
 - An IDS audit pass (class names and attribute names against the schema,
   value-without-dataType, prohibited specifications with requirements) so an
   invalid IDS is reported as invalid.
-- `.ifczip` and ifcXML input.
 - More real models through the IfcTester cross-check (an MEP model, an IFC4X3
   infrastructure model).
 - An IDS editor page (build a specification from the classes and property sets
@@ -199,6 +225,9 @@ faster than IfcTester; its point is needing no install.
 - IDS 1.0 user manual, implementer documentation and test cases:
   `github.com/buildingSMART/IDS` (CC BY-ND 4.0; not copied here).
 - IfcTester: IfcOpenShell project, `pypi.org/project/ifctester`.
+- ifcXML and ifcZIP test files: xBIM Toolkit, `github.com/xBimTeam/XbimEssentials`
+  (`Tests/TestFiles`, CDDL; fetched by `eval/fetch-xbim-samples.sh`, not
+  copied here).
 
 IDS is a buildingSMART International standard. This tool is independent and
 not endorsed by buildingSMART.
