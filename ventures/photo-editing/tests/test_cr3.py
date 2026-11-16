@@ -478,15 +478,16 @@ class ReadTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             good, c_raw = Path(tmp) / "a.CR3", Path(tmp) / "b.CR3"
             good.write_bytes(make_cr3())
-            c_raw.write_bytes(make_cr3(version=0x200, levels=3, tiles=True))
+            c_raw.write_bytes(make_cr3(version=0x300, levels=3))
             self.assertEqual(camera_profiles.camera_of(good), "Canon EOS R8")
-            with self.assertRaisesRegex(rd.DevelopError, "several tiles"):
+            with self.assertRaisesRegex(rd.DevelopError, "codec version 0x300"):
                 camera_profiles.camera_of(c_raw)
 
-    def test_tiled_c_raw_is_refused(self):
-        # Full-quality (lossless) tiles are read since 2026-11-15 (TiledTests); C-RAW tiles are not yet.
-        with self.assertRaisesRegex(rd.DevelopError, "C-RAW sensor stored in several tiles.*DNG Converter"):
-            rd.parse_raw(make_cr3(version=0x200, levels=3, tiles=True))
+    def test_c_raw_with_fewer_tiles_than_cmp1_names_is_refused(self):
+        # C-RAW tiles are read since 2026-11-16 (test_cr3_wavelet.TiledCrawTests); a lossless one-tile sample
+        # under a CMP1 that names C-RAW in two tiles is refused, not read as something else.
+        with self.assertRaisesRegex(rd.DevelopError, "C-RAW"):
+            rd.parse_raw(make_cr3(version=0x200, levels=3, tiles=True, size=TILED_SIZE))
 
     def test_not_a_cr3(self):
         self.assertFalse(cr3.is_cr3(b"II*\0" + bytes(20)))
