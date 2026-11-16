@@ -19,6 +19,7 @@ import h6ak_screen as K  # noqa: E402
 import h6r_rare_pilot as P  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
 A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 REPS = int(ARGS[0]) if ARGS else 500
 

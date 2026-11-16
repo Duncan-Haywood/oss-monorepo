@@ -61,6 +61,7 @@ ARGS, sys.argv = sys.argv[1:], sys.argv[:1]
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 from llmci import audit_design as A  # noqa: E402
 A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 TAUS = (0.0, 0.05, 0.1, 0.2)
 RULES = [("pooled", 2.0, 0, 0)] + [(f"tau={t}", t, 0, A.NEG_GUARD) for t in TAUS]
